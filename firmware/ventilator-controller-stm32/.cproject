@@ -92,7 +92,7 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry excluding="Test" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry excluding="CMSIS/Device/ST/STM32H7xx/Source/Templates|CMSIS/Device/ST/STM32H7xx/Source/Templates/system_stm32h7xx.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -187,7 +187,7 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry excluding="Test" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry excluding="CMSIS/Device/ST/STM32H7xx/Source/Templates|CMSIS/Device/ST/STM32H7xx/Source/Templates/system_stm32h7xx.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
