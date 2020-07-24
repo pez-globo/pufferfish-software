@@ -6,6 +6,10 @@
 # Build config with Hash
 /.settings/language.settings.xml
 
+# STM32CubeMX configs with absolute paths
+/.mxproject
+/mx.scratch
+
 # Clion auto-generated files
 .idea
 CMakeLists.txt
