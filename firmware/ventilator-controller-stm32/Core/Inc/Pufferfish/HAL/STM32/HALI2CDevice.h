@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "I2CDevice.h"
+#include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 
 namespace Pufferfish {
 namespace HAL {

@@ -8,7 +8,6 @@
 
 #include "Pufferfish/Driver/I2C/SFM3000.h"
 #include "Pufferfish/HAL/STM32/Endian.h"
-#include "stm32h7xx_hal.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -26,7 +25,7 @@ I2CDeviceStatus SFM3000::startMeasure() {
 }
 
 I2CDeviceStatus SFM3000::serialNumber(uint32_t &sn) {
-  uint8_t cmd[] = {0x31, 0xAE };
+  uint8_t cmd[] = {0x31, 0xAE};
   mMeasuring = false;
 
   I2CDeviceStatus ret = mSensirion.write(cmd, sizeof(cmd));
@@ -51,7 +50,7 @@ I2CDeviceStatus SFM3000::readSample() {
     if (ret != I2CDeviceStatus::ok) {
       return ret;
     }
-    HAL_Delay(1);
+    HAL::delay(1);
   }
 
   uint16_t val;
@@ -107,7 +106,7 @@ I2CDeviceStatus SFM3000::test() {
 
   // ignore the first read, might be invalid
   this->readSample();
-  HAL_Delay(1);
+  HAL::delay(1);
 
   // read and verify output
   status = this->readSample();
