@@ -23,6 +23,20 @@ struct ABPConfig {
   PressureUnit unit;
 };
 
+enum class ABPStatus {
+  noError = 0,
+  commandMode = 1,
+  staleData = 2,
+  diagnotic = 3,
+};
+
+struct ABPSample {
+  ABPStatus status;
+  uint16_t bridgeData;
+  float pressure;
+  PressureUnit unit;
+};
+
 /**
  * Driver for Honeywell ABP pressure sensor
  */
@@ -35,13 +49,6 @@ class HoneywellABP : public Testable {
   static constexpr ABPConfig ABPxxxx030PG2A3 = {0x28, 0.0, 30.0,
                                                 PressureUnit::psi};
 
-  enum class Status {
-    noError = 0,
-    commandMode = 1,
-    staleData = 2,
-    diagnotic = 3,
-  };
-
   HoneywellABP(HAL::I2CDevice &dev, ABPConfig cfg)
       :
       mDev(dev),
@@ -51,20 +58,8 @@ class HoneywellABP : public Testable {
   }
 
   float rawToPressure(uint16_t raw);
-  I2CDeviceStatus readSample();
 
-  Status getStatus() const {
-    return mStatus;
-  }
-  uint16_t getBridgeData() const {
-    return mBridgeData;
-  }
-  float getPressure() const {
-    return mPressure;
-  }
-  PressureUnit getUnit() const {
-    return mUnit;
-  }
+  I2CDeviceStatus readSample(ABPSample &sample);
 
   I2CDeviceStatus test() override;
   I2CDeviceStatus reset() override;
@@ -79,11 +74,6 @@ class HoneywellABP : public Testable {
   const uint16_t mOutputMin = 0x0666;  // 10% of 2^14
   const uint16_t mOutputMax = 0x399A;  // 90% of 2^14
   const PressureUnit mUnit;
-
-  // sensor reading
-  Status mStatus = Status::noError;
-  uint16_t mBridgeData = 0;
-  float mPressure = 0.0;
 };
 
 }  // namespace I2C

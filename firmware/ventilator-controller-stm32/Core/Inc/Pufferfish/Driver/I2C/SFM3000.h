@@ -17,6 +17,11 @@ namespace Pufferfish {
 namespace Driver {
 namespace I2C {
 
+struct SFM3000Sample {
+  uint16_t rawFlow;
+  float flow;
+};
+
 /**
  * Driver of Sensirion SFM3000 flow sensor
  */
@@ -51,19 +56,7 @@ class SFM3000 : public Testable {
    * Reads out the flow rate from the sensor, and save it
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus readSample();
-
-  /**
-   * Returns the most up-to-date non-scaled flow rate
-   * @return the non-scaled flow rate
-   */
-  uint16_t getFlowRaw();
-
-  /**
-   * Returns the most up-to-date flow rate
-   * @return the most up-to-date flow rate
-   */
-  float getFlow();
+  I2CDeviceStatus readSample(SFM3000Sample &sample);
 
   I2CDeviceStatus reset() override;
   I2CDeviceStatus test() override;
@@ -71,8 +64,6 @@ class SFM3000 : public Testable {
   SensirionSensor mSensirion;
   bool mMeasuring = false;
   float mScaleFactor;
-  float mRawFlow = 0.0;
-  float mFlow = 0.0;
 };
 
 }  // namespace I2C

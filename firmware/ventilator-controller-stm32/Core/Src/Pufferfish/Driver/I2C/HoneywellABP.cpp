@@ -19,16 +19,17 @@ constexpr ABPConfig HoneywellABP::ABPxxxx001PG2A3;
 constexpr ABPConfig HoneywellABP::ABPxxxx005PG2A3;
 constexpr ABPConfig HoneywellABP::ABPxxxx030PG2A3;
 
-I2CDeviceStatus HoneywellABP::readSample() {
+I2CDeviceStatus HoneywellABP::readSample(ABPSample &sample) {
   uint8_t data[2] = {0};
   I2CDeviceStatus ret = mDev.read(data, 2);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
 
-  mStatus = HoneywellABP::Status(data[0] >> 6);
-  mBridgeData = (data[0] << 8 | data[1]) & 0x3FFF;
-  mPressure = rawToPressure(mBridgeData);
+  sample.status = ABPStatus(data[0] >> 6);
+  sample.bridgeData = (data[0] << 8 | data[1]) & 0x3FFF;
+  sample.pressure = rawToPressure(sample.bridgeData);
+  sample.unit = mUnit;
 
   return I2CDeviceStatus::ok;
 }
@@ -46,17 +47,17 @@ float HoneywellABP::rawToPressure(uint16_t output) {
 I2CDeviceStatus HoneywellABP::test() {
   I2CDeviceStatus status;
 
-  status = this->readSample();
+  ABPSample sample;
+  status = this->readSample(sample);
   if (status != I2CDeviceStatus::ok) {
     return status;
   }
 
-  if (getStatus() != Status::noError && getStatus() != Status::staleData) {
+  if (sample.status != ABPStatus::noError && sample.status != ABPStatus::staleData) {
     return I2CDeviceStatus::testFailed;
   }
 
-  float press = getPressure();
-  if (press < mPmin || press > mPmax) {
+  if (sample.pressure < mPmin || sample.pressure > mPmax) {
     return I2CDeviceStatus::testFailed;
   }
 

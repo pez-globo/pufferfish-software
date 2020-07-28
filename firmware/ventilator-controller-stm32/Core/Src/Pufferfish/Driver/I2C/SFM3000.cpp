@@ -44,7 +44,7 @@ I2CDeviceStatus SFM3000::serialNumber(uint32_t &sn) {
   return I2CDeviceStatus::ok;
 }
 
-I2CDeviceStatus SFM3000::readSample() {
+I2CDeviceStatus SFM3000::readSample(SFM3000Sample &sample) {
   // read flow raw
   if (!mMeasuring) {
     I2CDeviceStatus ret = this->startMeasure();
@@ -61,20 +61,12 @@ I2CDeviceStatus SFM3000::readSample() {
     return ret;
   }
 
-  mRawFlow = Pufferfish::HAL::ntoh(val);
+  sample.rawFlow = Pufferfish::HAL::ntoh(val);
 
   // convert to actual flow rate
-  mFlow = static_cast<int>(mRawFlow - offsetFlow) / mScaleFactor;
+  sample.flow = static_cast<int>(sample.rawFlow - offsetFlow) / mScaleFactor;
 
   return I2CDeviceStatus::ok;
-}
-
-uint16_t SFM3000::getFlowRaw() {
-  return mRawFlow;
-}
-
-float SFM3000::getFlow() {
-  return mFlow;
 }
 
 I2CDeviceStatus SFM3000::reset() {
@@ -104,21 +96,21 @@ I2CDeviceStatus SFM3000::test() {
   if (status != I2CDeviceStatus::ok) {
     return status;
   }
+  SFM3000Sample sample;
 
   // ignore the first read, might be invalid
-  this->readSample();
+  this->readSample(sample);
   HAL_Delay(1);
 
   // read and verify output
-  status = this->readSample();
+  status = this->readSample(sample);
   if (status != I2CDeviceStatus::ok) {
     return status;
   }
 
-  float flow = this->getFlow();
 
   // pressure range: -200 to 200
-  if (flow < -200.0 || flow > 200.0) {
+  if (sample.flow < -200.0 || sample.flow > 200.0) {
     return I2CDeviceStatus::testFailed;
   }
 

@@ -39,6 +39,11 @@ namespace Pufferfish {
 namespace Driver {
 namespace I2C {
 
+struct SDPSample {
+  float differentialPressure;
+  float temperature;
+};
+
 /**
  * Driver for SDPxx flow sensor
  */
@@ -67,25 +72,13 @@ class SDPSensor : public Testable {
    * read continuously-measured data from sensor
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus readContinuous();
+  I2CDeviceStatus readSample(SDPSample &sample);
 
   /**
    * stop continuously making measurements in sensor
    * @return ok on success, error code otherwise
    */
   I2CDeviceStatus stopContinuous();
-
-  /**
-   * Returns the last differential pressure value read - does NOT trigger a new measurement
-   * @return last differential pressure value read
-   */
-  float getDifferentialPressure() const;
-
-  /**
-   * Returns the last temperature value read - does NOT trigger a new measurement
-   * @return last temperature value read
-   */
-  float getTemperature() const;
 
   /**
    * Reads the serial and product number
@@ -100,10 +93,8 @@ class SDPSensor : public Testable {
  private:
   SensirionSensor mSensirion;
   bool mMeasuring = false;
-  float mDifferentialPressure = 0.0;
-  float mTemperature = 0.0;
 
-  void parseReading(uint8_t data[], uint8_t size);
+  void parseReading(uint8_t data[], uint8_t size, SDPSample &sample);
 };
 
 }  // namespace I2C
