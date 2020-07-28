@@ -16,6 +16,9 @@ namespace Pufferfish {
 namespace Driver {
 namespace I2C {
 
+/**
+ * Configuration parameters for HoneywellABP constructor
+ */
 struct ABPConfig {
   uint16_t i2cAddr;
   float pmin;
@@ -23,6 +26,9 @@ struct ABPConfig {
   PressureUnit unit;
 };
 
+/**
+ * Status code reported by the Honeywell ABP pressure sensor as part of its reading
+ */
 enum class ABPStatus {
   noError = 0,
   commandMode = 1,
@@ -30,6 +36,9 @@ enum class ABPStatus {
   diagnotic = 3,
 };
 
+/**
+ * All data in a reading from the Honeywell ABP pressure sensor.
+ */
 struct ABPSample {
   ABPStatus status;
   uint16_t bridgeData;
@@ -59,6 +68,11 @@ class HoneywellABP : public Testable {
 
   float rawToPressure(uint16_t raw);
 
+  /**
+   * Reads out the pressure from the sensor
+   * @param sample[out] the sensor reading; only valid on success
+   * @return ok on success, error code otherwise
+   */
   I2CDeviceStatus readSample(ABPSample &sample);
 
   I2CDeviceStatus test() override;

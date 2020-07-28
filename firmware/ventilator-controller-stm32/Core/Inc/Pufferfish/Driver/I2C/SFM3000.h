@@ -17,6 +17,10 @@ namespace Pufferfish {
 namespace Driver {
 namespace I2C {
 
+
+/**
+ * All data in a reading from the Sensirion SFM3000 mass flow meter.
+ */
 struct SFM3000Sample {
   uint16_t rawFlow;
   float flow;
@@ -53,7 +57,8 @@ class SFM3000 : public Testable {
   I2CDeviceStatus serialNumber(uint32_t &sn);
 
   /**
-   * Reads out the flow rate from the sensor, and save it
+   * Reads out the flow rate from the sensor
+   * @param sample[out] the sensor reading; only valid on success
    * @return ok on success, error code otherwise
    */
   I2CDeviceStatus readSample(SFM3000Sample &sample);

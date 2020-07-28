@@ -39,6 +39,9 @@ namespace Pufferfish {
 namespace Driver {
 namespace I2C {
 
+/**
+ * All data in a reading from the Sensirion SDP differential pressure sensor.
+ */
 struct SDPSample {
   float differentialPressure;
   float temperature;
@@ -70,6 +73,7 @@ class SDPSensor : public Testable {
 
   /**
    * read continuously-measured data from sensor
+   * @param sample[out] the sensor reading; only valid on success
    * @return ok on success, error code otherwise
    */
   I2CDeviceStatus readSample(SDPSample &sample);
