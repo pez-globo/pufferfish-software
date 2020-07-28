@@ -30,7 +30,6 @@
 #include "Pufferfish/AlarmsManager.h"
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
 #include "Pufferfish/Driver/Indicators/AuditoryAlarm.h"
-#include "Pufferfish/HAL/STM32/HALI2CDevice.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
 #include "Pufferfish/Driver/I2C/HoneywellABP.h"
 #include "Pufferfish/Driver/I2C/SDP.h"
@@ -79,6 +78,8 @@ UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 namespace PF = Pufferfish;
+
+PF::HAL::DigitalOutput led1(*LD1_GPIO_Port, LD1_Pin);
 
 PF::HAL::DigitalOutput alarmLedR(*LEDR_CNTRL_GPIO_Port, LEDR_CNTRL_Pin);
 PF::HAL::DigitalOutput alarmLedG(*LEDG_CNTRL_GPIO_Port, LEDG_CNTRL_Pin);
@@ -137,6 +138,9 @@ PF::Driver::I2C::HoneywellABP i2c_abp4(i2c_ext_abp4,
                                        PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3);
 PF::Driver::I2C::HoneywellABP i2c_abp5(i2c_ext_abp5,
                                        PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3);
+
+// Buffered UARTs
+volatile Pufferfish::HAL::LargeBufferedUART bufferedUART3(huart3);
 
 // Test list
 PF::Driver::Testable *i2c_test_list[] =
@@ -223,7 +227,7 @@ int main(void)
   MX_TIM8_Init();
   MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
-
+  bufferedUART3.setupIRQ();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -235,16 +239,21 @@ int main(void)
       Error_Handler();
     }
 
-    HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_RESET);
+    led1.write(false);
     HAL_Delay(5);
-    HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
+    led1.write(true);
     for (PF::Driver::Testable *t : i2c_test_list) {
       PF::I2CDeviceStatus stat = t->test();
       if (stat != PF::I2CDeviceStatus::ok) {
-        HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_RESET);
+        led1.write(false);
       }
     }
     HAL_Delay(500);
+
+    uint8_t receive = 0;
+    while (bufferedUART3.read(receive) == PF::BufferReadStatus::ok) {
+      bufferedUART3.write(receive);
+    }
 
     /* USER CODE END WHILE */
 

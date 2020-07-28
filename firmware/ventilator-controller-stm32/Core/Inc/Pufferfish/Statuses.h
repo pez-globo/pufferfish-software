@@ -12,6 +12,20 @@ namespace Pufferfish {
  * Possible alarms that could be raised by the system, must by sorted by
  * priority in ascending order
  */
+enum class BufferReadStatus {
+  ok = 0,  /// buffer read succeeded
+  empty  /// buffer is empty so no read is possible
+};
+
+enum class BufferWriteStatus {
+  ok = 0,   /// buffer write succeeded
+  full  /// buffer is full so no write is possible
+};
+
+/**
+ * Possible alarms that could be raised by the system, must by sorted by
+ * priority in ascending order
+ */
 enum class AlarmStatus {
   highPriority = 0,  /// High Priority Alarm as defined in IEC 60601-1-8
   mediumPriority,  /// Medium Priority Alarm as defined in IEC 60601-1-8

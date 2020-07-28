@@ -13,3 +13,4 @@
 #include "Pufferfish/HAL/STM32/Endian.h"
 #include "Pufferfish/HAL/STM32/I2CDevice.h"
 #include "Pufferfish/HAL/STM32/HALI2CDevice.h"
+#include "Pufferfish/HAL/STM32/BufferedUART.h"
