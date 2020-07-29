@@ -18,7 +18,7 @@ uint32_t millis() {
 }
 
 void delay(uint32_t ms) {
-  HAL::delay(ms);
+  HAL_Delay(ms);
 }
 
 // magical sequence to turn on the DWT counter
