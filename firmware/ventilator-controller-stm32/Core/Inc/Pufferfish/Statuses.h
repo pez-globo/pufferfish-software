@@ -46,4 +46,13 @@ enum class I2CDeviceStatus {
   noNewData /// no new data is received from the sensor
 };
 
+/**
+ * An outcome of performing an operation on PWM
+ */
+enum class PWMStatus {
+  ok = 0, /// success
+  invalidDutyCycle, /// invalid duty cycle input to the function
+  halError /// error starting or stopping the PWM generator
+};
+
 }  // namespace Pufferfish

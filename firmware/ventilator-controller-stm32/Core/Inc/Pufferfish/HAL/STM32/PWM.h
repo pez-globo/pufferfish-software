@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "Pufferfish/Statuses.h"
 #include "stm32h7xx_hal.h"
 
 namespace Pufferfish {
@@ -35,7 +36,7 @@ class PWM {
    * this function does NOT start the PWM output
    * @param duty    a number between 0.0 and 1.0 (inclusive) for the desired duty cycle
    */
-  void setDutyCycle(float duty);
+  PWMStatus setDutyCycle(float duty);
 
   /**
    * Set a duty cycle of PWM, can be done when PWM is active
@@ -47,15 +48,15 @@ class PWM {
 
   /**
    * Start the PWM output
-   * @return true if the operation is successful, false otherwise
+   * @return ok if the operation is successful, error code otherwise
    */
-  bool start();
+  PWMStatus start();
 
   /**
    * Stop the PWM output
-   * @return true if the operation is successful, false otherwise
+   * @return ok if the operation is successful, error code otherwise
    */
-  bool stop();
+  PWMStatus stop();
 
   /**
    * Returns the maximum duty cycle that can be set with setDutyCycleRaw()
