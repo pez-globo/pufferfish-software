@@ -52,7 +52,7 @@ BufferWriteStatus BufferedUART<RXBufferSize, TXBufferSize>::writeBlock(
     if (write(writeByte) == BufferWriteStatus::ok) {
       return BufferWriteStatus::ok;
     }
-    if ((timeout > 0) & ((HAL_GetTick() - start) > timeout)) {
+    if ((timeout > 0) && ((HAL_GetTick() - start) > timeout)) {
       return BufferWriteStatus::full;
     }
   }
@@ -66,7 +66,7 @@ AtomicSize BufferedUART<RXBufferSize, TXBufferSize>::writeBlock(
   uint32_t start = HAL_GetTick();
   while (written < writeSize) {
     written += write(writeBytes + written, writeSize - written);
-    if ((timeout > 0) & ((HAL_GetTick() - start) > timeout)) {
+    if ((timeout > 0) && ((HAL_GetTick() - start) > timeout)) {
       break;
     }
   }
