@@ -33,7 +33,7 @@ enum class ABPStatus {
   noError = 0,
   commandMode = 1,
   staleData = 2,
-  diagnotic = 3,
+  diagnostic = 3,
 };
 
 /**
