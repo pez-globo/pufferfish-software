@@ -10,31 +10,31 @@
 #pragma once
 
 #include <stdint.h>
-#include "Pufferfish/Types.h"
 #include "Pufferfish/Statuses.h"
+#include "Pufferfish/HAL/Types.h"
 
 namespace Pufferfish {
 namespace Util {
 
 // BufferSize is recommended to be a power of two for compiler optimization.
-template <AtomicSize BufferSize>
+template <HAL::AtomicSize BufferSize>
 class RingBuffer {
 public:
   RingBuffer();
 
-  static const AtomicSize maxSize = BufferSize;
+  static const HAL::AtomicSize maxSize = BufferSize;
 
   // Methods are declared volatile because they're usable with ISRs.
   BufferReadStatus read(uint8_t &readByte) volatile;
   BufferReadStatus peek(uint8_t &readByte) const volatile;
   BufferWriteStatus write(uint8_t writeByte) volatile;
-  AtomicSize write(const uint8_t *writeBytes, AtomicSize writeSize);
-  AtomicSize write(const uint8_t *writeBytes, AtomicSize writeSize) volatile;
+  HAL::AtomicSize write(const uint8_t *writeBytes, HAL::AtomicSize writeSize);
+  HAL::AtomicSize write(const uint8_t *writeBytes, HAL::AtomicSize writeSize) volatile;
 
 protected:
   uint8_t buffer[BufferSize];
-  AtomicSize newestIndex = 0;
-  AtomicSize oldestIndex = 0;
+  HAL::AtomicSize newestIndex = 0;
+  HAL::AtomicSize oldestIndex = 0;
 };
 
 } // namespace Util

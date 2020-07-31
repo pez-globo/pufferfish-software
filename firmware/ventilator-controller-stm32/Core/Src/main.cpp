@@ -267,6 +267,7 @@ int main(void)
 
     uint8_t receive = 0;
     while (bufferedUART3.read(receive) == PF::BufferReadStatus::ok) {
+      boardLed1.write(true);
       bufferedUART3.write(receive);
     }
 

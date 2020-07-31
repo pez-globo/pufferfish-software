@@ -8,8 +8,13 @@
 
 #pragma once
 
+#include "Pufferfish/HAL/Types.h"
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 #include "Pufferfish/HAL/CRC.h"
+
+/*
+ * STM32-specific definitions
+ */
 
 #include "Pufferfish/HAL/STM32/DigitalInput.h"
 #include "Pufferfish/HAL/STM32/DigitalOutput.h"

@@ -11,10 +11,10 @@
 namespace Pufferfish {
 namespace Util {
 
-template<AtomicSize BufferSize>
+template<HAL::AtomicSize BufferSize>
 RingBuffer<BufferSize>::RingBuffer() {}
 
-template<AtomicSize BufferSize>
+template<HAL::AtomicSize BufferSize>
 BufferReadStatus RingBuffer<BufferSize>::read(uint8_t &byte) volatile {
   if (newestIndex == oldestIndex) {
       return BufferReadStatus::empty;
@@ -25,7 +25,7 @@ BufferReadStatus RingBuffer<BufferSize>::read(uint8_t &byte) volatile {
   return BufferReadStatus::ok;
 }
 
-template<AtomicSize BufferSize>
+template<HAL::AtomicSize BufferSize>
 BufferReadStatus RingBuffer<BufferSize>::peek(uint8_t &byte) const volatile {
   if (newestIndex == oldestIndex) {
       return BufferReadStatus::empty;
@@ -35,9 +35,9 @@ BufferReadStatus RingBuffer<BufferSize>::peek(uint8_t &byte) const volatile {
   return BufferReadStatus::ok;
 }
 
-template<AtomicSize BufferSize>
+template<HAL::AtomicSize BufferSize>
 BufferWriteStatus RingBuffer<BufferSize>::write(uint8_t writeByte) volatile {
-  AtomicSize nextIndex = (newestIndex + 1) % maxSize;
+  HAL::AtomicSize nextIndex = (newestIndex + 1) % maxSize;
   if (nextIndex == oldestIndex) {
       return BufferWriteStatus::full;
   }
@@ -47,17 +47,17 @@ BufferWriteStatus RingBuffer<BufferSize>::write(uint8_t writeByte) volatile {
   return BufferWriteStatus::ok;
 }
 
-template<AtomicSize BufferSize>
-AtomicSize RingBuffer<BufferSize>::write(
-    const uint8_t *writeBytes, AtomicSize writeSize
+template<HAL::AtomicSize BufferSize>
+HAL::AtomicSize RingBuffer<BufferSize>::write(
+    const uint8_t *writeBytes, HAL::AtomicSize writeSize
 ) {
-  AtomicSize nextIndex = (newestIndex + 1) % maxSize;
+  HAL::AtomicSize nextIndex = (newestIndex + 1) % maxSize;
   if (nextIndex == oldestIndex) {
       return 0;
   }
 
-  AtomicSize newestAvailableIndex = (oldestIndex - 1 + maxSize) % maxSize;
-  AtomicSize writtenSize;
+  HAL::AtomicSize newestAvailableIndex = (oldestIndex - 1 + maxSize) % maxSize;
+  HAL::AtomicSize writtenSize;
   if (newestAvailableIndex >= nextIndex) {
     writtenSize = newestAvailableIndex - nextIndex + 1;
     newestIndex = newestAvailableIndex;
@@ -70,11 +70,11 @@ AtomicSize RingBuffer<BufferSize>::write(
   return writtenSize;
 }
 
-template<AtomicSize BufferSize>
-AtomicSize RingBuffer<BufferSize>::write(
-    const uint8_t *writeBytes, AtomicSize writeSize
+template<HAL::AtomicSize BufferSize>
+HAL::AtomicSize RingBuffer<BufferSize>::write(
+    const uint8_t *writeBytes, HAL::AtomicSize writeSize
 ) volatile {
-  AtomicSize i;
+  HAL::AtomicSize i;
   for (i = 0; i < writeSize; ++i) {
     if (write(writeBytes[i]) != BufferWriteStatus::ok) {
       break;
