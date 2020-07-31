@@ -102,13 +102,13 @@ I2CDeviceStatus SDPSensor::startContinuous(bool averaging) {
 }
 
 void SDPSensor::startContinuousWait(bool stabilize) {
-  HAL_Delay(8);
+  HAL::delay(8);
   if (stabilize) {
-    HAL_Delay(12);
+    HAL::delay(12);
   }
 }
 
-I2CDeviceStatus SDPSensor::readContinuous() {
+I2CDeviceStatus SDPSensor::readSample(SDPSample &sample) {
   if (!mMeasuring) {
     I2CDeviceStatus ret = this->startContinuous();
     if (ret != I2CDeviceStatus::ok) {
@@ -128,7 +128,7 @@ I2CDeviceStatus SDPSensor::readContinuous() {
   }
 
   if (data[4] != 0 && data[5] != 0) {
-    parseReading(data, DATA_LEN);
+    parseReading(data, DATA_LEN, sample);
   } else {
     return I2CDeviceStatus::noNewData;
   }
@@ -149,24 +149,16 @@ I2CDeviceStatus SDPSensor::stopContinuous() {
   return I2CDeviceStatus::ok;
 }
 
-float SDPSensor::getDifferentialPressure() const {
-  return mDifferentialPressure;
-}
-
-float SDPSensor::getTemperature() const {
-  return mTemperature;
-}
-
-void SDPSensor::parseReading(uint8_t data[], uint8_t size) {
+void SDPSensor::parseReading(uint8_t data[], uint8_t size, SDPSample &sample) {
   int16_t dp_raw = static_cast<int16_t>(data[0] << 8 | data[1]);
   int16_t temp_raw = static_cast<int16_t>(data[2] << 8 | data[3]);
   int16_t dp_scale = static_cast<int16_t>(data[4] << 8 | data[5]);
 
   if (dp_scale != 0) {
-    mDifferentialPressure = dp_raw / static_cast<float>(dp_scale);
+    sample.differentialPressure = dp_raw / static_cast<float>(dp_scale);
   }
 
-  mTemperature = temp_raw / 200.0;
+  sample.temperature = temp_raw / 200.0;
 }
 
 I2CDeviceStatus SDPSensor::reset() {
@@ -208,10 +200,10 @@ I2CDeviceStatus SDPSensor::test() {
   if (status != I2CDeviceStatus::ok) {
     return status;
   }
-  HAL_Delay(25);
+  HAL::delay(25);
 
   // try start measurement
-  HAL_Delay(3);
+  HAL::delay(3);
   status = this->startContinuous(true);
   if (status != I2CDeviceStatus::ok) {
     return status;
@@ -221,9 +213,10 @@ I2CDeviceStatus SDPSensor::test() {
   // read & verify output
   // three attempts for measuring data
   int i = 0;
+  SDPSample sample;
   for (int i; i < 3; i++) {
-    HAL_Delay(3);
-    status = this->readContinuous();
+    HAL::delay(3);
+    status = this->readSample(sample);
 
     if (status == I2CDeviceStatus::ok) {
       break;
@@ -236,21 +229,18 @@ I2CDeviceStatus SDPSensor::test() {
     return I2CDeviceStatus::testFailed;
   }
 
-  float pres = this->getDifferentialPressure();
-  float temp = this->getTemperature();
-
   // pressure range: -500 to 500
-  if (pres < -500.0 || pres > 500.0) {
+  if (sample.differentialPressure < -500.0 || sample.differentialPressure > 500.0) {
     return I2CDeviceStatus::testFailed;
   }
 
   // operating temp range: -40 to +85
-  if (temp < -40.0 || temp > 85.0) {
+  if (sample.temperature < -40.0 || sample.temperature > 85.0) {
     return I2CDeviceStatus::testFailed;
   }
 
   // stop reading
-  HAL_Delay(3);
+  HAL::delay(3);
   status = this->stopContinuous();
   if (status != I2CDeviceStatus::ok) {
     return status;

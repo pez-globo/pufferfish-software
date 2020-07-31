@@ -79,7 +79,7 @@ UART_HandleTypeDef huart3;
 /* USER CODE BEGIN PV */
 namespace PF = Pufferfish;
 
-PF::HAL::DigitalOutput led1(*LD1_GPIO_Port, LD1_Pin);
+PF::HAL::DigitalOutput boardLed1(*LD1_GPIO_Port, LD1_Pin);
 
 PF::HAL::DigitalOutput alarmLedR(*LEDR_CNTRL_GPIO_Port, LEDR_CNTRL_Pin);
 PF::HAL::DigitalOutput alarmLedG(*LEDG_CNTRL_GPIO_Port, LEDG_CNTRL_Pin);
@@ -93,6 +93,22 @@ PF::HAL::DigitalOutput alarmBuzzer(*ALARM2_CNTRL_GPIO_Port, ALARM2_CNTRL_Pin);
 PF::Driver::Indicators::LEDAlarm alarmDevLed(alarmLedR, alarmLedG, alarmLedB);
 PF::Driver::Indicators::AuditoryAlarm alarmDevSound(alarmRegHigh, alarmRegMed, alarmRegLow, alarmBuzzer);
 PF::AlarmsManager hAlarms(alarmDevLed, alarmDevSound);
+
+// Solenoid Valves
+PF::HAL::PWM drive1_ch1(htim2, TIM_CHANNEL_4);
+PF::HAL::PWM drive1_ch2(htim2, TIM_CHANNEL_2);
+PF::HAL::PWM drive1_ch3(htim3, TIM_CHANNEL_4);
+PF::HAL::PWM drive1_ch4(htim3, TIM_CHANNEL_1);
+PF::HAL::PWM drive1_ch5(htim3, TIM_CHANNEL_2);
+PF::HAL::PWM drive1_ch6(htim3, TIM_CHANNEL_3);
+PF::HAL::PWM drive1_ch7(htim4, TIM_CHANNEL_2);
+PF::HAL::PWM drive2_ch1(htim4, TIM_CHANNEL_3);
+PF::HAL::PWM drive2_ch2(htim4, TIM_CHANNEL_4);
+PF::HAL::PWM drive2_ch3(htim5, TIM_CHANNEL_1);
+PF::HAL::PWM drive2_ch4(htim8, TIM_CHANNEL_1);
+PF::HAL::PWM drive2_ch5(htim8, TIM_CHANNEL_2);
+PF::HAL::PWM drive2_ch6(htim8, TIM_CHANNEL_4);
+PF::HAL::PWM drive2_ch7(htim12, TIM_CHANNEL_2);
 
 // Base I2C Devices
 PF::HAL::HALI2CDevice i2c_hal_mux1(hi2c1, PF::Driver::I2C::TCA9548A::defaultI2CAddr);
@@ -227,28 +243,27 @@ int main(void)
   MX_TIM8_Init();
   MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
+  PF::HAL::microsDelayInit();
   bufferedUART3.setupIRQ();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    PF::AlarmManagerStatus stat = hAlarms.update(HAL_GetTick());
+  while (1) {
+    PF::AlarmManagerStatus stat = hAlarms.update(PF::HAL::millis());
     if (stat != PF::AlarmManagerStatus::ok) {
       Error_Handler();
     }
-
-    led1.write(false);
-    HAL_Delay(5);
-    led1.write(true);
+    boardLed1.write(false);
+    PF::HAL::delay(5);
+    boardLed1.write(true);
     for (PF::Driver::Testable *t : i2c_test_list) {
       PF::I2CDeviceStatus stat = t->test();
       if (stat != PF::I2CDeviceStatus::ok) {
-        led1.write(false);
+        boardLed1.write(false);
       }
     }
-    HAL_Delay(500);
+    PF::HAL::delay(500);
 
     uint8_t receive = 0;
     while (bufferedUART3.read(receive) == PF::BufferReadStatus::ok) {
