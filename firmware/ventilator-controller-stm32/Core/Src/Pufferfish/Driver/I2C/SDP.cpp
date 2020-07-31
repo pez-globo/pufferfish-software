@@ -102,9 +102,9 @@ I2CDeviceStatus SDPSensor::startContinuous(bool averaging) {
 }
 
 void SDPSensor::startContinuousWait(bool stabilize) {
-  HAL_Delay(8);
+  HAL::delay(8);
   if (stabilize) {
-    HAL_Delay(12);
+    HAL::delay(12);
   }
 }
 
@@ -200,10 +200,10 @@ I2CDeviceStatus SDPSensor::test() {
   if (status != I2CDeviceStatus::ok) {
     return status;
   }
-  HAL_Delay(25);
+  HAL::delay(25);
 
   // try start measurement
-  HAL_Delay(3);
+  HAL::delay(3);
   status = this->startContinuous(true);
   if (status != I2CDeviceStatus::ok) {
     return status;
@@ -215,7 +215,7 @@ I2CDeviceStatus SDPSensor::test() {
   int i = 0;
   SDPSample sample;
   for (int i; i < 3; i++) {
-    HAL_Delay(3);
+    HAL::delay(3);
     status = this->readSample(sample);
 
     if (status == I2CDeviceStatus::ok) {
@@ -240,7 +240,7 @@ I2CDeviceStatus SDPSensor::test() {
   }
 
   // stop reading
-  HAL_Delay(3);
+  HAL::delay(3);
   status = this->stopContinuous();
   if (status != I2CDeviceStatus::ok) {
     return status;
