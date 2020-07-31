@@ -25,8 +25,8 @@ public:
   BufferReadStatus read(uint8_t &readByte) volatile;
   BufferWriteStatus write(uint8_t writeByte) volatile;
   AtomicSize write(const uint8_t *writeBytes, AtomicSize writeSize) volatile;
-  BufferWriteStatus writeBlock(uint8_t writeByte, uint32_t timeout = 0) volatile;
-  AtomicSize writeBlock(const uint8_t *writeBytes, AtomicSize writeSize, uint32_t timeout = 0) volatile;
+  BufferWriteStatus writeBlock(uint8_t writeByte, uint32_t timeout) volatile;
+  AtomicSize writeBlock(const uint8_t *writeBytes, AtomicSize writeSize, uint32_t timeout) volatile;
 
   void setupIRQ() volatile;
   void handleIRQ() volatile;
@@ -41,8 +41,6 @@ protected:
   void handleIRQTX() volatile;
 };
 
-using TinyBufferedUART = BufferedUART<32, 32>;
-using SmallBufferedUART = BufferedUART<256, 256>;
 using LargeBufferedUART = BufferedUART<4096, 4096>;
 
 } // namespace HAL
