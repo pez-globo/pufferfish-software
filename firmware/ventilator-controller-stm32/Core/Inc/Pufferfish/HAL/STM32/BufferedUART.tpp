@@ -6,6 +6,8 @@
 
 #include "BufferedUART.h"
 
+#include "Time.h"
+
 namespace Pufferfish {
 namespace HAL {
 
@@ -47,12 +49,12 @@ template <AtomicSize RXBufferSize, AtomicSize TXBufferSize>
 BufferWriteStatus BufferedUART<RXBufferSize, TXBufferSize>::writeBlock(
     uint8_t writeByte, uint32_t timeout
 ) volatile {
-  uint32_t start = HAL_GetTick();
+  uint32_t start = millis();
   while (true) {
     if (write(writeByte) == BufferWriteStatus::ok) {
       return BufferWriteStatus::ok;
     }
-    if ((timeout > 0) && ((HAL_GetTick() - start) > timeout)) {
+    if ((timeout > 0) && ((millis() - start) > timeout)) {
       return BufferWriteStatus::full;
     }
   }
@@ -63,10 +65,10 @@ AtomicSize BufferedUART<RXBufferSize, TXBufferSize>::writeBlock(
     const uint8_t *writeBytes, AtomicSize writeSize, uint32_t timeout
 ) volatile {
   AtomicSize written = 0;
-  uint32_t start = HAL_GetTick();
+  uint32_t start = millis();
   while (written < writeSize) {
     written += write(writeBytes + written, writeSize - written);
-    if ((timeout > 0) && ((HAL_GetTick() - start) > timeout)) {
+    if ((timeout > 0) && ((millis() - start) > timeout)) {
       break;
     }
   }
