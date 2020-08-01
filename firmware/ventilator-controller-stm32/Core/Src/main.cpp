@@ -266,7 +266,7 @@ int main(void)
     PF::HAL::delay(500);
 
     uint8_t receive = 0;
-    while (bufferedUART3.read(receive) == PF::BufferReadStatus::ok) {
+    while (bufferedUART3.read(receive) == PF::BufferStatus::ok) {
       boardLed1.write(true);
       bufferedUART3.write(receive);
     }

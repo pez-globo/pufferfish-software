@@ -17,17 +17,17 @@ BufferedUART<RXBufferSize, TXBufferSize>::BufferedUART(
 ) : huart(huart) {}
 
 template <AtomicSize RXBufferSize, AtomicSize TXBufferSize>
-BufferReadStatus BufferedUART<RXBufferSize, TXBufferSize>::read(
+BufferStatus BufferedUART<RXBufferSize, TXBufferSize>::read(
     uint8_t &readByte
 ) volatile {
   return rxBuffer.read(readByte);
 }
 
 template <AtomicSize RXBufferSize, AtomicSize TXBufferSize>
-BufferWriteStatus BufferedUART<RXBufferSize, TXBufferSize>::write(
+BufferStatus BufferedUART<RXBufferSize, TXBufferSize>::write(
     uint8_t writeByte
 ) volatile {
-  BufferWriteStatus status = txBuffer.write(writeByte);
+  BufferStatus status = txBuffer.write(writeByte);
   __HAL_UART_ENABLE_IT(&huart, UART_IT_TXE); // write a byte on the next TX empty interrupt
   return status;
 }
@@ -38,7 +38,7 @@ AtomicSize BufferedUART<RXBufferSize, TXBufferSize>::write(
 ) volatile {
   AtomicSize i;
   for (i = 0; i < writeSize; ++i) {
-    if (write(writeBytes[i]) != BufferWriteStatus::ok) {
+    if (write(writeBytes[i]) != BufferStatus::ok) {
       break;
     }
   }
@@ -46,16 +46,16 @@ AtomicSize BufferedUART<RXBufferSize, TXBufferSize>::write(
 }
 
 template <AtomicSize RXBufferSize, AtomicSize TXBufferSize>
-BufferWriteStatus BufferedUART<RXBufferSize, TXBufferSize>::writeBlock(
+BufferStatus BufferedUART<RXBufferSize, TXBufferSize>::writeBlock(
     uint8_t writeByte, uint32_t timeout
 ) volatile {
   uint32_t start = millis();
   while (true) {
-    if (write(writeByte) == BufferWriteStatus::ok) {
-      return BufferWriteStatus::ok;
+    if (write(writeByte) == BufferStatus::ok) {
+      return BufferStatus::ok;
     }
     if ((timeout > 0) && ((millis() - start) > timeout)) {
-      return BufferWriteStatus::full;
+      return BufferStatus::full;
     }
   }
 }
@@ -110,7 +110,7 @@ void BufferedUART<RXBufferSize, TXBufferSize>::handleIRQTX() volatile {
   }
 
   uint8_t txByte;
-  if (txBuffer.read(txByte) == BufferReadStatus::empty) {
+  if (txBuffer.read(txByte) == BufferStatus::empty) {
     // stop receiving TX empty interrupts until we have more data for TX
     __HAL_UART_DISABLE_IT(&huart, UART_IT_TXE);
     return;

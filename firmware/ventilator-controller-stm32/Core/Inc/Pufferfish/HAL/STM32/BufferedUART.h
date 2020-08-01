@@ -22,10 +22,10 @@ class BufferedUART {
 public:
   BufferedUART(UART_HandleTypeDef &huart);
 
-  BufferReadStatus read(uint8_t &readByte) volatile;
-  BufferWriteStatus write(uint8_t writeByte) volatile;
+  BufferStatus read(uint8_t &readByte) volatile;
+  BufferStatus write(uint8_t writeByte) volatile;
   AtomicSize write(const uint8_t *writeBytes, AtomicSize writeSize) volatile;
-  BufferWriteStatus writeBlock(uint8_t writeByte, uint32_t timeout) volatile;
+  BufferStatus writeBlock(uint8_t writeByte, uint32_t timeout) volatile;
   AtomicSize writeBlock(const uint8_t *writeBytes, AtomicSize writeSize, uint32_t timeout) volatile;
 
   void setupIRQ() volatile;

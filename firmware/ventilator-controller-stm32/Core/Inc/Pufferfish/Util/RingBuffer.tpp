@@ -15,36 +15,36 @@ template<HAL::AtomicSize BufferSize>
 RingBuffer<BufferSize>::RingBuffer() {}
 
 template<HAL::AtomicSize BufferSize>
-BufferReadStatus RingBuffer<BufferSize>::read(uint8_t &byte) volatile {
+BufferStatus RingBuffer<BufferSize>::read(uint8_t &byte) volatile {
   if (newestIndex == oldestIndex) {
-      return BufferReadStatus::empty;
+      return BufferStatus::empty;
   }
 
   byte = buffer[oldestIndex];
   oldestIndex = (oldestIndex + 1) % maxSize;
-  return BufferReadStatus::ok;
+  return BufferStatus::ok;
 }
 
 template<HAL::AtomicSize BufferSize>
-BufferReadStatus RingBuffer<BufferSize>::peek(uint8_t &byte) const volatile {
+BufferStatus RingBuffer<BufferSize>::peek(uint8_t &byte) const volatile {
   if (newestIndex == oldestIndex) {
-      return BufferReadStatus::empty;
+      return BufferStatus::empty;
   }
 
   byte = buffer[oldestIndex];
-  return BufferReadStatus::ok;
+  return BufferStatus::ok;
 }
 
 template<HAL::AtomicSize BufferSize>
-BufferWriteStatus RingBuffer<BufferSize>::write(uint8_t writeByte) volatile {
+BufferStatus RingBuffer<BufferSize>::write(uint8_t writeByte) volatile {
   HAL::AtomicSize nextIndex = (newestIndex + 1) % maxSize;
   if (nextIndex == oldestIndex) {
-      return BufferWriteStatus::full;
+      return BufferStatus::full;
   }
 
   buffer[newestIndex] = writeByte;
   newestIndex = nextIndex;
-  return BufferWriteStatus::ok;
+  return BufferStatus::ok;
 }
 
 template<HAL::AtomicSize BufferSize>
@@ -76,7 +76,7 @@ HAL::AtomicSize RingBuffer<BufferSize>::write(
 ) volatile {
   HAL::AtomicSize i;
   for (i = 0; i < writeSize; ++i) {
-    if (write(writeBytes[i]) != BufferWriteStatus::ok) {
+    if (write(writeBytes[i]) != BufferStatus::ok) {
       break;
     }
   }
