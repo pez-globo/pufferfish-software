@@ -1,4 +1,4 @@
-"""Sans-I/O communication protocols."""
+"""Exceptions raised by modules in this sub-package."""
 
 
 class ProtocolError(Exception):
