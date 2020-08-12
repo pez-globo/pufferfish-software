@@ -11,7 +11,7 @@ import {
     makeStyles,
     Theme
 } from '@material-ui/core'
-import ValueClicker from '../../controllers/ValueController'
+import ValueController from '../../controllers/ValueController'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -52,14 +52,14 @@ const getDaysInMonth = (month: number, year: number) => {
     const days: number = (new Date(year, month, 0)).getDate()
     return days
 }
-// Converts a 24-hour formatted hour to 12-hour period based format. 
+// Converts a 24-hour formatted hour to 12-hour period based format.
 const to12HourClock = (hour: number) => { return (hour % 12) || 12 }
 // Converts a 12-hour formatted hour to 24-hour based format.
 const to24HourClock = (hour: number, period: Period) => { return (period === Period.PM) ? hour + 12 : hour }
 
 /**
- * DisplayTab 
- * 
+ * DisplayTab
+ *
  * TODO: Hook this up to the redux state to persist changes across the system's state.
  *       We need to make sure that updates to dat
  */
@@ -100,7 +100,7 @@ export const DisplayTab = () => {
             <Grid container item xs={4} direction='column' className={classes.leftPanel}>
                 {/* Brightness */}
                 <Grid container item xs direction='row'>
-                    <ValueClicker
+                    <ValueController
                         value={brightness}
                         label='Brightness'
                         units='%'
@@ -139,7 +139,7 @@ export const DisplayTab = () => {
             <Grid container item xs direction='column' className={classes.rightPanel}>
                 <Grid container item xs alignItems='stretch' className={classes.borderBottom}>
                     <Grid item xs>
-                        <ValueClicker
+                        <ValueController
                             value={hour}
                             label='Hour'
                             onClick={setHour}
@@ -148,7 +148,7 @@ export const DisplayTab = () => {
                         />
                     </Grid>
                     <Grid item xs>
-                        <ValueClicker
+                        <ValueController
                             value={minute}
                             label='Minute'
                             onClick={setMinute}
@@ -171,7 +171,7 @@ export const DisplayTab = () => {
                 </Grid>
                 <Grid container item xs direction='row' className={classes.borderBottom}>
                     <Grid item xs>
-                        <ValueClicker
+                        <ValueController
                             value={month}
                             label='Month'
                             onClick={handleMonthChange}
@@ -180,7 +180,7 @@ export const DisplayTab = () => {
                         />
                     </Grid>
                     <Grid item xs>
-                        <ValueClicker
+                        <ValueController
                             value={day}
                             label='Day'
                             onClick={setDay}
@@ -193,7 +193,7 @@ export const DisplayTab = () => {
                 </Grid>
                 <Grid container item xs>
                     <Grid item xs={6}>
-                        <ValueClicker
+                        <ValueController
                             value={year}
                             label='Year'
                             onClick={setYear}

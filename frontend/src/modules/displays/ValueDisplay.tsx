@@ -35,8 +35,6 @@ const useStyles = makeStyles((theme: Theme) => ({
         // border: '1px solid red',
     },
     unitsLabel: {
-        justifyContent: 'flex-start',
-        alignItems: 'center',
         paddingLeft: theme.spacing(0),
         paddingTop: theme.spacing(4)
         // border: '1px solid red'
@@ -56,7 +54,7 @@ export interface Props {
 
 /**
  * ValueDisplay
- * 
+ *
  * A re-usable component for displaying numeric values.
  */
 export const ValueDisplay = ({ value, label, units = '', isLive = false }: Props) => {

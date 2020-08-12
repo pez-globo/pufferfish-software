@@ -2,7 +2,7 @@ import React from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import { Button, Grid, AppBar } from '@material-ui/core'
-import { LOGS_ROUTE, DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants'
+import { LOGS_ROUTE, DASHBOARD_ROUTE, QUICKSTART_ROUTE, SCREENSAVER_ROUTE } from '../navigation/constants'
 import ModesDropdown from '../modes/ModesDropdown'
 import ViewDropdown from '../dashboard/views/ViewDropdown'
 import { BackIcon, BellIcon } from '../icons'
@@ -20,11 +20,11 @@ const useStyles = makeStyles((theme: Theme) => ({
     }
 }))
 
-/** 
+/**
  * ToolBar
- * 
+ *
  * A container for displaying buttons that handle system changes based on
- * various states and conditions such as ventilator state and current page route. 
+ * various states and conditions such as ventilator state and current page route.
  */
 export const ToolBar = () => {
     const classes = useStyles()
@@ -64,7 +64,7 @@ export const ToolBar = () => {
                 Last Patient Settings
             </Button>
         )
-    } else if (isVentilatorOn) {
+    } else if (isVentilatorOn && location.pathname !== SCREENSAVER_ROUTE.path) {
         tools.push(
             <Button component={Link} to={DASHBOARD_ROUTE.path} variant='contained' color='primary'>
                 <BackIcon style={{paddingRight: 8}} />

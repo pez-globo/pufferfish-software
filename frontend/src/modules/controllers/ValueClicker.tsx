@@ -18,10 +18,11 @@ const useStyles = makeStyles((theme: Theme) => ({
         minHeight: 55,
         minWidth: 78,
     },
-    space: {
-        marginBottom: theme.spacing(2)
-    }
+    marginBottom: { marginBottom: theme.spacing(2) },
+    marginRight: { marginRight: theme.spacing(1) }
 }))
+
+type Direction = "column" | "column-reverse" | "row" | "row-reverse" | undefined
 
 interface Props {
     value: number,
@@ -29,17 +30,18 @@ interface Props {
     // An inclusive range defined by [min, max]
     min?: number,
     max?: number,
+    direction?: Direction
 }
 
 /**
  * ValueClicker
- * 
- * A re-usable component for simple increment and decrement value adjustments. 
+ *
+ * A re-usable component for simple increment and decrement value adjustments.
  */
-export const ValueClicker = ({ value, min = 0, max = 100, onClick }: Props) => {
+export const ValueClicker = ({ value, min = 0, max = 100, onClick, direction = 'column' }: Props) => {
     const classes = useStyles()
 
-    const circularUpdate = (step: number) => () => {
+    const update = (step: number) => () => {
         let change = value + step
         if (change > max) {
             change = min
@@ -50,14 +52,14 @@ export const ValueClicker = ({ value, min = 0, max = 100, onClick }: Props) => {
     }
 
     return (
-        <Grid container direction='column' className={classes.root}>
-            <Grid item className={classes.space}>
-                <Button onClick={circularUpdate(1)} variant='contained' color='primary' className={classes.iconButton}>
+        <Grid container direction={direction} className={classes.root} wrap='nowrap'>
+            <Grid item className={direction === 'row' ? classes.marginRight : classes.marginBottom}>
+                <Button onClick={update(1)} variant='contained' color='primary' className={classes.iconButton}>
                     <KeyboardArrowUp fontSize='large' />
                 </Button>
             </Grid>
             <Grid item>
-                <Button onClick={circularUpdate(-1)} variant='contained' color='primary' className={classes.iconButton}>
+                <Button onClick={update(-1)} variant='contained' color='primary' className={classes.iconButton}>
                     <KeyboardArrowDown fontSize='large' />
                 </Button>
             </Grid>
@@ -65,4 +67,4 @@ export const ValueClicker = ({ value, min = 0, max = 100, onClick }: Props) => {
     )
 }
 
-export default ValueClicker 
+export default ValueClicker

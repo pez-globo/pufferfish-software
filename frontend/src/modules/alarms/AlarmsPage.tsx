@@ -37,9 +37,29 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
 }))
 
+// NOTE: Temporary Alarm until the UI team address interface concerns.
+interface AlarmProps {
+    label: string,
+    min: number,
+    max: number
+}
+
+const Alarm = ({ label, min, max }: AlarmProps) => {
+    return (
+        <Grid container>
+            <Grid item xs={12} style={{paddingBottom: 20}}>
+                <Typography variant='h5'>{label}</Typography>
+            </Grid>
+            <Grid item xs={12}>
+                <ValueSlider min={min} max={max} />
+            </Grid>
+        </Grid>
+    )
+}
+
 /**
  * AlarmsPage
- * 
+ *
  * A container for housing all alarm configurations.
  */
 export const AlarmsPage = () => {
@@ -56,20 +76,20 @@ export const AlarmsPage = () => {
      */
     const page1 =
         <Grid container item xs direction='column' className={classes.rightContainer}>
-            <ValueSlider label='Pressure above PEEP' min={0} max={100} />
-            <ValueSlider label='PAW' min={0} max={100} />
-            <ValueSlider label='PiP' min={0} max={100} />
-            <ValueSlider label='PEEP' min={0} max={100} />
-            <ValueSlider label='Insp. Time' min={0} max={100} />
+            <Alarm label='Pressure above PEEP' min={0} max={100} />
+            <Alarm label='PAW' min={0} max={100} />
+            <Alarm label='PiP' min={0} max={100} />
+            <Alarm label='PEEP' min={0} max={100} />
+            <Alarm label='Insp. Time' min={0} max={100} />
         </Grid>
 
     const page2 =
         <Grid container item xs direction='column' className={classes.rightContainer}>
-            <ValueSlider label='RR' min={0} max={100} />
-            <ValueSlider label='TV' min={0} max={100} />
-            <ValueSlider label='Flow' min={0} max={100} />
-            <ValueSlider label='MVe' min={0} max={100} />
-            <ValueSlider label='Apnea' min={0} max={100} />
+            <Alarm label='RR' min={0} max={100} />
+            <Alarm label='TV' min={0} max={100} />
+            <Alarm label='Flow' min={0} max={100} />
+            <Alarm label='MVe' min={0} max={100} />
+            <Alarm label='Apnea' min={0} max={100} />
         </Grid>
 
     return (
@@ -81,7 +101,7 @@ export const AlarmsPage = () => {
                     </Grid>
                     <Grid container direction='column' className={classes.paginationContainer}>
                         <Grid item xs style={{ marginBottom: 10 }}>
-                            <Pagination count={2} page={page} onChange={handleChange} variant='outlined' shape="rounded" size="large"/>
+                            <Pagination count={2} page={page} onChange={handleChange} variant='outlined' shape="rounded" size="large" />
                         </Grid>
                         <Grid item style={{ width: '100%' }}>
                             <Button color='secondary' variant='contained' className={classes.applyButton}>

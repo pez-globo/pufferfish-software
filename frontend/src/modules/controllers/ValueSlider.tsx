@@ -62,45 +62,39 @@ const StyledSlider = withStyles({
 })(Slider)
 
 interface Props {
-    label: string,
     min: number,
-    max: number
+    max: number,
+    label?: string,  // TODO: This prop should be removed.
+    onChange?(values: number[]): any,
+    rangeValues?: number[],
 }
 
-export const ValueSlider = ({ label, min, max }: Props) => {
+export const ValueSlider = ({ min, max, onChange, rangeValues }: Props) => {
     const classes = useStyles()
     const [value, setValue] = React.useState<number[]>([min, max])
 
-    const handleSliderChange = (event: any, newValue: number | number[]) => {
+    const handleChange = (event: any, newValue: number | number[]) => {
         setValue(newValue as number[])
+        if (onChange) {
+            onChange(newValue as number[])
+        }
     }
 
     return (
         <Grid container direction='column' className={classes.root} >
-            <Grid item style={{ minHeight: '60px' }} >
-                <Typography variant='h5' gutterBottom>
-                    {label}
-                </Typography>
-            </Grid>
             <Grid container item justify='center' alignItems='stretch'>
-                <Grid item xs
-                    style={{
-                        // border: '1px solid red'
-                    }}>
+                <Grid container item xs justify='center' alignItems='center'>
                     <Typography align='center'>{min}</Typography>
                 </Grid>
-                <Grid item xs={8}>
+                <Grid container item xs={8} alignItems='center'>
                     <StyledSlider
                         valueLabelDisplay='on'
-                        value={value}
-                        onChange={handleSliderChange}
+                        value={rangeValues || value}
+                        onChange={handleChange}
                         defaultValue={60}
                     />
                 </Grid>
-                <Grid item xs
-                    style={{
-                        // border: '1px solid red'
-                    }}>
+                <Grid container item xs justify='center' alignItems='center'>
                     <Typography align='center'>{max}</Typography>
                 </Grid>
             </Grid>
