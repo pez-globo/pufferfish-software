@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+message Alarms {
+  uint32 time = 1;
+  bool alarm_one = 2;
+  bool alarm_two = 3;
+}
+
+message SensorMeasurements {
+  uint32 time = 1;
+  float paw = 2;
+  float flow = 3;
+  float volume = 4;
+  float fio2 = 5;
+}
+
+message CycleMeasurements {
+  uint32 time = 1;
+  float vt = 2;
+  float rr = 3;
+  float peep = 4;
+  float pip = 5;
+  float ip = 6;
+  float ve = 7;
+}
+
+enum SpontaneousSupport {
+  ac = 0;
+  simv = 1;
+}
+
+enum VentilationCycling {
+  pc = 0;
+  vc = 1;
+  psv = 2;
+}
+
+message VentilationMode {
+  SpontaneousSupport support = 1;
+  VentilationCycling cycling = 2;
+}
+
+message Parameters {
+  uint32 time = 1;
+  VentilationMode mode = 2;
+  float pip = 3;
+  float peep = 4;
+  float vt = 5;
+  float rr = 6;
+  float ie = 7;
+  float fio2 = 8;
+}
+
+message ParametersRequest {
+  uint32 time = 1;
+  VentilationMode mode = 2;
+  float pip = 3;
+  float peep = 4;
+  float vt = 5;
+  float rr = 6;
+  float ie = 7;
+  float fio2 = 8;
+}
+
+// Testing messages
+
+message Ping {
+  uint32 time = 1;
+  uint32 id = 2;
+}
+
+message Announcement {
+  uint32 time = 1;
+  bytes announcement = 2;
+}
