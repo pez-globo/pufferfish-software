@@ -212,7 +212,9 @@ class Datagram:
                 of the datagram body.
 
         """
-        return crc.compute_reflected_crc(self._pack_protected())
+        return crc.compute_reflected_crc(
+            self._pack_protected(), crc.CRC32C_REFLECTED_TABLE
+        )
 
     def compute_body(self) -> bytes:
         """Return the body of the datagram, including the header and payload.
