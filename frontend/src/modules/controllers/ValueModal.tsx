@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
     openButton: {
         width: '100%',
-        border: '1px solid ' + theme.palette.background.default
+        //border: '1px solid ' + theme.palette.background.default
     },
     unitsLabel: {
         paddingTop: theme.spacing(4)

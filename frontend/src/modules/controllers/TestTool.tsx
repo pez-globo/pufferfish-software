@@ -12,13 +12,13 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
     startButton: {
         width: '100%',
-        border: '1px solid black',
+        //border: '1px solid black',
         borderRadius: 8,
         minHeight: 44,
     },
     viewMoreButton: {
         width: '100%',
-        border: '1px solid black',
+        //border: '1px solid black',
         borderRadius: 8,
         minHeight: 44,
     },

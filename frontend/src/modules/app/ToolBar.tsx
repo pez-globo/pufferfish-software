@@ -74,7 +74,10 @@ export const ToolBar = () => {
     }
 
     return (
-        <AppBar color='transparent' position='static'>
+        <AppBar
+        color='transparent'
+        elevation={0}
+        position='static'>
             <Grid
                 container
                 direction='row'
