@@ -1,45 +1,43 @@
 import React from 'react'
 import { makeStyles, Theme } from '@material-ui/core/styles'
-import { Grid } from '@material-ui/core'
-import ModeBanner from '../displays/ModeBanner'
-import ValueJumbotron from './ValueJumbotron'
-import { CMH20, PERCENT, BMIN } from '../info/units'
+import { Typography, Grid } from '@material-ui/core'
+import ModeBanner from '../utils/displays/ModeBanner'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
-        // border: '1px solid yellow',
-    },
-    gridItems: {
-        border: '1px solid white',
-        paddingLeft: theme.spacing(2),
-        paddingRight: theme.spacing(2),
-        paddingTop: theme.spacing(1),
-        paddingBottom: theme.spacing(2)
+        border: '1px solid yellow',
     },
 }))
 
 /**
  * ScreensaverPage
- *
- * A farview screensaver page.
  */
 export const ScreensaverPage = () => {
     const classes = useStyles()
 
     return (
         <Grid container direction='column' justify='space-between'>
-            <Grid container xs justify='space-evenly' alignItems='stretch' className={classes.root} wrap="nowrap">
-                <Grid item xs={3} className={classes.gridItems}>
-                    <ValueJumbotron value={0} label='PIP' units={CMH20} />
+            <Grid
+                container
+                xs
+                direction='row'
+                justify='space-evenly'
+                alignItems='stretch'
+                className={classes.root}
+                wrap="nowrap"
+            >
+                {/* TODO: Replace the `Typography` components with value displays. */}
+                <Grid item xs={3} style={{ border: '1px solid black' }}>
+                    <Typography>PiP</Typography>
                 </Grid>
-                <Grid item xs={3} className={classes.gridItems}>
-                    <ValueJumbotron value={0} label='PEEP' units={CMH20} />
+                <Grid item xs={3} style={{ border: '1px solid black' }}>
+                    <Typography>PEEP</Typography>
                 </Grid>
-                <Grid item xs={3} className={classes.gridItems}>
-                    <ValueJumbotron value={0} label='RR' units={BMIN} />
+                <Grid item xs={3} style={{ border: '1px solid black' }}>
+                    <Typography>RR</Typography>
                 </Grid>
-                <Grid item xs={3} className={classes.gridItems}>
-                    <ValueJumbotron value={0} label='FiO2' units={PERCENT} />
+                <Grid item xs={3} style={{ border: '1px solid black' }}>
+                    <Typography>FiO2</Typography>
                 </Grid>
             </Grid>
             <Grid item>

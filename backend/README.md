@@ -48,7 +48,18 @@ To install all dependencies do: `poetry install`
 
 ### Executing Application
 
-Currently there is no application to execute.
+To run the full application which connects to both the MCU and the frontend, run:
+
+```bash
+(backend) $ poetry run python3 -m ventserver.application
+```
+
+To run the simulator application which connects to the frontend and simulates
+ventilator state dynamics, run:
+
+```bash
+(backend) $ poetry run python3 -m ventserver.simulation
+```
 
 ## Development
 
@@ -70,7 +81,7 @@ common IDEs:
 To run the pylint commands, do:
 
 ```bash
-(backend) $ pylint ventserver
+(software) $ pylint ventserver
 ```
 
 ### Type-Checking
@@ -79,7 +90,7 @@ Type hints are a great way to help document and automatically check code. To run
 type-checking, do:
 
 ```bash
-(backend) $ mypy ventserver
+(software) $ mypy ventserver
 ```
 
 ### Testing
@@ -90,7 +101,7 @@ Unit testing is done utilizing [pytest](https://docs.pytest.org/en/latest/) and
 To execute the test suite, run:
 
 ```bash
-(backend) $ tox
+(software) $ tox
 ```
 
 Afterwards, you can quickly re-run tests without running the full tox process:

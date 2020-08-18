@@ -11,7 +11,7 @@ import {
     makeStyles,
     Theme
 } from '@material-ui/core'
-import ValueController from '../../controllers/ValueController'
+import ValueClicker from '../../utils/controls/ValueController'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -19,19 +19,21 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
     leftPanel: {
         backgroundColor: theme.palette.background.paper,
-        borderRadius: theme.panel.borderRadius,
+        borderRadius: 16,
+        border: '1px solid black',
     },
     rightPanel: {
         height: '100%',
         marginLeft: theme.spacing(2),
         backgroundColor: theme.palette.background.paper,
-        borderRadius: theme.panel.borderRadius,
+        borderRadius: 16,
+        border: '1px solid black',
     },
     borderBottom: {
-        borderBottom: '2px dashed ' + theme.palette.background.default
+        borderBottom: '2px dashed black'
     },
     leftContainer: {
-        borderTop: '2px dashed ' + theme.palette.background.default,
+        borderTop: '2px dashed black',
         paddingLeft: theme.spacing(2)
     }
 }))
@@ -52,14 +54,14 @@ const getDaysInMonth = (month: number, year: number) => {
     const days: number = (new Date(year, month, 0)).getDate()
     return days
 }
-// Converts a 24-hour formatted hour to 12-hour period based format.
+// Converts a 24-hour formatted hour to 12-hour period based format. 
 const to12HourClock = (hour: number) => { return (hour % 12) || 12 }
 // Converts a 12-hour formatted hour to 24-hour based format.
 const to24HourClock = (hour: number, period: Period) => { return (period === Period.PM) ? hour + 12 : hour }
 
 /**
- * DisplayTab
- *
+ * DisplayTab 
+ * 
  * TODO: Hook this up to the redux state to persist changes across the system's state.
  *       We need to make sure that updates to dat
  */
@@ -100,7 +102,7 @@ export const DisplayTab = () => {
             <Grid container item xs={4} direction='column' className={classes.leftPanel}>
                 {/* Brightness */}
                 <Grid container item xs direction='row'>
-                    <ValueController
+                    <ValueClicker
                         value={brightness}
                         label='Brightness'
                         units='%'
@@ -118,8 +120,8 @@ export const DisplayTab = () => {
                             onChange={(event) => setTheme(+event.target.value as UITheme)}
                             name='ui-theme-radios'
                         >
-                            <FormControlLabel value={UITheme.DARK} control={<Radio color='primary' />} label='Dark UI' />
-                            <FormControlLabel value={UITheme.LIGHT} control={<Radio color='primary' />} label='Light UI' />
+                            <FormControlLabel value={UITheme.DARK} control={<Radio />} label='Dark UI' />
+                            <FormControlLabel value={UITheme.LIGHT} control={<Radio />} label='Light UI' />
                         </RadioGroup>
                     </FormControl>
                 </Grid>
@@ -138,8 +140,8 @@ export const DisplayTab = () => {
             {/* Right Panel: Date & Time */}
             <Grid container item xs direction='column' className={classes.rightPanel}>
                 <Grid container item xs alignItems='stretch' className={classes.borderBottom}>
-                    <Grid item xs>
-                        <ValueController
+                    <Grid item xs> 
+                        <ValueClicker
                             value={hour}
                             label='Hour'
                             onClick={setHour}
@@ -148,7 +150,7 @@ export const DisplayTab = () => {
                         />
                     </Grid>
                     <Grid item xs>
-                        <ValueController
+                        <ValueClicker
                             value={minute}
                             label='Minute'
                             onClick={setMinute}
@@ -163,15 +165,15 @@ export const DisplayTab = () => {
                                 onChange={(event) => setPeriod(+event.target.value as Period)}
                                 name='period-radios'
                             >
-                                <FormControlLabel value={Period.AM} control={<Radio color='primary' />} label='AM' />
-                                <FormControlLabel value={Period.PM} control={<Radio color='primary' />} label='PM' />
+                                <FormControlLabel value={Period.AM} control={<Radio />} label='AM' />
+                                <FormControlLabel value={Period.PM} control={<Radio />} label='PM' />
                             </RadioGroup>
                         </FormControl>
                     </Grid>
                 </Grid>
                 <Grid container item xs direction='row' className={classes.borderBottom}>
                     <Grid item xs>
-                        <ValueController
+                        <ValueClicker
                             value={month}
                             label='Month'
                             onClick={handleMonthChange}
@@ -180,7 +182,7 @@ export const DisplayTab = () => {
                         />
                     </Grid>
                     <Grid item xs>
-                        <ValueController
+                        <ValueClicker
                             value={day}
                             label='Day'
                             onClick={setDay}
@@ -193,7 +195,7 @@ export const DisplayTab = () => {
                 </Grid>
                 <Grid container item xs>
                     <Grid item xs={6}>
-                        <ValueController
+                        <ValueClicker
                             value={year}
                             label='Year'
                             onClick={setYear}
@@ -202,13 +204,13 @@ export const DisplayTab = () => {
                         />
                     </Grid>
                     <Grid container item xs justify='center' alignItems='center' >
-                        <Button onClick={() => handleSubmit()} variant='contained' color='secondary'>
+                        <Button onClick={() => handleSubmit()} style={{ border: '1px solid orange' }}>
                             Apply Changes
                         </Button>
                     </Grid>
                 </Grid>
             </Grid>
-        </Grid>
+        </Grid >
     )
 }
 

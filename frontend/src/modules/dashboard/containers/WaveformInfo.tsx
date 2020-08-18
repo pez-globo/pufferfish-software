@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const WaveformInfo = ({ time, paw, flow, volume }: Props) => (
-  <Grid container item direction="column" alignItems="center" justify="space-evenly">
+  <Grid item container direction="column" alignItems="center" justify="space-evenly">
     <Fragment>
       <Grid item xs={3}>
         <Typography>{time}</Typography>

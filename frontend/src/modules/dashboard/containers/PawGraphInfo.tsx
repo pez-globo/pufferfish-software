@@ -32,13 +32,14 @@ interface AutoSizerProps {
 
 
 interface WaveformProps extends DataProps, AutoSizerProps {
-  strokeWidth: number
+  strokeWidth: number,
+  fill: string
 }
 
 
-const PawWaveform = ({ data, width, height, strokeWidth }: WaveformProps) => (
+const PawWaveform = ({ data, width, height, strokeWidth, fill }: WaveformProps) => (
   <Waveform
-    width={width} height={height} data={data} strokeWidth={strokeWidth}
+    width={width} height={height} data={data} strokeWidth={strokeWidth} fill={fill}
     xRangeMax={10000} yRangeMin={0} yRangeMax={60}
   />
 )
@@ -52,10 +53,10 @@ const PawGraphInfo = () => (
     {({ width, height }: AutoSizerProps) => (
       <Axes
         width={width} height={height}
-        waveformOld={<WaveformOld width={width} height={height} strokeWidth={1} />}
-        waveformNew={<WaveformNew width={width} height={height} strokeWidth={4} />}
+        waveformOld={<WaveformOld width={width} height={height} strokeWidth={1} fill={'rgba(178,192,252,0)'}/>}
+        waveformNew={<WaveformNew width={width} height={height} strokeWidth={4} fill={'rgba(178,192,252,0.3)'}/>}
         xRangeMax={10000} yRangeMin={0} yRangeMax={60}
-        title={"Paw"} units={"cm H20"}
+        title={"Paw"} units={"cm H2O"}
       />
     )}
   </AutoSizer>

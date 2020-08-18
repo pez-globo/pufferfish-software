@@ -42,7 +42,7 @@ def generate_reflected_table(polynomial: int, num_bits: int = 32) -> List[int]:
         A CRC lookup table, represented as a lookup table indexed by byte value.
 
     """
-    table = []
+    table = [0 for i in range(256)]
     reflected_polynomial = reflect(polynomial, num_bits)
 
     for dividend in range(256):
@@ -53,7 +53,7 @@ def generate_reflected_table(polynomial: int, num_bits: int = 32) -> List[int]:
                 byte = byte ^ reflected_polynomial
             else:
                 byte = byte >> 1
-        table.append(byte)
+        table[dividend] = byte
 
     return table
 
@@ -63,7 +63,7 @@ CRC32C_REFLECTED_TABLE = generate_reflected_table(CRC32C_POLYNOMIAL, 32)
 
 
 def compute_reflected_crc(
-        buffer: bytes, table: List[int],
+        buffer: bytes, table: List[int] = CRC32C_REFLECTED_TABLE,
         initial_remainder: int = 0xFFFFFFFF, final_xor: int = 0xFFFFFFFF
 ) -> int:
     """Compute 32-bit reflected crc using a lookup table.

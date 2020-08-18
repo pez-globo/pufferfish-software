@@ -6,14 +6,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     root: {
         justifyContent: 'space-between',
         alignItems: 'stretch',
-        marginBottom: theme.spacing(2)
+        marginBottom: theme.spacing(2),
+        color:'white'
     },
     modesPanel: {
-        borderRadius: theme.panel.borderRadius,
+        border: '1px solid black',
+        borderRadius: 16,
         flexDirection: 'column',
         alignItems: 'stretch',
         marginRight: theme.spacing(2),
-        backgroundColor: theme.palette.background.paper
+        backgroundColor: '#0b2e4c',
+        color:'white'
     },
     modeContainer: {
         minHeight: 100,
@@ -21,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) => ({
         // border: '1px solid red',
     },
     modeTitleItem: {
-        paddingBottom: theme.spacing(2)
+        paddingTop: theme.spacing(2)
     },
     leftModeButtonOutline: {
         justifyContent: 'center',
@@ -36,20 +39,23 @@ const useStyles = makeStyles((theme: Theme) => ({
         height: '60%',
         width: '100%',
         borderRadius: 16,
-        border: '2px solid ' + theme.palette.primary.main
+        color:'white',
+        background:'#0053b1'
+        //border: '2px solid black' 
     },
     abbrevPanel: {
+        border: '1px solid black',
         flexDirection: 'column',
-        borderRadius: theme.panel.borderRadius,
-        backgroundColor: theme.palette.background.paper
+        borderRadius: 16,
+        backgroundColor: '#0b2e4c',
     },
     abbrevContanier: {
-        minHeight: 64,
+        minHeight:64,
         padding: theme.spacing(2),
         // border: '1px solid red'
     },
     title: {
-        borderBottom: '2px dashed ' + theme.palette.background.default,
+        borderBottom: '2px dashed black',
         minHeight: '60px',
         alignItems: 'center',
         padding: theme.spacing(2),
@@ -67,6 +73,7 @@ export const ModesPage = () => {
 
     return (
         <Grid container className={classes.root}>
+            {/* Modes Panel  */}
             <Grid container item xs className={classes.modesPanel}>
                 <Grid container item className={classes.title}>
                     <Typography variant='h3'>Modes</Typography>
@@ -123,6 +130,7 @@ export const ModesPage = () => {
                     </Grid>
                 </Grid>
             </Grid>
+            {/* Abbreviations Panel */}
             <Grid container item xs={5} className={classes.abbrevPanel}>
                 <Grid container item className={classes.title}>
                     <Typography variant='h3'>Abbreviations</Typography>
@@ -135,7 +143,7 @@ export const ModesPage = () => {
                         <Typography>Assisted Control</Typography>
                     </Grid>
                 </Grid>
-                <Grid container item alignItems='center' className={classes.abbrevContanier}>
+                <Grid container item alignItems='center'className={classes.abbrevContanier}>
                     <Grid item xs={2}>
                         <Typography><strong>SIMV</strong>:</Typography>
                     </Grid>

@@ -23,14 +23,10 @@ CRC32C_REFERENCE = predefinedcrc.mkCrcFun('crc-32c')
 ])
 def test_crc32c(data: bytes, expected: int) -> None:
     """Test CRC-32C against known reference data and expected values."""
-    assert crc.compute_reflected_crc(
-        data, crc.CRC32C_REFLECTED_TABLE
-    ) == expected
+    assert crc.compute_reflected_crc(data) == expected
 
 
 @hp.given(data=st.binary(min_size=0, max_size=512))
 def test_crc32c_reference(data: bytes) -> None:
     """Test CRC-32C table-based implementation against reference library."""
-    assert crc.compute_reflected_crc(
-        data, crc.CRC32C_REFLECTED_TABLE
-    ) == CRC32C_REFERENCE(data)
+    assert crc.compute_reflected_crc(data) == CRC32C_REFERENCE(data)

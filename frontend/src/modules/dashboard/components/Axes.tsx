@@ -58,26 +58,47 @@ export const Axes = ({
   })
 
   return (
-    <svg style={{ flexGrow: 2 }} width={width} height={height}>
-      <rect x={0} y={0} width={width} height={height} fill='#3d373a' rx={14} />
+    
+    <svg
+    style={{ 
+      /*flexGrow: 2,
+      border:'1px solid green'*/ }}
+    width={width} height={height}>
+      <text x={margin.left/3} y={margin.top/2} fill='#FFFFFF' fontSize={28}>
+        {title}
+      </text>
+      <text x={margin.left/3+80} y={margin.top/2} fill='rgba(255,255,255,0.8)' fontSize={18} >
+        -   {units}
+      </text>
+
       <Grid
         top={margin.top}
         left={margin.left}
         xScale={xScale}
         yScale={yScale}
-        stroke='rgba(61, 55, 58, 0.9)'
+        stroke='rgba(255, 255, 255, 0.21)'
         width={xMax}
         height={yMax}
         numTicksRows={numTicksForHeight(height)}
         numTicksColumns={numTicksForWidth(width)}
       />
-      <Group top={margin.top} left={margin.left}>
+      /*grid*/
+      <Group>
         {waveformOld}
         {waveformNew}
       </Group>
+      
+
       <Group left={margin.left}>
-        <GridRows scale={yScale} width={xMax} height={yMax} stroke='#000000' />
-        <GridColumns scale={xScale} width={xMax} height={yMax} stroke='#000000' />
+
+        <GridRows scale={yScale} width={xMax} height={yMax}
+        stroke='rgba(255,255,255,0)' 
+        />
+        <GridColumns scale={xScale} width={xMax} height={yMax}
+        stroke='rgba(255,255,255,0)' 
+        />
+        /*extra grid?*/
+
         <AxisLeft
           top={margin.top}
           left={0}
@@ -86,18 +107,16 @@ export const Axes = ({
           numTicks={numTicksForHeight(height)}
           label='Axis Left Label'
           labelProps={{
-            fill: '#8e205f',
+            fill: 'rgba(255,255,255,0)',
             textAnchor: 'middle',
             fontSize: 12,
-            fontFamily: 'Arial'
           }}
-          stroke='#1b1a1e'
-          tickStroke='#8e205f'
+          stroke='rgba(255,255,255,0)'
+          tickStroke='rgba(255,255,255,0)'
           tickLabelProps={() => ({
-            fill: '#8e205f',
+            fill: 'rgba(255,255,255,0.5)',
             textAnchor: 'end',
-            fontSize: 10,
-            fontFamily: 'Arial',
+            fontSize: 14,
             dx: '-0.25em',
             dy: '0.25em'
           })}
@@ -105,31 +124,35 @@ export const Axes = ({
             <text {...tickProps}>{formattedValue}</text>
           )}
         />
-        <text x='30' y='20' color='#FFFFFF' fontSize={15} >
-          {title}
-        </text>
-        <text x='30' y='32' color='#FFFFFF' fontSize={10} >
-          {units}
-        </text>
-        <AxisRight scale={yScale}
-          stroke='#FFFFFF'
+        
+        
+        {/*<AxisRight scale={yScale}
+          stroke='rgba(255,255,255,0)'
+          tickStroke='rgba(255,255,255,0)'
+          numTicks={numTicksForHeight(height)}
           tickLabelProps={() => ({
-            fill: '#FFFFFF',
-            fontSize: 11,
-            textAnchor: 'middle',
+            fill: 'rgba(255,255,255,0.5)',
+            fontSize: 14,
+            textAnchor: 'start',
           })}
-        />
+        />*/}
+
         <AxisBottom
           top={height - margin.bottom}
           left={0}
           scale={xScale}
           numTicks={numTicksForWidth(width)}
+          tickLabelProps={() => ({
+            fill: 'rgba(255,255,255,0.5)',
+            fontSize: 14,
+            textAnchor: 'start',
+          })}
           label='Time'
         >
           {axis => {
-            const tickLabelSize = 10
-            const tickRotate = 45
-            const tickColor = '#8e205f'
+            const tickLabelSize = 12
+            const tickRotate = 0
+            const tickColor = 'rgba(255,255,255,0.5)'
             const axisCenter = (axis.axisToPoint.x - axis.axisFromPoint.x) / 2
             return (
               <g className='my-custom-bottom-axis'>
@@ -138,7 +161,7 @@ export const Axes = ({
                   const tickY = tick.to.y + tickLabelSize + axis.tickLength
                   return (
                     <Group key={`vx-tick-${tick.value}-${i}`} className={'vx-axis-tick'}>
-                      <Line from={tick.from} to={tick.to} stroke={tickColor} />
+                      <Line from={tick.from} to={tick.to} />
                       <text
                         transform={`translate(${tickX}, ${tickY}) rotate(${tickRotate})`}
                         fontSize={tickLabelSize}
@@ -164,10 +187,10 @@ export const Axes = ({
 
 Axes.defaultProps = {
   margin: {
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0
+    top: 45,
+    bottom: 40,
+    left: 40,
+    right: 10
   },
   xRangeMin: 0
 }

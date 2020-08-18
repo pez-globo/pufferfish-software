@@ -1,10 +1,12 @@
 import React from 'react'
 import { Grid, Tabs, Tab } from '@material-ui/core/'
 import { makeStyles, Theme } from '@material-ui/core/styles'
-import { TabPanel, a11yProps } from '../controllers/TabPanel'
+import { TabPanel, a11yProps } from '../utils/controls/TabPanel'
 import { InfoTab, TestCalibrationTab, DisplayTab } from './containers'
 
 const useStyles = makeStyles((theme: Theme) => ({
+    root: {
+    },
     tabPanelContainer: {
         flexGrow: 1,
         justifyContent: 'space-between',
@@ -13,31 +15,11 @@ const useStyles = makeStyles((theme: Theme) => ({
         // border: '1px solid green',
     },
     tabContainer: {
-        minHeight: 80,
-        // border: '1px solid red',
-    },
-    tabs: {
-        // paddingTop: theme.spacing(1) 
-        // border: '1px solid red',
-        width: '100%',
-    },
-    tab: {
-        borderRadius: 8,
-        border: '2px solid ' + theme.palette.primary.main,
-        margin: theme.spacing(1),
-        zIndex: 1,
-        minHeight: 40,
-        minWidth: 220,
-    },
-    selectedTab:{color:theme.palette.primary.contrastText},
-    tabIndicator: {
-        borderRadius: 8,
-        border: '2px solid ' + theme.palette.primary.main,
-        zIndex: 0,
-        marginBottom: theme.spacing(1),
-        minHeight: 40,
-        background: theme.palette.primary.main
-    },
+        alignItems: 'center',
+        background: '#0b2e4c',
+        color:'white',
+        //border: '10px solid green'
+    }
 }))
 
 /** 
@@ -54,8 +36,8 @@ export const SettingsPage = () => {
     }
 
     return (
-        <Grid container direction='column'>
-            <Grid container className={classes.tabPanelContainer}>
+        <Grid container direction='column' className={classes.root}>
+            <Grid container direction='row' className={classes.tabPanelContainer}>
                 <TabPanel value={value} index={0}>
                     <InfoTab />
                 </TabPanel>
@@ -66,17 +48,14 @@ export const SettingsPage = () => {
                     <DisplayTab />
                 </TabPanel>
             </Grid>
-            <Grid container item justify='center' alignItems='center' className={classes.tabContainer}>
-                <Tabs value={value} onChange={handleChange} className={classes.tabs} classes={{ indicator: classes.tabIndicator }}>
-                    <Tab label='Info' {...a11yProps(0)} className={classes.tab}
-                    classes={{selected:classes.selectedTab}} />
-                    <Tab label='Test & Calibration' {...a11yProps(1)} className={classes.tab}
-                    classes={{selected:classes.selectedTab}} />
-                    <Tab label='Display' {...a11yProps(2)} className={classes.tab}
-                    classes={{selected:classes.selectedTab}} />
+            <Grid container item direction='row' className={classes.tabContainer}>
+                <Tabs value={value} onChange={handleChange}>
+                    <Tab label='Info' {...a11yProps(0)} />
+                    <Tab label='Test & Calibration' {...a11yProps(1)} />
+                    <Tab label='Display' {...a11yProps(2)} />
                 </Tabs>
             </Grid>
-        </Grid>
+        </Grid >
     )
 }
 

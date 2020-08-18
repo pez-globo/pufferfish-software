@@ -1,30 +1,36 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Button, Grid, Typography, makeStyles, Theme } from '@material-ui/core'
+import { makeStyles, Theme } from '@material-ui/core/styles'
+import { Button, Grid } from '@material-ui/core'
 import Navigation from '../navigation/Navigation'
-import { SCREENSAVER_ROUTE } from '../navigation/constants'
-import ShutdownIcon from '../icons/ShutdownIcon'
+import puffer from '../icons/puffer.svg'
+import Shutdown from '../icons/Shutdown.svg'
+
+console.log(puffer);
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
-        width: 90,
-        height: '100%',
-        backgroundColor: theme.palette.background.paper
+        //border: '1px solid yellow',
+        background: '',
     },
-    shutdownButton: {
-        '&:hover': { background: theme.palette.error.dark },
-        backgroundColor: theme.palette.error.main,
-        color: theme.palette.text.primary,
-        height: 80,
+    sidebar: {
+        width: 100,
+        height: '100%',
+        background:'#0b2e4c'
+        //border: '1px solid green',
+    },
+
+    puffer:{
+        height: 90,
         width: '100%',
         borderRadius: 0,
-    },
-    screensaverButton: {
-        height: 80,
-        width: '100%',
-        minWidth: 0,
-        borderRadius: 0
+        background:'#0053b1',
+        color:'white',
+        alignItems:'baseline',
+        textAlign:'center',
+        paddingTop:20,
     }
+
 }))
 
 /**
@@ -32,7 +38,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  * 
  * The main navigation panel of the application.
  */
-const Sidebar = () => {
+export const Sidebar = () => {
     const classes = useStyles()
 
     return (
@@ -41,44 +47,37 @@ const Sidebar = () => {
             direction='column'
             justify='space-between'
             alignItems='stretch'
-            className={classes.root}
+            className={classes.sidebar}
             wrap='nowrap'
         >
             <Grid item>
-                <Button
-                    component={Link}
-                    to={SCREENSAVER_ROUTE.path}
-                    variant='contained'
-                    color='primary'
-                    className={classes.screensaverButton}
-                    disableElevation
+                <Grid
+                    className={classes.puffer}
+                    //variant='contained'
+                    //component={Link}
+                    //to='/screensaver'
+                    //disableElevation
                 >
-                    <div>
-                        <SCREENSAVER_ROUTE.icon style={{ fontSize: '1.5rem', width: '100%' }} />
-                        <br />
-                        <Typography variant='subtitle2' align='center'>
-                            {SCREENSAVER_ROUTE.label}
-                        </Typography>
-                    </div>
-                </Button>
+                    <img src={puffer}/>
+                    <br/>
+                    Pufferfish
+                </Grid>
+                
             </Grid>
             <Grid item>
                 <Navigation />
             </Grid>
             <Grid item>
-                <Button
-                    variant='contained'
-                    className={classes.shutdownButton}
-                    disableElevation
+                <Grid
+                    //variant='contained'
+                    className={classes.puffer}
+                    style={{ background:'#f73b39'}}
+                    //disableElevation
                 >
-                    <div>
-                        <ShutdownIcon style={{ fontSize: '1.5rem' }} />
-                        <br />
-                        <Typography variant='subtitle2'  style={{color:'white'}} align='center'>
-                            Shutdown
-                        </Typography>
-                    </div>
-                </Button>
+                    <img src={Shutdown}/>
+                    <br/>
+                    Shutdown
+                </Grid>
             </Grid>
         </Grid>
     )

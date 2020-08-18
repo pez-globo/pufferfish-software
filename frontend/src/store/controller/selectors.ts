@@ -97,6 +97,11 @@ export const getParametersFiO2 = createSelector(
   getParameters,
   (parameters: Parameters): number => parameters.fio2
 )
+export const getParametersVT = createSelector(
+  getParameters,
+  (parameters: Parameters): number => parameters.vt
+)
+
 
 // ParametersRequest
 export const getParametersRequest = createSelector(

@@ -15,16 +15,22 @@ const useStyles = makeStyles((theme: Theme) => ({
     infoPanel: {
         flexDirection: 'column',
         justifyContent: 'center',
-        borderRadius: theme.panel.borderRadius,
+        //border: '1px solid black',
+        borderRadius: 16,
         padding: theme.spacing(2),
-        backgroundColor: theme.palette.background.paper,
-        marginBottom: theme.spacing(2)
+        marginBottom: theme.spacing(2),
+
+        background: '#0b2e4c',
+        color:'white',
     },
     rightPanel: {
         flexDirection: 'column',
-        borderRadius: theme.panel.borderRadius,
+        border: '1px solid black',
+        borderRadius: 16,
         marginBottom: theme.spacing(2),
-        backgroundColor: theme.palette.background.paper,
+        
+        background: '#0b2e4c',
+        color:'white',
     },
     optionPanel: {
         padding: theme.spacing(2),

@@ -1,7 +1,9 @@
 import React from 'react'
+import { Grid } from '@vx/grid'
 import { curveLinear } from '@vx/curve'
 import { LinePath } from '@vx/shape'
 import { scaleTime, scaleLinear } from '@vx/scale'
+import { Axes } from '../components/Axes'
 
 interface DateValue {
   date: Date,
@@ -23,6 +25,7 @@ export interface Props {
     right: number
   },
   strokeWidth: number,
+  fill: string,
   xRangeMin: number,
   xRangeMax: number,
   yRangeMin: number,
@@ -30,7 +33,7 @@ export interface Props {
 }
 
 export const Waveform = ({
-  width, height, margin, data, strokeWidth,
+  width, height, margin, data, strokeWidth, fill,
   xRangeMin, xRangeMax, yRangeMin, yRangeMax
 }: Props) => {
   // bounds
@@ -51,21 +54,14 @@ export const Waveform = ({
   return (
     <LinePath
       data={data}
-      x={d => xScale(x(d))}
-      y={d => yScale(y(d))}
-      stroke={'#ffffff'}
+      x={d => xScale(x(d))+margin.left}
+      y={d => yScale(y(d))+margin.top}
+      stroke={'#B2C0FC'}
+      fill={fill}
       strokeWidth={strokeWidth}
       curve={curveLinear}
     />
   )
 }
 
-Waveform.defaultProps = {
-  margin: {
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0
-  },
-  xRangeMin: 0
-}
+Waveform.defaultProps = Axes.defaultProps
