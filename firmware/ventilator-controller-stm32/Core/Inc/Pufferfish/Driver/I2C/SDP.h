@@ -94,6 +94,8 @@ class SDPSensor : public Testable {
 
   I2CDeviceStatus reset() override;
   I2CDeviceStatus test() override;
+  
+  I2CDeviceStatus readPressureSample(int16_t differentialPressureScale, float &differentialPressure);
  private:
   SensirionSensor mSensirion;
   bool mMeasuring = false;
