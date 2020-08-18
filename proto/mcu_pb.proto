@@ -6,7 +6,7 @@ message Alarms {
   bool alarm_two = 3;
 }
 
-message AlarmLimits {
+message AlarmLimitsRequest {
   uint32 rr_min = 1;
   uint32 rr_max = 2;
   uint32 pip_min = 3;

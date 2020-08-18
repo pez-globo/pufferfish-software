@@ -1,7 +1,7 @@
-import React, { Props } from 'react'
+import React from 'react'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import { Grid, Typography, Button } from '@material-ui/core'
-import { updateCommitedParameter } from '../../store/controller/actions'
+import { updateCommittedParameter } from '../../store/controller/actions'
 import { useDispatch, useSelector } from 'react-redux'
 import { getParametersRequestMode } from '../../store/controller/selectors'
 import { VentilationMode } from '../../store/controller/proto/mcu_pb'
@@ -73,7 +73,7 @@ export const ModesPage = () => {
     const classes = useStyles()
     const dispatch = useDispatch()
     const currentMode = useSelector(getParametersRequestMode)
-    const updateMode = (mode: VentilationMode) => dispatch(updateCommitedParameter({ mode: mode }))
+    const updateMode = (mode: VentilationMode) => dispatch(updateCommittedParameter({ mode: mode }))
     const buttonClass = (mode: VentilationMode) => mode === currentMode ? `${classes.modeButton} ${classes.selected}`: `${classes.modeButton}`
     return (
         <Grid container className={classes.root}>

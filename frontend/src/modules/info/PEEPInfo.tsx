@@ -12,13 +12,12 @@ import { AlarmModal, Knob } from '../controllers'
 
 import store from '../../store'
 import { StoreState } from '../../store/types'
-import { PARAMETER_COMMITTED } from '../../store/controller/types'
 import {
   getCycleMeasurementsPEEP,
   getParametersPEEP
 } from '../../store/controller/selectors'
 import { CMH20 } from './units'
-import { updateCommitedParameter } from '../../store/controller/actions'
+import { updateCommittedParameter } from '../../store/controller/actions'
 
 
 const displaySelector = createStructuredSelector<StoreState, ValueProps>({
@@ -26,7 +25,7 @@ const displaySelector = createStructuredSelector<StoreState, ValueProps>({
 })
 const PEEPDisplay = connect(displaySelector)(ValueDisplay)
 
-const doSetPEEP = (setting: number) => updateCommitedParameter({ peep: setting })
+const doSetPEEP = (setting: number) => updateCommittedParameter({ peep: setting })
 const boundDoSetPEEP = bindActionCreators(doSetPEEP, store.dispatch)
 
 const settingSelector = createStructuredSelector<StoreState, SettingAdjustProps>({

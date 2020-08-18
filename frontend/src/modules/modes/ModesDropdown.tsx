@@ -3,7 +3,7 @@ import { Button, Menu, MenuItem, makeStyles, Theme } from '@material-ui/core'
 import { VentilationMode } from '../../store/controller/proto/mcu_pb'
 import { useDispatch, useSelector } from 'react-redux'
 import { getParametersRequestMode } from '../../store/controller/selectors'
-import { updateCommitedParameter } from '../../store/controller/actions'
+import { updateCommittedParameter } from '../../store/controller/actions'
 import { getModeText } from '../displays/ModeBanner'
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -33,7 +33,7 @@ export const ModesDropdown = () => {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
     const dispatch = useDispatch()
     const ventilationMode = useSelector(getParametersRequestMode)
-    const updateMode = (mode: VentilationMode) => dispatch(updateCommitedParameter({ mode: mode }))
+    const updateMode = (mode: VentilationMode) => dispatch(updateCommittedParameter({ mode: mode }))
     
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget)

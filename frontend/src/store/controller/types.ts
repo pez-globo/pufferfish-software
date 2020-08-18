@@ -6,7 +6,7 @@ import {
   ParametersRequest,
   Ping,
   Announcement,
-  AlarmLimits
+  AlarmLimitsRequest
 } from './proto/mcu_pb'
 import {
   RotaryEncoder
@@ -21,7 +21,7 @@ export const PARAMETER_COMMITTED = '@controller/PARAMETER_COMMITTED'
 
 export type PBMessage = (
   // mcu_pb
-  AlarmLimits | Alarms | SensorMeasurements | CycleMeasurements
+  AlarmLimitsRequest | Alarms | SensorMeasurements | CycleMeasurements
   | Parameters | ParametersRequest
   | Ping | Announcement
   // frontend_pb
@@ -30,7 +30,7 @@ export type PBMessage = (
 
 export type PBMessageType = (
   // mcu_pb
-  typeof AlarmLimits | typeof Alarms | typeof SensorMeasurements | typeof CycleMeasurements
+  typeof AlarmLimitsRequest | typeof Alarms | typeof SensorMeasurements | typeof CycleMeasurements
   | typeof Parameters | typeof ParametersRequest
   | typeof Ping | typeof Announcement
   // frontend_pb
@@ -45,7 +45,7 @@ export enum MessageType {
   ParametersRequest = 5,
   Ping = 6,
   Announcement = 7,
-  AlarmLimits = 8,
+  AlarmLimitsRequest = 8,
   RotaryEncoder = 128
 };
 
@@ -65,7 +65,7 @@ export interface WaveformHistory {
 export interface ControllerStates {
   // Message states from mcu_pb
   alarms: Alarms;
-  alarmLimits: AlarmLimits;
+  alarmLimits: AlarmLimitsRequest;
   sensorMeasurements: SensorMeasurements;
   cycleMeasurements: CycleMeasurements;
   parameters: Parameters;
@@ -83,7 +83,7 @@ export interface ControllerStates {
 
 export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.Alarms, Alarms],
-  [MessageType.AlarmLimits, AlarmLimits],
+  [MessageType.AlarmLimitsRequest, AlarmLimitsRequest],
   [MessageType.SensorMeasurements, SensorMeasurements],
   [MessageType.CycleMeasurements, CycleMeasurements],
   [MessageType.Parameters, Parameters],
@@ -95,7 +95,7 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
 
 export const MessageTypes = new Map<PBMessageType, MessageType>([
   [Alarms, MessageType.Alarms],
-  [AlarmLimits, MessageType.AlarmLimits],
+  [AlarmLimitsRequest, MessageType.AlarmLimitsRequest],
   [SensorMeasurements, MessageType.SensorMeasurements],
   [CycleMeasurements, MessageType.CycleMeasurements],
   [Parameters, MessageType.Parameters],

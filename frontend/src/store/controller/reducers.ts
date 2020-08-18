@@ -7,7 +7,7 @@ import {
   ParametersRequest,
   Ping,
   Announcement,
-  AlarmLimits,
+  AlarmLimitsRequest,
   VentilationMode
 } from './proto/mcu_pb'
 import {
@@ -105,7 +105,7 @@ const waveformHistoryReducer = <T extends PBMessage>(
 }
 
 const alarmLimitsReducer = (
-  state: AlarmLimits = AlarmLimits.fromJSON({
+  state: AlarmLimitsRequest = AlarmLimitsRequest.fromJSON({
     rrMax: 100,
     pipMax: 100,
     peepMax: 100,
@@ -118,9 +118,9 @@ const alarmLimitsReducer = (
     etco2Max: 100,
     flowMax: 100,
     apneaMax: 100
-  }) as AlarmLimits,
+  }) as AlarmLimitsRequest,
   action: StateUpdateAction | ParameterCommitAction
-): AlarmLimits => {
+): AlarmLimitsRequest => {
   switch (action.type) {
     case STATE_UPDATED:  // ignore message from backend
       return state

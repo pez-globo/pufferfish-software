@@ -8,7 +8,7 @@ export interface Alarms {
   alarmTwo: boolean;
 }
 
-export interface AlarmLimits {
+export interface AlarmLimitsRequest {
   rrMin: number;
   rrMax: number;
   pipMin: number;
@@ -91,7 +91,7 @@ const baseAlarms: object = {
   alarmTwo: false,
 };
 
-const baseAlarmLimits: object = {
+const baseAlarmLimitsRequest: object = {
   rrMin: 0,
   rrMax: 0,
   pipMin: 0,
@@ -301,8 +301,8 @@ export const Alarms = {
   },
 };
 
-export const AlarmLimits = {
-  encode(message: AlarmLimits, writer: Writer = Writer.create()): Writer {
+export const AlarmLimitsRequest = {
+  encode(message: AlarmLimitsRequest, writer: Writer = Writer.create()): Writer {
     writer.uint32(8).uint32(message.rrMin);
     writer.uint32(16).uint32(message.rrMax);
     writer.uint32(24).uint32(message.pipMin);
@@ -329,10 +329,10 @@ export const AlarmLimits = {
     writer.uint32(192).uint32(message.apneaMax);
     return writer;
   },
-  decode(input: Uint8Array | Reader, length?: number): AlarmLimits {
+  decode(input: Uint8Array | Reader, length?: number): AlarmLimitsRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseAlarmLimits) as AlarmLimits;
+    const message = Object.create(baseAlarmLimitsRequest) as AlarmLimitsRequest;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -415,8 +415,8 @@ export const AlarmLimits = {
     }
     return message;
   },
-  fromJSON(object: any): AlarmLimits {
-    const message = Object.create(baseAlarmLimits) as AlarmLimits;
+  fromJSON(object: any): AlarmLimitsRequest {
+    const message = Object.create(baseAlarmLimitsRequest) as AlarmLimitsRequest;
     if (object.rrMin !== undefined && object.rrMin !== null) {
       message.rrMin = Number(object.rrMin);
     } else {
@@ -539,8 +539,8 @@ export const AlarmLimits = {
     }
     return message;
   },
-  fromPartial(object: DeepPartial<AlarmLimits>): AlarmLimits {
-    const message = Object.create(baseAlarmLimits) as AlarmLimits;
+  fromPartial(object: DeepPartial<AlarmLimitsRequest>): AlarmLimitsRequest {
+    const message = Object.create(baseAlarmLimitsRequest) as AlarmLimitsRequest;
     if (object.rrMin !== undefined && object.rrMin !== null) {
       message.rrMin = object.rrMin;
     } else {
@@ -663,7 +663,7 @@ export const AlarmLimits = {
     }
     return message;
   },
-  toJSON(message: AlarmLimits): unknown {
+  toJSON(message: AlarmLimitsRequest): unknown {
     const obj: any = {};
     obj.rrMin = message.rrMin || 0;
     obj.rrMax = message.rrMax || 0;

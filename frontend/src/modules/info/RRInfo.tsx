@@ -11,20 +11,19 @@ import {
 import { AlarmModal, Knob } from '../controllers'
 import store from '../../store'
 import { StoreState } from '../../store/types'
-import { PARAMETER_COMMITTED } from '../../store/controller/types'
 import {
   getCycleMeasurementsRR,
   getParametersRR
 } from '../../store/controller/selectors'
 import { BMIN } from './units'
-import { updateCommitedParameter } from '../../store/controller/actions'
+import { updateCommittedParameter } from '../../store/controller/actions'
 
 const displaySelector = createStructuredSelector<StoreState, ValueProps>({
   value: getCycleMeasurementsRR
 })
 const RRDisplay = connect(displaySelector)(ValueDisplay)
 
-const doSetRR = (setting: number) => updateCommitedParameter({ rr: setting })
+const doSetRR = (setting: number) => updateCommittedParameter({ rr: setting })
 const boundDoSetRR = bindActionCreators(doSetRR, store.dispatch)
 
 const settingSelector = createStructuredSelector<StoreState, SettingAdjustProps>({

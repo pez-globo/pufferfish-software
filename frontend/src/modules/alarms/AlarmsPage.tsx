@@ -5,8 +5,8 @@ import Pagination from '@material-ui/lab/Pagination'
 import ValueSlider from '../controllers/ValueSlider'
 import ModeBanner from '../displays/ModeBanner'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateCommitedParameter } from '../../store/controller/actions'
-import { getAlarmLimits } from '../../store/controller/selectors'
+import { updateCommittedParameter } from '../../store/controller/actions'
+import { getAlarmLimitsRequest } from '../../store/controller/selectors'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -50,10 +50,10 @@ interface AlarmProps {
 
 const Alarm = ({ label, min, max, stateKey }: AlarmProps) => {
     const dispatch = useDispatch()
-    const alarmLimits: any = useSelector(getAlarmLimits)
+    const alarmLimits: any = useSelector(getAlarmLimitsRequest)
     const rangeValues = [ alarmLimits[`${stateKey}Min`], alarmLimits[`${stateKey}Max`] ]
     const onSliderChange = (range: number[]) => {
-        dispatch(updateCommitedParameter({ [`${stateKey}Min`]: range[0], [`${stateKey}Max`]: range[1] }))
+        dispatch(updateCommittedParameter({ [`${stateKey}Min`]: range[0], [`${stateKey}Max`]: range[1] }))
     }
     return (
         <Grid container>
