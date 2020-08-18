@@ -134,7 +134,7 @@ const alarmLimitsReducer = (
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb
   alarms: messageReducer<Alarms>(MessageType.Alarms, Alarms),
-  alarmLimits: alarmLimitsReducer,
+  alarmLimitsRequest: alarmLimitsReducer,
   sensorMeasurements: messageReducer<SensorMeasurements>(
     MessageType.SensorMeasurements, SensorMeasurements
   ),

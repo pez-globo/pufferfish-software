@@ -65,7 +65,7 @@ export interface WaveformHistory {
 export interface ControllerStates {
   // Message states from mcu_pb
   alarms: Alarms;
-  alarmLimits: AlarmLimitsRequest;
+  alarmLimitsRequest: AlarmLimitsRequest;
   sensorMeasurements: SensorMeasurements;
   cycleMeasurements: CycleMeasurements;
   parameters: Parameters;

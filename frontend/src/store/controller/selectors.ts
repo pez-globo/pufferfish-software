@@ -157,5 +157,5 @@ export const getWaveformFlowNew = createSelector(
 // Alarm Limits
 export const getAlarmLimitsRequest = createSelector(
   getController,
-  (states: ControllerStates): AlarmLimitsRequest => states.alarmLimits
+  (states: ControllerStates): AlarmLimitsRequest => states.alarmLimitsRequest
 )
