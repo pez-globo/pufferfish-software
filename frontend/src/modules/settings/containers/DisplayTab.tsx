@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
     Grid,
     Typography,
@@ -94,6 +94,11 @@ export const DisplayTab = () => {
         }
         setMonth(change)
     }
+
+    useEffect(() => {
+        let timerInterval = setInterval(() => setDate(new Date()), 1000)
+        return () => clearInterval(timerInterval)
+    }, []);
 
     return (
         <Grid container className={classes.root}>
