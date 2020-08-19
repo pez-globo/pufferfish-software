@@ -17,6 +17,7 @@ const displaySelector = createStructuredSelector<StoreState, ValueProps>({
 const InspTimeDisplay = connect(displaySelector)(ValueDisplay)
 
 const label = 'Insp. Time'
+const stateKey = "inspTime"
 const units = SECOND
 
 /**
@@ -30,7 +31,7 @@ const InspTimeInfo = () => (
     <Knob
         valueDisplay={<InspTimeDisplay label={label} units={units} isLive={true} />}
         valueModal={<ValueModal label={label} units={units} committedSetting={1.7} requestCommitSetting={() => null} />}
-        alarmModal={<AlarmModal label={label} units={units} requestCommitRange={() => null} />}
+        alarmModal={<AlarmModal label={label} units={units} stateKey={stateKey} requestCommitRange={() => null} />}
     />
 )
 

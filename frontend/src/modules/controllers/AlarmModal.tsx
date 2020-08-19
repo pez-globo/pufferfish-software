@@ -3,6 +3,9 @@ import ValueSlider from './ValueSlider'
 import ConfirmationModal from './ConfirmationModal'
 import ValueClicker from './ValueClicker'
 import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core'
+import { useDispatch, useSelector } from 'react-redux'
+import { getAlarmLimitsRequest } from '../../store/controller/selectors'
+import { updateCommittedParameter } from '../../store/controller/actions'
 
 const useStyles = makeStyles((theme: Theme) => ({
     contentContainer: {
@@ -42,17 +45,20 @@ interface Props {
     units: string,
     committedMin?: number,
     committedMax?: number,
-    requestCommitRange(min: number, max: number): any
+    requestCommitRange(min: number, max: number): any,
+    stateKey: string
 }
 
 export const AlarmModal = (
-    { label, committedMin = 0, committedMax = 100, requestCommitRange }: Props
+    { label, committedMin = 0, committedMax = 100, requestCommitRange, stateKey }: Props
 ) => {
     const classes = useStyles()
     const [open, setOpen] = React.useState(false)
-    const [min] = React.useState(committedMin)
-    const [max] = React.useState(committedMax)
-    const [rangeValue, setRangeValue] = React.useState<number[]>([min, max])
+    let [min] = React.useState(committedMin)
+    let [max] = React.useState(committedMax)
+    const alarmLimits: any = useSelector(getAlarmLimitsRequest)
+    const [rangeValue, setRangeValue] = React.useState<number[]>([alarmLimits[`${stateKey}Min`], alarmLimits[`${stateKey}Max`]])
+    const dispatch = useDispatch()
 
     const handleOpen = () => {
         setOpen(true)
@@ -63,7 +69,9 @@ export const AlarmModal = (
     }
 
     const handleConfirm = () => {
+        dispatch(updateCommittedParameter({ [`${stateKey}Min`]: rangeValue[0], [`${stateKey}Max`]: rangeValue[1] }))
         requestCommitRange(min, max)
+        handleClose()
     }
 
     const setSortedRangeValue = (rangeValue: any) => {

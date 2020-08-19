@@ -7,7 +7,8 @@ import {
   Parameters,
   ParametersRequest,
   Ping,
-  Announcement
+  Announcement,
+  AlarmLimitsRequest
 } from './proto/mcu_pb'
 import {
   RotaryEncoder
@@ -104,6 +105,11 @@ export const getParametersRequest = createSelector(
   (states: ControllerStates): ParametersRequest => states.parametersRequest
 )
 
+export const getParametersRequestMode = createSelector(
+  getParametersRequest,
+  (parametersRequest: ParametersRequest): number | any => parametersRequest.mode
+)
+
 // Ping
 export const getPing = createSelector(
   getController,
@@ -146,4 +152,10 @@ export const getWaveformFlowOld = createSelector(
 export const getWaveformFlowNew = createSelector(
   getWaveformHistoryFlow,
   (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformNew
+)
+
+// Alarm Limits
+export const getAlarmLimitsRequest = createSelector(
+  getController,
+  (states: ControllerStates): AlarmLimitsRequest => states.alarmLimitsRequest
 )
