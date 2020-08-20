@@ -10,7 +10,7 @@ import ClockIcon from '../icons/ClockIcon'
 import PowerFullIcon from '../icons/PowerFullIcon'
 import { PERCENT } from '../info/units'
 import { useSelector } from 'react-redux'
-import { getClock } from '../../store/controller/selectors'
+import { getClockTime } from '../../store/controller/selectors'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -80,7 +80,7 @@ export const ToolBar = () => {
             </Button>
         )
     }
-    const clock = useSelector(getClock)
+    const clockTime = useSelector(getClockTime)
 
     return (
         <AppBar color='transparent' position='static'>
@@ -127,7 +127,7 @@ export const ToolBar = () => {
                         alignItems='center'>
                         <span className={classes.paddingRight}>{`100${PERCENT}`}</span>
                         <PowerFullIcon style={{ fontSize: '2.5rem' }} />
-                        <span className={classes.paddingRight}>{clock.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                        <span className={classes.paddingRight}>{clockTime}</span>
                         <ClockIcon style={{ fontSize: '2.5rem' }} />
                     </Grid>
                     <Grid item >
