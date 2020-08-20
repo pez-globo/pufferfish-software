@@ -25,7 +25,7 @@ function createCustomTheme(options: ThemeOptions) {
     })
 }
 
-const darkTheme = createCustomTheme({
+export const darkTheme = createCustomTheme({
     palette: {
         type: 'dark',
         background: {
@@ -56,7 +56,7 @@ const darkTheme = createCustomTheme({
     },
 })
 
-const lightTheme = createCustomTheme({
+export const lightTheme = createCustomTheme({
     palette: {
         type: 'light',
         background: {
@@ -121,5 +121,3 @@ const lightTheme1 = createCustomTheme({
         }
     },
 })
-
-export const customTheme = darkTheme

@@ -15,7 +15,8 @@ import {
 import {
   ControllerStates,
   WaveformPoint,
-  WaveformHistory
+  WaveformHistory,
+  ThemeVariant
 } from './types'
 
 export const getController = (
@@ -146,4 +147,10 @@ export const getWaveformFlowOld = createSelector(
 export const getWaveformFlowNew = createSelector(
   getWaveformHistoryFlow,
   (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformNew
+)
+
+// Theme Selector
+export const getTheme = createSelector(
+  getController,
+  (states: ControllerStates): ThemeVariant => states.theme
 )
