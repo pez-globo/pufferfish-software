@@ -251,7 +251,7 @@ I2CDeviceStatus SDPSensor::test() {
 }
 
 
-I2CDeviceStatus SDPSensor::readPressureSample(SDPSample &sample){
+I2CDeviceStatus SDPSensor::readPressureSample(int16_t differentialPressureScale, float &differentialPressure){
 
   const uint8_t DATA_LEN = 2;
   uint8_t data[DATA_LEN] = { 0 };
@@ -266,7 +266,7 @@ I2CDeviceStatus SDPSensor::readPressureSample(SDPSample &sample){
   }
  int16_t pressuresample = static_cast<int16_t>(data[0] << 8 | data[1]);
 
- sample.differentialPressure = pressuresample/ static_cast<float>(sample.differentialPressureScale);
+ differentialPressure = pressuresample/ static_cast<float>(differentialPressureScale);
 
  return I2CDeviceStatus::ok;
 }
