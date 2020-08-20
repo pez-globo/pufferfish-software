@@ -15,6 +15,7 @@ import {
 
 export const STATE_UPDATED = '@controller/STATE_UPDATED'
 export const PARAMETER_COMMITTED = '@controller/PARAMETER_COMMITTED'
+export const CLOCK_UPDATED = '@controller/CLOCK_UPDATED'
 
 // Protocol Buffers
 
@@ -76,6 +77,7 @@ export interface ControllerStates {
   // Derived states
   waveformHistoryPaw: WaveformHistory;
   waveformHistoryFlow: WaveformHistory;
+  clock: Date
 };
 
 export const MessageClass = new Map<MessageType, PBMessageType>([

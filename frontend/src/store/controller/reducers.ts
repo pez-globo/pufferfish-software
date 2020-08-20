@@ -21,7 +21,8 @@ import {
   PBMessageType,
   StateUpdateAction,
   STATE_UPDATED,
-  WaveformHistory
+  WaveformHistory,
+  CLOCK_UPDATED
 } from './types'
 
 const messageReducer = <T extends PBMessage>(
@@ -110,9 +111,20 @@ const waveformHistoryReducer = <T extends PBMessage>(
   }
 }
 
+const updateClockReducer = (state = new Date(), action: any
+): Date => {
+  switch (action.type) {
+    case CLOCK_UPDATED:
+      return new Date()
+    default:
+      return state
+  }
+}
+
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb
   alarms: messageReducer<Alarms>(MessageType.Alarms, Alarms),
+  clock: updateClockReducer,
   sensorMeasurements: messageReducer<SensorMeasurements>(
     MessageType.SensorMeasurements, SensorMeasurements
   ),

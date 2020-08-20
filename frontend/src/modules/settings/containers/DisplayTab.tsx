@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import {
     Grid,
     Typography,
@@ -12,6 +12,8 @@ import {
     Theme
 } from '@material-ui/core'
 import ValueController from '../../controllers/ValueController'
+import { getClock } from '../../../store/controller/selectors'
+import { useSelector } from 'react-redux'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -70,6 +72,7 @@ export const DisplayTab = () => {
     // Date & Time State
     // TODO: `date` needs to hook into the redux store so that every date-related state
     //       declared below can be initalized with the same state the ventilator is working off.
+    const clock = useSelector(getClock)
     const [date, setDate] = React.useState<Date>(new Date())
     const [period, setPeriod] = React.useState((date.getHours() >= 12) ? Period.PM : Period.AM)
     const [minute, setMinute] = React.useState(date.getMinutes())
@@ -94,11 +97,6 @@ export const DisplayTab = () => {
         }
         setMonth(change)
     }
-
-    useEffect(() => {
-        let timerInterval = setInterval(() => setDate(new Date()), 1000)
-        return () => clearInterval(timerInterval)
-    }, []);
 
     return (
         <Grid container className={classes.root}>
@@ -132,11 +130,11 @@ export const DisplayTab = () => {
                 <Grid container item xs direction='column' justify='space-evenly' className={classes.leftContainer}>
                     <Box>
                         <Typography variant='h6'>Date</Typography>
-                        <Typography>{date.toLocaleDateString()}</Typography>
+                        <Typography>{clock.toLocaleDateString()}</Typography>
                     </Box>
                     <Box>
                         <Typography variant='h6'>Time</Typography>
-                        <Typography>{date.toLocaleTimeString()}</Typography>
+                        <Typography>{clock.toLocaleTimeString()}</Typography>
                     </Box>
                 </Grid>
             </Grid>

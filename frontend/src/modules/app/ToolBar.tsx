@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import { Button, Grid, AppBar } from '@material-ui/core'
@@ -9,6 +9,8 @@ import { BackIcon, BellIcon } from '../icons'
 import ClockIcon from '../icons/ClockIcon'
 import PowerFullIcon from '../icons/PowerFullIcon'
 import { PERCENT } from '../info/units'
+import { useSelector } from 'react-redux'
+import { getClock } from '../../store/controller/selectors'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -78,11 +80,8 @@ export const ToolBar = () => {
             </Button>
         )
     }
-    const [date, setDate] = React.useState<Date>(new Date())
-    useEffect(() => {
-        let timerInterval = setInterval(() => setDate(new Date()), 1000 * 60)
-        return () => clearInterval(timerInterval)
-    }, []);
+    const clock = useSelector(getClock)
+
     return (
         <AppBar color='transparent' position='static'>
             <Grid
@@ -128,7 +127,7 @@ export const ToolBar = () => {
                         alignItems='center'>
                         <span className={classes.paddingRight}>{`100${PERCENT}`}</span>
                         <PowerFullIcon style={{ fontSize: '2.5rem' }} />
-                        <span className={classes.paddingRight}>{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                        <span className={classes.paddingRight}>{clock.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
                         <ClockIcon style={{ fontSize: '2.5rem' }} />
                     </Grid>
                     <Grid item >

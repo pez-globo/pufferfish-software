@@ -147,3 +147,9 @@ export const getWaveformFlowNew = createSelector(
   getWaveformHistoryFlow,
   (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformNew
 )
+
+// Clock
+export const getClock = createSelector(
+  getController,
+  (states: ControllerStates): Date => states.clock
+)
