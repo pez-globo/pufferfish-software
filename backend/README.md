@@ -98,3 +98,14 @@ Afterwards, you can quickly re-run tests without running the full tox process:
 ```bash
 coverage run --parallel -m pytest --basetemp=.tox/py37/tmp --verbose tests
 ```
+
+## Documentation
+
+To automatically generate documentation for the backend use sphinx as shown below:
+
+```bash
+(backend) $ sphinx-apidoc -F -o docs ventserver
+(backend) $ cd docs
+(docs) $ make html
+```
+The generated HTML files would be generated in `docs/_build` and the website can accessed using `index.html`. 
