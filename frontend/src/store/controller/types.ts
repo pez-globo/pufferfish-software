@@ -16,7 +16,6 @@ import {
 
 export const STATE_UPDATED = '@controller/STATE_UPDATED'
 export const PARAMETER_COMMITTED = '@controller/PARAMETER_COMMITTED'
-export const CLOCK_UPDATED = '@controller/CLOCK_UPDATED'
 
 // Protocol Buffers
 

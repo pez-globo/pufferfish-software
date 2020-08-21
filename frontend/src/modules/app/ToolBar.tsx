@@ -10,7 +10,7 @@ import ClockIcon from '../icons/ClockIcon'
 import PowerFullIcon from '../icons/PowerFullIcon'
 import { PERCENT } from '../info/units'
 import { useSelector } from 'react-redux'
-import { getClockTime } from '../../store/controller/selectors'
+import { getClockTime } from '../../store/app/selectors'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {

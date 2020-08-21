@@ -154,17 +154,6 @@ export const getWaveformFlowNew = createSelector(
   (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformNew
 )
 
-// Clock
-export const getClock = createSelector(
-  getController,
-  (states: ControllerStates): Date => states.clock
-)
-
-export const getClockTime = createSelector(
-  getController,
-  (states: ControllerStates): String => states.clock.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
-)
-
 // Alarm Limits
 export const getAlarmLimitsRequest = createSelector(
   getController,

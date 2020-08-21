@@ -12,8 +12,8 @@ import {
     Theme
 } from '@material-ui/core'
 import ValueController from '../../controllers/ValueController'
-import { getClock } from '../../../store/controller/selectors'
 import { useSelector } from 'react-redux'
+import { getClock } from '../../../store/app/selectors'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
