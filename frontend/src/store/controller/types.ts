@@ -5,7 +5,8 @@ import {
   Parameters,
   ParametersRequest,
   Ping,
-  Announcement
+  Announcement,
+  AlarmLimitsRequest
 } from './proto/mcu_pb'
 import {
   RotaryEncoder
@@ -21,7 +22,7 @@ export const CLOCK_UPDATED = '@controller/CLOCK_UPDATED'
 
 export type PBMessage = (
   // mcu_pb
-  Alarms | SensorMeasurements | CycleMeasurements
+  AlarmLimitsRequest | Alarms | SensorMeasurements | CycleMeasurements
   | Parameters | ParametersRequest
   | Ping | Announcement
   // frontend_pb
@@ -30,7 +31,7 @@ export type PBMessage = (
 
 export type PBMessageType = (
   // mcu_pb
-  typeof Alarms | typeof SensorMeasurements | typeof CycleMeasurements
+  typeof AlarmLimitsRequest | typeof Alarms | typeof SensorMeasurements | typeof CycleMeasurements
   | typeof Parameters | typeof ParametersRequest
   | typeof Ping | typeof Announcement
   // frontend_pb
@@ -45,6 +46,7 @@ export enum MessageType {
   ParametersRequest = 5,
   Ping = 6,
   Announcement = 7,
+  AlarmLimitsRequest = 8,
   RotaryEncoder = 128
 };
 
@@ -64,6 +66,7 @@ export interface WaveformHistory {
 export interface ControllerStates {
   // Message states from mcu_pb
   alarms: Alarms;
+  alarmLimitsRequest: AlarmLimitsRequest;
   sensorMeasurements: SensorMeasurements;
   cycleMeasurements: CycleMeasurements;
   parameters: Parameters;
@@ -82,6 +85,7 @@ export interface ControllerStates {
 
 export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.Alarms, Alarms],
+  [MessageType.AlarmLimitsRequest, AlarmLimitsRequest],
   [MessageType.SensorMeasurements, SensorMeasurements],
   [MessageType.CycleMeasurements, CycleMeasurements],
   [MessageType.Parameters, Parameters],
@@ -93,6 +97,7 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
 
 export const MessageTypes = new Map<PBMessageType, MessageType>([
   [Alarms, MessageType.Alarms],
+  [AlarmLimitsRequest, MessageType.AlarmLimitsRequest],
   [SensorMeasurements, MessageType.SensorMeasurements],
   [CycleMeasurements, MessageType.CycleMeasurements],
   [Parameters, MessageType.Parameters],

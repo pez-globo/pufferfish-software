@@ -7,7 +7,8 @@ import {
   Parameters,
   ParametersRequest,
   Ping,
-  Announcement
+  Announcement,
+  AlarmLimitsRequest
 } from './proto/mcu_pb'
 import {
   RotaryEncoder
@@ -104,6 +105,11 @@ export const getParametersRequest = createSelector(
   (states: ControllerStates): ParametersRequest => states.parametersRequest
 )
 
+export const getParametersRequestMode = createSelector(
+  getParametersRequest,
+  (parametersRequest: ParametersRequest): number | any => parametersRequest.mode
+)
+
 // Ping
 export const getPing = createSelector(
   getController,
@@ -157,4 +163,10 @@ export const getClock = createSelector(
 export const getClockTime = createSelector(
   getController,
   (states: ControllerStates): String => states.clock.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+)
+
+// Alarm Limits
+export const getAlarmLimitsRequest = createSelector(
+  getController,
+  (states: ControllerStates): AlarmLimitsRequest => states.alarmLimitsRequest
 )
