@@ -4,14 +4,14 @@ echo "********** Setting up custom boot screen **********"
 
 cd ~/pufferfish-vent-software/deploy
 sudo mkdir -p /etc/plymouth/themes
-sudo cp plymouth/plymouthd.conf
+sudo cp plymouth/plymouthd.conf /etc/plymouth/plymouthd.conf
 sudo cp -r plymouth/themes/pufferfish /etc/plymouth/themes/
 
 echo "********** Installing pyenv **********"
 
 sudo apt update
 sudo apt install libffi-dev curl wget gcc make zlib1g-dev libsqlite3-dev -y
-sudo apt install -y build-essential libssl-dev libbz2-dev libreadline-dev -y
+sudo apt install build-essential libssl-dev libbz2-dev libreadline-dev -y
 sudo apt install libncurses5-dev libncursesw5-dev xz-utils libffi-dev liblzma-dev python-openssl -y
 curl https://pyenv.run | bash
 
