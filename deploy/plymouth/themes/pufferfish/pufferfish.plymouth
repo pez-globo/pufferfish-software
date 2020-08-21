@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=pufferfish
+Description=Pufferfish Desktop Splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/pufferfish
+ScriptFile=/usr/share/plymouth/themes/pufferfish/pufferfish.script
