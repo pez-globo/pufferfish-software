@@ -6,7 +6,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     path: {
         stroke: theme.palette.text.primary,
     },
-
 }))
 
 

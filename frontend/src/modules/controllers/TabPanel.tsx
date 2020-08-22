@@ -40,7 +40,7 @@ export const TabPanel = (props: Props) => {
                     direction='row'
                     alignItems='stretch'
                     wrap='nowrap'
-                    style={{ height: '100%'}}
+                    style={{ height: '100%' }}
                 >
                     {children}
                 </Grid>
