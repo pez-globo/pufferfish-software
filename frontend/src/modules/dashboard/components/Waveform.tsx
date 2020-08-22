@@ -1,9 +1,12 @@
 import React from 'react'
 import { Grid } from '@vx/grid'
 import { curveLinear } from '@vx/curve'
-import { LinePath } from '@vx/shape'
+import { LinePath, AreaClosed } from '@vx/shape'
+import { Group } from '@vx/group';
+import { LinearGradient } from '@vx/gradient';
 import { scaleTime, scaleLinear } from '@vx/scale'
 import { Axes } from '../components/Axes'
+
 
 interface DateValue {
   date: Date,
@@ -13,6 +16,7 @@ interface DateValue {
 // accessors
 const x = ({ date }: DateValue) => date
 const y = ({ value }: DateValue) => value
+
 
 export interface Props {
   width: number,
@@ -25,16 +29,17 @@ export interface Props {
     right: number
   },
   strokeWidth: number,
-  fill: string,
+  fill: boolean,
   xRangeMin: number,
   xRangeMax: number,
   yRangeMin: number,
   yRangeMax: number,
+  type: string
 }
 
 export const Waveform = ({
   width, height, margin, data, strokeWidth, fill,
-  xRangeMin, xRangeMax, yRangeMin, yRangeMax
+  xRangeMin, xRangeMax, yRangeMin, yRangeMax, type
 }: Props) => {
   // bounds
   const xMax = width - margin.left - margin.right
@@ -51,16 +56,55 @@ export const Waveform = ({
     nice: true
   })
 
+  const yScale1 = scaleLinear({
+    domain: [yRangeMin, yRangeMax],
+    range: [height-margin.bottom, 0],
+  })
+
+
+  const yScale2 = scaleLinear({
+    domain: [yRangeMin, yRangeMax],
+    range: [(height-margin.bottom+margin.top)/2, 0],
+  })
+
+  function findAxis(type: string){
+	if (type=='flow') return yScale2
+	if (type=='paw') return yScale1
+	return yScale
+}
+	function fillF(fill: boolean){
+		if (fill) return "url(#gradient)"
+		return "rgba(0,0,0,0)"
+	}
+
   return (
-    <LinePath
-      data={data}
-      x={d => xScale(x(d))+margin.left}
-      y={d => yScale(y(d))+margin.top}
-      stroke={'#B2C0FC'}
-      fill={fill}
-      strokeWidth={strokeWidth}
-      curve={curveLinear}
-    />
+  	<svg width={width} height={height}>
+  	<LinearGradient
+  		from='#B2C0FC'
+  		to='#B2C0FC'
+  		toOpacity={0}
+  		id='gradient'
+  	/>
+  	<Group>
+	    <AreaClosed
+	      data={data}
+	      x={d => xScale(x(d))+margin.left}
+	      y={d => yScale(y(d))+margin.top}
+	      yScale={findAxis(type)}
+	      fill={fillF(fill)}
+	      strokeWidth={strokeWidth}
+	      curve={curveLinear}
+	    />
+	    <LinePath
+	      data={data}
+	      x={d => xScale(x(d))+margin.left}
+	      y={d => yScale(y(d))+margin.top}
+	      stroke={'#B2C0FC'}
+	      strokeWidth={strokeWidth}
+	      curve={curveLinear}
+	    />
+    </Group>
+    </svg>
   )
 }
 
