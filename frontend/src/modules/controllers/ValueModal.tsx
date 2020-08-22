@@ -7,13 +7,13 @@ const useStyles = makeStyles((theme: Theme) => ({
     contentContainer: {
         height: '100%',
         minHeight: '300px',
-        border: '2px dashed ' + theme.palette.common.black,
+        border: '2px dashed ' + theme.palette.background.default,
         borderRadius: theme.panel.borderRadius,
         marginRight: theme.spacing(2),
         padding: theme.spacing(2)
     },
     borderBottom: {
-        borderBottom: '2px dashed' + theme.palette.common.black
+        borderBottom: '2px dashed ' + theme.palette.background.default
     },
     openButton: {
         width: '100%',
