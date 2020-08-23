@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme: Theme) => ({
         // border: '1px dashed red',
     },
     iconButton: {
-        border: '1px solid black',
+        border: '1px solid ' + theme.palette.common.black,
         borderRadius: 8,
         height: '100%',
         minHeight: 55,

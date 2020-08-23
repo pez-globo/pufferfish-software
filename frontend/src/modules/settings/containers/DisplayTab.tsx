@@ -14,6 +14,9 @@ import {
 import ValueController from '../../controllers/ValueController'
 import { useSelector } from 'react-redux'
 import { getClock } from '../../../store/app/selectors'
+import { ThemeVariant, THEME_SWITCHED } from '../../../store/controller/types'
+import { getTheme } from '../../../store/controller/selectors'
+import { useSelector, useDispatch } from 'react-redux'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -46,8 +49,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 // Periods for 12-Hour Based Time Format
 enum Period { AM, PM }
-// UI Color UITheme
-enum UITheme { DARK, LIGHT }
 
 // Returns the number of days in a month for a given year.
 const getDaysInMonth = (month: number, year: number) => {
@@ -68,7 +69,8 @@ const to24HourClock = (hour: number, period: Period) => { return (period === Per
 export const DisplayTab = () => {
     const classes = useStyles()
     const [brightness, setBrightness] = React.useState(100)
-    const [theme, setTheme] = React.useState(UITheme.DARK)
+    const dispatch = useDispatch()
+    const theme = useSelector(getTheme)
     // Date & Time State
     // TODO: `date` needs to hook into the redux store so that every date-related state
     //       declared below can be initalized with the same state the ventilator is working off.
@@ -85,7 +87,7 @@ export const DisplayTab = () => {
         // TODO: The below `set<State>(...)` calls should be replaced by dispatches into the redux store.
         const dateChange = new Date(year, month - 1, day, to24HourClock(hour, period), minute)
         setDate(dateChange)
-        setTheme(theme)
+        dispatch({ type: THEME_SWITCHED, theme: theme})
         setBrightness(brightness)
     }
 
@@ -118,11 +120,11 @@ export const DisplayTab = () => {
                     <FormControl component='fieldset'>
                         <RadioGroup
                             value={theme}
-                            onChange={(event) => setTheme(+event.target.value as UITheme)}
+                            onChange={(event) => dispatch({ type: THEME_SWITCHED, theme: +event.target.value as ThemeVariant})}
                             name='ui-theme-radios'
                         >
-                            <FormControlLabel value={UITheme.DARK} control={<Radio color='primary' />} label='Dark UI' />
-                            <FormControlLabel value={UITheme.LIGHT} control={<Radio color='primary' />} label='Light UI' />
+                            <FormControlLabel value={ThemeVariant.DARK} control={<Radio color='primary' />} label='Dark UI' />
+                            <FormControlLabel value={ThemeVariant.LIGHT} control={<Radio color='primary' />} label='Light UI' />
                         </RadioGroup>
                     </FormControl>
                 </Grid>

@@ -83,7 +83,10 @@ export const ToolBar = () => {
     const clockTime = useSelector(getClockTime)
 
     return (
-        <AppBar color='transparent' position='static'>
+        <AppBar
+        color='transparent'
+        elevation={0}
+        position='static'>
             <Grid
                 container
                 direction='row'

@@ -29,6 +29,7 @@ const useStyles = makeStyles((theme: Theme) => ({
         minHeight: 40,
         minWidth: 220,
     },
+    selectedTab:{color:theme.palette.primary.contrastText},
     tabIndicator: {
         borderRadius: 8,
         border: '2px solid ' + theme.palette.primary.main,
@@ -67,9 +68,12 @@ export const SettingsPage = () => {
             </Grid>
             <Grid container item justify='center' alignItems='center' className={classes.tabContainer}>
                 <Tabs value={value} onChange={handleChange} className={classes.tabs} classes={{ indicator: classes.tabIndicator }}>
-                    <Tab label='Info' {...a11yProps(0)} className={classes.tab} />
-                    <Tab label='Test & Calibration' {...a11yProps(1)} className={classes.tab} />
-                    <Tab label='Display' {...a11yProps(2)} className={classes.tab} />
+                    <Tab label='Info' {...a11yProps(0)} className={classes.tab}
+                    classes={{selected:classes.selectedTab}} />
+                    <Tab label='Test & Calibration' {...a11yProps(1)} className={classes.tab}
+                    classes={{selected:classes.selectedTab}} />
+                    <Tab label='Display' {...a11yProps(2)} className={classes.tab}
+                    classes={{selected:classes.selectedTab}} />
                 </Tabs>
             </Grid>
         </Grid>

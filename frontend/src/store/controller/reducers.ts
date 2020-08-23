@@ -1,4 +1,4 @@
-import {combineReducers} from 'redux'
+import {combineReducers, Action} from 'redux'
 import {
   Alarms,
   SensorMeasurements,
@@ -21,7 +21,10 @@ import {
   PBMessageType,
   StateUpdateAction,
   STATE_UPDATED,
-  WaveformHistory
+  WaveformHistory,
+  THEME_SWITCHED,
+  ThemeVariant,
+  SwitchThemeAction
 } from './types'
 
 const messageReducer = <T extends PBMessage>(
@@ -104,6 +107,15 @@ const waveformHistoryReducer = <T extends PBMessage>(
   }
 }
 
+const switchThemeReducer = (state = ThemeVariant.DARK, action: SwitchThemeAction): ThemeVariant => {
+  switch (action.type) {
+    case THEME_SWITCHED:
+      return action.theme
+      default:
+      return state
+  }
+}
+
 const alarmLimitsReducer = (
   state: AlarmLimitsRequest = AlarmLimitsRequest.fromJSON({
     rrMax: 100,
@@ -166,4 +178,5 @@ export const controllerReducer = combineReducers({
     (sensorMeasurements: SensorMeasurements) => (sensorMeasurements.time),
     (sensorMeasurements: SensorMeasurements) => (sensorMeasurements.flow)
   ),
+  theme: switchThemeReducer,
 })
