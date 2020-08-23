@@ -7,8 +7,8 @@ import {
   ParametersRequest,
   Ping,
   Announcement,
-  SpontaneousSupport,
-  VentilationCycling
+  AlarmLimitsRequest,
+  VentilationMode
 } from './proto/mcu_pb'
 import {
   RotaryEncoder
@@ -45,10 +45,7 @@ const messageReducer = <T extends PBMessage>(
 
 const parametersRequestReducer = (
   state: ParametersRequest = ParametersRequest.fromJSON({
-    mode: {
-      support: SpontaneousSupport.ac,
-      cycling: VentilationCycling.pc
-    },
+    mode: VentilationMode.pc_ac,
     pip: 30,
     peep: 0,
     rr: 30,
@@ -62,10 +59,7 @@ const parametersRequestReducer = (
       return state
     case PARAMETER_COMMITTED:
       console.log(Object.assign({}, state, action.update))
-      return Object.assign({}, state, action.update, {mode: {
-        support: SpontaneousSupport.ac,
-        cycling: VentilationCycling.pc
-      }})
+      return Object.assign({}, state, action.update)
     default:
       return state
   }
@@ -117,6 +111,33 @@ const switchThemeReducer = (state = ThemeVariant.DARK, action: SwitchThemeAction
   switch (action.type) {
     case THEME_SWITCHED:
       return action.theme
+      default:
+      return state
+  }
+}
+
+const alarmLimitsReducer = (
+  state: AlarmLimitsRequest = AlarmLimitsRequest.fromJSON({
+    rrMax: 100,
+    pipMax: 100,
+    peepMax: 100,
+    ipAbovePeepMax: 100,
+    inspTimeMax: 100,
+    fio2Max: 100,
+    pawMax: 100,
+    mveMax: 100,
+    tvMax: 100,
+    etco2Max: 100,
+    flowMax: 100,
+    apneaMax: 100
+  }) as AlarmLimitsRequest,
+  action: StateUpdateAction | ParameterCommitAction
+): AlarmLimitsRequest => {
+  switch (action.type) {
+    case STATE_UPDATED:  // ignore message from backend
+      return state
+    case PARAMETER_COMMITTED:
+      return Object.assign({}, state, action.update)
     default:
       return state
   }
@@ -125,6 +146,7 @@ const switchThemeReducer = (state = ThemeVariant.DARK, action: SwitchThemeAction
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb
   alarms: messageReducer<Alarms>(MessageType.Alarms, Alarms),
+  alarmLimitsRequest: alarmLimitsReducer,
   sensorMeasurements: messageReducer<SensorMeasurements>(
     MessageType.SensorMeasurements, SensorMeasurements
   ),
