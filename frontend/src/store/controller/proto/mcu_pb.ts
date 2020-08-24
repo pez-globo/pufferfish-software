@@ -1,4 +1,5 @@
 /* eslint-disable */
+import { Timestamp } from './google/protobuf/timestamp';
 import { Writer, Reader } from 'protobufjs/minimal';
 
 
@@ -33,6 +34,13 @@ export interface AlarmLimitsRequest {
   flowMax: number;
   apneaMin: number;
   apneaMax: number;
+}
+
+export interface DisplaySettingRequest {
+  brightness: number;
+  theme: ThemeVariant;
+  unit: Unit;
+  date: Date | undefined;
 }
 
 export interface SensorMeasurements {
@@ -118,6 +126,13 @@ const baseAlarmLimitsRequest: object = {
   apneaMax: 0,
 };
 
+const baseDisplaySettingRequest: object = {
+  brightness: 0,
+  theme: 0,
+  unit: 0,
+  date: undefined,
+};
+
 const baseSensorMeasurements: object = {
   time: 0,
   paw: 0,
@@ -167,6 +182,92 @@ const baseAnnouncement: object = {
   time: 0,
   announcement: undefined,
 };
+
+function fromJsonTimestamp(o: any): Date {
+  if (o instanceof Date) {
+    return o;
+  } else if (typeof o === "string") {
+    return new Date(o);
+  } else {
+    return fromTimestamp(Timestamp.fromJSON(o));
+  }
+}
+
+function toTimestamp(date: Date): Timestamp {
+  const seconds = date.getTime() / 1_000;
+  const nanos = (date.getTime() % 1_000) * 1_000_000;
+  return { seconds, nanos };
+}
+
+function fromTimestamp(t: Timestamp): Date {
+  let millis = t.seconds * 1_000;
+  millis += t.nanos / 1_000_000;
+  return new Date(millis);
+}
+
+export const Unit = {
+  imperial: 0 as const,
+  metric: 1 as const,
+  UNRECOGNIZED: -1 as const,
+  fromJSON(object: any): Unit {
+    switch (object) {
+      case 0:
+      case "imperial":
+        return Unit.imperial;
+      case 1:
+      case "metric":
+        return Unit.metric;
+      case -1:
+      case "UNRECOGNIZED":
+      default:
+        return Unit.UNRECOGNIZED;
+    }
+  },
+  toJSON(object: Unit): string {
+    switch (object) {
+      case Unit.imperial:
+        return "imperial";
+      case Unit.metric:
+        return "metric";
+      default:
+        return "UNKNOWN";
+    }
+  },
+}
+
+export type Unit = 0 | 1 | -1;
+
+export const ThemeVariant = {
+  dark: 0 as const,
+  light: 1 as const,
+  UNRECOGNIZED: -1 as const,
+  fromJSON(object: any): ThemeVariant {
+    switch (object) {
+      case 0:
+      case "dark":
+        return ThemeVariant.dark;
+      case 1:
+      case "light":
+        return ThemeVariant.light;
+      case -1:
+      case "UNRECOGNIZED":
+      default:
+        return ThemeVariant.UNRECOGNIZED;
+    }
+  },
+  toJSON(object: ThemeVariant): string {
+    switch (object) {
+      case ThemeVariant.dark:
+        return "dark";
+      case ThemeVariant.light:
+        return "light";
+      default:
+        return "UNKNOWN";
+    }
+  },
+}
+
+export type ThemeVariant = 0 | 1 | -1;
 
 export const VentilationMode = {
   pc_ac: 0 as const,
@@ -689,6 +790,100 @@ export const AlarmLimitsRequest = {
     obj.flowMax = message.flowMax || 0;
     obj.apneaMin = message.apneaMin || 0;
     obj.apneaMax = message.apneaMax || 0;
+    return obj;
+  },
+};
+
+export const DisplaySettingRequest = {
+  encode(message: DisplaySettingRequest, writer: Writer = Writer.create()): Writer {
+    writer.uint32(8).uint32(message.brightness);
+    writer.uint32(16).int32(message.theme);
+    writer.uint32(24).int32(message.unit);
+    if (message.date !== undefined && message.date !== undefined) {
+      Timestamp.encode(toTimestamp(message.date), writer.uint32(34).fork()).ldelim();
+    }
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): DisplaySettingRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = Object.create(baseDisplaySettingRequest) as DisplaySettingRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.brightness = reader.uint32();
+          break;
+        case 2:
+          message.theme = reader.int32() as any;
+          break;
+        case 3:
+          message.unit = reader.int32() as any;
+          break;
+        case 4:
+          message.date = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): DisplaySettingRequest {
+    const message = Object.create(baseDisplaySettingRequest) as DisplaySettingRequest;
+    if (object.brightness !== undefined && object.brightness !== null) {
+      message.brightness = Number(object.brightness);
+    } else {
+      message.brightness = 0;
+    }
+    if (object.theme !== undefined && object.theme !== null) {
+      message.theme = ThemeVariant.fromJSON(object.theme);
+    } else {
+      message.theme = 0;
+    }
+    if (object.unit !== undefined && object.unit !== null) {
+      message.unit = Unit.fromJSON(object.unit);
+    } else {
+      message.unit = 0;
+    }
+    if (object.date !== undefined && object.date !== null) {
+      message.date = fromJsonTimestamp(object.date);
+    } else {
+      message.date = undefined;
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<DisplaySettingRequest>): DisplaySettingRequest {
+    const message = Object.create(baseDisplaySettingRequest) as DisplaySettingRequest;
+    if (object.brightness !== undefined && object.brightness !== null) {
+      message.brightness = object.brightness;
+    } else {
+      message.brightness = 0;
+    }
+    if (object.theme !== undefined && object.theme !== null) {
+      message.theme = object.theme;
+    } else {
+      message.theme = 0;
+    }
+    if (object.unit !== undefined && object.unit !== null) {
+      message.unit = object.unit;
+    } else {
+      message.unit = 0;
+    }
+    if (object.date !== undefined && object.date !== null) {
+      message.date = object.date;
+    } else {
+      message.date = undefined;
+    }
+    return message;
+  },
+  toJSON(message: DisplaySettingRequest): unknown {
+    const obj: any = {};
+    obj.brightness = message.brightness || 0;
+    obj.theme = ThemeVariant.toJSON(message.theme);
+    obj.unit = Unit.toJSON(message.unit);
+    obj.date = message.date !== undefined ? message.date.toISOString() : null;
     return obj;
   },
 };

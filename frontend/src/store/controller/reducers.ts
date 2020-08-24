@@ -8,7 +8,10 @@ import {
   Ping,
   Announcement,
   AlarmLimitsRequest,
-  VentilationMode
+  VentilationMode,
+  ThemeVariant,
+  Unit,
+  DisplaySettingRequest
 } from './proto/mcu_pb'
 import {
   RotaryEncoder
@@ -21,10 +24,7 @@ import {
   PBMessageType,
   StateUpdateAction,
   STATE_UPDATED,
-  WaveformHistory,
-  THEME_SWITCHED,
-  ThemeVariant,
-  SwitchThemeAction
+  WaveformHistory
 } from './types'
 
 const messageReducer = <T extends PBMessage>(
@@ -107,15 +107,6 @@ const waveformHistoryReducer = <T extends PBMessage>(
   }
 }
 
-const switchThemeReducer = (state = ThemeVariant.DARK, action: SwitchThemeAction): ThemeVariant => {
-  switch (action.type) {
-    case THEME_SWITCHED:
-      return action.theme
-      default:
-      return state
-  }
-}
-
 const alarmLimitsReducer = (
   state: AlarmLimitsRequest = AlarmLimitsRequest.fromJSON({
     rrMax: 100,
@@ -143,10 +134,30 @@ const alarmLimitsReducer = (
   }
 }
 
+const displaySettingsReducer = (
+  state: DisplaySettingRequest = DisplaySettingRequest.fromJSON({
+    brightness: 100,
+    theme: ThemeVariant.dark,
+    unit: Unit.imperial,
+    date: new Date()
+  }) as DisplaySettingRequest,
+  action: StateUpdateAction | ParameterCommitAction
+): DisplaySettingRequest => {
+  switch (action.type) {
+    case STATE_UPDATED:  // ignore message from backend
+      return state
+    case PARAMETER_COMMITTED:
+      return Object.assign({}, state, action.update)
+    default:
+      return state
+  }
+}
+
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb
   alarms: messageReducer<Alarms>(MessageType.Alarms, Alarms),
   alarmLimitsRequest: alarmLimitsReducer,
+  displaySettingRequest: displaySettingsReducer,
   sensorMeasurements: messageReducer<SensorMeasurements>(
     MessageType.SensorMeasurements, SensorMeasurements
   ),
@@ -177,6 +188,5 @@ export const controllerReducer = combineReducers({
     MessageType.SensorMeasurements,
     (sensorMeasurements: SensorMeasurements) => (sensorMeasurements.time),
     (sensorMeasurements: SensorMeasurements) => (sensorMeasurements.flow)
-  ),
-  theme: switchThemeReducer,
+  )
 })

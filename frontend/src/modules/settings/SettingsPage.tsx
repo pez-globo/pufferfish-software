@@ -1,8 +1,11 @@
 import React from 'react'
-import { Grid, Tabs, Tab } from '@material-ui/core/'
+import { Grid, Tabs, Tab, Button } from '@material-ui/core/'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import { TabPanel, a11yProps } from '../controllers/TabPanel'
 import { InfoTab, TestCalibrationTab, DisplayTab } from './containers'
+import { DisplaySettingRequest } from '../../store/controller/proto/mcu_pb'
+import { useDispatch } from 'react-redux'
+import { updateCommittedParameter } from '../../store/controller/actions'
 
 const useStyles = makeStyles((theme: Theme) => ({
     tabPanelContainer: {
@@ -40,6 +43,11 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
 }))
 
+enum TabType {
+    INFO_TAB,
+    TEST_CALIBRATION_TAB,
+    DISPLAY_TAB
+}
 /** 
  * SettingsPage
  * 
@@ -48,32 +56,47 @@ const useStyles = makeStyles((theme: Theme) => ({
 export const SettingsPage = () => {
     const classes = useStyles()
     const [value, setValue] = React.useState(0)
+    const dispatch = useDispatch()
+    const [displaySetting, setDisplaySetting] = React.useState<DisplaySettingRequest>()
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setValue(newValue)
     }
 
+    const onDisplaySettingChange = (setting: DisplaySettingRequest) => {
+        setDisplaySetting(setting)
+    }
+
+    const handleSubmit = () => {
+        dispatch(updateCommittedParameter(displaySetting as Object))
+    }
+
     return (
         <Grid container direction='column'>
             <Grid container className={classes.tabPanelContainer}>
-                <TabPanel value={value} index={0}>
+                <TabPanel value={value} index={TabType.INFO_TAB}>
                     <InfoTab />
                 </TabPanel>
-                <TabPanel value={value} index={1}>
+                <TabPanel value={value} index={TabType.TEST_CALIBRATION_TAB}>
                     <TestCalibrationTab />
                 </TabPanel>
-                <TabPanel value={value} index={2}>
-                    <DisplayTab />
+                <TabPanel value={value} index={TabType.DISPLAY_TAB}>
+                    <DisplayTab onDisplaySettingChange={onDisplaySettingChange}/>
                 </TabPanel>
             </Grid>
             <Grid container item justify='center' alignItems='center' className={classes.tabContainer}>
                 <Tabs value={value} onChange={handleChange} className={classes.tabs} classes={{ indicator: classes.tabIndicator }}>
                     <Tab label='Info' {...a11yProps(0)} className={classes.tab}
-                    classes={{selected:classes.selectedTab}} />
+                        classes={{ selected: classes.selectedTab }} />
                     <Tab label='Test & Calibration' {...a11yProps(1)} className={classes.tab}
-                    classes={{selected:classes.selectedTab}} />
+                        classes={{ selected: classes.selectedTab }} />
                     <Tab label='Display' {...a11yProps(2)} className={classes.tab}
-                    classes={{selected:classes.selectedTab}} />
+                        classes={{ selected: classes.selectedTab }} />
+                        <Grid container item justify='flex-end' alignItems='center'>
+                            {value === TabType.DISPLAY_TAB && <Button onClick={() => handleSubmit()} variant='contained' color='secondary'>
+                                    Apply Changess
+                                </Button>}
+                        </Grid>
                 </Tabs>
             </Grid>
         </Grid>
