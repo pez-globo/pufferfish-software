@@ -2,8 +2,11 @@ import React from 'react'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import { Typography, Button, Grid } from '@material-ui/core'
 import Pagination from '@material-ui/lab/Pagination'
-import ValueSlider from '../utils/controls/ValueSlider'
-import ModeBanner from '../utils/displays/ModeBanner'
+import ValueSlider from '../controllers/ValueSlider'
+import ModeBanner from '../displays/ModeBanner'
+import { useDispatch, useSelector } from 'react-redux'
+import { updateCommittedParameter } from '../../store/controller/actions'
+import { getAlarmLimitsRequest } from '../../store/controller/selectors'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -12,17 +15,14 @@ const useStyles = makeStyles((theme: Theme) => ({
         flexWrap: 'nowrap'
     },
     panel: {
-        border: '1px solid black',
-        borderRadius: 16,
+        borderRadius: theme.panel.borderRadius,
         flexWrap: 'nowrap',
         marginBottom: theme.spacing(2),
-        
-        background: '#0b2e4c',
-        color:'white',
+        backgroundColor: theme.palette.background.paper
     },
     leftContainer: {
         justifyContent: 'space-between',
-        borderRight: '2px dashed black',
+        borderRight: '2px dashed ' + theme.palette.background.default,
         padding: theme.spacing(2),
     },
     rightContainer: {
@@ -36,15 +36,40 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
     applyButton: {
         width: '100%',
-
-        color:'black',
-        background:'#53d769'
+        border: '1px solid black',
     },
 }))
 
+// NOTE: Temporary Alarm until the UI team address interface concerns.
+interface AlarmProps {
+    label: string,
+    min: number,
+    max: number,
+    stateKey?: string
+}
+
+const Alarm = ({ label, min, max, stateKey }: AlarmProps) => {
+    const dispatch = useDispatch()
+    const alarmLimits: any = useSelector(getAlarmLimitsRequest)
+    const rangeValues = [ alarmLimits[`${stateKey}Min`], alarmLimits[`${stateKey}Max`] ]
+    const onSliderChange = (range: number[]) => {
+        dispatch(updateCommittedParameter({ [`${stateKey}Min`]: range[0], [`${stateKey}Max`]: range[1] }))
+    }
+    return (
+        <Grid container>
+            <Grid item xs={12} style={{paddingBottom: 20}}>
+                <Typography variant='h5'>{label}</Typography>
+            </Grid>
+            <Grid item xs={12}>
+                <ValueSlider min={min} max={max} onChange={onSliderChange} rangeValues={rangeValues}/>
+            </Grid>
+        </Grid>
+    )
+}
+
 /**
  * AlarmsPage
- * 
+ *
  * A container for housing all alarm configurations.
  */
 export const AlarmsPage = () => {
@@ -61,20 +86,20 @@ export const AlarmsPage = () => {
      */
     const page1 =
         <Grid container item xs direction='column' className={classes.rightContainer}>
-            <ValueSlider label='Pressure above PEEP' min={0} max={100} />
-            <ValueSlider label='PAW' min={0} max={100} />
-            <ValueSlider label='PiP' min={0} max={100} />
-            <ValueSlider label='PEEP' min={0} max={100} />
-            <ValueSlider label='Insp. Time' min={0} max={100} />
+            <Alarm label='Pressure above PEEP' min={0} max={100} stateKey="ipAbovePeep" />
+            <Alarm label='PAW' min={0} max={100} stateKey="paw" />
+            <Alarm label='PiP' min={0} max={100} stateKey="pip" />
+            <Alarm label='PEEP' min={0} max={100} stateKey="peep" />
+            <Alarm label='Insp. Time' min={0} max={100} stateKey="inspTime" />
         </Grid>
 
     const page2 =
         <Grid container item xs direction='column' className={classes.rightContainer}>
-            <ValueSlider label='RR' min={0} max={100} />
-            <ValueSlider label='TV' min={0} max={100} />
-            <ValueSlider label='Flow' min={0} max={100} />
-            <ValueSlider label='MVe' min={0} max={100} />
-            <ValueSlider label='Apnea' min={0} max={100} />
+            <Alarm label='RR' min={0} max={100} stateKey="rr" />
+            <Alarm label='TV' min={0} max={100} stateKey="tv" />
+            <Alarm label='Flow' min={0} max={100} stateKey="flow"/>
+            <Alarm label='MVe' min={0} max={100} stateKey="mve" />
+            <Alarm label='Apnea' min={0} max={100} stateKey="apnea" />
         </Grid>
 
     return (
@@ -85,11 +110,11 @@ export const AlarmsPage = () => {
                         <Typography variant='h3'>Alarms</Typography>
                     </Grid>
                     <Grid container direction='column' className={classes.paginationContainer}>
-                        <Grid item xs style={{ marginBottom: 10, border: '1px solid black' }}>
-                            <Pagination count={2} page={page} onChange={handleChange}/>
+                        <Grid item xs style={{ marginBottom: 10 }}>
+                            <Pagination count={2} page={page} onChange={handleChange} variant='outlined' shape="rounded" size="large" />
                         </Grid>
                         <Grid item style={{ width: '100%' }}>
-                            <Button className={classes.applyButton}>
+                            <Button color='secondary' variant='contained' className={classes.applyButton}>
                                 Apply Changes
                             </Button>
                         </Grid>

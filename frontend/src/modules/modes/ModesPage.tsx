@@ -1,22 +1,23 @@
 import React from 'react'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import { Grid, Typography, Button } from '@material-ui/core'
+import { updateCommittedParameter } from '../../store/controller/actions'
+import { useDispatch, useSelector } from 'react-redux'
+import { getParametersRequestMode } from '../../store/controller/selectors'
+import { VentilationMode } from '../../store/controller/proto/mcu_pb'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
         justifyContent: 'space-between',
         alignItems: 'stretch',
-        marginBottom: theme.spacing(2),
-        color:'white'
+        marginBottom: theme.spacing(2)
     },
     modesPanel: {
-        border: '1px solid black',
-        borderRadius: 16,
+        borderRadius: theme.panel.borderRadius,
         flexDirection: 'column',
         alignItems: 'stretch',
         marginRight: theme.spacing(2),
-        backgroundColor: '#0b2e4c',
-        color:'white'
+        backgroundColor: theme.palette.background.paper
     },
     modeContainer: {
         minHeight: 100,
@@ -24,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) => ({
         // border: '1px solid red',
     },
     modeTitleItem: {
-        paddingTop: theme.spacing(2)
+        paddingBottom: theme.spacing(2)
     },
     leftModeButtonOutline: {
         justifyContent: 'center',
@@ -39,26 +40,26 @@ const useStyles = makeStyles((theme: Theme) => ({
         height: '60%',
         width: '100%',
         borderRadius: 16,
-        color:'white',
-        background:'#0053b1'
-        //border: '2px solid black' 
+        border: '2px solid ' + theme.palette.primary.main
     },
     abbrevPanel: {
-        border: '1px solid black',
         flexDirection: 'column',
-        borderRadius: 16,
-        backgroundColor: '#0b2e4c',
+        borderRadius: theme.panel.borderRadius,
+        backgroundColor: theme.palette.background.paper
     },
     abbrevContanier: {
-        minHeight:64,
+        minHeight: 64,
         padding: theme.spacing(2),
         // border: '1px solid red'
     },
     title: {
-        borderBottom: '2px dashed black',
+        borderBottom: '2px dashed ' + theme.palette.background.default,
         minHeight: '60px',
         alignItems: 'center',
         padding: theme.spacing(2),
+    },
+    selected: {
+        background: theme.palette.primary.main,
     }
 }))
 
@@ -70,10 +71,12 @@ const useStyles = makeStyles((theme: Theme) => ({
  */
 export const ModesPage = () => {
     const classes = useStyles()
-
+    const dispatch = useDispatch()
+    const currentMode = useSelector(getParametersRequestMode)
+    const updateMode = (mode: VentilationMode) => dispatch(updateCommittedParameter({ mode: mode }))
+    const buttonClass = (mode: VentilationMode) => mode === currentMode ? `${classes.modeButton} ${classes.selected}`: `${classes.modeButton}`
     return (
         <Grid container className={classes.root}>
-            {/* Modes Panel  */}
             <Grid container item xs className={classes.modesPanel}>
                 <Grid container item className={classes.title}>
                     <Typography variant='h3'>Modes</Typography>
@@ -85,12 +88,12 @@ export const ModesPage = () => {
                         </Grid>
                         <Grid container item xs>
                             <Grid container item xs className={classes.leftModeButtonOutline}>
-                                <Button className={classes.modeButton} variant='outlined'>
+                                <Button  onClick={() => updateMode(VentilationMode.pc_ac) } className={buttonClass(VentilationMode.pc_ac)} variant='outlined'>
                                     <Typography variant='h5'>AC</Typography>
                                 </Button>
                             </Grid>
                             <Grid container item xs className={classes.modeButtonOutline}>
-                                <Button className={classes.modeButton} variant='outlined'>
+                                <Button onClick={() => updateMode(VentilationMode.pc_simv) } className={buttonClass(VentilationMode.pc_simv)} variant='outlined'>
                                     <Typography variant='h5'>SIMV</Typography>
                                 </Button>
                             </Grid>
@@ -102,12 +105,12 @@ export const ModesPage = () => {
                         </Grid>
                         <Grid container item xs>
                             <Grid container item xs className={classes.leftModeButtonOutline}>
-                                <Button className={classes.modeButton} variant='outlined'>
+                                <Button onClick={() => updateMode(VentilationMode.vc_ac) } className={buttonClass(VentilationMode.vc_ac)} variant='outlined'>
                                     <Typography variant='h5'>AC</Typography>
                                 </Button>
                             </Grid>
                             <Grid container item xs className={classes.modeButtonOutline}>
-                                <Button className={classes.modeButton} variant='outlined'>
+                                <Button onClick={() => updateMode(VentilationMode.vc_simv) } className={buttonClass(VentilationMode.vc_simv)} variant='outlined'>
                                     <Typography variant='h5'>SIMV</Typography>
                                 </Button>
                             </Grid>
@@ -119,7 +122,7 @@ export const ModesPage = () => {
                         </Grid>
                         <Grid container item xs>
                             <Grid container item xs className={classes.leftModeButtonOutline}>
-                                <Button className={classes.modeButton} variant='outlined'>
+                                <Button onClick={() => updateMode(VentilationMode.hfnc) } className={buttonClass(VentilationMode.hfnc)} variant='outlined'>
                                     <Typography variant='h5'>NIV</Typography>
                                 </Button>
                             </Grid>
@@ -130,7 +133,6 @@ export const ModesPage = () => {
                     </Grid>
                 </Grid>
             </Grid>
-            {/* Abbreviations Panel */}
             <Grid container item xs={5} className={classes.abbrevPanel}>
                 <Grid container item className={classes.title}>
                     <Typography variant='h3'>Abbreviations</Typography>
@@ -143,7 +145,7 @@ export const ModesPage = () => {
                         <Typography>Assisted Control</Typography>
                     </Grid>
                 </Grid>
-                <Grid container item alignItems='center'className={classes.abbrevContanier}>
+                <Grid container item alignItems='center' className={classes.abbrevContanier}>
                     <Grid item xs={2}>
                         <Typography><strong>SIMV</strong>:</Typography>
                     </Grid>
@@ -164,4 +166,4 @@ export const ModesPage = () => {
     )
 }
 
-export default ModesPage
+export default  ModesPage

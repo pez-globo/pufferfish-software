@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { makeStyles, Theme } from '@material-ui/core/styles'
-import { Tabs, Tab, Grid } from '@material-ui/core'
+import { Tabs, Tab, Typography } from '@material-ui/core'
 import {
     QUICKSTART_ROUTE,
     VALUES_ROUTE,
@@ -12,74 +12,80 @@ import {
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
-        width: '100%',
+        width: '100%'
     },
     tabs: {
         alignText: 'center',
-        zIndex:1,
+        zIndex: 1,
+        '&;selected': {
+            backgroundColor: 'red'
+        }
     },
-    tabRoot: {
+    tab: {
         minWidth: 0,
         minHeight: 80,
-        fontSize: '11px',
-        //border: '1px solid orange',
-        background: '#0b2e4c',
-        color:'#FFFFFF'
+        color: theme.palette.text.primary,
+        fontSize: theme.typography.subtitle2.fontSize,
+        zIndex: 1,
     },
-    myIndicator:{
-        background:'#fff',
-        opacity: '.2',
-        borderLeft:'4px solid #0053b1',
-        width:'100%',
-        zIndex:0
-    }
+    indicator: {
+        color: 'theme.palette.text.primary',
+        backgroundColor: theme.palette.primary.light,
+        borderLeft: '4px solid ' + theme.palette.primary.main,
+        opacity: '1',
+        width: '100%',
+        zIndex: 0
+    },
 }))
 
 /**
  * Navigation
  * 
- * TODO: Remove the `Dashboard` Tab after getting `Back` button navigation working
- *       in the `ToolBar`.
+ * The main interface for router/page-based navigation.
  */
 export const Navigation = () => {
     const classes = useStyles()
-    const [value, setValue] = React.useState(0)
+    const [route, setRoute] = React.useState(0)
 
     const routes = [
-        QUICKSTART_ROUTE,
+        QUICKSTART_ROUTE, // TODO: Hide QuickStart tab when ventilator is on. Need to tap into redux store.
         MODES_ROUTE,
         ALARMS_ROUTE,
         VALUES_ROUTE,
         SETTINGS_ROUTE
     ]
 
-    const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-        setValue(newValue)
+    const handleRouteChange = (event: React.ChangeEvent<{}>, newRoute: number) => {
+        setRoute(newRoute)
     }
 
     return (
         <div className={classes.root}>
             <Tabs
                 orientation='vertical'
-                variant='scrollable'
-                value={value}
-                onChange={handleChange}
+                variant='fullWidth'
+                value={route}
+                onChange={handleRouteChange}
+                centered
                 className={classes.tabs}
-                style={{alignItems:'baseline'}}
-                classes={{indicator:classes.myIndicator}}
+                classes={{ indicator: classes.indicator }}
             >
                 {routes.map(route => {
                     return (
-                        
                         <Tab
-                            label={route.label}
+                            label={
+                                <div>
+                                    <route.icon style={{ width: '100%' }} />
+                                    <br />
+                                    <Typography variant='subtitle2' align='center'>
+                                        {route.label}
+                                    </Typography>
+                                </div>
+                            }
                             component={Link}
                             to={route.path}
-                            classes={{ root: classes.tabRoot }}
-                            disableRipple
-                        >
-                        <img src={route.icon}/>
-                        </Tab>
+                            className={classes.tab}
+                        />
                     )
                 })}
             </Tabs>

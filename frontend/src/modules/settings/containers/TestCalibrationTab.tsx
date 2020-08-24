@@ -1,6 +1,6 @@
 import React from 'react'
 import { Grid, makeStyles, Theme } from '@material-ui/core'
-import TestTool from '../../utils/controls/TestTool'
+import TestTool from '../../controllers/TestTool'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -9,8 +9,7 @@ const useStyles = makeStyles((theme: Theme) => ({
         alignItems: 'stretch',
     },
     item: {
-        border: '1px solid black',
-        borderRadius: 16,
+        borderRadius: theme.panel.borderRadius,
         // padding: theme.spacing(1),
         marginBottom: theme.spacing(2),
         backgroundColor: theme.palette.background.paper
@@ -53,7 +52,7 @@ export const TestCalibrationTab = () => {
                     <TestTool label='Pressure Sensor' isSuccess={false} timestamp={new Date()} />
                 </Grid>
             </Grid>
-        </Grid >
+        </Grid>
     )
 }
 

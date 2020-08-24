@@ -1,7 +1,6 @@
 import React from 'react'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
-import { Typography } from '@material-ui/core'
 import {
     RRInfo,
     PIPInfo,
@@ -15,7 +14,7 @@ import {
     PawInfo,
     MVeInfo,
     EtCO2Info
-} from '../utils/info'
+} from '../info'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -25,11 +24,9 @@ const useStyles = makeStyles((theme: Theme) => ({
         marginBottom: theme.spacing(2)
     },
     leftPanel: {
-        border: '1px solid black',
-        borderRadius: 16,
+        borderRadius: theme.panel.borderRadius,
+        backgroundColor: theme.palette.background.paper,
         marginRight: theme.spacing(2),
-        backgroundColor: '#0b2e4c',
-        color:'white'
     },
     rightContainer: {
         justifyContent: 'space-between',
@@ -37,25 +34,22 @@ const useStyles = makeStyles((theme: Theme) => ({
         width: '100%'
     },
     topRightPanel: {
-        borderRadius: 16,
-        border: '1px solid black',
-        backgroundColor: '#0b2e4c',
-        color:'white',
+        borderRadius: theme.panel.borderRadius,
+        backgroundColor: theme.palette.background.paper,
+        marginBottom: theme.spacing(1),
         width: '100%',
     },
     bottomRightPanel: {
-        borderRadius: 16,
-        //border: '1px solid black',
-        backgroundColor: '#0b2e4c',
-        color:'white',
+        borderRadius: theme.panel.borderRadius,
+        backgroundColor: theme.palette.background.paper,
+        marginTop: theme.spacing(2),
         width: '100%',
-        marginTop: theme.spacing(2)
     },
     bottomBorder: {
-        borderBottom: '2px dashed black'
+        borderBottom: '2px dashed ' + theme.palette.background.default
     },
     rightBorder: {
-        borderRight: '2px dashed black'
+        borderRight: '2px dashed ' + theme.palette.background.default
     }
 }))
 
@@ -66,8 +60,8 @@ export const ValuesPage = () => {
     const classes = useStyles()
 
     return (
-        <Grid container direction='row' className={classes.root}>
-            <Grid container item xs direction='column' className={classes.leftPanel}>
+        <Grid container direction='row' className={classes.root} wrap='nowrap'>
+            <Grid container item xs={7} direction='column' className={classes.leftPanel}>
                 <Grid container item xs className={classes.bottomBorder}>
                     <Grid item xs className={classes.rightBorder}>
                         <RRInfo />
@@ -93,7 +87,7 @@ export const ValuesPage = () => {
                     </Grid>
                 </Grid>
             </Grid>
-            <Grid container item xs direction='column' className={classes.rightContainer} zeroMinWidth>
+            <Grid container item xs={5} direction='column' className={classes.rightContainer}>
                 <Grid container item xs direction='column' className={classes.topRightPanel}>
                     <Grid container item xs className={classes.bottomBorder}>
                         <Grid item xs className={classes.rightBorder}>
@@ -113,10 +107,10 @@ export const ValuesPage = () => {
                     </Grid>
                 </Grid>
                 <Grid item container className={classes.bottomRightPanel}>
-                    <Grid item xs className={classes.rightBorder}>
+                    <Grid item xs={7} className={classes.rightBorder}>
                         <PplatInfo />
                     </Grid>
-                    <Grid item xs>
+                    <Grid item xs={5}>
                         <IERatioInfo />
                     </Grid>
                 </Grid>

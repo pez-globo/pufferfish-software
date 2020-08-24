@@ -17,7 +17,7 @@ import {
 /**
  * LogsPage
  * 
- * TODO: Abstract this into components.
+ * TODO: Abstract this into components!
  */
 
 interface Data {
@@ -164,11 +164,12 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             width: '100%',
-            border: '1px solid yellow',
+            // border: '1px solid yellow',
         },
         tableContainer: {
             width: '100%',
-            border: '1px solid red'
+            border: '1px solid black',
+            borderRadius: theme.panel.borderRadius
         },
         table: {
             minWidth: 750,
@@ -255,7 +256,7 @@ export const LogsPage = () => {
             alignItems="stretch"
             className={classes.root}
         >
-            <Grid item style={{ border: '1px solid red' }}>
+            <Grid item>
                 <Typography variant='h3'>Log</Typography>
             </Grid>
             <Grid item >
@@ -318,7 +319,9 @@ export const LogsPage = () => {
                     page={page}
                     onChangePage={handleChangePage}
                     onChangeRowsPerPage={handleChangeRowsPerPage}
-                    style={{ border: '1px solid orange', width: '100%' }}
+                    style={{
+                        width: '100%'
+                    }}
                 />
             </Grid>
         </Grid>

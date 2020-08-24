@@ -8,100 +8,179 @@ import {
     FormControlLabel,
     Radio
 } from '@material-ui/core'
-import TestTool from '../utils/controls/TestTool'
-import ModeBanner from '../utils/displays/ModeBanner'
+import TestTool from '../controllers/TestTool'
+import ValueClicker from '../controllers/ValueController'
+import ModeBanner from '../displays/ModeBanner'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
-        border: '1px dashed brown',
-        color:'white'
+        justifyContent: 'space-between',
+        height: '100%',
+        flexWrap: 'nowrap',
+        // border: '1px solid red',
     },
+    topPanel: {
+        flexWrap: 'nowrap',
+        borderRadius: theme.panel.borderRadius,
+        marginBottom: theme.spacing(2),
+        justifyContent: 'space-between',
+        alignItems: 'stretch',
+        backgroundColor: theme.palette.background.paper
+    },
+    standby: {
+        padding: theme.spacing(2),
+        borderRight: '2px dashed ' + theme.palette.background.default
+    },
+    padding: {
+        padding: theme.spacing(2),
+        // border: '1px solid red'
+    },
+    middleContainer: {
+        flexWrap: 'nowrap',
+        width: '100%',
+        marginBottom: theme.spacing(2),
+        // border: '1px solid teal',
+    },
+    middleLeftPanel: {
+        borderRadius: theme.panel.borderRadius,
+        marginRight: theme.spacing(2),
+        backgroundColor: theme.palette.background.paper
+    },
+    middleRightPanel: {
+        borderRadius: theme.panel.borderRadius,
+        backgroundColor: theme.palette.background.paper
+    },
+    bottomBorder: {
+        borderBottom: '2px dashed ' + theme.palette.background.default
+    },
+    rightBorder: {
+        borderRight: '2px dashed ' + theme.palette.background.default
+    }
 }))
 
-export const QuickStartPage = () => {
-    const classes = useStyles()
+enum PatientSex { MALE, FEMALE }
+enum PatientAge { ADULT, PEDIATRIC }
 
-    return (
-        <Grid
-            container
-            direction='column'
-            justify='space-between'
-            alignItems='stretch'
-            className={classes.root}
-            wrap="nowrap"
-        >
-            {/* Top Row */}
-            <Grid container item xs wrap="nowrap" style={{ maxHeight: 180, border: '1px solid teal' }}>
-                <Grid item xs style={{ border: '1px solid green' }}>
-                    <Typography variant='h3'>Standby</Typography>
-                    <Typography variant='body1'>Patient Not Ventilated</Typography>
-                </Grid>
-                <Grid item xs style={{ border: '1px solid green' }}>
-                    <Typography variant='h6'>Age:</Typography>
-                    <FormControl component="fieldset">
-                        <RadioGroup defaultValue="Adult" name="age-radios">
-                            <FormControlLabel value="Adult" control={<Radio />} label="Adult" />
-                            <FormControlLabel value="Pediatric" control={<Radio />} label="Pediatric" />
-                        </RadioGroup>
-                    </FormControl>
-                </Grid>
-                <Grid item xs style={{ border: '1px solid green' }}>
-                    <Typography variant='h6'>Sex:</Typography>
-                    <FormControl component="fieldset">
-                        <RadioGroup defaultValue="Male" name="gender-radios">
-                            <FormControlLabel value="Male" control={<Radio />} label="Male" />
-                            <FormControlLabel value="Female" control={<Radio />} label="Female" />
-                        </RadioGroup>
-                    </FormControl>
-                </Grid>
-                <Grid item xs style={{ border: '1px solid green' }}>
-                    <Typography variant='h6'>Height:</Typography>
-                </Grid>
-            </Grid>
-            {/* Middle Row */}
-            <Grid
-                container
-                item
-                xs
-                direction='row'
-                wrap="nowrap"
-                style={{ width: '100%', border: '1px solid teal' }}
-            >
-                {/* Left Bottom Panel */}
-                <Grid container item xs direction='column' style={{ border: '1px solid blue' }}>
-                    <Grid item xs style={{ border: '1px solid red' }}>
-                        <TestTool label='Pre-Use Check' isSuccess={true} timestamp={new Date()} />
+class QuickStartPage extends React.Component {
+
+    render() {
+        const classes = useStyles()
+        const [patientSex, setPatientSex] = React.useState(PatientSex.MALE)
+        const [patientAge, setPatientAge] = React.useState(PatientAge.ADULT)
+        const [patientHeight, setPatientHeight] = React.useState(62)
+        const [patientCircuitTestDate] = React.useState(new Date())
+        const [preUseCheckDate] = React.useState(new Date())
+        const [PEEP, setPEEP] = React.useState(5)
+        const [RR, setRR] = React.useState(18)
+        const [TV, setTV] = React.useState(500)
+
+        const [FiO2, setFiO2] = React.useState(100)
+        return (
+            <Grid container direction='column' className={classes.root}>
+                <Grid container item className={classes.topPanel}>
+                    <Grid item xs className={classes.standby}>
+                        <Typography variant='h3'>Standby</Typography>
+                        <Typography variant='body1'>Patient Not Ventilated</Typography>
                     </Grid>
-                    <Grid item xs style={{ border: '1px solid red' }}>
-                        <TestTool label='Patient Circuit Test' isSuccess={true} timestamp={new Date()} />
+                    <Grid item xs className={classes.padding}>
+                        <Typography variant='h6'>Age:</Typography>
+                        <FormControl component="fieldset">
+                            <RadioGroup
+                                value={patientAge}
+                                onChange={(event) => setPatientAge(+event.target.value as PatientAge)}
+                                name="age-radios"
+                            >
+                                <FormControlLabel value={PatientAge.ADULT} control={<Radio color='primary' />} label="Adult" />
+                                <FormControlLabel value={PatientAge.PEDIATRIC} control={<Radio color='primary' />} label="Pediatric" />
+                            </RadioGroup>
+                        </FormControl>
                     </Grid>
-                </Grid>
-                {/* Right Bottom Panel */}
-                <Grid container item xs={8} direction='column' style={{ border: '1px solid black' }}>
-                    <Grid container item xs direction='row'>
-                        <Grid item xs style={{ border: '1px solid purple' }}>
-                            <Typography>Value</Typography>
-                        </Grid>
-                        <Grid item xs style={{ border: '1px solid purple' }}>
-                            <Typography>Value</Typography>
-                        </Grid>
+                    <Grid item xs className={classes.padding}>
+                        <Typography variant='h6'>Sex:</Typography>
+                        <FormControl component="fieldset">
+                            <RadioGroup
+                                value={patientSex}
+                                onChange={(event) => setPatientSex(+event.target.value as PatientSex)}
+                                name="age-radios"
+                            >
+                                <FormControlLabel value={PatientSex.MALE} control={<Radio color='primary' />} label="Male" />
+                                <FormControlLabel value={PatientSex.FEMALE} control={<Radio color='primary' />} label="Female" />
+                            </RadioGroup>
+                        </FormControl>
                     </Grid>
-                    <Grid container item xs direction='row'>
-                        <Grid item xs style={{ border: '1px solid purple' }}>
-                            <Typography>Value</Typography>
-                        </Grid>
-                        <Grid item xs style={{ border: '1px solid purple' }}>
-                            <Typography>Value</Typography>
-                        </Grid>
+                    <Grid item xs={3}>
+                        <ValueClicker
+                            label='Height'
+                            units='i'
+                            onClick={setPatientHeight}
+                            value={patientHeight}
+                            min={6}
+                            max={120}
+                        />
                     </Grid>
                 </Grid>
-            </Grid>
-            {/* Title */}
-            <Grid item> 
-                <ModeBanner />
-            </Grid>
-        </Grid>
-    )
+                <Grid container item xs className={classes.middleContainer}>
+                    <Grid container item xs direction='column' className={classes.middleLeftPanel}>
+                        <Grid item xs className={classes.bottomBorder}>
+                            <TestTool
+                                label='Pre-Use Check'
+                                isSuccess={true}
+                                timestamp={preUseCheckDate}
+                            />
+                        </Grid>
+                        <Grid item xs>
+                            <TestTool
+                                label='Patient Circuit Test'
+                                isSuccess={true}
+                                timestamp={patientCircuitTestDate}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={8} direction='column' className={classes.middleRightPanel}>
+                        <Grid container item xs direction='row' className={classes.bottomBorder}>
+                            <Grid item xs className={classes.rightBorder}>
+                                <ValueClicker
+                                    label='PEEP'
+                                    units='cm H2O'
+                                    value={PEEP}
+                                    onClick={setPEEP}
+                                />
+                            </Grid>
+                            <Grid item xs>
+                                <ValueClicker
+                                    label='RR'
+                                    units='cm H2O'
+                                    value={RR}
+                                    onClick={setRR}
+                                />
+                            </Grid>
+                        </Grid>
+                        <Grid container item xs direction='row'>
+                            <Grid item xs className={classes.rightBorder}>
+                                <ValueClicker
+                                    label='FiO2'
+                                    units='%'
+                                    value={FiO2}
+                                    onClick={setFiO2}
+                                />
+                            </Grid>
+                            <Grid item xs>
+                                <ValueClicker
+                                    label='TV'
+                                    units='mL'
+                                    value={TV}
+                                    onClick={setTV}
+                                />
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <Grid item>
+                    <ModeBanner />
+                </Grid>
+            </Grid >
+        )
+    }
 }
 
 export default QuickStartPage
