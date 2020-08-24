@@ -112,6 +112,7 @@ const PressureControlMainView = () => {
                         <PEEPInfo />
                     </Grid>
                 </Grid>
+
                 <Grid
                 container item xs direction="column"
                 className={classes.graphWrapper}

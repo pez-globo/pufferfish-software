@@ -12,6 +12,7 @@ import {
     Theme
 } from '@material-ui/core'
 import ValueController from '../../controllers/ValueController'
+import { getClock } from '../../../store/app/selectors'
 import { ThemeVariant, THEME_SWITCHED } from '../../../store/controller/types'
 import { getTheme } from '../../../store/controller/selectors'
 import { useSelector, useDispatch } from 'react-redux'
@@ -72,6 +73,7 @@ export const DisplayTab = () => {
     // Date & Time State
     // TODO: `date` needs to hook into the redux store so that every date-related state
     //       declared below can be initalized with the same state the ventilator is working off.
+    const clock = useSelector(getClock)
     const [date, setDate] = React.useState<Date>(new Date())
     const [period, setPeriod] = React.useState((date.getHours() >= 12) ? Period.PM : Period.AM)
     const [minute, setMinute] = React.useState(date.getMinutes())
@@ -129,11 +131,11 @@ export const DisplayTab = () => {
                 <Grid container item xs direction='column' justify='space-evenly' className={classes.leftContainer}>
                     <Box>
                         <Typography variant='h6'>Date</Typography>
-                        <Typography>{date.toLocaleDateString()}</Typography>
+                        <Typography>{clock.toLocaleDateString()}</Typography>
                     </Box>
                     <Box>
                         <Typography variant='h6'>Time</Typography>
-                        <Typography>{date.toLocaleTimeString()}</Typography>
+                        <Typography>{clock.toLocaleTimeString()}</Typography>
                     </Box>
                 </Grid>
             </Grid>

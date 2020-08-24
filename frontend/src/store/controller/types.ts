@@ -85,6 +85,7 @@ export interface ControllerStates {
   // Derived states
   waveformHistoryPaw: WaveformHistory;
   waveformHistoryFlow: WaveformHistory;
+  clock: Date
   theme: ThemeVariant
 };
 
