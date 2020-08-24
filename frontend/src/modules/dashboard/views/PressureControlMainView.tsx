@@ -33,12 +33,6 @@ const useStyles = makeStyles((theme: Theme) => ({
         backgroundColor: theme.palette.background.paper,
     },
 
-    graphWrapper:{
-    marginLeft: 24,
-    borderRadius: 16,
-    background: '#0b2e4c',
-    },
-
     graphTop:{
     },
 
@@ -115,7 +109,7 @@ const PressureControlMainView = () => {
 
                 <Grid
                 container item xs direction="column"
-                className={classes.graphWrapper}
+                className={classes.graphPanel}
                 >
                     <Grid
                     container item direction="row" justify="center" 

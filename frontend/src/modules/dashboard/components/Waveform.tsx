@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTheme, Theme } from '@material-ui/core'
 import { Grid } from '@vx/grid'
 import { curveLinear } from '@vx/curve'
 import { LinePath, AreaClosed } from '@vx/shape'
@@ -41,6 +42,9 @@ export const Waveform = ({
   width, height, margin, data, strokeWidth, fill,
   xRangeMin, xRangeMax, yRangeMin, yRangeMax, type
 }: Props) => {
+
+  const theme = useTheme()
+
   // bounds
   const xMax = width - margin.left - margin.right
   const yMax = height - margin.top - margin.bottom
@@ -80,8 +84,8 @@ export const Waveform = ({
   return (
   	<svg width={width} height={height}>
   	<LinearGradient
-  		from='#B2C0FC'
-  		to='#B2C0FC'
+  		from={theme.palette.info.main}
+  		to={theme.palette.info.main}
   		toOpacity={0}
   		id='gradient'
   	/>
@@ -99,7 +103,7 @@ export const Waveform = ({
 	      data={data}
 	      x={d => xScale(x(d))+margin.left}
 	      y={d => yScale(y(d))+margin.top}
-	      stroke={'#B2C0FC'}
+	      stroke={theme.palette.info.main}
 	      strokeWidth={strokeWidth}
 	      curve={curveLinear}
 	    />

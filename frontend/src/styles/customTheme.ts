@@ -40,8 +40,15 @@ export const darkTheme = createCustomTheme({
         secondary: {
             main: '#53d769',
         },
+        info:{
+            main: '#B2C0FC'
+        }
     },
     typography: {
+        body1: {
+            color: 'white'
+        },
+
         subtitle2: {
             fontSize: 12,
         },
@@ -71,8 +78,15 @@ export const lightTheme = createCustomTheme({
         secondary: {
             main: '#53d769',
         },
+        info:{
+            main:'#2c396f'
+        }
     },
     typography: {
+        body1:{
+            color: 'black'
+        },
+
         subtitle2: {
             fontSize: 12
         },

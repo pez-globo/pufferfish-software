@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTheme, Theme } from '@material-ui/core'
 import { Grid } from '@vx/grid'
 import { Group } from '@vx/group'
 import { AxisLeft, AxisRight, AxisBottom } from '@vx/axis'
@@ -42,6 +43,9 @@ export const Axes = ({
   width, height, margin, waveformOld, waveformNew,
   xRangeMin, xRangeMax, yRangeMin, yRangeMax, title, units
 }: Props) => {
+
+  const theme = useTheme()
+
   // bounds
   const xMax = width - margin.left - margin.right
   const yMax = height - margin.top - margin.bottom
@@ -64,10 +68,15 @@ export const Axes = ({
       /*flexGrow: 2,
       border:'1px solid green'*/ }}
     width={width} height={height}>
-      <text x={margin.left/3} y={margin.top/2} fill='#FFFFFF' fontSize={28}>
+      <text x={margin.left/3} y={margin.top/2}
+      fill={theme.typography.body1.color}
+      fontSize={28}>
         {title}
       </text>
-      <text x={margin.left/3+80} y={margin.top/2} fill='rgba(255,255,255,0.8)' fontSize={18} >
+      <text x={margin.left/3+80} y={margin.top/2} 
+      fill={theme.typography.body1.color}
+      opacity={0.8}
+      fontSize={18} >
         -   {units}
       </text>
 
@@ -76,7 +85,8 @@ export const Axes = ({
         left={margin.left}
         xScale={xScale}
         yScale={yScale}
-        stroke='rgba(255, 255, 255, 0.21)'
+        stroke={theme.typography.body1.color}
+        strokeOpacity={0.21}
         width={xMax}
         height={yMax}
         numTicksRows={numTicksForHeight(height)}
@@ -114,7 +124,8 @@ export const Axes = ({
           stroke='rgba(255,255,255,0)'
           tickStroke='rgba(255,255,255,0)'
           tickLabelProps={() => ({
-            fill: 'rgba(255,255,255,0.5)',
+            fill:theme.typography.body1.color,
+            opacity:0.5,
             textAnchor: 'end',
             fontSize: 14,
             dx: '-0.25em',
@@ -131,7 +142,8 @@ export const Axes = ({
           tickStroke='rgba(255,255,255,0)'
           numTicks={numTicksForHeight(height)}
           tickLabelProps={() => ({
-            fill: 'rgba(255,255,255,0.5)',
+            fill:theme.typography.body1.color,
+            opacity:0.5,
             fontSize: 14,
             textAnchor: 'start',
           })}
@@ -143,7 +155,8 @@ export const Axes = ({
           scale={xScale}
           numTicks={numTicksForWidth(width)}
           tickLabelProps={() => ({
-            fill: 'rgba(255,255,255,0.5)',
+            fill:theme.typography.body1.color,
+            opacity:0.5,
             fontSize: 14,
             textAnchor: 'start',
           })}
@@ -152,7 +165,7 @@ export const Axes = ({
           {axis => {
             const tickLabelSize = 12
             const tickRotate = 0
-            const tickColor = 'rgba(255,255,255,0.5)'
+            const tickColor = theme.typography.body1.color
             const axisCenter = (axis.axisToPoint.x - axis.axisFromPoint.x) / 2
             return (
               <g className='my-custom-bottom-axis'>
@@ -167,6 +180,7 @@ export const Axes = ({
                         fontSize={tickLabelSize}
                         textAnchor='middle'
                         fill={tickColor}
+                        opacity={0.5}
                       >
                         {tick.formattedValue}
                       </text>
