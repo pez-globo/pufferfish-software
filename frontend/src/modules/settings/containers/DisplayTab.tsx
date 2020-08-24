@@ -12,7 +12,6 @@ import {
     Theme
 } from '@material-ui/core'
 import ValueController from '../../controllers/ValueController'
-import { useSelector } from 'react-redux'
 import { getClock } from '../../../store/app/selectors'
 import { ThemeVariant, THEME_SWITCHED } from '../../../store/controller/types'
 import { getTheme } from '../../../store/controller/selectors'
