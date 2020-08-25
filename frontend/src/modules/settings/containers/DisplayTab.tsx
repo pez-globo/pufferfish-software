@@ -17,7 +17,6 @@ import { getDisplaySettingRequest } from '../../../store/controller/selectors'
 import { useSelector } from 'react-redux'
 import { ThemeVariant, DisplaySettingRequest, Unit } from '../../../store/controller/proto/mcu_pb'
 import { useEffect } from 'react'
-import ToggleValue from '../../displays/ToggleValue'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
