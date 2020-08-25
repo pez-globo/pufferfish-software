@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "ventserver"
+version = "0.0.0"
+description = "Pufferfish ventilator backend server."
+authors = []
+packages = [
+  { include = "ventserver"}
+]
+
+[tool.poetry.dependencies]
+# Language
+python = "^3.7"
+attrs = "^19.3.0"
+# Protocols
+cobs = "^1.1.4"
+
+[tool.poetry.dev-dependencies]
+# Code quality
+pylint = "^2.4.4"
+mypy = "^0.770"
+# Testing
+tox = "^3.14.6"
+coverage = "^5.0.4"
+pytest = "^5.4.1"
+pytest-sugar = "^0.9.3"
+pytest-cov = "^2.8.1"
+hypothesis = "^5.14.0"
+# Unit Test Support
+crcmod = "^1.7"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
