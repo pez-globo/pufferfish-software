@@ -1,6 +1,6 @@
 import {eventChannel} from 'redux-saga'
 import {
-  put, call, take, takeEvery, fork, delay, select, apply
+  put, call, take, takeEvery, fork, delay, select, apply, takeLatest, all
 } from 'redux-saga/effects'
 import {BufferReader} from 'protobufjs/minimal'
 import {
@@ -8,7 +8,7 @@ import {
   MessageTypes,
 } from './types'
 import {ParametersRequest} from './proto/mcu_pb'
-import {INITIALIZED} from '../app/types'
+import {INITIALIZED, CLOCK_UPDATED} from '../app/types'
 import {updateState} from './actions'
 import {getParametersRequest} from './selectors'
 
@@ -88,6 +88,16 @@ function* initConnection() {
   yield fork(sendAll, sock)
 }
 
+function* updateClock() {
+  while(true) {
+    yield delay(1000)
+    yield put({type: CLOCK_UPDATED})
+  }
+}
+
 export function* controllerSaga() {
-  yield takeEvery(INITIALIZED, initConnection)
+  yield all([
+    yield takeEvery(INITIALIZED, initConnection),
+    yield takeLatest(INITIALIZED, updateClock)
+  ])
 }

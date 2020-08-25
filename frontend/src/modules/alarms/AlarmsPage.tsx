@@ -4,6 +4,9 @@ import { Typography, Button, Grid } from '@material-ui/core'
 import Pagination from '@material-ui/lab/Pagination'
 import ValueSlider from '../controllers/ValueSlider'
 import ModeBanner from '../displays/ModeBanner'
+import { useDispatch, useSelector } from 'react-redux'
+import { updateCommittedParameter } from '../../store/controller/actions'
+import { getAlarmLimitsRequest } from '../../store/controller/selectors'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -41,17 +44,24 @@ const useStyles = makeStyles((theme: Theme) => ({
 interface AlarmProps {
     label: string,
     min: number,
-    max: number
+    max: number,
+    stateKey?: string
 }
 
-const Alarm = ({ label, min, max }: AlarmProps) => {
+const Alarm = ({ label, min, max, stateKey }: AlarmProps) => {
+    const dispatch = useDispatch()
+    const alarmLimits: any = useSelector(getAlarmLimitsRequest)
+    const rangeValues = [ alarmLimits[`${stateKey}Min`], alarmLimits[`${stateKey}Max`] ]
+    const onSliderChange = (range: number[]) => {
+        dispatch(updateCommittedParameter({ [`${stateKey}Min`]: range[0], [`${stateKey}Max`]: range[1] }))
+    }
     return (
         <Grid container>
             <Grid item xs={12} style={{paddingBottom: 20}}>
                 <Typography variant='h5'>{label}</Typography>
             </Grid>
             <Grid item xs={12}>
-                <ValueSlider min={min} max={max} />
+                <ValueSlider min={min} max={max} onChange={onSliderChange} rangeValues={rangeValues}/>
             </Grid>
         </Grid>
     )
@@ -76,20 +86,20 @@ export const AlarmsPage = () => {
      */
     const page1 =
         <Grid container item xs direction='column' className={classes.rightContainer}>
-            <Alarm label='Pressure above PEEP' min={0} max={100} />
-            <Alarm label='PAW' min={0} max={100} />
-            <Alarm label='PiP' min={0} max={100} />
-            <Alarm label='PEEP' min={0} max={100} />
-            <Alarm label='Insp. Time' min={0} max={100} />
+            <Alarm label='Pressure above PEEP' min={0} max={100} stateKey="ipAbovePeep" />
+            <Alarm label='PAW' min={0} max={100} stateKey="paw" />
+            <Alarm label='PiP' min={0} max={100} stateKey="pip" />
+            <Alarm label='PEEP' min={0} max={100} stateKey="peep" />
+            <Alarm label='Insp. Time' min={0} max={100} stateKey="inspTime" />
         </Grid>
 
     const page2 =
         <Grid container item xs direction='column' className={classes.rightContainer}>
-            <Alarm label='RR' min={0} max={100} />
-            <Alarm label='TV' min={0} max={100} />
-            <Alarm label='Flow' min={0} max={100} />
-            <Alarm label='MVe' min={0} max={100} />
-            <Alarm label='Apnea' min={0} max={100} />
+            <Alarm label='RR' min={0} max={100} stateKey="rr" />
+            <Alarm label='TV' min={0} max={100} stateKey="tv" />
+            <Alarm label='Flow' min={0} max={100} stateKey="flow"/>
+            <Alarm label='MVe' min={0} max={100} stateKey="mve" />
+            <Alarm label='Apnea' min={0} max={100} stateKey="apnea" />
         </Grid>
 
     return (

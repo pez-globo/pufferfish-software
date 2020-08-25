@@ -1,5 +1,10 @@
 import React from 'react'
 import { Button, Menu, MenuItem, makeStyles, Theme } from '@material-ui/core'
+import { VentilationMode } from '../../store/controller/proto/mcu_pb'
+import { useDispatch, useSelector } from 'react-redux'
+import { getParametersRequestMode } from '../../store/controller/selectors'
+import { updateCommittedParameter } from '../../store/controller/actions'
+import { getModeText } from '../displays/ModeBanner'
 
 const useStyles = makeStyles((theme: Theme) => ({
     button: {
@@ -8,11 +13,11 @@ const useStyles = makeStyles((theme: Theme) => ({
 }))
 
 const modes = [
-    'Pressure Control (AC)',
-    'Pressure Control (SIMV)',
-    'Volume Control (AC)',
-    'Volume Control (SIMV)',
-    'Non-Invasive (NIV)'
+    VentilationMode.pc_ac,
+    VentilationMode.pc_simv,
+    VentilationMode.vc_ac,
+    VentilationMode.vc_simv,
+    VentilationMode.hfnc
 ]
 
 /**
@@ -26,17 +31,19 @@ const modes = [
 export const ModesDropdown = () => {
     const classes = useStyles()
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-    const [selectedIndex, setSelectedIndex] = React.useState(0)
-
+    const dispatch = useDispatch()
+    const ventilationMode = useSelector(getParametersRequestMode)
+    const updateMode = (mode: VentilationMode) => dispatch(updateCommittedParameter({ mode: mode }))
+    
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget)
     }
 
     const handleItemClick = (
         _event: React.MouseEvent<HTMLElement, MouseEvent>,
-        index: number
+        value: VentilationMode
     ) => {
-        setSelectedIndex(index)
+        updateMode(value)
         handleClose()
     }
 
@@ -47,7 +54,7 @@ export const ModesDropdown = () => {
     return (
         <div>
             <Button onClick={handleClick} variant='contained' color='primary' className={classes.button}>
-                {modes[selectedIndex]}
+                {getModeText(ventilationMode)}
             </Button>
             <Menu
                 id='simple-menu'
@@ -56,13 +63,13 @@ export const ModesDropdown = () => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
             >
-                {modes.map((mode, index) => (
+                {modes.map((mode) => (
                     <MenuItem
                         key={mode}
-                        selected={index === selectedIndex}
-                        onClick={(event) => handleItemClick(event, index)}
+                        selected={mode === ventilationMode}
+                        onClick={(event) => handleItemClick(event, mode)}
                     >
-                        {mode}
+                        {getModeText(mode)}
                     </MenuItem>
                 ))}
             </Menu>
