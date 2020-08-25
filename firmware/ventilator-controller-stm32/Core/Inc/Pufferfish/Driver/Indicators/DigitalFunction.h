@@ -20,7 +20,7 @@ class DigitalFunctionGenerator {
   /**
   * @brief virtual method start
   */
-  virtual void start() = 0;
+  virtual void start(uint32_t currentTime) = 0;
   /**
   * @brief virtual method update
   */

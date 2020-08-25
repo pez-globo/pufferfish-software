@@ -18,7 +18,7 @@ namespace HAL {
 class PWMGenerator : public DigitalFunctionGenerator {
  public:
 
-  /*
+  /**
    * @brief DigitalFunctionGenerator Constructor
    * @param PulsePeriod - pulse period (frequency)
    *        PulseDuty - pulse duty cycle
@@ -33,7 +33,7 @@ class PWMGenerator : public DigitalFunctionGenerator {
    * @param  None
    * @return None
    */
-  void start() override;
+  void start(uint32_t currentTime) override;
 
   /**
    * @brief update method updates the mSwitching private variable based on
@@ -43,7 +43,7 @@ class PWMGenerator : public DigitalFunctionGenerator {
    */
   void update(uint32_t currentTime) override;
 
-  /*
+  /**
    * @brief  returns the bool output of mSwitching
    * @param  None
    * @return TRUE/FALSE of pulse switching
@@ -71,7 +71,6 @@ class PWMGenerator : public DigitalFunctionGenerator {
   uint32_t mReset = false;
 };
 
-
 /**
  * PulsedPWMGenerator subclass of DigitalFunctionGenerator
  * Generates the pulse for the provided high period, low period and duty cycle
@@ -80,13 +79,11 @@ class PulsedPWMGenerator : public DigitalFunctionGenerator {
  public:
 
   /**
-   * @brief DigitalFunctionGenerator Constructor
-   * @param PulsePeriod - pulse period (frequency)
-   *        PulseDuty - pulse duty cycle
+   * @brief  PulsedPWMGenerator Constructor
+   * @param  Low and high frequency objects of PWMGenerator
    */
-  PulsedPWMGenerator(uint32_t HighPulsePeriod, uint32_t LowPulsePeriod,
-                     uint32_t PulseDuty) : mHighPulsePeriod(HighPulsePeriod),
-                     mLowPulsePeriod(LowPulsePeriod), mPulseDuty(PulseDuty) {
+  PulsedPWMGenerator(Pufferfish::HAL::PWMGenerator &PulsePWMGenerator1, Pufferfish::HAL::PWMGenerator &PulsePWMGenerator2) :
+    mPulsePWMGenerator1(PulsePWMGenerator1), mPulsePWMGenerator2(PulsePWMGenerator2){
 
   }
 
@@ -95,12 +92,12 @@ class PulsedPWMGenerator : public DigitalFunctionGenerator {
    * @param  None
    * @return None
    */
-  void start() override;
+  void start(uint32_t currentTime) override;
 
   /**
-   * @brief update method updates the mSwitching private variable based on
-   *        period and duty cycle for the provided currentTime
-   * @param currentTime current time in micro-seconds.
+   * @brief  update method updates the mSwitching private variable based on
+   *         period and duty cycle for the provided currentTime
+   * @param  currentTime current time in micro-seconds.
    * @return None
    */
   void update(uint32_t currentTime) override;
@@ -120,19 +117,9 @@ class PulsedPWMGenerator : public DigitalFunctionGenerator {
   void stop() override;
 
  private:
+  Pufferfish::HAL::PWMGenerator &mPulsePWMGenerator1;
+  Pufferfish::HAL::PWMGenerator &mPulsePWMGenerator2;
 
-  /* high and low Period/frequency and Pulse duty private variables */
-  uint32_t mHighPulsePeriod = 0, mLowPulsePeriod = 0, mPulseDuty = 0;
-
-  /* mHighSwitching and mLowSwitching provides the pulse high or low for the
-     provided current time for high and low period */
-  bool mHighSwitching = false, mLowSwitching = false;
-
-  /* Stores the last cycle period of current time for high and low period */
-  uint32_t mHighLastCycle = 0, mLowLastCycle = 0;
-
-  /* Pulse generated based on mReset TRUE/FALSE */
-  uint32_t mReset = false;
 };
 }  // namespace HAL
 }  // namespace Pufferfish

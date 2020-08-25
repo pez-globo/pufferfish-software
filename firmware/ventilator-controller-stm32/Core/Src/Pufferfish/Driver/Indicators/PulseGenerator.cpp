@@ -28,9 +28,13 @@ inline bool valueMaxMin(uint32_t value, uint32_t max, uint32_t min)
 namespace Pufferfish {
 namespace HAL {
 
-void PWMGenerator::start() {
+void PWMGenerator::start(uint32_t currentTime) {
   /* Set the reset value to true to start the pulse */
   mReset = true;
+  /* Update the LastCycle with currentTime to start the pulse with raising edge */
+  mLastCycle = currentTime;
+  /* Invoke the update function of this object */
+  this->update(currentTime);
 }
 
 void PWMGenerator::update(uint32_t currentTime) {
@@ -73,90 +77,41 @@ bool PWMGenerator::output()
   return mSwitching;
 }
 
-void PWMGenerator::stop() {
+void PWMGenerator::stop()
+{
   /* Set the reset value to false to stop the pulse */
   mReset = false;
 }
 
-void PulsedPWMGenerator::start() {
-  /* Set the reset value to true to start the pulse */
-  mReset = true;
+void PulsedPWMGenerator::start(uint32_t currentTime)
+{
+  /* Start the pulse of low and high period/frequency */
+  mPulsePWMGenerator1.start(currentTime);
+  mPulsePWMGenerator2.start(currentTime);
 }
 
-void PulsedPWMGenerator::update(uint32_t currentTime) {
-
-  /* Validate the high pulse duration */
-  uint32_t highPulseDuration = currentTime - mHighLastCycle;
-
-  /* Validate the low pulse duration */
-  uint32_t lowPulseDuration = currentTime - mLowLastCycle;
-
-  /* Validate the reset value start the pulse */
-  if (mReset == true)
-  {
-
-    /* trimming the duration to be within [0, mHighPulsePeriod) */
-    if (highPulseDuration >= mHighPulsePeriod){
-      /* update the mLastCycle with current time */
-      mHighLastCycle = currentTime;
-    }
-
-    /* Trimming the high or low based on pulse duty */
-    if(highPulseDuration <= mPulseDuty){
-      mHighSwitching = true;
-    }
-    else
-    {
-      mHighSwitching = false;
-    }
-
-    /* validate the pulse duration for low period */
-
-    /* trimming the duration to be within [0, mLowPulsePeriod) */
-    if (lowPulseDuration >= mLowPulsePeriod){
-      /* update the mLastCycle with current time */
-      mLowLastCycle = currentTime;
-    }
-
-    /* Trimming the high or low based on pulse duty */
-    if(lowPulseDuration <= mPulseDuty){
-      mLowSwitching = true;
-    }
-    else
-    {
-      mLowSwitching = false;
-    }
-  }
-  else
-  {
-    mLowSwitching = false;
-    mHighSwitching = false;
-  }
-
-  /* Validate the saturation of pulseDuration of high frequency with in maximum
-       and minimum range */
-  if (valueMaxMin(highPulseDuration, mHighPulsePeriod, 0) == true)
-  {
-    mHighLastCycle = currentTime;
-  }
-
-  /* Validate the saturation of pulseDuration of low frequency with in maximum
-       and minimum range */
-  if (valueMaxMin(lowPulseDuration, mLowPulsePeriod, 0) == true)
-  {
-    mLowLastCycle = currentTime;
-  }
-
+void PulsedPWMGenerator::update(uint32_t currentTime)
+{
+  /* Update the pulse of low and high period/frequency */
+  mPulsePWMGenerator1.update(currentTime);
+  mPulsePWMGenerator2.update(currentTime);
 }
 
 bool PulsedPWMGenerator::output()
 {
-  return mHighSwitching & mLowSwitching;
+  /* Get the output of low and high period/frequency */
+  bool outputPulse1 = mPulsePWMGenerator1.output();
+  bool outputPulse2 = mPulsePWMGenerator2.output();
+
+  /* return the AND of pulses of high and low frequency */
+  return outputPulse1 & outputPulse2;
 }
 
-void PulsedPWMGenerator::stop() {
-  /* Set the reset value to false to stop the pulse */
-  mReset = false;
+void PulsedPWMGenerator::stop()
+{
+  /* Stop the pulse of high and low frequency */
+  mPulsePWMGenerator1.stop();
+  mPulsePWMGenerator2.stop();
 }
 }  // namespace HAL
 }  // namespace Pufferfish
