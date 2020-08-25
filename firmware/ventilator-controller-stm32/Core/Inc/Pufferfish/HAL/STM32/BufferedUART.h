@@ -37,6 +37,8 @@ public:
   void setupIRQ() volatile;
   void handleIRQ() volatile;
 
+  uint32_t rxDropped() const volatile;
+
 protected:
   UART_HandleTypeDef &huart;
 
@@ -45,6 +47,8 @@ protected:
 
   void handleIRQRX() volatile;
   void handleIRQTX() volatile;
+
+  volatile uint32_t mRxDropped = 0;
 };
 
 using LargeBufferedUART = BufferedUART<4096, 4096>;

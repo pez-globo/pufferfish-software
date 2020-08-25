@@ -269,6 +269,9 @@ int main(void)
     while (bufferedUART3.read(receive) == PF::BufferStatus::ok) {
       boardLed1.write(true);
       bufferedUART3.write(receive);
+      PF::HAL::AtomicSize writtenSize;
+      uint8_t repeatString[] = {receive, receive};
+      bufferedUART3.write(repeatString, sizeof(repeatString), writtenSize);
     }
 
     /* USER CODE END WHILE */

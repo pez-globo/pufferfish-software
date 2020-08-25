@@ -99,6 +99,11 @@ void BufferedUART<RXBufferSize, TXBufferSize>::handleIRQ() volatile {
 }
 
 template <AtomicSize RXBufferSize, AtomicSize TXBufferSize>
+uint32_t BufferedUART<RXBufferSize, TXBufferSize>::rxDropped() const volatile {
+  return mRxDropped;
+}
+
+template <AtomicSize RXBufferSize, AtomicSize TXBufferSize>
 void BufferedUART<RXBufferSize, TXBufferSize>::handleIRQRX() volatile {
   bool rxneEnabled = __HAL_UART_GET_IT_SOURCE(&huart, UART_IT_RXNE) != RESET;
   bool rxneFlagged = __HAL_UART_GET_FLAG(&huart, UART_FLAG_RXNE) != RESET;
@@ -107,7 +112,9 @@ void BufferedUART<RXBufferSize, TXBufferSize>::handleIRQRX() volatile {
   }
 
   uint8_t rxByte = static_cast<uint8_t>(huart.Instance->RDR & huart.Mask); // assumes 8-bit byte
-  rxBuffer.write(rxByte); // but do nothing if the buffer is full
+  if (rxBuffer.write(rxByte) != BufferStatus::ok) {
+    ++mRxDropped;
+  }
   __HAL_UART_SEND_REQ(&huart, UART_RXDATA_FLUSH_REQUEST); // clear RXNE flag
 }
 
