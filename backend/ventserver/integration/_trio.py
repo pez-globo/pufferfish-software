@@ -56,7 +56,7 @@ async def send_all_websocket(
         websocket: endpoints.IOEndpoint[bytes, bytes],
         send_channel: protocols.Filter[_InputEvent, bytes]
 ) -> None:
-    """Send all data in the stream to the serial I/O endpoint, once.
+    """Send all data in the stream to the websocket I/O endpoint, once.
 
     This completes once all data has been sent, so backpressure can be applied
     by awaiting this function.
