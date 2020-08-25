@@ -19,8 +19,9 @@ const StyledSlider = withStyles({
     },
     thumb: {
         height: 28,
-        width: 28,
-        backgroundColor: '#fff',
+        width: 32,
+        backgroundColor: '#0053b1',
+        borderRadius: 5,
         boxShadow: boxShadow,
         marginTop: -14,
         marginLeft: -14,
@@ -34,8 +35,8 @@ const StyledSlider = withStyles({
     },
     active: {},
     valueLabel: {
-        left: 'calc(-50% + 12px)',
-        top: -22,
+        left: 'calc(-38% + 12px)',
+        top: 8,
         '& *': {
             background: 'transparent',
             // color: '#000',
