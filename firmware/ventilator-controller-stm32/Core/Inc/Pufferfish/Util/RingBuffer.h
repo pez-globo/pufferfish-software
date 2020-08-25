@@ -28,8 +28,6 @@ public:
   BufferStatus read(uint8_t &readByte) volatile;
   BufferStatus peek(uint8_t &readByte) const volatile;
   BufferStatus write(uint8_t writeByte) volatile;
-  HAL::AtomicSize write(const uint8_t *writeBytes, HAL::AtomicSize writeSize);
-  HAL::AtomicSize write(const uint8_t *writeBytes, HAL::AtomicSize writeSize) volatile;
 
 protected:
   uint8_t buffer[BufferSize];

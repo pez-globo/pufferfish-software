@@ -47,41 +47,5 @@ BufferStatus RingBuffer<BufferSize>::write(uint8_t writeByte) volatile {
   return BufferStatus::ok;
 }
 
-template<HAL::AtomicSize BufferSize>
-HAL::AtomicSize RingBuffer<BufferSize>::write(
-    const uint8_t *writeBytes, HAL::AtomicSize writeSize
-) {
-  HAL::AtomicSize nextIndex = (newestIndex + 1) % maxSize;
-  if (nextIndex == oldestIndex) {
-      return 0;
-  }
-
-  HAL::AtomicSize newestAvailableIndex = (oldestIndex - 1 + maxSize) % maxSize;
-  HAL::AtomicSize writtenSize;
-  if (newestAvailableIndex >= nextIndex) {
-    writtenSize = newestAvailableIndex - nextIndex + 1;
-    newestIndex = newestAvailableIndex;
-  } else { // Available bytes wrap around the end of the buffer
-    // Only write to the end, let the remainder be written on the next call
-    writtenSize = maxSize - nextIndex;
-    newestIndex = maxSize - 1;
-  }
-  memcpy(buffer + nextIndex, writeBytes, writtenSize);
-  return writtenSize;
-}
-
-template<HAL::AtomicSize BufferSize>
-HAL::AtomicSize RingBuffer<BufferSize>::write(
-    const uint8_t *writeBytes, HAL::AtomicSize writeSize
-) volatile {
-  HAL::AtomicSize i;
-  for (i = 0; i < writeSize; ++i) {
-    if (write(writeBytes[i]) != BufferStatus::ok) {
-      break;
-    }
-  }
-  return i;
-}
-
 } // namespace Util
 } // namespace Pufferfish
