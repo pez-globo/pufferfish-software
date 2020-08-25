@@ -18,5 +18,5 @@
 #include "Pufferfish/HAL/STM32/Time.h"
 #include "Pufferfish/HAL/STM32/PWM.h"
 
-#include "Pufferfish/HAL/STM32/DigitalFunction.h"
-#include "Pufferfish/HAL/STM32/PulseGenerator.h"
+#include "Pufferfish/Driver/Indicators/DigitalFunction.h"
+#include "Pufferfish/Driver/Indicators/PulseGenerator.h"
