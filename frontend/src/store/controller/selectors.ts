@@ -9,7 +9,8 @@ import {
   Ping,
   Announcement,
   AlarmLimitsRequest,
-  DisplaySettingRequest
+  FrontendDisplaySetting,
+  SystemSettingRequest
 } from './proto/mcu_pb'
 import {
   RotaryEncoder
@@ -162,7 +163,13 @@ export const getAlarmLimitsRequest = createSelector(
 )
 
 // Display Settings
-export const getDisplaySettingRequest = createSelector(
+export const getFrontendDisplaySetting = createSelector(
   getController,
-  (states: ControllerStates): DisplaySettingRequest => states.displaySettingRequest
+  (states: ControllerStates): FrontendDisplaySetting => states.frontendDisplaySetting
+)
+
+// Display Settings
+export const getSystemSettingRequest = createSelector(
+  getController,
+  (states: ControllerStates): SystemSettingRequest => states.systemSettingRequest
 )

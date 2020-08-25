@@ -1,5 +1,4 @@
 /* eslint-disable */
-import { Timestamp } from './google/protobuf/timestamp';
 import { Writer, Reader } from 'protobufjs/minimal';
 
 
@@ -36,11 +35,14 @@ export interface AlarmLimitsRequest {
   apneaMax: number;
 }
 
-export interface DisplaySettingRequest {
-  brightness: number;
+export interface FrontendDisplaySetting {
   theme: ThemeVariant;
   unit: Unit;
-  date: Date | undefined;
+}
+
+export interface SystemSettingRequest {
+  brightness: number;
+  date: number;
 }
 
 export interface SensorMeasurements {
@@ -126,11 +128,14 @@ const baseAlarmLimitsRequest: object = {
   apneaMax: 0,
 };
 
-const baseDisplaySettingRequest: object = {
-  brightness: 0,
+const baseFrontendDisplaySetting: object = {
   theme: 0,
   unit: 0,
-  date: undefined,
+};
+
+const baseSystemSettingRequest: object = {
+  brightness: 0,
+  date: 0,
 };
 
 const baseSensorMeasurements: object = {
@@ -182,28 +187,6 @@ const baseAnnouncement: object = {
   time: 0,
   announcement: undefined,
 };
-
-function fromJsonTimestamp(o: any): Date {
-  if (o instanceof Date) {
-    return o;
-  } else if (typeof o === "string") {
-    return new Date(o);
-  } else {
-    return fromTimestamp(Timestamp.fromJSON(o));
-  }
-}
-
-function toTimestamp(date: Date): Timestamp {
-  const seconds = date.getTime() / 1_000;
-  const nanos = (date.getTime() % 1_000) * 1_000_000;
-  return { seconds, nanos };
-}
-
-function fromTimestamp(t: Timestamp): Date {
-  let millis = t.seconds * 1_000;
-  millis += t.nanos / 1_000_000;
-  return new Date(millis);
-}
 
 export const Unit = {
   imperial: 0 as const,
@@ -794,34 +777,24 @@ export const AlarmLimitsRequest = {
   },
 };
 
-export const DisplaySettingRequest = {
-  encode(message: DisplaySettingRequest, writer: Writer = Writer.create()): Writer {
-    writer.uint32(8).uint32(message.brightness);
-    writer.uint32(16).int32(message.theme);
-    writer.uint32(24).int32(message.unit);
-    if (message.date !== undefined && message.date !== undefined) {
-      Timestamp.encode(toTimestamp(message.date), writer.uint32(34).fork()).ldelim();
-    }
+export const FrontendDisplaySetting = {
+  encode(message: FrontendDisplaySetting, writer: Writer = Writer.create()): Writer {
+    writer.uint32(8).int32(message.theme);
+    writer.uint32(16).int32(message.unit);
     return writer;
   },
-  decode(input: Uint8Array | Reader, length?: number): DisplaySettingRequest {
+  decode(input: Uint8Array | Reader, length?: number): FrontendDisplaySetting {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseDisplaySettingRequest) as DisplaySettingRequest;
+    const message = Object.create(baseFrontendDisplaySetting) as FrontendDisplaySetting;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.brightness = reader.uint32();
-          break;
-        case 2:
           message.theme = reader.int32() as any;
           break;
-        case 3:
+        case 2:
           message.unit = reader.int32() as any;
-          break;
-        case 4:
-          message.date = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -830,13 +803,8 @@ export const DisplaySettingRequest = {
     }
     return message;
   },
-  fromJSON(object: any): DisplaySettingRequest {
-    const message = Object.create(baseDisplaySettingRequest) as DisplaySettingRequest;
-    if (object.brightness !== undefined && object.brightness !== null) {
-      message.brightness = Number(object.brightness);
-    } else {
-      message.brightness = 0;
-    }
+  fromJSON(object: any): FrontendDisplaySetting {
+    const message = Object.create(baseFrontendDisplaySetting) as FrontendDisplaySetting;
     if (object.theme !== undefined && object.theme !== null) {
       message.theme = ThemeVariant.fromJSON(object.theme);
     } else {
@@ -847,20 +815,10 @@ export const DisplaySettingRequest = {
     } else {
       message.unit = 0;
     }
-    if (object.date !== undefined && object.date !== null) {
-      message.date = fromJsonTimestamp(object.date);
-    } else {
-      message.date = undefined;
-    }
     return message;
   },
-  fromPartial(object: DeepPartial<DisplaySettingRequest>): DisplaySettingRequest {
-    const message = Object.create(baseDisplaySettingRequest) as DisplaySettingRequest;
-    if (object.brightness !== undefined && object.brightness !== null) {
-      message.brightness = object.brightness;
-    } else {
-      message.brightness = 0;
-    }
+  fromPartial(object: DeepPartial<FrontendDisplaySetting>): FrontendDisplaySetting {
+    const message = Object.create(baseFrontendDisplaySetting) as FrontendDisplaySetting;
     if (object.theme !== undefined && object.theme !== null) {
       message.theme = object.theme;
     } else {
@@ -871,19 +829,74 @@ export const DisplaySettingRequest = {
     } else {
       message.unit = 0;
     }
-    if (object.date !== undefined && object.date !== null) {
-      message.date = object.date;
-    } else {
-      message.date = undefined;
+    return message;
+  },
+  toJSON(message: FrontendDisplaySetting): unknown {
+    const obj: any = {};
+    obj.theme = ThemeVariant.toJSON(message.theme);
+    obj.unit = Unit.toJSON(message.unit);
+    return obj;
+  },
+};
+
+export const SystemSettingRequest = {
+  encode(message: SystemSettingRequest, writer: Writer = Writer.create()): Writer {
+    writer.uint32(8).uint32(message.brightness);
+    writer.uint32(16).uint32(message.date);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): SystemSettingRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = Object.create(baseSystemSettingRequest) as SystemSettingRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.brightness = reader.uint32();
+          break;
+        case 2:
+          message.date = reader.uint32();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
     }
     return message;
   },
-  toJSON(message: DisplaySettingRequest): unknown {
+  fromJSON(object: any): SystemSettingRequest {
+    const message = Object.create(baseSystemSettingRequest) as SystemSettingRequest;
+    if (object.brightness !== undefined && object.brightness !== null) {
+      message.brightness = Number(object.brightness);
+    } else {
+      message.brightness = 0;
+    }
+    if (object.date !== undefined && object.date !== null) {
+      message.date = Number(object.date);
+    } else {
+      message.date = 0;
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<SystemSettingRequest>): SystemSettingRequest {
+    const message = Object.create(baseSystemSettingRequest) as SystemSettingRequest;
+    if (object.brightness !== undefined && object.brightness !== null) {
+      message.brightness = object.brightness;
+    } else {
+      message.brightness = 0;
+    }
+    if (object.date !== undefined && object.date !== null) {
+      message.date = object.date;
+    } else {
+      message.date = 0;
+    }
+    return message;
+  },
+  toJSON(message: SystemSettingRequest): unknown {
     const obj: any = {};
     obj.brightness = message.brightness || 0;
-    obj.theme = ThemeVariant.toJSON(message.theme);
-    obj.unit = Unit.toJSON(message.unit);
-    obj.date = message.date !== undefined ? message.date.toISOString() : null;
+    obj.date = message.date || 0;
     return obj;
   },
 };

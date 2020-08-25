@@ -3,9 +3,10 @@ import { Grid, Tabs, Tab, Button } from '@material-ui/core/'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import { TabPanel, a11yProps } from '../controllers/TabPanel'
 import { InfoTab, TestCalibrationTab, DisplayTab } from './containers'
-import { DisplaySettingRequest } from '../../store/controller/proto/mcu_pb'
+import { FrontendDisplaySetting, SystemSettingRequest } from '../../store/controller/proto/mcu_pb'
 import { useDispatch } from 'react-redux'
-import { updateCommittedParameter } from '../../store/controller/actions'
+import { FRONTEND_DISPLAY_SETTINGS, SYSTEM_SETTINGS } from '../../store/controller/types'
+import { updateCommittedState } from '../../store/controller/actions'
 
 const useStyles = makeStyles((theme: Theme) => ({
     tabPanelContainer: {
@@ -57,18 +58,27 @@ export const SettingsPage = () => {
     const classes = useStyles()
     const [value, setValue] = React.useState(0)
     const dispatch = useDispatch()
-    const [displaySetting, setDisplaySetting] = React.useState<DisplaySettingRequest>()
+    const [displaySetting, setDisplaySetting] = React.useState<FrontendDisplaySetting>()
+    const [systemSetting, setSystemSetting] = React.useState<SystemSettingRequest>()
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setValue(newValue)
     }
 
-    const onDisplaySettingChange = (setting: DisplaySettingRequest) => {
-        setDisplaySetting(setting)
+    const onSettingChange = (settings: any) => {
+        setDisplaySetting(FrontendDisplaySetting.fromJSON({
+            theme: settings.theme,
+            unit: settings.unit,
+        }))
+        setSystemSetting(SystemSettingRequest.fromJSON({
+            brightness: settings.brightness,
+            date: settings.date,
+        }))
     }
 
     const handleSubmit = () => {
-        dispatch(updateCommittedParameter(displaySetting as Object))
+        dispatch(updateCommittedState(FRONTEND_DISPLAY_SETTINGS, displaySetting as Object))
+        dispatch(updateCommittedState(SYSTEM_SETTINGS, systemSetting as Object))
     }
 
     return (
@@ -81,7 +91,7 @@ export const SettingsPage = () => {
                     <TestCalibrationTab />
                 </TabPanel>
                 <TabPanel value={value} index={TabType.DISPLAY_TAB}>
-                    <DisplayTab onDisplaySettingChange={onDisplaySettingChange}/>
+                    <DisplayTab onSettingChange={onSettingChange}/>
                 </TabPanel>
             </Grid>
             <Grid container item justify='center' alignItems='center' className={classes.tabContainer}>

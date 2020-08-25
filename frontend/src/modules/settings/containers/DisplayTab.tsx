@@ -13,10 +13,10 @@ import {
 } from '@material-ui/core'
 import ValueController from '../../controllers/ValueController'
 import { getClock } from '../../../store/app/selectors'
-import { getDisplaySettingRequest } from '../../../store/controller/selectors'
 import { useSelector } from 'react-redux'
-import { ThemeVariant, DisplaySettingRequest, Unit } from '../../../store/controller/proto/mcu_pb'
+import { ThemeVariant, Unit } from '../../../store/controller/proto/mcu_pb'
 import { useEffect } from 'react'
+import { getFrontendDisplaySetting, getSystemSettingRequest } from '../../../store/controller/selectors'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -83,7 +83,7 @@ const to12HourClock = (hour: number) => { return (hour % 12) || 12 }
 const to24HourClock = (hour: number, period: Period) => { return (period === Period.PM) ? hour + 12 : hour }
 
 interface Props {
-    onDisplaySettingChange?: any
+    onSettingChange?: any
 }
 /**
  * DisplayTab
@@ -91,14 +91,15 @@ interface Props {
  * TODO: Hook this up to the redux state to persist changes across the system's state.
  *       We need to make sure that updates to dat
  */
-export const DisplayTab = ({ onDisplaySettingChange }: Props) => {
+export const DisplayTab = ({ onSettingChange }: Props) => {
     const classes = useStyles()
-    const displaySettings = useSelector(getDisplaySettingRequest)
-    const [brightness, setBrightness] = React.useState(displaySettings.brightness)
+    const systemSettings = useSelector(getSystemSettingRequest)
+    const displaySettings = useSelector(getFrontendDisplaySetting)
+    const [brightness, setBrightness] = React.useState(systemSettings.brightness)
     const [theme, setTheme] = React.useState(displaySettings.theme)
     const [unit, setUnit] = React.useState(displaySettings.unit)
     const clock = useSelector(getClock)
-    const [date, setDate] = React.useState<Date | any>(displaySettings.date)
+    const [date, setDate] = React.useState<Date>(new Date(systemSettings.date * 1000))
     const [period, setPeriod] = React.useState((date.getHours() >= 12) ? Period.PM : Period.AM)
     const [minute, setMinute] = React.useState(date.getMinutes())
     const [hour, setHour] = React.useState(to12HourClock(date.getHours())) // Note: `date.hours()` is 24-hour formatted.
@@ -108,12 +109,12 @@ export const DisplayTab = ({ onDisplaySettingChange }: Props) => {
 
     useEffect(() => {
         const dateChange = new Date(year, month - 1, day, to24HourClock(hour, period), minute)
-        onDisplaySettingChange(DisplaySettingRequest.fromJSON({
+        onSettingChange({
             brightness: brightness,
             theme: theme,
             unit: unit,
-            date: dateChange
-        }))
+            date: parseInt((dateChange.getTime() / 1000).toFixed(0))
+        })
     }, [date, period, minute, hour, day, month, year, unit, theme, brightness]);
 
     const handleMonthChange = (change: number) => {

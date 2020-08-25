@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "google/protobuf/timestamp.proto";
-
 message Alarms {
   uint32 time = 1;
   bool alarm_one = 2;
@@ -45,11 +43,14 @@ enum ThemeVariant {
   light = 1;
 }
 
-message DisplaySettingRequest {
+message FrontendDisplaySetting {
+  ThemeVariant theme = 1;
+  Unit unit = 2;
+}
+
+message SystemSettingRequest {
   uint32 brightness = 1;
-  ThemeVariant theme = 2;
-  Unit unit = 3;
-  google.protobuf.Timestamp date = 4;
+  uint32 date = 2;
 }
 
 message SensorMeasurements {
