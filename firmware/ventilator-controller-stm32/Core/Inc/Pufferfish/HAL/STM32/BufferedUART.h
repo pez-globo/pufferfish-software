@@ -24,9 +24,15 @@ public:
 
   BufferStatus read(uint8_t &readByte) volatile;
   BufferStatus write(uint8_t writeByte) volatile;
-  AtomicSize write(const uint8_t *writeBytes, AtomicSize writeSize) volatile;
+  BufferStatus write(
+      const uint8_t *writeBytes, AtomicSize writeSize,
+      HAL::AtomicSize &writtenSize
+  ) volatile;
   BufferStatus writeBlock(uint8_t writeByte, uint32_t timeout) volatile;
-  AtomicSize writeBlock(const uint8_t *writeBytes, AtomicSize writeSize, uint32_t timeout) volatile;
+  BufferStatus writeBlock(
+      const uint8_t *writeBytes, AtomicSize writeSize, uint32_t timeout,
+      HAL::AtomicSize &writtenSize
+  ) volatile;
 
   void setupIRQ() volatile;
   void handleIRQ() volatile;

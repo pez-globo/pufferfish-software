@@ -33,16 +33,20 @@ BufferStatus BufferedUART<RXBufferSize, TXBufferSize>::write(
 }
 
 template <AtomicSize RXBufferSize, AtomicSize TXBufferSize>
-AtomicSize BufferedUART<RXBufferSize, TXBufferSize>::write(
-    const uint8_t *writeBytes, AtomicSize writeSize
+BufferStatus BufferedUART<RXBufferSize, TXBufferSize>::write(
+    const uint8_t *writeBytes, AtomicSize writeSize,
+    HAL::AtomicSize &writtenSize
 ) volatile {
-  AtomicSize i;
-  for (i = 0; i < writeSize; ++i) {
-    if (write(writeBytes[i]) != BufferStatus::ok) {
+  for (writtenSize = 0; writtenSize < writeSize; ++writtenSize) {
+    if (write(writeBytes[writtenSize]) != BufferStatus::ok) {
       break;
     }
   }
-  return i;
+  if (writeSize == writtenSize) {
+    return BufferStatus::ok;
+  } else {
+    return BufferStatus::partial;
+  }
 }
 
 template <AtomicSize RXBufferSize, AtomicSize TXBufferSize>
@@ -61,18 +65,24 @@ BufferStatus BufferedUART<RXBufferSize, TXBufferSize>::writeBlock(
 }
 
 template <AtomicSize RXBufferSize, AtomicSize TXBufferSize>
-AtomicSize BufferedUART<RXBufferSize, TXBufferSize>::writeBlock(
-    const uint8_t *writeBytes, AtomicSize writeSize, uint32_t timeout
+BufferStatus BufferedUART<RXBufferSize, TXBufferSize>::writeBlock(
+    const uint8_t *writeBytes, AtomicSize writeSize, uint32_t timeout,
+    HAL::AtomicSize &writtenSize
 ) volatile {
-  AtomicSize written = 0;
   uint32_t start = millis();
-  while (written < writeSize) {
-    written += write(writeBytes + written, writeSize - written);
+  while (writtenSize < writeSize) {
+    AtomicSize justWritten = 0;
+    write(writeBytes + writtenSize, writeSize - writtenSize, justWritten);
+    writtenSize += justWritten;
     if ((timeout > 0) && ((millis() - start) > timeout)) {
       break;
     }
   }
-  return written;
+  if (writeSize == writtenSize) {
+    return BufferStatus::ok;
+  } else {
+    return BufferStatus::partial;
+  }
 }
 
 template <AtomicSize RXBufferSize, AtomicSize TXBufferSize>
