@@ -14,10 +14,10 @@ import {getParametersRequest} from './selectors'
 
 function createConnectionChannel() {
   return eventChannel((emit) => {
-    console.log('Connecting to WebSocket...')
     const sock = new WebSocket('ws://localhost:8000/')
     sock.onerror = (err) => emit({'err': err, 'sock': null})
     sock.onopen = (event) => emit({'err': null, 'sock': sock})
+    sock.onclose = (event) => emit({'err': 'Closing!', 'sock': sock})
     return () => {
       console.log('Closing WebSocket...')
       sock.close()
@@ -81,25 +81,34 @@ function *sendAll(sock: WebSocket) {
     )
     clock += 1
   }
+  console.log('Websocket is no longer open!')
 }
 
 function* initConnection() {
+  var connectionChannel
   var connection
   while (true) {
-    const connectionChannel = yield call(createConnectionChannel)
+    connectionChannel = yield call(createConnectionChannel)
     connection = yield take(connectionChannel)
     if (connection.err == null) {
       break
     }
-    console.warn('WebSocket connection error', connection.err)
+    // console.warn('WebSocket connection error', connection.err)
     yield delay(1)
   }
   console.log('Connected to WebSocket!')
   const receiveChannel = createReceiveChannel(connection.sock)
-  yield all([
-    yield fork(receiveAll, receiveChannel),
-    yield fork(sendAll, connection.sock)
-  ])
+  yield fork(receiveAll, receiveChannel)
+  yield fork(sendAll, connection.sock)
+  connection = yield take(connectionChannel)
+  receiveChannel.close()
+}
+
+function* initConnectionPersistently() {
+  while (true) {
+    yield initConnection()
+    console.log('Reestablishing WebSocket connection...')
+  }
 }
 
 function* updateClock() {
@@ -111,7 +120,7 @@ function* updateClock() {
 
 export function* controllerSaga() {
   yield all([
-    yield takeEvery(INITIALIZED, initConnection),
+    yield takeEvery(INITIALIZED, initConnectionPersistently),
     yield takeLatest(INITIALIZED, updateClock)
   ])
 }
