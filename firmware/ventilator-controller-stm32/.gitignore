@@ -10,6 +10,9 @@
 /.mxproject
 /mx.scratch
 
+# Cppcheck builds
+/*-cppcheck-build-dir
+
 # Clion auto-generated files
 .idea
 CMakeLists.txt

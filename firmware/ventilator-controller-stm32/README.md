@@ -14,6 +14,33 @@ Then you can make configuration changes and regenerate code using STM32CubeMX. T
 - Rename `Core/Src/main.c` to `Core/Src/main.cpp`
 - Rename `Core/Src/stm32h7_it.c` to `Core/Src/stm32h7_it.cpp`
 
+## Static Code Checking
+
+To run code checks, first install `clang-tidy`, `clang-format`, `clang-tools`, and `cppcheck`.
+
+### Cppcheck
+
+First install `cppcheck`; if you'd like to use the GUI, also install `cppcheck-gui`.
+
+You can run the cppcheck GUI by starting `cppcheck-gui` and opening the
+`application.cppcheck` project file (to check the code to be uploaded to the STM32)
+or the `testcatch2.cppcheck` project file (to check the test code). Th GUI also
+makes it easy to edit the project files.
+
+You can run cppcheck checks for the main application from the command-line with:
+
+```
+mkdir application-cppcheck-build-dir
+cppcheck --project=application.cppcheck --enable=all --error-exitcode=1
+```
+
+You can run cppcheck checks for the Catch2 automated tests from the command-line with:
+
+```
+mkdir testcatch2-cppcheck-build-dir
+cppcheck --project=testcatch2.cppcheck --enable=all --error-exitcode=1
+```
+
 ## Running
 
 ### Embedded Software in Debug Mode
