@@ -12,23 +12,26 @@ import {INITIALIZED, CLOCK_UPDATED} from '../app/types'
 import {updateState} from './actions'
 import {getParametersRequest} from './selectors'
 
-function createEventChannel() {
-  console.log('Connecting to WebSocket...')
-  const sock = new WebSocket('ws://localhost:8000/')
-  return [
-    eventChannel((emit) => {
-      sock.onmessage = (message) => emit(message.data)
-      return () => {
-        sock.close()
-      }
-    }),
-    eventChannel((emit) => {
-      sock.onopen = (event) => emit(sock)
-      return () => {
-        sock.close()
-      }
-    })
-  ]
+function createConnectionChannel() {
+  return eventChannel((emit) => {
+    console.log('Connecting to WebSocket...')
+    const sock = new WebSocket('ws://localhost:8000/')
+    sock.onerror = (err) => emit({'err': err, 'sock': null})
+    sock.onopen = (event) => emit({'err': null, 'sock': sock})
+    return () => {
+      console.log('Closing WebSocket...')
+      sock.close()
+    }
+  })
+}
+
+function createReceiveChannel(sock: WebSocket) {
+  return eventChannel((emit) => {
+    sock.onmessage = (message) => emit(message.data)
+    return () => {
+      sock.close()
+    }
+  })
 }
 
 function *receive(message: any) {
@@ -81,11 +84,22 @@ function *sendAll(sock: WebSocket) {
 }
 
 function* initConnection() {
-  const [receiveChannel, sendChannel] = yield call(createEventChannel)
+  var connection
+  while (true) {
+    const connectionChannel = yield call(createConnectionChannel)
+    connection = yield take(connectionChannel)
+    if (connection.err == null) {
+      break
+    }
+    console.warn('WebSocket connection error', connection.err)
+    yield delay(1)
+  }
   console.log('Connected to WebSocket!')
-  yield fork(receiveAll, receiveChannel)
-  const sock = yield take(sendChannel)
-  yield fork(sendAll, sock)
+  const receiveChannel = createReceiveChannel(connection.sock)
+  yield all([
+    yield fork(receiveAll, receiveChannel),
+    yield fork(sendAll, connection.sock)
+  ])
 }
 
 function* updateClock() {
