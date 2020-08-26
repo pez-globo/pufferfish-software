@@ -73,7 +73,7 @@ function *sendParametersRequest(
 }
 
 function *sendAll(sock: WebSocket) {
-  var clock = 0
+  let clock = 0
   while (sock.readyState === WebSocket.OPEN) {
     const parametersRequest = yield select(getParametersRequest)
     yield sendParametersRequest(
@@ -85,8 +85,8 @@ function *sendAll(sock: WebSocket) {
 }
 
 function* initConnection() {
-  var connectionChannel
-  var connection
+  let connectionChannel
+  let connection
   while (true) {
     connectionChannel = yield call(createConnectionChannel)
     connection = yield take(connectionChannel)
