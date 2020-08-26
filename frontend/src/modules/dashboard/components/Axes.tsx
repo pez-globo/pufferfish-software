@@ -113,7 +113,6 @@ export const Axes = ({
           top={margin.top}
           left={0}
           scale={yScale}
-          hideZero
           numTicks={numTicksForHeight(height)}
           label='Axis Left Label'
           labelProps={{

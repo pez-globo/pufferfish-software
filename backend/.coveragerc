@@ -1,7 +1,0 @@
-[run]
-source = ventserver
-
-[report]
-exclude_lines =
-    pragma: no cover
-    pass
