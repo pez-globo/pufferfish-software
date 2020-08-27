@@ -19,12 +19,14 @@ const StyledSlider = withStyles({
     },
     thumb: {
         height: 28,
-        width: 28,
-        backgroundColor: '#fff',
+        width: 32,
+        backgroundColor: '#0053b1',
+        borderRadius: 5,
         boxShadow: boxShadow,
         marginTop: -14,
         marginLeft: -14,
         '&:focus, &:hover, &$active': {
+            border: '1px solid #fff',
             boxShadow: '0 3px 1px rgba(0,0,0,0.1),0 4px 8px rgba(0,0,0,0.3),0 0 0 1px rgba(0,0,0,0.02)',
             // Reset on touch devices, it doesn't add specificity
             '@media (hover: none)': {
@@ -34,8 +36,8 @@ const StyledSlider = withStyles({
     },
     active: {},
     valueLabel: {
-        left: 'calc(-50% + 12px)',
-        top: -22,
+        left: 'calc(-38% + 12px)',
+        top: 8,
         '& *': {
             background: 'transparent',
             // color: '#000',
