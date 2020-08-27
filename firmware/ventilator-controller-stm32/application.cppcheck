@@ -8,11 +8,12 @@
     <max-ctu-depth>10</max-ctu-depth>
     <includedir>
         <dir name="Core/Inc"/>
+        <dir name="Drivers/STM32H7xx_HAL_Driver/Inc"/>
+        <dir name="Drivers/CMSIS/Device/ST/STM32H7xx/Include"/>
     </includedir>
     <paths>
         <dir name="Core/Inc"/>
         <dir name="Core/Src"/>
-        <dir name="Drivers/STM32H7xx_HAL_Driver/Inc"/>
     </paths>
     <exclude>
         <path name="Core/Src/system_stm32h7xx.c"/>
@@ -21,6 +22,7 @@
         <path name="Core/Src/sysmem.c"/>
     </exclude>
     <suppressions>
+        <suppression>missingIncludeSystem</suppression>
         <suppression>unusedFunction</suppression>
     </suppressions>
     <addons>

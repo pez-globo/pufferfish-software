@@ -8,12 +8,15 @@
     <max-ctu-depth>10</max-ctu-depth>
     <includedir>
         <dir name="Core/Inc/Pufferfish"/>
+        <dir name="Drivers/STM32H7xx_HAL_Driver/Inc"/>
+        <dir name="Drivers/CMSIS/Device/ST/STM32H7xx/Include"/>
     </includedir>
     <paths>
         <dir name="Core/Inc/Pufferfish"/>
         <dir name="Core/Test"/>
     </paths>
     <suppressions>
+        <suppression>missingIncludeSystem</suppression>
         <suppression>unusedFunction</suppression>
     </suppressions>
     <addons>
