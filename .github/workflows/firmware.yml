@@ -13,7 +13,12 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install cppcheck
+        sudo apt install cppcheck clang-format
+      working-directory: firmware/ventilator-controller-stm32
+
+    - name: Run clang-format
+      run: |
+        ! ./clang-format-all.sh -dry-run 2>&1 | grep ''
       working-directory: firmware/ventilator-controller-stm32
 
     - name: Run cppcheck with application
