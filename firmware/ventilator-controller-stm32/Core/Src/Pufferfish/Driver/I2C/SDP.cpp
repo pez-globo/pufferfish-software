@@ -66,8 +66,6 @@ I2CDeviceStatus SDPSensor::serialNumber(uint32_t &pn, uint64_t &sn) {
   pnVal.bytes[3] = data[0];
   pnVal.bytes[2] = data[1];
   pnVal.bytes[1] = data[2];
-  // Cppcheck false positive, pnVal.bytes[0] is used for pnVal.value via the union
-  // cppcheck-suppress unreadVariable
   pnVal.bytes[0] = data[3];
 
   // read 64 bits serial number
@@ -83,8 +81,6 @@ I2CDeviceStatus SDPSensor::serialNumber(uint32_t &pn, uint64_t &sn) {
   snVal.bytes[3] = data[8];
   snVal.bytes[2] = data[9];
   snVal.bytes[1] = data[10];
-  // Cppcheck false positive, snVal.bytes[0] is used for snVal.value via the union
-  // cppcheck-suppress unreadVariable
   snVal.bytes[0] = data[11];
 
   pn = pnVal.value;
