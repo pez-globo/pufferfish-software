@@ -3,7 +3,7 @@
     <builddir>application-cppcheck-build-dir</builddir>
     <platform>arm32-wchar_t2.xml</platform>
     <analyze-all-vs-configs>false</analyze-all-vs-configs>
-    <check-headers>true</check-headers>
+    <check-headers>false</check-headers>
     <check-unused-templates>false</check-unused-templates>
     <max-ctu-depth>10</max-ctu-depth>
     <includedir>
