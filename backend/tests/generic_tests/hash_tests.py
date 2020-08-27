@@ -76,7 +76,7 @@ def print_timings(timings: dict, timings_avg: dict, data: dict):
 def main():
 
     functions = {
-        'crc': crc.compute_reflected_crc,
+        'crc': lambda data: crc.compute_reflected_crc(data, crc.CRC32C_REFLECTED_TABLE),
         'sha1': hashlib.sha1,
         'md5': hashlib.md5,
         'blake2b': hashlib.blake2b,
@@ -101,4 +101,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
