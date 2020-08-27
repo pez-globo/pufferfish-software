@@ -1,0 +1,29 @@
+name: Firmware Checks
+
+on: [push]
+
+jobs:
+  check:
+    runs-on: ubuntu-20.04
+    strategy:
+      max-parallel: 4
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install dependencies
+      run: |
+        sudo apt install cppcheck
+      working-directory: firmware/ventilator-controller-stm32
+
+    - name: Run cppcheck with application
+      run: |
+        mkdir application-cppcheck-build-dir
+        cppcheck --project=application.cppcheck --enable=all --error-exitcode=1
+      working-directory: firmware/ventilator-controller-stm32
+
+    - name: Run cppcheck with catch2 automated tests
+      run: |
+        mkdir testcatch2-cppcheck-build-dir
+        cppcheck --project=testcatch2.cppcheck --enable=all --error-exitcode=1
+      working-directory: firmware/ventilator-controller-stm32
