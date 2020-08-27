@@ -34,7 +34,7 @@ class ReceiveEvent(events.Event):
 
 @attr.s
 class ReceiveOutputEvent(events.Event):
-    """Server receive output/send output event."""
+    """Server receive output/send event."""
 
     server_send: Optional[backend.OutputEvent] = attr.ib(default=None)
 
@@ -47,8 +47,8 @@ SendEvent = Union[backend.Announcement, backend.OutputEvent]
 
 
 @attr.s
-class SendOutputEvent:
-    """Server receive output/send output event."""
+class SendOutputEvent(events.Event):
+    """Server send output/send event."""
 
     serial_send: Optional[bytes] = attr.ib(default=None)
     websocket_send: Optional[bytes] = attr.ib(default=None)
