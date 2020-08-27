@@ -25,7 +25,7 @@ function createCustomTheme(options: ThemeOptions) {
     })
 }
 
-const darkTheme = createCustomTheme({
+export const darkTheme = createCustomTheme({
     palette: {
         type: 'dark',
         background: {
@@ -35,6 +35,7 @@ const darkTheme = createCustomTheme({
         primary: {
             light: '#254764',
             main: '#0053b1',
+            contrastText: 'white'
         },
         secondary: {
             main: '#53d769',
@@ -55,4 +56,34 @@ const darkTheme = createCustomTheme({
     },
 })
 
-export const customTheme = darkTheme
+export const lightTheme = createCustomTheme({
+    palette: {
+        type: 'light',
+        background: {
+            paper: '#CEDEF0',
+            default: 'white',
+        },
+        primary: {
+            light: '#96B3D3',
+            main: '#0053b1',
+            contrastText: 'white'
+        },
+        secondary: {
+            main: '#53d769',
+        },
+    },
+    typography: {
+        subtitle2: {
+            fontSize: 12
+        },
+
+        button: {
+            textTransform: 'none'
+        }
+    },
+    mixins: {
+        toolbar: {
+            minHeight: 80
+        }
+    },
+})
