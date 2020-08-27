@@ -31,14 +31,14 @@ You can run cppcheck checks for the main application from the command-line with:
 
 ```
 mkdir application-cppcheck-build-dir
-cppcheck --project=application.cppcheck --enable=all --error-exitcode=1
+cppcheck --project=application.cppcheck --inline-suppr --enable=all --error-exitcode=1
 ```
 
 You can run cppcheck checks for the Catch2 automated tests from the command-line with:
 
 ```
 mkdir testcatch2-cppcheck-build-dir
-cppcheck --project=testcatch2.cppcheck --enable=all --error-exitcode=1
+cppcheck --project=testcatch2.cppcheck --inline-suppr --enable=all --error-exitcode=1
 ```
 
 ## Running

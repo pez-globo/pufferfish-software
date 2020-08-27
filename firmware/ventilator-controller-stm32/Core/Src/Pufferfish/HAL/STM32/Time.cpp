@@ -37,7 +37,8 @@ bool microsDelayInit() {
 
   // do some random works to check that the cycle counter actually working
   volatile int i;
-  for (i = 2; i < 64; i *= i);
+  for (i = 2; i < 64; i *= i) {
+  }
 
   // verify the cycles
   return DWT->CYCCNT != 0;
@@ -51,7 +52,8 @@ uint32_t micros() {
 void delayMicros(uint32_t microseconds) {
   const uint32_t start = DWT->CYCCNT;
   microseconds *= HAL_RCC_GetHCLKFreq() / 1000000;
-  while (DWT->CYCCNT - start < microseconds);
+  while (DWT->CYCCNT - start < microseconds) {
+  }
 }
 
 } /* namespace HAL */

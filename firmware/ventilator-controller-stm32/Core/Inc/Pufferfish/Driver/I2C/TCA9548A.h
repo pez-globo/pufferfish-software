@@ -21,7 +21,7 @@ class TCA9548A : public I2CMux, public Testable {
  public:
   static const uint16_t defaultI2CAddr = 0x70;
 
-  TCA9548A(HAL::I2CDevice &dev)
+  explicit TCA9548A(HAL::I2CDevice &dev)
       :
       mDev(dev) {
   }

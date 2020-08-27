@@ -37,7 +37,7 @@ class SFM3000 : public Testable {
   static constexpr float scaleFactorAir = 140.0f;
   static constexpr float scaleFactorO2 = 142.8f;
 
-  SFM3000(HAL::I2CDevice &dev, float scaleFactor = scaleFactorAir)
+  explicit SFM3000(HAL::I2CDevice &dev, float scaleFactor = scaleFactorAir)
       :
       mSensirion(dev),
       mScaleFactor(scaleFactor) {

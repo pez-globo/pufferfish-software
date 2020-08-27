@@ -55,7 +55,9 @@ class SDPSensor : public Testable {
   static const uint16_t SDP3xI2CAddr = 0x21;
   static const uint16_t SDP8xxI2CAddr = 0x25;
 
-  SDPSensor(HAL::I2CDevice &dev)
+  // Cppcheck false positive, dev cannot be given to SensirionSensor ctor as const ref
+  // cppcheck-suppress constParameter
+  explicit SDPSensor(HAL::I2CDevice &dev)
       :
       mSensirion(dev) {
   }

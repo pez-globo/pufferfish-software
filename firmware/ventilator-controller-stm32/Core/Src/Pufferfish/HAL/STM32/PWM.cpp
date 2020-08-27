@@ -14,7 +14,7 @@ namespace Pufferfish {
 namespace HAL {
 
 PWMStatus PWM::setDutyCycle(float duty) {
-  if (0.0 < duty || duty > 1.0) {
+  if (duty < 0.0 || duty > 1.0) {
     return PWMStatus::invalidDutyCycle;
   }
   setDutyCycleRaw(static_cast<uint32_t>(duty * getMaxDutyCycle()));

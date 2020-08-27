@@ -19,11 +19,11 @@ jobs:
     - name: Run cppcheck with application
       run: |
         mkdir application-cppcheck-build-dir
-        cppcheck --project=application.cppcheck --enable=all --error-exitcode=1
+        cppcheck --project=application.cppcheck --inline-suppr --enable=all --error-exitcode=1
       working-directory: firmware/ventilator-controller-stm32
 
     - name: Run cppcheck with catch2 automated tests
       run: |
         mkdir testcatch2-cppcheck-build-dir
-        cppcheck --project=testcatch2.cppcheck --enable=all --error-exitcode=1
+        cppcheck --project=testcatch2.cppcheck --inline-suppr --enable=all --error-exitcode=1
       working-directory: firmware/ventilator-controller-stm32

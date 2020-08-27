@@ -58,7 +58,7 @@ class HoneywellABP : public Testable {
   static constexpr ABPConfig ABPxxxx030PG2A3 = {0x28, 0.0, 30.0,
                                                 PressureUnit::psi};
 
-  HoneywellABP(HAL::I2CDevice &dev, ABPConfig cfg)
+  HoneywellABP(HAL::I2CDevice &dev, const ABPConfig &cfg)
       :
       mDev(dev),
       mPmin(cfg.pmin),

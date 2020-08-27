@@ -19,7 +19,7 @@ namespace I2C {
  */
 class SensirionSensor {
  public:
-  SensirionSensor(HAL::I2CDevice &dev)
+  explicit SensirionSensor(HAL::I2CDevice &dev)
       :
       mDev(dev) {
   }

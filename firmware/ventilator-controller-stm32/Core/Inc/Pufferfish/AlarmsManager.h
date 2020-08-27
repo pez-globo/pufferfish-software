@@ -65,7 +65,7 @@ class AlarmsManager {
  private:
   uint32_t mAlarmsCnt[(int) AlarmStatus::noAlarm];
   AlarmStatus mActive;
-  bool mUpdated;
+  bool mUpdated = false;
 
   Driver::Indicators::AlarmDevice &mLED;
   Driver::Indicators::AlarmDevice &mAuditory;

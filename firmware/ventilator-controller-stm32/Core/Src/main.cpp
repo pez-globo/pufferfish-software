@@ -255,8 +255,7 @@ int main(void)
     PF::HAL::delay(5);
     boardLed1.write(true);
     for (PF::Driver::Testable *t : i2c_test_list) {
-      PF::I2CDeviceStatus stat = t->test();
-      if (stat != PF::I2CDeviceStatus::ok) {
+      if (t->test() != PF::I2CDeviceStatus::ok) {
         boardLed1.write(false);
       }
     }
