@@ -84,8 +84,8 @@ def print_timings(timings: dict, timings_avg: dict, data: dict):
 def main():
 
     functions: dict = {
-        'mod_crc': lambda data: crc.compute_reflected_crc(data, crc.CRC32C_REFLECTED_TABLE),
-        'pf_crc': predefinedcrc.mkCrcFun('crc-32c'),
+        'pf_crc': lambda data: crc.compute_reflected_crc(data, crc.CRC32C_REFLECTED_TABLE),
+        'mod_crc': predefinedcrc.mkCrcFun('crc-32c'),
         'sha1': hashlib.sha1,
         'md5': hashlib.md5,
         'blake2b': hashlib.blake2b,
