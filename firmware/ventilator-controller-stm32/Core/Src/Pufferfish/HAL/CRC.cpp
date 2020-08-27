@@ -1,6 +1,6 @@
 /*
  * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
- * 
+ *
  *      Author: Ethan Li
  */
 
@@ -9,17 +9,12 @@
 namespace Pufferfish {
 namespace HAL {
 
-uint8_t computeCRC8(const uint8_t *data,
-                    int size,
-                    const uint8_t polynomial,
-                    uint8_t init,
-                    bool refIn,
-                    bool refOut,
-                    uint8_t xorOut) {
+uint8_t computeCRC8(const uint8_t *data, int size, const uint8_t polynomial,
+                    uint8_t init, bool refIn, bool refOut, uint8_t xorOut) {
   uint8_t crc = init;
 
   uint8_t byteCtr;
-  //calculates 8-Bit checksum with given polynomial
+  // calculates 8-Bit checksum with given polynomial
   for (byteCtr = 0; byteCtr < size; ++byteCtr) {
     crc ^= refIn ? reflect8(data[byteCtr]) : (data[byteCtr]);
     for (uint8_t bit = 8; bit > 0; --bit) {

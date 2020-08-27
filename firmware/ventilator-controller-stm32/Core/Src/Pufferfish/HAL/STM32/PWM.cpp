@@ -7,8 +7,9 @@
  *      Author: March Boonyapaluk
  */
 
-#include "stm32h7xx_hal.h"
 #include "Pufferfish/HAL/STM32/PWM.h"
+
+#include "stm32h7xx_hal.h"
 
 namespace Pufferfish {
 namespace HAL {
@@ -35,9 +36,7 @@ PWMStatus PWM::stop() {
   return stat == HAL_OK ? PWMStatus::ok : PWMStatus::halError;
 }
 
-uint32_t PWM::getMaxDutyCycle() {
-  return __HAL_TIM_GET_AUTORELOAD(&mHtim);
-}
+uint32_t PWM::getMaxDutyCycle() { return __HAL_TIM_GET_AUTORELOAD(&mHtim); }
 
 } /* namespace HAL */
 } /* namespace Pufferfish */

@@ -13,5 +13,5 @@ bool DigitalInput::read() {
   return HAL_GPIO_ReadPin(&mPort, mPin) == GPIO_PIN_SET;
 }
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

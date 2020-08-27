@@ -10,13 +10,12 @@
 
 #pragma once
 
-#include "SensirionSensor.h"
 #include "Pufferfish/Driver/Testable.h"
+#include "SensirionSensor.h"
 
 namespace Pufferfish {
 namespace Driver {
 namespace I2C {
-
 
 /**
  * All data in a reading from the Sensirion SFM3000 mass flow meter.
@@ -38,10 +37,7 @@ class SFM3000 : public Testable {
   static constexpr float scaleFactorO2 = 142.8f;
 
   explicit SFM3000(HAL::I2CDevice &dev, float scaleFactor = scaleFactorAir)
-      :
-      mSensirion(dev),
-      mScaleFactor(scaleFactor) {
-  }
+      : mSensirion(dev), mScaleFactor(scaleFactor) {}
 
   /**
    * Starts a flow measurement
@@ -65,6 +61,7 @@ class SFM3000 : public Testable {
 
   I2CDeviceStatus reset() override;
   I2CDeviceStatus test() override;
+
  private:
   SensirionSensor mSensirion;
   bool mMeasuring = false;

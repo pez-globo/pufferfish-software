@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "Pufferfish/Types.h"
 #include "Pufferfish/Statuses.h"
+#include "Pufferfish/Types.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -40,5 +40,5 @@ class AlarmDevice {
 };
 
 }  // namespace Indicators
-}  // namespace HAL
+}  // namespace Driver
 }  // namespace Pufferfish

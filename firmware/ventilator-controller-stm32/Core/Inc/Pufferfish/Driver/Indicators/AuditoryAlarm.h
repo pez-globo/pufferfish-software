@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "Pufferfish/HAL/HAL.h"
 #include "AlarmDevice.h"
+#include "Pufferfish/HAL/HAL.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -28,19 +28,13 @@ class AuditoryAlarm : public AlarmDevice {
    * @param regLow  output for the regulatory low alarm pin
    * @param buzzer  output for the general purpose buzzer pin
    */
-  AuditoryAlarm(HAL::DigitalOutput &regHigh,
-                HAL::DigitalOutput &regMed,
-                HAL::DigitalOutput &regLow,
-                HAL::DigitalOutput &buzzer)
-      :
-      mRegHigh(regHigh),
-      mRegMed(regMed),
-      mRegLow(regLow),
-      mBuzzer(buzzer) {
-  }
+  AuditoryAlarm(HAL::DigitalOutput &regHigh, HAL::DigitalOutput &regMed,
+                HAL::DigitalOutput &regLow, HAL::DigitalOutput &buzzer)
+      : mRegHigh(regHigh), mRegMed(regMed), mRegLow(regLow), mBuzzer(buzzer) {}
 
   AlarmManagerStatus update(uint32_t currentTime) override;
   AlarmManagerStatus setAlarm(AlarmStatus a) override;
+
  private:
   HAL::DigitalOutput &mRegHigh;
   HAL::DigitalOutput &mRegMed;
@@ -55,5 +49,5 @@ class AuditoryAlarm : public AlarmDevice {
 };
 
 }  // namespace Indicators
-}  // namespace HAL
+}  // namespace Driver
 }  // namespace Pufferfish

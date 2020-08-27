@@ -1,24 +1,25 @@
 /* USER CODE BEGIN Header */
 /**
-  * Original work Copyright 2020, STMicroelectronics
-  * Modified work Copyright 2020, the Pez Globo team and the Pufferfish project contributors
-  *
-  ******************************************************************************
-  * @file           : main.cpp
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+ * Original work Copyright 2020, STMicroelectronics
+ * Modified work Copyright 2020, the Pez Globo team and the Pufferfish project
+ *contributors
+ *
+ ******************************************************************************
+ * @file           : main.cpp
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
+ * All rights reserved.</center></h2>
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -26,16 +27,16 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "Pufferfish/HAL/HAL.h"
 #include "Pufferfish/AlarmsManager.h"
-#include "Pufferfish/Driver/Indicators/LEDAlarm.h"
-#include "Pufferfish/Driver/Indicators/AuditoryAlarm.h"
-#include "Pufferfish/HAL/STM32/HALI2CDevice.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
 #include "Pufferfish/Driver/I2C/HoneywellABP.h"
 #include "Pufferfish/Driver/I2C/SDP.h"
 #include "Pufferfish/Driver/I2C/SFM3000.h"
 #include "Pufferfish/Driver/I2C/TCA9548A.h"
+#include "Pufferfish/Driver/Indicators/AuditoryAlarm.h"
+#include "Pufferfish/Driver/Indicators/LEDAlarm.h"
+#include "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/STM32/HALI2CDevice.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -81,21 +82,38 @@ UART_HandleTypeDef huart3;
 namespace PF = Pufferfish;
 
 // The following lines suppress Eclipse CDT's warning about C-style casts;
-// those come from STM32CubeMX-generated #define constants, which we have no control over
+// those come from STM32CubeMX-generated #define constants, which we have no
+// control over
 
-PF::HAL::DigitalOutput boardLed1(*LD1_GPIO_Port, LD1_Pin); // @suppress("C-Style cast instead of C++ cast")
+PF::HAL::DigitalOutput boardLed1(
+    *LD1_GPIO_Port, LD1_Pin);  // @suppress("C-Style cast instead of C++ cast")
 
-PF::HAL::DigitalOutput alarmLedR(*LEDR_CNTRL_GPIO_Port, LEDR_CNTRL_Pin); // @suppress("C-Style cast instead of C++ cast")
-PF::HAL::DigitalOutput alarmLedG(*LEDG_CNTRL_GPIO_Port, LEDG_CNTRL_Pin); // @suppress("C-Style cast instead of C++ cast")
-PF::HAL::DigitalOutput alarmLedB(*LEDB_CNTRL_GPIO_Port, LEDB_CNTRL_Pin); // @suppress("C-Style cast instead of C++ cast")
+PF::HAL::DigitalOutput alarmLedR(
+    *LEDR_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
+    LEDR_CNTRL_Pin);        // @suppress("C-Style cast instead of C++ cast")
+PF::HAL::DigitalOutput alarmLedG(
+    *LEDG_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
+    LEDG_CNTRL_Pin);        // @suppress("C-Style cast instead of C++ cast")
+PF::HAL::DigitalOutput alarmLedB(
+    *LEDB_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
+    LEDB_CNTRL_Pin);        // @suppress("C-Style cast instead of C++ cast")
 
-PF::HAL::DigitalOutput alarmRegHigh(*ALARM1_HIGH_GPIO_Port, ALARM1_HIGH_Pin); // @suppress("C-Style cast instead of C++ cast")
-PF::HAL::DigitalOutput alarmRegMed(*ALARM1_MED_GPIO_Port, ALARM1_MED_Pin); // @suppress("C-Style cast instead of C++ cast")
-PF::HAL::DigitalOutput alarmRegLow(*ALARM1_LOW_GPIO_Port, ALARM1_LOW_Pin); // @suppress("C-Style cast instead of C++ cast")
-PF::HAL::DigitalOutput alarmBuzzer(*ALARM2_CNTRL_GPIO_Port, ALARM2_CNTRL_Pin); // @suppress("C-Style cast instead of C++ cast")
+PF::HAL::DigitalOutput alarmRegHigh(
+    *ALARM1_HIGH_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
+    ALARM1_HIGH_Pin);        // @suppress("C-Style cast instead of C++ cast")
+PF::HAL::DigitalOutput alarmRegMed(
+    *ALARM1_MED_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
+    ALARM1_MED_Pin);        // @suppress("C-Style cast instead of C++ cast")
+PF::HAL::DigitalOutput alarmRegLow(
+    *ALARM1_LOW_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
+    ALARM1_LOW_Pin);        // @suppress("C-Style cast instead of C++ cast")
+PF::HAL::DigitalOutput alarmBuzzer(
+    *ALARM2_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
+    ALARM2_CNTRL_Pin);        // @suppress("C-Style cast instead of C++ cast")
 
 PF::Driver::Indicators::LEDAlarm alarmDevLed(alarmLedR, alarmLedG, alarmLedB);
-PF::Driver::Indicators::AuditoryAlarm alarmDevSound(alarmRegHigh, alarmRegMed, alarmRegLow, alarmBuzzer);
+PF::Driver::Indicators::AuditoryAlarm alarmDevSound(alarmRegHigh, alarmRegMed,
+                                                    alarmRegLow, alarmBuzzer);
 PF::AlarmsManager hAlarms(alarmDevLed, alarmDevSound);
 
 // Solenoid Valves
@@ -115,11 +133,16 @@ PF::HAL::PWM drive2_ch6(htim8, TIM_CHANNEL_4);
 PF::HAL::PWM drive2_ch7(htim12, TIM_CHANNEL_2);
 
 // Base I2C Devices
-PF::HAL::HALI2CDevice i2c_hal_mux1(hi2c1, PF::Driver::I2C::TCA9548A::defaultI2CAddr);
-PF::HAL::HALI2CDevice i2c_hal_sfm1(hi2c1, PF::Driver::I2C::SFM3000::defaultI2CAddr);
-PF::HAL::HALI2CDevice i2c_hal_sdp1(hi2c1, PF::Driver::I2C::SDPSensor::SDP8xxI2CAddr);
-PF::HAL::HALI2CDevice i2c_hal_sdp2(hi2c1, PF::Driver::I2C::SDPSensor::SDP3xI2CAddr);
-PF::HAL::HALI2CDevice i2c_hal_sdp3(hi2c1, PF::Driver::I2C::SDPSensor::SDP3xI2CAddr);
+PF::HAL::HALI2CDevice i2c_hal_mux1(hi2c1,
+                                   PF::Driver::I2C::TCA9548A::defaultI2CAddr);
+PF::HAL::HALI2CDevice i2c_hal_sfm1(hi2c1,
+                                   PF::Driver::I2C::SFM3000::defaultI2CAddr);
+PF::HAL::HALI2CDevice i2c_hal_sdp1(hi2c1,
+                                   PF::Driver::I2C::SDPSensor::SDP8xxI2CAddr);
+PF::HAL::HALI2CDevice i2c_hal_sdp2(hi2c1,
+                                   PF::Driver::I2C::SDPSensor::SDP3xI2CAddr);
+PF::HAL::HALI2CDevice i2c_hal_sdp3(hi2c1,
+                                   PF::Driver::I2C::SDPSensor::SDP3xI2CAddr);
 PF::HAL::HALI2CDevice i2c_hal_abp1(
     hi2c1, PF::Driver::I2C::HoneywellABP::ABPxxxx030PG2A3.i2cAddr);
 PF::HAL::HALI2CDevice i2c_hal_abp2(
@@ -148,22 +171,22 @@ PF::Driver::I2C::SFM3000 i2c_sfm1(i2c_hal_sfm1);
 PF::Driver::I2C::SDPSensor i2c_sdp1(i2c_hal_sdp1);
 PF::Driver::I2C::SDPSensor i2c_sdp2(i2c_ext_sdp2);
 PF::Driver::I2C::SDPSensor i2c_sdp3(i2c_ext_sdp3);
-PF::Driver::I2C::HoneywellABP i2c_abp1(i2c_ext_abp1,
-                                       PF::Driver::I2C::HoneywellABP::ABPxxxx030PG2A3);
-PF::Driver::I2C::HoneywellABP i2c_abp2(i2c_ext_abp2,
-                                       PF::Driver::I2C::HoneywellABP::ABPxxxx030PG2A3);
-PF::Driver::I2C::HoneywellABP i2c_abp3(i2c_ext_abp3,
-                                       PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3);
-PF::Driver::I2C::HoneywellABP i2c_abp4(i2c_ext_abp4,
-                                       PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3);
-PF::Driver::I2C::HoneywellABP i2c_abp5(i2c_ext_abp5,
-                                       PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3);
+PF::Driver::I2C::HoneywellABP i2c_abp1(
+    i2c_ext_abp1, PF::Driver::I2C::HoneywellABP::ABPxxxx030PG2A3);
+PF::Driver::I2C::HoneywellABP i2c_abp2(
+    i2c_ext_abp2, PF::Driver::I2C::HoneywellABP::ABPxxxx030PG2A3);
+PF::Driver::I2C::HoneywellABP i2c_abp3(
+    i2c_ext_abp3, PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3);
+PF::Driver::I2C::HoneywellABP i2c_abp4(
+    i2c_ext_abp4, PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3);
+PF::Driver::I2C::HoneywellABP i2c_abp5(
+    i2c_ext_abp5, PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3);
 
 // Test list
-PF::Driver::Testable *i2c_test_list[] =
-    {&i2c_mux1, &i2c_sfm1, &i2c_sdp1, &i2c_sdp2, &i2c_sdp3, &i2c_abp1,
-     &i2c_abp2, &i2c_abp3, &i2c_abp4, &i2c_abp5};
-//PF::HAL::Testable *i2c_test_list[] = { &i2c_sdp1 };
+PF::Driver::Testable *i2c_test_list[] = {
+    &i2c_mux1, &i2c_sfm1, &i2c_sdp1, &i2c_sdp2, &i2c_sdp3,
+    &i2c_abp1, &i2c_abp2, &i2c_abp3, &i2c_abp4, &i2c_abp5};
+// PF::HAL::Testable *i2c_test_list[] = { &i2c_sdp1 };
 
 /* USER CODE END PV */
 
@@ -1440,8 +1463,10 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 { 
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* User can add his own implementation to report the file name and line
+     number,
+     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line)
+   */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

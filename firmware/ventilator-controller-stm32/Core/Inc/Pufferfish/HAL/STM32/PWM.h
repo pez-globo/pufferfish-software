@@ -23,18 +23,17 @@ class PWM {
   /**
    * Constructs a new PWM device
    * @param htim    a timer that is handling a PWM device
-   * @param channel a channel of the timer that the device is connected, must be init in PWM mode
+   * @param channel a channel of the timer that the device is connected, must be
+   * init in PWM mode
    */
   PWM(TIM_HandleTypeDef &htim, uint32_t channel)
-      :
-      mHtim(htim),
-      mChannel(channel) {
-  }
+      : mHtim(htim), mChannel(channel) {}
 
   /**
    * Set a duty cycle of PWM, can be done when PWM is active
    * this function does NOT start the PWM output
-   * @param duty    a number between 0.0 and 1.0 (inclusive) for the desired duty cycle
+   * @param duty    a number between 0.0 and 1.0 (inclusive) for the desired
+   * duty cycle
    */
   PWMStatus setDutyCycle(float duty);
 
@@ -42,7 +41,8 @@ class PWM {
    * Set a duty cycle of PWM, can be done when PWM is active
    * this function does NOT start the PWM output.
    * This is faster than setDutyCycle() as no floating point calculation is done
-   * @param duty    an integer between 0 and getMaxDutyCycle() (inclusive) for the desired duty cycle
+   * @param duty    an integer between 0 and getMaxDutyCycle() (inclusive) for
+   * the desired duty cycle
    */
   void setDutyCycleRaw(uint32_t duty);
 

@@ -25,10 +25,12 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *
- * Modified work Copyright 2020, the Pez Globo team and the Pufferfish project contributors
+ * Modified work Copyright 2020, the Pez Globo team and the Pufferfish project
+ * contributors
  *
  * SDP.cpp
- * March Boonyapaluk: A driver for the SDPxx flow sensor; modified from Sensirion Arduino Library
+ * March Boonyapaluk: A driver for the SDPxx flow sensor; modified from
+ * Sensirion Arduino Library
  */
 
 #include "Pufferfish/Driver/I2C/SDP.h"
@@ -91,7 +93,8 @@ I2CDeviceStatus SDPSensor::serialNumber(uint32_t &pn, uint64_t &sn) {
 
 I2CDeviceStatus SDPSensor::startContinuous(bool averaging) {
   const uint8_t CMD_LEN = 2;
-  uint8_t cmd[CMD_LEN] = {0x36, (averaging) ? static_cast<uint8_t>(0x15) : static_cast<uint8_t>(0x1E)};
+  uint8_t cmd[CMD_LEN] = {0x36, (averaging) ? static_cast<uint8_t>(0x15)
+                                            : static_cast<uint8_t>(0x1E)};
   I2CDeviceStatus ret = mSensirion.write(cmd, CMD_LEN);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
@@ -117,7 +120,7 @@ I2CDeviceStatus SDPSensor::readSample(SDPSample &sample) {
   }
 
   const uint8_t DATA_LEN = 6;
-  uint8_t data[DATA_LEN] = { 0 };
+  uint8_t data[DATA_LEN] = {0};
 
   I2CDeviceStatus ret = mSensirion.readWithCRC(data, DATA_LEN, 0x31, 0xFF);
   if (ret == I2CDeviceStatus::readError) {
@@ -138,7 +141,7 @@ I2CDeviceStatus SDPSensor::readSample(SDPSample &sample) {
 
 I2CDeviceStatus SDPSensor::stopContinuous() {
   const uint8_t CMD_LEN = 2;
-  uint8_t cmd[CMD_LEN] = { 0x3F, 0xF9 };
+  uint8_t cmd[CMD_LEN] = {0x3F, 0xF9};
 
   mMeasuring = false;
   I2CDeviceStatus ret = mSensirion.write(cmd, CMD_LEN);
@@ -162,7 +165,7 @@ void SDPSensor::parseReading(uint8_t data[], uint8_t size, SDPSample &sample) {
 }
 
 I2CDeviceStatus SDPSensor::reset() {
-  uint8_t reset_cmd[] = { 0x06 };
+  uint8_t reset_cmd[] = {0x06};
   mMeasuring = false;
 
   I2CDeviceStatus ret = mSensirion.write(reset_cmd, sizeof(reset_cmd));
@@ -230,7 +233,8 @@ I2CDeviceStatus SDPSensor::test() {
   }
 
   // pressure range: -500 to 500
-  if (sample.differentialPressure < -500.0 || sample.differentialPressure > 500.0) {
+  if (sample.differentialPressure < -500.0 ||
+      sample.differentialPressure > 500.0) {
     return I2CDeviceStatus::testFailed;
   }
 

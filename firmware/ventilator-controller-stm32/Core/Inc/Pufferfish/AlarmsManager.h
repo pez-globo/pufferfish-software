@@ -9,9 +9,9 @@
 
 #pragma once
 
+#include "Pufferfish/Driver/Indicators/AlarmDevice.h"
 #include "Pufferfish/Statuses.h"
 #include "Pufferfish/Types.h"
-#include "Pufferfish/Driver/Indicators/AlarmDevice.h"
 
 namespace Pufferfish {
 
@@ -25,13 +25,12 @@ class AlarmsManager {
    * @param led         LED alarm
    * @param auditory    Buzzer and Auditory alarm
    */
-  AlarmsManager(Driver::Indicators::AlarmDevice &led, Driver::Indicators::AlarmDevice &auditory)
-      :
-      mAlarmsCnt{},
-      mActive(AlarmStatus::noAlarm),
-      mLED(led),
-      mAuditory(auditory) {
-  }
+  AlarmsManager(Driver::Indicators::AlarmDevice &led,
+                Driver::Indicators::AlarmDevice &auditory)
+      : mAlarmsCnt{},
+        mActive(AlarmStatus::noAlarm),
+        mLED(led),
+        mAuditory(auditory) {}
 
   /**
    * Adds an alarm to the currently active list of alarms
@@ -73,4 +72,4 @@ class AlarmsManager {
   void updateActive();
 };
 
-}
+}  // namespace Pufferfish

@@ -7,36 +7,41 @@
  *      Author: March Boonyapaluk
  */
 
-#include "stm32h7xx_hal.h"
 #include "Pufferfish/HAL/STM32/Time.h"
+
+#include "stm32h7xx_hal.h"
 
 namespace Pufferfish {
 namespace HAL {
 
-uint32_t millis() {
-  return HAL_GetTick();
-}
+uint32_t millis() { return HAL_GetTick(); }
 
-void delay(uint32_t ms) {
-  HAL_Delay(ms);
-}
+void delay(uint32_t ms) { HAL_Delay(ms); }
 
 // magical sequence to turn on the DWT counter
-// see: https://stackoverflow.com/questions/36378280/stm32-how-to-enable-dwt-cycle-counter
+// see:
+// https://stackoverflow.com/questions/36378280/stm32-how-to-enable-dwt-cycle-counter
 bool microsDelayInit() {
-  // The following lines suppress Eclipse CDT's warning about C-style casts and unresolvable fields;
-  // these come from the STM32 HAL and are false positives
+  // The following lines suppress Eclipse CDT's warning about C-style casts and
+  // unresolvable fields; these come from the STM32 HAL and are false positives
 
   // TRCENA off, just in case
-  CoreDebug->DEMCR &= ~CoreDebug_DEMCR_TRCENA_Msk; // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
+  CoreDebug       // @suppress("C-Style cast instead of C++ cast")
+      ->DEMCR &=  // @suppress("Field cannot be resolved")
+      ~CoreDebug_DEMCR_TRCENA_Msk;
   // TRCENA on
-  CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk; // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
+  CoreDebug       // @suppress("C-Style cast instead of C++ cast")
+      ->DEMCR |=  // @suppress("Field cannot be resolved")
+      CoreDebug_DEMCR_TRCENA_Msk;
   // Unlock debugger
-  DWT->LAR = 0xC5ACCE55; // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
+  DWT->LAR =  // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
+      0xC5ACCE55;
   // reset the cycle counter
-  DWT->CYCCNT = 0; // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
+  DWT->CYCCNT =  // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
+      0;
   // enable the counter
-  DWT->CTRL |= 1; // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
+  DWT->CTRL |=  // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
+      1;
 
   // do some random works to check that the cycle counter actually working
   volatile int i;
@@ -44,23 +49,29 @@ bool microsDelayInit() {
   }
 
   // verify the cycles
-  return DWT->CYCCNT != 0; // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
+  return DWT->CYCCNT !=  // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
+         0;
 }
 
 uint32_t micros() {
   const uint32_t cyclesPerUs = (HAL_RCC_GetHCLKFreq() / 1000000);
 
-  // The following lines suppress Eclipse CDT's warning about C-style casts and unresolvable fields;
-  // these come from the STM32 HAL and are false positives
-  return DWT->CYCCNT / cyclesPerUs; // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
+  // The following lines suppress Eclipse CDT's warning about C-style casts and
+  // unresolvable fields; these come from the STM32 HAL and are false positives
+  return DWT->CYCCNT /  // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
+         cyclesPerUs;
 }
 
 void delayMicros(uint32_t microseconds) {
-  // The following lines suppress Eclipse CDT's warning about C-style casts and unresolvable fields;
-  // these come from the STM32 HAL and are false positives
-  const uint32_t start = DWT->CYCCNT; // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
+  // The following lines suppress Eclipse CDT's warning about C-style casts and
+  // unresolvable fields; these come from the STM32 HAL and are false positives
+  const uint32_t start =
+      DWT->CYCCNT;  // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
   microseconds *= HAL_RCC_GetHCLKFreq() / 1000000;
-  while (DWT->CYCCNT - start < microseconds) { // @suppress("Field cannot be resolved") // @suppress("C-Style cast instead of C++ cast")
+  while (
+      DWT->CYCCNT -  // @suppress("Field cannot be resolved") // @suppress("C-Style cast instead of C++ cast")
+          start <
+      microseconds) {
   }
 }
 

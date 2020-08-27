@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "Pufferfish/HAL/HAL.h"
 #include "AlarmDevice.h"
+#include "Pufferfish/HAL/HAL.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -27,11 +27,13 @@ class LEDAlarm : public AlarmDevice {
    * @param green   output for the green LED
    * @param blue    output for the blue LED
    */
-  LEDAlarm(HAL::DigitalOutput &red, HAL::DigitalOutput &green, HAL::DigitalOutput &blue)
+  LEDAlarm(HAL::DigitalOutput &red, HAL::DigitalOutput &green,
+           HAL::DigitalOutput &blue)
       : mRed(red), mGreen(green), mBlue(blue) {}
 
   AlarmManagerStatus update(uint32_t currentTime) override;
   AlarmManagerStatus setAlarm(AlarmStatus a) override;
+
  private:
   HAL::DigitalOutput &mRed;
   HAL::DigitalOutput &mGreen;
@@ -44,5 +46,5 @@ class LEDAlarm : public AlarmDevice {
 };
 
 }  // namespace Indicators
-}  // namespace HAL
+}  // namespace Driver
 }  // namespace Pufferfish

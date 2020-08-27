@@ -13,5 +13,5 @@ void DigitalOutput::write(bool output) {
   HAL_GPIO_WritePin(&mPort, mPin, output ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

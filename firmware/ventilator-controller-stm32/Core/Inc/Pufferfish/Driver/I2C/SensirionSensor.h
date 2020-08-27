@@ -19,10 +19,7 @@ namespace I2C {
  */
 class SensirionSensor {
  public:
-  explicit SensirionSensor(HAL::I2CDevice &dev)
-      :
-      mDev(dev) {
-  }
+  explicit SensirionSensor(HAL::I2CDevice &dev) : mDev(dev) {}
 
   /**
    * Reads a data from the sensor, while performing CRC check
@@ -43,6 +40,7 @@ class SensirionSensor {
    * @return ok on success, error code otherwise
    */
   I2CDeviceStatus write(uint8_t *buf, size_t count);
+
  private:
   HAL::I2CDevice &mDev;
 };

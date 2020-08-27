@@ -25,7 +25,8 @@ uint32_t millis();
 void delay(uint32_t ms);
 
 /**
- * Initializes the DWT cycle counter, must be called at the MCU startup if micros or delayMicros is used
+ * Initializes the DWT cycle counter, must be called at the MCU startup if
+ * micros or delayMicros is used
  * @return true if the initialization is successful, false otherwise
  */
 bool microsDelayInit();

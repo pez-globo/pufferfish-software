@@ -7,6 +7,7 @@
  */
 
 #include "Pufferfish/Driver/I2C/SFM3000.h"
+
 #include "Pufferfish/HAL/STM32/Endian.h"
 
 namespace Pufferfish {
@@ -33,8 +34,8 @@ I2CDeviceStatus SFM3000::serialNumber(uint32_t &sn) {
     return ret;
   }
 
-  I2CDeviceStatus ret2 =
-      mSensirion.readWithCRC(static_cast<uint8_t *>(&sn), sizeof(sn), 0x31, 0x00);
+  I2CDeviceStatus ret2 = mSensirion.readWithCRC(static_cast<uint8_t *>(&sn),
+                                                sizeof(sn), 0x31, 0x00);
   if (ret2 != I2CDeviceStatus::ok) {
     return ret2;
   }
@@ -54,8 +55,8 @@ I2CDeviceStatus SFM3000::readSample(SFM3000Sample &sample) {
   }
 
   uint16_t val;
-  I2CDeviceStatus ret =
-      mSensirion.readWithCRC(static_cast<uint8_t *>(&val), sizeof(val), 0x31, 0x00);
+  I2CDeviceStatus ret = mSensirion.readWithCRC(static_cast<uint8_t *>(&val),
+                                               sizeof(val), 0x31, 0x00);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
@@ -69,7 +70,7 @@ I2CDeviceStatus SFM3000::readSample(SFM3000Sample &sample) {
 }
 
 I2CDeviceStatus SFM3000::reset() {
-  uint8_t cmd[] = { 0x20, 0x00 };
+  uint8_t cmd[] = {0x20, 0x00};
   mMeasuring = false;
 
   I2CDeviceStatus ret = mSensirion.write(cmd, sizeof(cmd));
@@ -106,7 +107,6 @@ I2CDeviceStatus SFM3000::test() {
   if (status != I2CDeviceStatus::ok) {
     return status;
   }
-
 
   // pressure range: -200 to 200
   if (sample.flow < -200.0 || sample.flow > 200.0) {

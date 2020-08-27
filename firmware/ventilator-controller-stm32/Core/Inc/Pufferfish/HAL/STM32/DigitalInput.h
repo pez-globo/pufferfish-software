@@ -21,17 +21,19 @@ class DigitalInput {
    * @param m_port  GPIO port of the MCU (A, B, ...)
    * @param m_pin   GPIO pin of the MCU (1, 2, ...)
    */
-  DigitalInput(GPIO_TypeDef &m_port, const uint16_t m_pin) : mPort(m_port), mPin(m_pin) {}
+  DigitalInput(GPIO_TypeDef &m_port, const uint16_t m_pin)
+      : mPort(m_port), mPin(m_pin) {}
 
   /**
    * Reads a digital input from the GPIO pin
    * @return true if the pin state is high, false if low
    */
   bool read();
+
  private:
   GPIO_TypeDef &mPort;
   uint16_t const mPin;
 };
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

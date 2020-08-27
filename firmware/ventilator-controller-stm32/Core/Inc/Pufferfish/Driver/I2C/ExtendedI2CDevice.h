@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include "Pufferfish/Types.h"
-#include "Pufferfish/HAL/HAL.h"
 #include "I2CMux.h"
+#include "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/Types.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -22,17 +22,14 @@ class ExtendedI2CDevice : public HAL::I2CDevice {
   /**
    * Construct a new extended I2C device
    *
-   * @param dev a device behind the multiplexer -- can be HALI2CDevice or another ExtendedI2CDevice in a nested config
+   * @param dev a device behind the multiplexer -- can be HALI2CDevice or
+   * another ExtendedI2CDevice in a nested config
    * @param mux an I2C multiplexer
-   * @param extSlot the location in the multiplexer to which the device is connected
+   * @param extSlot the location in the multiplexer to which the device is
+   * connected
    */
   ExtendedI2CDevice(I2CDevice &dev, I2CMux &mux, uint8_t extSlot)
-      :
-      mDev(dev),
-      mMux(mux),
-      mExtSlot(extSlot) {
-
-  }
+      : mDev(dev), mMux(mux), mExtSlot(extSlot) {}
 
   I2CDeviceStatus read(uint8_t *buf, size_t count) override;
   I2CDeviceStatus write(uint8_t *buf, size_t count) override;

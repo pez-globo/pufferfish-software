@@ -23,13 +23,9 @@ uint32_t reverseEndian(uint32_t value) {
   return output.value;
 }
 
-uint32_t hton(uint32_t hostValue) {
-  return reverseEndian(hostValue);
-}
+uint32_t hton(uint32_t hostValue) { return reverseEndian(hostValue); }
 
-uint32_t ntoh(uint32_t networkValue) {
-  return reverseEndian(networkValue);
-}
+uint32_t ntoh(uint32_t networkValue) { return reverseEndian(networkValue); }
 
 }  // namespace HAL
 }  // namespace Pufferfish

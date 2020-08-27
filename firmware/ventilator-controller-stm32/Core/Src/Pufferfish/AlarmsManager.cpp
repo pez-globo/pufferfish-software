@@ -56,9 +56,7 @@ AlarmManagerStatus Pufferfish::AlarmsManager::update(uint32_t currentTime) {
   return AlarmManagerStatus::ok;
 }
 
-AlarmStatus Pufferfish::AlarmsManager::getActive() {
-  return mActive;
-}
+AlarmStatus Pufferfish::AlarmsManager::getActive() { return mActive; }
 
 void Pufferfish::AlarmsManager::updateActive() {
   for (int i = 0; i < static_cast<int>(AlarmStatus::noAlarm); i++) {
@@ -76,4 +74,4 @@ void Pufferfish::AlarmsManager::updateActive() {
   mActive = AlarmStatus::noAlarm;
 }
 
-}
+}  // namespace Pufferfish

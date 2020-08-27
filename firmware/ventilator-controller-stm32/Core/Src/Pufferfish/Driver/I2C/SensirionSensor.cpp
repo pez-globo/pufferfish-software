@@ -5,6 +5,7 @@
  */
 
 #include "Pufferfish/Driver/I2C/SensirionSensor.h"
+
 #include "Pufferfish/HAL/CRC.h"
 
 namespace Pufferfish {

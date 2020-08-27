@@ -1,6 +1,7 @@
 /*
  * Original work Copyright 2018, ij96
- * Modified work Copyright 2020, the Pez Globo team and the Pufferfish project contributors
+ * Modified work Copyright 2020, the Pez Globo team and the Pufferfish project
+ * contributors
  *
  *  Honeywell ABP sensor driver, modified from
  *    Arduino library by ij96 (https://github.com/ij96)
@@ -8,9 +9,9 @@
 
 #pragma once
 
+#include "Pufferfish/Driver/Testable.h"
 #include "Pufferfish/HAL/HAL.h"
 #include "Pufferfish/Types.h"
-#include "Pufferfish/Driver/Testable.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -27,7 +28,8 @@ struct ABPConfig {
 };
 
 /**
- * Status code reported by the Honeywell ABP pressure sensor as part of its reading
+ * Status code reported by the Honeywell ABP pressure sensor as part of its
+ * reading
  */
 enum class ABPStatus {
   noError = 0,
@@ -59,12 +61,7 @@ class HoneywellABP : public Testable {
                                                 PressureUnit::psi};
 
   HoneywellABP(HAL::I2CDevice &dev, const ABPConfig &cfg)
-      :
-      mDev(dev),
-      mPmin(cfg.pmin),
-      mPmax(cfg.pmax),
-      mUnit(cfg.unit) {
-  }
+      : mDev(dev), mPmin(cfg.pmin), mPmax(cfg.pmax), mUnit(cfg.unit) {}
 
   float rawToPressure(uint16_t raw);
 
@@ -77,6 +74,7 @@ class HoneywellABP : public Testable {
 
   I2CDeviceStatus test() override;
   I2CDeviceStatus reset() override;
+
  protected:
   Pufferfish::HAL::I2CDevice &mDev;
 

@@ -91,12 +91,13 @@ AlarmManagerStatus LEDAlarm::setAlarm(AlarmStatus a) {
       mOutBlue = false;
       mPeriod = 0;
       break;
-    default:return AlarmManagerStatus::invalidAlarm;
+    default:
+      return AlarmManagerStatus::invalidAlarm;
   }
 
   return AlarmManagerStatus::ok;
 }
 
 }  // namespace Indicators
-}  // namespace HAL
+}  // namespace Driver
 }  // namespace Pufferfish

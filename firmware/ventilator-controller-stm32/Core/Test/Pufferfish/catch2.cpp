@@ -12,6 +12,4 @@
 
 #include "catch2/catch.hpp"
 
-TEST_CASE("catch2 runs", "[catch2]") {
-  REQUIRE(true);
-}
+TEST_CASE("catch2 runs", "[catch2]") { REQUIRE(true); }

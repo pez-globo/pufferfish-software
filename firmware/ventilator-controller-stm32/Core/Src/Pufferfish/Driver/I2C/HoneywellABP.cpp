@@ -1,6 +1,7 @@
 /*
  * Original work Copyright 2018, ij96
- * Modified work Copyright 2020, the Pez Globo team and the Pufferfish project contributors
+ * Modified work Copyright 2020, the Pez Globo team and the Pufferfish project
+ * contributors
  *
  * HoneywellABP.cpp
  *
@@ -40,8 +41,9 @@ float HoneywellABP::rawToPressure(uint16_t output) {
   else if (output > mOutputMax)
     output = mOutputMax;
 
-  return float(output - mOutputMin) * (mPmax - mPmin)
-      / (mOutputMax - mOutputMin) + mPmin;
+  return float(output - mOutputMin) * (mPmax - mPmin) /
+             (mOutputMax - mOutputMin) +
+         mPmin;
 }
 
 I2CDeviceStatus HoneywellABP::test() {
@@ -53,7 +55,8 @@ I2CDeviceStatus HoneywellABP::test() {
     return status;
   }
 
-  if (sample.status != ABPStatus::noError && sample.status != ABPStatus::staleData) {
+  if (sample.status != ABPStatus::noError &&
+      sample.status != ABPStatus::staleData) {
     return I2CDeviceStatus::testFailed;
   }
 
@@ -64,9 +67,7 @@ I2CDeviceStatus HoneywellABP::test() {
   return I2CDeviceStatus::ok;
 }
 
-I2CDeviceStatus HoneywellABP::reset() {
-  return I2CDeviceStatus::notSupported;
-}
+I2CDeviceStatus HoneywellABP::reset() { return I2CDeviceStatus::notSupported; }
 
 }  // namespace I2C
 }  // namespace Driver

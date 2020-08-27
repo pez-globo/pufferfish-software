@@ -25,10 +25,7 @@ class HALI2CDevice : public I2CDevice {
    * @param address the I2C address of the device
    */
   HALI2CDevice(I2C_HandleTypeDef &hi2c, uint16_t address)
-      :
-      mDev(hi2c),
-      mAddr(address) {
-  }
+      : mDev(hi2c), mAddr(address) {}
 
   I2CDeviceStatus read(uint8_t *buf, size_t count) override;
 

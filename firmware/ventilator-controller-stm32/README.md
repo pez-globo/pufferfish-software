@@ -14,9 +14,27 @@ Then you can make configuration changes and regenerate code using STM32CubeMX. T
 - Rename `Core/Src/main.c` to `Core/Src/main.cpp`
 - Rename `Core/Src/stm32h7_it.c` to `Core/Src/stm32h7_it.cpp`
 
+## Auto-Formatting
+
+To automatically format all code using clang-format, first install `clang-format`.
+
+Then, from this directory, run the `clang-format-all.sh` script with the usual options for clang-format
+(though note that this script will use the configuration defined in the `.clang-format` file).
+For example, to do a dry run identifying all necessary formatting changes, run:
+
+```
+./clang-format-all.sh --dry-run
+```
+
+And to automatically apply all necessary formatting changes directly to the files, run:
+
+```
+./clang-format-all.sh -i
+```
+
 ## Static Code Checking
 
-To run code checks, first install `clang-tidy`, `clang-format`, `clang-tools`, and `cppcheck`.
+To run code checks, first install `clang-tidy`, `clang-tools`, and `cppcheck`.
 
 ### Cppcheck
 

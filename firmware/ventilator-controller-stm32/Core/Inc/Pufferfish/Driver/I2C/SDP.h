@@ -25,16 +25,17 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *
- * Modified work Copyright 2020, the Pez Globo team and the Pufferfish project contributors
+ * Modified work Copyright 2020, the Pez Globo team and the Pufferfish project
+ * contributors
  *
  * A driver for the SDPxx flow sensor; modified from Sensirion Arduino Library
  */
 
 #pragma once
 
-#include "SensirionSensor.h"
 #include "Pufferfish/Driver/Testable.h"
 #include "Pufferfish/HAL/HAL.h"
+#include "SensirionSensor.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -56,12 +57,9 @@ class SDPSensor : public Testable {
   static const uint16_t SDP3xI2CAddr = 0x21;
   static const uint16_t SDP8xxI2CAddr = 0x25;
 
-  // Cppcheck false positive, dev cannot be given to SensirionSensor ctor as const ref
-  // cppcheck-suppress constParameter
-  explicit SDPSensor(HAL::I2CDevice &dev)
-      :
-      mSensirion(dev) {
-  }
+  // Cppcheck false positive, dev cannot be given to SensirionSensor ctor as
+  // const ref cppcheck-suppress constParameter
+  explicit SDPSensor(HAL::I2CDevice &dev) : mSensirion(dev) {}
 
   /**
    * start continuously making measurements in sensor
@@ -97,6 +95,7 @@ class SDPSensor : public Testable {
 
   I2CDeviceStatus reset() override;
   I2CDeviceStatus test() override;
+
  private:
   SensirionSensor mSensirion;
   bool mMeasuring = false;
