@@ -1,6 +1,13 @@
 name: Backend Checks
 
-on: [push]
+on:
+  push:
+    paths:
+      - 'backend/**'
+
+defaults:
+  run:
+    working-directory: backend
 
 jobs:
   build:
@@ -22,16 +29,12 @@ jobs:
         pip install poetry
         poetry run pip install --upgrade pip
         poetry install -v
-      working-directory: backend
 
     - name: Check Type Hints
       run: poetry run tox -e types
-      working-directory: backend
 
     - name: Check Code Quality
       run: poetry run tox -e lint
-      working-directory: backend
 
     - name: Run Unit Tests
       run: poetry run tox -e py37,coverage
-      working-directory: backend

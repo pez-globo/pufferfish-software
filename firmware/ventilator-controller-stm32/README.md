@@ -32,6 +32,13 @@ And to automatically apply all necessary formatting changes directly to the file
 ./clang-format-all.sh -i
 ```
 
+If you want to run a command which sets the shel process return code to be an error
+if at least one formatting change is necessary, run:
+
+```
+! ./clang-format-all.sh -dry-run 2>&1 | grep ''
+```
+
 ## Static Code Checking
 
 To run code checks, first install `clang-tidy`, `clang-tools`, and `cppcheck`.

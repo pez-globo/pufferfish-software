@@ -1,10 +1,13 @@
 name: Firmware Checks
 
-on: [push]
+on:
+  push:
+    paths:
+      - 'firmware/**'
 
 defaults:
   run:
-    working-directory:  firmware/ventilator-controller-stm32
+    working-directory: firmware/ventilator-controller-stm32
 
 jobs:
   format:
