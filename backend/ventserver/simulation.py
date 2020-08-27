@@ -2,6 +2,7 @@
 
 import random
 import time
+import typing
 from typing import Mapping, Optional, Type
 
 import trio
@@ -11,7 +12,7 @@ from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
 from ventserver.protocols import application
 from ventserver.protocols import server
-from ventserver.protocols.protobuf import mcu_pb as pb
+from ventserver.protocols.protobuf import mcu_pb
 
 
 async def simulate_states(
@@ -36,10 +37,18 @@ async def simulate_states(
     exp_flow_responsiveness = 0.02  # ms
     fio2_responsiveness = 0.01  # ms
     while True:
-        sensor_measurements = all_states[pb.SensorMeasurements]
-        cycle_measurements = all_states[pb.CycleMeasurements]
-        parameters = all_states[pb.Parameters]
-        parameters_request = all_states[pb.ParametersRequest]
+        sensor_measurements = typing.cast(
+            mcu_pb.SensorMeasurements, all_states[mcu_pb.SensorMeasurements]
+        )
+        cycle_measurements = typing.cast(
+            mcu_pb.CycleMeasurements, all_states[mcu_pb.CycleMeasurements]
+        )
+        parameters = typing.cast(
+            mcu_pb.Parameters, all_states[mcu_pb.Parameters]
+        )
+        parameters_request = typing.cast(
+            mcu_pb.ParametersRequest, all_states[mcu_pb.ParametersRequest]
+        )
         # Parameters
         if parameters_request.rr > 0:
             parameters.rr = parameters_request.rr
@@ -107,13 +116,13 @@ async def main() -> None:
 
     # Initialize State
     all_states = protocol.receive.backend.all_states
-    all_states[pb.Parameters] = pb.Parameters()
-    all_states[pb.CycleMeasurements] = pb.CycleMeasurements()
-    all_states[pb.SensorMeasurements] = pb.SensorMeasurements()
-    all_states[pb.ParametersRequest] = pb.ParametersRequest(
-        mode=pb.VentilationMode(
-            support=pb.SpontaneousSupport.ac,
-            cycling=pb.VentilationCycling.pc
+    all_states[mcu_pb.Parameters] = mcu_pb.Parameters()
+    all_states[mcu_pb.CycleMeasurements] = mcu_pb.CycleMeasurements()
+    all_states[mcu_pb.SensorMeasurements] = mcu_pb.SensorMeasurements()
+    all_states[mcu_pb.ParametersRequest] = mcu_pb.ParametersRequest(
+        mode=mcu_pb.VentilationMode(
+            support=mcu_pb.SpontaneousSupport.ac,
+            cycling=mcu_pb.VentilationCycling.pc
         ),
         pip=30, peep=10, rr=30, ie=1, fio2=60
     )

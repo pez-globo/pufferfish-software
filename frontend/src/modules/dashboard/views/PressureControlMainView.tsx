@@ -47,6 +47,9 @@ const useStyles = makeStyles((theme: Theme) => ({
         zIndex: 1,
         minHeight: 40,
     },
+
+    selectedTab:{color:theme.palette.primary.contrastText},
+
     tabIndicator: {
         borderRadius: 8,
         border: '2px solid ' + theme.palette.primary.main,
@@ -100,11 +103,17 @@ const PressureControlMainView = () => {
                 </Grid>
                 <Grid container item xs direction='column' className={classes.graphPanel} wrap='nowrap'>
                     <Grid container item justify="center" alignItems='center'>
-                        <Tabs value={value} onChange={handleTabChange} variant='fullWidth' className={classes.tabs} classes={{ indicator: classes.tabIndicator }}>
-                            <Tab label="Waveforms" {...a11yProps(0)} className={classes.tab} />
+                        <Tabs value={value} onChange={handleTabChange} variant='fullWidth'
+                        className={classes.tabs} classes={{ indicator: classes.tabIndicator }}>
+                            <Tab
+                            label="Waveforms" {...a11yProps(0)}
+                            className={classes.tab}
+                            classes={{selected:classes.selectedTab}}/>
                             {/* NOTE: The 2 tabs below are disabled until their functionality is implemented. */}
-                            <Tab label="PV Loops" {...a11yProps(1)} className={classes.tab} disabled />
-                            <Tab label="Compliance" {...a11yProps(2)} className={classes.tab} disabled />
+                            <Tab label="PV Loops" {...a11yProps(1)} className={classes.tab} disabled
+                            classes={{selected:classes.selectedTab}}/>
+                            <Tab label="Compliance" {...a11yProps(2)} className={classes.tab} disabled
+                            classes={{selected:classes.selectedTab}}/>
                         </Tabs>
                     </Grid>
                     <TabPanel value={value} index={0}>

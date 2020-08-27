@@ -5,7 +5,8 @@ import {
   Parameters,
   ParametersRequest,
   Ping,
-  Announcement
+  Announcement,
+  AlarmLimitsRequest
 } from './proto/mcu_pb'
 import {
   RotaryEncoder
@@ -15,12 +16,13 @@ import {
 
 export const STATE_UPDATED = '@controller/STATE_UPDATED'
 export const PARAMETER_COMMITTED = '@controller/PARAMETER_COMMITTED'
+export const THEME_SWITCHED = '@controller/THEME_SWITCHED'
 
 // Protocol Buffers
 
 export type PBMessage = (
   // mcu_pb
-  Alarms | SensorMeasurements | CycleMeasurements
+  AlarmLimitsRequest | Alarms | SensorMeasurements | CycleMeasurements
   | Parameters | ParametersRequest
   | Ping | Announcement
   // frontend_pb
@@ -29,7 +31,7 @@ export type PBMessage = (
 
 export type PBMessageType = (
   // mcu_pb
-  typeof Alarms | typeof SensorMeasurements | typeof CycleMeasurements
+  typeof AlarmLimitsRequest | typeof Alarms | typeof SensorMeasurements | typeof CycleMeasurements
   | typeof Parameters | typeof ParametersRequest
   | typeof Ping | typeof Announcement
   // frontend_pb
@@ -44,8 +46,14 @@ export enum MessageType {
   ParametersRequest = 5,
   Ping = 6,
   Announcement = 7,
+  AlarmLimitsRequest = 8,
   RotaryEncoder = 128
 };
+
+export enum ThemeVariant {
+  DARK = 1,
+  LIGHT = 2
+}
 
 // States
 
@@ -63,6 +71,7 @@ export interface WaveformHistory {
 export interface ControllerStates {
   // Message states from mcu_pb
   alarms: Alarms;
+  alarmLimitsRequest: AlarmLimitsRequest;
   sensorMeasurements: SensorMeasurements;
   cycleMeasurements: CycleMeasurements;
   parameters: Parameters;
@@ -76,10 +85,13 @@ export interface ControllerStates {
   // Derived states
   waveformHistoryPaw: WaveformHistory;
   waveformHistoryFlow: WaveformHistory;
+  clock: Date
+  theme: ThemeVariant
 };
 
 export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.Alarms, Alarms],
+  [MessageType.AlarmLimitsRequest, AlarmLimitsRequest],
   [MessageType.SensorMeasurements, SensorMeasurements],
   [MessageType.CycleMeasurements, CycleMeasurements],
   [MessageType.Parameters, Parameters],
@@ -91,6 +103,7 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
 
 export const MessageTypes = new Map<PBMessageType, MessageType>([
   [Alarms, MessageType.Alarms],
+  [AlarmLimitsRequest, MessageType.AlarmLimitsRequest],
   [SensorMeasurements, MessageType.SensorMeasurements],
   [CycleMeasurements, MessageType.CycleMeasurements],
   [Parameters, MessageType.Parameters],
@@ -118,3 +131,10 @@ interface ParameterCommittedAction {
 };
 
 export type ParameterCommitAction = ParameterCommittedAction;
+
+// Switch Theme Action
+
+export interface SwitchThemeAction {
+  type: typeof THEME_SWITCHED
+  theme: any
+};
