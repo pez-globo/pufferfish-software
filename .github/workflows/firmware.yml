@@ -2,27 +2,36 @@ name: Firmware Checks
 
 on: [push]
 
+defaults:
+  run:
+    working-directory:  firmware/ventilator-controller-stm32
+
 jobs:
-  check:
+  format:
     runs-on: ubuntu-20.04
-    strategy:
-      max-parallel: 4
 
     steps:
     - uses: actions/checkout@v1
 
     - name: Install dependencies
       run: |
-        sudo apt install cppcheck clang-format
-      working-directory: firmware/ventilator-controller-stm32
+        sudo apt install clang-format
 
     - name: Run clang-format
       run: |
         ! ./clang-format-all.sh -dry-run 2>&1 | grep ''
-      working-directory: firmware/ventilator-controller-stm32
+
+  cppcheck:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install dependencies
+      run: |
+        sudo apt install cppcheck
 
     - name: Run cppcheck with application
       run: |
         mkdir application-cppcheck-build-dir
         cppcheck --project=application.cppcheck --inline-suppr --enable=all --error-exitcode=1
-      working-directory: firmware/ventilator-controller-stm32
