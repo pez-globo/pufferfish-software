@@ -63,7 +63,7 @@ class AlarmsManager {
   AlarmStatus getActive();
 
  private:
-  uint32_t mAlarmsCnt[(int) AlarmStatus::noAlarm];
+  uint32_t mAlarmsCnt[static_cast<int>(AlarmStatus::noAlarm)];
   AlarmStatus mActive;
   bool mUpdated = false;
 

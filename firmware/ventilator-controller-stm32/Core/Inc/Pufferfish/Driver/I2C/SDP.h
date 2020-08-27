@@ -34,6 +34,7 @@
 
 #include "SensirionSensor.h"
 #include "Pufferfish/Driver/Testable.h"
+#include "Pufferfish/HAL/HAL.h"
 
 namespace Pufferfish {
 namespace Driver {

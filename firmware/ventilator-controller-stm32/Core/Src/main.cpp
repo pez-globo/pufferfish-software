@@ -80,16 +80,19 @@ UART_HandleTypeDef huart3;
 /* USER CODE BEGIN PV */
 namespace PF = Pufferfish;
 
-PF::HAL::DigitalOutput boardLed1(*LD1_GPIO_Port, LD1_Pin);
+// The following lines suppress Eclipse CDT's warning about C-style casts;
+// those come from STM32CubeMX-generated #define constants, which we have no control over
 
-PF::HAL::DigitalOutput alarmLedR(*LEDR_CNTRL_GPIO_Port, LEDR_CNTRL_Pin);
-PF::HAL::DigitalOutput alarmLedG(*LEDG_CNTRL_GPIO_Port, LEDG_CNTRL_Pin);
-PF::HAL::DigitalOutput alarmLedB(*LEDB_CNTRL_GPIO_Port, LEDB_CNTRL_Pin);
+PF::HAL::DigitalOutput boardLed1(*LD1_GPIO_Port, LD1_Pin); // @suppress("C-Style cast instead of C++ cast")
 
-PF::HAL::DigitalOutput alarmRegHigh(*ALARM1_HIGH_GPIO_Port, ALARM1_HIGH_Pin);
-PF::HAL::DigitalOutput alarmRegMed(*ALARM1_MED_GPIO_Port, ALARM1_MED_Pin);
-PF::HAL::DigitalOutput alarmRegLow(*ALARM1_LOW_GPIO_Port, ALARM1_LOW_Pin);
-PF::HAL::DigitalOutput alarmBuzzer(*ALARM2_CNTRL_GPIO_Port, ALARM2_CNTRL_Pin);
+PF::HAL::DigitalOutput alarmLedR(*LEDR_CNTRL_GPIO_Port, LEDR_CNTRL_Pin); // @suppress("C-Style cast instead of C++ cast")
+PF::HAL::DigitalOutput alarmLedG(*LEDG_CNTRL_GPIO_Port, LEDG_CNTRL_Pin); // @suppress("C-Style cast instead of C++ cast")
+PF::HAL::DigitalOutput alarmLedB(*LEDB_CNTRL_GPIO_Port, LEDB_CNTRL_Pin); // @suppress("C-Style cast instead of C++ cast")
+
+PF::HAL::DigitalOutput alarmRegHigh(*ALARM1_HIGH_GPIO_Port, ALARM1_HIGH_Pin); // @suppress("C-Style cast instead of C++ cast")
+PF::HAL::DigitalOutput alarmRegMed(*ALARM1_MED_GPIO_Port, ALARM1_MED_Pin); // @suppress("C-Style cast instead of C++ cast")
+PF::HAL::DigitalOutput alarmRegLow(*ALARM1_LOW_GPIO_Port, ALARM1_LOW_Pin); // @suppress("C-Style cast instead of C++ cast")
+PF::HAL::DigitalOutput alarmBuzzer(*ALARM2_CNTRL_GPIO_Port, ALARM2_CNTRL_Pin); // @suppress("C-Style cast instead of C++ cast")
 
 PF::Driver::Indicators::LEDAlarm alarmDevLed(alarmLedR, alarmLedG, alarmLedB);
 PF::Driver::Indicators::AuditoryAlarm alarmDevSound(alarmRegHigh, alarmRegMed, alarmRegLow, alarmBuzzer);

@@ -20,6 +20,8 @@ namespace HAL {
  */
 class I2CDevice {
  public:
+  virtual ~I2CDevice() {}
+
   /**
    * Reads data from the device
    * @param buf[out]    output of the data
