@@ -17,6 +17,7 @@ import { useSelector } from 'react-redux'
 import { ThemeVariant, Unit } from '../../../store/controller/proto/mcu_pb'
 import { useEffect } from 'react'
 import { getFrontendDisplaySetting, getSystemSettingRequest } from '../../../store/controller/selectors'
+import { ToggleValue } from '../../displays/ToggleValue'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -144,30 +145,12 @@ export const DisplayTab = ({ onSettingChange }: Props) => {
                 {/* Color TODO: This should be a toggle switch. */}
                 <Grid container item xs direction='column' justify='center' className={classes.leftContainer}>
                     <Typography variant='h5' className={classes.root}>Color</Typography>
-                    <FormControl component='fieldset'>
-                        <RadioGroup
-                            value={theme}
-                            onChange={(event) => setTheme(+event.target.value as ThemeVariant)}
-                            name='ui-theme-radios'
-                        >
-                            <FormControlLabel value={ThemeVariant.dark} control={<Radio color='primary' />} label='Dark UI' />
-                            <FormControlLabel value={ThemeVariant.light} control={<Radio color='primary' />} label='Light UI' />
-                        </RadioGroup>
-                    </FormControl>
+                    <ToggleValue toggleBetween={[{ label: "Dark UI", value: ThemeVariant.dark }, { label: "Light UI", value: ThemeVariant.light }]} onToggle={(selected: number) => setTheme(selected as ThemeVariant)} selected={theme} />
                 </Grid>
                 {/* Unit TODO: This should be a toggle switch. */}
                 <Grid container item xs direction='column' justify='center' className={classes.leftContainer}>
                     <Typography variant='h5' className={classes.root}>Unit</Typography>
-                    <FormControl component='fieldset'>
-                        <RadioGroup
-                            value={unit}
-                            onChange={(event) => setUnit(+event.target.value as Unit)}
-                            name='ui-theme-radios'
-                        >
-                            <FormControlLabel value={Unit.imperial} control={<Radio color='primary' />} label='Imperial' />
-                            <FormControlLabel value={Unit.metric} control={<Radio color='primary' />} label='Metric' />
-                        </RadioGroup>
-                    </FormControl>
+                    <ToggleValue toggleBetween={[{ label: "Imperial", value: Unit.imperial }, { label: "Metric", value: Unit.metric }]} onToggle={(selected: number) => setUnit(selected as Unit)} selected={unit} />
                 </Grid>
                 {/* Date & Time */}
                 <Grid container item xs direction='column' justify='space-evenly' className={classes.leftContainer}>
