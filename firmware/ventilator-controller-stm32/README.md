@@ -73,7 +73,7 @@ you might have this toolchain provided by the STM32Cube IDE at
 `/opt/st/stm32cubeide_1.3.0/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.linux64_1.0.0.201904181610/tools/bin/`
 in which case you could add it to your path as follows:
 ```
-PATH=""/opt/st/stm32cubeide_1.3.0/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.linux64_1.0.0.201904181610/tools/bin/:$PATH"
+PATH="/opt/st/stm32cubeide_1.3.0/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.linux64_1.0.0.201904181610/tools/bin/:$PATH"
 ```
 
 Then make a CMake build directory and build the project. To build it in debug mode

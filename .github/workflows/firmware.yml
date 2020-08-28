@@ -18,7 +18,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install clang-format
+        sudo apt-get install clang-format
 
     - name: Run clang-format
       run: |
@@ -32,7 +32,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install cppcheck
+        sudo apt-get install cppcheck
 
     - name: Run cppcheck with application
       run: |
@@ -50,7 +50,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install gcc-arm-none-eabi cmake
+        sudo apt-get install gcc-arm-none-eabi cmake
 
     - name: Run CMake build
       run: |
