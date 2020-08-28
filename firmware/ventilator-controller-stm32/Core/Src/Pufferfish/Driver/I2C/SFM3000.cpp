@@ -34,13 +34,18 @@ I2CDeviceStatus SFM3000::serialNumber(uint32_t &sn) {
     return ret;
   }
 
-  I2CDeviceStatus ret2 = mSensirion.readWithCRC(static_cast<uint8_t *>(&sn),
-                                                sizeof(sn), 0x31, 0x00);
+  union Uint32Buffer {
+    uint8_t bytes[sizeof(sn)];
+    uint32_t value;
+  } buffer;
+
+  I2CDeviceStatus ret2 =
+      mSensirion.readWithCRC(buffer.bytes, sizeof(buffer.bytes), 0x31, 0x00);
   if (ret2 != I2CDeviceStatus::ok) {
     return ret2;
   }
 
-  sn = Pufferfish::HAL::ntoh(sn);
+  sn = Pufferfish::HAL::ntoh(buffer.value);
   return I2CDeviceStatus::ok;
 }
 
@@ -54,14 +59,18 @@ I2CDeviceStatus SFM3000::readSample(SFM3000Sample &sample) {
     HAL::delay(1);
   }
 
-  uint16_t val;
-  I2CDeviceStatus ret = mSensirion.readWithCRC(static_cast<uint8_t *>(&val),
-                                               sizeof(val), 0x31, 0x00);
+  union Uint16Buffer {
+    uint8_t bytes[sizeof(uint16_t)];
+    uint16_t value;
+  } buffer;
+
+  I2CDeviceStatus ret =
+      mSensirion.readWithCRC(buffer.bytes, sizeof(buffer.bytes), 0x31, 0x00);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
 
-  sample.rawFlow = Pufferfish::HAL::ntoh(val);
+  sample.rawFlow = Pufferfish::HAL::ntoh(buffer.value);
 
   // convert to actual flow rate
   sample.flow = static_cast<int>(sample.rawFlow - offsetFlow) / mScaleFactor;

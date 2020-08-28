@@ -29,5 +29,19 @@ uint32_t hton(uint32_t hostValue);
  */
 uint32_t ntoh(uint32_t networkValue);
 
+/**
+ * Convert endianness of a 16-bit data in host-order to network-order
+ * @param hostValue a 16-bit number in host-order
+ * @return the given number in network-order
+ */
+uint16_t hton(uint16_t hostValue);
+
+/**
+ * Convert endianness of a 16-bit data in host-order to network-order
+ * @param networkValue a 16-bit number in network-order
+ * @return the given number in host-order
+ */
+uint16_t ntoh(uint16_t networkValue);
+
 }  // namespace HAL
 }  // namespace Pufferfish

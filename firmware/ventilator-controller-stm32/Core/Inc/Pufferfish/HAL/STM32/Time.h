@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 namespace Pufferfish {
 namespace HAL {
 
