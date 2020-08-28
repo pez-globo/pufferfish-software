@@ -93,6 +93,15 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 make -j2
 ```
 
+### Scan-build
+
+To run scan-build, first install `clang-tools`, then run your normal `make` command
+but first prepend `scan-build`. For example:
+```
+cd cmake-build-debug  # run from the firmware/ventilator-controller-stm32 directory
+scan-build make -j4
+```
+
 
 ## Running
 

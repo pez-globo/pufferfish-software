@@ -58,3 +58,20 @@ jobs:
         cd cmake-build-${{ matrix.build-type }}
         cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
         make -j2
+
+  scan-build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install gcc-arm-none-eabi cmake clang-tools
+
+    - name: Run CMake build
+      run: |
+        mkdir cmake-build-debug
+        cd cmake-build-debug
+        cmake .. -DCMAKE_BUILD_TYPE=Debug
+        scan-build make -j2
