@@ -14,7 +14,7 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 # project settings
 project(ventilator-controller-stm32 C CXX ASM)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 11)
 
 #Uncomment for hardware floating point

@@ -25,7 +25,7 @@ jobs:
         ! ./clang-format-all.sh -dry-run 2>&1 | grep ''
 
   cppcheck:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v1
@@ -40,7 +40,7 @@ jobs:
         cppcheck --project=application.cppcheck --inline-suppr --enable=all --error-exitcode=1
 
   build-application:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         build-type: [Debug, Release]
