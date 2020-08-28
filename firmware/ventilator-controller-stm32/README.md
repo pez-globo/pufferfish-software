@@ -2,6 +2,7 @@
 
 This is a STM32CubeIDE project of the embedded software which will run on the ventilator. We are testing this with the NUCLEO-H743ZI2 microcontroller board.
 
+
 ## Reconfiguring Pins and Peripherals with STM32CubeMX
 
 Before you make any configuration changes to the microcontroller's pins or built-in peripherals using STM32CubeMX, you will need to rename the following files:
@@ -13,6 +14,7 @@ Then you can make configuration changes and regenerate code using STM32CubeMX. T
 
 - Rename `Core/Src/main.c` to `Core/Src/main.cpp`
 - Rename `Core/Src/stm32h7_it.c` to `Core/Src/stm32h7_it.cpp`
+
 
 ## Auto-Formatting
 
@@ -41,7 +43,7 @@ if at least one formatting change is necessary, run:
 
 ## Static Code Checking
 
-To run code checks, first install `clang-tidy`, `clang-tools`, and `cppcheck`.
+To run code checks, first install `cppcheck`, `cmake`, `clang-tidy`, and `clang-tools`.
 
 ### Cppcheck
 
@@ -58,6 +60,30 @@ You can run cppcheck checks for the main application from the command-line with:
 mkdir application-cppcheck-build-dir
 cppcheck --project=application.cppcheck --inline-suppr --enable=all --error-exitcode=1
 ```
+
+### Clang-tidy
+
+
+## Cmake Builds
+
+To use cmake to build the main embedded application, first find the path where the
+gcc arm-none-eabi toolchain is available (if you have not already installed it into
+somewhere accessible from the shell), and add it to your shell's pth. For example,
+you might have this toolchain provided by the STM32Cube IDE at
+`/opt/st/stm32cubeide_1.3.0/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.linux64_1.0.0.201904181610/tools/bin/`
+in which case you could add it to your path as follows:
+```
+PATH=""/opt/st/stm32cubeide_1.3.0/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.linux64_1.0.0.201904181610/tools/bin/:$PATH"
+```
+
+Then make a CMake build directory and build the project:
+```
+mkdir cmake-build-application
+cd cmake-build-application
+cmake ..
+make
+```
+
 
 ## Running
 

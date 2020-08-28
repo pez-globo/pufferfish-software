@@ -15,6 +15,5 @@
 
 # Clion auto-generated files
 .idea
-CMakeLists.txt
 CMakeLists_template.txt
-cmake-build-debug/
+/cmake-build-*
