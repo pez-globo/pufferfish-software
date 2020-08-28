@@ -153,11 +153,19 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         return True
 
     def input_serial(self, serial_receive: bytes) -> None:
-        """Input a ReceiveEvent corresponding to serial data."""
+        """Input a ReceiveEvent corresponding to serial data.
+
+        This is just a convenience function intended for writing unit tests
+        more concisely.
+        """
         self.input(make_serial_receive(serial_receive))
 
     def input_websocket(self, websocket: bytes) -> None:
-        """Input a ReceiveEvent corresponding to websocket data."""
+        """Input a ReceiveEvent corresponding to websocket data.
+
+        This is just a convenience function intended for writing unit tests
+        more concisely.
+        """
         self.input(make_websocket_receive(websocket))
 
     @property
