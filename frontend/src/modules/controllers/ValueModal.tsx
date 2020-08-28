@@ -1,7 +1,7 @@
 import React from 'react'
-import ConfirmationModal from './ConfirmationModal'
 import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core'
 import ValueClicker from './ValueClicker'
+import ModalPopup from './ModalPopup'
 
 const useStyles = makeStyles((theme: Theme) => ({
     contentContainer: {
@@ -61,7 +61,7 @@ export const ValueModal = (
                     Set New
                 </Button>
             </Grid>
-            <ConfirmationModal label='Set New' open={open} onClose={handleClose} onConfirm={handleConfirm}>
+            <ModalPopup withAction={true} label='Set New' open={open} onClose={handleClose} onConfirm={handleConfirm}>
                 <Grid container direction='row'>
                     <Grid container item xs direction='column' className={classes.contentContainer}>
                         <Grid item>
@@ -88,7 +88,7 @@ export const ValueModal = (
                         />
                     </Grid>
                 </Grid>
-            </ConfirmationModal>
+            </ModalPopup>
         </Grid >
     )
 }

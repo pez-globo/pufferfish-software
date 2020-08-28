@@ -1,12 +1,12 @@
 import React from 'react'
 import ValueSlider from './ValueSlider'
-import ConfirmationModal from './ConfirmationModal'
 import ValueClicker from './ValueClicker'
 import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core'
 import { useDispatch, useSelector } from 'react-redux'
 import { getAlarmLimitsRequest } from '../../store/controller/selectors'
 import { ALARM_LIMITS } from '../../store/controller/types'
 import { updateCommittedState } from '../../store/controller/actions'
+import ModalPopup from './ModalPopup'
 
 const useStyles = makeStyles((theme: Theme) => ({
     contentContainer: {
@@ -86,7 +86,7 @@ export const AlarmModal = (
                     Alarm
                 </Button>
             </Grid>
-            <ConfirmationModal label={`${label} - Alarm`} open={open} onClose={handleClose} onConfirm={handleConfirm}>
+            <ModalPopup withAction={true} label={`${label} - Alarm`} open={open} onClose={handleClose} onConfirm={handleConfirm}>
                 <Grid container direction='column' alignItems='stretch' className={classes.contentContainer}>
                     <Grid container item xs justify='center' alignItems='center' className={`${classes.alarmContainer} ${classes.borderBottom}`}>
                         <Grid item className={classes.alarmValue}>
@@ -122,7 +122,7 @@ export const AlarmModal = (
                         <ValueSlider rangeValues={rangeValue} onChange={setSortedRangeValue} min={min} max={max} />
                     </Grid>
                 </Grid>
-            </ConfirmationModal>
+            </ModalPopup>
         </Grid>
     )
 }
