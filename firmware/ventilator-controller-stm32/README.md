@@ -64,11 +64,11 @@ cppcheck --project=application.cppcheck --inline-suppr --enable=all --error-exit
 ### Clang-tidy
 
 
-## Cmake Builds
+## CMake Builds
 
-To use cmake to build the main embedded application, first find the path where the
+To use CMake to build the main firmware application, first find the path where the
 gcc arm-none-eabi toolchain is available (if you have not already installed it into
-somewhere accessible from the shell), and add it to your shell's pth. For example,
+somewhere accessible from the shell), and add it to your shell's path. For example,
 you might have this toolchain provided by the STM32Cube IDE at
 `/opt/st/stm32cubeide_1.3.0/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.linux64_1.0.0.201904181610/tools/bin/`
 in which case you could add it to your path as follows:
@@ -76,12 +76,21 @@ in which case you could add it to your path as follows:
 PATH=""/opt/st/stm32cubeide_1.3.0/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.linux64_1.0.0.201904181610/tools/bin/:$PATH"
 ```
 
-Then make a CMake build directory and build the project:
+Then make a CMake build directory and build the project. To build it in debug mode
+with four build threads:
 ```
-mkdir cmake-build-application
-cd cmake-build-application
-cmake ..
-make
+mkdir cmake-build-debug  # run from the firmware/ventilator-controller-stm32 directory
+cd cmake-build-debug
+cmake .. -DCMAKE_BUILD_TYPE=Debug
+make -j4
+```
+
+To build it in release mode with two build threads:
+```
+mkdir cmake-build-release  # run from the firmware/ventilator-controller-stm32 directory
+cd cmake-build-release
+cmake .. -DCMAKE_BUILD_TYPE=Release
+make -j2
 ```
 
 

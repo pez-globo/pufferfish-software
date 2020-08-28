@@ -25,7 +25,7 @@ jobs:
         ! ./clang-format-all.sh -dry-run 2>&1 | grep ''
 
   cppcheck:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-18.04
 
     steps:
     - uses: actions/checkout@v1
@@ -38,3 +38,23 @@ jobs:
       run: |
         mkdir application-cppcheck-build-dir
         cppcheck --project=application.cppcheck --inline-suppr --enable=all --error-exitcode=1
+
+  build-application:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        build-type: [Debug, Release]
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install dependencies
+      run: |
+        sudo apt install gcc-arm-none-eabi cmake
+
+    - name: Run CMake build
+      run: |
+        mkdir cmake-build-${{ matrix.build-type }}
+        cd cmake-build-${{ matrix.build-type }}
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+        make -j2
