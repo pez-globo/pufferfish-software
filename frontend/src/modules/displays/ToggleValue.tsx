@@ -29,13 +29,13 @@ const StyledToggleButton = withStyles(({ palette }) => ({
   selected: {
     '&&': {
       backgroundColor: palette.background.paper,
-        borderRadius: 5
+      borderRadius: 5
     },
     '&&:hover': {
       backgroundColor: palette.background.paper,
     },
     '& .MuiToggleButton-label': {
-      color: palette.primary.contrastText
+      color: palette.text.primary
     }
   },
   label: {
