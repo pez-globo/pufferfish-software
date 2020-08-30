@@ -14,6 +14,8 @@ from ventserver.protocols import application
 from ventserver.protocols import server
 from ventserver.protocols.protobuf import mcu_pb
 
+# prototype file i/o
+from ventserver.io.trio import fileio 
 
 async def simulate_states(
         all_states: Mapping[
@@ -109,6 +111,9 @@ async def main() -> None:
     # I/O Endpoints
     websocket_endpoint = websocket.Driver()
 
+    # I/O File
+    filehandler = fileio.Handler()
+
     # Server Receive Outputs
     channel: channels.TrioChannel[
         server.ReceiveOutputEvent
@@ -140,7 +145,7 @@ async def main() -> None:
                     receive_output = await channel.output()
                     await _trio.process_protocol_send(
                         receive_output.server_send, protocol,
-                        None, websocket_endpoint
+                        None, websocket_endpoint, filehandler
                     )
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:

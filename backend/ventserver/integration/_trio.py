@@ -9,10 +9,13 @@ import trio
 
 from ventserver.io.trio import channels as triochannels
 from ventserver.io.trio import endpoints
+from ventserver.protocols import file
 from ventserver.protocols import server
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
 from ventserver.sansio import streams
+
+from ventserver.protocols import backend
 
 
 logger = logging.getLogger(__name__)
@@ -77,6 +80,21 @@ async def send_all_websocket(
                 'Websocket connection was lost during send: %s', send_event
             )
 
+async def process_file_save_output(protocol: server.Protocol,
+        filehandler: endpoints.IOEndpoint[bytes, bytes]
+) -> None:
+    """Saves protobuf data to files (prototype)"""
+
+    for message in protocol.send.file.output_all():
+        try:
+            await filehandler.open(message.state_type)
+            await filehandler.write(bytes(message.data))
+        except Exception as err: #type: ignore
+            logger.error(err)
+        finally:
+            await filehandler.close()
+
+
 
 async def process_protocol_send_output(
         protocol: server.Protocol,
@@ -111,7 +129,8 @@ async def process_protocol_send_output(
 async def process_protocol_send(
         send_event: Optional[server.SendEvent], protocol: server.Protocol,
         serial: Optional[endpoints.IOEndpoint[bytes, bytes]],
-        websocket: Optional[endpoints.IOEndpoint[bytes, bytes]]
+        websocket: Optional[endpoints.IOEndpoint[bytes, bytes]],
+        filehandler: Optional[endpoints.IOEndpoint[bytes, bytes]]
 ) -> None:
     """Process a send event and write out any data to I/O endpoints.
 
@@ -125,7 +144,7 @@ async def process_protocol_send(
         return
     protocol.send.input(send_event)
     await process_protocol_send_output(protocol, serial, websocket)
-
+    await process_file_save_output(protocol, filehandler)
 
 # Protocol Receive Outputs
 
