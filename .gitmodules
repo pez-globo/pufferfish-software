@@ -1,0 +1,3 @@
+[submodule "firmware/ventilator-controller-stm32/cmake"]
+	path = firmware/ventilator-controller-stm32/cmake
+	url = https://github.com/jobroe/cmake-arm-embedded.git
