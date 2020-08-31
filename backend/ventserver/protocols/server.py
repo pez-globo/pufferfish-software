@@ -83,6 +83,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     _mcu: mcu.ReceiveFilter = attr.ib(factory=mcu.ReceiveFilter)
     _frontend: frontend.ReceiveFilter = attr.ib(factory=frontend.ReceiveFilter)
     _backend: backend.ReceiveFilter = attr.ib(factory=backend.ReceiveFilter)
+    _file: file.ReceiveFilter = attr.ib(factory=file.ReceiveFilter)
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
         """Handle input events."""
@@ -173,6 +174,12 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     def backend(self) -> backend.ReceiveFilter:
         """Return the backend receiver."""
         return self._backend
+
+    @property
+    def file(self):
+        """Return the file receiver"""
+        return self._file
+    
 
 
 @attr.s

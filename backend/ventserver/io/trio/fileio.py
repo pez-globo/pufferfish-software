@@ -21,13 +21,13 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
     _fileobject: Optional[trio._file_io.AsyncIOWrapper] = None
     _connected: trio.Event = attr.ib(factory=trio.Event, repr=False)
 
-    async def open(self, filename: str, mode: Optional[str]=None) -> None:
+    async def open(self, filename: str, mode: Optional[str] = None) -> None:
         """Open File I/O connection."""
         if not ".pb" in filename:
             filename += ".pb"
         self.props.filename = filename
         if mode:
-                self.props.mode = mode
+            self.props.mode = mode
         if self._fileobject is not None:
             raise RuntimeError("Cannot open new file instance" +
                                "if one is already open." +
@@ -59,7 +59,7 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
 
     async def read(self) -> bytes:
         """Reads data from protobuf file and returns a bytes object."""
-        if self._fileobject is not None:
+        if self._fileobject == None:
             raise RuntimeError("No file object defined to read.")
         # TODO: Recognize and handle async File I/O exceptions
         _data = await self._fileobject.read()

@@ -87,7 +87,7 @@ async def process_file_save_output(protocol: server.Protocol,
 
     for message in protocol.send.file.output_all():
         try:
-            await filehandler.open(message.state_type)
+            await filehandler.open(message.state_type, "wb")
             await filehandler.write(bytes(message.data))
         except Exception as err: #type: ignore
             logger.error(err)

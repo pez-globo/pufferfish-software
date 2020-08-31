@@ -3,15 +3,17 @@
 import random
 import time
 import typing
-from typing import Mapping, Optional, Type
+from typing import Mapping, Optional, Type, Dict
 
 import trio
 
 from ventserver.integration import _trio
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
+from ventserver.io.trio import endpoints
 from ventserver.protocols import application
 from ventserver.protocols import server
+from ventserver.protocols import file
 from ventserver.protocols.protobuf import mcu_pb
 
 # prototype file i/o
@@ -102,6 +104,39 @@ async def simulate_states(
         )
         sensor_measurements.fio2 += 0.005 * random.random()
 
+async def read_states(
+        protocol: server.Protocol,
+        filehandler: endpoints.IOEndpoint[bytes, bytes]
+) -> Dict[
+        Type[application.PBMessage], Optional[application.PBMessage]
+    ]:
+    """Initialize all states from protobuf files."""
+    states = [
+        "Parameters", "CycleMeasurements",
+        "SensorMeasurements", "ParametersRequest"
+    ]
+
+    for state in states:
+        try:
+            await filehandler.open(state, "rb")
+            message = await filehandler.read()
+            protocol.receive.file.input(
+                file.StateData(state_type=state, data=message)
+                )
+        # TODO: recognise exceptions that can be raised and handle them
+        except Exception as err: #type: ignore
+            # TODO: correct logger usage
+            # logger.error(err)
+            print(err)
+        finally:
+            await filehandler.close()
+
+    all_states = protocol.receive.backend.all_states
+    for event in protocol.receive.file.output_all():
+        if event:
+            all_states[type(event)] = event 
+
+    return all_states
 
 async def main() -> None:
     """Set up wiring between subsystems and process until completion."""
@@ -120,17 +155,7 @@ async def main() -> None:
     ] = channels.TrioChannel()
 
     # Initialize State
-    all_states = protocol.receive.backend.all_states
-    all_states[mcu_pb.Parameters] = mcu_pb.Parameters()
-    all_states[mcu_pb.CycleMeasurements] = mcu_pb.CycleMeasurements()
-    all_states[mcu_pb.SensorMeasurements] = mcu_pb.SensorMeasurements()
-    all_states[mcu_pb.ParametersRequest] = mcu_pb.ParametersRequest(
-        mode=mcu_pb.VentilationMode(
-            support=mcu_pb.SpontaneousSupport.ac,
-            cycling=mcu_pb.VentilationCycling.pc
-        ),
-        pip=30, peep=10, rr=30, ie=1, fio2=60
-    )
+    all_states = await read_states(protocol, filehandler)
 
     try:
         async with channel.push_endpoint:
