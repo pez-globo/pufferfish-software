@@ -1,7 +1,5 @@
 #!/bin/bash
 
-ERROR=0  # exit code
-
 COMPILE_COMMANDS_DATABASE="-p cmake-build-debug"
 STANDARD_ARGS="$COMPILE_COMMANDS_DATABASE $@"
 
@@ -35,5 +33,5 @@ LINE_FILTERS="[$EXCLUDE_FILTERS,$STM32_USER_FILTERS,$INCLUDE_FILTERS]"
 # Check files
 SOURCE_FILES=`find Core/Src/Pufferfish -iname *.cpp | xargs`
 FILES="$SOURCE_FILES $STM32_USER_FILES"
-echo clang-tidy $FILES --line-filter="$LINE_FILTERS" $STANDARD_ARGS
+echo clang-tidy $FILE --line-filter="$LINE_FILTERS" $STANDARD_ARGS
 clang-tidy $FILES --line-filter="$LINE_FILTERS" $STANDARD_ARGS

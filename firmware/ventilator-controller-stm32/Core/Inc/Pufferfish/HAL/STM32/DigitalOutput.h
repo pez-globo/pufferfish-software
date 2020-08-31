@@ -18,11 +18,11 @@ class DigitalOutput {
  public:
   /**
    * Constructs a new DigitalOutput
-   * @param m_port  GPIO port of the MCU (A, B, ...)
-   * @param m_pin   GPIO pin of the MCU (1, 2, ...)
+   * @param port  GPIO port of the MCU (A, B, ...)
+   * @param pin   GPIO pin of the MCU (1, 2, ...)
    */
-  DigitalOutput(GPIO_TypeDef &m_port, const uint16_t m_pin)
-      : mPort(m_port), mPin(m_pin) {}
+  DigitalOutput(GPIO_TypeDef &port, const uint16_t pin)
+      : port_(port), pin(pin) {}
 
   /**
    * Writes a digital output to the GPIO pin
@@ -31,8 +31,8 @@ class DigitalOutput {
   void write(bool output);
 
  private:
-  GPIO_TypeDef &mPort;
-  uint16_t const mPin;
+  GPIO_TypeDef &port_;
+  uint16_t const pin;
 };
 
 }  // namespace HAL

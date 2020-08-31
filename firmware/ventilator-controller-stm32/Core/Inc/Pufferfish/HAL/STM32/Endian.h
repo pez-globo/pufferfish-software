@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace Pufferfish {
 namespace HAL {
@@ -20,28 +20,28 @@ namespace HAL {
  * @param hostValue a 32-bit number in host-order
  * @return the given number in network-order
  */
-uint32_t hton(uint32_t hostValue);
+uint32_t hton(uint32_t host_value);
 
 /**
  * Convert endianness of a 32-bit data in host-order to network-order
  * @param networkValue a 32-bit number in network-order
  * @return the given number in host-order
  */
-uint32_t ntoh(uint32_t networkValue);
+uint32_t ntoh(uint32_t network_value);
 
 /**
  * Convert endianness of a 16-bit data in host-order to network-order
  * @param hostValue a 16-bit number in host-order
  * @return the given number in network-order
  */
-uint16_t hton(uint16_t hostValue);
+uint16_t hton(uint16_t host_value);
 
 /**
  * Convert endianness of a 16-bit data in host-order to network-order
  * @param networkValue a 16-bit number in network-order
  * @return the given number in host-order
  */
-uint16_t ntoh(uint16_t networkValue);
+uint16_t ntoh(uint16_t network_value);
 
 }  // namespace HAL
 }  // namespace Pufferfish

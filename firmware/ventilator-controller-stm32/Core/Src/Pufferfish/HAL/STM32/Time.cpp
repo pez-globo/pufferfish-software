@@ -21,7 +21,7 @@ void delay(uint32_t ms) { HAL_Delay(ms); }
 // magical sequence to turn on the DWT counter
 // see:
 // https://stackoverflow.com/questions/36378280/stm32-how-to-enable-dwt-cycle-counter
-bool microsDelayInit() {
+bool micros_delay_init() {
   // The following lines suppress Eclipse CDT's warning about C-style casts and
   // unresolvable fields; these come from the STM32 HAL and are false positives
 
@@ -44,7 +44,7 @@ bool microsDelayInit() {
       1;
 
   // do some random works to check that the cycle counter actually working
-  volatile int i;
+  volatile int i = 0;
   for (i = 2; i < 64; i *= i) {
   }
 
@@ -54,15 +54,15 @@ bool microsDelayInit() {
 }
 
 uint32_t micros() {
-  const uint32_t cyclesPerUs = (HAL_RCC_GetHCLKFreq() / 1000000);
+  const uint32_t cycles_per_us = (HAL_RCC_GetHCLKFreq() / 1000000);
 
   // The following lines suppress Eclipse CDT's warning about C-style casts and
   // unresolvable fields; these come from the STM32 HAL and are false positives
   return DWT->CYCCNT /  // @suppress("C-Style cast instead of C++ cast") // @suppress("Field cannot be resolved")
-         cyclesPerUs;
+         cycles_per_us;
 }
 
-void delayMicros(uint32_t microseconds) {
+void delay_micros(uint32_t microseconds) {
   // The following lines suppress Eclipse CDT's warning about C-style casts and
   // unresolvable fields; these come from the STM32 HAL and are false positives
   const uint32_t start =

@@ -85,36 +85,39 @@ namespace PF = Pufferfish;
 // those come from STM32CubeMX-generated #define constants, which we have no
 // control over
 
-PF::HAL::DigitalOutput boardLed1(
+PF::HAL::DigitalOutput board_led1(
     *LD1_GPIO_Port, LD1_Pin);  // @suppress("C-Style cast instead of C++ cast")
 
-PF::HAL::DigitalOutput alarmLedR(
+PF::HAL::DigitalOutput alarm_led_r(
     *LEDR_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
     LEDR_CNTRL_Pin);        // @suppress("C-Style cast instead of C++ cast")
-PF::HAL::DigitalOutput alarmLedG(
+PF::HAL::DigitalOutput alarm_led_g(
     *LEDG_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
     LEDG_CNTRL_Pin);        // @suppress("C-Style cast instead of C++ cast")
-PF::HAL::DigitalOutput alarmLedB(
+PF::HAL::DigitalOutput alarm_led_b(
     *LEDB_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
     LEDB_CNTRL_Pin);        // @suppress("C-Style cast instead of C++ cast")
 
-PF::HAL::DigitalOutput alarmRegHigh(
+PF::HAL::DigitalOutput alarm_reg_high(
     *ALARM1_HIGH_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
     ALARM1_HIGH_Pin);        // @suppress("C-Style cast instead of C++ cast")
-PF::HAL::DigitalOutput alarmRegMed(
+PF::HAL::DigitalOutput alarm_reg_med(
     *ALARM1_MED_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
     ALARM1_MED_Pin);        // @suppress("C-Style cast instead of C++ cast")
-PF::HAL::DigitalOutput alarmRegLow(
+PF::HAL::DigitalOutput alarm_reg_low(
     *ALARM1_LOW_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
     ALARM1_LOW_Pin);        // @suppress("C-Style cast instead of C++ cast")
-PF::HAL::DigitalOutput alarmBuzzer(
+PF::HAL::DigitalOutput alarm_buzzer(
     *ALARM2_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
     ALARM2_CNTRL_Pin);        // @suppress("C-Style cast instead of C++ cast")
 
-PF::Driver::Indicators::LEDAlarm alarmDevLed(alarmLedR, alarmLedG, alarmLedB);
-PF::Driver::Indicators::AuditoryAlarm alarmDevSound(alarmRegHigh, alarmRegMed,
-                                                    alarmRegLow, alarmBuzzer);
-PF::AlarmsManager hAlarms(alarmDevLed, alarmDevSound);
+PF::Driver::Indicators::LEDAlarm alarm_dev_led(alarm_led_r, alarm_led_g,
+                                               alarm_led_b);
+PF::Driver::Indicators::AuditoryAlarm alarm_dev_sound(alarm_reg_high,
+                                                      alarm_reg_med,
+                                                      alarm_reg_low,
+                                                      alarm_buzzer);
+PF::AlarmsManager h_alarms(alarm_dev_led, alarm_dev_sound);
 
 // Solenoid Valves
 PF::HAL::PWM drive1_ch1(htim2, TIM_CHANNEL_4);
@@ -134,25 +137,25 @@ PF::HAL::PWM drive2_ch7(htim12, TIM_CHANNEL_2);
 
 // Base I2C Devices
 PF::HAL::HALI2CDevice i2c_hal_mux1(hi2c1,
-                                   PF::Driver::I2C::TCA9548A::defaultI2CAddr);
+                                   PF::Driver::I2C::TCA9548A::default_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_sfm1(hi2c1,
-                                   PF::Driver::I2C::SFM3000::defaultI2CAddr);
+                                   PF::Driver::I2C::SFM3000::default_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_sdp1(hi2c1,
-                                   PF::Driver::I2C::SDPSensor::SDP8xxI2CAddr);
+                                   PF::Driver::I2C::SDPSensor::sdp8xx_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_sdp2(hi2c1,
-                                   PF::Driver::I2C::SDPSensor::SDP3xI2CAddr);
+                                   PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_sdp3(hi2c1,
-                                   PF::Driver::I2C::SDPSensor::SDP3xI2CAddr);
+                                   PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_abp1(
-    hi2c1, PF::Driver::I2C::HoneywellABP::ABPxxxx030PG2A3.i2cAddr);
+    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3.i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_abp2(
-    hi2c1, PF::Driver::I2C::HoneywellABP::ABPxxxx030PG2A3.i2cAddr);
+    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3.i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_abp3(
-    hi2c1, PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3.i2cAddr);
+    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx005pg2a3.i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_abp4(
-    hi2c1, PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3.i2cAddr);
+    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx005pg2a3.i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_abp5(
-    hi2c1, PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3.i2cAddr);
+    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx005pg2a3.i2c_addr);
 
 // I2C Mux
 PF::Driver::I2C::TCA9548A i2c_mux1(i2c_hal_mux1);
@@ -172,15 +175,15 @@ PF::Driver::I2C::SDPSensor i2c_sdp1(i2c_hal_sdp1);
 PF::Driver::I2C::SDPSensor i2c_sdp2(i2c_ext_sdp2);
 PF::Driver::I2C::SDPSensor i2c_sdp3(i2c_ext_sdp3);
 PF::Driver::I2C::HoneywellABP i2c_abp1(
-    i2c_ext_abp1, PF::Driver::I2C::HoneywellABP::ABPxxxx030PG2A3);
+    i2c_ext_abp1, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3);
 PF::Driver::I2C::HoneywellABP i2c_abp2(
-    i2c_ext_abp2, PF::Driver::I2C::HoneywellABP::ABPxxxx030PG2A3);
+    i2c_ext_abp2, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3);
 PF::Driver::I2C::HoneywellABP i2c_abp3(
-    i2c_ext_abp3, PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3);
+    i2c_ext_abp3, PF::Driver::I2C::HoneywellABP::abpxxxx005pg2a3);
 PF::Driver::I2C::HoneywellABP i2c_abp4(
-    i2c_ext_abp4, PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3);
+    i2c_ext_abp4, PF::Driver::I2C::HoneywellABP::abpxxxx005pg2a3);
 PF::Driver::I2C::HoneywellABP i2c_abp5(
-    i2c_ext_abp5, PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3);
+    i2c_ext_abp5, PF::Driver::I2C::HoneywellABP::abpxxxx005pg2a3);
 
 // Test list
 PF::Driver::Testable *i2c_test_list[] = {
@@ -267,22 +270,22 @@ int main(void)
   MX_TIM8_Init();
   MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
-  PF::HAL::microsDelayInit();
+  PF::HAL::micros_delay_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1) {
-    PF::AlarmManagerStatus stat = hAlarms.update(PF::HAL::millis());
+  while (true) {
+    PF::AlarmManagerStatus stat = h_alarms.update(PF::HAL::millis());
     if (stat != PF::AlarmManagerStatus::ok) {
       Error_Handler();
     }
-    boardLed1.write(false);
+    board_led1.write(false);
     PF::HAL::delay(5);
-    boardLed1.write(true);
+    board_led1.write(true);
     for (PF::Driver::Testable *t : i2c_test_list) {
       if (t->test() != PF::I2CDeviceStatus::ok) {
-        boardLed1.write(false);
+        board_led1.write(false);
       }
     }
     PF::HAL::delay(500);

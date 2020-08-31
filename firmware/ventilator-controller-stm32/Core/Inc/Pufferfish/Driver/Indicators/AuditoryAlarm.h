@@ -28,24 +28,27 @@ class AuditoryAlarm : public AlarmDevice {
    * @param regLow  output for the regulatory low alarm pin
    * @param buzzer  output for the general purpose buzzer pin
    */
-  AuditoryAlarm(HAL::DigitalOutput &regHigh, HAL::DigitalOutput &regMed,
-                HAL::DigitalOutput &regLow, HAL::DigitalOutput &buzzer)
-      : mRegHigh(regHigh), mRegMed(regMed), mRegLow(regLow), mBuzzer(buzzer) {}
+  AuditoryAlarm(HAL::DigitalOutput &reg_high, HAL::DigitalOutput &reg_med,
+                HAL::DigitalOutput &reg_low, HAL::DigitalOutput &buzzer)
+      : reg_high_(reg_high),
+        reg_med_(reg_med),
+        reg_low_(reg_low),
+        buzzer_(buzzer) {}
 
-  AlarmManagerStatus update(uint32_t currentTime) override;
-  AlarmManagerStatus setAlarm(AlarmStatus a) override;
+  AlarmManagerStatus update(uint32_t current_time) override;
+  AlarmManagerStatus set_alarm(AlarmStatus a) override;
 
  private:
-  HAL::DigitalOutput &mRegHigh;
-  HAL::DigitalOutput &mRegMed;
-  HAL::DigitalOutput &mRegLow;
-  HAL::DigitalOutput &mBuzzer;
+  HAL::DigitalOutput &reg_high_;
+  HAL::DigitalOutput &reg_med_;
+  HAL::DigitalOutput &reg_low_;
+  HAL::DigitalOutput &buzzer_;
 
-  bool mReset = false;
-  bool mOutHigh = false, mOutMed = false, mOutLow = false;
-  uint32_t mBuzzerPulsePeriod = 0, mBuzzerPulseDuty = 0;
-  bool mBuzzerSwitching = false;
-  uint32_t mLastCycle = 0;
+  bool reset_ = false;
+  bool out_high_ = false, out_med_ = false, out_low_ = false;
+  uint32_t buzzer_pulse_period_ = 0, buzzer_pulse_duty_ = 0;
+  bool buzzer_switching_ = false;
+  uint32_t last_cycle_ = 0;
 };
 
 }  // namespace Indicators

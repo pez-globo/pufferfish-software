@@ -20,7 +20,7 @@ namespace HAL {
  */
 class I2CDevice {
  public:
-  virtual ~I2CDevice() {}
+  virtual ~I2CDevice() = default;
 
   /**
    * Reads data from the device

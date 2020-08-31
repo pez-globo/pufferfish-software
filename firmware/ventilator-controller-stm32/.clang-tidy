@@ -1,5 +1,5 @@
 ---
-Checks:          'clang-diagnostic-*,clang-analyzer-*,bugprone-*,cert-*,clang-analyzer-*,cppcoreguidelines-*,google-*,hicpp-*,llvm-*,misc-*,modernize-*,performance-*,readability-*,-google-runtime-references,-modernize-use-trailing-return-type'
+Checks:          'clang-diagnostic-*,clang-analyzer-*,bugprone-*,cert-*,cppcoreguidelines-*,google-*,hicpp-avoid-goto,hicpp-exception-baseclass,hicpp-multiway-paths-covered,hicpp-no-assembler,hicpp-signed-bitwise,llvm-*,misc-*,modernize-*,performance-*,readability-*,-cert-con36-c,-cert-con54-cpp,-cert-dcl03-c,-cert-dcl16-c,-cert-dcl37-c,-cert-dcl51-cpp,-cert-dcl54-cpp,-cert-dcl59-cpp,-cert-err09-cpp,-cert-err61-cpp,-cert-fio38-c,-cert-msc30-c,-cert-msc32-c,-cert-oop11-cpp,-cert-oop54-cpp,-cert-pos44-c,-cert-str34-c,-cppcoreguidelines-avoid-c-arrays,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-c-copy-assignment-signature,-cppcoreguidelines-explicit-virtual-functions,-google-readability-braces-around-statements,-google-readability-function-size,-google-readability-namespace-comments,-google-runtime-references,-llvm-header-guard,-llvm-else-after-return,-llvm-qualified-auto,-modernize-use-trailing-return-type,-readability-implicit-bool-conversion'
 WarningsAsErrors: '*'
 HeaderFilterRegex: 'Core/Inc/.*'
 AnalyzeTemporaryDtors: false
@@ -424,14 +424,14 @@ CheckOptions:
     value:           'lower_case'
   - key:             readability-identifier-naming.PrivateMemberCase
     value:           'lower_case'
-  - key:             readability-identifier-naming.PrivateMemberPrefix
-    value:           'm'
+  - key:             readability-identifier-naming.PrivateMemberSuffix
+    value:           '_'
   - key:             readability-identifier-naming.PrivateMethodCase
     value:           'lower_case'
   - key:             readability-identifier-naming.ProtectedMemberCase
     value:           'lower_case'
-  - key:             readability-identifier-naming.ProtectedMemberPrefix
-    value:           'm'
+  - key:             readability-identifier-naming.ProtectedMemberSuffix
+    value:           '_'
   - key:             readability-identifier-naming.ProtectedMethodCase
     value:           'lower_case'
   - key:             readability-identifier-naming.PublicMemberCase

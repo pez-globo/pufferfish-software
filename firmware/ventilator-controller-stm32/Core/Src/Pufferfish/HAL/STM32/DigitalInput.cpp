@@ -10,7 +10,7 @@ namespace Pufferfish {
 namespace HAL {
 
 bool DigitalInput::read() {
-  return HAL_GPIO_ReadPin(&mPort, mPin) == GPIO_PIN_SET;
+  return HAL_GPIO_ReadPin(&port_, pin) == GPIO_PIN_SET;
 }
 
 }  // namespace HAL

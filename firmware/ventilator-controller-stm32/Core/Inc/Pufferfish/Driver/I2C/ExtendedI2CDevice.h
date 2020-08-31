@@ -28,16 +28,16 @@ class ExtendedI2CDevice : public HAL::I2CDevice {
    * @param extSlot the location in the multiplexer to which the device is
    * connected
    */
-  ExtendedI2CDevice(I2CDevice &dev, I2CMux &mux, uint8_t extSlot)
-      : mDev(dev), mMux(mux), mExtSlot(extSlot) {}
+  ExtendedI2CDevice(I2CDevice &dev, I2CMux &mux, uint8_t ext_slot)
+      : dev_(dev), mux_(mux), ext_slot(ext_slot) {}
 
   I2CDeviceStatus read(uint8_t *buf, size_t count) override;
   I2CDeviceStatus write(uint8_t *buf, size_t count) override;
 
  private:
-  I2CDevice &mDev;
-  I2CMux &mMux;
-  const uint8_t mExtSlot;
+  I2CDevice &dev_;
+  I2CMux &mux_;
+  const uint8_t ext_slot;
 };
 
 }  // namespace I2C

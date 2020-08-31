@@ -45,7 +45,7 @@ namespace I2C {
  * All data in a reading from the Sensirion SDP differential pressure sensor.
  */
 struct SDPSample {
-  float differentialPressure;
+  float differential_pressure;
   float temperature;
 };
 
@@ -54,36 +54,36 @@ struct SDPSample {
  */
 class SDPSensor : public Testable {
  public:
-  static const uint16_t SDP3xI2CAddr = 0x21;
-  static const uint16_t SDP8xxI2CAddr = 0x25;
+  static const uint16_t sdp3x_i2c_addr = 0x21;
+  static const uint16_t sdp8xx_i2c_addr = 0x25;
 
   // Cppcheck false positive, dev cannot be given to SensirionSensor ctor as
   // const ref cppcheck-suppress constParameter
-  explicit SDPSensor(HAL::I2CDevice &dev) : mSensirion(dev) {}
+  explicit SDPSensor(HAL::I2CDevice &dev) : sensirion_(dev) {}
 
   /**
    * start continuously making measurements in sensor
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus startContinuous(bool averaging = true);
+  I2CDeviceStatus start_continuous(bool averaging = true);
 
   /**
    * wait for sensor to start continuously making measurements
    */
-  void startContinuousWait(bool stabilize = true);
+  static void start_continuous_wait(bool stabilize = true);
 
   /**
    * read continuously-measured data from sensor
    * @param sample[out] the sensor reading; only valid on success
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus readSample(SDPSample &sample);
+  I2CDeviceStatus read_sample(SDPSample &sample);
 
   /**
    * stop continuously making measurements in sensor
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus stopContinuous();
+  I2CDeviceStatus stop_continuous();
 
   /**
    * Reads the serial and product number
@@ -91,16 +91,17 @@ class SDPSensor : public Testable {
    * @param sn[out] the unique serial number
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus serialNumber(uint32_t &pn, uint64_t &sn);
+  I2CDeviceStatus serial_number(uint32_t &pn, uint64_t &sn);
 
   I2CDeviceStatus reset() override;
   I2CDeviceStatus test() override;
 
  private:
-  SensirionSensor mSensirion;
-  bool mMeasuring = false;
+  SensirionSensor sensirion_;
+  bool measuring_ = false;
 
-  void parseReading(uint8_t data[], uint8_t size, SDPSample &sample);
+  static void parse_reading(const uint8_t data[], uint8_t size,
+                            SDPSample &sample);
 };
 
 }  // namespace I2C

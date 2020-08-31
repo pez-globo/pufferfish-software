@@ -29,20 +29,20 @@ class LEDAlarm : public AlarmDevice {
    */
   LEDAlarm(HAL::DigitalOutput &red, HAL::DigitalOutput &green,
            HAL::DigitalOutput &blue)
-      : mRed(red), mGreen(green), mBlue(blue) {}
+      : red_(red), green_(green), blue_(blue) {}
 
-  AlarmManagerStatus update(uint32_t currentTime) override;
-  AlarmManagerStatus setAlarm(AlarmStatus a) override;
+  AlarmManagerStatus update(uint32_t current_time) override;
+  AlarmManagerStatus set_alarm(AlarmStatus a) override;
 
  private:
-  HAL::DigitalOutput &mRed;
-  HAL::DigitalOutput &mGreen;
-  HAL::DigitalOutput &mBlue;
+  HAL::DigitalOutput &red_;
+  HAL::DigitalOutput &green_;
+  HAL::DigitalOutput &blue_;
 
-  bool mReset = false;
-  bool mOutRed = false, mOutGreen = false, mOutBlue = false;
-  uint32_t mPeriod = 0;
-  uint32_t mLastCycle = 0;
+  bool reset_ = false;
+  bool out_red_ = false, out_green_ = false, out_blue_ = false;
+  uint32_t period_ = 0;
+  uint32_t last_cycle_ = 0;
 };
 
 }  // namespace Indicators

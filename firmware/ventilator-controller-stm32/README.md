@@ -133,7 +133,7 @@ the compile commands database and become unable to find header files from our pr
 For example, you can use the following to apply suggested fixes:
 ```
 ./cmake.sh Debug $TOOLCHAIN_PATH  # run from the firmware/ventilator-controller-stm32 directory
-./clang-tidy-all.sh --fix
+./clang-tidy-all.sh --fix --fix-errors
 ```
 
 Every time you create or delete a file, you will need to use CMake to re-generate
@@ -144,6 +144,36 @@ We have disabled the following checks:
 - google-runtime-references: we use non-const references as output parameters and for dependency injection in constructors.
 - modernize-use-trailing-return-type: we use the more traditional `int foo()` style of defining functions, rather than the `auto foo() -> int` style recommended by this check.
 - readability-implicit-bool-conversion: we commonly use implicit bool cast of pointers and numbers.
+
+We have also disabled the following check alises to enabled checks:
+
+- cert-con36-c: this is a duplicate of bugprone-spuriously-wake-up-functions.
+- cert-con54-cpp: this is a duplicate of bugprone-spuriously-wake-up-functions.
+- cert-dcl03-c: this is a duplicate of misc-static-assert.
+- cert-dcl16-c: this is a duplicate of readability-uppercase-literal-suffix.
+- cert-dcl37-c: this is a duplicate of bugprone-reserved-identifier.
+- cert-dcl51-cpp: this is a duplicate of bugprone-reserved-identifier.
+- cert-dcl54-cpp: this is a duplicate of misc-new-delete-overloads.
+- cert-dcl59-cpp: this is a duplicate of google-build-namespaces.
+- cert-err09-cpp: this is a duplicate of misc-throw-by-value-catch-by-reference.
+- cert-err61-cpp: this is a duplicate of misc-throw-by-value-catch-by-reference.
+- cert-fio38-c: this is a duplicate of misc-non-copyable-objects.
+- cert-msc30-c: this is a duplicate of cert-msc50-cpp.
+- cert-msc32-c: this is a duplicate of cert-msc51-cpp.
+- cert-oop11-cpp: this is a duplicate of performance-move-constructor-init.
+- cert-oop54-cpp: this is a duplicate of bugprone-unhandled-self-assignment.
+- cert-pos44-c: this is a duplicate of bugprone-bad-signal-to-kill-thread.
+- cert-str34-c: this is a duplicate of bugprone-signed-char-misuse.
+- cppcoreguidelines-avoid-c-arrays: this is a duplicate of modernize-avoid-c-arrays.
+- cppcoreguidelines-avoid-magic-numbers: this is a duplicate of readability-magic-numbers.
+- cppcoreguidelines-c-copy-assignment-signature: this is a duplicate of misc-unconventional-assign-operator.
+- cppcoreguidelines-explicit-virtual-functions: this is a duplicate of modernize-use-override.
+- google-readability-braces-around-statements: this is a duplicate of readability-braces-around-statements.
+- google-readability-function-size: this is a duplicate of readability-function-size.
+- google-readability-namespace-comments: this is a duplicate of llvm-namespace-comment.
+- llvm-else-after-return: this is a duplicate of readability-else-after-return.
+- llvm-qualified-auto: this is a duplicate of readability-qualified-auto.
+
 
 
 ## Running

@@ -27,7 +27,7 @@ class PWM {
    * init in PWM mode
    */
   PWM(TIM_HandleTypeDef &htim, uint32_t channel)
-      : mHtim(htim), mChannel(channel) {}
+      : htim_(htim), channel(channel) {}
 
   /**
    * Set a duty cycle of PWM, can be done when PWM is active
@@ -35,7 +35,7 @@ class PWM {
    * @param duty    a number between 0.0 and 1.0 (inclusive) for the desired
    * duty cycle
    */
-  PWMStatus setDutyCycle(float duty);
+  PWMStatus set_duty_cycle(float duty);
 
   /**
    * Set a duty cycle of PWM, can be done when PWM is active
@@ -44,7 +44,7 @@ class PWM {
    * @param duty    an integer between 0 and getMaxDutyCycle() (inclusive) for
    * the desired duty cycle
    */
-  void setDutyCycleRaw(uint32_t duty);
+  void set_duty_cycle_raw(uint32_t duty);
 
   /**
    * Start the PWM output
@@ -62,11 +62,11 @@ class PWM {
    * Returns the maximum duty cycle that can be set with setDutyCycleRaw()
    * @return the maximum duty cycle
    */
-  uint32_t getMaxDutyCycle();
+  uint32_t get_max_duty_cycle();
 
  private:
-  TIM_HandleTypeDef &mHtim;
-  const uint32_t mChannel;
+  TIM_HandleTypeDef &htim_;
+  const uint32_t channel;
 };
 
 } /* namespace HAL */

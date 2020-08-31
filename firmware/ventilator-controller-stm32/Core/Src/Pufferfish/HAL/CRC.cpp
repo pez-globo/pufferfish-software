@@ -9,14 +9,14 @@
 namespace Pufferfish {
 namespace HAL {
 
-uint8_t computeCRC8(const uint8_t *data, int size, const uint8_t polynomial,
-                    uint8_t init, bool refIn, bool refOut, uint8_t xorOut) {
+uint8_t compute_crc8(const uint8_t *data, int size, const uint8_t polynomial,
+                     uint8_t init, bool ref_in, bool ref_out, uint8_t xor_out) {
   uint8_t crc = init;
 
-  uint8_t byteCtr;
+  uint8_t byte_ctr = 0;
   // calculates 8-Bit checksum with given polynomial
-  for (byteCtr = 0; byteCtr < size; ++byteCtr) {
-    crc ^= refIn ? reflect8(data[byteCtr]) : (data[byteCtr]);
+  for (byte_ctr = 0; byte_ctr < size; ++byte_ctr) {
+    crc ^= ref_in ? reflect8(data[byte_ctr]) : (data[byte_ctr]);
     for (uint8_t bit = 8; bit > 0; --bit) {
       if (crc & 0x80) {
         crc = (crc << 1) ^ polynomial;
@@ -26,23 +26,23 @@ uint8_t computeCRC8(const uint8_t *data, int size, const uint8_t polynomial,
     }
   }
 
-  if (refOut) {
+  if (ref_out) {
     crc = reflect8(crc);
   }
 
-  return crc ^ xorOut;
+  return crc ^ xor_out;
 }
 
 uint8_t reflect8(uint8_t num) {
-  uint8_t resVal = 0;
+  uint8_t res_val = 0;
 
   for (int i = 0; i < 8; i++) {
     if ((num & (1 << i)) != 0) {
-      resVal |= static_cast<uint8_t>(1 << (7 - i));
+      res_val |= static_cast<uint8_t>(1 << (7 - i));
     }
   }
 
-  return resVal;
+  return res_val;
 }
 
 }  // namespace HAL

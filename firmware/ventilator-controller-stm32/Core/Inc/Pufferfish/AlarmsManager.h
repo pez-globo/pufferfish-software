@@ -27,10 +27,10 @@ class AlarmsManager {
    */
   AlarmsManager(Driver::Indicators::AlarmDevice &led,
                 Driver::Indicators::AlarmDevice &auditory)
-      : mAlarmsCnt{},
-        mActive(AlarmStatus::noAlarm),
-        mLED(led),
-        mAuditory(auditory) {}
+      : alarms_cnt_{},
+        active_(AlarmStatus::no_alarm),
+        led_(led),
+        auditory_(auditory) {}
 
   /**
    * Adds an alarm to the currently active list of alarms
@@ -53,23 +53,23 @@ class AlarmsManager {
    * @param currentTime current system time, in ms
    * @return ok if the update is successful, error code otherwise
    */
-  AlarmManagerStatus update(uint32_t currentTime);
+  AlarmManagerStatus update(uint32_t current_time);
 
   /**
    * Get the alarm currently outputted by the system
    * @return the alarm currently displayed
    */
-  AlarmStatus getActive();
+  AlarmStatus get_active();
 
  private:
-  uint32_t mAlarmsCnt[static_cast<int>(AlarmStatus::noAlarm)];
-  AlarmStatus mActive;
-  bool mUpdated = false;
+  uint32_t alarms_cnt_[static_cast<int>(AlarmStatus::no_alarm)];
+  AlarmStatus active_;
+  bool updated_ = false;
 
-  Driver::Indicators::AlarmDevice &mLED;
-  Driver::Indicators::AlarmDevice &mAuditory;
+  Driver::Indicators::AlarmDevice &led_;
+  Driver::Indicators::AlarmDevice &auditory_;
 
-  void updateActive();
+  void update_active();
 };
 
 }  // namespace Pufferfish

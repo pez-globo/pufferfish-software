@@ -14,29 +14,29 @@
 namespace Pufferfish {
 namespace HAL {
 
-PWMStatus PWM::setDutyCycle(float duty) {
+PWMStatus PWM::set_duty_cycle(float duty) {
   if (duty < 0.0 || duty > 1.0) {
-    return PWMStatus::invalidDutyCycle;
+    return PWMStatus::invalid_duty_cycle;
   }
-  setDutyCycleRaw(static_cast<uint32_t>(duty * getMaxDutyCycle()));
+  set_duty_cycle_raw(static_cast<uint32_t>(duty * get_max_duty_cycle()));
   return PWMStatus::ok;
 }
 
-void PWM::setDutyCycleRaw(uint32_t duty) {
-  __HAL_TIM_SET_COMPARE(&mHtim, mChannel, duty);
+void PWM::set_duty_cycle_raw(uint32_t duty) {
+  __HAL_TIM_SET_COMPARE(&htim_, channel, duty);
 }
 
 PWMStatus PWM::start() {
-  HAL_StatusTypeDef stat = HAL_TIM_PWM_Start(&mHtim, mChannel);
-  return stat == HAL_OK ? PWMStatus::ok : PWMStatus::halError;
+  HAL_StatusTypeDef stat = HAL_TIM_PWM_Start(&htim_, channel);
+  return stat == HAL_OK ? PWMStatus::ok : PWMStatus::hal_error;
 }
 
 PWMStatus PWM::stop() {
-  HAL_StatusTypeDef stat = HAL_TIM_PWM_Stop(&mHtim, mChannel);
-  return stat == HAL_OK ? PWMStatus::ok : PWMStatus::halError;
+  HAL_StatusTypeDef stat = HAL_TIM_PWM_Stop(&htim_, channel);
+  return stat == HAL_OK ? PWMStatus::ok : PWMStatus::hal_error;
 }
 
-uint32_t PWM::getMaxDutyCycle() { return __HAL_TIM_GET_AUTORELOAD(&mHtim); }
+uint32_t PWM::get_max_duty_cycle() { return __HAL_TIM_GET_AUTORELOAD(&htim_); }
 
 } /* namespace HAL */
 } /* namespace Pufferfish */
