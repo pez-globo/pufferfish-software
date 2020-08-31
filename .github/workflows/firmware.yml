@@ -52,9 +52,12 @@ jobs:
       run: |
         sudo apt-get install gcc-arm-none-eabi cmake
 
-    - name: Run CMake build
+    - name: Run CMake
       run: |
         ./cmake.sh ${{ matrix.build-type }}
+
+    - name: Run make
+      run: |
         cd cmake-build-`echo ${{ matrix.build-type }} | awk '{print tolower($0)}'`
         make -j2
 
@@ -68,9 +71,12 @@ jobs:
       run: |
         sudo apt-get install gcc-arm-none-eabi cmake clang-tools
 
-    - name: Run CMake build
+    - name: Run CMake
       run: |
         ./cmake.sh Debug
+
+    - name: Run scan-build
+      run: |
         cd cmake-build-debug
         scan-build make -j2
 
@@ -84,7 +90,10 @@ jobs:
       run: |
         sudo apt-get install gcc-arm-none-eabi cmake clang-tidy
 
-    - name: Run CMake build
+    - name: Run CMake
       run: |
-        ./cmake.sh Debug
+        ./cmake.sh Clang
+
+    - name: Run clang-tidy
+      run: |
         ./clang-tidy-all.sh

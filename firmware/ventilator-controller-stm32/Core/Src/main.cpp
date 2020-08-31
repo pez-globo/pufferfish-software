@@ -27,6 +27,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <array>
+
 #include "Pufferfish/AlarmsManager.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
 #include "Pufferfish/Driver/I2C/HoneywellABP.h"
@@ -186,10 +188,10 @@ PF::Driver::I2C::HoneywellABP i2c_abp5(
     i2c_ext_abp5, PF::Driver::I2C::HoneywellABP::abpxxxx005pg2a3);
 
 // Test list
-PF::Driver::Testable *i2c_test_list[] = {
+std::array<PF::Driver::Testable *, 10> i2c_test_list{{
     &i2c_mux1, &i2c_sfm1, &i2c_sdp1, &i2c_sdp2, &i2c_sdp3,
-    &i2c_abp1, &i2c_abp2, &i2c_abp3, &i2c_abp4, &i2c_abp5};
-// PF::HAL::Testable *i2c_test_list[] = { &i2c_sdp1 };
+    &i2c_abp1, &i2c_abp2, &i2c_abp3, &i2c_abp4, &i2c_abp5
+}};
 
 /* USER CODE END PV */
 

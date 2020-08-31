@@ -1,6 +1,6 @@
 #!/bin/bash
 
-COMPILE_COMMANDS_DATABASE="-p cmake-build-debug"
+COMPILE_COMMANDS_DATABASE="-p cmake-build-clang"
 STANDARD_ARGS="$COMPILE_COMMANDS_DATABASE $@"
 
 # Set file filters
