@@ -30,7 +30,7 @@ struct SFM3000Sample {
  */
 class SFM3000 : public Testable {
  public:
-  static const uint16_t default_i2c_addr = 0x40;
+  static constexpr uint16_t default_i2c_addr = 0x40;
 
   static const int offset_flow = 32000;
   static constexpr float scale_factor_air = 140.0F;
@@ -63,6 +63,9 @@ class SFM3000 : public Testable {
   I2CDeviceStatus test() override;
 
  private:
+  static const uint8_t crc_poly = 0x31;
+  static const uint8_t crc_init = 0x00;
+
   SensirionSensor sensirion_;
   bool measuring_ = false;
   float scale_factor_;

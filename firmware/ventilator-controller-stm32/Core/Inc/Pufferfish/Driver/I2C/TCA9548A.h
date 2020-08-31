@@ -19,7 +19,7 @@ namespace I2C {
  */
 class TCA9548A : public I2CMux, public Testable {
  public:
-  static const uint16_t default_i2c_addr = 0x70;
+  static constexpr uint16_t default_i2c_addr = 0x70;
 
   explicit TCA9548A(HAL::I2CDevice &dev) : dev_(dev) {}
 
@@ -38,7 +38,8 @@ class TCA9548A : public I2CMux, public Testable {
   I2CDeviceStatus reset() override;
 
  private:
-  uint8_t current_slot_ = 0xFF;
+  static const uint8_t default_slot = 0xff;
+  uint8_t current_slot_ = default_slot;
   HAL::I2CDevice &dev_;
 };
 

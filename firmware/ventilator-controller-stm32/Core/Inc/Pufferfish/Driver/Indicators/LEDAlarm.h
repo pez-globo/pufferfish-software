@@ -12,6 +12,14 @@
 #include "AlarmDevice.h"
 #include "Pufferfish/HAL/HAL.h"
 
+struct LEDAlarmParameters {
+  bool out_high;
+  bool out_med;
+  bool out_low;
+  uint32_t buzzer_pulse_period;
+  uint32_t buzzer_pulse_duty;
+};
+
 namespace Pufferfish {
 namespace Driver {
 namespace Indicators {
@@ -35,13 +43,19 @@ class LEDAlarm : public AlarmDevice {
   AlarmManagerStatus set_alarm(AlarmStatus a) override;
 
  private:
+  struct Parameters {
+    bool out_red;
+    bool out_green;
+    bool out_blue;
+    uint32_t period;
+  };
+
   HAL::DigitalOutput &red_;
   HAL::DigitalOutput &green_;
   HAL::DigitalOutput &blue_;
 
   bool reset_ = false;
-  bool out_red_ = false, out_green_ = false, out_blue_ = false;
-  uint32_t period_ = 0;
+  Parameters parameters_{false, false, false, 0};
   uint32_t last_cycle_ = 0;
 };
 

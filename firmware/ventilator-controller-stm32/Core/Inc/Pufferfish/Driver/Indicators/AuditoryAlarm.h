@@ -39,14 +39,21 @@ class AuditoryAlarm : public AlarmDevice {
   AlarmManagerStatus set_alarm(AlarmStatus a) override;
 
  private:
+  struct Parameters {
+    bool out_high;
+    bool out_med;
+    bool out_low;
+    uint32_t buzzer_pulse_period;
+    uint32_t buzzer_pulse_duty;
+  };
+
   HAL::DigitalOutput &reg_high_;
   HAL::DigitalOutput &reg_med_;
   HAL::DigitalOutput &reg_low_;
   HAL::DigitalOutput &buzzer_;
 
   bool reset_ = false;
-  bool out_high_ = false, out_med_ = false, out_low_ = false;
-  uint32_t buzzer_pulse_period_ = 0, buzzer_pulse_duty_ = 0;
+  Parameters parameters_{false, false, false, 0, 0};
   bool buzzer_switching_ = false;
   uint32_t last_cycle_ = 0;
 };

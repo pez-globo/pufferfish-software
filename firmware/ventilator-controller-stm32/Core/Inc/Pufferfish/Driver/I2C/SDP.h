@@ -33,6 +33,8 @@
 
 #pragma once
 
+#include <array>
+
 #include "Pufferfish/Driver/Testable.h"
 #include "Pufferfish/HAL/HAL.h"
 #include "SensirionSensor.h"
@@ -54,8 +56,8 @@ struct SDPSample {
  */
 class SDPSensor : public Testable {
  public:
-  static const uint16_t sdp3x_i2c_addr = 0x21;
-  static const uint16_t sdp8xx_i2c_addr = 0x25;
+  static constexpr uint16_t sdp3x_i2c_addr = 0x21;
+  static constexpr uint16_t sdp8xx_i2c_addr = 0x25;
 
   // Cppcheck false positive, dev cannot be given to SensirionSensor ctor as
   // const ref cppcheck-suppress constParameter
@@ -97,10 +99,15 @@ class SDPSensor : public Testable {
   I2CDeviceStatus test() override;
 
  private:
+  static const uint8_t crc_poly = 0x31;
+  static const uint8_t crc_init = 0xff;
+
+  static const size_t full_reading_size = 6;
+
   SensirionSensor sensirion_;
   bool measuring_ = false;
 
-  static void parse_reading(const uint8_t data[], uint8_t size,
+  static void parse_reading(const std::array<uint8_t, full_reading_size> &data,
                             SDPSample &sample);
 };
 

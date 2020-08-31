@@ -8,15 +8,20 @@
 
 #include "Pufferfish/Driver/I2C/SFM3000.h"
 
+#include <array>
+
 #include "Pufferfish/HAL/STM32/Endian.h"
+#include "Pufferfish/Util/Parse.h"
 
 namespace Pufferfish {
 namespace Driver {
 namespace I2C {
 
 I2CDeviceStatus SFM3000::start_measure() {
-  uint8_t cmd[] = {0x10, 0x00};
-  I2CDeviceStatus ret = sensirion_.write(cmd, sizeof(cmd));
+  static const uint8_t start_high = 0x10;
+  static const uint8_t start_low = 0x00;
+  std::array<uint8_t, 2> cmd{{start_high, start_low}};
+  I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
@@ -26,26 +31,25 @@ I2CDeviceStatus SFM3000::start_measure() {
 }
 
 I2CDeviceStatus SFM3000::serial_number(uint32_t &sn) {
-  uint8_t cmd[] = {0x31, 0xAE};
+  static const uint8_t serial_high = 0x31;
+  static const uint8_t serial_low = 0xae;
+  std::array<uint8_t, 2> cmd{{serial_high, serial_low}};
   measuring_ = false;
 
-  I2CDeviceStatus ret = sensirion_.write(cmd, sizeof(cmd));
+  I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
 
-  union Uint32Buffer {
-    uint8_t bytes[sizeof(sn)];
-    uint32_t value;
-  } buffer{};
-
-  I2CDeviceStatus ret2 =
-      sensirion_.read_with_crc(buffer.bytes, sizeof(buffer.bytes), 0x31, 0x00);
+  std::array<uint8_t, sizeof(uint32_t)> buffer{};
+  I2CDeviceStatus ret2 = sensirion_.read_with_crc(buffer.data(), buffer.size(),
+                                                  crc_poly, crc_init);
   if (ret2 != I2CDeviceStatus::ok) {
     return ret2;
   }
 
-  sn = Pufferfish::HAL::ntoh(buffer.value);
+  sn = HAL::ntoh(
+      Util::parse_network_order<uint32_t>(buffer.data(), buffer.size()));
   return I2CDeviceStatus::ok;
 }
 
@@ -59,30 +63,29 @@ I2CDeviceStatus SFM3000::read_sample(SFM3000Sample &sample) {
     HAL::delay(1);
   }
 
-  union Uint16Buffer {
-    uint8_t bytes[sizeof(uint16_t)];
-    uint16_t value;
-  } buffer{};
-
-  I2CDeviceStatus ret =
-      sensirion_.read_with_crc(buffer.bytes, sizeof(buffer.bytes), 0x31, 0x00);
+  std::array<uint8_t, sizeof(uint16_t)> buffer{};
+  I2CDeviceStatus ret = sensirion_.read_with_crc(buffer.data(), buffer.size(),
+                                                 crc_poly, crc_init);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
 
-  sample.raw_flow = Pufferfish::HAL::ntoh(buffer.value);
+  sample.raw_flow = HAL::ntoh(
+      Util::parse_network_order<uint16_t>(buffer.data(), buffer.size()));
 
   // convert to actual flow rate
-  sample.flow = static_cast<int>(sample.raw_flow - offset_flow) / scale_factor_;
+  sample.flow = (sample.raw_flow - offset_flow) / scale_factor_;
 
   return I2CDeviceStatus::ok;
 }
 
 I2CDeviceStatus SFM3000::reset() {
-  uint8_t cmd[] = {0x20, 0x00};
+  static const uint8_t reset_high = 0x20;
+  static const uint8_t reset_low = 0x00;
+  std::array<uint8_t, 2> cmd{{reset_high, reset_low}};
   measuring_ = false;
 
-  I2CDeviceStatus ret = sensirion_.write(cmd, sizeof(cmd));
+  I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
@@ -118,7 +121,9 @@ I2CDeviceStatus SFM3000::test() {
   }
 
   // pressure range: -200 to 200
-  if (sample.flow < -200.0 || sample.flow > 200.0) {
+  static const float flow_min = -200;
+  static const float flow_max = 200;
+  if (sample.flow < flow_min || sample.flow > flow_max) {
     return I2CDeviceStatus::test_failed;
   }
 

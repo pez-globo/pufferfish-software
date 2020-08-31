@@ -6,6 +6,8 @@
 
 #include "Pufferfish/Driver/I2C/SensirionSensor.h"
 
+#include <array>
+
 #include "Pufferfish/HAL/CRC.h"
 
 namespace Pufferfish {
@@ -19,16 +21,16 @@ I2CDeviceStatus SensirionSensor::read_with_crc(uint8_t *buf, size_t count,
     return I2CDeviceStatus::invalid_arguments;
   }
 
-  uint8_t buf_crc[3];
+  std::array<uint8_t, 3> buf_crc{};
 
   for (; count > 0; count -= 2, buf += 2) {
-    I2CDeviceStatus ret = dev_.read(buf_crc, sizeof(buf_crc));
+    I2CDeviceStatus ret = dev_.read(buf_crc.data(), buf_crc.size());
     if (ret != I2CDeviceStatus::ok) {
       return ret;
     }
 
-    uint8_t expected = Pufferfish::HAL::compute_crc8(buf_crc, 2, polynomial,
-                                                     init, false, false, 0x00);
+    uint8_t expected = Pufferfish::HAL::compute_crc8(
+        buf_crc.data(), 2, polynomial, init, false, false, 0x00);
     if (expected != buf_crc[2]) {
       return I2CDeviceStatus::crc_check_failed;
     }

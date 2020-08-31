@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <array>
+
 #include "Pufferfish/Driver/Indicators/AlarmDevice.h"
 #include "Pufferfish/Statuses.h"
 #include "Pufferfish/Types.h"
@@ -27,10 +29,7 @@ class AlarmsManager {
    */
   AlarmsManager(Driver::Indicators::AlarmDevice &led,
                 Driver::Indicators::AlarmDevice &auditory)
-      : alarms_cnt_{},
-        active_(AlarmStatus::no_alarm),
-        led_(led),
-        auditory_(auditory) {}
+      : led_(led), auditory_(auditory) {}
 
   /**
    * Adds an alarm to the currently active list of alarms
@@ -62,9 +61,8 @@ class AlarmsManager {
   AlarmStatus get_active();
 
  private:
-  uint32_t alarms_cnt_[static_cast<int>(AlarmStatus::no_alarm)];
-  AlarmStatus active_;
-  bool updated_ = false;
+  std::array<uint32_t, static_cast<int>(AlarmStatus::no_alarm)> alarms_cnt_{};
+  AlarmStatus active_ = AlarmStatus::no_alarm;
 
   Driver::Indicators::AlarmDevice &led_;
   Driver::Indicators::AlarmDevice &auditory_;

@@ -6,12 +6,14 @@
 
 #include "Pufferfish/Driver/I2C/TCA9548A.h"
 
+#include <climits>
+
 namespace Pufferfish {
 namespace Driver {
 namespace I2C {
 
 I2CDeviceStatus TCA9548A::select_slot(uint8_t slot) {
-  if (slot > 7) {
+  if (slot > CHAR_BIT - 1U) {
     return I2CDeviceStatus::invalid_ext_slot;
   }
 
@@ -20,7 +22,7 @@ I2CDeviceStatus TCA9548A::select_slot(uint8_t slot) {
     return I2CDeviceStatus::ok;
   }
 
-  uint8_t cmd = 1 << slot;
+  uint8_t cmd = 1U << slot;
   I2CDeviceStatus ret = dev_.write(&cmd, 1);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
@@ -40,9 +42,10 @@ I2CDeviceStatus TCA9548A::read_control_reg(uint8_t &control_reg) {
 
 I2CDeviceStatus TCA9548A::test() {
   I2CDeviceStatus status;
-  current_slot_ = 0xFF;
+  current_slot_ = default_slot;
+  static const uint8_t test_slot = 4;
 
-  status = this->select_slot(4);
+  status = this->select_slot(test_slot);
   if (status != I2CDeviceStatus::ok) {
     return status;
   }
@@ -53,7 +56,7 @@ I2CDeviceStatus TCA9548A::test() {
     return status;
   }
 
-  if (conreg != (1 << 4)) {
+  if (conreg != (1U << test_slot)) {
     return I2CDeviceStatus::test_failed;
   }
 

@@ -12,6 +12,9 @@
 
 #include "Pufferfish/Driver/I2C/HoneywellABP.h"
 
+#include <array>
+#include <climits>
+
 namespace Pufferfish {
 namespace Driver {
 namespace I2C {
@@ -21,14 +24,20 @@ constexpr ABPConfig HoneywellABP::abpxxxx005pg2a3;
 constexpr ABPConfig HoneywellABP::abpxxxx030pg2a3;
 
 I2CDeviceStatus HoneywellABP::read_sample(ABPSample &sample) {
-  uint8_t data[2] = {0};
-  I2CDeviceStatus ret = dev_.read(data, 2);
+  std::array<uint8_t, 2> data{{0, 0}};
+  I2CDeviceStatus ret = dev_.read(data.data(), data.size());
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
 
-  sample.status = ABPStatus(data[0] >> 6);
-  sample.bridge_data = (data[0] << 8 | data[1]) & 0x3FFF;
+  static const uint8_t status_shift = 6;
+  static const size_t bridge_high = 0;
+  static const size_t bridge_low = 0;
+  static const uint16_t bridge_mask = 0x3FFF;
+  sample.status = ABPStatus(data[0] >> status_shift);
+  sample.bridge_data =
+      (data[bridge_high] << static_cast<uint8_t>(CHAR_BIT)) + data[bridge_low];
+  sample.bridge_data &= bridge_mask;
   sample.pressure = raw_to_pressure(sample.bridge_data);
   sample.unit = unit;
 

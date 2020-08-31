@@ -88,30 +88,31 @@ namespace PF = Pufferfish;
 // control over
 
 PF::HAL::DigitalOutput board_led1(
-    *LD1_GPIO_Port, LD1_Pin);  // @suppress("C-Style cast instead of C++ cast")
+    *LD1_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    LD1_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 
 PF::HAL::DigitalOutput alarm_led_r(
-    *LEDR_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
-    LEDR_CNTRL_Pin);        // @suppress("C-Style cast instead of C++ cast")
+    *LEDR_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    LEDR_CNTRL_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 PF::HAL::DigitalOutput alarm_led_g(
-    *LEDG_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
-    LEDG_CNTRL_Pin);        // @suppress("C-Style cast instead of C++ cast")
+    *LEDG_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    LEDG_CNTRL_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 PF::HAL::DigitalOutput alarm_led_b(
-    *LEDB_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
-    LEDB_CNTRL_Pin);        // @suppress("C-Style cast instead of C++ cast")
+    *LEDB_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    LEDB_CNTRL_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 
 PF::HAL::DigitalOutput alarm_reg_high(
-    *ALARM1_HIGH_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
-    ALARM1_HIGH_Pin);        // @suppress("C-Style cast instead of C++ cast")
+    *ALARM1_HIGH_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    ALARM1_HIGH_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 PF::HAL::DigitalOutput alarm_reg_med(
-    *ALARM1_MED_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
-    ALARM1_MED_Pin);        // @suppress("C-Style cast instead of C++ cast")
+    *ALARM1_MED_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    ALARM1_MED_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 PF::HAL::DigitalOutput alarm_reg_low(
-    *ALARM1_LOW_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
-    ALARM1_LOW_Pin);        // @suppress("C-Style cast instead of C++ cast")
+    *ALARM1_LOW_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    ALARM1_LOW_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 PF::HAL::DigitalOutput alarm_buzzer(
-    *ALARM2_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast")
-    ALARM2_CNTRL_Pin);        // @suppress("C-Style cast instead of C++ cast")
+    *ALARM2_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    ALARM2_CNTRL_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 
 PF::Driver::Indicators::LEDAlarm alarm_dev_led(alarm_led_r, alarm_led_g,
                                                alarm_led_b);
@@ -168,8 +169,10 @@ PF::Driver::I2C::ExtendedI2CDevice i2c_ext_sdp3(i2c_hal_sdp3, i2c_mux1, 1);
 PF::Driver::I2C::ExtendedI2CDevice i2c_ext_abp1(i2c_hal_abp1, i2c_mux1, 2);
 PF::Driver::I2C::ExtendedI2CDevice i2c_ext_abp2(i2c_ext_abp2, i2c_mux1, 3);
 PF::Driver::I2C::ExtendedI2CDevice i2c_ext_abp3(i2c_ext_abp3, i2c_mux1, 4);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_abp4(i2c_ext_abp4, i2c_mux1, 5);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_abp5(i2c_ext_abp5, i2c_mux1, 6);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_abp4(
+    i2c_ext_abp4, i2c_mux1, 5);  // NOLINT(readability-magic-numbers)
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_abp5(
+    i2c_ext_abp5, i2c_mux1, 6);  // NOLINT(readability-magic-numbers)
 
 // Actual usable sensor
 PF::Driver::I2C::SFM3000 i2c_sfm1(i2c_hal_sfm1);
@@ -188,10 +191,10 @@ PF::Driver::I2C::HoneywellABP i2c_abp5(
     i2c_ext_abp5, PF::Driver::I2C::HoneywellABP::abpxxxx005pg2a3);
 
 // Test list
-std::array<PF::Driver::Testable *, 10> i2c_test_list{{
-    &i2c_mux1, &i2c_sfm1, &i2c_sdp1, &i2c_sdp2, &i2c_sdp3,
-    &i2c_abp1, &i2c_abp2, &i2c_abp3, &i2c_abp4, &i2c_abp5
-}};
+// NOLINTNEXTLINE(readability-magic-numbers)
+std::array<PF::Driver::Testable *, 10> i2c_test_list{
+    {&i2c_mux1, &i2c_sfm1, &i2c_sdp1, &i2c_sdp2, &i2c_sdp3, &i2c_abp1,
+     &i2c_abp2, &i2c_abp3, &i2c_abp4, &i2c_abp5}};
 
 /* USER CODE END PV */
 
@@ -277,20 +280,22 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  static const uint32_t blink_low_delay = 5;
+  static const uint32_t loop_delay = 500;
   while (true) {
     PF::AlarmManagerStatus stat = h_alarms.update(PF::HAL::millis());
     if (stat != PF::AlarmManagerStatus::ok) {
       Error_Handler();
     }
     board_led1.write(false);
-    PF::HAL::delay(5);
+    PF::HAL::delay(blink_low_delay);
     board_led1.write(true);
     for (PF::Driver::Testable *t : i2c_test_list) {
       if (t->test() != PF::I2CDeviceStatus::ok) {
         board_led1.write(false);
       }
     }
-    PF::HAL::delay(500);
+    PF::HAL::delay(loop_delay);
 
     /* USER CODE END WHILE */
 

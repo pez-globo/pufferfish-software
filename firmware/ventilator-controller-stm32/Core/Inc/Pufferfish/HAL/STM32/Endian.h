@@ -16,6 +16,20 @@ namespace Pufferfish {
 namespace HAL {
 
 /**
+ * Convert endianness of a 64-bit data in host-order to network-order
+ * @param hostValue a 64-bit number in host-order
+ * @return the given number in network-order
+ */
+uint64_t hton(uint64_t host_value);
+
+/**
+ * Convert endianness of a 64-bit data in host-order to network-order
+ * @param networkValue a 64-bit number in network-order
+ * @return the given number in host-order
+ */
+uint64_t ntoh(uint64_t network_value);
+
+/**
  * Convert endianness of a 32-bit data in host-order to network-order
  * @param hostValue a 32-bit number in host-order
  * @return the given number in network-order

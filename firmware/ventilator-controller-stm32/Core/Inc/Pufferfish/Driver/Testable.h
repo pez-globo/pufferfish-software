@@ -16,8 +16,6 @@ namespace Driver {
  */
 class Testable {
  public:
-  virtual ~Testable() = default;
-
   /**
    * Run test cases and return the test result
    * @return ok on success, error code otherwise

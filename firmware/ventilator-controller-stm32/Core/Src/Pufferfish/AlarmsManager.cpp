@@ -12,7 +12,7 @@
 namespace Pufferfish {
 
 AlarmManagerStatus Pufferfish::AlarmsManager::add(AlarmStatus a) {
-  int ind = static_cast<int>(a);
+  const int ind = static_cast<int>(a);
 
   if (ind < 0 || ind >= static_cast<int>(AlarmStatus::no_alarm)) {
     return AlarmManagerStatus::invalid_alarm;
@@ -25,7 +25,7 @@ AlarmManagerStatus Pufferfish::AlarmsManager::add(AlarmStatus a) {
 }
 
 AlarmManagerStatus Pufferfish::AlarmsManager::remove(AlarmStatus a) {
-  int ind = static_cast<int>(a);
+  const int ind = static_cast<int>(a);
 
   if (ind < 0 || ind >= static_cast<int>(AlarmStatus::no_alarm)) {
     return AlarmManagerStatus::invalid_alarm;

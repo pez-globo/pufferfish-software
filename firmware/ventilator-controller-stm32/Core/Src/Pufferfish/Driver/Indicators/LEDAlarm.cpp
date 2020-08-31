@@ -18,7 +18,7 @@ AlarmManagerStatus LEDAlarm::update(uint32_t current_time) {
   uint32_t blink_duration = current_time - last_cycle_;
 
   // trimming the duration to be within [0, mPeriod)
-  if (blink_duration > period_ || reset_) {
+  if (blink_duration > parameters_.period || reset_) {
     // NOTE: this is only accurate in the case that update() is being called
     //  fast enough (> 1 kHz). However, it guarantees that the "on" time will
     //  always be >= mPeriod / 2
@@ -27,11 +27,11 @@ AlarmManagerStatus LEDAlarm::update(uint32_t current_time) {
     reset_ = false;
   }
 
-  if (blink_duration < (period_ >> 1) || period_ == 0) {
+  if (blink_duration < (parameters_.period / 2) || parameters_.period == 0) {
     // on
-    red_.write(out_red_);
-    green_.write(out_green_);
-    blue_.write(out_blue_);
+    red_.write(parameters_.out_red);
+    green_.write(parameters_.out_green);
+    blue_.write(parameters_.out_blue);
   } else {
     // off
     red_.write(false);
@@ -43,53 +43,42 @@ AlarmManagerStatus LEDAlarm::update(uint32_t current_time) {
 }
 
 AlarmManagerStatus LEDAlarm::set_alarm(AlarmStatus a) {
+  static constexpr Parameters high_priority{true, false, false, 476};
+  static constexpr Parameters medium_priority{true, true, false, 16667};
+  static constexpr Parameters low_priority{false, true, true, 0};
+  static constexpr Parameters technical1{true, false, true, 2000};
+  static constexpr Parameters technical2{false, true, false, 4000};
+  static constexpr Parameters no_alarm{false, false, false, 0};
+
   reset_ = true;
 
   switch (a) {
     case AlarmStatus::high_priority:
       // red
-      out_red_ = true;
-      out_green_ = false;
-      out_blue_ = false;
       // 476 ms == 2.1 Hz
-      period_ = 476;
+      parameters_ = high_priority;
       break;
     case AlarmStatus::medium_priority:
       // red + green = yellow
-      out_red_ = true;
-      out_green_ = true;
-      out_blue_ = false;
       // 1667 ms == 0.6 Hz
-      period_ = 1667;
+      parameters_ = medium_priority;
       break;
     case AlarmStatus::low_priority:
       // green + blue = cyan
-      out_red_ = false;
-      out_green_ = true;
-      out_blue_ = true;
-      period_ = 0;
+      parameters_ = low_priority;
       break;
     case AlarmStatus::technical1:
       // blue + red = purple
-      out_red_ = true;
-      out_green_ = false;
-      out_blue_ = true;
       // 2000 ms == 0.5 Hz
-      period_ = 2000;
+      parameters_ = technical1;
       break;
     case AlarmStatus::technical2:
       // green
-      out_red_ = false;
-      out_green_ = true;
-      out_blue_ = false;
       // 4000 ms == 0.25 Hz
-      period_ = 4000;
+      parameters_ = technical2;
       break;
     case AlarmStatus::no_alarm:
-      out_red_ = false;
-      out_green_ = false;
-      out_blue_ = false;
-      period_ = 0;
+      parameters_ = no_alarm;
       break;
     default:
       return AlarmManagerStatus::invalid_alarm;

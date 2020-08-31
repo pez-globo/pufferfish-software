@@ -21,8 +21,6 @@ namespace Indicators {
  */
 class AlarmDevice {
  public:
-  virtual ~AlarmDevice() = default;
-
   /**
    * Performs necessary updates on the alarm output,
    *    must be called with frequency at least 500 Hz
