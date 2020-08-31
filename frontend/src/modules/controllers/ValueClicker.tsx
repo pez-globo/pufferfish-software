@@ -17,6 +17,7 @@ const useStyles = makeStyles((theme: Theme) => ({
         height: '100%',
         minHeight: 55,
         minWidth: 78,
+        marginLeft: theme.spacing(1)
     },
     marginBottom: { marginBottom: theme.spacing(2) },
     marginRight: { marginRight: theme.spacing(1) }

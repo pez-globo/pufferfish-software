@@ -176,7 +176,7 @@ class QuickStartPage extends React.Component {
                     </Grid>
                 </Grid>
                 <Grid item>
-                    <ModeBanner />
+                    <ModeBanner bannerType='normal'/>
                 </Grid>
             </Grid >
         )

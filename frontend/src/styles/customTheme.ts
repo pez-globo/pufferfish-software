@@ -34,14 +34,25 @@ export const darkTheme = createCustomTheme({
         },
         primary: {
             light: '#254764',
-            main: '#0053b1',
+            main: '#0053b3',
+            dark: '#124876',
             contrastText: 'white'
         },
         secondary: {
-            main: '#53d769',
+            main: '#4CD964',
         },
+        info:{
+            main: '#B2C0FC'
+        }
     },
     typography: {
+        fontFamily: [
+            'Roboto',
+            'sans-serif',
+        ].join(','),
+        body1: {
+            color: 'white'
+        },
         subtitle2: {
             fontSize: 12,
         },
@@ -66,13 +77,24 @@ export const lightTheme = createCustomTheme({
         primary: {
             light: '#96B3D3',
             main: '#0053b1',
+            dark: '#A9C2D8',
             contrastText: 'white'
         },
         secondary: {
             main: '#53d769',
         },
+        info:{
+            main:'#2c396f'
+        }
     },
     typography: {
+        fontFamily: [
+            'Roboto',
+            'sans-serif',
+        ].join(','),
+        body1:{
+            color: 'black'
+        },
         subtitle2: {
             fontSize: 12
         },

@@ -126,7 +126,7 @@ export const AlarmsPage = () => {
             </Grid>
             {/* Title */}
             <Grid item>
-                <ModeBanner />
+                <ModeBanner bannerType='normal'/>
             </Grid>
         </Grid>
     )
