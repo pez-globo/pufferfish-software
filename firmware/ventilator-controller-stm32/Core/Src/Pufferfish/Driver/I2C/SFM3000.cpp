@@ -74,7 +74,9 @@ I2CDeviceStatus SFM3000::read_sample(SFM3000Sample &sample) {
       Util::parse_network_order<uint16_t>(buffer.data(), buffer.size()));
 
   // convert to actual flow rate
-  sample.flow = (sample.raw_flow - offset_flow) / scale_factor_;
+  sample.flow =
+      static_cast<float>(static_cast<int32_t>(sample.raw_flow) - offset_flow) /
+      scale_factor_;
 
   return I2CDeviceStatus::ok;
 }

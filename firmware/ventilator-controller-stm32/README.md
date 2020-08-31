@@ -147,6 +147,7 @@ We have disabled the following checks:
 
 We have also disabled the following check alises to enabled checks:
 
+- bugprone-narrowing-conversions: this is a duplicate of cppcoreguidelines-narrowing-conversions.
 - cert-con36-c: this is a duplicate of bugprone-spuriously-wake-up-functions.
 - cert-con54-cpp: this is a duplicate of bugprone-spuriously-wake-up-functions.
 - cert-dcl03-c: this is a duplicate of misc-static-assert.

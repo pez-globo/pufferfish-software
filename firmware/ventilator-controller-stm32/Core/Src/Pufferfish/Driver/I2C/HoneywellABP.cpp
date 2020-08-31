@@ -51,8 +51,15 @@ float HoneywellABP::raw_to_pressure(uint16_t output) const {
     output = output_max;
   }
 
-  return float(output - output_min) * (pmax - pmin) /
-             (output_max - output_min) +
+  // Since these variables are uint16_t, we promote them to int32_t for signed
+  // integer subtraction
+  static const int32_t output_width =
+      static_cast<int32_t>(output_max) - static_cast<int32_t>(output_min);
+  const int32_t relative_output =
+      static_cast<int32_t>(output) - static_cast<int32_t>(output_min);
+
+  return static_cast<float>(relative_output) * (pmax - pmin) /
+             static_cast<float>(output_width) +
          pmin;
 }
 

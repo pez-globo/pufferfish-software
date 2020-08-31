@@ -163,11 +163,13 @@ void SDPSensor::parse_reading(
       (data[dp_scale_high] << sizeof(uint8_t)) + data[dp_scale_low];
 
   if (dp_scale != 0) {
-    sample.differential_pressure = dp_raw / static_cast<float>(dp_scale);
+    sample.differential_pressure =
+        static_cast<float>(dp_raw) / static_cast<float>(dp_scale);
   }
 
   static const float temp_scale = 200;
-  sample.temperature = temp_raw / temp_scale;
+  sample.temperature =
+      static_cast<float>(temp_raw) / static_cast<float>(temp_scale);
 }
 
 I2CDeviceStatus SDPSensor::reset() {
