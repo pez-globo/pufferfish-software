@@ -54,9 +54,8 @@ jobs:
 
     - name: Run CMake build
       run: |
-        mkdir cmake-build-${{ matrix.build-type }}
-        cd cmake-build-${{ matrix.build-type }}
-        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+        ./cmake.sh ${{ matrix.build-type }}
+        cd cmake-build-`echo ${{ matrix.build-type }} | awk '{print tolower($0)}'`
         make -j2
 
   scan-build:
@@ -71,7 +70,21 @@ jobs:
 
     - name: Run CMake build
       run: |
-        mkdir cmake-build-debug
+        ./cmake.sh Debug
         cd cmake-build-debug
-        cmake .. -DCMAKE_BUILD_TYPE=Debug
         scan-build make -j2
+
+  clang-tidy:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install gcc-arm-none-eabi cmake clang-tidy
+
+    - name: Run CMake build
+      run: |
+        ./cmake.sh Debug
+        ./clang-tidy-all.sh

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ERROR=0  # exit code
+
 COMPILE_COMMANDS_DATABASE="-p cmake-build-debug"
 STANDARD_ARGS="$COMPILE_COMMANDS_DATABASE $@"
 
@@ -16,13 +18,13 @@ LINE_FILTERS="[$EXCLUDE_FILTERS,$INCLUDE_FILTERS]"
 # Check source (and included header) files
 FILES=`find Core/Src/Pufferfish -iname *.cpp | xargs`
 echo clang-tidy $FILES --line-filter="$LINE_FILTERS" $STANDARD_ARGS
-clang-tidy $FILES --line-filter="$LINE_FILTERS" $STANDARD_ARGS
+clang-tidy $FILES --line-filter="$LINE_FILTERS" $STANDARD_ARGS || ERROR=1
 echo
 
 # # Check test source (and included header) files
 # FILES=`find Core/Test -iname *.cpp | xargs`
 # echo clang-tidy $FILES --line-filter="$LINE_FILTERS" $STANDARD_ARGS
-# clang-tidy $FILES --line-filter="$LINE_FILTERS" $STANDARD_ARGS
+# clang-tidy $FILES --line-filter="$LINE_FILTERS" $STANDARD_ARGS || ERROR=1
 # echo
 
 # Check STM32CubeMX auto-generated files
@@ -43,6 +45,8 @@ LINE_FILTERS=`echo "$LINE_FILTERS" | ./clang-tidy-line-filters.sh`
 LINE_FILTERS="[$LINE_FILTERS]"
 for FILE in $MX_GENERATED; do
   echo clang-tidy "$FILE" --line-filter="$LINE_FILTERS" $STANDARD_ARGS
-  clang-tidy "$FILE" --line-filter="$LINE_FILTERS" $STANDARD_ARGS
+  clang-tidy "$FILE" --line-filter="$LINE_FILTERS" $STANDARD_ARGS || ERROR=1
   echo
 done
+
+exit $ERROR
