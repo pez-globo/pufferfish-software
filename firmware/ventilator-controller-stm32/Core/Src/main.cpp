@@ -72,7 +72,6 @@ TIM_HandleTypeDef htim8;
 TIM_HandleTypeDef htim12;
 
 UART_HandleTypeDef huart4;
-UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart7;
 UART_HandleTypeDef huart8;
 UART_HandleTypeDef huart1;
@@ -84,10 +83,10 @@ namespace PF = Pufferfish;
 PF::HAL::HALDigitalOutput boardLed1(*LD1_GPIO_Port, LD1_Pin);
 
 // Interface Board
-PF::HAL::HALDigitalOutput serClock(*SER_CLK_GPIO_Port, SER_CLK_Pin);
-PF::HAL::HALDigitalOutput serClear(*SER_CLR_N_GPIO_Port, SER_CLR_N_Pin, true);
-PF::HAL::HALDigitalOutput serRClock(*SER_RCLK_GPIO_Port, SER_RCLK_Pin);
-PF::HAL::HALDigitalOutput serInput(*SER_IN_GPIO_Port, SER_IN_Pin);
+PF::HAL::HALDigitalOutput serClock(*SER_CLK_GPIO_Port, SER_CLK_Pin, true);
+PF::HAL::HALDigitalOutput serClear(*SER_CLR_N_GPIO_Port, SER_CLR_N_Pin, false);
+PF::HAL::HALDigitalOutput serRClock(*SER_RCLK_GPIO_Port, SER_RCLK_Pin, true);
+PF::HAL::HALDigitalOutput serInput(*SER_IN_GPIO_Port, SER_IN_Pin, true);
 
 PF::Driver::ShiftRegister ledsReg(serInput, serClock, serRClock, serClear);
 
@@ -202,7 +201,6 @@ static void MX_ADC3_Init(void);
 static void MX_CRC_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_UART5_Init(void);
 static void MX_UART7_Init(void);
 static void MX_UART8_Init(void);
 static void MX_USART1_UART_Init(void);
@@ -285,7 +283,6 @@ int main(void)
   MX_CRC_Init();
   MX_I2C2_Init();
   MX_TIM2_Init();
-  MX_UART5_Init();
   MX_UART7_Init();
   MX_UART8_Init();
   MX_USART1_UART_Init();
@@ -299,12 +296,16 @@ int main(void)
   /* USER CODE BEGIN 2 */
   PF::HAL::microsDelayInit();
   interface_test_millis = PF::HAL::millis();
-  hAlarms.add(PF::AlarmStatus::highPriority);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1) {
+    boardLed1.write(false);
+    PF::HAL::delay(5);
+    boardLed1.write(true);
+
     PF::AlarmManagerStatus stat = hAlarms.update(PF::HAL::millis());
     if (stat != PF::AlarmManagerStatus::ok) {
       Error_Handler();
@@ -312,16 +313,13 @@ int main(void)
     interface_test_loop();
     ledsReg.update();
 
-//    boardLed1.write(false);
-//    PF::HAL::delay(5);
-//    boardLed1.write(true);
-//    for (PF::Driver::Testable *t : i2c_test_list) {
-//      PF::I2CDeviceStatus stat = t->test();
-//      if (stat != PF::I2CDeviceStatus::ok) {
-//        boardLed1.write(false);
-//      }
-//    }
-//    PF::HAL::delay(500);
+    for (PF::Driver::Testable *t : i2c_test_list) {
+      PF::I2CDeviceStatus stat = t->test();
+      if (stat != PF::I2CDeviceStatus::ok) {
+        boardLed1.write(false);
+      }
+    }
+    PF::HAL::delay(50);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -383,16 +381,14 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV1;
   RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
-  {
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
     Error_Handler();
   }
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_UART4
-                              |RCC_PERIPHCLK_UART7|RCC_PERIPHCLK_USART1
-                              |RCC_PERIPHCLK_UART8|RCC_PERIPHCLK_UART5
-                              |RCC_PERIPHCLK_SPI1|RCC_PERIPHCLK_I2C2
-                              |RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_I2C1
-                              |RCC_PERIPHCLK_I2C4;
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_UART4
+      | RCC_PERIPHCLK_UART7 | RCC_PERIPHCLK_USART1
+      | RCC_PERIPHCLK_UART8 | RCC_PERIPHCLK_SPI1
+      | RCC_PERIPHCLK_I2C2 | RCC_PERIPHCLK_ADC
+      | RCC_PERIPHCLK_I2C1 | RCC_PERIPHCLK_I2C4;
   PeriphClkInitStruct.PLL2.PLL2M = 1;
   PeriphClkInitStruct.PLL2.PLL2N = 19;
   PeriphClkInitStruct.PLL2.PLL2P = 3;
@@ -1087,54 +1083,6 @@ static void MX_UART4_Init(void)
 }
 
 /**
-  * @brief UART5 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_UART5_Init(void)
-{
-
-  /* USER CODE BEGIN UART5_Init 0 */
-
-  /* USER CODE END UART5_Init 0 */
-
-  /* USER CODE BEGIN UART5_Init 1 */
-
-  /* USER CODE END UART5_Init 1 */
-  huart5.Instance = UART5;
-  huart5.Init.BaudRate = 115200;
-  huart5.Init.WordLength = UART_WORDLENGTH_8B;
-  huart5.Init.StopBits = UART_STOPBITS_1;
-  huart5.Init.Parity = UART_PARITY_NONE;
-  huart5.Init.Mode = UART_MODE_TX_RX;
-  huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart5.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart5.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart5.Init.ClockPrescaler = UART_PRESCALER_DIV1;
-  huart5.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_HalfDuplex_Init(&huart5) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_SetTxFifoThreshold(&huart5, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_SetRxFifoThreshold(&huart5, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_DisableFifoMode(&huart5) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN UART5_Init 2 */
-
-  /* USER CODE END UART5_Init 2 */
-
-}
-
-/**
   * @brief UART7 Initialization Function
   * @param None
   * @retval None
@@ -1358,14 +1306,15 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, ALARM1_MED_Pin | BUZZ1_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO2_Pin | GPIO1_Pin | SER_CLK_Pin | SER_CLR_N_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GPIO2_Pin | GPIO1_Pin | SER_CLK_Pin | SER_CLR_N_Pin
+      | SER_RCLK_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LD1_Pin | ALARM1_LOW_Pin | SER_IN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, MOTOR4_STEP_Pin | MOTOR1_STEP_Pin | MOTOR1_DIR_Pin | SER_RCLK_Pin
-      | LTC4421_PWR_nDISABLE1_Pin | LTC4421_PWR_nDISABLE2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, MOTOR4_STEP_Pin | MOTOR1_STEP_Pin | MOTOR1_DIR_Pin | LTC4421_PWR_nDISABLE1_Pin
+      | LTC4421_PWR_nDISABLE2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOG, PRESS_VDD_EN_Pin | I2C1_RESET_Pin | I2C2_RESET_Pin | MOTOR1_EN_Pin
@@ -1417,8 +1366,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : GPIO2_Pin GPIO1_Pin SER_CLK_Pin SER_CLR_N_Pin */
-  GPIO_InitStruct.Pin = GPIO2_Pin | GPIO1_Pin | SER_CLK_Pin | SER_CLR_N_Pin;
+  /*Configure GPIO pins : GPIO2_Pin GPIO1_Pin SER_CLK_Pin SER_CLR_N_Pin 
+                           SER_RCLK_Pin */
+  GPIO_InitStruct.Pin = GPIO2_Pin | GPIO1_Pin | SER_CLK_Pin | SER_CLR_N_Pin
+      | SER_RCLK_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1443,10 +1394,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : MOTOR4_STEP_Pin MOTOR1_STEP_Pin MOTOR1_DIR_Pin SER_RCLK_Pin 
-                           LTC4421_PWR_nDISABLE1_Pin LTC4421_PWR_nDISABLE2_Pin */
-  GPIO_InitStruct.Pin = MOTOR4_STEP_Pin | MOTOR1_STEP_Pin | MOTOR1_DIR_Pin | SER_RCLK_Pin
-      | LTC4421_PWR_nDISABLE1_Pin | LTC4421_PWR_nDISABLE2_Pin;
+  /*Configure GPIO pins : MOTOR4_STEP_Pin MOTOR1_STEP_Pin MOTOR1_DIR_Pin LTC4421_PWR_nDISABLE1_Pin 
+                           LTC4421_PWR_nDISABLE2_Pin */
+  GPIO_InitStruct.Pin = MOTOR4_STEP_Pin | MOTOR1_STEP_Pin | MOTOR1_DIR_Pin | LTC4421_PWR_nDISABLE1_Pin
+      | LTC4421_PWR_nDISABLE2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
