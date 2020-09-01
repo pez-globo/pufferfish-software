@@ -92,7 +92,7 @@ export const ViewDropdown = () => {
 
     function addBorder (view:number) {
         if (view>0) return {borderTop:'1px solid black'}
-        if (view==0) return {borderTop:'0px solid black'}
+        if (view===0) return {borderTop:'0px solid black'}
         return {}
     }
 

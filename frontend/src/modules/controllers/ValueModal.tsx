@@ -60,7 +60,7 @@ export const ValueModal = (
     }
 
     function pipClarify (label:string) {
-        if (label=='PiP') return '*not PEEP compensated'
+        if (label==='PIP') return '*not PEEP compensated'
         return ''
     }
 

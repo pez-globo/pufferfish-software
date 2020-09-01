@@ -66,8 +66,8 @@ export const Waveform = ({
     range: [(height-margin.bottom+margin.top)/2, 0],
   })
    function findAxis(type: string){
-    if (type=='flow') return yScale2
-    if (type=='paw') return yScale1
+    if (type==='flow') return yScale2
+    if (type==='paw') return yScale1
     return yScale
   }
   function fillF(fill: boolean){

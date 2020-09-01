@@ -258,9 +258,9 @@ export const LogsPage = () => {
 
     const theme = useTheme()
     function typeColor (type:string) {
-        if (type=='Operator') return {backgroundColor:theme.palette.primary.main}
-        else if (type=='Patient') return {backgroundColor:'#92D25B', color:'black'}
-        else if (type=='System') return {backgroundColor:'#E68619'}
+        if (type==='Operator') return {backgroundColor:theme.palette.primary.main}
+        else if (type==='Patient') return {backgroundColor:'#92D25B', color:'black'}
+        else if (type==='System') return {backgroundColor:'#E68619'}
         return {backgroundColor:'#E68619'}
     }
 

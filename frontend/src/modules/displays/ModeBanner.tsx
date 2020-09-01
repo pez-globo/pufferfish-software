@@ -52,7 +52,7 @@ export const ModeBanner = ({bannerType}:Props) => {
     const classes = useStyles()
     const mode = useSelector(getParametersRequestMode)
     function color(bannerType:string) {
-        if(bannerType=="screenSaver") return classes.screenSaver
+        if(bannerType==="screenSaver") return classes.screenSaver
         return classes.normal
     }
     return (
