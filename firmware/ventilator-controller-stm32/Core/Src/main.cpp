@@ -87,12 +87,12 @@ namespace PF = Pufferfish;
 // those come from STM32CubeMX-generated #define constants, which we have no
 // control over
 
-PF::HAL::DigitalOutput i2c1_reset
-    (*I2C1_RESET_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-     I2C1_RESET_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-PF::HAL::DigitalOutput i2c2_reset
-    (*I2C2_RESET_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-     I2C2_RESET_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+PF::HAL::DigitalOutput i2c1_reset(
+    *I2C1_RESET_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    I2C1_RESET_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+PF::HAL::DigitalOutput i2c2_reset(
+    *I2C2_RESET_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    I2C2_RESET_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 
 PF::HAL::DigitalOutput board_led1(
     *LD1_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
@@ -224,11 +224,10 @@ PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 
 // Test list
 // NOLINTNEXTLINE(readability-magic-numbers)
-std::array<PF::Driver::Testable *, 14> i2c_test_list{{&i2c_mux1, &i2c_mux2,
-                                                      &i2c_press1, &i2c_press2, &i2c_press3, &i2c_press7, &i2c_press8,
-                                                      &i2c_press9, &i2c_press13, &i2c_press14, &i2c_press15,
-                                                      &i2c_press16,
-                                                      &i2c_press17, &i2c_press18}};
+std::array<PF::Driver::Testable*, 14> i2c_test_list { { &i2c_mux1, &i2c_mux2,
+    &i2c_press1, &i2c_press2, &i2c_press3, &i2c_press7, &i2c_press8,
+    &i2c_press9, &i2c_press13, &i2c_press14, &i2c_press15, &i2c_press16,
+    &i2c_press17, &i2c_press18 } };
 
 /* USER CODE END PV */
 
