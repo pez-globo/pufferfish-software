@@ -182,24 +182,24 @@ PF::Driver::I2C::TCA9548A i2c_mux1(i2c_hal_mux1);
 PF::Driver::I2C::TCA9548A i2c_mux2(i2c_hal_mux2);
 
 // Extended I2C Device
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press1(i2c_ext_press1, i2c_mux2, 0);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press2(i2c_ext_press2, i2c_mux2, 2);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press3(i2c_ext_press3, i2c_mux2, 4);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press7(i2c_ext_press7, i2c_mux2, 1);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press8(i2c_ext_press8, i2c_mux2, 3);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press9(i2c_ext_press9, i2c_mux2, 5);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press1(i2c_hal_press1, i2c_mux2, 0);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press2(i2c_hal_press2, i2c_mux2, 2);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press3(i2c_hal_press3, i2c_mux2, 4);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press7(i2c_hal_press7, i2c_mux2, 1);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press8(i2c_hal_press8, i2c_mux2, 3);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press9(i2c_hal_press9, i2c_mux2, 5);
 
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press13(i2c_ext_press13, i2c_mux1,
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press13(i2c_hal_press13, i2c_mux1,
                                                    0);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press14(i2c_ext_press14, i2c_mux1,
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press14(i2c_hal_press14, i2c_mux1,
                                                    2);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press15(i2c_ext_press15, i2c_mux1,
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press15(i2c_hal_press15, i2c_mux1,
                                                    4);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press16(i2c_ext_press16, i2c_mux1,
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press16(i2c_hal_press16, i2c_mux1,
                                                    1);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press17(i2c_ext_press17, i2c_mux1,
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press17(i2c_hal_press17, i2c_mux1,
                                                    3);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press18(i2c_ext_press18, i2c_mux1,
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press18(i2c_hal_press18, i2c_mux1,
                                                    5);
 
 // Actual usable sensor
@@ -310,8 +310,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   PF::HAL::micros_delay_init();
   // active low pins, will be fixed in interface board PR
-  i2c1_reset.write(false);
-  i2c2_reset.write(false);
+  i2c1_reset.write(true);
+  i2c2_reset.write(true);
   /* USER CODE END 2 */
 
   /* Infinite loop */
