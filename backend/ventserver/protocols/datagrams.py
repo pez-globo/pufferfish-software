@@ -47,13 +47,13 @@ Typical usage example:
 import logging
 import struct
 from typing import Any, Optional
+from crcmod import predefined #type: ignore
 
 import attr
 
 from ventserver.protocols import exceptions
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
-from ventserver.util import crc
 
 
 # Constants
@@ -212,9 +212,8 @@ class Datagram:
                 of the datagram body.
 
         """
-        return crc.compute_reflected_crc(
-            self._pack_protected(), crc.CRC32C_REFLECTED_TABLE
-        )
+        crc_func = predefined.mkCrcFun('crc-32c')
+        return int(crc_func(self._pack_protected()))
 
     def compute_body(self) -> bytes:
         """Return the body of the datagram, including the header and payload.
