@@ -17,7 +17,7 @@ namespace HAL {
 class HALI2CDevice : public I2CDevice {
  public:
   // maximum default time to wait for response from I2C, in ms
-  const static uint32_t default_timeout = 500U;
+  const static uint32_t default_timeout = 100U;
 
   /**
    * Constructs an HAL I2C object

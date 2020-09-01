@@ -87,6 +87,13 @@ namespace PF = Pufferfish;
 // those come from STM32CubeMX-generated #define constants, which we have no
 // control over
 
+PF::HAL::DigitalOutput i2c1_reset(
+    *I2C1_RESET_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    I2C1_RESET_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+PF::HAL::DigitalOutput i2c2_reset(
+    *I2C2_RESET_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    I2C2_RESET_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+
 PF::HAL::DigitalOutput board_led1(
     *LD1_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     LD1_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
@@ -139,62 +146,88 @@ PF::HAL::PWM drive2_ch6(htim8, TIM_CHANNEL_4);
 PF::HAL::PWM drive2_ch7(htim12, TIM_CHANNEL_2);
 
 // Base I2C Devices
-PF::HAL::HALI2CDevice i2c_hal_mux1(hi2c1,
+// Note: I2C1 is marked I2C2 in the control board v1.0 schematic, and vice versa
+PF::HAL::HALI2CDevice i2c_hal_mux1(hi2c2,
                                    PF::Driver::I2C::TCA9548A::default_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_sfm1(hi2c1,
-                                   PF::Driver::I2C::SFM3000::default_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_sdp1(hi2c1,
-                                   PF::Driver::I2C::SDPSensor::sdp8xx_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_sdp2(hi2c1,
-                                   PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_sdp3(hi2c1,
-                                   PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_abp1(
+PF::HAL::HALI2CDevice i2c_hal_mux2(hi2c1,
+                                   PF::Driver::I2C::TCA9548A::default_i2c_addr);
+
+PF::HAL::HALI2CDevice i2c_hal_press1(
+    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3.i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press2(
+    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3.i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press3(
+    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3.i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press7(
     hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_abp2(
+PF::HAL::HALI2CDevice i2c_hal_press8(
     hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_abp3(
-    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx005pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_abp4(
-    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx005pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_abp5(
-    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx005pg2a3.i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press9(
+    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3.i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press13(
+    hi2c2, PF::Driver::I2C::SDPSensor::sdp8xx_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press14(
+    hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press15(
+    hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press16(
+    hi2c2, PF::Driver::I2C::SFM3000::default_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press17(
+    hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press18(
+    hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
 
 // I2C Mux
 PF::Driver::I2C::TCA9548A i2c_mux1(i2c_hal_mux1);
+PF::Driver::I2C::TCA9548A i2c_mux2(i2c_hal_mux2);
 
 // Extended I2C Device
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_sdp2(i2c_hal_sdp2, i2c_mux1, 0);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_sdp3(i2c_hal_sdp3, i2c_mux1, 1);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_abp1(i2c_hal_abp1, i2c_mux1, 2);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_abp2(i2c_ext_abp2, i2c_mux1, 3);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_abp3(i2c_ext_abp3, i2c_mux1, 4);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_abp4(
-    i2c_ext_abp4, i2c_mux1, 5);  // NOLINT(readability-magic-numbers)
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_abp5(
-    i2c_ext_abp5, i2c_mux1, 6);  // NOLINT(readability-magic-numbers)
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press1(i2c_hal_press1, i2c_mux2, 0);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press2(i2c_hal_press2, i2c_mux2, 2);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press3(i2c_hal_press3, i2c_mux2, 4);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press7(i2c_hal_press7, i2c_mux2, 1);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press8(i2c_hal_press8, i2c_mux2, 3);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press9(i2c_hal_press9, i2c_mux2, 5);
+
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press13(i2c_hal_press13, i2c_mux1,
+                                                   0);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press14(i2c_hal_press14, i2c_mux1,
+                                                   2);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press15(i2c_hal_press15, i2c_mux1,
+                                                   4);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press16(i2c_hal_press16, i2c_mux1,
+                                                   1);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press17(i2c_hal_press17, i2c_mux1,
+                                                   3);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press18(i2c_hal_press18, i2c_mux1,
+                                                   5);
 
 // Actual usable sensor
-PF::Driver::I2C::SFM3000 i2c_sfm1(i2c_hal_sfm1);
-PF::Driver::I2C::SDPSensor i2c_sdp1(i2c_hal_sdp1);
-PF::Driver::I2C::SDPSensor i2c_sdp2(i2c_ext_sdp2);
-PF::Driver::I2C::SDPSensor i2c_sdp3(i2c_ext_sdp3);
-PF::Driver::I2C::HoneywellABP i2c_abp1(
-    i2c_ext_abp1, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3);
-PF::Driver::I2C::HoneywellABP i2c_abp2(
-    i2c_ext_abp2, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3);
-PF::Driver::I2C::HoneywellABP i2c_abp3(
-    i2c_ext_abp3, PF::Driver::I2C::HoneywellABP::abpxxxx005pg2a3);
-PF::Driver::I2C::HoneywellABP i2c_abp4(
-    i2c_ext_abp4, PF::Driver::I2C::HoneywellABP::abpxxxx005pg2a3);
-PF::Driver::I2C::HoneywellABP i2c_abp5(
-    i2c_ext_abp5, PF::Driver::I2C::HoneywellABP::abpxxxx005pg2a3);
+PF::Driver::I2C::HoneywellABP i2c_press1(
+    i2c_ext_press1, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3);
+PF::Driver::I2C::HoneywellABP i2c_press2(
+    i2c_ext_press2, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3);
+PF::Driver::I2C::HoneywellABP i2c_press3(
+    i2c_ext_press3, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3);
+PF::Driver::I2C::HoneywellABP i2c_press7(
+    i2c_ext_press7, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3);
+PF::Driver::I2C::HoneywellABP i2c_press8(
+    i2c_ext_press8, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3);
+PF::Driver::I2C::HoneywellABP i2c_press9(
+    i2c_ext_press9, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3);
+PF::Driver::I2C::SDPSensor i2c_press13(i2c_ext_press13);
+PF::Driver::I2C::SDPSensor i2c_press14(i2c_ext_press14);
+PF::Driver::I2C::SDPSensor i2c_press15(i2c_ext_press15);
+PF::Driver::I2C::SFM3000 i2c_press16(i2c_ext_press16);
+PF::Driver::I2C::SDPSensor i2c_press17(i2c_ext_press17);
+PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 
 // Test list
 // NOLINTNEXTLINE(readability-magic-numbers)
-std::array<PF::Driver::Testable *, 10> i2c_test_list{
-    {&i2c_mux1, &i2c_sfm1, &i2c_sdp1, &i2c_sdp2, &i2c_sdp3, &i2c_abp1,
-     &i2c_abp2, &i2c_abp3, &i2c_abp4, &i2c_abp5}};
+std::array<PF::Driver::Testable*, 14> i2c_test_list { { &i2c_mux1, &i2c_mux2,
+    &i2c_press1, &i2c_press2, &i2c_press3, &i2c_press7, &i2c_press8,
+    &i2c_press9, &i2c_press13, &i2c_press14, &i2c_press15, &i2c_press16,
+    &i2c_press17, &i2c_press18 } };
 
 /* USER CODE END PV */
 
@@ -276,6 +309,9 @@ int main(void)
   MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
   PF::HAL::micros_delay_init();
+  // active low pins, will be fixed in interface board PR
+  i2c1_reset.write(true);
+  i2c2_reset.write(true);
   /* USER CODE END 2 */
 
   /* Infinite loop */
