@@ -53,7 +53,7 @@ void PWMGenerator::update(uint32_t currentTime) {
   }
   /* Validate the saturation of pulseDuration of frequency with in maximum
      and minimum range */
-  if (outOfRange(pulseDuration, mPulsePeriod, 0) == true)
+  if (outOfRange(pulseDuration, 0, mPulsePeriod) == true)
   {
     mLastCycle = currentTime;
   }
