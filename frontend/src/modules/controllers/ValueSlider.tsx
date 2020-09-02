@@ -69,11 +69,15 @@ interface Props {
     label?: string,  // TODO: This prop should be removed.
     onChange?(values: number[]): any,
     rangeValues?: number[],
+    step?: number
 }
 
-export const ValueSlider = ({ min, max, onChange, rangeValues }: Props) => {
+export const ValueSlider = ({ min, max, onChange, rangeValues, step }: Props) => {
     const classes = useStyles()
     const [value, setValue] = React.useState<number[]>([min, max])
+    if(rangeValues) {
+        setValue(rangeValues)
+    }
 
     const handleChange = (event: any, newValue: number | number[]) => {
         setValue(newValue as number[])
@@ -91,7 +95,8 @@ export const ValueSlider = ({ min, max, onChange, rangeValues }: Props) => {
                 <Grid container item xs={8} alignItems='center'>
                     <StyledSlider
                         valueLabelDisplay='on'
-                        value={rangeValues || value}
+                        value={value}
+                        step={step || 1}
                         onChange={handleChange}
                         defaultValue={60}
                     />
