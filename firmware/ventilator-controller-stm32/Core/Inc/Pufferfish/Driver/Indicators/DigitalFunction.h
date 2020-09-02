@@ -10,7 +10,8 @@
 #include "stm32h7xx_hal.h"
 
 namespace Pufferfish {
-namespace HAL {
+namespace Driver {
+namespace Indicators {
 
 /*
  * Class DigitalFunctionGenerator to
@@ -35,5 +36,7 @@ class DigitalFunctionGenerator {
   */
   virtual void stop() = 0;
 };
+
+}  // namespace Indicators
 }  // namespace HAL
 }  // namespace Pufferfish

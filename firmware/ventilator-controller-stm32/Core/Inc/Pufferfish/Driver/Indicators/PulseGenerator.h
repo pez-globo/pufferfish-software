@@ -9,7 +9,8 @@
 #include "Pufferfish/Driver/Indicators/DigitalFunction.h"
 
 namespace Pufferfish {
-namespace HAL {
+namespace Driver {
+namespace Indicators {
 
 /*
  * PWMGenerator subclass of DigitalFunctionGenerator Generates the pulse for
@@ -61,14 +62,14 @@ class PWMGenerator : public DigitalFunctionGenerator {
   /* Period/frequency and Pulse duty private variables */
   uint32_t mPulsePeriod = 0, mPulseDuty = 0;
 
-  /* mSwitching provides the pulse high or low for the provided current time */
-  bool mSwitching;
+  /* mOutput provides the pulse high or low for the provided current time */
+  bool mOutput;
 
   /* Stores the last cycle period of current time */
   uint32_t mLastCycle = 0;
 
-  /* Pulse generated based on mReset TRUE/FALSE */
-  uint32_t mReset = false;
+  /* Pulse generated based on mGenerating TRUE/FALSE */
+  bool mGenerating = false;
 };
 
 /**
@@ -82,7 +83,7 @@ class PulsedPWMGenerator : public DigitalFunctionGenerator {
    * @brief  PulsedPWMGenerator Constructor
    * @param  Low and high frequency objects of PWMGenerator
    */
-  PulsedPWMGenerator(Pufferfish::HAL::PWMGenerator &PulsePWMGenerator1, Pufferfish::HAL::PWMGenerator &PulsePWMGenerator2) :
+  PulsedPWMGenerator(PWMGenerator &PulsePWMGenerator1, PWMGenerator &PulsePWMGenerator2) :
     mPulsePWMGenerator1(PulsePWMGenerator1), mPulsePWMGenerator2(PulsePWMGenerator2){
 
   }
@@ -117,9 +118,11 @@ class PulsedPWMGenerator : public DigitalFunctionGenerator {
   void stop() override;
 
  private:
-  Pufferfish::HAL::PWMGenerator &mPulsePWMGenerator1;
-  Pufferfish::HAL::PWMGenerator &mPulsePWMGenerator2;
+  PWMGenerator &mPulsePWMGenerator1;
+  PWMGenerator &mPulsePWMGenerator2;
 
 };
+
+}  // namespace Indicators
 }  // namespace HAL
 }  // namespace Pufferfish

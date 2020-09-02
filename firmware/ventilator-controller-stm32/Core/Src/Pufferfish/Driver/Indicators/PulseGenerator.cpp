@@ -13,24 +13,18 @@
  * @param  min input value of minimum range
  * @return TRUE/FALSE based on value is in range of max and min values
  */
-inline bool valueMaxMin(uint32_t value, uint32_t max, uint32_t min)
+inline bool outOfRange(uint32_t value, uint32_t min, uint32_t max)
 {
-    if ((value > max) or (value < min))
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
+  return (value > max) || (value < min);
 }
 
 namespace Pufferfish {
-namespace HAL {
+namespace Driver {
+namespace Indicators {
 
 void PWMGenerator::start(uint32_t currentTime) {
-  /* Set the reset value to true to start the pulse */
-  mReset = true;
+  /* Set the value to true to start the pulse */
+  mGenerating = true;
   /* Update the LastCycle with currentTime to start the pulse with raising edge */
   mLastCycle = currentTime;
   /* Invoke the update function of this object */
@@ -43,7 +37,7 @@ void PWMGenerator::update(uint32_t currentTime) {
   uint32_t pulseDuration = currentTime - mLastCycle;
 
   /* Validate the reset value start the pulse */
-  if (mReset == true)
+  if (mGenerating == true)
   {
     /* trimming the duration to be within [0, mPulsePeriod) */
     if (pulseDuration >= mPulsePeriod){
@@ -51,22 +45,15 @@ void PWMGenerator::update(uint32_t currentTime) {
       mLastCycle = currentTime;
     }
     /* Trimming the high or low based on pulse duty */
-    if(pulseDuration <= mPulseDuty){
-      mSwitching = true;
-    }
-    else
-    {
-      mSwitching = false;
-    }
-
+    mOutput = (pulseDuration <= mPulseDuty);
   }
   else
   {
-    mSwitching = false;
+    mOutput = false;
   }
   /* Validate the saturation of pulseDuration of frequency with in maximum
      and minimum range */
-  if (valueMaxMin(pulseDuration, mPulsePeriod, 0) == true)
+  if (outOfRange(pulseDuration, mPulsePeriod, 0) == true)
   {
     mLastCycle = currentTime;
   }
@@ -74,13 +61,13 @@ void PWMGenerator::update(uint32_t currentTime) {
 
 bool PWMGenerator::output()
 {
-  return mSwitching;
+  return mOutput;
 }
 
 void PWMGenerator::stop()
 {
   /* Set the reset value to false to stop the pulse */
-  mReset = false;
+  mGenerating = false;
 }
 
 void PulsedPWMGenerator::start(uint32_t currentTime)
@@ -113,5 +100,8 @@ void PulsedPWMGenerator::stop()
   mPulsePWMGenerator1.stop();
   mPulsePWMGenerator2.stop();
 }
+
+}  // namespace Indicators
 }  // namespace HAL
 }  // namespace Pufferfish
+
