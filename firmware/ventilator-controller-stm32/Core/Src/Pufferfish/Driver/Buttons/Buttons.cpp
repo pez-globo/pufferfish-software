@@ -12,7 +12,7 @@
 
 namespace Pufferfish {
 namespace Driver {
-namespace Membrane {
+namespace MembraneButton {
 
 
 void Buttons::init()
@@ -22,12 +22,11 @@ void Buttons::init()
   InputButtonState.buttonLastValue = false;
   InputButtonState.buttonRisingEdge = false;
   InputButtonState.buttonState = false;
-
 }
 
-ButtonServices Buttons::buttenStatus()
+ButtonServices Buttons::buttonStatus()
 {
-  static const uint16_t debounceTime = 30; /// Need to fix debounce time
+
   InputButtonState.buttonCurrentValue = mInputButton.read();
   /// Check input button status as changed or not
   if(InputButtonState.buttonCurrentValue == InputButtonState.buttonLastValue)
@@ -74,7 +73,7 @@ ButtonServices Buttons::buttenStatus()
 
 MembraneLEDStatus Buttons::ledState()
 {
-  ButtonServices status = this->buttenStatus();
+  ButtonServices status = this->buttonStatus();
   if(status == ButtonServices::actionOnRisingEdge)
   {
     mregLED.write(true);
