@@ -13,7 +13,7 @@
 
 namespace Pufferfish {
 namespace Driver {
-namespace Membrane {
+namespace MembraneButton {
 
 /**
  * Status of the buttons
@@ -48,6 +48,7 @@ enum class MembraneLEDStatus{
  */
 class Buttons{
 
+  static const uint16_t debounceTime = 30; /// Need to fix debounce time
 public:
 
   Buttons(HAL::DigitalInput &inputButton, HAL::DigitalOutput regLED)
@@ -62,7 +63,7 @@ public:
      * Button status with denounce time calculation
      * @param ButtonServices new service required or not
      */
-    ButtonServices buttenStatus();
+    ButtonServices buttonStatus();
     /**
      * Initialize the Button Status structure variables
      * @param MembraneLEDStatus Membrane button led status
