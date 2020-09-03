@@ -15,23 +15,23 @@ template<HAL::AtomicSize BufferSize>
 RingBuffer<BufferSize>::RingBuffer() {}
 
 template<HAL::AtomicSize BufferSize>
-BufferStatus RingBuffer<BufferSize>::read(uint8_t &byte) volatile {
+BufferStatus RingBuffer<BufferSize>::read(uint8_t &readByte) volatile {
   if (newestIndex == oldestIndex) {
       return BufferStatus::empty;
   }
 
-  byte = buffer[oldestIndex];
+  readByte = buffer[oldestIndex];
   oldestIndex = (oldestIndex + 1) % maxSize;
   return BufferStatus::ok;
 }
 
 template<HAL::AtomicSize BufferSize>
-BufferStatus RingBuffer<BufferSize>::peek(uint8_t &byte) const volatile {
+BufferStatus RingBuffer<BufferSize>::peek(uint8_t &peekByte) const volatile {
   if (newestIndex == oldestIndex) {
       return BufferStatus::empty;
   }
 
-  byte = buffer[oldestIndex];
+  peekByte = buffer[oldestIndex];
   return BufferStatus::ok;
 }
 
