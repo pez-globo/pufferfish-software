@@ -31,10 +31,6 @@ const useStyles = makeStyles((theme: Theme) => ({
         padding: theme.spacing(1),
         backgroundColor: theme.palette.background.paper,
     },
-    graph: {
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-    },
     tabs: {
         width: '100%',
         paddingTop: theme.spacing(0),
@@ -102,7 +98,7 @@ const PressureControlMainView = () => {
                     </Grid>
                 </Grid>
                 <Grid container item xs direction='column' className={classes.graphPanel} wrap='nowrap'>
-                    <Grid container item justify="center" alignItems='center'>
+                    <Grid container item direction='row' justify="center" alignItems='center'>
                         <Tabs value={value} onChange={handleTabChange} variant='fullWidth'
                         className={classes.tabs} classes={{ indicator: classes.tabIndicator }}>
                             <Tab
@@ -117,24 +113,28 @@ const PressureControlMainView = () => {
                         </Tabs>
                     </Grid>
                     <TabPanel value={value} index={0}>
-                        <Grid container item xs className={classes.graph}>
-                            <Grid item xs>
+                        <Grid container item xs justify="space-between" style={{height:'100%'}}>
+                            <Grid item container style={{height:'48%'}}>
                                 <PawGraphInfo />
                             </Grid>
                             <Grid item xs>
                                 <FlowGraphInfo />
                             </Grid>
+                            <Grid item style={{height:'4%'}}/>
+                            <Grid item container style={{height:'48%'}}>
+                                <PawGraphInfo />
+                            </Grid>
                         </Grid>
                     </TabPanel>
                     <TabPanel value={value} index={1}>
-                        <Grid container item xs className={classes.graph}>
+                        <Grid container item xs style={{height:'100%'}}>
                             <Grid item xs>
                                 <Typography>PV Loops</Typography>
                             </Grid>
                         </Grid>
                     </TabPanel>
                     <TabPanel value={value} index={2}>
-                        <Grid container item xs className={classes.graph}>
+                        <Grid container item xs style={{height:'100%'}}>
                             <Grid item xs>
                                 <Typography>Compliance</Typography>
                             </Grid>

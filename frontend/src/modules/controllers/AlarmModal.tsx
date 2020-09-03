@@ -5,7 +5,8 @@ import ValueClicker from './ValueClicker'
 import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core'
 import { useDispatch, useSelector } from 'react-redux'
 import { getAlarmLimitsRequest } from '../../store/controller/selectors'
-import { updateCommittedParameter } from '../../store/controller/actions'
+import { ALARM_LIMITS } from '../../store/controller/types'
+import { updateCommittedState } from '../../store/controller/actions'
 
 const useStyles = makeStyles((theme: Theme) => ({
     contentContainer: {
@@ -46,11 +47,12 @@ interface Props {
     committedMin?: number,
     committedMax?: number,
     requestCommitRange(min: number, max: number): any,
-    stateKey: string
+    stateKey: string,
+    step?: number
 }
 
 export const AlarmModal = (
-    { label, committedMin = 0, committedMax = 100, requestCommitRange, stateKey }: Props
+    { label, committedMin = 0, committedMax = 100, requestCommitRange, stateKey, step }: Props
 ) => {
     const classes = useStyles()
     const [open, setOpen] = React.useState(false)
@@ -69,7 +71,7 @@ export const AlarmModal = (
     }
 
     const handleConfirm = () => {
-        dispatch(updateCommittedParameter({ [`${stateKey}Min`]: rangeValue[0], [`${stateKey}Max`]: rangeValue[1] }))
+        dispatch(updateCommittedState(ALARM_LIMITS, { [`${stateKey}Min`]: rangeValue[0], [`${stateKey}Max`]: rangeValue[1] }))
         requestCommitRange(min, max)
         handleClose()
     }
@@ -90,12 +92,13 @@ export const AlarmModal = (
                     <Grid container item xs justify='center' alignItems='center' className={`${classes.alarmContainer} ${classes.borderBottom}`}>
                         <Grid item className={classes.alarmValue}>
                             <Typography align='center' variant='h3'>
-                                {rangeValue[0] !== undefined ? rangeValue[0].toFixed(0) : '--'}
+                                {rangeValue[0] !== undefined ? Number(rangeValue[0]) : '--'}
                             </Typography>
                         </Grid>
                         <Grid item>
                             <ValueClicker
                                 value={rangeValue[0]}
+                                step={step}
                                 min={committedMin} max={committedMax}
                                 onClick={value => setRangeValue(Object.assign([], rangeValue, { 0: value }))}
                                 direction='row'
@@ -105,12 +108,13 @@ export const AlarmModal = (
                     <Grid container item xs justify='center' alignItems='center' className={`${classes.alarmContainer} ${classes.borderBottom}`}>
                         <Grid item className={classes.alarmValue}>
                             <Typography align='center' variant='h3'>
-                                {rangeValue[1] !== undefined ? rangeValue[1].toFixed(0) : '--'}
+                                {rangeValue[1] !== undefined ? Number(rangeValue[1]) : '--'}
                             </Typography>
                         </Grid>
                         <Grid item>
                             <ValueClicker
                                 value={rangeValue[1]}
+                                step={step}
                                 min={committedMin} max={committedMax}
                                 onClick={value => setRangeValue(Object.assign([], rangeValue, { 1: value }))}
                                 direction='row'
@@ -118,7 +122,7 @@ export const AlarmModal = (
                         </Grid>
                     </Grid>
                     <Grid container item xs alignItems='center'>
-                        <ValueSlider rangeValues={rangeValue} onChange={setSortedRangeValue} min={min} max={max} />
+                        <ValueSlider rangeValues={rangeValue} onChange={setSortedRangeValue} min={min} max={max} step={step} />
                     </Grid>
                 </Grid>
             </ConfirmationModal>
