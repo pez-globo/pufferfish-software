@@ -60,7 +60,7 @@ class HALSPIDevice : public SPIDevice {
      * To make the chip select as high or low
      * @param cs true(high) or false(low)
      */
-  void chipSelect (bool input);
+  void chipSelect (bool input) override;
 
  protected:
   SPI_HandleTypeDef &mDev;
