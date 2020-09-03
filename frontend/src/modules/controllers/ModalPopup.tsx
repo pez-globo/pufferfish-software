@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react'
+import React, { PropsWithChildren, ReactNode } from 'react'
 import {
     Button,
     Dialog,
@@ -9,8 +9,10 @@ import {
     Grid,
     makeStyles,
     Theme,
-    Typography
+    Typography,
+    IconButton
 } from '@material-ui/core'
+import CloseIcon from '@material-ui/icons/Close';
 
 const useStyles = makeStyles((theme: Theme) => ({
     closeButton: {
@@ -25,8 +27,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 interface Props {
     open: boolean,
-    label: string,
+    label: string | ReactNode,
     withAction?: boolean,
+    showCloseIcon?: boolean,
     onClose?(): any,
     onConfirm?(): any,
 }
@@ -66,11 +69,13 @@ export const ModalPopup = (props: PropsWithChildren<Props>) => {
                             {props.label}
                         </Typography>
                     </Grid>
-                    {/* <Grid item>
-                        <IconButton aria-label="close" className={classes.closeButton} onClick={props.onClose}>
-                            <CloseIcon />
-                        </IconButton>
-                    </Grid> */}
+                    <Grid item>
+                        {props.showCloseIcon && 
+                            <IconButton aria-label="close" className={classes.closeButton} onClick={props.onClose}>
+                                <CloseIcon />
+                            </IconButton>
+                        }
+                    </Grid>
                 </Grid>
             </DialogTitle>
             <DialogContent>
