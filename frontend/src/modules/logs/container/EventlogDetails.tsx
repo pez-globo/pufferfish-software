@@ -104,12 +104,7 @@ export const EventlogDetails = () => {
     }
 
     return (
-        <Grid
-            container
-            direction="column"
-            justify="space-between"
-            alignItems="stretch"
-        >
+        <Grid>
             <SimpleTable
                 order={order}
                 setOrder={setOrder}

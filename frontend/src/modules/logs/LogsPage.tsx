@@ -73,6 +73,12 @@ const useStyles = makeStyles((theme: Theme) =>
             textAlign: 'center',
             borderRadius: 3,
             padding: 4,
+        },
+        typeWrapper2: {
+            fontSize: 16,
+            textAlign: 'center',
+            borderRadius: 3,
+            padding: 4,
         }
     }),
 )
@@ -189,14 +195,17 @@ export const LogsPage = () => {
             </SimpleTable>
             <ModalPopup showCloseIcon={true}
                 label={
-                    (<Grid>
-                        <Grid
-                            className={classes.typeWrapper}
+                    (<Grid container
+                    direction="row"
+                    justify="space-around"
+                    alignItems="center">
+                        <Grid xs={2}
+                            className={classes.typeWrapper2}
                             style={typeColor(currentRow?.type)}>
                             {currentRow?.type}
                         </Grid>
-                        <Grid>
-                            <Typography variant="h4">{` PEEP Above upper limit`}</Typography>
+                        <Grid xs={9}>
+                            <Typography variant="h4">{currentRow?.alarm}</Typography>
                         </Grid>
                     </Grid>
                     )

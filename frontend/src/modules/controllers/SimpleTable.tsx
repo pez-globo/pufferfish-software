@@ -125,11 +125,11 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         tableContainer: {
             width: '100%',
-            border: '1px solid black',
+            border: '2px dashed ' + theme.palette.background.default,
             borderRadius: theme.panel.borderRadius
         },
         table: {
-            minWidth: 750,
+            minWidth: 500,
             padding: '3px solid black',
             backgroundColor: theme.palette.background.paper
         },
@@ -149,6 +149,11 @@ const useStyles = makeStyles((theme: Theme) =>
             textAlign: 'center',
             borderRadius: 3,
             padding: 4,
+        },
+        footer: {
+            fontFamily: 'sans-serif',
+            fontSize: 16,
+            marginTop: 15,
         }
     }),
 )
@@ -241,8 +246,8 @@ export const SimpleTable = (props: PropsWithChildren<TableProps>) => {
                     </Table>
                 </TableContainer>
             </Grid>
-            <Grid item>
-                <Grid item>
+            <Grid container direction='row' justify='space-between'>
+                <Grid item className={classes.footer}>
                     {footer}
                 </Grid>
                 <TablePagination
@@ -253,9 +258,6 @@ export const SimpleTable = (props: PropsWithChildren<TableProps>) => {
                     page={page}
                     onChangePage={handleChangePage}
                     onChangeRowsPerPage={handleChangeRowsPerPage}
-                    style={{
-                        width: '100%'
-                    }}
                 />
             </Grid>
         </React.Fragment>
