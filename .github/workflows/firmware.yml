@@ -92,7 +92,7 @@ jobs:
 
     - name: Run CMake
       run: |
-        ./cmake.sh Clang
+        ./cmake.sh Clang /usr/lib /usr/bin
 
     - name: Run clang-tidy
       run: |

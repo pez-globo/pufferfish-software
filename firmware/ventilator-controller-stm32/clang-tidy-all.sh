@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ ! -d "cmake-build-clang" ]; then
+if [ ! -f "cmake-build-clang/compile_commands.json" ]; then
   echo 'Please use `./cmake.sh` to create a build folder for the Clang build type!'
   exit 1
 fi

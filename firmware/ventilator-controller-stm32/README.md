@@ -80,13 +80,6 @@ in which case you can save it into the `TOOLCHAIN_PATH` variable:
 ```
 TOOLCHAIN_PATH="/opt/st/stm32cubeide_1.3.0/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.7-2018-q2-update.linux64_1.0.0.201904181610/tools/bin/:$PATH"
 ```
-If you are on a headless server without an STM32Cube IDE installation, you can
-simply install this toolchain:
-```
-sudo apt-get install gcc-arm-none-eabi
-```
-Note that the installed version here will be different from what is provided by
-the STM32Cube IDE.
 
 To build the project in debug mode with four build threads (and to generate a
 compile commands database for clang-tidy):
@@ -102,6 +95,19 @@ commands database for clang-tidy):
 ./cmake.sh Release $TOOLCHAIN_PATH  # run from the firmware/ventilator-controller-stm32 directory
 cd cmake-build-release
 make -j2
+```
+
+If you are on a headless server without an STM32Cube IDE installation, you can
+simply install this toolchain:
+```
+sudo apt-get install gcc-arm-none-eabi
+```
+Note that the installed version here will be different from what is provided by
+the STM32Cube IDE. Then you may need to provide a different set of paths to CMake.
+On Ubuntu 20.04, in order to make a Clang build (for clang-tidy) you'll need to
+run cmake as follows:
+```
+./cmake.sh Clang /usr/lib /usr/bin
 ```
 
 ### Scan-build

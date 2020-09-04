@@ -8,5 +8,6 @@ cmake .. \
   -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
   -DCMAKE_BUILD_TYPE="$1" \
   -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-arm-none-eabi.cmake \
-  -DTOOLCHAIN_PREFIX="$2"
+  -DTOOLCHAIN_PREFIX="$2" \
+  -DTOOLCHAIN_BIN_DIR="$3"
 cd ..
