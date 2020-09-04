@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ ! -d "cmake-build-clang" ]; then
+  echo 'Please use `./cmake.sh` to create a build folder for the Clang build type!'
+  exit 1
+fi
+
 COMPILE_COMMANDS_DATABASE="-p cmake-build-clang"
 STANDARD_ARGS="$COMPILE_COMMANDS_DATABASE $@"
 

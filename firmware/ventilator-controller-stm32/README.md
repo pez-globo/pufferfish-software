@@ -118,10 +118,11 @@ scan-build make -j4
 ### Clang-tidy
 
 To run clang-tidy on the project, first install `clang-tidy`, then
-use CMake to generate a compile commands database in debug mode, then run the
+use CMake to generate a compile commands database for a Clang build type
+(with the appropriate toolchain path, as usual), and then run the
 `clang-tidy-all.sh` script:
 ```
-./cmake.sh Debug $TOOLCHAIN_PATH  # run from the firmware/ventilator-controller-stm32 directory
+./cmake.sh Clang $TOOLCHAIN_PATH  # run from the firmware/ventilator-controller-stm32 directory
 ./clang-tidy-all.sh
 ```
 Note that this script will delete and rebuild the `cmake-build-debug` directory
@@ -132,7 +133,7 @@ though you should not use `--` in the arguments (this causes clang-tidy to ignor
 the compile commands database and become unable to find header files from our project).
 For example, you can use the following to apply suggested fixes:
 ```
-./cmake.sh Debug $TOOLCHAIN_PATH  # run from the firmware/ventilator-controller-stm32 directory
+./cmake.sh Clang $TOOLCHAIN_PATH  # run from the firmware/ventilator-controller-stm32 directory
 ./clang-tidy-all.sh --fix --fix-errors
 ```
 
