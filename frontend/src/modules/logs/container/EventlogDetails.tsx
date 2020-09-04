@@ -79,7 +79,7 @@ export const EventlogDetails = () => {
     const [orderBy, setOrderBy] = React.useState<keyof Data>('value')
     const [selected, setSelected] = React.useState<any>([])
     const [page, setPage] = React.useState(0)
-    const [rowsPerPage, setRowsPerPage] = React.useState(8)
+    const [rowsPerPage, setRowsPerPage] = React.useState(5)
     const [open, setOpen] = React.useState(false)
     const isSelected = (name: string) => selected.indexOf(name) !== -1
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage)
