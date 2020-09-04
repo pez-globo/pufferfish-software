@@ -17,11 +17,10 @@ module.exports = {
     },
     "plugins": ["react", "@typescript-eslint", "prettier"],
     "extends": [
-        "plugin:react/recommended",
         "airbnb",
         "preact",
-        "plugin:prettier/recommended",
-        "plugin:@typescript-eslint/eslint-recommended",
+        "prettier",
+        "prettier/react",
         "plugin:@typescript-eslint/recommended"
     ],
     "rules": {
@@ -35,9 +34,15 @@ module.exports = {
                 "tsx": "never"
             }
         ],
+        "import/no-unresolved": 0,
+        "no-use-before-define": [
+          "error",
+          { "functions": true, "classes": true, "variables": false }
+        ],
+        
         "prettier/prettier": "error",
         "@typescript-eslint/explicit-function-return-type": "off",
-        // "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": "off",
         "react/jsx-filename-extension": [
             1,
             { "extensions": [".js", ".jsx", ".ts", ".tsx"] }
@@ -46,7 +51,8 @@ module.exports = {
     "settings": {
         "import/resolver": {
             "node": {
-                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+                "extensions": [".js", ".jsx", ".ts", ".tsx"],
+                "moduleDirectory": ['node_modules', 'src/'],
             }
         }
     }
