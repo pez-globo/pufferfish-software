@@ -64,6 +64,11 @@ enum class SPIDeviceStatus {
   readError, /// an error occur when reading from an SPI device
   busy, /// when SPI device is not ready
   error, /// fail
+  notbusy, /// when SPI device is not busy
+  blockProtect,/// when a block is protected
+  blockNotProtect, ///when block is not protected
+  blockLock,/// when block is locked
+  blockUnLock,/// when block is Unlocked
 };
 
  /**
