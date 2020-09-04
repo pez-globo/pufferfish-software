@@ -125,7 +125,8 @@ const waveformHistoryReducer = <T extends PBMessage>(
   messageType: MessageType,
   getTime: (values: T) => number,
   getValue: (values: T) => number,
-  maxDuration: number = 10000
+  maxDuration: number = 10000,
+  gapDuration: number = 500
 ) => (
   state: WaveformHistory = {
     waveformOld: [], waveformNew: [], waveformNewStart: 0
@@ -136,7 +137,12 @@ const waveformHistoryReducer = <T extends PBMessage>(
     case STATE_UPDATED:
       if (action.messageType === messageType) {
         const sampleTime = getTime(action.state as T)
-        if (sampleTime > state.waveformNewStart + maxDuration) {
+        const lastTime = (state.waveformNew.length === 0) ? state.waveformNewStart : state.waveformNew[state.waveformNew.length - 1].date
+        if (
+          sampleTime > state.waveformNewStart + maxDuration
+          || sampleTime < lastTime
+          || new Date(sampleTime - gapDuration - state.waveformNewStart) > lastTime
+        ) {
           // make waveformNew start over
           return {
             waveformOld: state.waveformNew,

@@ -1,5 +1,10 @@
 import React from 'react'
-import { Button, Menu, MenuItem, makeStyles, Theme } from '@material-ui/core'
+import { withStyles } from '@material-ui/core/styles'
+import { Button, Menu, MenuProps, MenuItem, MenuList, makeStyles, Theme } from '@material-ui/core'
+import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import FiberManualRecord from '@material-ui/icons/FiberManualRecord'
+import ArrowDropDown from '@material-ui/icons/ArrowDropDown'
 import { VentilationMode } from '../../store/controller/proto/mcu_pb'
 import { useDispatch, useSelector } from 'react-redux'
 import { getParametersRequestMode } from '../../store/controller/selectors'
@@ -10,6 +15,14 @@ const useStyles = makeStyles((theme: Theme) => ({
     button: {
         minWidth: 245
     },
+    text:{
+        marginRight: -25
+    },
+    arrow:{
+        marginLeft: 10,
+        marginRight: -50,
+        color: 'white'
+    }
 }))
 
 const modes = [
@@ -19,6 +32,44 @@ const modes = [
     VentilationMode.vc_simv,
     VentilationMode.hfnc
 ]
+
+const StyledMenu = withStyles((theme: Theme) => ({
+  paper: {
+    backgroundColor: theme.palette.primary.main,
+    marginTop: '5px',
+    minWidth: 245,    
+  },
+}))((props: MenuProps) => (
+  <Menu
+    elevation={0}
+    getContentAnchorEl={null}
+    anchorOrigin={{
+      vertical: 'bottom',
+      horizontal: 'center',
+    }}
+    transformOrigin={{
+      vertical: 'top',
+      horizontal: 'center',
+    }}
+    {...props}
+  />
+));
+
+ const StyledMenuItem = withStyles((theme) => ({
+  root: {
+    //borderTop: '1px solid black',
+
+     '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+        color: theme.palette.primary.main,
+      },
+    color:'white',
+    '&:focus': {
+      '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+        color: theme.palette.secondary.main,
+      },
+    },
+  },
+}))(MenuItem);
 
 /**
  * ModesDropdown
@@ -51,12 +102,20 @@ export const ModesDropdown = () => {
         setAnchorEl(null)
     }
 
+    function addBorder (mode:number) {
+        if (mode>0) return {borderTop:'1px solid black'}
+        return {}
+    }
+
     return (
         <div>
             <Button onClick={handleClick} variant='contained' color='primary' className={classes.button}>
                 {getModeText(ventilationMode)}
+                <ListItemIcon className={classes.arrow}>
+                        <ArrowDropDown fontSize="default" />
+                </ListItemIcon>
             </Button>
-            <Menu
+            <StyledMenu
                 id='simple-menu'
                 anchorEl={anchorEl}
                 keepMounted
@@ -64,15 +123,19 @@ export const ModesDropdown = () => {
                 onClose={handleClose}
             >
                 {modes.map((mode) => (
-                    <MenuItem
+                    <StyledMenuItem
                         key={mode}
                         selected={mode === ventilationMode}
                         onClick={(event) => handleItemClick(event, mode)}
+                        style={addBorder(mode)}
                     >
+                        <ListItemIcon className={classes.text}>
+                            <FiberManualRecord fontSize="inherit" />
+                        </ListItemIcon>
                         {getModeText(mode)}
-                    </MenuItem>
+                    </StyledMenuItem>
                 ))}
-            </Menu>
+            </StyledMenu>
         </div>
     )
 }
