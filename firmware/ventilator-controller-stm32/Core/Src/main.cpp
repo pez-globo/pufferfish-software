@@ -187,6 +187,7 @@ PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press2(i2c_hal_press2, i2c_mux2, 2);
 PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press3(i2c_hal_press3, i2c_mux2, 4);
 PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press7(i2c_hal_press7, i2c_mux2, 1);
 PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press8(i2c_hal_press8, i2c_mux2, 3);
+// NOLINTNEXTLINE(readability-magic-numbers)
 PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press9(i2c_hal_press9, i2c_mux2, 5);
 
 PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press13(i2c_hal_press13, i2c_mux1,
@@ -199,8 +200,9 @@ PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press16(i2c_hal_press16, i2c_mux1,
                                                    1);
 PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press17(i2c_hal_press17, i2c_mux1,
                                                    3);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press18(i2c_hal_press18, i2c_mux1,
-                                                   5);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press18(
+    // NOLINTNEXTLINE(readability-magic-numbers)
+    i2c_hal_press18, i2c_mux1, 5);
 
 // Actual usable sensor
 PF::Driver::I2C::HoneywellABP i2c_press1(
@@ -224,10 +226,10 @@ PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 
 // Test list
 // NOLINTNEXTLINE(readability-magic-numbers)
-std::array<PF::Driver::Testable*, 14> i2c_test_list { { &i2c_mux1, &i2c_mux2,
-    &i2c_press1, &i2c_press2, &i2c_press3, &i2c_press7, &i2c_press8,
-    &i2c_press9, &i2c_press13, &i2c_press14, &i2c_press15, &i2c_press16,
-    &i2c_press17, &i2c_press18 } };
+std::array<PF::Driver::Testable *, 14> i2c_test_list{
+    {&i2c_mux1, &i2c_mux2, &i2c_press1, &i2c_press2, &i2c_press3, &i2c_press7,
+     &i2c_press8, &i2c_press9, &i2c_press13, &i2c_press14, &i2c_press15,
+     &i2c_press16, &i2c_press17, &i2c_press18}};
 
 /* USER CODE END PV */
 

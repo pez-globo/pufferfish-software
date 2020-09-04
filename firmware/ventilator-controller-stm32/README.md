@@ -146,7 +146,15 @@ We have disabled the following checks:
 - modernize-use-trailing-return-type: we use the more traditional `int foo()` style of defining functions, rather than the `auto foo() -> int` style recommended by this check.
 - readability-implicit-bool-conversion: we commonly use implicit bool cast of pointers and numbers.
 
-We have also disabled the following check alises to enabled checks:
+We have temporarily disabled the following checks until we decide on a better
+way to pass around byte buffers (probably using C++ spans) than `uint8_t *` pointers:
+
+- cppcoreguidelines-pro-bounds-pointer-arithmetic: this is needed for handling `uint8_t *` buffers
+- cppcoreguidelines-pro-bounds-constant-array-index: this is needed for handling `uint8_t *` buffers
+
+We have also disabled the following check aliases to checks which are enabled anyways
+(to avoid repeated warnings on the same problems, and avoid double-fixing which makes
+code fail compilation):
 
 - bugprone-narrowing-conversions: this is a duplicate of cppcoreguidelines-narrowing-conversions.
 - cert-con36-c: this is a duplicate of bugprone-spuriously-wake-up-functions.
