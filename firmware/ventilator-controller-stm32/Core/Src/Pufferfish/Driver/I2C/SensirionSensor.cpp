@@ -17,7 +17,7 @@ namespace I2C {
 I2CDeviceStatus SensirionSensor::read_with_crc(uint8_t *buf, size_t count,
                                                uint8_t polynomial,
                                                uint8_t init) {
-  if (count % 2) {
+  if (count % 2 > 0) {
     return I2CDeviceStatus::invalid_arguments;
   }
 

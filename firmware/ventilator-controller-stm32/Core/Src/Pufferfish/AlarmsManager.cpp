@@ -61,7 +61,7 @@ AlarmStatus Pufferfish::AlarmsManager::get_active() { return active_; }
 
 void Pufferfish::AlarmsManager::update_active() {
   for (int i = 0; i < static_cast<int>(AlarmStatus::no_alarm); i++) {
-    if (alarms_cnt_[i]) {
+    if (alarms_cnt_[i] > 0) {
       if (static_cast<AlarmStatus>(i) != active_) {
         led_.set_alarm(static_cast<AlarmStatus>(i));
         auditory_.set_alarm(static_cast<AlarmStatus>(i));

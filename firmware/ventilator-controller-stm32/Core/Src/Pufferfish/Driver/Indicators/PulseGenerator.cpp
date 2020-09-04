@@ -79,7 +79,7 @@ bool PulsedPWMGenerator::output() {
   bool output_pulse2 = pulse_pwm_generator2_.output();
 
   /* return the AND of pulses of high and low frequency */
-  return output_pulse1 & output_pulse2;
+  return output_pulse1 && output_pulse2;
 }
 
 void PulsedPWMGenerator::stop() {

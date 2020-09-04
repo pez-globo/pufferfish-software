@@ -20,7 +20,7 @@ uint8_t compute_crc8(const uint8_t *data, size_t size, const uint8_t polynomial,
   for (size_t byte_ctr = 0; byte_ctr < size; ++byte_ctr) {
     crc ^= ref_in ? reflect8(data[byte_ctr]) : (data[byte_ctr]);
     for (uint8_t bit = CHAR_BIT; bit > 0; --bit) {
-      if (crc & crc_mask) {
+      if ((crc & crc_mask) > 0) {
         crc = crc << 1U;
         crc ^= polynomial;
       } else {
