@@ -103,6 +103,11 @@ export const EventlogDetails = () => {
         setSelected(newSelected)
     }
 
+    function makeRed(id: number) {
+        if (id === 3) return {color:theme.palette.error.main}
+        return {}
+    }
+
     return (
         <Grid>
             <SimpleTable
@@ -131,8 +136,8 @@ export const EventlogDetails = () => {
                                 tabIndex={-1}
                                 key={row.id}
                             >
-                                <TableCell align="left">{row.value}</TableCell>
-                                <TableCell align="left">{row.measurement}</TableCell>
+                                <TableCell align="left" style={makeRed(row.id)}>{row.value}</TableCell>
+                                <TableCell align="left" style={makeRed(row.id)}>{row.measurement}</TableCell>
                             </StyledTableRow>
                         )
                     })}
