@@ -9,73 +9,117 @@
 #pragma once
 
 #include "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/Statuses.h"
+#include "Pufferfish/HAL/STM32/Time.h"
 
+/**
+ * @brief  Inline function to validate the addition of two uint32 variables
+ * @param  timeOne uint32 first parameter
+ * @param  timeTwo uint32 second parameter
+ * @return result of timeOne and timeTwo
+ */
+inline uint32_t timeValidCheck(uint32_t timeOne, uint32_t timeTwo)
+{
+    if( timeOne > (0xFFFFFFFF - timeTwo ) ) {
+      return 0xFFFFFFFF;
+    }
+    else{
+      return (timeOne + timeTwo );
+    }
+}
 
 namespace Pufferfish {
 namespace Driver {
 namespace MembraneButton {
 
-/**
- * Status of the buttons
- */
-struct ButtonStatus{
-  uint16_t counter;
-  bool buttonCurrentValue;
-  bool buttonLastValue;
-  bool buttonRisingEdge;
-  bool buttonFallingEdge;
-  bool buttonState;
+
+enum class ButtonReturn{
+  ok = 0, /// Ok if debounce is success
+  notOk, /// notOk if current time exceeds sampling period
+  unKnown /// Fault, if input state debouncing more the maximum debounce time limit
+};
+
+enum class EdgeState{
+    noEdge = 0, /// Button is in stable state
+    risingEdge, /// Button triggered on rising edge
+    fallingEdge /// Button triggered on falling edge
 };
 
 /**
- * Services required for when buttons are triggered high to low or low to high
+ * Abstract class for Debounce calculation
  */
-enum class ButtonServices {
-  noAction = 0,
-  actionOnRisingEdge,
-  actionOnFallingEdge
-};
+class DeBounce
+{
 
-/**
- * Membrane Buttons LED status
- */
-enum class MembraneLEDStatus{
-  off = 0,
-  on
-};
-/**
- * Drives for Membrane Buttons debouncing
- */
-class Buttons{
-
-  static const uint16_t debounceTime = 30; /// Need to fix debounce time
 public:
 
-  Buttons(HAL::DigitalInput &inputButton, HAL::DigitalOutput regLED)
-              : mInputButton(inputButton),mregLED(regLED){
-
+  DeBounce(){
   }
-    /**
-    * Initialize the Button Status structure variables
-    */
-    void init();
-    /**
-     * Button status with denounce time calculation
-     * @param ButtonServices new service required or not
-     */
-    ButtonServices buttonStatus();
-    /**
-     * Initialize the Button Status structure variables
-     * @param MembraneLEDStatus Membrane button led status
-     */
-    MembraneLEDStatus ledState();
-private:
+  /**
+   * Calculate the debounce time for input button
+   * @param input button state High or Low
+   * @param current_time
+   * @param output state of the debounced output
+   * @return ok on success, error code otherwise
+   */
+  ButtonReturn transform(bool input, uint32_t current_time, bool &output);
 
-    HAL::DigitalInput &mInputButton;
-    HAL::DigitalOutput &mregLED;
-    static ButtonStatus InputButtonState;
+private:
+      static const uint32_t debounceTimeLimit =  2000;
+      uint32_t samplingPeriod = 1;
+      uint32_t lastSampleTime;
+      uint8_t integrator;
+      uint32_t lastTimeStable;
+      const uint8_t maxIntegratorSamples = 100;
+      bool mOutput;
 
 };
-}  // namespace Buttons
+
+/**
+ * Abstract class for Edge state transition
+ */
+class EdgeDetection
+{
+
+public:
+  EdgeDetection(){
+  }
+
+  /**
+   * Checking switch state transition
+   * @param state debounced output
+   * @return rising edge on Low to High or falling edge on High to Low
+   */
+  EdgeState isSwitchSateChanged(bool state);
+private:
+  bool lastState;
+
+};
+
+/**
+ * Abstract class for Membrane button input
+ */
+class Button
+{
+public:
+  Button(HAL::DigitalInput &buttoninput, DeBounce &debouncer)
+    : mButtoninput(buttoninput),
+      mDebouncer(debouncer) {
+  }
+
+  /**
+   * Read button state
+   * @param debounedOutput debounced output state
+   * @param EdgeState rising edge on Low to High or falling edge on High to Low
+   * @return rising edge on Low to High or falling edge on High to Low
+   */
+  ButtonReturn readButtonstate(bool &debounedOutput, EdgeState &switchStateChanged);
+private:
+  HAL::DigitalInput &mButtoninput;
+  DeBounce &mDebouncer;
+  EdgeDetection mEdgeDetect;
+};
+
+}  // namespace MembraneButton
 }  // namespace HAL
 }  // namespace Pufferfish

@@ -15,76 +15,82 @@ namespace Driver {
 namespace MembraneButton {
 
 
-void Buttons::init()
+ButtonReturn DeBounce::transform(bool input, uint32_t currentTime, bool &output)
 {
-  /* FIXME: Need to find what is initial status of the buttons*/
-  InputButtonState.buttonFallingEdge = false;
-  InputButtonState.buttonLastValue = false;
-  InputButtonState.buttonRisingEdge = false;
-  InputButtonState.buttonState = false;
-}
+  if ( currentTime < timeValidCheck( lastSampleTime, samplingPeriod )){
+     return ButtonReturn::notOk;
+   }
+  
+  lastSampleTime = currentTime;
 
-ButtonServices Buttons::buttonStatus()
-{
-
-  InputButtonState.buttonCurrentValue = mInputButton.read();
-  /// Check input button status as changed or not
-  if(InputButtonState.buttonCurrentValue == InputButtonState.buttonLastValue)
+  /**
+   * Update the integrator based on the input signal
+   */
+  if (input == 0)
   {
-    if(InputButtonState.counter < 0xffff){
-      InputButtonState.counter++;
+    if (integrator > 0){
+        integrator--;
     }
   }
-  else
-  {
-    InputButtonState.counter = 0;
+  else if (integrator < maxIntegratorSamples){
+      integrator++;
   }
-  ///Check debounce time has expired
-  if(InputButtonState.counter >= debounceTime)
-  {
-    if(InputButtonState.buttonState != false){
-      InputButtonState.buttonState = true;
-    }
+  /**
+   * Update the integrator based on the input signal
+   */
+  if (integrator == 0){
+    mOutput = 0;
+    lastTimeStable = currentTime;
+  } else if (integrator >= maxIntegratorSamples) {
+    mOutput = 1;
+    lastTimeStable = currentTime;
+    integrator = maxIntegratorSamples;  /* defensive code if integrator got corrupted */
   }
-  if(InputButtonState.buttonState != false)
-  {
-    if((InputButtonState.buttonCurrentValue == true)
-      &&(InputButtonState.buttonLastValue == false)){
-      InputButtonState.buttonRisingEdge = true;
-    }else if((InputButtonState.buttonCurrentValue == false)
-        &&(InputButtonState.buttonLastValue == true)){
-        InputButtonState.buttonFallingEdge = true;
-      }else{
-        InputButtonState.buttonRisingEdge = false;
-        InputButtonState.buttonFallingEdge = false;
-      }
-  }
+  /**
+   * Report switch fault if debounce time exceeds the maximum limit
+   */
+   if(currentTime >= timeValidCheck( lastTimeStable,debounceTimeLimit ) )
+   {
+     return ButtonReturn::unKnown;
+   }
+   output = mOutput;
 
-  InputButtonState.buttonLastValue = InputButtonState.buttonCurrentValue;
-  if(InputButtonState.buttonRisingEdge ==  true)
-  {
-    return ButtonServices::actionOnRisingEdge;
-  }else if(InputButtonState.buttonRisingEdge ==  true){
-    return ButtonServices::actionOnFallingEdge;
-  }
-  ///FIXME: Required Button stuck fault
-  return ButtonServices::noAction;
+ return ButtonReturn::ok;
+
 }
 
-MembraneLEDStatus Buttons::ledState()
+EdgeState EdgeDetection::isSwitchSateChanged(bool state)
 {
-  ButtonServices status = this->buttonStatus();
-  if(status == ButtonServices::actionOnRisingEdge)
-  {
-    mregLED.write(true);
-    return MembraneLEDStatus::on;
-  }else if(status == ButtonServices::actionOnFallingEdge){
-    mregLED.write(false);
-    return MembraneLEDStatus::off;
-  }else{
-    mregLED.write(false);
-    return MembraneLEDStatus::off;
+
+  if (state != lastState) {
+    /* Update the last state */
+    lastState = state;
+    /* check for state is changed */
+    if (state == true) {
+      /* return the EdgeState as rising edge */
+      return EdgeState::risingEdge;
+    } else {
+      /* return the EdgeState as falling edge */
+      return EdgeState::fallingEdge;
+    }
   }
+  return EdgeState::noEdge;
+}
+
+ButtonReturn Button::readButtonstate(bool &debounedOutput, EdgeState &switchStateChanged){
+
+  bool input = mButtoninput.read();
+  uint32_t msTime = Pufferfish::HAL::millis();
+
+  ButtonReturn status= mDebouncer.transform(input, msTime, debounedOutput);
+  
+  /* Debounce is not success */
+  if(status != ButtonReturn::ok) {
+    return status;
+  }
+  switchStateChanged = mEdgeDetect.isSwitchSateChanged(debounedOutput);
+
+  return  status;
 }
 
 }  // namespace Membrane
