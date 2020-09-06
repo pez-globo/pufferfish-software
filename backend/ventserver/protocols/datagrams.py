@@ -47,11 +47,11 @@ Typical usage example:
 import logging
 import struct
 from typing import Any, Optional
-from crcmod import predefined #type: ignore
 
 import attr
 
 from ventserver.protocols import exceptions
+from ventserver.protocols import crc
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
 
@@ -120,13 +120,9 @@ class Datagram:
 
     """
 
-    _HEADER_FORMAT = '> L B B'
+    _HEADER_FORMAT = '> B B'
     _HEADER_PARSER = struct.Struct(_HEADER_FORMAT)
-    HEADER_SIZE = struct.calcsize(_HEADER_FORMAT)
-    _HEADER_PROTECTED_FORMAT = '> B B'
-    _HEADER_PROTECTED_PARSER = struct.Struct(_HEADER_PROTECTED_FORMAT)
-    PROTECTED_OFFSET = 4
-    PAYLOAD_OFFSET = 6
+    HEADER_SIZE = struct.calcsize(_HEADER_FORMAT) + 4
 
     crc: int = attr.ib(default=0, validator=[uint32_attr], repr=(
         lambda value: '0x{:08x}'.format(value)  # pylint: disable=unnecessary-lambda
@@ -181,9 +177,8 @@ class Datagram:
 
         """
         self.length = len(self.payload)  # update length before computing crc
-        self.crc = self.compute_protected_crc()
 
-    def _pack_protected(self) -> bytes:
+    def pack_protected(self) -> bytes:
         """Return the protected section of the datagram body.
 
         Raises:
@@ -192,7 +187,7 @@ class Datagram:
 
         """
         try:
-            header_protected = self._HEADER_PROTECTED_PARSER.pack(
+            header_protected = self._HEADER_PARSER.pack(
                 self.seq, self.length
             )
         except struct.error as exc:
@@ -202,18 +197,6 @@ class Datagram:
             ) from exc
 
         return header_protected + self.payload
-
-    def compute_protected_crc(self) -> int:
-        """Return the CRC of the protected section of the datagram body.
-
-        Raises:
-            exceptions.ProtocolDataError: the protected header fields of the
-                datagram could not be packed together into the protected section
-                of the datagram body.
-
-        """
-        crc_func = predefined.mkCrcFun('crc-32c')
-        return int(crc_func(self._pack_protected()))
 
     def compute_body(self) -> bytes:
         """Return the body of the datagram, including the header and payload.
@@ -225,14 +208,14 @@ class Datagram:
 
         """
         try:
-            header = self._HEADER_PARSER.pack(self.crc, self.seq, self.length)
+            header = self._HEADER_PARSER.pack(self.seq, self.length)
         except struct.error as exc:
             raise exceptions.ProtocolDataError(
-                'Could not pack header fields: crc=0x{:x}, seq={}, len={}'
-                .format(self.crc, self.seq, self.length)
+                'Could not pack header fields: seq={}, len={}'
+                .format(self.seq, self.length)
             ) from exc
 
-        return header + self.payload
+        return self.crc + header + self.payload
 
 
 # Filters
@@ -258,6 +241,9 @@ class DatagramReceiver(protocols.Filter[bytes, bytes]):
 
     _logger = logging.getLogger('.'.join((__name__, 'DatagramReceiver')))
 
+    _crc_receiver: protocols.Filter[bytes, bytes] = attr.ib(
+        factory=crc.CRCReceiver
+    )
     expected_seq: Optional[int] = attr.ib(default=None, init=False)
     _buffer: channels.DequeChannel[bytes] = attr.ib(
         factory=channels.DequeChannel
@@ -298,14 +284,8 @@ class DatagramReceiver(protocols.Filter[bytes, bytes]):
         datagram = Datagram()
         datagram.parse(body)  # may raise ProtocolDataError
         self._logger.debug(datagram)
-        if datagram.crc != datagram.compute_protected_crc():
-            raise exceptions.ProtocolDataError(
-                'The specified CRC of the datagram\'s protected section, '
-                '0x{:08x}, is inconsistent with the actual computed CRC '
-                'of the received protected section, 0x{:08x}'
-                .format(datagram.crc, datagram.compute_protected_crc())
-            )
-
+        self._crc_receiver.input(datagram.crc + datagram.payload)
+        _ = self._crc_receiver.output() # may raise ProtocolDataError
         if datagram.length != len(datagram.payload):
             raise exceptions.ProtocolDataError(
                 'The specified length of the datagram payload, {}, is '
@@ -342,6 +322,9 @@ class DatagramSender(protocols.Filter[bytes, bytes]):
 
     _logger = logging.getLogger('.'.join((__name__, 'DatagramSender')))
 
+    _crc_sender: protocols.Filter[bytes, bytes] = attr.ib(
+        factory=crc.CRCSender
+    )
     _seq = attr.ib(default=0, init=False)
     _buffer: channels.DequeChannel[bytes] = attr.ib(
         factory=channels.DequeChannel
@@ -387,6 +370,8 @@ class DatagramSender(protocols.Filter[bytes, bytes]):
 
         datagram = Datagram(seq=self._seq, payload=payload)
         datagram.update_from_payload()
+        self._crc_sender.input(datagram.pack_protected())
+        datagram.crc = self._crc_sender.output()
         self._logger.debug(datagram)
         self._seq = (self._seq + 1) % SEQ_NUM_SPACE
         return datagram.compute_body()
