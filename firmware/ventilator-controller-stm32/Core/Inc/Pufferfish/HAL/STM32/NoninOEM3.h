@@ -42,6 +42,7 @@ class NoninOEM {
 
  private:
 
+  /* Create a private bufferredUART<256, 256> reference */
   noninOEMUART &frame;
 
   /* Create an object of PacketParser */

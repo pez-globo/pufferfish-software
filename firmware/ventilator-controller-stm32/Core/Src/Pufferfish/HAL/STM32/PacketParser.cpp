@@ -9,6 +9,8 @@ namespace Pufferfish {
 namespace HAL {
 
 void PacketParser::reset() {
+  /* Reset the PacketLength to zero */
+  PacketLength = 0;
 
 }
 
@@ -16,7 +18,7 @@ PacketMeasurements PacketParser::readPacketMeasurements(uint8_t *PacketBuffer) {
   uint8_t frameIndex, sensorData[25];
 
   /* Read the byte4 for sensor data */
-  for (frameIndex = 0; frameIndex < 25; frameIndex++)
+  for (frameIndex = 0; frameIndex < PacketSize; frameIndex++)
   {
     sensorData[frameIndex] = PacketBuffer[(frameIndex*5)+3];
   }
@@ -87,47 +89,54 @@ PacketMeasurements PacketParser::readPacketMeasurements(uint8_t *PacketBuffer) {
 
   return mMeasurements;
 }
+
 PacketParser::PacketInputStatus PacketParser::input(uint8_t &readByte) {
   uint8_t frameByte, newFrame[PacketframeSize];
-
-  if( frames.input(readByte) != FrameSplitter::frameInputStatus::available)
+  FrameSplitter::frameOutputStatus frameOutput;
+  /* input the byte to frame and validate the input status */
+  if(frames.input(readByte) == FrameSplitter::frameInputStatus::notAvailable)
   {
+    /* Reset the packet when input status is notAvailable */
+    this->reset();
     inputStatus = PacketInputStatus::notAvailable;
+    return inputStatus;
   }
 
-  FrameSplitter::frameOutputStatus frameOutput = frames.output(newFrame);
+  /* Read the frame output and validate the output status */
+  frameOutput = frames.output(newFrame);
   if (frameOutput == FrameSplitter::frameOutputStatus::available){
+
+    /* On available of frame update the packet */
     for (frameByte = 0; frameByte < PacketframeSize;  frameByte ++)
     {
       PacketBuffer[(PacketLength*PacketframeSize) + frameByte] = newFrame[frameByte];
     }
     PacketLength++;
 
-    /* Validate the buffer length is equal to expected frame size */
+    /* Validate the buffer length is equal to expected packet size */
     if (PacketLength == PacketframeSize) {
+      /* Return Packet is available for measurements */
       inputStatus = PacketInputStatus::available;
       return inputStatus;
     } else {
       inputStatus = PacketInputStatus::inputReady;
       return inputStatus;
     }
+  /* on any error occurred in frame reset the packet */
   } else if (frameOutput == FrameSplitter::frameOutputStatus::checksumError || frameOutput == FrameSplitter::frameOutputStatus::statusByteError){
     this->reset();
   }
-  inputStatus = PacketInputStatus::notAvailable;
+  /* return the status to waiting */
+  inputStatus = PacketInputStatus::waiting;
   return inputStatus;
 }
 
 PacketParser::PacketOutputStatus PacketParser::output(PacketMeasurements SensorMeasurements) {
-
-  uint8_t byteIndex;
     /* Check for the frame availability in the buffer */
     if (inputStatus == PacketInputStatus::available){
-      for (byteIndex = 0; byteIndex < (PacketLength*PacketframeSize); byteIndex++)
-      {
-        /* PacketBuffer */
-        SensorMeasurements = this->readPacketMeasurements(PacketBuffer);
-      }
+      /* Read PacketBuffer and Update the measurements */
+      SensorMeasurements = this->readPacketMeasurements(PacketBuffer);
+      /* Return Packet Output status as available */
       return PacketOutputStatus::available;
 
     } else {

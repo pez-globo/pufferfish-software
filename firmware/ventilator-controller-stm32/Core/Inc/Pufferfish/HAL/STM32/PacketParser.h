@@ -36,6 +36,7 @@ class PacketParser {
   /* PacketParser Input status */
   enum class PacketInputStatus {
     available = 0,
+    waiting,
     inputReady,
     notAvailable
     };
