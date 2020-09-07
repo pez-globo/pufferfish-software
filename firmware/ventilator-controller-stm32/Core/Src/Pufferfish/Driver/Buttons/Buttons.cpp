@@ -15,12 +15,12 @@ namespace Driver {
 namespace MembraneButton {
 
 
-ButtonReturn DeBounce::transform(bool input, uint32_t currentTime, bool &output)
+ButtonStatus DeBounce::transform(bool input, uint32_t currentTime, bool &output)
 {
-  if ( currentTime < timeValidCheck( lastSampleTime, samplingPeriod )){
-     return ButtonReturn::notOk;
+  if(this->timeValidCheck(currentTime, lastSampleTime, samplingPeriod)){
+      return ButtonStatus::notOk;
    }
-  
+
   lastSampleTime = currentTime;
 
   /**
@@ -49,14 +49,12 @@ ButtonReturn DeBounce::transform(bool input, uint32_t currentTime, bool &output)
   /**
    * Report switch fault if debounce time exceeds the maximum limit
    */
-   if(currentTime >= timeValidCheck( lastTimeStable,debounceTimeLimit ) )
-   {
-     return ButtonReturn::unKnown;
+    if(!this->timeValidCheck(currentTime, lastTimeStable, debounceTimeLimit)){
+      return ButtonStatus::notOk;
    }
    output = mOutput;
 
- return ButtonReturn::ok;
-
+ return ButtonStatus::ok;
 }
 
 EdgeState EdgeDetection::isSwitchSateChanged(bool state)
@@ -77,21 +75,49 @@ EdgeState EdgeDetection::isSwitchSateChanged(bool state)
   return EdgeState::noEdge;
 }
 
-ButtonReturn Button::readButtonstate(bool &debounedOutput, EdgeState &switchStateChanged){
+ButtonStatus Button::readButtonstate(bool &debounedOutput, EdgeState &switchStateChanged){
 
   bool input = mButtoninput.read();
   uint32_t msTime = Pufferfish::HAL::millis();
 
-  ButtonReturn status= mDebouncer.transform(input, msTime, debounedOutput);
+  ButtonStatus status= mDebouncer.transform(input, msTime, debounedOutput);
   
   /* Debounce is not success */
-  if(status != ButtonReturn::ok) {
+  if(status != ButtonStatus::ok) {
     return status;
   }
   switchStateChanged = mEdgeDetect.isSwitchSateChanged(debounedOutput);
 
   return  status;
 }
+
+
+// This method returns
+// "true" --> if nowTime < (lastTime + addFactor)
+// "false" --> if nowTime >= (lastTime + addFactor)
+
+bool DeBounce::timeValidCheck(uint32_t nowTime, uint32_t lastTime, uint32_t addFactor)
+{
+  uint32_t upperTimeLimit = lastTime + addFactor;
+
+  // nowTime: crossed 32 bit boundary ; upperTimeLimit: NOT crossed 32 bit boundary
+  if((nowTime < lastTime) && (upperTimeLimit > lastTime)){
+    return false; // Current time is  > reference range
+  }
+
+  // nowTime: NOT crossed 32 bit boundary ; upperTimeLimit: crossed 32 bit boundary
+  if((nowTime > lastTime) && (upperTimeLimit < lastTime)){
+    return true; // Current time is  < reference range
+  }
+
+  //both nowTime and upperTimeLimit: either crossed 32 bit boundary OR NOT crossed 32 bit boundary
+  if(nowTime < upperTimeLimit){
+    return true; // Current time is  < reference range
+  }
+  else{
+    return false; // Current time is  >= reference range
+  }
+ }
 
 }  // namespace Membrane
 }  // namespace HAL

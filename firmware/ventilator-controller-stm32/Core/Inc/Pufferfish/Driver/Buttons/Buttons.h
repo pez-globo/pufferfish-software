@@ -12,28 +12,11 @@
 #include "Pufferfish/Statuses.h"
 #include "Pufferfish/HAL/STM32/Time.h"
 
-/**
- * @brief  Inline function to validate the addition of two uint32 variables
- * @param  timeOne uint32 first parameter
- * @param  timeTwo uint32 second parameter
- * @return result of timeOne and timeTwo
- */
-inline uint32_t timeValidCheck(uint32_t timeOne, uint32_t timeTwo)
-{
-    if( timeOne > (0xFFFFFFFF - timeTwo ) ) {
-      return 0xFFFFFFFF;
-    }
-    else{
-      return (timeOne + timeTwo );
-    }
-}
-
 namespace Pufferfish {
 namespace Driver {
 namespace MembraneButton {
 
-
-enum class ButtonReturn{
+enum class ButtonStatus{
   ok = 0, /// Ok if debounce is success
   notOk, /// notOk if current time exceeds sampling period
   unKnown /// Fault, if input state debouncing more the maximum debounce time limit
@@ -62,9 +45,17 @@ public:
    * @param output state of the debounced output
    * @return ok on success, error code otherwise
    */
-  ButtonReturn transform(bool input, uint32_t current_time, bool &output);
+  ButtonStatus transform(bool input, uint32_t current_time, bool &output);
 
 private:
+  /**
+   * Check time overflow conditions
+   * @param nowTime debouncer current time
+   * @param lastTime debouncer last time
+   * @param addFactor factor added to the last time
+   * @return true or false
+   */
+  bool timeValidCheck(uint32_t nowTime, uint32_t lastTime, uint32_t addFactor);
       static const uint32_t debounceTimeLimit =  2000;
       uint32_t samplingPeriod = 1;
       uint32_t lastSampleTime;
@@ -113,8 +104,10 @@ public:
    * @param EdgeState rising edge on Low to High or falling edge on High to Low
    * @return rising edge on Low to High or falling edge on High to Low
    */
-  ButtonReturn readButtonstate(bool &debounedOutput, EdgeState &switchStateChanged);
+  ButtonStatus readButtonstate(bool &debounedOutput, EdgeState &switchStateChanged);
+
 private:
+
   HAL::DigitalInput &mButtoninput;
   DeBounce &mDebouncer;
   EdgeDetection mEdgeDetect;
