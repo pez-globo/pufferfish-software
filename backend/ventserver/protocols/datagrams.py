@@ -65,19 +65,19 @@ SEQ_NUM_SPACE = 256  # the modulo base for sequence numbers
 # Classes
 
 
-def uint32_attr(
-        _: Any, __: 'attr.Attribute[int]', value: int
-) -> None:
-    """Validate the attr input as a 32-bit uint.
+# def uint32_attr(
+#         _: Any, __: 'attr.Attribute[int]', value: int
+# ) -> None:
+#     """Validate the attr input as a 32-bit uint.
 
-    Raises:
-        ValueError: attr init value cannot be represented as a 32-bit uint.
+#     Raises:
+#         ValueError: attr init value cannot be represented as a 32-bit uint.
 
-    """
-    if value < 0 or value > 0xffffffff:
-        raise ValueError(
-            'Attr must be a 32-bit uint: {!r}'.format(value)
-        )
+#     """
+#     if value < 0 or value > 0xffffffff:
+#         raise ValueError(
+#             'Attr must be a 32-bit uint: {!r}'.format(value)
+#         )
 
 
 def single_byte_attr(
@@ -91,6 +91,20 @@ def single_byte_attr(
     """
     bytes([value])
 
+def long_attr(
+        _: Any, __: 'attr.Attribute[bytes]', value: bytes
+) -> None:
+    """Validate the attr input as a byte re.
+
+    Raises:
+        ValueError: attr init value cannot be represented as a single byte.
+
+    """
+    if len(bytes(value)) != 4:
+        raise ValueError(
+            'Attr must be a bytes representation of unsigned long: {!r}'
+            .format(value)
+        )
 
 @attr.s
 class Datagram:
@@ -124,9 +138,12 @@ class Datagram:
     _HEADER_PARSER = struct.Struct(_HEADER_FORMAT)
     HEADER_SIZE = struct.calcsize(_HEADER_FORMAT) + 4
 
-    crc: int = attr.ib(default=0, validator=[uint32_attr], repr=(
-        lambda value: '0x{:08x}'.format(value)  # pylint: disable=unnecessary-lambda
-    ))
+    crc: bytes = attr.ib(
+        default=b'\x00\x00\x00\x00',
+        validator=[long_attr], repr=(
+            lambda value: '0x{:08x}'.format(value)  # pylint: disable=unnecessary-lambda
+        )
+    )
     seq: int = attr.ib(
         default=0, validator=[single_byte_attr]
     )
@@ -371,7 +388,10 @@ class DatagramSender(protocols.Filter[bytes, bytes]):
         datagram = Datagram(seq=self._seq, payload=payload)
         datagram.update_from_payload()
         self._crc_sender.input(datagram.pack_protected())
-        datagram.crc = self._crc_sender.output()
+        crc_key = self._crc_sender.output()
+        if not crc_key:
+            return None
+        datagram.crc = crc_key
         self._logger.debug(datagram)
         self._seq = (self._seq + 1) % SEQ_NUM_SPACE
         return datagram.compute_body()

@@ -1,5 +1,5 @@
 """Filter to generate protected bytes using crc function."""
-
+# TODO: rename certain variables derived from datagram filter
 
 import logging
 import struct
@@ -40,18 +40,24 @@ class CRCSender(protocols.Filter[bytes, bytes]):
         """Extracts the next event in the buffer and processes it.""" 
 
         event = self._buffer.output()
-        if not event:
-            return None
-
-        crc_key = int(self._crc_func(event))
+        assert isinstance(event, bytes), (
+            "{event} is expected to be a bytes object."
+        )
         try:
-            crc_key = self._HEADER_PARSER.pack(crc_key)
+            crc_key = int(self._crc_func(event)) # raise error
+        except TypeError as terr:
+            raise exceptions.ProtocolDataError(
+                'Could not compute crc: {0}'
+                .format(terr))
+        parsed_key = None
+        try:
+            parsed_key = self._HEADER_PARSER.pack(crc_key)
         except struct.error as exc:
             raise exceptions.ProtocolDataError(
                 'Could not pack header fields: crc=0x{:x}'
                 .format(crc_key)
             ) from exc
-        return crc_key
+        return parsed_key
 
 @attr.s
 class CRCReceiver(protocols.Filter[bytes, bytes]):
@@ -84,13 +90,13 @@ class CRCReceiver(protocols.Filter[bytes, bytes]):
         
         crc_key = None
         try:
-            crc_key = self._HEADER_PARSER.unpack(event[:self.HEADER_SIZE])
+            crc_key = self._HEADER_PARSER.unpack(event[:self.HEADER_SIZE])[0]
         except struct.error as exc:
             raise exceptions.ProtocolDataError(
                 'Unparseable header: {!r}'.format(event[:self.HEADER_SIZE])
             ) from exc
 
-        calculated_crc = int(self._crc_func(event[self.HEADER_SIZE:]))
+        calculated_crc = self._crc_func(event[self.HEADER_SIZE:])
         if not crc_key != calculated_crc:
             raise exceptions.ProtocolDataError(
                 'The specified CRC of the datagram\'s protected section, '
