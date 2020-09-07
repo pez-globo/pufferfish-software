@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "stm32h7xx_hal.h"
-#include "PacketParser.h"
+#include <stdint.h>
+#include "Pufferfish/HAL/STM32/BufferedUART.h"
 
 namespace Pufferfish {
 namespace HAL {
@@ -19,9 +19,13 @@ namespace HAL {
 class FrameSplitter {
  public:
 
+  /* Size of Frame */
+  static const uint8_t frameSize = 5;
+
   /* FrameSplitter input status return values */
   enum class frameInputStatus {
     inputReady = 0,
+    notAvailable,
     available
     };
 
@@ -43,7 +47,7 @@ class FrameSplitter {
   /**
    * Call this until it returns available, then call output
    */
-  frameInputStatus input(uint8_t newByte);
+  frameInputStatus input(const uint8_t newByte);
 
   /*
    * output method updates the frame on available or throws error/waiting
@@ -51,11 +55,17 @@ class FrameSplitter {
   frameOutputStatus output(uint8_t *outputBuffer);
 
  private:
-  /* Size of Frame */
-  static const size_t frameSize = 5;
 
-  /* Packet parser object is created to read input byte */
-  PacketParser PacketRead;
+  /* FrameSplitter input status return values */
+  enum class startOfPacketStatus {
+    available = 0,
+    notAvailable,
+    };
+
+  /*
+   * Validates the start of packet frame
+   */
+  startOfPacketStatus validateStartOfPacket(const uint8_t newByte);
 
   /* Frame Buffer stores bytes of data received from PacketParser input */
   uint8_t frameBuffer[frameSize];
@@ -65,7 +75,9 @@ class FrameSplitter {
 
   frameInputStatus inputStatus;
 
-  };
+  startOfPacketStatus packetStatus = startOfPacketStatus::notAvailable;
+
+};
 
 } // HAL
 } // Pufferfish

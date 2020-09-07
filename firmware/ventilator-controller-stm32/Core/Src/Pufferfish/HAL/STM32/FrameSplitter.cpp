@@ -8,12 +8,42 @@
 namespace Pufferfish {
 namespace HAL {
 
-FrameSplitter::frameInputStatus FrameSplitter::input(uint8_t newByte) {
-  /* Read input byte data from PacketRead */
-  if (PacketRead.input(newByte) == PacketParser::PacketInputStatus::inputReady)
+FrameSplitter::startOfPacketStatus FrameSplitter::validateStartOfPacket(const uint8_t newByte)
+{
+  if (packetStatus == startOfPacketStatus::notAvailable)
   {
     frameBuffer[bufferLength] = newByte;
+    bufferLength++;
+    if (bufferLength == 5)
+    {
+      if(frameBuffer[0] == 0x01 && (frameBuffer[1] &0x01) == 0x01 )
+      {
+        /* Checksum validation */
+        if (frameBuffer[0]+frameBuffer[1]+frameBuffer[2]+frameBuffer[3] == (frameBuffer[4] % 256))
+        {
+          packetStatus = startOfPacketStatus::available;
+          return packetStatus;
+        }
+      }
+      frameBuffer[0] = frameBuffer[1];
+      frameBuffer[1] = frameBuffer[2];
+      frameBuffer[2] = frameBuffer[3];
+      frameBuffer[3] = frameBuffer[4];
+      bufferLength--;
+    }
   }
+  return packetStatus;
+}
+
+FrameSplitter::frameInputStatus FrameSplitter::input(const uint8_t newByte) {
+
+  if( this-> validateStartOfPacket(newByte) == startOfPacketStatus::notAvailable)
+  {
+    return frameInputStatus::notAvailable;
+  }
+
+  frameBuffer[bufferLength] = newByte;
+  bufferLength++;
   /* Validate the buffer length is equal to expected frame size */
   if (bufferLength == frameSize) {
     inputStatus = frameInputStatus::available;
@@ -30,6 +60,7 @@ FrameSplitter::frameOutputStatus FrameSplitter::output(uint8_t *outputBuffer) {
   if (inputStatus == frameInputStatus::available){
     /* Validate the Status byte */
     if ((frameBuffer[1] & 0xFE) != 0x00){
+      packetStatus = startOfPacketStatus::notAvailable;
       /* Return status byte error */
       return frameOutputStatus::statusByteError;
     } else {
@@ -37,6 +68,7 @@ FrameSplitter::frameOutputStatus FrameSplitter::output(uint8_t *outputBuffer) {
 
       /* Validate the checksum */
       if (frameCHK != frameBuffer[4]) {
+        packetStatus = startOfPacketStatus::notAvailable;
         /* Return Checksum error */
         return frameOutputStatus::checksumError;
       }
