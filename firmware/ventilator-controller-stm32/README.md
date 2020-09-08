@@ -61,8 +61,7 @@ makes it easy to edit the project files.
 You can run cppcheck checks for the main application from the command-line with:
 
 ```
-mkdir application-cppcheck-build-dir
-cppcheck --project=application.cppcheck --inline-suppr --enable=all --error-exitcode=1
+./cppcheck.sh application
 ```
 
 ## CMake Cross-Compilation Builds

@@ -89,7 +89,7 @@ I2CDeviceStatus SDPSensor::serial_number(uint32_t &pn, uint64_t &sn) {
 I2CDeviceStatus SDPSensor::start_continuous(bool averaging) {
   static const uint8_t command_prefix = 0x36;
   static const uint8_t command_dp_average = 0x15;
-  static const uint8_t command_dp_none = 0x15;
+  static const uint8_t command_dp_none = 0x1e;
   std::array<uint8_t, 2> cmd{
       {command_prefix, (averaging) ? command_dp_average : command_dp_none}};
   I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
