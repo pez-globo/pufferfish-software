@@ -4,6 +4,11 @@ on:
   push:
     paths:
       - 'backend/**'
+  workflow_dispatch:
+    inputs:
+      git-ref:
+        description: 'Git ref (optional)'
+        required: false
 
 defaults:
   run:
