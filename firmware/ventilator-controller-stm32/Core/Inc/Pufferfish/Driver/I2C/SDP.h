@@ -49,6 +49,7 @@ namespace I2C {
 struct SDPSample {
   float differential_pressure;
   float temperature;
+  int16_t differentialPressureScale;
 };
 
 /**
@@ -79,7 +80,7 @@ class SDPSensor : public Testable {
    * @param sample[out] the sensor reading; only valid on success
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus read_sample(SDPSample &sample);
+  I2CDeviceStatus readFullSample(SDPSample &sample);
 
   /**
    * stop continuously making measurements in sensor
@@ -97,7 +98,8 @@ class SDPSensor : public Testable {
 
   I2CDeviceStatus reset() override;
   I2CDeviceStatus test() override;
-
+  
+  I2CDeviceStatus readPressureSample(int16_t differentialPressureScale, float &differentialPressure);
  private:
   static const uint8_t crc_poly = 0x31;
   static const uint8_t crc_init = 0xff;
