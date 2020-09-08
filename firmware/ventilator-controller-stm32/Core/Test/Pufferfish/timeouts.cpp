@@ -1,12 +1,12 @@
 /*
  * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
  *
- * timestamps.cpp
+ * timeouts.cpp
  *
  *  Created on: July 14, 2020
  *      Author: Ethan Li
  *
- * Unit tests to confirm behavior of timestamp checks
+ * Unit tests to confirm behavior of timeout checks
  *
  */
 
@@ -15,7 +15,7 @@
 
 namespace PF = Pufferfish;
 
-SCENARIO("Timeouts fail across rollover for timestamp checks", "[timestamps]") {
+SCENARIO("Timeouts fail across rollover for timestamp checks", "[timeouts]") {
   GIVEN("A timeout") {
     uint8_t timeout = 10;
 
@@ -29,7 +29,7 @@ SCENARIO("Timeouts fail across rollover for timestamp checks", "[timestamps]") {
         REQUIRE(end_time < deadline);
       }
 
-      AND_THEN("timestamp checks succeed outside timeout") {
+      THEN("timestamp checks succeed outside timeout") {
         uint8_t end_time = 139;
         REQUIRE(end_time > deadline);
       }
@@ -45,7 +45,7 @@ SCENARIO("Timeouts fail across rollover for timestamp checks", "[timestamps]") {
         REQUIRE(!(end_time < deadline));
       }
 
-      AND_THEN("timestamp checks succeed outside timeout") {
+      THEN("timestamp checks succeed outside timeout") {
         uint8_t end_time = static_cast<uint8_t>(261);
         REQUIRE(end_time == 5);
         REQUIRE(end_time > deadline);
@@ -54,21 +54,21 @@ SCENARIO("Timeouts fail across rollover for timestamp checks", "[timestamps]") {
   }
 }
 
-SCENARIO("Timeouts succeed across rollover for duration checks", "[timestamps]") {
+SCENARIO("Timeouts succeed across rollover for duration checks", "[timeouts]") {
   GIVEN("A timeout") {
     uint8_t timeout = 10;
 
     WHEN("the start time is small") {
       uint8_t start_time = 128;
 
-      THEN("timestamp checks succeed within timeout") {
+      THEN("duration checks succeed within timeout") {
         uint8_t end_time = 137;
         uint8_t duration = end_time - start_time;
         REQUIRE(duration == 9);
         REQUIRE(duration < timeout);
       }
 
-      AND_THEN("timestamp checks succeed outside timeout") {
+      THEN("duration checks succeed outside timeout") {
         uint8_t end_time = 139;
         uint8_t duration = end_time - start_time;
         REQUIRE(duration == 11);
@@ -79,14 +79,14 @@ SCENARIO("Timeouts succeed across rollover for duration checks", "[timestamps]")
     WHEN("the start time is large") {
       uint8_t start_time = 250;
 
-      THEN("timestamp checks succeed within timeout before rollover") {
+      THEN("duration checks succeed within timeout before rollover") {
         uint8_t end_time = 251;
         uint8_t duration = end_time - start_time;
         REQUIRE(duration == 1);
         REQUIRE(duration < timeout);
       }
 
-      AND_THEN("timestamp checks succeed within timeout after rollover") {
+      THEN("duration checks succeed within timeout after rollover") {
         uint8_t end_time = static_cast<uint8_t>(257);
         REQUIRE(end_time == 1);
         uint8_t duration = end_time - start_time;
@@ -94,7 +94,7 @@ SCENARIO("Timeouts succeed across rollover for duration checks", "[timestamps]")
         REQUIRE(duration < timeout);
       }
 
-      AND_THEN("timestamp checks succeed outside timeout") {
+      THEN("duration checks succeed outside timeout") {
         uint8_t end_time = static_cast<uint8_t>(261);
         REQUIRE(end_time == 5);
         uint8_t duration = end_time - start_time;
@@ -105,19 +105,19 @@ SCENARIO("Timeouts succeed across rollover for duration checks", "[timestamps]")
   }
 }
 
-SCENARIO("Util::withinTimeout behaves correctly across rollover", "[timestamps]") {
+SCENARIO("Util::withinTimeout behaves correctly across rollover", "[timeouts]") {
   GIVEN("A timeout") {
     uint8_t timeout = 10;
 
     WHEN("the start time is small") {
       uint8_t start_time = 128;
 
-      THEN("timestamp checks succeed within timeout") {
+      THEN("timeout checks succeed within timeout") {
         uint8_t end_time = 137;
         REQUIRE(PF::Util::withinTimeout(start_time, timeout, end_time));
       }
 
-      AND_THEN("timestamp checks succeed outside timeout") {
+      THEN("timeout checks succeed outside timeout") {
         uint8_t end_time = 139;
         REQUIRE(!PF::Util::withinTimeout(start_time, timeout, end_time));
       }
@@ -126,18 +126,18 @@ SCENARIO("Util::withinTimeout behaves correctly across rollover", "[timestamps]"
     WHEN("the start time is large") {
       uint8_t start_time = 250;
 
-      THEN("timestamp checks succeed within timeout before rollover") {
+      THEN("timeout checks succeed within timeout before rollover") {
         uint8_t end_time = 251;
         REQUIRE(PF::Util::withinTimeout(start_time, timeout, end_time));
       }
 
-      AND_THEN("timestamp checks succeed within timeout after rollover") {
+      THEN("timeout checks succeed within timeout after rollover") {
         uint8_t end_time = static_cast<uint8_t>(257);
         REQUIRE(end_time == 1);
         REQUIRE(PF::Util::withinTimeout(start_time, timeout, end_time));
       }
 
-      AND_THEN("timestamp checks succeed outside timeout") {
+      THEN("timeout checks succeed outside timeout") {
         uint8_t end_time = static_cast<uint8_t>(261);
         REQUIRE(end_time == 5);
         REQUIRE(!PF::Util::withinTimeout(start_time, timeout, end_time));
