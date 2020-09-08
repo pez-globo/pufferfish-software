@@ -201,6 +201,11 @@ and then run the target.
 
 ### Running Automated Tests
 
+The first time you do this from a repository where you have aleady built any
+build targets, you may need to delete your `.settings/language.settings.xml`
+file and the `TestCatch2` directory (if it exists), restart STM32Cube IDE, and
+then rebuild the Debug target, before you can successfully build the TestCatch2 target.
+
 To run the automated test suite using catch2 on your own laptop (not on the STM32!),
 select the "ventilator-controller-stm32 TestCatch2" run target in either the run
 configurations menu or the run configurations manager, and then run the target.

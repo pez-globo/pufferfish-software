@@ -20,22 +20,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
-
 namespace Pufferfish {
 namespace Util {
 
-/**
- * Checks whether the test time is within the timeout, modulo rollover
- * @param start_time the start time for the timeout interval
- * @param timeout the duration of the timeout interval
- * @param test_time the time to test
- * @return true if the test time is within the timeout, false otherwise
- */
 template <typename T>
-inline bool within_timeout(T start_time, T timeout, T test_time);
+inline bool within_timeout(T start_time, T timeout, T test_time) {
+  T duration = test_time - start_time;
+  return duration < timeout;
+}
 
 }  // namespace Util
 }  // namespace Pufferfish
-
-#include "Timeouts.tpp"
