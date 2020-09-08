@@ -12,6 +12,8 @@ import { darkTheme, lightTheme } from '../../styles/customTheme'
 import { ThemeVariant } from '../../store/controller/proto/mcu_pb'
 import { getFrontendDisplaySetting } from '../../store/controller/selectors'
 
+const RIGHT_CLICK_BUTTON_KEY = 2;
+
 interface Props {
   initialize: typeof initialize,
   locale: string,
@@ -22,6 +24,13 @@ class App extends Component<Props> {
   componentDidMount() {
     const { initialize } = this.props
     initialize()
+    // Disable Right click across app
+    document.oncontextmenu = function (event) {
+      if (event.button === RIGHT_CLICK_BUTTON_KEY) {
+          event.preventDefault();
+          return false;
+      }
+    }
   }
 
   render() {
