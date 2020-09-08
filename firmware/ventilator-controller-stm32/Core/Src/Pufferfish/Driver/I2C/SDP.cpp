@@ -110,7 +110,7 @@ void SDPSensor::start_continuous_wait(bool stabilize) {
   }
 }
 
-I2CDeviceStatus SDPSensor::readFullSample(SDPSample &sample) {
+I2CDeviceStatus SDPSensor::read_full_sample(SDPSample &sample) {
   if (!measuring_) {
     I2CDeviceStatus ret = this->start_continuous();
     if (ret != I2CDeviceStatus::ok) {
@@ -173,8 +173,7 @@ void SDPSensor::parse_reading(
   }
 
   static const float temp_scale = 200;
-  sample.temperature =
-      static_cast<float>(temp_raw) / temp_scale;
+  sample.temperature = static_cast<float>(temp_raw) / temp_scale;
 }
 
 I2CDeviceStatus SDPSensor::reset() {
@@ -236,7 +235,7 @@ I2CDeviceStatus SDPSensor::test() {
   SDPSample sample{};
   for (i = 0; i < read_attempts; i++) {
     HAL::delay(command_delay);
-    status = this->readFullSample(sample);
+    status = this->read_full_sample(sample);
 
     if (status == I2CDeviceStatus::ok) {
       break;
@@ -275,25 +274,27 @@ I2CDeviceStatus SDPSensor::test() {
   return I2CDeviceStatus::ok;
 }
 
+I2CDeviceStatus SDPSensor::read_pressure_sample(
+    int16_t differential_pressure_scale, float &differential_pressure) {
+  static const uint8_t data_len = 2;
+  std::array<uint8_t, data_len> data{{0}};
 
-I2CDeviceStatus SDPSensor::readPressureSample(int16_t differentialPressureScale, float &differentialPressure){
-
-  const uint8_t DATA_LEN = 2;
-  uint8_t data[DATA_LEN] = { 0 };
-
-  I2CDeviceStatus ret = mSensirion.readWithCRC(data, DATA_LEN, 0x31, 0xFF);
-  if (ret == I2CDeviceStatus::readError) {
+  I2CDeviceStatus ret =
+      sensirion_.read_with_crc(data.data(), data.size(), crc_poly, crc_init);
+  if (ret == I2CDeviceStatus::read_error) {
     // get NACK, no new data is available
-    return I2CDeviceStatus::noNewData;
-  } 
-  else if (ret != I2CDeviceStatus::ok) {
+    return I2CDeviceStatus::no_new_data;
+  }
+
+  if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
- int16_t pressuresample = static_cast<int16_t>(data[0] << 8 | data[1]);
 
- differentialPressure = pressuresample/ static_cast<float>(differentialPressureScale);
-
- return I2CDeviceStatus::ok;
+  auto pressure_sample = static_cast<int16_t>(
+      (data[0] << static_cast<uint8_t>(CHAR_BIT)) + data[1]);
+  differential_pressure = static_cast<float>(pressure_sample) /
+                          static_cast<float>(differential_pressure_scale);
+  return I2CDeviceStatus::ok;
 }
 
 }  // namespace I2C
