@@ -117,12 +117,9 @@ const PressureControlMainView = () => {
                             <Grid item container style={{height:'48%'}}>
                                 <PawGraphInfo />
                             </Grid>
-                            <Grid item xs>
-                                <FlowGraphInfo />
-                            </Grid>
                             <Grid item style={{height:'4%'}}/>
                             <Grid item container style={{height:'48%'}}>
-                                <PawGraphInfo />
+                                <FlowGraphInfo />
                             </Grid>
                         </Grid>
                     </TabPanel>
