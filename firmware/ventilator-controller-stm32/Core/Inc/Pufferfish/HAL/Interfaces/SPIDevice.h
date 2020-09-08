@@ -8,8 +8,8 @@
 
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
-#include <stddef.h>
 
 #include "Pufferfish/Statuses.h"
 

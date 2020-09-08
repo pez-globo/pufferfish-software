@@ -39,7 +39,7 @@ jobs:
         mkdir application-cppcheck-build-dir
         cppcheck --project=application.cppcheck --inline-suppr --enable=all --error-exitcode=1
 
-  build-application:
+  build-firmware:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -96,4 +96,28 @@ jobs:
 
     - name: Run clang-tidy
       run: |
-        ./clang-tidy-all.sh
+        ./clang-tidy-all.sh Clang
+
+  catch2:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install cmake
+
+    - name: Run CMake
+      run: |
+        ./cmake.sh TestCatch2
+
+    - name: Run make
+      run: |
+        cd cmake-build-testcatch2
+        make -j2
+
+    - name: Run Catch2 tests
+      run: |
+        cd cmake-build-testcatch2
+        ./TestCatch2

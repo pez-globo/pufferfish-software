@@ -16,9 +16,7 @@
 
 namespace PF = Pufferfish;
 
-
-SCENARIO("PWMGenerator generates a PWM signal",
-         "[PulseGenerator]") {
+SCENARIO("PWMGenerator generates a PWM signal", "[PulseGenerator]") {
   GIVEN("A PWMGenerator") {
     uint32_t pulse_period = 10;
     uint32_t pulse_width = 1;
@@ -29,9 +27,7 @@ SCENARIO("PWMGenerator generates a PWM signal",
       uint8_t start_time = 128;
       pwm.start(start_time);
 
-      THEN("signal starts with a rising edge") {
-        REQUIRE(pwm.output());
-      }
+      THEN("signal starts with a rising edge") { REQUIRE(pwm.output()); }
 
       AND_THEN("signal stays constant until clock advances") {
         REQUIRE(pwm.output());

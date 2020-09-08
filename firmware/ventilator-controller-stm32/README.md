@@ -136,13 +136,13 @@ scan-build make -j4
 
 ### Clang-tidy
 
-To run clang-tidy on the project, first install `clang-tidy`, then
-use CMake to generate a compile commands database for a Clang build type
+To run clang-tidy on the firmware, first install `clang-tidy`, then
+use CMake to generate a compile commands database for the Clang build type
 (with the appropriate toolchain path, as usual), and then run the
 `clang-tidy-all.sh` script:
 ```
 ./cmake.sh Clang $TOOLCHAIN_PATH  # run from the firmware/ventilator-controller-stm32 directory
-./clang-tidy-all.sh
+./clang-tidy-all.sh Clang
 ```
 Note that this script will delete and rebuild the `cmake-build-debug` directory
 if it already exists, and then it will run clang-tidy to report all warnings.
@@ -153,7 +153,14 @@ the compile commands database and become unable to find header files from our pr
 For example, you can use the following to apply suggested fixes:
 ```
 ./cmake.sh Clang $TOOLCHAIN_PATH  # run from the firmware/ventilator-controller-stm32 directory
-./clang-tidy-all.sh --fix --fix-errors
+./clang-tidy-all.sh Clang --fix --fix-errors
+```
+
+To run clang-tidy on the Catch2 tests, use CMake to generate a compile commands
+database for the TestCatch2 build type, and then run the `clang-tidy-all.sh` script:
+```
+./cmake.sh TestCatch2
+./clang-tidy-all.sh TestCatch2
 ```
 
 Every time you create or delete a file, you will need to use CMake to re-generate
@@ -216,8 +223,9 @@ and then run the target.
 
 The first time you do this from a repository where you have aleady built any
 build targets, you may need to delete your `.settings/language.settings.xml`
-file and the `TestCatch2` directory (if it exists), restart STM32Cube IDE, and
-then rebuild the Debug target, before you can successfully build the TestCatch2 target.
+file and the `TestCatch2` directory (if it exists) and all `cmake-build-*` directories
+(if they exist), restart STM32Cube IDE, and then rebuild the Debug target, before
+you can successfully build the TestCatch2 target.
 
 To run the automated test suite using catch2 on your own laptop (not on the STM32!),
 select the "ventilator-controller-stm32 TestCatch2" run target in either the run
