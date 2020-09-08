@@ -111,17 +111,6 @@ run cmake as follows:
 ./cmake.sh Clang /usr/lib /usr/bin
 ```
 
-### Building the Catch2 Tests
-
-This is a bit simpler. After installing `cmake`, just run:
-```
-./cmake.sh TestCatch2
-cd cmake-build-testcatch2
-make -j4
-```
-
-Then you can run the tests with `./TestCatch2`.
-
 ### Scan-build
 
 To run scan-build on the project, first install `clang-tools` and use CMake to
@@ -153,13 +142,6 @@ For example, you can use the following to apply suggested fixes:
 ```
 ./cmake.sh Clang $TOOLCHAIN_PATH  # run from the firmware/ventilator-controller-stm32 directory
 ./clang-tidy-all.sh Clang --fix --fix-errors
-```
-
-To run clang-tidy on the Catch2 tests, use CMake to generate a compile commands
-database for the TestCatch2 build type, and then run the `clang-tidy-all.sh` script:
-```
-./cmake.sh TestCatch2
-./clang-tidy-all.sh TestCatch2
 ```
 
 Every time you create or delete a file, you will need to use CMake to re-generate
@@ -207,6 +189,45 @@ code fail compilation):
 - google-readability-namespace-comments: this is a duplicate of llvm-namespace-comment.
 - llvm-else-after-return: this is a duplicate of readability-else-after-return.
 - llvm-qualified-auto: this is a duplicate of readability-qualified-auto.
+
+
+## CMake Native Builds
+
+To use CMake to generate makefiles for building the Catch2 tests, for execution
+on the native computer (rather than an STM32) and without running STM32Cube IDE,
+first ensure `cmake` is installed.
+
+### Building the Catch2 Tests
+
+Just run:
+```
+./cmake.sh TestCatch2  # run from the firmware/ventilator-controller-stm32 directory
+cd cmake-build-testcatch2
+make -j4
+```
+
+Then you can run the tests with `./TestCatch2`.
+
+### Scan-build
+
+To run scan-build on the Catch2 tests, first ensure `clang-tools` is installed and use
+CMake to generate the makefiles, then run your normal `make` command in a CMake build
+directory but first prepend `scan-build`. For example:
+```
+./cmake.sh TestCatch2   # run from the firmware/ventilator-controller-stm32 directory
+cd cmake-build-testcatch2
+scan-build make -j4
+```
+
+### Clang-tidy
+
+
+To run clang-tidy on the Catch2 tests, use CMake to generate a compile commands
+database for the TestCatch2 build type, and then run the `clang-tidy-all.sh` script:
+```
+./cmake.sh TestCatch2  # run from the firmware/ventilator-controller-stm32 directory
+./clang-tidy-all.sh TestCatch2
+```
 
 
 
