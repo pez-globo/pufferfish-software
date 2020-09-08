@@ -43,7 +43,7 @@ void PWMGenerator::update(uint32_t current_time) {
       last_cycle_ = current_time;
     }
     /* Trimming the high or low based on pulse duty */
-    output_ = (pulse_duration <= pulse_duty_);
+    output_ = (pulse_duration < pulse_duty_);
   } else {
     output_ = false;
   }

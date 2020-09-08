@@ -38,6 +38,7 @@
 #include "Pufferfish/Driver/Indicators/AuditoryAlarm.h"
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
 #include "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/STM32/HAL.h"
 #include "Pufferfish/HAL/STM32/HALI2CDevice.h"
 #include "Pufferfish/Statuses.h"
 /* USER CODE END Includes */

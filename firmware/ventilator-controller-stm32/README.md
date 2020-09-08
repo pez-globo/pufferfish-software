@@ -71,6 +71,8 @@ To use CMake to generate makefiles for building the main firmware application
 without running STM32Cube IDE (e.g. to build on a headless server or to use some
 Clang-based tools), first install `cmake`.
 
+### Building the Firmware
+
 Then find the path where the GCC arm-none-eabi toolchain is available (if you have
 not already installed it into somewhere accessible from the shell), and add it to
 your shell's path. For example, you might have this toolchain provided by the
@@ -109,6 +111,17 @@ run cmake as follows:
 ```
 ./cmake.sh Clang /usr/lib /usr/bin
 ```
+
+### Building the Catch2 Tests
+
+This is a bit simpler. After installing `cmake`, just run:
+```
+./cmake.sh TestCatch2
+cd cmake-build-testcatch2
+make -j4
+```
+
+Then you can run the tests with `./TestCatch2`.
 
 ### Scan-build
 

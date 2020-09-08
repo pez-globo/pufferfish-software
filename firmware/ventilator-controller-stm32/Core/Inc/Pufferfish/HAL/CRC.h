@@ -7,8 +7,7 @@
 #pragma once
 
 #include <cstdint>
-
-#include "stm32h7xx_hal.h"
+#include <stddef.h>
 
 namespace Pufferfish {
 namespace HAL {

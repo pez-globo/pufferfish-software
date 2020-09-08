@@ -8,8 +8,10 @@
 
 #pragma once
 
+#include <cstdint>
+#include <stddef.h>
+
 #include "Pufferfish/Statuses.h"
-#include "stm32h7xx_hal.h"
 
 namespace Pufferfish {
 namespace HAL {

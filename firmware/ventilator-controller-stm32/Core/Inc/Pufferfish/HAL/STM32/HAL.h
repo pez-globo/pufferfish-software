@@ -8,6 +8,11 @@
 
 #pragma once
 
-#include "CRC.h"
-#include "Interfaces/I2CDevice.h"
-#include "Interfaces/SPIDevice.h"
+#include "AnalogInput.h"
+#include "DigitalInput.h"
+#include "DigitalOutput.h"
+#include "Endian.h"
+#include "HALI2CDevice.h"
+#include "HALSPIDevice.h"
+#include "PWM.h"
+#include "Time.h"

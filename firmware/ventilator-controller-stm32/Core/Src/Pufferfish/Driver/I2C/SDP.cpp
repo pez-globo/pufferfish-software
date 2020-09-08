@@ -34,6 +34,10 @@
  */
 
 #include "Pufferfish/Driver/I2C/SDP.h"
+// FIXME: After HAL/Interfaces/Endian.h is created, change to "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/STM32/Endian.h"
+// FIXME: After HAL/Interfaces/Time.h is created, change to "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/STM32/Time.h"
 
 #include "Pufferfish/Util/Parse.h"
 

@@ -8,6 +8,8 @@
 
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 
+#include "stm32h7xx_hal.h"
+
 namespace Pufferfish {
 namespace HAL {
 

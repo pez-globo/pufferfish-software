@@ -7,6 +7,8 @@
  */
 
 #include "Pufferfish/Driver/I2C/SFM3000.h"
+// FIXME: After HAL/Interfaces/Time.h is created, change to "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/STM32/Time.h"
 
 #include <array>
 
