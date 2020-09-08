@@ -63,6 +63,9 @@ jobs:
 
   scan-build:
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        build-type: [Debug, Release, TestCatch2]
 
     steps:
     - uses: actions/checkout@v1
@@ -73,11 +76,11 @@ jobs:
 
     - name: Run CMake
       run: |
-        ./cmake.sh Debug
+        ./cmake.sh ${{ matrix.build-type }}
 
     - name: Run scan-build
       run: |
-        cd cmake-build-debug
+        cd cmake-build-`echo ${{ matrix.build-type }} | awk '{print tolower($0)}'`
         scan-build make -j2
 
   clang-tidy:
