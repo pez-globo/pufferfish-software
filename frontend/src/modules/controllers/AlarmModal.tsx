@@ -122,7 +122,7 @@ export const AlarmModal = (
                         </Grid>
                     </Grid>
                     <Grid container item xs alignItems='center'>
-                        <ValueSlider rangeValues={rangeValue} onChange={setSortedRangeValue} min={min} max={max} step={step} />
+                        <ValueSlider rangeValues={rangeValue} onChange={setRangeValue} min={min} max={max} step={step} />
                     </Grid>
                 </Grid>
             </ConfirmationModal>

@@ -42,9 +42,14 @@ class SPIDevice {
    * @param count amount of data to be sent and received
    * @return ok on success
    */
-
   virtual SPIDeviceStatus write_read(uint8_t *tx_buf, uint8_t *rx_buf,
                                      size_t count) = 0;
+
+  /**
+   * To make the chip select as high or low
+   * @param cs true(high) or false(low)
+   */
+  virtual void chip_select(bool input) = 0;
 };
 
 }  // namespace HAL
