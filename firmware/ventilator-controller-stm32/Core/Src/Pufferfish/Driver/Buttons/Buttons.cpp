@@ -3,7 +3,6 @@
  *
  * Buttons.cpp
  *
- *  Created on: Aug 29, 2020
  *      Author: Laxmanrao R
  */
 
@@ -12,10 +11,10 @@
 
 namespace Pufferfish {
 namespace Driver {
-namespace MembraneButton {
+namespace Button {
 
 
-ButtonStatus DeBounce::transform(bool input, uint32_t currentTime, bool &output)
+ButtonStatus Debouncer::transform(bool input, uint32_t currentTime, bool &output)
 {
   if(this->timeValidCheck(currentTime, lastSampleTime, samplingPeriod)){
       return ButtonStatus::notOk;
@@ -57,68 +56,49 @@ ButtonStatus DeBounce::transform(bool input, uint32_t currentTime, bool &output)
  return ButtonStatus::ok;
 }
 
-EdgeState EdgeDetection::isSwitchSateChanged(bool state)
+void EdgeDetector::transform(bool input, EdgeState &output)
 {
-
-  if (state != lastState) {
+  if (input != lastState) {
     /* Update the last state */
-    lastState = state;
+    lastState = input;
     /* check for state is changed */
-    if (state == true) {
+    if (input == true) {
       /* return the EdgeState as rising edge */
-      return EdgeState::risingEdge;
+      output = EdgeState::risingEdge;
     } else {
       /* return the EdgeState as falling edge */
-      return EdgeState::fallingEdge;
+      output = EdgeState::fallingEdge;
     }
   }
-  return EdgeState::noEdge;
+  output = EdgeState::noEdge;
 }
 
-ButtonStatus Button::readButtonstate(bool &debounedOutput, EdgeState &switchStateChanged){
+ButtonStatus Button::readState(bool &debounedOutput, EdgeState &switchStateChanged){
 
   bool input = mButtoninput.read();
   uint32_t msTime = Pufferfish::HAL::millis();
 
-  ButtonStatus status= mDebouncer.transform(input, msTime, debounedOutput);
+  ButtonStatus status= mDebounce.transform(input, msTime, debounedOutput);
   
   /* Debounce is not success */
   if(status != ButtonStatus::ok) {
     return status;
   }
-  switchStateChanged = mEdgeDetect.isSwitchSateChanged(debounedOutput);
+   mEdgeDetect.transform(debounedOutput, switchStateChanged);
 
   return  status;
 }
 
-
 // This method returns
-// "true" --> if nowTime < (lastTime + addFactor)
-// "false" --> if nowTime >= (lastTime + addFactor)
-
-bool DeBounce::timeValidCheck(uint32_t nowTime, uint32_t lastTime, uint32_t addFactor)
+// "true" --> if nowTime - lastTime < addFactor
+// "false" --> if nowTime - lastTime >= addFactor
+bool Debouncer::timeValidCheck(uint32_t nowTime, uint32_t lastTime, uint32_t addFactor)
 {
-  uint32_t upperTimeLimit = lastTime + addFactor;
-
-  // nowTime: crossed 32 bit boundary ; upperTimeLimit: NOT crossed 32 bit boundary
-  if((nowTime < lastTime) && (upperTimeLimit > lastTime)){
-    return false; // Current time is  > reference range
+  if(nowTime - lastTime < addFactor){
+    return true;
   }
-
-  // nowTime: NOT crossed 32 bit boundary ; upperTimeLimit: crossed 32 bit boundary
-  if((nowTime > lastTime) && (upperTimeLimit < lastTime)){
-    return true; // Current time is  < reference range
-  }
-
-  //both nowTime and upperTimeLimit: either crossed 32 bit boundary OR NOT crossed 32 bit boundary
-  if(nowTime < upperTimeLimit){
-    return true; // Current time is  < reference range
-  }
-  else{
-    return false; // Current time is  >= reference range
-  }
- }
-
+  return false;
+}
 }  // namespace Membrane
 }  // namespace HAL
 }  // namespace Pufferfish

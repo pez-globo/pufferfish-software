@@ -1,8 +1,8 @@
 /*
  * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
  *
+ *  Buttons.h
  *
- *  Created on: Aug 29, 2020
  *      Author: Laxmanrao R
  */
 
@@ -14,14 +14,20 @@
 
 namespace Pufferfish {
 namespace Driver {
-namespace MembraneButton {
+namespace Button {
 
+/**
+ * ButtonStatus enum class contains status of the button states
+ */
 enum class ButtonStatus{
   ok = 0, /// Ok if debounce is success
   notOk, /// notOk if current time exceeds sampling period
   unKnown /// Fault, if input state debouncing more the maximum debounce time limit
 };
 
+/**
+ * EdgeState enum class contains state transition when button pressed
+ */
 enum class EdgeState{
     noEdge = 0, /// Button is in stable state
     risingEdge, /// Button triggered on rising edge
@@ -31,12 +37,12 @@ enum class EdgeState{
 /**
  * Abstract class for Debounce calculation
  */
-class DeBounce
+class Debouncer
 {
 
 public:
 
-  DeBounce(){
+  Debouncer(){
   }
   /**
    * Calculate the debounce time for input button
@@ -69,19 +75,19 @@ private:
 /**
  * Abstract class for Edge state transition
  */
-class EdgeDetection
+class EdgeDetector
 {
 
 public:
-  EdgeDetection(){
-  }
 
+  EdgeDetector(){
+  }
   /**
    * Checking switch state transition
    * @param state debounced output
    * @return rising edge on Low to High or falling edge on High to Low
    */
-  EdgeState isSwitchSateChanged(bool state);
+  void transform(bool input, EdgeState &output);
 private:
   bool lastState;
 
@@ -93,9 +99,10 @@ private:
 class Button
 {
 public:
-  Button(HAL::DigitalInput &buttoninput, DeBounce &debouncer)
+
+  Button(HAL::DigitalInput &buttoninput, Debouncer &debounce)
     : mButtoninput(buttoninput),
-      mDebouncer(debouncer) {
+      mDebounce(debounce) {
   }
 
   /**
@@ -104,13 +111,13 @@ public:
    * @param EdgeState rising edge on Low to High or falling edge on High to Low
    * @return rising edge on Low to High or falling edge on High to Low
    */
-  ButtonStatus readButtonstate(bool &debounedOutput, EdgeState &switchStateChanged);
+  ButtonStatus readState(bool &debounedOutput, EdgeState &switchStateChanged);
 
 private:
 
   HAL::DigitalInput &mButtoninput;
-  DeBounce &mDebouncer;
-  EdgeDetection mEdgeDetect;
+  Debouncer &mDebounce;
+  EdgeDetector mEdgeDetect;
 };
 
 }  // namespace MembraneButton
