@@ -19,7 +19,7 @@ import EventlogDetails from './container/EventlogDetails'
 interface Data {
     type: string,
     alarm: string,
-    time: string, // Note: Make this a date object?
+    time: number, // Note: Make this a date object?
     details: string // Note: Make this an ID to view more details?,
     id: number
 }
@@ -27,7 +27,7 @@ interface Data {
 function createData(
     type: string,
     alarm: string,
-    time: string,
+    time: number,
     details: string,
     id: number
 ): Data {
@@ -35,16 +35,16 @@ function createData(
 }
 
 const rows = [
-    createData('Operator', 'Peep above upper limit', '12:30 p.m. 07/14/2020', 'View Details', 1),
-    createData('System', 'Peep above upper limit', '12:10 p.m. 07/14/2020', 'View Details', 2),
-    createData('Patient', 'Peep above upper limit', '12:00 p.m. 07/14/2020', 'View Details', 3),
-    createData('System', 'Peep above upper limit', '1:30 p.m. 07/14/2020', 'View Details', 4),
-    createData('Operator', 'Peep above upper limit', '9:30 p.m. 07/14/2020', 'View Details', 5),
-    createData('System', 'Peep above upper limit', '10:30 p.m. 07/14/2020', 'View Details', 6),
-    createData('Patient', 'Peep above upper limit', '12:30 p.m. 07/14/2020', 'View Details', 7),
-    createData('Patient', 'Peep above upper limit', '12:30 p.m. 07/14/2020', 'View Details', 8),
-    createData('Patient', 'Peep above upper limit', '12:30 p.m. 07/14/2020', 'View Details', 9),
-    createData('Patient', 'Peep above upper limit', '12:30 p.m. 07/14/2020', 'View Details', 10),
+    createData('Operator', 'Peep above upper limit', parseInt((new Date("2020-09-09 10:11:00").getTime() / 1000).toFixed(0)), 'View Details', 1),
+    createData('System', 'Peep above upper limit', parseInt((new Date("2020-09-09 10:12:00").getTime() / 1000).toFixed(0)), 'View Details', 2),
+    createData('Patient', 'Peep above upper limit', parseInt((new Date("2020-09-09 10:13:00").getTime() / 1000).toFixed(0)), 'View Details', 3),
+    createData('System', 'Peep above upper limit', parseInt((new Date("2020-09-09 09:11:00").getTime() / 1000).toFixed(0)), 'View Details', 4),
+    createData('Operator', 'Peep above upper limit', parseInt((new Date("2020-09-08 10:10:00").getTime() / 1000).toFixed(0)), 'View Details', 5),
+    createData('System', 'Peep above upper limit', parseInt((new Date("2020-09-08 10:11:00").getTime() / 1000).toFixed(0)), 'View Details', 6),
+    createData('Patient', 'Peep above upper limit', parseInt((new Date("2020-09-08 10:12:00").getTime() / 1000).toFixed(0)), 'View Details', 7),
+    createData('Patient', 'Peep above upper limit', parseInt((new Date("2020-09-07 10:10:00").getTime() / 1000).toFixed(0)), 'View Details', 8),
+    createData('Patient', 'Peep above upper limit', parseInt((new Date("2020-09-07 10:11:00").getTime() / 1000).toFixed(0)), 'View Details', 9),
+    createData('Patient', 'Peep above upper limit', parseInt((new Date("2020-09-07 10:12:00").getTime() / 1000).toFixed(0)), 'View Details', 10),
 ]
 
 interface HeadCell {
@@ -90,7 +90,7 @@ export const LogsPage = () => {
     const classes = useStyles()
     const theme = useTheme()
     const [order, setOrder] = React.useState<Order>('asc')
-    const [orderBy, setOrderBy] = React.useState<keyof Data>('type')
+    const [orderBy, setOrderBy] = React.useState<keyof Data>('time')
     const [selected, setSelected] = React.useState<any>([])
     const [page, setPage] = React.useState(0)
     const [rowsPerPage, setRowsPerPage] = React.useState(8)
@@ -182,8 +182,14 @@ export const LogsPage = () => {
                                 <TableCell align='left' component="th" id={labelId} scope="row" >
                                     {row.alarm}
                                 </TableCell>
-                                <TableCell align="left">{row.time}</TableCell>
-                                <TableCell align="left" onClick={() => { setCurrentRow(row); setOpen(true) }}>{row.details}</TableCell>
+                                <TableCell align="left">
+                                    {`
+                                        ${new Date(row.time * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        ${new Date(row.time * 1000).toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' })}
+                                    `}</TableCell>
+                                <TableCell align="left" onClick={() => { setCurrentRow(row); setOpen(true) }}>
+                                    <Typography style={{ cursor: "pointer" }} variant='inherit'>{row.details}</Typography>
+                                </TableCell>
                             </StyledTableRow>
                         )
                     })}
@@ -196,9 +202,9 @@ export const LogsPage = () => {
             <ModalPopup showCloseIcon={true}
                 label={
                     (<Grid container
-                    direction="row"
-                    justify="space-around"
-                    alignItems="center">
+                        direction="row"
+                        justify="space-around"
+                        alignItems="center">
                         <Grid xs={2}
                             className={classes.typeWrapper2}
                             style={typeColor(currentRow?.type)}>
