@@ -5,12 +5,13 @@ import { Button, Grid, AppBar } from '@material-ui/core'
 import { LOGS_ROUTE, DASHBOARD_ROUTE, QUICKSTART_ROUTE, SCREENSAVER_ROUTE } from '../navigation/constants'
 import ModesDropdown from '../modes/ModesDropdown'
 import ViewDropdown from '../dashboard/views/ViewDropdown'
-import { BackIcon, BellIcon } from '../icons'
+import { BackIcon } from '../icons'
 import ClockIcon from '../icons/ClockIcon'
 import PowerFullIcon from '../icons/PowerFullIcon'
 import { PERCENT } from '../info/units'
 import { useSelector } from 'react-redux'
 import { getClockTime } from '../../store/app/selectors'
+import EventAlerts from './EventAlerts'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -59,12 +60,7 @@ export const ToolBar = () => {
     if (location.pathname === DASHBOARD_ROUTE.path) {
         tools.push(<ViewDropdown />)
         tools.push(
-            <div>
-                <Button style={{marginRight: 12}} component={Link} to={LOGS_ROUTE.path} variant='contained' color='primary'>
-                    <BellIcon />
-                </Button>
-                {LOGS_ROUTE.label}
-            </div>
+            <EventAlerts path={LOGS_ROUTE.path} label={LOGS_ROUTE.label} />
         )
     } else if (location.pathname === QUICKSTART_ROUTE.path) {
         tools.push(
