@@ -1,7 +1,12 @@
+
 /*
  * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
  *
+ * STWD100.cpp
  *
+ *   Author: Laxmanrao R
+ *
+ *  A driver for the STWD100 External watchdog
  */
 
 #include "Pufferfish/Driver/WatchDog/STWD100.h"
@@ -23,11 +28,13 @@ void STWD100::disable(void){
 void STWD100::toggleInput(void){
 
   mInputPin.write(true);
-  ///TBD:Need to decide delay time
-  HAL::delayMicros(2);
+  HAL::delayMicros(resetTime);
   mInputPin.write(false);
 }
 
 }  // namespace WatchDog
 }  // namespace Driver
 }  // namespace Pufferfish
+
+
+
