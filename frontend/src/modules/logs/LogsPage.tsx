@@ -89,7 +89,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export const LogsPage = () => {
     const classes = useStyles()
     const theme = useTheme()
-    const [order, setOrder] = React.useState<Order>('asc')
+    const [order, setOrder] = React.useState<Order>('desc')
     const [orderBy, setOrderBy] = React.useState<keyof Data>('time')
     const [selected, setSelected] = React.useState<any>([])
     const [page, setPage] = React.useState(0)
