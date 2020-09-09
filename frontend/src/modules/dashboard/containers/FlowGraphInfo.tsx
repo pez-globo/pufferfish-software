@@ -6,7 +6,7 @@ import { StoreState } from '../../../store/types'
 import { WaveformPoint } from '../../../store/controller/types'
 import {
   getWaveformFlowOld,
-  getWaveformFlowNew
+  getWaveformFlowNewSegment
 } from '../../../store/controller/selectors'
 import { Waveform } from '../components/Waveform'
 import { Axes } from '../components/Axes'
@@ -20,8 +20,8 @@ interface DataProps {
 const oldSelector = createStructuredSelector<StoreState, DataProps>({
   data: getWaveformFlowOld,
 })
-const newSelector = createStructuredSelector<StoreState, DataProps>({
-  data: getWaveformFlowNew,
+const newSegmentSelector = (segmentIndex: number) => createStructuredSelector<StoreState, DataProps>({
+  data: getWaveformFlowNewSegment(segmentIndex),
 })
 
 
@@ -48,15 +48,25 @@ const FlowWaveform = ({ data, width, height, strokeWidth, fill }: WaveformProps)
 
 
 const WaveformOld = connect(oldSelector)(FlowWaveform)
-const WaveformNew = connect(newSelector)(FlowWaveform)
+const WaveformNew0 = connect(newSegmentSelector(0))(FlowWaveform)
+const WaveformNew1 = connect(newSegmentSelector(1))(FlowWaveform)
+const WaveformNew2 = connect(newSegmentSelector(2))(FlowWaveform)
+const WaveformNew3 = connect(newSegmentSelector(3))(FlowWaveform)
+const waveforms = ({width, height}: AutoSizerProps) => (
+  <React.Fragment>
+    <WaveformOld width={width} height={height} strokeWidth={1} fill={false}/>,
+    <WaveformNew0 width={width} height={height} strokeWidth={4} fill={true}/>
+    <WaveformNew1 width={width} height={height} strokeWidth={4} fill={true}/>
+    <WaveformNew2 width={width} height={height} strokeWidth={4} fill={true}/>
+    <WaveformNew3 width={width} height={height} strokeWidth={4} fill={true}/>
+  </React.Fragment>
+)
 
 const FlowGraphInfo = () => (
   <AutoSizer>
     {({ width, height }: AutoSizerProps) => (
       <Axes
-        width={width} height={height}
-        waveformOld={<WaveformOld width={width} height={height} strokeWidth={1} fill={false}/>}
-        waveformNew={<WaveformNew width={width} height={height} strokeWidth={4} fill={true}/>}
+        width={width} height={height} waveforms={waveforms({width, height})}
         xRangeMax={10000} yRangeMin={-150} yRangeMax={150}
         title={"Flow"} units={"L/min"}
       />

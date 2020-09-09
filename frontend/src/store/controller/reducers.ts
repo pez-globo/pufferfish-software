@@ -26,6 +26,7 @@ import {
   StateUpdateAction,
   STATE_UPDATED,
   WaveformHistory,
+  WaveformPoint,
   ALARM_LIMITS,
   FRONTEND_DISPLAY_SETTINGS,
   SYSTEM_SETTINGS
@@ -126,10 +127,18 @@ const waveformHistoryReducer = <T extends PBMessage>(
   getTime: (values: T) => number,
   getValue: (values: T) => number,
   maxDuration: number = 10000,
-  gapDuration: number = 500
+  gapDuration: number = 500,
+  maxSegmentDuration: number = 2500
 ) => (
   state: WaveformHistory = {
-    waveformOld: [], waveformNew: [], waveformNewStart: 0
+    waveformOld: {
+      full: []
+    },
+    waveformNew: {
+      full: [],
+      segmented: [[]]
+    },
+    waveformNewStart: 0
   },
   action: StateUpdateAction
 ): WaveformHistory => {
@@ -137,29 +146,54 @@ const waveformHistoryReducer = <T extends PBMessage>(
     case STATE_UPDATED:
       if (action.messageType === messageType) {
         const sampleTime = getTime(action.state as T)
-        const lastTime = (state.waveformNew.length === 0) ? state.waveformNewStart : state.waveformNew[state.waveformNew.length - 1].date
+        const lastTime = (state.waveformNew.full.length === 0) ?
+          state.waveformNewStart :
+          state.waveformNew.full[state.waveformNew.full.length - 1].date
         if (
           sampleTime > state.waveformNewStart + maxDuration
           || sampleTime < lastTime
           || new Date(sampleTime - gapDuration - state.waveformNewStart) > lastTime
         ) {
           // make waveformNew start over
+          const newPoint = {
+            date: new Date(0),
+            value: getValue(action.state as T)
+          }
           return {
-            waveformOld: state.waveformNew,
-            waveformNew: [{
-              date: new Date(0),
-              value: getValue(action.state as T)
-            }],
+            waveformOld: {
+              full: state.waveformNew.full
+            },
+            waveformNew: {
+              full: [newPoint],
+              segmented: [[newPoint]]
+            },
             waveformNewStart: sampleTime
+          }
+        }
+
+        const newPointTime = sampleTime - state.waveformNewStart
+        const newPoint = {
+          date: new Date(newPointTime),
+          value: getValue(action.state as T)
+        }
+        let segments = [...state.waveformNew.segmented]
+        const lastSegment = segments[segments.length - 1]
+        if (lastSegment.length === 0) {
+          segments[segments.length - 1] = [newPoint]
+        } else {
+          const lastSegmentDuration = newPointTime - lastSegment[0].date.getTime()
+          segments[segments.length - 1] = lastSegment.concat([newPoint])
+          if (lastSegmentDuration >= maxSegmentDuration) {
+            segments = segments.concat([[newPoint]])
           }
         }
 
         return {
           waveformOld: state.waveformOld,
-          waveformNew: state.waveformNew.concat([{
-            date: new Date(sampleTime - state.waveformNewStart),
-            value: getValue(action.state as T)
-          }]),
+          waveformNew: {
+            full: state.waveformNew.full.concat([newPoint]),
+            segmented: segments
+          },
           waveformNewStart: state.waveformNewStart
         }
       }

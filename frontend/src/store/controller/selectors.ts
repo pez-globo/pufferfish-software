@@ -137,23 +137,33 @@ export const getWaveformHistoryPaw = createSelector(
 )
 export const getWaveformPawOld = createSelector(
   getWaveformHistoryPaw,
-  (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformOld
+  (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformOld.full
 )
-export const getWaveformPawNew = createSelector(
+// Paw Waveforms
+export const getWaveformPawNewSegments = createSelector(
   getWaveformHistoryPaw,
-  (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformNew
+  (waveformHistory: WaveformHistory): WaveformPoint[][] => waveformHistory.waveformNew.segmented
+)
+export const getWaveformPawNewSegment = (segmentIndex: number) => createSelector(
+  getWaveformPawNewSegments,
+  (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex]
 )
 export const getWaveformHistoryFlow = createSelector(
   getController,
   (states: ControllerStates): WaveformHistory => states.waveformHistoryFlow
 )
+// Fow Waveforms
 export const getWaveformFlowOld = createSelector(
   getWaveformHistoryFlow,
-  (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformOld
+  (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformOld.full
 )
-export const getWaveformFlowNew = createSelector(
+export const getWaveformFlowNewSegments = createSelector(
   getWaveformHistoryFlow,
-  (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformNew
+  (waveformHistory: WaveformHistory): WaveformPoint[][] => waveformHistory.waveformNew.segmented
+)
+export const getWaveformFlowNewSegment = (segmentIndex: number) => createSelector(
+  getWaveformFlowNewSegments,
+  (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex]
 )
 
 // Alarm Limits

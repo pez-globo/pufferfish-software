@@ -23,8 +23,7 @@ function numTicksForWidth(width: number) {
 export interface Props {
   width: number,
   height: number,
-  waveformOld: React.ReactNode,
-  waveformNew: React.ReactNode,
+  waveforms: React.ReactNode,
   margin: {
     left: number,
     top: number,
@@ -40,7 +39,7 @@ export interface Props {
 }
 
 export const Axes = ({
-  width, height, margin, waveformOld, waveformNew,
+  width, height, margin, waveforms,
   xRangeMin, xRangeMax, yRangeMin, yRangeMax, title, units
 }: Props) => {
 
@@ -87,8 +86,7 @@ export const Axes = ({
         numTicksColumns={numTicksForWidth(width)}
       />
       <Group>
-        {waveformOld}
-        {waveformNew}
+        {waveforms}
       </Group>
       <Group left={margin.left}>
         <GridRows scale={yScale} width={xMax} height={yMax} stroke='rgba(255,255,255,0)' />
