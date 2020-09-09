@@ -1,5 +1,6 @@
 import React from 'react'
 import { useTheme, Theme } from '@material-ui/core'
+import { fade } from '@material-ui/core/styles/colorManipulator'
 import { Grid } from '@vx/grid'
 import { curveLinear } from '@vx/curve'
 import { LinePath, AreaClosed } from '@vx/shape'
@@ -71,7 +72,7 @@ export const Waveform = ({
     return yScale
   }
   function fillF(fill: boolean){
-    if (fill) return "url(#gradient)"
+    if (fill) return fade(theme.palette.info.main, 0.5)
     return "rgba(0,0,0,0)"
   }
 
