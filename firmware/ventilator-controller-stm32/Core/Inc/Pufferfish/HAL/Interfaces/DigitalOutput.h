@@ -16,7 +16,7 @@ class DigitalOutput {
  public:
   /**
    * Writes a digital output to the GPIO pin
-   * @param output  true if desired output is HIGH, false if LOW
+   * @param output  true if desired output is active, false if non-active
    */
   virtual void write(bool output) = 0;
 };
