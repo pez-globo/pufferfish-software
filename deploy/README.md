@@ -25,8 +25,7 @@ This will create an `img` file which can be used to flash to a brand new SD Card
 <br/>
 If you are a linux user you can shrink this cloned img file using  
 ```sh
-$ cd scripts/
-$ sudo ./pishrink.sh -vd /path/to/save/rpi.img /path/to/save/pishrink_rpi.img
+$ sudo ./scripts/pishrink.sh -vd /path/to/save/rpi.img /path/to/save/pishrink_rpi.img
 ```
 
 #### References
