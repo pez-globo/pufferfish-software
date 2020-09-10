@@ -45,6 +45,7 @@ namespace I2C {
 struct SDPSample {
   float differentialPressure;
   float temperature;
+  int16_t differentialPressureScale;
 };
 
 /**
@@ -76,7 +77,7 @@ class SDPSensor : public Testable {
    * @param sample[out] the sensor reading; only valid on success
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus readSample(SDPSample &sample);
+  I2CDeviceStatus readFullSample(SDPSample &sample);
 
   /**
    * stop continuously making measurements in sensor
@@ -94,6 +95,8 @@ class SDPSensor : public Testable {
 
   I2CDeviceStatus reset() override;
   I2CDeviceStatus test() override;
+  
+  I2CDeviceStatus readPressureSample(int16_t differentialPressureScale, float &differentialPressure);
  private:
   SensirionSensor mSensirion;
   bool mMeasuring = false;

@@ -37,6 +37,7 @@
 #include "Pufferfish/Driver/I2C/SDP.h"
 #include "Pufferfish/Driver/I2C/SFM3000.h"
 #include "Pufferfish/Driver/I2C/TCA9548A.h"
+#include "Pufferfish/Statuses.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -78,7 +79,14 @@ UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
+
+/* Timeout for the Adc poll conversion */
+static const uint32_t adcPollTimeout = 10;
+
 namespace PF = Pufferfish;
+
+/* Create an object for ADC3 of AnalogInput Class */
+PF::HAL::AnalogInput ADC3Input(hadc3, adcPollTimeout);
 
 PF::HAL::HALDigitalOutput boardLed1(*LD1_GPIO_Port, LD1_Pin);
 
@@ -255,7 +263,13 @@ void interface_test_loop() {
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  
+  /* 
+   * FIXME: Added for testing 
+   * Local variable to read ADC3 input
+   */
+  uint32_t ADC3Data;
+  
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -296,6 +310,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   PF::HAL::microsDelayInit();
   interface_test_millis = PF::HAL::millis();
+  /* Start the ADC3 by invoking AnalogInput::Start() */
+  ADC3Input.start();
 
   /* USER CODE END 2 */
 
@@ -321,6 +337,19 @@ int main(void)
     }
     PF::HAL::delay(50);
     /* USER CODE END WHILE */
+
+    /* 
+     * FIXME: Added for testing 
+     * Read the Analog data of ADC3 and validate the return value
+     */
+    if (ADC3Input.read(ADC3Data) != PF::ADCStatus::ok)
+    {
+      /* Error Handle */
+    }
+    else
+    {
+      /* Else statements*/
+    }
 
     /* USER CODE BEGIN 3 */
   }
@@ -434,20 +463,20 @@ static void MX_ADC3_Init(void)
   hadc3.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc3.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc3.Init.LowPowerAutoWait = DISABLE;
-  hadc3.Init.ContinuousConvMode = DISABLE;
+  hadc3.Init.ContinuousConvMode = ENABLE;
   hadc3.Init.NbrOfConversion = 1;
   hadc3.Init.DiscontinuousConvMode = DISABLE;
   hadc3.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc3.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DR;
-  hadc3.Init.Overrun = ADC_OVR_DATA_PRESERVED;
+  hadc3.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
   hadc3.Init.LeftBitShift = ADC_LEFTBITSHIFT_NONE;
   hadc3.Init.OversamplingMode = DISABLE;
   if (HAL_ADC_Init(&hadc3) != HAL_OK)
   {
     Error_Handler();
   }
-  /** Configure Regular Channel 
+  /** Configure Regular Channel
   */
   sConfig.Channel = ADC_CHANNEL_7;
   sConfig.Rank = ADC_REGULAR_RANK_1;
