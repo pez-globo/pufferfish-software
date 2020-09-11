@@ -14,3 +14,6 @@
 
 # Setup OS Boot Screen
 ./scripts/boot_screen.sh
+
+# Additional Configuration Setup
+./scripts/additional_config.sh
