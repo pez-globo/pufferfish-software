@@ -1,5 +1,7 @@
 """Filters for handling data integrity over an unreliable messaging channel.
 
+# TODO: Make changs to the Docstrings 
+
 Provides Filters which compute and check data integrity fields in headers
 prepended to arbitrary data payloads (limited by payload length) to detect and
 handle data loss and data corruption.
@@ -51,7 +53,6 @@ from typing import Any, Optional
 import attr
 
 from ventserver.protocols import exceptions
-from ventserver.protocols import crc
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
 
@@ -65,21 +66,6 @@ SEQ_NUM_SPACE = 256  # the modulo base for sequence numbers
 # Classes
 
 
-# def uint32_attr(
-#         _: Any, __: 'attr.Attribute[int]', value: int
-# ) -> None:
-#     """Validate the attr input as a 32-bit uint.
-
-#     Raises:
-#         ValueError: attr init value cannot be represented as a 32-bit uint.
-
-#     """
-#     if value < 0 or value > 0xffffffff:
-#         raise ValueError(
-#             'Attr must be a 32-bit uint: {!r}'.format(value)
-#         )
-
-
 def single_byte_attr(
         _: Any, __: 'attr.Attribute[int]', value: int
 ) -> None:
@@ -90,21 +76,6 @@ def single_byte_attr(
 
     """
     bytes([value])
-
-def long_attr(
-        _: Any, __: 'attr.Attribute[bytes]', value: bytes
-) -> None:
-    """Validate the attr input as a byte re.
-
-    Raises:
-        ValueError: attr init value cannot be represented as a single byte.
-
-    """
-    if len(bytes(value)) != 4:
-        raise ValueError(
-            'Attr must be a bytes representation of unsigned long: {!r}'
-            .format(value)
-        )
 
 @attr.s
 class Datagram:
@@ -136,14 +107,8 @@ class Datagram:
 
     _HEADER_FORMAT = '> B B'
     _HEADER_PARSER = struct.Struct(_HEADER_FORMAT)
-    HEADER_SIZE = struct.calcsize(_HEADER_FORMAT) + 4
+    HEADER_SIZE = struct.calcsize(_HEADER_FORMAT)
 
-    crc: bytes = attr.ib(
-        default=b'\x00\x00\x00\x00',
-        validator=[long_attr], repr=(
-            lambda value: '0x{:08x}'.format(value)  # pylint: disable=unnecessary-lambda
-        )
-    )
     seq: int = attr.ib(
         default=0, validator=[single_byte_attr]
     )
@@ -181,7 +146,7 @@ class Datagram:
                 'Unparseable header: {!r}'.format(buffer[:self.HEADER_SIZE])
             ) from exc
 
-        (self.crc, self.seq, self.length) = results
+        (self.seq, self.length) = results
         self.payload = buffer[self.HEADER_SIZE:]
 
     def update_from_payload(self) -> None:
@@ -232,8 +197,7 @@ class Datagram:
                 .format(self.seq, self.length)
             ) from exc
 
-        return self.crc + header + self.payload
-
+        return header + self.payload
 
 # Filters
 
@@ -258,9 +222,6 @@ class DatagramReceiver(protocols.Filter[bytes, bytes]):
 
     _logger = logging.getLogger('.'.join((__name__, 'DatagramReceiver')))
 
-    _crc_receiver: protocols.Filter[bytes, bytes] = attr.ib(
-        factory=crc.CRCReceiver
-    )
     expected_seq: Optional[int] = attr.ib(default=None, init=False)
     _buffer: channels.DequeChannel[bytes] = attr.ib(
         factory=channels.DequeChannel
@@ -301,15 +262,13 @@ class DatagramReceiver(protocols.Filter[bytes, bytes]):
         datagram = Datagram()
         datagram.parse(body)  # may raise ProtocolDataError
         self._logger.debug(datagram)
-        self._crc_receiver.input(datagram.crc + datagram.payload)
-        _ = self._crc_receiver.output() # may raise ProtocolDataError
+
         if datagram.length != len(datagram.payload):
             raise exceptions.ProtocolDataError(
                 'The specified length of the datagram payload, {}, is '
                 'inconsistent with the actual received length, {}'
                 .format(datagram.length, len(datagram.payload))
             )
-
         if self.expected_seq is None:
             self._logger.info('Initialized expected seq num from: %s', datagram)
             self.expected_seq = datagram.seq
@@ -339,9 +298,6 @@ class DatagramSender(protocols.Filter[bytes, bytes]):
 
     _logger = logging.getLogger('.'.join((__name__, 'DatagramSender')))
 
-    _crc_sender: protocols.Filter[bytes, bytes] = attr.ib(
-        factory=crc.CRCSender
-    )
     _seq = attr.ib(default=0, init=False)
     _buffer: channels.DequeChannel[bytes] = attr.ib(
         factory=channels.DequeChannel
@@ -387,11 +343,6 @@ class DatagramSender(protocols.Filter[bytes, bytes]):
 
         datagram = Datagram(seq=self._seq, payload=payload)
         datagram.update_from_payload()
-        self._crc_sender.input(datagram.pack_protected())
-        crc_key = self._crc_sender.output()
-        if not crc_key:
-            return None
-        datagram.crc = crc_key
         self._logger.debug(datagram)
         self._seq = (self._seq + 1) % SEQ_NUM_SPACE
         return datagram.compute_body()
