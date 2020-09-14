@@ -10,9 +10,7 @@
 #pragma once
 
 #include "AlarmDevice.h"
-// FIXME: After HAL/Interfaces/DigitalOutput.h is created, change to
-// "Pufferfish/HAL/HAL.h"
-#include "Pufferfish/HAL/STM32/DigitalOutput.h"
+#include "Pufferfish/HAL/HAL.h"
 
 struct LEDAlarmParameters {
   bool out_high;

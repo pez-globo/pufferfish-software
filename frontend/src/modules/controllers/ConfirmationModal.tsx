@@ -1,3 +1,4 @@
+// TODO: Need to remove this component when ConfirmationModal is migrated to ModalPopup
 import React, { PropsWithChildren } from 'react'
 import {
     Button,

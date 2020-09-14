@@ -30,6 +30,7 @@
 #include <array>
 
 #include "Pufferfish/AlarmsManager.h"
+#include "Pufferfish/Driver/ShiftedOutput.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
 #include "Pufferfish/Driver/I2C/HoneywellABP.h"
 #include "Pufferfish/Driver/I2C/SDP.h"
@@ -76,7 +77,6 @@ TIM_HandleTypeDef htim8;
 TIM_HandleTypeDef htim12;
 
 UART_HandleTypeDef huart4;
-UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart7;
 UART_HandleTypeDef huart8;
 UART_HandleTypeDef huart1;
@@ -96,39 +96,37 @@ PF::HAL::AnalogInput adc3_input(hadc3, adc_poll_timeout);
 // those come from STM32CubeMX-generated #define constants, which we have no
 // control over
 
-PF::HAL::DigitalOutput i2c1_reset(
-    *I2C1_RESET_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    I2C1_RESET_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-PF::HAL::DigitalOutput i2c2_reset(
-    *I2C2_RESET_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    I2C2_RESET_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+// Interface Board
+PF::HAL::HALDigitalOutput serClock(*SER_CLK_GPIO_Port, SER_CLK_Pin, true);
+PF::HAL::HALDigitalOutput serClear(*SER_CLR_N_GPIO_Port, SER_CLR_N_Pin, false);
+PF::HAL::HALDigitalOutput serRClock(*SER_RCLK_GPIO_Port, SER_RCLK_Pin, true);
+PF::HAL::HALDigitalOutput serInput(*SER_IN_GPIO_Port, SER_IN_Pin, true);
 
-PF::HAL::DigitalOutput board_led1(
+PF::HAL::HALDigitalOutput board_led1(
     *LD1_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     LD1_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+PF::Driver::ShiftRegister ledsReg(serInput, serClock, serRClock, serClear);
 
-PF::HAL::DigitalOutput alarm_led_r(
-    *LEDR_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    LEDR_CNTRL_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-PF::HAL::DigitalOutput alarm_led_g(
-    *LEDG_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    LEDG_CNTRL_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-PF::HAL::DigitalOutput alarm_led_b(
-    *LEDB_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    LEDB_CNTRL_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+PF::Driver::ShiftedOutput alarm_led_r(ledsReg, 0);
+PF::Driver::ShiftedOutput alarm_led_g(ledsReg, 1);
+PF::Driver::ShiftedOutput alarm_led_b(ledsReg, 2);
+PF::Driver::ShiftedOutput led_alarm_en(ledsReg, 3);
+PF::Driver::ShiftedOutput led_full_o2(ledsReg, 4);
+PF::Driver::ShiftedOutput led_manual_breath(ledsReg, 5);
+PF::Driver::ShiftedOutput led_lock(ledsReg, 6);
 
-PF::HAL::DigitalOutput alarm_reg_high(
+PF::HAL::HALDigitalOutput alarm_reg_high(
     *ALARM1_HIGH_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     ALARM1_HIGH_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-PF::HAL::DigitalOutput alarm_reg_med(
+PF::HAL::HALDigitalOutput alarm_reg_med(
     *ALARM1_MED_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     ALARM1_MED_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-PF::HAL::DigitalOutput alarm_reg_low(
+PF::HAL::HALDigitalOutput alarm_reg_low(
     *ALARM1_LOW_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     ALARM1_LOW_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-PF::HAL::DigitalOutput alarm_buzzer(
-    *ALARM2_CNTRL_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    ALARM2_CNTRL_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+PF::HAL::HALDigitalOutput alarm_buzzer(
+    *BUZZ1_EN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    BUZZ1_EN_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 
 PF::Driver::Indicators::LEDAlarm alarm_dev_led(alarm_led_r, alarm_led_g,
                                                alarm_led_b);
@@ -137,6 +135,12 @@ PF::Driver::Indicators::AuditoryAlarm alarm_dev_sound(alarm_reg_high,
                                                       alarm_reg_low,
                                                       alarm_buzzer);
 PF::AlarmsManager h_alarms(alarm_dev_led, alarm_dev_sound);
+
+PF::HAL::DigitalInput button_alarm_en(*SET_ALARM_EN_GPIO_Port, SET_ALARM_EN_Pin, true);
+PF::HAL::DigitalInput button_full_o2(*SET_100_O2_GPIO_Port, SET_100_O2_Pin, true);
+PF::HAL::DigitalInput button_manual_breath(*SET_MANUAL_BREATH_GPIO_Port, SET_MANUAL_BREATH_Pin, true);
+PF::HAL::DigitalInput button_lock(*SET_LOCK_GPIO_Port, SET_LOCK_Pin, true);
+PF::HAL::DigitalInput button_power(*SET_PWR_ON_OFF_GPIO_Port, SET_PWR_ON_OFF_Pin, true);
 
 // Solenoid Valves
 PF::HAL::PWM drive1_ch1(htim2, TIM_CHANNEL_4);
@@ -240,6 +244,8 @@ std::array<PF::Driver::Testable *, 14> i2c_test_list{
      &i2c_press8, &i2c_press9, &i2c_press13, &i2c_press14, &i2c_press15,
      &i2c_press16, &i2c_press17, &i2c_press18}};
 
+int interface_test_state = 0;
+int interface_test_millis = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -252,7 +258,6 @@ static void MX_ADC3_Init(void);
 static void MX_CRC_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_UART5_Init(void);
 static void MX_UART7_Init(void);
 static void MX_UART8_Init(void);
 static void MX_USART1_UART_Init(void);
@@ -269,7 +274,35 @@ static void MX_TIM12_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void interface_test_loop() {
+  // get state of buttons
+  bool l_alarm_en = button_alarm_en.read();
+  bool l_o2 = button_full_o2.read();
+  bool l_manual = button_manual_breath.read();
+  bool l_lock = button_lock.read();
+  bool l_power = button_power.read();
 
+  // simply write back
+  led_alarm_en.write(l_alarm_en);
+  led_full_o2.write(l_o2);
+  led_manual_breath.write(l_manual);
+  led_lock.write(l_lock);
+
+  // cycle though alarms
+//  if (!l_power) {
+//    hAlarms.clearAll();
+//  } else if (PF::HAL::millis() - interface_test_millis > 100) {
+//    hAlarms.add(PF::AlarmStatus::highPriority);
+//    interface_test_millis = PF::HAL::millis();
+//    if (interface_test_state) {
+//      interface_test_state--;
+//      hAlarms.add(static_cast<PF::AlarmStatus>(interface_test_state));
+//    } else {
+//      interface_test_state = static_cast<int>(PF::AlarmStatus::noAlarm);
+//      hAlarms.clearAll();
+//    }
+//  }
+}
 /* USER CODE END 0 */
 
 /**
@@ -313,7 +346,6 @@ int main(void)
   MX_CRC_Init();
   MX_I2C2_Init();
   MX_TIM2_Init();
-  MX_UART5_Init();
   MX_UART7_Init();
   MX_UART8_Init();
   MX_USART1_UART_Init();
@@ -326,10 +358,7 @@ int main(void)
   MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
   PF::HAL::micros_delay_init();
-  // active low pins, will be fixed in interface board PR
-  i2c1_reset.write(true);
-  i2c2_reset.write(true);
-
+  interface_test_millis = PF::HAL::millis();
   /* Start the ADC3 by invoking AnalogInput::Start() */
   adc3_input.start();
   /* USER CODE END 2 */
@@ -337,7 +366,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   static const uint32_t blink_low_delay = 5;
-  static const uint32_t loop_delay = 500;
+  static const uint32_t loop_delay = 50;
   while (true) {
     PF::AlarmManagerStatus stat = h_alarms.update(PF::HAL::millis());
     if (stat != PF::AlarmManagerStatus::ok) {
@@ -346,6 +375,9 @@ int main(void)
     board_led1.write(false);
     PF::HAL::delay(blink_low_delay);
     board_led1.write(true);
+    interface_test_loop();
+    ledsReg.update();
+
     for (PF::Driver::Testable *t : i2c_test_list) {
       if (t->test() != PF::I2CDeviceStatus::ok) {
         board_led1.write(false);
@@ -424,16 +456,14 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV1;
   RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
-  {
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
     Error_Handler();
   }
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_UART4
-                              |RCC_PERIPHCLK_UART7|RCC_PERIPHCLK_USART1
-                              |RCC_PERIPHCLK_UART8|RCC_PERIPHCLK_UART5
-                              |RCC_PERIPHCLK_SPI1|RCC_PERIPHCLK_I2C2
-                              |RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_I2C1
-                              |RCC_PERIPHCLK_I2C4;
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_UART4
+      | RCC_PERIPHCLK_UART7 | RCC_PERIPHCLK_USART1
+      | RCC_PERIPHCLK_UART8 | RCC_PERIPHCLK_SPI1
+      | RCC_PERIPHCLK_I2C2 | RCC_PERIPHCLK_ADC
+      | RCC_PERIPHCLK_I2C1 | RCC_PERIPHCLK_I2C4;
   PeriphClkInitStruct.PLL2.PLL2M = 1;
   PeriphClkInitStruct.PLL2.PLL2N = 19;
   PeriphClkInitStruct.PLL2.PLL2P = 3;
@@ -1128,54 +1158,6 @@ static void MX_UART4_Init(void)
 }
 
 /**
-  * @brief UART5 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_UART5_Init(void)
-{
-
-  /* USER CODE BEGIN UART5_Init 0 */
-
-  /* USER CODE END UART5_Init 0 */
-
-  /* USER CODE BEGIN UART5_Init 1 */
-
-  /* USER CODE END UART5_Init 1 */
-  huart5.Instance = UART5;
-  huart5.Init.BaudRate = 115200;
-  huart5.Init.WordLength = UART_WORDLENGTH_8B;
-  huart5.Init.StopBits = UART_STOPBITS_1;
-  huart5.Init.Parity = UART_PARITY_NONE;
-  huart5.Init.Mode = UART_MODE_TX_RX;
-  huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart5.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart5.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart5.Init.ClockPrescaler = UART_PRESCALER_DIV1;
-  huart5.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_HalfDuplex_Init(&huart5) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_SetTxFifoThreshold(&huart5, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_SetRxFifoThreshold(&huart5, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_DisableFifoMode(&huart5) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN UART5_Init 2 */
-
-  /* USER CODE END UART5_Init 2 */
-
-}
-
-/**
   * @brief UART7 Initialization Function
   * @param None
   * @retval None
@@ -1387,44 +1369,45 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, BAT_MEAS_EN_Pin|LED1_EN_Pin|SET_EXTRA_Pin|GPIO3_Pin 
-                          |SENSE_O2_EN_Pin|MOTOR2_EN_Pin|PRESS1_EN_Pin|MOTOR2_DIR_Pin 
-                          |MOTOR3_DIR_Pin|MOTOR2_STEP_Pin|MOTOR3_EN_Pin|PRESS5_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, BAT_MEAS_EN_Pin | LED1_EN_Pin | GPIO3_Pin | SENSE_O2_EN_Pin
+      | MOTOR2_EN_Pin | PRESS1_EN_Pin | MOTOR2_DIR_Pin | MOTOR3_DIR_Pin
+      | MOTOR2_STEP_Pin | MOTOR3_EN_Pin | PRESS5_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOF, BAT_CHARGE_EN_Pin|PRESS2_EN_Pin|PRESS4_EN_Pin|MOTOR4_EN_Pin 
-                          |MOTOR3_STEP_Pin|PRESS3_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOF, BAT_CHARGE_EN_Pin | PRESS2_EN_Pin | PRESS4_EN_Pin | MOTOR4_EN_Pin
+      | MOTOR3_STEP_Pin | PRESS3_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, ALARM1_MED_Pin|BUZZ1_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, ALARM1_MED_Pin | BUZZ1_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO2_Pin|GPIO1_Pin|LEDR_CNTRL_Pin|LEDB_CNTRL_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GPIO2_Pin | GPIO1_Pin | SER_CLK_Pin | SER_CLR_N_Pin
+      | SER_RCLK_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LD1_Pin|ALARM1_LOW_Pin|ALARM2_CNTRL_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LD1_Pin | ALARM1_LOW_Pin | SER_IN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, MOTOR4_STEP_Pin|MOTOR1_STEP_Pin|MOTOR1_DIR_Pin|LEDG_CNTRL_Pin 
-                          |LTC4421_PWR_nDISABLE1_Pin|LTC4421_PWR_nDISABLE2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, MOTOR4_STEP_Pin | MOTOR1_STEP_Pin | MOTOR1_DIR_Pin | LTC4421_PWR_nDISABLE1_Pin
+      | LTC4421_PWR_nDISABLE2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, PRESS_VDD_EN_Pin|I2C1_RESET_Pin|I2C2_RESET_Pin|MOTOR1_EN_Pin 
-                          |PRESS6_EN_Pin|LED3_EN_Pin|ALARM1_HIGH_Pin|PRESSX_EN_Pin 
-                          |MOTOR4_DIR_Pin|LED2_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOG, PRESS_VDD_EN_Pin | I2C1_RESET_Pin | I2C2_RESET_Pin | MOTOR1_EN_Pin
+      | PRESS6_EN_Pin | LED3_EN_Pin | ALARM1_HIGH_Pin | PRESSX_EN_Pin
+      | MOTOR4_DIR_Pin | LED2_EN_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : SET_PWR_ON_OFF_Pin VSYS_3V3_PGOOD_Pin VSYS_5V0_PGOOD_Pin */
-  GPIO_InitStruct.Pin = SET_PWR_ON_OFF_Pin|VSYS_3V3_PGOOD_Pin|VSYS_5V0_PGOOD_Pin;
+  /*Configure GPIO pins : SET_MANUAL_BREATH_Pin VSYS_3V3_PGOOD_Pin VSYS_5V0_PGOOD_Pin SET_LOCK_Pin */
+  GPIO_InitStruct.Pin = SET_MANUAL_BREATH_Pin | VSYS_3V3_PGOOD_Pin | VSYS_5V0_PGOOD_Pin | SET_LOCK_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : BAT_MEAS_EN_Pin LED1_EN_Pin SET_EXTRA_Pin GPIO3_Pin 
-                           SENSE_O2_EN_Pin MOTOR2_EN_Pin PRESS1_EN_Pin MOTOR2_DIR_Pin 
-                           MOTOR3_DIR_Pin MOTOR2_STEP_Pin MOTOR3_EN_Pin PRESS5_EN_Pin */
-  GPIO_InitStruct.Pin = BAT_MEAS_EN_Pin|LED1_EN_Pin|SET_EXTRA_Pin|GPIO3_Pin 
-                          |SENSE_O2_EN_Pin|MOTOR2_EN_Pin|PRESS1_EN_Pin|MOTOR2_DIR_Pin 
-                          |MOTOR3_DIR_Pin|MOTOR2_STEP_Pin|MOTOR3_EN_Pin|PRESS5_EN_Pin;
+  /*Configure GPIO pins : BAT_MEAS_EN_Pin LED1_EN_Pin GPIO3_Pin SENSE_O2_EN_Pin 
+                           MOTOR2_EN_Pin PRESS1_EN_Pin MOTOR2_DIR_Pin MOTOR3_DIR_Pin 
+                           MOTOR2_STEP_Pin MOTOR3_EN_Pin PRESS5_EN_Pin */
+  GPIO_InitStruct.Pin = BAT_MEAS_EN_Pin | LED1_EN_Pin | GPIO3_Pin | SENSE_O2_EN_Pin
+      | MOTOR2_EN_Pin | PRESS1_EN_Pin | MOTOR2_DIR_Pin | MOTOR3_DIR_Pin
+      | MOTOR2_STEP_Pin | MOTOR3_EN_Pin | PRESS5_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1452,42 +1435,44 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ALARM1_MED_Pin BUZZ1_EN_Pin */
-  GPIO_InitStruct.Pin = ALARM1_MED_Pin|BUZZ1_EN_Pin;
+  GPIO_InitStruct.Pin = ALARM1_MED_Pin | BUZZ1_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : GPIO2_Pin GPIO1_Pin LEDR_CNTRL_Pin LEDB_CNTRL_Pin */
-  GPIO_InitStruct.Pin = GPIO2_Pin|GPIO1_Pin|LEDR_CNTRL_Pin|LEDB_CNTRL_Pin;
+  /*Configure GPIO pins : GPIO2_Pin GPIO1_Pin SER_CLK_Pin SER_CLR_N_Pin 
+                           SER_RCLK_Pin */
+  GPIO_InitStruct.Pin = GPIO2_Pin | GPIO1_Pin | SER_CLK_Pin | SER_CLR_N_Pin
+      | SER_RCLK_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LD1_Pin ALARM1_LOW_Pin ALARM2_CNTRL_Pin */
-  GPIO_InitStruct.Pin = LD1_Pin|ALARM1_LOW_Pin|ALARM2_CNTRL_Pin;
+  /*Configure GPIO pins : LD1_Pin ALARM1_LOW_Pin SER_IN_Pin */
+  GPIO_InitStruct.Pin = LD1_Pin | ALARM1_LOW_Pin | SER_IN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : SET_PWR_SRC_Pin */
-  GPIO_InitStruct.Pin = SET_PWR_SRC_Pin;
+  /*Configure GPIO pin : SET_PWR_ON_OFF_Pin */
+  GPIO_InitStruct.Pin = SET_PWR_ON_OFF_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(SET_PWR_SRC_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(SET_PWR_ON_OFF_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LTC4421_PWR_nCH1_Pin LTC4421_PWR_nCH2_Pin SET_ALARM_EN_Pin SET_LOCK_Pin */
-  GPIO_InitStruct.Pin = LTC4421_PWR_nCH1_Pin|LTC4421_PWR_nCH2_Pin|SET_ALARM_EN_Pin|SET_LOCK_Pin;
+  /*Configure GPIO pins : LTC4421_PWR_nCH1_Pin LTC4421_PWR_nCH2_Pin SET_ALARM_EN_Pin SET_100_O2_Pin */
+  GPIO_InitStruct.Pin = LTC4421_PWR_nCH1_Pin | LTC4421_PWR_nCH2_Pin | SET_ALARM_EN_Pin | SET_100_O2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : MOTOR4_STEP_Pin MOTOR1_STEP_Pin MOTOR1_DIR_Pin LEDG_CNTRL_Pin 
-                           LTC4421_PWR_nDISABLE1_Pin LTC4421_PWR_nDISABLE2_Pin */
-  GPIO_InitStruct.Pin = MOTOR4_STEP_Pin|MOTOR1_STEP_Pin|MOTOR1_DIR_Pin|LEDG_CNTRL_Pin 
-                          |LTC4421_PWR_nDISABLE1_Pin|LTC4421_PWR_nDISABLE2_Pin;
+  /*Configure GPIO pins : MOTOR4_STEP_Pin MOTOR1_STEP_Pin MOTOR1_DIR_Pin LTC4421_PWR_nDISABLE1_Pin 
+                           LTC4421_PWR_nDISABLE2_Pin */
+  GPIO_InitStruct.Pin = MOTOR4_STEP_Pin | MOTOR1_STEP_Pin | MOTOR1_DIR_Pin | LTC4421_PWR_nDISABLE1_Pin
+      | LTC4421_PWR_nDISABLE2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1496,16 +1481,16 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pins : PRESS_VDD_EN_Pin I2C1_RESET_Pin I2C2_RESET_Pin MOTOR1_EN_Pin 
                            PRESS6_EN_Pin LED3_EN_Pin ALARM1_HIGH_Pin PRESSX_EN_Pin 
                            MOTOR4_DIR_Pin LED2_EN_Pin */
-  GPIO_InitStruct.Pin = PRESS_VDD_EN_Pin|I2C1_RESET_Pin|I2C2_RESET_Pin|MOTOR1_EN_Pin 
-                          |PRESS6_EN_Pin|LED3_EN_Pin|ALARM1_HIGH_Pin|PRESSX_EN_Pin 
-                          |MOTOR4_DIR_Pin|LED2_EN_Pin;
+  GPIO_InitStruct.Pin = PRESS_VDD_EN_Pin | I2C1_RESET_Pin | I2C2_RESET_Pin | MOTOR1_EN_Pin
+      | PRESS6_EN_Pin | LED3_EN_Pin | ALARM1_HIGH_Pin | PRESSX_EN_Pin
+      | MOTOR4_DIR_Pin | LED2_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LTC4421_PWR_nVALID1_Pin LTC4421_PWR_nVALID2_Pin */
-  GPIO_InitStruct.Pin = LTC4421_PWR_nVALID1_Pin|LTC4421_PWR_nVALID2_Pin;
+  GPIO_InitStruct.Pin = LTC4421_PWR_nVALID1_Pin | LTC4421_PWR_nVALID2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);

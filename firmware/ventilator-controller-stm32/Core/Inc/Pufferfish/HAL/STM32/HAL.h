@@ -10,8 +10,8 @@
 
 #include "AnalogInput.h"
 #include "DigitalInput.h"
-#include "DigitalOutput.h"
 #include "Endian.h"
+#include "HALDigitalOutput.h"
 #include "HALI2CDevice.h"
 #include "HALSPIDevice.h"
 #include "PWM.h"

@@ -1,17 +1,19 @@
 /*
  * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
  *
+ *      Created on: Jun 31, 2020
  *      Author: March Boonyapaluk
  */
 
-#include "Pufferfish/HAL/STM32/DigitalOutput.h"
+#include "Pufferfish/Driver/ShiftedOutput.h"
 
 namespace Pufferfish {
-namespace HAL {
+namespace Driver {
 
-void DigitalOutput::write(bool output) {
-  HAL_GPIO_WritePin(&port_, pin, output ? GPIO_PIN_SET : GPIO_PIN_RESET);
+void ShiftedOutput::write(bool output) {
+  mDev.setChannel(mChannel, output);
 }
 
 }  // namespace HAL
 }  // namespace Pufferfish
+

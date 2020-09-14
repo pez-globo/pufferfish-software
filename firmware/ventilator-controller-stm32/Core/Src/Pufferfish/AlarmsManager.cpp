@@ -41,6 +41,14 @@ AlarmManagerStatus Pufferfish::AlarmsManager::remove(AlarmStatus a) {
   return AlarmManagerStatus::ok;
 }
 
+void AlarmsManager::clearAll() {
+  for (int i = 0; i < static_cast<int>(AlarmStatus::no_alarm); i++) {
+    alarms_cnt_[i] = 0;
+  }
+
+  this->update_active();
+}
+
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static,misc-unused-parameters)
 AlarmManagerStatus Pufferfish::AlarmsManager::update(uint32_t current_time) {
   AlarmManagerStatus led_stat = led_.update(current_time);
@@ -72,6 +80,8 @@ void Pufferfish::AlarmsManager::update_active() {
     }
   }
 
+  led_.set_alarm(AlarmStatus::no_alarm);
+  auditory_.set_alarm(AlarmStatus::no_alarm);
   active_ = AlarmStatus::no_alarm;
 }
 
