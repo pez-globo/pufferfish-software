@@ -30,7 +30,6 @@
 #include <array>
 
 #include "Pufferfish/AlarmsManager.h"
-#include "Pufferfish/Driver/ShiftedOutput.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
 #include "Pufferfish/Driver/I2C/HoneywellABP.h"
 #include "Pufferfish/Driver/I2C/SDP.h"
@@ -38,6 +37,7 @@
 #include "Pufferfish/Driver/I2C/TCA9548A.h"
 #include "Pufferfish/Driver/Indicators/AuditoryAlarm.h"
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
+#include "Pufferfish/Driver/ShiftedOutput.h"
 #include "Pufferfish/HAL/HAL.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
 #include "Pufferfish/HAL/STM32/HALI2CDevice.h"
@@ -97,23 +97,34 @@ PF::HAL::AnalogInput adc3_input(hadc3, adc_poll_timeout);
 // control over
 
 // Interface Board
-PF::HAL::HALDigitalOutput serClock(*SER_CLK_GPIO_Port, SER_CLK_Pin, true);
-PF::HAL::HALDigitalOutput serClear(*SER_CLR_N_GPIO_Port, SER_CLR_N_Pin, false);
-PF::HAL::HALDigitalOutput serRClock(*SER_RCLK_GPIO_Port, SER_RCLK_Pin, true);
-PF::HAL::HALDigitalOutput serInput(*SER_IN_GPIO_Port, SER_IN_Pin, true);
+PF::HAL::HALDigitalOutput ser_clock(
+    *SER_CLK_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    SER_CLK_Pin, true);
+PF::HAL::HALDigitalOutput ser_clear(
+    *SER_CLR_N_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    SER_CLR_N_Pin, false);
+PF::HAL::HALDigitalOutput ser_r_clock(
+    *SER_RCLK_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    SER_RCLK_Pin, true);
+PF::HAL::HALDigitalOutput ser_input(
+    *SER_IN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    SER_IN_Pin, true);
 
 PF::HAL::HALDigitalOutput board_led1(
     *LD1_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     LD1_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-PF::Driver::ShiftRegister ledsReg(serInput, serClock, serRClock, serClear);
+PF::Driver::ShiftRegister leds_reg(ser_input, ser_clock, ser_r_clock,
+                                   ser_clear);
 
-PF::Driver::ShiftedOutput alarm_led_r(ledsReg, 0);
-PF::Driver::ShiftedOutput alarm_led_g(ledsReg, 1);
-PF::Driver::ShiftedOutput alarm_led_b(ledsReg, 2);
-PF::Driver::ShiftedOutput led_alarm_en(ledsReg, 3);
-PF::Driver::ShiftedOutput led_full_o2(ledsReg, 4);
-PF::Driver::ShiftedOutput led_manual_breath(ledsReg, 5);
-PF::Driver::ShiftedOutput led_lock(ledsReg, 6);
+PF::Driver::ShiftedOutput alarm_led_r(leds_reg, 0);
+PF::Driver::ShiftedOutput alarm_led_g(leds_reg, 1);
+PF::Driver::ShiftedOutput alarm_led_b(leds_reg, 2);
+PF::Driver::ShiftedOutput led_alarm_en(leds_reg, 3);
+PF::Driver::ShiftedOutput led_full_o2(leds_reg, 4);
+// NOLINTNEXTLINE(readability-magic-numbers)
+PF::Driver::ShiftedOutput led_manual_breath(leds_reg, 5);
+// NOLINTNEXTLINE(readability-magic-numbers)
+PF::Driver::ShiftedOutput led_lock(leds_reg, 6);
 
 PF::HAL::HALDigitalOutput alarm_reg_high(
     *ALARM1_HIGH_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
@@ -136,11 +147,21 @@ PF::Driver::Indicators::AuditoryAlarm alarm_dev_sound(alarm_reg_high,
                                                       alarm_buzzer);
 PF::AlarmsManager h_alarms(alarm_dev_led, alarm_dev_sound);
 
-PF::HAL::DigitalInput button_alarm_en(*SET_ALARM_EN_GPIO_Port, SET_ALARM_EN_Pin, true);
-PF::HAL::DigitalInput button_full_o2(*SET_100_O2_GPIO_Port, SET_100_O2_Pin, true);
-PF::HAL::DigitalInput button_manual_breath(*SET_MANUAL_BREATH_GPIO_Port, SET_MANUAL_BREATH_Pin, true);
-PF::HAL::DigitalInput button_lock(*SET_LOCK_GPIO_Port, SET_LOCK_Pin, true);
-PF::HAL::DigitalInput button_power(*SET_PWR_ON_OFF_GPIO_Port, SET_PWR_ON_OFF_Pin, true);
+PF::HAL::DigitalInput button_alarm_en(
+    *SET_ALARM_EN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    SET_ALARM_EN_Pin, true);
+PF::HAL::DigitalInput button_full_o2(
+    *SET_100_O2_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    SET_100_O2_Pin, true);
+PF::HAL::DigitalInput button_manual_breath(
+    *SET_MANUAL_BREATH_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    SET_MANUAL_BREATH_Pin, true);
+PF::HAL::DigitalInput button_lock(
+    *SET_LOCK_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    SET_LOCK_Pin, true);
+PF::HAL::DigitalInput button_power(
+    *SET_PWR_ON_OFF_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+    SET_PWR_ON_OFF_Pin, true);
 
 // Solenoid Valves
 PF::HAL::PWM drive1_ch1(htim2, TIM_CHANNEL_4);
@@ -280,7 +301,7 @@ void interface_test_loop() {
   bool l_o2 = button_full_o2.read();
   bool l_manual = button_manual_breath.read();
   bool l_lock = button_lock.read();
-  bool l_power = button_power.read();
+  // bool l_power = button_power.read();
 
   // simply write back
   led_alarm_en.write(l_alarm_en);
@@ -289,19 +310,19 @@ void interface_test_loop() {
   led_lock.write(l_lock);
 
   // cycle though alarms
-//  if (!l_power) {
-//    hAlarms.clearAll();
-//  } else if (PF::HAL::millis() - interface_test_millis > 100) {
-//    hAlarms.add(PF::AlarmStatus::highPriority);
-//    interface_test_millis = PF::HAL::millis();
-//    if (interface_test_state) {
-//      interface_test_state--;
-//      hAlarms.add(static_cast<PF::AlarmStatus>(interface_test_state));
-//    } else {
-//      interface_test_state = static_cast<int>(PF::AlarmStatus::noAlarm);
-//      hAlarms.clearAll();
-//    }
-//  }
+  //  if (!l_power) {
+  //    hAlarms.clearAll();
+  //  } else if (PF::HAL::millis() - interface_test_millis > 100) {
+  //    hAlarms.add(PF::AlarmStatus::highPriority);
+  //    interface_test_millis = PF::HAL::millis();
+  //    if (interface_test_state) {
+  //      interface_test_state--;
+  //      hAlarms.add(static_cast<PF::AlarmStatus>(interface_test_state));
+  //    } else {
+  //      interface_test_state = static_cast<int>(PF::AlarmStatus::noAlarm);
+  //      hAlarms.clearAll();
+  //    }
+  //  }
 }
 /* USER CODE END 0 */
 
@@ -376,7 +397,7 @@ int main(void)
     PF::HAL::delay(blink_low_delay);
     board_led1.write(true);
     interface_test_loop();
-    ledsReg.update();
+    leds_reg.update();
 
     for (PF::Driver::Testable *t : i2c_test_list) {
       if (t->test() != PF::I2CDeviceStatus::ok) {

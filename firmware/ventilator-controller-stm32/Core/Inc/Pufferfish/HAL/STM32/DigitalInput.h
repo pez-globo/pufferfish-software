@@ -22,7 +22,8 @@ class DigitalInput {
    * @param pin   GPIO pin of the MCU (1, 2, ...)
    * @param inverted   true if the input is active-low, false for active-high
    */
-  DigitalInput(GPIO_TypeDef &port, const uint16_t pin, const bool inverted = false)
+  DigitalInput(GPIO_TypeDef &port, const uint16_t pin,
+               const bool inverted = false)
       : port_(port), pin(pin), inverted(inverted) {}
 
   /**

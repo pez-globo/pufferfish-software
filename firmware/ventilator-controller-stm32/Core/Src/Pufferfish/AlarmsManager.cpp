@@ -41,7 +41,7 @@ AlarmManagerStatus Pufferfish::AlarmsManager::remove(AlarmStatus a) {
   return AlarmManagerStatus::ok;
 }
 
-void AlarmsManager::clearAll() {
+void AlarmsManager::clear_all() {
   for (int i = 0; i < static_cast<int>(AlarmStatus::no_alarm); i++) {
     alarms_cnt_[i] = 0;
   }

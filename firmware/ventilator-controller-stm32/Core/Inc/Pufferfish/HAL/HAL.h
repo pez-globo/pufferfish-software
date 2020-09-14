@@ -20,9 +20,9 @@
 
 #include "STM32/AnalogInput.h"
 #include "STM32/DigitalInput.h"
-#include "STM32/HALDigitalOutput.h"
 #include "STM32/Endian.h"
+#include "STM32/HALDigitalOutput.h"
 #include "STM32/HALI2CDevice.h"
-#include "STM32/Time.h"
-#include "STM32/PWM.h"
 #include "STM32/HALSPIDevice.h"
+#include "STM32/PWM.h"
+#include "STM32/Time.h"

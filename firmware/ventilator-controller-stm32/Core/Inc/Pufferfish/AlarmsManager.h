@@ -49,7 +49,7 @@ class AlarmsManager {
   /**
    * Clears all the active alarm
    */
-  void clearAll();
+  void clear_all();
 
   /**
    * Performs necessary updates on the alarm indicators,
