@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Grid, Button, makeStyles, Theme } from '@material-ui/core'
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp'
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown'
@@ -42,26 +42,28 @@ interface Props {
  */
 export const ValueClicker = ({ value, min = 0, max = 100, onClick, direction = 'column', step = 1 }: Props) => {
     const classes = useStyles()
+    const [disableIncrement, setDisableIncrement] = useState(false)
+    const [disableDecrement, setDisableDecrement] = useState(false)
 
     const update = (step: number) => () => {
         let change = value + step
-        if (change > max) {
-            change = min
-        } else if (change < min) {
-            change = max
-        }
+        setDisableIncrement(change >= max ? true : false)
+        setDisableDecrement(change <= min ? true : false)
         return onClick(change)
     }
+
+    setDisableIncrement(value >= max ? true : false)
+    setDisableDecrement(value <= min ? true : false)
 
     return (
         <Grid container direction={direction} className={classes.root} wrap='nowrap'>
             <Grid item className={direction === 'row' ? classes.marginRight : classes.marginBottom}>
-                <Button onClick={update(step)} variant='contained' color='primary' className={classes.iconButton}>
+                <Button disabled={disableIncrement} onClick={update(step)} variant='contained' color='primary' className={classes.iconButton}>
                     <KeyboardArrowUp fontSize='large' />
                 </Button>
             </Grid>
             <Grid item>
-                <Button onClick={update(-step)} variant='contained' color='primary' className={classes.iconButton}>
+                <Button disabled={disableDecrement} onClick={update(-step)} variant='contained' color='primary' className={classes.iconButton}>
                     <KeyboardArrowDown fontSize='large' />
                 </Button>
             </Grid>
