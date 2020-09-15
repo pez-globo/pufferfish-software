@@ -275,6 +275,12 @@ export const controllerReducer = combineReducers({
     MessageType.SensorMeasurements,
     (sensorMeasurements: SensorMeasurements) => (sensorMeasurements.time),
     (sensorMeasurements: SensorMeasurements) => (sensorMeasurements.flow),
-    60, 30
+    60, 20
+  ),
+  waveformHistoryVolume: waveformHistoryReducer<SensorMeasurements>(
+    MessageType.SensorMeasurements,
+    (sensorMeasurements: SensorMeasurements) => (sensorMeasurements.time),
+    (sensorMeasurements: SensorMeasurements) => (sensorMeasurements.volume),
+    60, 40
   )
 })

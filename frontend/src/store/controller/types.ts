@@ -95,6 +95,7 @@ export interface ControllerStates {
   // Derived states
   waveformHistoryPaw: WaveformHistory;
   waveformHistoryFlow: WaveformHistory;
+  waveformHistoryVolume: WaveformHistory;
 };
 
 export const MessageClass = new Map<MessageType, PBMessageType>([
