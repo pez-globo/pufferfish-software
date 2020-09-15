@@ -82,7 +82,9 @@ async def simulate_states(
             sensor_measurements.flow *= (
                 1 - insp_flow_responsiveness / time_step
             )
-            sensor_measurements.volume += sensor_measurements.flow / 60 * time_step
+            sensor_measurements.volume += (
+                sensor_measurements.flow / 60 * time_step
+            )
         else:
             sensor_measurements.paw += (
                 parameters.peep - sensor_measurements.paw
@@ -93,7 +95,9 @@ async def simulate_states(
                 sensor_measurements.flow *= (
                     1 - exp_flow_responsiveness / time_step
                 )
-            sensor_measurements.volume += sensor_measurements.flow / 60 * time_step
+            sensor_measurements.volume += (
+                sensor_measurements.flow / 60 * time_step
+            )
         # FiO2
         sensor_measurements.fio2 += (
             (
