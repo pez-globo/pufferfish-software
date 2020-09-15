@@ -126,10 +126,11 @@ const waveformHistoryReducer = <T extends PBMessage>(
   messageType: MessageType,
   getTime: (values: T) => number,
   getValue: (values: T) => number,
+  bufferDuration: number = 60,
+  segmentUpdateOffset: number = 0,
   maxDuration: number = 10000,
   gapDuration: number = 500,
-  maxSegmentDuration: number = 2500,
-  bufferDuration: number = 60
+  maxSegmentDuration: number = 2500
 ) => (
   state: WaveformHistory = {
     waveformOld: {
@@ -166,9 +167,9 @@ const waveformHistoryReducer = <T extends PBMessage>(
               full: state.waveformNew.full
             },
             waveformNew: {
-              full: [newPoint],
-              buffer: [],
-              segmented: [[newPoint]]
+              full: [],
+              buffer: [newPoint],
+              segmented: [[]]
             },
             waveformNewStart: sampleTime
           }
@@ -183,8 +184,24 @@ const waveformHistoryReducer = <T extends PBMessage>(
         }
         buffered = buffered.concat([newPoint])
 
-        // update segmented
+        // apply segment update offset
         let segments = [...state.waveformNew.segmented]
+        const bufferedStart = buffered[0].date.getTime()
+        const bufferedEnd = buffered[buffered.length - 1].date.getTime()
+        if (
+          segments.length === 1
+          && bufferedEnd - bufferedStart < segmentUpdateOffset
+        ) {
+          return {
+            ...state,
+            waveformNew: {
+              ...state.waveformNew,
+              buffer: buffered,
+            },
+          }
+        }
+
+        // update segmented
         const lastSegment = segments[segments.length - 1]
         if (lastSegment.length === 0) {
           segments[segments.length - 1] = buffered
@@ -251,11 +268,13 @@ export const controllerReducer = combineReducers({
   waveformHistoryPaw: waveformHistoryReducer<SensorMeasurements>(
     MessageType.SensorMeasurements,
     (sensorMeasurements: SensorMeasurements) => (sensorMeasurements.time),
-    (sensorMeasurements: SensorMeasurements) => (sensorMeasurements.paw)
+    (sensorMeasurements: SensorMeasurements) => (sensorMeasurements.paw),
+    60, 0
   ),
   waveformHistoryFlow: waveformHistoryReducer<SensorMeasurements>(
     MessageType.SensorMeasurements,
     (sensorMeasurements: SensorMeasurements) => (sensorMeasurements.time),
-    (sensorMeasurements: SensorMeasurements) => (sensorMeasurements.flow)
+    (sensorMeasurements: SensorMeasurements) => (sensorMeasurements.flow),
+    60, 30
   )
 })
