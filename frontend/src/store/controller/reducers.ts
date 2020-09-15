@@ -128,7 +128,8 @@ const waveformHistoryReducer = <T extends PBMessage>(
   getValue: (values: T) => number,
   maxDuration: number = 10000,
   gapDuration: number = 500,
-  maxSegmentDuration: number = 2500
+  maxSegmentDuration: number = 2500,
+  bufferDuration: number = 60
 ) => (
   state: WaveformHistory = {
     waveformOld: {
@@ -136,6 +137,7 @@ const waveformHistoryReducer = <T extends PBMessage>(
     },
     waveformNew: {
       full: [],
+      buffer: [],
       segmented: [[]]
     },
     waveformNewStart: 0
@@ -165,26 +167,41 @@ const waveformHistoryReducer = <T extends PBMessage>(
             },
             waveformNew: {
               full: [newPoint],
+              buffer: [],
               segmented: [[newPoint]]
             },
             waveformNewStart: sampleTime
           }
         }
 
+        // update buffer
+        let buffered = [...state.waveformNew.buffer]
         const newPointTime = sampleTime - state.waveformNewStart
         const newPoint = {
           date: new Date(newPointTime),
           value: getValue(action.state as T)
         }
+        buffered = buffered.concat([newPoint])
+
+        // update segmented
         let segments = [...state.waveformNew.segmented]
         const lastSegment = segments[segments.length - 1]
         if (lastSegment.length === 0) {
-          segments[segments.length - 1] = [newPoint]
+          segments[segments.length - 1] = buffered
+          buffered = []
         } else {
-          const lastSegmentDuration = newPointTime - lastSegment[0].date.getTime()
-          segments[segments.length - 1] = lastSegment.concat([newPoint])
-          if (lastSegmentDuration >= maxSegmentDuration) {
-            segments = segments.concat([[newPoint]])
+          const lastSegmentStart = lastSegment[0].date.getTime()
+          const lastSegmentEnd = lastSegment[lastSegment.length - 1].date.getTime()
+          if (newPointTime - lastSegmentEnd >= bufferDuration) {
+            const lastSegmentDuration = newPointTime - lastSegmentStart
+            if (lastSegmentDuration >= maxSegmentDuration) {
+              // start a new segment, but add an overlap of points
+              segments[segments.length - 1] = lastSegment.concat([buffered[0]])
+              segments = segments.concat([buffered])
+            } else {
+              segments[segments.length - 1] = lastSegment.concat(buffered)
+            }
+            buffered = []
           }
         }
 
@@ -192,6 +209,7 @@ const waveformHistoryReducer = <T extends PBMessage>(
           waveformOld: state.waveformOld,
           waveformNew: {
             full: state.waveformNew.full.concat([newPoint]),
+            buffer: buffered,
             segmented: segments
           },
           waveformNewStart: state.waveformNewStart

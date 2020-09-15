@@ -70,6 +70,7 @@ export interface WaveformHistory {
   }
   waveformNew: {
     full: WaveformPoint[],
+    buffer: WaveformPoint[],
     segmented: WaveformPoint[][]
   },
   waveformNewStart: number
