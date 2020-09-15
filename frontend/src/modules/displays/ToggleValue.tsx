@@ -25,6 +25,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const StyledToggleButton = withStyles(({ palette }) => ({
+  root: {
+    padding: 0,
+  },
   selected: {
     '&&': {
       backgroundColor: palette.background.paper,
