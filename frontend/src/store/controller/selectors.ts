@@ -177,7 +177,7 @@ export const getWaveformVolumeNewSegments = createSelector(
   (waveformHistory: WaveformHistory): WaveformPoint[][] => waveformHistory.waveformNew.segmented,
 );
 export const getWaveformVolumeNewSegment = (
-    segmentIndex: number,
+  segmentIndex: number,
 ): OutputSelector<StoreState, WaveformPoint[], unknown> =>
   createSelector(
     getWaveformVolumeNewSegments,

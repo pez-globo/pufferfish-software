@@ -123,11 +123,11 @@ const waveformHistoryReducer = <T extends PBMessage>(
   messageType: MessageType,
   getTime: (values: T) => number,
   getValue: (values: T) => number,
-  bufferDuration: number = 60,
-  segmentUpdateOffset: number = 0,
-  maxDuration: number = 10000,
-  gapDuration: number = 500,
-  maxSegmentDuration: number = 2500,
+  bufferDuration = 60,
+  segmentUpdateOffset = 0,
+  maxDuration = 10000,
+  gapDuration = 500,
+  maxSegmentDuration = 2500,
 ) => (
   state: WaveformHistory = {
     waveformOld: {
@@ -186,10 +186,7 @@ const waveformHistoryReducer = <T extends PBMessage>(
         let segments = [...state.waveformNew.segmented];
         const bufferedStart = buffered[0].date.getTime();
         const bufferedEnd = buffered[buffered.length - 1].date.getTime();
-        if (
-          segments.length === 1
-          && bufferedEnd - bufferedStart < segmentUpdateOffset
-        ) {
+        if (segments.length === 1 && bufferedEnd - bufferedStart < segmentUpdateOffset) {
           return {
             ...state,
             waveformNew: {
@@ -263,20 +260,23 @@ export const controllerReducer = combineReducers({
     MessageType.SensorMeasurements,
     (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
     (sensorMeasurements: SensorMeasurements) => sensorMeasurements.paw,
-    60, 0,
+    60,
+    0,
   ),
   waveformHistoryFlow: waveformHistoryReducer<SensorMeasurements>(
     MessageType.SensorMeasurements,
     (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
     (sensorMeasurements: SensorMeasurements) => sensorMeasurements.flow,
-    60, 20,
+    60,
+    20,
   ),
   waveformHistoryVolume: waveformHistoryReducer<SensorMeasurements>(
     MessageType.SensorMeasurements,
     (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
     (sensorMeasurements: SensorMeasurements) => sensorMeasurements.volume,
-    60, 40,
-  )
-})
+    60,
+    40,
+  ),
+});
 
 export default controllerReducer;
