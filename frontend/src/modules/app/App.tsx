@@ -24,15 +24,17 @@ interface Props {
 
 class App extends Component<Props> {
   componentDidMount() {
-    const { initialize } = this.props
-    initialize()
+    const { initialize } = this.props;
+    initialize();
     // Disable Right click across app
-    document.oncontextmenu = function (event) {
+    const disableContext = (event: MouseEvent): boolean => {
       if (event.button === RIGHT_CLICK_BUTTON_KEY || event.button === TOUCH_SCREEN_BUTTON_KEY) {
-          event.preventDefault();
-          return false;
+        event.preventDefault();
+        return false;
       }
-    }
+      return true;
+    };
+    document.oncontextmenu = disableContext;
   }
 
   render() {
