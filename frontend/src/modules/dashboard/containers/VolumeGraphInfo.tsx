@@ -62,20 +62,23 @@ const waveforms = ({ width, height }: AutoSizerProps) => (
   </React.Fragment>
 );
 
-const VolumeGraphInfo = () => (
+const VolumeGraphInfo = (): JSX.Element => (
   <AutoSizer>
-    {({ width, height }: AutoSizerProps) => (
-      <Axes
-        width={width}
-        height={height}
-        waveforms={waveforms({ width, height })}
-        xRangeMax={10000}
-        yRangeMin={0}
-        yRangeMax={1000}
-        title="Volume"
-        units="mL"
-      />
-    )}
+    {(props: AutoSizerProps) => {
+      const { width, height } = props;
+      return (
+        <Axes
+          width={width}
+          height={height}
+          waveforms={waveforms({ width, height })}
+          xRangeMax={10000}
+          yRangeMin={0}
+          yRangeMax={1000}
+          title="Volume"
+          units="mL"
+        />
+      );
+    }}
   </AutoSizer>
 );
 
