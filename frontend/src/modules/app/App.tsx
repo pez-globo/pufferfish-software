@@ -13,6 +13,7 @@ import { ThemeVariant, FrontendDisplaySetting } from '../../store/controller/pro
 import { getFrontendDisplaySetting } from '../../store/controller/selectors';
 
 const RIGHT_CLICK_BUTTON_KEY = 2;
+const TOUCH_SCREEN_BUTTON_KEY = 0;
 
 interface Props {
   initialize: typeof initialize;
@@ -27,7 +28,7 @@ class App extends Component<Props> {
     initialize()
     // Disable Right click across app
     document.oncontextmenu = function (event) {
-      if (event.button === RIGHT_CLICK_BUTTON_KEY) {
+      if (event.button === RIGHT_CLICK_BUTTON_KEY || event.button === TOUCH_SCREEN_BUTTON_KEY) {
           event.preventDefault();
           return false;
       }
