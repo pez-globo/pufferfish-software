@@ -218,13 +218,12 @@ const waveformHistoryReducer = <T extends PBMessage>(
         }
 
         return {
-          waveformOld: state.waveformOld,
+          ...state,
           waveformNew: {
             full: state.waveformNew.full.concat([newPoint]),
             buffer: buffered,
             segmented: segments,
           },
-          waveformNewStart: state.waveformNewStart,
         };
       }
       return state;
