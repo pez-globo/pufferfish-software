@@ -8,40 +8,49 @@ import {
   Announcement,
   AlarmLimitsRequest,
   FrontendDisplaySetting,
-  SystemSettingRequest
-} from './proto/mcu_pb'
-import {
-  RotaryEncoder
-} from './proto/frontend_pb'
+  SystemSettingRequest,
+} from './proto/mcu_pb';
+import { RotaryEncoder } from './proto/frontend_pb';
 
 // Action Types
 
-export const STATE_UPDATED = '@controller/STATE_UPDATED'
-export const PARAMETER_COMMITTED = '@controller/PARAMETER_COMMITTED'
-export const ALARM_LIMITS = 'ALARM_LIMITS'
-export const FRONTEND_DISPLAY_SETTINGS = 'FRONTEND_DISPLAY_SETTINGS'
-export const SYSTEM_SETTINGS = 'SYSTEM_SETTINGS'
+export const STATE_UPDATED = '@controller/STATE_UPDATED';
+export const PARAMETER_COMMITTED = '@controller/PARAMETER_COMMITTED';
+export const ALARM_LIMITS = 'ALARM_LIMITS';
+export const FRONTEND_DISPLAY_SETTINGS = 'FRONTEND_DISPLAY_SETTINGS';
+export const SYSTEM_SETTINGS = 'SYSTEM_SETTINGS';
 
 // Protocol Buffers
 
-export type PBMessage = (
-  // mcu_pb
-  AlarmLimitsRequest | SystemSettingRequest | FrontendDisplaySetting 
-  | Alarms | SensorMeasurements | CycleMeasurements
-  | Parameters | ParametersRequest | Ping | Announcement
+export type PBMessage =
+  | // mcu_pb
+  AlarmLimitsRequest
+  | SystemSettingRequest
+  | FrontendDisplaySetting
+  | Alarms
+  | SensorMeasurements
+  | CycleMeasurements
+  | Parameters
+  | ParametersRequest
+  | Ping
+  | Announcement
   // frontend_pb
-  | RotaryEncoder
-)
+  | RotaryEncoder;
 
-export type PBMessageType = (
-  // mcu_pb
-  typeof AlarmLimitsRequest | typeof SystemSettingRequest | typeof FrontendDisplaySetting 
-  | typeof Alarms | typeof SensorMeasurements | typeof CycleMeasurements
-  | typeof Parameters | typeof ParametersRequest
-  | typeof Ping | typeof Announcement
+export type PBMessageType =
+  | // mcu_pb
+  typeof AlarmLimitsRequest
+  | typeof SystemSettingRequest
+  | typeof FrontendDisplaySetting
+  | typeof Alarms
+  | typeof SensorMeasurements
+  | typeof CycleMeasurements
+  | typeof Parameters
+  | typeof ParametersRequest
+  | typeof Ping
+  | typeof Announcement
   // frontend_pb
-  | typeof RotaryEncoder
-)
+  | typeof RotaryEncoder;
 
 export enum MessageType {
   Alarms = 1,
@@ -54,26 +63,26 @@ export enum MessageType {
   AlarmLimitsRequest = 8,
   SystemSettingRequest = 9,
   FrontendDisplaySetting = 10,
-  RotaryEncoder = 128
-};
+  RotaryEncoder = 128,
+}
 
 // States
 
 export interface WaveformPoint {
-  date: Date,
-  value: number
+  date: Date;
+  value: number;
 }
 
 export interface WaveformHistory {
   waveformOld: {
-    full: WaveformPoint[]
-  }
+    full: WaveformPoint[];
+  };
   waveformNew: {
-    full: WaveformPoint[],
-    buffer: WaveformPoint[],
-    segmented: WaveformPoint[][]
-  },
-  waveformNewStart: number
+    full: WaveformPoint[];
+    buffer: WaveformPoint[];
+    segmented: WaveformPoint[][];
+  };
+  waveformNewStart: number;
 }
 
 export interface ControllerStates {
@@ -96,7 +105,7 @@ export interface ControllerStates {
   waveformHistoryPaw: WaveformHistory;
   waveformHistoryFlow: WaveformHistory;
   waveformHistoryVolume: WaveformHistory;
-};
+}
 
 export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.Alarms, Alarms],
@@ -129,18 +138,25 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
 // State Update Actions
 
 interface StateUpdatedAction {
-  type: typeof STATE_UPDATED
-  messageType: MessageType
-  state: PBMessage
-};
+  type: typeof STATE_UPDATED;
+  messageType: MessageType;
+  state: PBMessage;
+}
 
 export type StateUpdateAction = StateUpdatedAction;
+
+// State Update Actions
+
+export interface commitAction {
+  type: string;
+  update: Record<string, unknown>;
+}
 
 // Parameter Commit Actions
 
 interface ParameterCommittedAction {
-  type: typeof PARAMETER_COMMITTED
-  update: any
-};
+  type: typeof PARAMETER_COMMITTED;
+  update: Record<string, unknown>;
+}
 
 export type ParameterCommitAction = ParameterCommittedAction;
