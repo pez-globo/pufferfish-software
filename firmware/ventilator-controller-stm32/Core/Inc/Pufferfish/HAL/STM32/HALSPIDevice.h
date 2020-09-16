@@ -8,7 +8,7 @@
 
 #include "Pufferfish/HAL/Interfaces/SPIDevice.h"
 
-#include "Pufferfish/HAL/STM32/DigitalOutput.h"
+#include "Pufferfish/HAL/Interfaces/DigitalOutput.h"
 
 namespace Pufferfish {
 namespace HAL {
