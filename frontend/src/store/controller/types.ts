@@ -75,13 +75,13 @@ export interface WaveformPoint {
 
 export interface WaveformHistory {
   waveformOld: {
-    full: WaveformPoint[]
-  }
+    full: WaveformPoint[];
+  };
   waveformNew: {
-    full: WaveformPoint[],
-    segmented: WaveformPoint[][]
-  },
-  waveformNewStart: number
+    full: WaveformPoint[];
+    segmented: WaveformPoint[][];
+  };
+  waveformNewStart: number;
 }
 
 export interface ControllerStates {

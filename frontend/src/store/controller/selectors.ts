@@ -1,4 +1,4 @@
-import { createSelector } from 'reselect';
+import { createSelector, OutputSelector } from 'reselect';
 import { StoreState } from '../types';
 import {
   Alarms,
@@ -130,34 +130,40 @@ export const getWaveformHistoryPaw = createSelector(
 );
 export const getWaveformPawOld = createSelector(
   getWaveformHistoryPaw,
-  (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformOld.full
-)
+  (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformOld.full,
+);
 // Paw Waveforms
 export const getWaveformPawNewSegments = createSelector(
   getWaveformHistoryPaw,
-  (waveformHistory: WaveformHistory): WaveformPoint[][] => waveformHistory.waveformNew.segmented
-)
-export const getWaveformPawNewSegment = (segmentIndex: number) => createSelector(
-  getWaveformPawNewSegments,
-  (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex]
-)
+  (waveformHistory: WaveformHistory): WaveformPoint[][] => waveformHistory.waveformNew.segmented,
+);
+export const getWaveformPawNewSegment = (
+  segmentIndex: number,
+): OutputSelector<StoreState, WaveformPoint[], unknown> =>
+  createSelector(
+    getWaveformPawNewSegments,
+    (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex],
+  );
 export const getWaveformHistoryFlow = createSelector(
   getController,
-  (states: ControllerStates): WaveformHistory => states.waveformHistoryFlow
-)
+  (states: ControllerStates): WaveformHistory => states.waveformHistoryFlow,
+);
 // Fow Waveforms
 export const getWaveformFlowOld = createSelector(
   getWaveformHistoryFlow,
-  (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformOld.full
-)
+  (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformOld.full,
+);
 export const getWaveformFlowNewSegments = createSelector(
   getWaveformHistoryFlow,
-  (waveformHistory: WaveformHistory): WaveformPoint[][] => waveformHistory.waveformNew.segmented
-)
-export const getWaveformFlowNewSegment = (segmentIndex: number) => createSelector(
-  getWaveformFlowNewSegments,
-  (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex]
-)
+  (waveformHistory: WaveformHistory): WaveformPoint[][] => waveformHistory.waveformNew.segmented,
+);
+export const getWaveformFlowNewSegment = (
+  segmentIndex: number,
+): OutputSelector<StoreState, WaveformPoint[], unknown> =>
+  createSelector(
+    getWaveformFlowNewSegments,
+    (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex],
+  );
 
 // Alarm Limits
 export const getAlarmLimitsRequest = createSelector(
