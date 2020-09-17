@@ -9,12 +9,14 @@ import {
   Announcement,
   AlarmLimitsRequest,
   VentilationMode,
+} from './proto/mcu_pb';
+import {
+  RotaryEncoder,
+  FrontendDisplaySetting,
   ThemeVariant,
   Unit,
-  FrontendDisplaySetting,
   SystemSettingRequest,
-} from './proto/mcu_pb';
-import { RotaryEncoder } from './proto/frontend_pb';
+} from './proto/frontend_pb';
 import {
   MessageType,
   ParameterCommitAction,

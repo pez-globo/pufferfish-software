@@ -14,7 +14,6 @@ import {
 import { useSelector } from 'react-redux';
 import ValueController from '../../controllers/ValueController';
 import { getClock } from '../../../store/app/selectors';
-import { ThemeVariant, Unit } from '../../../store/controller/proto/mcu_pb';
 
 import {
   getFrontendDisplaySetting,
@@ -22,6 +21,7 @@ import {
 } from '../../../store/controller/selectors';
 import { ToggleValue } from '../../displays/ToggleValue';
 import { DECIMAL_RADIX } from '../../app/AppConstants';
+import { ThemeVariant, Unit } from '../../../store/controller/proto/frontend_pb';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -154,148 +154,152 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
 
   return (
     <Grid container className={classes.root}>
-      <Grid container item xs={4} direction="column" className={classes.leftPanel}>
-        {/* Brightness */}
-        <Grid container item xs direction="row">
-          <ValueController
-            value={brightness}
-            label="Brightness"
-            units="%"
-            onClick={setBrightness}
-            min={0}
-            max={100}
-          />
-        </Grid>
-        {/* Color TODO: This should be a toggle switch. */}
-        <Grid
-          container
-          item
-          xs
-          direction="column"
-          justify="center"
-          className={classes.leftContainer}
-        >
-          <Typography variant="h5" className={classes.root}>
-            Color
-          </Typography>
-          <ToggleValue
-            toggleBetween={[
-              { label: 'Dark UI', value: ThemeVariant.dark },
-              { label: 'Light UI', value: ThemeVariant.light },
-            ]}
-            onToggle={(selected: number) => setTheme(selected as ThemeVariant)}
-            selected={theme}
-          />
-        </Grid>
-        {/* Unit TODO: This should be a toggle switch. */}
-        <Grid
-          container
-          item
-          xs
-          direction="column"
-          justify="center"
-          className={classes.leftContainer}
-        >
-          <Typography variant="h5" className={classes.root}>
-            Unit
-          </Typography>
-          <ToggleValue
-            toggleBetween={[
-              { label: 'Imperial', value: Unit.imperial },
-              { label: 'Metric', value: Unit.metric },
-            ]}
-            onToggle={(selected: number) => setUnit(selected as Unit)}
-            selected={unit}
-          />
-        </Grid>
-        {/* Date & Time */}
-        <Grid
-          container
-          item
-          xs
-          direction="row"
-          justify="flex-start"
-          alignItems="center"
-          className={classes.leftContainer}
-        >
-          <Box className={classes.date}>
-            <Typography variant="h5">Date:</Typography>
-            <Typography className={classes.dateTime}>
-              {clock
-                .toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' })
-                .replace('/', ' - ')
-                .replace('/', ' - ')}
+      <Grid container item xs={4}>
+        <Grid container item direction="column" className={classes.leftPanel}>
+          {/* Brightness */}
+          <Grid container item xs direction="row">
+            <ValueController
+              value={brightness}
+              label="Brightness"
+              units="%"
+              onClick={setBrightness}
+              min={0}
+              max={100}
+            />
+          </Grid>
+          {/* Color TODO: This should be a toggle switch. */}
+          <Grid
+            container
+            item
+            xs
+            direction="column"
+            justify="center"
+            className={classes.leftContainer}
+          >
+            <Typography variant="h5" className={classes.root}>
+              Color
             </Typography>
-          </Box>
-          <Box>
-            <Typography variant="h5">Time:</Typography>
-            <Typography className={classes.dateTime}>{clock.toLocaleTimeString()}</Typography>
-          </Box>
+            <ToggleValue
+              toggleBetween={[
+                { label: 'Dark UI', value: ThemeVariant.dark },
+                { label: 'Light UI', value: ThemeVariant.light },
+              ]}
+              onToggle={(selected: number) => setTheme(selected as ThemeVariant)}
+              selected={theme}
+            />
+          </Grid>
+          {/* Unit TODO: This should be a toggle switch. */}
+          <Grid
+            container
+            item
+            xs
+            direction="column"
+            justify="center"
+            className={classes.leftContainer}
+          >
+            <Typography variant="h5" className={classes.root}>
+              Unit
+            </Typography>
+            <ToggleValue
+              toggleBetween={[
+                { label: 'Imperial', value: Unit.imperial },
+                { label: 'Metric', value: Unit.metric },
+              ]}
+              onToggle={(selected: number) => setUnit(selected as Unit)}
+              selected={unit}
+            />
+          </Grid>
+          {/* Date & Time */}
+          <Grid
+            container
+            item
+            xs
+            direction="row"
+            justify="flex-start"
+            alignItems="center"
+            className={classes.leftContainer}
+          >
+            <Box className={classes.date}>
+              <Typography variant="h5">Date:</Typography>
+              <Typography className={classes.dateTime}>
+                {clock
+                  .toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' })
+                  .replace('/', ' - ')
+                  .replace('/', ' - ')}
+              </Typography>
+            </Box>
+            <Box>
+              <Typography variant="h5">Time:</Typography>
+              <Typography className={classes.dateTime}>{clock.toLocaleTimeString()}</Typography>
+            </Box>
+          </Grid>
         </Grid>
       </Grid>
       {/* Right Panel: Date & Time */}
-      <Grid container item xs direction="column" className={classes.rightPanel}>
-        <Grid container item xs alignItems="stretch" className={classes.borderBottom}>
-          <Grid item xs className={classes.rightBorder}>
-            <ValueController value={hour} label="Hour" onClick={setHour} min={1} max={12} />
+      <Grid container item xs={8}>
+        <Grid container item xs direction="column" className={classes.rightPanel}>
+          <Grid container item xs alignItems="stretch" className={classes.borderBottom}>
+            <Grid item xs className={classes.rightBorder}>
+              <ValueController value={hour} label="Hour" onClick={setHour} min={1} max={12} />
+            </Grid>
+            <Grid item xs>
+              <ValueController value={minute} label="Minute" onClick={setMinute} min={0} max={59} />
+            </Grid>
+            <Grid container item justify="center" alignItems="center" xs={3}>
+              <FormControl component="fieldset" className={classes.periodFormControl}>
+                <Grid container item className={classes.root}>
+                  <Button
+                    onClick={(event) => setPeriod(Period.AM)}
+                    variant="outlined"
+                    className={buttonClass(Period.AM)}
+                  >
+                    <Typography variant="h6">AM</Typography>
+                  </Button>
+                </Grid>
+                <Grid container item>
+                  <Button
+                    onClick={(event) => setPeriod(Period.PM)}
+                    variant="outlined"
+                    className={buttonClass(Period.PM)}
+                  >
+                    <Typography variant="h6">PM</Typography>
+                  </Button>
+                </Grid>
+              </FormControl>
+            </Grid>
           </Grid>
-          <Grid item xs>
-            <ValueController value={minute} label="Minute" onClick={setMinute} min={0} max={59} />
+          <Grid container item xs direction="row" className={classes.borderBottom}>
+            <Grid item xs className={classes.rightBorder}>
+              <ValueController
+                value={month}
+                label="Month"
+                onClick={handleMonthChange}
+                min={1}
+                max={12}
+              />
+            </Grid>
+            <Grid item xs>
+              <ValueController
+                value={day}
+                label="Day"
+                onClick={setDay}
+                min={1}
+                max={getDaysInMonth(month, year)}
+              />
+            </Grid>
+            <Grid item xs={3} />
           </Grid>
-          <Grid container item justify="center" alignItems="center" xs={3}>
-            <FormControl component="fieldset" className={classes.periodFormControl}>
-              <Grid container item className={classes.root}>
-                <Button
-                  onClick={(event) => setPeriod(Period.AM)}
-                  variant="outlined"
-                  className={buttonClass(Period.AM)}
-                >
-                  <Typography variant="h6">AM</Typography>
-                </Button>
-              </Grid>
-              <Grid container item>
-                <Button
-                  onClick={(event) => setPeriod(Period.PM)}
-                  variant="outlined"
-                  className={buttonClass(Period.PM)}
-                >
-                  <Typography variant="h6">PM</Typography>
-                </Button>
-              </Grid>
-            </FormControl>
-          </Grid>
-        </Grid>
-        <Grid container item xs direction="row" className={classes.borderBottom}>
-          <Grid item xs className={classes.rightBorder}>
-            <ValueController
-              value={month}
-              label="Month"
-              onClick={handleMonthChange}
-              min={1}
-              max={12}
-            />
-          </Grid>
-          <Grid item xs>
-            <ValueController
-              value={day}
-              label="Day"
-              onClick={setDay}
-              min={1}
-              max={getDaysInMonth(month, year)}
-            />
-          </Grid>
-          <Grid item xs={3} />
-        </Grid>
-        <Grid container item xs>
-          <Grid item xs={6}>
-            <ValueController value={year} label="Year" onClick={setYear} min={year} max={year} />
-          </Grid>
-          {/* Moved Apply button out of the tab */}
-          {/* <Grid container item xs justify='center' alignItems='center' >
-                        <Button onClick={() => handleSubmit()} variant='contained' color='secondary'>
+          <Grid container item xs direction="row" className={classes.borderBottom}>
+            <Grid item xs className={classes.rightBorder}>
+              <ValueController value={year} label="Year" onClick={setYear} min={year} max={year} />
+            </Grid>
+            {/* Moved Apply button out of the tab */}
+            {/* <Grid container item xs justify='center' alignItems='center' >
+                        <Button variant='contained' color='secondary'>
                             Apply Changes
                         </Button>
                     </Grid> */}
+          </Grid>
         </Grid>
       </Grid>
     </Grid>

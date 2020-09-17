@@ -9,11 +9,9 @@ import {
   Ping,
   Announcement,
   AlarmLimitsRequest,
-  FrontendDisplaySetting,
-  SystemSettingRequest,
   VentilationMode,
 } from './proto/mcu_pb';
-import { RotaryEncoder } from './proto/frontend_pb';
+import { RotaryEncoder, FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import { ControllerStates, WaveformPoint, WaveformHistory } from './types';
 
 export const getController = ({ controller }: StoreState): ControllerStates => controller;

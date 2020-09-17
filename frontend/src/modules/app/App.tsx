@@ -9,8 +9,8 @@ import { initialize } from '../../store/app/actions';
 import { getLocale, getMessages } from '../../store/app/selectors';
 import Layout from './Layout';
 import { darkTheme, lightTheme } from '../../styles/customTheme';
-import { ThemeVariant, FrontendDisplaySetting } from '../../store/controller/proto/mcu_pb';
 import { getFrontendDisplaySetting } from '../../store/controller/selectors';
+import { FrontendDisplaySetting, ThemeVariant } from '../../store/controller/proto/frontend_pb';
 
 const RIGHT_CLICK_BUTTON_KEY = 2;
 const TOUCH_SCREEN_BUTTON_KEY = 0;
