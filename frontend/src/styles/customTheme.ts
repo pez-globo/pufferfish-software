@@ -49,46 +49,46 @@ export const darkTheme = createCustomTheme({
     fontFamily: ['Roboto', 'sans-serif'].join(','),
     body1: {
       color: 'white',
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     h1: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     h2: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     h3: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     h4: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     h5: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     h6: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     body2: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     subtitle1: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     subtitle2: {
       fontSize: 12,
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     caption: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     button: {
       textTransform: 'none',
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     overline: {
-      fontWeight: 'bold'
-    }
+      fontWeight: 'bold',
+    },
   },
   mixins: {
     toolbar: {
@@ -121,46 +121,46 @@ export const lightTheme = createCustomTheme({
     fontFamily: ['Roboto', 'sans-serif'].join(','),
     body1: {
       color: 'black',
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     h1: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     h2: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     h3: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     h4: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     h5: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     h6: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     body2: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     subtitle1: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     subtitle2: {
       fontSize: 12,
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     caption: {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     button: {
       textTransform: 'none',
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     overline: {
-      fontWeight: 'bold'
-    }
+      fontWeight: 'bold',
+    },
   },
   mixins: {
     toolbar: {
