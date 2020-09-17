@@ -79,6 +79,7 @@ export interface WaveformHistory {
   };
   waveformNew: {
     full: WaveformPoint[];
+    buffer: WaveformPoint[];
     segmented: WaveformPoint[][];
   };
   waveformNewStart: number;
@@ -114,6 +115,7 @@ export interface ControllerStates {
   // Derived states
   waveformHistoryPaw: WaveformHistory;
   waveformHistoryFlow: WaveformHistory;
+  waveformHistoryVolume: WaveformHistory;
   pvHistory: PVHistory;
 }
 

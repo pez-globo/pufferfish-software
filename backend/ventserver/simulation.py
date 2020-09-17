@@ -68,6 +68,7 @@ async def simulate_states(
         if current_time - cycle_start_time > cycle_period:
             cycle_start_time = current_time
             sensor_measurements.flow = insp_init_flow_rate
+            sensor_measurements.volume = 0
             insp_period = cycle_period / (1 + 1 / parameters.ie)
             sensor_measurements.cycle += 1
             # Cycle Measurements
@@ -82,6 +83,9 @@ async def simulate_states(
             sensor_measurements.flow *= (
                 1 - insp_flow_responsiveness / time_step
             )
+            sensor_measurements.volume += (
+                sensor_measurements.flow / 60 * time_step
+            )
         else:
             sensor_measurements.paw += (
                 parameters.peep - sensor_measurements.paw
@@ -92,6 +96,9 @@ async def simulate_states(
                 sensor_measurements.flow *= (
                     1 - exp_flow_responsiveness / time_step
                 )
+            sensor_measurements.volume += (
+                sensor_measurements.flow / 60 * time_step
+            )
         # FiO2
         sensor_measurements.fio2 += (
             (

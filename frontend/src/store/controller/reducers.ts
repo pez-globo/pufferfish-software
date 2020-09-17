@@ -125,6 +125,8 @@ const waveformHistoryReducer = <T extends PBMessage>(
   messageType: MessageType,
   getTime: (values: T) => number,
   getValue: (values: T) => number,
+  bufferDuration = 60,
+  segmentUpdateOffset = 0,
   maxDuration = 10000,
   gapDuration = 500,
   maxSegmentDuration = 2500,
@@ -135,6 +137,7 @@ const waveformHistoryReducer = <T extends PBMessage>(
     },
     waveformNew: {
       full: [],
+      buffer: [],
       segmented: [[]],
     },
     waveformNewStart: 0,
@@ -164,37 +167,65 @@ const waveformHistoryReducer = <T extends PBMessage>(
               full: state.waveformNew.full,
             },
             waveformNew: {
-              full: [newPoint],
-              segmented: [[newPoint]],
+              full: [],
+              buffer: [newPoint],
+              segmented: [[]],
             },
             waveformNewStart: sampleTime,
           };
         }
 
+        // update buffer
+        let buffered = [...state.waveformNew.buffer];
         const newPointTime = sampleTime - state.waveformNewStart;
         const newPoint = {
           date: new Date(newPointTime),
           value: getValue(action.state as T),
         };
+        buffered = buffered.concat([newPoint]);
+
+        // apply segment update offset
         let segments = [...state.waveformNew.segmented];
+        const bufferedStart = buffered[0].date.getTime();
+        const bufferedEnd = buffered[buffered.length - 1].date.getTime();
+        if (segments.length === 1 && bufferedEnd - bufferedStart < segmentUpdateOffset) {
+          return {
+            ...state,
+            waveformNew: {
+              ...state.waveformNew,
+              buffer: buffered,
+            },
+          };
+        }
+
+        // update segmented
         const lastSegment = segments[segments.length - 1];
         if (lastSegment.length === 0) {
-          segments[segments.length - 1] = [newPoint];
+          segments[segments.length - 1] = buffered;
+          buffered = [];
         } else {
-          const lastSegmentDuration = newPointTime - lastSegment[0].date.getTime();
-          segments[segments.length - 1] = lastSegment.concat([newPoint]);
-          if (lastSegmentDuration >= maxSegmentDuration) {
-            segments = segments.concat([[newPoint]]);
+          const lastSegmentStart = lastSegment[0].date.getTime();
+          const lastSegmentEnd = lastSegment[lastSegment.length - 1].date.getTime();
+          if (newPointTime - lastSegmentEnd >= bufferDuration) {
+            const lastSegmentDuration = newPointTime - lastSegmentStart;
+            if (lastSegmentDuration >= maxSegmentDuration) {
+              // start a new segment, but add an overlap of points
+              segments[segments.length - 1] = lastSegment.concat([buffered[0]]);
+              segments = segments.concat([buffered]);
+            } else {
+              segments[segments.length - 1] = lastSegment.concat(buffered);
+            }
+            buffered = [];
           }
         }
 
         return {
-          waveformOld: state.waveformOld,
+          ...state,
           waveformNew: {
             full: state.waveformNew.full.concat([newPoint]),
+            buffer: buffered,
             segmented: segments,
           },
-          waveformNewStart: state.waveformNewStart,
         };
       }
       return state;
@@ -271,11 +302,22 @@ export const controllerReducer = combineReducers({
     MessageType.SensorMeasurements,
     (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
     (sensorMeasurements: SensorMeasurements) => sensorMeasurements.paw,
+    60,
+    0,
   ),
   waveformHistoryFlow: waveformHistoryReducer<SensorMeasurements>(
     MessageType.SensorMeasurements,
     (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
     (sensorMeasurements: SensorMeasurements) => sensorMeasurements.flow,
+    60,
+    20,
+  ),
+  waveformHistoryVolume: waveformHistoryReducer<SensorMeasurements>(
+    MessageType.SensorMeasurements,
+    (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
+    (sensorMeasurements: SensorMeasurements) => sensorMeasurements.volume,
+    60,
+    40,
   ),
   pvHistory: pvHistoryReducer,
 });

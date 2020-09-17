@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Tabs, Tab, Typography } from '@material-ui/core';
-import { PawGraphInfo, FlowGraphInfo } from '../containers';
+import { PawGraphInfo, FlowGraphInfo, VolumeGraphInfo } from '../containers';
 import { TabPanel, a11yProps } from '../../controllers/TabPanel';
 import { PIPInfo, RRInfo, PEEPInfo, FiO2Info, TVInfo, IERatioInfo } from '../../info';
 
@@ -131,12 +131,16 @@ const PressureControlMainView = (): JSX.Element => {
           </Grid>
           <TabPanel value={value} index={0}>
             <Grid container item xs justify="space-between" style={{ height: '100%' }}>
-              <Grid item container style={{ height: '48%' }}>
+              <Grid item container style={{ height: '36%' }}>
                 <PawGraphInfo />
               </Grid>
-              <Grid item style={{ height: '4%' }} />
-              <Grid item container style={{ height: '48%' }}>
+              <Grid item style={{ height: '0%' }} />
+              <Grid item container style={{ height: '36%' }}>
                 <FlowGraphInfo />
+              </Grid>
+              <Grid item style={{ height: '0%' }} />
+              <Grid item container style={{ height: '36%' }}>
+                <VolumeGraphInfo />
               </Grid>
             </Grid>
           </TabPanel>
