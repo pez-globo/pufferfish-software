@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This script installs pyenv and sets up an environment named ventserver
+# with python 3.7.7 for backend
+
 echo "********** Installing pyenv **********"
 
 sudo apt update

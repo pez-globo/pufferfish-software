@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script installs poetry and the backend package dependencies
+
 echo "********** Installing poetry **********"
 
 poetry="$HOME/.poetry/bin/poetry"

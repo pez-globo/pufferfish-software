@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script adds custom pufferfish boot screen and its service
+
 echo "********** Setting up custom boot screen **********"
 
 sudo apt-get update
@@ -23,6 +25,8 @@ sudo apt install fbi -y
 sudo cp configs/splashscreen.service /etc/systemd/system/
 
 sudo apt-get update
+
+# Masking plymouth service to deny any other service from starting it
 sudo systemctl mask plymouth-start.service
 sudo systemctl enable splashscreen
 

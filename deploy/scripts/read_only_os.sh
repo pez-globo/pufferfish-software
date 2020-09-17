@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This script converts filesystem to read-only filesystem and uses tmpfs as an overlay
+# Uses busybox for logging
+
 # Cleaning up packages
 echo "Cleaning up packages..."
 sudo apt-get update

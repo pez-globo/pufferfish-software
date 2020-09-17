@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script installs all types of roboto fonts
+
 cd ~/
 
 echo "********** Installing Roboto Font **********"

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script installs node 12.18.3
+
 echo "********** Installing node **********"
 
 cd ~/

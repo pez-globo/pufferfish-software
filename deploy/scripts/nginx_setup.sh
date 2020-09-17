@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This script installs nginx and adds front-end build files to 
+# web serving directory
+
 echo "********** Setting up nginx **********"
 
 sudo apt update
