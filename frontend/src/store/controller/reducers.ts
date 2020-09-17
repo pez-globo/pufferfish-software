@@ -25,6 +25,8 @@ import {
   STATE_UPDATED,
   WaveformHistory,
   WaveformPoint,
+  PVHistory,
+  PVPoint,
   ALARM_LIMITS,
   FRONTEND_DISPLAY_SETTINGS,
   SYSTEM_SETTINGS,
@@ -201,6 +203,47 @@ const waveformHistoryReducer = <T extends PBMessage>(
   }
 };
 
+const pvHistoryReducer = (
+  state: PVHistory = {
+    loop: [],
+    loopOrigin: {
+      pressure: 0,
+      volume: 0,
+    },
+    cycle: 0,
+  },
+  action: StateUpdateAction,
+): PVHistory => {
+  switch (action.type) {
+    case STATE_UPDATED:
+      if (action.messageType === MessageType.SensorMeasurements) {
+        const newState = action.state as SensorMeasurements;
+        const { cycle, paw, volume } = newState;
+        if (cycle !== state.cycle) {
+          // make loop start over
+          return {
+            loop: [{ pressure: 0, volume: 0 }],
+            loopOrigin: { pressure: paw, volume },
+            cycle,
+          };
+        }
+
+        // add point to loop
+        const newPoint = {
+          pressure: paw - state.loopOrigin.pressure,
+          volume: volume - state.loopOrigin.volume,
+        };
+        return {
+          ...state,
+          loop: state.loop.concat([newPoint]),
+        };
+      }
+      return state;
+    default:
+      return state;
+  }
+};
+
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb
   alarms: messageReducer<Alarms>(MessageType.Alarms, Alarms),
@@ -234,6 +277,7 @@ export const controllerReducer = combineReducers({
     (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
     (sensorMeasurements: SensorMeasurements) => sensorMeasurements.flow,
   ),
+  pvHistory: pvHistoryReducer,
 });
 
 export default controllerReducer;

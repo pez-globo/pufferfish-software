@@ -84,6 +84,17 @@ export interface WaveformHistory {
   waveformNewStart: number;
 }
 
+export interface PVPoint {
+  pressure: number;
+  volume: number;
+}
+
+export interface PVHistory {
+  loop: PVPoint[];
+  loopOrigin: PVPoint;
+  cycle: number;
+}
+
 export interface ControllerStates {
   // Message states from mcu_pb
   alarms: Alarms;
@@ -103,6 +114,7 @@ export interface ControllerStates {
   // Derived states
   waveformHistoryPaw: WaveformHistory;
   waveformHistoryFlow: WaveformHistory;
+  pvHistory: PVHistory;
 }
 
 export const MessageClass = new Map<MessageType, PBMessageType>([
