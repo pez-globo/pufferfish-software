@@ -1,13 +1,13 @@
 """Filters for handling data integrity over an unreliable messaging channel.
 
-Provides Filters which check data integrity fields in headers prepended to 
-arbitrary data payloads (limited by payload length) to detect and handle 
+Provides Filters which check data integrity fields in headers prepended to
+arbitrary data payloads (limited by payload length) to detect and handle
 data loss.
 
 A Datagram is defined as the data unit of the data integrity layer, consisting
 of a payload preceded by a header which contains a 1-byte sequence number field,
 and a 1-byte length field. The length fields allow detection of byte loss in the
-header and payload. The sequence number field allows detection of loss or 
+header and payload. The sequence number field allows detection of loss or
 reordering of entire datagrams.
 
 Typical usage example:

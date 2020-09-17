@@ -6,7 +6,7 @@ handle data corruption.
 
 A CRCProtectedData is defined as the data unit of the data integrity layer,
 consisting of a payload preceded by a header which contains a 32-bit CRC
-checksum field. The CRC checksum fields allow detection of byte corruption in 
+checksum field. The CRC checksum fields allow detection of byte corruption in
 the header and payload.
 
 Typical usage example:
@@ -75,7 +75,7 @@ def quad_byte_attr(
 class CRCElement:
     """CRC element class defines crc properties of and crc
     operations on data.
-    
+
     Attributes:
         HEADER_SIZE: the number of bytes used by the header. This is also the
             data overhead for encapsulating a payload in a datagram.
@@ -113,7 +113,7 @@ class CRCElement:
         """
         if len(body) > 256 or len(body) < 4:
             raise exceptions.ProtocolDataError(
-                'The size of the packet received should be between 4 bytes ' 
+                'The size of the packet received should be between 4 bytes '
                 'and 256 bytes but found to be {0} bytes.'.format(len(body))
             )
         self.crc = body[:self.HEADER_SIZE]
@@ -227,12 +227,12 @@ class CRCReceiver(protocols.Filter[bytes, bytes]):
         """Stores input data in internal buffer.
 
         Args:
-            event: An optional cobs decoded body represented as a 
-                bytestring. If it is None, it will be ignored and 
+            event: An optional cobs decoded body represented as a
+                bytestring. If it is None, it will be ignored and
                 the buffer will not be modified.
 
         Raises:
-            IndexError: The input data item can't be stored on the 
+            IndexError: The input data item can't be stored on the
             buffer because the buffer is full.
 
         """
@@ -243,9 +243,9 @@ class CRCReceiver(protocols.Filter[bytes, bytes]):
         """Extracts the next event in the buffer and processes it.
 
         Returns:
-            An optional bytestring of the crc protected data payload from the next
-            available cobs decoded body in the internal buffer. Returns None if
-            there are no bodies available in the internal buffer.
+            An optional bytestring of the crc protected data payload from the
+            next available cobs decoded body in the internal buffer. Returns
+            None if there are no bodies available in the internal buffer.
 
         """
         event = self._buffer.output()
