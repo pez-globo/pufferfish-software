@@ -85,10 +85,10 @@ def test_datagram_parse(
 )
 @hp.example(seq=0, length=0, payload=b'')
 @hp.example(
-    seq=255, length=255,payload=bytes(list(range(255)))
+    seq=255, length=255, payload=bytes(list(range(255)))
 )
 def test_datagram_parse_invariants(
-    seq: int, length: int, payload: bytes
+        seq: int, length: int, payload: bytes
 ) -> None:
     """Test Datagram parse invariants."""
     datagram = datagrams.Datagram()

@@ -1,19 +1,14 @@
 """Filters for handling data integrity over an unreliable messaging channel.
 
-# TODO: Make changs to the Docstrings 
-
-Provides Filters which compute and check data integrity fields in headers
-prepended to arbitrary data payloads (limited by payload length) to detect and
-handle data loss and data corruption.
+Provides Filters which check data integrity fields in headers prepended to 
+arbitrary data payloads (limited by payload length) to detect and handle 
+data loss.
 
 A Datagram is defined as the data unit of the data integrity layer, consisting
-of a payload preceded by a header which contains a 32-bit CRC checksum field,
-a 1-byte sequence number field, and a 1-byte length field. The CRC checksum and
-length fields allow detection of byte corruption or byte loss in the header and
-payload. The sequence number field allows detection of loss or reordering of
-entire datagrams. Note that the CRC checksum is computed over all other fields
-of the header and the payload, so that the header's data integrity can also be
-verified.
+of a payload preceded by a header which contains a 1-byte sequence number field,
+and a 1-byte length field. The length fields allow detection of byte loss in the
+header and payload. The sequence number field allows detection of loss or 
+reordering of entire datagrams.
 
 Typical usage example:
 
@@ -87,13 +82,6 @@ class Datagram:
     Attributes:
         HEADER_SIZE: the number of bytes used by the header. This is also the
             data overhead for encapsulating a payload in a datagram.
-        PROTECTED_OFFSET: the byte of the datagram body at which the
-            CRC-protected section of the datagram body begins.
-        PAYLOAD_OFFSET: the byte of the datagram body at which the payload
-            section of the datagram body begins.
-        crc: the value of the 32-bit CRC field of the datagram. This is computed
-            as the CRC-32C (Castagnoli) of the CRC-protected section of the
-            datagram body.
         seq: the value of the 8-bit sequence number field of the datagram. This
             is expected to increment by 1 with every datagram sent by a datagram
             sender, and it rolls over from 255 to 0. It is up to the receiver
