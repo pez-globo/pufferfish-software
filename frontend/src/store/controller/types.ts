@@ -5,36 +5,50 @@ import {
   Parameters,
   ParametersRequest,
   Ping,
-  Announcement
-} from './proto/mcu_pb'
-import {
-  RotaryEncoder
-} from './proto/frontend_pb'
+  Announcement,
+  AlarmLimitsRequest,
+} from './proto/mcu_pb';
+import { RotaryEncoder, SystemSettingRequest, FrontendDisplaySetting } from './proto/frontend_pb';
 
 // Action Types
 
-export const STATE_UPDATED = '@controller/STATE_UPDATED'
-export const PARAMETER_COMMITTED = '@controller/PARAMETER_COMMITTED'
+export const STATE_UPDATED = '@controller/STATE_UPDATED';
+export const PARAMETER_COMMITTED = '@controller/PARAMETER_COMMITTED';
+export const ALARM_LIMITS = 'ALARM_LIMITS';
+export const FRONTEND_DISPLAY_SETTINGS = 'FRONTEND_DISPLAY_SETTINGS';
+export const SYSTEM_SETTINGS = 'SYSTEM_SETTINGS';
 
 // Protocol Buffers
 
-export type PBMessage = (
-  // mcu_pb
-  Alarms | SensorMeasurements | CycleMeasurements
-  | Parameters | ParametersRequest
-  | Ping | Announcement
+export type PBMessage =
+  | // mcu_pb
+  AlarmLimitsRequest
+  | SystemSettingRequest
+  | FrontendDisplaySetting
+  | Alarms
+  | SensorMeasurements
+  | CycleMeasurements
+  | Parameters
+  | ParametersRequest
+  | Ping
+  | Announcement
   // frontend_pb
-  | RotaryEncoder
-)
+  | RotaryEncoder;
 
-export type PBMessageType = (
-  // mcu_pb
-  typeof Alarms | typeof SensorMeasurements | typeof CycleMeasurements
-  | typeof Parameters | typeof ParametersRequest
-  | typeof Ping | typeof Announcement
+export type PBMessageType =
+  | // mcu_pb
+  typeof AlarmLimitsRequest
+  | typeof SystemSettingRequest
+  | typeof FrontendDisplaySetting
+  | typeof Alarms
+  | typeof SensorMeasurements
+  | typeof CycleMeasurements
+  | typeof Parameters
+  | typeof ParametersRequest
+  | typeof Ping
+  | typeof Announcement
   // frontend_pb
-  | typeof RotaryEncoder
-)
+  | typeof RotaryEncoder;
 
 export enum MessageType {
   Alarms = 1,
@@ -44,25 +58,36 @@ export enum MessageType {
   ParametersRequest = 5,
   Ping = 6,
   Announcement = 7,
-  RotaryEncoder = 128
-};
+  AlarmLimitsRequest = 8,
+  SystemSettingRequest = 9,
+  FrontendDisplaySetting = 10,
+  RotaryEncoder = 128,
+}
 
 // States
 
 export interface WaveformPoint {
-  date: Date,
-  value: number
+  date: Date;
+  value: number;
 }
 
 export interface WaveformHistory {
-  waveformOld: WaveformPoint[],
-  waveformNew: WaveformPoint[],
-  waveformNewStart: number
+  waveformOld: {
+    full: WaveformPoint[];
+  };
+  waveformNew: {
+    full: WaveformPoint[];
+    segmented: WaveformPoint[][];
+  };
+  waveformNewStart: number;
 }
 
 export interface ControllerStates {
   // Message states from mcu_pb
   alarms: Alarms;
+  alarmLimitsRequest: AlarmLimitsRequest;
+  systemSettingRequest: SystemSettingRequest;
+  frontendDisplaySetting: FrontendDisplaySetting;
   sensorMeasurements: SensorMeasurements;
   cycleMeasurements: CycleMeasurements;
   parameters: Parameters;
@@ -76,10 +101,13 @@ export interface ControllerStates {
   // Derived states
   waveformHistoryPaw: WaveformHistory;
   waveformHistoryFlow: WaveformHistory;
-};
+}
 
 export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.Alarms, Alarms],
+  [MessageType.AlarmLimitsRequest, AlarmLimitsRequest],
+  [MessageType.SystemSettingRequest, SystemSettingRequest],
+  [MessageType.FrontendDisplaySetting, FrontendDisplaySetting],
   [MessageType.SensorMeasurements, SensorMeasurements],
   [MessageType.CycleMeasurements, CycleMeasurements],
   [MessageType.Parameters, Parameters],
@@ -91,6 +119,9 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
 
 export const MessageTypes = new Map<PBMessageType, MessageType>([
   [Alarms, MessageType.Alarms],
+  [AlarmLimitsRequest, MessageType.AlarmLimitsRequest],
+  [SystemSettingRequest, MessageType.SystemSettingRequest],
+  [FrontendDisplaySetting, MessageType.FrontendDisplaySetting],
   [SensorMeasurements, MessageType.SensorMeasurements],
   [CycleMeasurements, MessageType.CycleMeasurements],
   [Parameters, MessageType.Parameters],
@@ -103,18 +134,25 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
 // State Update Actions
 
 interface StateUpdatedAction {
-  type: typeof STATE_UPDATED
-  messageType: MessageType
-  state: PBMessage
-};
+  type: typeof STATE_UPDATED;
+  messageType: MessageType;
+  state: PBMessage;
+}
 
 export type StateUpdateAction = StateUpdatedAction;
+
+// State Update Actions
+
+export interface commitAction {
+  type: string;
+  update: Record<string, unknown>;
+}
 
 // Parameter Commit Actions
 
 interface ParameterCommittedAction {
-  type: typeof PARAMETER_COMMITTED
-  update: any
-};
+  type: typeof PARAMETER_COMMITTED;
+  update: Record<string, unknown>;
+}
 
 export type ParameterCommitAction = ParameterCommittedAction;
