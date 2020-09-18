@@ -11,7 +11,7 @@ from ventserver.protocols import datagrams
 from ventserver.protocols import exceptions
 from ventserver.protocols import frames
 from ventserver.protocols import messages
-from ventserver.protocols import crcfilter
+from ventserver.protocols import crcelements
 from ventserver.sansio import protocols
 
 
@@ -33,8 +33,8 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
 
     _splitter: frames.ChunkSplitter = attr.ib(factory=frames.ChunkSplitter)
     _cobs_decoder: frames.COBSDecoder = attr.ib(factory=frames.COBSDecoder)
-    _crc_receiver: crcfilter.CRCReceiver = attr.ib(
-        factory=crcfilter.CRCReceiver
+    _crc_receiver: crcelements.CRCReceiver = attr.ib(
+        factory=crcelements.CRCReceiver
     )
     _datagram_receiver: datagrams.DatagramReceiver = attr.ib(
         factory=datagrams.DatagramReceiver
@@ -107,7 +107,7 @@ class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
     _datagram_sender: datagrams.DatagramSender = attr.ib(
         factory=datagrams.DatagramSender
     )
-    _crc_sender: crcfilter.CRCSender = attr.ib(factory=crcfilter.CRCSender)
+    _crc_sender: crcelements.CRCSender = attr.ib(factory=crcelements.CRCSender)
     _cobs_encoder: frames.COBSEncoder = attr.ib(factory=frames.COBSEncoder)
     _merger: frames.ChunkMerger = attr.ib(factory=frames.ChunkMerger)
 
