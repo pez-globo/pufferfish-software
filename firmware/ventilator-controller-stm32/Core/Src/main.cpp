@@ -41,6 +41,7 @@
 #include "Pufferfish/HAL/HAL.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
 #include "Pufferfish/HAL/STM32/HALI2CDevice.h"
+#include "Pufferfish/HAL/STM32/BufferedUART.h"
 #include "Pufferfish/Statuses.h"
 /* USER CODE END Includes */
 
@@ -259,7 +260,7 @@ PF::Driver::I2C::SDPSensor i2c_press17(i2c_ext_press17);
 PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 
 // Buffered UARTs
-volatile Pufferfish::HAL::LargeBufferedUART bufferedUART3(huart3);
+volatile Pufferfish::HAL::LargeBufferedUART buffered_uart3(huart3);
 
 // Test list
 // NOLINTNEXTLINE(readability-magic-numbers)
@@ -386,7 +387,7 @@ int main(void)
   /* Start the ADC3 by invoking AnalogInput::Start() */
   adc3_input.start();
 
-  bufferedUART3.setupIRQ();
+  buffered_uart3.setupIRQ();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -412,12 +413,12 @@ int main(void)
     PF::HAL::delay(loop_delay);
 
     uint8_t receive = 0;
-    while (bufferedUART3.read(receive) == PF::BufferStatus::ok) {
-      boardLed1.write(true);
-      bufferedUART3.write(receive);
+    while (buffered_uart3.read(receive) == PF::BufferStatus::ok) {
+      board_led1.write(true);
+      buffered_uart3.write(receive);
       PF::HAL::AtomicSize writtenSize;
       uint8_t repeatString[] = {receive, receive};
-      bufferedUART3.write(repeatString, sizeof(repeatString), writtenSize);
+      buffered_uart3.write(repeatString, sizeof(repeatString), writtenSize);
     }
     /* USER CODE END WHILE */
 

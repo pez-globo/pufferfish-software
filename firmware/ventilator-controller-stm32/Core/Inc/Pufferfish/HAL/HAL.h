@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include "Types.h"
 #include "CRC.h"
+#include "Types.h"
 
 // Interfaces
 
