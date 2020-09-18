@@ -28,7 +28,7 @@ interface WaveformProps extends DataProps, AutoSizerProps {
 const pointMapper = (data: PVPoint): Point => ({
   x: data.pressure,
   y: data.volume,
-})
+});
 
 const PVLoop = ({ data, width, height, strokeWidth }: WaveformProps) => (
   <Loop
@@ -43,7 +43,6 @@ const PVLoop = ({ data, width, height, strokeWidth }: WaveformProps) => (
     yRangeMax={1000}
   />
 );
-
 
 const CurrentLoop = connect(selector)(PVLoop);
 const loops = ({ width, height }: AutoSizerProps) => (
