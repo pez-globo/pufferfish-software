@@ -5,9 +5,12 @@ import { useDispatch } from 'react-redux';
 import { AnyAaaaRecord } from 'dns';
 import { TabPanel, a11yProps } from '../controllers/TabPanel';
 import { InfoTab, TestCalibrationTab, DisplayTab } from './containers';
-import { FrontendDisplaySetting, SystemSettingRequest } from '../../store/controller/proto/mcu_pb';
 import { FRONTEND_DISPLAY_SETTINGS, SYSTEM_SETTINGS } from '../../store/controller/types';
 import { updateCommittedState } from '../../store/controller/actions';
+import {
+  FrontendDisplaySetting,
+  SystemSettingRequest,
+} from '../../store/controller/proto/frontend_pb';
 
 const useStyles = makeStyles((theme: Theme) => ({
   tabPanelContainer: {

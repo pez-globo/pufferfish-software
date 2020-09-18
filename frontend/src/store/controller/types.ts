@@ -7,10 +7,8 @@ import {
   Ping,
   Announcement,
   AlarmLimitsRequest,
-  FrontendDisplaySetting,
-  SystemSettingRequest,
 } from './proto/mcu_pb';
-import { RotaryEncoder } from './proto/frontend_pb';
+import { RotaryEncoder, SystemSettingRequest, FrontendDisplaySetting } from './proto/frontend_pb';
 
 // Action Types
 
