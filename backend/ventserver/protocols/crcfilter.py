@@ -130,7 +130,7 @@ class CRCElement:
         """
         try:
             # raises TypeError for invalid input type.
-            crc_key = int(CRC_FUNC(self.payload)) 
+            crc_key = int(CRC_FUNC(self.payload))
         except TypeError as terr:
             raise exceptions.ProtocolDataError(
                 'Could not compute crc: {0}'
