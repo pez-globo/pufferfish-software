@@ -63,7 +63,6 @@ def quad_byte_attr(
         ValueError: attr init value cannot be represented as a single byte.
 
     """
-    # TODO: need a better way for this validator
     if len(bytes(value)) != 4:
         raise ValueError(
             'Attr must be a bytes representation of unsigned long: {!r}'
