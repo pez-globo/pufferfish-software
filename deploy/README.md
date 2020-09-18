@@ -3,11 +3,7 @@
 ### Table of Contents
 
 1. [Installation (Development Environment)](#installation-(development-environment))
-2. [Deployment (Production Environment)](#deployment-(production-environment)) 
-    1. [Security Setup](#security-setup)
-    2. [Backend Service Autostart on Boot](#backend-service-autostart-on-boot)
-    3. [Frontend Browser Autostart on Boot](#frontend-browser-autostart-on-boot)
-    4. [Read-Only OS](#read-only-os)
+2. [Deployment (Production Environment)](#deployment-(production-environment))
 3. [Cloning Raspberry Pi SD Card](#cloning-raspberry-pi-sd-card)
     1. [Cloning](#cloning)
     2. [Pishrink](#pishrink)
@@ -32,27 +28,17 @@ These instructions are to setup Raspberry Pi with Pufferfish-Vent-Software in a 
 #### Security Setup
 
 ```sh
-$ ./scripts/setup_security.sh
+$ ./deploy.sh
 ```
 
-#### Backend Service Autostart on Boot
-
-```sh
-$ ./scripts/backend_service.sh
-```
-
-#### Frontend Browser Autostart on Boot
-
-```sh
-$ ./scripts/configure_kiosk.sh
-```
-
-#### Read-Only OS
-The filesystem needs to be read-only to avoid writing to SD Card in order to increase the lifetime of a SD Card
-
-```sh
-$ ./scripts/read_only_os.sh
-```
+This will setup required components for pufferfish-vent-software in the given order.  
+- nginx web-server
+- custom boot screen
+- browser kiosk mode
+- backend service
+- disable unnecessary services
+- security protocols
+- read-only filesystem
 
 ---
 ### Cloning Raspberry Pi SD Card
