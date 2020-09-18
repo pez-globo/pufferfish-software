@@ -258,6 +258,9 @@ PF::Driver::I2C::SFM3000 i2c_press16(i2c_ext_press16);
 PF::Driver::I2C::SDPSensor i2c_press17(i2c_ext_press17);
 PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 
+// Buffered UARTs
+volatile Pufferfish::HAL::LargeBufferedUART bufferedUART3(huart3);
+
 // Test list
 // NOLINTNEXTLINE(readability-magic-numbers)
 std::array<PF::Driver::Testable *, 14> i2c_test_list{
@@ -382,6 +385,8 @@ int main(void)
   interface_test_millis = PF::HAL::millis();
   /* Start the ADC3 by invoking AnalogInput::Start() */
   adc3_input.start();
+
+  bufferedUART3.setupIRQ();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -406,6 +411,14 @@ int main(void)
     }
     PF::HAL::delay(loop_delay);
 
+    uint8_t receive = 0;
+    while (bufferedUART3.read(receive) == PF::BufferStatus::ok) {
+      boardLed1.write(true);
+      bufferedUART3.write(receive);
+      PF::HAL::AtomicSize writtenSize;
+      uint8_t repeatString[] = {receive, receive};
+      bufferedUART3.write(repeatString, sizeof(repeatString), writtenSize);
+    }
     /* USER CODE END WHILE */
 
     /* 
