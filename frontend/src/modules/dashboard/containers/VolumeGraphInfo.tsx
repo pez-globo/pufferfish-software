@@ -4,7 +4,10 @@ import { createStructuredSelector } from 'reselect';
 import { AutoSizer } from 'react-virtualized';
 import { StoreState } from '../../../store/types';
 import { WaveformPoint } from '../../../store/controller/types';
-import { getWaveformPawOld, getWaveformPawNewSegment } from '../../../store/controller/selectors';
+import {
+  getWaveformVolumeOld,
+  getWaveformVolumeNewSegment,
+} from '../../../store/controller/selectors';
 import { Waveform } from '../components/Waveform';
 import { Axes } from '../components/Axes';
 
@@ -13,11 +16,11 @@ interface DataProps {
 }
 
 const oldSelector = createStructuredSelector<StoreState, DataProps>({
-  data: getWaveformPawOld,
+  data: getWaveformVolumeOld,
 });
 const newSegmentSelector = (segmentIndex: number) =>
   createStructuredSelector<StoreState, DataProps>({
-    data: getWaveformPawNewSegment(segmentIndex),
+    data: getWaveformVolumeNewSegment(segmentIndex),
   });
 
 interface AutoSizerProps {
@@ -30,9 +33,9 @@ interface WaveformProps extends DataProps, AutoSizerProps {
   fill: boolean;
 }
 
-const PawWaveform = ({ data, width, height, strokeWidth, fill }: WaveformProps) => (
+const VolumeWaveform = ({ data, width, height, strokeWidth, fill }: WaveformProps) => (
   <Waveform
-    type="paw"
+    type="volume"
     fill={fill}
     width={width}
     height={height}
@@ -40,15 +43,15 @@ const PawWaveform = ({ data, width, height, strokeWidth, fill }: WaveformProps) 
     strokeWidth={strokeWidth}
     xRangeMax={10000}
     yRangeMin={0}
-    yRangeMax={60}
+    yRangeMax={1000}
   />
 );
 
-const WaveformOld = connect(oldSelector)(PawWaveform);
-const WaveformNew0 = connect(newSegmentSelector(0))(PawWaveform);
-const WaveformNew1 = connect(newSegmentSelector(1))(PawWaveform);
-const WaveformNew2 = connect(newSegmentSelector(2))(PawWaveform);
-const WaveformNew3 = connect(newSegmentSelector(3))(PawWaveform);
+const WaveformOld = connect(oldSelector)(VolumeWaveform);
+const WaveformNew0 = connect(newSegmentSelector(0))(VolumeWaveform);
+const WaveformNew1 = connect(newSegmentSelector(1))(VolumeWaveform);
+const WaveformNew2 = connect(newSegmentSelector(2))(VolumeWaveform);
+const WaveformNew3 = connect(newSegmentSelector(3))(VolumeWaveform);
 const waveforms = ({ width, height }: AutoSizerProps) => (
   <React.Fragment>
     <WaveformOld width={width} height={height} strokeWidth={1} fill={false} />,
@@ -59,7 +62,7 @@ const waveforms = ({ width, height }: AutoSizerProps) => (
   </React.Fragment>
 );
 
-const PawGraphInfo = (): JSX.Element => (
+const VolumeGraphInfo = (): JSX.Element => (
   <AutoSizer>
     {(props: AutoSizerProps) => {
       const { width, height } = props;
@@ -70,13 +73,13 @@ const PawGraphInfo = (): JSX.Element => (
           waveforms={waveforms({ width, height })}
           xRangeMax={10000}
           yRangeMin={0}
-          yRangeMax={60}
-          title="Paw"
-          units="cm H2O"
+          yRangeMax={1000}
+          title="Volume"
+          units="mL"
         />
       );
     }}
   </AutoSizer>
 );
 
-export default PawGraphInfo;
+export default VolumeGraphInfo;
