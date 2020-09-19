@@ -7,9 +7,6 @@ sudo systemctl mask bluetooth.service
 sudo systemctl mask hciuart.service
 sudo systemctl mask bluealsa.service
 sudo systemctl mask bthelper@.service
-sudo systemctl mask alsa-restore.service
-sudo systemctl mask alsa-state.service
-sudo systemctl mask alsa-utils.service
 sudo systemctl mask apt-daily-upgrade.service
 sudo systemctl mask apt-daily.service
 sudo systemctl mask bluetooth.target
