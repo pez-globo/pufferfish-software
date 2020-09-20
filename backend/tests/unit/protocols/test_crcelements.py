@@ -11,7 +11,7 @@ from ventserver.protocols import exceptions
 
 example_crc_good = [
     (
-        b'\xf1aw\xd2', b'\x00\x00', b'\xf1\x61\x77\xd2\x00\x00' 
+        b'\xf1aw\xd2', b'\x00\x00', b'\xf1\x61\x77\xd2\x00\x00'
     ),
     (
         b'\x98\xdb\xe3U', b'\x01\x05\x01\x02\x03\x04\x05',
@@ -61,9 +61,8 @@ def test_crcelement_compute_crc(
     crc_element.payload = payload
     assert crc_element._compute_crc() == expected   # pylint: disable=protected-access
 
-
-@pt.mark.parametrize('payload', ['123456789', 123456789, 0x75bcd15])
 # disabling pylint for longer name
+@pt.mark.parametrize('payload', ['123456789', 123456789, 0x75bcd15])
 def test_crcelement_invalid_crc_input(payload: bytes) -> None:  # pylint: disable=invalid-name
     """Test CRCElement CRC-32C invalid input."""
     crc_element = crcelements.CRCElement()
