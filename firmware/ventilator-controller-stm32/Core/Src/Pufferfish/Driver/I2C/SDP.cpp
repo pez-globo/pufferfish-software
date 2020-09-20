@@ -108,7 +108,7 @@ void SDPSensor::startContinuousWait(bool stabilize) {
   }
 }
 
-I2CDeviceStatus SDPSensor::readSample(SDPSample &sample) {
+I2CDeviceStatus SDPSensor::readFullSample(SDPSample &sample) {
   if (!mMeasuring) {
     I2CDeviceStatus ret = this->startContinuous();
     if (ret != I2CDeviceStatus::ok) {
@@ -159,6 +159,7 @@ void SDPSensor::parseReading(uint8_t data[], uint8_t size, SDPSample &sample) {
   }
 
   sample.temperature = temp_raw / 200.0;
+  sample.differentialPressureScale = dp_scale;
 }
 
 I2CDeviceStatus SDPSensor::reset() {
@@ -216,7 +217,7 @@ I2CDeviceStatus SDPSensor::test() {
   SDPSample sample;
   for (int i; i < 3; i++) {
     HAL::delay(3);
-    status = this->readSample(sample);
+    status = this->readFullSample(sample);
 
     if (status == I2CDeviceStatus::ok) {
       break;
@@ -247,6 +248,27 @@ I2CDeviceStatus SDPSensor::test() {
   }
 
   return I2CDeviceStatus::ok;
+}
+
+
+I2CDeviceStatus SDPSensor::readPressureSample(int16_t differentialPressureScale, float &differentialPressure){
+
+  const uint8_t DATA_LEN = 2;
+  uint8_t data[DATA_LEN] = { 0 };
+
+  I2CDeviceStatus ret = mSensirion.readWithCRC(data, DATA_LEN, 0x31, 0xFF);
+  if (ret == I2CDeviceStatus::readError) {
+    // get NACK, no new data is available
+    return I2CDeviceStatus::noNewData;
+  } 
+  else if (ret != I2CDeviceStatus::ok) {
+    return ret;
+  }
+ int16_t pressuresample = static_cast<int16_t>(data[0] << 8 | data[1]);
+
+ differentialPressure = pressuresample/ static_cast<float>(differentialPressureScale);
+
+ return I2CDeviceStatus::ok;
 }
 
 }  // namespace I2C

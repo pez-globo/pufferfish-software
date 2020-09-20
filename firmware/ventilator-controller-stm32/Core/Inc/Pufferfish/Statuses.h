@@ -9,6 +9,16 @@
 namespace Pufferfish {
 
 /**
+ * An outcome of attempting to perform an operation on a buffer
+ */
+enum class BufferStatus {
+  ok = 0,  /// buffer operation succeeded
+  empty,  /// buffer is empty so no read is possible
+  full,  /// buffer is full so no write is possible
+  partial  /// only a partial buffer operation was possible
+};
+
+/**
  * Possible alarms that could be raised by the system, must by sorted by
  * priority in ascending order
  */
@@ -53,6 +63,25 @@ enum class PWMStatus {
   ok = 0, /// success
   invalidDutyCycle, /// invalid duty cycle input to the function
   halError /// error starting or stopping the PWM generator
+};
+
+/**
+ * An outcome of performing an operation on SPI bus
+ */
+enum class SPIDeviceStatus {
+  ok = 0, /// success
+  writeError, /// an error occur when writing to an SPI device
+  readError, /// an error occur when reading from an SPI device
+  busy, /// when SPI device is not ready
+  error, /// fail
+};
+
+ /**
+  * An outcome of performing an operation on ADC
+  */
+enum class ADCStatus {
+  ok = 0, ///success
+  error   /// error in ADC input
 };
 
 }  // namespace Pufferfish
