@@ -1,11 +1,25 @@
-/*
- * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
- *
- *      Author: Ethan Li
- *
- *  An interrupt-safe byte stream backed by a circular buffer.
- *  Inspired by https://hackaday.com/2015/10/29/embed-with-elliot-going-round-with-circular-buffers/
- */
+/// FrameBuffer.h
+/// this file has class and methods to input the byte received from sensor and output the frame on availability.
+///
+/// More detailed description for the file, if necessary;
+/// perhaps spanning multiple lines.
+
+// Copyright (c) 2020 Pez-Globo and the Pufferfish project contributors
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+// either express or implied.
+//
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #pragma once
 
