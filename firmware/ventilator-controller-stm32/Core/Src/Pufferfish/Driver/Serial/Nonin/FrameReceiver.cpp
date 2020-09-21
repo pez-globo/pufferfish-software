@@ -77,7 +77,6 @@ FrameReceiver::FrameInputStatus FrameReceiver::input(const uint8_t newByte) {
   if (static_cast<uint8_t>((frameBuffer[0] +  frameBuffer[1] +  frameBuffer[2] +  frameBuffer[3]) % 256) != frameBuffer[4]) {
     /* Reset the the packet status to not available to read the next packet start */
     startOfFrameStatus = false;
-    bufferLength = 0;
     /* Return Checksum error */
     return FrameInputStatus::checksumError;
   }

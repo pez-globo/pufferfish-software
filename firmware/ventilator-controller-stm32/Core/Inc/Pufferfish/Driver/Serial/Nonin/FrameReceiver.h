@@ -61,9 +61,6 @@ class FrameReceiver {
   /* Frame Buffer stores bytes of data received from sensor */
   Frame frameBuffer;
 
-  /* Frame Buffer length read from UART buffer */
-  uint8_t bufferLength;
-
   /* Frame input status */
   FrameInputStatus inputStatus;
 
