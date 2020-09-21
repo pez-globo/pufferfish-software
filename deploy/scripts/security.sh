@@ -25,8 +25,9 @@ sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 
 sudo systemctl daemon-reload
 
-# Lock pi user
+# Lock pi and root user
 sudo passwd -l pi
+sudo passwd -l root
 
 # Remove sudo permissions from pi user
 sudo deluser pi sudo
