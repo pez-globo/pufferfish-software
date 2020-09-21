@@ -63,7 +63,7 @@ const alarmLimitsReducer = (
     etco2Max: 100,
     flowMax: 100,
     apneaMax: 100,
-    spo2Max: 100
+    spo2Max: 100,
   }) as AlarmLimitsRequest,
   action: commitAction,
 ): AlarmLimitsRequest => {
@@ -108,7 +108,7 @@ const parametersRequestReducer = (
     peep: 0,
     rr: 30,
     ie: 1.0,
-    fio2: 60.0
+    fio2: 60.0,
   }) as ParametersRequest,
   action: StateUpdateAction | ParameterCommitAction,
 ): ParametersRequest => {

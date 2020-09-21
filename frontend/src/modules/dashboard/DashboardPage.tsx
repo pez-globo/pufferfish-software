@@ -1,7 +1,7 @@
 import React from 'react';
 import { Grid, makeStyles, Theme } from '@material-ui/core';
-import PressureControlMainView from './views/PressureControlMainView';
 import { useSelector } from 'react-redux';
+import PressureControlMainView from './views/PressureControlMainView';
 import { getParametersRequestMode } from '../../store/controller/selectors';
 import { VentilationMode } from '../../store/controller/proto/mcu_pb';
 import HFNCMainView from './views/HFNCMainView';
@@ -22,11 +22,11 @@ const renderModeLayout = (mode: VentilationMode): JSX.Element => {
     case VentilationMode.vc_ac:
     case VentilationMode.vc_simv:
     case VentilationMode.niv:
-      return <PressureControlMainView />
+      return <PressureControlMainView />;
     case VentilationMode.hfnc:
-      return <HFNCMainView />
+      return <HFNCMainView />;
     default:
-      return <HFNCMainView />
+      return <HFNCMainView />;
   }
 };
 

@@ -79,11 +79,11 @@ export const getROXIndex = createSelector(
   getSensorMeasurements,
   getCycleMeasurements,
   (sensorMeasurements: SensorMeasurements, cycleMeasurements: CycleMeasurements): number => {
-    if(sensorMeasurements.spo2 && sensorMeasurements.fio2 && cycleMeasurements.rr ) {
-      return  ((sensorMeasurements.spo2 / sensorMeasurements.fio2) / cycleMeasurements.rr)
+    if (sensorMeasurements.spo2 && sensorMeasurements.fio2 && cycleMeasurements.rr) {
+      return sensorMeasurements.spo2 / sensorMeasurements.fio2 / cycleMeasurements.rr;
     }
     return 0;
-  }
+  },
 );
 
 // Parameters
