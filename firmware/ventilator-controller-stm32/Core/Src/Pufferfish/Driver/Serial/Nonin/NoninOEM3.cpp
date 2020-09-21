@@ -12,8 +12,7 @@ namespace Serial {
 namespace Nonin {
 
 NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensorMeasurements,
-                                             PacketReceiver::StatusByteError &frameErrorStatus,
-                                             SignalPerfusion &perfusionStatus){
+                                             StatusByteError &frameErrorStatus){
   uint8_t readByte;
 
   /* Read a byte from BufferedUART */
@@ -25,6 +24,20 @@ NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensorMeasureme
 
   /* FrameReceiver */
   /* Input byte to frame receiver and validate the frame available */
+  switch(frameReceiver.input(readByte)){
+    /* Return sensor status is waiting to receive more bytes of data */
+    case FrameReceiver::FrameInputStatus::checksumError : return NoninPacketStatus::checksumError;
+
+    /* Return sensor status is waiting to receive more bytes of data */
+    case FrameReceiver::FrameInputStatus::waiting : return NoninPacketStatus::waiting;
+
+    /* Return the frame status is not available */
+    case FrameReceiver::FrameInputStatus::notAvailable : return NoninPacketStatus::notAvailable;
+
+    /* On PacketInputStatus available continue */
+    case FrameReceiver::FrameInputStatus::available    : break;
+  }
+
   if (frameReceiver.input(readByte) != FrameReceiver::FrameInputStatus::available)
   {
     /* Return sensor status is waiting to receive more bytes of data */
@@ -32,23 +45,15 @@ NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensorMeasureme
   }
 
   /* On frame input available invoke output method to receive frame */
-  switch(frameReceiver.output(frameBuffer, frameIndex)) {
-    /* Return sensor status as checksum error */
-    case FrameReceiver::FrameOutputStatus::checksumError   : return NoninPacketStatus::checksumError;
-
-    /* Error or Noise in receiving status byte from sensor */
-    case FrameReceiver::FrameOutputStatus::statusByteError : return NoninPacketStatus::statusByteError;
-
-    /* Needs to receive more bytes from sensor */
-    case FrameReceiver::FrameOutputStatus::waiting         : return NoninPacketStatus::waiting;
-
-    /* On FrameOutputStatus available continue */
-    case FrameReceiver::FrameOutputStatus::available       : break;
+  if (frameReceiver.output(frameBuffer) == FrameReceiver::FrameOutputStatus::waiting)
+  {
+    /* Return sensor status is waiting to receive more bytes of data */
+    return NoninPacketStatus::waiting;
   }
 
   /* PaketParser */
   /* Input frame to packet and validate the frame available */
-  switch(packetReceiver.input(frameBuffer, frameIndex, frameErrorStatus, perfusionStatus))
+  switch(packetReceiver.input(frameBuffer))
   {
     /* Return sensor status is waiting to receive more frames of data */
     case PacketReceiver::PacketInputStatus::waiting      : return NoninPacketStatus::waiting;
@@ -61,7 +66,7 @@ NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensorMeasureme
   }
 
   /* On packet input available invoke output method to read sensor measurements  */
-  if (packetReceiver.output(sensorMeasurements) !=  PacketReceiver::PacketOutputStatus::available)
+  if (packetReceiver.output(sensorMeasurements, frameErrorStatus) !=  PacketReceiver::PacketOutputStatus::available)
   {
     /* Return sensor status is waiting to receive more bytes of data */
     return NoninPacketStatus::waiting;

@@ -29,8 +29,7 @@ class NoninOEM {
     available = 0,  /// Packet/measurements is available
     waiting,        /// Packet/measurements is waiting to receive more bytes of data
     notAvailable,   /// Packet/measurements are not available
-    checksumError,  /// Checksum error in receiving frame
-    statusByteError /// Status byte error in receiving frame
+    checksumError  /// Checksum error in receiving frame
   };
 
   /**
@@ -46,8 +45,7 @@ class NoninOEM {
    * @return returns the status of Nonin OEM III packet measurements
    */
   NoninPacketStatus output(PacketMeasurements &sensorMeasurements,
-                           PacketReceiver::StatusByteError &frameErrorStatus,
-                           SignalPerfusion &perfusionStatus);
+                           StatusByteError &frameErrorStatus);
 
  private:
   /* Create an object bufferredUART with 512 bytes of reception buffer */
@@ -60,9 +58,7 @@ class NoninOEM {
   PacketReceiver packetReceiver;
 
   /* Frame Buffer stores bytes of data received from PacketReceiver input */
-  std::array<uint8_t, FrameReceiver::frameSize> frameBuffer;
-
-  uint8_t frameIndex;
+  Frame frameBuffer;
 
 };
 

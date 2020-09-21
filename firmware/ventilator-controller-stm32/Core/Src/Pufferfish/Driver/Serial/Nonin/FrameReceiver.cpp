@@ -10,121 +10,95 @@ namespace Driver {
 namespace Serial {
 namespace Nonin {
 
-FrameReceiver::startOfPacketStatus FrameReceiver::validateStartOfPacket(const uint8_t newByte)
+bool validateStartOfFrame(const Frame newFrame, FrameBuffer &frameBuf)
 {
-  uint8_t byteIndex;
-  /* Check for the start of packet status for available */
-  if (packetStatus != startOfPacketStatus::notAvailable)
-  {
-    /* Return the Start of packet status */
-    return packetStatus;
-  }
-
-  /* Update the frame buffer with new byte received */
-  frameBuffer[bufferLength] = newByte;
-
-  /* Check the buffer length to frame size */
-  if ((bufferLength+1) != frameSize)
-  {
-    /* Return the Start of packet status */
-    return packetStatus;
-  }
-
   /* Check for the byte 1 is 01 and 1st bit of byte 2 is set for the start of frame */
-  if(frameBuffer[0] == 0x01 && (frameBuffer[1] & 0x01) == 0x01 )
+  if(newFrame[0] == 0x01 && (newFrame[1] & 0x81) == 0x81 )
   {
     /* Checksum validation */
-    if (((frameBuffer[0]+frameBuffer[1]+frameBuffer[2]+frameBuffer[3]) % 256) == frameBuffer[4])
+    if (((newFrame[0]+newFrame[1]+newFrame[2]+newFrame[3]) % 256) == newFrame[4])
     {
-      /* on successful validation update the start of packet status as available */
-      packetStatus = startOfPacketStatus::available;
       /* return the start of packet status as available */
-      return packetStatus;
+      return true;
     }
   }
 
-  /* On start of frame is not available update the buffer and decrement the buffer size*/
-  for (byteIndex = 0; byteIndex < 4;byteIndex ++ ){
-    frameBuffer[byteIndex] = frameBuffer[byteIndex + 1];
-  }
-  bufferLength--;
+  /* Update the FrameBuffer to receive next byte data */
+  frameBuf.updateSOF();
 
   /* Return the Start of packet status */
-  return packetStatus;
+  return false;
+}
+
+bool FrameReceiver::updateFrameBuffer(uint8_t newByte)
+{
+  /* Input the new byte received and check for frame availability */
+  if(frameBuf.input(newByte) == BufferStatus::partial)
+  {
+    /* return false on frame is not available */
+    return false;
+  }
+
+  /* On frame available update the frameBuffer with new frame available */
+  if(frameBuf.output(frameBuffer) == BufferStatus::partial)
+  {
+    /* return false on frame is not available */
+    return false;
+  }
+
+  /* Return true once frame is available */
+  return true;
 }
 
 FrameReceiver::FrameInputStatus FrameReceiver::input(const uint8_t newByte) {
-  /* Validate the Start of Packet available*/
-  if( this-> validateStartOfPacket(newByte) == startOfPacketStatus::notAvailable)
+  /* Update the frame buffer with new byte received */
+  if(this->updateFrameBuffer(newByte) == false)
   {
-    /* Increment the bufferLength by 1 */
-    bufferLength++;
-    /* Return the frame status is not available */
-    return FrameInputStatus::notAvailable;
-  }
-
-  /* Fill the frame buffer with new byte received */
-  frameBuffer[bufferLength] = newByte;
-
-  /* Validate the buffer length is equal to expected frame size */
-  if ((bufferLength+1) == frameSize) {
-    /* On complete frame reception change the buffer length to zero */
-    bufferLength = 0;
-    /* Update the frame input status to available */
-    inputStatus = FrameInputStatus::available;
-    /* Return the input status */
+    /* On more bytes are required to fill the frame return the inputStatus as waiting */
+    inputStatus = FrameInputStatus::waiting;
     return inputStatus;
   }
 
-  /* Increment the buffer length */
-  bufferLength++;
+  /* Check for Start of frame availability */
+  if(startOfFrameStatus == false)
+  {
+    /* On Start of frame not available invoke validateStartOfFrame */
+    if(validateStartOfFrame(frameBuffer, frameBuf) == false)
+    {
+      /* Return the frame status is not available */
+      inputStatus = FrameInputStatus::notAvailable;
+      return inputStatus;
+    }
+    /* On available of start of frame update the status to true */
+    startOfFrameStatus = true;
+  }
+
+  /* Validate the checksum */
+  if (static_cast<uint8_t>((frameBuffer[0] +  frameBuffer[1] +  frameBuffer[2] +  frameBuffer[3]) % 256) != frameBuffer[4]) {
+    /* Reset the the packet status to not available to read the next packet start */
+    startOfFrameStatus = false;
+    bufferLength = 0;
+    /* Return Checksum error */
+    return FrameInputStatus::checksumError;
+  }
+
   /* Return the frame input status to input ready to receive more bytes to fill frame*/
-  inputStatus = FrameInputStatus::waiting;
+  inputStatus = FrameInputStatus::available;
   return inputStatus;
 }
 
-FrameReceiver::FrameOutputStatus FrameReceiver::output(Frame &frame, uint8_t &frameIndex) {
-  uint8_t frameCHK;
+FrameReceiver::FrameOutputStatus FrameReceiver::output(Frame &frame) {
 
   /* Check for the frame availability in the buffer */
   if (inputStatus != FrameInputStatus::available){
     return FrameOutputStatus::waiting;
   }
 
-  /* Calculate the frame checksum */
-  frameCHK = static_cast<uint8_t>((frameBuffer[0] +  frameBuffer[1] +  frameBuffer[2] +  frameBuffer[3]) % 256);
-
-  /* Validate the checksum */
-  if (frameCHK != frameBuffer[4]) {
-    /* Reset the the packet status to not available to read the next packet start */
-    packetStatus = startOfPacketStatus::notAvailable;
-    bufferLength = 0;
-    /* Return Checksum error */
-    return FrameOutputStatus::checksumError;
-  }
-
-  /* Validate the Status byte by 0x80 */
-  if ((frameBuffer[1] & 0x80) != 0x80){
-    /* Reset the the packet status to not available to read the next packet start */
-    packetStatus = startOfPacketStatus::notAvailable;
-    bufferLength = 0;
-    /* Return status byte error */
-    return FrameOutputStatus::statusByteError;
-  }
   /* Update the Output frame */
   frame = frameBuffer;
 
-  /* Check the frame received is first frame in the packet SYNC bit is 1 */
-  if ( (frameBuffer[1] & 0x01) == 0x01) {
-    /* Update the frame buffer index to 0 */
-    frameBufferIndex = 0;
-  } else {
-    /* Update the frame buffer index */
-    frameBufferIndex = frameBufferIndex + 1;
-  }
+  frameBuf.reset();
 
-  /* Update the frame index */
-  frameIndex = frameBufferIndex;
 
   /* Return frame is available */
   return FrameOutputStatus::available;

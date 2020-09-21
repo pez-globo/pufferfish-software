@@ -13,39 +13,30 @@ namespace Driver {
 namespace Serial {
 namespace Nonin {
 
-/**
- * @brief  Inline function to get the SpO2 data
- * @param  Spo2Data - Byte of SpO2 Data received from packet
- * @return Masked value of SpO2 from input Spo2Data
- */
-inline uint16_t getSpO2Data(uint8_t Spo2Data) {
-  /* Mask Bit0 to Bit6 for SpO2 data  */
-  return (Spo2Data & 0x07F);
-}
-
-/**
- * @brief  Inline function to get the Heart rate from HR MSB and HR LSB
- * @param  hrMSB - Heart rate MSB
- * @param  hrLSB - Heart rate LSB
- * @return Calculated Heart Rate from MSB and LSB
- */
-inline uint16_t getHeartRateData(uint8_t hrMSB  , uint8_t hrLSB) {
-  /* Pack 2 bits of MSB and 6 bits of LSB for 9 bits of heart rate data  */
-  return (((static_cast<uint16_t>(hrMSB) << 7) & 0x18) | (static_cast<uint16_t>(hrLSB) & 0x7F)) & 0x01FF;
-}
-
 /* Enum class for amplitude representation of signal quality  */
 enum class SignalAmplitude {
-  ok = 0,
-  redPerfusion,   /// Red Perfusion – Amplitude representation of low signal quality
-  yellowPerfusion,    /// YPRF: Yellow Perfusion – Amplitude representation of medium signal quality
-  greenPerfusion      /// Green Perfusion – Amplitude representation of high signal quality
-  };
+  noPerfusion = 0,  /// No loss in signal quality
+  redPerfusion,     /// Red Perfusion – Amplitude representation of low signal quality
+  yellowPerfusion,  /// YPRF: Yellow Perfusion – Amplitude representation of medium signal quality
+  greenPerfusion    /// Green Perfusion – Amplitude representation of high signal quality
+};
 
-/* Packet */
+/* Structure defines the sensor data in packet for measurements */
+struct StatusByteStruct {
+  bool bit7;
+  bool sensorDisconnect;
+  bool artifact;
+  bool outOfTrack;
+  bool sensorAlarm;
+  SignalAmplitude SignalPerfusion;
+};
+
+/* Packet of 25 frames */
 using Packet = std::array<Frame, 25>;
-
-using SignalPerfusion = std::array<SignalAmplitude, 25>;
+/* Status Byte error of 25 frames */
+using StatusByteError = std::array<StatusByteStruct, 25>;
+/* PLETH for 25 frames */
+using PLETH = std::array<uint8_t, 25>;
 
 /* Structure defines the sensor data in packet for measurements */
 struct PacketMeasurements {
@@ -60,13 +51,38 @@ struct PacketMeasurements {
   uint16_t HeartRateD;
   uint16_t eHeartRateD;
   uint8_t  noninOEMRevision;
+  PLETH packetPleth;
 };
+
+/**
+ * @brief  Inline function to get the SpO2 data
+ * @param  ByteData - Byte of SpO2 Data received from packet
+ * @return Masked value of SpO2 from input Spo2Data
+ */
+inline uint16_t get6BitData(uint8_t ByteData) {
+  /* Mask Bit0 to Bit6 for SpO2 data  */
+  return (ByteData & 0x07F);
+}
+
+/**
+ * @brief  Inline function to get the Heart rate from HR MSB and HR LSB
+ * @param  msbByte - MSB to extract 2 bits
+ * @param  lsbByte - MSB to extract 5 bits
+ * @return Calculated 9 bit data from MSB and LSB
+ */
+inline uint16_t get9BitData(uint8_t msbByte  , uint8_t lsbByte) {
+  /* Pack 2 bits of MSB and 6 bits of LSB for 9 bits of heart rate data  */
+  return (((static_cast<uint16_t>(msbByte) << 7) & 0x18) | (static_cast<uint16_t>(lsbByte) & 0x7F)) & 0x01FF;
+}
 
 /*
  * PacketReceiver class for
  */
 class PacketReceiver {
  public:
+  /* Size of Packet */
+  static const uint8_t packetSize = 25;
+
   /* PacketReceiver Input status */
   enum class PacketInputStatus {
     available = 0,     /// Input is available to read output
@@ -79,15 +95,6 @@ class PacketReceiver {
     available = 0,   /// Output measurements are available
     waiting          /// Output is waiting to receive more byte for measurements
     };
-
-
-  /* Structure defines the sensor data in packet for measurements */
-  struct StatusByteError {
-    bool sensorDisconnect;
-    bool artifact;
-    bool outOfTrack;
-    bool sensorAlarm;
-  };
 
   /**
    * @brief  Constructor for PacketReceiver
@@ -109,47 +116,31 @@ class PacketReceiver {
    * @param  frameIndex frame index of a packet
    * @return Packet input status on available of packet
    */
-  PacketInputStatus input(const Frame &frame, uint8_t frameIndex,
-                          StatusByteError &frameErrorStatus,
-                          SignalPerfusion &perfusionStatus);
+  PacketInputStatus input(const Frame &frame);
 
   /**
    * @brief  Output is called after the input status is available to read measurements
    * @param  sensorMeasurements is updated on available of measurements
    * @return Packet Output status on available of measurements
    */
-  PacketOutputStatus output(PacketMeasurements &sensorMeasurements);
-
+  PacketOutputStatus output(PacketMeasurements &sensorMeasurements,
+                            StatusByteError &frameErrorStatus);
 
  private:
-  /*
-   * @brief  Validates the status byte of frame
-   * @param  byteValue input status byte value received from sensor
-   * @param  statusByte structure is updated based on input byteValue
-   * @return None
-   */
-  void readStatusByte(const uint8_t byteValue, uint8_t frameIndex,
-                      StatusByteError &frameErrorStatus,
-                      SignalPerfusion &perfusionStatus);
-
-  /* */
-  void readPacketMeasurements(PacketMeasurements &SensorMeasurements);
-
-  /* Size of Packet */
-  static const uint8_t packetSize = 25;
 
   /* Size of Frame */
-  static const uint8_t PacketframeSize = FrameReceiver::frameSize;
+  static const uint8_t PacketframeSize = frameMaxSize;
 
+  /* Packet data received */
   Packet packetData;
 
-  bool packetReset;
-
-  /* Packet Buffer length red from PacketReceiver input */
-  uint8_t packetBufferLength;
+  /* Packet frame index read from PacketReceiver input */
+  uint8_t packetFrameIndex;
 
   /* Input status for a packet */
   PacketInputStatus inputStatus;
+
+  StatusByteError statusByteError;
 };
 
 } // Nonin
