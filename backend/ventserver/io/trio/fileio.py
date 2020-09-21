@@ -18,16 +18,23 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
     props: fileobject.FileProps = attr.ib(
         factory=fileobject.FileProps, repr=False
     )
-    _fileobject: Optional[trio._file_io.AsyncIOWrapper] = None
+    _fileobject: Optional[trio._file_io.AsyncIOWrapper] = attr.ib(
+        default=None
+    )
     _connected: trio.Event = attr.ib(factory=trio.Event, repr=False)
 
-    async def open(self, filename: str, mode: Optional[str] = None) -> None:
-        """Open File I/O connection."""
+
+    def set_props(self, filename: str, mode: Optional[str] = None) -> None:
+        """"""
         if not ".pb" in filename:
             filename += ".pb"
         self.props.filename = filename
         if mode:
             self.props.mode = mode
+        
+
+    async def open(self, nursery: Optional[trio.Nursery] = None) -> None:
+        """Open File I/O connection."""
         if self._fileobject is not None:
             raise RuntimeError("Cannot open new file instance" +
                                "if one is already open." +

@@ -48,7 +48,7 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
         if event:
             self._buffer.input(event)
 
-    def output(self) -> Optional[LowerEvent]:
+    def output(self) -> Optional[UpperEvent]:
         """Emit the next output event."""
         event = self._buffer.output()
         if not event:
@@ -77,7 +77,7 @@ class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
         factory=channels.DequeChannel
     )
 
-    _message_sender = attr.ib()
+    _message_sender: messages.MessageSender = attr.ib()
 
     @_message_sender.default
     def init_message_sender(self) -> messages.MessageSender:  # pylint: disable=no-self-use

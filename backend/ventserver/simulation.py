@@ -10,7 +10,7 @@ import trio
 from ventserver.integration import _trio
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
-from ventserver.io.trio import endpoints
+from ventserver.io.trio import fileio
 from ventserver.protocols import application
 from ventserver.protocols import server
 from ventserver.protocols import file
@@ -115,7 +115,7 @@ async def simulate_states(
 
 async def read_states(
         protocol: server.Protocol,
-        filehandler: endpoints.IOEndpoint[bytes, bytes]
+        filehandler: fileio.Handler
 ) -> Dict[
         Type[application.PBMessage], Optional[application.PBMessage]
     ]:
@@ -127,13 +127,14 @@ async def read_states(
 
     for state in states:
         try:
-            await filehandler.open(state, "rb")
+            filehandler.set_props(state, "rb")
+            await filehandler.open()
             message = await filehandler.read()
             protocol.receive.file.input(
                 file.StateData(state_type=state, data=message)
                 )
         # TODO: recognise exceptions that can be raised and handle them
-        except Exception as err: #type: ignore
+        except Exception as err:
             # TODO: correct logger usage
             # logger.error(err)
             print(err)

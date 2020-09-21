@@ -85,9 +85,10 @@ async def process_file_save_output(protocol: server.Protocol,
 ) -> None:
     """Saves protobuf data to files (prototype)"""
 
+    filehandler.set_props(message.state_type, "wb")
     for message in protocol.send.file.output_all():
         try:
-            await filehandler.open(message.state_type, "wb")
+            await filehandler.open()
             await filehandler.write(bytes(message.data))
         except Exception as err: #type: ignore
             logger.error(err)

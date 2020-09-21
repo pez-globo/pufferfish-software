@@ -176,7 +176,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         return self._backend
 
     @property
-    def file(self):
+    def file(self) -> file.ReceiveFilter:
         """Return the file receiver"""
         return self._file
     

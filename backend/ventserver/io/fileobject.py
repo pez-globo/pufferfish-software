@@ -10,6 +10,6 @@ import attr
 class FileProps:
     """ Defines protobuf file details."""
 
-    filename: Optional[str] = "state.pb"
+    filename: str = "state.pb"
     filedir: str = os.path.join(os.getcwd(), "ventserver", "statestore")
     mode: str = 'rb'
