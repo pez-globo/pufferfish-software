@@ -5,19 +5,20 @@ import time
 import typing
 from typing import Mapping, Optional, Type
 
+import betterproto
+
 import trio
 
 from ventserver.integration import _trio
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
-from ventserver.protocols import application
 from ventserver.protocols import server
 from ventserver.protocols.protobuf import mcu_pb
 
 
 async def simulate_states(
         all_states: Mapping[
-            Type[application.PBMessage], Optional[application.PBMessage]
+            Type[betterproto.Message], Optional[betterproto.Message]
         ]
 ) -> None:
     """Simulate evolution of all states."""
