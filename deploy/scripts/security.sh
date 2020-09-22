@@ -25,6 +25,9 @@ sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 
 sudo systemctl daemon-reload
 
+# Add configuration to disable wifi
+echo -e "\ndtoverlay=disable-wifi" | sudo tee -a /boot/config.txt
+
 # Lock pi and root user
 sudo passwd -l pi
 sudo passwd -l root
