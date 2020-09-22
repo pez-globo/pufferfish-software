@@ -8,12 +8,20 @@ sudo apt-get autoremove --purge -y
 
 # Disable default ssh password warning
 echo "Disabling default ssh password warning..."
-sudo rm /etc/xdg/lxsession/LXDE-pi/sshpwd.sh
+
+if [ 1 -eq $( ls /etc/xdg/lxsession/LXDE-pi/ | grep -c "sshpwd.sh" ) ]
+then
+  sudo rm /etc/xdg/lxsession/LXDE-pi/sshpwd.sh
+fi
 
 # Disable swap and filesystem check
 echo "Disabling swap and filesystem check..."
 existing_command=$(cat /boot/cmdline.txt)
-echo $existing_command" fastboot noswap ro" | sudo tee /boot/cmdline.txt
+
+if [ 0 -eq $( grep -c "fastboot noswap ro" $existing_command ) ]
+then
+  echo $existing_command" fastboot noswap ro" | sudo tee /boot/cmdline.txt
+fi
 
 # Replace log manager
 echo "Replacing log manager with busybox..."
@@ -36,6 +44,9 @@ tmpfs        /var/log        tmpfs   nosuid,nodev         0       0
 tmpfs        /var/tmp        tmpfs   nosuid,nodev         0       0
 tmpfs        /home/pi/.config tmpfs defaults,noatime,uid=pi,gid=pi,mode=0755 0 0
 " >> $fstab_file
+else
+  echo "Filesystem is already in read-only mode"
+  exit
 fi
 
 # Moving/Linking system files to temp filesystem

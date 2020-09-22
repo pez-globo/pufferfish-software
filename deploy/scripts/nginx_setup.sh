@@ -10,4 +10,9 @@ sudo ln -s /tmp /var/log/nginx
 
 cd ~/pufferfish-vent-software/frontend
 
-sudo cp -r build/* /var/www/html/
+if [ 0 -eq $( ls | grep -c "build" ) ]
+then
+    echo "Build files not found"
+else
+    sudo cp -r build/* /var/www/html/
+fi
