@@ -28,9 +28,9 @@ namespace Driver {
 namespace Serial {
 namespace Nonin {
 
-NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensorMeasurements,
-                                             StatusByteError &frameErrorStatus){
+NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensorMeasurements){
   uint8_t readByte;
+  Frame frameBuffer;
 
   /* Read a byte from BufferedUART */
   if(noninUART.read(readByte) == BufferStatus::empty)
@@ -55,12 +55,6 @@ NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensorMeasureme
     case FrameReceiver::FrameInputStatus::available    : break;
   }
 
-  if (frameReceiver.input(readByte) != FrameReceiver::FrameInputStatus::available)
-  {
-    /* Return sensor status is waiting to receive more bytes of data */
-    return NoninPacketStatus::waiting;
-  }
-
   /* On frame input available invoke output method to receive frame */
   if (frameReceiver.output(frameBuffer) == FrameReceiver::FrameOutputStatus::waiting)
   {
@@ -78,12 +72,15 @@ NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensorMeasureme
     /* Discard the packet due to status byte error, wait for the new packet to receive */
     case PacketReceiver::PacketInputStatus::notAvailable : return NoninPacketStatus::notAvailable;
 
+    /* Discard the packet due to status byte error, wait for the new packet to receive */
+    case PacketReceiver::PacketInputStatus::missedData : return NoninPacketStatus::missedData;
+
     /* On PacketInputStatus available continue */
     case PacketReceiver::PacketInputStatus::available    : break;
   }
 
   /* On packet input available invoke output method to read sensor measurements  */
-  if (packetReceiver.output(sensorMeasurements, frameErrorStatus) !=  PacketReceiver::PacketOutputStatus::available)
+  if (packetReceiver.output(sensorMeasurements) !=  PacketReceiver::PacketOutputStatus::available)
   {
     /* Return sensor status is waiting to receive more bytes of data */
     return NoninPacketStatus::waiting;

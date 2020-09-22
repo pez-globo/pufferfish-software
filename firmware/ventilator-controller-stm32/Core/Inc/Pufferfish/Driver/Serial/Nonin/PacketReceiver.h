@@ -54,10 +54,11 @@ using Packet = std::array<Frame, 25>;
 /* Status Byte error of 25 frames */
 using StatusByteError = std::array<StatusByteStruct, 25>;
 /* PLETH for 25 frames */
-using PLETH = std::array<uint8_t, 25>;
+using Pleth = std::array<uint8_t, 25>;
 
 /* Structure defines the sensor data in packet for measurements */
 struct PacketMeasurements {
+  /* Heart Rate and SpO2 measurements */
   uint16_t heartRate;
   uint8_t  SpO2;
   uint8_t SpO2D;
@@ -69,7 +70,15 @@ struct PacketMeasurements {
   uint16_t HeartRateD;
   uint16_t eHeartRateD;
   uint8_t  noninOEMRevision;
-  PLETH packetPleth;
+  /* PLETH measurements */
+  Pleth packetPleth;
+  /* StatusByteErrors measurements */
+  bool bit7[25];
+  bool sensorDisconnect[25];
+  bool artifact[25];
+  bool outOfTrack[25];
+  bool sensorAlarm[25];
+  SignalAmplitude SignalPerfusion[25];
 };
 
 /**
@@ -99,13 +108,14 @@ inline uint16_t get9BitData(uint8_t msbByte  , uint8_t lsbByte) {
 class PacketReceiver {
  public:
   /* Size of Packet */
-  static const uint8_t packetSize = 25;
+  static const size_t packetSize = 25;
 
   /* PacketReceiver Input status */
   enum class PacketInputStatus {
     available = 0,     /// Input is available to read output
     waiting,           /// Input is wait to read more bytes
-    notAvailable
+    notAvailable,      /// Input is not available
+    missedData         /// missed one or more frames in previous received packet
     };
 
   /* PacketReceiver Output status */
@@ -141,24 +151,17 @@ class PacketReceiver {
    * @param  sensorMeasurements is updated on available of measurements
    * @return Packet Output status on available of measurements
    */
-  PacketOutputStatus output(PacketMeasurements &sensorMeasurements,
-                            StatusByteError &frameErrorStatus);
+  PacketOutputStatus output(PacketMeasurements &SensorMeasurements);
 
  private:
-
-  /* Size of Frame */
-  static const uint8_t PacketframeSize = frameMaxSize;
-
   /* Packet data received */
-  Packet packetData;
+  Packet packet_data_;
 
-  /* Packet frame index read from PacketReceiver input */
-  uint8_t packetFrameIndex;
+  /* Packet frame received length from PacketReceiver input */
+  size_t received_length_ = 25;
 
   /* Input status for a packet */
-  PacketInputStatus inputStatus;
-
-  StatusByteError statusByteError;
+  PacketInputStatus input_status_;
 };
 
 } // Nonin

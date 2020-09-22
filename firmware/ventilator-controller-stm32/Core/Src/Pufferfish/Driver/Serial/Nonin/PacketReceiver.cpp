@@ -34,18 +34,18 @@ namespace Nonin {
  * @param  statusByte structure is updated based on input byteValue
  * @return None
  */
-void readStatusByte(const uint8_t byteValue, uint8_t frameIndex, StatusByteError &frameStatusByte)
+void readStatusByte(PacketMeasurements &sensorMeasurements,const size_t &frameIndex, const uint8_t &byteValue )
 {
   /* BIT7: Always high */
-  frameStatusByte[frameIndex].bit7 = ((byteValue & 0x80) == 0x00) ? true : false;
+  sensorMeasurements.bit7[frameIndex] = ((byteValue & 0x80) == 0x00) ? true : false;
   /* BIT6: SNSD: Sensor Disconnect – Sensor is not connected to oximeter or sensor is inoperable */
-  frameStatusByte[frameIndex].sensorDisconnect = ((byteValue & 0x40) == 0x00) ? false : true;
+  sensorMeasurements.sensorDisconnect[frameIndex] = ((byteValue & 0x40) == 0x00) ? false : true;
   /* BIT5: ARTF: Artifact – A detected pulse beat didn’t match the current pulse interval */
-  frameStatusByte[frameIndex].artifact = ((byteValue & 0x20) == 0x00) ? false : true;
+  sensorMeasurements.artifact[frameIndex] = ((byteValue & 0x20) == 0x00) ? false : true;
   /* BIT4: OOT: Out Of Track – An absence of consecutive good pulse signals */
-  frameStatusByte[frameIndex].outOfTrack = ((byteValue & 0x10) == 0x00) ? false : true;
+  sensorMeasurements.outOfTrack[frameIndex] = ((byteValue & 0x10) == 0x00) ? false : true;
   /* BIT3: SNSA: Sensor Alarm – Sensor is providing unusable data for analysis */
-  frameStatusByte[frameIndex].sensorAlarm = ((byteValue & 0x08) == 0x00) ? false : true;
+  sensorMeasurements.sensorAlarm[frameIndex] = ((byteValue & 0x08) == 0x00) ? false : true;
 
   /**
    * BIT2 and BIT1: YPRF: Yellow Perfusion – Amplitude representation of medium signal quality.
@@ -53,20 +53,21 @@ void readStatusByte(const uint8_t byteValue, uint8_t frameIndex, StatusByteError
    * BIT1: GPRF: Green Perfusion – Amplitude representation of high signal quality.
    */
   if (byteValue & 0x06) {
-    frameStatusByte[frameIndex].SignalPerfusion = SignalAmplitude::yellowPerfusion;
+    sensorMeasurements.SignalPerfusion[frameIndex] = SignalAmplitude::yellowPerfusion;
   } else if (byteValue & 0x04) {
-    frameStatusByte[frameIndex].SignalPerfusion = SignalAmplitude::redPerfusion;
+    sensorMeasurements.SignalPerfusion[frameIndex] = SignalAmplitude::redPerfusion;
   } else if (byteValue & 0x02) {
-    frameStatusByte[frameIndex].SignalPerfusion = SignalAmplitude::greenPerfusion;
+    sensorMeasurements.SignalPerfusion[frameIndex] = SignalAmplitude::greenPerfusion;
   } else {
-    frameStatusByte[frameIndex].SignalPerfusion = SignalAmplitude::noPerfusion;
+    sensorMeasurements.SignalPerfusion[frameIndex] = SignalAmplitude::noPerfusion;
   }
 }
 
-void readPacketMeasurements(PacketMeasurements &sensorMeasurements, Packet &packetData) {
+void readPacketMeasurements(PacketMeasurements &sensorMeasurements,
+                            const Packet &packetData) {
   /* 4th byte of a frame contains heart beat and SpO2 data */
-  const uint8_t Byte2 = 2, Byte3 = 3;
-  uint8_t frameIndex;
+  const uint8_t Byte1 = 1, Byte2 = 2, Byte3 = 3;
+  size_t frameIndex;
 
   /**
    * Heart Rate: 4-beat average values in standard mode.
@@ -138,50 +139,59 @@ void readPacketMeasurements(PacketMeasurements &sensorMeasurements, Packet &pack
    */
   sensorMeasurements.eHeartRateD = get9BitData(packetData[21][Byte3], packetData[22][Byte3]);
 
+  /* Update the PLETH and Status byte errors into the packet measurements */
   for (frameIndex = 0; frameIndex < PacketReceiver::packetSize; frameIndex++) {
     sensorMeasurements.packetPleth[frameIndex] = packetData[frameIndex][Byte2];
+    readStatusByte(sensorMeasurements, frameIndex, packetData[frameIndex][Byte1]);
   }
 }
 
-PacketReceiver::PacketInputStatus PacketReceiver::input(const Frame &frame)
-{
-  /* Read the status byte errors */
-  readStatusByte(frame[1], packetFrameIndex, statusByteError);
-
+PacketReceiver::PacketInputStatus PacketReceiver::input(const Frame &frame) {
   /* Check the frame received is first frame in the packet SYNC bit is 1 */
   if ( (frame[1] & 0x01) == 0x01) {
+    if(received_length_ != 25){
+
+      /* Update the frame index to 0 */
+      received_length_ = 0;
+      /* Update the frame received to packet */
+      packet_data_[received_length_] = frame;
+      /* Increment the frame index */
+      received_length_ = received_length_ + 1;
+
+      /* Update input status to missedData to report few frames of data are missed in previous packet */
+      input_status_ = PacketInputStatus::missedData;
+      return input_status_;
+    }
     /* Update the frame index to 0 */
-    packetFrameIndex = 0;
+    received_length_ = 0;
   }
 
   /* Update the frame received to packet */
-  packetData[packetFrameIndex] = frame;
+  packet_data_[received_length_] = frame;
   /* Increment the frame index */
-  packetFrameIndex = packetFrameIndex + 1;
+  received_length_ = received_length_ + 1;
 
   /* Check for the packet data is complete */
-  if (packetFrameIndex != packetSize) {
+  if (received_length_ != packetSize) {
     /* Update input status is waiting to receive more frames */
-    inputStatus = PacketInputStatus::waiting;
-    return inputStatus;
+    input_status_ = PacketInputStatus::waiting;
+    return input_status_;
   }
 
   /* Update input status is available for measurements */
-  inputStatus = PacketInputStatus::available;
-  return inputStatus;
+  input_status_ = PacketInputStatus::available;
+  return input_status_;
 }
 
-PacketReceiver::PacketOutputStatus PacketReceiver::output(PacketMeasurements &SensorMeasurements,
-                                                          StatusByteError &frameErrorStatus) {
+PacketReceiver::PacketOutputStatus PacketReceiver::output(PacketMeasurements &SensorMeasurements) {
   /* Check for the frame availability in the buffer */
-  if (inputStatus != PacketInputStatus::available){
+  if (input_status_ != PacketInputStatus::available){
     /* Return PacketOutputStatus as waiting to receive packet data */
     return PacketOutputStatus::waiting;
   }
   /* Read PacketBuffer and Update the measurements */
-  readPacketMeasurements(SensorMeasurements, packetData);
-  /* Update the Status Byte Errors */
-  frameErrorStatus = statusByteError;
+  readPacketMeasurements(SensorMeasurements, packet_data_);
+
   /* Return Packet Output status as available */
   return PacketOutputStatus::available;
 }

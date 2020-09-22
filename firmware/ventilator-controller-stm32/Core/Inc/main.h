@@ -189,6 +189,8 @@ void Error_Handler(void);
 #define LEDB_CNTRL_GPIO_Port GPIOC
 #define MOTOR2_UART_Pin GPIO_PIN_12
 #define MOTOR2_UART_GPIO_Port GPIOC
+#define OEMIII_RXPin_Pin GPIO_PIN_0
+#define OEMIII_RXPin_GPIO_Port GPIOD
 #define MOTOR1_UART_Pin GPIO_PIN_1
 #define MOTOR1_UART_GPIO_Port GPIOD
 #define LEDG_CNTRL_Pin GPIO_PIN_2

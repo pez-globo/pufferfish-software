@@ -72,13 +72,14 @@ public:
    * @param  None
    * @return None
    */
-  void updateSOF();
+  void shift_left();
 
 private:
-  /* frame buffer */
+  /* Frame buffer */
   Frame frameBuffer;
-  /* frame byte index */
-  uint8_t frameIndex = 0;
+
+  /* Length of frame received  */
+  uint8_t received_length_ = 0;
 };
 
 } // Nonin

@@ -28,10 +28,13 @@ namespace Driver {
 namespace Serial {
 namespace Nonin {
 
-bool validateStartOfFrame(const Frame newFrame, FrameBuffer &frameBuf)
+bool validateFrame(const Frame &newFrame, const bool &startOfFrameStatus)
 {
+  /* Start of Frame validated at the beginning and loss/noise in the received buffer */
+  uint8_t StatusByte = (startOfFrameStatus == false)? 0x81 : 0x80;
+
   /* Check for the byte 1 is 01 and 1st bit of byte 2 is set for the start of frame */
-  if(newFrame[0] == 0x01 && (newFrame[1] & 0x81) == 0x81 )
+  if(newFrame[0] == 0x01 && (newFrame[1] & StatusByte) == StatusByte )
   {
     /* Checksum validation */
     if (((newFrame[0]+newFrame[1]+newFrame[2]+newFrame[3]) % 256) == newFrame[4])
@@ -40,9 +43,6 @@ bool validateStartOfFrame(const Frame newFrame, FrameBuffer &frameBuf)
       return true;
     }
   }
-
-  /* Update the FrameBuffer to receive next byte data */
-  frameBuf.updateSOF();
 
   /* Return the Start of packet status */
   return false;
@@ -64,6 +64,19 @@ bool FrameReceiver::updateFrameBuffer(uint8_t newByte)
     return false;
   }
 
+  /* On Start of frame not available invoke validateStartOfFrame */
+  if(validateFrame(frameBuffer, startOfFrameStatus) == false)
+  {
+    /* Update the FrameBuffer to receive next byte data */
+    frameBuf.shift_left();
+
+    /* return false on frame is not available */
+    return false;
+  }
+
+  /* On available of start of frame update the status to true */
+  startOfFrameStatus = true;
+
   /* Return true once frame is available */
   return true;
 }
@@ -75,20 +88,6 @@ FrameReceiver::FrameInputStatus FrameReceiver::input(const uint8_t newByte) {
     /* On more bytes are required to fill the frame return the inputStatus as waiting */
     inputStatus = FrameInputStatus::waiting;
     return inputStatus;
-  }
-
-  /* Check for Start of frame availability */
-  if(startOfFrameStatus == false)
-  {
-    /* On Start of frame not available invoke validateStartOfFrame */
-    if(validateStartOfFrame(frameBuffer, frameBuf) == false)
-    {
-      /* Return the frame status is not available */
-      inputStatus = FrameInputStatus::notAvailable;
-      return inputStatus;
-    }
-    /* On available of start of frame update the status to true */
-    startOfFrameStatus = true;
   }
 
   /* Validate the checksum */
@@ -105,7 +104,6 @@ FrameReceiver::FrameInputStatus FrameReceiver::input(const uint8_t newByte) {
 }
 
 FrameReceiver::FrameOutputStatus FrameReceiver::output(Frame &frame) {
-
   /* Check for the frame availability in the buffer */
   if (inputStatus != FrameInputStatus::available){
     return FrameOutputStatus::waiting;
@@ -115,7 +113,6 @@ FrameReceiver::FrameOutputStatus FrameReceiver::output(Frame &frame) {
   frame = frameBuffer;
 
   frameBuf.reset();
-
 
   /* Return frame is available */
   return FrameOutputStatus::available;

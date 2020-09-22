@@ -30,17 +30,17 @@ namespace Nonin {
 
 BufferStatus FrameBuffer::input(const uint8_t byte) {
   /* Validate the frame buffer is already full */
-  if (frameIndex == frameMaxSize) {
+  if (received_length_ == frameMaxSize) {
     return BufferStatus::full;
   }
   /* Update the frameBuffer with new byte received */
-  frameBuffer[frameIndex] = byte;
+  frameBuffer[received_length_] = byte;
 
   /* Increment the frame buffer index */
-  frameIndex = frameIndex + 1;
+  received_length_++;
 
   /* On frame index is equal to frame size reture frame status as Ok */
-  if (frameIndex == frameMaxSize) {
+  if (received_length_ == frameMaxSize) {
     return BufferStatus::ok;
   }
   
@@ -50,7 +50,7 @@ BufferStatus FrameBuffer::input(const uint8_t byte) {
 
 BufferStatus FrameBuffer::output(Frame &frame) {
   /* Check for available of frame */
-  if (frameIndex != frameMaxSize) {
+  if (received_length_ != frameMaxSize) {
     /* Return frame buffer is partial update */
     return BufferStatus::partial;
   }
@@ -63,16 +63,19 @@ BufferStatus FrameBuffer::output(Frame &frame) {
 
 void FrameBuffer::reset(){
   /* Update the index of frame buffer to zero */
-  frameIndex = 0;
+  received_length_ = 0;
 }
 
-void FrameBuffer::updateSOF(){
+void FrameBuffer::shift_left(){
   uint8_t index;
-  /* Update the frame buffer and index to receive new byte data */
-  for(index = 0; index < (frameMaxSize-1);index++){
-    frameBuffer[index] = frameBuffer[index+1];
+  /* On no frame data available frameBuffer and frameIndex are not updated */
+  if (received_length_ > 0){
+    /* Update the frame buffer and index to receive new byte data */
+    for(index = 0; index < (received_length_-1);index++){
+      frameBuffer[index] = frameBuffer[index+1];
+    }
+    received_length_--;
   }
-  frameIndex = frameMaxSize-1;
 }
 
 } // Nonin
