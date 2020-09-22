@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <Pufferfish/Driver/Serial/Nonin/PacketReceiver.h>
+#include "Pufferfish/Driver/Serial/Nonin/PacketReceiver.h"
 #include "Pufferfish/Driver/Serial/Nonin/FrameReceiver.h"
 #include "Pufferfish/HAL/STM32/BufferedUART.h"
 
