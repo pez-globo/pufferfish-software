@@ -117,6 +117,10 @@ class PCACSimulator(BreathingCircuitSimulator):
 
     def update_parameters(self) -> None:
         """Implement BreathingCircuitSimulator.update_parameters."""
+        self._parameters.mode = self._parameters_request.mode
+        if self._parameters.mode != mcu_pb.VentilationMode.pc_ac:
+            return
+
         if self._parameters_request.rr > 0:
             self._parameters.rr = self._parameters_request.rr
         if self._parameters_request.ie > 0:
@@ -129,6 +133,9 @@ class PCACSimulator(BreathingCircuitSimulator):
     def update_sensors(self) -> None:
         """Implement BreathingCircuitSimulator.update_sensors."""
         if self._time_step == 0:
+            return
+
+        if self._parameters.mode != mcu_pb.VentilationMode.pc_ac:
             return
 
         self._sensor_measurements.time = int(self.current_time)
@@ -187,21 +194,117 @@ class PCACSimulator(BreathingCircuitSimulator):
         )
 
 
+@attr.s
+class HFNCSimulator(BreathingCircuitSimulator):
+    """Breathing circuit simulator in HFNC mode."""
+
+    cycle_start_time: float = attr.ib(default=0)  # ms
+    flow_responsiveness: float = attr.ib(default=0.01)  # ms
+    flow_noise: float = 0.05  # L/min
+    spo2_fio2_scale: float = attr.ib(default=2.5)  # % SpO2 / % FiO2
+    spo2_responsiveness: float = attr.ib(default=0.0005)  # ms
+    spo2_noise: float = 0.1  # % SpO2
+    rr_noise: float = 5  # b/min
+
+    def update_parameters(self) -> None:
+        """Implement BreathingCircuitSimulator.update_parameters."""
+        self._parameters.mode = self._parameters_request.mode
+        if self._parameters.mode != mcu_pb.VentilationMode.hfnc:
+            return
+
+        if self._parameters_request.flow > 0:
+            self._parameters.flow = self._parameters_request.flow
+        if (
+                self._parameters_request.fio2 >= 21
+                and self._parameters_request.fio2 <= 100
+        ):
+            self._parameters.fio2 = self._parameters_request.fio2
+        if self._parameters_request.rr > 0:
+            self._parameters.rr = self._parameters_request.rr
+
+    def update_sensors(self) -> None:
+        """Implement BreathingCircuitSimulator.update_sensors."""
+        if self._time_step == 0:
+            return
+
+        if self._parameters.mode != mcu_pb.VentilationMode.hfnc:
+            return
+
+        self._sensor_measurements.time = int(self.current_time)
+        cycle_period = 60000 / self._parameters.rr
+        if self.current_time - self.cycle_start_time > cycle_period:
+            self._init_cycle()
+            self._update_cycle_measurements()
+
+        self._update_flow()
+        self._update_fio2()
+        self._update_spo2()
+
+    def _update_flow(self) -> None:
+        """Update flow measurements."""
+        self._sensor_measurements.flow += (
+            (
+                self._parameters.flow - self._sensor_measurements.flow
+            )
+            * self.flow_responsiveness / self.SENSOR_UPDATE_INTERVAL
+        )
+        self._sensor_measurements.flow += \
+            self.flow_noise * (random.random() - 0.5)
+
+    def _update_spo2(self) -> None:
+        """Update SpO2 measurements."""
+        self._sensor_measurements.spo2 += (
+            (
+                self.spo2_fio2_scale * self._sensor_measurements.fio2
+                - self._sensor_measurements.spo2
+            )
+            * self.spo2_responsiveness / self.SENSOR_UPDATE_INTERVAL
+        )
+        self._sensor_measurements.spo2 += \
+            self.spo2_noise * (random.random() - 0.5)
+        self._sensor_measurements.spo2 = min(
+            self._sensor_measurements.spo2, 100
+        )
+        self._sensor_measurements.spo2 = max(
+            self._sensor_measurements.spo2, 21
+        )
+
+    def _init_cycle(self) -> None:
+        """Initialize at the start of the cycle."""
+        self.cycle_start_time = self.current_time
+
+    def _update_cycle_measurements(self) -> None:
+        """Update cycle measurements."""
+        self._cycle_measurements.rr = \
+            self._parameters.rr + self.rr_noise * (random.random() - 0.5)
+
+
 async def simulate_states(
         all_states: Mapping[
             Type[application.PBMessage], Optional[application.PBMessage]
         ]
 ) -> None:
     """Simulate evolution of all states."""
-    pc_ac = PCACSimulator(all_states=all_states)
+    simulators = {
+        mcu_pb.VentilationMode.pc_ac: PCACSimulator(all_states=all_states),
+        mcu_pb.VentilationMode.hfnc: HFNCSimulator(all_states=all_states)
+    }
     while True:
+        # Mode
+        parameters = typing.cast(
+            mcu_pb.Parameters, all_states[mcu_pb.Parameters]
+        )
+        if parameters.mode not in simulators:
+            continue
+
+        simulator = simulators[parameters.mode]
         # Parameters
-        pc_ac.update_parameters()
+        simulator.update_parameters()
         # Timing
-        await trio.sleep(pc_ac.SENSOR_UPDATE_INTERVAL / 1000)
-        pc_ac.update_clock(time.time())
-        pc_ac.update_sensors()
-        pc_ac.update_actuators()
+        await trio.sleep(simulator.SENSOR_UPDATE_INTERVAL / 1000)
+        simulator.update_clock(time.time())
+        simulator.update_sensors()
+        simulator.update_actuators()
 
 
 async def main() -> None:
@@ -223,11 +326,8 @@ async def main() -> None:
     all_states[mcu_pb.CycleMeasurements] = mcu_pb.CycleMeasurements()
     all_states[mcu_pb.SensorMeasurements] = mcu_pb.SensorMeasurements()
     all_states[mcu_pb.ParametersRequest] = mcu_pb.ParametersRequest(
-        mode=mcu_pb.VentilationMode(
-            support=mcu_pb.SpontaneousSupport.ac,
-            cycling=mcu_pb.VentilationCycling.pc
-        ),
-        pip=30, peep=10, rr=30, ie=1, fio2=60
+        mode=mcu_pb.VentilationMode.hfnc,
+        rr=30, fio2=60, flow=6
     )
 
     try:
