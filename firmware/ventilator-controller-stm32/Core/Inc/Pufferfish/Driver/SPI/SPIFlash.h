@@ -76,7 +76,7 @@ public:
    * @param size amount of data to be transmit
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus writeByte(uint32_t addr, uint8_t *input, uint8_t size);
+  SPIDeviceStatus writeByte(uint32_t addr, const uint8_t *input, uint8_t size);
 
   /**
    * @brief Read bytes of data from SPI device
@@ -84,7 +84,7 @@ public:
    * @param size amount of data to be receive
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus readByte(uint32_t addr, uint8_t size);
+  SPIDeviceStatus readByte(uint32_t addr, uint8_t *data, uint8_t size);
 
   /**
    * @brief Lock the block based on address - To protect the memory

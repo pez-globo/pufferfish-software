@@ -122,7 +122,7 @@ SPIDeviceStatus SPIFlash::disableWrite(void){
   return ret;
 }
 
-SPIDeviceStatus SPIFlash::writeByte(uint32_t addr, uint8_t *input, uint8_t size){
+SPIDeviceStatus SPIFlash::writeByte(uint32_t addr, const uint8_t *input, uint8_t size){
   uint8_t regData = 0;
   uint8_t txBuf[size+4] = {0};
 
@@ -154,11 +154,11 @@ SPIDeviceStatus SPIFlash::writeByte(uint32_t addr, uint8_t *input, uint8_t size)
   txBuf[0]= static_cast<uint8_t>(SPIInstruction::writeByte);
 
   /* Fill the Byte1-Byte3 with address and remaining bytes with input which is to be written */
-  for(uint8_t index = 1; index<=(size+4) ; index++){
-    if(index<4){
-    txBuf[index] = (addr >> (8 * (3-index))) & 0xFF;
-    }else if (index<=(size+4)){
-      txBuf[index] = *(input++);
+  for(uint8_t index = 1; index <= (size+4) ; index++){
+    if(index < 4){
+      txBuf[index] = (addr >> (8 * (3-index))) & 0xFF;
+    } else {
+      txBuf[index] = input[index-4];
     }
   }
 
@@ -196,7 +196,7 @@ SPIDeviceStatus SPIFlash::writeByte(uint32_t addr, uint8_t *input, uint8_t size)
   return ret;
 }
 
-SPIDeviceStatus SPIFlash::readByte(uint32_t addr, uint8_t size){
+SPIDeviceStatus SPIFlash::readByte(uint32_t addr, uint8_t *data, uint8_t size){
   uint8_t txBuf[size+4] = {0};
   uint8_t rxBuf[size+4] = {0};
 
@@ -220,6 +220,10 @@ SPIDeviceStatus SPIFlash::readByte(uint32_t addr, uint8_t size){
   /* return ret if it is not ok */
   if (ret != SPIDeviceStatus::ok) {
     return ret;
+  }
+
+  for(uint8_t index = 4; index < (size+4); index++){
+    data[index - 4] = rxBuf[index];
   }
   /* return SPIDeviceStatus */
   return ret;

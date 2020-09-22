@@ -37,6 +37,9 @@
 #include "Pufferfish/Driver/I2C/SFM3000.h"
 #include "Pufferfish/Driver/I2C/TCA9548A.h"
 #include "Pufferfish/Statuses.h"
+#include "Pufferfish/HAL/STM32/Time.h"
+#include "Pufferfish/Driver/SPI/SPIFlash.h"
+#include "Pufferfish/HAL/STM32/HALSPIDevice.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -84,6 +87,12 @@ UART_HandleTypeDef huart3;
 static const uint32_t adcPollTimeout = 10;
 
 namespace PF = Pufferfish;
+
+PF::HAL::DigitalOutput wpEnable(*LED1_EN_GPIO_Port, LED1_EN_Pin);
+PF::HAL::DigitalOutput holdEnable(*LED2_EN_GPIO_Port, LED2_EN_Pin);
+PF::HAL::DigitalOutput memoryChipSelect(*MEM_CS_GPIO_Port, MEM_CS_Pin);
+PF::HAL::HALSPIDevice spiFlash(hspi1, memoryChipSelect);
+PF::Driver::SPI::SPIFlash externalMemory(spiFlash);
 
 /* Create an object for ADC3 of AnalogInput Class */
 PF::HAL::AnalogInput ADC3Input(hadc3, adcPollTimeout);
@@ -215,7 +224,30 @@ int main(void)
    * Local variable to read ADC3 input
    */
   uint32_t ADC3Data;
-  
+
+  /*
+   * FIXME: Added for testing
+   * Local variables for SPI flash memory
+   */
+  uint8_t deviceId;
+
+  uint16_t jedecId;
+
+  /* Address for block 31 of 32KB */
+  uint32_t addr = 0x1F8000;
+
+  uint8_t size = 10;
+
+  uint8_t txBuf[size] = {0xA5,0xA5,0xA5,0xA5,0xA5,0xA5,0xA5,0xA5,0xA5,0xA5};
+
+  uint8_t readBuf[size] = {0};
+
+  uint8_t rxBuf = 0;
+
+  uint8_t testFlag = 0;
+
+  PF::SPIDeviceStatus status;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -260,11 +292,256 @@ int main(void)
   /* Start the ADC3 by invoking AnalogInput::Start() */
   ADC3Input.start();
 
+  /* Hold pin is high */
+  holdEnable.write(true);
+
+  /* Write Protect pin is high */
+  wpEnable.write(true);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1) {
+
+  /* Test Code for SPI Flash Memory*/
+  /* We should not write data continuously into the same address so maintaining testFlag */
+
+  if (testFlag < 2){
+
+ /*****************************************************************************/
+
+  /* Test Scenario 1: Read Device ID and JEDEC ID */
+    status = externalMemory.getDeviceID(deviceId);
+
+    status = externalMemory.getJEDECID(jedecId);
+
+ /*****************************************************************************/
+
+  /* Test Scenario 2: Enable Write and observe WEL bit is set to 1 in read status register 1(bit 1),
+   *  Disable write and observe WEL bit is set to 0 in read status register 1(bit 1)
+   */
+
+    status = externalMemory.getDeviceID(deviceId);
+
+    if (deviceId == 0x14){
+
+      status = externalMemory.enableWrite();
+
+      status = externalMemory.readStatusRegister1(rxBuf);
+
+      status  = externalMemory.disableWrite();
+
+      status = externalMemory.readStatusRegister1(rxBuf);
+
+    }
+ /*****************************************************************************/
+
+  /* Test Scenario 3: Write and read data into the address */
+
+    status  = externalMemory.getDeviceID(deviceId);
+
+    if (deviceId == 0x14){
+
+      status  = externalMemory.readByte(addr, readBuf, size);
+
+      status  = externalMemory.writeByte(addr, txBuf, size);
+
+      status  = externalMemory.readByte(addr, readBuf, size);
+
+    }
+ /*****************************************************************************/
+
+  /* Test Scenario 4: Sector Erase - 4KB */
+
+    status  = externalMemory.getDeviceID(deviceId);
+
+    if (deviceId == 0x14){
+
+      status  = externalMemory.readByte(addr, readBuf, size);
+
+      status  = externalMemory.writeByte(addr, txBuf, size);
+
+      status  = externalMemory.readByte(addr, readBuf, size);
+
+      /* Invoke EraseSector of 4KB */
+      status  = externalMemory.eraseSector4KB(addr);
+
+      status  = externalMemory.readByte(addr,readBuf, size);
+
+    }
+ /*****************************************************************************/
+
+  /* Test Scenario 5: Block Erase - 32KB */
+
+    status  = externalMemory.getDeviceID(deviceId);
+
+    if (deviceId == 0x14){
+
+      status  = externalMemory.readByte(addr, readBuf, size);
+
+      status  = externalMemory.writeByte(addr, txBuf, size);
+
+      status  = externalMemory.readByte(addr, readBuf, size);
+
+      /* Invoke EraseBlock of 32KB */
+      status  = externalMemory.eraseBlock32KB(addr);
+
+      status  = externalMemory.readByte(addr, readBuf, size);
+
+    }
+ /*****************************************************************************/
+
+  /* Test Scenario 6: Block Erase - 64KB */
+
+    status  = externalMemory.getDeviceID(deviceId);
+
+    if (deviceId == 0x14){
+
+      status  = externalMemory.readByte(addr, readBuf, size);
+
+      status  = externalMemory.writeByte(addr, txBuf, size);
+
+      status  = externalMemory.readByte(addr, readBuf, size);
+
+      /* Invoke EraseBlock of 64KB */
+      status  = externalMemory.eraseBlock64KB(addr);
+
+      status  = externalMemory.readByte(addr, readBuf, size);
+
+    }
+ /*****************************************************************************/
+
+    /* Test Scenario 7: Chip Erase */
+
+    status = externalMemory.getDeviceID(deviceId);
+
+    if (deviceId == 0x14){
+
+      status = externalMemory.readByte(addr, readBuf, size);
+
+      status = externalMemory.writeByte(addr, txBuf, size);
+
+      status = externalMemory.readByte(addr, readBuf, size);
+
+      /* Invoke EraseChip */
+      status = externalMemory.eraseChip();
+
+      status = externalMemory.readByte(addr, readBuf,  size);
+
+    }
+ /*****************************************************************************/
+
+  /* Test Scenario 8: Global Lock/Unlock */
+
+    status = externalMemory.getDeviceID(deviceId);
+
+    if (deviceId == 0x14){
+
+      /* If LSB bit is 1 it is locked otherwise unlocked  */
+      status = externalMemory.readBlockStatus(addr);
+
+      status = externalMemory.globalBlockUnLock();
+
+      /* If LSB bit is 1 it is locked otherwise unlocked  */
+      status = externalMemory.readBlockStatus(addr);
+
+      status = externalMemory.globalBlockLock();
+
+      /* If LSB bit is 1 it is locked otherwise unlocked  */
+      status = externalMemory.readBlockStatus(addr);
+
+    }
+ /*****************************************************************************/
+
+  /* Test Scenario 9: Individual Lock/Unlock */
+
+    status = externalMemory.getDeviceID(deviceId);
+
+    if (deviceId == 0x14){
+
+      /* If LSB bit is 1 it is locked otherwise unlocked  */
+      status = externalMemory.readBlockStatus(addr);
+
+      status = externalMemory.unLockIndividualBlock(addr);
+
+      /* If LSB bit is 1 it is locked otherwise unlocked  */
+      status = externalMemory.readBlockStatus(addr);
+
+      status = externalMemory.lockIndividualBlock(addr);
+
+      /* If LSB bit is 1 it is locked otherwise unlocked  */
+      status = externalMemory.readBlockStatus(addr);
+
+    }
+ /*****************************************************************************/
+
+  /* Test Scenario 10: Power Down/Release power down */
+
+    status = externalMemory.getDeviceID(deviceId);
+
+    if (deviceId == 0x14){
+
+      status = externalMemory.getDeviceID(deviceId);
+
+      /* Invoke Power Down */
+      status = externalMemory.powerDown();
+
+      status = externalMemory.getDeviceID(deviceId);
+
+      status = externalMemory.writeByte(addr, txBuf, size);
+
+      status = externalMemory.readByte(addr, readBuf, size);
+
+      /* Invoke Release Power Down */
+      status = externalMemory.releasePowerDown();
+
+      status = externalMemory.getDeviceID(deviceId);
+
+      status = externalMemory.writeByte(addr, txBuf, size);
+
+      status = externalMemory.readByte(addr, readBuf, size);
+
+    }
+  /*****************************************************************************/
+
+    /* Test Scenario 11: Reset Device */
+
+    status = externalMemory.getDeviceID(deviceId);
+
+    if (deviceId == 0x14){
+
+      status = externalMemory.enableWrite();
+
+      status = externalMemory.readStatusRegister1(rxBuf);
+
+      /* Invoke Reset Device */
+      status = externalMemory.resetDevice();
+
+      status = externalMemory.readStatusRegister1(rxBuf);
+
+    }
+  /*****************************************************************************/
+
+    /* Test Scenario 12: Sector Erase - 4KB */
+
+    status = externalMemory.getDeviceID(deviceId);
+
+    if (deviceId == 0x14){
+
+      /* Invoke EraseSector of 4KB */
+      status = externalMemory.eraseSector4KB(addr);
+
+      status = externalMemory.writeByte(addr, txBuf, size);
+
+      status = externalMemory.readByte(addr, readBuf, size);
+
+    }
+  /*****************************************************************************/
+
+    testFlag++;
+   }
+
     PF::AlarmManagerStatus stat = hAlarms.update(PF::HAL::millis());
     if (stat != PF::AlarmManagerStatus::ok) {
       Error_Handler();
@@ -630,23 +907,23 @@ static void MX_SPI1_Init(void)
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_4BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi1.Init.CLKPolarity = SPI_POLARITY_HIGH;
+  hspi1.Init.CLKPhase = SPI_PHASE_2EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 0x0;
+  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_ENABLE;
+  hspi1.Init.CRCPolynomial = 0x7;
   hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
-  hspi1.Init.NSSPolarity = SPI_NSS_POLARITY_LOW;
+  hspi1.Init.NSSPolarity = SPI_NSS_POLARITY_HIGH;
   hspi1.Init.FifoThreshold = SPI_FIFO_THRESHOLD_01DATA;
   hspi1.Init.TxCRCInitializationPattern = SPI_CRC_INITIALIZATION_ALL_ZERO_PATTERN;
   hspi1.Init.RxCRCInitializationPattern = SPI_CRC_INITIALIZATION_ALL_ZERO_PATTERN;
   hspi1.Init.MasterSSIdleness = SPI_MASTER_SS_IDLENESS_00CYCLE;
   hspi1.Init.MasterInterDataIdleness = SPI_MASTER_INTERDATA_IDLENESS_00CYCLE;
-  hspi1.Init.MasterReceiverAutoSusp = SPI_MASTER_RX_AUTOSUSP_DISABLE;
+  hspi1.Init.MasterReceiverAutoSusp = SPI_MASTER_RX_AUTOSUSP_ENABLE;
   hspi1.Init.MasterKeepIOState = SPI_MASTER_KEEP_IO_STATE_DISABLE;
   hspi1.Init.IOSwap = SPI_IO_SWAP_DISABLE;
   if (HAL_SPI_Init(&hspi1) != HAL_OK)
@@ -1339,9 +1616,9 @@ static void MX_GPIO_Init(void)
                           |LTC4421_PWR_nDISABLE1_Pin|LTC4421_PWR_nDISABLE2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, PRESS_VDD_EN_Pin|I2C1_RESET_Pin|I2C2_RESET_Pin|MOTOR1_EN_Pin 
-                          |PRESS6_EN_Pin|LED3_EN_Pin|ALARM1_HIGH_Pin|PRESSX_EN_Pin 
-                          |MOTOR4_DIR_Pin|LED2_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOG, MEM_CS_Pin|PRESS_VDD_EN_Pin|I2C1_RESET_Pin|I2C2_RESET_Pin
+                          |MOTOR1_EN_Pin|PRESS6_EN_Pin|LED3_EN_Pin|ALARM1_HIGH_Pin
+                          |PRESSX_EN_Pin|MOTOR4_DIR_Pin|LED2_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : SET_PWR_ON_OFF_Pin VSYS_3V3_PGOOD_Pin VSYS_5V0_PGOOD_Pin */
   GPIO_InitStruct.Pin = SET_PWR_ON_OFF_Pin|VSYS_3V3_PGOOD_Pin|VSYS_5V0_PGOOD_Pin;
@@ -1423,12 +1700,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PRESS_VDD_EN_Pin I2C1_RESET_Pin I2C2_RESET_Pin MOTOR1_EN_Pin 
-                           PRESS6_EN_Pin LED3_EN_Pin ALARM1_HIGH_Pin PRESSX_EN_Pin 
-                           MOTOR4_DIR_Pin LED2_EN_Pin */
-  GPIO_InitStruct.Pin = PRESS_VDD_EN_Pin|I2C1_RESET_Pin|I2C2_RESET_Pin|MOTOR1_EN_Pin 
-                          |PRESS6_EN_Pin|LED3_EN_Pin|ALARM1_HIGH_Pin|PRESSX_EN_Pin 
-                          |MOTOR4_DIR_Pin|LED2_EN_Pin;
+  /*Configure GPIO pins : MEM_CS_Pin PRESS_VDD_EN_Pin I2C1_RESET_Pin I2C2_RESET_Pin
+                           MOTOR1_EN_Pin PRESS6_EN_Pin LED3_EN_Pin ALARM1_HIGH_Pin
+                           PRESSX_EN_Pin MOTOR4_DIR_Pin LED2_EN_Pin */
+  GPIO_InitStruct.Pin = MEM_CS_Pin|PRESS_VDD_EN_Pin|I2C1_RESET_Pin|I2C2_RESET_Pin
+                          |MOTOR1_EN_Pin|PRESS6_EN_Pin|LED3_EN_Pin|ALARM1_HIGH_Pin
+                          |PRESSX_EN_Pin|MOTOR4_DIR_Pin|LED2_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
