@@ -6,23 +6,14 @@ from dataclasses import dataclass
 import betterproto
 
 
-class Unit(betterproto.Enum):
-    imperial = 0
-    metric = 1
-
-
-class ThemeVariant(betterproto.Enum):
-    dark = 0
-    light = 1
-
-
 class VentilationMode(betterproto.Enum):
     pc_ac = 0
     pc_simv = 1
     vc_ac = 2
     vc_simv = 3
     psv = 4
-    hfnc = 5
+    niv = 5
+    hfnc = 6
 
 
 @dataclass
@@ -58,18 +49,8 @@ class AlarmLimitsRequest(betterproto.Message):
     flow_max: int = betterproto.uint32_field(22)
     apnea_min: int = betterproto.uint32_field(23)
     apnea_max: int = betterproto.uint32_field(24)
-
-
-@dataclass
-class FrontendDisplaySetting(betterproto.Message):
-    theme: "ThemeVariant" = betterproto.enum_field(1)
-    unit: "Unit" = betterproto.enum_field(2)
-
-
-@dataclass
-class SystemSettingRequest(betterproto.Message):
-    brightness: int = betterproto.uint32_field(1)
-    date: int = betterproto.uint32_field(2)
+    spo2_min: int = betterproto.uint32_field(25)
+    spo2_max: int = betterproto.uint32_field(26)
 
 
 @dataclass
@@ -80,6 +61,7 @@ class SensorMeasurements(betterproto.Message):
     flow: float = betterproto.float_field(4)
     volume: float = betterproto.float_field(5)
     fio2: float = betterproto.float_field(6)
+    spo2: float = betterproto.float_field(7)
 
 
 @dataclass
@@ -103,6 +85,7 @@ class Parameters(betterproto.Message):
     rr: float = betterproto.float_field(6)
     ie: float = betterproto.float_field(7)
     fio2: float = betterproto.float_field(8)
+    flow: float = betterproto.float_field(9)
 
 
 @dataclass
@@ -115,6 +98,7 @@ class ParametersRequest(betterproto.Message):
     rr: float = betterproto.float_field(6)
     ie: float = betterproto.float_field(7)
     fio2: float = betterproto.float_field(8)
+    flow: float = betterproto.float_field(9)
 
 
 @dataclass

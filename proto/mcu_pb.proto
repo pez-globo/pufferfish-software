@@ -31,6 +31,8 @@ message AlarmLimitsRequest {
   uint32 flow_max = 22;
   uint32 apnea_min = 23;
   uint32 apnea_max = 24;
+  uint32 spo2_min = 25;
+  uint32 spo2_max = 26;
 }
 
 message SensorMeasurements {
@@ -40,6 +42,7 @@ message SensorMeasurements {
   float flow = 4;
   float volume = 5;
   float fio2 = 6;
+  float spo2 = 7;
 }
 
 message CycleMeasurements {
@@ -58,7 +61,8 @@ enum VentilationMode {
   vc_ac = 2;
   vc_simv = 3;
   psv = 4;
-  hfnc = 5;
+  niv = 5;
+  hfnc = 6;
 }
 
 message Parameters {
@@ -70,6 +74,7 @@ message Parameters {
   float rr = 6;
   float ie = 7;
   float fio2 = 8;
+  float flow = 9;
 }
 
 message ParametersRequest {
@@ -81,6 +86,7 @@ message ParametersRequest {
   float rr = 6;
   float ie = 7;
   float fio2 = 8;
+  float flow = 9;
 }
 
 // Testing messages
