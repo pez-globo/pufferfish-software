@@ -173,7 +173,7 @@ const HFNCMainView = (): JSX.Element => {
           className={classes.bottomLeftPanel}
         >
           <Grid item xs className={classes.rightBorder}>
-            <RRInfo />
+            <RRInfo disableSetValue={true} />
           </Grid>
           <Grid item xs>
             <SpO2Info />

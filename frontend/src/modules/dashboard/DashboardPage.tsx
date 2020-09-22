@@ -24,7 +24,6 @@ const renderModeLayout = (mode: VentilationMode): JSX.Element => {
     case VentilationMode.niv:
       return <PressureControlMainView />;
     case VentilationMode.hfnc:
-      return <HFNCMainView />;
     default:
       return <HFNCMainView />;
   }

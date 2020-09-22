@@ -112,11 +112,6 @@ const alarmConfiguration = (ventilationMode: VentilationMode): Array<AlarmConfig
         { label: 'Insp. Time', stateKey: 'inspTime', step: 0.5 },
       ];
     case VentilationMode.hfnc:
-      return [
-        { label: 'FiO2', stateKey: 'fio2' },
-        { label: 'SpO2', stateKey: 'spo2' },
-        { label: 'RR', stateKey: 'rr' },
-      ];
     default:
       return [
         { label: 'FiO2', stateKey: 'fio2' },
