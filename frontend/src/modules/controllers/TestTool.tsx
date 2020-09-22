@@ -37,9 +37,11 @@ const useStyles = makeStyles((theme: Theme) => ({
   time: {
     marginRight: 75,
     fontFamily: 'sans-serif',
+    fontWeight: 100,
   },
   date: {
     fontFamily: 'sans-serif',
+    fontWeight: 100,
   },
 }));
 

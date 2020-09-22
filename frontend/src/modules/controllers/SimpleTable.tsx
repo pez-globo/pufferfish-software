@@ -85,6 +85,7 @@ const useStyles = makeStyles((theme: Theme) =>
       fontFamily: 'sans-serif',
       fontSize: 16,
       marginTop: 15,
+      fontWeight: 100,
     },
   }),
 );

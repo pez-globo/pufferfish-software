@@ -31,6 +31,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   content: {
     fontFamily: 'sans-serif',
+    fontWeight: 100,
   },
 }));
 

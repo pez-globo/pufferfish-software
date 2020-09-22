@@ -49,12 +49,45 @@ export const darkTheme = createCustomTheme({
     fontFamily: ['Roboto', 'sans-serif'].join(','),
     body1: {
       color: 'white',
+      fontWeight: 'bold',
+    },
+    h1: {
+      fontWeight: 'bold',
+    },
+    h2: {
+      fontWeight: 'bold',
+    },
+    h3: {
+      fontWeight: 'bold',
+    },
+    h4: {
+      fontWeight: 'bold',
+    },
+    h5: {
+      fontWeight: 'bold',
+    },
+    h6: {
+      fontWeight: 'bold',
+    },
+    body2: {
+      fontWeight: 'bold',
+    },
+    subtitle1: {
+      fontWeight: 'bold',
     },
     subtitle2: {
       fontSize: 12,
+      fontWeight: 'bold',
+    },
+    caption: {
+      fontWeight: 'bold',
     },
     button: {
       textTransform: 'none',
+      fontWeight: 'bold',
+    },
+    overline: {
+      fontWeight: 'bold',
     },
   },
   mixins: {
@@ -88,13 +121,45 @@ export const lightTheme = createCustomTheme({
     fontFamily: ['Roboto', 'sans-serif'].join(','),
     body1: {
       color: 'black',
+      fontWeight: 'bold',
+    },
+    h1: {
+      fontWeight: 'bold',
+    },
+    h2: {
+      fontWeight: 'bold',
+    },
+    h3: {
+      fontWeight: 'bold',
+    },
+    h4: {
+      fontWeight: 'bold',
+    },
+    h5: {
+      fontWeight: 'bold',
+    },
+    h6: {
+      fontWeight: 'bold',
+    },
+    body2: {
+      fontWeight: 'bold',
+    },
+    subtitle1: {
+      fontWeight: 'bold',
     },
     subtitle2: {
       fontSize: 12,
+      fontWeight: 'bold',
     },
-
+    caption: {
+      fontWeight: 'bold',
+    },
     button: {
       textTransform: 'none',
+      fontWeight: 'bold',
+    },
+    overline: {
+      fontWeight: 'bold',
     },
   },
   mixins: {

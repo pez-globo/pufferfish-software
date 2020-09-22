@@ -62,6 +62,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   dateTime: {
     paddingTop: 10,
     fontFamily: 'sans-serif',
+    fontWeight: 100,
   },
   rightBorder: {
     borderRight: `2px dashed ${theme.palette.background.default}`,

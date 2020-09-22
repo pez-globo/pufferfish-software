@@ -31,7 +31,6 @@
 #include "Pufferfish/Driver/ShiftedOutput.h"
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
 #include "Pufferfish/Driver/Indicators/AuditoryAlarm.h"
-#include "Pufferfish/HAL/STM32/HALI2CDevice.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
 #include "Pufferfish/Driver/I2C/HoneywellABP.h"
 #include "Pufferfish/Driver/I2C/SDP.h"
@@ -189,6 +188,9 @@ PF::Driver::I2C::HoneywellABP i2c_abp4(i2c_ext_abp4,
 PF::Driver::I2C::HoneywellABP i2c_abp5(i2c_ext_abp5,
                                        PF::Driver::I2C::HoneywellABP::ABPxxxx005PG2A3);
 
+// Buffered UARTs
+volatile Pufferfish::HAL::LargeBufferedUART bufferedUART3(huart3);
+
 // Test list
 PF::Driver::Testable *i2c_test_list[] =
     {&i2c_mux1, &i2c_sfm1, &i2c_sdp1, &i2c_sdp2, &i2c_sdp3, &i2c_abp1,
@@ -313,6 +315,7 @@ int main(void)
   /* Start the ADC3 by invoking AnalogInput::Start() */
   ADC3Input.start();
 
+  bufferedUART3.setupIRQ();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -336,6 +339,15 @@ int main(void)
       }
     }
     PF::HAL::delay(50);
+
+    uint8_t receive = 0;
+    while (bufferedUART3.read(receive) == PF::BufferStatus::ok) {
+      boardLed1.write(true);
+      bufferedUART3.write(receive);
+      PF::HAL::AtomicSize writtenSize;
+      uint8_t repeatString[] = {receive, receive};
+      bufferedUART3.write(repeatString, sizeof(repeatString), writtenSize);
+    }
     /* USER CODE END WHILE */
 
     /* 

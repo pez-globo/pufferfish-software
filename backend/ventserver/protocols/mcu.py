@@ -12,6 +12,7 @@ from ventserver.protocols import datagrams
 from ventserver.protocols import exceptions
 from ventserver.protocols import frames
 from ventserver.protocols import messages
+from ventserver.protocols import crcelements
 from ventserver.sansio import protocols
 
 
@@ -33,6 +34,9 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
 
     _splitter: frames.ChunkSplitter = attr.ib(factory=frames.ChunkSplitter)
     _cobs_decoder: frames.COBSDecoder = attr.ib(factory=frames.COBSDecoder)
+    _crc_receiver: crcelements.CRCReceiver = attr.ib(
+        factory=crcelements.CRCReceiver
+    )
     _datagram_receiver: datagrams.DatagramReceiver = attr.ib(
         factory=datagrams.DatagramReceiver
     )
@@ -67,9 +71,15 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
                 )
             else:
                 self._logger.exception('COBSDecoder: %s', chunk)
-
         if frame_payload:
-            self._datagram_receiver.input(frame_payload)
+            self._crc_receiver.input(frame_payload)
+        crc_payload = None
+        try:
+            crc_payload = self._crc_receiver.output()
+        except exceptions.ProtocolDataError as err:
+            self._logger.exception('CRCReceiver: %s', err)
+        if crc_payload:
+            self._datagram_receiver.input(crc_payload)
         datagram_payload = None
         try:
             datagram_payload = self._datagram_receiver.output()
@@ -96,6 +106,7 @@ class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
     _datagram_sender: datagrams.DatagramSender = attr.ib(
         factory=datagrams.DatagramSender
     )
+    _crc_sender: crcelements.CRCSender = attr.ib(factory=crcelements.CRCSender)
     _cobs_encoder: frames.COBSEncoder = attr.ib(factory=frames.COBSEncoder)
     _merger: frames.ChunkMerger = attr.ib(factory=frames.ChunkMerger)
 
@@ -125,7 +136,16 @@ class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
         except exceptions.ProtocolDataError:
             self._logger.exception('DatagramSender: %s', message_body)
 
-        self._cobs_encoder.input(datagram_body)
+        if datagram_body:
+            self._crc_sender.input(datagram_body)
+        crc_body = None
+        try:
+            crc_body = self._crc_sender.output()
+        except exceptions.ProtocolDataError as err:
+            self._logger.exception('CRCSender: %s', err)
+
+        if crc_body:
+            self._cobs_encoder.input(crc_body)
         cobs_body = None
         try:
             cobs_body = self._cobs_encoder.output()
