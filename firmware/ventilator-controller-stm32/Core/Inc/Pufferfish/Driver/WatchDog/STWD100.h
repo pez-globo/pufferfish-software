@@ -28,7 +28,7 @@ public:
     * @param enablePin for STWD100
     * @param inputPin for STWD100
     */
-  STWD100 (HAL::DigitalOutput &enablePin, HAL::DigitalOutput &inputPin )
+  STWD100 (HAL::HALDigitalOutput &enablePin, HAL::HALDigitalOutput &inputPin )
            :mEnablenPin(enablePin),mInputPin (inputPin){
   }
 
@@ -47,8 +47,8 @@ public:
 
 private:
   static const uint32_t resetTime = 2; /// TBD: resetTime as to be fixed
-  HAL::DigitalOutput mEnablenPin;
-  HAL::DigitalOutput mInputPin;
+  HAL::HALDigitalOutput mEnablenPin;
+  HAL::HALDigitalOutput mInputPin;
 };
 
 }  // namespace WatchDog
