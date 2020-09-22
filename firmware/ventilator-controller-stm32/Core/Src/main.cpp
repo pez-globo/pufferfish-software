@@ -36,6 +36,7 @@
 #include "Pufferfish/Driver/I2C/SDP.h"
 #include "Pufferfish/Driver/I2C/SFM3000.h"
 #include "Pufferfish/Driver/I2C/TCA9548A.h"
+#include "Pufferfish/Driver/Button/Button.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,7 +91,11 @@ PF::HAL::DigitalOutput alarmRegHigh(*ALARM1_HIGH_GPIO_Port, ALARM1_HIGH_Pin);
 PF::HAL::DigitalOutput alarmRegMed(*ALARM1_MED_GPIO_Port, ALARM1_MED_Pin);
 PF::HAL::DigitalOutput alarmRegLow(*ALARM1_LOW_GPIO_Port, ALARM1_LOW_Pin);
 PF::HAL::DigitalOutput alarmBuzzer(*ALARM2_CNTRL_GPIO_Port, ALARM2_CNTRL_Pin);
+PF::HAL::DigitalInput inputButton(*Mem_Button_GPIO_Port, Mem_Button_Pin);
 
+PF::Driver::Button::Debouncer switchDebounce;
+PF::Driver::Button::EdgeDetector switchTransition;
+PF::Driver::Button::Button buttonMembrane(inputButton,switchDebounce);
 PF::Driver::Indicators::LEDAlarm alarmDevLed(alarmLedR, alarmLedG, alarmLedB);
 PF::Driver::Indicators::AuditoryAlarm alarmDevSound(alarmRegHigh, alarmRegMed, alarmRegLow, alarmBuzzer);
 PF::AlarmsManager hAlarms(alarmDevLed, alarmDevSound);
@@ -202,6 +207,8 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 
+    PF::Driver::Button::EdgeState state;
+    bool memButtonstate = false;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -247,6 +254,12 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1) {
+  buttonMembrane.readState(memButtonstate, state);
+  if(state != PF::Driver::Button::EdgeState::risingEdge){
+    boardLed1.write(true);
+    PF::HAL::delay(5);
+  }
+   boardLed1.write(false);
     PF::AlarmManagerStatus stat = hAlarms.update(PF::HAL::millis());
     if (stat != PF::AlarmManagerStatus::ok) {
       Error_Handler();
@@ -260,7 +273,13 @@ int main(void)
         boardLed1.write(false);
       }
     }
-    PF::HAL::delay(500);
+  /* Membrane button status check test code */
+  buttonMembrane.readState(memButtonstate, state);
+  if(state != PF::Driver::Button::EdgeState::risingEdge){
+    boardLed1.write(true);
+    PF::HAL::delay(5);
+  }
+   boardLed1.write(false);
 
     /* USER CODE END WHILE */
 
