@@ -7,12 +7,13 @@ from typing import Mapping, Optional, Type
 
 import attr
 
+import betterproto
+
 import trio
 
 from ventserver.integration import _trio
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
-from ventserver.protocols import application
 from ventserver.protocols import server
 from ventserver.protocols.protobuf import mcu_pb
 
@@ -24,7 +25,7 @@ class BreathingCircuitSimulator:
     SENSOR_UPDATE_INTERVAL = 2
 
     all_states: Mapping[
-        Type[application.PBMessage], Optional[application.PBMessage]
+        Type[betterproto.Message], Optional[betterproto.Message]
     ] = attr.ib()
     current_time: float = attr.ib(default=0)  # ms after initial_time
     previous_time: float = attr.ib(default=0)  # ms after initial_time
@@ -156,6 +157,7 @@ class PCACSimulator(BreathingCircuitSimulator):
         self._sensor_measurements.flow = self.insp_init_flow_rate
         self._sensor_measurements.volume = 0
         self.insp_period = cycle_period / (1 + 1 / self._parameters.ie)
+        self._sensor_measurements.cycle += 1
 
     def _update_cycle_measurements(self) -> None:
         """Update cycle measurements."""
@@ -281,7 +283,7 @@ class HFNCSimulator(BreathingCircuitSimulator):
 
 async def simulate_states(
         all_states: Mapping[
-            Type[application.PBMessage], Optional[application.PBMessage]
+            Type[betterproto.Message], Optional[betterproto.Message]
         ]
 ) -> None:
     """Simulate evolution of all states."""
@@ -289,6 +291,7 @@ async def simulate_states(
         mcu_pb.VentilationMode.pc_ac: PCACSimulator(all_states=all_states),
         mcu_pb.VentilationMode.hfnc: HFNCSimulator(all_states=all_states)
     }
+
     while True:
         # Mode
         parameters = typing.cast(

@@ -33,14 +33,18 @@ export interface AlarmLimitsRequest {
   flowMax: number;
   apneaMin: number;
   apneaMax: number;
+  spo2Min: number;
+  spo2Max: number;
 }
 
 export interface SensorMeasurements {
   time: number;
+  cycle: number;
   paw: number;
   flow: number;
   volume: number;
   fio2: number;
+  spo2: number;
 }
 
 export interface CycleMeasurements {
@@ -62,6 +66,7 @@ export interface Parameters {
   rr: number;
   ie: number;
   fio2: number;
+  flow: number;
 }
 
 export interface ParametersRequest {
@@ -73,6 +78,7 @@ export interface ParametersRequest {
   rr: number;
   ie: number;
   fio2: number;
+  flow: number;
 }
 
 export interface Ping {
@@ -116,14 +122,18 @@ const baseAlarmLimitsRequest: object = {
   flowMax: 0,
   apneaMin: 0,
   apneaMax: 0,
+  spo2Min: 0,
+  spo2Max: 0,
 };
 
 const baseSensorMeasurements: object = {
   time: 0,
+  cycle: 0,
   paw: 0,
   flow: 0,
   volume: 0,
   fio2: 0,
+  spo2: 0,
 };
 
 const baseCycleMeasurements: object = {
@@ -145,6 +155,7 @@ const baseParameters: object = {
   rr: 0,
   ie: 0,
   fio2: 0,
+  flow: 0,
 };
 
 const baseParametersRequest: object = {
@@ -156,6 +167,7 @@ const baseParametersRequest: object = {
   rr: 0,
   ie: 0,
   fio2: 0,
+  flow: 0,
 };
 
 const basePing: object = {
@@ -174,7 +186,8 @@ export const VentilationMode = {
   vc_ac: 2 as const,
   vc_simv: 3 as const,
   psv: 4 as const,
-  hfnc: 5 as const,
+  niv: 5 as const,
+  hfnc: 6 as const,
   UNRECOGNIZED: -1 as const,
   fromJSON(object: any): VentilationMode {
     switch (object) {
@@ -194,6 +207,9 @@ export const VentilationMode = {
       case "psv":
         return VentilationMode.psv;
       case 5:
+      case "niv":
+        return VentilationMode.niv;
+      case 6:
       case "hfnc":
         return VentilationMode.hfnc;
       case -1:
@@ -214,6 +230,8 @@ export const VentilationMode = {
         return "vc_simv";
       case VentilationMode.psv:
         return "psv";
+      case VentilationMode.niv:
+        return "niv";
       case VentilationMode.hfnc:
         return "hfnc";
       default:
@@ -222,7 +240,7 @@ export const VentilationMode = {
   },
 }
 
-export type VentilationMode = 0 | 1 | 2 | 3 | 4 | 5 | -1;
+export type VentilationMode = 0 | 1 | 2 | 3 | 4 | 5 | 6 | -1;
 
 export const Alarms = {
   encode(message: Alarms, writer: Writer = Writer.create()): Writer {
@@ -327,6 +345,8 @@ export const AlarmLimitsRequest = {
     writer.uint32(176).uint32(message.flowMax);
     writer.uint32(184).uint32(message.apneaMin);
     writer.uint32(192).uint32(message.apneaMax);
+    writer.uint32(200).uint32(message.spo2Min);
+    writer.uint32(208).uint32(message.spo2Max);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): AlarmLimitsRequest {
@@ -407,6 +427,12 @@ export const AlarmLimitsRequest = {
           break;
         case 24:
           message.apneaMax = reader.uint32();
+          break;
+        case 25:
+          message.spo2Min = reader.uint32();
+          break;
+        case 26:
+          message.spo2Max = reader.uint32();
           break;
         default:
           reader.skipType(tag & 7);
@@ -537,6 +563,16 @@ export const AlarmLimitsRequest = {
     } else {
       message.apneaMax = 0;
     }
+    if (object.spo2Min !== undefined && object.spo2Min !== null) {
+      message.spo2Min = Number(object.spo2Min);
+    } else {
+      message.spo2Min = 0;
+    }
+    if (object.spo2Max !== undefined && object.spo2Max !== null) {
+      message.spo2Max = Number(object.spo2Max);
+    } else {
+      message.spo2Max = 0;
+    }
     return message;
   },
   fromPartial(object: DeepPartial<AlarmLimitsRequest>): AlarmLimitsRequest {
@@ -661,6 +697,16 @@ export const AlarmLimitsRequest = {
     } else {
       message.apneaMax = 0;
     }
+    if (object.spo2Min !== undefined && object.spo2Min !== null) {
+      message.spo2Min = object.spo2Min;
+    } else {
+      message.spo2Min = 0;
+    }
+    if (object.spo2Max !== undefined && object.spo2Max !== null) {
+      message.spo2Max = object.spo2Max;
+    } else {
+      message.spo2Max = 0;
+    }
     return message;
   },
   toJSON(message: AlarmLimitsRequest): unknown {
@@ -689,6 +735,8 @@ export const AlarmLimitsRequest = {
     obj.flowMax = message.flowMax || 0;
     obj.apneaMin = message.apneaMin || 0;
     obj.apneaMax = message.apneaMax || 0;
+    obj.spo2Min = message.spo2Min || 0;
+    obj.spo2Max = message.spo2Max || 0;
     return obj;
   },
 };
@@ -696,10 +744,12 @@ export const AlarmLimitsRequest = {
 export const SensorMeasurements = {
   encode(message: SensorMeasurements, writer: Writer = Writer.create()): Writer {
     writer.uint32(8).uint32(message.time);
-    writer.uint32(21).float(message.paw);
-    writer.uint32(29).float(message.flow);
-    writer.uint32(37).float(message.volume);
-    writer.uint32(45).float(message.fio2);
+    writer.uint32(16).uint32(message.cycle);
+    writer.uint32(29).float(message.paw);
+    writer.uint32(37).float(message.flow);
+    writer.uint32(45).float(message.volume);
+    writer.uint32(53).float(message.fio2);
+    writer.uint32(61).float(message.spo2);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): SensorMeasurements {
@@ -713,16 +763,22 @@ export const SensorMeasurements = {
           message.time = reader.uint32();
           break;
         case 2:
-          message.paw = reader.float();
+          message.cycle = reader.uint32();
           break;
         case 3:
-          message.flow = reader.float();
+          message.paw = reader.float();
           break;
         case 4:
-          message.volume = reader.float();
+          message.flow = reader.float();
           break;
         case 5:
+          message.volume = reader.float();
+          break;
+        case 6:
           message.fio2 = reader.float();
+          break;
+        case 7:
+          message.spo2 = reader.float();
           break;
         default:
           reader.skipType(tag & 7);
@@ -737,6 +793,11 @@ export const SensorMeasurements = {
       message.time = Number(object.time);
     } else {
       message.time = 0;
+    }
+    if (object.cycle !== undefined && object.cycle !== null) {
+      message.cycle = Number(object.cycle);
+    } else {
+      message.cycle = 0;
     }
     if (object.paw !== undefined && object.paw !== null) {
       message.paw = Number(object.paw);
@@ -758,6 +819,11 @@ export const SensorMeasurements = {
     } else {
       message.fio2 = 0;
     }
+    if (object.spo2 !== undefined && object.spo2 !== null) {
+      message.spo2 = Number(object.spo2);
+    } else {
+      message.spo2 = 0;
+    }
     return message;
   },
   fromPartial(object: DeepPartial<SensorMeasurements>): SensorMeasurements {
@@ -766,6 +832,11 @@ export const SensorMeasurements = {
       message.time = object.time;
     } else {
       message.time = 0;
+    }
+    if (object.cycle !== undefined && object.cycle !== null) {
+      message.cycle = object.cycle;
+    } else {
+      message.cycle = 0;
     }
     if (object.paw !== undefined && object.paw !== null) {
       message.paw = object.paw;
@@ -787,15 +858,22 @@ export const SensorMeasurements = {
     } else {
       message.fio2 = 0;
     }
+    if (object.spo2 !== undefined && object.spo2 !== null) {
+      message.spo2 = object.spo2;
+    } else {
+      message.spo2 = 0;
+    }
     return message;
   },
   toJSON(message: SensorMeasurements): unknown {
     const obj: any = {};
     obj.time = message.time || 0;
+    obj.cycle = message.cycle || 0;
     obj.paw = message.paw || 0;
     obj.flow = message.flow || 0;
     obj.volume = message.volume || 0;
     obj.fio2 = message.fio2 || 0;
+    obj.spo2 = message.spo2 || 0;
     return obj;
   },
 };
@@ -947,6 +1025,7 @@ export const Parameters = {
     writer.uint32(53).float(message.rr);
     writer.uint32(61).float(message.ie);
     writer.uint32(69).float(message.fio2);
+    writer.uint32(77).float(message.flow);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): Parameters {
@@ -979,6 +1058,9 @@ export const Parameters = {
           break;
         case 8:
           message.fio2 = reader.float();
+          break;
+        case 9:
+          message.flow = reader.float();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1029,6 +1111,11 @@ export const Parameters = {
     } else {
       message.fio2 = 0;
     }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Number(object.flow);
+    } else {
+      message.flow = 0;
+    }
     return message;
   },
   fromPartial(object: DeepPartial<Parameters>): Parameters {
@@ -1073,6 +1160,11 @@ export const Parameters = {
     } else {
       message.fio2 = 0;
     }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = object.flow;
+    } else {
+      message.flow = 0;
+    }
     return message;
   },
   toJSON(message: Parameters): unknown {
@@ -1085,6 +1177,7 @@ export const Parameters = {
     obj.rr = message.rr || 0;
     obj.ie = message.ie || 0;
     obj.fio2 = message.fio2 || 0;
+    obj.flow = message.flow || 0;
     return obj;
   },
 };
@@ -1099,6 +1192,7 @@ export const ParametersRequest = {
     writer.uint32(53).float(message.rr);
     writer.uint32(61).float(message.ie);
     writer.uint32(69).float(message.fio2);
+    writer.uint32(77).float(message.flow);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): ParametersRequest {
@@ -1131,6 +1225,9 @@ export const ParametersRequest = {
           break;
         case 8:
           message.fio2 = reader.float();
+          break;
+        case 9:
+          message.flow = reader.float();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1181,6 +1278,11 @@ export const ParametersRequest = {
     } else {
       message.fio2 = 0;
     }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Number(object.flow);
+    } else {
+      message.flow = 0;
+    }
     return message;
   },
   fromPartial(object: DeepPartial<ParametersRequest>): ParametersRequest {
@@ -1225,6 +1327,11 @@ export const ParametersRequest = {
     } else {
       message.fio2 = 0;
     }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = object.flow;
+    } else {
+      message.flow = 0;
+    }
     return message;
   },
   toJSON(message: ParametersRequest): unknown {
@@ -1237,6 +1344,7 @@ export const ParametersRequest = {
     obj.rr = message.rr || 0;
     obj.ie = message.ie || 0;
     obj.fio2 = message.fio2 || 0;
+    obj.flow = message.flow || 0;
     return obj;
   },
 };

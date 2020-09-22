@@ -1,9 +1,12 @@
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Tabs, Tab, Typography } from '@material-ui/core';
-import { PawGraphInfo, FlowGraphInfo, VolumeGraphInfo, PVLoopGraphInfo } from '../containers';
+import { PawGraphInfo, FlowGraphInfo, VolumeGraphInfo } from '../containers';
 import { TabPanel, a11yProps } from '../../controllers/TabPanel';
 import { PIPInfo, RRInfo, PEEPInfo, FiO2Info, TVInfo, IERatioInfo } from '../../info';
+import SpO2Info from '../../info/SpO2Info';
+import FlowInfo from '../../info/FlowInfo';
+import ROXIndexInfo from '../../info/ROXIndexInfo';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -69,9 +72,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 /**
- * PressurControlMainView
+ * HFNCMainView
  */
-const PressureControlMainView = (): JSX.Element => {
+const HFNCMainView = (): JSX.Element => {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
 
@@ -91,10 +94,10 @@ const PressureControlMainView = (): JSX.Element => {
           className={classes.topLeftPanel}
         >
           <Grid item xs className={classes.bottomBorder}>
-            <PIPInfo />
+            <FiO2Info />
           </Grid>
           <Grid item xs>
-            <PEEPInfo />
+            <FlowInfo />
           </Grid>
         </Grid>
         <Grid container item xs direction="column" className={classes.graphPanel} wrap="nowrap">
@@ -112,13 +115,14 @@ const PressureControlMainView = (): JSX.Element => {
                 className={classes.tab}
                 classes={{ selected: classes.selectedTab }}
               />
+              {/* NOTE: The 2 tabs below are disabled until their functionality is implemented. */}
               <Tab
                 label="PV Loops"
                 {...a11yProps(1)}
                 className={classes.tab}
+                disabled
                 classes={{ selected: classes.selectedTab }}
               />
-              {/* NOTE: The tab below is disabled until their functionality is implemented. */}
               <Tab
                 label="Compliance"
                 {...a11yProps(2)}
@@ -145,7 +149,9 @@ const PressureControlMainView = (): JSX.Element => {
           </TabPanel>
           <TabPanel value={value} index={1}>
             <Grid container item xs style={{ height: '100%' }}>
-              <PVLoopGraphInfo />
+              <Grid item xs>
+                <Typography>PV Loops</Typography>
+              </Grid>
             </Grid>
           </TabPanel>
           <TabPanel value={value} index={2}>
@@ -167,10 +173,10 @@ const PressureControlMainView = (): JSX.Element => {
           className={classes.bottomLeftPanel}
         >
           <Grid item xs className={classes.rightBorder}>
-            <RRInfo />
+            <RRInfo disableSetValue={true} />
           </Grid>
           <Grid item xs>
-            <FiO2Info />
+            <SpO2Info />
           </Grid>
         </Grid>
         <Grid
@@ -182,15 +188,15 @@ const PressureControlMainView = (): JSX.Element => {
           className={classes.bottomRightPanel}
         >
           <Grid item xs className={classes.rightBorder}>
-            <TVInfo />
+            <ROXIndexInfo />
           </Grid>
-          <Grid item xs>
+          {/* <Grid item xs>
             <IERatioInfo />
-          </Grid>
+          </Grid> */}
         </Grid>
       </Grid>
     </Grid>
   );
 };
 
-export default PressureControlMainView;
+export default HFNCMainView;

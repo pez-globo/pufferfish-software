@@ -56,11 +56,12 @@ class AlarmLimitsRequest(betterproto.Message):
 @dataclass
 class SensorMeasurements(betterproto.Message):
     time: int = betterproto.uint32_field(1)
-    paw: float = betterproto.float_field(2)
-    flow: float = betterproto.float_field(3)
-    volume: float = betterproto.float_field(4)
-    fio2: float = betterproto.float_field(5)
-    spo2: float = betterproto.float_field(6)
+    cycle: int = betterproto.uint32_field(2)
+    paw: float = betterproto.float_field(3)
+    flow: float = betterproto.float_field(4)
+    volume: float = betterproto.float_field(5)
+    fio2: float = betterproto.float_field(6)
+    spo2: float = betterproto.float_field(7)
 
 
 @dataclass
