@@ -18,19 +18,28 @@ class DigitalInput {
  public:
   /**
    * Constructs a new Digital Input
-   * @param m_port  GPIO port of the MCU (A, B, ...)
-   * @param m_pin   GPIO pin of the MCU (1, 2, ...)
+   * @param port  GPIO port of the MCU (A, B, ...)
+   * @param pin   GPIO pin of the MCU (1, 2, ...)
+   * @param inverted   true if the input is active-low, false for active-high
    */
-  DigitalInput(GPIO_TypeDef &m_port, const uint16_t m_pin) : mPort(m_port), mPin(m_pin) {}
+  DigitalInput(GPIO_TypeDef &port, const uint16_t pin, const bool inverted =
+  false)
+      :
+      mPort(port),
+      mPin(pin),
+      mInverted(inverted) {
+  }
 
   /**
    * Reads a digital input from the GPIO pin
-   * @return true if the pin state is high, false if low
+   * @return true if the pin is active (HIGH when inverted=false,
+   *  and LOW when inverted=true), false otherwise
    */
   bool read();
  private:
   GPIO_TypeDef &mPort;
-  uint16_t const mPin;
+  const uint16_t mPin;
+  const bool mInverted;
 };
 
 } // namespace HAL
