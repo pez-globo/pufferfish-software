@@ -46,7 +46,7 @@ class NoninOEM {
     available = 0,  /// Packet/measurements is available
     waiting,        /// Packet/measurements is waiting to receive more bytes of data
     notAvailable,   /// Packet/measurements are not available
-    checksumError,  /// Checksum error in receiving frame
+    framingError,   /// Error in checksum or status byte or in byte 1 of a frame
     missedData      /// Missed a packet due loss of frames
   };
 

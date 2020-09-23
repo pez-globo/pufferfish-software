@@ -38,9 +38,9 @@ class FrameReceiver {
  public:
   /* FrameReceiver input status return values */
   enum class FrameInputStatus {
-    waiting = 0,   /// Input is ready to receive new bytes of sensor data
+    waiting = 0,      /// Input is ready to receive new bytes of sensor data
     notAvailable,     /// Input status is not available or error in frame
-    checksumError,    /// Error in checksum of a frame
+    framingError,     /// Error in checksum or status byte or in byte 1 of a frame
     available         /// frame is available
     };
 
@@ -73,17 +73,18 @@ class FrameReceiver {
   FrameOutputStatus output(Frame &frame);
 
  private:
-  bool updateFrameBuffer(uint8_t newByte);
-
-  /* Frame Buffer stores bytes of data received from sensor */
-  Frame frameBuffer;
+  FrameInputStatus updateFrameBuffer(uint8_t newByte);
 
   /* Frame input status */
   FrameInputStatus inputStatus;
 
   FrameBuffer frameBuf;
 
-  /* Start of packet status */
+  /* Variable that validates the start of frame
+     true : Start of frame packet is available reading the consicutive frame are possible
+     false: Start of frame packet is not available , false is set in the beginning of reading bytes
+            and on there is loss of bytes in a frame or noise occurred in recived frame due to which
+            the validation of start of frame is called */
   bool startOfFrameStatus = false;
 
 };

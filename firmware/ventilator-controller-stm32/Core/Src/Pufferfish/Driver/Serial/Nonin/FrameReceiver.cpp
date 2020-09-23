@@ -28,78 +28,96 @@ namespace Driver {
 namespace Serial {
 namespace Nonin {
 
-bool validateFrame(const Frame &newFrame, const bool &startOfFrameStatus)
+/**
+ * validateStartOfFrame function is called on beginning to get the first frame and
+ * on there is a loss of bytes or noise in the bytes of frame received.
+ * Called based on startOfFrameStatus private variable
+ */
+bool validateStartOfFrame(const Frame &newFrame)
 {
-  /* Start of Frame validated at the beginning and loss/noise in the received buffer */
-  uint8_t StatusByte = (startOfFrameStatus == false)? 0x81 : 0x80;
-
-  /* Check for the byte 1 is 01 and 1st bit of byte 2 is set for the start of frame */
-  if(newFrame[0] == 0x01 && (newFrame[1] & StatusByte) == StatusByte )
+  /* Check for the byte 1 is 01 and 1st bit of byte 2 is 0x81 for the start of frame */
+  if(newFrame[0] == 0x01 && (newFrame[1] & 0x81) == 0x81 )
   {
     /* Checksum validation */
     if (((newFrame[0]+newFrame[1]+newFrame[2]+newFrame[3]) % 256) == newFrame[4])
     {
-      /* return the start of packet status as available */
       return true;
     }
   }
-
-  /* Return the Start of packet status */
   return false;
 }
 
-bool FrameReceiver::updateFrameBuffer(uint8_t newByte)
+/**
+ * validateFrame function is called to validated the every frame for Status byte and Checksum.
+ */
+FrameReceiver::FrameInputStatus validateFrame(const Frame &newFrame)
 {
+  /* Check for the byte 1 is 01 and 1st bit of byte 2 is 0x80 for status byte */
+  if(newFrame[0] == 0x01 && (newFrame[1] & 0x80) == 0x80 )
+  {
+    /* Checksum validation */
+    if (((newFrame[0]+newFrame[1]+newFrame[2]+newFrame[3]) % 256) == newFrame[4])
+    {
+      /* Return the start of packet status as available */
+      return FrameReceiver::FrameInputStatus::available;
+    }
+  }
+
+  /* return the frmae status as not available */
+  return FrameReceiver::FrameInputStatus::framingError;
+}
+
+FrameReceiver::FrameInputStatus FrameReceiver::updateFrameBuffer(uint8_t newByte)
+{
+  Frame frameBuffer;
+
   /* Input the new byte received and check for frame availability */
   if(frameBuf.input(newByte) == BufferStatus::partial)
   {
     /* return false on frame is not available */
-    return false;
+    return FrameInputStatus::waiting;
   }
 
   /* On frame available update the frameBuffer with new frame available */
-  if(frameBuf.output(frameBuffer) == BufferStatus::partial)
+  if(frameBuf.output(frameBuffer) != BufferStatus::ok)
   {
     /* return false on frame is not available */
-    return false;
+    return FrameInputStatus::notAvailable;
   }
 
-  /* On Start of frame not available invoke validateStartOfFrame */
-  if(validateFrame(frameBuffer, startOfFrameStatus) == false)
+  /* On startOfFrameStatus false Validate the start of frame */
+  if(startOfFrameStatus == false)
   {
-    /* Update the FrameBuffer to receive next byte data */
+    /* Validate the start of frame in the beginning of reading sensor data and
+       on there is loss of bytes in a frame or noise occurred in recived frame due to which
+       the validation of start of frame is called */
+    if(validateStartOfFrame(frameBuffer) == true)
+    {
+      /* On start of frame available update the start frame status as true */
+      startOfFrameStatus = true;
+      /* On Start frame is available return status as available */
+      return FrameInputStatus::available;
+    }
+    /* On non available of start frame left shift the frame buffer */
     frameBuf.shift_left();
-
-    /* return false on frame is not available */
-    return false;
+    /* On Start frame is not available return status as waiting */
+    return FrameInputStatus::waiting;
   }
 
-  /* On available of start of frame update the status to true */
-  startOfFrameStatus = true;
-
-  /* Return true once frame is available */
-  return true;
+  /* Validate the frame received and return the status */
+  inputStatus =  validateFrame(frameBuffer);
+  if(inputStatus == FrameInputStatus::framingError) {
+    /* On checksum error update the start frame status as false */
+    startOfFrameStatus = false;
+  }
+  return inputStatus;
 }
 
 FrameReceiver::FrameInputStatus FrameReceiver::input(const uint8_t newByte) {
   /* Update the frame buffer with new byte received */
-  if(this->updateFrameBuffer(newByte) == false)
-  {
-    /* On more bytes are required to fill the frame return the inputStatus as waiting */
-    inputStatus = FrameInputStatus::waiting;
-    return inputStatus;
-  }
+  inputStatus = this->updateFrameBuffer(newByte);
 
-  /* Validate the checksum */
-  if (static_cast<uint8_t>((frameBuffer[0] +  frameBuffer[1] +  frameBuffer[2] +  frameBuffer[3]) % 256) != frameBuffer[4]) {
-    /* Reset the the packet status to not available to read the next packet start */
-    startOfFrameStatus = false;
-    /* Return Checksum error */
-    return FrameInputStatus::checksumError;
-  }
-
-  /* Return the frame input status to input ready to receive more bytes to fill frame*/
-  inputStatus = FrameInputStatus::available;
+  /* Return the input status */
   return inputStatus;
 }
 
@@ -109,8 +127,12 @@ FrameReceiver::FrameOutputStatus FrameReceiver::output(Frame &frame) {
     return FrameOutputStatus::waiting;
   }
 
-  /* Update the Output frame */
-  frame = frameBuffer;
+  /* On frame available update the frameBuffer with new frame available */
+  if(frameBuf.output(frame) != BufferStatus::ok)
+  {
+    /* return false on frame is not available */
+    return FrameOutputStatus::waiting;
+  }
 
   frameBuf.reset();
 

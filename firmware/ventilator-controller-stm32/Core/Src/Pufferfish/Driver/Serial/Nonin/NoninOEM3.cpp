@@ -43,7 +43,7 @@ NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensorMeasureme
   /* Input byte to frame receiver and validate the frame available */
   switch(frameReceiver.input(readByte)){
     /* Return sensor status is waiting to receive more bytes of data */
-    case FrameReceiver::FrameInputStatus::checksumError : return NoninPacketStatus::checksumError;
+    case FrameReceiver::FrameInputStatus::framingError : return NoninPacketStatus::framingError;
 
     /* Return sensor status is waiting to receive more bytes of data */
     case FrameReceiver::FrameInputStatus::waiting : return NoninPacketStatus::waiting;
