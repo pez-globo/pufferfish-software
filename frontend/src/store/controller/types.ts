@@ -7,6 +7,9 @@ import {
   Ping,
   Announcement,
   AlarmLimitsRequest,
+  NewPatientAlarms,
+  PatientAlarmEvent,
+  LastKnownPatientAlarm,
 } from './proto/mcu_pb';
 import { RotaryEncoder, SystemSettingRequest, FrontendDisplaySetting } from './proto/frontend_pb';
 
@@ -32,14 +35,15 @@ export type PBMessage =
   | ParametersRequest
   | Ping
   | Announcement
+  | PatientAlarmEvent
+  | NewPatientAlarms
+  | LastKnownPatientAlarm
   // frontend_pb
   | RotaryEncoder;
 
 export type PBMessageType =
   | // mcu_pb
   typeof AlarmLimitsRequest
-  | typeof SystemSettingRequest
-  | typeof FrontendDisplaySetting
   | typeof Alarms
   | typeof SensorMeasurements
   | typeof CycleMeasurements
@@ -47,7 +51,12 @@ export type PBMessageType =
   | typeof ParametersRequest
   | typeof Ping
   | typeof Announcement
+  | typeof PatientAlarmEvent
+  | typeof NewPatientAlarms
+  | typeof LastKnownPatientAlarm
   // frontend_pb
+  | typeof SystemSettingRequest
+  | typeof FrontendDisplaySetting
   | typeof RotaryEncoder;
 
 export enum MessageType {
@@ -61,6 +70,9 @@ export enum MessageType {
   AlarmLimitsRequest = 8,
   SystemSettingRequest = 9,
   FrontendDisplaySetting = 10,
+  PatientAlarmEvent = 11,
+  NewPatientAlarms = 12,
+  LastKnownPatientAlarm = 13,
   RotaryEncoder = 128,
 }
 
@@ -95,6 +107,9 @@ export interface ControllerStates {
   parametersRequest: ParametersRequest;
   ping: Ping;
   announcement: Announcement;
+  patientAlarmEvent: PatientAlarmEvent;
+  newPatientAlarms: NewPatientAlarms;
+  lastKnownPatientAlarm: LastKnownPatientAlarm;
 
   // Message states from frontend_pb
   rotaryEncoder: RotaryEncoder;

@@ -99,3 +99,40 @@ message Announcement {
   uint32 time = 1;
   bytes announcement = 2;
 }
+
+enum AlarmCode {
+  fio2_too_low = 0;
+  fio2_too_high = 1;
+  spo2_too_low = 2;
+  spo2_too_high = 3;
+  rr_too_low = 4;
+  rr_too_high = 5;
+  battery_low = 6;
+  screen_locked = 7;
+}
+
+message EventHeader {
+  uint32 id = 1;
+  AlarmCode code = 2;
+  uint32 time = 3;
+}
+
+message States {
+  Parameters parameters = 1;
+  SensorMeasurements sensor_measurements = 2;
+  CycleMeasurements cycle_measurements = 3;
+  AlarmLimitsRequest alarm_limits = 4;
+}
+
+message PatientAlarmEvent {
+  EventHeader header = 1;
+  States state = 2;
+}
+
+message LastKnownPatientAlarm {
+  uint32 id = 1;
+}
+
+message NewPatientAlarms {
+  repeated PatientAlarmEvent patient_alarm_events  = 1;
+}
