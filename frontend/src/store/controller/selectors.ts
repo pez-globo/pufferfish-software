@@ -10,6 +10,8 @@ import {
   Announcement,
   AlarmLimitsRequest,
   VentilationMode,
+  AlarmLimitsRequestStandby,
+  ParametersRequestStandby,
 } from './proto/mcu_pb';
 import { RotaryEncoder, FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import { ControllerStates, WaveformPoint, WaveformHistory, PVPoint, PVHistory } from './types';
@@ -118,6 +120,11 @@ export const getParametersRequest = createSelector(
   (states: ControllerStates): ParametersRequest => states.parametersRequest,
 );
 
+export const getParametersRequestStandby = createSelector(
+  getController,
+  (states: ControllerStates): ParametersRequestStandby => states.parametersRequestStandby,
+);
+
 export const getParametersRequestMode = createSelector(
   getParametersRequest,
   (parametersRequest: ParametersRequest): VentilationMode => parametersRequest.mode,
@@ -217,6 +224,12 @@ export const getAlarmLimitsRequest = createSelector(
   getController,
   (states: ControllerStates): AlarmLimitsRequest | Record<string, number> =>
     states.alarmLimitsRequest,
+);
+
+export const getAlarmLimitsRequestStandby = createSelector(
+  getController,
+  (states: ControllerStates): AlarmLimitsRequestStandby | Record<string, number> =>
+    states.alarmLimitsRequestStandby,
 );
 
 // Display Settings
