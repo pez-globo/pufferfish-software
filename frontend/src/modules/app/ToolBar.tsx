@@ -59,7 +59,7 @@ export const ToolBar = (): JSX.Element => {
   const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
   const updateVentilationStatus = () => {
     setIsVentilatorOn(!isVentilatorOn);
-    if(!isVentilatorOn) {
+    if (!isVentilatorOn) {
       switch (currentMode) {
         case VentilationMode.pc_ac:
         case VentilationMode.pc_simv:
