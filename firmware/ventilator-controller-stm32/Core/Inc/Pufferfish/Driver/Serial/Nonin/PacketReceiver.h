@@ -1,9 +1,6 @@
 /// PacketReceiver.h
-/// this file has call and methos for packet receiver takes the input frames and
+/// This file has call and methos for packet receiver takes the input frames and
 /// output the packet measurements on availability
-///
-/// More detailed description for the file, if necessary;
-/// perhaps spanning multiple lines.
 
 // Copyright (c) 2020 Pez-Globo and the Pufferfish project contributors
 // SPDX-License-Identifier: Apache-2.0

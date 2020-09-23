@@ -1,8 +1,6 @@
 /// NoninOEM3.cpp
-/// this file has methods to output the sensor measurements of NoninOEM 3 sensor based on packet received.
-///
-/// More detailed description for the file, if necessary;
-/// perhaps spanning multiple lines.
+/// This file has methods to output the sensor measurements of NoninOEM
+/// 3 sensor based on packet received.
 
 // Copyright (c) 2020 Pez-Globo and the Pufferfish project contributors
 // SPDX-License-Identifier: Apache-2.0
