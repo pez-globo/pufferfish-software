@@ -3,7 +3,14 @@
 echo "********** Installing node **********"
 
 cd ~/
-wget https://nodejs.org/dist/v12.18.3/node-v12.18.3-linux-armv7l.tar.gz
+
+if ! command -v node &> /dev/null
+then
+    wget https://nodejs.org/dist/v12.18.3/node-v12.18.3-linux-armv7l.tar.gz
+else
+    echo "Node is already installed, skipping installation."
+    exit
+fi
 
 if [ 1 -eq $( ls | grep -c "node-v12.18.3-linux-armv7l.tar.gz" ) ]
 then

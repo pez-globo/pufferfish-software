@@ -7,7 +7,7 @@ sudo apt install libffi-dev curl wget gcc make zlib1g-dev libsqlite3-dev -y
 sudo apt install build-essential libssl-dev libbz2-dev libreadline-dev -y
 sudo apt install libncurses5-dev libncursesw5-dev xz-utils libffi-dev liblzma-dev python-openssl -y
 
-if [ 0 -eq $( ls -a $HOME | grep -c ".pyenv" ) ]
+if ! command -v pyenv &> /dev/null
 then
     curl https://pyenv.run | bash
 else

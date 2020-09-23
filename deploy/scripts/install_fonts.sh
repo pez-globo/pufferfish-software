@@ -3,8 +3,16 @@
 cd ~/
 
 echo "********** Installing Roboto Font **********"
+
 mkdir -p .fonts
-wget -O roboto.zip "https://fonts.google.com/download?family=Roboto"
+
+if [ $( ls .fonts/ | grep -c "Roboto" ) -ge 2 ]
+then
+    echo "Roboto fonts already available."
+    exit
+else
+    wget -O roboto.zip "https://fonts.google.com/download?family=Roboto"
+fi
 
 sudo apt install unzip -y
 

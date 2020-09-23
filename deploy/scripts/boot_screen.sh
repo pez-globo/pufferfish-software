@@ -17,7 +17,7 @@ cp configs/splash.png ~/splash.png
 
 # Disable logs on console
 existing_command=$(cat /boot/cmdline.txt)
-if [ 0 -eq $( grep -c "logo.nologo" $existing_command ) ]
+if [ 0 -eq $( cat /boot/cmdline.txt | grep -c "logo.nologo" ) ]
 then
     echo $existing_command" logo.nologo consoleblank=0 loglevel=1 quiet vt.global_cursor_default=0" | sudo tee /boot/cmdline.txt
 else
@@ -30,7 +30,7 @@ sudo systemctl disable getty@tty3
 sudo apt install fbi -y
 
 # Create service file
-if [ 0 -eq $( ls configs/ | grep -c "splashscreen.service" ) ]
+if [ 1 -eq $( ls configs/ | grep -c "splashscreen.service" ) ]
 then
     sudo cp configs/splashscreen.service /etc/systemd/system/
 else
