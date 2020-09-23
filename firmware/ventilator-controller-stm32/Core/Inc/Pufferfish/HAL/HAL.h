@@ -24,7 +24,7 @@
 #include "Pufferfish/HAL/STM32/BufferedUART.h"
 #include "Pufferfish/HAL/STM32/Endian.h"
 #include "Pufferfish/HAL/STM32/Time.h"
-#include <Pufferfish/HAL/STM32/HALAnalogInput.h>
+#include "Pufferfish/HAL/STM32/HALAnalogInput.h"
 #include "Pufferfish/HAL/STM32/HALDigitalInput.h"
 #include "Pufferfish/HAL/STM32/HALDigitalOutput.h"
 #include "Pufferfish/HAL/STM32/HALI2CDevice.h"
