@@ -18,11 +18,11 @@ namespace HAL {
  */
 class PWM {
  public:
-
   /**
    * Set a duty cycle of PWM, can be done when PWM is active
    * this function does NOT start the PWM output
-   * @param duty    a number between 0.0 and 1.0 (inclusive) for the desired duty cycle
+   * @param duty    a number between 0.0 and 1.0 (inclusive) for the desired
+   * duty cycle
    */
   PWMStatus set_duty_cycle(float duty);
 
@@ -30,7 +30,8 @@ class PWM {
    * Set a duty cycle of PWM, can be done when PWM is active
    * this function does NOT start the PWM output.
    * This is faster than setDutyCycle() as no floating point calculation is done
-   * @param duty    an integer between 0 and getMaxDutyCycle() (inclusive) for the desired duty cycle
+   * @param duty    an integer between 0 and getMaxDutyCycle() (inclusive) for
+   * the desired duty cycle
    */
   virtual void set_duty_cycle_raw(uint32_t duty) = 0;
 

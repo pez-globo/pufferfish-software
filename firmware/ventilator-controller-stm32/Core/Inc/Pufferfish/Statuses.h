@@ -13,8 +13,8 @@ namespace Pufferfish {
  */
 enum class BufferStatus {
   ok = 0,  /// buffer operation succeeded
-  empty,  /// buffer is empty so no read is possible
-  full,  /// buffer is full so no write is possible
+  empty,   /// buffer is empty so no read is possible
+  full,    /// buffer is full so no write is possible
   partial  /// only a partial buffer operation was possible
 };
 

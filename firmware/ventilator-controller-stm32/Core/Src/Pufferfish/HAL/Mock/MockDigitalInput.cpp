@@ -10,7 +10,6 @@ namespace Pufferfish {
 namespace HAL {
 
 bool MockDigitalInput::read() {
-
   /* return lastInput, set during the setRead */
   return last_input_;
 }
@@ -20,5 +19,5 @@ void MockDigitalInput::set_read(bool setting) {
   last_input_ = setting;
 }
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

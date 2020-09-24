@@ -3,15 +3,14 @@
  *
  * HALSPIDevice.cpp
  *
- *  Created on: 
- *      Author: 
+ *  Created on:
+ *      Author:
  */
 
 #include "Pufferfish/HAL/Mock/MockSPIDevice.h"
 
 namespace Pufferfish {
 namespace HAL {
-
 
 SPIDeviceStatus MockSPIDevice::read(uint8_t *buf, size_t count) {
   size_t index = 0;
@@ -27,8 +26,7 @@ void MockSPIDevice::set_read(const uint8_t *buf, size_t count) {
   size_t index = 0;
   size_t minumum = (count < read_buf_size) ? count : read_buf_size;
 
-  for (index = 0; index < minumum; index++)
-  {
+  for (index = 0; index < minumum; index++) {
     read_buf_[index] = buf[index];
   }
 }
@@ -48,8 +46,7 @@ void MockSPIDevice::get_write(uint8_t *buf, size_t &count) {
   size_t index = 0;
 
   count = write_count_;
-  for (index = 0; index < count; index++)
-  {
+  for (index = 0; index < count; index++) {
     buf[index] = write_buf_[index];
   }
 }
@@ -58,8 +55,7 @@ void MockSPIDevice::set_write_read(const uint8_t *buf, size_t count) {
   size_t index = 0;
   size_t minumum = (count < read_buf_size) ? count : read_buf_size;
 
-  for (index = 0; index < minumum; index++)
-  {
+  for (index = 0; index < minumum; index++) {
     set_write_read_buf_[index] = buf[index];
   }
 }
@@ -73,8 +69,7 @@ SPIDeviceStatus MockSPIDevice::write_read(uint8_t *tx_buf, uint8_t *rx_buf,
     rx_buf[index] = set_write_read_buf_[index];
   }
 
-  get_write_read_count_ =
-      (count < write_buf_size) ? count : write_buf_size;
+  get_write_read_count_ = (count < write_buf_size) ? count : write_buf_size;
   for (index = 0; index < write_count_; index++) {
     get_write_read_buf_[index] = tx_buf[index];
   }
@@ -86,8 +81,7 @@ void MockSPIDevice::get_write_read(uint8_t *buf, size_t count) {
   size_t index = 0;
 
   count = get_write_read_count_;
-  for (index = 0; index < count; index++)
-  {
+  for (index = 0; index < count; index++) {
     buf[index] = get_write_read_buf_[index];
   }
 }

@@ -5,7 +5,6 @@
  */
 
 #include "BufferedUART.h"
-
 #include "Time.h"
 
 namespace Pufferfish {
@@ -132,5 +131,5 @@ void BufferedUART<rx_buffer_size, tx_buffer_size>::handle_irq_tx() volatile {
   huart_.Instance->TDR = tx_byte;
 }
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

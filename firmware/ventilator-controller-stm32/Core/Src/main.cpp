@@ -417,8 +417,9 @@ int main(void)
       board_led1.write(true);
       buffered_uart3.write(receive);
       PF::HAL::AtomicSize written_size = 0;
-      uint8_t repeat_string[] = {receive, receive};
-      buffered_uart3.write(repeat_string, sizeof(repeat_string), written_size);
+      std::array<uint8_t, 2> repeat_string = {receive, receive};
+      buffered_uart3.write(repeat_string.data(), repeat_string.size(),
+                           written_size);
     }
     /* USER CODE END WHILE */
 

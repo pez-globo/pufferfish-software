@@ -16,7 +16,7 @@ namespace HAL {
 /**
  * Represents a Analog input in STM32
  */
-class AnalogInput{
+class AnalogInput {
  public:
   /**
    * @brief Calls HAL_ADC_Start
@@ -38,8 +38,7 @@ class AnalogInput{
    * @return ADCStatus returns error/ok
    */
   virtual ADCStatus stop() = 0;
-
 };
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

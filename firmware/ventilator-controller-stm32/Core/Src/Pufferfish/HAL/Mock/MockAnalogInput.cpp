@@ -36,6 +36,5 @@ bool MockAnalogInput::get_analog_input_state() const {
   return last_state_;
   ;
 }
-} // namespace HAL
-} // namespace Pufferfish
-
+}  // namespace HAL
+}  // namespace Pufferfish

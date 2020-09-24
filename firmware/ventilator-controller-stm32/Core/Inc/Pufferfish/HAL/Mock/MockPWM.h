@@ -24,7 +24,8 @@ class MockPWM : public PWM {
 
   /**
    * Set a duty cycle of PWM, updates the private variable mLastRawDuty
-   * @param duty    a number between 0.0 and 1.0 (inclusive) for the desired duty cycle
+   * @param duty    a number between 0.0 and 1.0 (inclusive) for the desired
+   * duty cycle
    */
   void set_duty_cycle_raw(uint32_t duty) override;
 

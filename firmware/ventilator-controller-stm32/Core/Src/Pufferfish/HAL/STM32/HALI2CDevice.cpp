@@ -7,7 +7,6 @@
  *      Author: March Boonyapaluk
  */
 
-
 #include "Pufferfish/HAL/STM32/HALI2CDevice.h"
 
 #include "Pufferfish/HAL/CRC.h"

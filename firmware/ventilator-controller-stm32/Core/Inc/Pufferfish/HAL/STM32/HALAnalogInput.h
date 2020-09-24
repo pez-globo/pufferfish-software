@@ -50,5 +50,5 @@ class HALAnalogInput : public AnalogInput {
   uint32_t timeout_ = 0;
 };
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

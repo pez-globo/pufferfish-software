@@ -24,7 +24,8 @@ class HALPWM : public PWM {
   /**
    * Constructs a new PWM device
    * @param htim    a timer that is handling a PWM device
-   * @param channel a channel of the timer that the device is connected, must be init in PWM mode
+   * @param channel a channel of the timer that the device is connected, must be
+   * init in PWM mode
    */
   HALPWM(TIM_HandleTypeDef &htim, uint32_t channel)
       : htim_(htim), channel(channel) {}
@@ -33,7 +34,8 @@ class HALPWM : public PWM {
    * Set a duty cycle of PWM, can be done when PWM is active
    * this function does NOT start the PWM output.
    * This is faster than setDutyCycle() as no floating point calculation is done
-   * @param duty    an integer between 0 and getMaxDutyCycle() (inclusive) for the desired duty cycle
+   * @param duty    an integer between 0 and getMaxDutyCycle() (inclusive) for
+   * the desired duty cycle
    */
   void set_duty_cycle_raw(uint32_t duty) override;
 

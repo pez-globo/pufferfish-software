@@ -6,7 +6,6 @@
 
 #include "Pufferfish/HAL/Interfaces/PWM.h"
 
-
 namespace Pufferfish {
 namespace HAL {
 

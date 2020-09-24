@@ -61,8 +61,8 @@ class MockAnalogInput : public AnalogInput {
   /* State for Analog input START */
   bool last_state_ = false;
   /* Last Input data set */
-  uint32_t last_input_{};
+  uint32_t last_input_ = 0;
 };
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

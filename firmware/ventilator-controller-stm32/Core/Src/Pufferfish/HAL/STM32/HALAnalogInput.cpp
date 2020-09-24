@@ -15,7 +15,6 @@ namespace HAL {
  * @return ADCStatus returns error/ok
  */
 ADCStatus HALAnalogInput::start() {
-
   /* Invoke HAL_ADC_Start to start the ADC */
   HAL_StatusTypeDef start_ret_val = HAL_ADC_Start(&adc_input_);
 
@@ -30,26 +29,26 @@ ADCStatus HALAnalogInput::start() {
 }
 
 /**
-  * @brief  Invokes HAL_ADC_PollForConversion for Adc_Input with Timeout
-  *         for the polling conversion of read data.
-  * @brief  Invokes HAL_ADC_GetValue to read data of Adc_Input
-  * @param  AnalogDataRead, Out parameter returns the read data
-  * @retval ADCStatus returns error/ok
-  */
+ * @brief  Invokes HAL_ADC_PollForConversion for Adc_Input with Timeout
+ *         for the polling conversion of read data.
+ * @brief  Invokes HAL_ADC_GetValue to read data of Adc_Input
+ * @param  AnalogDataRead, Out parameter returns the read data
+ * @retval ADCStatus returns error/ok
+ */
 ADCStatus HALAnalogInput::read(uint32_t &analog_data_read) {
   HAL_StatusTypeDef tmp_poll_cvr_rtn = HAL_OK;
 
   /**
-    * @brief  Polling conversion of ADC3, based on EOCSelection
-    */
+   * @brief  Polling conversion of ADC3, based on EOCSelection
+   */
   tmp_poll_cvr_rtn = HAL_ADC_PollForConversion(&adc_input_, timeout_);
 
   /* Validate the HAL_ADC_PollForConversion return value */
   if (tmp_poll_cvr_rtn == HAL_OK) {
     /**
-      * @brief  invoking HAL_ADC_GetValue to read analog data
-      *         returns analog read data of 4 bytes
-      */
+     * @brief  invoking HAL_ADC_GetValue to read analog data
+     *         returns analog read data of 4 bytes
+     */
     analog_data_read = HAL_ADC_GetValue(&adc_input_);
 
     /* return ADCStatus as ok */
@@ -61,12 +60,11 @@ ADCStatus HALAnalogInput::read(uint32_t &analog_data_read) {
 }
 
 /**
-  * @brief  Invokes HAL_ADC_Stop of Adc_Input
-  * @param  None
-  * @retval ADCStatus returns error/ok
-  */
+ * @brief  Invokes HAL_ADC_Stop of Adc_Input
+ * @param  None
+ * @retval ADCStatus returns error/ok
+ */
 ADCStatus HALAnalogInput::stop() {
-
   /* Invoke HAL_ADC_Stop to stop the ADC */
   HAL_StatusTypeDef start_ret_val = HAL_ADC_Stop(&adc_input_);
 
@@ -80,6 +78,5 @@ ADCStatus HALAnalogInput::stop() {
   return ADCStatus::error;
 }
 
-} // namespace HAL
-} // namespace Pufferfish
-
+}  // namespace HAL
+}  // namespace Pufferfish

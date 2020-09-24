@@ -40,5 +40,5 @@ class HALDigitalInput : public DigitalInput {
   const bool inverted;
 };
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

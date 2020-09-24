@@ -33,8 +33,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -43,7 +43,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
 
 #pragma once
 
@@ -55,11 +54,11 @@
 namespace Pufferfish {
 namespace Util {
 
-
 /**
  * Byte stream with non-blocking queue interface and static allocation.
  *
- * Inspired by https://hackaday.com/2015/10/29/embed-with-elliot-going-round-with-circular-buffers/
+ * Inspired by
+ * https://hackaday.com/2015/10/29/embed-with-elliot-going-round-with-circular-buffers/
  * This class provides a bounded-length queue data structure which is
  * statically allocated. Behind the scenes, it is backed by an array.
  * BufferSize is recommended to be a power of two for compiler optimization.
@@ -69,8 +68,6 @@ template <HAL::AtomicSize buffer_size>
 class RingBuffer {
  public:
   RingBuffer();
-
-  static const HAL::AtomicSize max_size = buffer_size;
 
   /**
    * Attempt to "pop" a byte from the head of the queue.
@@ -101,13 +98,17 @@ class RingBuffer {
    */
   BufferStatus write(uint8_t write_byte) volatile;
 
- protected:
-  uint8_t buffer_[buffer_size]{};
+ private:
+  // We have to use a C-style array because std::array doesn't work with
+  // volatile
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  uint8_t buffer_[buffer_size];
+
   HAL::AtomicSize newest_index_ = 0;
   HAL::AtomicSize oldest_index_ = 0;
 };
 
-} // namespace Util
-} // namespace Pufferfish
+}  // namespace Util
+}  // namespace Pufferfish
 
 #include "RingBuffer.tpp"

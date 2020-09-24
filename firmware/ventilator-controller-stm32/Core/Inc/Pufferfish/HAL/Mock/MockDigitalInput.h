@@ -14,7 +14,7 @@ namespace HAL {
 /**
  * Represents a GPIO input in STM32
  */
-class MockDigitalInput : public DigitalInput{
+class MockDigitalInput : public DigitalInput {
  public:
   /**
    * Constructs a new Digital Input
@@ -36,8 +36,8 @@ class MockDigitalInput : public DigitalInput{
   void set_read(bool setting);
 
  private:
-  bool last_input_ = 0;
+  bool last_input_ = false;
 };
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

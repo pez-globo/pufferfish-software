@@ -1,10 +1,12 @@
 /*
  * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
  *
- *      
+ *
  */
 
 #pragma once
+
+#include <array>
 
 #include "Pufferfish/HAL/Interfaces/SPIDevice.h"
 
@@ -57,8 +59,10 @@ class MockSPIDevice : public SPIDevice {
   void get_write(uint8_t *buf, size_t &count);
 
   /**
-   * @brief  Updates the private buffer variable mSetWriteReadBuf with the input data
-   * @param  buf update the private variable mSetWriteReadBuf with the buffer input
+   * @brief  Updates the private buffer variable mSetWriteReadBuf with the input
+   * data
+   * @param  buf update the private variable mSetWriteReadBuf with the buffer
+   * input
    * @param  count size of data to set
    * @return None
    */
@@ -87,7 +91,7 @@ class MockSPIDevice : public SPIDevice {
    * @param  true(high) or false(low)
    * @return None
    */
-  void chip_select (bool input) override;
+  void chip_select(bool input) override;
 
   /**
    * @brief  Gets the last chip select input data
@@ -100,16 +104,16 @@ class MockSPIDevice : public SPIDevice {
   /* Last chip select input */
   bool last_cs_ = false;
 
-  /* Read and Write buffer size */
-  static const uint8_t read_buf_size = 50, write_buf_size = 50;
+  static const uint8_t read_buf_size = 50;
+  static const uint8_t write_buf_size = 50;
 
-  /* The 50 bytes of read and write operation are used */
-  uint8_t read_buf_[read_buf_size]{}, write_buf_[write_buf_size]{};
-  /* The 50 bytes of writeRead operation are used */
-  uint8_t set_write_read_buf_[read_buf_size]{},
-      get_write_read_buf_[write_buf_size]{};
-  /* Write data count */
-  size_t write_count_{}, get_write_read_count_{};
+  std::array<uint8_t, read_buf_size> read_buf_{};
+  std::array<uint8_t, write_buf_size> write_buf_{};
+
+  std::array<uint8_t, read_buf_size> set_write_read_buf_{};
+  std::array<uint8_t, write_buf_size> get_write_read_buf_{};
+  size_t write_count_{};
+  size_t get_write_read_count_{};
 };
 
 }  // namespace HAL

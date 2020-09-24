@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <array>
+
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 
 namespace Pufferfish {
@@ -16,7 +18,6 @@ namespace HAL {
  */
 class MockI2CDevice : public I2CDevice {
  public:
-
   /**
    * Constructs an Mock I2C Device object
    * @param None
@@ -56,13 +57,13 @@ class MockI2CDevice : public I2CDevice {
   void get_write(uint8_t *buf, size_t &count);
 
  private:
-  /* Read and Write buffer size */
-  static const uint8_t read_buf_size = 50, write_buf_size = 50;
+  static const uint8_t read_buf_size = 50;
+  static const uint8_t write_buf_size = 50;
 
-  /* The 50 bytes of read and write operation are used */
-  uint8_t read_buf_[read_buf_size]{}, write_buf_[write_buf_size]{};
+  std::array<uint8_t, read_buf_size> read_buf_{};
+  std::array<uint8_t, write_buf_size> write_buf_{};
 
-  size_t write_count_{};
+  size_t write_count_ = 0;
 };
 
 }  // namespace HAL

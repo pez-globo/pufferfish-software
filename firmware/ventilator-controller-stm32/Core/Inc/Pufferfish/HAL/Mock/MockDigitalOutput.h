@@ -14,7 +14,7 @@ namespace HAL {
 /**
  * Represents a GPIO output in STM32, for mock functional testing
  */
-class MockDigitalOutput : public DigitalOutput{
+class MockDigitalOutput : public DigitalOutput {
  public:
   /**
    * Constructs a new DigitalOutput
@@ -34,8 +34,8 @@ class MockDigitalOutput : public DigitalOutput{
   bool get_write() const;
 
  private:
-  bool last_output_{};
+  bool last_output_ = false;
 };
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish
