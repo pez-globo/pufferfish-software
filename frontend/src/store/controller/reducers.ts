@@ -77,38 +77,66 @@ const alarmLimitsReducer = (
 };
 
 const alarmLimitsRequestStandbyReducer = (
-  state: AlarmLimitsRequestStandby = AlarmLimitsRequest.fromJSON({
-    rrMax: 100,
-    pipMax: 100,
-    peepMax: 100,
-    ipAbovePeepMax: 100,
-    inspTimeMax: 100,
-    fio2Max: 100,
-    pawMax: 100,
-    mveMax: 100,
-    tvMax: 100,
-    etco2Max: 100,
-    flowMax: 100,
-    apneaMax: 100,
-    spo2Max: 100,
+  state: AlarmLimitsRequestStandby = AlarmLimitsRequestStandby.fromJSON({
+    alarmLimits: {
+      rrMax: 100,
+      pipMax: 100,
+      peepMax: 100,
+      ipAbovePeepMax: 100,
+      inspTimeMax: 100,
+      fio2Max: 100,
+      pawMax: 100,
+      mveMax: 100,
+      tvMax: 100,
+      etco2Max: 100,
+      flowMax: 100,
+      apneaMax: 100,
+      spo2Max: 100,
+    },
   }) as AlarmLimitsRequestStandby,
   action: commitAction,
 ): AlarmLimitsRequestStandby => {
-  return withRequestUpdate<AlarmLimitsRequestStandby>(state, action, ALARM_LIMITS_STANDBY);
+  switch (action.type) {
+    case STATE_UPDATED: // ignore message from backend
+      return state;
+    case `@controller/${ALARM_LIMITS_STANDBY}_COMMITTED`:
+      return {
+        alarmLimits: {
+          ...state.alarmLimits,
+          ...action.update,
+        } as AlarmLimitsRequest,
+      };
+    default:
+      return state;
+  }
 };
 
 const parametersRequestStanbyReducer = (
-  state: ParametersRequestStandby = ParametersRequest.fromJSON({
-    mode: VentilationMode.hfnc,
-    pip: 30,
-    peep: 0,
-    rr: 30,
-    ie: 1.0,
-    fio2: 60.0,
+  state: ParametersRequestStandby = ParametersRequestStandby.fromJSON({
+    parameters: {
+      mode: VentilationMode.hfnc,
+      pip: 30,
+      peep: 0,
+      rr: 30,
+      ie: 1.0,
+      fio2: 60.0,
+    },
   }) as ParametersRequestStandby,
   action: commitAction,
 ): ParametersRequestStandby => {
-  return withRequestUpdate<ParametersRequestStandby>(state, action, PARAMETER_STANDBY);
+  switch (action.type) {
+    case STATE_UPDATED: // ignore message from backend
+      return state;
+    case `@controller/${PARAMETER_STANDBY}_COMMITTED`:
+      return {
+        parameters: {
+          ...state.parameters,
+          ...action.update,
+        } as ParametersRequest,
+      };
+    default:
+      return state;
+  }
 };
 
 const frontendDisplaySettingReducer = (
