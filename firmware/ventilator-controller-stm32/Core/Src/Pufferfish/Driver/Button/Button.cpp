@@ -84,6 +84,8 @@ void EdgeDetector::transform(bool input, EdgeState &output)
       /* return the EdgeState as falling edge */
       output = EdgeState::fallingEdge;
     }
+  }else{
+    output = EdgeState::noEdge;
   }
 }
 
