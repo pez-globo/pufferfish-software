@@ -75,7 +75,7 @@ class FrameReceiver {
   FrameInputStatus update_frame_buffer(uint8_t new_byte);
 
   /* Frame input status */
-  FrameInputStatus input_status_;
+  FrameInputStatus input_status_ = FrameInputStatus::waiting;
 
   FrameBuffer frame_buf_;
 

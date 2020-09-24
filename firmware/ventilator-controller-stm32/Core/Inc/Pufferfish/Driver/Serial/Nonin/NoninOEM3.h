@@ -31,7 +31,8 @@ namespace Serial {
 namespace Nonin {
 
 /* Define noninOEMUART for BufferedUART with 512 bytes of received buffer */
-using NoninOEMUART = HAL::BufferedUART<512, 10>;
+static const size_t nonin_oem_uart_size = 512;
+using NoninOEMUART = HAL::BufferedUART<nonin_oem_uart_size, 1>;
 
 /**
  * NoninOEM class to receive a byte from Nonin OEM III using UART and calculates

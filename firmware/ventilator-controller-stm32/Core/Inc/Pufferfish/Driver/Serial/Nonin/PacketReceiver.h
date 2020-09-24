@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <array>
+
 #include "FrameBuffer.h"
 #include "FrameReceiver.h"
 
@@ -51,11 +53,12 @@ struct StatusByteStruct {
 };
 
 /* Packet of 25 frames */
-using Packet = std::array<Frame, 25>;
+static const size_t packet_size = 25;
+using Packet = std::array<Frame, packet_size>;
 /* Status Byte error of 25 frames */
-using StatusByteError = std::array<StatusByteStruct, 25>;
+using StatusByteError = std::array<StatusByteStruct, packet_size>;
 /* PLETH for 25 frames */
-using Pleth = std::array<uint8_t, 25>;
+using Pleth = std::array<uint8_t, packet_size>;
 
 /* Structure defines the sensor data in packet for measurements */
 struct PacketMeasurements {
@@ -74,22 +77,24 @@ struct PacketMeasurements {
   /* PLETH measurements */
   Pleth packet_pleth;
   /* StatusByteErrors measurements */
-  bool bit7[25];
-  bool sensor_disconnect[25];
-  bool artifact[25];
-  bool out_of_track[25];
-  bool sensor_alarm[25];
-  SignalAmplitude signal_perfusion[25];
+  std::array<bool, packet_size> bit7;
+  std::array<bool, packet_size> sensor_disconnect;
+  std::array<bool, packet_size> artifact;
+  std::array<bool, packet_size> out_of_track;
+  std::array<bool, packet_size> sensor_alarm;
+  std::array<SignalAmplitude, packet_size> signal_perfusion;
 };
+
+static const uint8_t mask_6bit = 0x7F;
 
 /**
  * @brief  Inline function to get the SpO2 data
  * @param  ByteData - Byte of SpO2 Data received from packet
  * @return Masked value of SpO2 from input Spo2Data
  */
-inline uint16_t get6_bit_data(uint8_t byte_data) {
+inline uint16_t get_6bit_data(uint8_t byte_data) {
   /* Mask Bit0 to Bit6 for SpO2 data  */
-  return (byte_data & 0x07F);
+  return byte_data & mask_6bit;
 }
 
 /**
@@ -98,11 +103,16 @@ inline uint16_t get6_bit_data(uint8_t byte_data) {
  * @param  lsbByte - MSB to extract 5 bits
  * @return Calculated 9 bit data from MSB and LSB
  */
-inline uint16_t get9_bit_data(uint8_t msb_byte, uint8_t lsb_byte) {
+inline uint16_t get_9bit_data(uint8_t msb_byte, uint8_t lsb_byte) {
   /* Pack 2 bits of MSB and 6 bits of LSB for 9 bits of heart rate data  */
-  return (((static_cast<uint16_t>(msb_byte) << 7) & 0x18) |
-          (static_cast<uint16_t>(lsb_byte) & 0x7F)) &
-         0x01FF;
+  static const uint16_t msb_shift = 7;
+  static const uint16_t mask_msb = 0x18;
+  static const uint16_t mask_9bit = 0x01FF;
+  const uint16_t msb =
+      static_cast<uint16_t>(static_cast<uint16_t>(msb_byte) << msb_shift) &
+      mask_msb;
+  const uint16_t lsb = static_cast<uint16_t>(lsb_byte) & mask_6bit;
+  return static_cast<uint16_t>(msb | lsb) & mask_9bit;
 }
 
 /*
@@ -110,9 +120,6 @@ inline uint16_t get9_bit_data(uint8_t msb_byte, uint8_t lsb_byte) {
  */
 class PacketReceiver {
  public:
-  /* Size of Packet */
-  static const size_t packet_size = 25;
-
   /* PacketReceiver Input status */
   enum class PacketInputStatus {
     available = 0,  /// Input is available to read output
@@ -161,10 +168,10 @@ class PacketReceiver {
   Packet packet_data_{};
 
   /* Packet frame received length from PacketReceiver input */
-  size_t received_length_ = 25;
+  size_t received_length_ = packet_size;
 
   /* Input status for a packet */
-  PacketInputStatus input_status_;
+  PacketInputStatus input_status_ = PacketInputStatus::waiting;
 };
 
 }  // namespace Nonin

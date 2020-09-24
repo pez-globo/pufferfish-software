@@ -359,7 +359,7 @@ int main(void)
   /* Nonin TODO */
   uint32_t current_time = 0;
   /* Nonin TODO */
-  uint32_t testcase_results[4] = {0U};
+  std::array<uint32_t, 4> testcase_results = {0U};
 
   /* TODO: Added for testing Nonin OEM III */
   PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus return_status;
@@ -441,10 +441,14 @@ int main(void)
       if (packet_count == 1) {
         current_time = PF::HAL::millis();
       }
+      /// Nonin TODO: define magic numbers in meaningful variable names
+      // NOLINTNEXTLINE(readability-magic-numbers)
       if (packet_count == 16) {
         current_time = PF::HAL::millis() - current_time;
         /* Validate time for 5000 milli-seconds */
         testcase_results[2] =
+            /// Nonin TODO: define magic numbers in meaningful variable names
+            // NOLINTNEXTLINE(readability-magic-numbers)
             static_cast<uint32_t>(current_time >= 5000 && current_time < 5100);
       }
     }
