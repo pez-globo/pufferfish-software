@@ -91,12 +91,6 @@ void Error_Handler(void);
 #define ALARM1_MED_GPIO_Port GPIOA
 #define DRIVE1_CH1_EN_Pin GPIO_PIN_3
 #define DRIVE1_CH1_EN_GPIO_Port GPIOA
-#define SPI1_SCL_Pin GPIO_PIN_5
-#define SPI1_SCL_GPIO_Port GPIOA
-#define SPI1_MISO_Pin GPIO_PIN_6
-#define SPI1_MISO_GPIO_Port GPIOA
-#define SPI1_MOSI_Pin GPIO_PIN_7
-#define SPI1_MOSI_GPIO_Port GPIOA
 #define GPIO2_Pin GPIO_PIN_4
 #define GPIO2_GPIO_Port GPIOC
 #define GPIO1_Pin GPIO_PIN_5
@@ -159,8 +153,6 @@ void Error_Handler(void);
 #define DRIVE2_CH2_EN_GPIO_Port GPIOD
 #define SET_ALARM_EN_Pin GPIO_PIN_2
 #define SET_ALARM_EN_GPIO_Port GPIOG
-#define MEM_CS_Pin GPIO_PIN_2
-#define MEM_CS_GPIO_Port GPIOG
 #define SET_LOCK_Pin GPIO_PIN_3
 #define SET_LOCK_GPIO_Port GPIOG
 #define PRESS_VDD_EN_Pin GPIO_PIN_4
