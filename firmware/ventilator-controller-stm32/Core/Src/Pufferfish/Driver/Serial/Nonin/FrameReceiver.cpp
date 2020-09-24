@@ -19,7 +19,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <Pufferfish/Driver/Serial/Nonin/FrameReceiver.h>
+#include "Pufferfish/Driver/Serial/Nonin/FrameReceiver.h"
 
 namespace Pufferfish {
 namespace Driver {

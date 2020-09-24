@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <Pufferfish/Driver/Serial/Nonin/FrameReceiver.h>
+#include "Pufferfish/Driver/Serial/Nonin/FrameReceiver.h"
 
 namespace Pufferfish {
 namespace Driver {
