@@ -8,7 +8,7 @@ import {
   Ping,
   Announcement,
   AlarmLimitsRequest,
-  VentilationMode
+  VentilationMode,
 } from './proto/mcu_pb';
 import {
   RotaryEncoder,
