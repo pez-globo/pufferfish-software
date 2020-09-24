@@ -8,9 +8,7 @@ import {
   Ping,
   Announcement,
   AlarmLimitsRequest,
-  VentilationMode,
-  AlarmLimitsRequestStandby,
-  ParametersRequestStandby,
+  VentilationMode
 } from './proto/mcu_pb';
 import {
   RotaryEncoder,
@@ -77,7 +75,7 @@ const alarmLimitsReducer = (
 };
 
 const alarmLimitsRequestStandbyReducer = (
-  state: AlarmLimitsRequestStandby = AlarmLimitsRequestStandby.fromJSON({
+  state: { alarmLimits: AlarmLimitsRequest } = {
     alarmLimits: {
       rrMax: 100,
       pipMax: 100,
@@ -93,9 +91,9 @@ const alarmLimitsRequestStandbyReducer = (
       apneaMax: 100,
       spo2Max: 100,
     },
-  }) as AlarmLimitsRequestStandby,
+  } as { alarmLimits: AlarmLimitsRequest },
   action: commitAction,
-): AlarmLimitsRequestStandby => {
+): { alarmLimits: AlarmLimitsRequest } => {
   switch (action.type) {
     case STATE_UPDATED: // ignore message from backend
       return state;
@@ -112,7 +110,7 @@ const alarmLimitsRequestStandbyReducer = (
 };
 
 const parametersRequestStanbyReducer = (
-  state: ParametersRequestStandby = ParametersRequestStandby.fromJSON({
+  state: { parameters: ParametersRequest } = {
     parameters: {
       mode: VentilationMode.hfnc,
       pip: 30,
@@ -121,9 +119,9 @@ const parametersRequestStanbyReducer = (
       ie: 1.0,
       fio2: 60.0,
     },
-  }) as ParametersRequestStandby,
+  } as { parameters: ParametersRequest },
   action: commitAction,
-): ParametersRequestStandby => {
+): { parameters: ParametersRequest } => {
   switch (action.type) {
     case STATE_UPDATED: // ignore message from backend
       return state;

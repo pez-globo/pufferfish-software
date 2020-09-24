@@ -10,8 +10,6 @@ import {
   Announcement,
   AlarmLimitsRequest,
   VentilationMode,
-  AlarmLimitsRequestStandby,
-  ParametersRequestStandby,
 } from './proto/mcu_pb';
 import { RotaryEncoder, FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import { ControllerStates, WaveformPoint, WaveformHistory, PVPoint, PVHistory } from './types';

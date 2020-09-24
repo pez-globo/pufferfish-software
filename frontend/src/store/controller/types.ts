@@ -7,8 +7,6 @@ import {
   Ping,
   Announcement,
   AlarmLimitsRequest,
-  AlarmLimitsRequestStandby,
-  ParametersRequestStandby,
 } from './proto/mcu_pb';
 import { RotaryEncoder, SystemSettingRequest, FrontendDisplaySetting } from './proto/frontend_pb';
 
@@ -102,8 +100,8 @@ export interface ControllerStates {
   // Message states from mcu_pb
   alarms: Alarms;
   alarmLimitsRequest: AlarmLimitsRequest;
-  alarmLimitsRequestStandby: AlarmLimitsRequestStandby;
-  parametersRequestStandby: ParametersRequestStandby;
+  alarmLimitsRequestStandby: { alarmLimits: AlarmLimitsRequest };
+  parametersRequestStandby: { parameters: ParametersRequest };
   systemSettingRequest: SystemSettingRequest;
   frontendDisplaySetting: FrontendDisplaySetting;
   sensorMeasurements: SensorMeasurements;

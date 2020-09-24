@@ -100,11 +100,3 @@ message Announcement {
   uint32 time = 1;
   bytes announcement = 2;
 }
-
-message AlarmLimitsRequestStandby {
-  AlarmLimitsRequest alarmLimits = 1;
-}
-
-message ParametersRequestStandby {
-  ParametersRequest parameters = 1;
-}

@@ -91,14 +91,6 @@ export interface Announcement {
   announcement: Uint8Array;
 }
 
-export interface AlarmLimitsRequestStandby {
-  alarmLimits: AlarmLimitsRequest | undefined;
-}
-
-export interface ParametersRequestStandby {
-  parameters: ParametersRequest | undefined;
-}
-
 const baseAlarms: object = {
   time: 0,
   alarmOne: false,
@@ -186,14 +178,6 @@ const basePing: object = {
 const baseAnnouncement: object = {
   time: 0,
   announcement: undefined,
-};
-
-const baseAlarmLimitsRequestStandby: object = {
-  alarmLimits: undefined,
-};
-
-const baseParametersRequestStandby: object = {
-  parameters: undefined,
 };
 
 export const VentilationMode = {
@@ -1481,104 +1465,6 @@ export const Announcement = {
     const obj: any = {};
     obj.time = message.time || 0;
     obj.announcement = message.announcement !== undefined ? base64FromBytes(message.announcement) : undefined;
-    return obj;
-  },
-};
-
-export const AlarmLimitsRequestStandby = {
-  encode(message: AlarmLimitsRequestStandby, writer: Writer = Writer.create()): Writer {
-    if (message.alarmLimits !== undefined && message.alarmLimits !== undefined) {
-      AlarmLimitsRequest.encode(message.alarmLimits, writer.uint32(10).fork()).ldelim();
-    }
-    return writer;
-  },
-  decode(input: Uint8Array | Reader, length?: number): AlarmLimitsRequestStandby {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseAlarmLimitsRequestStandby) as AlarmLimitsRequestStandby;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.alarmLimits = AlarmLimitsRequest.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-  fromJSON(object: any): AlarmLimitsRequestStandby {
-    const message = Object.create(baseAlarmLimitsRequestStandby) as AlarmLimitsRequestStandby;
-    if (object.alarmLimits !== undefined && object.alarmLimits !== null) {
-      message.alarmLimits = AlarmLimitsRequest.fromJSON(object.alarmLimits);
-    } else {
-      message.alarmLimits = undefined;
-    }
-    return message;
-  },
-  fromPartial(object: DeepPartial<AlarmLimitsRequestStandby>): AlarmLimitsRequestStandby {
-    const message = Object.create(baseAlarmLimitsRequestStandby) as AlarmLimitsRequestStandby;
-    if (object.alarmLimits !== undefined && object.alarmLimits !== null) {
-      message.alarmLimits = AlarmLimitsRequest.fromPartial(object.alarmLimits);
-    } else {
-      message.alarmLimits = undefined;
-    }
-    return message;
-  },
-  toJSON(message: AlarmLimitsRequestStandby): unknown {
-    const obj: any = {};
-    obj.alarmLimits = message.alarmLimits ? AlarmLimitsRequest.toJSON(message.alarmLimits) : undefined;
-    return obj;
-  },
-};
-
-export const ParametersRequestStandby = {
-  encode(message: ParametersRequestStandby, writer: Writer = Writer.create()): Writer {
-    if (message.parameters !== undefined && message.parameters !== undefined) {
-      ParametersRequest.encode(message.parameters, writer.uint32(10).fork()).ldelim();
-    }
-    return writer;
-  },
-  decode(input: Uint8Array | Reader, length?: number): ParametersRequestStandby {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseParametersRequestStandby) as ParametersRequestStandby;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.parameters = ParametersRequest.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-  fromJSON(object: any): ParametersRequestStandby {
-    const message = Object.create(baseParametersRequestStandby) as ParametersRequestStandby;
-    if (object.parameters !== undefined && object.parameters !== null) {
-      message.parameters = ParametersRequest.fromJSON(object.parameters);
-    } else {
-      message.parameters = undefined;
-    }
-    return message;
-  },
-  fromPartial(object: DeepPartial<ParametersRequestStandby>): ParametersRequestStandby {
-    const message = Object.create(baseParametersRequestStandby) as ParametersRequestStandby;
-    if (object.parameters !== undefined && object.parameters !== null) {
-      message.parameters = ParametersRequest.fromPartial(object.parameters);
-    } else {
-      message.parameters = undefined;
-    }
-    return message;
-  },
-  toJSON(message: ParametersRequestStandby): unknown {
-    const obj: any = {};
-    obj.parameters = message.parameters ? ParametersRequest.toJSON(message.parameters) : undefined;
     return obj;
   },
 };
