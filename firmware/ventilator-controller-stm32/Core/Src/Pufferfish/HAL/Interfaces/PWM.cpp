@@ -10,7 +10,7 @@ namespace Pufferfish {
 namespace HAL {
 
 PWMStatus PWM::set_duty_cycle(float duty) {
-  if (0.0 < duty || duty > 1.0) {
+  if (duty < 0.0 || 1.0 < duty) {
     return PWMStatus::invalid_duty_cycle;
   }
 
