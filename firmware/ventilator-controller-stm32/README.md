@@ -122,6 +122,9 @@ cd cmake-build-debug
 scan-build make -j4
 ```
 
+Note that on Ubuntu 20.04, you may need to install `clang-tools-10` instead of
+`clang-tools`.
+
 ### Clang-tidy
 
 To run clang-tidy on the firmware, first install `clang-tidy`, then
@@ -134,6 +137,8 @@ use CMake to generate a compile commands database for the Clang build type
 ```
 Note that this script will delete and rebuild the `cmake-build-debug` directory
 if it already exists, and then it will run clang-tidy to report all warnings.
+Note that on Ubuntu 20.04, you may need to install `clang-tidy-10` instead of
+`clang-tidy`.
 
 You can also pass the `clang-tidy-all.sh` script the normal arguments for clang-tidy,
 though you should not use `--` in the arguments (this causes clang-tidy to ignore
