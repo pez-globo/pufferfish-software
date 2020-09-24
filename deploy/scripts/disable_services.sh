@@ -18,4 +18,9 @@ sudo apt-get purge bluez -y
 sudo apt-get autoremove -y
 
 # Add configuration to disable bluetooth
-echo -e "\ndtoverlay=disable-bt" | sudo tee -a /boot/config.txt
+if [ 0 -eq $( grep -c "^dtoverlay=disable-bt" /boot/config.txt ) ]
+then
+    echo -e "\ndtoverlay=disable-bt" | sudo tee -a /boot/config.txt
+else
+    echo "Bluetooth is already disabled"
+fi

@@ -17,7 +17,7 @@ cp configs/splash.png ~/splash.png
 
 # Disable logs on console
 existing_command=$(cat /boot/cmdline.txt)
-if [ 0 -eq $( cat /boot/cmdline.txt | grep -c "logo.nologo" ) ]
+if [ 0 -eq $( cat /boot/cmdline.txt | grep -c "consoleblank=0 loglevel=1" ) ]
 then
     echo $existing_command" logo.nologo consoleblank=0 loglevel=1 quiet vt.global_cursor_default=0" | sudo tee /boot/cmdline.txt
 else

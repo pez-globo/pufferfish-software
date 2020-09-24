@@ -5,10 +5,16 @@ echo "********** Setting up User & Network Security **********"
 sudo apt install openssh-server nginx ufw fail2ban -y
 
 # Deny ssh for pi user
-echo "DenyUsers pi" | sudo tee -a /etc/ssh/sshd_config  
+if [ 0 -eq $( grep -c "^DenyUsers pi" /etc/ssh/sshd_config ) ]
+then
+    echo -e "\nDenyUsers pi" | sudo tee -a /etc/ssh/sshd_config
+fi
 
 # Deny ssh for root user
-echo "PermitRootLogin no" | sudo tee -a /etc/ssh/sshd_config  
+if [ 0 -eq $( grep -c "^PermitRootLogin no" /etc/ssh/sshd_config ) ]
+then
+    echo -e "\nPermitRootLogin no" | sudo tee -a /etc/ssh/sshd_config
+fi
 
 # Firewall configuration
 sudo ufw default deny incoming
@@ -26,7 +32,12 @@ sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 sudo systemctl daemon-reload
 
 # Add configuration to disable wifi
-echo -e "\ndtoverlay=disable-wifi" | sudo tee -a /boot/config.txt
+if [ 0 -eq $( grep -c "^dtoverlay=disable-wifi" /boot/config.txt ) ]
+then
+    echo -e "\ndtoverlay=disable-wifi" | sudo tee -a /boot/config.txt
+else
+    echo "Wifi is already disabled"
+fi
 
 # Lock pi and root user
 sudo passwd -l pi
