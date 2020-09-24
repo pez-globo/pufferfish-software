@@ -44,9 +44,9 @@ class FrameReceiver {
 
   /* FrameReceiver output status return values */
   enum class FrameOutputStatus {
-    available = 0,    /// frame output is available for packet fill
-    waiting           /// frame output is waiting for complete frame
-    };
+    available = 0,  /// frame output is available for packet fill
+    waiting         /// frame output is waiting for complete frame
+  };
 
   /**
    * Constructor for FrameReceiver
@@ -54,14 +54,16 @@ class FrameReceiver {
   FrameReceiver() = default;
 
   /**
-   * @brief  Call input to fill frame until it returns available, then call output
+   * @brief  Call input to fill frame until it returns available, then call
+   * output
    * @param  New byte data received from sensor
    * @return Frame input status on filling a frame
    */
   FrameInputStatus input(uint8_t new_byte);
 
   /**
-   * @brief  output method updates the frame on available or throws error/waiting
+   * @brief  output method updates the frame on available or throws
+   * error/waiting
    * @param  outputBuffer to receive frame from frame receiver
    * @param  frameIndex index of frame in a packet
    * @param  status byte of frame
@@ -78,10 +80,11 @@ class FrameReceiver {
   FrameBuffer frame_buf_;
 
   /* Variable that validates the start of frame
-     true : Start of frame packet is available reading the consicutive frame are possible
-     false: Start of frame packet is not available , false is set in the beginning of reading bytes
-            and on there is loss of bytes in a frame or noise occurred in recived frame due to which
-            the validation of start of frame is called */
+     true : Start of frame packet is available reading the consicutive frame are
+     possible false: Start of frame packet is not available , false is set in
+     the beginning of reading bytes and on there is loss of bytes in a frame or
+     noise occurred in recived frame due to which the validation of start of
+     frame is called */
   bool start_of_frame_status_ = false;
 };
 

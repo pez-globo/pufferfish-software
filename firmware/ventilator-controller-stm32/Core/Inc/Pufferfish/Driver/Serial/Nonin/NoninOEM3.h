@@ -34,8 +34,8 @@ namespace Nonin {
 using NoninOEMUART = HAL::BufferedUART<512, 10>;
 
 /**
- * NoninOEM class to receive a byte from Nonin OEM III using UART and calculates the
- * measurements on complete packet availability and returns the measurements
+ * NoninOEM class to receive a byte from Nonin OEM III using UART and calculates
+ * the measurements on complete packet availability and returns the measurements
  */
 class NoninOEM {
  public:
@@ -55,7 +55,8 @@ class NoninOEM {
   explicit NoninOEM(volatile NoninOEMUART &uart) : nonin_uart_(uart) {}
 
   /**
-   * @brief  Method inputs the byte to packet and reads the packet measurements on availability
+   * @brief  Method inputs the byte to packet and reads the packet measurements
+   * on availability
    * @param  sensorMeasurements is updated on available of packet/measurements
    * @return returns the status of Nonin OEM III packet measurements
    */
@@ -73,7 +74,6 @@ class NoninOEM {
 
   /* Frame Buffer stores bytes of data received from PacketReceiver input */
   // Frame frameBuffer;
-
 };
 
 }  // namespace Nonin

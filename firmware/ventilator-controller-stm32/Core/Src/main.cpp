@@ -424,14 +424,15 @@ int main(void)
         PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::available) {
       packet_count = packet_count + 1;
 
-      /// Nonin TODO: Test Scenario 1 On sensor disconnected from Nonin OEM III module
+      /// Nonin TODO: Test Scenario 1 On sensor disconnected from Nonin OEM III
+      /// module
       if (packet_count == 1) {
         testcase_results[0] = static_cast<uint32_t>(
             test_sensor_measurements.sensor_disconnect[0]);
       }
 
-      /// Nonin TODO: Test Scenario 2 On sensor connected to Nonin OEM III module and
-      /// no contact with  finger clip sensor
+      /// Nonin TODO: Test Scenario 2 On sensor connected to Nonin OEM III
+      /// module and no contact with  finger clip sensor
       if (packet_count == 1) {
         testcase_results[1] =
             static_cast<uint32_t>(test_sensor_measurements.sensor_alarm[0]);

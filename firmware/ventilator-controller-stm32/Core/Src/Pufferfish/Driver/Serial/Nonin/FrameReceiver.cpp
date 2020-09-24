@@ -27,12 +27,13 @@ namespace Serial {
 namespace Nonin {
 
 /**
- * validateStartOfFrame function is called on beginning to get the first frame and
- * on there is a loss of bytes or noise in the bytes of frame received.
+ * validateStartOfFrame function is called on beginning to get the first frame
+ * and on there is a loss of bytes or noise in the bytes of frame received.
  * Called based on start_of_frame_status_ private variable
  */
 bool validate_start_of_frame(const Frame &new_frame) {
-  /* Check for the byte 1 is 01 and 1st bit of byte 2 is 0x81 for the start of frame */
+  /* Check for the byte 1 is 01 and 1st bit of byte 2 is 0x81 for the start of
+   * frame */
   if (new_frame[0] == 0x01 && (new_frame[1] & 0x81) == 0x81) {
     /* Checksum validation */
     if (((new_frame[0] + new_frame[1] + new_frame[2] + new_frame[3]) % 256) ==
@@ -44,7 +45,8 @@ bool validate_start_of_frame(const Frame &new_frame) {
 }
 
 /**
- * validateFrame function is called to validated the every frame for Status byte and Checksum.
+ * validateFrame function is called to validated the every frame for Status byte
+ * and Checksum.
  */
 FrameReceiver::FrameInputStatus validate_frame(const Frame &new_frame) {
   /* Check for the byte 1 is 01 and 1st bit of byte 2 is 0x80 for status byte */
@@ -80,8 +82,8 @@ FrameReceiver::FrameInputStatus FrameReceiver::update_frame_buffer(
   /* On start_of_frame_status_ false Validate the start of frame */
   if (!start_of_frame_status_) {
     /* Validate the start of frame in the beginning of reading sensor data and
-       on there is loss of bytes in a frame or noise occurred in recived frame due to which
-       the validation of start of frame is called */
+       on there is loss of bytes in a frame or noise occurred in recived frame
+       due to which the validation of start of frame is called */
     if (validate_start_of_frame(frame_buffer)) {
       /* On start of frame available update the start frame status as true */
       start_of_frame_status_ = true;

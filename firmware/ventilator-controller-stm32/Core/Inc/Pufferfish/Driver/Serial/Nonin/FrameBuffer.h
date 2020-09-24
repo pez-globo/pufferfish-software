@@ -41,43 +41,43 @@ namespace Nonin {
  * FrameBuffer class to update buffer
  */
 class FrameBuffer {
-public:
- FrameBuffer() = default;
+ public:
+  FrameBuffer() = default;
 
- /**
-  * @brief  Input method to update byte data into frame
-  * @param  readByte byte data input
-  * @return Frame buffer input status
-  */
- BufferStatus input(uint8_t read_byte);
+  /**
+   * @brief  Input method to update byte data into frame
+   * @param  readByte byte data input
+   * @return Frame buffer input status
+   */
+  BufferStatus input(uint8_t read_byte);
 
- /**
-  * @brief  Output method to invoked on frame available
-  * @param  frame data output
-  * @return Frame buffer output status
-  */
- BufferStatus output(Frame &frame);
+  /**
+   * @brief  Output method to invoked on frame available
+   * @param  frame data output
+   * @return Frame buffer output status
+   */
+  BufferStatus output(Frame &frame);
 
- /**
-  * @brief  reset the frame
-  * @param  None
-  * @return None
-  */
- void reset();
+  /**
+   * @brief  reset the frame
+   * @param  None
+   * @return None
+   */
+  void reset();
 
- /**
-  * @brief  Update the frame for Start of frame validation
-  * @param  None
-  * @return None
-  */
- void shift_left();
+  /**
+   * @brief  Update the frame for Start of frame validation
+   * @param  None
+   * @return None
+   */
+  void shift_left();
 
-private:
+ private:
   /* Frame buffer */
- Frame frame_buffer_{};
+  Frame frame_buffer_{};
 
- /* Length of frame received  */
- uint8_t received_length_ = 0;
+  /* Length of frame received  */
+  uint8_t received_length_ = 0;
 };
 
 }  // namespace Nonin

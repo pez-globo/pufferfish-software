@@ -41,8 +41,9 @@ BufferStatus FrameBuffer::input(const uint8_t byte) {
   if (received_length_ == frame_max_size) {
     return BufferStatus::ok;
   }
-  
-  /* Return the frame buffer status as partial and frame buffer should be updated with new bytes */
+
+  /* Return the frame buffer status as partial and frame buffer should be
+   * updated with new bytes */
   return BufferStatus::partial;
 }
 
@@ -59,18 +60,18 @@ BufferStatus FrameBuffer::output(Frame &frame) {
   return BufferStatus::ok;
 }
 
-void FrameBuffer::reset(){
+void FrameBuffer::reset() {
   /* Update the index of frame buffer to zero */
   received_length_ = 0;
 }
 
-void FrameBuffer::shift_left(){
+void FrameBuffer::shift_left() {
   uint8_t index = 0;
   /* On no frame data available frameBuffer and frameIndex are not updated */
-  if (received_length_ > 0){
+  if (received_length_ > 0) {
     /* Update the frame buffer and index to receive new byte data */
-    for(index = 0; index < (received_length_-1);index++){
-      frame_buffer_[index] = frame_buffer_[index+1];
+    for (index = 0; index < (received_length_ - 1); index++) {
+      frame_buffer_[index] = frame_buffer_[index + 1];
     }
     received_length_--;
   }

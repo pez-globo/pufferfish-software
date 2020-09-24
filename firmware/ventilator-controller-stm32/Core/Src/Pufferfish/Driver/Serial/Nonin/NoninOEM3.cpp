@@ -41,16 +41,20 @@ NoninOEM::NoninPacketStatus NoninOEM::output(
   /* Input byte to frame receiver and validate the frame available */
   switch (frame_receiver_.input(read_byte)) {
     /* Return sensor status is waiting to receive more bytes of data */
-    case FrameReceiver::FrameInputStatus::framing_error : return NoninPacketStatus::framing_error;
+    case FrameReceiver::FrameInputStatus::framing_error:
+      return NoninPacketStatus::framing_error;
 
     /* Return sensor status is waiting to receive more bytes of data */
-    case FrameReceiver::FrameInputStatus::waiting : return NoninPacketStatus::waiting;
+    case FrameReceiver::FrameInputStatus::waiting:
+      return NoninPacketStatus::waiting;
 
     /* Return the frame status is not available */
-    case FrameReceiver::FrameInputStatus::not_available : return NoninPacketStatus::not_available;
+    case FrameReceiver::FrameInputStatus::not_available:
+      return NoninPacketStatus::not_available;
 
     /* On PacketInputStatus available continue */
-    case FrameReceiver::FrameInputStatus::available    : break;
+    case FrameReceiver::FrameInputStatus::available:
+      break;
   }
 
   /* On frame input available invoke output method to receive frame */
@@ -64,19 +68,26 @@ NoninOEM::NoninPacketStatus NoninOEM::output(
   /* Input frame to packet and validate the frame available */
   switch (packet_receiver_.input(frame_buffer)) {
     /* Return sensor status is waiting to receive more frames of data */
-    case PacketReceiver::PacketInputStatus::waiting      : return NoninPacketStatus::waiting;
+    case PacketReceiver::PacketInputStatus::waiting:
+      return NoninPacketStatus::waiting;
 
-    /* Discard the packet due to status byte error, wait for the new packet to receive */
-    case PacketReceiver::PacketInputStatus::not_available : return NoninPacketStatus::not_available;
+    /* Discard the packet due to status byte error, wait for the new packet to
+     * receive */
+    case PacketReceiver::PacketInputStatus::not_available:
+      return NoninPacketStatus::not_available;
 
-    /* Discard the packet due to status byte error, wait for the new packet to receive */
-    case PacketReceiver::PacketInputStatus::missed_data : return NoninPacketStatus::missed_data;
+    /* Discard the packet due to status byte error, wait for the new packet to
+     * receive */
+    case PacketReceiver::PacketInputStatus::missed_data:
+      return NoninPacketStatus::missed_data;
 
     /* On PacketInputStatus available continue */
-    case PacketReceiver::PacketInputStatus::available    : break;
+    case PacketReceiver::PacketInputStatus::available:
+      break;
   }
 
-  /* On packet input available invoke output method to read sensor measurements  */
+  /* On packet input available invoke output method to read sensor measurements
+   */
   if (packet_receiver_.output(sensor_measurements) !=
       PacketReceiver::PacketOutputStatus::available) {
     /* Return sensor status is waiting to receive more bytes of data */

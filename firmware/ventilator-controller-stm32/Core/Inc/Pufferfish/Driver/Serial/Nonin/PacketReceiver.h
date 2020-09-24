@@ -123,9 +123,9 @@ class PacketReceiver {
 
   /* PacketReceiver Output status */
   enum class PacketOutputStatus {
-    available = 0,   /// Output measurements are available
-    waiting          /// Output is waiting to receive more byte for measurements
-    };
+    available = 0,  /// Output measurements are available
+    waiting         /// Output is waiting to receive more byte for measurements
+  };
 
   /**
    * @brief  Constructor for PacketReceiver
@@ -149,7 +149,8 @@ class PacketReceiver {
   PacketInputStatus input(const Frame &frame);
 
   /**
-   * @brief  Output is called after the input status is available to read measurements
+   * @brief  Output is called after the input status is available to read
+   * measurements
    * @param  sensorMeasurements is updated on available of measurements
    * @return Packet Output status on available of measurements
    */
