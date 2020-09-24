@@ -6,7 +6,8 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
+
 #include "Pufferfish/Statuses.h"
 
 namespace Pufferfish {
@@ -29,7 +30,7 @@ class AnalogInput{
    * @param  AnalogDataRead, Out parameter returns the read data
    * @return ADCStatus returns error/ok/timeout
    */
-  virtual ADCStatus read(uint32_t &AnalogDataRead) = 0;
+  virtual ADCStatus read(uint32_t &analog_data_read) = 0;
 
   /**
    * Calls HAL_ADC_Stop

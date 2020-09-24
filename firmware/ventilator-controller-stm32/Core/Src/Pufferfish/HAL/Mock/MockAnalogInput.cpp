@@ -10,33 +10,31 @@ namespace Pufferfish {
 namespace HAL {
 
 ADCStatus MockAnalogInput::start() {
-  mLastState = true;
+  last_state_ = true;
   /* return ADCStatus as ok */
   return ADCStatus::ok;
 }
 
-ADCStatus MockAnalogInput::read(uint32_t &analogDataRead) {
-  analogDataRead = lastInput;
+ADCStatus MockAnalogInput::read(uint32_t &analog_data_read) {
+  analog_data_read = last_input_;
   /* return ADCStatus as ok */
   return ADCStatus::ok;
 }
 
-void MockAnalogInput::setRead(uint32_t setAnalogDataRead) {
-
+void MockAnalogInput::set_read(uint32_t set_analog_data_read) {
   /* Update the lastInput with input analog data read value */
-  lastInput = setAnalogDataRead;
+  last_input_ = set_analog_data_read;
 }
-
 
 ADCStatus MockAnalogInput::stop() {
-  mLastState = false;
+  last_state_ = false;
   /* return ADCStatus as ok */
   return ADCStatus::ok;
 }
 
-bool MockAnalogInput::getAnalogInputState() {
-  return mLastState;
-;
+bool MockAnalogInput::get_analog_input_state() const {
+  return last_state_;
+  ;
 }
 } // namespace HAL
 } // namespace Pufferfish

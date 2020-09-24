@@ -12,22 +12,22 @@
 namespace Pufferfish {
 namespace HAL {
 
-void HALPWM::setDutyCycleRaw(uint32_t duty) {
-  __HAL_TIM_SET_COMPARE(&mHtim, mChannel, duty);
+void HALPWM::set_duty_cycle_raw(uint32_t duty) {
+  __HAL_TIM_SET_COMPARE(&htim_, channel, duty);
 }
 
 PWMStatus HALPWM::start() {
-  HAL_StatusTypeDef stat = HAL_TIM_PWM_Start(&mHtim, mChannel);
+  HAL_StatusTypeDef stat = HAL_TIM_PWM_Start(&htim_, channel);
   return stat == HAL_OK ? PWMStatus::ok : PWMStatus::hal_error;
 }
 
 PWMStatus HALPWM::stop() {
-  HAL_StatusTypeDef stat = HAL_TIM_PWM_Stop(&mHtim, mChannel);
+  HAL_StatusTypeDef stat = HAL_TIM_PWM_Stop(&htim_, channel);
   return stat == HAL_OK ? PWMStatus::ok : PWMStatus::hal_error;
 }
 
-uint32_t HALPWM::getMaxDutyCycle() {
-  return __HAL_TIM_GET_AUTORELOAD(&mHtim);
+uint32_t HALPWM::get_max_duty_cycle() {
+  return __HAL_TIM_GET_AUTORELOAD(&htim_);
 }
 
 } /* namespace HAL */

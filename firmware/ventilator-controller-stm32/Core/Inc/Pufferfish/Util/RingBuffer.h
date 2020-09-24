@@ -47,9 +47,10 @@
 
 #pragma once
 
-#include <stdint.h>
-#include "Pufferfish/Statuses.h"
+#include <cstdint>
+
 #include "Pufferfish/HAL/Types.h"
+#include "Pufferfish/Statuses.h"
 
 namespace Pufferfish {
 namespace Util {
@@ -64,12 +65,12 @@ namespace Util {
  * BufferSize is recommended to be a power of two for compiler optimization.
  * Methods are declared volatile because they are usable with ISRs.
  */
-template <HAL::AtomicSize BufferSize>
+template <HAL::AtomicSize buffer_size>
 class RingBuffer {
-public:
+ public:
   RingBuffer();
 
-  static const HAL::AtomicSize maxSize = BufferSize;
+  static const HAL::AtomicSize max_size = buffer_size;
 
   /**
    * Attempt to "pop" a byte from the head of the queue.
@@ -79,7 +80,7 @@ public:
    * @param[out] readByte the byte popped from the queue
    * @return ok on success, empty otherwise
    */
-  BufferStatus read(uint8_t &readByte) volatile;
+  BufferStatus read(uint8_t &read_byte) volatile;
 
   /**
    * Attempt to "peek" at the byte at the head of the queue.
@@ -89,7 +90,7 @@ public:
    * @param[out] peekByte the byte at the head of the queue
    * @return ok on success, empty otherwise
    */
-  BufferStatus peek(uint8_t &peekByte) const volatile;
+  BufferStatus peek(uint8_t &peek_byte) const volatile;
 
   /**
    * Attempt to "push" the provided byte onto the tail of the queue.
@@ -98,12 +99,12 @@ public:
    * @param writeByte the byte to push onto the tail of the queue
    * @return ok on success, full otherwise
    */
-  BufferStatus write(uint8_t writeByte) volatile;
+  BufferStatus write(uint8_t write_byte) volatile;
 
-protected:
-  uint8_t buffer[BufferSize];
-  HAL::AtomicSize newestIndex = 0;
-  HAL::AtomicSize oldestIndex = 0;
+ protected:
+  uint8_t buffer_[buffer_size]{};
+  HAL::AtomicSize newest_index_ = 0;
+  HAL::AtomicSize oldest_index_ = 0;
 };
 
 } // namespace Util

@@ -17,13 +17,12 @@ namespace HAL {
 class MockSPIDevice : public SPIDevice {
  public:
   // maximum default time to wait for response from SPI, in ms
-  const static uint32_t DefaultTimeout = 2u;
+  const static uint32_t default_timeout = 2U;
 
   /**
    * Constructs an Mock SPI object
    */
-  MockSPIDevice() {
-  }
+  MockSPIDevice() = default;
 
   /**
    * @brief  Read method to read data from private buffer variable mReadBuf
@@ -39,7 +38,7 @@ class MockSPIDevice : public SPIDevice {
    * @param  count size of data to set
    * @return None
    */
-  void setRead(uint8_t *buf, size_t count);
+  void set_read(const uint8_t *buf, size_t count);
 
   /**
    * @brief  Writes data to the device
@@ -55,7 +54,7 @@ class MockSPIDevice : public SPIDevice {
    * @param  count buffer size to return
    * @return None
    */
-  void getWrite(uint8_t *buf, size_t &count);
+  void get_write(uint8_t *buf, size_t &count);
 
   /**
    * @brief  Updates the private buffer variable mSetWriteReadBuf with the input data
@@ -63,7 +62,7 @@ class MockSPIDevice : public SPIDevice {
    * @param  count size of data to set
    * @return None
    */
-  void setWriteRead(uint8_t *buf, size_t count);
+  void set_write_read(const uint8_t *buf, size_t count);
 
   /**
    * @brief  Write and Read data to and from the device
@@ -72,7 +71,8 @@ class MockSPIDevice : public SPIDevice {
    * @param  count amount of data to be sent and received
    * @return returns SPIDeviceStatus as ok
    */
-  SPIDeviceStatus write_read(uint8_t *txBuf, uint8_t *rxBuf, size_t count) override;
+  SPIDeviceStatus write_read(uint8_t *tx_buf, uint8_t *rx_buf,
+                             size_t count) override;
 
   /**
    * @brief  Reads private buffer variable mGetWriteReadBuf and updates to buf
@@ -80,7 +80,7 @@ class MockSPIDevice : public SPIDevice {
    * @param  count buffer size to return
    * @return None
    */
-  void getWriteRead(uint8_t *buf, size_t count);
+  void get_write_read(uint8_t *buf, size_t count);
 
   /**
    * @brief  Sets the mLastCS
@@ -94,22 +94,22 @@ class MockSPIDevice : public SPIDevice {
    * @param  None
    * @return returns mLastCS input data
    */
-  bool getChipSelect ();
+  bool get_chip_select() const;
 
  private:
   /* Last chip select input */
-  bool mLastCS = false;
+  bool last_cs_ = false;
 
   /* Read and Write buffer size */
-  static const uint8_t mReadBufSize = 50, mWriteBufSize = 50;
+  static const uint8_t read_buf_size = 50, write_buf_size = 50;
 
   /* The 50 bytes of read and write operation are used */
-  uint8_t mReadBuf[mReadBufSize], mWriteBuf[mWriteBufSize];
+  uint8_t read_buf_[read_buf_size]{}, write_buf_[write_buf_size]{};
   /* The 50 bytes of writeRead operation are used */
-  uint8_t mSetWriteReadBuf[mReadBufSize], mGetWriteReadBuf[mWriteBufSize];
+  uint8_t set_write_read_buf_[read_buf_size]{},
+      get_write_read_buf_[write_buf_size]{};
   /* Write data count */
-  size_t mWriteCount, mGetWriteReadCount;
-
+  size_t write_count_{}, get_write_read_count_{};
 };
 
 }  // namespace HAL

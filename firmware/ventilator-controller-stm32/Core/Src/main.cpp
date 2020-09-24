@@ -39,9 +39,9 @@
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
 #include "Pufferfish/Driver/ShiftedOutput.h"
 #include "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/STM32/BufferedUART.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
 #include "Pufferfish/HAL/STM32/HALI2CDevice.h"
-#include "Pufferfish/HAL/STM32/BufferedUART.h"
 #include "Pufferfish/Statuses.h"
 /* USER CODE END Includes */
 
@@ -387,7 +387,7 @@ int main(void)
   /* Start the ADC3 by invoking AnalogInput::Start() */
   adc3_input.start();
 
-  buffered_uart3.setupIRQ();
+  buffered_uart3.setup_irq();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -416,9 +416,9 @@ int main(void)
     while (buffered_uart3.read(receive) == PF::BufferStatus::ok) {
       board_led1.write(true);
       buffered_uart3.write(receive);
-      PF::HAL::AtomicSize writtenSize;
-      uint8_t repeatString[] = {receive, receive};
-      buffered_uart3.write(repeatString, sizeof(repeatString), writtenSize);
+      PF::HAL::AtomicSize written_size = 0;
+      uint8_t repeat_string[] = {receive, receive};
+      buffered_uart3.write(repeat_string, sizeof(repeat_string), written_size);
     }
     /* USER CODE END WHILE */
 

@@ -12,14 +12,12 @@ namespace HAL {
 void MockDigitalOutput::write(bool output) {
 
   /* Update the lastOutput with parameter output value */
-  lastOutput = output;
+  last_output_ = output;
 }
 
-bool MockDigitalOutput::getWrite() {
-
+bool MockDigitalOutput::get_write() const {
   /* return the write value, written during the write method */
-  return lastOutput;
-
+  return last_output_;
 }
 } // namespace HAL
 } // namespace Pufferfish

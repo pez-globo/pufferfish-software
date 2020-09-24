@@ -20,9 +20,7 @@ class MockDigitalInput : public DigitalInput{
    * Constructs a new Digital Input
    * @param None
    */
-  MockDigitalInput(){
-
-  }
+  MockDigitalInput() = default;
 
   /**
    * Reads a digital input from the GPIO pin
@@ -35,11 +33,10 @@ class MockDigitalInput : public DigitalInput{
    * @param  setting - Set TRUE/FASLE to read
    * @return None
    */
-  void setRead(bool setting);
+  void set_read(bool setting);
 
  private:
-
-  bool lastInput = 0;
+  bool last_input_ = 0;
 };
 
 } // namespace HAL

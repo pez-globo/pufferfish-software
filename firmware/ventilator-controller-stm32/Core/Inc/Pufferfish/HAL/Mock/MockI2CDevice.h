@@ -21,8 +21,7 @@ class MockI2CDevice : public I2CDevice {
    * Constructs an Mock I2C Device object
    * @param None
    */
-  MockI2CDevice() {
-  }
+  MockI2CDevice() = default;
 
   /**
    * @brief  Read method to read data from private buffer variable mReadBuf
@@ -38,7 +37,7 @@ class MockI2CDevice : public I2CDevice {
    * @param  count size of data to set
    * @return None
    */
-  void setRead(uint8_t *buf, size_t count);
+  void set_read(const uint8_t *buf, size_t count);
 
   /**
    * @brief  Updates the private buffer variable mWriteBuf with the input data
@@ -54,17 +53,16 @@ class MockI2CDevice : public I2CDevice {
    * @param  count buffer size to return
    * @return None
    */
-  void getWrite(uint8_t *buf, size_t &count);
+  void get_write(uint8_t *buf, size_t &count);
 
  private:
   /* Read and Write buffer size */
-  static const uint8_t mReadBufSize = 50, mWriteBufSize = 50;
+  static const uint8_t read_buf_size = 50, write_buf_size = 50;
 
   /* The 50 bytes of read and write operation are used */
-  uint8_t mReadBuf[mReadBufSize], mWriteBuf[mWriteBufSize];
+  uint8_t read_buf_[read_buf_size]{}, write_buf_[write_buf_size]{};
 
-  size_t mWriteCount;
-
+  size_t write_count_{};
 };
 
 }  // namespace HAL

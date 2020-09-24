@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include "stm32h7xx_hal.h"
-#include "Pufferfish/Types.h"
 #include "Pufferfish/Statuses.h"
+#include "Pufferfish/Types.h"
 #include "Pufferfish/Util/RingBuffer.h"
+#include "stm32h7xx_hal.h"
 
 namespace Pufferfish {
 namespace HAL {
@@ -25,10 +25,10 @@ namespace HAL {
  * This provides a comparable interface to Arduino's Serial class,
  * but with a non-blocking interface.
  */
-template <AtomicSize RXBufferSize, AtomicSize TXBufferSize>
+template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 class BufferedUART {
-public:
-  BufferedUART(UART_HandleTypeDef &huart);
+ public:
+  explicit BufferedUART(UART_HandleTypeDef &huart);
 
   /**
    * Attempt to "pop" the next received byte from the RX queue.
@@ -38,7 +38,7 @@ public:
    * @param readByte[[out] the byte popped from the RX queue
    * @return ok on success, empty otherwise
    */
-  BufferStatus read(uint8_t &readByte) volatile;
+  BufferStatus read(uint8_t &read_byte) volatile;
 
   /**
    * Attempt to "push" the provided byte onto the TX queue.
@@ -47,7 +47,7 @@ public:
    * @param writeByte the byte to push onto the TX queue
    * @return ok on success, full otherwise
    */
-  BufferStatus write(uint8_t writeByte) volatile;
+  BufferStatus write(uint8_t write_byte) volatile;
 
   /**
    * "Push" bytes in the provided buffer onto the TX queue until either
@@ -63,10 +63,8 @@ public:
    * @param writtenSize[out] the number of bytes successfully pushed onto the TX queue
    * @return ok if all provided bytes were added to the queue, partial otherwise
    */
-  BufferStatus write(
-      const uint8_t *writeBytes, AtomicSize writeSize,
-      HAL::AtomicSize &writtenSize
-  ) volatile;
+  BufferStatus write(const uint8_t *write_bytes, AtomicSize write_size,
+                     HAL::AtomicSize &written_size) volatile;
 
   /**
    * Persistently attempt to "push" the provided byte onto the TX queue
@@ -78,7 +76,7 @@ public:
    * @param uint32_t timeout the length of time in ms to retry pushing the byte if the TX queue is full
    * @return ok on success, full otherwise
    */
-  BufferStatus writeBlock(uint8_t writeByte, uint32_t timeout) volatile;
+  BufferStatus write_block(uint8_t write_byte, uint32_t timeout) volatile;
 
   /**
    * Persistently attempt to "push" bytes in the provided buffer onto the TX queue
@@ -95,22 +93,19 @@ public:
    * @param writtenSize[out] the number of bytes successfully pushed onto the TX queue
    * @return ok if all provided bytes were added to the queue, partial otherwise
    */
-  BufferStatus writeBlock(
-      const uint8_t *writeBytes, AtomicSize writeSize, uint32_t timeout,
-      HAL::AtomicSize &writtenSize
-  ) volatile;
-
+  BufferStatus write_block(const uint8_t *write_bytes, AtomicSize write_size,
+                           uint32_t timeout,
+                           HAL::AtomicSize &written_size) volatile;
 
   /**
    * Set up the UART interrupt to service the RX queue.
    */
-  void setupIRQ() volatile;
-
+  void setup_irq() volatile;
 
   /**
    * Handle the UART interrupt which occurs when the RX or TX queue should be serviced.
    */
-  void handleIRQ() volatile;
+  void handle_irq() volatile;
 
   /**
    * A counter of the number of received UART bytes which were discarded.
@@ -123,18 +118,18 @@ public:
    * this method.
    * @return the total number of received UART bytes which were discarded.
    */
-  uint32_t rxDropped() const volatile;
+  uint32_t rx_dropped() const volatile;
 
-protected:
-  UART_HandleTypeDef &huart;
+ protected:
+  UART_HandleTypeDef &huart_;
 
-  volatile Util::RingBuffer<RXBufferSize> rxBuffer;
-  volatile Util::RingBuffer<TXBufferSize> txBuffer;
+  volatile Util::RingBuffer<rx_buffer_size> rx_buffer_;
+  volatile Util::RingBuffer<tx_buffer_size> tx_buffer_;
 
-  void handleIRQRX() volatile;
-  void handleIRQTX() volatile;
+  void handle_irq_rx() volatile;
+  void handle_irq_tx() volatile;
 
-  volatile uint32_t mRxDropped = 0;
+  volatile uint32_t rx_dropped_ = 0;
 };
 
 using LargeBufferedUART = BufferedUART<4096, 4096>;

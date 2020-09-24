@@ -11,9 +11,9 @@ namespace HAL {
 
 bool HALDigitalInput::read() {
   return
-      mInverted ?
-      HAL_GPIO_ReadPin(&mPort, mPin) == GPIO_PIN_RESET :
-      HAL_GPIO_ReadPin(&mPort, mPin) == GPIO_PIN_SET;
+      inverted ?
+      HAL_GPIO_ReadPin(&port_, pin) == GPIO_PIN_RESET :
+      HAL_GPIO_ReadPin(&port_, pin) == GPIO_PIN_SET;
 }
 
 } // namespace HAL
