@@ -4,7 +4,7 @@ import { Button, Snackbar, makeStyles, Theme, Grid, Typography, Popover } from '
 import { Alert } from '@material-ui/lab';
 import { useSelector } from 'react-redux';
 import { BellIcon } from '../icons';
-import { getPatientAlarmEvent } from '../../store/controller/selectors';
+import { getlastKnownPatientAlarm, getPatientAlarmEvent } from '../../store/controller/selectors';
 import { AlarmCode } from '../../store/controller/proto/mcu_pb';
 
 export const ALARM_EVENT_PATIENT = 'Patient';
@@ -13,10 +13,15 @@ export const ALARM_EVENT_SYSTEM = 'System';
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     height: '100%',
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(2),
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
+  },
+  alertStyles: {
+    '& .MuiAlert-message': {
+      width: '100%',
+    },
+    '& .MuiAlert-action': {
+      position: 'absolute',
+      right: '15px',
+    },
   },
   controlPanel: {
     justifyContent: 'space-between',
@@ -28,10 +33,23 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   marginTop: {
     marginTop: theme.spacing(1),
+    '& .MuiPopover-paper': {
+      width: '300px',
+      borderRadius: '10px',
+    },
   },
   openButton: {
     width: '100%',
-    border: `1px solid ${theme.palette.common.black}`,
+    // border: `1px solid ${theme.palette.common.black}`,
+    backgroundColor: '#e0e0e052',
+    color: 'white',
+    boxShadow: 'none',
+    fontSize: '12px',
+
+    '&:hover': {
+      backgroundColor: '#e0e0e052',
+      // boxShadow: 'none',
+    },
   },
 }));
 
@@ -96,9 +114,15 @@ export const AlertToast = ({
 }): JSX.Element => {
   const classes = useStyles();
   return (
-    <Alert icon={false} onClose={onClose} variant="filled" severity="error">
+    <Alert
+      className={classes.alertStyles}
+      icon={false}
+      onClose={onClose}
+      variant="filled"
+      severity="error"
+    >
       <Grid container direction="column" className={classes.root}>
-        <Grid item xs style={{ width: '100%' }}>
+        <Grid item xs style={{ width: '100%', paddingBottom: '15px' }}>
           <Typography variant="h5">{label}</Typography>
         </Grid>
         <Grid container item direction="row" className={classes.controlPanel} wrap="nowrap">
@@ -127,19 +151,19 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
     setOpen(false);
   };
   const patientAlarmEvent = useSelector(getPatientAlarmEvent);
+  const lastKnownPatientAlarm = useSelector(getlastKnownPatientAlarm);
   // Generate Random Alerts
   useEffect(() => {
     if (patientAlarmEvent.header && patientAlarmEvent.header.id) {
-      const eventType = getEventType(patientAlarmEvent.header.code);
-      if (eventType.type) {
-        setOpen(true);
-        setAlert({ label: eventType.label });
+      if (!lastKnownPatientAlarm.id || lastKnownPatientAlarm.id !== patientAlarmEvent.header.id) {
+        const eventType = getEventType(patientAlarmEvent.header.code);
+        if (eventType.type) {
+          setOpen(true);
+          setAlert({ label: eventType.label });
+        }
       }
     }
-    // const randomAlertInterval = setInterval(() => {
-    // }, 30000);
-    // return () => clearInterval(randomAlertInterval);
-  }, [patientAlarmEvent]);
+  }, [patientAlarmEvent, lastKnownPatientAlarm]);
 
   return (
     <div>

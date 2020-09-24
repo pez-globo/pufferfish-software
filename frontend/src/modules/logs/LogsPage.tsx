@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import { Grid, TableCell, TableRow, Typography } from '@material-ui/core';
+import { useSelector } from 'react-redux';
 import SimpleTable, {
   stableSort,
   getComparator,
@@ -11,6 +12,9 @@ import SimpleTable, {
 import ModalPopup from '../controllers/ModalPopup';
 import EventlogDetails from './container/EventlogDetails';
 import { DECIMAL_RADIX } from '../app/AppConstants';
+import { getNewPatientAlarms } from '../../store/controller/selectors';
+import { EventHeader, PatientAlarmEvent } from '../../store/controller/proto/mcu_pb';
+import { getEventType } from '../app/EventAlerts';
 
 /**
  * LogsPage
@@ -26,82 +30,7 @@ interface Data {
   id: number;
 }
 
-function createData(type: string, alarm: string, time: number, details: string, id: number): Data {
-  return { type, alarm, time, details, id };
-}
-
-const rows = [
-  createData(
-    'Operator',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-09 10:11:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    1,
-  ),
-  createData(
-    'System',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-09 10:12:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    2,
-  ),
-  createData(
-    'Patient',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-09 10:13:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    3,
-  ),
-  createData(
-    'System',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-09 09:11:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    4,
-  ),
-  createData(
-    'Operator',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-08 10:10:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    5,
-  ),
-  createData(
-    'System',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-08 10:11:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    6,
-  ),
-  createData(
-    'Patient',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-08 10:12:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    7,
-  ),
-  createData(
-    'Patient',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-07 10:10:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    8,
-  ),
-  createData(
-    'Patient',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-07 10:11:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    9,
-  ),
-  createData(
-    'Patient',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-07 10:12:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    10,
-  ),
-];
+//
 
 const headCells: HeadCell[] = [
   { id: 'type', numeric: false, disablePadding: true, label: 'Type' },
@@ -137,6 +66,18 @@ const useStyles = makeStyles((theme: Theme) =>
 export const LogsPage = (): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
+
+  const createData = (
+    type: string,
+    alarm: string,
+    time: number,
+    details: string,
+    id: number,
+  ): Data => {
+    return { type, alarm, time, details, id };
+  };
+
+  const [rows, setRows] = React.useState<Data[]>([]);
   const [order, setOrder] = React.useState<Order>('desc');
   const [orderBy, setOrderBy] = React.useState<keyof Data>('time');
   const [selected, setSelected] = React.useState<string[]>([]);
@@ -146,6 +87,22 @@ export const LogsPage = (): JSX.Element => {
   const [currentRow, setCurrentRow] = React.useState<Data>();
   const isSelected = (name: string) => selected.indexOf(name) !== -1;
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+  const newPatientAlarms = useSelector(getNewPatientAlarms);
+
+  useEffect(() => {
+    const data = newPatientAlarms.map((patientAlarm: PatientAlarmEvent) => {
+      const alarmHeader = patientAlarm.header as EventHeader;
+      const eventType = getEventType(alarmHeader.code);
+      return createData(
+        eventType.type,
+        eventType.label,
+        alarmHeader.time,
+        'View Details',
+        alarmHeader.id,
+      );
+    });
+    setRows(data);
+  }, [newPatientAlarms]);
 
   const handleClose = () => {
     setOpen(false);

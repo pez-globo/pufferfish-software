@@ -11,6 +11,7 @@ import {
   AlarmLimitsRequest,
   VentilationMode,
   PatientAlarmEvent,
+  LastKnownPatientAlarm,
 } from './proto/mcu_pb';
 import { RotaryEncoder, FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import { ControllerStates, WaveformPoint, WaveformHistory } from './types';
@@ -226,4 +227,16 @@ export const getSystemSettingRequest = createSelector(
 export const getPatientAlarmEvent = createSelector(
   getController,
   (states: ControllerStates): PatientAlarmEvent => states.patientAlarmEvent,
+);
+
+// Patient Alarm Event
+export const getlastKnownPatientAlarm = createSelector(
+  getController,
+  (states: ControllerStates): LastKnownPatientAlarm => states.lastKnownPatientAlarm,
+);
+
+// Patient Alarm Event
+export const getNewPatientAlarms = createSelector(
+  getController,
+  (states: ControllerStates): PatientAlarmEvent[] => states.newPatientAlarms.patientAlarmEvents,
 );
