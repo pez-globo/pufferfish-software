@@ -24,7 +24,7 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
     _connected: trio.Event = attr.ib(factory=trio.Event, repr=False)
 
 
-    def set_props(self, filename: str, mode: Optional[str] = None) -> None:
+    def set_props(self, filename: str, mode: Optional[Type[str]] = None) -> None:
         """"""
         if not ".pb" in filename:
             filename += ".pb"

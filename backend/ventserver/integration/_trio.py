@@ -9,6 +9,7 @@ import trio
 
 from ventserver.io.trio import channels as triochannels
 from ventserver.io.trio import endpoints
+from ventserver.io.trio import fileio
 from ventserver.protocols import file
 from ventserver.protocols import server
 from ventserver.sansio import channels
@@ -81,16 +82,16 @@ async def send_all_websocket(
             )
 
 async def process_file_save_output(protocol: server.Protocol,
-        filehandler: endpoints.IOEndpoint[bytes, bytes]
+        filehandler: fileio.Handler
 ) -> None:
     """Saves protobuf data to files (prototype)"""
 
-    filehandler.set_props(message.state_type, "wb")
     for message in protocol.send.file.output_all():
+        filehandler.set_props(str(message.state_type), "wb")
         try:
             await filehandler.open()
             await filehandler.write(bytes(message.data))
-        except Exception as err: #type: ignore
+        except Exception as err: # type: ignore
             logger.error(err)
         finally:
             await filehandler.close()

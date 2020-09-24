@@ -1,13 +1,14 @@
 """Sans-I/O protobuf file handling protocol."""
 
 import logging
-from typing import Optional
+from typing import Optional, Type
 
 import attr
 
 from ventserver.protocols import application
 from ventserver.protocols import exceptions
 from ventserver.protocols import messages
+from ventserver.protocols import crcelements
 from ventserver.sansio import protocols
 from ventserver.sansio import channels
 
@@ -16,8 +17,8 @@ from ventserver.sansio import channels
 @attr.s(auto_attribs=True)  
 class StateData:
     """Data info payload details"""
-    state_type: Optional[str] = None
-    data: Optional[bytes] = None
+    state_type: Type[str] = None
+    data: Type[bytes] = None
 
 # Events
 
@@ -33,6 +34,9 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
 
     _buffer: channels.DequeChannel[LowerEvent] = attr.ib(
         factory=channels.DequeChannel
+    )
+    _crc_receiver: crcelements.CRCReceiver = attr.ib(
+        factory=crcelements.CRCReceiver
     )
     _message_receiver: messages.MessageReceiver = attr.ib()
 
@@ -54,8 +58,14 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
         if not event:
             return None
 
-        self._message_receiver.input(event.data)
         message = None
+        self._crc_receiver.input(event.data)
+        try:
+            message = self._crc_receiver.output
+        except exceptions.ProtocolDataError as err:
+            print(err) # log error
+
+        self._message_receiver.input(event.data)
         try:
             message = self._message_receiver.output()
         except exceptions.ProtocolDataError:
@@ -76,6 +86,7 @@ class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
     _buffer: channels.DequeChannel[UpperEvent] = attr.ib(
         factory=channels.DequeChannel
     )
+    _crc_sender: crcelements.CRCSender = attr.ib(factory=crcelements.CRCSender)
 
     _message_sender: messages.MessageSender = attr.ib()
 
@@ -105,6 +116,13 @@ class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
 
         if not message_body:
             print("empty message")
+            return None
+
+        self._crc_sender.input(message_body)
+        try:
+            message_body = self._crc_sender.output
+        except exceptions.ProtocolDataError as err:
+            print(err) #log the error
 
         state_type = type(event).__name__
         payload = message_body
