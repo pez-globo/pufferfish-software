@@ -91,7 +91,7 @@ static const uint32_t adc_poll_timeout = 10;
 namespace PF = Pufferfish;
 
 /* Create an object for ADC3 of AnalogInput Class */
-PF::HAL::AnalogInput adc3_input(hadc3, adc_poll_timeout);
+PF::HAL::HALAnalogInput adc3_input(hadc3, adc_poll_timeout);
 
 // The following lines suppress Eclipse CDT's warning about C-style casts;
 // those come from STM32CubeMX-generated #define constants, which we have no
@@ -148,37 +148,37 @@ PF::Driver::Indicators::AuditoryAlarm alarm_dev_sound(alarm_reg_high,
                                                       alarm_buzzer);
 PF::AlarmsManager h_alarms(alarm_dev_led, alarm_dev_sound);
 
-PF::HAL::DigitalInput button_alarm_en(
+PF::HAL::HALDigitalInput button_alarm_en(
     *SET_ALARM_EN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     SET_ALARM_EN_Pin, true);
-PF::HAL::DigitalInput button_full_o2(
+PF::HAL::HALDigitalInput button_full_o2(
     *SET_100_O2_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     SET_100_O2_Pin, true);
-PF::HAL::DigitalInput button_manual_breath(
+PF::HAL::HALDigitalInput button_manual_breath(
     *SET_MANUAL_BREATH_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     SET_MANUAL_BREATH_Pin, true);
-PF::HAL::DigitalInput button_lock(
+PF::HAL::HALDigitalInput button_lock(
     *SET_LOCK_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     SET_LOCK_Pin, true);
-PF::HAL::DigitalInput button_power(
+PF::HAL::HALDigitalInput button_power(
     *SET_PWR_ON_OFF_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     SET_PWR_ON_OFF_Pin, true);
 
 // Solenoid Valves
-PF::HAL::PWM drive1_ch1(htim2, TIM_CHANNEL_4);
-PF::HAL::PWM drive1_ch2(htim2, TIM_CHANNEL_2);
-PF::HAL::PWM drive1_ch3(htim3, TIM_CHANNEL_4);
-PF::HAL::PWM drive1_ch4(htim3, TIM_CHANNEL_1);
-PF::HAL::PWM drive1_ch5(htim3, TIM_CHANNEL_2);
-PF::HAL::PWM drive1_ch6(htim3, TIM_CHANNEL_3);
-PF::HAL::PWM drive1_ch7(htim4, TIM_CHANNEL_2);
-PF::HAL::PWM drive2_ch1(htim4, TIM_CHANNEL_3);
-PF::HAL::PWM drive2_ch2(htim4, TIM_CHANNEL_4);
-PF::HAL::PWM drive2_ch3(htim5, TIM_CHANNEL_1);
-PF::HAL::PWM drive2_ch4(htim8, TIM_CHANNEL_1);
-PF::HAL::PWM drive2_ch5(htim8, TIM_CHANNEL_2);
-PF::HAL::PWM drive2_ch6(htim8, TIM_CHANNEL_4);
-PF::HAL::PWM drive2_ch7(htim12, TIM_CHANNEL_2);
+PF::HAL::HALPWM drive1_ch1(htim2, TIM_CHANNEL_4);
+PF::HAL::HALPWM drive1_ch2(htim2, TIM_CHANNEL_2);
+PF::HAL::HALPWM drive1_ch3(htim3, TIM_CHANNEL_4);
+PF::HAL::HALPWM drive1_ch4(htim3, TIM_CHANNEL_1);
+PF::HAL::HALPWM drive1_ch5(htim3, TIM_CHANNEL_2);
+PF::HAL::HALPWM drive1_ch6(htim3, TIM_CHANNEL_3);
+PF::HAL::HALPWM drive1_ch7(htim4, TIM_CHANNEL_2);
+PF::HAL::HALPWM drive2_ch1(htim4, TIM_CHANNEL_3);
+PF::HAL::HALPWM drive2_ch2(htim4, TIM_CHANNEL_4);
+PF::HAL::HALPWM drive2_ch3(htim5, TIM_CHANNEL_1);
+PF::HAL::HALPWM drive2_ch4(htim8, TIM_CHANNEL_1);
+PF::HAL::HALPWM drive2_ch5(htim8, TIM_CHANNEL_2);
+PF::HAL::HALPWM drive2_ch6(htim8, TIM_CHANNEL_4);
+PF::HAL::HALPWM drive2_ch7(htim12, TIM_CHANNEL_2);
 
 // Base I2C Devices
 // Note: I2C1 is marked I2C2 in the control board v1.0 schematic, and vice versa

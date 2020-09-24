@@ -8,11 +8,11 @@
 
 #pragma once
 
-#include "AnalogInput.h"
-#include "DigitalInput.h"
 #include "Endian.h"
+#include "HALAnalogInput.h"
+#include "HALDigitalInput.h"
 #include "HALDigitalOutput.h"
 #include "HALI2CDevice.h"
+#include "HALPWM.h"
 #include "HALSPIDevice.h"
-#include "PWM.h"
 #include "Time.h"
