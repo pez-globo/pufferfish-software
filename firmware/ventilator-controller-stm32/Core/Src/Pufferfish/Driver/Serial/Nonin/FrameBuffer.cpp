@@ -28,17 +28,17 @@ namespace Nonin {
 
 BufferStatus FrameBuffer::input(const uint8_t byte) {
   /* Validate the frame buffer is already full */
-  if (received_length_ == frameMaxSize) {
+  if (received_length_ == frame_max_size) {
     return BufferStatus::full;
   }
   /* Update the frameBuffer with new byte received */
-  frameBuffer[received_length_] = byte;
+  frame_buffer_[received_length_] = byte;
 
   /* Increment the frame buffer index */
   received_length_++;
 
   /* On frame index is equal to frame size reture frame status as Ok */
-  if (received_length_ == frameMaxSize) {
+  if (received_length_ == frame_max_size) {
     return BufferStatus::ok;
   }
   
@@ -48,12 +48,12 @@ BufferStatus FrameBuffer::input(const uint8_t byte) {
 
 BufferStatus FrameBuffer::output(Frame &frame) {
   /* Check for available of frame */
-  if (received_length_ != frameMaxSize) {
+  if (received_length_ != frame_max_size) {
     /* Return frame buffer is partial update */
     return BufferStatus::partial;
   }
   /* Update the frame buffer */
-  frame = frameBuffer;
+  frame = frame_buffer_;
 
   /* Return ok on frame buffer updated */
   return BufferStatus::ok;
@@ -65,18 +65,18 @@ void FrameBuffer::reset(){
 }
 
 void FrameBuffer::shift_left(){
-  uint8_t index;
+  uint8_t index = 0;
   /* On no frame data available frameBuffer and frameIndex are not updated */
   if (received_length_ > 0){
     /* Update the frame buffer and index to receive new byte data */
     for(index = 0; index < (received_length_-1);index++){
-      frameBuffer[index] = frameBuffer[index+1];
+      frame_buffer_[index] = frame_buffer_[index+1];
     }
     received_length_--;
   }
 }
 
-} // Nonin
-} // Serial
-} // Driver
-} // Pufferfish
+}  // namespace Nonin
+}  // namespace Serial
+}  // namespace Driver
+}  // namespace Pufferfish

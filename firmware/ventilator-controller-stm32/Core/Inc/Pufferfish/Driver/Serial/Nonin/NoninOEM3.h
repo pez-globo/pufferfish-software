@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "Pufferfish/Driver/Serial/Nonin/PacketReceiver.h"
 #include "Pufferfish/Driver/Serial/Nonin/FrameReceiver.h"
+#include "Pufferfish/Driver/Serial/Nonin/PacketReceiver.h"
 #include "Pufferfish/HAL/STM32/BufferedUART.h"
 
 namespace Pufferfish {
@@ -42,42 +42,41 @@ class NoninOEM {
   /* PacketReceiver Input status */
   enum class NoninPacketStatus {
     available = 0,  /// Packet/measurements is available
-    waiting,        /// Packet/measurements is waiting to receive more bytes of data
-    notAvailable,   /// Packet/measurements are not available
-    framingError,   /// Error in checksum or status byte or in byte 1 of a frame
-    missedData      /// Missed a packet due loss of frames
+    waiting,  /// Packet/measurements is waiting to receive more bytes of data
+    not_available,  /// Packet/measurements are not available
+    framing_error,  /// Error in checksum or status byte or in byte 1 of a frame
+    missed_data     /// Missed a packet due loss of frames
   };
 
   /**
    * Constructor for NoninOEM
    * @param  noninOEMUART BufferredUART with 512 bytes reception buffer
    */
-  NoninOEM(volatile NoninOEMUART &uart) : noninUART(uart){
-  }
+  explicit NoninOEM(volatile NoninOEMUART &uart) : nonin_uart_(uart) {}
 
   /**
    * @brief  Method inputs the byte to packet and reads the packet measurements on availability
    * @param  sensorMeasurements is updated on available of packet/measurements
    * @return returns the status of Nonin OEM III packet measurements
    */
-  NoninPacketStatus output(PacketMeasurements &sensorMeasurements);
+  NoninPacketStatus output(PacketMeasurements &sensor_measurements);
 
  private:
   /* Create an object bufferredUART with 512 bytes of reception buffer */
-  volatile NoninOEMUART &noninUART;
+  volatile NoninOEMUART &nonin_uart_;
 
   /* Create an object of FrameReceiver */
-  FrameReceiver frameReceiver;
+  FrameReceiver frame_receiver_;
 
   /* Create an object of PacketReceiver */
-  PacketReceiver packetReceiver;
+  PacketReceiver packet_receiver_;
 
   /* Frame Buffer stores bytes of data received from PacketReceiver input */
   // Frame frameBuffer;
 
 };
 
-} // Nonin
-} // Serial
-} // Driver
-} // Pufferfish
+}  // namespace Nonin
+}  // namespace Serial
+}  // namespace Driver
+}  // namespace Pufferfish

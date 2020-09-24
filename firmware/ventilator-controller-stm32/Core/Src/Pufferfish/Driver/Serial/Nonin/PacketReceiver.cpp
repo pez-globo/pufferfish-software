@@ -19,6 +19,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <cstddef>
+#include <cstdint>
+
 #include "Pufferfish/Driver/Serial/Nonin/PacketReceiver.h"
 
 namespace Pufferfish {
@@ -32,115 +35,129 @@ namespace Nonin {
  * @param  statusByte structure is updated based on input byteValue
  * @return None
  */
-void readStatusByte(PacketMeasurements &sensorMeasurements,const size_t &frameIndex, const uint8_t &byteValue )
-{
+void read_status_byte(PacketMeasurements &sensor_measurements,
+                      const size_t &frame_index, const uint8_t &byte_value) {
   /* BIT7: Always high */
-  sensorMeasurements.bit7[frameIndex] = ((byteValue & 0x80) == 0x00) ? true : false;
+  sensor_measurements.bit7[frame_index] = (byte_value & 0x80) == 0x00;
   /* BIT6: SNSD: Sensor Disconnect – Sensor is not connected to oximeter or sensor is inoperable */
-  sensorMeasurements.sensorDisconnect[frameIndex] = ((byteValue & 0x40) == 0x00) ? false : true;
+  sensor_measurements.sensor_disconnect[frame_index] =
+      (byte_value & 0x40) != 0x00;
   /* BIT5: ARTF: Artifact – A detected pulse beat didn’t match the current pulse interval */
-  sensorMeasurements.artifact[frameIndex] = ((byteValue & 0x20) == 0x00) ? false : true;
+  sensor_measurements.artifact[frame_index] = (byte_value & 0x20) != 0x00;
   /* BIT4: OOT: Out Of Track – An absence of consecutive good pulse signals */
-  sensorMeasurements.outOfTrack[frameIndex] = ((byteValue & 0x10) == 0x00) ? false : true;
+  sensor_measurements.out_of_track[frame_index] = (byte_value & 0x10) != 0x00;
   /* BIT3: SNSA: Sensor Alarm – Sensor is providing unusable data for analysis */
-  sensorMeasurements.sensorAlarm[frameIndex] = ((byteValue & 0x08) == 0x00) ? false : true;
+  sensor_measurements.sensor_alarm[frame_index] = (byte_value & 0x08) != 0x00;
 
   /**
    * BIT2 and BIT1: YPRF: Yellow Perfusion – Amplitude representation of medium signal quality.
    * BIT2: RPRF: Red Perfusion – Amplitude representation of low signal quality.
    * BIT1: GPRF: Green Perfusion – Amplitude representation of high signal quality.
    */
-  if (byteValue & 0x06) {
-    sensorMeasurements.SignalPerfusion[frameIndex] = SignalAmplitude::yellowPerfusion;
-  } else if (byteValue & 0x04) {
-    sensorMeasurements.SignalPerfusion[frameIndex] = SignalAmplitude::redPerfusion;
-  } else if (byteValue & 0x02) {
-    sensorMeasurements.SignalPerfusion[frameIndex] = SignalAmplitude::greenPerfusion;
+  if ((byte_value & 0x06) != 0) {
+    sensor_measurements.signal_perfusion[frame_index] =
+        SignalAmplitude::yellow_perfusion;
+  } else if ((byte_value & 0x04) != 0) {
+    sensor_measurements.signal_perfusion[frame_index] =
+        SignalAmplitude::red_perfusion;
+  } else if ((byte_value & 0x02) != 0) {
+    sensor_measurements.signal_perfusion[frame_index] =
+        SignalAmplitude::green_perfusion;
   } else {
-    sensorMeasurements.SignalPerfusion[frameIndex] = SignalAmplitude::noPerfusion;
+    sensor_measurements.signal_perfusion[frame_index] =
+        SignalAmplitude::no_perfusion;
   }
 }
 
-void readPacketMeasurements(PacketMeasurements &sensorMeasurements,
-                            const Packet &packetData) {
-  /* 4th byte of a frame contains heart beat and SpO2 data */
-  const uint8_t Byte1 = 1, Byte2 = 2, Byte3 = 3;
-  size_t frameIndex;
+void read_packet_measurements(PacketMeasurements &sensor_measurements,
+                              const Packet &packet_data) {
+  /* 4th byte of a frame contains heart beat and spo2 data */
+  const uint8_t byte1 = 1;
+  const uint8_t byte2 = 2;
+  const uint8_t byte3 = 3;
+  size_t frame_index = 0;
 
   /**
    * Heart Rate: 4-beat average values in standard mode.
    * E-HR MSB : sensorData 1st frame of packet contains HR-Bit8 and HR-Bit7 in bit1 and bit0
    * E-HR LSB : sensorData 2nd frame of packet contains HR-Bit6 t0 HR-Bit0 in bit6 to bit0
    */
-  sensorMeasurements.heartRate = get9BitData(packetData[0][Byte3], packetData[1][Byte3]);
+  sensor_measurements.heart_rate =
+      get9_bit_data(packet_data[0][byte3], packet_data[1][byte3]);
 
   /**
-   * SpO2: 4-beat average values in standard mode.
-   * sensorData 3rd frame of packet contains SpO2-Bit6 t0 SpO2-Bit0 in bit6 to bit0
+   * spo2: 4-beat average values in standard mode.
+   * sensorData 3rd frame of packet contains spo2-Bit6 t0 spo2-Bit0 in bit6 to bit0
    */
-  sensorMeasurements.SpO2 = get6BitData(packetData[2][Byte3]);
+  sensor_measurements.spo2 = get6_bit_data(packet_data[2][byte3]);
 
   /**
    * Nonin Oximeter Firmware Revision Level
    * sensorData 4th frame of packet contains Firmware Revision Level
    */
-  sensorMeasurements.noninOEMRevision = packetData[3][Byte3];
+  sensor_measurements.nonin_oem_revision = packet_data[3][byte3];
 
   /**
-   * SpO2-D: 4-beat average displayed values in display mode
-   * sensorData 9th frame of packet contains SpO2-D-Bit6 t0 SpO2-D-Bit0 in bit6 to bit0
+   * spo2-D: 4-beat average displayed values in display mode
+   * sensorData 9th frame of packet contains spo2-D-Bit6 t0 spo2-D-Bit0 in bit6 to bit0
    */
-  sensorMeasurements.SpO2D = get6BitData(packetData[8][Byte3]);
+  sensor_measurements.spo2_d = get6_bit_data(packet_data[8][byte3]);
 
   /**
-   * SpO2 Fast: Non-slew limited saturation with 4-beat averaging in standard mode.
-   * sensorData 10th frame of packet contains SpO2-D-Bit6 t0 SpO2-D-Bit0 in bit6 to bit0
+   * spo2 Fast: Non-slew limited saturation with 4-beat averaging in standard mode.
+   * sensorData 10th frame of packet contains spo2-D-Bit6 t0 spo2-D-Bit0 in bit6 to bit0
    */
-  sensorMeasurements.SpO2DFast = get6BitData(packetData[9][Byte3]);
+  sensor_measurements.spo2_d_fast = get6_bit_data(packet_data[9][byte3]);
 
   /**
-   * SpO2 B-B: Un-averaged, non-slew limited, beat to beat value in standard mode
-   * sensorData 11th frame of packet contains SpO2-D-Bit6 t0 SpO2-D-Bit0 in bit6 to bit0
+   * spo2 B-B: Un-averaged, non-slew limited, beat to beat value in standard mode
+   * sensorData 11th frame of packet contains spo2-D-Bit6 t0 spo2-D-Bit0 in bit6 to bit0
    */
-  sensorMeasurements.SpO2DBeat = get6BitData(packetData[10][Byte3]);
+  sensor_measurements.spo2_d_beat = get6_bit_data(packet_data[10][byte3]);
 
   /**
    * E-Heart Rate: 8-beat average values in standard mode.
    * E-HR MSB : sensorData 14th frame of packet contains HR-Bit8 and HR-Bit7 in bit1 and bit0
    * E-HR LSB : sensorData 15th frame of packet contains HR-Bit6 t0 HR-Bit0 in bit6 to bit0
    */
-  sensorMeasurements.eHeartRate = get9BitData(packetData[13][Byte3], packetData[14][Byte3]);
+  sensor_measurements.e_heart_rate =
+      get9_bit_data(packet_data[13][byte3], packet_data[14][byte3]);
 
   /**
-   * E-SpO2: 8-beat average values in standard mode.
-   * sensorData 16th frame of packet contains SpO2-Bit6 t0 SpO2-Bit0 in bit6 to bit0
+   * E-spo2: 8-beat average values in standard mode.
+   * sensorData 16th frame of packet contains spo2-Bit6 t0 spo2-Bit0 in bit6 to bit0
    */
-  sensorMeasurements.eSpO2 = get6BitData(packetData[15][Byte3]);
+  sensor_measurements.e_spo2 = get6_bit_data(packet_data[15][byte3]);
 
   /**
-   * E-SpO2-D: 8-beat average displayed values in display mode
-   * sensorData 17th frame of packet contains SpO2-D-Bit6 to E-SpO2-D-Bit0 in bit6 to bit0
+   * E-spo2-D: 8-beat average displayed values in display mode
+   * sensorData 17th frame of packet contains spo2-D-Bit6 to E-spo2-D-Bit0 in bit6 to bit0
    */
-  sensorMeasurements.eSpO2D = get6BitData(packetData[16][Byte3]);
+  sensor_measurements.e_spo2_d = get6_bit_data(packet_data[16][byte3]);
 
   /**
    * HR-D: 8-beat average values in standard mode.
    * HR-D MSB : sensorData 20th frame of packet contains HR-Bit8 and HR-Bit7 in bit1 and bit0
    * HR-D LSB : sensorData 21st frame of packet contains HR-Bit6 t0 HR-Bit0 in bit6 to bit0
    */
-  sensorMeasurements.HeartRateD = get9BitData(packetData[19][Byte3], packetData[20][Byte3]);
+  sensor_measurements.heart_rate_d =
+      get9_bit_data(packet_data[19][byte3], packet_data[20][byte3]);
 
   /**
    * E-HR-D: 8-beat average displayed values in display mode
    * E-HR-D MSB : sensorData 22nd frame of packet contains HR-Bit8 and HR-Bit7 in bit1 and bit0
    * E-HR-D LSB : sensorData 23rd frame of packet contains HR-Bit6 t0 HR-Bit0 in bit6 to bit0
    */
-  sensorMeasurements.eHeartRateD = get9BitData(packetData[21][Byte3], packetData[22][Byte3]);
+  sensor_measurements.e_heart_rate_d =
+      get9_bit_data(packet_data[21][byte3], packet_data[22][byte3]);
 
   /* Update the PLETH and Status byte errors into the packet measurements */
-  for (frameIndex = 0; frameIndex < PacketReceiver::packetSize; frameIndex++) {
-    sensorMeasurements.packetPleth[frameIndex] = packetData[frameIndex][Byte2];
-    readStatusByte(sensorMeasurements, frameIndex, packetData[frameIndex][Byte1]);
+  for (frame_index = 0; frame_index < PacketReceiver::packet_size;
+       frame_index++) {
+    sensor_measurements.packet_pleth[frame_index] =
+        packet_data[frame_index][byte2];
+    read_status_byte(sensor_measurements, frame_index,
+                     packet_data[frame_index][byte1]);
   }
 }
 
@@ -157,7 +174,7 @@ PacketReceiver::PacketInputStatus PacketReceiver::input(const Frame &frame) {
       received_length_ = received_length_ + 1;
 
       /* Update input status to missedData to report few frames of data are missed in previous packet */
-      input_status_ = PacketInputStatus::missedData;
+      input_status_ = PacketInputStatus::missed_data;
       return input_status_;
     }
     /* Update the frame index to 0 */
@@ -170,7 +187,7 @@ PacketReceiver::PacketInputStatus PacketReceiver::input(const Frame &frame) {
   received_length_ = received_length_ + 1;
 
   /* Check for the packet data is complete */
-  if (received_length_ != packetSize) {
+  if (received_length_ != packet_size) {
     /* Update input status is waiting to receive more frames */
     input_status_ = PacketInputStatus::waiting;
     return input_status_;
@@ -181,20 +198,21 @@ PacketReceiver::PacketInputStatus PacketReceiver::input(const Frame &frame) {
   return input_status_;
 }
 
-PacketReceiver::PacketOutputStatus PacketReceiver::output(PacketMeasurements &SensorMeasurements) {
+PacketReceiver::PacketOutputStatus PacketReceiver::output(
+    PacketMeasurements &sensor_measurements) {
   /* Check for the frame availability in the buffer */
   if (input_status_ != PacketInputStatus::available){
     /* Return PacketOutputStatus as waiting to receive packet data */
     return PacketOutputStatus::waiting;
   }
   /* Read PacketBuffer and Update the measurements */
-  readPacketMeasurements(SensorMeasurements, packet_data_);
+  read_packet_measurements(sensor_measurements, packet_data_);
 
   /* Return Packet Output status as available */
   return PacketOutputStatus::available;
 }
 
-} // Nonin
-} // Serial
-} // Driver
-} // Pufferfish
+}  // namespace Nonin
+}  // namespace Serial
+}  // namespace Driver
+}  // namespace Pufferfish

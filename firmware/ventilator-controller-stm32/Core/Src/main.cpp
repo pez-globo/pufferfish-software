@@ -37,13 +37,13 @@
 #include "Pufferfish/Driver/I2C/TCA9548A.h"
 #include "Pufferfish/Driver/Indicators/AuditoryAlarm.h"
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
+#include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
 #include "Pufferfish/Driver/ShiftedOutput.h"
 #include "Pufferfish/HAL/HAL.h"
 #include "Pufferfish/HAL/STM32/BufferedUART.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
 #include "Pufferfish/HAL/STM32/HALI2CDevice.h"
 #include "Pufferfish/Statuses.h"
-#include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -92,13 +92,13 @@ static const uint32_t adc_poll_timeout = 10;
 namespace PF = Pufferfish;
 
 /* NoninOEM TODO: Creating an object for UART for Nonin OEM interface */
-volatile PF::Driver::Serial::Nonin::NoninOEMUART oemUART(huart4);
+volatile PF::Driver::Serial::Nonin::NoninOEMUART oem_uart(huart4);
 /* NoninOEM TODO: Creating an object for NoninOEM */
-PF::Driver::Serial::Nonin::NoninOEM oemobj(oemUART);
+PF::Driver::Serial::Nonin::NoninOEM oemobj(oem_uart);
 /* NoninOEM TODO: Packet measurements */
-PF::Driver::Serial::Nonin::PacketMeasurements testSensorMeasurements;
+PF::Driver::Serial::Nonin::PacketMeasurements test_sensor_measurements;
 /* NoninOEM TODO: status byte error */
-PF::Driver::Serial::Nonin::StatusByteError frameErrorStatus;
+PF::Driver::Serial::Nonin::StatusByteError frame_error_status;
 
 /* Create an object for ADC3 of AnalogInput Class */
 PF::HAL::HALAnalogInput adc3_input(hadc3, adc_poll_timeout);
@@ -355,14 +355,14 @@ int main(void)
   uint32_t adc3_data = 0;
 
   /* Nonin TODO: Local variable to count packets of data received */
-  uint32_t packetCount;
+  uint32_t packet_count = 0;
   /* Nonin TODO */
-  uint32_t currentTime;
+  uint32_t current_time = 0;
   /* Nonin TODO */
-  uint32_t testcaseResults[4] = {false};
+  uint32_t testcase_results[4] = {0U};
 
   /* TODO: Added for testing Nonin OEM III */
-  PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus returnStatus;
+  PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus return_status;
 
   /* USER CODE END 1 */
 
@@ -405,7 +405,7 @@ int main(void)
   PF::HAL::micros_delay_init();
   interface_test_millis = PF::HAL::millis();
   /* Nonin TODO: setupIRQ of BufferredUART for setting the UART reception */
-  oemUART.setup_irq();
+  oem_uart.setup_irq();
 
   /* Start the ADC3 by invoking AnalogInput::Start() */
   adc3_input.start();
@@ -419,32 +419,37 @@ int main(void)
   static const uint32_t loop_delay = 50;
   while (true) {
     /* Nonin TODO: Invoking the NoninOEM output method */
-    returnStatus = oemobj.output(testSensorMeasurements);
-    if(returnStatus == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::available ) {
-      packetCount = packetCount + 1;
+    return_status = oemobj.output(test_sensor_measurements);
+    if (return_status ==
+        PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::available) {
+      packet_count = packet_count + 1;
 
       /// Nonin TODO: Test Scenario 1 On sensor disconnected from Nonin OEM III module
-      if(packetCount == 1) {
-        testcaseResults[0] = testSensorMeasurements.sensorDisconnect[0] == true? true : false;
+      if (packet_count == 1) {
+        testcase_results[0] = static_cast<uint32_t>(
+            test_sensor_measurements.sensor_disconnect[0]);
       }
 
       /// Nonin TODO: Test Scenario 2 On sensor connected to Nonin OEM III module and
       /// no contact with  finger clip sensor
-      if(packetCount == 1) {
-        testcaseResults[1] = testSensorMeasurements.sensorAlarm[0] == true? true : false;
+      if (packet_count == 1) {
+        testcase_results[1] =
+            static_cast<uint32_t>(test_sensor_measurements.sensor_alarm[0]);
       }
       /// Nonin TODO: Test Scenario 3 Time validation for 15 frames is 5 seconds
-      if(packetCount == 1) {
-        currentTime = PF::HAL::millis();
+      if (packet_count == 1) {
+        current_time = PF::HAL::millis();
       }
-      if(packetCount == 16) {
-        currentTime = PF::HAL::millis() - currentTime;
+      if (packet_count == 16) {
+        current_time = PF::HAL::millis() - current_time;
         /* Validate time for 5000 milli-seconds */
-        testcaseResults[2] = (currentTime >= 5000 && currentTime < 5100)? true:false;
+        testcase_results[2] =
+            static_cast<uint32_t>(current_time >= 5000 && current_time < 5100);
       }
     }
     /* Nonin TODO : Added to resolve warnings */
-    testcaseResults[3] = testcaseResults[2] == true? true:false;
+    testcase_results[3] =
+        static_cast<uint32_t>(static_cast<bool>(testcase_results[2]));
 
     PF::AlarmManagerStatus stat = h_alarms.update(PF::HAL::millis());
     if (stat != PF::AlarmManagerStatus::ok) {

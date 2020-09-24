@@ -46,7 +46,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 extern volatile Pufferfish::HAL::LargeBufferedUART buffered_uart3;
-extern volatile Pufferfish::Driver::Serial::Nonin::NoninOEMUART oemUART;
+extern volatile Pufferfish::Driver::Serial::Nonin::NoninOEMUART oem_uart;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -222,7 +222,7 @@ void USART3_IRQHandler(void)
 void UART4_IRQHandler(void)
 {
   /* USER CODE BEGIN UART4_IRQn 0 */
-  oemUART.handle_irq();
+  oem_uart.handle_irq();
   /* USER CODE END UART4_IRQn 0 */
   HAL_UART_IRQHandler(&huart4);
   /* USER CODE BEGIN UART4_IRQn 1 */

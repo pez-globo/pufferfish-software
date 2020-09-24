@@ -36,11 +36,11 @@ class FrameReceiver {
  public:
   /* FrameReceiver input status return values */
   enum class FrameInputStatus {
-    waiting = 0,      /// Input is ready to receive new bytes of sensor data
-    notAvailable,     /// Input status is not available or error in frame
-    framingError,     /// Error in checksum or status byte or in byte 1 of a frame
-    available         /// frame is available
-    };
+    waiting = 0,    /// Input is ready to receive new bytes of sensor data
+    not_available,  /// Input status is not available or error in frame
+    framing_error,  /// Error in checksum or status byte or in byte 1 of a frame
+    available       /// frame is available
+  };
 
   /* FrameReceiver output status return values */
   enum class FrameOutputStatus {
@@ -51,15 +51,14 @@ class FrameReceiver {
   /**
    * Constructor for FrameReceiver
    */
-  FrameReceiver() {
-  }
+  FrameReceiver() = default;
 
   /**
    * @brief  Call input to fill frame until it returns available, then call output
    * @param  New byte data received from sensor
    * @return Frame input status on filling a frame
    */
-  FrameInputStatus input(const uint8_t newByte);
+  FrameInputStatus input(uint8_t new_byte);
 
   /**
    * @brief  output method updates the frame on available or throws error/waiting
@@ -71,23 +70,22 @@ class FrameReceiver {
   FrameOutputStatus output(Frame &frame);
 
  private:
-  FrameInputStatus updateFrameBuffer(uint8_t newByte);
+  FrameInputStatus update_frame_buffer(uint8_t new_byte);
 
   /* Frame input status */
-  FrameInputStatus inputStatus;
+  FrameInputStatus input_status_;
 
-  FrameBuffer frameBuf;
+  FrameBuffer frame_buf_;
 
   /* Variable that validates the start of frame
      true : Start of frame packet is available reading the consicutive frame are possible
      false: Start of frame packet is not available , false is set in the beginning of reading bytes
             and on there is loss of bytes in a frame or noise occurred in recived frame due to which
             the validation of start of frame is called */
-  bool startOfFrameStatus = false;
-
+  bool start_of_frame_status_ = false;
 };
 
-} // Nonin
-} // Serial
-} // Driver
-} // Pufferfish
+}  // namespace Nonin
+}  // namespace Serial
+}  // namespace Driver
+}  // namespace Pufferfish

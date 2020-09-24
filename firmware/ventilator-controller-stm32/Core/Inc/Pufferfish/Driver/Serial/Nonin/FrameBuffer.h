@@ -21,15 +21,16 @@
 
 #pragma once
 
-#include <stddef.h>
 #include <array>
-#include <stdint.h>
-#include "Pufferfish/Statuses.h"
+#include <cstddef>
+#include <cstdint>
+
 #include "Pufferfish/HAL/Types.h"
+#include "Pufferfish/Statuses.h"
 
 /* Frame */
-const uint8_t frameMaxSize = 5;
-using Frame = std::array<uint8_t, frameMaxSize>;
+const uint8_t frame_max_size = 5;
+using Frame = std::array<uint8_t, frame_max_size>;
 
 namespace Pufferfish {
 namespace Driver {
@@ -41,46 +42,45 @@ namespace Nonin {
  */
 class FrameBuffer {
 public:
-  FrameBuffer(){
-  }
+ FrameBuffer() = default;
 
-  /**
-   * @brief  Input method to update byte data into frame
-   * @param  readByte byte data input
-   * @return Frame buffer input status
-   */
-  BufferStatus input(const uint8_t readByte);
+ /**
+  * @brief  Input method to update byte data into frame
+  * @param  readByte byte data input
+  * @return Frame buffer input status
+  */
+ BufferStatus input(uint8_t read_byte);
 
-  /**
-   * @brief  Output method to invoked on frame available
-   * @param  frame data output
-   * @return Frame buffer output status
-   */
-  BufferStatus output(Frame &frame);
+ /**
+  * @brief  Output method to invoked on frame available
+  * @param  frame data output
+  * @return Frame buffer output status
+  */
+ BufferStatus output(Frame &frame);
 
-  /**
-   * @brief  reset the frame
-   * @param  None
-   * @return None
-   */
-  void reset();
+ /**
+  * @brief  reset the frame
+  * @param  None
+  * @return None
+  */
+ void reset();
 
-  /**
-   * @brief  Update the frame for Start of frame validation
-   * @param  None
-   * @return None
-   */
-  void shift_left();
+ /**
+  * @brief  Update the frame for Start of frame validation
+  * @param  None
+  * @return None
+  */
+ void shift_left();
 
 private:
   /* Frame buffer */
-  Frame frameBuffer;
+ Frame frame_buffer_{};
 
-  /* Length of frame received  */
-  uint8_t received_length_ = 0;
+ /* Length of frame received  */
+ uint8_t received_length_ = 0;
 };
 
-} // Nonin
-} // Serial
-} // Driver
-} // Pufferfish
+}  // namespace Nonin
+}  // namespace Serial
+}  // namespace Driver
+}  // namespace Pufferfish
