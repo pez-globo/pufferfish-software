@@ -8,15 +8,25 @@
 
 #pragma once
 
-#include "Pufferfish/HAL/Interfaces/I2CDevice.h"
+#include "Pufferfish/HAL/Types.h"
 #include "Pufferfish/HAL/CRC.h"
 
-#include "Pufferfish/HAL/STM32/DigitalInput.h"
-#include "Pufferfish/HAL/STM32/DigitalOutput.h"
-#include "Pufferfish/HAL/STM32/Endian.h"
-#include "Pufferfish/HAL/STM32/HALI2CDevice.h"
-#include "Pufferfish/HAL/STM32/Time.h"
-#include "Pufferfish/HAL/STM32/PWM.h"
-#include "Pufferfish/HAL/STM32/HALSPIDevice.h"
+// Interfaces
+
+#include "Pufferfish/HAL/Interfaces/I2CDevice.h"
+#include "Pufferfish/HAL/Interfaces/AnalogInput.h"
+#include "Pufferfish/HAL/Interfaces/DigitalOutput.h"
+#include "Pufferfish/HAL/Interfaces/PWM.h"
 #include "Pufferfish/HAL/Interfaces/SPIDevice.h"
-#include "Pufferfish/HAL/STM32/AnalogInput.h"
+
+// STM32-specific definitions
+
+#include "Pufferfish/HAL/STM32/BufferedUART.h"
+#include "Pufferfish/HAL/STM32/Endian.h"
+#include "Pufferfish/HAL/STM32/Time.h"
+#include "Pufferfish/HAL/STM32/HALAnalogInput.h"
+#include "Pufferfish/HAL/STM32/HALDigitalInput.h"
+#include "Pufferfish/HAL/STM32/HALDigitalOutput.h"
+#include "Pufferfish/HAL/STM32/HALI2CDevice.h"
+#include "Pufferfish/HAL/STM32/HALPWM.h"
+#include "Pufferfish/HAL/STM32/HALSPIDevice.h"

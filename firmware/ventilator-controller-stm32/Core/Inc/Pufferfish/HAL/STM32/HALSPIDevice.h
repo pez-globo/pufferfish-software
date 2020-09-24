@@ -6,9 +6,10 @@
 
 #pragma once
 
+#include "stm32h7xx_hal.h"
 #include "Pufferfish/HAL/Interfaces/SPIDevice.h"
 
-#include "Pufferfish/HAL/STM32/DigitalOutput.h"
+#include "Pufferfish/HAL/Interfaces/DigitalOutput.h"
 
 namespace Pufferfish {
 namespace HAL {
@@ -60,7 +61,7 @@ class HALSPIDevice : public SPIDevice {
      * To make the chip select as high or low
      * @param cs true(high) or false(low)
      */
-  void chipSelect (bool input);
+  void chipSelect (bool input) override;
 
  protected:
   SPI_HandleTypeDef &mDev;

@@ -8,7 +8,8 @@
 
 #pragma once
 
-#include "stm32h7xx_hal.h"
+#include <stddef.h>
+#include <stdint.h>
 
 #include "Pufferfish/Statuses.h"
 
@@ -43,8 +44,13 @@ class SPIDevice {
    * @param count amount of data to be sent and received
    * @return ok on success
    */
-  
   virtual SPIDeviceStatus writeRead(uint8_t *txBuf, uint8_t *rxBuf, size_t count) = 0;
+
+  /**
+   * To make the chip select as high or low
+   * @param cs true(high) or false(low)
+   */
+  virtual void chipSelect (bool input) = 0;
 };
 
 }  // namespace HAL
