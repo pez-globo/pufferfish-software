@@ -37,6 +37,7 @@
 #include "Pufferfish/Driver/I2C/SFM3000.h"
 #include "Pufferfish/Driver/I2C/TCA9548A.h"
 #include "Pufferfish/Statuses.h"
+#include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -83,6 +84,15 @@ UART_HandleTypeDef huart3;
 static const uint32_t adcPollTimeout = 10;
 
 namespace PF = Pufferfish;
+
+/* NoninOEM TODO: Creating an object for UART for Nonin OEM interface */
+volatile PF::Driver::Serial::Nonin::NoninOEMUART oemUART(huart4);
+/* NoninOEM TODO: Creating an object for NoninOEM */
+PF::Driver::Serial::Nonin::NoninOEM oemobj(oemUART);
+/* NoninOEM TODO: Packet measurements */
+PF::Driver::Serial::Nonin::PacketMeasurements testSensorMeasurements;
+/* NoninOEM TODO: status byte error */
+PF::Driver::Serial::Nonin::StatusByteError frameErrorStatus;
 
 /* Create an object for ADC3 of AnalogInput Class */
 PF::HAL::HALAnalogInput ADC3Input(hadc3, adcPollTimeout);
@@ -272,6 +282,17 @@ int main(void)
    */
   uint32_t ADC3Data;
   
+  /* Nonin TODO: Local variable to count packets of data received */
+  uint32_t packetCount;
+  /* Nonin TODO */
+  uint32_t currentTime;
+  /* Nonin TODO */
+  uint32_t testcaseResults[4] = {false};
+
+
+  /* TODO: Added for testing Nonin OEM III */
+  PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus returnStatus;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -312,6 +333,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
   PF::HAL::microsDelayInit();
   interface_test_millis = PF::HAL::millis();
+  /* Nonin TODO: setupIRQ of BufferredUART for setting the UART reception */
+  oemUART.setupIRQ();
+
   /* Start the ADC3 by invoking AnalogInput::Start() */
   ADC3Input.start();
 
@@ -321,6 +345,35 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1) {
+
+    /* Nonin TODO: Invoking the NoninOEM output method */
+    returnStatus = oemobj.output(testSensorMeasurements);
+    if(returnStatus == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::available ) {
+      packetCount = packetCount + 1;
+
+      /// Nonin TODO: Test Scenario 1 On sensor disconnected from Nonin OEM III module
+      if(packetCount == 1) {
+        testcaseResults[0] = testSensorMeasurements.sensorDisconnect[0] == true? true : false;
+      }
+
+      /// Nonin TODO: Test Scenario 2 On sensor connected to Nonin OEM III module and
+      /// no contact with  finger clip sensor
+      if(packetCount == 1) {
+        testcaseResults[1] = testSensorMeasurements.sensorAlarm[0] == true? true : false;
+      }
+      /// Nonin TODO: Test Scenario 3 Time validation for 15 frames is 5 seconds
+      if(packetCount == 1) {
+        currentTime = PF::HAL::millis();
+      }
+      if(packetCount == 16) {
+        currentTime = PF::HAL::millis() - currentTime;
+        /* Validate time for 5000 milli-seconds */
+        testcaseResults[2] = (currentTime >= 5000 && currentTime < 5100)? true:false;
+      }
+    }
+    /* Nonin TODO : Added to resolve warnings */
+    testcaseResults[3] = testcaseResults[2] == true? true:false;
+
     boardLed1.write(false);
     PF::HAL::delay(5);
     boardLed1.write(true);
@@ -1091,7 +1144,7 @@ static void MX_UART4_Init(void)
 
   /* USER CODE END UART4_Init 1 */
   huart4.Instance = UART4;
-  huart4.Init.BaudRate = 115200;
+  huart4.Init.BaudRate = 9600;
   huart4.Init.WordLength = UART_WORDLENGTH_8B;
   huart4.Init.StopBits = UART_STOPBITS_1;
   huart4.Init.Parity = UART_PARITY_NONE;
@@ -1101,7 +1154,7 @@ static void MX_UART4_Init(void)
   huart4.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
   huart4.Init.ClockPrescaler = UART_PRESCALER_DIV1;
   huart4.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_HalfDuplex_Init(&huart4) != HAL_OK)
+  if (HAL_UART_Init(&huart4) != HAL_OK)
   {
     Error_Handler();
   }
