@@ -45,14 +45,12 @@ I2CDeviceStatus SFM3000::serial_number(uint32_t &sn) {
   }
 
   std::array<uint8_t, sizeof(uint32_t)> buffer{};
-  I2CDeviceStatus ret2 = sensirion_.read_with_crc(buffer.data(), buffer.size(),
-                                                  crc_poly, crc_init);
+  I2CDeviceStatus ret2 = sensirion_.read_with_crc(buffer.data(), buffer.size(), crc_poly, crc_init);
   if (ret2 != I2CDeviceStatus::ok) {
     return ret2;
   }
 
-  sn = HAL::ntoh(
-      Util::parse_network_order<uint32_t>(buffer.data(), buffer.size()));
+  sn = HAL::ntoh(Util::parse_network_order<uint32_t>(buffer.data(), buffer.size()));
   return I2CDeviceStatus::ok;
 }
 
@@ -67,19 +65,16 @@ I2CDeviceStatus SFM3000::read_sample(SFM3000Sample &sample) {
   }
 
   std::array<uint8_t, sizeof(uint16_t)> buffer{};
-  I2CDeviceStatus ret = sensirion_.read_with_crc(buffer.data(), buffer.size(),
-                                                 crc_poly, crc_init);
+  I2CDeviceStatus ret = sensirion_.read_with_crc(buffer.data(), buffer.size(), crc_poly, crc_init);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
 
-  sample.raw_flow = HAL::ntoh(
-      Util::parse_network_order<uint16_t>(buffer.data(), buffer.size()));
+  sample.raw_flow = HAL::ntoh(Util::parse_network_order<uint16_t>(buffer.data(), buffer.size()));
 
   // convert to actual flow rate
   sample.flow =
-      static_cast<float>(static_cast<int32_t>(sample.raw_flow) - offset_flow) /
-      scale_factor_;
+      static_cast<float>(static_cast<int32_t>(sample.raw_flow) - offset_flow) / scale_factor_;
 
   return I2CDeviceStatus::ok;
 }

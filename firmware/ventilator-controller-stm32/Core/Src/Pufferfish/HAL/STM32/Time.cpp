@@ -14,9 +14,13 @@
 namespace Pufferfish {
 namespace HAL {
 
-uint32_t millis() { return HAL_GetTick(); }
+uint32_t millis() {
+  return HAL_GetTick();
+}
 
-void delay(uint32_t ms) { HAL_Delay(ms); }
+void delay(uint32_t ms) {
+  HAL_Delay(ms);
+}
 
 // magical sequence to turn on the DWT counter
 // see:

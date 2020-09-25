@@ -11,8 +11,14 @@
 namespace Pufferfish {
 namespace HAL {
 
-uint8_t compute_crc8(const uint8_t *data, size_t size, const uint8_t polynomial,
-                     uint8_t init, bool ref_in, bool ref_out, uint8_t xor_out) {
+uint8_t compute_crc8(
+    const uint8_t *data,
+    size_t size,
+    const uint8_t polynomial,
+    uint8_t init,
+    bool ref_in,
+    bool ref_out,
+    uint8_t xor_out) {
   uint8_t crc = init;
   static const uint8_t crc_mask = 1U << (CHAR_BIT - 1U);
 

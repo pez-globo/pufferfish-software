@@ -26,8 +26,7 @@ class HALSPIDevice : public SPIDevice {
    * @param hspi    STM32 HAL handler for the SPI port
    * @param cspin   Chip select pin for SPI
    */
-  HALSPIDevice(SPI_HandleTypeDef &hspi, DigitalOutput &cspin)
-      : dev_(hspi), cs_pin_(cspin) {}
+  HALSPIDevice(SPI_HandleTypeDef &hspi, DigitalOutput &cspin) : dev_(hspi), cs_pin_(cspin) {}
 
   /**
    * Reads data from the device
@@ -52,8 +51,7 @@ class HALSPIDevice : public SPIDevice {
    * @param count amount of data to be sent and received
    * @return ok on success
    */
-  SPIDeviceStatus write_read(uint8_t *tx_buf, uint8_t *rx_buf,
-                             size_t count) override;
+  SPIDeviceStatus write_read(uint8_t *tx_buf, uint8_t *rx_buf, size_t count) override;
 
   /**
    * To make the chip select as high or low

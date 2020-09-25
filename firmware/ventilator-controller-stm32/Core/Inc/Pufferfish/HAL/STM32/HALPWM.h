@@ -27,8 +27,7 @@ class HALPWM : public PWM {
    * @param channel a channel of the timer that the device is connected, must be
    * init in PWM mode
    */
-  HALPWM(TIM_HandleTypeDef &htim, uint32_t channel)
-      : htim_(htim), channel(channel) {}
+  HALPWM(TIM_HandleTypeDef &htim, uint32_t channel) : htim_(htim), channel(channel) {}
 
   /**
    * Set a duty cycle of PWM, can be done when PWM is active

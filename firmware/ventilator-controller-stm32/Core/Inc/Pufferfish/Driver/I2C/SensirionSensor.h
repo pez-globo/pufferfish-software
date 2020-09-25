@@ -30,8 +30,7 @@ class SensirionSensor {
    * @param init    a initial value for CRC calculation
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus read_with_crc(uint8_t *buf, size_t count, uint8_t polynomial,
-                                uint8_t init);
+  I2CDeviceStatus read_with_crc(uint8_t *buf, size_t count, uint8_t polynomial, uint8_t init);
 
   /**
    * Writes data to the device

@@ -63,7 +63,9 @@ I2CDeviceStatus TCA9548A::test() {
   return I2CDeviceStatus::ok;
 }
 
-I2CDeviceStatus TCA9548A::reset() { return I2CDeviceStatus::not_supported; }
+I2CDeviceStatus TCA9548A::reset() {
+  return I2CDeviceStatus::not_supported;
+}
 
 }  // namespace I2C
 }  // namespace Driver

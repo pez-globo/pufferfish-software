@@ -18,9 +18,9 @@ namespace Util {
  */
 template <typename T>
 T parse_network_order(
-    const uint8_t *buffer, size_t size,
-    typename std::enable_if<std::is_arithmetic<T>::value,
-                            std::nullptr_t>::type /*unused*/) {
+    const uint8_t *buffer,
+    size_t size,
+    typename std::enable_if<std::is_arithmetic<T>::value, std::nullptr_t>::type /*unused*/) {
   T value = 0;
   for (size_t i = 0; i < size; ++i) {
     value += buffer[i] << (i * CHAR_BIT);

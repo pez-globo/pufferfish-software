@@ -35,8 +35,7 @@ class LEDAlarm : public AlarmDevice {
    * @param green   output for the green LED
    * @param blue    output for the blue LED
    */
-  LEDAlarm(HAL::DigitalOutput &red, HAL::DigitalOutput &green,
-           HAL::DigitalOutput &blue)
+  LEDAlarm(HAL::DigitalOutput &red, HAL::DigitalOutput &green, HAL::DigitalOutput &blue)
       : red_(red), green_(green), blue_(blue) {}
 
   AlarmManagerStatus update(uint32_t current_time) override;

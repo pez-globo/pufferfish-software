@@ -16,8 +16,8 @@ namespace Pufferfish {
 namespace HAL {
 
 I2CDeviceStatus HALI2CDevice::read(uint8_t *buf, size_t count) {
-  HAL_StatusTypeDef stat = HAL_I2C_Master_Receive(
-      &dev_, addr << 1U, buf, count, HALI2CDevice::default_timeout);
+  HAL_StatusTypeDef stat =
+      HAL_I2C_Master_Receive(&dev_, addr << 1U, buf, count, HALI2CDevice::default_timeout);
   if (stat == HAL_OK) {
     return I2CDeviceStatus::ok;
   }
@@ -25,8 +25,8 @@ I2CDeviceStatus HALI2CDevice::read(uint8_t *buf, size_t count) {
 }
 
 I2CDeviceStatus HALI2CDevice::write(uint8_t *buf, size_t count) {
-  HAL_StatusTypeDef stat = HAL_I2C_Master_Transmit(
-      &dev_, addr << 1U, buf, count, HALI2CDevice::default_timeout);
+  HAL_StatusTypeDef stat =
+      HAL_I2C_Master_Transmit(&dev_, addr << 1U, buf, count, HALI2CDevice::default_timeout);
   if (stat == HAL_OK) {
     return I2CDeviceStatus::ok;
   }

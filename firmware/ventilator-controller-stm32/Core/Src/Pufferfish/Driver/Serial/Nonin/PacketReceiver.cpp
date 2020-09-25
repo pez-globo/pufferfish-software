@@ -35,8 +35,8 @@ namespace Nonin {
  * @param  statusByte structure is updated based on input byteValue
  * @return None
  */
-void read_status_byte(PacketMeasurements &sensor_measurements,
-                      const size_t &frame_index, const uint8_t &byte_value) {
+void read_status_byte(
+    PacketMeasurements &sensor_measurements, const size_t &frame_index, const uint8_t &byte_value) {
   static const uint8_t mask_start_of_frame = 0x80;
   static const uint8_t mask_snsd = 0x40;
   static const uint8_t mask_artf = 0x20;
@@ -47,22 +47,18 @@ void read_status_byte(PacketMeasurements &sensor_measurements,
   static const uint8_t mask_gprf = 0x02;
 
   /* BIT7: Always high */
-  sensor_measurements.bit7[frame_index] =
-      (byte_value & mask_start_of_frame) == 0x00;
+  sensor_measurements.bit7[frame_index] = (byte_value & mask_start_of_frame) == 0x00;
   /* BIT6: SNSD: Sensor Disconnect – Sensor is not connected to oximeter or
    * sensor is inoperable */
-  sensor_measurements.sensor_disconnect[frame_index] =
-      (byte_value & mask_snsd) != 0x00;
+  sensor_measurements.sensor_disconnect[frame_index] = (byte_value & mask_snsd) != 0x00;
   /* BIT5: ARTF: Artifact – A detected pulse beat didn’t match the current pulse
    * interval */
   sensor_measurements.artifact[frame_index] = (byte_value & mask_artf) != 0x00;
   /* BIT4: OOT: Out Of Track – An absence of consecutive good pulse signals */
-  sensor_measurements.out_of_track[frame_index] =
-      (byte_value & mask_oot) != 0x00;
+  sensor_measurements.out_of_track[frame_index] = (byte_value & mask_oot) != 0x00;
   /* BIT3: SNSA: Sensor Alarm – Sensor is providing unusable data for analysis
    */
-  sensor_measurements.sensor_alarm[frame_index] =
-      (byte_value & mask_snsa) != 0x00;
+  sensor_measurements.sensor_alarm[frame_index] = (byte_value & mask_snsa) != 0x00;
 
   /**
    * BIT2 and BIT1: YPRF: Yellow Perfusion – Amplitude representation of medium
@@ -71,22 +67,17 @@ void read_status_byte(PacketMeasurements &sensor_measurements,
    * high signal quality.
    */
   if ((byte_value & mask_yprf) != 0) {
-    sensor_measurements.signal_perfusion[frame_index] =
-        SignalAmplitude::yellow_perfusion;
+    sensor_measurements.signal_perfusion[frame_index] = SignalAmplitude::yellow_perfusion;
   } else if ((byte_value & mask_rprf) != 0) {
-    sensor_measurements.signal_perfusion[frame_index] =
-        SignalAmplitude::red_perfusion;
+    sensor_measurements.signal_perfusion[frame_index] = SignalAmplitude::red_perfusion;
   } else if ((byte_value & mask_gprf) != 0) {
-    sensor_measurements.signal_perfusion[frame_index] =
-        SignalAmplitude::green_perfusion;
+    sensor_measurements.signal_perfusion[frame_index] = SignalAmplitude::green_perfusion;
   } else {
-    sensor_measurements.signal_perfusion[frame_index] =
-        SignalAmplitude::no_perfusion;
+    sensor_measurements.signal_perfusion[frame_index] = SignalAmplitude::no_perfusion;
   }
 }
 
-void read_packet_measurements(PacketMeasurements &sensor_measurements,
-                              const Packet &packet_data) {
+void read_packet_measurements(PacketMeasurements &sensor_measurements, const Packet &packet_data) {
   /* 4th byte of a frame contains heart beat and spo2 data */
   const uint8_t byte1 = 1;
   const uint8_t byte2 = 2;
@@ -112,8 +103,7 @@ void read_packet_measurements(PacketMeasurements &sensor_measurements,
    * HR-Bit0 in bit6 to bit0
    */
   sensor_measurements.heart_rate =
-      get_9bit_data(packet_data[heart_rate_index][byte3],
-                    packet_data[heart_rate_index + 1][byte3]);
+      get_9bit_data(packet_data[heart_rate_index][byte3], packet_data[heart_rate_index + 1][byte3]);
 
   /**
    * spo2: 4-beat average values in standard mode.
@@ -126,8 +116,7 @@ void read_packet_measurements(PacketMeasurements &sensor_measurements,
    * Nonin Oximeter Firmware Revision Level
    * sensorData 4th frame of packet contains Firmware Revision Level
    */
-  sensor_measurements.nonin_oem_revision =
-      packet_data[nonin_oem_revision_index][byte3];
+  sensor_measurements.nonin_oem_revision = packet_data[nonin_oem_revision_index][byte3];
 
   /**
    * spo2-D: 4-beat average displayed values in display mode
@@ -141,16 +130,14 @@ void read_packet_measurements(PacketMeasurements &sensor_measurements,
    * mode. sensorData 10th frame of packet contains spo2-D-Bit6 t0 spo2-D-Bit0
    * in bit6 to bit0
    */
-  sensor_measurements.spo2_d_fast =
-      get_6bit_data(packet_data[spo2_d_fast_index][byte3]);
+  sensor_measurements.spo2_d_fast = get_6bit_data(packet_data[spo2_d_fast_index][byte3]);
 
   /**
    * spo2 B-B: Un-averaged, non-slew limited, beat to beat value in standard
    * mode sensorData 11th frame of packet contains spo2-D-Bit6 t0 spo2-D-Bit0 in
    * bit6 to bit0
    */
-  sensor_measurements.spo2_d_beat =
-      get_6bit_data(packet_data[spo2_d_beat_index][byte3]);
+  sensor_measurements.spo2_d_beat = get_6bit_data(packet_data[spo2_d_beat_index][byte3]);
 
   /**
    * E-Heart Rate: 8-beat average values in standard mode.
@@ -158,9 +145,8 @@ void read_packet_measurements(PacketMeasurements &sensor_measurements,
    * bit1 and bit0 E-HR LSB : sensorData 15th frame of packet contains HR-Bit6
    * t0 HR-Bit0 in bit6 to bit0
    */
-  sensor_measurements.e_heart_rate =
-      get_9bit_data(packet_data[e_heart_rate_index][byte3],
-                    packet_data[e_heart_rate_index + 1][byte3]);
+  sensor_measurements.e_heart_rate = get_9bit_data(
+      packet_data[e_heart_rate_index][byte3], packet_data[e_heart_rate_index + 1][byte3]);
 
   /**
    * E-spo2: 8-beat average values in standard mode.
@@ -174,8 +160,7 @@ void read_packet_measurements(PacketMeasurements &sensor_measurements,
    * sensorData 17th frame of packet contains spo2-D-Bit6 to E-spo2-D-Bit0 in
    * bit6 to bit0
    */
-  sensor_measurements.e_spo2_d =
-      get_6bit_data(packet_data[e_spo2_d_index][byte3]);
+  sensor_measurements.e_spo2_d = get_6bit_data(packet_data[e_spo2_d_index][byte3]);
 
   /**
    * HR-D: 8-beat average values in standard mode.
@@ -183,9 +168,8 @@ void read_packet_measurements(PacketMeasurements &sensor_measurements,
    * bit1 and bit0 HR-D LSB : sensorData 21st frame of packet contains HR-Bit6
    * t0 HR-Bit0 in bit6 to bit0
    */
-  sensor_measurements.heart_rate_d =
-      get_9bit_data(packet_data[heart_rate_d_index][byte3],
-                    packet_data[heart_rate_d_index + 1][byte3]);
+  sensor_measurements.heart_rate_d = get_9bit_data(
+      packet_data[heart_rate_d_index][byte3], packet_data[heart_rate_d_index + 1][byte3]);
 
   /**
    * E-HR-D: 8-beat average displayed values in display mode
@@ -193,16 +177,13 @@ void read_packet_measurements(PacketMeasurements &sensor_measurements,
    * in bit1 and bit0 E-HR-D LSB : sensorData 23rd frame of packet contains
    * HR-Bit6 t0 HR-Bit0 in bit6 to bit0
    */
-  sensor_measurements.e_heart_rate_d =
-      get_9bit_data(packet_data[e_heart_rate_d_index][byte3],
-                    packet_data[e_heart_rate_d_index + 1][byte3]);
+  sensor_measurements.e_heart_rate_d = get_9bit_data(
+      packet_data[e_heart_rate_d_index][byte3], packet_data[e_heart_rate_d_index + 1][byte3]);
 
   /* Update the PLETH and Status byte errors into the packet measurements */
   for (frame_index = 0; frame_index < packet_size; frame_index++) {
-    sensor_measurements.packet_pleth[frame_index] =
-        packet_data[frame_index][byte2];
-    read_status_byte(sensor_measurements, frame_index,
-                     packet_data[frame_index][byte1]);
+    sensor_measurements.packet_pleth[frame_index] = packet_data[frame_index][byte2];
+    read_status_byte(sensor_measurements, frame_index, packet_data[frame_index][byte1]);
   }
 }
 
@@ -243,8 +224,7 @@ PacketReceiver::PacketInputStatus PacketReceiver::input(const Frame &frame) {
   return input_status_;
 }
 
-PacketReceiver::PacketOutputStatus PacketReceiver::output(
-    PacketMeasurements &sensor_measurements) {
+PacketReceiver::PacketOutputStatus PacketReceiver::output(PacketMeasurements &sensor_measurements) {
   /* Check for the frame availability in the buffer */
   if (input_status_ != PacketInputStatus::available) {
     /* Return PacketOutputStatus as waiting to receive packet data */

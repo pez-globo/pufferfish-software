@@ -35,8 +35,7 @@ I2CDeviceStatus HoneywellABP::read_sample(ABPSample &sample) {
   static const size_t bridge_low = 0;
   static const uint16_t bridge_mask = 0x3FFF;
   sample.status = ABPStatus(data[0] >> status_shift);
-  sample.bridge_data =
-      (data[bridge_high] << static_cast<uint8_t>(CHAR_BIT)) + data[bridge_low];
+  sample.bridge_data = (data[bridge_high] << static_cast<uint8_t>(CHAR_BIT)) + data[bridge_low];
   sample.bridge_data &= bridge_mask;
   sample.pressure = raw_to_pressure(sample.bridge_data);
   sample.unit = unit;
@@ -55,11 +54,9 @@ float HoneywellABP::raw_to_pressure(uint16_t output) const {
   // integer subtraction
   static const int32_t output_width =
       static_cast<int32_t>(output_max) - static_cast<int32_t>(output_min);
-  const int32_t relative_output =
-      static_cast<int32_t>(output) - static_cast<int32_t>(output_min);
+  const int32_t relative_output = static_cast<int32_t>(output) - static_cast<int32_t>(output_min);
 
-  return static_cast<float>(relative_output) * (pmax - pmin) /
-             static_cast<float>(output_width) +
+  return static_cast<float>(relative_output) * (pmax - pmin) / static_cast<float>(output_width) +
          pmin;
 }
 
@@ -73,8 +70,7 @@ I2CDeviceStatus HoneywellABP::test() {
     return status;
   }
 
-  if (sample.status != ABPStatus::no_error &&
-      sample.status != ABPStatus::stale_data) {
+  if (sample.status != ABPStatus::no_error && sample.status != ABPStatus::stale_data) {
     return I2CDeviceStatus::test_failed;
   }
 
@@ -85,7 +81,9 @@ I2CDeviceStatus HoneywellABP::test() {
   return I2CDeviceStatus::ok;
 }
 
-I2CDeviceStatus HoneywellABP::reset() { return I2CDeviceStatus::not_supported; }
+I2CDeviceStatus HoneywellABP::reset() {
+  return I2CDeviceStatus::not_supported;
+}
 
 }  // namespace I2C
 }  // namespace Driver

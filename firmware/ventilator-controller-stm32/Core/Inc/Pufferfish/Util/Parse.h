@@ -21,10 +21,11 @@ namespace Util {
  * @return the given number in network-order
  */
 template <typename T>
-T parse_network_order(const uint8_t *buffer, size_t size,
-                      typename std::enable_if<std::is_arithmetic<T>::value,
-                                              std::nullptr_t>::type /*unused*/
-                      = nullptr);
+T parse_network_order(
+    const uint8_t *buffer,
+    size_t size,
+    typename std::enable_if<std::is_arithmetic<T>::value, std::nullptr_t>::type /*unused*/
+    = nullptr);
 
 }  // namespace Util
 }  // namespace Pufferfish

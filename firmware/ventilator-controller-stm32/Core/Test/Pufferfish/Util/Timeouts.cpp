@@ -106,8 +106,7 @@ SCENARIO("Timeouts succeed across rollover for duration checks", "[timeouts]") {
   }
 }
 
-SCENARIO("Util::within_timeout behaves correctly across rollover",
-         "[timeouts]") {
+SCENARIO("Util::within_timeout behaves correctly across rollover", "[timeouts]") {
   GIVEN("A timeout") {
     uint8_t timeout = 10;
 

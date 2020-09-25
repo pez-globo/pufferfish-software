@@ -27,8 +27,7 @@ class AlarmsManager {
    * @param led         LED alarm
    * @param auditory    Buzzer and Auditory alarm
    */
-  AlarmsManager(Driver::Indicators::AlarmDevice &led,
-                Driver::Indicators::AlarmDevice &auditory)
+  AlarmsManager(Driver::Indicators::AlarmDevice &led, Driver::Indicators::AlarmDevice &auditory)
       : led_(led), auditory_(auditory) {}
 
   /**

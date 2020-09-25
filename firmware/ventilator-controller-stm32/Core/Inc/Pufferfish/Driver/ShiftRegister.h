@@ -19,8 +19,11 @@ class ShiftRegister {
   static const int baud_rate = 20;
   static const uint8_t num_channels = 8;
 
-  ShiftRegister(HAL::DigitalOutput &serial_in, HAL::DigitalOutput &serial_clock,
-                HAL::DigitalOutput &r_clock, HAL::DigitalOutput &serial_clear)
+  ShiftRegister(
+      HAL::DigitalOutput &serial_in,
+      HAL::DigitalOutput &serial_clock,
+      HAL::DigitalOutput &r_clock,
+      HAL::DigitalOutput &serial_clear)
       : serial_in_(serial_in),
         serial_clock_(serial_clock),
         r_clock_(r_clock),

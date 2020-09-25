@@ -66,8 +66,8 @@ class BufferedUART {
    * queue
    * @return ok if all provided bytes were added to the queue, partial otherwise
    */
-  BufferStatus write(const uint8_t *write_bytes, AtomicSize write_size,
-                     HAL::AtomicSize &written_size) volatile;
+  BufferStatus write(
+      const uint8_t *write_bytes, AtomicSize write_size, HAL::AtomicSize &written_size) volatile;
 
   /**
    * Persistently attempt to "push" the provided byte onto the TX queue
@@ -101,9 +101,11 @@ class BufferedUART {
    * queue
    * @return ok if all provided bytes were added to the queue, partial otherwise
    */
-  BufferStatus write_block(const uint8_t *write_bytes, AtomicSize write_size,
-                           uint32_t timeout,
-                           HAL::AtomicSize &written_size) volatile;
+  BufferStatus write_block(
+      const uint8_t *write_bytes,
+      AtomicSize write_size,
+      uint32_t timeout,
+      HAL::AtomicSize &written_size) volatile;
 
   /**
    * Set up the UART interrupt to service the RX queue.
@@ -142,8 +144,7 @@ class BufferedUART {
 };
 
 static const size_t large_uart_buffer_size = 4096;
-using LargeBufferedUART =
-    BufferedUART<large_uart_buffer_size, large_uart_buffer_size>;
+using LargeBufferedUART = BufferedUART<large_uart_buffer_size, large_uart_buffer_size>;
 
 }  // namespace HAL
 }  // namespace Pufferfish

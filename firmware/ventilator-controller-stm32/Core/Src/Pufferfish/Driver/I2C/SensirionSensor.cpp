@@ -14,9 +14,8 @@ namespace Pufferfish {
 namespace Driver {
 namespace I2C {
 
-I2CDeviceStatus SensirionSensor::read_with_crc(uint8_t *buf, size_t count,
-                                               uint8_t polynomial,
-                                               uint8_t init) {
+I2CDeviceStatus SensirionSensor::read_with_crc(
+    uint8_t *buf, size_t count, uint8_t polynomial, uint8_t init) {
   if (count % 2 > 0) {
     return I2CDeviceStatus::invalid_arguments;
   }
@@ -29,8 +28,8 @@ I2CDeviceStatus SensirionSensor::read_with_crc(uint8_t *buf, size_t count,
       return ret;
     }
 
-    uint8_t expected = Pufferfish::HAL::compute_crc8(
-        buf_crc.data(), 2, polynomial, init, false, false, 0x00);
+    uint8_t expected =
+        Pufferfish::HAL::compute_crc8(buf_crc.data(), 2, polynomial, init, false, false, 0x00);
     if (expected != buf_crc[2]) {
       return I2CDeviceStatus::crc_check_failed;
     }

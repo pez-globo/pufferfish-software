@@ -11,29 +11,24 @@ namespace Pufferfish {
 namespace HAL {
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
-BufferedUART<rx_buffer_size, tx_buffer_size>::BufferedUART(
-    UART_HandleTypeDef &huart)
+BufferedUART<rx_buffer_size, tx_buffer_size>::BufferedUART(UART_HandleTypeDef &huart)
     : huart_(huart) {}
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
-BufferStatus BufferedUART<rx_buffer_size, tx_buffer_size>::read(
-    uint8_t &read_byte) volatile {
+BufferStatus BufferedUART<rx_buffer_size, tx_buffer_size>::read(uint8_t &read_byte) volatile {
   return rx_buffer_.read(read_byte);
 }
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
-BufferStatus BufferedUART<rx_buffer_size, tx_buffer_size>::write(
-    uint8_t write_byte) volatile {
+BufferStatus BufferedUART<rx_buffer_size, tx_buffer_size>::write(uint8_t write_byte) volatile {
   BufferStatus status = tx_buffer_.write(write_byte);
-  __HAL_UART_ENABLE_IT(
-      &huart_, UART_IT_TXE);  // write a byte on the next TX empty interrupt
+  __HAL_UART_ENABLE_IT(&huart_, UART_IT_TXE);  // write a byte on the next TX empty interrupt
   return status;
 }
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 BufferStatus BufferedUART<rx_buffer_size, tx_buffer_size>::write(
-    const uint8_t *write_bytes, AtomicSize write_size,
-    HAL::AtomicSize &written_size) volatile {
+    const uint8_t *write_bytes, AtomicSize write_size, HAL::AtomicSize &written_size) volatile {
   for (written_size = 0; written_size < write_size; ++written_size) {
     if (write(write_bytes[written_size]) != BufferStatus::ok) {
       break;
@@ -61,7 +56,9 @@ BufferStatus BufferedUART<rx_buffer_size, tx_buffer_size>::write_block(
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 BufferStatus BufferedUART<rx_buffer_size, tx_buffer_size>::write_block(
-    const uint8_t *write_bytes, AtomicSize write_size, uint32_t timeout,
+    const uint8_t *write_bytes,
+    AtomicSize write_size,
+    uint32_t timeout,
     HAL::AtomicSize &written_size) volatile {
   uint32_t start = millis();
   while (written_size < write_size) {
@@ -92,8 +89,7 @@ void BufferedUART<rx_buffer_size, tx_buffer_size>::handle_irq() volatile {
 }
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
-uint32_t BufferedUART<rx_buffer_size, tx_buffer_size>::rx_dropped() const
-    volatile {
+uint32_t BufferedUART<rx_buffer_size, tx_buffer_size>::rx_dropped() const volatile {
   return rx_dropped_;
 }
 
@@ -105,8 +101,7 @@ void BufferedUART<rx_buffer_size, tx_buffer_size>::handle_irq_rx() volatile {
     return;
   }
 
-  auto rx_byte = static_cast<uint8_t>(huart_.Instance->RDR &
-                                      huart_.Mask);  // assumes 8-bit byte
+  auto rx_byte = static_cast<uint8_t>(huart_.Instance->RDR & huart_.Mask);  // assumes 8-bit byte
   if (rx_buffer_.write(rx_byte) != BufferStatus::ok) {
     ++rx_dropped_;
   }

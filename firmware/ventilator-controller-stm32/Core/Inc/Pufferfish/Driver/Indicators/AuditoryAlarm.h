@@ -28,12 +28,12 @@ class AuditoryAlarm : public AlarmDevice {
    * @param regLow  output for the regulatory low alarm pin
    * @param buzzer  output for the general purpose buzzer pin
    */
-  AuditoryAlarm(HAL::DigitalOutput &reg_high, HAL::DigitalOutput &reg_med,
-                HAL::DigitalOutput &reg_low, HAL::DigitalOutput &buzzer)
-      : reg_high_(reg_high),
-        reg_med_(reg_med),
-        reg_low_(reg_low),
-        buzzer_(buzzer) {}
+  AuditoryAlarm(
+      HAL::DigitalOutput &reg_high,
+      HAL::DigitalOutput &reg_med,
+      HAL::DigitalOutput &reg_low,
+      HAL::DigitalOutput &buzzer)
+      : reg_high_(reg_high), reg_med_(reg_med), reg_low_(reg_low), buzzer_(buzzer) {}
 
   AlarmManagerStatus update(uint32_t current_time) override;
   AlarmManagerStatus set_alarm(AlarmStatus a) override;

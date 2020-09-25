@@ -110,22 +110,25 @@ PF::HAL::HALAnalogInput adc3_input(hadc3, adc_poll_timeout);
 // Interface Board
 PF::HAL::HALDigitalOutput ser_clock(
     *SER_CLK_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SER_CLK_Pin, true);
+    SER_CLK_Pin,
+    true);
 PF::HAL::HALDigitalOutput ser_clear(
     *SER_CLR_N_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SER_CLR_N_Pin, false);
+    SER_CLR_N_Pin,
+    false);
 PF::HAL::HALDigitalOutput ser_r_clock(
     *SER_RCLK_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SER_RCLK_Pin, true);
+    SER_RCLK_Pin,
+    true);
 PF::HAL::HALDigitalOutput ser_input(
     *SER_IN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SER_IN_Pin, true);
+    SER_IN_Pin,
+    true);
 
 PF::HAL::HALDigitalOutput board_led1(
     *LD1_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     LD1_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-PF::Driver::ShiftRegister leds_reg(ser_input, ser_clock, ser_r_clock,
-                                   ser_clear);
+PF::Driver::ShiftRegister leds_reg(ser_input, ser_clock, ser_r_clock, ser_clear);
 
 PF::Driver::ShiftedOutput alarm_led_r(leds_reg, 0);
 PF::Driver::ShiftedOutput alarm_led_g(leds_reg, 1);
@@ -150,29 +153,31 @@ PF::HAL::HALDigitalOutput alarm_buzzer(
     *BUZZ1_EN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     BUZZ1_EN_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 
-PF::Driver::Indicators::LEDAlarm alarm_dev_led(alarm_led_r, alarm_led_g,
-                                               alarm_led_b);
-PF::Driver::Indicators::AuditoryAlarm alarm_dev_sound(alarm_reg_high,
-                                                      alarm_reg_med,
-                                                      alarm_reg_low,
-                                                      alarm_buzzer);
+PF::Driver::Indicators::LEDAlarm alarm_dev_led(alarm_led_r, alarm_led_g, alarm_led_b);
+PF::Driver::Indicators::AuditoryAlarm alarm_dev_sound(
+    alarm_reg_high, alarm_reg_med, alarm_reg_low, alarm_buzzer);
 PF::AlarmsManager h_alarms(alarm_dev_led, alarm_dev_sound);
 
 PF::HAL::HALDigitalInput button_alarm_en(
     *SET_ALARM_EN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SET_ALARM_EN_Pin, true);
+    SET_ALARM_EN_Pin,
+    true);
 PF::HAL::HALDigitalInput button_full_o2(
     *SET_100_O2_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SET_100_O2_Pin, true);
+    SET_100_O2_Pin,
+    true);
 PF::HAL::HALDigitalInput button_manual_breath(
     *SET_MANUAL_BREATH_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SET_MANUAL_BREATH_Pin, true);
+    SET_MANUAL_BREATH_Pin,
+    true);
 PF::HAL::HALDigitalInput button_lock(
     *SET_LOCK_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SET_LOCK_Pin, true);
+    SET_LOCK_Pin,
+    true);
 PF::HAL::HALDigitalInput button_power(
     *SET_PWR_ON_OFF_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SET_PWR_ON_OFF_Pin, true);
+    SET_PWR_ON_OFF_Pin,
+    true);
 
 // Solenoid Valves
 PF::HAL::HALPWM drive1_ch1(htim2, TIM_CHANNEL_4);
@@ -192,10 +197,8 @@ PF::HAL::HALPWM drive2_ch7(htim12, TIM_CHANNEL_2);
 
 // Base I2C Devices
 // Note: I2C1 is marked I2C2 in the control board v1.0 schematic, and vice versa
-PF::HAL::HALI2CDevice i2c_hal_mux1(hi2c2,
-                                   PF::Driver::I2C::TCA9548A::default_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_mux2(hi2c1,
-                                   PF::Driver::I2C::TCA9548A::default_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_mux1(hi2c2, PF::Driver::I2C::TCA9548A::default_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_mux2(hi2c1, PF::Driver::I2C::TCA9548A::default_i2c_addr);
 
 PF::HAL::HALI2CDevice i2c_hal_press1(
     hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3.i2c_addr);
@@ -209,18 +212,12 @@ PF::HAL::HALI2CDevice i2c_hal_press8(
     hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3.i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_press9(
     hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press13(
-    hi2c2, PF::Driver::I2C::SDPSensor::sdp8xx_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press14(
-    hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press15(
-    hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press16(
-    hi2c2, PF::Driver::I2C::SFM3000::default_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press17(
-    hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press18(
-    hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press13(hi2c2, PF::Driver::I2C::SDPSensor::sdp8xx_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press14(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press15(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press16(hi2c2, PF::Driver::I2C::SFM3000::default_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press17(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press18(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
 
 // I2C Mux
 PF::Driver::I2C::TCA9548A i2c_mux1(i2c_hal_mux1);
@@ -235,19 +232,16 @@ PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press8(i2c_hal_press8, i2c_mux2, 3);
 // NOLINTNEXTLINE(readability-magic-numbers)
 PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press9(i2c_hal_press9, i2c_mux2, 5);
 
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press13(i2c_hal_press13, i2c_mux1,
-                                                   0);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press14(i2c_hal_press14, i2c_mux1,
-                                                   2);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press15(i2c_hal_press15, i2c_mux1,
-                                                   4);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press16(i2c_hal_press16, i2c_mux1,
-                                                   1);
-PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press17(i2c_hal_press17, i2c_mux1,
-                                                   3);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press13(i2c_hal_press13, i2c_mux1, 0);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press14(i2c_hal_press14, i2c_mux1, 2);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press15(i2c_hal_press15, i2c_mux1, 4);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press16(i2c_hal_press16, i2c_mux1, 1);
+PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press17(i2c_hal_press17, i2c_mux1, 3);
 PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press18(
     // NOLINTNEXTLINE(readability-magic-numbers)
-    i2c_hal_press18, i2c_mux1, 5);
+    i2c_hal_press18,
+    i2c_mux1,
+    5);
 
 // Actual usable sensor
 PF::Driver::I2C::HoneywellABP i2c_press1(
@@ -275,9 +269,20 @@ volatile Pufferfish::HAL::LargeBufferedUART buffered_uart3(huart3);
 // Test list
 // NOLINTNEXTLINE(readability-magic-numbers)
 std::array<PF::Driver::Testable *, 14> i2c_test_list{
-    {&i2c_mux1, &i2c_mux2, &i2c_press1, &i2c_press2, &i2c_press3, &i2c_press7,
-     &i2c_press8, &i2c_press9, &i2c_press13, &i2c_press14, &i2c_press15,
-     &i2c_press16, &i2c_press17, &i2c_press18}};
+    {&i2c_mux1,
+     &i2c_mux2,
+     &i2c_press1,
+     &i2c_press2,
+     &i2c_press3,
+     &i2c_press7,
+     &i2c_press8,
+     &i2c_press9,
+     &i2c_press13,
+     &i2c_press14,
+     &i2c_press15,
+     &i2c_press16,
+     &i2c_press17,
+     &i2c_press18}};
 
 int interface_test_state = 0;
 int interface_test_millis = 0;
@@ -420,22 +425,19 @@ int main(void)
   while (true) {
     /* Nonin TODO: Invoking the NoninOEM output method */
     return_status = oemobj.output(test_sensor_measurements);
-    if (return_status ==
-        PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::available) {
+    if (return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::available) {
       packet_count = packet_count + 1;
 
       /// Nonin TODO: Test Scenario 1 On sensor disconnected from Nonin OEM III
       /// module
       if (packet_count == 1) {
-        testcase_results[0] = static_cast<uint32_t>(
-            test_sensor_measurements.sensor_disconnect[0]);
+        testcase_results[0] = static_cast<uint32_t>(test_sensor_measurements.sensor_disconnect[0]);
       }
 
       /// Nonin TODO: Test Scenario 2 On sensor connected to Nonin OEM III
       /// module and no contact with  finger clip sensor
       if (packet_count == 1) {
-        testcase_results[1] =
-            static_cast<uint32_t>(test_sensor_measurements.sensor_alarm[0]);
+        testcase_results[1] = static_cast<uint32_t>(test_sensor_measurements.sensor_alarm[0]);
       }
       /// Nonin TODO: Test Scenario 3 Time validation for 15 frames is 5 seconds
       if (packet_count == 1) {
@@ -453,8 +455,7 @@ int main(void)
       }
     }
     /* Nonin TODO : Added to resolve warnings */
-    testcase_results[3] =
-        static_cast<uint32_t>(static_cast<bool>(testcase_results[2]));
+    testcase_results[3] = static_cast<uint32_t>(static_cast<bool>(testcase_results[2]));
 
     PF::AlarmManagerStatus stat = h_alarms.update(PF::HAL::millis());
     if (stat != PF::AlarmManagerStatus::ok) {
@@ -479,8 +480,7 @@ int main(void)
       buffered_uart3.write(receive);
       PF::HAL::AtomicSize written_size = 0;
       std::array<uint8_t, 2> repeat_string = {receive, receive};
-      buffered_uart3.write(repeat_string.data(), repeat_string.size(),
-                           written_size);
+      buffered_uart3.write(repeat_string.data(), repeat_string.size(), written_size);
     }
     /* USER CODE END WHILE */
 

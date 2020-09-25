@@ -78,10 +78,8 @@ class PulsedPWMGenerator : public DigitalFunctionGenerator {
    * @brief  PulsedPWMGenerator Constructor
    * @param  Low and high frequency objects of PWMGenerator
    */
-  PulsedPWMGenerator(PWMGenerator &pulse_pwm_generator1,
-                     PWMGenerator &pulse_pwm_generator2)
-      : pulse_pwm_generator1_(pulse_pwm_generator1),
-        pulse_pwm_generator2_(pulse_pwm_generator2) {}
+  PulsedPWMGenerator(PWMGenerator &pulse_pwm_generator1, PWMGenerator &pulse_pwm_generator2)
+      : pulse_pwm_generator1_(pulse_pwm_generator1), pulse_pwm_generator2_(pulse_pwm_generator2) {}
 
   /**
    * @brief  start method updates the mReset to TRUE to start the alarm

@@ -75,8 +75,7 @@ class MockSPIDevice : public SPIDevice {
    * @param  count amount of data to be sent and received
    * @return returns SPIDeviceStatus as ok
    */
-  SPIDeviceStatus write_read(uint8_t *tx_buf, uint8_t *rx_buf,
-                             size_t count) override;
+  SPIDeviceStatus write_read(uint8_t *tx_buf, uint8_t *rx_buf, size_t count) override;
 
   /**
    * @brief  Reads private buffer variable mGetWriteReadBuf and updates to buf

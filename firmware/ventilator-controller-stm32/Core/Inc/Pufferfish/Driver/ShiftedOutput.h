@@ -18,8 +18,7 @@ namespace Driver {
  */
 class ShiftedOutput : public HAL::DigitalOutput {
  public:
-  ShiftedOutput(ShiftRegister &dev, uint8_t channel)
-      : dev_(dev), channel(channel) {}
+  ShiftedOutput(ShiftRegister &dev, uint8_t channel) : dev_(dev), channel(channel) {}
 
   void write(bool output) override;
 

@@ -89,8 +89,8 @@ class SDPSensor : public Testable {
    * @param differential_pressure[out] the sensor reading; only valid on success
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus read_pressure_sample(int16_t differential_pressure_scale,
-                                       float &differential_pressure);
+  I2CDeviceStatus read_pressure_sample(
+      int16_t differential_pressure_scale, float &differential_pressure);
 
   /**
    * stop continuously making measurements in sensor
@@ -118,8 +118,7 @@ class SDPSensor : public Testable {
   SensirionSensor sensirion_;
   bool measuring_ = false;
 
-  static void parse_reading(const std::array<uint8_t, full_reading_size> &data,
-                            SDPSample &sample);
+  static void parse_reading(const std::array<uint8_t, full_reading_size> &data, SDPSample &sample);
 };
 
 }  // namespace I2C

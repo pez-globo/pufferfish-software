@@ -54,7 +54,9 @@ void PWMGenerator::update(uint32_t current_time) {
   }
 }
 
-bool PWMGenerator::output() { return output_; }
+bool PWMGenerator::output() {
+  return output_;
+}
 
 void PWMGenerator::stop() {
   /* Set the reset value to false to stop the pulse */

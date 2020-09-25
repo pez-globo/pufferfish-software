@@ -10,7 +10,9 @@
 namespace Pufferfish {
 namespace Driver {
 
-void ShiftedOutput::write(bool output) { dev_.set_channel(channel, output); }
+void ShiftedOutput::write(bool output) {
+  dev_.set_channel(channel, output);
+}
 
 }  // namespace Driver
 }  // namespace Pufferfish

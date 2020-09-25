@@ -23,8 +23,7 @@ class HALDigitalOutput : public DigitalOutput {
    * @param pin   GPIO pin of the MCU (1, 2, ...)
    * @param inverted   true if the output is active-low, false for active-high
    */
-  HALDigitalOutput(GPIO_TypeDef &port, const uint16_t pin,
-                   const bool inverted = false)
+  HALDigitalOutput(GPIO_TypeDef &port, const uint16_t pin, const bool inverted = false)
       : port_(port), pin(pin), inverted(inverted) {}
 
   /**

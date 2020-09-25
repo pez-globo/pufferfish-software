@@ -60,8 +60,7 @@ void MockSPIDevice::set_write_read(const uint8_t *buf, size_t count) {
   }
 }
 
-SPIDeviceStatus MockSPIDevice::write_read(uint8_t *tx_buf, uint8_t *rx_buf,
-                                          size_t count) {
+SPIDeviceStatus MockSPIDevice::write_read(uint8_t *tx_buf, uint8_t *rx_buf, size_t count) {
   size_t index = 0;
   size_t minumum = (count < read_buf_size) ? count : read_buf_size;
 
@@ -86,9 +85,13 @@ void MockSPIDevice::get_write_read(uint8_t *buf, size_t count) {
   }
 }
 
-void MockSPIDevice::chip_select(bool input) { last_cs_ = input; }
+void MockSPIDevice::chip_select(bool input) {
+  last_cs_ = input;
+}
 
-bool MockSPIDevice::get_chip_select() const { return last_cs_; }
+bool MockSPIDevice::get_chip_select() const {
+  return last_cs_;
+}
 
 }  // namespace HAL
 }  // namespace Pufferfish

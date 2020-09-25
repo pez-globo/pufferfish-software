@@ -43,7 +43,7 @@ class NoninOEM {
   /* PacketReceiver Input status */
   enum class NoninPacketStatus {
     available = 0,  /// Packet/measurements is available
-    waiting,  /// Packet/measurements is waiting to receive more bytes of data
+    waiting,        /// Packet/measurements is waiting to receive more bytes of data
     not_available,  /// Packet/measurements are not available
     framing_error,  /// Error in checksum or status byte or in byte 1 of a frame
     missed_data     /// Missed a packet due loss of frames

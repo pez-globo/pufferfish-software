@@ -34,12 +34,12 @@ namespace Nonin {
 /* Enum class for amplitude representation of signal quality  */
 enum class SignalAmplitude {
   no_perfusion = 0,  /// No loss in signal quality
-  red_perfusion,  /// Red Perfusion – Amplitude representation of low signal
-                  /// quality
+  red_perfusion,     /// Red Perfusion – Amplitude representation of low signal
+                     /// quality
   yellow_perfusion,  /// YPRF: Yellow Perfusion – Amplitude representation of
                      /// medium signal quality
-  green_perfusion  /// Green Perfusion – Amplitude representation of high signal
-                   /// quality
+  green_perfusion    /// Green Perfusion – Amplitude representation of high signal
+                     /// quality
 };
 
 /* Structure defines the sensor data in packet for measurements */
@@ -109,8 +109,7 @@ inline uint16_t get_9bit_data(uint8_t msb_byte, uint8_t lsb_byte) {
   static const uint16_t mask_msb = 0x18;
   static const uint16_t mask_9bit = 0x01FF;
   const uint16_t msb =
-      static_cast<uint16_t>(static_cast<uint16_t>(msb_byte) << msb_shift) &
-      mask_msb;
+      static_cast<uint16_t>(static_cast<uint16_t>(msb_byte) << msb_shift) & mask_msb;
   const uint16_t lsb = static_cast<uint16_t>(lsb_byte) & mask_6bit;
   return static_cast<uint16_t>(msb | lsb) & mask_9bit;
 }

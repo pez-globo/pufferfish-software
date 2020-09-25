@@ -35,11 +35,10 @@ bool validate_start_of_frame(const Frame &new_frame) {
   /* Check for the byte 1 is 01 and 1st bit of byte 2 is 0x81 for the start of
    * frame */
   static const uint8_t mask_start_of_packet = 0x81;
-  if (new_frame[0] == 0x01 &&
-      (new_frame[1] & mask_start_of_packet) == mask_start_of_packet) {
+  if (new_frame[0] == 0x01 && (new_frame[1] & mask_start_of_packet) == mask_start_of_packet) {
     /* Checksum validation */
-    if (((new_frame[0] + new_frame[1] + new_frame[2] + new_frame[3]) %
-         (UINT8_MAX + 1)) == new_frame[4]) {
+    if (((new_frame[0] + new_frame[1] + new_frame[2] + new_frame[3]) % (UINT8_MAX + 1)) ==
+        new_frame[4]) {
       return true;
     }
   }
@@ -53,11 +52,10 @@ bool validate_start_of_frame(const Frame &new_frame) {
 FrameReceiver::FrameInputStatus validate_frame(const Frame &new_frame) {
   static const uint8_t mask_start_of_frame = 0x80;
   /* Check for the byte 1 is 01 and 1st bit of byte 2 is 0x80 for status byte */
-  if (new_frame[0] == 0x01 &&
-      (new_frame[1] & mask_start_of_frame) == mask_start_of_frame) {
+  if (new_frame[0] == 0x01 && (new_frame[1] & mask_start_of_frame) == mask_start_of_frame) {
     /* Checksum validation */
-    if (((new_frame[0] + new_frame[1] + new_frame[2] + new_frame[3]) %
-         (UINT8_MAX + 1)) == new_frame[4]) {
+    if (((new_frame[0] + new_frame[1] + new_frame[2] + new_frame[3]) % (UINT8_MAX + 1)) ==
+        new_frame[4]) {
       /* Return the start of packet status as available */
       return FrameReceiver::FrameInputStatus::available;
     }
@@ -67,8 +65,7 @@ FrameReceiver::FrameInputStatus validate_frame(const Frame &new_frame) {
   return FrameReceiver::FrameInputStatus::framing_error;
 }
 
-FrameReceiver::FrameInputStatus FrameReceiver::update_frame_buffer(
-    uint8_t new_byte) {
+FrameReceiver::FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
   Frame frame_buffer;
 
   /* Input the new byte received and check for frame availability */

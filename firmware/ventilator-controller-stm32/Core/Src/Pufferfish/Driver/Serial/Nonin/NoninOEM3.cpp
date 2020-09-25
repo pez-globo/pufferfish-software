@@ -26,8 +26,7 @@ namespace Driver {
 namespace Serial {
 namespace Nonin {
 
-NoninOEM::NoninPacketStatus NoninOEM::output(
-    PacketMeasurements &sensor_measurements) {
+NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensor_measurements) {
   uint8_t read_byte = 0;
   Frame frame_buffer;
 
@@ -58,8 +57,7 @@ NoninOEM::NoninPacketStatus NoninOEM::output(
   }
 
   /* On frame input available invoke output method to receive frame */
-  if (frame_receiver_.output(frame_buffer) ==
-      FrameReceiver::FrameOutputStatus::waiting) {
+  if (frame_receiver_.output(frame_buffer) == FrameReceiver::FrameOutputStatus::waiting) {
     /* Return sensor status is waiting to receive more bytes of data */
     return NoninPacketStatus::waiting;
   }
