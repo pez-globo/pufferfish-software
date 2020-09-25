@@ -22,11 +22,10 @@ class ExtendedI2CDevice : public HAL::I2CDevice {
   /**
    * Construct a new extended I2C device
    *
-   * @param dev a device behind the multiplexer -- can be HALI2CDevice or
-   * another ExtendedI2CDevice in a nested config
+   * @param dev a device behind the multiplexer -- can be HALI2CDevice or another ExtendedI2CDevice
+   * in a nested config
    * @param mux an I2C multiplexer
-   * @param extSlot the location in the multiplexer to which the device is
-   * connected
+   * @param extSlot the location in the multiplexer to which the device is connected
    */
   ExtendedI2CDevice(I2CDevice &dev, I2CMux &mux, uint8_t ext_slot)
       : dev_(dev), mux_(mux), ext_slot(ext_slot) {}

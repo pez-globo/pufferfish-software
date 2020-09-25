@@ -156,9 +156,9 @@ void SDPSensor::parse_reading(
   static const size_t temp_raw_low = 3;
   static const size_t dp_scale_high = 4;
   static const size_t dp_scale_low = 5;
-  int16_t dp_raw = (data[dp_raw_high] << sizeof(uint8_t)) + data[dp_raw_low];
-  int16_t temp_raw = (data[temp_raw_high] << sizeof(uint8_t)) + data[temp_raw_low];
-  int16_t dp_scale = (data[dp_scale_high] << sizeof(uint8_t)) + data[dp_scale_low];
+  int16_t dp_raw = (data[dp_raw_high] << static_cast<uint16_t>(CHAR_BIT)) + data[dp_raw_low];
+  int16_t temp_raw = (data[temp_raw_high] << static_cast<uint16_t>(CHAR_BIT)) + data[temp_raw_low];
+  int16_t dp_scale = (data[dp_scale_high] << static_cast<uint16_t>(CHAR_BIT)) + data[dp_scale_low];
 
   if (dp_scale != 0) {
     sample.differential_pressure = static_cast<float>(dp_raw) / static_cast<float>(dp_scale);
