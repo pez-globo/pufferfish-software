@@ -2,6 +2,7 @@
 # sources: mcu_pb.proto
 # plugin: python-betterproto
 from dataclasses import dataclass
+from typing import List
 
 import betterproto
 
@@ -14,6 +15,19 @@ class VentilationMode(betterproto.Enum):
     psv = 4
     niv = 5
     hfnc = 6
+
+
+class LoggedEventCode(betterproto.Enum):
+    """Logged Events"""
+
+    fio2_too_low = 0
+    fio2_too_high = 1
+    spo2_too_low = 2
+    spo2_too_high = 3
+    rr_too_low = 4
+    rr_too_high = 5
+    battery_low = 6
+    screen_locked = 7
 
 
 @dataclass
@@ -111,3 +125,25 @@ class Ping(betterproto.Message):
 class Announcement(betterproto.Message):
     time: int = betterproto.uint32_field(1)
     announcement: bytes = betterproto.bytes_field(2)
+
+
+@dataclass
+class LoggedEvent(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    time: int = betterproto.uint32_field(2)
+    code: "LoggedEventCode" = betterproto.enum_field(3)
+    old_value: float = betterproto.float_field(4)
+    new_value: float = betterproto.float_field(5)
+
+
+@dataclass
+class ExpectedInactiveLoggedEvent(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+
+
+@dataclass
+class NextInactiveLoggedEvents(betterproto.Message):
+    next_expected: int = betterproto.uint32_field(1)
+    total: int = betterproto.uint32_field(2)
+    remaining: int = betterproto.uint32_field(3)
+    elements: List["LoggedEvent"] = betterproto.message_field(4)
