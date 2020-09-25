@@ -42,7 +42,7 @@ SPIDeviceStatus SPIFlash::get_device_id(uint8_t &device_id) {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -69,7 +69,7 @@ SPIDeviceStatus SPIFlash::get_jedec_id(uint16_t &id) {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -94,7 +94,7 @@ SPIDeviceStatus SPIFlash::enable_write() {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
   /* return SPIDeviceStatus */
@@ -115,7 +115,7 @@ SPIDeviceStatus SPIFlash::disable_write() {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
   /* return SPIDeviceStatus */
@@ -131,18 +131,19 @@ SPIDeviceStatus SPIFlash::write_byte(uint32_t addr, const uint8_t *input,
   SPIDeviceStatus block_status = this->read_block_status(addr);
 
   if (block_status == SPIDeviceStatus::block_lock) {
-    /* if block is locked then invoke unLockIndividualBlock to unlock the block */
+    /* if block is locked then invoke unLockIndividualBlock to unlock the block
+     */
     SPIDeviceStatus ret = this->unlock_individual_block(addr);
     /* return ret if it is not ok */
-    if(ret != SPIDeviceStatus::ok){
+    if (ret != SPIDeviceStatus::ok) {
       return ret;
-     }
+    }
   }
 
   /* Invoke read_status_register1 to get the status of device */
   SPIDeviceStatus ret = this->read_status_register1(reg_data);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -152,14 +153,15 @@ SPIDeviceStatus SPIFlash::write_byte(uint32_t addr, const uint8_t *input,
   }
 
   /* Update the Byte0 of tx_buf with write byte instruction */
-  tx_buf[0]= static_cast<uint8_t>(SPIInstruction::write_byte);
+  tx_buf[0] = static_cast<uint8_t>(SPIInstruction::write_byte);
 
-  /* Fill the Byte1-Byte3 with address and remaining bytes with input which is to be written */
-  for(uint8_t index = 1; index <= (size+4) ; index++){
-    if(index < 4){
-      tx_buf[index] = (addr >> (8 * (3-index))) & 0xFF;
+  /* Fill the Byte1-Byte3 with address and remaining bytes with input which is
+   * to be written */
+  for (uint8_t index = 1; index <= (size + 4); index++) {
+    if (index < 4) {
+      tx_buf[index] = (addr >> (8 * (3 - index))) & 0xFF;
     } else {
-      tx_buf[index] = input[index-4];
+      tx_buf[index] = input[index - 4];
     }
   }
 
@@ -174,7 +176,7 @@ SPIDeviceStatus SPIFlash::write_byte(uint32_t addr, const uint8_t *input,
   spi_.chip_select(false);
 
   /* Write data into the device */
-  ret = spi_.write(tx_buf, size+4);
+  ret = spi_.write(tx_buf, size + 4);
 
   /* Make the CS pin High after write operation */
   spi_.chip_select(true);
@@ -190,7 +192,7 @@ SPIDeviceStatus SPIFlash::write_byte(uint32_t addr, const uint8_t *input,
   /* Invoke lockIndividualBlock to lock the block */
   ret = this->lock_individual_block(addr);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
   /* return SPIDeviceStatus */
@@ -203,18 +205,18 @@ SPIDeviceStatus SPIFlash::read_byte(uint32_t addr, uint8_t *data,
   uint8_t rx_buf[size + 4] = {0};
 
   /* Update the Byte0 of tx_buf with read byte instruction */
-  tx_buf[0]= static_cast<uint8_t>(SPIInstruction::read_byte);
+  tx_buf[0] = static_cast<uint8_t>(SPIInstruction::read_byte);
 
   /* Fill the Byte1-Byte3 with address */
-  for (uint8_t index = 1; index<=3 ; index++){
-    tx_buf[index] = (addr >> (8 * (3-index))) & 0xFF;
+  for (uint8_t index = 1; index <= 3; index++) {
+    tx_buf[index] = (addr >> (8 * (3 - index))) & 0xFF;
   }
 
   /* Make the CS pin Low before read operation*/
   spi_.chip_select(false);
 
   /* Write and Read data to and from the device */
-  SPIDeviceStatus ret = spi_.write_read(tx_buf, rx_buf, size+4);
+  SPIDeviceStatus ret = spi_.write_read(tx_buf, rx_buf, size + 4);
 
   /* Make the CS pin High after read operation */
   spi_.chip_select(true);
@@ -224,7 +226,7 @@ SPIDeviceStatus SPIFlash::read_byte(uint32_t addr, uint8_t *data,
     return ret;
   }
 
-  for(uint8_t index = 4; index < (size+4); index++){
+  for (uint8_t index = 4; index < (size + 4); index++) {
     data[index - 4] = rx_buf[index];
   }
   /* return SPIDeviceStatus */
@@ -239,7 +241,7 @@ SPIDeviceStatus SPIFlash::lock_individual_block(uint32_t addr) {
   /* Invoke read_status_register1 to get the status of device */
   SPIDeviceStatus ret = this->read_status_register1(reg_data);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -252,14 +254,14 @@ SPIDeviceStatus SPIFlash::lock_individual_block(uint32_t addr) {
   tx_buf[0] = static_cast<uint8_t>(SPIInstruction::lock_block);
 
   /* Fill the Byte1-Byte3 with address */
-  for(uint8_t index = 1; index <= 3 ; index++){
+  for (uint8_t index = 1; index <= 3; index++) {
     tx_buf[index] = (addr >> (8 * (3 - index))) & 0xFF;
   }
 
   /* Invoke enableWrite to set the WEL bit to 1 */
   ret = this->enable_write();
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -273,7 +275,7 @@ SPIDeviceStatus SPIFlash::lock_individual_block(uint32_t addr) {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
   /* return SPIDeviceStatus */
@@ -291,7 +293,7 @@ SPIDeviceStatus SPIFlash::unlock_individual_block(uint32_t addr) {
   /* Invoke read_status_register1 to get the status of device */
   SPIDeviceStatus ret = this->read_status_register1(reg_data);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -303,7 +305,7 @@ SPIDeviceStatus SPIFlash::unlock_individual_block(uint32_t addr) {
   /* Invoke write_status_register3 to make WPS bit to 1 */
   ret = this->write_status_register3(reg3_input);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -311,14 +313,14 @@ SPIDeviceStatus SPIFlash::unlock_individual_block(uint32_t addr) {
   tx_buf[0] = static_cast<uint8_t>(SPIInstruction::unlock_block);
 
   /* Fill the Byte1-Byte3 with address */
-  for (uint8_t index = 1; index <= 3 ; index++){
+  for (uint8_t index = 1; index <= 3; index++) {
     tx_buf[index] = (addr >> (8 * (3 - index))) & 0xFF;
   }
 
   /* Invoke enableWrite to set the WEL bit to 1 */
   ret = this->enable_write();
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -332,7 +334,7 @@ SPIDeviceStatus SPIFlash::unlock_individual_block(uint32_t addr) {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
   /* return SPIDeviceStatus */
@@ -349,7 +351,7 @@ SPIDeviceStatus SPIFlash::global_block_unlock() {
   /* Invoke read_status_register1 to get the status of device */
   SPIDeviceStatus ret = this->read_status_register1(reg_data);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -361,14 +363,14 @@ SPIDeviceStatus SPIFlash::global_block_unlock() {
   /* Invoke write_status_register3 to make WPS bit to 1 */
   ret = this->write_status_register3(reg_input);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
   /* Invoke enableWrite to set the WEL bit to 1 */
   ret = this->enable_write();
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -382,7 +384,7 @@ SPIDeviceStatus SPIFlash::global_block_unlock() {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
   /* return SPIDeviceStatus */
@@ -397,7 +399,7 @@ SPIDeviceStatus SPIFlash::global_block_lock() {
   /* Invoke read_status_register1 to get the status of device */
   SPIDeviceStatus ret = this->read_status_register1(reg_data);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -409,7 +411,7 @@ SPIDeviceStatus SPIFlash::global_block_lock() {
   /* Invoke enableWrite to set the WEL bit to 1 */
   ret = this->enable_write();
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -423,7 +425,7 @@ SPIDeviceStatus SPIFlash::global_block_lock() {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
   /* return SPIDeviceStatus */
@@ -433,13 +435,13 @@ SPIDeviceStatus SPIFlash::global_block_lock() {
 SPIDeviceStatus SPIFlash::read_block_status(uint32_t addr) {
   uint8_t tx_buf[5] = {0};
   uint8_t rx_buf[5] = {0};
-  uint8_t  size = 5;
+  uint8_t size = 5;
 
   /* Update the Byte0 of tx_buf with read block status instruction */
   tx_buf[0] = static_cast<uint8_t>(SPIInstruction::read_block_status);
 
   /* Fill the Byte1-Byte3 with address */
-  for (uint8_t index = 1; index<=3 ; index++){
+  for (uint8_t index = 1; index <= 3; index++) {
     tx_buf[index] = (addr >> (8 * (3 - index))) & 0xFF;
   }
 
@@ -453,7 +455,7 @@ SPIDeviceStatus SPIFlash::read_block_status(uint32_t addr) {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -473,7 +475,7 @@ SPIDeviceStatus SPIFlash::erase_chip() {
   /* Invoke read_status_register1 to get the status of device */
   SPIDeviceStatus ret = this->read_status_register1(reg_data);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -485,14 +487,14 @@ SPIDeviceStatus SPIFlash::erase_chip() {
   /* Invoke globalBlockUnLock to unlock all the blocks */
   ret = this->global_block_unlock();
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok) {
-     return ret;
+  if (ret != SPIDeviceStatus::ok) {
+    return ret;
   }
 
   /* Invoke enableWrite to set the WEL bit to 1 */
   ret = this->enable_write();
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok) {
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -505,7 +507,7 @@ SPIDeviceStatus SPIFlash::erase_chip() {
   /* Make the CS pin High after read operation */
   spi_.chip_select(true);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok) {
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -523,10 +525,11 @@ SPIDeviceStatus SPIFlash::erase_sector_4kb(uint32_t addr) {
   /* Invoke read_block_status to get the status of block */
   SPIDeviceStatus block_status = this->read_block_status(addr);
   if (block_status == SPIDeviceStatus::block_lock) {
-    /* if block is locked then invoke unLockIndividualBlock to unlock the block */
+    /* if block is locked then invoke unLockIndividualBlock to unlock the block
+     */
     SPIDeviceStatus ret = this->unlock_individual_block(addr);
     /* return ret if it is not ok */
-    if(ret != SPIDeviceStatus::ok) {
+    if (ret != SPIDeviceStatus::ok) {
       return ret;
     }
   }
@@ -534,7 +537,7 @@ SPIDeviceStatus SPIFlash::erase_sector_4kb(uint32_t addr) {
   /* Invoke read_status_register1 to get the status of device */
   SPIDeviceStatus ret = this->read_status_register1(reg_data);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -547,14 +550,14 @@ SPIDeviceStatus SPIFlash::erase_sector_4kb(uint32_t addr) {
   tx_buf[0] = static_cast<uint8_t>(SPIInstruction::sector_erase_4kb);
 
   /* Fill the Byte1-Byte3 with address */
-  for(uint8_t index = 1; index<=3 ; index++){
+  for (uint8_t index = 1; index <= 3; index++) {
     tx_buf[index] = (addr >> (8 * (3 - index))) & 0xFF;
   }
 
   /* Invoke enableWrite to set the WEL bit to 1 */
   ret = this->enable_write();
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok) {
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -577,7 +580,7 @@ SPIDeviceStatus SPIFlash::erase_sector_4kb(uint32_t addr) {
 
   /* Invoke lockIndividualBlock to lock the block */
   ret = this->lock_individual_block(addr);
-  if(ret != SPIDeviceStatus::ok) {
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
   /* return SPIDeviceStatus */
@@ -591,10 +594,11 @@ SPIDeviceStatus SPIFlash::erase_block_32kb(uint32_t addr) {
   /* Invoke read_block_status to get the status of block */
   SPIDeviceStatus block_status = this->read_block_status(addr);
   if (block_status == SPIDeviceStatus::block_lock) {
-    /* if block is locked then invoke unLockIndividualBlock to unlock the block */
+    /* if block is locked then invoke unLockIndividualBlock to unlock the block
+     */
     SPIDeviceStatus ret = this->unlock_individual_block(addr);
     /* return ret if it is not ok */
-    if(ret != SPIDeviceStatus::ok) {
+    if (ret != SPIDeviceStatus::ok) {
       return ret;
     }
   }
@@ -602,8 +606,8 @@ SPIDeviceStatus SPIFlash::erase_block_32kb(uint32_t addr) {
   /* Invoke read_status_register1 to get the status of device */
   SPIDeviceStatus ret = this->read_status_register1(reg_data);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
-     return ret;
+  if (ret != SPIDeviceStatus::ok) {
+    return ret;
   }
 
   /* if LSB bit is 1 then return SPIDeviceStatus as busy */
@@ -615,14 +619,14 @@ SPIDeviceStatus SPIFlash::erase_block_32kb(uint32_t addr) {
   tx_buf[0] = static_cast<uint8_t>(SPIInstruction::block_erase_32kb);
 
   /* Fill the Byte1-Byte3 with address */
-  for(uint8_t index = 1; index<=3 ; index++){
+  for (uint8_t index = 1; index <= 3; index++) {
     tx_buf[index] = (addr >> (8 * (3 - index))) & 0xFF;
   }
 
   /* Invoke enableWrite to set the WEL bit to 1 */
   ret = this->enable_write();
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok) {
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -636,7 +640,7 @@ SPIDeviceStatus SPIFlash::erase_block_32kb(uint32_t addr) {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok) {
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -646,7 +650,7 @@ SPIDeviceStatus SPIFlash::erase_block_32kb(uint32_t addr) {
   /* Invoke lockIndividualBlock to lock the block */
   ret = this->lock_individual_block(addr);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok) {
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
   /* return SPIDeviceStatus */
@@ -660,10 +664,11 @@ SPIDeviceStatus SPIFlash::erase_block_64kb(uint32_t addr) {
   /* Invoke read_block_status to get the status of block */
   SPIDeviceStatus block_status = this->read_block_status(addr);
   if (block_status == SPIDeviceStatus::block_lock) {
-    /* if block is locked then invoke unLockIndividualBlock to unlock the block */
+    /* if block is locked then invoke unLockIndividualBlock to unlock the block
+     */
     SPIDeviceStatus ret = this->unlock_individual_block(addr);
     /* return ret if it is not ok */
-    if(ret != SPIDeviceStatus::ok) {
+    if (ret != SPIDeviceStatus::ok) {
       return ret;
     }
   }
@@ -671,8 +676,8 @@ SPIDeviceStatus SPIFlash::erase_block_64kb(uint32_t addr) {
   /* Invoke read_status_register1 to get the status of device */
   SPIDeviceStatus ret = this->read_status_register1(reg_data);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
-     return ret;
+  if (ret != SPIDeviceStatus::ok) {
+    return ret;
   }
 
   /* if LSB bit is 1 then return SPIDeviceStatus as busy */
@@ -684,14 +689,14 @@ SPIDeviceStatus SPIFlash::erase_block_64kb(uint32_t addr) {
   tx_buf[0] = static_cast<uint8_t>(SPIInstruction::block_erase_64kb);
 
   /* Fill the Byte1-Byte3 with address */
-  for(uint8_t index = 1; index<=3 ; index++){
+  for (uint8_t index = 1; index <= 3; index++) {
     tx_buf[index] = (addr >> (8 * (3 - index))) & 0xFF;
   }
 
   /* Invoke enableWrite to set the WEL bit to 1 */
   ret = this->enable_write();
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok) {
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -705,7 +710,7 @@ SPIDeviceStatus SPIFlash::erase_block_64kb(uint32_t addr) {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok) {
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -715,7 +720,7 @@ SPIDeviceStatus SPIFlash::erase_block_64kb(uint32_t addr) {
   /* Invoke lockIndividualBlock to lock the block */
   ret = this->lock_individual_block(addr);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok) {
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
   /* return SPIDeviceStatus */
@@ -729,7 +734,7 @@ SPIDeviceStatus SPIFlash::write_status_register1(uint8_t input) {
   /* Invoke read_status_register1 to get the status of device */
   SPIDeviceStatus ret = this->read_status_register1(reg_data);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -747,7 +752,7 @@ SPIDeviceStatus SPIFlash::write_status_register1(uint8_t input) {
   /* Invoke enableWrite to set the WEL bit to 1 */
   ret = this->enable_write();
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -760,7 +765,7 @@ SPIDeviceStatus SPIFlash::write_status_register1(uint8_t input) {
   /* Make the CS pin High after write operation */
   spi_.chip_select(true);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -788,7 +793,7 @@ SPIDeviceStatus SPIFlash::read_status_register1(uint8_t &rx_buf) {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -805,7 +810,7 @@ SPIDeviceStatus SPIFlash::write_status_register2(uint8_t input) {
   /* Invoke read_status_register1 to get the status of device */
   SPIDeviceStatus ret = this->read_status_register1(data_reg1);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -817,7 +822,7 @@ SPIDeviceStatus SPIFlash::write_status_register2(uint8_t input) {
   /* Invoke read_status_register2 to get the register data */
   ret = this->read_status_register2(data_reg2);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -830,7 +835,7 @@ SPIDeviceStatus SPIFlash::write_status_register2(uint8_t input) {
   /* Invoke enableWrite to set the WEL bit to 1 */
   ret = this->enable_write();
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -843,7 +848,7 @@ SPIDeviceStatus SPIFlash::write_status_register2(uint8_t input) {
   /* Make the CS pin High after write operation */
   spi_.chip_select(true);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -869,7 +874,7 @@ SPIDeviceStatus SPIFlash::read_status_register2(uint8_t &rx_buf) {
   /* Make the CS pin High after write operation */
   spi_.chip_select(true);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -886,7 +891,7 @@ SPIDeviceStatus SPIFlash::write_status_register3(uint8_t input) {
   /* Invoke read_status_register1 to get the status of device */
   SPIDeviceStatus ret = this->read_status_register1(data_reg1);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -898,7 +903,7 @@ SPIDeviceStatus SPIFlash::write_status_register3(uint8_t input) {
   /* Invoke read_status_register3 to get the status register 3 data */
   ret = this->read_status_register3(data_reg3);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -911,7 +916,7 @@ SPIDeviceStatus SPIFlash::write_status_register3(uint8_t input) {
   /* Invoke enableWrite to set the WEL bit to 1 */
   ret = this->enable_write();
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -924,7 +929,7 @@ SPIDeviceStatus SPIFlash::write_status_register3(uint8_t input) {
   /* Make the CS pin High after write operation */
   spi_.chip_select(true);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -950,7 +955,7 @@ SPIDeviceStatus SPIFlash::read_status_register3(uint8_t &rx_buf) {
   /* Make the CS pin high after read operation*/
   spi_.chip_select(true);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -973,7 +978,7 @@ SPIDeviceStatus SPIFlash::power_down() {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -999,7 +1004,7 @@ SPIDeviceStatus SPIFlash::release_power_down() {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -1016,13 +1021,13 @@ SPIDeviceStatus SPIFlash::reset_device() {
   /* Invoke read_status_register1 to get the status of device */
   SPIDeviceStatus ret = this->read_status_register1(data);
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
-   return ret;
+  if (ret != SPIDeviceStatus::ok) {
+    return ret;
   }
 
   /* if LSB bit is 1 then return SPIDeviceStatus as busy */
-  if((data & 0x01) == 1){
-   return SPIDeviceStatus::busy;
+  if ((data & 0x01) == 1) {
+    return SPIDeviceStatus::busy;
   }
 
   /* Update the Byte0 of tx_buf with  enable reset instruction */
@@ -1038,7 +1043,7 @@ SPIDeviceStatus SPIFlash::reset_device() {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
 
@@ -1058,7 +1063,7 @@ SPIDeviceStatus SPIFlash::reset_device() {
   spi_.chip_select(true);
 
   /* return ret if it is not ok */
-  if(ret != SPIDeviceStatus::ok){
+  if (ret != SPIDeviceStatus::ok) {
     return ret;
   }
   /* return SPIDeviceStatus */

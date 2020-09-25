@@ -90,7 +90,7 @@ enum class SPIInstruction {
   lock_block = 0x36,              /// Instruction for individual lock block
   unlock_block = 0x39,            /// Instruction for individual Unlock block
   global_lock = 0x7E,             /// Instruction for global lock block
-  global_unlock = 0x98,          /// Instruction for global Unlock block
+  global_unlock = 0x98,           /// Instruction for global Unlock block
   read_block_status = 0x3D,       /// Instruction for read block status
   chip_erase = 0xC7,              /// Instruction for chip erase
   sector_erase_4kb = 0x20,        /// Instruction for sector erase of 4KB
