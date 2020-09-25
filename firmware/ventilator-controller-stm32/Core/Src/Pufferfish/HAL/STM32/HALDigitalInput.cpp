@@ -6,13 +6,11 @@
 
 #include "Pufferfish/HAL/STM32/HALDigitalInput.h"
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 bool HALDigitalInput::read() {
   return inverted ? HAL_GPIO_ReadPin(&port_, pin) == GPIO_PIN_RESET
                   : HAL_GPIO_ReadPin(&port_, pin) == GPIO_PIN_SET;
 }
 
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL

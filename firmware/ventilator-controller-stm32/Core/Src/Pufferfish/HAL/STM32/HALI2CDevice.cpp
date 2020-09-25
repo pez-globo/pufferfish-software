@@ -12,8 +12,7 @@
 #include "Pufferfish/HAL/CRC.h"
 #include "stm32h7xx_hal.h"
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 I2CDeviceStatus HALI2CDevice::read(uint8_t *buf, size_t count) {
   HAL_StatusTypeDef stat =
@@ -33,5 +32,4 @@ I2CDeviceStatus HALI2CDevice::write(uint8_t *buf, size_t count) {
   return I2CDeviceStatus::write_error;
 }
 
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL

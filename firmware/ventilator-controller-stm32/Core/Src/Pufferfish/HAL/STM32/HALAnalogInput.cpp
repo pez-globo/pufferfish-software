@@ -6,8 +6,7 @@
 
 #include "Pufferfish/HAL/STM32/HALAnalogInput.h"
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 /**
  * @brief  Calls HAL_ADC_Start
@@ -78,5 +77,4 @@ ADCStatus HALAnalogInput::stop() {
   return ADCStatus::error;
 }
 
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL

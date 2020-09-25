@@ -6,8 +6,7 @@
 
 #include "Pufferfish/HAL/Mock/MockI2CDevice.h"
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 I2CDeviceStatus MockI2CDevice::read(uint8_t *buf, size_t count) {
   size_t index = 0;
@@ -48,5 +47,4 @@ void MockI2CDevice::get_write(uint8_t *buf, size_t &count) {
   }
 }
 
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL

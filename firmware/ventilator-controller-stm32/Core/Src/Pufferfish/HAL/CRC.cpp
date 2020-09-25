@@ -8,8 +8,7 @@
 
 #include <climits>
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 uint8_t compute_crc8(
     const uint8_t *data,
@@ -54,5 +53,4 @@ uint8_t reflect8(uint8_t num) {
   return res_val;
 }
 
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL

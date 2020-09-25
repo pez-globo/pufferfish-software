@@ -30,7 +30,7 @@ class ShiftRegister {
         serial_clear_(serial_clear) {}
 
   void set_channel(uint8_t chan, bool out);
-  bool get_channel(uint8_t chan) const;
+  [[nodiscard]] bool get_channel(uint8_t chan) const;
   void update();
   void clear();
 

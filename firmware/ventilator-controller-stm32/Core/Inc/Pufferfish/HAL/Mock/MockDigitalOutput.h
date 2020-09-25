@@ -31,7 +31,7 @@ class MockDigitalOutput : public DigitalOutput {
   /**
    * Test method to get value passed on write method
    */
-  bool get_write() const;
+  [[nodiscard]] bool get_write() const;
 
  private:
   bool last_output_ = false;

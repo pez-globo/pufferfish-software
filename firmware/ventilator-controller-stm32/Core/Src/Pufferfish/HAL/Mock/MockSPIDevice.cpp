@@ -9,8 +9,7 @@
 
 #include "Pufferfish/HAL/Mock/MockSPIDevice.h"
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 SPIDeviceStatus MockSPIDevice::read(uint8_t *buf, size_t count) {
   size_t index = 0;
@@ -93,5 +92,4 @@ bool MockSPIDevice::get_chip_select() const {
   return last_cs_;
 }
 
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL

@@ -9,9 +9,7 @@
 
 #include "Pufferfish/Driver/Indicators/AuditoryAlarm.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace Indicators {
+namespace Pufferfish::Driver::Indicators {
 
 AlarmManagerStatus AuditoryAlarm::update(uint32_t current_time) {
   reg_high_.write(parameters_.out_high);
@@ -81,6 +79,4 @@ AlarmManagerStatus AuditoryAlarm::set_alarm(AlarmStatus a) {
   return AlarmManagerStatus::ok;
 }
 
-}  // namespace Indicators
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::Indicators

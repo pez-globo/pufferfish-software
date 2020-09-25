@@ -9,9 +9,7 @@
 
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace Indicators {
+namespace Pufferfish::Driver::Indicators {
 
 AlarmManagerStatus LEDAlarm::update(uint32_t current_time) {
   // [0, mPeriod / 2) -> on, [mPeriod / 2, mPeriod) -> off
@@ -87,6 +85,4 @@ AlarmManagerStatus LEDAlarm::set_alarm(AlarmStatus a) {
   return AlarmManagerStatus::ok;
 }
 
-}  // namespace Indicators
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::Indicators

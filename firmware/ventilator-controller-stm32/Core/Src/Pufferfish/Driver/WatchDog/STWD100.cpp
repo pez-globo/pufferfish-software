@@ -11,9 +11,7 @@
 
 #include "Pufferfish/Driver/WatchDog/STWD100.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace WatchDog {
+namespace Pufferfish::Driver::WatchDog {
 
 void STWD100::enable() {
   enable_pin_.write(false);
@@ -29,6 +27,4 @@ void STWD100::toggle_input() {
   input_pin_.write(false);
 }
 
-}  // namespace WatchDog
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::WatchDog

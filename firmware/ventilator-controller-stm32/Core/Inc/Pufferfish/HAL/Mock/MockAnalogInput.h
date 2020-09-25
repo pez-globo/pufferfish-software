@@ -48,7 +48,7 @@ class MockAnalogInput : public AnalogInput {
    * @param  None
    * @return return state START(true)/STOP(false)
    */
-  bool get_analog_input_state() const;
+  [[nodiscard]] bool get_analog_input_state() const;
 
   /**
    * @brief  Updates the lastInput with setAnalogDataRead

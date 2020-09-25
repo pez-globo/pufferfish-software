@@ -6,8 +6,7 @@
 
 #include "Pufferfish/HAL/Mock/MockDigitalOutput.h"
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 void MockDigitalOutput::write(bool output) {
   /* Update the lastOutput with parameter output value */
@@ -18,5 +17,4 @@ bool MockDigitalOutput::get_write() const {
   /* return the write value, written during the write method */
   return last_output_;
 }
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL

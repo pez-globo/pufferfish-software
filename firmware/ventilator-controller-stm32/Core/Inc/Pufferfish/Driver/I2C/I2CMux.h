@@ -31,7 +31,7 @@ class I2CMux {
    * Gets a current slot multiplexer is in
    * @return current activated slot of the mux, or 0xFF if not connected/unknown
    */
-  virtual uint8_t get_current_slot() const = 0;
+  [[nodiscard]] virtual uint8_t get_current_slot() const = 0;
 };
 
 }  // namespace I2C

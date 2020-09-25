@@ -6,8 +6,7 @@
 
 #include <Pufferfish/HAL/Mock/MockAnalogInput.h>
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 ADCStatus MockAnalogInput::start() {
   last_state_ = true;
@@ -36,5 +35,4 @@ bool MockAnalogInput::get_analog_input_state() const {
   return last_state_;
   ;
 }
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL

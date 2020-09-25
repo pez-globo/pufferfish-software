@@ -23,9 +23,7 @@
 #include <array>
 #include <climits>
 
-namespace Pufferfish {
-namespace Driver {
-namespace SPI {
+namespace Pufferfish::Driver::SPI {
 
 SPIDeviceStatus SPIFlash::get_device_id(uint8_t &device_id) {
   static const uint8_t count = 6;
@@ -1103,6 +1101,4 @@ SPIDeviceStatus SPIFlash::reset_device() {
   return ret;
 }
 
-}  // namespace SPI
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::SPI

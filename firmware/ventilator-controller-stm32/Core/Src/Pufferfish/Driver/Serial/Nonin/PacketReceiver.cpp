@@ -24,10 +24,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace Pufferfish {
-namespace Driver {
-namespace Serial {
-namespace Nonin {
+namespace Pufferfish::Driver::Serial::Nonin {
 
 /*
  * @brief  Validates the status byte of frame
@@ -237,7 +234,4 @@ PacketReceiver::PacketOutputStatus PacketReceiver::output(PacketMeasurements &se
   return PacketOutputStatus::available;
 }
 
-}  // namespace Nonin
-}  // namespace Serial
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::Serial::Nonin

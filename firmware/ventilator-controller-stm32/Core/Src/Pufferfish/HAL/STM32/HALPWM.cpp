@@ -9,8 +9,7 @@
 
 #include "Pufferfish/HAL/STM32/HALPWM.h"
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 void HALPWM::set_duty_cycle_raw(uint32_t duty) {
   __HAL_TIM_SET_COMPARE(&htim_, channel, duty);
@@ -30,5 +29,4 @@ uint32_t HALPWM::get_max_duty_cycle() {
   return __HAL_TIM_GET_AUTORELOAD(&htim_);
 }
 
-} /* namespace HAL */
-} /* namespace Pufferfish */
+}  // namespace Pufferfish::HAL

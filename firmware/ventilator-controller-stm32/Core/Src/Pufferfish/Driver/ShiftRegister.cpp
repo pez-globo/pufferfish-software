@@ -9,8 +9,7 @@
 
 #include "Pufferfish/Driver/ShiftRegister.h"
 
-namespace Pufferfish {
-namespace Driver {
+namespace Pufferfish::Driver {
 
 void ShiftRegister::set_channel(uint8_t chan, bool out) {
   if (out) {
@@ -53,5 +52,4 @@ void ShiftRegister::clear() {
   serial_clear_.write(false);
 }
 
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver

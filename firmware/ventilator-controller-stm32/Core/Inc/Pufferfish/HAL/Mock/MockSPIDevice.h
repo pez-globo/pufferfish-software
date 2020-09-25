@@ -97,7 +97,7 @@ class MockSPIDevice : public SPIDevice {
    * @param  None
    * @return returns mLastCS input data
    */
-  bool get_chip_select() const;
+  [[nodiscard]] bool get_chip_select() const;
 
  private:
   /* Last chip select input */

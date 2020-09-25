@@ -15,13 +15,7 @@
 #include <array>
 #include <climits>
 
-namespace Pufferfish {
-namespace Driver {
-namespace I2C {
-
-constexpr ABPConfig HoneywellABP::abpxxxx001pg2a3;
-constexpr ABPConfig HoneywellABP::abpxxxx005pg2a3;
-constexpr ABPConfig HoneywellABP::abpxxxx030pg2a3;
+namespace Pufferfish::Driver::I2C {
 
 I2CDeviceStatus HoneywellABP::read_sample(ABPSample &sample) {
   std::array<uint8_t, 2> data{{0, 0}};
@@ -85,6 +79,4 @@ I2CDeviceStatus HoneywellABP::reset() {
   return I2CDeviceStatus::not_supported;
 }
 
-}  // namespace I2C
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::I2C

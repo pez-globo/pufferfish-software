@@ -11,8 +11,7 @@
 
 #include "stm32h7xx_hal.h"
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 uint32_t millis() {
   return HAL_GetTick();
@@ -92,5 +91,4 @@ void delay_micros(uint32_t microseconds) {
   }
 }
 
-} /* namespace HAL */
-} /* namespace Pufferfish */
+}  // namespace Pufferfish::HAL

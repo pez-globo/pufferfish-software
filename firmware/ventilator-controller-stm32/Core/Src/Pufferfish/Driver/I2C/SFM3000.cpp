@@ -16,9 +16,7 @@
 #include "Pufferfish/HAL/STM32/Time.h"
 #include "Pufferfish/Util/Parse.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace I2C {
+namespace Pufferfish::Driver::I2C {
 
 I2CDeviceStatus SFM3000::start_measure() {
   static const uint8_t start_high = 0x10;
@@ -130,6 +128,4 @@ I2CDeviceStatus SFM3000::test() {
   return I2CDeviceStatus::ok;
 }
 
-}  // namespace I2C
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::I2C

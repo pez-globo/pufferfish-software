@@ -21,10 +21,7 @@
 
 #include "Pufferfish/Driver/Serial/Nonin/FrameBuffer.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace Serial {
-namespace Nonin {
+namespace Pufferfish::Driver::Serial::Nonin {
 
 BufferStatus FrameBuffer::input(const uint8_t byte) {
   /* Validate the frame buffer is already full */
@@ -76,7 +73,4 @@ void FrameBuffer::shift_left() {
   }
 }
 
-}  // namespace Nonin
-}  // namespace Serial
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::Serial::Nonin

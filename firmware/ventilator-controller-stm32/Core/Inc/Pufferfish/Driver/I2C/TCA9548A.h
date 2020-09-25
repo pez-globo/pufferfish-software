@@ -32,7 +32,7 @@ class TCA9548A : public I2CMux, public Testable {
    */
   I2CDeviceStatus read_control_reg(uint8_t &control_reg);
 
-  uint8_t get_current_slot() const override { return current_slot_; }
+  [[nodiscard]] uint8_t get_current_slot() const override { return current_slot_; }
 
   I2CDeviceStatus test() override;
   I2CDeviceStatus reset() override;

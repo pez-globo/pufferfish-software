@@ -10,9 +10,7 @@
 
 #include "Pufferfish/HAL/CRC.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace I2C {
+namespace Pufferfish::Driver::I2C {
 
 I2CDeviceStatus SensirionSensor::read_with_crc(
     uint8_t *buf, size_t count, uint8_t polynomial, uint8_t init) {
@@ -44,6 +42,4 @@ I2CDeviceStatus SensirionSensor::write(uint8_t *buf, size_t count) {
   return dev_.write(buf, count);
 }
 
-}  // namespace I2C
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::I2C

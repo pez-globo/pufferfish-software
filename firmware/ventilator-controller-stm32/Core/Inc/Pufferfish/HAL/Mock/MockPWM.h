@@ -34,7 +34,7 @@ class MockPWM : public PWM {
    * @param  None
    * @return returns the duty cycle
    */
-  float get_duty_cycle_raw() const;
+  [[nodiscard]] float get_duty_cycle_raw() const;
 
   /**
    * Start the PWM output
@@ -66,7 +66,7 @@ class MockPWM : public PWM {
    * @param  None
    * @return State of PWM START(true)/STOP(false)
    */
-  bool get_pwm_state() const;
+  [[nodiscard]] bool get_pwm_state() const;
 
  private:
   /* Stores the Last raw duty cycle value */

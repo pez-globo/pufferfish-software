@@ -48,19 +48,19 @@ struct ABPSample {
   PressureUnit unit;
 };
 
+static const ABPConfig abpxxxx001pg2a3 = {0x28, 0.0, 1.0, PressureUnit::psi};
+static const ABPConfig abpxxxx005pg2a3 = {0x28, 0.0, 5.0, PressureUnit::psi};
+static const ABPConfig abpxxxx030pg2a3 = {0x28, 0.0, 30.0, PressureUnit::psi};
+
 /**
  * Driver for Honeywell ABP pressure sensor
  */
 class HoneywellABP : public Testable {
  public:
-  static constexpr ABPConfig abpxxxx001pg2a3 = {0x28, 0.0, 1.0, PressureUnit::psi};
-  static constexpr ABPConfig abpxxxx005pg2a3 = {0x28, 0.0, 5.0, PressureUnit::psi};
-  static constexpr ABPConfig abpxxxx030pg2a3 = {0x28, 0.0, 30.0, PressureUnit::psi};
-
   HoneywellABP(HAL::I2CDevice &dev, const ABPConfig &cfg)
       : dev_(dev), pmin(cfg.pmin), pmax(cfg.pmax), unit(cfg.unit) {}
 
-  float raw_to_pressure(uint16_t output) const;
+  [[nodiscard]] float raw_to_pressure(uint16_t output) const;
 
   /**
    * Reads out the pressure from the sensor

@@ -129,7 +129,7 @@ class BufferedUART {
    * called this method.
    * @return the total number of received UART bytes which were discarded.
    */
-  uint32_t rx_dropped() const volatile;
+  [[nodiscard]] uint32_t rx_dropped() const volatile;
 
  private:
   UART_HandleTypeDef &huart_;

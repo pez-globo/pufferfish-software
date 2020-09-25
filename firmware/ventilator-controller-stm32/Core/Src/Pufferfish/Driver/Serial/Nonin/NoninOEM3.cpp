@@ -21,10 +21,7 @@
 
 #include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace Serial {
-namespace Nonin {
+namespace Pufferfish::Driver::Serial::Nonin {
 
 NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensor_measurements) {
   uint8_t read_byte = 0;
@@ -96,7 +93,4 @@ NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensor_measurem
   return NoninPacketStatus::available;
 }
 
-}  // namespace Nonin
-}  // namespace Serial
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::Serial::Nonin

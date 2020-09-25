@@ -42,9 +42,7 @@
 #include "Pufferfish/HAL/STM32/Time.h"
 #include "Pufferfish/Util/Parse.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace I2C {
+namespace Pufferfish::Driver::I2C {
 
 I2CDeviceStatus SDPSensor::serial_number(uint32_t &pn, uint64_t &sn) {
   measuring_ = false;
@@ -287,6 +285,4 @@ I2CDeviceStatus SDPSensor::read_pressure_sample(
   return I2CDeviceStatus::ok;
 }
 
-}  // namespace I2C
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::I2C

@@ -6,8 +6,7 @@
 
 #include <Pufferfish/HAL/Mock/MockPWM.h>
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 void MockPWM::set_duty_cycle_raw(uint32_t duty) {
   last_raw_duty_ = duty;
@@ -38,5 +37,4 @@ void MockPWM::set_max_duty_cycle(uint32_t duty) {
   last_max_duty_ = duty;
 }
 
-} /* namespace HAL */
-} /* namespace Pufferfish */
+}  // namespace Pufferfish::HAL

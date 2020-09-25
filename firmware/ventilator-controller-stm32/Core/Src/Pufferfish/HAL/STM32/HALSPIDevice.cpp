@@ -12,8 +12,7 @@
 #include "Pufferfish/HAL/CRC.h"
 #include "stm32h7xx_hal.h"
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 SPIDeviceStatus HALSPIDevice::read(uint8_t *buf, size_t count) {
   HAL_StatusTypeDef stat = HAL_SPI_Receive(&dev_, buf, count, HALSPIDevice::default_timeout);
@@ -47,5 +46,4 @@ void HALSPIDevice::chip_select(bool input) {
   cs_pin_.write(input);
 }
 
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL

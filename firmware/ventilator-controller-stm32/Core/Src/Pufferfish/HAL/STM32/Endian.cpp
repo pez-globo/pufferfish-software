@@ -6,8 +6,7 @@
 
 #include "Pufferfish/HAL/STM32/Endian.h"
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 uint64_t hton(uint64_t host_value) {
   return __builtin_bswap64(host_value);
@@ -33,5 +32,4 @@ uint16_t ntoh(uint16_t network_value) {
   return __builtin_bswap16(network_value);
 }
 
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL

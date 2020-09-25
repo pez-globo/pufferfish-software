@@ -200,18 +200,12 @@ PF::HAL::HALPWM drive2_ch7(htim12, TIM_CHANNEL_2);
 PF::HAL::HALI2CDevice i2c_hal_mux1(hi2c2, PF::Driver::I2C::TCA9548A::default_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_mux2(hi2c1, PF::Driver::I2C::TCA9548A::default_i2c_addr);
 
-PF::HAL::HALI2CDevice i2c_hal_press1(
-    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press2(
-    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press3(
-    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press7(
-    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press8(
-    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press9(
-    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3.i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press1(hi2c1, PF::Driver::I2C::abpxxxx001pg2a3.i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press2(hi2c1, PF::Driver::I2C::abpxxxx001pg2a3.i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press3(hi2c1, PF::Driver::I2C::abpxxxx001pg2a3.i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press7(hi2c1, PF::Driver::I2C::abpxxxx030pg2a3.i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press8(hi2c1, PF::Driver::I2C::abpxxxx030pg2a3.i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press9(hi2c1, PF::Driver::I2C::abpxxxx001pg2a3.i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_press13(hi2c2, PF::Driver::I2C::SDPSensor::sdp8xx_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_press14(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_press15(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
@@ -244,18 +238,12 @@ PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press18(
     5);
 
 // Actual usable sensor
-PF::Driver::I2C::HoneywellABP i2c_press1(
-    i2c_ext_press1, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3);
-PF::Driver::I2C::HoneywellABP i2c_press2(
-    i2c_ext_press2, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3);
-PF::Driver::I2C::HoneywellABP i2c_press3(
-    i2c_ext_press3, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3);
-PF::Driver::I2C::HoneywellABP i2c_press7(
-    i2c_ext_press7, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3);
-PF::Driver::I2C::HoneywellABP i2c_press8(
-    i2c_ext_press8, PF::Driver::I2C::HoneywellABP::abpxxxx030pg2a3);
-PF::Driver::I2C::HoneywellABP i2c_press9(
-    i2c_ext_press9, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3);
+PF::Driver::I2C::HoneywellABP i2c_press1(i2c_ext_press1, PF::Driver::I2C::abpxxxx001pg2a3);
+PF::Driver::I2C::HoneywellABP i2c_press2(i2c_ext_press2, PF::Driver::I2C::abpxxxx001pg2a3);
+PF::Driver::I2C::HoneywellABP i2c_press3(i2c_ext_press3, PF::Driver::I2C::abpxxxx001pg2a3);
+PF::Driver::I2C::HoneywellABP i2c_press7(i2c_ext_press7, PF::Driver::I2C::abpxxxx030pg2a3);
+PF::Driver::I2C::HoneywellABP i2c_press8(i2c_ext_press8, PF::Driver::I2C::abpxxxx030pg2a3);
+PF::Driver::I2C::HoneywellABP i2c_press9(i2c_ext_press9, PF::Driver::I2C::abpxxxx001pg2a3);
 PF::Driver::I2C::SDPSensor i2c_press13(i2c_ext_press13);
 PF::Driver::I2C::SDPSensor i2c_press14(i2c_ext_press14);
 PF::Driver::I2C::SDPSensor i2c_press15(i2c_ext_press15);

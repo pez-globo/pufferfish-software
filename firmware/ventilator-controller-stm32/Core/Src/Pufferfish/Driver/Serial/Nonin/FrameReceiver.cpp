@@ -21,10 +21,7 @@
 
 #include "Pufferfish/Driver/Serial/Nonin/FrameReceiver.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace Serial {
-namespace Nonin {
+namespace Pufferfish::Driver::Serial::Nonin {
 
 /**
  * validateStartOfFrame function is called on beginning to get the first frame
@@ -132,7 +129,4 @@ FrameReceiver::FrameOutputStatus FrameReceiver::output(Frame &frame) {
   return FrameOutputStatus::available;
 }
 
-}  // namespace Nonin
-}  // namespace Serial
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::Serial::Nonin

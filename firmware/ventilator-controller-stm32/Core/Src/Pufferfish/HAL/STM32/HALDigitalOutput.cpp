@@ -6,8 +6,7 @@
 
 #include "Pufferfish/HAL/STM32/HALDigitalOutput.h"
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 void HALDigitalOutput::write(bool output) {
   if (inverted) {
@@ -17,5 +16,4 @@ void HALDigitalOutput::write(bool output) {
   }
 }
 
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL

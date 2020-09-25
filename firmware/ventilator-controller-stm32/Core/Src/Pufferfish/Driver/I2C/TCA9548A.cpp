@@ -8,9 +8,7 @@
 
 #include <climits>
 
-namespace Pufferfish {
-namespace Driver {
-namespace I2C {
+namespace Pufferfish::Driver::I2C {
 
 I2CDeviceStatus TCA9548A::select_slot(uint8_t slot) {
   if (slot > CHAR_BIT - 1U) {
@@ -67,6 +65,4 @@ I2CDeviceStatus TCA9548A::reset() {
   return I2CDeviceStatus::not_supported;
 }
 
-}  // namespace I2C
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::I2C

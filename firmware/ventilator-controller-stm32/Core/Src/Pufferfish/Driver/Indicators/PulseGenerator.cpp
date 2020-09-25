@@ -17,9 +17,7 @@ inline bool out_of_range(uint32_t value, uint32_t min, uint32_t max) {
   return (value > max) || (value < min);
 }
 
-namespace Pufferfish {
-namespace Driver {
-namespace Indicators {
+namespace Pufferfish::Driver::Indicators {
 
 void PWMGenerator::start(uint32_t current_time) {
   /* Set the value to true to start the pulse */
@@ -90,6 +88,4 @@ void PulsedPWMGenerator::stop() {
   pulse_pwm_generator2_.stop();
 }
 
-}  // namespace Indicators
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::Indicators
