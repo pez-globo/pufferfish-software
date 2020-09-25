@@ -2,7 +2,7 @@
 
 import collections
 import logging
-from typing import Deque, Dict, Mapping, Optional, Type, Union
+from typing import Deque, Dict, Mapping, Optional, Type
 
 import attr
 
@@ -10,60 +10,15 @@ import betterproto
 
 from ventserver.protocols import events
 from ventserver.protocols import exceptions
-from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.sansio import protocols
 
 
-# Messages
-
-
-PBMessage = Union[
-    # mcu_pb
-    mcu_pb.Alarms,
-    mcu_pb.SensorMeasurements,
-    mcu_pb.CycleMeasurements,
-    mcu_pb.VentilationMode,
-    mcu_pb.Parameters,
-    mcu_pb.ParametersRequest,
-    mcu_pb.Ping,
-    mcu_pb.Announcement,
-    # frontend_pb
-    frontend_pb.RotaryEncoder
-]
-
-MCU_MESSAGE_CLASSES: Mapping[int, Type[PBMessage]] = {
-    1: mcu_pb.Alarms,
-    2: mcu_pb.SensorMeasurements,
-    3: mcu_pb.CycleMeasurements,
-    4: mcu_pb.Parameters,
-    5: mcu_pb.ParametersRequest,
-    6: mcu_pb.Ping,
-    7: mcu_pb.Announcement
-}
-
-FRONTEND_MESSAGE_CLASSES: Mapping[int, Type[PBMessage]] = {
-    **MCU_MESSAGE_CLASSES,
-    128: frontend_pb.RotaryEncoder
-}
-
-MCU_MESSAGE_TYPES: Mapping[Type[betterproto.Message], int] = {
-    pb_class: type for (type, pb_class) in MCU_MESSAGE_CLASSES.items()
-}
-
-FRONTEND_MESSAGE_TYPES: Mapping[Type[betterproto.Message], int] = {
-    pb_class: type for (type, pb_class) in FRONTEND_MESSAGE_CLASSES.items()
-}
-
-
-# State Synchronization
-
-
 @attr.s
-class StateUpdateEvent(events.Event):
+class UpdateEvent(events.Event):
     """State update event."""
 
     time: Optional[float] = attr.ib(default=None)
-    pb_message: Optional[PBMessage] = attr.ib(default=None)
+    pb_message: Optional[betterproto.Message] = attr.ib(default=None)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
@@ -75,30 +30,32 @@ class ScheduleEntry:
     """Output schedule entry."""
 
     time: float = attr.ib()
-    type: Type[PBMessage] = attr.ib()
+    type: Type[betterproto.Message] = attr.ib()
 
 
 @attr.s
-class StateSynchronizer(protocols.Filter[StateUpdateEvent, PBMessage]):
+class Synchronizer(
+        protocols.Filter[UpdateEvent, betterproto.Message]
+):
     """State synchronization filter.
 
     Inputs are clock updates or state updatess received from the peer. Outputs
     are state updates for the peer.
     """
 
-    _logger = logging.getLogger('.'.join((__name__, 'StateSynchronizer')))
+    _logger = logging.getLogger('.'.join((__name__, 'Synchronizer')))
 
-    message_classes: Mapping[int, Type[PBMessage]] = attr.ib(
-        default=MCU_MESSAGE_CLASSES
-    )
+    message_classes: Mapping[int, Type[betterproto.Message]] = attr.ib()
     current_time: float = attr.ib(default=0)
-    all_states: Dict[Type[PBMessage], Optional[PBMessage]] = attr.ib()
+    all_states: Dict[
+        Type[betterproto.Message], Optional[betterproto.Message]
+    ] = attr.ib()
     output_schedule: Deque[ScheduleEntry] = attr.ib()
     output_deadline: Optional[float] = attr.ib(default=None)
 
     @all_states.default
     def init_all_states(self) -> Dict[
-            Type[PBMessage], Optional[PBMessage]
+            Type[betterproto.Message], Optional[betterproto.Message]
     ]:  # pylint: disable=no-self-use
         """Initialize the synchronizable states.
 
@@ -117,7 +74,7 @@ class StateSynchronizer(protocols.Filter[StateUpdateEvent, PBMessage]):
         """
         return collections.deque([])
 
-    def input(self, event: Optional[StateUpdateEvent]) -> None:
+    def input(self, event: Optional[UpdateEvent]) -> None:
         """Handle input events."""
         if event is None or not event.has_data():
             return
@@ -142,7 +99,7 @@ class StateSynchronizer(protocols.Filter[StateUpdateEvent, PBMessage]):
                 .format(message_type)
             ) from exc
 
-    def output(self) -> Optional[PBMessage]:
+    def output(self) -> Optional[betterproto.Message]:
         """Emit the next output event."""
         if self.output_deadline is None:
             return None

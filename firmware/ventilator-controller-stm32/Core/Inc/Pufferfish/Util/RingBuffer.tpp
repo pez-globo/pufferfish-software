@@ -33,8 +33,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -44,48 +44,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "RingBuffer.h"
-
 #include <cstring>
+
+#include "RingBuffer.h"
 
 namespace Pufferfish {
 namespace Util {
 
-template<HAL::AtomicSize BufferSize>
-RingBuffer<BufferSize>::RingBuffer() {}
+template <HAL::AtomicSize buffer_size>
+RingBuffer<buffer_size>::RingBuffer() = default;
 
-template<HAL::AtomicSize BufferSize>
-BufferStatus RingBuffer<BufferSize>::read(uint8_t &readByte) volatile {
-  if (newestIndex == oldestIndex) {
-      return BufferStatus::empty;
+template <HAL::AtomicSize buffer_size>
+BufferStatus RingBuffer<buffer_size>::read(uint8_t &read_byte) volatile {
+  if (newest_index_ == oldest_index_) {
+    return BufferStatus::empty;
   }
 
-  readByte = buffer[oldestIndex];
-  oldestIndex = (oldestIndex + 1) % maxSize;
+  read_byte = buffer_[oldest_index_];
+  oldest_index_ = (oldest_index_ + 1) % buffer_size;
   return BufferStatus::ok;
 }
 
-template<HAL::AtomicSize BufferSize>
-BufferStatus RingBuffer<BufferSize>::peek(uint8_t &peekByte) const volatile {
-  if (newestIndex == oldestIndex) {
-      return BufferStatus::empty;
+template <HAL::AtomicSize buffer_size>
+BufferStatus RingBuffer<buffer_size>::peek(uint8_t &peek_byte) const volatile {
+  if (newest_index_ == oldest_index_) {
+    return BufferStatus::empty;
   }
 
-  peekByte = buffer[oldestIndex];
+  peek_byte = buffer_[oldest_index_];
   return BufferStatus::ok;
 }
 
-template<HAL::AtomicSize BufferSize>
-BufferStatus RingBuffer<BufferSize>::write(uint8_t writeByte) volatile {
-  HAL::AtomicSize nextIndex = (newestIndex + 1) % maxSize;
-  if (nextIndex == oldestIndex) {
-      return BufferStatus::full;
+template <HAL::AtomicSize buffer_size>
+BufferStatus RingBuffer<buffer_size>::write(uint8_t write_byte) volatile {
+  HAL::AtomicSize next_index = (newest_index_ + 1) % buffer_size;
+  if (next_index == oldest_index_) {
+    return BufferStatus::full;
   }
 
-  buffer[newestIndex] = writeByte;
-  newestIndex = nextIndex;
+  buffer_[newest_index_] = write_byte;
+  newest_index_ = next_index;
   return BufferStatus::ok;
 }
 
-} // namespace Util
-} // namespace Pufferfish
+}  // namespace Util
+}  // namespace Pufferfish

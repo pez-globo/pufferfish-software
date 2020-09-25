@@ -9,49 +9,47 @@
 
 #include "Pufferfish/Driver/ShiftRegister.h"
 
-namespace Pufferfish {
-namespace Driver {
+namespace Pufferfish::Driver {
 
-void ShiftRegister::setChannel(uint8_t chan, bool out) {
+void ShiftRegister::set_channel(uint8_t chan, bool out) {
   if (out) {
-    mOutputReg |= (1u << chan);
+    output_reg_ |= (1U << chan);
   } else {
-    mOutputReg &= ~(1u << chan);
+    output_reg_ &= ~(1U << chan);
   }
 }
 
-bool ShiftRegister::getChannel(uint8_t chan) const {
-  return mOutputReg & (1u << chan);
+bool ShiftRegister::get_channel(uint8_t chan) const {
+  return (output_reg_ & (1U << chan)) != 0U;
 }
 
 void ShiftRegister::update() {
   // reset all pins to initial state
-  mSerialIn.write(false);
-  mSerialClear.write(false);
-  mSerialClock.write(false);
-  mRClock.write(false);
-  HAL::delayMicros(ShiftRegister::BaudRate);
+  serial_in_.write(false);
+  serial_clear_.write(false);
+  serial_clock_.write(false);
+  r_clock_.write(false);
+  HAL::delay_micros(baud_rate);
 
-  for (int i = 7; i >= 0; i--) {
-    mSerialIn.write(getChannel(i));
-    HAL::delayMicros(ShiftRegister::BaudRate);
-    mSerialClock.write(true);
-    HAL::delayMicros(ShiftRegister::BaudRate);
-    mSerialClock.write(false);
-    HAL::delayMicros(ShiftRegister::BaudRate);
+  for (int i = num_channels - 1; i >= 0; i--) {
+    serial_in_.write(get_channel(i));
+    HAL::delay_micros(baud_rate);
+    serial_clock_.write(true);
+    HAL::delay_micros(baud_rate);
+    serial_clock_.write(false);
+    HAL::delay_micros(baud_rate);
   }
 
   // set RClock to display all the LED at once
-  mRClock.write(true);
-  HAL::delayMicros(ShiftRegister::BaudRate);
-  mRClock.write(false);
+  r_clock_.write(true);
+  HAL::delay_micros(baud_rate);
+  r_clock_.write(false);
 }
 
 void ShiftRegister::clear() {
-  mSerialClear.write(true);
-  HAL::delayMicros(ShiftRegister::BaudRate);
-  mSerialClear.write(false);
+  serial_clear_.write(true);
+  HAL::delay_micros(baud_rate);
+  serial_clear_.write(false);
 }
 
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver

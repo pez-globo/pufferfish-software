@@ -33,8 +33,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -44,32 +44,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #pragma once
 
-#include <stdint.h>
-#include "Pufferfish/Statuses.h"
+#include <cstdint>
+
 #include "Pufferfish/HAL/Types.h"
+#include "Pufferfish/Statuses.h"
 
 namespace Pufferfish {
 namespace Util {
 
-
 /**
  * Byte stream with non-blocking queue interface and static allocation.
  *
- * Inspired by https://hackaday.com/2015/10/29/embed-with-elliot-going-round-with-circular-buffers/
+ * Inspired by
+ * https://hackaday.com/2015/10/29/embed-with-elliot-going-round-with-circular-buffers/
  * This class provides a bounded-length queue data structure which is
  * statically allocated. Behind the scenes, it is backed by an array.
  * BufferSize is recommended to be a power of two for compiler optimization.
  * Methods are declared volatile because they are usable with ISRs.
  */
-template <HAL::AtomicSize BufferSize>
+template <HAL::AtomicSize buffer_size>
 class RingBuffer {
-public:
+ public:
   RingBuffer();
-
-  static const HAL::AtomicSize maxSize = BufferSize;
 
   /**
    * Attempt to "pop" a byte from the head of the queue.
@@ -79,7 +77,7 @@ public:
    * @param[out] readByte the byte popped from the queue
    * @return ok on success, empty otherwise
    */
-  BufferStatus read(uint8_t &readByte) volatile;
+  BufferStatus read(uint8_t &read_byte) volatile;
 
   /**
    * Attempt to "peek" at the byte at the head of the queue.
@@ -89,7 +87,7 @@ public:
    * @param[out] peekByte the byte at the head of the queue
    * @return ok on success, empty otherwise
    */
-  BufferStatus peek(uint8_t &peekByte) const volatile;
+  BufferStatus peek(uint8_t &peek_byte) const volatile;
 
   /**
    * Attempt to "push" the provided byte onto the tail of the queue.
@@ -98,15 +96,19 @@ public:
    * @param writeByte the byte to push onto the tail of the queue
    * @return ok on success, full otherwise
    */
-  BufferStatus write(uint8_t writeByte) volatile;
+  BufferStatus write(uint8_t write_byte) volatile;
 
-protected:
-  uint8_t buffer[BufferSize];
-  HAL::AtomicSize newestIndex = 0;
-  HAL::AtomicSize oldestIndex = 0;
+ private:
+  // We have to use a C-style array because std::array doesn't work with
+  // volatile
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  uint8_t buffer_[buffer_size];
+
+  HAL::AtomicSize newest_index_ = 0;
+  HAL::AtomicSize oldest_index_ = 0;
 };
 
-} // namespace Util
-} // namespace Pufferfish
+}  // namespace Util
+}  // namespace Pufferfish
 
 #include "RingBuffer.tpp"
