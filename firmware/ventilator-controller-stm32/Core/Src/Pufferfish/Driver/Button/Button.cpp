@@ -24,83 +24,78 @@
 
 #include <Pufferfish/Driver/Button/Button.h>
 
-namespace Pufferfish {
-namespace Driver {
-namespace Button {
+namespace Pufferfish::Driver::Button {
 
+ButtonStatus Debouncer::transform(bool input, uint32_t current_time, bool &output) {
+  if (Pufferfish::Driver::Button::Debouncer::time_valid_check(
+          current_time, last_sample_time_, sampling_period_)) {
+    return ButtonStatus::not_ok;
+  }
 
-ButtonStatus Debouncer::transform(bool input, uint32_t currentTime, bool &output)
-{
-  if(this->timeValidCheck(currentTime, lastSampleTime, samplingPeriod)){
-      return ButtonStatus::notOk;
-   }
-
-  lastSampleTime = currentTime;
+  last_sample_time_ = current_time;
 
   /**
    * Update the integrator based on the input signal
    */
-  if (input == 0)
-  {
-    if (integrator > 0){
-        integrator--;
+  if (static_cast<int>(input) == 0) {
+    if (integrator_ > 0){
+        integrator_--;
     }
-  }
-  else if (integrator < maxIntegratorSamples){
-      integrator++;
+  } else if (integrator_ < max_integrator_samples) {
+    integrator_++;
   }
   /**
    * Update the integrator based on the input signal
    */
-  if (integrator == 0){
-    mOutput = 0;
-    lastTimeStable = currentTime;
-  } else if (integrator >= maxIntegratorSamples) {
-    mOutput = 1;
-    lastTimeStable = currentTime;
-    integrator = maxIntegratorSamples;  /* defensive code if integrator got corrupted */
+  if (integrator_ == 0){
+    output_ = false;
+    last_time_stable_ = current_time;
+  } else if (integrator_ >= max_integrator_samples) {
+    output_ = true;
+    last_time_stable_ = current_time;
+    integrator_ = max_integrator_samples;  /* defensive code if integrator got corrupted */
   }
   /**
    * Report switch fault if debounce time exceeds the maximum limit
    */
-    if(!this->timeValidCheck(currentTime, lastTimeStable, debounceTimeLimit)){
-      return ButtonStatus::notOk;
-   }
-   output = mOutput;
+  if (!Pufferfish::Driver::Button::Debouncer::time_valid_check(
+          current_time, last_time_stable_, debounce_time_limit)) {
+    return ButtonStatus::not_ok;
+  }
+  output = output_;
 
- return ButtonStatus::ok;
+  return ButtonStatus::ok;
 }
 
 void EdgeDetector::transform(bool input, EdgeState &output)
 {
-  if (input != lastState) {
+  if (input != last_state_) {
     /* Update the last state */
-    lastState = input;
+    last_state_ = input;
     /* check for state is changed */
-    if (input == true) {
+    if (input) {
       /* return the EdgeState as rising edge */
-      output = EdgeState::risingEdge;
+      output = EdgeState::rising_edge;
     } else {
       /* return the EdgeState as falling edge */
-      output = EdgeState::fallingEdge;
+      output = EdgeState::falling_edge;
     }
   }else{
-    output = EdgeState::noEdge;
+    output = EdgeState::no_edge;
   }
 }
 
-ButtonStatus Button::readState(bool &debounedOutput, EdgeState &switchStateChanged){
+ButtonStatus Button::read_state(bool &debouned_output, EdgeState &switch_state_changed) {
+  bool input = button_input_.read();
+  uint32_t ms_time = Pufferfish::HAL::millis();
 
-  bool input = mButtoninput.read();
-  uint32_t msTime = Pufferfish::HAL::millis();
+  ButtonStatus status = debounce_.transform(input, ms_time, debouned_output);
 
-  ButtonStatus status= mDebounce.transform(input, msTime, debounedOutput);
-  
   /* Debounce is not success */
   if(status != ButtonStatus::ok) {
     return status;
   }
-   mEdgeDetect.transform(debounedOutput, switchStateChanged);
+  edge_detect_.transform(debouned_output, switch_state_changed);
 
   return  status;
 }
@@ -108,17 +103,7 @@ ButtonStatus Button::readState(bool &debounedOutput, EdgeState &switchStateChang
 // This method returns
 // "true" --> if nowTime - lastTime < addFactor
 // "false" --> if nowTime - lastTime >= addFactor
-bool Debouncer::timeValidCheck(uint32_t nowTime, uint32_t lastTime, uint32_t addFactor)
-{
-  if(nowTime - lastTime < addFactor){
-    return true;
-  }
-  return false;
+bool Debouncer::time_valid_check(uint32_t now_time, uint32_t last_time, uint32_t add_factor) {
+  return now_time - last_time < add_factor;
 }
-}  // namespace Membrane
-}  // namespace HAL
-}  // namespace Pufferfish
-
-
-
-
+}  // namespace Pufferfish::Driver::Button

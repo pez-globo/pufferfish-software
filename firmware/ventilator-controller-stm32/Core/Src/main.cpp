@@ -30,6 +30,7 @@
 #include <array>
 
 #include "Pufferfish/AlarmsManager.h"
+#include "Pufferfish/Driver/Button/Button.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
 #include "Pufferfish/Driver/I2C/HoneywellABP.h"
 #include "Pufferfish/Driver/I2C/SDP.h"
@@ -44,8 +45,6 @@
 #include "Pufferfish/HAL/STM32/HAL.h"
 #include "Pufferfish/HAL/STM32/HALI2CDevice.h"
 #include "Pufferfish/Statuses.h"
-#include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
-#include "Pufferfish/Driver/Button/Button.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -181,9 +180,9 @@ PF::HAL::HALDigitalInput button_power(
     SET_PWR_ON_OFF_Pin,
     true);
 
-PF::Driver::Button::Debouncer switchDebounce;
-PF::Driver::Button::EdgeDetector switchTransition;
-PF::Driver::Button::Button buttonMembrane(button_alarm_en, switchDebounce);
+PF::Driver::Button::Debouncer switch_debounce;
+PF::Driver::Button::EdgeDetector switch_transition;
+PF::Driver::Button::Button button_membrane(button_alarm_en, switch_debounce);
 
 // Solenoid Valves
 PF::HAL::HALPWM drive1_ch1(htim2, TIM_CHANNEL_4);
@@ -361,7 +360,7 @@ int main(void)
   std::array<uint32_t, 4> testcase_results = {0U};
 
   PF::Driver::Button::EdgeState state;
-  bool memButtonstate = false;
+  bool mem_buttonstate = false;
   /* TODO: Added for testing Nonin OEM III */
   PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus return_status;
 
@@ -489,10 +488,10 @@ int main(void)
     } else {
       /* Else statements*/
     }
-  buttonMembrane.readState(memButtonstate, state);
-  if(state != PF::Driver::Button::EdgeState::risingEdge){
-    board_led1.write(true);
-    PF::HAL::delay(5);
+    button_membrane.read_state(mem_buttonstate, state);
+    if (state != PF::Driver::Button::EdgeState::rising_edge) {
+      board_led1.write(true);
+      PF::HAL::delay(5);
   }
     /* USER CODE BEGIN 3 */
   }
