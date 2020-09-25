@@ -18,10 +18,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "Pufferfish/Driver/SPI/SPIFlash.h"
+
 #include <array>
 #include <climits>
-
-#include "Pufferfish/Driver/SPI/SPIFlash.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -129,9 +129,9 @@ SPIDeviceStatus SPIFlash::disable_write() {
 SPIDeviceStatus SPIFlash::write_byte(uint32_t addr, const uint8_t *input,
                                      uint8_t size) {
   uint8_t reg_data = 0;
-  // FIXME: We will need to use a statically-allocated vector instead of a C array.
-  // Also, it is an error to try to initialize a variable-sized array - that
-  // relies on a GCC extension - so the array is left uninitialized.
+  // FIXME: We will need to use a statically-allocated vector instead of a C
+  // array. Also, it is an error to try to initialize a variable-sized array -
+  // that relies on a GCC extension - so the array is left uninitialized.
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   uint8_t tx_buf[size + 4];
 
@@ -209,14 +209,14 @@ SPIDeviceStatus SPIFlash::write_byte(uint32_t addr, const uint8_t *input,
 
 SPIDeviceStatus SPIFlash::read_byte(uint32_t addr, uint8_t *data,
                                     uint8_t size) {
-  // FIXME: We will need to use a statically-allocated vector instead of a C array.
-  // Also, it is an error to try to initialize a variable-sized array - that
-  // relies on a GCC extension - so the array is left uninitialized.
+  // FIXME: We will need to use a statically-allocated vector instead of a C
+  // array. Also, it is an error to try to initialize a variable-sized array -
+  // that relies on a GCC extension - so the array is left uninitialized.
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   uint8_t tx_buf[size + 4];
-  // FIXME: We will need to use a statically-allocated vector instead of a C array.
-    // Also, it is an error to try to initialize a variable-sized array - that
-    // relies on a GCC extension - so the array is left uninitialized.
+  // FIXME: We will need to use a statically-allocated vector instead of a C
+  // array. Also, it is an error to try to initialize a variable-sized array -
+  // that relies on a GCC extension - so the array is left uninitialized.
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   uint8_t rx_buf[size + 4];
 
@@ -232,7 +232,8 @@ SPIDeviceStatus SPIFlash::read_byte(uint32_t addr, uint8_t *data,
   spi_.chip_select(false);
 
   /* Write and Read data to and from the device */
-  SPIDeviceStatus ret = spi_.write_read(static_cast<uint8_t *>(tx_buf), static_cast<uint8_t *>(rx_buf), size + 4);
+  SPIDeviceStatus ret = spi_.write_read(
+      static_cast<uint8_t *>(tx_buf), static_cast<uint8_t *>(rx_buf), size + 4);
 
   /* Make the CS pin High after read operation */
   spi_.chip_select(true);
