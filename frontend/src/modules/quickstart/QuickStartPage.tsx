@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import {
   Grid,
@@ -83,7 +83,6 @@ enum PatientAge {
 
 const SettableParameters = (): JSX.Element => {
   const classes = useStyles();
-  const dispatch = useDispatch();
   const parameterStandby = useSelector(getParametersRequestStandby);
 
   const [PEEP, setPEEP] = React.useState(parameterStandby.peep);
@@ -91,8 +90,9 @@ const SettableParameters = (): JSX.Element => {
   const [RR, setRR] = React.useState(parameterStandby.rr);
   const [TV, setTV] = React.useState(parameterStandby.vt);
   const [FiO2, setFiO2] = React.useState(parameterStandby.fio2);
+  const dispatch = useDispatch();
 
-  useEffect(() => {
+  const initParameterUpdate = useCallback(() => {
     dispatch(
       updateCommittedState(PARAMETER_STANDBY, {
         peep: PEEP,
@@ -103,6 +103,10 @@ const SettableParameters = (): JSX.Element => {
       }),
     );
   }, [PEEP, Flow, RR, TV, FiO2, dispatch]);
+
+  useEffect(() => {
+    initParameterUpdate();
+  }, [initParameterUpdate]);
 
   const ventilationMode = useSelector(getParametersRequestMode);
   switch (ventilationMode) {

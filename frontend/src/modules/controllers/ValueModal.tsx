@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core';
 import ValueClicker from './ValueClicker';
 import ModalPopup from './ModalPopup';
@@ -52,9 +52,13 @@ export const ValueModal = ({
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(committedSetting);
 
-  useEffect(() => {
+  const initSetValue = useCallback(() => {
     setValue(committedSetting);
   }, [committedSetting]);
+
+  useEffect(() => {
+    initSetValue();
+  }, [initSetValue]);
 
   const handleOpen = () => {
     setOpen(true);

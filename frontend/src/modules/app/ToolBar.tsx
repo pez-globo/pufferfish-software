@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Grid, AppBar } from '@material-ui/core';
@@ -59,7 +59,10 @@ export const ToolBar = (): JSX.Element => {
   const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
   const updateVentilationStatus = () => {
     setIsVentilatorOn(!isVentilatorOn);
-    if (!isVentilatorOn) {
+  };
+
+  const initParameterUpdate = useCallback(() => {
+    if (isVentilatorOn) {
       switch (currentMode) {
         case VentilationMode.pc_ac:
         case VentilationMode.pc_simv:
@@ -86,7 +89,12 @@ export const ToolBar = (): JSX.Element => {
           break;
       }
     }
-  };
+  }, [isVentilatorOn, parameterRequestStandby, currentMode, dispatch]);
+
+  useEffect(() => {
+    initParameterUpdate();
+  }, [initParameterUpdate]);
+
   const StartPauseButton = (
     <Button
       component={Link}
