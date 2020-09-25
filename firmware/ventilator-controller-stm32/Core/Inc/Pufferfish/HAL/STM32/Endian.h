@@ -6,6 +6,10 @@
  *  Endianness conversions between host and network order.
  *  STM32 is little-endian, while network order is big-endian, so
  *  the conversion functions reverse the order of bytes.
+ *
+ *  NOTE: this implementation relies on builtins provided by GCC/Clang.
+ *  You will need to compile using a relatively modern version of either
+ *  compiler.
  */
 
 #pragma once
