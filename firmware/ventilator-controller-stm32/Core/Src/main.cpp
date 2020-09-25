@@ -238,9 +238,9 @@ PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press15(i2c_hal_press15, i2c_mux1, 4)
 PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press16(i2c_hal_press16, i2c_mux1, 1);
 PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press17(i2c_hal_press17, i2c_mux1, 3);
 PF::Driver::I2C::ExtendedI2CDevice i2c_ext_press18(
-    // NOLINTNEXTLINE(readability-magic-numbers)
     i2c_hal_press18,
     i2c_mux1,
+    // NOLINTNEXTLINE(readability-magic-numbers)
     5);
 
 // Actual usable sensor
