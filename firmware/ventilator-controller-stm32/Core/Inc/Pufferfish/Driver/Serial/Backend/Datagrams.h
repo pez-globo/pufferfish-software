@@ -44,7 +44,7 @@ class Datagram {
   IndexStatus parse(
       const Util::ByteArray<input_size> &input_buffer);  // updates all fields, including payload
 
- protected:
+ private:
   template <size_t output_size>
   IndexStatus write_protected(Util::ByteArray<output_size> &output_buffer) const;
 };
@@ -59,7 +59,7 @@ class DatagramReceiver {
   template <size_t input_size>
   Status transform(const Util::ByteArray<input_size> &input_buffer, Datagram &output_datagram);
 
- protected:
+ private:
   uint8_t expected_seq_ = 0;
   HAL::CRC32C crc32c_;
 
@@ -78,7 +78,7 @@ class DatagramSender {
   Status transform(
       const Datagram::PayloadBuffer &input_payload, Util::ByteArray<output_size> &output_buffer);
 
- protected:
+ private:
   uint8_t next_seq_ = 0;
   HAL::CRC32C crc32c_;
 };

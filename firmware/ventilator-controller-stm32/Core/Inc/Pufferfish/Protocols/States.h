@@ -22,15 +22,16 @@ struct StateOutputScheduleEntry {
 };
 
 template <typename MessageTypes, size_t size>
-using StateOutputSchedule = std::array<StateOutputScheduleEntry<const MessageTypes>, size>;
+using StateOutputSchedule = std::array<const StateOutputScheduleEntry<MessageTypes>, size>;
 
-template <typename States, typename Message, typename MessageTypes, typename StateOutputSchedule>
+template <typename States, typename Message, typename MessageTypes, size_t schedule_size>
 class StateSynchronizer {
  public:
   enum class InputStatus { ok = 0, invalid_type };
   enum class OutputStatus { available = 0, waiting };
 
-  StateSynchronizer(States &all_states, const StateOutputSchedule &schedule)
+  StateSynchronizer(
+      States &all_states, const StateOutputSchedule<MessageTypes, schedule_size> &schedule)
       : all_states(all_states), output_schedule_(schedule) {}
 
   States &all_states;
@@ -39,8 +40,8 @@ class StateSynchronizer {
   InputStatus input(const Message &inputMessage);
   OutputStatus output(Message &outputMessage);
 
- protected:
-  const StateOutputSchedule &output_schedule_;
+ private:
+  const StateOutputSchedule<MessageTypes, schedule_size> &output_schedule_;
   uint32_t current_time_ = 0;
   size_t current_schedule_entry_ = 0;
   uint32_t current_schedule_entry_start_time_ = 0;

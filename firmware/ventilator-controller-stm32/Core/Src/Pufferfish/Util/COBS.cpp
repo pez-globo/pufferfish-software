@@ -29,6 +29,8 @@
 
 namespace Pufferfish::Util {
 
+static const size_t max_block_size = 254;
+
 size_t encode_cobs(const uint8_t *buffer, size_t size, uint8_t *encoded_buffer) {
   size_t read_index = 0;
   size_t write_index = 1;
@@ -45,7 +47,7 @@ size_t encode_cobs(const uint8_t *buffer, size_t size, uint8_t *encoded_buffer) 
       encoded_buffer[write_index++] = buffer[read_index++];
       code++;
 
-      if (code == 0xFF) {
+      if (code == max_block_size + 1) {
         encoded_buffer[code_index] = code;
         code = 1;
         code_index = write_index++;
@@ -79,7 +81,7 @@ size_t decode_cobs(const uint8_t *encoded_buffer, size_t size, uint8_t *decoded_
       decoded_buffer[write_index++] = encoded_buffer[read_index++];
     }
 
-    if (code != 0xFF && read_index != size) {
+    if (code != max_block_size + 1 && read_index != size) {
       decoded_buffer[write_index++] = '\0';
     }
   }
@@ -88,7 +90,7 @@ size_t decode_cobs(const uint8_t *encoded_buffer, size_t size, uint8_t *decoded_
 }
 
 size_t get_encoded_cobs_buffer_size(size_t unencoded_buffer_size) {
-  return unencoded_buffer_size + unencoded_buffer_size / 254 + 1;
+  return unencoded_buffer_size + unencoded_buffer_size / max_block_size + 1;
 }
 
 }  // namespace Pufferfish::Util

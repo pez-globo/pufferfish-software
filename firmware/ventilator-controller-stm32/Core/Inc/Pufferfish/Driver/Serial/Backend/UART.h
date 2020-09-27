@@ -20,12 +20,13 @@ class UARTBackendReceiver {
  public:
   enum class Status { available = 0, waiting, invalid };
 
-  UARTBackendReceiver(volatile BufferedUART &uart, BackendReceiver &serial);
+  UARTBackendReceiver(volatile BufferedUART &uart, BackendReceiver &serial)
+      : uart_(uart), serial_(serial) {}
 
   // The return value indicates whether an output is available and written to outputBuffer
   Status output(Application::Message &outputMessage);
 
- protected:
+ private:
   volatile BufferedUART &uart_;
   BackendReceiver &serial_;
 
@@ -37,7 +38,8 @@ class UARTBackendSender {
  public:
   enum class Status { ok = 0, invalid };
 
-  UARTBackendSender(volatile BufferedUART &uart, BackendSender &serial);
+  UARTBackendSender(volatile BufferedUART &uart, BackendSender &serial)
+      : uart_(uart), serial_(serial) {}
 
   Status input(const Application::Message &inputMessage);
 
@@ -52,7 +54,13 @@ class UARTBackendDriver {
   using Receiver = UARTBackendReceiver<BufferedUART>;
   using Sender = UARTBackendSender<BufferedUART>;
 
-  UARTBackendDriver(volatile BufferedUART &uart, HAL::CRC32C &crc32c);
+  UARTBackendDriver(volatile BufferedUART &uart, HAL::CRC32C &crc32c)
+      : uart(uart),
+        crc32c_(crc32c),
+        receiver_protocol_(crc32c),
+        sender_protocol_(crc32c),
+        receiver_(uart, receiver_protocol_),
+        sender_(uart, sender_protocol_) {}
 
   volatile BufferedUART &uart;
 
@@ -60,7 +68,7 @@ class UARTBackendDriver {
   typename Receiver::Status receive(Application::Message &receiveMessage);
   typename Sender::Status send(const Application::Message &sendMessage);
 
- protected:
+ private:
   HAL::CRC32C &crc32c_;
   BackendReceiver receiver_protocol_;
   BackendSender sender_protocol_;
@@ -73,19 +81,20 @@ class UARTBackend {
   using Driver = UARTBackendDriver<HAL::LargeBufferedUART>;
 
   UARTBackend(
-      volatile HAL::LargeBufferedUART &uart, HAL::CRC32C &crc32c, Application::States &states);
+      volatile HAL::LargeBufferedUART &uart, HAL::CRC32C &crc32c, Application::States &states)
+      : driver_(uart, crc32c), states_(states), synchronizer_(states, state_sync_schedule){};
 
   void setup_irq();
   void receive();
   void update_clock(uint32_t current_time);
   void send();
 
- protected:
+ private:
   using StateSynchronizer = Protocols::StateSynchronizer<
       Application::States,
       Application::Message,
       Application::MessageTypes,
-      StateOutputSchedule>;
+      state_sync_schedule.size()>;
 
   Driver driver_;
   Application::States &states_;

@@ -37,13 +37,13 @@ class ByteArray {
   [[nodiscard]] size_t available() const;
 
   void clear();
-  IndexStatus resize(size_t newSize);
+  IndexStatus resize(size_t new_size);
   IndexStatus push_back(uint8_t new_byte);
 
   void copy_from(const ByteArray<array_size> &source_bytes, size_t dest_start_index = 0);
   void copy_from(const uint8_t *source_bytes, size_t source_size, size_t dest_start_index = 0);
 
- protected:
+ private:
   size_t size_ = 0;
 };
 

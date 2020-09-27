@@ -15,15 +15,14 @@
 #include "Pufferfish/HAL/CRC.h"
 #include "Pufferfish/Protocols/Messages.h"
 #include "Pufferfish/Protocols/States.h"
+#include "Pufferfish/Util/Array.h"
 #include "Pufferfish/Util/ByteArray.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
 // States
 
-using ProtobufDescriptors = Util::ProtobufDescriptors<8>;
-
-static const ProtobufDescriptors message_descriptors = {
+static const auto message_descriptors = Util::make_array<Util::ProtobufDescriptor>(
     // array index should match the type code value
     Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 0
     Util::get_protobuf_descriptor<Alarms>(),                     // 1
@@ -33,25 +32,22 @@ static const ProtobufDescriptors message_descriptors = {
     Util::get_protobuf_descriptor<ParametersRequest>(),          // 5
     Util::get_protobuf_descriptor<Ping>(),                       // 6
     Util::get_protobuf_descriptor<Announcement>()                // 7
-};
+);
 
 // State Synchronization
 
 using StateOutputScheduleEntry = Protocols::StateOutputScheduleEntry<Application::MessageTypes>;
 
-using StateOutputSchedule = Protocols::StateOutputSchedule<Application::MessageTypes, 9>;
-
-static const StateOutputSchedule state_sync_schedule = {{
-    {10, Application::MessageTypes::sensor_measurements},
-    {10, Application::MessageTypes::parameters},
-    {10, Application::MessageTypes::alarms},
-    {10, Application::MessageTypes::sensor_measurements},
-    {10, Application::MessageTypes::ping},
-    {10, Application::MessageTypes::alarms},
-    {10, Application::MessageTypes::sensor_measurements},
-    {10, Application::MessageTypes::parameters_request},
-    {10, Application::MessageTypes::cycle_measurements},
-}};
+static const auto state_sync_schedule = Util::make_array<const StateOutputScheduleEntry>(
+    StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
+    StateOutputScheduleEntry{10, Application::MessageTypes::parameters},
+    StateOutputScheduleEntry{10, Application::MessageTypes::alarms},
+    StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
+    StateOutputScheduleEntry{10, Application::MessageTypes::ping},
+    StateOutputScheduleEntry{10, Application::MessageTypes::alarms},
+    StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
+    StateOutputScheduleEntry{10, Application::MessageTypes::parameters_request},
+    StateOutputScheduleEntry{10, Application::MessageTypes::cycle_measurements});
 
 // Backend
 
@@ -78,9 +74,9 @@ class BackendReceiver {
   InputStatus input(uint8_t new_byte);
   OutputStatus output(Application::Message &output_message);
 
- protected:
+ private:
   using BackendMessageReceiver =
-      Protocols::MessageReceiver<Application::Message, std::tuple_size<ProtobufDescriptors>::value>;
+      Protocols::MessageReceiver<Application::Message, message_descriptors.size()>;
 
   FrameReceiver frame_;
   DatagramReceiver datagram_;
@@ -103,9 +99,9 @@ class BackendSender {
 
   Status transform(const Application::Message &input_message, ChunkBuffer &output_buffer);
 
- protected:
+ private:
   using BackendMessageSender =
-      Protocols::MessageSender<Application::Message, std::tuple_size<ProtobufDescriptors>::value>;
+      Protocols::MessageSender<Application::Message, message_descriptors.size()>;
 
   BackendMessageSender message_;
   DatagramSender datagram_;

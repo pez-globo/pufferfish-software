@@ -382,6 +382,9 @@ int main(void)
   bool mem_buttonstate = false;
   // TODO: Added for testing Nonin OEM III
   PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus return_status;
+
+  static const uint32_t blink_low_delay = 5;
+  static const uint32_t loop_delay = 50;
   */
 
   /* USER CODE END 1 */
@@ -437,8 +440,6 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  static const uint32_t blink_low_delay = 5;
-  static const uint32_t loop_delay = 50;
   while (true) {
     uint32_t current_time = HAL_GetTick();
 
@@ -452,8 +453,9 @@ int main(void)
     backend.update_clock(current_time);
     backend.send();
 
-    // Nonin TODO: Invoking the NoninOEM output method
     /*
+    // Nonin TODO: Invoking the NoninOEM output method
+
     return_status = oemobj.output(test_sensor_measurements);
     if (return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::available) {
       packet_count = packet_count + 1;
@@ -524,6 +526,7 @@ int main(void)
       PF::HAL::delay(5);
     }
     */
+
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
   }

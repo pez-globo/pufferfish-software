@@ -27,7 +27,7 @@ class ChunkSplitter {
   InputStatus input(uint8_t new_byte);
   OutputStatus output(Util::ByteArray<buffer_size> &output_buffer);
 
- protected:
+ private:
   Util::ByteArray<buffer_size> buffer_;
   const uint8_t delimiter;
   InputStatus input_status_ = InputStatus::input_ready;
@@ -48,7 +48,7 @@ class ChunkMerger {
   template <size_t buffer_size>
   Status transform(Util::ByteArray<buffer_size> &input_output_buffer) const;
 
- protected:
+ private:
   const uint8_t delimiter = 0x00;
 };
 
@@ -83,7 +83,7 @@ class FrameReceiver {
   InputStatus input(uint8_t new_byte);
   OutputStatus output(ChunkBuffer &output_buffer);
 
- protected:
+ private:
   FrameChunkSplitter chunk_splitter_;
   const COBSDecoder cobs_decoder = COBSDecoder();
 };
@@ -94,7 +94,7 @@ class FrameSender {
 
   Status transform(const ChunkBuffer &input_buffer, ChunkBuffer &output_buffer) const;
 
- protected:
+ private:
   const COBSEncoder cobs_encoder = COBSEncoder();
   const ChunkMerger chunk_merger = ChunkMerger();
 };

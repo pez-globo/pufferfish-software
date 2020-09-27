@@ -42,11 +42,11 @@ void ByteArray<array_size>::clear() {
 }
 
 template <size_t array_size>
-IndexStatus ByteArray<array_size>::resize(size_t newSize) {
-  if (newSize > max_size) {
+IndexStatus ByteArray<array_size>::resize(size_t new_size) {
+  if (new_size > max_size) {
     return IndexStatus::out_of_bounds;
   }
-  size_ = newSize;
+  size_ = new_size;
   return IndexStatus::ok;
 }
 

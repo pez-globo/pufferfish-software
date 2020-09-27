@@ -14,11 +14,6 @@ namespace Pufferfish::Driver::Serial::Backend {
 // UARTBackendReceiver
 
 template <typename BufferedUART>
-UARTBackendReceiver<BufferedUART>::UARTBackendReceiver(
-    volatile BufferedUART &uart, BackendReceiver &serial)
-    : uart_(uart), serial_(serial) {}
-
-template <typename BufferedUART>
 typename UARTBackendReceiver<BufferedUART>::Status UARTBackendReceiver<BufferedUART>::output(
     Application::Message &outputMessage) {
   input();
@@ -79,11 +74,6 @@ void UARTBackendReceiver<BufferedUART>::input() {
 // UARTBackendSender
 
 template <typename BufferedUART>
-UARTBackendSender<BufferedUART>::UARTBackendSender(
-    volatile BufferedUART &uart, BackendSender &serial)
-    : uart_(uart), serial_(serial) {}
-
-template <typename BufferedUART>
 typename UARTBackendSender<BufferedUART>::Status UARTBackendSender<BufferedUART>::input(
     const Application::Message &inputMessage) {
   ChunkBuffer send_output;
@@ -109,15 +99,6 @@ typename UARTBackendSender<BufferedUART>::Status UARTBackendSender<BufferedUART>
 // UARTBackendDriver
 
 template <typename BufferedUART>
-UARTBackendDriver<BufferedUART>::UARTBackendDriver(volatile BufferedUART &uart, HAL::CRC32C &crc32c)
-    : uart(uart),
-      crc32c_(crc32c),
-      receiver_protocol_(crc32c),
-      sender_protocol_(crc32c),
-      receiver_(uart, receiver_protocol_),
-      sender_(uart, sender_protocol_) {}
-
-template <typename BufferedUART>
 void UARTBackendDriver<BufferedUART>::setup_irq() {
   uart.setup_irq();
 }
@@ -135,10 +116,6 @@ typename UARTBackendDriver<BufferedUART>::Sender::Status UARTBackendDriver<Buffe
 }
 
 // UARTBackend
-
-UARTBackend::UARTBackend(
-    volatile HAL::LargeBufferedUART &uart, HAL::CRC32C &crc32c, Application::States &states)
-    : driver_(uart, crc32c), states_(states), synchronizer_(states, state_sync_schedule) {}
 
 void UARTBackend::setup_irq() {
   driver_.setup_irq();

@@ -13,16 +13,16 @@ namespace Pufferfish::Protocols {
 
 // StateSynchronizer
 
-template <typename States, typename Message, typename MessageTypes, typename StateOutputSchedule>
-typename StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::InputStatus
-StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::input(uint32_t time) {
+template <typename States, typename Message, typename MessageTypes, size_t schedule_size>
+typename StateSynchronizer<States, Message, MessageTypes, schedule_size>::InputStatus
+StateSynchronizer<States, Message, MessageTypes, schedule_size>::input(uint32_t time) {
   current_time_ = time;
   return InputStatus::ok;
 }
 
-template <typename States, typename Message, typename MessageTypes, typename StateOutputSchedule>
-typename StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::InputStatus
-StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::input(
+template <typename States, typename Message, typename MessageTypes, size_t schedule_size>
+typename StateSynchronizer<States, Message, MessageTypes, schedule_size>::InputStatus
+StateSynchronizer<States, Message, MessageTypes, schedule_size>::input(
     const Message &inputMessage) {
   switch (inputMessage.type) {
     case static_cast<uint8_t>(MessageTypes::parameters_request):
@@ -39,10 +39,9 @@ StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::input(
   return InputStatus::ok;
 }
 
-template <typename States, typename Message, typename MessageTypes, typename StateOutputSchedule>
-typename StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::OutputStatus
-StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::output(
-    Message &outputMessage) {
+template <typename States, typename Message, typename MessageTypes, size_t schedule_size>
+typename StateSynchronizer<States, Message, MessageTypes, schedule_size>::OutputStatus
+StateSynchronizer<States, Message, MessageTypes, schedule_size>::output(Message &outputMessage) {
   if (!should_output()) {
     return OutputStatus::waiting;
   }
@@ -53,8 +52,8 @@ StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::output(
   return OutputStatus::available;
 }
 
-template <typename States, typename Message, typename MessageTypes, typename StateOutputSchedule>
-bool StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::should_output() const {
+template <typename States, typename Message, typename MessageTypes, size_t schedule_size>
+bool StateSynchronizer<States, Message, MessageTypes, schedule_size>::should_output() const {
   return (current_time_ - current_schedule_entry_start_time_) >=
          output_schedule_[current_schedule_entry_].delay;
 }

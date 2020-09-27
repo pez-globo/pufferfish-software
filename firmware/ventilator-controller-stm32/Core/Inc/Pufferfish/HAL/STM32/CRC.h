@@ -27,7 +27,7 @@ class CRC32C {
 
   uint32_t compute(const uint8_t *data, int size);
 
- protected:
+ private:
   CRC_HandleTypeDef &hcrc_;
 };
 
