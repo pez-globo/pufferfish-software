@@ -31,21 +31,16 @@ should replace `$PROTOC` with `protoc`.
 To update the C++ classes at
 `firmware/ventilator-controller-stm32/Core/Inc/Pufferfish/Application/mcu_pb.h` and
 `firmware/ventilator-controller-stm32/Core/Src/Pufferfish/Application/mcu_pb.c`,
-the easiest way is to install nanopb with pip, and run, from the `backend` directory:
+the easiest way is to install nanopb with pip, and run the `generate_mcu.sh` script:
 
 ```bash
 $ # Install nanopb
-$ cd ../backend
 $ pip3 install nanopb
 
 
 $ # Generate C++ Code
-$ nanopb_generator -I "../proto" -D "../firmware/ventilator-controller-stm32/Core/Inc/Pufferfish/Application" -e "" -Q '#include "Pufferfish/Application/%s"' -L '#include "nanopb/%s"' --cpp-descriptors mcu_pb.proto
+$ ../proto/generate_mcu.sh
 ```
-
-Note that after generating these files, you will need to move
-`firmware/ventilator-controller-stm32/Core/Inc/Pufferfish/Protocols/mcu_pb.c`
-to `firmware/ventilator-controller-stm32/Core/Src/Pufferfish/Protocols/mcu_pb.c`.
 
 ## Frontend/Backend
 

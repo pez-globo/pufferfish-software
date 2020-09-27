@@ -344,56 +344,56 @@ namespace nanopb {
 template <>
 struct MessageDescriptor<Alarms> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 3;
-    static inline const pb_msgdesc_t* fields() {
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &Alarms_msg;
     }
 };
 template <>
 struct MessageDescriptor<AlarmLimitsRequest> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 26;
-    static inline const pb_msgdesc_t* fields() {
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &AlarmLimitsRequest_msg;
     }
 };
 template <>
 struct MessageDescriptor<SensorMeasurements> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 7;
-    static inline const pb_msgdesc_t* fields() {
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &SensorMeasurements_msg;
     }
 };
 template <>
 struct MessageDescriptor<CycleMeasurements> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 7;
-    static inline const pb_msgdesc_t* fields() {
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &CycleMeasurements_msg;
     }
 };
 template <>
 struct MessageDescriptor<Parameters> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 9;
-    static inline const pb_msgdesc_t* fields() {
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &Parameters_msg;
     }
 };
 template <>
 struct MessageDescriptor<ParametersRequest> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 9;
-    static inline const pb_msgdesc_t* fields() {
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &ParametersRequest_msg;
     }
 };
 template <>
 struct MessageDescriptor<Ping> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
-    static inline const pb_msgdesc_t* fields() {
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &Ping_msg;
     }
 };
 template <>
 struct MessageDescriptor<Announcement> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
-    static inline const pb_msgdesc_t* fields() {
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &Announcement_msg;
     }
 };
