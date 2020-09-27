@@ -11,6 +11,7 @@
 #include "Pufferfish/HAL/STM32/CRC.h"
 #include "Pufferfish/Driver/Serial/Backend/Backend.h"
 #include "Pufferfish/Application/States.h"
+#include "Pufferfish/Protocols/States.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
@@ -86,9 +87,14 @@ public:
   void send();
 
 protected:
+  using StateSynchronizer = Protocols::StateSynchronizer<
+      Application::States, Application::UnionMessage,
+      Application::MessageTypes, StateOutputSchedule
+  >;
+
   Driver driver;
   Application::States &states;
-  Application::StateSynchronizer synchronizer;
+  StateSynchronizer synchronizer;
 };
 
 }

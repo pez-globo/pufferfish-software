@@ -146,7 +146,7 @@ UARTBackendDriver<BufferedUART>::send(
 UARTBackend::UARTBackend(
     volatile HAL::LargeBufferedUART &uart, HAL::CRC32C &crc32c,
     Application::States &states
-) : driver(uart, crc32c), states(states), synchronizer(states) {}
+) : driver(uart, crc32c), states(states), synchronizer(states, stateSyncSchedule) {}
 
 void UARTBackend::setup_irq() {
   driver.setup_irq();
@@ -160,10 +160,10 @@ void UARTBackend::receive() {
     break;
   case Driver::Receiver::Status::available:
     switch (synchronizer.input(message)) {
-    case Application::StateSynchronizer::InputStatus::invalidType:
+    case StateSynchronizer::InputStatus::invalidType:
       // TODO: handle error case
       break;
-    case Application::StateSynchronizer::InputStatus::ok:
+    case StateSynchronizer::InputStatus::ok:
       break;
     }
     default:
@@ -178,9 +178,9 @@ void UARTBackend::update_clock(uint32_t currentTime) {
 void UARTBackend::send() {
   Application::Message message;
   switch (synchronizer.output(message)) {
-  case Application::StateSynchronizer::OutputStatus::waiting:
+  case StateSynchronizer::OutputStatus::waiting:
     break;
-  case Application::StateSynchronizer::OutputStatus::available:
+  case StateSynchronizer::OutputStatus::available:
     switch (driver.send(message)) {
     case Driver::Sender::Status::invalid: // errors handled by driver
       break;

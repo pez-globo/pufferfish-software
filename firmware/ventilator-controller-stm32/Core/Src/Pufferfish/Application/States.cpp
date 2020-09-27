@@ -9,7 +9,7 @@
 
 namespace Pufferfish::Application {
 
-// ApplicationStates
+// States
 
 bool States::setState(const Message &inputMessage) {
   switch (inputMessage.type) {
@@ -40,8 +40,7 @@ bool States::setState(const Message &inputMessage) {
 }
 
 void States::setMessage(
-    MessageTypes type, Message &outputMessage
-) const {
+    MessageTypes type, Message &outputMessage) const {
   outputMessage.type = static_cast<uint8_t>(type);
   switch (type) {
   case MessageTypes::alarms:
@@ -67,52 +66,5 @@ void States::setMessage(
     return;
   }
 }
-
-// StateSynchronizer
-
-StateSynchronizer::StateSynchronizer(States &allStates) :
-    allStates(allStates) {}
-
-StateSynchronizer::InputStatus
-StateSynchronizer::input(uint32_t time) {
-  currentTime = time;
-  return InputStatus::ok;
-}
-
-StateSynchronizer::InputStatus
-StateSynchronizer::input(const Message &inputMessage) {
-  switch (inputMessage.type) {
-  case static_cast<uint8_t>(MessageTypes::parameters_request):
-  case static_cast<uint8_t>(MessageTypes::ping):
-  case static_cast<uint8_t>(MessageTypes::announcement):
-    if (!allStates.setState(inputMessage)) {
-      return InputStatus::invalidType;
-    }
-    break;
-  default:
-    break;
-  }
-
-  return InputStatus::ok;
-}
-
-StateSynchronizer::OutputStatus
-StateSynchronizer::output(Message &outputMessage) {
-  if (!shouldOutput()) {
-    return OutputStatus::waiting;
-  }
-
-  allStates.setMessage(outputSchedule[currentScheduleEntry].type, outputMessage);
-  currentScheduleEntry = (currentScheduleEntry + 1) % stateOutputScheduleLength;
-  currentScheduleEntryStartTime = currentTime;
-  return OutputStatus::available;
-}
-
-bool StateSynchronizer::shouldOutput() const {
-  return (
-      currentTime - currentScheduleEntryStartTime
-  ) >= outputSchedule[currentScheduleEntry].delay;
-}
-
 
 }

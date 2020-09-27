@@ -15,7 +15,7 @@ namespace Pufferfish::Driver::Serial::Backend {
 
 BackendReceiver::BackendReceiver(HAL::CRC32C &crc32c) :
     datagram(crc32c),
-    message(Application::message_descriptors) {}
+    message(message_descriptors) {}
 
 BackendReceiver::InputStatus BackendReceiver::input(uint8_t newByte) {
   switch (frame.input(newByte)) {
@@ -64,13 +64,13 @@ BackendReceiver::OutputStatus BackendReceiver::output(
 
   // Message
   switch (message.transform(tempBuffer2, outputMessage)) {
-  case Application::MessageReceiver::Status::invalidLength:
+  case BackendMessageReceiver::Status::invalidLength:
     return OutputStatus::invalidMessageLength;
-  case Application::MessageReceiver::Status::invalidType:
+  case BackendMessageReceiver::Status::invalidType:
     return OutputStatus::invalidMessageType;
-  case Application::MessageReceiver::Status::invalidEncoding:
+  case BackendMessageReceiver::Status::invalidEncoding:
     return OutputStatus::invalidMessageEncoding;
-  case Application::MessageReceiver::Status::ok:
+  case BackendMessageReceiver::Status::ok:
     break;
   }
   return OutputStatus::available;
@@ -79,7 +79,7 @@ BackendReceiver::OutputStatus BackendReceiver::output(
 // BackendSender
 
 BackendSender::BackendSender(HAL::CRC32C &crc32c) :
-    message(Application::message_descriptors),
+    message(message_descriptors),
     datagram(crc32c) {}
 
 BackendSender::Status BackendSender::transform(
@@ -90,13 +90,13 @@ BackendSender::Status BackendSender::transform(
 
   // Message
   switch (message.transform(inputMessage, tempBuffer1)) {
-  case Application::MessageSender::Status::invalidLength:
+  case BackendMessageSender::Status::invalidLength:
     return Status::invalidMessageLength;
-  case Application::MessageSender::Status::invalidType:
+  case BackendMessageSender::Status::invalidType:
     return Status::invalidMessageType;
-  case Application::MessageSender::Status::invalidEncoding:
+  case BackendMessageSender::Status::invalidEncoding:
     return Status::invalidMessageEncoding;
-  case Application::MessageSender::Status::ok:
+  case BackendMessageSender::Status::ok:
     break;
   }
 
