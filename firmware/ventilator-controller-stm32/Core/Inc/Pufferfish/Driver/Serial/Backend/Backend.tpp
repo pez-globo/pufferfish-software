@@ -15,7 +15,7 @@ namespace Pufferfish::Driver::Serial::Backend {
 
 BackendReceiver::BackendReceiver(HAL::CRC32C &crc32c) :
     datagram(crc32c),
-    message(Application::message_descriptors, Application::num_message_descriptors) {}
+    message(Application::message_descriptors) {}
 
 BackendReceiver::InputStatus BackendReceiver::input(uint8_t newByte) {
   switch (frame.input(newByte)) {
@@ -79,10 +79,7 @@ BackendReceiver::OutputStatus BackendReceiver::output(
 // BackendSender
 
 BackendSender::BackendSender(HAL::CRC32C &crc32c) :
-    message(
-        Application::message_descriptors,
-        Application::num_message_descriptors
-    ),
+    message(Application::message_descriptors),
     datagram(crc32c) {}
 
 BackendSender::Status BackendSender::transform(

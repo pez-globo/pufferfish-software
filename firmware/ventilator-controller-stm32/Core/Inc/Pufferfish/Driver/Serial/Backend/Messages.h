@@ -8,11 +8,11 @@
 #pragma once
 
 #include <cstdint>
-#include <cstddef>
 
 #include "Pufferfish/Util/ByteArray.h"
+#include "Pufferfish/Util/Protobuf.h"
 #include "Datagrams.h"
-#include "nanopb/pb.h"
+#include "nanopb/pb_common.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
@@ -34,23 +34,21 @@ public:
   uint8_t type = 0;
   UnionMessage payload;
 
-  template<size_t OutputSize>
+  template<size_t OutputSize, size_t NumDescriptors>
   Status write(
       Util::ByteArray<OutputSize> &outputBuffer,
-      const pb_msgdesc_t **pbMessageDescriptors,
-      size_t numPBMessageDescriptors
+      const Util::ProtobufDescriptors<NumDescriptors> &pbProtobufDescriptors
   ) const;
 
-  template<size_t InputSize>
+  template<size_t InputSize, size_t NumDescriptors>
   Status parse(
       const Util::ByteArray<InputSize> &inputBuffer,
-      const pb_msgdesc_t **pbMessageDescriptors,
-      size_t numPBMessageDescriptors
+      const Util::ProtobufDescriptors<NumDescriptors> &pbProtobufDescriptors
   ); // updates type and payload fields
 };
 
 // Parses messages into payloads, with data integrity checking
-template<class UnionMessage>
+template<class UnionMessage, size_t NumDescriptors>
 class MessageReceiver {
 public:
   enum class Status {
@@ -58,7 +56,7 @@ public:
     invalidLength, invalidType, invalidEncoding
   };
 
-  MessageReceiver(const pb_msgdesc_t **descriptors, size_t numDescriptors);
+  MessageReceiver(const Util::ProtobufDescriptors<NumDescriptors> &descriptors);
 
   template<size_t InputSize>
   Status transform(
@@ -67,17 +65,16 @@ public:
   ) const;
 
 protected:
-  const pb_msgdesc_t **descriptors;
-  size_t numDescriptors;
+  const Util::ProtobufDescriptors<NumDescriptors> &descriptors;
 };
 
 // Generates messages from payloads
-template<class UnionMessage>
+template<class UnionMessage, size_t NumDescriptors>
 class MessageSender {
 public:
   enum class Status {ok = 0, invalidLength, invalidType, invalidEncoding};
 
-  MessageSender(const pb_msgdesc_t **descriptors, size_t numDescriptors);
+  MessageSender(const Util::ProtobufDescriptors<NumDescriptors> &descriptors);
 
   template<size_t OutputSize>
   Status transform(
@@ -86,8 +83,7 @@ public:
   ) const;
 
 protected:
-  const pb_msgdesc_t **descriptors;
-  size_t numDescriptors;
+  const Util::ProtobufDescriptors<NumDescriptors> &descriptors;
 };
 
 }

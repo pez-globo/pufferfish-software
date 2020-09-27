@@ -7,11 +7,13 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <stddef.h>
+#include <array>
+#include <tuple>
+#include <cstdint>
+#include <cstddef>
 
-#include "nanopb/pb_common.h"
 #include "Pufferfish/Driver/Serial/Backend/Messages.h"
+#include "Pufferfish/Util/Protobuf.h"
 #include "mcu_pb.h"
 
 namespace Pufferfish::Application {
@@ -36,22 +38,25 @@ enum class MessageTypes : uint8_t {
   announcement = 7
 };
 
-static const pb_msgdesc_t *message_descriptors[] = { // array index should match the type code value
-    nullptr, // 0
-    &Alarms_msg, // 1
-    &SensorMeasurements_msg, // 2
-    &CycleMeasurements_msg, // 3
-    &Parameters_msg, // 4
-    &ParametersRequest_msg, // 5
-    &Ping_msg, // 6
-    &Announcement_msg // 7
+using ProtobufDescriptors = Util::ProtobufDescriptors<8>;
+
+static const ProtobufDescriptors message_descriptors = {
+    // array index should match the type code value
+    Util::getProtobufDescriptor<Util::UnrecognizedMessage>(), // 0
+    Util::getProtobufDescriptor<Alarms>(), // 1
+    Util::getProtobufDescriptor<SensorMeasurements>(), // 2
+    Util::getProtobufDescriptor<CycleMeasurements>(), // 3
+    Util::getProtobufDescriptor<Parameters>(), // 4
+    Util::getProtobufDescriptor<ParametersRequest>(), // 5
+    Util::getProtobufDescriptor<Ping>(), // 6
+    Util::getProtobufDescriptor<Announcement>() // 7
 };
-static const size_t num_message_descriptors =
-    sizeof(message_descriptors) / sizeof(pb_msgdesc_t *);
 
 using Message = Driver::Serial::Backend::Message<UnionMessage>;
-using MessageReceiver = Driver::Serial::Backend::MessageReceiver<UnionMessage>;
-using MessageSender = Driver::Serial::Backend::MessageSender<UnionMessage>;
+using MessageReceiver = Driver::Serial::Backend::MessageReceiver<
+    UnionMessage, std::tuple_size<ProtobufDescriptors>::value>;
+using MessageSender = Driver::Serial::Backend::MessageSender<
+    UnionMessage, std::tuple_size<ProtobufDescriptors>::value>;
 
 class States {
 public:
