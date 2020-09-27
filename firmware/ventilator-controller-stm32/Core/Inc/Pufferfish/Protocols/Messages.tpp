@@ -11,14 +11,14 @@
 #include "nanopb/pb_encode.h"
 #include "Messages.h"
 
-namespace Pufferfish::Driver::Serial::Backend {
+namespace Pufferfish::Protocols {
 
 // Message
 
-template<class UnionMessage>
+template<class UnionMessage, size_t max_size>
 template<size_t OutputSize, size_t NumDescriptors>
-typename Message<UnionMessage>::Status
-Message<UnionMessage>::write(
+typename Message<UnionMessage, max_size>::Status
+Message<UnionMessage, max_size>::write(
     Util::ByteArray<OutputSize> &outputBuffer,
     const Util::ProtobufDescriptors<NumDescriptors> &pbProtobufDescriptors
 ) const {
@@ -51,10 +51,10 @@ Message<UnionMessage>::write(
   return Status::ok;
 }
 
-template<class UnionMessage>
+template<class UnionMessage, size_t max_size>
 template<size_t InputSize, size_t NumDescriptors>
-typename Message<UnionMessage>::Status
-Message<UnionMessage>::parse(
+typename Message<UnionMessage, max_size>::Status
+Message<UnionMessage, max_size>::parse(
     const Util::ByteArray<InputSize> &inputBuffer,
     const Util::ProtobufDescriptors<NumDescriptors> &pbProtobufDescriptors
 ) {
@@ -84,19 +84,19 @@ Message<UnionMessage>::parse(
 
 // MessageReceiver
 
-template<class UnionMessage, size_t NumDescriptors>
-MessageReceiver<UnionMessage, NumDescriptors>::MessageReceiver(
+template<class Message, size_t NumDescriptors>
+MessageReceiver<Message, NumDescriptors>::MessageReceiver(
     const Util::ProtobufDescriptors<NumDescriptors> &descriptors
 ) : descriptors(descriptors) {}
 
-template<class UnionMessage, size_t NumDescriptors>
+template<class Message, size_t NumDescriptors>
 template<size_t InputSize>
-typename MessageReceiver<UnionMessage, NumDescriptors>::Status
-MessageReceiver<UnionMessage, NumDescriptors>::transform(
+typename MessageReceiver<Message, NumDescriptors>::Status
+MessageReceiver<Message, NumDescriptors>::transform(
     const Util::ByteArray<InputSize> &inputBuffer,
-    Message<UnionMessage> &outputMessage
+    Message &outputMessage
 ) const {
-  using MessageStatus = typename Message<UnionMessage>::Status;
+  using MessageStatus = typename Message::Status;
   switch (outputMessage.parse(inputBuffer, descriptors)) {
   case MessageStatus::lengthError:
     return Status::invalidLength;
@@ -114,19 +114,19 @@ MessageReceiver<UnionMessage, NumDescriptors>::transform(
 
 // MessageSender
 
-template<class UnionMessage, size_t NumDescriptors>
-MessageSender<UnionMessage, NumDescriptors>::MessageSender(
+template<class Message, size_t NumDescriptors>
+MessageSender<Message, NumDescriptors>::MessageSender(
     const Util::ProtobufDescriptors<NumDescriptors> &descriptors
 ) : descriptors(descriptors) {}
 
-template<class UnionMessage, size_t NumDescriptors>
+template<class Message, size_t NumDescriptors>
 template<size_t OutputSize>
-typename MessageSender<UnionMessage, NumDescriptors>::Status
-MessageSender<UnionMessage, NumDescriptors>::transform(
-    const Message<UnionMessage> &inputMessage,
+typename MessageSender<Message, NumDescriptors>::Status
+MessageSender<Message, NumDescriptors>::transform(
+    const Message &inputMessage,
     Util::ByteArray<OutputSize> &outputBuffer
 ) const {
-  using MessageStatus = typename Message<UnionMessage>::Status;
+  using MessageStatus = typename Message::Status;
   switch (inputMessage.write(outputBuffer, descriptors)) {
   case MessageStatus::lengthError:
     return Status::invalidLength;

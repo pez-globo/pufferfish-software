@@ -7,7 +7,8 @@
 
 #pragma once
 
-#include "Pufferfish/Driver/Serial/Backend/Messages.h"
+#include "Pufferfish/Driver/Serial/Backend/Datagrams.h"
+#include "Pufferfish/Protocols/Messages.h"
 #include "mcu_pb.h"
 
 namespace Pufferfish::Application {
@@ -22,7 +23,9 @@ union UnionMessage {
   Announcement announcement;
 };
 
-using Message = Pufferfish::Driver::Serial::Backend::Message<UnionMessage>;
+using Message = Protocols::Message<
+    UnionMessage,
+    Driver::Serial::Backend::Datagram::payloadMaxSize>;
 
 enum class MessageTypes : uint8_t {
   alarms = 1,

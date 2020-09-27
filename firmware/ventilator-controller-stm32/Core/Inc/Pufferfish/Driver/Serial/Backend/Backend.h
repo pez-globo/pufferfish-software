@@ -12,8 +12,8 @@
 #include "Pufferfish/HAL/CRC.h"
 #include "Frames.h"
 #include "Datagrams.h"
-#include "Messages.h"
 #include "Pufferfish/Application/States.h"
+#include "Pufferfish/Protocols/Messages.h"
 #include "Pufferfish/Protocols/States.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
@@ -74,8 +74,9 @@ public:
   OutputStatus output(Application::Message &outputMessage);
 
 protected:
-  using BackendMessageReceiver = MessageReceiver<
-      Application::UnionMessage, std::tuple_size<ProtobufDescriptors>::value>;
+  using BackendMessageReceiver = Protocols::MessageReceiver<
+      Application::Message,
+      std::tuple_size<ProtobufDescriptors>::value>;
 
   FrameReceiver frame;
   DatagramReceiver datagram;
@@ -98,8 +99,9 @@ public:
   );
 
 protected:
-  using BackendMessageSender = MessageSender<
-      Application::UnionMessage, std::tuple_size<ProtobufDescriptors>::value>;
+  using BackendMessageSender = Protocols::MessageSender<
+      Application::Message,
+      std::tuple_size<ProtobufDescriptors>::value>;
 
   BackendMessageSender message;
   DatagramSender datagram;

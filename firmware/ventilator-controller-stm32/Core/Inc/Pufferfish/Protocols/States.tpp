@@ -15,24 +15,24 @@ namespace Pufferfish::Protocols {
 
 template<
   typename States,
-  typename UnionMessage,
+  typename Message,
   typename MessageTypes,
   typename StateOutputSchedule
 >
-typename StateSynchronizer<States, UnionMessage, MessageTypes, StateOutputSchedule>::InputStatus
-StateSynchronizer<States, UnionMessage, MessageTypes, StateOutputSchedule>::input(uint32_t time) {
+typename StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::InputStatus
+StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::input(uint32_t time) {
   currentTime = time;
   return InputStatus::ok;
 }
 
 template<
   typename States,
-  typename UnionMessage,
+  typename Message,
   typename MessageTypes,
   typename StateOutputSchedule
 >
-typename StateSynchronizer<States, UnionMessage, MessageTypes, StateOutputSchedule>::InputStatus
-StateSynchronizer<States, UnionMessage, MessageTypes, StateOutputSchedule>::input(const Message &inputMessage) {
+typename StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::InputStatus
+StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::input(const Message &inputMessage) {
   switch (inputMessage.type) {
   case static_cast<uint8_t>(MessageTypes::parameters_request):
   case static_cast<uint8_t>(MessageTypes::ping):
@@ -50,12 +50,12 @@ StateSynchronizer<States, UnionMessage, MessageTypes, StateOutputSchedule>::inpu
 
 template<
   typename States,
-  typename UnionMessage,
+  typename Message,
   typename MessageTypes,
   typename StateOutputSchedule
 >
-typename StateSynchronizer<States, UnionMessage, MessageTypes, StateOutputSchedule>::OutputStatus
-StateSynchronizer<States, UnionMessage, MessageTypes, StateOutputSchedule>::output(Message &outputMessage) {
+typename StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::OutputStatus
+StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::output(Message &outputMessage) {
   if (!shouldOutput()) {
     return OutputStatus::waiting;
   }
@@ -68,11 +68,11 @@ StateSynchronizer<States, UnionMessage, MessageTypes, StateOutputSchedule>::outp
 
 template<
   typename States,
-  typename UnionMessage,
+  typename Message,
   typename MessageTypes,
   typename StateOutputSchedule
 >
-bool StateSynchronizer<States, UnionMessage, MessageTypes, StateOutputSchedule>::shouldOutput() const {
+bool StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::shouldOutput() const {
   return (
       currentTime - currentScheduleEntryStartTime
   ) >= outputSchedule[currentScheduleEntry].delay;

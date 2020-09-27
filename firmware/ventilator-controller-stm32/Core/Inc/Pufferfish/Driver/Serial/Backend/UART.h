@@ -88,7 +88,7 @@ public:
 
 protected:
   using StateSynchronizer = Protocols::StateSynchronizer<
-      Application::States, Application::UnionMessage,
+      Application::States, Application::Message,
       Application::MessageTypes, StateOutputSchedule
   >;
 

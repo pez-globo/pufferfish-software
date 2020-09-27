@@ -11,21 +11,20 @@
 
 #include "Pufferfish/Util/ByteArray.h"
 #include "Pufferfish/Util/Protobuf.h"
-#include "Datagrams.h"
 #include "nanopb/pb_common.h"
 
-namespace Pufferfish::Driver::Serial::Backend {
+namespace Pufferfish::Protocols {
 
 // Messages
 
-template<class UnionMessage>
+template<class UnionMessage, size_t max_size>
 class Message {
 public:
   static const size_t typeOffset = 0;
   static const size_t payloadOffset = typeOffset + sizeof(uint8_t);
 
   static const size_t headerSize = payloadOffset;
-  static const size_t payloadMaxSize = Datagram::payloadMaxSize - headerSize;
+  static const size_t payloadMaxSize = max_size - headerSize;
 
   enum class Status {
       ok = 0, lengthError, typeError, encodingError, decodingError
@@ -48,7 +47,7 @@ public:
 };
 
 // Parses messages into payloads, with data integrity checking
-template<class UnionMessage, size_t NumDescriptors>
+template<class Message, size_t NumDescriptors>
 class MessageReceiver {
 public:
   enum class Status {
@@ -61,15 +60,15 @@ public:
   template<size_t InputSize>
   Status transform(
       const Util::ByteArray<InputSize> &inputBuffer,
-      Message<UnionMessage> &outputMessage
+      Message &outputMessage
   ) const;
 
-protected:
+private:
   const Util::ProtobufDescriptors<NumDescriptors> &descriptors;
 };
 
 // Generates messages from payloads
-template<class UnionMessage, size_t NumDescriptors>
+template<class Message, size_t NumDescriptors>
 class MessageSender {
 public:
   enum class Status {ok = 0, invalidLength, invalidType, invalidEncoding};
@@ -78,11 +77,11 @@ public:
 
   template<size_t OutputSize>
   Status transform(
-      const Message<UnionMessage> &inputMessage,
+      const Message &inputMessage,
       Util::ByteArray<OutputSize> &outputBuffer
   ) const;
 
-protected:
+private:
   const Util::ProtobufDescriptors<NumDescriptors> &descriptors;
 };
 

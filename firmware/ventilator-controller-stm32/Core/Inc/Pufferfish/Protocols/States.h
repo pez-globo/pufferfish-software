@@ -8,11 +8,8 @@
 #pragma once
 
 #include <array>
-#include <tuple>
 #include <cstdint>
 #include <cstddef>
-
-#include "Pufferfish/Driver/Serial/Backend/Messages.h"
 
 namespace Pufferfish::Protocols {
 
@@ -29,14 +26,12 @@ using StateOutputSchedule = std::array<StateOutputScheduleEntry<const MessageTyp
 
 template<
   typename States,
-  typename UnionMessage,
+  typename Message,
   typename MessageTypes,
   typename StateOutputSchedule
 >
 class StateSynchronizer {
 public:
-  using Message = Driver::Serial::Backend::Message<UnionMessage>;
-
   enum class InputStatus {ok = 0, invalidType};
   enum class OutputStatus {available = 0, waiting};
 
