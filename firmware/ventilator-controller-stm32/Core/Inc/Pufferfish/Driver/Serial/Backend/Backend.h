@@ -5,8 +5,7 @@
  *      Author: Ethan Li
  */
 
-#ifndef INC_PUFFERFISH_PROTOCOLS_SERIAL_H_
-#define INC_PUFFERFISH_PROTOCOLS_SERIAL_H_
+#pragma once
 
 #include <stdint.h>
 #include "Pufferfish/Util/ByteArray.h"
@@ -14,11 +13,11 @@
 #include "Frames.h"
 #include "Datagrams.h"
 #include "Messages.h"
-#include "Application.h"
+#include "Pufferfish/Application/States.h"
 
-namespace Pufferfish { namespace Protocols {
+namespace Pufferfish::Driver::Serial::Backend {
 
-class SerialReceiver {
+class BackendReceiver {
 public:
   enum class InputStatus {
     inputReady = 0, outputReady, invalidFrameChunkLength
@@ -31,19 +30,19 @@ public:
     invalidMessageLength, invalidMessageType, invalidMessageEncoding
   };
 
-  SerialReceiver(HAL::CRC32C &crc32c);
+  BackendReceiver(HAL::CRC32C &crc32c);
 
   // Call this until it returns outputReady, then call output
   InputStatus input(uint8_t newByte);
-  OutputStatus output(ApplicationMessage &outputMessage);
+  OutputStatus output(Application::Message &outputMessage);
 
 protected:
   FrameReceiver frame;
   DatagramReceiver datagram;
-  ApplicationMessageReceiver message;
+  Application::MessageReceiver message;
 };
 
-class SerialSender {
+class BackendSender {
 public:
   enum class Status {
     ok = 0,
@@ -52,20 +51,18 @@ public:
     invalidFrameCOBSLength, invalidFrameChunkLength
   };
 
-  SerialSender(HAL::CRC32C &crc32c);
+  BackendSender(HAL::CRC32C &crc32c);
 
   Status transform(
-      const ApplicationMessage &inputMessage, ChunkBuffer &outputBuffer
+      const Application::Message &inputMessage, ChunkBuffer &outputBuffer
   );
 
 protected:
+  Application::MessageSender message;
   DatagramSender datagram;
   FrameSender frame;
-  ApplicationMessageSender message;
 };
 
-} }
+}
 
-#include "Serial.tpp"
-
-#endif /* INC_PUFFERFISH_PROTOCOLS_SERIAL_H_ */
+#include "Backend.tpp"

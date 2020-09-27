@@ -5,14 +5,11 @@
  *      Author: Ethan Li
  */
 
-#ifndef INC_PUFFERFISH_BREATHINGCIRCUIT_TPP_
-#define INC_PUFFERFISH_BREATHINGCIRCUIT_TPP_
+#include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 
-#include "BreathingCircuit.h"
+namespace Pufferfish::BreathingCircuit {
 
-namespace Pufferfish {
-
-BreathingCircuitSimulator::BreathingCircuitSimulator(
+Simulator::Simulator(
     const ParametersRequest &parametersRequest,
     Parameters &parameters,
     SensorMeasurements &sensorMeasurements,
@@ -23,11 +20,11 @@ BreathingCircuitSimulator::BreathingCircuitSimulator(
     sensorMeasurements(sensorMeasurements),
     cycleMeasurements(cycleMeasurements) {}
 
-void BreathingCircuitSimulator::updateClock(uint32_t currentTime) {
+void Simulator::update_clock(uint32_t currentTime) {
   this->currentTime = currentTime;
 }
 
-void BreathingCircuitSimulator::updateSensors() {
+void Simulator::update_sensors() {
   if (currentTime - previousTime > sensorUpdateInterval) {
     // Parameters
     if (parametersRequest.rr > 0) {
@@ -83,8 +80,6 @@ void BreathingCircuitSimulator::updateSensors() {
   }
 }
 
-void BreathingCircuitSimulator::updateActuators() {}
+void Simulator::update_actuators() {}
 
 }
-
-#endif /* INC_PUFFERFISH_BREATHINGCIRCUIT_TPP_ */

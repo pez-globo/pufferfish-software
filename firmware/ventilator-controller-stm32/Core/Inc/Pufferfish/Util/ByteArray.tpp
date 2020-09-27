@@ -5,14 +5,13 @@
  *      Author: Ethan Li
  */
 
-#ifndef INC_PUFFERFISH_UTIL_BYTEARRAY_TPP_
-#define INC_PUFFERFISH_UTIL_BYTEARRAY_TPP_
+#pragma once
 
 #include "ByteArray.h"
 
 #include <cstring>
 
-namespace Pufferfish { namespace Util {
+namespace Pufferfish::Util {
 
 template<size_t ArraySize>
 ByteArray<ArraySize>::ByteArray() {}
@@ -81,6 +80,4 @@ void ByteArray<ArraySize>::copyFrom(
 }
 
 
-} }
-
-#endif /* INC_PUFFERFISH_UTIL_BYTEARRAY_TPP_ */
+}

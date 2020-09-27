@@ -5,14 +5,13 @@
  *      Author: Ethan Li
  */
 
-#ifndef INC_PUFFERFISH_PROTOCOLS_FRAMES_H_
-#define INC_PUFFERFISH_PROTOCOLS_FRAMES_H_
+#pragma once
 
-#include <stdint.h>
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef>
 #include "Pufferfish/Util/ByteArray.h"
 
-namespace Pufferfish { namespace Protocols {
+namespace Pufferfish::Driver::Serial::Backend {
 
 // Splits delimited chunks from a stream
 template<size_t BufferSize>
@@ -43,7 +42,8 @@ class ChunkMerger {
 public:
   enum class Status {ok = 0, invalidLength};
 
-  ChunkMerger(uint8_t delimiter = 0x00);
+  ChunkMerger(uint8_t delimiter = 0x00) :
+    delimiter() {};
 
   template<size_t BufferSize>
   Status transform(Util::ByteArray<BufferSize> &inputOutputBuffer) const;
@@ -107,8 +107,6 @@ protected:
   const ChunkMerger chunkMerger = ChunkMerger();
 };
 
-} }
+}
 
 #include "Frames.tpp"
-
-#endif /* INC_PUFFERFISH_PROTOCOLS_FRAMES_H_ */

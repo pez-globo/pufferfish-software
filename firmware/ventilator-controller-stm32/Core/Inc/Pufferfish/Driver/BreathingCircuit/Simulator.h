@@ -7,26 +7,25 @@
  *  Hardware-backed 32-bit CRC calculation.
  */
 
-#ifndef INC_PUFFERFISH_BREATHINGCIRCUIT_H_
-#define INC_PUFFERFISH_BREATHINGCIRCUIT_H_
+#pragma once
 
 #include <stdint.h>
-#include "Pufferfish/Protocols/Application.h"
+#include "Pufferfish/Application/States.h"
 
-namespace Pufferfish {
+namespace Pufferfish::BreathingCircuit {
 
-class BreathingCircuitSimulator{
+class Simulator {
 public:
-  BreathingCircuitSimulator(
+  Simulator(
       const ParametersRequest &parametersRequest,
       Parameters &parameters,
       SensorMeasurements &sensorMeasurements,
       CycleMeasurements &cycleMeasurements
   );
 
-  void updateClock(uint32_t currentTime);
-  void updateSensors();
-  void updateActuators();
+  void update_clock(uint32_t currentTime);
+  void update_sensors();
+  void update_actuators();
 
 protected:
   const ParametersRequest &parametersRequest;
@@ -50,7 +49,3 @@ protected:
 };
 
 }
-
-#include "BreathingCircuit.tpp"
-
-#endif /* INC_PUFFERFISH_BREATHINGCIRCUIT_H_ */

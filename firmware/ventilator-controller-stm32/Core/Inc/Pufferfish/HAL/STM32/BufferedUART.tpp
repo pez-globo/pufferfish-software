@@ -4,6 +4,8 @@
  *      Author: Ethan Li
  */
 
+#pragma once
+
 #include "BufferedUART.h"
 #include "Time.h"
 

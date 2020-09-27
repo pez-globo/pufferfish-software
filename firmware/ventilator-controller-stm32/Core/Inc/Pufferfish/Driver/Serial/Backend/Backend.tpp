@@ -5,20 +5,19 @@
  *      Author: Ethan Li
  */
 
-#ifndef INC_PUFFERFISH_PROTOCOLS_SERIAL_TPP_
-#define INC_PUFFERFISH_PROTOCOLS_SERIAL_TPP_
+#pragma once
 
-#include "Serial.h"
+#include "Backend.h"
 
-namespace Pufferfish { namespace Protocols {
+namespace Pufferfish::Driver::Serial::Backend {
 
-// SerialReceiver
+// BackendReceiver
 
-SerialReceiver::SerialReceiver(HAL::CRC32C &crc32c) :
+BackendReceiver::BackendReceiver(HAL::CRC32C &crc32c) :
     datagram(crc32c),
-    message(applicationMessageDescriptors, numApplicationMessageDescriptors) {}
+    message(Application::message_descriptors, Application::num_message_descriptors) {}
 
-SerialReceiver::InputStatus SerialReceiver::input(uint8_t newByte) {
+BackendReceiver::InputStatus BackendReceiver::input(uint8_t newByte) {
   switch (frame.input(newByte)) {
   case FrameReceiver::InputStatus::outputReady:
     return InputStatus::outputReady;
@@ -30,8 +29,8 @@ SerialReceiver::InputStatus SerialReceiver::input(uint8_t newByte) {
   return InputStatus::inputReady;
 }
 
-SerialReceiver::OutputStatus SerialReceiver::output(
-    ApplicationMessage &outputMessage
+BackendReceiver::OutputStatus BackendReceiver::output(
+    Application::Message &outputMessage
 ) {
   ChunkBuffer tempBuffer1;
   Datagram::PayloadBuffer tempBuffer2;
@@ -65,39 +64,42 @@ SerialReceiver::OutputStatus SerialReceiver::output(
 
   // Message
   switch (message.transform(tempBuffer2, outputMessage)) {
-  case ApplicationMessageReceiver::Status::invalidLength:
+  case Application::MessageReceiver::Status::invalidLength:
     return OutputStatus::invalidMessageLength;
-  case ApplicationMessageReceiver::Status::invalidType:
+  case Application::MessageReceiver::Status::invalidType:
     return OutputStatus::invalidMessageType;
-  case ApplicationMessageReceiver::Status::invalidEncoding:
+  case Application::MessageReceiver::Status::invalidEncoding:
     return OutputStatus::invalidMessageEncoding;
-  case ApplicationMessageReceiver::Status::ok:
+  case Application::MessageReceiver::Status::ok:
     break;
   }
   return OutputStatus::available;
 }
 
-// SerialSender
+// BackendSender
 
-SerialSender::SerialSender(HAL::CRC32C &crc32c) :
-    datagram(crc32c),
-    message(applicationMessageDescriptors, numApplicationMessageDescriptors) {}
+BackendSender::BackendSender(HAL::CRC32C &crc32c) :
+    message(
+        Application::message_descriptors,
+        Application::num_message_descriptors
+    ),
+    datagram(crc32c) {}
 
-SerialSender::Status SerialSender::transform(
-    const ApplicationMessage &inputMessage, ChunkBuffer &outputBuffer
+BackendSender::Status BackendSender::transform(
+    const Application::Message &inputMessage, ChunkBuffer &outputBuffer
 ) {
   Datagram::PayloadBuffer tempBuffer1;
   ChunkBuffer tempBuffer2;
 
   // Message
   switch (message.transform(inputMessage, tempBuffer1)) {
-  case ApplicationMessageSender::Status::invalidLength:
+  case Application::MessageSender::Status::invalidLength:
     return Status::invalidMessageLength;
-  case ApplicationMessageSender::Status::invalidType:
+  case Application::MessageSender::Status::invalidType:
     return Status::invalidMessageType;
-  case ApplicationMessageSender::Status::invalidEncoding:
+  case Application::MessageSender::Status::invalidEncoding:
     return Status::invalidMessageEncoding;
-  case ApplicationMessageSender::Status::ok:
+  case Application::MessageSender::Status::ok:
     break;
   }
 
@@ -121,6 +123,4 @@ SerialSender::Status SerialSender::transform(
   return Status::ok;
 }
 
-} }
-
-#endif /* INC_PUFFERFISH_PROTOCOLS_SERIAL_TPP_ */
+}

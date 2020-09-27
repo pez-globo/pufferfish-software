@@ -5,15 +5,13 @@
  *      Author: Ethan Li
  */
 
-#ifndef INC_PUFFERFISH_PROTOCOLS_MESSAGES_TPP_
-#define INC_PUFFERFISH_PROTOCOLS_MESSAGES_TPP_
+#pragma once
 
 #include "nanopb/pb_decode.h"
 #include "nanopb/pb_encode.h"
-
 #include "Messages.h"
 
-namespace Pufferfish { namespace Protocols {
+namespace Pufferfish::Driver::Serial::Backend {
 
 // Message
 
@@ -109,9 +107,10 @@ MessageReceiver<UnionMessage>::transform(
   case Message<UnionMessage>::Status::decodingError:
     return Status::invalidEncoding;
   case Message<UnionMessage>::Status::ok:
-    break;
-  }
   return Status::ok;
+  default:
+    return Status::ok;
+  }
 }
 
 // MessageSender
@@ -137,11 +136,10 @@ MessageSender<UnionMessage>::transform(
   case Message<UnionMessage>::Status::decodingError:
     return Status::invalidEncoding;
   case Message<UnionMessage>::Status::ok:
-    break;
+    return Status::ok;
+  default:
+    return Status::ok;
   }
-  return Status::ok;
 }
 
-} }
-
-#endif /* INC_PUFFERFISH_PROTOCOLS_MESSAGES_TPP_ */
+}

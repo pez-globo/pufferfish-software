@@ -18,6 +18,8 @@ enum class BufferStatus {
   partial  /// only a partial buffer operation was possible
 };
 
+enum class IndexStatus {ok = 0, outOfBounds};
+
 /**
  * Possible alarms that could be raised by the system, must by sorted by
  * priority in ascending order

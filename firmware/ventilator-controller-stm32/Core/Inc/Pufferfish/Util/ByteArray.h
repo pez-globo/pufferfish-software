@@ -11,15 +11,14 @@
  *  provide any bounds-checking.
  */
 
-#ifndef INC_PUFFERFISH_UTIL_BYTEARRAY_H_
-#define INC_PUFFERFISH_UTIL_BYTEARRAY_H_
+#pragma once
 
-#include <stdint.h>
-#include <stddef.h>
-#include "Pufferfish/Types.h"
+#include <cstdint>
+#include <cstddef>
+#include "Pufferfish/HAL/Types.h"
 #include "Pufferfish/Statuses.h"
 
-namespace Pufferfish { namespace Util {
+namespace Pufferfish::Util {
 
 // BufferSize is recommended to be a power of two for compiler optimization.
 template <size_t ArraySize>
@@ -27,7 +26,7 @@ class ByteArray {
 public:
   ByteArray();
 
-  static const AtomicSize maxSize = ArraySize;
+  static const HAL::AtomicSize maxSize = ArraySize;
 
   uint8_t buffer[ArraySize];
 
@@ -51,8 +50,6 @@ protected:
   size_t _size = 0;
 };
 
-} }
+}
 
 #include "ByteArray.tpp"
-
-#endif /* INC_PUFFERFISH_UTIL_BYTEARRAY_H_ */

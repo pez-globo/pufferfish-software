@@ -5,19 +5,15 @@
  *      Author: Ethan Li
  */
 
-#ifndef INC_PUFFERFISH_PROTOCOLS_DATAGRAMS_TPP_
-#define INC_PUFFERFISH_PROTOCOLS_DATAGRAMS_TPP_
+#pragma once
 
+#include "Pufferfish/HAL/STM32/CRC.h"
+#include "Pufferfish/HAL/STM32/Endian.h"
 #include "Datagrams.h"
-#include "Pufferfish/HAL/CRC.h"
-#include "Pufferfish/HAL/Endian.h"
 
-namespace Pufferfish { namespace Protocols {
+namespace Pufferfish::Driver::Serial::Backend {
 
 // Datagram
-
-Datagram::Datagram(PayloadBuffer &payload) :
-    length(static_cast<uint8_t>(payload.size())), payload(payload) {}
 
 template<size_t OutputSize>
 IndexStatus Datagram::write(
@@ -70,9 +66,6 @@ IndexStatus Datagram::parse(const Util::ByteArray<InputSize> &inputBuffer) {
 
 // DatagramReceiver
 
-DatagramReceiver::DatagramReceiver(HAL::CRC32C &crc32c) :
-    crc32c(crc32c) {}
-
 template<size_t InputSize>
 DatagramReceiver::Status DatagramReceiver::transform(
     const Util::ByteArray<InputSize> &inputBuffer,
@@ -112,9 +105,6 @@ uint32_t DatagramReceiver::computeCRC(
 
 // DatagramSender
 
-DatagramSender::DatagramSender(HAL::CRC32C &crc32c) :
-    crc32c(crc32c) {}
-
 template<size_t OutputSize>
 DatagramSender::Status DatagramSender::transform(
     const Datagram::PayloadBuffer &inputPayload,
@@ -130,6 +120,4 @@ DatagramSender::Status DatagramSender::transform(
   return Status::ok;
 }
 
-} }
-
-#endif /* INC_PUFFERFISH_PROTOCOLS_DATAGRAMS_TPP_ */
+}

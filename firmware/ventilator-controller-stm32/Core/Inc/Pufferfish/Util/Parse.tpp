@@ -5,10 +5,13 @@
  *      Author: Ethan Li
  */
 
+#pragma once
+
 #include <climits>
 
-namespace Pufferfish {
-namespace Util {
+#include "Parse.h"
+
+namespace Pufferfish::Util {
 
 /**
  * Parse a buffer as a value in network-order
@@ -28,5 +31,4 @@ T parse_network_order(
   return value;
 }
 
-}  // namespace Util
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Util

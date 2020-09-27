@@ -16,8 +16,7 @@
 
 #include <cstdint>
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 /**
  * Convert endianness of a 64-bit data in host-order to network-order
@@ -73,5 +72,4 @@ inline uint16_t ntoh(uint16_t network_value) {
   return __builtin_bswap16(network_value);
 }
 
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL

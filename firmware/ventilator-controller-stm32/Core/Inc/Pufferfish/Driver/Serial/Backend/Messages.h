@@ -5,17 +5,16 @@
  *      Author: Ethan Li
  */
 
-#ifndef INC_PUFFERFISH_PROTOCOLS_MESSAGES_H_
-#define INC_PUFFERFISH_PROTOCOLS_MESSAGES_H_
+#pragma once
 
-#include <stdint.h>
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef>
 
 #include "Pufferfish/Util/ByteArray.h"
 #include "Datagrams.h"
 #include "nanopb/pb.h"
 
-namespace Pufferfish { namespace Protocols {
+namespace Pufferfish::Driver::Serial::Backend {
 
 // Messages
 
@@ -91,8 +90,6 @@ protected:
   size_t numDescriptors;
 };
 
-} }
+}
 
 #include "Messages.tpp"
-
-#endif /* INC_PUFFERFISH_PROTOCOLS_MESSAGES_H_ */

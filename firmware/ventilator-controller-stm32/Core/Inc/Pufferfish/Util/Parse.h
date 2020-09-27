@@ -11,8 +11,7 @@
 #include <cstdint>
 #include <type_traits>
 
-namespace Pufferfish {
-namespace Util {
+namespace Pufferfish::Util {
 
 /**
  * Parse a buffer as a value in network-order
@@ -27,7 +26,6 @@ T parse_network_order(
     typename std::enable_if<std::is_arithmetic<T>::value, std::nullptr_t>::type /*unused*/
     = nullptr);
 
-}  // namespace Util
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Util
 
 #include "Parse.tpp"

@@ -30,6 +30,8 @@
 #include <array>
 
 #include "Pufferfish/AlarmsManager.h"
+#include "Pufferfish/Application/States.h"
+#include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 #include "Pufferfish/Driver/Button/Button.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
 #include "Pufferfish/Driver/I2C/HoneywellABP.h"
@@ -38,10 +40,13 @@
 #include "Pufferfish/Driver/I2C/TCA9548A.h"
 #include "Pufferfish/Driver/Indicators/AuditoryAlarm.h"
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
+#include "Pufferfish/Driver/Serial/Backend/UART.h"
 #include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
 #include "Pufferfish/Driver/ShiftedOutput.h"
 #include "Pufferfish/HAL/HAL.h"
+// TODO: everything should just be imported from STM32/HAL.h
 #include "Pufferfish/HAL/STM32/BufferedUART.h"
+#include "Pufferfish/HAL/STM32/CRC.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
 #include "Pufferfish/HAL/STM32/HALI2CDevice.h"
 #include "Pufferfish/Statuses.h"
@@ -87,21 +92,37 @@ UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 
-/* Timeout for the Adc poll conversion */
-static const uint32_t adc_poll_timeout = 10;
-
 namespace PF = Pufferfish;
 
-/* NoninOEM TODO: Creating an object for UART for Nonin OEM interface */
+// Application State
+PF::Application::States all_states;
+
+// Breathing Circuit Control
+PF::BreathingCircuit::Simulator breathing_circuit(
+    all_states.parameters_request, all_states.parameters,
+    all_states.sensor_measurements, all_states.cycle_measurements
+);
+
+// HAL Utilities
+PF::HAL::CRC32C crc32c(hcrc);
+
+// Buffered UARTs
+volatile Pufferfish::HAL::LargeBufferedUART buffered_uart3(huart3);
+
+// UART Serial Communication
+PF::Driver::Serial::Backend::UARTBackend backend(buffered_uart3, crc32c, all_states);
+
+// NoninOEM TODO: Creating an object for UART for Nonin OEM interface
 volatile PF::Driver::Serial::Nonin::NoninOEMUART oem_uart(huart4);
-/* NoninOEM TODO: Creating an object for NoninOEM */
+// NoninOEM TODO: Creating an object for NoninOEM
 PF::Driver::Serial::Nonin::NoninOEM oemobj(oem_uart);
-/* NoninOEM TODO: Packet measurements */
+// NoninOEM TODO: Packet measurements
 PF::Driver::Serial::Nonin::PacketMeasurements test_sensor_measurements;
-/* NoninOEM TODO: status byte error */
+// NoninOEM TODO: status byte error
 PF::Driver::Serial::Nonin::StatusByteError frame_error_status;
 
-/* Create an object for ADC3 of AnalogInput Class */
+// Create an object for ADC3 of AnalogInput Class
+static const uint32_t adc_poll_timeout = 10;
 PF::HAL::HALAnalogInput adc3_input(hadc3, adc_poll_timeout);
 
 // The following lines suppress Eclipse CDT's warning about C-style casts;
@@ -111,19 +132,19 @@ PF::HAL::HALAnalogInput adc3_input(hadc3, adc_poll_timeout);
 // Interface Board
 PF::HAL::HALDigitalOutput ser_clock(
     *SER_CLK_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SER_CLK_Pin,
+    SER_CLK_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
 PF::HAL::HALDigitalOutput ser_clear(
     *SER_CLR_N_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SER_CLR_N_Pin,
+    SER_CLR_N_Pin,  // @suppress("C-Style cast instead of C++ cast")
     false);
 PF::HAL::HALDigitalOutput ser_r_clock(
     *SER_RCLK_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SER_RCLK_Pin,
+    SER_RCLK_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
 PF::HAL::HALDigitalOutput ser_input(
     *SER_IN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SER_IN_Pin,
+    SER_IN_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
 
 PF::HAL::HALDigitalOutput board_led1(
@@ -161,23 +182,23 @@ PF::AlarmsManager h_alarms(alarm_dev_led, alarm_dev_sound);
 
 PF::HAL::HALDigitalInput button_alarm_en(
     *SET_ALARM_EN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SET_ALARM_EN_Pin,
+    SET_ALARM_EN_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
 PF::HAL::HALDigitalInput button_full_o2(
     *SET_100_O2_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SET_100_O2_Pin,
+    SET_100_O2_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
 PF::HAL::HALDigitalInput button_manual_breath(
     *SET_MANUAL_BREATH_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SET_MANUAL_BREATH_Pin,
+    SET_MANUAL_BREATH_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
 PF::HAL::HALDigitalInput button_lock(
     *SET_LOCK_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SET_LOCK_Pin,
+    SET_LOCK_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
 PF::HAL::HALDigitalInput button_power(
     *SET_PWR_ON_OFF_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-    SET_PWR_ON_OFF_Pin,
+    SET_PWR_ON_OFF_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
 
 PF::Driver::Button::Debouncer switch_debounce;
@@ -256,9 +277,6 @@ PF::Driver::I2C::SFM3000 i2c_press16(i2c_ext_press16);
 PF::Driver::I2C::SDPSensor i2c_press17(i2c_ext_press17);
 PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 
-// Buffered UARTs
-volatile Pufferfish::HAL::LargeBufferedUART buffered_uart3(huart3);
-
 // Test list
 // NOLINTNEXTLINE(readability-magic-numbers)
 std::array<PF::Driver::Testable *, 14> i2c_test_list{
@@ -279,6 +297,7 @@ std::array<PF::Driver::Testable *, 14> i2c_test_list{
 
 int interface_test_state = 0;
 int interface_test_millis = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -347,22 +366,22 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /*
-   * FIXME: Added for testing
-   * Local variable to read ADC3 input
-   */
+  // FIXME: Added for testing
+  // Local variable to read ADC3 input
   uint32_t adc3_data = 0;
 
-  /* Nonin TODO: Local variable to count packets of data received */
+  // Nonin TODO: Local variable to count packets of data received
   uint32_t packet_count = 0;
-  /* Nonin TODO */
+  // Nonin TODO
   uint32_t current_time = 0;
-  /* Nonin TODO */
+  // Nonin TODO
   std::array<uint32_t, 4> testcase_results = {0U};
 
   PF::Driver::Button::EdgeState state;
   bool mem_buttonstate = false;
-  /* TODO: Added for testing Nonin OEM III */
+  // TODO: Added for testing Nonin OEM III
   PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus return_status;
+  */
 
   /* USER CODE END 1 */
 
@@ -403,12 +422,14 @@ int main(void)
   MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
   PF::HAL::micros_delay_init();
+
+  /*
   interface_test_millis = PF::HAL::millis();
-  /* Nonin TODO: setupIRQ of BufferredUART for setting the UART reception */
+  // Nonin TODO: setupIRQ of BufferredUART for setting the UART reception
   oem_uart.setup_irq();
 
-  /* Start the ADC3 by invoking AnalogInput::Start() */
   adc3_input.start();
+  */
 
   buffered_uart3.setup_irq();
   /* USER CODE END 2 */
@@ -418,7 +439,20 @@ int main(void)
   static const uint32_t blink_low_delay = 5;
   static const uint32_t loop_delay = 50;
   while (true) {
-    /* Nonin TODO: Invoking the NoninOEM output method */
+    uint32_t currentTime = HAL_GetTick();
+
+    // Breathing Circuit Controller
+    breathing_circuit.update_clock(currentTime);
+    breathing_circuit.update_sensors();
+    breathing_circuit.update_actuators();
+
+    //
+    backend.receive();
+    backend.update_clock(currentTime);
+    backend.send();
+
+    // Nonin TODO: Invoking the NoninOEM output method
+    /*
     return_status = oemobj.output(test_sensor_measurements);
     if (return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::available) {
       packet_count = packet_count + 1;
@@ -442,14 +476,14 @@ int main(void)
       // NOLINTNEXTLINE(readability-magic-numbers)
       if (packet_count == 16) {
         current_time = PF::HAL::millis() - current_time;
-        /* Validate time for 5000 milli-seconds */
+        // Validate time for 5000 milli-seconds
         testcase_results[2] =
             /// Nonin TODO: define magic numbers in meaningful variable names
             // NOLINTNEXTLINE(readability-magic-numbers)
             static_cast<uint32_t>(current_time >= 5000 && current_time < 5100);
       }
     }
-    /* Nonin TODO : Added to resolve warnings */
+    // Nonin TODO : Added to resolve warnings
     testcase_results[3] = static_cast<uint32_t>(static_cast<bool>(testcase_results[2]));
 
     PF::AlarmManagerStatus stat = h_alarms.update(PF::HAL::millis());
@@ -477,22 +511,19 @@ int main(void)
       std::array<uint8_t, 2> repeat_string = {receive, receive};
       buffered_uart3.write(repeat_string.data(), repeat_string.size(), written_size);
     }
-    /* USER CODE END WHILE */
 
-    /* 
-     * FIXME: Added for testing 
-     * Read the Analog data of ADC3 and validate the return value
-     */
+    // FIXME: Added for testing
+    // Read the Analog data of ADC3 and validate the return value
     if (adc3_input.read(adc3_data) != PF::ADCStatus::ok) {
-      /* Error Handle */
     } else {
-      /* Else statements*/
     }
     button_membrane.read_state(mem_buttonstate, state);
     if (state != PF::Driver::Button::EdgeState::rising_edge) {
       board_led1.write(true);
       PF::HAL::delay(5);
-  }
+    }
+    */
+    /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

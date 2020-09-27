@@ -5,16 +5,15 @@
  *      Author: Ethan Li
  */
 
-#ifndef INC_PUFFERFISH_PROTOCOLS_DATAGRAMS_H_
-#define INC_PUFFERFISH_PROTOCOLS_DATAGRAMS_H_
+#pragma once
 
 #include <stdint.h>
 #include <stddef.h>
 #include "Pufferfish/Util/ByteArray.h"
-#include "Pufferfish/HAL/CRC.h"
+#include "Pufferfish/HAL/STM32/CRC.h"
 #include "Frames.h"
 
-namespace Pufferfish { namespace Protocols {
+namespace Pufferfish::Driver::Serial::Backend {
 
 class Datagram {
 public:
@@ -27,7 +26,8 @@ public:
   static const size_t payloadMaxSize = framePayloadMaxSize - headerSize;
   using PayloadBuffer = Util::ByteArray<payloadMaxSize>;
 
-  Datagram(PayloadBuffer &payload);
+  Datagram(PayloadBuffer &payload) :
+    length(static_cast<uint8_t>(payload.size())), payload(payload) {}
 
   uint32_t crc = 0;
   uint8_t seq = 0;
@@ -58,7 +58,8 @@ public:
     invalidSequence
   };
 
-  DatagramReceiver(HAL::CRC32C &crc32c);
+  DatagramReceiver(HAL::CRC32C &crc32c) :
+    crc32c(crc32c) {}
 
   template<size_t InputSize>
   Status transform(
@@ -78,7 +79,8 @@ class DatagramSender {
 public:
   enum class Status {ok = 0, invalidLength};
 
-  DatagramSender(HAL::CRC32C &crc32c);
+  DatagramSender(HAL::CRC32C &crc32c) :
+    crc32c(crc32c) {}
 
   template<size_t OutputSize>
   Status transform(
@@ -91,8 +93,6 @@ protected:
   HAL::CRC32C crc32c;
 };
 
-} }
+}
 
 #include "Datagrams.tpp"
-
-#endif /* INC_PUFFERFISH_PROTOCOLS_DATAGRAMS_H_ */
