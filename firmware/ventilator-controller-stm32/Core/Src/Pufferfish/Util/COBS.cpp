@@ -65,11 +65,9 @@ size_t decode_cobs(const uint8_t *encoded_buffer, size_t size, uint8_t *decoded_
 
   size_t read_index = 0;
   size_t write_index = 0;
-  uint8_t code = 0;
-  uint8_t i = 0;
 
   while (read_index < size) {
-    code = encoded_buffer[read_index];
+    uint8_t code = encoded_buffer[read_index];
 
     if (read_index + code > size && code != 1) {
       return 0;
@@ -77,7 +75,7 @@ size_t decode_cobs(const uint8_t *encoded_buffer, size_t size, uint8_t *decoded_
 
     read_index++;
 
-    for (i = 1; i < code; i++) {
+    for (uint8_t i = 1; i < code; i++) {
       decoded_buffer[write_index++] = encoded_buffer[read_index++];
     }
 
