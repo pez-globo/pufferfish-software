@@ -209,15 +209,15 @@ class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
         any_updated = (backend_output is not None) or any_updated
 
         self._mcu.input(backend.get_mcu_send(backend_output))
-        self._file.input(backend.get_mcu_send(backend_output))
         mcu_output = self._mcu.output()
         any_updated = (mcu_output is not None) or any_updated
 
         self._frontend.input(backend.get_frontend_send(backend_output))
-        self._file.input(backend.get_frontend_send(backend_output))
         frontend_output = self._frontend.output()
         any_updated = (frontend_output is not None) or any_updated
 
+        self._file.input(backend.get_file_send(backend_output))
+        
         if not any_updated:
             return None
 

@@ -1,29 +1,34 @@
 """Sans-I/O protobuf file handling protocol."""
 
+import collections
 import logging
-from typing import Optional, Type
+from typing import Optional, Type, Dict
 
 import attr
+import betterproto
 
-from ventserver.protocols import application
+from ventserver.protocols import mcu
 from ventserver.protocols import exceptions
 from ventserver.protocols import messages
 from ventserver.protocols import crcelements
+from ventserver.protocols.application import states
+from ventserver.protocols.protobuf import mcu_pb
 from ventserver.sansio import protocols
 from ventserver.sansio import channels
 
-#Classes
+
+# Classes
 
 @attr.s(auto_attribs=True)  
 class StateData:
     """Data info payload details"""
-    state_type: Type[str] = None
-    data: Type[bytes] = None
+    state_type: Optional[str] = None
+    data: Optional[bytes] = None
 
 # Events
 
 LowerEvent = StateData
-UpperEvent = application.PBMessage
+UpperEvent = betterproto.Message
 
 # Filters
 
@@ -40,16 +45,21 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
     )
     _message_receiver: messages.MessageReceiver = attr.ib()
 
+    
+
     @_message_receiver.default
     def init_message_receiver(self) -> messages.MessageReceiver:  # pylint: disable=no-self-use
         """Initialize the mcu message receiver."""
         return messages.MessageReceiver(
-            message_classes=application.MCU_MESSAGE_CLASSES
+            message_classes=mcu.MESSAGE_CLASSES
         )
+
 
     def input(self, event: Optional[LowerEvent]) -> None:
         """Handle input events."""
         if event:
+            if not event.data:
+                raise exceptions.ProtocolDataError("Empty file: {0}".format(event.state_type))
             self._buffer.input(event)
 
     def output(self) -> Optional[UpperEvent]:
@@ -58,14 +68,18 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
         if not event:
             return None
 
-        message = None
+        # Add data integrity to the state
+        crc_message = None 
         self._crc_receiver.input(event.data)
         try:
-            message = self._crc_receiver.output
+            crc_message = self._crc_receiver.output()
         except exceptions.ProtocolDataError as err:
             print(err) # log error
 
-        self._message_receiver.input(event.data)
+        if not crc_message:
+            return None
+        message = None
+        self._message_receiver.input(crc_message)
         try:
             message = self._message_receiver.output()
         except exceptions.ProtocolDataError:
@@ -90,11 +104,12 @@ class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
 
     _message_sender: messages.MessageSender = attr.ib()
 
+
     @_message_sender.default
     def init_message_sender(self) -> messages.MessageSender:  # pylint: disable=no-self-use
         """Initialize the message sender."""
         return messages.MessageSender(
-            message_types=application.MCU_MESSAGE_TYPES
+            message_types=mcu.MESSAGE_TYPES
         )
 
     def input(self, event: Optional[UpperEvent]) -> None:
@@ -107,6 +122,7 @@ class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
         event = self._buffer.output()
         if not event:
             return None
+
         self._message_sender.input(event)
         message_body = None
         try:
@@ -115,17 +131,19 @@ class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
             self._logger.exception('MessageSender:')
 
         if not message_body:
-            print("empty message")
             return None
 
         self._crc_sender.input(message_body)
         try:
-            message_body = self._crc_sender.output
+            crc_message = self._crc_sender.output()
         except exceptions.ProtocolDataError as err:
             print(err) #log the error
 
+        if not crc_message:
+            return None
+
         state_type = type(event).__name__
-        payload = message_body
-        
-        message = StateData(state_type=state_type, data=payload)
+
+        message = StateData(state_type=state_type, data=crc_message)
+        print(message)
         return message

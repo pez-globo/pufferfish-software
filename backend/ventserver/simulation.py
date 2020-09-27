@@ -316,7 +316,7 @@ async def read_states(
         protocol: server.Protocol,
         filehandler: fileio.Handler
 ) -> Dict[
-        Type[application.PBMessage], Optional[application.PBMessage]
+        Type[betterproto.Message], Optional[betterproto.Message]
     ]:
     """Initialize all states from protobuf files."""
     states = [
@@ -364,16 +364,16 @@ async def main() -> None:
     ] = channels.TrioChannel()
 
     # Initialize State
-    all_states = await read_states(protocol, filehandler)
+    # all_states = await read_states(protocol, filehandler)
 
-    # all_states = protocol.receive.backend.all_states
-    # all_states[mcu_pb.Parameters] = mcu_pb.Parameters()
-    # all_states[mcu_pb.CycleMeasurements] = mcu_pb.CycleMeasurements()
-    # all_states[mcu_pb.SensorMeasurements] = mcu_pb.SensorMeasurements()
-    # all_states[mcu_pb.ParametersRequest] = mcu_pb.ParametersRequest(
-    #     mode=mcu_pb.VentilationMode.hfnc,
-    #     rr=30, fio2=60, flow=6
-    # )
+    all_states = protocol.receive.backend.all_states
+    all_states[mcu_pb.Parameters] = mcu_pb.Parameters()
+    all_states[mcu_pb.CycleMeasurements] = mcu_pb.CycleMeasurements()
+    all_states[mcu_pb.SensorMeasurements] = mcu_pb.SensorMeasurements()
+    all_states[mcu_pb.ParametersRequest] = mcu_pb.ParametersRequest(
+        mode=mcu_pb.VentilationMode.hfnc,
+        rr=30, fio2=60, flow=6
+    )
 
     try:
         async with channel.push_endpoint:

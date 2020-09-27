@@ -3,7 +3,7 @@
 import functools
 import logging
 import time
-from typing import Callable, Optional, TypeVar
+from typing import Callable, Optional, TypeVar, Type
 
 import trio
 
@@ -81,7 +81,8 @@ async def send_all_websocket(
                 'Websocket connection was lost during send: %s', send_event
             )
 
-async def process_file_save_output(protocol: server.Protocol,
+async def process_file_save_output(
+        protocol: server.Protocol,
         filehandler: fileio.Handler
 ) -> None:
     """Saves protobuf data to files (prototype)"""
@@ -90,8 +91,8 @@ async def process_file_save_output(protocol: server.Protocol,
         filehandler.set_props(str(message.state_type), "wb")
         try:
             await filehandler.open()
-            await filehandler.write(bytes(message.data))
-        except Exception as err: # type: ignore
+            await filehandler.send(message.data)
+        except Exception as err:
             logger.error(err)
         finally:
             await filehandler.close()
@@ -132,7 +133,7 @@ async def process_protocol_send(
         send_event: Optional[server.SendEvent], protocol: server.Protocol,
         serial: Optional[endpoints.IOEndpoint[bytes, bytes]],
         websocket: Optional[endpoints.IOEndpoint[bytes, bytes]],
-        filehandler: Optional[endpoints.IOEndpoint[bytes, bytes]]
+        filehandler: fileio.Handler
 ) -> None:
     """Process a send event and write out any data to I/O endpoints.
 
