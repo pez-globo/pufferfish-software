@@ -12,7 +12,7 @@
 
 #include "nanopb/pb_common.h"
 #include "Pufferfish/Driver/Serial/Backend/Messages.h"
-#include "mcu_pb.pb.h"
+#include "mcu_pb.h"
 
 namespace Pufferfish::Application {
 
