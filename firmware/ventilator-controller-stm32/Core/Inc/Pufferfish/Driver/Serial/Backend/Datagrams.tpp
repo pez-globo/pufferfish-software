@@ -17,29 +17,29 @@ namespace Pufferfish::Driver::Serial::Backend {
 
 template <size_t output_size>
 IndexStatus Datagram::write(Util::ByteArray<output_size> &output_buffer, HAL::CRC32C &crc32c) {
-  length = static_cast<uint8_t>(payload.size());
+  length_ = static_cast<uint8_t>(payload_.size());
   if (write_protected(output_buffer) != IndexStatus::ok) {
     return IndexStatus::out_of_bounds;
   }
 
-  crc = crc32c.compute(
+  crc_ = crc32c.compute(
       output_buffer.buffer + protected_offset,  // exclude the CRC field
       output_buffer.size() - sizeof(uint32_t)   // exclude the size of the CRC field
   );
-  uint32_t network_endian_crc = HAL::hton(crc);
+  uint32_t network_endian_crc = HAL::hton(crc_);
   memcpy(output_buffer.buffer, &network_endian_crc, sizeof(uint32_t));
   return IndexStatus::ok;
 }
 
 template <size_t output_size>
 IndexStatus Datagram::write_protected(Util::ByteArray<output_size> &output_buffer) const {
-  if (output_buffer.resize(header_size + payload.size()) != IndexStatus::ok) {
+  if (output_buffer.resize(header_size + payload_.size()) != IndexStatus::ok) {
     return IndexStatus::out_of_bounds;
   }
 
-  output_buffer.buffer[seq_offset] = seq;
-  output_buffer.buffer[length_offset] = length;
-  output_buffer.copy_from(payload.buffer, payload.size(), payload_offset);
+  output_buffer.buffer[seq_offset] = seq_;
+  output_buffer.buffer[length_offset] = length_;
+  output_buffer.copy_from(payload_.buffer, payload_.size(), payload_offset);
   return IndexStatus::ok;
 }
 
@@ -50,10 +50,10 @@ IndexStatus Datagram::parse(const Util::ByteArray<input_size> &input_buffer) {
   }
   uint32_t network_endian_crc = 0;
   memcpy(&network_endian_crc, input_buffer.buffer, sizeof(uint32_t));
-  crc = HAL::ntoh(network_endian_crc);
-  seq = input_buffer.buffer[seq_offset];
-  length = input_buffer.buffer[length_offset];
-  payload.copy_from(input_buffer.buffer + payload_offset, input_buffer.size() - payload_offset);
+  crc_ = HAL::ntoh(network_endian_crc);
+  seq_ = input_buffer.buffer[seq_offset];
+  length_ = input_buffer.buffer[length_offset];
+  payload_.copy_from(input_buffer.buffer + payload_offset, input_buffer.size() - payload_offset);
   return IndexStatus::ok;
 }
 
@@ -66,16 +66,16 @@ DatagramReceiver::Status DatagramReceiver::transform(
     return Status::invalid_parse;
   }
 
-  if (compute_crc(input_buffer) != output_datagram.crc) {
+  if (compute_crc(input_buffer) != output_datagram.crc()) {
     return Status::invalid_crc;
   }
 
-  if (output_datagram.payload.size() != output_datagram.length) {
+  if (output_datagram.payload().size() != output_datagram.length()) {
     return Status::invalid_length;
   }
 
-  if (expected_seq_ != output_datagram.seq) {
-    expected_seq_ = output_datagram.seq + 1;
+  if (expected_seq_ != output_datagram.seq()) {
+    expected_seq_ = output_datagram.seq() + 1;
     return Status::invalid_sequence;
   }
 
@@ -96,9 +96,9 @@ uint32_t DatagramReceiver::compute_crc(const Util::ByteArray<input_size> &input_
 template <size_t output_size>
 DatagramSender::Status DatagramSender::transform(
     const Datagram::PayloadBuffer &input_payload, Util::ByteArray<output_size> &output_buffer) {
-  Datagram datagram(const_cast<Datagram::PayloadBuffer &>(
-      input_payload));  // we promise not to call the parse metod
-  datagram.seq = next_seq_;
+  Datagram datagram(
+      const_cast<Datagram::PayloadBuffer &>(input_payload),
+      next_seq_);  // we promise not to call the parse metod
   if (datagram.write(output_buffer, crc32c_) != IndexStatus::ok) {
     return Status::invalid_length;
   }

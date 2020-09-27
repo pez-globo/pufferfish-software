@@ -27,13 +27,16 @@ class Datagram {
   static const size_t payload_max_size = frame_payload_max_size - header_size;
   using PayloadBuffer = Util::ByteArray<payload_max_size>;
 
-  explicit Datagram(PayloadBuffer &payload)
-      : length(static_cast<uint8_t>(payload.size())), payload(payload) {}
+  explicit Datagram(PayloadBuffer &payload, uint8_t seq)
+      : seq_(seq), length_(static_cast<uint8_t>(payload.size())), payload_(payload) {}
 
-  uint32_t crc = 0;
-  uint8_t seq = 0;
-  uint8_t length = 0;
-  PayloadBuffer &payload;
+  explicit Datagram(PayloadBuffer &payload)
+      : Datagram(payload, 0) {}
+
+  [[nodiscard]] uint32_t crc() const { return crc_; }
+  [[nodiscard]] uint8_t seq() const { return seq_; }
+  [[nodiscard]] uint8_t length() const { return length_; }
+  [[nodiscard]] const PayloadBuffer &payload() const { return payload_; }
 
   template <size_t output_size>
   IndexStatus write(
@@ -45,6 +48,11 @@ class Datagram {
       const Util::ByteArray<input_size> &input_buffer);  // updates all fields, including payload
 
  private:
+  uint32_t crc_ = 0;
+  uint8_t seq_ = 0;
+  uint8_t length_ = 0;
+  PayloadBuffer &payload_;
+
   template <size_t output_size>
   IndexStatus write_protected(Util::ByteArray<output_size> &output_buffer) const;
 };

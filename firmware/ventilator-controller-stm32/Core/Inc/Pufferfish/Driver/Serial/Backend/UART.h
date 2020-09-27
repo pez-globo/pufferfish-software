@@ -24,7 +24,7 @@ class UARTBackendReceiver {
       : uart_(uart), serial_(serial) {}
 
   // The return value indicates whether an output is available and written to outputBuffer
-  Status output(Application::Message &outputMessage);
+  Status output(Application::Message &output_message);
 
  private:
   volatile BufferedUART &uart_;
@@ -41,9 +41,11 @@ class UARTBackendSender {
   UARTBackendSender(volatile BufferedUART &uart, BackendSender &serial)
       : uart_(uart), serial_(serial) {}
 
-  Status input(const Application::Message &inputMessage);
+  Status input(const Application::Message &input_message);
 
  private:
+  static const uint32_t write_timeout = 10000;
+
   volatile BufferedUART &uart_;
   BackendSender &serial_;
 };
@@ -55,21 +57,20 @@ class UARTBackendDriver {
   using Sender = UARTBackendSender<BufferedUART>;
 
   UARTBackendDriver(volatile BufferedUART &uart, HAL::CRC32C &crc32c)
-      : uart(uart),
-        crc32c_(crc32c),
+      : crc32c_(crc32c),
+        uart_(uart),
         receiver_protocol_(crc32c),
         sender_protocol_(crc32c),
         receiver_(uart, receiver_protocol_),
         sender_(uart, sender_protocol_) {}
 
-  volatile BufferedUART &uart;
-
   void setup_irq();
-  typename Receiver::Status receive(Application::Message &receiveMessage);
-  typename Sender::Status send(const Application::Message &sendMessage);
+  typename Receiver::Status receive(Application::Message &receive_message);
+  typename Sender::Status send(const Application::Message &send_message);
 
  private:
   HAL::CRC32C &crc32c_;
+  volatile BufferedUART &uart_;
   BackendReceiver receiver_protocol_;
   BackendSender sender_protocol_;
   UARTBackendReceiver<BufferedUART> receiver_;
@@ -82,7 +83,7 @@ class UARTBackend {
 
   UARTBackend(
       volatile HAL::LargeBufferedUART &uart, HAL::CRC32C &crc32c, Application::States &states)
-      : driver_(uart, crc32c), states_(states), synchronizer_(states, state_sync_schedule){};
+      : driver_(uart, crc32c), synchronizer_(states, state_sync_schedule){};
 
   void setup_irq();
   void receive();
@@ -97,7 +98,6 @@ class UARTBackend {
       state_sync_schedule.size()>;
 
   Driver driver_;
-  Application::States &states_;
   StateSynchronizer synchronizer_;
 };
 

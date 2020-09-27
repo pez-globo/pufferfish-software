@@ -15,30 +15,25 @@ namespace Pufferfish::Driver::Serial::Backend {
 
 template <typename BufferedUART>
 typename UARTBackendReceiver<BufferedUART>::Status UARTBackendReceiver<BufferedUART>::output(
-    Application::Message &outputMessage) {
+    Application::Message &output_message) {
   input();
-  switch (serial_.output(outputMessage)) {
+  switch (serial_.output(output_message)) {
+    case BackendReceiver::OutputStatus::invalid_datagram_sequence:
+      // TODO(lietk12): handle warning case first
+    case BackendReceiver::OutputStatus::available:
+      break;
     case BackendReceiver::OutputStatus::waiting:
       return Status::waiting;
     case BackendReceiver::OutputStatus::invalid_frame_chunk_length:
     case BackendReceiver::OutputStatus::invalid_frame_cobs_length:
-      // TODO(lietk12): handle error cases first
-      return Status::invalid;
     case BackendReceiver::OutputStatus::invalid_datagram_parse:
     case BackendReceiver::OutputStatus::invalid_datagram_crc:
     case BackendReceiver::OutputStatus::invalid_datagram_length:
-      // TODO(lietk12): handle error cases first
-      return Status::invalid;
-    case BackendReceiver::OutputStatus::invalid_datagram_sequence:
-      // TODO(lietk12): handle warning case first
-      break;
     case BackendReceiver::OutputStatus::invalid_message_length:
     case BackendReceiver::OutputStatus::invalid_message_type:
     case BackendReceiver::OutputStatus::invalid_message_encoding:
       // TODO(lietk12): handle error cases first
       return Status::invalid;
-    case BackendReceiver::OutputStatus::available:
-      break;
   }
   return Status::available;
 }
@@ -50,20 +45,18 @@ void UARTBackendReceiver<BufferedUART>::input() {
 
     // UART
     switch (uart_.read(receive)) {
-      case BufferStatus::empty:
-        return;
       case BufferStatus::ok:
         break;
+      case BufferStatus::empty:
       default:
-        break;
+        return;
     }
 
     // BackendReceiver
     switch (serial_.input(receive)) {
-      case BackendReceiver::InputStatus::output_ready:
-        return;
       case BackendReceiver::InputStatus::invalid_frame_chunk_length:
         // TODO(lietk12): handle error case first
+      case BackendReceiver::InputStatus::output_ready:
         return;
       case BackendReceiver::InputStatus::input_ready:
         break;
@@ -75,23 +68,24 @@ void UARTBackendReceiver<BufferedUART>::input() {
 
 template <typename BufferedUART>
 typename UARTBackendSender<BufferedUART>::Status UARTBackendSender<BufferedUART>::input(
-    const Application::Message &inputMessage) {
+    const Application::Message &input_message) {
   ChunkBuffer send_output;
-  switch (serial_.transform(inputMessage, send_output)) {
+  switch (serial_.transform(input_message, send_output)) {
+    case BackendSender::Status::ok:  // ready to write to UART
+      break;
     case BackendSender::Status::invalid_message_length:
     case BackendSender::Status::invalid_message_type:
     case BackendSender::Status::invalid_message_encoding:
     case BackendSender::Status::invalid_datagram_length:
     case BackendSender::Status::invalid_frame_cobs_length:
     case BackendSender::Status::invalid_frame_chunk_length:
+    default:
       // TODO(lietk12): handle error cases first
       return Status::invalid;
-    case BackendSender::Status::ok:  // ready to write to UART
-      break;
   }
   // blocks until everything is written to TX buffer
   for (size_t i = 0; i < send_output.size(); ++i) {
-    uart_.write_block(send_output.buffer[i], 100000);
+    uart_.write_block(send_output.buffer[i], write_timeout);
   }
   return Status::ok;
 }
@@ -100,19 +94,19 @@ typename UARTBackendSender<BufferedUART>::Status UARTBackendSender<BufferedUART>
 
 template <typename BufferedUART>
 void UARTBackendDriver<BufferedUART>::setup_irq() {
-  uart.setup_irq();
+  uart_.setup_irq();
 }
 
 template <typename BufferedUART>
 typename UARTBackendDriver<BufferedUART>::Receiver::Status UARTBackendDriver<BufferedUART>::receive(
-    Application::Message &receiveMessage) {
-  return receiver_.output(receiveMessage);
+    Application::Message &receive_message) {
+  return receiver_.output(receive_message);
 }
 
 template <typename BufferedUART>
 typename UARTBackendDriver<BufferedUART>::Sender::Status UARTBackendDriver<BufferedUART>::send(
-    const Application::Message &sendMessage) {
-  return sender_.input(sendMessage);
+    const Application::Message &send_message) {
+  return sender_.input(send_message);
 }
 
 // UARTBackend
@@ -131,7 +125,6 @@ void UARTBackend::receive() {
       switch (synchronizer_.input(message)) {
         case StateSynchronizer::InputStatus::invalid_type:
           // TODO(lietk12): handle error case
-          break;
         case StateSynchronizer::InputStatus::ok:
           break;
       }
@@ -153,7 +146,6 @@ void UARTBackend::send() {
     case StateSynchronizer::OutputStatus::available:
       switch (driver_.send(message)) {
         case Driver::Sender::Status::invalid:  // errors handled by driver
-          break;
         case Driver::Sender::Status::ok:
           break;
       }
