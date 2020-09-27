@@ -16,7 +16,7 @@ namespace Pufferfish::Util {
 
 using ProtobufDescriptor = const pb_msgdesc_t *;
 
-template<size_t size>
+template <size_t size>
 using ProtobufDescriptors = std::array<ProtobufDescriptor, size>;
 
 using UnrecognizedMessage = std::nullptr_t;

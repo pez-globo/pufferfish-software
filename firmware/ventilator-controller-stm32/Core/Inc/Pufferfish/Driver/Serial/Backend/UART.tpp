@@ -19,10 +19,8 @@ UARTBackendReceiver<BufferedUART>::UARTBackendReceiver(
     : uart_(uart), serial_(serial) {}
 
 template <typename BufferedUART>
-typename UARTBackendReceiver<BufferedUART>::Status
-UARTBackendReceiver<BufferedUART>::output(
-    Application::Message &outputMessage
-) {
+typename UARTBackendReceiver<BufferedUART>::Status UARTBackendReceiver<BufferedUART>::output(
+    Application::Message &outputMessage) {
   input();
   switch (serial_.output(outputMessage)) {
     case BackendReceiver::OutputStatus::waiting:
@@ -52,7 +50,7 @@ UARTBackendReceiver<BufferedUART>::output(
 
 template <typename BufferedUART>
 void UARTBackendReceiver<BufferedUART>::input() {
-  while (true) { // repeat until UART read buffer is empty or output is available
+  while (true) {  // repeat until UART read buffer is empty or output is available
     uint8_t receive = 0;
 
     // UART
@@ -86,10 +84,8 @@ UARTBackendSender<BufferedUART>::UARTBackendSender(
     : uart_(uart), serial_(serial) {}
 
 template <typename BufferedUART>
-typename UARTBackendSender<BufferedUART>::Status
-UARTBackendSender<BufferedUART>::input(
-    const Application::Message &inputMessage
-) {
+typename UARTBackendSender<BufferedUART>::Status UARTBackendSender<BufferedUART>::input(
+    const Application::Message &inputMessage) {
   ChunkBuffer send_output;
   switch (serial_.transform(inputMessage, send_output)) {
     case BackendSender::Status::invalid_message_length:
@@ -121,24 +117,20 @@ UARTBackendDriver<BufferedUART>::UARTBackendDriver(volatile BufferedUART &uart, 
       receiver_(uart, receiver_protocol_),
       sender_(uart, sender_protocol_) {}
 
-template<typename BufferedUART>
+template <typename BufferedUART>
 void UARTBackendDriver<BufferedUART>::setup_irq() {
   uart.setup_irq();
 }
 
 template <typename BufferedUART>
-typename UARTBackendDriver<BufferedUART>::Receiver::Status
-UARTBackendDriver<BufferedUART>::receive(
-    Application::Message &receiveMessage
-) {
+typename UARTBackendDriver<BufferedUART>::Receiver::Status UARTBackendDriver<BufferedUART>::receive(
+    Application::Message &receiveMessage) {
   return receiver_.output(receiveMessage);
 }
 
 template <typename BufferedUART>
-typename UARTBackendDriver<BufferedUART>::Sender::Status
-UARTBackendDriver<BufferedUART>::send(
-    const Application::Message &sendMessage
-) {
+typename UARTBackendDriver<BufferedUART>::Sender::Status UARTBackendDriver<BufferedUART>::send(
+    const Application::Message &sendMessage) {
   return sender_.input(sendMessage);
 }
 

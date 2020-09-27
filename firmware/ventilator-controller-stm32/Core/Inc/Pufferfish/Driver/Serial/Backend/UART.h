@@ -15,44 +15,40 @@
 
 namespace Pufferfish::Driver::Serial::Backend {
 
-template<typename BufferedUART>
+template <typename BufferedUART>
 class UARTBackendReceiver {
-public:
-  enum class Status {available = 0, waiting, invalid};
+ public:
+  enum class Status { available = 0, waiting, invalid };
 
-  UARTBackendReceiver(
-      volatile BufferedUART &uart, BackendReceiver &serial
-  );
+  UARTBackendReceiver(volatile BufferedUART &uart, BackendReceiver &serial);
 
   // The return value indicates whether an output is available and written to outputBuffer
   Status output(Application::Message &outputMessage);
 
-protected:
- volatile BufferedUART &uart_;
- BackendReceiver &serial_;
+ protected:
+  volatile BufferedUART &uart_;
+  BackendReceiver &serial_;
 
- void input();
+  void input();
 };
 
 template <typename BufferedUART>
 class UARTBackendSender {
-public:
-  enum class Status {ok = 0, invalid};
+ public:
+  enum class Status { ok = 0, invalid };
 
-  UARTBackendSender(
-        volatile BufferedUART &uart, BackendSender &serial
-    );
+  UARTBackendSender(volatile BufferedUART &uart, BackendSender &serial);
 
   Status input(const Application::Message &inputMessage);
 
-private:
- volatile BufferedUART &uart_;
- BackendSender &serial_;
+ private:
+  volatile BufferedUART &uart_;
+  BackendSender &serial_;
 };
 
 template <typename BufferedUART>
 class UARTBackendDriver {
-public:
+ public:
   using Receiver = UARTBackendReceiver<BufferedUART>;
   using Sender = UARTBackendSender<BufferedUART>;
 
@@ -64,33 +60,32 @@ public:
   typename Receiver::Status receive(Application::Message &receiveMessage);
   typename Sender::Status send(const Application::Message &sendMessage);
 
-protected:
- HAL::CRC32C &crc32c_;
- BackendReceiver receiver_protocol_;
- BackendSender sender_protocol_;
- UARTBackendReceiver<BufferedUART> receiver_;
- UARTBackendSender<BufferedUART> sender_;
+ protected:
+  HAL::CRC32C &crc32c_;
+  BackendReceiver receiver_protocol_;
+  BackendSender sender_protocol_;
+  UARTBackendReceiver<BufferedUART> receiver_;
+  UARTBackendSender<BufferedUART> sender_;
 };
 
 class UARTBackend {
-public:
+ public:
   using Driver = UARTBackendDriver<HAL::LargeBufferedUART>;
 
   UARTBackend(
-      volatile HAL::LargeBufferedUART &uart, HAL::CRC32C &crc32c,
-      Application::States &states
-  );
+      volatile HAL::LargeBufferedUART &uart, HAL::CRC32C &crc32c, Application::States &states);
 
   void setup_irq();
   void receive();
   void update_clock(uint32_t current_time);
   void send();
 
-protected:
+ protected:
   using StateSynchronizer = Protocols::StateSynchronizer<
-      Application::States, Application::Message,
-      Application::MessageTypes, StateOutputSchedule
-  >;
+      Application::States,
+      Application::Message,
+      Application::MessageTypes,
+      StateOutputSchedule>;
 
   Driver driver_;
   Application::States &states_;

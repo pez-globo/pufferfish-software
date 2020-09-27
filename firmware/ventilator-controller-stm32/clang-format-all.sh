@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Clean up header files
-find Core/Inc/Pufferfish -iname *.h -o -iname *.tpp `# Recursively find all matching files` \
+find Core/Inc/Pufferfish ! -name '*mcu_pb.h' -iname *.h -o -iname *.tpp `# Recursively find all matching files` \
   | xargs clang-format -style=file "$@" `# Run clang-format`
 
 # Clean up source files

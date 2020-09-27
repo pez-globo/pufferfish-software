@@ -48,13 +48,12 @@ void Simulator::update_sensors() {
     insp_period_ = cycle_period_ / (1 + 1.0 / parameters_.ie);
     // Airway
     if (current_time_ - cycle_start_time_ < insp_period_) {
-      sensor_measurements_.paw += (
-          parameters_.pip - sensor_measurements_.paw
-      ) * insp_responsiveness / sensor_update_interval;
+      sensor_measurements_.paw += (parameters_.pip - sensor_measurements_.paw) *
+                                  insp_responsiveness / sensor_update_interval;
       sensor_measurements_.flow *= (1 - insp_flow_responsiveness / sensor_update_interval);
     } else {
-      sensor_measurements_.paw +=
-          (parameters_.peep - sensor_measurements_.paw) * exp_responsiveness / sensor_update_interval;
+      sensor_measurements_.paw += (parameters_.peep - sensor_measurements_.paw) *
+                                  exp_responsiveness / sensor_update_interval;
       if (sensor_measurements_.flow >= 0) {
         sensor_measurements_.flow = exp_init_flow_rate;
       } else {
@@ -62,9 +61,8 @@ void Simulator::update_sensors() {
       }
     }
     // FiO2
-    sensor_measurements_.fio2 += (
-        parameters_.fio2 - sensor_measurements_.fio2
-    ) * fio2_responsiveness / sensor_update_interval;
+    sensor_measurements_.fio2 += (parameters_.fio2 - sensor_measurements_.fio2) *
+                                 fio2_responsiveness / sensor_update_interval;
     // Cycle Measurements
     cycle_measurements_.time = current_time_;
     cycle_measurements_.rr = parameters_.rr;

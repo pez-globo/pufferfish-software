@@ -7,23 +7,30 @@
  *  Import of the COBS algorithm from Christopher Baker's PacketSerial project.
  *
  *  Copyright (c) 2011 Christopher Baker <https://christopherbaker.net>
- *  Copyright (c) 2011 Jacques Fortier <https://github.com/jacquesf/COBS-Consistent-Overhead-Byte-Stuffing>
- *  SPDX-License-Identifier: MIT
+ *  Copyright (c) 2011 Jacques Fortier
+ * <https://github.com/jacquesf/COBS-Consistent-Overhead-Byte-Stuffing> SPDX-License-Identifier: MIT
  *
  *  MIT License
  *  Copyright (c) 2017 Christopher Baker https://christopherbaker.net
- *  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions: The above copyright notice and this
+ * permission notice shall be included in all copies or substantial portions of the Software. THE
+ * SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+ * LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef INC_PUFFERFISH_UTIL_COBS_H_
-#define INC_PUFFERFISH_UTIL_COBS_H_
+#pragma once
 
 #include <cstddef>
 #include <cstdint>
 
-namespace Pufferfish { namespace Util {
+namespace Pufferfish::Util {
 
 /// \brief A Consistent Overhead Byte Stuffing (COBS) Encoder.
 ///
@@ -63,7 +70,4 @@ size_t decode_cobs(const uint8_t *encoded_buffer, size_t size, uint8_t *decoded_
 /// \returns the maximum size of the required encoded buffer.
 size_t get_encoded_cobs_buffer_size(size_t unencoded_buffer_size);
 
-}  // namespace Util
-}  // namespace Pufferfish
-
-#endif /* INC_PUFFERFISH_UTIL_COBS_H_ */
+}  // namespace Pufferfish::Util

@@ -25,14 +25,14 @@ using ProtobufDescriptors = Util::ProtobufDescriptors<8>;
 
 static const ProtobufDescriptors message_descriptors = {
     // array index should match the type code value
-    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(), // 0
-    Util::get_protobuf_descriptor<Alarms>(), // 1
-    Util::get_protobuf_descriptor<SensorMeasurements>(), // 2
-    Util::get_protobuf_descriptor<CycleMeasurements>(), // 3
-    Util::get_protobuf_descriptor<Parameters>(), // 4
-    Util::get_protobuf_descriptor<ParametersRequest>(), // 5
-    Util::get_protobuf_descriptor<Ping>(), // 6
-    Util::get_protobuf_descriptor<Announcement>() // 7
+    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 0
+    Util::get_protobuf_descriptor<Alarms>(),                     // 1
+    Util::get_protobuf_descriptor<SensorMeasurements>(),         // 2
+    Util::get_protobuf_descriptor<CycleMeasurements>(),          // 3
+    Util::get_protobuf_descriptor<Parameters>(),                 // 4
+    Util::get_protobuf_descriptor<ParametersRequest>(),          // 5
+    Util::get_protobuf_descriptor<Ping>(),                       // 6
+    Util::get_protobuf_descriptor<Announcement>()                // 7
 };
 
 // State Synchronization
@@ -56,32 +56,31 @@ static const StateOutputSchedule state_sync_schedule = {{
 // Backend
 
 class BackendReceiver {
-public:
- enum class InputStatus { input_ready = 0, output_ready, invalid_frame_chunk_length };
- enum class OutputStatus {
-   available = 0,
-   waiting,
-   invalid_frame_chunk_length,
-   invalid_frame_cobs_length,
-   invalid_datagram_parse,
-   invalid_datagram_crc,
-   invalid_datagram_length,
-   invalid_datagram_sequence,
-   invalid_message_length,
-   invalid_message_type,
-   invalid_message_encoding
- };
+ public:
+  enum class InputStatus { input_ready = 0, output_ready, invalid_frame_chunk_length };
+  enum class OutputStatus {
+    available = 0,
+    waiting,
+    invalid_frame_chunk_length,
+    invalid_frame_cobs_length,
+    invalid_datagram_parse,
+    invalid_datagram_crc,
+    invalid_datagram_length,
+    invalid_datagram_sequence,
+    invalid_message_length,
+    invalid_message_type,
+    invalid_message_encoding
+  };
 
- explicit BackendReceiver(HAL::CRC32C &crc32c);
+  explicit BackendReceiver(HAL::CRC32C &crc32c);
 
- // Call this until it returns outputReady, then call output
- InputStatus input(uint8_t new_byte);
- OutputStatus output(Application::Message &output_message);
+  // Call this until it returns outputReady, then call output
+  InputStatus input(uint8_t new_byte);
+  OutputStatus output(Application::Message &output_message);
 
-protected:
-  using BackendMessageReceiver = Protocols::MessageReceiver<
-      Application::Message,
-      std::tuple_size<ProtobufDescriptors>::value>;
+ protected:
+  using BackendMessageReceiver =
+      Protocols::MessageReceiver<Application::Message, std::tuple_size<ProtobufDescriptors>::value>;
 
   FrameReceiver frame_;
   DatagramReceiver datagram_;
@@ -89,25 +88,24 @@ protected:
 };
 
 class BackendSender {
-public:
- enum class Status {
-   ok = 0,
-   invalid_message_length,
-   invalid_message_type,
-   invalid_message_encoding,
-   invalid_datagram_length,
-   invalid_frame_cobs_length,
-   invalid_frame_chunk_length
- };
+ public:
+  enum class Status {
+    ok = 0,
+    invalid_message_length,
+    invalid_message_type,
+    invalid_message_encoding,
+    invalid_datagram_length,
+    invalid_frame_cobs_length,
+    invalid_frame_chunk_length
+  };
 
- explicit BackendSender(HAL::CRC32C &crc32c);
+  explicit BackendSender(HAL::CRC32C &crc32c);
 
- Status transform(const Application::Message &input_message, ChunkBuffer &output_buffer);
+  Status transform(const Application::Message &input_message, ChunkBuffer &output_buffer);
 
-protected:
-  using BackendMessageSender = Protocols::MessageSender<
-      Application::Message,
-      std::tuple_size<ProtobufDescriptors>::value>;
+ protected:
+  using BackendMessageSender =
+      Protocols::MessageSender<Application::Message, std::tuple_size<ProtobufDescriptors>::value>;
 
   BackendMessageSender message_;
   DatagramSender datagram_;

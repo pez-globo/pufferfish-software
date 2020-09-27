@@ -99,9 +99,10 @@ PF::Application::States all_states;
 
 // Breathing Circuit Control
 PF::BreathingCircuit::Simulator breathing_circuit(
-    all_states.parameters_request, all_states.parameters,
-    all_states.sensor_measurements, all_states.cycle_measurements
-);
+    all_states.parameters_request,
+    all_states.parameters,
+    all_states.sensor_measurements,
+    all_states.cycle_measurements);
 
 // HAL Utilities
 PF::HAL::CRC32C crc32c(hcrc);

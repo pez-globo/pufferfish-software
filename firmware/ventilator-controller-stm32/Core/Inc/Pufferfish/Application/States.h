@@ -37,7 +37,7 @@ enum class MessageTypes : uint8_t {
 };
 
 class States {
-public:
+ public:
   // Backend States
   Alarms alarms;
   SensorMeasurements sensor_measurements;

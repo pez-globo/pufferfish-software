@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include "ByteArray.h"
-
 #include <cstring>
+
+#include "ByteArray.h"
 
 namespace Pufferfish::Util {
 

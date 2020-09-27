@@ -13,49 +13,36 @@ namespace Pufferfish::Protocols {
 
 // StateSynchronizer
 
-template<
-  typename States,
-  typename Message,
-  typename MessageTypes,
-  typename StateOutputSchedule
->
+template <typename States, typename Message, typename MessageTypes, typename StateOutputSchedule>
 typename StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::InputStatus
 StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::input(uint32_t time) {
   current_time_ = time;
   return InputStatus::ok;
 }
 
-template<
-  typename States,
-  typename Message,
-  typename MessageTypes,
-  typename StateOutputSchedule
->
+template <typename States, typename Message, typename MessageTypes, typename StateOutputSchedule>
 typename StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::InputStatus
-StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::input(const Message &inputMessage) {
+StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::input(
+    const Message &inputMessage) {
   switch (inputMessage.type) {
-  case static_cast<uint8_t>(MessageTypes::parameters_request):
-  case static_cast<uint8_t>(MessageTypes::ping):
-  case static_cast<uint8_t>(MessageTypes::announcement):
-    if (!all_states.set_state(inputMessage)) {
-      return InputStatus::invalid_type;
-    }
-    break;
-  default:
-    break;
+    case static_cast<uint8_t>(MessageTypes::parameters_request):
+    case static_cast<uint8_t>(MessageTypes::ping):
+    case static_cast<uint8_t>(MessageTypes::announcement):
+      if (!all_states.set_state(inputMessage)) {
+        return InputStatus::invalid_type;
+      }
+      break;
+    default:
+      break;
   }
 
   return InputStatus::ok;
 }
 
-template<
-  typename States,
-  typename Message,
-  typename MessageTypes,
-  typename StateOutputSchedule
->
+template <typename States, typename Message, typename MessageTypes, typename StateOutputSchedule>
 typename StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::OutputStatus
-StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::output(Message &outputMessage) {
+StateSynchronizer<States, Message, MessageTypes, StateOutputSchedule>::output(
+    Message &outputMessage) {
   if (!should_output()) {
     return OutputStatus::waiting;
   }

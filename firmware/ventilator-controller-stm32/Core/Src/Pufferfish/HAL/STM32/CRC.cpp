@@ -14,4 +14,4 @@ uint32_t CRC32C::compute(const uint8_t *data, int size) {
       &hcrc_, const_cast<uint32_t *>(reinterpret_cast<const uint32_t *>(data)), size);
 }
 
-} // namespace Pufferfish::HAL
+}  // namespace Pufferfish::HAL
