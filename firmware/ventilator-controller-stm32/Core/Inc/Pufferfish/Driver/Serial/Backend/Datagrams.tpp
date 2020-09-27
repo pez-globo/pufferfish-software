@@ -7,117 +7,104 @@
 
 #pragma once
 
+#include "Datagrams.h"
 #include "Pufferfish/HAL/STM32/CRC.h"
 #include "Pufferfish/HAL/STM32/Endian.h"
-#include "Datagrams.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
 // Datagram
 
-template<size_t OutputSize>
-IndexStatus Datagram::write(
-    Util::ByteArray<OutputSize> &outputBuffer, HAL::CRC32C &crc32c
-) {
+template <size_t output_size>
+IndexStatus Datagram::write(Util::ByteArray<output_size> &output_buffer, HAL::CRC32C &crc32c) {
   length = static_cast<uint8_t>(payload.size());
-  if (writeProtected(outputBuffer) != IndexStatus::ok) {
-    return IndexStatus::outOfBounds;
+  if (write_protected(output_buffer) != IndexStatus::ok) {
+    return IndexStatus::out_of_bounds;
   }
 
   crc = crc32c.compute(
-      outputBuffer.buffer + protectedOffset, // exclude the CRC field
-      outputBuffer.size() - sizeof(uint32_t) // exclude the size of the CRC field
+      output_buffer.buffer + protected_offset,  // exclude the CRC field
+      output_buffer.size() - sizeof(uint32_t)   // exclude the size of the CRC field
   );
-  uint32_t networkEndianCRC = HAL::hton(crc);
-  memcpy(outputBuffer.buffer, &networkEndianCRC, sizeof(uint32_t));
+  uint32_t network_endian_crc = HAL::hton(crc);
+  memcpy(output_buffer.buffer, &network_endian_crc, sizeof(uint32_t));
   return IndexStatus::ok;
 }
 
-template<size_t OutputSize>
-IndexStatus Datagram::writeProtected(
-    Util::ByteArray<OutputSize> &outputBuffer
-) const {
-  if (outputBuffer.resize(headerSize + payload.size()) != IndexStatus::ok) {
-    return IndexStatus::outOfBounds;
+template <size_t output_size>
+IndexStatus Datagram::write_protected(Util::ByteArray<output_size> &output_buffer) const {
+  if (output_buffer.resize(header_size + payload.size()) != IndexStatus::ok) {
+    return IndexStatus::out_of_bounds;
   }
 
-  outputBuffer.buffer[seqOffset] = seq;
-  outputBuffer.buffer[lengthOffset] = length;
-  outputBuffer.copyFrom(payload.buffer, payload.size(), payloadOffset);
+  output_buffer.buffer[seq_offset] = seq;
+  output_buffer.buffer[length_offset] = length;
+  output_buffer.copy_from(payload.buffer, payload.size(), payload_offset);
   return IndexStatus::ok;
 }
 
-template<size_t InputSize>
-IndexStatus Datagram::parse(const Util::ByteArray<InputSize> &inputBuffer) {
-  if (inputBuffer.size() < headerSize) {
-    return IndexStatus::outOfBounds;
+template <size_t input_size>
+IndexStatus Datagram::parse(const Util::ByteArray<input_size> &input_buffer) {
+  if (input_buffer.size() < header_size) {
+    return IndexStatus::out_of_bounds;
   }
-  uint32_t networkEndianCRC;
-  memcpy(&networkEndianCRC, inputBuffer.buffer, sizeof(uint32_t));
-  crc = HAL::ntoh(networkEndianCRC);
-  seq = inputBuffer.buffer[seqOffset];
-  length = inputBuffer.buffer[lengthOffset];
-  payload.copyFrom(
-      inputBuffer.buffer + payloadOffset,
-      inputBuffer.size() - payloadOffset
-  );
+  uint32_t network_endian_crc = 0;
+  memcpy(&network_endian_crc, input_buffer.buffer, sizeof(uint32_t));
+  crc = HAL::ntoh(network_endian_crc);
+  seq = input_buffer.buffer[seq_offset];
+  length = input_buffer.buffer[length_offset];
+  payload.copy_from(input_buffer.buffer + payload_offset, input_buffer.size() - payload_offset);
   return IndexStatus::ok;
 }
 
 // DatagramReceiver
 
-template<size_t InputSize>
+template <size_t input_size>
 DatagramReceiver::Status DatagramReceiver::transform(
-    const Util::ByteArray<InputSize> &inputBuffer,
-    Datagram &outputDatagram
-) {
-  if (outputDatagram.parse(inputBuffer) != IndexStatus::ok) {
-    return Status::invalidParse;
+    const Util::ByteArray<input_size> &input_buffer, Datagram &output_datagram) {
+  if (output_datagram.parse(input_buffer) != IndexStatus::ok) {
+    return Status::invalid_parse;
   }
 
-  if (computeCRC(inputBuffer) != outputDatagram.crc) {
-    return Status::invalidCRC;
+  if (compute_crc(input_buffer) != output_datagram.crc) {
+    return Status::invalid_crc;
   }
 
-  if (outputDatagram.payload.size() != outputDatagram.length) {
-    return Status::invalidLength;
+  if (output_datagram.payload.size() != output_datagram.length) {
+    return Status::invalid_length;
   }
 
-  if (expectedSeq != outputDatagram.seq) {
-    expectedSeq = outputDatagram.seq + 1;
-    return Status::invalidSequence;
+  if (expected_seq_ != output_datagram.seq) {
+    expected_seq_ = output_datagram.seq + 1;
+    return Status::invalid_sequence;
   }
 
-  ++expectedSeq;
+  ++expected_seq_;
   return Status::ok;
 }
 
-
-template<size_t InputSize>
-uint32_t DatagramReceiver::computeCRC(
-    const Util::ByteArray<InputSize> &inputBuffer
-) {
-  return crc32c.compute(
-      inputBuffer.buffer + Datagram::protectedOffset, // exclude the CRC field
-      inputBuffer.size() - sizeof(uint32_t) // exclude the size of the CRC field
+template <size_t input_size>
+uint32_t DatagramReceiver::compute_crc(const Util::ByteArray<input_size> &input_buffer) {
+  return crc32c_.compute(
+      input_buffer.buffer + Datagram::protected_offset,  // exclude the CRC field
+      input_buffer.size() - sizeof(uint32_t)             // exclude the size of the CRC field
   );
 }
 
 // DatagramSender
 
-template<size_t OutputSize>
+template <size_t output_size>
 DatagramSender::Status DatagramSender::transform(
-    const Datagram::PayloadBuffer &inputPayload,
-    Util::ByteArray<OutputSize> &outputBuffer
-) {
-  Datagram datagram(const_cast<Datagram::PayloadBuffer &>(inputPayload)); // we promise not to call the parse metod
-  datagram.seq = nextSeq;
-  if (datagram.write(outputBuffer, crc32c) != IndexStatus::ok) {
-      return Status::invalidLength;
-    }
+    const Datagram::PayloadBuffer &input_payload, Util::ByteArray<output_size> &output_buffer) {
+  Datagram datagram(const_cast<Datagram::PayloadBuffer &>(
+      input_payload));  // we promise not to call the parse metod
+  datagram.seq = next_seq_;
+  if (datagram.write(output_buffer, crc32c_) != IndexStatus::ok) {
+    return Status::invalid_length;
+  }
 
-  ++nextSeq;
+  ++next_seq_;
   return Status::ok;
 }
 
-}
+}  // namespace Pufferfish::Driver::Serial::Backend

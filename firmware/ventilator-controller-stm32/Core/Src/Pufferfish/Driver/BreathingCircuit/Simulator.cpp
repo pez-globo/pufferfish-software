@@ -10,76 +10,70 @@
 namespace Pufferfish::BreathingCircuit {
 
 Simulator::Simulator(
-    const ParametersRequest &parametersRequest,
+    const ParametersRequest &parameters_request,
     Parameters &parameters,
-    SensorMeasurements &sensorMeasurements,
-    CycleMeasurements &cycleMeasurements
-) :
-    parametersRequest(parametersRequest),
-    parameters(parameters),
-    sensorMeasurements(sensorMeasurements),
-    cycleMeasurements(cycleMeasurements) {}
+    SensorMeasurements &sensor_measurements,
+    CycleMeasurements &cycle_measurements)
+    : parameters_request_(parameters_request),
+      parameters_(parameters),
+      sensor_measurements_(sensor_measurements),
+      cycle_measurements_(cycle_measurements) {}
 
-void Simulator::update_clock(uint32_t currentTime) {
-  this->currentTime = currentTime;
+void Simulator::update_clock(uint32_t current_time) {
+  this->current_time_ = current_time;
 }
 
 void Simulator::update_sensors() {
-  if (currentTime - previousTime > sensorUpdateInterval) {
+  if (current_time_ - previous_time_ > sensor_update_interval) {
     // Parameters
-    if (parametersRequest.rr > 0) {
-      parameters.rr = parametersRequest.rr;
+    if (parameters_request_.rr > 0) {
+      parameters_.rr = parameters_request_.rr;
     }
-    if (parametersRequest.ie > 0) {
-      parameters.ie = parametersRequest.ie;
+    if (parameters_request_.ie > 0) {
+      parameters_.ie = parameters_request_.ie;
     }
-    if (parametersRequest.pip > 0) {
-      parameters.pip = parametersRequest.pip;
+    if (parameters_request_.pip > 0) {
+      parameters_.pip = parameters_request_.pip;
     }
-    parameters.peep = parametersRequest.peep;
-    parameters.fio2 = parametersRequest.fio2;
+    parameters_.peep = parameters_request_.peep;
+    parameters_.fio2 = parameters_request_.fio2;
     // Timing
-    previousTime = currentTime;
-    sensorMeasurements.time = currentTime;
-    cyclePeriod = 60000.0 / parameters.rr;
-    if (currentTime - cycleStartTime > cyclePeriod) {
-      cycleStartTime = currentTime;
-      sensorMeasurements.flow = inspInitFlowRate;
+    previous_time_ = current_time_;
+    sensor_measurements_.time = current_time_;
+    cycle_period_ = 60000.0 / parameters_.rr;
+    if (current_time_ - cycle_start_time_ > cycle_period_) {
+      cycle_start_time_ = current_time_;
+      sensor_measurements_.flow = insp_init_flow_rate;
     }
-    inspPeriod = cyclePeriod / (1 + 1.0 / parameters.ie);
+    insp_period_ = cycle_period_ / (1 + 1.0 / parameters_.ie);
     // Airway
-    if (currentTime - cycleStartTime < inspPeriod) {
-      sensorMeasurements.paw += (
-          parameters.pip - sensorMeasurements.paw
-      ) * inspResponsiveness / sensorUpdateInterval;
-      sensorMeasurements.flow *= (
-          1 - inspFlowResponsiveness / sensorUpdateInterval
-      );
+    if (current_time_ - cycle_start_time_ < insp_period_) {
+      sensor_measurements_.paw += (
+          parameters_.pip - sensor_measurements_.paw
+      ) * insp_responsiveness / sensor_update_interval;
+      sensor_measurements_.flow *= (1 - insp_flow_responsiveness / sensor_update_interval);
     } else {
-      sensorMeasurements.paw += (
-          parameters.peep - sensorMeasurements.paw
-      ) * expResponsiveness / sensorUpdateInterval;
-      if (sensorMeasurements.flow >= 0) {
-        sensorMeasurements.flow = expInitFlowRate;
+      sensor_measurements_.paw +=
+          (parameters_.peep - sensor_measurements_.paw) * exp_responsiveness / sensor_update_interval;
+      if (sensor_measurements_.flow >= 0) {
+        sensor_measurements_.flow = exp_init_flow_rate;
       } else {
-        sensorMeasurements.flow *= (
-            1 - expFlowResponsiveness / sensorUpdateInterval
-        );
+        sensor_measurements_.flow *= (1 - exp_flow_responsiveness / sensor_update_interval);
       }
     }
     // FiO2
-    sensorMeasurements.fio2 += (
-        parameters.fio2 - sensorMeasurements.fio2
-    ) * fio2Responsiveness / sensorUpdateInterval;
+    sensor_measurements_.fio2 += (
+        parameters_.fio2 - sensor_measurements_.fio2
+    ) * fio2_responsiveness / sensor_update_interval;
     // Cycle Measurements
-    cycleMeasurements.time = currentTime;
-    cycleMeasurements.rr = parameters.rr;
-    cycleMeasurements.peep = parameters.peep;
-    cycleMeasurements.pip = parameters.pip;
-    cycleMeasurements.ip = sensorMeasurements.paw - parameters.peep;
+    cycle_measurements_.time = current_time_;
+    cycle_measurements_.rr = parameters_.rr;
+    cycle_measurements_.peep = parameters_.peep;
+    cycle_measurements_.pip = parameters_.pip;
+    cycle_measurements_.ip = sensor_measurements_.paw - parameters_.peep;
   }
 }
 
 void Simulator::update_actuators() {}
 
-}
+}  // namespace Pufferfish::BreathingCircuit

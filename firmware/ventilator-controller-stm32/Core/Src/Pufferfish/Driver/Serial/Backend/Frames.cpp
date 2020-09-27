@@ -5,45 +5,43 @@
  *      Author: Ethan Li
  */
 
-#pragma once
-
 #include "Pufferfish/Driver/Serial/Backend/Frames.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
 // FrameReceiver
 
-FrameReceiver::InputStatus FrameReceiver::input(uint8_t newByte) {
-  switch (chunkSplitter.input(newByte)) {
-  case ChunkSplitter<chunkMaxSize>::InputStatus::inputReady:
-    return InputStatus::inputReady;
-  case ChunkSplitter<chunkMaxSize>::InputStatus::invalidLength:
-    return InputStatus::invalidChunkLength;
-  case ChunkSplitter<chunkMaxSize>::InputStatus::outputReady:
-    break;
+FrameReceiver::InputStatus FrameReceiver::input(uint8_t new_byte) {
+  switch (chunk_splitter_.input(new_byte)) {
+    case ChunkSplitter<chunk_max_size>::InputStatus::input_ready:
+      return InputStatus::input_ready;
+    case ChunkSplitter<chunk_max_size>::InputStatus::invalid_length:
+      return InputStatus::invalid_chunk_length;
+    case ChunkSplitter<chunk_max_size>::InputStatus::output_ready:
+      break;
   }
-  return InputStatus::outputReady;
+  return InputStatus::output_ready;
 }
 
-FrameReceiver::OutputStatus FrameReceiver::output(ChunkBuffer &outputBuffer) {
-  ChunkBuffer tempBuffer;
+FrameReceiver::OutputStatus FrameReceiver::output(ChunkBuffer &output_buffer) {
+  ChunkBuffer temp_buffer;
 
   // Chunk
-  switch (chunkSplitter.output(tempBuffer)) {
-  case ChunkSplitter<chunkMaxSize>::OutputStatus::waiting:
-    return OutputStatus::waiting;
-  case ChunkSplitter<chunkMaxSize>::OutputStatus::invalidLength:
-    return OutputStatus::invalidChunkLength;
-  case ChunkSplitter<chunkMaxSize>::OutputStatus::available:
-    break;
+  switch (chunk_splitter_.output(temp_buffer)) {
+    case ChunkSplitter<chunk_max_size>::OutputStatus::waiting:
+      return OutputStatus::waiting;
+    case ChunkSplitter<chunk_max_size>::OutputStatus::invalid_length:
+      return OutputStatus::invalid_chunk_length;
+    case ChunkSplitter<chunk_max_size>::OutputStatus::available:
+      break;
   }
 
   // COBS
-  switch (cobsDecoder.transform(tempBuffer, outputBuffer)) {
-  case COBSDecoder::Status::invalidLength:
-    return OutputStatus::invalidCOBSLength;
-  case COBSDecoder::Status::ok:
-    break;
+  switch (cobs_decoder.transform(temp_buffer, output_buffer)) {
+    case COBSDecoder::Status::invalid_length:
+      return OutputStatus::invalid_cobs_length;
+    case COBSDecoder::Status::ok:
+      break;
   }
   return OutputStatus::available;
 }
@@ -51,24 +49,23 @@ FrameReceiver::OutputStatus FrameReceiver::output(ChunkBuffer &outputBuffer) {
 // FrameSender
 
 FrameSender::Status FrameSender::transform(
-    const ChunkBuffer &inputBuffer, ChunkBuffer &outputBuffer
-) const {
+    const ChunkBuffer &input_buffer, ChunkBuffer &output_buffer) const {
   // COBS
-  switch (cobsEncoder.transform(inputBuffer, outputBuffer)) {
-  case COBSEncoder::Status::invalidLength:
-    return Status::invalidCOBSLength;
-  case COBSEncoder::Status::ok:
-    break;
+  switch (cobs_encoder.transform(input_buffer, output_buffer)) {
+    case COBSEncoder::Status::invalid_length:
+      return Status::invalid_cobs_length;
+    case COBSEncoder::Status::ok:
+      break;
   }
 
   // Chunk
-  switch (chunkMerger.transform(outputBuffer)) {
-  case ChunkMerger::Status::invalidLength:
-    return Status::invalidChunkLength;
-  case ChunkMerger::Status::ok:
-    break;
+  switch (chunk_merger.transform(output_buffer)) {
+    case ChunkMerger::Status::invalid_length:
+      return Status::invalid_chunk_length;
+    case ChunkMerger::Status::ok:
+      break;
   }
   return Status::ok;
 }
 
-}
+}  // namespace Pufferfish::Driver::Serial::Backend

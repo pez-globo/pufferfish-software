@@ -10,7 +10,13 @@ COMPILE_COMMANDS_DATABASE="-p $CMAKE_BUILD_DIR"
 STANDARD_ARGS="$COMPILE_COMMANDS_DATABASE ${@:2}"
 
 # Set file filters
-IGNORE_FILES="stm32h7xx_hal_conf.h"
+IGNORE_FILES="stm32h7xx_hal_conf.h \
+  Core/Inc/nanopb/pb.h \
+  Core/Inc/nanopb/pb_common.h \
+  Core/Inc/nanopb/pb_decode.h \
+  Core/Inc/nanopb/pb_encode.h \
+  Core/Inc/Pufferfish/Application/mcu_pb.h \
+  Core/Src/Pufferfish/Application/mcu_pb.c"
 STM32_USER_FILES="Core/Inc/main.h \
   Core/Src/main.cpp \
   Core/Inc/stm32h7xx_it.h \

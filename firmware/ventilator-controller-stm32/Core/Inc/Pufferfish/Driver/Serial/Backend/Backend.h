@@ -7,14 +7,15 @@
 
 #pragma once
 
-#include <stdint.h>
-#include "Pufferfish/Util/ByteArray.h"
-#include "Pufferfish/HAL/CRC.h"
-#include "Frames.h"
+#include <cstdint>
+
 #include "Datagrams.h"
+#include "Frames.h"
 #include "Pufferfish/Application/States.h"
+#include "Pufferfish/HAL/CRC.h"
 #include "Pufferfish/Protocols/Messages.h"
 #include "Pufferfish/Protocols/States.h"
+#include "Pufferfish/Util/ByteArray.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
@@ -24,14 +25,14 @@ using ProtobufDescriptors = Util::ProtobufDescriptors<8>;
 
 static const ProtobufDescriptors message_descriptors = {
     // array index should match the type code value
-    Util::getProtobufDescriptor<Util::UnrecognizedMessage>(), // 0
-    Util::getProtobufDescriptor<Alarms>(), // 1
-    Util::getProtobufDescriptor<SensorMeasurements>(), // 2
-    Util::getProtobufDescriptor<CycleMeasurements>(), // 3
-    Util::getProtobufDescriptor<Parameters>(), // 4
-    Util::getProtobufDescriptor<ParametersRequest>(), // 5
-    Util::getProtobufDescriptor<Ping>(), // 6
-    Util::getProtobufDescriptor<Announcement>() // 7
+    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(), // 0
+    Util::get_protobuf_descriptor<Alarms>(), // 1
+    Util::get_protobuf_descriptor<SensorMeasurements>(), // 2
+    Util::get_protobuf_descriptor<CycleMeasurements>(), // 3
+    Util::get_protobuf_descriptor<Parameters>(), // 4
+    Util::get_protobuf_descriptor<ParametersRequest>(), // 5
+    Util::get_protobuf_descriptor<Ping>(), // 6
+    Util::get_protobuf_descriptor<Announcement>() // 7
 };
 
 // State Synchronization
@@ -40,7 +41,7 @@ using StateOutputScheduleEntry = Protocols::StateOutputScheduleEntry<Application
 
 using StateOutputSchedule = Protocols::StateOutputSchedule<Application::MessageTypes, 9>;
 
-static const StateOutputSchedule stateSyncSchedule = {{
+static const StateOutputSchedule state_sync_schedule = {{
     {10, Application::MessageTypes::sensor_measurements},
     {10, Application::MessageTypes::parameters},
     {10, Application::MessageTypes::alarms},
@@ -56,58 +57,63 @@ static const StateOutputSchedule stateSyncSchedule = {{
 
 class BackendReceiver {
 public:
-  enum class InputStatus {
-    inputReady = 0, outputReady, invalidFrameChunkLength
-  };
-  enum class OutputStatus {
-    available = 0, waiting,
-    invalidFrameChunkLength, invalidFrameCOBSLength,
-    invalidDatagramParse, invalidDatagramCRC, invalidDatagramLength,
-    invalidDatagramSequence,
-    invalidMessageLength, invalidMessageType, invalidMessageEncoding
-  };
+ enum class InputStatus { input_ready = 0, output_ready, invalid_frame_chunk_length };
+ enum class OutputStatus {
+   available = 0,
+   waiting,
+   invalid_frame_chunk_length,
+   invalid_frame_cobs_length,
+   invalid_datagram_parse,
+   invalid_datagram_crc,
+   invalid_datagram_length,
+   invalid_datagram_sequence,
+   invalid_message_length,
+   invalid_message_type,
+   invalid_message_encoding
+ };
 
-  BackendReceiver(HAL::CRC32C &crc32c);
+ explicit BackendReceiver(HAL::CRC32C &crc32c);
 
-  // Call this until it returns outputReady, then call output
-  InputStatus input(uint8_t newByte);
-  OutputStatus output(Application::Message &outputMessage);
+ // Call this until it returns outputReady, then call output
+ InputStatus input(uint8_t new_byte);
+ OutputStatus output(Application::Message &output_message);
 
 protected:
   using BackendMessageReceiver = Protocols::MessageReceiver<
       Application::Message,
       std::tuple_size<ProtobufDescriptors>::value>;
 
-  FrameReceiver frame;
-  DatagramReceiver datagram;
-  BackendMessageReceiver message;
+  FrameReceiver frame_;
+  DatagramReceiver datagram_;
+  BackendMessageReceiver message_;
 };
 
 class BackendSender {
 public:
-  enum class Status {
-    ok = 0,
-    invalidMessageLength, invalidMessageType, invalidMessageEncoding,
-    invalidDatagramLength,
-    invalidFrameCOBSLength, invalidFrameChunkLength
-  };
+ enum class Status {
+   ok = 0,
+   invalid_message_length,
+   invalid_message_type,
+   invalid_message_encoding,
+   invalid_datagram_length,
+   invalid_frame_cobs_length,
+   invalid_frame_chunk_length
+ };
 
-  BackendSender(HAL::CRC32C &crc32c);
+ explicit BackendSender(HAL::CRC32C &crc32c);
 
-  Status transform(
-      const Application::Message &inputMessage, ChunkBuffer &outputBuffer
-  );
+ Status transform(const Application::Message &input_message, ChunkBuffer &output_buffer);
 
 protected:
   using BackendMessageSender = Protocols::MessageSender<
       Application::Message,
       std::tuple_size<ProtobufDescriptors>::value>;
 
-  BackendMessageSender message;
-  DatagramSender datagram;
-  FrameSender frame;
+  BackendMessageSender message_;
+  DatagramSender datagram_;
+  FrameSender frame_;
 };
 
-}
+}  // namespace Pufferfish::Driver::Serial::Backend
 
 #include "Backend.tpp"

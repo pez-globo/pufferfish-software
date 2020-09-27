@@ -13,43 +13,40 @@
 
 #pragma once
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
+
 #include "Pufferfish/HAL/Types.h"
 #include "Pufferfish/Statuses.h"
 
 namespace Pufferfish::Util {
 
 // BufferSize is recommended to be a power of two for compiler optimization.
-template <size_t ArraySize>
+template <size_t array_size>
 class ByteArray {
-public:
+ public:
   ByteArray();
 
-  static const HAL::AtomicSize maxSize = ArraySize;
+  static const HAL::AtomicSize max_size = array_size;
 
-  uint8_t buffer[ArraySize];
+  uint8_t buffer[array_size]{};
 
-  size_t size() const;
-  bool empty() const;
-  bool full() const;
-  size_t available() const;
+  [[nodiscard]] size_t size() const;
+  [[nodiscard]] bool empty() const;
+  [[nodiscard]] bool full() const;
+  [[nodiscard]] size_t available() const;
 
   void clear();
   IndexStatus resize(size_t newSize);
-  IndexStatus pushBack(uint8_t newByte);
+  IndexStatus push_back(uint8_t new_byte);
 
-  void copyFrom(
-      const ByteArray<ArraySize> &sourceBytes, size_t destStartIndex = 0
-  );
-  void copyFrom(
-      const uint8_t *sourceBytes, size_t sourceSize, size_t destStartIndex = 0
-  );
+  void copy_from(const ByteArray<array_size> &source_bytes, size_t dest_start_index = 0);
+  void copy_from(const uint8_t *source_bytes, size_t source_size, size_t dest_start_index = 0);
 
-protected:
-  size_t _size = 0;
+ protected:
+  size_t size_ = 0;
 };
 
-}
+}  // namespace Pufferfish::Util
 
 #include "ByteArray.tpp"

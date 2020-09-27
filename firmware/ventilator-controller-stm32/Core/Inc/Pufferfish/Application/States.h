@@ -23,9 +23,8 @@ union UnionMessage {
   Announcement announcement;
 };
 
-using Message = Protocols::Message<
-    UnionMessage,
-    Driver::Serial::Backend::Datagram::payloadMaxSize>;
+using Message =
+    Protocols::Message<UnionMessage, Driver::Serial::Backend::Datagram::payload_max_size>;
 
 enum class MessageTypes : uint8_t {
   alarms = 1,
@@ -48,8 +47,8 @@ public:
   Ping ping;
   Announcement announcement;
 
-  bool setState(const Message &inputMessage);
-  void setMessage(MessageTypes type, Message &outputMessage) const;
+  bool set_state(const Message &input_message);
+  void set_message(MessageTypes type, Message &output_message) const;
 };
 
-}
+}  // namespace Pufferfish::Application

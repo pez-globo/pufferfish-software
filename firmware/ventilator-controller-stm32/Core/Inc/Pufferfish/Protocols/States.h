@@ -8,8 +8,8 @@
 #pragma once
 
 #include <array>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 namespace Pufferfish::Protocols {
 
@@ -32,27 +32,27 @@ template<
 >
 class StateSynchronizer {
 public:
-  enum class InputStatus {ok = 0, invalidType};
-  enum class OutputStatus {available = 0, waiting};
+ enum class InputStatus { ok = 0, invalid_type };
+ enum class OutputStatus { available = 0, waiting };
 
-  StateSynchronizer(States &allStates, const StateOutputSchedule &schedule) :
-    allStates(allStates), outputSchedule(schedule) {}
+ StateSynchronizer(States &all_states, const StateOutputSchedule &schedule)
+     : all_states(all_states), output_schedule_(schedule) {}
 
-  States &allStates;
+ States &all_states;
 
-  InputStatus input(uint32_t time);
-  InputStatus input(const Message &inputMessage);
-  OutputStatus output(Message &outputMessage);
+ InputStatus input(uint32_t time);
+ InputStatus input(const Message &inputMessage);
+ OutputStatus output(Message &outputMessage);
 
 protected:
-  const StateOutputSchedule &outputSchedule;
-  uint32_t currentTime = 0;
-  size_t currentScheduleEntry = 0;
-  uint32_t currentScheduleEntryStartTime = 0;
+ const StateOutputSchedule &output_schedule_;
+ uint32_t current_time_ = 0;
+ size_t current_schedule_entry_ = 0;
+ uint32_t current_schedule_entry_start_time_ = 0;
 
-  bool shouldOutput() const;
+ [[nodiscard]] bool should_output() const;
 };
 
-}
+}  // namespace Pufferfish::Protocols
 
 #include "States.tpp"

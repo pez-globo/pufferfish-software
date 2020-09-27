@@ -7,76 +7,70 @@
 
 #pragma once
 
+#include "Messages.h"
 #include "nanopb/pb_decode.h"
 #include "nanopb/pb_encode.h"
-#include "Messages.h"
 
 namespace Pufferfish::Protocols {
 
 // Message
 
-template<class UnionMessage, size_t max_size>
-template<size_t OutputSize, size_t NumDescriptors>
-typename Message<UnionMessage, max_size>::Status
-Message<UnionMessage, max_size>::write(
-    Util::ByteArray<OutputSize> &outputBuffer,
-    const Util::ProtobufDescriptors<NumDescriptors> &pbProtobufDescriptors
-) const {
-  if (type > pbProtobufDescriptors.size()) {
-    return Status::typeError;
+template <typename UnionMessage, size_t max_size>
+template <size_t output_size, size_t num_descriptors>
+typename Message<UnionMessage, max_size>::Status Message<UnionMessage, max_size>::write(
+    Util::ByteArray<output_size> &output_buffer,
+    const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) const {
+  if (type > pb_protobuf_descriptors.size()) {
+    return Status::type_error;
   }
 
-  const pb_msgdesc_t *fields = pbProtobufDescriptors[type];
-  if (fields == Util::getProtobufDescriptor<Util::UnrecognizedMessage>()) {
-    return Status::typeError;
+  const pb_msgdesc_t *fields = pb_protobuf_descriptors[type];
+  if (fields == Util::get_protobuf_descriptor<Util::UnrecognizedMessage>()) {
+    return Status::type_error;
   }
 
-  size_t encodedSize;
-  if (!pb_get_encoded_size(&encodedSize, fields, &payload)) {
-    return Status::encodingError;
+  size_t encoded_size = 0;
+  if (!pb_get_encoded_size(&encoded_size, fields, &payload)) {
+    return Status::encoding_error;
   }
 
-  if (outputBuffer.resize(headerSize + encodedSize) != IndexStatus::ok) {
-    return Status::lengthError;
+  if (output_buffer.resize(header_size + encoded_size) != IndexStatus::ok) {
+    return Status::length_error;
   }
 
-  outputBuffer.buffer[typeOffset] = type;
+  output_buffer.buffer[type_offset] = type;
   pb_ostream_t stream = pb_ostream_from_buffer(
-      outputBuffer.buffer + headerSize, outputBuffer.size() - headerSize
-  );
+      output_buffer.buffer + header_size, output_buffer.size() - header_size);
   if (!pb_encode(&stream, fields, &payload)) {
-    return Status::encodingError;
+    return Status::encoding_error;
   }
 
   return Status::ok;
 }
 
-template<class UnionMessage, size_t max_size>
-template<size_t InputSize, size_t NumDescriptors>
-typename Message<UnionMessage, max_size>::Status
-Message<UnionMessage, max_size>::parse(
-    const Util::ByteArray<InputSize> &inputBuffer,
-    const Util::ProtobufDescriptors<NumDescriptors> &pbProtobufDescriptors
-) {
-  if (inputBuffer.size() < Message::headerSize) {
-    return Status::lengthError;
+template <typename UnionMessage, size_t max_size>
+template <size_t input_size, size_t num_descriptors>
+typename Message<UnionMessage, max_size>::Status Message<UnionMessage, max_size>::parse(
+    const Util::ByteArray<input_size> &input_buffer,
+    const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) {
+  if (input_buffer.size() < Message::header_size) {
+    return Status::length_error;
   }
 
-  type = inputBuffer.buffer[Message::typeOffset];
-  if (type > pbProtobufDescriptors.size()) {
-    return Status::typeError;
+  type = input_buffer.buffer[Message::type_offset];
+  if (type > pb_protobuf_descriptors.size()) {
+    return Status::type_error;
   }
 
-  const pb_msgdesc_t *fields = pbProtobufDescriptors[type];
-  if (fields == Util::getProtobufDescriptor<Util::UnrecognizedMessage>()) {
-    return Status::typeError;
+  const pb_msgdesc_t *fields = pb_protobuf_descriptors[type];
+  if (fields == Util::get_protobuf_descriptor<Util::UnrecognizedMessage>()) {
+    return Status::type_error;
   }
 
-  pb_istream_t stream = pb_istream_from_buffer(
-      inputBuffer.buffer + headerSize, inputBuffer.size() - headerSize
-  );
+  pb_istream_t stream =
+      pb_istream_from_buffer(input_buffer.buffer + header_size, input_buffer.size() - header_size);
   if (!pb_decode(&stream, fields, &payload)) {
-    return Status::decodingError;
+    return Status::decoding_error;
   }
 
   return Status::ok;
@@ -84,62 +78,58 @@ Message<UnionMessage, max_size>::parse(
 
 // MessageReceiver
 
-template<class Message, size_t NumDescriptors>
-MessageReceiver<Message, NumDescriptors>::MessageReceiver(
-    const Util::ProtobufDescriptors<NumDescriptors> &descriptors
-) : descriptors(descriptors) {}
+template <typename Message, size_t num_descriptors>
+MessageReceiver<Message, num_descriptors>::MessageReceiver(
+    const Util::ProtobufDescriptors<num_descriptors> &descriptors)
+    : descriptors_(descriptors) {}
 
-template<class Message, size_t NumDescriptors>
-template<size_t InputSize>
-typename MessageReceiver<Message, NumDescriptors>::Status
-MessageReceiver<Message, NumDescriptors>::transform(
-    const Util::ByteArray<InputSize> &inputBuffer,
-    Message &outputMessage
-) const {
+template <typename Message, size_t num_descriptors>
+template <size_t input_size>
+typename MessageReceiver<Message, num_descriptors>::Status
+MessageReceiver<Message, num_descriptors>::transform(
+    const Util::ByteArray<input_size> &input_buffer, Message &output_message) const {
   using MessageStatus = typename Message::Status;
-  switch (outputMessage.parse(inputBuffer, descriptors)) {
-  case MessageStatus::lengthError:
-    return Status::invalidLength;
-  case MessageStatus::typeError:
-    return Status::invalidType;
-  case MessageStatus::encodingError:
-  case MessageStatus::decodingError:
-    return Status::invalidEncoding;
-  case MessageStatus::ok:
-  return Status::ok;
-  default:
-    return Status::ok;
+  switch (output_message.parse(input_buffer, descriptors_)) {
+    case MessageStatus::length_error:
+      return Status::invalid_length;
+    case MessageStatus::type_error:
+      return Status::invalid_type;
+    case MessageStatus::encoding_error:
+    case MessageStatus::decoding_error:
+      return Status::invalid_encoding;
+    case MessageStatus::ok:
+      return Status::ok;
+    default:
+      return Status::ok;
   }
 }
 
 // MessageSender
 
-template<class Message, size_t NumDescriptors>
-MessageSender<Message, NumDescriptors>::MessageSender(
-    const Util::ProtobufDescriptors<NumDescriptors> &descriptors
-) : descriptors(descriptors) {}
+template <typename Message, size_t num_descriptors>
+MessageSender<Message, num_descriptors>::MessageSender(
+    const Util::ProtobufDescriptors<num_descriptors> &descriptors)
+    : descriptors_(descriptors) {}
 
-template<class Message, size_t NumDescriptors>
-template<size_t OutputSize>
-typename MessageSender<Message, NumDescriptors>::Status
-MessageSender<Message, NumDescriptors>::transform(
-    const Message &inputMessage,
-    Util::ByteArray<OutputSize> &outputBuffer
-) const {
+template <typename Message, size_t num_descriptors>
+template <size_t output_size>
+typename MessageSender<Message, num_descriptors>::Status
+MessageSender<Message, num_descriptors>::transform(
+    const Message &input_message, Util::ByteArray<output_size> &output_buffer) const {
   using MessageStatus = typename Message::Status;
-  switch (inputMessage.write(outputBuffer, descriptors)) {
-  case MessageStatus::lengthError:
-    return Status::invalidLength;
-  case MessageStatus::typeError:
-    return Status::invalidType;
-  case MessageStatus::encodingError:
-  case MessageStatus::decodingError:
-    return Status::invalidEncoding;
-  case MessageStatus::ok:
-    return Status::ok;
-  default:
-    return Status::ok;
+  switch (input_message.write(output_buffer, descriptors_)) {
+    case MessageStatus::length_error:
+      return Status::invalid_length;
+    case MessageStatus::type_error:
+      return Status::invalid_type;
+    case MessageStatus::encoding_error:
+    case MessageStatus::decoding_error:
+      return Status::invalid_encoding;
+    case MessageStatus::ok:
+      return Status::ok;
+    default:
+      return Status::ok;
   }
 }
 
-}
+}  // namespace Pufferfish::Protocols

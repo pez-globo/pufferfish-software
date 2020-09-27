@@ -17,74 +17,62 @@ namespace Pufferfish::Protocols {
 
 // Messages
 
-template<class UnionMessage, size_t max_size>
+template <typename UnionMessage, size_t max_size>
 class Message {
 public:
-  static const size_t typeOffset = 0;
-  static const size_t payloadOffset = typeOffset + sizeof(uint8_t);
+ static const size_t type_offset = 0;
+ static const size_t payload_offset = type_offset + sizeof(uint8_t);
 
-  static const size_t headerSize = payloadOffset;
-  static const size_t payloadMaxSize = max_size - headerSize;
+ static const size_t header_size = payload_offset;
+ static const size_t payload_max_size = max_size - header_size;
 
-  enum class Status {
-      ok = 0, lengthError, typeError, encodingError, decodingError
-  };
+ enum class Status { ok = 0, length_error, type_error, encoding_error, decoding_error };
 
-  uint8_t type = 0;
-  UnionMessage payload;
+ uint8_t type = 0;
+ UnionMessage payload{};
 
-  template<size_t OutputSize, size_t NumDescriptors>
-  Status write(
-      Util::ByteArray<OutputSize> &outputBuffer,
-      const Util::ProtobufDescriptors<NumDescriptors> &pbProtobufDescriptors
-  ) const;
+ template <size_t output_size, size_t num_descriptors>
+ Status write(
+     Util::ByteArray<output_size> &output_buffer,
+     const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) const;
 
-  template<size_t InputSize, size_t NumDescriptors>
-  Status parse(
-      const Util::ByteArray<InputSize> &inputBuffer,
-      const Util::ProtobufDescriptors<NumDescriptors> &pbProtobufDescriptors
-  ); // updates type and payload fields
+ template <size_t input_size, size_t num_descriptors>
+ Status parse(
+     const Util::ByteArray<input_size> &input_buffer,
+     const Util::ProtobufDescriptors<num_descriptors>
+         &pb_protobuf_descriptors);  // updates type and payload fields
 };
 
 // Parses messages into payloads, with data integrity checking
-template<class Message, size_t NumDescriptors>
+template <typename Message, size_t num_descriptors>
 class MessageReceiver {
-public:
-  enum class Status {
-    ok = 0,
-    invalidLength, invalidType, invalidEncoding
-  };
+ public:
+  enum class Status { ok = 0, invalid_length, invalid_type, invalid_encoding };
 
-  MessageReceiver(const Util::ProtobufDescriptors<NumDescriptors> &descriptors);
+  explicit MessageReceiver(const Util::ProtobufDescriptors<num_descriptors> &descriptors);
 
-  template<size_t InputSize>
-  Status transform(
-      const Util::ByteArray<InputSize> &inputBuffer,
-      Message &outputMessage
-  ) const;
+  template <size_t input_size>
+  Status transform(const Util::ByteArray<input_size> &input_buffer, Message &output_message) const;
 
-private:
-  const Util::ProtobufDescriptors<NumDescriptors> &descriptors;
+ private:
+  const Util::ProtobufDescriptors<num_descriptors> &descriptors_;
 };
 
 // Generates messages from payloads
-template<class Message, size_t NumDescriptors>
+template <typename Message, size_t num_descriptors>
 class MessageSender {
-public:
-  enum class Status {ok = 0, invalidLength, invalidType, invalidEncoding};
+ public:
+  enum class Status { ok = 0, invalid_length, invalid_type, invalid_encoding };
 
-  MessageSender(const Util::ProtobufDescriptors<NumDescriptors> &descriptors);
+  explicit MessageSender(const Util::ProtobufDescriptors<num_descriptors> &descriptors);
 
-  template<size_t OutputSize>
-  Status transform(
-      const Message &inputMessage,
-      Util::ByteArray<OutputSize> &outputBuffer
-  ) const;
+  template <size_t output_size>
+  Status transform(const Message &input_message, Util::ByteArray<output_size> &output_buffer) const;
 
-private:
-  const Util::ProtobufDescriptors<NumDescriptors> &descriptors;
+ private:
+  const Util::ProtobufDescriptors<num_descriptors> &descriptors_;
 };
 
-}
+}  // namespace Pufferfish::Protocols
 
 #include "Messages.tpp"

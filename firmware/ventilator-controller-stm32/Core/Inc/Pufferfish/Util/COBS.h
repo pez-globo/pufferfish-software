@@ -20,8 +20,8 @@
 #ifndef INC_PUFFERFISH_UTIL_COBS_H_
 #define INC_PUFFERFISH_UTIL_COBS_H_
 
-#include <stdint.h>
-#include <stddef.h>
+#include <cstddef>
+#include <cstdint>
 
 namespace Pufferfish { namespace Util {
 
@@ -48,7 +48,7 @@ namespace Pufferfish { namespace Util {
 /// \returns The number of bytes written to the \p encodedBuffer.
 /// \warning The encodedBuffer must have at least getEncodedBufferSize()
 ///          allocated.
-size_t encodeCOBS(const uint8_t *buffer, size_t size, uint8_t *encodedBuffer);
+size_t encode_cobs(const uint8_t *buffer, size_t size, uint8_t *encoded_buffer);
 
 /// \brief Decode a COBS-encoded buffer.
 /// \param encodedBuffer A pointer to the \p encodedBuffer to decode.
@@ -56,13 +56,14 @@ size_t encodeCOBS(const uint8_t *buffer, size_t size, uint8_t *encodedBuffer);
 /// \param decodedBuffer The target buffer for the decoded bytes.
 /// \returns The number of bytes written to the \p decodedBuffer.
 /// \warning decodedBuffer must have a minimum capacity of size.
-size_t decodeCOBS(const uint8_t *encodedBuffer, size_t size, uint8_t *decodedBuffer);
+size_t decode_cobs(const uint8_t *encoded_buffer, size_t size, uint8_t *decoded_buffer);
 
 /// \brief Get the maximum encoded buffer size for an unencoded buffer size.
 /// \param unencodedBufferSize The size of the buffer to be encoded.
 /// \returns the maximum size of the required encoded buffer.
-size_t getEncodedCOBSBufferSize(size_t unencodedBufferSize);
+size_t get_encoded_cobs_buffer_size(size_t unencoded_buffer_size);
 
-} }
+}  // namespace Util
+}  // namespace Pufferfish
 
 #endif /* INC_PUFFERFISH_UTIL_COBS_H_ */

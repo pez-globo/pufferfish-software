@@ -7,106 +7,100 @@
 
 #pragma once
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
+
 #include "Pufferfish/Util/ByteArray.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
 // Splits delimited chunks from a stream
-template<size_t BufferSize>
+template <size_t buffer_size>
 class ChunkSplitter {
-public:
-  enum class InputStatus {inputReady = 0, outputReady, invalidLength};
-  enum class OutputStatus {available = 0, waiting, invalidLength};
+ public:
+  enum class InputStatus { input_ready = 0, output_ready, invalid_length };
+  enum class OutputStatus { available = 0, waiting, invalid_length };
 
-  ChunkSplitter(uint8_t delimiter = 0x00);
+  explicit ChunkSplitter(uint8_t delimiter = 0x00)
+    : delimiter(delimiter) {}
 
   // Call this until it returns available, then call output
-  InputStatus input(uint8_t newByte);
-  OutputStatus output(Util::ByteArray<BufferSize> &outputBuffer);
+  InputStatus input(uint8_t new_byte);
+  OutputStatus output(Util::ByteArray<buffer_size> &output_buffer);
 
-protected:
-  Util::ByteArray<BufferSize> buffer;
+ protected:
+  Util::ByteArray<buffer_size> buffer_;
   const uint8_t delimiter;
-  InputStatus inputStatus = InputStatus::inputReady;
+  InputStatus input_status_ = InputStatus::input_ready;
 };
 
-static const size_t chunkMaxSize = 256; // including delimiter
-using ChunkBuffer = Util::ByteArray<chunkMaxSize>;
-static const size_t framePayloadMaxSize = chunkMaxSize - 2;
-using FrameChunkSplitter = ChunkSplitter<chunkMaxSize>;
+static const size_t chunk_max_size = 256;  // including delimiter
+using ChunkBuffer = Util::ByteArray<chunk_max_size>;
+static const size_t frame_payload_max_size = chunk_max_size - 2;
+using FrameChunkSplitter = ChunkSplitter<chunk_max_size>;
 
 // Merges chunks into a stream by delimiting them
 class ChunkMerger {
 public:
-  enum class Status {ok = 0, invalidLength};
+  enum class Status {ok = 0, invalid_length};
 
-  ChunkMerger(uint8_t delimiter = 0x00) :
-    delimiter() {};
+  explicit ChunkMerger(uint8_t delimiter = 0x00)
+    : delimiter(delimiter) {}
 
-  template<size_t BufferSize>
-  Status transform(Util::ByteArray<BufferSize> &inputOutputBuffer) const;
+  template <size_t buffer_size>
+  Status transform(Util::ByteArray<buffer_size> &input_output_buffer) const;
 
-protected:
-  const uint8_t delimiter;
+ protected:
+  const uint8_t delimiter = 0x00;
 };
 
 // Decodes frames (length up to 255 bytes, excluding frame delimiter) with COBS
 class COBSDecoder {
 public:
-  enum class Status {ok = 0, invalidLength};
+ enum class Status { ok = 0, invalid_length };
 
-  template<size_t InputSize, size_t OutputSize>
-  Status transform(
-      const Util::ByteArray<InputSize> &inputBuffer,
-      Util::ByteArray<OutputSize> &outputBuffer
-  ) const;
+ template <size_t input_size, size_t output_size>
+ Status transform(
+     const Util::ByteArray<input_size> &input_buffer,
+     Util::ByteArray<output_size> &output_buffer) const;
 };
 
 // Encodes payloads (length up to 254 bytes) with COBS; does not add the frame delimiter
 class COBSEncoder {
 public:
-  enum class Status {ok = 0, invalidLength};
+ enum class Status { ok = 0, invalid_length };
 
-  template<size_t InputSize, size_t OutputSize>
-  Status transform(
-      const Util::ByteArray<InputSize> &inputBuffer,
-      Util::ByteArray<OutputSize> &outputBuffer
-  ) const;
+ template <size_t input_size, size_t output_size>
+ Status transform(
+     const Util::ByteArray<input_size> &input_buffer,
+     Util::ByteArray<output_size> &output_buffer) const;
 };
 
 class FrameReceiver {
 public:
-  enum class InputStatus {
-    inputReady = 0, outputReady, invalidChunkLength
-  };
-  enum class OutputStatus {
-    available = 0, waiting, invalidChunkLength, invalidCOBSLength
-  };
+ enum class InputStatus { input_ready = 0, output_ready, invalid_chunk_length };
+ enum class OutputStatus { available = 0, waiting, invalid_chunk_length, invalid_cobs_length };
 
-  // Call this until it returns available, then call output
-  InputStatus input(uint8_t newByte);
-  OutputStatus output(ChunkBuffer &outputBuffer);
+ // Call this until it returns available, then call output
+ InputStatus input(uint8_t new_byte);
+ OutputStatus output(ChunkBuffer &output_buffer);
 
 protected:
-  FrameChunkSplitter chunkSplitter;
-  const COBSDecoder cobsDecoder = COBSDecoder();
+ FrameChunkSplitter chunk_splitter_;
+ const COBSDecoder cobs_decoder = COBSDecoder();
 };
 
 class FrameSender {
 public:
-  enum class Status {ok = 0, invalidCOBSLength, invalidChunkLength};
+ enum class Status { ok = 0, invalid_cobs_length, invalid_chunk_length };
 
-  Status transform(
-      const ChunkBuffer &inputBuffer, ChunkBuffer &outputBuffer
-  ) const;
+ Status transform(const ChunkBuffer &input_buffer, ChunkBuffer &output_buffer) const;
 
 protected:
-  const COBSEncoder cobsEncoder = COBSEncoder();
-  const ChunkMerger chunkMerger = ChunkMerger();
+ const COBSEncoder cobs_encoder = COBSEncoder();
+ const ChunkMerger chunk_merger = ChunkMerger();
 };
 
-}
+}  // namespace Pufferfish::Driver::Serial::Backend
 
 #include "Frames.tpp"

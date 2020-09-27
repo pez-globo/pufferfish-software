@@ -21,14 +21,14 @@ using ProtobufDescriptors = std::array<ProtobufDescriptor, size>;
 
 using UnrecognizedMessage = std::nullptr_t;
 
-template<class MessageType>
-constexpr ProtobufDescriptor getProtobufDescriptor() {
+template <typename MessageType>
+constexpr ProtobufDescriptor get_protobuf_descriptor() {
   return nanopb::MessageDescriptor<MessageType>::fields();
 }
 
-template<>
-constexpr ProtobufDescriptor getProtobufDescriptor<UnrecognizedMessage>() {
+template <>
+constexpr ProtobufDescriptor get_protobuf_descriptor<UnrecognizedMessage>() {
   return nullptr;
 }
 
-}
+}  // namespace Pufferfish::Util

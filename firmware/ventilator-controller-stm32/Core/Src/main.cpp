@@ -44,7 +44,7 @@
 #include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
 #include "Pufferfish/Driver/ShiftedOutput.h"
 #include "Pufferfish/HAL/HAL.h"
-// TODO: everything should just be imported from STM32/HAL.h
+// TODO(lietk12): everything should just be imported from STM32/HAL.h
 #include "Pufferfish/HAL/STM32/BufferedUART.h"
 #include "Pufferfish/HAL/STM32/CRC.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
@@ -439,16 +439,16 @@ int main(void)
   static const uint32_t blink_low_delay = 5;
   static const uint32_t loop_delay = 50;
   while (true) {
-    uint32_t currentTime = HAL_GetTick();
+    uint32_t current_time = HAL_GetTick();
 
     // Breathing Circuit Controller
-    breathing_circuit.update_clock(currentTime);
+    breathing_circuit.update_clock(current_time);
     breathing_circuit.update_sensors();
     breathing_circuit.update_actuators();
 
     //
     backend.receive();
-    backend.update_clock(currentTime);
+    backend.update_clock(current_time);
     backend.send();
 
     // Nonin TODO: Invoking the NoninOEM output method

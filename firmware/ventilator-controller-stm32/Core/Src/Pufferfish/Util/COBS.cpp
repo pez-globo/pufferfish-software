@@ -19,11 +19,9 @@
 
 #include "Pufferfish/Util/COBS.h"
 
-namespace Pufferfish { namespace Util {
+namespace Pufferfish::Util {
 
-size_t encodeCOBS(
-    const uint8_t *buffer, size_t size, uint8_t *encodedBuffer
-) {
+size_t encode_cobs(const uint8_t *buffer, size_t size, uint8_t *encoded_buffer) {
   size_t read_index = 0;
   size_t write_index = 1;
   size_t code_index = 0;
@@ -31,30 +29,28 @@ size_t encodeCOBS(
 
   while (read_index < size) {
     if (buffer[read_index] == 0) {
-      encodedBuffer[code_index] = code;
+      encoded_buffer[code_index] = code;
       code = 1;
       code_index = write_index++;
       read_index++;
     } else {
-      encodedBuffer[write_index++] = buffer[read_index++];
+      encoded_buffer[write_index++] = buffer[read_index++];
       code++;
 
       if (code == 0xFF) {
-        encodedBuffer[code_index] = code;
+        encoded_buffer[code_index] = code;
         code = 1;
         code_index = write_index++;
       }
     }
   }
 
-  encodedBuffer[code_index] = code;
+  encoded_buffer[code_index] = code;
 
   return write_index;
 }
 
-size_t decodeCOBS(
-    const uint8_t *encodedBuffer, size_t size, uint8_t *decodedBuffer
-) {
+size_t decode_cobs(const uint8_t *encoded_buffer, size_t size, uint8_t *decoded_buffer) {
   if (size == 0) {
     return 0;
   }
@@ -65,7 +61,7 @@ size_t decodeCOBS(
   uint8_t i = 0;
 
   while (read_index < size) {
-    code = encodedBuffer[read_index];
+    code = encoded_buffer[read_index];
 
     if (read_index + code > size && code != 1) {
       return 0;
@@ -74,20 +70,19 @@ size_t decodeCOBS(
     read_index++;
 
     for (i = 1; i < code; i++) {
-      decodedBuffer[write_index++] = encodedBuffer[read_index++];
+      decoded_buffer[write_index++] = encoded_buffer[read_index++];
     }
 
     if (code != 0xFF && read_index != size) {
-      decodedBuffer[write_index++] = '\0';
+      decoded_buffer[write_index++] = '\0';
     }
   }
 
   return write_index;
 }
 
-size_t getEncodedCOBSBufferSize(size_t unencodedBufferSize)
-{
-  return unencodedBufferSize + unencodedBufferSize / 254 + 1;
+size_t get_encoded_cobs_buffer_size(size_t unencoded_buffer_size) {
+  return unencoded_buffer_size + unencoded_buffer_size / 254 + 1;
 }
 
-} }
+}  // namespace Pufferfish::Util

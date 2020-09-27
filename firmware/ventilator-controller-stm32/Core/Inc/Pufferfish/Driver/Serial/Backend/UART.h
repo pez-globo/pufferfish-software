@@ -7,15 +7,15 @@
 
 #pragma once
 
+#include "Pufferfish/Application/States.h"
+#include "Pufferfish/Driver/Serial/Backend/Backend.h"
 #include "Pufferfish/HAL/STM32/BufferedUART.h"
 #include "Pufferfish/HAL/STM32/CRC.h"
-#include "Pufferfish/Driver/Serial/Backend/Backend.h"
-#include "Pufferfish/Application/States.h"
 #include "Pufferfish/Protocols/States.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
-template<class BufferedUART>
+template<typename BufferedUART>
 class UARTBackendReceiver {
 public:
   enum class Status {available = 0, waiting, invalid};
@@ -28,13 +28,13 @@ public:
   Status output(Application::Message &outputMessage);
 
 protected:
-  volatile BufferedUART &uart;
-  BackendReceiver &serial;
+ volatile BufferedUART &uart_;
+ BackendReceiver &serial_;
 
-  void input();
+ void input();
 };
 
-template<class BufferedUART>
+template <typename BufferedUART>
 class UARTBackendSender {
 public:
   enum class Status {ok = 0, invalid};
@@ -46,11 +46,11 @@ public:
   Status input(const Application::Message &inputMessage);
 
 private:
-  volatile BufferedUART &uart;
-  BackendSender &serial;
+ volatile BufferedUART &uart_;
+ BackendSender &serial_;
 };
 
-template<class BufferedUART>
+template <typename BufferedUART>
 class UARTBackendDriver {
 public:
   using Receiver = UARTBackendReceiver<BufferedUART>;
@@ -65,11 +65,11 @@ public:
   typename Sender::Status send(const Application::Message &sendMessage);
 
 protected:
-  HAL::CRC32C &crc32c;
-  BackendReceiver receiverProtocol;
-  BackendSender senderProtocol;
-  UARTBackendReceiver<BufferedUART> receiver;
-  UARTBackendSender<BufferedUART> sender;
+ HAL::CRC32C &crc32c_;
+ BackendReceiver receiver_protocol_;
+ BackendSender sender_protocol_;
+ UARTBackendReceiver<BufferedUART> receiver_;
+ UARTBackendSender<BufferedUART> sender_;
 };
 
 class UARTBackend {
@@ -83,7 +83,7 @@ public:
 
   void setup_irq();
   void receive();
-  void update_clock(uint32_t currentTime);
+  void update_clock(uint32_t current_time);
   void send();
 
 protected:
@@ -92,11 +92,11 @@ protected:
       Application::MessageTypes, StateOutputSchedule
   >;
 
-  Driver driver;
-  Application::States &states;
-  StateSynchronizer synchronizer;
+  Driver driver_;
+  Application::States &states_;
+  StateSynchronizer synchronizer_;
 };
 
-}
+}  // namespace Pufferfish::Driver::Serial::Backend
 
 #include "UART.tpp"

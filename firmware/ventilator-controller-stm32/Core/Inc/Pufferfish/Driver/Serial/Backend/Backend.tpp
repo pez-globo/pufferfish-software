@@ -13,111 +13,106 @@ namespace Pufferfish::Driver::Serial::Backend {
 
 // BackendReceiver
 
-BackendReceiver::BackendReceiver(HAL::CRC32C &crc32c) :
-    datagram(crc32c),
-    message(message_descriptors) {}
+BackendReceiver::BackendReceiver(HAL::CRC32C &crc32c)
+    : datagram_(crc32c), message_(message_descriptors) {}
 
-BackendReceiver::InputStatus BackendReceiver::input(uint8_t newByte) {
-  switch (frame.input(newByte)) {
-  case FrameReceiver::InputStatus::outputReady:
-    return InputStatus::outputReady;
-  case FrameReceiver::InputStatus::invalidChunkLength:
-    return InputStatus::invalidFrameChunkLength;
-  case FrameReceiver::InputStatus::inputReady:
-    break;
+BackendReceiver::InputStatus BackendReceiver::input(uint8_t new_byte) {
+  switch (frame_.input(new_byte)) {
+    case FrameReceiver::InputStatus::output_ready:
+      return InputStatus::output_ready;
+    case FrameReceiver::InputStatus::invalid_chunk_length:
+      return InputStatus::invalid_frame_chunk_length;
+    case FrameReceiver::InputStatus::input_ready:
+      break;
   }
-  return InputStatus::inputReady;
+  return InputStatus::input_ready;
 }
 
-BackendReceiver::OutputStatus BackendReceiver::output(
-    Application::Message &outputMessage
-) {
-  ChunkBuffer tempBuffer1;
-  Datagram::PayloadBuffer tempBuffer2;
+BackendReceiver::OutputStatus BackendReceiver::output(Application::Message &output_message) {
+  ChunkBuffer temp_buffer1;
+  Datagram::PayloadBuffer temp_buffer2;
 
   // Frame
-  switch (frame.output(tempBuffer1)) {
-  case FrameReceiver::OutputStatus::waiting:
-    return OutputStatus::waiting;
-  case FrameReceiver::OutputStatus::invalidChunkLength:
-    return OutputStatus::invalidFrameChunkLength;
-  case FrameReceiver::OutputStatus::invalidCOBSLength:
-    return OutputStatus::invalidFrameCOBSLength;
-  case FrameReceiver::OutputStatus::available:
-    break;
+  switch (frame_.output(temp_buffer1)) {
+    case FrameReceiver::OutputStatus::waiting:
+      return OutputStatus::waiting;
+    case FrameReceiver::OutputStatus::invalid_chunk_length:
+      return OutputStatus::invalid_frame_chunk_length;
+    case FrameReceiver::OutputStatus::invalid_cobs_length:
+      return OutputStatus::invalid_frame_cobs_length;
+    case FrameReceiver::OutputStatus::available:
+      break;
   }
 
   // Datagram
-  Datagram receiveDatagram(tempBuffer2);
-  switch (datagram.transform(tempBuffer1, receiveDatagram)) {
-  case DatagramReceiver::Status::invalidParse:
-    return OutputStatus::invalidDatagramParse;
-  case DatagramReceiver::Status::invalidCRC:
-    return OutputStatus::invalidDatagramCRC;
-  case DatagramReceiver::Status::invalidLength:
-    return OutputStatus::invalidDatagramLength;
-  case DatagramReceiver::Status::invalidSequence:
-    // TODO: emit a warning about invalid sequence
-  case DatagramReceiver::Status::ok:
-    break;
+  Datagram receive_datagram(temp_buffer2);
+  switch (datagram_.transform(temp_buffer1, receive_datagram)) {
+    case DatagramReceiver::Status::invalid_parse:
+      return OutputStatus::invalid_datagram_parse;
+    case DatagramReceiver::Status::invalid_crc:
+      return OutputStatus::invalid_datagram_crc;
+    case DatagramReceiver::Status::invalid_length:
+      return OutputStatus::invalid_datagram_length;
+    case DatagramReceiver::Status::invalid_sequence:
+      // TODO(lietk12): emit a warning about invalid sequence
+    case DatagramReceiver::Status::ok:
+      break;
   }
 
   // Message
-  switch (message.transform(tempBuffer2, outputMessage)) {
-  case BackendMessageReceiver::Status::invalidLength:
-    return OutputStatus::invalidMessageLength;
-  case BackendMessageReceiver::Status::invalidType:
-    return OutputStatus::invalidMessageType;
-  case BackendMessageReceiver::Status::invalidEncoding:
-    return OutputStatus::invalidMessageEncoding;
-  case BackendMessageReceiver::Status::ok:
-    break;
+  switch (message_.transform(temp_buffer2, output_message)) {
+    case BackendMessageReceiver::Status::invalid_length:
+      return OutputStatus::invalid_message_length;
+    case BackendMessageReceiver::Status::invalid_type:
+      return OutputStatus::invalid_message_type;
+    case BackendMessageReceiver::Status::invalid_encoding:
+      return OutputStatus::invalid_message_encoding;
+    case BackendMessageReceiver::Status::ok:
+      break;
   }
   return OutputStatus::available;
 }
 
 // BackendSender
 
-BackendSender::BackendSender(HAL::CRC32C &crc32c) :
-    message(message_descriptors),
-    datagram(crc32c) {}
+BackendSender::BackendSender(HAL::CRC32C &crc32c)
+    : message_(message_descriptors), datagram_(crc32c) {}
 
 BackendSender::Status BackendSender::transform(
-    const Application::Message &inputMessage, ChunkBuffer &outputBuffer
-) {
-  Datagram::PayloadBuffer tempBuffer1;
-  ChunkBuffer tempBuffer2;
+    const Application::Message &input_message, ChunkBuffer &output_buffer) {
+  Datagram::PayloadBuffer temp_buffer1;
+  ChunkBuffer temp_buffer2;
 
   // Message
-  switch (message.transform(inputMessage, tempBuffer1)) {
-  case BackendMessageSender::Status::invalidLength:
-    return Status::invalidMessageLength;
-  case BackendMessageSender::Status::invalidType:
-    return Status::invalidMessageType;
-  case BackendMessageSender::Status::invalidEncoding:
-    return Status::invalidMessageEncoding;
-  case BackendMessageSender::Status::ok:
-    break;
+  switch (message_.transform(input_message, temp_buffer1)) {
+    case BackendMessageSender::Status::invalid_length:
+      return Status::invalid_message_length;
+    case BackendMessageSender::Status::invalid_type:
+      return Status::invalid_message_type;
+    case BackendMessageSender::Status::invalid_encoding:
+      return Status::invalid_message_encoding;
+    case BackendMessageSender::Status::ok:
+      break;
   }
 
   // Datagram
-  switch (datagram.transform(tempBuffer1, tempBuffer2)) {
-  case DatagramSender::Status::invalidLength:
-    return Status::invalidDatagramLength;
-  case DatagramSender::Status::ok:
-    break;
+  switch (datagram_.transform(temp_buffer1, temp_buffer2)) {
+    case DatagramSender::Status::invalid_length:
+      return Status::invalid_datagram_length;
+    case DatagramSender::Status::ok:
+      break;
   }
 
   // Frame
-  switch (frame.transform(tempBuffer2, outputBuffer)) {
-  case FrameSender::Status::invalidCOBSLength:
-    return Status::invalidFrameCOBSLength;
-  case FrameSender::Status::invalidChunkLength:
-    return Status::invalidFrameChunkLength;
-  case FrameSender::Status::ok:
-    break;
+  switch (frame_.transform(temp_buffer2, output_buffer)) {
+    case FrameSender::Status::invalid_cobs_length:
+      return Status::invalid_frame_cobs_length;
+    case FrameSender::Status::invalid_chunk_length:
+      return Status::invalid_frame_chunk_length;
+    case FrameSender::Status::ok:
+      break;
   }
   return Status::ok;
 }
 
-}
+}  // namespace Pufferfish::Driver::Serial::Backend
