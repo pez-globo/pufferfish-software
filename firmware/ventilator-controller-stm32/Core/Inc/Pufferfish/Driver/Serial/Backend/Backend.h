@@ -16,7 +16,6 @@
 #include "Pufferfish/Protocols/Messages.h"
 #include "Pufferfish/Protocols/States.h"
 #include "Pufferfish/Util/Array.h"
-#include "Pufferfish/Util/ByteArray.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 

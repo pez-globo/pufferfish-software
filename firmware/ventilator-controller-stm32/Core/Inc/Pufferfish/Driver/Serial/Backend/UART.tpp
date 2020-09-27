@@ -85,7 +85,7 @@ typename UARTBackendSender<BufferedUART>::Status UARTBackendSender<BufferedUART>
   }
   // blocks until everything is written to TX buffer
   for (size_t i = 0; i < send_output.size(); ++i) {
-    uart_.write_block(send_output.buffer[i], write_timeout);
+    uart_.write_block(send_output.buffer()[i], write_timeout);
   }
   return Status::ok;
 }

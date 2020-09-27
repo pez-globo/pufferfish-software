@@ -1,5 +1,5 @@
 /*
- * ByteArray.h
+ * Vector.h
  *
  *  Created on: May 16, 2020
  *      Author: Ethan Li
@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 
@@ -22,16 +23,13 @@
 namespace Pufferfish::Util {
 
 // BufferSize is recommended to be a power of two for compiler optimization.
-template <size_t array_size>
-class ByteArray {
+template <typename Element, size_t array_size>
+class Vector {
  public:
-  ByteArray();
-
-  static const HAL::AtomicSize max_size = array_size;
-
-  uint8_t buffer[array_size]{};
+  Vector() = default;
 
   [[nodiscard]] size_t size() const;
+  [[nodiscard]] constexpr size_t max_size() const { return array_size; }
   [[nodiscard]] bool empty() const;
   [[nodiscard]] bool full() const;
   [[nodiscard]] size_t available() const;
@@ -40,13 +38,23 @@ class ByteArray {
   IndexStatus resize(size_t new_size);
   IndexStatus push_back(uint8_t new_byte);
 
-  void copy_from(const ByteArray<array_size> &source_bytes, size_t dest_start_index = 0);
+  constexpr const Element &operator[](size_t position) const;
+  constexpr Element &operator[](size_t position);
+
+  void copy_from(const Vector<Element, array_size> &source_bytes, size_t dest_start_index = 0);
   void copy_from(const uint8_t *source_bytes, size_t source_size, size_t dest_start_index = 0);
 
+  [[nodiscard]] constexpr const Element *buffer() const { return buffer_.data(); }
+  constexpr Element *buffer() {return buffer_.data();}
+
  private:
+  std::array<Element, array_size> buffer_{};
   size_t size_ = 0;
 };
 
+template <size_t array_size>
+using ByteVector = Vector<uint8_t, array_size>;
+
 }  // namespace Pufferfish::Util
 
-#include "ByteArray.tpp"
+#include "Vector.tpp"

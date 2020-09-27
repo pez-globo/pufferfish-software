@@ -33,7 +33,7 @@ typename ChunkSplitter<buffer_size>::InputStatus ChunkSplitter<buffer_size>::inp
 
 template <size_t buffer_size>
 typename ChunkSplitter<buffer_size>::OutputStatus ChunkSplitter<buffer_size>::output(
-    Util::ByteArray<buffer_size> &output_buffer) {
+    Util::ByteVector<buffer_size> &output_buffer) {
   if (input_status_ == InputStatus::input_ready) {
     return OutputStatus::waiting;
   }
@@ -52,7 +52,7 @@ typename ChunkSplitter<buffer_size>::OutputStatus ChunkSplitter<buffer_size>::ou
 
 template <size_t buffer_size>
 ChunkMerger::Status ChunkMerger::transform(
-    Util::ByteArray<buffer_size> &input_output_buffer) const {
+    Util::ByteVector<buffer_size> &input_output_buffer) const {
   if (input_output_buffer.push_back(delimiter) == IndexStatus::ok) {
     return Status::ok;
   }
@@ -63,18 +63,18 @@ ChunkMerger::Status ChunkMerger::transform(
 
 template <size_t input_size, size_t output_size>
 COBSDecoder::Status COBSDecoder::transform(
-    const Util::ByteArray<input_size> &input_buffer,
-    Util::ByteArray<output_size> &output_buffer) const {
+    const Util::ByteVector<input_size> &input_buffer,
+    Util::ByteVector<output_size> &output_buffer) const {
   if (input_buffer.size() > frame_payload_max_size + 1) {
     return Status::invalid_length;
   }
 
-  if (output_buffer.max_size < input_buffer.size()) {
+  if (output_buffer.max_size() < input_buffer.size()) {
     return Status::invalid_length;
   }
 
   output_buffer.resize(
-      Util::decode_cobs(input_buffer.buffer, input_buffer.size(), output_buffer.buffer));
+      Util::decode_cobs(input_buffer.buffer(), input_buffer.size(), output_buffer.buffer()));
   return Status::ok;
 }
 
@@ -82,19 +82,19 @@ COBSDecoder::Status COBSDecoder::transform(
 
 template <size_t input_size, size_t output_size>
 COBSEncoder::Status COBSEncoder::transform(
-    const Util::ByteArray<input_size> &input_buffer,
-    Util::ByteArray<output_size> &output_buffer) const {
+    const Util::ByteVector<input_size> &input_buffer,
+    Util::ByteVector<output_size> &output_buffer) const {
   if (input_buffer.size() > frame_payload_max_size) {
     return Status::invalid_length;
   }
 
   size_t encoded_size = Util::get_encoded_cobs_buffer_size(input_buffer.size());
-  if (output_buffer.max_size < encoded_size) {
+  if (output_buffer.max_size() < encoded_size) {
     return Status::invalid_length;
   }
 
   output_buffer.resize(
-      Util::encode_cobs(input_buffer.buffer, input_buffer.size(), output_buffer.buffer));
+      Util::encode_cobs(input_buffer.buffer(), input_buffer.size(), output_buffer.buffer()));
   return Status::ok;
 }
 

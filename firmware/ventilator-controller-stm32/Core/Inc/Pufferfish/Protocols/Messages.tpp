@@ -18,7 +18,7 @@ namespace Pufferfish::Protocols {
 template <typename UnionMessage, size_t max_size>
 template <size_t output_size, size_t num_descriptors>
 typename Message<UnionMessage, max_size>::Status Message<UnionMessage, max_size>::write(
-    Util::ByteArray<output_size> &output_buffer,
+    Util::ByteVector<output_size> &output_buffer,
     const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) const {
   if (type > pb_protobuf_descriptors.size()) {
     return Status::type_error;
@@ -38,9 +38,9 @@ typename Message<UnionMessage, max_size>::Status Message<UnionMessage, max_size>
     return Status::length_error;
   }
 
-  output_buffer.buffer[type_offset] = type;
+  output_buffer[type_offset] = type;
   pb_ostream_t stream = pb_ostream_from_buffer(
-      output_buffer.buffer + header_size, output_buffer.size() - header_size);
+      output_buffer.buffer() + header_size, output_buffer.size() - header_size);
   if (!pb_encode(&stream, fields, &payload)) {
     return Status::encoding_error;
   }
@@ -51,13 +51,13 @@ typename Message<UnionMessage, max_size>::Status Message<UnionMessage, max_size>
 template <typename UnionMessage, size_t max_size>
 template <size_t input_size, size_t num_descriptors>
 typename Message<UnionMessage, max_size>::Status Message<UnionMessage, max_size>::parse(
-    const Util::ByteArray<input_size> &input_buffer,
+    const Util::ByteVector<input_size> &input_buffer,
     const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) {
   if (input_buffer.size() < Message::header_size) {
     return Status::length_error;
   }
 
-  type = input_buffer.buffer[Message::type_offset];
+  type = input_buffer[Message::type_offset];
   if (type > pb_protobuf_descriptors.size()) {
     return Status::type_error;
   }
@@ -68,7 +68,7 @@ typename Message<UnionMessage, max_size>::Status Message<UnionMessage, max_size>
   }
 
   pb_istream_t stream =
-      pb_istream_from_buffer(input_buffer.buffer + header_size, input_buffer.size() - header_size);
+      pb_istream_from_buffer(input_buffer.buffer() + header_size, input_buffer.size() - header_size);
   if (!pb_decode(&stream, fields, &payload)) {
     return Status::decoding_error;
   }
@@ -87,7 +87,7 @@ template <typename Message, size_t num_descriptors>
 template <size_t input_size>
 typename MessageReceiver<Message, num_descriptors>::Status
 MessageReceiver<Message, num_descriptors>::transform(
-    const Util::ByteArray<input_size> &input_buffer, Message &output_message) const {
+    const Util::ByteVector<input_size> &input_buffer, Message &output_message) const {
   using MessageStatus = typename Message::Status;
   switch (output_message.parse(input_buffer, descriptors_)) {
     case MessageStatus::length_error:
@@ -115,7 +115,7 @@ template <typename Message, size_t num_descriptors>
 template <size_t output_size>
 typename MessageSender<Message, num_descriptors>::Status
 MessageSender<Message, num_descriptors>::transform(
-    const Message &input_message, Util::ByteArray<output_size> &output_buffer) const {
+    const Message &input_message, Util::ByteVector<output_size> &output_buffer) const {
   using MessageStatus = typename Message::Status;
   switch (input_message.write(output_buffer, descriptors_)) {
     case MessageStatus::length_error:

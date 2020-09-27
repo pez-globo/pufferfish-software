@@ -19,5 +19,3 @@ constexpr auto make_array(Arg&&... arg) {
 }
 
 }  // namespace Pufferfish::Util
-
-#include "ByteArray.tpp"

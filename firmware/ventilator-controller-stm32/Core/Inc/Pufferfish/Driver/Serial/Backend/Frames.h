@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "Pufferfish/Util/ByteArray.h"
+#include "Pufferfish/Util/Vector.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
@@ -25,16 +25,16 @@ class ChunkSplitter {
 
   // Call this until it returns available, then call output
   InputStatus input(uint8_t new_byte);
-  OutputStatus output(Util::ByteArray<buffer_size> &output_buffer);
+  OutputStatus output(Util::ByteVector<buffer_size> &output_buffer);
 
  private:
-  Util::ByteArray<buffer_size> buffer_;
+  Util::ByteVector<buffer_size> buffer_;
   const uint8_t delimiter;
   InputStatus input_status_ = InputStatus::input_ready;
 };
 
 static const size_t chunk_max_size = 256;  // including delimiter
-using ChunkBuffer = Util::ByteArray<chunk_max_size>;
+using ChunkBuffer = Util::ByteVector<chunk_max_size>;
 static const size_t frame_payload_max_size = chunk_max_size - 2;
 using FrameChunkSplitter = ChunkSplitter<chunk_max_size>;
 
@@ -46,7 +46,7 @@ class ChunkMerger {
   explicit ChunkMerger(uint8_t delimiter = 0x00) : delimiter(delimiter) {}
 
   template <size_t buffer_size>
-  Status transform(Util::ByteArray<buffer_size> &input_output_buffer) const;
+  Status transform(Util::ByteVector<buffer_size> &input_output_buffer) const;
 
  private:
   const uint8_t delimiter = 0x00;
@@ -59,8 +59,8 @@ class COBSDecoder {
 
   template <size_t input_size, size_t output_size>
   Status transform(
-      const Util::ByteArray<input_size> &input_buffer,
-      Util::ByteArray<output_size> &output_buffer) const;
+      const Util::ByteVector<input_size> &input_buffer,
+      Util::ByteVector<output_size> &output_buffer) const;
 };
 
 // Encodes payloads (length up to 254 bytes) with COBS; does not add the frame delimiter
@@ -70,8 +70,8 @@ class COBSEncoder {
 
   template <size_t input_size, size_t output_size>
   Status transform(
-      const Util::ByteArray<input_size> &input_buffer,
-      Util::ByteArray<output_size> &output_buffer) const;
+      const Util::ByteVector<input_size> &input_buffer,
+      Util::ByteVector<output_size> &output_buffer) const;
 };
 
 class FrameReceiver {

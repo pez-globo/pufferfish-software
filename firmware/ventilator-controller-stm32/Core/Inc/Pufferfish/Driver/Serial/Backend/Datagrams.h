@@ -12,7 +12,7 @@
 
 #include "Frames.h"
 #include "Pufferfish/HAL/STM32/CRC.h"
-#include "Pufferfish/Util/ByteArray.h"
+#include "Pufferfish/Util/Vector.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
@@ -25,7 +25,7 @@ class Datagram {
 
   static const size_t header_size = payload_offset;
   static const size_t payload_max_size = frame_payload_max_size - header_size;
-  using PayloadBuffer = Util::ByteArray<payload_max_size>;
+  using PayloadBuffer = Util::ByteVector<payload_max_size>;
 
   explicit Datagram(PayloadBuffer &payload, uint8_t seq)
       : seq_(seq), length_(static_cast<uint8_t>(payload.size())), payload_(payload) {}
@@ -40,12 +40,12 @@ class Datagram {
 
   template <size_t output_size>
   IndexStatus write(
-      Util::ByteArray<output_size> &output_buffer,
+      Util::ByteVector<output_size> &output_buffer,
       HAL::CRC32C &crc32c);  // updates length and crc fields
 
   template <size_t input_size>
   IndexStatus parse(
-      const Util::ByteArray<input_size> &input_buffer);  // updates all fields, including payload
+      const Util::ByteVector<input_size> &input_buffer);  // updates all fields, including payload
 
  private:
   uint32_t crc_ = 0;
@@ -54,7 +54,7 @@ class Datagram {
   PayloadBuffer &payload_;
 
   template <size_t output_size>
-  IndexStatus write_protected(Util::ByteArray<output_size> &output_buffer) const;
+  IndexStatus write_protected(Util::ByteVector<output_size> &output_buffer) const;
 };
 
 // Parses datagrams into payloads, with data integrity checking
@@ -65,14 +65,14 @@ class DatagramReceiver {
   explicit DatagramReceiver(HAL::CRC32C &crc32c) : crc32c_(crc32c) {}
 
   template <size_t input_size>
-  Status transform(const Util::ByteArray<input_size> &input_buffer, Datagram &output_datagram);
+  Status transform(const Util::ByteVector<input_size> &input_buffer, Datagram &output_datagram);
 
  private:
   uint8_t expected_seq_ = 0;
   HAL::CRC32C crc32c_;
 
   template <size_t input_size>
-  uint32_t compute_crc(const Util::ByteArray<input_size> &input_buffer);
+  uint32_t compute_crc(const Util::ByteVector<input_size> &input_buffer);
 };
 
 // Generates datagrams from payloads
@@ -84,7 +84,7 @@ class DatagramSender {
 
   template <size_t output_size>
   Status transform(
-      const Datagram::PayloadBuffer &input_payload, Util::ByteArray<output_size> &output_buffer);
+      const Datagram::PayloadBuffer &input_payload, Util::ByteVector<output_size> &output_buffer);
 
  private:
   uint8_t next_seq_ = 0;
