@@ -189,6 +189,7 @@ code fail compilation):
 - cppcoreguidelines-avoid-magic-numbers: this is a duplicate of readability-magic-numbers.
 - cppcoreguidelines-c-copy-assignment-signature: this is a duplicate of misc-unconventional-assign-operator.
 - cppcoreguidelines-explicit-virtual-functions: this is a duplicate of modernize-use-override.
+- cppcoreguidelines-non-private-member-variables-in-classes: this is a duplicate of misc-non-private-member-variables-in-classes.
 - google-readability-braces-around-statements: this is a duplicate of readability-braces-around-statements.
 - google-readability-function-size: this is a duplicate of readability-function-size.
 - google-readability-namespace-comments: this is a duplicate of llvm-namespace-comment.
