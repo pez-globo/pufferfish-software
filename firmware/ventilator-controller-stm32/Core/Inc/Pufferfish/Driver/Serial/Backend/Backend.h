@@ -123,6 +123,29 @@ class BackendSender {
   FrameSender frame_;
 };
 
+class Backend {
+ public:
+  enum class Status { ok = 0, waiting, invalid };
+
+  Backend(HAL::CRC32C &crc32c, Application::States &states)
+      : receiver_(crc32c), sender_(crc32c), synchronizer_(states, state_sync_schedule) {}
+
+  Status input(uint8_t new_byte);
+  void update_clock(uint32_t current_time);
+  Status output(FrameProps::ChunkBuffer &output_buffer);
+
+ private:
+  using BackendStateSynchronizer = Protocols::StateSynchronizer<
+      Application::States,
+      Application::StateSegment,
+      Application::MessageTypes,
+      state_sync_schedule.size()>;
+
+  BackendReceiver receiver_;
+  BackendSender sender_;
+  BackendStateSynchronizer synchronizer_;
+};
+
 }  // namespace Pufferfish::Driver::Serial::Backend
 
 #include "Backend.tpp"

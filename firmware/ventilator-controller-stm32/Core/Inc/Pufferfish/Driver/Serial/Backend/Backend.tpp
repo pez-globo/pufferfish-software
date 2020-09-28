@@ -126,4 +126,81 @@ BackendSender::Status BackendSender::transform(
   return Status::ok;
 }
 
+// Backend
+
+Backend::Status Backend::input(uint8_t new_byte) {
+  // Input into receiver
+  switch (receiver_.input(new_byte)) {
+    case BackendReceiver::InputStatus::output_ready:
+      break;
+    case BackendReceiver::InputStatus::invalid_frame_length:
+      // TODO(lietk12): handle error case first
+    case BackendReceiver::InputStatus::ok:
+      return Status::waiting;
+  }
+
+  // Output from receiver
+  BackendMessage message;
+  switch (receiver_.output(message)) {
+    case BackendReceiver::OutputStatus::invalid_datagram_sequence:
+      // TODO(lietk12): handle warning case first
+    case BackendReceiver::OutputStatus::available:
+      break;
+    case BackendReceiver::OutputStatus::invalid_frame_length:
+    case BackendReceiver::OutputStatus::invalid_crcelement_parse:
+    case BackendReceiver::OutputStatus::invalid_crcelement_crc:
+    case BackendReceiver::OutputStatus::invalid_datagram_parse:
+    case BackendReceiver::OutputStatus::invalid_datagram_length:
+    case BackendReceiver::OutputStatus::invalid_message_length:
+    case BackendReceiver::OutputStatus::invalid_message_type:
+    case BackendReceiver::OutputStatus::invalid_message_encoding:
+      // TODO(lietk12): handle error cases first
+      return Status::invalid;
+    case BackendReceiver::OutputStatus::waiting:
+      return Status::waiting;
+  }
+
+  // Input into state synchronization
+  switch (synchronizer_.input(message.payload)) {
+    case BackendStateSynchronizer::InputStatus::ok:
+      break;
+    case BackendStateSynchronizer::InputStatus::invalid_type:
+      // TODO(lietk12): handle error case
+      return Status::invalid;
+  }
+
+  return Status::ok;
+}
+
+void Backend::update_clock(uint32_t current_time) {
+  synchronizer_.input(current_time);
+}
+
+Backend::Status Backend::output(FrameProps::ChunkBuffer &output_buffer) {
+  // Output from state synchronization
+  BackendMessage message;
+  switch (synchronizer_.output(message.payload)) {
+    case BackendStateSynchronizer::OutputStatus::available:
+      break;
+    case BackendStateSynchronizer::OutputStatus::waiting:
+      return Status::waiting;
+  }
+
+  switch (sender_.transform(message, output_buffer)) {
+    case BackendSender::Status::ok:
+      break;
+    case BackendSender::Status::invalid_message_length:
+    case BackendSender::Status::invalid_message_type:
+    case BackendSender::Status::invalid_message_encoding:
+    case BackendSender::Status::invalid_datagram_length:
+    case BackendSender::Status::invalid_crcelement_length:
+    case BackendSender::Status::invalid_frame_length:
+    case BackendSender::Status::invalid_return_code:
+      // TODO(lietk12): handle error cases first
+      return Status::invalid;
+  }
+
+  return Status::ok;
+}
+
 }  // namespace Pufferfish::Driver::Serial::Backend

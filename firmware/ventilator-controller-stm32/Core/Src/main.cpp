@@ -448,7 +448,7 @@ int main(void)
     breathing_circuit.update_sensors();
     breathing_circuit.update_actuators();
 
-    //
+    // Backend Communication Protocol
     backend.receive();
     backend.update_clock(current_time);
     backend.send();
