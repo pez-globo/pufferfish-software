@@ -90,30 +90,24 @@ export interface Announcement {
   announcement: Uint8Array;
 }
 
-export interface EventHeader {
+export interface LogEvent {
   id: number;
-  code: AlarmCode;
   time: number;
+  code: LogEventCode;
+  oldValue: number;
+  newValue: number;
 }
 
-export interface States {
-  parameters: Parameters | undefined;
-  sensorMeasurements: SensorMeasurements | undefined;
-  cycleMeasurements: CycleMeasurements | undefined;
-  alarmLimits: AlarmLimitsRequest | undefined;
-}
-
-export interface PatientAlarmEvent {
-  header: EventHeader | undefined;
-  state: States | undefined;
-}
-
-export interface LastKnownPatientAlarm {
+export interface ExpectedLogEvent {
   id: number;
 }
 
-export interface NewPatientAlarms {
-  patientAlarmEvents: PatientAlarmEvent[];
+export interface NextLogEvents {
+  logEvents: LogEvent[];
+}
+
+export interface ActiveLogEvents {
+  id: number[];
 }
 
 const baseAlarms: object = {
@@ -204,30 +198,24 @@ const baseAnnouncement: object = {
   announcement: undefined,
 };
 
-const baseEventHeader: object = {
+const baseLogEvent: object = {
   id: 0,
-  code: 0,
   time: 0,
+  code: 0,
+  oldValue: 0,
+  newValue: 0,
 };
 
-const baseStates: object = {
-  parameters: undefined,
-  sensorMeasurements: undefined,
-  cycleMeasurements: undefined,
-  alarmLimits: undefined,
-};
-
-const basePatientAlarmEvent: object = {
-  header: undefined,
-  state: undefined,
-};
-
-const baseLastKnownPatientAlarm: object = {
+const baseExpectedLogEvent: object = {
   id: 0,
 };
 
-const baseNewPatientAlarms: object = {
-  patientAlarmEvents: undefined,
+const baseNextLogEvents: object = {
+  logEvents: undefined,
+};
+
+const baseActiveLogEvents: object = {
+  id: 0,
 };
 
 export const VentilationMode = {
@@ -292,7 +280,7 @@ export const VentilationMode = {
 
 export type VentilationMode = 0 | 1 | 2 | 3 | 4 | 5 | 6 | -1;
 
-export const AlarmCode = {
+export const LogEventCode = {
   fio2_too_low: 0 as const,
   fio2_too_high: 1 as const,
   spo2_too_low: 2 as const,
@@ -302,55 +290,55 @@ export const AlarmCode = {
   battery_low: 6 as const,
   screen_locked: 7 as const,
   UNRECOGNIZED: -1 as const,
-  fromJSON(object: any): AlarmCode {
+  fromJSON(object: any): LogEventCode {
     switch (object) {
       case 0:
       case "fio2_too_low":
-        return AlarmCode.fio2_too_low;
+        return LogEventCode.fio2_too_low;
       case 1:
       case "fio2_too_high":
-        return AlarmCode.fio2_too_high;
+        return LogEventCode.fio2_too_high;
       case 2:
       case "spo2_too_low":
-        return AlarmCode.spo2_too_low;
+        return LogEventCode.spo2_too_low;
       case 3:
       case "spo2_too_high":
-        return AlarmCode.spo2_too_high;
+        return LogEventCode.spo2_too_high;
       case 4:
       case "rr_too_low":
-        return AlarmCode.rr_too_low;
+        return LogEventCode.rr_too_low;
       case 5:
       case "rr_too_high":
-        return AlarmCode.rr_too_high;
+        return LogEventCode.rr_too_high;
       case 6:
       case "battery_low":
-        return AlarmCode.battery_low;
+        return LogEventCode.battery_low;
       case 7:
       case "screen_locked":
-        return AlarmCode.screen_locked;
+        return LogEventCode.screen_locked;
       case -1:
       case "UNRECOGNIZED":
       default:
-        return AlarmCode.UNRECOGNIZED;
+        return LogEventCode.UNRECOGNIZED;
     }
   },
-  toJSON(object: AlarmCode): string {
+  toJSON(object: LogEventCode): string {
     switch (object) {
-      case AlarmCode.fio2_too_low:
+      case LogEventCode.fio2_too_low:
         return "fio2_too_low";
-      case AlarmCode.fio2_too_high:
+      case LogEventCode.fio2_too_high:
         return "fio2_too_high";
-      case AlarmCode.spo2_too_low:
+      case LogEventCode.spo2_too_low:
         return "spo2_too_low";
-      case AlarmCode.spo2_too_high:
+      case LogEventCode.spo2_too_high:
         return "spo2_too_high";
-      case AlarmCode.rr_too_low:
+      case LogEventCode.rr_too_low:
         return "rr_too_low";
-      case AlarmCode.rr_too_high:
+      case LogEventCode.rr_too_high:
         return "rr_too_high";
-      case AlarmCode.battery_low:
+      case LogEventCode.battery_low:
         return "battery_low";
-      case AlarmCode.screen_locked:
+      case LogEventCode.screen_locked:
         return "screen_locked";
       default:
         return "UNKNOWN";
@@ -358,7 +346,7 @@ export const AlarmCode = {
   },
 }
 
-export type AlarmCode = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | -1;
+export type LogEventCode = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | -1;
 
 export const Alarms = {
   encode(message: Alarms, writer: Writer = Writer.create()): Writer {
@@ -1572,17 +1560,19 @@ export const Announcement = {
   },
 };
 
-export const EventHeader = {
-  encode(message: EventHeader, writer: Writer = Writer.create()): Writer {
+export const LogEvent = {
+  encode(message: LogEvent, writer: Writer = Writer.create()): Writer {
     writer.uint32(8).uint32(message.id);
-    writer.uint32(16).int32(message.code);
-    writer.uint32(24).uint32(message.time);
+    writer.uint32(16).uint32(message.time);
+    writer.uint32(24).int32(message.code);
+    writer.uint32(37).float(message.oldValue);
+    writer.uint32(45).float(message.newValue);
     return writer;
   },
-  decode(input: Uint8Array | Reader, length?: number): EventHeader {
+  decode(input: Uint8Array | Reader, length?: number): LogEvent {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseEventHeader) as EventHeader;
+    const message = Object.create(baseLogEvent) as LogEvent;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1590,10 +1580,16 @@ export const EventHeader = {
           message.id = reader.uint32();
           break;
         case 2:
-          message.code = reader.int32() as any;
+          message.time = reader.uint32();
           break;
         case 3:
-          message.time = reader.uint32();
+          message.code = reader.int32() as any;
+          break;
+        case 4:
+          message.oldValue = reader.float();
+          break;
+        case 5:
+          message.newValue = reader.float();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1602,228 +1598,84 @@ export const EventHeader = {
     }
     return message;
   },
-  fromJSON(object: any): EventHeader {
-    const message = Object.create(baseEventHeader) as EventHeader;
+  fromJSON(object: any): LogEvent {
+    const message = Object.create(baseLogEvent) as LogEvent;
     if (object.id !== undefined && object.id !== null) {
       message.id = Number(object.id);
     } else {
       message.id = 0;
-    }
-    if (object.code !== undefined && object.code !== null) {
-      message.code = AlarmCode.fromJSON(object.code);
-    } else {
-      message.code = 0;
     }
     if (object.time !== undefined && object.time !== null) {
       message.time = Number(object.time);
     } else {
       message.time = 0;
     }
+    if (object.code !== undefined && object.code !== null) {
+      message.code = LogEventCode.fromJSON(object.code);
+    } else {
+      message.code = 0;
+    }
+    if (object.oldValue !== undefined && object.oldValue !== null) {
+      message.oldValue = Number(object.oldValue);
+    } else {
+      message.oldValue = 0;
+    }
+    if (object.newValue !== undefined && object.newValue !== null) {
+      message.newValue = Number(object.newValue);
+    } else {
+      message.newValue = 0;
+    }
     return message;
   },
-  fromPartial(object: DeepPartial<EventHeader>): EventHeader {
-    const message = Object.create(baseEventHeader) as EventHeader;
+  fromPartial(object: DeepPartial<LogEvent>): LogEvent {
+    const message = Object.create(baseLogEvent) as LogEvent;
     if (object.id !== undefined && object.id !== null) {
       message.id = object.id;
     } else {
       message.id = 0;
-    }
-    if (object.code !== undefined && object.code !== null) {
-      message.code = object.code;
-    } else {
-      message.code = 0;
     }
     if (object.time !== undefined && object.time !== null) {
       message.time = object.time;
     } else {
       message.time = 0;
     }
+    if (object.code !== undefined && object.code !== null) {
+      message.code = object.code;
+    } else {
+      message.code = 0;
+    }
+    if (object.oldValue !== undefined && object.oldValue !== null) {
+      message.oldValue = object.oldValue;
+    } else {
+      message.oldValue = 0;
+    }
+    if (object.newValue !== undefined && object.newValue !== null) {
+      message.newValue = object.newValue;
+    } else {
+      message.newValue = 0;
+    }
     return message;
   },
-  toJSON(message: EventHeader): unknown {
+  toJSON(message: LogEvent): unknown {
     const obj: any = {};
     obj.id = message.id || 0;
-    obj.code = AlarmCode.toJSON(message.code);
     obj.time = message.time || 0;
+    obj.code = LogEventCode.toJSON(message.code);
+    obj.oldValue = message.oldValue || 0;
+    obj.newValue = message.newValue || 0;
     return obj;
   },
 };
 
-export const States = {
-  encode(message: States, writer: Writer = Writer.create()): Writer {
-    if (message.parameters !== undefined && message.parameters !== undefined) {
-      Parameters.encode(message.parameters, writer.uint32(10).fork()).ldelim();
-    }
-    if (message.sensorMeasurements !== undefined && message.sensorMeasurements !== undefined) {
-      SensorMeasurements.encode(message.sensorMeasurements, writer.uint32(18).fork()).ldelim();
-    }
-    if (message.cycleMeasurements !== undefined && message.cycleMeasurements !== undefined) {
-      CycleMeasurements.encode(message.cycleMeasurements, writer.uint32(26).fork()).ldelim();
-    }
-    if (message.alarmLimits !== undefined && message.alarmLimits !== undefined) {
-      AlarmLimitsRequest.encode(message.alarmLimits, writer.uint32(34).fork()).ldelim();
-    }
-    return writer;
-  },
-  decode(input: Uint8Array | Reader, length?: number): States {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseStates) as States;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.parameters = Parameters.decode(reader, reader.uint32());
-          break;
-        case 2:
-          message.sensorMeasurements = SensorMeasurements.decode(reader, reader.uint32());
-          break;
-        case 3:
-          message.cycleMeasurements = CycleMeasurements.decode(reader, reader.uint32());
-          break;
-        case 4:
-          message.alarmLimits = AlarmLimitsRequest.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-  fromJSON(object: any): States {
-    const message = Object.create(baseStates) as States;
-    if (object.parameters !== undefined && object.parameters !== null) {
-      message.parameters = Parameters.fromJSON(object.parameters);
-    } else {
-      message.parameters = undefined;
-    }
-    if (object.sensorMeasurements !== undefined && object.sensorMeasurements !== null) {
-      message.sensorMeasurements = SensorMeasurements.fromJSON(object.sensorMeasurements);
-    } else {
-      message.sensorMeasurements = undefined;
-    }
-    if (object.cycleMeasurements !== undefined && object.cycleMeasurements !== null) {
-      message.cycleMeasurements = CycleMeasurements.fromJSON(object.cycleMeasurements);
-    } else {
-      message.cycleMeasurements = undefined;
-    }
-    if (object.alarmLimits !== undefined && object.alarmLimits !== null) {
-      message.alarmLimits = AlarmLimitsRequest.fromJSON(object.alarmLimits);
-    } else {
-      message.alarmLimits = undefined;
-    }
-    return message;
-  },
-  fromPartial(object: DeepPartial<States>): States {
-    const message = Object.create(baseStates) as States;
-    if (object.parameters !== undefined && object.parameters !== null) {
-      message.parameters = Parameters.fromPartial(object.parameters);
-    } else {
-      message.parameters = undefined;
-    }
-    if (object.sensorMeasurements !== undefined && object.sensorMeasurements !== null) {
-      message.sensorMeasurements = SensorMeasurements.fromPartial(object.sensorMeasurements);
-    } else {
-      message.sensorMeasurements = undefined;
-    }
-    if (object.cycleMeasurements !== undefined && object.cycleMeasurements !== null) {
-      message.cycleMeasurements = CycleMeasurements.fromPartial(object.cycleMeasurements);
-    } else {
-      message.cycleMeasurements = undefined;
-    }
-    if (object.alarmLimits !== undefined && object.alarmLimits !== null) {
-      message.alarmLimits = AlarmLimitsRequest.fromPartial(object.alarmLimits);
-    } else {
-      message.alarmLimits = undefined;
-    }
-    return message;
-  },
-  toJSON(message: States): unknown {
-    const obj: any = {};
-    obj.parameters = message.parameters ? Parameters.toJSON(message.parameters) : undefined;
-    obj.sensorMeasurements = message.sensorMeasurements ? SensorMeasurements.toJSON(message.sensorMeasurements) : undefined;
-    obj.cycleMeasurements = message.cycleMeasurements ? CycleMeasurements.toJSON(message.cycleMeasurements) : undefined;
-    obj.alarmLimits = message.alarmLimits ? AlarmLimitsRequest.toJSON(message.alarmLimits) : undefined;
-    return obj;
-  },
-};
-
-export const PatientAlarmEvent = {
-  encode(message: PatientAlarmEvent, writer: Writer = Writer.create()): Writer {
-    if (message.header !== undefined && message.header !== undefined) {
-      EventHeader.encode(message.header, writer.uint32(10).fork()).ldelim();
-    }
-    if (message.state !== undefined && message.state !== undefined) {
-      States.encode(message.state, writer.uint32(18).fork()).ldelim();
-    }
-    return writer;
-  },
-  decode(input: Uint8Array | Reader, length?: number): PatientAlarmEvent {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(basePatientAlarmEvent) as PatientAlarmEvent;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.header = EventHeader.decode(reader, reader.uint32());
-          break;
-        case 2:
-          message.state = States.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-  fromJSON(object: any): PatientAlarmEvent {
-    const message = Object.create(basePatientAlarmEvent) as PatientAlarmEvent;
-    if (object.header !== undefined && object.header !== null) {
-      message.header = EventHeader.fromJSON(object.header);
-    } else {
-      message.header = undefined;
-    }
-    if (object.state !== undefined && object.state !== null) {
-      message.state = States.fromJSON(object.state);
-    } else {
-      message.state = undefined;
-    }
-    return message;
-  },
-  fromPartial(object: DeepPartial<PatientAlarmEvent>): PatientAlarmEvent {
-    const message = Object.create(basePatientAlarmEvent) as PatientAlarmEvent;
-    if (object.header !== undefined && object.header !== null) {
-      message.header = EventHeader.fromPartial(object.header);
-    } else {
-      message.header = undefined;
-    }
-    if (object.state !== undefined && object.state !== null) {
-      message.state = States.fromPartial(object.state);
-    } else {
-      message.state = undefined;
-    }
-    return message;
-  },
-  toJSON(message: PatientAlarmEvent): unknown {
-    const obj: any = {};
-    obj.header = message.header ? EventHeader.toJSON(message.header) : undefined;
-    obj.state = message.state ? States.toJSON(message.state) : undefined;
-    return obj;
-  },
-};
-
-export const LastKnownPatientAlarm = {
-  encode(message: LastKnownPatientAlarm, writer: Writer = Writer.create()): Writer {
+export const ExpectedLogEvent = {
+  encode(message: ExpectedLogEvent, writer: Writer = Writer.create()): Writer {
     writer.uint32(8).uint32(message.id);
     return writer;
   },
-  decode(input: Uint8Array | Reader, length?: number): LastKnownPatientAlarm {
+  decode(input: Uint8Array | Reader, length?: number): ExpectedLogEvent {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseLastKnownPatientAlarm) as LastKnownPatientAlarm;
+    const message = Object.create(baseExpectedLogEvent) as ExpectedLogEvent;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1837,8 +1689,8 @@ export const LastKnownPatientAlarm = {
     }
     return message;
   },
-  fromJSON(object: any): LastKnownPatientAlarm {
-    const message = Object.create(baseLastKnownPatientAlarm) as LastKnownPatientAlarm;
+  fromJSON(object: any): ExpectedLogEvent {
+    const message = Object.create(baseExpectedLogEvent) as ExpectedLogEvent;
     if (object.id !== undefined && object.id !== null) {
       message.id = Number(object.id);
     } else {
@@ -1846,8 +1698,8 @@ export const LastKnownPatientAlarm = {
     }
     return message;
   },
-  fromPartial(object: DeepPartial<LastKnownPatientAlarm>): LastKnownPatientAlarm {
-    const message = Object.create(baseLastKnownPatientAlarm) as LastKnownPatientAlarm;
+  fromPartial(object: DeepPartial<ExpectedLogEvent>): ExpectedLogEvent {
+    const message = Object.create(baseExpectedLogEvent) as ExpectedLogEvent;
     if (object.id !== undefined && object.id !== null) {
       message.id = object.id;
     } else {
@@ -1855,30 +1707,30 @@ export const LastKnownPatientAlarm = {
     }
     return message;
   },
-  toJSON(message: LastKnownPatientAlarm): unknown {
+  toJSON(message: ExpectedLogEvent): unknown {
     const obj: any = {};
     obj.id = message.id || 0;
     return obj;
   },
 };
 
-export const NewPatientAlarms = {
-  encode(message: NewPatientAlarms, writer: Writer = Writer.create()): Writer {
-    for (const v of message.patientAlarmEvents) {
-      PatientAlarmEvent.encode(v!, writer.uint32(10).fork()).ldelim();
+export const NextLogEvents = {
+  encode(message: NextLogEvents, writer: Writer = Writer.create()): Writer {
+    for (const v of message.logEvents) {
+      LogEvent.encode(v!, writer.uint32(10).fork()).ldelim();
     }
     return writer;
   },
-  decode(input: Uint8Array | Reader, length?: number): NewPatientAlarms {
+  decode(input: Uint8Array | Reader, length?: number): NextLogEvents {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseNewPatientAlarms) as NewPatientAlarms;
-    message.patientAlarmEvents = [];
+    const message = Object.create(baseNextLogEvents) as NextLogEvents;
+    message.logEvents = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.patientAlarmEvents.push(PatientAlarmEvent.decode(reader, reader.uint32()));
+          message.logEvents.push(LogEvent.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -1887,32 +1739,97 @@ export const NewPatientAlarms = {
     }
     return message;
   },
-  fromJSON(object: any): NewPatientAlarms {
-    const message = Object.create(baseNewPatientAlarms) as NewPatientAlarms;
-    message.patientAlarmEvents = [];
-    if (object.patientAlarmEvents !== undefined && object.patientAlarmEvents !== null) {
-      for (const e of object.patientAlarmEvents) {
-        message.patientAlarmEvents.push(PatientAlarmEvent.fromJSON(e));
+  fromJSON(object: any): NextLogEvents {
+    const message = Object.create(baseNextLogEvents) as NextLogEvents;
+    message.logEvents = [];
+    if (object.logEvents !== undefined && object.logEvents !== null) {
+      for (const e of object.logEvents) {
+        message.logEvents.push(LogEvent.fromJSON(e));
       }
     }
     return message;
   },
-  fromPartial(object: DeepPartial<NewPatientAlarms>): NewPatientAlarms {
-    const message = Object.create(baseNewPatientAlarms) as NewPatientAlarms;
-    message.patientAlarmEvents = [];
-    if (object.patientAlarmEvents !== undefined && object.patientAlarmEvents !== null) {
-      for (const e of object.patientAlarmEvents) {
-        message.patientAlarmEvents.push(PatientAlarmEvent.fromPartial(e));
+  fromPartial(object: DeepPartial<NextLogEvents>): NextLogEvents {
+    const message = Object.create(baseNextLogEvents) as NextLogEvents;
+    message.logEvents = [];
+    if (object.logEvents !== undefined && object.logEvents !== null) {
+      for (const e of object.logEvents) {
+        message.logEvents.push(LogEvent.fromPartial(e));
       }
     }
     return message;
   },
-  toJSON(message: NewPatientAlarms): unknown {
+  toJSON(message: NextLogEvents): unknown {
     const obj: any = {};
-    if (message.patientAlarmEvents) {
-      obj.patientAlarmEvents = message.patientAlarmEvents.map(e => e ? PatientAlarmEvent.toJSON(e) : undefined);
+    if (message.logEvents) {
+      obj.logEvents = message.logEvents.map(e => e ? LogEvent.toJSON(e) : undefined);
     } else {
-      obj.patientAlarmEvents = [];
+      obj.logEvents = [];
+    }
+    return obj;
+  },
+};
+
+export const ActiveLogEvents = {
+  encode(message: ActiveLogEvents, writer: Writer = Writer.create()): Writer {
+    writer.uint32(10).fork();
+    for (const v of message.id) {
+      writer.uint32(v);
+    }
+    writer.ldelim();
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): ActiveLogEvents {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = Object.create(baseActiveLogEvents) as ActiveLogEvents;
+    message.id = [];
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if ((tag & 7) === 2) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.id.push(reader.uint32());
+            }
+          } else {
+            message.id.push(reader.uint32());
+          }
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): ActiveLogEvents {
+    const message = Object.create(baseActiveLogEvents) as ActiveLogEvents;
+    message.id = [];
+    if (object.id !== undefined && object.id !== null) {
+      for (const e of object.id) {
+        message.id.push(Number(e));
+      }
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<ActiveLogEvents>): ActiveLogEvents {
+    const message = Object.create(baseActiveLogEvents) as ActiveLogEvents;
+    message.id = [];
+    if (object.id !== undefined && object.id !== null) {
+      for (const e of object.id) {
+        message.id.push(e);
+      }
+    }
+    return message;
+  },
+  toJSON(message: ActiveLogEvents): unknown {
+    const obj: any = {};
+    if (message.id) {
+      obj.id = message.id.map(e => e || 0);
+    } else {
+      obj.id = [];
     }
     return obj;
   },

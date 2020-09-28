@@ -100,7 +100,7 @@ message Announcement {
   bytes announcement = 2;
 }
 
-enum AlarmCode {
+enum LogEventCode {
   fio2_too_low = 0;
   fio2_too_high = 1;
   spo2_too_low = 2;
@@ -111,28 +111,22 @@ enum AlarmCode {
   screen_locked = 7;
 }
 
-message EventHeader {
+message LogEvent {
   uint32 id = 1;
-  AlarmCode code = 2;
-  uint32 time = 3;
+  uint32 time = 2;
+  LogEventCode code = 3;
+  float oldValue = 4;
+  float newValue = 5;
 }
 
-message States {
-  Parameters parameters = 1;
-  SensorMeasurements sensor_measurements = 2;
-  CycleMeasurements cycle_measurements = 3;
-  AlarmLimitsRequest alarm_limits = 4;
-}
-
-message PatientAlarmEvent {
-  EventHeader header = 1;
-  States state = 2;
-}
-
-message LastKnownPatientAlarm {
+message ExpectedLogEvent {
   uint32 id = 1;
 }
 
-message NewPatientAlarms {
-  repeated PatientAlarmEvent patient_alarm_events  = 1;
+message NextLogEvents {
+  repeated LogEvent log_events = 1;
+}
+
+message ActiveLogEvents {
+  repeated uint32 id = 1;
 }

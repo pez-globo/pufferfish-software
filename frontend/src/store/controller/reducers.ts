@@ -9,9 +9,10 @@ import {
   Announcement,
   AlarmLimitsRequest,
   VentilationMode,
-  NewPatientAlarms,
-  LastKnownPatientAlarm,
-  PatientAlarmEvent,
+  ActiveLogEvents,
+  ExpectedLogEvent,
+  LogEvent,
+  NextLogEvents,
 } from './proto/mcu_pb';
 import {
   RotaryEncoder,
@@ -244,18 +245,13 @@ export const controllerReducer = combineReducers({
   alarmLimitsRequest: alarmLimitsReducer,
   systemSettingRequest: systemSettingRequestReducer,
   frontendDisplaySetting: frontendDisplaySettingReducer,
-  patientAlarmEvent: messageReducer<PatientAlarmEvent>(
-    MessageType.PatientAlarmEvent,
-    PatientAlarmEvent,
+  logEvent: messageReducer<LogEvent>(MessageType.LogEvent, LogEvent),
+  expectedLoggedEvent: messageReducer<ExpectedLogEvent>(
+    MessageType.ExpectedLogEvent,
+    ExpectedLogEvent,
   ),
-  newPatientAlarms: messageReducer<NewPatientAlarms>(
-    MessageType.NewPatientAlarms,
-    NewPatientAlarms,
-  ),
-  lastKnownPatientAlarm: messageReducer<LastKnownPatientAlarm>(
-    MessageType.LastKnownPatientAlarm,
-    LastKnownPatientAlarm,
-  ),
+  nextLogEvents: messageReducer<NextLogEvents>(MessageType.NextLogEvents, NextLogEvents),
+  activeLogEvents: messageReducer<ActiveLogEvents>(MessageType.ActiveLogEvents, ActiveLogEvents),
   sensorMeasurements: messageReducer<SensorMeasurements>(
     MessageType.SensorMeasurements,
     SensorMeasurements,

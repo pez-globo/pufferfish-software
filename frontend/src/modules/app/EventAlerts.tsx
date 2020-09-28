@@ -4,8 +4,8 @@ import { Button, Snackbar, makeStyles, Theme, Grid, Typography, Popover } from '
 import { Alert } from '@material-ui/lab';
 import { useSelector } from 'react-redux';
 import { BellIcon } from '../icons';
-import { getlastKnownPatientAlarm, getPatientAlarmEvent } from '../../store/controller/selectors';
-import { AlarmCode } from '../../store/controller/proto/mcu_pb';
+import { LogEventCode } from '../../store/controller/proto/mcu_pb';
+import { BMIN, PERCENT } from '../info/units';
 
 export const ALARM_EVENT_PATIENT = 'Patient';
 export const ALARM_EVENT_SYSTEM = 'System';
@@ -38,6 +38,18 @@ const useStyles = makeStyles((theme: Theme) => ({
       borderRadius: '10px',
     },
   },
+  iconBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    lineHeight: '16px',
+    padding: '0 6px 0px 5.4px',
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '11px',
+    backgroundColor: '#FF0000',
+  },
   openButton: {
     width: '100%',
     // border: `1px solid ${theme.palette.common.black}`,
@@ -53,50 +65,58 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export const getEventType = (code: AlarmCode): { type: string; label: string } => {
+export const getEventType = (code: LogEventCode): { type: string; label: string; unit: string } => {
   switch (code) {
-    case AlarmCode.fio2_too_low:
+    case LogEventCode.fio2_too_low:
       return {
         type: ALARM_EVENT_PATIENT,
         label: 'fiO2 is too low',
+        unit: PERCENT,
       };
-    case AlarmCode.fio2_too_high:
+    case LogEventCode.fio2_too_high:
       return {
         type: ALARM_EVENT_PATIENT,
         label: 'fiO2 is too high',
+        unit: PERCENT,
       };
-    case AlarmCode.rr_too_low:
+    case LogEventCode.rr_too_low:
       return {
         type: ALARM_EVENT_PATIENT,
         label: 'Respiratory Rate is too low',
+        unit: BMIN,
       };
-    case AlarmCode.rr_too_high:
+    case LogEventCode.rr_too_high:
       return {
         type: ALARM_EVENT_PATIENT,
         label: 'Respiratory Rate is too high',
+        unit: BMIN,
       };
-    case AlarmCode.spo2_too_low:
+    case LogEventCode.spo2_too_low:
       return {
         type: ALARM_EVENT_PATIENT,
         label: 'spO2 is too low',
+        unit: PERCENT,
       };
-    case AlarmCode.spo2_too_high:
+    case LogEventCode.spo2_too_high:
       return {
         type: ALARM_EVENT_PATIENT,
         label: 'spO2 is too high',
+        unit: PERCENT,
       };
-    case AlarmCode.battery_low:
+    case LogEventCode.battery_low:
       return {
         type: ALARM_EVENT_SYSTEM,
         label: 'Battery power is low',
+        unit: PERCENT,
       };
-    case AlarmCode.screen_locked:
+    case LogEventCode.screen_locked:
       return {
         type: ALARM_EVENT_SYSTEM,
         label: 'Battery power is low',
+        unit: PERCENT,
       };
     default:
-      return { type: '', label: '' };
+      return { type: '', label: '', unit: '' };
   }
 };
 
@@ -144,26 +164,35 @@ export const AlertToast = ({
 
 export const EventAlerts = ({ path, label }: Props): JSX.Element => {
   const classes = useStyles();
-  const [alert, setAlert] = useState({ label: 'Peep Above upper boundary!' });
+  const [alert, setAlert] = useState({ label: '' });
+  const [alertCount, setAlertCount] = useState<number>(0);
   const [open, setOpen] = React.useState(false);
   const buttonRef = useRef(null);
   const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
     setOpen(false);
+    setAlertCount(0);
   };
-  const patientAlarmEvent = useSelector(getPatientAlarmEvent);
-  const lastKnownPatientAlarm = useSelector(getlastKnownPatientAlarm);
-  // Generate Random Alerts
+  // const patientAlarmEvent = useSelector(getPatientAlarmEvent);
+  // const lastKnownPatientAlarm = useSelector(getlastKnownPatientAlarm);
+  // // Generate Random Alerts
+  // useEffect(() => {
+  //   if (patientAlarmEvent.header && patientAlarmEvent.header.id) {
+  //     if (!lastKnownPatientAlarm.id || lastKnownPatientAlarm.id !== patientAlarmEvent.header.id) {
+  //       const eventType = getEventType(patientAlarmEvent.header.code);
+  //       if (eventType.type) {
+  //         setOpen(true);
+  //         setAlert({ label: eventType.label });
+  //       }
+  //     }
+  //   }
+  // }, [patientAlarmEvent, lastKnownPatientAlarm]);
+
+  // Dummy event log
   useEffect(() => {
-    if (patientAlarmEvent.header && patientAlarmEvent.header.id) {
-      if (!lastKnownPatientAlarm.id || lastKnownPatientAlarm.id !== patientAlarmEvent.header.id) {
-        const eventType = getEventType(patientAlarmEvent.header.code);
-        if (eventType.type) {
-          setOpen(true);
-          setAlert({ label: eventType.label });
-        }
-      }
-    }
-  }, [patientAlarmEvent, lastKnownPatientAlarm]);
+    setOpen(true);
+    setAlertCount(1);
+    setAlert({ label: 'Test value' });
+  }, []);
 
   return (
     <div>
@@ -176,6 +205,9 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
         ref={buttonRef}
       >
         <BellIcon />
+        <div hidden={!(alertCount > 0)} className={classes.iconBadge}>
+          {alertCount}
+        </div>
       </Button>
       {label}
       {buttonRef && (

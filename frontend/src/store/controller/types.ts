@@ -7,9 +7,10 @@ import {
   Ping,
   Announcement,
   AlarmLimitsRequest,
-  NewPatientAlarms,
-  PatientAlarmEvent,
-  LastKnownPatientAlarm,
+  ActiveLogEvents,
+  ExpectedLogEvent,
+  LogEvent,
+  NextLogEvents,
 } from './proto/mcu_pb';
 import { RotaryEncoder, SystemSettingRequest, FrontendDisplaySetting } from './proto/frontend_pb';
 
@@ -35,9 +36,10 @@ export type PBMessage =
   | ParametersRequest
   | Ping
   | Announcement
-  | PatientAlarmEvent
-  | NewPatientAlarms
-  | LastKnownPatientAlarm
+  | LogEvent
+  | ExpectedLogEvent
+  | NextLogEvents
+  | ActiveLogEvents
   // frontend_pb
   | RotaryEncoder;
 
@@ -51,9 +53,10 @@ export type PBMessageType =
   | typeof ParametersRequest
   | typeof Ping
   | typeof Announcement
-  | typeof PatientAlarmEvent
-  | typeof NewPatientAlarms
-  | typeof LastKnownPatientAlarm
+  | typeof LogEvent
+  | typeof ExpectedLogEvent
+  | typeof NextLogEvents
+  | typeof ActiveLogEvents
   // frontend_pb
   | typeof SystemSettingRequest
   | typeof FrontendDisplaySetting
@@ -70,9 +73,10 @@ export enum MessageType {
   AlarmLimitsRequest = 8,
   SystemSettingRequest = 9,
   FrontendDisplaySetting = 10,
-  PatientAlarmEvent = 11,
-  NewPatientAlarms = 12,
-  LastKnownPatientAlarm = 13,
+  LogEvent = 11,
+  ExpectedLogEvent = 12,
+  NextLogEvents = 13,
+  ActiveLogEvents = 14,
   RotaryEncoder = 128,
 }
 
@@ -107,9 +111,10 @@ export interface ControllerStates {
   parametersRequest: ParametersRequest;
   ping: Ping;
   announcement: Announcement;
-  patientAlarmEvent: PatientAlarmEvent;
-  newPatientAlarms: NewPatientAlarms;
-  lastKnownPatientAlarm: LastKnownPatientAlarm;
+  logEvent: LogEvent;
+  expectedLoggedEvent: ExpectedLogEvent;
+  nextLogEvents: NextLogEvents;
+  activeLogEvents: ActiveLogEvents;
 
   // Message states from frontend_pb
   rotaryEncoder: RotaryEncoder;
@@ -130,7 +135,10 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.Parameters, Parameters],
   [MessageType.ParametersRequest, ParametersRequest],
   [MessageType.Ping, Ping],
-  [MessageType.Announcement, Announcement],
+  [MessageType.LogEvent, LogEvent],
+  [MessageType.ExpectedLogEvent, ExpectedLogEvent],
+  [MessageType.NextLogEvents, NextLogEvents],
+  [MessageType.ActiveLogEvents, ActiveLogEvents],
   [MessageType.RotaryEncoder, RotaryEncoder],
 ]);
 
@@ -145,6 +153,10 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
   [ParametersRequest, MessageType.ParametersRequest],
   [Ping, MessageType.Ping],
   [Announcement, MessageType.Announcement],
+  [LogEvent, MessageType.LogEvent],
+  [ExpectedLogEvent, MessageType.ExpectedLogEvent],
+  [NextLogEvents, MessageType.NextLogEvents],
+  [ActiveLogEvents, MessageType.ActiveLogEvents],
   [RotaryEncoder, MessageType.RotaryEncoder],
 ]);
 

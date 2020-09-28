@@ -10,8 +10,9 @@ import {
   Announcement,
   AlarmLimitsRequest,
   VentilationMode,
-  PatientAlarmEvent,
-  LastKnownPatientAlarm,
+  ExpectedLogEvent,
+  NextLogEvents,
+  LogEvent,
 } from './proto/mcu_pb';
 import { RotaryEncoder, FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import { ControllerStates, WaveformPoint, WaveformHistory } from './types';
@@ -223,20 +224,26 @@ export const getSystemSettingRequest = createSelector(
   (states: ControllerStates): SystemSettingRequest => states.systemSettingRequest,
 );
 
-// Patient Alarm Event
-export const getPatientAlarmEvent = createSelector(
+// New Log event
+export const getLogEvent = createSelector(
   getController,
-  (states: ControllerStates): PatientAlarmEvent => states.patientAlarmEvent,
+  (states: ControllerStates): LogEvent => states.logEvent,
+);
+
+// Next Logged Events
+export const getNextLoggedEvents = createSelector(
+  getController,
+  (states: ControllerStates): LogEvent[] => states.nextLogEvents.logEvents,
 );
 
 // Patient Alarm Event
-export const getlastKnownPatientAlarm = createSelector(
+export const getExpectedLoggedEvent = createSelector(
   getController,
-  (states: ControllerStates): LastKnownPatientAlarm => states.lastKnownPatientAlarm,
+  (states: ControllerStates): number => states.expectedLoggedEvent.id,
 );
 
-// Patient Alarm Event
-export const getNewPatientAlarms = createSelector(
+// Active logged event Ids
+export const getActiveLoggedEventIds = createSelector(
   getController,
-  (states: ControllerStates): PatientAlarmEvent[] => states.newPatientAlarms.patientAlarmEvents,
+  (states: ControllerStates): number[] => states.activeLogEvents.id,
 );

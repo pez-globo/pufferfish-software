@@ -11,9 +11,12 @@ import SimpleTable, {
 } from '../controllers/SimpleTable';
 import ModalPopup from '../controllers/ModalPopup';
 import EventlogDetails from './container/EventlogDetails';
-import { DECIMAL_RADIX } from '../app/AppConstants';
-import { getNewPatientAlarms } from '../../store/controller/selectors';
-import { EventHeader, PatientAlarmEvent } from '../../store/controller/proto/mcu_pb';
+import {
+  getActiveLoggedEventIds,
+  getLogEvent,
+  getNextLoggedEvents,
+} from '../../store/controller/selectors';
+import { LogEvent } from '../../store/controller/proto/mcu_pb';
 import { getEventType } from '../app/EventAlerts';
 
 /**
@@ -26,6 +29,7 @@ interface Data {
   type: string;
   alarm: string;
   time: number; // Note: Make this a date object?
+  status: string;
   details: string; // Note: Make this an ID to view more details?,
   id: number;
 }
@@ -36,6 +40,7 @@ const headCells: HeadCell[] = [
   { id: 'type', numeric: false, disablePadding: true, label: 'Type' },
   { id: 'alarm', numeric: true, disablePadding: false, label: 'Alarm' },
   { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date' },
+  { id: 'Status', numeric: false, disablePadding: false, label: 'Status' },
   { id: 'details', numeric: false, disablePadding: false, label: 'Details' },
 ];
 
@@ -71,10 +76,11 @@ export const LogsPage = (): JSX.Element => {
     type: string,
     alarm: string,
     time: number,
+    status: string,
     details: string,
     id: number,
   ): Data => {
-    return { type, alarm, time, details, id };
+    return { type, alarm, time, status, details, id };
   };
 
   const [rows, setRows] = React.useState<Data[]>([]);
@@ -87,22 +93,31 @@ export const LogsPage = (): JSX.Element => {
   const [currentRow, setCurrentRow] = React.useState<Data>();
   const isSelected = (name: string) => selected.indexOf(name) !== -1;
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-  const newPatientAlarms = useSelector(getNewPatientAlarms);
+  const loggedEvents = useSelector(getNextLoggedEvents);
+  const activeLogEventIds = useSelector(getActiveLoggedEventIds);
+  const newLogEvent = useSelector(getLogEvent);
 
   useEffect(() => {
-    const data = newPatientAlarms.map((patientAlarm: PatientAlarmEvent) => {
-      const alarmHeader = patientAlarm.header as EventHeader;
-      const eventType = getEventType(alarmHeader.code);
+    if (newLogEvent.id) {
+      loggedEvents.push(newLogEvent);
+    }
+    const data = loggedEvents.map((event: LogEvent) => {
+      const eventType = getEventType(event.code);
+      const diffString =
+        event.oldValue && event.newValue
+          ? `(${event.oldValue} ${eventType.unit} to ${event.newValue} ${eventType.unit})`
+          : '';
       return createData(
         eventType.type,
-        eventType.label,
-        alarmHeader.time,
+        `${eventType.label} ${diffString}`,
+        event.time,
+        activeLogEventIds.indexOf(event.id) > -1 ? 'Active' : 'In Active',
         'View Details',
-        alarmHeader.id,
+        event.id,
       );
     });
     setRows(data);
-  }, [newPatientAlarms]);
+  }, [loggedEvents, activeLogEventIds, newLogEvent]);
 
   const handleClose = () => {
     setOpen(false);
@@ -175,7 +190,7 @@ export const LogsPage = (): JSX.Element => {
                 hover
                 onClick={(event: React.MouseEvent<unknown>) => handleClick(event, row.type)}
                 tabIndex={-1}
-                key={row.details}
+                key={row.id}
               >
                 <TableCell align="left" component="th" id={labelId} scope="row">
                   <Grid className={classes.typeWrapper} style={typeColor(row.type)}>
@@ -197,6 +212,9 @@ export const LogsPage = (): JSX.Element => {
                                           year: 'numeric',
                                         })}
                                     `}
+                </TableCell>
+                <TableCell align="left" component="th" scope="row">
+                  {row.status}
                 </TableCell>
                 <TableCell
                   align="left"
