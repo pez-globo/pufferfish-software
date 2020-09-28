@@ -20,7 +20,7 @@ class TaggedUnion {
  public:
   using Tag = TagValue;
 
-  template<typename Value>
+  template <typename Value>
   void set(const Value &new_value);
 
   TagValue tag;

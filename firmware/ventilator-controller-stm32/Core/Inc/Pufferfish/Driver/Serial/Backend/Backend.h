@@ -81,8 +81,10 @@ class BackendReceiver {
  private:
   using BackendCRCReceiver = Protocols::CRCElementReceiver<FrameProps::payload_max_size>;
   using BackendParsedCRC = Protocols::ParsedCRCElement<FrameProps::payload_max_size>;
-  using BackendDatagramReceiver = Protocols::DatagramReceiver<BackendCRCReceiver::Props::payload_max_size>;
-  using BackendParsedDatagram = Protocols::ParsedDatagram<BackendCRCReceiver::Props::payload_max_size>;
+  using BackendDatagramReceiver =
+      Protocols::DatagramReceiver<BackendCRCReceiver::Props::payload_max_size>;
+  using BackendParsedDatagram =
+      Protocols::ParsedDatagram<BackendCRCReceiver::Props::payload_max_size>;
   using BackendMessageReceiver =
       Protocols::MessageReceiver<BackendMessage, message_descriptors.size()>;
 
@@ -107,14 +109,13 @@ class BackendSender {
 
   explicit BackendSender(HAL::CRC32C &crc32c) : message_(message_descriptors), crc_(crc32c) {}
 
-  Status transform(
-      const BackendMessage &input_message, FrameProps::ChunkBuffer &output_buffer);
+  Status transform(const BackendMessage &input_message, FrameProps::ChunkBuffer &output_buffer);
 
  private:
   using BackendCRCSender = Protocols::CRCElementSender<FrameProps::payload_max_size>;
-  using BackendDatagramSender = Protocols::DatagramSender<BackendCRCSender::Props::payload_max_size>;
-  using BackendMessageSender =
-      Protocols::MessageSender<BackendMessage, message_descriptors.size()>;
+  using BackendDatagramSender =
+      Protocols::DatagramSender<BackendCRCSender::Props::payload_max_size>;
+  using BackendMessageSender = Protocols::MessageSender<BackendMessage, message_descriptors.size()>;
 
   BackendMessageSender message_;
   BackendDatagramSender datagram_;

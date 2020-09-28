@@ -56,8 +56,7 @@ class UARTBackend {
   using Receiver = UARTBackendReceiver<BufferedUART>;
   using Sender = UARTBackendSender<BufferedUART>;
 
-  UARTBackend(
-      volatile BufferedUART &uart, HAL::CRC32C &crc32c, Application::States &states)
+  UARTBackend(volatile BufferedUART &uart, HAL::CRC32C &crc32c, Application::States &states)
       : crc32c_(crc32c),
         uart_(uart),
         receiver_protocol_(crc32c),
@@ -74,7 +73,7 @@ class UARTBackend {
  private:
   using StateSynchronizer = Protocols::StateSynchronizer<
       Application::States,
-      BackendMessage,
+      Application::StateSegment,
       Application::MessageTypes,
       state_sync_schedule.size()>;
 

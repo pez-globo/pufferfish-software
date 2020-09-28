@@ -96,7 +96,6 @@ void UARTBackend::setup_irq() {
   uart_.setup_irq();
 }
 
-
 void UARTBackend::receive() {
   BackendMessage message;
   switch (receiver_.output(message)) {
@@ -104,7 +103,7 @@ void UARTBackend::receive() {
     case Receiver::Status::invalid:  // errors handled by driver
       break;
     case Receiver::Status::available:
-      switch (synchronizer_.input(message)) {
+      switch (synchronizer_.input(message.payload)) {
         case StateSynchronizer::InputStatus::invalid_type:
           // TODO(lietk12): handle error case
         case StateSynchronizer::InputStatus::ok:
@@ -122,7 +121,7 @@ void UARTBackend::update_clock(uint32_t current_time) {
 
 void UARTBackend::send() {
   BackendMessage message;
-  switch (synchronizer_.output(message)) {
+  switch (synchronizer_.output(message.payload)) {
     case StateSynchronizer::OutputStatus::waiting:
       break;
     case StateSynchronizer::OutputStatus::available:
