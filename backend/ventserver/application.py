@@ -4,6 +4,7 @@ import logging
 import functools
 
 import trio
+import RPi.GPIO as GPIO # type:ignore
 
 from ventserver.integration import _trio
 from ventserver.io.trio import _serial
@@ -12,6 +13,9 @@ from ventserver.io.trio import websocket
 from ventserver.io.trio import rotaryencoder
 from ventserver.protocols import server
 from ventserver.protocols.protobuf import mcu_pb as pb
+
+
+GPIO.setmode(GPIO.BCM)
 
 
 logger = logging.getLogger()

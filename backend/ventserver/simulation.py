@@ -9,8 +9,8 @@ from typing import Mapping, Optional, Type
 import attr
 
 import betterproto
-
 import trio
+import RPi.GPIO as GPIO # type:ignore
 
 from ventserver.integration import _trio
 from ventserver.io.trio import channels
@@ -18,6 +18,9 @@ from ventserver.io.trio import websocket
 from ventserver.io.trio import rotaryencoder
 from ventserver.protocols import server
 from ventserver.protocols.protobuf import mcu_pb
+
+
+GPIO.setmode(GPIO.BCM)
 
 
 @attr.s
