@@ -67,8 +67,8 @@ MessageStatus Message<UnionMessage, max_size>::parse(
     return MessageStatus::invalid_type;
   }
 
-  pb_istream_t stream =
-      pb_istream_from_buffer(input_buffer.buffer() + header_size, input_buffer.size() - header_size);
+  pb_istream_t stream = pb_istream_from_buffer(
+      input_buffer.buffer() + header_size, input_buffer.size() - header_size);
   if (!pb_decode(&stream, fields, &payload)) {
     return MessageStatus::invalid_encoding;
   }

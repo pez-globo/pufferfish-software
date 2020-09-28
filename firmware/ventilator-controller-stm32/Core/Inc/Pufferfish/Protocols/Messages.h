@@ -50,7 +50,8 @@ class MessageReceiver {
   explicit MessageReceiver(const Util::ProtobufDescriptors<num_descriptors> &descriptors);
 
   template <size_t input_size>
-  MessageStatus transform(const Util::ByteVector<input_size> &input_buffer, Message &output_message) const;
+  MessageStatus transform(
+      const Util::ByteVector<input_size> &input_buffer, Message &output_message) const;
 
  private:
   const Util::ProtobufDescriptors<num_descriptors> &descriptors_;
@@ -63,7 +64,8 @@ class MessageSender {
   explicit MessageSender(const Util::ProtobufDescriptors<num_descriptors> &descriptors);
 
   template <size_t output_size>
-  MessageStatus transform(const Message &input_message, Util::ByteVector<output_size> &output_buffer) const;
+  MessageStatus transform(
+      const Message &input_message, Util::ByteVector<output_size> &output_buffer) const;
 
  private:
   const Util::ProtobufDescriptors<num_descriptors> &descriptors_;

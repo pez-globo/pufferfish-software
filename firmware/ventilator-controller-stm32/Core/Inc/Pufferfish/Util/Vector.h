@@ -45,7 +45,7 @@ class Vector {
   void copy_from(const uint8_t *source_bytes, size_t source_size, size_t dest_start_index = 0);
 
   [[nodiscard]] constexpr const Element *buffer() const { return buffer_.data(); }
-  constexpr Element *buffer() {return buffer_.data();}
+  constexpr Element *buffer() { return buffer_.data(); }
 
  private:
   std::array<Element, array_size> buffer_{};

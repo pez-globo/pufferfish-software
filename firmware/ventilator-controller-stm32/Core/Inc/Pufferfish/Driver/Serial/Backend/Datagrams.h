@@ -30,8 +30,7 @@ class Datagram {
   explicit Datagram(PayloadBuffer &payload, uint8_t seq)
       : seq_(seq), length_(static_cast<uint8_t>(payload.size())), payload_(payload) {}
 
-  explicit Datagram(PayloadBuffer &payload)
-      : Datagram(payload, 0) {}
+  explicit Datagram(PayloadBuffer &payload) : Datagram(payload, 0) {}
 
   [[nodiscard]] uint32_t crc() const { return crc_; }
   [[nodiscard]] uint8_t seq() const { return seq_; }

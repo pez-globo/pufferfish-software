@@ -24,7 +24,7 @@ IndexStatus Datagram::write(Util::ByteVector<output_size> &output_buffer, HAL::C
 
   crc_ = crc32c.compute(
       output_buffer.buffer() + protected_offset,  // exclude the CRC field
-      output_buffer.size() - sizeof(uint32_t)   // exclude the size of the CRC field
+      output_buffer.size() - sizeof(uint32_t)     // exclude the size of the CRC field
   );
   uint32_t network_endian_crc = HAL::hton(crc_);
   memcpy(output_buffer.buffer(), &network_endian_crc, sizeof(uint32_t));
@@ -87,7 +87,7 @@ template <size_t input_size>
 uint32_t DatagramReceiver::compute_crc(const Util::ByteVector<input_size> &input_buffer) {
   return crc32c_.compute(
       input_buffer.buffer() + Datagram::protected_offset,  // exclude the CRC field
-      input_buffer.size() - sizeof(uint32_t)             // exclude the size of the CRC field
+      input_buffer.size() - sizeof(uint32_t)               // exclude the size of the CRC field
   );
 }
 
