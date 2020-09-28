@@ -52,12 +52,11 @@ static const auto state_sync_schedule = Util::make_array<const StateOutputSchedu
 
 class BackendReceiver {
  public:
-  enum class InputStatus { input_ready = 0, output_ready, invalid_frame_chunk_length };
+  enum class InputStatus { ok = 0, output_ready, invalid_frame_length };
   enum class OutputStatus {
     available = 0,
     waiting,
-    invalid_frame_chunk_length,
-    invalid_frame_cobs_length,
+    invalid_frame_length,
     invalid_datagram_parse,
     invalid_datagram_crc,
     invalid_datagram_length,
@@ -74,11 +73,13 @@ class BackendReceiver {
   OutputStatus output(Application::Message &output_message);
 
  private:
+  using BackendDatagramReceiver = DatagramReceiver<FrameProps::frame_payload_max_size>;
+  using BackendParsedDatagram = ParsedDatagram<FrameProps::frame_payload_max_size>;
   using BackendMessageReceiver =
       Protocols::MessageReceiver<Application::Message, message_descriptors.size()>;
 
   FrameReceiver frame_;
-  DatagramReceiver datagram_;
+  BackendDatagramReceiver datagram_;
   BackendMessageReceiver message_;
 };
 
@@ -90,20 +91,22 @@ class BackendSender {
     invalid_message_type,
     invalid_message_encoding,
     invalid_datagram_length,
-    invalid_frame_cobs_length,
-    invalid_frame_chunk_length
+    invalid_frame_length,
+    invalid_return_code
   };
 
   explicit BackendSender(HAL::CRC32C &crc32c);
 
-  Status transform(const Application::Message &input_message, ChunkBuffer &output_buffer);
+  Status transform(
+      const Application::Message &input_message, FrameProps::ChunkBuffer &output_buffer);
 
  private:
+  using BackendDatagramSender = DatagramSender<FrameProps::frame_payload_max_size>;
   using BackendMessageSender =
       Protocols::MessageSender<Application::Message, message_descriptors.size()>;
 
   BackendMessageSender message_;
-  DatagramSender datagram_;
+  BackendDatagramSender datagram_;
   FrameSender frame_;
 };
 

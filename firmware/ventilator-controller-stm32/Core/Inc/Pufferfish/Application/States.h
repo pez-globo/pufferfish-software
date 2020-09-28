@@ -8,6 +8,7 @@
 #pragma once
 
 #include "Pufferfish/Driver/Serial/Backend/Datagrams.h"
+#include "Pufferfish/Driver/Serial/Backend/Frames.h"
 #include "Pufferfish/Protocols/Messages.h"
 #include "mcu_pb.h"
 
@@ -28,8 +29,10 @@ union UnionMessage {
   Announcement announcement;
 };
 
-using Message =
-    Protocols::Message<UnionMessage, Driver::Serial::Backend::DatagramProps::payload_max_size>;
+using Message = Protocols::Message<
+    UnionMessage,
+    Driver::Serial::Backend::DatagramProps<
+        Driver::Serial::Backend::FrameProps::frame_payload_max_size>::payload_max_size>;
 
 enum class MessageTypes : uint8_t {
   alarms = 1,

@@ -26,10 +26,7 @@ IndexStatus Datagram<PayloadBuffer>::write(
     return IndexStatus::out_of_bounds;
   }
 
-  crc_ = crc32c.compute(
-      output_buffer.buffer() + DatagramProps::protected_offset,  // exclude the CRC field
-      output_buffer.size() - sizeof(uint32_t)                    // exclude the size of the CRC field
-  );
+  crc_ = compute_body_crc(output_buffer, crc32c);
   Util::write_hton(crc_, output_buffer.buffer());
   return IndexStatus::ok;
 }
@@ -38,47 +35,58 @@ template <typename PayloadBuffer>
 template <size_t output_size>
 IndexStatus Datagram<PayloadBuffer>::write_protected(
     Util::ByteVector<output_size> &output_buffer) const {
-  if (output_buffer.resize(DatagramProps::header_size + payload_.size()) != IndexStatus::ok) {
+  if (output_buffer.resize(DatagramHeaderProps::header_size + payload_.size()) != IndexStatus::ok) {
     return IndexStatus::out_of_bounds;
   }
 
-  output_buffer[DatagramProps::seq_offset] = seq_;
-  output_buffer[DatagramProps::length_offset] = length_;
-  output_buffer.copy_from(payload_.buffer(), payload_.size(), DatagramProps::payload_offset);
+  output_buffer[DatagramHeaderProps::seq_offset] = seq_;
+  output_buffer[DatagramHeaderProps::length_offset] = length_;
+  output_buffer.copy_from(payload_.buffer(), payload_.size(), DatagramHeaderProps::payload_offset);
   return IndexStatus::ok;
 }
 
 template <typename PayloadBuffer>
 template <size_t input_size>
-IndexStatus Datagram<PayloadBuffer>::parse(
-    const Util::ByteVector<input_size> &input_buffer) {
+IndexStatus Datagram<PayloadBuffer>::parse(const Util::ByteVector<input_size> &input_buffer) {
   static_assert(
       !std::is_const<PayloadBuffer>::value,
       "Parse method unavailable for Datagrams with const PayloadBuffer type");
 
-  if (input_buffer.size() < DatagramProps::header_size) {
+  if (input_buffer.size() < DatagramHeaderProps::header_size) {
     return IndexStatus::out_of_bounds;
   }
   Util::read_ntoh(input_buffer.buffer(), crc_);
-  seq_ = input_buffer[DatagramProps::seq_offset];
-  length_ = input_buffer[DatagramProps::length_offset];
+  seq_ = input_buffer[DatagramHeaderProps::seq_offset];
+  length_ = input_buffer[DatagramHeaderProps::length_offset];
   payload_.copy_from(
-      input_buffer.buffer() + DatagramProps::payload_offset,
-      input_buffer.size() - DatagramProps::payload_offset);
+      input_buffer.buffer() + DatagramHeaderProps::payload_offset,
+      input_buffer.size() - DatagramHeaderProps::payload_offset);
   return IndexStatus::ok;
 }
 
+template <typename PayloadBuffer>
+template <size_t buffer_size>
+uint32_t Datagram<PayloadBuffer>::compute_body_crc(
+    const Util::ByteVector<buffer_size> &buffer, HAL::CRC32C &crc32c) {
+  return crc32c.compute(
+      buffer.buffer() + DatagramHeaderProps::protected_offset,  // exclude the CRC field
+      buffer.size() - sizeof(uint32_t)                          // exclude the size of the CRC field
+  );
+}
 
 // DatagramReceiver
 
+template <size_t body_max_size>
 template <size_t input_size>
-DatagramReceiver::Status DatagramReceiver::transform(
-    const Util::ByteVector<input_size> &input_buffer, ParsedDatagram &output_datagram) {
+typename DatagramReceiver<body_max_size>::Status DatagramReceiver<body_max_size>::transform(
+    const Util::ByteVector<input_size> &input_buffer,
+    ParsedDatagram<body_max_size> &output_datagram) {
   if (output_datagram.parse(input_buffer) != IndexStatus::ok) {
     return Status::invalid_parse;
   }
 
-  if (compute_crc(input_buffer) != output_datagram.crc()) {
+  if (ParsedDatagram<body_max_size>::compute_body_crc(input_buffer, crc32c_) !=
+      output_datagram.crc()) {
     return Status::invalid_crc;
   }
 
@@ -95,21 +103,14 @@ DatagramReceiver::Status DatagramReceiver::transform(
   return Status::ok;
 }
 
-template <size_t input_size>
-uint32_t DatagramReceiver::compute_crc(const Util::ByteVector<input_size> &input_buffer) {
-  return crc32c_.compute(
-      input_buffer.buffer() + DatagramProps::protected_offset,  // exclude the CRC field
-      input_buffer.size() - sizeof(uint32_t)               // exclude the size of the CRC field
-  );
-}
-
 // DatagramSender
 
+template <size_t body_max_size>
 template <size_t output_size>
-DatagramSender::Status DatagramSender::transform(
-    const DatagramProps::PayloadBuffer &input_payload,
+typename DatagramSender<body_max_size>::Status DatagramSender<body_max_size>::transform(
+    const typename Props::PayloadBuffer &input_payload,
     Util::ByteVector<output_size> &output_buffer) {
-  ConstructedDatagram datagram(input_payload, next_seq_);
+  ConstructedDatagram<body_max_size> datagram(input_payload, next_seq_);
   if (datagram.write(output_buffer, crc32c_) != IndexStatus::ok) {
     return Status::invalid_length;
   }

@@ -24,8 +24,7 @@ typename UARTBackendReceiver<BufferedUART>::Status UARTBackendReceiver<BufferedU
       break;
     case BackendReceiver::OutputStatus::waiting:
       return Status::waiting;
-    case BackendReceiver::OutputStatus::invalid_frame_chunk_length:
-    case BackendReceiver::OutputStatus::invalid_frame_cobs_length:
+    case BackendReceiver::OutputStatus::invalid_frame_length:
     case BackendReceiver::OutputStatus::invalid_datagram_parse:
     case BackendReceiver::OutputStatus::invalid_datagram_crc:
     case BackendReceiver::OutputStatus::invalid_datagram_length:
@@ -54,11 +53,11 @@ void UARTBackendReceiver<BufferedUART>::input() {
 
     // BackendReceiver
     switch (serial_.input(receive)) {
-      case BackendReceiver::InputStatus::invalid_frame_chunk_length:
+      case BackendReceiver::InputStatus::invalid_frame_length:
         // TODO(lietk12): handle error case first
       case BackendReceiver::InputStatus::output_ready:
         return;
-      case BackendReceiver::InputStatus::input_ready:
+      case BackendReceiver::InputStatus::ok:
         break;
     }
   }
@@ -69,7 +68,7 @@ void UARTBackendReceiver<BufferedUART>::input() {
 template <typename BufferedUART>
 typename UARTBackendSender<BufferedUART>::Status UARTBackendSender<BufferedUART>::input(
     const Application::Message &input_message) {
-  ChunkBuffer send_output;
+  FrameProps::ChunkBuffer send_output;
   switch (serial_.transform(input_message, send_output)) {
     case BackendSender::Status::ok:  // ready to write to UART
       break;
@@ -77,8 +76,7 @@ typename UARTBackendSender<BufferedUART>::Status UARTBackendSender<BufferedUART>
     case BackendSender::Status::invalid_message_type:
     case BackendSender::Status::invalid_message_encoding:
     case BackendSender::Status::invalid_datagram_length:
-    case BackendSender::Status::invalid_frame_cobs_length:
-    case BackendSender::Status::invalid_frame_chunk_length:
+    case BackendSender::Status::invalid_frame_length:
     default:
       // TODO(lietk12): handle error cases first
       return Status::invalid;

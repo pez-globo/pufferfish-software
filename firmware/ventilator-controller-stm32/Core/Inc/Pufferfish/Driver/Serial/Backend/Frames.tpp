@@ -16,86 +16,85 @@ namespace Pufferfish::Driver::Serial::Backend {
 // ChunkSplitter
 
 template <size_t buffer_size>
-typename ChunkSplitter<buffer_size>::InputStatus ChunkSplitter<buffer_size>::input(
-    uint8_t new_byte) {
+FrameProps::InputStatus ChunkSplitter<buffer_size>::input(uint8_t new_byte) {
   if (new_byte == delimiter) {
-    input_status_ = InputStatus::output_ready;
+    input_status_ = FrameProps::InputStatus::output_ready;
     return input_status_;
   }
 
   if (buffer_.push_back(new_byte) != IndexStatus::ok) {
-    input_status_ = InputStatus::invalid_length;
+    input_status_ = FrameProps::InputStatus::invalid_length;
     return input_status_;
   }
 
-  return InputStatus::input_ready;
+  return FrameProps::InputStatus::ok;
 }
 
 template <size_t buffer_size>
-typename ChunkSplitter<buffer_size>::OutputStatus ChunkSplitter<buffer_size>::output(
+FrameProps::OutputStatus ChunkSplitter<buffer_size>::output(
     Util::ByteVector<buffer_size> &output_buffer) {
-  if (input_status_ == InputStatus::input_ready) {
-    return OutputStatus::waiting;
+  if (input_status_ == FrameProps::InputStatus::ok) {
+    return FrameProps::OutputStatus::waiting;
   }
 
   output_buffer.copy_from(buffer_);
   buffer_.clear();
-  OutputStatus output_status = OutputStatus::available;
-  if (input_status_ == InputStatus::invalid_length) {
-    output_status = OutputStatus::invalid_length;
+  FrameProps::OutputStatus output_status = FrameProps::OutputStatus::ok;
+  if (input_status_ == FrameProps::InputStatus::invalid_length) {
+    output_status = FrameProps::OutputStatus::invalid_length;
   }
-  input_status_ = InputStatus::input_ready;
+  input_status_ = FrameProps::InputStatus::ok;
   return output_status;
 }
 
 // ChunkMerger
 
 template <size_t buffer_size>
-ChunkMerger::Status ChunkMerger::transform(
+FrameProps::OutputStatus ChunkMerger::transform(
     Util::ByteVector<buffer_size> &input_output_buffer) const {
   if (input_output_buffer.push_back(delimiter) == IndexStatus::ok) {
-    return Status::ok;
+    return FrameProps::OutputStatus::ok;
   }
-  return Status::invalid_length;
+  return FrameProps::OutputStatus::invalid_length;
 }
 
 // COBSDecoder
 
 template <size_t input_size, size_t output_size>
-COBSDecoder::Status COBSDecoder::transform(
+FrameProps::OutputStatus COBSDecoder::transform(
     const Util::ByteVector<input_size> &input_buffer,
     Util::ByteVector<output_size> &output_buffer) const {
-  if (input_buffer.size() > frame_payload_max_size + 1) {
-    return Status::invalid_length;
+  if (input_buffer.size() > FrameProps::frame_payload_max_size + 1) {
+    return FrameProps::OutputStatus::invalid_length;
   }
 
   if (output_buffer.max_size() < input_buffer.size()) {
-    return Status::invalid_length;
+    return FrameProps::OutputStatus::invalid_length;
   }
 
   output_buffer.resize(
       Util::decode_cobs(input_buffer.buffer(), input_buffer.size(), output_buffer.buffer()));
-  return Status::ok;
+  return FrameProps::OutputStatus::ok;
 }
 
 // COBSEncoder
 
 template <size_t input_size, size_t output_size>
-COBSEncoder::Status COBSEncoder::transform(
+FrameProps::OutputStatus COBSEncoder::transform(
     const Util::ByteVector<input_size> &input_buffer,
     Util::ByteVector<output_size> &output_buffer) const {
-  if (input_buffer.size() > frame_payload_max_size) {
-    return Status::invalid_length;
+  if (input_buffer.size() > FrameProps::frame_payload_max_size) {
+    return FrameProps::OutputStatus::invalid_length;
   }
 
   size_t encoded_size = Util::get_encoded_cobs_buffer_size(input_buffer.size());
   if (output_buffer.max_size() < encoded_size) {
-    return Status::invalid_length;
+    return FrameProps::OutputStatus::invalid_length;
   }
 
   output_buffer.resize(
       Util::encode_cobs(input_buffer.buffer(), input_buffer.size(), output_buffer.buffer()));
-  return Status::ok;
+  return FrameProps::OutputStatus::ok;
 }
 
 }  // namespace Pufferfish::Driver::Serial::Backend

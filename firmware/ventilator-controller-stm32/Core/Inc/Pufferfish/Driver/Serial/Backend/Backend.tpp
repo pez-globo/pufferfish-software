@@ -18,44 +18,42 @@ BackendReceiver::BackendReceiver(HAL::CRC32C &crc32c)
 
 BackendReceiver::InputStatus BackendReceiver::input(uint8_t new_byte) {
   switch (frame_.input(new_byte)) {
-    case FrameReceiver::InputStatus::output_ready:
+    case FrameProps::InputStatus::output_ready:
       return InputStatus::output_ready;
-    case FrameReceiver::InputStatus::invalid_chunk_length:
-      return InputStatus::invalid_frame_chunk_length;
-    case FrameReceiver::InputStatus::input_ready:
+    case FrameProps::InputStatus::invalid_length:
+      return InputStatus::invalid_frame_length;
+    case FrameProps::InputStatus::ok:
       break;
   }
-  return InputStatus::input_ready;
+  return InputStatus::ok;
 }
 
 BackendReceiver::OutputStatus BackendReceiver::output(Application::Message &output_message) {
-  ChunkBuffer temp_buffer1;
-  DatagramProps::PayloadBuffer temp_buffer2;
+  FrameProps::ChunkBuffer temp_buffer1;
+  BackendDatagramReceiver::Props::PayloadBuffer temp_buffer2;
 
   // Frame
   switch (frame_.output(temp_buffer1)) {
-    case FrameReceiver::OutputStatus::waiting:
+    case FrameProps::OutputStatus::waiting:
       return OutputStatus::waiting;
-    case FrameReceiver::OutputStatus::invalid_chunk_length:
-      return OutputStatus::invalid_frame_chunk_length;
-    case FrameReceiver::OutputStatus::invalid_cobs_length:
-      return OutputStatus::invalid_frame_cobs_length;
-    case FrameReceiver::OutputStatus::available:
+    case FrameProps::OutputStatus::invalid_length:
+      return OutputStatus::invalid_frame_length;
+    case FrameProps::OutputStatus::ok:
       break;
   }
 
   // Datagram
-  ParsedDatagram receive_datagram(temp_buffer2);
+  BackendParsedDatagram receive_datagram(temp_buffer2);
   switch (datagram_.transform(temp_buffer1, receive_datagram)) {
-    case DatagramReceiver::Status::invalid_parse:
+    case BackendDatagramReceiver::Status::invalid_parse:
       return OutputStatus::invalid_datagram_parse;
-    case DatagramReceiver::Status::invalid_crc:
+    case BackendDatagramReceiver::Status::invalid_crc:
       return OutputStatus::invalid_datagram_crc;
-    case DatagramReceiver::Status::invalid_length:
+    case BackendDatagramReceiver::Status::invalid_length:
       return OutputStatus::invalid_datagram_length;
-    case DatagramReceiver::Status::invalid_sequence:
+    case BackendDatagramReceiver::Status::invalid_sequence:
       // TODO(lietk12): emit a warning about invalid sequence
-    case DatagramReceiver::Status::ok:
+    case BackendDatagramReceiver::Status::ok:
       break;
   }
 
@@ -79,9 +77,9 @@ BackendSender::BackendSender(HAL::CRC32C &crc32c)
     : message_(message_descriptors), datagram_(crc32c) {}
 
 BackendSender::Status BackendSender::transform(
-    const Application::Message &input_message, ChunkBuffer &output_buffer) {
-  DatagramProps::PayloadBuffer temp_buffer1;
-  ChunkBuffer temp_buffer2;
+    const Application::Message &input_message, FrameProps::ChunkBuffer &output_buffer) {
+  BackendDatagramSender::Props::PayloadBuffer temp_buffer1;
+  FrameProps::ChunkBuffer temp_buffer2;
 
   // Message
   switch (message_.transform(input_message, temp_buffer1)) {
@@ -97,20 +95,20 @@ BackendSender::Status BackendSender::transform(
 
   // Datagram
   switch (datagram_.transform(temp_buffer1, temp_buffer2)) {
-    case DatagramSender::Status::invalid_length:
+    case BackendDatagramSender::Status::invalid_length:
       return Status::invalid_datagram_length;
-    case DatagramSender::Status::ok:
+    case BackendDatagramSender::Status::ok:
       break;
   }
 
   // Frame
   switch (frame_.transform(temp_buffer2, output_buffer)) {
-    case FrameSender::Status::invalid_cobs_length:
-      return Status::invalid_frame_cobs_length;
-    case FrameSender::Status::invalid_chunk_length:
-      return Status::invalid_frame_chunk_length;
-    case FrameSender::Status::ok:
+    case FrameProps::OutputStatus::invalid_length:
+      return Status::invalid_frame_length;
+    case FrameProps::OutputStatus::ok:
       break;
+    default:
+      return Status::invalid_return_code;
   }
   return Status::ok;
 }

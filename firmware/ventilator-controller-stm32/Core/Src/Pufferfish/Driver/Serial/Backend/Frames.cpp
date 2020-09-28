@@ -11,61 +11,45 @@ namespace Pufferfish::Driver::Serial::Backend {
 
 // FrameReceiver
 
-FrameReceiver::InputStatus FrameReceiver::input(uint8_t new_byte) {
-  switch (chunk_splitter_.input(new_byte)) {
-    case ChunkSplitter<chunk_max_size>::InputStatus::input_ready:
-      return InputStatus::input_ready;
-    case ChunkSplitter<chunk_max_size>::InputStatus::invalid_length:
-      return InputStatus::invalid_chunk_length;
-    case ChunkSplitter<chunk_max_size>::InputStatus::output_ready:
-      break;
-  }
-  return InputStatus::output_ready;
+FrameProps::InputStatus FrameReceiver::input(uint8_t new_byte) {
+  return chunk_splitter_.input(new_byte);
 }
 
-FrameReceiver::OutputStatus FrameReceiver::output(ChunkBuffer &output_buffer) {
-  ChunkBuffer temp_buffer;
+FrameProps::OutputStatus FrameReceiver::output(FrameProps::ChunkBuffer &output_buffer) {
+  FrameProps::ChunkBuffer temp_buffer;
 
   // Chunk
-  switch (chunk_splitter_.output(temp_buffer)) {
-    case ChunkSplitter<chunk_max_size>::OutputStatus::waiting:
-      return OutputStatus::waiting;
-    case ChunkSplitter<chunk_max_size>::OutputStatus::invalid_length:
-      return OutputStatus::invalid_chunk_length;
-    case ChunkSplitter<chunk_max_size>::OutputStatus::available:
-      break;
+  FrameProps::OutputStatus status = chunk_splitter_.output(temp_buffer);
+  if (status != FrameProps::OutputStatus::ok) {
+    return status;
   }
 
   // COBS
-  switch (cobs_decoder.transform(temp_buffer, output_buffer)) {
-    case COBSDecoder::Status::invalid_length:
-      return OutputStatus::invalid_cobs_length;
-    case COBSDecoder::Status::ok:
-      break;
+  status = cobs_decoder.transform(temp_buffer, output_buffer);
+  if (status != FrameProps::OutputStatus::ok) {
+    return status;
   }
-  return OutputStatus::available;
+
+  return FrameProps::OutputStatus::ok;
 }
 
 // FrameSender
 
-FrameSender::Status FrameSender::transform(
-    const ChunkBuffer &input_buffer, ChunkBuffer &output_buffer) const {
+FrameProps::OutputStatus FrameSender::transform(
+    const FrameProps::ChunkBuffer &input_buffer, FrameProps::ChunkBuffer &output_buffer) const {
   // COBS
-  switch (cobs_encoder.transform(input_buffer, output_buffer)) {
-    case COBSEncoder::Status::invalid_length:
-      return Status::invalid_cobs_length;
-    case COBSEncoder::Status::ok:
-      break;
+  FrameProps::OutputStatus status = cobs_encoder.transform(input_buffer, output_buffer);
+  if (status != FrameProps::OutputStatus::ok) {
+    return status;
   }
 
   // Chunk
-  switch (chunk_merger.transform(output_buffer)) {
-    case ChunkMerger::Status::invalid_length:
-      return Status::invalid_chunk_length;
-    case ChunkMerger::Status::ok:
-      break;
+  status = chunk_merger.transform(output_buffer);
+  if (status != FrameProps::OutputStatus::ok) {
+    return status;
   }
-  return Status::ok;
+
+  return FrameProps::OutputStatus::ok;
 }
 
 }  // namespace Pufferfish::Driver::Serial::Backend
