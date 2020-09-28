@@ -56,6 +56,8 @@ class ChunkMerger {
 // Decodes frames (length up to 255 bytes, excluding frame delimiter) with COBS
 class COBSDecoder {
  public:
+  COBSDecoder() = default;
+
   template <size_t input_size, size_t output_size>
   FrameProps::OutputStatus transform(
       const Util::ByteVector<input_size> &input_buffer,
@@ -65,6 +67,8 @@ class COBSDecoder {
 // Encodes payloads (length up to 254 bytes) with COBS; does not add the frame delimiter
 class COBSEncoder {
  public:
+  COBSEncoder() = default;
+
   template <size_t input_size, size_t output_size>
   FrameProps::OutputStatus transform(
       const Util::ByteVector<input_size> &input_buffer,
@@ -73,6 +77,8 @@ class COBSEncoder {
 
 class FrameReceiver {
  public:
+  FrameReceiver() = default;
+
   // Call this until it returns available, then call output
   FrameProps::InputStatus input(uint8_t new_byte);
   FrameProps::OutputStatus output(FrameProps::ChunkBuffer &output_buffer);
@@ -84,6 +90,8 @@ class FrameReceiver {
 
 class FrameSender {
  public:
+  FrameSender() = default;
+
   FrameProps::OutputStatus transform(
       const FrameProps::ChunkBuffer &input_buffer, FrameProps::ChunkBuffer &output_buffer) const;
 

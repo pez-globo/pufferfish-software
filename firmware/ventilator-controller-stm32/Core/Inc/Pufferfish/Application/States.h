@@ -47,6 +47,8 @@ struct StateSegments {
 
 class States {
  public:
+  States() = default;
+
   [[nodiscard]] const ParametersRequest &parameters_request() const;
   Parameters &parameters();
   SensorMeasurements &sensor_measurements();

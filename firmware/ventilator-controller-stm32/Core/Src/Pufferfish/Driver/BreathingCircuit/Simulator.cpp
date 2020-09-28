@@ -7,6 +7,8 @@
 
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 
+#include "Pufferfish/Util/Timeouts.h"
+
 namespace Pufferfish::BreathingCircuit {
 
 Simulator::Simulator(
@@ -40,14 +42,14 @@ void Simulator::update_sensors() {
     // Timing
     previous_time_ = current_time_;
     sensor_measurements_.time = current_time_;
-    cycle_period_ = 60000.0 / parameters_.rr;
-    if (current_time_ - cycle_start_time_ > cycle_period_) {
+    cycle_period_ = minute_duration / parameters_.rr;
+    if (!Util::within_timeout(cycle_start_time_, cycle_period_, current_time_)) {
       cycle_start_time_ = current_time_;
       sensor_measurements_.flow = insp_init_flow_rate;
     }
     insp_period_ = cycle_period_ / (1 + 1.0 / parameters_.ie);
     // Airway
-    if (current_time_ - cycle_start_time_ < insp_period_) {
+    if (Util::within_timeout(cycle_start_time_, insp_period_, current_time_)) {
       sensor_measurements_.paw += (parameters_.pip - sensor_measurements_.paw) *
                                   insp_responsiveness / sensor_update_interval;
       sensor_measurements_.flow *= (1 - insp_flow_responsiveness / sensor_update_interval);

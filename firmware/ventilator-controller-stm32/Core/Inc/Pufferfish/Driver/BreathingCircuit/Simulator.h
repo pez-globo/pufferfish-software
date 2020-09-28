@@ -28,8 +28,9 @@ class Simulator {
   void update_actuators();
 
  private:
-  static constexpr float default_cycle_period = 2000;  // ms
-  static constexpr float default_insp_period = 1000;   // ms
+  static const uint32_t default_cycle_period = 2000;  // ms
+  static const uint32_t default_insp_period = 1000;   // ms
+  static const uint32_t minute_duration = 60000;      // ms
 
   const ParametersRequest &parameters_request_;
   Parameters &parameters_;
@@ -40,8 +41,8 @@ class Simulator {
   uint32_t previous_time_ = 0;                // ms
   uint32_t cycle_start_time_ = 0;             // ms
   const uint32_t sensor_update_interval = 2;  // ms
-  float cycle_period_ = default_cycle_period;
-  float insp_period_ = default_insp_period;
+  uint32_t cycle_period_ = default_cycle_period;
+  uint32_t insp_period_ = default_insp_period;
   const float insp_responsiveness = 0.05;  // ms
   const float exp_responsiveness = 0.05;   // ms
   const float insp_init_flow_rate = 120;   // L / min
