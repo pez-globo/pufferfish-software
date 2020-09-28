@@ -13,6 +13,11 @@
 
 namespace Pufferfish::Application {
 
+// Since nanopb is running dynamically, we cannot have extensive compile-time type-checking.
+// It's not clear how we might use variants to replace this union, since the nanopb functions
+// would need access to the underlying memory in the variant, which is not publicly accessible.
+// For now the Message class is acting as an ad hoc tagged union here, though we don't have
+// any type-checking with the tags.
 union UnionMessage {
   Alarms alarms;
   SensorMeasurements sensor_measurements;
@@ -24,7 +29,7 @@ union UnionMessage {
 };
 
 using Message =
-    Protocols::Message<UnionMessage, Driver::Serial::Backend::Datagram::payload_max_size>;
+    Protocols::Message<UnionMessage, Driver::Serial::Backend::DatagramProps::payload_max_size>;
 
 enum class MessageTypes : uint8_t {
   alarms = 1,

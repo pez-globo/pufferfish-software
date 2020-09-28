@@ -30,7 +30,7 @@ BackendReceiver::InputStatus BackendReceiver::input(uint8_t new_byte) {
 
 BackendReceiver::OutputStatus BackendReceiver::output(Application::Message &output_message) {
   ChunkBuffer temp_buffer1;
-  Datagram::PayloadBuffer temp_buffer2;
+  DatagramProps::PayloadBuffer temp_buffer2;
 
   // Frame
   switch (frame_.output(temp_buffer1)) {
@@ -45,7 +45,7 @@ BackendReceiver::OutputStatus BackendReceiver::output(Application::Message &outp
   }
 
   // Datagram
-  Datagram receive_datagram(temp_buffer2);
+  ParsedDatagram receive_datagram(temp_buffer2);
   switch (datagram_.transform(temp_buffer1, receive_datagram)) {
     case DatagramReceiver::Status::invalid_parse:
       return OutputStatus::invalid_datagram_parse;
@@ -80,7 +80,7 @@ BackendSender::BackendSender(HAL::CRC32C &crc32c)
 
 BackendSender::Status BackendSender::transform(
     const Application::Message &input_message, ChunkBuffer &output_buffer) {
-  Datagram::PayloadBuffer temp_buffer1;
+  DatagramProps::PayloadBuffer temp_buffer1;
   ChunkBuffer temp_buffer2;
 
   // Message

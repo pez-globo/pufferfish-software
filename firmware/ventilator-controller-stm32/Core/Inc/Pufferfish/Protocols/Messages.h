@@ -23,9 +23,16 @@ template <typename UnionMessage, size_t max_size>
 class Message {
  public:
   static const size_t type_offset = 0;
+  // This clearly is static initialization of a static const - probably clang-tidy
+  // false positive?
+  // NOLINTNEXTLINE(bugprone-dynamic-static-initializers)
   static const size_t payload_offset = type_offset + sizeof(uint8_t);
 
+  // This clearly is static initialization of a static const - probably clang-tidy
+  // false positive?
+  // NOLINTNEXTLINE(bugprone-dynamic-static-initializers)
   static const size_t header_size = payload_offset;
+  // NOLINTNEXTLINE(bugprone-dynamic-static-initializers)
   static const size_t payload_max_size = max_size - header_size;
 
   uint8_t type = 0;

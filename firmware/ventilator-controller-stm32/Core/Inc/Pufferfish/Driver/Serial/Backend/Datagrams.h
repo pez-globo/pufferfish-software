@@ -16,8 +16,7 @@
 
 namespace Pufferfish::Driver::Serial::Backend {
 
-class Datagram {
- public:
+struct DatagramProps {
   static const size_t protected_offset = sizeof(uint32_t);
   static const size_t seq_offset = protected_offset;
   static const size_t length_offset = seq_offset + sizeof(uint8_t);
@@ -25,8 +24,13 @@ class Datagram {
 
   static const size_t header_size = payload_offset;
   static const size_t payload_max_size = frame_payload_max_size - header_size;
-  using PayloadBuffer = Util::ByteVector<payload_max_size>;
 
+  using PayloadBuffer = Util::ByteVector<DatagramProps::payload_max_size>;
+};
+
+template <typename PayloadBuffer>
+class Datagram {
+ public:
   explicit Datagram(PayloadBuffer &payload, uint8_t seq)
       : seq_(seq), length_(static_cast<uint8_t>(payload.size())), payload_(payload) {}
 
@@ -56,6 +60,15 @@ class Datagram {
   IndexStatus write_protected(Util::ByteVector<output_size> &output_buffer) const;
 };
 
+// In this Datagram, the payload can only be set through the constructor, so
+// a const payload can be given in the constructor. However, the parse method
+// is not available, as it would modify the payload given in the constructor.
+using ParsedDatagram = Datagram<DatagramProps::PayloadBuffer>;
+
+// In this Datagram, the payload can be modified through the parse method, so
+// a const payload cannot be given in the constructor.
+using ConstructedDatagram = Datagram<const DatagramProps::PayloadBuffer>;
+
 // Parses datagrams into payloads, with data integrity checking
 class DatagramReceiver {
  public:
@@ -64,7 +77,7 @@ class DatagramReceiver {
   explicit DatagramReceiver(HAL::CRC32C &crc32c) : crc32c_(crc32c) {}
 
   template <size_t input_size>
-  Status transform(const Util::ByteVector<input_size> &input_buffer, Datagram &output_datagram);
+  Status transform(const Util::ByteVector<input_size> &input_buffer, ParsedDatagram &output_datagram);
 
  private:
   uint8_t expected_seq_ = 0;
@@ -83,7 +96,8 @@ class DatagramSender {
 
   template <size_t output_size>
   Status transform(
-      const Datagram::PayloadBuffer &input_payload, Util::ByteVector<output_size> &output_buffer);
+      const DatagramProps::PayloadBuffer &input_payload,
+      Util::ByteVector<output_size> &output_buffer);
 
  private:
   uint8_t next_seq_ = 0;
