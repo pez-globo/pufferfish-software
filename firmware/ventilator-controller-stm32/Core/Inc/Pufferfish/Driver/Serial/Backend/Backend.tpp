@@ -25,7 +25,7 @@ BackendReceiver::InputStatus BackendReceiver::input(uint8_t new_byte) {
   return InputStatus::ok;
 }
 
-BackendReceiver::OutputStatus BackendReceiver::output(Application::Message &output_message) {
+BackendReceiver::OutputStatus BackendReceiver::output(BackendMessage &output_message) {
   FrameProps::ChunkBuffer temp_buffer1;
   BackendCRCReceiver::Props::PayloadBuffer temp_buffer2;
   BackendDatagramReceiver::Props::PayloadBuffer temp_buffer3;
@@ -81,7 +81,7 @@ BackendReceiver::OutputStatus BackendReceiver::output(Application::Message &outp
 // BackendSender
 
 BackendSender::Status BackendSender::transform(
-    const Application::Message &input_message, FrameProps::ChunkBuffer &output_buffer) {
+    const BackendMessage &input_message, FrameProps::ChunkBuffer &output_buffer) {
   BackendDatagramSender::Props::PayloadBuffer temp_buffer1;
   BackendCRCSender::Props::PayloadBuffer temp_buffer2;
   FrameProps::ChunkBuffer temp_buffer3;

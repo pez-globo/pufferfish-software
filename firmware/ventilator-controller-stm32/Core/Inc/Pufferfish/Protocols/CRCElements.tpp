@@ -13,7 +13,7 @@
 #include "Pufferfish/HAL/STM32/CRC.h"
 #include "Pufferfish/Util/Endian.h"
 
-namespace Pufferfish::Driver::Serial::Backend {
+namespace Pufferfish::Protocols {
 
 // CRCElement
 
@@ -105,4 +105,4 @@ typename CRCElementSender<body_max_size>::Status CRCElementSender<body_max_size>
   return Status::ok;
 }
 
-}  // namespace Pufferfish::Driver::Serial::Backend
+}  // namespace Pufferfish::Protocols

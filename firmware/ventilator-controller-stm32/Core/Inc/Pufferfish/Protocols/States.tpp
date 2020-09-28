@@ -24,14 +24,12 @@ template <typename States, typename Message, typename MessageTypes, size_t sched
 typename StateSynchronizer<States, Message, MessageTypes, schedule_size>::InputStatus
 StateSynchronizer<States, Message, MessageTypes, schedule_size>::input(
     const Message &input_message) {
-  switch (input_message.type) {
-    case static_cast<uint8_t>(MessageTypes::parameters_request):
-    case static_cast<uint8_t>(MessageTypes::ping):
-    case static_cast<uint8_t>(MessageTypes::announcement):
-      if (!all_states_.set_state(input_message)) {
-        return InputStatus::invalid_type;
-      }
-      break;
+  switch (input_message.payload.tag) {
+    case MessageTypes::parameters_request:
+    case MessageTypes::ping:
+    case MessageTypes::announcement:
+      all_states_.input(input_message.payload);
+      return InputStatus::invalid_type;
     default:
       break;
   }
@@ -46,7 +44,7 @@ StateSynchronizer<States, Message, MessageTypes, schedule_size>::output(Message 
     return OutputStatus::waiting;
   }
 
-  all_states_.set_message(output_schedule_[current_schedule_entry_].type, output_message);
+  all_states_.output(output_schedule_[current_schedule_entry_].type, output_message.payload);
   current_schedule_entry_ = (current_schedule_entry_ + 1) % output_schedule_.size();
   current_schedule_entry_start_time_ = current_time_;
   return OutputStatus::available;

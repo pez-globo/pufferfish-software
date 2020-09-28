@@ -19,7 +19,7 @@ enum class MessageStatus { ok = 0, invalid_length, invalid_type, invalid_encodin
 
 // Messages
 
-template <typename UnionMessage, size_t max_size>
+template <typename TaggedUnion, size_t max_size>
 class Message {
  public:
   static const size_t type_offset = 0;
@@ -36,7 +36,7 @@ class Message {
   static const size_t payload_max_size = max_size - header_size;
 
   uint8_t type = 0;
-  UnionMessage payload{};
+  TaggedUnion payload{};
 
   template <size_t output_size, size_t num_descriptors>
   MessageStatus write(

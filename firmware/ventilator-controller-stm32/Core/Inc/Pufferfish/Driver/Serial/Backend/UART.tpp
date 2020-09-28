@@ -15,7 +15,7 @@ namespace Pufferfish::Driver::Serial::Backend {
 
 template <typename BufferedUART>
 typename UARTBackendReceiver<BufferedUART>::Status UARTBackendReceiver<BufferedUART>::output(
-    Application::Message &output_message) {
+    BackendMessage &output_message) {
   input();
   switch (serial_.output(output_message)) {
     case BackendReceiver::OutputStatus::invalid_datagram_sequence:
@@ -68,7 +68,7 @@ void UARTBackendReceiver<BufferedUART>::input() {
 
 template <typename BufferedUART>
 typename UARTBackendSender<BufferedUART>::Status UARTBackendSender<BufferedUART>::input(
-    const Application::Message &input_message) {
+    const BackendMessage &input_message) {
   FrameProps::ChunkBuffer send_output;
   switch (serial_.transform(input_message, send_output)) {
     case BackendSender::Status::ok:  // ready to write to UART
@@ -92,36 +92,18 @@ typename UARTBackendSender<BufferedUART>::Status UARTBackendSender<BufferedUART>
 
 // UARTBackendDriver
 
-template <typename BufferedUART>
-void UARTBackendDriver<BufferedUART>::setup_irq() {
+void UARTBackend::setup_irq() {
   uart_.setup_irq();
 }
 
-template <typename BufferedUART>
-typename UARTBackendDriver<BufferedUART>::Receiver::Status UARTBackendDriver<BufferedUART>::receive(
-    Application::Message &receive_message) {
-  return receiver_.output(receive_message);
-}
-
-template <typename BufferedUART>
-typename UARTBackendDriver<BufferedUART>::Sender::Status UARTBackendDriver<BufferedUART>::send(
-    const Application::Message &send_message) {
-  return sender_.input(send_message);
-}
-
-// UARTBackend
-
-void UARTBackend::setup_irq() {
-  driver_.setup_irq();
-}
 
 void UARTBackend::receive() {
-  Application::Message message;
-  switch (driver_.receive(message)) {
-    case Driver::Receiver::Status::waiting:  // nothing to do
-    case Driver::Receiver::Status::invalid:  // errors handled by driver
+  BackendMessage message;
+  switch (receiver_.output(message)) {
+    case Receiver::Status::waiting:  // nothing to do
+    case Receiver::Status::invalid:  // errors handled by driver
       break;
-    case Driver::Receiver::Status::available:
+    case Receiver::Status::available:
       switch (synchronizer_.input(message)) {
         case StateSynchronizer::InputStatus::invalid_type:
           // TODO(lietk12): handle error case
@@ -139,14 +121,14 @@ void UARTBackend::update_clock(uint32_t current_time) {
 }
 
 void UARTBackend::send() {
-  Application::Message message;
+  BackendMessage message;
   switch (synchronizer_.output(message)) {
     case StateSynchronizer::OutputStatus::waiting:
       break;
     case StateSynchronizer::OutputStatus::available:
-      switch (driver_.send(message)) {
-        case Driver::Sender::Status::invalid:  // errors handled by driver
-        case Driver::Sender::Status::ok:
+      switch (sender_.input(message)) {
+        case Sender::Status::invalid:  // errors handled by driver
+        case Sender::Status::ok:
           break;
       }
       break;

@@ -24,7 +24,7 @@ class UARTBackendReceiver {
       : uart_(uart), serial_(serial) {}
 
   // The return value indicates whether an output is available and written to outputBuffer
-  Status output(Application::Message &output_message);
+  Status output(BackendMessage &output_message);
 
  private:
   volatile BufferedUART &uart_;
@@ -41,7 +41,7 @@ class UARTBackendSender {
   UARTBackendSender(volatile BufferedUART &uart, BackendSender &serial)
       : uart_(uart), serial_(serial) {}
 
-  Status input(const Application::Message &input_message);
+  Status input(const BackendMessage &input_message);
 
  private:
   static const uint32_t write_timeout = 10000;
@@ -50,40 +50,21 @@ class UARTBackendSender {
   BackendSender &serial_;
 };
 
-template <typename BufferedUART>
-class UARTBackendDriver {
+class UARTBackend {
  public:
+  using BufferedUART = HAL::LargeBufferedUART;
   using Receiver = UARTBackendReceiver<BufferedUART>;
   using Sender = UARTBackendSender<BufferedUART>;
 
-  UARTBackendDriver(volatile BufferedUART &uart, HAL::CRC32C &crc32c)
+  UARTBackend(
+      volatile BufferedUART &uart, HAL::CRC32C &crc32c, Application::States &states)
       : crc32c_(crc32c),
         uart_(uart),
         receiver_protocol_(crc32c),
         sender_protocol_(crc32c),
         receiver_(uart, receiver_protocol_),
-        sender_(uart, sender_protocol_) {}
-
-  void setup_irq();
-  typename Receiver::Status receive(Application::Message &receive_message);
-  typename Sender::Status send(const Application::Message &send_message);
-
- private:
-  HAL::CRC32C &crc32c_;
-  volatile BufferedUART &uart_;
-  BackendReceiver receiver_protocol_;
-  BackendSender sender_protocol_;
-  UARTBackendReceiver<BufferedUART> receiver_;
-  UARTBackendSender<BufferedUART> sender_;
-};
-
-class UARTBackend {
- public:
-  using Driver = UARTBackendDriver<HAL::LargeBufferedUART>;
-
-  UARTBackend(
-      volatile HAL::LargeBufferedUART &uart, HAL::CRC32C &crc32c, Application::States &states)
-      : driver_(uart, crc32c), synchronizer_(states, state_sync_schedule){};
+        sender_(uart, sender_protocol_),
+        synchronizer_(states, state_sync_schedule) {}
 
   void setup_irq();
   void receive();
@@ -93,12 +74,21 @@ class UARTBackend {
  private:
   using StateSynchronizer = Protocols::StateSynchronizer<
       Application::States,
-      Application::Message,
+      BackendMessage,
       Application::MessageTypes,
       state_sync_schedule.size()>;
 
-  Driver driver_;
+  HAL::CRC32C &crc32c_;
+  volatile BufferedUART &uart_;
+  BackendReceiver receiver_protocol_;
+  BackendSender sender_protocol_;
+  UARTBackendReceiver<BufferedUART> receiver_;
+  UARTBackendSender<BufferedUART> sender_;
+
   StateSynchronizer synchronizer_;
+
+  typename Receiver::Status receive(BackendMessage &receive_message);
+  typename Sender::Status send(const BackendMessage &send_message);
 };
 
 }  // namespace Pufferfish::Driver::Serial::Backend

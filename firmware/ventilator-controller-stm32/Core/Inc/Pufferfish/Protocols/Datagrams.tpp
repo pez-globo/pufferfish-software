@@ -13,7 +13,7 @@
 #include "Pufferfish/HAL/STM32/CRC.h"
 #include "Pufferfish/Util/Endian.h"
 
-namespace Pufferfish::Driver::Serial::Backend {
+namespace Pufferfish::Protocols {
 
 // Datagram
 
@@ -89,4 +89,4 @@ typename DatagramSender<body_max_size>::Status DatagramSender<body_max_size>::tr
   return Status::ok;
 }
 
-}  // namespace Pufferfish::Driver::Serial::Backend
+}  // namespace Pufferfish::Protocols

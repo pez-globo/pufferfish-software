@@ -13,7 +13,7 @@
 #include "Pufferfish/HAL/STM32/CRC.h"
 #include "Pufferfish/Util/Vector.h"
 
-namespace Pufferfish::Driver::Serial::Backend {
+namespace Pufferfish::Protocols {
 
 struct CRCElementHeaderProps {
   static const size_t payload_offset = sizeof(uint32_t);
@@ -107,6 +107,6 @@ class CRCElementSender {
   HAL::CRC32C crc32c_;
 };
 
-}  // namespace Pufferfish::Driver::Serial::Backend
+}  // namespace Pufferfish::Protocols
 
 #include "CRCElements.tpp"

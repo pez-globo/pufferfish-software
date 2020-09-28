@@ -15,11 +15,12 @@ namespace Pufferfish::Protocols {
 
 // Message
 
-template <typename UnionMessage, size_t max_size>
+template <typename TaggedUnion, size_t max_size>
 template <size_t output_size, size_t num_descriptors>
-MessageStatus Message<UnionMessage, max_size>::write(
+MessageStatus Message<TaggedUnion, max_size>::write(
     Util::ByteVector<output_size> &output_buffer,
     const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) const {
+  auto type = static_cast<uint8_t>(payload.tag);
   if (type > pb_protobuf_descriptors.size()) {
     return MessageStatus::invalid_type;
   }
@@ -30,7 +31,7 @@ MessageStatus Message<UnionMessage, max_size>::write(
   }
 
   size_t encoded_size = 0;
-  if (!pb_get_encoded_size(&encoded_size, fields, &payload)) {
+  if (!pb_get_encoded_size(&encoded_size, fields, &(payload.value))) {
     return MessageStatus::invalid_encoding;
   }
 
@@ -41,16 +42,16 @@ MessageStatus Message<UnionMessage, max_size>::write(
   output_buffer[type_offset] = type;
   pb_ostream_t stream = pb_ostream_from_buffer(
       output_buffer.buffer() + header_size, output_buffer.size() - header_size);
-  if (!pb_encode(&stream, fields, &payload)) {
+  if (!pb_encode(&stream, fields, &(payload.value))) {
     return MessageStatus::invalid_encoding;
   }
 
   return MessageStatus::ok;
 }
 
-template <typename UnionMessage, size_t max_size>
+template <typename TaggedUnion, size_t max_size>
 template <size_t input_size, size_t num_descriptors>
-MessageStatus Message<UnionMessage, max_size>::parse(
+MessageStatus Message<TaggedUnion, max_size>::parse(
     const Util::ByteVector<input_size> &input_buffer,
     const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) {
   if (input_buffer.size() < Message::header_size) {
@@ -62,6 +63,8 @@ MessageStatus Message<UnionMessage, max_size>::parse(
     return MessageStatus::invalid_type;
   }
 
+  // TODO(lietk12): add proper checking
+  payload.tag = static_cast<typename TaggedUnion::Tag>(type);
   const pb_msgdesc_t *fields = pb_protobuf_descriptors[type];
   if (fields == Util::get_protobuf_descriptor<Util::UnrecognizedMessage>()) {
     return MessageStatus::invalid_type;
@@ -69,7 +72,7 @@ MessageStatus Message<UnionMessage, max_size>::parse(
 
   pb_istream_t stream = pb_istream_from_buffer(
       input_buffer.buffer() + header_size, input_buffer.size() - header_size);
-  if (!pb_decode(&stream, fields, &payload)) {
+  if (!pb_decode(&stream, fields, &(payload.value))) {
     return MessageStatus::invalid_encoding;
   }
 
