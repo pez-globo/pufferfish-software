@@ -37,6 +37,7 @@
 #include "Pufferfish/Driver/I2C/HoneywellABP.h"
 #include "Pufferfish/Driver/I2C/SDP.h"
 #include "Pufferfish/Driver/I2C/SFM3000.h"
+#include "Pufferfish/Driver/I2C/SFM3019.h"
 #include "Pufferfish/Driver/I2C/TCA9548A.h"
 #include "Pufferfish/Driver/Indicators/AuditoryAlarm.h"
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
@@ -224,7 +225,7 @@ PF::HAL::HALPWM drive2_ch7(htim12, TIM_CHANNEL_2);
 
 // Base I2C Devices
 // Note: I2C1 is marked I2C2 in the control board v1.0 schematic, and vice versa
-PF::HAL::HALI2CDevice i2c_hal_mux1(hi2c2, PF::Driver::I2C::TCA9548A::default_i2c_addr);
+/*PF::HAL::HALI2CDevice i2c_hal_mux1(hi2c2, PF::Driver::I2C::TCA9548A::default_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_mux2(hi2c1, PF::Driver::I2C::TCA9548A::default_i2c_addr);
 
 PF::HAL::HALI2CDevice i2c_hal_press1(hi2c1, PF::Driver::I2C::abpxxxx001pg2a3.i2c_addr);
@@ -238,8 +239,11 @@ PF::HAL::HALI2CDevice i2c_hal_press14(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i
 PF::HAL::HALI2CDevice i2c_hal_press15(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_press16(hi2c2, PF::Driver::I2C::SFM3000::default_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_press17(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press18(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_press18(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);*/
 
+PF::HAL::HALI2CDevice i2c_hal_global(hi2c2, 0x00);
+PF::HAL::HALI2CDevice i2c_hal_presstest(hi2c2, PF::Driver::I2C::SFM3019::default_i2c_addr);
+/*
 // I2C Mux
 PF::Driver::I2C::TCA9548A i2c_mux1(i2c_hal_mux1);
 PF::Driver::I2C::TCA9548A i2c_mux2(i2c_hal_mux2);
@@ -277,11 +281,14 @@ PF::Driver::I2C::SDPSensor i2c_press15(i2c_ext_press15);
 PF::Driver::I2C::SFM3000 i2c_press16(i2c_ext_press16);
 PF::Driver::I2C::SDPSensor i2c_press17(i2c_ext_press17);
 PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
+*/
+PF::Driver::I2C::SFM3019 i2c_presstest(i2c_hal_presstest, i2c_hal_global);
 
+/*
 // Test list
 // NOLINTNEXTLINE(readability-magic-numbers)
-std::array<PF::Driver::Testable *, 14> i2c_test_list{
-    {&i2c_mux1,
+auto i2c_test_list = PF::Util::make_array<PF::Driver::Testable *>(
+     &i2c_mux1,
      &i2c_mux2,
      &i2c_press1,
      &i2c_press2,
@@ -294,7 +301,9 @@ std::array<PF::Driver::Testable *, 14> i2c_test_list{
      &i2c_press15,
      &i2c_press16,
      &i2c_press17,
-     &i2c_press18}};
+     &i2c_press18);
+*/
+auto i2c_test_list = PF::Util::make_array<PF::Driver::Testable *>(&i2c_presstest);
 
 int interface_test_state = 0;
 int interface_test_millis = 0;
@@ -436,11 +445,15 @@ int main(void)
   */
 
   buffered_uart3.setup_irq();
+  i2c_presstest.reset();
+  i2c_presstest.start_measure();
+  PF::HAL::delay(5);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (true) {
+
     uint32_t current_time = HAL_GetTick();
 
     // Breathing Circuit Controller
@@ -448,6 +461,13 @@ int main(void)
     breathing_circuit.update_clock(current_time);
     breathing_circuit.update_sensors();
     breathing_circuit.update_actuators();
+
+    // Sensor Measurement Overrides
+    PF::Driver::I2C::SFM3019Sample sample;
+    PF::I2CDeviceStatus status = i2c_presstest.read_sample(sample);
+    if (status == PF::I2CDeviceStatus::ok) {
+      all_states.sensor_measurements().flow = sample.flow;
+    }
 
     // Backend Communication Protocol
     backend.receive();
@@ -494,11 +514,12 @@ int main(void)
     if (stat != PF::AlarmManagerStatus::ok) {
       Error_Handler();
     }
+
     board_led1.write(false);
     PF::HAL::delay(blink_low_delay);
     board_led1.write(true);
-    interface_test_loop();
-    leds_reg.update();
+    //interface_test_loop();
+    //leds_reg.update();
 
     for (PF::Driver::Testable *t : i2c_test_list) {
       if (t->test() != PF::I2CDeviceStatus::ok) {
@@ -507,14 +528,6 @@ int main(void)
     }
     PF::HAL::delay(loop_delay);
 
-    uint8_t receive = 0;
-    while (buffered_uart3.read(receive) == PF::BufferStatus::ok) {
-      board_led1.write(true);
-      buffered_uart3.write(receive);
-      PF::HAL::AtomicSize written_size = 0;
-      std::array<uint8_t, 2> repeat_string = {receive, receive};
-      buffered_uart3.write(repeat_string.data(), repeat_string.size(), written_size);
-    }
 
     // FIXME: Added for testing
     // Read the Analog data of ADC3 and validate the return value

@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 
 namespace Pufferfish {
 namespace Driver {
