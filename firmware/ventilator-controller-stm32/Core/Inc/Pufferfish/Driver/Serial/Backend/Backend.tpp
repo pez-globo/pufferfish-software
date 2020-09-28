@@ -61,13 +61,13 @@ BackendReceiver::OutputStatus BackendReceiver::output(Application::Message &outp
 
   // Message
   switch (message_.transform(temp_buffer2, output_message)) {
-    case BackendMessageReceiver::Status::invalid_length:
+    case Protocols::MessageStatus::invalid_length:
       return OutputStatus::invalid_message_length;
-    case BackendMessageReceiver::Status::invalid_type:
+    case Protocols::MessageStatus::invalid_type:
       return OutputStatus::invalid_message_type;
-    case BackendMessageReceiver::Status::invalid_encoding:
+    case Protocols::MessageStatus::invalid_encoding:
       return OutputStatus::invalid_message_encoding;
-    case BackendMessageReceiver::Status::ok:
+    case Protocols::MessageStatus::ok:
       break;
   }
   return OutputStatus::available;
@@ -85,13 +85,13 @@ BackendSender::Status BackendSender::transform(
 
   // Message
   switch (message_.transform(input_message, temp_buffer1)) {
-    case BackendMessageSender::Status::invalid_length:
+    case Protocols::MessageStatus::invalid_length:
       return Status::invalid_message_length;
-    case BackendMessageSender::Status::invalid_type:
+    case Protocols::MessageStatus::invalid_type:
       return Status::invalid_message_type;
-    case BackendMessageSender::Status::invalid_encoding:
+    case Protocols::MessageStatus::invalid_encoding:
       return Status::invalid_message_encoding;
-    case BackendMessageSender::Status::ok:
+    case Protocols::MessageStatus::ok:
       break;
   }
 

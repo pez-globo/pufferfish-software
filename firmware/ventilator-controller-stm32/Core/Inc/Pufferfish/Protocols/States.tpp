@@ -23,12 +23,12 @@ StateSynchronizer<States, Message, MessageTypes, schedule_size>::input(uint32_t 
 template <typename States, typename Message, typename MessageTypes, size_t schedule_size>
 typename StateSynchronizer<States, Message, MessageTypes, schedule_size>::InputStatus
 StateSynchronizer<States, Message, MessageTypes, schedule_size>::input(
-    const Message &inputMessage) {
-  switch (inputMessage.type) {
+    const Message &input_message) {
+  switch (input_message.type) {
     case static_cast<uint8_t>(MessageTypes::parameters_request):
     case static_cast<uint8_t>(MessageTypes::ping):
     case static_cast<uint8_t>(MessageTypes::announcement):
-      if (!all_states.set_state(inputMessage)) {
+      if (!all_states_.set_state(input_message)) {
         return InputStatus::invalid_type;
       }
       break;
@@ -41,12 +41,12 @@ StateSynchronizer<States, Message, MessageTypes, schedule_size>::input(
 
 template <typename States, typename Message, typename MessageTypes, size_t schedule_size>
 typename StateSynchronizer<States, Message, MessageTypes, schedule_size>::OutputStatus
-StateSynchronizer<States, Message, MessageTypes, schedule_size>::output(Message &outputMessage) {
+StateSynchronizer<States, Message, MessageTypes, schedule_size>::output(Message &output_message) {
   if (!should_output()) {
     return OutputStatus::waiting;
   }
 
-  all_states.set_message(output_schedule_[current_schedule_entry_].type, outputMessage);
+  all_states_.set_message(output_schedule_[current_schedule_entry_].type, output_message);
   current_schedule_entry_ = (current_schedule_entry_ + 1) % output_schedule_.size();
   current_schedule_entry_start_time_ = current_time_;
   return OutputStatus::available;

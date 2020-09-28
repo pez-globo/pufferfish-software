@@ -15,6 +15,8 @@
 
 namespace Pufferfish::Protocols {
 
+enum class MessageStatus { ok = 0, invalid_length, invalid_type, invalid_encoding };
+
 // Messages
 
 template <typename UnionMessage, size_t max_size>
@@ -26,18 +28,16 @@ class Message {
   static const size_t header_size = payload_offset;
   static const size_t payload_max_size = max_size - header_size;
 
-  enum class Status { ok = 0, length_error, type_error, encoding_error, decoding_error };
-
   uint8_t type = 0;
   UnionMessage payload{};
 
   template <size_t output_size, size_t num_descriptors>
-  Status write(
+  MessageStatus write(
       Util::ByteVector<output_size> &output_buffer,
       const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) const;
 
   template <size_t input_size, size_t num_descriptors>
-  Status parse(
+  MessageStatus parse(
       const Util::ByteVector<input_size> &input_buffer,
       const Util::ProtobufDescriptors<num_descriptors>
           &pb_protobuf_descriptors);  // updates type and payload fields
@@ -47,12 +47,10 @@ class Message {
 template <typename Message, size_t num_descriptors>
 class MessageReceiver {
  public:
-  enum class Status { ok = 0, invalid_length, invalid_type, invalid_encoding };
-
   explicit MessageReceiver(const Util::ProtobufDescriptors<num_descriptors> &descriptors);
 
   template <size_t input_size>
-  Status transform(const Util::ByteVector<input_size> &input_buffer, Message &output_message) const;
+  MessageStatus transform(const Util::ByteVector<input_size> &input_buffer, Message &output_message) const;
 
  private:
   const Util::ProtobufDescriptors<num_descriptors> &descriptors_;
@@ -62,12 +60,10 @@ class MessageReceiver {
 template <typename Message, size_t num_descriptors>
 class MessageSender {
  public:
-  enum class Status { ok = 0, invalid_length, invalid_type, invalid_encoding };
-
   explicit MessageSender(const Util::ProtobufDescriptors<num_descriptors> &descriptors);
 
   template <size_t output_size>
-  Status transform(const Message &input_message, Util::ByteVector<output_size> &output_buffer) const;
+  MessageStatus transform(const Message &input_message, Util::ByteVector<output_size> &output_buffer) const;
 
  private:
   const Util::ProtobufDescriptors<num_descriptors> &descriptors_;

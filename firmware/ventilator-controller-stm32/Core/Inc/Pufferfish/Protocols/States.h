@@ -32,15 +32,14 @@ class StateSynchronizer {
 
   StateSynchronizer(
       States &all_states, const StateOutputSchedule<MessageTypes, schedule_size> &schedule)
-      : all_states(all_states), output_schedule_(schedule) {}
-
-  States &all_states;
+      : all_states_(all_states), output_schedule_(schedule) {}
 
   InputStatus input(uint32_t time);
-  InputStatus input(const Message &inputMessage);
-  OutputStatus output(Message &outputMessage);
+  InputStatus input(const Message &input_message);
+  OutputStatus output(Message &output_message);
 
  private:
+  States &all_states_;
   const StateOutputSchedule<MessageTypes, schedule_size> &output_schedule_;
   uint32_t current_time_ = 0;
   size_t current_schedule_entry_ = 0;
