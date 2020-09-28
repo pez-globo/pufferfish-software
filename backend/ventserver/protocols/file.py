@@ -1,8 +1,7 @@
 """Sans-I/O protobuf file handling protocol."""
 
-import collections
 import logging
-from typing import Optional, Type, Dict
+from typing import Optional, Type
 
 import attr
 import betterproto
@@ -11,8 +10,6 @@ from ventserver.protocols import mcu
 from ventserver.protocols import exceptions
 from ventserver.protocols import messages
 from ventserver.protocols import crcelements
-from ventserver.protocols.application import states
-from ventserver.protocols.protobuf import mcu_pb
 from ventserver.sansio import protocols
 from ventserver.sansio import channels
 
@@ -45,7 +42,6 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
     )
     _message_receiver: messages.MessageReceiver = attr.ib()
 
-    
 
     @_message_receiver.default
     def init_message_receiver(self) -> messages.MessageReceiver:  # pylint: disable=no-self-use
@@ -73,8 +69,8 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
         self._crc_receiver.input(event.data)
         try:
             crc_message = self._crc_receiver.output()
-        except exceptions.ProtocolDataError as err:
-            print(err) # log error
+        except exceptions.ProtocolDataError:
+            self._logger.exception('CRCReceiver:') # log error
 
         if not crc_message:
             return None
@@ -86,10 +82,11 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
             self._logger.exception('MessageSender:')
 
         # check whether file name and data type are same
-        assert (event.state_type == type(message).__name__), ("The state type",
-                f"{type(message).__name__} data in the file does not match the",
-                f"filename {event.state_type}.")
-
+        if event.state_type != type(message).__name__:
+            raise exceptions.ProtocolDataError(
+                f"The state type {type(message).__name__} data in the "
+                f"file does not match the filename {event.state_type}."
+            )
         return message
 
 @attr.s
@@ -145,5 +142,4 @@ class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
         state_type = type(event).__name__
 
         message = StateData(state_type=state_type, data=crc_message)
-        print(message)
         return message

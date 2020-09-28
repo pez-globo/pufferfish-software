@@ -1,7 +1,7 @@
 """Trio I/O WebSocket driver."""
 import os
 import logging
-from typing import Optional, Type
+from typing import Optional, Type, TypeVar
 
 import attr
 import trio
@@ -9,6 +9,7 @@ import trio
 from ventserver.io.trio import endpoints
 from ventserver.io import fileobject
 
+_FileObject = TypeVar('_FileObject')
 
 @attr.s
 class Handler(endpoints.IOEndpoint[bytes, bytes]):
@@ -18,7 +19,7 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
     props: fileobject.FileProps = attr.ib(
         factory=fileobject.FileProps, repr=False
     )
-    _fileobject: Optional[trio._file_io.AsyncIOWrapper] = attr.ib(default=None)
+    _fileobject: 'Optional[trio._AsycRawIOBase]' = attr.ib(default=None)
     _connected: trio.Event = attr.ib(factory=trio.Event, repr=False)
 
 

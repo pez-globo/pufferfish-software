@@ -3,7 +3,7 @@
 import random
 import time
 import typing
-from typing import Mapping, Optional, Type, Dict
+from typing import Mapping, Optional, Type, Dict, List
 
 import attr
 
@@ -15,7 +15,7 @@ from ventserver.integration import _trio
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
 from ventserver.io.trio import fileio
-from ventserver.protocols import application
+from ventserver.protocols import exceptions
 from ventserver.protocols import server
 from ventserver.protocols import file
 from ventserver.protocols.protobuf import mcu_pb
@@ -312,39 +312,57 @@ async def simulate_states(
         simulator.update_sensors()
         simulator.update_actuators()
 
-async def read_states(
+
+async def initialize_states(
+        states: List[Type[betterproto.Message]],
         protocol: server.Protocol,
         filehandler: fileio.Handler
 ) -> Dict[
-        Type[betterproto.Message], Optional[betterproto.Message]
-    ]:
-    """Initialize all states from protobuf files."""
-    states = [
-        "Parameters", "CycleMeasurements",
-        "SensorMeasurements", "ParametersRequest"
-    ]
-
+    Type[betterproto.Message], Optional[betterproto.Message]
+]:
+    """Initialize state values from state store or default values."""
+    default_init = list()
     for state in states:
-        try:
-            filehandler.set_props(state, "rb")
+        try: # Handle fileio errors
+            filehandler.set_props(state.__name__, "rb")
             await filehandler.open()
             message = await filehandler.read()
             protocol.receive.file.input(
-                file.StateData(state_type=state, data=message)
+                file.StateData(state_type=state.__name__, data=message)
                 )
         # TODO: recognise exceptions that can be raised and handle them
         except Exception as err:
             # TODO: correct logger usage
             # logger.error(err)
-            print(err)
+            print("{0}".format(state))
         finally:
             await filehandler.close()
-
+    
     all_states = protocol.receive.backend.all_states
-    for event in protocol.receive.file.output_all():
-        if event:
-            all_states[type(event)] = event 
+    while True:
+        try: # Handles data integrity and protocol error
+            event = protocol.receive.file.output()
+            if not event:
+                break
 
+            all_states[type(event)] = event
+        except exceptions.ProtocolDataError as err:
+            # TODO: correct logger usage
+            # logger.error(err)
+            print("{0}:{1}".format(event))
+
+    for state in states:
+        if not all_states[state]:
+            default_init.append(state)  
+    
+    for state in default_init:
+        if state is mcu_pb.ParametersRequest:
+            all_states[mcu_pb.ParametersRequest] = mcu_pb.ParametersRequest(
+                mode=mcu_pb.VentilationMode.hfnc, rr=30, fio2=60, flow=6
+            )
+        else:
+            all_states[state] = state()
+    
     return all_states
 
 async def main() -> None:
@@ -364,15 +382,13 @@ async def main() -> None:
     ] = channels.TrioChannel()
 
     # Initialize State
-    # all_states = await read_states(protocol, filehandler)
 
-    all_states = protocol.receive.backend.all_states
-    all_states[mcu_pb.Parameters] = mcu_pb.Parameters()
-    all_states[mcu_pb.CycleMeasurements] = mcu_pb.CycleMeasurements()
-    all_states[mcu_pb.SensorMeasurements] = mcu_pb.SensorMeasurements()
-    all_states[mcu_pb.ParametersRequest] = mcu_pb.ParametersRequest(
-        mode=mcu_pb.VentilationMode.hfnc,
-        rr=30, fio2=60, flow=6
+    states = [
+        mcu_pb.Parameters, mcu_pb.CycleMeasurements,
+        mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
+    ]
+    all_states = await initialize_states(
+        states, protocol, filehandler
     )
 
     try:
