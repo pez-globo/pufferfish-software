@@ -111,4 +111,70 @@ void PCACSimulator::update_airway_expiratory() {
 
 void PCACSimulator::update_actuators() {}
 
+// HFNC Simulator
+
+void HFNCSimulator::update_parameters() {
+  parameters_.mode = parameters_request_.mode;
+  if (parameters_.mode != VentilationMode_hfnc) {
+    return;
+  }
+  if (parameters_request_.flow > 0) {
+    parameters_.flow = parameters_request_.flow;
+  }
+  if (parameters_request_.fio2 >= 21 && parameters_request_.fio2 <= 100) {
+    parameters_.fio2 = parameters_request_.fio2;
+  }
+  if (parameters_request_.rr > 0) {
+    parameters_.rr = parameters_request_.rr;
+  }
+}
+
+void HFNCSimulator::update_sensors() {
+  if (!update_needed()) {
+    return;
+  }
+
+  if (parameters_.mode != VentilationMode_hfnc) {
+    return;
+  }
+
+  // Timing
+  sensor_measurements_.time = current_time_;
+  uint32_t cycle_period = minute_duration / parameters_.rr;
+  if (!Util::within_timeout(cycle_start_time_, cycle_period, current_time_)) {
+    init_cycle(cycle_period);
+    update_cycle_measurements();
+  }
+  update_flow();
+  update_fio2();
+  update_spo2();
+}
+
+void HFNCSimulator::init_cycle(uint32_t cycle_period) {
+  cycle_start_time_ = current_time_;
+}
+
+void HFNCSimulator::update_cycle_measurements() {
+  cycle_measurements_.rr = parameters_.rr;
+}
+
+void HFNCSimulator::update_flow() {
+  sensor_measurements_.flow += (parameters_.flow - sensor_measurements_.flow) *
+                              flow_responsiveness / time_step();
+}
+
+void HFNCSimulator::update_spo2() {
+  sensor_measurements_.spo2 += (
+      spo2_fio2_scale * sensor_measurements_.fio2 - sensor_measurements_.spo2
+      ) * spo2_responsiveness / time_step();
+  if (sensor_measurements_.spo2 < 21) {
+    sensor_measurements_.spo2 = 21;
+  }
+  if (sensor_measurements_.spo2 > 100) {
+    sensor_measurements_.spo2 = 100;
+  }
+}
+
+void HFNCSimulator::update_actuators() {}
+
 }  // namespace Pufferfish::BreathingCircuit

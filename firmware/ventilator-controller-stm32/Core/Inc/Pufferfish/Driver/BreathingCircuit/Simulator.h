@@ -76,13 +76,42 @@ class PCACSimulator : public Simulator {
   const float exp_responsiveness = 0.05;   // ms
   const float insp_init_flow_rate = 120;   // L / min
   const float exp_init_flow_rate = -120;   // L / min
-  const float insp_flow_responsiveness = 0.02;
-  const float exp_flow_responsiveness = 0.02;
+  const float insp_flow_responsiveness = 0.02; // ms
+  const float exp_flow_responsiveness = 0.02; // ms
 
   void init_cycle(uint32_t cycle_period);
   void update_cycle_measurements();
   void update_airway_inspiratory();
   void update_airway_expiratory();
+};
+
+class HFNCSimulator : public Simulator {
+ public:
+  HFNCSimulator(
+      const ParametersRequest &parameters_request,
+      Parameters &parameters,
+      SensorMeasurements &sensor_measurements,
+      CycleMeasurements &cycle_measurements)
+   : Simulator(parameters_request, parameters, sensor_measurements, cycle_measurements) {}
+
+  virtual void update_parameters() override;
+  virtual void update_sensors() override;
+  virtual void update_actuators() override;
+
+ private:
+  static const uint32_t default_cycle_period = 2000;  // ms
+  static const uint32_t default_insp_period = 1000;   // ms
+  static const uint32_t minute_duration = 60000;      // ms
+
+  uint32_t cycle_start_time_ = 0;             // ms
+  const float flow_responsiveness = 0.01; // ms
+  const float spo2_fio2_scale = 2.5; // % SpO2 / % FiO2
+  const float spo2_responsiveness = 0.0005; // ms
+
+  void init_cycle(uint32_t cycle_period);
+  void update_cycle_measurements();
+  void update_flow();
+  void update_spo2();
 };
 
 }  // namespace Pufferfish::BreathingCircuit
