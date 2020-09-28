@@ -55,7 +55,9 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
         """Handle input events."""
         if event:
             if not event.data:
-                raise exceptions.ProtocolDataError("Empty file: {0}".format(event.state_type))
+                raise exceptions.ProtocolDataError(
+                    "Empty file: {0}".format(event.state_type)
+                )
             self._buffer.input(event)
 
     def output(self) -> Optional[UpperEvent]:
@@ -70,7 +72,7 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
         try:
             crc_message = self._crc_receiver.output()
         except exceptions.ProtocolDataError:
-            self._logger.exception('CRCReceiver:') # log error
+            self._logger.exception('CRCReceiver(%s):', event.state_type)
 
         if not crc_message:
             return None
@@ -133,13 +135,11 @@ class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
         self._crc_sender.input(message_body)
         try:
             crc_message = self._crc_sender.output()
-        except exceptions.ProtocolDataError as err:
-            print(err) #log the error
+        except exceptions.ProtocolDataError:
+            self._logger.exception('CRCSender:')
 
         if not crc_message:
             return None
 
         state_type = type(event).__name__
-
-        message = StateData(state_type=state_type, data=crc_message)
-        return message
+        return StateData(state_type=state_type, data=crc_message)

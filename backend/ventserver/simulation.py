@@ -330,11 +330,8 @@ async def initialize_states(
             protocol.receive.file.input(
                 file.StateData(state_type=state.__name__, data=message)
                 )
-        # TODO: recognise exceptions that can be raised and handle them
-        except Exception as err:
-            # TODO: correct logger usage
-            # logger.error(err)
-            print("{0}".format(state))
+        except OSError as err:
+            print(err)
         finally:
             await filehandler.close()
     
@@ -347,9 +344,7 @@ async def initialize_states(
 
             all_states[type(event)] = event
         except exceptions.ProtocolDataError as err:
-            # TODO: correct logger usage
-            # logger.error(err)
-            print("{0}:{1}".format(event))
+            print(err)
 
     for state in states:
         if not all_states[state]:

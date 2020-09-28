@@ -1,7 +1,7 @@
 """Trio I/O WebSocket driver."""
 import os
 import logging
-from typing import Optional, Type, TypeVar
+from typing import Optional, TypeVar
 
 import attr
 import trio
@@ -23,8 +23,8 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
     _connected: trio.Event = attr.ib(factory=trio.Event, repr=False)
 
 
-    def set_props(self, filename: str, mode: Optional[str] = None) -> None:
-        """"""
+    def set_props(self, filename: str, mode: Optional[str] = 'rb') -> None:
+        """Sets properties of file to establish I/O connection."""
         if not ".pb" in filename:
             filename += ".pb"
         self.props.filename = filename
@@ -40,8 +40,7 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
                                "Please close the old file instance."
                               )
         _filepath = os.path.join(self.props.filedir, self.props.filename)
-        # print(_filepath)
-        # TODO: Recognize and handle async File I/O exceptions
+        # raises OSError
         self._fileobject = await trio.open_file(_filepath, self.props.mode)
         self._connected.set()
 
@@ -81,5 +80,5 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
             return
         if self._fileobject is None:
             raise RuntimeError("No file object defined to write.")
-        # TODO: Recognize and handle async File I/O exceptions
-        await self._fileobject.write(data)
+
+        await self._fileobject.write(data)  # raises OSError

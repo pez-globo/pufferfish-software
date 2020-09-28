@@ -92,8 +92,8 @@ async def process_file_save_output(
         try:
             await filehandler.open()
             await filehandler.send(message.data)
-        except Exception as err:
-            logger.error(err)
+        except OSError:
+            logger.error("Handler: ")
         finally:
             await filehandler.close()
 
