@@ -98,7 +98,7 @@ namespace PF = Pufferfish;
 PF::Application::States all_states;
 
 // Breathing Circuit Control
-PF::BreathingCircuit::Simulator breathing_circuit(
+PF::BreathingCircuit::PCACSimulator breathing_circuit(
     all_states.parameters_request(),
     all_states.parameters(),
     all_states.sensor_measurements(),
@@ -444,6 +444,7 @@ int main(void)
     uint32_t current_time = HAL_GetTick();
 
     // Breathing Circuit Controller
+    breathing_circuit.update_parameters();
     breathing_circuit.update_clock(current_time);
     breathing_circuit.update_sensors();
     breathing_circuit.update_actuators();
