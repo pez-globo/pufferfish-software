@@ -9,6 +9,7 @@
 
 #include <cstdint>
 
+#include "CRCElements.h"
 #include "Datagrams.h"
 #include "Frames.h"
 #include "Pufferfish/Application/States.h"
@@ -57,8 +58,9 @@ class BackendReceiver {
     available = 0,
     waiting,
     invalid_frame_length,
+    invalid_crcelement_parse,
+    invalid_crcelement_crc,
     invalid_datagram_parse,
-    invalid_datagram_crc,
     invalid_datagram_length,
     invalid_datagram_sequence,
     invalid_message_length,
@@ -66,19 +68,22 @@ class BackendReceiver {
     invalid_message_encoding
   };
 
-  explicit BackendReceiver(HAL::CRC32C &crc32c);
+  explicit BackendReceiver(HAL::CRC32C &crc32c) : crc_(crc32c), message_(message_descriptors) {}
 
   // Call this until it returns outputReady, then call output
   InputStatus input(uint8_t new_byte);
   OutputStatus output(Application::Message &output_message);
 
  private:
-  using BackendDatagramReceiver = DatagramReceiver<FrameProps::frame_payload_max_size>;
-  using BackendParsedDatagram = ParsedDatagram<FrameProps::frame_payload_max_size>;
+  using BackendCRCReceiver = CRCElementReceiver<FrameProps::payload_max_size>;
+  using BackendParsedCRC = ParsedCRCElement<FrameProps::payload_max_size>;
+  using BackendDatagramReceiver = DatagramReceiver<BackendCRCReceiver::Props::payload_max_size>;
+  using BackendParsedDatagram = ParsedDatagram<BackendCRCReceiver::Props::payload_max_size>;
   using BackendMessageReceiver =
       Protocols::MessageReceiver<Application::Message, message_descriptors.size()>;
 
   FrameReceiver frame_;
+  BackendCRCReceiver crc_;
   BackendDatagramReceiver datagram_;
   BackendMessageReceiver message_;
 };
@@ -91,22 +96,25 @@ class BackendSender {
     invalid_message_type,
     invalid_message_encoding,
     invalid_datagram_length,
+    invalid_crcelement_length,
     invalid_frame_length,
     invalid_return_code
   };
 
-  explicit BackendSender(HAL::CRC32C &crc32c);
+  explicit BackendSender(HAL::CRC32C &crc32c) : message_(message_descriptors), crc_(crc32c) {}
 
   Status transform(
       const Application::Message &input_message, FrameProps::ChunkBuffer &output_buffer);
 
  private:
-  using BackendDatagramSender = DatagramSender<FrameProps::frame_payload_max_size>;
+  using BackendCRCSender = CRCElementSender<FrameProps::payload_max_size>;
+  using BackendDatagramSender = DatagramSender<BackendCRCSender::Props::payload_max_size>;
   using BackendMessageSender =
       Protocols::MessageSender<Application::Message, message_descriptors.size()>;
 
   BackendMessageSender message_;
   BackendDatagramSender datagram_;
+  BackendCRCSender crc_;
   FrameSender frame_;
 };
 

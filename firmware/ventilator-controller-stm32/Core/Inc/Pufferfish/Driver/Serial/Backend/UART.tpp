@@ -25,8 +25,9 @@ typename UARTBackendReceiver<BufferedUART>::Status UARTBackendReceiver<BufferedU
     case BackendReceiver::OutputStatus::waiting:
       return Status::waiting;
     case BackendReceiver::OutputStatus::invalid_frame_length:
+    case BackendReceiver::OutputStatus::invalid_crcelement_parse:
+    case BackendReceiver::OutputStatus::invalid_crcelement_crc:
     case BackendReceiver::OutputStatus::invalid_datagram_parse:
-    case BackendReceiver::OutputStatus::invalid_datagram_crc:
     case BackendReceiver::OutputStatus::invalid_datagram_length:
     case BackendReceiver::OutputStatus::invalid_message_length:
     case BackendReceiver::OutputStatus::invalid_message_type:
@@ -76,6 +77,7 @@ typename UARTBackendSender<BufferedUART>::Status UARTBackendSender<BufferedUART>
     case BackendSender::Status::invalid_message_type:
     case BackendSender::Status::invalid_message_encoding:
     case BackendSender::Status::invalid_datagram_length:
+    case BackendSender::Status::invalid_crcelement_length:
     case BackendSender::Status::invalid_frame_length:
     default:
       // TODO(lietk12): handle error cases first

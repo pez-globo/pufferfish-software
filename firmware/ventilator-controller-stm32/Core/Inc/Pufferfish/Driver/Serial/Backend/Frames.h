@@ -15,8 +15,8 @@
 namespace Pufferfish::Driver::Serial::Backend {
 
 struct FrameProps {
-  static const size_t frame_payload_max_size = 254;
-  static const size_t chunk_max_size = frame_payload_max_size + 2;  // including delimiter
+  static const size_t payload_max_size = 254;
+  static const size_t chunk_max_size = payload_max_size + 2;  // including delimiter
   using ChunkBuffer = Util::ByteVector<chunk_max_size>;
 
   enum class InputStatus { ok = 0, output_ready, invalid_length };

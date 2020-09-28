@@ -13,9 +13,6 @@ namespace Pufferfish::Driver::Serial::Backend {
 
 // BackendReceiver
 
-BackendReceiver::BackendReceiver(HAL::CRC32C &crc32c)
-    : datagram_(crc32c), message_(message_descriptors) {}
-
 BackendReceiver::InputStatus BackendReceiver::input(uint8_t new_byte) {
   switch (frame_.input(new_byte)) {
     case FrameProps::InputStatus::output_ready:
@@ -30,7 +27,8 @@ BackendReceiver::InputStatus BackendReceiver::input(uint8_t new_byte) {
 
 BackendReceiver::OutputStatus BackendReceiver::output(Application::Message &output_message) {
   FrameProps::ChunkBuffer temp_buffer1;
-  BackendDatagramReceiver::Props::PayloadBuffer temp_buffer2;
+  BackendCRCReceiver::Props::PayloadBuffer temp_buffer2;
+  BackendDatagramReceiver::Props::PayloadBuffer temp_buffer3;
 
   // Frame
   switch (frame_.output(temp_buffer1)) {
@@ -42,13 +40,22 @@ BackendReceiver::OutputStatus BackendReceiver::output(Application::Message &outp
       break;
   }
 
+  // CRCElement
+  BackendParsedCRC receive_crc(temp_buffer2);
+  switch (crc_.transform(temp_buffer1, receive_crc)) {
+    case BackendCRCReceiver::Status::invalid_parse:
+      return OutputStatus::invalid_crcelement_parse;
+    case BackendCRCReceiver::Status::invalid_crc:
+      return OutputStatus::invalid_crcelement_crc;
+    case BackendCRCReceiver::Status::ok:
+      break;
+  }
+
   // Datagram
-  BackendParsedDatagram receive_datagram(temp_buffer2);
-  switch (datagram_.transform(temp_buffer1, receive_datagram)) {
+  BackendParsedDatagram receive_datagram(temp_buffer3);
+  switch (datagram_.transform(temp_buffer2, receive_datagram)) {
     case BackendDatagramReceiver::Status::invalid_parse:
       return OutputStatus::invalid_datagram_parse;
-    case BackendDatagramReceiver::Status::invalid_crc:
-      return OutputStatus::invalid_datagram_crc;
     case BackendDatagramReceiver::Status::invalid_length:
       return OutputStatus::invalid_datagram_length;
     case BackendDatagramReceiver::Status::invalid_sequence:
@@ -58,7 +65,7 @@ BackendReceiver::OutputStatus BackendReceiver::output(Application::Message &outp
   }
 
   // Message
-  switch (message_.transform(temp_buffer2, output_message)) {
+  switch (message_.transform(temp_buffer3, output_message)) {
     case Protocols::MessageStatus::invalid_length:
       return OutputStatus::invalid_message_length;
     case Protocols::MessageStatus::invalid_type:
@@ -73,13 +80,11 @@ BackendReceiver::OutputStatus BackendReceiver::output(Application::Message &outp
 
 // BackendSender
 
-BackendSender::BackendSender(HAL::CRC32C &crc32c)
-    : message_(message_descriptors), datagram_(crc32c) {}
-
 BackendSender::Status BackendSender::transform(
     const Application::Message &input_message, FrameProps::ChunkBuffer &output_buffer) {
   BackendDatagramSender::Props::PayloadBuffer temp_buffer1;
-  FrameProps::ChunkBuffer temp_buffer2;
+  BackendCRCSender::Props::PayloadBuffer temp_buffer2;
+  FrameProps::ChunkBuffer temp_buffer3;
 
   // Message
   switch (message_.transform(input_message, temp_buffer1)) {
@@ -101,8 +106,16 @@ BackendSender::Status BackendSender::transform(
       break;
   }
 
+  // CRCElement
+  switch (crc_.transform(temp_buffer2, temp_buffer3)) {
+    case BackendCRCSender::Status::invalid_length:
+      return Status::invalid_crcelement_length;
+    case BackendCRCSender::Status::ok:
+      break;
+  }
+
   // Frame
-  switch (frame_.transform(temp_buffer2, output_buffer)) {
+  switch (frame_.transform(temp_buffer3, output_buffer)) {
     case FrameProps::OutputStatus::invalid_length:
       return Status::invalid_frame_length;
     case FrameProps::OutputStatus::ok:

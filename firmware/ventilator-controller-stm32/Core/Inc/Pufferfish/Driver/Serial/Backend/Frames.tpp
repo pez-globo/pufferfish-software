@@ -64,7 +64,7 @@ template <size_t input_size, size_t output_size>
 FrameProps::OutputStatus COBSDecoder::transform(
     const Util::ByteVector<input_size> &input_buffer,
     Util::ByteVector<output_size> &output_buffer) const {
-  if (input_buffer.size() > FrameProps::frame_payload_max_size + 1) {
+  if (input_buffer.size() > FrameProps::payload_max_size + 1) {
     return FrameProps::OutputStatus::invalid_length;
   }
 
@@ -83,7 +83,7 @@ template <size_t input_size, size_t output_size>
 FrameProps::OutputStatus COBSEncoder::transform(
     const Util::ByteVector<input_size> &input_buffer,
     Util::ByteVector<output_size> &output_buffer) const {
-  if (input_buffer.size() > FrameProps::frame_payload_max_size) {
+  if (input_buffer.size() > FrameProps::payload_max_size) {
     return FrameProps::OutputStatus::invalid_length;
   }
 

@@ -32,7 +32,7 @@ union UnionMessage {
 using Message = Protocols::Message<
     UnionMessage,
     Driver::Serial::Backend::DatagramProps<
-        Driver::Serial::Backend::FrameProps::frame_payload_max_size>::payload_max_size>;
+        Driver::Serial::Backend::FrameProps::payload_max_size>::payload_max_size>;
 
 enum class MessageTypes : uint8_t {
   alarms = 1,
