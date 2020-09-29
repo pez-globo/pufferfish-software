@@ -283,7 +283,7 @@ PF::Driver::I2C::SDPSensor i2c_press17(i2c_ext_press17);
 PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 */
 PF::Driver::I2C::SFM3019 i2c_presstest(i2c_hal_presstest, i2c_hal_global);
-PF::Driver::Measurement::SFM3019 sfm3019(i2c_presstest);
+PF::Driver::Measurement::SFM3019 sfm3019(i2c_presstest, all_states.sensor_measurements().flow);
 
 /*
 // Test list
@@ -464,25 +464,20 @@ int main(void)
     breathing_circuit.update_actuators();
 
     // Sensor Measurement Overrides
-    PF::Driver::I2C::SFM3019Sample sample;
-    switch (sfm3019.setup()) {
-      case PF::Driver::Measurement::SFM3019::Status::ok:
-        if (sfm3019.output(all_states.sensor_measurements())
-            == PF::Driver::Measurement::SFM3019::Status::failed) {
-          board_led1.write(true);
-          PF::HAL::delay(1);
-          board_led1.write(false);
-        }
-        PF::HAL::delay(1);
-        break;
-      case PF::Driver::Measurement::SFM3019::Status::failed:
-        board_led1.write(true);
-        break;
-      case PF::Driver::Measurement::SFM3019::Status::waiting:
+    switch (sfm3019.update()) {
+      case PF::Driver::Measurement::SFM3019::State::setup:
         board_led1.write(true);
         PF::HAL::delay(1);
         board_led1.write(false);
         PF::HAL::delay(50);
+        break;
+      case PF::Driver::Measurement::SFM3019::State::output:
+        board_led1.write(false);
+        PF::HAL::delay(1);
+        break;
+      case PF::Driver::Measurement::SFM3019::State::failed:
+        board_led1.write(true);
+        PF::HAL::delay(1);
         break;
     }
 

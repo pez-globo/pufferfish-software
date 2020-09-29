@@ -11,7 +11,6 @@
 
 #include <cstdint>
 
-#include "Pufferfish/Application/States.h"
 #include "Pufferfish/Driver/I2C/SFM3019.h"
 
 namespace Pufferfish::Driver::Measurement {
@@ -19,7 +18,7 @@ namespace Pufferfish::Driver::Measurement {
 class SFM3019StateMachine {
  public:
   enum class State {
-    starting,
+    uninitialized,
     powering_up,
     checking_pn,
     getting_conversion,
@@ -46,7 +45,7 @@ class SFM3019StateMachine {
 
   State state() const;
 
-  // Input Actions
+  // Input Actions, returns the preferred next action to run
   Output initialize();
   Output wait(uint32_t current_time);
   Output reset(uint32_t current_time);
@@ -65,7 +64,7 @@ class SFM3019StateMachine {
   static const uint32_t measuring_duration_us = 500; // us
   static const uint32_t product_number = 0x04020611;
 
-  State state_ = State::starting;
+  State state_ = State::uninitialized;
   uint32_t wait_start_time_ = 0;
   uint32_t wait_start_time_us_ = 0;
   uint32_t current_time_ = 0;
@@ -77,26 +76,31 @@ class SFM3019StateMachine {
 
 class SFM3019 {
  public:
-  enum class Status { ok, waiting, failed };
+  enum class State { output, setup, failed };
 
-  SFM3019(I2C::SFM3019 &low_level)
-      : low_level_(low_level) {}
+  SFM3019(I2C::SFM3019 &low_level, float &flow)
+      : low_level_(low_level), flow_(flow) {}
 
-  Status setup();
-  Status output(SensorMeasurements &measurements);
+  State update();
 
  private:
   using Action = SFM3019StateMachine::Output;
 
-  static const size_t max_retries = 8;
+  static const size_t max_retries_setup = 8;   // max retries for all setup steps combined
+  static const size_t max_retries_output = 8;  // max retries between valid outputs
 
   I2C::SFM3019 &low_level_;
   SFM3019StateMachine fsm_;
   Action next_action_ = Action::initialize;
-  size_t retry_count = 0;
+  size_t retry_count_ = 0;
 
   uint32_t pn_ = 0;
   I2C::SFM3019ConversionFactors conversion_{};
+
+  // Outputs
+  float &flow_;
+
+  State check_setup_retry() const;
 };
 
 }  // namespace Pufferfish::BreathingCircuit
