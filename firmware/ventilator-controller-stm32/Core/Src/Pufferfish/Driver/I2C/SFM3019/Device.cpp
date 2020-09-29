@@ -11,9 +11,6 @@
 #include <array>
 
 #include "Pufferfish/HAL/STM32/Endian.h"
-// FIXME: After HAL/Interfaces/Time.h is created, change to
-// "Pufferfish/HAL/HAL.h"
-#include "Pufferfish/HAL/STM32/Time.h"
 #include "Pufferfish/Util/Parse.h"
 
 namespace Pufferfish::Driver::I2C::SFM3019 {
@@ -104,7 +101,8 @@ I2CDeviceStatus Device::read_sample(Sample &sample, int16_t scale_factor, int16_
   sample.raw_flow = HAL::ntoh(Util::parse_network_order<uint16_t>(buffer.data(), buffer.size()));
 
   // convert to actual flow rate
-  sample.flow = static_cast<float>(static_cast<int32_t>(sample.raw_flow) - offset) / static_cast<float>(scale_factor);
+  sample.flow = static_cast<float>(static_cast<int32_t>(sample.raw_flow) - offset) /
+                static_cast<float>(scale_factor);
 
   return I2CDeviceStatus::ok;
 }
