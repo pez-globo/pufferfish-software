@@ -20,9 +20,7 @@ class MockAnalogInput : public AnalogInput {
    * @brief Constructs a new Analog Input
    * @param hadc and tTimeout
    */
-  MockAnalogInput(){
-
-  }
+  MockAnalogInput() = default;
 
   /**
    * @brief  Updates the mLastState to true
@@ -36,7 +34,7 @@ class MockAnalogInput : public AnalogInput {
    * @param  AnalogDataRead, Out parameter returns the lastInput
    * @return ADCStatus returns ok
    */
-  ADCStatus read(uint32_t &analogDataRead) override;
+  ADCStatus read(uint32_t &analog_data_read) override;
 
   /**
    * @brief  Updates the mLastState to false
@@ -50,21 +48,21 @@ class MockAnalogInput : public AnalogInput {
    * @param  None
    * @return return state START(true)/STOP(false)
    */
-  bool getAnalogInputState();
+  [[nodiscard]] bool get_analog_input_state() const;
 
   /**
    * @brief  Updates the lastInput with setAnalogDataRead
    * @param  setAnalogDataRead value to update the lastInput
    * @return None
    */
-  void setRead(uint32_t setAnalogDataRead);
+  void set_read(uint32_t set_analog_data_read);
+
  private:
   /* State for Analog input START */
-  bool mLastState = false;
+  bool last_state_ = false;
   /* Last Input data set */
-  uint32_t lastInput;
-
+  uint32_t last_input_ = 0;
 };
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

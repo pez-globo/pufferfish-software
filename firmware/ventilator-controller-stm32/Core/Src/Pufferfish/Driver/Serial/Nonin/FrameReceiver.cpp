@@ -21,24 +21,21 @@
 
 #include "Pufferfish/Driver/Serial/Nonin/FrameReceiver.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace Serial {
-namespace Nonin {
+namespace Pufferfish::Driver::Serial::Nonin {
 
 /**
- * validateStartOfFrame function is called on beginning to get the first frame and
- * on there is a loss of bytes or noise in the bytes of frame received.
- * Called based on startOfFrameStatus private variable
+ * validateStartOfFrame function is called on beginning to get the first frame
+ * and on there is a loss of bytes or noise in the bytes of frame received.
+ * Called based on start_of_frame_status_ private variable
  */
-bool validateStartOfFrame(const Frame &newFrame)
-{
-  /* Check for the byte 1 is 01 and 1st bit of byte 2 is 0x81 for the start of frame */
-  if(newFrame[0] == 0x01 && (newFrame[1] & 0x81) == 0x81 )
-  {
+bool validate_start_of_frame(const Frame &new_frame) {
+  /* Check for the byte 1 is 01 and 1st bit of byte 2 is 0x81 for the start of
+   * frame */
+  static const uint8_t mask_start_of_packet = 0x81;
+  if (new_frame[0] == 0x01 && (new_frame[1] & mask_start_of_packet) == mask_start_of_packet) {
     /* Checksum validation */
-    if (((newFrame[0]+newFrame[1]+newFrame[2]+newFrame[3]) % 256) == newFrame[4])
-    {
+    if (((new_frame[0] + new_frame[1] + new_frame[2] + new_frame[3]) % (UINT8_MAX + 1)) ==
+        new_frame[4]) {
       return true;
     }
   }
@@ -46,99 +43,90 @@ bool validateStartOfFrame(const Frame &newFrame)
 }
 
 /**
- * validateFrame function is called to validated the every frame for Status byte and Checksum.
+ * validateFrame function is called to validated the every frame for Status byte
+ * and Checksum.
  */
-FrameReceiver::FrameInputStatus validateFrame(const Frame &newFrame)
-{
+FrameReceiver::FrameInputStatus validate_frame(const Frame &new_frame) {
+  static const uint8_t mask_start_of_frame = 0x80;
   /* Check for the byte 1 is 01 and 1st bit of byte 2 is 0x80 for status byte */
-  if(newFrame[0] == 0x01 && (newFrame[1] & 0x80) == 0x80 )
-  {
+  if (new_frame[0] == 0x01 && (new_frame[1] & mask_start_of_frame) == mask_start_of_frame) {
     /* Checksum validation */
-    if (((newFrame[0]+newFrame[1]+newFrame[2]+newFrame[3]) % 256) == newFrame[4])
-    {
+    if (((new_frame[0] + new_frame[1] + new_frame[2] + new_frame[3]) % (UINT8_MAX + 1)) ==
+        new_frame[4]) {
       /* Return the start of packet status as available */
       return FrameReceiver::FrameInputStatus::available;
     }
   }
 
   /* return the frame status as not available */
-  return FrameReceiver::FrameInputStatus::framingError;
+  return FrameReceiver::FrameInputStatus::framing_error;
 }
 
-FrameReceiver::FrameInputStatus FrameReceiver::updateFrameBuffer(uint8_t newByte)
-{
-  Frame frameBuffer;
+FrameReceiver::FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
+  Frame frame_buffer;
 
   /* Input the new byte received and check for frame availability */
-  if(frameBuf.input(newByte) == BufferStatus::partial)
-  {
+  if (frame_buf_.input(new_byte) == BufferStatus::partial) {
     /* return false on frame is not available */
     return FrameInputStatus::waiting;
   }
 
   /* On frame available update the frameBuffer with new frame available */
-  if(frameBuf.output(frameBuffer) != BufferStatus::ok)
-  {
+  if (frame_buf_.output(frame_buffer) != BufferStatus::ok) {
     /* return false on frame is not available */
-    return FrameInputStatus::notAvailable;
+    return FrameInputStatus::not_available;
   }
 
-  /* On startOfFrameStatus false Validate the start of frame */
-  if(startOfFrameStatus == false)
-  {
+  /* On start_of_frame_status_ false Validate the start of frame */
+  if (!start_of_frame_status_) {
     /* Validate the start of frame in the beginning of reading sensor data and
-       on there is loss of bytes in a frame or noise occurred in recived frame due to which
-       the validation of start of frame is called */
-    if(validateStartOfFrame(frameBuffer) == true)
-    {
+       on there is loss of bytes in a frame or noise occurred in recived frame
+       due to which the validation of start of frame is called */
+    if (validate_start_of_frame(frame_buffer)) {
       /* On start of frame available update the start frame status as true */
-      startOfFrameStatus = true;
+      start_of_frame_status_ = true;
       /* On Start frame is available return status as available */
       return FrameInputStatus::available;
     }
     /* On non available of start frame left shift the frame buffer */
-    frameBuf.shift_left();
+    frame_buf_.shift_left();
     /* On Start frame is not available return status as waiting */
     return FrameInputStatus::waiting;
   }
 
   /* Validate the frame received and return the status */
-  inputStatus =  validateFrame(frameBuffer);
-  if(inputStatus == FrameInputStatus::framingError) {
+  input_status_ = validate_frame(frame_buffer);
+  if (input_status_ == FrameInputStatus::framing_error) {
     /* On checksum error update the start frame status as false */
-    startOfFrameStatus = false;
+    start_of_frame_status_ = false;
   }
-  return inputStatus;
+  return input_status_;
 }
 
-FrameReceiver::FrameInputStatus FrameReceiver::input(const uint8_t newByte) {
+FrameReceiver::FrameInputStatus FrameReceiver::input(const uint8_t new_byte) {
   /* Update the frame buffer with new byte received */
-  inputStatus = this->updateFrameBuffer(newByte);
+  input_status_ = this->update_frame_buffer(new_byte);
 
   /* Return the input status */
-  return inputStatus;
+  return input_status_;
 }
 
 FrameReceiver::FrameOutputStatus FrameReceiver::output(Frame &frame) {
   /* Check for the frame availability in the buffer */
-  if (inputStatus != FrameInputStatus::available){
+  if (input_status_ != FrameInputStatus::available) {
     return FrameOutputStatus::waiting;
   }
 
   /* On frame available update the frameBuffer with new frame available */
-  if(frameBuf.output(frame) != BufferStatus::ok)
-  {
+  if (frame_buf_.output(frame) != BufferStatus::ok) {
     /* return false on frame is not available */
     return FrameOutputStatus::waiting;
   }
 
-  frameBuf.reset();
+  frame_buf_.reset();
 
   /* Return frame is available */
   return FrameOutputStatus::available;
 }
 
-} // Nonin
-} // Serial
-} // Driver
-} // Pufferfish
+}  // namespace Pufferfish::Driver::Serial::Nonin

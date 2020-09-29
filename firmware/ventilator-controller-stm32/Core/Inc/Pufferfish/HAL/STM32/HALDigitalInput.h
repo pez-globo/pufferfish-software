@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "stm32h7xx_hal.h"
 #include "Pufferfish/HAL/Interfaces/DigitalInput.h"
+#include "stm32h7xx_hal.h"
 
 namespace Pufferfish {
 namespace HAL {
@@ -23,25 +23,21 @@ class HALDigitalInput : public DigitalInput {
    * @param pin   GPIO pin of the MCU (1, 2, ...)
    * @param inverted   true if the input is active-low, false for active-high
    */
-  HALDigitalInput(GPIO_TypeDef &port, const uint16_t pin, const bool inverted =
-  false)
-      :
-      mPort(port),
-      mPin(pin),
-      mInverted(inverted) {
-  }
+  HALDigitalInput(GPIO_TypeDef &port, const uint16_t pin, const bool inverted = false)
+      : port_(port), pin(pin), inverted(inverted) {}
 
   /**
    * Reads a digital input from the GPIO pin
    * @return true if the pin is active (HIGH when inverted=false,
    *  and LOW when inverted=true), false otherwise
    */
-  bool read();
+  bool read() override;
+
  private:
-  GPIO_TypeDef &mPort;
-  const uint16_t mPin;
-  const bool mInverted;
+  GPIO_TypeDef &port_;
+  const uint16_t pin;
+  const bool inverted;
 };
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

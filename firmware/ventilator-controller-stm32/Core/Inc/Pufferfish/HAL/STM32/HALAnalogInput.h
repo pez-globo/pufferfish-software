@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "stm32h7xx_hal.h"
 #include "Pufferfish/HAL/Interfaces/AnalogInput.h"
+#include "stm32h7xx_hal.h"
 
 namespace Pufferfish {
 namespace HAL {
@@ -21,9 +21,8 @@ class HALAnalogInput : public AnalogInput {
    * @brief Constructs a new Analog Input
    * @param hadc and tTimeout
    */
-  HALAnalogInput(ADC_HandleTypeDef &hadc, uint32_t tTimeout) : adcInput(hadc),  timeout(tTimeout){
-
-  }
+  HALAnalogInput(ADC_HandleTypeDef &hadc, uint32_t t_timeout)
+      : adc_input_(hadc), timeout_(t_timeout) {}
 
   /**
    * @brief Calls HAL_ADC_Start
@@ -37,7 +36,7 @@ class HALAnalogInput : public AnalogInput {
    * @param  AnalogDataRead, Out parameter returns the read data
    * @return ADCStatus returns error/ok/timeout
    */
-  ADCStatus read(uint32_t &analogDataRead) override;
+  ADCStatus read(uint32_t &analog_data_read) override;
 
   /**
    * Calls HAL_ADC_Stop
@@ -47,10 +46,9 @@ class HALAnalogInput : public AnalogInput {
   ADCStatus stop() override;
 
  private:
-  ADC_HandleTypeDef &adcInput;
-  uint32_t timeout = 0;
-
+  ADC_HandleTypeDef &adc_input_;
+  uint32_t timeout_ = 0;
 };
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish
