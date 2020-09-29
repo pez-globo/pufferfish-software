@@ -10,38 +10,21 @@
 
 #pragma once
 
-#include <cstdint>
-
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 #include "Pufferfish/Driver/Testable.h"
-#include "SensirionSensor.h"
+#include "Pufferfish/Driver/I2C/SensirionSensor.h"
+#include "Types.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace I2C {
+namespace Pufferfish::Driver::I2C::SFM3019 {
 
-/**
- * All data in a reading from the Sensirion SFM3000 mass flow meter.
- */
-struct SFM3019Sample {
-  int16_t raw_flow;
-  float flow;
-};
-
-struct SFM3019ConversionFactors {
-  int16_t scale_factor = 170;
-  int16_t offset = -24576;
-  uint16_t flow_unit;
-};
+static const uint16_t default_i2c_addr = 0x2e;
 
 /**
  * Driver for Sensirion SFM3019 flow sensor
  */
-class SFM3019 : public Testable {
+class Device {
  public:
-  static constexpr uint16_t default_i2c_addr = 0x2e;
-
-  explicit SFM3019(
+  explicit Device(
       HAL::I2CDevice &dev, HAL::I2CDevice &global_dev)
       : sensirion_(dev), global_(global_dev) {}
 
@@ -61,7 +44,7 @@ class SFM3019 : public Testable {
    * Reads out the conversion factors
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus read_conversion_factors(SFM3019ConversionFactors &conversion);
+  I2CDeviceStatus read_conversion_factors(ConversionFactors &conversion);
 
   /**
    * Reads out the serial number
@@ -75,10 +58,13 @@ class SFM3019 : public Testable {
    * @param sample[out] the sensor reading; only valid on success
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus read_sample(SFM3019Sample &sample, int16_t scale_factor, int16_t offset);
+  I2CDeviceStatus read_sample(Sample &sample, int16_t scale_factor, int16_t offset);
 
-  I2CDeviceStatus reset() override;
-  I2CDeviceStatus test() override;
+  /**
+   * Causes a global I2C device reset
+   * @return ok on success, error code otherwise
+   */
+  I2CDeviceStatus reset();
 
  private:
   static const uint8_t crc_poly = 0x31;
@@ -86,9 +72,6 @@ class SFM3019 : public Testable {
 
   SensirionSensor sensirion_;
   HAL::I2CDevice &global_;
-  float scale_factor_;
 };
 
-}  // namespace I2C
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::I2C::SFM3019

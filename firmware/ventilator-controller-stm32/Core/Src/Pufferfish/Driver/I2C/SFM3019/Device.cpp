@@ -6,7 +6,7 @@
  *  A driver for the SFM3019 Low Pressure Drop Digital Flow Meter
  */
 
-#include "Pufferfish/Driver/I2C/SFM3019.h"
+#include "Pufferfish/Driver/I2C/SFM3019/Device.h"
 
 #include <array>
 
@@ -16,11 +16,11 @@
 #include "Pufferfish/HAL/STM32/Time.h"
 #include "Pufferfish/Util/Parse.h"
 
-namespace Pufferfish::Driver::I2C {
+namespace Pufferfish::Driver::I2C::SFM3019 {
 
 // SFM3019
 
-I2CDeviceStatus SFM3019::start_measure() {
+I2CDeviceStatus Device::start_measure() {
   static const uint8_t start_high = 0x36;
   static const uint8_t start_low = 0x08;
   std::array<uint8_t, 2> cmd{{start_high, start_low}};
@@ -32,7 +32,7 @@ I2CDeviceStatus SFM3019::start_measure() {
   return I2CDeviceStatus::ok;
 }
 
-I2CDeviceStatus SFM3019::stop_measure() {
+I2CDeviceStatus Device::stop_measure() {
   static const uint8_t stop_high = 0x3f;
   static const uint8_t stop_low = 0xf9;
   std::array<uint8_t, 2> cmd{{stop_high, stop_low}};
@@ -44,7 +44,7 @@ I2CDeviceStatus SFM3019::stop_measure() {
   return I2CDeviceStatus::ok;
 }
 
-I2CDeviceStatus SFM3019::serial_number(uint32_t &sn) {
+I2CDeviceStatus Device::serial_number(uint32_t &sn) {
   static const uint8_t serial_high = 0xe1;
   static const uint8_t serial_low = 0x02;
   std::array<uint8_t, 2> cmd{{serial_high, serial_low}};
@@ -64,7 +64,7 @@ I2CDeviceStatus SFM3019::serial_number(uint32_t &sn) {
   return I2CDeviceStatus::ok;
 }
 
-I2CDeviceStatus SFM3019::read_conversion_factors(SFM3019ConversionFactors &conversion) {
+I2CDeviceStatus Device::read_conversion_factors(ConversionFactors &conversion) {
   static const uint8_t conversion_high = 0x36;
   static const uint8_t conversion_low = 0x61;
   static const uint8_t arg_high = 0x36;
@@ -93,7 +93,7 @@ I2CDeviceStatus SFM3019::read_conversion_factors(SFM3019ConversionFactors &conve
   return I2CDeviceStatus::ok;
 }
 
-I2CDeviceStatus SFM3019::read_sample(SFM3019Sample &sample, int16_t scale_factor, int16_t offset) {
+I2CDeviceStatus Device::read_sample(Sample &sample, int16_t scale_factor, int16_t offset) {
   // read flow raw
   std::array<uint8_t, sizeof(uint16_t)> buffer{};
   I2CDeviceStatus ret = sensirion_.read_with_crc(buffer.data(), buffer.size(), crc_poly, crc_init);
@@ -110,7 +110,7 @@ I2CDeviceStatus SFM3019::read_sample(SFM3019Sample &sample, int16_t scale_factor
   return I2CDeviceStatus::ok;
 }
 
-I2CDeviceStatus SFM3019::reset() {
+I2CDeviceStatus Device::reset() {
   static const uint8_t reset = 0x06;
   std::array<uint8_t, 1> cmd{{reset}};
 
@@ -122,49 +122,4 @@ I2CDeviceStatus SFM3019::reset() {
   return I2CDeviceStatus::ok;
 }
 
-I2CDeviceStatus SFM3019::test() {
-  // read serial number
-  I2CDeviceStatus status;
-  uint32_t sn = 0;
-
-  status = this->serial_number(sn);
-  if (status != I2CDeviceStatus::ok) {
-    return status;
-  }
-
-  if (sn != 0x04020611) {
-    return I2CDeviceStatus::test_failed;
-  }
-
-  // start measurement
-  status = this->start_measure();
-  if (status != I2CDeviceStatus::ok) {
-    return status;
-  }
-
-  /*
-  SFM3019Sample sample{};
-  static const uint32_t startup_delay = 12;
-  HAL::delay(startup_delay);
-  // ignore the first read, might be invalid
-  this->read_sample(sample);
-  HAL::delay(1);
-
-  // read and verify output
-  status = this->read_sample(sample);
-  if (status != I2CDeviceStatus::ok) {
-    this->stop_measure();
-    return status;
-  }
-
-  // pressure range: -200 to 200
-  static const float flow_min = -200;
-  static const float flow_max = 200;
-  if (sample.flow < flow_min || sample.flow > flow_max) {
-    return I2CDeviceStatus::test_failed;
-  }*/
-
-  return I2CDeviceStatus::ok;
-}
-
-}  // namespace Pufferfish::Driver::I2C
+}  // namespace Pufferfish::Driver::I2C::SFM3019

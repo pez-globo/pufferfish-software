@@ -9,13 +9,14 @@
 
 #pragma once
 
-#include <cstdint>
+#include <cstddef>
 
-#include "Pufferfish/Driver/I2C/SFM3019.h"
+#include "Pufferfish/Types.h"
+#include "Device.h"
 
-namespace Pufferfish::Driver::Measurement {
+namespace Pufferfish::Driver::I2C::SFM3019 {
 
-class SFM3019StateMachine {
+class StateMachine {
  public:
   enum class State {
     uninitialized,
@@ -25,8 +26,8 @@ class SFM3019StateMachine {
     configuring_averaging,
     idle,
     warming_up,
-    measuring,
-    unrecoverable
+    checking_range,
+    measuring
   };
   // Next Actions
   enum class Output {
@@ -37,6 +38,7 @@ class SFM3019StateMachine {
     get_conversion,
     configure_averaging,
     start_measuring,
+    check_range,
     measure,
     wait_us,
     error_fail,
@@ -50,9 +52,10 @@ class SFM3019StateMachine {
   Output wait(uint32_t current_time);
   Output reset(uint32_t current_time);
   Output check_pn(uint32_t pn);
-  Output get_conversion(const I2C::SFM3019ConversionFactors &conversion);
+  Output get_conversion(const ConversionFactors &conversion);
   Output configure_averaging();
   Output start_measuring(uint32_t current_time);
+  Output check_range(float flow, uint32_t current_time_us);
   Output measure(uint32_t current_time_us);
   Output wait_us(uint32_t current_time_us);
   Output stop_measuring();
@@ -63,6 +66,8 @@ class SFM3019StateMachine {
   static const uint32_t warming_up_duration = 30;  // ms
   static const uint32_t measuring_duration_us = 500; // us
   static const uint32_t product_number = 0x04020611;
+  static constexpr float flow_min = -200; // TODO: needs units
+  static constexpr float flow_max = 200; // TODO: needs units
 
   State state_ = State::uninitialized;
   uint32_t wait_start_time_ = 0;
@@ -74,33 +79,32 @@ class SFM3019StateMachine {
   bool finished_waiting_us(uint32_t timeout_us) const;
 };
 
-class SFM3019 {
+class Sensor {
  public:
-  enum class State { output, setup, failed };
+  Sensor(Device &device, float &flow)
+      : device_(device), flow_(flow) {}
 
-  SFM3019(I2C::SFM3019 &low_level, float &flow)
-      : low_level_(low_level), flow_(flow) {}
-
-  State update();
+  SensorState update();
 
  private:
-  using Action = SFM3019StateMachine::Output;
+  using Action = StateMachine::Output;
 
   static const size_t max_retries_setup = 8;   // max retries for all setup steps combined
   static const size_t max_retries_output = 8;  // max retries between valid outputs
 
-  I2C::SFM3019 &low_level_;
-  SFM3019StateMachine fsm_;
+  Device &device_;
+  StateMachine fsm_;
   Action next_action_ = Action::initialize;
   size_t retry_count_ = 0;
 
   uint32_t pn_ = 0;
-  I2C::SFM3019ConversionFactors conversion_{};
+  ConversionFactors conversion_{};
+  Sample sample_{};
 
   // Outputs
   float &flow_;
 
-  State check_setup_retry() const;
+  SensorState check_setup_retry() const;
 };
 
 }  // namespace Pufferfish::BreathingCircuit

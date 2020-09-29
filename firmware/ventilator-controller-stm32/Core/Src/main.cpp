@@ -37,6 +37,7 @@
 #include "Pufferfish/Driver/I2C/HoneywellABP.h"
 #include "Pufferfish/Driver/I2C/SDP.h"
 #include "Pufferfish/Driver/I2C/SFM3000.h"
+#include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 #include "Pufferfish/Driver/I2C/TCA9548A.h"
 #include "Pufferfish/Driver/Indicators/AuditoryAlarm.h"
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
@@ -49,7 +50,6 @@
 #include "Pufferfish/HAL/STM32/CRC.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
 #include "Pufferfish/HAL/STM32/HALI2CDevice.h"
-#include "Pufferfish/Driver/Measurement/SFM3019.h"
 #include "Pufferfish/Statuses.h"
 /* USER CODE END Includes */
 
@@ -242,7 +242,7 @@ PF::HAL::HALI2CDevice i2c_hal_press17(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i
 PF::HAL::HALI2CDevice i2c_hal_press18(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);*/
 
 PF::HAL::HALI2CDevice i2c_hal_global(hi2c2, 0x00);
-PF::HAL::HALI2CDevice i2c_hal_presstest(hi2c2, PF::Driver::I2C::SFM3019::default_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_sfm3019(hi2c2, PF::Driver::I2C::SFM3019::default_i2c_addr);
 /*
 // I2C Mux
 PF::Driver::I2C::TCA9548A i2c_mux1(i2c_hal_mux1);
@@ -282,8 +282,8 @@ PF::Driver::I2C::SFM3000 i2c_press16(i2c_ext_press16);
 PF::Driver::I2C::SDPSensor i2c_press17(i2c_ext_press17);
 PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 */
-PF::Driver::I2C::SFM3019 i2c_presstest(i2c_hal_presstest, i2c_hal_global);
-PF::Driver::Measurement::SFM3019 sfm3019(i2c_presstest, all_states.sensor_measurements().flow);
+PF::Driver::I2C::SFM3019::Device sfm3019_dev(i2c_hal_sfm3019, i2c_hal_global);
+PF::Driver::I2C::SFM3019::Sensor sfm3019(sfm3019_dev, all_states.sensor_measurements().flow);
 
 /*
 // Test list
@@ -304,7 +304,6 @@ auto i2c_test_list = PF::Util::make_array<PF::Driver::Testable *>(
      &i2c_press17,
      &i2c_press18);
 */
-auto i2c_test_list = PF::Util::make_array<PF::Driver::Testable *>(&i2c_presstest);
 
 int interface_test_state = 0;
 int interface_test_millis = 0;
@@ -446,8 +445,6 @@ int main(void)
   */
 
   buffered_uart3.setup_irq();
-  i2c_presstest.reset();
-  i2c_presstest.start_measure();
   PF::HAL::delay(5);
   /* USER CODE END 2 */
 
@@ -465,17 +462,17 @@ int main(void)
 
     // Sensor Measurement Overrides
     switch (sfm3019.update()) {
-      case PF::Driver::Measurement::SFM3019::State::setup:
+      case PF::SensorState::setup:
         board_led1.write(true);
         PF::HAL::delay(1);
         board_led1.write(false);
         PF::HAL::delay(50);
         break;
-      case PF::Driver::Measurement::SFM3019::State::output:
+      case PF::SensorState::ok:
         board_led1.write(false);
         PF::HAL::delay(1);
         break;
-      case PF::Driver::Measurement::SFM3019::State::failed:
+      case PF::SensorState::failed:
         board_led1.write(true);
         PF::HAL::delay(1);
         break;

@@ -1,23 +1,23 @@
 /*
- * SFM3019StateMachine.cpp
+ * StateMachine.cpp
  *
  *  Created on: June 6, 2020
  *      Author: Ethan Li
  */
 
-#include "Pufferfish/Driver/Measurement/SFM3019.h"
+#include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 #include "Pufferfish/HAL/STM32/Time.h"
 #include "Pufferfish/Util/Timeouts.h"
 
-namespace Pufferfish::Driver::Measurement {
+namespace Pufferfish::Driver::I2C::SFM3019 {
 
-// SFM3019StateMachine
+// StateMachine
 
-SFM3019StateMachine::State SFM3019StateMachine::state() const {
+StateMachine::State StateMachine::state() const {
   return state_;
 }
 
-SFM3019StateMachine::Output SFM3019StateMachine::initialize() {
+StateMachine::Output StateMachine::initialize() {
   if (state_ != State::uninitialized) {
     return Output::error_input;
   }
@@ -27,7 +27,7 @@ SFM3019StateMachine::Output SFM3019StateMachine::initialize() {
   return Output::wait;
 }
 
-SFM3019StateMachine::Output SFM3019StateMachine::wait(uint32_t current_time) {
+StateMachine::Output StateMachine::wait(uint32_t current_time) {
   current_time_ = current_time;
   if (state_ == State::powering_up) {
     if (finished_waiting(powering_up_duration)) {
@@ -39,8 +39,8 @@ SFM3019StateMachine::Output SFM3019StateMachine::wait(uint32_t current_time) {
 
   if (state_ == State::warming_up) {
     if (finished_waiting(warming_up_duration)) {
-      state_ = State::measuring;
-      return Output::measure;
+      state_ = State::checking_range;
+      return Output::check_range;
     }
     return Output::wait;
   }
@@ -48,27 +48,25 @@ SFM3019StateMachine::Output SFM3019StateMachine::wait(uint32_t current_time) {
   return Output::error_input;
 }
 
-SFM3019StateMachine::Output SFM3019StateMachine::reset(uint32_t current_time) {
+StateMachine::Output StateMachine::reset(uint32_t current_time) {
   state_ = State::powering_up;
   current_time_ = current_time;
   wait_start_time_ = current_time_;
   return Output::wait;
 }
 
-SFM3019StateMachine::Output SFM3019StateMachine::check_pn(uint32_t pn) {
+StateMachine::Output StateMachine::check_pn(uint32_t pn) {
   switch (state_) {
     case State::uninitialized:
     case State::powering_up:
     case State::warming_up:
     case State::measuring:
-    case State::unrecoverable:
       return Output::error_input;
     default:
       break;
   }
 
   if (pn != product_number) {
-    state_ = State::unrecoverable;
     return Output::error_fail;
   }
 
@@ -76,14 +74,13 @@ SFM3019StateMachine::Output SFM3019StateMachine::check_pn(uint32_t pn) {
   return Output::get_conversion;
 }
 
-SFM3019StateMachine::Output SFM3019StateMachine::get_conversion(
-    const I2C::SFM3019ConversionFactors &conversion) {
+StateMachine::Output StateMachine::get_conversion(
+    const ConversionFactors &conversion) {
   switch (state_) {
     case State::uninitialized:
     case State::powering_up:
     case State::warming_up:
     case State::measuring:
-    case State::unrecoverable:
       return Output::error_input;
     default:
       break;
@@ -93,13 +90,12 @@ SFM3019StateMachine::Output SFM3019StateMachine::get_conversion(
   return Output::configure_averaging;
 }
 
-SFM3019StateMachine::Output SFM3019StateMachine::configure_averaging() {
+StateMachine::Output StateMachine::configure_averaging() {
   switch (state_) {
     case State::uninitialized:
     case State::powering_up:
     case State::warming_up:
     case State::measuring:
-    case State::unrecoverable:
       return Output::error_input;
     default:
       break;
@@ -109,7 +105,7 @@ SFM3019StateMachine::Output SFM3019StateMachine::configure_averaging() {
   return Output::start_measuring;
 }
 
-SFM3019StateMachine::Output SFM3019StateMachine::start_measuring(uint32_t current_time) {
+StateMachine::Output StateMachine::start_measuring(uint32_t current_time) {
   if (state_ != State::idle) {
     return Output::error_input;
   }
@@ -120,7 +116,22 @@ SFM3019StateMachine::Output SFM3019StateMachine::start_measuring(uint32_t curren
   return Output::wait;
 }
 
-SFM3019StateMachine::Output SFM3019StateMachine::measure(uint32_t current_time_us) {
+StateMachine::Output StateMachine::check_range(float flow, uint32_t current_time_us) {
+  if (state_ != State::checking_range) {
+    return Output::error_input;
+  }
+
+  if (flow < flow_min || flow > flow_max) {
+    return Output::error_fail;
+  }
+
+  state_ = State::measuring;
+  current_time_us_ = current_time_us;
+  wait_start_time_us_ = current_time_us_;
+  return Output::wait_us;
+}
+
+StateMachine::Output StateMachine::measure(uint32_t current_time_us) {
   if (state_ != State::measuring) {
     return Output::error_input;
   }
@@ -131,7 +142,7 @@ SFM3019StateMachine::Output SFM3019StateMachine::measure(uint32_t current_time_u
   return Output::wait_us;
 }
 
-SFM3019StateMachine::Output SFM3019StateMachine::wait_us(uint32_t current_time_us) {
+StateMachine::Output StateMachine::wait_us(uint32_t current_time_us) {
   current_time_us_ = current_time_us;
 
   if (state_ == State::measuring) {
@@ -145,39 +156,42 @@ SFM3019StateMachine::Output SFM3019StateMachine::wait_us(uint32_t current_time_u
   return Output::error_input;
 }
 
-bool SFM3019StateMachine::finished_waiting(uint32_t timeout) const {
+bool StateMachine::finished_waiting(uint32_t timeout) const {
   return !Util::within_timeout(wait_start_time_, timeout, current_time_);
 }
 
-bool SFM3019StateMachine::finished_waiting_us(uint32_t timeout_us) const {
+bool StateMachine::finished_waiting_us(uint32_t timeout_us) const {
   return !Util::within_timeout(wait_start_time_us_, timeout_us, current_time_us_);
 }
 
-// SFM3019
+// Sensor
 
-SFM3019::State SFM3019::update() {
-  I2C::SFM3019Sample sample{};
-
+SensorState Sensor::update() {
   switch (next_action_) {
     case Action::initialize:
-      retry_count_ = 0; // reset retries to 0 for setup
-      next_action_ = fsm_.initialize();
-      return State::setup;
+      if (device_.reset() == I2CDeviceStatus::ok) {
+        retry_count_ = 0;
+        next_action_ = fsm_.initialize();
+        return SensorState::setup;
+      }
+
+      ++retry_count_;
+      return check_setup_retry();
     case Action::wait:
       next_action_ = fsm_.wait(HAL::millis());
-      return State::setup;
+      return SensorState::setup;
     case Action::reset:
-      if (low_level_.reset() == I2CDeviceStatus::ok) {
+      if (device_.reset() == I2CDeviceStatus::ok) {
         next_action_ = fsm_.reset(HAL::millis());
-        return State::setup;
+        return SensorState::setup;
       }
 
       ++retry_count_;
       return check_setup_retry();
     case Action::check_pn:
-      if (low_level_.serial_number(pn_) == I2CDeviceStatus::ok) {
-        next_action_ = fsm_.check_pn(pn_);
-        return State::setup;
+      if (device_.serial_number(pn_) == I2CDeviceStatus::ok) {
+        next_action_ = fsm_.check_pn(pn_); // error will be caught on the next update() via next_action_
+        return SensorState::setup;
       }
 
       ++retry_count_;
@@ -185,50 +199,63 @@ SFM3019::State SFM3019::update() {
     case Action::get_conversion:
       // TODO: implement the conversion retrieval
       next_action_ = fsm_.get_conversion(conversion_);
-      return State::setup;
+      return SensorState::setup;
     case Action::configure_averaging:
       // TODO: implement the configuring averaging
       next_action_ = fsm_.configure_averaging();
-      return State::setup;
+      return SensorState::setup;
     case Action::start_measuring:
-      if (low_level_.start_measure() == I2CDeviceStatus::ok) {
+      if (device_.start_measure() == I2CDeviceStatus::ok) {
         retry_count_ = 0; // reset retries to 0 for measuring
         next_action_ = fsm_.start_measuring(HAL::millis());
-        return State::setup;
+        return SensorState::setup;
       }
 
       ++retry_count_;
       return check_setup_retry();
-    case Action::measure:  // measuring state, so ready to call output()
-      if (low_level_.read_sample(
-          sample, conversion_.scale_factor, conversion_.offset) == I2CDeviceStatus::ok) {
-        retry_count_ = 0; // reset retries to 0 for next measurement
-        flow_ = sample.flow;
-        next_action_ = fsm_.measure(HAL::micros());
-        return State::output;
+    case Action::check_range:
+      if (device_.read_sample(
+          sample_, conversion_.scale_factor, conversion_.offset) == I2CDeviceStatus::ok) {
+        next_action_ = fsm_.check_range(sample_.flow, HAL::micros()); // error will be caught on the next update() via next_action_
+        return SensorState::ok;
       }
 
       ++retry_count_;
       if (retry_count_ > max_retries_output) {
-        return State::failed;
+        return SensorState::failed;
       }
 
-      return State::output;
-    case Action::wait_us:  // this is also a measuring state
+      return SensorState::ok;
+    case Action::measure:
+      if (device_.read_sample(
+          sample_, conversion_.scale_factor, conversion_.offset) == I2CDeviceStatus::ok) {
+        retry_count_ = 0; // reset retries to 0 for next measurement
+        flow_ = sample_.flow;
+        next_action_ = fsm_.measure(HAL::micros());
+        return SensorState::ok;
+      }
+
+      ++retry_count_;
+      if (retry_count_ > max_retries_output) {
+        return SensorState::failed;
+      }
+
+      return SensorState::ok;
+    case Action::wait_us:
       next_action_ = fsm_.wait_us(HAL::micros());
-      return State::output;
+      return SensorState::ok;
     case Action::error_fail:
     case Action::error_input:
-      return State::failed;
+      return SensorState::failed;
   }
 }
 
-SFM3019::State SFM3019::check_setup_retry() const {
+SensorState Sensor::check_setup_retry() const {
   if (retry_count_ > max_retries_setup) {
-    return State::failed;
+    return SensorState::failed;
   }
 
-  return State::setup;
+  return SensorState::setup;
 }
 
-}  // namespace Pufferfish::BreathingCircuit
+}  // namespace Pufferfish::Driver::I2C::SFM3019
