@@ -24,8 +24,14 @@ namespace I2C {
  * All data in a reading from the Sensirion SFM3000 mass flow meter.
  */
 struct SFM3019Sample {
-  uint16_t raw_flow;
+  int16_t raw_flow;
   float flow;
+};
+
+struct SFM3019ConversionFactors {
+  int16_t scale_factor = 170;
+  int16_t offset = -24576;
+  uint16_t flow_unit;
 };
 
 /**
@@ -35,13 +41,9 @@ class SFM3019 : public Testable {
  public:
   static constexpr uint16_t default_i2c_addr = 0x2e;
 
-  static const int offset_flow = 32000;
-  static constexpr float scale_factor_air = 140.0F;
-  static constexpr float scale_factor_o2 = 142.8F;
-
   explicit SFM3019(
-      HAL::I2CDevice &dev, HAL::I2CDevice &global_dev, float scale_factor = scale_factor_air)
-      : sensirion_(dev), global_(global_dev), scale_factor_(scale_factor) {}
+      HAL::I2CDevice &dev, HAL::I2CDevice &global_dev)
+      : sensirion_(dev), global_(global_dev) {}
 
   /**
    * Starts a flow measurement
@@ -55,7 +57,11 @@ class SFM3019 : public Testable {
    */
   I2CDeviceStatus stop_measure();
 
-  bool measuring() const;
+  /**
+   * Reads out the conversion factors
+   * @return ok on success, error code otherwise
+   */
+  I2CDeviceStatus read_conversion_factors(SFM3019ConversionFactors &conversion);
 
   /**
    * Reads out the serial number
@@ -69,7 +75,7 @@ class SFM3019 : public Testable {
    * @param sample[out] the sensor reading; only valid on success
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus read_sample(SFM3019Sample &sample);
+  I2CDeviceStatus read_sample(SFM3019Sample &sample, int16_t scale_factor, int16_t offset);
 
   I2CDeviceStatus reset() override;
   I2CDeviceStatus test() override;
@@ -80,7 +86,6 @@ class SFM3019 : public Testable {
 
   SensirionSensor sensirion_;
   HAL::I2CDevice &global_;
-  bool measuring_ = false;
   float scale_factor_;
 };
 
