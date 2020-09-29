@@ -15,7 +15,7 @@ import {
   LogEvent,
 } from './proto/mcu_pb';
 import { RotaryEncoder, FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
-import { ControllerStates, WaveformPoint, WaveformHistory } from './types';
+import { ControllerStates, WaveformPoint, WaveformHistory, PVPoint, PVHistory } from './types';
 
 export const getController = ({ controller }: StoreState): ControllerStates => controller;
 
@@ -204,6 +204,16 @@ export const getWaveformVolumeNewSegment = (
     getWaveformVolumeNewSegments,
     (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex],
   );
+
+// P-V Loops
+export const getPVHistory = createSelector(
+  getController,
+  (states: ControllerStates): PVHistory => states.pvHistory,
+);
+export const getPVLoop = createSelector(
+  getPVHistory,
+  (pvHistory: PVHistory): PVPoint[] => pvHistory.loop,
+);
 
 // Alarm Limits
 export const getAlarmLimitsRequest = createSelector(

@@ -31,6 +31,8 @@ import {
   STATE_UPDATED,
   WaveformHistory,
   WaveformPoint,
+  PVHistory,
+  PVPoint,
   ALARM_LIMITS,
   FRONTEND_DISPLAY_SETTINGS,
   SYSTEM_SETTINGS,
@@ -269,28 +271,42 @@ const waveformHistoryReducer = <T extends PBMessage>(
   }
 };
 
-const logEventReducer = () => (
-  state: NextLogEvents = NextLogEvents.fromJSON({
-    logEvents: [],
-  }),
+const pvHistoryReducer = (
+  state: PVHistory = {
+    loop: [],
+    loopOrigin: {
+      pressure: 0,
+      volume: 0,
+    },
+    cycle: 0,
+  },
   action: StateUpdateAction,
-): NextLogEvents => {
+): PVHistory => {
   switch (action.type) {
-    case STATE_UPDATED: {
-      const newEvents = action.state as NextLogEvents;
-      const oldEvents = state;
-      if (!oldEvents || !oldEvents.logEvents.length) {
-        return newEvents;
-      }
-      newEvents.logEvents.forEach((logEvent: LogEvent) => {
-        const id = oldEvents.logEvents.find((ev: LogEvent) => ev.id === logEvent.id);
-        if (id === undefined) {
-          // do computation
-          oldEvents.logEvents.push(logEvent);
+    case STATE_UPDATED:
+      if (action.messageType === MessageType.SensorMeasurements) {
+        const newState = action.state as SensorMeasurements;
+        const { cycle, paw, volume } = newState;
+        if (cycle !== state.cycle) {
+          // make loop start over
+          return {
+            loop: [{ pressure: 0, volume: 0 }],
+            loopOrigin: { pressure: paw, volume },
+            cycle,
+          };
         }
-      });
-      return oldEvents;
-    }
+
+        // add point to loop
+        const newPoint = {
+          pressure: paw - state.loopOrigin.pressure,
+          volume: volume - state.loopOrigin.volume,
+        };
+        return {
+          ...state,
+          loop: state.loop.concat([newPoint]),
+        };
+      }
+      return state;
     default:
       return state;
   }
@@ -343,6 +359,7 @@ export const controllerReducer = combineReducers({
     60,
     40,
   ),
+  pvHistory: pvHistoryReducer,
 });
 
 export default controllerReducer;

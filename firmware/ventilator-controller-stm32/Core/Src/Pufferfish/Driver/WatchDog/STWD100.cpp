@@ -11,30 +11,20 @@
 
 #include "Pufferfish/Driver/WatchDog/STWD100.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace WatchDog {
+namespace Pufferfish::Driver::WatchDog {
 
-void STWD100::enable(void){
-
-  mEnablenPin.write(false);
+void STWD100::enable() {
+  enable_pin_.write(false);
 }
 
-void STWD100::disable(void){
-
-  mEnablenPin.write(true);
+void STWD100::disable() {
+  enable_pin_.write(true);
 }
 
-void STWD100::toggleInput(void){
-
-  mInputPin.write(true);
-  HAL::delayMicros(resetTime);
-  mInputPin.write(false);
+void STWD100::toggle_input() {
+  input_pin_.write(true);
+  HAL::delay_micros(0);
+  input_pin_.write(false);
 }
 
-}  // namespace WatchDog
-}  // namespace Driver
-}  // namespace Pufferfish
-
-
-
+}  // namespace Pufferfish::Driver::WatchDog
