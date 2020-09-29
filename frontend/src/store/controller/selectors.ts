@@ -247,3 +247,11 @@ export const getActiveLoggedEventIds = createSelector(
   getController,
   (states: ControllerStates): number[] => states.activeLogEvents.id,
 );
+
+// Active popup event log
+export const getPopupEventLog = createSelector(getController, (states: ControllerStates):
+  | LogEvent
+  | undefined => {
+  const maxId = Math.max(...states.activeLogEvents.id);
+  return states.nextLogEvents.logEvents.find((el: LogEvent) => el.id === maxId);
+});

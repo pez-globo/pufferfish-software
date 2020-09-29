@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { BellIcon } from '../icons';
 import { LogEventCode } from '../../store/controller/proto/mcu_pb';
 import { BMIN, PERCENT } from '../info/units';
+import { getActiveLoggedEventIds, getPopupEventLog } from '../../store/controller/selectors';
 
 export const ALARM_EVENT_PATIENT = 'Patient';
 export const ALARM_EVENT_SYSTEM = 'System';
@@ -172,27 +173,18 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
     setOpen(false);
     setAlertCount(0);
   };
-  // const patientAlarmEvent = useSelector(getPatientAlarmEvent);
-  // const lastKnownPatientAlarm = useSelector(getlastKnownPatientAlarm);
-  // // Generate Random Alerts
-  // useEffect(() => {
-  //   if (patientAlarmEvent.header && patientAlarmEvent.header.id) {
-  //     if (!lastKnownPatientAlarm.id || lastKnownPatientAlarm.id !== patientAlarmEvent.header.id) {
-  //       const eventType = getEventType(patientAlarmEvent.header.code);
-  //       if (eventType.type) {
-  //         setOpen(true);
-  //         setAlert({ label: eventType.label });
-  //       }
-  //     }
-  //   }
-  // }, [patientAlarmEvent, lastKnownPatientAlarm]);
 
-  // Dummy event log
+  const popupEventLog = useSelector(getPopupEventLog);
   useEffect(() => {
-    setOpen(true);
-    setAlertCount(1);
-    setAlert({ label: 'Test value' });
-  }, []);
+    if (popupEventLog) {
+      const eventType = getEventType(popupEventLog.code);
+      if (eventType.type) {
+        setOpen(true);
+        setAlertCount(1);
+        setAlert({ label: eventType.label });
+      }
+    }
+  }, [popupEventLog]);
 
   return (
     <div>

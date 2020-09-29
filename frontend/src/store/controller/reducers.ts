@@ -35,6 +35,7 @@ import {
   FRONTEND_DISPLAY_SETTINGS,
   SYSTEM_SETTINGS,
   commitAction,
+  EXPECTED_LOG_EVENT_ID,
 } from './types';
 import DECIMAL_RADIX from '../../modules/app/AppConstants';
 
@@ -45,12 +46,32 @@ const messageReducer = <T extends PBMessage>(
   switch (action.type) {
     case STATE_UPDATED:
       if (action.messageType === messageType) {
+        if (messageType === MessageType.NextLogEvents) {
+          return mergeEventList(action.state as NextLogEvents, state as NextLogEvents) as T;
+        }
         return action.state as T;
       }
       return state;
     default:
       return state;
   }
+};
+
+const mergeEventList = (newEvents: NextLogEvents, oldEvents: NextLogEvents): NextLogEvents => {
+  const events = [...oldEvents.logEvents];
+  if (!oldEvents || !oldEvents.logEvents.length) {
+    return newEvents as NextLogEvents;
+  }
+  newEvents.logEvents.forEach((logEvent: LogEvent) => {
+    const id = events.find((ev: LogEvent) => ev.id === logEvent.id);
+    if (id === undefined) {
+      events.push(logEvent);
+    }
+  });
+  return {
+    ...newEvents,
+    logEvents: events,
+  };
 };
 
 const alarmLimitsReducer = (
@@ -82,6 +103,15 @@ const frontendDisplaySettingReducer = (
   action: commitAction,
 ): FrontendDisplaySetting => {
   return withRequestUpdate<FrontendDisplaySetting>(state, action, FRONTEND_DISPLAY_SETTINGS);
+};
+
+const expectedLoggedEventReducer = (
+  state: ExpectedLogEvent = ExpectedLogEvent.fromJSON({
+    id: 0,
+  }) as ExpectedLogEvent,
+  action: commitAction,
+): ExpectedLogEvent => {
+  return withRequestUpdate<ExpectedLogEvent>(state, action, EXPECTED_LOG_EVENT_ID);
 };
 
 const systemSettingRequestReducer = (
@@ -239,17 +269,40 @@ const waveformHistoryReducer = <T extends PBMessage>(
   }
 };
 
+const logEventReducer = () => (
+  state: NextLogEvents = NextLogEvents.fromJSON({
+    logEvents: [],
+  }),
+  action: StateUpdateAction,
+): NextLogEvents => {
+  switch (action.type) {
+    case STATE_UPDATED: {
+      const newEvents = action.state as NextLogEvents;
+      const oldEvents = state;
+      if (!oldEvents || !oldEvents.logEvents.length) {
+        return newEvents;
+      }
+      newEvents.logEvents.forEach((logEvent: LogEvent) => {
+        const id = oldEvents.logEvents.find((ev: LogEvent) => ev.id === logEvent.id);
+        if (id === undefined) {
+          // do computation
+          oldEvents.logEvents.push(logEvent);
+        }
+      });
+      return oldEvents;
+    }
+    default:
+      return state;
+  }
+};
+
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb
   alarms: messageReducer<Alarms>(MessageType.Alarms, Alarms),
   alarmLimitsRequest: alarmLimitsReducer,
   systemSettingRequest: systemSettingRequestReducer,
   frontendDisplaySetting: frontendDisplaySettingReducer,
-  logEvent: messageReducer<LogEvent>(MessageType.LogEvent, LogEvent),
-  expectedLoggedEvent: messageReducer<ExpectedLogEvent>(
-    MessageType.ExpectedLogEvent,
-    ExpectedLogEvent,
-  ),
+  expectedLoggedEvent: expectedLoggedEventReducer,
   nextLogEvents: messageReducer<NextLogEvents>(MessageType.NextLogEvents, NextLogEvents),
   activeLogEvents: messageReducer<ActiveLogEvents>(MessageType.ActiveLogEvents, ActiveLogEvents),
   sensorMeasurements: messageReducer<SensorMeasurements>(

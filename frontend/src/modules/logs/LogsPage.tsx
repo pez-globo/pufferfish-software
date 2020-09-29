@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import { Grid, TableCell, TableRow, Typography } from '@material-ui/core';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import SimpleTable, {
   stableSort,
   getComparator,
@@ -18,6 +18,8 @@ import {
 } from '../../store/controller/selectors';
 import { LogEvent } from '../../store/controller/proto/mcu_pb';
 import { getEventType } from '../app/EventAlerts';
+import { updateCommittedState } from '../../store/controller/actions';
+import { EXPECTED_LOG_EVENT_ID } from '../../store/controller/types';
 
 /**
  * LogsPage
@@ -71,6 +73,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export const LogsPage = (): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
+  const dispatch = useDispatch();
 
   const createData = (
     type: string,
@@ -95,18 +98,24 @@ export const LogsPage = (): JSX.Element => {
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   const loggedEvents = useSelector(getNextLoggedEvents);
   const activeLogEventIds = useSelector(getActiveLoggedEventIds);
-  const newLogEvent = useSelector(getLogEvent);
+
+  const updateLogEvent = useCallback(
+    (maxId) => {
+      dispatch(updateCommittedState(EXPECTED_LOG_EVENT_ID, { id: maxId + 1 }));
+    },
+    [dispatch],
+  );
 
   useEffect(() => {
-    if (newLogEvent.id) {
-      loggedEvents.push(newLogEvent);
-    }
+    const eventIds: number[] = [];
+    loggedEvents.sort((a: LogEvent, b: LogEvent) => a.time - b.time);
     const data = loggedEvents.map((event: LogEvent) => {
       const eventType = getEventType(event.code);
       const diffString =
         event.oldValue && event.newValue
           ? `(${event.oldValue} ${eventType.unit} to ${event.newValue} ${eventType.unit})`
           : '';
+      eventIds.push(event.id);
       return createData(
         eventType.type,
         `${eventType.label} ${diffString}`,
@@ -117,7 +126,9 @@ export const LogsPage = (): JSX.Element => {
       );
     });
     setRows(data);
-  }, [loggedEvents, activeLogEventIds, newLogEvent]);
+    // update ExpectedLogEvent
+    updateLogEvent(Math.max(...eventIds));
+  }, [loggedEvents, activeLogEventIds, updateLogEvent]);
 
   const handleClose = () => {
     setOpen(false);

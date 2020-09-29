@@ -19,6 +19,7 @@ import { RotaryEncoder, SystemSettingRequest, FrontendDisplaySetting } from './p
 export const STATE_UPDATED = '@controller/STATE_UPDATED';
 export const PARAMETER_COMMITTED = '@controller/PARAMETER_COMMITTED';
 export const ALARM_LIMITS = 'ALARM_LIMITS';
+export const EXPECTED_LOG_EVENT_ID = 'EXPECTED_LOG_EVENT_ID';
 export const FRONTEND_DISPLAY_SETTINGS = 'FRONTEND_DISPLAY_SETTINGS';
 export const SYSTEM_SETTINGS = 'SYSTEM_SETTINGS';
 
@@ -53,8 +54,6 @@ export type PBMessageType =
   | typeof ParametersRequest
   | typeof Ping
   | typeof Announcement
-  | typeof LogEvent
-  | typeof ExpectedLogEvent
   | typeof NextLogEvents
   | typeof ActiveLogEvents
   // frontend_pb
@@ -73,10 +72,8 @@ export enum MessageType {
   AlarmLimitsRequest = 8,
   SystemSettingRequest = 9,
   FrontendDisplaySetting = 10,
-  LogEvent = 11,
-  ExpectedLogEvent = 12,
-  NextLogEvents = 13,
-  ActiveLogEvents = 14,
+  NextLogEvents = 11,
+  ActiveLogEvents = 12,
   RotaryEncoder = 128,
 }
 
@@ -135,8 +132,6 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.Parameters, Parameters],
   [MessageType.ParametersRequest, ParametersRequest],
   [MessageType.Ping, Ping],
-  [MessageType.LogEvent, LogEvent],
-  [MessageType.ExpectedLogEvent, ExpectedLogEvent],
   [MessageType.NextLogEvents, NextLogEvents],
   [MessageType.ActiveLogEvents, ActiveLogEvents],
   [MessageType.RotaryEncoder, RotaryEncoder],
@@ -153,8 +148,6 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
   [ParametersRequest, MessageType.ParametersRequest],
   [Ping, MessageType.Ping],
   [Announcement, MessageType.Announcement],
-  [LogEvent, MessageType.LogEvent],
-  [ExpectedLogEvent, MessageType.ExpectedLogEvent],
   [NextLogEvents, MessageType.NextLogEvents],
   [ActiveLogEvents, MessageType.ActiveLogEvents],
   [RotaryEncoder, MessageType.RotaryEncoder],
