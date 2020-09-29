@@ -26,9 +26,12 @@ struct Sample {
 };
 
 struct ConversionFactors {
-  int16_t scale_factor = 170;
-  int16_t offset = -24576;
-  uint16_t flow_unit;
+  static const int16_t default_scale_factor = 170;
+  static const int16_t default_offset = -24576;
+
+  int16_t scale_factor = default_scale_factor;
+  int16_t offset = default_offset;
+  uint16_t flow_unit{};
 };
 
 }  // namespace SFM3019

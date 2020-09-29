@@ -41,6 +41,7 @@
 #include "Pufferfish/Driver/I2C/TCA9548A.h"
 #include "Pufferfish/Driver/Indicators/AuditoryAlarm.h"
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
+#include "Pufferfish/Driver/Indicators/PulseGenerator.h"
 #include "Pufferfish/Driver/Serial/Backend/UART.h"
 #include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
 #include "Pufferfish/Driver/ShiftedOutput.h"
@@ -152,6 +153,10 @@ PF::HAL::HALDigitalOutput ser_input(
 PF::HAL::HALDigitalOutput board_led1(
     *LD1_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     LD1_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
+static const uint32_t flash_period = 50;
+static const uint32_t blink_period = 500;
+PF::Driver::Indicators::PWMGenerator flasher(flash_period, 1);
+PF::Driver::Indicators::PWMGenerator blinker(blink_period, 1);
 PF::Driver::ShiftRegister leds_reg(ser_input, ser_clock, ser_r_clock, ser_clear);
 
 PF::Driver::ShiftedOutput alarm_led_r(leds_reg, 0);
@@ -445,7 +450,8 @@ int main(void)
   */
 
   buffered_uart3.setup_irq();
-  PF::HAL::delay(5);
+  blinker.start(PF::HAL::millis());
+  flasher.start(PF::HAL::millis());
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -463,17 +469,13 @@ int main(void)
     switch (sfm3019.update()) {
       case PF::SensorState::setup:
         board_led1.write(true);
-        PF::HAL::delay(1);
-        board_led1.write(false);
-        PF::HAL::delay(50);
         break;
       case PF::SensorState::ok:
         board_led1.write(false);
-        PF::HAL::delay(1);
         break;
       case PF::SensorState::failed:
-        board_led1.write(true);
-        PF::HAL::delay(1);
+        flasher.update(PF::HAL::millis());
+        board_led1.write(flasher.output());
         break;
     }
 

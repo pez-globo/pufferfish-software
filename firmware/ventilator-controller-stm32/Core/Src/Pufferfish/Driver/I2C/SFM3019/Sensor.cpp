@@ -75,7 +75,7 @@ StateMachine::Output StateMachine::check_pn(uint32_t pn) {
   return Output::get_conversion;
 }
 
-StateMachine::Output StateMachine::get_conversion(const ConversionFactors &conversion) {
+StateMachine::Output StateMachine::get_conversion(const ConversionFactors& /*conversion*/) {
   switch (state_) {
     case State::uninitialized:
     case State::powering_up:
@@ -198,11 +198,11 @@ SensorState Sensor::update() {
       ++retry_count_;
       return check_setup_retry();
     case Action::get_conversion:
-      // TODO: implement the conversion retrieval
+      // TODO(lietk12): implement the conversion retrieval
       next_action_ = fsm_.get_conversion(conversion_);
       return SensorState::setup;
     case Action::configure_averaging:
-      // TODO: implement the configuring averaging
+      // TODO(lietk12): implement the configuring averaging
       next_action_ = fsm_.configure_averaging();
       return SensorState::setup;
     case Action::start_measuring:

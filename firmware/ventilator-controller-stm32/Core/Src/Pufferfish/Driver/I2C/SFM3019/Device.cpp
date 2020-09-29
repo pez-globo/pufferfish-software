@@ -64,12 +64,12 @@ I2CDeviceStatus Device::serial_number(uint32_t &sn) {
   return I2CDeviceStatus::ok;
 }
 
-I2CDeviceStatus Device::read_conversion_factors(ConversionFactors &conversion) {
+I2CDeviceStatus Device::read_conversion_factors(ConversionFactors & /*conversion*/) {
   static const uint8_t conversion_high = 0x36;
   static const uint8_t conversion_low = 0x61;
   static const uint8_t arg_high = 0x36;
   static const uint8_t arg_low = 0x08;
-  // TODO: we actually have to write with a CRC!
+  // TODO(lietk12): we actually have to write with a CRC!
   std::array<uint8_t, 4> cmd{{conversion_high, conversion_low, arg_high, arg_low}};
 
   I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
@@ -104,7 +104,7 @@ I2CDeviceStatus Device::read_sample(Sample &sample, int16_t scale_factor, int16_
   sample.raw_flow = HAL::ntoh(Util::parse_network_order<uint16_t>(buffer.data(), buffer.size()));
 
   // convert to actual flow rate
-  sample.flow = static_cast<float>(static_cast<int32_t>(sample.raw_flow) - offset) / scale_factor;
+  sample.flow = static_cast<float>(static_cast<int32_t>(sample.raw_flow) - offset) / static_cast<float>(scale_factor);
 
   return I2CDeviceStatus::ok;
 }

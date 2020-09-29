@@ -45,7 +45,7 @@ class StateMachine {
     error_input
   };
 
-  State state() const;
+  [[nodiscard]] State state() const;
 
   // Input Actions, returns the preferred next action to run
   Output initialize();
@@ -65,8 +65,8 @@ class StateMachine {
   static const uint32_t warming_up_duration = 30;     // ms
   static const uint32_t measuring_duration_us = 500;  // us
   static const uint32_t product_number = 0x04020611;
-  static constexpr float flow_min = -200;  // TODO: needs units
-  static constexpr float flow_max = 200;   // TODO: needs units
+  static constexpr float flow_min = -200;  // TODO(lietk12): needs units
+  static constexpr float flow_max = 200;   // TODO(lietk12): needs units
 
   State state_ = State::uninitialized;
   uint32_t wait_start_time_ = 0;
@@ -74,8 +74,8 @@ class StateMachine {
   uint32_t current_time_ = 0;
   uint32_t current_time_us_ = 0;
 
-  bool finished_waiting(uint32_t timeout) const;
-  bool finished_waiting_us(uint32_t timeout_us) const;
+  [[nodiscard]] bool finished_waiting(uint32_t timeout) const;
+  [[nodiscard]] bool finished_waiting_us(uint32_t timeout_us) const;
 };
 
 class Sensor {
@@ -102,7 +102,7 @@ class Sensor {
   // Outputs
   float &flow_;
 
-  SensorState check_setup_retry() const;
+  [[nodiscard]] SensorState check_setup_retry() const;
 };
 
 }  // namespace Pufferfish::Driver::I2C::SFM3019
