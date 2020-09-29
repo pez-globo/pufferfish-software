@@ -6,6 +6,7 @@
  */
 
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
+
 #include "Pufferfish/HAL/STM32/Time.h"
 #include "Pufferfish/Util/Timeouts.h"
 
@@ -74,8 +75,7 @@ StateMachine::Output StateMachine::check_pn(uint32_t pn) {
   return Output::get_conversion;
 }
 
-StateMachine::Output StateMachine::get_conversion(
-    const ConversionFactors &conversion) {
+StateMachine::Output StateMachine::get_conversion(const ConversionFactors &conversion) {
   switch (state_) {
     case State::uninitialized:
     case State::powering_up:
@@ -190,7 +190,8 @@ SensorState Sensor::update() {
       return check_setup_retry();
     case Action::check_pn:
       if (device_.serial_number(pn_) == I2CDeviceStatus::ok) {
-        next_action_ = fsm_.check_pn(pn_); // error will be caught on the next update() via next_action_
+        next_action_ =
+            fsm_.check_pn(pn_);  // error will be caught on the next update() via next_action_
         return SensorState::setup;
       }
 
@@ -206,7 +207,7 @@ SensorState Sensor::update() {
       return SensorState::setup;
     case Action::start_measuring:
       if (device_.start_measure() == I2CDeviceStatus::ok) {
-        retry_count_ = 0; // reset retries to 0 for measuring
+        retry_count_ = 0;  // reset retries to 0 for measuring
         next_action_ = fsm_.start_measuring(HAL::millis());
         return SensorState::setup;
       }
@@ -214,9 +215,11 @@ SensorState Sensor::update() {
       ++retry_count_;
       return check_setup_retry();
     case Action::check_range:
-      if (device_.read_sample(
-          sample_, conversion_.scale_factor, conversion_.offset) == I2CDeviceStatus::ok) {
-        next_action_ = fsm_.check_range(sample_.flow, HAL::micros()); // error will be caught on the next update() via next_action_
+      if (device_.read_sample(sample_, conversion_.scale_factor, conversion_.offset) ==
+          I2CDeviceStatus::ok) {
+        next_action_ = fsm_.check_range(
+            sample_.flow,
+            HAL::micros());  // error will be caught on the next update() via next_action_
         return SensorState::ok;
       }
 
@@ -227,9 +230,9 @@ SensorState Sensor::update() {
 
       return SensorState::ok;
     case Action::measure:
-      if (device_.read_sample(
-          sample_, conversion_.scale_factor, conversion_.offset) == I2CDeviceStatus::ok) {
-        retry_count_ = 0; // reset retries to 0 for next measurement
+      if (device_.read_sample(sample_, conversion_.scale_factor, conversion_.offset) ==
+          I2CDeviceStatus::ok) {
+        retry_count_ = 0;  // reset retries to 0 for next measurement
         flow_ = sample_.flow;
         next_action_ = fsm_.measure(HAL::micros());
         return SensorState::ok;

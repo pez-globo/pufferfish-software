@@ -10,9 +10,9 @@
 
 #pragma once
 
-#include "Pufferfish/HAL/Interfaces/I2CDevice.h"
-#include "Pufferfish/Driver/Testable.h"
 #include "Pufferfish/Driver/I2C/SensirionSensor.h"
+#include "Pufferfish/Driver/Testable.h"
+#include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 #include "Types.h"
 
 namespace Pufferfish::Driver::I2C::SFM3019 {
@@ -24,8 +24,7 @@ static const uint16_t default_i2c_addr = 0x2e;
  */
 class Device {
  public:
-  explicit Device(
-      HAL::I2CDevice &dev, HAL::I2CDevice &global_dev)
+  explicit Device(HAL::I2CDevice &dev, HAL::I2CDevice &global_dev)
       : sensirion_(dev), global_(global_dev) {}
 
   /**

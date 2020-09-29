@@ -104,8 +104,7 @@ I2CDeviceStatus Device::read_sample(Sample &sample, int16_t scale_factor, int16_
   sample.raw_flow = HAL::ntoh(Util::parse_network_order<uint16_t>(buffer.data(), buffer.size()));
 
   // convert to actual flow rate
-  sample.flow =
-      static_cast<float>(static_cast<int32_t>(sample.raw_flow) - offset) / scale_factor;
+  sample.flow = static_cast<float>(static_cast<int32_t>(sample.raw_flow) - offset) / scale_factor;
 
   return I2CDeviceStatus::ok;
 }

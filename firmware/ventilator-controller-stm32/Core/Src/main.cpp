@@ -451,7 +451,6 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (true) {
-
     uint32_t current_time = HAL_GetTick();
 
     // Breathing Circuit Controller

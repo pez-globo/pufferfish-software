@@ -11,8 +11,8 @@
 
 #include <cstddef>
 
-#include "Pufferfish/Types.h"
 #include "Device.h"
+#include "Pufferfish/Types.h"
 
 namespace Pufferfish::Driver::I2C::SFM3019 {
 
@@ -60,14 +60,13 @@ class StateMachine {
   Output wait_us(uint32_t current_time_us);
   Output stop_measuring();
 
-
  private:
-  static const uint32_t powering_up_duration = 2;  // ms
-  static const uint32_t warming_up_duration = 30;  // ms
-  static const uint32_t measuring_duration_us = 500; // us
+  static const uint32_t powering_up_duration = 2;     // ms
+  static const uint32_t warming_up_duration = 30;     // ms
+  static const uint32_t measuring_duration_us = 500;  // us
   static const uint32_t product_number = 0x04020611;
-  static constexpr float flow_min = -200; // TODO: needs units
-  static constexpr float flow_max = 200; // TODO: needs units
+  static constexpr float flow_min = -200;  // TODO: needs units
+  static constexpr float flow_max = 200;   // TODO: needs units
 
   State state_ = State::uninitialized;
   uint32_t wait_start_time_ = 0;
@@ -81,8 +80,7 @@ class StateMachine {
 
 class Sensor {
  public:
-  Sensor(Device &device, float &flow)
-      : device_(device), flow_(flow) {}
+  Sensor(Device &device, float &flow) : device_(device), flow_(flow) {}
 
   SensorState update();
 
@@ -107,4 +105,4 @@ class Sensor {
   SensorState check_setup_retry() const;
 };
 
-}  // namespace Pufferfish::BreathingCircuit
+}  // namespace Pufferfish::Driver::I2C::SFM3019
