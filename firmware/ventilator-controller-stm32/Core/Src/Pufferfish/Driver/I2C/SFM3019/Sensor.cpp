@@ -224,7 +224,7 @@ SensorState Sensor::update() {
       }
 
       ++retry_count_;
-      if (retry_count_ > max_retries_output) {
+      if (retry_count_ > max_retries_setup) {
         return SensorState::failed;
       }
 
@@ -239,7 +239,7 @@ SensorState Sensor::update() {
       }
 
       ++retry_count_;
-      if (retry_count_ > max_retries_output) {
+      if (retry_count_ > max_retries_measure) {
         return SensorState::failed;
       }
 

@@ -16,6 +16,9 @@
 
 namespace Pufferfish::Driver::I2C::SFM3019 {
 
+/**
+ * State management for Sensirion SFM3019 flow sensor, without I/O
+ */
 class StateMachine {
  public:
   enum class State {
@@ -78,6 +81,9 @@ class StateMachine {
   [[nodiscard]] bool finished_waiting_us(uint32_t timeout_us) const;
 };
 
+/**
+ * High-level (stateful) driver for Sensirion SFM3019 flow sensor
+ */
 class Sensor {
  public:
   Sensor(Device &device, float &flow) : device_(device), flow_(flow) {}
@@ -87,8 +93,8 @@ class Sensor {
  private:
   using Action = StateMachine::Output;
 
-  static const size_t max_retries_setup = 8;   // max retries for all setup steps combined
-  static const size_t max_retries_output = 8;  // max retries between valid outputs
+  static const size_t max_retries_setup = 8;    // max retries for all setup steps combined
+  static const size_t max_retries_measure = 8;  // max retries between valid outputs
 
   Device &device_;
   StateMachine fsm_;

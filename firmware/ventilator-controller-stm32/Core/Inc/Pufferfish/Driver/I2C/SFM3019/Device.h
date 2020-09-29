@@ -20,7 +20,7 @@ namespace Pufferfish::Driver::I2C::SFM3019 {
 static const uint16_t default_i2c_addr = 0x2e;
 
 /**
- * Driver for Sensirion SFM3019 flow sensor
+ * Stateless low-level driver for Sensirion SFM3019 flow sensor device
  */
 class Device {
  public:
