@@ -133,8 +133,11 @@ SFM3019::Status SFM3019::setup() {
       }
       break;
     case Action::get_conversion:
-      // TODO: implement the conversion query
-      next_action_ = fsm_.get_conversion(conversion_);
+      if (low_level_.read_conversion_factors(conversion_) != I2CDeviceStatus::ok*/false) {
+        ++retry_count;
+      } else {
+        next_action_ = fsm_.get_conversion(conversion_);
+      }
       break;
     case Action::configure_averaging:
       // TODO: implement the configuring averaging

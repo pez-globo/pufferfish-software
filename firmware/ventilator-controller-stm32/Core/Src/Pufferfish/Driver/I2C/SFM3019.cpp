@@ -65,9 +65,12 @@ I2CDeviceStatus SFM3019::serial_number(uint32_t &sn) {
 }
 
 I2CDeviceStatus SFM3019::read_conversion_factors(SFM3019ConversionFactors &conversion) {
-  static const uint8_t serial_high = 0x36;
-  static const uint8_t serial_low = 0x61;
-  std::array<uint8_t, 2> cmd{{serial_high, serial_low}};
+  static const uint8_t conversion_high = 0x36;
+  static const uint8_t conversion_low = 0x61;
+  static const uint8_t arg_high = 0x36;
+  static const uint8_t arg_low = 0x08;
+  // TODO: we actually have to write with a CRC!
+  std::array<uint8_t, 4> cmd{{conversion_high, conversion_low, arg_high, arg_low}};
 
   I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
   if (ret != I2CDeviceStatus::ok) {
@@ -80,12 +83,13 @@ I2CDeviceStatus SFM3019::read_conversion_factors(SFM3019ConversionFactors &conve
     return ret2;
   }
 
+  /*
   conversion.scale_factor = HAL::ntoh(Util::parse_network_order<uint16_t>(
       buffer.data(), buffer.size()));
   conversion.offset = HAL::ntoh(Util::parse_network_order<uint16_t>(
       buffer.data() + sizeof(int16_t), buffer.size()));
   conversion.flow_unit = HAL::ntoh(Util::parse_network_order<uint16_t>(
-      buffer.data() + 2 * sizeof(int16_t), buffer.size()));
+      buffer.data() + 2 * sizeof(int16_t), buffer.size()));*/
   return I2CDeviceStatus::ok;
 }
 
