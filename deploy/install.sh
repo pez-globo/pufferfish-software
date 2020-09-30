@@ -15,15 +15,12 @@
 # Setup yarn and install required libraries
 ./scripts/yarn.sh
 
-# Setup Nginx web server for serving frontend
-./scripts/nginx_setup.sh
-
-# Setup OS Boot Screen
-./scripts/boot_screen.sh
-
-echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/N]: "
-read answer
-if echo "$answer" | grep -iq "^y"
+if [ "$@" != "deploy" ]
 then
-    sudo reboot
+    echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/N]: "
+    read answer
+    if echo "$answer" | grep -iq "^y"
+    then
+        sudo reboot
+    fi
 fi
