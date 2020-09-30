@@ -11,6 +11,13 @@ sudo apt install nginx -y
 # Symbolic Link to nginx for read-only filesystem
 sudo ln -s /tmp /var/log/nginx
 
-cd ~/pufferfish-vent-software/frontend
+# Getting absolute path of frontend files
+script_dir=$(dirname $(realpath $0))
+frontend_dir=$script_dir/../../frontend
 
-sudo cp -r build/* /var/www/html/
+if [ 0 -eq $( ls $frontend_dir | grep -c "build" ) ]
+then
+    echo "Build files not found"
+else
+    sudo cp -r $frontend_dir/build/* /var/www/html/
+fi
