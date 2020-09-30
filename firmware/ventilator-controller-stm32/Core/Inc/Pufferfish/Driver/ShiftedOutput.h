@@ -18,12 +18,13 @@ namespace Driver {
  */
 class ShiftedOutput : public HAL::DigitalOutput {
  public:
-  ShiftedOutput(ShiftRegister &dev, uint8_t channel) : mDev(dev), mChannel(channel) {}
+  ShiftedOutput(ShiftRegister &dev, uint8_t channel) : dev_(dev), channel(channel) {}
 
   void write(bool output) override;
+
  private:
-  ShiftRegister &mDev;
-  const uint8_t mChannel;
+  ShiftRegister &dev_;
+  const uint8_t channel;
 };
 
 }  // namespace Driver

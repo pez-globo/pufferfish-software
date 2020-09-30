@@ -7,13 +7,10 @@
 
 #include "Pufferfish/Driver/ShiftedOutput.h"
 
-namespace Pufferfish {
-namespace Driver {
+namespace Pufferfish::Driver {
 
 void ShiftedOutput::write(bool output) {
-  mDev.setChannel(mChannel, output);
+  dev_.set_channel(channel, output);
 }
 
-}  // namespace HAL
-}  // namespace Pufferfish
-
+}  // namespace Pufferfish::Driver

@@ -6,18 +6,15 @@
 
 #include "Pufferfish/HAL/Interfaces/PWM.h"
 
+namespace Pufferfish::HAL {
 
-namespace Pufferfish {
-namespace HAL {
-
-PWMStatus PWM::setDutyCycle(float duty) {
-  if (0.0 < duty || duty > 1.0) {
-    return PWMStatus::invalidDutyCycle;
+PWMStatus PWM::set_duty_cycle(float duty) {
+  if (duty < 0.0 || 1.0 < duty) {
+    return PWMStatus::invalid_duty_cycle;
   }
 
-  setDutyCycleRaw(static_cast<uint32_t>(duty * getMaxDutyCycle()));
+  set_duty_cycle_raw(static_cast<uint32_t>(duty * get_max_duty_cycle()));
   return PWMStatus::ok;
 }
 
-} /* namespace HAL */
-} /* namespace Pufferfish */
+}  // namespace Pufferfish::HAL

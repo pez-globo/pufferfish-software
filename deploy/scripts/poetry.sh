@@ -13,4 +13,5 @@ else
 fi
 
 cd ~/pufferfish-vent-software/backend
+$poetry config virtualenvs.create false
 $ventserver_env $poetry install

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "stm32h7xx_hal.h"
+#include <cstdint>
 
 namespace Pufferfish {
 namespace HAL {
@@ -27,10 +27,11 @@ uint32_t millis();
 void delay(uint32_t ms);
 
 /**
- * Initializes the DWT cycle counter, must be called at the MCU startup if micros or delayMicros is used
+ * Initializes the DWT cycle counter, must be called at the MCU startup if
+ * micros or delayMicros is used
  * @return true if the initialization is successful, false otherwise
  */
-bool microsDelayInit();
+bool micros_delay_init();
 
 /**
  * Returns the number of microsecond since the startup,
@@ -45,7 +46,7 @@ uint32_t micros();
  * @param microseconds the number of microseconds to delay,
  *  must be less than 67 seconds with 64 MHz system clock
  */
-void delayMicros(uint32_t microseconds);
+void delay_micros(uint32_t microseconds);
 
 } /* namespace HAL */
 } /* namespace Pufferfish */

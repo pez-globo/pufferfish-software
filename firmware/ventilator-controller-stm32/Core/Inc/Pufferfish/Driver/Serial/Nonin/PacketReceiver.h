@@ -21,7 +21,10 @@
 
 #pragma once
 
-#include "Pufferfish/Driver/Serial/Nonin/FrameReceiver.h"
+#include <array>
+
+#include "FrameBuffer.h"
+#include "FrameReceiver.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -30,62 +33,68 @@ namespace Nonin {
 
 /* Enum class for amplitude representation of signal quality  */
 enum class SignalAmplitude {
-  noPerfusion = 0,  /// No loss in signal quality
-  redPerfusion,     /// Red Perfusion – Amplitude representation of low signal quality
-  yellowPerfusion,  /// YPRF: Yellow Perfusion – Amplitude representation of medium signal quality
-  greenPerfusion    /// Green Perfusion – Amplitude representation of high signal quality
+  no_perfusion = 0,  /// No loss in signal quality
+  red_perfusion,     /// Red Perfusion – Amplitude representation of low signal
+                     /// quality
+  yellow_perfusion,  /// YPRF: Yellow Perfusion – Amplitude representation of
+                     /// medium signal quality
+  green_perfusion    /// Green Perfusion – Amplitude representation of high signal
+                     /// quality
 };
 
 /* Structure defines the sensor data in packet for measurements */
 struct StatusByteStruct {
   bool bit7;
-  bool sensorDisconnect;
+  bool sensor_disconnect;
   bool artifact;
-  bool outOfTrack;
-  bool sensorAlarm;
-  SignalAmplitude SignalPerfusion;
+  bool out_of_track;
+  bool sensor_alarm;
+  SignalAmplitude signal_perfusion;
 };
 
 /* Packet of 25 frames */
-using Packet = std::array<Frame, 25>;
+static const size_t packet_size = 25;
+using Packet = std::array<Frame, packet_size>;
 /* Status Byte error of 25 frames */
-using StatusByteError = std::array<StatusByteStruct, 25>;
+using StatusByteError = std::array<StatusByteStruct, packet_size>;
 /* PLETH for 25 frames */
-using Pleth = std::array<uint8_t, 25>;
+using Pleth = std::array<uint8_t, packet_size>;
 
 /* Structure defines the sensor data in packet for measurements */
 struct PacketMeasurements {
   /* Heart Rate and SpO2 measurements */
-  uint16_t heartRate;
-  uint8_t  SpO2;
-  uint8_t SpO2D;
-  uint8_t SpO2DFast;
-  uint8_t SpO2DBeat;
-  uint16_t eHeartRate;
-  uint8_t eSpO2;
-  uint8_t eSpO2D;
-  uint16_t HeartRateD;
-  uint16_t eHeartRateD;
-  uint8_t  noninOEMRevision;
+  uint16_t heart_rate;
+  uint8_t spo2;
+  uint8_t spo2_d;
+  uint8_t spo2_d_fast;
+  uint8_t spo2_d_beat;
+  uint16_t e_heart_rate;
+  uint8_t e_spo2;
+  uint8_t e_spo2_d;
+  uint16_t heart_rate_d;
+  uint16_t e_heart_rate_d;
+  uint8_t nonin_oem_revision;
   /* PLETH measurements */
-  Pleth packetPleth;
+  Pleth packet_pleth;
   /* StatusByteErrors measurements */
-  bool bit7[25];
-  bool sensorDisconnect[25];
-  bool artifact[25];
-  bool outOfTrack[25];
-  bool sensorAlarm[25];
-  SignalAmplitude SignalPerfusion[25];
+  std::array<bool, packet_size> bit7;
+  std::array<bool, packet_size> sensor_disconnect;
+  std::array<bool, packet_size> artifact;
+  std::array<bool, packet_size> out_of_track;
+  std::array<bool, packet_size> sensor_alarm;
+  std::array<SignalAmplitude, packet_size> signal_perfusion;
 };
+
+static const uint8_t mask_6bit = 0x7F;
 
 /**
  * @brief  Inline function to get the SpO2 data
  * @param  ByteData - Byte of SpO2 Data received from packet
  * @return Masked value of SpO2 from input Spo2Data
  */
-inline uint16_t get6BitData(uint8_t ByteData) {
+inline uint16_t get_6bit_data(uint8_t byte_data) {
   /* Mask Bit0 to Bit6 for SpO2 data  */
-  return (ByteData & 0x07F);
+  return byte_data & mask_6bit;
 }
 
 /**
@@ -94,9 +103,15 @@ inline uint16_t get6BitData(uint8_t ByteData) {
  * @param  lsbByte - MSB to extract 5 bits
  * @return Calculated 9 bit data from MSB and LSB
  */
-inline uint16_t get9BitData(uint8_t msbByte  , uint8_t lsbByte) {
+inline uint16_t get_9bit_data(uint8_t msb_byte, uint8_t lsb_byte) {
   /* Pack 2 bits of MSB and 6 bits of LSB for 9 bits of heart rate data  */
-  return (((static_cast<uint16_t>(msbByte) << 7) & 0x18) | (static_cast<uint16_t>(lsbByte) & 0x7F)) & 0x01FF;
+  static const uint16_t msb_shift = 7;
+  static const uint16_t mask_msb = 0x18;
+  static const uint16_t mask_9bit = 0x01FF;
+  const uint16_t msb =
+      static_cast<uint16_t>(static_cast<uint16_t>(msb_byte) << msb_shift) & mask_msb;
+  const uint16_t lsb = static_cast<uint16_t>(lsb_byte) & mask_6bit;
+  return static_cast<uint16_t>(msb | lsb) & mask_9bit;
 }
 
 /*
@@ -104,29 +119,25 @@ inline uint16_t get9BitData(uint8_t msbByte  , uint8_t lsbByte) {
  */
 class PacketReceiver {
  public:
-  /* Size of Packet */
-  static const size_t packetSize = 25;
-
   /* PacketReceiver Input status */
   enum class PacketInputStatus {
-    available = 0,     /// Input is available to read output
-    waiting,           /// Input is wait to read more bytes
-    notAvailable,      /// Input is not available
-    missedData         /// missed one or more frames in previous received packet
-    };
+    available = 0,  /// Input is available to read output
+    waiting,        /// Input is wait to read more bytes
+    not_available,  /// Input is not available
+    missed_data     /// missed one or more frames in previous received packet
+  };
 
   /* PacketReceiver Output status */
   enum class PacketOutputStatus {
-    available = 0,   /// Output measurements are available
-    waiting          /// Output is waiting to receive more byte for measurements
-    };
+    available = 0,  /// Output measurements are available
+    waiting         /// Output is waiting to receive more byte for measurements
+  };
 
   /**
    * @brief  Constructor for PacketReceiver
    * @param  None
    */
-  PacketReceiver(){
-  }
+  PacketReceiver() = default;
 
   /**
    * @brief  Reset the packet on error occurred in input
@@ -144,24 +155,25 @@ class PacketReceiver {
   PacketInputStatus input(const Frame &frame);
 
   /**
-   * @brief  Output is called after the input status is available to read measurements
+   * @brief  Output is called after the input status is available to read
+   * measurements
    * @param  sensorMeasurements is updated on available of measurements
    * @return Packet Output status on available of measurements
    */
-  PacketOutputStatus output(PacketMeasurements &SensorMeasurements);
+  PacketOutputStatus output(PacketMeasurements &sensor_measurements);
 
  private:
   /* Packet data received */
-  Packet packet_data_;
+  Packet packet_data_{};
 
   /* Packet frame received length from PacketReceiver input */
-  size_t received_length_ = 25;
+  size_t received_length_ = packet_size;
 
   /* Input status for a packet */
-  PacketInputStatus input_status_;
+  PacketInputStatus input_status_ = PacketInputStatus::waiting;
 };
 
-} // Nonin
-} // Serial
-} // Driver
-} // Pufferfish
+}  // namespace Nonin
+}  // namespace Serial
+}  // namespace Driver
+}  // namespace Pufferfish
