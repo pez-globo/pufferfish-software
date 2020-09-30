@@ -17,7 +17,13 @@ fi
 sudo apt-get install watchdog -y
 
 # Adding watchdog config
-cat $config_dir/watchdog_config.txt | sudo tee -a /etc/watchdog.conf
+if [ 1 -eq $( ls $config_dir | grep -c "watchdog_config.txt" ) ]
+then
+    cat $config_dir/watchdog_config.txt | sudo tee -a /etc/watchdog.conf
+else
+    echo "Configuration file (watchdog_config.txt) not found!"
+    exit 1
+fi
 
 # Starting watchdog service
 sudo systemctl start watchdog

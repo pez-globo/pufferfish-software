@@ -21,7 +21,13 @@ fi
 
 if [ 0 -eq $( cat $HOME/.bashrc | grep -c "pyenv" ) ]
 then
-    cat $config_dir/pyenv_config.txt >> ~/.bashrc
+    if [ 1 -eq $( ls $config_dir | grep -c "pyenv_config.txt" ) ]
+    then
+        cat $config_dir/pyenv_config.txt >> ~/.bashrc
+    else
+        echo "Configuration file (pyenv_config.txt) not found!"
+        exit 1
+    fi
 else
     echo "pyenv already added to path"
 fi

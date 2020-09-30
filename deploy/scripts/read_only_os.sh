@@ -80,11 +80,23 @@ sudo sed -i "/ExecStart/i$exec_start" $random_seed_service
 
 # Config to switch between read-only and read-write mode
 echo "Adding switch alias for read-only and read-write mode..."
-cat $config_dir/bashrc_config.txt | sudo tee -a /etc/bash.bashrc
+if [ 1 -eq $( ls $config_dir | grep -c "bashrc_config.txt" ) ]
+then
+    cat $config_dir/bashrc_config.txt | sudo tee -a /etc/bash.bashrc
+else
+    echo "Configuration file (bashrc_config.txt) not found!"
+    exit 1
+fi
 
 # Switch to read-only on reboot/poweroff
 sudo touch /etc/bash.bash_logout
-cat $config_dir/bash_logout.txt | sudo tee -a /etc/bash.bash_logout
+if [ 1 -eq $( ls $config_dir | grep -c "bash_logout.txt" ) ]
+then
+    cat $config_dir/bash_logout.txt | sudo tee -a /etc/bash.bash_logout
+else
+    echo "Configuration file (bash_logout.txt) not found!"
+    exit 1
+fi
 
 # Kernel Reboot on panic
 echo "Configuring reboot on kernel panic..."
