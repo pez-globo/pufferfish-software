@@ -7,6 +7,11 @@ sudo apt install libffi-dev curl wget gcc make zlib1g-dev libsqlite3-dev -y
 sudo apt install build-essential libssl-dev libbz2-dev libreadline-dev -y
 sudo apt install libncurses5-dev libncursesw5-dev xz-utils libffi-dev liblzma-dev python-openssl -y
 
+# Getting absolute path of backend and config files
+script_dir=$(dirname $(realpath $0))
+backend_dir=$script_dir/../../backend
+config_dir=$script_dir/../configs
+
 if ! command -v pyenv &> /dev/null
 then
     curl https://pyenv.run | bash
@@ -16,8 +21,7 @@ fi
 
 if [ 0 -eq $( cat $HOME/.bashrc | grep -c "pyenv" ) ]
 then
-    cd ~/pufferfish-vent-software/deploy
-    cat configs/pyenv_config.txt >> ~/.bashrc
+    cat $config_dir/pyenv_config.txt >> ~/.bashrc
 else
     echo "pyenv already added to path"
 fi
@@ -38,5 +42,5 @@ else
     echo "ventserver environment already exists!"
 fi
 
-cd ~/pufferfish-vent-software/backend
+cd $backend_dir
 $pyenv local ventserver

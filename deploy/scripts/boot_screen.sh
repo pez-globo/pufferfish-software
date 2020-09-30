@@ -3,10 +3,13 @@
 echo "********** Setting up custom boot screen **********"
 
 sudo apt-get update
-script_dir=$(pwd)
+
+# Getting absolute path of config files
+script_dir=$(dirname $(realpath $0))
+config_dir=$script_dir/../configs
 
 # Copy splash image to home directory
-cp $script_dir/configs/splash.png ~/splash.png
+cp $config_dir/splash.png ~/splash.png
 
 # Disable logs on console
 existing_command=$(cat /boot/cmdline.txt)
@@ -23,18 +26,18 @@ sudo systemctl mask getty@tty1
 sudo apt install fim -y
 
 # Create service file
-if [ 1 -eq $( ls $script_dir/configs/ | grep -c "splashscreen.service" ) ]
+if [ 1 -eq $( ls $config_dir | grep -c "splashscreen.service" ) ]
 then
-    sudo cp $script_dir/configs/splashscreen.service /etc/systemd/system/
+    sudo cp $config_dir/splashscreen.service /etc/systemd/system/
 else
     echo "The splashscreen.service file doesn't exist"
     exit 1
 fi
 
 # Configure lightdm
-if [ 1 -eq $( ls $script_dir/configs/ | grep -c "lightdm.conf" ) ]
+if [ 1 -eq $( ls $config_dir | grep -c "lightdm.conf" ) ]
 then
-    sudo cp $script_dir/configs/lightdm.conf /etc/lightdm/lightdm.conf
+    sudo cp $config_dir/lightdm.conf /etc/lightdm/lightdm.conf
 else
     echo "Lightdm configuration file doesn't exist"
     exit 1

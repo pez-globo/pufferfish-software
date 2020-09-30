@@ -2,6 +2,10 @@
 
 echo "********** Setting up Watchdog **********"
 
+# Getting absolute path of config files
+script_dir=$(dirname $(realpath $0))
+config_dir=$script_dir/../configs
+
 # Loading internal watchdog kernel module
 sudo modprobe bcm2835_wdt
 if [ 0 -eq $( grep -c "^bcm2835_wdt" /etc/modules ) ]
@@ -13,8 +17,7 @@ fi
 sudo apt-get install watchdog -y
 
 # Adding watchdog config
-cd ~/pufferfish-vent-software/deploy
-cat configs/watchdog_config.txt | sudo tee -a /etc/watchdog.conf
+cat $config_dir/watchdog_config.txt | sudo tee -a /etc/watchdog.conf
 
 # Starting watchdog service
 sudo systemctl start watchdog

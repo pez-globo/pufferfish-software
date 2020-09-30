@@ -6,6 +6,10 @@ sudo apt-get update
 sudo apt-get remove --purge triggerhappy logrotate dphys-swapfile piwiz -y
 sudo apt-get autoremove --purge -y
 
+# Getting absolute path of config files
+script_dir=$(dirname $(realpath $0))
+config_dir=$script_dir/../configs
+
 # Disable default ssh password warning
 echo "Disabling default ssh password warning..."
 
@@ -76,11 +80,11 @@ sudo sed -i "/ExecStart/i$exec_start" $random_seed_service
 
 # Config to switch between read-only and read-write mode
 echo "Adding switch alias for read-only and read-write mode..."
-cat configs/bashrc_config.txt | sudo tee -a /etc/bash.bashrc
+cat $config_dir/bashrc_config.txt | sudo tee -a /etc/bash.bashrc
 
 # Switch to read-only on reboot/poweroff
 sudo touch /etc/bash.bash_logout
-cat configs/bash_logout.txt | sudo tee -a /etc/bash.bash_logout
+cat $config_dir/bash_logout.txt | sudo tee -a /etc/bash.bash_logout
 
 # Kernel Reboot on panic
 echo "Configuring reboot on kernel panic..."

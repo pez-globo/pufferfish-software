@@ -12,6 +12,10 @@ else
     echo "Poetry is already installed, skipping installation"
 fi
 
-cd ~/pufferfish-vent-software/backend
+# Getting absolute path of backend files
+script_dir=$(dirname $(realpath $0))
+backend_dir=$script_dir/../../backend
+
+cd $backend_dir
 $poetry config virtualenvs.create false
 $ventserver_env $poetry install

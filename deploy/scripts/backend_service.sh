@@ -2,12 +2,13 @@
 
 echo "********** Setting up backend service **********"
 
-# Copying service file to systemd
-cd ~/pufferfish-vent-software/deploy
+# Getting absolute path of config files
+script_dir=$(dirname $(realpath $0))
+config_dir=$script_dir/../configs
 
-if [ 1 -eq $( ls configs/ | grep -c "pufferfish_backend.service" ) ]
+if [ 1 -eq $( ls $config_dir | grep -c "pufferfish_backend.service" ) ]
 then
-    sudo cp configs/pufferfish_backend.service /etc/systemd/system/
+    sudo cp $config_dir/pufferfish_backend.service /etc/systemd/system/
     sudo chmod 644 /etc/systemd/system/pufferfish_backend.service
 else
     echo "The pufferfish_backend.service file doesn't exist"
