@@ -31,6 +31,7 @@
 
 #include "Pufferfish/AlarmsManager.h"
 #include "Pufferfish/Application/States.h"
+#include "Pufferfish/Driver/BreathingCircuit/Controller.h"
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 #include "Pufferfish/Driver/Button/Button.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
@@ -99,7 +100,7 @@ namespace PF = Pufferfish;
 // Application State
 PF::Application::States all_states;
 
-// Breathing Circuit Control
+// Breathing Circuit Simulation
 PF::BreathingCircuit::Simulators breathing_circuit(
     all_states.parameters_request(),
     all_states.parameters(),
@@ -314,6 +315,14 @@ auto i2c_test_list = PF::Util::make_array<PF::Driver::Testable *>(
 int interface_test_state = 0;
 int interface_test_millis = 0;
 
+// Breathing Circuit Control
+PF::BreathingCircuit::Actuators actuators;
+PF::BreathingCircuit::HFNCController hfnc(
+    all_states.parameters_request(),
+    all_states.parameters(),
+    all_states.sensor_measurements(),
+    actuators);
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -459,7 +468,6 @@ int main(void)
   dimmer.start(PF::HAL::millis());
 
   // Solenoid valve
-  drive1_ch1.set_duty_cycle(0.25);
   drive1_ch1.start();
   /* USER CODE END 2 */
 
@@ -484,14 +492,18 @@ int main(void)
       case PF::SensorState::setup:
         break;
       case PF::SensorState::ok:
+        // Breathing Circuit Controller
+        hfnc.update_parameters();
+        hfnc.update_clock(current_time);
+        hfnc.update_actuators();
+
+        // Actuator Overrides
+        drive1_ch1.set_duty_cycle(actuators.valve_opening);
         break;
       case PF::SensorState::failed:
         board_led1.write(flasher.output());
         break;
     }
-
-    // Actuator Overrides
-    alarm_buzzer.write(dimmer.output());
 
     // Backend Communication Protocol
     backend.receive();
