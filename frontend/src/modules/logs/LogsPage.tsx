@@ -32,7 +32,6 @@ interface Data {
   alarm: string;
   time: number; // Note: Make this a date object?
   status: string;
-  details: string; // Note: Make this an ID to view more details?,
   id: number;
 }
 
@@ -43,7 +42,6 @@ const headCells: HeadCell[] = [
   { id: 'alarm', numeric: true, disablePadding: false, label: 'Alarm' },
   { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date' },
   { id: 'Status', numeric: false, disablePadding: false, label: 'Status' },
-  { id: 'details', numeric: false, disablePadding: false, label: 'Details' },
 ];
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -80,10 +78,9 @@ export const LogsPage = (): JSX.Element => {
     alarm: string,
     time: number,
     status: string,
-    details: string,
     id: number,
   ): Data => {
-    return { type, alarm, time, status, details, id };
+    return { type, alarm, time, status, id };
   };
 
   const [rows, setRows] = React.useState<Data[]>([]);
@@ -121,7 +118,6 @@ export const LogsPage = (): JSX.Element => {
         `${eventType.label} ${diffString}`,
         event.time,
         activeLogEventIds.indexOf(event.id) > -1 ? 'Active' : 'In Active',
-        'View Details',
         event.id,
       );
     });
@@ -226,17 +222,6 @@ export const LogsPage = (): JSX.Element => {
                 </TableCell>
                 <TableCell align="left" component="th" scope="row">
                   {row.status}
-                </TableCell>
-                <TableCell
-                  align="left"
-                  onClick={() => {
-                    setCurrentRow(row);
-                    setOpen(true);
-                  }}
-                >
-                  <Typography style={{ cursor: 'pointer' }} variant="inherit">
-                    {row.details}
-                  </Typography>
                 </TableCell>
               </StyledTableRow>
             );
