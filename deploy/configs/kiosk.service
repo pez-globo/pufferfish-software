@@ -1,0 +1,19 @@
+[Unit]
+Description=Pufferfish Backend Service
+Requires=nginx.service pufferfish_backend.service
+After=nginx.service media-pi-LOGS.mount graphical.target pufferfish_backend.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+Environment=DISPLAY=:0.0
+Environment=XAUTHORITY=/home/pi/.Xauthority
+ExecStart=chromium-browser --check-for-update-interval=31536000 --no-first-run --disable-translate --disable-infobars --disable-suggestions-service --disable-save-password-bubble --disable-session-crashed-bubble --noerrdialogs -disable-pinch --no-context-menu --kiosk http://localhost
+Restart=always
+RestartSec=3
+StandardOutput=file:/media/pi/LOGS/frontend_output.log
+StandardError=file:/media/pi/LOGS/frontend_error.log
+
+[Install]
+WantedBy=graphical.target
