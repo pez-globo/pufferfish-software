@@ -4,6 +4,7 @@ Description=USB Logging Device
 [Mount]
 Where=/media/pi/LOGS
 What=/dev/sda1
+DirectoryMode=777
 
 [Install]
 WantedBy=multi-user.target
