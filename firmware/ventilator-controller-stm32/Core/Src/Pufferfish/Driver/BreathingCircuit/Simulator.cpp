@@ -9,7 +9,7 @@
 
 #include "Pufferfish/Util/Timeouts.h"
 
-namespace Pufferfish::BreathingCircuit {
+namespace Pufferfish::Driver::BreathingCircuit {
 
 // Simulator
 
@@ -33,24 +33,6 @@ bool Simulator::update_needed() const {
 }
 
 // PC-AC Simulator
-
-void PCACSimulator::update_parameters() {
-  parameters_.mode = parameters_request_.mode;
-  if (parameters_.mode != VentilationMode_pc_ac) {
-    return;
-  }
-  if (parameters_request_.rr > 0) {
-    parameters_.rr = parameters_request_.rr;
-  }
-  if (parameters_request_.ie > 0) {
-    parameters_.ie = parameters_request_.ie;
-  }
-  if (parameters_request_.pip > 0) {
-    parameters_.pip = parameters_request_.pip;
-  }
-  parameters_.peep = parameters_request_.peep;
-  parameters_.fio2 = parameters_request_.fio2;
-}
 
 void PCACSimulator::update_sensors() {
   if (!update_needed()) {
@@ -110,25 +92,7 @@ void PCACSimulator::update_airway_expiratory() {
   sensor_measurements_.volume += sensor_measurements_.flow / min_per_s * time_step();
 }
 
-void PCACSimulator::update_actuators() {}
-
 // HFNC Simulator
-
-void HFNCSimulator::update_parameters() {
-  parameters_.mode = parameters_request_.mode;
-  if (parameters_.mode != VentilationMode_hfnc) {
-    return;
-  }
-  if (parameters_request_.flow > 0) {
-    parameters_.flow = parameters_request_.flow;
-  }
-  if (parameters_request_.fio2 >= spo2_min && parameters_request_.fio2 <= spo2_max) {
-    parameters_.fio2 = parameters_request_.fio2;
-  }
-  if (parameters_request_.rr > 0) {
-    parameters_.rr = parameters_request_.rr;
-  }
-}
 
 void HFNCSimulator::update_sensors() {
   if (!update_needed()) {
@@ -176,28 +140,7 @@ void HFNCSimulator::update_spo2() {
   }
 }
 
-void HFNCSimulator::update_actuators() {}
-
 // Simulators
-
-void Simulators::update_parameters() {
-  switch (parameters_request_.mode) {
-    case VentilationMode_pc_ac:
-      active_simulator_ = &pc_ac_;
-      break;
-    case VentilationMode_hfnc:
-      active_simulator_ = &hfnc_;
-      break;
-    default:
-      active_simulator_ = nullptr;
-      break;
-  }
-  if (active_simulator_ == nullptr) {
-    return;
-  }
-
-  active_simulator_->update_parameters();
-}
 
 void Simulators::update_clock(uint32_t current_time) {
   if (active_simulator_ == nullptr) {
@@ -209,19 +152,19 @@ void Simulators::update_clock(uint32_t current_time) {
 }
 
 void Simulators::update_sensors() {
-  if (active_simulator_ == nullptr) {
-    return;
+  switch (parameters_.mode) {
+    case VentilationMode_pc_ac:
+      active_simulator_ = &pc_ac_;
+      break;
+    case VentilationMode_hfnc:
+      active_simulator_ = &hfnc_;
+      break;
+    default:
+      active_simulator_ = nullptr;
+      return;
   }
 
   active_simulator_->update_sensors();
 }
 
-void Simulators::update_actuators() {
-  if (active_simulator_ == nullptr) {
-    return;
-  }
-
-  active_simulator_->update_actuators();
-}
-
-}  // namespace Pufferfish::BreathingCircuit
+}  // namespace Pufferfish::Driver::BreathingCircuit

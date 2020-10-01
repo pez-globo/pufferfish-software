@@ -31,7 +31,8 @@
 
 #include "Pufferfish/AlarmsManager.h"
 #include "Pufferfish/Application/States.h"
-#include "Pufferfish/Driver/BreathingCircuit/Controller.h"
+#include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
+#include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 #include "Pufferfish/Driver/Button/Button.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
@@ -100,9 +101,13 @@ namespace PF = Pufferfish;
 // Application State
 PF::Application::States all_states;
 
-// Breathing Circuit Simulation
-PF::BreathingCircuit::Simulators breathing_circuit(
+// Parameters
+PF::Driver::BreathingCircuit::ParametersServices parameters_service(
     all_states.parameters_request(),
+    all_states.parameters());
+
+// Breathing Circuit Simulation
+PF::Driver::BreathingCircuit::Simulators simulator(
     all_states.parameters(),
     all_states.sensor_measurements(),
     all_states.cycle_measurements());
@@ -316,12 +321,13 @@ int interface_test_state = 0;
 int interface_test_millis = 0;
 
 // Breathing Circuit Control
-PF::BreathingCircuit::Actuators actuators;
-PF::BreathingCircuit::HFNCController hfnc(
-    all_states.parameters_request(),
+PF::Driver::BreathingCircuit::Actuators actuators;
+PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
     all_states.parameters(),
     all_states.sensor_measurements(),
-    actuators);
+    sfm3019,
+    actuators,
+    drive1_ch1);
 
 /* USER CODE END PV */
 
@@ -473,6 +479,14 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  // Setup
+  while (true) {
+    if (sfm3019.update() == PF::SensorState::ok) {
+      break;
+    }
+  }
+
+  // Normal loop
   while (true) {
     uint32_t current_time = HAL_GetTick();
 
@@ -481,28 +495,22 @@ int main(void)
     blinker.update(PF::HAL::millis());
     dimmer.update(PF::HAL::millis());
 
-    // Breathing Circuit Simulator
-    breathing_circuit.update_parameters();
-    breathing_circuit.update_clock(current_time);
-    breathing_circuit.update_sensors();
-    breathing_circuit.update_actuators();
+    // Parameters update
+    parameters_service.update();
 
-    // Sensor Measurement Overrides
-    switch (sfm3019.update()) {
-      case PF::SensorState::setup:
-        break;
-      case PF::SensorState::ok:
-        // Breathing Circuit Controller
-        hfnc.update_parameters();
-        hfnc.update_clock(current_time);
-        hfnc.update_actuators();
+    // Breathing Circuit Sensor Simulator
+    simulator.update_clock(current_time);
+    simulator.update_sensors();
 
-        // Actuator Overrides
-        drive1_ch1.set_duty_cycle(actuators.valve_opening);
-        break;
-      case PF::SensorState::failed:
-        board_led1.write(flasher.output());
-        break;
+    // Breathing Circuit Control Loop
+    hfnc.update(current_time);
+    // Indicators for debugging
+    if (actuators.valve_opening > 0.75) {
+      board_led1.write(true);
+    } else if (actuators.valve_opening > 0.5) {
+      board_led1.write(dimmer.output());
+    } else {
+      board_led1.write(flasher.output());
     }
 
     // Backend Communication Protocol
