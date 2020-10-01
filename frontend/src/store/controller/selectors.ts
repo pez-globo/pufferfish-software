@@ -125,6 +125,12 @@ export const getParametersRequest = createSelector(
   (states: ControllerStates): ParametersRequest => states.parametersRequest,
 );
 
+export const getParametersRequestStandby = createSelector(
+  getController,
+  (states: ControllerStates): ParametersRequest =>
+    states.parametersRequestStandby.parameters as ParametersRequest,
+);
+
 export const getParametersRequestMode = createSelector(
   getParametersRequest,
   (parametersRequest: ParametersRequest): VentilationMode => parametersRequest.mode,
@@ -224,6 +230,12 @@ export const getAlarmLimitsRequest = createSelector(
   getController,
   (states: ControllerStates): AlarmLimitsRequest | Record<string, number> =>
     states.alarmLimitsRequest,
+);
+
+export const getAlarmLimitsRequestStandby = createSelector(
+  getController,
+  (states: ControllerStates): AlarmLimitsRequest | Record<string, number> =>
+    states.alarmLimitsRequestStandby.alarmLimits as AlarmLimitsRequest,
 );
 
 // Display Settings

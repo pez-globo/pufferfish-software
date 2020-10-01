@@ -3,101 +3,93 @@
  *
  * HALSPIDevice.cpp
  *
- *  Created on: 
- *      Author: 
+ *  Created on:
+ *      Author:
  */
 
 #include "Pufferfish/HAL/Mock/MockSPIDevice.h"
 
-namespace Pufferfish {
-namespace HAL {
-
+namespace Pufferfish::HAL {
 
 SPIDeviceStatus MockSPIDevice::read(uint8_t *buf, size_t count) {
-  size_t index;
-  size_t minumum = (count < mReadBufSize)? count : mReadBufSize;
+  size_t index = 0;
+  size_t minumum = (count < read_buf_size) ? count : read_buf_size;
 
   for (index = 0; index < minumum; index++) {
-    buf[index] = mReadBuf[index];
+    buf[index] = read_buf_[index];
   }
   return SPIDeviceStatus::ok;
 }
 
-void MockSPIDevice::setRead(uint8_t *buf, size_t count) {
-  size_t index;
-  size_t minumum = (count < mReadBufSize)? count : mReadBufSize;
+void MockSPIDevice::set_read(const uint8_t *buf, size_t count) {
+  size_t index = 0;
+  size_t minumum = (count < read_buf_size) ? count : read_buf_size;
 
-  for (index = 0; index < minumum; index++)
-  {
-    mReadBuf[index] = buf[index];
+  for (index = 0; index < minumum; index++) {
+    read_buf_[index] = buf[index];
   }
 }
 
 SPIDeviceStatus MockSPIDevice::write(uint8_t *buf, size_t count) {
-  size_t index;
+  size_t index = 0;
 
-  mWriteCount = (count < mWriteBufSize)? count : mWriteBufSize;
-  for (index = 0; index < mWriteCount; index++) {
-    mWriteBuf[index] = buf[index];
+  write_count_ = (count < write_buf_size) ? count : write_buf_size;
+  for (index = 0; index < write_count_; index++) {
+    write_buf_[index] = buf[index];
   }
 
   return SPIDeviceStatus::ok;
 }
 
-void MockSPIDevice::getWrite(uint8_t *buf, size_t &count) {
-  size_t index;
+void MockSPIDevice::get_write(uint8_t *buf, size_t &count) {
+  size_t index = 0;
 
-  count = mWriteCount;
-  for (index = 0; index < count; index++)
-  {
-    buf[index] = mWriteBuf[index];
+  count = write_count_;
+  for (index = 0; index < count; index++) {
+    buf[index] = write_buf_[index];
   }
 }
 
-void MockSPIDevice::setWriteRead(uint8_t *buf, size_t count) {
-  size_t index;
-  size_t minumum = (count < mReadBufSize)? count : mReadBufSize;
-
-  for (index = 0; index < minumum; index++)
-  {
-    mSetWriteReadBuf[index] = buf[index];
-  }
-}
-
-SPIDeviceStatus MockSPIDevice::writeRead(uint8_t *txBuf, uint8_t *rxBuf, size_t count) {
-  size_t index;
-  size_t minumum = (count < mReadBufSize)? count : mReadBufSize;
+void MockSPIDevice::set_write_read(const uint8_t *buf, size_t count) {
+  size_t index = 0;
+  size_t minumum = (count < read_buf_size) ? count : read_buf_size;
 
   for (index = 0; index < minumum; index++) {
-    rxBuf[index] = mSetWriteReadBuf[index];
+    set_write_read_buf_[index] = buf[index];
+  }
+}
+
+SPIDeviceStatus MockSPIDevice::write_read(uint8_t *tx_buf, uint8_t *rx_buf, size_t count) {
+  size_t index = 0;
+  size_t minumum = (count < read_buf_size) ? count : read_buf_size;
+
+  for (index = 0; index < minumum; index++) {
+    rx_buf[index] = set_write_read_buf_[index];
   }
 
-  mGetWriteReadCount = (count < mWriteBufSize)? count : mWriteBufSize;
-  for (index = 0; index < mWriteCount; index++) {
-    mGetWriteReadBuf[index] = txBuf[index];
+  get_write_read_count_ = (count < write_buf_size) ? count : write_buf_size;
+  for (index = 0; index < write_count_; index++) {
+    get_write_read_buf_[index] = tx_buf[index];
   }
 
   return SPIDeviceStatus::ok;
 }
 
-void MockSPIDevice::getWriteRead(uint8_t *buf, size_t count) {
-  size_t index;
+void MockSPIDevice::get_write_read(uint8_t *buf, size_t count) {
+  size_t index = 0;
 
-  count = mGetWriteReadCount;
-  for (index = 0; index < count; index++)
-  {
-    buf[index] = mGetWriteReadBuf[index];
+  count = get_write_read_count_;
+  for (index = 0; index < count; index++) {
+    buf[index] = get_write_read_buf_[index];
   }
 }
 
-void MockSPIDevice::chipSelect (bool input) {
-  mLastCS = input;
+void MockSPIDevice::chip_select(bool input) {
+  last_cs_ = input;
 }
 
-bool MockSPIDevice::getChipSelect (){
-  return mLastCS;
+bool MockSPIDevice::get_chip_select() const {
+  return last_cs_;
 }
 
-
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL

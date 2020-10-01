@@ -15,6 +15,8 @@ import { SystemSettingRequest, FrontendDisplaySetting, RotaryEncoder } from './p
 export const STATE_UPDATED = '@controller/STATE_UPDATED';
 export const PARAMETER_COMMITTED = '@controller/PARAMETER_COMMITTED';
 export const ALARM_LIMITS = 'ALARM_LIMITS';
+export const ALARM_LIMITS_STANDBY = 'ALARM_LIMITS_STANDBY';
+export const PARAMETER_STANDBY = 'PARAMETERS_STANDBY';
 export const FRONTEND_DISPLAY_SETTINGS = 'FRONTEND_DISPLAY_SETTINGS';
 export const SYSTEM_SETTINGS = 'SYSTEM_SETTINGS';
 
@@ -110,6 +112,8 @@ export interface ControllerStates {
   // Message states from mcu_pb
   alarms: Alarms;
   alarmLimitsRequest: AlarmLimitsRequest;
+  alarmLimitsRequestStandby: { alarmLimits: AlarmLimitsRequest };
+  parametersRequestStandby: { parameters: ParametersRequest };
   systemSettingRequest: SystemSettingRequest;
   frontendDisplaySetting: FrontendDisplaySetting;
   sensorMeasurements: SensorMeasurements;

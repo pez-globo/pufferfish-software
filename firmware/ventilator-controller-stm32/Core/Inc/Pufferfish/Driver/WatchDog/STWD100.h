@@ -17,43 +17,38 @@ namespace Driver {
 namespace WatchDog {
 
 /**
-  * An abstract class for STWD100 WatchDog module
-  */
-class STWD100 {
+ * An abstract class for STWD100 WatchDog module
+ */
 
-public:
+class STWD100 {
+ public:
   /**
-    * Constructor for STWD100 external WatchDog driver
-    * @param enablePin for STWD100
-    * @param inputPin for STWD100
-    */
-  STWD100 (HAL::DigitalOutput &enablePin, HAL::DigitalOutput &inputPin )
-           :mEnablenPin(enablePin),mInputPin (inputPin){
-  }
+   * Constructor for STWD100 external WatchDog driver
+   * @param enablePin for STWD100
+   * @param inputPin for STWD100
+   */
+  STWD100(HAL::DigitalOutput &enable_pin, HAL::DigitalOutput &input_pin)
+      : enable_pin_(enable_pin), input_pin_(input_pin) {}
 
   /**
    * Enable watchdog timer
    */
-  void enable(void);
-
+  void enable();
   /**
    * Disable watchdog timer
    */
-  void disable(void);
-
+  void disable();
   /**
    * Reset watchdog timer when controller program experienced a freeze or hang
    */
-  void toggleInput(void);
+  void toggle_input();
 
-private:
-  static const uint32_t resetTime = 2; /// TBD: resetTime as to be fixed
-  HAL::DigitalOutput &mEnablenPin;
-  HAL::DigitalOutput &mInputPin;
+ private:
+  static const uint32_t reset_time = 2;  /// TBD: resetTime as to be fixed
+  HAL::DigitalOutput &enable_pin_;
+  HAL::DigitalOutput &input_pin_;
 };
 
 }  // namespace WatchDog
 }  // namespace Driver
 }  // namespace Pufferfish
-
-

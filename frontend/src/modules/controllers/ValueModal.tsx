@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import ValueClicker from './ValueClicker';
@@ -54,6 +54,14 @@ export const ValueModal = ({
   const rotaryEncoder = useSelector(getRotaryEncoder);
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(committedSetting);
+
+  const initSetValue = useCallback(() => {
+    setValue(committedSetting);
+  }, [committedSetting]);
+
+  useEffect(() => {
+    initSetValue();
+  }, [initSetValue]);
 
   const handleOpen = () => {
     setOpen(true);
