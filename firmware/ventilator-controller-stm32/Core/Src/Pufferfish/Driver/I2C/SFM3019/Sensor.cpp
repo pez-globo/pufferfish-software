@@ -14,73 +14,41 @@ namespace Pufferfish::Driver::I2C::SFM3019 {
 
 // StateMachine
 
-StateMachine::State StateMachine::state() const {
-  return state_;
-}
-
-StateMachine::Output StateMachine::initialize(uint32_t current_time) {
-  // This transition is available from every state, as its first step is to reset the sensor
-  state_ = State::waiting_warmup;
-  current_time_ = current_time;
-  wait_start_time_ = current_time_;
-  return Output::wait_warmup;
-}
-
-StateMachine::Output StateMachine::wait_warmup(uint32_t current_time) {
-  if (state_ != State::waiting_warmup) {
-    return Output::error_input;
-  }
-
-  current_time_ = current_time;
-  if (!finished_waiting(warming_up_duration)) {
-    return Output::wait_warmup;
-  }
-
-  state_ = State::checking_range;
-  return Output::check_range;
-}
-
-StateMachine::Output StateMachine::check_range(uint32_t current_time_us) {
-  if (state_ != State::checking_range) {
-    return Output::error_input;
-  }
-
-  state_ = State::waiting_measurement;
+StateMachine::Action StateMachine::update(uint32_t current_time_us) {
   current_time_us_ = current_time_us;
+  switch (next_action_) {
+    case Action::initialize:
+      next_action_ = Action::wait_warmup;
+      start_waiting();
+      break;
+    case Action::wait_warmup:
+      if (finished_waiting(warming_up_duration_us)) {
+        next_action_ = Action::check_range;
+      } else {
+        next_action_ = Action::wait_warmup;
+      }
+      break;
+    case Action::check_range:
+    case Action::measure:
+      next_action_ = Action::wait_measurement;
+      start_waiting();
+      break;
+    case Action::wait_measurement:
+      if (finished_waiting(measuring_duration_us)) {
+        next_action_ = Action::measure;
+      } else {
+        next_action_ = Action::wait_measurement;
+      }
+      break;
+  }
+  return next_action_;
+}
+
+void StateMachine::start_waiting() {
   wait_start_time_us_ = current_time_us_;
-  return Output::wait_measurement;
 }
 
-StateMachine::Output StateMachine::measure(uint32_t current_time_us) {
-  if (state_ != State::measuring) {
-    return Output::error_input;
-  }
-
-  state_ = State::waiting_measurement;
-  current_time_us_ = current_time_us;
-  wait_start_time_us_ = current_time_us_;
-  return Output::wait_measurement;
-}
-
-StateMachine::Output StateMachine::wait_measurement(uint32_t current_time_us) {
-  if (state_ != State::waiting_measurement) {
-    return Output::error_input;
-  }
-
-  current_time_us_ = current_time_us;
-  if (!finished_waiting_us(measuring_duration_us)) {
-    return Output::wait_measurement;
-  }
-
-  state_ = State::measuring;
-  return Output::measure;
-}
-
-bool StateMachine::finished_waiting(uint32_t timeout) const {
-  return !Util::within_timeout(wait_start_time_, timeout, current_time_);
-}
-
-bool StateMachine::finished_waiting_us(uint32_t timeout_us) const {
+bool StateMachine::finished_waiting(uint32_t timeout_us) const {
   return !Util::within_timeout(wait_start_time_us_, timeout_us, current_time_us_);
 }
 
@@ -89,16 +57,16 @@ bool StateMachine::finished_waiting_us(uint32_t timeout_us) const {
 SensorState Sensor::update() {
   switch (next_action_) {
     case Action::initialize:
-      return initialize(HAL::millis());
+      return initialize(HAL::micros());
     case Action::wait_warmup:
-      next_action_ = fsm_.wait_warmup(HAL::millis());
+      next_action_ = fsm_.update(HAL::micros());
       return SensorState::setup;
     case Action::check_range:
       return check_range(HAL::micros());
     case Action::measure:
       return measure(HAL::micros());
     case Action::wait_measurement:
-      next_action_ = fsm_.wait_measurement(HAL::micros());
+      next_action_ = fsm_.update(HAL::micros());
       return SensorState::ok;
     default:
       break;
@@ -106,7 +74,7 @@ SensorState Sensor::update() {
   return SensorState::failed;
 }
 
-SensorState Sensor::initialize(uint32_t current_time) {
+SensorState Sensor::initialize(uint32_t current_time_us) {
   if (retry_count_ > max_retries_setup) {
     return SensorState::failed;
   }
@@ -142,7 +110,7 @@ SensorState Sensor::initialize(uint32_t current_time) {
     }
   }
 
-  next_action_ = fsm_.initialize(current_time);
+  next_action_ = fsm_.update(current_time_us);
   retry_count_ = 0;  // reset retries to 0 for measuring
   return SensorState::setup;
 }
@@ -151,7 +119,7 @@ SensorState Sensor::check_range(uint32_t current_time_us) {
   if (device_.read_sample(sample_, conversion_.scale_factor, conversion_.offset) ==
           I2CDeviceStatus::ok &&
       sample_.flow >= flow_min && sample_.flow <= flow_max) {
-    next_action_ = fsm_.check_range(current_time_us);
+    next_action_ = fsm_.update(current_time_us);
     return SensorState::ok;
   }
 
@@ -168,7 +136,7 @@ SensorState Sensor::measure(uint32_t current_time_us) {
       I2CDeviceStatus::ok) {
     retry_count_ = 0;  // reset retries to 0 for next measurement
     flow_ = sample_.flow;
-    next_action_ = fsm_.measure(current_time_us);
+    next_action_ = fsm_.update(current_time_us);
     return SensorState::ok;
   }
 

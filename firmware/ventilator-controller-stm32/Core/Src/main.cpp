@@ -158,9 +158,10 @@ PF::HAL::HALDigitalOutput board_led1(
     LD1_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 static const uint32_t flash_period = 50;
 static const uint32_t blink_period = 500;
+static const uint32_t dim_period = 8;
 PF::Driver::Indicators::PWMGenerator flasher(flash_period, 1);
 PF::Driver::Indicators::PWMGenerator blinker(blink_period, 1);
-PF::Driver::Indicators::PWMGenerator dimmer(4, 1);
+PF::Driver::Indicators::PWMGenerator dimmer(dim_period, 1);
 PF::Driver::ShiftRegister leds_reg(ser_input, ser_clock, ser_r_clock, ser_clear);
 
 PF::Driver::ShiftedOutput alarm_led_r(leds_reg, 0);
