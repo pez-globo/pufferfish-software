@@ -76,10 +76,12 @@ export const ValueModal = ({
     setOpen(false);
   };
 
-  const updateRotaryData = () => {
-    if (open) {
-      if (rotaryEncoder.stepDiff) {
-        const newValue = value + rotaryEncoder.stepDiff;
+  const updateRotaryData = useCallback(
+    () => {
+      if (open) {
+        const stepDiff = rotaryEncoder.stepDiff || 0;
+        const valueClone = value >= 0 ? value : 0;
+        const newValue = valueClone + stepDiff;
         // TODO: Replace 0/100 with respective min/max value
         if (newValue < 0) {
           setValue(0);
@@ -88,17 +90,18 @@ export const ValueModal = ({
         } else {
           setValue(newValue);
         }
+        if (rotaryEncoder.buttonPressed) {
+          handleConfirm();
+        }
       }
-      if (rotaryEncoder.buttonPressed) {
-        handleConfirm();
-      }
-    }
-  };
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [rotaryEncoder.step, rotaryEncoder.buttonPressed],
+  );
 
   useEffect(() => {
     updateRotaryData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rotaryEncoder]);
+  }, [updateRotaryData]);
 
   function pipClarify(label: string) {
     if (label === 'PIP') return '*not PEEP compensated';
