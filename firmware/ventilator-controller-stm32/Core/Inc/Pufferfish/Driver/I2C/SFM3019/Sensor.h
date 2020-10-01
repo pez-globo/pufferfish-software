@@ -23,27 +23,18 @@ class StateMachine {
  public:
   enum class State {
     uninitialized,
-    powering_up,
-    checking_pn,
-    getting_conversion,
-    configuring_averaging,
-    idle,
-    warming_up,
+    waiting_warmup,
     checking_range,
-    measuring
+    measuring,
+    waiting_measurement
   };
   // Next Actions
   enum class Output {
     initialize,
-    wait,
-    reset,
-    check_pn,
-    get_conversion,
-    configure_averaging,
-    start_measuring,
+    wait_warmup,
     check_range,
     measure,
-    wait_us,
+    wait_measurement,
     error_fail,
     error_input
   };
@@ -51,25 +42,17 @@ class StateMachine {
   [[nodiscard]] State state() const;
 
   // Input Actions, returns the preferred next action to run
-  Output initialize();
-  Output wait(uint32_t current_time);
-  Output reset(uint32_t current_time);
-  Output check_pn(uint32_t pn);
-  Output get_conversion(const ConversionFactors &conversion);
-  Output configure_averaging();
-  Output start_measuring(uint32_t current_time);
-  Output check_range(float flow, uint32_t current_time_us);
+  Output initialize(uint32_t current_time);
+  Output wait_warmup(uint32_t current_time);
+  Output check_range(uint32_t current_time_us);
   Output measure(uint32_t current_time_us);
-  Output wait_us(uint32_t current_time_us);
+  Output wait_measurement(uint32_t current_time_us);
   Output stop_measuring();
 
  private:
   static const uint32_t powering_up_duration = 2;     // ms
   static const uint32_t warming_up_duration = 30;     // ms
   static const uint32_t measuring_duration_us = 500;  // us
-  static const uint32_t product_number = 0x04020611;
-  static constexpr float flow_min = -200;  // TODO(lietk12): needs units
-  static constexpr float flow_max = 200;   // TODO(lietk12): needs units
 
   State state_ = State::uninitialized;
   uint32_t wait_start_time_ = 0;
@@ -86,6 +69,7 @@ class StateMachine {
  */
 class Sensor {
  public:
+  // TODO(lietk12): should we move float &flow to the update method and rename update to output?
   Sensor(Device &device, float &flow) : device_(device), flow_(flow) {}
 
   SensorState update();
@@ -93,6 +77,9 @@ class Sensor {
  private:
   using Action = StateMachine::Output;
 
+  static const uint32_t product_number = 0x04020611;
+  static constexpr float flow_min = -200;       // L/min
+  static constexpr float flow_max = 200;        // L/min
   static const size_t max_retries_setup = 8;    // max retries for all setup steps combined
   static const size_t max_retries_measure = 8;  // max retries between valid outputs
 
@@ -108,7 +95,9 @@ class Sensor {
   // Outputs
   float &flow_;
 
-  [[nodiscard]] SensorState check_setup_retry() const;
+  SensorState initialize(uint32_t current_time);
+  SensorState check_range(uint32_t current_time_us);
+  SensorState measure(uint32_t current_time_us);
 };
 
 }  // namespace Pufferfish::Driver::I2C::SFM3019

@@ -473,16 +473,34 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   // Setup
+  static const uint32_t setup_indicator_duration = 1000;
+
+  board_led1.write(false);
   while (true) {
-    if (sfm3019.update() == PF::SensorState::ok) {
+    uint32_t current_time = PF::HAL::millis();
+    blinker.update(current_time);
+    flasher.update(current_time);
+    PF::SensorState sfm3019_state = sfm3019.update();
+    if (sfm3019_state == PF::SensorState::ok) {
       break;
+    }
+
+    if (sfm3019_state == PF::SensorState::setup) {
+      board_led1.write(blinker.output());
+    } else {
+      board_led1.write(flasher.output());
     }
   }
 
+  board_led1.write(true);
+  PF::HAL::delay(setup_indicator_duration);
+  board_led1.write(false);
+
   // Normal loop
   static constexpr float valve_opening_indicator_threshold = 0.5;
+
   while (true) {
-    uint32_t current_time = HAL_GetTick();
+    uint32_t current_time = PF::HAL::millis();
 
     // Software PWM signals
     flasher.update(PF::HAL::millis());
@@ -502,8 +520,15 @@ int main(void)
     if (actuators.valve_opening > valve_opening_indicator_threshold) {
       board_led1.write(true);
     } else {
-      board_led1.write(flasher.output());
+      board_led1.write(dimmer.output());
     }
+    /*if (all_states.sensor_measurements().flow > 1) {
+      board_led1.write(true);
+    } else if (all_states.sensor_measurements().flow < -1) {
+      board_led1.write(dimmer.output());
+    } else {
+      board_led1.write(false);
+    }*/
 
     // Backend Communication Protocol
     backend.receive();
