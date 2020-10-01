@@ -38,6 +38,8 @@ import {
   SYSTEM_SETTINGS,
   commitAction,
   EXPECTED_LOG_EVENT_ID,
+  ALARM_LIMITS_STANDBY,
+  PARAMETER_STANDBY,
 } from './types';
 import DECIMAL_RADIX from '../../modules/app/AppConstants';
 
@@ -95,6 +97,69 @@ const alarmLimitsReducer = (
   action: commitAction,
 ): AlarmLimitsRequest => {
   return withRequestUpdate<AlarmLimitsRequest>(state, action, ALARM_LIMITS);
+};
+
+const alarmLimitsRequestStandbyReducer = (
+  state: { alarmLimits: AlarmLimitsRequest } = {
+    alarmLimits: AlarmLimitsRequest.fromJSON({
+      rrMax: 100,
+      pipMax: 100,
+      peepMax: 100,
+      ipAbovePeepMax: 100,
+      inspTimeMax: 100,
+      fio2Max: 100,
+      pawMax: 100,
+      mveMax: 100,
+      tvMax: 100,
+      etco2Max: 100,
+      flowMax: 100,
+      apneaMax: 100,
+      spo2Max: 100,
+    }),
+  } as { alarmLimits: AlarmLimitsRequest },
+  action: commitAction,
+): { alarmLimits: AlarmLimitsRequest } => {
+  switch (action.type) {
+    case STATE_UPDATED: // ignore message from backend
+      return state;
+    case `@controller/${ALARM_LIMITS_STANDBY}_COMMITTED`:
+      return {
+        alarmLimits: {
+          ...state.alarmLimits,
+          ...action.update,
+        } as AlarmLimitsRequest,
+      };
+    default:
+      return state;
+  }
+};
+
+const parametersRequestStanbyReducer = (
+  state: { parameters: ParametersRequest } = {
+    parameters: ParametersRequest.fromJSON({
+      mode: VentilationMode.hfnc,
+      pip: 30,
+      peep: 0,
+      rr: 30,
+      ie: 1.0,
+      fio2: 60.0,
+    }),
+  } as { parameters: ParametersRequest },
+  action: commitAction,
+): { parameters: ParametersRequest } => {
+  switch (action.type) {
+    case STATE_UPDATED: // ignore message from backend
+      return state;
+    case `@controller/${PARAMETER_STANDBY}_COMMITTED`:
+      return {
+        parameters: {
+          ...state.parameters,
+          ...action.update,
+        } as ParametersRequest,
+      };
+    default:
+      return state;
+  }
 };
 
 const frontendDisplaySettingReducer = (
@@ -316,6 +381,8 @@ export const controllerReducer = combineReducers({
   // Message states from mcu_pb
   alarms: messageReducer<Alarms>(MessageType.Alarms, Alarms),
   alarmLimitsRequest: alarmLimitsReducer,
+  alarmLimitsRequestStandby: alarmLimitsRequestStandbyReducer,
+  parametersRequestStandby: parametersRequestStanbyReducer,
   systemSettingRequest: systemSettingRequestReducer,
   frontendDisplaySetting: frontendDisplaySettingReducer,
   expectedLoggedEvent: expectedLoggedEventReducer,

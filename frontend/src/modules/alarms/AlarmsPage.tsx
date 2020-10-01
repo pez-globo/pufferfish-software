@@ -5,8 +5,12 @@ import Pagination from '@material-ui/lab/Pagination';
 import { useDispatch, useSelector } from 'react-redux';
 import ValueSlider from '../controllers/ValueSlider';
 import ModeBanner from '../displays/ModeBanner';
-import { getAlarmLimitsRequest, getParametersRequestMode } from '../../store/controller/selectors';
-import { ALARM_LIMITS } from '../../store/controller/types';
+import {
+  getAlarmLimitsRequest,
+  getAlarmLimitsRequestStandby,
+  getParametersRequestMode,
+} from '../../store/controller/selectors';
+import { ALARM_LIMITS, ALARM_LIMITS_STANDBY } from '../../store/controller/types';
 import { updateCommittedState } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode } from '../../store/controller/proto/mcu_pb';
 
@@ -135,13 +139,15 @@ export const AlarmsPage = (): JSX.Element => {
     setPage(value);
   };
 
-  const alarmLimitsRequest = useSelector(getAlarmLimitsRequest);
+  const alarmLimitsRequest = useSelector(getAlarmLimitsRequestStandby);
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
 
   const [alarmLimits, setAlarmLimits] = useState(alarmLimitsRequest as Record<string, number>);
-  const updateAlarmLimits = (data: Partial<AlarmLimitsRequest>) =>
+  const updateAlarmLimits = (data: Partial<AlarmLimitsRequest>) => {
     setAlarmLimits({ ...alarmLimits, ...data } as Record<string, number>);
+    dispatch(updateCommittedState(ALARM_LIMITS_STANDBY, alarmLimits));
+  };
   const applyChanges = () => dispatch(updateCommittedState(ALARM_LIMITS, alarmLimits));
   const alarmConfig = alarmConfiguration(currentMode);
 
