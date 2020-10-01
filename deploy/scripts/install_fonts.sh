@@ -7,7 +7,7 @@ WARNING='\033[1;33mWARNING:'
 
 cd ~/
 
-echo -e "${SUCCESS}********** Installing Roboto Font **********"
+echo -e "\n${SUCCESS}********** Installing Roboto Font **********\n"
 
 mkdir -p .fonts
 
@@ -30,4 +30,4 @@ else
     exit 1
 fi
 
-echo -e "${SUCCESS}Roboto fonts installation complete"
+echo -e "\n${SUCCESS}Roboto fonts installation complete\n"

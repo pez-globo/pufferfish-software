@@ -5,7 +5,7 @@ ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
 
-echo -e "${SUCCESS}********** Installing poetry **********"
+echo -e "\n${SUCCESS}********** Installing poetry **********\n"
 
 poetry="$HOME/.poetry/bin/poetry"
 ventserver_env="$HOME/.pyenv/versions/3.7.7/envs/ventserver/bin/python"
@@ -25,4 +25,4 @@ cd $backend_dir
 $poetry config virtualenvs.create false
 $ventserver_env $poetry install
 
-echo -e "${SUCCESS}Poetry setup complete"
+echo -e "\n${SUCCESS}Poetry setup complete\n"

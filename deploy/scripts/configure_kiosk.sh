@@ -5,7 +5,7 @@ ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
 
-echo -e "${SUCCESS}********** Setting up window manager configuration **********"
+echo -e "\n${SUCCESS}********** Setting up window manager configuration **********\n"
 
 sudo apt install unclutter -y
 
@@ -42,4 +42,4 @@ else
     exit 1
 fi
 
-echo -e "${SUCCESS}Window Manager configuration setup complete"
+echo -e "\n${SUCCESS}Window Manager configuration setup complete\n"

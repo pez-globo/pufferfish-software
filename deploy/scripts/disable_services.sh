@@ -5,7 +5,7 @@ ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
 
-echo -e "${SUCCESS}********** Disabling unnecessary services **********"
+echo -e "\n${SUCCESS}********** Disabling unnecessary services **********\n"
 
 # Masks all the unnecessary services
 # Removes its dependencies
@@ -32,4 +32,4 @@ else
     echo -e "${WARNING} Bluetooth is already disabled"
 fi
 
-echo -e "${SUCCESS}Unnecessary Services disabled"
+echo -e "\n${SUCCESS}Unnecessary Services disabled\n"

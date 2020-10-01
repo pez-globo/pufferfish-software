@@ -5,7 +5,7 @@ ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
 
-echo -e "${SUCCESS}********** Setting up User & Network Security **********"
+echo -e "\n${SUCCESS}********** Setting up User & Network Security **********\n"
 
 sudo apt install openssh-server nginx ufw fail2ban -y
 
@@ -52,4 +52,4 @@ sudo passwd -l root
 sudo deluser pi sudo
 sudo mv /etc/sudoers.d/010_pi-nopasswd /etc/sudoers.d/010_pi-nopasswd.
 
-echo -e "${SUCCESS}User and Network Security setup complete"
+echo -e "\n${SUCCESS}User and Network Security setup complete\n"

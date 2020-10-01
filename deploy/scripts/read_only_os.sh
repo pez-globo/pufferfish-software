@@ -5,7 +5,7 @@ ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
 
-echo -e "${SUCCESS}********** Setting up Read-Only Mode **********"
+echo -e "\n${SUCCESS}********** Setting up Read-Only Mode **********\n"
 
 # Cleaning up packages
 echo "Cleaning up packages..."
@@ -118,4 +118,4 @@ sudo systemctl disable apt-daily-upgrade.timer
 
 sudo systemctl daemon-reload
 
-echo -e "${SUCCESS}Read-Only Mode setup complete"
+echo -e "\n${SUCCESS}Read-Only Mode setup complete\n"

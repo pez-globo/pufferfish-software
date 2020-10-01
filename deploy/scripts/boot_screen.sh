@@ -5,7 +5,7 @@ ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
 
-echo -e "${SUCCESS}********** Setting up custom boot screen **********"
+echo -e "\n${SUCCESS}********** Setting up custom boot screen **********\n"
 
 sudo apt-get update
 
@@ -52,4 +52,4 @@ sudo apt-get update
 sudo systemctl mask plymouth-start.service
 sudo systemctl enable splashscreen
 
-echo -e "${SUCCESS}Custom Bootscreen setup complete"
+echo -e "\n${SUCCESS}Custom Bootscreen setup complete\n"

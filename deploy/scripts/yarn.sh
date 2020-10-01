@@ -5,7 +5,7 @@ ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
 
-echo -e "${SUCCESS}********** Installing yarn **********"
+echo -e "\n${SUCCESS}********** Installing yarn **********\n"
 
 # Getting absolute path of frontend files
 script_dir=$(dirname $(realpath $0))
@@ -22,4 +22,4 @@ cd $frontend_dir
 yarn install
 yarn build
 
-echo -e "${SUCCESS}Yarn setup complete"
+echo -e "\n${SUCCESS}Yarn setup complete\n"

@@ -5,7 +5,7 @@ ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
 
-echo -e "${SUCCESS}********** Setting up nginx **********"
+echo -e "\n${SUCCESS}********** Setting up nginx **********\n"
 
 sudo apt update
 sudo apt install nginx -y
@@ -24,4 +24,4 @@ else
     sudo cp -r $frontend_dir/build/* /var/www/html/
 fi
 
-echo -e "${SUCCESS}Nginx setup complete"
+echo -e "\n${SUCCESS}Nginx setup complete\n"

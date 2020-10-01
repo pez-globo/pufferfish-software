@@ -5,7 +5,7 @@ ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
 
-echo -e "${SUCCESS}********** Installing node **********"
+echo -e "\n${SUCCESS}********** Installing node **********\n"
 
 cd ~/
 
@@ -30,4 +30,4 @@ else
     exit 1
 fi
 
-echo -e "${SUCCESS}Node setup complete"
+echo -e "\n${SUCCESS}Node setup complete\n"

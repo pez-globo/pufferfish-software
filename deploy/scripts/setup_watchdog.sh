@@ -5,7 +5,7 @@ ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
 
-echo -e "${SUCCESS}********** Setting up Watchdog **********"
+echo -e "\n${SUCCESS}********** Setting up Watchdog **********\n"
 
 # Getting absolute path of config files
 script_dir=$(dirname $(realpath $0))
@@ -34,4 +34,4 @@ fi
 sudo systemctl start watchdog
 sudo systemctl daemon-reload
 
-echo -e "${SUCCESS}Watchdog setup complete"
+echo -e "\n${SUCCESS}Watchdog setup complete\n"

@@ -5,7 +5,7 @@ ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
 
-echo -e "${SUCCESS}********** Installing pyenv **********"
+echo -e "\n${SUCCESS}********** Installing pyenv **********\n"
 
 # Getting absolute path of backend and config files
 script_dir=$(dirname $(realpath $0))
@@ -55,4 +55,4 @@ fi
 cd $backend_dir
 $pyenv local ventserver
 
-echo -e "${SUCCESS}Pyenv setup complete"
+echo -e "\n${SUCCESS}Pyenv setup complete\n"
