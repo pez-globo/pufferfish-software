@@ -4,7 +4,7 @@
 script_dir=$(dirname $(realpath $0))
 config_dir=$script_dir/../configs
 
-media_boot="\n/dev/sda1      /media/pi/LOGS       auto    rw,nosuid,nodev,noauto,nofail          0       0"
+media_boot="\n/dev/sda1      /media/pi/LOGS       auto    rw,nosuid,nodev,x-systemd.device-timeout=2,noauto,nofail          0       0"
 fstab_file="/etc/fstab"
 
 # Adding LOGS mount point to /etc/fstab
@@ -28,11 +28,6 @@ sudo systemctl enable media-pi-LOGS.mount
 
 # Changing nginx log location to USB
 nginx_conf='/etc/nginx/nginx.conf'
-redirect_err_status='       error_page 404 /;'
-
-if [ 0 -eq $( grep -c 'error_page 404 /;' $nginx_conf ) ]; then
-    sudo sed -i "/access.log/i$redirect_err_status" $nginx_conf
-fi
 
 if [ 0 -eq $( grep -c '/media/pi/LOGS' $nginx_conf ) ]; then
     sudo sed -i 's/\/var\/log\/nginx\/access.log/\/media\/pi\/LOGS\/nginx_access.log/g' $nginx_conf
