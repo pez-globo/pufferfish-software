@@ -1,6 +1,11 @@
 #!/bin/bash
 
-echo "********** Setting up User & Network Security **********"
+# Message colours
+ERROR='\033[1;31mERROR:'
+SUCCESS='\033[1;32m'
+WARNING='\033[1;33mWARNING:'
+
+echo -e "${SUCCESS}********** Setting up User & Network Security **********"
 
 sudo apt install openssh-server nginx ufw fail2ban -y
 
@@ -36,7 +41,7 @@ if [ 0 -eq $( grep -c "^dtoverlay=disable-wifi" /boot/config.txt ) ]
 then
     echo -e "\ndtoverlay=disable-wifi" | sudo tee -a /boot/config.txt
 else
-    echo "Wifi is already disabled"
+    echo -e "${WARNING} Wifi is already disabled"
 fi
 
 # Lock pi and root user
@@ -46,3 +51,5 @@ sudo passwd -l root
 # Remove sudo permissions from pi user
 sudo deluser pi sudo
 sudo mv /etc/sudoers.d/010_pi-nopasswd /etc/sudoers.d/010_pi-nopasswd.
+
+echo -e "${SUCCESS}User and Network Security setup complete"

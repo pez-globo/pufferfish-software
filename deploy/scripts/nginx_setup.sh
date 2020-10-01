@@ -1,6 +1,11 @@
 #!/bin/bash
 
-echo "********** Setting up nginx **********"
+# Message colours
+ERROR='\033[1;31mERROR:'
+SUCCESS='\033[1;32m'
+WARNING='\033[1;33mWARNING:'
+
+echo -e "${SUCCESS}********** Setting up nginx **********"
 
 sudo apt update
 sudo apt install nginx -y
@@ -14,7 +19,9 @@ frontend_dir=$script_dir/../../frontend
 
 if [ 0 -eq $( ls $frontend_dir | grep -c "build" ) ]
 then
-    echo "Build files not found"
+    echo -e "${WARNING} Build files not found"
 else
     sudo cp -r $frontend_dir/build/* /var/www/html/
 fi
+
+echo -e "${SUCCESS}Nginx setup complete"

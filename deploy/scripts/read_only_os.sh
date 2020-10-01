@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Message colours
+ERROR='\033[1;31mERROR:'
+SUCCESS='\033[1;32m'
+WARNING='\033[1;33mWARNING:'
+
+echo -e "${SUCCESS}********** Setting up Read-Only Mode **********"
+
 # Cleaning up packages
 echo "Cleaning up packages..."
 sudo apt-get update
@@ -49,7 +56,7 @@ tmpfs        /var/tmp        tmpfs   nosuid,nodev         0       0
 tmpfs        /home/pi/.config tmpfs defaults,noatime,uid=pi,gid=pi,mode=0755 0 0
 " >> $fstab_file
 else
-  echo "Filesystem is already in read-only mode"
+  echo -e "${WARNING} Filesystem is already in read-only mode"
   exit
 fi
 
@@ -84,7 +91,7 @@ if [ 1 -eq $( ls $config_dir | grep -c "bashrc_config.txt" ) ]
 then
     cat $config_dir/bashrc_config.txt | sudo tee -a /etc/bash.bashrc
 else
-    echo "Configuration file (bashrc_config.txt) not found!"
+    echo -e "${ERROR} Configuration file (bashrc_config.txt) not found!"
     exit 1
 fi
 
@@ -94,7 +101,7 @@ if [ 1 -eq $( ls $config_dir | grep -c "bash_logout.txt" ) ]
 then
     cat $config_dir/bash_logout.txt | sudo tee -a /etc/bash.bash_logout
 else
-    echo "Configuration file (bash_logout.txt) not found!"
+    echo -e "${ERROR} Configuration file (bash_logout.txt) not found!"
     exit 1
 fi
 
@@ -110,3 +117,5 @@ sudo systemctl disable apt-daily-upgrade.service
 sudo systemctl disable apt-daily-upgrade.timer
 
 sudo systemctl daemon-reload
+
+echo -e "${SUCCESS}Read-Only Mode setup complete"
