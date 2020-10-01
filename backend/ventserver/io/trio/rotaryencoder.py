@@ -9,6 +9,7 @@ import RPi.GPIO as GPIO     # type: ignore
 
 from ventserver.io import rotaryencoder
 from ventserver.io.trio import endpoints
+from ventserver.protocols import exceptions
 
 
 @attr.s
@@ -33,6 +34,7 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
     _props: rotaryencoder.RotaryEncoderProps = attr.ib(
         factory=rotaryencoder.RotaryEncoderProps
     )
+    _connected: bool = attr.ib(default=False)
     _data_available: trio.Event = attr.ib(factory=trio.Event)
     _state: RotaryEncoderState = attr.ib(factory=RotaryEncoderState)
     trio_token: trio.lowlevel.TrioToken = attr.ib(default=None, repr=False)
@@ -75,19 +77,28 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
     @property
     def is_data_available(self) -> bool:
         """Return whether or not new state is available or not."""
-        return self.is_open
+        return self._data_available.is_set()
 
     @property
     def is_open(self) -> bool:
-        """Return whether or not the rotary encoder has changed the state."""
-        return self._data_available.is_set()
+        """Return whether or not the rotary encoder is connected."""
+        return self._connected
 
 
     async def open(self, nursery: Optional[trio.Nursery] = None) -> None:
-        """Opens the connection with the rotary encoder."""
+        """Opens the connection with the rotary encoder.
+        Raises:
+            ProtocolError:"Rotary Encoder is already connected at A:a_quad,
+                B:b_quad GPIO pins."
 
-#         if self.is_open:
-#             raise(exceptions.Protocol)
+            IOError
+        """
+
+        if self.is_open:
+            exception = ("Rotary Encoder is already connected at "
+                         f"A:{self._props.a_quad}, B:{self._props.b_quad} "
+                         "GPIO pins.")
+            raise exceptions.ProtocolError(exception)
 
         try:
             GPIO.setmode(GPIO.getmode())
@@ -115,6 +126,8 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
             )
         except Exception as err:
             raise IOError(err)
+
+        self._connected = True
         self._state.a_quad_last_state = GPIO.input(self._props.a_quad_pin)
         self.trio_token = trio.lowlevel.current_trio_token()
 
@@ -125,9 +138,9 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
          Closes the connection by cleaning up the GPIO pins on
          the Raspberry Pi board.
 
-         Raises:
-            """
+        """
         GPIO.cleanup([self._props.a_quad_pin, self._props.b_quad_pin])
+        self._connected = False
 
 
     async def receive(self) -> Tuple[int, bool]:
@@ -137,10 +150,15 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
         Waits for the the rotary encoder to change state and the callback
         function to set the trio.Event.
 
-        Raises:"""
+        Raises:
+            ProtocolError: No Rotary Encoder is connected.Try checking
+                your RPi Connections.
+        """
 
-#         if not self.is_open:
-#             raise()
+        if not self.is_open:
+            exception = ("No Rotary Encoder is connected. "
+                         "Try checking your RPi Connections.")
+            raise exceptions.ProtocolError(exception)
 
         await self._data_available.wait()
         self._data_available = trio.Event()

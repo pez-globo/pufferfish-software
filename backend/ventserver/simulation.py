@@ -17,6 +17,7 @@ from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
 from ventserver.io.trio import rotaryencoder
 from ventserver.protocols import server
+from ventserver.protocols import exceptions
 from ventserver.protocols.protobuf import mcu_pb
 
 
@@ -324,7 +325,10 @@ async def main() -> None:
     websocket_endpoint = websocket.Driver()
     rotary_encoder = rotaryencoder.Driver()
 
-    await rotary_encoder.open()
+    try:
+        await rotary_encoder.open()
+    except exceptions.ProtocolError as err:
+        print(err)
 
     # Server Receive Outputs
     channel: channels.TrioChannel[
