@@ -96,8 +96,8 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
 
         if self.is_open:
             exception = ("Rotary Encoder is already connected at "
-                         f"A:{self._props.a_quad}, B:{self._props.b_quad} "
-                         "GPIO pins.")
+                         f"A:{self._props.a_quad_pin}, "
+                         "B:{self._props.b_quad_pin} GPIO pins.")
             raise exceptions.ProtocolError(exception)
 
         try:
