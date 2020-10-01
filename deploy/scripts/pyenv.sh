@@ -7,11 +7,6 @@ WARNING='\033[1;33mWARNING:'
 
 echo -e "${SUCCESS}********** Installing pyenv **********"
 
-sudo apt update
-sudo apt install libffi-dev curl wget gcc make zlib1g-dev libsqlite3-dev -y
-sudo apt install build-essential libssl-dev libbz2-dev libreadline-dev -y
-sudo apt install libncurses5-dev libncursesw5-dev xz-utils libffi-dev liblzma-dev python-openssl -y
-
 # Getting absolute path of backend and config files
 script_dir=$(dirname $(realpath $0))
 backend_dir=$script_dir/../../backend
@@ -19,6 +14,10 @@ config_dir=$script_dir/../configs
 
 if ! command -v pyenv &> /dev/null
 then
+    sudo apt update
+    sudo apt install libffi-dev curl wget gcc make zlib1g-dev libsqlite3-dev -y
+    sudo apt install build-essential libssl-dev libbz2-dev libreadline-dev -y
+    sudo apt install libncurses5-dev libncursesw5-dev xz-utils libffi-dev liblzma-dev python-openssl -y
     curl https://pyenv.run | bash
 else
     echo -e "${WARNING} pyenv is already installed, skipping installation."
@@ -34,7 +33,7 @@ then
         exit 1
     fi
 else
-    echo -e "${SUCCESS}pyenv already added to path"
+    echo -e "${WARNING} pyenv already added to path"
 fi
 
 pyenv="$HOME/.pyenv/bin/pyenv"
