@@ -37,7 +37,7 @@ void HFNCControlLoop::update(uint32_t current_time) {
   }
 
   // Update sensors
-  // TODO: handle errors from sensors
+  // TODO(lietk12): handle errors from sensors
   sfm3019_.update();
 
   // Update controller

@@ -23,7 +23,7 @@ Parameters &ParametersService::parameters() {
   return parameters_;
 }
 
-void ParametersService::updateFiO2() {
+void ParametersService::update_fio2() {
   if (parameters_request_.fio2 >= fio2_min && parameters_request_.fio2 <= fio2_max) {
     parameters_.fio2 = parameters_request_.fio2;
   }
@@ -47,7 +47,7 @@ void PCACParameters::update() {
     parameters().pip = parameters_request().pip;
   }
   parameters().peep = parameters_request().peep;
-  updateFiO2();
+  update_fio2();
 }
 
 bool PCACParameters::mode_active() const {
@@ -65,7 +65,7 @@ void HFNCParameters::update() {
   if (parameters_request().flow >= 0) {
     parameters().flow = parameters_request().flow;
   }
-  updateFiO2();
+  update_fio2();
 }
 
 bool HFNCParameters::mode_active() const {

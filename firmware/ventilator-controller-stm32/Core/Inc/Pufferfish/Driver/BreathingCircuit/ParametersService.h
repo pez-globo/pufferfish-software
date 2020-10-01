@@ -17,25 +17,22 @@ namespace Pufferfish::Driver::BreathingCircuit {
 
 class ParametersService {
  public:
-  ParametersService(
-      const ParametersRequest &parameters_request,
-      Parameters &parameters)
-      : parameters_request_(parameters_request),
-        parameters_(parameters) {}
+  ParametersService(const ParametersRequest &parameters_request, Parameters &parameters)
+      : parameters_request_(parameters_request), parameters_(parameters) {}
 
   virtual void update() = 0;
-  virtual bool mode_active() const = 0;
+  [[nodiscard]] virtual bool mode_active() const = 0;
 
  protected:
-  const ParametersRequest &parameters_request() const;
-  const Parameters &parameters() const;
+  [[nodiscard]] const ParametersRequest &parameters_request() const;
+  [[nodiscard]] const Parameters &parameters() const;
   Parameters &parameters();
 
-  void updateFiO2();
+  void update_fio2();
 
  private:
-  static constexpr float fio2_min = 21;              // % FiO2
-  static constexpr float fio2_max = 100;             // % FiO2
+  static constexpr float fio2_min = 21;   // % FiO2
+  static constexpr float fio2_max = 100;  // % FiO2
 
   const ParametersRequest &parameters_request_;
   Parameters &parameters_;
@@ -43,31 +40,25 @@ class ParametersService {
 
 class PCACParameters : public ParametersService {
  public:
-  PCACParameters(
-      const ParametersRequest &parameters_request,
-      Parameters &parameters)
+  PCACParameters(const ParametersRequest &parameters_request, Parameters &parameters)
       : ParametersService(parameters_request, parameters) {}
 
   void update() override;
-  bool mode_active() const override;
+  [[nodiscard]] bool mode_active() const override;
 };
 
 class HFNCParameters : public ParametersService {
  public:
-  HFNCParameters(
-      const ParametersRequest &parameters_request,
-      Parameters &parameters)
+  HFNCParameters(const ParametersRequest &parameters_request, Parameters &parameters)
       : ParametersService(parameters_request, parameters) {}
 
   void update() override;
-  bool mode_active() const override;
+  [[nodiscard]] bool mode_active() const override;
 };
 
 class ParametersServices {
  public:
-  ParametersServices(
-      const ParametersRequest &parameters_request,
-      Parameters &parameters)
+  ParametersServices(const ParametersRequest &parameters_request, Parameters &parameters)
       : parameters_request_(parameters_request),
         pc_ac_(parameters_request, parameters),
         hfnc_(parameters_request, parameters) {}

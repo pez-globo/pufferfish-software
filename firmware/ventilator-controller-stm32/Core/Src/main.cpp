@@ -103,14 +103,11 @@ PF::Application::States all_states;
 
 // Parameters
 PF::Driver::BreathingCircuit::ParametersServices parameters_service(
-    all_states.parameters_request(),
-    all_states.parameters());
+    all_states.parameters_request(), all_states.parameters());
 
 // Breathing Circuit Simulation
 PF::Driver::BreathingCircuit::Simulators simulator(
-    all_states.parameters(),
-    all_states.sensor_measurements(),
-    all_states.cycle_measurements());
+    all_states.parameters(), all_states.sensor_measurements(), all_states.cycle_measurements());
 
 // HAL Utilities
 PF::HAL::CRC32C crc32c(hcrc);
@@ -323,11 +320,7 @@ int interface_test_millis = 0;
 // Breathing Circuit Control
 PF::Driver::BreathingCircuit::Actuators actuators;
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
-    all_states.parameters(),
-    all_states.sensor_measurements(),
-    sfm3019,
-    actuators,
-    drive1_ch1);
+    all_states.parameters(), all_states.sensor_measurements(), sfm3019, actuators, drive1_ch1);
 
 /* USER CODE END PV */
 
@@ -487,6 +480,7 @@ int main(void)
   }
 
   // Normal loop
+  static constexpr float valve_opening_indicator_threshold = 0.5;
   while (true) {
     uint32_t current_time = HAL_GetTick();
 
@@ -505,10 +499,8 @@ int main(void)
     // Breathing Circuit Control Loop
     hfnc.update(current_time);
     // Indicators for debugging
-    if (actuators.valve_opening > 0.75) {
+    if (actuators.valve_opening > valve_opening_indicator_threshold) {
       board_led1.write(true);
-    } else if (actuators.valve_opening > 0.5) {
-      board_led1.write(dimmer.output());
     } else {
       board_led1.write(flasher.output());
     }

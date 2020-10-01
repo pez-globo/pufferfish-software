@@ -25,15 +25,13 @@ class Controller {
       const Parameters &parameters,
       const SensorMeasurements &sensor_measurements,
       Actuators &actuators)
-      : parameters_(parameters),
-        sensor_measurements_(sensor_measurements),
-        actuators_(actuators) {}
+      : parameters_(parameters), sensor_measurements_(sensor_measurements), actuators_(actuators) {}
 
   virtual void update(uint32_t current_time) = 0;
 
  protected:
-  const Parameters &parameters() const;
-  const SensorMeasurements &sensor_measurements() const;
+  [[nodiscard]] const Parameters &parameters() const;
+  [[nodiscard]] const SensorMeasurements &sensor_measurements() const;
   Actuators &actuators();
 
  private:
@@ -50,7 +48,7 @@ class HFNCController : public Controller {
       Actuators &actuators)
       : Controller(parameters, sensor_measurements, actuators) {}
 
-  virtual void update(uint32_t current_time) override;
+  void update(uint32_t current_time) override;
 
  private:
   static constexpr float p_gain = 0.00001;

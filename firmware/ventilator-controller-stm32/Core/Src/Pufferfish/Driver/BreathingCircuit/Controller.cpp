@@ -25,7 +25,7 @@ Actuators &Controller::actuators() {
 
 // HFNC Controller
 
-void HFNCController::update(uint32_t current_time) {
+void HFNCController::update(uint32_t /*current_time*/) {
   if (parameters().mode != VentilationMode_hfnc) {
     return;
   }
