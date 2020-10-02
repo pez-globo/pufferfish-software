@@ -10,8 +10,11 @@
     3. [Writing img to SD Card](#writing-img-to-sd-card)
 4. [References](#references)
 
+To start with a fresh setup, download the standard Pufferfish OS image and flash it to a SD Card by following the steps [here](#writing-img-to-sd-card)
+
 ### Installation (Development Environment)
 All the software components can be installed by running `setup.sh` on a terminal.
+
 ```sh
 $ ./install.sh
 ```
@@ -20,24 +23,28 @@ This will install the required components for pufferfish-vent-software in the gi
 - pyenv
 - poetry
 - node
+- roboto fonts
 - yarn
 ---
 ### Deployment (Production Environment)
 These instructions are to setup Raspberry Pi with Pufferfish-Vent-Software in a production environment.
-
-#### Security Setup
 
 ```sh
 $ ./deploy.sh
 ```
 
 This will setup required components for pufferfish-vent-software in the given order.  
+- pyenv
+- poetry
+- node
+- roboto fonts
+- yarn
 - nginx web-server
 - custom boot screen
 - browser kiosk mode
 - backend service
 - disable unnecessary services
-- security protocols
+- user and network security
 - read-only filesystem
 
 ---
