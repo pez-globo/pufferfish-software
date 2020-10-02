@@ -68,12 +68,15 @@ echo "Adding switch alias for read-only and read-write mode..."
 cat configs/bashrc_config.txt | sudo tee -a /etc/bash.bashrc
 
 # Switch to read-only on reboot/poweroff
-sudo touch /etc/bash.bash_logout
+if [ 0 -eq $( ls /etc/ | grep -c "bash.bash_logout" ) ]
+then
+    sudo touch /etc/bash.bash_logout
+fi
 cat configs/bash_logout.txt | sudo tee -a /etc/bash.bash_logout
 
 # Kernel Reboot on panic
 echo "Configuring reboot on kernel panic..."
-echo "\nkernel.panic = 10" | sudo tee -a /etc/sysctl.d/01-panic.conf
+echo -e "\nkernel.panic = 10" | sudo tee -a /etc/sysctl.d/01-panic.conf
 
 # Disabling daily update and upgrade services
 echo "Disabling daily update and upgrade services..."
