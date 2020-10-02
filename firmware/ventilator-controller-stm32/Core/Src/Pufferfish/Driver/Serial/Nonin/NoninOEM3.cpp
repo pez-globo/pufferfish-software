@@ -44,10 +44,6 @@ NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensor_measurem
     case FrameReceiver::FrameInputStatus::waiting:
       return NoninPacketStatus::waiting;
 
-    /* Return the frame status is not available */
-    case FrameReceiver::FrameInputStatus::not_available:
-      return NoninPacketStatus::not_available;
-
     /* On PacketInputStatus available continue */
     case FrameReceiver::FrameInputStatus::available:
       break;
@@ -65,11 +61,6 @@ NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensor_measurem
     /* Return sensor status is waiting to receive more frames of data */
     case PacketReceiver::PacketInputStatus::waiting:
       return NoninPacketStatus::waiting;
-
-    /* Discard the packet due to status byte error, wait for the new packet to
-     * receive */
-    case PacketReceiver::PacketInputStatus::not_available:
-      return NoninPacketStatus::not_available;
 
     /* Discard the packet due to status byte error, wait for the new packet to
      * receive */

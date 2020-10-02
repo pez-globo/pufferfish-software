@@ -99,9 +99,19 @@ class MockSPIDevice : public SPIDevice {
    */
   [[nodiscard]] bool get_chip_select() const;
 
+  /**
+   * @brief  sets the return status
+   * @param  input the SPIDeviceStatus
+   * @return None
+   */
+  void set_return_status(SPIDeviceStatus input);
+
  private:
   /* Last chip select input */
   bool last_cs_ = false;
+
+  /* return status */
+  SPIDeviceStatus return_status_;
 
   static const uint8_t read_buf_size = 50;
   static const uint8_t write_buf_size = 50;

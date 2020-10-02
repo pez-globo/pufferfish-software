@@ -57,11 +57,20 @@ class MockAnalogInput : public AnalogInput {
    */
   void set_read(uint32_t set_analog_data_read);
 
+  /**
+   * @brief  updates the private variable set_return_status_ for mock test
+   * @param  adc_status status to return from methods
+   * @return None
+   */
+  void set_return_status(ADCStatus adc_status);
+
  private:
   /* State for Analog input START */
   bool last_state_ = false;
   /* Last Input data set */
   uint32_t last_input_ = 0;
+  /* set return status */
+  ADCStatus set_return_status_ = ADCStatus::ok;
 };
 
 }  // namespace HAL

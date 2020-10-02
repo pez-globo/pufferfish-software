@@ -68,7 +68,16 @@ class MockPWM : public PWM {
    */
   [[nodiscard]] bool get_pwm_state() const;
 
+  /**
+   * @brief  sets return_status_ private variable
+   * @param  input PWMStatus
+   * @return None
+   */
+  void set_return_status(PWMStatus input);
+
  private:
+  /* Return status */
+  PWMStatus return_status_;
   /* Stores the Last raw duty cycle value */
   uint32_t last_raw_duty_ = 0;
   /* Stores the last Max duty cycle value */

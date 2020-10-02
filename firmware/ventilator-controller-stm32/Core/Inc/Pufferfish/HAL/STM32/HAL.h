@@ -15,4 +15,4 @@
 #include "HALI2CDevice.h"
 #include "HALPWM.h"
 #include "HALSPIDevice.h"
-#include "Time.h"
+#include "HALTime.h"

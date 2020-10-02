@@ -56,12 +56,21 @@ class MockI2CDevice : public I2CDevice {
    */
   void get_write(uint8_t *buf, size_t &count);
 
+  /**
+   * @brief  sets return_status_ private variable
+   * @param  input I2CDeviceStatus
+   * @return None
+   */
+  void set_return_status(I2CDeviceStatus input);
+
  private:
   static const uint8_t read_buf_size = 50;
   static const uint8_t write_buf_size = 50;
 
   std::array<uint8_t, read_buf_size> read_buf_{};
   std::array<uint8_t, write_buf_size> write_buf_{};
+
+  I2CDeviceStatus return_status_;
 
   size_t write_count_ = 0;
 };

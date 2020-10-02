@@ -7,7 +7,7 @@
 
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 
-#include "Pufferfish/HAL/STM32/Time.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/Util/Timeouts.h"
 
 namespace Pufferfish::Driver::I2C::SFM3019 {
@@ -178,11 +178,11 @@ SensorState Sensor::update() {
       ++retry_count_;
       return check_setup_retry();
     case Action::wait:
-      next_action_ = fsm_.wait(HAL::millis());
+      next_action_ = fsm_.wait(time_.millis());
       return SensorState::setup;
     case Action::reset:
       if (device_.reset() == I2CDeviceStatus::ok) {
-        next_action_ = fsm_.reset(HAL::millis());
+        next_action_ = fsm_.reset(time_.millis());
         return SensorState::setup;
       }
 
@@ -208,7 +208,7 @@ SensorState Sensor::update() {
     case Action::start_measuring:
       if (device_.start_measure() == I2CDeviceStatus::ok) {
         retry_count_ = 0;  // reset retries to 0 for measuring
-        next_action_ = fsm_.start_measuring(HAL::millis());
+        next_action_ = fsm_.start_measuring(time_.millis());
         return SensorState::setup;
       }
 
@@ -219,7 +219,7 @@ SensorState Sensor::update() {
           I2CDeviceStatus::ok) {
         next_action_ = fsm_.check_range(
             sample_.flow,
-            HAL::micros());  // error will be caught on the next update() via next_action_
+            time_.micros());  // error will be caught on the next update() via next_action_
         return SensorState::ok;
       }
 
@@ -234,7 +234,7 @@ SensorState Sensor::update() {
           I2CDeviceStatus::ok) {
         retry_count_ = 0;  // reset retries to 0 for next measurement
         flow_ = sample_.flow;
-        next_action_ = fsm_.measure(HAL::micros());
+        next_action_ = fsm_.measure(time_.micros());
         return SensorState::ok;
       }
 
@@ -245,7 +245,7 @@ SensorState Sensor::update() {
 
       return SensorState::ok;
     case Action::wait_us:
-      next_action_ = fsm_.wait_us(HAL::micros());
+      next_action_ = fsm_.wait_us(time_.micros());
       return SensorState::ok;
     case Action::error_fail:
     case Action::error_input:

@@ -12,6 +12,7 @@
 #include <cstddef>
 
 #include "Device.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/Types.h"
 
 namespace Pufferfish::Driver::I2C::SFM3019 {
@@ -86,7 +87,7 @@ class StateMachine {
  */
 class Sensor {
  public:
-  Sensor(Device &device, float &flow) : device_(device), flow_(flow) {}
+  Sensor(Device &device, float &flow, HAL::Time &time) : device_(device), flow_(flow), time_(time) {}
 
   SensorState update();
 
@@ -107,6 +108,7 @@ class Sensor {
 
   // Outputs
   float &flow_;
+  HAL::Time &time_;
 
   [[nodiscard]] SensorState check_setup_retry() const;
 };

@@ -11,6 +11,9 @@ namespace Pufferfish::HAL {
 I2CDeviceStatus MockI2CDevice::read(uint8_t *buf, size_t count) {
   size_t index = 0;
   size_t minumum = (count < read_buf_size) ? count : read_buf_size;
+  if(return_status_ != I2CDeviceStatus::ok) {
+    return return_status_;
+  }
 
   for (index = 0; index < minumum; index++) {
     buf[index] = read_buf_[index];
@@ -29,6 +32,9 @@ void MockI2CDevice::set_read(const uint8_t *buf, size_t count) {
 
 I2CDeviceStatus MockI2CDevice::write(uint8_t *buf, size_t count) {
   size_t index = 0;
+  if(return_status_ != I2CDeviceStatus::ok) {
+    return return_status_;
+  }
 
   write_count_ = (count < write_buf_size) ? count : write_buf_size;
   for (index = 0; index < write_count_; index++) {
@@ -45,6 +51,10 @@ void MockI2CDevice::get_write(uint8_t *buf, size_t &count) {
   for (index = 0; index < count; index++) {
     buf[index] = write_buf_[index];
   }
+}
+
+void MockI2CDevice::set_return_status(I2CDeviceStatus input){
+  return_status_ = input;
 }
 
 }  // namespace Pufferfish::HAL

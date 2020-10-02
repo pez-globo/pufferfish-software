@@ -192,7 +192,7 @@ SPIDeviceStatus SPIFlash::write_byte(uint32_t addr, const uint8_t *input, uint8_
   }
 
   /* provide a delay of 3ms */
-  HAL::delay(3);
+  time_.delay(3);
 
   /* Invoke lockIndividualBlock to lock the block */
   ret = this->lock_individual_block(addr);
@@ -526,7 +526,7 @@ SPIDeviceStatus SPIFlash::erase_chip() {
 
   /* provide a delay of 25000ms */
   static const uint32_t erase_delay = 25000;
-  HAL::delay(erase_delay);
+  time_.delay(erase_delay);
 
   /* return SPIDeviceStatus */
   return ret;
@@ -592,7 +592,7 @@ SPIDeviceStatus SPIFlash::erase_sector_4kb(uint32_t addr) {
 
   /* provide a delay of 400ms */
   static const uint32_t erase_delay = 400;
-  HAL::delay(erase_delay);
+  time_.delay(erase_delay);
 
   /* Invoke lockIndividualBlock to lock the block */
   ret = this->lock_individual_block(addr);
@@ -663,7 +663,7 @@ SPIDeviceStatus SPIFlash::erase_block_32kb(uint32_t addr) {
 
   /* provide a delay of 1600ms */
   static const uint32_t erase_delay = 1600;
-  HAL::delay(erase_delay);
+  time_.delay(erase_delay);
 
   /* Invoke lockIndividualBlock to lock the block */
   ret = this->lock_individual_block(addr);
@@ -735,7 +735,7 @@ SPIDeviceStatus SPIFlash::erase_block_64kb(uint32_t addr) {
 
   /* provide a delay of 2000ms */
   static const uint32_t erase_delay = 2000;
-  HAL::delay(erase_delay);
+  time_.delay(erase_delay);
 
   /* Invoke lockIndividualBlock to lock the block */
   ret = this->lock_individual_block(addr);
@@ -792,7 +792,7 @@ SPIDeviceStatus SPIFlash::write_status_register1(uint8_t input) {
 
   /* provide a delay of 15ms */
   static const uint32_t write_delay = 15;
-  HAL::delay(write_delay);
+  time_.delay(write_delay);
 
   /* return SPIDeviceStatus */
   return ret;
@@ -878,7 +878,7 @@ SPIDeviceStatus SPIFlash::write_status_register2(uint8_t input) {
 
   /* provide a delay of 15ms */
   static const uint32_t write_delay = 15;
-  HAL::delay(write_delay);
+  time_.delay(write_delay);
   /* return SPIDeviceStatus */
   return ret;
 }
@@ -962,7 +962,7 @@ SPIDeviceStatus SPIFlash::write_status_register3(uint8_t input) {
 
   /* provide a delay of 15ms */
   static const uint32_t write_delay = 15;
-  HAL::delay(write_delay);
+  time_.delay(write_delay);
   /* return SPIDeviceStatus */
   return ret;
 }
@@ -1012,7 +1012,7 @@ SPIDeviceStatus SPIFlash::power_down() {
   }
 
   /* provide a delay of 3microsec */
-  HAL::delay_micros(3);
+  time_.delay_micros(3);
   /* return SPIDeviceStatus */
   return ret;
 }
@@ -1039,7 +1039,7 @@ SPIDeviceStatus SPIFlash::release_power_down() {
   }
 
   /* provide a delay of 3microsec */
-  HAL::delay_micros(3);
+  time_.delay_micros(3);
   /* return SPIDeviceStatus */
   return ret;
 }
@@ -1079,7 +1079,7 @@ SPIDeviceStatus SPIFlash::reset_device() {
 
   /* provide a delay of 30 microsec */
   static const uint32_t reset_delay = 30;
-  HAL::delay_micros(reset_delay);
+  time_.delay_micros(reset_delay);
 
   /* Update the Byte0 of tx_buf with reset device instruction */
   tx_buf[0] = static_cast<uint8_t>(SPIInstruction::reset_device);

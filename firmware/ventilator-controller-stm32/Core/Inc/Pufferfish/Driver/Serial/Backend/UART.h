@@ -9,7 +9,7 @@
 
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/Driver/Serial/Backend/Backend.h"
-#include "Pufferfish/HAL/STM32/BufferedUART.h"
+#include "Pufferfish/HAL/STM32/HALBufferedUART.h"
 #include "Pufferfish/HAL/STM32/CRC.h"
 
 namespace Pufferfish::Driver::Serial::Backend {

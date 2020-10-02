@@ -9,8 +9,10 @@
 
 #pragma once
 
+#include <Pufferfish/HAL/Interfaces/BufferedUART.h>
 #include "Pufferfish/Statuses.h"
 #include "Pufferfish/Types.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/Util/RingBuffer.h"
 #include "stm32h7xx_hal.h"
 
@@ -27,9 +29,9 @@ namespace HAL {
  * but with a non-blocking interface.
  */
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
-class BufferedUART {
+class HALBufferedUART : public BufferedUART {
  public:
-  explicit BufferedUART(UART_HandleTypeDef &huart);
+  explicit HALBufferedUART(UART_HandleTypeDef &huart, Time &time);
 
   /**
    * Attempt to "pop" the next received byte from the RX queue.
@@ -39,7 +41,7 @@ class BufferedUART {
    * @param readByte[[out] the byte popped from the RX queue
    * @return ok on success, empty otherwise
    */
-  BufferStatus read(uint8_t &read_byte) volatile;
+  virtual BufferStatus read(uint8_t &read_byte) volatile override;
 
   /**
    * Attempt to "push" the provided byte onto the TX queue.
@@ -48,7 +50,7 @@ class BufferedUART {
    * @param writeByte the byte to push onto the TX queue
    * @return ok on success, full otherwise
    */
-  BufferStatus write(uint8_t write_byte) volatile;
+  virtual BufferStatus write(uint8_t write_byte) volatile override;
 
   /**
    * "Push" bytes in the provided buffer onto the TX queue until either
@@ -66,8 +68,8 @@ class BufferedUART {
    * queue
    * @return ok if all provided bytes were added to the queue, partial otherwise
    */
-  BufferStatus write(
-      const uint8_t *write_bytes, AtomicSize write_size, HAL::AtomicSize &written_size) volatile;
+  virtual BufferStatus write(
+      const uint8_t *write_bytes, AtomicSize write_size, HAL::AtomicSize &written_size) volatile override;
 
   /**
    * Persistently attempt to "push" the provided byte onto the TX queue
@@ -80,7 +82,7 @@ class BufferedUART {
    * if the TX queue is full
    * @return ok on success, full otherwise
    */
-  BufferStatus write_block(uint8_t write_byte, uint32_t timeout) volatile;
+  virtual BufferStatus write_block(uint8_t write_byte, uint32_t timeout) volatile override;
 
   /**
    * Persistently attempt to "push" bytes in the provided buffer onto the TX
@@ -101,11 +103,11 @@ class BufferedUART {
    * queue
    * @return ok if all provided bytes were added to the queue, partial otherwise
    */
-  BufferStatus write_block(
+  virtual BufferStatus write_block(
       const uint8_t *write_bytes,
       AtomicSize write_size,
       uint32_t timeout,
-      HAL::AtomicSize &written_size) volatile;
+      HAL::AtomicSize &written_size) volatile override;
 
   /**
    * Set up the UART interrupt to service the RX queue.
@@ -133,6 +135,7 @@ class BufferedUART {
 
  private:
   UART_HandleTypeDef &huart_;
+  Time &time_;
 
   volatile Util::RingBuffer<rx_buffer_size> rx_buffer_;
   volatile Util::RingBuffer<tx_buffer_size> tx_buffer_;
@@ -144,9 +147,12 @@ class BufferedUART {
 };
 
 static const size_t large_uart_buffer_size = 4096;
-using LargeBufferedUART = BufferedUART<large_uart_buffer_size, large_uart_buffer_size>;
+using LargeBufferedUART = HALBufferedUART<large_uart_buffer_size, large_uart_buffer_size>;
+
+static const size_t read_only_uart_buffer_size = 512;
+using ReadOnlyBufferredUART = HALBufferedUART<read_only_uart_buffer_size, 1>;
 
 }  // namespace HAL
 }  // namespace Pufferfish
 
-#include "BufferedUART.tpp"
+#include <Pufferfish/HAL/STM32/HALBufferedUART.tpp>

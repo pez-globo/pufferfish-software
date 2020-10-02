@@ -37,9 +37,7 @@
 // FIXME: After HAL/Interfaces/Endian.h is created, change to
 // "Pufferfish/HAL/HAL.h"
 #include "Pufferfish/HAL/STM32/Endian.h"
-// FIXME: After HAL/Interfaces/Time.h is created, change to
-// "Pufferfish/HAL/HAL.h"
-#include "Pufferfish/HAL/STM32/Time.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/Util/Parse.h"
 
 namespace Pufferfish::Driver::I2C {
@@ -95,14 +93,14 @@ I2CDeviceStatus SDPSensor::start_continuous(bool averaging) {
   return I2CDeviceStatus::ok;
 }
 
-void SDPSensor::start_continuous_wait(bool stabilize) {
-  static const uint32_t wait = 8;
-  static const uint32_t stabilize_wait = 12;
-  HAL::delay(wait);
-  if (stabilize) {
-    HAL::delay(stabilize_wait);
-  }
-}
+//void SDPSensor::start_continuous_wait(bool stabilize) {
+//  static const uint32_t wait = 8;
+//  static const uint32_t stabilize_wait = 12;
+//  //time_.delay(wait);
+//  if (stabilize) {
+//    //TODO:TBD time_.delay(stabilize_wait);
+//  }
+//}
 
 I2CDeviceStatus SDPSensor::read_full_sample(SDPSample &sample) {
   if (!measuring_) {
@@ -207,16 +205,19 @@ I2CDeviceStatus SDPSensor::test() {
     return status;
   }
   static const uint8_t reset_delay = 25;
-  HAL::delay(reset_delay);
+  time_.delay(reset_delay);
 
   // try start measurement
   static const uint8_t command_delay = 3;
-  HAL::delay(command_delay);
+  time_.delay(command_delay);
   status = this->start_continuous(true);
   if (status != I2CDeviceStatus::ok) {
     return status;
   }
-  this->start_continuous_wait(true);
+
+  //FIXME: Removed start_continuous_wait static method
+  //this->start_continuous_wait(true);
+  time_.delay(20);
 
   // read & verify output
   // three attempts for measuring data
@@ -224,7 +225,7 @@ I2CDeviceStatus SDPSensor::test() {
   size_t i = 0;
   SDPSample sample{};
   for (i = 0; i < read_attempts; i++) {
-    HAL::delay(command_delay);
+    time_.delay(command_delay);
     status = this->read_full_sample(sample);
 
     if (status == I2CDeviceStatus::ok) {
@@ -254,7 +255,7 @@ I2CDeviceStatus SDPSensor::test() {
   }
 
   // stop reading
-  HAL::delay(command_delay);
+  time_.delay(command_delay);
   status = this->stop_continuous();
   if (status != I2CDeviceStatus::ok) {
     return status;
