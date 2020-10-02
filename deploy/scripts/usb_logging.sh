@@ -30,6 +30,44 @@ sudo systemctl enable media-pi-LOGS.mount
 nginx_conf='/etc/nginx/nginx.conf'
 
 if [ 0 -eq $( grep -c '/media/pi/LOGS' $nginx_conf ) ]; then
-    sudo sed -i 's/\/var\/log\/nginx\/access.log/\/media\/pi\/LOGS\/nginx_access.log/g' $nginx_conf
-    sudo sed -i 's/\/var\/log\/nginx\/error.log/\/media\/pi\/LOGS\/nginx_error.log/g' $nginx_conf
+    sudo sed -i 's|/var/log/nginx/access.log|/media/pi/LOGS/nginx_access.log|g' $nginx_conf
+    sudo sed -i 's|/var/log/nginx/error.log|/media/pi/LOGS/nginx_error.log|g' $nginx_conf
 fi
+
+# Adding rsyslog configuration
+if [ 0 -eq $( grep -c 'pufferfish_backend' /etc/rsyslog.conf ) ]; then
+    if [ 1 -eq $( ls $config_dir | grep -c "rsyslog.conf" ) ]
+    then
+        echo $config_dir/rsyslog.conf | sudo tee -a /etc/rsyslog.conf
+    else
+        echo "The rsyslog.conf file doesn't exist"
+        exit 1
+    fi
+fi
+
+if [ 0 -eq $( ls /etc/ | grep -c "bash.bash_logout" ) ]
+then
+    sudo touch /etc/bash.bash_logout
+fi
+
+# Unmount USB on logout
+echo -e "\nsudo umount /dev/sda1" | sudo tee -a /etc/bash.bash_logout
+
+# Run Log rotate every hour
+if [ 0 -eq $( ls /etc/cron.hourly/ | grep -c "logrotate" ) ]
+then
+    sudo mv /etc/cron.daily/logrotate /etc/cron.hourly/
+fi
+
+# Add logrotate config
+if [ 1 -eq $( ls $config_dir | grep -c "pufferfish_logger" ) ]
+then
+    sudo cp $config_dir/pufferfish_logger /etc/logrotate.d/
+    sudo chmod 644 /etc/logrotate.d/pufferfish_logger
+    sudo chown root:root /etc/logrotate.d/pufferfish_logger
+else
+    echo "The pufferfish_logger file doesn't exist"
+    exit 1
+fi
+
+sudo systemctl daemon-reload

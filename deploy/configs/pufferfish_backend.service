@@ -9,8 +9,9 @@ User=pi
 ExecStart=/home/pi/.pyenv/versions/ventserver/bin/python /home/pi/pufferfish-vent-software/backend/ventserver/simulation.py
 Restart=always
 RestartSec=3
-StandardOutput=file:/media/pi/LOGS/backend_output.log
-StandardError=file:/media/pi/LOGS/backend_error.log
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=pufferfish_backend
 
 [Install]
 WantedBy=multi-user.target
