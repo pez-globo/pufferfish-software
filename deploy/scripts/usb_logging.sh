@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Message colours
+ERROR='\033[1;31mERROR:'
+SUCCESS='\033[1;32m'
+WARNING='\033[1;33mWARNING:'
+NC='\033[0m'
+
+echo -e "\n${SUCCESS}********** Setting up USB Logging Device **********\n$NC"
+
 # Getting absolute path of config files
 script_dir=$(dirname $(realpath $0))
 config_dir=$script_dir/../configs
@@ -18,7 +26,7 @@ then
     sudo cp $config_dir/media-pi-LOGS.mount /etc/systemd/system/
     sudo chmod 644 /etc/systemd/system/media-pi-LOGS.mount
 else
-    echo "The media-pi-LOGS.mount file doesn't exist"
+    echo -e "${ERROR} The media-pi-LOGS.mount file doesn't exist$NC"
     exit 1
 fi
 
@@ -40,7 +48,7 @@ if [ 0 -eq $( grep -c 'pufferfish_backend' /etc/rsyslog.conf ) ]; then
     then
         cat $config_dir/rsyslog.conf | sudo tee -a /etc/rsyslog.conf
     else
-        echo "The rsyslog.conf file doesn't exist"
+        echo -e "${ERROR} The rsyslog.conf file doesn't exist$NC"
         exit 1
     fi
 fi
@@ -51,7 +59,10 @@ then
 fi
 
 # Unmount USB on logout
-echo -e "\nsudo umount /dev/sda1" | sudo tee -a /etc/bash.bash_logout
+if [ 0 -eq $( cat /etc/bash.bash_logout | grep -c "umount /media/pi/LOGS" ) ]
+then
+    echo -e "\nsudo umount /media/pi/LOGS" | sudo tee -a /etc/bash.bash_logout
+fi
 
 # Run Log rotate every hour
 if [ 0 -eq $( ls /etc/cron.hourly/ | grep -c "logrotate" ) ]
@@ -66,8 +77,10 @@ then
     sudo chmod 644 /etc/logrotate.d/pufferfish_logger
     sudo chown root:root /etc/logrotate.d/pufferfish_logger
 else
-    echo "The pufferfish_logger file doesn't exist"
+    echo -e "${ERROR} The pufferfish_logger file doesn't exist$NC"
     exit 1
 fi
 
 sudo systemctl daemon-reload
+
+echo -e "\n${SUCCESS}USB Logging setup complete\n$NC"

@@ -8,13 +8,13 @@ NC='\033[0m'
 
 cd ~/
 
-echo -e "\n${SUCCESS}********** Installing Roboto Font **********\n$NC"
+echo -e "\n${SUCCESS}********** Installing Roboto Font **********\n${NC}"
 
 mkdir -p .fonts
 
 if [ $( ls .fonts/ | grep -c "Roboto" ) -ge 2 ]
 then
-    echo -e "${WARNING} Roboto fonts already available$NC"
+    echo -e "${WARNING} Roboto fonts already available${NC}"
     exit
 else
     wget -O roboto.zip "https://fonts.google.com/download?family=Roboto"
@@ -27,8 +27,8 @@ then
     unzip roboto.zip -d .fonts/
     rm roboto.zip
 else
-    echo -e "${ERROR} Fonts download failed$NC"
+    echo -e "${ERROR} Fonts download failed${NC}"
     exit 1
 fi
 
-echo -e "\n${SUCCESS}Roboto fonts installation complete\n$NC"
+echo -e "\n${SUCCESS}Roboto fonts installation complete\n${NC}"
