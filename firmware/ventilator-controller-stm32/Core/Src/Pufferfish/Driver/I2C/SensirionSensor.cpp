@@ -38,6 +38,7 @@ I2CDeviceStatus SensirionSensor::read_with_crc(
 
   return I2CDeviceStatus::ok;
 }
+
 I2CDeviceStatus SensirionSensor::write(uint8_t *buf, size_t count) {
   return dev_.write(buf, count);
 }
