@@ -4,7 +4,7 @@
 script_dir=$(dirname $(realpath $0))
 config_dir=$script_dir/../configs
 
-media_boot="\n/dev/sda1      /media/pi/LOGS       auto    rw,nosuid,nodev,x-systemd.device-timeout=5,noauto,nofail          0       0"
+media_boot="\n/dev/disk/by-label/LOGS      /media/pi/LOGS       auto    rw,nosuid,nodev,x-systemd.device-timeout=5,noauto,nofail          0       0"
 fstab_file="/etc/fstab"
 
 # Adding LOGS mount point to /etc/fstab
@@ -38,7 +38,7 @@ fi
 if [ 0 -eq $( grep -c 'pufferfish_backend' /etc/rsyslog.conf ) ]; then
     if [ 1 -eq $( ls $config_dir | grep -c "rsyslog.conf" ) ]
     then
-        echo $config_dir/rsyslog.conf | sudo tee -a /etc/rsyslog.conf
+        cat $config_dir/rsyslog.conf | sudo tee -a /etc/rsyslog.conf
     else
         echo "The rsyslog.conf file doesn't exist"
         exit 1
