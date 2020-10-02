@@ -12,7 +12,14 @@ import {
   VentilationMode,
 } from './proto/mcu_pb';
 import { RotaryEncoder, FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
-import { ControllerStates, WaveformPoint, WaveformHistory, PVPoint, PVHistory } from './types';
+import {
+  ControllerStates,
+  WaveformPoint,
+  WaveformHistory,
+  PVPoint,
+  PVHistory,
+  RotaryEncoderParameter,
+} from './types';
 
 export const getController = ({ controller }: StoreState): ControllerStates => controller;
 
@@ -118,6 +125,12 @@ export const getParametersRequest = createSelector(
   (states: ControllerStates): ParametersRequest => states.parametersRequest,
 );
 
+export const getParametersRequestStandby = createSelector(
+  getController,
+  (states: ControllerStates): ParametersRequest =>
+    states.parametersRequestStandby.parameters as ParametersRequest,
+);
+
 export const getParametersRequestMode = createSelector(
   getParametersRequest,
   (parametersRequest: ParametersRequest): VentilationMode => parametersRequest.mode,
@@ -138,7 +151,7 @@ export const getAnnouncement = createSelector(
 // RotaryEncoder
 export const getRotaryEncoder = createSelector(
   getController,
-  (states: ControllerStates): RotaryEncoder => states.rotaryEncoder,
+  (states: ControllerStates): RotaryEncoderParameter => states.rotaryEncoder,
 );
 
 // Waveforms
@@ -217,6 +230,12 @@ export const getAlarmLimitsRequest = createSelector(
   getController,
   (states: ControllerStates): AlarmLimitsRequest | Record<string, number> =>
     states.alarmLimitsRequest,
+);
+
+export const getAlarmLimitsRequestStandby = createSelector(
+  getController,
+  (states: ControllerStates): AlarmLimitsRequest | Record<string, number> =>
+    states.alarmLimitsRequestStandby.alarmLimits as AlarmLimitsRequest,
 );
 
 // Display Settings

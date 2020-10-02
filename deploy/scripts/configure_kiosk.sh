@@ -3,7 +3,13 @@
 # Disables screen blanking and screen savers
 # Hides mouse cursor on idle
 
-echo "Installing unclutter..."
+# Message colours
+ERROR='\033[1;31mERROR:'
+SUCCESS='\033[1;32m'
+WARNING='\033[1;33mWARNING:'
+
+echo -e "\n${SUCCESS}********** Setting up window manager configuration **********\n"
+
 sudo apt install unclutter -y
 
 # Getting absolute path of config files
@@ -25,7 +31,7 @@ if [ 1 -eq $( ls $config_dir | grep -c "screen_config.txt" ) ]
 then
     cat $config_dir/screen_config.txt >> $HOME/.config/lxsession/LXDE-pi/autostart
 else
-    echo "Configuration file (screen_config.txt) not found!"
+    echo -e "${ERROR} Configuration file (screen_config.txt) not found!"
     exit 1
 fi
 
@@ -37,6 +43,8 @@ then
     touch $HOME/.config/openbox/lxde-pi-rc.xml
     cat $config_dir/lxde-pi-rc.xml > $HOME/.config/openbox/lxde-pi-rc.xml
 else
-    echo "Configuration file (lxde-pi-rc.xml) not found!"
+    echo -e "${ERROR} Configuration file (lxde-pi-rc.xml) not found!"
     exit 1
 fi
+
+echo -e "\n${SUCCESS}Window Manager configuration setup complete\n"

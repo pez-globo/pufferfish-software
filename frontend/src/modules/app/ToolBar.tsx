@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Grid, AppBar } from '@material-ui/core';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   LOGS_ROUTE,
   DASHBOARD_ROUTE,
@@ -16,6 +16,12 @@ import ClockIcon from '../icons/ClockIcon';
 import PowerFullIcon from '../icons/PowerFullIcon';
 import { PERCENT } from '../info/units';
 import { getClockTime } from '../../store/app/selectors';
+import {
+  getParametersRequestMode,
+  getParametersRequestStandby,
+} from '../../store/controller/selectors';
+import { VentilationMode } from '../../store/controller/proto/mcu_pb';
+import { updateCommittedParameter } from '../../store/controller/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -44,15 +50,56 @@ export const ToolBar = (): JSX.Element => {
   // Store the route location so we can change button/breadcrumb displays
   // depending on the current route.
   const location = useLocation();
+  const dispatch = useDispatch();
+  const currentMode = useSelector(getParametersRequestMode);
+  const parameterRequestStandby = useSelector(getParametersRequestStandby);
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(false);
   const label = isVentilatorOn ? 'Pause Ventilation' : 'Start Ventilation';
   const toPath = isVentilatorOn ? QUICKSTART_ROUTE.path : DASHBOARD_ROUTE.path;
   const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
+  const updateVentilationStatus = () => {
+    setIsVentilatorOn(!isVentilatorOn);
+  };
+
+  const initParameterUpdate = useCallback(() => {
+    if (isVentilatorOn) {
+      switch (currentMode) {
+        case VentilationMode.pc_ac:
+        case VentilationMode.pc_simv:
+        case VentilationMode.vc_ac:
+        case VentilationMode.vc_simv:
+        case VentilationMode.niv:
+          dispatch(
+            updateCommittedParameter({
+              peep: parameterRequestStandby.peep,
+              vt: parameterRequestStandby.vt,
+              rr: parameterRequestStandby.rr,
+              fio2: parameterRequestStandby.fio2,
+            }),
+          );
+          break;
+        case VentilationMode.hfnc:
+        default:
+          dispatch(
+            updateCommittedParameter({
+              fio2: parameterRequestStandby.fio2,
+              flow: parameterRequestStandby.flow,
+            }),
+          );
+          break;
+      }
+    }
+  }, [isVentilatorOn, parameterRequestStandby, currentMode, dispatch]);
+
+  useEffect(() => {
+    initParameterUpdate();
+  }, [initParameterUpdate]);
+
   const StartPauseButton = (
     <Button
       component={Link}
       to={toPath}
-      onClick={() => setIsVentilatorOn(!isVentilatorOn)}
+      onClick={updateVentilationStatus}
       variant="contained"
       color="secondary"
       disabled={isDisabled}
