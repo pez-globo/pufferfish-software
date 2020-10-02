@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Sets up user and network security
+# Disables SSH for root and pi user
+# Allows web serving ports (443 & 80) and disables other ports
+# Disables SSH service
+# Installs fail2ban
+# Disables Wifi
+# Locks pi user and removes pi from sudoers
+
 echo "********** Setting up User & Network Security **********"
 
 sudo apt install openssh-server nginx ufw fail2ban -y

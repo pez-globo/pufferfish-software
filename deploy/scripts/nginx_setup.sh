@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script installs nginx and adds front-end build files to 
+# Installs nginx and adds front-end build files to 
 # web serving directory
 
 echo "********** Setting up nginx **********"
@@ -15,6 +15,7 @@ sudo ln -s /tmp /var/log/nginx
 script_dir=$(dirname $(realpath $0))
 frontend_dir=$script_dir/../../frontend
 
+# Copying build files to web serving directory
 if [ 0 -eq $( ls $frontend_dir | grep -c "build" ) ]
 then
     echo "Build files not found"

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Sets up watchdog to handle raspberry pi failures and crashes
+
 echo "********** Setting up Watchdog **********"
 
 # Getting absolute path of config files

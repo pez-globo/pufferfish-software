@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# This script installs poetry and the backend package dependencies
+# Installs poetry and the backend package dependencies
 
 echo "********** Installing poetry **********"
 
 poetry="$HOME/.poetry/bin/poetry"
 ventserver_env="$HOME/.pyenv/versions/3.7.7/envs/ventserver/bin/python"
 
+# Installing poetry
 if ! command -v pyenv &> /dev/null
 then
     curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3
@@ -18,6 +19,7 @@ fi
 script_dir=$(dirname $(realpath $0))
 backend_dir=$script_dir/../../backend
 
+# Installing backend package dependencies
 cd $backend_dir
 $poetry config virtualenvs.create false
 $ventserver_env $poetry install

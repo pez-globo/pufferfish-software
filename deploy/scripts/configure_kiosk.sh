@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# This script adds browser autostart to lxde-pi session
 # Disables screen blanking and screen savers
 # Hides mouse cursor on idle
 
@@ -14,12 +13,14 @@ config_dir=$script_dir/../configs
 # Set up autostart
 mkdir -p $HOME/.config/lxsession/LXDE-pi
 
+# Copy default system lxde-pi configuration to user configuration
 if [ 0 -eq $( ls $HOME/.config/lxsession/LXDE-pi/ | grep -c "autostart" ) ]
 then
     touch $HOME/.config/lxsession/LXDE-pi/autostart
     cat /etc/xdg/lxsession/LXDE-pi/autostart > $HOME/.config/lxsession/LXDE-pi/autostart
 fi
 
+# Adding screen blanking and hide mouse cursor configuration
 if [ 1 -eq $( ls $config_dir | grep -c "screen_config.txt" ) ]
 then
     cat $config_dir/screen_config.txt >> $HOME/.config/lxsession/LXDE-pi/autostart

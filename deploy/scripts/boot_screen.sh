@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script adds custom pufferfish boot screen and its service
+# Custom Pufferfish boot screen and its service
 
 echo "********** Setting up custom boot screen **********"
 
