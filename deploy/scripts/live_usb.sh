@@ -4,7 +4,7 @@ echo "********** Setting up Live USB Boot **********"
 
 script_dir=$(pwd)
 
-cp /lib/firmware/raspberrypi/bootloader/stable/pieeprom-2020-07-31.bin pieeprom.bin
+cp /lib/firmware/raspberrypi/bootloader/stable/pieeprom-2020-09-03.bin pieeprom.bin
 
 if [ 1 -eq $( ls $script_dir/configs/ | grep -c "bootconf.txt" ) ]
 then
