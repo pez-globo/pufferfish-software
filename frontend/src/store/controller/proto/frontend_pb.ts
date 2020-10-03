@@ -3,8 +3,8 @@ import { Writer, Reader } from 'protobufjs/minimal';
 
 
 export interface RotaryEncoder {
-  angle: number;
-  lastAngleChange: number;
+  step: number;
+  lastStepChange: number;
   buttonPressed: boolean;
   lastButtonDown: number;
   lastButtonUp: number;
@@ -21,8 +21,8 @@ export interface SystemSettingRequest {
 }
 
 const baseRotaryEncoder: object = {
-  angle: 0,
-  lastAngleChange: 0,
+  step: 0,
+  lastStepChange: 0,
   buttonPressed: false,
   lastButtonDown: 0,
   lastButtonUp: 0,
@@ -104,8 +104,8 @@ export type ThemeVariant = 0 | 1 | -1;
 
 export const RotaryEncoder = {
   encode(message: RotaryEncoder, writer: Writer = Writer.create()): Writer {
-    writer.uint32(8).uint32(message.angle);
-    writer.uint32(21).float(message.lastAngleChange);
+    writer.uint32(8).int32(message.step);
+    writer.uint32(21).float(message.lastStepChange);
     writer.uint32(24).bool(message.buttonPressed);
     writer.uint32(37).float(message.lastButtonDown);
     writer.uint32(45).float(message.lastButtonUp);
@@ -119,10 +119,10 @@ export const RotaryEncoder = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.angle = reader.uint32();
+          message.step = reader.int32();
           break;
         case 2:
-          message.lastAngleChange = reader.float();
+          message.lastStepChange = reader.float();
           break;
         case 3:
           message.buttonPressed = reader.bool();
@@ -142,15 +142,15 @@ export const RotaryEncoder = {
   },
   fromJSON(object: any): RotaryEncoder {
     const message = Object.create(baseRotaryEncoder) as RotaryEncoder;
-    if (object.angle !== undefined && object.angle !== null) {
-      message.angle = Number(object.angle);
+    if (object.step !== undefined && object.step !== null) {
+      message.step = Number(object.step);
     } else {
-      message.angle = 0;
+      message.step = 0;
     }
-    if (object.lastAngleChange !== undefined && object.lastAngleChange !== null) {
-      message.lastAngleChange = Number(object.lastAngleChange);
+    if (object.lastStepChange !== undefined && object.lastStepChange !== null) {
+      message.lastStepChange = Number(object.lastStepChange);
     } else {
-      message.lastAngleChange = 0;
+      message.lastStepChange = 0;
     }
     if (object.buttonPressed !== undefined && object.buttonPressed !== null) {
       message.buttonPressed = Boolean(object.buttonPressed);
@@ -171,15 +171,15 @@ export const RotaryEncoder = {
   },
   fromPartial(object: DeepPartial<RotaryEncoder>): RotaryEncoder {
     const message = Object.create(baseRotaryEncoder) as RotaryEncoder;
-    if (object.angle !== undefined && object.angle !== null) {
-      message.angle = object.angle;
+    if (object.step !== undefined && object.step !== null) {
+      message.step = object.step;
     } else {
-      message.angle = 0;
+      message.step = 0;
     }
-    if (object.lastAngleChange !== undefined && object.lastAngleChange !== null) {
-      message.lastAngleChange = object.lastAngleChange;
+    if (object.lastStepChange !== undefined && object.lastStepChange !== null) {
+      message.lastStepChange = object.lastStepChange;
     } else {
-      message.lastAngleChange = 0;
+      message.lastStepChange = 0;
     }
     if (object.buttonPressed !== undefined && object.buttonPressed !== null) {
       message.buttonPressed = object.buttonPressed;
@@ -200,8 +200,8 @@ export const RotaryEncoder = {
   },
   toJSON(message: RotaryEncoder): unknown {
     const obj: any = {};
-    obj.angle = message.angle || 0;
-    obj.lastAngleChange = message.lastAngleChange || 0;
+    obj.step = message.step || 0;
+    obj.lastStepChange = message.lastStepChange || 0;
     obj.buttonPressed = message.buttonPressed || false;
     obj.lastButtonDown = message.lastButtonDown || 0;
     obj.lastButtonUp = message.lastButtonUp || 0;

@@ -19,8 +19,7 @@ class DigitalInput {
    * @return true if the pin state is high, false if low
    */
   virtual bool read() = 0;
-
 };
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

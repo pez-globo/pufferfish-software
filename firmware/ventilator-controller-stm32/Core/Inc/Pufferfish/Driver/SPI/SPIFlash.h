@@ -30,28 +30,26 @@ namespace SPI {
  * A class represents external SPI flash memory w25q16
  */
 class SPIFlash {
-
-public:
+ public:
   /**
    * @brief Constructor for SPI Flash memory
    * @param spi STM32 HAL handler for the SPI port
    */
-  SPIFlash (HAL::SPIDevice &spi):mSpi(spi){
-  }
+  explicit SPIFlash(HAL::SPIDevice &spi) : spi_(spi) {}
 
   /**
    * @brief Read the specific device ID (14h).
    * @param deviceId output of the data
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus getDeviceID(uint8_t &deviceId);
+  SPIDeviceStatus get_device_id(uint8_t &device_id);
 
   /**
    * @brief Read JEDEC device ID (4015h).
    * @param deviceId output of the data
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus getJEDECID(uint16_t &id);
+  SPIDeviceStatus get_jedec_id(uint16_t &id);
 
   /**
    * @brief Enable write for SPI device - It sets the Write Enable Latch (WEL)
@@ -59,15 +57,15 @@ public:
    * @param void
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus enableWrite(void);
+  SPIDeviceStatus enable_write();
 
   /**
-   * @brief Disable write for SPI device - It resets the Write Enable Latch (WEL)
-   * bit in the Status Register to 0.
+   * @brief Disable write for SPI device - It resets the Write Enable Latch
+   * (WEL) bit in the Status Register to 0.
    * @param void
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus disableWrite(void);
+  SPIDeviceStatus disable_write();
 
   /**
    * @brief Write bytes of data into SPI device
@@ -76,7 +74,7 @@ public:
    * @param size amount of data to be transmit
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus writeByte(uint32_t addr, const uint8_t *input, uint8_t size);
+  SPIDeviceStatus write_byte(uint32_t addr, const uint8_t *input, uint8_t size);
 
   /**
    * @brief Read bytes of data from SPI device
@@ -84,7 +82,7 @@ public:
    * @param size amount of data to be receive
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus readByte(uint32_t addr, uint8_t *data, uint8_t size);
+  SPIDeviceStatus read_byte(uint32_t addr, uint8_t *data, uint8_t size);
 
   /**
    * @brief Lock the block based on address - To protect the memory
@@ -92,14 +90,14 @@ public:
    * @param addr address of the lock block
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus lockIndividualBlock(uint32_t addr);
+  SPIDeviceStatus lock_individual_block(uint32_t addr);
 
   /**
    * @brief Unlock the block based on address
    * @param addr address of the unlock block
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus unLockIndividualBlock(uint32_t addr);
+  SPIDeviceStatus unlock_individual_block(uint32_t addr);
 
   /**
    * @brief Lock the block globally - All Block/Sector Lock bits can
@@ -107,7 +105,7 @@ public:
    * @param void
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus globalBlockLock(void);
+  SPIDeviceStatus global_block_lock();
 
   /**
    * @brief Unlock the block globally - All Block/Sector Lock bits can
@@ -115,7 +113,7 @@ public:
    * @param void
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus globalBlockUnLock(void);
+  SPIDeviceStatus global_block_unlock();
 
   /**
    * @brief Read the block status - To read out the lock bit value
@@ -125,14 +123,14 @@ public:
    * @param addr address of the block
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus readBlockStatus(uint32_t addr);
+  SPIDeviceStatus read_block_status(uint32_t addr);
 
   /**
    * @brief Chip Erase
    * @param void
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus eraseChip(void);
+  SPIDeviceStatus erase_chip();
 
   /**
    * @brief Sector Erase - The Sector Erase instruction sets all memory within
@@ -140,7 +138,7 @@ public:
    * @param addr address to erase the sector
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus eraseSector4KB(uint32_t addr);
+  SPIDeviceStatus erase_sector_4kb(uint32_t addr);
 
   /**
    * @brief Block Erase - The Block Erase instruction sets all memory within
@@ -148,7 +146,7 @@ public:
    * @param addr address to erase the block
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus eraseBlock32KB(uint32_t addr);
+  SPIDeviceStatus erase_block_32kb(uint32_t addr);
 
   /**
    * @brief Block Erase - The Block Erase instruction sets all memory within
@@ -156,7 +154,7 @@ public:
    * @param addr address to erase the block
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus eraseBlock64KB(uint32_t addr);
+  SPIDeviceStatus erase_block_64kb(uint32_t addr);
 
   /**
    * @brief Write status register1 - The Write Status Register instruction
@@ -164,17 +162,17 @@ public:
    * @param input data which is to be written into register1
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus writeStatusRegister1(uint8_t input);
+  SPIDeviceStatus write_status_register1(uint8_t input);
 
   /**
    * @brief Read status register1 - It checks the BUSY status bit to determine
-   * when the cycle is complete and if the device can accept another instruction.
-   * It may be used at any time, even while a Program, Erase or Write Status
-   * Register cycle is in progress.
+   * when the cycle is complete and if the device can accept another
+   * instruction. It may be used at any time, even while a Program, Erase or
+   * Write Status Register cycle is in progress.
    * @param rxbuf pointer to reception data buffer
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus readStatusRegister1(uint8_t &rxBuf);
+  SPIDeviceStatus read_status_register1(uint8_t &rx_buf);
 
   /**
    * @brief Write status register2 - The Write Status Register instruction
@@ -182,7 +180,7 @@ public:
    * @param input data which is to be written into register2
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus writeStatusRegister2(uint8_t input);
+  SPIDeviceStatus write_status_register2(uint8_t input);
 
   /**
    * @brief Read status register2 - The Read Status Register instructions
@@ -190,7 +188,7 @@ public:
    * @param rxbuf pointer to reception data buffer
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus readStatusRegister2(uint8_t &rxBuf);
+  SPIDeviceStatus read_status_register2(uint8_t &rx_buf);
 
   /**
    * @brief Write status register3 - The Write Status Register instruction
@@ -198,7 +196,7 @@ public:
    * @param input data which is to be written into register3
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus writeStatusRegister3(uint8_t input);
+  SPIDeviceStatus write_status_register3(uint8_t input);
 
   /**
    * @brief Read status register3 - The Read Status Register instructions
@@ -206,7 +204,7 @@ public:
    * @param rxbuf pointer to reception data buffer
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus readStatusRegister3(uint8_t &rxBuf);
+  SPIDeviceStatus read_status_register3(uint8_t &rx_buf);
 
   /**
    * @brief Power down - It is used to enter the
@@ -214,7 +212,7 @@ public:
    * @param void
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus powerDown(void);
+  SPIDeviceStatus power_down();
 
   /**
    * @brief Release power down - It is used to release the
@@ -222,17 +220,17 @@ public:
    * @param void
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus releasePowerDown(void);
+  SPIDeviceStatus release_power_down();
 
   /**
    * @brief Reset device - It is used to reset the device
    * @param void
    * @return ok on success, error code otherwise
    */
-  SPIDeviceStatus resetDevice(void);
+  SPIDeviceStatus reset_device();
 
-private:
-  HAL::SPIDevice &mSpi;
+ private:
+  HAL::SPIDevice &spi_;
 };
 
 }  // namespace SPI

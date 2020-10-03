@@ -19,7 +19,7 @@ $ pip install "betterproto[compiler]"
 Then run, from this directory:
 
 ```bash
-$ export $PROTOC=/path/to/local/bin/protoc  # replace the path with the one for your computer
+$ export PROTOC=/path/to/local/bin/protoc  # replace the path with the one for your computer
 
 $ # Generate Python Code
 $ $PROTOC -I=. --python_betterproto_out=../backend/ventserver/protocols/protobuf mcu_pb.proto
@@ -29,20 +29,18 @@ Note that if you installed the `protobuf-compiler` package on Ubuntu, then you
 should replace `$PROTOC` with `protoc`.
 
 To update the C++ classes at
-`firmware/ventilator-controller-stm32/Core/Inc/Pufferfish/Protocols/mcu_pb.pb.h` and
-`firmware/ventilator-controller-stm32/Core/Src/Pufferfish/Protocols/mcu_pb.pb.c`,
-the easiest way is to install nanopb with pip, and run, from this directory:
+`firmware/ventilator-controller-stm32/Core/Inc/Pufferfish/Application/mcu_pb.h` and
+`firmware/ventilator-controller-stm32/Core/Src/Pufferfish/Application/mcu_pb.c`,
+the easiest way is to install nanopb with pip, and run the `generate_mcu.sh` script:
 
 ```bash
-$ export $PROTOC=/path/to/local/bin/protoc
+$ # Install nanopb
+$ pip3 install nanopb
+
 
 $ # Generate C++ Code
-$ nanopb_generator -I=. --output-dir="../firmware/ventilator-controller-stm32/Core/Inc/Pufferfish/Protocols" mcu_pb.proto
+$ ../proto/generate_mcu.sh
 ```
-
-Note that after generating these files, you will need to move
-`firmware/ventilator-controller-stm32/Core/Inc/Pufferfish/Protocols/mcu_pb.pb.c`
-to `firmware/ventilator-controller-stm32/Core/Src/Pufferfish/Protocols/mcu_pb.pb.c`.
 
 ## Frontend/Backend
 
@@ -55,7 +53,7 @@ To update the Python classes at `backend/ventserver/protocols/protobuf`,
 first install the `betterproto` package using pip, then run:
 
 ```bash
-$ export $PROTOC=/path/to/local/bin/protoc  # replace the path with the one for your computer
+$ export PROTOC=/path/to/local/bin/protoc  # replace the path with the one for your computer
 
 $ # Generate Python Code
 $ $PROTOC -I=. --python_betterproto_out=../backend/ventserver/protocols/protobuf mcu_pb.proto
@@ -78,7 +76,7 @@ $ npm install -g protoc-gen-ts
 Then run, from this directory:
 
 ```bash
-$ export $PROTOC=/path/to/local/bin/protoc  # replace the path with the one for your computer
+$ export PROTOC=/path/to/local/bin/protoc  # replace the path with the one for your computer
 
 $ # Generate TypeScript Code (make sure to run yarn install in frontend first)
 $ $PROTOC -I=. --ts_proto_out=../frontend/src/store/controller/proto --plugin="../frontend/node_modules/ts-proto/protoc-gen-ts_proto" mcu_pb.proto

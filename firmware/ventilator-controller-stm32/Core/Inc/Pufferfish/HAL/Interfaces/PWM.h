@@ -6,7 +6,8 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
+
 #include "Pufferfish/Statuses.h"
 
 namespace Pufferfish {
@@ -17,21 +18,22 @@ namespace HAL {
  */
 class PWM {
  public:
-
   /**
    * Set a duty cycle of PWM, can be done when PWM is active
    * this function does NOT start the PWM output
-   * @param duty    a number between 0.0 and 1.0 (inclusive) for the desired duty cycle
+   * @param duty    a number between 0.0 and 1.0 (inclusive) for the desired
+   * duty cycle
    */
-  PWMStatus setDutyCycle(float duty);
+  PWMStatus set_duty_cycle(float duty);
 
   /**
    * Set a duty cycle of PWM, can be done when PWM is active
    * this function does NOT start the PWM output.
    * This is faster than setDutyCycle() as no floating point calculation is done
-   * @param duty    an integer between 0 and getMaxDutyCycle() (inclusive) for the desired duty cycle
+   * @param duty    an integer between 0 and getMaxDutyCycle() (inclusive) for
+   * the desired duty cycle
    */
-  virtual void setDutyCycleRaw(uint32_t duty) = 0;
+  virtual void set_duty_cycle_raw(uint32_t duty) = 0;
 
   /**
    * Start the PWM output
@@ -49,7 +51,7 @@ class PWM {
    * Returns the maximum duty cycle that can be set with setDutyCycleRaw()
    * @return the maximum duty cycle
    */
-  virtual uint32_t getMaxDutyCycle() = 0;
+  virtual uint32_t get_max_duty_cycle() = 0;
 };
 
 } /* namespace HAL */
