@@ -4,7 +4,10 @@
  *      Author: Ethan Li
  */
 
+#pragma once
+
 #include "BufferedUART.h"
+#include "Pufferfish/Util/Timeouts.h"
 #include "Time.h"
 
 namespace Pufferfish {
@@ -48,7 +51,7 @@ BufferStatus BufferedUART<rx_buffer_size, tx_buffer_size>::write_block(
     if (write(write_byte) == BufferStatus::ok) {
       return BufferStatus::ok;
     }
-    if ((timeout > 0) && ((millis() - start) > timeout)) {
+    if (!Util::within_timeout(start, timeout, millis())) {
       return BufferStatus::full;
     }
   }
@@ -65,7 +68,7 @@ BufferStatus BufferedUART<rx_buffer_size, tx_buffer_size>::write_block(
     AtomicSize just_written = 0;
     write(write_bytes + written_size, write_size - written_size, just_written);
     written_size += just_written;
-    if ((timeout > 0) && ((millis() - start) > timeout)) {
+    if (!Util::within_timeout(start, timeout, millis())) {
       break;
     }
   }

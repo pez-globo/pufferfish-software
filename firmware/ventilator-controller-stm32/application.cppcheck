@@ -20,6 +20,9 @@
         <path name="Core/Src/stm32h7xx_hal_msp.c"/>
         <path name="Core/Src/syscalls.c"/>
         <path name="Core/Src/sysmem.c"/>
+        <path name="Core/Src/nanopb/pb_common.c"/>
+        <path name="Core/Src/nanopb/pb_decode.c"/>
+        <path name="Core/Src/nanopb/pb_encode.c"/>
     </exclude>
     <suppressions>
         <suppression>missingIncludeSystem</suppression>

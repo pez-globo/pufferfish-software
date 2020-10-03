@@ -20,8 +20,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Pufferfish {
-namespace Util {
+#pragma once
+
+#include "Timeouts.h"
+
+namespace Pufferfish::Util {
 
 template <typename T>
 inline bool within_timeout(T start_time, T timeout, T test_time) {
@@ -29,5 +32,4 @@ inline bool within_timeout(T start_time, T timeout, T test_time) {
   return duration < timeout;
 }
 
-}  // namespace Util
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Util

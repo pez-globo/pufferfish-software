@@ -1,3 +1,4 @@
+import { ParametersRequest } from './proto/mcu_pb';
 import {
   MessageType,
   StateUpdateAction,
@@ -11,7 +12,7 @@ export function updateState(messageType: MessageType, state: PBMessage): StateUp
   return { type: STATE_UPDATED, messageType, state };
 }
 
-export function updateCommittedParameter(updates: Record<string, unknown>): commitAction {
+export function updateCommittedParameter(updates: Partial<ParametersRequest>): commitAction {
   return {
     type: PARAMETER_COMMITTED,
     update: updates,

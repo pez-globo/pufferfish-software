@@ -5,16 +5,22 @@ from typing import Type, List, Optional, Dict
 
 import trio
 import betterproto
+import functools
+import RPi.GPIO as GPIO # type:ignore
 
 from ventserver.integration import _trio
 from ventserver.io.trio import _serial
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
 from ventserver.io.trio import fileio
+from ventserver.io.trio import rotaryencoder
 from ventserver.protocols import server
 from ventserver.protocols import file
 from ventserver.protocols import exceptions
 from ventserver.protocols.protobuf import mcu_pb 
+
+
+GPIO.setmode(GPIO.BCM)
 
 
 logger = logging.getLogger()
@@ -82,6 +88,9 @@ async def main() -> None:
     serial_endpoint = _serial.Driver()
     websocket_endpoint = websocket.Driver()
     filehandler = fileio.Handler()
+    rotary_encoder = rotaryencoder.Driver()
+
+    await rotary_encoder.open()
 
     # Server Receive Outputs
     channel: channels.TrioChannel[
@@ -102,9 +111,12 @@ async def main() -> None:
         async with channel.push_endpoint:
             async with trio.open_nursery() as nursery:
                 nursery.start_soon(
-                    # mypy only supports <= 4 args with trio-typing
-                    _trio.process_all, serial_endpoint,
-                    protocol, websocket_endpoint, channel, channel.push_endpoint
+                    # mypy only supports <= 5 args with trio-typing
+                    functools.partial(_trio.process_all,
+                                      channel=channel,
+                                      push_endpoint=channel.push_endpoint),
+                    protocol, serial_endpoint,
+                    websocket_endpoint, rotary_encoder
                 )
 
                 while True:

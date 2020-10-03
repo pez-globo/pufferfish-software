@@ -7,7 +7,7 @@ Before=lightdm.service
 [Service]
 Type=simple
 User=pi
-ExecStart=/home/pi/.pyenv/versions/ventserver/bin/python3 /home/pi/pufferfish-vent-software/backend/ventserver/simulation.py
+ExecStart=/home/pi/.pyenv/versions/ventserver/bin/python python_file_absolute_path
 Restart=always
 
 [Install]

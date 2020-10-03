@@ -44,12 +44,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#pragma once
+
 #include <cstring>
 
 #include "RingBuffer.h"
 
-namespace Pufferfish {
-namespace Util {
+namespace Pufferfish::Util {
 
 template <HAL::AtomicSize buffer_size>
 RingBuffer<buffer_size>::RingBuffer() = default;
@@ -87,5 +88,4 @@ BufferStatus RingBuffer<buffer_size>::write(uint8_t write_byte) volatile {
   return BufferStatus::ok;
 }
 
-}  // namespace Util
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Util
