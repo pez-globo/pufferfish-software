@@ -47,8 +47,7 @@ SCENARIO("FrameReceiver Input for 20 bytes of data.", "[NoninOEM3]") {
     uint8_t input_data[20] = {0x01, 0x81, 0x01, 0x00, 0x83,
         0x01, 0x80, 0x01, 0x48, 0xCA,
         0x01, 0x80, 0x01, 0x61, 0xE3,
-        0x01, 0x80, 0x01, 0x30, 0xB2,
-        0x01, 0x80, 0x01, 0x00, 0x82};
+        0x01, 0x80, 0x01, 0x30, 0xB2};
 
     WHEN("On input of 4 bytes of INPUT_DATA to FrameReceiver ") {
       THEN("frame_receiver::input should return waiting") {
@@ -260,7 +259,7 @@ SCENARIO("Validate function 'validate_start_of_frame' ", "[NoninOEM3]") {
       THEN("validate_frame() shall return available") {
         REQUIRE(((frameBuffer[0] == 0x01) && ((frameBuffer[1] & 0x81) == 0x81)));
         checksum = (frameBuffer[0] + frameBuffer[1] + frameBuffer[2] + frameBuffer[3]) % 256;
-        REQUIRE(frameBuffer[4] != checksum);
+        REQUIRE(frameBuffer[4] == checksum);
         REQUIRE(PF::Driver::Serial::Nonin::validate_start_of_frame(frameBuffer) == true);
       }
     }
@@ -309,7 +308,7 @@ SCENARIO("Validate function 'validate_frame' ", "[NoninOEM3]") {
       THEN("validate_frame()' shall return available") {
         REQUIRE(((frameBuffer[0] == 0x01) && ((frameBuffer[1] & 0x80) == 0x80)));
         checksum = (frameBuffer[0] + frameBuffer[1] + frameBuffer[2] + frameBuffer[3]) % 256;
-        REQUIRE(frameBuffer[4] != checksum);
+        REQUIRE(frameBuffer[4] == checksum);
         frame_input_status = PF::Driver::Serial::Nonin::validate_frame(frameBuffer);
         REQUIRE(frame_input_status == input_available);
       }
@@ -322,7 +321,7 @@ SCENARIO("Validate function 'validate_frame' ", "[NoninOEM3]") {
       THEN("validate_frame() shall return available") {
         REQUIRE(((frameBuffer[0] == 0x01) && ((frameBuffer[1] & 0x80) == 0x80)));
         checksum = (frameBuffer[0] + frameBuffer[1] + frameBuffer[2] + frameBuffer[3]) % 256;
-        REQUIRE(frameBuffer[4] != checksum);
+        REQUIRE(frameBuffer[4] == checksum);
         frame_input_status = PF::Driver::Serial::Nonin::validate_frame(frameBuffer);
         REQUIRE(frame_input_status == input_available);
       }
