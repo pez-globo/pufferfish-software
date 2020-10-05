@@ -323,7 +323,7 @@ async def initialize_states(
         protocol: server.Protocol,
         filehandler: fileio.Handler,
         all_states: Dict[
-           Type[betterproto.Message], Optional[betterproto.Message]
+            Type[betterproto.Message], Optional[betterproto.Message]
         ]
 ) -> None:
     """Initialize state values from state store or default values."""
@@ -353,8 +353,8 @@ async def initialize_states(
 
     for state in states:
         if not all_states[state]:
-            default_init.append(state)  
-    
+            default_init.append(state)
+
     for state in default_init:
         if state is mcu_pb.ParametersRequest:
             all_states[mcu_pb.ParametersRequest] = mcu_pb.ParametersRequest(

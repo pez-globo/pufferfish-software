@@ -1,7 +1,7 @@
 """Sans-I/O protobuf file handling protocol."""
 
 import logging
-from typing import Optional, Type
+from typing import Optional
 
 import attr
 import betterproto
@@ -16,7 +16,7 @@ from ventserver.sansio import channels
 
 # Classes
 
-@attr.s(auto_attribs=True)  
+@attr.s(auto_attribs=True)
 class StateData:
     """Data info payload details"""
     state_type: Optional[str] = None
@@ -67,7 +67,7 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
             return None
 
         # Add data integrity to the state
-        crc_message = None 
+        crc_message = None
         self._crc_receiver.input(event.data)
         try:
             crc_message = self._crc_receiver.output()

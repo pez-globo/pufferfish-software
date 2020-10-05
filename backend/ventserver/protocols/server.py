@@ -217,7 +217,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     def file(self) -> file.ReceiveFilter:
         """Return the file receiver"""
         return self._file
-    
+
 
 
 @attr.s
@@ -255,7 +255,7 @@ class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
         any_updated = (frontend_output is not None) or any_updated
 
         self._file.input(backend.get_file_send(backend_output))
-        
+
         if not any_updated:
             return None
 

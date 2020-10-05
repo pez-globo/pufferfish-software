@@ -2,7 +2,7 @@
 TODO: Change name of the module"""
 
 import os
-from typing import Optional, Text
+from typing import Text
 
 import attr
 

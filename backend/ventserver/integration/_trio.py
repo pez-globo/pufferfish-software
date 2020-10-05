@@ -3,20 +3,17 @@
 import functools
 import logging
 import time
-from typing import Callable, Optional, TypeVar, Tuple, Type
+from typing import Callable, Optional, TypeVar, Tuple
 
 import trio
 
 from ventserver.io.trio import channels as triochannels
 from ventserver.io.trio import endpoints
 from ventserver.io.trio import fileio
-from ventserver.protocols import file
 from ventserver.protocols import server
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
 from ventserver.sansio import streams
-
-from ventserver.protocols import backend
 
 
 logger = logging.getLogger(__name__)
