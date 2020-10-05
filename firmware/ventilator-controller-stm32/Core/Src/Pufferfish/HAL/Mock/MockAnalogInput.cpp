@@ -24,7 +24,7 @@
 namespace Pufferfish::HAL {
 
 ADCStatus MockAnalogInput::start() {
-  if(set_return_status_ == ADCStatus::error) {
+  if (set_return_status_ == ADCStatus::error) {
     /* return ADCStatus as error */
     return ADCStatus::error;
   }
@@ -35,7 +35,7 @@ ADCStatus MockAnalogInput::start() {
 }
 
 ADCStatus MockAnalogInput::read(uint32_t &analog_data_read) {
-  if(set_return_status_ == ADCStatus::error) {
+  if (set_return_status_ == ADCStatus::error) {
     /* return ADCStatus as error */
     return ADCStatus::error;
   }
@@ -51,7 +51,7 @@ void MockAnalogInput::set_read(uint32_t set_analog_data_read) {
 }
 
 ADCStatus MockAnalogInput::stop() {
-  if(set_return_status_ == ADCStatus::error) {
+  if (set_return_status_ == ADCStatus::error) {
     /* return ADCStatus as error */
     return ADCStatus::error;
   }

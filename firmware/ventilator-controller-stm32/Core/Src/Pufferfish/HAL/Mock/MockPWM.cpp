@@ -31,7 +31,7 @@ float MockPWM::get_duty_cycle_raw() const {
 }
 
 PWMStatus MockPWM::start() {
-  if(return_status_ != PWMStatus::ok) {
+  if (return_status_ != PWMStatus::ok) {
     return PWMStatus::hal_error;
   }
   state_ = true;
@@ -42,7 +42,7 @@ bool MockPWM::get_pwm_state() const {
   return state_;
 }
 PWMStatus MockPWM::stop() {
-  if(return_status_ != PWMStatus::ok) {
+  if (return_status_ != PWMStatus::ok) {
     return PWMStatus::hal_error;
   }
   state_ = false;

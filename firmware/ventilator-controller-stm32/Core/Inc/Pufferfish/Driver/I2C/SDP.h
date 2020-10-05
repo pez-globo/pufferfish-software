@@ -73,8 +73,8 @@ class SDPSensor : public Testable {
   /**
    * wait for sensor to start continuously making measurements
    */
-  ///FIXME : Removed to update the time functions to time class methods
-  ///static void start_continuous_wait(bool stabilize = true);
+  /// FIXME : Removed to update the time functions to time class methods
+  /// static void start_continuous_wait(bool stabilize = true);
 
   /**
    * read continuously-measured data from sensor

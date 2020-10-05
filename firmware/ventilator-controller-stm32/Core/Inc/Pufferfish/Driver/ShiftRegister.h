@@ -32,7 +32,7 @@ class ShiftRegister {
         serial_clock_(serial_clock),
         r_clock_(r_clock),
         serial_clear_(serial_clear),
-        time_(time){}
+        time_(time) {}
 
   void set_channel(uint8_t chan, bool out);
   [[nodiscard]] bool get_channel(uint8_t chan) const;

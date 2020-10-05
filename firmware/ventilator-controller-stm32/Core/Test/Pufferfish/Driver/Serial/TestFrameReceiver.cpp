@@ -35,11 +35,9 @@ SCENARIO("Validate FrameReceiver::Input for 20 bytes of valid data.", "[NoninOEM
     PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus frame_input_status;
     PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus frame_output_status;
     Frame frameOutput;
-    const uint8_t input_data[20] = {
-        0x01, 0x81, 0x01, 0x00, 0x83,
-        0x01, 0x80, 0x01, 0x48, 0xCA,
-        0x01, 0x81, 0x01, 0x00, 0x83,
-        0x01, 0x80, 0x01, 0x50, 0xD2 };
+    const uint8_t input_data[20] = {0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x80, 0x01,
+        0x48, 0xCA, 0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x80, 0x01, 0x50, 0xD2};
+
     WHEN("On input of 4 bytes of INPUT_DATA to FrameReceiver ") {
       THEN("frame_receiver::input should return waiting") {
         for (uint8_t index = 0; index < 4; index++) {

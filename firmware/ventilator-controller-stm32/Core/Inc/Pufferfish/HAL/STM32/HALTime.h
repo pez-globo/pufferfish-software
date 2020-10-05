@@ -20,8 +20,7 @@ class HALTime : public Time {
    * @brief Constructor for HALTime
    * @param None
    */
-  HALTime() {
-  }
+  HALTime() {}
 
   /**
   * @brief  Returns the millis value

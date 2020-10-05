@@ -34,8 +34,7 @@ class MockTime : public Time {
    * @brief Constructor for MockTime
    * @param None
    */
-  MockTime() {
-  }
+  MockTime() {}
 
   /**
    * @brief  Set the millis value into private variable

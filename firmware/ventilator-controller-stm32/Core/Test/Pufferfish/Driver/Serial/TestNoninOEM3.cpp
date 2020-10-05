@@ -48,7 +48,7 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
   PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus return_status;
 
   GIVEN("4 bytes of BufferredUART data") {
-    uint8_t uart_data[4] = { 0x01, 0x81, 0x00, 0x00 };
+    uint8_t uart_data[4] = {0x01, 0x81, 0x00, 0x00};
     uint8_t index;
     for (index = 0; index < 4; index++) {
       mock_uart.set_read(uart_data[index]);
@@ -64,8 +64,7 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
   }
 
   GIVEN("2 valid frames of data from BufferredUART data") {
-    uint8_t uart_data[10] = { 0x01, 0x81, 0x01, 0x00, 0x83,
-                              0x01, 0x80, 0x01, 0x48, 0xCA };
+    uint8_t uart_data[10] = {0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x80, 0x01, 0x48, 0xCA };
     uint8_t index;
     for (index = 0; index < 10; index++) {
       mock_uart.set_read(uart_data[index]);
@@ -101,8 +100,7 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
   }
 
   GIVEN("2 frames of data from BufferredUART data with checksum error in 2nd frame") {
-    uint8_t uart_data[10] = { 0x01, 0x81, 0x01, 0x00, 0x83,
-                              0x01, 0x80, 0x01, 0x48, 0xCB };
+    uint8_t uart_data[10] = {0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x80, 0x01, 0x48, 0xCB};
     uint8_t index;
     for (index = 0; index < 10; index++) {
       mock_uart.set_read(uart_data[index]);
@@ -148,8 +146,7 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
   }
 
   GIVEN("2 frames of data from BufferredUART data with status byte error (Bit-7 is low) in 2nd frame") {
-    uint8_t uart_data[10] = { 0x01, 0x81, 0x01, 0x00, 0x83,
-                              0x01, 0x7F, 0x01, 0x48, 0xCA };
+    uint8_t uart_data[10] = {0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x7F, 0x01, 0x48, 0xCA};
     uint8_t index;
     for (index = 0; index < 10; index++) {
       mock_uart.set_read(uart_data[index]);
