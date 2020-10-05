@@ -68,7 +68,9 @@ class HALBufferedUART : public BufferedUART {
    * @return ok if all provided bytes were added to the queue, partial otherwise
    */
   virtual BufferStatus write(
-      const uint8_t *write_bytes, AtomicSize write_size, HAL::AtomicSize &written_size) volatile override;
+      const uint8_t *write_bytes,
+      AtomicSize write_size,
+      HAL::AtomicSize &written_size) volatile override;
 
   /**
    * Persistently attempt to "push" the provided byte onto the TX queue
@@ -81,7 +83,7 @@ class HALBufferedUART : public BufferedUART {
    * if the TX queue is full
    * @return ok on success, full otherwise
    */
-  virtual BufferStatus write_block(uint8_t write_byte, uint32_t timeout) volatile override;
+  virtual BufferStatus write_block(uint8_t write_byte,uint32_t timeout) volatile override;
 
   /**
    * Persistently attempt to "push" bytes in the provided buffer onto the TX

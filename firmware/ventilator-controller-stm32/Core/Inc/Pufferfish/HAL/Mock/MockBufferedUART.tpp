@@ -66,26 +66,26 @@ BufferStatus MockBufferedUART<rx_buffer_size, tx_buffer_size>::write(
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 BufferStatus MockBufferedUART<rx_buffer_size, tx_buffer_size>::write_block(
     uint8_t write_byte, uint32_t timeout) volatile {
-	uint32_t index;
-	for(index = 0; index < timeout; index++) {
-		if (write(write_byte) != BufferStatus::ok) {
-		  break;
-		}
-	}
-	if(index == timeout) {
-	  return BufferStatus::ok;
-	}
-	return BufferStatus::partial;
+  uint32_t index;
+  for (index = 0; index < timeout; index++) {
+    if (write(write_byte) != BufferStatus::ok) {
+      break;
+    }
+  }
+  if (index == timeout) {
+    return BufferStatus::ok;
+  }
+  return BufferStatus::partial;
 }
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 void MockBufferedUART<rx_buffer_size, tx_buffer_size>::get_write_block(
     uint8_t *byte, const uint32_t timeout) volatile {
-	for(uint32_t index = 0; index < timeout; index++) {
-		if (read(byte[index]) != BufferStatus::ok) {
-		  break;
-		}
-	}
+  for (uint32_t index = 0; index < timeout; index++) {
+    if (read(byte[index]) != BufferStatus::ok) {
+      break;
+    }
+  }
 }
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
@@ -98,10 +98,10 @@ BufferStatus MockBufferedUART<rx_buffer_size, tx_buffer_size>::write_block(
   while (written_size < write_size) {
     AtomicSize just_written = 0;
     write(write_bytes + written_size, write_size - written_size, just_written);
-    written_size += just_written;
-	if(++index >= timeout) {
-		break;
-	}
+    written_size = written_size + just_written;
+    if (++index >= timeout) {
+      break;
+    }
   }
   if (write_size == written_size) {
     return BufferStatus::ok;

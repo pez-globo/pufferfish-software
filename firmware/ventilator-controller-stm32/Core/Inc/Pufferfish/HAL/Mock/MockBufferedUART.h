@@ -121,7 +121,8 @@ class MockBufferedUART : public BufferedUART {
 };
 
 static const size_t mock_large_uart_buffer_size = 4096;
-using MockLargeBufferedUART = MockBufferedUART<mock_large_uart_buffer_size, mock_large_uart_buffer_size>;
+using MockLargeBufferedUART =
+    MockBufferedUART<mock_large_uart_buffer_size, mock_large_uart_buffer_size>;
 
 static const size_t mock_read_only_uart_buffer_size = 512;
 using MockReadOnlyBufferredUART = MockBufferedUART<mock_read_only_uart_buffer_size, 1>;

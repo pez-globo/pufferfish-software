@@ -23,8 +23,20 @@
 #include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
 
 namespace PF = Pufferfish;
-SCENARIO("No input data received from BufferredUART", "[NoninOEM3]") {
 
+PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus waiting_status =
+    PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::waiting;
+
+PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus available_status =
+    PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::available;
+
+PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus missed_data_status =
+    PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::missed_data;
+
+PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus framing_error_status =
+    PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::framing_error;
+
+SCENARIO("No input data received from BufferredUART", "[NoninOEM3]") {
   PF::HAL::MockReadOnlyBufferredUART mock_uart;
   PF::Driver::Serial::Nonin::NoninOEM nonin_uart(mock_uart);
   PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements;
@@ -33,15 +45,14 @@ SCENARIO("No input data received from BufferredUART", "[NoninOEM3]") {
   GIVEN("Input data received from BufferedUART is empty") {
     WHEN("NoninOEM::output is invoked") {
       return_status = nonin_uart.output(sensor_measurements);
-      THEN("No Input data received from BufferedUART, NoninOEM::output shall return waiting status") {
-        REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::waiting);
+      THEN("NoninOEM output shall return waiting status") {
+        REQUIRE(return_status == waiting_status);
       }
     }
   }
 }
 
-SCENARIO("frame receiver and packet receiver data is not available for valid complete packet", "[NoninOEM3]") {
-
+SCENARIO("Complete packet is not available", "[NoninOEM3]") {
   PF::HAL::MockReadOnlyBufferredUART mock_uart;
   PF::Driver::Serial::Nonin::NoninOEM nonin_uart(mock_uart);
   PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements;
@@ -57,14 +68,14 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
       THEN("NoninOEM::output shall return waiting status") {
         for (index = 0; index < 4; index++) {
           return_status = nonin_uart.output(sensor_measurements);
-          REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::waiting);
+          REQUIRE(return_status == waiting_status);
         }
       }
     }
   }
 
   GIVEN("2 valid frames of data from BufferredUART data") {
-    uint8_t uart_data[10] = {0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x80, 0x01, 0x48, 0xCA };
+    uint8_t uart_data[10] = {0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x80, 0x01, 0x48, 0xCA};
     uint8_t index;
     for (index = 0; index < 10; index++) {
       mock_uart.set_read(uart_data[index]);
@@ -73,7 +84,7 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
       THEN("NoninOEM::output shall return waiting status") {
         for (index = 0; index < 4; index++) {
           return_status = nonin_uart.output(sensor_measurements);
-          REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::waiting);
+          REQUIRE(return_status == waiting_status);
         }
       }
     }
@@ -83,7 +94,7 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
       }
       THEN("return_status of NoninOEM::output shall be waiting") {
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::waiting);
+        REQUIRE(return_status == waiting_status);
       }
     }
     AND_WHEN("2nd frame data is received from BufferedUART") {
@@ -93,7 +104,7 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
       THEN("return_status of NoninOEM::output shall be waiting") {
         for (index = 5; index < 10; index++) {
           return_status = nonin_uart.output(sensor_measurements);
-          REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::waiting);
+          REQUIRE(return_status == waiting_status);
         }
       }
     }
@@ -110,7 +121,7 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
       THEN("NoninOEM::output shall return waiting status") {
         for (index = 0; index < 4; index++) {
           return_status = nonin_uart.output(sensor_measurements);
-          REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::waiting);
+          REQUIRE(return_status == waiting_status);
         }
       }
     }
@@ -120,7 +131,7 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
       }
       THEN("return_status of NoninOEM::output shall be waiting") {
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::waiting);
+        REQUIRE(return_status == waiting_status);
       }
     }
     AND_WHEN("2nd frame data is received from BufferedUART") {
@@ -130,7 +141,7 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
       THEN("return_status of NoninOEM::output shall be waiting") {
         for (index = 5; index < 9; index++) {
           return_status = nonin_uart.output(sensor_measurements);
-          REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::waiting);
+          REQUIRE(return_status == waiting_status);
         }
       }
     }
@@ -140,12 +151,12 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
       }
       THEN("return_status of NoninOEM::output shall be framing_error on checksum error") {
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::framing_error);
+        REQUIRE(return_status == framing_error_status);
       }
     }
   }
 
-  GIVEN("2 frames of data from BufferredUART data with status byte error (Bit-7 is low) in 2nd frame") {
+  GIVEN("BufferredUART data with status byte error (Bit-7 is low) in 2nd frame") {
     uint8_t uart_data[10] = {0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x7F, 0x01, 0x48, 0xCA};
     uint8_t index;
     for (index = 0; index < 10; index++) {
@@ -156,7 +167,7 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
       THEN("NoninOEM::output shall return waiting status") {
         for (index = 0; index < 4; index++) {
           return_status = nonin_uart.output(sensor_measurements);
-          REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::waiting);
+          REQUIRE(return_status == waiting_status);
         }
       }
     }
@@ -166,7 +177,7 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
       }
       THEN("return_status of NoninOEM::output shall be waiting") {
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::waiting);
+        REQUIRE(return_status == waiting_status);
       }
     }
     AND_WHEN("2nd frame data is received from BufferedUART") {
@@ -176,7 +187,7 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
       THEN("return_status of NoninOEM::output shall be waiting") {
         for (index = 5; index < 9; index++) {
           return_status = nonin_uart.output(sensor_measurements);
-          REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::waiting);
+          REQUIRE(return_status == waiting_status);
         }
       }
     }
@@ -186,7 +197,7 @@ SCENARIO("frame receiver and packet receiver data is not available for valid com
       }
       THEN("return_status of NoninOEM::output shall be framing_error on status byte error") {
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::framing_error);
+        REQUIRE(return_status == framing_error_status);
       }
     }
   }
@@ -233,7 +244,7 @@ SCENARIO("Validate the Nonin OEM III with invalid data received from BufferedUAR
       THEN("NoninOEM::output shall return waiting status for each frame received 0f 23 frames") {
         for (index = 0; index < 115; index++) {
           if ((index > 0) && (index % 5 == 0)) {
-            REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::waiting);
+            REQUIRE(return_status == waiting_status);
           }
           return_status = nonin_uart.output(sensor_measurements);
         }
@@ -247,7 +258,7 @@ SCENARIO("Validate the Nonin OEM III with invalid data received from BufferedUAR
         return_status = nonin_uart.output(sensor_measurements);
       }
       THEN("NoninOEM::output shall return missed_data due to loss of 2 frames from previous packet") {
-        REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::missed_data);
+        REQUIRE(return_status == missed_data_status);
       }
     }
   }
@@ -295,10 +306,10 @@ SCENARIO("Validate NoninOEM3 for valid packet data", "[NoninOEM3]") {
       THEN("NoninOEM::output shall return waiting status") {
         for (index = 0; index < 124; index++) {
           return_status = nonin_uart.output(sensor_measurements);
-          REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::waiting);
+          REQUIRE(return_status == waiting_status);
         }
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::available);
+        REQUIRE(return_status == available_status);
       }
     }
     AND_WHEN("return_status for valid 124 bytes data is waiting") {
@@ -307,7 +318,7 @@ SCENARIO("Validate NoninOEM3 for valid packet data", "[NoninOEM3]") {
       }
       THEN("invoke the nonin_uart to read 125th byte data") {
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::available);
+        REQUIRE(return_status == available_status);
         REQUIRE(sensor_measurements.heart_rate == 72);
         REQUIRE(sensor_measurements.heart_rate_d == 72);
         REQUIRE(sensor_measurements.e_heart_rate == 72);
