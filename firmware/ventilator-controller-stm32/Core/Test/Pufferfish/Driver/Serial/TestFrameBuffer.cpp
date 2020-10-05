@@ -35,14 +35,14 @@ SCENARIO("Validate FrameBuffer::Input and FrameBuffer::output for 5 bytes of dat
 
     WHEN("FrameBuffer::input of 4 bytes of data") {
       THEN("Frame buffer status shall be partial") {
-        for(index = 0; index < 4; index++) {
+        for (index = 0; index < 4; index++) {
           buffer_status = frame_buffer.input(input_data[index]);
           REQUIRE(buffer_status == PF::BufferStatus::partial);
         }
       }
     }
     AND_WHEN("FrameBuffer::input of 5th byte of data") {
-      for(index = 0; index < 4; index++) {
+      for (index = 0; index < 4; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
       THEN("Frame buffer input status shall be ok") {
@@ -51,14 +51,14 @@ SCENARIO("Validate FrameBuffer::Input and FrameBuffer::output for 5 bytes of dat
       }
     }
     AND_WHEN("FrameBuffer::input status is ok") {
-      for(index = 0; index < 5; index++) {
+      for (index = 0; index < 5; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
       REQUIRE(buffer_status == PF::BufferStatus::ok);
       THEN("Invoke FrameBuffer::Output shall return status ok") {
         buffer_status = frame_buffer.output(frame_data);
         REQUIRE(buffer_status == PF::BufferStatus::ok);
-        for(index = 0; index < 5; index++) {
+        for (index = 0; index < 5; index++) {
           REQUIRE(frame_data[index] == input_data[index]);
         }
       }
@@ -80,14 +80,14 @@ SCENARIO("Validate FrameBuffer::Input and FrameBuffer::output for 10 bytes of da
 
     WHEN("FrameBuffer::input of 4 bytes of data") {
       THEN("Frame buffer status shall be partial") {
-        for(index = 0; index < 4; index++) {
+        for (index = 0; index < 4; index++) {
           buffer_status = frame_buffer.input(input_data[index]);
           REQUIRE(buffer_status == PF::BufferStatus::partial);
         }
       }
     }
     AND_WHEN("FrameBuffer::output invoked on buffer input status is partial") {
-      for(index = 0; index < 4; index++) {
+      for (index = 0; index < 4; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
       THEN("FrameBuffer::output status shall be partial") {
@@ -96,7 +96,7 @@ SCENARIO("Validate FrameBuffer::Input and FrameBuffer::output for 10 bytes of da
       }
     }
     WHEN("FrameBuffer::input of 5th byte of data") {
-      for(index = 0; index < 4; index++) {
+      for (index = 0; index < 4; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
       THEN("Frame buffer input status shall be ok") {
@@ -105,20 +105,20 @@ SCENARIO("Validate FrameBuffer::Input and FrameBuffer::output for 10 bytes of da
       }
     }
     AND_WHEN("FrameBuffer::input status is ok") {
-      for(index = 0; index < 5; index++) {
+      for (index = 0; index < 5; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
       REQUIRE(buffer_status == PF::BufferStatus::ok);
       THEN("Invoke FrameBuffer::Output shall return status ok") {
         buffer_status = frame_buffer.output(frame_data);
         REQUIRE(buffer_status == PF::BufferStatus::ok);
-        for(index = 0; index < 5; index++) {
+        for (index = 0; index < 5; index++) {
           REQUIRE(frame_data[index] == input_data[index]);
         }
       }
     }
     AND_WHEN("FrameBuffer::output status is ok") {
-      for(index = 0; index < 5; index++) {
+      for (index = 0; index < 5; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
       buffer_status = frame_buffer.output(frame_data);
@@ -129,7 +129,7 @@ SCENARIO("Validate FrameBuffer::Input and FrameBuffer::output for 10 bytes of da
       }
     }
     AND_WHEN("FrameBuffer::output status is ok") {
-      for(index = 0; index < 5; index++) {
+      for (index = 0; index < 5; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
       buffer_status = frame_buffer.output(frame_data);
@@ -141,7 +141,7 @@ SCENARIO("Validate FrameBuffer::Input and FrameBuffer::output for 10 bytes of da
       }
     }
     AND_WHEN("FrameBuffer::input status is ok after FrameBuffer::left_shift") {
-      for(index = 0; index < 5; index++) {
+      for (index = 0; index < 5; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
       frame_buffer.shift_left();
@@ -150,52 +150,52 @@ SCENARIO("Validate FrameBuffer::Input and FrameBuffer::output for 10 bytes of da
       THEN("Invoke FrameBuffer::output shall return ok and data shall be shifted by 1 byte") {
         buffer_status = frame_buffer.output(frame_data);
         REQUIRE(buffer_status == PF::BufferStatus::ok);
-        for(index = 0; index < 5; index++) {
+        for (index = 0; index < 5; index++) {
           REQUIRE(frame_data[index] == input_data[index+1]);
         }
       }
     }
     WHEN("FrameBuffer::output status is ok") {
-      for(index = 0; index < 5; index++) {
+      for (index = 0; index < 5; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
       buffer_status = frame_buffer.output(frame_data);
       REQUIRE(buffer_status == PF::BufferStatus::ok);
       THEN("Invoke FrameBuffer::reset and on invocation of FrameBuffer::input for 4 bytes shall return partial") {
         frame_buffer.reset();
-        for(index = 5; index < 9; index++) {
+        for (index = 5; index < 9; index++) {
           buffer_status = frame_buffer.input(input_data[index]);
           REQUIRE(buffer_status == PF::BufferStatus::partial);
         }
       }
     }
     AND_WHEN("FrameBuffer::output status is ok") {
-      for(index = 0; index < 5; index++) {
+      for (index = 0; index < 5; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
       buffer_status = frame_buffer.output(frame_data);
       REQUIRE(buffer_status == PF::BufferStatus::ok);
       THEN("Invoke FrameBuffer::reset and on invocation of FrameBuffer::input for 5 bytes shall return ok") {
         frame_buffer.reset();
-        for(index = 5; index < 10; index++) {
+        for (index = 5; index < 10; index++) {
           buffer_status = frame_buffer.input(input_data[index]);
         }
         REQUIRE(buffer_status == PF::BufferStatus::ok);
       }
     }
     AND_WHEN("FrameBuffer::input status is ok") {
-      for(index = 0; index < 5; index++) {
+      for (index = 0; index < 5; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
       frame_buffer.reset();
-      for(index = 5; index < 10; index++) {
+      for (index = 5; index < 10; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
       REQUIRE(buffer_status == PF::BufferStatus::ok);
       THEN("Invoke FrameBuffer::output shall return ok") {
         buffer_status = frame_buffer.output(frame_data);
         REQUIRE(buffer_status == PF::BufferStatus::ok);
-        for(index = 0; index < 5; index++) {
+        for (index = 0; index < 5; index++) {
           REQUIRE(frame_data[index] == input_data[index+5]);
         }
       }

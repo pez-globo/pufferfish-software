@@ -26,7 +26,7 @@
 #include "Pufferfish/HAL/Types.h"
 #include "Pufferfish/Util/RingBuffer.h"
 
-namespace Pufferfish::HAL{
+namespace Pufferfish::HAL {
 
 /**
  * UART RX and TX with non-blocking queue interface.
@@ -81,7 +81,9 @@ class MockBufferedUART : public BufferedUART {
    * @return buffer status of ring buffer
    */
   virtual BufferStatus write(
-      const uint8_t *write_bytes, AtomicSize write_size, HAL::AtomicSize &written_size) volatile override;
+      const uint8_t *write_bytes,
+      AtomicSize write_size,
+      HAL::AtomicSize &written_size) volatile override;
 
   /**
    * write data block to ring buffer

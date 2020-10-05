@@ -87,7 +87,8 @@ class StateMachine {
  */
 class Sensor {
  public:
-  Sensor(Device &device, float &flow, HAL::Time &time) : device_(device), flow_(flow), time_(time) {}
+  Sensor(Device &device, float &flow, HAL::Time &time)
+      : device_(device), flow_(flow), time_(time) {}
 
   SensorState update();
 

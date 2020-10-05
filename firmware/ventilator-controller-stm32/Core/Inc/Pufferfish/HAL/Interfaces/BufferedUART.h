@@ -50,7 +50,9 @@ class BufferedUART {
    * @return buffer status of ring buffer
    */
   virtual BufferStatus write(
-      const uint8_t *write_bytes, AtomicSize write_size, HAL::AtomicSize &written_size) volatile = 0;
+      const uint8_t *write_bytes,
+      AtomicSize write_size,
+      HAL::AtomicSize &written_size) volatile = 0;
 
   /**
    * write data block to ring buffer
