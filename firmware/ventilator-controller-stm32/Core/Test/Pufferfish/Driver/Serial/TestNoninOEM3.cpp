@@ -289,7 +289,7 @@ SCENARIO("Validate NoninOEM3 for valid packet data", "[NoninOEM3]") {
     }
     PF::Driver::Serial::Nonin::NoninOEM nonin_uart(mock_uart);
     PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements;
-    PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus return_status
+    PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus return_status;
 
     WHEN("NoninOEM::output is invoked for 124 bytes valid bytes read") {
       THEN("NoninOEM::output shall return waiting status") {

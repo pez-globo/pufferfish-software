@@ -5,10 +5,8 @@
  */
 
 #include "HALBufferedUART.h"
-#include "HAlTime.h"
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 HALBufferedUART<rx_buffer_size, tx_buffer_size>::HALBufferedUART(UART_HandleTypeDef &huart, HAL::Time &time)
@@ -126,5 +124,4 @@ void HALBufferedUART<rx_buffer_size, tx_buffer_size>::handle_irq_tx() volatile {
   huart_.Instance->TDR = tx_byte;
 }
 
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL

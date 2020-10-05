@@ -9,15 +9,14 @@
 
 #pragma once
 
-#include <Pufferfish/HAL/Interfaces/BufferedUART.h>
+#include "Pufferfish/HAL/Interfaces/BufferedUART.h"
 #include "Pufferfish/Statuses.h"
 #include "Pufferfish/Types.h"
-#include "Pufferfish/HAL/Interfaces/Time.h"
+#include "Pufferfish/HAL/STM32/HALTime.h"
 #include "Pufferfish/Util/RingBuffer.h"
 #include "stm32h7xx_hal.h"
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
 /**
  * UART RX and TX with non-blocking queue interface.
@@ -152,7 +151,6 @@ using LargeBufferedUART = HALBufferedUART<large_uart_buffer_size, large_uart_buf
 static const size_t read_only_uart_buffer_size = 512;
 using ReadOnlyBufferredUART = HALBufferedUART<read_only_uart_buffer_size, 1>;
 
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL
 
-#include <Pufferfish/HAL/STM32/HALBufferedUART.tpp>
+#include "Pufferfish/HAL/STM32/HALBufferedUART.tpp"

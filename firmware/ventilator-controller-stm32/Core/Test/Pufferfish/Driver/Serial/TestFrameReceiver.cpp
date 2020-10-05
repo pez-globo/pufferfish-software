@@ -22,7 +22,7 @@
 #include "Pufferfish/Driver/Serial/Nonin/FrameReceiver.h"
 
 namespace PF = Pufferfish;
-//
+
 SCENARIO("Validate FrameReceiver::Input for 20 bytes of valid data.", "[NoninOEM3]") {
 
   GIVEN("A 20 bytes of valid data\n"

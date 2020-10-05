@@ -46,11 +46,7 @@
 #include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
 #include "Pufferfish/Driver/ShiftedOutput.h"
 #include "Pufferfish/HAL/HAL.h"
-// TODO(lietk12): everything should just be imported from STM32/HAL.h
-#include "Pufferfish/HAL/STM32/HALBufferedUART.h"
-#include "Pufferfish/HAL/STM32/CRC.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
-#include "Pufferfish/HAL/STM32/HALI2CDevice.h"
 #include "Pufferfish/Statuses.h"
 /* USER CODE END Includes */
 
@@ -388,12 +384,11 @@ int main(void)
    * uint32_t packet_count = 0;
    * // Nonin TODO
    * uint32_t current_time = 0;
+   * // Return Status
+   * PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus return_status
    * // Nonin TODO
    * std::array<uint32_t, 4> testcase_results = {0U};
    */
-
-  // TODO: Added for testing Nonin OEM III
-  PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus return_status;
 
   /*
   // FIXME: Added for testing
@@ -448,7 +443,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   time.micros_delay_init();
 
-  /* FIXME: ADDED for Nonin OEM III Testing
+  /* FIXME: ADDED for Nonin OEM III Testing to setup interrupts
    * // Nonin TODO: setupIRQ of BufferredUART for setting the UART reception
    * nonin_oem_uart.setup_irq();
    */
