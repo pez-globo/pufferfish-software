@@ -150,8 +150,6 @@ SCENARIO("Validate FrameReceiver::Input for 20 bytes of valid data.", "[NoninOEM
   }
 }
 
-
-//
 SCENARIO("Validate FrameReceiver::Input and FrameReceiver::Output for first frames of data received ", "[NoninOEM3]") {
 
   GIVEN("A 4 bytes of valid data\n"

@@ -24,9 +24,7 @@
 namespace PF = Pufferfish;
 
 SCENARIO("Validate FrameBuffer::Input and FrameBuffer::output for 5 bytes of data.", "[NoninOEM3]") {
-  GIVEN("A 5 bytes of data\n"
-        "INPUT_DATA : \n"
-        "0x01, 0x83, 0x01, 0x80, 0x00") {
+  GIVEN("5 bytes of data : 0x01, 0x83, 0x01, 0x80, 0x00") {
     uint8_t index = 0;
     uint8_t input_data[5] = {0x01, 0x83, 0x01, 0x80, 0x00};
     PF::Driver::Serial::Nonin::FrameBuffer frame_buffer;
@@ -66,14 +64,10 @@ SCENARIO("Validate FrameBuffer::Input and FrameBuffer::output for 5 bytes of dat
   }
 }
 
-SCENARIO("Validate FrameBuffer::Input and FrameBuffer::output for 10 bytes of data for shift_left and reset.", "[NoninOEM3]") {
-  GIVEN("A 10 bytes of data\n"
-        "INPUT_DATA : \n"
-        "0x01, 0x81, 0x01, 0x00, 0x83\n"
-        "0x01, 0x80, 0x01, 0x00, 0x82") {
+SCENARIO("Validate FrameBuffer::Input and FrameBuffer output for 10 bytes of data for shift_left and reset.", "[NoninOEM3]") {
+  GIVEN("A 10 bytes of data : 0x01 0x81 0x01 0x00 0x83 0x01 0x80 0x01 0x00 0x82") {
     uint8_t index = 0;
-    uint8_t input_data[15] = {0x01, 0x81, 0x01, 0x00, 0x83,
-                              0x01, 0x80, 0x01, 0x00, 0x82};
+    uint8_t input_data[15] = {0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x80, 0x01, 0x00, 0x82};
     PF::Driver::Serial::Nonin::FrameBuffer frame_buffer;
     PF::BufferStatus buffer_status;
     Frame frame_data;

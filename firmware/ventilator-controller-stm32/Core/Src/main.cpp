@@ -498,7 +498,8 @@ int main(void)
      *   /// Nonin TODO: Test Scenario 1 On sensor disconnected from Nonin OEM III
      *   /// module
      *   if (packet_count == 1) {
-     *     testcase_results[0] = static_cast<uint32_t>(test_sensor_measurements.sensor_disconnect[0]);
+     *     testcase_results[0] =
+     *         static_cast<uint32_t>(test_sensor_measurements.sensor_disconnect[0]);
      *   }
      *
      *   /// Nonin TODO: Test Scenario 2 On sensor connected to Nonin OEM III
