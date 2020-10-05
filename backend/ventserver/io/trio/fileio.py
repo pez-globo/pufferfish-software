@@ -20,7 +20,7 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
     props: fileobject.FileProps = attr.ib(
         factory=fileobject.FileProps, repr=False
     )
-    _fileobject: Optional[trio._AsyncBufferedIOBase] = attr.ib(default=None)
+    _fileobject: Optional['trio._AsyncBufferedIOBase'] = attr.ib(default=None)
     _connected: trio.Event = attr.ib(factory=trio.Event, repr=False)
 
 

@@ -64,7 +64,7 @@ async def main() -> None:
                         last_report_time = time.time()
                     await _trio.process_protocol_send(
                         receive_output.server_send, protocol,
-                        serial_endpoint, websocket_endpoint
+                        serial_endpoint, websocket_endpoint, None
                     )
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:

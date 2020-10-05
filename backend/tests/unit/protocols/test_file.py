@@ -20,8 +20,7 @@ examples_good = [
         ),
         b'U\xa3\x13\xae\x04\x08\xdd\xe1\xce\xce\xcd.\x10\x06\x1d\x00\x00' +
         b'\xc0@%\x00\x00\xf0A-\x00\x00HC5\x00\x00\xf0A=\x00\x00\x00@E\x00' +
-        b'\x00pBM\x00\x00\x08B',
-        'Parameters'
+        b'\x00pBM\x00\x00\x08B', 'Parameters'
     ),
     (
         mcu_pb.ParametersRequest(
@@ -30,8 +29,7 @@ examples_good = [
         ),
         b'\xff\r\xca<\x05\x08\x90\xf5\xce\xce\xcd.\x10\x06\x1d\x00\x00' +
         b'\xe0@%\x00\x00\xa0A-\x00\x00\x96C5\x00\x00\xa0B=\x00\x00@@E' +
-        b'\x00\x00HBM\x00\x00\xa0A',
-        'ParametersRequest'
+        b'\x00\x00HBM\x00\x00\xa0A', 'ParametersRequest'
     ),
     (
         mcu_pb.CycleMeasurements(
@@ -57,8 +55,7 @@ examples_good = [
             alarm_one=True,
             alarm_two=False
         ),
-        b'/3Z\xf6\x01\x08\xe9\xc0\xe1\xce\xcd.\x10\x01',
-        'Alarms'
+        b'/3Z\xf6\x01\x08\xe9\xc0\xe1\xce\xcd.\x10\x01', 'Alarms'
     )
 ]
 
@@ -70,8 +67,7 @@ examples_bad_crc = [
         ),
         b'*Z\x1e|\x05\x08\x90\xf5\xce\xce\xcd.\x10\x06\x14\x00\x00\xe0@%' +
         b'\x00\x00\xa0A-\x00\x00\x96C5\x00\x00\xa0B=\xcd\xcc\x0c?E\x00' +
-        b'\x00HBM\x00\x00\xa0A',
-        'ParametersRequest'
+        b'\x00HBM\x00\x00\xa0A', 'ParametersRequest'
     ),
     (
         mcu_pb.Parameters(
@@ -80,8 +76,7 @@ examples_bad_crc = [
         ),
         b'C\x82\xfc,\x04\x08\xdd\xe1\xce\xce\xcd.\x10\x06\x1d\x00\x00' +
         b'\xc0@%\xf0A-\x00\x00HC5\x00\x00\xf0A=\x9a\x99\x19?E\x00' +
-        b'\x00pBM\x00\x00\x08B',
-        'Parameters'
+        b'\x00pBM\x00\x00\x08B', 'Parameters'
     ),
     (
         mcu_pb.CycleMeasurements(
@@ -98,8 +93,7 @@ examples_bad_crc = [
             alarm_one=True,
             alarm_two=False
         ),
-        b'/3Z\xf6\x01\x08\xe9\xc0\xe1\xce\xcd.\x10\x02',
-        'Alarms'
+        b'/3Z\xf6\x01\x08\xe9\xc0\xe1\xce\xcd.\x10\x02', 'Alarms'
     )
 ]
 
@@ -119,8 +113,7 @@ examples_bad_data = [
             peep=15, pip=10, ip=6, ve=15
         ),
         b'%W\xb29\x02\x08\xe9\xc0\xe1\xce\xcd.\x10\n\x1d\x00\x00\xa0A%\x00' +
-        b'\x00\xc8A-\x00\x00HB5\x00\x00HB=\x00\x00\xc2B',
-        'CycleMeasurements'
+        b'\x00\xc8A-\x00\x00HB5\x00\x00HB=\x00\x00\xc2B', 'CycleMeasurements'
     ),
     (
         mcu_pb.SensorMeasurements(
@@ -129,8 +122,7 @@ examples_bad_data = [
         ),
         b'C\x82\xfc,\x04\x08\xdd\xe1\xce\xce\xcd.\x10\x06\x1d\x00\x00\xc0@%' +
         b'\x00\x00\xf0A-\x00\x00HC5\x00\x00\xf0A=\x9a\x99\x19?E\x00\x00pBM' +
-        b'\x00\x00\x08B',
-        'SensorMeasurements'
+        b'\x00\x00\x08B', 'SensorMeasurements'
     )
 ]
 

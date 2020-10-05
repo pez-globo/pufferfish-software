@@ -4,7 +4,7 @@ import random
 import time
 import functools
 import typing
-from typing import Mapping, Optional, Type, List
+from typing import Mapping, Optional, Type, List, Dict
 
 import attr
 
@@ -321,10 +321,11 @@ async def simulate_states(
 async def initialize_states(
         states: List[Type[betterproto.Message]],
         protocol: server.Protocol,
-        filehandler: fileio.Handler
-) -> Mapping[
-    Type[betterproto.Message], Optional[betterproto.Message]
-]:
+        filehandler: fileio.Handler,
+        all_states: Dict[
+           Type[betterproto.Message], Optional[betterproto.Message]
+        ]
+) -> None:
     """Initialize state values from state store or default values."""
     default_init = list()
     for state in states:
@@ -339,8 +340,7 @@ async def initialize_states(
             print(err)
         finally:
             await filehandler.close()
-    
-    all_states = protocol.receive.backend.all_states
+
     while True:
         try: # Handles data integrity and protocol error
             event = protocol.receive.file.output()
@@ -362,8 +362,7 @@ async def initialize_states(
             )
         else:
             all_states[state] = state()
-    
-    return all_states
+
 
 async def main() -> None:
     """Set up wiring between subsystems and process until completion."""
@@ -393,8 +392,9 @@ async def main() -> None:
         mcu_pb.Parameters, mcu_pb.CycleMeasurements,
         mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
     ]
-    all_states = await initialize_states(
-        states, protocol, filehandler
+    all_states = protocol.receive.backend.all_states
+    await initialize_states(
+        states, protocol, filehandler, all_states
     )
 
     try:
