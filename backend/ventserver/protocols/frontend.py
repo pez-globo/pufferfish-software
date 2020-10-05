@@ -89,6 +89,7 @@ class SendFilter(protocols.Filter[UpperEvent, bytes]):
 
     def input(self, event: Optional[UpperEvent]) -> None:
         """Handle input events."""
+
         self._message_sender.input(event)
 
     def output(self) -> Optional[bytes]:

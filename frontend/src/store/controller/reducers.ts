@@ -38,6 +38,7 @@ import {
   SYSTEM_SETTINGS,
   commitAction,
   EXPECTED_LOG_EVENT_ID,
+  RotaryEncoderParameter,
   ALARM_LIMITS_STANDBY,
   PARAMETER_STANDBY,
 } from './types';
@@ -52,6 +53,9 @@ const messageReducer = <T extends PBMessage>(
       if (action.messageType === messageType) {
         if (messageType === MessageType.NextLogEvents) {
           return mergeEventList(action.state as NextLogEvents, state as NextLogEvents) as T;
+        }
+        if (action.messageType === MessageType.RotaryEncoder) {
+          return calculateStepDiff(action.state as RotaryEncoder, state as RotaryEncoder) as T;
         }
         return action.state as T;
       }
@@ -76,6 +80,16 @@ const mergeEventList = (newEvents: NextLogEvents, oldEvents: NextLogEvents): Nex
     ...newEvents,
     logEvents: events,
   };
+};
+
+const calculateStepDiff = (
+  newState: RotaryEncoder,
+  oldState: RotaryEncoder,
+): RotaryEncoderParameter => {
+  const stepDiff = newState.step - oldState.step;
+  const stateCopy = { ...newState } as RotaryEncoderParameter;
+  stateCopy.stepDiff = stepDiff;
+  return stateCopy;
 };
 
 const alarmLimitsReducer = (
@@ -402,7 +416,7 @@ export const controllerReducer = combineReducers({
   announcement: messageReducer<Announcement>(MessageType.Announcement, Announcement),
 
   // Message states from frontend_pb
-  rotaryEncoder: messageReducer<RotaryEncoder>(MessageType.RotaryEncoder, RotaryEncoder),
+  rotaryEncoder: messageReducer<RotaryEncoderParameter>(MessageType.RotaryEncoder, RotaryEncoder),
 
   // Derived states
   waveformHistoryPaw: waveformHistoryReducer<SensorMeasurements>(

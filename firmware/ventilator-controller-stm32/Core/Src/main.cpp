@@ -31,6 +31,8 @@
 
 #include "Pufferfish/AlarmsManager.h"
 #include "Pufferfish/Application/States.h"
+#include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
+#include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 #include "Pufferfish/Driver/Button/Button.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
@@ -99,12 +101,13 @@ namespace PF = Pufferfish;
 // Application State
 PF::Application::States all_states;
 
-// Breathing Circuit Control
-PF::BreathingCircuit::Simulators breathing_circuit(
-    all_states.parameters_request(),
-    all_states.parameters(),
-    all_states.sensor_measurements(),
-    all_states.cycle_measurements());
+// Parameters
+PF::Driver::BreathingCircuit::ParametersServices parameters_service(
+    all_states.parameters_request(), all_states.parameters());
+
+// Breathing Circuit Simulation
+PF::Driver::BreathingCircuit::Simulators simulator(
+    all_states.parameters(), all_states.sensor_measurements(), all_states.cycle_measurements());
 
 // HAL Utilities
 PF::HAL::CRC32C crc32c(hcrc);
@@ -155,8 +158,10 @@ PF::HAL::HALDigitalOutput board_led1(
     LD1_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 static const uint32_t flash_period = 50;
 static const uint32_t blink_period = 500;
+static const uint32_t dim_period = 8;
 PF::Driver::Indicators::PWMGenerator flasher(flash_period, 1);
 PF::Driver::Indicators::PWMGenerator blinker(blink_period, 1);
+PF::Driver::Indicators::PWMGenerator dimmer(dim_period, 1);
 PF::Driver::ShiftRegister leds_reg(ser_input, ser_clock, ser_r_clock, ser_clear);
 
 PF::Driver::ShiftedOutput alarm_led_r(leds_reg, 0);
@@ -313,6 +318,11 @@ auto i2c_test_list = PF::Util::make_array<PF::Driver::Testable *>(
 int interface_test_state = 0;
 int interface_test_millis = 0;
 
+// Breathing Circuit Control
+PF::Driver::BreathingCircuit::Actuators actuators;
+PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
+    all_states.parameters(), all_states.sensor_measurements(), sfm3019, actuators, drive1_ch1);
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -449,35 +459,77 @@ int main(void)
   adc3_input.start();
   */
 
+  // Backend
   buffered_uart3.setup_irq();
+
+  // Board LED
   blinker.start(PF::HAL::millis());
   flasher.start(PF::HAL::millis());
+  dimmer.start(PF::HAL::millis());
+
+  // Solenoid valve
+  drive1_ch1.start();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  // Setup
+  static const uint32_t setup_indicator_duration = 1000;
+
+  board_led1.write(false);
   while (true) {
-    uint32_t current_time = HAL_GetTick();
-
-    // Breathing Circuit Controller
-    breathing_circuit.update_parameters();
-    breathing_circuit.update_clock(current_time);
-    breathing_circuit.update_sensors();
-    breathing_circuit.update_actuators();
-
-    // Sensor Measurement Overrides
-    switch (sfm3019.update()) {
-      case PF::SensorState::setup:
-        board_led1.write(true);
-        break;
-      case PF::SensorState::ok:
-        board_led1.write(false);
-        break;
-      case PF::SensorState::failed:
-        flasher.update(PF::HAL::millis());
-        board_led1.write(flasher.output());
-        break;
+    uint32_t current_time = PF::HAL::millis();
+    blinker.update(current_time);
+    flasher.update(current_time);
+    PF::SensorState sfm3019_state = sfm3019.update();
+    if (sfm3019_state == PF::SensorState::ok) {
+      break;
     }
+
+    if (sfm3019_state == PF::SensorState::setup) {
+      board_led1.write(blinker.output());
+    } else {
+      board_led1.write(flasher.output());
+    }
+  }
+
+  board_led1.write(true);
+  PF::HAL::delay(setup_indicator_duration);
+  board_led1.write(false);
+
+  // Normal loop
+  static constexpr float valve_opening_indicator_threshold = 0.5;
+
+  while (true) {
+    uint32_t current_time = PF::HAL::millis();
+
+    // Software PWM signals
+    flasher.update(PF::HAL::millis());
+    blinker.update(PF::HAL::millis());
+    dimmer.update(PF::HAL::millis());
+
+    // Parameters update
+    parameters_service.update();
+
+    // Breathing Circuit Sensor Simulator
+    simulator.update_clock(current_time);
+    simulator.update_sensors();
+
+    // Breathing Circuit Control Loop
+    hfnc.update(current_time);
+    // Indicators for debugging
+    if (actuators.valve_opening > valve_opening_indicator_threshold) {
+      board_led1.write(true);
+    } else {
+      board_led1.write(dimmer.output());
+    }
+    /*if (all_states.sensor_measurements().flow > 1) {
+      board_led1.write(true);
+    } else if (all_states.sensor_measurements().flow < -1) {
+      board_led1.write(dimmer.output());
+    } else {
+      board_led1.write(false);
+    }*/
 
     // Backend Communication Protocol
     backend.receive();
@@ -552,6 +604,7 @@ int main(void)
     */
 
     /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -611,14 +664,15 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV1;
   RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  {
     Error_Handler();
   }
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_UART4
-      | RCC_PERIPHCLK_UART7 | RCC_PERIPHCLK_USART1
-      | RCC_PERIPHCLK_UART8 | RCC_PERIPHCLK_SPI1
-      | RCC_PERIPHCLK_I2C2 | RCC_PERIPHCLK_ADC
-      | RCC_PERIPHCLK_I2C1 | RCC_PERIPHCLK_I2C4;
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_UART4
+                              |RCC_PERIPHCLK_UART7|RCC_PERIPHCLK_USART1
+                              |RCC_PERIPHCLK_UART8|RCC_PERIPHCLK_SPI1
+                              |RCC_PERIPHCLK_I2C2|RCC_PERIPHCLK_ADC
+                              |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_I2C4;
   PeriphClkInitStruct.PLL2.PLL2M = 1;
   PeriphClkInitStruct.PLL2.PLL2N = 19;
   PeriphClkInitStruct.PLL2.PLL2P = 3;
@@ -677,7 +731,7 @@ static void MX_ADC3_Init(void)
   {
     Error_Handler();
   }
-  /** Configure Regular Channel
+  /** Configure Regular Channel 
   */
   sConfig.Channel = ADC_CHANNEL_7;
   sConfig.Rank = ADC_REGULAR_RANK_1;
@@ -936,7 +990,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 0;
+  htim2.Init.Period = 6400;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -998,7 +1052,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 0;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 0;
+  htim3.Init.Period = 6400;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
@@ -1059,7 +1113,7 @@ static void MX_TIM4_Init(void)
   htim4.Instance = TIM4;
   htim4.Init.Prescaler = 0;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 0;
+  htim4.Init.Period = 6400;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
@@ -1116,7 +1170,7 @@ static void MX_TIM5_Init(void)
   htim5.Instance = TIM5;
   htim5.Init.Prescaler = 0;
   htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim5.Init.Period = 0;
+  htim5.Init.Period = 6400;
   htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim5.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim5) != HAL_OK)
@@ -1166,7 +1220,7 @@ static void MX_TIM8_Init(void)
   htim8.Instance = TIM8;
   htim8.Init.Prescaler = 0;
   htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim8.Init.Period = 0;
+  htim8.Init.Period = 6400;
   htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim8.Init.RepetitionCounter = 0;
   htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -1242,7 +1296,7 @@ static void MX_TIM12_Init(void)
   htim12.Instance = TIM12;
   htim12.Init.Prescaler = 0;
   htim12.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim12.Init.Period = 0;
+  htim12.Init.Period = 6400;
   htim12.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim12.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim12) != HAL_OK)
@@ -1524,35 +1578,35 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, BAT_MEAS_EN_Pin | LED1_EN_Pin | GPIO3_Pin | SENSE_O2_EN_Pin
-      | MOTOR2_EN_Pin | PRESS1_EN_Pin | MOTOR2_DIR_Pin | MOTOR3_DIR_Pin
-      | MOTOR2_STEP_Pin | MOTOR3_EN_Pin | PRESS5_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, BAT_MEAS_EN_Pin|LED1_EN_Pin|GPIO3_Pin|SENSE_O2_EN_Pin 
+                          |MOTOR2_EN_Pin|PRESS1_EN_Pin|MOTOR2_DIR_Pin|MOTOR3_DIR_Pin 
+                          |MOTOR2_STEP_Pin|MOTOR3_EN_Pin|PRESS5_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOF, BAT_CHARGE_EN_Pin | PRESS2_EN_Pin | PRESS4_EN_Pin | MOTOR4_EN_Pin
-      | MOTOR3_STEP_Pin | PRESS3_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOF, BAT_CHARGE_EN_Pin|PRESS2_EN_Pin|PRESS4_EN_Pin|MOTOR4_EN_Pin 
+                          |MOTOR3_STEP_Pin|PRESS3_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, ALARM1_MED_Pin | BUZZ1_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, ALARM1_MED_Pin|BUZZ1_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO2_Pin | GPIO1_Pin | SER_CLK_Pin | SER_CLR_N_Pin
-      | SER_RCLK_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GPIO2_Pin|GPIO1_Pin|SER_CLK_Pin|SER_CLR_N_Pin 
+                          |SER_RCLK_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LD1_Pin | ALARM1_LOW_Pin | SER_IN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LD1_Pin|ALARM1_LOW_Pin|SER_IN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, MOTOR4_STEP_Pin | MOTOR1_STEP_Pin | MOTOR1_DIR_Pin | LTC4421_PWR_nDISABLE1_Pin
-      | LTC4421_PWR_nDISABLE2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, MOTOR4_STEP_Pin|MOTOR1_STEP_Pin|MOTOR1_DIR_Pin|LTC4421_PWR_nDISABLE1_Pin 
+                          |LTC4421_PWR_nDISABLE2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, PRESS_VDD_EN_Pin | I2C1_RESET_Pin | I2C2_RESET_Pin | MOTOR1_EN_Pin
-      | PRESS6_EN_Pin | LED3_EN_Pin | ALARM1_HIGH_Pin | PRESSX_EN_Pin
-      | MOTOR4_DIR_Pin | LED2_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOG, PRESS_VDD_EN_Pin|I2C1_RESET_Pin|I2C2_RESET_Pin|MOTOR1_EN_Pin 
+                          |PRESS6_EN_Pin|LED3_EN_Pin|ALARM1_HIGH_Pin|PRESSX_EN_Pin 
+                          |MOTOR4_DIR_Pin|LED2_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : SET_MANUAL_BREATH_Pin VSYS_3V3_PGOOD_Pin VSYS_5V0_PGOOD_Pin SET_LOCK_Pin */
-  GPIO_InitStruct.Pin = SET_MANUAL_BREATH_Pin | VSYS_3V3_PGOOD_Pin | VSYS_5V0_PGOOD_Pin | SET_LOCK_Pin;
+  GPIO_InitStruct.Pin = SET_MANUAL_BREATH_Pin|VSYS_3V3_PGOOD_Pin|VSYS_5V0_PGOOD_Pin|SET_LOCK_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
@@ -1560,9 +1614,9 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pins : BAT_MEAS_EN_Pin LED1_EN_Pin GPIO3_Pin SENSE_O2_EN_Pin 
                            MOTOR2_EN_Pin PRESS1_EN_Pin MOTOR2_DIR_Pin MOTOR3_DIR_Pin 
                            MOTOR2_STEP_Pin MOTOR3_EN_Pin PRESS5_EN_Pin */
-  GPIO_InitStruct.Pin = BAT_MEAS_EN_Pin | LED1_EN_Pin | GPIO3_Pin | SENSE_O2_EN_Pin
-      | MOTOR2_EN_Pin | PRESS1_EN_Pin | MOTOR2_DIR_Pin | MOTOR3_DIR_Pin
-      | MOTOR2_STEP_Pin | MOTOR3_EN_Pin | PRESS5_EN_Pin;
+  GPIO_InitStruct.Pin = BAT_MEAS_EN_Pin|LED1_EN_Pin|GPIO3_Pin|SENSE_O2_EN_Pin 
+                          |MOTOR2_EN_Pin|PRESS1_EN_Pin|MOTOR2_DIR_Pin|MOTOR3_DIR_Pin 
+                          |MOTOR2_STEP_Pin|MOTOR3_EN_Pin|PRESS5_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1590,7 +1644,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ALARM1_MED_Pin BUZZ1_EN_Pin */
-  GPIO_InitStruct.Pin = ALARM1_MED_Pin | BUZZ1_EN_Pin;
+  GPIO_InitStruct.Pin = ALARM1_MED_Pin|BUZZ1_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1598,15 +1652,15 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : GPIO2_Pin GPIO1_Pin SER_CLK_Pin SER_CLR_N_Pin 
                            SER_RCLK_Pin */
-  GPIO_InitStruct.Pin = GPIO2_Pin | GPIO1_Pin | SER_CLK_Pin | SER_CLR_N_Pin
-      | SER_RCLK_Pin;
+  GPIO_InitStruct.Pin = GPIO2_Pin|GPIO1_Pin|SER_CLK_Pin|SER_CLR_N_Pin 
+                          |SER_RCLK_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LD1_Pin ALARM1_LOW_Pin SER_IN_Pin */
-  GPIO_InitStruct.Pin = LD1_Pin | ALARM1_LOW_Pin | SER_IN_Pin;
+  GPIO_InitStruct.Pin = LD1_Pin|ALARM1_LOW_Pin|SER_IN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1619,15 +1673,15 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(SET_PWR_ON_OFF_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LTC4421_PWR_nCH1_Pin LTC4421_PWR_nCH2_Pin SET_ALARM_EN_Pin SET_100_O2_Pin */
-  GPIO_InitStruct.Pin = LTC4421_PWR_nCH1_Pin | LTC4421_PWR_nCH2_Pin | SET_ALARM_EN_Pin | SET_100_O2_Pin;
+  GPIO_InitStruct.Pin = LTC4421_PWR_nCH1_Pin|LTC4421_PWR_nCH2_Pin|SET_ALARM_EN_Pin|SET_100_O2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
   /*Configure GPIO pins : MOTOR4_STEP_Pin MOTOR1_STEP_Pin MOTOR1_DIR_Pin LTC4421_PWR_nDISABLE1_Pin 
                            LTC4421_PWR_nDISABLE2_Pin */
-  GPIO_InitStruct.Pin = MOTOR4_STEP_Pin | MOTOR1_STEP_Pin | MOTOR1_DIR_Pin | LTC4421_PWR_nDISABLE1_Pin
-      | LTC4421_PWR_nDISABLE2_Pin;
+  GPIO_InitStruct.Pin = MOTOR4_STEP_Pin|MOTOR1_STEP_Pin|MOTOR1_DIR_Pin|LTC4421_PWR_nDISABLE1_Pin 
+                          |LTC4421_PWR_nDISABLE2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1636,16 +1690,16 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pins : PRESS_VDD_EN_Pin I2C1_RESET_Pin I2C2_RESET_Pin MOTOR1_EN_Pin 
                            PRESS6_EN_Pin LED3_EN_Pin ALARM1_HIGH_Pin PRESSX_EN_Pin 
                            MOTOR4_DIR_Pin LED2_EN_Pin */
-  GPIO_InitStruct.Pin = PRESS_VDD_EN_Pin | I2C1_RESET_Pin | I2C2_RESET_Pin | MOTOR1_EN_Pin
-      | PRESS6_EN_Pin | LED3_EN_Pin | ALARM1_HIGH_Pin | PRESSX_EN_Pin
-      | MOTOR4_DIR_Pin | LED2_EN_Pin;
+  GPIO_InitStruct.Pin = PRESS_VDD_EN_Pin|I2C1_RESET_Pin|I2C2_RESET_Pin|MOTOR1_EN_Pin 
+                          |PRESS6_EN_Pin|LED3_EN_Pin|ALARM1_HIGH_Pin|PRESSX_EN_Pin 
+                          |MOTOR4_DIR_Pin|LED2_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LTC4421_PWR_nVALID1_Pin LTC4421_PWR_nVALID2_Pin */
-  GPIO_InitStruct.Pin = LTC4421_PWR_nVALID1_Pin | LTC4421_PWR_nVALID2_Pin;
+  GPIO_InitStruct.Pin = LTC4421_PWR_nVALID1_Pin|LTC4421_PWR_nVALID2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);

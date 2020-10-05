@@ -22,11 +22,7 @@ I2CDeviceStatus Device::start_measure() {
   static const uint8_t start_low = 0x08;
   std::array<uint8_t, 2> cmd{{start_high, start_low}};
   I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
-  if (ret != I2CDeviceStatus::ok) {
-    return ret;
-  }
-
-  return I2CDeviceStatus::ok;
+  return ret;
 }
 
 I2CDeviceStatus Device::stop_measure() {
@@ -34,11 +30,7 @@ I2CDeviceStatus Device::stop_measure() {
   static const uint8_t stop_low = 0xf9;
   std::array<uint8_t, 2> cmd{{stop_high, stop_low}};
   I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
-  if (ret != I2CDeviceStatus::ok) {
-    return ret;
-  }
-
-  return I2CDeviceStatus::ok;
+  return ret;
 }
 
 I2CDeviceStatus Device::serial_number(uint32_t &sn) {
@@ -101,8 +93,7 @@ I2CDeviceStatus Device::read_sample(Sample &sample, int16_t scale_factor, int16_
   sample.raw_flow = HAL::ntoh(Util::parse_network_order<uint16_t>(buffer.data(), buffer.size()));
 
   // convert to actual flow rate
-  sample.flow = static_cast<float>(static_cast<int32_t>(sample.raw_flow) - offset) /
-                static_cast<float>(scale_factor);
+  sample.flow = static_cast<float>(sample.raw_flow - offset) / static_cast<float>(scale_factor);
 
   return I2CDeviceStatus::ok;
 }
@@ -112,11 +103,7 @@ I2CDeviceStatus Device::reset() {
   std::array<uint8_t, 1> cmd{{reset}};
 
   I2CDeviceStatus ret = global_.write(cmd.data(), cmd.size());
-  if (ret != I2CDeviceStatus::ok) {
-    return ret;
-  }
-
-  return I2CDeviceStatus::ok;
+  return ret;
 }
 
 }  // namespace Pufferfish::Driver::I2C::SFM3019

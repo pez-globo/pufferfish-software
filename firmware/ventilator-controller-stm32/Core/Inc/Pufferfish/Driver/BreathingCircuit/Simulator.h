@@ -13,24 +13,20 @@
 
 #include "Pufferfish/Application/States.h"
 
-namespace Pufferfish::BreathingCircuit {
+namespace Pufferfish::Driver::BreathingCircuit {
 
 class Simulator {
  public:
   Simulator(
-      const ParametersRequest &parameters_request,
-      Parameters &parameters,
+      const Parameters &parameters,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements)
-      : parameters_request_(parameters_request),
-        parameters_(parameters),
+      : parameters_(parameters),
         sensor_measurements_(sensor_measurements),
         cycle_measurements_(cycle_measurements) {}
 
-  virtual void update_parameters() = 0;
   void update_clock(uint32_t current_time);
   virtual void update_sensors() = 0;
-  virtual void update_actuators() = 0;
 
  protected:
   static const uint32_t sensor_update_interval = 2;  // ms
@@ -38,9 +34,7 @@ class Simulator {
   static constexpr float spo2_max = 100;             // % SpO2
 
   // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-  const ParametersRequest &parameters_request_;
-  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-  Parameters &parameters_;
+  const Parameters &parameters_;
   // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
   SensorMeasurements &sensor_measurements_;
   // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
@@ -64,15 +58,12 @@ class Simulator {
 class PCACSimulator : public Simulator {
  public:
   PCACSimulator(
-      const ParametersRequest &parameters_request,
-      Parameters &parameters,
+      const Parameters &parameters,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements)
-      : Simulator(parameters_request, parameters, sensor_measurements, cycle_measurements) {}
+      : Simulator(parameters, sensor_measurements, cycle_measurements) {}
 
-  void update_parameters() override;
   void update_sensors() override;
-  void update_actuators() override;
 
  private:
   static const uint32_t default_cycle_period = 2000;  // ms
@@ -98,15 +89,12 @@ class PCACSimulator : public Simulator {
 class HFNCSimulator : public Simulator {
  public:
   HFNCSimulator(
-      const ParametersRequest &parameters_request,
-      Parameters &parameters,
+      const Parameters &parameters,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements)
-      : Simulator(parameters_request, parameters, sensor_measurements, cycle_measurements) {}
+      : Simulator(parameters, sensor_measurements, cycle_measurements) {}
 
-  void update_parameters() override;
   void update_sensors() override;
-  void update_actuators() override;
 
  private:
   static const uint32_t default_cycle_period = 2000;  // ms
@@ -127,24 +115,21 @@ class HFNCSimulator : public Simulator {
 class Simulators {
  public:
   Simulators(
-      const ParametersRequest &parameters_request,
-      Parameters &parameters,
+      const Parameters &parameters,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements)
-      : parameters_request_(parameters_request),
-        pc_ac_(parameters_request, parameters, sensor_measurements, cycle_measurements),
-        hfnc_(parameters_request, parameters, sensor_measurements, cycle_measurements) {}
+      : parameters_(parameters),
+        pc_ac_(parameters, sensor_measurements, cycle_measurements),
+        hfnc_(parameters, sensor_measurements, cycle_measurements) {}
 
-  void update_parameters();
   void update_clock(uint32_t current_time);
   void update_sensors();
-  void update_actuators();
 
  private:
-  const ParametersRequest &parameters_request_;
+  const Parameters &parameters_;
   Simulator *active_simulator_ = nullptr;
   PCACSimulator pc_ac_;
   HFNCSimulator hfnc_;
 };
 
-}  // namespace Pufferfish::BreathingCircuit
+}  // namespace Pufferfish::Driver::BreathingCircuit
