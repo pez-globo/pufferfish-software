@@ -2,7 +2,7 @@
 TODO: Change name of the module"""
 
 import os
-from typing import Optional
+from typing import Optional, Text
 
 import attr
 
@@ -12,4 +12,4 @@ class FileProps:
 
     filename: str = "state.pb"
     filedir: str = os.path.join(os.getcwd(), "ventserver", "statestore")
-    mode: str = 'rb'
+    mode: Text = 'rb'

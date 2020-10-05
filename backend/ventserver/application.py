@@ -99,7 +99,7 @@ async def main() -> None:
 
     # Initialize State
     all_states = protocol.receive.backend.all_states
-    states = [
+    states: List[Type[betterproto.Message]] = [
         mcu_pb.Parameters, mcu_pb.CycleMeasurements,
         mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
     ]

@@ -71,8 +71,10 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
         self._crc_receiver.input(event.data)
         try:
             crc_message = self._crc_receiver.output()
-        except exceptions.ProtocolDataError:
-            self._logger.exception('CRCReceiver(%s):', event.state_type)
+        except exceptions.ProtocolDataError as err:
+            raise exceptions.ProtocolDataError(
+                'CRCSender({}):{}'.format(event.state_type, str(err))
+            )
 
         if not crc_message:
             return None

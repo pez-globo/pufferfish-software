@@ -4,7 +4,7 @@ import random
 import time
 import functools
 import typing
-from typing import Mapping, Optional, Type, Dict, List
+from typing import Mapping, Optional, Type, List
 
 import attr
 
@@ -322,7 +322,7 @@ async def initialize_states(
         states: List[Type[betterproto.Message]],
         protocol: server.Protocol,
         filehandler: fileio.Handler
-) -> Dict[
+) -> Mapping[
     Type[betterproto.Message], Optional[betterproto.Message]
 ]:
     """Initialize state values from state store or default values."""
@@ -389,7 +389,7 @@ async def main() -> None:
 
     # Initialize State
 
-    states = [
+    states: List[Type[betterproto.Message]] = [
         mcu_pb.Parameters, mcu_pb.CycleMeasurements,
         mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
     ]

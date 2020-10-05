@@ -1,7 +1,8 @@
-"""Trio I/O WebSocket driver."""
+"""Trio I/O WebSocket driver.
+'Optional[trio._AsycRawIOBase]'"""
 import os
 import logging
-from typing import Optional, TypeVar
+from typing import Optional, TypeVar, Union, Type
 
 import attr
 import trio
@@ -9,7 +10,7 @@ import trio
 from ventserver.io.trio import endpoints
 from ventserver.io import fileobject
 
-_FileObject = TypeVar('_FileObject')
+_FileObject = TypeVar('_FileObject', )
 
 @attr.s
 class Handler(endpoints.IOEndpoint[bytes, bytes]):
@@ -19,7 +20,7 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
     props: fileobject.FileProps = attr.ib(
         factory=fileobject.FileProps, repr=False
     )
-    _fileobject: 'Optional[trio._AsycRawIOBase]' = attr.ib(default=None)
+    _fileobject: Optional[trio._AsyncBufferedIOBase] = attr.ib(default=None)
     _connected: trio.Event = attr.ib(factory=trio.Event, repr=False)
 
 
@@ -31,17 +32,26 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
         if mode:
             self.props.mode = mode
         
-
     async def open(self, nursery: Optional[trio.Nursery] = None) -> None:
-        """Open File I/O connection."""
+        """Open File I/O connection.
+
+        The mypy 'type: ignore' is added to trio.open_file() because the second
+        argument, mode, needs to be a literal to return trio.AsyncBufferedIOBase.
+        If not it returns trio._AsyncIOBase, which doesn't have read() and write()
+        method in it's class signature."""
         if self._fileobject is not None:
             raise RuntimeError("Cannot open new file instance" +
                                "if one is already open." +
                                "Please close the old file instance."
                               )
+        
         _filepath = os.path.join(self.props.filedir, self.props.filename)
-        # raises OSError
-        self._fileobject = await trio.open_file(_filepath, self.props.mode)
+        try:
+            # raises OSError 
+            self._fileobject = await trio.open_file(_filepath, str(self.props.mode))    # type: ignore
+        except OSError:
+            raise OSError("Handler:")
+
         self._connected.set()
 
     @property
@@ -53,6 +63,8 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
         """Close File I/O connection."""
         if (self._fileobject is None) and (not self.is_open):
             return
+
+        assert self._fileobject is not None
         await self._fileobject.aclose()
         self._fileobject = None
         self._logger.info('File connection closed.')
