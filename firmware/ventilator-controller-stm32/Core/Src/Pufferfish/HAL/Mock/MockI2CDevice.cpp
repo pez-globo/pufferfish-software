@@ -68,7 +68,7 @@ void MockI2CDevice::get_write(uint8_t *buf, size_t &count) {
   }
 }
 
-void MockI2CDevice::set_return_status(I2CDeviceStatus input){
+void MockI2CDevice::set_return_status(I2CDeviceStatus input) {
   return_status_ = input;
 }
 

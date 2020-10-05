@@ -23,7 +23,6 @@
 
 namespace Pufferfish::HAL {
 
-
 void MockTime::set_millis(uint32_t input) {
   millis_value_ = input;
 }
@@ -33,7 +32,7 @@ uint32_t MockTime::millis() {
 }
 
 void MockTime::delay(uint32_t ms) {
-  for (volatile uint32_t value = 0; value < ms; value++ ) {
+  for (volatile uint32_t value = 0; value < ms; value++) {
     /* do nothing */
   }
 }
@@ -47,7 +46,7 @@ uint32_t MockTime::micros() {
 }
 
 void MockTime::delay_micros(uint32_t microseconds) {
-  for (volatile uint32_t value = 0; value < microseconds; value++ ) {
+  for (volatile uint32_t value = 0; value < microseconds; value++) {
     /* do nothing */
   }
 }

@@ -257,7 +257,7 @@ SCENARIO("Validate the Nonin OEM III with invalid data received from BufferedUAR
       for (index = 115; index < 120; index++) {
         return_status = nonin_uart.output(sensor_measurements);
       }
-      THEN("NoninOEM::output shall return missed_data due to loss of 2 frames from previous packet") {
+      THEN("shall return missed_data due to loss of 2 frames") {
         REQUIRE(return_status == missed_data_status);
       }
     }

@@ -93,14 +93,14 @@ I2CDeviceStatus SDPSensor::start_continuous(bool averaging) {
   return I2CDeviceStatus::ok;
 }
 
-///void SDPSensor::start_continuous_wait(bool stabilize) {
-///  static const uint32_t wait = 8;
-///  static const uint32_t stabilize_wait = 12;
-///  //time_.delay(wait);
-///  if (stabilize) {
-///    //TODO:TBD time_.delay(stabilize_wait);
-///  }
-///}
+/// void SDPSensor::start_continuous_wait(bool stabilize) {
+///   static const uint32_t wait = 8;
+///   static const uint32_t stabilize_wait = 12;
+///   //time_.delay(wait);
+///   if (stabilize) {
+///     //TODO:TBD time_.delay(stabilize_wait);
+///   }
+/// }
 
 I2CDeviceStatus SDPSensor::read_full_sample(SDPSample &sample) {
   if (!measuring_) {

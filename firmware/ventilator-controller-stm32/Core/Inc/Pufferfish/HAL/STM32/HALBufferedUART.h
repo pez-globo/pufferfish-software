@@ -83,7 +83,8 @@ class HALBufferedUART : public BufferedUART {
    * if the TX queue is full
    * @return ok on success, full otherwise
    */
-  virtual BufferStatus write_block(uint8_t write_byte,uint32_t timeout) volatile override;
+  virtual BufferStatus write_block(uint8_t write_byte,
+                                   uint32_t timeout) volatile override;
 
   /**
    * Persistently attempt to "push" bytes in the provided buffer onto the TX

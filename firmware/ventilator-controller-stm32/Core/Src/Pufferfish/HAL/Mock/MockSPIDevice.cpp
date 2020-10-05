@@ -27,7 +27,7 @@ SPIDeviceStatus MockSPIDevice::read(uint8_t *buf, size_t count) {
   size_t index = 0;
   size_t minumum = (count < read_buf_size) ? count : read_buf_size;
 
-  if (return_status_ != SPIDeviceStatus::ok){
+  if (return_status_ != SPIDeviceStatus::ok) {
     return SPIDeviceStatus::read_error;
   }
 
@@ -49,7 +49,7 @@ void MockSPIDevice::set_read(const uint8_t *buf, size_t count) {
 SPIDeviceStatus MockSPIDevice::write(uint8_t *buf, size_t count) {
   size_t index = 0;
 
-  if (return_status_ != SPIDeviceStatus::ok){
+  if (return_status_ != SPIDeviceStatus::ok) {
     return SPIDeviceStatus::write_error;
   }
 
@@ -83,7 +83,7 @@ SPIDeviceStatus MockSPIDevice::write_read(uint8_t *tx_buf, uint8_t *rx_buf, size
   size_t index = 0;
   size_t minumum = (count < read_buf_size) ? count : read_buf_size;
 
-  if (return_status_ != SPIDeviceStatus::ok){
+  if (return_status_ != SPIDeviceStatus::ok) {
     return SPIDeviceStatus::read_error;
   }
 

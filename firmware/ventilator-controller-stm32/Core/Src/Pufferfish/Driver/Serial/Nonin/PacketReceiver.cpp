@@ -207,7 +207,7 @@ PacketReceiver::PacketInputStatus PacketReceiver::input(const Frame &frame) {
   }
 
   /* Check for received_length_ is invalid */
-  if(received_length_ >= packet_size) {
+  if (received_length_ >= packet_size) {
     /* missed in previous packet */
     input_status_ = PacketInputStatus::missed_data;
     return input_status_;

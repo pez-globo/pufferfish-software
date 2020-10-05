@@ -23,38 +23,38 @@ class HALTime : public Time {
   HALTime() {}
 
   /**
-  * @brief  Returns the millis value
-  * @param  None
-  * @return millis value updated in millis_value_
-  */
+   * @brief  Returns the millis value
+   * @param  None
+   * @return millis value updated in millis_value_
+   */
   uint32_t millis() override;
 
   /**
-  * @brief  mock delay in milli
-  * @param  ms dealy in milli seconds
-  * @return None
-  */
+   * @brief  mock delay in milli
+   * @param  ms dealy in milli seconds
+   * @return None
+   */
   void delay(uint32_t ms) override;
 
   /**
-  * @brief  micro delay init function
-  * @param  None
-  * @return bool TRUE/FALSE on init state
-  */
+   * @brief  micro delay init function
+   * @param  None
+   * @return bool TRUE/FALSE on init state
+   */
   bool micros_delay_init();
 
   /**
-  * @brief  Returns the micros value set
-  * @param  None
-  * @return micros value updated in micros_value_
-  */
+   * @brief  Returns the micros value set
+   * @param  None
+   * @return micros value updated in micros_value_
+   */
   uint32_t micros() override;
 
   /**
-  * @brief mock delay in micros
-  * @param microseconds delay in micro seconds
-  * @return None
-  */
+   * @brief mock delay in micros
+   * @param microseconds delay in micro seconds
+   * @return None
+   */
   void delay_micros(uint32_t microseconds) override;
 
  private:
