@@ -107,8 +107,7 @@ PF::Application::States all_states;
 PF::Driver::BreathingCircuit::ParametersServices parameters_service;
 
 // Breathing Circuit Simulation
-PF::Driver::BreathingCircuit::Simulators simulator(
-    all_states.parameters(), all_states.sensor_measurements(), all_states.cycle_measurements());
+PF::Driver::BreathingCircuit::Simulators simulator;
 
 // HAL Utilities
 PF::HAL::CRC32C crc32c(hcrc);
@@ -531,8 +530,11 @@ int main(void)
     parameters_service.transform(all_states.parameters_request(), all_states.parameters());
 
     // Breathing Circuit Sensor Simulator
-    simulator.update_clock(current_time);
-    simulator.update_sensors();
+    simulator.transform(
+        current_time,
+        all_states.parameters(),
+        all_states.sensor_measurements(),
+        all_states.cycle_measurements());
 
     // Breathing Circuit Control Loop
     hfnc.update(current_time);
