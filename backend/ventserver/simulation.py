@@ -335,16 +335,18 @@ async def main() -> None:
     # I/O File
     filehandler = fileio.Handler()
 
+    # Initialize State List
+    states: List[Type[betterproto.Message]] = [
+        mcu_pb.Parameters, mcu_pb.CycleMeasurements,
+        mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
+    ]
+
     # Server Receive Outputs
     channel: channels.TrioChannel[
         server.ReceiveOutputEvent
     ] = channels.TrioChannel()
 
-    # Initialize State
-    states: List[Type[betterproto.Message]] = [
-        mcu_pb.Parameters, mcu_pb.CycleMeasurements,
-        mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
-    ]
+    # Initialize States
     all_states = protocol.receive.backend.all_states
     await _trio.initialize_states(
         states, protocol, filehandler, all_states

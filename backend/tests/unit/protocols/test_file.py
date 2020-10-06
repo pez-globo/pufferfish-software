@@ -212,4 +212,4 @@ def test_file_roundtrip(
     assert output_msg == message
 
 
-# TODO: add test for initialize_states() from application.py
+# TODO: add test for initialize_states() from integration._trio.py
