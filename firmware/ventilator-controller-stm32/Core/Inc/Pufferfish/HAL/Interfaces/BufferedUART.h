@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "Pufferfish/Statuses.h"
 #include "Pufferfish/HAL/Types.h"
+#include "Pufferfish/Statuses.h"
 
 namespace Pufferfish {
 namespace HAL {

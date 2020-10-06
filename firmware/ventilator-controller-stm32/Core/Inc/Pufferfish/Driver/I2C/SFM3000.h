@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/Driver/Testable.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "SensirionSensor.h"
 
 namespace Pufferfish {
@@ -38,7 +38,7 @@ class SFM3000 : public Testable {
   static constexpr float scale_factor_o2 = 142.8F;
 
   explicit SFM3000(HAL::I2CDevice &dev, HAL::Time &time, float scale_factor = scale_factor_air)
-      : sensirion_(dev), time_(time), scale_factor_(scale_factor){}
+      : sensirion_(dev), time_(time), scale_factor_(scale_factor) {}
 
   /**
    * Starts a flow measurement

@@ -22,8 +22,8 @@
 #pragma once
 
 #include "Pufferfish/HAL/Interfaces/BufferedUART.h"
-#include "Pufferfish/Statuses.h"
 #include "Pufferfish/HAL/Types.h"
+#include "Pufferfish/Statuses.h"
 #include "Pufferfish/Util/RingBuffer.h"
 
 namespace Pufferfish::HAL {

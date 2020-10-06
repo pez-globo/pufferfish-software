@@ -11,8 +11,9 @@
 
 #include <cstddef>
 #include <cstdint>
-#include "Pufferfish/HAL/Interfaces/Time.h"
+
 #include "Pufferfish/HAL/Interfaces/DigitalOutput.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 
 namespace Pufferfish {
 namespace Driver {

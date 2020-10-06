@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "Pufferfish/HAL/Interfaces/BufferedUART.h"
 #include "Pufferfish/Driver/Serial/Nonin/FrameReceiver.h"
 #include "Pufferfish/Driver/Serial/Nonin/PacketReceiver.h"
+#include "Pufferfish/HAL/Interfaces/BufferedUART.h"
 
 namespace Pufferfish {
 namespace Driver {

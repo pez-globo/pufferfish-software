@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/HAL/Interfaces/DigitalInput.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/Statuses.h"
 
 namespace Pufferfish {

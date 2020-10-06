@@ -10,8 +10,8 @@
 
 #include <array>
 
-#include "Pufferfish/HAL/STM32/Endian.h"
 #include "Pufferfish/HAL/Interfaces/Time.h"
+#include "Pufferfish/HAL/STM32/Endian.h"
 #include "Pufferfish/Util/Parse.h"
 
 namespace Pufferfish::Driver::I2C {

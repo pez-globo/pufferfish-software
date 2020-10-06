@@ -36,13 +36,11 @@ void MockBufferedUART<rx_buffer_size, tx_buffer_size>::set_read(const uint8_t &b
   rx_buffer_.write(byte);
 }
 
-
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 BufferStatus MockBufferedUART<rx_buffer_size, tx_buffer_size>::write(uint8_t write_byte) volatile {
   BufferStatus status = tx_buffer_.write(write_byte);
   return status;
 }
-
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 void MockBufferedUART<rx_buffer_size, tx_buffer_size>::get_write(uint8_t &byte) volatile {

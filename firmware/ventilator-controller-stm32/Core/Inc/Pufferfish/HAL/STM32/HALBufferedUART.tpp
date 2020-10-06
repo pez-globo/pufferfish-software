@@ -9,7 +9,8 @@
 namespace Pufferfish::HAL {
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
-HALBufferedUART<rx_buffer_size, tx_buffer_size>::HALBufferedUART(UART_HandleTypeDef &huart, HAL::Time &time)
+HALBufferedUART<rx_buffer_size, tx_buffer_size>::HALBufferedUART(
+    UART_HandleTypeDef &huart, HAL::Time &time)
     : huart_(huart), time_(time) {}
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>

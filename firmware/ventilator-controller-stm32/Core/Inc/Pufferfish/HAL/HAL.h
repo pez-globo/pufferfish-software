@@ -14,18 +14,18 @@
 // Interfaces
 
 #include "Interfaces/AnalogInput.h"
+#include "Interfaces/BufferedUART.h"
 #include "Interfaces/DigitalOutput.h"
 #include "Interfaces/I2CDevice.h"
 #include "Interfaces/PWM.h"
 #include "Interfaces/SPIDevice.h"
 #include "Interfaces/Time.h"
-#include "Interfaces/BufferedUART.h"
 
 // STM32 HAL
 
-#include "STM32/HALBufferedUART.h"
 #include "STM32/Endian.h"
 #include "STM32/HALAnalogInput.h"
+#include "STM32/HALBufferedUART.h"
 #include "STM32/HALDigitalInput.h"
 #include "STM32/HALDigitalOutput.h"
 #include "STM32/HALI2CDevice.h"

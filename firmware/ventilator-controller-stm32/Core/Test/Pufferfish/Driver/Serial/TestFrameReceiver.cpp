@@ -18,8 +18,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "catch2/catch.hpp"
 #include "Pufferfish/Driver/Serial/Nonin/FrameReceiver.h"
+#include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
 
@@ -44,10 +44,8 @@ SCENARIO("FrameReceiver Input for 20 bytes of data.", "[NoninOEM3]") {
     PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus frame_input_status;
     PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus frame_output_status;
     Frame frameOutput;
-    uint8_t input_data[20] = {0x01, 0x81, 0x01, 0x00, 0x83,
-        0x01, 0x80, 0x01, 0x48, 0xCA,
-        0x01, 0x80, 0x01, 0x61, 0xE3,
-        0x01, 0x80, 0x01, 0x30, 0xB2};
+    uint8_t input_data[20] = {0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x80, 0x01, 0x48, 0xCA,
+                              0x01, 0x80, 0x01, 0x61, 0xE3, 0x01, 0x80, 0x01, 0x30, 0xB2};
 
     WHEN("On input of 4 bytes of INPUT_DATA to FrameReceiver ") {
       THEN("frame_receiver::input should return waiting") {

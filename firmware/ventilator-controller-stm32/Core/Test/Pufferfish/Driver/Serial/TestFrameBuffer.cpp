@@ -18,8 +18,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "catch2/catch.hpp"
 #include "Pufferfish/Driver/Serial/Nonin/FrameBuffer.h"
+#include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
 

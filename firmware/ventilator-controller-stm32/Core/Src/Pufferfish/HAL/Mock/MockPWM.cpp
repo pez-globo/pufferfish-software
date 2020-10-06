@@ -57,7 +57,6 @@ void MockPWM::set_max_duty_cycle(uint32_t duty) {
   last_max_duty_ = duty;
 }
 
-
 void MockPWM::set_return_status(PWMStatus input) {
   return_status_ = input;
 }
