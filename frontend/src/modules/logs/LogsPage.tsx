@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import { Grid, TableCell, TableRow, Typography } from '@material-ui/core';
+import { useDispatch, useSelector } from 'react-redux';
 import SimpleTable, {
   stableSort,
   getComparator,
@@ -10,7 +11,15 @@ import SimpleTable, {
 } from '../controllers/SimpleTable';
 import ModalPopup from '../controllers/ModalPopup';
 import EventlogDetails from './container/EventlogDetails';
-import { DECIMAL_RADIX } from '../app/AppConstants';
+import {
+  getActiveLoggedEventIds,
+  getLogEvent,
+  getNextLoggedEvents,
+} from '../../store/controller/selectors';
+import { LogEvent } from '../../store/controller/proto/mcu_pb';
+import { getEventType } from '../app/EventAlerts';
+import { updateCommittedState } from '../../store/controller/actions';
+import { EXPECTED_LOG_EVENT_ID } from '../../store/controller/types';
 
 /**
  * LogsPage
@@ -22,92 +31,17 @@ interface Data {
   type: string;
   alarm: string;
   time: number; // Note: Make this a date object?
-  details: string; // Note: Make this an ID to view more details?,
+  status: string;
   id: number;
 }
 
-function createData(type: string, alarm: string, time: number, details: string, id: number): Data {
-  return { type, alarm, time, details, id };
-}
-
-const rows = [
-  createData(
-    'Operator',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-09 10:11:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    1,
-  ),
-  createData(
-    'System',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-09 10:12:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    2,
-  ),
-  createData(
-    'Patient',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-09 10:13:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    3,
-  ),
-  createData(
-    'System',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-09 09:11:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    4,
-  ),
-  createData(
-    'Operator',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-08 10:10:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    5,
-  ),
-  createData(
-    'System',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-08 10:11:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    6,
-  ),
-  createData(
-    'Patient',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-08 10:12:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    7,
-  ),
-  createData(
-    'Patient',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-07 10:10:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    8,
-  ),
-  createData(
-    'Patient',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-07 10:11:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    9,
-  ),
-  createData(
-    'Patient',
-    'Peep above upper limit',
-    parseInt((new Date('2020-09-07 10:12:00').getTime() / 1000).toFixed(0), DECIMAL_RADIX),
-    'View Details',
-    10,
-  ),
-];
+//
 
 const headCells: HeadCell[] = [
   { id: 'type', numeric: false, disablePadding: true, label: 'Type' },
   { id: 'alarm', numeric: true, disablePadding: false, label: 'Alarm' },
   { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date' },
-  { id: 'details', numeric: false, disablePadding: false, label: 'Details' },
+  { id: 'Status', numeric: false, disablePadding: false, label: 'Status' },
 ];
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -137,6 +71,19 @@ const useStyles = makeStyles((theme: Theme) =>
 export const LogsPage = (): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
+  const dispatch = useDispatch();
+
+  const createData = (
+    type: string,
+    alarm: string,
+    time: number,
+    status: string,
+    id: number,
+  ): Data => {
+    return { type, alarm, time, status, id };
+  };
+
+  const [rows, setRows] = React.useState<Data[]>([]);
   const [order, setOrder] = React.useState<Order>('desc');
   const [orderBy, setOrderBy] = React.useState<keyof Data>('time');
   const [selected, setSelected] = React.useState<string[]>([]);
@@ -146,6 +93,38 @@ export const LogsPage = (): JSX.Element => {
   const [currentRow, setCurrentRow] = React.useState<Data>();
   const isSelected = (name: string) => selected.indexOf(name) !== -1;
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+  const loggedEvents = useSelector(getNextLoggedEvents);
+  const activeLogEventIds = useSelector(getActiveLoggedEventIds);
+
+  const updateLogEvent = useCallback(
+    (maxId) => {
+      dispatch(updateCommittedState(EXPECTED_LOG_EVENT_ID, { id: maxId + 1 }));
+    },
+    [dispatch],
+  );
+
+  useEffect(() => {
+    const eventIds: number[] = [];
+    loggedEvents.sort((a: LogEvent, b: LogEvent) => a.time - b.time);
+    const data = loggedEvents.map((event: LogEvent) => {
+      const eventType = getEventType(event.code);
+      const diffString =
+        event.oldValue && event.newValue
+          ? `(${event.oldValue} ${eventType.unit} to ${event.newValue} ${eventType.unit})`
+          : '';
+      eventIds.push(event.id);
+      return createData(
+        eventType.type,
+        `${eventType.label} ${diffString}`,
+        event.time,
+        activeLogEventIds.indexOf(event.id) > -1 ? 'Active' : 'In Active',
+        event.id,
+      );
+    });
+    setRows(data);
+    // update ExpectedLogEvent
+    updateLogEvent(Math.max(...eventIds));
+  }, [loggedEvents, activeLogEventIds, updateLogEvent]);
 
   const handleClose = () => {
     setOpen(false);
@@ -218,7 +197,7 @@ export const LogsPage = (): JSX.Element => {
                 hover
                 onClick={(event: React.MouseEvent<unknown>) => handleClick(event, row.type)}
                 tabIndex={-1}
-                key={row.details}
+                key={row.id}
               >
                 <TableCell align="left" component="th" id={labelId} scope="row">
                   <Grid className={classes.typeWrapper} style={typeColor(row.type)}>
@@ -241,16 +220,8 @@ export const LogsPage = (): JSX.Element => {
                                         })}
                                     `}
                 </TableCell>
-                <TableCell
-                  align="left"
-                  onClick={() => {
-                    setCurrentRow(row);
-                    setOpen(true);
-                  }}
-                >
-                  <Typography style={{ cursor: 'pointer' }} variant="inherit">
-                    {row.details}
-                  </Typography>
+                <TableCell align="left" component="th" scope="row">
+                  {row.status}
                 </TableCell>
               </StyledTableRow>
             );

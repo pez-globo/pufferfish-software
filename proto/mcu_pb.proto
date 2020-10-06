@@ -100,3 +100,34 @@ message Announcement {
   uint32 time = 1;
   bytes announcement = 2;
 }
+
+enum LogEventCode {
+  fio2_too_low = 0;
+  fio2_too_high = 1;
+  spo2_too_low = 2;
+  spo2_too_high = 3;
+  rr_too_low = 4;
+  rr_too_high = 5;
+  battery_low = 6;
+  screen_locked = 7;
+}
+
+message LogEvent {
+  uint32 id = 1;
+  uint32 time = 2;
+  LogEventCode code = 3;
+  float oldValue = 4;
+  float newValue = 5;
+}
+
+message ExpectedLogEvent {
+  uint32 id = 1;
+}
+
+message NextLogEvents {
+  repeated LogEvent log_events = 1;
+}
+
+message ActiveLogEvents {
+  repeated uint32 id = 1;
+}

@@ -16,6 +16,7 @@ import ClockIcon from '../icons/ClockIcon';
 import PowerFullIcon from '../icons/PowerFullIcon';
 import { PERCENT } from '../info/units';
 import { getClockTime } from '../../store/app/selectors';
+import EventAlerts from './EventAlerts';
 import {
   getParametersRequestMode,
   getParametersRequestStandby,
@@ -111,20 +112,7 @@ export const ToolBar = (): JSX.Element => {
   const tools = [<ModesDropdown />];
   if (location.pathname === DASHBOARD_ROUTE.path) {
     tools.push(<ViewDropdown />);
-    tools.push(
-      <div>
-        <Button
-          style={{ marginRight: 12 }}
-          component={Link}
-          to={LOGS_ROUTE.path}
-          variant="contained"
-          color="primary"
-        >
-          <BellIcon />
-        </Button>
-        {LOGS_ROUTE.label}
-      </div>,
-    );
+    tools.push(<EventAlerts path={LOGS_ROUTE.path} label={LOGS_ROUTE.label} />);
   } else if (location.pathname === QUICKSTART_ROUTE.path) {
     tools.push(
       <Button variant="contained" color="primary" disabled>
