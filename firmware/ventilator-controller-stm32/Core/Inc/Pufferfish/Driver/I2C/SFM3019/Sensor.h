@@ -12,6 +12,7 @@
 #include <cstddef>
 
 #include "Device.h"
+#include "Pufferfish/Driver/Initializable.h"
 #include "Pufferfish/Types.h"
 
 namespace Pufferfish::Driver::I2C::SFM3019 {
@@ -42,12 +43,13 @@ class StateMachine {
 /**
  * High-level (stateful) driver for Sensirion SFM3019 flow sensor
  */
-class Sensor {
+class Sensor : public Initializable {
  public:
   // TODO(lietk12): should we move float &flow to the update method and rename update to output?
-  Sensor(Device &device, float &flow, bool resetter) : resetter(resetter), device_(device), flow_(flow) {}
+  Sensor(Device &device, bool resetter) : resetter(resetter), device_(device) {}
 
-  SensorState update();
+  InitializableState setup();
+  InitializableState output(float &flow);
 
  private:
   using Action = StateMachine::Action;
@@ -69,12 +71,9 @@ class Sensor {
   ConversionFactors conversion_{};
   Sample sample_{};
 
-  // Outputs
-  float &flow_;
-
-  SensorState initialize(uint32_t current_time);
-  SensorState check_range(uint32_t current_time_us);
-  SensorState measure(uint32_t current_time_us);
+  InitializableState initialize(uint32_t current_time);
+  InitializableState check_range(uint32_t current_time_us);
+  InitializableState measure(uint32_t current_time_us, float &flow);
 };
 
 }  // namespace Pufferfish::Driver::I2C::SFM3019

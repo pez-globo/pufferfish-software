@@ -104,8 +104,7 @@ namespace PF = Pufferfish;
 PF::Application::States all_states;
 
 // Parameters
-PF::Driver::BreathingCircuit::ParametersServices parameters_service(
-    all_states.parameters_request(), all_states.parameters());
+PF::Driver::BreathingCircuit::ParametersServices parameters_service;
 
 // Breathing Circuit Simulation
 PF::Driver::BreathingCircuit::Simulators simulator(
@@ -296,15 +295,15 @@ PF::Driver::I2C::SFM3000 i2c_press16(i2c_ext_press16);
 PF::Driver::I2C::SDPSensor i2c_press17(i2c_ext_press17);
 PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 */
-PF::Driver::BreathingCircuit::SensorVars sensor_vars;
 PF::Driver::I2C::SFM3019::Device sfm3019_dev_air(i2c_hal_sfm3019_air, i2c2_hal_global);
-PF::Driver::I2C::SFM3019::Sensor sfm3019_air(sfm3019_dev_air, sensor_vars.flow_air, true);
+PF::Driver::I2C::SFM3019::Sensor sfm3019_air(sfm3019_dev_air, true);
 
 PF::Driver::I2C::SFM3019::Device sfm3019_dev_o2(i2c_hal_sfm3019_o2, i2c4_hal_global);
-PF::Driver::I2C::SFM3019::Sensor sfm3019_o2(sfm3019_dev_o2, sensor_vars.flow_o2, true);
+PF::Driver::I2C::SFM3019::Sensor sfm3019_o2(sfm3019_dev_o2, true);
 
-auto sensors = PF::Util::make_array<std::reference_wrapper<PF::Driver::I2C::SFM3019::Sensor>>(sfm3019_air, sfm3019_o2);
-std::array<PF::SensorState, sensors.size()> sensor_states;
+auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
+    sfm3019_air, sfm3019_o2);
+std::array<PF::InitializableState, initializables.size()> initialization_states;
 
 /*
 // Test list
@@ -330,10 +329,8 @@ int interface_test_state = 0;
 int interface_test_millis = 0;
 
 // Breathing Circuit Control
-PF::Driver::BreathingCircuit::ActuatorVars actuator_vars;
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
-    all_states.parameters(), all_states.sensor_measurements(),
-    sensor_vars, sfm3019_air, sfm3019_o2, actuator_vars, drive1_ch1);
+    all_states.parameters(), all_states.sensor_measurements(), sfm3019_air, sfm3019_o2, drive1_ch1);
 
 /* USER CODE END PV */
 
@@ -490,17 +487,29 @@ int main(void)
 
   board_led1.write(false);
   while (true) {
+    // Update indicators
     uint32_t current_time = PF::HAL::millis();
-    blinker.update(current_time);
-    flasher.update(current_time);
-    for (size_t i = 0; i < sensors.size(); ++i) {
-      sensor_states[i] = sensors[i].get().update();
+    blinker.input(current_time);
+    flasher.input(current_time);
+
+    // Run setup on all initializables
+    for (size_t i = 0; i < initializables.size(); ++i) {
+      initialization_states[i] = initializables[i].get().setup();
     }
-    if (std::find(sensor_states.cbegin(), sensor_states.cend(), PF::SensorState::failed) != sensor_states.cend()) {
+
+    // Check initializables' states
+    if (std::find(  // At least one has failed
+            initialization_states.cbegin(),
+            initialization_states.cend(),
+            PF::InitializableState::failed) != initialization_states.cend()) {
       board_led1.write(flasher.output());
-    } else if (std::find(sensor_states.cbegin(), sensor_states.cend(), PF::SensorState::setup) != sensor_states.cend()) {
+    } else if (  // At least one is still in setup
+        std::find(
+            initialization_states.cbegin(),
+            initialization_states.cend(),
+            PF::InitializableState::setup) != initialization_states.cend()) {
       board_led1.write(blinker.output());
-    } else { // All sensor states are ok
+    } else {  // All are done with setup and ok
       break;
     }
   }
@@ -510,18 +519,16 @@ int main(void)
   board_led1.write(false);
 
   // Normal loop
-  static constexpr float valve_opening_indicator_threshold = 0.5;
-
   while (true) {
     uint32_t current_time = PF::HAL::millis();
 
     // Software PWM signals
-    flasher.update(PF::HAL::millis());
-    blinker.update(PF::HAL::millis());
-    dimmer.update(PF::HAL::millis());
+    flasher.input(PF::HAL::millis());
+    blinker.input(PF::HAL::millis());
+    dimmer.input(PF::HAL::millis());
 
     // Parameters update
-    parameters_service.update();
+    parameters_service.transform(all_states.parameters_request(), all_states.parameters());
 
     // Breathing Circuit Sensor Simulator
     simulator.update_clock(current_time);
@@ -530,14 +537,15 @@ int main(void)
     // Breathing Circuit Control Loop
     hfnc.update(current_time);
     // Indicators for debugging
-    /*if (actuator_vars.valve_opening > valve_opening_indicator_threshold) {
+    /*static constexpr float valve_opening_indicator_threshold = 0.5;
+    if (actuator_vars.valve_opening > valve_opening_indicator_threshold) {
       board_led1.write(true);
     } else {
       board_led1.write(dimmer.output());
     }*/
-    if (sensor_vars.flow_o2 > 1 || sensor_vars.flow_air > 1) {
+    if (hfnc.sensor_vars().flow_o2 > 1 || hfnc.sensor_vars().flow_air > 1) {
       board_led1.write(true);
-    } else if (sensor_vars.flow_o2 < -1 || sensor_vars.flow_air < -1) {
+    } else if (hfnc.sensor_vars().flow_o2 < -1 || hfnc.sensor_vars().flow_air < -1) {
       board_led1.write(dimmer.output());
     } else {
       board_led1.write(false);

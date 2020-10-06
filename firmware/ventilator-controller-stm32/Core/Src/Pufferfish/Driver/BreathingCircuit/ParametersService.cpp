@@ -11,71 +11,62 @@ namespace Pufferfish::Driver::BreathingCircuit {
 
 // ParametersService
 
-const ParametersRequest &ParametersService::parameters_request() const {
-  return parameters_request_;
-}
-
-const Parameters &ParametersService::parameters() const {
-  return parameters_;
-}
-
-Parameters &ParametersService::parameters() {
-  return parameters_;
-}
-
-void ParametersService::update_fio2() {
-  if (parameters_request_.fio2 >= fio2_min && parameters_request_.fio2 <= fio2_max) {
-    parameters_.fio2 = parameters_request_.fio2;
+void ParametersService::transform_fio2(float fio2_request, float &fio2) {
+  if (fio2_request >= fio2_min && fio2_request <= fio2_max) {
+    fio2 = fio2_request;
   }
 }
 
 // PCAC Parameters
 
-void PCACParameters::update() {
-  parameters().mode = parameters_request().mode;
-  if (!mode_active()) {
+void PCACParameters::transform(
+    const ParametersRequest &parameters_request, Parameters &parameters) {
+  parameters.mode = parameters_request.mode;
+  if (!mode_active(parameters)) {
     return;
   }
 
-  if (parameters_request().rr > 0) {
-    parameters().rr = parameters_request().rr;
+  if (parameters_request.rr > 0) {
+    parameters.rr = parameters_request.rr;
   }
-  if (parameters_request().ie > 0) {
-    parameters().ie = parameters_request().ie;
+  if (parameters_request.ie > 0) {
+    parameters.ie = parameters_request.ie;
   }
-  if (parameters_request().pip > 0) {
-    parameters().pip = parameters_request().pip;
+  if (parameters_request.pip > 0) {
+    parameters.pip = parameters_request.pip;
   }
-  parameters().peep = parameters_request().peep;
-  update_fio2();
+  parameters.peep = parameters_request.peep;
+  transform_fio2(parameters_request.fio2, parameters.fio2);
 }
 
-bool PCACParameters::mode_active() const {
-  return parameters().mode == VentilationMode_pc_ac;
+bool PCACParameters::mode_active(const Parameters &parameters) const {
+  return parameters.mode == VentilationMode_pc_ac;
 }
 
 // HFNC Parameters
 
-void HFNCParameters::update() {
-  parameters().mode = parameters_request().mode;
-  if (!mode_active()) {
+void HFNCParameters::transform(
+    const ParametersRequest &parameters_request, Parameters &parameters) {
+  parameters.mode = parameters_request.mode;
+  if (!mode_active(parameters)) {
     return;
   }
 
-  if (parameters_request().flow >= 0) {
-    parameters().flow = parameters_request().flow;
+  if (parameters_request.flow >= 0) {
+    parameters.flow = parameters_request.flow;
   }
-  update_fio2();
+  transform_fio2(parameters_request.fio2, parameters.fio2);
 }
 
-bool HFNCParameters::mode_active() const {
-  return parameters().mode == VentilationMode_hfnc;
+bool HFNCParameters::mode_active(const Parameters &parameters) const {
+  return parameters.mode == VentilationMode_hfnc;
 }
 
 // ParametersServices
 
-void ParametersServices::update() {
-  switch (parameters_request_.mode) {
+void ParametersServices::transform(
+    const ParametersRequest &parameters_request, Parameters &parameters) {
+  switch (parameters_request.mode) {
     case VentilationMode_pc_ac:
       active_service_ = &pc_ac_;
       break;
@@ -90,7 +81,7 @@ void ParametersServices::update() {
     return;
   }
 
-  active_service_->update();
+  active_service_->transform(parameters_request, parameters);
 }
 
 }  // namespace Pufferfish::Driver::BreathingCircuit
