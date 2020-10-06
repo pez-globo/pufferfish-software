@@ -1,7 +1,11 @@
 """" Support for Rotary Encoder communication """
 
 import attr
-import RPi.GPIO as GPIO     # type: ignore
+import logging
+try:
+    import RPi.GPIO as GPIO     # type: ignore
+except RuntimeError:
+    logging.getLogger().warning('Running without RPi.GPIO!')
 
 
 @attr.s(auto_attribs=True)

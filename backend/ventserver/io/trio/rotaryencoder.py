@@ -5,7 +5,10 @@ from typing import Optional, Tuple
 import attr
 
 import trio
-import RPi.GPIO as GPIO     # type: ignore
+try:
+    import RPi.GPIO as GPIO     # type: ignore
+except RuntimeError:
+    logging.getLogger().warning('Running without RPi.GPIO!')
 
 from ventserver.io import rotaryencoder
 from ventserver.io.trio import endpoints
