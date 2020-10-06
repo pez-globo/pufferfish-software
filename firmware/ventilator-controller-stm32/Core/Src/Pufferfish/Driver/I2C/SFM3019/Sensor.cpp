@@ -7,6 +7,8 @@
 
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 
+#include <cmath>
+
 #include "Pufferfish/HAL/STM32/Time.h"
 #include "Pufferfish/Util/Timeouts.h"
 
@@ -55,7 +57,7 @@ bool StateMachine::finished_waiting(uint32_t timeout_us) const {
 // Sensor
 
 InitializableState Sensor::setup() {
-  float flow;
+  float flow = NAN;
   return output(flow);
 }
 

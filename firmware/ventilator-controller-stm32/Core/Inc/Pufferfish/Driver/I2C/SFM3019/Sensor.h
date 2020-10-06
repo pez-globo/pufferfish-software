@@ -48,7 +48,7 @@ class Sensor : public Initializable {
   // TODO(lietk12): should we move float &flow to the update method and rename update to output?
   Sensor(Device &device, bool resetter) : resetter(resetter), device_(device) {}
 
-  InitializableState setup();
+  InitializableState setup() override;
   InitializableState output(float &flow);
 
  private:

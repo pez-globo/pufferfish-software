@@ -49,8 +49,8 @@ class HFNCControlLoop : public ControlLoop {
 
   void update(uint32_t current_time) override;
 
-  const SensorVars &sensor_vars() const;
-  const ActuatorVars &actuator_vars() const;
+  [[nodiscard]] const SensorVars &sensor_vars() const;
+  [[nodiscard]] const ActuatorVars &actuator_vars() const;
 
  private:
   const Parameters &parameters_;
@@ -59,12 +59,12 @@ class HFNCControlLoop : public ControlLoop {
   HFNCController controller_;
 
   // SensorVars
-  SensorVars sensor_vars_;
+  SensorVars sensor_vars_{};
   Driver::I2C::SFM3019::Sensor &sfm3019_air_;
   Driver::I2C::SFM3019::Sensor &sfm3019_o2_;
 
   // ActuatorVars
-  ActuatorVars actuator_vars_;
+  ActuatorVars actuator_vars_{};
   HAL::PWM &valve_;
 };
 

@@ -33,8 +33,8 @@ class Simulator {
   [[nodiscard]] constexpr uint32_t time_step() const { return current_time_ - previous_time_; }
   [[nodiscard]] bool update_needed() const;
 
-  uint32_t current_time() const;
-  void transform_fio2(float params_fio2, float &sensor_meas_fio2);
+  [[nodiscard]] uint32_t current_time() const;
+  static void transform_fio2(float params_fio2, float &sensor_meas_fio2);
 
  private:
   uint32_t current_time_ = 0;   // ms
@@ -92,7 +92,7 @@ class HFNCSimulator : public Simulator {
   const float spo2_responsiveness = 0.0005;  // ms
 
   void init_cycle();
-  void transform_rr(float params_rr, float &cycle_meas_rr);
+  static void transform_rr(float params_rr, float &cycle_meas_rr);
   void transform_flow(float params_flow, float &sens_meas_flow);
   void transform_spo2(float fio2, float &spo2);
 };

@@ -21,7 +21,7 @@ class ParametersService {
   [[nodiscard]] virtual bool mode_active(const Parameters &parameters) const = 0;
 
  protected:
-  void transform_fio2(float fio2_request, float &fio2);
+  static void transform_fio2(float fio2_request, float &fio2);
 
  private:
   static constexpr float fio2_min = 21;   // % FiO2
