@@ -2,13 +2,15 @@
 
 import logging
 from typing import Optional, Tuple
+
 import attr
 
-import trio
 try:
     import RPi.GPIO as GPIO     # type: ignore
 except RuntimeError:
     logging.getLogger().warning('Running without RPi.GPIO!')
+
+import trio
 
 from ventserver.io import rotaryencoder
 from ventserver.io.trio import endpoints
@@ -25,7 +27,7 @@ class RotaryEncoderState:
     rotation_counts: int = attr.ib(default=0, repr=False)
     button_pressed: bool = attr.ib(default=False, repr=False)
     last_pressed: int = attr.ib(default=None, repr=False)
-    debounce_time: int = attr.ib(default=10) # debounce time in ms
+    debounce_time: int = attr.ib(default=10)  # debounce time in ms
 
 
 @attr.s
@@ -59,7 +61,6 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
                 trio_token=self.trio_token
             )
 
-
     def button_press_log(self, button_pin: int) -> None:
         """Rotary encoder callback function for button press event."""
 
@@ -86,7 +87,6 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
     def is_open(self) -> bool:
         """Return whether or not the rotary encoder is connected."""
         return self._connected
-
 
     async def open(self, nursery: Optional[trio.Nursery] = None) -> None:
         """Opens the connection with the rotary encoder.
@@ -134,7 +134,6 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
         self._state.a_quad_last_state = GPIO.input(self._props.a_quad_pin)
         self.trio_token = trio.lowlevel.current_trio_token()
 
-
     async def close(self) -> None:
         """Closes the connection with the rotary encoder.
 
@@ -144,7 +143,6 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
         """
         GPIO.cleanup([self._props.a_quad_pin, self._props.b_quad_pin])
         self._connected = False
-
 
     async def receive(self) -> Tuple[int, bool]:
         """Shares current rotation counts and button
@@ -166,7 +164,6 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
         await self._data_available.wait()
         self._data_available = trio.Event()
         return (self._state.rotation_counts, self._state.button_pressed)
-
 
     async def send(self, data: Optional[bytes]) -> None:
         """Defined just to fulfill requirements of the

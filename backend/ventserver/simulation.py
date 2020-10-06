@@ -32,6 +32,8 @@ except NameError:
     logging.getLogger().warning('Running without RPi.GPIO!')
 
 
+# Configure logging
+
 logger = logging.getLogger()
 handler = logging.StreamHandler()
 formatter = logging.Formatter(
@@ -40,6 +42,9 @@ formatter = logging.Formatter(
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
+
+
+# Simulators
 
 
 @attr.s
