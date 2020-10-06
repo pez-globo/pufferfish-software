@@ -1,7 +1,7 @@
 """Trio I/O with sans-I/O protocol, running application."""
 
 import logging
-from typing import Type, List, Optional, Dict
+from typing import Type, List
 import functools
 
 import trio
@@ -15,8 +15,6 @@ from ventserver.io.trio import websocket
 from ventserver.io.trio import fileio
 from ventserver.io.trio import rotaryencoder
 from ventserver.protocols import server
-from ventserver.protocols import file
-from ventserver.protocols import exceptions
 from ventserver.protocols.protobuf import mcu_pb
 
 
@@ -32,54 +30,10 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
-async def initialize_states(
-        states: List[Type[betterproto.Message]],
-        protocol: server.Protocol,
-        filehandler: fileio.Handler,
-        all_states: Dict[
-            Type[betterproto.Message], Optional[betterproto.Message]
-        ]
-) -> None:
-    """Initialize state values from state store or default values."""
-    default_init = list()
-    for state in states:
-        try: # Handle fileio errors
-            filehandler.set_props(state.__name__, "rb")
-            await filehandler.open()
-            message = await filehandler.read()
-            protocol.receive.file.input(
-                file.StateData(state_type=state.__name__, data=message)
-                )
-        except OSError as err:
-            print(err)
-        finally:
-            await filehandler.close()
-
-    while True:
-        try: # Handles data integrity and protocol error
-            event = protocol.receive.file.output()
-            if not event:
-                break
-
-            all_states[type(event)] = event
-        except exceptions.ProtocolDataError as err:
-            print(err)
-
-    for state in states:
-        if not all_states[state]:
-            default_init.append(state)
-
-    for state in default_init:
-        if state is mcu_pb.ParametersRequest:
-            all_states[mcu_pb.ParametersRequest] = mcu_pb.ParametersRequest(
-                mode=mcu_pb.VentilationMode.hfnc, rr=30, fio2=60, flow=6
-            )
-        else:
-            all_states[state] = state()
-
 
 async def main() -> None:
     """Set up wiring between subsystems and process until completion."""
+    # pylint: disable=duplicate-code
     # Sans-I/O Protocols
     protocol = server.Protocol()
 
@@ -102,7 +56,7 @@ async def main() -> None:
         mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
     ]
     all_states = protocol.receive.backend.all_states
-    await initialize_states(
+    await _trio.initialize_states(
         states, protocol, filehandler, all_states
     )
 

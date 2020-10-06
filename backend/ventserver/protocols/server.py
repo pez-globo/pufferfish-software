@@ -8,7 +8,7 @@ from ventserver.protocols import backend
 from ventserver.protocols import events
 from ventserver.protocols import frontend
 from ventserver.protocols import mcu
-from ventserver.protocols import file
+from ventserver.protocols import file as file_filters
 from ventserver.protocols import rotary_encoder
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
@@ -101,7 +101,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         factory=rotary_encoder.ReceiveFilter
     )
     _backend: backend.ReceiveFilter = attr.ib(factory=backend.ReceiveFilter)
-    _file: file.ReceiveFilter = attr.ib(factory=file.ReceiveFilter)
+    _filerw: file_filters.ReceiveFilter = attr.ib(
+        factory=file_filters.ReceiveFilter
+    )
 
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
@@ -216,7 +218,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     @property
     def file(self) -> file.ReceiveFilter:
         """Return the file receiver"""
-        return self._file
+        return self._filerw
 
 
 
@@ -230,7 +232,7 @@ class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
     _backend: backend.SendFilter = attr.ib(factory=backend.SendFilter)
     _mcu: mcu.SendFilter = attr.ib(factory=mcu.SendFilter)
     _frontend: frontend.SendFilter = attr.ib(factory=frontend.SendFilter)
-    _file: file.SendFilter = attr.ib(factory=file.SendFilter)
+    _filerw: file_filters.SendFilter = attr.ib(factory=file_filters.SendFilter)
 
     def input(self, event: Optional[SendEvent]) -> None:
         """Handle input events."""
@@ -254,7 +256,7 @@ class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
         frontend_output = self._frontend.output()
         any_updated = (frontend_output is not None) or any_updated
 
-        self._file.input(backend.get_file_send(backend_output))
+        self._filerw.input(backend.get_file_send(backend_output))
 
         if not any_updated:
             return None
@@ -275,7 +277,7 @@ class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
     @property
     def file(self) -> file.SendFilter:
         """Return file sendfilter"""
-        return self._file
+        return self._filerw
 
 
 # Protocols

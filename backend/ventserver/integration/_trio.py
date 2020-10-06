@@ -3,14 +3,18 @@
 import functools
 import logging
 import time
-from typing import Callable, Optional, TypeVar, Tuple
+from typing import Callable, Optional, TypeVar, Tuple, Dict, List, Type
 
 import trio
+import betterproto
 
 from ventserver.io.trio import channels as triochannels
 from ventserver.io.trio import endpoints
 from ventserver.io.trio import fileio
 from ventserver.protocols import server
+from ventserver.protocols import file
+from ventserver.protocols import exceptions
+from ventserver.protocols.protobuf import mcu_pb
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
 from ventserver.sansio import streams
@@ -326,3 +330,49 @@ async def process_all(
             nursery.start_soon(
                 process_clock, protocol, channel, push_endpoint.clone()
             )
+
+
+async def initialize_states(
+        states: List[Type[betterproto.Message]],
+        protocol: server.Protocol,
+        filehandler: fileio.Handler,
+        all_states: Dict[
+            Type[betterproto.Message], Optional[betterproto.Message]
+        ]
+) -> None:
+    """Initialize state values from state store or default values."""
+    default_init = list()
+    for state in states:
+        try: # Handle fileio errors
+            filehandler.set_props(state.__name__, "rb")
+            await filehandler.open()
+            message = await filehandler.read()
+            protocol.receive.file.input(
+                file.StateData(state_type=state.__name__, data=message)
+                )
+        except OSError as err:
+            print(err)
+        finally:
+            await filehandler.close()
+
+    while True:
+        try: # Handles data integrity and protocol error
+            event = protocol.receive.file.output()
+            if not event:
+                break
+
+            all_states[type(event)] = event
+        except exceptions.ProtocolDataError as err:
+            print(err)
+
+    for state in states:
+        if not all_states[state]:
+            default_init.append(state)
+
+    for state in default_init:
+        if state is mcu_pb.ParametersRequest:
+            all_states[mcu_pb.ParametersRequest] = mcu_pb.ParametersRequest(
+                mode=mcu_pb.VentilationMode.hfnc, rr=30, fio2=60, flow=6
+            )
+        else:
+            all_states[state] = state()
