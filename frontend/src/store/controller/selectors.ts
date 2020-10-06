@@ -10,9 +10,19 @@ import {
   Announcement,
   AlarmLimitsRequest,
   VentilationMode,
+  ExpectedLogEvent,
+  NextLogEvents,
+  LogEvent,
 } from './proto/mcu_pb';
 import { RotaryEncoder, FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
-import { ControllerStates, WaveformPoint, WaveformHistory } from './types';
+import {
+  ControllerStates,
+  WaveformPoint,
+  WaveformHistory,
+  PVPoint,
+  PVHistory,
+  RotaryEncoderParameter,
+} from './types';
 
 export const getController = ({ controller }: StoreState): ControllerStates => controller;
 
@@ -47,6 +57,10 @@ export const getSensorMeasurementsFiO2 = createSelector(
   getSensorMeasurements,
   (sensorMeasurements: SensorMeasurements): number => sensorMeasurements.fio2,
 );
+export const getSensorMeasurementsSpO2 = createSelector(
+  getSensorMeasurements,
+  (sensorMeasurements: SensorMeasurements): number => sensorMeasurements.spo2,
+);
 
 // CycleMeasurements
 export const getCycleMeasurements = createSelector(
@@ -70,6 +84,18 @@ export const getCycleMeasurementsVT = createSelector(
   (cycleMeasurements: CycleMeasurements): number => cycleMeasurements.vt,
 );
 
+// ROX Index
+export const getROXIndex = createSelector(
+  getSensorMeasurements,
+  getCycleMeasurements,
+  (sensorMeasurements: SensorMeasurements, cycleMeasurements: CycleMeasurements): number => {
+    if (sensorMeasurements.spo2 && sensorMeasurements.fio2 && cycleMeasurements.rr) {
+      return sensorMeasurements.spo2 / sensorMeasurements.fio2 / cycleMeasurements.rr;
+    }
+    return 0;
+  },
+);
+
 // Parameters
 export const getParameters = createSelector(
   getController,
@@ -91,11 +117,21 @@ export const getParametersFiO2 = createSelector(
   getParameters,
   (parameters: Parameters): number => parameters.fio2,
 );
+export const getParametersFlow = createSelector(
+  getParameters,
+  (parameters: Parameters): number => parameters.flow,
+);
 
 // ParametersRequest
 export const getParametersRequest = createSelector(
   getController,
   (states: ControllerStates): ParametersRequest => states.parametersRequest,
+);
+
+export const getParametersRequestStandby = createSelector(
+  getController,
+  (states: ControllerStates): ParametersRequest =>
+    states.parametersRequestStandby.parameters as ParametersRequest,
 );
 
 export const getParametersRequestMode = createSelector(
@@ -118,7 +154,7 @@ export const getAnnouncement = createSelector(
 // RotaryEncoder
 export const getRotaryEncoder = createSelector(
   getController,
-  (states: ControllerStates): RotaryEncoder => states.rotaryEncoder,
+  (states: ControllerStates): RotaryEncoderParameter => states.rotaryEncoder,
 );
 
 // Waveforms
@@ -146,7 +182,10 @@ export const getWaveformHistoryFlow = createSelector(
   getController,
   (states: ControllerStates): WaveformHistory => states.waveformHistoryFlow,
 );
-// Fow Waveforms
+export const getWaveformHistoryVolume = createSelector(
+  getController,
+  (states: ControllerStates): WaveformHistory => states.waveformHistoryVolume,
+);
 export const getWaveformFlowOld = createSelector(
   getWaveformHistoryFlow,
   (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformOld.full,
@@ -162,12 +201,44 @@ export const getWaveformFlowNewSegment = (
     getWaveformFlowNewSegments,
     (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex],
   );
+// Volume Waveforms
+export const getWaveformVolumeOld = createSelector(
+  getWaveformHistoryVolume,
+  (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformOld.full,
+);
+export const getWaveformVolumeNewSegments = createSelector(
+  getWaveformHistoryVolume,
+  (waveformHistory: WaveformHistory): WaveformPoint[][] => waveformHistory.waveformNew.segmented,
+);
+export const getWaveformVolumeNewSegment = (
+  segmentIndex: number,
+): OutputSelector<StoreState, WaveformPoint[], unknown> =>
+  createSelector(
+    getWaveformVolumeNewSegments,
+    (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex],
+  );
+
+// P-V Loops
+export const getPVHistory = createSelector(
+  getController,
+  (states: ControllerStates): PVHistory => states.pvHistory,
+);
+export const getPVLoop = createSelector(
+  getPVHistory,
+  (pvHistory: PVHistory): PVPoint[] => pvHistory.loop,
+);
 
 // Alarm Limits
 export const getAlarmLimitsRequest = createSelector(
   getController,
   (states: ControllerStates): AlarmLimitsRequest | Record<string, number> =>
     states.alarmLimitsRequest,
+);
+
+export const getAlarmLimitsRequestStandby = createSelector(
+  getController,
+  (states: ControllerStates): AlarmLimitsRequest | Record<string, number> =>
+    states.alarmLimitsRequestStandby.alarmLimits as AlarmLimitsRequest,
 );
 
 // Display Settings
@@ -181,3 +252,35 @@ export const getSystemSettingRequest = createSelector(
   getController,
   (states: ControllerStates): SystemSettingRequest => states.systemSettingRequest,
 );
+
+// New Log event
+export const getLogEvent = createSelector(
+  getController,
+  (states: ControllerStates): LogEvent => states.logEvent,
+);
+
+// Next Logged Events
+export const getNextLoggedEvents = createSelector(
+  getController,
+  (states: ControllerStates): LogEvent[] => states.nextLogEvents.logEvents,
+);
+
+// Patient Alarm Event
+export const getExpectedLoggedEvent = createSelector(
+  getController,
+  (states: ControllerStates): number => states.expectedLoggedEvent.id,
+);
+
+// Active logged event Ids
+export const getActiveLoggedEventIds = createSelector(
+  getController,
+  (states: ControllerStates): number[] => states.activeLogEvents.id,
+);
+
+// Active popup event log
+export const getPopupEventLog = createSelector(getController, (states: ControllerStates):
+  | LogEvent
+  | undefined => {
+  const maxId = Math.max(...states.activeLogEvents.id);
+  return states.nextLogEvents.logEvents.find((el: LogEvent) => el.id === maxId);
+});

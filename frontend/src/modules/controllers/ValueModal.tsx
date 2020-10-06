@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core';
+import { useSelector } from 'react-redux';
 import ValueClicker from './ValueClicker';
 import ModalPopup from './ModalPopup';
+import { getRotaryEncoder } from '../../store/controller/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   contentContainer: {
@@ -37,6 +39,7 @@ interface Props {
   label: string;
   units: string;
   committedSetting: number;
+  disableSetNewButton?: boolean;
   requestCommitSetting(setting: number): void;
 }
 
@@ -44,11 +47,21 @@ export const ValueModal = ({
   label,
   units,
   committedSetting,
+  disableSetNewButton = false,
   requestCommitSetting,
 }: Props): JSX.Element => {
   const classes = useStyles();
+  const rotaryEncoder = useSelector(getRotaryEncoder);
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(committedSetting);
+
+  const initSetValue = useCallback(() => {
+    setValue(committedSetting);
+  }, [committedSetting]);
+
+  useEffect(() => {
+    initSetValue();
+  }, [initSetValue]);
 
   const handleOpen = () => {
     setOpen(true);
@@ -60,7 +73,35 @@ export const ValueModal = ({
 
   const handleConfirm = () => {
     requestCommitSetting(value);
+    setOpen(false);
   };
+
+  const updateRotaryData = useCallback(
+    () => {
+      if (open) {
+        const stepDiff = rotaryEncoder.stepDiff || 0;
+        const valueClone = value >= 0 ? value : 0;
+        const newValue = valueClone + stepDiff;
+        // TODO: Replace 0/100 with respective min/max value
+        if (newValue < 0) {
+          setValue(0);
+        } else if (newValue > 100) {
+          setValue(100);
+        } else {
+          setValue(newValue);
+        }
+        if (rotaryEncoder.buttonPressed) {
+          handleConfirm();
+        }
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [rotaryEncoder.step, rotaryEncoder.buttonPressed],
+  );
+
+  useEffect(() => {
+    updateRotaryData();
+  }, [updateRotaryData]);
 
   function pipClarify(label: string) {
     if (label === 'PIP') return '*not PEEP compensated';
@@ -70,14 +111,16 @@ export const ValueModal = ({
   return (
     <Grid container direction="column" alignItems="center" justify="center">
       <Grid container item xs>
-        <Button
-          onClick={handleOpen}
-          color="primary"
-          variant="contained"
-          className={classes.openButton}
-        >
-          Set New
-        </Button>
+        {!disableSetNewButton && (
+          <Button
+            onClick={handleOpen}
+            color="primary"
+            variant="contained"
+            className={classes.openButton}
+          >
+            Set New
+          </Button>
+        )}
       </Grid>
       <ModalPopup
         withAction={true}

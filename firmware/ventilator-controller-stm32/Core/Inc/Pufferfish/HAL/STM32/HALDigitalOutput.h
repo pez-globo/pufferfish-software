@@ -23,13 +23,8 @@ class HALDigitalOutput : public DigitalOutput {
    * @param pin   GPIO pin of the MCU (1, 2, ...)
    * @param inverted   true if the output is active-low, false for active-high
    */
-  HALDigitalOutput(GPIO_TypeDef &port, const uint16_t pin, const bool inverted =
-  false)
-      :
-      mPort(port),
-      mPin(pin),
-      mInverted(inverted) {
-  }
+  HALDigitalOutput(GPIO_TypeDef &port, const uint16_t pin, const bool inverted = false)
+      : port_(port), pin(pin), inverted(inverted) {}
 
   /**
    * Writes a digital output to the GPIO pin
@@ -38,11 +33,12 @@ class HALDigitalOutput : public DigitalOutput {
    *  false otherwise
    */
   void write(bool output) override;
+
  private:
-  GPIO_TypeDef &mPort;
-  const uint16_t mPin;
-  const bool mInverted;
+  GPIO_TypeDef &port_;
+  const uint16_t pin;
+  const bool inverted;
 };
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

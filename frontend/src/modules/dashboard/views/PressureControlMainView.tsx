@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Tabs, Tab, Typography } from '@material-ui/core';
-import { PawGraphInfo, FlowGraphInfo } from '../containers';
+import { PawGraphInfo, FlowGraphInfo, VolumeGraphInfo, PVLoopGraphInfo } from '../containers';
 import { TabPanel, a11yProps } from '../../controllers/TabPanel';
 import { PIPInfo, RRInfo, PEEPInfo, FiO2Info, TVInfo, IERatioInfo } from '../../info';
 
@@ -112,14 +112,13 @@ const PressureControlMainView = (): JSX.Element => {
                 className={classes.tab}
                 classes={{ selected: classes.selectedTab }}
               />
-              {/* NOTE: The 2 tabs below are disabled until their functionality is implemented. */}
               <Tab
                 label="PV Loops"
                 {...a11yProps(1)}
                 className={classes.tab}
-                disabled
                 classes={{ selected: classes.selectedTab }}
               />
+              {/* NOTE: The tab below is disabled until their functionality is implemented. */}
               <Tab
                 label="Compliance"
                 {...a11yProps(2)}
@@ -131,20 +130,22 @@ const PressureControlMainView = (): JSX.Element => {
           </Grid>
           <TabPanel value={value} index={0}>
             <Grid container item xs justify="space-between" style={{ height: '100%' }}>
-              <Grid item container style={{ height: '48%' }}>
+              <Grid item container style={{ height: '36%' }}>
                 <PawGraphInfo />
               </Grid>
-              <Grid item style={{ height: '4%' }} />
-              <Grid item container style={{ height: '48%' }}>
+              <Grid item style={{ height: '0%' }} />
+              <Grid item container style={{ height: '36%' }}>
                 <FlowGraphInfo />
+              </Grid>
+              <Grid item style={{ height: '0%' }} />
+              <Grid item container style={{ height: '36%' }}>
+                <VolumeGraphInfo />
               </Grid>
             </Grid>
           </TabPanel>
           <TabPanel value={value} index={1}>
             <Grid container item xs style={{ height: '100%' }}>
-              <Grid item xs>
-                <Typography>PV Loops</Typography>
-              </Grid>
+              <PVLoopGraphInfo />
             </Grid>
           </TabPanel>
           <TabPanel value={value} index={2}>

@@ -76,7 +76,7 @@ export const Waveform = ({
   });
   function findAxis(type: string) {
     if (type === 'flow') return yScale2;
-    if (type === 'paw') return yScale1;
+    if (type === 'paw' || type === 'volume') return yScale1;
     return yScale;
   }
   function fillF(fill: boolean) {

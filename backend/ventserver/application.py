@@ -1,15 +1,21 @@
 """Trio I/O with sans-I/O protocol, running application."""
 
 import logging
+import functools
 
 import trio
+import RPi.GPIO as GPIO # type:ignore
 
 from ventserver.integration import _trio
 from ventserver.io.trio import _serial
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
+from ventserver.io.trio import rotaryencoder
 from ventserver.protocols import server
 from ventserver.protocols.protobuf import mcu_pb as pb
+
+
+GPIO.setmode(GPIO.BCM)
 
 
 logger = logging.getLogger()
@@ -30,6 +36,9 @@ async def main() -> None:
     # I/O Endpoints
     serial_endpoint = _serial.Driver()
     websocket_endpoint = websocket.Driver()
+    rotary_encoder = rotaryencoder.Driver()
+
+    await rotary_encoder.open()
 
     # Server Receive Outputs
     channel: channels.TrioChannel[
@@ -39,10 +48,7 @@ async def main() -> None:
     # Initialize State
     all_states = protocol.receive.backend.all_states
     all_states[pb.ParametersRequest] = pb.ParametersRequest(
-        mode=pb.VentilationMode(
-            support=pb.SpontaneousSupport.ac,
-            cycling=pb.VentilationCycling.pc
-        ),
+        mode=pb.VentilationMode.pc_ac,
         pip=30, peep=10, rr=30, ie=1, fio2=60
     )
 
@@ -50,9 +56,12 @@ async def main() -> None:
         async with channel.push_endpoint:
             async with trio.open_nursery() as nursery:
                 nursery.start_soon(
-                    # mypy only supports <= 4 args with trio-typing
-                    _trio.process_all, serial_endpoint,
-                    protocol, websocket_endpoint, channel, channel.push_endpoint
+                    # mypy only supports <= 5 args with trio-typing
+                    functools.partial(_trio.process_all,
+                                      channel=channel,
+                                      push_endpoint=channel.push_endpoint),
+                    protocol, serial_endpoint,
+                    websocket_endpoint, rotary_encoder
                 )
 
                 while True:

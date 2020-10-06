@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import ValueSlider from './ValueSlider';
 import ValueClicker from './ValueClicker';
 import { getAlarmLimitsRequest } from '../../store/controller/selectors';
-import { ALARM_LIMITS } from '../../store/controller/types';
+import { ALARM_LIMITS, ALARM_LIMITS_STANDBY } from '../../store/controller/types';
 import { updateCommittedState } from '../../store/controller/actions';
 import ModalPopup from './ModalPopup';
 
@@ -85,6 +85,12 @@ export const AlarmModal = ({
   const handleConfirm = () => {
     dispatch(
       updateCommittedState(ALARM_LIMITS, {
+        [`${stateKey}Min`]: rangeValue[0],
+        [`${stateKey}Max`]: rangeValue[1],
+      }),
+    );
+    dispatch(
+      updateCommittedState(ALARM_LIMITS_STANDBY, {
         [`${stateKey}Min`]: rangeValue[0],
         [`${stateKey}Max`]: rangeValue[1],
       }),
