@@ -85,16 +85,16 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
         self.sequence += dt_gpio1
 
     def button_rise(self, gpio, level, tick) -> None:
-        if not self._state.pressed:
-            self._state.pressed = True
+        if self._state.button_pressed:
+            self._state.button_pressed = False
             trio.from_thread.run_sync(
                 self._data_available.set,
                 trio_token=self.trio_token
             )
 
     def button_fall(self, gpio, level, tick) -> None:
-        if self._state.pressed:
-            self._state.pressed = False
+        if not self._state.button_pressed:
+            self._state.button_pressed = True
             trio.from_thread.run_sync(
                 self._data_available.set,
                 trio_token=self.trio_token
@@ -163,7 +163,7 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
             )
             self.pi.set_glitch_filter(
                 self._props.button_pin,
-                self._props.button_debounce_time
+                self._state.button_debounce_time
             )
             self.pi.callback(
                 self._props.button_pin,
