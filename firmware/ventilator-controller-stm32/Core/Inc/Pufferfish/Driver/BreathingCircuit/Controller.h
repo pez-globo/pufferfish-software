@@ -15,7 +15,12 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
-struct Actuators {
+struct SensorVars {
+  float flow_air;
+  float flow_o2;
+};
+
+struct ActuatorVars {
   float valve_opening;
 };
 
@@ -24,20 +29,20 @@ class Controller {
   Controller(
       const Parameters &parameters,
       const SensorMeasurements &sensor_measurements,
-      Actuators &actuators)
-      : parameters_(parameters), sensor_measurements_(sensor_measurements), actuators_(actuators) {}
+      ActuatorVars &actuator_vars)
+      : parameters_(parameters), sensor_measurements_(sensor_measurements), actuator_vars_(actuator_vars) {}
 
   virtual void update(uint32_t current_time) = 0;
 
  protected:
   [[nodiscard]] const Parameters &parameters() const;
   [[nodiscard]] const SensorMeasurements &sensor_measurements() const;
-  Actuators &actuators();
+  ActuatorVars &actuator_vars();
 
  private:
   const Parameters &parameters_;
   const SensorMeasurements &sensor_measurements_;
-  Actuators &actuators_;
+  ActuatorVars &actuator_vars_;
 };
 
 class HFNCController : public Controller {
@@ -45,8 +50,8 @@ class HFNCController : public Controller {
   HFNCController(
       const Parameters &parameters,
       const SensorMeasurements &sensor_measurements,
-      Actuators &actuators)
-      : Controller(parameters, sensor_measurements, actuators) {}
+      ActuatorVars &actuator_vars)
+      : Controller(parameters, sensor_measurements, actuator_vars) {}
 
   void update(uint32_t current_time) override;
 

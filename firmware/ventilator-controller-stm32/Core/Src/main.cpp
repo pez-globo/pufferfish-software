@@ -27,7 +27,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <algorithm>
 #include <array>
+#include <functional>
 
 #include "Pufferfish/AlarmsManager.h"
 #include "Pufferfish/Application/States.h"
@@ -251,8 +253,10 @@ PF::HAL::HALI2CDevice i2c_hal_press16(hi2c2, PF::Driver::I2C::SFM3000::default_i
 PF::HAL::HALI2CDevice i2c_hal_press17(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_press18(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);*/
 
-PF::HAL::HALI2CDevice i2c_hal_global(hi2c2, 0x00);
-PF::HAL::HALI2CDevice i2c_hal_sfm3019(hi2c2, PF::Driver::I2C::SFM3019::default_i2c_addr);
+PF::HAL::HALI2CDevice i2c2_hal_global(hi2c2, 0x00);
+PF::HAL::HALI2CDevice i2c4_hal_global(hi2c4, 0x00);
+PF::HAL::HALI2CDevice i2c_hal_sfm3019_air(hi2c2, PF::Driver::I2C::SFM3019::default_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_sfm3019_o2(hi2c4, PF::Driver::I2C::SFM3019::default_i2c_addr);
 /*
 // I2C Mux
 PF::Driver::I2C::TCA9548A i2c_mux1(i2c_hal_mux1);
@@ -292,8 +296,15 @@ PF::Driver::I2C::SFM3000 i2c_press16(i2c_ext_press16);
 PF::Driver::I2C::SDPSensor i2c_press17(i2c_ext_press17);
 PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 */
-PF::Driver::I2C::SFM3019::Device sfm3019_dev(i2c_hal_sfm3019, i2c_hal_global);
-PF::Driver::I2C::SFM3019::Sensor sfm3019(sfm3019_dev, all_states.sensor_measurements().flow);
+PF::Driver::BreathingCircuit::SensorVars sensor_vars;
+PF::Driver::I2C::SFM3019::Device sfm3019_dev_air(i2c_hal_sfm3019_air, i2c2_hal_global);
+PF::Driver::I2C::SFM3019::Sensor sfm3019_air(sfm3019_dev_air, sensor_vars.flow_air, true);
+
+PF::Driver::I2C::SFM3019::Device sfm3019_dev_o2(i2c_hal_sfm3019_o2, i2c4_hal_global);
+PF::Driver::I2C::SFM3019::Sensor sfm3019_o2(sfm3019_dev_o2, sensor_vars.flow_o2, true);
+
+auto sensors = PF::Util::make_array<std::reference_wrapper<PF::Driver::I2C::SFM3019::Sensor>>(sfm3019_air, sfm3019_o2);
+std::array<PF::SensorState, sensors.size()> sensor_states;
 
 /*
 // Test list
@@ -319,9 +330,10 @@ int interface_test_state = 0;
 int interface_test_millis = 0;
 
 // Breathing Circuit Control
-PF::Driver::BreathingCircuit::Actuators actuators;
+PF::Driver::BreathingCircuit::ActuatorVars actuator_vars;
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
-    all_states.parameters(), all_states.sensor_measurements(), sfm3019, actuators, drive1_ch1);
+    all_states.parameters(), all_states.sensor_measurements(),
+    sensor_vars, sfm3019_air, sfm3019_o2, actuator_vars, drive1_ch1);
 
 /* USER CODE END PV */
 
@@ -481,15 +493,15 @@ int main(void)
     uint32_t current_time = PF::HAL::millis();
     blinker.update(current_time);
     flasher.update(current_time);
-    PF::SensorState sfm3019_state = sfm3019.update();
-    if (sfm3019_state == PF::SensorState::ok) {
-      break;
+    for (size_t i = 0; i < sensors.size(); ++i) {
+      sensor_states[i] = sensors[i].get().update();
     }
-
-    if (sfm3019_state == PF::SensorState::setup) {
-      board_led1.write(blinker.output());
-    } else {
+    if (std::find(sensor_states.cbegin(), sensor_states.cend(), PF::SensorState::failed) != sensor_states.cend()) {
       board_led1.write(flasher.output());
+    } else if (std::find(sensor_states.cbegin(), sensor_states.cend(), PF::SensorState::setup) != sensor_states.cend()) {
+      board_led1.write(blinker.output());
+    } else { // All sensor states are ok
+      break;
     }
   }
 
@@ -518,18 +530,18 @@ int main(void)
     // Breathing Circuit Control Loop
     hfnc.update(current_time);
     // Indicators for debugging
-    if (actuators.valve_opening > valve_opening_indicator_threshold) {
+    /*if (actuator_vars.valve_opening > valve_opening_indicator_threshold) {
       board_led1.write(true);
     } else {
       board_led1.write(dimmer.output());
-    }
-    /*if (all_states.sensor_measurements().flow > 1) {
+    }*/
+    if (sensor_vars.flow_o2 > 1 || sensor_vars.flow_air > 1) {
       board_led1.write(true);
-    } else if (all_states.sensor_measurements().flow < -1) {
+    } else if (sensor_vars.flow_o2 < -1 || sensor_vars.flow_air < -1) {
       board_led1.write(dimmer.output());
     } else {
       board_led1.write(false);
-    }*/
+    }
 
     // Backend Communication Protocol
     backend.receive();

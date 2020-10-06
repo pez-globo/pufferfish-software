@@ -19,8 +19,8 @@ const SensorMeasurements &Controller::sensor_measurements() const {
   return sensor_measurements_;
 }
 
-Actuators &Controller::actuators() {
-  return actuators_;
+ActuatorVars &Controller::actuator_vars() {
+  return actuator_vars_;
 }
 
 // HFNC Controller
@@ -40,12 +40,12 @@ void HFNCController::update(uint32_t /*current_time*/) {
     error_integral_ = i_max;
   }
 
-  actuators().valve_opening = error_ * p_gain + error_integral_ * i_gain;
-  if (actuators().valve_opening < 0) {
-    actuators().valve_opening = 0;
+  actuator_vars().valve_opening = error_ * p_gain + error_integral_ * i_gain;
+  if (actuator_vars().valve_opening < 0) {
+    actuator_vars().valve_opening = 0;
   }
-  if (actuators().valve_opening > 1) {
-    actuators().valve_opening = 1;
+  if (actuator_vars().valve_opening > 1) {
+    actuator_vars().valve_opening = 1;
   }
 }
 

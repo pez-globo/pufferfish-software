@@ -38,13 +38,15 @@ void HFNCControlLoop::update(uint32_t current_time) {
 
   // Update sensors
   // TODO(lietk12): handle errors from sensors
-  sfm3019_.update();
+  sfm3019_air_.update();
+  sfm3019_o2_.update();
+  sensor_measurements_.flow = sensor_vars_.flow_air + sensor_vars_.flow_o2;
 
   // Update controller
   controller_.update(current_time);
 
   // Update actuators
-  valve_.set_duty_cycle(actuators_.valve_opening);
+  valve_.set_duty_cycle(actuator_vars_.valve_opening);
 
   advance_step_time(current_time);
 }

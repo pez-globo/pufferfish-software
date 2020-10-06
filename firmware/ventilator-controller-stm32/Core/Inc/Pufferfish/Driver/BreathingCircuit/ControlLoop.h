@@ -40,26 +40,35 @@ class HFNCControlLoop : public ControlLoop {
   HFNCControlLoop(
       const Parameters &parameters,
       SensorMeasurements &sensor_measurements,
-      Driver::I2C::SFM3019::Sensor &sfm3019,
-      Actuators &actuators,
+      SensorVars &sensor_vars,
+      Driver::I2C::SFM3019::Sensor &sfm3019_air,
+      Driver::I2C::SFM3019::Sensor &sfm3019_o2,
+      ActuatorVars &actuator_vars,
       HAL::PWM &valve)
       : parameters_(parameters),
-        controller_(parameters, sensor_measurements, actuators),
-        sfm3019_(sfm3019),
-        actuators_(actuators),
+        sensor_measurements_(sensor_measurements),
+        controller_(parameters, sensor_measurements, actuator_vars),
+        sensor_vars_(sensor_vars),
+        sfm3019_air_(sfm3019_air),
+        sfm3019_o2_(sfm3019_o2),
+        actuator_vars_(actuator_vars),
         valve_(valve) {}
 
   void update(uint32_t current_time) override;
 
  private:
   const Parameters &parameters_;
+  SensorMeasurements &sensor_measurements_;
+
   HFNCController controller_;
 
-  // Sensors
-  Driver::I2C::SFM3019::Sensor &sfm3019_;
+  // SensorVars
+  SensorVars &sensor_vars_;
+  Driver::I2C::SFM3019::Sensor &sfm3019_air_;
+  Driver::I2C::SFM3019::Sensor &sfm3019_o2_;
 
-  // Actuators
-  Actuators actuators_;
+  // ActuatorVars
+  ActuatorVars &actuator_vars_;
   HAL::PWM &valve_;
 };
 

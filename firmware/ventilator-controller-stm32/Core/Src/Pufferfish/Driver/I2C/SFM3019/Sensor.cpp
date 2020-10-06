@@ -81,10 +81,12 @@ SensorState Sensor::initialize(uint32_t current_time_us) {
 
   retry_count_ = 0;
   // Reset the device
-  while (device_.reset() != I2CDeviceStatus::ok) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
-      return SensorState::failed;
+  if (resetter) {
+    while (device_.reset() != I2CDeviceStatus::ok) {
+      ++retry_count_;
+      if (retry_count_ > max_retries_setup) {
+        return SensorState::failed;
+      }
     }
   }
 

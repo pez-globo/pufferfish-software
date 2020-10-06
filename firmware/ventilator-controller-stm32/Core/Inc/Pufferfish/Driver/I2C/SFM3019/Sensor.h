@@ -45,7 +45,7 @@ class StateMachine {
 class Sensor {
  public:
   // TODO(lietk12): should we move float &flow to the update method and rename update to output?
-  Sensor(Device &device, float &flow) : device_(device), flow_(flow) {}
+  Sensor(Device &device, float &flow, bool resetter) : resetter(resetter), device_(device), flow_(flow) {}
 
   SensorState update();
 
@@ -57,6 +57,8 @@ class Sensor {
   static constexpr float flow_max = 200;        // L/min
   static const size_t max_retries_setup = 8;    // max retries for all setup steps combined
   static const size_t max_retries_measure = 8;  // max retries between valid outputs
+
+  const bool resetter;
 
   Device &device_;
   StateMachine fsm_;
