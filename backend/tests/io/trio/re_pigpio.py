@@ -12,19 +12,19 @@ GPIO.setmode(GPIO.BCM)
 async def main() -> None:
     """"""
     driver = rotaryencoder1.Driver()
-    # protocol = rotary_encoder.ReceiveFilter()
+    protocol = rotary_encoder.ReceiveFilter()
     await driver.open()
     # samples = list()
-    # try:
+    try:
         async for each in driver.receive_all():
-    #         protocol.input(rotary_encoder.ReceiveEvent(
-    #                             time=time.time(),
-    #                             re_data=each
-    #                     ))
-    #         out = protocol.output()
-    #         # samples.append(out)
-            print("received:",each)
-            await trio.sleep(0.10)
+             protocol.input(rotary_encoder.ReceiveEvent(
+                                 time=time.time(),
+                                 re_data=each
+                         ))
+             out = protocol.output()
+             # samples.append(out)
+             print("received:",out)
+             await trio.sleep(0.10)
     except Exception as err:
         print(err)
     finally:

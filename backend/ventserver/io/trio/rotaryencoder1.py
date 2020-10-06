@@ -114,7 +114,7 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
 
             self.pi.set_glitch_filter(
                 self._props.a_quad_pin,
-                self._state.debounce
+                self._state.debounce_time
             )
             self.pi.callback(
                 self._props.a_quad_pin,
@@ -128,7 +128,7 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
             )
             self.pi.set_glitch_filter(
                 self._props.b_quad_pin,
-                self._state.debounce
+                self._state.debounce_time
             )
             self.pi.callback(
                 self._props.b_quad_pin,
