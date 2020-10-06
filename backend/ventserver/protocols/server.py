@@ -216,7 +216,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         return self._backend
 
     @property
-    def file(self) -> file.ReceiveFilter:
+    def file(self) -> file_filters.ReceiveFilter:
         """Return the file receiver"""
         return self._filerw
 
@@ -275,7 +275,7 @@ class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
             pass
 
     @property
-    def file(self) -> file.SendFilter:
+    def file(self) -> file_filters.SendFilter:
         """Return file sendfilter"""
         return self._filerw
 
