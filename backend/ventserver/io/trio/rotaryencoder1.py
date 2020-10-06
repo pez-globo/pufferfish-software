@@ -33,6 +33,7 @@ class RotaryEncoderState:
     button_pressed: bool = attr.ib(default=False, repr=False)
     last_pressed: int = attr.ib(default=None, repr=False)
     debounce_time: int = attr.ib(default=300) # debounce time in us
+    button_debounce_time: int = attr.ib(default=100) # debounce time in us
 
 
 @attr.s
@@ -82,6 +83,22 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
         if len(self.sequence) > 2:
             self.sequence = ''
         self.sequence += dt_gpio1
+
+    def button_rise(self, gpio, level, tick) -> None:
+        if not self._state.pressed:
+            self._state.pressed = True
+            trio.from_thread.run_sync(
+                self._data_available.set,
+                trio_token=self.trio_token
+            )
+
+    def button_fall(self, gpio, level, tick) -> None:
+        if self._state.pressed:
+            self._state.pressed = False
+            trio.from_thread.run_sync(
+                self._data_available.set,
+                trio_token=self.trio_token
+            )
 
 
     @property
@@ -139,7 +156,25 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
                 self._props.b_quad_pin,
                 pigpio.RISING_EDGE, 
                 self.b_quad_rise
-            )            
+            )
+            self.pi.set_pull_up_down(
+                self._props.button_pin,
+                pigpio.PUD_UP
+            )
+            self.pi.set_glitch_filter(
+                self._props.button_pin,
+                self._props.button_debounce_time
+            )
+            self.pi.callback(
+                self._props.button_pin,
+                pigpio.FALLING_EDGE,
+                self.button_fall
+            )
+            self.pi.callback(
+                self._props.button_pin,
+                pigpio.RISING_EDGE,
+                self.button_rise
+            )
         except Exception as err:
             raise IOError(err)
 
