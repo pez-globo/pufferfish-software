@@ -31,12 +31,12 @@ SCENARIO("PWMGenerator generates a PWM signal", "[PulseGenerator]") {
 
       AND_THEN("signal stays constant until clock advances") {
         REQUIRE(pwm.output());
-        pwm.update(start_time);
+        pwm.input(start_time);
         REQUIRE(pwm.output());
       }
 
       AND_THEN("falling edge occurs") {
-        pwm.update(start_time + pulse_width);
+        pwm.input(start_time + pulse_width);
         REQUIRE(!pwm.output());
       }
 

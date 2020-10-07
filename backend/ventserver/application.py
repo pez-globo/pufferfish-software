@@ -2,15 +2,18 @@
 
 import logging
 import functools
-from typing import Optional
 
 import trio
+
+try:
+    from ventserver.io.trio import rotaryencoder
+except RuntimeError:
+    logging.getLogger().warning('Running without pigpio!')
 
 from ventserver.integration import _trio
 from ventserver.io.trio import _serial
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
-from ventserver.io.trio import rotaryencoder
 from ventserver.protocols import server
 from ventserver.protocols import exceptions
 from ventserver.protocols.protobuf import mcu_pb as pb
@@ -33,20 +36,21 @@ async def main() -> None:
 
     # I/O Endpoints
     serial_endpoint = _serial.Driver()
-    websocket_endpoint = websocket.Driver()
-    rotary_encoder: Optional[rotaryencoder.Driver] = rotaryencoder.Driver()
+    websocket_endpoint = websocket.Driver()    
 
+    rotary_encoder = None
     try:
-        assert rotary_encoder is not None
-        await rotary_encoder.open()
-    except exceptions.ProtocolError as err:
-        exception = (
-            "Unable to connect the rotary encoder, please check the "
-            "serial connection. Check if the pigpiod service is running: "
-        )
-        logger.error(exception, err)
-        rotary_encoder = None
-
+        rotary_encoder = rotaryencoder.Driver()
+        try:
+            await rotary_encoder.open()
+        except exceptions.ProtocolError as err:
+            exception = (
+                "Unable to connect the rotary encoder, please check the "
+                "serial connection. Check if the pigpiod service is running: "
+            )
+            logger.error(exception, err)
+    except NameError:
+        logger.warning('Running without rotary encoder support!')
 
     # Server Receive Outputs
     channel: channels.TrioChannel[

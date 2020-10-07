@@ -27,7 +27,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <algorithm>
 #include <array>
+#include <functional>
 
 #include "Pufferfish/AlarmsManager.h"
 #include "Pufferfish/Application/States.h"
@@ -102,12 +104,10 @@ namespace PF = Pufferfish;
 PF::Application::States all_states;
 
 // Parameters
-PF::Driver::BreathingCircuit::ParametersServices parameters_service(
-    all_states.parameters_request(), all_states.parameters());
+PF::Driver::BreathingCircuit::ParametersServices parameters_service;
 
 // Breathing Circuit Simulation
-PF::Driver::BreathingCircuit::Simulators simulator(
-    all_states.parameters(), all_states.sensor_measurements(), all_states.cycle_measurements());
+PF::Driver::BreathingCircuit::Simulators simulator;
 
 // HAL Utilities
 PF::HAL::CRC32C crc32c(hcrc);
@@ -251,8 +251,10 @@ PF::HAL::HALI2CDevice i2c_hal_press16(hi2c2, PF::Driver::I2C::SFM3000::default_i
 PF::HAL::HALI2CDevice i2c_hal_press17(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_press18(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);*/
 
-PF::HAL::HALI2CDevice i2c_hal_global(hi2c2, 0x00);
-PF::HAL::HALI2CDevice i2c_hal_sfm3019(hi2c2, PF::Driver::I2C::SFM3019::default_i2c_addr);
+PF::HAL::HALI2CDevice i2c2_hal_global(hi2c2, 0x00);
+PF::HAL::HALI2CDevice i2c4_hal_global(hi2c4, 0x00);
+PF::HAL::HALI2CDevice i2c_hal_sfm3019_air(hi2c2, PF::Driver::I2C::SFM3019::default_i2c_addr);
+PF::HAL::HALI2CDevice i2c_hal_sfm3019_o2(hi2c4, PF::Driver::I2C::SFM3019::default_i2c_addr);
 /*
 // I2C Mux
 PF::Driver::I2C::TCA9548A i2c_mux1(i2c_hal_mux1);
@@ -292,8 +294,15 @@ PF::Driver::I2C::SFM3000 i2c_press16(i2c_ext_press16);
 PF::Driver::I2C::SDPSensor i2c_press17(i2c_ext_press17);
 PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 */
-PF::Driver::I2C::SFM3019::Device sfm3019_dev(i2c_hal_sfm3019, i2c_hal_global);
-PF::Driver::I2C::SFM3019::Sensor sfm3019(sfm3019_dev, all_states.sensor_measurements().flow);
+PF::Driver::I2C::SFM3019::Device sfm3019_dev_air(i2c_hal_sfm3019_air, i2c2_hal_global);
+PF::Driver::I2C::SFM3019::Sensor sfm3019_air(sfm3019_dev_air, true);
+
+PF::Driver::I2C::SFM3019::Device sfm3019_dev_o2(i2c_hal_sfm3019_o2, i2c4_hal_global);
+PF::Driver::I2C::SFM3019::Sensor sfm3019_o2(sfm3019_dev_o2, true);
+
+auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
+    sfm3019_air, sfm3019_o2);
+std::array<PF::InitializableState, initializables.size()> initialization_states;
 
 /*
 // Test list
@@ -319,9 +328,8 @@ int interface_test_state = 0;
 int interface_test_millis = 0;
 
 // Breathing Circuit Control
-PF::Driver::BreathingCircuit::Actuators actuators;
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
-    all_states.parameters(), all_states.sensor_measurements(), sfm3019, actuators, drive1_ch1);
+    all_states.parameters(), all_states.sensor_measurements(), sfm3019_air, sfm3019_o2, drive1_ch1);
 
 /* USER CODE END PV */
 
@@ -478,18 +486,30 @@ int main(void)
 
   board_led1.write(false);
   while (true) {
+    // Update indicators
     uint32_t current_time = PF::HAL::millis();
-    blinker.update(current_time);
-    flasher.update(current_time);
-    PF::SensorState sfm3019_state = sfm3019.update();
-    if (sfm3019_state == PF::SensorState::ok) {
-      break;
+    blinker.input(current_time);
+    flasher.input(current_time);
+
+    // Run setup on all initializables
+    for (size_t i = 0; i < initializables.size(); ++i) {
+      initialization_states[i] = initializables[i].get().setup();
     }
 
-    if (sfm3019_state == PF::SensorState::setup) {
-      board_led1.write(blinker.output());
-    } else {
+    // Check initializables' states
+    if (std::find(  // At least one has failed
+            initialization_states.cbegin(),
+            initialization_states.cend(),
+            PF::InitializableState::failed) != initialization_states.cend()) {
       board_led1.write(flasher.output());
+    } else if (  // At least one is still in setup
+        std::find(
+            initialization_states.cbegin(),
+            initialization_states.cend(),
+            PF::InitializableState::setup) != initialization_states.cend()) {
+      board_led1.write(blinker.output());
+    } else {  // All are done with setup and ok
+      break;
     }
   }
 
@@ -498,38 +518,40 @@ int main(void)
   board_led1.write(false);
 
   // Normal loop
-  static constexpr float valve_opening_indicator_threshold = 0.5;
-
   while (true) {
     uint32_t current_time = PF::HAL::millis();
 
     // Software PWM signals
-    flasher.update(PF::HAL::millis());
-    blinker.update(PF::HAL::millis());
-    dimmer.update(PF::HAL::millis());
+    flasher.input(PF::HAL::millis());
+    blinker.input(PF::HAL::millis());
+    dimmer.input(PF::HAL::millis());
 
     // Parameters update
-    parameters_service.update();
+    parameters_service.transform(all_states.parameters_request(), all_states.parameters());
 
     // Breathing Circuit Sensor Simulator
-    simulator.update_clock(current_time);
-    simulator.update_sensors();
+    simulator.transform(
+        current_time,
+        all_states.parameters(),
+        all_states.sensor_measurements(),
+        all_states.cycle_measurements());
 
     // Breathing Circuit Control Loop
     hfnc.update(current_time);
     // Indicators for debugging
-    if (actuators.valve_opening > valve_opening_indicator_threshold) {
+    /*static constexpr float valve_opening_indicator_threshold = 0.5;
+    if (actuator_vars.valve_opening > valve_opening_indicator_threshold) {
       board_led1.write(true);
     } else {
       board_led1.write(dimmer.output());
-    }
-    /*if (all_states.sensor_measurements().flow > 1) {
+    }*/
+    if (hfnc.sensor_vars().flow_o2 > 1 || hfnc.sensor_vars().flow_air > 1) {
       board_led1.write(true);
-    } else if (all_states.sensor_measurements().flow < -1) {
+    } else if (hfnc.sensor_vars().flow_o2 < -1 || hfnc.sensor_vars().flow_air < -1) {
       board_led1.write(dimmer.output());
     } else {
       board_led1.write(false);
-    }*/
+    }
 
     // Backend Communication Protocol
     backend.receive();
@@ -844,7 +866,7 @@ static void MX_I2C2_Init(void)
 
   /* USER CODE END I2C2_Init 1 */
   hi2c2.Instance = I2C2;
-  hi2c2.Init.Timing = 0x10707DBC;
+  hi2c2.Init.Timing = 0x00300B29;
   hi2c2.Init.OwnAddress1 = 0;
   hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -868,6 +890,9 @@ static void MX_I2C2_Init(void)
   {
     Error_Handler();
   }
+  /** I2C Enable Fast Mode Plus 
+  */
+  HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C2);
   /* USER CODE BEGIN I2C2_Init 2 */
 
   /* USER CODE END I2C2_Init 2 */
@@ -890,7 +915,7 @@ static void MX_I2C4_Init(void)
 
   /* USER CODE END I2C4_Init 1 */
   hi2c4.Instance = I2C4;
-  hi2c4.Init.Timing = 0x10707DBC;
+  hi2c4.Init.Timing = 0x00300B29;
   hi2c4.Init.OwnAddress1 = 0;
   hi2c4.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c4.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -914,6 +939,9 @@ static void MX_I2C4_Init(void)
   {
     Error_Handler();
   }
+  /** I2C Enable Fast Mode Plus 
+  */
+  HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C4);
   /* USER CODE BEGIN I2C4_Init 2 */
 
   /* USER CODE END I2C4_Init 2 */

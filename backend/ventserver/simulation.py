@@ -1,5 +1,6 @@
 """Trio I/O with sans-I/O protocol, running application."""
 
+import logging
 import random
 import time
 import functools
@@ -11,14 +12,32 @@ import attr
 import betterproto
 import trio
 
+try:
+    from ventserver.io.trio import rotaryencoder
+except RuntimeError:
+    logging.getLogger().warning('Running without RPi.GPIO!')
+
 from ventserver.integration import _trio
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
-from ventserver.io.trio import rotaryencoder
 from ventserver.protocols import server
 from ventserver.protocols import exceptions
 from ventserver.protocols.protobuf import mcu_pb
 
+
+# Configure logging
+
+logger = logging.getLogger()
+handler = logging.StreamHandler()
+formatter = logging.Formatter(
+    '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
+
+# Simulators
 
 @attr.s
 class BreathingCircuitSimulator:
@@ -318,19 +337,22 @@ async def main() -> None:
     protocol = server.Protocol()
 
     # I/O Endpoints
-    rotary_encoder: Optional[rotaryencoder.Driver] = rotaryencoder.Driver()
     websocket_endpoint = websocket.Driver()
 
+    rotary_encoder = None
     try:
-        assert rotary_encoder is not None
-        await rotary_encoder.open()
-    except exceptions.ProtocolError as err:
-        exception = (
-            "Unable to connect the rotary encoder, please check the "
-            "serial connection. Check if the pigpiod service is running: "
-        )
-        print(exception, err) # add logger
-        rotary_encoder = None
+        rotary_encoder = rotaryencoder.Driver()
+        try:
+            await rotary_encoder.open()
+        except exceptions.ProtocolError as err:
+            exception = (
+                "Unable to connect the rotary encoder, please check the "
+                "serial connection. Check if the pigpiod service is running: "
+            )
+            logger.error(exception, err)
+    except NameError:
+        logger.warning('Running without rotary encoder support!')
+
 
     # Server Receive Outputs
     channel: channels.TrioChannel[

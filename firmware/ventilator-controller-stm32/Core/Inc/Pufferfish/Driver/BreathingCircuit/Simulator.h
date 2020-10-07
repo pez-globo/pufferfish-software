@@ -17,53 +17,37 @@ namespace Pufferfish::Driver::BreathingCircuit {
 
 class Simulator {
  public:
-  Simulator(
+  void input_clock(uint32_t current_time);
+  virtual void transform(
       const Parameters &parameters,
       SensorMeasurements &sensor_measurements,
-      CycleMeasurements &cycle_measurements)
-      : parameters_(parameters),
-        sensor_measurements_(sensor_measurements),
-        cycle_measurements_(cycle_measurements) {}
-
-  void update_clock(uint32_t current_time);
-  virtual void update_sensors() = 0;
+      CycleMeasurements &cycle_measurements) = 0;
 
  protected:
   static const uint32_t sensor_update_interval = 2;  // ms
   static constexpr float spo2_min = 21;              // % SpO2
   static constexpr float spo2_max = 100;             // % SpO2
 
-  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-  const Parameters &parameters_;
-  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-  SensorMeasurements &sensor_measurements_;
-  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-  CycleMeasurements &cycle_measurements_;
-
-  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-  uint32_t current_time_ = 0;  // ms
-  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-  uint32_t previous_time_ = 0;  // ms
-  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-  uint32_t initial_time_ = 0;  // ms
-
   static constexpr float fio2_responsiveness = 0.01;  // ms
 
   [[nodiscard]] constexpr uint32_t time_step() const { return current_time_ - previous_time_; }
   [[nodiscard]] bool update_needed() const;
 
-  void update_fio2();
+  [[nodiscard]] uint32_t current_time() const;
+  static void transform_fio2(float params_fio2, float &sensor_meas_fio2);
+
+ private:
+  uint32_t current_time_ = 0;   // ms
+  uint32_t previous_time_ = 0;  // ms
+  uint32_t initial_time_ = 0;   // ms
 };
 
 class PCACSimulator : public Simulator {
  public:
-  PCACSimulator(
+  void transform(
       const Parameters &parameters,
       SensorMeasurements &sensor_measurements,
-      CycleMeasurements &cycle_measurements)
-      : Simulator(parameters, sensor_measurements, cycle_measurements) {}
-
-  void update_sensors() override;
+      CycleMeasurements &cycle_measurements) override;
 
  private:
   static const uint32_t default_cycle_period = 2000;  // ms
@@ -80,21 +64,22 @@ class PCACSimulator : public Simulator {
   const float insp_flow_responsiveness = 0.02;  // ms
   const float exp_flow_responsiveness = 0.02;   // ms
 
-  void init_cycle(uint32_t cycle_period);
-  void update_cycle_measurements();
-  void update_airway_inspiratory();
-  void update_airway_expiratory();
+  void init_cycle(
+      uint32_t cycle_period, const Parameters &parameters, SensorMeasurements &sensor_measurements);
+  void transform_cycle_measurements(
+      const Parameters &parameters, CycleMeasurements &cycle_measurements);
+  void transform_airway_inspiratory(
+      const Parameters &parameters, SensorMeasurements &sensor_measurements);
+  void transform_airway_expiratory(
+      const Parameters &parameters, SensorMeasurements &sensor_measurements);
 };
 
 class HFNCSimulator : public Simulator {
  public:
-  HFNCSimulator(
+  void transform(
       const Parameters &parameters,
       SensorMeasurements &sensor_measurements,
-      CycleMeasurements &cycle_measurements)
-      : Simulator(parameters, sensor_measurements, cycle_measurements) {}
-
-  void update_sensors() override;
+      CycleMeasurements &cycle_measurements) override;
 
  private:
   static const uint32_t default_cycle_period = 2000;  // ms
@@ -107,29 +92,25 @@ class HFNCSimulator : public Simulator {
   const float spo2_responsiveness = 0.0005;  // ms
 
   void init_cycle();
-  void update_cycle_measurements();
-  void update_flow();
-  void update_spo2();
+  static void transform_rr(float params_rr, float &cycle_meas_rr);
+  void transform_flow(float params_flow, float &sens_meas_flow);
+  void transform_spo2(float fio2, float &spo2);
 };
 
 class Simulators {
  public:
-  Simulators(
+  void transform(
+      uint32_t current_time,
       const Parameters &parameters,
       SensorMeasurements &sensor_measurements,
-      CycleMeasurements &cycle_measurements)
-      : parameters_(parameters),
-        pc_ac_(parameters, sensor_measurements, cycle_measurements),
-        hfnc_(parameters, sensor_measurements, cycle_measurements) {}
-
-  void update_clock(uint32_t current_time);
-  void update_sensors();
+      CycleMeasurements &cycle_measurements);
 
  private:
-  const Parameters &parameters_;
   Simulator *active_simulator_ = nullptr;
   PCACSimulator pc_ac_;
   HFNCSimulator hfnc_;
+
+  void input_clock(uint32_t current_time);
 };
 
 }  // namespace Pufferfish::Driver::BreathingCircuit

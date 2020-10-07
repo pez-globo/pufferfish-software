@@ -4,8 +4,13 @@ import logging
 from typing import Optional, Tuple
 
 import attr
+
+try:
+    import pigpio     # type: ignore
+except RuntimeError:
+    logging.getLogger().warning('Running without pigpio!')
+
 import trio
-import pigpio   #type: ignore
 
 from ventserver.io import rotaryencoder
 from ventserver.io.trio import endpoints
@@ -15,13 +20,12 @@ from ventserver.protocols import exceptions
 # States
 DT_GPIO1 = 'D'  # dt_gpio is high
 DT_GPIO0 = 'd'  # dt_gpio is low
-CLK_GPIO1 = 'C' # clk_gpio is high
-CLK_GPIO0 = 'c' # clk_gpio is low
+CLK_GPIO1 = 'C'  # clk_gpio is high
+CLK_GPIO0 = 'c'  # clk_gpio is low
 
 # State sequences
 SEQUENCE_UP = DT_GPIO1 + CLK_GPIO1 + DT_GPIO0 + CLK_GPIO0
 SEQUENCE_DOWN = CLK_GPIO1 + DT_GPIO1 + CLK_GPIO0 + DT_GPIO0
-
 
 @attr.s
 class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
@@ -96,6 +100,7 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
         _, __, ___ = gpio, level, tick  # Unused args
         if not self.button_pressed:
             self.button_pressed = True
+            self.counter = 0
             trio.from_thread.run_sync(
                 self._data_available.set,
                 trio_token=self.trio_token
@@ -111,7 +116,6 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
     def is_open(self) -> bool:
         """Return whether or not the rotary encoder is connected."""
         return self._connected
-
 
     async def open(self, nursery: Optional[trio.Nursery] = None) -> None:
         """Opens the connection with the rotary encoder.
@@ -182,7 +186,6 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
         self._connected = True
         self.trio_token = trio.lowlevel.current_trio_token()
 
-
     async def close(self) -> None:
         """Closes the connection with the rotary encoder.
 
@@ -191,7 +194,6 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
 
         """
         self._connected = False
-
 
     async def receive(self) -> Tuple[int, bool]:
         """Shares current rotation counts and button
@@ -213,7 +215,6 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
         await self._data_available.wait()
         self._data_available = trio.Event()
         return (self.counter, self.button_pressed)
-
 
     async def send(self, data: Optional[bytes]) -> None:
         """Defined just to fulfill requirements of the
