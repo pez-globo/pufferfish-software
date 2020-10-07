@@ -318,17 +318,19 @@ async def main() -> None:
     protocol = server.Protocol()
 
     # I/O Endpoints
+    rotary_encoder: Optional[rotaryencoder.Driver] = rotaryencoder.Driver()
     websocket_endpoint = websocket.Driver()
-    rotary_encoder = rotaryencoder.Driver()
 
     try:
+        assert rotary_encoder is not None
         await rotary_encoder.open()
     except exceptions.ProtocolError as err:
         exception = (
-            "Unable to connect the rotary encoder, please check the ",
-            "serial connection. Check if the pigpiod service is running: %s"
+            "Unable to connect the rotary encoder, please check the "
+            "serial connection. Check if the pigpiod service is running: "
         )
-        print(exception,err)
+        print(exception, err) # add logger
+        rotary_encoder = None
 
     # Server Receive Outputs
     channel: channels.TrioChannel[

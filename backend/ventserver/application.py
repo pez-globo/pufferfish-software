@@ -2,6 +2,7 @@
 
 import logging
 import functools
+from typing import Optional
 
 import trio
 
@@ -33,16 +34,18 @@ async def main() -> None:
     # I/O Endpoints
     serial_endpoint = _serial.Driver()
     websocket_endpoint = websocket.Driver()
-    rotary_encoder = rotaryencoder.Driver()
+    rotary_encoder: Optional[rotaryencoder.Driver] = rotaryencoder.Driver()
 
     try:
+        assert rotary_encoder is not None
         await rotary_encoder.open()
     except exceptions.ProtocolError as err:
         exception = (
-            "Unable to connect the rotary encoder, please check the ",
-            "serial connection. Check if the pigpiod service is running: %s"
+            "Unable to connect the rotary encoder, please check the "
+            "serial connection. Check if the pigpiod service is running: "
         )
-        print(exception,err)
+        logger.error(exception, err)
+        rotary_encoder = None
 
 
     # Server Receive Outputs
