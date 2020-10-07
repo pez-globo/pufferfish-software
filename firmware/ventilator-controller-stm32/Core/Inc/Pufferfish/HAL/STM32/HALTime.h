@@ -20,7 +20,7 @@ class HALTime : public Time {
    * @brief Constructor for HALTime
    * @param None
    */
-  HALTime() {}
+  HALTime() = default;
 
   /**
    * @brief  Returns the millis value
@@ -41,7 +41,7 @@ class HALTime : public Time {
    * @param  None
    * @return bool TRUE/FALSE on init state
    */
-  bool micros_delay_init();
+  static bool micros_delay_init();
 
   /**
    * @brief  Returns the micros value set
@@ -56,10 +56,6 @@ class HALTime : public Time {
    * @return None
    */
   void delay_micros(uint32_t microseconds) override;
-
- private:
-  uint32_t micros_value_;
-  uint32_t millis_value_;
 };
 
 }  // namespace HAL

@@ -163,7 +163,7 @@ SCENARIO("FrameReceiver for first frames of data received ", "[NoninOEM3]") {
   GIVEN("A 4 bytes of valid data INPUT_DATA : 0x01 0x81 0x01 0x00 ") {
     PF::Driver::Serial::Nonin::FrameReceiver frame_receiver;
     PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus frame_input_status;
-    //PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus frame_output_status;
+    // PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus frame_output_status;
     uint8_t input_data[4] = {0x01, 0x81, 0x01, 0x00};
 
     WHEN("On input of 4 bytes of INPUT_DATA to FrameReceiver ") {

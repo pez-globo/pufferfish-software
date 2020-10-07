@@ -40,7 +40,7 @@ class HALBufferedUART : public BufferedUART {
    * @param readByte[[out] the byte popped from the RX queue
    * @return ok on success, empty otherwise
    */
-  virtual BufferStatus read(uint8_t &read_byte) volatile override;
+  BufferStatus read(uint8_t &read_byte) volatile override;
 
   /**
    * Attempt to "push" the provided byte onto the TX queue.
@@ -49,7 +49,7 @@ class HALBufferedUART : public BufferedUART {
    * @param writeByte the byte to push onto the TX queue
    * @return ok on success, full otherwise
    */
-  virtual BufferStatus write(uint8_t write_byte) volatile override;
+  BufferStatus write(uint8_t write_byte) volatile override;
 
   /**
    * "Push" bytes in the provided buffer onto the TX queue until either
@@ -67,7 +67,7 @@ class HALBufferedUART : public BufferedUART {
    * queue
    * @return ok if all provided bytes were added to the queue, partial otherwise
    */
-  virtual BufferStatus write(
+  BufferStatus write(
       const uint8_t *write_bytes,
       AtomicSize write_size,
       HAL::AtomicSize &written_size) volatile override;
@@ -83,7 +83,7 @@ class HALBufferedUART : public BufferedUART {
    * if the TX queue is full
    * @return ok on success, full otherwise
    */
-  virtual BufferStatus write_block(uint8_t write_byte, uint32_t timeout) volatile override;
+  BufferStatus write_block(uint8_t write_byte, uint32_t timeout) volatile override;
 
   /**
    * Persistently attempt to "push" bytes in the provided buffer onto the TX
@@ -104,7 +104,7 @@ class HALBufferedUART : public BufferedUART {
    * queue
    * @return ok if all provided bytes were added to the queue, partial otherwise
    */
-  virtual BufferStatus write_block(
+  BufferStatus write_block(
       const uint8_t *write_bytes,
       AtomicSize write_size,
       uint32_t timeout,

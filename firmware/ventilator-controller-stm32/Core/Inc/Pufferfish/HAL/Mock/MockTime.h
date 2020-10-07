@@ -34,7 +34,7 @@ class MockTime : public Time {
    * @brief Constructor for MockTime
    * @param None
    */
-  MockTime() {}
+  MockTime() = default;
 
   /**
    * @brief  Set the millis value into private variable
@@ -79,8 +79,8 @@ class MockTime : public Time {
   void delay_micros(uint32_t microseconds) override;
 
  private:
-  uint32_t micros_value_;
-  uint32_t millis_value_;
+  uint32_t micros_value_ = 0;
+  uint32_t millis_value_ = 0;
 };
 
 }  // namespace HAL
