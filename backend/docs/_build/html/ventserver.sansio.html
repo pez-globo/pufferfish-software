@@ -1,0 +1,449 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ventserver.sansio package &#8212; Pufferfish  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ventserver.util package" href="ventserver.util.html" />
+    <link rel="prev" title="ventserver.protocols.protobuf package" href="ventserver.protocols.protobuf.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ventserver.sansio">
+<span id="ventserver-sansio-package"></span><h1>ventserver.sansio package<a class="headerlink" href="#module-ventserver.sansio" title="Permalink to this headline">¶</a></h1>
+<p>Abstract interfaces and basic components for writing sans-I/O protocols.</p>
+<dl class="simple">
+<dt>Modules:</dt><dd><dl class="simple">
+<dt>protocols: abstract interfaces for writing sans-I/O protocols with an</dt><dd><p>h11-like design.</p>
+</dd>
+<dt>channels: sans-I/O component for buffering event-oriented input data, to be</dt><dd><p>used by other sans-I/O protocols for handling input data.</p>
+</dd>
+<dt>streams: sans-I/O component for buffering bytestream-oriented input data, to</dt><dd><p>be used by other sans-I/O protocols for handling input data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ventserver.sansio.channels">
+<span id="ventserver-sansio-channels-module"></span><h2>ventserver.sansio.channels module<a class="headerlink" href="#module-ventserver.sansio.channels" title="Permalink to this headline">¶</a></h2>
+<p>Filters for buffering discrete data items or other events.</p>
+<p>Provides Filters whose behavior is only to buffer inputs and make them available
+as outputs without any transformation.</p>
+<blockquote>
+<div><p>Typical usage example:</p>
+<p>bounded_channel = DequeChannel(maxlen=10)
+bounded_channel.input(‘foo’)
+bounded_channel.input(‘foo’)
+bounded_channel.input(‘bar’)
+bounded_channel.input(‘foo’)
+bounded_channel.input(‘hello’)
+print(bounded_channel.output())  # ‘foo’
+for string in bounded_channel.output_all():</p>
+<blockquote>
+<div><p>print(string)  # ‘foo’, ‘bar’, ‘foo’, ‘hello’</p>
+</div></blockquote>
+<p>unbounded_channel = DequeChannel()</p>
+</div></blockquote>
+<dl class="py class">
+<dt id="ventserver.sansio.channels.DequeChannel">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.sansio.channels.</code><code class="sig-name descname">DequeChannel</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ventserver/sansio/channels.html#DequeChannel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.sansio.channels.DequeChannel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ventserver.sansio.protocols.Filter" title="ventserver.sansio.protocols.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ventserver.sansio.protocols.Filter</span></code></a></p>
+<p>A Filter to buffer input events.</p>
+<p>This Filter uses a deque to buffer provided inputs and make them available
+as outputs, without any transformation of events.</p>
+<dl class="simple">
+<dt>Attributes:</dt><dd><dl class="simple">
+<dt>maxlen: An optional integer indicating the maximum length of the deque</dt><dd><p>buffer. If provided, any input data provided when the buffer is full
+will be rejected.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="ventserver.sansio.channels.DequeChannel.input">
+<code class="sig-name descname">input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>_Data<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/ventserver/sansio/channels.html#DequeChannel.input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.sansio.channels.DequeChannel.input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Push a data item onto the channel.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>event: An optional data item to store on the buffer. If it is None,</dt><dd><p>it will be ignored and the buffer will not be modified.</p>
+</dd>
+</dl>
+</dd>
+<dt>Raises:</dt><dd><dl class="simple">
+<dt>IndexError: The input data item can’t be stored on the buffer</dt><dd><p>because the buffer is full.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.sansio.channels.DequeChannel.maxlen">
+<code class="sig-name descname">maxlen</code><em class="property">: Optional<span class="p">[</span>int<span class="p">]</span></em><a class="headerlink" href="#ventserver.sansio.channels.DequeChannel.maxlen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.sansio.channels.DequeChannel.output">
+<code class="sig-name descname">output</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>_Data<span class="p">]</span><a class="reference internal" href="_modules/ventserver/sansio/channels.html#DequeChannel.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.sansio.channels.DequeChannel.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the next data item from the buffer and return it.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The next data item on the buffer, or None if the buffer is empty.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ventserver.sansio.protocols">
+<span id="ventserver-sansio-protocols-module"></span><h2>ventserver.sansio.protocols module<a class="headerlink" href="#module-ventserver.sansio.protocols" title="Permalink to this headline">¶</a></h2>
+<p>Sans-I/O protocol interfaces with an h11-like design.</p>
+<p>Provides an abstract Filter class which defines a transformation between input
+events and output events. Provides an abstract Protocol class which associates
+two Filters transforming events in opposite directions (receive and send).</p>
+<blockquote>
+<div><p>Typical usage example:</p>
+<p>&#64;attr.s
+class ToUpperFilter(Filter[str, str]):</p>
+<blockquote>
+<div><p>last_input: Optional[str] = attr.ib(default=None)</p>
+<dl>
+<dt>def input(self, event: Optional[str]) -&gt; None:</dt><dd><dl class="simple">
+<dt>if event is None:</dt><dd><p>return</p>
+</dd>
+</dl>
+<p>self.last_input = event</p>
+</dd>
+<dt>def output(self) -&gt; Optional[str]:</dt><dd><dl class="simple">
+<dt>if self.last_input is None:</dt><dd><p>return None</p>
+</dd>
+</dl>
+<p>last_input = self.last_input.upper()
+self.last_input = None
+return last_input</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>&#64;attr.s
+class ToLowerFilter(Filter[str, str]):</p>
+<blockquote>
+<div><p>last_input: Optional[str] = attr.ib(default=None)</p>
+<dl>
+<dt>def input(self, event: Optional[str]) -&gt; None:</dt><dd><dl class="simple">
+<dt>if event is None:</dt><dd><p>return</p>
+</dd>
+</dl>
+<p>self.last_input = event</p>
+</dd>
+<dt>def output(self) -&gt; Optional[str]:</dt><dd><dl class="simple">
+<dt>if self.last_input is None:</dt><dd><p>return None</p>
+</dd>
+</dl>
+<p>last_input = self.last_input.lower()
+self.last_input = None
+return last_input</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>to_upper_filter = ToUpperFilter()
+to_upper_filter.input(‘foo’)
+to_upper_filter.input(‘bar’)
+print(to_upper_filter.output()  # ‘BAR’
+to_upper_filter.input(‘foo’)
+for output in to_upper_filter.output_all():</p>
+<blockquote>
+<div><p>print(output)  # ‘FOO’</p>
+</div></blockquote>
+<p>&#64;attr.s
+class UpperLowerProtocol(Protocol[str, str, str, str]):</p>
+<blockquote>
+<div><p>to_upper_filter: ToUpperFilter = attr.ib(factory=ToUpperFilter)
+to_lower_filter: ToLowerFilter = attr.ib(factory=ToLowerFilter)</p>
+<p>&#64;property
+def receive(self) -&gt; ToUpperFilter:</p>
+<blockquote>
+<div><p>return self.to_upper_filter</p>
+</div></blockquote>
+<p>&#64;property
+def send(self) -&gt; ToLowerFilter:</p>
+<blockquote>
+<div><p>return self.to_lower_filter</p>
+</div></blockquote>
+</div></blockquote>
+<p>upper_lower_protocol = UpperLowerProtocol()
+upper_lower_protocol.send.input(‘FOO’)
+print(upper_lower_protocol.send.output())  # ‘foo’
+upper_lower_protocol.receive.input(‘bar’)
+print(upper_lower_protocol.receive.output())  # ‘BAR’</p>
+</div></blockquote>
+<dl class="py class">
+<dt id="ventserver.sansio.protocols.Filter">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.sansio.protocols.</code><code class="sig-name descname">Filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ventserver/sansio/protocols.html#Filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.sansio.protocols.Filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Generic</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Interface class for filters in a pipe-and-filter architecture.</p>
+<p>This interface defines a filter in which processing and emission of output
+events is done one step at a time, allowing for querying of any public state
+exposed by the Filter between output calls. The Filter’s internal state
+(private or public) may be modified by the input and output methods.</p>
+<p>If the filter is expected to be used by calling code with any form of
+asynchronous or concurrent flow control, the filter should not contain any
+state shared with the outside world, such that it only communicates with
+other software components through its input and output methods.</p>
+<dl class="py method">
+<dt id="ventserver.sansio.protocols.Filter.input">
+<em class="property">abstract </em><code class="sig-name descname">input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>_InputEvent<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/ventserver/sansio/protocols.html#Filter.input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.sansio.protocols.Filter.input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle an input event by modifying internal state accordingly.</p>
+<p>Typically this just will put the input event onto an internal buffer to
+be processed sequentially in repeated calls of the output method.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>event: An optional event for the filter to process as input. If it</dt><dd><p>is None, it should be ignored and internal state should not be
+modified.</p>
+</dd>
+</dl>
+</dd>
+<dt>Raises:</dt><dd><p>May raise an exception if the input is rejected.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.sansio.protocols.Filter.output">
+<em class="property">abstract </em><code class="sig-name descname">output</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>_OutputEvent<span class="p">]</span><a class="reference internal" href="_modules/ventserver/sansio/protocols.html#Filter.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.sansio.protocols.Filter.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process internal state to emit the next output event.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The next output from the filter’s processing of its internal state,
+or None if no output is available.</p>
+</dd>
+<dt>Raises:</dt><dd><p>May raise an exception if the internal state is invalid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.sansio.protocols.Filter.output_all">
+<code class="sig-name descname">output_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Generator<span class="p">[</span>_OutputEvent<span class="p">, </span>None<span class="p">, </span>None<span class="p">]</span><a class="reference internal" href="_modules/ventserver/sansio/protocols.html#Filter.output_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.sansio.protocols.Filter.output_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yield output events while they are available.</p>
+<p>The calling code is allowed to query any public state exposed by the
+Filter between every output yielded by this method. Note that this
+method will never yield None, as that is the sentinel value to indicate
+that no outputs are available.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.sansio.protocols.Protocol">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.sansio.protocols.</code><code class="sig-name descname">Protocol</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ventserver/sansio/protocols.html#Protocol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.sansio.protocols.Protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Generic</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Interface class for send/receive protocols.</p>
+<p>This interface associates a pair of Filters with semantic directions of data
+flow - one filter defines the receive direction for transforming data, while
+the other filter defines the send direction for transforming data.</p>
+<dl class="py method">
+<dt id="ventserver.sansio.protocols.Protocol.receive">
+<em class="property">abstract property </em><code class="sig-name descname">receive</code><a class="headerlink" href="#ventserver.sansio.protocols.Protocol.receive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a Filter interface for the receive direction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.sansio.protocols.Protocol.send">
+<em class="property">abstract property </em><code class="sig-name descname">send</code><a class="headerlink" href="#ventserver.sansio.protocols.Protocol.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a Filter interface for the send direction.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ventserver.sansio.streams">
+<span id="ventserver-sansio-streams-module"></span><h2>ventserver.sansio.streams module<a class="headerlink" href="#module-ventserver.sansio.streams" title="Permalink to this headline">¶</a></h2>
+<p>Filters for buffering bytes.</p>
+<p>Provides Filters whose behavior is only to buffer input bytes and make them
+available as individual output bytes without any transformation. Unlike the
+Filters from the ventserver.sansio.channels module, streams provide an interface
+oriented towards inputting bytes from a continuous sequence of bytes, rather
+than treating every byte as a discrete event.</p>
+<blockquote>
+<div><p>Typical usage example:</p>
+<p>bounded_stream = BytearrayStream(maxlen=10)
+bounded_stream.input(b’1234’)
+print(bounded_stream.output())  # b’1’
+for byte in bounded_stream.output_all():</p>
+<blockquote>
+<div><p>print(byte)  # b’2’, b’3’, b’4’</p>
+</div></blockquote>
+<p>unbounded_stream = BytearrayStream()</p>
+</div></blockquote>
+<dl class="py class">
+<dt id="ventserver.sansio.streams.BytearrayStream">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.sansio.streams.</code><code class="sig-name descname">BytearrayStream</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ventserver/sansio/streams.html#BytearrayStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.sansio.streams.BytearrayStream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ventserver.sansio.protocols.Filter" title="ventserver.sansio.protocols.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ventserver.sansio.protocols.Filter</span></code></a></p>
+<p>A Filer to buffer input bytes.</p>
+<p>This Filter uses a bytearray to merge and buffer provided input bytestrings
+and make them available as byte-by-byte outputs, without any transformation
+of bytes.</p>
+<dl class="simple">
+<dt>Attributes:</dt><dd><dl class="simple">
+<dt>maxlen: An optional integer indicating the maximum length of the</dt><dd><p>bytearray buffer. If provided, any input data provided which would
+overfill the buffer will be rejected.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="ventserver.sansio.streams.BytearrayStream.input">
+<code class="sig-name descname">input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>bytes<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/ventserver/sansio/streams.html#BytearrayStream.input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.sansio.streams.BytearrayStream.input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Push bytes on the stream.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>event: An optional bytestring to store on the buffer. If it is None,</dt><dd><p>it will be ignored and the buffer will not be modified. Either
+all bytes will be stored on the buffer, or (if the input is too
+long for the buffer) none of them will be stored on the buffer.</p>
+</dd>
+</dl>
+</dd>
+<dt>Raises:</dt><dd><dl class="simple">
+<dt>IndexError: The input bytes can’t be stored on the buffer because</dt><dd><p>the buffer would be overfilled if all of them were stored.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.sansio.streams.BytearrayStream.maxlen">
+<code class="sig-name descname">maxlen</code><em class="property">: Optional<span class="p">[</span>int<span class="p">]</span></em><a class="headerlink" href="#ventserver.sansio.streams.BytearrayStream.maxlen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.sansio.streams.BytearrayStream.output">
+<code class="sig-name descname">output</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>bytes<span class="p">]</span><a class="reference internal" href="_modules/ventserver/sansio/streams.html#BytearrayStream.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.sansio.streams.BytearrayStream.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the next byte from the buffer and return it.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The next byte on the buffer, or None if the buffer is empty.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Pufferfish</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="ventserver.html">ventserver package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ventserver.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ventserver.integration.html">ventserver.integration package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.io.html">ventserver.io package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.protocols.html">ventserver.protocols package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ventserver.sansio package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-ventserver.sansio.channels">ventserver.sansio.channels module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-ventserver.sansio.protocols">ventserver.sansio.protocols module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-ventserver.sansio.streams">ventserver.sansio.streams module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.util.html">ventserver.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#ventserver-application-module">ventserver.application module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#ventserver-simulation-module">ventserver.simulation module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="ventserver.html">ventserver package</a><ul>
+      <li>Previous: <a href="ventserver.protocols.protobuf.html" title="previous chapter">ventserver.protocols.protobuf package</a></li>
+      <li>Next: <a href="ventserver.util.html" title="next chapter">ventserver.util package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Pez-Globo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/ventserver.sansio.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

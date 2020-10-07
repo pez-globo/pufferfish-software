@@ -1,0 +1,342 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ventserver.io.trio package &#8212; Pufferfish  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ventserver.protocols package" href="ventserver.protocols.html" />
+    <link rel="prev" title="ventserver.io.asynchronous package" href="ventserver.io.asynchronous.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ventserver.io.trio">
+<span id="ventserver-io-trio-package"></span><h1>ventserver.io.trio package<a class="headerlink" href="#module-ventserver.io.trio" title="Permalink to this headline">¶</a></h1>
+<p>Modules for trio I/O endpoint drivers and execution synchronizers.</p>
+<dl class="simple">
+<dt>Modules:</dt><dd><p>endpoints: abstract interface for I/O endpoint drivers.
+_serial: I/O endpoint driver for serial connections.
+websocket: I/O endpoint driver for WebSocket server connections to clients.
+channels: support for trio MemoryChannels in a Filter-like interface.</p>
+</dd>
+</dl>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ventserver.io.trio.channels">
+<span id="ventserver-io-trio-channels-module"></span><h2>ventserver.io.trio.channels module<a class="headerlink" href="#module-ventserver.io.trio.channels" title="Permalink to this headline">¶</a></h2>
+<p>Trio-backed channel implementations.</p>
+<dl class="py class">
+<dt id="ventserver.io.trio.channels.TrioChannel">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.io.trio.channels.</code><code class="sig-name descname">TrioChannel</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ventserver/io/trio/channels.html#TrioChannel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.channels.TrioChannel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ventserver.io.asynchronous.html#ventserver.io.asynchronous.protocols.Filter" title="ventserver.io.asynchronous.protocols.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ventserver.io.asynchronous.protocols.Filter</span></code></a></p>
+<p>A channel backed by a deque.</p>
+<dl class="py method">
+<dt id="ventserver.io.trio.channels.TrioChannel.init_endpoints">
+<code class="sig-name descname">init_endpoints</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>trio.MemorySendChannel<span class="p">, </span>trio.MemoryReceiveChannel<span class="p">]</span><a class="reference internal" href="_modules/ventserver/io/trio/channels.html#TrioChannel.init_endpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.channels.TrioChannel.init_endpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the pusher.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.trio.channels.TrioChannel.init_pull_endpoint">
+<code class="sig-name descname">init_pull_endpoint</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; trio.MemoryReceiveChannel<span class="p">[</span>_Data<span class="p">]</span><a class="reference internal" href="_modules/ventserver/io/trio/channels.html#TrioChannel.init_pull_endpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.channels.TrioChannel.init_pull_endpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the pull endpoint.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.trio.channels.TrioChannel.init_push_endpoint">
+<code class="sig-name descname">init_push_endpoint</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; trio.MemorySendChannel<span class="p">[</span>_Data<span class="p">]</span><a class="reference internal" href="_modules/ventserver/io/trio/channels.html#TrioChannel.init_push_endpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.channels.TrioChannel.init_push_endpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the push endpoint.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.trio.channels.TrioChannel.input">
+<em class="property">async </em><code class="sig-name descname">input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>_Data<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/ventserver/io/trio/channels.html#TrioChannel.input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.channels.TrioChannel.input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Push a data item onto the channel.</p>
+<p>Finishes only when the data item can be pushed onto the channel.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.io.trio.channels.TrioChannel.maxlen">
+<code class="sig-name descname">maxlen</code><em class="property">: Optional<span class="p">[</span>int<span class="p">]</span></em><a class="headerlink" href="#ventserver.io.trio.channels.TrioChannel.maxlen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.trio.channels.TrioChannel.output">
+<em class="property">async </em><code class="sig-name descname">output</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; _Data<a class="reference internal" href="_modules/ventserver/io/trio/channels.html#TrioChannel.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.channels.TrioChannel.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pull a data item from the channel.</p>
+<p>Finishes only when a data item can be pulled from the channel.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ventserver.io.trio.endpoints">
+<span id="ventserver-io-trio-endpoints-module"></span><h2>ventserver.io.trio.endpoints module<a class="headerlink" href="#module-ventserver.io.trio.endpoints" title="Permalink to this headline">¶</a></h2>
+<p>Asynchronous I/O endpoint interfaces.</p>
+<dl class="py class">
+<dt id="ventserver.io.trio.endpoints.IOEndpoint">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.io.trio.endpoints.</code><code class="sig-name descname">IOEndpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ventserver/io/trio/endpoints.html#IOEndpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.endpoints.IOEndpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ventserver.io.asynchronous.html#ventserver.io.asynchronous.endpoints.IOEndpoint" title="ventserver.io.asynchronous.endpoints.IOEndpoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">ventserver.io.asynchronous.endpoints.IOEndpoint</span></code></a></p>
+<p>Base class for sending data to and receiving data from I/O endpoints.</p>
+<dl class="py method">
+<dt id="ventserver.io.trio.endpoints.IOEndpoint.open">
+<em class="property">abstract async </em><code class="sig-name descname">open</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nursery</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>trio.Nursery<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/ventserver/io/trio/endpoints.html#IOEndpoint.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.endpoints.IOEndpoint.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open the I/O connection.</p>
+<p>Nursery can be used by some I/O drivers to set the nursery used for
+spawning child tasks and listening for connections.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.trio.endpoints.IOEndpoint.persistently_open">
+<em class="property">async </em><code class="sig-name descname">persistently_open</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nursery</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>trio.Nursery<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">retry_interval</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/ventserver/io/trio/endpoints.html#IOEndpoint.persistently_open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.endpoints.IOEndpoint.persistently_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try persistently to open the I/O connection.</p>
+<p>Note: retry_interval=0 means that this coroutine will just hit an
+async checkpoint after every failed connection, to give an opportunity
+for other Trio tasks to run.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="ventserver-io-trio-rotaryencoder-module">
+<h2>ventserver.io.trio.rotaryencoder module<a class="headerlink" href="#ventserver-io-trio-rotaryencoder-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ventserver.io.trio.websocket">
+<span id="ventserver-io-trio-websocket-module"></span><h2>ventserver.io.trio.websocket module<a class="headerlink" href="#module-ventserver.io.trio.websocket" title="Permalink to this headline">¶</a></h2>
+<p>Trio I/O WebSocket driver.</p>
+<dl class="py class">
+<dt id="ventserver.io.trio.websocket.Driver">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.io.trio.websocket.</code><code class="sig-name descname">Driver</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ventserver/io/trio/websocket.html#Driver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.websocket.Driver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ventserver.io.trio.endpoints.IOEndpoint" title="ventserver.io.trio.endpoints.IOEndpoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">ventserver.io.trio.endpoints.IOEndpoint</span></code></a></p>
+<p>Implements a WebSocket I/O driver.</p>
+<dl class="py method">
+<dt id="ventserver.io.trio.websocket.Driver.close">
+<em class="property">async </em><code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/ventserver/io/trio/websocket.html#Driver.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.websocket.Driver.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the WebSocket connection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.trio.websocket.Driver.init_server">
+<code class="sig-name descname">init_server</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#ventserver.io.trio.websocket.SingleConnectionService" title="ventserver.io.trio.websocket.SingleConnectionService">ventserver.io.trio.websocket.SingleConnectionService</a><a class="reference internal" href="_modules/ventserver/io/trio/websocket.html#Driver.init_server"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.websocket.Driver.init_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the server.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.trio.websocket.Driver.is_open">
+<em class="property">property </em><code class="sig-name descname">is_open</code><a class="headerlink" href="#ventserver.io.trio.websocket.Driver.is_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether or not the WebSocket connection is open.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.trio.websocket.Driver.open">
+<em class="property">async </em><code class="sig-name descname">open</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nursery</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>trio.Nursery<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/ventserver/io/trio/websocket.html#Driver.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.websocket.Driver.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open WebSocket connection.</p>
+<p>If nursery is not provided, a new nursery will be created and open()
+will only return after the server stops. You probably want to provide
+a nursery.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.io.trio.websocket.Driver.props">
+<code class="sig-name descname">props</code><em class="property">: <a class="reference internal" href="ventserver.io.html#ventserver.io.websocket.WebSocketProps" title="ventserver.io.websocket.WebSocketProps">ventserver.io.websocket.WebSocketProps</a></em><a class="headerlink" href="#ventserver.io.trio.websocket.Driver.props" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.trio.websocket.Driver.receive">
+<em class="property">async </em><code class="sig-name descname">receive</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bytes<a class="reference internal" href="_modules/ventserver/io/trio/websocket.html#Driver.receive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.websocket.Driver.receive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive data from the serial connection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.trio.websocket.Driver.send">
+<em class="property">async </em><code class="sig-name descname">send</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>bytes<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/ventserver/io/trio/websocket.html#Driver.send"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.websocket.Driver.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send data over the serial connection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.trio.websocket.Driver.wait_connected">
+<em class="property">async </em><code class="sig-name descname">wait_connected</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/ventserver/io/trio/websocket.html#Driver.wait_connected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.websocket.Driver.wait_connected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait until a connection is established.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.io.trio.websocket.Server">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.io.trio.websocket.</code><code class="sig-name descname">Server</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request_handler</span><span class="p">:</span> <span class="n">Callable<span class="p">[</span><span class="p">[</span>trio_websocket._impl.WebSocketRequest<span class="p">]</span><span class="p">, </span>Awaitable<span class="p">[</span>None<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">props</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.io.html#ventserver.io.websocket.WebSocketProps" title="ventserver.io.websocket.WebSocketProps">ventserver.io.websocket.WebSocketProps</a></span> <span class="o">=</span> <span class="default_value">NOTHING</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ventserver/io/trio/websocket.html#Server"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.websocket.Server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Implements a WebSocket I/O server.</p>
+<dl class="py method">
+<dt id="ventserver.io.trio.websocket.Server.is_open">
+<em class="property">property </em><code class="sig-name descname">is_open</code><a class="headerlink" href="#ventserver.io.trio.websocket.Server.is_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether the server is running.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.trio.websocket.Server.open">
+<em class="property">async </em><code class="sig-name descname">open</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nursery</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>trio.Nursery<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/ventserver/io/trio/websocket.html#Server.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.websocket.Server.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the WebSocket server.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.io.trio.websocket.Server.props">
+<code class="sig-name descname">props</code><em class="property">: <a class="reference internal" href="ventserver.io.html#ventserver.io.websocket.WebSocketProps" title="ventserver.io.websocket.WebSocketProps">ventserver.io.websocket.WebSocketProps</a></em><a class="headerlink" href="#ventserver.io.trio.websocket.Server.props" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.io.trio.websocket.SingleConnectionService">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.io.trio.websocket.</code><code class="sig-name descname">SingleConnectionService</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">connection_handler</span><span class="p">:</span> <span class="n">Callable<span class="p">[</span><span class="p">[</span>trio_websocket._impl.WebSocketConnection<span class="p">]</span><span class="p">, </span>Awaitable<span class="p">[</span>None<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">props</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.io.html#ventserver.io.websocket.WebSocketProps" title="ventserver.io.websocket.WebSocketProps">ventserver.io.websocket.WebSocketProps</a></span> <span class="o">=</span> <span class="default_value">NOTHING</span></em>, <em class="sig-param"><span class="n">server</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#ventserver.io.trio.websocket.Server" title="ventserver.io.trio.websocket.Server">ventserver.io.trio.websocket.Server</a></span> <span class="o">=</span> <span class="default_value">NOTHING</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ventserver/io/trio/websocket.html#SingleConnectionService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.websocket.SingleConnectionService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Implements a WebSocket I/O server which only services one connection.</p>
+<dl class="py method">
+<dt id="ventserver.io.trio.websocket.SingleConnectionService.init_server">
+<code class="sig-name descname">init_server</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#ventserver.io.trio.websocket.Server" title="ventserver.io.trio.websocket.Server">ventserver.io.trio.websocket.Server</a><a class="reference internal" href="_modules/ventserver/io/trio/websocket.html#SingleConnectionService.init_server"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.websocket.SingleConnectionService.init_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the server.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.trio.websocket.SingleConnectionService.is_open">
+<em class="property">property </em><code class="sig-name descname">is_open</code><a class="headerlink" href="#ventserver.io.trio.websocket.SingleConnectionService.is_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether the service is running.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.trio.websocket.SingleConnectionService.open">
+<em class="property">async </em><code class="sig-name descname">open</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nursery</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>trio.Nursery<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/ventserver/io/trio/websocket.html#SingleConnectionService.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.trio.websocket.SingleConnectionService.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the WebSocket server.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.io.trio.websocket.SingleConnectionService.props">
+<code class="sig-name descname">props</code><em class="property">: <a class="reference internal" href="ventserver.io.html#ventserver.io.websocket.WebSocketProps" title="ventserver.io.websocket.WebSocketProps">ventserver.io.websocket.WebSocketProps</a></em><a class="headerlink" href="#ventserver.io.trio.websocket.SingleConnectionService.props" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.io.trio.websocket.SingleConnectionService.server">
+<code class="sig-name descname">server</code><em class="property">: <a class="reference internal" href="#ventserver.io.trio.websocket.Server" title="ventserver.io.trio.websocket.Server">ventserver.io.trio.websocket.Server</a></em><a class="headerlink" href="#ventserver.io.trio.websocket.SingleConnectionService.server" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Pufferfish</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="ventserver.html">ventserver package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ventserver.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ventserver.integration.html">ventserver.integration package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="ventserver.io.html">ventserver.io package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="ventserver.io.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.io.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.io.html#ventserver-io-rotaryencoder-module">ventserver.io.rotaryencoder module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.io.html#module-ventserver.io.websocket">ventserver.io.websocket module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.protocols.html">ventserver.protocols package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.sansio.html">ventserver.sansio package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.util.html">ventserver.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#ventserver-application-module">ventserver.application module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#ventserver-simulation-module">ventserver.simulation module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="ventserver.html">ventserver package</a><ul>
+  <li><a href="ventserver.io.html">ventserver.io package</a><ul>
+      <li>Previous: <a href="ventserver.io.asynchronous.html" title="previous chapter">ventserver.io.asynchronous package</a></li>
+      <li>Next: <a href="ventserver.protocols.html" title="next chapter">ventserver.protocols package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Pez-Globo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/ventserver.io.trio.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

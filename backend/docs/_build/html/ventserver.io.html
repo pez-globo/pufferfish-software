@@ -1,0 +1,219 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ventserver.io package &#8212; Pufferfish  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ventserver.io.asynchronous package" href="ventserver.io.asynchronous.html" />
+    <link rel="prev" title="ventserver.integration package" href="ventserver.integration.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ventserver.io">
+<span id="ventserver-io-package"></span><h1>ventserver.io package<a class="headerlink" href="#module-ventserver.io" title="Permalink to this headline">¶</a></h1>
+<p>Modules for I/O endpoint drivers.</p>
+<dl class="simple">
+<dt>Sub-packages:</dt><dd><p>asynchronous: abstract interface classes for asynchronous I/O drivers.
+trio: trio-based asynchronous I/O drivers.</p>
+</dd>
+</dl>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ventserver.io.asynchronous.html">ventserver.io.asynchronous package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.io.asynchronous.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.io.asynchronous.html#module-ventserver.io.asynchronous.endpoints">ventserver.io.asynchronous.endpoints module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.io.asynchronous.html#module-ventserver.io.asynchronous.protocols">ventserver.io.asynchronous.protocols module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ventserver.io.trio.html">ventserver.io.trio package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.io.trio.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.io.trio.html#module-ventserver.io.trio.channels">ventserver.io.trio.channels module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.io.trio.html#module-ventserver.io.trio.endpoints">ventserver.io.trio.endpoints module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.io.trio.html#ventserver-io-trio-rotaryencoder-module">ventserver.io.trio.rotaryencoder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.io.trio.html#module-ventserver.io.trio.websocket">ventserver.io.trio.websocket module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="ventserver-io-rotaryencoder-module">
+<h2>ventserver.io.rotaryencoder module<a class="headerlink" href="#ventserver-io-rotaryencoder-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ventserver.io.websocket">
+<span id="ventserver-io-websocket-module"></span><h2>ventserver.io.websocket module<a class="headerlink" href="#module-ventserver.io.websocket" title="Permalink to this headline">¶</a></h2>
+<p>Generic support for WebSocket connections.</p>
+<dl class="py class">
+<dt id="ventserver.io.websocket.WebSocketProps">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.io.websocket.</code><code class="sig-name descname">WebSocketProps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'127.0.0.1'</span></em>, <em class="sig-param"><span class="n">port</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">8000</span></em>, <em class="sig-param"><span class="n">ssl_context</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>ssl.SSLContext<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">message_queue_size</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">1</span></em>, <em class="sig-param"><span class="n">max_message_size</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">1048576</span></em>, <em class="sig-param"><span class="n">connect_timeout</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">disconnect_timeout</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">ping_interval</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">graceful_close_timeout</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ventserver/io/websocket.html#WebSocketProps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.websocket.WebSocketProps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Defines driver properties for WebSocket connections.</p>
+<dl class="py attribute">
+<dt id="ventserver.io.websocket.WebSocketProps.connect_timeout">
+<code class="sig-name descname">connect_timeout</code><em class="property">: float</em><a class="headerlink" href="#ventserver.io.websocket.WebSocketProps.connect_timeout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.io.websocket.WebSocketProps.disconnect_timeout">
+<code class="sig-name descname">disconnect_timeout</code><em class="property">: float</em><a class="headerlink" href="#ventserver.io.websocket.WebSocketProps.disconnect_timeout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.io.websocket.WebSocketProps.graceful_close_timeout">
+<code class="sig-name descname">graceful_close_timeout</code><em class="property">: float</em><a class="headerlink" href="#ventserver.io.websocket.WebSocketProps.graceful_close_timeout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.io.websocket.WebSocketProps.host">
+<code class="sig-name descname">host</code><em class="property">: str</em><a class="headerlink" href="#ventserver.io.websocket.WebSocketProps.host" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.io.websocket.WebSocketProps.max_message_size">
+<code class="sig-name descname">max_message_size</code><em class="property">: int</em><a class="headerlink" href="#ventserver.io.websocket.WebSocketProps.max_message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.io.websocket.WebSocketProps.message_queue_size">
+<code class="sig-name descname">message_queue_size</code><em class="property">: int</em><a class="headerlink" href="#ventserver.io.websocket.WebSocketProps.message_queue_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.io.websocket.WebSocketProps.ping_interval">
+<code class="sig-name descname">ping_interval</code><em class="property">: float</em><a class="headerlink" href="#ventserver.io.websocket.WebSocketProps.ping_interval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.io.websocket.WebSocketProps.port">
+<code class="sig-name descname">port</code><em class="property">: int</em><a class="headerlink" href="#ventserver.io.websocket.WebSocketProps.port" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.io.websocket.WebSocketProps.ssl_context">
+<code class="sig-name descname">ssl_context</code><em class="property">: Optional<span class="p">[</span>ssl.SSLContext<span class="p">]</span></em><a class="headerlink" href="#ventserver.io.websocket.WebSocketProps.ssl_context" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Pufferfish</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="ventserver.html">ventserver package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ventserver.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ventserver.integration.html">ventserver.integration package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ventserver.io package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ventserver-io-rotaryencoder-module">ventserver.io.rotaryencoder module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-ventserver.io.websocket">ventserver.io.websocket module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.protocols.html">ventserver.protocols package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.sansio.html">ventserver.sansio package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.util.html">ventserver.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#ventserver-application-module">ventserver.application module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#ventserver-simulation-module">ventserver.simulation module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="ventserver.html">ventserver package</a><ul>
+      <li>Previous: <a href="ventserver.integration.html" title="previous chapter">ventserver.integration package</a></li>
+      <li>Next: <a href="ventserver.io.asynchronous.html" title="next chapter">ventserver.io.asynchronous package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Pez-Globo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/ventserver.io.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

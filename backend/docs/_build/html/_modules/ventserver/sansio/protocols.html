@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ventserver.sansio.protocols &#8212; Pufferfish  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ventserver.sansio.protocols</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Sans-I/O protocol interfaces with an h11-like design.</span>
+
+<span class="sd">Provides an abstract Filter class which defines a transformation between input</span>
+<span class="sd">events and output events. Provides an abstract Protocol class which associates</span>
+<span class="sd">two Filters transforming events in opposite directions (receive and send).</span>
+
+<span class="sd">    Typical usage example:</span>
+
+<span class="sd">    @attr.s</span>
+<span class="sd">    class ToUpperFilter(Filter[str, str]):</span>
+<span class="sd">        last_input: Optional[str] = attr.ib(default=None)</span>
+
+<span class="sd">        def input(self, event: Optional[str]) -&gt; None:</span>
+<span class="sd">            if event is None:</span>
+<span class="sd">                return</span>
+
+<span class="sd">            self.last_input = event</span>
+
+<span class="sd">        def output(self) -&gt; Optional[str]:</span>
+<span class="sd">            if self.last_input is None:</span>
+<span class="sd">                return None</span>
+
+<span class="sd">            last_input = self.last_input.upper()</span>
+<span class="sd">            self.last_input = None</span>
+<span class="sd">            return last_input</span>
+
+<span class="sd">    @attr.s</span>
+<span class="sd">    class ToLowerFilter(Filter[str, str]):</span>
+<span class="sd">        last_input: Optional[str] = attr.ib(default=None)</span>
+
+<span class="sd">        def input(self, event: Optional[str]) -&gt; None:</span>
+<span class="sd">            if event is None:</span>
+<span class="sd">                return</span>
+
+<span class="sd">            self.last_input = event</span>
+
+<span class="sd">        def output(self) -&gt; Optional[str]:</span>
+<span class="sd">            if self.last_input is None:</span>
+<span class="sd">                return None</span>
+
+<span class="sd">            last_input = self.last_input.lower()</span>
+<span class="sd">            self.last_input = None</span>
+<span class="sd">            return last_input</span>
+
+<span class="sd">    to_upper_filter = ToUpperFilter()</span>
+<span class="sd">    to_upper_filter.input(&#39;foo&#39;)</span>
+<span class="sd">    to_upper_filter.input(&#39;bar&#39;)</span>
+<span class="sd">    print(to_upper_filter.output()  # &#39;BAR&#39;</span>
+<span class="sd">    to_upper_filter.input(&#39;foo&#39;)</span>
+<span class="sd">    for output in to_upper_filter.output_all():</span>
+<span class="sd">        print(output)  # &#39;FOO&#39;</span>
+
+<span class="sd">    @attr.s</span>
+<span class="sd">    class UpperLowerProtocol(Protocol[str, str, str, str]):</span>
+<span class="sd">        to_upper_filter: ToUpperFilter = attr.ib(factory=ToUpperFilter)</span>
+<span class="sd">        to_lower_filter: ToLowerFilter = attr.ib(factory=ToLowerFilter)</span>
+
+<span class="sd">        @property</span>
+<span class="sd">        def receive(self) -&gt; ToUpperFilter:</span>
+<span class="sd">            return self.to_upper_filter</span>
+
+<span class="sd">        @property</span>
+<span class="sd">        def send(self) -&gt; ToLowerFilter:</span>
+<span class="sd">            return self.to_lower_filter</span>
+
+<span class="sd">    upper_lower_protocol = UpperLowerProtocol()</span>
+<span class="sd">    upper_lower_protocol.send.input(&#39;FOO&#39;)</span>
+<span class="sd">    print(upper_lower_protocol.send.output())  # &#39;foo&#39;</span>
+<span class="sd">    upper_lower_protocol.receive.input(&#39;bar&#39;)</span>
+<span class="sd">    print(upper_lower_protocol.receive.output())  # &#39;BAR&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span>
+
+
+<span class="c1"># Filters</span>
+
+
+<span class="n">_InputEvent</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;_InputEvent&#39;</span><span class="p">)</span>
+<span class="n">_OutputEvent</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;_OutputEvent&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Filter"><a class="viewcode-back" href="../../../ventserver.sansio.html#ventserver.sansio.protocols.Filter">[docs]</a><span class="k">class</span> <span class="nc">Filter</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">_InputEvent</span><span class="p">,</span> <span class="n">_OutputEvent</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Interface class for filters in a pipe-and-filter architecture.</span>
+
+<span class="sd">    This interface defines a filter in which processing and emission of output</span>
+<span class="sd">    events is done one step at a time, allowing for querying of any public state</span>
+<span class="sd">    exposed by the Filter between output calls. The Filter&#39;s internal state</span>
+<span class="sd">    (private or public) may be modified by the input and output methods.</span>
+
+<span class="sd">    If the filter is expected to be used by calling code with any form of</span>
+<span class="sd">    asynchronous or concurrent flow control, the filter should not contain any</span>
+<span class="sd">    state shared with the outside world, such that it only communicates with</span>
+<span class="sd">    other software components through its input and output methods.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Filter.input"><a class="viewcode-back" href="../../../ventserver.sansio.html#ventserver.sansio.protocols.Filter.input">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_InputEvent</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Handle an input event by modifying internal state accordingly.</span>
+
+<span class="sd">        Typically this just will put the input event onto an internal buffer to</span>
+<span class="sd">        be processed sequentially in repeated calls of the output method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event: An optional event for the filter to process as input. If it</span>
+<span class="sd">                is None, it should be ignored and internal state should not be</span>
+<span class="sd">                modified.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            May raise an exception if the input is rejected.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Filter.output"><a class="viewcode-back" href="../../../ventserver.sansio.html#ventserver.sansio.protocols.Filter.output">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_OutputEvent</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Process internal state to emit the next output event.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The next output from the filter&#39;s processing of its internal state,</span>
+<span class="sd">            or None if no output is available.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            May raise an exception if the internal state is invalid.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Filter.output_all"><a class="viewcode-back" href="../../../ventserver.sansio.html#ventserver.sansio.protocols.Filter.output_all">[docs]</a>    <span class="k">def</span> <span class="nf">output_all</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">_OutputEvent</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Yield output events while they are available.</span>
+
+<span class="sd">        The calling code is allowed to query any public state exposed by the</span>
+<span class="sd">        Filter between every output yielded by this method. Note that this</span>
+<span class="sd">        method will never yield None, as that is the sentinel value to indicate</span>
+<span class="sd">        that no outputs are available.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="k">yield</span> <span class="n">output</span></div></div>
+
+
+<span class="c1"># Protocols</span>
+
+
+<span class="n">ReceiveInputEvent</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;ReceiveInputEvent&#39;</span><span class="p">)</span>
+<span class="n">ReceiveOutputEvent</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;ReceiveOutputEvent&#39;</span><span class="p">)</span>
+<span class="n">SendInputEvent</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;SendInputEvent&#39;</span><span class="p">)</span>
+<span class="n">SendOutputEvent</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;SendOutputEvent&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Protocol"><a class="viewcode-back" href="../../../ventserver.sansio.html#ventserver.sansio.protocols.Protocol">[docs]</a><span class="k">class</span> <span class="nc">Protocol</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span>
+        <span class="n">ReceiveInputEvent</span><span class="p">,</span> <span class="n">ReceiveOutputEvent</span><span class="p">,</span> <span class="n">SendInputEvent</span><span class="p">,</span> <span class="n">SendOutputEvent</span>
+<span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Interface class for send/receive protocols.</span>
+
+<span class="sd">    This interface associates a pair of Filters with semantic directions of data</span>
+<span class="sd">    flow - one filter defines the receive direction for transforming data, while</span>
+<span class="sd">    the other filter defines the send direction for transforming data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Filter</span><span class="p">[</span><span class="n">ReceiveInputEvent</span><span class="p">,</span> <span class="n">ReceiveOutputEvent</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return a Filter interface for the receive direction.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Filter</span><span class="p">[</span><span class="n">SendInputEvent</span><span class="p">,</span> <span class="n">SendOutputEvent</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return a Filter interface for the send direction.&quot;&quot;&quot;</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Pufferfish</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../ventserver.html">ventserver package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Pez-Globo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

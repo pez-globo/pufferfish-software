@@ -38,14 +38,11 @@ coverage.xml
 # pyenv
 .python-version
 
-# Sphinx documentation
-docs/_build/
 
 # dotenv
 .env
 
 # Misc
-docs/
 extra_/
 
 # misc

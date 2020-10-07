@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ventserver.protocols.rotary_encoder &#8212; Pufferfish  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ventserver.protocols.rotary_encoder</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Rotary Encoder communication protocol&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">attr</span>
+
+<span class="c1"># from ventserver.protocols import exceptions</span>
+<span class="kn">from</span> <span class="nn">ventserver.protocols</span> <span class="kn">import</span> <span class="n">events</span>
+<span class="kn">from</span> <span class="nn">ventserver.sansio</span> <span class="kn">import</span> <span class="n">protocols</span>
+<span class="kn">from</span> <span class="nn">ventserver.sansio</span> <span class="kn">import</span> <span class="n">channels</span>
+<span class="kn">from</span> <span class="nn">ventserver.protocols.protobuf</span> <span class="kn">import</span> <span class="n">frontend_pb</span>
+
+<div class="viewcode-block" id="ReceiveEvent"><a class="viewcode-back" href="../../../ventserver.protocols.html#ventserver.protocols.rotary_encoder.ReceiveEvent">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span>
+<span class="k">class</span> <span class="nc">ReceiveEvent</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">Event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Rotary encoder input receive event&quot;&quot;&quot;</span>
+
+    <span class="n">time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">re_data</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ReceiveEvent.has_data"><a class="viewcode-back" href="../../../ventserver.protocols.html#ventserver.protocols.rotary_encoder.ReceiveEvent.has_data">[docs]</a>    <span class="k">def</span> <span class="nf">has_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return whether the event has data.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">re_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">)</span></div></div>
+
+
+<span class="n">LowerEvent</span> <span class="o">=</span> <span class="n">ReceiveEvent</span>
+<span class="n">UpperEvent</span> <span class="o">=</span> <span class="n">frontend_pb</span><span class="o">.</span><span class="n">RotaryEncoder</span>
+
+
+<div class="viewcode-block" id="ReceiveFilter"><a class="viewcode-back" href="../../../ventserver.protocols.html#ventserver.protocols.rotary_encoder.ReceiveFilter">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span>
+<span class="k">class</span> <span class="nc">ReceiveFilter</span><span class="p">(</span><span class="n">protocols</span><span class="o">.</span><span class="n">Filter</span><span class="p">[</span><span class="n">LowerEvent</span><span class="p">,</span> <span class="n">UpperEvent</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Filter which passes input data in an event class.&quot;&quot;&quot;</span>
+
+    <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;ReceiveFilter&#39;</span><span class="p">)))</span>
+    <span class="n">_buffer</span><span class="p">:</span> <span class="n">channels</span><span class="o">.</span><span class="n">DequeChannel</span><span class="p">[</span><span class="n">LowerEvent</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span>
+        <span class="n">factory</span><span class="o">=</span><span class="n">channels</span><span class="o">.</span><span class="n">DequeChannel</span>
+    <span class="p">)</span>
+    <span class="n">_current_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_last_button_down</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_last_button_up</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_last_step_change</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_last_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_button_pressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ReceiveFilter.input"><a class="viewcode-back" href="../../../ventserver.protocols.html#ventserver.protocols.rotary_encoder.ReceiveFilter.input">[docs]</a>    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LowerEvent</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Handle input events for the receive filter.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">event</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">has_data</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReceiveFilter.output"><a class="viewcode-back" href="../../../ventserver.protocols.html#ventserver.protocols.rotary_encoder.ReceiveFilter.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">UpperEvent</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Process the input events of the receive filter.&quot;&quot;&quot;</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_time</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">time</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">re_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_step</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_step</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">re_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_step_change</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_time</span>
+
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">re_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_button_pressed</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">re_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_button_down</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_time</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_button_up</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_time</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_button_pressed</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">re_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">pb_state</span> <span class="o">=</span> <span class="n">frontend_pb</span><span class="o">.</span><span class="n">RotaryEncoder</span><span class="p">(</span>
+            <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_step</span><span class="p">,</span>
+            <span class="n">last_step_change</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_step_change</span><span class="p">,</span>
+            <span class="n">button_pressed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_button_pressed</span><span class="p">,</span>
+            <span class="n">last_button_down</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_button_down</span><span class="p">,</span>
+            <span class="n">last_button_up</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_button_up</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pb_state</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Pufferfish</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../ventserver.html">ventserver package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Pez-Globo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
