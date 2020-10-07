@@ -11,6 +11,16 @@ echo -e "\n${SUCCESS}********** Setting up kiosk service **********\n${NC}"
 # Copying service file to systemd
 cd ~/pufferfish-vent-software/deploy
 
+# Adding script to clean kiosk failure config
+if [ 1 -eq $( ls $config_dir | grep -c "clean_kiosk.sh" ) ]
+then
+    sudo cp $config_dir/clean_kiosk.sh /opt/
+    sudo chmod +x /opt/clean_kiosk.sh
+else
+    echo -e "${ERROR} The clean_kiosk.sh file doesn't exist${NC}"
+    exit 1
+fi
+
 if [ 1 -eq $( ls configs/ | grep -c "kiosk.service" ) ]
 then
     sudo cp configs/kiosk.service /etc/systemd/system/

@@ -14,16 +14,6 @@ config_dir=$script_dir/../configs
 backend_dir=$script_dir/../../backend/ventserver
 backend_file=$(realpath $backend_dir)/simulation.py
 
-# Adding script to clean kiosk failure config
-if [ 1 -eq $( ls $config_dir | grep -c "clean_kiosk.sh" ) ]
-then
-    sudo cp $config_dir/clean_kiosk.sh /opt/
-    sudo chmod +x /opt/clean_kiosk.sh
-else
-    echo -e "${ERROR} The clean_kiosk.sh file doesn't exist${NC}"
-    exit 1
-fi
-
 if [ 1 -eq $( ls $config_dir | grep -c "pufferfish_backend.service" ) ]
 then
     sudo cp $config_dir/pufferfish_backend.service /etc/systemd/system/
