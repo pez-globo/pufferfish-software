@@ -48,6 +48,7 @@ async def main() -> None:
                 "Unable to connect the rotary encoder, please check the "
                 "serial connection. Check if the pigpiod service is running: "
             )
+            rotary_encoder = None
             logger.error(exception, err)
     except NameError:
         logger.warning('Running without rotary encoder support!')
