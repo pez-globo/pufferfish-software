@@ -158,7 +158,7 @@ We have disabled the following checks:
 - modernize-use-trailing-return-type: we use the more traditional `int foo()` style of defining functions, rather than the `auto foo() -> int` style recommended by this check.
 
 We have temporarily disabled the following checks until we decide on a better
-way to pass around byte buffers (probably using C++ spans) than `uint8_t *` pointers:
+way to pass around byte buffers (probably using a C++ spans library) than `uint8_t *` pointers:
 
 - cppcoreguidelines-pro-bounds-pointer-arithmetic: this is needed for handling `uint8_t *` buffers
 - cppcoreguidelines-pro-bounds-constant-array-index: this is needed for handling `uint8_t *` buffers
