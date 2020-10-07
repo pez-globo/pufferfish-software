@@ -21,8 +21,8 @@ then
     cd ..
     rm master.zip
 else
-    echo -e "${ERROR} pigpio zip download failed"
+    echo -e "${ERROR} pigpio zip download failed${NC}"
     exit 1
 fi
 
-echo -e "\n${SUCCESS}Pigpio setup complete\n"
+echo -e "\n${SUCCESS}Pigpio setup complete\n${NC}"
