@@ -349,7 +349,7 @@ async def main() -> None:
             "serial connection. Check if the pigpiod service is running: %s"
         )
         rotary_encoder = None
-        logger.error(exception%err)
+        logger.error(exception, err)
 
     # Server Receive Outputs
     channel: channels.TrioChannel[
