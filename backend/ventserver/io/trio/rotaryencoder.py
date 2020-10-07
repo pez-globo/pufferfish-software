@@ -45,7 +45,7 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
 
     def a_quad_rise(self, gpio: int, level: int, tick: int) -> None:
         """Callback for rising A qaudrature pin."""
-        del gpio, level, tick # Unused args
+        _, __, ___ = gpio, level, tick # Unused args
         self._sequence += CLK_GPIO0
         if self._sequence == SEQUENCE_UP:
             self.counter += 1
@@ -57,14 +57,14 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
 
     def a_quad_fall(self, gpio: int, level: int, tick: int) -> None:
         """Callback for falling A qaudrature pin."""
-        del gpio, level, tick # Unused args
+        _, __, ___ = gpio, level, tick # Unused args
         if len(self._sequence) > 2:
             self._sequence = ''
         self._sequence += CLK_GPIO1
 
     def b_quad_rise(self, gpio: int, level: int, tick: int) -> None:
         """Callback for rising B qaudrature pin."""
-        del gpio, level, tick # Unused args
+        _, __, ___ = gpio, level, tick # Unused args
         self._sequence += DT_GPIO0
         if self._sequence == SEQUENCE_DOWN:
             self.counter -= 1
@@ -76,14 +76,14 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
 
     def b_quad_fall(self, gpio: int, level: int, tick: int) -> None:
         """Callback for falling B qaudrature pin."""
-        del gpio, level, tick # Unused args
+        _, __, ___ = gpio, level, tick # Unused args
         if len(self._sequence) > 2:
             self._sequence = ''
         self._sequence += DT_GPIO1
 
     def button_rise(self, gpio: int, level: int, tick: int) -> None:
         """Callback for rising button pin."""
-        del gpio, level, tick # Unused args
+        _, __, ___ = gpio, level, tick # Unused args
         if self.button_pressed:
             self.button_pressed = False
             trio.from_thread.run_sync(
@@ -93,7 +93,7 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
 
     def button_fall(self, gpio: int, level: int, tick: int) -> None:
         """Callback for falling button pin."""
-        del gpio, level, tick # Unused args
+        _, __, ___ = gpio, level, tick # Unused args
         if not self.button_pressed:
             self.button_pressed = True
             trio.from_thread.run_sync(

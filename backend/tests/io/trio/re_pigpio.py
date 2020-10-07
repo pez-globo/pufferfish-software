@@ -1,17 +1,14 @@
 # pylint: skip-file
 """Test Rotary Encoder connection and low-level driver."""
 from ventserver.protocols import rotary_encoder
-from ventserver.io.trio import rotaryencoder1
+from ventserver.io.trio import rotaryencoder
 import trio
-import RPi.GPIO as GPIO # type: ignore
 import pickle
 import time
 
-GPIO.setmode(GPIO.BCM)
-
 async def main() -> None:
-    """"""
-    driver = rotaryencoder1.Driver()
+    """Test rotary encoder driver sample"""
+    driver = rotaryencoder.Driver()
     protocol = rotary_encoder.ReceiveFilter()
     await driver.open()
     # samples = list()
@@ -27,9 +24,9 @@ async def main() -> None:
              await trio.sleep(0.10)
     except Exception as err:
         print(err)
-    finally:
-        with open("re_samples.pckl","wb") as fi: 
-            fi.write(pickle.dumps(samples))
+    # finally:
+    #     with open("re_samples.pckl","wb") as fi: 
+    #         fi.write(pickle.dumps(samples))
     await driver.close()
 
 if __name__ == "__main__":
