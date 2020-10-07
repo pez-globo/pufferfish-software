@@ -20,6 +20,7 @@ then
     sudo make install
     cd ..
     rm master.zip
+    sudo rm -rf pigpio-master
 else
     echo -e "${ERROR} pigpio zip download failed${NC}"
     exit 1
