@@ -217,7 +217,7 @@ I2CDeviceStatus SDPSensor::test() {
 
   // FIXME: Removed start_continuous_wait static method
   // this->start_continuous_wait(true);
-  time_.delay(20);
+  // time_.delay(20);
 
   // read & verify output
   // three attempts for measuring data

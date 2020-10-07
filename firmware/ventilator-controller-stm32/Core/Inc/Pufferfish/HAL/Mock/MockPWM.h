@@ -91,7 +91,7 @@ class MockPWM : public PWM {
 
  private:
   /* Return status */
-  PWMStatus return_status_;
+  PWMStatus return_status_ = PWMStatus::ok;
   /* Stores the Last raw duty cycle value */
   uint32_t last_raw_duty_ = 0;
   /* Stores the last Max duty cycle value */

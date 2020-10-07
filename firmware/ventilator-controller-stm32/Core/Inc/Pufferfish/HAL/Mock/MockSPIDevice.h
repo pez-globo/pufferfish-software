@@ -125,7 +125,7 @@ class MockSPIDevice : public SPIDevice {
   bool last_cs_ = false;
 
   /* return status */
-  SPIDeviceStatus return_status_;
+  SPIDeviceStatus return_status_ = SPIDeviceStatus::ok;
 
   static const uint8_t read_buf_size = 50;
   static const uint8_t write_buf_size = 50;

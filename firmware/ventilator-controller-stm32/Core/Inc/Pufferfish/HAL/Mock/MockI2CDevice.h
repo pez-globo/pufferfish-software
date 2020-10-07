@@ -84,7 +84,7 @@ class MockI2CDevice : public I2CDevice {
   std::array<uint8_t, read_buf_size> read_buf_{};
   std::array<uint8_t, write_buf_size> write_buf_{};
 
-  I2CDeviceStatus return_status_;
+  I2CDeviceStatus return_status_ = I2CDeviceStatus::ok;
 
   size_t write_count_ = 0;
 };

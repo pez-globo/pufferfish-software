@@ -441,7 +441,7 @@ int main(void)
   MX_TIM8_Init();
   MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
-  time.micros_delay_init();
+  PF::HAL::HALTime::micros_delay_init();
 
   /* FIXME: ADDED for Nonin OEM III Testing to setup interrupts
    * // Nonin TODO: setupIRQ of BufferredUART for setting the UART reception
