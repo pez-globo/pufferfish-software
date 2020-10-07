@@ -176,8 +176,8 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
                 pigpio.RISING_EDGE,
                 self.button_rise
             )
-        except Exception as err:
-            raise IOError(err)
+        except OSError as err:
+            raise exceptions.ProtocolError(err)
 
         self._connected = True
         self.trio_token = trio.lowlevel.current_trio_token()

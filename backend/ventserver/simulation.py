@@ -324,7 +324,11 @@ async def main() -> None:
     try:
         await rotary_encoder.open()
     except exceptions.ProtocolError as err:
-        print(err)
+        exception = (
+            "Unable to connect the rotary encoder, please check the ",
+            "serial connection. Check if the pigpiod service is running: %s"
+        )
+        print(exception,err)
 
     # Server Receive Outputs
     channel: channels.TrioChannel[
