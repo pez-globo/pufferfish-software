@@ -26,10 +26,10 @@ void PWMGenerator::start(uint32_t current_time) {
    */
   last_cycle_ = current_time;
   /* Invoke the update function of this object */
-  this->update(current_time);
+  this->input(current_time);
 }
 
-void PWMGenerator::update(uint32_t current_time) {
+void PWMGenerator::input(uint32_t current_time) {
   /* validate the pulse duration */
   uint32_t pulse_duration = current_time - last_cycle_;
 
@@ -67,10 +67,10 @@ void PulsedPWMGenerator::start(uint32_t current_time) {
   pulse_pwm_generator2_.start(current_time);
 }
 
-void PulsedPWMGenerator::update(uint32_t current_time) {
+void PulsedPWMGenerator::input(uint32_t current_time) {
   /* Update the pulse of low and high period/frequency */
-  pulse_pwm_generator1_.update(current_time);
-  pulse_pwm_generator2_.update(current_time);
+  pulse_pwm_generator1_.input(current_time);
+  pulse_pwm_generator2_.input(current_time);
 }
 
 bool PulsedPWMGenerator::output() {
