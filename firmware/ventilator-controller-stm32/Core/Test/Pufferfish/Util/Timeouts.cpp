@@ -1,7 +1,7 @@
 /*
  * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
  *
- * timeouts.cpp
+ * Timeouts.cpp
  *
  *  Created on: July 14, 2020
  *      Author: Ethan Li
@@ -10,8 +10,9 @@
  *
  */
 
-#include "catch2/catch.hpp"
 #include "Pufferfish/Util/Timeouts.h"
+
+#include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
 
@@ -46,7 +47,7 @@ SCENARIO("Timeouts fail across rollover for timestamp checks", "[timeouts]") {
       }
 
       THEN("timestamp checks succeed outside timeout") {
-        uint8_t end_time = static_cast<uint8_t>(261);
+        auto end_time = static_cast<uint8_t>(261);
         REQUIRE(end_time == 5);
         REQUIRE(end_time > deadline);
       }
@@ -87,7 +88,7 @@ SCENARIO("Timeouts succeed across rollover for duration checks", "[timeouts]") {
       }
 
       THEN("duration checks succeed within timeout after rollover") {
-        uint8_t end_time = static_cast<uint8_t>(257);
+        auto end_time = static_cast<uint8_t>(257);
         REQUIRE(end_time == 1);
         uint8_t duration = end_time - start_time;
         REQUIRE(duration == 7);
@@ -95,7 +96,7 @@ SCENARIO("Timeouts succeed across rollover for duration checks", "[timeouts]") {
       }
 
       THEN("duration checks succeed outside timeout") {
-        uint8_t end_time = static_cast<uint8_t>(261);
+        auto end_time = static_cast<uint8_t>(261);
         REQUIRE(end_time == 5);
         uint8_t duration = end_time - start_time;
         REQUIRE(duration == 11);
@@ -105,7 +106,7 @@ SCENARIO("Timeouts succeed across rollover for duration checks", "[timeouts]") {
   }
 }
 
-SCENARIO("Util::withinTimeout behaves correctly across rollover", "[timeouts]") {
+SCENARIO("Util::within_timeout behaves correctly across rollover", "[timeouts]") {
   GIVEN("A timeout") {
     uint8_t timeout = 10;
 
@@ -114,12 +115,12 @@ SCENARIO("Util::withinTimeout behaves correctly across rollover", "[timeouts]") 
 
       THEN("timeout checks succeed within timeout") {
         uint8_t end_time = 137;
-        REQUIRE(PF::Util::withinTimeout(start_time, timeout, end_time));
+        REQUIRE(PF::Util::within_timeout(start_time, timeout, end_time));
       }
 
       THEN("timeout checks succeed outside timeout") {
         uint8_t end_time = 139;
-        REQUIRE(!PF::Util::withinTimeout(start_time, timeout, end_time));
+        REQUIRE(!PF::Util::within_timeout(start_time, timeout, end_time));
       }
     }
 
@@ -128,19 +129,19 @@ SCENARIO("Util::withinTimeout behaves correctly across rollover", "[timeouts]") 
 
       THEN("timeout checks succeed within timeout before rollover") {
         uint8_t end_time = 251;
-        REQUIRE(PF::Util::withinTimeout(start_time, timeout, end_time));
+        REQUIRE(PF::Util::within_timeout(start_time, timeout, end_time));
       }
 
       THEN("timeout checks succeed within timeout after rollover") {
-        uint8_t end_time = static_cast<uint8_t>(257);
+        auto end_time = static_cast<uint8_t>(257);
         REQUIRE(end_time == 1);
-        REQUIRE(PF::Util::withinTimeout(start_time, timeout, end_time));
+        REQUIRE(PF::Util::within_timeout(start_time, timeout, end_time));
       }
 
       THEN("timeout checks succeed outside timeout") {
-        uint8_t end_time = static_cast<uint8_t>(261);
+        auto end_time = static_cast<uint8_t>(261);
         REQUIRE(end_time == 5);
-        REQUIRE(!PF::Util::withinTimeout(start_time, timeout, end_time));
+        REQUIRE(!PF::Util::within_timeout(start_time, timeout, end_time));
       }
     }
   }

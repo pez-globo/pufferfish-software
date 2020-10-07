@@ -6,39 +6,35 @@
 
 #include <Pufferfish/HAL/Mock/MockPWM.h>
 
-namespace Pufferfish {
-namespace HAL {
+namespace Pufferfish::HAL {
 
-void MockPWM::setDutyCycleRaw(uint32_t duty) {
-  mLastRawDuty = duty;
+void MockPWM::set_duty_cycle_raw(uint32_t duty) {
+  last_raw_duty_ = duty;
 }
 
-float MockPWM::getDutyCycleRaw()
-{
-  return mLastRawDuty;
+float MockPWM::get_duty_cycle_raw() const {
+  return last_raw_duty_;
 }
 
 PWMStatus MockPWM::start() {
-  mState = true;
+  state_ = true;
   return PWMStatus::ok;
 }
 
-bool MockPWM::getPWMState() {
-  return mState;
+bool MockPWM::get_pwm_state() const {
+  return state_;
 }
 PWMStatus MockPWM::stop() {
-  mState = false;
+  state_ = false;
   return PWMStatus::ok;
 }
 
-uint32_t MockPWM::getMaxDutyCycle() {
-  return mLastMaxDuty;
+uint32_t MockPWM::get_max_duty_cycle() {
+  return last_max_duty_;
 }
 
-void MockPWM::setMaxDutyCycle(uint32_t duty){
-  mLastMaxDuty = duty;
+void MockPWM::set_max_duty_cycle(uint32_t duty) {
+  last_max_duty_ = duty;
 }
 
-
-} /* namespace HAL */
-} /* namespace Pufferfish */
+}  // namespace Pufferfish::HAL

@@ -102,7 +102,7 @@ message Announcement {
 }
 
 // Logged Events
-enum LoggedEventCode {
+enum LogEventCode {
   fio2_too_low = 0;
   fio2_too_high = 1;
   spo2_too_low = 2;
@@ -113,21 +113,25 @@ enum LoggedEventCode {
   screen_locked = 7;
 }
 
-message LoggedEvent {
+message LogEvent {
   uint32 id = 1;
   uint32 time = 2;
-  LoggedEventCode code = 3;
+  LogEventCode code = 3;
   float old_value = 4;
   float new_value = 5;
 }
 
-message ExpectedInactiveLoggedEvent {
+message ExpectedLogEvent {
   uint32 id = 1;
 }
 
-message NextInactiveLoggedEvents {
+message NextLogEvents {
   uint32 next_expected = 1;
   uint32 total = 2;
   uint32 remaining = 3;
-  repeated LoggedEvent elements  = 4;
+  repeated LogEvent elements  = 4;
+}
+
+message ActiveLogEvents {
+  repeated uint32 id = 1;
 }

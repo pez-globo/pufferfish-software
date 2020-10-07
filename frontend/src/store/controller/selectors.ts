@@ -10,9 +10,19 @@ import {
   Announcement,
   AlarmLimitsRequest,
   VentilationMode,
+  ExpectedLogEvent,
+  NextLogEvents,
+  LogEvent,
 } from './proto/mcu_pb';
 import { RotaryEncoder, FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
-import { ControllerStates, WaveformPoint, WaveformHistory, PVPoint, PVHistory } from './types';
+import {
+  ControllerStates,
+  WaveformPoint,
+  WaveformHistory,
+  PVPoint,
+  PVHistory,
+  RotaryEncoderParameter,
+} from './types';
 
 export const getController = ({ controller }: StoreState): ControllerStates => controller;
 
@@ -118,6 +128,12 @@ export const getParametersRequest = createSelector(
   (states: ControllerStates): ParametersRequest => states.parametersRequest,
 );
 
+export const getParametersRequestStandby = createSelector(
+  getController,
+  (states: ControllerStates): ParametersRequest =>
+    states.parametersRequestStandby.parameters as ParametersRequest,
+);
+
 export const getParametersRequestMode = createSelector(
   getParametersRequest,
   (parametersRequest: ParametersRequest): VentilationMode => parametersRequest.mode,
@@ -138,7 +154,7 @@ export const getAnnouncement = createSelector(
 // RotaryEncoder
 export const getRotaryEncoder = createSelector(
   getController,
-  (states: ControllerStates): RotaryEncoder => states.rotaryEncoder,
+  (states: ControllerStates): RotaryEncoderParameter => states.rotaryEncoder,
 );
 
 // Waveforms
@@ -219,6 +235,12 @@ export const getAlarmLimitsRequest = createSelector(
     states.alarmLimitsRequest,
 );
 
+export const getAlarmLimitsRequestStandby = createSelector(
+  getController,
+  (states: ControllerStates): AlarmLimitsRequest | Record<string, number> =>
+    states.alarmLimitsRequestStandby.alarmLimits as AlarmLimitsRequest,
+);
+
 // Display Settings
 export const getFrontendDisplaySetting = createSelector(
   getController,
@@ -230,3 +252,35 @@ export const getSystemSettingRequest = createSelector(
   getController,
   (states: ControllerStates): SystemSettingRequest => states.systemSettingRequest,
 );
+
+// New Log event
+export const getLogEvent = createSelector(
+  getController,
+  (states: ControllerStates): LogEvent => states.logEvent,
+);
+
+// Next Logged Events
+export const getNextLoggedEvents = createSelector(
+  getController,
+  (states: ControllerStates): LogEvent[] => states.nextLogEvents.elements,
+);
+
+// Patient Alarm Event
+export const getExpectedLoggedEvent = createSelector(
+  getController,
+  (states: ControllerStates): number => states.expectedLoggedEvent.id,
+);
+
+// Active logged event Ids
+export const getActiveLoggedEventIds = createSelector(
+  getController,
+  (states: ControllerStates): number[] => states.activeLogEvents.id,
+);
+
+// Active popup event log
+export const getPopupEventLog = createSelector(getController, (states: ControllerStates):
+  | LogEvent
+  | undefined => {
+  const maxId = Math.max(...states.activeLogEvents.id);
+  return states.nextLogEvents.elements.find((el: LogEvent) => el.id === maxId);
+});

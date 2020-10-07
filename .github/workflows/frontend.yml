@@ -1,6 +1,18 @@
 name: Frontend Checks
 
-on: [push]
+on:
+  push:
+    paths:
+      - 'frontend/**'
+  workflow_dispatch:
+    inputs:
+      git-ref:
+        description: 'Git ref (optional)'
+        required: false
+
+defaults:
+  run:
+    working-directory: frontend
 
 jobs:
   build:
@@ -12,16 +24,14 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       name: Checkout repository
-      
+
     - name: Use Node.js ${{ matrix.node_version }}
       uses: actions/setup-node@v1
       with:
         version: ${{ matrix.node_version }}
-        
+
     - name: Install dependencies
       run: yarn install
-      working-directory: frontend
 
     - name: Check linting
       run: yarn lint
-      working-directory: frontend

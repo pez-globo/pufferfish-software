@@ -14,15 +14,13 @@ namespace HAL {
 /**
  * Represents a GPIO output in STM32, for mock functional testing
  */
-class MockDigitalOutput : public DigitalOutput{
+class MockDigitalOutput : public DigitalOutput {
  public:
   /**
    * Constructs a new DigitalOutput
    * @param None
    */
-  MockDigitalOutput(){
-
-  }
+  MockDigitalOutput() = default;
 
   /**
    * Writes a digital output to the GPIO pin,
@@ -33,12 +31,11 @@ class MockDigitalOutput : public DigitalOutput{
   /**
    * Test method to get value passed on write method
    */
-  bool getWrite();
+  [[nodiscard]] bool get_write() const;
 
  private:
-
-  bool lastOutput;
+  bool last_output_ = false;
 };
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

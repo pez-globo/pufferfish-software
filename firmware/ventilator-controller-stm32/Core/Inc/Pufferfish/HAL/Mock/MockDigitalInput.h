@@ -14,15 +14,13 @@ namespace HAL {
 /**
  * Represents a GPIO input in STM32
  */
-class MockDigitalInput : public DigitalInput{
+class MockDigitalInput : public DigitalInput {
  public:
   /**
    * Constructs a new Digital Input
    * @param None
    */
-  MockDigitalInput(){
-
-  }
+  MockDigitalInput() = default;
 
   /**
    * Reads a digital input from the GPIO pin
@@ -35,12 +33,11 @@ class MockDigitalInput : public DigitalInput{
    * @param  setting - Set TRUE/FASLE to read
    * @return None
    */
-  void setRead(bool setting);
+  void set_read(bool setting);
 
  private:
-
-  bool lastInput = 0;
+  bool last_input_ = false;
 };
 
-} // namespace HAL
-} // namespace Pufferfish
+}  // namespace HAL
+}  // namespace Pufferfish

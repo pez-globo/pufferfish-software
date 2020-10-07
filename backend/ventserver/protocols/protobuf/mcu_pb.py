@@ -17,7 +17,7 @@ class VentilationMode(betterproto.Enum):
     hfnc = 6
 
 
-class LoggedEventCode(betterproto.Enum):
+class LogEventCode(betterproto.Enum):
     """Logged Events"""
 
     fio2_too_low = 0
@@ -128,22 +128,27 @@ class Announcement(betterproto.Message):
 
 
 @dataclass
-class LoggedEvent(betterproto.Message):
+class LogEvent(betterproto.Message):
     id: int = betterproto.uint32_field(1)
     time: int = betterproto.uint32_field(2)
-    code: "LoggedEventCode" = betterproto.enum_field(3)
+    code: "LogEventCode" = betterproto.enum_field(3)
     old_value: float = betterproto.float_field(4)
     new_value: float = betterproto.float_field(5)
 
 
 @dataclass
-class ExpectedInactiveLoggedEvent(betterproto.Message):
+class ExpectedLogEvent(betterproto.Message):
     id: int = betterproto.uint32_field(1)
 
 
 @dataclass
-class NextInactiveLoggedEvents(betterproto.Message):
+class NextLogEvents(betterproto.Message):
     next_expected: int = betterproto.uint32_field(1)
     total: int = betterproto.uint32_field(2)
     remaining: int = betterproto.uint32_field(3)
-    elements: List["LoggedEvent"] = betterproto.message_field(4)
+    elements: List["LogEvent"] = betterproto.message_field(4)
+
+
+@dataclass
+class ActiveLogEvents(betterproto.Message):
+    id: List[int] = betterproto.uint32_field(1)
