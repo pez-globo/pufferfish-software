@@ -36,7 +36,7 @@ async def main() -> None:
 
     # I/O Endpoints
     serial_endpoint = _serial.Driver()
-    websocket_endpoint = websocket.Driver()    
+    websocket_endpoint = websocket.Driver()
 
     rotary_encoder = None
     try:

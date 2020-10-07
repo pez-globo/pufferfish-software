@@ -1,7 +1,5 @@
 """" Support for Rotary Encoder communication """
 
-import logging
-
 import attr
 
 @attr.s(auto_attribs=True)
