@@ -39,7 +39,7 @@ class PWMGenerator : public DigitalFunctionGenerator {
    * @param currentTime current time in micro-seconds.
    * @return None
    */
-  void update(uint32_t current_time) override;
+  void input(uint32_t current_time) override;
 
   /**
    * @brief  returns the bool output of mSwitching
@@ -94,7 +94,7 @@ class PulsedPWMGenerator : public DigitalFunctionGenerator {
    * @param  currentTime current time in micro-seconds.
    * @return None
    */
-  void update(uint32_t current_time) override;
+  void input(uint32_t current_time) override;
 
   /**
    * @brief  returns the bool output of mSwitching

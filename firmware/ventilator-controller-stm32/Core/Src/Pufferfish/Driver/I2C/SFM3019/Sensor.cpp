@@ -7,7 +7,9 @@
 
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 
-#include "Pufferfish/HAL/STM32/Time.h"
+#include <cmath>
+
+#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/Util/Timeouts.h"
 
 namespace Pufferfish::Driver::I2C::SFM3019 {
@@ -54,48 +56,55 @@ bool StateMachine::finished_waiting(uint32_t timeout_us) const {
 
 // Sensor
 
-SensorState Sensor::update() {
+InitializableState Sensor::setup() {
+  float flow = NAN;
+  return output(flow);
+}
+
+InitializableState Sensor::output(float &flow) {
   switch (next_action_) {
     case Action::initialize:
-      return initialize(HAL::micros());
+      return initialize(time_.micros());
     case Action::wait_warmup:
-      next_action_ = fsm_.update(HAL::micros());
-      return SensorState::setup;
+      next_action_ = fsm_.update(time_.micros());
+      return InitializableState::setup;
     case Action::check_range:
-      return check_range(HAL::micros());
+      return check_range(time_.micros());
     case Action::measure:
-      return measure(HAL::micros());
+      return measure(time_.micros(), flow);
     case Action::wait_measurement:
-      next_action_ = fsm_.update(HAL::micros());
-      return SensorState::ok;
+      next_action_ = fsm_.update(time_.micros());
+      return InitializableState::ok;
     default:
       break;
   }
-  return SensorState::failed;
+  return InitializableState::failed;
 }
 
-SensorState Sensor::initialize(uint32_t current_time_us) {
+InitializableState Sensor::initialize(uint32_t current_time_us) {
   if (retry_count_ > max_retries_setup) {
-    return SensorState::failed;
+    return InitializableState::failed;
   }
 
   retry_count_ = 0;
   // Reset the device
-  while (device_.reset() != I2CDeviceStatus::ok) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
-      return SensorState::failed;
+  if (resetter) {
+    while (device_.reset() != I2CDeviceStatus::ok) {
+      ++retry_count_;
+      if (retry_count_ > max_retries_setup) {
+        return InitializableState::failed;
+      }
     }
   }
 
   // Wait for power-up
-  HAL::delay(2);
+  time_.delay(2);
 
   // Read product number
   while (device_.serial_number(pn_) != I2CDeviceStatus::ok || pn_ != product_number) {
     ++retry_count_;
     if (retry_count_ > max_retries_setup) {
-      return SensorState::failed;
+      return InitializableState::failed;
     }
   }
 
@@ -106,46 +115,46 @@ SensorState Sensor::initialize(uint32_t current_time_us) {
   while (device_.start_measure() != I2CDeviceStatus::ok) {
     ++retry_count_;
     if (retry_count_ > max_retries_setup) {
-      return SensorState::failed;
+      return InitializableState::failed;
     }
   }
 
   next_action_ = fsm_.update(current_time_us);
   retry_count_ = 0;  // reset retries to 0 for measuring
-  return SensorState::setup;
+  return InitializableState::setup;
 }
 
-SensorState Sensor::check_range(uint32_t current_time_us) {
+InitializableState Sensor::check_range(uint32_t current_time_us) {
   if (device_.read_sample(sample_, conversion_.scale_factor, conversion_.offset) ==
           I2CDeviceStatus::ok &&
       sample_.flow >= flow_min && sample_.flow <= flow_max) {
     next_action_ = fsm_.update(current_time_us);
-    return SensorState::ok;
+    return InitializableState::ok;
   }
 
   ++retry_count_;
   if (retry_count_ > max_retries_setup) {
-    return SensorState::failed;
+    return InitializableState::failed;
   }
 
-  return SensorState::ok;
+  return InitializableState::ok;
 }
 
-SensorState Sensor::measure(uint32_t current_time_us) {
+InitializableState Sensor::measure(uint32_t current_time_us, float &flow) {
   if (device_.read_sample(sample_, conversion_.scale_factor, conversion_.offset) ==
       I2CDeviceStatus::ok) {
     retry_count_ = 0;  // reset retries to 0 for next measurement
-    flow_ = sample_.flow;
+    flow = sample_.flow;
     next_action_ = fsm_.update(current_time_us);
-    return SensorState::ok;
+    return InitializableState::ok;
   }
 
   ++retry_count_;
   if (retry_count_ > max_retries_measure) {
-    return SensorState::failed;
+    return InitializableState::failed;
   }
 
-  return SensorState::ok;
+  return InitializableState::ok;
 }
 
 }  // namespace Pufferfish::Driver::I2C::SFM3019

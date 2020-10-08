@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/Interfaces/DigitalOutput.h"
 #include "ShiftRegister.h"
 
 namespace Pufferfish {

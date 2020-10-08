@@ -4,18 +4,25 @@ import logging
 import functools
 
 import trio
-import RPi.GPIO as GPIO # type:ignore
+
+try:
+    import RPi.GPIO as GPIO  # type:ignore
+    from ventserver.io.trio import rotaryencoder
+except RuntimeError:
+    logging.getLogger().warning('Running without RPi.GPIO!')
 
 from ventserver.integration import _trio
 from ventserver.io.trio import _serial
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
-from ventserver.io.trio import rotaryencoder
 from ventserver.protocols import server
 from ventserver.protocols.protobuf import mcu_pb as pb
 
 
-GPIO.setmode(GPIO.BCM)
+try:
+    GPIO.setmode(GPIO.BCM)
+except NameError:
+    logging.getLogger().warning('Running without RPi.GPIO!')
 
 
 logger = logging.getLogger()
@@ -36,9 +43,13 @@ async def main() -> None:
     # I/O Endpoints
     serial_endpoint = _serial.Driver()
     websocket_endpoint = websocket.Driver()
-    rotary_encoder = rotaryencoder.Driver()
 
-    await rotary_encoder.open()
+    rotary_encoder = None
+    try:
+        rotary_encoder = rotaryencoder.Driver()
+        await rotary_encoder.open()
+    except NameError:
+        logger.warning('Running without rotary encoder support!')
 
     # Server Receive Outputs
     channel: channels.TrioChannel[

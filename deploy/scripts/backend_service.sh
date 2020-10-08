@@ -4,8 +4,9 @@
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
+NC='\033[0m'
 
-echo -e "\n${SUCCESS}********** Setting up backend service **********\n"
+echo -e "\n${SUCCESS}********** Setting up backend service **********\n${NC}"
 
 # Getting absolute path of config files
 script_dir=$(dirname $(realpath $0))
@@ -19,7 +20,7 @@ then
     sudo sed -i "s|python_file_absolute_path|$backend_file|g" /etc/systemd/system/pufferfish_backend.service
     sudo chmod 644 /etc/systemd/system/pufferfish_backend.service
 else
-    echo -e "${ERROR} The pufferfish_backend.service file doesn't exist"
+    echo -e "${ERROR} The pufferfish_backend.service file doesn't exist${NC}"
     exit 1
 fi
 
@@ -27,4 +28,4 @@ fi
 sudo systemctl daemon-reload
 sudo systemctl enable pufferfish_backend.service
 
-echo -e "\n${SUCCESS}Backend Service setup complete\n"
+echo -e "\n${SUCCESS}Backend Service setup complete\n${NC}"

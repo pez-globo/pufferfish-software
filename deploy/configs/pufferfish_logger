@@ -1,0 +1,10 @@
+/media/pi/LOGS/*.log
+{
+	daily
+	create
+	missingok
+	rotate 5
+    notifempty
+	maxsize 5M
+    copytruncate
+}
