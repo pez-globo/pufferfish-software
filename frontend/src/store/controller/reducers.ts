@@ -9,6 +9,10 @@ import {
   Announcement,
   AlarmLimitsRequest,
   VentilationMode,
+  ActiveLogEvents,
+  ExpectedLogEvent,
+  LogEvent,
+  NextLogEvents,
 } from './proto/mcu_pb';
 import {
   RotaryEncoder,
@@ -33,6 +37,10 @@ import {
   FRONTEND_DISPLAY_SETTINGS,
   SYSTEM_SETTINGS,
   commitAction,
+  EXPECTED_LOG_EVENT_ID,
+  RotaryEncoderParameter,
+  ALARM_LIMITS_STANDBY,
+  PARAMETER_STANDBY,
 } from './types';
 import DECIMAL_RADIX from '../../modules/app/AppConstants';
 
@@ -43,12 +51,45 @@ const messageReducer = <T extends PBMessage>(
   switch (action.type) {
     case STATE_UPDATED:
       if (action.messageType === messageType) {
+        if (messageType === MessageType.NextLogEvents) {
+          return mergeEventList(action.state as NextLogEvents, state as NextLogEvents) as T;
+        }
+        if (action.messageType === MessageType.RotaryEncoder) {
+          return calculateStepDiff(action.state as RotaryEncoder, state as RotaryEncoder) as T;
+        }
         return action.state as T;
       }
       return state;
     default:
       return state;
   }
+};
+
+const mergeEventList = (newEvents: NextLogEvents, oldEvents: NextLogEvents): NextLogEvents => {
+  const events = [...oldEvents.logEvents];
+  if (!oldEvents || !oldEvents.logEvents.length) {
+    return newEvents as NextLogEvents;
+  }
+  newEvents.logEvents.forEach((logEvent: LogEvent) => {
+    const id = events.find((ev: LogEvent) => ev.id === logEvent.id);
+    if (id === undefined) {
+      events.push(logEvent);
+    }
+  });
+  return {
+    ...newEvents,
+    logEvents: events,
+  };
+};
+
+const calculateStepDiff = (
+  newState: RotaryEncoder,
+  oldState: RotaryEncoder,
+): RotaryEncoderParameter => {
+  const stepDiff = newState.step - oldState.step;
+  const stateCopy = { ...newState } as RotaryEncoderParameter;
+  stateCopy.stepDiff = stepDiff;
+  return stateCopy;
 };
 
 const alarmLimitsReducer = (
@@ -72,6 +113,69 @@ const alarmLimitsReducer = (
   return withRequestUpdate<AlarmLimitsRequest>(state, action, ALARM_LIMITS);
 };
 
+const alarmLimitsRequestStandbyReducer = (
+  state: { alarmLimits: AlarmLimitsRequest } = {
+    alarmLimits: AlarmLimitsRequest.fromJSON({
+      rrMax: 100,
+      pipMax: 100,
+      peepMax: 100,
+      ipAbovePeepMax: 100,
+      inspTimeMax: 100,
+      fio2Max: 100,
+      pawMax: 100,
+      mveMax: 100,
+      tvMax: 100,
+      etco2Max: 100,
+      flowMax: 100,
+      apneaMax: 100,
+      spo2Max: 100,
+    }),
+  } as { alarmLimits: AlarmLimitsRequest },
+  action: commitAction,
+): { alarmLimits: AlarmLimitsRequest } => {
+  switch (action.type) {
+    case STATE_UPDATED: // ignore message from backend
+      return state;
+    case `@controller/${ALARM_LIMITS_STANDBY}_COMMITTED`:
+      return {
+        alarmLimits: {
+          ...state.alarmLimits,
+          ...action.update,
+        } as AlarmLimitsRequest,
+      };
+    default:
+      return state;
+  }
+};
+
+const parametersRequestStanbyReducer = (
+  state: { parameters: ParametersRequest } = {
+    parameters: ParametersRequest.fromJSON({
+      mode: VentilationMode.hfnc,
+      pip: 30,
+      peep: 0,
+      rr: 30,
+      ie: 1.0,
+      fio2: 60.0,
+    }),
+  } as { parameters: ParametersRequest },
+  action: commitAction,
+): { parameters: ParametersRequest } => {
+  switch (action.type) {
+    case STATE_UPDATED: // ignore message from backend
+      return state;
+    case `@controller/${PARAMETER_STANDBY}_COMMITTED`:
+      return {
+        parameters: {
+          ...state.parameters,
+          ...action.update,
+        } as ParametersRequest,
+      };
+    default:
+      return state;
+  }
+};
+
 const frontendDisplaySettingReducer = (
   state: FrontendDisplaySetting = FrontendDisplaySetting.fromJSON({
     theme: ThemeVariant.dark,
@@ -80,6 +184,15 @@ const frontendDisplaySettingReducer = (
   action: commitAction,
 ): FrontendDisplaySetting => {
   return withRequestUpdate<FrontendDisplaySetting>(state, action, FRONTEND_DISPLAY_SETTINGS);
+};
+
+const expectedLoggedEventReducer = (
+  state: ExpectedLogEvent = ExpectedLogEvent.fromJSON({
+    id: 0,
+  }) as ExpectedLogEvent,
+  action: commitAction,
+): ExpectedLogEvent => {
+  return withRequestUpdate<ExpectedLogEvent>(state, action, EXPECTED_LOG_EVENT_ID);
 };
 
 const systemSettingRequestReducer = (
@@ -282,8 +395,13 @@ export const controllerReducer = combineReducers({
   // Message states from mcu_pb
   alarms: messageReducer<Alarms>(MessageType.Alarms, Alarms),
   alarmLimitsRequest: alarmLimitsReducer,
+  alarmLimitsRequestStandby: alarmLimitsRequestStandbyReducer,
+  parametersRequestStandby: parametersRequestStanbyReducer,
   systemSettingRequest: systemSettingRequestReducer,
   frontendDisplaySetting: frontendDisplaySettingReducer,
+  expectedLoggedEvent: expectedLoggedEventReducer,
+  nextLogEvents: messageReducer<NextLogEvents>(MessageType.NextLogEvents, NextLogEvents),
+  activeLogEvents: messageReducer<ActiveLogEvents>(MessageType.ActiveLogEvents, ActiveLogEvents),
   sensorMeasurements: messageReducer<SensorMeasurements>(
     MessageType.SensorMeasurements,
     SensorMeasurements,
@@ -298,7 +416,7 @@ export const controllerReducer = combineReducers({
   announcement: messageReducer<Announcement>(MessageType.Announcement, Announcement),
 
   // Message states from frontend_pb
-  rotaryEncoder: messageReducer<RotaryEncoder>(MessageType.RotaryEncoder, RotaryEncoder),
+  rotaryEncoder: messageReducer<RotaryEncoderParameter>(MessageType.RotaryEncoder, RotaryEncoder),
 
   // Derived states
   waveformHistoryPaw: waveformHistoryReducer<SensorMeasurements>(

@@ -123,7 +123,6 @@ class PacketReceiver {
   enum class PacketInputStatus {
     available = 0,  /// Input is available to read output
     waiting,        /// Input is wait to read more bytes
-    not_available,  /// Input is not available
     missed_data     /// missed one or more frames in previous received packet
   };
 
@@ -138,13 +137,6 @@ class PacketReceiver {
    * @param  None
    */
   PacketReceiver() = default;
-
-  /**
-   * @brief  Reset the packet on error occurred in input
-   * @param  None
-   * @return None
-   */
-  void reset();
 
   /**
    * @brief  Input is called until packet is filled
@@ -173,6 +165,8 @@ class PacketReceiver {
   PacketInputStatus input_status_ = PacketInputStatus::waiting;
 };
 
+extern void read_status_byte(
+    PacketMeasurements &sensor_measurements, const size_t &frame_index, const uint8_t &byte_value);
 }  // namespace Nonin
 }  // namespace Serial
 }  // namespace Driver

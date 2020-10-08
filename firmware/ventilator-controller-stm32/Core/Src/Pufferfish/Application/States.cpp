@@ -37,13 +37,13 @@ namespace Pufferfish::Util {
 // StateSegment
 // Refer to States.h for justification of why we are using unions this way
 
-STATESEGMENT_TAGGED_SETTER(Alarms, alarms);
-STATESEGMENT_TAGGED_SETTER(SensorMeasurements, sensor_measurements);
-STATESEGMENT_TAGGED_SETTER(CycleMeasurements, cycle_measurements);
-STATESEGMENT_TAGGED_SETTER(Parameters, parameters);
-STATESEGMENT_TAGGED_SETTER(ParametersRequest, parameters_request);
-STATESEGMENT_TAGGED_SETTER(Ping, ping);
-STATESEGMENT_TAGGED_SETTER(Announcement, announcement);
+STATESEGMENT_TAGGED_SETTER(Alarms, alarms)
+STATESEGMENT_TAGGED_SETTER(SensorMeasurements, sensor_measurements)
+STATESEGMENT_TAGGED_SETTER(CycleMeasurements, cycle_measurements)
+STATESEGMENT_TAGGED_SETTER(Parameters, parameters)
+STATESEGMENT_TAGGED_SETTER(ParametersRequest, parameters_request)
+STATESEGMENT_TAGGED_SETTER(Ping, ping)
+STATESEGMENT_TAGGED_SETTER(Announcement, announcement)
 
 }  // namespace Pufferfish::Util
 

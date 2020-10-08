@@ -66,7 +66,7 @@ void FrameBuffer::shift_left() {
   /* On no frame data available frameBuffer and frameIndex are not updated */
   if (received_length_ > 0) {
     /* Update the frame buffer and index to receive new byte data */
-    for (size_t index = 0; index < (received_length_ - 1); index++) {
+    for (size_t index = 0; index < static_cast<size_t>(received_length_ - 1); index++) {
       frame_buffer_[index] = frame_buffer_[index + 1];
     }
     received_length_--;

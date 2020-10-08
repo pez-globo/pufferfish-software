@@ -7,16 +7,34 @@ import {
   Ping,
   Announcement,
   AlarmLimitsRequest,
+  ActiveLogEvents,
+  ExpectedLogEvent,
+  LogEvent,
+  NextLogEvents,
 } from './proto/mcu_pb';
-import { RotaryEncoder, SystemSettingRequest, FrontendDisplaySetting } from './proto/frontend_pb';
+import { SystemSettingRequest, FrontendDisplaySetting, RotaryEncoder } from './proto/frontend_pb';
 
 // Action Types
 
 export const STATE_UPDATED = '@controller/STATE_UPDATED';
 export const PARAMETER_COMMITTED = '@controller/PARAMETER_COMMITTED';
 export const ALARM_LIMITS = 'ALARM_LIMITS';
+export const EXPECTED_LOG_EVENT_ID = 'EXPECTED_LOG_EVENT_ID';
+export const ALARM_LIMITS_STANDBY = 'ALARM_LIMITS_STANDBY';
+export const PARAMETER_STANDBY = 'PARAMETERS_STANDBY';
 export const FRONTEND_DISPLAY_SETTINGS = 'FRONTEND_DISPLAY_SETTINGS';
 export const SYSTEM_SETTINGS = 'SYSTEM_SETTINGS';
+
+// Rotary encoder overriden params
+
+export interface RotaryEncoderParameter {
+  step: number;
+  lastStepChange: number;
+  buttonPressed: boolean;
+  lastButtonDown: number;
+  lastButtonUp: number;
+  stepDiff: number;
+}
 
 // Protocol Buffers
 
@@ -32,14 +50,17 @@ export type PBMessage =
   | ParametersRequest
   | Ping
   | Announcement
+  | LogEvent
+  | ExpectedLogEvent
+  | NextLogEvents
+  | ActiveLogEvents
   // frontend_pb
-  | RotaryEncoder;
+  | RotaryEncoder
+  | RotaryEncoderParameter;
 
 export type PBMessageType =
   | // mcu_pb
   typeof AlarmLimitsRequest
-  | typeof SystemSettingRequest
-  | typeof FrontendDisplaySetting
   | typeof Alarms
   | typeof SensorMeasurements
   | typeof CycleMeasurements
@@ -47,7 +68,11 @@ export type PBMessageType =
   | typeof ParametersRequest
   | typeof Ping
   | typeof Announcement
+  | typeof NextLogEvents
+  | typeof ActiveLogEvents
   // frontend_pb
+  | typeof SystemSettingRequest
+  | typeof FrontendDisplaySetting
   | typeof RotaryEncoder;
 
 export enum MessageType {
@@ -61,6 +86,8 @@ export enum MessageType {
   AlarmLimitsRequest = 8,
   SystemSettingRequest = 9,
   FrontendDisplaySetting = 10,
+  NextLogEvents = 11,
+  ActiveLogEvents = 12,
   RotaryEncoder = 128,
 }
 
@@ -98,6 +125,8 @@ export interface ControllerStates {
   // Message states from mcu_pb
   alarms: Alarms;
   alarmLimitsRequest: AlarmLimitsRequest;
+  alarmLimitsRequestStandby: { alarmLimits: AlarmLimitsRequest };
+  parametersRequestStandby: { parameters: ParametersRequest };
   systemSettingRequest: SystemSettingRequest;
   frontendDisplaySetting: FrontendDisplaySetting;
   sensorMeasurements: SensorMeasurements;
@@ -106,9 +135,13 @@ export interface ControllerStates {
   parametersRequest: ParametersRequest;
   ping: Ping;
   announcement: Announcement;
+  logEvent: LogEvent;
+  expectedLoggedEvent: ExpectedLogEvent;
+  nextLogEvents: NextLogEvents;
+  activeLogEvents: ActiveLogEvents;
 
   // Message states from frontend_pb
-  rotaryEncoder: RotaryEncoder;
+  rotaryEncoder: RotaryEncoderParameter;
 
   // Derived states
   waveformHistoryPaw: WaveformHistory;
@@ -127,7 +160,8 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.Parameters, Parameters],
   [MessageType.ParametersRequest, ParametersRequest],
   [MessageType.Ping, Ping],
-  [MessageType.Announcement, Announcement],
+  [MessageType.NextLogEvents, NextLogEvents],
+  [MessageType.ActiveLogEvents, ActiveLogEvents],
   [MessageType.RotaryEncoder, RotaryEncoder],
 ]);
 
@@ -142,6 +176,8 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
   [ParametersRequest, MessageType.ParametersRequest],
   [Ping, MessageType.Ping],
   [Announcement, MessageType.Announcement],
+  [NextLogEvents, MessageType.NextLogEvents],
+  [ActiveLogEvents, MessageType.ActiveLogEvents],
   [RotaryEncoder, MessageType.RotaryEncoder],
 ]);
 
