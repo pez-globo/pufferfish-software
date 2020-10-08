@@ -113,18 +113,10 @@ PF::HAL::HALTime time;
 
 // Buffered UARTs
 volatile Pufferfish::HAL::LargeBufferedUART buffered_uart3(huart3, time);
+volatile Pufferfish::HAL::ReadOnlyBufferredUART nonin_oem_uart(huart4, time);
 
 // UART Serial Communication
 PF::Driver::Serial::Backend::UARTBackend backend(buffered_uart3, crc32c, all_states);
-
-// Read only Buffered UART for Nonin OEM III
-volatile Pufferfish::HAL::ReadOnlyBufferredUART nonin_oem_uart(huart4, time);
-// NoninOEM TODO: Creating an object for UART for Nonin OEM interface
-PF::Driver::Serial::Nonin::NoninOEM nonin_oem(nonin_oem_uart);
-// NoninOEM TODO: Packet measurements
-PF::Driver::Serial::Nonin::PacketMeasurements test_sensor_measurements;
-// NoninOEM TODO: status byte error
-PF::Driver::Serial::Nonin::StatusByteError frame_error_status;
 
 // Create an object for ADC3 of AnalogInput Class
 static const uint32_t adc_poll_timeout = 10;
@@ -299,6 +291,11 @@ PF::Driver::I2C::SFM3019::Sensor sfm3019_air(sfm3019_dev_air, true, time);
 PF::Driver::I2C::SFM3019::Device sfm3019_dev_o2(i2c_hal_sfm3019_o2, i2c4_hal_global);
 PF::Driver::I2C::SFM3019::Sensor sfm3019_o2(sfm3019_dev_o2, true, time);
 
+// Nonin OEM III
+PF::Driver::Serial::Nonin::NoninOEM nonin_oem(nonin_oem_uart);
+
+// Initializables
+
 auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
     sfm3019_air, sfm3019_o2);
 std::array<PF::InitializableState, initializables.size()> initialization_states;
@@ -461,11 +458,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
   PF::HAL::HALTime::micros_delay_init();
 
-  /* FIXME: ADDED for Nonin OEM III Testing to setup interrupts
-   * // Nonin TODO: setupIRQ of BufferredUART for setting the UART reception
-   * nonin_oem_uart.setup_irq();
-   */
-
   /*
   interface_test_millis = time.millis();
 
@@ -482,6 +474,10 @@ int main(void)
 
   // Solenoid valve
   drive1_ch1.start();
+
+  // Nonin OEM III sensor
+  nonin_oem_uart.setup_irq();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -495,6 +491,10 @@ int main(void)
     uint32_t current_time = time.millis();
     blinker.input(current_time);
     flasher.input(current_time);
+
+    // Service devices which don't need initialization
+    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements;
+    nonin_oem.output(sensor_measurements);
 
     // Run setup on all initializables
     for (size_t i = 0; i < initializables.size(); ++i) {
@@ -541,6 +541,18 @@ int main(void)
         all_states.sensor_measurements(),
         all_states.cycle_measurements());
 
+    // Sensor tests
+    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements;
+    if (nonin_oem.output(sensor_measurements) == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::available) {
+      if (sensor_measurements.spo2 == 127) {
+        all_states.sensor_measurements().spo2 = NAN;
+        board_led1.write(false);
+      } else {
+        all_states.sensor_measurements().spo2 = sensor_measurements.spo2;
+        board_led1.write(true);
+      }
+    }
+
     // Breathing Circuit Control Loop
     hfnc.update(current_time);
     // Indicators for debugging
@@ -550,55 +562,18 @@ int main(void)
     } else {
       board_led1.write(dimmer.output());
     }*/
-    if (hfnc.sensor_vars().flow_o2 > 1 || hfnc.sensor_vars().flow_air > 1) {
+    /*if (hfnc.sensor_vars().flow_o2 > 1 || hfnc.sensor_vars().flow_air > 1) {
       board_led1.write(true);
     } else if (hfnc.sensor_vars().flow_o2 < -1 || hfnc.sensor_vars().flow_air < -1) {
       board_led1.write(dimmer.output());
     } else {
       board_led1.write(false);
-    }
+    }*/
 
     // Backend Communication Protocol
     backend.receive();
     backend.update_clock(current_time);
     backend.send();
-
-    /* FIXME: ADDED for Nonin OEM III Testing
-     * // Nonin TODO: Invoking the NoninOEM output method
-     * return_status = nonin_oem.output(test_sensor_measurements);
-     * if (return_status == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::available) {
-     *   packet_count = packet_count + 1;
-     *
-     *   /// Nonin TODO: Test Scenario 1 On sensor disconnected from Nonin OEM III
-     *   /// module
-     *   if (packet_count == 1) {
-     *     testcase_results[0] =
-     *         static_cast<uint32_t>(test_sensor_measurements.sensor_disconnect[0]);
-     *   }
-     *
-     *   /// Nonin TODO: Test Scenario 2 On sensor connected to Nonin OEM III
-     *   /// module and no contact with  finger clip sensor
-     *   if (packet_count == 1) {
-     *     testcase_results[1] = static_cast<uint32_t>(test_sensor_measurements.sensor_alarm[0]);
-     *   }
-     *   /// Nonin TODO: Test Scenario 3 Time validation for 15 frames is 5 seconds
-     *   if (packet_count == 1) {
-     *     current_time = time.millis();
-     *   }
-     *   /// Nonin TODO: define magic numbers in meaningful variable names
-     *   // NOLINTNEXTLINE(readability-magic-numbers)
-     *   if (packet_count == 16) {
-     *     current_time = time.millis() - current_time;
-     *     // Validate time for 5000 milli-seconds
-     *     testcase_results[2] =
-     *         /// Nonin TODO: define magic numbers in meaningful variable names
-     *         // NOLINTNEXTLINE(readability-magic-numbers)
-     *         static_cast<uint32_t>(current_time >= 5000 && current_time < 5100);
-     *   }
-     * }
-     * // Nonin TODO : Added to resolve warnings
-     * testcase_results[3] = static_cast<uint32_t>(static_cast<bool>(testcase_results[2]));
-     */
 
     /*
     PF::AlarmManagerStatus stat = h_alarms.update(time.millis());
