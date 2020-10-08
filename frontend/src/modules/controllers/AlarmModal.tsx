@@ -89,10 +89,12 @@ export const AlarmModal = ({
         [`${stateKey}Max`]: rangeValue[1],
       }),
     );
-    dispatch(updateCommittedState(ALARM_LIMITS_STANDBY, {
-      [`${stateKey}Min`]: rangeValue[0],
-      [`${stateKey}Max`]: rangeValue[1],
-    }));
+    dispatch(
+      updateCommittedState(ALARM_LIMITS_STANDBY, {
+        [`${stateKey}Min`]: rangeValue[0],
+        [`${stateKey}Max`]: rangeValue[1],
+      }),
+    );
     requestCommitRange(rangeValue[0], rangeValue[1]);
     handleClose();
   };
