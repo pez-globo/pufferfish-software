@@ -9,7 +9,11 @@
 
 #pragma once
 
-#include "Pufferfish/HAL/HAL.h"
+#include <cstddef>
+#include <cstdint>
+
+#include "Pufferfish/HAL/Interfaces/DigitalOutput.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -23,11 +27,13 @@ class ShiftRegister {
       HAL::DigitalOutput &serial_in,
       HAL::DigitalOutput &serial_clock,
       HAL::DigitalOutput &r_clock,
-      HAL::DigitalOutput &serial_clear)
+      HAL::DigitalOutput &serial_clear,
+      HAL::Time &time)
       : serial_in_(serial_in),
         serial_clock_(serial_clock),
         r_clock_(r_clock),
-        serial_clear_(serial_clear) {}
+        serial_clear_(serial_clear),
+        time_(time) {}
 
   void set_channel(uint8_t chan, bool out);
   [[nodiscard]] bool get_channel(uint8_t chan) const;
@@ -39,6 +45,7 @@ class ShiftRegister {
   HAL::DigitalOutput &serial_clock_;
   HAL::DigitalOutput &r_clock_;
   HAL::DigitalOutput &serial_clear_;
+  HAL::Time &time_;
 
   uint8_t output_reg_ = 0;
 };

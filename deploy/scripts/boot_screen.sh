@@ -4,8 +4,9 @@
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
+NC='\033[0m'
 
-echo -e "\n${SUCCESS}********** Setting up custom boot screen **********\n"
+echo -e "\n${SUCCESS}********** Setting up custom boot screen **********\n${NC}"
 
 sudo apt-get update
 
@@ -22,7 +23,7 @@ if [ 0 -eq $( cat /boot/cmdline.txt | grep -c "consoleblank=0 loglevel=1" ) ]
 then
     echo $existing_command" consoleblank=0 loglevel=1 quiet vt.global_cursor_default=0" | sudo tee /boot/cmdline.txt
 else
-    echo -e "${WARNING} Logs are already disabled"
+    echo -e "${WARNING} Logs are already disabled${NC}"
 fi
 
 sudo systemctl mask getty@tty1
@@ -35,7 +36,7 @@ if [ 1 -eq $( ls $config_dir | grep -c "splashscreen.service" ) ]
 then
     sudo cp $config_dir/splashscreen.service /etc/systemd/system/
 else
-    echo -e "${ERROR} The splashscreen.service file doesn't exist"
+    echo -e "${ERROR} The splashscreen.service file doesn't exist${NC}"
     exit 1
 fi
 
@@ -44,7 +45,7 @@ if [ 1 -eq $( ls $config_dir | grep -c "lightdm.conf" ) ]
 then
     sudo cp $config_dir/lightdm.conf /etc/lightdm/lightdm.conf
 else
-    echo -e "${ERROR} Lightdm configuration file doesn't exist"
+    echo -e "${ERROR} Lightdm configuration file doesn't exist${NC}"
     exit 1
 fi
 
@@ -52,4 +53,4 @@ sudo apt-get update
 sudo systemctl mask plymouth-start.service
 sudo systemctl enable splashscreen
 
-echo -e "\n${SUCCESS}Custom Bootscreen setup complete\n"
+echo -e "\n${SUCCESS}Custom Bootscreen setup complete\n${NC}"

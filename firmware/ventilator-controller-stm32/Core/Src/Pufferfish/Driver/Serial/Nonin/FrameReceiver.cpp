@@ -71,10 +71,10 @@ FrameReceiver::FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_b
     return FrameInputStatus::waiting;
   }
 
-  /* On frame available update the frameBuffer with new frame available */
+  /* On frame buffer input status is available update the frameBuffer with new frame */
   if (frame_buf_.output(frame_buffer) != BufferStatus::ok) {
     /* return false on frame is not available */
-    return FrameInputStatus::not_available;
+    return FrameInputStatus::waiting;
   }
 
   /* On start_of_frame_status_ false Validate the start of frame */

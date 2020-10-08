@@ -4,8 +4,9 @@
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
+NC='\033[0m'
 
-echo -e "\n${SUCCESS}********** Setting up Read-Only Mode **********\n"
+echo -e "\n${SUCCESS}********** Setting up Read-Only Mode **********\n${NC}"
 
 # Cleaning up packages
 echo "Cleaning up packages..."
@@ -56,7 +57,7 @@ tmpfs        /var/tmp        tmpfs   nosuid,nodev         0       0
 tmpfs        /home/pi/.config tmpfs defaults,noatime,uid=pi,gid=pi,mode=0755 0 0
 " >> $fstab_file
 else
-  echo -e "${WARNING} Filesystem is already in read-only mode"
+  echo -e "${WARNING} Filesystem is already in read-only mode${NC}"
   exit
 fi
 
@@ -91,23 +92,27 @@ if [ 1 -eq $( ls $config_dir | grep -c "bashrc_config.txt" ) ]
 then
     cat $config_dir/bashrc_config.txt | sudo tee -a /etc/bash.bashrc
 else
-    echo -e "${ERROR} Configuration file (bashrc_config.txt) not found!"
+    echo -e "${ERROR} Configuration file (bashrc_config.txt) not found!${NC}"
     exit 1
 fi
 
 # Switch to read-only on reboot/poweroff
-sudo touch /etc/bash.bash_logout
+if [ 0 -eq $( ls /etc/ | grep -c "bash.bash_logout" ) ]
+then
+    sudo touch /etc/bash.bash_logout
+fi
+
 if [ 1 -eq $( ls $config_dir | grep -c "bash_logout.txt" ) ]
 then
     cat $config_dir/bash_logout.txt | sudo tee -a /etc/bash.bash_logout
 else
-    echo -e "${ERROR} Configuration file (bash_logout.txt) not found!"
+    echo -e "${ERROR} Configuration file (bash_logout.txt) not found!${NC}"
     exit 1
 fi
 
 # Kernel Reboot on panic
 echo "Configuring reboot on kernel panic..."
-echo "\nkernel.panic = 10" | sudo tee -a /etc/sysctl.d/01-panic.conf
+echo -e "\nkernel.panic = 10" | sudo tee -a /etc/sysctl.d/01-panic.conf
 
 # Disabling daily update and upgrade services
 echo "Disabling daily update and upgrade services..."
@@ -118,4 +123,4 @@ sudo systemctl disable apt-daily-upgrade.timer
 
 sudo systemctl daemon-reload
 
-echo -e "\n${SUCCESS}Read-Only Mode setup complete\n"
+echo -e "\n${SUCCESS}Read-Only Mode setup complete\n${NC}"
