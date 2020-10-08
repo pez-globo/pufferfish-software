@@ -1,0 +1,662 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ventserver.protocols.protobuf package &#8212; Pufferfish  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ventserver.sansio package" href="ventserver.sansio.html" />
+    <link rel="prev" title="ventserver.protocols.application package" href="ventserver.protocols.application.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ventserver.protocols.protobuf">
+<span id="ventserver-protocols-protobuf-package"></span><h1>ventserver.protocols.protobuf package<a class="headerlink" href="#module-ventserver.protocols.protobuf" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ventserver.protocols.protobuf.frontend_pb">
+<span id="ventserver-protocols-protobuf-frontend-pb-module"></span><h2>ventserver.protocols.protobuf.frontend_pb module<a class="headerlink" href="#module-ventserver.protocols.protobuf.frontend_pb" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ventserver.protocols.protobuf.frontend_pb.FrontendDisplaySetting">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.protocols.protobuf.frontend_pb.</code><code class="sig-name descname">FrontendDisplaySetting</code><span class="sig-paren">(</span><em class="sig-param">theme: 'ThemeVariant' = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">unit: 'Unit' = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/protocols/protobuf/frontend_pb.html#FrontendDisplaySetting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.FrontendDisplaySetting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">betterproto.Message</span></code></p>
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.frontend_pb.FrontendDisplaySetting.theme">
+<code class="sig-name descname">theme</code><em class="property">: <a class="reference internal" href="#ventserver.protocols.protobuf.frontend_pb.ThemeVariant" title="ventserver.protocols.protobuf.frontend_pb.ThemeVariant">ventserver.protocols.protobuf.frontend_pb.ThemeVariant</a></em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.FrontendDisplaySetting.theme" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.frontend_pb.FrontendDisplaySetting.unit">
+<code class="sig-name descname">unit</code><em class="property">: <a class="reference internal" href="#ventserver.protocols.protobuf.frontend_pb.Unit" title="ventserver.protocols.protobuf.frontend_pb.Unit">ventserver.protocols.protobuf.frontend_pb.Unit</a></em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.FrontendDisplaySetting.unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.protocols.protobuf.frontend_pb.RotaryEncoder">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.protocols.protobuf.frontend_pb.</code><code class="sig-name descname">RotaryEncoder</code><span class="sig-paren">(</span><em class="sig-param">step: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">last_step_change: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">button_pressed: bool = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">last_button_down: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">last_button_up: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/protocols/protobuf/frontend_pb.html#RotaryEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.RotaryEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">betterproto.Message</span></code></p>
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.frontend_pb.RotaryEncoder.button_pressed">
+<code class="sig-name descname">button_pressed</code><em class="property">: bool</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.RotaryEncoder.button_pressed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.frontend_pb.RotaryEncoder.last_button_down">
+<code class="sig-name descname">last_button_down</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.RotaryEncoder.last_button_down" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.frontend_pb.RotaryEncoder.last_button_up">
+<code class="sig-name descname">last_button_up</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.RotaryEncoder.last_button_up" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.frontend_pb.RotaryEncoder.last_step_change">
+<code class="sig-name descname">last_step_change</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.RotaryEncoder.last_step_change" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.frontend_pb.RotaryEncoder.step">
+<code class="sig-name descname">step</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.RotaryEncoder.step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.protocols.protobuf.frontend_pb.SystemSettingRequest">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.protocols.protobuf.frontend_pb.</code><code class="sig-name descname">SystemSettingRequest</code><span class="sig-paren">(</span><em class="sig-param">brightness: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">date: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/protocols/protobuf/frontend_pb.html#SystemSettingRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.SystemSettingRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">betterproto.Message</span></code></p>
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.frontend_pb.SystemSettingRequest.brightness">
+<code class="sig-name descname">brightness</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.SystemSettingRequest.brightness" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.frontend_pb.SystemSettingRequest.date">
+<code class="sig-name descname">date</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.SystemSettingRequest.date" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.protocols.protobuf.frontend_pb.ThemeVariant">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.protocols.protobuf.frontend_pb.</code><code class="sig-name descname">ThemeVariant</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/protocols/protobuf/frontend_pb.html#ThemeVariant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.ThemeVariant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">betterproto.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.frontend_pb.ThemeVariant.dark">
+<code class="sig-name descname">dark</code><em class="property"> = 0</em><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.ThemeVariant.dark" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.frontend_pb.ThemeVariant.light">
+<code class="sig-name descname">light</code><em class="property"> = 1</em><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.ThemeVariant.light" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.protocols.protobuf.frontend_pb.Unit">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.protocols.protobuf.frontend_pb.</code><code class="sig-name descname">Unit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/protocols/protobuf/frontend_pb.html#Unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.Unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">betterproto.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.frontend_pb.Unit.imperial">
+<code class="sig-name descname">imperial</code><em class="property"> = 0</em><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.Unit.imperial" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.frontend_pb.Unit.metric">
+<code class="sig-name descname">metric</code><em class="property"> = 1</em><a class="headerlink" href="#ventserver.protocols.protobuf.frontend_pb.Unit.metric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ventserver.protocols.protobuf.mcu_pb">
+<span id="ventserver-protocols-protobuf-mcu-pb-module"></span><h2>ventserver.protocols.protobuf.mcu_pb module<a class="headerlink" href="#module-ventserver.protocols.protobuf.mcu_pb" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.protocols.protobuf.mcu_pb.</code><code class="sig-name descname">AlarmLimitsRequest</code><span class="sig-paren">(</span><em class="sig-param">rr_min: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">rr_max: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">pip_min: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">pip_max: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">peep_min: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">peep_max: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">ip_above_peep_min: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">ip_above_peep_max: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">insp_time_min: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">insp_time_max: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">fio2_min: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">fio2_max: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">paw_min: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">paw_max: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">mve_min: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">mve_max: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">tv_min: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">tv_max: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">etco2_min: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">etco2_max: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">flow_min: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">flow_max: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">apnea_min: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">apnea_max: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">spo2_min: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">spo2_max: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/protocols/protobuf/mcu_pb.html#AlarmLimitsRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">betterproto.Message</span></code></p>
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.apnea_max">
+<code class="sig-name descname">apnea_max</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.apnea_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.apnea_min">
+<code class="sig-name descname">apnea_min</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.apnea_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.etco2_max">
+<code class="sig-name descname">etco2_max</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.etco2_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.etco2_min">
+<code class="sig-name descname">etco2_min</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.etco2_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.fio2_max">
+<code class="sig-name descname">fio2_max</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.fio2_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.fio2_min">
+<code class="sig-name descname">fio2_min</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.fio2_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.flow_max">
+<code class="sig-name descname">flow_max</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.flow_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.flow_min">
+<code class="sig-name descname">flow_min</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.flow_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.insp_time_max">
+<code class="sig-name descname">insp_time_max</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.insp_time_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.insp_time_min">
+<code class="sig-name descname">insp_time_min</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.insp_time_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.ip_above_peep_max">
+<code class="sig-name descname">ip_above_peep_max</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.ip_above_peep_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.ip_above_peep_min">
+<code class="sig-name descname">ip_above_peep_min</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.ip_above_peep_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.mve_max">
+<code class="sig-name descname">mve_max</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.mve_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.mve_min">
+<code class="sig-name descname">mve_min</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.mve_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.paw_max">
+<code class="sig-name descname">paw_max</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.paw_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.paw_min">
+<code class="sig-name descname">paw_min</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.paw_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.peep_max">
+<code class="sig-name descname">peep_max</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.peep_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.peep_min">
+<code class="sig-name descname">peep_min</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.peep_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.pip_max">
+<code class="sig-name descname">pip_max</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.pip_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.pip_min">
+<code class="sig-name descname">pip_min</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.pip_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.rr_max">
+<code class="sig-name descname">rr_max</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.rr_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.rr_min">
+<code class="sig-name descname">rr_min</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.rr_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.spo2_max">
+<code class="sig-name descname">spo2_max</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.spo2_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.spo2_min">
+<code class="sig-name descname">spo2_min</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.spo2_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.tv_max">
+<code class="sig-name descname">tv_max</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.tv_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.tv_min">
+<code class="sig-name descname">tv_min</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.AlarmLimitsRequest.tv_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Alarms">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.protocols.protobuf.mcu_pb.</code><code class="sig-name descname">Alarms</code><span class="sig-paren">(</span><em class="sig-param">time: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">alarm_one: bool = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">alarm_two: bool = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/protocols/protobuf/mcu_pb.html#Alarms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Alarms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">betterproto.Message</span></code></p>
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Alarms.alarm_one">
+<code class="sig-name descname">alarm_one</code><em class="property">: bool</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Alarms.alarm_one" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Alarms.alarm_two">
+<code class="sig-name descname">alarm_two</code><em class="property">: bool</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Alarms.alarm_two" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Alarms.time">
+<code class="sig-name descname">time</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Alarms.time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Announcement">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.protocols.protobuf.mcu_pb.</code><code class="sig-name descname">Announcement</code><span class="sig-paren">(</span><em class="sig-param">time: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">announcement: bytes = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/protocols/protobuf/mcu_pb.html#Announcement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Announcement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">betterproto.Message</span></code></p>
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Announcement.announcement">
+<code class="sig-name descname">announcement</code><em class="property">: bytes</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Announcement.announcement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Announcement.time">
+<code class="sig-name descname">time</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Announcement.time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.protocols.protobuf.mcu_pb.CycleMeasurements">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.protocols.protobuf.mcu_pb.</code><code class="sig-name descname">CycleMeasurements</code><span class="sig-paren">(</span><em class="sig-param">time: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">vt: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">rr: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">peep: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">pip: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">ip: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">ve: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/protocols/protobuf/mcu_pb.html#CycleMeasurements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.CycleMeasurements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">betterproto.Message</span></code></p>
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.CycleMeasurements.ip">
+<code class="sig-name descname">ip</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.CycleMeasurements.ip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.CycleMeasurements.peep">
+<code class="sig-name descname">peep</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.CycleMeasurements.peep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.CycleMeasurements.pip">
+<code class="sig-name descname">pip</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.CycleMeasurements.pip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.CycleMeasurements.rr">
+<code class="sig-name descname">rr</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.CycleMeasurements.rr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.CycleMeasurements.time">
+<code class="sig-name descname">time</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.CycleMeasurements.time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.CycleMeasurements.ve">
+<code class="sig-name descname">ve</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.CycleMeasurements.ve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.CycleMeasurements.vt">
+<code class="sig-name descname">vt</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.CycleMeasurements.vt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Parameters">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.protocols.protobuf.mcu_pb.</code><code class="sig-name descname">Parameters</code><span class="sig-paren">(</span><em class="sig-param">time: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">mode: 'VentilationMode' = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">pip: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">peep: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">vt: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">rr: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">ie: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">fio2: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">flow: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/protocols/protobuf/mcu_pb.html#Parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">betterproto.Message</span></code></p>
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Parameters.fio2">
+<code class="sig-name descname">fio2</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Parameters.fio2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Parameters.flow">
+<code class="sig-name descname">flow</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Parameters.flow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Parameters.ie">
+<code class="sig-name descname">ie</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Parameters.ie" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Parameters.mode">
+<code class="sig-name descname">mode</code><em class="property">: <a class="reference internal" href="#ventserver.protocols.protobuf.mcu_pb.VentilationMode" title="ventserver.protocols.protobuf.mcu_pb.VentilationMode">ventserver.protocols.protobuf.mcu_pb.VentilationMode</a></em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Parameters.mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Parameters.peep">
+<code class="sig-name descname">peep</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Parameters.peep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Parameters.pip">
+<code class="sig-name descname">pip</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Parameters.pip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Parameters.rr">
+<code class="sig-name descname">rr</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Parameters.rr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Parameters.time">
+<code class="sig-name descname">time</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Parameters.time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Parameters.vt">
+<code class="sig-name descname">vt</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Parameters.vt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.protocols.protobuf.mcu_pb.ParametersRequest">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.protocols.protobuf.mcu_pb.</code><code class="sig-name descname">ParametersRequest</code><span class="sig-paren">(</span><em class="sig-param">time: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">mode: 'VentilationMode' = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">pip: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">peep: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">vt: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">rr: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">ie: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">fio2: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">flow: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/protocols/protobuf/mcu_pb.html#ParametersRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.ParametersRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">betterproto.Message</span></code></p>
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.ParametersRequest.fio2">
+<code class="sig-name descname">fio2</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.ParametersRequest.fio2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.ParametersRequest.flow">
+<code class="sig-name descname">flow</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.ParametersRequest.flow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.ParametersRequest.ie">
+<code class="sig-name descname">ie</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.ParametersRequest.ie" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.ParametersRequest.mode">
+<code class="sig-name descname">mode</code><em class="property">: <a class="reference internal" href="#ventserver.protocols.protobuf.mcu_pb.VentilationMode" title="ventserver.protocols.protobuf.mcu_pb.VentilationMode">ventserver.protocols.protobuf.mcu_pb.VentilationMode</a></em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.ParametersRequest.mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.ParametersRequest.peep">
+<code class="sig-name descname">peep</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.ParametersRequest.peep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.ParametersRequest.pip">
+<code class="sig-name descname">pip</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.ParametersRequest.pip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.ParametersRequest.rr">
+<code class="sig-name descname">rr</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.ParametersRequest.rr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.ParametersRequest.time">
+<code class="sig-name descname">time</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.ParametersRequest.time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.ParametersRequest.vt">
+<code class="sig-name descname">vt</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.ParametersRequest.vt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Ping">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.protocols.protobuf.mcu_pb.</code><code class="sig-name descname">Ping</code><span class="sig-paren">(</span><em class="sig-param">time: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">id: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/protocols/protobuf/mcu_pb.html#Ping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Ping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">betterproto.Message</span></code></p>
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Ping.id">
+<code class="sig-name descname">id</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Ping.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.Ping.time">
+<code class="sig-name descname">time</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.Ping.time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.protocols.protobuf.mcu_pb.SensorMeasurements">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.protocols.protobuf.mcu_pb.</code><code class="sig-name descname">SensorMeasurements</code><span class="sig-paren">(</span><em class="sig-param">time: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">cycle: int = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">paw: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">flow: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">volume: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">fio2: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em>, <em class="sig-param">spo2: float = &lt;betterproto._PLACEHOLDER object at 0xb4dbba70&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/protocols/protobuf/mcu_pb.html#SensorMeasurements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.SensorMeasurements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">betterproto.Message</span></code></p>
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.SensorMeasurements.cycle">
+<code class="sig-name descname">cycle</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.SensorMeasurements.cycle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.SensorMeasurements.fio2">
+<code class="sig-name descname">fio2</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.SensorMeasurements.fio2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.SensorMeasurements.flow">
+<code class="sig-name descname">flow</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.SensorMeasurements.flow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.SensorMeasurements.paw">
+<code class="sig-name descname">paw</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.SensorMeasurements.paw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.SensorMeasurements.spo2">
+<code class="sig-name descname">spo2</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.SensorMeasurements.spo2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.SensorMeasurements.time">
+<code class="sig-name descname">time</code><em class="property">: int</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.SensorMeasurements.time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.SensorMeasurements.volume">
+<code class="sig-name descname">volume</code><em class="property">: float</em><em class="property"> = &lt;betterproto._PLACEHOLDER object&gt;</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.SensorMeasurements.volume" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ventserver.protocols.protobuf.mcu_pb.VentilationMode">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.protocols.protobuf.mcu_pb.</code><code class="sig-name descname">VentilationMode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/protocols/protobuf/mcu_pb.html#VentilationMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.VentilationMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">betterproto.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.VentilationMode.hfnc">
+<code class="sig-name descname">hfnc</code><em class="property"> = 6</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.VentilationMode.hfnc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.VentilationMode.niv">
+<code class="sig-name descname">niv</code><em class="property"> = 5</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.VentilationMode.niv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.VentilationMode.pc_ac">
+<code class="sig-name descname">pc_ac</code><em class="property"> = 0</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.VentilationMode.pc_ac" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.VentilationMode.pc_simv">
+<code class="sig-name descname">pc_simv</code><em class="property"> = 1</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.VentilationMode.pc_simv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.VentilationMode.psv">
+<code class="sig-name descname">psv</code><em class="property"> = 4</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.VentilationMode.psv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.VentilationMode.vc_ac">
+<code class="sig-name descname">vc_ac</code><em class="property"> = 2</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.VentilationMode.vc_ac" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="ventserver.protocols.protobuf.mcu_pb.VentilationMode.vc_simv">
+<code class="sig-name descname">vc_simv</code><em class="property"> = 3</em><a class="headerlink" href="#ventserver.protocols.protobuf.mcu_pb.VentilationMode.vc_simv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="modules.html">Pufferfish</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tests.html">tests package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="ventserver.html">ventserver package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ventserver.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ventserver.integration.html">ventserver.integration package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.io.html">ventserver.io package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="ventserver.protocols.html">ventserver.protocols package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="ventserver.protocols.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.protocols.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.protocols.html#module-ventserver.protocols.backend">ventserver.protocols.backend module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.protocols.html#module-ventserver.protocols.crcelements">ventserver.protocols.crcelements module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.protocols.html#module-ventserver.protocols.datagrams">ventserver.protocols.datagrams module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.protocols.html#module-ventserver.protocols.events">ventserver.protocols.events module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.protocols.html#module-ventserver.protocols.exceptions">ventserver.protocols.exceptions module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.protocols.html#module-ventserver.protocols.frames">ventserver.protocols.frames module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.protocols.html#module-ventserver.protocols.frontend">ventserver.protocols.frontend module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.protocols.html#module-ventserver.protocols.mcu">ventserver.protocols.mcu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.protocols.html#module-ventserver.protocols.messages">ventserver.protocols.messages module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.protocols.html#module-ventserver.protocols.rotary_encoder">ventserver.protocols.rotary_encoder module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.protocols.html#module-ventserver.protocols.server">ventserver.protocols.server module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.sansio.html">ventserver.sansio package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.util.html">ventserver.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#module-ventserver.application">ventserver.application module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#module-ventserver.simulation">ventserver.simulation module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="modules.html">Documentation overview</a><ul>
+  <li><a href="ventserver.html">ventserver package</a><ul>
+  <li><a href="ventserver.protocols.html">ventserver.protocols package</a><ul>
+      <li>Previous: <a href="ventserver.protocols.application.html" title="previous chapter">ventserver.protocols.application package</a></li>
+      <li>Next: <a href="ventserver.sansio.html" title="next chapter">ventserver.sansio package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Pez-Globo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/ventserver.protocols.protobuf.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

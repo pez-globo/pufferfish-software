@@ -1,0 +1,387 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ventserver.protocols.server &#8212; Pufferfish  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ventserver.protocols.server</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Sans-I/O ventilator backend server protocol.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">attr</span>
+
+<span class="kn">from</span> <span class="nn">ventserver.protocols</span> <span class="kn">import</span> <span class="n">backend</span>
+<span class="kn">from</span> <span class="nn">ventserver.protocols</span> <span class="kn">import</span> <span class="n">events</span>
+<span class="kn">from</span> <span class="nn">ventserver.protocols</span> <span class="kn">import</span> <span class="n">frontend</span>
+<span class="kn">from</span> <span class="nn">ventserver.protocols</span> <span class="kn">import</span> <span class="n">mcu</span>
+<span class="kn">from</span> <span class="nn">ventserver.protocols</span> <span class="kn">import</span> <span class="n">rotary_encoder</span>
+<span class="kn">from</span> <span class="nn">ventserver.sansio</span> <span class="kn">import</span> <span class="n">channels</span>
+<span class="kn">from</span> <span class="nn">ventserver.sansio</span> <span class="kn">import</span> <span class="n">protocols</span>
+
+
+<span class="c1"># Events</span>
+
+
+<div class="viewcode-block" id="ReceiveEvent"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.ReceiveEvent">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span>
+<span class="k">class</span> <span class="nc">ReceiveEvent</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">Event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Server receive input event.&quot;&quot;&quot;</span>
+
+    <span class="n">time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">serial_receive</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">websocket_receive</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">rotary_encoder_receive</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ReceiveEvent.has_data"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.ReceiveEvent.has_data">[docs]</a>    <span class="k">def</span> <span class="nf">has_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return whether the event has data.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serial_receive</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">websocket_receive</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ReceiveOutputEvent"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.ReceiveOutputEvent">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span>
+<span class="k">class</span> <span class="nc">ReceiveOutputEvent</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">Event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Server receive output/send event.&quot;&quot;&quot;</span>
+
+    <span class="n">server_send</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">backend</span><span class="o">.</span><span class="n">OutputEvent</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ReceiveOutputEvent.has_data"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.ReceiveOutputEvent.has_data">[docs]</a>    <span class="k">def</span> <span class="nf">has_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return whether the event has data.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">server_send</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">server_send</span><span class="o">.</span><span class="n">has_data</span><span class="p">()</span></div></div>
+
+
+<span class="n">SendEvent</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">backend</span><span class="o">.</span><span class="n">Announcement</span><span class="p">,</span> <span class="n">backend</span><span class="o">.</span><span class="n">OutputEvent</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="SendOutputEvent"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.SendOutputEvent">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span>
+<span class="k">class</span> <span class="nc">SendOutputEvent</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">Event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Server send output/send event.&quot;&quot;&quot;</span>
+
+    <span class="n">serial_send</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">websocket_send</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SendOutputEvent.has_data"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.SendOutputEvent.has_data">[docs]</a>    <span class="k">def</span> <span class="nf">has_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return whether the event has data.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serial_send</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">websocket_send</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="make_serial_receive"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.make_serial_receive">[docs]</a><span class="k">def</span> <span class="nf">make_serial_receive</span><span class="p">(</span>
+        <span class="n">serial_receive</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
+        <span class="n">time</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReceiveEvent</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Make a ReceiveEvent from serial receive data.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ReceiveEvent</span><span class="p">(</span><span class="n">serial_receive</span><span class="o">=</span><span class="n">serial_receive</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="make_websocket_receive"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.make_websocket_receive">[docs]</a><span class="k">def</span> <span class="nf">make_websocket_receive</span><span class="p">(</span>
+        <span class="n">ws_receive</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
+        <span class="n">time</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReceiveEvent</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Make a ReceiveEvent from websocket receive data.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ReceiveEvent</span><span class="p">(</span><span class="n">websocket_receive</span><span class="o">=</span><span class="n">ws_receive</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="make_rotary_encoder_receive"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.make_rotary_encoder_receive">[docs]</a><span class="k">def</span> <span class="nf">make_rotary_encoder_receive</span><span class="p">(</span>
+        <span class="n">re_receive</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span>
+        <span class="n">time</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReceiveEvent</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Make a ReceiveEvent from rotary encoder receive data.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ReceiveEvent</span><span class="p">(</span><span class="n">rotary_encoder_receive</span><span class="o">=</span><span class="n">re_receive</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span></div>
+
+
+<span class="c1"># Filters</span>
+
+
+<div class="viewcode-block" id="ReceiveFilter"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.ReceiveFilter">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span>
+<span class="k">class</span> <span class="nc">ReceiveFilter</span><span class="p">(</span><span class="n">protocols</span><span class="o">.</span><span class="n">Filter</span><span class="p">[</span><span class="n">ReceiveEvent</span><span class="p">,</span> <span class="n">ReceiveOutputEvent</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Filter which transforms receive bytes into high-level events.&quot;&quot;&quot;</span>
+
+    <span class="n">_buffer</span><span class="p">:</span> <span class="n">channels</span><span class="o">.</span><span class="n">DequeChannel</span><span class="p">[</span><span class="n">ReceiveEvent</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span>
+        <span class="n">factory</span><span class="o">=</span><span class="n">channels</span><span class="o">.</span><span class="n">DequeChannel</span>
+    <span class="p">)</span>
+    <span class="n">current_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">_mcu</span><span class="p">:</span> <span class="n">mcu</span><span class="o">.</span><span class="n">ReceiveFilter</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">mcu</span><span class="o">.</span><span class="n">ReceiveFilter</span><span class="p">)</span>
+    <span class="n">_frontend</span><span class="p">:</span> <span class="n">frontend</span><span class="o">.</span><span class="n">ReceiveFilter</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">frontend</span><span class="o">.</span><span class="n">ReceiveFilter</span><span class="p">)</span>
+    <span class="n">_rotary_encoder</span><span class="p">:</span> <span class="n">rotary_encoder</span><span class="o">.</span><span class="n">ReceiveFilter</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span>
+        <span class="n">factory</span><span class="o">=</span><span class="n">rotary_encoder</span><span class="o">.</span><span class="n">ReceiveFilter</span>
+    <span class="p">)</span>
+    <span class="n">_backend</span><span class="p">:</span> <span class="n">backend</span><span class="o">.</span><span class="n">ReceiveFilter</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">backend</span><span class="o">.</span><span class="n">ReceiveFilter</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ReceiveFilter.input"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.ReceiveFilter.input">[docs]</a>    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ReceiveEvent</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Handle input events.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">event</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">has_data</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReceiveFilter.output"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.ReceiveFilter.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ReceiveOutputEvent</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Emit the next output event.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_buffer</span><span class="p">()</span>
+        <span class="n">any_updated</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Process mcu output</span>
+        <span class="n">any_updated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_mcu</span><span class="p">()</span> <span class="ow">or</span> <span class="n">any_updated</span>
+        <span class="c1"># Process frontend output</span>
+        <span class="n">any_updated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_frontend</span><span class="p">()</span> <span class="ow">or</span> <span class="n">any_updated</span>
+        <span class="c1"># Process rotary encoder output</span>
+        <span class="n">any_updated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_rotary_encoder</span><span class="p">()</span> <span class="ow">or</span> <span class="n">any_updated</span>
+        <span class="c1"># Process time</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">any_updated</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">ReceiveEvent</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_time</span><span class="p">))</span>
+
+        <span class="c1"># Process backend output</span>
+        <span class="c1"># Consume any outputs as long as the backend is indicating that it still</span>
+        <span class="c1"># has receive data to process, even if it has no data to output</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">backend_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">backend_output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">backend_output</span><span class="o">.</span><span class="n">has_data</span><span class="p">():</span>
+                <span class="k">break</span>
+        <span class="n">any_updated</span> <span class="o">=</span> <span class="n">any_updated</span> <span class="ow">or</span> <span class="n">backend_output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">any_updated</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">ReceiveOutputEvent</span><span class="p">(</span><span class="n">server_send</span><span class="o">=</span><span class="n">backend_output</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+
+    <span class="k">def</span> <span class="nf">_process_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process the next event in the input buffer.&quot;&quot;&quot;</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">event</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mcu</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">serial_receive</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frontend</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">websocket_receive</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rotary_encoder</span><span class="o">.</span><span class="n">input</span><span class="p">(</span>
+            <span class="n">rotary_encoder</span><span class="o">.</span><span class="n">ReceiveEvent</span><span class="p">(</span>
+                <span class="n">time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_time</span><span class="p">,</span>
+                <span class="n">re_data</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">rotary_encoder_receive</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_process_mcu</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process the next event from the mcu protocol.&quot;&quot;&quot;</span>
+        <span class="n">mcu_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mcu</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">mcu_output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">ReceiveEvent</span><span class="p">(</span>
+            <span class="n">time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_time</span><span class="p">,</span> <span class="n">mcu_receive</span><span class="o">=</span><span class="n">mcu_output</span><span class="p">,</span>
+            <span class="n">frontend_receive</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_process_frontend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process the next event from the frontend protocol.&quot;&quot;&quot;</span>
+        <span class="n">frontend_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frontend</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">frontend_output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">ReceiveEvent</span><span class="p">(</span>
+            <span class="n">time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_time</span><span class="p">,</span> <span class="n">mcu_receive</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">frontend_receive</span><span class="o">=</span><span class="n">frontend_output</span>
+        <span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_process_rotary_encoder</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process the next event from the rotary encoder.&quot;&quot;&quot;</span>
+        <span class="n">rotary_encoder_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotary_encoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">rotary_encoder_output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">ReceiveEvent</span><span class="p">(</span>
+            <span class="n">time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_time</span><span class="p">,</span> <span class="n">mcu_receive</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">frontend_receive</span><span class="o">=</span><span class="n">rotary_encoder_output</span>
+        <span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="ReceiveFilter.input_serial"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.ReceiveFilter.input_serial">[docs]</a>    <span class="k">def</span> <span class="nf">input_serial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serial_receive</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Input a ReceiveEvent corresponding to serial data.</span>
+
+<span class="sd">        This is just a convenience function intended for writing unit tests</span>
+<span class="sd">        more concisely.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">make_serial_receive</span><span class="p">(</span><span class="n">serial_receive</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ReceiveFilter.input_websocket"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.ReceiveFilter.input_websocket">[docs]</a>    <span class="k">def</span> <span class="nf">input_websocket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">websocket</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Input a ReceiveEvent corresponding to websocket data.</span>
+
+<span class="sd">        This is just a convenience function intended for writing unit tests</span>
+<span class="sd">        more concisely.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">make_websocket_receive</span><span class="p">(</span><span class="n">websocket</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span><span class="p">))</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">backend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">backend</span><span class="o">.</span><span class="n">ReceiveFilter</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return the backend receiver.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span></div>
+
+
+<div class="viewcode-block" id="SendFilter"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.SendFilter">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span>
+<span class="k">class</span> <span class="nc">SendFilter</span><span class="p">(</span><span class="n">protocols</span><span class="o">.</span><span class="n">Filter</span><span class="p">[</span><span class="n">SendEvent</span><span class="p">,</span> <span class="n">SendOutputEvent</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Filter which transforms high-level events into send bytes.&quot;&quot;&quot;</span>
+
+    <span class="n">_buffer</span><span class="p">:</span> <span class="n">channels</span><span class="o">.</span><span class="n">DequeChannel</span><span class="p">[</span><span class="n">SendEvent</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span>
+        <span class="n">factory</span><span class="o">=</span><span class="n">channels</span><span class="o">.</span><span class="n">DequeChannel</span>
+    <span class="p">)</span>
+    <span class="n">_backend</span><span class="p">:</span> <span class="n">backend</span><span class="o">.</span><span class="n">SendFilter</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">backend</span><span class="o">.</span><span class="n">SendFilter</span><span class="p">)</span>
+    <span class="n">_mcu</span><span class="p">:</span> <span class="n">mcu</span><span class="o">.</span><span class="n">SendFilter</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">mcu</span><span class="o">.</span><span class="n">SendFilter</span><span class="p">)</span>
+    <span class="n">_frontend</span><span class="p">:</span> <span class="n">frontend</span><span class="o">.</span><span class="n">SendFilter</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">frontend</span><span class="o">.</span><span class="n">SendFilter</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SendFilter.input"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.SendFilter.input">[docs]</a>    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SendEvent</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Handle input events.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">event</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">has_data</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SendFilter.output"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.SendFilter.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SendOutputEvent</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Emit the next output event.&quot;&quot;&quot;</span>
+        <span class="n">any_updated</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_buffer</span><span class="p">()</span>
+        <span class="n">backend_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+        <span class="n">any_updated</span> <span class="o">=</span> <span class="p">(</span><span class="n">backend_output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">any_updated</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mcu</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">get_mcu_send</span><span class="p">(</span><span class="n">backend_output</span><span class="p">))</span>
+        <span class="n">mcu_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mcu</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+        <span class="n">any_updated</span> <span class="o">=</span> <span class="p">(</span><span class="n">mcu_output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">any_updated</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frontend</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">get_frontend_send</span><span class="p">(</span><span class="n">backend_output</span><span class="p">))</span>
+        <span class="n">frontend_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frontend</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+        <span class="n">any_updated</span> <span class="o">=</span> <span class="p">(</span><span class="n">frontend_output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">any_updated</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">any_updated</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">SendOutputEvent</span><span class="p">(</span>
+            <span class="n">serial_send</span><span class="o">=</span><span class="n">mcu_output</span><span class="p">,</span> <span class="n">websocket_send</span><span class="o">=</span><span class="n">frontend_output</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+
+    <span class="k">def</span> <span class="nf">_process_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process the next event in the input buffer.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+
+<span class="c1"># Protocols</span>
+
+
+<div class="viewcode-block" id="Protocol"><a class="viewcode-back" href="../../../api/ventserver.protocols.html#ventserver.protocols.server.Protocol">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span>
+<span class="k">class</span> <span class="nc">Protocol</span><span class="p">(</span><span class="n">protocols</span><span class="o">.</span><span class="n">Protocol</span><span class="p">[</span>
+        <span class="n">ReceiveEvent</span><span class="p">,</span> <span class="n">ReceiveOutputEvent</span><span class="p">,</span> <span class="n">SendEvent</span><span class="p">,</span> <span class="n">SendOutputEvent</span>
+<span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Backend communication protocol.&quot;&quot;&quot;</span>
+
+    <span class="n">_receive</span><span class="p">:</span> <span class="n">ReceiveFilter</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">ReceiveFilter</span><span class="p">)</span>
+    <span class="n">_send</span><span class="p">:</span> <span class="n">SendFilter</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">SendFilter</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReceiveFilter</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return a Filter interface for receive events.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receive</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SendFilter</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return a Filter interface for send events.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../api/modules.html">Pufferfish</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/tests.html">tests package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/ventserver.html">ventserver package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../api/modules.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Pez-Globo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

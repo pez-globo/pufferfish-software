@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tests.unit.sansio package &#8212; Pufferfish  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="tests.unit.util package" href="tests.unit.util.html" />
+    <link rel="prev" title="tests.unit.protocols.application package" href="tests.unit.protocols.application.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-tests.unit.sansio">
+<span id="tests-unit-sansio-package"></span><h1>tests.unit.sansio package<a class="headerlink" href="#module-tests.unit.sansio" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-tests.unit.sansio.test_bytearraystream">
+<span id="tests-unit-sansio-test-bytearraystream-module"></span><h2>tests.unit.sansio.test_bytearraystream module<a class="headerlink" href="#module-tests.unit.sansio.test_bytearraystream" title="Permalink to this headline">¶</a></h2>
+<p>Test the functionality of sansio.streams.BytearrayStream.</p>
+<dl class="py function">
+<dt id="tests.unit.sansio.test_bytearraystream.push_items">
+<code class="sig-prename descclassname">tests.unit.sansio.test_bytearraystream.</code><code class="sig-name descname">push_items</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stream</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.sansio.html#ventserver.sansio.streams.BytearrayStream" title="ventserver.sansio.streams.BytearrayStream">ventserver.sansio.streams.BytearrayStream</a></span></em>, <em class="sig-param"><span class="n">items</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span>bytes<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">initial_length</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">maxlen</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/sansio/test_bytearraystream.html#push_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_bytearraystream.push_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Push items.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.sansio.test_bytearraystream.test_stream">
+<code class="sig-prename descclassname">tests.unit.sansio.test_bytearraystream.</code><code class="sig-name descname">test_stream</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/sansio/test_bytearraystream.html#test_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_bytearraystream.test_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test BytearrayStream behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.sansio.test_bytearraystream.test_stream_pull">
+<code class="sig-prename descclassname">tests.unit.sansio.test_bytearraystream.</code><code class="sig-name descname">test_stream_pull</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/sansio/test_bytearraystream.html#test_stream_pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_bytearraystream.test_stream_pull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test BytearrayStream behavior from a prepopulated buffer.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.sansio.test_bytearraystream.test_stream_push_maxlen">
+<code class="sig-prename descclassname">tests.unit.sansio.test_bytearraystream.</code><code class="sig-name descname">test_stream_push_maxlen</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/sansio/test_bytearraystream.html#test_stream_push_maxlen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_bytearraystream.test_stream_push_maxlen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test BytearrayChannel behavior with a max length.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.sansio.test_bytearraystream.test_stream_push_unlimited">
+<code class="sig-prename descclassname">tests.unit.sansio.test_bytearraystream.</code><code class="sig-name descname">test_stream_push_unlimited</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/sansio/test_bytearraystream.html#test_stream_push_unlimited"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_bytearraystream.test_stream_push_unlimited" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test BytearrayStream behavior from an unlimited buffer.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.unit.sansio.test_dequechannel">
+<span id="tests-unit-sansio-test-dequechannel-module"></span><h2>tests.unit.sansio.test_dequechannel module<a class="headerlink" href="#module-tests.unit.sansio.test_dequechannel" title="Permalink to this headline">¶</a></h2>
+<p>Test the functionality of sansio.channels.DequeChannel.</p>
+<dl class="py function">
+<dt id="tests.unit.sansio.test_dequechannel.pull_items">
+<code class="sig-prename descclassname">tests.unit.sansio.test_dequechannel.</code><code class="sig-name descname">pull_items</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">channel</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.sansio.html#ventserver.sansio.channels.DequeChannel" title="ventserver.sansio.channels.DequeChannel">ventserver.sansio.channels.DequeChannel</a><span class="p">[</span>bytes<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>bytes<span class="p">]</span><a class="reference internal" href="../_modules/tests/unit/sansio/test_dequechannel.html#pull_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_dequechannel.pull_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pull all items.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.sansio.test_dequechannel.push_items">
+<code class="sig-prename descclassname">tests.unit.sansio.test_dequechannel.</code><code class="sig-name descname">push_items</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">channel</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.sansio.html#ventserver.sansio.channels.DequeChannel" title="ventserver.sansio.channels.DequeChannel">ventserver.sansio.channels.DequeChannel</a><span class="p">[</span>bytes<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">items</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span>bytes<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">initial_length</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">maxlen</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/sansio/test_dequechannel.html#push_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_dequechannel.push_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Push items.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.sansio.test_dequechannel.test_channel">
+<code class="sig-prename descclassname">tests.unit.sansio.test_dequechannel.</code><code class="sig-name descname">test_channel</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/sansio/test_dequechannel.html#test_channel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_dequechannel.test_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test DequeChannel behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.sansio.test_dequechannel.test_channel_pull">
+<code class="sig-prename descclassname">tests.unit.sansio.test_dequechannel.</code><code class="sig-name descname">test_channel_pull</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/sansio/test_dequechannel.html#test_channel_pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_dequechannel.test_channel_pull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test DequeChannel behavior from a prepopulated buffer.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.sansio.test_dequechannel.test_channel_push_maxlen">
+<code class="sig-prename descclassname">tests.unit.sansio.test_dequechannel.</code><code class="sig-name descname">test_channel_push_maxlen</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/sansio/test_dequechannel.html#test_channel_push_maxlen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_dequechannel.test_channel_push_maxlen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test DequeChannel behavior with a max length.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.sansio.test_dequechannel.test_channel_push_unlimited">
+<code class="sig-prename descclassname">tests.unit.sansio.test_dequechannel.</code><code class="sig-name descname">test_channel_push_unlimited</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/sansio/test_dequechannel.html#test_channel_push_unlimited"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_dequechannel.test_channel_push_unlimited" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test DequeChannel behavior from an unlimited buffer.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.unit.sansio.test_filters">
+<span id="tests-unit-sansio-test-filters-module"></span><h2>tests.unit.sansio.test_filters module<a class="headerlink" href="#module-tests.unit.sansio.test_filters" title="Permalink to this headline">¶</a></h2>
+<p>Test the functionality of sansio Filter classes.</p>
+<dl class="py class">
+<dt id="tests.unit.sansio.test_filters.MockFilter">
+<em class="property">class </em><code class="sig-prename descclassname">tests.unit.sansio.test_filters.</code><code class="sig-name descname">MockFilter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tests/unit/sansio/test_filters.html#MockFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_filters.MockFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ventserver.sansio.html#ventserver.sansio.protocols.Filter" title="ventserver.sansio.protocols.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ventserver.sansio.protocols.Filter</span></code></a></p>
+<p>Test derived class to test the Filter interface.</p>
+<dl class="py method">
+<dt id="tests.unit.sansio.test_filters.MockFilter.input">
+<code class="sig-name descname">input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/sansio/test_filters.html#MockFilter.input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_filters.MockFilter.input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Emit one more event.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tests.unit.sansio.test_filters.MockFilter.output">
+<code class="sig-name descname">output</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>int<span class="p">]</span><a class="reference internal" href="../_modules/tests/unit/sansio/test_filters.html#MockFilter.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_filters.MockFilter.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Emit the next output event.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="tests.unit.sansio.test_filters.UnbufferedFilter">
+<em class="property">class </em><code class="sig-prename descclassname">tests.unit.sansio.test_filters.</code><code class="sig-name descname">UnbufferedFilter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tests/unit/sansio/test_filters.html#UnbufferedFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_filters.UnbufferedFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ventserver.sansio.html#ventserver.sansio.protocols.Filter" title="ventserver.sansio.protocols.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ventserver.sansio.protocols.Filter</span></code></a></p>
+<p>Test derived class to test the Filter interface.</p>
+<dl class="py method">
+<dt id="tests.unit.sansio.test_filters.UnbufferedFilter.input">
+<code class="sig-name descname">input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/sansio/test_filters.html#UnbufferedFilter.input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_filters.UnbufferedFilter.input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store event.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tests.unit.sansio.test_filters.UnbufferedFilter.output">
+<code class="sig-name descname">output</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>str<span class="p">]</span><a class="reference internal" href="../_modules/tests/unit/sansio/test_filters.html#UnbufferedFilter.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_filters.UnbufferedFilter.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the upper-cased form of the last event.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.sansio.test_filters.test_filter_output_all">
+<code class="sig-prename descclassname">tests.unit.sansio.test_filters.</code><code class="sig-name descname">test_filter_output_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/sansio/test_filters.html#test_filter_output_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_filters.test_filter_output_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Filter.output_all behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.sansio.test_filters.test_unbuffered_filter">
+<code class="sig-prename descclassname">tests.unit.sansio.test_filters.</code><code class="sig-name descname">test_unbuffered_filter</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/sansio/test_filters.html#test_unbuffered_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.sansio.test_filters.test_unbuffered_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test UnbufferedFilter behavior.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="modules.html">Pufferfish</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="tests.html">tests package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tests.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tests.integration.html">tests.integration package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tests.io.html">tests.io package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tests.mocks.html">tests.mocks package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tests.profiling.html">tests.profiling package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tests.unit.html">tests.unit package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tests.unit.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tests.unit.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tests.unit.html#module-tests.unit.conftest">tests.unit.conftest module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ventserver.html">ventserver package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="modules.html">Documentation overview</a><ul>
+  <li><a href="tests.html">tests package</a><ul>
+  <li><a href="tests.unit.html">tests.unit package</a><ul>
+      <li>Previous: <a href="tests.unit.protocols.application.html" title="previous chapter">tests.unit.protocols.application package</a></li>
+      <li>Next: <a href="tests.unit.util.html" title="next chapter">tests.unit.util package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Pez-Globo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/tests.unit.sansio.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

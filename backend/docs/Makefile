@@ -7,10 +7,10 @@ SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SPHINXAPIDOC  = sphinx-apidoc
 SOURCEDIR     = source
-APIDIR		  = "$(SOURCEDIR)/api"
+APIDIR	      = "$(SOURCEDIR)/api"
 BUILDDIR      = "$(SOURCEDIR)/_build"
-PROJECT		  = Pufferfish
-AUTHOR		  = Pez-Globo
+PROJECT	      = Pufferfish
+AUTHOR	      = Pez-Globo
 
 # Put it first so that "make" without argument is like "make help".
 help:

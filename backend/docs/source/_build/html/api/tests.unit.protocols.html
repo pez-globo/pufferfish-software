@@ -1,0 +1,599 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tests.unit.protocols package &#8212; Pufferfish  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="tests.unit.protocols.application package" href="tests.unit.protocols.application.html" />
+    <link rel="prev" title="tests.unit.io package" href="tests.unit.io.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-tests.unit.protocols">
+<span id="tests-unit-protocols-package"></span><h1>tests.unit.protocols package<a class="headerlink" href="#module-tests.unit.protocols" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tests.unit.protocols.application.html">tests.unit.protocols.application package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tests.unit.protocols.application.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.unit.protocols.application.html#module-tests.unit.protocols.application.test_states">tests.unit.protocols.application.test_states module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-tests.unit.protocols.test_chunks">
+<span id="tests-unit-protocols-test-chunks-module"></span><h2>tests.unit.protocols.test_chunks module<a class="headerlink" href="#module-tests.unit.protocols.test_chunks" title="Permalink to this headline">¶</a></h2>
+<p>Test the functionality of protocols.frames chunking classes.</p>
+<dl class="py function">
+<dt id="tests.unit.protocols.test_chunks.test_chunk_merging">
+<code class="sig-prename descclassname">tests.unit.protocols.test_chunks.</code><code class="sig-name descname">test_chunk_merging</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_chunks.html#test_chunk_merging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_chunks.test_chunk_merging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test ChunkMerger behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_chunks.test_chunk_splitting_individual">
+<code class="sig-prename descclassname">tests.unit.protocols.test_chunks.</code><code class="sig-name descname">test_chunk_splitting_individual</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_chunks.html#test_chunk_splitting_individual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_chunks.test_chunk_splitting_individual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test ChunkSplitter behavior on an individual input.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_chunks.test_chunk_splitting_init">
+<code class="sig-prename descclassname">tests.unit.protocols.test_chunks.</code><code class="sig-name descname">test_chunk_splitting_init</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_chunks.html#test_chunk_splitting_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_chunks.test_chunk_splitting_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test ChunkSplitter attr initialization.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_chunks.test_chunk_splitting_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_chunks.</code><code class="sig-name descname">test_chunk_splitting_seq</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_chunks.html#test_chunk_splitting_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_chunks.test_chunk_splitting_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test ChunkSplitter behavior on a sequence of inputs.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.unit.protocols.test_cobs">
+<span id="tests-unit-protocols-test-cobs-module"></span><h2>tests.unit.protocols.test_cobs module<a class="headerlink" href="#module-tests.unit.protocols.test_cobs" title="Permalink to this headline">¶</a></h2>
+<p>Test the functionality of protocols.frames COBS encoding/decoding classes.</p>
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.input_decoding_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">input_decoding_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">decoder</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.protocols.html#ventserver.protocols.frames.COBSDecoder" title="ventserver.protocols.frames.COBSDecoder">ventserver.protocols.frames.COBSDecoder</a></span></em>, <em class="sig-param"><span class="n">decoding_sequence</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span>bytes<span class="p">, </span>bytes<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#input_decoding_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.input_decoding_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the sequence of encoded data as input to a decoder.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.input_encoding_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">input_encoding_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">encoder</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.protocols.html#ventserver.protocols.frames.COBSEncoder" title="ventserver.protocols.frames.COBSEncoder">ventserver.protocols.frames.COBSEncoder</a></span></em>, <em class="sig-param"><span class="n">encoding_sequence</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span>bytes<span class="p">, </span>bytes<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#input_encoding_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.input_encoding_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the sequence of encoded data as input to an encoder.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.output_decode_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">output_decode_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">decoder</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.protocols.html#ventserver.protocols.frames.COBSDecoder" title="ventserver.protocols.frames.COBSDecoder">ventserver.protocols.frames.COBSDecoder</a></span></em>, <em class="sig-param"><span class="n">decoding_sequence</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span>bytes<span class="p">, </span>bytes<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#output_decode_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.output_decode_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the sequence of decoded data as output from a decoder.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.output_encoding_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">output_encoding_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">encoder</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.protocols.html#ventserver.protocols.frames.COBSEncoder" title="ventserver.protocols.frames.COBSEncoder">ventserver.protocols.frames.COBSEncoder</a></span></em>, <em class="sig-param"><span class="n">encoding_sequence</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span>bytes<span class="p">, </span>bytes<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#output_encoding_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.output_encoding_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the sequence of encoded data as output from an encoder.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.test_cobs_dec_errors_indiv">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">test_cobs_dec_errors_indiv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">invalid_encoded</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#test_cobs_dec_errors_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.test_cobs_dec_errors_indiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test COBSDecoder with specific individual invalid inputs.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.test_cobs_dec_errors_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">test_cobs_dec_errors_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">invalid_encoded</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">valid_decodings</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>bytes<span class="p">, </span>bytes<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#test_cobs_dec_errors_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.test_cobs_dec_errors_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test COBSDecoder with specific invalid inputs in a valid sequence.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.test_cobs_dec_indiv">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">test_cobs_dec_indiv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">expected</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#test_cobs_dec_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.test_cobs_dec_indiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test COBSDecoder behavior with specific individual examples.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.test_cobs_dec_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">test_cobs_dec_seq</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#test_cobs_dec_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.test_cobs_dec_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test COBSDecoder behavior with a specific sequence of examples.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.test_cobs_enc_encodings">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">test_cobs_enc_encodings</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#test_cobs_enc_encodings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.test_cobs_enc_encodings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test COBSEncoder behavior with a specific sequence of examples.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.test_cobs_enc_errors_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">test_cobs_enc_errors_seq</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#test_cobs_enc_errors_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.test_cobs_enc_errors_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test COBSEncoder with invalid input lengths in a valid input sequence.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.test_cobs_enc_indiv">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">test_cobs_enc_indiv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">expected</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#test_cobs_enc_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.test_cobs_enc_indiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test COBSEncoder behavior with specific individual examples.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.test_cobs_enc_invalid_length">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">test_cobs_enc_invalid_length</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#test_cobs_enc_invalid_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.test_cobs_enc_invalid_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test COBSEncoder with invalid individual input lengths.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.test_cobs_enc_invariants">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">test_cobs_enc_invariants</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#test_cobs_enc_invariants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.test_cobs_enc_invariants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test COBSEncoder invariants.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.test_cobs_roundtrip_indiv">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">test_cobs_roundtrip_indiv</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#test_cobs_roundtrip_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.test_cobs_roundtrip_indiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test COBSEncoder+COBSDecoder round-tripping with individual inputs.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_cobs.test_cobs_roundtrip_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_cobs.</code><code class="sig-name descname">test_cobs_roundtrip_seq</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_cobs.html#test_cobs_roundtrip_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_cobs.test_cobs_roundtrip_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test COBSEncoder+COBSDecoder round-tripping with input sequences.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.unit.protocols.test_crcelements">
+<span id="tests-unit-protocols-test-crcelements-module"></span><h2>tests.unit.protocols.test_crcelements module<a class="headerlink" href="#module-tests.unit.protocols.test_crcelements" title="Permalink to this headline">¶</a></h2>
+<p>Test functunality of protocols.crcelements classes</p>
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.input_body_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">input_body_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.protocols.html#ventserver.protocols.crcelements.CRCReceiver" title="ventserver.protocols.crcelements.CRCReceiver">ventserver.protocols.crcelements.CRCReceiver</a></span></em>, <em class="sig-param"><span class="n">crc_sequence</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span>bytes<span class="p">, </span>bytes<span class="p">, </span>bytes<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#input_body_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.input_body_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add sequence of crc bodies as input to a receiver.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.input_payload_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">input_payload_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sender</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.protocols.html#ventserver.protocols.crcelements.CRCSender" title="ventserver.protocols.crcelements.CRCSender">ventserver.protocols.crcelements.CRCSender</a></span></em>, <em class="sig-param"><span class="n">crc_sequence</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span>bytes<span class="p">, </span>bytes<span class="p">, </span>bytes<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#input_payload_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.input_payload_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add sequence of crc payloads as input to a sender.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.output_body_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">output_body_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.protocols.html#ventserver.protocols.crcelements.CRCReceiver" title="ventserver.protocols.crcelements.CRCReceiver">ventserver.protocols.crcelements.CRCReceiver</a></span></em>, <em class="sig-param"><span class="n">crc_sequence</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span>bytes<span class="p">, </span>bytes<span class="p">, </span>bytes<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#output_body_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.output_body_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the sequence of crc payloads from output of receiver.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.output_payload_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">output_payload_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sender</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.protocols.html#ventserver.protocols.crcelements.CRCSender" title="ventserver.protocols.crcelements.CRCSender">ventserver.protocols.crcelements.CRCSender</a></span></em>, <em class="sig-param"><span class="n">crc_sequence</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span>bytes<span class="p">, </span>bytes<span class="p">, </span>bytes<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#output_payload_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.output_payload_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the sequence of crc bodies from output of receiver.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelement_compute_crc">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelement_compute_crc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">expected</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelement_compute_crc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelement_compute_crc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCElement CRC-32C computation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelement_generate">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelement_generate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">crc</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelement_generate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelement_generate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCElement generation of body.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelement_init_crc">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelement_init_crc</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelement_init_crc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelement_init_crc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCElement crc attr initialization.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelement_integrity_fail">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelement_integrity_fail</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">crc</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">_</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelement_integrity_fail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelement_integrity_fail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCElement data integrity fail check.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelement_integrity_pass">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelement_integrity_pass</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">crc</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">_</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelement_integrity_pass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelement_integrity_pass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCElement data integrity pass check.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelement_invalid_crc_input">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelement_invalid_crc_input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelement_invalid_crc_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelement_invalid_crc_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCElement CRC-32C invalid input.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelement_parse">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelement_parse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">crc</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelement_parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelement_parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCElement parsing from body.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelement_parse_invalids">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelement_parse_invalids</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelement_parse_invalids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelement_parse_invalids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCElement parse invalids.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelement_parse_invariants">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelement_parse_invariants</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelement_parse_invariants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelement_parse_invariants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCElement parse invariants.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelement_roundtrip">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelement_roundtrip</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">crc</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelement_roundtrip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelement_roundtrip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCElement generate/parse roundtrip.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelements_rx_indiv">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelements_rx_indiv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelements_rx_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelements_rx_indiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCReceiver with specific individual samples.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelements_rx_invalid_crc">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelements_rx_invalid_crc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">__</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelements_rx_invalid_crc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelements_rx_invalid_crc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCReceiver with invalid crc input.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelements_rx_invalid_indiv">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelements_rx_invalid_indiv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelements_rx_invalid_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelements_rx_invalid_indiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCReceiver with individual invalid inputs.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelements_rx_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelements_rx_seq</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelements_rx_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelements_rx_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCReceiver sequential behaviour.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelements_tx_indiv">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelements_tx_indiv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelements_tx_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelements_tx_indiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCSender with specific individual samples.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelements_tx_invalid_indiv">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelements_tx_invalid_indiv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelements_tx_invalid_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelements_tx_invalid_indiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCSender with individual invalid inputs.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_crcelements.test_crcelements_tx_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_crcelements.</code><code class="sig-name descname">test_crcelements_tx_seq</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_crcelements.html#test_crcelements_tx_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_crcelements.test_crcelements_tx_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test CRCSender sequential behaviour.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.unit.protocols.test_datagrams">
+<span id="tests-unit-protocols-test-datagrams-module"></span><h2>tests.unit.protocols.test_datagrams module<a class="headerlink" href="#module-tests.unit.protocols.test_datagrams" title="Permalink to this headline">¶</a></h2>
+<p>Test the functionality of protocols.datagrams classes.</p>
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.input_body_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">input_body_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.protocols.html#ventserver.protocols.datagrams.DatagramReceiver" title="ventserver.protocols.datagrams.DatagramReceiver">ventserver.protocols.datagrams.DatagramReceiver</a></span></em>, <em class="sig-param"><span class="n">datagram_sequence</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span>int<span class="p">, </span>int<span class="p">, </span>bytes<span class="p">, </span>bytes<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#input_body_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.input_body_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the sequence of datagram bodies as input to a receiver.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.input_payload_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">input_payload_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sender</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.protocols.html#ventserver.protocols.datagrams.DatagramSender" title="ventserver.protocols.datagrams.DatagramSender">ventserver.protocols.datagrams.DatagramSender</a></span></em>, <em class="sig-param"><span class="n">datagram_sequence</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span>int<span class="p">, </span>int<span class="p">, </span>bytes<span class="p">, </span>bytes<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#input_payload_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.input_payload_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the sequence of datagram bodies as input to a receiver.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.output_body_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">output_body_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.protocols.html#ventserver.protocols.datagrams.DatagramReceiver" title="ventserver.protocols.datagrams.DatagramReceiver">ventserver.protocols.datagrams.DatagramReceiver</a></span></em>, <em class="sig-param"><span class="n">datagram_sequence</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span>int<span class="p">, </span>int<span class="p">, </span>bytes<span class="p">, </span>bytes<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#output_body_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.output_body_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the sequence of datagram payloads as output from a receiver.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.output_payload_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">output_payload_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sender</span><span class="p">:</span> <span class="n"><a class="reference internal" href="ventserver.protocols.html#ventserver.protocols.datagrams.DatagramSender" title="ventserver.protocols.datagrams.DatagramSender">ventserver.protocols.datagrams.DatagramSender</a></span></em>, <em class="sig-param"><span class="n">datagram_sequence</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span>int<span class="p">, </span>int<span class="p">, </span>bytes<span class="p">, </span>bytes<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#output_payload_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.output_payload_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the sequence of datagram payloads as output from a receiver.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_generate">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_generate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">length</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_generate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_generate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Datagram generation of body.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_init_length">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_init_length</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_init_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_init_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Datagram length attr initialization.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_init_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_init_seq</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_init_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_init_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Datagram seq attr initialization.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_parse">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_parse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">length</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Datagram parsing from body.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_parse_invalid">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_parse_invalid</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_parse_invalid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_parse_invalid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Datagram parse errors.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_parse_invariants">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_parse_invariants</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_parse_invariants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_parse_invariants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Datagram parse invariants.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_roundtrip">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_roundtrip</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">length</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_roundtrip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_roundtrip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Datagram parse/generate roundtrip.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_rx_indiv">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_rx_indiv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">__</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">___</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_rx_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_rx_indiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test DatagramReceiver behavior with specific individual examples.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_rx_invalid_indiv">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_rx_invalid_indiv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">__</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">___</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">____</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_rx_invalid_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_rx_invalid_indiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test DatagramReceiver with individual invalid inputs.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_rx_invalid_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_rx_invalid_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">__</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">___</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">____</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_rx_invalid_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_rx_invalid_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test DatagramReceiver with specific invalid inputs in valid sequence.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_rx_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_rx_seq</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_rx_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_rx_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test DatagramReceiver sequential behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_tx_invalid_indiv">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_tx_invalid_indiv</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_tx_invalid_indiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_tx_invalid_indiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test DatagramSender with specific individual invalid inputs.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_tx_invalid_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_tx_invalid_seq</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_tx_invalid_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_tx_invalid_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test DatagramSender with specific invalid inputs in a valid sequence.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_tx_seq">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_tx_seq</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_tx_seq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_tx_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test DatagramSender sequential behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_datagrams.test_datagram_update">
+<code class="sig-prename descclassname">tests.unit.protocols.test_datagrams.</code><code class="sig-name descname">test_datagram_update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">length</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">bytes</span></em>, <em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_datagrams.html#test_datagram_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_datagrams.test_datagram_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Datagram updating from payload.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.unit.protocols.test_messages">
+<span id="tests-unit-protocols-test-messages-module"></span><h2>tests.unit.protocols.test_messages module<a class="headerlink" href="#module-tests.unit.protocols.test_messages" title="Permalink to this headline">¶</a></h2>
+<p>Test the functionality of protocols.messages classes.</p>
+<dl class="py function">
+<dt id="tests.unit.protocols.test_messages.test_msg_generate">
+<code class="sig-prename descclassname">tests.unit.protocols.test_messages.</code><code class="sig-name descname">test_msg_generate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">type_code</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">betterproto.Message</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_messages.html#test_msg_generate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_messages.test_msg_generate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Message body generation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_messages.test_msg_generate_invalid">
+<code class="sig-prename descclassname">tests.unit.protocols.test_messages.</code><code class="sig-name descname">test_msg_generate_invalid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">Any</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_messages.html#test_msg_generate_invalid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_messages.test_msg_generate_invalid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Message body generation with invalid paylod.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_messages.test_msg_parse">
+<code class="sig-prename descclassname">tests.unit.protocols.test_messages.</code><code class="sig-name descname">test_msg_parse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">type_code</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">betterproto.Message</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_messages.html#test_msg_parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_messages.test_msg_parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Message parsing from body.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_messages.test_msg_parse_invalid_bodies">
+<code class="sig-prename descclassname">tests.unit.protocols.test_messages.</code><code class="sig-name descname">test_msg_parse_invalid_bodies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">bytes</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_messages.html#test_msg_parse_invalid_bodies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_messages.test_msg_parse_invalid_bodies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Message parsing from malformed body.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_messages.test_msg_parse_invalid_types">
+<code class="sig-prename descclassname">tests.unit.protocols.test_messages.</code><code class="sig-name descname">test_msg_parse_invalid_types</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">type_code</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">betterproto.Message</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_messages.html#test_msg_parse_invalid_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_messages.test_msg_parse_invalid_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Message parsing from body with a nonexistent type code.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_messages.test_msg_roundtrip">
+<code class="sig-prename descclassname">tests.unit.protocols.test_messages.</code><code class="sig-name descname">test_msg_roundtrip</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">type_code</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">betterproto.Message</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_messages.html#test_msg_roundtrip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_messages.test_msg_roundtrip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Message serialize/deserialize roundtrip.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_messages.test_msg_rx">
+<code class="sig-prename descclassname">tests.unit.protocols.test_messages.</code><code class="sig-name descname">test_msg_rx</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">type_code</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">betterproto.Message</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_messages.html#test_msg_rx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_messages.test_msg_rx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test MessageReceiver behavior with specific examples.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_messages.test_msg_rx_invalid_bodies">
+<code class="sig-prename descclassname">tests.unit.protocols.test_messages.</code><code class="sig-name descname">test_msg_rx_invalid_bodies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">Any</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_messages.html#test_msg_rx_invalid_bodies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_messages.test_msg_rx_invalid_bodies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test MessageReceiver behavior with invalid body.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_messages.test_msg_rx_invalid_types">
+<code class="sig-prename descclassname">tests.unit.protocols.test_messages.</code><code class="sig-name descname">test_msg_rx_invalid_types</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">betterproto.Message</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_messages.html#test_msg_rx_invalid_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_messages.test_msg_rx_invalid_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test MessageReceiver behavior with invalid typecode.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_messages.test_msg_tx">
+<code class="sig-prename descclassname">tests.unit.protocols.test_messages.</code><code class="sig-name descname">test_msg_tx</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">type_code</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">betterproto.Message</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_messages.html#test_msg_tx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_messages.test_msg_tx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test MessageSender behavior with specific examples.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_messages.test_msg_tx_invalid">
+<code class="sig-prename descclassname">tests.unit.protocols.test_messages.</code><code class="sig-name descname">test_msg_tx_invalid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">Any</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_messages.html#test_msg_tx_invalid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_messages.test_msg_tx_invalid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test MessageSender behavior with invalid payload.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tests.unit.protocols.test_messages.test_msg_update">
+<code class="sig-prename descclassname">tests.unit.protocols.test_messages.</code><code class="sig-name descname">test_msg_update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">type_code</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">betterproto.Message</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_messages.html#test_msg_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_messages.test_msg_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Message body generation.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.unit.protocols.test_rotaryencoder">
+<span id="tests-unit-protocols-test-rotaryencoder-module"></span><h2>tests.unit.protocols.test_rotaryencoder module<a class="headerlink" href="#module-tests.unit.protocols.test_rotaryencoder" title="Permalink to this headline">¶</a></h2>
+<p>Test the functionality of protocols.rotary_encoder classes.</p>
+<dl class="py function">
+<dt id="tests.unit.protocols.test_rotaryencoder.test_re_button_dial_time_change">
+<code class="sig-prename descclassname">tests.unit.protocols.test_rotaryencoder.</code><code class="sig-name descname">test_re_button_dial_time_change</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message_sequence</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span><a class="reference internal" href="ventserver.protocols.protobuf.html#ventserver.protocols.protobuf.frontend_pb.RotaryEncoder" title="ventserver.protocols.protobuf.frontend_pb.RotaryEncoder">ventserver.protocols.protobuf.frontend_pb.RotaryEncoder</a><span class="p">, </span>float<span class="p">, </span>bool<span class="p">, </span>int<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/tests/unit/protocols/test_rotaryencoder.html#test_re_button_dial_time_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tests.unit.protocols.test_rotaryencoder.test_re_button_dial_time_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests to check time changes for dial and button.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="modules.html">Pufferfish</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="tests.html">tests package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tests.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tests.integration.html">tests.integration package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tests.io.html">tests.io package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tests.mocks.html">tests.mocks package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tests.profiling.html">tests.profiling package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tests.unit.html">tests.unit package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tests.unit.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tests.unit.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tests.unit.html#module-tests.unit.conftest">tests.unit.conftest module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ventserver.html">ventserver package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="modules.html">Documentation overview</a><ul>
+  <li><a href="tests.html">tests package</a><ul>
+  <li><a href="tests.unit.html">tests.unit package</a><ul>
+      <li>Previous: <a href="tests.unit.io.html" title="previous chapter">tests.unit.io package</a></li>
+      <li>Next: <a href="tests.unit.protocols.application.html" title="next chapter">tests.unit.protocols.application package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Pez-Globo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/tests.unit.protocols.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

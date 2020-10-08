@@ -1,0 +1,322 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tests.unit.protocols.test_cobs &#8212; Pufferfish  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for tests.unit.protocols.test_cobs</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Test the functionality of protocols.frames COBS encoding/decoding classes.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">hypothesis</span> <span class="k">as</span> <span class="nn">hp</span>
+<span class="kn">import</span> <span class="nn">hypothesis.strategies</span> <span class="k">as</span> <span class="nn">st</span>
+
+<span class="kn">import</span> <span class="nn">pytest</span> <span class="k">as</span> <span class="nn">pt</span>  <span class="c1"># type: ignore</span>
+
+<span class="kn">from</span> <span class="nn">ventserver.protocols</span> <span class="kn">import</span> <span class="n">exceptions</span>
+<span class="kn">from</span> <span class="nn">ventserver.protocols</span> <span class="kn">import</span> <span class="n">frames</span>
+
+
+<span class="n">example_encodings</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># From Cheshire &amp; Baker 1999</span>
+    <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x01</span><span class="s1">&#39;</span><span class="p">,</span>
+    <span class="sa">b</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x02</span><span class="s1">x&#39;</span><span class="p">,</span>
+    <span class="sa">b</span><span class="s1">&#39;xy&#39;</span><span class="p">:</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x03</span><span class="s1">xy&#39;</span><span class="p">,</span>
+    <span class="sa">b</span><span class="s1">&#39;Hello World&#39;</span><span class="p">:</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x0c</span><span class="s1">Hello World&#39;</span><span class="p">,</span>
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x45\x00\x00\x2c\x4c\x79\x00\x00\x40\x06\x4f\x37</span><span class="s1">&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x02\x45\x01\x04\x2c\x4c\x79\x01\x05\x40\x06\x4f\x37</span><span class="s1">&#39;</span>
+    <span class="p">),</span>
+    <span class="c1"># From Wikipedia</span>
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">:</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x01\x01</span><span class="s1">&#39;</span><span class="p">,</span>
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00\x00</span><span class="s1">&#39;</span><span class="p">:</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x01\x01\x01</span><span class="s1">&#39;</span><span class="p">,</span>
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x11\x22\x00\x33</span><span class="s1">&#39;</span><span class="p">:</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x03\x11\x22\x02\x33</span><span class="s1">&#39;</span><span class="p">,</span>
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x11\x22\x33\x44</span><span class="s1">&#39;</span><span class="p">:</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x05\x11\x22\x33\x44</span><span class="s1">&#39;</span><span class="p">,</span>
+    <span class="nb">bytes</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mh">0xFF</span><span class="p">))):</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\xff</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">bytes</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mh">0xFF</span><span class="p">)))</span>
+<span class="p">}</span>
+
+<span class="n">example_decodings</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">encoded</span><span class="p">:</span> <span class="n">unencoded</span> <span class="k">for</span> <span class="p">(</span><span class="n">unencoded</span><span class="p">,</span> <span class="n">encoded</span><span class="p">)</span> <span class="ow">in</span> <span class="n">example_encodings</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="p">}</span>
+
+
+<span class="c1"># Decoding</span>
+
+
+<div class="viewcode-block" id="test_cobs_dec_indiv"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.test_cobs_dec_indiv">[docs]</a><span class="nd">@pt</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s1">&#39;data,expected&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">example_decodings</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+<span class="k">def</span> <span class="nf">test_cobs_dec_indiv</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">expected</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Test COBSDecoder behavior with specific individual examples.&quot;&quot;&quot;</span>
+    <span class="n">decoder</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSDecoder</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">decoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="n">decoder</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">decoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">decoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="input_decoding_seq"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.input_decoding_seq">[docs]</a><span class="k">def</span> <span class="nf">input_decoding_seq</span><span class="p">(</span>
+        <span class="n">decoder</span><span class="p">:</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSDecoder</span><span class="p">,</span>
+        <span class="n">decoding_sequence</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Add the sequence of encoded data as input to a decoder.&quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">all_data</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">decoding_sequence</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">all_data</span><span class="p">:</span>
+        <span class="n">decoder</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="output_decode_seq"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.output_decode_seq">[docs]</a><span class="k">def</span> <span class="nf">output_decode_seq</span><span class="p">(</span>
+        <span class="n">decoder</span><span class="p">:</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSDecoder</span><span class="p">,</span>
+        <span class="n">decoding_sequence</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Get the sequence of decoded data as output from a decoder.&quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">all_expected</span><span class="p">)</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">decoding_sequence</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">all_expected</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">decoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="test_cobs_dec_seq"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.test_cobs_dec_seq">[docs]</a><span class="nd">@hp</span><span class="o">.</span><span class="n">given</span><span class="p">(</span><span class="n">decodings</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">lists</span><span class="p">(</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">example_decodings</span><span class="o">.</span><span class="n">items</span><span class="p">())),</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">16</span>
+<span class="p">))</span>
+<span class="k">def</span> <span class="nf">test_cobs_dec_seq</span><span class="p">(</span><span class="n">decodings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Test COBSDecoder behavior with a specific sequence of examples.&quot;&quot;&quot;</span>
+    <span class="n">decoder</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSDecoder</span><span class="p">()</span>
+    <span class="n">input_decoding_seq</span><span class="p">(</span><span class="n">decoder</span><span class="p">,</span> <span class="n">decodings</span><span class="p">)</span>
+    <span class="n">output_decode_seq</span><span class="p">(</span><span class="n">decoder</span><span class="p">,</span> <span class="n">decodings</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">decoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="test_cobs_dec_errors_indiv"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.test_cobs_dec_errors_indiv">[docs]</a><span class="nd">@pt</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s1">&#39;invalid_encoded&#39;</span><span class="p">,</span> <span class="p">[</span>
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x02</span><span class="s1">&#39;</span><span class="p">,</span>
+<span class="p">])</span>
+<span class="k">def</span> <span class="nf">test_cobs_dec_errors_indiv</span><span class="p">(</span><span class="n">invalid_encoded</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Test COBSDecoder with specific individual invalid inputs.&quot;&quot;&quot;</span>
+    <span class="n">decoder</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSDecoder</span><span class="p">()</span>
+    <span class="n">decoder</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">invalid_encoded</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">pt</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ProtocolDataError</span><span class="p">):</span>
+        <span class="n">decoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="test_cobs_dec_errors_seq"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.test_cobs_dec_errors_seq">[docs]</a><span class="nd">@pt</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s1">&#39;invalid_encoded,valid_decodings&#39;</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x02</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">example_decodings</span><span class="p">),</span>
+<span class="p">])</span>
+<span class="k">def</span> <span class="nf">test_cobs_dec_errors_seq</span><span class="p">(</span>
+        <span class="n">invalid_encoded</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">valid_decodings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Test COBSDecoder with specific invalid inputs in a valid sequence.&quot;&quot;&quot;</span>
+    <span class="n">decoder</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSDecoder</span><span class="p">()</span>
+    <span class="n">input_decoding_seq</span><span class="p">(</span><span class="n">decoder</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">valid_decodings</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+    <span class="n">decoder</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">invalid_encoded</span><span class="p">)</span>
+    <span class="n">input_decoding_seq</span><span class="p">(</span><span class="n">decoder</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">valid_decodings</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+    <span class="n">output_decode_seq</span><span class="p">(</span><span class="n">decoder</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">valid_decodings</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+    <span class="k">with</span> <span class="n">pt</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ProtocolDataError</span><span class="p">):</span>
+        <span class="n">decoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">output_decode_seq</span><span class="p">(</span><span class="n">decoder</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">valid_decodings</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span></div>
+
+
+<span class="c1"># Encoding</span>
+
+
+<div class="viewcode-block" id="test_cobs_enc_indiv"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.test_cobs_enc_indiv">[docs]</a><span class="nd">@pt</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s1">&#39;data,expected&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">example_encodings</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+<span class="k">def</span> <span class="nf">test_cobs_enc_indiv</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">expected</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Test COBSEncoder behavior with specific individual examples.&quot;&quot;&quot;</span>
+    <span class="n">encoder</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSEncoder</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">encoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="n">encoder</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">encoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="input_encoding_seq"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.input_encoding_seq">[docs]</a><span class="k">def</span> <span class="nf">input_encoding_seq</span><span class="p">(</span>
+        <span class="n">encoder</span><span class="p">:</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSEncoder</span><span class="p">,</span>
+        <span class="n">encoding_sequence</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Add the sequence of encoded data as input to an encoder.&quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">all_data</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">encoding_sequence</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">all_data</span><span class="p">:</span>
+        <span class="n">encoder</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="output_encoding_seq"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.output_encoding_seq">[docs]</a><span class="k">def</span> <span class="nf">output_encoding_seq</span><span class="p">(</span>
+        <span class="n">encoder</span><span class="p">:</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSEncoder</span><span class="p">,</span>
+        <span class="n">encoding_sequence</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Get the sequence of encoded data as output from an encoder.&quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">all_expected</span><span class="p">)</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">encoding_sequence</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">all_expected</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">encoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="test_cobs_enc_encodings"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.test_cobs_enc_encodings">[docs]</a><span class="nd">@hp</span><span class="o">.</span><span class="n">given</span><span class="p">(</span><span class="n">encodings</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">lists</span><span class="p">(</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">example_encodings</span><span class="o">.</span><span class="n">items</span><span class="p">())),</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">16</span>
+<span class="p">))</span>
+<span class="k">def</span> <span class="nf">test_cobs_enc_encodings</span><span class="p">(</span><span class="n">encodings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Test COBSEncoder behavior with a specific sequence of examples.&quot;&quot;&quot;</span>
+    <span class="n">encoder</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSEncoder</span><span class="p">()</span>
+    <span class="n">input_encoding_seq</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">encodings</span><span class="p">)</span>
+    <span class="n">output_encoding_seq</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">encodings</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">encoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="test_cobs_enc_invalid_length"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.test_cobs_enc_invalid_length">[docs]</a><span class="nd">@hp</span><span class="o">.</span><span class="n">given</span><span class="p">(</span><span class="n">invalid_length</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">260</span><span class="p">))</span>
+<span class="nd">@hp</span><span class="o">.</span><span class="n">example</span><span class="p">(</span><span class="n">invalid_length</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_cobs_enc_invalid_length</span><span class="p">(</span><span class="n">invalid_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Test COBSEncoder with invalid individual input lengths.&quot;&quot;&quot;</span>
+    <span class="n">encoder</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSEncoder</span><span class="p">()</span>
+    <span class="n">encoder</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="nb">bytes</span><span class="p">([</span><span class="mh">0x00</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">invalid_length</span><span class="p">)]))</span>
+    <span class="k">with</span> <span class="n">pt</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ProtocolDataError</span><span class="p">):</span>
+        <span class="n">encoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="test_cobs_enc_errors_seq"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.test_cobs_enc_errors_seq">[docs]</a><span class="nd">@hp</span><span class="o">.</span><span class="n">given</span><span class="p">(</span>
+    <span class="n">invalid_length</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">260</span><span class="p">),</span>
+    <span class="n">valid_encodings</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">lists</span><span class="p">(</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">example_encodings</span><span class="o">.</span><span class="n">items</span><span class="p">())),</span>
+        <span class="n">min_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">16</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_cobs_enc_errors_seq</span><span class="p">(</span>
+        <span class="n">invalid_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">valid_encodings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Test COBSEncoder with invalid input lengths in a valid input sequence.&quot;&quot;&quot;</span>
+    <span class="n">encoder</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSEncoder</span><span class="p">()</span>
+    <span class="n">input_encoding_seq</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">valid_encodings</span><span class="p">))</span>
+    <span class="n">encoder</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="nb">bytes</span><span class="p">([</span><span class="mh">0x00</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">invalid_length</span><span class="p">)]))</span>
+    <span class="n">input_encoding_seq</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">valid_encodings</span><span class="p">))</span>
+    <span class="n">output_encoding_seq</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">valid_encodings</span><span class="p">))</span>
+    <span class="k">with</span> <span class="n">pt</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ProtocolDataError</span><span class="p">):</span>
+        <span class="n">encoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">output_encoding_seq</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">valid_encodings</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="test_cobs_enc_invariants"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.test_cobs_enc_invariants">[docs]</a><span class="nd">@hp</span><span class="o">.</span><span class="n">given</span><span class="p">(</span><span class="n">unencoded</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">binary</span><span class="p">(</span><span class="n">max_size</span><span class="o">=</span><span class="mi">254</span><span class="p">))</span>
+<span class="nd">@hp</span><span class="o">.</span><span class="n">example</span><span class="p">(</span><span class="n">unencoded</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="nd">@hp</span><span class="o">.</span><span class="n">example</span><span class="p">(</span><span class="n">unencoded</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">254</span><span class="p">))))</span>
+<span class="k">def</span> <span class="nf">test_cobs_enc_invariants</span><span class="p">(</span><span class="n">unencoded</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Test COBSEncoder invariants.&quot;&quot;&quot;</span>
+    <span class="n">encoder</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSEncoder</span><span class="p">()</span>
+    <span class="n">encoder</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">unencoded</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">assert</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">output</span></div>
+
+
+<span class="c1"># Round-trip</span>
+
+
+<div class="viewcode-block" id="test_cobs_roundtrip_indiv"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.test_cobs_roundtrip_indiv">[docs]</a><span class="nd">@hp</span><span class="o">.</span><span class="n">given</span><span class="p">(</span><span class="n">unencoded</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">binary</span><span class="p">(</span><span class="n">max_size</span><span class="o">=</span><span class="mi">254</span><span class="p">))</span>
+<span class="nd">@hp</span><span class="o">.</span><span class="n">example</span><span class="p">(</span><span class="n">unencoded</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="nd">@hp</span><span class="o">.</span><span class="n">example</span><span class="p">(</span><span class="n">unencoded</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">254</span><span class="p">))))</span>
+<span class="k">def</span> <span class="nf">test_cobs_roundtrip_indiv</span><span class="p">(</span><span class="n">unencoded</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Test COBSEncoder+COBSDecoder round-tripping with individual inputs.&quot;&quot;&quot;</span>
+    <span class="n">encoder</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSEncoder</span><span class="p">()</span>
+    <span class="n">decoder</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSDecoder</span><span class="p">()</span>
+    <span class="n">encoder</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">unencoded</span><span class="p">)</span>
+    <span class="n">decoder</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">encoder</span><span class="o">.</span><span class="n">output</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="n">decoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span> <span class="o">==</span> <span class="n">unencoded</span></div>
+
+
+<div class="viewcode-block" id="test_cobs_roundtrip_seq"><a class="viewcode-back" href="../../../../api/tests.unit.protocols.html#tests.unit.protocols.test_cobs.test_cobs_roundtrip_seq">[docs]</a><span class="nd">@hp</span><span class="o">.</span><span class="n">given</span><span class="p">(</span><span class="n">unencoded_sequence</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">lists</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">binary</span><span class="p">(</span><span class="n">max_size</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">16</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">test_cobs_roundtrip_seq</span><span class="p">(</span><span class="n">unencoded_sequence</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">bytes</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Test COBSEncoder+COBSDecoder round-tripping with input sequences.&quot;&quot;&quot;</span>
+    <span class="n">encoder</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSEncoder</span><span class="p">()</span>
+    <span class="n">decoder</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">COBSDecoder</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">unencoded</span> <span class="ow">in</span> <span class="n">unencoded_sequence</span><span class="p">:</span>
+        <span class="n">encoder</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">unencoded</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">encoder</span><span class="o">.</span><span class="n">output_all</span><span class="p">():</span>
+        <span class="n">decoder</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">unencoded</span> <span class="ow">in</span> <span class="n">unencoded_sequence</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">decoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span> <span class="o">==</span> <span class="n">unencoded</span>
+    <span class="k">assert</span> <span class="n">decoder</span><span class="o">.</span><span class="n">output</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../api/modules.html">Pufferfish</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/tests.html">tests package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/ventserver.html">ventserver package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../api/modules.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Pez-Globo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

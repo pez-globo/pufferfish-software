@@ -1,0 +1,476 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ventserver.simulation &#8212; Pufferfish  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ventserver.simulation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Trio I/O with sans-I/O protocol, running application.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
+
+<span class="kn">import</span> <span class="nn">attr</span>
+
+<span class="kn">import</span> <span class="nn">betterproto</span>
+<span class="kn">import</span> <span class="nn">trio</span>
+<span class="kn">import</span> <span class="nn">RPi.GPIO</span> <span class="k">as</span> <span class="nn">GPIO</span> <span class="c1"># type:ignore</span>
+
+<span class="kn">from</span> <span class="nn">ventserver.integration</span> <span class="kn">import</span> <span class="n">_trio</span>
+<span class="kn">from</span> <span class="nn">ventserver.io.trio</span> <span class="kn">import</span> <span class="n">channels</span>
+<span class="kn">from</span> <span class="nn">ventserver.io.trio</span> <span class="kn">import</span> <span class="n">websocket</span>
+<span class="kn">from</span> <span class="nn">ventserver.io.trio</span> <span class="kn">import</span> <span class="n">rotaryencoder</span>
+<span class="kn">from</span> <span class="nn">ventserver.protocols</span> <span class="kn">import</span> <span class="n">server</span>
+<span class="kn">from</span> <span class="nn">ventserver.protocols</span> <span class="kn">import</span> <span class="n">exceptions</span>
+<span class="kn">from</span> <span class="nn">ventserver.protocols.protobuf</span> <span class="kn">import</span> <span class="n">mcu_pb</span>
+
+
+<span class="n">GPIO</span><span class="o">.</span><span class="n">setmode</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">BCM</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="BreathingCircuitSimulator"><a class="viewcode-back" href="../../api/ventserver.html#ventserver.simulation.BreathingCircuitSimulator">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span>
+<span class="k">class</span> <span class="nc">BreathingCircuitSimulator</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Base class for a breathing circuit simulator.&quot;&quot;&quot;</span>
+
+    <span class="n">SENSOR_UPDATE_INTERVAL</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="n">all_states</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span>
+        <span class="n">Type</span><span class="p">[</span><span class="n">betterproto</span><span class="o">.</span><span class="n">Message</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">betterproto</span><span class="o">.</span><span class="n">Message</span><span class="p">]</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">()</span>
+    <span class="n">current_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># ms after initial_time</span>
+    <span class="n">previous_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># ms after initial_time</span>
+    <span class="n">initial_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>  <span class="c1"># ms, Unix time</span>
+
+    <span class="c1"># FiO2</span>
+    <span class="n">fio2_responsiveness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>  <span class="c1"># ms</span>
+    <span class="n">fio2_noise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.005</span><span class="p">)</span>  <span class="c1"># % FiO2</span>
+
+    <span class="c1"># State segments</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_sensor_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">mcu_pb</span><span class="o">.</span><span class="n">SensorMeasurements</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Access the SensorMeasurements state segment.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span>
+            <span class="n">mcu_pb</span><span class="o">.</span><span class="n">SensorMeasurements</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">all_states</span><span class="p">[</span><span class="n">mcu_pb</span><span class="o">.</span><span class="n">SensorMeasurements</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_cycle_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">mcu_pb</span><span class="o">.</span><span class="n">CycleMeasurements</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Access the CycleMeasurements state segment.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span>
+            <span class="n">mcu_pb</span><span class="o">.</span><span class="n">CycleMeasurements</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_states</span><span class="p">[</span><span class="n">mcu_pb</span><span class="o">.</span><span class="n">CycleMeasurements</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_parameters_request</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">mcu_pb</span><span class="o">.</span><span class="n">ParametersRequest</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Access the ParametersRequest state segment.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span>
+            <span class="n">mcu_pb</span><span class="o">.</span><span class="n">ParametersRequest</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_states</span><span class="p">[</span><span class="n">mcu_pb</span><span class="o">.</span><span class="n">ParametersRequest</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">mcu_pb</span><span class="o">.</span><span class="n">Parameters</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Access the Parameters state segment.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span>
+            <span class="n">mcu_pb</span><span class="o">.</span><span class="n">Parameters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_states</span><span class="p">[</span><span class="n">mcu_pb</span><span class="o">.</span><span class="n">Parameters</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Timing</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Compute the time step.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span>
+
+    <span class="c1"># Update methods</span>
+
+<div class="viewcode-block" id="BreathingCircuitSimulator.update_parameters"><a class="viewcode-back" href="../../api/ventserver.html#ventserver.simulation.BreathingCircuitSimulator.update_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">update_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Update the parameters.&quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="BreathingCircuitSimulator.update_clock"><a class="viewcode-back" href="../../api/ventserver.html#ventserver.simulation.BreathingCircuitSimulator.update_clock">[docs]</a>    <span class="k">def</span> <span class="nf">update_clock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Update the internal state for timing.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_time</span></div>
+
+<div class="viewcode-block" id="BreathingCircuitSimulator.update_sensors"><a class="viewcode-back" href="../../api/ventserver.html#ventserver.simulation.BreathingCircuitSimulator.update_sensors">[docs]</a>    <span class="k">def</span> <span class="nf">update_sensors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Update the simulated sensors.&quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="BreathingCircuitSimulator.update_actuators"><a class="viewcode-back" href="../../api/ventserver.html#ventserver.simulation.BreathingCircuitSimulator.update_actuators">[docs]</a>    <span class="k">def</span> <span class="nf">update_actuators</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Update the simulated actuators.&quot;&quot;&quot;</span></div>
+
+    <span class="c1"># FiO2 simulation</span>
+
+    <span class="k">def</span> <span class="nf">_update_fio2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Update FiO2 measurements.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">fio2</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">fio2</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">fio2</span>
+            <span class="p">)</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fio2_responsiveness</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">SENSOR_UPDATE_INTERVAL</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">fio2</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fio2_noise</span> <span class="o">*</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="PCACSimulator"><a class="viewcode-back" href="../../api/ventserver.html#ventserver.simulation.PCACSimulator">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span>
+<span class="k">class</span> <span class="nc">PCACSimulator</span><span class="p">(</span><span class="n">BreathingCircuitSimulator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Breathing circuit simulator in PC-AC mode.&quot;&quot;&quot;</span>
+
+    <span class="n">cycle_start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># ms</span>
+    <span class="n">cycle_period</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">2000.0</span><span class="p">)</span>  <span class="c1"># ms</span>
+    <span class="n">insp_period</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">)</span>  <span class="c1"># ms</span>
+    <span class="n">insp_responsiveness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>  <span class="c1"># ms</span>
+    <span class="n">exp_responsiveness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>  <span class="c1"># ms</span>
+    <span class="n">insp_init_flow_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>  <span class="c1"># L / min</span>
+    <span class="n">exp_init_flow_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=-</span><span class="mi">120</span><span class="p">)</span>  <span class="c1"># L / min</span>
+    <span class="n">insp_flow_responsiveness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>  <span class="c1"># ms</span>
+    <span class="n">exp_flow_responsiveness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>  <span class="c1"># ms</span>
+
+<div class="viewcode-block" id="PCACSimulator.update_parameters"><a class="viewcode-back" href="../../api/ventserver.html#ventserver.simulation.PCACSimulator.update_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">update_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Implement BreathingCircuitSimulator.update_parameters.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">mode</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="n">mcu_pb</span><span class="o">.</span><span class="n">VentilationMode</span><span class="o">.</span><span class="n">pc_ac</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">rr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">rr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">rr</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">ie</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">ie</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">ie</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">pip</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">pip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">pip</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">peep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">peep</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">fio2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">fio2</span></div>
+
+<div class="viewcode-block" id="PCACSimulator.update_sensors"><a class="viewcode-back" href="../../api/ventserver.html#ventserver.simulation.PCACSimulator.update_sensors">[docs]</a>    <span class="k">def</span> <span class="nf">update_sensors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Implement BreathingCircuitSimulator.update_sensors.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="n">mcu_pb</span><span class="o">.</span><span class="n">VentilationMode</span><span class="o">.</span><span class="n">pc_ac</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_time</span><span class="p">)</span>
+        <span class="n">cycle_period</span> <span class="o">=</span> <span class="mi">60000</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">rr</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_start_time</span> <span class="o">&gt;</span> <span class="n">cycle_period</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_cycle</span><span class="p">(</span><span class="n">cycle_period</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_cycle_measurements</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_start_time</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">insp_period</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_airway_inspiratory</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_airway_expiratory</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_fio2</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_init_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_period</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialize at the start of the cycle.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">flow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insp_init_flow_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insp_period</span> <span class="o">=</span> <span class="n">cycle_period</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">ie</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">cycle</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">_update_cycle_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Update cycle measurements.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_measurements</span><span class="o">.</span><span class="n">rr</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">rr</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">-</span> <span class="mf">0.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_measurements</span><span class="o">.</span><span class="n">peep</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">peep</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">-</span> <span class="mf">0.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_measurements</span><span class="o">.</span><span class="n">pip</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">pip</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">-</span> <span class="mf">0.5</span>
+
+    <span class="k">def</span> <span class="nf">_update_airway_inspiratory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Update sensor measurements in inspiratory phase.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">paw</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">pip</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">paw</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">insp_responsiveness</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">flow</span> <span class="o">*=</span> <span class="p">(</span>
+            <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">insp_flow_responsiveness</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">volume</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">flow</span> <span class="o">/</span> <span class="mi">60</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update_airway_expiratory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Update sensor measurements in expiratory phase.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">paw</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">peep</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">paw</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_responsiveness</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">flow</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">flow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_init_flow_rate</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">flow</span> <span class="o">*=</span> <span class="p">(</span>
+                <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_flow_responsiveness</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">volume</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">flow</span> <span class="o">/</span> <span class="mi">60</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HFNCSimulator"><a class="viewcode-back" href="../../api/ventserver.html#ventserver.simulation.HFNCSimulator">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span>
+<span class="k">class</span> <span class="nc">HFNCSimulator</span><span class="p">(</span><span class="n">BreathingCircuitSimulator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Breathing circuit simulator in HFNC mode.&quot;&quot;&quot;</span>
+
+    <span class="n">cycle_start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># ms</span>
+    <span class="n">flow_responsiveness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>  <span class="c1"># ms</span>
+    <span class="n">flow_noise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span>  <span class="c1"># L/min</span>
+    <span class="n">spo2_fio2_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>  <span class="c1"># % SpO2 / % FiO2</span>
+    <span class="n">spo2_responsiveness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.0005</span><span class="p">)</span>  <span class="c1"># ms</span>
+    <span class="n">spo2_noise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span>  <span class="c1"># % SpO2</span>
+    <span class="n">rr_noise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># b/min</span>
+
+<div class="viewcode-block" id="HFNCSimulator.update_parameters"><a class="viewcode-back" href="../../api/ventserver.html#ventserver.simulation.HFNCSimulator.update_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">update_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Implement BreathingCircuitSimulator.update_parameters.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">mode</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="n">mcu_pb</span><span class="o">.</span><span class="n">VentilationMode</span><span class="o">.</span><span class="n">hfnc</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">flow</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">flow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">flow</span>
+        <span class="k">if</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">fio2</span> <span class="o">&gt;=</span> <span class="mi">21</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">fio2</span> <span class="o">&lt;=</span> <span class="mi">100</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">fio2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">fio2</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">rr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">rr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters_request</span><span class="o">.</span><span class="n">rr</span></div>
+
+<div class="viewcode-block" id="HFNCSimulator.update_sensors"><a class="viewcode-back" href="../../api/ventserver.html#ventserver.simulation.HFNCSimulator.update_sensors">[docs]</a>    <span class="k">def</span> <span class="nf">update_sensors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Implement BreathingCircuitSimulator.update_sensors.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="n">mcu_pb</span><span class="o">.</span><span class="n">VentilationMode</span><span class="o">.</span><span class="n">hfnc</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_time</span><span class="p">)</span>
+        <span class="n">cycle_period</span> <span class="o">=</span> <span class="mi">60000</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">rr</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_start_time</span> <span class="o">&gt;</span> <span class="n">cycle_period</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_cycle</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_cycle_measurements</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_flow</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_fio2</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_spo2</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_update_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Update flow measurements.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">flow</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">flow</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">flow</span>
+            <span class="p">)</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_responsiveness</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">SENSOR_UPDATE_INTERVAL</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">flow</span> <span class="o">+=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">flow_noise</span> <span class="o">*</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update_spo2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Update SpO2 measurements.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">spo2</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spo2_fio2_scale</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">fio2</span>
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">spo2</span>
+            <span class="p">)</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">spo2_responsiveness</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">SENSOR_UPDATE_INTERVAL</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">spo2</span> <span class="o">+=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">spo2_noise</span> <span class="o">*</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">spo2</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">spo2</span><span class="p">,</span> <span class="mi">100</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">spo2</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sensor_measurements</span><span class="o">.</span><span class="n">spo2</span><span class="p">,</span> <span class="mi">21</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_init_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialize at the start of the cycle.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span>
+
+    <span class="k">def</span> <span class="nf">_update_cycle_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Update cycle measurements.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_measurements</span><span class="o">.</span><span class="n">rr</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">rr</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">rr_noise</span> <span class="o">*</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="simulate_states"><a class="viewcode-back" href="../../api/ventserver.html#ventserver.simulation.simulate_states">[docs]</a><span class="k">async</span> <span class="k">def</span> <span class="nf">simulate_states</span><span class="p">(</span>
+        <span class="n">all_states</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span>
+            <span class="n">Type</span><span class="p">[</span><span class="n">betterproto</span><span class="o">.</span><span class="n">Message</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">betterproto</span><span class="o">.</span><span class="n">Message</span><span class="p">]</span>
+        <span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Simulate evolution of all states.&quot;&quot;&quot;</span>
+    <span class="n">simulators</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">mcu_pb</span><span class="o">.</span><span class="n">VentilationMode</span><span class="o">.</span><span class="n">pc_ac</span><span class="p">:</span> <span class="n">PCACSimulator</span><span class="p">(</span><span class="n">all_states</span><span class="o">=</span><span class="n">all_states</span><span class="p">),</span>
+        <span class="n">mcu_pb</span><span class="o">.</span><span class="n">VentilationMode</span><span class="o">.</span><span class="n">hfnc</span><span class="p">:</span> <span class="n">HFNCSimulator</span><span class="p">(</span><span class="n">all_states</span><span class="o">=</span><span class="n">all_states</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># Mode</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span>
+            <span class="n">mcu_pb</span><span class="o">.</span><span class="n">Parameters</span><span class="p">,</span> <span class="n">all_states</span><span class="p">[</span><span class="n">mcu_pb</span><span class="o">.</span><span class="n">Parameters</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">parameters</span><span class="o">.</span><span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">simulators</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">simulator</span> <span class="o">=</span> <span class="n">simulators</span><span class="p">[</span><span class="n">parameters</span><span class="o">.</span><span class="n">mode</span><span class="p">]</span>
+        <span class="c1"># Parameters</span>
+        <span class="n">simulator</span><span class="o">.</span><span class="n">update_parameters</span><span class="p">()</span>
+        <span class="c1"># Timing</span>
+        <span class="k">await</span> <span class="n">trio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">simulator</span><span class="o">.</span><span class="n">SENSOR_UPDATE_INTERVAL</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="n">simulator</span><span class="o">.</span><span class="n">update_clock</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+        <span class="n">simulator</span><span class="o">.</span><span class="n">update_sensors</span><span class="p">()</span>
+        <span class="n">simulator</span><span class="o">.</span><span class="n">update_actuators</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../api/ventserver.html#ventserver.simulation.main">[docs]</a><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Set up wiring between subsystems and process until completion.&quot;&quot;&quot;</span>
+    <span class="c1"># Sans-I/O Protocols</span>
+    <span class="n">protocol</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">Protocol</span><span class="p">()</span>
+
+    <span class="c1"># I/O Endpoints</span>
+    <span class="n">websocket_endpoint</span> <span class="o">=</span> <span class="n">websocket</span><span class="o">.</span><span class="n">Driver</span><span class="p">()</span>
+    <span class="n">rotary_encoder</span> <span class="o">=</span> <span class="n">rotaryencoder</span><span class="o">.</span><span class="n">Driver</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">rotary_encoder</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">ProtocolError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+
+    <span class="c1"># Server Receive Outputs</span>
+    <span class="n">channel</span><span class="p">:</span> <span class="n">channels</span><span class="o">.</span><span class="n">TrioChannel</span><span class="p">[</span>
+        <span class="n">server</span><span class="o">.</span><span class="n">ReceiveOutputEvent</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="n">channels</span><span class="o">.</span><span class="n">TrioChannel</span><span class="p">()</span>
+
+    <span class="c1"># Initialize State</span>
+    <span class="n">all_states</span> <span class="o">=</span> <span class="n">protocol</span><span class="o">.</span><span class="n">receive</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">all_states</span>
+    <span class="n">all_states</span><span class="p">[</span><span class="n">mcu_pb</span><span class="o">.</span><span class="n">Parameters</span><span class="p">]</span> <span class="o">=</span> <span class="n">mcu_pb</span><span class="o">.</span><span class="n">Parameters</span><span class="p">()</span>
+    <span class="n">all_states</span><span class="p">[</span><span class="n">mcu_pb</span><span class="o">.</span><span class="n">CycleMeasurements</span><span class="p">]</span> <span class="o">=</span> <span class="n">mcu_pb</span><span class="o">.</span><span class="n">CycleMeasurements</span><span class="p">()</span>
+    <span class="n">all_states</span><span class="p">[</span><span class="n">mcu_pb</span><span class="o">.</span><span class="n">SensorMeasurements</span><span class="p">]</span> <span class="o">=</span> <span class="n">mcu_pb</span><span class="o">.</span><span class="n">SensorMeasurements</span><span class="p">()</span>
+    <span class="n">all_states</span><span class="p">[</span><span class="n">mcu_pb</span><span class="o">.</span><span class="n">ParametersRequest</span><span class="p">]</span> <span class="o">=</span> <span class="n">mcu_pb</span><span class="o">.</span><span class="n">ParametersRequest</span><span class="p">(</span>
+        <span class="n">mode</span><span class="o">=</span><span class="n">mcu_pb</span><span class="o">.</span><span class="n">VentilationMode</span><span class="o">.</span><span class="n">hfnc</span><span class="p">,</span>
+        <span class="n">rr</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">fio2</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="mi">6</span>
+    <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">channel</span><span class="o">.</span><span class="n">push_endpoint</span><span class="p">:</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">trio</span><span class="o">.</span><span class="n">open_nursery</span><span class="p">()</span> <span class="k">as</span> <span class="n">nursery</span><span class="p">:</span>
+                <span class="n">nursery</span><span class="o">.</span><span class="n">start_soon</span><span class="p">(</span>
+                    <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">_trio</span><span class="o">.</span><span class="n">process_all</span><span class="p">,</span>
+                                      <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span>
+                                      <span class="n">push_endpoint</span><span class="o">=</span><span class="n">channel</span><span class="o">.</span><span class="n">push_endpoint</span><span class="p">),</span>
+                    <span class="n">protocol</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">websocket_endpoint</span><span class="p">,</span> <span class="n">rotary_encoder</span>
+                <span class="p">)</span>
+                <span class="n">nursery</span><span class="o">.</span><span class="n">start_soon</span><span class="p">(</span><span class="n">simulate_states</span><span class="p">,</span> <span class="n">all_states</span><span class="p">)</span>
+
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">receive_output</span> <span class="o">=</span> <span class="k">await</span> <span class="n">channel</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+                    <span class="k">await</span> <span class="n">_trio</span><span class="o">.</span><span class="n">process_protocol_send</span><span class="p">(</span>
+                        <span class="n">receive_output</span><span class="o">.</span><span class="n">server_send</span><span class="p">,</span> <span class="n">protocol</span><span class="p">,</span>
+                        <span class="kc">None</span><span class="p">,</span> <span class="n">websocket_endpoint</span>
+                    <span class="p">)</span>
+                <span class="n">nursery</span><span class="o">.</span><span class="n">cancel_scope</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">trio</span><span class="o">.</span><span class="n">EndOfChannel</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Finished, quitting!&#39;</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">trio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Quitting!&#39;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../api/modules.html">Pufferfish</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/tests.html">tests package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/ventserver.html">ventserver package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../api/modules.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Pez-Globo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

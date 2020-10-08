@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ventserver.io.asynchronous package &#8212; Pufferfish  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ventserver.io.trio package" href="ventserver.io.trio.html" />
+    <link rel="prev" title="ventserver.io package" href="ventserver.io.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ventserver.io.asynchronous">
+<span id="ventserver-io-asynchronous-package"></span><h1>ventserver.io.asynchronous package<a class="headerlink" href="#module-ventserver.io.asynchronous" title="Permalink to this headline">¶</a></h1>
+<p>Modules for trio I/O endpoint drivers and execution synchronizers.</p>
+<dl class="simple">
+<dt>Modules:</dt><dd><p>endpoints: abstract interface for asynchronous I/O endpoint drivers.
+channels: Filter-like interface around asynchronous I/O classes.</p>
+</dd>
+</dl>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ventserver.io.asynchronous.endpoints">
+<span id="ventserver-io-asynchronous-endpoints-module"></span><h2>ventserver.io.asynchronous.endpoints module<a class="headerlink" href="#module-ventserver.io.asynchronous.endpoints" title="Permalink to this headline">¶</a></h2>
+<p>Asynchronous I/O endpoint interfaces.</p>
+<dl class="py class">
+<dt id="ventserver.io.asynchronous.endpoints.IOEndpoint">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.io.asynchronous.endpoints.</code><code class="sig-name descname">IOEndpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/io/asynchronous/endpoints.html#IOEndpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.asynchronous.endpoints.IOEndpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Generic</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Base class for sending data to and receiving data from I/O endpoints.</p>
+<dl class="py method">
+<dt id="ventserver.io.asynchronous.endpoints.IOEndpoint.close">
+<em class="property">abstract async </em><code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/ventserver/io/asynchronous/endpoints.html#IOEndpoint.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.asynchronous.endpoints.IOEndpoint.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the I/O connection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.asynchronous.endpoints.IOEndpoint.is_open">
+<em class="property">abstract property </em><code class="sig-name descname">is_open</code><a class="headerlink" href="#ventserver.io.asynchronous.endpoints.IOEndpoint.is_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether or not the I/O connection is open.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.asynchronous.endpoints.IOEndpoint.open">
+<em class="property">abstract async </em><code class="sig-name descname">open</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/ventserver/io/asynchronous/endpoints.html#IOEndpoint.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.asynchronous.endpoints.IOEndpoint.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open the I/O connection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.asynchronous.endpoints.IOEndpoint.receive">
+<em class="property">abstract async </em><code class="sig-name descname">receive</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; _ReceiveData<a class="reference internal" href="../_modules/ventserver/io/asynchronous/endpoints.html#IOEndpoint.receive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.asynchronous.endpoints.IOEndpoint.receive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive data from the endpoint.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.asynchronous.endpoints.IOEndpoint.receive_all">
+<code class="sig-name descname">receive_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; AsyncGenerator<span class="p">[</span>_ReceiveData<span class="p">, </span>None<span class="p">]</span><a class="reference internal" href="../_modules/ventserver/io/asynchronous/endpoints.html#IOEndpoint.receive_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.asynchronous.endpoints.IOEndpoint.receive_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate receive data from the endpoint.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.asynchronous.endpoints.IOEndpoint.send">
+<em class="property">abstract async </em><code class="sig-name descname">send</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>_SendData<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/ventserver/io/asynchronous/endpoints.html#IOEndpoint.send"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.asynchronous.endpoints.IOEndpoint.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send data over the endpoint.</p>
+<p>If this is called with None, nothing should happen.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ventserver.io.asynchronous.protocols">
+<span id="ventserver-io-asynchronous-protocols-module"></span><h2>ventserver.io.asynchronous.protocols module<a class="headerlink" href="#module-ventserver.io.asynchronous.protocols" title="Permalink to this headline">¶</a></h2>
+<p>Async protocol interfaces.</p>
+<dl class="py class">
+<dt id="ventserver.io.asynchronous.protocols.Filter">
+<em class="property">class </em><code class="sig-prename descclassname">ventserver.io.asynchronous.protocols.</code><code class="sig-name descname">Filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ventserver/io/asynchronous/protocols.html#Filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.asynchronous.protocols.Filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Generic</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Interface class for filters in a pipe-and-filter architecture.</p>
+<dl class="py method">
+<dt id="ventserver.io.asynchronous.protocols.Filter.input">
+<em class="property">abstract async </em><code class="sig-name descname">input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>_InputEvent<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/ventserver/io/asynchronous/protocols.html#Filter.input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.asynchronous.protocols.Filter.input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Push a data item onto the channel.</p>
+<p>Finishes only when the data item can be pushed onto the channel.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.asynchronous.protocols.Filter.output">
+<em class="property">abstract async </em><code class="sig-name descname">output</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; _OutputEvent<a class="reference internal" href="../_modules/ventserver/io/asynchronous/protocols.html#Filter.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.asynchronous.protocols.Filter.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pull a data item from the channel.</p>
+<p>Finishes only when a data item can be pulled from the channel.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ventserver.io.asynchronous.protocols.Filter.output_all">
+<code class="sig-name descname">output_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; AsyncGenerator<span class="p">[</span>_OutputEvent<span class="p">, </span>None<span class="p">]</span><a class="reference internal" href="../_modules/ventserver/io/asynchronous/protocols.html#Filter.output_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ventserver.io.asynchronous.protocols.Filter.output_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate all outputs as they become ready for emission.</p>
+<p>Never finishes.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="modules.html">Pufferfish</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tests.html">tests package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="ventserver.html">ventserver package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ventserver.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ventserver.integration.html">ventserver.integration package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="ventserver.io.html">ventserver.io package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="ventserver.io.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.io.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.io.html#module-ventserver.io.rotaryencoder">ventserver.io.rotaryencoder module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ventserver.io.html#module-ventserver.io.websocket">ventserver.io.websocket module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.protocols.html">ventserver.protocols package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.sansio.html">ventserver.sansio package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ventserver.util.html">ventserver.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#module-ventserver.application">ventserver.application module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ventserver.html#module-ventserver.simulation">ventserver.simulation module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="modules.html">Documentation overview</a><ul>
+  <li><a href="ventserver.html">ventserver package</a><ul>
+  <li><a href="ventserver.io.html">ventserver.io package</a><ul>
+      <li>Previous: <a href="ventserver.io.html" title="previous chapter">ventserver.io package</a></li>
+      <li>Next: <a href="ventserver.io.trio.html" title="next chapter">ventserver.io.trio package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Pez-Globo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/ventserver.io.asynchronous.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
