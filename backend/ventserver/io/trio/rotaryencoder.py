@@ -18,14 +18,14 @@ from ventserver.protocols import exceptions
 
 
 # States
-DT_GPIO1 = 'D'  # dt_gpio is high
-DT_GPIO0 = 'd'  # dt_gpio is low
-CLK_GPIO1 = 'C'  # clk_gpio is high
-CLK_GPIO0 = 'c'  # clk_gpio is low
+B_GPIO1 = 'D'  # dt_gpio is high
+B_GPIO0 = 'd'  # dt_gpio is low
+A_GPIO1 = 'C'  # clk_gpio is high
+A_GPIO0 = 'c'  # clk_gpio is low
 
 # State sequences
-SEQUENCE_UP = DT_GPIO1 + CLK_GPIO1 + DT_GPIO0 + CLK_GPIO0
-SEQUENCE_DOWN = CLK_GPIO1 + DT_GPIO1 + CLK_GPIO0 + DT_GPIO0
+SEQUENCE_UP = B_GPIO1 + A_GPIO1 + B_GPIO0 + A_GPIO0
+SEQUENCE_DOWN = A_GPIO1 + B_GPIO1 + A_GPIO0 + B_GPIO0
 
 @attr.s
 class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
@@ -50,7 +50,7 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
     def a_quad_rise(self, gpio: int, level: int, tick: int) -> None:
         """Callback for rising A qaudrature pin."""
         _, __, ___ = gpio, level, tick  # Unused args
-        self._sequence += CLK_GPIO0
+        self._sequence += A_GPIO0
         if self._sequence == SEQUENCE_UP:
             self.counter += 1
             self._sequence = ''
@@ -64,12 +64,12 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
         _, __, ___ = gpio, level, tick  # Unused args
         if len(self._sequence) > 2:
             self._sequence = ''
-        self._sequence += CLK_GPIO1
+        self._sequence += A_GPIO1
 
     def b_quad_rise(self, gpio: int, level: int, tick: int) -> None:
         """Callback for rising B qaudrature pin."""
         _, __, ___ = gpio, level, tick  # Unused args
-        self._sequence += DT_GPIO0
+        self._sequence += B_GPIO0
         if self._sequence == SEQUENCE_DOWN:
             self.counter -= 1
             self._sequence = ''
@@ -83,13 +83,14 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
         _, __, ___ = gpio, level, tick  # Unused args
         if len(self._sequence) > 2:
             self._sequence = ''
-        self._sequence += DT_GPIO1
+        self._sequence += B_GPIO1
 
     def button_rise(self, gpio: int, level: int, tick: int) -> None:
         """Callback for rising button pin."""
         _, __, ___ = gpio, level, tick  # Unused args
         if self.button_pressed:
             self.button_pressed = False
+            self.counter = 0
             trio.from_thread.run_sync(
                 self._data_available.set,
                 trio_token=self.trio_token
@@ -100,7 +101,6 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
         _, __, ___ = gpio, level, tick  # Unused args
         if not self.button_pressed:
             self.button_pressed = True
-            self.counter = 0
             trio.from_thread.run_sync(
                 self._data_available.set,
                 trio_token=self.trio_token
