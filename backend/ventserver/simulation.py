@@ -24,7 +24,6 @@ from ventserver.io.trio import websocket
 from ventserver.io.trio import fileio
 from ventserver.protocols import server
 from ventserver.protocols import exceptions
-from ventserver.protocols import server
 from ventserver.protocols.protobuf import mcu_pb
 
 
