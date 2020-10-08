@@ -23,16 +23,12 @@
 
 #include "Pufferfish/Driver/Serial/Nonin/FrameReceiver.h"
 #include "Pufferfish/Driver/Serial/Nonin/PacketReceiver.h"
-#include "Pufferfish/HAL/STM32/BufferedUART.h"
+#include "Pufferfish/HAL/Interfaces/BufferedUART.h"
 
 namespace Pufferfish {
 namespace Driver {
 namespace Serial {
 namespace Nonin {
-
-/* Define noninOEMUART for BufferedUART with 512 bytes of received buffer */
-static const size_t nonin_oem_uart_size = 512;
-using NoninOEMUART = HAL::BufferedUART<nonin_oem_uart_size, 1>;
 
 /**
  * NoninOEM class to receive a byte from Nonin OEM III using UART and calculates
@@ -53,7 +49,7 @@ class NoninOEM {
    * Constructor for NoninOEM
    * @param  noninOEMUART BufferredUART with 512 bytes reception buffer
    */
-  explicit NoninOEM(volatile NoninOEMUART &uart) : nonin_uart_(uart) {}
+  explicit NoninOEM(volatile HAL::BufferedUART &uart) : nonin_uart_(uart) {}
 
   /**
    * @brief  Method inputs the byte to packet and reads the packet measurements
@@ -65,7 +61,7 @@ class NoninOEM {
 
  private:
   /* Create an object bufferredUART with 512 bytes of reception buffer */
-  volatile NoninOEMUART &nonin_uart_;
+  volatile HAL::BufferedUART &nonin_uart_;
 
   /* Create an object of FrameReceiver */
   FrameReceiver frame_receiver_;

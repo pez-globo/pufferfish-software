@@ -20,7 +20,8 @@
 
 #pragma once
 
-#include "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/Interfaces/SPIDevice.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -35,7 +36,7 @@ class SPIFlash {
    * @brief Constructor for SPI Flash memory
    * @param spi STM32 HAL handler for the SPI port
    */
-  explicit SPIFlash(HAL::SPIDevice &spi) : spi_(spi) {}
+  explicit SPIFlash(HAL::SPIDevice &spi, HAL::Time &time) : spi_(spi), time_(time) {}
 
   /**
    * @brief Read the specific device ID (14h).
@@ -231,6 +232,7 @@ class SPIFlash {
 
  private:
   HAL::SPIDevice &spi_;
+  HAL::Time &time_;
 };
 
 }  // namespace SPI

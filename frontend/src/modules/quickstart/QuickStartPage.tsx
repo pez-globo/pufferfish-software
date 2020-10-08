@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import {
   Grid,
@@ -8,14 +8,20 @@ import {
   FormControlLabel,
   Radio,
 } from '@material-ui/core';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import TestTool from '../controllers/TestTool';
 import ValueClicker from '../controllers/ValueController';
 import ModeBanner from '../displays/ModeBanner';
 import ToggleValue from '../displays/ToggleValue';
 import { VentilationMode } from '../../store/controller/proto/mcu_pb';
-import { getParametersRequestMode } from '../../store/controller/selectors';
+import {
+  getParametersRequest,
+  getParametersRequestMode,
+  getParametersRequestStandby,
+} from '../../store/controller/selectors';
 import { LMIN, PERCENT } from '../info/units';
+import { updateCommittedState } from '../../store/controller/actions';
+import { PARAMETER_STANDBY } from '../../store/controller/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -77,11 +83,30 @@ enum PatientAge {
 
 const SettableParameters = (): JSX.Element => {
   const classes = useStyles();
-  const [PEEP, setPEEP] = React.useState(5);
-  const [Flow, setFlow] = React.useState(10);
-  const [RR, setRR] = React.useState(18);
-  const [TV, setTV] = React.useState(500);
-  const [FiO2, setFiO2] = React.useState(100);
+  const parameterStandby = useSelector(getParametersRequestStandby);
+
+  const [PEEP, setPEEP] = React.useState(parameterStandby.peep);
+  const [Flow, setFlow] = React.useState(parameterStandby.flow);
+  const [RR, setRR] = React.useState(parameterStandby.rr);
+  const [TV, setTV] = React.useState(parameterStandby.vt);
+  const [FiO2, setFiO2] = React.useState(parameterStandby.fio2);
+  const dispatch = useDispatch();
+
+  const initParameterUpdate = useCallback(() => {
+    dispatch(
+      updateCommittedState(PARAMETER_STANDBY, {
+        peep: PEEP,
+        vt: TV,
+        rr: RR,
+        fio2: FiO2,
+        flow: Flow,
+      }),
+    );
+  }, [PEEP, Flow, RR, TV, FiO2, dispatch]);
+
+  useEffect(() => {
+    initParameterUpdate();
+  }, [initParameterUpdate]);
 
   const ventilationMode = useSelector(getParametersRequestMode);
   switch (ventilationMode) {

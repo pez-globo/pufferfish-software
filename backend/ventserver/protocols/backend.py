@@ -50,7 +50,8 @@ class ReceiveEvent(events.Event):
         """Return whether the event has data."""
         return (
             self.time is not None
-            or self.mcu_receive is not None or self.frontend_receive is not None
+            or self.mcu_receive is not None
+            or self.frontend_receive is not None
         )
 
 
@@ -97,6 +98,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         mcu_pb.ParametersRequest,
         mcu_pb.Ping,
         mcu_pb.Announcement,
+        frontend_pb.RotaryEncoder
     }
 
     _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))

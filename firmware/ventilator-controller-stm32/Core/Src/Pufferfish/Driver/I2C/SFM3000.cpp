@@ -10,10 +10,8 @@
 
 #include <array>
 
+#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/HAL/STM32/Endian.h"
-// FIXME: After HAL/Interfaces/Time.h is created, change to
-// "Pufferfish/HAL/HAL.h"
-#include "Pufferfish/HAL/STM32/Time.h"
 #include "Pufferfish/Util/Parse.h"
 
 namespace Pufferfish::Driver::I2C {
@@ -59,7 +57,7 @@ I2CDeviceStatus SFM3000::read_sample(SFM3000Sample &sample) {
     if (ret != I2CDeviceStatus::ok) {
       return ret;
     }
-    HAL::delay(1);
+    time_.delay(1);
   }
 
   std::array<uint8_t, sizeof(uint16_t)> buffer{};
@@ -110,7 +108,7 @@ I2CDeviceStatus SFM3000::test() {
 
   // ignore the first read, might be invalid
   this->read_sample(sample);
-  HAL::delay(1);
+  time_.delay(1);
 
   // read and verify output
   status = this->read_sample(sample);

@@ -37,7 +37,6 @@ class FrameReceiver {
   /* FrameReceiver input status return values */
   enum class FrameInputStatus {
     waiting = 0,    /// Input is ready to receive new bytes of sensor data
-    not_available,  /// Input status is not available or error in frame
     framing_error,  /// Error in checksum or status byte or in byte 1 of a frame
     available       /// frame is available
   };
@@ -87,6 +86,10 @@ class FrameReceiver {
      frame is called */
   bool start_of_frame_status_ = false;
 };
+
+extern bool validate_start_of_frame(const Frame &new_frame);
+
+extern FrameReceiver::FrameInputStatus validate_frame(const Frame &new_frame);
 
 }  // namespace Nonin
 }  // namespace Serial

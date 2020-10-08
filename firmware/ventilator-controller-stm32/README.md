@@ -158,7 +158,7 @@ We have disabled the following checks:
 - modernize-use-trailing-return-type: we use the more traditional `int foo()` style of defining functions, rather than the `auto foo() -> int` style recommended by this check.
 
 We have temporarily disabled the following checks until we decide on a better
-way to pass around byte buffers (probably using C++ spans) than `uint8_t *` pointers:
+way to pass around byte buffers (probably using a C++ spans library) than `uint8_t *` pointers:
 
 - cppcoreguidelines-pro-bounds-pointer-arithmetic: this is needed for handling `uint8_t *` buffers
 - cppcoreguidelines-pro-bounds-constant-array-index: this is needed for handling `uint8_t *` buffers
@@ -247,13 +247,6 @@ and then run the target.
 
 ### Running Automated Tests
 
-The first time you do this from a repository where you have aleady built any
-build targets, you may need to delete your `.settings/language.settings.xml`
-file and the `TestCatch2` directory (if it exists) and all `cmake-build-*` directories
-(if they exist), restart STM32Cube IDE, and then rebuild the Debug target, before
-you can successfully build the TestCatch2 target.
-
-To run the automated test suite using catch2 on your own laptop (not on the STM32!),
-select the "ventilator-controller-stm32 TestCatch2" run target in either the run
-configurations menu or the run configurations manager, and then run the target.
-Then the console should show an output reporting the results of the automated tests.
+STM32Cube IDE interacts in bad ways with our `CMakeLists.txt` file, so it is not
+possible to build the Catch2 automated tests from within the IDE. Instead, you
+should follow the above instructions in the "Building the Catch2 Tests" section.

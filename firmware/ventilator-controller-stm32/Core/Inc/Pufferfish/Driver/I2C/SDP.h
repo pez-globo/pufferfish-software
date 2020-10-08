@@ -62,7 +62,7 @@ class SDPSensor : public Testable {
 
   // Cppcheck false positive, dev cannot be given to SensirionSensor ctor as
   // const ref cppcheck-suppress constParameter
-  explicit SDPSensor(HAL::I2CDevice &dev) : sensirion_(dev) {}
+  SDPSensor(HAL::I2CDevice &dev, HAL::Time &time) : sensirion_(dev), time_(time) {}
 
   /**
    * start continuously making measurements in sensor
@@ -73,7 +73,8 @@ class SDPSensor : public Testable {
   /**
    * wait for sensor to start continuously making measurements
    */
-  static void start_continuous_wait(bool stabilize = true);
+  /// FIXME : Removed to update the time functions to time class methods
+  /// static void start_continuous_wait(bool stabilize = true);
 
   /**
    * read continuously-measured data from sensor
@@ -116,6 +117,7 @@ class SDPSensor : public Testable {
   static const size_t full_reading_size = 6;
 
   SensirionSensor sensirion_;
+  HAL::Time &time_;
   bool measuring_ = false;
 
   static void parse_reading(const std::array<uint8_t, full_reading_size> &data, SDPSample &sample);

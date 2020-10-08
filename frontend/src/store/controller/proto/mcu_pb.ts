@@ -91,6 +91,26 @@ export interface Announcement {
   announcement: Uint8Array;
 }
 
+export interface LogEvent {
+  id: number;
+  time: number;
+  code: LogEventCode;
+  oldValue: number;
+  newValue: number;
+}
+
+export interface ExpectedLogEvent {
+  id: number;
+}
+
+export interface NextLogEvents {
+  logEvents: LogEvent[];
+}
+
+export interface ActiveLogEvents {
+  id: number[];
+}
+
 const baseAlarms: object = {
   time: 0,
   alarmOne: false,
@@ -180,6 +200,26 @@ const baseAnnouncement: object = {
   announcement: undefined,
 };
 
+const baseLogEvent: object = {
+  id: 0,
+  time: 0,
+  code: 0,
+  oldValue: 0,
+  newValue: 0,
+};
+
+const baseExpectedLogEvent: object = {
+  id: 0,
+};
+
+const baseNextLogEvents: object = {
+  logEvents: undefined,
+};
+
+const baseActiveLogEvents: object = {
+  id: 0,
+};
+
 export const VentilationMode = {
   pc_ac: 0 as const,
   pc_simv: 1 as const,
@@ -241,6 +281,74 @@ export const VentilationMode = {
 }
 
 export type VentilationMode = 0 | 1 | 2 | 3 | 4 | 5 | 6 | -1;
+
+export const LogEventCode = {
+  fio2_too_low: 0 as const,
+  fio2_too_high: 1 as const,
+  spo2_too_low: 2 as const,
+  spo2_too_high: 3 as const,
+  rr_too_low: 4 as const,
+  rr_too_high: 5 as const,
+  battery_low: 6 as const,
+  screen_locked: 7 as const,
+  UNRECOGNIZED: -1 as const,
+  fromJSON(object: any): LogEventCode {
+    switch (object) {
+      case 0:
+      case "fio2_too_low":
+        return LogEventCode.fio2_too_low;
+      case 1:
+      case "fio2_too_high":
+        return LogEventCode.fio2_too_high;
+      case 2:
+      case "spo2_too_low":
+        return LogEventCode.spo2_too_low;
+      case 3:
+      case "spo2_too_high":
+        return LogEventCode.spo2_too_high;
+      case 4:
+      case "rr_too_low":
+        return LogEventCode.rr_too_low;
+      case 5:
+      case "rr_too_high":
+        return LogEventCode.rr_too_high;
+      case 6:
+      case "battery_low":
+        return LogEventCode.battery_low;
+      case 7:
+      case "screen_locked":
+        return LogEventCode.screen_locked;
+      case -1:
+      case "UNRECOGNIZED":
+      default:
+        return LogEventCode.UNRECOGNIZED;
+    }
+  },
+  toJSON(object: LogEventCode): string {
+    switch (object) {
+      case LogEventCode.fio2_too_low:
+        return "fio2_too_low";
+      case LogEventCode.fio2_too_high:
+        return "fio2_too_high";
+      case LogEventCode.spo2_too_low:
+        return "spo2_too_low";
+      case LogEventCode.spo2_too_high:
+        return "spo2_too_high";
+      case LogEventCode.rr_too_low:
+        return "rr_too_low";
+      case LogEventCode.rr_too_high:
+        return "rr_too_high";
+      case LogEventCode.battery_low:
+        return "battery_low";
+      case LogEventCode.screen_locked:
+        return "screen_locked";
+      default:
+        return "UNKNOWN";
+    }
+  },
+}
+
+export type LogEventCode = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | -1;
 
 export const Alarms = {
   encode(message: Alarms, writer: Writer = Writer.create()): Writer {
@@ -1465,6 +1573,281 @@ export const Announcement = {
     const obj: any = {};
     obj.time = message.time || 0;
     obj.announcement = message.announcement !== undefined ? base64FromBytes(message.announcement) : undefined;
+    return obj;
+  },
+};
+
+export const LogEvent = {
+  encode(message: LogEvent, writer: Writer = Writer.create()): Writer {
+    writer.uint32(8).uint32(message.id);
+    writer.uint32(16).uint32(message.time);
+    writer.uint32(24).int32(message.code);
+    writer.uint32(37).float(message.oldValue);
+    writer.uint32(45).float(message.newValue);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): LogEvent {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = Object.create(baseLogEvent) as LogEvent;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.id = reader.uint32();
+          break;
+        case 2:
+          message.time = reader.uint32();
+          break;
+        case 3:
+          message.code = reader.int32() as any;
+          break;
+        case 4:
+          message.oldValue = reader.float();
+          break;
+        case 5:
+          message.newValue = reader.float();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): LogEvent {
+    const message = Object.create(baseLogEvent) as LogEvent;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = Number(object.id);
+    } else {
+      message.id = 0;
+    }
+    if (object.time !== undefined && object.time !== null) {
+      message.time = Number(object.time);
+    } else {
+      message.time = 0;
+    }
+    if (object.code !== undefined && object.code !== null) {
+      message.code = LogEventCode.fromJSON(object.code);
+    } else {
+      message.code = 0;
+    }
+    if (object.oldValue !== undefined && object.oldValue !== null) {
+      message.oldValue = Number(object.oldValue);
+    } else {
+      message.oldValue = 0;
+    }
+    if (object.newValue !== undefined && object.newValue !== null) {
+      message.newValue = Number(object.newValue);
+    } else {
+      message.newValue = 0;
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<LogEvent>): LogEvent {
+    const message = Object.create(baseLogEvent) as LogEvent;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = object.id;
+    } else {
+      message.id = 0;
+    }
+    if (object.time !== undefined && object.time !== null) {
+      message.time = object.time;
+    } else {
+      message.time = 0;
+    }
+    if (object.code !== undefined && object.code !== null) {
+      message.code = object.code;
+    } else {
+      message.code = 0;
+    }
+    if (object.oldValue !== undefined && object.oldValue !== null) {
+      message.oldValue = object.oldValue;
+    } else {
+      message.oldValue = 0;
+    }
+    if (object.newValue !== undefined && object.newValue !== null) {
+      message.newValue = object.newValue;
+    } else {
+      message.newValue = 0;
+    }
+    return message;
+  },
+  toJSON(message: LogEvent): unknown {
+    const obj: any = {};
+    obj.id = message.id || 0;
+    obj.time = message.time || 0;
+    obj.code = LogEventCode.toJSON(message.code);
+    obj.oldValue = message.oldValue || 0;
+    obj.newValue = message.newValue || 0;
+    return obj;
+  },
+};
+
+export const ExpectedLogEvent = {
+  encode(message: ExpectedLogEvent, writer: Writer = Writer.create()): Writer {
+    writer.uint32(8).uint32(message.id);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): ExpectedLogEvent {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = Object.create(baseExpectedLogEvent) as ExpectedLogEvent;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.id = reader.uint32();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): ExpectedLogEvent {
+    const message = Object.create(baseExpectedLogEvent) as ExpectedLogEvent;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = Number(object.id);
+    } else {
+      message.id = 0;
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<ExpectedLogEvent>): ExpectedLogEvent {
+    const message = Object.create(baseExpectedLogEvent) as ExpectedLogEvent;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = object.id;
+    } else {
+      message.id = 0;
+    }
+    return message;
+  },
+  toJSON(message: ExpectedLogEvent): unknown {
+    const obj: any = {};
+    obj.id = message.id || 0;
+    return obj;
+  },
+};
+
+export const NextLogEvents = {
+  encode(message: NextLogEvents, writer: Writer = Writer.create()): Writer {
+    for (const v of message.logEvents) {
+      LogEvent.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): NextLogEvents {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = Object.create(baseNextLogEvents) as NextLogEvents;
+    message.logEvents = [];
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.logEvents.push(LogEvent.decode(reader, reader.uint32()));
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): NextLogEvents {
+    const message = Object.create(baseNextLogEvents) as NextLogEvents;
+    message.logEvents = [];
+    if (object.logEvents !== undefined && object.logEvents !== null) {
+      for (const e of object.logEvents) {
+        message.logEvents.push(LogEvent.fromJSON(e));
+      }
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<NextLogEvents>): NextLogEvents {
+    const message = Object.create(baseNextLogEvents) as NextLogEvents;
+    message.logEvents = [];
+    if (object.logEvents !== undefined && object.logEvents !== null) {
+      for (const e of object.logEvents) {
+        message.logEvents.push(LogEvent.fromPartial(e));
+      }
+    }
+    return message;
+  },
+  toJSON(message: NextLogEvents): unknown {
+    const obj: any = {};
+    if (message.logEvents) {
+      obj.logEvents = message.logEvents.map(e => e ? LogEvent.toJSON(e) : undefined);
+    } else {
+      obj.logEvents = [];
+    }
+    return obj;
+  },
+};
+
+export const ActiveLogEvents = {
+  encode(message: ActiveLogEvents, writer: Writer = Writer.create()): Writer {
+    writer.uint32(10).fork();
+    for (const v of message.id) {
+      writer.uint32(v);
+    }
+    writer.ldelim();
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): ActiveLogEvents {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = Object.create(baseActiveLogEvents) as ActiveLogEvents;
+    message.id = [];
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if ((tag & 7) === 2) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.id.push(reader.uint32());
+            }
+          } else {
+            message.id.push(reader.uint32());
+          }
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): ActiveLogEvents {
+    const message = Object.create(baseActiveLogEvents) as ActiveLogEvents;
+    message.id = [];
+    if (object.id !== undefined && object.id !== null) {
+      for (const e of object.id) {
+        message.id.push(Number(e));
+      }
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<ActiveLogEvents>): ActiveLogEvents {
+    const message = Object.create(baseActiveLogEvents) as ActiveLogEvents;
+    message.id = [];
+    if (object.id !== undefined && object.id !== null) {
+      for (const e of object.id) {
+        message.id.push(e);
+      }
+    }
+    return message;
+  },
+  toJSON(message: ActiveLogEvents): unknown {
+    const obj: any = {};
+    if (message.id) {
+      obj.id = message.id.map(e => e || 0);
+    } else {
+      obj.id = [];
+    }
     return obj;
   },
 };

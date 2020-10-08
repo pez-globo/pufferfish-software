@@ -10,7 +10,11 @@
 
 #pragma once
 
-#include "Pufferfish/HAL/HAL.h"
+#include <cstddef>
+#include <cstdint>
+
+#include "Pufferfish/HAL/Interfaces/DigitalOutput.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -27,8 +31,8 @@ class STWD100 {
    * @param enablePin for STWD100
    * @param inputPin for STWD100
    */
-  STWD100(HAL::DigitalOutput &enable_pin, HAL::DigitalOutput &input_pin)
-      : enable_pin_(enable_pin), input_pin_(input_pin) {}
+  STWD100(HAL::DigitalOutput &enable_pin, HAL::DigitalOutput &input_pin, HAL::Time &time)
+      : enable_pin_(enable_pin), input_pin_(input_pin), time_(time) {}
 
   /**
    * Enable watchdog timer
@@ -47,6 +51,8 @@ class STWD100 {
   static const uint32_t reset_time = 2;  /// TBD: resetTime as to be fixed
   HAL::DigitalOutput &enable_pin_;
   HAL::DigitalOutput &input_pin_;
+
+  HAL::Time &time_;
 };
 
 }  // namespace WatchDog

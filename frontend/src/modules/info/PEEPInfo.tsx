@@ -1,6 +1,6 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { ValueDisplay, ValueProps } from '../displays/ValueDisplay';
 import { ValueModal, SettingAdjustProps } from '../controllers/ValueModal';
@@ -10,15 +10,13 @@ import store from '../../store';
 import { StoreState } from '../../store/types';
 import { getCycleMeasurementsPEEP, getParametersPEEP } from '../../store/controller/selectors';
 import { CMH20 } from './units';
-import { updateCommittedParameter } from '../../store/controller/actions';
+import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
+import { PARAMETER_STANDBY } from '../../store/controller/types';
 
 const displaySelector = createStructuredSelector<StoreState, ValueProps>({
   value: getCycleMeasurementsPEEP,
 });
 const PEEPDisplay = connect(displaySelector)(ValueDisplay);
-
-const doSetPEEP = (setting: number) => updateCommittedParameter({ peep: setting });
-const boundDoSetPEEP = bindActionCreators(doSetPEEP, store.dispatch);
 
 const settingSelector = createStructuredSelector<StoreState, SettingAdjustProps>({
   committedSetting: getParametersPEEP,
@@ -36,16 +34,26 @@ const units = CMH20;
  *
  * TODO: Hook this component into the redux store with correct selectors.
  */
-const PEEPInfo = (): JSX.Element => (
-  <Knob
-    valueDisplay={<PEEPDisplay label={label} units={units} isLive={true} />}
-    valueModal={
-      <PEEPValueModal label={label} units={units} requestCommitSetting={boundDoSetPEEP} />
-    }
-    alarmModal={
-      <AlarmModal label={label} units={units} stateKey={stateKey} requestCommitRange={() => null} />
-    }
-  />
-);
+const PEEPInfo = (): JSX.Element => {
+  const dispatch = useDispatch();
+  const doSetPEEP = (setting: number) => {
+    dispatch(updateCommittedParameter({ peep: setting }));
+    dispatch(updateCommittedState(PARAMETER_STANDBY, { peep: setting }));
+  };
+  return (
+    <Knob
+      valueDisplay={<PEEPDisplay label={label} units={units} isLive={true} />}
+      valueModal={<PEEPValueModal label={label} units={units} requestCommitSetting={doSetPEEP} />}
+      alarmModal={
+        <AlarmModal
+          label={label}
+          units={units}
+          stateKey={stateKey}
+          requestCommitRange={() => null}
+        />
+      }
+    />
+  );
+};
 
 export default PEEPInfo;

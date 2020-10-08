@@ -1,8 +1,15 @@
 """Trio I/O with sans-I/O protocol, running application."""
 
 import logging
+import functools
 
 import trio
+
+try:
+    import RPi.GPIO as GPIO  # type:ignore
+    from ventserver.io.trio import rotaryencoder
+except RuntimeError:
+    logging.getLogger().warning('Running without RPi.GPIO!')
 
 from ventserver.integration import _trio
 from ventserver.io.trio import _serial
@@ -10,6 +17,12 @@ from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
 from ventserver.protocols import server
 from ventserver.protocols.protobuf import mcu_pb as pb
+
+
+try:
+    GPIO.setmode(GPIO.BCM)
+except NameError:
+    logging.getLogger().warning('Running without RPi.GPIO!')
 
 
 logger = logging.getLogger()
@@ -31,6 +44,13 @@ async def main() -> None:
     serial_endpoint = _serial.Driver()
     websocket_endpoint = websocket.Driver()
 
+    rotary_encoder = None
+    try:
+        rotary_encoder = rotaryencoder.Driver()
+        await rotary_encoder.open()
+    except NameError:
+        logger.warning('Running without rotary encoder support!')
+
     # Server Receive Outputs
     channel: channels.TrioChannel[
         server.ReceiveOutputEvent
@@ -47,9 +67,12 @@ async def main() -> None:
         async with channel.push_endpoint:
             async with trio.open_nursery() as nursery:
                 nursery.start_soon(
-                    # mypy only supports <= 4 args with trio-typing
-                    _trio.process_all, serial_endpoint,
-                    protocol, websocket_endpoint, channel, channel.push_endpoint
+                    # mypy only supports <= 5 args with trio-typing
+                    functools.partial(_trio.process_all,
+                                      channel=channel,
+                                      push_endpoint=channel.push_endpoint),
+                    protocol, serial_endpoint,
+                    websocket_endpoint, rotary_encoder
                 )
 
                 while True:

@@ -118,7 +118,7 @@ enum class ADCStatus {
   error    /// error in ADC input
 };
 
-enum class SensorState {
+enum class InitializableState {
   ok = 0,  /// Sensor is making measurements
   setup,   /// Sensor is in setup phase
   failed   /// Sensor state has failed

@@ -12,89 +12,56 @@
 #include <cstddef>
 
 #include "Device.h"
+#include "Pufferfish/Driver/Initializable.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/Types.h"
 
 namespace Pufferfish::Driver::I2C::SFM3019 {
 
 /**
- * State management for Sensirion SFM3019 flow sensor, without I/O
+ * State management for Sensirion SFM3019 flow sensor, without I/O.
+ * This is basically a Moore machine, so the state consists of the
+ * next action to take, along with the current time.
  */
 class StateMachine {
  public:
-  enum class State {
-    uninitialized,
-    powering_up,
-    checking_pn,
-    getting_conversion,
-    configuring_averaging,
-    idle,
-    warming_up,
-    checking_range,
-    measuring
-  };
-  // Next Actions
-  enum class Output {
-    initialize,
-    wait,
-    reset,
-    check_pn,
-    get_conversion,
-    configure_averaging,
-    start_measuring,
-    check_range,
-    measure,
-    wait_us,
-    error_fail,
-    error_input
-  };
+  enum class Action { initialize, wait_warmup, check_range, measure, wait_measurement };
 
-  [[nodiscard]] State state() const;
-
-  // Input Actions, returns the preferred next action to run
-  Output initialize();
-  Output wait(uint32_t current_time);
-  Output reset(uint32_t current_time);
-  Output check_pn(uint32_t pn);
-  Output get_conversion(const ConversionFactors &conversion);
-  Output configure_averaging();
-  Output start_measuring(uint32_t current_time);
-  Output check_range(float flow, uint32_t current_time_us);
-  Output measure(uint32_t current_time_us);
-  Output wait_us(uint32_t current_time_us);
-  Output stop_measuring();
+  [[nodiscard]] Action update(uint32_t current_time_us);
 
  private:
-  static const uint32_t powering_up_duration = 2;     // ms
-  static const uint32_t warming_up_duration = 30;     // ms
-  static const uint32_t measuring_duration_us = 500;  // us
-  static const uint32_t product_number = 0x04020611;
-  static constexpr float flow_min = -200;  // TODO(lietk12): needs units
-  static constexpr float flow_max = 200;   // TODO(lietk12): needs units
+  static const uint32_t warming_up_duration_us = 30000;  // us
+  static const uint32_t measuring_duration_us = 500;     // us
 
-  State state_ = State::uninitialized;
-  uint32_t wait_start_time_ = 0;
+  Action next_action_ = Action::initialize;
   uint32_t wait_start_time_us_ = 0;
-  uint32_t current_time_ = 0;
   uint32_t current_time_us_ = 0;
 
-  [[nodiscard]] bool finished_waiting(uint32_t timeout) const;
-  [[nodiscard]] bool finished_waiting_us(uint32_t timeout_us) const;
+  void start_waiting();
+  [[nodiscard]] bool finished_waiting(uint32_t timeout_us) const;
 };
 
 /**
  * High-level (stateful) driver for Sensirion SFM3019 flow sensor
  */
-class Sensor {
+class Sensor : public Initializable {
  public:
-  Sensor(Device &device, float &flow) : device_(device), flow_(flow) {}
+  Sensor(Device &device, bool resetter, HAL::Time &time)
+      : resetter(resetter), device_(device), time_(time) {}
 
-  SensorState update();
+  InitializableState setup() override;
+  InitializableState output(float &flow);
 
  private:
-  using Action = StateMachine::Output;
+  using Action = StateMachine::Action;
 
+  static const uint32_t product_number = 0x04020611;
+  static constexpr float flow_min = -200;       // L/min
+  static constexpr float flow_max = 200;        // L/min
   static const size_t max_retries_setup = 8;    // max retries for all setup steps combined
   static const size_t max_retries_measure = 8;  // max retries between valid outputs
+
+  const bool resetter;
 
   Device &device_;
   StateMachine fsm_;
@@ -105,10 +72,11 @@ class Sensor {
   ConversionFactors conversion_{};
   Sample sample_{};
 
-  // Outputs
-  float &flow_;
+  HAL::Time &time_;
 
-  [[nodiscard]] SensorState check_setup_retry() const;
+  InitializableState initialize(uint32_t current_time);
+  InitializableState check_range(uint32_t current_time_us);
+  InitializableState measure(uint32_t current_time_us, float &flow);
 };
 
 }  // namespace Pufferfish::Driver::I2C::SFM3019

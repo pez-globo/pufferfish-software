@@ -1,8 +1,22 @@
-/*
- * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
- *
- *
- */
+/// MockBufferedUART.h
+/// This file has mock class and methods for unit testing of SPI Device.
+
+// Copyright (c) 2020 Pez-Globo and the Pufferfish project contributors
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+// either express or implied.
+//
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #pragma once
 
@@ -99,9 +113,19 @@ class MockSPIDevice : public SPIDevice {
    */
   [[nodiscard]] bool get_chip_select() const;
 
+  /**
+   * @brief  sets the return status
+   * @param  input the SPIDeviceStatus
+   * @return None
+   */
+  void set_return_status(SPIDeviceStatus input);
+
  private:
   /* Last chip select input */
   bool last_cs_ = false;
+
+  /* return status */
+  SPIDeviceStatus return_status_ = SPIDeviceStatus::ok;
 
   static const uint8_t read_buf_size = 50;
   static const uint8_t write_buf_size = 50;
