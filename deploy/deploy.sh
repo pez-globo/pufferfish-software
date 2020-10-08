@@ -24,9 +24,6 @@ script_dir=$(dirname $(realpath $0))
 # Setup security protocols
 ./$script_dir/scripts/security.sh
 
-# Convert filesystem into read-only mode
-./$script_dir/scripts/read_only_os.sh
-
 echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/N]: "
 read answer
 if echo "$answer" | grep -iq "^y"

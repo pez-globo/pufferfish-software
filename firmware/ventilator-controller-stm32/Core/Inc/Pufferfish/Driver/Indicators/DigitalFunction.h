@@ -24,7 +24,7 @@ class DigitalFunctionGenerator {
   /**
    * @brief virtual method update
    */
-  virtual void update(uint32_t current_time) = 0;
+  virtual void input(uint32_t current_time) = 0;
 
   /**
    * @brief virtual method output

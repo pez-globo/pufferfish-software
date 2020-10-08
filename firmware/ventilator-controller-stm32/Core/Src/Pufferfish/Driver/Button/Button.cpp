@@ -85,7 +85,7 @@ void EdgeDetector::transform(bool input, EdgeState &output) {
 
 ButtonStatus Button::read_state(bool &debouned_output, EdgeState &switch_state_changed) {
   bool input = button_input_.read();
-  uint32_t ms_time = Pufferfish::HAL::millis();
+  uint32_t ms_time = time_.millis();
 
   ButtonStatus status = debounce_.transform(input, ms_time, debouned_output);
 

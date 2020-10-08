@@ -8,8 +8,9 @@
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
 WARNING='\033[1;33mWARNING:'
+NC='\033[0m'
 
-echo -e "\n${SUCCESS}********** Disabling unnecessary services **********\n"
+echo -e "\n${SUCCESS}********** Disabling unnecessary services **********\n${NC}"
 
 # Masks all the unnecessary services
 # Removes its dependencies
@@ -33,7 +34,7 @@ if [ 0 -eq $( grep -c "^dtoverlay=disable-bt" /boot/config.txt ) ]
 then
     echo -e "\ndtoverlay=disable-bt" | sudo tee -a /boot/config.txt
 else
-    echo -e "${WARNING} Bluetooth is already disabled"
+    echo -e "${WARNING} Bluetooth is already disabled${NC}"
 fi
 
-echo -e "\n${SUCCESS}Unnecessary Services disabled\n"
+echo -e "\n${SUCCESS}Unnecessary Services disabled\n${NC}"

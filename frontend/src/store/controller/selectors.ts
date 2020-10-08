@@ -10,6 +10,9 @@ import {
   Announcement,
   AlarmLimitsRequest,
   VentilationMode,
+  ExpectedLogEvent,
+  NextLogEvents,
+  LogEvent,
 } from './proto/mcu_pb';
 import { RotaryEncoder, FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import {
@@ -249,3 +252,35 @@ export const getSystemSettingRequest = createSelector(
   getController,
   (states: ControllerStates): SystemSettingRequest => states.systemSettingRequest,
 );
+
+// New Log event
+export const getLogEvent = createSelector(
+  getController,
+  (states: ControllerStates): LogEvent => states.logEvent,
+);
+
+// Next Logged Events
+export const getNextLoggedEvents = createSelector(
+  getController,
+  (states: ControllerStates): LogEvent[] => states.nextLogEvents.logEvents,
+);
+
+// Patient Alarm Event
+export const getExpectedLoggedEvent = createSelector(
+  getController,
+  (states: ControllerStates): number => states.expectedLoggedEvent.id,
+);
+
+// Active logged event Ids
+export const getActiveLoggedEventIds = createSelector(
+  getController,
+  (states: ControllerStates): number[] => states.activeLogEvents.id,
+);
+
+// Active popup event log
+export const getPopupEventLog = createSelector(getController, (states: ControllerStates):
+  | LogEvent
+  | undefined => {
+  const maxId = Math.max(...states.activeLogEvents.id);
+  return states.nextLogEvents.logEvents.find((el: LogEvent) => el.id === maxId);
+});

@@ -7,24 +7,24 @@
  *      Author: March Boonyapaluk
  */
 
-#include "Pufferfish/HAL/STM32/Time.h"
+#include "Pufferfish/HAL/STM32/HALTime.h"
 
 #include "stm32h7xx_hal.h"
 
 namespace Pufferfish::HAL {
 
-uint32_t millis() {
+uint32_t HALTime::millis() {
   return HAL_GetTick();
 }
 
-void delay(uint32_t ms) {
+void HALTime::delay(uint32_t ms) {
   HAL_Delay(ms);
 }
 
 // magical sequence to turn on the DWT counter
 // see:
 // https://stackoverflow.com/questions/36378280/stm32-how-to-enable-dwt-cycle-counter
-bool micros_delay_init() {
+bool HALTime::micros_delay_init() {
   // The following lines suppress Eclipse CDT's warning about C-style casts and
   // unresolvable fields; these come from the STM32 HAL so we can't do anything
 
@@ -64,7 +64,7 @@ bool micros_delay_init() {
          0;
 }
 
-uint32_t micros() {
+uint32_t HALTime::micros() {
   const uint32_t cycles_per_us = (HAL_RCC_GetHCLKFreq() / 1000000);
 
   // The following lines suppress Eclipse CDT's warning about C-style casts and
@@ -74,7 +74,7 @@ uint32_t micros() {
          cycles_per_us;
 }
 
-void delay_micros(uint32_t microseconds) {
+void HALTime::delay_micros(uint32_t microseconds) {
   // The following lines suppress Eclipse CDT's warning about C-style casts and
   // unresolvable fields; these come from the STM32 HAL so we can't do anything
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)

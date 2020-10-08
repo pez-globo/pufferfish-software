@@ -1,8 +1,22 @@
-/*
- * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
- *
- *      Author: Hemanth Gowda s
- */
+/// MockBufferedUART.h
+/// This file has mock class and methods for unit testing of PWM.
+
+// Copyright (c) 2020 Pez-Globo and the Pufferfish project contributors
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+// either express or implied.
+//
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #pragma once
 
@@ -68,7 +82,16 @@ class MockPWM : public PWM {
    */
   [[nodiscard]] bool get_pwm_state() const;
 
+  /**
+   * @brief  sets return_status_ private variable
+   * @param  input PWMStatus
+   * @return None
+   */
+  void set_return_status(PWMStatus input);
+
  private:
+  /* Return status */
+  PWMStatus return_status_ = PWMStatus::ok;
   /* Stores the Last raw duty cycle value */
   uint32_t last_raw_duty_ = 0;
   /* Stores the last Max duty cycle value */

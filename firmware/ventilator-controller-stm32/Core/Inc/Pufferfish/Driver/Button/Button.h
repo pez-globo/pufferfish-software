@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "Pufferfish/HAL/HAL.h"
-#include "Pufferfish/HAL/STM32/Time.h"
+#include "Pufferfish/HAL/Interfaces/DigitalInput.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/Statuses.h"
 
 namespace Pufferfish {
@@ -101,8 +101,8 @@ class EdgeDetector {
  */
 class Button {
  public:
-  Button(HAL::DigitalInput &buttoninput, Debouncer &debounce)
-      : button_input_(buttoninput), debounce_(debounce) {}
+  Button(HAL::DigitalInput &buttoninput, Debouncer &debounce, HAL::Time &time)
+      : button_input_(buttoninput), debounce_(debounce), time_(time) {}
 
   /**
    * Read button state
@@ -115,6 +115,7 @@ class Button {
  private:
   HAL::DigitalInput &button_input_;
   Debouncer &debounce_;
+  HAL::Time &time_;
   EdgeDetector edge_detect_;
 };
 

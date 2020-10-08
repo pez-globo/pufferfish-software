@@ -23,7 +23,7 @@ void STWD100::disable() {
 
 void STWD100::toggle_input() {
   input_pin_.write(true);
-  HAL::delay_micros(0);
+  time_.delay_micros(0);
   input_pin_.write(false);
 }
 
