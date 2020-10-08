@@ -1,6 +1,6 @@
 [Unit]
 Description=Pufferfish Kiosk Service
-Requires=nginx.service pufferfish_backend.service media-pi-LOGS.mount
+Requires=nginx.service media-pi-LOGS.mount
 After=nginx.service media-pi-LOGS.mount graphical.target pufferfish_backend.service
 
 [Service]
