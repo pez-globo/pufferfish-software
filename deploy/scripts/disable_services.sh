@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Disables services and their dependencies
+# Services include bluetooth, bluetooth helpers
+# Daily update and upgrade services, printer and smartcard
+
 # Message colours
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
