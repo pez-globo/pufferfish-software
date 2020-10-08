@@ -109,14 +109,14 @@ function* initConnection() {
   receiveChannel.close();
 }
 
-function* initConnectionPersistently() {
+export function* initConnectionPersistently(): IterableIterator<unknown> {
   while (true) {
     yield initConnection();
     // console.log('Reestablishing WebSocket connection...');
   }
 }
 
-function* updateClock() {
+export function* updateClock(): IterableIterator<unknown> {
   while (true) {
     yield delay(1000);
     yield put({ type: CLOCK_UPDATED });
