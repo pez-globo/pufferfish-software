@@ -328,7 +328,12 @@ int interface_test_millis = 0;
 
 // Breathing Circuit Control
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
-    all_states.parameters(), all_states.sensor_measurements(), sfm3019_air, sfm3019_o2, drive1_ch1);
+    all_states.parameters(),
+    all_states.sensor_measurements(),
+    sfm3019_air,
+    sfm3019_o2,
+    drive1_ch1,
+    drive1_ch2);
 
 /* USER CODE END PV */
 
@@ -465,6 +470,7 @@ int main(void)
 
   // Solenoid valve
   drive1_ch1.start();
+  drive1_ch2.start();
 
   // Nonin OEM III sensor
   nonin_oem_uart.setup_irq();
@@ -525,6 +531,7 @@ int main(void)
     simulator.transform(
         current_time,
         all_states.parameters(),
+        hfnc.sensor_vars(),
         all_states.sensor_measurements(),
         all_states.cycle_measurements());
 
@@ -535,18 +542,18 @@ int main(void)
     hfnc.update(current_time);
     // Indicators for debugging
     /*static constexpr float valve_opening_indicator_threshold = 0.5;
-    if (actuator_vars.valve_opening > valve_opening_indicator_threshold) {
+    if (hfnc.actuator_vars().valve_air_opening > valve_opening_indicator_threshold) {
       board_led1.write(true);
     } else {
       board_led1.write(dimmer.output());
     }*/
-    /*if (hfnc.sensor_vars().flow_o2 > 1 || hfnc.sensor_vars().flow_air > 1) {
+    if (hfnc.sensor_vars().flow_o2 > 1 || hfnc.sensor_vars().flow_air > 1) {
       board_led1.write(true);
     } else if (hfnc.sensor_vars().flow_o2 < -1 || hfnc.sensor_vars().flow_air < -1) {
       board_led1.write(dimmer.output());
     } else {
       board_led1.write(false);
-    }*/
+    }
 
     // Backend Communication Protocol
     backend.receive();
