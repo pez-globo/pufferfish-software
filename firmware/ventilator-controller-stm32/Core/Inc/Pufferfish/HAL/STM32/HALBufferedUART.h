@@ -151,7 +151,7 @@ static const size_t large_uart_buffer_size = 4096;
 using LargeBufferedUART = HALBufferedUART<large_uart_buffer_size, large_uart_buffer_size>;
 
 static const size_t read_only_uart_buffer_size = 512;
-using ReadOnlyBufferredUART = HALBufferedUART<read_only_uart_buffer_size, 1>;
+using ReadOnlyBufferedUART = HALBufferedUART<read_only_uart_buffer_size, 1>;
 
 }  // namespace Pufferfish::HAL
 

@@ -47,7 +47,7 @@ class Device {
 
   /**
    * Constructor for Device
-   * @param  noninOEMUART BufferredUART with 512 bytes reception buffer
+   * @param  noninOEMUART BufferedUART with 512 bytes reception buffer
    */
   explicit Device(volatile HAL::BufferedUART &uart) : nonin_uart_(uart) {}
 

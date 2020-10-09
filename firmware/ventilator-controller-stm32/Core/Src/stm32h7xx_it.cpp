@@ -46,7 +46,7 @@
 /* USER CODE BEGIN PV */
 /// Buffered UART
 extern volatile Pufferfish::HAL::LargeBufferedUART buffered_uart3;
-extern volatile Pufferfish::HAL::ReadOnlyBufferredUART nonin_oem_uart;
+extern volatile Pufferfish::HAL::ReadOnlyBufferedUART nonin_oem_uart;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

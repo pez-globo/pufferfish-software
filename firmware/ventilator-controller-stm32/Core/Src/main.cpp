@@ -113,7 +113,7 @@ PF::HAL::HALTime time;
 
 // Buffered UARTs
 volatile Pufferfish::HAL::LargeBufferedUART buffered_uart3(huart3, time);
-volatile Pufferfish::HAL::ReadOnlyBufferredUART nonin_oem_uart(huart4, time);
+volatile Pufferfish::HAL::ReadOnlyBufferedUART nonin_oem_uart(huart4, time);
 
 // UART Serial Communication
 PF::Driver::Serial::Backend::UARTBackend backend(buffered_uart3, crc32c, all_states);
