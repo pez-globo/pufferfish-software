@@ -23,8 +23,8 @@
 #include "stm32h7xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "Pufferfish/HAL/STM32/HALBufferedUART.h"
 #include "Pufferfish/Driver/Serial/Nonin/Device.h"
+#include "Pufferfish/HAL/STM32/HALBufferedUART.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
