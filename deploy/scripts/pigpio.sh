@@ -8,22 +8,7 @@ NC='\033[0m'
 
 echo -e "\n${SUCCESS}********** Installing pigpio **********\n${NC}"
 
-cd ~/
-
-wget https://github.com/joan2937/pigpio/archive/master.zip
-
-if [ 1 -eq $( ls | grep -c "master.zip" ) ]
-then
-    unzip master.zip
-    cd pigpio-master
-    make
-    sudo make install
-    cd ..
-    rm master.zip
-    sudo rm -rf pigpio-master
-else
-    echo -e "${ERROR} pigpio zip download failed${NC}"
-    exit 1
-fi
+sudo apt update
+sudo apt install pigpio -y
 
 echo -e "\n${SUCCESS}Pigpio setup complete\n${NC}"
