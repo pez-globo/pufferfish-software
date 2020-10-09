@@ -23,9 +23,8 @@
 #include "stm32h7xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "Pufferfish/Driver/Serial/Nonin/Device.h"
 #include "Pufferfish/HAL/STM32/HALBufferedUART.h"
-/* Nonin TODO: Include NoninOEM3.h for UART IRQ handler */
-#include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,7 +46,7 @@
 /* USER CODE BEGIN PV */
 /// Buffered UART
 extern volatile Pufferfish::HAL::LargeBufferedUART buffered_uart3;
-extern volatile Pufferfish::HAL::ReadOnlyBufferredUART nonin_oem_uart;
+extern volatile Pufferfish::HAL::ReadOnlyBufferedUART nonin_oem_uart;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

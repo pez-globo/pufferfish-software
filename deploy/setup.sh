@@ -6,6 +6,9 @@
 # Setup poetry and install required libraries
 ./scripts/poetry.sh
 
+# Install pigpio
+./scripts/pigpio.sh
+
 # Setup Node
 ./scripts/node.sh
 
