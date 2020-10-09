@@ -80,8 +80,8 @@ jobs:
       run: |
         sudo apt-get install gcc-arm-none-eabi cmake
         sudo apt-get remove -y libllvm10
-        sudo add-apt-repository -y -s 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main'
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        sudo add-apt-repository -y -s 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main'
         sudo apt-get update
         sudo apt-get install clang-tools
 
@@ -104,8 +104,8 @@ jobs:
       run: |
         sudo apt-get install gcc-arm-none-eabi cmake
         sudo apt-get remove -y libllvm10
-        sudo add-apt-repository -y -s 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main'
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        sudo add-apt-repository -y -s 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main'
         sudo apt-get update
         sudo apt-get install clang-tidy
 
