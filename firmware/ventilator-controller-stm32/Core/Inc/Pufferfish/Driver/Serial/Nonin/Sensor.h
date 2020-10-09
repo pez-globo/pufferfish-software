@@ -23,7 +23,7 @@ namespace Pufferfish::Driver::Serial::Nonin {
  */
 class Sensor : public Initializable {
  public:
-  Sensor(Device &device) : device_(device) {}
+  explicit Sensor(Device &device) : device_(device) {}
 
   InitializableState setup() override;
   InitializableState output(float &spo2);

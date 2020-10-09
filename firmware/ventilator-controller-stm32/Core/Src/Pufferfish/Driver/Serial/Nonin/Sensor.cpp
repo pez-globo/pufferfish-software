@@ -14,6 +14,8 @@
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
+static const uint8_t value_unavailable = 127;
+
 // Sensor
 
 InitializableState Sensor::setup() {
@@ -23,7 +25,7 @@ InitializableState Sensor::setup() {
 
 InitializableState Sensor::output(float &spo2) {
   if (device_.output(measurements_) == Device::PacketStatus::available) {
-    if (measurements_.spo2 == 127) {
+    if (measurements_.spo2 == value_unavailable) {
       spo2 = NAN;
     } else {
       spo2 = measurements_.spo2;
