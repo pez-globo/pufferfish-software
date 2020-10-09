@@ -53,12 +53,10 @@ else
     echo -e "${WARNING} Updated initramfs already exists${NC}"
 fi
 
-# Removing initramfs config if any
-sudo sed -e "s/initramfs.*//" -i /boot/config.txt
-
 # Adding new initramfs config and img name
 if [ 0 -eq $( cat /boot/config.txt | grep -c "initramfs initrd7.img" ) ]
 then
+    sudo sed -e "s/initramfs.*//" -i /boot/config.txt
     echo initramfs initrd7.img | sudo tee -a /boot/config.txt
 fi
 
