@@ -11,6 +11,7 @@ import {
   ExpectedLogEvent,
   LogEvent,
   NextLogEvents,
+  BatteryPower,
 } from './proto/mcu_pb';
 import { SystemSettingRequest, FrontendDisplaySetting, RotaryEncoder } from './proto/frontend_pb';
 
@@ -54,6 +55,7 @@ export type PBMessage =
   | ExpectedLogEvent
   | NextLogEvents
   | ActiveLogEvents
+  | BatteryPower
   // frontend_pb
   | RotaryEncoder
   | RotaryEncoderParameter;
@@ -70,6 +72,7 @@ export type PBMessageType =
   | typeof Announcement
   | typeof NextLogEvents
   | typeof ActiveLogEvents
+  | typeof BatteryPower
   // frontend_pb
   | typeof SystemSettingRequest
   | typeof FrontendDisplaySetting
@@ -88,6 +91,7 @@ export enum MessageType {
   FrontendDisplaySetting = 10,
   NextLogEvents = 11,
   ActiveLogEvents = 12,
+  BatteryPower = 13,
   RotaryEncoder = 128,
 }
 
@@ -139,6 +143,7 @@ export interface ControllerStates {
   expectedLoggedEvent: ExpectedLogEvent;
   nextLogEvents: NextLogEvents;
   activeLogEvents: ActiveLogEvents;
+  batteryPower: BatteryPower;
 
   // Message states from frontend_pb
   rotaryEncoder: RotaryEncoderParameter;

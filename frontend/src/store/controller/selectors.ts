@@ -284,3 +284,9 @@ export const getPopupEventLog = createSelector(getController, (states: Controlle
   const maxId = Math.max(...states.activeLogEvents.id);
   return states.nextLogEvents.logEvents.find((el: LogEvent) => el.id === maxId);
 });
+
+// Battery power
+export const getBatteryPower = createSelector(
+  getController,
+  (states: ControllerStates): number => states.batteryPower.powerLeft,
+);

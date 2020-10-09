@@ -157,6 +157,7 @@ export const parametersRequestReducer = (
     rr: 30,
     ie: 1.0,
     fio2: 60.0,
+    ventilating: false,
   }) as ParametersRequest,
   action: StateUpdateAction | ParameterCommitAction,
 ): ParametersRequest => {

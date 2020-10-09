@@ -7,6 +7,7 @@ import {
   Ping,
   Announcement,
   ActiveLogEvents,
+  BatteryPower,
 } from './proto/mcu_pb';
 import { MessageType } from './types';
 import { waveformHistoryReducer, pvHistoryReducer } from './reducers/derived';
@@ -31,6 +32,7 @@ export const controllerReducer = combineReducers({
   frontendDisplaySetting: frontendDisplaySettingReducer,
   expectedLoggedEvent: expectedLoggedEventReducer,
   nextLogEvents: nextLogEventsReducer,
+  batteryPower: messageReducer<BatteryPower>(MessageType.BatteryPower, BatteryPower),
   activeLogEvents: messageReducer<ActiveLogEvents>(MessageType.ActiveLogEvents, ActiveLogEvents),
   sensorMeasurements: messageReducer<SensorMeasurements>(
     MessageType.SensorMeasurements,

@@ -48,7 +48,7 @@ export const Navigation = (): JSX.Element => {
   const [route, setRoute] = React.useState(0);
 
   const routes = [
-    QUICKSTART_ROUTE, // TODO: Hide QuickStart tab when ventilator is on. Need to tap into redux store.
+    // QUICKSTART_ROUTE, // TODO: Hide QuickStart tab when ventilator is on. Need to tap into redux store.
     MODES_ROUTE,
     ALARMS_ROUTE,
     VALUES_ROUTE,
