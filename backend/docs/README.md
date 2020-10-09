@@ -1,6 +1,6 @@
 ## Documentation
 
-To automatically generate documentation for the backend usinf sphinx enter `make api`. This will update the `.rst` files with current changes in the library.   
+To automatically generate documentation for the backend software using sphinx use `make api` in `backend/docs`. This will update the `.rst` files with recent changes in the library.
 
 ```bash
 (backend) $ cd docs
