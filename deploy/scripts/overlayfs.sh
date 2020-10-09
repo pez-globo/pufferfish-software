@@ -84,3 +84,5 @@ if [ 0 -eq $( cat /etc/fstab | grep -c "defaults,ro" ) ]
 then
     sudo sed -e "s/\(.*\/boot.*\)defaults\(.*\)/\1defaults,ro\2/" -i /etc/fstab
 fi
+
+echo -e "\n${SUCCESS}Overlayfs setup complete\n${NC}"
