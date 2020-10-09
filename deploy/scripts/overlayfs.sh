@@ -20,6 +20,9 @@ config_dir=$script_dir/../configs
 sudo apt update
 sudo apt install initramfs-tools -y
 
+sudo apt purge plymouth -y
+sudo apt autoremove -y
+
 # Disabling console logging during boot process
 if [ 0 -eq $( cat /boot/cmdline.txt | grep -c "console=tty3" ) ]
 then
