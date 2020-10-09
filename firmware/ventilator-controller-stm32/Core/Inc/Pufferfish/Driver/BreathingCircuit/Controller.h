@@ -11,6 +11,7 @@
 
 #include <cstdint>
 
+#include "Algorithms.h"
 #include "Pufferfish/Application/States.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
@@ -20,9 +21,18 @@ struct SensorVars {
   float flow_o2;
 };
 
-struct ActuatorVars {
-  float valve_opening;
+struct ActuatorSetpoints {
+  float flow_air;
+  float flow_o2;
 };
+
+struct ActuatorVars {
+  float valve_air_opening;
+  float valve_o2_opening;
+};
+
+static const uint8_t fio2_min = 21;
+static const uint8_t fio2_max = 100;
 
 class Controller {
  public:
@@ -31,6 +41,7 @@ class Controller {
       const Parameters &parameters,
       const SensorVars &sensor_vars,
       const SensorMeasurements &sensor_measurements,
+      ActuatorSetpoints &actuator_setpoints,
       ActuatorVars &actuator_vars) = 0;
 };
 
@@ -41,16 +52,12 @@ class HFNCController : public Controller {
       const Parameters &parameters,
       const SensorVars &sensor_vars,
       const SensorMeasurements &sensor_measurements,
+      ActuatorSetpoints &actuator_setpoints,
       ActuatorVars &actuator_vars) override;
 
  private:
-  static constexpr float p_gain = 0.00001;
-  static constexpr float i_gain = 0.0002;
-  static constexpr float i_max = 200 * i_gain;
-  static constexpr float i_min = 0;
-
-  float error_ = 0;
-  float error_integral_ = 0;
+  PI valve_o2_{};
+  PI valve_air_{};
 };
 
 }  // namespace Pufferfish::Driver::BreathingCircuit

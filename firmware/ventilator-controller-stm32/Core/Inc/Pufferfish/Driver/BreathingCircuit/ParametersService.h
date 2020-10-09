@@ -11,6 +11,7 @@
 
 #include <cstdint>
 
+#include "Controller.h"
 #include "Pufferfish/Application/States.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
@@ -22,10 +23,6 @@ class ParametersService {
 
  protected:
   static void transform_fio2(float fio2_request, float &fio2);
-
- private:
-  static constexpr float fio2_min = 21;   // % FiO2
-  static constexpr float fio2_max = 100;  // % FiO2
 };
 
 class PCACParameters : public ParametersService {
