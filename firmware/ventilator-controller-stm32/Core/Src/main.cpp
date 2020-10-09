@@ -47,7 +47,7 @@
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
 #include "Pufferfish/Driver/Indicators/PulseGenerator.h"
 #include "Pufferfish/Driver/Serial/Backend/UART.h"
-#include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
+#include "Pufferfish/Driver/Serial/Nonin/Sensor.h"
 #include "Pufferfish/Driver/ShiftedOutput.h"
 #include "Pufferfish/HAL/HAL.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
@@ -285,19 +285,22 @@ PF::Driver::I2C::SFM3000 i2c_press16(i2c_ext_press16);
 PF::Driver::I2C::SDPSensor i2c_press17(i2c_ext_press17);
 PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 */
+
+// SFM3019
+
 PF::Driver::I2C::SFM3019::Device sfm3019_dev_air(i2c_hal_sfm3019_air, i2c2_hal_global);
 PF::Driver::I2C::SFM3019::Sensor sfm3019_air(sfm3019_dev_air, true, time);
-
 PF::Driver::I2C::SFM3019::Device sfm3019_dev_o2(i2c_hal_sfm3019_o2, i2c4_hal_global);
 PF::Driver::I2C::SFM3019::Sensor sfm3019_o2(sfm3019_dev_o2, true, time);
 
 // Nonin OEM III
-PF::Driver::Serial::Nonin::NoninOEM nonin_oem(nonin_oem_uart);
+PF::Driver::Serial::Nonin::Device nonin_oem_dev(nonin_oem_uart);
+PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 
 // Initializables
 
 auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
-    sfm3019_air, sfm3019_o2);
+    sfm3019_air, sfm3019_o2, nonin_oem);
 std::array<PF::InitializableState, initializables.size()> initialization_states;
 
 /*
@@ -394,22 +397,10 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 
-  /* FIXME: ADDED for Nonin OEM III Testing
-   * // Nonin TODO: Local variable to count packets of data received
-   * uint32_t packet_count = 0;
-   * // Nonin TODO
-   * uint32_t current_time = 0;
-   * // Return Status
-   * PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus return_status
-   * // Nonin TODO
-   * std::array<uint32_t, 4> testcase_results = {0U};
-   */
-
   /*
   // FIXME: Added for testing
   // Local variable to read ADC3 input
   uint32_t adc3_data = 0;
-
 
   PF::Driver::Button::EdgeState state;
   bool mem_buttonstate = false;
@@ -492,10 +483,6 @@ int main(void)
     blinker.input(current_time);
     flasher.input(current_time);
 
-    // Service devices which don't need initialization
-    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements;
-    nonin_oem.output(sensor_measurements);
-
     // Run setup on all initializables
     for (size_t i = 0; i < initializables.size(); ++i) {
       initialization_states[i] = initializables[i].get().setup();
@@ -541,17 +528,8 @@ int main(void)
         all_states.sensor_measurements(),
         all_states.cycle_measurements());
 
-    // Sensor tests
-    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements;
-    if (nonin_oem.output(sensor_measurements) == PF::Driver::Serial::Nonin::NoninOEM::NoninPacketStatus::available) {
-      if (sensor_measurements.spo2 == 127) {
-        all_states.sensor_measurements().spo2 = NAN;
-        board_led1.write(false);
-      } else {
-        all_states.sensor_measurements().spo2 = sensor_measurements.spo2;
-        board_led1.write(true);
-      }
-    }
+    // Independent Sensors
+    nonin_oem.output(all_states.sensor_measurements().spo2);
 
     // Breathing Circuit Control Loop
     hfnc.update(current_time);

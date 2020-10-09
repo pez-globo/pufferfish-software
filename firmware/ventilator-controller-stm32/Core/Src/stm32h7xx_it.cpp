@@ -24,8 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Pufferfish/HAL/STM32/HALBufferedUART.h"
-/* Nonin TODO: Include NoninOEM3.h for UART IRQ handler */
-#include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
+#include "Pufferfish/Driver/Serial/Nonin/Device.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
