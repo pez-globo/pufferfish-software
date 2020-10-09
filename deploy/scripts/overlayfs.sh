@@ -45,7 +45,7 @@ else
 fi
 
 # Creating a new initramfs img
-if [ 1 -eq $( ls /boot/ | grep -c "initrd7.img" ) ]
+if [ 0 -eq $( ls /boot/ | grep -c "initrd7.img" ) ]
 then
     sudo update-initramfs -c -k $(uname -r)
     sudo mv /boot/initrd.img-$(uname -r) /boot/initrd7.img
