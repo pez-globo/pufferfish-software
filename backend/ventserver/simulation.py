@@ -13,7 +13,6 @@ import betterproto
 import trio
 
 try:
-    import RPi.GPIO as GPIO  # type:ignore
     from ventserver.io.trio import rotaryencoder
 except RuntimeError:
     logging.getLogger().warning('Running without RPi.GPIO!')
@@ -25,12 +24,6 @@ from ventserver.io.trio import fileio
 from ventserver.protocols import server
 from ventserver.protocols import exceptions
 from ventserver.protocols.protobuf import mcu_pb
-
-
-try:
-    GPIO.setmode(GPIO.BCM)
-except NameError:
-    logging.getLogger().warning('Running without RPi.GPIO!')
 
 
 # Configure logging
@@ -46,7 +39,6 @@ logger.setLevel(logging.INFO)
 
 
 # Simulators
-
 
 @attr.s
 class BreathingCircuitSimulator:
@@ -352,12 +344,14 @@ async def main() -> None:
     rotary_encoder = None
     try:
         rotary_encoder = rotaryencoder.Driver()
-        try:
-            await rotary_encoder.open()
-        except exceptions.ProtocolError as err:
-            logger.error(err)
-    except NameError:
-        logger.warning('Running without rotary encoder support!')
+        await rotary_encoder.open()
+    except exceptions.ProtocolError as err:
+        exception = (
+            "Unable to connect the rotary encoder, please check the "
+            "serial connection. Check if the pigpiod service is running: %s"
+        )
+        rotary_encoder = None
+        logger.error(exception, err)
 
     # I/O File
     filehandler = fileio.Handler()

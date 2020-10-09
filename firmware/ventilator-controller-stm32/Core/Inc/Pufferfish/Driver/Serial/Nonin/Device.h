@@ -1,4 +1,4 @@
-/// NoninOEM3.h
+/// Device.h
 /// This file has class and methods to output the sensor measurements
 /// of NoninOEM 3 sensor based on packet received.
 
@@ -31,13 +31,13 @@ namespace Serial {
 namespace Nonin {
 
 /**
- * NoninOEM class to receive a byte from Nonin OEM III using UART and calculates
+ * Device class to receive a byte from Nonin OEM III using UART and calculates
  * the measurements on complete packet availability and returns the measurements
  */
-class NoninOEM {
+class Device {
  public:
   /* PacketReceiver Input status */
-  enum class NoninPacketStatus {
+  enum class PacketStatus {
     available = 0,  /// Packet/measurements is available
     waiting,        /// Packet/measurements is waiting to receive more bytes of data
     not_available,  /// Packet/measurements are not available
@@ -46,10 +46,10 @@ class NoninOEM {
   };
 
   /**
-   * Constructor for NoninOEM
-   * @param  noninOEMUART BufferredUART with 512 bytes reception buffer
+   * Constructor for Device
+   * @param  noninOEMUART BufferedUART with 512 bytes reception buffer
    */
-  explicit NoninOEM(volatile HAL::BufferedUART &uart) : nonin_uart_(uart) {}
+  explicit Device(volatile HAL::BufferedUART &uart) : nonin_uart_(uart) {}
 
   /**
    * @brief  Method inputs the byte to packet and reads the packet measurements
@@ -57,7 +57,7 @@ class NoninOEM {
    * @param  sensorMeasurements is updated on available of packet/measurements
    * @return returns the status of Nonin OEM III packet measurements
    */
-  NoninPacketStatus output(PacketMeasurements &sensor_measurements);
+  PacketStatus output(PacketMeasurements &sensor_measurements);
 
  private:
   /* Create an object bufferredUART with 512 bytes of reception buffer */

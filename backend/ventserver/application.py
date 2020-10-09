@@ -8,10 +8,9 @@ import trio
 import betterproto
 
 try:
-    import RPi.GPIO as GPIO  # type:ignore
     from ventserver.io.trio import rotaryencoder
 except RuntimeError:
-    logging.getLogger().warning('Running without RPi.GPIO!')
+    logging.getLogger().warning('Running without pigpio!')
 
 from ventserver.integration import _trio
 from ventserver.io.trio import _serial
@@ -20,13 +19,8 @@ from ventserver.io.trio import websocket
 from ventserver.io.trio import fileio
 from ventserver.io.trio import rotaryencoder
 from ventserver.protocols import server
-from ventserver.protocols.protobuf import mcu_pb
-
-
-try:
-    GPIO.setmode(GPIO.BCM)
-except NameError:
-    logging.getLogger().warning('Running without RPi.GPIO!')
+from ventserver.protocols import exceptions
+from ventserver.protocols.protobuf import mcu_pb as pb
 
 
 logger = logging.getLogger()
@@ -53,7 +47,15 @@ async def main() -> None:
     rotary_encoder = None
     try:
         rotary_encoder = rotaryencoder.Driver()
-        await rotary_encoder.open()
+        try:
+            await rotary_encoder.open()
+        except exceptions.ProtocolError as err:
+            exception = (
+                "Unable to connect the rotary encoder, please check the "
+                "serial connection. Check if the pigpiod service is running: "
+            )
+            rotary_encoder = None
+            logger.error(exception, err)
     except NameError:
         rotary_encoder = None
         logger.warning('Running without rotary encoder support!')
