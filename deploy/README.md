@@ -2,15 +2,29 @@
 
 ### Table of Contents
 
-1. [Installation (Development Environment)](#installation-(development-environment))
-2. [Deployment (Production Environment)](#deployment-(production-environment))
-3. [Cloning Raspberry Pi SD Card](#cloning-raspberry-pi-sd-card)
+1. [Prerequisites](#prerequisites)
+2. [Installation (Development Environment)](#installation-(development-environment))
+3. [Deployment (Production Environment)](#deployment-(production-environment))
+4. [Cloning Raspberry Pi SD Card](#cloning-raspberry-pi-sd-card)
     1. [Cloning](#cloning)
     2. [Pishrink](#pishrink)
     3. [Writing img to SD Card](#writing-img-to-sd-card)
-4. [References](#references)
+5. [References](#references)
 
-To start with a fresh setup, download the standard Pufferfish OS image and flash it to a SD Card by following the steps [here](#writing-img-to-sd-card)
+>To start with a fresh setup, download the standard Pufferfish OS image and flash it to a SD Card by following the steps [here](#writing-img-to-sd-card)
+
+---
+
+### Prerequisites
+- [Pyenv](https://github.com/pyenv/pyenv)
+- [Poetry](https://python-poetry.org/)
+- [Pigpio](http://abyz.me.uk/rpi/pigpio/)
+- [Node](https://nodejs.org/en/)
+- [Yarn](https://yarnpkg.com/)
+- [Nginx](https://www.nginx.com/)
+- USB Device for Logging (Production Environment)
+
+---
 
 ### Installation (Development Environment)
 All the software components can be installed by running `setup.sh` on a terminal.
@@ -20,34 +34,48 @@ $ ./install.sh
 ```
 
 This will install the required components for pufferfish-vent-software in the given order.  
-- pyenv
-- poetry
-- node
-- roboto fonts
-- yarn
+- Pyenv
+- Poetry
+- Pigpio
+- Node
+- Roboto fonts
+- Yarn
+
 ---
+
 ### Deployment (Production Environment)
 These instructions are to setup Raspberry Pi with Pufferfish-Vent-Software in a production environment.
+
+> **Note:** USB Mass Storage Device with Label **LOGS** is needed for logging in production environment.
+>
+> To set Label of a USB Mass Storage Device follow the procedure below
+> - Format the USB Mass Storage Device
+> - Select FAT32 as the storage format
+> - Enter **LOGS** in the name section to set the Label for the device
+
+All the components required for the production environment can be setup by running `deploy.sh` on a terminal.
 
 ```sh
 $ ./deploy.sh
 ```
 
 This will setup required components for pufferfish-vent-software in the given order.  
-- pyenv
-- poetry
-- node
-- roboto fonts
-- yarn
-- nginx web-server
-- custom boot screen
-- browser kiosk mode
-- backend service
-- disable unnecessary services
-- user and network security
-- read-only filesystem
+- Pyenv
+- Poetry
+- Pigpio
+- Node
+- Roboto fonts
+- Yarn
+- Nginx web-server
+- Custom Pufferfish boot screen
+- Chromium browser in kiosk mode
+- Python backend systemd service
+- Disables unnecessary background services
+- User and Network security
+- Read-only filesystem (Overlayfs)
 
 ---
+
 ### Cloning Raspberry Pi SD Card
 
 #### Cloning
@@ -105,5 +133,6 @@ Now you can flash the SD Card with your cloned OS using `dd`
 $ sudo dd bs=4M if=/path/to/saved/rpi.img of=/dev/sdb
 ```
 ---
+
 ### References
 Pishrink - https://github.com/Drewsif/PiShrink
