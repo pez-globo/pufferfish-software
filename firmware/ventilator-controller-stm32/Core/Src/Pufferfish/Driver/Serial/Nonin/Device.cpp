@@ -1,4 +1,4 @@
-/// NoninOEM3.cpp
+/// Device.cpp
 /// This file has methods to output the sensor measurements of NoninOEM
 /// 3 sensor based on packet received.
 
@@ -19,18 +19,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
+#include "Pufferfish/Driver/Serial/Nonin/Device.h"
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
-NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensor_measurements) {
+Device::PacketStatus Device::output(PacketMeasurements &sensor_measurements) {
   uint8_t read_byte = 0;
   Frame frame_buffer;
 
   /* Read a byte from BufferedUART */
   if (nonin_uart_.read(read_byte) == BufferStatus::empty) {
     /* Return waiting to receive new bytes of data from sensor */
-    return NoninPacketStatus::waiting;
+    return PacketStatus::waiting;
   }
 
   /* FrameReceiver */
@@ -38,11 +38,11 @@ NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensor_measurem
   switch (frame_receiver_.input(read_byte)) {
     /* Return sensor status is waiting to receive more bytes of data */
     case FrameReceiver::FrameInputStatus::framing_error:
-      return NoninPacketStatus::framing_error;
+      return PacketStatus::framing_error;
 
     /* Return sensor status is waiting to receive more bytes of data */
     case FrameReceiver::FrameInputStatus::waiting:
-      return NoninPacketStatus::waiting;
+      return PacketStatus::waiting;
 
     /* On PacketInputStatus available continue */
     case FrameReceiver::FrameInputStatus::available:
@@ -52,7 +52,7 @@ NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensor_measurem
   /* On frame input available invoke output method to receive frame */
   if (frame_receiver_.output(frame_buffer) == FrameReceiver::FrameOutputStatus::waiting) {
     /* Return sensor status is waiting to receive more bytes of data */
-    return NoninPacketStatus::waiting;
+    return PacketStatus::waiting;
   }
 
   /* PaketParser */
@@ -60,12 +60,12 @@ NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensor_measurem
   switch (packet_receiver_.input(frame_buffer)) {
     /* Return sensor status is waiting to receive more frames of data */
     case PacketReceiver::PacketInputStatus::waiting:
-      return NoninPacketStatus::waiting;
+      return PacketStatus::waiting;
 
     /* Discard the packet due to status byte error, wait for the new packet to
      * receive */
     case PacketReceiver::PacketInputStatus::missed_data:
-      return NoninPacketStatus::missed_data;
+      return PacketStatus::missed_data;
 
     /* On PacketInputStatus available continue */
     case PacketReceiver::PacketInputStatus::available:
@@ -77,11 +77,11 @@ NoninOEM::NoninPacketStatus NoninOEM::output(PacketMeasurements &sensor_measurem
   if (packet_receiver_.output(sensor_measurements) !=
       PacketReceiver::PacketOutputStatus::available) {
     /* Return sensor status is waiting to receive more bytes of data */
-    return NoninPacketStatus::waiting;
+    return PacketStatus::waiting;
   }
 
   /* Return available on measurements are available */
-  return NoninPacketStatus::available;
+  return PacketStatus::available;
 }
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

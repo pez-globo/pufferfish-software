@@ -52,10 +52,16 @@ void HFNCControlLoop::update(uint32_t current_time) {
 
   // Update controller
   controller_.transform(
-      current_time, parameters_, sensor_vars_, sensor_measurements_, actuator_vars_);
+      current_time,
+      parameters_,
+      sensor_vars_,
+      sensor_measurements_,
+      actuator_setpoints_,
+      actuator_vars_);
 
   // Update actuators
-  valve_.set_duty_cycle(actuator_vars_.valve_opening);
+  valve_air_.set_duty_cycle(actuator_vars_.valve_air_opening);
+  valve_o2_.set_duty_cycle(actuator_vars_.valve_o2_opening);
 
   advance_step_time(current_time);
 }

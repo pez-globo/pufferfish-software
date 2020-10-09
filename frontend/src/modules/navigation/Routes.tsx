@@ -29,6 +29,7 @@ const Routes = (): JSX.Element => (
     <Route path={SETTINGS_ROUTE.path} component={SettingsPage} />
     <Route path={LOGS_ROUTE.path} component={LogsPage} />
     <Route path={SCREENSAVER_ROUTE.path} component={ScreensaverPage} />
+    <Route component={QuickStartPage} />
   </Switch>
 );
 
