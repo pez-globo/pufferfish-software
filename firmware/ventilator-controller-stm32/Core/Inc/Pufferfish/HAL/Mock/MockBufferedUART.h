@@ -41,7 +41,7 @@ template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 class MockBufferedUART : public BufferedUART {
  public:
   /**
-   * Mock constructor for BufferredUART
+   * Mock constructor for BufferedUART
    */
   explicit MockBufferedUART();
 
@@ -125,7 +125,7 @@ using MockLargeBufferedUART =
     MockBufferedUART<mock_large_uart_buffer_size, mock_large_uart_buffer_size>;
 
 static const size_t mock_read_only_uart_buffer_size = 512;
-using MockReadOnlyBufferredUART = MockBufferedUART<mock_read_only_uart_buffer_size, 1>;
+using MockReadOnlyBufferedUART = MockBufferedUART<mock_read_only_uart_buffer_size, 1>;
 
 }  // namespace Pufferfish::HAL
 

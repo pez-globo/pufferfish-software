@@ -39,6 +39,7 @@ bool Simulator::update_needed() const {
 
 void PCACSimulator::transform(
     const Parameters &parameters,
+    const SensorVars & /*sensor_vars*/,
     SensorMeasurements &sensor_measurements,
     CycleMeasurements &cycle_measurements) {
   if (!update_needed()) {
@@ -106,6 +107,7 @@ void PCACSimulator::transform_airway_expiratory(
 
 void HFNCSimulator::transform(
     const Parameters &parameters,
+    const SensorVars &sensor_vars,
     SensorMeasurements &sensor_measurements,
     CycleMeasurements &cycle_measurements) {
   if (!update_needed()) {
@@ -124,7 +126,13 @@ void HFNCSimulator::transform(
     transform_rr(parameters.rr, cycle_measurements.rr);
   }
   transform_flow(parameters.flow, sensor_measurements.flow);
-  transform_fio2(parameters.fio2, sensor_measurements.fio2);
+  if (std::abs(sensor_vars.flow_air + sensor_vars.flow_o2) < 1) {
+    transform_fio2(parameters.fio2, sensor_measurements.fio2);
+  } else {
+    float flow_o2_ratio = sensor_vars.flow_o2 / (sensor_vars.flow_air + sensor_vars.flow_o2);
+    float inferred_fio2 = fio2_min * (1 - flow_o2_ratio) + fio2_max * flow_o2_ratio;
+    transform_fio2(inferred_fio2, sensor_measurements.fio2);
+  }
   transform_spo2(sensor_measurements.fio2, sensor_measurements.spo2);
 }
 
@@ -155,6 +163,7 @@ void HFNCSimulator::transform_spo2(float fio2, float &spo2) {
 void Simulators::transform(
     uint32_t current_time,
     const Parameters &parameters,
+    const SensorVars &sensor_vars,
     SensorMeasurements &sensor_measurements,
     CycleMeasurements &cycle_measurements) {
   input_clock(current_time);
@@ -171,7 +180,7 @@ void Simulators::transform(
       return;
   }
 
-  active_simulator_->transform(parameters, sensor_measurements, cycle_measurements);
+  active_simulator_->transform(parameters, sensor_vars, sensor_measurements, cycle_measurements);
 }
 
 void Simulators::input_clock(uint32_t current_time) {
