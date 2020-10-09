@@ -20,7 +20,7 @@ from ventserver.io.trio import fileio
 from ventserver.io.trio import rotaryencoder
 from ventserver.protocols import server
 from ventserver.protocols import exceptions
-from ventserver.protocols.protobuf import mcu_pb as pb
+from ventserver.protocols.protobuf import mcu_pb
 
 
 logger = logging.getLogger()
