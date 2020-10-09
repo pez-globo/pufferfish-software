@@ -68,11 +68,15 @@ This will setup required components for pufferfish-vent-software in the given or
 - Yarn
 - Nginx web-server
 - Custom Pufferfish boot screen
-- Chromium browser in kiosk mode
 - Python backend systemd service
+- Disables screen blanking and hides cursor
+- Chromium browser in kiosk mode
+- USB Logging
+- Live USB Boot
+- Internal Watchdog
+- Read-only filesystem (Overlayfs)
 - Disables unnecessary background services
 - User and Network security
-- Read-only filesystem (Overlayfs)
 
 ---
 
