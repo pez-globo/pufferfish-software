@@ -30,7 +30,7 @@ fi
 
 # Adding overlay module to initramfs modules
 if ! grep overlay /etc/initramfs-tools/modules > /dev/null; then
-    echo overlay >> /etc/initramfs-tools/modules
+    echo overlay | sudo tee -a /etc/initramfs-tools/modules
 else
     echo -e "${WARNING} Overlay already exists in initramfs modules${NC}"
 fi
