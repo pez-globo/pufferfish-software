@@ -20,6 +20,7 @@ config_dir=$script_dir/../configs
 sudo apt update
 sudo apt install initramfs-tools -y
 
+# Purging plymouth to disable default boot screen
 sudo apt purge plymouth -y
 sudo apt autoremove -y
 
