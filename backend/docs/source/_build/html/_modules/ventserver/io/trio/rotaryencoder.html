@@ -36,10 +36,15 @@
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
 <span class="kn">import</span> <span class="nn">attr</span>
 
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">RPi.GPIO</span> <span class="k">as</span> <span class="nn">GPIO</span>     <span class="c1"># type: ignore</span>
+<span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Running without RPi.GPIO!&#39;</span><span class="p">)</span>
+
 <span class="kn">import</span> <span class="nn">trio</span>
-<span class="kn">import</span> <span class="nn">RPi.GPIO</span> <span class="k">as</span> <span class="nn">GPIO</span>     <span class="c1"># type: ignore</span>
 
 <span class="kn">from</span> <span class="nn">ventserver.io</span> <span class="kn">import</span> <span class="n">rotaryencoder</span>
 <span class="kn">from</span> <span class="nn">ventserver.io.trio</span> <span class="kn">import</span> <span class="n">endpoints</span>
@@ -56,7 +61,7 @@
     <span class="n">rotation_counts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">button_pressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">last_pressed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">debounce_time</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># debounce time in ms</span></div>
+    <span class="n">debounce_time</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># debounce time in ms</span></div>
 
 
 <div class="viewcode-block" id="Driver"><a class="viewcode-back" href="../../../../api/ventserver.io.trio.html#ventserver.io.trio.rotaryencoder.Driver">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span>
@@ -90,7 +95,6 @@
                 <span class="n">trio_token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trio_token</span>
             <span class="p">)</span></div>
 
-
 <div class="viewcode-block" id="Driver.button_press_log"><a class="viewcode-back" href="../../../../api/ventserver.io.trio.html#ventserver.io.trio.rotaryencoder.Driver.button_press_log">[docs]</a>    <span class="k">def</span> <span class="nf">button_press_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">button_pin</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Rotary encoder callback function for button press event.&quot;&quot;&quot;</span>
 
@@ -117,7 +121,6 @@
     <span class="k">def</span> <span class="nf">is_open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return whether or not the rotary encoder is connected.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected</span>
-
 
 <div class="viewcode-block" id="Driver.open"><a class="viewcode-back" href="../../../../api/ventserver.io.trio.html#ventserver.io.trio.rotaryencoder.Driver.open">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nursery</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">trio</span><span class="o">.</span><span class="n">Nursery</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Opens the connection with the rotary encoder.</span>
@@ -165,7 +168,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">a_quad_last_state</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="o">.</span><span class="n">a_quad_pin</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trio_token</span> <span class="o">=</span> <span class="n">trio</span><span class="o">.</span><span class="n">lowlevel</span><span class="o">.</span><span class="n">current_trio_token</span><span class="p">()</span></div>
 
-
 <div class="viewcode-block" id="Driver.close"><a class="viewcode-back" href="../../../../api/ventserver.io.trio.html#ventserver.io.trio.rotaryencoder.Driver.close">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Closes the connection with the rotary encoder.</span>
 
@@ -175,7 +177,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">cleanup</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="o">.</span><span class="n">a_quad_pin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="o">.</span><span class="n">b_quad_pin</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connected</span> <span class="o">=</span> <span class="kc">False</span></div>
-
 
 <div class="viewcode-block" id="Driver.receive"><a class="viewcode-back" href="../../../../api/ventserver.io.trio.html#ventserver.io.trio.rotaryencoder.Driver.receive">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Shares current rotation counts and button</span>
@@ -198,7 +199,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_available</span> <span class="o">=</span> <span class="n">trio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">rotation_counts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">button_pressed</span><span class="p">)</span></div>
 
-
 <div class="viewcode-block" id="Driver.send"><a class="viewcode-back" href="../../../../api/ventserver.io.trio.html#ventserver.io.trio.rotaryencoder.Driver.send">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Defined just to fulfill requirements of the</span>
 <span class="sd">        IOEndpoint&#39;s abstract class.&quot;&quot;&quot;</span>
@@ -211,7 +211,7 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../../../api/modules.html">Pufferfish</a></h1>
+<h1 class="logo"><a href="../../../../index.html">Pufferfish</a></h1>
 
 
 
@@ -221,15 +221,15 @@
 
 
 <h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../api/tests.html">tests package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../api/ventserver.html">ventserver package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">Pufferfish</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="../../../../api/modules.html">Documentation overview</a><ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
   <li><a href="../../../index.html">Module code</a><ul>
   </ul></li>
   </ul></li>

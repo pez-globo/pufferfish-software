@@ -38,18 +38,25 @@
 <span class="kn">import</span> <span class="nn">functools</span>
 
 <span class="kn">import</span> <span class="nn">trio</span>
-<span class="kn">import</span> <span class="nn">RPi.GPIO</span> <span class="k">as</span> <span class="nn">GPIO</span> <span class="c1"># type:ignore</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">RPi.GPIO</span> <span class="k">as</span> <span class="nn">GPIO</span>  <span class="c1"># type:ignore</span>
+    <span class="kn">from</span> <span class="nn">ventserver.io.trio</span> <span class="kn">import</span> <span class="n">rotaryencoder</span>
+<span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Running without RPi.GPIO!&#39;</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">ventserver.integration</span> <span class="kn">import</span> <span class="n">_trio</span>
 <span class="kn">from</span> <span class="nn">ventserver.io.trio</span> <span class="kn">import</span> <span class="n">_serial</span>
 <span class="kn">from</span> <span class="nn">ventserver.io.trio</span> <span class="kn">import</span> <span class="n">channels</span>
 <span class="kn">from</span> <span class="nn">ventserver.io.trio</span> <span class="kn">import</span> <span class="n">websocket</span>
-<span class="kn">from</span> <span class="nn">ventserver.io.trio</span> <span class="kn">import</span> <span class="n">rotaryencoder</span>
 <span class="kn">from</span> <span class="nn">ventserver.protocols</span> <span class="kn">import</span> <span class="n">server</span>
 <span class="kn">from</span> <span class="nn">ventserver.protocols.protobuf</span> <span class="kn">import</span> <span class="n">mcu_pb</span> <span class="k">as</span> <span class="n">pb</span>
 
 
-<span class="n">GPIO</span><span class="o">.</span><span class="n">setmode</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">BCM</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">setmode</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">BCM</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Running without RPi.GPIO!&#39;</span><span class="p">)</span>
 
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
@@ -70,9 +77,13 @@
     <span class="c1"># I/O Endpoints</span>
     <span class="n">serial_endpoint</span> <span class="o">=</span> <span class="n">_serial</span><span class="o">.</span><span class="n">Driver</span><span class="p">()</span>
     <span class="n">websocket_endpoint</span> <span class="o">=</span> <span class="n">websocket</span><span class="o">.</span><span class="n">Driver</span><span class="p">()</span>
-    <span class="n">rotary_encoder</span> <span class="o">=</span> <span class="n">rotaryencoder</span><span class="o">.</span><span class="n">Driver</span><span class="p">()</span>
 
-    <span class="k">await</span> <span class="n">rotary_encoder</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+    <span class="n">rotary_encoder</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">rotary_encoder</span> <span class="o">=</span> <span class="n">rotaryencoder</span><span class="o">.</span><span class="n">Driver</span><span class="p">()</span>
+        <span class="k">await</span> <span class="n">rotary_encoder</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Running without rotary encoder support!&#39;</span><span class="p">)</span>
 
     <span class="c1"># Server Receive Outputs</span>
     <span class="n">channel</span><span class="p">:</span> <span class="n">channels</span><span class="o">.</span><span class="n">TrioChannel</span><span class="p">[</span>
@@ -122,7 +133,7 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../api/modules.html">Pufferfish</a></h1>
+<h1 class="logo"><a href="../../index.html">Pufferfish</a></h1>
 
 
 
@@ -132,15 +143,15 @@
 
 
 <h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../api/tests.html">tests package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api/ventserver.html">ventserver package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">Pufferfish</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="../../api/modules.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
   <li><a href="../index.html">Module code</a><ul>
   </ul></li>
   </ul></li>

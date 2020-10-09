@@ -9,6 +9,7 @@ SPHINXAPIDOC  = sphinx-apidoc
 SOURCEDIR     = source
 APIDIR	      = "$(SOURCEDIR)/api"
 BUILDDIR      = "$(SOURCEDIR)/_build"
+EXCLUDE	      = "../tests"
 PROJECT	      = Pufferfish
 AUTHOR	      = Pez-Globo
 

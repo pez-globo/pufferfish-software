@@ -34,17 +34,23 @@
   <h1>Source code for ventserver.io.rotaryencoder</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;&quot; Support for Rotary Encoder communication &quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">logging</span>
+
 <span class="kn">import</span> <span class="nn">attr</span>
-<span class="kn">import</span> <span class="nn">RPi.GPIO</span> <span class="k">as</span> <span class="nn">GPIO</span>     <span class="c1"># type: ignore</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">RPi.GPIO</span> <span class="k">as</span> <span class="nn">GPIO</span>     <span class="c1"># type: ignore</span>
+<span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Running without RPi.GPIO!&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="RotaryEncoderProps"><a class="viewcode-back" href="../../../api/ventserver.io.html#ventserver.io.rotaryencoder.RotaryEncoderProps">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span><span class="p">(</span><span class="n">auto_attribs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">RotaryEncoderProps</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Rotary encoder communication properties.&quot;&quot;&quot;</span>
     <span class="n">mode</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">BCM</span>
-    <span class="n">a_quad_pin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">18</span> <span class="c1"># clk</span>
-    <span class="n">b_quad_pin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">17</span> <span class="c1"># dt</span>
-    <span class="n">button_pin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">27</span> <span class="c1"># sw</span></div>
+    <span class="n">a_quad_pin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">18</span>  <span class="c1"># clk</span>
+    <span class="n">b_quad_pin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">17</span>  <span class="c1"># dt</span>
+    <span class="n">button_pin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">27</span>  <span class="c1"># sw</span></div>
 </pre></div>
 
           </div>
@@ -53,7 +59,7 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../../api/modules.html">Pufferfish</a></h1>
+<h1 class="logo"><a href="../../../index.html">Pufferfish</a></h1>
 
 
 
@@ -63,15 +69,15 @@
 
 
 <h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/tests.html">tests package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/ventserver.html">ventserver package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">Pufferfish</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="../../../api/modules.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
   <li><a href="../../index.html">Module code</a><ul>
   </ul></li>
   </ul></li>
