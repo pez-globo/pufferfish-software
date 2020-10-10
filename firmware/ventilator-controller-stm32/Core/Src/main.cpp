@@ -112,11 +112,12 @@ PF::HAL::CRC32C crc32c(hcrc);
 PF::HAL::HALTime time;
 
 // Buffered UARTs
-volatile Pufferfish::HAL::LargeBufferedUART buffered_uart3(huart3, time);
+volatile Pufferfish::HAL::LargeBufferedUART backend_uart(huart3, time);
+volatile Pufferfish::HAL::LargeBufferedUART fdo2_uart(huart7, time);
 volatile Pufferfish::HAL::ReadOnlyBufferedUART nonin_oem_uart(huart4, time);
 
 // UART Serial Communication
-PF::Driver::Serial::Backend::UARTBackend backend(buffered_uart3, crc32c, all_states);
+PF::Driver::Serial::Backend::UARTBackend backend(backend_uart, crc32c, all_states);
 
 // Create an object for ADC3 of AnalogInput Class
 static const uint32_t adc_poll_timeout = 10;
@@ -293,6 +294,8 @@ PF::Driver::I2C::SFM3019::Sensor sfm3019_air(sfm3019_dev_air, true, time);
 PF::Driver::I2C::SFM3019::Device sfm3019_dev_o2(i2c_hal_sfm3019_o2, i2c4_hal_global);
 PF::Driver::I2C::SFM3019::Sensor sfm3019_o2(sfm3019_dev_o2, true, time);
 
+// FDO2
+
 // Nonin OEM III
 PF::Driver::Serial::Nonin::Device nonin_oem_dev(nonin_oem_uart);
 PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
@@ -452,28 +455,29 @@ int main(void)
   MX_TIM8_Init();
   MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
+  // Time
   PF::HAL::HALTime::micros_delay_init();
 
   /*
   interface_test_millis = time.millis();
 
+  // ADCs
   adc3_input.start();
   */
 
-  // Backend
-  buffered_uart3.setup_irq();
+  // UARTs
+  backend_uart.setup_irq();
+  fdo2_uart.setup_irq();
+  nonin_oem_uart.setup_irq();
 
-  // Board LED
-  blinker.start(time.millis());
-  flasher.start(time.millis());
-  dimmer.start(time.millis());
-
-  // Solenoid valve
+  // Hardware PWMs
   drive1_ch1.start();
   drive1_ch2.start();
 
-  // Nonin OEM III sensor
-  nonin_oem_uart.setup_irq();
+  // Software PWMs
+  blinker.start(time.millis());
+  flasher.start(time.millis());
+  dimmer.start(time.millis());
 
   /* USER CODE END 2 */
 
@@ -1377,7 +1381,7 @@ static void MX_UART7_Init(void)
 
   /* USER CODE END UART7_Init 1 */
   huart7.Instance = UART7;
-  huart7.Init.BaudRate = 115200;
+  huart7.Init.BaudRate = 19200;
   huart7.Init.WordLength = UART_WORDLENGTH_8B;
   huart7.Init.StopBits = UART_STOPBITS_1;
   huart7.Init.Parity = UART_PARITY_NONE;
@@ -1387,7 +1391,7 @@ static void MX_UART7_Init(void)
   huart7.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
   huart7.Init.ClockPrescaler = UART_PRESCALER_DIV1;
   huart7.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_HalfDuplex_Init(&huart7) != HAL_OK)
+  if (HAL_UART_Init(&huart7) != HAL_OK)
   {
     Error_Handler();
   }
