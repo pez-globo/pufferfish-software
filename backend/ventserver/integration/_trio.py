@@ -10,6 +10,7 @@ import trio
 from ventserver.io.trio import channels as triochannels
 from ventserver.io.trio import endpoints
 from ventserver.protocols import server
+from ventserver.protocols import exceptions
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
 from ventserver.sansio import streams
@@ -75,6 +76,10 @@ async def send_all_websocket(
         except BrokenPipeError:
             logger.warning(
                 'Websocket connection was lost during send: %s', send_event
+            )
+        except exceptions.ProtocolDataError as err:
+            logger.warning(
+                'Illegal data type: %s', err
             )
 
 
