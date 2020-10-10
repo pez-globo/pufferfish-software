@@ -1,6 +1,6 @@
 ## Documentation
 
-This requires `sphinx-apidoc` to be available in the environment. It can be installed by the following command:
+This process requires `sphinx-apidoc`, and it can be installed by using the following command:
 ```
 $ sudo apt-get install python3-sphinx 
 ```
