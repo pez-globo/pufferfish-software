@@ -9,7 +9,7 @@ SPHINXAPIDOC  = sphinx-apidoc
 SOURCEDIR     = source
 APIDIR	      = "$(SOURCEDIR)/api"
 BUILDDIR      = "$(SOURCEDIR)/_build"
-EXCLUDE	      = "../tests"
+EXCLUDE		  = "../tests"
 PROJECT	      = Pufferfish
 AUTHOR	      = Pez-Globo
 
@@ -22,7 +22,8 @@ help:
 # Generate API stubs
 api: export PYTHONPATH := ../
 api:
-	@$(SPHINXAPIDOC) -f -a -M -H "$(PROJECT)" -A "$(AUTHOR)" -o "$(APIDIR)" "../" "$(EXCLUDE)"
+	@rm -r "$(APIDIR)"
+	@$(SPHINXAPIDOC) -f -a -M -d 5 -H "$(PROJECT)" -A "$(AUTHOR)" -o "$(APIDIR)" "../" "$(EXCLUDE)"
 	@echo "Auto-generation of API documentation finished." \
 		"The generated api files are in $(APIDIR)."
 

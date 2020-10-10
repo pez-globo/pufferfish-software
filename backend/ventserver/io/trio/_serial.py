@@ -47,10 +47,10 @@ class Driver(endpoints.IOEndpoint[bytes, bytes]):
             )
             self._stream = lowlevel.FdStream(os.dup(self._connection.fileno()))
             await trio.sleep(self.props.open_delay)
-        except serialutil.SerialException:
+        except serialutil.SerialException as err:
             raise IOError(
                 'Cannot open a serial connection to {}!'.format(self.props.port)
-            )
+            ) from err
 
     @property
     def is_open(self) -> bool:
@@ -77,11 +77,11 @@ class Driver(endpoints.IOEndpoint[bytes, bytes]):
 
         try:
             await self._stream.send_all(data)
-        except (trio.BrokenResourceError, trio.ClosedResourceError):
+        except (trio.BrokenResourceError, trio.ClosedResourceError) as errs:
             await self.close()
             raise BrokenPipeError(
                 'Serial connection lost in write!', self.props.port
-            )
+            ) from errs
         if data:
             self._logger.debug('Wrote: %s', data)
 
@@ -101,11 +101,11 @@ class Driver(endpoints.IOEndpoint[bytes, bytes]):
                 if read:
                     break
                 await lowlevel.wait_readable(self._stream.fileno())
-        except (trio.BrokenResourceError, trio.ClosedResourceError):
+        except (trio.BrokenResourceError, trio.ClosedResourceError) as errs:
             await self.close()
             raise BrokenPipeError(
                 'Serial connection lost in read!', self.props.port
-            )
+            ) from errs
         if read:
             self._logger.debug('Read: %s', read)
         return read
