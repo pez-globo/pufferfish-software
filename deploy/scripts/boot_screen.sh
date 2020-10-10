@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Custom Pufferfish boot screen and its service
+
 # Message colours
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
@@ -50,6 +52,8 @@ else
 fi
 
 sudo apt-get update
+
+# Masking plymouth service to deny any other service from starting it
 sudo systemctl mask plymouth-start.service
 sudo systemctl enable splashscreen
 

@@ -6,6 +6,7 @@ After=nginx.service media-pi-LOGS.mount
 [Service]
 Type=simple
 User=pi
+ExecStartPre=sudo pigpiod
 ExecStart=/home/pi/.pyenv/versions/ventserver/bin/python python_file_absolute_path
 Restart=always
 RestartSec=3

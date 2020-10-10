@@ -6,9 +6,9 @@ from typing import Optional, Tuple
 import attr
 
 try:
-    import RPi.GPIO as GPIO     # type: ignore
+    import pigpio     # type: ignore
 except RuntimeError:
-    logging.getLogger().warning('Running without RPi.GPIO!')
+    logging.getLogger().warning('Running without pigpio!')
 
 import trio
 
@@ -17,18 +17,15 @@ from ventserver.io.trio import endpoints
 from ventserver.protocols import exceptions
 
 
-@attr.s
-class RotaryEncoderState:
-    """Holds state values for communication and computation."""
+# States
+B_GPIO1 = 'D'  # dt_gpio is high
+B_GPIO0 = 'd'  # dt_gpio is low
+A_GPIO1 = 'C'  # clk_gpio is high
+A_GPIO0 = 'c'  # clk_gpio is low
 
-    a_quad_state: int = attr.ib(default=None, repr=False)
-    a_quad_last_state: int = attr.ib(default=None, repr=False)
-    b_quad_state: int = attr.ib(default=None, repr=False)
-    rotation_counts: int = attr.ib(default=0, repr=False)
-    button_pressed: bool = attr.ib(default=False, repr=False)
-    last_pressed: int = attr.ib(default=None, repr=False)
-    debounce_time: int = attr.ib(default=10)  # debounce time in ms
-
+# State sequences
+SEQUENCE_UP = B_GPIO1 + A_GPIO1 + B_GPIO0 + A_GPIO0
+SEQUENCE_DOWN = A_GPIO1 + B_GPIO1 + A_GPIO0 + B_GPIO0
 
 @attr.s
 class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
@@ -39,44 +36,76 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
     _props: rotaryencoder.RotaryEncoderProps = attr.ib(
         factory=rotaryencoder.RotaryEncoderProps
     )
+    rpi: pigpio.pi = attr.ib(factory=pigpio.pi)
     _connected: bool = attr.ib(default=False)
     _data_available: trio.Event = attr.ib(factory=trio.Event)
-    _state: RotaryEncoderState = attr.ib(factory=RotaryEncoderState)
+    _sequence: str = attr.ib(default='')
+    counter: int = attr.ib(default=0, repr=False)
+    button_pressed: bool = attr.ib(default=False, repr=False)
+    debounce_time: int = attr.ib(default=300)   # debounce time in us
+    button_debounce_time: int = attr.ib(default=100)    # debounce time in us
     trio_token: trio.lowlevel.TrioToken = attr.ib(default=None, repr=False)
 
-    def rotation_direction(self, b_quad_pin: int) -> None:
-        """Rotary encoder callback function for dail turn event."""
 
-        self._state.a_quad_state = GPIO.input(self._props.a_quad_pin)
-        if self._state.a_quad_state != self._state.a_quad_last_state:
-            self._state.b_quad_state = GPIO.input(b_quad_pin)
-            if self._state.b_quad_state != self._state.a_quad_state:
-                self._state.rotation_counts -= 1
-            else:
-                self._state.rotation_counts += 1
-
-            self._state.a_quad_last_state = self._state.a_quad_state
+    def a_quad_rise(self, gpio: int, level: int, tick: int) -> None:
+        """Callback for rising A qaudrature pin."""
+        _, __, ___ = gpio, level, tick  # Unused args
+        self._sequence += A_GPIO0
+        if self._sequence == SEQUENCE_UP:
+            self.counter += 1
+            self._sequence = ''
             trio.from_thread.run_sync(
                 self._data_available.set,
                 trio_token=self.trio_token
             )
 
-    def button_press_log(self, button_pin: int) -> None:
-        """Rotary encoder callback function for button press event."""
+    def a_quad_fall(self, gpio: int, level: int, tick: int) -> None:
+        """Callback for falling A qaudrature pin."""
+        _, __, ___ = gpio, level, tick  # Unused args
+        if len(self._sequence) > 2:
+            self._sequence = ''
+        self._sequence += A_GPIO1
 
-        if GPIO.input(button_pin):
-            self._state.button_pressed = False
-            self._state.rotation_counts = 0
+    def b_quad_rise(self, gpio: int, level: int, tick: int) -> None:
+        """Callback for rising B qaudrature pin."""
+        _, __, ___ = gpio, level, tick  # Unused args
+        self._sequence += B_GPIO0
+        if self._sequence == SEQUENCE_DOWN:
+            self.counter -= 1
+            self._sequence = ''
             trio.from_thread.run_sync(
                 self._data_available.set,
                 trio_token=self.trio_token
             )
-        else:
-            self._state.button_pressed = True
+
+    def b_quad_fall(self, gpio: int, level: int, tick: int) -> None:
+        """Callback for falling B qaudrature pin."""
+        _, __, ___ = gpio, level, tick  # Unused args
+        if len(self._sequence) > 2:
+            self._sequence = ''
+        self._sequence += B_GPIO1
+
+    def button_rise(self, gpio: int, level: int, tick: int) -> None:
+        """Callback for rising button pin."""
+        _, __, ___ = gpio, level, tick  # Unused args
+        if self.button_pressed:
+            self.button_pressed = False
+            self.counter = 0
             trio.from_thread.run_sync(
                 self._data_available.set,
                 trio_token=self.trio_token
             )
+
+    def button_fall(self, gpio: int, level: int, tick: int) -> None:
+        """Callback for falling button pin."""
+        _, __, ___ = gpio, level, tick  # Unused args
+        if not self.button_pressed:
+            self.button_pressed = True
+            trio.from_thread.run_sync(
+                self._data_available.set,
+                trio_token=self.trio_token
+            )
+
 
     @property
     def is_data_available(self) -> bool:
@@ -104,34 +133,57 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
             raise exceptions.ProtocolError(exception)
 
         try:
-            GPIO.setmode(GPIO.getmode())
-            GPIO.setup(
+
+            self.rpi.set_glitch_filter(
                 self._props.a_quad_pin,
-                GPIO.IN, pull_up_down=GPIO.PUD_UP
+                self.debounce_time
             )
-            GPIO.setup(
+            self.rpi.callback(
+                self._props.a_quad_pin,
+                pigpio.FALLING_EDGE,
+                self.a_quad_fall
+            )
+            self.rpi.callback(
+                self._props.a_quad_pin,
+                pigpio.RISING_EDGE,
+                self.a_quad_rise
+            )
+            self.rpi.set_glitch_filter(
                 self._props.b_quad_pin,
-                GPIO.IN, pull_up_down=GPIO.PUD_UP
+                self.debounce_time
             )
-            GPIO.setup(self._props.button_pin,
-                       GPIO.IN, pull_up_down=GPIO.PUD_UP
-                       )
-            GPIO.add_event_detect(
+            self.rpi.callback(
                 self._props.b_quad_pin,
-                GPIO.RISING,
-                callback=self.rotation_direction
+                pigpio.FALLING_EDGE,
+                self.b_quad_fall
             )
-            GPIO.add_event_detect(
+            self.rpi.callback(
+                self._props.b_quad_pin,
+                pigpio.RISING_EDGE,
+                self.b_quad_rise
+            )
+            self.rpi.set_pull_up_down(
                 self._props.button_pin,
-                GPIO.BOTH,
-                callback=self.button_press_log,
-                bouncetime=self._state.debounce_time
+                pigpio.PUD_UP
+            )
+            self.rpi.set_glitch_filter(
+                self._props.button_pin,
+                self.button_debounce_time
+            )
+            self.rpi.callback(
+                self._props.button_pin,
+                pigpio.FALLING_EDGE,
+                self.button_fall
+            )
+            self.rpi.callback(
+                self._props.button_pin,
+                pigpio.RISING_EDGE,
+                self.button_rise
             )
         except Exception as err:
-            raise IOError(err)
+            raise exceptions.ProtocolError(err)
 
         self._connected = True
-        self._state.a_quad_last_state = GPIO.input(self._props.a_quad_pin)
         self.trio_token = trio.lowlevel.current_trio_token()
 
     async def close(self) -> None:
@@ -141,7 +193,6 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
          the Raspberry Pi board.
 
         """
-        GPIO.cleanup([self._props.a_quad_pin, self._props.b_quad_pin])
         self._connected = False
 
     async def receive(self) -> Tuple[int, bool]:
@@ -163,7 +214,7 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
 
         await self._data_available.wait()
         self._data_available = trio.Event()
-        return (self._state.rotation_counts, self._state.button_pressed)
+        return (self.counter, self.button_pressed)
 
     async def send(self, data: Optional[bytes]) -> None:
         """Defined just to fulfill requirements of the
