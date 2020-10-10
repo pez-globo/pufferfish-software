@@ -9,6 +9,7 @@ import trio
 
 from ventserver.io.trio import channels as triochannels
 from ventserver.io.trio import endpoints
+from ventserver.io.trio import websocket as websocket_io
 from ventserver.protocols import server
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
@@ -63,10 +64,10 @@ async def send_all_websocket(
     """
     for send_event in send_channel.output_all():
         if not websocket.is_open:
-            logger.warning(
-                'Discarding because websocket I/O endpoint is not open: %s',
-                send_event
-            )
+            # logger.warning(
+            #     'Discarding because websocket I/O endpoint is not open: %s',
+            #     send_event
+            # )
             await trio.sleep(0)
             continue
 
@@ -226,6 +227,9 @@ async def process_io_persistently(
     async with push_endpoint:
         while True:
             await io_endpoint.persistently_open(nursery=nursery)
+            if isinstance(io_endpoint, websocket_io.Driver):
+                protocol.receive.frontend_connected = io_endpoint.is_open
+                    
             try:
                 async with io_endpoint:
                     await process_io_receive(
@@ -236,6 +240,8 @@ async def process_io_persistently(
                 logger.warning(
                     'Lost I/O endpoint, reconnecting: %s', io_endpoint
                 )
+                if isinstance(io_endpoint, websocket_io.Driver):
+                    protocol.receive.frontend_connected = io_endpoint.is_open
                 await trio.sleep(reconnect_interval)
 
 

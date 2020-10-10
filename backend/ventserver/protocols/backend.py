@@ -193,6 +193,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
                         pb_message=event.frontend_receive
                     )
                 )
+                # self.last_frontend_event = self.current_time
             except exceptions.ProtocolDataError:
                 self._logger.exception(
                     'Frontend State Synchronizer: %s', event.frontend_receive

@@ -1,6 +1,8 @@
 """Sans-I/O ventilator backend server protocol."""
 
 from typing import Optional, Union, Tuple
+import subprocess
+import logging
 
 import attr
 
@@ -89,11 +91,15 @@ def make_rotary_encoder_receive(
 @attr.s
 class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     """Filter which transforms receive bytes into high-level events."""
+    _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
 
     _buffer: channels.DequeChannel[ReceiveEvent] = attr.ib(
         factory=channels.DequeChannel
     )
     current_time: float = attr.ib(default=0)
+    last_frontend_event: float = attr.ib(default=0)
+    last_kill_call: float = attr.ib(default=0)
+    frontend_connected: bool = attr.ib(default=False)
     _mcu: mcu.ReceiveFilter = attr.ib(factory=mcu.ReceiveFilter)
     _frontend: frontend.ReceiveFilter = attr.ib(factory=frontend.ReceiveFilter)
     _rotary_encoder: rotary_encoder.ReceiveFilter = attr.ib(
@@ -137,8 +143,26 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         if not any_updated:
             return None
 
+        # Kill frontend process if it stops responding.
+        # The frontend service will automatically restart the frontend process.
+        if (int(self.current_time - self.last_frontend_event) > 1) and\
+            self.frontend_connected:
+            
+            if (self.current_time - self.last_kill_call) > 2:
+                self.last_kill_call = self.current_time
+                self._kill_frontend_process()
+
         output = ReceiveOutputEvent(server_send=backend_output)
         return output
+
+    def _kill_frontend_process(self) -> None:
+        """Spawns subprocess to kill the frontend"""
+        try:
+            _ = subprocess.Popen("killall chromium-browser")
+        except OSError as exc:
+            self._logger.warning("Unable to kill the frontend: %s", exc)
+        self._logger.info("No message received from frontend for more" 
+            "than a 1s; killed frontend process.")
 
     def _process_buffer(self) -> None:
         """Process the next event in the input buffer."""
@@ -177,6 +201,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             time=self.current_time, mcu_receive=None,
             frontend_receive=frontend_output
         ))
+        self.last_frontend_event = self.current_time
         return True
 
     def _process_rotary_encoder(self) -> bool:
