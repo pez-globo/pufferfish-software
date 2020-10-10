@@ -38,6 +38,8 @@ coverage.xml
 # pyenv
 .python-version
 
+# documentation build
+docs/source/_build/*
 
 # dotenv
 .env
