@@ -67,6 +67,7 @@ export interface Parameters {
   ie: number;
   fio2: number;
   flow: number;
+  ventilating: boolean;
 }
 
 export interface ParametersRequest {
@@ -79,6 +80,7 @@ export interface ParametersRequest {
   ie: number;
   fio2: number;
   flow: number;
+  ventilating: boolean;
 }
 
 export interface Ping {
@@ -109,6 +111,10 @@ export interface NextLogEvents {
 
 export interface ActiveLogEvents {
   id: number[];
+}
+
+export interface BatteryPower {
+  powerLeft: number;
 }
 
 const baseAlarms: object = {
@@ -176,6 +182,7 @@ const baseParameters: object = {
   ie: 0,
   fio2: 0,
   flow: 0,
+  ventilating: false,
 };
 
 const baseParametersRequest: object = {
@@ -188,6 +195,7 @@ const baseParametersRequest: object = {
   ie: 0,
   fio2: 0,
   flow: 0,
+  ventilating: false,
 };
 
 const basePing: object = {
@@ -197,7 +205,6 @@ const basePing: object = {
 
 const baseAnnouncement: object = {
   time: 0,
-  announcement: undefined,
 };
 
 const baseLogEvent: object = {
@@ -213,142 +220,147 @@ const baseExpectedLogEvent: object = {
 };
 
 const baseNextLogEvents: object = {
-  logEvents: undefined,
 };
 
 const baseActiveLogEvents: object = {
   id: 0,
 };
 
-export const VentilationMode = {
-  pc_ac: 0 as const,
-  pc_simv: 1 as const,
-  vc_ac: 2 as const,
-  vc_simv: 3 as const,
-  psv: 4 as const,
-  niv: 5 as const,
-  hfnc: 6 as const,
-  UNRECOGNIZED: -1 as const,
-  fromJSON(object: any): VentilationMode {
-    switch (object) {
-      case 0:
-      case "pc_ac":
-        return VentilationMode.pc_ac;
-      case 1:
-      case "pc_simv":
-        return VentilationMode.pc_simv;
-      case 2:
-      case "vc_ac":
-        return VentilationMode.vc_ac;
-      case 3:
-      case "vc_simv":
-        return VentilationMode.vc_simv;
-      case 4:
-      case "psv":
-        return VentilationMode.psv;
-      case 5:
-      case "niv":
-        return VentilationMode.niv;
-      case 6:
-      case "hfnc":
-        return VentilationMode.hfnc;
-      case -1:
-      case "UNRECOGNIZED":
-      default:
-        return VentilationMode.UNRECOGNIZED;
-    }
-  },
-  toJSON(object: VentilationMode): string {
-    switch (object) {
-      case VentilationMode.pc_ac:
-        return "pc_ac";
-      case VentilationMode.pc_simv:
-        return "pc_simv";
-      case VentilationMode.vc_ac:
-        return "vc_ac";
-      case VentilationMode.vc_simv:
-        return "vc_simv";
-      case VentilationMode.psv:
-        return "psv";
-      case VentilationMode.niv:
-        return "niv";
-      case VentilationMode.hfnc:
-        return "hfnc";
-      default:
-        return "UNKNOWN";
-    }
-  },
+const baseBatteryPower: object = {
+  powerLeft: 0,
+};
+
+export const protobufPackage = ''
+
+export enum VentilationMode {
+  pc_ac = 0,
+  pc_simv = 1,
+  vc_ac = 2,
+  vc_simv = 3,
+  psv = 4,
+  niv = 5,
+  hfnc = 6,
+  UNRECOGNIZED = -1,
 }
 
-export type VentilationMode = 0 | 1 | 2 | 3 | 4 | 5 | 6 | -1;
-
-export const LogEventCode = {
-  fio2_too_low: 0 as const,
-  fio2_too_high: 1 as const,
-  spo2_too_low: 2 as const,
-  spo2_too_high: 3 as const,
-  rr_too_low: 4 as const,
-  rr_too_high: 5 as const,
-  battery_low: 6 as const,
-  screen_locked: 7 as const,
-  UNRECOGNIZED: -1 as const,
-  fromJSON(object: any): LogEventCode {
-    switch (object) {
-      case 0:
-      case "fio2_too_low":
-        return LogEventCode.fio2_too_low;
-      case 1:
-      case "fio2_too_high":
-        return LogEventCode.fio2_too_high;
-      case 2:
-      case "spo2_too_low":
-        return LogEventCode.spo2_too_low;
-      case 3:
-      case "spo2_too_high":
-        return LogEventCode.spo2_too_high;
-      case 4:
-      case "rr_too_low":
-        return LogEventCode.rr_too_low;
-      case 5:
-      case "rr_too_high":
-        return LogEventCode.rr_too_high;
-      case 6:
-      case "battery_low":
-        return LogEventCode.battery_low;
-      case 7:
-      case "screen_locked":
-        return LogEventCode.screen_locked;
-      case -1:
-      case "UNRECOGNIZED":
-      default:
-        return LogEventCode.UNRECOGNIZED;
-    }
-  },
-  toJSON(object: LogEventCode): string {
-    switch (object) {
-      case LogEventCode.fio2_too_low:
-        return "fio2_too_low";
-      case LogEventCode.fio2_too_high:
-        return "fio2_too_high";
-      case LogEventCode.spo2_too_low:
-        return "spo2_too_low";
-      case LogEventCode.spo2_too_high:
-        return "spo2_too_high";
-      case LogEventCode.rr_too_low:
-        return "rr_too_low";
-      case LogEventCode.rr_too_high:
-        return "rr_too_high";
-      case LogEventCode.battery_low:
-        return "battery_low";
-      case LogEventCode.screen_locked:
-        return "screen_locked";
-      default:
-        return "UNKNOWN";
-    }
-  },
+export function ventilationModeFromJSON(object: any): VentilationMode {
+  switch (object) {
+    case 0:
+    case "pc_ac":
+      return VentilationMode.pc_ac;
+    case 1:
+    case "pc_simv":
+      return VentilationMode.pc_simv;
+    case 2:
+    case "vc_ac":
+      return VentilationMode.vc_ac;
+    case 3:
+    case "vc_simv":
+      return VentilationMode.vc_simv;
+    case 4:
+    case "psv":
+      return VentilationMode.psv;
+    case 5:
+    case "niv":
+      return VentilationMode.niv;
+    case 6:
+    case "hfnc":
+      return VentilationMode.hfnc;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return VentilationMode.UNRECOGNIZED;
+  }
 }
 
-export type LogEventCode = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | -1;
+export function ventilationModeToJSON(object: VentilationMode): string {
+  switch (object) {
+    case VentilationMode.pc_ac:
+      return "pc_ac";
+    case VentilationMode.pc_simv:
+      return "pc_simv";
+    case VentilationMode.vc_ac:
+      return "vc_ac";
+    case VentilationMode.vc_simv:
+      return "vc_simv";
+    case VentilationMode.psv:
+      return "psv";
+    case VentilationMode.niv:
+      return "niv";
+    case VentilationMode.hfnc:
+      return "hfnc";
+    default:
+      return "UNKNOWN";
+  }
+}
+
+export enum LogEventCode {
+  fio2_too_low = 0,
+  fio2_too_high = 1,
+  spo2_too_low = 2,
+  spo2_too_high = 3,
+  rr_too_low = 4,
+  rr_too_high = 5,
+  battery_low = 6,
+  screen_locked = 7,
+  UNRECOGNIZED = -1,
+}
+
+export function logEventCodeFromJSON(object: any): LogEventCode {
+  switch (object) {
+    case 0:
+    case "fio2_too_low":
+      return LogEventCode.fio2_too_low;
+    case 1:
+    case "fio2_too_high":
+      return LogEventCode.fio2_too_high;
+    case 2:
+    case "spo2_too_low":
+      return LogEventCode.spo2_too_low;
+    case 3:
+    case "spo2_too_high":
+      return LogEventCode.spo2_too_high;
+    case 4:
+    case "rr_too_low":
+      return LogEventCode.rr_too_low;
+    case 5:
+    case "rr_too_high":
+      return LogEventCode.rr_too_high;
+    case 6:
+    case "battery_low":
+      return LogEventCode.battery_low;
+    case 7:
+    case "screen_locked":
+      return LogEventCode.screen_locked;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return LogEventCode.UNRECOGNIZED;
+  }
+}
+
+export function logEventCodeToJSON(object: LogEventCode): string {
+  switch (object) {
+    case LogEventCode.fio2_too_low:
+      return "fio2_too_low";
+    case LogEventCode.fio2_too_high:
+      return "fio2_too_high";
+    case LogEventCode.spo2_too_low:
+      return "spo2_too_low";
+    case LogEventCode.spo2_too_high:
+      return "spo2_too_high";
+    case LogEventCode.rr_too_low:
+      return "rr_too_low";
+    case LogEventCode.rr_too_high:
+      return "rr_too_high";
+    case LogEventCode.battery_low:
+      return "battery_low";
+    case LogEventCode.screen_locked:
+      return "screen_locked";
+    default:
+      return "UNKNOWN";
+  }
+}
 
 export const Alarms = {
   encode(message: Alarms, writer: Writer = Writer.create()): Writer {
@@ -360,7 +372,7 @@ export const Alarms = {
   decode(input: Uint8Array | Reader, length?: number): Alarms {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseAlarms) as Alarms;
+    const message = { ...baseAlarms } as Alarms;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -381,7 +393,7 @@ export const Alarms = {
     return message;
   },
   fromJSON(object: any): Alarms {
-    const message = Object.create(baseAlarms) as Alarms;
+    const message = { ...baseAlarms } as Alarms;
     if (object.time !== undefined && object.time !== null) {
       message.time = Number(object.time);
     } else {
@@ -400,7 +412,7 @@ export const Alarms = {
     return message;
   },
   fromPartial(object: DeepPartial<Alarms>): Alarms {
-    const message = Object.create(baseAlarms) as Alarms;
+    const message = { ...baseAlarms } as Alarms;
     if (object.time !== undefined && object.time !== null) {
       message.time = object.time;
     } else {
@@ -420,9 +432,9 @@ export const Alarms = {
   },
   toJSON(message: Alarms): unknown {
     const obj: any = {};
-    obj.time = message.time || 0;
-    obj.alarmOne = message.alarmOne || false;
-    obj.alarmTwo = message.alarmTwo || false;
+    message.time !== undefined && (obj.time = message.time);
+    message.alarmOne !== undefined && (obj.alarmOne = message.alarmOne);
+    message.alarmTwo !== undefined && (obj.alarmTwo = message.alarmTwo);
     return obj;
   },
 };
@@ -460,7 +472,7 @@ export const AlarmLimitsRequest = {
   decode(input: Uint8Array | Reader, length?: number): AlarmLimitsRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseAlarmLimitsRequest) as AlarmLimitsRequest;
+    const message = { ...baseAlarmLimitsRequest } as AlarmLimitsRequest;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -550,7 +562,7 @@ export const AlarmLimitsRequest = {
     return message;
   },
   fromJSON(object: any): AlarmLimitsRequest {
-    const message = Object.create(baseAlarmLimitsRequest) as AlarmLimitsRequest;
+    const message = { ...baseAlarmLimitsRequest } as AlarmLimitsRequest;
     if (object.rrMin !== undefined && object.rrMin !== null) {
       message.rrMin = Number(object.rrMin);
     } else {
@@ -684,7 +696,7 @@ export const AlarmLimitsRequest = {
     return message;
   },
   fromPartial(object: DeepPartial<AlarmLimitsRequest>): AlarmLimitsRequest {
-    const message = Object.create(baseAlarmLimitsRequest) as AlarmLimitsRequest;
+    const message = { ...baseAlarmLimitsRequest } as AlarmLimitsRequest;
     if (object.rrMin !== undefined && object.rrMin !== null) {
       message.rrMin = object.rrMin;
     } else {
@@ -819,32 +831,32 @@ export const AlarmLimitsRequest = {
   },
   toJSON(message: AlarmLimitsRequest): unknown {
     const obj: any = {};
-    obj.rrMin = message.rrMin || 0;
-    obj.rrMax = message.rrMax || 0;
-    obj.pipMin = message.pipMin || 0;
-    obj.pipMax = message.pipMax || 0;
-    obj.peepMin = message.peepMin || 0;
-    obj.peepMax = message.peepMax || 0;
-    obj.ipAbovePeepMin = message.ipAbovePeepMin || 0;
-    obj.ipAbovePeepMax = message.ipAbovePeepMax || 0;
-    obj.inspTimeMin = message.inspTimeMin || 0;
-    obj.inspTimeMax = message.inspTimeMax || 0;
-    obj.fio2Min = message.fio2Min || 0;
-    obj.fio2Max = message.fio2Max || 0;
-    obj.pawMin = message.pawMin || 0;
-    obj.pawMax = message.pawMax || 0;
-    obj.mveMin = message.mveMin || 0;
-    obj.mveMax = message.mveMax || 0;
-    obj.tvMin = message.tvMin || 0;
-    obj.tvMax = message.tvMax || 0;
-    obj.etco2Min = message.etco2Min || 0;
-    obj.etco2Max = message.etco2Max || 0;
-    obj.flowMin = message.flowMin || 0;
-    obj.flowMax = message.flowMax || 0;
-    obj.apneaMin = message.apneaMin || 0;
-    obj.apneaMax = message.apneaMax || 0;
-    obj.spo2Min = message.spo2Min || 0;
-    obj.spo2Max = message.spo2Max || 0;
+    message.rrMin !== undefined && (obj.rrMin = message.rrMin);
+    message.rrMax !== undefined && (obj.rrMax = message.rrMax);
+    message.pipMin !== undefined && (obj.pipMin = message.pipMin);
+    message.pipMax !== undefined && (obj.pipMax = message.pipMax);
+    message.peepMin !== undefined && (obj.peepMin = message.peepMin);
+    message.peepMax !== undefined && (obj.peepMax = message.peepMax);
+    message.ipAbovePeepMin !== undefined && (obj.ipAbovePeepMin = message.ipAbovePeepMin);
+    message.ipAbovePeepMax !== undefined && (obj.ipAbovePeepMax = message.ipAbovePeepMax);
+    message.inspTimeMin !== undefined && (obj.inspTimeMin = message.inspTimeMin);
+    message.inspTimeMax !== undefined && (obj.inspTimeMax = message.inspTimeMax);
+    message.fio2Min !== undefined && (obj.fio2Min = message.fio2Min);
+    message.fio2Max !== undefined && (obj.fio2Max = message.fio2Max);
+    message.pawMin !== undefined && (obj.pawMin = message.pawMin);
+    message.pawMax !== undefined && (obj.pawMax = message.pawMax);
+    message.mveMin !== undefined && (obj.mveMin = message.mveMin);
+    message.mveMax !== undefined && (obj.mveMax = message.mveMax);
+    message.tvMin !== undefined && (obj.tvMin = message.tvMin);
+    message.tvMax !== undefined && (obj.tvMax = message.tvMax);
+    message.etco2Min !== undefined && (obj.etco2Min = message.etco2Min);
+    message.etco2Max !== undefined && (obj.etco2Max = message.etco2Max);
+    message.flowMin !== undefined && (obj.flowMin = message.flowMin);
+    message.flowMax !== undefined && (obj.flowMax = message.flowMax);
+    message.apneaMin !== undefined && (obj.apneaMin = message.apneaMin);
+    message.apneaMax !== undefined && (obj.apneaMax = message.apneaMax);
+    message.spo2Min !== undefined && (obj.spo2Min = message.spo2Min);
+    message.spo2Max !== undefined && (obj.spo2Max = message.spo2Max);
     return obj;
   },
 };
@@ -863,7 +875,7 @@ export const SensorMeasurements = {
   decode(input: Uint8Array | Reader, length?: number): SensorMeasurements {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseSensorMeasurements) as SensorMeasurements;
+    const message = { ...baseSensorMeasurements } as SensorMeasurements;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -896,7 +908,7 @@ export const SensorMeasurements = {
     return message;
   },
   fromJSON(object: any): SensorMeasurements {
-    const message = Object.create(baseSensorMeasurements) as SensorMeasurements;
+    const message = { ...baseSensorMeasurements } as SensorMeasurements;
     if (object.time !== undefined && object.time !== null) {
       message.time = Number(object.time);
     } else {
@@ -935,7 +947,7 @@ export const SensorMeasurements = {
     return message;
   },
   fromPartial(object: DeepPartial<SensorMeasurements>): SensorMeasurements {
-    const message = Object.create(baseSensorMeasurements) as SensorMeasurements;
+    const message = { ...baseSensorMeasurements } as SensorMeasurements;
     if (object.time !== undefined && object.time !== null) {
       message.time = object.time;
     } else {
@@ -975,13 +987,13 @@ export const SensorMeasurements = {
   },
   toJSON(message: SensorMeasurements): unknown {
     const obj: any = {};
-    obj.time = message.time || 0;
-    obj.cycle = message.cycle || 0;
-    obj.paw = message.paw || 0;
-    obj.flow = message.flow || 0;
-    obj.volume = message.volume || 0;
-    obj.fio2 = message.fio2 || 0;
-    obj.spo2 = message.spo2 || 0;
+    message.time !== undefined && (obj.time = message.time);
+    message.cycle !== undefined && (obj.cycle = message.cycle);
+    message.paw !== undefined && (obj.paw = message.paw);
+    message.flow !== undefined && (obj.flow = message.flow);
+    message.volume !== undefined && (obj.volume = message.volume);
+    message.fio2 !== undefined && (obj.fio2 = message.fio2);
+    message.spo2 !== undefined && (obj.spo2 = message.spo2);
     return obj;
   },
 };
@@ -1000,7 +1012,7 @@ export const CycleMeasurements = {
   decode(input: Uint8Array | Reader, length?: number): CycleMeasurements {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseCycleMeasurements) as CycleMeasurements;
+    const message = { ...baseCycleMeasurements } as CycleMeasurements;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1033,7 +1045,7 @@ export const CycleMeasurements = {
     return message;
   },
   fromJSON(object: any): CycleMeasurements {
-    const message = Object.create(baseCycleMeasurements) as CycleMeasurements;
+    const message = { ...baseCycleMeasurements } as CycleMeasurements;
     if (object.time !== undefined && object.time !== null) {
       message.time = Number(object.time);
     } else {
@@ -1072,7 +1084,7 @@ export const CycleMeasurements = {
     return message;
   },
   fromPartial(object: DeepPartial<CycleMeasurements>): CycleMeasurements {
-    const message = Object.create(baseCycleMeasurements) as CycleMeasurements;
+    const message = { ...baseCycleMeasurements } as CycleMeasurements;
     if (object.time !== undefined && object.time !== null) {
       message.time = object.time;
     } else {
@@ -1112,13 +1124,13 @@ export const CycleMeasurements = {
   },
   toJSON(message: CycleMeasurements): unknown {
     const obj: any = {};
-    obj.time = message.time || 0;
-    obj.vt = message.vt || 0;
-    obj.rr = message.rr || 0;
-    obj.peep = message.peep || 0;
-    obj.pip = message.pip || 0;
-    obj.ip = message.ip || 0;
-    obj.ve = message.ve || 0;
+    message.time !== undefined && (obj.time = message.time);
+    message.vt !== undefined && (obj.vt = message.vt);
+    message.rr !== undefined && (obj.rr = message.rr);
+    message.peep !== undefined && (obj.peep = message.peep);
+    message.pip !== undefined && (obj.pip = message.pip);
+    message.ip !== undefined && (obj.ip = message.ip);
+    message.ve !== undefined && (obj.ve = message.ve);
     return obj;
   },
 };
@@ -1134,12 +1146,13 @@ export const Parameters = {
     writer.uint32(61).float(message.ie);
     writer.uint32(69).float(message.fio2);
     writer.uint32(77).float(message.flow);
+    writer.uint32(80).bool(message.ventilating);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): Parameters {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseParameters) as Parameters;
+    const message = { ...baseParameters } as Parameters;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1170,6 +1183,9 @@ export const Parameters = {
         case 9:
           message.flow = reader.float();
           break;
+        case 10:
+          message.ventilating = reader.bool();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1178,14 +1194,14 @@ export const Parameters = {
     return message;
   },
   fromJSON(object: any): Parameters {
-    const message = Object.create(baseParameters) as Parameters;
+    const message = { ...baseParameters } as Parameters;
     if (object.time !== undefined && object.time !== null) {
       message.time = Number(object.time);
     } else {
       message.time = 0;
     }
     if (object.mode !== undefined && object.mode !== null) {
-      message.mode = VentilationMode.fromJSON(object.mode);
+      message.mode = ventilationModeFromJSON(object.mode);
     } else {
       message.mode = 0;
     }
@@ -1224,10 +1240,15 @@ export const Parameters = {
     } else {
       message.flow = 0;
     }
+    if (object.ventilating !== undefined && object.ventilating !== null) {
+      message.ventilating = Boolean(object.ventilating);
+    } else {
+      message.ventilating = false;
+    }
     return message;
   },
   fromPartial(object: DeepPartial<Parameters>): Parameters {
-    const message = Object.create(baseParameters) as Parameters;
+    const message = { ...baseParameters } as Parameters;
     if (object.time !== undefined && object.time !== null) {
       message.time = object.time;
     } else {
@@ -1273,19 +1294,25 @@ export const Parameters = {
     } else {
       message.flow = 0;
     }
+    if (object.ventilating !== undefined && object.ventilating !== null) {
+      message.ventilating = object.ventilating;
+    } else {
+      message.ventilating = false;
+    }
     return message;
   },
   toJSON(message: Parameters): unknown {
     const obj: any = {};
-    obj.time = message.time || 0;
-    obj.mode = VentilationMode.toJSON(message.mode);
-    obj.pip = message.pip || 0;
-    obj.peep = message.peep || 0;
-    obj.vt = message.vt || 0;
-    obj.rr = message.rr || 0;
-    obj.ie = message.ie || 0;
-    obj.fio2 = message.fio2 || 0;
-    obj.flow = message.flow || 0;
+    message.time !== undefined && (obj.time = message.time);
+    message.mode !== undefined && (obj.mode = ventilationModeToJSON(message.mode));
+    message.pip !== undefined && (obj.pip = message.pip);
+    message.peep !== undefined && (obj.peep = message.peep);
+    message.vt !== undefined && (obj.vt = message.vt);
+    message.rr !== undefined && (obj.rr = message.rr);
+    message.ie !== undefined && (obj.ie = message.ie);
+    message.fio2 !== undefined && (obj.fio2 = message.fio2);
+    message.flow !== undefined && (obj.flow = message.flow);
+    message.ventilating !== undefined && (obj.ventilating = message.ventilating);
     return obj;
   },
 };
@@ -1301,12 +1328,13 @@ export const ParametersRequest = {
     writer.uint32(61).float(message.ie);
     writer.uint32(69).float(message.fio2);
     writer.uint32(77).float(message.flow);
+    writer.uint32(80).bool(message.ventilating);
     return writer;
   },
   decode(input: Uint8Array | Reader, length?: number): ParametersRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseParametersRequest) as ParametersRequest;
+    const message = { ...baseParametersRequest } as ParametersRequest;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1337,6 +1365,9 @@ export const ParametersRequest = {
         case 9:
           message.flow = reader.float();
           break;
+        case 10:
+          message.ventilating = reader.bool();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1345,14 +1376,14 @@ export const ParametersRequest = {
     return message;
   },
   fromJSON(object: any): ParametersRequest {
-    const message = Object.create(baseParametersRequest) as ParametersRequest;
+    const message = { ...baseParametersRequest } as ParametersRequest;
     if (object.time !== undefined && object.time !== null) {
       message.time = Number(object.time);
     } else {
       message.time = 0;
     }
     if (object.mode !== undefined && object.mode !== null) {
-      message.mode = VentilationMode.fromJSON(object.mode);
+      message.mode = ventilationModeFromJSON(object.mode);
     } else {
       message.mode = 0;
     }
@@ -1391,10 +1422,15 @@ export const ParametersRequest = {
     } else {
       message.flow = 0;
     }
+    if (object.ventilating !== undefined && object.ventilating !== null) {
+      message.ventilating = Boolean(object.ventilating);
+    } else {
+      message.ventilating = false;
+    }
     return message;
   },
   fromPartial(object: DeepPartial<ParametersRequest>): ParametersRequest {
-    const message = Object.create(baseParametersRequest) as ParametersRequest;
+    const message = { ...baseParametersRequest } as ParametersRequest;
     if (object.time !== undefined && object.time !== null) {
       message.time = object.time;
     } else {
@@ -1440,19 +1476,25 @@ export const ParametersRequest = {
     } else {
       message.flow = 0;
     }
+    if (object.ventilating !== undefined && object.ventilating !== null) {
+      message.ventilating = object.ventilating;
+    } else {
+      message.ventilating = false;
+    }
     return message;
   },
   toJSON(message: ParametersRequest): unknown {
     const obj: any = {};
-    obj.time = message.time || 0;
-    obj.mode = VentilationMode.toJSON(message.mode);
-    obj.pip = message.pip || 0;
-    obj.peep = message.peep || 0;
-    obj.vt = message.vt || 0;
-    obj.rr = message.rr || 0;
-    obj.ie = message.ie || 0;
-    obj.fio2 = message.fio2 || 0;
-    obj.flow = message.flow || 0;
+    message.time !== undefined && (obj.time = message.time);
+    message.mode !== undefined && (obj.mode = ventilationModeToJSON(message.mode));
+    message.pip !== undefined && (obj.pip = message.pip);
+    message.peep !== undefined && (obj.peep = message.peep);
+    message.vt !== undefined && (obj.vt = message.vt);
+    message.rr !== undefined && (obj.rr = message.rr);
+    message.ie !== undefined && (obj.ie = message.ie);
+    message.fio2 !== undefined && (obj.fio2 = message.fio2);
+    message.flow !== undefined && (obj.flow = message.flow);
+    message.ventilating !== undefined && (obj.ventilating = message.ventilating);
     return obj;
   },
 };
@@ -1466,7 +1508,7 @@ export const Ping = {
   decode(input: Uint8Array | Reader, length?: number): Ping {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(basePing) as Ping;
+    const message = { ...basePing } as Ping;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1484,7 +1526,7 @@ export const Ping = {
     return message;
   },
   fromJSON(object: any): Ping {
-    const message = Object.create(basePing) as Ping;
+    const message = { ...basePing } as Ping;
     if (object.time !== undefined && object.time !== null) {
       message.time = Number(object.time);
     } else {
@@ -1498,7 +1540,7 @@ export const Ping = {
     return message;
   },
   fromPartial(object: DeepPartial<Ping>): Ping {
-    const message = Object.create(basePing) as Ping;
+    const message = { ...basePing } as Ping;
     if (object.time !== undefined && object.time !== null) {
       message.time = object.time;
     } else {
@@ -1513,8 +1555,8 @@ export const Ping = {
   },
   toJSON(message: Ping): unknown {
     const obj: any = {};
-    obj.time = message.time || 0;
-    obj.id = message.id || 0;
+    message.time !== undefined && (obj.time = message.time);
+    message.id !== undefined && (obj.id = message.id);
     return obj;
   },
 };
@@ -1528,7 +1570,7 @@ export const Announcement = {
   decode(input: Uint8Array | Reader, length?: number): Announcement {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseAnnouncement) as Announcement;
+    const message = { ...baseAnnouncement } as Announcement;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1546,7 +1588,7 @@ export const Announcement = {
     return message;
   },
   fromJSON(object: any): Announcement {
-    const message = Object.create(baseAnnouncement) as Announcement;
+    const message = { ...baseAnnouncement } as Announcement;
     if (object.time !== undefined && object.time !== null) {
       message.time = Number(object.time);
     } else {
@@ -1558,7 +1600,7 @@ export const Announcement = {
     return message;
   },
   fromPartial(object: DeepPartial<Announcement>): Announcement {
-    const message = Object.create(baseAnnouncement) as Announcement;
+    const message = { ...baseAnnouncement } as Announcement;
     if (object.time !== undefined && object.time !== null) {
       message.time = object.time;
     } else {
@@ -1566,13 +1608,15 @@ export const Announcement = {
     }
     if (object.announcement !== undefined && object.announcement !== null) {
       message.announcement = object.announcement;
+    } else {
+      message.announcement = new Uint8Array();
     }
     return message;
   },
   toJSON(message: Announcement): unknown {
     const obj: any = {};
-    obj.time = message.time || 0;
-    obj.announcement = message.announcement !== undefined ? base64FromBytes(message.announcement) : undefined;
+    message.time !== undefined && (obj.time = message.time);
+    message.announcement !== undefined && (obj.announcement = base64FromBytes(message.announcement !== undefined ? message.announcement : new Uint8Array()));
     return obj;
   },
 };
@@ -1589,7 +1633,7 @@ export const LogEvent = {
   decode(input: Uint8Array | Reader, length?: number): LogEvent {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseLogEvent) as LogEvent;
+    const message = { ...baseLogEvent } as LogEvent;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1616,7 +1660,7 @@ export const LogEvent = {
     return message;
   },
   fromJSON(object: any): LogEvent {
-    const message = Object.create(baseLogEvent) as LogEvent;
+    const message = { ...baseLogEvent } as LogEvent;
     if (object.id !== undefined && object.id !== null) {
       message.id = Number(object.id);
     } else {
@@ -1628,7 +1672,7 @@ export const LogEvent = {
       message.time = 0;
     }
     if (object.code !== undefined && object.code !== null) {
-      message.code = LogEventCode.fromJSON(object.code);
+      message.code = logEventCodeFromJSON(object.code);
     } else {
       message.code = 0;
     }
@@ -1645,7 +1689,7 @@ export const LogEvent = {
     return message;
   },
   fromPartial(object: DeepPartial<LogEvent>): LogEvent {
-    const message = Object.create(baseLogEvent) as LogEvent;
+    const message = { ...baseLogEvent } as LogEvent;
     if (object.id !== undefined && object.id !== null) {
       message.id = object.id;
     } else {
@@ -1675,11 +1719,11 @@ export const LogEvent = {
   },
   toJSON(message: LogEvent): unknown {
     const obj: any = {};
-    obj.id = message.id || 0;
-    obj.time = message.time || 0;
-    obj.code = LogEventCode.toJSON(message.code);
-    obj.oldValue = message.oldValue || 0;
-    obj.newValue = message.newValue || 0;
+    message.id !== undefined && (obj.id = message.id);
+    message.time !== undefined && (obj.time = message.time);
+    message.code !== undefined && (obj.code = logEventCodeToJSON(message.code));
+    message.oldValue !== undefined && (obj.oldValue = message.oldValue);
+    message.newValue !== undefined && (obj.newValue = message.newValue);
     return obj;
   },
 };
@@ -1692,7 +1736,7 @@ export const ExpectedLogEvent = {
   decode(input: Uint8Array | Reader, length?: number): ExpectedLogEvent {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseExpectedLogEvent) as ExpectedLogEvent;
+    const message = { ...baseExpectedLogEvent } as ExpectedLogEvent;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1707,7 +1751,7 @@ export const ExpectedLogEvent = {
     return message;
   },
   fromJSON(object: any): ExpectedLogEvent {
-    const message = Object.create(baseExpectedLogEvent) as ExpectedLogEvent;
+    const message = { ...baseExpectedLogEvent } as ExpectedLogEvent;
     if (object.id !== undefined && object.id !== null) {
       message.id = Number(object.id);
     } else {
@@ -1716,7 +1760,7 @@ export const ExpectedLogEvent = {
     return message;
   },
   fromPartial(object: DeepPartial<ExpectedLogEvent>): ExpectedLogEvent {
-    const message = Object.create(baseExpectedLogEvent) as ExpectedLogEvent;
+    const message = { ...baseExpectedLogEvent } as ExpectedLogEvent;
     if (object.id !== undefined && object.id !== null) {
       message.id = object.id;
     } else {
@@ -1726,7 +1770,7 @@ export const ExpectedLogEvent = {
   },
   toJSON(message: ExpectedLogEvent): unknown {
     const obj: any = {};
-    obj.id = message.id || 0;
+    message.id !== undefined && (obj.id = message.id);
     return obj;
   },
 };
@@ -1741,7 +1785,7 @@ export const NextLogEvents = {
   decode(input: Uint8Array | Reader, length?: number): NextLogEvents {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseNextLogEvents) as NextLogEvents;
+    const message = { ...baseNextLogEvents } as NextLogEvents;
     message.logEvents = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
@@ -1757,7 +1801,7 @@ export const NextLogEvents = {
     return message;
   },
   fromJSON(object: any): NextLogEvents {
-    const message = Object.create(baseNextLogEvents) as NextLogEvents;
+    const message = { ...baseNextLogEvents } as NextLogEvents;
     message.logEvents = [];
     if (object.logEvents !== undefined && object.logEvents !== null) {
       for (const e of object.logEvents) {
@@ -1767,7 +1811,7 @@ export const NextLogEvents = {
     return message;
   },
   fromPartial(object: DeepPartial<NextLogEvents>): NextLogEvents {
-    const message = Object.create(baseNextLogEvents) as NextLogEvents;
+    const message = { ...baseNextLogEvents } as NextLogEvents;
     message.logEvents = [];
     if (object.logEvents !== undefined && object.logEvents !== null) {
       for (const e of object.logEvents) {
@@ -1799,7 +1843,7 @@ export const ActiveLogEvents = {
   decode(input: Uint8Array | Reader, length?: number): ActiveLogEvents {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = Object.create(baseActiveLogEvents) as ActiveLogEvents;
+    const message = { ...baseActiveLogEvents } as ActiveLogEvents;
     message.id = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
@@ -1822,7 +1866,7 @@ export const ActiveLogEvents = {
     return message;
   },
   fromJSON(object: any): ActiveLogEvents {
-    const message = Object.create(baseActiveLogEvents) as ActiveLogEvents;
+    const message = { ...baseActiveLogEvents } as ActiveLogEvents;
     message.id = [];
     if (object.id !== undefined && object.id !== null) {
       for (const e of object.id) {
@@ -1832,7 +1876,7 @@ export const ActiveLogEvents = {
     return message;
   },
   fromPartial(object: DeepPartial<ActiveLogEvents>): ActiveLogEvents {
-    const message = Object.create(baseActiveLogEvents) as ActiveLogEvents;
+    const message = { ...baseActiveLogEvents } as ActiveLogEvents;
     message.id = [];
     if (object.id !== undefined && object.id !== null) {
       for (const e of object.id) {
@@ -1844,10 +1888,57 @@ export const ActiveLogEvents = {
   toJSON(message: ActiveLogEvents): unknown {
     const obj: any = {};
     if (message.id) {
-      obj.id = message.id.map(e => e || 0);
+      obj.id = message.id.map(e => e);
     } else {
       obj.id = [];
     }
+    return obj;
+  },
+};
+
+export const BatteryPower = {
+  encode(message: BatteryPower, writer: Writer = Writer.create()): Writer {
+    writer.uint32(8).uint32(message.powerLeft);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): BatteryPower {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseBatteryPower } as BatteryPower;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.powerLeft = reader.uint32();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): BatteryPower {
+    const message = { ...baseBatteryPower } as BatteryPower;
+    if (object.powerLeft !== undefined && object.powerLeft !== null) {
+      message.powerLeft = Number(object.powerLeft);
+    } else {
+      message.powerLeft = 0;
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<BatteryPower>): BatteryPower {
+    const message = { ...baseBatteryPower } as BatteryPower;
+    if (object.powerLeft !== undefined && object.powerLeft !== null) {
+      message.powerLeft = object.powerLeft;
+    } else {
+      message.powerLeft = 0;
+    }
+    return message;
+  },
+  toJSON(message: BatteryPower): unknown {
+    const obj: any = {};
+    message.powerLeft !== undefined && (obj.powerLeft = message.powerLeft);
     return obj;
   },
 };

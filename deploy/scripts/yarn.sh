@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Installs yarn and front-end dependencies
+# Creates a build release for front-end with static files
+
 # Message colours
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
@@ -12,6 +15,7 @@ echo -e "\n${SUCCESS}********** Installing yarn **********\n${NC}"
 script_dir=$(dirname $(realpath $0))
 frontend_dir=$script_dir/../../frontend
 
+# Installing yarn
 if ! command -v yarn &> /dev/null
 then
     sudo npm i -g yarn

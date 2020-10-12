@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Installs node 12.18.3
+
 # Message colours
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
@@ -10,6 +12,7 @@ echo -e "\n${SUCCESS}********** Installing node **********\n${NC}"
 
 cd ~/
 
+# Downloading node tar file
 if ! command -v node &> /dev/null
 then
     wget https://nodejs.org/dist/v12.18.3/node-v12.18.3-linux-armv7l.tar.gz
@@ -18,6 +21,7 @@ else
     exit
 fi
 
+# Installing node
 if [ 1 -eq $( ls | grep -c "node-v12.18.3-linux-armv7l.tar.gz" ) ]
 then
     tar -xzf node-v12.18.3-linux-armv7l.tar.gz

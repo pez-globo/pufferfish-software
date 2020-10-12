@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Creates a systemd service for starting browser in kiosk mode on boot
+# Adds a script to reset config before starting browser
+
 # Message colours
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'

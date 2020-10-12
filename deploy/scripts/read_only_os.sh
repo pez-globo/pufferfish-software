@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Converts filesystem to read-only filesystem and uses tmpfs as an overlay
+# Uses busybox for logging
+
 # Message colours
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
@@ -45,6 +48,7 @@ echo "Adding tmpfs mounting to /etc/fstab..."
 media_boot="/dev/sda1      /media/pi       ntfs    rw,nosuid,nodev,noauto,nofail,mode=777          0       0"
 fstab_file="/etc/fstab"
 
+# Adding fstab entries for read-only filesystem
 if [ 0 -eq $( grep -c ',ro' $fstab_file ) ]; then
   sudo sed -i.bak "/boot/ s/defaults/defaults,ro/g" $fstab_file
   sudo sed -i "/ext4/ s/defaults/defaults,ro/g" $fstab_file

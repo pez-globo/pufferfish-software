@@ -75,6 +75,7 @@ message Parameters {
   float ie = 7;
   float fio2 = 8;
   float flow = 9;
+  bool ventilating = 10;
 }
 
 message ParametersRequest {
@@ -87,6 +88,7 @@ message ParametersRequest {
   float ie = 7;
   float fio2 = 8;
   float flow = 9;
+  bool ventilating = 10;
 }
 
 // Testing messages
@@ -130,4 +132,8 @@ message NextLogEvents {
 
 message ActiveLogEvents {
   repeated uint32 id = 1;
+}
+
+message BatteryPower {
+  uint32 power_left = 1;
 }

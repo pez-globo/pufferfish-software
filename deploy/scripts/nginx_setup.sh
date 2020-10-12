@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Installs nginx and adds front-end build files to 
+# web serving directory
+
 # Message colours
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
@@ -23,6 +26,7 @@ then
     sudo sed -i '/access.log/i\\terror_page 404 /;' $nginx_conf
 fi
 
+# Copying build files to web serving directory
 if [ 0 -eq $( ls $frontend_dir | grep -c "build" ) ]
 then
     echo -e "${WARNING} Build files not found${NC}"

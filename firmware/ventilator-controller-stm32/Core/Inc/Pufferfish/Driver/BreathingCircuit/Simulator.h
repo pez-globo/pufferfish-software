@@ -11,6 +11,7 @@
 
 #include <cstdint>
 
+#include "Controller.h"
 #include "Pufferfish/Application/States.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
@@ -20,6 +21,7 @@ class Simulator {
   void input_clock(uint32_t current_time);
   virtual void transform(
       const Parameters &parameters,
+      const SensorVars &sensor_vars,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements) = 0;
 
@@ -46,6 +48,7 @@ class PCACSimulator : public Simulator {
  public:
   void transform(
       const Parameters &parameters,
+      const SensorVars &sensor_vars,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements) override;
 
@@ -78,6 +81,7 @@ class HFNCSimulator : public Simulator {
  public:
   void transform(
       const Parameters &parameters,
+      const SensorVars &sensor_vars,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements) override;
 
@@ -102,6 +106,7 @@ class Simulators {
   void transform(
       uint32_t current_time,
       const Parameters &parameters,
+      const SensorVars &sensor_vars,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements);
 

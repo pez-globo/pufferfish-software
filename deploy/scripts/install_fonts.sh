@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Installs Roboto font
+
 # Message colours
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
@@ -10,8 +12,10 @@ cd ~/
 
 echo -e "\n${SUCCESS}********** Installing Roboto Font **********\n${NC}"
 
+# Creating fonts folder if it doesn't exist
 mkdir -p .fonts
 
+# Downloading font
 if [ $( ls .fonts/ | grep -c "Roboto" ) -ge 2 ]
 then
     echo -e "${WARNING} Roboto fonts already available${NC}"
@@ -22,6 +26,7 @@ fi
 
 sudo apt install unzip -y
 
+# Extracting downloaded fonts zip file
 if [ 1 -eq $( ls | grep -c "roboto.zip" ) ]
 then
     unzip roboto.zip -d .fonts/

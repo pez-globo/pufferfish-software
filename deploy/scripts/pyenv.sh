@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Installs pyenv and sets up an environment named ventserver
+# with python 3.7.7 for backend
+
 # Message colours
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
@@ -13,6 +16,7 @@ script_dir=$(dirname $(realpath $0))
 backend_dir=$script_dir/../../backend
 config_dir=$script_dir/../configs
 
+# Installing pyenv and required dependencies
 if ! command -v pyenv &> /dev/null
 then
     sudo apt update
@@ -39,6 +43,7 @@ fi
 
 pyenv="$HOME/.pyenv/bin/pyenv"
 
+# Installing python 3.7.7
 if [ 0 -eq $( $pyenv versions | grep -c "3.7.7" ) ]
 then
     $pyenv install 3.7.7
