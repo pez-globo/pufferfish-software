@@ -234,6 +234,7 @@ async def process_io_persistently(
             await io_endpoint.persistently_open(nursery=nursery)
             if isinstance(io_endpoint, websocket_io.Driver):
                 protocol.receive.frontend_connected = io_endpoint.is_open
+                protocol.receive.frontend_connection_time = time.time()
                     
             try:
                 async with io_endpoint:

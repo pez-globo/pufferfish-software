@@ -3,6 +3,7 @@
 from typing import Optional, Union, Tuple
 import subprocess
 import logging
+import time
 
 import attr
 
@@ -98,8 +99,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     )
     current_time: float = attr.ib(default=0)
     last_frontend_event: float = attr.ib(default=0)
-    last_kill_call: float = attr.ib(default=0)
+    frontend_connection_time: float = attr.ib(default=0)
     frontend_connected: bool = attr.ib(default=False)
+    _kill_process: Optional[subprocess.Popen] = attr.ib(default=None)
     _mcu: mcu.ReceiveFilter = attr.ib(factory=mcu.ReceiveFilter)
     _frontend: frontend.ReceiveFilter = attr.ib(factory=frontend.ReceiveFilter)
     _rotary_encoder: rotary_encoder.ReceiveFilter = attr.ib(
@@ -146,23 +148,25 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         # Kill frontend process if it stops responding.
         # The frontend service will automatically restart the frontend process.
         if (int(self.current_time - self.last_frontend_event) > 1) and\
+            (int(self.current_time - self.frontend_connection_time) > 2) and\
             self.frontend_connected:
-            
-            if (self.current_time - self.last_kill_call) > 2:
-                self.last_kill_call = self.current_time
-                self._kill_frontend_process()
+            if self._kill_process is None or self._kill_process.poll() is not None:
+                    self._kill_process = self._kill_frontend_process()
 
         output = ReceiveOutputEvent(server_send=backend_output)
         return output
 
     def _kill_frontend_process(self) -> None:
         """Spawns subprocess to kill the frontend"""
+        
         try:
-            _ = subprocess.Popen("killall chromium-browser")
+#             sub_p = subprocess.Popen(["killall", "/usr/lib/chromium-browser/chromium-browser-v7"])
+            sub_p = subprocess.Popen(["sudo", "systemctl", "restart", "kiosk.service"])
         except OSError as exc:
             self._logger.warning("Unable to kill the frontend: %s", exc)
-        self._logger.info("No message received from frontend for more" 
+        self._logger.info("No message received from frontend for more " 
             "than a 1s; killed frontend process.")
+        return sub_p
 
     def _process_buffer(self) -> None:
         """Process the next event in the input buffer."""
