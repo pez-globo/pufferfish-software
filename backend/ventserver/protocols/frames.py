@@ -268,6 +268,11 @@ class COBSDecoder(protocols.Filter[bytes, bytes]):
             raise exceptions.ProtocolDataError(
                 'Could not COBS-decode body: {!r}'.format(frame)
             ) from exc
+        except TypeError as err:
+            raise exceptions.ProtocolDataError(
+                'Could not COBS-encode body: required type bytes found type {}'.
+                format(type(frame))
+            ) from err
         self._logger.debug(decoded)
         return decoded
 
@@ -327,6 +332,12 @@ class COBSEncoder(protocols.Filter[bytes, bytes]):
                 .format(len(payload))
             )
 
-        encoded: bytes = cobs.encode(payload)
+        try:
+            encoded: bytes = cobs.encode(payload)
+        except TypeError as err:
+            raise exceptions.ProtocolDataError(
+                'Frames payload for COBS encoding should be bytes not {}'
+                .format(type(payload))
+            ) from err
         self._logger.debug(encoded)
         return encoded
