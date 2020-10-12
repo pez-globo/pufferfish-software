@@ -100,8 +100,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     last_frontend_event: float = attr.ib(default=0)
     frontend_connection_time: float = attr.ib(default=0)
     frontend_connected: bool = attr.ib(default=False)
-    _kill_process: Optional[subprocess.Popen] =\
-        attr.ib(default=None)  # type: ignore
+    _kill_process: Optional[  # type: ignore
+        subprocess.Popen
+    ] = attr.ib(default=None)
     _mcu: mcu.ReceiveFilter = attr.ib(factory=mcu.ReceiveFilter)
     _frontend: frontend.ReceiveFilter = attr.ib(factory=frontend.ReceiveFilter)
     _rotary_encoder: rotary_encoder.ReceiveFilter = attr.ib(
@@ -159,7 +160,6 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
 
     def _kill_frontend_process(self) -> subprocess.Popen:  # type: ignore
         """Spawns subprocess to kill the frontend"""
-
         try:
             sub_p = subprocess.Popen(
                 ["sudo", "systemctl", "restart", "kiosk.service"]
