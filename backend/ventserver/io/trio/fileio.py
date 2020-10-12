@@ -49,7 +49,7 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
             self._fileobject = await trio.open_file(    # type: ignore
                 _filepath, str(self.props.mode)
             )
-        except OSError err:
+        except OSError as err:
             raise OSError("Handler:") from err
 
         self._connected.set()
