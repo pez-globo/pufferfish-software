@@ -1,11 +1,12 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Redirect, useHistory } from "react-router-dom";
+import React, { useCallback, useEffect, useState } from 'react';
+import { Redirect, useHistory } from 'react-router-dom';
 
-const IdleTimer = ({ timeout, onTimeOut }: { timeout: number, onTimeOut(): void}): void => {
-  
-  const idle = useCallback(()=> {
-    onTimeOut && onTimeOut()
-  },[onTimeOut]) 
+const IdleTimer = ({ timeout, onTimeOut }: { timeout: number; onTimeOut(): void }): void => {
+  const idle = useCallback(() => {
+    if (onTimeOut) {
+      onTimeOut();
+    }
+  }, [onTimeOut]);
 
   useEffect(() => {
     let idleTimeout: NodeJS.Timeout;
@@ -20,43 +21,34 @@ const IdleTimer = ({ timeout, onTimeOut }: { timeout: number, onTimeOut(): void}
       }
     };
 
-    const events = [
-      'load',
-      'mousemove',
-      'mousedown',
-      'click',
-      'scroll',
-      'keypress'
-    ];
+    const events = ['load', 'mousemove', 'mousedown', 'click', 'scroll', 'keypress'];
 
     const resetTimeout = () => {
       clearTimeouts();
       setTimeouts();
     };
 
-    for (let i in events) {
-      window.addEventListener(events[i], resetTimeout);
-    }
+    events.forEach((event: string) => {
+      window.addEventListener(event, resetTimeout);
+    });
 
     setTimeouts();
     return () => {
-      for (let i in events) {
-        window.removeEventListener(events[i], resetTimeout);
+      events.forEach((event: string) => {
+        window.removeEventListener(event, resetTimeout);
         clearTimeouts();
-      }
-    }
+      });
+    };
   }, [idle, timeout]);
+};
 
-}
+export const UserActivity = (): JSX.Element => {
+  const [idleTimeout] = useState(10 * 1000); // 10 seconds just for testing
+  const history = useHistory();
+  const onTimeOut = () => {
+    history.push('/screensaver');
+  };
+  return <IdleTimer timeout={idleTimeout} onTimeOut={onTimeOut} />;
+};
 
-export const UserActivity = () => {
-    const [idleTimeout] = useState(10 * 1000) // 10 seconds just for testing
-    let history = useHistory()
-    const onTimeOut = () => {
-      console.log('Timeout triggered')
-      history.push('/screensaver')
-    }
-    return <IdleTimer timeout={idleTimeout} onTimeOut={onTimeOut} />
-}
-
-export default UserActivity
+export default UserActivity;
