@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Backend systemd service to run backend on boot
+
 # Message colours
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
@@ -14,6 +16,7 @@ config_dir=$script_dir/../configs
 backend_dir=$script_dir/../../backend/ventserver
 backend_file=$(realpath $backend_dir)/simulation.py
 
+# Copy service file to systemd directory
 if [ 1 -eq $( ls $config_dir | grep -c "pufferfish_backend.service" ) ]
 then
     sudo cp $config_dir/pufferfish_backend.service /etc/systemd/system/

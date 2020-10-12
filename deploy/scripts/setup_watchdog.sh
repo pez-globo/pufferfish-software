@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Sets up watchdog to handle raspberry pi failures and crashes
+
 # Message colours
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'
@@ -7,6 +9,10 @@ WARNING='\033[1;33mWARNING:'
 NC='\033[0m'
 
 echo -e "\n${SUCCESS}********** Setting up Watchdog **********\n${NC}"
+
+# Getting absolute path of config files
+script_dir=$(dirname $(realpath $0))
+config_dir=$script_dir/../configs
 
 # Getting absolute path of config files
 script_dir=$(dirname $(realpath $0))

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Modifies log locations from backend, kiosk and nginx services to syslog
+# Redirects these syslogs to USB Device
+
 # Message colours
 ERROR='\033[1;31mERROR:'
 SUCCESS='\033[1;32m'

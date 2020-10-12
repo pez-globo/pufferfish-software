@@ -81,6 +81,10 @@ async def send_all_websocket(
             logger.warning(
                 'Websocket connection was lost during send: %s', send_event
             )
+        except exceptions.ProtocolDataError as err:
+            logger.warning(
+                'Illegal data type: %s', err
+            )
 
 async def process_file_save_output(
         protocol: server.Protocol,
