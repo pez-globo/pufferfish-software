@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
+import { useSelector } from 'react-redux';
 import Routes from '../navigation/Routes';
 import ToolBar from './ToolBar';
 import Sidebar from './Sidebar';
+import { getScreenStatus } from '../../store/controller/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -45,10 +47,16 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const Layout = (): JSX.Element => {
   const classes = useStyles();
+  const screenStatus = useSelector(getScreenStatus);
+  const [overlay, setOverlay] = useState(screenStatus || false);
+
+  useEffect(() => {
+    setOverlay(screenStatus);
+  }, [screenStatus]);
 
   return (
     <React.Fragment>
-      {/* <div className={classes.overlay}></div> */}
+      {overlay && <div className={classes.overlay} />}
       <Grid container justify="center" alignItems="stretch" className={classes.root}>
         <Grid item className={classes.sidebarGrid}>
           <Sidebar />
