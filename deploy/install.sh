@@ -15,7 +15,7 @@
 # Setup yarn and install required libraries
 ./scripts/yarn.sh
 
-if [ "$@" != "deploy" ]
+if [[ "$@" != "deploy" ]]
 then
     echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/N]: "
     read answer
