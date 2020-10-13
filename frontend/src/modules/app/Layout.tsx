@@ -10,22 +10,36 @@ const useStyles = makeStyles((theme: Theme) => ({
     height: '100vh',
     backgroundColor: theme.palette.background.default,
     flexWrap: 'nowrap',
-    // border: '1px solid blue'
+    display: 'grid',
+    gridTemplateAreas: `
+                    'content vent'`,
+    gridTemplateColumns: '90px 1fr',
   },
+  sidebarGrid: {
+    gridArea: 'content',
+    height: '100vh',
+  },
+
   main: {
-    padding: '0 16px 0 16px',
-    height: '100%',
+    gridGap: '15px',
+    display: 'grid',
+    padding: '15px',
+    height: '100vh',
     width: '100%',
     flexWrap: 'nowrap',
-    // border: '1px solid red'
-  },
-  toolbarContainer: {
-    minHeight: theme.mixins.toolbar.minHeight,
-    // border: '1px solid red',
+    gridArea: 'vent',
+    gridTemplateRows: '40px 1fr',
+    overflow: 'hidden',
   },
   mainContainer: {
     height: '100%',
-    // border: '1px solid red',
+  },
+  overlay: {
+    width: '100%',
+    height: '100%',
+    background: 'rgb(0 0 0 / 39%)',
+    position: 'absolute',
+    zIndex: 9999,
   },
 }));
 
@@ -33,19 +47,22 @@ const Layout = (): JSX.Element => {
   const classes = useStyles();
 
   return (
-    <Grid container justify="center" alignItems="stretch" className={classes.root}>
-      <Grid item>
-        <Sidebar />
-      </Grid>
-      <Grid container item direction="column" className={classes.main}>
-        <Grid container item alignItems="center" className={classes.toolbarContainer}>
-          <ToolBar />
+    <React.Fragment>
+      {/* <div className={classes.overlay}></div> */}
+      <Grid container justify="center" alignItems="stretch" className={classes.root}>
+        <Grid item className={classes.sidebarGrid}>
+          <Sidebar />
         </Grid>
-        <Grid container item className={classes.mainContainer}>
-          <Routes />
+        <Grid container item direction="column" className={classes.main}>
+          <Grid container item alignItems="center">
+            <ToolBar />
+          </Grid>
+          <Grid container item className={classes.mainContainer}>
+            <Routes />
+          </Grid>
         </Grid>
       </Grid>
-    </Grid>
+    </React.Fragment>
   );
 };
 

@@ -13,12 +13,20 @@ import {
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     width: '100%',
+    height: '100%',
   },
   tabs: {
     alignText: 'center',
     zIndex: 1,
+    height: '100%',
     '&;selected': {
       backgroundColor: 'red',
+    },
+    '& .MuiTabs-fixed': {
+      height: '100%',
+      '& .MuiTabs-centered': {
+        height: '100%',
+      },
     },
   },
   tab: {
@@ -37,7 +45,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     zIndex: 0,
   },
 }));
-
 /**
  * Navigation
  *
