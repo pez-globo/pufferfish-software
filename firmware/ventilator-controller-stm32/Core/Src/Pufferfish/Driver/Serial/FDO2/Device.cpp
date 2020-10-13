@@ -63,7 +63,8 @@ ResponseReceiver::OutputStatus ResponseReceiver::output(Response &output_respons
   }
 
   // Command
-  switch (commands_.transform(temp_buffer, output_response)) {
+  switch (
+      Pufferfish::Driver::Serial::FDO2::CommandReceiver::transform(temp_buffer, output_response)) {
     case CommandReceiver::Status::invalid_header:
       return OutputStatus::invalid_header;
     case CommandReceiver::Status::invalid_args:
@@ -80,12 +81,13 @@ ResponseReceiver::OutputStatus ResponseReceiver::output(Response &output_respons
 RequestSender::Status RequestSender::transform(
     const Request &input_request, Requests::ChunkBuffer &output_buffer) const {
   // Command
-  if (commands_.transform(input_request, output_buffer) != CommandSender::Status::ok) {
+  if (Pufferfish::Driver::Serial::FDO2::CommandSender::transform(input_request, output_buffer) !=
+      CommandSender::Status::ok) {
     return Status::invalid_command;
   }
 
   // Chunk
-  if (chunks_.transform(output_buffer) != Protocols::ChunkOutputStatus::ok) {
+  if (chunks.transform(output_buffer) != Protocols::ChunkOutputStatus::ok) {
     return Status::invalid_length;
   }
   /*if (output_buffer.push_back(0x0a) != IndexStatus::ok) {

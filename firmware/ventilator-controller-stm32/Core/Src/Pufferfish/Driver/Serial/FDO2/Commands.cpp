@@ -295,12 +295,12 @@ ParseStatus Erro::parse(const ChunkBuffer &input_buffer) {
 
 namespace Requests {
 
-void Vers::write(ChunkBuffer &output_buffer) const {
+void Vers::write(ChunkBuffer &output_buffer) {
   output_buffer.clear();
   output_buffer.copy_from(Headers::vers);
 }
 
-void Logo::write(ChunkBuffer &output_buffer) const {
+void Logo::write(ChunkBuffer &output_buffer) {
   output_buffer.clear();
   output_buffer.copy_from(Headers::logo);
 }
@@ -315,11 +315,11 @@ void Bcst::write(ChunkBuffer &output_buffer) const {
       args_format,
       interval);
   if (result < 0) {
-    // TODO: return error
+    // TODO(lietk12): return error
     return;
   }
   if (output_buffer.resize(output_buffer.size() + result) != IndexStatus::ok) {
-    // TODO: return error
+    // TODO(lietk12): return error
     return;
   }
 }
@@ -329,7 +329,7 @@ void Bcst::write(ChunkBuffer &output_buffer) const {
 // CommandReceiver
 
 CommandReceiver::Status CommandReceiver::transform(
-    const Responses::ChunkBuffer &input_buffer, Response &output_response) const {
+    const Responses::ChunkBuffer &input_buffer, Response &output_response) {
   RESPONSE_PARSE_TAGGED(Responses::Vers, vers, input_buffer, output_response);
   RESPONSE_PARSE_TAGGED(Responses::Mraw, mraw, input_buffer, output_response);
   RESPONSE_PARSE_TAGGED(Responses::Logo, logo, input_buffer, output_response);
@@ -342,7 +342,7 @@ CommandReceiver::Status CommandReceiver::transform(
 // CommandSender
 
 CommandSender::Status CommandSender::transform(
-    const Request &input_request, Requests::ChunkBuffer &output_buffer) const {
+    const Request &input_request, Requests::ChunkBuffer &output_buffer) {
   REQUEST_WRITE_TAGGED(vers, input_request, output_buffer);
   REQUEST_WRITE_TAGGED(logo, input_request, output_buffer);
   REQUEST_WRITE_TAGGED(bcst, input_request, output_buffer);

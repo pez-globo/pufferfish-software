@@ -78,7 +78,7 @@ struct Mraw {
 struct Logo {
   uint16_t interval;
 
-  ParseStatus parse(const ChunkBuffer &input_buffer);
+  static ParseStatus parse(const ChunkBuffer &input_buffer);
 };
 struct Bcst {
   uint16_t interval;
@@ -115,10 +115,10 @@ static const size_t max_len = max_frame_len(max_num_fields);
 using ChunkBuffer = Util::Vector<char, max_len>;
 
 struct Vers {
-  void write(ChunkBuffer &output_buffer) const;
+  static void write(ChunkBuffer &output_buffer);
 };
 struct Logo {
-  void write(ChunkBuffer &output_buffer) const;
+  static void write(ChunkBuffer &output_buffer);
 };
 struct Bcst {
   static constexpr const char *args_format = "%d";
@@ -143,14 +143,14 @@ class CommandReceiver {
  public:
   enum class Status { ok = 0, invalid_header, invalid_args };
 
-  Status transform(const Responses::ChunkBuffer &input_buffer, Response &output_response) const;
+  static Status transform(const Responses::ChunkBuffer &input_buffer, Response &output_response);
 };
 
 class CommandSender {
  public:
   enum class Status { ok = 0, invalid_command };
 
-  Status transform(const Request &input_request, Requests::ChunkBuffer &output_buffer) const;
+  static Status transform(const Request &input_request, Requests::ChunkBuffer &output_buffer);
 };
 
 }  // namespace Pufferfish::Driver::Serial::FDO2

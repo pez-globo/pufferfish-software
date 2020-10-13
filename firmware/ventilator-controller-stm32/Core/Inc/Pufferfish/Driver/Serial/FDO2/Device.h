@@ -46,8 +46,8 @@ class RequestSender {
   Status transform(const Request &input_request, Requests::ChunkBuffer &output_buffer) const;
 
  private:
-  const CommandSender commands_ = CommandSender();
-  const Protocols::ChunkMerger chunks_ = Protocols::ChunkMerger(frame_end);
+  const CommandSender commands = CommandSender();
+  const Protocols::ChunkMerger chunks = Protocols::ChunkMerger(frame_end);
 };
 
 /**
