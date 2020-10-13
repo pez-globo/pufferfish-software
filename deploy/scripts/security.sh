@@ -7,6 +7,7 @@
 # Installs fail2ban
 # Disables Wifi
 # Locks pi user and removes pi from sudoers
+# Calculates hash value for OS Config, backend and frontend files
 
 # Message colours
 ERROR='\033[1;31mERROR:'
@@ -17,6 +18,7 @@ NC='\033[0m'
 echo -e "\n${SUCCESS}********** Setting up User & Network Security **********\n${NC}"
 
 sudo apt install openssh-server nginx ufw fail2ban -y
+pip3 install dirhash -y
 
 # Deny ssh for pi user
 if [ 0 -eq $( grep -c "^DenyUsers pi" /etc/ssh/sshd_config ) ]
@@ -51,6 +53,17 @@ then
     echo -e "\ndtoverlay=disable-wifi" | sudo tee -a /boot/config.txt
 else
     echo -e "${WARNING} Wifi is already disabled${NC}"
+fi
+
+if [ 1 -eq $( ls $config_dir | grep -c "hash_check.py" ) ]
+then
+    sudo cp $config_dir/hash_check.py /opt/
+    sudo cp $config_dir/compare_hash.sh /opt/
+    sudo chmod +x /opt/compare_hash.sh
+    echo $(python3 /opt/hash_check.py) | sudo tee /opt/hash_value
+else
+    echo -e "${ERROR} The hash_check.py file doesn't exist${NC}"
+    exit 1
 fi
 
 # Lock pi and root user
