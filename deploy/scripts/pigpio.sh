@@ -11,4 +11,7 @@ echo -e "\n${SUCCESS}********** Installing pigpio **********\n${NC}"
 sudo apt update
 sudo apt install pigpio -y
 
+sudo systemctl enable pigpiod
+sudo systemctl daemon-reload
+
 echo -e "\n${SUCCESS}Pigpio setup complete\n${NC}"
