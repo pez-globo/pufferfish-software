@@ -21,7 +21,7 @@ $script_dir/scripts/install_fonts.sh
 # Setup yarn and install required libraries
 $script_dir/scripts/yarn.sh
 
-if [ "$@" != "deploy" ]
+if [[ "$@" != "deploy" ]]
 then
     echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/N]: "
     read answer
