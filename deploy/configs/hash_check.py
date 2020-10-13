@@ -15,8 +15,8 @@ def get_hash(file_paths, front_end, back_end):
     frontend_hash = dirhash(front_end, "sha1", ignore=[".*", ".*/"])
     backend_hash = dirhash(back_end, "sha1", ignore=[".*", ".*/"], match=["*.py"])
 
-    hashing.update(frontend_hash)
-    hashing.update(backend_hash)
+    hashing.update(frontend_hash.encode())
+    hashing.update(backend_hash.encode())
     
     return hashing.hexdigest()
 
