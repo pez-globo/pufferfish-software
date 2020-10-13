@@ -10,6 +10,7 @@ from ventserver.protocols import mcu
 from ventserver.protocols import exceptions
 from ventserver.protocols import messages
 from ventserver.protocols import crcelements
+from ventserver.protocols import events
 from ventserver.sansio import protocols
 from ventserver.sansio import channels
 
@@ -17,10 +18,14 @@ from ventserver.sansio import channels
 # Classes
 
 @attr.s(auto_attribs=True)
-class StateData:
+class StateData(events.Event):
     """Data info payload details"""
     state_type: Optional[str] = None
     data: Optional[bytes] = None
+
+    def has_data(self) -> bool:
+        """Return whether the event has data."""
+        return self.data is not None
 
 # Events
 
@@ -54,7 +59,7 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
     def input(self, event: Optional[LowerEvent]) -> None:
         """Handle input events."""
         if event:
-            if not event.data:
+            if not event.has_data():
                 raise exceptions.ProtocolDataError(
                     "Empty file: {0}".format(event.state_type)
                 )

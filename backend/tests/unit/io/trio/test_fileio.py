@@ -71,12 +71,12 @@ async def test_fileio_write_read_ow(
     for data, _ in data_list:
         filehandler.set_props(filename=filename, mode='wb')
         await filehandler.open()
-        await filehandler.send(data)
-        await filehandler.close()
+        async with filehandler:
+            await filehandler.send(data)
         filehandler.set_props(filename=filename, mode='rb')
         await filehandler.open()
-        output = await filehandler.receive()
-        await filehandler.close()
+        async with filehandler:
+            output = await filehandler.receive()
         assert output == data
 
 @pt.mark.trio
@@ -89,12 +89,12 @@ async def test_fileio_multi_read_write(
     for data, filename in data_list:
         filehandler.set_props(filename=filename, mode='wb')
         await filehandler.open()
-        await filehandler.send(data)
-        await filehandler.close()
+        async with filehandler:
+            await filehandler.send(data)
         filehandler.set_props(filename=filename, mode='rb')
         await filehandler.open()
-        output = await filehandler.receive()
-        await filehandler.close()
+        async with filehandler:
+            output = await filehandler.receive()
         assert output == data
 
 @pt.mark.trio
@@ -107,15 +107,15 @@ async def test_fileio_read_repeated(
     filename = "fileio_read_repeated"
     filehandler.set_props(filename=filename, mode='wb')
     await filehandler.open()
-    await filehandler.send(data)
-    await filehandler.close()
+    async with filehandler:
+        await filehandler.send(data)
 
     filehandler.set_props(filename=filename, mode='rb')
     for _ in range(3): 
         await filehandler.open()
-        output = await filehandler.receive()
+        async with filehandler:
+            output = await filehandler.receive()
         assert output == data
-        await filehandler.close()
 
 @pt.mark.trio
 @pt.mark.parametrize("data,_", [examples[0]])
@@ -133,4 +133,5 @@ async def test_fileio_read_new(
 
     filehandler.set_props(filename=filename, mode='wb')
     await filehandler.open()
-    await filehandler.send(data)
+    async with filehandler:
+        await filehandler.send(data)

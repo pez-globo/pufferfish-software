@@ -66,13 +66,21 @@ async def main() -> None:
     ] = channels.TrioChannel()
 
     # Initialize State
+    all_states = protocol.receive.backend.all_states
+    for state in all_states:
+        if state is mcu_pb.ParametersRequest:
+            all_states[state] = mcu_pb.ParametersRequest(
+                mode=mcu_pb.VentilationMode.hfnc, rr=30, fio2=60, flow=6
+            )
+        else:
+            all_states[state] = state()
+
     states: List[Type[betterproto.Message]] = [
         mcu_pb.Parameters, mcu_pb.CycleMeasurements,
         mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
     ]
-    all_states = protocol.receive.backend.all_states
     await _trio.initialize_states(
-        states, protocol, filehandler, all_states
+        states, protocol, filehandler
     )
 
     try:

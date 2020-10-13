@@ -52,6 +52,7 @@ class ReceiveEvent(events.Event):
     time: Optional[float] = attr.ib(default=None)
     mcu_receive: Optional[mcu.UpperEvent] = attr.ib(default=None)
     frontend_receive: Optional[frontend.UpperEvent] = attr.ib(default=None)
+    file_receive: Optional[mcu.UpperEvent] = attr.ib(default=None)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
@@ -213,6 +214,22 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             except exceptions.ProtocolDataError:
                 self._logger.exception(
                     'Save State Synchronizer: %s', event.mcu_receive
+                )
+
+        # Handle state update from protobuf files
+        if (
+                event.file_receive is not None
+                and type(event.file_receive) in self.MCU_INPUT_TYPES
+        ):
+            try:
+                self._file_state_synchronizer.input(
+                    states.UpdateEvent(
+                        pb_message=event.file_receive
+                    )
+                )
+            except exceptions.ProtocolDataError:
+                self._logger.exception(
+                    'Read State Synchronizer: %s', event.file_receive
                 )
 
         # Handle inbound state update from frontend

@@ -43,7 +43,9 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
                                "Please close the old file instance."
                               )
 
-        _filepath = os.path.join(self.props.filedir, self.props.filename)
+        _filepath = os.path.join(
+            self.props.rootdir, self.props.filedir, self.props.filename
+        )
         try:
             # raises OSError
             self._fileobject = await trio.open_file(    # type: ignore
@@ -52,6 +54,7 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
         except OSError as err:
             raise OSError("Handler:") from err
 
+        self._logger.info('File %s opened.', self.props.filename)
         self._connected.set()
 
     @property
@@ -67,14 +70,10 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
         assert self._fileobject is not None
         await self._fileobject.aclose()
         self._fileobject = None
-        self._logger.info('File connection closed.')
+        self._logger.info('File %s closed.', self.props.filename)
         self._connected = trio.Event()
 
     async def receive(self) -> bytes:
-        """Wrapper on read from protobuf file."""
-        return await self.read()
-
-    async def read(self) -> bytes:
         """Reads data from protobuf file and returns a bytes object."""
         if self._fileobject is None:
             raise RuntimeError("No file object defined to read.")
@@ -83,10 +82,6 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
         return _data
 
     async def send(self, data: Optional[bytes]) -> None:
-        """Wrapper on write to protobuf file."""
-        await self.write(data)
-
-    async def write(self, data: Optional[bytes]) -> None:
         """Writes data to the protobuf file."""
         if data is None:
             return
