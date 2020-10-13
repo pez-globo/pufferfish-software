@@ -162,7 +162,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         """Spawns subprocess to kill the frontend"""
         try:
             sub_p = subprocess.Popen(
-                ["sudo", "systemctl", "restart", "kiosk.service"]
+                ["killall", "/usr/lib/chromium-browser/chromium-browser-v7"]
             )
         except OSError as exc:
             self._logger.warning("Unable to kill the frontend: %s", exc)
