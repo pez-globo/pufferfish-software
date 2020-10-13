@@ -17,8 +17,12 @@ NC='\033[0m'
 
 echo -e "\n${SUCCESS}********** Setting up User & Network Security **********\n${NC}"
 
+# Getting absolute path of config files
+script_dir=$(dirname $(realpath $0))
+config_dir=$script_dir/../configs
+
 sudo apt install openssh-server nginx ufw fail2ban -y
-pip3 install dirhash -y
+pip3 install dirhash
 
 # Deny ssh for pi user
 if [ 0 -eq $( grep -c "^DenyUsers pi" /etc/ssh/sshd_config ) ]
@@ -36,7 +40,7 @@ fi
 sudo ufw default deny incoming
 sudo ufw deny ssh
 sudo ufw allow in "Nginx Full"
-sudo ufw enable
+sudo ufw --force enable
 
 # Disabling ssh services
 sudo systemctl mask ssh
