@@ -58,11 +58,9 @@ struct Vers {
   uint8_t num_channels;
   uint16_t firmware_rev;
   uint8_t type;  // TODO(lietk12): parse bits into bools
-
-  ParseStatus parse(const ChunkBuffer &input_buffer);
-
-  bool operator==(const Vers &other) const;
 };
+bool operator==(const Vers &left, const Vers &right);
+
 struct Mraw {
   int32_t po2;
   int32_t temperature;
@@ -72,27 +70,21 @@ struct Mraw {
   int32_t ambient_light;
   int32_t ambient_pressure;
   int32_t relative_humidity;
-
-  ParseStatus parse(const ChunkBuffer &input_buffer);
 };
 struct Logo {
   uint16_t interval;
-
-  static ParseStatus parse(const ChunkBuffer &input_buffer);
 };
 struct Bcst {
   uint16_t interval;
-
-  ParseStatus parse(const ChunkBuffer &input_buffer);
-
-  bool operator==(const Bcst &other) const;
 };
+bool operator==(const Bcst &left, const Bcst &right);
 
 struct Erro {
   int32_t code;
-
-  ParseStatus parse(const ChunkBuffer &input_buffer);
 };
+
+template <typename Response>
+ParseStatus parse(const ChunkBuffer &input_buffer, Response &response);
 
 union Union {
   Vers vers;
@@ -114,19 +106,16 @@ static const size_t max_num_fields = 2;
 static const size_t max_len = max_frame_len(max_num_fields);
 using ChunkBuffer = Util::Vector<char, max_len>;
 
-struct Vers {
-  static void write(ChunkBuffer &output_buffer);
-};
-struct Logo {
-  static void write(ChunkBuffer &output_buffer);
-};
+struct Vers {};
+struct Logo {};
 struct Bcst {
   static constexpr const char *args_format = "%d";
 
   uint16_t interval;
-
-  void write(ChunkBuffer &output_buffer) const;
 };
+
+template <typename Request>
+void write(const Request &request, ChunkBuffer &output_buffer);
 
 union Union {
   Vers vers;

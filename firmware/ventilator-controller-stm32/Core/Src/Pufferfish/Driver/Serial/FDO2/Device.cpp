@@ -105,11 +105,7 @@ Device::Status Device::start_broadcast() {
   Request request{};
   request.set(bcst);
   requests_.transform(request, request_buffer);
-  HAL::AtomicSize written_size = 0;
-  if (uart_.write(
-          reinterpret_cast<uint8_t *>(request_buffer.buffer()),
-          request_buffer.size(),
-          written_size) != BufferStatus::ok) {
+  if (write(request_buffer) != BufferStatus::ok) {
     return Status::timed_out;
   }
 
@@ -155,11 +151,7 @@ Device::Status Device::flash_led() {
   Request request{};
   request.set(logo);
   requests_.transform(request, request_buffer);
-  HAL::AtomicSize written_size = 0;
-  if (uart_.write(
-          reinterpret_cast<uint8_t *>(request_buffer.buffer()),
-          request_buffer.size(),
-          written_size) != BufferStatus::ok) {
+  if (write(request_buffer) != BufferStatus::ok) {
     return Status::timed_out;
   }
 
@@ -172,15 +164,22 @@ Device::Status Device::request_version() {
   Request request{};
   request.set(vers);
   requests_.transform(request, request_buffer);
-  HAL::AtomicSize written_size = 0;
-  if (uart_.write(
-          reinterpret_cast<uint8_t *>(request_buffer.buffer()),
-          request_buffer.size(),
-          written_size) != BufferStatus::ok) {
+  if (write(request_buffer) != BufferStatus::ok) {
     return Status::timed_out;
   }
 
   return Status::ok;
+}
+
+BufferStatus Device::write(const Requests::ChunkBuffer &request_buffer) {
+  HAL::AtomicSize written_size = 0;
+  return uart_.write(
+      // We need to write uint8_t to UART, but we need to use char *'s
+      // for integer parsing/writing, so for now we need reinterpret_cast.
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+      reinterpret_cast<const uint8_t *>(request_buffer.buffer()),
+      request_buffer.size(),
+      written_size);
 }
 
 }  // namespace Pufferfish::Driver::Serial::FDO2

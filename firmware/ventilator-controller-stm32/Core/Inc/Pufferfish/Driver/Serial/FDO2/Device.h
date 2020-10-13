@@ -35,7 +35,6 @@ class ResponseReceiver {
   OutputStatus output(Response &output_response);
 
  private:
-  CommandReceiver commands_;
   Protocols::ChunkSplitter<Responses::max_len, char> chunks_;
 };
 
@@ -46,7 +45,6 @@ class RequestSender {
   Status transform(const Request &input_request, Requests::ChunkBuffer &output_buffer) const;
 
  private:
-  const CommandSender commands = CommandSender();
   const Protocols::ChunkMerger chunks = Protocols::ChunkMerger(frame_end);
 };
 
@@ -97,6 +95,8 @@ class Device {
   volatile HAL::BufferedUART &uart_;
   ResponseReceiver responses_;
   RequestSender requests_;
+
+  BufferStatus write(const Requests::ChunkBuffer &request_buffer);
 };
 
 }  // namespace Pufferfish::Driver::Serial::FDO2

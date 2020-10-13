@@ -37,8 +37,6 @@ class Sensor : public Initializable {
   uint32_t request_time_ = 0;  // us
   bool setup_completed_ = false;
 
-  Responses::Mraw mraw_{};
-
   bool check_version();
   bool start_broadcast();
 };

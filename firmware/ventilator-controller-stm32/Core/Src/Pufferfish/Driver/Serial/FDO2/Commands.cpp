@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
+#include <sstream>
 
 namespace FDO2 = Pufferfish::Driver::Serial::FDO2;
 
@@ -20,8 +21,8 @@ namespace FDO2 = Pufferfish::Driver::Serial::FDO2;
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define RESPONSE_PARSE_TAGGED(type, field, input_buffer, output_response) \
   if (std::equal(Headers::field.begin(), Headers::field.end(), (input_buffer).buffer())) {\
-    type response;\
-    response.parse(input_buffer);\
+    type response{};\
+    parse(input_buffer, response);\
     (output_response).set(response);\
     return Status::ok;\
   }
@@ -48,7 +49,7 @@ namespace FDO2 = Pufferfish::Driver::Serial::FDO2;
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define REQUEST_WRITE_TAGGED(field, input_request, output_buffer) \
   if ((input_request).tag == CommandTypes::field) {\
-    (input_request).value.field.write(output_buffer); return Status::ok; } // NOLINT(cppcoreguidelines-pro-type-union-access)
+    write((input_request).value.field, output_buffer); return Status::ok; } // NOLINT(cppcoreguidelines-pro-type-union-access)
 // clang-format on
 
 namespace Pufferfish::Util {
@@ -67,7 +68,8 @@ namespace Responses {
 
 // Vers
 
-ParseStatus Vers::parse(const ChunkBuffer &input_buffer) {
+template <>
+ParseStatus parse<Vers>(const ChunkBuffer &input_buffer, Vers &response) {
   const char *end = input_buffer.buffer() + input_buffer.size() - 1;
   const char *parse_start = input_buffer.buffer() + Headers::length;
   char *parse_end = nullptr;
@@ -78,7 +80,7 @@ ParseStatus Vers::parse(const ChunkBuffer &input_buffer) {
   // device_id
   parse_start = parse_start + 1;
   parse_end = nullptr;
-  device_id = std::strtoul(parse_start, &parse_end, arg_base);
+  response.device_id = std::strtoul(parse_start, &parse_end, arg_base);
   if (parse_end >= end) {
     return ParseStatus::missing_arg;
   }
@@ -90,7 +92,7 @@ ParseStatus Vers::parse(const ChunkBuffer &input_buffer) {
   // num_channels
   parse_start = parse_end + 1;
   parse_end = nullptr;
-  num_channels = std::strtoul(parse_start, &parse_end, arg_base);
+  response.num_channels = std::strtoul(parse_start, &parse_end, arg_base);
   if (parse_end >= end) {
     return ParseStatus::missing_arg;
   }
@@ -102,7 +104,7 @@ ParseStatus Vers::parse(const ChunkBuffer &input_buffer) {
   // firmware_rev
   parse_start = parse_end + 1;
   parse_end = nullptr;
-  firmware_rev = std::strtoul(parse_start, &parse_end, arg_base);
+  response.firmware_rev = std::strtoul(parse_start, &parse_end, arg_base);
   if (parse_end >= end) {
     return ParseStatus::missing_arg;
   }
@@ -114,7 +116,7 @@ ParseStatus Vers::parse(const ChunkBuffer &input_buffer) {
   // type
   parse_start = parse_end + 1;
   parse_end = nullptr;
-  type = std::strtoul(parse_start, &parse_end, arg_base);
+  response.type = std::strtoul(parse_start, &parse_end, arg_base);
   if (parse_end != end) {
     return ParseStatus::unexpected_arg;
   }
@@ -122,14 +124,15 @@ ParseStatus Vers::parse(const ChunkBuffer &input_buffer) {
   return ParseStatus::ok;
 }
 
-bool Vers::operator==(const Vers &other) const {
-  return device_id == other.device_id && num_channels == other.num_channels &&
-         firmware_rev == other.firmware_rev && type == other.type;
+bool operator==(const Vers &left, const Vers &right) {
+  return left.device_id == right.device_id && left.num_channels == right.num_channels &&
+         left.firmware_rev == right.firmware_rev && left.type == right.type;
 }
 
 // Mraw
 
-ParseStatus Mraw::parse(const ChunkBuffer &input_buffer) {
+template <>
+ParseStatus parse<Mraw>(const ChunkBuffer &input_buffer, Mraw &response) {
   const char *end = input_buffer.buffer() + input_buffer.size() - 1;
   const char *parse_start = input_buffer.buffer() + Headers::length;
   char *parse_end = nullptr;
@@ -140,7 +143,7 @@ ParseStatus Mraw::parse(const ChunkBuffer &input_buffer) {
   // po2
   parse_start = parse_start + 1;
   parse_end = nullptr;
-  po2 = std::strtol(parse_start, &parse_end, arg_base);
+  response.po2 = std::strtol(parse_start, &parse_end, arg_base);
   if (parse_end >= end) {
     return ParseStatus::missing_arg;
   }
@@ -152,7 +155,7 @@ ParseStatus Mraw::parse(const ChunkBuffer &input_buffer) {
   // temperature
   parse_start = parse_end + 1;
   parse_end = nullptr;
-  temperature = std::strtol(parse_start, &parse_end, arg_base);
+  response.temperature = std::strtol(parse_start, &parse_end, arg_base);
   if (parse_end >= end) {
     return ParseStatus::missing_arg;
   }
@@ -164,7 +167,7 @@ ParseStatus Mraw::parse(const ChunkBuffer &input_buffer) {
   // status
   parse_start = parse_end + 1;
   parse_end = nullptr;
-  status = std::strtoul(parse_start, &parse_end, arg_base);
+  response.status = std::strtoul(parse_start, &parse_end, arg_base);
   if (parse_end >= end) {
     return ParseStatus::missing_arg;
   }
@@ -176,7 +179,7 @@ ParseStatus Mraw::parse(const ChunkBuffer &input_buffer) {
   // phase_shift
   parse_start = parse_end + 1;
   parse_end = nullptr;
-  phase_shift = std::strtol(parse_start, &parse_end, arg_base);
+  response.phase_shift = std::strtol(parse_start, &parse_end, arg_base);
   if (parse_end >= end) {
     return ParseStatus::missing_arg;
   }
@@ -188,7 +191,7 @@ ParseStatus Mraw::parse(const ChunkBuffer &input_buffer) {
   // signal_intensity
   parse_start = parse_end + 1;
   parse_end = nullptr;
-  signal_intensity = std::strtol(parse_start, &parse_end, arg_base);
+  response.signal_intensity = std::strtol(parse_start, &parse_end, arg_base);
   if (parse_end >= end) {
     return ParseStatus::missing_arg;
   }
@@ -200,7 +203,7 @@ ParseStatus Mraw::parse(const ChunkBuffer &input_buffer) {
   // ambient_light
   parse_start = parse_end + 1;
   parse_end = nullptr;
-  ambient_light = std::strtol(parse_start, &parse_end, arg_base);
+  response.ambient_light = std::strtol(parse_start, &parse_end, arg_base);
   if (parse_end >= end) {
     return ParseStatus::missing_arg;
   }
@@ -212,7 +215,7 @@ ParseStatus Mraw::parse(const ChunkBuffer &input_buffer) {
   // ambient_pressure
   parse_start = parse_end + 1;
   parse_end = nullptr;
-  ambient_pressure = std::strtol(parse_start, &parse_end, arg_base);
+  response.ambient_pressure = std::strtol(parse_start, &parse_end, arg_base);
   if (parse_end >= end) {
     return ParseStatus::missing_arg;
   }
@@ -224,7 +227,7 @@ ParseStatus Mraw::parse(const ChunkBuffer &input_buffer) {
   // relative_humidity
   parse_start = parse_end + 1;
   parse_end = nullptr;
-  relative_humidity = std::strtol(parse_start, &parse_end, arg_base);
+  response.relative_humidity = std::strtol(parse_start, &parse_end, arg_base);
   if (parse_end != end) {
     return ParseStatus::unexpected_arg;
   }
@@ -234,7 +237,8 @@ ParseStatus Mraw::parse(const ChunkBuffer &input_buffer) {
 
 // Logo
 
-ParseStatus Logo::parse(const ChunkBuffer &input_buffer) {
+template <>
+ParseStatus parse<Logo>(const ChunkBuffer &input_buffer, Logo & /*response*/) {
   const char *end = input_buffer.buffer() + input_buffer.size() - 1;
   const char *parse_start = input_buffer.buffer() + Headers::length;
   const char *parse_end = parse_start + 1;
@@ -247,7 +251,8 @@ ParseStatus Logo::parse(const ChunkBuffer &input_buffer) {
 
 // Bcst
 
-ParseStatus Bcst::parse(const ChunkBuffer &input_buffer) {
+template <>
+ParseStatus parse<Bcst>(const ChunkBuffer &input_buffer, Bcst &response) {
   const char *end = input_buffer.buffer() + input_buffer.size() - 1;
   const char *parse_start = input_buffer.buffer() + Headers::length;
   char *parse_end = nullptr;
@@ -258,7 +263,7 @@ ParseStatus Bcst::parse(const ChunkBuffer &input_buffer) {
   // interval
   parse_start = parse_start + 1;
   parse_end = nullptr;
-  interval = std::strtoul(parse_start, &parse_end, arg_base);
+  response.interval = std::strtoul(parse_start, &parse_end, arg_base);
   if (parse_end != end) {
     return ParseStatus::unexpected_arg;
   }
@@ -266,13 +271,14 @@ ParseStatus Bcst::parse(const ChunkBuffer &input_buffer) {
   return ParseStatus::ok;
 }
 
-bool Bcst::operator==(const Bcst &other) const {
-  return interval == other.interval;
+bool operator==(const Bcst &left, const Bcst &right) {
+  return left.interval == right.interval;
 }
 
 // Erro
 
-ParseStatus Erro::parse(const ChunkBuffer &input_buffer) {
+template <>
+ParseStatus parse<Erro>(const ChunkBuffer &input_buffer, Erro &response) {
   const char *end = input_buffer.buffer() + input_buffer.size() - 1;
   const char *parse_start = input_buffer.buffer() + Headers::length;
   char *parse_end = nullptr;
@@ -283,7 +289,7 @@ ParseStatus Erro::parse(const ChunkBuffer &input_buffer) {
   // code
   parse_start = parse_start + 1;
   parse_end = nullptr;
-  code = std::strtol(parse_start, &parse_end, arg_base);
+  response.code = std::strtol(parse_start, &parse_end, arg_base);
   if (parse_end != end) {
     return ParseStatus::unexpected_arg;
   }
@@ -295,30 +301,32 @@ ParseStatus Erro::parse(const ChunkBuffer &input_buffer) {
 
 namespace Requests {
 
-void Vers::write(ChunkBuffer &output_buffer) {
+template <>
+void write<Vers>(const Vers & /*request*/, ChunkBuffer &output_buffer) {
   output_buffer.clear();
   output_buffer.copy_from(Headers::vers);
 }
 
-void Logo::write(ChunkBuffer &output_buffer) {
+template <>
+void write<Logo>(const Logo & /*request*/, ChunkBuffer &output_buffer) {
   output_buffer.clear();
   output_buffer.copy_from(Headers::logo);
 }
 
-void Bcst::write(ChunkBuffer &output_buffer) const {
+template <>
+void write<Bcst>(const Bcst &request, ChunkBuffer &output_buffer) {
   output_buffer.clear();
   output_buffer.copy_from(Headers::bcst);
   output_buffer.push_back(arg_delimiter);
-  int result = std::snprintf(
+  // We use a stream to avoid using snprintf, which Clang-tidy complains about due to its
+  // use of varargs. Hopefully the way we're using streams here isn't causing dynamic
+  // memory allocation.
+  std::ostringstream stream;
+  stream.rdbuf()->pubsetbuf(
       output_buffer.buffer() + output_buffer.size(),
-      output_buffer.max_size() - output_buffer.size(),
-      args_format,
-      interval);
-  if (result < 0) {
-    // TODO(lietk12): return error
-    return;
-  }
-  if (output_buffer.resize(output_buffer.size() + result) != IndexStatus::ok) {
+      output_buffer.max_size() - output_buffer.size());
+  stream << request.interval;
+  if (output_buffer.resize(output_buffer.size() + stream.tellp()) != IndexStatus::ok) {
     // TODO(lietk12): return error
     return;
   }
