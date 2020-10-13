@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Tabs, Tab, Typography } from '@material-ui/core';
 import {
@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  */
 export const Navigation = (): JSX.Element => {
   const classes = useStyles();
-  const [route, setRoute] = React.useState(0);
+  const location = useLocation();
 
   const routes = [
     // QUICKSTART_ROUTE, // TODO: Hide QuickStart tab when ventilator is on. Need to tap into redux store.
@@ -61,6 +61,15 @@ export const Navigation = (): JSX.Element => {
     VALUES_ROUTE,
     SETTINGS_ROUTE,
   ];
+
+  const routePath = routes.find((route) => location.pathname.startsWith(route.path));
+  const [route, setRoute] = React.useState(routePath ? routePath.key : 0);
+
+  useEffect(() => {
+    const routePath = routes.find((route) => location.pathname.startsWith(route.path));
+    setRoute(routePath ? routePath.key : 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
 
   const handleRouteChange = (
     event: React.ChangeEvent<Record<string, unknown>>,
@@ -83,6 +92,7 @@ export const Navigation = (): JSX.Element => {
         {routes.map((route) => {
           return (
             <Tab
+              value={route.key}
               label={
                 <div>
                   <route.icon style={{ width: '100%' }} />
