@@ -13,24 +13,26 @@ namespace Pufferfish::Protocols {
 
 // ChunkSplitter
 
-template <size_t buffer_size>
-ChunkInputStatus ChunkSplitter<buffer_size>::input(uint8_t new_byte) {
-  if (new_byte == delimiter) {
-    input_status_ = ChunkInputStatus::output_ready;
-    return input_status_;
+template <size_t buffer_size, typename Byte>
+ChunkInputStatus ChunkSplitter<buffer_size, Byte>::input(uint8_t new_byte) {
+  if (include_delimiter || new_byte != delimiter) {
+    if (buffer_.push_back(new_byte) != IndexStatus::ok) {
+      input_status_ = ChunkInputStatus::invalid_length;
+      return input_status_;
+    }
   }
 
-  if (buffer_.push_back(new_byte) != IndexStatus::ok) {
-    input_status_ = ChunkInputStatus::invalid_length;
+  if (new_byte == delimiter) {
+    input_status_ = ChunkInputStatus::output_ready;
     return input_status_;
   }
 
   return ChunkInputStatus::ok;
 }
 
-template <size_t buffer_size>
-ChunkOutputStatus ChunkSplitter<buffer_size>::output(
-    Util::ByteVector<buffer_size> &output_buffer) {
+template <size_t buffer_size, typename Byte>
+ChunkOutputStatus ChunkSplitter<buffer_size, Byte>::output(
+    Util::Vector<Byte, buffer_size> &output_buffer) {
   if (input_status_ == ChunkInputStatus::ok) {
     return ChunkOutputStatus::waiting;
   }
@@ -47,9 +49,9 @@ ChunkOutputStatus ChunkSplitter<buffer_size>::output(
 
 // ChunkMerger
 
-template <size_t buffer_size>
+template <size_t buffer_size, typename Byte>
 ChunkOutputStatus ChunkMerger::transform(
-    Util::ByteVector<buffer_size> &input_output_buffer) const {
+    Util::Vector<Byte, buffer_size> &input_output_buffer) const {
   if (input_output_buffer.push_back(delimiter) == IndexStatus::ok) {
     return ChunkOutputStatus::ok;
   }

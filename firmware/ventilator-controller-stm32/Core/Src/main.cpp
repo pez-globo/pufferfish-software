@@ -47,6 +47,7 @@
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
 #include "Pufferfish/Driver/Indicators/PulseGenerator.h"
 #include "Pufferfish/Driver/Serial/Backend/UART.h"
+#include "Pufferfish/Driver/Serial/FDO2/Sensor.h"
 #include "Pufferfish/Driver/Serial/Nonin/Sensor.h"
 #include "Pufferfish/Driver/ShiftedOutput.h"
 #include "Pufferfish/HAL/HAL.h"
@@ -295,6 +296,8 @@ PF::Driver::I2C::SFM3019::Device sfm3019_dev_o2(i2c_hal_sfm3019_o2, i2c4_hal_glo
 PF::Driver::I2C::SFM3019::Sensor sfm3019_o2(sfm3019_dev_o2, true, time);
 
 // FDO2
+PF::Driver::Serial::FDO2::Device fdo2_dev(fdo2_uart);
+PF::Driver::Serial::FDO2::Sensor fdo2(fdo2_dev, time);
 
 // Nonin OEM III
 PF::Driver::Serial::Nonin::Device nonin_oem_dev(nonin_oem_uart);
@@ -303,7 +306,7 @@ PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 // Initializables
 
 auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
-    sfm3019_air, sfm3019_o2, nonin_oem);
+    sfm3019_air, sfm3019_o2, fdo2, nonin_oem);
 std::array<PF::InitializableState, initializables.size()> initialization_states;
 
 /*
@@ -540,6 +543,7 @@ int main(void)
         all_states.cycle_measurements());
 
     // Independent Sensors
+    fdo2.output(hfnc.sensor_vars().po2);
     nonin_oem.output(all_states.sensor_measurements().spo2);
 
     // Breathing Circuit Control Loop
