@@ -12,11 +12,11 @@ then
     then
         exit
     else
-        zenity --error --text "$error_msg" --width=300 --height=150 &
+        zenity --error --text "$error_msg" --width=300 --height=150
         exit 1
     fi
 
 else
-    zenity --error --text "$error_msg" --width=300 --height=150 &
+    zenity --error --text "$error_msg" --width=300 --height=150
     exit 1
 fi
