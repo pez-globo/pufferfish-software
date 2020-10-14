@@ -365,7 +365,6 @@ async def main() -> None:
         mode=mcu_pb.VentilationMode.hfnc,
         rr=30, fio2=60, flow=6
     )
-
     try:
         async with channel.push_endpoint:
             async with trio.open_nursery() as nursery:
@@ -384,12 +383,11 @@ async def main() -> None:
                         None, websocket_endpoint
                     )
 
-                    if receive_output.kill_frontend:
+                    if receive_output.frontend_delayed:
                         await _trio.kill_frozen_frontend(
                             websocket_endpoint.is_open,
-                            websocket_endpoint.connection_time
-                        )
-
+                            websocket_endpoint.connection_time,
+                        )                
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
         print('Finished, quitting!')

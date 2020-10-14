@@ -137,7 +137,7 @@ class Driver(endpoints.IOEndpoint[bytes, bytes]):
     props: websocket.WebSocketProps = attr.ib(
         factory=websocket.WebSocketProps, repr=False
     )
-    connection_time: Optional[float] = attr.ib(default=None)
+    connection_time: Optional[float] = attr.ib(default=0)
     _server: SingleConnectionService = attr.ib()
     _connection: Optional[trio_websocket.WebSocketConnection] = attr.ib(
         default=None, init=False, repr=False

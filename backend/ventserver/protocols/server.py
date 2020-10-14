@@ -99,9 +99,6 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     )
     current_time: float = attr.ib(default=0)
     _last_frontend_event: float = attr.ib(default=0)
-    _kill_process: Optional[  # type: ignore
-        subprocess.Popen
-    ] = attr.ib(default=None)
     _mcu: mcu.ReceiveFilter = attr.ib(factory=mcu.ReceiveFilter)
     _frontend: frontend.ReceiveFilter = attr.ib(factory=frontend.ReceiveFilter)
     _rotary_encoder: rotary_encoder.ReceiveFilter = attr.ib(
@@ -149,22 +146,14 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         # The frontend service will automatically restart the frontend process.
         delayed = int(self.current_time - self._last_frontend_event) > 1
         
+        delayed_time = None
+        if delayed:
+            delayed_time = self.current_time
+        
         output = ReceiveOutputEvent(
             server_send=backend_output, frontend_delayed=delayed
         )
         return output
-
-    def _kill_frontend_process(self) -> subprocess.Popen:  # type: ignore
-        """Spawns subprocess to kill the frontend"""
-        try:
-            sub_p = subprocess.Popen(
-                ["killall", "/usr/lib/chromium-browser/chromium-browser-v7"]
-            )
-        except OSError as exc:
-            self._logger.warning("Unable to kill the frontend: %s", exc)
-        self._logger.info("No message received from frontend for more "
-            "than a 1s; killed frontend process.")
-        return sub_p
 
     def _process_buffer(self) -> None:
         """Process the next event in the input buffer."""
