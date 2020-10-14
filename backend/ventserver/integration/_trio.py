@@ -9,7 +9,6 @@ import trio
 
 from ventserver.io.trio import channels as triochannels
 from ventserver.io.trio import endpoints
-from ventserver.io.trio import websocket as websocket_io
 from ventserver.protocols import server
 from ventserver.protocols import exceptions
 from ventserver.sansio import channels
@@ -29,7 +28,7 @@ _InputEvent = TypeVar('_InputEvent')
 # Kill frontend
 
 async def kill_frozen_frontend(
-    websocket_connected: bool, websocket_connection_time: Optional[float]
+    websocket_connected: bool, websocket_connection_time: float
 ) -> None:
     """Spawns subprocess to kill the frontend"""
     connection_duration = int(time.time() - websocket_connection_time)
@@ -42,7 +41,6 @@ async def kill_frozen_frontend(
             print(_)
             logger.info("No message received from frontend for more "
                 "than a 1s; killed frontend process.")
-            last_kill = time.time()
         except OSError as exc:
             logger.warning("Failed to kill the frontend: %s", exc)
 
@@ -252,7 +250,7 @@ async def process_io_persistently(
     async with push_endpoint:
         while True:
             await io_endpoint.persistently_open(nursery=nursery)
-            
+
             try:
                 async with io_endpoint:
                     await process_io_receive(

@@ -1,7 +1,6 @@
 """Sans-I/O ventilator backend server protocol."""
 
 from typing import Optional, Union, Tuple
-import subprocess
 import logging
 
 import attr
@@ -145,11 +144,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         # Kill frontend process if it stops responding.
         # The frontend service will automatically restart the frontend process.
         delayed = int(self.current_time - self._last_frontend_event) > 1
-        
-        delayed_time = None
-        if delayed:
-            delayed_time = self.current_time
-        
+
         output = ReceiveOutputEvent(
             server_send=backend_output, frontend_delayed=delayed
         )

@@ -387,7 +387,7 @@ async def main() -> None:
                         await _trio.kill_frozen_frontend(
                             websocket_endpoint.is_open,
                             websocket_endpoint.connection_time,
-                        )                
+                        )
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
         print('Finished, quitting!')

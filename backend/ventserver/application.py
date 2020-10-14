@@ -84,7 +84,7 @@ async def main() -> None:
                         serial_endpoint, websocket_endpoint
                     )
 
-                    if receive_output.kill_frontend:
+                    if receive_output.frontend_delayed:
                         await _trio.kill_frozen_frontend(
                             websocket_endpoint.is_open,
                             websocket_endpoint.connection_time
