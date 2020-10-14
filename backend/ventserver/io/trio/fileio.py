@@ -18,6 +18,9 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
     props: fileobject.FileProps = attr.ib(
         factory=fileobject.FileProps, repr=False
     )
+    rootdir: str = attr.ib(
+        default=os.path.join(os.getcwd(), "ventserver", "statestore")
+    )
     _fileobject: Optional['trio._AsyncBufferedIOBase'] = attr.ib(default=None)
     _connected: trio.Event = attr.ib(factory=trio.Event, repr=False)
 
@@ -44,7 +47,7 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
                               )
 
         _filepath = os.path.join(
-            self.props.rootdir, self.props.filedir, self.props.filename
+            self.rootdir, self.props.filedir, self.props.filename
         )
         try:
             # raises OSError

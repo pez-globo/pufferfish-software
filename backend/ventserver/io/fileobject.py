@@ -11,6 +11,5 @@ class FileProps:
     """ Defines protobuf file details."""
 
     filename: str = "state.pb"
-    rootdir: str = os.path.join(os.getcwd(), "ventserver", "statestore")
     filedir: str = ""
     mode: Text = 'rb'

@@ -58,12 +58,15 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
 
     def input(self, event: Optional[LowerEvent]) -> None:
         """Handle input events."""
-        if event:
-            if not event.has_data():
-                raise exceptions.ProtocolDataError(
-                    "Empty file: {0}".format(event.state_type)
-                )
-            self._buffer.input(event)
+        if not event:
+            return
+
+        if not event.has_data():
+            raise exceptions.ProtocolDataError(
+                "Empty file: {0}".format(event.state_type)
+            )
+
+        self._buffer.input(event)
 
     def output(self) -> Optional[UpperEvent]:
         """Emit the next output event."""
