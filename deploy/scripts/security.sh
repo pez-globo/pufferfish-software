@@ -59,17 +59,6 @@ else
     echo -e "${WARNING} Wifi is already disabled${NC}"
 fi
 
-if [ 1 -eq $( ls $config_dir | grep -c "hash_check.py" ) ]
-then
-    sudo cp $config_dir/hash_check.py /opt/
-    sudo cp $config_dir/compare_hash.sh /opt/
-    sudo chmod +x /opt/compare_hash.sh
-    echo $(python3 /opt/hash_check.py) | sudo tee /opt/hash_value
-else
-    echo -e "${ERROR} The hash_check.py file doesn't exist${NC}"
-    exit 1
-fi
-
 # Copy service file to systemd directory
 if [ 1 -eq $( ls $config_dir | grep -c "tampering.service" ) ]
 then
@@ -83,6 +72,17 @@ fi
 # Enabling service
 sudo systemctl daemon-reload
 sudo systemctl enable tampering.service
+
+if [ 1 -eq $( ls $config_dir | grep -c "hash_check.py" ) ]
+then
+    sudo cp $config_dir/hash_check.py /opt/
+    sudo cp $config_dir/compare_hash.sh /opt/
+    sudo chmod +x /opt/compare_hash.sh
+    echo $(/usr/bin/python3 /opt/hash_check.py) | sudo tee /opt/hash_value
+else
+    echo -e "${ERROR} The hash_check.py file doesn't exist${NC}"
+    exit 1
+fi
 
 # Lock pi and root user
 sudo passwd -l pi
