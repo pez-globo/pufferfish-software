@@ -1,0 +1,11 @@
+[Unit]
+Description=Data Tampering Check
+Before=nginx.service
+
+[Service]
+Type=oneshot 
+RemainAfterExit=yes
+ExecStart=/opt/compare_hash.sh
+
+[Install]
+WantedBy=multi-user.target

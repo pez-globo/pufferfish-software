@@ -70,6 +70,20 @@ else
     exit 1
 fi
 
+# Copy service file to systemd directory
+if [ 1 -eq $( ls $config_dir | grep -c "tampering.service" ) ]
+then
+    sudo cp $config_dir/tampering.service /etc/systemd/system/
+    sudo chmod 644 /etc/systemd/system/tampering.service
+else
+    echo -e "${ERROR} The tampering.service file doesn't exist${NC}"
+    exit 1
+fi
+
+# Enabling service
+sudo systemctl daemon-reload
+sudo systemctl enable tampering.service
+
 # Lock pi and root user
 sudo passwd -l pi
 sudo passwd -l root

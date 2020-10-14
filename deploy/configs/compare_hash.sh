@@ -9,14 +9,13 @@ then
 
     if [[ "$original_value" == "$calculated_value" ]]
     then
-        echo "Check successful"
         exit
     else
-        echo "Check failed"
+        zenity --error --text "Data Tampering check failed!" &
         exit 1
     fi
 
 else
-    echo "Check failed, hash_value not found!"
+    zenity --error --text "Data Tampering check failed!" &
     exit 1
 fi
