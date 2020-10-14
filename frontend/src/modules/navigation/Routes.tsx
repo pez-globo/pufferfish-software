@@ -18,6 +18,7 @@ import {
   LOGS_ROUTE,
   SCREENSAVER_ROUTE,
 } from './constants';
+import LandingPage from '../landing-page/LandingPage';
 
 const Routes = (): JSX.Element => (
   <Switch>
@@ -29,7 +30,7 @@ const Routes = (): JSX.Element => (
     <Route path={SETTINGS_ROUTE.path} component={SettingsPage} />
     <Route path={LOGS_ROUTE.path} component={LogsPage} />
     <Route path={SCREENSAVER_ROUTE.path} component={ScreensaverPage} />
-    <Route component={QuickStartPage} />
+    <Route component={LandingPage} />
   </Switch>
 );
 
