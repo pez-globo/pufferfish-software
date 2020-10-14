@@ -38,7 +38,7 @@ export const Knob = ({ valueDisplay, valueModal, alarmModal }: Props): JSX.Eleme
 
   return (
     <Grid container direction="column" className={classes.root}>
-      <Grid item xs style={{ width: '100%' }}>
+      <Grid item xs style={{ width: '100%', maxHeight: '77%' }}>
         {valueDisplay}
       </Grid>
       <Grid container item direction="row" className={classes.controlPanel} wrap="nowrap">

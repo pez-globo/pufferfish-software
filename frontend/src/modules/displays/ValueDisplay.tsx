@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid yellow',
   },
   valueLabel: {
-    fontSize: '4.5rem',
+    fontSize: '4rem',
     lineHeight: '1',
     // border: '1px solid red',
   },
