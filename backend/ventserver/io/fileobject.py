@@ -1,7 +1,5 @@
-""" Generic support for File I/O connections.
-TODO: Change name of the module"""
+""" Generic support for File I/O connections."""
 
-import os
 from typing import Text
 
 import attr
