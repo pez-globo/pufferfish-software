@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Compares the original hash and generated hash to check for data tampering
+error_msg="Data Tampering check failed!\nDisabled Backend and Kiosk service."
 
 if [ 1 -eq $( ls /opt | grep -c "hash_value" ) ]
 then
@@ -11,11 +12,11 @@ then
     then
         exit
     else
-        zenity --error --text "Data Tampering check failed!" &
+        zenity --error --text "$error_msg" --width=300 --height=150 &
         exit 1
     fi
 
 else
-    zenity --error --text "Data Tampering check failed!" &
+    zenity --error --text "$error_msg" --width=300 --height=150 &
     exit 1
 fi
