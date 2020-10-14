@@ -36,7 +36,7 @@ coverage.xml
 .pytest_cache/
 
 # protobuf state files
-statestore/*
+ventserver/statestore/*.pb
 
 # pyenv
 .python-version

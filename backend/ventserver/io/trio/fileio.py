@@ -55,7 +55,7 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
                 _filepath, str(self.props.mode)
             )
         except OSError as err:
-            raise OSError("Handler:") from err
+            raise OSError("Handler: {}".format(err)) from err
 
         self._logger.info('File %s opened.', self.props.filename)
         self._connected.set()

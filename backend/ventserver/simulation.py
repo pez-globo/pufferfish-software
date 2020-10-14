@@ -376,7 +376,7 @@ async def main() -> None:
         else:
             all_states[state] = state()
 
-    await _trio.initialize_states(
+    await _trio.load_file_states(
         states, protocol, filehandler
     )
 

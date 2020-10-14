@@ -79,7 +79,7 @@ async def main() -> None:
         mcu_pb.Parameters, mcu_pb.CycleMeasurements,
         mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
     ]
-    await _trio.initialize_states(
+    await _trio.load_file_states(
         states, protocol, filehandler
     )
 

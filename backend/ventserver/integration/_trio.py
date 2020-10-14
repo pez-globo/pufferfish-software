@@ -338,7 +338,7 @@ async def process_all(
             )
 
 
-async def initialize_states(
+async def load_file_states(
         states: List[Type[betterproto.Message]],
         protocol: server.Protocol,
         filehandler: fileio.Handler
@@ -357,5 +357,12 @@ async def initialize_states(
                         )
                     )
                 )
-        except (OSError,exceptions.ProtocolDataError) as err:
+        except OSError as err:
             logger.error(err)
+        except exceptions.ProtocolDataError as err:
+            logger.error(err)
+
+    while True:
+        output = protocol.receive.output()
+        if not output:
+            break
