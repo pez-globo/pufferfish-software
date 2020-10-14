@@ -39,9 +39,4 @@ $script_dir/scripts/disable_services.sh
 # Setup security protocols
 $script_dir/scripts/security.sh
 
-echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/N]: "
-read answer
-if echo "$answer" | grep -iq "^y"
-then
-    sudo reboot
-fi
+echo -e "Reboot required for changes to take effect. Please restart!"
