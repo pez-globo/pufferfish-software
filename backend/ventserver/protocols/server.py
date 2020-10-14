@@ -41,6 +41,7 @@ class ReceiveOutputEvent(events.Event):
     """Server receive output/send event."""
 
     server_send: Optional[backend.OutputEvent] = attr.ib(default=None)
+    frontend_delayed: bool = attr.ib(default=False)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
@@ -97,9 +98,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         factory=channels.DequeChannel
     )
     current_time: float = attr.ib(default=0)
-    last_frontend_event: float = attr.ib(default=0)
-    frontend_connection_time: float = attr.ib(default=0)
-    frontend_connected: bool = attr.ib(default=False)
+    _last_frontend_event: float = attr.ib(default=0)
     _kill_process: Optional[  # type: ignore
         subprocess.Popen
     ] = attr.ib(default=None)
@@ -148,14 +147,11 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
 
         # Kill frontend process if it stops responding.
         # The frontend service will automatically restart the frontend process.
-        if (int(self.current_time - self.last_frontend_event) > 1) and\
-            (int(self.current_time - self.frontend_connection_time) > 2) and\
-            self.frontend_connected:
-            if self._kill_process is None or\
-                self._kill_process.poll() is not None:
-                self._kill_process = self._kill_frontend_process()
-
-        output = ReceiveOutputEvent(server_send=backend_output)
+        delayed = int(self.current_time - self._last_frontend_event) > 1
+        
+        output = ReceiveOutputEvent(
+            server_send=backend_output, frontend_delayed=delayed
+        )
         return output
 
     def _kill_frontend_process(self) -> subprocess.Popen:  # type: ignore
@@ -207,7 +203,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             time=self.current_time, mcu_receive=None,
             frontend_receive=frontend_output
         ))
-        self.last_frontend_event = self.current_time
+        self._last_frontend_event = self.current_time
         return True
 
     def _process_rotary_encoder(self) -> bool:

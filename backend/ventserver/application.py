@@ -83,6 +83,12 @@ async def main() -> None:
                         receive_output.server_send, protocol,
                         serial_endpoint, websocket_endpoint
                     )
+
+                    if receive_output.kill_frontend:
+                        await _trio.kill_frozen_frontend(
+                            websocket_endpoint.is_open,
+                            websocket_endpoint.connection_time
+                        )
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
         logger.info('Finished, quitting!')
