@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Compares the original hash and generated hash to check for data tampering
-error_msg="Data Tampering check failed!\nDisabled Backend and Kiosk service."
+error_msg="Data Tampering check failed! \nDisabled Backend and Kiosk service."
 
 if [ 1 -eq $( ls /opt | grep -c "hash_value" ) ]
 then
