@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Redirect, useHistory } from 'react-router-dom';
 
-const IdleTimer = ({ timeout, onTimeOut }: { timeout: number; onTimeOut(): void }): void => {
+const IdleTimer = ({ timeout, onTimeOut }: { timeout: number; onTimeOut(): void }): JSX.Element => {
   const idle = useCallback(() => {
     if (onTimeOut) {
       onTimeOut();
@@ -40,6 +40,7 @@ const IdleTimer = ({ timeout, onTimeOut }: { timeout: number; onTimeOut(): void 
       });
     };
   }, [idle, timeout]);
+  return <React.Fragment />;
 };
 
 export const UserActivity = (): JSX.Element => {
