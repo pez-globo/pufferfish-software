@@ -6,6 +6,7 @@ import Routes from '../navigation/Routes';
 import ToolBar from './ToolBar';
 import Sidebar from './Sidebar';
 import { getScreenStatus } from '../../store/controller/selectors';
+import UserActivity from './UserActivity';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -70,6 +71,7 @@ const Layout = (): JSX.Element => {
           </Grid>
         </Grid>
       </Grid>
+      <UserActivity />
     </React.Fragment>
   );
 };

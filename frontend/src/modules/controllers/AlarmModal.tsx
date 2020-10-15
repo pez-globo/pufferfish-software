@@ -96,7 +96,7 @@ export const AlarmModal = ({
         [`${stateKey}Max`]: rangeValue[1],
       }),
     );
-    requestCommitRange(min, max);
+    requestCommitRange(rangeValue[0], rangeValue[1]);
     handleClose();
   };
 

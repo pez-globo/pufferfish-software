@@ -73,13 +73,15 @@ export const Loop = ({
     return yScale;
   }
 
+  // TODO: we need to remove the exclamation points, which are claiming that the
+  // values are never undefined
   return (
     <svg width={width} height={height}>
       <Group>
         <LinePath
           data={data}
-          x={(d) => xScale(x(d)) + margin.left}
-          y={(d) => yScale(y(d)) + margin.top}
+          x={(d) => (xScale(x(d)) as number) + margin.left}
+          y={(d) => (yScale(y(d)) as number) + margin.top}
           stroke={theme.palette.info.main}
           strokeWidth={strokeWidth}
           curve={curveLinear}
