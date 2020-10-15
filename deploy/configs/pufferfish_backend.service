@@ -15,4 +15,4 @@ StandardError=syslog
 SyslogIdentifier=pufferfish_backend
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=graphical.target

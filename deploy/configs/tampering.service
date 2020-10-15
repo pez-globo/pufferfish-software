@@ -1,10 +1,11 @@
 [Unit]
 Description=Data Tampering Check
-Before=nginx.service
 After=graphical.target
 
 [Service]
 Type=oneshot
+User=pi
+Group=pi
 Environment=DISPLAY=:0.0
 Environment=XAUTHORITY=/home/pi/.Xauthority
 RemainAfterExit=yes
