@@ -10,7 +10,7 @@ then
 
     if [[ "$original_value" == "$calculated_value" ]]
     then
-        exit
+        exit 0
     else
         zenity --error --text "$error_msg" --width=300 --height=150
         exit 1
