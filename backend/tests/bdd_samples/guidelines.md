@@ -1,22 +1,20 @@
 This document describes guidelines to write unit tests for the ventserver modules. We are loosely adhering to BDD (Behaviour Driven Development) style development process, keeping the unit tests writing and description guidelines while leaving the tests first approach. This will help us ensure that we write tests for all the crucial components of our system while not hampering the speed and flow of the development. For further reading [here](https://dannorth.net/introducing-bdd/).
 
 There two reasons for using BDD:
-    
-    1. The BDD requries us to write the tests first and then the actual components that satisfies those tests. The BDD tests are basically requirement specification described in plain language. Developing the components while considering the tests will ensure that we're always in line with the system requirements.
-    
-    2. The generated tests documentation could be easily integrated with the MatrixReq documentation.
+1. The BDD requries us to write the tests first and then the actual components that satisfies those tests. The BDD tests are basically requirement specification described in plain language. Developing the components while considering the tests will ensure that we're always in line with the system requirements.
+2. The generated tests documentation could be easily integrated with the MatrixReq documentation.
 
 ## How to describe the test:
 We'll follow BDD based tags for writing unit test descriptions.
-
+    
     Story: (Module docstring) Describe where and how, functionally, the module is being used in an abstract and simple language.
-
+    
     Scenario: (Method/Test docstring) Describe the fuctionality for which the unit test is being written. Multi-line description is accepted. Keep the language as siple and abstract as possible.
-   
-    Given: (Method/Test docstring) Describe in single line what are prerequisites for the unit test like intilization of sender/receiver objects, connection endpoints, e.t.c. Assertion on this should always pass.    
-
+    
+    Given: (Method/Test docstring) Describe in single line what are prerequisites for the unit test like intilization of sender/receiver objects, connection endpoints, e.t.c. Assertion on this should always pass.
+    
     When: (Method/Test docstring) Describe conditions that that should be met like when event_time == current_time, e.t.c. There can be similar Given steps for multiple tests.
-
+    
     Then: (Method/Test docstring) Describe the expected outcome from the functionality.
 
     And: (Method/Test docstring) Additional steps to be defined. Since, Given, When, and, Then tags are used to describe a single constraint/step, And is used along with them to define multiple contraints for the tag.
@@ -53,13 +51,13 @@ Try to follow the MatrixReq documentation for thoroughly understanding the requi
 Considering risks associated with them, we have listed some tests cases with higher priority for the following type of components:
 
 Protocols & Filters:
-    
-    1. Funtionality of methods in Sender and Receiver classes
-    2. Exceptions raised by Sender and Receiver classes
-    3. One-way trip from input through output for both Sender and Receiver classes
-    4. Round trip from input of Receiver to output of Sender from all the way through output of Sender and input of Receiver.
-    5. Any additional utility classes or funtions. 
+
+1. Funtionality of methods in Sender and Receiver classes
+2. Exceptions raised by Sender and Receiver classes
+3. One-way trip from input through output for both Sender and Receiver classes
+4. Round trip from input of Receiver to output of Sender from all the way through output of Sender and input of Receiver.
+5. Any additional utility classes or funtions. 
 
 Endpoints
     
-    1. Includes everything mentioned in Protocols and Filter in addition to communication with the I/O device using simulated values. 
+1. Includes everything mentioned in Protocols and Filter in addition to communication with the I/O device using simulated values. 
