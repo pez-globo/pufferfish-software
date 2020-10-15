@@ -56,8 +56,8 @@ export const Axes = ({
   const yMax = height - margin.top - margin.bottom;
 
   // scales
-  const xScale = scaleTime({
-    domain: [new Date(xRangeMin), new Date(xRangeMax)],
+  const xScale = scaleLinear({
+    domain: [xRangeMin/1000, xRangeMax/1000],
     range: [0, xMax],
   });
   const yScale = scaleLinear({
