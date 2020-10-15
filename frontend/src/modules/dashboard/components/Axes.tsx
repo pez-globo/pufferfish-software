@@ -57,7 +57,7 @@ export const Axes = ({
 
   // scales
   const xScale = scaleLinear({
-    domain: [xRangeMin/1000, xRangeMax/1000],
+    domain: [xRangeMin / 1000, xRangeMax / 1000],
     range: [0, xMax],
   });
   const yScale = scaleLinear({
