@@ -1,7 +1,9 @@
 This document describes guidelines to write unit tests for the ventserver modules. We are loosely adhering to BDD (Behaviour Driven Development) style development process, keeping the unit tests writing and description guidelines while leaving the tests first approach. This will help us ensure that we write tests for all the crucial components of our system while not hampering the speed and flow of the development. For further reading [here](https://dannorth.net/introducing-bdd/).
 
 There two reasons for using BDD:
+    
     1. The BDD requries us to write the tests first and then the actual components that satisfies those tests. The BDD tests are basically requirement specification described in plain language. Developing the components while considering the tests will ensure that we're always in line with the system requirements.
+    
     2. The generated tests documentation could be easily integrated with the MatrixReq documentation.
 
 ## How to describe the test:
@@ -51,6 +53,7 @@ Try to follow the MatrixReq documentation for thoroughly understanding the requi
 Considering risks associated with them, we have listed some tests cases with higher priority for the following type of components:
 
 Protocols & Filters:
+    
     1. Funtionality of methods in Sender and Receiver classes
     2. Exceptions raised by Sender and Receiver classes
     3. One-way trip from input through output for both Sender and Receiver classes
@@ -58,4 +61,5 @@ Protocols & Filters:
     5. Any additional utility classes or funtions. 
 
 Endpoints
+    
     1. Includes everything mentioned in Protocols and Filter in addition to communication with the I/O device using simulated values. 

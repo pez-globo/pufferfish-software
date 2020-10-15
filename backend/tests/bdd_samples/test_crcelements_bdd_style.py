@@ -66,11 +66,18 @@ def test_crcelement_integrity_pass(
     When: The parsed CRC matches the computed CRC
     Then: ProtocolDataError should not be raised.
     """
+    # Given: We have CRCElement object.
     crc_element = crcelements.CRCElement()
+
+    # And: The parsed CRC and payload, in bytes.
     crc_element.crc = crc
     crc_element.payload = payload
+    
     try:
+        # When: The parsed CRC matches the computed CRC
         crc_element.check_integrity()
+    
+    # Then: ProtocolDataError should not be raised.
     except exceptions.ProtocolDataError as err:
         pt.fail("Integrity check failed: {0}".format(err))
 
@@ -86,8 +93,14 @@ def test_crcelement_parse(
     When: The protobuf message has correct size
     Then: We should get seperated CRC key and message body.
     """
+    # Given: A protobuf message in bytes.
+    # And: A CRC element.
     crc_element = crcelements.CRCElement()
+    
+    # When: The protobuf message has correct size
     crc_element.parse(body)
+    
+    # Then: We should get seperated CRC key and message body.
     assert crc_element.crc == crc
     assert crc_element.payload == payload
 
@@ -104,7 +117,13 @@ def test_crcelements_rx_invalid_crc(
     When: The message bytes are corrupted
     Then: Raise ProtocolDataError for that message.
     """
+    # Given: A protobuf message in bytes.
+    # And: A CRC message receiver.
     receiver = crcelements.CRCReceiver()
+    
+    # When: The message bytes are corrupted
     receiver.input(body)
+
+    # Then: Raise ProtocolDataError for that message.
     with pt.raises(exceptions.ProtocolDataError):
         ___ = receiver.output()
