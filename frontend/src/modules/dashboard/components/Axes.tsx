@@ -31,6 +31,7 @@ export interface Props {
   };
   xRangeMin: number;
   xRangeMax: number;
+  xRangeRescale: number;
   yRangeMin: number;
   yRangeMax: number;
   title: string;
@@ -44,6 +45,7 @@ export const Axes = ({
   waveforms,
   xRangeMin,
   xRangeMax,
+  xRangeRescale,
   yRangeMin,
   yRangeMax,
   title,
@@ -57,7 +59,7 @@ export const Axes = ({
 
   // scales
   const xScale = scaleLinear({
-    domain: [xRangeMin / 1000, xRangeMax / 1000],
+    domain: [xRangeMin * xRangeRescale, xRangeMax * xRangeRescale],
     range: [0, xMax],
   });
   const yScale = scaleLinear({
@@ -185,4 +187,5 @@ Axes.defaultProps = {
     right: 10,
   },
   xRangeMin: 0,
+  xRangeRescale: 1,
 };
