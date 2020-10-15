@@ -4,6 +4,7 @@ import { Grid } from '@material-ui/core';
 import Routes from '../navigation/Routes';
 import ToolBar from './ToolBar';
 import Sidebar from './Sidebar';
+import UserActivity from './UserActivity';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -45,6 +46,7 @@ const Layout = (): JSX.Element => {
           <Routes />
         </Grid>
       </Grid>
+      <UserActivity />
     </Grid>
   );
 };
