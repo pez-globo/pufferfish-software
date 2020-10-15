@@ -101,4 +101,4 @@ Afterwards, you can quickly re-run tests without running the full tox process:
 
 ### Documentation
 
-The detailed guideline to generate sphinx-based documentation can be found (here)[docs/README.md].
+The detailed guideline to generate sphinx-based documentation can be found [here](docs/).
