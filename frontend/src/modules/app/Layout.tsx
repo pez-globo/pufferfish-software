@@ -4,6 +4,7 @@ import { Grid } from '@material-ui/core';
 import Routes from '../navigation/Routes';
 import ToolBar from './ToolBar';
 import Sidebar from './Sidebar';
+import { useLocation } from 'react-router-dom';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -31,8 +32,14 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const Layout = (): JSX.Element => {
   const classes = useStyles();
+  const location = useLocation();
+  console.log('Localtion path name', location.pathname);
 
-  return (
+  return location.pathname === '/' ? (
+    <Routes />
+  )
+  :
+  (
     <Grid container justify="center" alignItems="stretch" className={classes.root}>
       <Grid item>
         <Sidebar />
