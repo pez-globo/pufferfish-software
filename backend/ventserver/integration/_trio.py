@@ -3,13 +3,16 @@
 import functools
 import logging
 import time
-from typing import Callable, Optional, TypeVar, Tuple
+from typing import Callable, Optional, TypeVar, Tuple, List, Type
 
 import trio
+import betterproto
 
 from ventserver.io.trio import channels as triochannels
 from ventserver.io.trio import endpoints
+from ventserver.io.trio import fileio
 from ventserver.protocols import server
+from ventserver.protocols import file
 from ventserver.protocols import exceptions
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
@@ -82,11 +85,27 @@ async def send_all_websocket(
                 'Illegal data type: %s', err
             )
 
+async def send_all_file(
+        filehandler: fileio.Handler,
+        write_channel:protocols.Filter[_InputEvent, file.StateData]
+) -> None:
+    """Saves protobuf data to files (prototype)"""
+
+    for message in write_channel.output_all():
+        filehandler.set_props(str(message.state_type), "wb")
+        try:
+            await filehandler.open()
+            async with filehandler:
+                await filehandler.send(message.data)
+        except OSError:
+            logger.error("Handler: ")
+
 
 async def process_protocol_send_output(
         protocol: server.Protocol,
         serial: Optional[endpoints.IOEndpoint[bytes, bytes]],
-        websocket: Optional[endpoints.IOEndpoint[bytes, bytes]]
+        websocket: Optional[endpoints.IOEndpoint[bytes, bytes]],
+        filehandler: fileio.Handler
 ) -> None:
     """Process all send outputs from the protocol and write them to I/O, once.
 
@@ -97,17 +116,22 @@ async def process_protocol_send_output(
     # Consume all outputs into respective stream/channel
     serial_send = streams.BytearrayStream()
     websocket_send: channels.DequeChannel[bytes] = channels.DequeChannel()
+    file_send: channels.DequeChannel[file.StateData] = channels.DequeChannel()
     for output in protocol.send.output_all():
         if output.serial_send is not None:
             serial_send.input(output.serial_send)
         if output.websocket_send is not None:
             websocket_send.input(output.websocket_send)
+        if output.file_send is not None:
+            file_send.input(output.file_send)
     # Write stream/channel to I/O
     async with trio.open_nursery() as nursery:
         if serial is not None:
             nursery.start_soon(send_all_serial, serial, serial_send)
         if websocket is not None:
             nursery.start_soon(send_all_websocket, websocket, websocket_send)
+        if filehandler is not None:
+            nursery.start_soon(send_all_file, filehandler, file_send)
 
 
 # Protocol send
@@ -116,7 +140,8 @@ async def process_protocol_send_output(
 async def process_protocol_send(
         send_event: Optional[server.SendEvent], protocol: server.Protocol,
         serial: Optional[endpoints.IOEndpoint[bytes, bytes]],
-        websocket: Optional[endpoints.IOEndpoint[bytes, bytes]]
+        websocket: Optional[endpoints.IOEndpoint[bytes, bytes]],
+        filehandler: fileio.Handler
 ) -> None:
     """Process a send event and write out any data to I/O endpoints.
 
@@ -129,8 +154,7 @@ async def process_protocol_send(
     if not send_event:
         return
     protocol.send.input(send_event)
-    await process_protocol_send_output(protocol, serial, websocket)
-
+    await process_protocol_send_output(protocol, serial, websocket, filehandler)
 
 # Protocol Receive Outputs
 
@@ -312,3 +336,33 @@ async def process_all(
             nursery.start_soon(
                 process_clock, protocol, channel, push_endpoint.clone()
             )
+
+
+async def load_file_states(
+        states: List[Type[betterproto.Message]],
+        protocol: server.Protocol,
+        filehandler: fileio.Handler
+) -> None:
+    """Initialize state values from state store or default values."""
+    for state in states:
+        try: # Handle fileio errors
+            filehandler.set_props(state.__name__, "rb")
+            await filehandler.open()
+            async with  filehandler:
+                message = await filehandler.receive()
+                protocol.receive.input(
+                    server.ReceiveEvent(
+                        file_receive=file.StateData(
+                            state_type=state.__name__, data=message
+                        )
+                    )
+                )
+        except OSError as err:
+            logger.error(err)
+        except exceptions.ProtocolDataError as err:
+            logger.error(err)
+
+    while True:
+        output = protocol.receive.output()
+        if not output:
+            break

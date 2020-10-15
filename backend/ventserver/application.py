@@ -1,9 +1,11 @@
 """Trio I/O with sans-I/O protocol, running application."""
 
 import logging
+from typing import Type, List
 import functools
 
 import trio
+import betterproto
 
 try:
     from ventserver.io.trio import rotaryencoder
@@ -14,9 +16,11 @@ from ventserver.integration import _trio
 from ventserver.io.trio import _serial
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
+from ventserver.io.trio import fileio
+from ventserver.io.trio import rotaryencoder
 from ventserver.protocols import server
 from ventserver.protocols import exceptions
-from ventserver.protocols.protobuf import mcu_pb as pb
+from ventserver.protocols.protobuf import mcu_pb
 
 
 logger = logging.getLogger()
@@ -31,12 +35,14 @@ logger.setLevel(logging.INFO)
 
 async def main() -> None:
     """Set up wiring between subsystems and process until completion."""
+    # pylint: disable=duplicate-code
     # Sans-I/O Protocols
     protocol = server.Protocol()
 
     # I/O Endpoints
     serial_endpoint = _serial.Driver()
     websocket_endpoint = websocket.Driver()
+    filehandler = fileio.Handler()
 
     rotary_encoder = None
     try:
@@ -51,6 +57,7 @@ async def main() -> None:
             rotary_encoder = None
             logger.error(exception, err)
     except NameError:
+        rotary_encoder = None
         logger.warning('Running without rotary encoder support!')
 
     # Server Receive Outputs
@@ -60,9 +67,20 @@ async def main() -> None:
 
     # Initialize State
     all_states = protocol.receive.backend.all_states
-    all_states[pb.ParametersRequest] = pb.ParametersRequest(
-        mode=pb.VentilationMode.pc_ac,
-        pip=30, peep=10, rr=30, ie=1, fio2=60
+    for state in all_states:
+        if state is mcu_pb.ParametersRequest:
+            all_states[state] = mcu_pb.ParametersRequest(
+                mode=mcu_pb.VentilationMode.hfnc, rr=30, fio2=60, flow=6
+            )
+        else:
+            all_states[state] = state()
+
+    states: List[Type[betterproto.Message]] = [
+        mcu_pb.Parameters, mcu_pb.CycleMeasurements,
+        mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
+    ]
+    await _trio.load_file_states(
+        states, protocol, filehandler
     )
 
     try:
@@ -81,7 +99,8 @@ async def main() -> None:
                     receive_output = await channel.output()
                     await _trio.process_protocol_send(
                         receive_output.server_send, protocol,
-                        serial_endpoint, websocket_endpoint
+                        serial_endpoint, websocket_endpoint,
+                        filehandler
                     )
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
