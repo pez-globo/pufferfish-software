@@ -16,6 +16,7 @@ echo -e "\n${SUCCESS}********** Disabling unnecessary services **********\n${NC}
 # Removes its dependencies
 
 sudo systemctl mask bluetooth.service
+sudo systemctl mask hciuart.service
 sudo systemctl mask bluealsa.service
 sudo systemctl mask bthelper@.service
 sudo systemctl mask apt-daily-upgrade.service
@@ -27,13 +28,21 @@ sudo systemctl mask printer.target
 sudo systemctl mask smartcard.target
 
 # Remove bluetooth dependencies
-sudo apt-get purge piwiz -y
+sudo apt-get purge bluez piwiz -y
 sudo apt-get autoremove --purge -y
 
 # Disable default ssh password warning
 if [ 1 -eq $( ls /etc/xdg/lxsession/LXDE-pi/ | grep -c "sshpwd.sh" ) ]
 then
     sudo rm /etc/xdg/lxsession/LXDE-pi/sshpwd.sh
+fi
+
+# Add configuration to disable bluetooth
+if [ 0 -eq $( grep -c "^dtoverlay=disable-bt" /boot/config.txt ) ]
+then
+    echo -e "\ndtoverlay=disable-bt" | sudo tee -a /boot/config.txt
+else
+    echo -e "${WARNING} Bluetooth is already disabled${NC}"
 fi
 
 sudo systemctl daemon-reload
