@@ -5,6 +5,7 @@ import Routes from '../navigation/Routes';
 import ToolBar from './ToolBar';
 import Sidebar from './Sidebar';
 import { useLocation } from 'react-router-dom';
+import UserActivity from './UserActivity';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -52,6 +53,7 @@ const Layout = (): JSX.Element => {
           <Routes />
         </Grid>
       </Grid>
+      <UserActivity />
     </Grid>
   );
 };

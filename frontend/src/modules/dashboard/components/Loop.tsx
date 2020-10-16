@@ -73,6 +73,8 @@ export const Loop = ({
     return yScale;
   }
 
+  // TODO: we need to remove the exclamation points, which are claiming that the
+  // values are never undefined
   return (
     <svg width={width} height={height}>
       <Group>
