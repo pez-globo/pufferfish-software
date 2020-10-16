@@ -29,12 +29,14 @@ class Sensor : public Initializable {
   InitializableState output(uint32_t &po2);
 
  private:
+  static const uint32_t setup_timeout = 1000;        // ms
   static const uint32_t setup_request_timeout = 50;  // ms
 
   Device &device_;
   HAL::Time &time_;
 
-  uint32_t request_time_ = 0;  // us
+  uint32_t setup_start_time_ = 0;  // ms
+  uint32_t request_time_ = 0;      // ms
   bool setup_completed_ = false;
 
   bool check_version();

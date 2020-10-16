@@ -34,12 +34,19 @@ InitializableState Sensor::setup() {
     return InitializableState::ok;
   }
 
-  if (!check_version()) {
+  if (setup_start_time_ == 0) {
+    setup_start_time_ = time_.millis();
+  }
+  if (!Util::within_timeout(setup_start_time_, setup_timeout, time_.millis())) {
     return InitializableState::failed;
   }
 
+  if (!check_version()) {
+    return InitializableState::setup;
+  }
+
   if (!start_broadcast()) {
-    return InitializableState::failed;
+    return InitializableState::setup;
   }
 
   setup_completed_ = true;
