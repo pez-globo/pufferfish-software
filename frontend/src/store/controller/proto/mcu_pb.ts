@@ -117,6 +117,10 @@ export interface BatteryPower {
   powerLeft: number;
 }
 
+export interface ScreenStatus {
+  lock: boolean;
+}
+
 const baseAlarms: object = {
   time: 0,
   alarmOne: false,
@@ -228,6 +232,10 @@ const baseActiveLogEvents: object = {
 
 const baseBatteryPower: object = {
   powerLeft: 0,
+};
+
+const baseScreenStatus: object = {
+  lock: false,
 };
 
 export const protobufPackage = ''
@@ -1939,6 +1947,53 @@ export const BatteryPower = {
   toJSON(message: BatteryPower): unknown {
     const obj: any = {};
     message.powerLeft !== undefined && (obj.powerLeft = message.powerLeft);
+    return obj;
+  },
+};
+
+export const ScreenStatus = {
+  encode(message: ScreenStatus, writer: Writer = Writer.create()): Writer {
+    writer.uint32(8).bool(message.lock);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): ScreenStatus {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseScreenStatus } as ScreenStatus;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.lock = reader.bool();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): ScreenStatus {
+    const message = { ...baseScreenStatus } as ScreenStatus;
+    if (object.lock !== undefined && object.lock !== null) {
+      message.lock = Boolean(object.lock);
+    } else {
+      message.lock = false;
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<ScreenStatus>): ScreenStatus {
+    const message = { ...baseScreenStatus } as ScreenStatus;
+    if (object.lock !== undefined && object.lock !== null) {
+      message.lock = object.lock;
+    } else {
+      message.lock = false;
+    }
+    return message;
+  },
+  toJSON(message: ScreenStatus): unknown {
+    const obj: any = {};
+    message.lock !== undefined && (obj.lock = message.lock);
     return obj;
   },
 };

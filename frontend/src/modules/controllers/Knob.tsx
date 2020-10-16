@@ -3,17 +3,17 @@ import { Grid, makeStyles, Theme } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    height: '100%',
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(2),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     // border: '1px solid teal',
+    flexDirection: 'initial',
+    height: '100%',
   },
   controlPanel: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    minHeight: 40,
     // border: '1px solid orange'
   },
   marginRight: {
@@ -38,7 +38,7 @@ export const Knob = ({ valueDisplay, valueModal, alarmModal }: Props): JSX.Eleme
 
   return (
     <Grid container direction="column" className={classes.root}>
-      <Grid item xs style={{ width: '100%' }}>
+      <Grid item xs style={{ width: '100%', maxHeight: '77%' }}>
         {valueDisplay}
       </Grid>
       <Grid container item direction="row" className={classes.controlPanel} wrap="nowrap">

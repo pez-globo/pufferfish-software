@@ -27,7 +27,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   controlPanel: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    minHeight: 40,
   },
   marginRight: {
     marginRight: theme.spacing(1),

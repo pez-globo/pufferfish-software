@@ -53,6 +53,7 @@
 #include "Pufferfish/HAL/HAL.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
 #include "Pufferfish/Statuses.h"
+#include "Pufferfish/Util/Timeouts.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -487,15 +488,10 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   // Setup
-  static const uint32_t setup_indicator_duration = 1000;
+  static const uint32_t setup_indicator_duration = 2000;
 
   board_led1.write(false);
   while (true) {
-    // Update indicators
-    uint32_t current_time = time.millis();
-    blinker.input(current_time);
-    flasher.input(current_time);
-
     // Run setup on all initializables
     for (size_t i = 0; i < initializables.size(); ++i) {
       initialization_states[i] = initializables[i].get().setup();
@@ -506,20 +502,29 @@ int main(void)
             initialization_states.cbegin(),
             initialization_states.cend(),
             PF::InitializableState::failed) != initialization_states.cend()) {
-      board_led1.write(flasher.output());
+      const uint32_t flash_start_time = time.millis();
+      // Flash the LED rapidly to indicate failure
+      while (PF::Util::within_timeout(flash_start_time, setup_indicator_duration, time.millis())) {
+        flasher.input(time.millis());
+        board_led1.write(flasher.output());
+      }
     } else if (  // At least one is still in setup
         std::find(
             initialization_states.cbegin(),
             initialization_states.cend(),
             PF::InitializableState::setup) != initialization_states.cend()) {
-      board_led1.write(blinker.output());
+      board_led1.write(true);
     } else {  // All are done with setup and ok
       break;
     }
   }
 
-  board_led1.write(true);
-  time.delay(setup_indicator_duration);
+  // Blink the LED somewhat slowly to indicate success
+  const uint32_t setup_completion_time = time.millis();
+  while (PF::Util::within_timeout(setup_completion_time, setup_indicator_duration, time.millis())) {
+    blinker.input(time.millis());
+    board_led1.write(blinker.output());
+  }
   board_led1.write(false);
 
   // Normal loop

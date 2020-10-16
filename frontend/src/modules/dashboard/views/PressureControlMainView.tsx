@@ -9,6 +9,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {
     height: '100%',
     width: '100%',
+    display: 'grid',
+    gridTemplateRows: '1fr 145px',
+    gridGap: '10px',
   },
   topPanel: {
     alignItems: 'stretch',
@@ -23,48 +26,57 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginLeft: theme.spacing(2),
     padding: theme.spacing(1),
     backgroundColor: theme.palette.background.paper,
+    display: 'grid',
+    gridTemplateRows: '30px 1fr',
+    gridGap: 2,
   },
   tabs: {
     width: '100%',
     paddingTop: theme.spacing(0),
     paddingBottom: theme.spacing(1),
+    minHeight: 30,
   },
   tab: {
     borderRadius: 8,
     border: `2px solid ${theme.palette.primary.main}`,
-    margin: theme.spacing(1),
+    margin: '0px 8px',
     zIndex: 1,
-    minHeight: 40,
+    minHeight: 0,
+    padding: 0,
   },
 
-  selectedTab: { color: theme.palette.primary.contrastText },
+  selectedTab: { color: theme.palette.primary.contrastText, lineHeight: '1.4' },
 
   tabIndicator: {
     borderRadius: 8,
     border: `2px solid ${theme.palette.primary.main}`,
     background: theme.palette.primary.main,
-    marginBottom: theme.spacing(1),
+    // marginBottom: theme.spacing(1),
     zIndex: 0,
     minHeight: 40,
   },
   bottomPanel: {
-    marginTop: theme.spacing(2),
+    // marginTop: theme.spacing(2),
   },
   bottomLeftPanel: {
     minWidth: '500px',
     marginRight: theme.spacing(2),
     backgroundColor: theme.palette.background.paper,
     borderRadius: theme.panel.borderRadius,
+    height: '100%',
   },
   bottomRightPanel: {
     borderRadius: theme.panel.borderRadius,
     backgroundColor: theme.palette.background.paper,
+    height: '100%',
   },
   bottomBorder: {
     borderBottom: `2px dashed ${theme.palette.background.default}`,
+    height: '100%',
   },
   rightBorder: {
     borderRight: `2px dashed ${theme.palette.background.default}`,
+    height: '100%',
   },
 }));
 
@@ -130,15 +142,15 @@ const PressureControlMainView = (): JSX.Element => {
           </Grid>
           <TabPanel value={value} index={0}>
             <Grid container item xs justify="space-between" style={{ height: '100%' }}>
-              <Grid item container style={{ height: '36%' }}>
+              <Grid item container style={{ height: '34%' }}>
                 <PawGraphInfo />
               </Grid>
               <Grid item style={{ height: '0%' }} />
-              <Grid item container style={{ height: '36%' }}>
+              <Grid item container style={{ height: '37%' }}>
                 <FlowGraphInfo />
               </Grid>
               <Grid item style={{ height: '0%' }} />
-              <Grid item container style={{ height: '36%' }}>
+              <Grid item container style={{ height: '33%' }}>
                 <VolumeGraphInfo />
               </Grid>
             </Grid>
@@ -169,7 +181,7 @@ const PressureControlMainView = (): JSX.Element => {
           <Grid item xs className={classes.rightBorder}>
             <RRInfo />
           </Grid>
-          <Grid item xs>
+          <Grid item xs style={{ height: '100%' }}>
             <FiO2Info />
           </Grid>
         </Grid>
