@@ -59,6 +59,16 @@ else
     echo -e "${WARNING} Wifi is already disabled${NC}"
 fi
 
+# Copy target file to systemd directory
+if [ 1 -eq $( ls $config_dir | grep -c "pufferfish.target" ) ]
+then
+    sudo cp $config_dir/pufferfish.target /etc/systemd/system/
+    sudo chmod 644 /etc/systemd/system/pufferfish.target
+else
+    echo -e "${ERROR} The pufferfish.target file doesn't exist${NC}"
+    exit 1
+fi
+
 # Copy service file to systemd directory
 if [ 1 -eq $( ls $config_dir | grep -c "tampering.service" ) ]
 then
@@ -71,6 +81,7 @@ fi
 
 # Enabling service
 sudo systemctl daemon-reload
+sudo systemctl set-default pufferfish.target
 sudo systemctl enable tampering.service
 
 if [ 1 -eq $( ls $config_dir | grep -c "hash_check.py" ) ]

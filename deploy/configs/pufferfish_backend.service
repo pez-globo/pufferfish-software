@@ -14,4 +14,4 @@ StandardError=syslog
 SyslogIdentifier=pufferfish_backend
 
 [Install]
-WantedBy=graphical.target
+WantedBy=pufferfish.target

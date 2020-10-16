@@ -16,6 +16,16 @@ config_dir=$script_dir/../configs
 backend_dir=$script_dir/../../backend/ventserver
 backend_file=$(realpath $backend_dir)/simulation.py
 
+# Copy target file to systemd directory
+if [ 1 -eq $( ls $config_dir | grep -c "pufferfish.target" ) ]
+then
+    sudo cp $config_dir/pufferfish.target /etc/systemd/system/
+    sudo chmod 644 /etc/systemd/system/pufferfish.target
+else
+    echo -e "${ERROR} The pufferfish.target file doesn't exist${NC}"
+    exit 1
+fi
+
 # Copy service file to systemd directory
 if [ 1 -eq $( ls $config_dir | grep -c "pufferfish_backend.service" ) ]
 then
@@ -29,6 +39,7 @@ fi
 
 # Enabling service
 sudo systemctl daemon-reload
+sudo systemctl set-default pufferfish.target
 sudo systemctl enable pufferfish_backend.service
 
 echo -e "\n${SUCCESS}Backend Service setup complete\n${NC}"

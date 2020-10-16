@@ -25,6 +25,16 @@ else
     exit 1
 fi
 
+# Copy target file to systemd directory
+if [ 1 -eq $( ls $config_dir | grep -c "pufferfish.target" ) ]
+then
+    sudo cp $config_dir/pufferfish.target /etc/systemd/system/
+    sudo chmod 644 /etc/systemd/system/pufferfish.target
+else
+    echo -e "${ERROR} The pufferfish.target file doesn't exist${NC}"
+    exit 1
+fi
+
 if [ 1 -eq $( ls $config_dir | grep -c "kiosk.service" ) ]
 then
     sudo cp $config_dir/kiosk.service /etc/systemd/system/
@@ -36,6 +46,7 @@ fi
 
 # Enabling service
 sudo systemctl daemon-reload
+sudo systemctl set-default pufferfish.target
 sudo systemctl enable kiosk.service
 
 echo -e "\n${SUCCESS}Kiosk setup complete\n${NC}"

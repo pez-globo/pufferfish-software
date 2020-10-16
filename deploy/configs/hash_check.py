@@ -46,7 +46,8 @@ file_paths = [
     '/etc/logrotate.d/pufferfish_logger',
     '/opt/hash_check.py',
     '/opt/compare_hash.sh',
-    '/etc/systemd/system/tampering.service'
+    '/etc/systemd/system/tampering.service',
+    '/etc/systemd/system/pufferfish.target'
 ]
 
 frontend_dir = "/var/www/html"

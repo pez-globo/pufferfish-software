@@ -9,7 +9,8 @@ Group=pi
 Environment=DISPLAY=:0.0
 Environment=XAUTHORITY=/home/pi/.Xauthority
 RemainAfterExit=yes
+ExecStartPre=sleep 3
 ExecStart=/opt/compare_hash.sh
 
 [Install]
-WantedBy=graphical.target
+WantedBy=pufferfish.target
