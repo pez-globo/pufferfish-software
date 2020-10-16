@@ -290,3 +290,9 @@ export const getBatteryPower = createSelector(
   getController,
   (states: ControllerStates): number => states.batteryPower.powerLeft,
 );
+
+// Srceen Status
+export const getScreenStatus = createSelector(
+  getController,
+  (states: ControllerStates): boolean => states.screenStatus.lock,
+);

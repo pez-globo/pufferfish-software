@@ -1,6 +1,7 @@
 """Sans-I/O ventilator backend server protocol."""
 
 from typing import Optional, Union, Tuple
+import logging
 
 import attr
 
@@ -8,7 +9,9 @@ from ventserver.protocols import backend
 from ventserver.protocols import events
 from ventserver.protocols import frontend
 from ventserver.protocols import mcu
+from ventserver.protocols import file
 from ventserver.protocols import rotary_encoder
+from ventserver.protocols import exceptions
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
 
@@ -24,6 +27,7 @@ class ReceiveEvent(events.Event):
     serial_receive: Optional[bytes] = attr.ib(default=None)
     websocket_receive: Optional[bytes] = attr.ib(default=None)
     rotary_encoder_receive: Tuple[int, bool] = attr.ib(default=None)
+    file_receive: Optional[file.StateData] = attr.ib(default=None)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
@@ -31,6 +35,8 @@ class ReceiveEvent(events.Event):
             self.time is not None
             or bool(self.serial_receive)
             or self.websocket_receive is not None
+            or self.rotary_encoder_receive is not None
+            or self.file_receive is not None
         )
 
 
@@ -54,10 +60,13 @@ class SendOutputEvent(events.Event):
 
     serial_send: Optional[bytes] = attr.ib(default=None)
     websocket_send: Optional[bytes] = attr.ib(default=None)
+    file_send: Optional[file.StateData] = attr.ib(default=None)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
-        return bool(self.serial_send) or self.websocket_send is not None
+        return (bool(self.serial_send) or
+            self.websocket_send is not None or
+            self.file_send is not None)
 
 
 def make_serial_receive(
@@ -89,6 +98,7 @@ def make_rotary_encoder_receive(
 @attr.s
 class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     """Filter which transforms receive bytes into high-level events."""
+    _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
 
     _buffer: channels.DequeChannel[ReceiveEvent] = attr.ib(
         factory=channels.DequeChannel
@@ -100,6 +110,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         factory=rotary_encoder.ReceiveFilter
     )
     _backend: backend.ReceiveFilter = attr.ib(factory=backend.ReceiveFilter)
+    _file: file.ReceiveFilter = attr.ib(
+        factory=file.ReceiveFilter
+    )
 
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
@@ -120,6 +133,11 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         any_updated = self._process_frontend() or any_updated
         # Process rotary encoder output
         any_updated = self._process_rotary_encoder() or any_updated
+        # Process file output
+        try:
+            any_updated = self._process_file() or any_updated
+        except exceptions.ProtocolDataError as err:
+            self._logger.error(err)
         # Process time
         if not any_updated:
             self._backend.input(backend.ReceiveEvent(time=self.current_time))
@@ -155,6 +173,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
                 re_data=event.rotary_encoder_receive
             )
         )
+        self._file.input(event.file_receive)
+
 
     def _process_mcu(self) -> bool:
         """Process the next event from the mcu protocol."""
@@ -190,6 +210,18 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         ))
         return True
 
+    def _process_file(self) -> bool:
+        """Process the next event from the file."""
+        file_output = self._file.output() # throws ProtocolDataError
+        if file_output is None:
+            return False
+        self._backend.input(backend.ReceiveEvent(
+            time=self.current_time, mcu_receive=None,
+            frontend_receive=None, file_receive=file_output
+        ))
+        return True
+
+
     def input_serial(self, serial_receive: bytes) -> None:
         """Input a ReceiveEvent corresponding to serial data.
 
@@ -211,6 +243,12 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         """Return the backend receiver."""
         return self._backend
 
+    @property
+    def file(self) -> file.ReceiveFilter:
+        """Return the file receiver"""
+        return self._file
+
+
 
 @attr.s
 class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
@@ -222,6 +260,7 @@ class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
     _backend: backend.SendFilter = attr.ib(factory=backend.SendFilter)
     _mcu: mcu.SendFilter = attr.ib(factory=mcu.SendFilter)
     _frontend: frontend.SendFilter = attr.ib(factory=frontend.SendFilter)
+    _file: file.SendFilter = attr.ib(factory=file.SendFilter)
 
     def input(self, event: Optional[SendEvent]) -> None:
         """Handle input events."""
@@ -245,11 +284,16 @@ class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
         frontend_output = self._frontend.output()
         any_updated = (frontend_output is not None) or any_updated
 
+        self._file.input(backend.get_file_send(backend_output))
+        file_output = self._file.output()
+        any_updated = (file_output is not None) or any_updated
+
         if not any_updated:
             return None
 
         output = SendOutputEvent(
-            serial_send=mcu_output, websocket_send=frontend_output
+            serial_send=mcu_output, websocket_send=frontend_output,
+            file_send=file_output
         )
         return output
 
@@ -260,6 +304,11 @@ class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
             self._backend.input(event)
         except IndexError:
             pass
+
+    @property
+    def file(self) -> file.SendFilter:
+        """Return file sendfilter"""
+        return self._file
 
 
 # Protocols

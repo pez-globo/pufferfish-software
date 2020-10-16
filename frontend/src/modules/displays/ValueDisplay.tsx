@@ -3,7 +3,6 @@ import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    height: '100%',
     width: '100%',
     // border: '1px solid red'
   },
@@ -31,7 +30,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid yellow',
   },
   valueLabel: {
-    fontSize: '5rem',
+    fontSize: '4rem',
+    lineHeight: '1',
     // border: '1px solid red',
   },
   unitsLabel: {

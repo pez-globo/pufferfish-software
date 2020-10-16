@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   openButton: {
     width: '100%',
     border: `1px solid ${theme.palette.common.black}`,
+    padding: '5px 16px',
   },
   alarmContainer: {
     // border: '1px solid red',
