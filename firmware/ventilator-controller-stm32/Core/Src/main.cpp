@@ -490,7 +490,7 @@ int main(void)
   // Setup
   static const uint32_t setup_indicator_duration = 2000;
 
-  board_led1.write(false);
+  board_led1.write(true);
   while (true) {
     // Run setup on all initializables
     for (size_t i = 0; i < initializables.size(); ++i) {
