@@ -80,12 +80,8 @@ export const Loop = ({
       <Group>
         <LinePath
           data={data}
-          feature/frontend-plotting-axes
-          x={(d) => xScale(x(d)!)! + margin.left}
-          y={(d) => yScale(y(d)!)! + margin.top
           x={(d) => (xScale(x(d)) as number) + margin.left}
           y={(d) => (yScale(y(d)) as number) + margin.top}
-          develop
           stroke={theme.palette.info.main}
           strokeWidth={strokeWidth}
           curve={curveLinear}

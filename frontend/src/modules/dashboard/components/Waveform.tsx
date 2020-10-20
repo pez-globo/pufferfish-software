@@ -103,7 +103,6 @@ export const Waveform = ({
 
           x={(d) => (xScale(x(d)) as number) + margin.left}
           y={(d) => (yScale(y(d)) as number) + margin.top}
- develop
           yScale={findAxis(type)}
           fill={fillF(fill)}
           strokeWidth={strokeWidth}
@@ -116,7 +115,6 @@ feature/frontend-plotting-axes
 
           x={(d) => (xScale(x(d)) as number) + margin.left}
           y={(d) => (yScale(y(d)) as number) + margin.top}
- develop
           stroke={theme.palette.info.main}
           strokeWidth={strokeWidth}
           curve={curveLinear}
