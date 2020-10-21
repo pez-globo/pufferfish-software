@@ -97,8 +97,8 @@ async def send_all_file(
             await filehandler.open()
             async with filehandler:
                 await filehandler.send(message.data)
-        except OSError:
-            logger.error("Handler: ")
+        except OSError as err:
+            logger.error("Handler: %s", err)
 
 
 async def process_protocol_send_output(

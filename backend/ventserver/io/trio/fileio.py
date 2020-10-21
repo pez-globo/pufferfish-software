@@ -45,14 +45,18 @@ class Handler(endpoints.IOEndpoint[bytes, bytes]):
                                "if one is already open." +
                                "Please close the old file instance."
                               )
+        
+        _filepath = os.path.join(self.rootdir, self.props.filedir)
+        if not os.path.exists(_filepath):
+            self._logger.info("No such directory: %s", _filepath)
+            os.mkdir(_filepath)
+            self._logger.info("Created directory: %s", _filepath)
 
-        _filepath = os.path.join(
-            self.rootdir, self.props.filedir, self.props.filename
-        )
         try:
             # raises OSError
             self._fileobject = await trio.open_file(    # type: ignore
-                _filepath, str(self.props.mode)
+                os.path.join(_filepath, self.props.filename),
+                str(self.props.mode)
             )
         except OSError as err:
             raise OSError("Handler: {}".format(err)) from err
