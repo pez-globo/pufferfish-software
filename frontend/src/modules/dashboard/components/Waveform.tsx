@@ -15,7 +15,7 @@ interface DateValue {
 }
 
 // accessors
-const x = ({ date }: DateValue) => date;
+const x = ({ date }: DateValue) => date.getTime();
 const y = ({ value }: DateValue) => value;
 
 export interface Props {
@@ -97,11 +97,7 @@ export const Waveform = ({
       <Group>
         <AreaClosed
           data={data}
- feature/frontend-plotting-axes
-          x={(d) => xScale(x(d)!)! + margin.left}
-          y={(d) => yScale(y(d)!)! + margin.top}
-
-          x={(d) => (xScale(x(d)) as number) + margin.left}
+          x={(d: DateValue) => (xScale(x(d)) as number) + margin.left}
           y={(d) => (yScale(y(d)) as number) + margin.top}
           yScale={findAxis(type)}
           fill={fillF(fill)}
@@ -109,12 +105,8 @@ export const Waveform = ({
           curve={curveLinear}
         />
         <LinePath
-feature/frontend-plotting-axes
-          x={(d) => xScale(x(d)!)! + margin.left}
-          y={(d) => yScale(y(d)!)! + margin.top}
-
-          x={(d) => (xScale(x(d)) as number) + margin.left}
-          y={(d) => (yScale(y(d)) as number) + margin.top}
+          x={(d: DateValue) => (xScale(x(d) ) as number) + margin.left}
+          y={(d) => (yScale(y(d) ) as number) + margin.top}
           stroke={theme.palette.info.main}
           strokeWidth={strokeWidth}
           curve={curveLinear}
