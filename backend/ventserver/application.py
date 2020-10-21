@@ -7,7 +7,6 @@ import functools
 import trio
 import betterproto
 
-from ventserver.io.trio import rotaryencoder
 from ventserver.integration import _trio
 from ventserver.io.trio import _serial
 from ventserver.io.trio import channels
