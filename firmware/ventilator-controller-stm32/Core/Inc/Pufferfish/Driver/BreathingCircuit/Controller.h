@@ -17,8 +17,9 @@
 namespace Pufferfish::Driver::BreathingCircuit {
 
 struct SensorVars {
-  float flow_air;
-  float flow_o2;
+  float flow_air;  // L/min
+  float flow_o2;   // L/min
+  uint32_t po2;    // dPa
 };
 
 struct ActuatorSetpoints {

@@ -1,12 +1,11 @@
 [Unit]
 Description=Pufferfish Backend Service
-Requires=nginx.service media-pi-LOGS.mount
-After=nginx.service media-pi-LOGS.mount
+Requires=nginx.service media-pi-LOGS.mount pigpiod.service
+After=nginx.service media-pi-LOGS.mount pigpiod.service
 
 [Service]
 Type=simple
 User=pi
-ExecStartPre=sudo pigpiod
 ExecStart=/home/pi/.pyenv/versions/ventserver/bin/python python_file_absolute_path
 Restart=always
 RestartSec=3

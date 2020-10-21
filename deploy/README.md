@@ -140,3 +140,4 @@ $ sudo dd bs=4M if=/path/to/saved/rpi.img of=/dev/sdb
 
 ### References
 Pishrink - https://github.com/Drewsif/PiShrink
+Overlayfs - https://github.com/ghollingworth/overlayfs

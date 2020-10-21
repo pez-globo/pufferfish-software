@@ -28,7 +28,7 @@
 // clang-format off
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define STATESEGMENT_GET_TAGGED(field, segment) \
-  if ((segment).tag == MessageTypes::field) {                  \
+  if ((segment).tag == MessageTypes::field) {\
     state_segments_.field = (segment).value.field; return; } // NOLINT(cppcoreguidelines-pro-type-union-access)
 // clang-format on
 

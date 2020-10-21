@@ -126,12 +126,17 @@ void HFNCSimulator::transform(
     transform_rr(parameters.rr, cycle_measurements.rr);
   }
   transform_flow(parameters.flow, sensor_measurements.flow);
-  if (std::abs(sensor_vars.flow_air + sensor_vars.flow_o2) < 1) {
-    transform_fio2(parameters.fio2, sensor_measurements.fio2);
-  } else {
+  if (sensor_vars.po2 != 0) {
+    // simulate FiO2 from pO2 if pO2 is available
+    sensor_measurements.fio2 = sensor_vars.po2 * po2_fio2_conversion;
+  } else if (std::abs(sensor_vars.flow_air + sensor_vars.flow_o2) >= 1) {
+    // simulate FiO2 from relative flow rates if flow rates are available
     float flow_o2_ratio = sensor_vars.flow_o2 / (sensor_vars.flow_air + sensor_vars.flow_o2);
     float inferred_fio2 = fio2_min * (1 - flow_o2_ratio) + fio2_max * flow_o2_ratio;
     transform_fio2(inferred_fio2, sensor_measurements.fio2);
+  } else {
+    // simulate FiO2 from params
+    transform_fio2(parameters.fio2, sensor_measurements.fio2);
   }
   transform_spo2(sensor_measurements.fio2, sensor_measurements.spo2);
 }
