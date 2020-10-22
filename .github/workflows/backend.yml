@@ -15,10 +15,9 @@ defaults:
     working-directory: backend
 
 jobs:
-  build:
+  types:
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 4
       matrix:
         python-version: [3.7]
 
@@ -35,13 +34,61 @@ jobs:
       run: |
         pip install poetry
         poetry run pip install --upgrade pip
-        poetry install -v
+        poetry run pip install tox
 
-    - name: Check Type Hints
+    - name: Check type annotations
       run: poetry run tox -e types
 
-    - name: Check Code Quality
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+
+    steps:
+    - uses: actions/checkout@v1
+      name: Checkout repository
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        pip install poetry
+        poetry run pip install --upgrade pip
+        poetry run pip install tox
+
+    - name: Run linter
       run: poetry run tox -e lint
 
-    - name: Run Unit Tests
-      run: poetry run tox -e py37,coverage
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+
+    steps:
+    - uses: actions/checkout@v1
+      name: Checkout repository
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        pip install poetry
+        poetry run pip install --upgrade pip
+        poetry run pip install tox
+
+    - name: Run unit tests
+      run: poetry run tox -e py37
+
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v2
+      with:
+        name: code-coverage-report
+        path: backend/htmlcov

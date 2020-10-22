@@ -38,6 +38,8 @@ module.exports = {
         'react/jsx-props-no-spreading': 0,
         "react/require-default-props": 0,
         "no-use-before-define": "off",
+        "jest/no-test-callback": 0,
+        "prefer-destructuring": ["error", {"object": true, "array": false}],
         "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
         "prettier/prettier": "error",
         "@typescript-eslint/explicit-function-return-type": "off",

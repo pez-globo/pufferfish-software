@@ -7,7 +7,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: '100%',
     width: '100%',
     // border: '1px dashed red',
   },
@@ -15,11 +14,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     border: `1px solid ${theme.palette.common.black}`,
     borderRadius: 8,
     height: '100%',
-    minHeight: 55,
     minWidth: 78,
     marginLeft: theme.spacing(1),
   },
-  marginBottom: { marginBottom: theme.spacing(2) },
+  marginBottom: { marginBottom: theme.spacing(1) },
   marginRight: { marginRight: theme.spacing(1) },
 }));
 

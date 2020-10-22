@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   topPanel: {
     flexWrap: 'nowrap',
     borderRadius: theme.panel.borderRadius,
-    marginBottom: theme.spacing(2),
+    marginBottom: '15px',
     justifyContent: 'space-between',
     alignItems: 'stretch',
     backgroundColor: theme.palette.background.paper,
@@ -47,12 +47,12 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid red'
   },
   paddingTop: {
-    paddingTop: theme.spacing(5),
+    paddingTop: theme.spacing(3),
   },
   middleContainer: {
     flexWrap: 'nowrap',
     width: '100%',
-    marginBottom: theme.spacing(2),
+    marginBottom: '15px',
     // border: '1px solid teal',
   },
   middleLeftPanel: {
@@ -221,7 +221,7 @@ export const QuickStartPage = (): JSX.Element => {
         </Grid>
         <SettableParameters />
       </Grid>
-      <Grid item>
+      <Grid>
         <ModeBanner bannerType="normal" />
       </Grid>
     </Grid>

@@ -79,8 +79,10 @@ void Error_Handler(void);
 #define BAT_CHARGE_EN_GPIO_Port GPIOF
 #define PRESS2_EN_Pin GPIO_PIN_3
 #define PRESS2_EN_GPIO_Port GPIOF
-#define MOTOR3_UART_Pin GPIO_PIN_7
-#define MOTOR3_UART_GPIO_Port GPIOF
+#define FDO2_RX_Pin GPIO_PIN_6
+#define FDO2_RX_GPIO_Port GPIOF
+#define FDO2_TX_Pin GPIO_PIN_7
+#define FDO2_TX_GPIO_Port GPIOF
 #define BAT_MEAS_ANALOG_Pin GPIO_PIN_8
 #define BAT_MEAS_ANALOG_GPIO_Port GPIOF
 #define SENSE_O2_OUT_Pin GPIO_PIN_9
@@ -189,10 +191,8 @@ void Error_Handler(void);
 #define SER_CLR_N_GPIO_Port GPIOC
 #define SER_RCLK_Pin GPIO_PIN_12
 #define SER_RCLK_GPIO_Port GPIOC
-#define OEMIII_RXPin_Pin GPIO_PIN_0
-#define OEMIII_RXPin_GPIO_Port GPIOD
-#define MOTOR1_UART_Pin GPIO_PIN_1
-#define MOTOR1_UART_GPIO_Port GPIOD
+#define OEMIII_RX_Pin GPIO_PIN_0
+#define OEMIII_RX_GPIO_Port GPIOD
 #define LTC4421_PWR_nVALID1_Pin GPIO_PIN_4
 #define LTC4421_PWR_nVALID1_GPIO_Port GPIOD
 #define LTC4421_PWR_nVALID2_Pin GPIO_PIN_5

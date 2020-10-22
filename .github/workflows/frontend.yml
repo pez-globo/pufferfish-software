@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        node_version: [10]
+        node_version: [12]
 
     steps:
     - uses: actions/checkout@v1
@@ -35,3 +35,6 @@ jobs:
 
     - name: Check linting
       run: yarn lint
+
+    - name: Unit Tests
+      run: yarn test
