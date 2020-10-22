@@ -7,7 +7,6 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import { StoreState } from '../../store/types';
 import { initialize } from '../../store/app/actions';
 import { getLocale, getMessages } from '../../store/app/selectors';
-import Layout from './Layout';
 import { darkTheme, lightTheme } from '../../styles/customTheme';
 import { getFrontendDisplaySetting } from '../../store/controller/selectors';
 import { FrontendDisplaySetting, ThemeVariant } from '../../store/controller/proto/frontend_pb';
