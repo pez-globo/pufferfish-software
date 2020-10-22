@@ -18,6 +18,7 @@ from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
 from ventserver.io.trio import fileio
 from ventserver.io.trio import rotaryencoder
+from ventserver.io.subprocess import frozen_frontend
 from ventserver.protocols import server
 from ventserver.protocols import exceptions
 from ventserver.protocols.protobuf import mcu_pb
@@ -65,6 +66,9 @@ async def main() -> None:
         server.ReceiveOutputEvent
     ] = channels.TrioChannel()
 
+    # Kill frozen frontend
+    last_kill_call = trio.current_time()
+
     # Initialize State
     all_states = protocol.receive.backend.all_states
     for state in all_states:
@@ -104,11 +108,14 @@ async def main() -> None:
                     )
 
                     if receive_output.frontend_delayed:
-                        nursery.start_soon(
-                            _trio.kill_frozen_frontend,
-                            websocket_endpoint.is_open,
-                            websocket_endpoint.connection_time,
-                        )
+                        current_time = trio.current_time()
+                        if int(current_time - last_kill_call) > 2:
+                            last_kill_call = current_time
+                            nursery.start_soon(
+                                frozen_frontend.kill_frozen_frontend,
+                                websocket_endpoint.is_open,
+                                websocket_endpoint.connection_time
+                            )
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
         logger.info('Finished, quitting!')
