@@ -398,7 +398,8 @@ async def main() -> None:
                     )
 
                     if receive_output.frontend_delayed:
-                        await _trio.kill_frozen_frontend(
+                        nursery.start_soon(
+                            _trio.kill_frozen_frontend,
                             websocket_endpoint.is_open,
                             websocket_endpoint.connection_time,
                         )

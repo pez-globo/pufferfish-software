@@ -105,7 +105,7 @@ async def send_all_websocket(
                 'Illegal data type: %s', err
             )
 
-            
+        
 async def send_all_file(
         filehandler: fileio.Handler,
         write_channel:protocols.Filter[_InputEvent, file.StateData]
