@@ -214,6 +214,7 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
 
         await self._data_available.wait()
         self._data_available = trio.Event()
+        print("count: %s", self.counter)
         return (self.counter, self.button_pressed)
 
     async def send(self, data: Optional[bytes]) -> None:

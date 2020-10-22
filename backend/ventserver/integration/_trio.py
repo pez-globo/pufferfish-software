@@ -3,6 +3,7 @@
 import functools
 import logging
 import time
+import sys
 from typing import Callable, Optional, TypeVar, Tuple, List, Type
 
 import trio
@@ -87,10 +88,10 @@ async def send_all_websocket(
     """
     for send_event in send_channel.output_all():
         if not websocket.is_open:
-            logger.warning(
-                'Discarding because websocket I/O endpoint is not open: %s',
-                send_event
-            )
+#             logger.warning(
+#                 'Discarding because websocket I/O endpoint is not open: %s',
+#                 send_event
+#             )
             await trio.sleep(0)
             continue
 
