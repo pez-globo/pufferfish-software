@@ -350,6 +350,7 @@ async def load_file_states(
             await filehandler.open()
             async with  filehandler:
                 message = await filehandler.receive()
+                logger.info("State initialized from file: %s", state.__name__)
                 protocol.receive.input(
                     server.ReceiveEvent(
                         file_receive=file.StateData(
