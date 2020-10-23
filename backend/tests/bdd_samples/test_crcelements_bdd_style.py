@@ -37,19 +37,34 @@ example_crc = example_crc_good + example_crc_bad
 @hp.given(crc=st.binary(min_size=0x00000000, max_size=0xffffffffff))
 @hp.example(crc=b'\x00\x00\x00\x00')
 @hp.example(crc=b'\xff\xff\xff\xff')
-@hp.example(crc=b'\xff\xff\xff\xff' + b'\x00\x00\x00\x01')
-def test_crcelement_init_crc(crc: bytes) -> None:
+def test_crcelement_init_valid_crc(crc: bytes) -> None:
     """
-    Scenario: CRC of data is generated/parsed from the input.
-    Given: We have CRCElement object.
-    And: The CRC generated/parsed is in bytes.
-    When: The CRC is between \\x00\\x00\\x00\\x00 and \\xff\\xff\\xff\\xff'
-    And: It's length is 4.
-    Then: ValueError should not be raised.
+    Scenario: Valid CRC of data is generated/parsed from the input.
     """
+    # Given: A CRC constructor value which is within the allowed
+    #    range for 32-bit CRCs
     if (b'\x00\x00\x00\x00' <= crc <= b'\xff\xff\xff\xff') and (len(crc) == 4):
+        # When: A CRCElement is constructed using it. 
+        # Then: ValueError should not be raised.
         crcelements.CRCElement(crc=crc)
-    else:
+
+
+@hp.given(crc=st.binary(min_size=0x00, max_size=0xffffffffffff))
+@hp.example(crc=b'\xff\xff\xff\xff\x01')
+@hp.example(crc=b'\x00\x00')
+@hp.example(crc=b'\xff\xff\xff\xff' + b'\x00\x00\x00\x01')
+def test_crcelement_init_invalid_crc(crc: bytes) -> None:  # pylint: disable=invalid-name
+    """
+    Scenario: Invalid CRC of data is generated/parsed from the input.
+    """
+    # Given: A CRC constructor value which is outside the allowed
+    #    range for 32-bit CRCs
+    if not ( 
+        (b'\x00\x00\x00\x00' <= crc <= b'\xff\xff\xff\xff')\
+        and (len(crc) == 4)
+    ):
+        # When: A CRCElement is constructed using it. 
+        # Then: ValueError should be raised.
         with pt.raises(ValueError):
             crcelements.CRCElement(crc=crc)
 
@@ -61,20 +76,16 @@ def test_crcelement_integrity_pass(
     """
     Scenario: The system reads file/processes message from mcu/frontend.
         The message has been parsed 
-    Given: We have CRCElement object.
-    And: The parsed CRC and payload, in bytes.
-    When: The parsed CRC matches the computed CRC
-    Then: ProtocolDataError should not be raised.
     """
     # Given: We have CRCElement object.
     crc_element = crcelements.CRCElement()
 
-    # And: The parsed CRC and payload, in bytes.
     crc_element.crc = crc
     crc_element.payload = payload
     
     try:
-        # When: The parsed CRC matches the computed CRC
+        # When: The CRCElement object checks the integrity of a payload and
+        #   the expected CRC, which are consistent with each other.
         crc_element.check_integrity()
     
     # Then: ProtocolDataError should not be raised.
@@ -88,19 +99,15 @@ def test_crcelement_parse(
 ) -> None:
     """
     Scenario: The system reads file/processes message from mcu/frontend.
-    Given: A protobuf message in bytes.
-    And: A CRC element.
-    When: The protobuf message has correct size
-    Then: We should get seperated CRC key and message body.
     """
-    # Given: A protobuf message in bytes.
-    # And: A CRC element.
+    # Given: A CRC element.
     crc_element = crcelements.CRCElement()
     
-    # When: The protobuf message has correct size
+    # When: The CRC Element parses a body of valid size.
     crc_element.parse(body)
     
-    # Then: We should get seperated CRC key and message body.
+    # Then: The CRC checksum is parsed correctly from the header.
+    # And: The payload is parsed correctly.
     assert crc_element.crc == crc
     assert crc_element.payload == payload
 
@@ -112,16 +119,11 @@ def test_crcelements_rx_invalid_crc(
     """
     Scenario: The system reads corrupted file or
         processes corrupted message.
-    Given: A protobuf message in bytes.
-    And: A CRC message receiver.
-    When: The message bytes are corrupted
-    Then: Raise ProtocolDataError for that message.
     """
-    # Given: A protobuf message in bytes.
-    # And: A CRC message receiver.
+    # Given: A CRC message receiver.
     receiver = crcelements.CRCReceiver()
     
-    # When: The message bytes are corrupted
+    # When: The message bytes are corrupted.
     receiver.input(body)
 
     # Then: Raise ProtocolDataError for that message.
