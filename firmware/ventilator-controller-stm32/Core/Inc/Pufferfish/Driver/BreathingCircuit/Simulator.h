@@ -26,9 +26,10 @@ class Simulator {
       CycleMeasurements &cycle_measurements) = 0;
 
  protected:
-  static const uint32_t sensor_update_interval = 2;  // ms
-  static constexpr float spo2_min = 21;              // % SpO2
-  static constexpr float spo2_max = 100;             // % SpO2
+  static const uint32_t sensor_update_interval = 2;              // ms
+  static constexpr float po2_fio2_conversion = 100.0 / 1013250;  // % FiO2 / dPa O2 at 1 atm
+  static constexpr float spo2_min = 21;                          // % SpO2
+  static constexpr float spo2_max = 100;                         // % SpO2
 
   static constexpr float fio2_responsiveness = 0.01;  // ms
 

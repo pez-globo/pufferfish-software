@@ -27,6 +27,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     minWidth: 0,
     borderRadius: 0,
   },
+  navMenu: {
+    height: '100%',
+  },
 }));
 
 /**
@@ -65,7 +68,7 @@ const Sidebar = (): JSX.Element => {
           </div>
         </Button>
       </Grid>
-      <Grid item>
+      <Grid item className={classes.navMenu}>
         <Navigation />
       </Grid>
       <Grid item>

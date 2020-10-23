@@ -27,6 +27,10 @@ bool ControlLoop::update_needed(uint32_t current_time) const {
 
 // HFNC ControlLoop
 
+SensorVars &HFNCControlLoop::sensor_vars() {
+  return sensor_vars_;
+}
+
 const SensorVars &HFNCControlLoop::sensor_vars() const {
   return sensor_vars_;
 }

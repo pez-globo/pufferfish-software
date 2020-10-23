@@ -51,6 +51,7 @@ class HFNCControlLoop : public ControlLoop {
 
   void update(uint32_t current_time) override;
 
+  [[nodiscard]] SensorVars &sensor_vars();
   [[nodiscard]] const SensorVars &sensor_vars() const;
   [[nodiscard]] const ActuatorSetpoints &actuator_setpoints() const;
   [[nodiscard]] const ActuatorVars &actuator_vars() const;

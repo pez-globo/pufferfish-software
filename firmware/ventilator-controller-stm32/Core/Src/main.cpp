@@ -47,11 +47,13 @@
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
 #include "Pufferfish/Driver/Indicators/PulseGenerator.h"
 #include "Pufferfish/Driver/Serial/Backend/UART.h"
+#include "Pufferfish/Driver/Serial/FDO2/Sensor.h"
 #include "Pufferfish/Driver/Serial/Nonin/Sensor.h"
 #include "Pufferfish/Driver/ShiftedOutput.h"
 #include "Pufferfish/HAL/HAL.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
 #include "Pufferfish/Statuses.h"
+#include "Pufferfish/Util/Timeouts.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -112,11 +114,12 @@ PF::HAL::CRC32C crc32c(hcrc);
 PF::HAL::HALTime time;
 
 // Buffered UARTs
-volatile Pufferfish::HAL::LargeBufferedUART buffered_uart3(huart3, time);
+volatile Pufferfish::HAL::LargeBufferedUART backend_uart(huart3, time);
+volatile Pufferfish::HAL::LargeBufferedUART fdo2_uart(huart7, time);
 volatile Pufferfish::HAL::ReadOnlyBufferedUART nonin_oem_uart(huart4, time);
 
 // UART Serial Communication
-PF::Driver::Serial::Backend::UARTBackend backend(buffered_uart3, crc32c, all_states);
+PF::Driver::Serial::Backend::UARTBackend backend(backend_uart, crc32c, all_states);
 
 // Create an object for ADC3 of AnalogInput Class
 static const uint32_t adc_poll_timeout = 10;
@@ -293,6 +296,10 @@ PF::Driver::I2C::SFM3019::Sensor sfm3019_air(sfm3019_dev_air, true, time);
 PF::Driver::I2C::SFM3019::Device sfm3019_dev_o2(i2c_hal_sfm3019_o2, i2c4_hal_global);
 PF::Driver::I2C::SFM3019::Sensor sfm3019_o2(sfm3019_dev_o2, true, time);
 
+// FDO2
+PF::Driver::Serial::FDO2::Device fdo2_dev(fdo2_uart);
+PF::Driver::Serial::FDO2::Sensor fdo2(fdo2_dev, time);
+
 // Nonin OEM III
 PF::Driver::Serial::Nonin::Device nonin_oem_dev(nonin_oem_uart);
 PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
@@ -300,7 +307,7 @@ PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 // Initializables
 
 auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
-    sfm3019_air, sfm3019_o2, nonin_oem);
+    sfm3019_air, sfm3019_o2, fdo2, nonin_oem);
 std::array<PF::InitializableState, initializables.size()> initialization_states;
 
 /*
@@ -452,43 +459,39 @@ int main(void)
   MX_TIM8_Init();
   MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
+  // Time
   PF::HAL::HALTime::micros_delay_init();
 
   /*
   interface_test_millis = time.millis();
 
+  // ADCs
   adc3_input.start();
   */
 
-  // Backend
-  buffered_uart3.setup_irq();
+  // UARTs
+  backend_uart.setup_irq();
+  fdo2_uart.setup_irq();
+  nonin_oem_uart.setup_irq();
 
-  // Board LED
-  blinker.start(time.millis());
-  flasher.start(time.millis());
-  dimmer.start(time.millis());
-
-  // Solenoid valve
+  // Hardware PWMs
   drive1_ch1.start();
   drive1_ch2.start();
 
-  // Nonin OEM III sensor
-  nonin_oem_uart.setup_irq();
+  // Software PWMs
+  blinker.start(time.millis());
+  flasher.start(time.millis());
+  dimmer.start(time.millis());
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   // Setup
-  static const uint32_t setup_indicator_duration = 1000;
+  static const uint32_t setup_indicator_duration = 2000;
 
-  board_led1.write(false);
+  board_led1.write(true);
   while (true) {
-    // Update indicators
-    uint32_t current_time = time.millis();
-    blinker.input(current_time);
-    flasher.input(current_time);
-
     // Run setup on all initializables
     for (size_t i = 0; i < initializables.size(); ++i) {
       initialization_states[i] = initializables[i].get().setup();
@@ -499,20 +502,29 @@ int main(void)
             initialization_states.cbegin(),
             initialization_states.cend(),
             PF::InitializableState::failed) != initialization_states.cend()) {
-      board_led1.write(flasher.output());
+      const uint32_t flash_start_time = time.millis();
+      // Flash the LED rapidly to indicate failure
+      while (PF::Util::within_timeout(flash_start_time, setup_indicator_duration, time.millis())) {
+        flasher.input(time.millis());
+        board_led1.write(flasher.output());
+      }
     } else if (  // At least one is still in setup
         std::find(
             initialization_states.cbegin(),
             initialization_states.cend(),
             PF::InitializableState::setup) != initialization_states.cend()) {
-      board_led1.write(blinker.output());
+      board_led1.write(true);
     } else {  // All are done with setup and ok
       break;
     }
   }
 
-  board_led1.write(true);
-  time.delay(setup_indicator_duration);
+  // Blink the LED somewhat slowly to indicate success
+  const uint32_t setup_completion_time = time.millis();
+  while (PF::Util::within_timeout(setup_completion_time, setup_indicator_duration, time.millis())) {
+    blinker.input(time.millis());
+    board_led1.write(blinker.output());
+  }
   board_led1.write(false);
 
   // Normal loop
@@ -536,6 +548,7 @@ int main(void)
         all_states.cycle_measurements());
 
     // Independent Sensors
+    fdo2.output(hfnc.sensor_vars().po2);
     nonin_oem.output(all_states.sensor_measurements().spo2);
 
     // Breathing Circuit Control Loop
@@ -1377,7 +1390,7 @@ static void MX_UART7_Init(void)
 
   /* USER CODE END UART7_Init 1 */
   huart7.Instance = UART7;
-  huart7.Init.BaudRate = 115200;
+  huart7.Init.BaudRate = 19200;
   huart7.Init.WordLength = UART_WORDLENGTH_8B;
   huart7.Init.StopBits = UART_STOPBITS_1;
   huart7.Init.Parity = UART_PARITY_NONE;
@@ -1387,7 +1400,7 @@ static void MX_UART7_Init(void)
   huart7.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
   huart7.Init.ClockPrescaler = UART_PRESCALER_DIV1;
   huart7.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_HalfDuplex_Init(&huart7) != HAL_OK)
+  if (HAL_UART_Init(&huart7) != HAL_OK)
   {
     Error_Handler();
   }

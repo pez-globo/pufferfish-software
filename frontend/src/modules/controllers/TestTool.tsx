@@ -14,13 +14,11 @@ const useStyles = makeStyles((theme: Theme) => ({
     width: '100%',
     border: '1px solid black',
     borderRadius: 8,
-    minHeight: 44,
   },
   viewMoreButton: {
     width: '100%',
     border: '1px solid black',
     borderRadius: 8,
-    minHeight: 44,
   },
   marginRight: {
     marginRight: theme.spacing(2),
@@ -30,9 +28,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   cancelIcon: {
     color: theme.palette.error.main,
-  },
-  dateTime: {
-    marginBottom: 30,
   },
   time: {
     marginRight: 75,
@@ -73,7 +68,7 @@ export const TestTool = ({ label, isSuccess, timestamp }: Props): JSX.Element =>
           )}
         </Grid>
       </Grid>
-      <Grid container item xs direction="row" justify="flex-start" className={classes.dateTime}>
+      <Grid container item xs direction="row" justify="flex-start">
         <Grid item>
           <Typography className={classes.time}>
             {timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

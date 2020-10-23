@@ -9,6 +9,7 @@ from ventserver.integration import _trio
 from ventserver.io.trio import _serial
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
+from ventserver.io.trio import fileio
 from ventserver.protocols import server
 
 
@@ -30,6 +31,7 @@ async def main() -> None:
     # I/O Endpoints
     serial_endpoint = _serial.Driver()
     websocket_endpoint = websocket.Driver()
+    filehandler = fileio.Handler()
 
     # Server Receive Outputs
     channel: channels.TrioChannel[
@@ -51,7 +53,7 @@ async def main() -> None:
                     logger.debug(receive_output)
                     await _trio.process_protocol_send(
                         receive_output.server_send, protocol,
-                        serial_endpoint, websocket_endpoint
+                        serial_endpoint, websocket_endpoint, filehandler
                     )
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:

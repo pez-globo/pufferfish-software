@@ -68,19 +68,29 @@ constexpr Element &Vector<Element, array_size>::operator[](size_t position) {
 }
 
 template <typename Element, size_t array_size>
+template <size_t source_size>
 void Vector<Element, array_size>::copy_from(
-    const Vector<Element, array_size> &source_bytes, size_t dest_start_index) {
-  copy_from(source_bytes.buffer_.data(), source_bytes.size(), dest_start_index);
+    const std::array<Element, source_size> &source_bytes, size_t dest_start_index) {
+  copy_from(source_bytes.data(), source_bytes.size(), dest_start_index);
 }
 
 template <typename Element, size_t array_size>
 void Vector<Element, array_size>::copy_from(
-    const uint8_t *source_bytes, size_t source_size, size_t dest_start_index) {
+    const Vector<Element, array_size> &source_bytes, size_t dest_start_index) {
+  copy_from(source_bytes.buffer(), source_bytes.size(), dest_start_index);
+}
+
+template <typename Element, size_t array_size>
+void Vector<Element, array_size>::copy_from(
+    const Element *source_bytes, size_t source_size, size_t dest_start_index) {
   size_ = array_size;
   if (source_size + dest_start_index < size_) {
     size_ = source_size + dest_start_index;
   }
-  memcpy(buffer_.data() + dest_start_index, source_bytes, size_ - dest_start_index);
+  memcpy(
+      buffer_.data() + dest_start_index,
+      source_bytes,
+      sizeof(Element) * (size_ - dest_start_index));
 }
 
 }  // namespace Pufferfish::Util
