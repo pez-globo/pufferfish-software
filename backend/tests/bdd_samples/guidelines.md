@@ -29,15 +29,19 @@ Story The module gives example of how BDD style can be integrated with docstring
 
 @hp.given(...)
 @pt.parametrize(...)
-def test_this_functioanality(args):
-    """Scenario Sample unit test to show how to integrate tags with docstrings.
-       Given The understanding of the functionality.
-       And The knowledge of BDD.
-       When The unit tests are written.
-       And Conditions are met.
-       Then The test result should show pass.
+def test_this_functionality(args):
+    """Scenario: Sample unit test to show how to integrate tags with docstrings.
     """
-    Actual test code ...
+    # Given: The understanding of the functionality.
+    Object initialization code B.
+    # And: The knowledge of BDD. 
+    Object initialization code B.
+
+    # When: The unit tests are written and conditions are met.
+    Some condition code.
+    
+      # Then: The test result should show pass.
+      Code to verify the result.
 ```
 
 Example test could be found in `backend/tests/bdd_samples`
