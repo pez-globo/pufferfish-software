@@ -26,8 +26,6 @@ StateMachine::Action StateMachine::update(uint32_t current_time_us) {
     case Action::wait_warmup:
       if (finished_waiting(warming_up_duration_us)) {
         next_action_ = Action::check_range;
-      } else {
-        next_action_ = Action::wait_warmup;
       }
       break;
     case Action::check_range:
@@ -38,8 +36,6 @@ StateMachine::Action StateMachine::update(uint32_t current_time_us) {
     case Action::wait_measurement:
       if (finished_waiting(measuring_duration_us)) {
         next_action_ = Action::measure;
-      } else {
-        next_action_ = Action::wait_measurement;
       }
       break;
   }
@@ -141,7 +137,7 @@ InitializableState Sensor::check_range(uint32_t current_time_us) {
     return InitializableState::failed;
   }
 
-  return InitializableState::ok;
+  return InitializableState::setup;
 }
 
 InitializableState Sensor::measure(uint32_t current_time_us, float &flow) {
