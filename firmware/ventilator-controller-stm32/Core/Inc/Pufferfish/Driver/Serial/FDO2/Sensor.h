@@ -56,7 +56,7 @@ class Sensor : public Initializable {
 
   static constexpr Responses::Vers expected_vers{8, 1, 341, 15};
   static constexpr Responses::Bcst expected_bcst{Device::broadcast_interval};
-  static const size_t max_retries_setup = 100;   // max retries for all setup steps combined
+  static const size_t max_retries_setup = 100;  // max retries for all setup steps combined
 
   Device &device_;
   StateMachine fsm_;

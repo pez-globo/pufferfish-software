@@ -140,8 +140,6 @@ InitializableState Sensor::check_version(uint32_t current_time) {
 }
 
 InitializableState Sensor::check_broadcast(uint32_t current_time) {
-  using namespace std::rel_ops;
-
   Response response;
   if (!get_response(CommandTypes::bcst, response)) {
     next_action_ = fsm_.update(current_time);
