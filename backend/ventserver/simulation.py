@@ -399,6 +399,7 @@ async def main() -> None:
                     )
 
                     if receive_output.frontend_delayed:
+                        print("calling")
                         nursery.start_soon(
                             frozen_frontend.kill_frozen_frontend
                         )

@@ -2,6 +2,7 @@
 
 from typing import Optional, Union, Tuple
 import logging
+import time
 
 import attr
 
@@ -116,7 +117,7 @@ class FrontendKillProps():
     last_fe_event: float = attr.ib(default=0)
     fe_connected: bool = attr.ib(default=False)
     fe_connection_time: float = attr.ib(default=0)
-    last_fe_kill: float = attr.ib(default=0)
+    last_fe_kill: float = attr.ib(factory=time.time)
 
 
 # Filters
@@ -192,8 +193,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         # The frontend service will automatically restart the frontend process.
         delayed = False
         if int(self.current_time - self._kill_props.last_fe_event) > 1:
-            if int(self.current_time - self._kill_props.last_fe_kill) > 2\
-            and not self._kill_props.last_fe_kill == 0 :
+            if int(self.current_time - self._kill_props.last_fe_kill) > 2:
                 connection_duration = int(
                     self.current_time - self._kill_props.fe_connection_time
                 )
