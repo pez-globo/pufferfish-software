@@ -2,7 +2,7 @@
 
 from typing import Optional, Union, Tuple
 import logging
-import time
+import time as _time
 
 import attr
 
@@ -117,7 +117,7 @@ class FrontendKillProps():
     last_fe_event: float = attr.ib(default=0)
     fe_connected: bool = attr.ib(default=False)
     fe_connection_time: float = attr.ib(default=0)
-    last_fe_kill: float = attr.ib(factory=time.time)
+    last_fe_kill: float = attr.ib(factory=_time.time)
 
 
 # Filters
