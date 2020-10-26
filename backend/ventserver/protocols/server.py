@@ -18,6 +18,19 @@ from ventserver.sansio import protocols
 
 # Events
 
+@attr.s
+class FrontendConnectionEvent(events.Event):
+    """Server frontend connection status event."""
+
+    last_connection_time: float = attr.ib(default=None)
+    is_frontend_connected: bool = attr.ib(default=False)
+
+    def has_data(self) -> bool:
+        """Return whether the event has data."""
+        return (
+            self.last_connection_time is not None
+            and self.is_frontend_connected is not None
+        )
 
 @attr.s
 class ReceiveEvent(events.Event):
@@ -93,6 +106,18 @@ def make_rotary_encoder_receive(
     return ReceiveEvent(rotary_encoder_receive=re_receive, time=time)
 
 
+# Frontend kill props
+
+class FrontendKillProps():
+    """Variables used to implement frozen frontend kill logic."""
+
+    # fe = frontend
+    last_fe_event: float = attr.ib(default=0)
+    fe_connected: bool = attr.ib(default=False)
+    fe_connection_time: float = attr.ib(default=0)
+    last_fe_kill: float = attr.ib(default=0)
+
+
 # Filters
 
 
@@ -101,11 +126,13 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     """Filter which transforms receive bytes into high-level events."""
     _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
 
-    _buffer: channels.DequeChannel[ReceiveEvent] = attr.ib(
-        factory=channels.DequeChannel
-    )
+    _buffer: channels.DequeChannel[
+                        Union[ReceiveEvent, FrontendConnectionEvent]
+            ] = attr.ib(factory=channels.DequeChannel)
+
     current_time: float = attr.ib(default=0)
-    _last_frontend_event: float = attr.ib(default=0)
+    _kill_props: FrontendKillProps = attr.ib(factory=FrontendKillProps)
+
     _mcu: mcu.ReceiveFilter = attr.ib(factory=mcu.ReceiveFilter)
     _frontend: frontend.ReceiveFilter = attr.ib(factory=frontend.ReceiveFilter)
     _rotary_encoder: rotary_encoder.ReceiveFilter = attr.ib(
@@ -117,7 +144,10 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     )
 
 
-    def input(self, event: Optional[ReceiveEvent]) -> None:
+    def input(self, event: Optional[
+                            Union[ReceiveEvent, FrontendConnectionEvent
+                            ]
+    ]) -> None:
         """Handle input events."""
         if event is None or not event.has_data():
             return
@@ -159,7 +189,17 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
 
         # Kill frontend process if it stops responding.
         # The frontend service will automatically restart the frontend process.
-        delayed = int(self.current_time - self._last_frontend_event) > 1
+        delayed = False
+        if int(self.current_time - self._kill_props.last_fe_event) > 1:
+            if int(self.current_time - self._kill_props.last_fe_kill) > 2\
+            and not self._kill_props.last_fe_kill == 0 :
+                connection_duration = int(
+                    self.current_time - self._kill_props.fe_connection_time
+                )
+                if self._kill_props.fe_connected and connection_duration > 2:
+                    self._kill_props.last_fe_kill = self.current_time
+                    delayed = True
+
 
         output = ReceiveOutputEvent(
             server_send=backend_output, frontend_delayed=delayed
@@ -171,6 +211,12 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         event = self._buffer.output()
         if event is None:
             return
+
+        if isinstance(event, FrontendConnectionEvent):
+            self._kill_props.fe_connection_time = event.last_connection_time
+            self._kill_props.fe_connected = event.is_frontend_connected
+            return
+
         if event.time is not None:
             self.current_time = event.time
         self._mcu.input(event.serial_receive)
@@ -205,7 +251,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             time=self.current_time, mcu_receive=None,
             frontend_receive=frontend_output
         ))
-        self._last_frontend_event = self.current_time
+        self._kill_props.last_fe_event = self.current_time
         return True
 
     def _process_rotary_encoder(self) -> bool:

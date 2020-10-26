@@ -362,9 +362,6 @@ async def main() -> None:
         server.ReceiveOutputEvent
     ] = channels.TrioChannel()
 
-    # Kill frozen frontend
-    last_kill_call = trio.current_time()
-
     # Initialize States
     states: List[Type[betterproto.Message]] = [
         mcu_pb.Parameters, mcu_pb.CycleMeasurements,
@@ -402,14 +399,9 @@ async def main() -> None:
                     )
 
                     if receive_output.frontend_delayed:
-                        current_time = trio.current_time()
-                        if int(current_time - last_kill_call) > 2:
-                            last_kill_call = current_time
-                            nursery.start_soon(
-                                frozen_frontend.kill_frozen_frontend,
-                                websocket_endpoint.is_open,
-                                websocket_endpoint.connection_time
-                            )
+                        nursery.start_soon(
+                            frozen_frontend.kill_frozen_frontend
+                        )
 
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
