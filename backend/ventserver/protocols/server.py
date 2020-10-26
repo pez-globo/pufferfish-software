@@ -108,6 +108,7 @@ def make_rotary_encoder_receive(
 
 # Frontend kill props
 
+@attr.s
 class FrontendKillProps():
     """Variables used to implement frozen frontend kill logic."""
 
