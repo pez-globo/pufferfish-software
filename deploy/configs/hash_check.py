@@ -51,7 +51,7 @@ file_paths = [
 ]
 
 frontend_dir = "/var/www/html"
-backend_dir = "/home/pi/pufferfish-vent-software/backend/ventserver"
+backend_dir = "pufferfish backend directory path"
 
 backend_service = '/etc/systemd/system/pufferfish_backend.service'
 
