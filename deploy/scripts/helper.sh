@@ -15,6 +15,6 @@ frontend_dir=$script_dir/../../frontend
 
 # Function to exit script on failure
 function exit_script {
-  echo -e "${ERROR} $1"
+  echo -e "${ERROR} $1 ${NC}"
   exit 1
 }
