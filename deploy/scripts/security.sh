@@ -32,7 +32,7 @@ fi
 sudo ufw default deny incoming
 sudo ufw deny ssh
 sudo ufw allow in "Nginx Full"
-sudo ufw enable
+sudo ufw --force enable
 
 # Disabling ssh services
 sudo systemctl mask ssh

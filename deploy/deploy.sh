@@ -2,7 +2,16 @@
 
 # Getting absolute path of script
 script_path=$(dirname $(realpath $0))
-. $script_path/scripts/helper.sh
+
+# Message colours
+ERROR='\033[1;31mERROR:'
+NC='\033[0m'
+
+# Function to exit script on failure
+function exit_script {
+  echo -e "${ERROR} $1 ${NC}"
+  exit 1
+}
 
 # Install required components
 $script_path/install.sh "deploy" || exit_script "Development components installation failed"
@@ -40,9 +49,4 @@ $script_path/scripts/disable_services.sh || exit_script "Disabling background se
 # Setup security protocols
 $script_path/scripts/security.sh || exit_script "Security protocols setup failed"
 
-echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/N]: "
-read answer
-if echo "$answer" | grep -iq "^y"
-then
-    sudo reboot
-fi
+echo -e "Reboot required for changes to take effect. Please restart!"

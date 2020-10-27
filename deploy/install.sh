@@ -2,7 +2,16 @@
 
 # Getting absolute path of script
 script_path=$(dirname $(realpath $0))
-. $script_path/scripts/helper.sh
+
+# Message colours
+ERROR='\033[1;31mERROR:'
+NC='\033[0m'
+
+# Function to exit script on failure
+function exit_script {
+  echo -e "${ERROR} $1 ${NC}"
+  exit 1
+}
 
 # Setup pyenv
 $script_path/scripts/pyenv.sh || exit_script "Pyenv installation failed"
