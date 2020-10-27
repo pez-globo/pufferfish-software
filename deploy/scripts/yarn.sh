@@ -3,17 +3,11 @@
 # Installs yarn and front-end dependencies
 # Creates a build release for front-end with static files
 
-# Message colours
-ERROR='\033[1;31mERROR:'
-SUCCESS='\033[1;32m'
-WARNING='\033[1;33mWARNING:'
-NC='\033[0m'
+# Importing logging colours, absolute paths and exit function
+script_dir=$(dirname $(realpath $0))
+. $script_dir/helper.sh
 
 echo -e "\n${SUCCESS}********** Installing yarn **********\n${NC}"
-
-# Getting absolute path of frontend files
-script_dir=$(dirname $(realpath $0))
-frontend_dir=$script_dir/../../frontend
 
 # Installing yarn
 if ! command -v yarn &> /dev/null

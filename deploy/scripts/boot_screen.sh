@@ -2,19 +2,13 @@
 
 # Custom Pufferfish boot screen and its service
 
-# Message colours
-ERROR='\033[1;31mERROR:'
-SUCCESS='\033[1;32m'
-WARNING='\033[1;33mWARNING:'
-NC='\033[0m'
+# Importing logging colours, absolute paths and exit function
+script_dir=$(dirname $(realpath $0))
+. $script_dir/helper.sh
 
 echo -e "\n${SUCCESS}********** Setting up custom boot screen **********\n${NC}"
 
 sudo apt-get update
-
-# Getting absolute path of config files
-script_dir=$(dirname $(realpath $0))
-config_dir=$script_dir/../configs
 
 # Copy splash image to home directory
 cp $config_dir/splash.png ~/splash.png
