@@ -11,6 +11,10 @@ NC='\033[0m'
 
 echo -e "\n${SUCCESS}********** Setting up Tampering Security **********\n${NC}"
 
+# Getting absolute path of config files
+script_dir=$(dirname $(realpath $0))
+config_dir=$script_dir/../configs
+
 # Copy target file to systemd directory
 if [ 1 -eq $( ls $config_dir | grep -c "pufferfish.target" ) ]
 then
