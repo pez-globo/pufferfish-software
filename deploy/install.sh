@@ -1,25 +1,25 @@
 #!/bin/bash
 
 # Getting absolute path of script
-script_dir=$(dirname $(realpath $0))
+script_path=$(dirname $(realpath $0))
 
 # Setup pyenv
-$script_dir/scripts/pyenv.sh
+$script_path/scripts/pyenv.sh
 
 # Setup poetry and install required libraries
-$script_dir/scripts/poetry.sh
+$script_path/scripts/poetry.sh
 
 # Setup pigpio dependency for backend
-$script_dir/scripts/pigpio.sh
+$script_path/scripts/pigpio.sh
 
 # Setup Node
-$script_dir/scripts/node.sh
+$script_path/scripts/node.sh
 
 # Install Roboto Fonts
-$script_dir/scripts/install_fonts.sh
+$script_path/scripts/install_fonts.sh
 
 # Setup yarn and install required libraries
-$script_dir/scripts/yarn.sh
+$script_path/scripts/yarn.sh
 
 if [[ "$@" != "deploy" ]]
 then
