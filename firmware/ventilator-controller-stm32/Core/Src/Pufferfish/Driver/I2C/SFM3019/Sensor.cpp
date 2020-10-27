@@ -26,8 +26,6 @@ StateMachine::Action StateMachine::update(uint32_t current_time_us) {
     case Action::wait_warmup:
       if (finished_waiting(warming_up_duration_us)) {
         next_action_ = Action::check_range;
-      } else {
-        next_action_ = Action::wait_warmup;
       }
       break;
     case Action::check_range:
@@ -38,8 +36,6 @@ StateMachine::Action StateMachine::update(uint32_t current_time_us) {
     case Action::wait_measurement:
       if (finished_waiting(measuring_duration_us)) {
         next_action_ = Action::measure;
-      } else {
-        next_action_ = Action::wait_measurement;
       }
       break;
   }
@@ -57,11 +53,6 @@ bool StateMachine::finished_waiting(uint32_t timeout_us) const {
 // Sensor
 
 InitializableState Sensor::setup() {
-  float flow = NAN;
-  return output(flow);
-}
-
-InitializableState Sensor::output(float &flow) {
   switch (next_action_) {
     case Action::initialize:
       return initialize(time_.micros());
@@ -70,6 +61,15 @@ InitializableState Sensor::output(float &flow) {
       return InitializableState::setup;
     case Action::check_range:
       return check_range(time_.micros());
+    case Action::measure:
+    case Action::wait_measurement:
+      return InitializableState::ok;
+  }
+  return InitializableState::failed;
+}
+
+InitializableState Sensor::output(float &flow) {
+  switch (next_action_) {
     case Action::measure:
       return measure(time_.micros(), flow);
     case Action::wait_measurement:
@@ -137,7 +137,7 @@ InitializableState Sensor::check_range(uint32_t current_time_us) {
     return InitializableState::failed;
   }
 
-  return InitializableState::ok;
+  return InitializableState::setup;
 }
 
 InitializableState Sensor::measure(uint32_t current_time_us, float &flow) {

@@ -60,6 +60,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   selected: {
     background: theme.palette.primary.main,
+    '&:hover': {
+      background: theme.palette.primary.main,
+    },
   },
 }));
 

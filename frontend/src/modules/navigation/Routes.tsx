@@ -18,18 +18,21 @@ import {
   LOGS_ROUTE,
   SCREENSAVER_ROUTE,
 } from './constants';
+import LandingPage from '../landing-page/LandingPage';
+import NoLayoutRoute from '../app/layouts/NoLayoutRoute';
+import SidebarRoute from '../app/layouts/SidebarRoute';
 
 const Routes = (): JSX.Element => (
   <Switch>
-    <Route exact path={DASHBOARD_ROUTE.path} component={DashboardPage} />
-    <Route path={QUICKSTART_ROUTE.path} component={QuickStartPage} />
-    <Route path={MODES_ROUTE.path} component={ModesPage} />
-    <Route path={ALARMS_ROUTE.path} component={AlarmsPage} />
-    <Route path={VALUES_ROUTE.path} component={ValuesPage} />
-    <Route path={SETTINGS_ROUTE.path} component={SettingsPage} />
-    <Route path={LOGS_ROUTE.path} component={LogsPage} />
-    <Route path={SCREENSAVER_ROUTE.path} component={ScreensaverPage} />
-    <Route component={QuickStartPage} />
+    <SidebarRoute exact path={DASHBOARD_ROUTE.path} component={DashboardPage} />
+    <SidebarRoute path={QUICKSTART_ROUTE.path} component={QuickStartPage} />
+    <SidebarRoute path={MODES_ROUTE.path} component={ModesPage} />
+    <SidebarRoute path={ALARMS_ROUTE.path} component={AlarmsPage} />
+    <SidebarRoute path={VALUES_ROUTE.path} component={ValuesPage} />
+    <SidebarRoute path={SETTINGS_ROUTE.path} component={SettingsPage} />
+    <SidebarRoute path={LOGS_ROUTE.path} component={LogsPage} />
+    <SidebarRoute path={SCREENSAVER_ROUTE.path} component={ScreensaverPage} />
+    <NoLayoutRoute component={LandingPage} />
   </Switch>
 );
 

@@ -7,11 +7,6 @@ import functools
 import trio
 import betterproto
 
-try:
-    from ventserver.io.trio import rotaryencoder
-except RuntimeError:
-    logging.getLogger().warning('Running without pigpio!')
-
 from ventserver.integration import _trio
 from ventserver.io.trio import _serial
 from ventserver.io.trio import channels
@@ -52,7 +47,7 @@ async def main() -> None:
         except exceptions.ProtocolError as err:
             exception = (
                 "Unable to connect the rotary encoder, please check the "
-                "serial connection. Check if the pigpiod service is running: "
+                "serial connection. Check if the pigpiod service is running: %s"
             )
             rotary_encoder = None
             logger.error(exception, err)

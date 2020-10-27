@@ -12,11 +12,7 @@ import attr
 import betterproto
 import trio
 
-try:
-    from ventserver.io.trio import rotaryencoder
-except RuntimeError:
-    logging.getLogger().warning('Running without RPi.GPIO!')
-
+from ventserver.io.trio import rotaryencoder
 from ventserver.integration import _trio
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket

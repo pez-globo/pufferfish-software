@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   item: {
     borderRadius: theme.panel.borderRadius,
     // padding: theme.spacing(1),
-    marginBottom: theme.spacing(2),
+    marginBottom: '12px',
     backgroundColor: theme.palette.background.paper,
   },
   leftPanel: {

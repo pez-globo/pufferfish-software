@@ -97,8 +97,8 @@ async def send_all_file(
             await filehandler.open()
             async with filehandler:
                 await filehandler.send(message.data)
-        except OSError:
-            logger.error("Handler: ")
+        except OSError as err:
+            logger.error("Handler: %s", err)
 
 
 async def process_protocol_send_output(
@@ -350,6 +350,7 @@ async def load_file_states(
             await filehandler.open()
             async with  filehandler:
                 message = await filehandler.receive()
+                logger.info("State initialized from file: %s", state.__name__)
                 protocol.receive.input(
                     server.ReceiveEvent(
                         file_receive=file.StateData(

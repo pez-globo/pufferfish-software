@@ -5,17 +5,11 @@ import { getParametersRequestMode } from '../../store/controller/selectors';
 import { VentilationMode } from '../../store/controller/proto/mcu_pb';
 
 const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    height: 80,
-    maxHeight: 80,
-  },
   normal: {
     color: theme.palette.background.paper,
-    fontSize: 80,
   },
   screenSaver: {
     color: theme.palette.primary.contrastText,
-    fontSize: 80,
   },
 }));
 
@@ -58,7 +52,7 @@ export const ModeBanner = ({ bannerType }: Props): JSX.Element => {
     return classes.normal;
   }
   return (
-    <Grid container justify="center" alignItems="center" className={classes.root}>
+    <Grid container justify="center" alignItems="center">
       <Grid item>
         <Typography align="center" variant="h2" className={color(bannerType)}>
           {getModeText(mode)}

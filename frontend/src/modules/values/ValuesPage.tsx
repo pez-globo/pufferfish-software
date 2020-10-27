@@ -21,12 +21,13 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'stretch',
-    marginBottom: theme.spacing(2),
+    // marginBottom: theme.spacing(2),
   },
   leftPanel: {
     borderRadius: theme.panel.borderRadius,
     backgroundColor: theme.palette.background.paper,
     marginRight: theme.spacing(2),
+    height: '100%',
   },
   rightContainer: {
     justifyContent: 'space-between',
@@ -42,7 +43,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   bottomRightPanel: {
     borderRadius: theme.panel.borderRadius,
     backgroundColor: theme.palette.background.paper,
-    marginTop: theme.spacing(2),
     width: '100%',
   },
   bottomBorder: {

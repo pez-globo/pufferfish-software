@@ -84,6 +84,8 @@ export const Waveform = ({
     return 'rgba(0,0,0,0)';
   }
 
+  // TODO: we need to remove the exclamation points, which are claiming that the
+  // values are never undefined
   return (
     <svg width={width} height={height}>
       <LinearGradient
