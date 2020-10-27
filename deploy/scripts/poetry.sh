@@ -14,7 +14,7 @@ poetry="$HOME/.poetry/bin/poetry"
 ventserver_env="$HOME/.pyenv/versions/3.7.7/envs/ventserver/bin/python"
 
 # Installing poetry
-if ! command -v pyenv &> /dev/null
+if ! command -v poetry &> /dev/null
 then
     curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3
 else
