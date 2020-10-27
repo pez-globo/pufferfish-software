@@ -28,7 +28,7 @@ file_paths = [
     '/home/pi/.config/lxsession/LXDE-pi/autostart',
     '/home/pi/.config/openbox/lxde-pi-rc.xml',
     '/boot/config.txt',
-    '/opt/clean_kiosk.sh',
+    '/opt/pufferfish/clean_kiosk.sh',
     '/etc/systemd/system/kiosk.service',
     '/etc/nginx/nginx.conf',
     '/etc/initramfs-tools/modules',
@@ -44,8 +44,8 @@ file_paths = [
     '/etc/rsyslog.conf',
     '/etc/bash.bash_logout',
     '/etc/logrotate.d/pufferfish_logger',
-    '/opt/hash_check.py',
-    '/opt/compare_hash.sh',
+    '/opt/pufferfish/hash_check.py',
+    '/opt/pufferfish/compare_hash.sh',
     '/etc/systemd/system/tampering.service',
     '/etc/systemd/system/pufferfish.target'
 ]

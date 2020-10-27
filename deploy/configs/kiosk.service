@@ -9,7 +9,7 @@ User=pi
 Group=pi
 Environment=DISPLAY=:0.0
 Environment=XAUTHORITY=/home/pi/.Xauthority
-ExecStartPre=/opt/clean_kiosk.sh
+ExecStartPre=/opt/pufferfish/clean_kiosk.sh
 ExecStart=chromium-browser --no-default-browser-check --check-for-update-interval=31536000 --no-first-run --disable-translate --disable-infobars --disable-suggestions-service --disable-save-password-bubble --disable-session-crashed-bubble --noerrdialogs -disable-pinch --no-context-menu --kiosk http://localhost
 Restart=always
 RestartSec=3

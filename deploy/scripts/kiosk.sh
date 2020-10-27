@@ -18,8 +18,9 @@ config_dir=$script_dir/../configs
 # Adding script to clean kiosk failure config
 if [ 1 -eq $( ls $config_dir | grep -c "clean_kiosk.sh" ) ]
 then
-    sudo cp $config_dir/clean_kiosk.sh /opt/
-    sudo chmod +x /opt/clean_kiosk.sh
+    sudo mkdir -p /opt/pufferfish
+    sudo cp $config_dir/clean_kiosk.sh /opt/pufferfish/
+    sudo chmod +x /opt/pufferfish/clean_kiosk.sh
 else
     echo -e "${ERROR} The clean_kiosk.sh file doesn't exist${NC}"
     exit 1

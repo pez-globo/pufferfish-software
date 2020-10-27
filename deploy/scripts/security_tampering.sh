@@ -42,10 +42,11 @@ sudo systemctl enable tampering.service
 
 if [ 1 -eq $( ls $config_dir | grep -c "hash_check.py" ) ]
 then
-    sudo cp $config_dir/hash_check.py /opt/
-    sudo cp $config_dir/compare_hash.sh /opt/
-    sudo chmod +x /opt/compare_hash.sh
-    echo $(/usr/bin/python3 /opt/hash_check.py) | sudo tee /opt/hash_value
+    sudo mkdir -p /opt/pufferfish
+    sudo cp $config_dir/hash_check.py /opt/pufferfish/
+    sudo cp $config_dir/compare_hash.sh /opt/pufferfish/
+    sudo chmod +x /opt/pufferfish/compare_hash.sh
+    echo $(/usr/bin/python3 /opt/pufferfish/hash_check.py) | sudo tee /opt/pufferfish/hash_value
 else
     echo -e "${ERROR} The hash_check.py file doesn't exist${NC}"
     exit 1

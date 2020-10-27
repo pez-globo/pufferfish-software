@@ -3,10 +3,10 @@
 # Compares the original hash and generated hash to check for data tampering
 error_msg="Data Tampering check failed! \nDisabled Backend and Kiosk service."
 
-if [ 1 -eq $( ls /opt | grep -c "hash_value" ) ]
+if [ 1 -eq $( ls /opt/pufferfish | grep -c "hash_value" ) ]
 then
-    original_value=$(cat /opt/hash_value)
-    calculated_value=$(/usr/bin/python3 /opt/hash_check.py)
+    original_value=$(cat /opt/pufferfish/hash_value)
+    calculated_value=$(/usr/bin/python3 /opt/pufferfish/hash_check.py)
 
     if [[ "$original_value" == "$calculated_value" ]]
     then
