@@ -9,7 +9,7 @@ script_dir=$(dirname $(realpath $0))
 echo -e "\n${SUCCESS}********** Setting up Watchdog **********\n${NC}"
 
 # Loading internal watchdog kernel module
-sudo modprobe bcm2835_wdt
+sudo modprobe bcm2835_wdt || exit_script "Could not load watchdog module"
 if [ 0 -eq $( grep -c "^bcm2835_wdt" /etc/modules ) ]
 then
     echo -e "\nbcm2835_wdt" | sudo tee -a /etc/modules

@@ -19,7 +19,7 @@ then
     sudo apt install libffi-dev curl wget gcc make zlib1g-dev libsqlite3-dev -y || exit_script "Could not install required packages"
     sudo apt install build-essential libssl-dev libbz2-dev libreadline-dev -y || exit_script "Could not install required packages"
     sudo apt install libncurses5-dev libncursesw5-dev xz-utils libffi-dev liblzma-dev python-openssl -y || exit_script "Could not install required packages"
-    curl https://pyenv.run | bash
+    curl https://pyenv.run | bash || exit_script "Could not install pyenv"
 else
     echo -e "${WARNING} pyenv is already installed, skipping installation${NC}"
 fi

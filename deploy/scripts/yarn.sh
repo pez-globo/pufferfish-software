@@ -12,13 +12,13 @@ echo -e "\n${SUCCESS}********** Installing yarn **********\n${NC}"
 # Installing yarn
 if ! command -v yarn &> /dev/null
 then
-    sudo npm i -g yarn
+    sudo npm i -g yarn || exit_script "Could not install yarn"
 else
     echo -e "${WARNING} Yarn is already installed, skipping installation${NC}"
 fi
 
 cd $frontend_dir
-yarn install
-yarn build
+yarn install || exit_script "Could not install yarn packages"
+yarn build || exit_script "Could not create a release build"
 
 echo -e "\n${SUCCESS}Yarn setup complete\n${NC}"

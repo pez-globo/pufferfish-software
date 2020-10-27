@@ -14,7 +14,7 @@ ventserver_env="$HOME/.pyenv/versions/3.7.7/envs/ventserver/bin/python"
 # Installing poetry
 if ! command -v poetry &> /dev/null
 then
-    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3
+    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 || exit_script "Could not install poetry"
 else
     echo -e "${WARNING} Poetry is already installed, skipping installation${NC}"
 fi
