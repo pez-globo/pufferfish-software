@@ -14,7 +14,7 @@ script_dir=$(dirname $(realpath $0))
 
 echo -e "\n${SUCCESS}********** Setting up User & Network Security **********\n${NC}"
 
-sudo apt install openssh-server nginx ufw fail2ban -y
+sudo apt install openssh-server nginx ufw fail2ban -y || exit_script "Could not install required packages"
 
 # Deny ssh for pi user
 if [ 0 -eq $( grep -c "^DenyUsers pi" /etc/ssh/sshd_config ) ]

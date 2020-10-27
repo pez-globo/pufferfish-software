@@ -22,7 +22,7 @@ else
     wget -O roboto.zip "https://fonts.google.com/download?family=Roboto"
 fi
 
-sudo apt install unzip -y
+sudo apt install unzip -y || exit_script "Could not install unzip"
 
 # Extracting downloaded fonts zip file
 if [ 1 -eq $( ls | grep -c "roboto.zip" ) ]

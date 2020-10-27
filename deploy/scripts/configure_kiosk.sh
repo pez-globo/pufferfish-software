@@ -9,7 +9,7 @@ script_dir=$(dirname $(realpath $0))
 
 echo -e "\n${SUCCESS}********** Setting up window manager configuration **********\n${NC}"
 
-sudo apt install unclutter -y
+sudo apt install unclutter -y || exit_script "Could not install unclutter"
 
 # Set up autostart
 mkdir -p $HOME/.config/lxsession/LXDE-pi

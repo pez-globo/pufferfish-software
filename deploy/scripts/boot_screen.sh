@@ -8,7 +8,7 @@ script_dir=$(dirname $(realpath $0))
 
 echo -e "\n${SUCCESS}********** Setting up custom boot screen **********\n${NC}"
 
-sudo apt-get update
+sudo apt update || exit_script "Apt Update failed"
 
 # Copy splash image to home directory
 cp $config_dir/splash.png ~/splash.png
@@ -25,7 +25,7 @@ fi
 sudo systemctl mask getty@tty1
 
 # fim package to read the image buffer
-sudo apt install fim -y
+sudo apt install fim -y || exit_script "Could not install fim"
 
 # Create service file
 if [ 1 -eq $( ls $config_dir | grep -c "splashscreen.service" ) ]
@@ -45,7 +45,7 @@ else
     exit 1
 fi
 
-sudo apt-get update
+sudo apt update || exit_script "Apt Update failed"
 
 # Masking plymouth service to deny any other service from starting it
 sudo systemctl mask plymouth-start.service

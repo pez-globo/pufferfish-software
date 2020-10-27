@@ -29,8 +29,8 @@ script_dir=$(dirname $(realpath $0))
 echo -e "\n${SUCCESS}********** Setting up overlayfs **********\n${NC}"
 
 # Installing initramfs
-sudo apt update
-sudo apt install initramfs-tools -y
+sudo apt update || exit_script "Apt Update failed"
+sudo apt install initramfs-tools -y || exit_script "Could not install initramfs-tools"
 
 # Purging plymouth to disable default boot screen
 sudo apt purge plymouth -y

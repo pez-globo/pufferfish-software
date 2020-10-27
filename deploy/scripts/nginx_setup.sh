@@ -9,8 +9,8 @@ script_dir=$(dirname $(realpath $0))
 
 echo -e "\n${SUCCESS}********** Setting up nginx **********\n${NC}"
 
-sudo apt update
-sudo apt install nginx -y
+sudo apt update || exit_script "Apt Update failed"
+sudo apt install nginx -y || exit_script "Could not install nginx"
 
 nginx_conf='/etc/nginx/nginx.conf'
 

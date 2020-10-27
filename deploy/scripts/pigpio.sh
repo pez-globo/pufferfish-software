@@ -6,8 +6,8 @@ script_dir=$(dirname $(realpath $0))
 
 echo -e "\n${SUCCESS}********** Installing pigpio **********\n${NC}"
 
-sudo apt update
-sudo apt install pigpio -y
+sudo apt update || exit_script "Apt Update failed"
+sudo apt install pigpio -y || exit_script "Could not install pigpio"
 
 sudo systemctl enable pigpiod
 sudo systemctl daemon-reload

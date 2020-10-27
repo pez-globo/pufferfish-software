@@ -16,7 +16,7 @@ then
 fi
 
 # Installing watchdog
-sudo apt-get install watchdog -y
+sudo apt install watchdog -y || exit_script "Could not install watchdog"
 
 # Adding watchdog config
 if [ 1 -eq $( ls $config_dir | grep -c "watchdog_config.txt" ) ]
