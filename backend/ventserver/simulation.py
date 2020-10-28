@@ -5,7 +5,7 @@ import random
 import time
 import functools
 import typing
-from typing import Mapping, Optional, Type, List
+from typing import Dict, Mapping, Optional, Type, List
 
 import attr
 
@@ -19,6 +19,7 @@ from ventserver.io.trio import websocket
 from ventserver.io.trio import fileio
 from ventserver.protocols import server
 from ventserver.protocols import exceptions
+from ventserver.protocols.application import lists
 from ventserver.protocols.protobuf import mcu_pb
 
 
@@ -45,6 +46,7 @@ class BreathingCircuitSimulator:
     all_states: Mapping[
         Type[betterproto.Message], Optional[betterproto.Message]
     ] = attr.ib()
+    log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent] = attr.ib()
     current_time: float = attr.ib(default=0)  # ms after initial_time
     previous_time: float = attr.ib(default=0)  # ms after initial_time
     initial_time: float = attr.ib(default=time.time() * 1000)  # ms, Unix time
@@ -52,6 +54,10 @@ class BreathingCircuitSimulator:
     # FiO2
     fio2_responsiveness: float = attr.ib(default=0.01)  # ms
     fio2_noise: float = attr.ib(default=0.005)  # % FiO2
+
+    # Log Events
+    next_log_event_id: int = attr.ib(default=0)
+    active_alarm_ids: Dict[mcu_pb.LogEventCode, int] = attr.ib(default={})
 
     # State segments
 
@@ -84,6 +90,28 @@ class BreathingCircuitSimulator:
             mcu_pb.Parameters, self.all_states[mcu_pb.Parameters]
         )
 
+    @property
+    def _alarm_limits(self) -> mcu_pb.AlarmLimits:
+        """Access the AlarmLimits state segment."""
+        return typing.cast(
+            mcu_pb.AlarmLimits, self.all_states[mcu_pb.AlarmLimits]
+        )
+
+    @property
+    def _alarm_limits_request(self) -> mcu_pb.AlarmLimitsRequest:
+        """Access the AlarmLimitsRequest state segment."""
+        return typing.cast(
+            mcu_pb.AlarmLimitsRequest,
+            self.all_states[mcu_pb.AlarmLimitsRequest]
+        )
+
+    @property
+    def _active_log_events(self) -> mcu_pb.ActiveLogEvents:
+        """Access the ActiveLogEvents state segment."""
+        return typing.cast(
+            mcu_pb.ActiveLogEvents, self.all_states[mcu_pb.ActiveLogEvents]
+        )
+
     # Timing
 
     @property
@@ -96,6 +124,19 @@ class BreathingCircuitSimulator:
     def update_parameters(self) -> None:
         """Update the parameters."""
 
+    def update_alarm_limits(self) -> None:
+        """Update the alarm limits."""
+        if (
+                self._alarm_limits_request.spo2_min >= 0
+                and self._alarm_limits_request.spo2_min < 100
+        ):
+            self._alarm_limits.spo2_min = self._alarm_limits_request.spo2_min
+        if (
+                self._alarm_limits_request.spo2_max > 0
+                and self._alarm_limits_request.spo2_max <= 100
+        ):
+            self._alarm_limits.spo2_max = self._alarm_limits_request.spo2_max
+
     def update_clock(self, current_time: float) -> None:
         """Update the internal state for timing."""
         self.previous_time = self.current_time
@@ -106,6 +147,34 @@ class BreathingCircuitSimulator:
 
     def update_actuators(self) -> None:
         """Update the simulated actuators."""
+
+    def update_alarms(self) -> None:
+        """Update the alarms."""
+        self._update_alarms_spo2()
+
+    # Alarms
+
+    def _update_active_log_event_ids(self) -> None:
+        """Update the list of active log events."""
+        self._active_log_events.id = list(self.active_alarm_ids.values())
+
+    def _update_alarms_spo2(self) -> None:
+        """Update the SpO2-related alarms."""
+        if self._sensor_measurements.spo2 < self._alarm_limits.spo2_min:
+            self._activate_alarm(
+                mcu_pb.LogEventCode.spo2_too_low,
+                self._sensor_measurements.spo2
+            )
+        else:
+            self._deactivate_alarm(mcu_pb.LogEventCode.spo2_too_low)
+
+        if self._sensor_measurements.spo2 > self._alarm_limits.spo2_max:
+            self._activate_alarm(
+                mcu_pb.LogEventCode.spo2_too_high,
+                self._sensor_measurements.spo2
+            )
+        else:
+            self._deactivate_alarm(mcu_pb.LogEventCode.spo2_too_high)
 
     # FiO2 simulation
 
@@ -118,6 +187,28 @@ class BreathingCircuitSimulator:
             * self.fio2_responsiveness / self.SENSOR_UPDATE_INTERVAL
         )
         self._sensor_measurements.fio2 += self.fio2_noise * random.random()
+
+    # Log Events
+
+    def _activate_alarm(self, code: mcu_pb.LogEventCode, value: float) -> None:
+        """Create a new Log Event if it is not active."""
+        if code in self.active_alarm_ids:
+            return
+
+        log_event = mcu_pb.LogEvent(
+            id=self.next_log_event_id, time=int(self.current_time),
+            code=code, new_value=value
+        )
+        self.log_events_sender.input(lists.UpdateEvent(new_element=log_event))
+        self.active_alarm_ids[code] = self.next_log_event_id
+        self.next_log_event_id += 1
+
+    def _deactivate_alarm(self, code: mcu_pb.LogEventCode) -> None:
+        """Dectivate the Log Event if it's active."""
+        if code not in self.active_alarm_ids:
+            return
+
+        self.active_alarm_ids.pop(code)
 
 
 @attr.s
@@ -136,6 +227,7 @@ class PCACSimulator(BreathingCircuitSimulator):
 
     def update_parameters(self) -> None:
         """Implement BreathingCircuitSimulator.update_parameters."""
+        self._parameters.ventilating = self._parameters_request.ventilating
         self._parameters.mode = self._parameters_request.mode
         if self._parameters.mode != mcu_pb.VentilationMode.pc_ac:
             return
@@ -228,6 +320,7 @@ class HFNCSimulator(BreathingCircuitSimulator):
 
     def update_parameters(self) -> None:
         """Implement BreathingCircuitSimulator.update_parameters."""
+        self._parameters.ventilating = self._parameters_request.ventilating
         self._parameters.mode = self._parameters_request.mode
         if self._parameters.mode != mcu_pb.VentilationMode.hfnc:
             return
@@ -302,12 +395,19 @@ class HFNCSimulator(BreathingCircuitSimulator):
 async def simulate_states(
         all_states: Mapping[
             Type[betterproto.Message], Optional[betterproto.Message]
-        ]
+        ],
+        log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent]
 ) -> None:
     """Simulate evolution of all states."""
     simulators = {
-        mcu_pb.VentilationMode.pc_ac: PCACSimulator(all_states=all_states),
-        mcu_pb.VentilationMode.hfnc: HFNCSimulator(all_states=all_states)
+        mcu_pb.VentilationMode.pc_ac: PCACSimulator(
+            all_states=all_states,
+            log_events_sender=log_events_sender
+        ),
+        mcu_pb.VentilationMode.hfnc: HFNCSimulator(
+            all_states=all_states,
+            log_events_sender=log_events_sender
+        )
     }
 
     while True:
@@ -319,13 +419,16 @@ async def simulate_states(
             continue
 
         simulator = simulators[parameters.mode]
-        # Parameters
+        # Parameters & Settings
         simulator.update_parameters()
+        simulator.update_alarm_limits()
         # Timing
         await trio.sleep(simulator.SENSOR_UPDATE_INTERVAL / 1000)
         simulator.update_clock(time.time())
-        simulator.update_sensors()
-        simulator.update_actuators()
+        if parameters.ventilating:
+            simulator.update_sensors()
+            simulator.update_actuators()
+            simulator.update_alarms()
 
 
 async def main() -> None:
@@ -369,6 +472,10 @@ async def main() -> None:
             all_states[state] = mcu_pb.ParametersRequest(
                 mode=mcu_pb.VentilationMode.hfnc, rr=30, fio2=60, flow=6
             )
+        elif state is mcu_pb.AlarmLimitsRequest:
+            all_states[state] = mcu_pb.AlarmLimitsRequest(
+                spo2_min=95, spo2_max=99
+            )
         else:
             all_states[state] = state()
 
@@ -380,12 +487,16 @@ async def main() -> None:
         async with channel.push_endpoint:
             async with trio.open_nursery() as nursery:
                 nursery.start_soon(
-                    functools.partial(_trio.process_all,
-                                      channel=channel,
-                                      push_endpoint=channel.push_endpoint),
+                    functools.partial(
+                        _trio.process_all, channel=channel,
+                        push_endpoint=channel.push_endpoint
+                    ),
                     protocol, None, websocket_endpoint, rotary_encoder
                 )
-                nursery.start_soon(simulate_states, all_states)
+                nursery.start_soon(
+                    simulate_states, all_states,
+                    protocol.receive.backend.log_events_sender
+                )
 
                 while True:
                     receive_output = await channel.output()
