@@ -190,91 +190,14 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         if event is None:
             return None
 
-        # Handle clock update
-        if event.time is not None:
-            self.current_time = event.time
-        self._mcu_state_synchronizer.input(states.UpdateEvent(
-            time=self.current_time
-        ))
-        self._frontend_state_synchronizer.input(states.UpdateEvent(
-            time=self.current_time
-        ))
-        self._file_state_synchronizer.input(states.UpdateEvent(
-            time=self.current_time
-        ))
+        # Process input event
+        self._update_clock(event)
+        self._handle_mcu_inbound_state(event)
+        self._handle_file_inbound_state(event)
+        self._handle_frontend_inbound_state(event)
 
-        # Handle inbound state update from MCU
-        if (
-                event.mcu_receive is not None
-                and type(event.mcu_receive) in self.MCU_INPUT_TYPES
-        ):
-            try:
-                self._mcu_state_synchronizer.input(
-                    states.UpdateEvent(pb_message=event.mcu_receive)
-                )
-            except exceptions.ProtocolDataError:
-                self._logger.exception(
-                    'MCU State Synchronizer: %s', event.mcu_receive
-                )
-
-            # Handle file states scheduling
-            try:
-                self._file_state_synchronizer.input(
-                    states.UpdateEvent(
-                        pb_message=event.mcu_receive
-                    )
-                )
-            except exceptions.ProtocolDataError:
-                self._logger.exception(
-                    'Save State Synchronizer: %s', event.mcu_receive
-                )
-
-        # Handle state update from protobuf files
-        if (
-                event.file_receive is not None
-                and type(event.file_receive) in self.MCU_INPUT_TYPES
-        ):
-            try:
-                self._file_state_synchronizer.input(
-                    states.UpdateEvent(
-                        pb_message=event.file_receive
-                    )
-                )
-            except exceptions.ProtocolDataError:
-                self._logger.exception(
-                    'Read State Synchronizer: %s', event.file_receive
-                )
-
-        # Handle inbound state update from frontend
-        if (
-                event.frontend_receive is not None
-                and type(event.frontend_receive) in self.FRONTEND_INPUT_TYPES
-        ):
-            try:
-                self._frontend_state_synchronizer.input(
-                    states.UpdateEvent(
-                        pb_message=event.frontend_receive
-                    )
-                )
-            except exceptions.ProtocolDataError:
-                self._logger.exception(
-                    'Frontend State Synchronizer: %s', event.frontend_receive
-                )
-
-        # Handle log events list sending
-        expected_log_event = typing.cast(
-            mcu_pb.ExpectedLogEvent, self.all_states[mcu_pb.ExpectedLogEvent]
-        )
-        if expected_log_event is not None:
-            if expected_log_event.id > 0:
-                print(expected_log_event.id)
-            self.log_events_sender.input(lists.UpdateEvent(
-                next_expected=expected_log_event.id
-            ))
-        next_log_events = self.log_events_sender.output()
-        if next_log_events is not None:
-            assert isinstance(next_log_events, mcu_pb.NextLogEvents)
-            self.all_states[mcu_pb.NextLogEvents] = next_log_events
+        # Maintain internal data connections
+        self._handle_log_events_sending()
 
         # Output any scheduled outbound state update
         mcu_send = None
@@ -297,6 +220,96 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             frontend_send=frontend_send,
             file_send=file_send
         )
+
+    def _update_clock(self, event: ReceiveEvent) -> None:
+        """Handle any clock update."""
+        if event.time is not None:
+            self.current_time = event.time
+        self._mcu_state_synchronizer.input(states.UpdateEvent(
+            time=self.current_time
+        ))
+        self._frontend_state_synchronizer.input(states.UpdateEvent(
+            time=self.current_time
+        ))
+        self._file_state_synchronizer.input(states.UpdateEvent(
+            time=self.current_time
+        ))
+
+    def _handle_mcu_inbound_state(self, event: ReceiveEvent) -> None:
+        """Handle any inbound state update from the MCU."""
+        if (
+                event.mcu_receive is None
+                or type(event.mcu_receive) not in self.MCU_INPUT_TYPES
+        ):
+            return
+
+        try:
+            self._mcu_state_synchronizer.input(
+                states.UpdateEvent(pb_message=event.mcu_receive)
+            )
+        except exceptions.ProtocolDataError:
+            self._logger.exception(
+                'MCU State Synchronizer: %s', event.mcu_receive
+            )
+
+        try:
+            self._file_state_synchronizer.input(
+                states.UpdateEvent(pb_message=event.mcu_receive)
+            )
+        except exceptions.ProtocolDataError:
+            self._logger.exception(
+                'File Save State Synchronizer Save: %s', event.mcu_receive
+            )
+
+    def _handle_file_inbound_state(self, event: ReceiveEvent) -> None:
+        """Handle any inbound state update from the filesystem."""
+        if (
+                event.file_receive is None
+                or type(event.file_receive) not in self.MCU_INPUT_TYPES
+        ):
+            return
+
+        try:
+            self._file_state_synchronizer.input(
+                states.UpdateEvent(pb_message=event.file_receive)
+            )
+        except exceptions.ProtocolDataError:
+            self._logger.exception(
+                'File State Synchronizer Read: %s', event.file_receive
+            )
+
+    def _handle_frontend_inbound_state(self, event: ReceiveEvent) -> None:
+        """Handle any inbound state update from the frontend."""
+        if (
+                event.frontend_receive is None
+                or type(event.frontend_receive) not in self.FRONTEND_INPUT_TYPES
+        ):
+            return
+
+        try:
+            self._frontend_state_synchronizer.input(
+                states.UpdateEvent(pb_message=event.frontend_receive)
+            )
+        except exceptions.ProtocolDataError:
+            self._logger.exception(
+                'Frontend State Synchronizer: %s', event.frontend_receive
+            )
+
+    def _handle_log_events_sending(self) -> None:
+        """Handle any updates to log events list sending."""
+        expected_log_event = typing.cast(
+            mcu_pb.ExpectedLogEvent, self.all_states[mcu_pb.ExpectedLogEvent]
+        )
+        if expected_log_event is not None:
+            if expected_log_event.id > 0:
+                print(expected_log_event.id)
+            self.log_events_sender.input(lists.UpdateEvent(
+                next_expected=expected_log_event.id
+            ))
+        next_log_events = self.log_events_sender.output()
+        if next_log_events is not None:
+            assert isinstance(next_log_events, mcu_pb.NextLogEvents)
+            self.all_states[mcu_pb.NextLogEvents] = next_log_events
 
 
 @attr.s
