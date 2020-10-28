@@ -301,8 +301,6 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             mcu_pb.ExpectedLogEvent, self.all_states[mcu_pb.ExpectedLogEvent]
         )
         if expected_log_event is not None:
-            if expected_log_event.id > 0:
-                print(expected_log_event.id)
             self.log_events_sender.input(lists.UpdateEvent(
                 next_expected=expected_log_event.id
             ))

@@ -36,7 +36,9 @@ MESSAGE_CLASSES: Mapping[int, Type[betterproto.Message]] = {
     7: mcu_pb.AlarmLimitsRequest,
     8: mcu_pb.ExpectedLogEvent,
     9: mcu_pb.NextLogEvents,
-    10: mcu_pb.ActiveLogEvents
+    10: mcu_pb.ActiveLogEvents,
+    254: mcu_pb.Ping,
+    255: mcu_pb.Announcement
 }
 
 MESSAGE_TYPES: Mapping[Type[betterproto.Message], int] = {

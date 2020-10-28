@@ -157,6 +157,8 @@ class BreathingCircuitSimulator:
     def _update_active_log_event_ids(self) -> None:
         """Update the list of active log events."""
         self._active_log_events.id = list(self.active_alarm_ids.values())
+        if self._active_log_events.id:
+            print(self._active_log_events.id)
 
     def _update_alarms_spo2(self) -> None:
         """Update the SpO2-related alarms."""
