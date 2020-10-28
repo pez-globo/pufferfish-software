@@ -6,13 +6,12 @@
 # Disables SSH service
 # Installs fail2ban
 # Disables Wifi
-# Locks pi user and removes pi from sudoers
 
 # Importing logging colours, absolute paths and exit function
 script_dir=$(dirname $(realpath $0))
 . $script_dir/helper.sh
 
-echo -e "\n${SUCCESS}********** Setting up User & Network Security **********\n${NC}"
+echo -e "\n${SUCCESS}********** Setting up Network Security **********\n${NC}"
 
 sudo apt install openssh-server nginx ufw fail2ban -y || exit_script "Could not install required packages"
 
@@ -51,12 +50,4 @@ else
     echo -e "${WARNING} Wifi is already disabled${NC}"
 fi
 
-# Lock pi and root user
-sudo passwd -l pi
-sudo passwd -l root
-
-# Remove sudo permissions from pi user
-sudo deluser pi sudo
-sudo mv /etc/sudoers.d/010_pi-nopasswd /etc/sudoers.d/010_pi-nopasswd.
-
-echo -e "\n${SUCCESS}User and Network Security setup complete\n${NC}"
+echo -e "\n${SUCCESS}Network Security setup complete\n${NC}"
