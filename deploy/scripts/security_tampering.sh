@@ -16,6 +16,9 @@ script_dir=$(dirname $(realpath $0))
 config_dir=$script_dir/../configs
 backend_dir=$(realpath $script_dir/../../backend/ventserver)
 
+# Installing dirhash module
+pip3 install dirhash
+
 # Copy target file to systemd directory
 if [ 1 -eq $( ls $config_dir | grep -c "pufferfish.target" ) ]
 then
