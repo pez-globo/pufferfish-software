@@ -2,6 +2,7 @@
 
 import collections
 import logging
+import typing
 from typing import Dict, Optional, Type, Union
 
 import attr
@@ -12,7 +13,7 @@ from ventserver.protocols import events
 from ventserver.protocols import exceptions
 from ventserver.protocols import frontend
 from ventserver.protocols import mcu
-from ventserver.protocols.application import states
+from ventserver.protocols.application import lists, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
@@ -25,13 +26,16 @@ MCU_SYNCHRONIZER_SCHEDULE = collections.deque([
 FRONTEND_SYNCHRONIZER_SCHEDULE = collections.deque([
     states.ScheduleEntry(time=0.01, type=mcu_pb.SensorMeasurements),
     states.ScheduleEntry(time=0.01, type=mcu_pb.Parameters),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.Alarms),
+    states.ScheduleEntry(time=0.01, type=mcu_pb.ParametersRequest),
+    states.ScheduleEntry(time=0.01, type=mcu_pb.SensorMeasurements),
+    states.ScheduleEntry(time=0.01, type=mcu_pb.AlarmLimits),
+    states.ScheduleEntry(time=0.01, type=mcu_pb.AlarmLimitsRequest),
     states.ScheduleEntry(time=0.01, type=mcu_pb.SensorMeasurements),
     states.ScheduleEntry(time=0.01, type=frontend_pb.RotaryEncoder),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.Alarms),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.SensorMeasurements),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.ParametersRequest),
     states.ScheduleEntry(time=0.01, type=mcu_pb.CycleMeasurements),
+    states.ScheduleEntry(time=0.01, type=mcu_pb.SensorMeasurements),
+    states.ScheduleEntry(time=0.01, type=mcu_pb.ActiveLogEvents),
+    states.ScheduleEntry(time=0.01, type=mcu_pb.NextLogEvents),
 ])
 
 FILE_SYNCHRONIZER_SCHEDULE = collections.deque([
@@ -119,9 +123,11 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
     all_states: Dict[
         Type[betterproto.Message], Optional[betterproto.Message]
     ] = attr.ib()
+
     _mcu_state_synchronizer: states.Synchronizer = attr.ib()
     _frontend_state_synchronizer: states.Synchronizer = attr.ib()
     _file_state_synchronizer: states.Synchronizer = attr.ib()
+    log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent] = attr.ib()
 
     @all_states.default
     def init_all_states(self) -> Dict[
@@ -163,6 +169,13 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             all_states=self.all_states,
             output_schedule=FILE_SYNCHRONIZER_SCHEDULE
         )
+
+    @log_events_sender.default
+    def init_log_events_list_sender(self) -> lists.SendSynchronizer[
+            mcu_pb.LogEvent
+    ]:   # pylint: disable=no-self-use
+        """Initialize the frontend log events list sender."""
+        return lists.SendSynchronizer(segment_type=mcu_pb.NextLogEvents)
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
         """Handle input events."""
@@ -247,6 +260,21 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
                 self._logger.exception(
                     'Frontend State Synchronizer: %s', event.frontend_receive
                 )
+
+        # Handle log events list sending
+        expected_log_event = typing.cast(
+            mcu_pb.ExpectedLogEvent, self.all_states[mcu_pb.ExpectedLogEvent]
+        )
+        if expected_log_event is not None:
+            if expected_log_event.id > 0:
+                print(expected_log_event.id)
+            self.log_events_sender.input(lists.UpdateEvent(
+                next_expected=expected_log_event.id
+            ))
+        next_log_events = self.log_events_sender.output()
+        if next_log_events is not None:
+            assert isinstance(next_log_events, mcu_pb.NextLogEvents)
+            self.all_states[mcu_pb.NextLogEvents] = next_log_events
 
         # Output any scheduled outbound state update
         mcu_send = None

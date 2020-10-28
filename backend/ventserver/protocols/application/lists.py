@@ -83,7 +83,7 @@ class SendSynchronizer(
     @max_len.validator
     def _validate_max_len(self, _: 'attr.Attribute[int]', value: int) -> None:
         """Ensure that the max len field has an allowed value."""
-        if value < 0 or value > self.MAX_ID:
+        if value < 0 or value > self.MAX_ID + 1:
             raise ValueError(
                 'max_len must be between 0 and {}'.format(self.MAX_ID + 1)
             )
