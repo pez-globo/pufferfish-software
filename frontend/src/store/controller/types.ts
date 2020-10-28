@@ -4,8 +4,6 @@ import {
   CycleMeasurements,
   Parameters,
   ParametersRequest,
-  Ping,
-  Announcement,
   AlarmLimitsRequest,
   ActiveLogEvents,
   ExpectedLogEvent,
@@ -41,17 +39,13 @@ export interface RotaryEncoderParameter {
 // Protocol Buffers
 
 export type PBMessage =
-  | // mcu_pb
-  AlarmLimitsRequest
-  | SystemSettingRequest
-  | FrontendDisplaySetting
+  // mcu_pb
+  | AlarmLimitsRequest
   | Alarms
   | SensorMeasurements
   | CycleMeasurements
   | Parameters
   | ParametersRequest
-  | Ping
-  | Announcement
   | LogEvent
   | ExpectedLogEvent
   | NextLogEvents
@@ -59,19 +53,19 @@ export type PBMessage =
   | BatteryPower
   | ScreenStatus
   // frontend_pb
-  | RotaryEncoder
-  | RotaryEncoderParameter;
+  | SystemSettingRequest
+  | FrontendDisplaySetting
+  | RotaryEncoderParameter
+  | RotaryEncoder;
 
 export type PBMessageType =
-  | // mcu_pb
-  typeof AlarmLimitsRequest
+  // mcu_pb
+  | typeof AlarmLimitsRequest
   | typeof Alarms
   | typeof SensorMeasurements
   | typeof CycleMeasurements
   | typeof Parameters
   | typeof ParametersRequest
-  | typeof Ping
-  | typeof Announcement
   | typeof NextLogEvents
   | typeof ActiveLogEvents
   | typeof BatteryPower
@@ -87,16 +81,15 @@ export enum MessageType {
   CycleMeasurements = 3,
   Parameters = 4,
   ParametersRequest = 5,
-  Ping = 6,
-  Announcement = 7,
-  AlarmLimitsRequest = 8,
-  SystemSettingRequest = 9,
-  FrontendDisplaySetting = 10,
-  NextLogEvents = 11,
-  ActiveLogEvents = 12,
-  BatteryPower = 13,
-  ScreenStatus = 14,
+  AlarmLimitsRequest = 6,
+  ExpectedLogEvent = 7,
+  NextLogEvents = 8,
+  ActiveLogEvents = 9,
+  BatteryPower = 64,
+  ScreenStatus = 65,
   RotaryEncoder = 128,
+  SystemSettingRequest = 129,
+  FrontendDisplaySetting = 130,
 }
 
 // States
@@ -141,10 +134,8 @@ export interface ControllerStates {
   cycleMeasurements: CycleMeasurements;
   parameters: Parameters;
   parametersRequest: ParametersRequest;
-  ping: Ping;
-  announcement: Announcement;
   logEvent: LogEvent;
-  expectedLoggedEvent: ExpectedLogEvent;
+  expectedLogEvent: ExpectedLogEvent;
   nextLogEvents: NextLogEvents;
   activeLogEvents: ActiveLogEvents;
   batteryPower: BatteryPower;
@@ -169,7 +160,6 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.CycleMeasurements, CycleMeasurements],
   [MessageType.Parameters, Parameters],
   [MessageType.ParametersRequest, ParametersRequest],
-  [MessageType.Ping, Ping],
   [MessageType.NextLogEvents, NextLogEvents],
   [MessageType.ActiveLogEvents, ActiveLogEvents],
   [MessageType.RotaryEncoder, RotaryEncoder],
@@ -184,8 +174,6 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
   [CycleMeasurements, MessageType.CycleMeasurements],
   [Parameters, MessageType.Parameters],
   [ParametersRequest, MessageType.ParametersRequest],
-  [Ping, MessageType.Ping],
-  [Announcement, MessageType.Announcement],
   [NextLogEvents, MessageType.NextLogEvents],
   [ActiveLogEvents, MessageType.ActiveLogEvents],
   [RotaryEncoder, MessageType.RotaryEncoder],
