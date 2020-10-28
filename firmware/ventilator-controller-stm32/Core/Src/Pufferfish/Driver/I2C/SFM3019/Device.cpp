@@ -18,25 +18,21 @@ namespace Pufferfish::Driver::I2C::SFM3019 {
 // SFM3019
 
 I2CDeviceStatus Device::start_measure() {
-  static const uint8_t start_high = 0x36;
-  static const uint8_t start_low = 0x08;
-  std::array<uint8_t, 2> cmd{{start_high, start_low}};
+  std::array<uint8_t, sizeof(Command)> cmd{{get_upper(gas), get_lower(gas)}};
   I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
   return ret;
 }
 
 I2CDeviceStatus Device::stop_measure() {
-  static const uint8_t stop_high = 0x3f;
-  static const uint8_t stop_low = 0xf9;
-  std::array<uint8_t, 2> cmd{{stop_high, stop_low}};
+  std::array<uint8_t, sizeof(Command)> cmd{
+      {get_upper(Command::stop_measure), get_lower(Command::stop_measure)}};
   I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
   return ret;
 }
 
-I2CDeviceStatus Device::serial_number(uint32_t &sn) {
-  static const uint8_t serial_high = 0xe1;
-  static const uint8_t serial_low = 0x02;
-  std::array<uint8_t, 2> cmd{{serial_high, serial_low}};
+I2CDeviceStatus Device::read_product_id(uint32_t &product_number) {
+  std::array<uint8_t, sizeof(Command)> cmd{
+      {get_upper(Command::read_product_id), get_lower(Command::read_product_id)}};
 
   I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
   if (ret != I2CDeviceStatus::ok) {
@@ -49,17 +45,17 @@ I2CDeviceStatus Device::serial_number(uint32_t &sn) {
     return ret2;
   }
 
-  sn = HAL::ntoh(Util::parse_network_order<uint32_t>(buffer.data(), buffer.size()));
+  product_number = HAL::ntoh(Util::parse_network_order<uint32_t>(buffer.data(), buffer.size()));
   return I2CDeviceStatus::ok;
 }
 
 I2CDeviceStatus Device::read_conversion_factors(ConversionFactors & /*conversion*/) {
-  static const uint8_t conversion_high = 0x36;
-  static const uint8_t conversion_low = 0x61;
-  static const uint8_t arg_high = 0x36;
-  static const uint8_t arg_low = 0x08;
   // TODO(lietk12): we actually have to write with a CRC!
-  std::array<uint8_t, 4> cmd{{conversion_high, conversion_low, arg_high, arg_low}};
+  std::array<uint8_t, sizeof(Command) + sizeof(GasType)> cmd{
+      {get_upper(Command::read_conversion),
+       get_lower(Command::read_conversion),
+       get_upper(gas),
+       get_lower(gas)}};
 
   I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
   if (ret != I2CDeviceStatus::ok) {
@@ -99,8 +95,7 @@ I2CDeviceStatus Device::read_sample(Sample &sample, int16_t scale_factor, int16_
 }
 
 I2CDeviceStatus Device::reset() {
-  static const uint8_t reset = 0x06;
-  std::array<uint8_t, 1> cmd{{reset}};
+  std::array<uint8_t, sizeof(uint8_t)> cmd{{get_lower(Command::reset)}};
 
   I2CDeviceStatus ret = global_.write(cmd.data(), cmd.size());
   return ret;

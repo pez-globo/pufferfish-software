@@ -101,7 +101,7 @@ InitializableState Sensor::initialize(uint32_t current_time_us) {
   time_.delay(2);
 
   // Read product number
-  while (device_.serial_number(pn_) != I2CDeviceStatus::ok || pn_ != product_number) {
+  while (device_.read_product_id(pn_) != I2CDeviceStatus::ok || pn_ != product_number) {
     ++retry_count_;
     if (retry_count_ > max_retries_setup) {
       return InitializableState::failed;

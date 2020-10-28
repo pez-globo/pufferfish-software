@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <climits>
+
 #include "Pufferfish/Driver/I2C/SensirionSensor.h"
 #include "Pufferfish/Driver/Testable.h"
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
@@ -46,11 +48,11 @@ class Device {
   I2CDeviceStatus read_conversion_factors(ConversionFactors &conversion);
 
   /**
-   * Reads out the serial number
+   * Reads out the product id
    * @param sn[out] the unique serial number
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus serial_number(uint32_t &sn);
+  I2CDeviceStatus read_product_id(uint32_t &sn);
 
   /**
    * Reads out the flow rate from the sensor
@@ -66,6 +68,8 @@ class Device {
   I2CDeviceStatus reset();
 
  private:
+  static const GasType gas = GasType::air;
+
   static const uint8_t crc_poly = 0x31;
   static const uint8_t crc_init = 0xff;
 
