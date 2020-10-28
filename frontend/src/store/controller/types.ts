@@ -4,6 +4,7 @@ import {
   CycleMeasurements,
   Parameters,
   ParametersRequest,
+  AlarmLimits,
   AlarmLimitsRequest,
   ActiveLogEvents,
   ExpectedLogEvent,
@@ -40,6 +41,7 @@ export interface RotaryEncoderParameter {
 
 export type PBMessage =
   // mcu_pb
+  | AlarmLimits
   | AlarmLimitsRequest
   | Alarms
   | SensorMeasurements
@@ -60,6 +62,7 @@ export type PBMessage =
 
 export type PBMessageType =
   // mcu_pb
+  | typeof AlarmLimits
   | typeof AlarmLimitsRequest
   | typeof Alarms
   | typeof SensorMeasurements
@@ -81,10 +84,11 @@ export enum MessageType {
   CycleMeasurements = 3,
   Parameters = 4,
   ParametersRequest = 5,
-  AlarmLimitsRequest = 6,
-  ExpectedLogEvent = 7,
-  NextLogEvents = 8,
-  ActiveLogEvents = 9,
+  AlarmLimits = 6,
+  AlarmLimitsRequest = 7,
+  ExpectedLogEvent = 8,
+  NextLogEvents = 9,
+  ActiveLogEvents = 10,
   BatteryPower = 64,
   ScreenStatus = 65,
   RotaryEncoder = 128,

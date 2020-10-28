@@ -38,6 +38,36 @@ class Alarms(betterproto.Message):
 
 
 @dataclass
+class AlarmLimits(betterproto.Message):
+    rr_min: int = betterproto.uint32_field(1)
+    rr_max: int = betterproto.uint32_field(2)
+    pip_min: int = betterproto.uint32_field(3)
+    pip_max: int = betterproto.uint32_field(4)
+    peep_min: int = betterproto.uint32_field(5)
+    peep_max: int = betterproto.uint32_field(6)
+    ip_above_peep_min: int = betterproto.uint32_field(7)
+    ip_above_peep_max: int = betterproto.uint32_field(8)
+    insp_time_min: int = betterproto.uint32_field(9)
+    insp_time_max: int = betterproto.uint32_field(10)
+    fio2_min: int = betterproto.uint32_field(11)
+    fio2_max: int = betterproto.uint32_field(12)
+    paw_min: int = betterproto.uint32_field(13)
+    paw_max: int = betterproto.uint32_field(14)
+    mve_min: int = betterproto.uint32_field(15)
+    mve_max: int = betterproto.uint32_field(16)
+    tv_min: int = betterproto.uint32_field(17)
+    tv_max: int = betterproto.uint32_field(18)
+    etco2_min: int = betterproto.uint32_field(19)
+    etco2_max: int = betterproto.uint32_field(20)
+    flow_min: int = betterproto.uint32_field(21)
+    flow_max: int = betterproto.uint32_field(22)
+    apnea_min: int = betterproto.uint32_field(23)
+    apnea_max: int = betterproto.uint32_field(24)
+    spo2_min: int = betterproto.uint32_field(25)
+    spo2_max: int = betterproto.uint32_field(26)
+
+
+@dataclass
 class AlarmLimitsRequest(betterproto.Message):
     rr_min: int = betterproto.uint32_field(1)
     rr_max: int = betterproto.uint32_field(2)
@@ -100,6 +130,7 @@ class Parameters(betterproto.Message):
     ie: float = betterproto.float_field(7)
     fio2: float = betterproto.float_field(8)
     flow: float = betterproto.float_field(9)
+    ventilating: bool = betterproto.bool_field(10)
 
 
 @dataclass
@@ -113,6 +144,7 @@ class ParametersRequest(betterproto.Message):
     ie: float = betterproto.float_field(7)
     fio2: float = betterproto.float_field(8)
     flow: float = betterproto.float_field(9)
+    ventilating: bool = betterproto.bool_field(10)
 
 
 @dataclass
@@ -152,3 +184,13 @@ class NextLogEvents(betterproto.Message):
 @dataclass
 class ActiveLogEvents(betterproto.Message):
     id: List[int] = betterproto.uint32_field(1)
+
+
+@dataclass
+class BatteryPower(betterproto.Message):
+    power_left: int = betterproto.uint32_field(1)
+
+
+@dataclass
+class ScreenStatus(betterproto.Message):
+    lock: bool = betterproto.bool_field(1)
