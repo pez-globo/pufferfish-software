@@ -151,14 +151,13 @@ class BreathingCircuitSimulator:
     def update_alarms(self) -> None:
         """Update the alarms."""
         self._update_alarms_spo2()
+        self._update_active_log_event_ids()
 
     # Alarms
 
     def _update_active_log_event_ids(self) -> None:
         """Update the list of active log events."""
         self._active_log_events.id = list(self.active_alarm_ids.values())
-        if self._active_log_events.id:
-            print(self._active_log_events.id)
 
     def _update_alarms_spo2(self) -> None:
         """Update the SpO2-related alarms."""
@@ -476,7 +475,7 @@ async def main() -> None:
             )
         elif state is mcu_pb.AlarmLimitsRequest:
             all_states[state] = mcu_pb.AlarmLimitsRequest(
-                spo2_min=95, spo2_max=99
+                spo2_min=85, spo2_max=95
             )
         else:
             all_states[state] = state()
@@ -508,11 +507,11 @@ async def main() -> None:
                     )
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
-        print('Finished, quitting!')
+        logger.info('Finished, quitting!')
 
 
 if __name__ == '__main__':
     try:
         trio.run(main)
     except KeyboardInterrupt:
-        print('Quitting!')
+        logger.info('Quitting!')
