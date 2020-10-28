@@ -476,7 +476,9 @@ int main(void)
 
   // Hardware PWMs
   drive1_ch1.start();
+  drive1_ch1.set_duty_cycle_raw(0);
   drive1_ch2.start();
+  drive1_ch2.set_duty_cycle_raw(0);
 
   // Software PWMs
   blinker.start(time.millis());
