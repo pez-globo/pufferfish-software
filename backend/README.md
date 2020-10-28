@@ -67,7 +67,7 @@ common IDEs:
 * Atom: https://atom.io/packages/linter-pylint
 * Vim: https://github.com/dense-analysis/ale
 
-To run the pylint commands, do:
+To run the linter, do:
 
 ```bash
 (ventserver) $ poetry run pylint ventserver
@@ -87,7 +87,7 @@ type-checking, do:
 Unit testing is done utilizing [pytest](https://docs.pytest.org/en/latest/) and
 [tox](https://tox.readthedocs.io/en/latest/) for automation.
 
-To execute the test suite, run:
+To execute the test suite together with type-checkng and linting and html coverage reporting, run:
 
 ```bash
 (ventserver) $ poetry run tox
@@ -98,3 +98,7 @@ Afterwards, you can quickly re-run tests without running the full tox process:
 ```bash
 (ventserver) $ poetry run coverage run --parallel -m pytest --basetemp=.tox/py37/tmp --verbose tests
 ```
+
+### Documentation
+
+The detailed guideline to generate sphinx-based documentation can be found [here](docs/).

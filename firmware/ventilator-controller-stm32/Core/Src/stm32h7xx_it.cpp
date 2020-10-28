@@ -23,9 +23,8 @@
 #include "stm32h7xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "Pufferfish/HAL/STM32/BufferedUART.h"
-/* Nonin TODO: Include NoninOEM3.h for UART IRQ handler */
-#include "Pufferfish/Driver/Serial/Nonin/NoninOEM3.h"
+#include "Pufferfish/Driver/Serial/Nonin/Device.h"
+#include "Pufferfish/HAL/STM32/HALBufferedUART.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,8 +44,10 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-extern volatile Pufferfish::HAL::LargeBufferedUART buffered_uart3;
-extern volatile Pufferfish::Driver::Serial::Nonin::NoninOEMUART oem_uart;
+/// Buffered UART
+extern volatile Pufferfish::HAL::LargeBufferedUART backend_uart;
+extern volatile Pufferfish::HAL::LargeBufferedUART fdo2_uart;
+extern volatile Pufferfish::HAL::ReadOnlyBufferedUART nonin_oem_uart;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -61,6 +62,7 @@ extern volatile Pufferfish::Driver::Serial::Nonin::NoninOEMUART oem_uart;
 
 /* External variables --------------------------------------------------------*/
 extern UART_HandleTypeDef huart4;
+extern UART_HandleTypeDef huart7;
 extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
 
@@ -208,7 +210,7 @@ void SysTick_Handler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-  buffered_uart3.handle_irq();
+  backend_uart.handle_irq();
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
@@ -222,12 +224,26 @@ void USART3_IRQHandler(void)
 void UART4_IRQHandler(void)
 {
   /* USER CODE BEGIN UART4_IRQn 0 */
-  oem_uart.handle_irq();
+  nonin_oem_uart.handle_irq();
   /* USER CODE END UART4_IRQn 0 */
   HAL_UART_IRQHandler(&huart4);
   /* USER CODE BEGIN UART4_IRQn 1 */
 
   /* USER CODE END UART4_IRQn 1 */
+}
+
+/**
+  * @brief This function handles UART7 global interrupt.
+  */
+void UART7_IRQHandler(void)
+{
+  /* USER CODE BEGIN UART7_IRQn 0 */
+  fdo2_uart.handle_irq();
+  /* USER CODE END UART7_IRQn 0 */
+  HAL_UART_IRQHandler(&huart7);
+  /* USER CODE BEGIN UART7_IRQn 1 */
+
+  /* USER CODE END UART7_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

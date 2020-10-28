@@ -36,10 +36,8 @@
 #include "Pufferfish/Driver/I2C/SDP.h"
 // FIXME: After HAL/Interfaces/Endian.h is created, change to
 // "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/HAL/STM32/Endian.h"
-// FIXME: After HAL/Interfaces/Time.h is created, change to
-// "Pufferfish/HAL/HAL.h"
-#include "Pufferfish/HAL/STM32/Time.h"
 #include "Pufferfish/Util/Parse.h"
 
 namespace Pufferfish::Driver::I2C {
@@ -95,14 +93,14 @@ I2CDeviceStatus SDPSensor::start_continuous(bool averaging) {
   return I2CDeviceStatus::ok;
 }
 
-void SDPSensor::start_continuous_wait(bool stabilize) {
-  static const uint32_t wait = 8;
-  static const uint32_t stabilize_wait = 12;
-  HAL::delay(wait);
-  if (stabilize) {
-    HAL::delay(stabilize_wait);
-  }
-}
+/// void SDPSensor::start_continuous_wait(bool stabilize) {
+///   static const uint32_t wait = 8;
+///   static const uint32_t stabilize_wait = 12;
+///   //time_.delay(wait);
+///   if (stabilize) {
+///     //TODO:TBD time_.delay(stabilize_wait);
+///   }
+/// }
 
 I2CDeviceStatus SDPSensor::read_full_sample(SDPSample &sample) {
   if (!measuring_) {
@@ -116,7 +114,7 @@ I2CDeviceStatus SDPSensor::read_full_sample(SDPSample &sample) {
 
   I2CDeviceStatus ret = sensirion_.read_with_crc(data.data(), data.size(), crc_poly, crc_init);
   if (ret == I2CDeviceStatus::read_error) {
-    // get NACK, no new data is available
+    /// get NACK, no new data is available
     return I2CDeviceStatus::no_new_data;
   }
   if (ret != I2CDeviceStatus::ok) {
@@ -180,10 +178,10 @@ I2CDeviceStatus SDPSensor::reset() {
 }
 
 I2CDeviceStatus SDPSensor::test() {
-  // stop any measurement first
+  /// stop any measurement first
   this->stop_continuous();
 
-  // read and verify serial number
+  /// read and verify serial number
   I2CDeviceStatus status;
   uint32_t pn = 0;
   uint64_t sn = 0;
@@ -193,13 +191,13 @@ I2CDeviceStatus SDPSensor::test() {
     return status;
   }
 
-  // NOTE(march): the pn number is not set in my SDP for some reason,
-  //   should re-enable this for a production sensor
+  /// NOTE(march): the pn number is not set in my SDP for some reason,
+  ///   should re-enable this for a production sensor
 
-  // product number should be 0x030xxxxx
-  //  if ((pn & 0xFFF00000) != 0x03000000) {
-  //    return I2CDeviceStatus::testFailed;
-  //  }
+  /// product number should be 0x030xxxxx
+  ///  if ((pn & 0xFFF00000) != 0x03000000) {
+  ///    return I2CDeviceStatus::testFailed;
+  ///  }
 
   // try soft resetting
   status = this->reset();
@@ -207,16 +205,19 @@ I2CDeviceStatus SDPSensor::test() {
     return status;
   }
   static const uint8_t reset_delay = 25;
-  HAL::delay(reset_delay);
+  time_.delay(reset_delay);
 
   // try start measurement
   static const uint8_t command_delay = 3;
-  HAL::delay(command_delay);
+  time_.delay(command_delay);
   status = this->start_continuous(true);
   if (status != I2CDeviceStatus::ok) {
     return status;
   }
-  this->start_continuous_wait(true);
+
+  // FIXME: Removed start_continuous_wait static method
+  // this->start_continuous_wait(true);
+  // time_.delay(20);
 
   // read & verify output
   // three attempts for measuring data
@@ -224,7 +225,7 @@ I2CDeviceStatus SDPSensor::test() {
   size_t i = 0;
   SDPSample sample{};
   for (i = 0; i < read_attempts; i++) {
-    HAL::delay(command_delay);
+    time_.delay(command_delay);
     status = this->read_full_sample(sample);
 
     if (status == I2CDeviceStatus::ok) {
@@ -254,7 +255,7 @@ I2CDeviceStatus SDPSensor::test() {
   }
 
   // stop reading
-  HAL::delay(command_delay);
+  time_.delay(command_delay);
   status = this->stop_continuous();
   if (status != I2CDeviceStatus::ok) {
     return status;

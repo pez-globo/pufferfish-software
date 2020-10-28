@@ -13,6 +13,7 @@
 
 #include "Device.h"
 #include "Pufferfish/Driver/Initializable.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/Types.h"
 
 namespace Pufferfish::Driver::I2C::SFM3019 {
@@ -45,8 +46,8 @@ class StateMachine {
  */
 class Sensor : public Initializable {
  public:
-  // TODO(lietk12): should we move float &flow to the update method and rename update to output?
-  Sensor(Device &device, bool resetter) : resetter(resetter), device_(device) {}
+  Sensor(Device &device, bool resetter, HAL::Time &time)
+      : resetter(resetter), device_(device), time_(time) {}
 
   InitializableState setup() override;
   InitializableState output(float &flow);
@@ -70,6 +71,8 @@ class Sensor : public Initializable {
   uint32_t pn_ = 0;
   ConversionFactors conversion_{};
   Sample sample_{};
+
+  HAL::Time &time_;
 
   InitializableState initialize(uint32_t current_time);
   InitializableState check_range(uint32_t current_time_us);

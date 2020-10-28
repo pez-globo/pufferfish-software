@@ -1,0 +1,10 @@
+[Unit]
+Description=USB Logging Device
+
+[Mount]
+Where=/media/pi/LOGS
+What=/dev/disk/by-label/LOGS
+DirectoryMode=777
+
+[Install]
+WantedBy=multi-user.target

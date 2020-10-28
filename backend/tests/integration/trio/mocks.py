@@ -9,8 +9,10 @@ from tests.mocks.trio import endpoints
 
 from ventserver.integration import _trio
 from ventserver.io.trio import channels
+from ventserver.io.trio import fileio
 from ventserver.protocols import backend
 from ventserver.protocols import server
+
 
 
 logger = logging.getLogger()
@@ -27,14 +29,16 @@ async def handle_receive_outputs(
         channel: channels.TrioChannel[server.ReceiveOutputEvent],
         pull_endpoint: 'trio.MemoryReceiveChannel[server.ReceiveOutputEvent]',
         protocol: server.Protocol,
-        serial: endpoints.SerialDriver, websocket: endpoints.WebSocketDriver
+        serial: endpoints.SerialDriver, websocket: endpoints.WebSocketDriver,
+        filehandler: fileio.Handler
 ) -> None:
     """Consume the channel of server protocol receive output events."""
     async with pull_endpoint:
         while True:
             receive_output = await channel.output()
             await _trio.process_protocol_send(
-                receive_output.server_send, protocol, serial, websocket
+                receive_output.server_send, protocol, serial,
+                websocket, filehandler
             )
 
 
@@ -46,6 +50,7 @@ async def main() -> None:
     # I/O Endpoints
     serial = endpoints.SerialDriver()
     websocket = endpoints.WebSocketDriver()
+    filehandler = fileio.Handler()
 
     # Server Receive Outputs
     channel: channels.TrioChannel[
@@ -61,8 +66,10 @@ async def main() -> None:
                 protocol, serial, websocket, None
             )
             nursery.start_soon(
-                handle_receive_outputs, channel, channel.pull_endpoint.clone(),
-                protocol, serial, websocket
+                functools.partial(
+                    handle_receive_outputs, channel,
+                    channel.pull_endpoint.clone(),
+                ), protocol, serial, websocket, filehandler
             )
 
             for i in range(20):
@@ -70,7 +77,7 @@ async def main() -> None:
                 await _trio.process_protocol_send(
                     backend.Announcement(message=bytes(
                         'Quitting in {} s!' .format(20 - i - 1), 'utf-8'
-                    )), protocol, serial, websocket
+                    )), protocol, serial, websocket, filehandler
                 )
             logger.info('Finished, quitting!')
             nursery.cancel_scope.cancel()

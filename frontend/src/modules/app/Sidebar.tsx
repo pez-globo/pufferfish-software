@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Grid, Typography, makeStyles, Theme } from '@material-ui/core';
+import { useSelector } from 'react-redux';
 import Navigation from '../navigation/Navigation';
-import { SCREENSAVER_ROUTE } from '../navigation/constants';
+import { DASHBOARD_ROUTE, QUICKSTART_ROUTE, SCREENSAVER_ROUTE } from '../navigation/constants';
 import ShutdownIcon from '../icons/ShutdownIcon';
+import { getParameters, getParametersRequest } from '../../store/controller/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -25,6 +27,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     minWidth: 0,
     borderRadius: 0,
   },
+  navMenu: {
+    height: '100%',
+  },
 }));
 
 /**
@@ -34,6 +39,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  */
 const Sidebar = (): JSX.Element => {
   const classes = useStyles();
+  const parameterRequest = useSelector(getParametersRequest);
 
   return (
     <Grid
@@ -47,7 +53,7 @@ const Sidebar = (): JSX.Element => {
       <Grid item>
         <Button
           component={Link}
-          to={SCREENSAVER_ROUTE.path}
+          to={parameterRequest.ventilating ? DASHBOARD_ROUTE.path : QUICKSTART_ROUTE.path}
           variant="contained"
           color="primary"
           className={classes.screensaverButton}
@@ -62,7 +68,7 @@ const Sidebar = (): JSX.Element => {
           </div>
         </Button>
       </Grid>
-      <Grid item>
+      <Grid item className={classes.navMenu}>
         <Navigation />
       </Grid>
       <Grid item>

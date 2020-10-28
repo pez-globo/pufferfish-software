@@ -20,10 +20,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     height: '100',
     // border: '1px solid green',
   },
-  tabContainer: {
-    minHeight: 80,
-    // border: '1px solid red',
-  },
   tabs: {
     // paddingTop: theme.spacing(1)
     // border: '1px solid red',
@@ -32,7 +28,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   tab: {
     borderRadius: 8,
     border: `2px solid ${theme.palette.primary.main}`,
-    margin: theme.spacing(1),
+    margin: '0px 8px',
     zIndex: 1,
     minHeight: 40,
     minWidth: 220,
@@ -108,7 +104,7 @@ export const SettingsPage = (): JSX.Element => {
           <DisplayTab onSettingChange={onSettingChange} />
         </TabPanel>
       </Grid>
-      <Grid container item justify="center" alignItems="center" className={classes.tabContainer}>
+      <Grid container item justify="center" alignItems="center">
         <Tabs
           value={value}
           onChange={handleChange}

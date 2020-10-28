@@ -18,6 +18,8 @@ import { PERCENT } from '../info/units';
 import { getClockTime } from '../../store/app/selectors';
 import EventAlerts from './EventAlerts';
 import {
+  getBatteryPower,
+  getParametersRequest,
   getParametersRequestMode,
   getParametersRequestStandby,
 } from '../../store/controller/selectors';
@@ -54,11 +56,14 @@ export const ToolBar = (): JSX.Element => {
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
   const parameterRequestStandby = useSelector(getParametersRequestStandby);
-  const [isVentilatorOn, setIsVentilatorOn] = React.useState(false);
+  const parameterRequest = useSelector(getParametersRequest);
+  const batteryPower = useSelector(getBatteryPower);
+  const [isVentilatorOn, setIsVentilatorOn] = React.useState(parameterRequest.ventilating);
   const label = isVentilatorOn ? 'Pause Ventilation' : 'Start Ventilation';
   const toPath = isVentilatorOn ? QUICKSTART_ROUTE.path : DASHBOARD_ROUTE.path;
   const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
   const updateVentilationStatus = () => {
+    dispatch(updateCommittedParameter({ ventilating: !isVentilatorOn }));
     setIsVentilatorOn(!isVentilatorOn);
   };
 
@@ -167,7 +172,9 @@ export const ToolBar = (): JSX.Element => {
           className={classes.toolContainer}
         >
           <Grid container item xs justify="flex-end" alignItems="center">
-            <span className={classes.paddingRight}>{`100${PERCENT}`}</span>
+            <span className={classes.paddingRight}>{`${
+              batteryPower !== undefined ? batteryPower.toFixed(0) : '--'
+            }${PERCENT}`}</span>
             <PowerFullIcon style={{ fontSize: '2.5rem' }} />
             <span className={classes.paddingRight}>{clockTime}</span>
             <ClockIcon style={{ fontSize: '2.5rem' }} />

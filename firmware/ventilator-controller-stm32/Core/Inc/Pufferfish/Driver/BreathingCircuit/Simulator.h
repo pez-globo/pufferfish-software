@@ -11,6 +11,7 @@
 
 #include <cstdint>
 
+#include "Controller.h"
 #include "Pufferfish/Application/States.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
@@ -20,13 +21,15 @@ class Simulator {
   void input_clock(uint32_t current_time);
   virtual void transform(
       const Parameters &parameters,
+      const SensorVars &sensor_vars,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements) = 0;
 
  protected:
-  static const uint32_t sensor_update_interval = 2;  // ms
-  static constexpr float spo2_min = 21;              // % SpO2
-  static constexpr float spo2_max = 100;             // % SpO2
+  static const uint32_t sensor_update_interval = 2;              // ms
+  static constexpr float po2_fio2_conversion = 100.0 / 1013250;  // % FiO2 / dPa O2 at 1 atm
+  static constexpr float spo2_min = 21;                          // % SpO2
+  static constexpr float spo2_max = 100;                         // % SpO2
 
   static constexpr float fio2_responsiveness = 0.01;  // ms
 
@@ -46,6 +49,7 @@ class PCACSimulator : public Simulator {
  public:
   void transform(
       const Parameters &parameters,
+      const SensorVars &sensor_vars,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements) override;
 
@@ -78,6 +82,7 @@ class HFNCSimulator : public Simulator {
  public:
   void transform(
       const Parameters &parameters,
+      const SensorVars &sensor_vars,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements) override;
 
@@ -102,6 +107,7 @@ class Simulators {
   void transform(
       uint32_t current_time,
       const Parameters &parameters,
+      const SensorVars &sensor_vars,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements);
 

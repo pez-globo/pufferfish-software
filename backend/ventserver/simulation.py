@@ -5,31 +5,21 @@ import random
 import time
 import functools
 import typing
-from typing import Mapping, Optional, Type
+from typing import Mapping, Optional, Type, List
 
 import attr
 
 import betterproto
 import trio
 
-try:
-    import RPi.GPIO as GPIO  # type:ignore
-    from ventserver.io.trio import rotaryencoder
-except RuntimeError:
-    logging.getLogger().warning('Running without RPi.GPIO!')
-
+from ventserver.io.trio import rotaryencoder
 from ventserver.integration import _trio
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
+from ventserver.io.trio import fileio
 from ventserver.protocols import server
 from ventserver.protocols import exceptions
 from ventserver.protocols.protobuf import mcu_pb
-
-
-try:
-    GPIO.setmode(GPIO.BCM)
-except NameError:
-    logging.getLogger().warning('Running without RPi.GPIO!')
 
 
 # Configure logging
@@ -45,7 +35,6 @@ logger.setLevel(logging.INFO)
 
 
 # Simulators
-
 
 @attr.s
 class BreathingCircuitSimulator:
@@ -341,6 +330,7 @@ async def simulate_states(
 
 async def main() -> None:
     """Set up wiring between subsystems and process until completion."""
+    # pylint: disable=duplicate-code
     # Sans-I/O Protocols
     protocol = server.Protocol()
 
@@ -350,26 +340,40 @@ async def main() -> None:
     rotary_encoder = None
     try:
         rotary_encoder = rotaryencoder.Driver()
-        try:
-            await rotary_encoder.open()
-        except exceptions.ProtocolError as err:
-            logger.error(err)
-    except NameError:
-        logger.warning('Running without rotary encoder support!')
+        await rotary_encoder.open()
+    except exceptions.ProtocolError as err:
+        exception = (
+            "Unable to connect the rotary encoder, please check the "
+            "serial connection. Check if the pigpiod service is running: %s"
+        )
+        rotary_encoder = None
+        logger.error(exception, err)
+
+    # I/O File
+    filehandler = fileio.Handler()
 
     # Server Receive Outputs
     channel: channels.TrioChannel[
         server.ReceiveOutputEvent
     ] = channels.TrioChannel()
 
-    # Initialize State
+    # Initialize States
+    states: List[Type[betterproto.Message]] = [
+        mcu_pb.Parameters, mcu_pb.CycleMeasurements,
+        mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
+    ]
+
     all_states = protocol.receive.backend.all_states
-    all_states[mcu_pb.Parameters] = mcu_pb.Parameters()
-    all_states[mcu_pb.CycleMeasurements] = mcu_pb.CycleMeasurements()
-    all_states[mcu_pb.SensorMeasurements] = mcu_pb.SensorMeasurements()
-    all_states[mcu_pb.ParametersRequest] = mcu_pb.ParametersRequest(
-        mode=mcu_pb.VentilationMode.hfnc,
-        rr=30, fio2=60, flow=6
+    for state in all_states:
+        if state is mcu_pb.ParametersRequest:
+            all_states[state] = mcu_pb.ParametersRequest(
+                mode=mcu_pb.VentilationMode.hfnc, rr=30, fio2=60, flow=6
+            )
+        else:
+            all_states[state] = state()
+
+    await _trio.load_file_states(
+        states, protocol, filehandler
     )
 
     try:
@@ -387,7 +391,7 @@ async def main() -> None:
                     receive_output = await channel.output()
                     await _trio.process_protocol_send(
                         receive_output.server_send, protocol,
-                        None, websocket_endpoint
+                        None, websocket_endpoint, filehandler
                     )
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:

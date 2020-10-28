@@ -59,15 +59,17 @@ void read_status_byte(
 
   /**
    * BIT2 and BIT1: YPRF: Yellow Perfusion – Amplitude representation of medium
-   * signal quality. BIT2: RPRF: Red Perfusion – Amplitude representation of low
-   * signal quality. BIT1: GPRF: Green Perfusion – Amplitude representation of
+   * signal quality.
+   * BIT2: RPRF: Red Perfusion – Amplitude representation of low
+   * signal quality.
+   * BIT1: GPRF: Green Perfusion – Amplitude representation of
    * high signal quality.
    */
-  if ((byte_value & mask_yprf) != 0) {
+  if ((byte_value & mask_yprf) == mask_yprf) {
     sensor_measurements.signal_perfusion[frame_index] = SignalAmplitude::yellow_perfusion;
-  } else if ((byte_value & mask_rprf) != 0) {
+  } else if ((byte_value & mask_rprf) == mask_rprf) {
     sensor_measurements.signal_perfusion[frame_index] = SignalAmplitude::red_perfusion;
-  } else if ((byte_value & mask_gprf) != 0) {
+  } else if ((byte_value & mask_gprf) == mask_gprf) {
     sensor_measurements.signal_perfusion[frame_index] = SignalAmplitude::green_perfusion;
   } else {
     sensor_measurements.signal_perfusion[frame_index] = SignalAmplitude::no_perfusion;
@@ -202,6 +204,13 @@ PacketReceiver::PacketInputStatus PacketReceiver::input(const Frame &frame) {
     }
     /* Update the frame index to 0 */
     received_length_ = 0;
+  }
+
+  /* Check for received_length_ is invalid */
+  if (received_length_ >= packet_size) {
+    /* missed in previous packet */
+    input_status_ = PacketInputStatus::missed_data;
+    return input_status_;
   }
 
   /* Update the frame received to packet */
