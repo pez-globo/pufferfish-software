@@ -45,8 +45,8 @@ enum class UnitPrefix : uint16_t {
   da = 9,
   h = 10,
   k = 11,
-  M = 12,
-  G = 13
+  M = 12,  // NOLINT(readability-identifier-naming)
+  G = 13   // NOLINT(readability-identifier-naming)
 };
 static const size_t unit_prefix_shift = 0;
 

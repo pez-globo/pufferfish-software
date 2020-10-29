@@ -66,7 +66,7 @@ class Device {
    * @param sn[out] the unique serial number
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus read_product_id(uint32_t &sn);
+  I2CDeviceStatus read_product_id(uint32_t &product_number);
 
   /**
    * Reads out the flow rate from the sensor
