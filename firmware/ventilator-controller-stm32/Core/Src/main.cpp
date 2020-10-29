@@ -555,20 +555,21 @@ int main(void)
 
     // Breathing Circuit Control Loop
     hfnc.update(current_time);
+
     // Indicators for debugging
-    /*static constexpr float valve_opening_indicator_threshold = 0.5;
+    static constexpr float valve_opening_indicator_threshold = 0.00001;
     if (hfnc.actuator_vars().valve_air_opening > valve_opening_indicator_threshold) {
-      board_led1.write(true);
-    } else {
       board_led1.write(dimmer.output());
-    }*/
-    if (hfnc.sensor_vars().flow_o2 > 1 || hfnc.sensor_vars().flow_air > 1) {
+    } else {
+      board_led1.write(false);
+    }
+    /*if (hfnc.sensor_vars().flow_o2 > 1 || hfnc.sensor_vars().flow_air > 1) {
       board_led1.write(true);
     } else if (hfnc.sensor_vars().flow_o2 < -1 || hfnc.sensor_vars().flow_air < -1) {
       board_led1.write(dimmer.output());
     } else {
       board_led1.write(false);
-    }
+    }*/
 
     // Backend Communication Protocol
     backend.receive();

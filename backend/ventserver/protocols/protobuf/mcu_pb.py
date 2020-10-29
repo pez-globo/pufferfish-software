@@ -2,6 +2,7 @@
 # sources: mcu_pb.proto
 # plugin: python-betterproto
 from dataclasses import dataclass
+from typing import List
 
 import betterproto
 
@@ -14,6 +15,17 @@ class VentilationMode(betterproto.Enum):
     psv = 4
     niv = 5
     hfnc = 6
+
+
+class LogEventCode(betterproto.Enum):
+    fio2_too_low = 0
+    fio2_too_high = 1
+    spo2_too_low = 2
+    spo2_too_high = 3
+    rr_too_low = 4
+    rr_too_high = 5
+    battery_low = 6
+    screen_locked = 7
 
 
 @dataclass
@@ -86,6 +98,7 @@ class Parameters(betterproto.Message):
     ie: float = betterproto.float_field(7)
     fio2: float = betterproto.float_field(8)
     flow: float = betterproto.float_field(9)
+    ventilating: bool = betterproto.bool_field(10)
 
 
 @dataclass
@@ -99,6 +112,7 @@ class ParametersRequest(betterproto.Message):
     ie: float = betterproto.float_field(7)
     fio2: float = betterproto.float_field(8)
     flow: float = betterproto.float_field(9)
+    ventilating: bool = betterproto.bool_field(10)
 
 
 @dataclass
@@ -111,3 +125,37 @@ class Ping(betterproto.Message):
 class Announcement(betterproto.Message):
     time: int = betterproto.uint32_field(1)
     announcement: bytes = betterproto.bytes_field(2)
+
+
+@dataclass
+class LogEvent(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    time: int = betterproto.uint32_field(2)
+    code: "LogEventCode" = betterproto.enum_field(3)
+    old_value: float = betterproto.float_field(4)
+    new_value: float = betterproto.float_field(5)
+
+
+@dataclass
+class ExpectedLogEvent(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+
+
+@dataclass
+class NextLogEvents(betterproto.Message):
+    log_events: List["LogEvent"] = betterproto.message_field(1)
+
+
+@dataclass
+class ActiveLogEvents(betterproto.Message):
+    id: List[int] = betterproto.uint32_field(1)
+
+
+@dataclass
+class BatteryPower(betterproto.Message):
+    power_left: int = betterproto.uint32_field(1)
+
+
+@dataclass
+class ScreenStatus(betterproto.Message):
+    lock: bool = betterproto.bool_field(1)

@@ -20,7 +20,26 @@ typedef enum _VentilationMode {
     VentilationMode_hfnc = 6
 } VentilationMode;
 
+typedef enum _LogEventCode {
+    LogEventCode_fio2_too_low = 0,
+    LogEventCode_fio2_too_high = 1,
+    LogEventCode_spo2_too_low = 2,
+    LogEventCode_spo2_too_high = 3,
+    LogEventCode_rr_too_low = 4,
+    LogEventCode_rr_too_high = 5,
+    LogEventCode_battery_low = 6,
+    LogEventCode_screen_locked = 7
+} LogEventCode;
+
 /* Struct definitions */
+typedef struct _ActiveLogEvents {
+    pb_callback_t id;
+} ActiveLogEvents;
+
+typedef struct _NextLogEvents {
+    pb_callback_t log_events;
+} NextLogEvents;
+
 typedef struct _AlarmLimitsRequest {
     uint32_t rr_min;
     uint32_t rr_max;
@@ -62,6 +81,10 @@ typedef struct _Announcement {
     Announcement_announcement_t announcement;
 } Announcement;
 
+typedef struct _BatteryPower {
+    uint32_t power_left;
+} BatteryPower;
+
 typedef struct _CycleMeasurements {
     uint32_t time;
     float vt;
@@ -71,6 +94,18 @@ typedef struct _CycleMeasurements {
     float ip;
     float ve;
 } CycleMeasurements;
+
+typedef struct _ExpectedLogEvent {
+    uint32_t id;
+} ExpectedLogEvent;
+
+typedef struct _LogEvent {
+    uint32_t id;
+    uint32_t time;
+    LogEventCode code;
+    float oldValue;
+    float newValue;
+} LogEvent;
 
 typedef struct _Parameters {
     uint32_t time;
@@ -82,6 +117,7 @@ typedef struct _Parameters {
     float ie;
     float fio2;
     float flow;
+    bool ventilating;
 } Parameters;
 
 typedef struct _ParametersRequest {
@@ -94,12 +130,17 @@ typedef struct _ParametersRequest {
     float ie;
     float fio2;
     float flow;
+    bool ventilating;
 } ParametersRequest;
 
 typedef struct _Ping {
     uint32_t time;
     uint32_t id;
 } Ping;
+
+typedef struct _ScreenStatus {
+    bool lock;
+} ScreenStatus;
 
 typedef struct _SensorMeasurements {
     uint32_t time;
@@ -117,6 +158,10 @@ typedef struct _SensorMeasurements {
 #define _VentilationMode_MAX VentilationMode_hfnc
 #define _VentilationMode_ARRAYSIZE ((VentilationMode)(VentilationMode_hfnc+1))
 
+#define _LogEventCode_MIN LogEventCode_fio2_too_low
+#define _LogEventCode_MAX LogEventCode_screen_locked
+#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_screen_locked+1))
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -127,20 +172,34 @@ extern "C" {
 #define AlarmLimitsRequest_init_default          {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define SensorMeasurements_init_default          {0, 0, 0, 0, 0, 0, 0}
 #define CycleMeasurements_init_default           {0, 0, 0, 0, 0, 0, 0}
-#define Parameters_init_default                  {0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0}
-#define ParametersRequest_init_default           {0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0}
+#define Parameters_init_default                  {0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0, 0}
+#define ParametersRequest_init_default           {0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0, 0}
 #define Ping_init_default                        {0, 0}
 #define Announcement_init_default                {0, {0, {0}}}
+#define LogEvent_init_default                    {0, 0, _LogEventCode_MIN, 0, 0}
+#define ExpectedLogEvent_init_default            {0}
+#define NextLogEvents_init_default               {{{NULL}, NULL}}
+#define ActiveLogEvents_init_default             {{{NULL}, NULL}}
+#define BatteryPower_init_default                {0}
+#define ScreenStatus_init_default                {0}
 #define Alarms_init_zero                         {0, 0, 0}
 #define AlarmLimitsRequest_init_zero             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define SensorMeasurements_init_zero             {0, 0, 0, 0, 0, 0, 0}
 #define CycleMeasurements_init_zero              {0, 0, 0, 0, 0, 0, 0}
-#define Parameters_init_zero                     {0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0}
-#define ParametersRequest_init_zero              {0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0}
+#define Parameters_init_zero                     {0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0, 0}
+#define ParametersRequest_init_zero              {0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0, 0}
 #define Ping_init_zero                           {0, 0}
 #define Announcement_init_zero                   {0, {0, {0}}}
+#define LogEvent_init_zero                       {0, 0, _LogEventCode_MIN, 0, 0}
+#define ExpectedLogEvent_init_zero               {0}
+#define NextLogEvents_init_zero                  {{{NULL}, NULL}}
+#define ActiveLogEvents_init_zero                {{{NULL}, NULL}}
+#define BatteryPower_init_zero                   {0}
+#define ScreenStatus_init_zero                   {0}
 
 /* Field tags (for use in manual encoding/decoding) */
+#define ActiveLogEvents_id_tag                   1
+#define NextLogEvents_log_events_tag             1
 #define AlarmLimitsRequest_rr_min_tag            1
 #define AlarmLimitsRequest_rr_max_tag            2
 #define AlarmLimitsRequest_pip_min_tag           3
@@ -172,6 +231,7 @@ extern "C" {
 #define Alarms_alarm_two_tag                     3
 #define Announcement_time_tag                    1
 #define Announcement_announcement_tag            2
+#define BatteryPower_power_left_tag              1
 #define CycleMeasurements_time_tag               1
 #define CycleMeasurements_vt_tag                 2
 #define CycleMeasurements_rr_tag                 3
@@ -179,6 +239,12 @@ extern "C" {
 #define CycleMeasurements_pip_tag                5
 #define CycleMeasurements_ip_tag                 6
 #define CycleMeasurements_ve_tag                 7
+#define ExpectedLogEvent_id_tag                  1
+#define LogEvent_id_tag                          1
+#define LogEvent_time_tag                        2
+#define LogEvent_code_tag                        3
+#define LogEvent_oldValue_tag                    4
+#define LogEvent_newValue_tag                    5
 #define Parameters_time_tag                      1
 #define Parameters_mode_tag                      2
 #define Parameters_pip_tag                       3
@@ -188,6 +254,7 @@ extern "C" {
 #define Parameters_ie_tag                        7
 #define Parameters_fio2_tag                      8
 #define Parameters_flow_tag                      9
+#define Parameters_ventilating_tag               10
 #define ParametersRequest_time_tag               1
 #define ParametersRequest_mode_tag               2
 #define ParametersRequest_pip_tag                3
@@ -197,8 +264,10 @@ extern "C" {
 #define ParametersRequest_ie_tag                 7
 #define ParametersRequest_fio2_tag               8
 #define ParametersRequest_flow_tag               9
+#define ParametersRequest_ventilating_tag        10
 #define Ping_time_tag                            1
 #define Ping_id_tag                              2
+#define ScreenStatus_lock_tag                    1
 #define SensorMeasurements_time_tag              1
 #define SensorMeasurements_cycle_tag             2
 #define SensorMeasurements_paw_tag               3
@@ -276,7 +345,8 @@ X(a, STATIC,   SINGULAR, FLOAT,    vt,                5) \
 X(a, STATIC,   SINGULAR, FLOAT,    rr,                6) \
 X(a, STATIC,   SINGULAR, FLOAT,    ie,                7) \
 X(a, STATIC,   SINGULAR, FLOAT,    fio2,              8) \
-X(a, STATIC,   SINGULAR, FLOAT,    flow,              9)
+X(a, STATIC,   SINGULAR, FLOAT,    flow,              9) \
+X(a, STATIC,   SINGULAR, BOOL,     ventilating,      10)
 #define Parameters_CALLBACK NULL
 #define Parameters_DEFAULT NULL
 
@@ -289,7 +359,8 @@ X(a, STATIC,   SINGULAR, FLOAT,    vt,                5) \
 X(a, STATIC,   SINGULAR, FLOAT,    rr,                6) \
 X(a, STATIC,   SINGULAR, FLOAT,    ie,                7) \
 X(a, STATIC,   SINGULAR, FLOAT,    fio2,              8) \
-X(a, STATIC,   SINGULAR, FLOAT,    flow,              9)
+X(a, STATIC,   SINGULAR, FLOAT,    flow,              9) \
+X(a, STATIC,   SINGULAR, BOOL,     ventilating,      10)
 #define ParametersRequest_CALLBACK NULL
 #define ParametersRequest_DEFAULT NULL
 
@@ -305,6 +376,41 @@ X(a, STATIC,   SINGULAR, BYTES,    announcement,      2)
 #define Announcement_CALLBACK NULL
 #define Announcement_DEFAULT NULL
 
+#define LogEvent_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   id,                1) \
+X(a, STATIC,   SINGULAR, UINT32,   time,              2) \
+X(a, STATIC,   SINGULAR, UENUM,    code,              3) \
+X(a, STATIC,   SINGULAR, FLOAT,    oldValue,          4) \
+X(a, STATIC,   SINGULAR, FLOAT,    newValue,          5)
+#define LogEvent_CALLBACK NULL
+#define LogEvent_DEFAULT NULL
+
+#define ExpectedLogEvent_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   id,                1)
+#define ExpectedLogEvent_CALLBACK NULL
+#define ExpectedLogEvent_DEFAULT NULL
+
+#define NextLogEvents_FIELDLIST(X, a) \
+X(a, CALLBACK, REPEATED, MESSAGE,  log_events,        1)
+#define NextLogEvents_CALLBACK pb_default_field_callback
+#define NextLogEvents_DEFAULT NULL
+#define NextLogEvents_log_events_MSGTYPE LogEvent
+
+#define ActiveLogEvents_FIELDLIST(X, a) \
+X(a, CALLBACK, REPEATED, UINT32,   id,                1)
+#define ActiveLogEvents_CALLBACK pb_default_field_callback
+#define ActiveLogEvents_DEFAULT NULL
+
+#define BatteryPower_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   power_left,        1)
+#define BatteryPower_CALLBACK NULL
+#define BatteryPower_DEFAULT NULL
+
+#define ScreenStatus_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, BOOL,     lock,              1)
+#define ScreenStatus_CALLBACK NULL
+#define ScreenStatus_DEFAULT NULL
+
 extern const pb_msgdesc_t Alarms_msg;
 extern const pb_msgdesc_t AlarmLimitsRequest_msg;
 extern const pb_msgdesc_t SensorMeasurements_msg;
@@ -313,6 +419,12 @@ extern const pb_msgdesc_t Parameters_msg;
 extern const pb_msgdesc_t ParametersRequest_msg;
 extern const pb_msgdesc_t Ping_msg;
 extern const pb_msgdesc_t Announcement_msg;
+extern const pb_msgdesc_t LogEvent_msg;
+extern const pb_msgdesc_t ExpectedLogEvent_msg;
+extern const pb_msgdesc_t NextLogEvents_msg;
+extern const pb_msgdesc_t ActiveLogEvents_msg;
+extern const pb_msgdesc_t BatteryPower_msg;
+extern const pb_msgdesc_t ScreenStatus_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define Alarms_fields &Alarms_msg
@@ -323,16 +435,28 @@ extern const pb_msgdesc_t Announcement_msg;
 #define ParametersRequest_fields &ParametersRequest_msg
 #define Ping_fields &Ping_msg
 #define Announcement_fields &Announcement_msg
+#define LogEvent_fields &LogEvent_msg
+#define ExpectedLogEvent_fields &ExpectedLogEvent_msg
+#define NextLogEvents_fields &NextLogEvents_msg
+#define ActiveLogEvents_fields &ActiveLogEvents_msg
+#define BatteryPower_fields &BatteryPower_msg
+#define ScreenStatus_fields &ScreenStatus_msg
 
 /* Maximum encoded size of messages (where known) */
 #define Alarms_size                              10
 #define AlarmLimitsRequest_size                  167
 #define SensorMeasurements_size                  37
 #define CycleMeasurements_size                   36
-#define Parameters_size                          43
-#define ParametersRequest_size                   43
+#define Parameters_size                          45
+#define ParametersRequest_size                   45
 #define Ping_size                                12
 #define Announcement_size                        72
+#define LogEvent_size                            24
+#define ExpectedLogEvent_size                    6
+/* NextLogEvents_size depends on runtime parameters */
+/* ActiveLogEvents_size depends on runtime parameters */
+#define BatteryPower_size                        6
+#define ScreenStatus_size                        2
 
 #ifdef __cplusplus
 } /* extern "C" */
@@ -371,14 +495,14 @@ struct MessageDescriptor<CycleMeasurements> {
 };
 template <>
 struct MessageDescriptor<Parameters> {
-    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 9;
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 10;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &Parameters_msg;
     }
 };
 template <>
 struct MessageDescriptor<ParametersRequest> {
-    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 9;
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 10;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &ParametersRequest_msg;
     }
@@ -395,6 +519,48 @@ struct MessageDescriptor<Announcement> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &Announcement_msg;
+    }
+};
+template <>
+struct MessageDescriptor<LogEvent> {
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 5;
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
+        return &LogEvent_msg;
+    }
+};
+template <>
+struct MessageDescriptor<ExpectedLogEvent> {
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 1;
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
+        return &ExpectedLogEvent_msg;
+    }
+};
+template <>
+struct MessageDescriptor<NextLogEvents> {
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 1;
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
+        return &NextLogEvents_msg;
+    }
+};
+template <>
+struct MessageDescriptor<ActiveLogEvents> {
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 1;
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
+        return &ActiveLogEvents_msg;
+    }
+};
+template <>
+struct MessageDescriptor<BatteryPower> {
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 1;
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
+        return &BatteryPower_msg;
+    }
+};
+template <>
+struct MessageDescriptor<ScreenStatus> {
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 1;
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
+        return &ScreenStatus_msg;
     }
 };
 }  // namespace nanopb

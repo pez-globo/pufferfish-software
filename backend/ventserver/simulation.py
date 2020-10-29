@@ -232,12 +232,9 @@ class HFNCSimulator(BreathingCircuitSimulator):
         if self._parameters.mode != mcu_pb.VentilationMode.hfnc:
             return
 
-        if self._parameters_request.flow > 0:
+        if 0 <= self._parameters_request.flow <= 80:
             self._parameters.flow = self._parameters_request.flow
-        if (
-                self._parameters_request.fio2 >= 21
-                and self._parameters_request.fio2 <= 100
-        ):
+        if 21 <= self._parameters_request.fio2 <= 100:
             self._parameters.fio2 = self._parameters_request.fio2
         if self._parameters_request.rr > 0:
             self._parameters.rr = self._parameters_request.rr
@@ -367,7 +364,8 @@ async def main() -> None:
     for state in all_states:
         if state is mcu_pb.ParametersRequest:
             all_states[state] = mcu_pb.ParametersRequest(
-                mode=mcu_pb.VentilationMode.hfnc, rr=30, fio2=60, flow=6
+                mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
+                rr=30, fio2=60, flow=6
             )
         else:
             all_states[state] = state()

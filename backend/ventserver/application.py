@@ -65,7 +65,8 @@ async def main() -> None:
     for state in all_states:
         if state is mcu_pb.ParametersRequest:
             all_states[state] = mcu_pb.ParametersRequest(
-                mode=mcu_pb.VentilationMode.hfnc, rr=30, fio2=60, flow=6
+                mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
+                rr=30, fio2=60, flow=6
             )
         else:
             all_states[state] = state()
