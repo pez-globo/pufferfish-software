@@ -46,28 +46,27 @@ I2CDeviceStatus Device::set_averaging(uint8_t averaging_window) {
       static_cast<uint16_t>(Command::set_averaging), averaging_window, crc_poly, crc_init);
 }
 
-I2CDeviceStatus Device::read_conversion_factors(ConversionFactors & conversion) {
-  I2CDeviceStatus ret = sensirion_.write(
+I2CDeviceStatus Device::request_conversion_factors() {
+  return sensirion_.write(
       static_cast<uint16_t>(Command::read_conversion),
       static_cast<uint16_t>(gas),
       crc_poly,
       crc_init);
-  if (ret != I2CDeviceStatus::ok) {
-    return ret;
-  }
+}
 
+I2CDeviceStatus Device::read_conversion_factors(ConversionFactors &conversion) {
   std::array<uint8_t, 3 * sizeof(uint16_t)> buffer{};
   I2CDeviceStatus ret = sensirion_.read(buffer, crc_poly, crc_init);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
 
-  conversion.scale_factor = HAL::ntoh(Util::parse_network_order<uint16_t>(
-      buffer.data(), buffer.size()));
-  conversion.offset = HAL::ntoh(Util::parse_network_order<uint16_t>(
-      buffer.data() + sizeof(int16_t), buffer.size()));
-  conversion.flow_unit = HAL::ntoh(Util::parse_network_order<uint16_t>(
-      buffer.data() + 2 * sizeof(int16_t), buffer.size()));
+  conversion.scale_factor =
+      HAL::ntoh(Util::parse_network_order<uint16_t>(buffer.data(), buffer.size()));
+  conversion.offset = HAL::ntoh(
+      Util::parse_network_order<uint16_t>(buffer.data() + sizeof(uint16_t), buffer.size()));
+  conversion.flow_unit = HAL::ntoh(
+      Util::parse_network_order<uint16_t>(buffer.data() + 2 * sizeof(uint16_t), buffer.size()));
   return I2CDeviceStatus::ok;
 }
 

@@ -98,7 +98,7 @@ InitializableState Sensor::initialize(uint32_t current_time_us) {
   }
 
   // Wait for power-up
-  time_.delay(2);
+  time_.delay(power_up_delay);
 
   // Read product number
   while (device_.read_product_id(pn_) != I2CDeviceStatus::ok || pn_ != product_number) {
@@ -108,13 +108,24 @@ InitializableState Sensor::initialize(uint32_t current_time_us) {
     }
   }
 
-  // Read conversion factors
-  /*while (device_.read_conversion_factors(conversion_) != I2CDeviceStatus::ok) {
+  // Request conversion factors
+  while (device_.request_conversion_factors() != I2CDeviceStatus::ok) {
     ++retry_count_;
     if (retry_count_ > max_retries_setup) {
       return InitializableState::failed;
     }
-  }*/
+  }
+
+  // Read conversion factors
+  time_.delay_micros(read_conv_delay_us);
+  while (device_.read_conversion_factors(conversion_) != I2CDeviceStatus::ok ||
+         conversion_.scale_factor != scale_factor || conversion_.offset != offset ||
+         conversion_.flow_unit != flow_unit) {
+    ++retry_count_;
+    if (retry_count_ > max_retries_setup) {
+      return InitializableState::failed;
+    }
+  }
 
   // Set the averaging window size
   while (device_.set_averaging(averaging_window) != I2CDeviceStatus::ok) {
@@ -124,6 +135,7 @@ InitializableState Sensor::initialize(uint32_t current_time_us) {
     }
   }
 
+  // Start continuous measurement
   while (device_.start_measure() != I2CDeviceStatus::ok) {
     ++retry_count_;
     if (retry_count_ > max_retries_setup) {
