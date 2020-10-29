@@ -291,9 +291,11 @@ PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 
 // SFM3019
 
-PF::Driver::I2C::SFM3019::Device sfm3019_dev_air(i2c_hal_sfm3019_air, i2c2_hal_global);
+PF::Driver::I2C::SFM3019::Device sfm3019_dev_air(
+    i2c_hal_sfm3019_air, i2c2_hal_global, PF::Driver::I2C::SFM3019::GasType::air);
 PF::Driver::I2C::SFM3019::Sensor sfm3019_air(sfm3019_dev_air, true, time);
-PF::Driver::I2C::SFM3019::Device sfm3019_dev_o2(i2c_hal_sfm3019_o2, i2c4_hal_global);
+PF::Driver::I2C::SFM3019::Device sfm3019_dev_o2(
+    i2c_hal_sfm3019_o2, i2c4_hal_global, PF::Driver::I2C::SFM3019::GasType::o2);
 PF::Driver::I2C::SFM3019::Sensor sfm3019_o2(sfm3019_dev_o2, true, time);
 
 // FDO2

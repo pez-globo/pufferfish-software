@@ -12,9 +12,7 @@
 
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace I2C {
+namespace Pufferfish::Driver::I2C {
 
 /**
  * A class for Sensiron devices with a CRC checking protocol
@@ -27,12 +25,13 @@ class SensirionDevice {
    * Reads a data from the sensor, while performing CRC check
    *
    * @param buf[out] the buffer for the data output
-   * @param count number of bytes to read, must be an even number
    * @param polynomial  a generator polynomial for CRC calculation
    * @param init    a initial value for CRC calculation
+   * @tparam size number of bytes to read, must be an even number
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus read_with_crc(uint8_t *buf, size_t count, uint8_t polynomial, uint8_t init);
+  template <size_t size>
+  I2CDeviceStatus read(std::array<uint8_t, size> &buf, uint8_t polynomial, uint8_t init);
 
   /**
    * Writes a single-byte command to the device
@@ -62,6 +61,6 @@ class SensirionDevice {
   HAL::I2CDevice &dev_;
 };
 
-}  // namespace I2C
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::I2C
+
+#include "SensirionDevice.tpp"

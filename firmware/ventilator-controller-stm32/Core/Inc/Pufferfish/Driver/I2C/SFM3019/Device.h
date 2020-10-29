@@ -26,8 +26,8 @@ static const uint16_t default_i2c_addr = 0x2e;
  */
 class Device {
  public:
-  explicit Device(HAL::I2CDevice &dev, HAL::I2CDevice &global_dev)
-      : sensirion_(dev), global_(global_dev) {}
+  explicit Device(HAL::I2CDevice &dev, HAL::I2CDevice &global_dev, GasType gas)
+      : sensirion_(dev), global_(global_dev), gas(gas) {}
 
   /**
    * Starts a flow measurement
@@ -50,7 +50,13 @@ class Device {
   I2CDeviceStatus set_averaging(uint8_t averaging_window);
 
   /**
-   * Reads out the conversion factors
+   * Requests the conversion factors
+   * @return ok on success, error code otherwise
+   */
+  I2CDeviceStatus request_conversion_factors();
+
+  /**
+   * Reads out the conversion factors. They only become available ~20 us after the request command.
    * @return ok on success, error code otherwise
    */
   I2CDeviceStatus read_conversion_factors(ConversionFactors &conversion);
@@ -76,13 +82,12 @@ class Device {
   I2CDeviceStatus reset();
 
  private:
-  static const GasType gas = GasType::air;
-
   static const uint8_t crc_poly = 0x31;
   static const uint8_t crc_init = 0xff;
 
   SensirionDevice sensirion_;
   SensirionDevice global_;
+  const GasType gas = GasType::air;
 };
 
 }  // namespace Pufferfish::Driver::I2C::SFM3019

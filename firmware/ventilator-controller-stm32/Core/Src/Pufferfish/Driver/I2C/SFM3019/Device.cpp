@@ -32,7 +32,7 @@ I2CDeviceStatus Device::read_product_id(uint32_t &product_number) {
   }
 
   std::array<uint8_t, sizeof(uint32_t)> buffer{};
-  I2CDeviceStatus ret2 = sensirion_.read_with_crc(buffer.data(), buffer.size(), crc_poly, crc_init);
+  I2CDeviceStatus ret2 = sensirion_.read(buffer, crc_poly, crc_init);
   if (ret2 != I2CDeviceStatus::ok) {
     return ret2;
   }
@@ -42,7 +42,8 @@ I2CDeviceStatus Device::read_product_id(uint32_t &product_number) {
 }
 
 I2CDeviceStatus Device::set_averaging(uint8_t averaging_window) {
-  return sensirion_.write(static_cast<uint16_t>(Command::set_averaging), averaging_window, crc_poly, crc_init);
+  return sensirion_.write(
+      static_cast<uint16_t>(Command::set_averaging), averaging_window, crc_poly, crc_init);
 }
 
 I2CDeviceStatus Device::read_conversion_factors(ConversionFactors & conversion) {
@@ -56,9 +57,9 @@ I2CDeviceStatus Device::read_conversion_factors(ConversionFactors & conversion) 
   }
 
   std::array<uint8_t, 3 * sizeof(uint16_t)> buffer{};
-  I2CDeviceStatus ret2 = sensirion_.read_with_crc(buffer.data(), buffer.size(), crc_poly, crc_init);
-  if (ret2 != I2CDeviceStatus::ok) {
-    return ret2;
+  I2CDeviceStatus ret = sensirion_.read(buffer, crc_poly, crc_init);
+  if (ret != I2CDeviceStatus::ok) {
+    return ret;
   }
 
   conversion.scale_factor = HAL::ntoh(Util::parse_network_order<uint16_t>(
@@ -73,7 +74,7 @@ I2CDeviceStatus Device::read_conversion_factors(ConversionFactors & conversion) 
 I2CDeviceStatus Device::read_sample(Sample &sample, int16_t scale_factor, int16_t offset) {
   // read flow raw
   std::array<uint8_t, sizeof(uint16_t)> buffer{};
-  I2CDeviceStatus ret = sensirion_.read_with_crc(buffer.data(), buffer.size(), crc_poly, crc_init);
+  I2CDeviceStatus ret = sensirion_.read(buffer, crc_poly, crc_init);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
