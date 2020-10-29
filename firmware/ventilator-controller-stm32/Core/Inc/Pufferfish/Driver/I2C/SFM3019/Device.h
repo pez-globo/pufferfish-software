@@ -12,7 +12,7 @@
 
 #include <climits>
 
-#include "Pufferfish/Driver/I2C/SensirionSensor.h"
+#include "Pufferfish/Driver/I2C/SensirionDevice.h"
 #include "Pufferfish/Driver/Testable.h"
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 #include "Types.h"
@@ -73,8 +73,8 @@ class Device {
   static const uint8_t crc_poly = 0x31;
   static const uint8_t crc_init = 0xff;
 
-  SensirionSensor sensirion_;
-  HAL::I2CDevice &global_;
+  SensirionDevice sensirion_;
+  SensirionDevice global_;
 };
 
 }  // namespace Pufferfish::Driver::I2C::SFM3019

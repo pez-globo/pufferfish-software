@@ -18,23 +18,15 @@ namespace Pufferfish::Driver::I2C::SFM3019 {
 // SFM3019
 
 I2CDeviceStatus Device::start_measure() {
-  std::array<uint8_t, sizeof(Command)> cmd{{get_upper(gas), get_lower(gas)}};
-  I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
-  return ret;
+  return sensirion_.write(static_cast<uint16_t>(gas));
 }
 
 I2CDeviceStatus Device::stop_measure() {
-  std::array<uint8_t, sizeof(Command)> cmd{
-      {get_upper(Command::stop_measure), get_lower(Command::stop_measure)}};
-  I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
-  return ret;
+  return sensirion_.write(static_cast<uint16_t>(Command::stop_measure));
 }
 
 I2CDeviceStatus Device::read_product_id(uint32_t &product_number) {
-  std::array<uint8_t, sizeof(Command)> cmd{
-      {get_upper(Command::read_product_id), get_lower(Command::read_product_id)}};
-
-  I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
+  I2CDeviceStatus ret = sensirion_.write(static_cast<uint16_t>(Command::read_product_id));
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
@@ -50,14 +42,11 @@ I2CDeviceStatus Device::read_product_id(uint32_t &product_number) {
 }
 
 I2CDeviceStatus Device::read_conversion_factors(ConversionFactors & /*conversion*/) {
-  // TODO(lietk12): we actually have to write with a CRC!
-  std::array<uint8_t, sizeof(Command) + sizeof(GasType)> cmd{
-      {get_upper(Command::read_conversion),
-       get_lower(Command::read_conversion),
-       get_upper(gas),
-       get_lower(gas)}};
-
-  I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
+  I2CDeviceStatus ret = sensirion_.write(
+      static_cast<uint16_t>(Command::read_conversion),
+      static_cast<uint16_t>(gas),
+      crc_poly,
+      crc_init);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
@@ -95,10 +84,7 @@ I2CDeviceStatus Device::read_sample(Sample &sample, int16_t scale_factor, int16_
 }
 
 I2CDeviceStatus Device::reset() {
-  std::array<uint8_t, sizeof(uint8_t)> cmd{{get_lower(Command::reset)}};
-
-  I2CDeviceStatus ret = global_.write(cmd.data(), cmd.size());
-  return ret;
+  return global_.write(static_cast<uint8_t>(Command::reset));
 }
 
 }  // namespace Pufferfish::Driver::I2C::SFM3019

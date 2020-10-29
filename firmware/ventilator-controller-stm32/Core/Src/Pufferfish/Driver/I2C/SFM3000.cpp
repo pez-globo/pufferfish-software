@@ -17,25 +17,21 @@
 namespace Pufferfish::Driver::I2C {
 
 I2CDeviceStatus SFM3000::start_measure() {
-  static const uint8_t start_high = 0x10;
-  static const uint8_t start_low = 0x00;
-  std::array<uint8_t, 2> cmd{{start_high, start_low}};
-  I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
+  static const uint16_t command = 0x1000;
+  I2CDeviceStatus ret = sensirion_.write(command);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
-  measuring_ = true;
 
+  measuring_ = true;
   return I2CDeviceStatus::ok;
 }
 
 I2CDeviceStatus SFM3000::serial_number(uint32_t &sn) {
-  static const uint8_t serial_high = 0x31;
-  static const uint8_t serial_low = 0xae;
-  std::array<uint8_t, 2> cmd{{serial_high, serial_low}};
+  static const uint16_t command = 0x31ae;
   measuring_ = false;
 
-  I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
+  I2CDeviceStatus ret = sensirion_.write(command);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
@@ -76,17 +72,10 @@ I2CDeviceStatus SFM3000::read_sample(SFM3000Sample &sample) {
 }
 
 I2CDeviceStatus SFM3000::reset() {
-  static const uint8_t reset_high = 0x20;
-  static const uint8_t reset_low = 0x00;
-  std::array<uint8_t, 2> cmd{{reset_high, reset_low}};
+  static const uint16_t command = 0x2000;
   measuring_ = false;
 
-  I2CDeviceStatus ret = sensirion_.write(cmd.data(), cmd.size());
-  if (ret != I2CDeviceStatus::ok) {
-    return ret;
-  }
-
-  return I2CDeviceStatus::ok;
+  return sensirion_.write(command);
 }
 
 I2CDeviceStatus SFM3000::test() {

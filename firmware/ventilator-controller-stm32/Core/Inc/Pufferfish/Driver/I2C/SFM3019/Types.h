@@ -35,19 +35,6 @@ enum class Command : uint16_t {
   read_product_id = 0xe102
 };
 
-constexpr uint8_t get_upper(GasType gas) {
-  return Util::get_byte<1>(static_cast<uint16_t>(gas));
-}
-constexpr uint8_t get_lower(GasType gas) {
-  return Util::get_byte<0>(static_cast<uint16_t>(gas));
-}
-constexpr uint8_t get_upper(Command command) {
-  return Util::get_byte<1>(static_cast<uint16_t>(command));
-}
-constexpr uint8_t get_lower(Command command) {
-  return Util::get_byte<0>(static_cast<uint16_t>(command));
-}
-
 /**
  * All data in a reading from the Sensirion SFM3000 mass flow meter.
  */
