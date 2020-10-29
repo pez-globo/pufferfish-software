@@ -56,6 +56,7 @@ class Sensor : public Initializable {
   using Action = StateMachine::Action;
 
   static const uint32_t product_number = 0x04020611;
+  static const uint32_t averaging_window = 0;
   static constexpr float flow_min = -200;       // L/min
   static constexpr float flow_max = 200;        // L/min
   static const size_t max_retries_setup = 8;    // max retries for all setup steps combined

@@ -28,7 +28,7 @@ enum class Command : uint16_t {
   update_concentration = 0xe17d,
   reset_i2c_addr_ptr = 0xe000,
   stop_measure = 0x3ff9,
-  config_averaging = 0x366a,
+  set_averaging = 0x366a,
   read_conversion = 0x3661,
   reset = 0x0006,
   sleep = 0x3677,

@@ -108,9 +108,21 @@ InitializableState Sensor::initialize(uint32_t current_time_us) {
     }
   }
 
-  // TODO(lietk12): implement the conversion retrieval
+  // Read conversion factors
+  /*while (device_.read_conversion_factors(conversion_) != I2CDeviceStatus::ok) {
+    ++retry_count_;
+    if (retry_count_ > max_retries_setup) {
+      return InitializableState::failed;
+    }
+  }*/
 
-  // TODO(lietk12): implement the configuring averaging
+  // Set the averaging window size
+  while (device_.set_averaging(averaging_window) != I2CDeviceStatus::ok) {
+    ++retry_count_;
+    if (retry_count_ > max_retries_setup) {
+      return InitializableState::failed;
+    }
+  }
 
   while (device_.start_measure() != I2CDeviceStatus::ok) {
     ++retry_count_;

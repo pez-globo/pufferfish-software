@@ -41,7 +41,11 @@ I2CDeviceStatus Device::read_product_id(uint32_t &product_number) {
   return I2CDeviceStatus::ok;
 }
 
-I2CDeviceStatus Device::read_conversion_factors(ConversionFactors & /*conversion*/) {
+I2CDeviceStatus Device::set_averaging(uint8_t averaging_window) {
+  return sensirion_.write(static_cast<uint16_t>(Command::set_averaging), averaging_window, crc_poly, crc_init);
+}
+
+I2CDeviceStatus Device::read_conversion_factors(ConversionFactors & conversion) {
   I2CDeviceStatus ret = sensirion_.write(
       static_cast<uint16_t>(Command::read_conversion),
       static_cast<uint16_t>(gas),
@@ -57,13 +61,12 @@ I2CDeviceStatus Device::read_conversion_factors(ConversionFactors & /*conversion
     return ret2;
   }
 
-  /*
   conversion.scale_factor = HAL::ntoh(Util::parse_network_order<uint16_t>(
       buffer.data(), buffer.size()));
   conversion.offset = HAL::ntoh(Util::parse_network_order<uint16_t>(
       buffer.data() + sizeof(int16_t), buffer.size()));
   conversion.flow_unit = HAL::ntoh(Util::parse_network_order<uint16_t>(
-      buffer.data() + 2 * sizeof(int16_t), buffer.size()));*/
+      buffer.data() + 2 * sizeof(int16_t), buffer.size()));
   return I2CDeviceStatus::ok;
 }
 

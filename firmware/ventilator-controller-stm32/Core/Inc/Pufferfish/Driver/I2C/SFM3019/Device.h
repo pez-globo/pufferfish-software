@@ -42,6 +42,14 @@ class Device {
   I2CDeviceStatus stop_measure();
 
   /**
+   * Configure measurement averaging
+   * @param averaging_window a value up to 128 for the size of the averaging window.
+   * 0 indicates average-until-read mode.
+   * @return ok on success, error code otherwise
+   */
+  I2CDeviceStatus set_averaging(uint8_t averaging_window);
+
+  /**
    * Reads out the conversion factors
    * @return ok on success, error code otherwise
    */
