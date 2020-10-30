@@ -60,7 +60,7 @@ async def main() -> None:
         server.ReceiveOutputEvent
     ] = channels.TrioChannel()
 
-    # Initialize State
+    # Initialize state with defaults
     all_states = protocol.receive.backend.all_states
     for state in all_states:
         if state is mcu_pb.ParametersRequest:
@@ -71,6 +71,7 @@ async def main() -> None:
         else:
             all_states[state] = state()
 
+    # Load state from file
     states: List[Type[betterproto.Message]] = [
         mcu_pb.Parameters, mcu_pb.CycleMeasurements,
         mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
@@ -78,6 +79,11 @@ async def main() -> None:
     await _trio.load_file_states(
         states, protocol, filehandler
     )
+
+    # Turn off ventilation
+    parameters_request = all_states[mcu_pb.ParametersRequest]
+    if parameters_request is not None:
+        parameters_request.ventilating = False
 
     try:
         async with channel.push_endpoint:
