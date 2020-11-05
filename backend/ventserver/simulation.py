@@ -17,6 +17,7 @@ from ventserver.integration import _trio
 from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
 from ventserver.io.trio import fileio
+from ventserver.io.subprocess import frozen_frontend
 from ventserver.protocols import server
 from ventserver.protocols import exceptions
 from ventserver.protocols.application import lists
@@ -326,12 +327,9 @@ class HFNCSimulator(BreathingCircuitSimulator):
         if self._parameters.mode != mcu_pb.VentilationMode.hfnc:
             return
 
-        if self._parameters_request.flow > 0:
+        if 0 <= self._parameters_request.flow <= 80:
             self._parameters.flow = self._parameters_request.flow
-        if (
-                self._parameters_request.fio2 >= 21
-                and self._parameters_request.fio2 <= 100
-        ):
+        if 21 <= self._parameters_request.fio2 <= 100:
             self._parameters.fio2 = self._parameters_request.fio2
         if self._parameters_request.rr > 0:
             self._parameters.rr = self._parameters_request.rr
@@ -471,7 +469,8 @@ async def main() -> None:
     for state in all_states:
         if state is mcu_pb.ParametersRequest:
             all_states[state] = mcu_pb.ParametersRequest(
-                mode=mcu_pb.VentilationMode.hfnc, rr=30, fio2=60, flow=6
+                mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
+                rr=30, fio2=60, flow=6
             )
         elif state is mcu_pb.AlarmLimitsRequest:
             all_states[state] = mcu_pb.AlarmLimitsRequest(
@@ -483,7 +482,6 @@ async def main() -> None:
     await _trio.load_file_states(
         states, protocol, filehandler
     )
-
     try:
         async with channel.push_endpoint:
             async with trio.open_nursery() as nursery:
@@ -505,6 +503,13 @@ async def main() -> None:
                         receive_output.server_send, protocol,
                         None, websocket_endpoint, filehandler
                     )
+
+                    if receive_output.frontend_delayed:
+                        print("calling")
+                        nursery.start_soon(
+                            frozen_frontend.kill_frozen_frontend
+                        )
+
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
         logger.info('Finished, quitting!')

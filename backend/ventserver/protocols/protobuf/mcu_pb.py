@@ -18,7 +18,7 @@ class VentilationMode(betterproto.Enum):
 
 
 class LogEventCode(betterproto.Enum):
-    """Logged Events"""
+    """Log Events"""
 
     fio2_too_low = 0
     fio2_too_high = 1
