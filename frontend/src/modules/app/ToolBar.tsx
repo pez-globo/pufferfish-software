@@ -11,7 +11,7 @@ import {
 } from '../navigation/constants';
 import ModesDropdown from '../modes/ModesDropdown';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
-import { BackIcon, BellIcon } from '../icons';
+import { BackIcon } from '../icons';
 import ClockIcon from '../icons/ClockIcon';
 import PowerFullIcon from '../icons/PowerFullIcon';
 import { PERCENT } from '../info/units';
