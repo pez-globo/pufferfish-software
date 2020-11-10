@@ -200,8 +200,11 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
         setAlertCount(activeLog.length);
         setAlert({ label: eventType.label });
       }
+    } else {
+      setAlertCount(0);
     }
-  }, [popupEventLog, activeLog]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [popupEventLog, JSON.stringify(activeLog)]);
 
   return (
     <div style={{ display: 'flex' }}>
