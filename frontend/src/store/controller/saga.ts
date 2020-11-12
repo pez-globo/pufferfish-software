@@ -16,11 +16,11 @@ import { updateState } from './actions';
 import { deserializeMessage } from './protocols/messages';
 import { advanceSchedule } from './protocols/states';
 import { getStateProcessor, initialSendSchedule } from './protocols/backend';
-import { createReceiveChannel, sendBuffer, setupConnection, } from './io/websocket';
+import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
 import updateClock from './io/clock';
 
 function* deserializeResponse(response: Response) {
-  const buffer = new Uint8Array(yield response.arrayBuffer());
+  const buffer = yield receiveBuffer(response);
   return deserializeMessage(buffer);
 }
 
@@ -54,7 +54,6 @@ function* sendAll(sock: WebSocket) {
     yield sendState(sock, pbMessageType);
     yield delay(time);
   }
-  // console.log('Websocket is no longer open!');
 }
 
 function* serviceConnection() {
@@ -69,7 +68,7 @@ function* serviceConnection() {
 export function* serviceConnectionPersistently(): IterableIterator<unknown> {
   while (true) {
     yield serviceConnection();
-    // console.log('Reestablishing WebSocket connection...');
+    console.warn('Reestablishing WebSocket connection...');
   }
 }
 

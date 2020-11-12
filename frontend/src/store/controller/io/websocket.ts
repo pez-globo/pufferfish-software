@@ -32,6 +32,12 @@ export const createReceiveChannel = (sock: WebSocket): EventChannel<Response> =>
   });
 };
 
+export function* receiveBuffer(
+  response: Response,
+): Generator<Promise<ArrayBuffer>, Uint8Array, Iterable<number>> {
+  return new Uint8Array(yield response.arrayBuffer());
+}
+
 export function* sendBuffer(
   sock: WebSocket,
   buffer: Uint8Array | undefined,
