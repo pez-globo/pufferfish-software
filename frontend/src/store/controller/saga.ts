@@ -1,48 +1,28 @@
-import { eventChannel, Subscribe, END, EventChannel } from 'redux-saga';
+import { EventChannel } from 'redux-saga';
 import {
   put,
-  call,
   take,
   takeEvery,
   fork,
   delay,
   select,
-  apply,
   takeLatest,
   all,
   ChannelTakeEffect,
 } from 'redux-saga/effects';
-import { BufferReader } from 'protobufjs/minimal';
-import { Socket } from 'dgram';
-import { MessageClass, MessageTypes, PBMessage, PBMessageType } from './types';
+import { PBMessageType } from './types';
 import { ParametersRequest } from './proto/mcu_pb';
 import { INITIALIZED, CLOCK_UPDATED } from '../app/types';
 import { updateState } from './actions';
-import { deserializeMessage, MessageSerializer, MessageSerializers } from './protocols/messages';
+import { deserializeMessage } from './protocols/messages';
 import { getStateProcessor } from './protocols/backend';
-
-function createConnectionChannel() {
-  return eventChannel((emit) => {
-    const sock = new WebSocket('ws://localhost:8000/');
-    sock.onerror = (err) => emit({ err, sock: null });
-    sock.onopen = (event) => emit({ err: null, sock });
-    sock.onclose = (event) => emit({ err: 'Closing!', sock });
-    return () => {
-      // console.log('Closing WebSocket...');
-      sock.close();
-    };
-  });
-}
-
-function createReceiveChannel(sock: WebSocket) {
-  const sockCopy = sock;
-  return eventChannel((emit) => {
-    sockCopy.onmessage = (message) => emit(message.data);
-    return () => {
-      sockCopy.close();
-    };
-  });
-}
+import {
+  createConnectionChannel,
+  createReceiveChannel,
+  sendBuffer,
+  setupConnection,
+} from './io/websocket';
+import updateClock from './io/clock';
 
 function* receive(message: ChannelTakeEffect<unknown>) {
   const response = new Response(yield message);
@@ -60,14 +40,6 @@ function* receiveAll(channel: EventChannel<unknown>) {
     const message = yield take(channel);
     yield receive(message);
   }
-}
-
-function* sendBuffer(sock: WebSocket, buffer: Uint8Array | undefined) {
-  if (buffer === undefined) {
-    return;
-  }
-
-  yield apply(sock, sock.send, [buffer]);
 }
 
 function* sendState(sock: WebSocket, pbMessageType: PBMessageType) {
@@ -94,43 +66,25 @@ function* sendAll(sock: WebSocket) {
   // console.log('Websocket is no longer open!');
 }
 
-function* initConnection() {
-  let connectionChannel;
-  let connection;
-  while (true) {
-    connectionChannel = yield call(createConnectionChannel);
-    connection = yield take(connectionChannel);
-    if (connection.err == null) {
-      break;
-    }
-    // console.warn('WebSocket connection error', connection.err)
-    yield delay(1);
-  }
-  // console.log('Connected to WebSocket!');
-  const receiveChannel = createReceiveChannel(connection.sock);
+function* serviceConnection() {
+  const { sock, connectionChannel } = yield setupConnection();
+  const receiveChannel = createReceiveChannel(sock);
   yield fork(receiveAll, receiveChannel);
-  yield fork(sendAll, connection.sock);
-  connection = yield take(connectionChannel);
+  yield fork(sendAll, sock);
+  const connection = yield take(connectionChannel);
   receiveChannel.close();
 }
 
-export function* initConnectionPersistently(): IterableIterator<unknown> {
+export function* serviceConnectionPersistently(): IterableIterator<unknown> {
   while (true) {
-    yield initConnection();
+    yield serviceConnection();
     // console.log('Reestablishing WebSocket connection...');
-  }
-}
-
-export function* updateClock(): IterableIterator<unknown> {
-  while (true) {
-    yield delay(1000);
-    yield put({ type: CLOCK_UPDATED });
   }
 }
 
 export function* controllerSaga(): IterableIterator<unknown> {
   yield all([
-    yield takeEvery(INITIALIZED, initConnectionPersistently),
+    yield takeEvery(INITIALIZED, serviceConnectionPersistently),
     yield takeLatest(INITIALIZED, updateClock),
   ]);
 }
