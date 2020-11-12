@@ -1,34 +1,33 @@
 import { BufferReader } from 'protobufjs/minimal';
 import { MessageClass, MessageTypes, PBMessage, PBMessageType } from '../types';
 import { ParametersRequest, AlarmLimitsRequest } from '../proto/mcu_pb';
-import { updateState } from '../actions';
 
 export interface MessageParseResults {
   messageType: number;
   pbMessage: PBMessage;
 }
 
-export const deserializeMessage = (body: Uint8Array): MessageParseResults | undefined => {
+export const deserializeMessage = (body: Uint8Array): MessageParseResults => {
   const messageType = body[0];
   const messageBody = body.slice(1);
   const messageBodyReader = new BufferReader(messageBody);
   const messageClass = MessageClass.get(messageType);
   if (messageClass === undefined) {
-    // TODO: raise an exception instead?
-    return undefined;
+    throw new Error(`Messages: missing message class for type ${messageType}`);
   }
 
   const pbMessage = messageClass.decode(messageBodyReader);
   return { messageType, pbMessage };
 };
 
+export type MessageSerializer = (pbMessage: PBMessage) => Uint8Array;
+
 export const serializeMessage = <T extends PBMessage>(pbMessageType: PBMessageType) => (
   pbMessage: PBMessage,
-): Uint8Array | undefined => {
+): Uint8Array => {
   const messageType = MessageTypes.get(pbMessageType);
   if (messageType === undefined) {
-    // TODO: raise an exception instead?
-    return undefined;
+    throw new Error(`Messages: missing message type for ${pbMessageType}`);
   }
 
   // It's not clear whether there is any reasonable way to make the types work
@@ -42,10 +41,3 @@ export const serializeMessage = <T extends PBMessage>(pbMessageType: PBMessageTy
   buffer.set(messageBody, 1);
   return buffer;
 };
-
-// Dynamic dispatch
-export type MessageSerializer = (pbMessage: PBMessage) => Uint8Array | undefined;
-export const MessageSerializers = new Map<PBMessageType, MessageSerializer>([
-  [AlarmLimitsRequest, serializeMessage<AlarmLimitsRequest>(AlarmLimitsRequest)],
-  [ParametersRequest, serializeMessage<ParametersRequest>(ParametersRequest)],
-]);

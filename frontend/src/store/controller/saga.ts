@@ -10,18 +10,13 @@ import {
   all,
   ChannelTakeEffect,
 } from 'redux-saga/effects';
+import { INITIALIZED } from '../app/types';
 import { PBMessageType } from './types';
-import { ParametersRequest } from './proto/mcu_pb';
-import { INITIALIZED, CLOCK_UPDATED } from '../app/types';
 import { updateState } from './actions';
-import { deserializeMessage, MessageParseResults } from './protocols/messages';
-import { getStateProcessor } from './protocols/backend';
-import {
-  createConnectionChannel,
-  createReceiveChannel,
-  sendBuffer,
-  setupConnection,
-} from './io/websocket';
+import { deserializeMessage } from './protocols/messages';
+import { advanceSchedule } from './protocols/states';
+import { getStateProcessor, initialSendSchedule } from './protocols/backend';
+import { createReceiveChannel, sendBuffer, setupConnection, } from './io/websocket';
 import updateClock from './io/clock';
 
 function* deserializeResponse(response: Response) {
@@ -30,13 +25,12 @@ function* deserializeResponse(response: Response) {
 }
 
 function* receive(response: ChannelTakeEffect<Response>) {
-  const results = yield deserializeResponse(yield response);
-  if (results === undefined) {
-    // console.warn('Unknown message type', messageType, messageBody);
-    return;
+  try {
+    const results = yield deserializeResponse(yield response);
+    yield put(updateState(results.messageType, results.pbMessage));
+  } catch (err) {
+    console.error(err);
   }
-
-  yield put(updateState(results.messageType, results.pbMessage));
 }
 
 function* receiveAll(channel: EventChannel<Response>) {
@@ -48,24 +42,17 @@ function* receiveAll(channel: EventChannel<Response>) {
 
 function* sendState(sock: WebSocket, pbMessageType: PBMessageType) {
   const processor = getStateProcessor(pbMessageType);
-  if (processor === undefined) {
-    // TODO: handle this error
-    return;
-  }
-
   const pbMessage = yield select(processor.selector);
   const body = processor.serializer(pbMessage);
   yield sendBuffer(sock, body);
 }
 
 function* sendAll(sock: WebSocket) {
-  let clock = 0;
+  const schedule = Array.from(initialSendSchedule);
   while (sock.readyState === WebSocket.OPEN) {
-    // TODO: use the output schedule of state synchronization to set pbMessageType
-    const pbMessageType = ParametersRequest;
+    const { time, pbMessageType } = advanceSchedule(schedule);
     yield sendState(sock, pbMessageType);
-    yield delay(90);
-    clock += 1;
+    yield delay(time);
   }
   // console.log('Websocket is no longer open!');
 }

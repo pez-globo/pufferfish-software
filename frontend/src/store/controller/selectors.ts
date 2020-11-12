@@ -283,13 +283,3 @@ export const getScreenStatus = createSelector(
   getController,
   (states: ControllerStates): boolean => states.screenStatus.lock,
 );
-
-// Dynamic dispatch
-// The OutputSelector type is templated and so complicated that it's not clear
-// whether we can specify its type in a Map, but for now we'll just delegate the
-// responsibility of using types correctly to the calling code.
-// eslint-disable @typescript-eslint/no-explicit-any
-export const MessageSelectors = new Map<PBMessageType, any>([
-  [AlarmLimitsRequest, getAlarmLimitsRequest],
-  [ParametersRequest, getParametersRequest],
-]);
