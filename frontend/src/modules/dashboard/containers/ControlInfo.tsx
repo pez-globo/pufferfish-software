@@ -105,7 +105,9 @@ export const ValueControl = ({ value, label, units }: ValueProps): JSX.Element =
             wrap="nowrap"
           >
             <Typography align="center" variant="h2" className={classes.valueLabel}>
-              {value !== undefined ? value.toFixed(0) : '--'}
+              {value !== undefined && !Number.isNaN(value)
+                ? value.toFixed(0).replace(/^-0$/, '0')
+                : '--'}
             </Typography>
             {units !== '' && (
               <Typography align="center" variant="body1" className={classes.unitsLabel}>
