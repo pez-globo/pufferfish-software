@@ -14,7 +14,7 @@ import { PBMessageType } from './types';
 import { ParametersRequest } from './proto/mcu_pb';
 import { INITIALIZED, CLOCK_UPDATED } from '../app/types';
 import { updateState } from './actions';
-import { deserializeMessage } from './protocols/messages';
+import { deserializeMessage, MessageParseResults } from './protocols/messages';
 import { getStateProcessor } from './protocols/backend';
 import {
   createConnectionChannel,
@@ -24,21 +24,25 @@ import {
 } from './io/websocket';
 import updateClock from './io/clock';
 
-function* receive(message: ChannelTakeEffect<unknown>) {
-  const response = new Response(yield message);
+function* deserializeResponse(response: Response) {
   const buffer = new Uint8Array(yield response.arrayBuffer());
-  const results = deserializeMessage(buffer);
+  return deserializeMessage(buffer);
+}
+
+function* receive(response: ChannelTakeEffect<Response>) {
+  const results = yield deserializeResponse(yield response);
   if (results === undefined) {
     // console.warn('Unknown message type', messageType, messageBody);
     return;
   }
+
   yield put(updateState(results.messageType, results.pbMessage));
 }
 
-function* receiveAll(channel: EventChannel<unknown>) {
+function* receiveAll(channel: EventChannel<Response>) {
   while (true) {
-    const message = yield take(channel);
-    yield receive(message);
+    const response = yield take(channel);
+    yield receive(response);
   }
 }
 

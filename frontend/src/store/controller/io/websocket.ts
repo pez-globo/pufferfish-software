@@ -1,7 +1,15 @@
 import { eventChannel, EventChannel } from 'redux-saga';
 import { call, take, delay, apply, CallEffect, TakeEffect } from 'redux-saga/effects';
 
-export const createConnectionChannel = (host = 'localhost', port = 8000): EventChannel<unknown> => {
+export interface ConnectionEvent {
+  err: Event | string | null;
+  sock: WebSocket | null;
+}
+
+export const createConnectionChannel = (
+  host = 'localhost',
+  port = 8000,
+): EventChannel<ConnectionEvent> => {
   return eventChannel((emit) => {
     const sock = new WebSocket(`ws://${host}:${port}/`);
     sock.onerror = (err) => emit({ err, sock: null });
@@ -14,10 +22,10 @@ export const createConnectionChannel = (host = 'localhost', port = 8000): EventC
   });
 };
 
-export const createReceiveChannel = (sock: WebSocket): EventChannel<unknown> => {
+export const createReceiveChannel = (sock: WebSocket): EventChannel<Response> => {
   const sockCopy = sock;
   return eventChannel((emit) => {
-    sockCopy.onmessage = (message) => emit(message.data);
+    sockCopy.onmessage = (message) => emit(new Response(message.data));
     return () => {
       sockCopy.close();
     };
@@ -37,13 +45,13 @@ export function* sendBuffer(
 
 export interface Connection {
   sock: WebSocket;
-  connectionChannel: EventChannel<unknown>;
+  connectionChannel: EventChannel<ConnectionEvent>;
 }
 
 export function* setupConnection(
   retryInterval = 10,
 ): Generator<
-  CallEffect<true | EventChannel<unknown>> | TakeEffect | CallEffect<true>,
+  CallEffect<true | EventChannel<ConnectionEvent>> | TakeEffect | CallEffect<true>,
   // The Generator type is templated and so complicated that we can't specify its type.
   // eslint-disable @typescript-eslint/no-explicit-any
   any,
