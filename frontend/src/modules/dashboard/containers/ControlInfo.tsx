@@ -7,7 +7,7 @@ import { ValueModal, AlarmModal } from '../../controllers';
 import { ClickHandler } from './ValueInfo';
 
 interface Props {
-  value: number;
+  value: number | undefined;
   committedSetting: number;
   label: string;
   stateKey: string;
@@ -17,7 +17,7 @@ interface Props {
 }
 
 interface ValueProps {
-  value: number;
+  value: number | undefined;
   label: string;
   units: string;
 }
@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     height: '100%',
   },
   root: {
-    padding: theme.spacing(1),
+    padding: '7px',
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     flexDirection: 'initial',
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   displayContainer: {
     padding: 0,
-    // border: '1px solid orange',
+    justifyContent: 'center',
   },
   liveContainer: {
     justifyContent: 'center',
@@ -65,13 +65,11 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid yellow',
   },
   valueLabel: {
-    fontSize: '4rem',
+    fontSize: '3rem',
     lineHeight: '1',
     // border: '1px solid red',
   },
   unitsLabel: {
-    paddingLeft: theme.spacing(1),
-    paddingTop: theme.spacing(4),
     opacity: 0.8,
     // border: '1px solid red'
   },
@@ -91,12 +89,13 @@ export const ValueControl = ({ value, label, units }: ValueProps): JSX.Element =
             alignItems="center"
             wrap="nowrap"
           >
-            <Grid item xs style={{ width: '100%' }}>
-              <Typography variant="h5">{label}</Typography>
+            <Grid item xs style={{ width: '100%', textAlign: 'center' }}>
+              <Typography variant="h6" style={{ fontSize: '1rem', fontWeight: 500 }}>
+                {label}
+              </Typography>
             </Grid>
           </Grid>
           <Grid
-            container
             item
             xs
             justify="flex-start"
@@ -109,7 +108,7 @@ export const ValueControl = ({ value, label, units }: ValueProps): JSX.Element =
                 ? value.toFixed(0).replace(/^-0$/, '0')
                 : '--'}
             </Typography>
-            {units !== '' && (
+            {value !== undefined && units !== '' && (
               <Typography align="center" variant="body1" className={classes.unitsLabel}>
                 {units}
               </Typography>

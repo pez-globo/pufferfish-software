@@ -129,6 +129,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 const HFNCMainView = (): JSX.Element => {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
+  const flowParameter = useSelector(getParametersFlow);
+  const fio2Value = useSelector(getSensorMeasurementsFiO2);
+  const fiO2Measurement = flowParameter > 0 ? fio2Value : undefined;
 
   const handleTabChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setValue(newValue);
@@ -251,7 +254,7 @@ const HFNCMainView = (): JSX.Element => {
             >
               <Grid item xs className={classes.rightBorder}>
                 <ControlInfo
-                  value={useSelector(getSensorMeasurementsFiO2)}
+                  value={fiO2Measurement}
                   label="FiO2"
                   stateKey="fio2"
                   units={PERCENT}

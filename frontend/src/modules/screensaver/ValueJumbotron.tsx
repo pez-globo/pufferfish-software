@@ -68,7 +68,9 @@ export const ValueJumbotron = ({ value, label, units = '' }: Props): JSX.Element
         wrap="nowrap"
       >
         <Typography align="left" variant="h1" className={classes.valueLabel}>
-          {value !== undefined ? value.toFixed(0) : '--'}
+          {value !== undefined && !Number.isNaN(value)
+            ? value.toFixed(0).replace(/^-0$/, '0')
+            : '--'}
         </Typography>
       </Grid>
       <Grid item style={{ width: '100%' }}>

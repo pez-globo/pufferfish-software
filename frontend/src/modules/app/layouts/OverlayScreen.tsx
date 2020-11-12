@@ -12,6 +12,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     position: 'absolute',
     zIndex: 9999,
   },
+  label: {
+    fontSize: '10px',
+  },
 }));
 
 export const OverlayScreen = (): JSX.Element => {
@@ -51,7 +54,7 @@ export const OverlayScreen = (): JSX.Element => {
           <Grid container item xs direction="column">
             <Grid container item xs wrap="nowrap">
               <Grid container item alignItems="baseline">
-                <Typography align="center" style={{ fontSize: '3.5rem' }}>
+                <Typography variant="h5" align="center">
                   Screen is locked
                 </Typography>
               </Grid>

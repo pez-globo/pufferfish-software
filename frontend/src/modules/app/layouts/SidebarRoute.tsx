@@ -2,10 +2,12 @@ import React, { Component, PropsWithChildren, useEffect, useState } from 'react'
 import { Route, RouteProps, useLocation } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
+import { Subscription } from 'rxjs';
 import Sidebar from '../Sidebar';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
 import OverlayScreen from './OverlayScreen';
+import { getActiveEventState } from '../Service';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -43,15 +45,38 @@ const useStyles = makeStyles((theme: Theme) => ({
     position: 'absolute',
     zIndex: 9999,
   },
+  borderOverlay: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    border: '4px solid red',
+  },
 }));
 
 const SidebarLayout = ({ children, ...rest }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
+  const [showBorder, setShowBorder] = React.useState(false);
+
+  useEffect(() => {
+    const logEventSubscription: Subscription = getActiveEventState().subscribe((state: boolean) => {
+      setShowBorder(state);
+    });
+    return () => {
+      if (logEventSubscription) {
+        logEventSubscription.unsubscribe();
+      }
+    };
+  }, []);
 
   return (
     <React.Fragment>
       <OverlayScreen />
-      <Grid container justify="center" alignItems="stretch" className={classes.root}>
+      <Grid
+        container
+        justify="center"
+        alignItems="stretch"
+        className={`${showBorder && classes.borderOverlay} ${classes.root}`}
+      >
         <Grid item className={classes.sidebarGrid}>
           <Sidebar />
         </Grid>

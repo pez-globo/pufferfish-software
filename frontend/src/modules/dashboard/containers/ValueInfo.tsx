@@ -228,7 +228,9 @@ const ControlValuesDisplay = ({
                   variant="h2"
                   className={`${classes.valueLabel} ${classes.whiteFont}`}
                 >
-                  {value !== undefined ? value.toFixed(0) : '--'}
+                  {value !== undefined && !Number.isNaN(value)
+                    ? value.toFixed(0).replace(/^-0$/, '0')
+                    : '--'}
                 </Typography>
                 {units !== '' && (
                   <Typography
@@ -301,7 +303,9 @@ const GridControlValuesDisplay = ({
                     variant="h5"
                     className={`${classes.gridValueLabel} ${classes.whiteFont}`}
                   >
-                    {value !== undefined ? value.toFixed(0) : '--'}
+                    {value !== undefined && !Number.isNaN(value)
+                      ? value.toFixed(0).replace(/^-0$/, '0')
+                      : '--'}
                   </Typography>
                   {units !== '' && (
                     <Typography

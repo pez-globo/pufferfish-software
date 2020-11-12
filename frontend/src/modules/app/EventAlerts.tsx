@@ -9,6 +9,7 @@ import { BellIcon } from '../icons';
 import { LogEventCode } from '../../store/controller/proto/mcu_pb';
 import { BMIN, PERCENT } from '../info/units';
 import { getActiveLogEventIds, getPopupEventLog } from '../../store/controller/selectors';
+import { setActiveEventState } from './Service';
 
 export const ALARM_EVENT_PATIENT = 'Patient';
 export const ALARM_EVENT_SYSTEM = 'System';
@@ -198,10 +199,12 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
       if (eventType.type) {
         setOpen(true);
         setAlertCount(activeLog.length);
+        setActiveEventState(true);
         setAlert({ label: eventType.label });
       }
     } else {
       setAlertCount(0);
+      setActiveEventState(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popupEventLog, JSON.stringify(activeLog)]);
