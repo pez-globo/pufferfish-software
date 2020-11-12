@@ -14,11 +14,12 @@ import {
 } from 'redux-saga/effects';
 import { BufferReader } from 'protobufjs/minimal';
 import { Socket } from 'dgram';
-import { MessageClass, MessageTypes } from './types';
+import { MessageClass, MessageTypes, PBMessage, PBMessageType } from './types';
 import { ParametersRequest } from './proto/mcu_pb';
 import { INITIALIZED, CLOCK_UPDATED } from '../app/types';
 import { updateState } from './actions';
-import { getParametersRequest } from './selectors';
+import { deserializeMessage, MessageSerializer, MessageSerializers } from './protocols/messages';
+import { getStateProcessor } from './protocols/backend';
 
 function createConnectionChannel() {
   return eventChannel((emit) => {
@@ -46,16 +47,12 @@ function createReceiveChannel(sock: WebSocket) {
 function* receive(message: ChannelTakeEffect<unknown>) {
   const response = new Response(yield message);
   const buffer = new Uint8Array(yield response.arrayBuffer());
-  const messageType = buffer[0];
-  const messageBody = buffer.slice(1);
-  const messageBodyReader = new BufferReader(messageBody);
-  const messageClass = MessageClass.get(messageType);
-  if (messageClass !== undefined) {
-    const pbMessage = messageClass.decode(messageBodyReader);
-    yield put(updateState(messageType, pbMessage));
-  } else {
+  const results = deserializeMessage(buffer);
+  if (results === undefined) {
     // console.warn('Unknown message type', messageType, messageBody);
+    return;
   }
+  yield put(updateState(results.messageType, results.pbMessage));
 }
 
 function* receiveAll(channel: EventChannel<unknown>) {
@@ -65,25 +62,33 @@ function* receiveAll(channel: EventChannel<unknown>) {
   }
 }
 
-function* sendParametersRequest(sock: WebSocket, parametersRequest: ParametersRequest) {
-  const messageType = MessageTypes.get(ParametersRequest);
-  if (messageType === undefined) {
-    // console.warn('Error: unknown message type for', ParametersRequest);
+function* sendBuffer(sock: WebSocket, buffer: Uint8Array | undefined) {
+  if (buffer === undefined) {
     return;
   }
-  const messageBody = ParametersRequest.encode(parametersRequest).finish();
-  const buffer = new Uint8Array(1 + messageBody.length);
-  buffer.set([messageType], 0);
-  buffer.set(messageBody, 1);
+
   yield apply(sock, sock.send, [buffer]);
-  yield delay(90);
+}
+
+function* sendState(sock: WebSocket, pbMessageType: PBMessageType) {
+  const processor = getStateProcessor(pbMessageType);
+  if (processor === undefined) {
+    // TODO: handle this error
+    return;
+  }
+
+  const pbMessage = yield select(processor.selector);
+  const body = processor.serializer(pbMessage);
+  yield sendBuffer(sock, body);
 }
 
 function* sendAll(sock: WebSocket) {
   let clock = 0;
   while (sock.readyState === WebSocket.OPEN) {
-    const parametersRequest = yield select(getParametersRequest);
-    yield sendParametersRequest(sock, { ...parametersRequest, time: clock });
+    // TODO: use the output schedule of state synchronization to set pbMessageType
+    const pbMessageType = ParametersRequest;
+    yield sendState(sock, pbMessageType);
+    yield delay(90);
     clock += 1;
   }
   // console.log('Websocket is no longer open!');
