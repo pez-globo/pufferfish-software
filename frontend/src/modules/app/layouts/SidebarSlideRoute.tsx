@@ -73,16 +73,11 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const FullWidthToolBar = (): JSX.Element => {
   const classes = useStyles();
-  const location = useLocation();
   const [toggle, setToggle] = React.useState<boolean>(false);
 
   const toggleDrawer = (value: boolean) => (event: React.MouseEvent<unknown>) => {
     setToggle(value);
   };
-
-  useEffect(() => {
-    setToggle(false);
-  }, [location.pathname]);
 
   return (
     <ToolBar>
