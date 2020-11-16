@@ -1,7 +1,6 @@
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Tabs, Tab, Typography, Button } from '@material-ui/core';
-import zIndex from '@material-ui/core/styles/zIndex';
 import { useSelector } from 'react-redux';
 import { PawGraphInfo, FlowGraphInfo, VolumeGraphInfo } from '../containers';
 import { TabPanel, a11yProps } from '../../controllers/TabPanel';

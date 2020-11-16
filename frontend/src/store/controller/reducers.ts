@@ -1,15 +1,14 @@
-import { combineReducers, Action } from 'redux';
+import { combineReducers } from 'redux';
 import {
+  ActiveLogEvents,
   Alarms,
-  SensorMeasurements,
+  BatteryPower,
   CycleMeasurements,
   Parameters,
-  ActiveLogEvents,
-  BatteryPower,
   ScreenStatus,
+  SensorMeasurements,
 } from './proto/mcu_pb';
-import { MessageType } from './types';
-import { waveformHistoryReducer, pvHistoryReducer } from './reducers/derived';
+import { messageReducer, nextLogEventsReducer, rotaryEncoderReducer } from './reducers/backend';
 import {
   alarmLimitsReducer,
   alarmLimitsRequestStandbyReducer,
@@ -19,7 +18,8 @@ import {
   parametersRequestStanbyReducer,
   systemSettingRequestReducer,
 } from './reducers/components';
-import { messageReducer, nextLogEventsReducer, rotaryEncoderReducer } from './reducers/backend';
+import { pvHistoryReducer, waveformHistoryReducer } from './reducers/derived';
+import { MessageType } from './types';
 
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb

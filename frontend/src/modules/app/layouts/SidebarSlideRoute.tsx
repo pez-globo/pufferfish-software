@@ -1,16 +1,13 @@
-import React, { Component, PropsWithChildren, useEffect, useState } from 'react';
-import { Route, RouteProps, useLocation } from 'react-router-dom';
-import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Drawer, Grid } from '@material-ui/core';
-
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import Routes from '../../navigation/Routes';
-import Sidebar from '../Sidebar';
-import ToolBar from '../ToolBar';
-import UserActivity from '../UserActivity';
+import { Route, RouteProps } from 'react-router-dom';
 import { getScreenStatus } from '../../../store/controller/selectors';
 import { SCREENSAVER_ROUTE } from '../../navigation/constants';
 import SidebarClickable from '../SidebarClickable';
+import ToolBar from '../ToolBar';
+import UserActivity from '../UserActivity';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -71,7 +68,7 @@ const FullWidthToolBar = (): JSX.Element => {
   const classes = useStyles();
   const [toggle, setToggle] = React.useState<boolean>(false);
 
-  const toggleDrawer = (value: boolean) => (event: React.MouseEvent<unknown>) => {
+  const toggleDrawer = (value: boolean) => () => {
     setToggle(value);
   };
 
@@ -99,7 +96,7 @@ const FullWidthToolBar = (): JSX.Element => {
   );
 };
 
-const SidebarLayout = ({ children, ...rest }: PropsWithChildren<unknown>): JSX.Element => {
+const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
   const screenStatus = useSelector(getScreenStatus);
   const [overlay, setOverlay] = useState(screenStatus || false);

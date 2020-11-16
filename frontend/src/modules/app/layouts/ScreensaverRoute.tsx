@@ -18,7 +18,6 @@ import {
   SCREENSAVER_ROUTE,
 } from '../../navigation/constants';
 import EventAlerts from '../EventAlerts';
-import Sidebar from '../Sidebar';
 import UserActivity from '../UserActivity';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -67,7 +66,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const ScreensaverLayout = ({ children, ...rest }: PropsWithChildren<unknown>): JSX.Element => {
+const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
   const screenStatus = useSelector(getScreenStatus);
   const [overlay, setOverlay] = useState(screenStatus || false);

@@ -1,11 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
-import { ValueDisplay, ValueProps } from '../displays/ValueDisplay';
-import { AlarmModal, Knob } from '../controllers';
-
+import { getSensorMeasurementsSpO2 } from '../../store/controller/selectors';
 import { StoreState } from '../../store/types';
-import { getSensorMeasurementsSpO2, getParametersPEEP } from '../../store/controller/selectors';
+import { AlarmModal, Knob } from '../controllers';
+import { ValueDisplay, ValueProps } from '../displays/ValueDisplay';
 import { PERCENT } from './units';
 
 const displaySelector = createStructuredSelector<StoreState, ValueProps>({

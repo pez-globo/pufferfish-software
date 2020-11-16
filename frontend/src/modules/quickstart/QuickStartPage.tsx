@@ -1,27 +1,19 @@
-import React, { useCallback, useEffect } from 'react';
+import { Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import {
-  Grid,
-  Typography,
-  FormControl,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-} from '@material-ui/core';
+import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { updateCommittedState } from '../../store/controller/actions';
+import { VentilationMode } from '../../store/controller/proto/mcu_pb';
+import {
+  getParametersRequestMode,
+  getParametersRequestStandby,
+} from '../../store/controller/selectors';
+import { PARAMETER_STANDBY } from '../../store/controller/types';
 import TestTool from '../controllers/TestTool';
 import ValueClicker from '../controllers/ValueController';
 import ModeBanner from '../displays/ModeBanner';
 import ToggleValue from '../displays/ToggleValue';
-import { VentilationMode } from '../../store/controller/proto/mcu_pb';
-import {
-  getParametersRequest,
-  getParametersRequestMode,
-  getParametersRequestStandby,
-} from '../../store/controller/selectors';
 import { LMIN, PERCENT } from '../info/units';
-import { updateCommittedState } from '../../store/controller/actions';
-import { PARAMETER_STANDBY } from '../../store/controller/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

@@ -1,9 +1,8 @@
-import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
-import { Button, Menu, MenuProps, MenuItem, MenuList, makeStyles, Theme } from '@material-ui/core';
+import { makeStyles, Menu, MenuItem, MenuProps, Theme } from '@material-ui/core';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
+import { withStyles } from '@material-ui/core/styles';
 import FiberManualRecord from '@material-ui/icons/FiberManualRecord';
-import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
+import React from 'react';
 
 const views = ['Main View', 'Data View', 'Waveform View'];
 
@@ -73,10 +72,6 @@ export const ViewDropdown = (): JSX.Element => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [selectedIndex, setSelectedIndex] = React.useState(0);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
 
   const handleItemClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => {
     setSelectedIndex(index);

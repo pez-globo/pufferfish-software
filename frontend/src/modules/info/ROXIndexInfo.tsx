@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { ValueDisplay, ValueProps } from '../displays/ValueDisplay';
-import { AlarmModal, Knob } from '../controllers';
+import { Knob } from '../controllers';
 
 import { StoreState } from '../../store/types';
 import { getROXIndex } from '../../store/controller/selectors';

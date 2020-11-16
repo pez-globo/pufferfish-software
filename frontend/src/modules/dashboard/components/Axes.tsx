@@ -1,8 +1,8 @@
 import React from 'react';
-import { useTheme, Theme } from '@material-ui/core';
+import { useTheme } from '@material-ui/core';
 import { Grid, GridRows, GridColumns } from '@vx/grid';
 import { Group } from '@vx/group';
-import { AxisLeft, AxisRight, AxisBottom } from '@vx/axis';
+import { AxisLeft, AxisBottom } from '@vx/axis';
 import { Line } from '@vx/shape';
 import { scaleTime, scaleLinear } from '@vx/scale';
 

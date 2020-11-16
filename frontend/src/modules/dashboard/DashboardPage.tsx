@@ -1,12 +1,12 @@
+import { Grid, makeStyles } from '@material-ui/core';
 import React from 'react';
-import { Grid, makeStyles, Theme } from '@material-ui/core';
 import { useSelector } from 'react-redux';
-import PressureControlMainView from './views/PressureControlMainView';
-import { getParametersRequestMode } from '../../store/controller/selectors';
 import { VentilationMode } from '../../store/controller/proto/mcu_pb';
+import { getParametersRequestMode } from '../../store/controller/selectors';
 import HFNCMainView from './views/HFNCMainView';
+import PressureControlMainView from './views/PressureControlMainView';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     flexGrow: 1,
     justifyContent: 'center',

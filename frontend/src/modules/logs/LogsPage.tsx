@@ -1,25 +1,21 @@
-import React, { useCallback, useEffect } from 'react';
-import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import { Grid, TableCell, TableRow, Typography } from '@material-ui/core';
+import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
+import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import SimpleTable, {
-  stableSort,
-  getComparator,
-  StyledTableRow,
-  Order,
-  HeadCell,
-} from '../controllers/SimpleTable';
-import ModalPopup from '../controllers/ModalPopup';
-import EventlogDetails from './container/EventlogDetails';
-import {
-  getActiveLogEventIds,
-  getLogEvent,
-  getNextLogEvents,
-} from '../../store/controller/selectors';
-import { LogEvent } from '../../store/controller/proto/mcu_pb';
-import { getEventType } from '../app/EventAlerts';
 import { updateCommittedState } from '../../store/controller/actions';
+import { LogEvent } from '../../store/controller/proto/mcu_pb';
+import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
 import { EXPECTED_LOG_EVENT_ID } from '../../store/controller/types';
+import { getEventType } from '../app/EventAlerts';
+import ModalPopup from '../controllers/ModalPopup';
+import SimpleTable, {
+  getComparator,
+  HeadCell,
+  Order,
+  stableSort,
+  StyledTableRow,
+} from '../controllers/SimpleTable';
+import EventlogDetails from './container/EventlogDetails';
 
 /**
  * LogsPage
@@ -44,7 +40,7 @@ const headCells: HeadCell[] = [
   { id: 'Status', numeric: false, disablePadding: false, label: 'Status' },
 ];
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     root: {
       width: '100%',
@@ -90,8 +86,7 @@ export const LogsPage = (): JSX.Element => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(8);
   const [open, setOpen] = React.useState(false);
-  const [currentRow, setCurrentRow] = React.useState<Data>();
-  const isSelected = (name: string) => selected.indexOf(name) !== -1;
+  const [currentRow] = React.useState<Data>();
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   const loggedEvents = useSelector(getNextLogEvents);
   const activeLogEventIds = useSelector(getActiveLogEventIds);
@@ -189,7 +184,6 @@ export const LogsPage = (): JSX.Element => {
         {stableSort(rows, getComparator(order, orderBy))
           .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
           .map((row, index) => {
-            const isItemSelected = isSelected(row.type);
             const labelId = `enhanced-table-checkbox-${index}`;
 
             return (

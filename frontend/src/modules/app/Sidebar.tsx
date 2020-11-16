@@ -1,11 +1,10 @@
+import { Button, Grid, makeStyles, Theme } from '@material-ui/core';
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Grid, Typography, makeStyles, Theme } from '@material-ui/core';
 import { useSelector } from 'react-redux';
-import Navigation from '../navigation/Navigation';
+import { Link } from 'react-router-dom';
+import { getParametersRequest } from '../../store/controller/selectors';
 import { DASHBOARD_ROUTE, QUICKSTART_ROUTE, SCREENSAVER_ROUTE } from '../navigation/constants';
-import ShutdownIcon from '../icons/ShutdownIcon';
-import { getParameters, getParametersRequest } from '../../store/controller/selectors';
+import Navigation from '../navigation/Navigation';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

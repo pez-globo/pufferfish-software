@@ -1,16 +1,14 @@
 import React from 'react';
-import { bindActionCreators } from 'redux';
 import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
-import { ValueDisplay, ValueProps } from '../displays/ValueDisplay';
-import { ValueModal, SettingAdjustProps } from '../controllers/ValueModal';
-import { AlarmModal, Knob } from '../controllers';
-import store from '../../store';
-import { StoreState } from '../../store/types';
-import { getCycleMeasurementsRR, getParametersRR } from '../../store/controller/selectors';
-import { BMIN } from './units';
 import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
+import { getCycleMeasurementsRR, getParametersRR } from '../../store/controller/selectors';
 import { PARAMETER_STANDBY } from '../../store/controller/types';
+import { StoreState } from '../../store/types';
+import { AlarmModal, Knob } from '../controllers';
+import { SettingAdjustProps, ValueModal } from '../controllers/ValueModal';
+import { ValueDisplay, ValueProps } from '../displays/ValueDisplay';
+import { BMIN } from './units';
 
 const displaySelector = createStructuredSelector<StoreState, ValueProps>({
   value: getCycleMeasurementsRR,

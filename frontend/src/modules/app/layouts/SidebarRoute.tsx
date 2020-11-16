@@ -1,14 +1,12 @@
-import React, { Component, PropsWithChildren, useEffect, useState } from 'react';
-import { Route, RouteProps, useLocation } from 'react-router-dom';
-import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
-
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import Routes from '../../navigation/Routes';
+import { Route, RouteProps } from 'react-router-dom';
+import { getScreenStatus } from '../../../store/controller/selectors';
 import Sidebar from '../Sidebar';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
-import { getScreenStatus } from '../../../store/controller/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -48,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const SidebarLayout = ({ children, ...rest }: PropsWithChildren<unknown>): JSX.Element => {
+const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
   const screenStatus = useSelector(getScreenStatus);
   const [overlay, setOverlay] = useState(screenStatus || false);

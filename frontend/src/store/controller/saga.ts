@@ -1,31 +1,30 @@
-import { eventChannel, Subscribe, END, EventChannel } from 'redux-saga';
+import { BufferReader } from 'protobufjs/minimal';
+import { eventChannel, EventChannel } from 'redux-saga';
 import {
-  put,
+  all,
+  apply,
   call,
+  ChannelTakeEffect,
+  delay,
+  fork,
+  put,
+  select,
   take,
   takeEvery,
-  fork,
-  delay,
-  select,
-  apply,
   takeLatest,
-  all,
-  ChannelTakeEffect,
 } from 'redux-saga/effects';
-import { BufferReader } from 'protobufjs/minimal';
-import { Socket } from 'dgram';
-import { MessageClass, MessageTypes } from './types';
-import { ParametersRequest } from './proto/mcu_pb';
-import { INITIALIZED, CLOCK_UPDATED } from '../app/types';
+import { CLOCK_UPDATED, INITIALIZED } from '../app/types';
 import { updateState } from './actions';
+import { ParametersRequest } from './proto/mcu_pb';
 import { getParametersRequest } from './selectors';
+import { MessageClass, MessageTypes } from './types';
 
 function createConnectionChannel() {
   return eventChannel((emit) => {
     const sock = new WebSocket('ws://localhost:8000/');
     sock.onerror = (err) => emit({ err, sock: null });
-    sock.onopen = (event) => emit({ err: null, sock });
-    sock.onclose = (event) => emit({ err: 'Closing!', sock });
+    sock.onopen = () => emit({ err: null, sock });
+    sock.onclose = () => emit({ err: 'Closing!', sock });
     return () => {
       // console.log('Closing WebSocket...');
       sock.close();

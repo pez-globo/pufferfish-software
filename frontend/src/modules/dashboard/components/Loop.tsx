@@ -1,12 +1,9 @@
-import React from 'react';
-import { useTheme, Theme } from '@material-ui/core';
-import { fade } from '@material-ui/core/styles/colorManipulator';
-import { Grid } from '@vx/grid';
+import { useTheme } from '@material-ui/core';
 import { curveLinear } from '@vx/curve';
-import { LinePath } from '@vx/shape';
 import { Group } from '@vx/group';
-import { LinearGradient } from '@vx/gradient';
-import { scaleTime, scaleLinear } from '@vx/scale';
+import { scaleLinear, scaleTime } from '@vx/scale';
+import { LinePath } from '@vx/shape';
+import React from 'react';
 import { Axes } from './Axes';
 
 export interface Point {
@@ -46,7 +43,6 @@ export const Loop = ({
   xRangeMax,
   yRangeMin,
   yRangeMax,
-  type,
 }: Props): JSX.Element => {
   const theme = useTheme();
 
@@ -64,14 +60,6 @@ export const Loop = ({
     range: [yMax, 0],
     nice: true,
   });
-  const yScale1 = scaleLinear({
-    domain: [yRangeMin, yRangeMax],
-    range: [height - margin.bottom, 0],
-  });
-  function findAxis(type: string) {
-    if (type === 'pv') return yScale1;
-    return yScale;
-  }
 
   // TODO: we need to remove the exclamation points, which are claiming that the
   // values are never undefined

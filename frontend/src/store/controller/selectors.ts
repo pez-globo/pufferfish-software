@@ -1,25 +1,23 @@
 import { createSelector, OutputSelector } from 'reselect';
 import { StoreState } from '../types';
+import { FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import {
+  AlarmLimitsRequest,
   Alarms,
-  SensorMeasurements,
   CycleMeasurements,
+  LogEvent,
   Parameters,
   ParametersRequest,
-  AlarmLimitsRequest,
+  SensorMeasurements,
   VentilationMode,
-  ExpectedLogEvent,
-  NextLogEvents,
-  LogEvent,
 } from './proto/mcu_pb';
-import { RotaryEncoder, FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import {
   ControllerStates,
-  WaveformPoint,
-  WaveformHistory,
-  PVPoint,
   PVHistory,
+  PVPoint,
   RotaryEncoderParameter,
+  WaveformHistory,
+  WaveformPoint,
 } from './types';
 
 export const getController = ({ controller }: StoreState): ControllerStates => controller;

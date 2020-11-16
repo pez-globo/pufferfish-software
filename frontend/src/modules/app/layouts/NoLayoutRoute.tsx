@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Route, RouteProps } from 'react-router-dom';
 
 const NoLayoutRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {

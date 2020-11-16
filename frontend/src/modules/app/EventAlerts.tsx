@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef, RefObject } from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Snackbar, makeStyles, Theme, Grid, Typography, Popover } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
-import { useSelector } from 'react-redux';
+import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
-import { BellIcon } from '../icons';
+import { Alert } from '@material-ui/lab';
+import React, { useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { LogEventCode } from '../../store/controller/proto/mcu_pb';
-import { BMIN, PERCENT } from '../info/units';
 import { getActiveLogEventIds, getPopupEventLog } from '../../store/controller/selectors';
+import { BellIcon } from '../icons';
+import { BMIN, PERCENT } from '../info/units';
 
 export const ALARM_EVENT_PATIENT = 'Patient';
 export const ALARM_EVENT_SYSTEM = 'System';
@@ -183,12 +183,7 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
   const classes = useStyles();
   const [alert, setAlert] = useState({ label: '' });
   const [alertCount, setAlertCount] = useState<number>(0);
-  const [open, setOpen] = React.useState(false);
   const buttonRef = useRef(null);
-  const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
-    setOpen(false);
-    setAlertCount(0);
-  };
 
   const popupEventLog = useSelector(getPopupEventLog);
   const activeLog = useSelector(getActiveLogEventIds);
@@ -196,7 +191,6 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
     if (popupEventLog) {
       const eventType = getEventType(popupEventLog.code);
       if (eventType.type) {
-        setOpen(true);
         setAlertCount(activeLog.length);
         setAlert({ label: eventType.label });
       }

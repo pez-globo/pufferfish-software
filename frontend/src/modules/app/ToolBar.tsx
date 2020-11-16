@@ -1,30 +1,30 @@
-import React, { useCallback, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { AppBar, Button, Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import { Button, Grid, AppBar } from '@material-ui/core';
+import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  LOGS_ROUTE,
-  DASHBOARD_ROUTE,
-  QUICKSTART_ROUTE,
-  SCREENSAVER_ROUTE,
-} from '../navigation/constants';
-import ModesDropdown from '../modes/ModesDropdown';
-import ViewDropdown from '../dashboard/views/ViewDropdown';
-import { BackIcon } from '../icons';
-import ClockIcon from '../icons/ClockIcon';
-import PowerFullIcon from '../icons/PowerFullIcon';
-import { PERCENT } from '../info/units';
+import { Link, useLocation } from 'react-router-dom';
 import { getClockTime } from '../../store/app/selectors';
-import EventAlerts from './EventAlerts';
+import { updateCommittedParameter } from '../../store/controller/actions';
+import { VentilationMode } from '../../store/controller/proto/mcu_pb';
 import {
   getBatteryPower,
   getParametersRequest,
   getParametersRequestMode,
   getParametersRequestStandby,
 } from '../../store/controller/selectors';
-import { VentilationMode } from '../../store/controller/proto/mcu_pb';
-import { updateCommittedParameter } from '../../store/controller/actions';
+import ViewDropdown from '../dashboard/views/ViewDropdown';
+import { BackIcon } from '../icons';
+import ClockIcon from '../icons/ClockIcon';
+import PowerFullIcon from '../icons/PowerFullIcon';
+import { PERCENT } from '../info/units';
+import ModesDropdown from '../modes/ModesDropdown';
+import {
+  DASHBOARD_ROUTE,
+  LOGS_ROUTE,
+  QUICKSTART_ROUTE,
+  SCREENSAVER_ROUTE,
+} from '../navigation/constants';
+import EventAlerts from './EventAlerts';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

@@ -1,16 +1,7 @@
+import { Button } from '@material-ui/core';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Button, makeStyles, Theme } from '@material-ui/core';
-import { QUICKSTART_ROUTE, DASHBOARD_ROUTE } from '../constants';
-
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    minHeight: 80,
-    maxHeight: 80,
-    height: 80,
-    // border: '1px solid red',
-  },
-}));
+import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../constants';
 
 /**
  * StartPauseButton
