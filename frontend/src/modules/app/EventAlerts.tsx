@@ -9,6 +9,8 @@ import { BellIcon } from '../icons';
 import { LogEventCode } from '../../store/controller/proto/mcu_pb';
 import { BMIN, PERCENT } from '../info/units';
 import { getActiveLogEventIds, getPopupEventLog } from '../../store/controller/selectors';
+import ModalPopup from '../controllers/ModalPopup';
+import LogsPage from '../logs/LogsPage';
 
 export const ALARM_EVENT_PATIENT = 'Patient';
 export const ALARM_EVENT_SYSTEM = 'System';
@@ -182,13 +184,10 @@ export const AlertToast = ({
 export const EventAlerts = ({ path, label }: Props): JSX.Element => {
   const classes = useStyles();
   const [alert, setAlert] = useState({ label: '' });
+  const [activeFilter, setActiveFilter] = useState<boolean>(false);
   const [alertCount, setAlertCount] = useState<number>(0);
   const [open, setOpen] = React.useState(false);
   const buttonRef = useRef(null);
-  const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
-    setOpen(false);
-    setAlertCount(0);
-  };
 
   const popupEventLog = useSelector(getPopupEventLog);
   const activeLog = useSelector(getActiveLogEventIds);
@@ -196,7 +195,6 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
     if (popupEventLog) {
       const eventType = getEventType(popupEventLog.code);
       if (eventType.type) {
-        setOpen(true);
         setAlertCount(activeLog.length);
         setAlert({ label: eventType.label });
       }
@@ -208,6 +206,42 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
 
   return (
     <div style={{ display: 'flex' }}>
+      <ModalPopup
+        withAction={false}
+        label={
+          <Grid
+            container
+            item
+            xs
+            justify="flex-start"
+            alignItems="center"
+            wrap="nowrap"
+            style={{ padding: '15px' }}
+          >
+            <Grid item xs={6}>
+              <Typography variant="h4" style={{ fontWeight: 'normal' }}>
+                {!activeFilter ? 'Events Log' : 'Active Alarms'}
+              </Typography>
+            </Grid>
+            <Grid container item xs justify="flex-end" alignItems="center">
+              <Button
+                onClick={() => setActiveFilter(!activeFilter)}
+                variant="contained"
+                color="primary"
+                style={{ padding: '6px 3rem' }}
+              >
+                {activeFilter ? 'Events Log' : 'Active Alarms'}
+              </Button>
+            </Grid>
+          </Grid>
+        }
+        open={open}
+        fullWidth={true}
+        onClose={() => setOpen(false)}
+        showCloseIcon={true}
+      >
+        <LogsPage filter={activeFilter} />
+      </ModalPopup>
       <Grid hidden={alertCount <= 0}>
         <Button
           style={{ marginLeft: 12 }}
@@ -249,10 +283,9 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
       <Grid>
         <Button
           style={{ marginRight: 12 }}
-          component={Link}
-          to={path}
           variant="contained"
           color="primary"
+          onClick={() => setOpen(true)}
           ref={buttonRef}
         >
           <BellIcon />

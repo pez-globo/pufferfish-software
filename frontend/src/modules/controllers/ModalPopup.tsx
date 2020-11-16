@@ -29,6 +29,7 @@ interface Props {
   open: boolean;
   label: string | ReactNode;
   withAction?: boolean;
+  fullWidth?: boolean;
   showCloseIcon?: boolean;
   onClose?(): void;
   onConfirm?(): void;
@@ -58,11 +59,19 @@ const ModalAction = ({ onClose, onConfirm }: ActionProps): JSX.Element => {
 
 export const ModalPopup = (props: PropsWithChildren<Props>): JSX.Element => {
   const classes = useStyles();
-  const { open, onClose, label, showCloseIcon, children, withAction, onConfirm } = props;
-  const [fullWidth] = React.useState(true);
+  const {
+    open,
+    onClose,
+    label,
+    showCloseIcon,
+    children,
+    withAction,
+    onConfirm,
+    fullWidth = false,
+  } = props;
   const [maxWidth] = React.useState<DialogProps['maxWidth']>('sm');
   return (
-    <Dialog fullWidth={fullWidth} maxWidth={maxWidth} open={open} onClose={onClose}>
+    <Dialog fullWidth={true} maxWidth={fullWidth ? false : maxWidth} open={open} onClose={onClose}>
       <DialogTitle id="form-dialog-title">
         <Grid container alignItems="center">
           <Grid item xs>
