@@ -12,7 +12,7 @@ import { messageReducer, nextLogEventsReducer, rotaryEncoderReducer } from './re
 import {
   alarmLimitsReducer,
   alarmLimitsRequestStandbyReducer,
-  expectedLoggedEventReducer,
+  expectedLogEventReducer,
   frontendDisplaySettingReducer,
   parametersRequestReducer,
   parametersRequestStanbyReducer,
@@ -29,7 +29,7 @@ export const controllerReducer = combineReducers({
   parametersRequestStandby: parametersRequestStanbyReducer,
   systemSettingRequest: systemSettingRequestReducer,
   frontendDisplaySetting: frontendDisplaySettingReducer,
-  expectedLoggedEvent: expectedLoggedEventReducer,
+  expectedLogEvent: expectedLogEventReducer,
   nextLogEvents: nextLogEventsReducer,
   batteryPower: messageReducer<BatteryPower>(MessageType.BatteryPower, BatteryPower),
   screenStatus: messageReducer<ScreenStatus>(MessageType.ScreenStatus, ScreenStatus),

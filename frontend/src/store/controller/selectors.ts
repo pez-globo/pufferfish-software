@@ -12,6 +12,7 @@ import {
   VentilationMode,
 } from './proto/mcu_pb';
 import {
+  PBMessageType,
   ControllerStates,
   PVHistory,
   PVPoint,

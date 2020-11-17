@@ -91,6 +91,7 @@ const SidebarClickable = ({
       <Grid item className={classes.saverButtons}>
         <Grid>
           <Button
+            onClick={() => toggleStatus(false)}
             component={Link}
             to={parameterRequest.ventilating ? DASHBOARD_ROUTE.path : QUICKSTART_ROUTE.path}
             variant="contained"
@@ -123,7 +124,7 @@ const SidebarClickable = ({
       </Grid>
       <Grid item className={classes.sideMenu}>
         <Grid item className={classes.navMenu}>
-          <Navigation fullPage={true} />
+          <Navigation toggleStatus={toggleStatus} fullPage={true} />
         </Grid>
         <Grid item>
           <Button

@@ -43,6 +43,7 @@ module.exports = {
         "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
         "prettier/prettier": "error",
         "@typescript-eslint/explicit-function-return-type": "off",
+        "no-console": ["error", {"allow": ["warn", "error"]}],
         "react/jsx-filename-extension": [
             1,
             { "extensions": [".js", ".jsx", ".ts", ".tsx"] }

@@ -18,12 +18,12 @@ defineFeature(feature, (test) => {
 
     when(/^Saga workers are defined$/, async () => {
       expect(controllerSaga).toBeDefined();
-      expect(initConnectionPersistently).toBeDefined();
+      expect(serviceConnectionPersistently).toBeDefined();
       expect(updateClock).toBeDefined();
     });
 
     then(/^Saga should run workers for socket connection & clock$/, () => {
-      expect(genObject.next().value).toEqual(takeEvery(INITIALIZED, initConnectionPersistently));
+      expect(genObject.next().value).toEqual(takeEvery(INITIALIZED, serviceConnectionPersistently));
       expect(genObject.next().value).toEqual(takeLatest(INITIALIZED, updateClock));
     });
   });
