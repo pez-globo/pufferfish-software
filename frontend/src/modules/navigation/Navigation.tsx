@@ -68,7 +68,13 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * The main interface for router/page-based navigation.
  */
-export const Navigation = ({ fullPage }: { fullPage?: boolean }): JSX.Element => {
+export const Navigation = ({
+  fullPage,
+  toggleStatus,
+}: {
+  fullPage?: boolean;
+  toggleStatus?(toogle: boolean): void;
+}): JSX.Element => {
   const classes = useStyles();
   const location = useLocation();
 
@@ -93,6 +99,9 @@ export const Navigation = ({ fullPage }: { fullPage?: boolean }): JSX.Element =>
     event: React.ChangeEvent<Record<string, unknown>>,
     newRoute: number,
   ) => {
+    if (toggleStatus) {
+      toggleStatus(false);
+    }
     setRoute(newRoute);
   };
 

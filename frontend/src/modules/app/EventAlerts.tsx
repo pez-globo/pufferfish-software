@@ -11,6 +11,7 @@ import { BMIN, PERCENT } from '../info/units';
 import { getActiveLogEventIds, getPopupEventLog } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
+import { setActiveEventState } from './Service';
 
 export const ALARM_EVENT_PATIENT = 'Patient';
 export const ALARM_EVENT_SYSTEM = 'System';
@@ -196,10 +197,12 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
       const eventType = getEventType(popupEventLog.code);
       if (eventType.type) {
         setAlertCount(activeLog.length);
+        setActiveEventState(true);
         setAlert({ label: eventType.label });
       }
     } else {
       setAlertCount(0);
+      setActiveEventState(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popupEventLog, JSON.stringify(activeLog)]);

@@ -2,6 +2,7 @@ import { AppBar, Button, Grid, makeStyles, Theme } from '@material-ui/core';
 import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, Route, RouteProps } from 'react-router-dom';
+import { Subscription } from 'rxjs';
 import { getClockTime } from '../../../store/app/selectors';
 import {
   getBatteryPower,
@@ -20,6 +21,8 @@ import {
 import EventAlerts from '../EventAlerts';
 import Sidebar from '../Sidebar';
 import UserActivity from '../UserActivity';
+import { getActiveEventState } from '../Service';
+import OverlayScreen from './OverlayScreen';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -65,25 +68,40 @@ const useStyles = makeStyles((theme: Theme) => ({
     padding: '6px 10px',
     lineHeight: 'normal',
   },
+  borderOverlay: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    border: '4px solid red',
+  },
 }));
 
 const ScreensaverLayout = ({ children, ...rest }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
-  const screenStatus = useSelector(getScreenStatus);
-  const [overlay, setOverlay] = useState(screenStatus || false);
   const batteryPower = useSelector(getBatteryPower);
-
-  useEffect(() => {
-    setOverlay(screenStatus);
-  }, [screenStatus]);
-
   const clockTime = useSelector(getClockTime);
   const parameterRequest = useSelector(getParametersRequest);
+  const [showBorder, setShowBorder] = React.useState(false);
 
+  useEffect(() => {
+    const logEventSubscription: Subscription = getActiveEventState().subscribe((state: boolean) => {
+      setShowBorder(state);
+    });
+    return () => {
+      if (logEventSubscription) {
+        logEventSubscription.unsubscribe();
+      }
+    };
+  }, []);
   return (
     <React.Fragment>
-      {overlay && <div className={classes.overlay} />}
-      <Grid container justify="center" alignItems="stretch" className={classes.root}>
+      <OverlayScreen />
+      <Grid
+        container
+        justify="center"
+        alignItems="stretch"
+        className={`${showBorder && classes.borderOverlay} ${classes.root}`}
+      >
         <Grid container item className={classes.main}>
           <Grid container item alignItems="center">
             <AppBar

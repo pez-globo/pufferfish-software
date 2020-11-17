@@ -68,7 +68,9 @@ export const ControlJumbotron = ({ value, label, units = '' }: Props): JSX.Eleme
         wrap="nowrap"
       >
         <Typography variant="h1" className={classes.ControlLabel}>
-          {value !== undefined ? value.toFixed(0) : '--'}
+          {value !== undefined && !Number.isNaN(value)
+            ? value.toFixed(0).replace(/^-0$/, '0')
+            : '--'}
         </Typography>
       </Grid>
       <Grid item style={{ width: '100%' }}>

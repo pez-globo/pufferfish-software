@@ -61,9 +61,7 @@ const Sidebar = (): JSX.Element => {
           className={classes.screensaverButton}
           disableElevation
         >
-          <div>
-            <SCREENSAVER_ROUTE.icon style={{ fontSize: '1.5rem' }} />
-          </div>
+          <SCREENSAVER_ROUTE.icon style={{ fontSize: '1.5rem' }} />
         </Button>
       </Grid>
       <Grid item className={classes.navMenu}>
