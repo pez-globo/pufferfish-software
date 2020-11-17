@@ -1,9 +1,7 @@
 import { loadFeature, defineFeature } from 'jest-cucumber';
 import { delay, takeEvery, takeLatest } from 'redux-saga/effects';
-import controllerSaga, {
-  initConnectionPersistently,
-  updateClock,
-} from '../../src/store/controller/saga';
+import controllerSaga, { serviceConnectionPersistently } from '../../src/store/controller/saga';
+import updateClock from '../../src/store/controller/io/clock';
 import { INITIALIZED } from '../../src/store/app/types';
 
 const feature = loadFeature('tests/features/saga.feature');
@@ -18,12 +16,12 @@ defineFeature(feature, (test) => {
 
     when(/^Saga workers are defined$/, async () => {
       expect(controllerSaga).toBeDefined();
-      expect(initConnectionPersistently).toBeDefined();
+      expect(serviceConnectionPersistently).toBeDefined();
       expect(updateClock).toBeDefined();
     });
 
     then(/^Saga should run workers for socket connection & clock$/, () => {
-      expect(genObject.next().value).toEqual(takeEvery(INITIALIZED, initConnectionPersistently));
+      expect(genObject.next().value).toEqual(takeEvery(INITIALIZED, serviceConnectionPersistently));
       expect(genObject.next().value).toEqual(takeLatest(INITIALIZED, updateClock));
     });
   });
