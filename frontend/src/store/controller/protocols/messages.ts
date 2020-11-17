@@ -1,6 +1,5 @@
 import { BufferReader } from 'protobufjs/minimal';
 import { MessageClass, MessageTypes, PBMessage, PBMessageType } from '../types';
-import { ParametersRequest, AlarmLimitsRequest } from '../proto/mcu_pb';
 
 export interface MessageParseResults {
   messageType: number;
@@ -35,6 +34,7 @@ export const serializeMessage = <T extends PBMessage>(pbMessageType: PBMessageTy
   // specified types for pbMessageType, but for now we'll just delegate the
   // responsibility of using types correctly to the calling code.
   // eslint-disable @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line
   const messageBody = (pbMessageType as any).encode(pbMessage as T).finish();
   const buffer = new Uint8Array(1 + messageBody.length);
   buffer.set([messageType], 0);

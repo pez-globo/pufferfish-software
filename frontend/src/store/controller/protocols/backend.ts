@@ -20,6 +20,7 @@ export const MessageSerializers = new Map<PBMessageType, MessageSerializer>([
 // whether we can specify its type in a Map, but for now we'll just delegate the
 // responsibility of using types correctly to the calling code.
 // eslint-disable @typescript-eslint/no-explicit-any
+// eslint-disable-next-line
 export const MessageSelectors = new Map<PBMessageType, any>([
   [AlarmLimitsRequest, getAlarmLimitsRequest],
   [ParametersRequest, getParametersRequest],
@@ -29,6 +30,7 @@ export const MessageSelectors = new Map<PBMessageType, any>([
 export interface StateProcessor {
   // This "any" is needed because MessageSelectors has a value type of "any".
   // eslint-disable @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line
   selector: any;
   serializer: MessageSerializer;
 }
