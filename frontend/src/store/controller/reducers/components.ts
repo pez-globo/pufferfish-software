@@ -3,6 +3,7 @@ import {
   AlarmLimitsRequest,
   VentilationMode,
   ExpectedLogEvent,
+  AlarmMuteRequest,
 } from '../proto/mcu_pb';
 import {
   FrontendDisplaySetting,
@@ -22,6 +23,7 @@ import {
   EXPECTED_LOG_EVENT_ID,
   ALARM_LIMITS_STANDBY,
   PARAMETER_STANDBY,
+  ALARM_MUTE,
 } from '../types';
 import DECIMAL_RADIX from '../../../modules/app/AppConstants';
 
@@ -136,6 +138,16 @@ export const systemSettingRequestReducer = (
   action: commitAction,
 ): SystemSettingRequest => {
   return withRequestUpdate<SystemSettingRequest>(state, action, SYSTEM_SETTINGS);
+};
+
+export const alarmMuteRequestReducer = (
+  state: AlarmMuteRequest = AlarmMuteRequest.fromJSON({
+    active: false,
+    remaining: 120,
+  }) as AlarmMuteRequest,
+  action: commitAction,
+): AlarmMuteRequest => {
+  return withRequestUpdate<AlarmMuteRequest>(state, action, ALARM_MUTE);
 };
 
 export const withRequestUpdate = <T>(state: T, action: commitAction, prefix: string): T => {

@@ -13,6 +13,7 @@ import { waveformHistoryReducer, pvHistoryReducer } from './reducers/derived';
 import {
   alarmLimitsReducer,
   alarmLimitsRequestStandbyReducer,
+  alarmMuteRequestReducer,
   expectedLogEventReducer,
   frontendDisplaySettingReducer,
   parametersRequestReducer,
@@ -26,6 +27,7 @@ export const controllerReducer = combineReducers({
   alarms: messageReducer<Alarms>(MessageType.Alarms, Alarms),
   alarmLimitsRequest: alarmLimitsReducer,
   alarmLimitsRequestStandby: alarmLimitsRequestStandbyReducer,
+  alarmMuteRequest: alarmMuteRequestReducer,
   parametersRequestStandby: parametersRequestStanbyReducer,
   systemSettingRequest: systemSettingRequestReducer,
   frontendDisplaySetting: frontendDisplaySettingReducer,

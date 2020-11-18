@@ -235,7 +235,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                   >
                     {row.type}
                   </Button>
-                  {row.status ? (
+                  {/* {row.status ? (
                     <Button
                       style={{ marginLeft: 12, padding: '.2rem 0rem !important', minWidth: 30 }}
                       variant="contained"
@@ -245,7 +245,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                     </Button>
                   ) : (
                     ''
-                  )}
+                  )} */}
                 </TableCell>
                 <TableCell align="left" component="th" id={labelId} scope="row">
                   {row.alarm}

@@ -11,6 +11,8 @@ import {
   ExpectedLogEvent,
   NextLogEvents,
   LogEvent,
+  AlarmMute,
+  AlarmMuteRequest,
 } from './proto/mcu_pb';
 import { RotaryEncoder, FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import {
@@ -282,4 +284,16 @@ export const getBatteryPower = createSelector(
 export const getScreenStatus = createSelector(
   getController,
   (states: ControllerStates): boolean => states.screenStatus.lock,
+);
+
+// Alarm mute Status
+export const getAlarmMuteRequest = createSelector(
+  getController,
+  (states: ControllerStates): AlarmMuteRequest => states.alarmMuteRequest,
+);
+
+// TODO: Need to change state from 'alarmMuteRequest' to 'alarmMute'
+export const getAlarmMuteStatus = createSelector(
+  getController,
+  (states: ControllerStates): AlarmMute => states.alarmMuteRequest,
 );

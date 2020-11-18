@@ -2,16 +2,22 @@ import React, { useState, useEffect, useRef, RefObject } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Snackbar, makeStyles, Theme, Grid, Typography, Popover } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import { BellIcon } from '../icons';
 import { LogEventCode } from '../../store/controller/proto/mcu_pb';
 import { BMIN, PERCENT } from '../info/units';
-import { getActiveLogEventIds, getPopupEventLog } from '../../store/controller/selectors';
+import {
+  getActiveLogEventIds,
+  getAlarmMuteStatus,
+  getPopupEventLog,
+} from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
 import { setActiveEventState } from './Service';
+import { updateCommittedState } from '../../store/controller/actions';
+import { ALARM_MUTE } from '../../store/controller/types';
 
 export const ALARM_EVENT_PATIENT = 'Patient';
 export const ALARM_EVENT_SYSTEM = 'System';
@@ -32,6 +38,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   controlPanel: {
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  alertMargin: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
   },
   marginRight: {
     marginRight: theme.spacing(1),
@@ -184,7 +194,9 @@ export const AlertToast = ({
 
 export const EventAlerts = ({ path, label }: Props): JSX.Element => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const [alert, setAlert] = useState({ label: '' });
+  const [isMuted, setIsMuted] = useState<boolean>(true);
   const [activeFilter, setActiveFilter] = useState<boolean>(false);
   const [alertCount, setAlertCount] = useState<number>(0);
   const [open, setOpen] = React.useState(false);
@@ -192,6 +204,7 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
 
   const popupEventLog = useSelector(getPopupEventLog);
   const activeLog = useSelector(getActiveLogEventIds);
+  const alarmMuteStatus = useSelector(getAlarmMuteStatus);
   useEffect(() => {
     if (popupEventLog) {
       const eventType = getEventType(popupEventLog.code);
@@ -206,6 +219,14 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popupEventLog, JSON.stringify(activeLog)]);
+
+  useEffect(() => {
+    setIsMuted(!alarmMuteStatus.active);
+  }, [alarmMuteStatus.active]);
+
+  const muteAlarm = () => {
+    dispatch(updateCommittedState(ALARM_MUTE, { active: true }));
+  };
 
   return (
     <div style={{ display: 'flex' }}>
@@ -248,11 +269,12 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
       <Grid hidden={alertCount <= 0}>
         <Button
           style={{ marginLeft: 12 }}
+          onClick={muteAlarm}
           variant="contained"
           color="primary"
           className={classes.alertColor}
         >
-          <VolumeOffIcon />
+          {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
         </Button>
         <Button
           style={{ margin: '0px 12px', padding: 0 }}
@@ -260,14 +282,19 @@ export const EventAlerts = ({ path, label }: Props): JSX.Element => {
           color="primary"
           className={classes.alertColor}
         >
-          <span style={{ padding: '6px 16px' }}>{alert.label}</span>
+          <span
+            className={!isMuted ? `${classes.alertMargin}` : ''}
+            style={{ padding: '6px 16px' }}
+          >
+            {alert.label}
+          </span>
           <div
             className={classes.iconBadge}
             style={{ left: -6, right: 'auto', backgroundColor: '#FFF', color: '#ff0000' }}
           >
             {alertCount}
           </div>
-          <div className={classes.timer}>2:00</div>
+          {isMuted && <div className={classes.timer}>2:00</div>}
         </Button>
       </Grid>
       <Grid hidden={alertCount > 0}>

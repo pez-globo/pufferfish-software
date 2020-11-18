@@ -12,6 +12,8 @@ import {
   NextLogEvents,
   BatteryPower,
   ScreenStatus,
+  AlarmMuteRequest,
+  AlarmMute,
 } from './proto/mcu_pb';
 import { SystemSettingRequest, FrontendDisplaySetting, RotaryEncoder } from './proto/frontend_pb';
 
@@ -25,6 +27,7 @@ export const ALARM_LIMITS_STANDBY = 'ALARM_LIMITS_STANDBY';
 export const PARAMETER_STANDBY = 'PARAMETERS_STANDBY';
 export const FRONTEND_DISPLAY_SETTINGS = 'FRONTEND_DISPLAY_SETTINGS';
 export const SYSTEM_SETTINGS = 'SYSTEM_SETTINGS';
+export const ALARM_MUTE = 'ALARM_MUTE';
 
 // Rotary encoder overriden params
 
@@ -51,6 +54,8 @@ export type PBMessage =
   | ExpectedLogEvent
   | NextLogEvents
   | ActiveLogEvents
+  | AlarmMuteRequest
+  | AlarmMute
   // frontend_pb
   | BatteryPower
   | ScreenStatus
@@ -70,6 +75,8 @@ export type PBMessageType =
   | typeof ExpectedLogEvent
   | typeof NextLogEvents
   | typeof ActiveLogEvents
+  | typeof AlarmMuteRequest
+  | typeof AlarmMute
   // frontend_pb
   | typeof BatteryPower
   | typeof ScreenStatus
@@ -89,6 +96,8 @@ export enum MessageType {
   ExpectedLogEvent = 8,
   NextLogEvents = 9,
   ActiveLogEvents = 10,
+  AlarmMuteRequest = 11,
+  AlarmMute = 12,
   // frontend_pb
   BatteryPower = 64,
   ScreenStatus = 65,
@@ -132,6 +141,8 @@ export interface ControllerStates {
   alarms: Alarms;
   alarmLimitsRequest: AlarmLimitsRequest;
   alarmLimitsRequestStandby: { alarmLimits: AlarmLimitsRequest };
+  alarmMuteRequest: AlarmMuteRequest;
+  alarmMute: AlarmMute;
   parametersRequestStandby: { parameters: ParametersRequest };
   systemSettingRequest: SystemSettingRequest;
   frontendDisplaySetting: FrontendDisplaySetting;
@@ -165,6 +176,8 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.ParametersRequest, ParametersRequest],
   [MessageType.AlarmLimits, AlarmLimits],
   [MessageType.AlarmLimitsRequest, AlarmLimitsRequest],
+  [MessageType.AlarmMuteRequest, AlarmMuteRequest],
+  [MessageType.AlarmMute, AlarmMute],
   [MessageType.ExpectedLogEvent, ExpectedLogEvent],
   [MessageType.NextLogEvents, NextLogEvents],
   [MessageType.ActiveLogEvents, ActiveLogEvents],
@@ -185,6 +198,8 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
   [ParametersRequest, MessageType.ParametersRequest],
   [AlarmLimits, MessageType.AlarmLimits],
   [AlarmLimitsRequest, MessageType.AlarmLimitsRequest],
+  [AlarmMuteRequest, MessageType.AlarmMuteRequest],
+  [AlarmMute, MessageType.AlarmMute],
   [ExpectedLogEvent, MessageType.ExpectedLogEvent],
   [NextLogEvents, MessageType.NextLogEvents],
   [ActiveLogEvents, MessageType.ActiveLogEvents],
