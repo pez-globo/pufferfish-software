@@ -4,8 +4,7 @@ import {
   CycleMeasurements,
   Parameters,
   ParametersRequest,
-  Ping,
-  Announcement,
+  AlarmLimits,
   AlarmLimitsRequest,
   ActiveLogEvents,
   ExpectedLogEvent,
@@ -41,62 +40,61 @@ export interface RotaryEncoderParameter {
 // Protocol Buffers
 
 export type PBMessage =
-  | // mcu_pb
-  AlarmLimitsRequest
-  | SystemSettingRequest
-  | FrontendDisplaySetting
+  // mcu_pb
   | Alarms
   | SensorMeasurements
   | CycleMeasurements
   | Parameters
   | ParametersRequest
-  | Ping
-  | Announcement
-  | LogEvent
+  | AlarmLimits
+  | AlarmLimitsRequest
   | ExpectedLogEvent
   | NextLogEvents
   | ActiveLogEvents
+  // frontend_pb
   | BatteryPower
   | ScreenStatus
-  // frontend_pb
-  | RotaryEncoder
-  | RotaryEncoderParameter;
+  | SystemSettingRequest
+  | FrontendDisplaySetting
+  | RotaryEncoder;
 
 export type PBMessageType =
-  | // mcu_pb
-  typeof AlarmLimitsRequest
+  // mcu_pb
+  | typeof AlarmLimits
+  | typeof AlarmLimitsRequest
   | typeof Alarms
   | typeof SensorMeasurements
   | typeof CycleMeasurements
   | typeof Parameters
   | typeof ParametersRequest
-  | typeof Ping
-  | typeof Announcement
+  | typeof ExpectedLogEvent
   | typeof NextLogEvents
   | typeof ActiveLogEvents
+  // frontend_pb
   | typeof BatteryPower
   | typeof ScreenStatus
-  // frontend_pb
   | typeof SystemSettingRequest
   | typeof FrontendDisplaySetting
   | typeof RotaryEncoder;
 
 export enum MessageType {
+  // mcu_pb
   Alarms = 1,
   SensorMeasurements = 2,
   CycleMeasurements = 3,
   Parameters = 4,
   ParametersRequest = 5,
-  Ping = 6,
-  Announcement = 7,
-  AlarmLimitsRequest = 8,
-  SystemSettingRequest = 9,
-  FrontendDisplaySetting = 10,
-  NextLogEvents = 11,
-  ActiveLogEvents = 12,
-  BatteryPower = 13,
-  ScreenStatus = 14,
+  AlarmLimits = 6,
+  AlarmLimitsRequest = 7,
+  ExpectedLogEvent = 8,
+  NextLogEvents = 9,
+  ActiveLogEvents = 10,
+  // frontend_pb
+  BatteryPower = 64,
+  ScreenStatus = 65,
   RotaryEncoder = 128,
+  SystemSettingRequest = 129,
+  FrontendDisplaySetting = 130,
 }
 
 // States
@@ -141,10 +139,8 @@ export interface ControllerStates {
   cycleMeasurements: CycleMeasurements;
   parameters: Parameters;
   parametersRequest: ParametersRequest;
-  ping: Ping;
-  announcement: Announcement;
   logEvent: LogEvent;
-  expectedLoggedEvent: ExpectedLogEvent;
+  expectedLogEvent: ExpectedLogEvent;
   nextLogEvents: NextLogEvents;
   activeLogEvents: ActiveLogEvents;
   batteryPower: BatteryPower;
@@ -161,33 +157,42 @@ export interface ControllerStates {
 }
 
 export const MessageClass = new Map<MessageType, PBMessageType>([
+  // mcu_pb
   [MessageType.Alarms, Alarms],
-  [MessageType.AlarmLimitsRequest, AlarmLimitsRequest],
-  [MessageType.SystemSettingRequest, SystemSettingRequest],
-  [MessageType.FrontendDisplaySetting, FrontendDisplaySetting],
   [MessageType.SensorMeasurements, SensorMeasurements],
   [MessageType.CycleMeasurements, CycleMeasurements],
   [MessageType.Parameters, Parameters],
   [MessageType.ParametersRequest, ParametersRequest],
-  [MessageType.Ping, Ping],
+  [MessageType.AlarmLimits, AlarmLimits],
+  [MessageType.AlarmLimitsRequest, AlarmLimitsRequest],
+  [MessageType.ExpectedLogEvent, ExpectedLogEvent],
   [MessageType.NextLogEvents, NextLogEvents],
   [MessageType.ActiveLogEvents, ActiveLogEvents],
+  // frontend_pb
+  [MessageType.BatteryPower, BatteryPower],
+  [MessageType.ScreenStatus, ScreenStatus],
+  [MessageType.SystemSettingRequest, SystemSettingRequest],
+  [MessageType.FrontendDisplaySetting, FrontendDisplaySetting],
   [MessageType.RotaryEncoder, RotaryEncoder],
 ]);
 
 export const MessageTypes = new Map<PBMessageType, MessageType>([
+  // mcu_pb
   [Alarms, MessageType.Alarms],
-  [AlarmLimitsRequest, MessageType.AlarmLimitsRequest],
-  [SystemSettingRequest, MessageType.SystemSettingRequest],
-  [FrontendDisplaySetting, MessageType.FrontendDisplaySetting],
   [SensorMeasurements, MessageType.SensorMeasurements],
   [CycleMeasurements, MessageType.CycleMeasurements],
   [Parameters, MessageType.Parameters],
   [ParametersRequest, MessageType.ParametersRequest],
-  [Ping, MessageType.Ping],
-  [Announcement, MessageType.Announcement],
+  [AlarmLimits, MessageType.AlarmLimits],
+  [AlarmLimitsRequest, MessageType.AlarmLimitsRequest],
+  [ExpectedLogEvent, MessageType.ExpectedLogEvent],
   [NextLogEvents, MessageType.NextLogEvents],
   [ActiveLogEvents, MessageType.ActiveLogEvents],
+  // frontend_pb
+  [BatteryPower, MessageType.BatteryPower],
+  [ScreenStatus, MessageType.ScreenStatus],
+  [SystemSettingRequest, MessageType.SystemSettingRequest],
+  [FrontendDisplaySetting, MessageType.FrontendDisplaySetting],
   [RotaryEncoder, MessageType.RotaryEncoder],
 ]);
 

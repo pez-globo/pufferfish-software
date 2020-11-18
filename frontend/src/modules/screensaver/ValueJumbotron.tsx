@@ -6,6 +6,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {
     height: '100%',
     width: '100%',
+    textAlign: 'center',
     // border: '1px solid red'
   },
   displayContainer: {
@@ -18,13 +19,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid yellow',
   },
   valueLabel: {
-    fontSize: '7.5rem',
+    fontSize: '8rem',
+    margin: '0 auto',
+    fontWeight: 'initial',
     // border: '1px solid red',
   },
   unitsLabel: {
+    fontWeight: 100,
     paddingLeft: theme.spacing(0),
-    paddingTop: theme.spacing(4),
+    // paddingTop: theme.spacing(4),
     color: theme.palette.grey[400],
+    textAlign: 'center',
     // border: '1px solid red'
   },
   labelItems: {
@@ -48,9 +53,9 @@ export const ValueJumbotron = ({ value, label, units = '' }: Props): JSX.Element
   const classes = useStyles();
 
   return (
-    <Grid container direction="column" className={classes.root}>
+    <Grid container className={classes.root}>
       <Grid item style={{ width: '100%' }} className={classes.labelItems}>
-        <Typography variant="h3" style={{ fontWeight: 'bold' }}>
+        <Typography variant="h3" style={{ fontWeight: 'bold', fontSize: '4rem' }}>
           {label}
         </Typography>
       </Grid>
@@ -63,13 +68,12 @@ export const ValueJumbotron = ({ value, label, units = '' }: Props): JSX.Element
         wrap="nowrap"
       >
         <Typography align="left" variant="h1" className={classes.valueLabel}>
-          {value !== undefined ? value.toFixed(0) : '--'}
+          {value !== undefined && !Number.isNaN(value)
+            ? value.toFixed(0).replace(/^-0$/, '0')
+            : '--'}
         </Typography>
       </Grid>
-      <Grid item className={classes.unitsLabel}>
-        <TrendIcon style={{ fontSize: '2rem' }} />
-      </Grid>
-      <Grid item>
+      <Grid item style={{ width: '100%' }}>
         <Typography align="left" variant="h4" className={classes.unitsLabel}>
           {units}
         </Typography>

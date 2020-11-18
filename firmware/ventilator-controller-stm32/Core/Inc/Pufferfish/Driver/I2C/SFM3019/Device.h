@@ -10,8 +10,11 @@
 
 #pragma once
 
-#include "Pufferfish/Driver/I2C/SensirionSensor.h"
+#include <climits>
+
+#include "Pufferfish/Driver/I2C/SensirionDevice.h"
 #include "Pufferfish/Driver/Testable.h"
+#include "Pufferfish/HAL/CRCChecker.h"
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 #include "Types.h"
 
@@ -24,8 +27,8 @@ static const uint16_t default_i2c_addr = 0x2e;
  */
 class Device {
  public:
-  explicit Device(HAL::I2CDevice &dev, HAL::I2CDevice &global_dev)
-      : sensirion_(dev), global_(global_dev) {}
+  explicit Device(HAL::I2CDevice &dev, HAL::I2CDevice &global_dev, GasType gas)
+      : crc8_(crc_params), sensirion_(dev, crc8_), global_(global_dev, crc8_), gas(gas) {}
 
   /**
    * Starts a flow measurement
@@ -40,17 +43,31 @@ class Device {
   I2CDeviceStatus stop_measure();
 
   /**
-   * Reads out the conversion factors
+   * Configure measurement averaging
+   * @param averaging_window a value up to 128 for the size of the averaging window.
+   * 0 indicates average-until-read mode.
+   * @return ok on success, error code otherwise
+   */
+  I2CDeviceStatus set_averaging(uint8_t averaging_window);
+
+  /**
+   * Requests the conversion factors
+   * @return ok on success, error code otherwise
+   */
+  I2CDeviceStatus request_conversion_factors();
+
+  /**
+   * Reads out the conversion factors. They only become available ~20 us after the request command.
    * @return ok on success, error code otherwise
    */
   I2CDeviceStatus read_conversion_factors(ConversionFactors &conversion);
 
   /**
-   * Reads out the serial number
+   * Reads out the product id
    * @param sn[out] the unique serial number
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus serial_number(uint32_t &sn);
+  I2CDeviceStatus read_product_id(uint32_t &product_number);
 
   /**
    * Reads out the flow rate from the sensor
@@ -66,11 +83,12 @@ class Device {
   I2CDeviceStatus reset();
 
  private:
-  static const uint8_t crc_poly = 0x31;
-  static const uint8_t crc_init = 0xff;
+  static constexpr HAL::CRC8Parameters crc_params = {0x31, 0xff, false, false, 0x00};
 
-  SensirionSensor sensirion_;
-  HAL::I2CDevice &global_;
+  HAL::SoftCRC8 crc8_;
+  SensirionDevice sensirion_;
+  SensirionDevice global_;
+  const GasType gas;
 };
 
 }  // namespace Pufferfish::Driver::I2C::SFM3019

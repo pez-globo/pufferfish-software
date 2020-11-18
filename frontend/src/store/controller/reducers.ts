@@ -4,8 +4,6 @@ import {
   SensorMeasurements,
   CycleMeasurements,
   Parameters,
-  Ping,
-  Announcement,
   ActiveLogEvents,
   BatteryPower,
   ScreenStatus,
@@ -15,7 +13,7 @@ import { waveformHistoryReducer, pvHistoryReducer } from './reducers/derived';
 import {
   alarmLimitsReducer,
   alarmLimitsRequestStandbyReducer,
-  expectedLoggedEventReducer,
+  expectedLogEventReducer,
   frontendDisplaySettingReducer,
   parametersRequestReducer,
   parametersRequestStanbyReducer,
@@ -31,7 +29,7 @@ export const controllerReducer = combineReducers({
   parametersRequestStandby: parametersRequestStanbyReducer,
   systemSettingRequest: systemSettingRequestReducer,
   frontendDisplaySetting: frontendDisplaySettingReducer,
-  expectedLoggedEvent: expectedLoggedEventReducer,
+  expectedLogEvent: expectedLogEventReducer,
   nextLogEvents: nextLogEventsReducer,
   batteryPower: messageReducer<BatteryPower>(MessageType.BatteryPower, BatteryPower),
   screenStatus: messageReducer<ScreenStatus>(MessageType.ScreenStatus, ScreenStatus),
@@ -46,8 +44,6 @@ export const controllerReducer = combineReducers({
   ),
   parameters: messageReducer<Parameters>(MessageType.Parameters, Parameters),
   parametersRequest: parametersRequestReducer,
-  ping: messageReducer<Ping>(MessageType.Ping, Ping),
-  announcement: messageReducer<Announcement>(MessageType.Announcement, Announcement),
 
   // Message states from frontend_pb
   rotaryEncoder: rotaryEncoderReducer,
