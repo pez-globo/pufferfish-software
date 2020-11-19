@@ -82,8 +82,8 @@ export const Waveform = ({
     return 'rgba(0,0,0,0)';
   }
 
-  const xAccessor = ({ date }: DateValue): number => (xScale(date) as number)
-  const yAccessor = ({ value }: DateValue): number => (yScale(value) as number)
+  const xAccessor = ({ date }: DateValue): number => xScale(date) as number;
+  const yAccessor = ({ value }: DateValue): number => yScale(value) as number;
 
   return (
     <svg width={width} height={height}>
