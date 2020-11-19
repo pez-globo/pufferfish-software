@@ -7,8 +7,8 @@ import {
   delay,
   select,
   takeLatest,
-  all,
   ChannelTakeEffect,
+  all,
 } from 'redux-saga/effects';
 import { INITIALIZED } from '../app/types';
 import { PBMessageType } from './types';
@@ -61,7 +61,7 @@ function* serviceConnection() {
   const receiveChannel = createReceiveChannel(sock);
   yield fork(receiveAll, receiveChannel);
   yield fork(sendAll, sock);
-  const connection = yield take(connectionChannel);
+  yield take(connectionChannel);
   receiveChannel.close();
 }
 

@@ -60,9 +60,11 @@ const PVLoopGraphInfo = (): JSX.Element => (
           width={width}
           height={height}
           waveforms={loops({ width, height })}
-          xRangeMax={10000}
+          xRangeMin={0}
+          xRangeMax={60}
+          xRangeRescale={1}
           yRangeMin={0}
-          yRangeMax={60}
+          yRangeMax={1000}
           title="PV"
           units="cm H2O"
         />

@@ -1,19 +1,16 @@
-import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
-import { Button, Menu, MenuProps, MenuItem, MenuList, makeStyles, Theme } from '@material-ui/core';
-import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
+import { Button, makeStyles, Menu, MenuItem, MenuProps, Theme } from '@material-ui/core';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import FiberManualRecord from '@material-ui/icons/FiberManualRecord';
+import { withStyles } from '@material-ui/core/styles';
 import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
+import FiberManualRecord from '@material-ui/icons/FiberManualRecord';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { updateCommittedParameter } from '../../store/controller/actions';
 import { VentilationMode } from '../../store/controller/proto/mcu_pb';
 import { getParametersRequestMode } from '../../store/controller/selectors';
-import { updateCommittedParameter } from '../../store/controller/actions';
 import { getModeText } from '../displays/ModeBanner';
-import EventAlerts from '../app/EventAlerts';
-import { LOGS_ROUTE } from '../navigation/constants';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles(() => ({
   button: {
     minWidth: 245,
   },

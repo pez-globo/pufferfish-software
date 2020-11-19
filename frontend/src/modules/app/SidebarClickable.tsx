@@ -1,14 +1,14 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Grid, Typography, makeStyles, Theme, ButtonBase } from '@material-ui/core';
-import { useDispatch, useSelector } from 'react-redux';
+import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
-import { DASHBOARD_ROUTE, QUICKSTART_ROUTE, SCREENSAVER_ROUTE } from '../navigation/constants';
-import ShutdownIcon from '../icons/ShutdownIcon';
-import { getParameters, getParametersRequest } from '../../store/controller/selectors';
-import { HomeIcon } from '../icons';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { updateState } from '../../store/controller/actions';
+import { getParametersRequest } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
+import { HomeIcon } from '../icons';
+import ShutdownIcon from '../icons/ShutdownIcon';
+import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
 import Navigation from '../navigation/Navigation';
 
 const useStyles = makeStyles((theme: Theme) => ({

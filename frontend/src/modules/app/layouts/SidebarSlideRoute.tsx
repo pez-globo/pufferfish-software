@@ -1,7 +1,7 @@
-import React, { Component, PropsWithChildren, useEffect, useState } from 'react';
-import { Route, RouteProps, useLocation } from 'react-router-dom';
+import React, { PropsWithChildren, useEffect } from 'react';
+import { Route, RouteProps } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import { Button, Drawer, Grid, Typography } from '@material-ui/core';
+import { Button, Drawer, Grid } from '@material-ui/core';
 import { Subscription } from 'rxjs';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
@@ -75,7 +75,7 @@ const FullWidthToolBar = (): JSX.Element => {
   const classes = useStyles();
   const [toggle, setToggle] = React.useState<boolean>(false);
 
-  const toggleDrawer = (value: boolean) => (event: React.MouseEvent<unknown>) => {
+  const toggleDrawer = (value: boolean) => () => {
     setToggle(value);
   };
 
@@ -103,7 +103,7 @@ const FullWidthToolBar = (): JSX.Element => {
   );
 };
 
-const SidebarLayout = ({ children, ...rest }: PropsWithChildren<unknown>): JSX.Element => {
+const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
   const [showBorder, setShowBorder] = React.useState(false);
 

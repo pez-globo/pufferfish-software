@@ -1,15 +1,15 @@
-import React, { Component } from 'react';
-import { connect, useSelector } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
-import { IntlProvider } from 'react-intl';
 import { CssBaseline } from '@material-ui/core';
 import { MuiThemeProvider } from '@material-ui/core/styles';
-import { StoreState } from '../../store/types';
+import React, { Component } from 'react';
+import { IntlProvider } from 'react-intl';
+import { connect } from 'react-redux';
+import { createStructuredSelector } from 'reselect';
 import { initialize } from '../../store/app/actions';
 import { getLocale, getMessages } from '../../store/app/selectors';
-import { darkTheme, lightTheme } from '../../styles/customTheme';
-import { getFrontendDisplaySetting } from '../../store/controller/selectors';
 import { FrontendDisplaySetting, ThemeVariant } from '../../store/controller/proto/frontend_pb';
+import { getFrontendDisplaySetting } from '../../store/controller/selectors';
+import { StoreState } from '../../store/types';
+import { darkTheme, lightTheme } from '../../styles/customTheme';
 import Routes from '../navigation/Routes';
 
 const RIGHT_CLICK_BUTTON_KEY = 2;

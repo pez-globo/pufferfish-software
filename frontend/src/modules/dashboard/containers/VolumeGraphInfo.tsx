@@ -72,6 +72,7 @@ const VolumeGraphInfo = (): JSX.Element => (
           height={height}
           waveforms={waveforms({ width, height })}
           xRangeMax={10000}
+          xRangeRescale={1 / 1000}
           yRangeMin={0}
           yRangeMax={1000}
           title="Volume"

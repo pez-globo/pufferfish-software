@@ -13,8 +13,8 @@ export const createConnectionChannel = (
   return eventChannel((emit) => {
     const sock = new WebSocket(`ws://${host}:${port}/`);
     sock.onerror = (err) => emit({ err, sock: null });
-    sock.onopen = (event) => emit({ err: null, sock });
-    sock.onclose = (event) => emit({ err: 'Closing!', sock });
+    sock.onopen = () => emit({ err: null, sock });
+    sock.onclose = () => emit({ err: 'Closing!', sock });
     return () => {
       // console.log('Closing WebSocket...');
       sock.close();
@@ -60,9 +60,11 @@ export function* setupConnection(
   CallEffect<true | EventChannel<ConnectionEvent>> | TakeEffect | CallEffect<true>,
   // The Generator type is templated and so complicated that we can't specify its type.
   // eslint-disable @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line
   any,
   // The Generator type is templated and so complicated that we can't specify its type.
   // eslint-disable @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line
   any
 > {
   while (true) {

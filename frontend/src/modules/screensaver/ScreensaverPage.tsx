@@ -1,12 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
 import { useSelector } from 'react-redux';
-import { OutputSelector } from 'reselect';
 import ModeBanner from '../displays/ModeBanner';
 import ValueJumbotron from './ValueJumbotron';
 import ControlJumbotron from './ControlJumbotron';
-import { CMH20, PERCENT, BMIN, LMIN } from '../info/units';
+import { PERCENT, BMIN, LMIN } from '../info/units';
 import {
   getSensorMeasurementsSpO2,
   getCycleMeasurementsRR,

@@ -1,18 +1,15 @@
 import { loadFeature, defineFeature } from 'jest-cucumber';
-import { h } from 'preact';
 import * as React from 'react';
 import { render, fireEvent, RenderResult } from '@testing-library/preact';
 import configureStore, { MockStore } from 'redux-mock-store';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import { Provider } from 'react-redux';
-import { takeEvery, takeLatest } from 'redux-saga/effects';
-import { AlarmModal } from '../../modules/controllers';
-import { darkTheme } from '../../styles/customTheme';
-import { updateCommittedState } from '../../store/controller/actions';
-import { ALARM_LIMITS, commitAction } from '../../store/controller/types';
-import { INITIALIZED } from '../../store/app/types';
+import { AlarmModal } from '../../src/modules/controllers';
+import { darkTheme } from '../../src/styles/customTheme';
+import { updateCommittedState } from '../../src/store/controller/actions';
+import { ALARM_LIMITS, commitAction } from '../../src/store/controller/types';
 
-const feature = loadFeature('src/spec/features/alarm-modal.feature');
+const feature = loadFeature('tests/features/alarm-modal.feature');
 
 defineFeature(feature, (test) => {
   const mockStore = configureStore();

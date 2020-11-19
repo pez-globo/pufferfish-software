@@ -1,14 +1,10 @@
 import { AppBar, Button, Grid, makeStyles, Theme } from '@material-ui/core';
-import React, { PropsWithChildren, useEffect, useState } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, Route, RouteProps } from 'react-router-dom';
 import { Subscription } from 'rxjs';
 import { getClockTime } from '../../../store/app/selectors';
-import {
-  getBatteryPower,
-  getParametersRequest,
-  getScreenStatus,
-} from '../../../store/controller/selectors';
+import { getBatteryPower, getParametersRequest } from '../../../store/controller/selectors';
 import ClockIcon from '../../icons/ClockIcon';
 import PowerFullIcon from '../../icons/PowerFullIcon';
 import { PERCENT } from '../../info/units';
@@ -19,7 +15,6 @@ import {
   SCREENSAVER_ROUTE,
 } from '../../navigation/constants';
 import EventAlerts from '../EventAlerts';
-import Sidebar from '../Sidebar';
 import UserActivity from '../UserActivity';
 import { getActiveEventState } from '../Service';
 import OverlayScreen from './OverlayScreen';
@@ -76,7 +71,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const ScreensaverLayout = ({ children, ...rest }: PropsWithChildren<unknown>): JSX.Element => {
+const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
   const batteryPower = useSelector(getBatteryPower);
   const clockTime = useSelector(getClockTime);

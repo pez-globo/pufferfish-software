@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { PropsWithChildren, ReactNode } from 'react';
-import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import {
   Grid,
   Table,
@@ -11,9 +9,10 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
-  Typography,
   withStyles,
 } from '@material-ui/core';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import React, { PropsWithChildren, ReactNode } from 'react';
 import { DECIMAL_RADIX } from '../app/AppConstants';
 
 /**
@@ -131,16 +130,7 @@ const StyledTableCell = withStyles((theme: Theme) =>
 )(TableCell);
 
 function EnhancedTableHead(props: EnhancedTableProps) {
-  const {
-    classes,
-    onSelectAllClick,
-    order,
-    orderBy,
-    numSelected,
-    rowCount,
-    onRequestSort,
-    headCells,
-  } = props;
+  const { classes, order, orderBy, onRequestSort, headCells } = props;
   const createSortHandler = (property: string | number) => (event: React.MouseEvent<unknown>) => {
     onRequestSort(event, property);
   };
@@ -212,7 +202,6 @@ export const SimpleTable = (props: PropsWithChildren<TableProps>): JSX.Element =
     children,
   } = props;
   const classes = useStyles();
-  const theme = useTheme();
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: string | number) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');

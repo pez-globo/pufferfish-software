@@ -1,16 +1,15 @@
-import React from 'react';
-import { Grid, Tabs, Tab, Button } from '@material-ui/core/';
+import { Button, Grid, Tab, Tabs } from '@material-ui/core/';
 import { makeStyles, Theme } from '@material-ui/core/styles';
+import React from 'react';
 import { useDispatch } from 'react-redux';
-import { AnyAaaaRecord } from 'dns';
-import { TabPanel, a11yProps } from '../controllers/TabPanel';
-import { InfoTab, TestCalibrationTab, DisplayTab } from './containers';
-import { FRONTEND_DISPLAY_SETTINGS, SYSTEM_SETTINGS } from '../../store/controller/types';
 import { updateCommittedState } from '../../store/controller/actions';
 import {
   FrontendDisplaySetting,
   SystemSettingRequest,
 } from '../../store/controller/proto/frontend_pb';
+import { FRONTEND_DISPLAY_SETTINGS, SYSTEM_SETTINGS } from '../../store/controller/types';
+import { a11yProps, TabPanel } from '../controllers/TabPanel';
+import { DisplayTab, InfoTab, TestCalibrationTab } from './containers';
 
 const useStyles = makeStyles((theme: Theme) => ({
   tabPanelContainer: {

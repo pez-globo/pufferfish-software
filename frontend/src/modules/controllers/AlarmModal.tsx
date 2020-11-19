@@ -1,12 +1,12 @@
+import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useCallback, useEffect } from 'react';
-import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
-import ValueSlider from './ValueSlider';
-import ValueClicker from './ValueClicker';
+import { updateCommittedState } from '../../store/controller/actions';
 import { getAlarmLimitsRequest } from '../../store/controller/selectors';
 import { ALARM_LIMITS, ALARM_LIMITS_STANDBY } from '../../store/controller/types';
-import { updateCommittedState } from '../../store/controller/actions';
 import ModalPopup from './ModalPopup';
+import ValueClicker from './ValueClicker';
+import ValueSlider from './ValueSlider';
 
 const useStyles = makeStyles((theme: Theme) => ({
   contentContainer: {
@@ -44,7 +44,7 @@ export interface AlarmAdjustProps {
 
 interface Props {
   label: string;
-  units: string;
+  units?: string;
   committedMin?: number;
   committedMax?: number;
   disableAlarmButton?: boolean;
@@ -57,13 +57,13 @@ interface Props {
 
 export const AlarmModal = ({
   label,
-  units,
   committedMin = 0,
   committedMax = 100,
   disableAlarmButton = false,
   updateModalStatus,
   requestCommitRange,
   openModal = false,
+  units = '',
   stateKey,
   step,
 }: Props): JSX.Element => {
@@ -121,10 +121,6 @@ export const AlarmModal = ({
     handleClose();
   };
 
-  const setSortedRangeValue = (rangeValue: number[]) => {
-    setRangeValue(rangeValue.sort());
-  };
-
   return (
     <Grid container direction="column" alignItems="center" justify="center">
       <Grid container item xs>
@@ -138,6 +134,7 @@ export const AlarmModal = ({
             Alarm
           </Button>
         )}
+        <span hidden={true}>{units}</span>
       </Grid>
       <ModalPopup
         withAction={true}

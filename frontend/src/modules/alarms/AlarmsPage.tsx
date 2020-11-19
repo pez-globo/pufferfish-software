@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import { Typography, Button, Grid } from '@material-ui/core';
 import Pagination from '@material-ui/lab/Pagination';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import ValueSlider from '../controllers/ValueSlider';
-import ModeBanner from '../displays/ModeBanner';
+import { updateCommittedState } from '../../store/controller/actions';
+import { AlarmLimitsRequest, VentilationMode } from '../../store/controller/proto/mcu_pb';
 import {
-  getAlarmLimitsRequest,
   getAlarmLimitsRequestStandby,
   getParametersRequestMode,
 } from '../../store/controller/selectors';
 import { ALARM_LIMITS, ALARM_LIMITS_STANDBY } from '../../store/controller/types';
-import { updateCommittedState } from '../../store/controller/actions';
-import { AlarmLimitsRequest, VentilationMode } from '../../store/controller/proto/mcu_pb';
+import ValueSlider from '../controllers/ValueSlider';
+import ModeBanner from '../displays/ModeBanner';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

@@ -1,7 +1,7 @@
-import React, { Component, PropsWithChildren, useEffect, useState } from 'react';
-import { Route, RouteProps, useLocation } from 'react-router-dom';
-import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import React, { PropsWithChildren, useEffect } from 'react';
+import { Route, RouteProps } from 'react-router-dom';
 import { Subscription } from 'rxjs';
 import Sidebar from '../Sidebar';
 import ToolBar from '../ToolBar';
@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const SidebarLayout = ({ children, ...rest }: PropsWithChildren<unknown>): JSX.Element => {
+const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
   const [showBorder, setShowBorder] = React.useState(false);
 

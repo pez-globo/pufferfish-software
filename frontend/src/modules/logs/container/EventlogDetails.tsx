@@ -1,12 +1,12 @@
-import React from 'react';
-import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import { Grid, TableCell, TableRow } from '@material-ui/core';
+import { useTheme } from '@material-ui/core/styles';
+import React from 'react';
 import SimpleTable, {
-  stableSort,
-  Order,
   getComparator,
-  StyledTableRow,
   HeadCell,
+  Order,
+  stableSort,
+  StyledTableRow,
 } from '../../controllers/SimpleTable';
 
 /**
@@ -47,30 +47,16 @@ const headCells: HeadCell[] = [
   { id: 'measurement', numeric: false, disablePadding: false, label: 'Measurement' },
 ];
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    typeWrapper: {
-      width: '50%',
-      textAlign: 'center',
-      borderRadius: 3,
-      padding: 4,
-    },
-  }),
-);
-
 /**
  * Event Logs detail page
  */
 export const EventlogDetails = (): JSX.Element => {
-  const classes = useStyles();
   const theme = useTheme();
   const [order, setOrder] = React.useState<Order>('asc');
-  const [orderBy, setOrderBy] = React.useState<keyof Data>('value');
+  const [orderBy] = React.useState<keyof Data>('value');
   const [selected, setSelected] = React.useState<string[]>([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [open, setOpen] = React.useState(false);
-  const isSelected = (name: string) => selected.indexOf(name) !== -1;
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
   const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
@@ -114,10 +100,7 @@ export const EventlogDetails = (): JSX.Element => {
       >
         {stableSort(rows, getComparator(order, orderBy))
           .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-          .map((row, index) => {
-            const isItemSelected = isSelected(row.value);
-            const labelId = `enhanced-table-checkbox-${index}`;
-
+          .map((row) => {
             return (
               <StyledTableRow
                 hover

@@ -42,11 +42,11 @@ export const waveformHistoryReducer = <T extends PBMessage>(
         if (
           sampleTime > state.waveformNewStart + maxDuration ||
           sampleTime < lastTime ||
-          new Date(sampleTime - gapDuration - state.waveformNewStart) > lastTime
+          sampleTime - gapDuration - state.waveformNewStart > lastTime
         ) {
           // make waveformNew start over
           const newPoint = {
-            date: new Date(0),
+            date: 0,
             value: getValue(action.state as T),
           };
           return {
@@ -66,15 +66,15 @@ export const waveformHistoryReducer = <T extends PBMessage>(
         let buffered = [...state.waveformNew.buffer];
         const newPointTime = sampleTime - state.waveformNewStart;
         const newPoint = {
-          date: new Date(newPointTime),
+          date: newPointTime,
           value: getValue(action.state as T),
         };
         buffered = buffered.concat([newPoint]);
 
         // apply segment update offset
         let segments = [...state.waveformNew.segmented];
-        const bufferedStart = buffered[0].date.getTime();
-        const bufferedEnd = buffered[buffered.length - 1].date.getTime();
+        const bufferedStart = buffered[0].date;
+        const bufferedEnd = buffered[buffered.length - 1].date;
         if (segments.length === 1 && bufferedEnd - bufferedStart < segmentUpdateOffset) {
           return {
             ...state,
@@ -91,8 +91,8 @@ export const waveformHistoryReducer = <T extends PBMessage>(
           segments[segments.length - 1] = buffered;
           buffered = [];
         } else {
-          const lastSegmentStart = lastSegment[0].date.getTime();
-          const lastSegmentEnd = lastSegment[lastSegment.length - 1].date.getTime();
+          const lastSegmentStart = lastSegment[0].date;
+          const lastSegmentEnd = lastSegment[lastSegment.length - 1].date;
           if (newPointTime - lastSegmentEnd >= bufferDuration) {
             const lastSegmentDuration = newPointTime - lastSegmentStart;
             if (lastSegmentDuration >= maxSegmentDuration) {

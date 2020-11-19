@@ -1,27 +1,15 @@
+import { Box, Button, FormControl, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect } from 'react';
-import {
-  Grid,
-  Typography,
-  FormControl,
-  FormControlLabel,
-  RadioGroup,
-  Radio,
-  Box,
-  Button,
-  makeStyles,
-  Theme,
-} from '@material-ui/core';
 import { useSelector } from 'react-redux';
-import ValueController from '../../controllers/ValueController';
 import { getClock } from '../../../store/app/selectors';
-
+import { ThemeVariant, Unit } from '../../../store/controller/proto/frontend_pb';
 import {
   getFrontendDisplaySetting,
   getSystemSettingRequest,
 } from '../../../store/controller/selectors';
-import { ToggleValue } from '../../displays/ToggleValue';
 import { DECIMAL_RADIX } from '../../app/AppConstants';
-import { ThemeVariant, Unit } from '../../../store/controller/proto/frontend_pb';
+import ValueController from '../../controllers/ValueController';
+import { ToggleValue } from '../../displays/ToggleValue';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -122,7 +110,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   const [theme, setTheme] = React.useState(displaySettings.theme);
   const [unit, setUnit] = React.useState(displaySettings.unit);
   const clock = useSelector(getClock);
-  const [date, setDate] = React.useState<Date>(new Date(systemSettings.date * 1000));
+  const [date] = React.useState<Date>(new Date(systemSettings.date * 1000));
   const [period, setPeriod] = React.useState(date.getHours() >= 12 ? Period.PM : Period.AM);
   const [minute, setMinute] = React.useState(date.getMinutes());
   const [hour, setHour] = React.useState(to12HourClock(date.getHours())); // Note: `date.hours()` is 24-hour formatted.
@@ -253,7 +241,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
               <FormControl component="fieldset" className={classes.periodFormControl}>
                 <Grid container item className={classes.root}>
                   <Button
-                    onClick={(event) => setPeriod(Period.AM)}
+                    onClick={() => setPeriod(Period.AM)}
                     variant="outlined"
                     className={buttonClass(Period.AM)}
                   >
@@ -262,7 +250,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
                 </Grid>
                 <Grid container item>
                   <Button
-                    onClick={(event) => setPeriod(Period.PM)}
+                    onClick={() => setPeriod(Period.PM)}
                     variant="outlined"
                     className={buttonClass(Period.PM)}
                   >

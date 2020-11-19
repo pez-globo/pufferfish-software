@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef, RefObject } from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Snackbar, makeStyles, Theme, Grid, Typography, Popover } from '@material-ui/core';
+import React, { useState, useEffect, useRef } from 'react';
 import { Alert } from '@material-ui/lab';
 import { useDispatch, useSelector } from 'react-redux';
+import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
-import { BellIcon } from '../icons';
 import { LogEventCode } from '../../store/controller/proto/mcu_pb';
 import { BMIN, PERCENT } from '../info/units';
 import {
@@ -15,6 +13,7 @@ import {
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
+import { BellIcon } from '../icons';
 import { setActiveEventState } from './Service';
 import { updateCommittedState } from '../../store/controller/actions';
 import { ALARM_MUTE } from '../../store/controller/types';
@@ -151,7 +150,6 @@ export const getEventType = (code: LogEventCode): { type: string; label: string;
 };
 
 interface Props {
-  path: string;
   label: string;
 }
 
@@ -192,14 +190,14 @@ export const AlertToast = ({
   );
 };
 
-export const EventAlerts = ({ path, label }: Props): JSX.Element => {
+export const EventAlerts = ({ label }: Props): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [alert, setAlert] = useState({ label: '' });
   const [isMuted, setIsMuted] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(false);
   const [activeFilter, setActiveFilter] = useState<boolean>(false);
   const [alertCount, setAlertCount] = useState<number>(0);
-  const [open, setOpen] = React.useState(false);
   const buttonRef = useRef(null);
 
   const popupEventLog = useSelector(getPopupEventLog);

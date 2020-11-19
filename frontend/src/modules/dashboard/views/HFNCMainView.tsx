@@ -1,23 +1,20 @@
-import React from 'react';
+import { Button, Grid, Tab, Tabs, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import { Grid, Tabs, Tab, Typography, Button } from '@material-ui/core';
-import zIndex from '@material-ui/core/styles/zIndex';
+import React from 'react';
 import { useSelector } from 'react-redux';
-import { PawGraphInfo, FlowGraphInfo, VolumeGraphInfo } from '../containers';
-import { TabPanel, a11yProps } from '../../controllers/TabPanel';
-import ControlInfo from '../containers/ControlInfo';
 import {
-  getCycleMeasurementsPEEP,
   getCycleMeasurementsRR,
   getParametersFiO2,
   getParametersFlow,
-  getParametersPEEP,
   getROXIndex,
   getSensorMeasurementsFiO2,
   getSensorMeasurementsFlow,
   getSensorMeasurementsSpO2,
 } from '../../../store/controller/selectors';
-import { BMIN, CMH20, LMIN, PERCENT } from '../../info/units';
+import { a11yProps, TabPanel } from '../../controllers/TabPanel';
+import { BMIN, LMIN, PERCENT } from '../../info/units';
+import { FlowGraphInfo, PawGraphInfo, VolumeGraphInfo } from '../containers';
+import ControlInfo from '../containers/ControlInfo';
 import ValueInfo from '../containers/ValueInfo';
 
 const useStyles = makeStyles((theme: Theme) => ({

@@ -1,8 +1,8 @@
 import React from 'react';
-import { useTheme, Theme } from '@material-ui/core';
+import { useTheme } from '@material-ui/core';
 import { Grid, GridRows, GridColumns } from '@vx/grid';
 import { Group } from '@vx/group';
-import { AxisLeft, AxisRight, AxisBottom } from '@vx/axis';
+import { AxisLeft, AxisBottom } from '@vx/axis';
 import { Line } from '@vx/shape';
 import { scaleTime, scaleLinear } from '@vx/scale';
 
@@ -31,6 +31,7 @@ export interface Props {
   };
   xRangeMin: number;
   xRangeMax: number;
+  xRangeRescale: number;
   yRangeMin: number;
   yRangeMax: number;
   title: string;
@@ -44,6 +45,7 @@ export const Axes = ({
   waveforms,
   xRangeMin,
   xRangeMax,
+  xRangeRescale,
   yRangeMin,
   yRangeMax,
   title,
@@ -56,8 +58,8 @@ export const Axes = ({
   const yMax = height - margin.top - margin.bottom;
 
   // scales
-  const xScale = scaleTime({
-    domain: [new Date(xRangeMin), new Date(xRangeMax)],
+  const xScale = scaleLinear({
+    domain: [xRangeMin * xRangeRescale, xRangeMax * xRangeRescale],
     range: [0, xMax],
   });
   const yScale = scaleLinear({
@@ -141,6 +143,7 @@ export const Axes = ({
         >
           {(axis) => {
             const tickLabelSize = 12;
+            const tickOffset = -tickLabelSize / 2;
             const tickRotate = 0;
             const tickColor = theme.typography.body1.color;
             const axisCenter = (axis.axisToPoint.x - axis.axisFromPoint.x) / 2;
@@ -148,7 +151,7 @@ export const Axes = ({
               <g className="my-custom-bottom-axis">
                 {axis.ticks.map((tick, i) => {
                   const tickX = tick.to.x;
-                  const tickY = tick.to.y + tickLabelSize + axis.tickLength;
+                  const tickY = tick.to.y + tickLabelSize + axis.tickLength + tickOffset;
                   const key = `${tick.value}-${i}`;
                   return (
                     <Group key={`vx-tick-${key}`} className="vx-axis-tick">
@@ -185,4 +188,5 @@ Axes.defaultProps = {
     right: 10,
   },
   xRangeMin: 0,
+  xRangeRescale: 1,
 };

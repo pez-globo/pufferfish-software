@@ -1,6 +1,5 @@
 import React from 'react';
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
-import TrendIcon from '../icons/TrendUpIcon';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

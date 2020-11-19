@@ -1,10 +1,10 @@
-import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
+import { Grid, makeStyles, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getScreenStatus } from '../../../store/controller/selectors';
 import ModalPopup from '../../controllers/ModalPopup';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles(() => ({
   overlay: {
     width: '100%',
     height: '100%',

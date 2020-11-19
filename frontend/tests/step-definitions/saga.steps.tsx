@@ -1,12 +1,10 @@
 import { loadFeature, defineFeature } from 'jest-cucumber';
-import { h } from 'preact';
-import * as React from 'react';
 import { delay, takeEvery, takeLatest } from 'redux-saga/effects';
-import controllerSaga, { serviceConnectionPersistently } from '../../store/controller/saga';
-import updateClock from '../../store/controller/io/clock';
-import { INITIALIZED } from '../../store/app/types';
+import controllerSaga, { serviceConnectionPersistently } from '../../src/store/controller/saga';
+import updateClock from '../../src/store/controller/io/clock';
+import { INITIALIZED } from '../../src/store/app/types';
 
-const feature = loadFeature('src/spec/features/saga.feature');
+const feature = loadFeature('tests/features/saga.feature');
 
 defineFeature(feature, (test) => {
   test('To check if redux saga workers is running as expected', ({ given, when, then }) => {

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { connect, useDispatch, useSelector } from 'react-redux';
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { updateCommittedParameter, updateCommittedState } from '../../../store/controller/actions';
 import { PARAMETER_STANDBY } from '../../../store/controller/types';
-import { ValueModal, AlarmModal } from '../../controllers';
+import { ValueModal } from '../../controllers';
 import { ClickHandler } from './ValueInfo';
 
 interface Props {

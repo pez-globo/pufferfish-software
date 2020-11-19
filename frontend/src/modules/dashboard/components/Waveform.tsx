@@ -1,22 +1,17 @@
 import React from 'react';
-import { useTheme, Theme } from '@material-ui/core';
+import { useTheme } from '@material-ui/core';
 import { fade } from '@material-ui/core/styles/colorManipulator';
-import { Grid } from '@vx/grid';
 import { curveLinear } from '@vx/curve';
 import { LinePath, AreaClosed } from '@vx/shape';
 import { Group } from '@vx/group';
 import { LinearGradient } from '@vx/gradient';
-import { scaleTime, scaleLinear } from '@vx/scale';
+import { scaleLinear } from '@vx/scale';
 import { Axes } from './Axes';
 
 interface DateValue {
-  date: Date;
+  date: number;
   value: number;
 }
-
-// accessors
-const x = ({ date }: DateValue) => date;
-const y = ({ value }: DateValue) => value;
 
 export interface Props {
   width: number;
@@ -53,17 +48,19 @@ export const Waveform = ({
   const theme = useTheme();
 
   // bounds
-  const xMax = width - margin.left - margin.right;
-  const yMax = height - margin.top - margin.bottom;
+  const xMin = margin.left;
+  const xMax = width - margin.right;
+  const yMin = margin.top;
+  const yMax = height - margin.bottom;
 
   // scales
-  const xScale = scaleTime({
-    domain: [new Date(xRangeMin), new Date(xRangeMax)],
-    range: [0, xMax],
+  const xScale = scaleLinear({
+    domain: [xRangeMin, xRangeMax],
+    range: [xMin, xMax],
   });
   const yScale = scaleLinear({
     domain: [yRangeMin, yRangeMax],
-    range: [yMax, 0],
+    range: [yMax, yMin],
     nice: true,
   });
   const yScale1 = scaleLinear({
@@ -84,8 +81,9 @@ export const Waveform = ({
     return 'rgba(0,0,0,0)';
   }
 
-  // TODO: we need to remove the exclamation points, which are claiming that the
-  // values are never undefined
+  const xAccessor = ({ date }: DateValue): number => xScale(date) as number;
+  const yAccessor = ({ value }: DateValue): number => yScale(value) as number;
+
   return (
     <svg width={width} height={height}>
       <LinearGradient
@@ -97,8 +95,8 @@ export const Waveform = ({
       <Group>
         <AreaClosed
           data={data}
-          x={(d) => (xScale(x(d)) as number) + margin.left}
-          y={(d) => (yScale(y(d)) as number) + margin.top}
+          x={xAccessor}
+          y={yAccessor}
           yScale={findAxis(type)}
           fill={fillF(fill)}
           strokeWidth={strokeWidth}
@@ -106,8 +104,8 @@ export const Waveform = ({
         />
         <LinePath
           data={data}
-          x={(d) => (xScale(x(d)) as number) + margin.left}
-          y={(d) => (yScale(y(d)) as number) + margin.top}
+          x={xAccessor}
+          y={yAccessor}
           stroke={theme.palette.info.main}
           strokeWidth={strokeWidth}
           curve={curveLinear}

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { AlarmModal } from '../../controllers';
 import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
+import { AlarmModal } from '../../controllers';
 
 const useStyles = makeStyles((theme: Theme) => ({
   rootParent: {
@@ -160,7 +160,6 @@ const ControlValuesDisplay = ({
   stateKey,
   units = '',
   isMain = false,
-  isLive = true,
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
@@ -261,13 +260,7 @@ const ControlValuesDisplay = ({
   );
 };
 
-const GridControlValuesDisplay = ({
-  value,
-  label,
-  stateKey,
-  units = '',
-  isLive = true,
-}: Props): JSX.Element => {
+const GridControlValuesDisplay = ({ value, label, stateKey, units = '' }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const alarmLimits = useSelector(getAlarmLimitsRequest) as Record<string, number>;
