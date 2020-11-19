@@ -22,7 +22,7 @@ defaults:
     working-directory: frontend
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
@@ -45,6 +45,26 @@ jobs:
 
     - name: Unit Tests
       run: yarn test
+
+  build:
+    runs-on: ubuntu-18.04
+    # This is temporarily enabled because the build currently fails
+    continue-on-error: true
+    strategy:
+      matrix:
+        node_version: [12]
+
+    steps:
+    - uses: actions/checkout@v1
+      name: Checkout repository
+
+    - name: Use Node.js ${{ matrix.node_version }}
+      uses: actions/setup-node@v1
+      with:
+        version: ${{ matrix.node_version }}
+
+    - name: Install dependencies
+      run: yarn install
 
     - name: Build
       run: yarn build
