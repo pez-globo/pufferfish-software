@@ -45,3 +45,12 @@ jobs:
 
     - name: Unit Tests
       run: yarn test
+
+    - name: Build
+      run: yarn build
+
+    - name: Archive build
+      uses: actions/upload-artifact@v2
+      with:
+        name: frontend-build
+        path: frontend/build
