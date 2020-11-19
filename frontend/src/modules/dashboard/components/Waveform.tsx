@@ -105,7 +105,7 @@ export const Waveform = ({
           curve={curveLinear}
         />
         <LinePath
-          x={(d: DateValue) => (xScale(x(d) ) as number) + margin.left}
+          data={data}
           y={(d) => (yScale(y(d) ) as number) + margin.top}
           stroke={theme.palette.info.main}
           strokeWidth={strokeWidth}
