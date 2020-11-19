@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'firmware/**'
+      - '.github/workflows/firmware.yml'
   pull_request:
     types: [ready_for_review, review_requested]
   pull_request_review:
