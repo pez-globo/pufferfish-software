@@ -222,8 +222,13 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
     setIsMuted(!alarmMuteStatus.active);
   }, [alarmMuteStatus.active]);
 
-  const muteAlarm = () => {
-    dispatch(updateCommittedState(ALARM_MUTE, { active: true }));
+  const muteAlarmState = (state: boolean) => {
+    dispatch(updateCommittedState(ALARM_MUTE, { active: state }));
+  };
+
+  const onActiveAlarmClick = () => {
+    setOpen(true);
+    setActiveFilter(true);
   };
 
   return (
@@ -267,7 +272,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       <Grid hidden={alertCount <= 0}>
         <Button
           style={{ marginLeft: 12 }}
-          onClick={muteAlarm}
+          onClick={() => muteAlarmState(isMuted)}
           variant="contained"
           color="primary"
           className={classes.alertColor}
@@ -279,6 +284,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           variant="contained"
           color="primary"
           className={classes.alertColor}
+          onClick={onActiveAlarmClick}
         >
           <span
             className={!isMuted ? `${classes.alertMargin}` : ''}

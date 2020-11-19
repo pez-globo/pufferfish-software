@@ -117,7 +117,7 @@ export const ToolBar = ({ children }: { children?: React.ReactNode }): JSX.Eleme
   const tools = [<ModesDropdown />];
   if (location.pathname === DASHBOARD_ROUTE.path) {
     tools.push(<ViewDropdown />);
-    tools.push(<EventAlerts path={LOGS_ROUTE.path} label={LOGS_ROUTE.label} />);
+    tools.push(<EventAlerts label={LOGS_ROUTE.label} />);
   } else if (location.pathname === QUICKSTART_ROUTE.path) {
     tools.push(
       <Button variant="contained" color="primary" disabled>

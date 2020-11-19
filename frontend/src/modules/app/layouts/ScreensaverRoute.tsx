@@ -120,7 +120,7 @@ const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Elemen
                 </Button>
               </Grid>
               <Grid item xs className={classes.marginRight} style={{ margin: '0 auto' }}>
-                <EventAlerts path={LOGS_ROUTE.path} label={LOGS_ROUTE.label} />
+                <EventAlerts label={LOGS_ROUTE.label} />
               </Grid>
               <Grid container item xs justify="flex-end" alignItems="center">
                 <span className={classes.paddingRight}>{`${

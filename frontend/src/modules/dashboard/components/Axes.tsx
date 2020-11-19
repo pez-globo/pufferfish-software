@@ -4,7 +4,7 @@ import { Grid, GridRows, GridColumns } from '@vx/grid';
 import { Group } from '@vx/group';
 import { AxisLeft, AxisBottom } from '@vx/axis';
 import { Line } from '@vx/shape';
-import { scaleTime, scaleLinear } from '@vx/scale';
+import { scaleLinear } from '@vx/scale';
 
 // responsive utils for axis ticks
 function numTicksForHeight(height: number) {
