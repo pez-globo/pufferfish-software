@@ -143,6 +143,7 @@ export const Axes = ({
         >
           {(axis) => {
             const tickLabelSize = 12;
+            const tickOffset = -tickLabelSize / 2;
             const tickRotate = 0;
             const tickColor = theme.typography.body1.color;
             const axisCenter = (axis.axisToPoint.x - axis.axisFromPoint.x) / 2;
@@ -150,7 +151,7 @@ export const Axes = ({
               <g className="my-custom-bottom-axis">
                 {axis.ticks.map((tick, i) => {
                   const tickX = tick.to.x;
-                  const tickY = tick.to.y + tickLabelSize + axis.tickLength;
+                  const tickY = tick.to.y + tickLabelSize + axis.tickLength + tickOffset;
                   const key = `${tick.value}-${i}`;
                   return (
                     <Group key={`vx-tick-${key}`} className="vx-axis-tick">
