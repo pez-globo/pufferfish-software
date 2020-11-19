@@ -100,7 +100,7 @@ export enum MessageType {
 // States
 
 export interface WaveformPoint {
-  date: Date;
+  date: number;
   value: number;
 }
 
