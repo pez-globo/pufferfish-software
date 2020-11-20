@@ -39,8 +39,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     alignItems: 'center',
   },
   alertMargin: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
+    marginLeft: theme.spacing(3.7),
+    marginRight: theme.spacing(3.7),
   },
   marginRight: {
     marginRight: theme.spacing(1),
