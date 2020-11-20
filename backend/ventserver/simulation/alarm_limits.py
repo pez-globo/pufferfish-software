@@ -10,6 +10,17 @@ import betterproto
 from ventserver.protocols.protobuf import mcu_pb
 
 
+def transform_limits_range(
+        floor: int, ceiling: int, requested_min: int, requested_max: int,
+        current_min: int, current_max: int
+) -> Tuple[int, int]:
+    """Return requested if between floor and ceiling, or else return current."""
+    if floor <= requested_min <= requested_max <= ceiling:
+        return (requested_min, requested_max)
+
+    return (current_min, current_max)
+
+
 # Services
 
 
@@ -28,38 +39,14 @@ class Service:
             response: mcu_pb.AlarmLimits
     ) -> None:
         """Update the alarm limits."""
-        (response.fio2_min, response.fio2_max) = self._transform_fio2(
-            request.fio2_min, request.fio2_max,
+        (response.fio2_min, response.fio2_max) = transform_limits_range(
+            self.FIO2_MIN, self.FIO2_MAX, request.fio2_min, request.fio2_max,
             response.fio2_min, response.fio2_max
         )
-        (response.spo2_min, response.spo2_max) = self._transform_spo2(
-            request.spo2_min, request.spo2_max,
+        (response.spo2_min, response.spo2_max) = transform_limits_range(
+            self.SPO2_MIN, self.SPO2_MAX, request.spo2_min, request.spo2_max,
             response.spo2_min, response.spo2_max
         )
-
-    def _transform_fio2(
-            self, fio2_min_request: int, fio2_max_request: int,
-            fio2_min: int, fio2_max: int
-    ) -> Tuple[int, int]:
-        """Update the FiO2 alarm limits."""
-        if (
-                self.FIO2_MIN <= fio2_min_request
-                <= fio2_max_request <= self.FIO2_MAX
-        ):
-            return (fio2_min_request, fio2_max_request)
-        return (fio2_min, fio2_max)
-
-    def _transform_spo2(
-            self, spo2_min_request: int, spo2_max_request: int,
-            spo2_min: int, spo2_max: int
-    ) -> Tuple[int, int]:
-        """Update the SpO2 alarm limits."""
-        if (
-                self.SPO2_MIN <= spo2_min_request
-                <= spo2_max_request <= self.SPO2_MAX
-        ):
-            return (spo2_min_request, spo2_max_request)
-        return (spo2_min, spo2_max)
 
 
 class PCAC(Service):

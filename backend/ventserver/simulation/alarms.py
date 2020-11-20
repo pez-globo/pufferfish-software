@@ -2,7 +2,7 @@
 
 import time
 import typing
-from typing import Dict, Mapping, Optional, Type
+from typing import Dict, Mapping, Optional, Type, Union
 
 import attr
 
@@ -23,6 +23,8 @@ class Service:
     initial_time: float = attr.ib(default=time.time() * 1000)  # ms, Unix time
 
     # Log Events
+    # TODO: we should be able to get the next log event ID from the list sender
+    # TODO: both of these attributes should be shared across services
     next_log_event_id: int = attr.ib(default=0)
     active_alarm_ids: Dict[mcu_pb.LogEventCode, int] = attr.ib(default={})
 
@@ -38,9 +40,20 @@ class Service:
             return
 
         self.transform_alarms(
-            alarm_limits, sensor_measurements,
-            active_log_events, log_events_sender
+            alarm_limits.spo2_min, alarm_limits.spo2_max,
+            sensor_measurements.spo2,
+            mcu_pb.LogEventCode.spo2_too_low,
+            mcu_pb.LogEventCode.spo2_too_high,
+            log_events_sender
         )
+        self.transform_alarms(
+            alarm_limits.fio2_min, alarm_limits.fio2_max,
+            sensor_measurements.fio2,
+            mcu_pb.LogEventCode.fio2_too_low,
+            mcu_pb.LogEventCode.fio2_too_high,
+            log_events_sender
+        )
+        self._transform_active_log_event_ids(active_log_events)
 
     # Update methods
 
@@ -49,16 +62,21 @@ class Service:
         self.current_time = current_time * 1000 - self.initial_time
 
     def transform_alarms(
-            self, alarm_limits: mcu_pb.AlarmLimits,
-            sensor_measurements: mcu_pb.SensorMeasurements,
-            active_log_events: mcu_pb.ActiveLogEvents,
+            self, lower_limit: int, upper_limit: int, value: Union[float, int],
+            too_low_code: mcu_pb.LogEventCode,
+            too_high_code: mcu_pb.LogEventCode,
             log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent]
     ) -> None:
-        """Update the alarms."""
-        self._transform_alarms_spo2(
-            alarm_limits, sensor_measurements, log_events_sender
-        )
-        self._transform_active_log_event_ids(active_log_events)
+        """Update the alarms for a particular parameter."""
+        if value < lower_limit:
+            self._activate_alarm(too_low_code, value, log_events_sender)
+        else:
+            self._deactivate_alarm(too_low_code)
+
+        if value > upper_limit:
+            self._activate_alarm(too_high_code, value, log_events_sender)
+        else:
+            self._deactivate_alarm(too_high_code)
 
     # Alarms
 
@@ -67,28 +85,6 @@ class Service:
     ) -> None:
         """Update the list of active log events."""
         active_log_events.id = list(self.active_alarm_ids.values())
-
-    def _transform_alarms_spo2(
-            self, alarm_limits: mcu_pb.AlarmLimits,
-            sensor_measurements: mcu_pb.SensorMeasurements,
-            log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent]
-    ) -> None:
-        """Update the SpO2-related alarms."""
-        if sensor_measurements.spo2 < alarm_limits.spo2_min:
-            self._activate_alarm(
-                mcu_pb.LogEventCode.spo2_too_low,
-                sensor_measurements.spo2, log_events_sender
-            )
-        else:
-            self._deactivate_alarm(mcu_pb.LogEventCode.spo2_too_low)
-
-        if sensor_measurements.spo2 > alarm_limits.spo2_max:
-            self._activate_alarm(
-                mcu_pb.LogEventCode.spo2_too_high,
-                sensor_measurements.spo2, log_events_sender
-            )
-        else:
-            self._deactivate_alarm(mcu_pb.LogEventCode.spo2_too_high)
 
     # Log Events
 
