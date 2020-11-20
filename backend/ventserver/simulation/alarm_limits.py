@@ -28,16 +28,16 @@ class Service:
             response: mcu_pb.AlarmLimits
     ) -> None:
         """Update the alarm limits."""
-        (response.fio2_min, response.fio2_max) = self.transform_fio2(
+        (response.fio2_min, response.fio2_max) = self._transform_fio2(
             request.fio2_min, request.fio2_max,
             response.fio2_min, response.fio2_max
         )
-        (response.spo2_min, response.spo2_max) = self.transform_spo2(
+        (response.spo2_min, response.spo2_max) = self._transform_spo2(
             request.spo2_min, request.spo2_max,
             response.spo2_min, response.spo2_max
         )
 
-    def transform_fio2(
+    def _transform_fio2(
             self, fio2_min_request: int, fio2_max_request: int,
             fio2_min: int, fio2_max: int
     ) -> Tuple[int, int]:
@@ -49,7 +49,7 @@ class Service:
             return (fio2_min_request, fio2_max_request)
         return (fio2_min, fio2_max)
 
-    def transform_spo2(
+    def _transform_spo2(
             self, spo2_min_request: int, spo2_max_request: int,
             spo2_min: int, spo2_max: int
     ) -> Tuple[int, int]:

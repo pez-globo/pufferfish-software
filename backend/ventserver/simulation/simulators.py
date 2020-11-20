@@ -9,7 +9,6 @@ import attr
 
 import betterproto
 
-from ventserver.protocols.application import lists
 from ventserver.protocols.protobuf import mcu_pb
 
 
@@ -37,23 +36,10 @@ class Service:
 
     def transform(
             self, parameters: mcu_pb.Parameters,
-            alarm_limits: mcu_pb.AlarmLimits,
             sensor_measurements: mcu_pb.SensorMeasurements,
-            cycle_measurements: mcu_pb.CycleMeasurements,
-            active_log_events: mcu_pb.ActiveLogEvents,
-            log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent]
+            cycle_measurements: mcu_pb.CycleMeasurements
     ) -> None:
         """Update the simulation."""
-        if not parameters.ventilating:
-            return
-
-        self.transform_sensors(
-            parameters, sensor_measurements, cycle_measurements
-        )
-        self.transform_alarms(
-            alarm_limits, sensor_measurements,
-            active_log_events, log_events_sender
-        )
 
     # Timing
 
@@ -76,51 +62,9 @@ class Service:
     ) -> None:
         """Update the simulated sensors."""
 
-    def transform_alarms(
-            self, alarm_limits: mcu_pb.AlarmLimits,
-            sensor_measurements: mcu_pb.SensorMeasurements,
-            active_log_events: mcu_pb.ActiveLogEvents,
-            log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent]
-    ) -> None:
-        """Update the alarms."""
-        self._update_alarms_spo2(
-            alarm_limits, sensor_measurements, log_events_sender
-        )
-        self._update_active_log_event_ids(active_log_events)
-
-    # Alarms
-
-    def _update_active_log_event_ids(
-            self, active_log_events: mcu_pb.ActiveLogEvents
-    ) -> None:
-        """Update the list of active log events."""
-        active_log_events.id = list(self.active_alarm_ids.values())
-
-    def _update_alarms_spo2(
-            self, alarm_limits: mcu_pb.AlarmLimits,
-            sensor_measurements: mcu_pb.SensorMeasurements,
-            log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent]
-    ) -> None:
-        """Update the SpO2-related alarms."""
-        if sensor_measurements.spo2 < alarm_limits.spo2_min:
-            self._activate_alarm(
-                mcu_pb.LogEventCode.spo2_too_low,
-                sensor_measurements.spo2, log_events_sender
-            )
-        else:
-            self._deactivate_alarm(mcu_pb.LogEventCode.spo2_too_low)
-
-        if sensor_measurements.spo2 > alarm_limits.spo2_max:
-            self._activate_alarm(
-                mcu_pb.LogEventCode.spo2_too_high,
-                sensor_measurements.spo2, log_events_sender
-            )
-        else:
-            self._deactivate_alarm(mcu_pb.LogEventCode.spo2_too_high)
-
     # FiO2 simulation
 
-    def _update_fio2(
+    def _transform_fio2(
             self, parameters: mcu_pb.Parameters,
             sensor_measurements: mcu_pb.SensorMeasurements
     ) -> None:
@@ -132,31 +76,6 @@ class Service:
             * self.fio2_responsiveness / SENSOR_UPDATE_INTERVAL
         )
         sensor_measurements.fio2 += self.fio2_noise * random.random()
-
-    # Log Events
-
-    def _activate_alarm(
-            self, code: mcu_pb.LogEventCode, value: float,
-            log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent]
-    ) -> None:
-        """Create a new Log Event if it is not active."""
-        if code in self.active_alarm_ids:
-            return
-
-        log_event = mcu_pb.LogEvent(
-            id=self.next_log_event_id, time=int(self.current_time),
-            code=code, new_value=value
-        )
-        log_events_sender.input(lists.UpdateEvent(new_element=log_event))
-        self.active_alarm_ids[code] = self.next_log_event_id
-        self.next_log_event_id += 1
-
-    def _deactivate_alarm(self, code: mcu_pb.LogEventCode) -> None:
-        """Dectivate the Log Event if it's active."""
-        if code not in self.active_alarm_ids:
-            return
-
-        self.active_alarm_ids.pop(code)
 
 
 @attr.s
@@ -176,12 +95,12 @@ class PCAC(Service):
     peep_noise: float = 1.0  # cm H2O
     pip_noise: float = 1.0  # cm H2O
 
-    def transform_sensors(
+    def transform(
             self, parameters: mcu_pb.Parameters,
             sensor_measurements: mcu_pb.SensorMeasurements,
             cycle_measurements: mcu_pb.CycleMeasurements
     ) -> None:
-        """Implement Service.transform_sensors."""
+        """Implement Service.transform."""
         if self._time_step == 0:
             return
 
@@ -195,10 +114,10 @@ class PCAC(Service):
             self._transform_cycle_measurements(parameters, cycle_measurements)
 
         if self.current_time - self.cycle_start_time < self.insp_period:
-            self._update_airway_inspiratory(parameters, sensor_measurements)
+            self._transform_airway_inspiratory(parameters, sensor_measurements)
         else:
-            self._update_airway_expiratory(parameters, sensor_measurements)
-        self._update_fio2(parameters, sensor_measurements)
+            self._transform_airway_expiratory(parameters, sensor_measurements)
+        self._transform_fio2(parameters, sensor_measurements)
 
     def _init_cycle(
             self, cycle_period: float, parameters: mcu_pb.Parameters,
@@ -223,7 +142,7 @@ class PCAC(Service):
         cycle_measurements.pip = \
             parameters.pip + self.pip_noise * (random.random() - 0.5)
 
-    def _update_airway_inspiratory(
+    def _transform_airway_inspiratory(
             self, parameters: mcu_pb.Parameters,
             sensor_measurements: mcu_pb.SensorMeasurements
     ) -> None:
@@ -238,7 +157,7 @@ class PCAC(Service):
             sensor_measurements.flow / 60 * self._time_step
         )
 
-    def _update_airway_expiratory(
+    def _transform_airway_expiratory(
             self, parameters: mcu_pb.Parameters,
             sensor_measurements: mcu_pb.SensorMeasurements
     ) -> None:
@@ -269,12 +188,12 @@ class HFNC(Service):
     spo2_noise: float = 0.1  # % SpO2
     rr_noise: float = 5  # b/min
 
-    def transform_sensors(
+    def transform(
             self, parameters: mcu_pb.Parameters,
             sensor_measurements: mcu_pb.SensorMeasurements,
             cycle_measurements: mcu_pb.CycleMeasurements,
     ) -> None:
-        """Implement Simulator.transform_sensors."""
+        """Implement Simulator.transform."""
         if self._time_step == 0:
             return
 
@@ -287,11 +206,11 @@ class HFNC(Service):
             self._init_cycle()
             self._transform_cycle_measurements(parameters, cycle_measurements)
 
-        self._update_flow(parameters, sensor_measurements)
-        self._update_fio2(parameters, sensor_measurements)
-        self._update_spo2(sensor_measurements)
+        self._transform_flow(parameters, sensor_measurements)
+        self._transform_fio2(parameters, sensor_measurements)
+        self._transform_spo2(sensor_measurements)
 
-    def _update_flow(
+    def _transform_flow(
             self, parameters: mcu_pb.Parameters,
             sensor_measurements: mcu_pb.SensorMeasurements
     ) -> None:
@@ -305,7 +224,7 @@ class HFNC(Service):
         sensor_measurements.flow += \
             self.flow_noise * (random.random() - 0.5)
 
-    def _update_spo2(
+    def _transform_spo2(
             self, sensor_measurements: mcu_pb.SensorMeasurements
     ) -> None:
         """Update SpO2 measurements."""
@@ -354,7 +273,7 @@ class Services:
     def transform(
             self, current_time: float, all_states: Mapping[
                 Type[betterproto.Message], Optional[betterproto.Message]
-            ], log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent]
+            ],
     ) -> None:
         """Update the parameters for the requested mode."""
         parameters = typing.cast(
@@ -365,9 +284,6 @@ class Services:
         if self._active_service is None:
             return
 
-        alarm_limits = typing.cast(
-            mcu_pb.AlarmLimits, all_states[mcu_pb.AlarmLimits]
-        )
         sensor_measurements = typing.cast(
             mcu_pb.SensorMeasurements,
             all_states[mcu_pb.SensorMeasurements]
@@ -375,11 +291,7 @@ class Services:
         cycle_measurements = typing.cast(
             mcu_pb.CycleMeasurements, all_states[mcu_pb.CycleMeasurements]
         )
-        active_log_events = typing.cast(
-            mcu_pb.ActiveLogEvents, all_states[mcu_pb.ActiveLogEvents]
-        )
         self._active_service.update_clock(current_time)
         self._active_service.transform(
-            parameters, alarm_limits, sensor_measurements, cycle_measurements,
-            active_log_events, log_events_sender
+            parameters, sensor_measurements, cycle_measurements
         )

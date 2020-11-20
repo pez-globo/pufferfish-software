@@ -24,7 +24,7 @@ from ventserver.protocols import server
 from ventserver.protocols import exceptions
 from ventserver.protocols.application import lists
 from ventserver.protocols.protobuf import mcu_pb
-from ventserver.simulation import alarm_limits, parameters, simulators
+from ventserver.simulation import alarm_limits, alarms, parameters, simulators
 
 
 # Configure logging
@@ -42,6 +42,24 @@ logger.setLevel(logging.INFO)
 # Simulators
 
 
+REQUEST_SERVICE_INTERVAL = 20
+
+
+async def service_requests(
+        all_states: Mapping[
+            Type[betterproto.Message], Optional[betterproto.Message]
+        ]
+) -> None:
+    """Simulate evolution of all states."""
+    parameters_services = parameters.Services()
+    alarm_limits_services = alarm_limits.Services()
+
+    while True:
+        parameters_services.transform(all_states)
+        alarm_limits_services.transform(all_states)
+        await trio.sleep(REQUEST_SERVICE_INTERVAL / 1000)
+
+
 async def simulate_states(
         all_states: Mapping[
             Type[betterproto.Message], Optional[betterproto.Message]
@@ -49,17 +67,13 @@ async def simulate_states(
         log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent]
 ) -> None:
     """Simulate evolution of all states."""
-    parameters_services = parameters.Services()
-    alarm_limits_services = alarm_limits.Services()
     simulation_services = simulators.Services()
+    alarms_services = alarms.Services()
 
     while True:
-        parameters_services.transform(all_states)
-        alarm_limits_services.transform(all_states)
+        simulation_services.transform(time.time(), all_states)
+        alarms_services.transform(time.time(), all_states, log_events_sender)
         await trio.sleep(simulators.SENSOR_UPDATE_INTERVAL / 1000)
-        simulation_services.transform(
-            time.time(), all_states, log_events_sender
-        )
 
 
 async def main() -> None:
@@ -120,6 +134,7 @@ async def main() -> None:
                     ),
                     protocol, None, websocket_endpoint, rotary_encoder
                 )
+                nursery.start_soon(service_requests, all_states)
                 nursery.start_soon(
                     simulate_states, all_states,
                     protocol.receive.backend.log_events_sender
