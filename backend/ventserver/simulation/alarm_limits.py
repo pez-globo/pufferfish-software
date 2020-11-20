@@ -77,8 +77,8 @@ class HFNC(Service):
 class Services:
     """Aggregator and selector of services for different modes."""
 
-    active_service_: Optional[Service] = attr.ib(default=None)
-    services_ = {
+    _active_service: Optional[Service] = attr.ib(default=None)
+    _services = {
         mcu_pb.VentilationMode.pc_ac: PCAC(),
         mcu_pb.VentilationMode.hfnc: HFNC()
     }
@@ -96,9 +96,9 @@ class Services:
         response = typing.cast(
             mcu_pb.AlarmLimits, all_states[mcu_pb.AlarmLimits]
         )
-        self.active_service_ = self.services_.get(parameters.mode, None)
+        self._active_service = self._services.get(parameters.mode, None)
 
-        if self.active_service_ is None:
+        if self._active_service is None:
             return
 
-        self.active_service_.transform(request, response)
+        self._active_service.transform(request, response)
