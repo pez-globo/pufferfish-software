@@ -1,4 +1,10 @@
-"""Trio I/O with sans-I/O protocol, running application."""
+"""Trio I/O with sans-I/O protocol, running a simulation.
+
+Instead of connecting to the microcontroller and relying on it to update the
+state variables and measurements related to the breathing circuit, this backend
+program simulates the evolution of those variables. This allows this backend
+server to act as a mock in place of the real backend server.
+"""
 
 import logging
 import random
@@ -22,6 +28,7 @@ from ventserver.protocols import server
 from ventserver.protocols import exceptions
 from ventserver.protocols.application import lists
 from ventserver.protocols.protobuf import mcu_pb
+from ventserver.simulation import alarm_limits, parameters
 
 
 # Configure logging
@@ -78,13 +85,6 @@ class BreathingCircuitSimulator:
         )
 
     @property
-    def _parameters_request(self) -> mcu_pb.ParametersRequest:
-        """Access the ParametersRequest state segment."""
-        return typing.cast(
-            mcu_pb.ParametersRequest, self.all_states[mcu_pb.ParametersRequest]
-        )
-
-    @property
     def _parameters(self) -> mcu_pb.Parameters:
         """Access the Parameters state segment."""
         return typing.cast(
@@ -96,14 +96,6 @@ class BreathingCircuitSimulator:
         """Access the AlarmLimits state segment."""
         return typing.cast(
             mcu_pb.AlarmLimits, self.all_states[mcu_pb.AlarmLimits]
-        )
-
-    @property
-    def _alarm_limits_request(self) -> mcu_pb.AlarmLimitsRequest:
-        """Access the AlarmLimitsRequest state segment."""
-        return typing.cast(
-            mcu_pb.AlarmLimitsRequest,
-            self.all_states[mcu_pb.AlarmLimitsRequest]
         )
 
     @property
@@ -121,22 +113,6 @@ class BreathingCircuitSimulator:
         return self.current_time - self.previous_time
 
     # Update methods
-
-    def update_parameters(self) -> None:
-        """Update the parameters."""
-
-    def update_alarm_limits(self) -> None:
-        """Update the alarm limits."""
-        if (
-                self._alarm_limits_request.spo2_min >= 0
-                and self._alarm_limits_request.spo2_min < 100
-        ):
-            self._alarm_limits.spo2_min = self._alarm_limits_request.spo2_min
-        if (
-                self._alarm_limits_request.spo2_max > 0
-                and self._alarm_limits_request.spo2_max <= 100
-        ):
-            self._alarm_limits.spo2_max = self._alarm_limits_request.spo2_max
 
     def update_clock(self, current_time: float) -> None:
         """Update the internal state for timing."""
@@ -227,22 +203,6 @@ class PCACSimulator(BreathingCircuitSimulator):
     insp_flow_responsiveness: float = attr.ib(default=0.02)  # ms
     exp_flow_responsiveness: float = attr.ib(default=0.02)  # ms
 
-    def update_parameters(self) -> None:
-        """Implement BreathingCircuitSimulator.update_parameters."""
-        self._parameters.ventilating = self._parameters_request.ventilating
-        self._parameters.mode = self._parameters_request.mode
-        if self._parameters.mode != mcu_pb.VentilationMode.pc_ac:
-            return
-
-        if self._parameters_request.rr > 0:
-            self._parameters.rr = self._parameters_request.rr
-        if self._parameters_request.ie > 0:
-            self._parameters.ie = self._parameters_request.ie
-        if self._parameters_request.pip > 0:
-            self._parameters.pip = self._parameters_request.pip
-        self._parameters.peep = self._parameters_request.peep
-        self._parameters.fio2 = self._parameters_request.fio2
-
     def update_sensors(self) -> None:
         """Implement BreathingCircuitSimulator.update_sensors."""
         if self._time_step == 0:
@@ -320,20 +280,6 @@ class HFNCSimulator(BreathingCircuitSimulator):
     spo2_noise: float = 0.1  # % SpO2
     rr_noise: float = 5  # b/min
 
-    def update_parameters(self) -> None:
-        """Implement BreathingCircuitSimulator.update_parameters."""
-        self._parameters.ventilating = self._parameters_request.ventilating
-        self._parameters.mode = self._parameters_request.mode
-        if self._parameters.mode != mcu_pb.VentilationMode.hfnc:
-            return
-
-        if 0 <= self._parameters_request.flow <= 80:
-            self._parameters.flow = self._parameters_request.flow
-        if 21 <= self._parameters_request.fio2 <= 100:
-            self._parameters.fio2 = self._parameters_request.fio2
-        if self._parameters_request.rr > 0:
-            self._parameters.rr = self._parameters_request.rr
-
     def update_sensors(self) -> None:
         """Implement BreathingCircuitSimulator.update_sensors."""
         if self._time_step == 0:
@@ -398,6 +344,8 @@ async def simulate_states(
         log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent]
 ) -> None:
     """Simulate evolution of all states."""
+    parameters_services = parameters.Services()
+    alarm_limits_services = alarm_limits.Services()
     simulators = {
         mcu_pb.VentilationMode.pc_ac: PCACSimulator(
             all_states=all_states,
@@ -410,21 +358,23 @@ async def simulate_states(
     }
 
     while True:
-        # Mode
-        parameters = typing.cast(
+        # Services
+        parameters_services.transform(all_states)
+        alarm_limits_services.transform(all_states)
+
+        # Simulator
+        params = typing.cast(
             mcu_pb.Parameters, all_states[mcu_pb.Parameters]
         )
-        if parameters.mode not in simulators:
+        if params.mode not in simulators:
             continue
 
-        simulator = simulators[parameters.mode]
-        # Parameters & Settings
-        simulator.update_parameters()
-        simulator.update_alarm_limits()
+        simulator = simulators[params.mode]
+
         # Timing
         await trio.sleep(simulator.SENSOR_UPDATE_INTERVAL / 1000)
         simulator.update_clock(time.time())
-        if parameters.ventilating:
+        if params.ventilating:
             simulator.update_sensors()
             simulator.update_actuators()
             simulator.update_alarms()
@@ -471,10 +421,6 @@ async def main() -> None:
             all_states[state] = mcu_pb.ParametersRequest(
                 mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
                 rr=30, fio2=60, flow=6
-            )
-        elif state is mcu_pb.AlarmLimitsRequest:
-            all_states[state] = mcu_pb.AlarmLimitsRequest(
-                spo2_min=85, spo2_max=95
             )
         else:
             all_states[state] = state()

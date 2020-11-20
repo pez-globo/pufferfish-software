@@ -109,8 +109,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
     }
     FRONTEND_INPUT_TYPES = {
         mcu_pb.ParametersRequest,
-        mcu_pb.Ping,
-        mcu_pb.Announcement,
+        mcu_pb.AlarmLimitsRequest,
+        mcu_pb.ExpectedLogEvent,
         frontend_pb.RotaryEncoder
     }
 
