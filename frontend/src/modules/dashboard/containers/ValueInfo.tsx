@@ -162,6 +162,7 @@ const ControlValuesDisplay = ({
   stateKey,
   units = '',
   isMain = false,
+  decimal,
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
@@ -222,7 +223,7 @@ const ControlValuesDisplay = ({
                   variant="h2"
                   className={`${classes.valueLabel} ${classes.whiteFont}`}
                 >
-                  <ValueSelectorDisplay selector={selector} />
+                  <ValueSelectorDisplay decimal={decimal} selector={selector} />
                 </Typography>
                 {units !== '' && (
                   <Typography
@@ -258,6 +259,7 @@ const GridControlValuesDisplay = ({
   label,
   stateKey,
   units = '',
+  decimal,
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
@@ -294,7 +296,7 @@ const GridControlValuesDisplay = ({
                     variant="h5"
                     className={`${classes.gridValueLabel} ${classes.whiteFont}`}
                   >
-                    <ValueSelectorDisplay selector={selector} />
+                    <ValueSelectorDisplay decimal={decimal} selector={selector} />
                   </Typography>
                   {units !== '' && (
                     <Typography
@@ -379,7 +381,7 @@ const ValueInfo = (props: ValueInfoProps): JSX.Element => {
               selector={subContainer1.selector}
               label={subContainer1.label}
               units={subContainer1.units}
-              decimal={mainContainer.decimal || 0}
+              decimal={subContainer1.decimal || 0}
             />
           )}
         </Grid>
@@ -390,7 +392,7 @@ const ValueInfo = (props: ValueInfoProps): JSX.Element => {
               selector={subContainer2.selector}
               label={subContainer2.label}
               units={subContainer2.units}
-              decimal={mainContainer.decimal || 0}
+              decimal={subContainer2.decimal || 0}
             />
           )}
         </Grid>
