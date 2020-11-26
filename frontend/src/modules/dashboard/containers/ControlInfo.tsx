@@ -4,10 +4,11 @@ import { useDispatch } from 'react-redux';
 import { updateCommittedParameter, updateCommittedState } from '../../../store/controller/actions';
 import { PARAMETER_STANDBY } from '../../../store/controller/types';
 import { ValueModal } from '../../controllers';
+import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
 import { ClickHandler } from './ValueInfo';
 
 interface Props {
-  value: number | undefined;
+  selector: SelectorType;
   committedSetting: number;
   label: string;
   stateKey: string;
@@ -17,7 +18,7 @@ interface Props {
 }
 
 interface ValueProps {
-  value: number | undefined;
+  selector: SelectorType;
   label: string;
   units: string;
 }
@@ -75,7 +76,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export const ValueControl = ({ value, label, units }: ValueProps): JSX.Element => {
+export const ValueControl = ({ selector, label, units }: ValueProps): JSX.Element => {
   const classes = useStyles();
   return (
     <Grid container direction="column" className={classes.rootParent}>
@@ -95,20 +96,11 @@ export const ValueControl = ({ value, label, units }: ValueProps): JSX.Element =
               </Typography>
             </Grid>
           </Grid>
-          <Grid
-            item
-            xs
-            justify="flex-start"
-            alignItems="center"
-            className={classes.displayContainer}
-            wrap="nowrap"
-          >
+          <Grid item xs alignItems="center" className={classes.displayContainer}>
             <Typography align="center" variant="h2" className={classes.valueLabel}>
-              {value !== undefined && !Number.isNaN(value)
-                ? value.toFixed(0).replace(/^-0$/, '0')
-                : '--'}
+              <ValueSelectorDisplay selector={selector} />
             </Typography>
-            {value !== undefined && units !== '' && (
+            {units !== '' && (
               <Typography align="center" variant="body1" className={classes.unitsLabel}>
                 {units}
               </Typography>
@@ -127,7 +119,7 @@ export const ValueControl = ({ value, label, units }: ValueProps): JSX.Element =
  *
  */
 const ControlInfo = (props: Props): JSX.Element => {
-  const { value, label, units, stateKey, committedSetting, min, max } = props;
+  const { selector, label, units, stateKey, committedSetting, min, max } = props;
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const doSetValue = (setting: number) => {
@@ -152,7 +144,7 @@ const ControlInfo = (props: Props): JSX.Element => {
       onClick={handleClick}
       tabIndex={0}
     >
-      <ValueControl value={value} label={label} units={units || ''} />
+      <ValueControl selector={selector} label={label} units={units || ''} />
       <ValueModal
         updateModalStatus={updateModalStatus}
         openModal={open}

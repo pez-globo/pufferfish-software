@@ -140,19 +140,19 @@ const PressureControlMainView = (): JSX.Element => {
           <Grid container item justify="center" alignItems="stretch">
             <ValueInfo
               mainContainer={{
-                value: useSelector(getCycleMeasurementsPIP),
+                selector: getCycleMeasurementsPIP,
                 label: 'PIP',
                 stateKey: 'pip',
                 units: CMH20,
               }}
               subContainer1={{
-                value: useSelector(getCycleMeasurementsPEEP),
+                selector: getCycleMeasurementsPEEP,
                 label: 'PEEP',
                 stateKey: 'peep',
                 units: CMH20,
               }}
               subContainer2={{
-                value: useSelector(getSensorMeasurementsFiO2),
+                selector: getSensorMeasurementsFiO2,
                 label: 'FiO2',
                 stateKey: 'fio2',
                 units: PERCENT,
@@ -160,19 +160,19 @@ const PressureControlMainView = (): JSX.Element => {
             />
             <ValueInfo
               mainContainer={{
-                value: useSelector(getCycleMeasurementsRR),
+                selector: getCycleMeasurementsRR,
                 label: 'RR',
                 stateKey: 'rr',
                 units: BMIN,
               }}
               subContainer1={{
-                value: useSelector(getCycleMeasurementsVT),
+                selector: getCycleMeasurementsVT,
                 label: 'TV',
                 stateKey: 'tv',
                 units: LMIN,
               }}
               subContainer2={{
-                value: 0,
+                selector: getCycleMeasurementsVT, // Need to replace it wit I:E selector value
                 label: 'I:E Ratio',
                 units: '',
                 stateKey: '',
@@ -266,7 +266,7 @@ const PressureControlMainView = (): JSX.Element => {
             >
               <Grid item xs className={classes.rightBorder}>
                 <ControlInfo
-                  value={useSelector(getCycleMeasurementsPIP)}
+                  selector={getCycleMeasurementsPIP}
                   label="PIP"
                   stateKey="pip"
                   units={CMH20}
@@ -275,7 +275,7 @@ const PressureControlMainView = (): JSX.Element => {
               </Grid>
               <Grid item xs className={classes.rightBorder}>
                 <ControlInfo
-                  value={useSelector(getCycleMeasurementsPEEP)}
+                  selector={getCycleMeasurementsPEEP}
                   label="PEEP"
                   stateKey="peep"
                   units={CMH20}
@@ -284,7 +284,7 @@ const PressureControlMainView = (): JSX.Element => {
               </Grid>
               <Grid item xs className={classes.rightBorder}>
                 <ControlInfo
-                  value={useSelector(getCycleMeasurementsRR)}
+                  selector={getCycleMeasurementsRR}
                   label="RR"
                   stateKey="rr"
                   units={BMIN}
@@ -293,7 +293,7 @@ const PressureControlMainView = (): JSX.Element => {
               </Grid>
               <Grid item xs className={classes.rightBorder}>
                 <ControlInfo
-                  value={useSelector(getSensorMeasurementsFiO2)}
+                  selector={getSensorMeasurementsFiO2}
                   label="FiO2"
                   stateKey="fio2"
                   units={PERCENT}

@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Alert } from '@material-ui/lab';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
@@ -198,11 +198,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const [open, setOpen] = useState<boolean>(false);
   const [activeFilter, setActiveFilter] = useState<boolean>(false);
   const [alertCount, setAlertCount] = useState<number>(0);
-  const buttonRef = useRef(null);
-
-  const popupEventLog = useSelector(getPopupEventLog);
-  const activeLog = useSelector(getActiveLogEventIds);
-  const alarmMuteStatus = useSelector(getAlarmMuteStatus);
+  const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
+  const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
+  const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
   useEffect(() => {
     if (popupEventLog) {
       const eventType = getEventType(popupEventLog.code);
@@ -320,7 +318,6 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           variant="contained"
           color="primary"
           onClick={() => setOpen(true)}
-          ref={buttonRef}
         >
           <BellIcon />
           {/* <div hidden={!(alertCount > 0)} className={classes.iconBadge}>

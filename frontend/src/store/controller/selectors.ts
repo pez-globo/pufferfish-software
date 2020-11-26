@@ -1,4 +1,5 @@
 import { createSelector, OutputSelector } from 'reselect';
+import DECIMAL_RADIX from '../../modules/app/AppConstants';
 import { StoreState } from '../types';
 import { FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import {
@@ -22,6 +23,11 @@ import {
   WaveformPoint,
 } from './types';
 
+const roundValue = (value: number) => {
+  return value !== undefined && !Number.isNaN(value)
+    ? parseInt(value.toFixed(0).replace(/^-0$/, '0'), DECIMAL_RADIX)
+    : 0;
+};
 export const getController = ({ controller }: StoreState): ControllerStates => controller;
 
 // Alarms
@@ -37,27 +43,27 @@ export const getSensorMeasurements = createSelector(
 );
 export const getSensorMeasurementsTime = createSelector(
   getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements): number => sensorMeasurements.time,
+  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.time),
 );
 export const getSensorMeasurementsPaw = createSelector(
   getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements): number => sensorMeasurements.paw,
+  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.paw),
 );
 export const getSensorMeasurementsFlow = createSelector(
   getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements): number => sensorMeasurements.flow,
+  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.flow),
 );
 export const getSensorMeasurementsVolume = createSelector(
   getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements): number => sensorMeasurements.volume,
+  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.volume),
 );
 export const getSensorMeasurementsFiO2 = createSelector(
   getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements): number => sensorMeasurements.fio2,
+  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.fio2),
 );
 export const getSensorMeasurementsSpO2 = createSelector(
   getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements): number => sensorMeasurements.spo2,
+  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.spo2),
 );
 
 // CycleMeasurements
@@ -67,19 +73,19 @@ export const getCycleMeasurements = createSelector(
 );
 export const getCycleMeasurementsPIP = createSelector(
   getCycleMeasurements,
-  (cycleMeasurements: CycleMeasurements): number => cycleMeasurements.pip,
+  (cycleMeasurements: CycleMeasurements): number => roundValue(cycleMeasurements.pip),
 );
 export const getCycleMeasurementsPEEP = createSelector(
   getCycleMeasurements,
-  (cycleMeasurements: CycleMeasurements): number => cycleMeasurements.peep,
+  (cycleMeasurements: CycleMeasurements): number => roundValue(cycleMeasurements.peep),
 );
 export const getCycleMeasurementsRR = createSelector(
   getCycleMeasurements,
-  (cycleMeasurements: CycleMeasurements): number => cycleMeasurements.rr,
+  (cycleMeasurements: CycleMeasurements): number => roundValue(cycleMeasurements.rr),
 );
 export const getCycleMeasurementsVT = createSelector(
   getCycleMeasurements,
-  (cycleMeasurements: CycleMeasurements): number => cycleMeasurements.vt,
+  (cycleMeasurements: CycleMeasurements): number => roundValue(cycleMeasurements.vt),
 );
 
 // ROX Index
@@ -88,7 +94,9 @@ export const getROXIndex = createSelector(
   getCycleMeasurements,
   (sensorMeasurements: SensorMeasurements, cycleMeasurements: CycleMeasurements): number => {
     if (sensorMeasurements.spo2 && sensorMeasurements.fio2 && cycleMeasurements.rr) {
-      return sensorMeasurements.spo2 / sensorMeasurements.fio2 / cycleMeasurements.rr;
+      return parseFloat(
+        (sensorMeasurements.spo2 / sensorMeasurements.fio2 / cycleMeasurements.rr).toFixed(2),
+      );
     }
     return 0;
   },
@@ -99,25 +107,20 @@ export const getParameters = createSelector(
   getController,
   (states: ControllerStates): Parameters => states.parameters,
 );
-export const getParametersPIP = createSelector(
-  getParameters,
-  (parameters: Parameters): number => parameters.pip,
+export const getParametersPIP = createSelector(getParameters, (parameters: Parameters): number =>
+  roundValue(parameters.pip),
 );
-export const getParametersPEEP = createSelector(
-  getParameters,
-  (parameters: Parameters): number => parameters.peep,
+export const getParametersPEEP = createSelector(getParameters, (parameters: Parameters): number =>
+  roundValue(parameters.peep),
 );
-export const getParametersRR = createSelector(
-  getParameters,
-  (parameters: Parameters): number => parameters.rr,
+export const getParametersRR = createSelector(getParameters, (parameters: Parameters): number =>
+  roundValue(parameters.rr),
 );
-export const getParametersFiO2 = createSelector(
-  getParameters,
-  (parameters: Parameters): number => parameters.fio2,
+export const getParametersFiO2 = createSelector(getParameters, (parameters: Parameters): number =>
+  roundValue(parameters.fio2),
 );
-export const getParametersFlow = createSelector(
-  getParameters,
-  (parameters: Parameters): number => parameters.flow,
+export const getParametersFlow = createSelector(getParameters, (parameters: Parameters): number =>
+  roundValue(parameters.flow),
 );
 
 // ParametersRequest
@@ -135,6 +138,16 @@ export const getParametersRequestStandby = createSelector(
 export const getParametersRequestMode = createSelector(
   getParametersRequest,
   (parametersRequest: ParametersRequest): VentilationMode => parametersRequest.mode,
+);
+
+// Derived FiO2 Sensor Measurements
+export const getSensorMeasurementsFiO2Value = createSelector(
+  getSensorMeasurements,
+  getParametersFlow,
+  (sensorMeasurements: SensorMeasurements, getParametersFlow: number): number | undefined => {
+    const fio2Value = sensorMeasurements.fio2;
+    return getParametersFlow > 0 ? roundValue(fio2Value) : undefined;
+  },
 );
 
 // RotaryEncoder

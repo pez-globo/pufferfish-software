@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 import ModeBanner from '../displays/ModeBanner';
 import ValueJumbotron from './ValueJumbotron';
 import ControlJumbotron from './ControlJumbotron';
@@ -50,17 +50,13 @@ const HFNCValueGrid = (): JSX.Element => {
   return (
     <React.Fragment>
       <Grid item xs={3} className={classes.gridItems}>
-        <ValueJumbotron
-          value={useSelector(getSensorMeasurementsSpO2)}
-          label="SpO2"
-          units={PERCENT}
-        />
+        <ValueJumbotron selector={getSensorMeasurementsSpO2} label="SpO2" units={PERCENT} />
       </Grid>
       <Grid item xs={3} className={classes.gridItems}>
-        <ValueJumbotron value={useSelector(getCycleMeasurementsRR)} label="RR" units={BMIN} />
+        <ValueJumbotron selector={getCycleMeasurementsRR} label="RR" units={BMIN} />
       </Grid>
       <Grid item xs={6} className={classes.gridItems}>
-        <ValueJumbotron value={useSelector(getROXIndex)} label="ROX Index" units="" />
+        <ValueJumbotron decimal={2} selector={getROXIndex} label="ROX Index" units="" />
       </Grid>
     </React.Fragment>
   );
@@ -72,23 +68,41 @@ const HFNCControlGrid = (): JSX.Element => {
   return (
     <React.Fragment>
       <Grid item xs={3} className={classes.gridItems}>
-        <ControlJumbotron
-          value={useSelector(getSensorMeasurementsFiO2)}
-          label="FiO2"
-          units={PERCENT}
-        />
+        <ControlJumbotron selector={getSensorMeasurementsFiO2} label="FiO2" units={PERCENT} />
       </Grid>
       <Grid item xs={3} className={classes.gridItems}>
-        <ControlJumbotron
-          value={useSelector(getSensorMeasurementsFlow)}
-          label="Flow Rate"
-          units={LMIN}
-        />
+        <ControlJumbotron selector={getSensorMeasurementsFlow} label="Flow Rate" units={LMIN} />
       </Grid>
       <Grid item xs={3} className={classes.gridItems} />
       <Grid item xs={3} className={classes.gridItems} />
     </React.Fragment>
   );
+};
+
+const ConfigureControlMode = ({ mode }: { mode: VentilationMode }): JSX.Element => {
+  switch (mode) {
+    case VentilationMode.pc_ac:
+    case VentilationMode.pc_simv:
+    case VentilationMode.vc_ac:
+    case VentilationMode.vc_simv:
+    case VentilationMode.niv:
+    case VentilationMode.hfnc:
+    default:
+      return <HFNCControlGrid />;
+  }
+};
+
+const ConfigureValueMode = ({ mode }: { mode: VentilationMode }): JSX.Element => {
+  switch (mode) {
+    case VentilationMode.pc_ac:
+    case VentilationMode.pc_simv:
+    case VentilationMode.vc_ac:
+    case VentilationMode.vc_simv:
+    case VentilationMode.niv:
+    case VentilationMode.hfnc:
+    default:
+      return <HFNCValueGrid />;
+  }
 };
 
 /**
@@ -98,33 +112,7 @@ const HFNCControlGrid = (): JSX.Element => {
  */
 export const ScreensaverPage = (): JSX.Element => {
   const classes = useStyles();
-  const currentMode = useSelector(getParametersRequestMode);
-
-  const ConfigureControlMode = ({ mode }: { mode: VentilationMode }): JSX.Element => {
-    switch (mode) {
-      case VentilationMode.pc_ac:
-      case VentilationMode.pc_simv:
-      case VentilationMode.vc_ac:
-      case VentilationMode.vc_simv:
-      case VentilationMode.niv:
-      case VentilationMode.hfnc:
-      default:
-        return <HFNCControlGrid />;
-    }
-  };
-
-  const ConfigureValueMode = ({ mode }: { mode: VentilationMode }): JSX.Element => {
-    switch (mode) {
-      case VentilationMode.pc_ac:
-      case VentilationMode.pc_simv:
-      case VentilationMode.vc_ac:
-      case VentilationMode.vc_simv:
-      case VentilationMode.niv:
-      case VentilationMode.hfnc:
-      default:
-        return <HFNCValueGrid />;
-    }
-  };
+  const currentMode = useSelector(getParametersRequestMode, shallowEqual);
 
   return (
     <Grid container direction="column" justify="space-between" className={classes.screenSavergrid}>

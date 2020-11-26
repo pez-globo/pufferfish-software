@@ -42,6 +42,12 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+export const HeaderClock = (): JSX.Element => {
+  const classes = useStyles();
+  const clockTime = useSelector(getClockTime);
+  return <span className={classes.paddingRight}>{clockTime}</span>;
+};
+
 /**
  * ToolBar
  *
@@ -132,7 +138,6 @@ export const ToolBar = ({ children }: { children?: React.ReactNode }): JSX.Eleme
       </Button>,
     );
   }
-  const clockTime = useSelector(getClockTime);
 
   return (
     <AppBar color="transparent" elevation={0} position="static">
@@ -177,7 +182,7 @@ export const ToolBar = ({ children }: { children?: React.ReactNode }): JSX.Eleme
               batteryPower !== undefined ? batteryPower.toFixed(0) : '--'
             }${PERCENT}`}</span>
             <PowerFullIcon style={{ fontSize: '2.5rem' }} />
-            <span className={classes.paddingRight}>{clockTime}</span>
+            <HeaderClock />
             <ClockIcon style={{ fontSize: '2.5rem' }} />
           </Grid>
           <Grid item>{StartPauseButton}</Grid>

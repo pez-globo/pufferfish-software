@@ -3,7 +3,6 @@ import React, { PropsWithChildren, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, Route, RouteProps } from 'react-router-dom';
 import { Subscription } from 'rxjs';
-import { getClockTime } from '../../../store/app/selectors';
 import { getBatteryPower, getParametersRequest } from '../../../store/controller/selectors';
 import ClockIcon from '../../icons/ClockIcon';
 import PowerFullIcon from '../../icons/PowerFullIcon';
@@ -18,6 +17,7 @@ import EventAlerts from '../EventAlerts';
 import UserActivity from '../UserActivity';
 import { getActiveEventState } from '../Service';
 import OverlayScreen from './OverlayScreen';
+import { HeaderClock } from '../ToolBar';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -74,7 +74,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
   const batteryPower = useSelector(getBatteryPower);
-  const clockTime = useSelector(getClockTime);
   const parameterRequest = useSelector(getParametersRequest);
   const [showBorder, setShowBorder] = React.useState(false);
 
@@ -127,7 +126,7 @@ const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Elemen
                   batteryPower !== undefined ? batteryPower.toFixed(0) : '--'
                 }${PERCENT}`}</span>
                 <PowerFullIcon style={{ fontSize: '2.5rem' }} />
-                <span className={classes.paddingRight}>{clockTime}</span>
+                <HeaderClock />
                 <ClockIcon style={{ fontSize: '2.5rem' }} />
               </Grid>
             </AppBar>
