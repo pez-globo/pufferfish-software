@@ -12,16 +12,17 @@ interface ValueSelectorDisplayProps {
   decimal?: number;
 }
 
-export const ValueSelectorDisplay = React.memo(
-  ({ selector, decimal = 0 }: ValueSelectorDisplayProps) => {
-    const value: number | undefined = useSelector(selector);
+export const ValueSelectorDisplay = ({
+  selector,
+  decimal = 0,
+}: ValueSelectorDisplayProps): JSX.Element => {
+  const value: number | undefined = useSelector(selector);
 
-    return (
-      <React.Fragment>
-        {value !== undefined && !Number.isNaN(value)
-          ? value.toFixed(decimal).replace(/^-0$/, '0')
-          : '--'}
-      </React.Fragment>
-    );
-  },
-);
+  return (
+    <React.Fragment>
+      {value !== undefined && !Number.isNaN(value)
+        ? value.toFixed(decimal).replace(/^-0$/, '0')
+        : '--'}
+    </React.Fragment>
+  );
+};
