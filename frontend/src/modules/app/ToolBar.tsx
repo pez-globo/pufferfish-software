@@ -1,14 +1,14 @@
 import { AppBar, Button, Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
 import { getClockTime } from '../../store/app/selectors';
 import { updateCommittedParameter } from '../../store/controller/actions';
 import { VentilationMode } from '../../store/controller/proto/mcu_pb';
 import {
   getBatteryPower,
-  getParametersRequest,
+  getIsVentilating,
   getParametersRequestMode,
   getParametersRequestStandby,
 } from '../../store/controller/selectors';
@@ -61,10 +61,10 @@ export const ToolBar = ({ children }: { children?: React.ReactNode }): JSX.Eleme
   const location = useLocation();
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
-  const parameterRequestStandby = useSelector(getParametersRequestStandby);
-  const parameterRequest = useSelector(getParametersRequest);
+  const parameterRequestStandby = useSelector(getParametersRequestStandby, shallowEqual);
+  const ventilating = useSelector(getIsVentilating);
   const batteryPower = useSelector(getBatteryPower);
-  const [isVentilatorOn, setIsVentilatorOn] = React.useState(parameterRequest.ventilating);
+  const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
   const label = isVentilatorOn ? 'Pause Ventilation' : 'Start Ventilation';
   const toPath = isVentilatorOn ? QUICKSTART_ROUTE.path : DASHBOARD_ROUTE.path;
   const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;

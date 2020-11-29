@@ -3,7 +3,7 @@ import React, { PropsWithChildren, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, Route, RouteProps } from 'react-router-dom';
 import { Subscription } from 'rxjs';
-import { getBatteryPower, getParametersRequest } from '../../../store/controller/selectors';
+import { getBatteryPower, getIsVentilating } from '../../../store/controller/selectors';
 import ClockIcon from '../../icons/ClockIcon';
 import PowerFullIcon from '../../icons/PowerFullIcon';
 import { PERCENT } from '../../info/units';
@@ -74,7 +74,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
   const batteryPower = useSelector(getBatteryPower);
-  const parameterRequest = useSelector(getParametersRequest);
+  const ventilating = useSelector(getIsVentilating);
   const [showBorder, setShowBorder] = React.useState(false);
 
   useEffect(() => {
@@ -107,7 +107,7 @@ const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Elemen
               <Grid item style={{ margin: '0 auto' }}>
                 <Button
                   component={Link}
-                  to={parameterRequest.ventilating ? DASHBOARD_ROUTE.path : QUICKSTART_ROUTE.path}
+                  to={ventilating ? DASHBOARD_ROUTE.path : QUICKSTART_ROUTE.path}
                   variant="contained"
                   color="primary"
                   className={classes.screensaverButton}

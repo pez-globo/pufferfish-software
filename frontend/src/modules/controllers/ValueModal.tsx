@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core';
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 import ValueClicker from './ValueClicker';
 import ModalPopup from './ModalPopup';
 import { getRotaryEncoder } from '../../store/controller/selectors';
@@ -60,7 +60,7 @@ export const ValueModal = ({
   max = 100,
 }: Props): JSX.Element => {
   const classes = useStyles();
-  const rotaryEncoder = useSelector(getRotaryEncoder);
+  const rotaryEncoder = useSelector(getRotaryEncoder, shallowEqual);
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(committedSetting);
 

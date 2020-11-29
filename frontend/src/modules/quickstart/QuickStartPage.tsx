@@ -1,7 +1,7 @@
 import { Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { updateCommittedState } from '../../store/controller/actions';
 import { VentilationMode } from '../../store/controller/proto/mcu_pb';
 import {
@@ -75,7 +75,7 @@ enum PatientAge {
 
 const SettableParameters = (): JSX.Element => {
   const classes = useStyles();
-  const parameterStandby = useSelector(getParametersRequestStandby);
+  const parameterStandby = useSelector(getParametersRequestStandby, shallowEqual);
 
   const [PEEP, setPEEP] = React.useState(parameterStandby.peep);
   const [Flow, setFlow] = React.useState(parameterStandby.flow);

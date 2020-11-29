@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Switch } from 'react-router-dom';
-import { getParametersRequest } from '../../store/controller/selectors';
+import { getIsVentilating } from '../../store/controller/selectors';
 import AlarmsPage from '../alarms/AlarmsPage';
 import NoLayoutRoute from '../app/layouts/NoLayoutRoute';
 import ScreensaverRoute from '../app/layouts/ScreensaverRoute';
@@ -27,8 +27,9 @@ import {
 } from './constants';
 
 const Routes = (): JSX.Element => {
-  const paramters = useSelector(getParametersRequest);
-  const RouteLayout = paramters.ventilating ? SidebarSlideRoute : SidebarRoute;
+  const ventilating = useSelector(getIsVentilating);
+  const RouteLayout = ventilating ? SidebarSlideRoute : SidebarRoute;
+
   return (
     <Switch>
       <RouteLayout exact path={DASHBOARD_ROUTE.path} component={DashboardPage} />

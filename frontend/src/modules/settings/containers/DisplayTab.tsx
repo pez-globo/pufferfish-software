@@ -1,6 +1,6 @@
 import { Box, Button, FormControl, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 import { getClock } from '../../../store/app/selectors';
 import { ThemeVariant, Unit } from '../../../store/controller/proto/frontend_pb';
 import {
@@ -104,8 +104,8 @@ interface Props {
  */
 export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   const classes = useStyles();
-  const systemSettings = useSelector(getSystemSettingRequest);
-  const displaySettings = useSelector(getFrontendDisplaySetting);
+  const systemSettings = useSelector(getSystemSettingRequest, shallowEqual);
+  const displaySettings = useSelector(getFrontendDisplaySetting, shallowEqual);
   const [brightness, setBrightness] = React.useState(systemSettings.brightness);
   const [theme, setTheme] = React.useState(displaySettings.theme);
   const [unit, setUnit] = React.useState(displaySettings.unit);
