@@ -58,4 +58,36 @@ inline bool convertStringToByteVector(const std::string& input_string, Pufferfis
   return true;
 }
 
+template <size_t payload_size>
+inline std::string convertByteVectorToHexString(const Pufferfish::Util::ByteVector<payload_size> &input_buffer, const size_t &length) {
+  std::string output_string;
+  for(size_t i = 0; i < length; ++i) {
+    auto& ch = input_buffer[i];
+    output_string += "\\x";
+    int c1 = ((ch & 0xf0) >> 4);
+    if((c1 >= 0) && (c1 <= 9)) {
+      output_string += (c1 + '0');
+    }else if((c1 >= 10) && (c1 <= 15)) {
+      output_string += ((c1-10) + 'A');
+    }else{
+      output_string += ('?');
+    }
+
+    c1 = (ch & 0x0f);
+    if((c1 >= 0) && (c1 <= 9)) {
+      output_string += (c1 + '0');
+    }else if((c1 >= 10) && (c1 <= 15)) {
+      output_string += ((c1-10) + 'A');
+    }else{
+      output_string += ('?');
+    }
+  }
+  return output_string;
+}
+
+template <size_t payload_size>
+inline std::string convertByteVectorToHexString(const Pufferfish::Util::ByteVector<payload_size> &input_buffer) {
+  return convertByteVectorToHexString(input_buffer, input_buffer.size());
+}
+
 }
