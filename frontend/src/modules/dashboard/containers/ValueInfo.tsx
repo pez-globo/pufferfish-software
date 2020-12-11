@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
 import { AlarmModal } from '../../controllers';
+import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
 
 const useStyles = makeStyles((theme: Theme) => ({
   rootParent: {
@@ -123,12 +124,13 @@ export interface ValueInfoProps {
 }
 
 export interface Props {
-  value: number;
+  selector: SelectorType;
   label: string;
   stateKey: string;
   units?: string;
   isLive?: boolean;
   isMain?: boolean;
+  decimal?: number;
 }
 
 export const ClickHandler = (
@@ -155,11 +157,12 @@ export const ClickHandler = (
 };
 
 const ControlValuesDisplay = ({
-  value,
+  selector,
   label,
   stateKey,
   units = '',
   isMain = false,
+  decimal,
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
@@ -213,23 +216,14 @@ const ControlValuesDisplay = ({
                 </Grid>
               )}
             </Grid>
-            <Grid
-              item
-              xs
-              justify="flex-start"
-              alignItems="center"
-              className={classes.displayContainer}
-              wrap="nowrap"
-            >
+            <Grid item xs alignItems="center" className={classes.displayContainer}>
               <Grid>
                 <Typography
                   align="center"
                   variant="h2"
                   className={`${classes.valueLabel} ${classes.whiteFont}`}
                 >
-                  {value !== undefined && !Number.isNaN(value)
-                    ? value.toFixed(0).replace(/^-0$/, '0')
-                    : '--'}
+                  <ValueSelectorDisplay decimal={decimal} selector={selector} />
                 </Typography>
                 {units !== '' && (
                   <Typography
@@ -260,7 +254,13 @@ const ControlValuesDisplay = ({
   );
 };
 
-const GridControlValuesDisplay = ({ value, label, stateKey, units = '' }: Props): JSX.Element => {
+const GridControlValuesDisplay = ({
+  selector,
+  label,
+  stateKey,
+  units = '',
+  decimal,
+}: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const alarmLimits = useSelector(getAlarmLimitsRequest) as Record<string, number>;
@@ -296,9 +296,7 @@ const GridControlValuesDisplay = ({ value, label, stateKey, units = '' }: Props)
                     variant="h5"
                     className={`${classes.gridValueLabel} ${classes.whiteFont}`}
                   >
-                    {value !== undefined && !Number.isNaN(value)
-                      ? value.toFixed(0).replace(/^-0$/, '0')
-                      : '--'}
+                    <ValueSelectorDisplay decimal={decimal} selector={selector} />
                   </Typography>
                   {units !== '' && (
                     <Typography
@@ -356,9 +354,10 @@ const ValueInfo = (props: ValueInfoProps): JSX.Element => {
             <ControlValuesDisplay
               isMain={true}
               stateKey={mainContainer.stateKey}
-              value={mainContainer.value}
+              selector={mainContainer.selector}
               label={mainContainer.label}
               units={mainContainer.units}
+              decimal={mainContainer.decimal || 0}
             />
           </Grid>
         </Grid>
@@ -369,18 +368,20 @@ const ValueInfo = (props: ValueInfoProps): JSX.Element => {
         <Grid item xs className={classes.gridAreavalues1}>
           <ControlValuesDisplay
             stateKey={mainContainer.stateKey}
-            value={mainContainer.value}
+            selector={mainContainer.selector}
             label={mainContainer.label}
             units={mainContainer.units}
+            decimal={mainContainer.decimal || 0}
           />
         </Grid>
         <Grid item xs className={classes.gridAreavalues2}>
           {subContainer1 && (
             <GridControlValuesDisplay
               stateKey={subContainer1.stateKey}
-              value={subContainer1.value}
+              selector={subContainer1.selector}
               label={subContainer1.label}
               units={subContainer1.units}
+              decimal={subContainer1.decimal || 0}
             />
           )}
         </Grid>
@@ -388,9 +389,10 @@ const ValueInfo = (props: ValueInfoProps): JSX.Element => {
           {subContainer2 && (
             <GridControlValuesDisplay
               stateKey={subContainer2.stateKey}
-              value={subContainer2.value}
+              selector={subContainer2.selector}
               label={subContainer2.label}
               units={subContainer2.units}
+              decimal={subContainer2.decimal || 0}
             />
           )}
         </Grid>

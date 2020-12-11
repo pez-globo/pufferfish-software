@@ -1,4 +1,4 @@
-import { Grid, TableCell, TableRow, Typography } from '@material-ui/core';
+import { Button, Grid, TableCell, TableRow, Typography } from '@material-ui/core';
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,7 +27,7 @@ interface Data {
   type: string;
   alarm: string;
   time: number; // Note: Make this a date object?
-  status: string;
+  status: number;
   id: number;
 }
 
@@ -37,7 +37,7 @@ const headCells: HeadCell[] = [
   { id: 'type', numeric: false, disablePadding: true, label: 'Type' },
   { id: 'alarm', numeric: true, disablePadding: false, label: 'Alarm' },
   { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date' },
-  { id: 'Status', numeric: false, disablePadding: false, label: 'Status' },
+  { id: 'Status', numeric: true, disablePadding: false, label: 'Status' },
 ];
 
 const useStyles = makeStyles(() =>
@@ -58,13 +58,26 @@ const useStyles = makeStyles(() =>
       borderRadius: 3,
       padding: 4,
     },
+    alertSound: {
+      backgroundColor: '#ff3b30 !important',
+      boxShadow: 'none !important',
+      padding: '0rem 0rem !important',
+      maxWidth: 40,
+      color: '#fff',
+    },
+    eventType: {
+      boxShadow: 'none !important',
+      padding: '0rem 3rem !important',
+      border: 'none',
+      color: '#fff',
+    },
   }),
 );
 
 /**
  * LogsPage
  */
-export const LogsPage = (): JSX.Element => {
+export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -73,7 +86,7 @@ export const LogsPage = (): JSX.Element => {
     type: string,
     alarm: string,
     time: number,
-    status: string,
+    status: number,
     id: number,
   ): Data => {
     return { type, alarm, time, status, id };
@@ -100,26 +113,44 @@ export const LogsPage = (): JSX.Element => {
 
   useEffect(() => {
     const eventIds: number[] = [];
+    const data: Data[] = [];
     loggedEvents.sort((a: LogEvent, b: LogEvent) => a.time - b.time);
-    const data = loggedEvents.map((event: LogEvent) => {
+    loggedEvents.forEach((event: LogEvent) => {
       const eventType = getEventType(event.code);
       const diffString =
         event.oldValue && event.newValue
           ? `(${event.oldValue} ${eventType.unit} to ${event.newValue} ${eventType.unit})`
           : '';
       eventIds.push(event.id);
-      return createData(
-        eventType.type,
-        `${eventType.label} ${diffString}`,
-        event.time,
-        activeLogEventIds.indexOf(event.id) > -1 ? 'Active' : 'In Active',
-        event.id,
-      );
+      if (filter) {
+        setPage(0);
+        if (activeLogEventIds.indexOf(event.id) > -1) {
+          data.push(
+            createData(
+              eventType.type,
+              `${eventType.label} ${diffString}`,
+              event.time,
+              activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
+              event.id,
+            ),
+          );
+        }
+      } else {
+        data.push(
+          createData(
+            eventType.type,
+            `${eventType.label} ${diffString}`,
+            event.time,
+            activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
+            event.id,
+          ),
+        );
+      }
     });
-    setRows(data);
+    setRows(data.length ? data : []);
     // update ExpectedLogEvent
     updateLogEvent(Math.max(...eventIds));
-  }, [loggedEvents, activeLogEventIds, updateLogEvent]);
+  }, [loggedEvents, activeLogEventIds, updateLogEvent, filter]);
 
   const handleClose = () => {
     setOpen(false);
@@ -163,10 +194,6 @@ export const LogsPage = (): JSX.Element => {
       alignItems="stretch"
       className={classes.root}
     >
-      <Grid item>
-        <Typography variant="h3">Events Log</Typography>
-      </Grid>
-
       <SimpleTable
         order={order}
         setOrder={setOrder}
@@ -194,9 +221,24 @@ export const LogsPage = (): JSX.Element => {
                 key={row.id}
               >
                 <TableCell align="left" component="th" id={labelId} scope="row">
-                  <Grid className={classes.typeWrapper} style={typeColor(row.type)}>
+                  <Button
+                    variant="contained"
+                    className={classes.eventType}
+                    style={typeColor(row.type)}
+                  >
                     {row.type}
-                  </Grid>
+                  </Button>
+                  {/* {row.status ? (
+                    <Button
+                      style={{ marginLeft: 12, padding: '.2rem 0rem !important', minWidth: 30 }}
+                      variant="contained"
+                      className={classes.alertSound}
+                    >
+                      <VolumeUpIcon />
+                    </Button>
+                  ) : (
+                    ''
+                  )} */}
                 </TableCell>
                 <TableCell align="left" component="th" id={labelId} scope="row">
                   {row.alarm}
@@ -214,8 +256,10 @@ export const LogsPage = (): JSX.Element => {
                                         })}
                                     `}
                 </TableCell>
-                <TableCell align="left" component="th" scope="row">
-                  {row.status}
+                <TableCell component="td">
+                  <Button variant="contained" color="primary" style={{ padding: '6px 3rem' }}>
+                    Settings
+                  </Button>
                 </TableCell>
               </StyledTableRow>
             );

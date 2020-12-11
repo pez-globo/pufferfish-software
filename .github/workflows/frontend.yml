@@ -4,6 +4,13 @@ on:
   push:
     paths:
       - 'frontend/**'
+      - '.github/workflows/frontend.yml'
+  pull_request:
+    types: [ready_for_review, review_requested]
+  pull_request_review:
+    types: [submitted]
+  milestone:
+    types: [opened, deleted]
   workflow_dispatch:
     inputs:
       git-ref:
@@ -15,7 +22,7 @@ defaults:
     working-directory: frontend
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
@@ -38,3 +45,30 @@ jobs:
 
     - name: Unit Tests
       run: yarn test
+
+  build:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        node_version: [12]
+
+    steps:
+    - uses: actions/checkout@v1
+      name: Checkout repository
+
+    - name: Use Node.js ${{ matrix.node_version }}
+      uses: actions/setup-node@v1
+      with:
+        version: ${{ matrix.node_version }}
+
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Build
+      run: yarn build
+
+    - name: Archive build
+      uses: actions/upload-artifact@v2
+      with:
+        name: frontend-build
+        path: frontend/build

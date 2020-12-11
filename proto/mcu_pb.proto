@@ -178,3 +178,13 @@ message BatteryPower {
 message ScreenStatus {
   bool lock = 1;
 }
+
+message AlarmMute {
+  bool active = 1;
+  float remaining = 2;
+}
+
+message AlarmMuteRequest {
+  bool active = 1;
+  float remaining = 2;
+}

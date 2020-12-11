@@ -1,19 +1,31 @@
 import { PBMessageType } from '../types';
-import { getParametersRequest, getAlarmLimitsRequest, getExpectedLogEvent } from '../selectors';
+import {
+  getParametersRequest,
+  getAlarmLimitsRequest,
+  getExpectedLogEvent,
+  getAlarmMuteRequest,
+} from '../selectors';
 import { MessageSerializer, serializeMessage } from './messages';
 import { Schedule } from './states';
-import { ParametersRequest, AlarmLimitsRequest, ExpectedLogEvent } from '../proto/mcu_pb';
+import {
+  ParametersRequest,
+  AlarmLimitsRequest,
+  ExpectedLogEvent,
+  AlarmMuteRequest,
+} from '../proto/mcu_pb';
 
 export const initialSendSchedule: Schedule = [
   { time: 50, pbMessageType: ParametersRequest },
   { time: 50, pbMessageType: AlarmLimitsRequest },
   { time: 50, pbMessageType: ExpectedLogEvent },
+  // { time: 50, pbMessageType: AlarmMuteRequest },
 ];
 
 export const MessageSerializers = new Map<PBMessageType, MessageSerializer>([
   [AlarmLimitsRequest, serializeMessage<AlarmLimitsRequest>(AlarmLimitsRequest)],
   [ParametersRequest, serializeMessage<ParametersRequest>(ParametersRequest)],
   [ExpectedLogEvent, serializeMessage<ExpectedLogEvent>(ExpectedLogEvent)],
+  [AlarmMuteRequest, serializeMessage<AlarmMuteRequest>(AlarmMuteRequest)],
 ]);
 
 // The OutputSelector type is templated and so complicated that it's not clear
@@ -25,6 +37,7 @@ export const MessageSelectors = new Map<PBMessageType, any>([
   [AlarmLimitsRequest, getAlarmLimitsRequest],
   [ParametersRequest, getParametersRequest],
   [ExpectedLogEvent, getExpectedLogEvent],
+  [AlarmMuteRequest, getAlarmMuteRequest],
 ]);
 
 export interface StateProcessor {

@@ -4,6 +4,13 @@ on:
   push:
     paths:
       - 'backend/**'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    types: [ready_for_review, review_requested]
+  pull_request_review:
+    types: [submitted]
+  milestone:
+    types: [opened, deleted]
   workflow_dispatch:
     inputs:
       git-ref:

@@ -153,6 +153,16 @@ export interface ScreenStatus {
   lock: boolean;
 }
 
+export interface AlarmMute {
+  active: boolean;
+  remaining: number;
+}
+
+export interface AlarmMuteRequest {
+  active: boolean;
+  remaining: number;
+}
+
 const baseAlarms: object = {
   time: 0,
   alarmOne: false,
@@ -300,6 +310,16 @@ const baseBatteryPower: object = {
 
 const baseScreenStatus: object = {
   lock: false,
+};
+
+const baseAlarmMute: object = {
+  active: false,
+  remaining: 0,
+};
+
+const baseAlarmMuteRequest: object = {
+  active: false,
+  remaining: 0,
 };
 
 export const protobufPackage = ''
@@ -2527,6 +2547,130 @@ export const ScreenStatus = {
   toJSON(message: ScreenStatus): unknown {
     const obj: any = {};
     message.lock !== undefined && (obj.lock = message.lock);
+    return obj;
+  },
+};
+
+export const AlarmMute = {
+  encode(message: AlarmMute, writer: Writer = Writer.create()): Writer {
+    writer.uint32(8).bool(message.active);
+    writer.uint32(21).float(message.remaining);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): AlarmMute {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseAlarmMute } as AlarmMute;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.active = reader.bool();
+          break;
+        case 2:
+          message.remaining = reader.float();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): AlarmMute {
+    const message = { ...baseAlarmMute } as AlarmMute;
+    if (object.active !== undefined && object.active !== null) {
+      message.active = Boolean(object.active);
+    } else {
+      message.active = false;
+    }
+    if (object.remaining !== undefined && object.remaining !== null) {
+      message.remaining = Number(object.remaining);
+    } else {
+      message.remaining = 0;
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<AlarmMute>): AlarmMute {
+    const message = { ...baseAlarmMute } as AlarmMute;
+    if (object.active !== undefined && object.active !== null) {
+      message.active = object.active;
+    } else {
+      message.active = false;
+    }
+    if (object.remaining !== undefined && object.remaining !== null) {
+      message.remaining = object.remaining;
+    } else {
+      message.remaining = 0;
+    }
+    return message;
+  },
+  toJSON(message: AlarmMute): unknown {
+    const obj: any = {};
+    message.active !== undefined && (obj.active = message.active);
+    message.remaining !== undefined && (obj.remaining = message.remaining);
+    return obj;
+  },
+};
+
+export const AlarmMuteRequest = {
+  encode(message: AlarmMuteRequest, writer: Writer = Writer.create()): Writer {
+    writer.uint32(8).bool(message.active);
+    writer.uint32(21).float(message.remaining);
+    return writer;
+  },
+  decode(input: Uint8Array | Reader, length?: number): AlarmMuteRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseAlarmMuteRequest } as AlarmMuteRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.active = reader.bool();
+          break;
+        case 2:
+          message.remaining = reader.float();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): AlarmMuteRequest {
+    const message = { ...baseAlarmMuteRequest } as AlarmMuteRequest;
+    if (object.active !== undefined && object.active !== null) {
+      message.active = Boolean(object.active);
+    } else {
+      message.active = false;
+    }
+    if (object.remaining !== undefined && object.remaining !== null) {
+      message.remaining = Number(object.remaining);
+    } else {
+      message.remaining = 0;
+    }
+    return message;
+  },
+  fromPartial(object: DeepPartial<AlarmMuteRequest>): AlarmMuteRequest {
+    const message = { ...baseAlarmMuteRequest } as AlarmMuteRequest;
+    if (object.active !== undefined && object.active !== null) {
+      message.active = object.active;
+    } else {
+      message.active = false;
+    }
+    if (object.remaining !== undefined && object.remaining !== null) {
+      message.remaining = object.remaining;
+    } else {
+      message.remaining = 0;
+    }
+    return message;
+  },
+  toJSON(message: AlarmMuteRequest): unknown {
+    const obj: any = {};
+    message.active !== undefined && (obj.active = message.active);
+    message.remaining !== undefined && (obj.remaining = message.remaining);
     return obj;
   },
 };

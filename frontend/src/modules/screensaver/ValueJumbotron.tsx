@@ -1,5 +1,7 @@
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React from 'react';
+import { ValueSelectorDisplay } from '../displays/ValueSelectorDisplay';
+import { SelectorProps } from './ControlJumbotron';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -37,18 +39,17 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export interface Props {
-  value: number;
-  label: string;
-  units?: string;
-}
-
 /**
  * ValueJumbotron
  *
  * A component for displaying values in a large way.
  */
-export const ValueJumbotron = ({ value, label, units = '' }: Props): JSX.Element => {
+export const ValueJumbotron = ({
+  selector,
+  label,
+  units = '',
+  decimal = 0,
+}: SelectorProps): JSX.Element => {
   const classes = useStyles();
 
   return (
@@ -67,9 +68,7 @@ export const ValueJumbotron = ({ value, label, units = '' }: Props): JSX.Element
         wrap="nowrap"
       >
         <Typography align="left" variant="h1" className={classes.valueLabel}>
-          {value !== undefined && !Number.isNaN(value)
-            ? value.toFixed(0).replace(/^-0$/, '0')
-            : '--'}
+          <ValueSelectorDisplay decimal={decimal} selector={selector} />
         </Typography>
       </Grid>
       <Grid item style={{ width: '100%' }}>

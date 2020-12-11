@@ -7,7 +7,7 @@ import {
   getParametersFiO2,
   getParametersFlow,
   getROXIndex,
-  getSensorMeasurementsFiO2,
+  getSensorMeasurementsFiO2Value,
   getSensorMeasurementsFlow,
   getSensorMeasurementsSpO2,
 } from '../../../store/controller/selectors';
@@ -126,9 +126,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 const HFNCMainView = (): JSX.Element => {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
-  const flowParameter = useSelector(getParametersFlow);
-  const fio2Value = useSelector(getSensorMeasurementsFiO2);
-  const fiO2Measurement = flowParameter > 0 ? fio2Value : undefined;
 
   const handleTabChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setValue(newValue);
@@ -137,11 +134,11 @@ const HFNCMainView = (): JSX.Element => {
   return (
     <Grid container className={classes.root}>
       <Grid container item xs={12} alignItems="stretch" className={classes.topPanel}>
-        <Grid item xs={4} justify="center" alignItems="stretch" className={classes.topLeftPanel}>
+        <Grid item xs={4} alignItems="stretch" className={classes.topLeftPanel}>
           <Grid container item justify="center" alignItems="stretch">
             <ValueInfo
               mainContainer={{
-                value: useSelector(getSensorMeasurementsSpO2),
+                selector: getSensorMeasurementsSpO2,
                 label: 'SpO2',
                 stateKey: 'spo2',
                 units: PERCENT,
@@ -151,7 +148,7 @@ const HFNCMainView = (): JSX.Element => {
           <Grid container item justify="center" alignItems="stretch">
             <ValueInfo
               mainContainer={{
-                value: useSelector(getCycleMeasurementsRR),
+                selector: getCycleMeasurementsRR,
                 label: 'RR',
                 stateKey: 'rr',
                 units: BMIN,
@@ -161,9 +158,10 @@ const HFNCMainView = (): JSX.Element => {
           <Grid container item justify="center" alignItems="stretch">
             <ValueInfo
               mainContainer={{
-                value: useSelector(getROXIndex),
+                selector: getROXIndex,
                 label: 'ROX Index',
                 stateKey: '',
+                decimal: 2,
               }}
             />
           </Grid>
@@ -251,7 +249,7 @@ const HFNCMainView = (): JSX.Element => {
             >
               <Grid item xs className={classes.rightBorder}>
                 <ControlInfo
-                  value={fiO2Measurement}
+                  selector={getSensorMeasurementsFiO2Value}
                   label="FiO2"
                   stateKey="fio2"
                   units={PERCENT}
@@ -261,7 +259,7 @@ const HFNCMainView = (): JSX.Element => {
               </Grid>
               <Grid item xs className={classes.rightBorder}>
                 <ControlInfo
-                  value={useSelector(getSensorMeasurementsFlow)}
+                  selector={getSensorMeasurementsFlow}
                   label="Flow Rate"
                   stateKey="flow"
                   units={LMIN}

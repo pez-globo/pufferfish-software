@@ -4,6 +4,13 @@ on:
   push:
     paths:
       - 'firmware/**'
+      - '.github/workflows/firmware.yml'
+  pull_request:
+    types: [ready_for_review, review_requested]
+  pull_request_review:
+    types: [submitted]
+  milestone:
+    types: [opened, deleted]
   workflow_dispatch:
     inputs:
       git-ref:
@@ -66,6 +73,12 @@ jobs:
       run: |
         cd cmake-build-`echo ${{ matrix.build-type }} | awk '{print tolower($0)}'`
         make -j2
+
+    - name: Archive binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: firmware-binary
+        path: firmware/ventilator-controller-stm32/cmake-build-debug/*
 
   scan-build:
     runs-on: ubuntu-20.04
