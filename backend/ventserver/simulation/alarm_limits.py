@@ -17,6 +17,8 @@ def transform_limits_range(
     """Return requested if between floor and ceiling, or else return current."""
     if floor <= requested_min <= requested_max <= ceiling:
         return (requested_min, requested_max)
+    current_min = max(current_min, floor)
+    current_max = min(current_max, ceiling)
 
     return (current_min, current_max)
 
