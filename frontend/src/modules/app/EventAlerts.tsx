@@ -236,6 +236,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
     } else {
       audio.pause();
     }
+    return () => {
+      audio.pause();
+    };
   }, [playing, audio]);
 
   useEffect(() => {
