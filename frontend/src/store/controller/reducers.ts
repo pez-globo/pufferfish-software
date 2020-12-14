@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux';
 import {
-  ActiveLogEvents,
   Alarms,
   BatteryPower,
   CycleMeasurements,
@@ -15,11 +14,16 @@ import {
   alarmMuteRequestReducer,
   expectedLogEventReducer,
   frontendDisplaySettingReducer,
+  heartbeatBackendReducer,
   parametersRequestReducer,
   parametersRequestStanbyReducer,
   systemSettingRequestReducer,
 } from './reducers/components';
-import { pvHistoryReducer, waveformHistoryReducer } from './reducers/derived';
+import {
+  activeLogEventsReducer,
+  pvHistoryReducer,
+  waveformHistoryReducer,
+} from './reducers/derived';
 import { MessageType } from './types';
 
 export const controllerReducer = combineReducers({
@@ -33,9 +37,10 @@ export const controllerReducer = combineReducers({
   frontendDisplaySetting: frontendDisplaySettingReducer,
   expectedLogEvent: expectedLogEventReducer,
   nextLogEvents: nextLogEventsReducer,
+  heartbeatBackend: heartbeatBackendReducer,
   batteryPower: messageReducer<BatteryPower>(MessageType.BatteryPower, BatteryPower),
   screenStatus: messageReducer<ScreenStatus>(MessageType.ScreenStatus, ScreenStatus),
-  activeLogEvents: messageReducer<ActiveLogEvents>(MessageType.ActiveLogEvents, ActiveLogEvents),
+  activeLogEvents: activeLogEventsReducer,
   sensorMeasurements: messageReducer<SensorMeasurements>(
     MessageType.SensorMeasurements,
     SensorMeasurements,

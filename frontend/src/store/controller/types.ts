@@ -28,6 +28,9 @@ export const PARAMETER_STANDBY = 'PARAMETERS_STANDBY';
 export const FRONTEND_DISPLAY_SETTINGS = 'FRONTEND_DISPLAY_SETTINGS';
 export const SYSTEM_SETTINGS = 'SYSTEM_SETTINGS';
 export const ALARM_MUTE = 'ALARM_MUTE';
+export const HEARTBEAT_BACKEND = '@controller/HEARTBEAT_BACKEND';
+export const BACKEND_CONNECTION_LOST = '@controller/BACKEND_CONNECTION_LOST';
+export const BACKEND_CONNECTION_LOST_CODE = 101;
 
 // Rotary encoder overriden params
 
@@ -153,6 +156,7 @@ export interface ControllerStates {
   logEvent: LogEvent;
   expectedLogEvent: ExpectedLogEvent;
   nextLogEvents: NextLogEvents;
+  heartbeatBackend: { time: Date };
   activeLogEvents: ActiveLogEvents;
   batteryPower: BatteryPower;
   screenStatus: ScreenStatus;

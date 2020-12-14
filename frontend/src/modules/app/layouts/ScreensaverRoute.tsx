@@ -16,8 +16,8 @@ import {
 import EventAlerts from '../EventAlerts';
 import UserActivity from '../UserActivity';
 import { getActiveEventState } from '../Service';
-import OverlayScreen from './OverlayScreen';
 import { HeaderClock } from '../ToolBar';
+import OverlayScreen from '../OverlayScreen';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

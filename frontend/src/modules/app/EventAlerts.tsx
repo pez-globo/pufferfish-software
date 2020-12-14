@@ -16,7 +16,7 @@ import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
 import { setActiveEventState } from './Service';
 import { updateCommittedState } from '../../store/controller/actions';
-import { ALARM_MUTE } from '../../store/controller/types';
+import { ALARM_MUTE, BACKEND_CONNECTION_LOST_CODE } from '../../store/controller/types';
 
 export const ALARM_EVENT_PATIENT = 'Patient';
 export const ALARM_EVENT_SYSTEM = 'System';
@@ -144,6 +144,12 @@ export const getEventType = (code: LogEventCode): { type: string; label: string;
         label: 'Battery power is low',
         unit: PERCENT,
       };
+    case BACKEND_CONNECTION_LOST_CODE:
+      return {
+        type: ALARM_EVENT_SYSTEM,
+        label: 'Software connectivity lost',
+        unit: '',
+      };
     default:
       return { type: '', label: '', unit: '' };
   }
@@ -198,6 +204,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const [open, setOpen] = useState<boolean>(false);
   const [activeFilter, setActiveFilter] = useState<boolean>(false);
   const [alertCount, setAlertCount] = useState<number>(0);
+  const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
+  audio.loop = true;
+  const [playing, setPlaying] = useState(false);
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
@@ -208,13 +217,26 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         setAlertCount(activeLog.length);
         setActiveEventState(true);
         setAlert({ label: eventType.label });
+        setPlaying(false);
+        if (popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
+          setPlaying(true);
+        }
       }
     } else {
       setAlertCount(0);
       setActiveEventState(false);
+      setPlaying(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popupEventLog, JSON.stringify(activeLog)]);
+
+  useEffect(() => {
+    if (playing) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  }, [playing, audio]);
 
   useEffect(() => {
     setIsMuted(!alarmMuteStatus.active);

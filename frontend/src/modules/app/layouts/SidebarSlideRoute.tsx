@@ -7,8 +7,8 @@ import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
 import { SCREENSAVER_ROUTE } from '../../navigation/constants';
 import SidebarClickable from '../SidebarClickable';
-import OverlayScreen from './OverlayScreen';
 import { getActiveEventState } from '../Service';
+import OverlayScreen from '../OverlayScreen';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

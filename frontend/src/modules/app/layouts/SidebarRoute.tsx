@@ -6,8 +6,8 @@ import { Subscription } from 'rxjs';
 import Sidebar from '../Sidebar';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
-import OverlayScreen from './OverlayScreen';
 import { getActiveEventState } from '../Service';
+import OverlayScreen from '../OverlayScreen';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

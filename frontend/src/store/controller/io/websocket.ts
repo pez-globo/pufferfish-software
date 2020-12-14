@@ -1,5 +1,7 @@
 import { eventChannel, EventChannel } from 'redux-saga';
 import { call, take, delay, apply, CallEffect, TakeEffect } from 'redux-saga/effects';
+import store from '../..';
+import { HEARTBEAT_BACKEND } from '../types';
 
 export interface ConnectionEvent {
   err: Event | string | null;
@@ -25,7 +27,10 @@ export const createConnectionChannel = (
 export const createReceiveChannel = (sock: WebSocket): EventChannel<Response> => {
   const sockCopy = sock;
   return eventChannel((emit) => {
-    sockCopy.onmessage = (message) => emit(new Response(message.data));
+    sockCopy.onmessage = (message) => {
+      emit(new Response(message.data));
+      store.dispatch({ type: HEARTBEAT_BACKEND });
+    };
     return () => {
       sockCopy.close();
     };
