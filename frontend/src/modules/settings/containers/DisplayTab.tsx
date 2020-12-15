@@ -1,6 +1,6 @@
 import { Box, Button, FormControl, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 import { getClock } from '../../../store/app/selectors';
 import { ThemeVariant, Unit } from '../../../store/controller/proto/frontend_pb';
 import {
@@ -67,12 +67,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-/**
- * props
- */
-// interface props {
-// }
-
 // Periods for 12-Hour Based Time Format
 enum Period {
   AM,
@@ -96,6 +90,30 @@ const to24HourClock = (hour: number, period: Period) => {
 interface Props {
   onSettingChange(settings: Record<string, unknown>): void;
 }
+
+const DateTimeDisplay = () => {
+  const classes = useStyles();
+  const clock = useSelector(getClock);
+
+  return (
+    <React.Fragment>
+      <Box className={classes.date}>
+        <Typography variant="h5">Date:</Typography>
+        <Typography className={classes.dateTime}>
+          {clock
+            .toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' })
+            .replace('/', ' - ')
+            .replace('/', ' - ')}
+        </Typography>
+      </Box>
+      <Box>
+        <Typography variant="h5">Time:</Typography>
+        <Typography className={classes.dateTime}>{clock.toLocaleTimeString()}</Typography>
+      </Box>
+    </React.Fragment>
+  );
+};
+
 /**
  * DisplayTab
  *
@@ -104,12 +122,11 @@ interface Props {
  */
 export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   const classes = useStyles();
-  const systemSettings = useSelector(getSystemSettingRequest);
-  const displaySettings = useSelector(getFrontendDisplaySetting);
+  const systemSettings = useSelector(getSystemSettingRequest, shallowEqual);
+  const displaySettings = useSelector(getFrontendDisplaySetting, shallowEqual);
   const [brightness, setBrightness] = React.useState(systemSettings.brightness);
   const [theme, setTheme] = React.useState(displaySettings.theme);
   const [unit, setUnit] = React.useState(displaySettings.unit);
-  const clock = useSelector(getClock);
   const [date] = React.useState<Date>(new Date(systemSettings.date * 1000));
   const [period, setPeriod] = React.useState(date.getHours() >= 12 ? Period.PM : Period.AM);
   const [minute, setMinute] = React.useState(date.getMinutes());
@@ -211,19 +228,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
             alignItems="center"
             className={classes.leftContainer}
           >
-            <Box className={classes.date}>
-              <Typography variant="h5">Date:</Typography>
-              <Typography className={classes.dateTime}>
-                {clock
-                  .toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' })
-                  .replace('/', ' - ')
-                  .replace('/', ' - ')}
-              </Typography>
-            </Box>
-            <Box>
-              <Typography variant="h5">Time:</Typography>
-              <Typography className={classes.dateTime}>{clock.toLocaleTimeString()}</Typography>
-            </Box>
+            <DateTimeDisplay />
           </Grid>
         </Grid>
       </Grid>

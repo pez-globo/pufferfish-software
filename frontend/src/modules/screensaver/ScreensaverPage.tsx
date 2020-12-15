@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
-import { shallowEqual, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import ModeBanner from '../displays/ModeBanner';
 import ValueJumbotron from './ValueJumbotron';
 import ControlJumbotron from './ControlJumbotron';
@@ -112,7 +112,7 @@ const ConfigureValueMode = ({ mode }: { mode: VentilationMode }): JSX.Element =>
  */
 export const ScreensaverPage = (): JSX.Element => {
   const classes = useStyles();
-  const currentMode = useSelector(getParametersRequestMode, shallowEqual);
+  const currentMode = useSelector(getParametersRequestMode);
 
   return (
     <Grid container direction="column" justify="space-between" className={classes.screenSavergrid}>

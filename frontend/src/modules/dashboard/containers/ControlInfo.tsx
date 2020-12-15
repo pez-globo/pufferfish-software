@@ -1,6 +1,6 @@
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateCommittedParameter, updateCommittedState } from '../../../store/controller/actions';
 import { PARAMETER_STANDBY } from '../../../store/controller/types';
 import { ValueModal } from '../../controllers';
@@ -9,7 +9,7 @@ import { ClickHandler } from './ValueInfo';
 
 interface Props {
   selector: SelectorType;
-  committedSetting: number;
+  committedSettingSelector: SelectorType;
   label: string;
   stateKey: string;
   units?: string;
@@ -119,8 +119,9 @@ export const ValueControl = ({ selector, label, units }: ValueProps): JSX.Elemen
  *
  */
 const ControlInfo = (props: Props): JSX.Element => {
-  const { selector, label, units, stateKey, committedSetting, min, max } = props;
+  const { selector, label, units, stateKey, committedSettingSelector, min, max } = props;
   const [open, setOpen] = useState(false);
+  const committedSetting = useSelector(committedSettingSelector);
   const dispatch = useDispatch();
   const doSetValue = (setting: number) => {
     dispatch(updateCommittedParameter({ [stateKey]: setting }));

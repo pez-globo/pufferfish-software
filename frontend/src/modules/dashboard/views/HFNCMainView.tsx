@@ -1,7 +1,6 @@
 import { Button, Grid, Tab, Tabs, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
-import { useSelector } from 'react-redux';
 import {
   getCycleMeasurementsRR,
   getParametersFiO2,
@@ -126,7 +125,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 const HFNCMainView = (): JSX.Element => {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
-
   const handleTabChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setValue(newValue);
   };
@@ -253,7 +251,7 @@ const HFNCMainView = (): JSX.Element => {
                   label="FiO2"
                   stateKey="fio2"
                   units={PERCENT}
-                  committedSetting={useSelector(getParametersFiO2)}
+                  committedSettingSelector={getParametersFiO2}
                   min={21}
                 />
               </Grid>
@@ -263,7 +261,7 @@ const HFNCMainView = (): JSX.Element => {
                   label="Flow Rate"
                   stateKey="flow"
                   units={LMIN}
-                  committedSetting={useSelector(getParametersFlow)}
+                  committedSettingSelector={getParametersFlow}
                   max={80}
                 />
               </Grid>

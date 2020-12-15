@@ -77,22 +77,32 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
         alignItems="stretch"
         className={`${showBorder && classes.borderOverlay} ${classes.root}`}
       >
-        <Grid item className={classes.sidebarGrid}>
-          <Sidebar />
-        </Grid>
-        <Grid container item direction="column" className={classes.main}>
-          <Grid container item alignItems="center">
-            <ToolBar />
-          </Grid>
-          <Grid container item className={classes.mainContainer}>
-            {children}
-          </Grid>
-        </Grid>
+        <ContentComponent>{children}</ContentComponent>
       </Grid>
       <UserActivity />
     </React.Fragment>
   );
 };
+
+const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
+  const classes = useStyles();
+
+  return (
+    <React.Fragment>
+      <Grid item className={classes.sidebarGrid}>
+        <Sidebar />
+      </Grid>
+      <Grid container item direction="column" className={classes.main}>
+        <Grid container item alignItems="center">
+          <ToolBar />
+        </Grid>
+        <Grid container item className={classes.mainContainer}>
+          {children}
+        </Grid>
+      </Grid>
+    </React.Fragment>
+  );
+});
 
 const SidebarRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
   if (!Component) return null;

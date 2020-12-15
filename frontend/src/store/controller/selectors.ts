@@ -122,7 +122,10 @@ export const getParametersFiO2 = createSelector(getParameters, (parameters: Para
 export const getParametersFlow = createSelector(getParameters, (parameters: Parameters): number =>
   roundValue(parameters.flow),
 );
-
+export const getIsVentilating = createSelector(
+  getParameters,
+  (parameters: Parameters): boolean => parameters.ventilating,
+);
 // ParametersRequest
 export const getParametersRequest = createSelector(
   getController,

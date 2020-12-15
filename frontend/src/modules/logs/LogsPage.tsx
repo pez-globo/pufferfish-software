@@ -1,7 +1,7 @@
 import { Button, Grid, TableCell, TableRow, Typography } from '@material-ui/core';
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { updateCommittedState } from '../../store/controller/actions';
 import { LogEvent } from '../../store/controller/proto/mcu_pb';
 import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
@@ -101,8 +101,8 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const [open, setOpen] = React.useState(false);
   const [currentRow] = React.useState<Data>();
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-  const loggedEvents = useSelector(getNextLogEvents);
-  const activeLogEventIds = useSelector(getActiveLogEventIds);
+  const loggedEvents = useSelector(getNextLogEvents, shallowEqual);
+  const activeLogEventIds = useSelector(getActiveLogEventIds, shallowEqual);
 
   const updateLogEvent = useCallback(
     (maxId) => {

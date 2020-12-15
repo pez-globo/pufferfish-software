@@ -3,7 +3,7 @@ import React, { PropsWithChildren, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, Route, RouteProps } from 'react-router-dom';
 import { Subscription } from 'rxjs';
-import { getBatteryPower, getParametersRequest } from '../../../store/controller/selectors';
+import { getBatteryPower, getIsVentilating } from '../../../store/controller/selectors';
 import ClockIcon from '../../icons/ClockIcon';
 import PowerFullIcon from '../../icons/PowerFullIcon';
 import { PERCENT } from '../../info/units';
@@ -73,8 +73,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
-  const batteryPower = useSelector(getBatteryPower);
-  const parameterRequest = useSelector(getParametersRequest);
   const [showBorder, setShowBorder] = React.useState(false);
 
   useEffect(() => {
@@ -96,50 +94,55 @@ const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Elemen
         alignItems="stretch"
         className={`${showBorder && classes.borderOverlay} ${classes.root}`}
       >
-        <Grid container item className={classes.main}>
-          <Grid container item alignItems="center">
-            <AppBar
-              color="transparent"
-              elevation={0}
-              position="static"
-              style={{ display: 'contents' }}
-            >
-              <Grid item style={{ margin: '0 auto' }}>
-                <Button
-                  component={Link}
-                  to={parameterRequest.ventilating ? DASHBOARD_ROUTE.path : QUICKSTART_ROUTE.path}
-                  variant="contained"
-                  color="primary"
-                  className={classes.screensaverButton}
-                  disableElevation
-                >
-                  <div>
-                    <SCREENSAVER_ROUTE.icon style={{ fontSize: '1.5rem' }} />
-                  </div>
-                </Button>
-              </Grid>
-              <Grid item xs className={classes.marginRight} style={{ margin: '0 auto' }}>
-                <EventAlerts label={LOGS_ROUTE.label} />
-              </Grid>
-              <Grid container item xs justify="flex-end" alignItems="center">
-                <span className={classes.paddingRight}>{`${
-                  batteryPower !== undefined ? batteryPower.toFixed(0) : '--'
-                }${PERCENT}`}</span>
-                <PowerFullIcon style={{ fontSize: '2.5rem' }} />
-                <HeaderClock />
-                <ClockIcon style={{ fontSize: '2.5rem' }} />
-              </Grid>
-            </AppBar>
-          </Grid>
-          <Grid container item className={classes.mainContainer}>
-            {children}
-          </Grid>
-        </Grid>
+        <ContentComponent>{children}</ContentComponent>
       </Grid>
       <UserActivity />
     </React.Fragment>
   );
 };
+
+const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
+  const classes = useStyles();
+  const batteryPower = useSelector(getBatteryPower);
+  const ventilating = useSelector(getIsVentilating);
+
+  return (
+    <Grid container item className={classes.main}>
+      <Grid container item alignItems="center">
+        <AppBar color="transparent" elevation={0} position="static" style={{ display: 'contents' }}>
+          <Grid item style={{ margin: '0 auto' }}>
+            <Button
+              component={Link}
+              to={ventilating ? DASHBOARD_ROUTE.path : QUICKSTART_ROUTE.path}
+              variant="contained"
+              color="primary"
+              className={classes.screensaverButton}
+              disableElevation
+            >
+              <div>
+                <SCREENSAVER_ROUTE.icon style={{ fontSize: '1.5rem' }} />
+              </div>
+            </Button>
+          </Grid>
+          <Grid item xs className={classes.marginRight} style={{ margin: '0 auto' }}>
+            <EventAlerts label={LOGS_ROUTE.label} />
+          </Grid>
+          <Grid container item xs justify="flex-end" alignItems="center">
+            <span className={classes.paddingRight}>{`${
+              batteryPower !== undefined ? batteryPower.toFixed(0) : '--'
+            }${PERCENT}`}</span>
+            <PowerFullIcon style={{ fontSize: '2.5rem' }} />
+            <HeaderClock />
+            <ClockIcon style={{ fontSize: '2.5rem' }} />
+          </Grid>
+        </AppBar>
+      </Grid>
+      <Grid container item className={classes.mainContainer}>
+        {children}
+      </Grid>
+    </Grid>
+  );
+});
 
 const ScreensaverRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
   if (!Component) return null;

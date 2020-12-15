@@ -1,7 +1,6 @@
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Tabs, Tab, Typography, Button } from '@material-ui/core';
-import { useSelector } from 'react-redux';
 import { PawGraphInfo, FlowGraphInfo, VolumeGraphInfo } from '../containers';
 import { TabPanel, a11yProps } from '../../controllers/TabPanel';
 import ControlInfo from '../containers/ControlInfo';
@@ -270,7 +269,7 @@ const PressureControlMainView = (): JSX.Element => {
                   label="PIP"
                   stateKey="pip"
                   units={CMH20}
-                  committedSetting={useSelector(getParametersPIP)}
+                  committedSettingSelector={getParametersPIP}
                 />
               </Grid>
               <Grid item xs className={classes.rightBorder}>
@@ -279,7 +278,7 @@ const PressureControlMainView = (): JSX.Element => {
                   label="PEEP"
                   stateKey="peep"
                   units={CMH20}
-                  committedSetting={useSelector(getParametersPEEP)}
+                  committedSettingSelector={getParametersPEEP}
                 />
               </Grid>
               <Grid item xs className={classes.rightBorder}>
@@ -288,7 +287,7 @@ const PressureControlMainView = (): JSX.Element => {
                   label="RR"
                   stateKey="rr"
                   units={BMIN}
-                  committedSetting={useSelector(getParametersRR)}
+                  committedSettingSelector={getParametersRR}
                 />
               </Grid>
               <Grid item xs className={classes.rightBorder}>
@@ -297,7 +296,7 @@ const PressureControlMainView = (): JSX.Element => {
                   label="FiO2"
                   stateKey="fio2"
                   units={PERCENT}
-                  committedSetting={useSelector(getParametersFiO2)}
+                  committedSettingSelector={getParametersFiO2}
                 />
               </Grid>
             </Grid>
