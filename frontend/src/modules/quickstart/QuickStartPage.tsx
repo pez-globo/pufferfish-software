@@ -9,10 +9,8 @@ import {
   getParametersRequestStandby,
 } from '../../store/controller/selectors';
 import { PARAMETER_STANDBY } from '../../store/controller/types';
-import TestTool from '../controllers/TestTool';
 import ValueClicker from '../controllers/ValueController';
 import ModeBanner from '../displays/ModeBanner';
-import ToggleValue from '../displays/ToggleValue';
 import { LMIN, PERCENT } from '../info/units';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -64,14 +62,14 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-enum PatientSex {
-  MALE,
-  FEMALE,
-}
-enum PatientAge {
-  ADULT,
-  PEDIATRIC,
-}
+// enum PatientSex {
+//   MALE,
+//   FEMALE,
+// }
+// enum PatientAge {
+//   ADULT,
+//   PEDIATRIC,
+// }
 
 const SettableParameters = (): JSX.Element => {
   const classes = useStyles();
@@ -135,11 +133,13 @@ const SettableParameters = (): JSX.Element => {
             <Grid item xs className={classes.rightBorder}>
               <ValueClicker label="FiO2" units={PERCENT} value={FiO2} onClick={setFiO2} />
             </Grid>
-          </Grid>
-          <Grid container item xs direction="row">
-            <Grid item xs className={classes.rightBorder}>
+            <Grid item xs>
               <ValueClicker label="Flow" units={LMIN} value={Flow} onClick={setFlow} />
             </Grid>
+          </Grid>
+          <Grid container item xs direction="row">
+            <Grid item xs className={classes.rightBorder} />
+            <Grid item xs />
           </Grid>
         </Grid>
       );
@@ -148,11 +148,11 @@ const SettableParameters = (): JSX.Element => {
 
 export const QuickStartPage = (): JSX.Element => {
   const classes = useStyles();
-  const [patientSex, setPatientSex] = React.useState(PatientSex.MALE);
-  const [patientAge, setPatientAge] = React.useState(PatientAge.ADULT);
-  const [patientHeight, setPatientHeight] = React.useState(62);
-  const [patientCircuitTestDate] = React.useState(new Date());
-  const [preUseCheckDate] = React.useState(new Date());
+  // const [patientSex, setPatientSex] = React.useState(PatientSex.MALE);
+  // const [patientAge, setPatientAge] = React.useState(PatientAge.ADULT);
+  // const [patientHeight, setPatientHeight] = React.useState(62);
+  // const [patientCircuitTestDate] = React.useState(new Date());
+  // const [preUseCheckDate] = React.useState(new Date());
 
   return (
     <Grid container direction="column" className={classes.root}>
@@ -161,8 +161,8 @@ export const QuickStartPage = (): JSX.Element => {
           <Typography variant="h3">Standby</Typography>
           <Typography variant="body1">Patient Not Ventilated</Typography>
         </Grid>
-        <Grid item xs className={classes.padding}>
-          <Typography variant="h6">Age:</Typography>
+        <Grid item xs className={`${classes.standby} ${classes.padding}`}>
+          {/* <Typography variant="h6">Age:</Typography>
           <Grid item xs className={classes.paddingTop}>
             <ToggleValue
               toggleBetween={[
@@ -172,10 +172,10 @@ export const QuickStartPage = (): JSX.Element => {
               onToggle={(selected: number) => setPatientAge(selected as PatientAge)}
               selected={patientAge}
             />
-          </Grid>
+          </Grid> */}
         </Grid>
-        <Grid item xs className={classes.padding}>
-          <Typography variant="h6">Sex:</Typography>
+        <Grid item xs className={`${classes.standby} ${classes.padding}`}>
+          {/* <Typography variant="h6">Sex:</Typography>
           <Grid item xs className={classes.paddingTop}>
             <ToggleValue
               toggleBetween={[
@@ -185,30 +185,30 @@ export const QuickStartPage = (): JSX.Element => {
               onToggle={(selected: number) => setPatientSex(selected as PatientSex)}
               selected={patientSex}
             />
-          </Grid>
+          </Grid> */}
         </Grid>
         <Grid item xs={3}>
-          <ValueClicker
+          {/* <ValueClicker
             label="Height"
             units="i"
             onClick={setPatientHeight}
             value={patientHeight}
             min={6}
             max={120}
-          />
+          /> */}
         </Grid>
       </Grid>
       <Grid container item xs className={classes.middleContainer}>
         <Grid container item xs direction="column" className={classes.middleLeftPanel}>
           <Grid item xs className={classes.bottomBorder}>
-            <TestTool label="Pre-Use Check" isSuccess={true} timestamp={preUseCheckDate} />
+            {/* <TestTool label="Pre-Use Check" isSuccess={true} timestamp={preUseCheckDate} /> */}
           </Grid>
           <Grid item xs>
-            <TestTool
+            {/* <TestTool
               label="Patient Circuit Test"
               isSuccess={true}
               timestamp={patientCircuitTestDate}
-            />
+            /> */}
           </Grid>
         </Grid>
         <SettableParameters />

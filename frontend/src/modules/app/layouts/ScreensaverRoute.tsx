@@ -1,18 +1,13 @@
-import { AppBar, Button, Grid, makeStyles, Theme } from '@material-ui/core';
+import { AppBar, Grid, makeStyles, Theme } from '@material-ui/core';
 import React, { PropsWithChildren, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { Link, Route, RouteProps } from 'react-router-dom';
+import { Route, RouteProps, useHistory } from 'react-router-dom';
 import { Subscription } from 'rxjs';
 import { getBatteryPower, getIsVentilating } from '../../../store/controller/selectors';
 import ClockIcon from '../../icons/ClockIcon';
 import PowerFullIcon from '../../icons/PowerFullIcon';
 import { PERCENT } from '../../info/units';
-import {
-  DASHBOARD_ROUTE,
-  LOGS_ROUTE,
-  QUICKSTART_ROUTE,
-  SCREENSAVER_ROUTE,
-} from '../../navigation/constants';
+import { DASHBOARD_ROUTE, LOGS_ROUTE, QUICKSTART_ROUTE } from '../../navigation/constants';
 import EventAlerts from '../EventAlerts';
 import UserActivity from '../UserActivity';
 import { getActiveEventState } from '../Service';
@@ -64,15 +59,29 @@ const useStyles = makeStyles((theme: Theme) => ({
     lineHeight: 'normal',
   },
   borderOverlay: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
     border: '4px solid red',
   },
 }));
 
 const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
+
+  return (
+    <React.Fragment>
+      <OverlayScreen />
+      <Grid container justify="center" alignItems="stretch" className={classes.root}>
+        <ContentComponent>{children}</ContentComponent>
+      </Grid>
+      <UserActivity />
+    </React.Fragment>
+  );
+};
+
+const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
+  const classes = useStyles();
+  const history = useHistory();
+  const ventilating = useSelector(getIsVentilating);
+  const batteryPower = useSelector(getBatteryPower);
   const [showBorder, setShowBorder] = React.useState(false);
 
   useEffect(() => {
@@ -85,45 +94,21 @@ const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Elemen
       }
     };
   }, []);
-  return (
-    <React.Fragment>
-      <OverlayScreen />
-      <Grid
-        container
-        justify="center"
-        alignItems="stretch"
-        className={`${showBorder && classes.borderOverlay} ${classes.root}`}
-      >
-        <ContentComponent>{children}</ContentComponent>
-      </Grid>
-      <UserActivity />
-    </React.Fragment>
-  );
-};
 
-const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
-  const classes = useStyles();
-  const batteryPower = useSelector(getBatteryPower);
-  const ventilating = useSelector(getIsVentilating);
+  const onClick = () => {
+    history.push(ventilating ? DASHBOARD_ROUTE.path : QUICKSTART_ROUTE.path);
+  };
 
   return (
-    <Grid container item className={classes.main}>
+    <Grid
+      onClick={onClick}
+      container
+      item
+      className={`${showBorder && classes.borderOverlay} ${classes.main}`}
+    >
       <Grid container item alignItems="center">
         <AppBar color="transparent" elevation={0} position="static" style={{ display: 'contents' }}>
-          <Grid item style={{ margin: '0 auto' }}>
-            <Button
-              component={Link}
-              to={ventilating ? DASHBOARD_ROUTE.path : QUICKSTART_ROUTE.path}
-              variant="contained"
-              color="primary"
-              className={classes.screensaverButton}
-              disableElevation
-            >
-              <div>
-                <SCREENSAVER_ROUTE.icon style={{ fontSize: '1.5rem' }} />
-              </div>
-            </Button>
-          </Grid>
+          <Grid item style={{ margin: '0 auto' }} />
           <Grid item xs className={classes.marginRight} style={{ margin: '0 auto' }}>
             <EventAlerts label={LOGS_ROUTE.label} />
           </Grid>

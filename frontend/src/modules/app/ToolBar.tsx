@@ -54,7 +54,13 @@ export const HeaderClock = (): JSX.Element => {
  * A container for displaying buttons that handle system changes based on
  * various states and conditions such as ventilator state and current page route.
  */
-export const ToolBar = ({ children }: { children?: React.ReactNode }): JSX.Element => {
+export const ToolBar = ({
+  children,
+  staticStart = false,
+}: {
+  children?: React.ReactNode;
+  staticStart?: boolean;
+}): JSX.Element => {
   const classes = useStyles();
   // Store the route location so we can change button/breadcrumb displays
   // depending on the current route.
@@ -66,11 +72,13 @@ export const ToolBar = ({ children }: { children?: React.ReactNode }): JSX.Eleme
   const batteryPower = useSelector(getBatteryPower);
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
   const label = isVentilatorOn ? 'Pause Ventilation' : 'Start Ventilation';
-  const toPath = isVentilatorOn ? QUICKSTART_ROUTE.path : DASHBOARD_ROUTE.path;
+  const toPath = isVentilatorOn || staticStart ? QUICKSTART_ROUTE.path : DASHBOARD_ROUTE.path;
   const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
   const updateVentilationStatus = () => {
-    dispatch(updateCommittedParameter({ ventilating: !isVentilatorOn }));
-    setIsVentilatorOn(!isVentilatorOn);
+    if (!staticStart) {
+      dispatch(updateCommittedParameter({ ventilating: !isVentilatorOn }));
+      setIsVentilatorOn(!isVentilatorOn);
+    }
   };
 
   const initParameterUpdate = useCallback(() => {
@@ -114,9 +122,9 @@ export const ToolBar = ({ children }: { children?: React.ReactNode }): JSX.Eleme
       onClick={updateVentilationStatus}
       variant="contained"
       color="secondary"
-      disabled={isDisabled}
+      disabled={staticStart ? false : isDisabled}
     >
-      {label}
+      {staticStart ? 'Start' : label}
     </Button>
   );
 

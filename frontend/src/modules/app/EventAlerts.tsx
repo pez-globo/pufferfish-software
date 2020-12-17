@@ -92,6 +92,14 @@ const useStyles = makeStyles((theme: Theme) => ({
       backgroundColor: '#0053b336',
     },
   },
+  alertTextcolor: {
+    color: '#ff0000',
+    marginRight: '10px',
+  },
+  timerText: {
+    fontSize: '.8rem',
+    marginRight: '10px',
+  },
 }));
 
 export const getEventType = (code: LogEventCode): { type: string; label: string; unit: string } => {
@@ -222,6 +230,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
 
   const muteAlarmState = (state: boolean) => {
     dispatch(updateCommittedState(ALARM_MUTE, { active: state }));
+    setActiveEventState(!state);
   };
 
   const onActiveAlarmClick = () => {
@@ -249,6 +258,16 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               </Typography>
             </Grid>
             <Grid container item xs justify="flex-end" alignItems="center">
+              <div className={classes.timerText}>2:00</div>
+              <Button
+                style={{ marginLeft: 12, marginRight: 12 }}
+                onClick={() => muteAlarmState(isMuted)}
+                variant="contained"
+                color="primary"
+                className={classes.alertColor}
+              >
+                {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
+              </Button>
               <Button
                 onClick={() => setActiveFilter(!activeFilter)}
                 variant="contained"
@@ -290,12 +309,14 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           >
             {alert.label}
           </span>
-          <div
-            className={classes.iconBadge}
-            style={{ left: -6, right: 'auto', backgroundColor: '#FFF', color: '#ff0000' }}
-          >
-            {alertCount}
-          </div>
+          {alertCount > 1 && (
+            <div
+              className={classes.iconBadge}
+              style={{ left: -6, right: 'auto', backgroundColor: '#FFF', color: '#ff0000' }}
+            >
+              {alertCount}
+            </div>
+          )}
           {isMuted && <div className={classes.timer}>2:00</div>}
         </Button>
       </Grid>
@@ -320,9 +341,6 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           onClick={() => setOpen(true)}
         >
           <BellIcon />
-          {/* <div hidden={!(alertCount > 0)} className={classes.iconBadge}>
-            {alertCount}
-          </div> */}
         </Button>
         {label}
       </Grid>

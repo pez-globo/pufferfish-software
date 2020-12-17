@@ -6,8 +6,8 @@ import { Subscription } from 'rxjs';
 import Sidebar from '../Sidebar';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
-import OverlayScreen from './OverlayScreen';
 import { getActiveEventState } from '../Service';
+import OverlayScreen from './OverlayScreen';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     position: 'absolute',
     zIndex: 9999,
   },
-  SidebarbordersOverlay: {
+  LandingborderOverlay: {
     width: '100%',
     height: '100%',
     position: 'absolute',
@@ -85,12 +85,12 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
 
   return (
     <React.Fragment>
-      <Grid item className={`${showBorder && classes.SidebarbordersOverlay} ${classes.root}`}>
+      <Grid item className={`${showBorder && classes.LandingborderOverlay} ${classes.sidebarGrid}`}>
         <Sidebar />
       </Grid>
       <Grid container item direction="column" className={classes.main}>
         <Grid container item alignItems="center">
-          <ToolBar />
+          <ToolBar staticStart={true} />
         </Grid>
         <Grid container item className={classes.mainContainer}>
           {children}
@@ -100,7 +100,7 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
   );
 });
 
-const SidebarRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
+const LandingPageRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
   if (!Component) return null;
   return (
     <Route
@@ -114,4 +114,4 @@ const SidebarRoute = ({ component: Component, ...rest }: RouteProps): JSX.Elemen
   );
 };
 
-export default SidebarRoute;
+export default LandingPageRoute;

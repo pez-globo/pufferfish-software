@@ -64,9 +64,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     alignItems: 'center',
   },
   borderOverlay: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
     border: '4px solid red',
   },
 }));
@@ -105,6 +102,19 @@ const FullWidthToolBar = (): JSX.Element => {
 
 const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
+  return (
+    <React.Fragment>
+      <OverlayScreen />
+      <Grid container justify="center" alignItems="stretch" className={classes.root}>
+        <ContentComponent>{children}</ContentComponent>
+      </Grid>
+      <UserActivity />
+    </React.Fragment>
+  );
+};
+
+const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
+  const classes = useStyles();
   const [showBorder, setShowBorder] = React.useState(false);
 
   useEffect(() => {
@@ -117,28 +127,15 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
       }
     };
   }, []);
+
   return (
     <React.Fragment>
-      <OverlayScreen />
       <Grid
         container
-        justify="center"
-        alignItems="stretch"
-        className={`${showBorder && classes.borderOverlay} ${classes.root}`}
+        item
+        direction="column"
+        className={`${showBorder && classes.borderOverlay} ${classes.main}`}
       >
-        <ContentComponent>{children}</ContentComponent>
-      </Grid>
-      <UserActivity />
-    </React.Fragment>
-  );
-};
-
-const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
-  const classes = useStyles();
-
-  return (
-    <React.Fragment>
-      <Grid container item direction="column" className={classes.main}>
         <Grid container item alignItems="center">
           <FullWidthToolBar />
         </Grid>

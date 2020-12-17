@@ -118,7 +118,6 @@ export const ScreensaverPage = (): JSX.Element => {
     <Grid container direction="column" justify="space-between" className={classes.screenSavergrid}>
       <Grid
         container
-        xs
         justify="space-evenly"
         alignItems="stretch"
         className={classes.root}
@@ -131,7 +130,6 @@ export const ScreensaverPage = (): JSX.Element => {
       </Grid>
       <Grid
         container
-        xs
         justify="space-evenly"
         alignItems="stretch"
         className={classes.root}
