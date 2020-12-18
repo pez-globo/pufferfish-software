@@ -2,7 +2,7 @@ import { Tab, Tabs, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { PropsWithChildren, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ALARMS_ROUTE, MODES_ROUTE, SETTINGS_ROUTE, VALUES_ROUTE } from './constants';
+import { ALARMS_ROUTE, SETTINGS_ROUTE } from './constants';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
