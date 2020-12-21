@@ -7,7 +7,7 @@ import Sidebar from '../Sidebar';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
 import { getActiveEventState } from '../Service';
-import OverlayScreen from './OverlayScreen';
+import OverlayScreen from '../OverlayScreen';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
