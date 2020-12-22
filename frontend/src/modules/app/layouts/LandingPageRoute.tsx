@@ -1,12 +1,11 @@
+import { Grid } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { PropsWithChildren, useEffect } from 'react';
 import { Route, RouteProps } from 'react-router-dom';
-import { makeStyles, Theme } from '@material-ui/core/styles';
-import { Button, Drawer, Grid } from '@material-ui/core';
 import { Subscription } from 'rxjs';
+import Sidebar from '../Sidebar';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
-import { SCREENSAVER_ROUTE } from '../../navigation/constants';
-import SidebarClickable from '../SidebarClickable';
 import { getActiveEventState } from '../Service';
 import OverlayScreen from '../OverlayScreen';
 
@@ -17,7 +16,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexWrap: 'nowrap',
     display: 'grid',
     gridTemplateAreas: `
-                    'vent vent'`,
+                    'content vent'`,
     gridTemplateColumns: '90px 1fr',
   },
   sidebarGrid: {
@@ -35,6 +34,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     gridArea: 'vent',
     gridTemplateRows: '40px 1fr',
     overflow: 'hidden',
+    zIndex: 9,
   },
   mainContainer: {
     height: '100%',
@@ -46,62 +46,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     position: 'absolute',
     zIndex: 9999,
   },
-  list: {
-    width: 250,
-  },
-  fullList: {
-    width: 'auto',
-  },
-  screensaverButton: {
-    minWidth: 0,
-    borderRadius: 5,
-    lineHeight: 'normal',
-    marginRight: '16px',
-    padding: '6px 10px',
-  },
-  screensaverSidebar: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  borderOverlay: {
+  LandingborderOverlay: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
     border: '4px solid red',
   },
 }));
 
-const FullWidthToolBar = (): JSX.Element => {
-  const classes = useStyles();
-  const [toggle, setToggle] = React.useState<boolean>(false);
-
-  const toggleDrawer = (value: boolean) => () => {
-    setToggle(value);
-  };
-
-  return (
-    <ToolBar>
-      <Grid>
-        <React.Fragment key="left">
-          <Button
-            onClick={toggleDrawer(true)}
-            variant="contained"
-            color="primary"
-            className={classes.screensaverButton}
-            disableElevation
-          >
-            <div className={classes.screensaverSidebar}>
-              <SCREENSAVER_ROUTE.icon style={{ fontSize: '1.5rem' }} />
-            </div>
-          </Button>
-          <Drawer anchor="left" open={toggle} onClose={toggleDrawer(false)}>
-            <SidebarClickable toggleStatus={(toggle: boolean) => setToggle(toggle)} />
-          </Drawer>
-        </React.Fragment>
-      </Grid>
-    </ToolBar>
-  );
-};
-
 const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
+
   return (
     <React.Fragment>
       <OverlayScreen />
@@ -130,14 +85,12 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
 
   return (
     <React.Fragment>
-      <Grid
-        container
-        item
-        direction="column"
-        className={`${showBorder && classes.borderOverlay} ${classes.main}`}
-      >
+      <Grid item className={`${showBorder && classes.LandingborderOverlay} ${classes.sidebarGrid}`}>
+        <Sidebar />
+      </Grid>
+      <Grid container item direction="column" className={classes.main}>
         <Grid container item alignItems="center">
-          <FullWidthToolBar />
+          <ToolBar staticStart={true} />
         </Grid>
         <Grid container item className={classes.mainContainer}>
           {children}
@@ -147,7 +100,7 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
   );
 });
 
-const DashboardRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
+const LandingPageRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
   if (!Component) return null;
   return (
     <Route
@@ -161,4 +114,4 @@ const DashboardRoute = ({ component: Component, ...rest }: RouteProps): JSX.Elem
   );
 };
 
-export default DashboardRoute;
+export default LandingPageRoute;

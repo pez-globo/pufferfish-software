@@ -21,6 +21,7 @@ const useStyles = makeStyles(() => ({
     marginLeft: 10,
     marginRight: -50,
     color: 'white',
+    display: 'none',
   },
   alertColor: {
     backgroundColor: '#FF0000',
@@ -115,7 +116,7 @@ export const ModesDropdown = (): JSX.Element => {
   }
 
   return (
-    <div>
+    <div style={{ pointerEvents: 'none' }}>
       <Button onClick={handleClick} variant="contained" color="primary" className={classes.button}>
         {getModeText(ventilationMode)}
         <ListItemIcon className={classes.arrow}>

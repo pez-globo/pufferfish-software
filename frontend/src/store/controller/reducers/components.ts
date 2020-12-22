@@ -24,6 +24,7 @@ import {
   ALARM_LIMITS_STANDBY,
   PARAMETER_STANDBY,
   ALARM_MUTE,
+  HEARTBEAT_BACKEND,
 } from '../types';
 import DECIMAL_RADIX from '../../../modules/app/AppConstants';
 
@@ -148,6 +149,20 @@ export const alarmMuteRequestReducer = (
   action: commitAction,
 ): AlarmMuteRequest => {
   return withRequestUpdate<AlarmMuteRequest>(state, action, ALARM_MUTE);
+};
+
+export const heartbeatBackendReducer = (
+  state: Record<string, Date> = {
+    time: new Date(),
+  },
+  action: { type: typeof HEARTBEAT_BACKEND },
+): Record<string, Date> => {
+  switch (action.type) {
+    case HEARTBEAT_BACKEND:
+      return { ...state, time: new Date() };
+    default:
+      return state;
+  }
 };
 
 export const withRequestUpdate = <T>(state: T, action: commitAction, prefix: string): T => {

@@ -4,7 +4,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { updateState } from '../../store/controller/actions';
-import { getParametersRequest } from '../../store/controller/selectors';
+import { getIsVentilating } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { HomeIcon } from '../icons';
 import ShutdownIcon from '../icons/ShutdownIcon';
@@ -77,7 +77,7 @@ const SidebarClickable = ({
     dispatch(updateState(MessageType.ScreenStatus, { lock: true }));
   };
 
-  const parameterRequest = useSelector(getParametersRequest);
+  const ventilating = useSelector(getIsVentilating);
 
   return (
     <Grid
@@ -93,7 +93,7 @@ const SidebarClickable = ({
           <Button
             onClick={() => toggleStatus(false)}
             component={Link}
-            to={parameterRequest.ventilating ? DASHBOARD_ROUTE.path : QUICKSTART_ROUTE.path}
+            to={ventilating ? DASHBOARD_ROUTE.path : QUICKSTART_ROUTE.path}
             variant="contained"
             color="primary"
             className={classes.homeSaver}

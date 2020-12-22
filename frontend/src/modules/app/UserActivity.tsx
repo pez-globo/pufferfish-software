@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import { getIsVentilating } from '../../store/controller/selectors';
 
 const IdleTimer = ({ timeout, onTimeOut }: { timeout: number; onTimeOut(): void }): JSX.Element => {
   const idle = useCallback(() => {
@@ -46,8 +48,12 @@ const IdleTimer = ({ timeout, onTimeOut }: { timeout: number; onTimeOut(): void 
 export const UserActivity = (): JSX.Element => {
   const [idleTimeout] = useState(10 * 60 * 1000);
   const history = useHistory();
+  const ventilating = useSelector(getIsVentilating);
+
   const onTimeOut = () => {
-    history.push('/screensaver');
+    if (ventilating) {
+      history.push('/screensaver');
+    }
   };
   return <IdleTimer timeout={idleTimeout} onTimeOut={onTimeOut} />;
 };

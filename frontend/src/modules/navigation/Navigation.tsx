@@ -2,7 +2,7 @@ import { Tab, Tabs, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { PropsWithChildren, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ALARMS_ROUTE, MODES_ROUTE, SETTINGS_ROUTE, VALUES_ROUTE } from './constants';
+import { ALARMS_ROUTE, SETTINGS_ROUTE } from './constants';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -12,6 +12,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   tabs: {
     alignText: 'center',
     zIndex: 1,
+    marginTop: 20,
     height: '100%',
     '&;selected': {
       backgroundColor: 'white',
@@ -74,9 +75,9 @@ export const Navigation = ({
 
   const routes = [
     // QUICKSTART_ROUTE, // TODO: Hide QuickStart tab when ventilator is on. Need to tap into redux store.
-    MODES_ROUTE,
+    // MODES_ROUTE,
     ALARMS_ROUTE,
-    VALUES_ROUTE,
+    // VALUES_ROUTE,
     SETTINGS_ROUTE,
   ];
 
@@ -130,10 +131,8 @@ export const Navigation = ({
     <div className={classes.root}>
       <Tabs
         orientation="vertical"
-        variant="fullWidth"
         value={route}
         onChange={handleRouteChange}
-        centered
         className={classes.tabs}
         classes={{ indicator: classes.indicator }}
       >

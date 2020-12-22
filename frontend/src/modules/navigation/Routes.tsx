@@ -1,9 +1,9 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Switch } from 'react-router-dom';
-import { getParametersRequest } from '../../store/controller/selectors';
+import { getIsVentilating } from '../../store/controller/selectors';
 import AlarmsPage from '../alarms/AlarmsPage';
-import NoLayoutRoute from '../app/layouts/NoLayoutRoute';
+import LandingPageRoute from '../app/layouts/LandingPageRoute';
 import ScreensaverRoute from '../app/layouts/ScreensaverRoute';
 import SidebarRoute from '../app/layouts/SidebarRoute';
 import SidebarSlideRoute from '../app/layouts/SidebarSlideRoute';
@@ -27,8 +27,9 @@ import {
 } from './constants';
 
 const Routes = (): JSX.Element => {
-  const paramters = useSelector(getParametersRequest);
-  const RouteLayout = paramters.ventilating ? SidebarSlideRoute : SidebarRoute;
+  const ventilating = useSelector(getIsVentilating);
+  const RouteLayout = ventilating ? SidebarSlideRoute : SidebarRoute;
+
   return (
     <Switch>
       <RouteLayout exact path={DASHBOARD_ROUTE.path} component={DashboardPage} />
@@ -39,7 +40,7 @@ const Routes = (): JSX.Element => {
       <RouteLayout path={SETTINGS_ROUTE.path} component={SettingsPage} />
       <RouteLayout path={LOGS_ROUTE.path} component={LogsPage} />
       <ScreensaverRoute path={SCREENSAVER_ROUTE.path} component={ScreensaverPage} />
-      <NoLayoutRoute component={LandingPage} />
+      <LandingPageRoute component={LandingPage} />
     </Switch>
   );
 };

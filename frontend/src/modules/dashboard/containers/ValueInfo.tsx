@@ -1,6 +1,6 @@
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
 import { AlarmModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
@@ -167,7 +167,7 @@ const ControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsRequest) as Record<string, Range>;
+  const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual) as Record<string, Range>;
   const onClick = () => {
     setOpen(true);
   };
@@ -264,7 +264,7 @@ const GridControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsRequest) as Record<string, Range>;
+  const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual) as Record<string, Range>;
   const onClick = () => {
     setOpen(true);
   };

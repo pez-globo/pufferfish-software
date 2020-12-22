@@ -6,8 +6,8 @@ import { Subscription } from 'rxjs';
 import Sidebar from '../Sidebar';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
-import OverlayScreen from './OverlayScreen';
 import { getActiveEventState } from '../Service';
+import OverlayScreen from '../OverlayScreen';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -34,6 +34,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     gridArea: 'vent',
     gridTemplateRows: '40px 1fr',
     overflow: 'hidden',
+    zIndex: 9,
   },
   mainContainer: {
     height: '100%',
@@ -45,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     position: 'absolute',
     zIndex: 9999,
   },
-  borderOverlay: {
+  SidebarbordersOverlay: {
     width: '100%',
     height: '100%',
     position: 'absolute',
@@ -54,6 +55,20 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
+  const classes = useStyles();
+
+  return (
+    <React.Fragment>
+      <OverlayScreen />
+      <Grid container justify="center" alignItems="stretch" className={classes.root}>
+        <ContentComponent>{children}</ContentComponent>
+      </Grid>
+      <UserActivity />
+    </React.Fragment>
+  );
+};
+
+const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
   const [showBorder, setShowBorder] = React.useState(false);
 
@@ -70,29 +85,20 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
 
   return (
     <React.Fragment>
-      <OverlayScreen />
-      <Grid
-        container
-        justify="center"
-        alignItems="stretch"
-        className={`${showBorder && classes.borderOverlay} ${classes.root}`}
-      >
-        <Grid item className={classes.sidebarGrid}>
-          <Sidebar />
+      <Grid item className={`${showBorder && classes.SidebarbordersOverlay} ${classes.root}`}>
+        <Sidebar />
+      </Grid>
+      <Grid container item direction="column" className={classes.main}>
+        <Grid container item alignItems="center">
+          <ToolBar />
         </Grid>
-        <Grid container item direction="column" className={classes.main}>
-          <Grid container item alignItems="center">
-            <ToolBar />
-          </Grid>
-          <Grid container item className={classes.mainContainer}>
-            {children}
-          </Grid>
+        <Grid container item className={classes.mainContainer}>
+          {children}
         </Grid>
       </Grid>
-      <UserActivity />
     </React.Fragment>
   );
-};
+});
 
 const SidebarRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
   if (!Component) return null;

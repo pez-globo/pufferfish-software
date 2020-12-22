@@ -1,6 +1,6 @@
 import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { updateCommittedState } from '../../store/controller/actions';
 import { getAlarmLimitsRequest } from '../../store/controller/selectors';
 import { Range } from '../../store/controller/proto/mcu_pb';
@@ -72,10 +72,10 @@ export const AlarmModal = ({
   const [open, setOpen] = React.useState(false);
   const [min] = React.useState(committedMin);
   const [max] = React.useState(committedMax);
-  const alarmLimits: Record<string, Range> = useSelector(getAlarmLimitsRequest) as Record<
-    string,
-    Range
-  >;
+  const alarmLimits: Record<string, Range> = useSelector(
+    getAlarmLimitsRequest,
+    shallowEqual,
+  ) as Record<string, Range>;
   const [rangeValue, setRangeValue] = React.useState<number[]>([
     alarmLimits[stateKey].lower,
     alarmLimits[stateKey].upper,
