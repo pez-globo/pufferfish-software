@@ -12,7 +12,7 @@ from ventserver.protocols.protobuf import mcu_pb as pb
 
 
 example_messages = [
-    pb.Alarms(alarm_one=True),
+    pb.AlarmLimits(fio2=pb.Range(lower=21, upper=100)),
     pb.SensorMeasurements(paw=20),
     pb.CycleMeasurements(ve=300),
     pb.Parameters(fio2=80),

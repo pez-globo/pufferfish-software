@@ -27,7 +27,6 @@ UpperEvent = betterproto.Message
 
 
 MESSAGE_CLASSES: Mapping[int, Type[betterproto.Message]] = {
-    1: mcu_pb.Alarms,
     2: mcu_pb.SensorMeasurements,
     3: mcu_pb.CycleMeasurements,
     4: mcu_pb.Parameters,

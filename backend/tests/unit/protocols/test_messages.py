@@ -13,11 +13,12 @@ from ventserver.protocols.protobuf import mcu_pb as pb
 
 
 example_messages_good = [
-    (1, pb.Alarms(alarm_one=True)),
     (2, pb.SensorMeasurements(paw=20)),
     (3, pb.CycleMeasurements(ve=300)),
     (4, pb.Parameters(fio2=80)),
     (5, pb.ParametersRequest(fio2=60)),
+    (6, pb.AlarmLimits(fio2=pb.Range(lower=21, upper=100))),
+    (7, pb.AlarmLimitsRequest(fio2=pb.Range(lower=21, upper=100))),
     (254, pb.Ping(id=256)),
     (255, pb.Announcement(announcement=b'hello!')),
 ]

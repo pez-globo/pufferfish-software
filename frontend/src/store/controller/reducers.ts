@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import {
+  AlarmLimits,
   ActiveLogEvents,
-  Alarms,
   BatteryPower,
   CycleMeasurements,
   Parameters,
@@ -24,11 +24,10 @@ import { MessageType } from './types';
 
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb
-  alarms: messageReducer<Alarms>(MessageType.Alarms, Alarms),
+  alarmLimits: messageReducer<AlarmLimits>(MessageType.AlarmLimits, AlarmLimits),
   alarmLimitsRequest: alarmLimitsReducer,
   alarmLimitsRequestStandby: alarmLimitsRequestStandbyReducer,
   alarmMuteRequest: alarmMuteRequestReducer,
-  parametersRequestStandby: parametersRequestStanbyReducer,
   systemSettingRequest: systemSettingRequestReducer,
   frontendDisplaySetting: frontendDisplaySettingReducer,
   expectedLogEvent: expectedLogEventReducer,
@@ -46,6 +45,7 @@ export const controllerReducer = combineReducers({
   ),
   parameters: messageReducer<Parameters>(MessageType.Parameters, Parameters),
   parametersRequest: parametersRequestReducer,
+  parametersRequestStandby: parametersRequestStanbyReducer,
 
   // Message states from frontend_pb
   rotaryEncoder: rotaryEncoderReducer,

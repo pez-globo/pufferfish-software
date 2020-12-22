@@ -12,13 +12,16 @@
 namespace Pufferfish::Application {
 
 union StateSegmentUnion {
-  Alarms alarms;
   SensorMeasurements sensor_measurements;
   CycleMeasurements cycle_measurements;
   Parameters parameters;
   ParametersRequest parameters_request;
-  Ping ping;
-  Announcement announcement;
+  AlarmLimits alarm_limits;
+  AlarmLimitsRequest alarm_limits_request;
 };
+
+constexpr bool States::should_input(MessageTypes type) {
+  return type == MessageTypes::parameters_request || type == MessageTypes::alarm_limits_request;
+}
 
 }  // namespace Pufferfish::Application

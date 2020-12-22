@@ -166,7 +166,7 @@ const ControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsRequest) as Record<string, number>;
+  const alarmLimits = useSelector(getAlarmLimitsRequest) as Record<string, Record<string, number>>;
   const onClick = () => {
     setOpen(true);
   };
@@ -263,7 +263,7 @@ const GridControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsRequest) as Record<string, number>;
+  const alarmLimits = useSelector(getAlarmLimitsRequest) as Record<string, Record<string, number>>;
   const onClick = () => {
     setOpen(true);
   };

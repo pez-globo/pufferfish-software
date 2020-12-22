@@ -41,13 +41,15 @@ class Service:
             response: mcu_pb.AlarmLimits
     ) -> None:
         """Update the alarm limits."""
-        (response.fio2_min, response.fio2_max) = transform_limits_range(
-            self.FIO2_MIN, self.FIO2_MAX, request.fio2_min, request.fio2_max,
-            response.fio2_min, response.fio2_max
+        (response.fio2.lower, response.fio2.upper) = transform_limits_range(
+            self.FIO2_MIN, self.FIO2_MAX,
+            request.fio2.lower, request.fio2.upper,
+            response.fio2.lower, response.fio2.upper
         )
-        (response.spo2_min, response.spo2_max) = transform_limits_range(
-            self.SPO2_MIN, self.SPO2_MAX, request.spo2_min, request.spo2_max,
-            response.spo2_min, response.spo2_max
+        (response.spo2.lower, response.spo2.upper) = transform_limits_range(
+            self.SPO2_MIN, self.SPO2_MAX,
+            request.spo2.lower, request.spo2.upper,
+            response.spo2.lower, response.spo2.upper
         )
 
 

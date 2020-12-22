@@ -24,14 +24,8 @@ template <typename States, typename StateSegment, typename MessageTypes, size_t 
 typename StateSynchronizer<States, StateSegment, MessageTypes, schedule_size>::InputStatus
 StateSynchronizer<States, StateSegment, MessageTypes, schedule_size>::input(
     const StateSegment &input) {
-  switch (input.tag) {
-    case MessageTypes::parameters_request:
-    case MessageTypes::ping:
-    case MessageTypes::announcement:
-      all_states_.input(input);
-      return InputStatus::invalid_type;
-    default:
-      break;
+  if (all_states_.should_input(input.tag)) {
+    all_states_.input(input);
   }
 
   return InputStatus::ok;

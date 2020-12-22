@@ -89,14 +89,14 @@ class Service:
             return
 
         self.transform_parameter_alarms(
-            alarm_limits.spo2_min, alarm_limits.spo2_max,
+            alarm_limits.spo2.lower, alarm_limits.spo2.upper,
             sensor_measurements.spo2,
             mcu_pb.LogEventCode.spo2_too_low,
             mcu_pb.LogEventCode.spo2_too_high,
             log_events_sender
         )
         self.transform_parameter_alarms(
-            alarm_limits.fio2_min, alarm_limits.fio2_max,
+            alarm_limits.fio2.lower, alarm_limits.fio2.upper,
             sensor_measurements.fio2,
             mcu_pb.LogEventCode.fio2_too_low,
             mcu_pb.LogEventCode.fio2_too_high,
