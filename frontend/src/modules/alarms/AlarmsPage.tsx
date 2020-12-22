@@ -65,9 +65,9 @@ const Alarm = ({
   alarmLimits,
   setAlarmLimits,
 }: AlarmProps): JSX.Element => {
-  const rangeValues: number[] = [alarmLimits[stateKey]['lower'], alarmLimits[stateKey]['upper']];
+  const rangeValues: number[] = [alarmLimits[stateKey].lower, alarmLimits[stateKey].upper];
   const setRangevalue = (range: number[]) => {
-    setAlarmLimits({ [stateKey]: {lower: range[0], upper: range[1] }});
+    setAlarmLimits({ [stateKey]: { lower: range[0], upper: range[1] } });
   };
   return (
     <Grid container>
@@ -142,7 +142,9 @@ export const AlarmsPage = (): JSX.Element => {
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
 
-  const [alarmLimits, setAlarmLimits] = useState(alarmLimitsRequest as Record<string, Record<string, number>>);
+  const [alarmLimits, setAlarmLimits] = useState(
+    alarmLimitsRequest as Record<string, Record<string, number>>,
+  );
   const updateAlarmLimits = (data: Partial<AlarmLimitsRequest>) => {
     setAlarmLimits({ ...alarmLimits, ...data } as Record<string, Record<string, number>>);
     dispatch(updateCommittedState(ALARM_LIMITS_STANDBY, alarmLimits));

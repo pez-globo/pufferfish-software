@@ -71,10 +71,12 @@ export const AlarmModal = ({
   const [open, setOpen] = React.useState(false);
   const [min] = React.useState(committedMin);
   const [max] = React.useState(committedMax);
-  const alarmLimits: Record<string, Record<string, number>> = useSelector(getAlarmLimitsRequest) as Record<string, Record<string, number>>;
+  const alarmLimits: Record<string, Record<string, number>> = useSelector(
+    getAlarmLimitsRequest,
+  ) as Record<string, Record<string, number>>;
   const [rangeValue, setRangeValue] = React.useState<number[]>([
-    alarmLimits[stateKey]['lower'],
-    alarmLimits[stateKey]['upper'],
+    alarmLimits[stateKey].lower,
+    alarmLimits[stateKey].upper,
   ]);
   const dispatch = useDispatch();
 
@@ -105,17 +107,17 @@ export const AlarmModal = ({
     dispatch(
       updateCommittedState(ALARM_LIMITS, {
         [stateKey]: {
-          'lower': rangeValue[0],
-          'upper': rangeValue[1],
-        }
+          lower: rangeValue[0],
+          upper: rangeValue[1],
+        },
       }),
     );
     dispatch(
       updateCommittedState(ALARM_LIMITS_STANDBY, {
         [stateKey]: {
-          'lower': rangeValue[0],
-          'upper': rangeValue[1],
-        }
+          lower: rangeValue[0],
+          upper: rangeValue[1],
+        },
       }),
     );
     requestCommitRange(rangeValue[0], rangeValue[1]);

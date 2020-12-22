@@ -39,6 +39,7 @@ class Manager:
 
     def activate_alarm(
             self, code: mcu_pb.LogEventCode, value: float,
+            lower_limit: int, upper_limit: int,
             log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent]
     ) -> None:
         """Create a new Log Event if it is not active."""
@@ -47,7 +48,8 @@ class Manager:
 
         log_event = mcu_pb.LogEvent(
             id=self.next_log_event_id, time=int(self.current_time),
-            code=code, new_value=value
+            code=code, new_value=value,
+            alarm_limits=mcu_pb.Range(lower=lower_limit, upper=upper_limit)
         )
         log_events_sender.input(lists.UpdateEvent(new_element=log_event))
         self.active_alarm_ids[code] = self.next_log_event_id
@@ -119,14 +121,16 @@ class Service:
         """Update the alarms for a particular parameter."""
         if value < lower_limit:
             self._manager.activate_alarm(
-                too_low_code, value, log_events_sender
+                too_low_code, value, lower_limit, upper_limit,
+                log_events_sender
             )
         else:
             self._manager.deactivate_alarm(too_low_code)
 
         if value > upper_limit:
             self._manager.activate_alarm(
-                too_high_code, value, log_events_sender
+                too_high_code, value, lower_limit, upper_limit,
+                log_events_sender
             )
         else:
             self._manager.deactivate_alarm(too_high_code)
