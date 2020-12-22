@@ -19,7 +19,7 @@ defineFeature(feature, (test) => {
 
   beforeEach(() => {
     commitChange = jest.fn();
-    store = mockStore({ controller: { alarmLimitsRequest: { rrMin: 0, rrMax: 100 } } });
+    store = mockStore({ controller: { alarmLimitsRequest: { rr: { lower: 0, upper: 100 } } } });
     wrapper = render(
       <Provider store={store}>
         <MuiThemeProvider theme={darkTheme}>
@@ -100,7 +100,7 @@ defineFeature(feature, (test) => {
     let actionCommitted: commitAction;
 
     given(/^I set alarm limit values$/, async () => {
-      actionCommitted = updateCommittedState(ALARM_LIMITS, { rrMin: 10, rrMax: 20 });
+      actionCommitted = updateCommittedState(ALARM_LIMITS, { rr: { lower: 10, upper: 20 } });
     });
 
     when(/^I commit changes to redux action$/, async () => {
@@ -111,7 +111,7 @@ defineFeature(feature, (test) => {
       const actions = store.getActions();
       const expectedPayload = {
         type: '@controller/ALARM_LIMITS_COMMITTED',
-        update: { rrMin: 10, rrMax: 20 },
+        update: { rr: { lower: 10, upper: 20 } },
       };
       expect(actions).toEqual([expectedPayload]);
     });

@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
 import { AlarmModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
+import { Range } from '../../../store/controller/proto/mcu_pb';
 
 const useStyles = makeStyles((theme: Theme) => ({
   rootParent: {
@@ -166,7 +167,7 @@ const ControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsRequest) as Record<string, Record<string, number>>;
+  const alarmLimits = useSelector(getAlarmLimitsRequest) as Record<string, Range>;
   const onClick = () => {
     setOpen(true);
   };
@@ -263,7 +264,7 @@ const GridControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsRequest) as Record<string, Record<string, number>>;
+  const alarmLimits = useSelector(getAlarmLimitsRequest) as Record<string, Range>;
   const onClick = () => {
     setOpen(true);
   };

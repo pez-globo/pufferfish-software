@@ -12,6 +12,7 @@ import {
   ParametersRequest,
   SensorMeasurements,
   VentilationMode,
+  Range,
 } from './proto/mcu_pb';
 import {
   ControllerStates,
@@ -223,13 +224,13 @@ export const getPVLoop = createSelector(
 // Alarm Limits
 export const getAlarmLimitsRequest = createSelector(
   getController,
-  (states: ControllerStates): AlarmLimitsRequest | Record<string, Record<string, number>> =>
+  (states: ControllerStates): AlarmLimitsRequest | Record<string, Range> =>
     states.alarmLimitsRequest,
 );
 
 export const getAlarmLimitsRequestStandby = createSelector(
   getController,
-  (states: ControllerStates): AlarmLimitsRequest | Record<string, Record<string, number>> =>
+  (states: ControllerStates): AlarmLimitsRequest | Record<string, Range> =>
     states.alarmLimitsRequestStandby.alarmLimits as AlarmLimitsRequest,
 );
 
