@@ -209,10 +209,10 @@ const ControlValuesDisplay = ({
               {stateKey && (
                 <Grid container item xs={3} className={classes.liveContainer}>
                   <Typography className={classes.whiteFont}>
-                    {alarmLimits[`${stateKey}Min`]}
+                    {alarmLimits[stateKey].lower}
                   </Typography>
                   <Typography className={classes.whiteFont}>
-                    {alarmLimits[`${stateKey}Max`]}
+                    {alarmLimits[stateKey].upper}
                   </Typography>
                 </Grid>
               )}
@@ -313,10 +313,10 @@ const GridControlValuesDisplay = ({
               {stateKey && (
                 <Grid item xs className={classes.gridLiveContainer}>
                   <Typography className={classes.whiteFont}>
-                    {alarmLimits[`${stateKey}Min`]}
+                    {alarmLimits[stateKey].lower}
                   </Typography>
                   <Typography className={classes.whiteFont}>
-                    {alarmLimits[`${stateKey}Max`]}
+                    {alarmLimits[stateKey].upper}
                   </Typography>
                 </Grid>
               )}
