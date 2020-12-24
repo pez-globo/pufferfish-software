@@ -23,6 +23,7 @@ import {
   activeLogEventsReducer,
   pvHistoryReducer,
   waveformHistoryReducer,
+  sensorMeasurementSmoothingReducer,
 } from './reducers/derived';
 import { MessageType } from './types';
 
@@ -56,6 +57,29 @@ export const controllerReducer = combineReducers({
   rotaryEncoder: rotaryEncoderReducer,
 
   // Derived states
+  smoothedMeasurements: combineReducers({
+    spo2: sensorMeasurementSmoothingReducer(
+      0.5,
+      1.0,
+      200,
+      500,
+      (sensorMeasurements) => sensorMeasurements.spo2,
+    ),
+    fio2: sensorMeasurementSmoothingReducer(
+      0.5,
+      0.1,
+      500,
+      200,
+      (sensorMeasurements) => sensorMeasurements.fio2,
+    ),
+    flow: sensorMeasurementSmoothingReducer(
+      0.5,
+      0.5,
+      500,
+      200,
+      (sensorMeasurements) => sensorMeasurements.flow,
+    ),
+  }),
   waveformHistoryPaw: waveformHistoryReducer<SensorMeasurements>(
     MessageType.SensorMeasurements,
     (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,

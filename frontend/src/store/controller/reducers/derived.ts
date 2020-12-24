@@ -8,7 +8,73 @@ import {
   PVHistory,
   commitAction,
   BACKEND_CONNECTION_LOST,
+  SmoothingData,
 } from '../types';
+
+export const sensorMeasurementSmoothingReducer = (
+  averageResponsiveness: number,
+  changeValueThreshold: number,
+  convergenceDurationThreshold: number,
+  changeDurationThreshold: number,
+  valueAccessor: (measurements: SensorMeasurements) => number,
+) => (
+  state: SmoothingData = { raw: NaN, average: NaN, converged: NaN, smoothed: NaN },
+  action: StateUpdateAction,
+): SmoothingData => {
+  switch (action.type) {
+    case STATE_UPDATED:
+      if (action.messageType === MessageType.SensorMeasurements) {
+        const newState = action.state as SensorMeasurements;
+        const { time } = newState;
+        const raw = valueAccessor(newState);
+        const oldAverage = Number.isNaN(state.average) ? raw : state.average;
+        const average = averageResponsiveness * raw + (1 - averageResponsiveness) * oldAverage;
+        const previousTime = state.time || time;
+        let { converged, smoothed, convergenceStartTime, changeStartTime } = state;
+        if (
+          (Number.isNaN(converged) && Math.abs(average - oldAverage) < changeValueThreshold) ||
+          Math.abs(average - converged) < changeValueThreshold
+        ) {
+          // Value may be converging or converged
+          changeStartTime = undefined;
+          if (convergenceStartTime === undefined) {
+            convergenceStartTime = time;
+          }
+          if (
+            time - convergenceStartTime >= convergenceDurationThreshold &&
+            previousTime - convergenceStartTime < convergenceDurationThreshold
+          ) {
+            // Value has just converged
+            converged = average;
+            smoothed = converged;
+          }
+        } else {
+          // Value may be starting a transition to a different level
+          convergenceStartTime = undefined;
+          if (changeStartTime === undefined) {
+            changeStartTime = time;
+          }
+          if (time - changeStartTime >= changeDurationThreshold) {
+            // Value is transitioning to a different level
+            smoothed = average;
+            converged = NaN;
+          }
+        }
+        return {
+          raw,
+          average,
+          converged,
+          smoothed,
+          time,
+          convergenceStartTime,
+          changeStartTime,
+        };
+      }
+      return state;
+    default:
+      return state;
+  }
+};
 
 export const waveformHistoryReducer = <T extends PBMessage>(
   messageType: MessageType,

@@ -66,6 +66,17 @@ export const getSensorMeasurementsSpO2 = createSelector(
   (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.spo2),
 );
 
+// SensorMeasurementsSmoothed
+export const getSmoothedFlow = createSelector(getController, (states: ControllerStates): number =>
+  roundValue(states.smoothedMeasurements.flow.smoothed),
+);
+export const getSmoothedFiO2 = createSelector(getController, (states: ControllerStates): number =>
+  roundValue(states.smoothedMeasurements.fio2.smoothed),
+);
+export const getSmoothedSpO2 = createSelector(getController, (states: ControllerStates): number =>
+  roundValue(states.smoothedMeasurements.spo2.smoothed),
+);
+
 // CycleMeasurements
 export const getCycleMeasurements = createSelector(
   getController,
@@ -144,12 +155,11 @@ export const getParametersRequestMode = createSelector(
 );
 
 // Derived FiO2 Sensor Measurements
-export const getSensorMeasurementsFiO2Value = createSelector(
-  getSensorMeasurements,
+export const getSmoothedFiO2Value = createSelector(
+  getSmoothedFiO2,
   getParametersFlow,
-  (sensorMeasurements: SensorMeasurements, getParametersFlow: number): number | undefined => {
-    const fio2Value = sensorMeasurements.fio2;
-    return getParametersFlow > 0 ? roundValue(fio2Value) : undefined;
+  (fio2: number, getParametersFlow: number): number | undefined => {
+    return getParametersFlow > 0 ? roundValue(fio2) : undefined;
   },
 );
 

@@ -6,9 +6,9 @@ import {
   getParametersFiO2,
   getParametersFlow,
   getROXIndex,
-  getSensorMeasurementsFiO2Value,
-  getSensorMeasurementsFlow,
-  getSensorMeasurementsSpO2,
+  getSmoothedFiO2Value,
+  getSmoothedFlow,
+  getSmoothedSpO2,
 } from '../../../store/controller/selectors';
 import { a11yProps, TabPanel } from '../../controllers/TabPanel';
 import { BMIN, LMIN, PERCENT } from '../../info/units';
@@ -136,7 +136,7 @@ const HFNCMainView = (): JSX.Element => {
           <Grid container item justify="center" alignItems="stretch">
             <ValueInfo
               mainContainer={{
-                selector: getSensorMeasurementsSpO2,
+                selector: getSmoothedSpO2,
                 label: 'SpO2',
                 stateKey: 'spo2',
                 units: PERCENT,
@@ -247,7 +247,7 @@ const HFNCMainView = (): JSX.Element => {
             >
               <Grid item xs className={classes.rightBorder}>
                 <ControlInfo
-                  selector={getSensorMeasurementsFiO2Value}
+                  selector={getSmoothedFiO2Value}
                   label="FiO2"
                   stateKey="fio2"
                   units={PERCENT}
@@ -257,7 +257,7 @@ const HFNCMainView = (): JSX.Element => {
               </Grid>
               <Grid item xs className={classes.rightBorder}>
                 <ControlInfo
-                  selector={getSensorMeasurementsFlow}
+                  selector={getSmoothedFlow}
                   label="Flow Rate"
                   stateKey="flow"
                   units={LMIN}
