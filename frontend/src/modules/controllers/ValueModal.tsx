@@ -4,6 +4,7 @@ import { shallowEqual, useSelector } from 'react-redux';
 import ValueClicker from './ValueClicker';
 import ModalPopup from './ModalPopup';
 import { getRotaryEncoder } from '../../store/controller/selectors';
+import { SelectorType } from '../displays/ValueSelectorDisplay';
 
 const useStyles = makeStyles((theme: Theme) => ({
   contentContainer: {
@@ -40,6 +41,18 @@ interface Props {
   label: string;
   units?: string;
   committedSetting: number;
+  disableSetNewButton?: boolean;
+  requestCommitSetting(setting: number): void;
+  updateModalStatus?(status: boolean): void;
+  openModal?: boolean;
+  min?: number;
+  max?: number;
+}
+
+interface ContentProps {
+  label: string;
+  units?: string;
+  committedSettingSelector?: SelectorType;
   disableSetNewButton?: boolean;
   requestCommitSetting(setting: number): void;
   updateModalStatus?(status: boolean): void;
@@ -124,6 +137,32 @@ export const ValueModal = ({
     return '';
   }
 
+  const modalContent = <Grid container direction="row">
+    <Grid container item xs direction="column" className={classes.contentContainer}>
+      <Grid item>
+        <Typography variant="h4">
+          {label}
+          <Typography variant="h6" style={{ opacity: 0.8 }}>
+            {pipClarify(label)}
+          </Typography>
+        </Typography>
+      </Grid>
+      <Grid container item xs wrap="nowrap">
+        <Grid container item alignItems="baseline">
+          <Typography align="left" style={{ fontSize: '9.5rem' }}>
+            {value.toFixed(0)}
+          </Typography>
+          <Typography align="center" variant="h5" className={classes.unitsLabel}>
+            {units}
+          </Typography>
+        </Grid>
+      </Grid>
+    </Grid>
+    <Grid item>
+      <ValueClicker value={value} min={min} max={max} onClick={setValue} />
+    </Grid>
+  </Grid>
+
   return (
     <Grid container direction="column" alignItems="center" justify="center">
       <Grid container item xs>
@@ -145,32 +184,114 @@ export const ValueModal = ({
         onClose={handleClose}
         onConfirm={handleConfirm}
       >
-        <Grid container direction="row">
-          <Grid container item xs direction="column" className={classes.contentContainer}>
-            <Grid item>
-              <Typography variant="h4">
-                {label}
-                <Typography variant="h6" style={{ opacity: 0.8 }}>
-                  {pipClarify(label)}
-                </Typography>
-              </Typography>
-            </Grid>
-            <Grid container item xs wrap="nowrap">
-              <Grid container item alignItems="baseline">
-                <Typography align="left" style={{ fontSize: '9.5rem' }}>
-                  {value.toFixed(0)}
-                </Typography>
-                <Typography align="center" variant="h5" className={classes.unitsLabel}>
-                  {units}
-                </Typography>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item>
-            <ValueClicker value={value} min={min} max={max} onClick={setValue} />
-          </Grid>
-        </Grid>
+        {modalContent}
       </ModalPopup>
+    </Grid>
+  );
+};
+
+
+export const SetValueContent = ({
+  label,
+  units,
+  committedSettingSelector,
+  openModal = false,
+  updateModalStatus,
+  requestCommitSetting,
+  min = 0,
+  max = 100,
+}: ContentProps): JSX.Element => {
+  const classes = useStyles();
+  const rotaryEncoder = useSelector(getRotaryEncoder, shallowEqual);
+  const [open, setOpen] = React.useState(false);
+  const committedSetting = useSelector(committedSettingSelector as SelectorType) as number;
+  const [value, setValue] = React.useState(committedSetting);
+
+  const initSetValue = useCallback(() => {
+    console.log('Set value ', committedSetting)
+    setValue(committedSetting >= min ? committedSetting : min);
+    // setOpen(openModal);
+  }, [committedSetting, openModal, min]);
+
+  useEffect(() => {
+    initSetValue();
+  }, [initSetValue]);
+
+  useEffect(() => {
+    if (updateModalStatus) {
+      updateModalStatus(open);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  useEffect(() => {
+    requestCommitSetting(value);
+  }, [value])
+
+  const handleConfirm = () => {
+    requestCommitSetting(value);
+  };
+
+  const updateRotaryData = useCallback(
+    () => {
+      if (open) {
+        const stepDiff = rotaryEncoder.stepDiff || 0;
+        const valueClone = value >= min ? value : min;
+        const newValue = valueClone + stepDiff;
+        if (newValue < min) {
+          setValue(min);
+        } else if (newValue > max) {
+          setValue(max);
+        } else {
+          setValue(newValue);
+        }
+        if (rotaryEncoder.buttonPressed) {
+          handleConfirm();
+        }
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [rotaryEncoder.step, rotaryEncoder.buttonPressed, min, max],
+  );
+
+  useEffect(() => {
+    updateRotaryData();
+  }, [updateRotaryData]);
+
+  function pipClarify(label: string) {
+    if (label === 'PIP') return '*not PEEP compensated';
+    return '';
+  }
+
+  const modalContent = <Grid container direction="row">
+    <Grid container item xs direction="column" className={classes.contentContainer}>
+      <Grid item>
+        <Typography variant="h4">
+          {label}
+          <Typography variant="h6" style={{ opacity: 0.8 }}>
+            {pipClarify(label)}
+          </Typography>
+        </Typography>
+      </Grid>
+      <Grid container item xs wrap="nowrap">
+        <Grid container item alignItems="baseline">
+          <Typography align="left" style={{ fontSize: '9.5rem' }}>
+            {value.toFixed(0)}
+          </Typography>
+          <Typography align="center" variant="h5" className={classes.unitsLabel}>
+            {units}
+          </Typography>
+        </Grid>
+      </Grid>
+    </Grid>
+    <Grid item>
+      <ValueClicker value={value} min={min} max={max} onClick={setValue} />
+    </Grid>
+  </Grid>
+
+  return (
+    <Grid container direction="column" alignItems="center" justify="center">
+        {modalContent}
     </Grid>
   );
 };

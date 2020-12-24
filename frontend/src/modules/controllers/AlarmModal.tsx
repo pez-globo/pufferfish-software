@@ -53,6 +53,7 @@ interface Props {
   stateKey: string;
   step?: number;
   openModal?: boolean;
+  contentOnly?: boolean;
 }
 
 export const AlarmModal = ({
@@ -66,6 +67,7 @@ export const AlarmModal = ({
   units = '',
   stateKey,
   step,
+  contentOnly = false
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
@@ -121,94 +123,98 @@ export const AlarmModal = ({
     handleClose();
   };
 
-  return (
-    <Grid container direction="column" alignItems="center" justify="center">
-      <Grid container item xs>
-        {!disableAlarmButton && (
-          <Button
-            onClick={handleOpen}
-            color="primary"
-            variant="contained"
-            className={classes.openButton}
-          >
-            Alarm
-          </Button>
-        )}
-        <span hidden={true}>{units}</span>
+  const modalContent = <Grid
+    container
+    direction="column"
+    alignItems="stretch"
+    className={classes.contentContainer}
+  >
+    <Grid
+      container
+      item
+      xs
+      justify="center"
+      alignItems="center"
+      className={`${classes.alarmContainer} ${classes.borderBottom}`}
+    >
+      <Grid item className={classes.alarmValue}>
+        <Typography align="center" variant="h3">
+          {rangeValue[0] !== undefined ? Number(rangeValue[0]) : '--'}
+        </Typography>
       </Grid>
-      <ModalPopup
-        withAction={true}
-        label={`${label} - Alarm`}
-        open={open}
-        onClose={handleClose}
-        onConfirm={handleConfirm}
-      >
-        <Grid
-          container
-          direction="column"
-          alignItems="stretch"
-          className={classes.contentContainer}
-        >
-          <Grid
-            container
-            item
-            xs
-            justify="center"
-            alignItems="center"
-            className={`${classes.alarmContainer} ${classes.borderBottom}`}
-          >
-            <Grid item className={classes.alarmValue}>
-              <Typography align="center" variant="h3">
-                {rangeValue[0] !== undefined ? Number(rangeValue[0]) : '--'}
-              </Typography>
-            </Grid>
-            <Grid item>
-              <ValueClicker
-                value={rangeValue[0]}
-                step={step}
-                min={committedMin}
-                max={committedMax}
-                onClick={(value) => setRangeValue(Object.assign([], rangeValue, { 0: value }))}
-                direction="row"
-              />
-            </Grid>
-          </Grid>
-          <Grid
-            container
-            item
-            xs
-            justify="center"
-            alignItems="center"
-            className={`${classes.alarmContainer} ${classes.borderBottom}`}
-          >
-            <Grid item className={classes.alarmValue}>
-              <Typography align="center" variant="h3">
-                {rangeValue[1] !== undefined ? Number(rangeValue[1]) : '--'}
-              </Typography>
-            </Grid>
-            <Grid item>
-              <ValueClicker
-                value={rangeValue[1]}
-                step={step}
-                min={committedMin}
-                max={committedMax}
-                onClick={(value) => setRangeValue(Object.assign([], rangeValue, { 1: value }))}
-                direction="row"
-              />
-            </Grid>
-          </Grid>
-          <Grid container item xs alignItems="center">
-            <ValueSlider
-              rangeValues={rangeValue}
-              onChange={setRangeValue}
-              min={min}
-              max={max}
-              step={step}
-            />
-          </Grid>
-        </Grid>
-      </ModalPopup>
+      <Grid item>
+        <ValueClicker
+          value={rangeValue[0]}
+          step={step}
+          min={committedMin}
+          max={committedMax}
+          onClick={(value) => setRangeValue(Object.assign([], rangeValue, { 0: value }))}
+          direction="row"
+        />
+      </Grid>
     </Grid>
+    <Grid
+      container
+      item
+      xs
+      justify="center"
+      alignItems="center"
+      className={`${classes.alarmContainer} ${classes.borderBottom}`}
+    >
+      <Grid item className={classes.alarmValue}>
+        <Typography align="center" variant="h3">
+          {rangeValue[1] !== undefined ? Number(rangeValue[1]) : '--'}
+        </Typography>
+      </Grid>
+      <Grid item>
+        <ValueClicker
+          value={rangeValue[1]}
+          step={step}
+          min={committedMin}
+          max={committedMax}
+          onClick={(value) => setRangeValue(Object.assign([], rangeValue, { 1: value }))}
+          direction="row"
+        />
+      </Grid>
+    </Grid>
+    <Grid container item xs alignItems="center">
+      <ValueSlider
+        rangeValues={rangeValue}
+        onChange={setRangeValue}
+        min={min}
+        max={max}
+        step={step}
+      />
+    </Grid>
+  </Grid>
+
+
+  return (
+    contentOnly ? modalContent :
+      <Grid container direction="column" alignItems="center" justify="center">
+        <Grid container item xs>
+          {!disableAlarmButton && (
+            <Button
+              onClick={handleOpen}
+              color="primary"
+              variant="contained"
+              className={classes.openButton}
+            >
+              Alarm
+            </Button>
+          )}
+          <span hidden={true}>{units}</span>
+        </Grid>
+        <ModalPopup
+          withAction={true}
+          label={`${label} - Alarm`}
+          open={open}
+          onClose={handleClose}
+          onConfirm={handleConfirm}
+        >
+          {modalContent}
+        </ModalPopup>
+      </Grid>
   );
 };
 

@@ -109,11 +109,15 @@ export const ToolBar = ({
           break;
       }
     }
-  }, [isVentilatorOn, parameterRequestStandby, currentMode, dispatch]);
+  }, [  , parameterRequestStandby, currentMode, dispatch]);
 
   useEffect(() => {
     initParameterUpdate();
   }, [initParameterUpdate]);
+
+  useEffect(() => {
+    setIsVentilatorOn(ventilating);
+  }, [ventilating]);
 
   const StartPauseButton = (
     <Button
