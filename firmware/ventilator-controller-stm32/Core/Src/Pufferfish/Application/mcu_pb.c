@@ -6,7 +6,7 @@
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
-PB_BIND(Alarms, Alarms, AUTO)
+PB_BIND(Range, Range, AUTO)
 
 
 PB_BIND(AlarmLimits, AlarmLimits, AUTO)
@@ -49,6 +49,12 @@ PB_BIND(BatteryPower, BatteryPower, AUTO)
 
 
 PB_BIND(ScreenStatus, ScreenStatus, AUTO)
+
+
+PB_BIND(AlarmMute, AlarmMute, AUTO)
+
+
+PB_BIND(AlarmMuteRequest, AlarmMuteRequest, AUTO)
 
 
 

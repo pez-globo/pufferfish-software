@@ -16,13 +16,12 @@ namespace Pufferfish::Application {
 
 enum class MessageTypes : uint8_t {
   unknown = 0,
-  alarms = 1,
   sensor_measurements = 2,
   cycle_measurements = 3,
   parameters = 4,
   parameters_request = 5,
-  ping = 6,
-  announcement = 7
+  alarm_limits = 6,
+  alarm_limits_request = 7
 };
 
 // Since nanopb is running dynamically, we cannot have extensive compile-time type-checking.
@@ -36,13 +35,12 @@ using StateSegment = Util::TaggedUnion<StateSegmentUnion, MessageTypes>;
 
 struct StateSegments {
   // Backend States
-  Alarms alarms;
   SensorMeasurements sensor_measurements;
   CycleMeasurements cycle_measurements;
   Parameters parameters;
   ParametersRequest parameters_request;
-  Ping ping;
-  Announcement announcement;
+  AlarmLimits alarm_limits;
+  AlarmLimitsRequest alarm_limits_request;
 };
 
 class States {
@@ -53,6 +51,8 @@ class States {
   Parameters &parameters();
   SensorMeasurements &sensor_measurements();
   CycleMeasurements &cycle_measurements();
+
+  static constexpr bool should_input(MessageTypes type);
 
   void input(const StateSegment &input);
   void output(MessageTypes type, StateSegment &output) const;

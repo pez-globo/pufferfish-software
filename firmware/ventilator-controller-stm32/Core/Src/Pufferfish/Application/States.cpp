@@ -37,13 +37,12 @@ namespace Pufferfish::Util {
 // StateSegment
 // Refer to States.h for justification of why we are using unions this way
 
-STATESEGMENT_TAGGED_SETTER(Alarms, alarms)
 STATESEGMENT_TAGGED_SETTER(SensorMeasurements, sensor_measurements)
 STATESEGMENT_TAGGED_SETTER(CycleMeasurements, cycle_measurements)
 STATESEGMENT_TAGGED_SETTER(Parameters, parameters)
 STATESEGMENT_TAGGED_SETTER(ParametersRequest, parameters_request)
-STATESEGMENT_TAGGED_SETTER(Ping, ping)
-STATESEGMENT_TAGGED_SETTER(Announcement, announcement)
+STATESEGMENT_TAGGED_SETTER(AlarmLimits, alarm_limits)
+STATESEGMENT_TAGGED_SETTER(AlarmLimitsRequest, alarm_limits_request)
 
 }  // namespace Pufferfish::Util
 
@@ -68,20 +67,16 @@ CycleMeasurements &States::cycle_measurements() {
 }
 
 void States::input(const StateSegment &input) {
-  STATESEGMENT_GET_TAGGED(alarms, input);
   STATESEGMENT_GET_TAGGED(sensor_measurements, input);
   STATESEGMENT_GET_TAGGED(cycle_measurements, input);
   STATESEGMENT_GET_TAGGED(parameters, input);
   STATESEGMENT_GET_TAGGED(parameters_request, input);
-  STATESEGMENT_GET_TAGGED(ping, input);
-  STATESEGMENT_GET_TAGGED(announcement, input);
+  STATESEGMENT_GET_TAGGED(alarm_limits, input);
+  STATESEGMENT_GET_TAGGED(alarm_limits_request, input);
 }
 
 void States::output(MessageTypes type, StateSegment &output) const {
   switch (type) {
-    case MessageTypes::alarms:
-      output.set(state_segments_.alarms);
-      return;
     case MessageTypes::sensor_measurements:
       output.set(state_segments_.sensor_measurements);
       return;
@@ -94,11 +89,11 @@ void States::output(MessageTypes type, StateSegment &output) const {
     case MessageTypes::parameters_request:
       output.set(state_segments_.parameters_request);
       return;
-    case MessageTypes::ping:
-      output.set(state_segments_.ping);
+    case MessageTypes::alarm_limits:
+      output.set(state_segments_.alarm_limits);
       return;
-    case MessageTypes::announcement:
-      output.set(state_segments_.announcement);
+    case MessageTypes::alarm_limits_request:
+      output.set(state_segments_.alarm_limits_request);
       return;
     default:
       return;

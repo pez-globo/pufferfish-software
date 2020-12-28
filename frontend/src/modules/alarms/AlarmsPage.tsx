@@ -4,7 +4,7 @@ import Pagination from '@material-ui/lab/Pagination';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateCommittedState } from '../../store/controller/actions';
-import { AlarmLimitsRequest, VentilationMode } from '../../store/controller/proto/mcu_pb';
+import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
 import {
   getAlarmLimitsRequestStandby,
   getParametersRequestMode,
@@ -52,7 +52,7 @@ interface AlarmProps {
   max: number;
   stateKey: string;
   step?: number;
-  alarmLimits: Record<string, number>;
+  alarmLimits: Record<string, Range>;
   setAlarmLimits(alarmLimits: Partial<AlarmLimitsRequest>): void;
 }
 
@@ -65,9 +65,9 @@ const Alarm = ({
   alarmLimits,
   setAlarmLimits,
 }: AlarmProps): JSX.Element => {
-  const rangeValues: number[] = [alarmLimits[`${stateKey}Min`], alarmLimits[`${stateKey}Max`]];
+  const rangeValues: number[] = [alarmLimits[stateKey].lower, alarmLimits[stateKey].upper];
   const setRangevalue = (range: number[]) => {
-    setAlarmLimits({ [`${stateKey}Min`]: range[0], [`${stateKey}Max`]: range[1] });
+    setAlarmLimits({ [stateKey]: { lower: range[0], upper: range[1] } });
   };
   return (
     <Grid container>
@@ -142,9 +142,9 @@ export const AlarmsPage = (): JSX.Element => {
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
 
-  const [alarmLimits, setAlarmLimits] = useState(alarmLimitsRequest as Record<string, number>);
+  const [alarmLimits, setAlarmLimits] = useState(alarmLimitsRequest as Record<string, Range>);
   const updateAlarmLimits = (data: Partial<AlarmLimitsRequest>) => {
-    setAlarmLimits({ ...alarmLimits, ...data } as Record<string, number>);
+    setAlarmLimits({ ...alarmLimits, ...data } as Record<string, Range>);
     dispatch(updateCommittedState(ALARM_LIMITS_STANDBY, alarmLimits));
   };
   const applyChanges = () => dispatch(updateCommittedState(ALARM_LIMITS, alarmLimits));

@@ -31,70 +31,45 @@ class LogEventCode(betterproto.Enum):
 
 
 @dataclass
-class Alarms(betterproto.Message):
-    time: int = betterproto.uint32_field(1)
-    alarm_one: bool = betterproto.bool_field(2)
-    alarm_two: bool = betterproto.bool_field(3)
+class Range(betterproto.Message):
+    lower: int = betterproto.uint32_field(1)
+    upper: int = betterproto.uint32_field(2)
 
 
 @dataclass
 class AlarmLimits(betterproto.Message):
-    rr_min: int = betterproto.uint32_field(1)
-    rr_max: int = betterproto.uint32_field(2)
-    pip_min: int = betterproto.uint32_field(3)
-    pip_max: int = betterproto.uint32_field(4)
-    peep_min: int = betterproto.uint32_field(5)
-    peep_max: int = betterproto.uint32_field(6)
-    ip_above_peep_min: int = betterproto.uint32_field(7)
-    ip_above_peep_max: int = betterproto.uint32_field(8)
-    insp_time_min: int = betterproto.uint32_field(9)
-    insp_time_max: int = betterproto.uint32_field(10)
-    fio2_min: int = betterproto.uint32_field(11)
-    fio2_max: int = betterproto.uint32_field(12)
-    paw_min: int = betterproto.uint32_field(13)
-    paw_max: int = betterproto.uint32_field(14)
-    mve_min: int = betterproto.uint32_field(15)
-    mve_max: int = betterproto.uint32_field(16)
-    tv_min: int = betterproto.uint32_field(17)
-    tv_max: int = betterproto.uint32_field(18)
-    etco2_min: int = betterproto.uint32_field(19)
-    etco2_max: int = betterproto.uint32_field(20)
-    flow_min: int = betterproto.uint32_field(21)
-    flow_max: int = betterproto.uint32_field(22)
-    apnea_min: int = betterproto.uint32_field(23)
-    apnea_max: int = betterproto.uint32_field(24)
-    spo2_min: int = betterproto.uint32_field(25)
-    spo2_max: int = betterproto.uint32_field(26)
+    time: int = betterproto.uint32_field(1)
+    fio2: "Range" = betterproto.message_field(2)
+    spo2: "Range" = betterproto.message_field(3)
+    rr: "Range" = betterproto.message_field(4)
+    pip: "Range" = betterproto.message_field(5)
+    peep: "Range" = betterproto.message_field(6)
+    ip_above_peep: "Range" = betterproto.message_field(7)
+    insp_time: "Range" = betterproto.message_field(8)
+    paw: "Range" = betterproto.message_field(9)
+    mve: "Range" = betterproto.message_field(10)
+    tv: "Range" = betterproto.message_field(11)
+    etco2: "Range" = betterproto.message_field(12)
+    flow: "Range" = betterproto.message_field(13)
+    apnea: "Range" = betterproto.message_field(14)
 
 
 @dataclass
 class AlarmLimitsRequest(betterproto.Message):
-    rr_min: int = betterproto.uint32_field(1)
-    rr_max: int = betterproto.uint32_field(2)
-    pip_min: int = betterproto.uint32_field(3)
-    pip_max: int = betterproto.uint32_field(4)
-    peep_min: int = betterproto.uint32_field(5)
-    peep_max: int = betterproto.uint32_field(6)
-    ip_above_peep_min: int = betterproto.uint32_field(7)
-    ip_above_peep_max: int = betterproto.uint32_field(8)
-    insp_time_min: int = betterproto.uint32_field(9)
-    insp_time_max: int = betterproto.uint32_field(10)
-    fio2_min: int = betterproto.uint32_field(11)
-    fio2_max: int = betterproto.uint32_field(12)
-    paw_min: int = betterproto.uint32_field(13)
-    paw_max: int = betterproto.uint32_field(14)
-    mve_min: int = betterproto.uint32_field(15)
-    mve_max: int = betterproto.uint32_field(16)
-    tv_min: int = betterproto.uint32_field(17)
-    tv_max: int = betterproto.uint32_field(18)
-    etco2_min: int = betterproto.uint32_field(19)
-    etco2_max: int = betterproto.uint32_field(20)
-    flow_min: int = betterproto.uint32_field(21)
-    flow_max: int = betterproto.uint32_field(22)
-    apnea_min: int = betterproto.uint32_field(23)
-    apnea_max: int = betterproto.uint32_field(24)
-    spo2_min: int = betterproto.uint32_field(25)
-    spo2_max: int = betterproto.uint32_field(26)
+    time: int = betterproto.uint32_field(1)
+    fio2: "Range" = betterproto.message_field(2)
+    spo2: "Range" = betterproto.message_field(3)
+    rr: "Range" = betterproto.message_field(4)
+    pip: "Range" = betterproto.message_field(5)
+    peep: "Range" = betterproto.message_field(6)
+    ip_above_peep: "Range" = betterproto.message_field(7)
+    insp_time: "Range" = betterproto.message_field(8)
+    paw: "Range" = betterproto.message_field(9)
+    mve: "Range" = betterproto.message_field(10)
+    tv: "Range" = betterproto.message_field(11)
+    etco2: "Range" = betterproto.message_field(12)
+    flow: "Range" = betterproto.message_field(13)
+    apnea: "Range" = betterproto.message_field(14)
 
 
 @dataclass
@@ -164,8 +139,9 @@ class LogEvent(betterproto.Message):
     id: int = betterproto.uint32_field(1)
     time: int = betterproto.uint32_field(2)
     code: "LogEventCode" = betterproto.enum_field(3)
-    old_value: float = betterproto.float_field(4)
-    new_value: float = betterproto.float_field(5)
+    alarm_limits: "Range" = betterproto.message_field(4)
+    old_value: float = betterproto.float_field(5)
+    new_value: float = betterproto.float_field(6)
 
 
 @dataclass
@@ -194,3 +170,15 @@ class BatteryPower(betterproto.Message):
 @dataclass
 class ScreenStatus(betterproto.Message):
     lock: bool = betterproto.bool_field(1)
+
+
+@dataclass
+class AlarmMute(betterproto.Message):
+    active: bool = betterproto.bool_field(1)
+    remaining: float = betterproto.float_field(2)
+
+
+@dataclass
+class AlarmMuteRequest(betterproto.Message):
+    active: bool = betterproto.bool_field(1)
+    remaining: float = betterproto.float_field(2)

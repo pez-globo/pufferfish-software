@@ -1,5 +1,4 @@
 import {
-  Alarms,
   SensorMeasurements,
   CycleMeasurements,
   Parameters,
@@ -8,7 +7,6 @@ import {
   AlarmLimitsRequest,
   ActiveLogEvents,
   ExpectedLogEvent,
-  LogEvent,
   NextLogEvents,
   BatteryPower,
   ScreenStatus,
@@ -47,7 +45,6 @@ export interface RotaryEncoderParameter {
 
 export type PBMessage =
   // mcu_pb
-  | Alarms
   | SensorMeasurements
   | CycleMeasurements
   | Parameters
@@ -68,13 +65,12 @@ export type PBMessage =
 
 export type PBMessageType =
   // mcu_pb
-  | typeof AlarmLimits
-  | typeof AlarmLimitsRequest
-  | typeof Alarms
   | typeof SensorMeasurements
   | typeof CycleMeasurements
   | typeof Parameters
   | typeof ParametersRequest
+  | typeof AlarmLimits
+  | typeof AlarmLimitsRequest
   | typeof ExpectedLogEvent
   | typeof NextLogEvents
   | typeof ActiveLogEvents
@@ -89,7 +85,6 @@ export type PBMessageType =
 
 export enum MessageType {
   // mcu_pb
-  Alarms = 1,
   SensorMeasurements = 2,
   CycleMeasurements = 3,
   Parameters = 4,
@@ -139,25 +134,34 @@ export interface PVHistory {
   cycle: number;
 }
 
+export interface SmoothingData {
+  raw: number;
+  average: number;
+  converged: number;
+  smoothed: number;
+  time?: number;
+  convergenceStartTime?: number;
+  changeStartTime?: number;
+}
+
 export interface ControllerStates {
   // Message states from mcu_pb
-  alarms: Alarms;
-  alarmLimitsRequest: AlarmLimitsRequest;
-  alarmLimitsRequestStandby: { alarmLimits: AlarmLimitsRequest };
-  alarmMuteRequest: AlarmMuteRequest;
-  alarmMute: AlarmMute;
-  parametersRequestStandby: { parameters: ParametersRequest };
-  systemSettingRequest: SystemSettingRequest;
-  frontendDisplaySetting: FrontendDisplaySetting;
   sensorMeasurements: SensorMeasurements;
   cycleMeasurements: CycleMeasurements;
   parameters: Parameters;
   parametersRequest: ParametersRequest;
-  logEvent: LogEvent;
+  parametersRequestStandby: { parameters: ParametersRequest };
+  alarmLimits: AlarmLimits;
+  alarmLimitsRequest: AlarmLimitsRequest;
+  alarmLimitsRequestStandby: { alarmLimits: AlarmLimitsRequest };
   expectedLogEvent: ExpectedLogEvent;
   nextLogEvents: NextLogEvents;
   heartbeatBackend: { time: Date };
   activeLogEvents: ActiveLogEvents;
+  alarmMuteRequest: AlarmMuteRequest;
+  alarmMute: AlarmMute;
+  systemSettingRequest: SystemSettingRequest;
+  frontendDisplaySetting: FrontendDisplaySetting;
   batteryPower: BatteryPower;
   screenStatus: ScreenStatus;
 
@@ -165,6 +169,11 @@ export interface ControllerStates {
   rotaryEncoder: RotaryEncoderParameter;
 
   // Derived states
+  smoothedMeasurements: {
+    spo2: SmoothingData;
+    fio2: SmoothingData;
+    flow: SmoothingData;
+  };
   waveformHistoryPaw: WaveformHistory;
   waveformHistoryFlow: WaveformHistory;
   waveformHistoryVolume: WaveformHistory;
@@ -173,18 +182,17 @@ export interface ControllerStates {
 
 export const MessageClass = new Map<MessageType, PBMessageType>([
   // mcu_pb
-  [MessageType.Alarms, Alarms],
   [MessageType.SensorMeasurements, SensorMeasurements],
   [MessageType.CycleMeasurements, CycleMeasurements],
   [MessageType.Parameters, Parameters],
   [MessageType.ParametersRequest, ParametersRequest],
   [MessageType.AlarmLimits, AlarmLimits],
   [MessageType.AlarmLimitsRequest, AlarmLimitsRequest],
-  [MessageType.AlarmMuteRequest, AlarmMuteRequest],
-  [MessageType.AlarmMute, AlarmMute],
   [MessageType.ExpectedLogEvent, ExpectedLogEvent],
   [MessageType.NextLogEvents, NextLogEvents],
   [MessageType.ActiveLogEvents, ActiveLogEvents],
+  [MessageType.AlarmMuteRequest, AlarmMuteRequest],
+  [MessageType.AlarmMute, AlarmMute],
   // frontend_pb
   [MessageType.BatteryPower, BatteryPower],
   [MessageType.ScreenStatus, ScreenStatus],
@@ -195,18 +203,17 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
 
 export const MessageTypes = new Map<PBMessageType, MessageType>([
   // mcu_pb
-  [Alarms, MessageType.Alarms],
   [SensorMeasurements, MessageType.SensorMeasurements],
   [CycleMeasurements, MessageType.CycleMeasurements],
   [Parameters, MessageType.Parameters],
   [ParametersRequest, MessageType.ParametersRequest],
   [AlarmLimits, MessageType.AlarmLimits],
   [AlarmLimitsRequest, MessageType.AlarmLimitsRequest],
-  [AlarmMuteRequest, MessageType.AlarmMuteRequest],
-  [AlarmMute, MessageType.AlarmMute],
   [ExpectedLogEvent, MessageType.ExpectedLogEvent],
   [NextLogEvents, MessageType.NextLogEvents],
   [ActiveLogEvents, MessageType.ActiveLogEvents],
+  [AlarmMuteRequest, MessageType.AlarmMuteRequest],
+  [AlarmMute, MessageType.AlarmMute],
   // frontend_pb
   [BatteryPower, MessageType.BatteryPower],
   [ScreenStatus, MessageType.ScreenStatus],

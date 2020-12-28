@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import {
-  Alarms,
+  AlarmLimits,
   BatteryPower,
   CycleMeasurements,
   Parameters,
@@ -23,16 +23,16 @@ import {
   activeLogEventsReducer,
   pvHistoryReducer,
   waveformHistoryReducer,
+  sensorMeasurementSmoothingReducer,
 } from './reducers/derived';
 import { MessageType } from './types';
 
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb
-  alarms: messageReducer<Alarms>(MessageType.Alarms, Alarms),
+  alarmLimits: messageReducer<AlarmLimits>(MessageType.AlarmLimits, AlarmLimits),
   alarmLimitsRequest: alarmLimitsReducer,
   alarmLimitsRequestStandby: alarmLimitsRequestStandbyReducer,
   alarmMuteRequest: alarmMuteRequestReducer,
-  parametersRequestStandby: parametersRequestStanbyReducer,
   systemSettingRequest: systemSettingRequestReducer,
   frontendDisplaySetting: frontendDisplaySettingReducer,
   expectedLogEvent: expectedLogEventReducer,
@@ -51,11 +51,35 @@ export const controllerReducer = combineReducers({
   ),
   parameters: messageReducer<Parameters>(MessageType.Parameters, Parameters),
   parametersRequest: parametersRequestReducer,
+  parametersRequestStandby: parametersRequestStanbyReducer,
 
   // Message states from frontend_pb
   rotaryEncoder: rotaryEncoderReducer,
 
   // Derived states
+  smoothedMeasurements: combineReducers({
+    spo2: sensorMeasurementSmoothingReducer(
+      0.5,
+      1.0,
+      200,
+      500,
+      (sensorMeasurements) => sensorMeasurements.spo2,
+    ),
+    fio2: sensorMeasurementSmoothingReducer(
+      0.5,
+      0.1,
+      500,
+      200,
+      (sensorMeasurements) => sensorMeasurements.fio2,
+    ),
+    flow: sensorMeasurementSmoothingReducer(
+      0.5,
+      0.5,
+      500,
+      200,
+      (sensorMeasurements) => sensorMeasurements.flow,
+    ),
+  }),
   waveformHistoryPaw: waveformHistoryReducer<SensorMeasurements>(
     MessageType.SensorMeasurements,
     (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,

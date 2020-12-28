@@ -3,6 +3,7 @@ import React, { useCallback, useEffect } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { updateCommittedState } from '../../store/controller/actions';
 import { getAlarmLimitsRequest } from '../../store/controller/selectors';
+import { Range } from '../../store/controller/proto/mcu_pb';
 import { ALARM_LIMITS, ALARM_LIMITS_STANDBY } from '../../store/controller/types';
 import ModalPopup from './ModalPopup';
 import ValueClicker from './ValueClicker';
@@ -82,13 +83,13 @@ export const AlarmModal = ({
   const [open, setOpen] = React.useState(false);
   const [min] = React.useState(committedMin);
   const [max] = React.useState(committedMax);
-  const alarmLimits: Record<string, number> = useSelector(
+  const alarmLimits: Record<string, Range> = useSelector(
     getAlarmLimitsRequest,
     shallowEqual,
-  ) as Record<string, number>;
+  ) as Record<string, Range>;
   const [rangeValue, setRangeValue] = React.useState<number[]>([
-    alarmLimits[`${stateKey}Min`],
-    alarmLimits[`${stateKey}Max`],
+    alarmLimits[stateKey].lower,
+    alarmLimits[stateKey].upper,
   ]);
   const dispatch = useDispatch();
 
@@ -118,14 +119,18 @@ export const AlarmModal = ({
   const handleConfirm = () => {
     dispatch(
       updateCommittedState(ALARM_LIMITS, {
-        [`${stateKey}Min`]: rangeValue[0],
-        [`${stateKey}Max`]: rangeValue[1],
+        [stateKey]: {
+          lower: rangeValue[0],
+          upper: rangeValue[1],
+        },
       }),
     );
     dispatch(
       updateCommittedState(ALARM_LIMITS_STANDBY, {
-        [`${stateKey}Min`]: rangeValue[0],
-        [`${stateKey}Max`]: rangeValue[1],
+        [stateKey]: {
+          lower: rangeValue[0],
+          upper: rangeValue[1],
+        },
       }),
     );
     requestCommitRange(rangeValue[0], rangeValue[1]);

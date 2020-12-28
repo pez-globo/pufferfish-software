@@ -6,13 +6,13 @@ import {
   AlarmLimitsRequest,
   AlarmMute,
   AlarmMuteRequest,
-  Alarms,
   CycleMeasurements,
   LogEvent,
   Parameters,
   ParametersRequest,
   SensorMeasurements,
   VentilationMode,
+  Range,
 } from './proto/mcu_pb';
 import {
   ControllerStates,
@@ -29,12 +29,6 @@ export const roundValue = (value: number): number => {
     : 0;
 };
 export const getController = ({ controller }: StoreState): ControllerStates => controller;
-
-// Alarms
-export const getAlarms = createSelector(
-  getController,
-  (states: ControllerStates): Alarms => states.alarms,
-);
 
 // SensorMeasurements
 export const getSensorMeasurements = createSelector(
@@ -64,6 +58,17 @@ export const getSensorMeasurementsFiO2 = createSelector(
 export const getSensorMeasurementsSpO2 = createSelector(
   getSensorMeasurements,
   (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.spo2),
+);
+
+// SensorMeasurementsSmoothed
+export const getSmoothedFlow = createSelector(getController, (states: ControllerStates): number =>
+  roundValue(states.smoothedMeasurements.flow.smoothed),
+);
+export const getSmoothedFiO2 = createSelector(getController, (states: ControllerStates): number =>
+  roundValue(states.smoothedMeasurements.fio2.smoothed),
+);
+export const getSmoothedSpO2 = createSelector(getController, (states: ControllerStates): number =>
+  roundValue(states.smoothedMeasurements.spo2.smoothed),
 );
 
 // CycleMeasurements
@@ -144,12 +149,11 @@ export const getParametersRequestMode = createSelector(
 );
 
 // Derived FiO2 Sensor Measurements
-export const getSensorMeasurementsFiO2Value = createSelector(
-  getSensorMeasurements,
+export const getSmoothedFiO2Value = createSelector(
+  getSmoothedFiO2,
   getParametersFlow,
-  (sensorMeasurements: SensorMeasurements, getParametersFlow: number): number | undefined => {
-    const fio2Value = sensorMeasurements.fio2;
-    return getParametersFlow > 0 ? roundValue(fio2Value) : undefined;
+  (fio2: number, getParametersFlow: number): number | undefined => {
+    return getParametersFlow > 0 ? roundValue(fio2) : undefined;
   },
 );
 
@@ -233,13 +237,13 @@ export const getPVLoop = createSelector(
 // Alarm Limits
 export const getAlarmLimitsRequest = createSelector(
   getController,
-  (states: ControllerStates): AlarmLimitsRequest | Record<string, number> =>
+  (states: ControllerStates): AlarmLimitsRequest | Record<string, Range> =>
     states.alarmLimitsRequest,
 );
 
 export const getAlarmLimitsRequestStandby = createSelector(
   getController,
-  (states: ControllerStates): AlarmLimitsRequest | Record<string, number> =>
+  (states: ControllerStates): AlarmLimitsRequest | Record<string, Range> =>
     states.alarmLimitsRequestStandby.alarmLimits as AlarmLimitsRequest,
 );
 
@@ -253,12 +257,6 @@ export const getFrontendDisplaySetting = createSelector(
 export const getSystemSettingRequest = createSelector(
   getController,
   (states: ControllerStates): SystemSettingRequest => states.systemSettingRequest,
-);
-
-// New Log event
-export const getLogEvent = createSelector(
-  getController,
-  (states: ControllerStates): LogEvent => states.logEvent,
 );
 
 // Next Log Events

@@ -39,11 +39,10 @@ FRONTEND_SYNCHRONIZER_SCHEDULE = collections.deque([
 ])
 
 FILE_SYNCHRONIZER_SCHEDULE = collections.deque([
-    states.ScheduleEntry(time=0.3, type=mcu_pb.SensorMeasurements),
     states.ScheduleEntry(time=0.3, type=mcu_pb.Parameters),
-    states.ScheduleEntry(time=0.3, type=mcu_pb.Alarms),
     states.ScheduleEntry(time=0.3, type=mcu_pb.ParametersRequest),
-    states.ScheduleEntry(time=0.3, type=mcu_pb.CycleMeasurements),
+    states.ScheduleEntry(time=0.3, type=mcu_pb.AlarmLimits),
+    states.ScheduleEntry(time=0.3, type=mcu_pb.AlarmLimitsRequest),
 ])
 
 # Events
@@ -102,15 +101,15 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
     """Filter which passes input data in an event class."""
 
     MCU_INPUT_TYPES = {
-        mcu_pb.Alarms,
         mcu_pb.SensorMeasurements,
         mcu_pb.CycleMeasurements,
         mcu_pb.Parameters,
+        mcu_pb.AlarmLimits,
     }
     FRONTEND_INPUT_TYPES = {
         mcu_pb.ParametersRequest,
-        mcu_pb.Ping,
-        mcu_pb.Announcement,
+        mcu_pb.AlarmLimitsRequest,
+        mcu_pb.ExpectedLogEvent,
         frontend_pb.RotaryEncoder
     }
 

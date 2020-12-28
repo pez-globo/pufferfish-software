@@ -12,10 +12,10 @@ examples_good = [
     (
         mcu_pb.Parameters(
             time=1601382363357, mode=mcu_pb.VentilationMode(6), pip=6,
-            peep=30, #0-50
-            vt=200, #100-4000/20-300
-            rr=30, #4-150
-            ie=2, fio2=60, #0-100
+            peep=30,  # 0-50
+            vt=200,  # 100-4000/20-300
+            rr=30,  # 4-150
+            ie=2, fio2=60,  # 0-100
             flow=34
         ),
         b'U\xa3\x13\xae\x04\x08\xdd\xe1\xce\xce\xcd.\x10\x06\x1d\x00\x00' +
@@ -43,19 +43,11 @@ examples_good = [
     (
         mcu_pb.SensorMeasurements(
             time=1601382670441, cycle=10, paw=20,
-            flow=25, volume=50, fio2=50, spo2=97 #90-100
+            flow=25, volume=50, fio2=50, spo2=97  # 90-100
         ),
         b'%W\xb29\x02\x08\xe9\xc0\xe1\xce\xcd.\x10\n\x1d\x00\x00\xa0A%' +
         b'\x00\x00\xc8A-\x00\x00HB5\x00\x00HB=\x00\x00\xc2B',
         'SensorMeasurements'
-    ),
-    (
-        mcu_pb.Alarms(
-            time=1601382670441,
-            alarm_one=True,
-            alarm_two=False
-        ),
-        b'/3Z\xf6\x01\x08\xe9\xc0\xe1\xce\xcd.\x10\x01', 'Alarms'
     )
 ]
 
@@ -86,14 +78,6 @@ examples_bad_crc = [
         b'\xac1\xb2\x8c\x03\x08\x89\x99\xcf\xce\xcd.\x15\x00\x00zC\x1d' +
         b'\x00\x00\xc8A%\x00\x00pA-\x00\x00 A5\x00\x00\xc0@=\x00\x00pA',
         'CycleMeasurements'
-    ),
-    (
-        mcu_pb.Alarms(
-            time=1601382670441,
-            alarm_one=True,
-            alarm_two=False
-        ),
-        b'/3Z\xf6\x01\x08\xe9\xc0\xe1\xce\xcd.\x10\x02', 'Alarms'
     )
 ]
 
@@ -126,6 +110,7 @@ examples_bad_data = [
     )
 ]
 
+
 # Saving File (Sending)
 
 @pt.mark.parametrize('message,crc_message,state_type', examples_good)
@@ -133,7 +118,7 @@ def test_file_tx_state_data_valid(
         message: betterproto.Message,
         crc_message: bytes,
         state_type: str
-)-> None:
+) -> None:
     """"""
     sender = file.SendFilter()
     sender.input(message)
@@ -158,7 +143,8 @@ def test_file_rx_crc_invalid(
         state_type=state_type
     ))
     with pt.raises(exceptions.ProtocolDataError):
-        __ = receiver.output()
+        receiver.output()
+
 
 @pt.mark.parametrize('_,crc_message,state_type', examples_bad_data)
 def test_file_rx_data_invalid(
@@ -173,7 +159,8 @@ def test_file_rx_data_invalid(
         state_type=state_type
     ))
     with pt.raises(exceptions.ProtocolDataError):
-        __ = receiver.output()
+        receiver.output()
+
 
 @pt.mark.parametrize('message,crc_message,state_type', examples_good)
 def test_file_rx_data_valid(
