@@ -170,7 +170,7 @@ const ControlValuesDisplay = ({
   const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual) as Record<string, number>;
   const onClick = () => {
     // setOpen(true);
-    if(stateKey) {
+    if (stateKey) {
       setMultiPopupOpen(true, stateKey);
     }
   };
@@ -270,7 +270,7 @@ const GridControlValuesDisplay = ({
   const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual) as Record<string, number>;
   const onClick = () => {
     // setOpen(true);
-    if(stateKey) {
+    if (stateKey) {
       setMultiPopupOpen(true, stateKey);
     }
   };

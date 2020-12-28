@@ -21,7 +21,23 @@ const useStyles = makeStyles((theme: Theme) => ({
     borderRadius: 6,
   },
   dialogActions: {
-    paddingBottom: theme.spacing(2),
+    padding: 0,
+  },
+  popupWidth: {
+    '& .MuiDialog-container': {
+      '& .MuiDialog-paperWidthSm': {
+        maxWidth: '750px',
+
+        '& .MuiDialogTitle-root': {
+          paddingBottom: '5px',
+        },
+
+        '& .MuiDialogContent-root': {
+          padding: '0px 24px',
+          overflow: 'hidden',
+        },
+      },
+    },
   },
 }));
 
@@ -71,7 +87,13 @@ export const ModalPopup = (props: PropsWithChildren<Props>): JSX.Element => {
   } = props;
   const [maxWidth] = React.useState<DialogProps['maxWidth']>('sm');
   return (
-    <Dialog fullWidth={true} maxWidth={fullWidth ? false : maxWidth} open={open} onClose={onClose}>
+    <Dialog
+      fullWidth={true}
+      maxWidth={fullWidth ? false : maxWidth}
+      open={open}
+      onClose={onClose}
+      className={classes.popupWidth}
+    >
       <DialogTitle id="form-dialog-title">
         <Grid container alignItems="center">
           <Grid item xs>

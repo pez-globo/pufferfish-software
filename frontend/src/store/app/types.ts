@@ -28,5 +28,5 @@ export type AppAction = InitializedAction | SetLocaleAction | SetClock | SetRedB
 export interface AppState {
   locale: string;
   clock: Date;
-  notifyAlarm: boolean,
+  notifyAlarm: boolean;
 }

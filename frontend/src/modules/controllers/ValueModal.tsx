@@ -4,15 +4,13 @@ import { shallowEqual, useSelector } from 'react-redux';
 import ValueClicker from './ValueClicker';
 import ModalPopup from './ModalPopup';
 import { getRotaryEncoder } from '../../store/controller/selectors';
-import { SelectorType } from '../displays/ValueSelectorDisplay';
 
 const useStyles = makeStyles((theme: Theme) => ({
   contentContainer: {
-    height: '100%',
-    minHeight: '300px',
+    minHeight: '290px',
     border: `2px dashed ${theme.palette.background.default}`,
     borderRadius: theme.panel.borderRadius,
-    marginRight: theme.spacing(2),
+    margin: '0px 0px 10px',
     paddingTop: theme.spacing(2),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(4),
@@ -29,7 +27,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     paddingTop: theme.spacing(4),
     paddingLeft: theme.spacing(2),
     opacity: 0.8,
-    // border: '1px solid red'
   },
 }));
 
@@ -52,8 +49,7 @@ interface Props {
 interface ContentProps {
   label: string;
   units?: string;
-  committedSettingSelector?: SelectorType;
-  disableSetNewButton?: boolean;
+  committedSetting: number;
   requestCommitSetting(setting: number): void;
   updateModalStatus?(status: boolean): void;
   openModal?: boolean;
@@ -137,31 +133,33 @@ export const ValueModal = ({
     return '';
   }
 
-  const modalContent = <Grid container direction="row">
-    <Grid container item xs direction="column" className={classes.contentContainer}>
-      <Grid item>
-        <Typography variant="h4">
-          {label}
-          <Typography variant="h6" style={{ opacity: 0.8 }}>
-            {pipClarify(label)}
-          </Typography>
-        </Typography>
-      </Grid>
-      <Grid container item xs wrap="nowrap">
-        <Grid container item alignItems="baseline">
-          <Typography align="left" style={{ fontSize: '9.5rem' }}>
-            {value.toFixed(0)}
-          </Typography>
-          <Typography align="center" variant="h5" className={classes.unitsLabel}>
-            {units}
+  const modalContent = (
+    <Grid container direction="row">
+      <Grid container item xs direction="column" className={classes.contentContainer}>
+        <Grid item>
+          <Typography variant="h4">
+            {label}
+            <Typography variant="h6" style={{ opacity: 0.8 }}>
+              {pipClarify(label)}
+            </Typography>
           </Typography>
         </Grid>
+        <Grid container item xs wrap="nowrap">
+          <Grid container item alignItems="baseline">
+            <Typography align="left" style={{ fontSize: '9.5rem' }}>
+              {value.toFixed(0)}
+            </Typography>
+            <Typography align="center" variant="h5" className={classes.unitsLabel}>
+              {units}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item>
+        <ValueClicker value={value} min={min} max={max} onClick={setValue} />
       </Grid>
     </Grid>
-    <Grid item>
-      <ValueClicker value={value} min={min} max={max} onClick={setValue} />
-    </Grid>
-  </Grid>
+  );
 
   return (
     <Grid container direction="column" alignItems="center" justify="center">
@@ -190,11 +188,10 @@ export const ValueModal = ({
   );
 };
 
-
 export const SetValueContent = ({
   label,
   units,
-  committedSettingSelector,
+  committedSetting,
   openModal = false,
   updateModalStatus,
   requestCommitSetting,
@@ -203,15 +200,12 @@ export const SetValueContent = ({
 }: ContentProps): JSX.Element => {
   const classes = useStyles();
   const rotaryEncoder = useSelector(getRotaryEncoder, shallowEqual);
-  const [open, setOpen] = React.useState(false);
-  const committedSetting = useSelector(committedSettingSelector as SelectorType) as number;
+  const [open] = React.useState(openModal);
   const [value, setValue] = React.useState(committedSetting);
 
   const initSetValue = useCallback(() => {
-    console.log('Set value ', committedSetting)
     setValue(committedSetting >= min ? committedSetting : min);
-    // setOpen(openModal);
-  }, [committedSetting, openModal, min]);
+  }, [committedSetting, min]);
 
   useEffect(() => {
     initSetValue();
@@ -226,7 +220,7 @@ export const SetValueContent = ({
 
   useEffect(() => {
     requestCommitSetting(value);
-  }, [value])
+  }, [requestCommitSetting, value]);
 
   const handleConfirm = () => {
     requestCommitSetting(value);
@@ -263,35 +257,37 @@ export const SetValueContent = ({
     return '';
   }
 
-  const modalContent = <Grid container direction="row">
-    <Grid container item xs direction="column" className={classes.contentContainer}>
-      <Grid item>
-        <Typography variant="h4">
-          {label}
-          <Typography variant="h6" style={{ opacity: 0.8 }}>
-            {pipClarify(label)}
-          </Typography>
-        </Typography>
-      </Grid>
-      <Grid container item xs wrap="nowrap">
-        <Grid container item alignItems="baseline">
-          <Typography align="left" style={{ fontSize: '9.5rem' }}>
-            {value.toFixed(0)}
-          </Typography>
-          <Typography align="center" variant="h5" className={classes.unitsLabel}>
-            {units}
+  const modalContent = (
+    <Grid container direction="row">
+      <Grid container item xs direction="column" className={classes.contentContainer}>
+        <Grid item>
+          <Typography variant="h4">
+            {label}
+            <Typography variant="h6" style={{ opacity: 0.8 }}>
+              {pipClarify(label)}
+            </Typography>
           </Typography>
         </Grid>
+        <Grid container item xs wrap="nowrap">
+          <Grid container item alignItems="baseline">
+            <Typography align="left" style={{ fontSize: '9.5rem' }}>
+              {value.toFixed(0)}
+            </Typography>
+            <Typography align="center" variant="h5" className={classes.unitsLabel}>
+              {units}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item>
+        <ValueClicker value={value} min={min} max={max} onClick={setValue} />
       </Grid>
     </Grid>
-    <Grid item>
-      <ValueClicker value={value} min={min} max={max} onClick={setValue} />
-    </Grid>
-  </Grid>
+  );
 
   return (
     <Grid container direction="column" alignItems="center" justify="center">
-        {modalContent}
+      {modalContent}
     </Grid>
   );
 };

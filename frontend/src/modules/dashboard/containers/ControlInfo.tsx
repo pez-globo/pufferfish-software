@@ -130,7 +130,7 @@ const ControlInfo = (props: Props): JSX.Element => {
   };
   const onClick = () => {
     // setOpen(true);
-    if(stateKey) {
+    if (stateKey) {
       setMultiPopupOpen(true, stateKey);
     }
   };

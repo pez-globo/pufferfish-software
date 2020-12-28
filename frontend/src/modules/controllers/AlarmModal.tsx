@@ -12,9 +12,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   contentContainer: {
     width: '100%',
     height: '100%',
-    minHeight: '300px',
+    minHeight: '290px',
     border: `2px dashed ${theme.palette.background.default}`,
     borderRadius: theme.panel.borderRadius,
+    margin: '10px 0px',
   },
   borderBottom: {
     borderBottom: `2px dashed ${theme.palette.background.default}`,
@@ -35,6 +36,12 @@ const useStyles = makeStyles((theme: Theme) => ({
     paddingRight: theme.spacing(1),
     borderRadius: 8,
   },
+  head: {
+    '& h3': {
+      lineHeight: '1.5',
+      padding: '0px 15px',
+    },
+  },
 }));
 
 export interface AlarmAdjustProps {
@@ -54,6 +61,7 @@ interface Props {
   step?: number;
   openModal?: boolean;
   contentOnly?: boolean;
+  labelHeading?: boolean;
 }
 
 export const AlarmModal = ({
@@ -67,7 +75,8 @@ export const AlarmModal = ({
   units = '',
   stateKey,
   step,
-  contentOnly = false
+  contentOnly = false,
+  labelHeading = false,
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
@@ -123,98 +132,111 @@ export const AlarmModal = ({
     handleClose();
   };
 
-  const modalContent = <Grid
-    container
-    direction="column"
-    alignItems="stretch"
-    className={classes.contentContainer}
-  >
-    <Grid
-      container
-      item
-      xs
-      justify="center"
-      alignItems="center"
-      className={`${classes.alarmContainer} ${classes.borderBottom}`}
-    >
-      <Grid item className={classes.alarmValue}>
-        <Typography align="center" variant="h3">
-          {rangeValue[0] !== undefined ? Number(rangeValue[0]) : '--'}
-        </Typography>
-      </Grid>
-      <Grid item>
-        <ValueClicker
-          value={rangeValue[0]}
-          step={step}
-          min={committedMin}
-          max={committedMax}
-          onClick={(value) => setRangeValue(Object.assign([], rangeValue, { 0: value }))}
-          direction="row"
-        />
-      </Grid>
-    </Grid>
-    <Grid
-      container
-      item
-      xs
-      justify="center"
-      alignItems="center"
-      className={`${classes.alarmContainer} ${classes.borderBottom}`}
-    >
-      <Grid item className={classes.alarmValue}>
-        <Typography align="center" variant="h3">
-          {rangeValue[1] !== undefined ? Number(rangeValue[1]) : '--'}
-        </Typography>
-      </Grid>
-      <Grid item>
-        <ValueClicker
-          value={rangeValue[1]}
-          step={step}
-          min={committedMin}
-          max={committedMax}
-          onClick={(value) => setRangeValue(Object.assign([], rangeValue, { 1: value }))}
-          direction="row"
-        />
-      </Grid>
-    </Grid>
-    <Grid container item xs alignItems="center">
-      <ValueSlider
-        rangeValues={rangeValue}
-        onChange={setRangeValue}
-        min={min}
-        max={max}
-        step={step}
-      />
-    </Grid>
-  </Grid>
+  useEffect(() => {
+    requestCommitRange(rangeValue[0], rangeValue[1]);
+  }, [requestCommitRange, rangeValue]);
 
-
-  return (
-    contentOnly ? modalContent :
-      <Grid container direction="column" alignItems="center" justify="center">
-        <Grid container item xs>
-          {!disableAlarmButton && (
-            <Button
-              onClick={handleOpen}
-              color="primary"
-              variant="contained"
-              className={classes.openButton}
-            >
-              Alarm
-            </Button>
-          )}
-          <span hidden={true}>{units}</span>
-        </Grid>
-        <ModalPopup
-          withAction={true}
-          label={`${label} - Alarm`}
-          open={open}
-          onClose={handleClose}
-          onConfirm={handleConfirm}
+  const modalContent = (
+    <Grid container direction="column" alignItems="stretch" className={classes.contentContainer}>
+      {labelHeading && (
+        <Grid
+          container
+          item
+          xs
+          className={`${classes.alarmContainer} ${classes.borderBottom} ${classes.head}`}
         >
-          {modalContent}
-        </ModalPopup>
+          <Typography align="left" variant="h3">
+            {label}
+          </Typography>
+        </Grid>
+      )}
+      <Grid
+        container
+        item
+        xs
+        justify="center"
+        alignItems="center"
+        className={`${classes.alarmContainer} ${classes.borderBottom}`}
+      >
+        <Grid item className={classes.alarmValue}>
+          <Typography align="center" variant="h3">
+            {rangeValue[0] !== undefined ? Number(rangeValue[0]) : '--'}
+          </Typography>
+        </Grid>
+        <Grid item>
+          <ValueClicker
+            value={rangeValue[0]}
+            step={step}
+            min={committedMin}
+            max={committedMax}
+            onClick={(value) => setRangeValue(Object.assign([], rangeValue, { 0: value }))}
+            direction="row"
+          />
+        </Grid>
       </Grid>
+      <Grid
+        container
+        item
+        xs
+        justify="center"
+        alignItems="center"
+        className={`${classes.alarmContainer} ${classes.borderBottom}`}
+      >
+        <Grid item className={classes.alarmValue}>
+          <Typography align="center" variant="h3">
+            {rangeValue[1] !== undefined ? Number(rangeValue[1]) : '--'}
+          </Typography>
+        </Grid>
+        <Grid item>
+          <ValueClicker
+            value={rangeValue[1]}
+            step={step}
+            min={committedMin}
+            max={committedMax}
+            onClick={(value) => setRangeValue(Object.assign([], rangeValue, { 1: value }))}
+            direction="row"
+          />
+        </Grid>
+      </Grid>
+      <Grid container item xs alignItems="center">
+        <ValueSlider
+          rangeValues={rangeValue}
+          onChange={setRangeValue}
+          min={min}
+          max={max}
+          step={step}
+        />
+      </Grid>
+    </Grid>
+  );
+
+  return contentOnly ? (
+    modalContent
+  ) : (
+    <Grid container direction="column" alignItems="center" justify="center">
+      <Grid container item xs>
+        {!disableAlarmButton && (
+          <Button
+            onClick={handleOpen}
+            color="primary"
+            variant="contained"
+            className={classes.openButton}
+          >
+            Alarm
+          </Button>
+        )}
+        <span hidden={true}>{units}</span>
+      </Grid>
+      <ModalPopup
+        withAction={true}
+        label={`${label} - Alarm`}
+        open={open}
+        onClose={handleClose}
+        onConfirm={handleConfirm}
+      >
+        {modalContent}
+      </ModalPopup>
+    </Grid>
   );
 };
 

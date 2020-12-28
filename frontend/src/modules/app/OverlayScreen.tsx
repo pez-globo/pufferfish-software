@@ -62,14 +62,14 @@ const AudioAlarm = (): JSX.Element => {
   const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
-    if (playing) {
-      audio.play();
-    } else {
-      audio.pause();
-    }
-    return () => {
-      audio.pause();
-    };
+    // if (playing) {
+    //   audio.play();
+    // } else {
+    //   audio.pause();
+    // }
+    // return () => {
+    //   audio.pause();
+    // };
   }, [playing, audio]);
 
   useEffect(() => {
@@ -82,11 +82,11 @@ const AudioAlarm = (): JSX.Element => {
       setPlaying(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [popupEventLog])
+  }, [popupEventLog]);
 
   useEffect(() => {
     setPlaying(notifyAlarm as boolean);
-  }, [notifyAlarm])
+  }, [notifyAlarm]);
 
   return <React.Fragment />;
 };

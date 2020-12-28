@@ -14,5 +14,5 @@ export function getMultiPopupOpenState(): Observable<boolean> {
 }
 
 export function getcurrentStateKey(): Observable<string> {
-  return currentStateKey.asObservable().pipe(distinctUntilChanged());
+  return currentStateKey.asObservable();
 }

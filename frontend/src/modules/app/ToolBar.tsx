@@ -109,7 +109,7 @@ export const ToolBar = ({
           break;
       }
     }
-  }, [  , parameterRequestStandby, currentMode, dispatch]);
+  }, [isVentilatorOn, parameterRequestStandby, currentMode, dispatch]);
 
   useEffect(() => {
     initParameterUpdate();

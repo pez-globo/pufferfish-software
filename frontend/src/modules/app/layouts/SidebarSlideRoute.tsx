@@ -2,12 +2,12 @@ import React, { PropsWithChildren, useEffect } from 'react';
 import { Route, RouteProps } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Drawer, Grid } from '@material-ui/core';
+import { useSelector } from 'react-redux';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
 import { SCREENSAVER_ROUTE } from '../../navigation/constants';
 import SidebarClickable from '../SidebarClickable';
 import OverlayScreen from '../OverlayScreen';
-import { useSelector } from 'react-redux';
 import { getAlarmNotifyStatus } from '../../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({

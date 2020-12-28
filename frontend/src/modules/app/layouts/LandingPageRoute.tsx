@@ -2,11 +2,11 @@ import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { PropsWithChildren, useEffect } from 'react';
 import { Route, RouteProps } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import Sidebar from '../Sidebar';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
 import OverlayScreen from '../OverlayScreen';
-import { useSelector } from 'react-redux';
 import { getAlarmNotifyStatus } from '../../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({

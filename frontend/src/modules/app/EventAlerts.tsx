@@ -220,12 +220,12 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       const eventType = getEventType(popupEventLog.code);
       if (eventType.type) {
         setAlertCount(activeLog.length);
-        dispatch({ type: RED_BORDER, status: true});
+        dispatch({ type: RED_BORDER, status: true });
         setAlert({ label: eventType.label });
       }
     } else {
       setAlertCount(0);
-      dispatch({ type: RED_BORDER, status: false});
+      dispatch({ type: RED_BORDER, status: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popupEventLog, JSON.stringify(activeLog)]);
@@ -236,7 +236,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
 
   const muteAlarmState = (state: boolean) => {
     dispatch(updateCommittedState(ALARM_MUTE, { active: state }));
-    dispatch({ type: RED_BORDER, status: !state});
+    dispatch({ type: RED_BORDER, status: !state });
   };
 
   const onActiveAlarmClick = () => {

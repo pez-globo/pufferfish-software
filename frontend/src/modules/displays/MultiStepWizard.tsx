@@ -1,284 +1,354 @@
-import React, { PropsWithChildren, useEffect } from "react";
-import ModalPopup from "../controllers/ModalPopup";
+import React, { useEffect } from 'react';
 import { Subscription } from 'rxjs';
-import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from "../app/Service";
-import { useDispatch, useSelector } from "react-redux";
-import { getCycleMeasurementsRR, getParametersFiO2, getParametersFlow, getSensorMeasurementsFiO2Value, getSensorMeasurementsFlow, getSensorMeasurementsSpO2 } from "../../store/controller/selectors";
-import { SetValueContent } from "../controllers/ValueModal";
-import { makeStyles, Theme, Grid, Tabs, Tab } from "@material-ui/core";
-import { a11yProps, TabPanel } from "../controllers/TabPanel";
-import ValueInfo from "../dashboard/containers/ValueInfo";
-import { BMIN, LMIN, PERCENT } from "../info/units";
-import { AlarmModal } from "../controllers";
-import { SelectorType } from "./ValueSelectorDisplay";
-import { dispatch } from "rxjs/internal/observable/pairs";
-import { updateCommittedParameter, updateCommittedState } from "../../store/controller/actions";
-import { ALARM_LIMITS, ALARM_LIMITS_STANDBY, PARAMETER_STANDBY } from "../../store/controller/types";
+import { useDispatch } from 'react-redux';
+import { makeStyles, Theme, Grid, Tabs, Tab, Button } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
+import ReplyIcon from '@material-ui/icons/Reply';
+import ModalPopup from '../controllers/ModalPopup';
+import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
+import {
+  getCycleMeasurementsRR,
+  getSensorMeasurementsFiO2Value,
+  getSensorMeasurementsFlow,
+  getSensorMeasurementsSpO2,
+  roundValue,
+} from '../../store/controller/selectors';
+import { SetValueContent } from '../controllers/ValueModal';
+import { a11yProps, TabPanel } from '../controllers/TabPanel';
+import ValueInfo from '../dashboard/containers/ValueInfo';
+import { BMIN, LMIN, PERCENT } from '../info/units';
+import { AlarmModal } from '../controllers';
+import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
+import {
+  ALARM_LIMITS,
+  ALARM_LIMITS_STANDBY,
+  PARAMETER_STANDBY,
+} from '../../store/controller/types';
+import store from '../../store';
 
 interface Data {
-    stateKey: string,
-    label: string,
-    units: string,
-    isAlarmEnabled: boolean,
-    isSetvalEnabled: boolean,
-    committedSetting?: SelectorType,
-    alarmValues: number[],
-    setValue: number,
-    minValue?: number | null,
-    maxValue?: number | null,
+  stateKey: string;
+  label: string;
+  units: string;
+  isAlarmEnabled: boolean;
+  isSetvalEnabled: boolean;
+  committedSetting?: number | null;
+  alarmValues: number[];
+  setValue: number;
+  minValue?: number | null;
+  maxValue?: number | null;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
-    tabPanelContainer: {
-        flexGrow: 1,
-        justifyContent: 'space-between',
-        alignItems: 'stretch',
-        height: '100',
-        // border: '1px solid green',
+  tabPanelContainer: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+    alignItems: 'stretch',
+    height: '100',
+  },
+  tabs: {
+    width: '100%',
+  },
+  tab: {
+    borderRadius: 8,
+    border: `2px solid ${theme.palette.primary.main}`,
+    marginRight: '8px',
+    zIndex: 1,
+    minHeight: 40,
+  },
+  selectedTab: { color: theme.palette.primary.contrastText },
+  tabIndicator: {
+    borderRadius: 8,
+    border: `2px solid ${theme.palette.primary.main}`,
+    zIndex: 0,
+    marginBottom: theme.spacing(1),
+    minHeight: 40,
+    background: theme.palette.primary.main,
+  },
+  actionButtons: {
+    marginBottom: '10px',
+  },
+  aButtons: {
+    background: '#234562',
+    color: '#fff',
+
+    '&:hover': {
+      background: '#124876',
     },
-    tabs: {
-        // paddingTop: theme.spacing(1)
-        // border: '1px solid red',
-        width: '100%',
-    },
-    tab: {
-        borderRadius: 8,
-        border: `2px solid ${theme.palette.primary.main}`,
-        margin: '0px 8px',
-        zIndex: 1,
-        minHeight: 40,
-        minWidth: 220,
-    },
-    selectedTab: { color: theme.palette.primary.contrastText },
-    tabIndicator: {
-        borderRadius: 8,
-        border: `2px solid ${theme.palette.primary.main}`,
-        zIndex: 0,
-        marginBottom: theme.spacing(1),
-        minHeight: 40,
-        background: theme.palette.primary.main,
-    },
+  },
+  closeBtn: {
+    position: 'absolute',
+    top: '25px',
+    right: '25px',
+    zIndex: 9999,
+    cursor: 'pointer',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+  },
 }));
 
 const HFNCControls = (): JSX.Element => {
-    return (
-        <React.Fragment>
-            <Grid container item justify="center" alignItems="stretch">
-                <ValueInfo
-                    mainContainer={{
-                        selector: getCycleMeasurementsRR,
-                        label: 'RR',
-                        stateKey: 'rr',
-                        units: BMIN,
-                    }}
-                />
-                <ValueInfo
-                    mainContainer={{
-                        selector: getSensorMeasurementsSpO2,
-                        label: 'SpO2',
-                        stateKey: 'spo2',
-                        units: PERCENT,
-                    }}
-                />
-            </Grid>
-            <Grid container item justify="center" alignItems="stretch">
-                <ValueInfo
-                    mainContainer={{
-                        selector: getSensorMeasurementsFiO2Value,
-                        label: "FiO2",
-                        stateKey: "fio2",
-                        units: PERCENT
-                    }}
-                />
-                <ValueInfo
-                    mainContainer={{
-                        selector: getSensorMeasurementsFlow,
-                        label: "Flow Rate",
-                        stateKey: "flow",
-                        units: LMIN
-                    }}
-                />
-            </Grid>
-        </React.Fragment>
-    )
-}
+  return (
+    <React.Fragment>
+      <Grid
+        container
+        item
+        justify="center"
+        alignItems="stretch"
+        style={{ borderRight: '2px solid #030e17' }}
+      >
+        <ValueInfo
+          mainContainer={{
+            selector: getCycleMeasurementsRR,
+            label: 'RR',
+            stateKey: 'rr',
+            units: BMIN,
+          }}
+        />
+        <ValueInfo
+          mainContainer={{
+            selector: getSensorMeasurementsSpO2,
+            label: 'SpO2',
+            stateKey: 'spo2',
+            units: PERCENT,
+          }}
+        />
+      </Grid>
+      <Grid container item justify="center" alignItems="stretch" direction="column">
+        <ValueInfo
+          mainContainer={{
+            selector: getSensorMeasurementsFiO2Value,
+            label: 'FiO2',
+            stateKey: 'fio2',
+            units: PERCENT,
+          }}
+        />
+        <ValueInfo
+          mainContainer={{
+            selector: getSensorMeasurementsFlow,
+            label: 'Flow Rate',
+            stateKey: 'flow',
+            units: LMIN,
+          }}
+        />
+      </Grid>
+    </React.Fragment>
+  );
+};
 
 // TODO: Make a constant file for stateKey Constants
-const determineInput = (stateKey: string) => {
-
-    const createData = (
-        label: string,
-        stateKey: string,
-        units: string,
-        isSetvalEnabled: boolean,
-        isAlarmEnabled: boolean,
-        committedSetting?: SelectorType,
-        minValue?: number | null,
-        maxValue?: number | null,
-    ): Data => {
-        return { label, stateKey, units, isSetvalEnabled, isAlarmEnabled, committedSetting, minValue, maxValue, alarmValues: [], setValue: 0 };
+const determineInput = (stateKey: string): Data | null => {
+  const createData = (
+    label: string,
+    stateKey: string,
+    units: string,
+    isSetvalEnabled: boolean,
+    isAlarmEnabled: boolean,
+    committedSetting?: number | null,
+    minValue?: number | null,
+    maxValue?: number | null,
+  ): Data => {
+    return {
+      label,
+      stateKey,
+      units,
+      isSetvalEnabled,
+      isAlarmEnabled,
+      committedSetting,
+      minValue,
+      maxValue,
+      alarmValues: [],
+      setValue: 0,
     };
+  };
 
+  const getStoreData = (stateKey: string): number | null => {
+    const storeData = store.getState();
     switch (stateKey) {
-        case 'spo2':
-            return createData('SpO2',stateKey, PERCENT, false, true);
-        case 'rr':
-            return createData('RR', stateKey, BMIN, false, true);
-        case 'fio2':
-            return createData('FiO2', stateKey, PERCENT, true, false, getParametersFlow, 21);
-        case 'flow':
-            return createData('Flow Rate', stateKey, LMIN, true, false, getParametersFiO2, null, 80);
-        default:
-            break;
+      case 'fio2':
+        return roundValue(storeData.controller.parameters.fio2);
+      case 'flow':
+        return roundValue(storeData.controller.parameters.flow);
+      default:
     }
-}
+    return null;
+  };
 
+  switch (stateKey) {
+    case 'spo2':
+      return createData('SpO2', stateKey, PERCENT, false, true);
+    case 'rr':
+      return createData('RR', stateKey, BMIN, false, true);
+    case 'fio2':
+      return createData('FiO2', stateKey, PERCENT, true, false, getStoreData(stateKey), 21);
+    case 'flow':
+      return createData('Flow Rate', stateKey, LMIN, true, false, getStoreData(stateKey), null, 80);
+    default:
+  }
 
-const MultiStepWizard = () => {
-    const classes = useStyles();
-    const dispatch = useDispatch();
-    const [open, setOpen] = React.useState(false);
-    const [label, setLabel] = React.useState('Ventilation Controls');
-    const [stateKey, setStateKey] = React.useState('');
-    const [tabIndex, setTabIndex] = React.useState(0);
-    const [parameter, setParameter] = React.useState<Data>();
+  return null;
+};
 
-    const handleChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
-        setTabIndex(newValue);
+const MultiStepWizard = (): JSX.Element => {
+  const classes = useStyles();
+  const dispatch = useDispatch();
+  const [open, setOpen] = React.useState(false);
+  const [label, setLabel] = React.useState('Ventilation Controls');
+  const [stateKey, setStateKey] = React.useState('');
+  const [tabIndex, setTabIndex] = React.useState(0);
+  const [parameter, setParameter] = React.useState<Data | null>();
+
+  const handleChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
+    setTabIndex(newValue);
+  };
+
+  useEffect(() => {
+    const popupEventSubscription: Subscription = getMultiPopupOpenState().subscribe(
+      (state: boolean) => {
+        setOpen(state);
+      },
+    );
+    const stateKeyEventSubscription: Subscription = getcurrentStateKey().subscribe(
+      (state: string) => {
+        setStateKey(state);
+        setParameter(determineInput(state));
+      },
+    );
+    return () => {
+      if (popupEventSubscription) {
+        popupEventSubscription.unsubscribe();
+      }
+      if (stateKeyEventSubscription) {
+        stateKeyEventSubscription.unsubscribe();
+      }
     };
+  }, []);
 
-    useEffect(() => {
-        const popupEventSubscription: Subscription = getMultiPopupOpenState().subscribe((state: boolean) => {
-            setOpen(state);
-        });
-        const stateKeyEventSubscription: Subscription = getcurrentStateKey().subscribe((state: string) => {
-            setStateKey(state);
-        });
-        return () => {
-            if (popupEventSubscription) {
-                popupEventSubscription.unsubscribe();
-            }
-            if (stateKeyEventSubscription) {
-                stateKeyEventSubscription.unsubscribe();
-            }
-        };
-    }, [])
-
-    useEffect(() => {
-        setParameter(determineInput(stateKey));
-    }, [stateKey])
-
-    useEffect(() => {
-        console.log('state key ', stateKey, parameter);
-        setTabIndex(1);
-        if(parameter) {
-            parameter.setValue = 0;
-            parameter.alarmValues = [];
-        }
-    }, [parameter])
-
-    const doSetValue = (setting: number) => {
-        console.log('Chhange set valye ', setting);
-        if(parameter) {
-            parameter.setValue = setting;
-        }
-    };
-
-    const doSetAlarmValues = (min: number, max: number) => {
-        console.log('Chhange alarm valye ', min, max);
-        if(parameter) {
-            parameter.alarmValues = [min, max];
-        }
-    };
-
-    const onConfirm = () => {
-        if(parameter?.isSetvalEnabled) {
-            console.log('Chhange set valye ',parameter.setValue, stateKey);
-            dispatch(updateCommittedParameter({ [stateKey]: parameter.setValue }));
-            dispatch(updateCommittedState(PARAMETER_STANDBY, { [stateKey]: parameter.setValue }));
-        }
-        if(parameter?.isAlarmEnabled) {
-            console.log('Chhange alarm valye ',parameter.alarmValues, stateKey);
-            dispatch(
-                updateCommittedState(ALARM_LIMITS, {
-                  [`${stateKey}Min`]: parameter.alarmValues[0],
-                  [`${stateKey}Max`]: parameter.alarmValues[1],
-                }),
-              );
-              dispatch(
-                updateCommittedState(ALARM_LIMITS_STANDBY, {
-                  [`${stateKey}Min`]: parameter.alarmValues[0],
-                  [`${stateKey}Max`]: parameter.alarmValues[1],
-                }),
-              );
-        }
+  useEffect(() => {
+    if (tabIndex > 0) {
+      setLabel(parameter?.isSetvalEnabled ? 'Set New' : 'Alarms');
+    } else {
+      setLabel('Ventilation Controls');
     }
+  }, [tabIndex, parameter]);
 
-    return (
-        <ModalPopup
-            withAction={true}
-            label={label}
-            open={open}
-            onClose={() => setMultiPopupOpen(false)}
-            onConfirm={onConfirm}
+  useEffect(() => {
+    setTabIndex(1);
+    if (parameter) {
+      parameter.setValue = 0;
+      parameter.alarmValues = [];
+    }
+  }, [parameter]);
+
+  const doSetValue = (setting: number) => {
+    if (parameter) {
+      parameter.setValue = setting;
+    }
+  };
+
+  const doSetAlarmValues = (min: number, max: number) => {
+    if (parameter) {
+      parameter.alarmValues = [min, max];
+    }
+  };
+
+  const onConfirm = () => {
+    if (parameter?.isSetvalEnabled) {
+      dispatch(updateCommittedParameter({ [stateKey]: parameter.setValue }));
+      dispatch(updateCommittedState(PARAMETER_STANDBY, { [stateKey]: parameter.setValue }));
+    }
+    if (parameter?.isAlarmEnabled && parameter.alarmValues.length) {
+      dispatch(
+        updateCommittedState(ALARM_LIMITS, {
+          [`${stateKey}Min`]: parameter.alarmValues[0],
+          [`${stateKey}Max`]: parameter.alarmValues[1],
+        }),
+      );
+      dispatch(
+        updateCommittedState(ALARM_LIMITS_STANDBY, {
+          [`${stateKey}Min`]: parameter.alarmValues[0],
+          [`${stateKey}Max`]: parameter.alarmValues[1],
+        }),
+      );
+    }
+  };
+
+  return (
+    <ModalPopup withAction={false} label={label} open={open}>
+      {tabIndex === 0 ? (
+        <CloseIcon onClick={() => setMultiPopupOpen(false)} className={classes.closeBtn} />
+      ) : (
+        <ReplyIcon onClick={() => setTabIndex(tabIndex - 1)} className={classes.closeBtn} />
+      )}
+      <Grid container item>
+        <Tabs
+          value={tabIndex}
+          onChange={handleChange}
+          classes={{ indicator: classes.tabIndicator }}
         >
-            <Grid container>
-                <TabPanel value={tabIndex} index={0}>
-                    <HFNCControls />
-                </TabPanel>
-                <TabPanel value={tabIndex} index={1}>
-                    {parameter?.isSetvalEnabled ?
-                        <SetValueContent
-                            updateModalStatus={() => { }}
-                            openModal={open}
-                            disableSetNewButton={true}
-                            committedSettingSelector={parameter.committedSetting}
-                            label={parameter.label}
-                            units={parameter.units}
-                            requestCommitSetting={doSetValue}
-                            {...(parameter.minValue && { min: parameter.minValue })}
-                            {...(parameter.maxValue && { max: parameter.maxValue })}
-                        />
-                        :
-                        <AlarmModal
-                            updateModalStatus={() => { }}
-                            openModal={open}
-                            disableAlarmButton={true}
-                            label={parameter?.label || ''}
-                            units={parameter?.units || ''}
-                            stateKey={stateKey}
-                            requestCommitRange={doSetAlarmValues}
-                            contentOnly={true}
-                        />
-                    }
-                </TabPanel>
-            </Grid>
-            <Grid container item justify="center" alignItems="center">
-                <Tabs
-                    value={tabIndex}
-                    onChange={handleChange}
-                    classes={{ indicator: classes.tabIndicator }}
-                >
-                    <Tab
-                        label="HFNC Control"
-                        {...a11yProps(0)}
-                        className={classes.tab}
-                        classes={{ selected: classes.selectedTab }}
-                    />
-                    <Tab
-                        label={parameter?.isSetvalEnabled ? "Set New" : "Alarms"}
-                        {...a11yProps(1)}
-                        className={classes.tab}
-                        classes={{ selected: classes.selectedTab }}
-                    />
-                    <Grid container item justify="flex-end" alignItems="center">
+          <Tab
+            label="HFNC Control"
+            {...a11yProps(0)}
+            className={classes.tab}
+            classes={{ selected: classes.selectedTab }}
+          />
+          <Tab
+            style={{ visibility: tabIndex === 0 ? 'hidden' : 'visible' }}
+            label={parameter?.isSetvalEnabled ? 'Set New' : 'Alarms'}
+            {...a11yProps(1)}
+            className={classes.tab}
+            classes={{ selected: classes.selectedTab }}
+          />
+        </Tabs>
+      </Grid>
+      <Grid container>
+        <TabPanel value={tabIndex} index={0}>
+          <HFNCControls />
+        </TabPanel>
+        <TabPanel value={tabIndex} index={1}>
+          {parameter?.isSetvalEnabled ? (
+            <SetValueContent
+              openModal={open}
+              committedSetting={parameter.committedSetting as number}
+              label={parameter.label}
+              units={parameter.units}
+              requestCommitSetting={doSetValue}
+              {...(parameter.minValue && { min: parameter.minValue })}
+              {...(parameter.maxValue && { max: parameter.maxValue })}
+            />
+          ) : (
+            <AlarmModal
+              openModal={open}
+              label={parameter?.label || ''}
+              units={parameter?.units || ''}
+              stateKey={stateKey}
+              requestCommitRange={doSetAlarmValues}
+              contentOnly={true}
+              labelHeading={true}
+            />
+          )}
+        </TabPanel>
+      </Grid>
 
-                    </Grid>
-                </Tabs>
-            </Grid>
-
-        </ModalPopup>
-    )
+      <Grid container item alignItems="center" justify="flex-end" className={classes.actionButtons}>
+        <Grid item>
+          <Button
+            variant="contained"
+            className={classes.aButtons}
+            style={{ marginRight: '15px' }}
+            onClick={() => setMultiPopupOpen(false)}
+          >
+            Cancel
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button variant="contained" className={classes.aButtons} onClick={onConfirm}>
+            Submit
+          </Button>
+        </Grid>
+      </Grid>
+    </ModalPopup>
+  );
 };
 
 export default MultiStepWizard;

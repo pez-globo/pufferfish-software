@@ -1,4 +1,11 @@
-import { AppAction, AppState, LOCALE_DEFAULT, SET_LOCALE, CLOCK_UPDATED, RED_BORDER } from './types';
+import {
+  AppAction,
+  AppState,
+  LOCALE_DEFAULT,
+  SET_LOCALE,
+  CLOCK_UPDATED,
+  RED_BORDER,
+} from './types';
 
 const initialState: AppState = {
   locale: LOCALE_DEFAULT,
