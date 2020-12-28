@@ -88,8 +88,8 @@ export const AlarmModal = ({
     shallowEqual,
   ) as Record<string, Range>;
   const [rangeValue, setRangeValue] = React.useState<number[]>([
-    alarmLimits[stateKey].lower,
-    alarmLimits[stateKey].upper,
+    alarmLimits[stateKey]?.lower,
+    alarmLimits[stateKey]?.upper,
   ]);
   const dispatch = useDispatch();
 

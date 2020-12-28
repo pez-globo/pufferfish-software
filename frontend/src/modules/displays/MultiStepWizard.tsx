@@ -8,9 +8,9 @@ import ModalPopup from '../controllers/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
   getCycleMeasurementsRR,
-  getSensorMeasurementsFiO2Value,
-  getSensorMeasurementsFlow,
   getSensorMeasurementsSpO2,
+  getSmoothedFiO2Value,
+  getSmoothedFlow,
   roundValue,
 } from '../../store/controller/selectors';
 import { SetValueContent } from '../controllers/ValueModal';
@@ -117,7 +117,7 @@ const HFNCControls = (): JSX.Element => {
       <Grid container item justify="center" alignItems="stretch" direction="column">
         <ValueInfo
           mainContainer={{
-            selector: getSensorMeasurementsFiO2Value,
+            selector: getSmoothedFiO2Value,
             label: 'FiO2',
             stateKey: 'fio2',
             units: PERCENT,
@@ -125,7 +125,7 @@ const HFNCControls = (): JSX.Element => {
         />
         <ValueInfo
           mainContainer={{
-            selector: getSensorMeasurementsFlow,
+            selector: getSmoothedFlow,
             label: 'Flow Rate',
             stateKey: 'flow',
             units: LMIN,
@@ -260,14 +260,12 @@ const MultiStepWizard = (): JSX.Element => {
     if (parameter?.isAlarmEnabled && parameter.alarmValues.length) {
       dispatch(
         updateCommittedState(ALARM_LIMITS, {
-          [`${stateKey}Min`]: parameter.alarmValues[0],
-          [`${stateKey}Max`]: parameter.alarmValues[1],
+          [stateKey]: { lower: parameter.alarmValues[0], upper: parameter.alarmValues[1] },
         }),
       );
       dispatch(
         updateCommittedState(ALARM_LIMITS_STANDBY, {
-          [`${stateKey}Min`]: parameter.alarmValues[0],
-          [`${stateKey}Max`]: parameter.alarmValues[1],
+          [stateKey]: { lower: parameter.alarmValues[0], upper: parameter.alarmValues[1] },
         }),
       );
     }
