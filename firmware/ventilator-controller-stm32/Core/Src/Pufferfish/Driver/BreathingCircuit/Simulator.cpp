@@ -171,8 +171,6 @@ void Simulators::transform(
     const SensorVars &sensor_vars,
     SensorMeasurements &sensor_measurements,
     CycleMeasurements &cycle_measurements) {
-  input_clock(current_time);
-
   switch (parameters.mode) {
     case VentilationMode_pc_ac:
       active_simulator_ = &pc_ac_;
@@ -184,6 +182,8 @@ void Simulators::transform(
       active_simulator_ = nullptr;
       return;
   }
+
+  input_clock(current_time);
 
   active_simulator_->transform(parameters, sensor_vars, sensor_measurements, cycle_measurements);
 }
