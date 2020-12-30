@@ -49,6 +49,7 @@ interface Props {
   showCloseIcon?: boolean;
   onClose?(): void;
   onConfirm?(): void;
+  maxWidth?: DialogProps['maxWidth'];
 }
 
 interface ActionProps {
@@ -58,7 +59,7 @@ interface ActionProps {
 
 const ModalAction = ({ onClose, onConfirm }: ActionProps): JSX.Element => {
   return (
-    <Grid container justify="center">
+    <Grid container justify="center" style={{ marginBottom: '10px' }}>
       <Grid container item xs justify="center">
         <Button onClick={onClose} variant="contained" color="primary" style={{ width: '90%' }}>
           Cancel
@@ -84,8 +85,8 @@ export const ModalPopup = (props: PropsWithChildren<Props>): JSX.Element => {
     withAction,
     onConfirm,
     fullWidth = false,
+    maxWidth = 'sm',
   } = props;
-  const [maxWidth] = React.useState<DialogProps['maxWidth']>('sm');
   return (
     <Dialog
       fullWidth={true}

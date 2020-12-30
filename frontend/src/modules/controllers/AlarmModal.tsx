@@ -63,6 +63,7 @@ interface Props {
   openModal?: boolean;
   contentOnly?: boolean;
   labelHeading?: boolean;
+  alarmRangeValues?: number[];
 }
 
 export const AlarmModal = ({
@@ -78,6 +79,7 @@ export const AlarmModal = ({
   step,
   contentOnly = false,
   labelHeading = false,
+  alarmRangeValues = [],
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
@@ -88,8 +90,8 @@ export const AlarmModal = ({
     shallowEqual,
   ) as Record<string, Range>;
   const [rangeValue, setRangeValue] = React.useState<number[]>([
-    alarmLimits[stateKey]?.lower,
-    alarmLimits[stateKey]?.upper,
+    alarmRangeValues.length ? alarmRangeValues[0] : alarmLimits[stateKey]?.lower,
+    alarmRangeValues.length ? alarmRangeValues[1] : alarmLimits[stateKey]?.upper,
   ]);
   const dispatch = useDispatch();
 
