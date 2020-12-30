@@ -26,9 +26,10 @@ StateSynchronizer<States, StateSegment, MessageTypes, schedule_size>::input(
     const StateSegment &input) {
   if (all_states_.should_input(input.tag)) {
     all_states_.input(input);
+    return InputStatus::ok;
   }
 
-  return InputStatus::ok;
+  return InputStatus::invalid_type;
 }
 
 template <typename States, typename StateSegment, typename MessageTypes, size_t schedule_size>
