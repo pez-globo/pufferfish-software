@@ -64,13 +64,7 @@ async def main() -> None:
     # Initialize state with defaults
     all_states = protocol.receive.backend.all_states
     for state in all_states:
-        if state is mcu_pb.ParametersRequest:
-            all_states[state] = mcu_pb.ParametersRequest(
-                mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
-                fio2=60, flow=6
-            )
-        else:
-            all_states[state] = state()
+        all_states[state] = state()
 
     # Load state from file
     states: List[Type[betterproto.Message]] = [
