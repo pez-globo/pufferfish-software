@@ -120,11 +120,6 @@ void HFNCSimulator::transform(
 
   // Timing
   sensor_measurements.time = current_time();
-  uint32_t cycle_period = minute_duration / parameters.rr;
-  if (!Util::within_timeout(cycle_start_time_, cycle_period, current_time())) {
-    init_cycle();
-    transform_rr(parameters.rr, cycle_measurements.rr);
-  }
   transform_flow(parameters.flow, sensor_measurements.flow);
   if (sensor_vars.po2 != 0) {
     // simulate FiO2 from pO2 if pO2 is available
@@ -143,10 +138,6 @@ void HFNCSimulator::transform(
 
 void HFNCSimulator::init_cycle() {
   cycle_start_time_ = current_time();
-}
-
-void HFNCSimulator::transform_rr(float params_rr, float &cycle_meas_rr) {
-  cycle_meas_rr = params_rr;
 }
 
 void HFNCSimulator::transform_flow(float params_flow, float &sens_meas_flow) {

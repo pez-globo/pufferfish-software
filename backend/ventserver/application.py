@@ -67,7 +67,7 @@ async def main() -> None:
         if state is mcu_pb.ParametersRequest:
             all_states[state] = mcu_pb.ParametersRequest(
                 mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
-                rr=30, fio2=60, flow=6
+                fio2=60, flow=6
             )
         else:
             all_states[state] = state()
@@ -77,9 +77,7 @@ async def main() -> None:
         mcu_pb.Parameters, mcu_pb.CycleMeasurements,
         mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
     ]
-    await _trio.load_file_states(
-        states, protocol, filehandler
-    )
+    await _trio.load_file_states(states, protocol, filehandler)
 
     # Turn off ventilation
     parameters_request = all_states[mcu_pb.ParametersRequest]
