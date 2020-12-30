@@ -26,7 +26,7 @@ import {
 const roundValue = (value: number) => {
   return value !== undefined && !Number.isNaN(value)
     ? parseInt(value.toFixed(0).replace(/^-0$/, '0'), DECIMAL_RADIX)
-    : 0;
+    : NaN;
 };
 export const getController = ({ controller }: StoreState): ControllerStates => controller;
 
