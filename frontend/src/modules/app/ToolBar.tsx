@@ -1,8 +1,8 @@
 import { AppBar, Button, Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import { getClockTime } from '../../store/app/selectors';
 import { updateCommittedParameter } from '../../store/controller/actions';
 import { VentilationMode } from '../../store/controller/proto/mcu_pb';
@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid red',
   },
   marginRight: {
-    marginRight: theme.spacing(2),
+    marginRight: theme.spacing(0.5),
   },
   paddingRight: {
     paddingRight: theme.spacing(1),
@@ -66,18 +66,21 @@ export const ToolBar = ({
   // depending on the current route.
   const location = useLocation();
   const dispatch = useDispatch();
+  const history = useHistory();
   const currentMode = useSelector(getParametersRequestMode);
   const parameterRequestStandby = useSelector(getParametersRequestStandby, shallowEqual);
   const ventilating = useSelector(getIsVentilating);
   const batteryPower = useSelector(getBatteryPower);
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
-  const label = isVentilatorOn ? 'Pause Ventilation' : 'Start Ventilation';
-  const toPath = isVentilatorOn || staticStart ? QUICKSTART_ROUTE.path : DASHBOARD_ROUTE.path;
+  const [label, setLabel] = useState('Start Ventilation');
   const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
   const updateVentilationStatus = () => {
     if (!staticStart) {
       dispatch(updateCommittedParameter({ ventilating: !isVentilatorOn }));
       setIsVentilatorOn(!isVentilatorOn);
+    }
+    if (isVentilatorOn || staticStart) {
+      history.push(QUICKSTART_ROUTE.path);
     }
   };
 
@@ -116,13 +119,15 @@ export const ToolBar = ({
   }, [initParameterUpdate]);
 
   useEffect(() => {
+    if (ventilating) {
+      history.push(DASHBOARD_ROUTE.path);
+    }
     setIsVentilatorOn(ventilating);
-  }, [ventilating]);
+    setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
+  }, [ventilating, history]);
 
   const StartPauseButton = (
     <Button
-      component={Link}
-      to={toPath}
       onClick={updateVentilationStatus}
       variant="contained"
       color="secondary"
@@ -131,17 +136,15 @@ export const ToolBar = ({
       {staticStart ? 'Start' : label}
     </Button>
   );
-
   const tools = [<ModesDropdown />];
   if (location.pathname === DASHBOARD_ROUTE.path) {
     tools.push(<ViewDropdown />);
-    tools.push(<EventAlerts label={LOGS_ROUTE.label} />);
   } else if (location.pathname === QUICKSTART_ROUTE.path) {
-    tools.push(
-      <Button variant="contained" color="primary" disabled>
-        Last Patient Settings
-      </Button>,
-    );
+    // tools.push(
+    //   <Button variant="contained" color="primary" disabled>
+    //     Last Patient Settings
+    //   </Button>,
+    // );
   } else if (isVentilatorOn && location.pathname !== SCREENSAVER_ROUTE.path) {
     tools.push(
       <Button component={Link} to={DASHBOARD_ROUTE.path} variant="contained" color="primary">
@@ -149,6 +152,9 @@ export const ToolBar = ({
         {DASHBOARD_ROUTE.label}
       </Button>,
     );
+  }
+  if (location.pathname !== '/') {
+    tools.push(<EventAlerts label={LOGS_ROUTE.label} />);
   }
 
   return (

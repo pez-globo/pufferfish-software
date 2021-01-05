@@ -6,7 +6,8 @@ import { updateCommittedState } from '../../store/controller/actions';
 import { LogEvent } from '../../store/controller/proto/mcu_pb';
 import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
 import { EXPECTED_LOG_EVENT_ID } from '../../store/controller/types';
-import { getEventType } from '../app/EventAlerts';
+import { ALARM_EVENT_PATIENT, getEventType } from '../app/EventAlerts';
+import { AlarmModal } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';
 import SimpleTable, {
   getComparator,
@@ -29,6 +30,10 @@ interface Data {
   time: number; // Note: Make this a date object?
   status: number;
   id: number;
+  description: string;
+  stateKey: string;
+  head: string;
+  unit: string;
 }
 
 //
@@ -37,6 +42,7 @@ const headCells: HeadCell[] = [
   { id: 'type', numeric: false, disablePadding: true, label: 'Type' },
   { id: 'alarm', numeric: true, disablePadding: false, label: 'Alarm' },
   { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date' },
+  { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
   { id: 'Status', numeric: true, disablePadding: false, label: 'Status' },
 ];
 
@@ -88,8 +94,12 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     time: number,
     status: number,
     id: number,
+    description: string,
+    stateKey: string,
+    head: string,
+    unit: string,
   ): Data => {
-    return { type, alarm, time, status, id };
+    return { type, alarm, time, status, id, description, stateKey, head, unit };
   };
 
   const [rows, setRows] = React.useState<Data[]>([]);
@@ -99,7 +109,8 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(8);
   const [open, setOpen] = React.useState(false);
-  const [currentRow] = React.useState<Data>();
+  const [alarmOpen, setAlarmOpen] = React.useState(false);
+  const [currentRow, setCurrentRow] = React.useState<Data>();
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   const loggedEvents = useSelector(getNextLogEvents, shallowEqual);
   const activeLogEventIds = useSelector(getActiveLogEventIds, shallowEqual);
@@ -132,6 +143,10 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
               event.time,
               activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
               event.id,
+              'Description space',
+              eventType.stateKey || '',
+              eventType.head || '',
+              eventType.unit || '',
             ),
           );
         }
@@ -143,6 +158,10 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
             event.time,
             activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
             event.id,
+            'Description space',
+            eventType.stateKey || '',
+            eventType.head || '',
+            eventType.unit || '',
           ),
         );
       }
@@ -184,6 +203,11 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
       );
     }
     setSelected(newSelected);
+  };
+
+  const onSettings = (row: Data) => {
+    setAlarmOpen(true);
+    setCurrentRow(row);
   };
 
   return (
@@ -256,10 +280,20 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                                         })}
                                     `}
                 </TableCell>
+                <TableCell align="left" component="th" id={labelId} scope="row">
+                  {row.description}
+                </TableCell>
                 <TableCell component="td">
-                  <Button variant="contained" color="primary" style={{ padding: '6px 3rem' }}>
-                    Settings
-                  </Button>
+                  {row.type === ALARM_EVENT_PATIENT && row.stateKey && (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => onSettings(row)}
+                      style={{ padding: '6px 3rem' }}
+                    >
+                      Settings
+                    </Button>
+                  )}
                 </TableCell>
               </StyledTableRow>
             );
@@ -290,6 +324,17 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
           <EventlogDetails />
         </Grid>
       </ModalPopup>
+      {currentRow && currentRow.stateKey && (
+        <AlarmModal
+          onModalClose={() => setAlarmOpen(false)}
+          openModal={alarmOpen}
+          disableAlarmButton={true}
+          label={currentRow.head}
+          units={currentRow.unit}
+          stateKey={currentRow.stateKey}
+          requestCommitRange={() => null}
+        />
+      )}
     </Grid>
   );
 };

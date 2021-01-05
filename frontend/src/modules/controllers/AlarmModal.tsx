@@ -57,6 +57,7 @@ interface Props {
   committedMax?: number;
   disableAlarmButton?: boolean;
   updateModalStatus?(status: boolean): void;
+  onModalClose?(status: boolean): void;
   requestCommitRange(min: number, max: number): void;
   stateKey: string;
   step?: number;
@@ -73,6 +74,7 @@ export const AlarmModal = ({
   disableAlarmButton = false,
   updateModalStatus,
   requestCommitRange,
+  onModalClose,
   openModal = false,
   units = '',
   stateKey,
@@ -116,6 +118,9 @@ export const AlarmModal = ({
 
   const handleClose = () => {
     setOpen(false);
+    if (onModalClose) {
+      onModalClose(false);
+    }
   };
 
   const handleConfirm = () => {

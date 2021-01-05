@@ -16,7 +16,6 @@ import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
 import { updateCommittedState } from '../../store/controller/actions';
 import { ALARM_MUTE, BACKEND_CONNECTION_LOST_CODE } from '../../store/controller/types';
-import { RED_BORDER } from '../../store/app/types';
 
 export const ALARM_EVENT_PATIENT = 'Patient';
 export const ALARM_EVENT_SYSTEM = 'System';
@@ -102,18 +101,24 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export const getEventType = (code: LogEventCode): { type: string; label: string; unit: string } => {
+export const getEventType = (
+  code: LogEventCode,
+): { type: string; label: string; unit: string; head?: string; stateKey?: string } => {
   switch (code) {
     case LogEventCode.fio2_too_low:
       return {
         type: ALARM_EVENT_PATIENT,
         label: 'fiO2 is too low',
+        head: 'FiO2',
+        stateKey: 'fio2',
         unit: PERCENT,
       };
     case LogEventCode.fio2_too_high:
       return {
         type: ALARM_EVENT_PATIENT,
         label: 'fiO2 is too high',
+        head: 'FiO2',
+        stateKey: 'fio2',
         unit: PERCENT,
       };
     case LogEventCode.rr_too_low:
@@ -149,8 +154,8 @@ export const getEventType = (code: LogEventCode): { type: string; label: string;
     case LogEventCode.screen_locked:
       return {
         type: ALARM_EVENT_SYSTEM,
-        label: 'Battery power is low',
-        unit: PERCENT,
+        label: 'Screen is locked',
+        unit: '',
       };
     case BACKEND_CONNECTION_LOST_CODE:
       return {
@@ -208,24 +213,22 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [alert, setAlert] = useState({ label: '' });
-  const [isMuted, setIsMuted] = useState<boolean>(true);
   const [open, setOpen] = useState<boolean>(false);
   const [activeFilter, setActiveFilter] = useState<boolean>(false);
   const [alertCount, setAlertCount] = useState<number>(0);
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
+  const [isMuted, setIsMuted] = useState<boolean>(!alarmMuteStatus.active);
   useEffect(() => {
     if (popupEventLog) {
       const eventType = getEventType(popupEventLog.code);
       if (eventType.type) {
         setAlertCount(activeLog.length);
-        dispatch({ type: RED_BORDER, status: true });
         setAlert({ label: eventType.label });
       }
     } else {
       setAlertCount(0);
-      dispatch({ type: RED_BORDER, status: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popupEventLog, JSON.stringify(activeLog)]);
@@ -236,7 +239,6 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
 
   const muteAlarmState = (state: boolean) => {
     dispatch(updateCommittedState(ALARM_MUTE, { active: state }));
-    dispatch({ type: RED_BORDER, status: !state });
   };
 
   const onActiveAlarmClick = () => {
@@ -264,7 +266,11 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               </Typography>
             </Grid>
             <Grid container item xs justify="flex-end" alignItems="center">
-              <div className={classes.timerText}>2:00</div>
+              {!isMuted && (
+                <div className={classes.timerText}>
+                  {new Date(alarmMuteStatus.remaining * 1000).toISOString().substr(14, 5)}
+                </div>
+              )}
               <Button
                 style={{ marginLeft: 12, marginRight: 12 }}
                 onClick={() => muteAlarmState(isMuted)}
@@ -309,10 +315,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           className={classes.alertColor}
           onClick={onActiveAlarmClick}
         >
-          <span
-            className={!isMuted ? `${classes.alertMargin}` : ''}
-            style={{ padding: '6px 16px' }}
-          >
+          <span className={isMuted ? `${classes.alertMargin}` : ''} style={{ padding: '6px 16px' }}>
             {alert.label}
           </span>
           {alertCount > 1 && (
@@ -323,7 +326,11 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               {alertCount}
             </div>
           )}
-          {isMuted && <div className={classes.timer}>2:00</div>}
+          {!isMuted && (
+            <div className={classes.timer}>
+              {new Date(alarmMuteStatus.remaining * 1000).toISOString().substr(14, 5)}
+            </div>
+          )}
         </Button>
       </Grid>
       <Grid hidden={alertCount > 0}>

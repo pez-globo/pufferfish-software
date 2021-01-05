@@ -1,18 +1,27 @@
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { Subscription } from 'rxjs';
 import store from '../../store';
-import { getAlarmNotifyStatus, getClock } from '../../store/app/selectors';
+import { getClock } from '../../store/app/selectors';
+import { RED_BORDER } from '../../store/app/types';
 import { LogEvent } from '../../store/controller/proto/mcu_pb';
-import { getPopupEventLog, getScreenStatus } from '../../store/controller/selectors';
+import {
+  getAlarmMuteStatus,
+  getPopupEventLog,
+  getScreenStatus,
+} from '../../store/controller/selectors';
 import {
   BACKEND_CONNECTION_LOST,
   BACKEND_CONNECTION_LOST_CODE,
+  MessageType,
 } from '../../store/controller/types';
 import ModalPopup from '../controllers/ModalPopup';
 import MultiStepWizard from '../displays/MultiStepWizard';
+import { getScreenLockPopup, setScreenLockPopup } from './Service';
+import { updateState } from '../../store/controller/actions';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme: Theme) => ({
   overlay: {
     width: '100%',
     height: '100%',
@@ -22,6 +31,11 @@ const useStyles = makeStyles(() => ({
   },
   label: {
     fontSize: '10px',
+  },
+  marginHeader: {
+    textAlign: 'center',
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(1),
   },
 }));
 
@@ -37,8 +51,8 @@ export const HeartbeatBackendListener = (): JSX.Element => {
     const lostConnectionAlarm = events.find(
       (el: LogEvent) => (el.code as number) === BACKEND_CONNECTION_LOST_CODE,
     );
-    // After 2 seconds of no connection
-    if (diff > 2000) {
+    // After 3 seconds of no connection
+    if (diff > 3000) {
       if (!lostConnectionAlarm) {
         dispatch({
           type: BACKEND_CONNECTION_LOST,
@@ -55,21 +69,22 @@ export const HeartbeatBackendListener = (): JSX.Element => {
 };
 
 const AudioAlarm = (): JSX.Element => {
+  const dispatch = useDispatch();
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
-  const notifyAlarm = useSelector(getAlarmNotifyStatus);
+  const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(alarmMuteStatus.active);
 
   useEffect(() => {
-    // if (playing) {
-    //   audio.play();
-    // } else {
-    //   audio.pause();
-    // }
-    // return () => {
-    //   audio.pause();
-    // };
+    if (playing) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+    return () => {
+      audio.pause();
+    };
   }, [playing, audio]);
 
   useEffect(() => {
@@ -78,64 +93,117 @@ const AudioAlarm = (): JSX.Element => {
       if (popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
         setPlaying(true);
       }
+      dispatch({ type: RED_BORDER, status: true });
     } else {
       setPlaying(false);
+      dispatch({ type: RED_BORDER, status: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popupEventLog]);
 
   useEffect(() => {
-    setPlaying(notifyAlarm as boolean);
-  }, [notifyAlarm]);
+    if (popupEventLog) {
+      dispatch({ type: RED_BORDER, status: !alarmMuteStatus.active });
+    }
+    if (popupEventLog && popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
+      setPlaying(!alarmMuteStatus.active);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [alarmMuteStatus.active, dispatch]);
 
   return <React.Fragment />;
+};
+
+export const ScreenLockModal = (): JSX.Element => {
+  const classes = useStyles();
+  const dispatch = useDispatch();
+  const [open, setOpen] = React.useState(false);
+
+  useEffect(() => {
+    const alertPopup = () => {
+      if (open) {
+        return;
+      }
+      setTimeout(() => {
+        setOpen(false);
+      }, 30000);
+    };
+
+    const popupEventSubscription: Subscription = getScreenLockPopup().subscribe(
+      (state: boolean) => {
+        setOpen(state);
+        alertPopup();
+      },
+    );
+    return () => {
+      if (popupEventSubscription) {
+        popupEventSubscription.unsubscribe();
+      }
+    };
+  }, [open]);
+
+  const onConfirm = () => {
+    dispatch(updateState(MessageType.ScreenStatus, { lock: false }));
+    setScreenLockPopup(false);
+  };
+
+  return (
+    <ModalPopup
+      withAction={true}
+      maxWidth="xs"
+      label="Screen is locked"
+      open={open}
+      onClose={() => setScreenLockPopup(false)}
+      onConfirm={onConfirm}
+    >
+      <Grid container alignItems="center" className={classes.marginHeader}>
+        <Grid item xs>
+          <Typography variant="h6">Confirm unlock screen?</Typography>
+        </Grid>
+      </Grid>
+    </ModalPopup>
+  );
 };
 
 export const OverlayScreen = (): JSX.Element => {
   const classes = useStyles();
   const screenStatus = useSelector(getScreenStatus);
-  const [open, setOpen] = React.useState(false);
   const [overlay, setOverlay] = useState(screenStatus || false);
+
+  useEffect(() => {
+    const popupEventSubscription: Subscription = getScreenLockPopup().subscribe(
+      (state: boolean) => {
+        if (screenStatus) {
+          setOverlay(!state);
+        }
+      },
+    );
+    return () => {
+      if (popupEventSubscription) {
+        popupEventSubscription.unsubscribe();
+      }
+    };
+  }, [screenStatus]);
 
   useEffect(() => {
     setOverlay(screenStatus);
   }, [screenStatus]);
 
-  const alertPopup = () => {
-    if (open) {
-      return;
-    }
-    setOpen(true);
-    setTimeout(() => {
-      setOpen(false);
-    }, 3000);
-  };
-
   return (
     <React.Fragment>
+      <ScreenLockModal />
       {overlay && (
-        <div
-          role="button"
-          tabIndex={0}
-          aria-label="Screenlock Alert"
-          className={classes.overlay}
-          onClick={alertPopup}
-          onKeyDown={() => null}
-        />
+        <React.Fragment>
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label="Screenlock Alert"
+            className={classes.overlay}
+            onClick={() => setScreenLockPopup(true)}
+            onKeyDown={() => null}
+          />
+        </React.Fragment>
       )}
-      <ModalPopup withAction={false} label="Alert" open={open}>
-        <Grid container direction="row">
-          <Grid container item xs direction="column">
-            <Grid container item xs wrap="nowrap">
-              <Grid container item alignItems="baseline">
-                <Typography variant="h5" align="center">
-                  Screen is locked
-                </Typography>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-      </ModalPopup>
       <HeartbeatBackendListener />
       <AudioAlarm />
       <MultiStepWizard />

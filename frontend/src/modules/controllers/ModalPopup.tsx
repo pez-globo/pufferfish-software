@@ -94,6 +94,7 @@ export const ModalPopup = (props: PropsWithChildren<Props>): JSX.Element => {
       open={open}
       onClose={onClose}
       className={classes.popupWidth}
+      scroll="paper"
     >
       <DialogTitle id="form-dialog-title">
         <Grid container alignItems="center">
