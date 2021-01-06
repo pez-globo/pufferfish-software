@@ -14,9 +14,9 @@ import {
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
-import { setActiveEventState } from './Service';
 import { updateCommittedState } from '../../store/controller/actions';
 import { ALARM_MUTE, BACKEND_CONNECTION_LOST_CODE } from '../../store/controller/types';
+import { RED_BORDER } from '../../store/app/types';
 
 export const ALARM_EVENT_PATIENT = 'Patient';
 export const ALARM_EVENT_SYSTEM = 'System';
@@ -212,9 +212,6 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const [open, setOpen] = useState<boolean>(false);
   const [activeFilter, setActiveFilter] = useState<boolean>(false);
   const [alertCount, setAlertCount] = useState<number>(0);
-  const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
-  audio.loop = true;
-  const [playing, setPlaying] = useState(false);
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
@@ -223,31 +220,15 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       const eventType = getEventType(popupEventLog.code);
       if (eventType.type) {
         setAlertCount(activeLog.length);
-        setActiveEventState(true);
+        dispatch({ type: RED_BORDER, status: true });
         setAlert({ label: eventType.label });
-        setPlaying(false);
-        if (popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
-          setPlaying(true);
-        }
       }
     } else {
       setAlertCount(0);
-      setActiveEventState(false);
-      setPlaying(false);
+      dispatch({ type: RED_BORDER, status: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popupEventLog, JSON.stringify(activeLog)]);
-
-  useEffect(() => {
-    if (playing) {
-      audio.play();
-    } else {
-      audio.pause();
-    }
-    return () => {
-      audio.pause();
-    };
-  }, [playing, audio]);
 
   useEffect(() => {
     setIsMuted(!alarmMuteStatus.active);
@@ -255,7 +236,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
 
   const muteAlarmState = (state: boolean) => {
     dispatch(updateCommittedState(ALARM_MUTE, { active: state }));
-    setActiveEventState(!state);
+    dispatch({ type: RED_BORDER, status: !state });
   };
 
   const onActiveAlarmClick = () => {

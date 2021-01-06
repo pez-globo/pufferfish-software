@@ -32,7 +32,7 @@ const Routes = (): JSX.Element => {
 
   return (
     <Switch>
-      <RouteLayout exact path={DASHBOARD_ROUTE.path} component={DashboardPage} />
+      <SidebarSlideRoute exact path={DASHBOARD_ROUTE.path} component={DashboardPage} />
       <RouteLayout path={QUICKSTART_ROUTE.path} component={QuickStartPage} />
       <RouteLayout path={MODES_ROUTE.path} component={ModesPage} />
       <RouteLayout path={ALARMS_ROUTE.path} component={AlarmsPage} />

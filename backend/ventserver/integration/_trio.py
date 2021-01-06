@@ -372,10 +372,10 @@ async def load_file_states(
 ) -> None:
     """Initialize state values from state store or default values."""
     for state in states:
-        try: # Handle fileio errors
+        try:  # Handle fileio errors
             filehandler.set_props(state.__name__, "rb")
             await filehandler.open()
-            async with  filehandler:
+            async with filehandler:
                 message = await filehandler.receive()
                 logger.info("State initialized from file: %s", state.__name__)
                 protocol.receive.input(

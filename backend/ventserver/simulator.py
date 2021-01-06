@@ -9,7 +9,7 @@ server to act as a mock in place of the real backend server.
 import logging
 import time
 import functools
-from typing import Mapping, Optional, Type, List
+from typing import Mapping, Optional, Type
 
 import betterproto
 import trio
@@ -25,18 +25,7 @@ from ventserver.protocols import exceptions
 from ventserver.protocols.application import lists
 from ventserver.protocols.protobuf import mcu_pb
 from ventserver.simulation import alarm_limits, alarms, parameters, simulators
-
-
-# Configure logging
-
-logger = logging.getLogger()
-handler = logging.StreamHandler()
-formatter = logging.Formatter(
-    '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
-)
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
+from ventserver import application
 
 
 # Simulators
@@ -78,7 +67,16 @@ async def simulate_states(
 
 async def main() -> None:
     """Set up wiring between subsystems and process until completion."""
-    # pylint: disable=duplicate-code
+    # Configure logging
+    logger = logging.getLogger()
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
     # Sans-I/O Protocols
     protocol = server.Protocol()
 
@@ -105,25 +103,20 @@ async def main() -> None:
         server.ReceiveOutputEvent
     ] = channels.TrioChannel()
 
-    # Initialize States
-    states: List[Type[betterproto.Message]] = [
-        mcu_pb.Parameters, mcu_pb.CycleMeasurements,
-        mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
-    ]
-
+    # Initialize states with defaults
     all_states = protocol.receive.backend.all_states
     for state in all_states:
         if state is mcu_pb.ParametersRequest:
             all_states[state] = mcu_pb.ParametersRequest(
                 mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
-                rr=30, fio2=60, flow=6
+                fio2=60, flow=6
             )
         else:
             all_states[state] = state()
-
-    await _trio.load_file_states(
-        states, protocol, filehandler
+    await application.initialize_states_from_file(
+        all_states, protocol, filehandler
     )
+
     try:
         async with channel.push_endpoint:
             async with trio.open_nursery() as nursery:
@@ -156,10 +149,12 @@ async def main() -> None:
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
         logger.info('Finished, quitting!')
+    except KeyboardInterrupt:
+        logger.info('Quitting!')
+    except trio.MultiError as exc:
+        application.filter_multierror(exc)
+        logger.info('Finished, quitting!')
 
 
 if __name__ == '__main__':
-    try:
-        trio.run(main)
-    except KeyboardInterrupt:
-        logger.info('Quitting!')
+    trio.run(main)

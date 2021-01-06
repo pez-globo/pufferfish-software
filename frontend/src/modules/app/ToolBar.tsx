@@ -115,6 +115,10 @@ export const ToolBar = ({
     initParameterUpdate();
   }, [initParameterUpdate]);
 
+  useEffect(() => {
+    setIsVentilatorOn(ventilating);
+  }, [ventilating]);
+
   const StartPauseButton = (
     <Button
       component={Link}

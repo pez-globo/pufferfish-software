@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateCommittedParameter, updateCommittedState } from '../../../store/controller/actions';
 import { PARAMETER_STANDBY } from '../../../store/controller/types';
+import { setMultiPopupOpen } from '../../app/Service';
 import { ValueModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
 import { ClickHandler } from './ValueInfo';
@@ -128,7 +129,10 @@ const ControlInfo = (props: Props): JSX.Element => {
     dispatch(updateCommittedState(PARAMETER_STANDBY, { [stateKey]: setting }));
   };
   const onClick = () => {
-    setOpen(true);
+    // setOpen(true);
+    if (stateKey) {
+      setMultiPopupOpen(true, stateKey);
+    }
   };
   const handleClick = ClickHandler(onClick, () => {
     return false;

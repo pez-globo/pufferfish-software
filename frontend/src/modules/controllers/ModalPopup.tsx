@@ -21,7 +21,23 @@ const useStyles = makeStyles((theme: Theme) => ({
     borderRadius: 6,
   },
   dialogActions: {
-    paddingBottom: theme.spacing(2),
+    padding: 0,
+  },
+  popupWidth: {
+    '& .MuiDialog-container': {
+      '& .MuiDialog-paperWidthSm': {
+        maxWidth: '750px',
+
+        '& .MuiDialogTitle-root': {
+          paddingBottom: '5px',
+        },
+
+        '& .MuiDialogContent-root': {
+          padding: '0px 24px',
+          overflow: 'hidden',
+        },
+      },
+    },
   },
 }));
 
@@ -33,6 +49,7 @@ interface Props {
   showCloseIcon?: boolean;
   onClose?(): void;
   onConfirm?(): void;
+  maxWidth?: DialogProps['maxWidth'];
 }
 
 interface ActionProps {
@@ -42,7 +59,7 @@ interface ActionProps {
 
 const ModalAction = ({ onClose, onConfirm }: ActionProps): JSX.Element => {
   return (
-    <Grid container justify="center">
+    <Grid container justify="center" style={{ marginBottom: '10px' }}>
       <Grid container item xs justify="center">
         <Button onClick={onClose} variant="contained" color="primary" style={{ width: '90%' }}>
           Cancel
@@ -68,10 +85,16 @@ export const ModalPopup = (props: PropsWithChildren<Props>): JSX.Element => {
     withAction,
     onConfirm,
     fullWidth = false,
+    maxWidth = 'sm',
   } = props;
-  const [maxWidth] = React.useState<DialogProps['maxWidth']>('sm');
   return (
-    <Dialog fullWidth={true} maxWidth={fullWidth ? false : maxWidth} open={open} onClose={onClose}>
+    <Dialog
+      fullWidth={true}
+      maxWidth={fullWidth ? false : maxWidth}
+      open={open}
+      onClose={onClose}
+      className={classes.popupWidth}
+    >
       <DialogTitle id="form-dialog-title">
         <Grid container alignItems="center">
           <Grid item xs>

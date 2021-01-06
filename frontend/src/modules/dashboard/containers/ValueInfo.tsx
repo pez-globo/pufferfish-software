@@ -2,6 +2,7 @@ import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
+import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
 import { Range } from '../../../store/controller/proto/mcu_pb';
@@ -169,7 +170,10 @@ const ControlValuesDisplay = ({
   const [open, setOpen] = useState(false);
   const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual) as Record<string, Range>;
   const onClick = () => {
-    setOpen(true);
+    // setOpen(true);
+    if (stateKey) {
+      setMultiPopupOpen(true, stateKey);
+    }
   };
   const handleClick = ClickHandler(onClick, () => {
     return false;
@@ -266,7 +270,10 @@ const GridControlValuesDisplay = ({
   const [open, setOpen] = useState(false);
   const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual) as Record<string, Range>;
   const onClick = () => {
-    setOpen(true);
+    // setOpen(true);
+    if (stateKey) {
+      setMultiPopupOpen(true, stateKey);
+    }
   };
   const handleClick = ClickHandler(onClick, () => {
     return false;

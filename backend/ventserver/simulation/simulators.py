@@ -104,6 +104,9 @@ class PCAC(Service):
         if self._time_step == 0:
             return
 
+        if not parameters.ventilating:
+            return
+
         if parameters.mode != mcu_pb.VentilationMode.pc_ac:
             return
 
@@ -197,14 +200,13 @@ class HFNC(Service):
         if self._time_step == 0:
             return
 
+        if not parameters.ventilating:
+            return
+
         if parameters.mode != mcu_pb.VentilationMode.hfnc:
             return
 
         sensor_measurements.time = int(self.current_time)
-        cycle_period = 60000 / parameters.rr
-        if self.current_time - self.cycle_start_time > cycle_period:
-            self._init_cycle()
-            self._transform_cycle_measurements(parameters, cycle_measurements)
 
         self._transform_flow(parameters, sensor_measurements)
         self._transform_fio2(parameters, sensor_measurements)
@@ -248,14 +250,6 @@ class HFNC(Service):
         """Initialize at the start of the cycle."""
         self.cycle_start_time = self.current_time
 
-    def _transform_cycle_measurements(
-            self, parameters: mcu_pb.Parameters,
-            cycle_measurements: mcu_pb.CycleMeasurements,
-    ) -> None:
-        """Update cycle measurements."""
-        cycle_measurements.rr = \
-            parameters.rr + self.rr_noise * (random.random() - 0.5)
-
 
 # Aggregation
 
@@ -279,6 +273,7 @@ class Services:
         parameters = typing.cast(
             mcu_pb.Parameters, all_states[mcu_pb.Parameters]
         )
+
         self._active_service = self._services.get(parameters.mode, None)
 
         if self._active_service is None:

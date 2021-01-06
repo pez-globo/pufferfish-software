@@ -91,7 +91,8 @@ defineFeature(feature, (test) => {
     });
 
     then(/^I should get confirm action called with values I have set$/, () => {
-      expect(commitChange).toHaveBeenCalledTimes(1);
+      // Since on every value change CommitChange is being triggered
+      expect(commitChange).toHaveBeenCalledTimes(4);
       expect(commitChange).toBeCalledWith(1, 99);
     });
   });

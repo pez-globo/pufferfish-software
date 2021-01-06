@@ -23,6 +23,10 @@ export const getApp = (store: StoreState): AppState => store.app;
 
 // Clock
 export const getClock = createSelector(getApp, (app: AppState): Date => app.clock);
+export const getAlarmNotifyStatus = createSelector(
+  getApp,
+  (app: AppState): boolean => app.notifyAlarm,
+);
 
 export const getClockTime = createSelector(getApp, (states: AppState): string =>
   states.clock.toLocaleTimeString([], {

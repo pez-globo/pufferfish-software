@@ -1,15 +1,16 @@
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import store from '../../store';
-import { getClock } from '../../store/app/selectors';
+import { getAlarmNotifyStatus, getClock } from '../../store/app/selectors';
 import { LogEvent } from '../../store/controller/proto/mcu_pb';
-import { getScreenStatus } from '../../store/controller/selectors';
+import { getPopupEventLog, getScreenStatus } from '../../store/controller/selectors';
 import {
   BACKEND_CONNECTION_LOST,
   BACKEND_CONNECTION_LOST_CODE,
 } from '../../store/controller/types';
 import ModalPopup from '../controllers/ModalPopup';
+import MultiStepWizard from '../displays/MultiStepWizard';
 
 const useStyles = makeStyles(() => ({
   overlay: {
@@ -49,6 +50,43 @@ export const HeartbeatBackendListener = (): JSX.Element => {
       }
     }
   }, [clock, dispatch]);
+
+  return <React.Fragment />;
+};
+
+const AudioAlarm = (): JSX.Element => {
+  const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
+  const notifyAlarm = useSelector(getAlarmNotifyStatus);
+  const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
+  audio.loop = true;
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    // if (playing) {
+    //   audio.play();
+    // } else {
+    //   audio.pause();
+    // }
+    // return () => {
+    //   audio.pause();
+    // };
+  }, [playing, audio]);
+
+  useEffect(() => {
+    if (popupEventLog) {
+      setPlaying(false);
+      if (popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
+        setPlaying(true);
+      }
+    } else {
+      setPlaying(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [popupEventLog]);
+
+  useEffect(() => {
+    setPlaying(notifyAlarm as boolean);
+  }, [notifyAlarm]);
 
   return <React.Fragment />;
 };
@@ -99,6 +137,8 @@ export const OverlayScreen = (): JSX.Element => {
         </Grid>
       </ModalPopup>
       <HeartbeatBackendListener />
+      <AudioAlarm />
+      <MultiStepWizard />
     </React.Fragment>
   );
 };

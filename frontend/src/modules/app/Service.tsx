@@ -1,12 +1,18 @@
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Subject, Observable } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 
-const OnLogEvent = new BehaviorSubject<boolean>(false);
+const isMultiPopupOpen = new BehaviorSubject<boolean>(false);
+const currentStateKey = new Subject<string>();
 
-export function setActiveEventState(state: boolean): void {
-  OnLogEvent.next(state);
+export function setMultiPopupOpen(state: boolean, stateKey?: string): void {
+  isMultiPopupOpen.next(state);
+  currentStateKey.next(stateKey);
 }
 
-export function getActiveEventState(): Observable<boolean> {
-  return OnLogEvent.asObservable().pipe(distinctUntilChanged());
+export function getMultiPopupOpenState(): Observable<boolean> {
+  return isMultiPopupOpen.asObservable().pipe(distinctUntilChanged());
+}
+
+export function getcurrentStateKey(): Observable<string> {
+  return currentStateKey.asObservable();
 }

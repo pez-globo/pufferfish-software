@@ -2,13 +2,13 @@ import React, { PropsWithChildren, useEffect } from 'react';
 import { Route, RouteProps } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Drawer, Grid } from '@material-ui/core';
-import { Subscription } from 'rxjs';
+import { useSelector } from 'react-redux';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
 import { SCREENSAVER_ROUTE } from '../../navigation/constants';
 import SidebarClickable from '../SidebarClickable';
-import { getActiveEventState } from '../Service';
 import OverlayScreen from '../OverlayScreen';
+import { getAlarmNotifyStatus } from '../../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -115,18 +115,12 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
 
 const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
+  const notifyAlarm = useSelector(getAlarmNotifyStatus);
   const [showBorder, setShowBorder] = React.useState(false);
 
   useEffect(() => {
-    const logEventSubscription: Subscription = getActiveEventState().subscribe((state: boolean) => {
-      setShowBorder(state);
-    });
-    return () => {
-      if (logEventSubscription) {
-        logEventSubscription.unsubscribe();
-      }
-    };
-  }, []);
+    setShowBorder(notifyAlarm);
+  }, [notifyAlarm]);
 
   return (
     <React.Fragment>
