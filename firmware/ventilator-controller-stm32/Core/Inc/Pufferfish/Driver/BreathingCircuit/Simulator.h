@@ -84,7 +84,7 @@ class HFNCSimulator : public Simulator {
       const Parameters &parameters,
       const SensorVars &sensor_vars,
       SensorMeasurements &sensor_measurements,
-      CycleMeasurements &cycle_measurements) override;
+      CycleMeasurements & /*cycle_measurements*/) override;
 
  private:
   static const uint32_t default_cycle_period = 2000;  // ms
