@@ -30,7 +30,7 @@ interface Data {
   time: number; // Note: Make this a date object?
   status: number;
   id: number;
-  description: string;
+  details: string;
   stateKey: string;
   head: string;
   unit: string;
@@ -42,8 +42,8 @@ const headCells: HeadCell[] = [
   { id: 'type', numeric: false, disablePadding: true, label: 'Type' },
   { id: 'alarm', numeric: true, disablePadding: false, label: 'Alarm' },
   { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date' },
-  { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
-  { id: 'Status', numeric: true, disablePadding: false, label: 'Status' },
+  { id: 'details', numeric: false, disablePadding: false, label: 'Details' },
+  { id: 'settings', numeric: true, disablePadding: false, label: 'Settings' },
 ];
 
 const useStyles = makeStyles(() =>
@@ -94,12 +94,12 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     time: number,
     status: number,
     id: number,
-    description: string,
+    details: string,
     stateKey: string,
     head: string,
     unit: string,
   ): Data => {
-    return { type, alarm, time, status, id, description, stateKey, head, unit };
+    return { type, alarm, time, status, id, details, stateKey, head, unit };
   };
 
   const [rows, setRows] = React.useState<Data[]>([]);
@@ -129,7 +129,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     loggedEvents.forEach((event: LogEvent) => {
       const eventType = getEventType(event.code);
       const diffString =
-        event.oldValue && event.newValue
+        event.oldValue != null && event.newValue != null
           ? `(${event.oldValue} ${eventType.unit} to ${event.newValue} ${eventType.unit})`
           : '';
       eventIds.push(event.id);
@@ -139,11 +139,11 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
           data.push(
             createData(
               eventType.type,
-              `${eventType.label} ${diffString}`,
+              eventType.label,
               event.time,
               activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
               event.id,
-              'Description space',
+              diffString,
               eventType.stateKey || '',
               eventType.head || '',
               eventType.unit || '',
@@ -154,11 +154,11 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
         data.push(
           createData(
             eventType.type,
-            `${eventType.label} ${diffString}`,
+            eventType.label,
             event.time,
             activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
             event.id,
-            'Description space',
+            diffString,
             eventType.stateKey || '',
             eventType.head || '',
             eventType.unit || '',
@@ -281,7 +281,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                                     `}
                 </TableCell>
                 <TableCell align="left" component="th" id={labelId} scope="row">
-                  {row.description}
+                  {row.details}
                 </TableCell>
                 <TableCell component="td">
                   {row.type === ALARM_EVENT_PATIENT && row.stateKey && (
