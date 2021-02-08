@@ -95,6 +95,8 @@ export const ValueSlider = ({ min, max, onChange, rangeValues, step }: Props): J
         </Grid>
         <Grid container item xs={8} alignItems="center">
           <StyledSlider
+            max={max}
+            min={min}
             valueLabelDisplay="on"
             value={value}
             step={step || 1}

@@ -59,6 +59,10 @@ export const getSensorMeasurementsSpO2 = createSelector(
   getSensorMeasurements,
   (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.spo2),
 );
+export const getSensorMeasurementsHR = createSelector(
+  getSensorMeasurements,
+  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.hr),
+);
 
 // SensorMeasurementsSmoothed
 export const getSmoothedFlow = createSelector(getController, (states: ControllerStates): number =>
@@ -289,6 +293,12 @@ export const getPopupEventLog = createSelector(getController, (states: Controlle
 export const getBatteryPower = createSelector(
   getController,
   (states: ControllerStates): number => states.batteryPower.powerLeft,
+);
+
+// Charging Status
+export const getChargingStatus = createSelector(
+  getController,
+  (states: ControllerStates): boolean => states.batteryPower.chargingStatus,
 );
 
 // Srceen Status

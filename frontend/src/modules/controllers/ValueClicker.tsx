@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Grid, Button, makeStyles, Theme } from '@material-ui/core';
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
@@ -47,25 +47,44 @@ export const ValueClicker = ({
   step = 1,
 }: Props): JSX.Element => {
   const classes = useStyles();
+  const [disabledInterval] = useState(100);
   const [disableIncrement, setDisableIncrement] = useState(false);
   const [disableDecrement, setDisableDecrement] = useState(false);
 
-  const update = (step: number) => () => {
+  const update = (step: number) => {
     const change = value + step;
     setDisableIncrement(change >= max);
     setDisableDecrement(change <= min);
     return onClick(change);
   };
 
-  setDisableIncrement(value >= max);
-  setDisableDecrement(value <= min);
+  useEffect(() => {
+    setDisableIncrement(value >= max);
+    setDisableDecrement(value <= min);
+  }, [min, max, value]);
+
+  const clickHandlerIncrement = (step: number) => () => {
+    setDisableIncrement(true);
+    setTimeout(() => {
+      setDisableIncrement(false);
+      update(step);
+    }, disabledInterval);
+  };
+
+  const clickHandlerDecrement = (step: number) => () => {
+    setDisableDecrement(true);
+    setTimeout(() => {
+      setDisableDecrement(false);
+      update(step);
+    }, disabledInterval);
+  };
 
   return (
     <Grid container direction={direction} className={classes.root} wrap="nowrap">
       <Grid item className={direction === 'row' ? classes.marginRight : classes.marginBottom}>
         <Button
           disabled={disableIncrement}
-          onClick={update(step)}
+          onClick={clickHandlerIncrement(step)}
           variant="contained"
           color="primary"
           className={classes.iconButton}
@@ -76,7 +95,7 @@ export const ValueClicker = ({
       <Grid item>
         <Button
           disabled={disableDecrement}
-          onClick={update(-step)}
+          onClick={clickHandlerDecrement(-step)}
           variant="contained"
           color="primary"
           className={classes.iconButton}

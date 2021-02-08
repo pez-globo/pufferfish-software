@@ -16,7 +16,7 @@ import {
 import { SetValueContent } from '../controllers/ValueModal';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import ValueInfo from '../dashboard/containers/ValueInfo';
-import { BMIN, LMIN, PERCENT } from '../info/units';
+import { BPM, LMIN, PERCENT } from '../info/units';
 import { AlarmModal } from '../controllers';
 import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
 import {
@@ -112,9 +112,9 @@ const HFNCControls = (): JSX.Element => {
         <ValueInfo
           mainContainer={{
             selector: getCycleMeasurementsRR,
-            label: 'RR',
-            stateKey: 'rr',
-            units: BMIN,
+            label: 'HR',
+            stateKey: 'hr',
+            units: BPM,
           }}
         />
         <ValueInfo
@@ -195,8 +195,8 @@ const determineInput = (stateKey: string): Data | null => {
     switch (stateKey) {
       case 'spo2':
         return [alarmLimits.spo2?.lower as number, alarmLimits.spo2?.upper as number];
-      case 'rr':
-        return [alarmLimits.rr?.lower as number, alarmLimits.rr?.upper as number];
+      case 'hr':
+        return [alarmLimits.hr?.lower as number, alarmLimits.hr?.upper as number];
       default:
     }
     return null;
@@ -213,11 +213,11 @@ const determineInput = (stateKey: string): Data | null => {
         getStoreAlarmData(stateKey) as number[],
         -1,
       );
-    case 'rr':
+    case 'hr':
       return createData(
-        'RR',
+        'HR',
         stateKey,
-        BMIN,
+        BPM,
         false,
         true,
         getStoreAlarmData(stateKey) as number[],

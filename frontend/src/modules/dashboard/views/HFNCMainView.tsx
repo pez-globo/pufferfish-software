@@ -2,16 +2,16 @@ import { Button, Grid, Tab, Tabs, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
 import {
-  getCycleMeasurementsRR,
   getParametersFiO2,
   getParametersFlow,
   getROXIndex,
+  getSensorMeasurementsHR,
   getSmoothedFiO2Value,
   getSmoothedFlow,
   getSmoothedSpO2,
 } from '../../../store/controller/selectors';
 import { a11yProps, TabPanel } from '../../controllers/TabPanel';
-import { BMIN, LMIN, PERCENT } from '../../info/units';
+import { BPM, LMIN, PERCENT } from '../../info/units';
 import { FlowGraphInfo, PawGraphInfo, VolumeGraphInfo } from '../containers';
 import ControlInfo from '../containers/ControlInfo';
 import ValueInfo from '../containers/ValueInfo';
@@ -146,10 +146,10 @@ const HFNCMainView = (): JSX.Element => {
           <Grid container item justify="center" alignItems="stretch">
             <ValueInfo
               mainContainer={{
-                selector: getCycleMeasurementsRR,
-                label: 'RR',
-                stateKey: 'rr',
-                units: BMIN,
+                selector: getSensorMeasurementsHR,
+                label: 'HR',
+                stateKey: 'hr',
+                units: BPM,
               }}
             />
           </Grid>

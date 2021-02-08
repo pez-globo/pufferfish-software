@@ -43,6 +43,7 @@ export const alarmLimitsReducer = (
     flow: { upper: 100 },
     apnea: { upper: 100 },
     spo2: { lower: 21, upper: 100 },
+    hr: { lower: 0, upper: 200 },
   }) as AlarmLimitsRequest,
   action: commitAction,
 ): AlarmLimitsRequest => {
@@ -65,6 +66,7 @@ export const alarmLimitsRequestStandbyReducer = (
       flow: { upper: 100 },
       apnea: { upper: 100 },
       spo2: { lower: 21, upper: 100 },
+      hr: { lower: 0, upper: 200 },
     }),
   } as { alarmLimits: AlarmLimitsRequest },
   action: commitAction,

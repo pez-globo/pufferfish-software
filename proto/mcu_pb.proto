@@ -20,6 +20,7 @@ message AlarmLimits {
   Range etco2 = 12;
   Range flow = 13;
   Range apnea = 14;
+  Range hr = 15;
 }
 
 message AlarmLimitsRequest {
@@ -37,6 +38,7 @@ message AlarmLimitsRequest {
   Range etco2 = 12;
   Range flow = 13;
   Range apnea = 14;
+  Range hr = 15;
 }
 
 message SensorMeasurements {
@@ -47,6 +49,7 @@ message SensorMeasurements {
   float volume = 5;
   float fio2 = 6;
   float spo2 = 7;
+  float hr = 8;
 }
 
 message CycleMeasurements {
@@ -147,6 +150,7 @@ message ActiveLogEvents {
 
 message BatteryPower {
   uint32 power_left = 1;
+  bool charging_status = 2;
 }
 
 // Hardware Buttons
