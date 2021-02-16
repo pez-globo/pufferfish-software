@@ -1,4 +1,4 @@
-import { Button, Grid, Tab, Tabs, Typography } from '@material-ui/core';
+import { Grid, Tab, Tabs, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
 import {
@@ -168,11 +168,11 @@ const HFNCMainView = (): JSX.Element => {
           <Grid container item xs direction="column" className={classes.graphPanel} wrap="nowrap">
             <Grid>
               <Grid className={classes.buttonPosition}>
-                <Button variant="contained" color="primary" disableElevation>
+                {/* <Button variant="contained" color="primary" disableElevation>
                   <Typography variant="subtitle2" align="center">
                     More Waveforms
                   </Typography>
-                </Button>
+                </Button> */}
               </Grid>
               <TabPanel value={value} index={0}>
                 <Grid container item xs justify="space-between" style={{ height: '100%' }}>

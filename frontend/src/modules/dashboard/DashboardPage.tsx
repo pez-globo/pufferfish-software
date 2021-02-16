@@ -1,8 +1,10 @@
 import { Grid, makeStyles } from '@material-ui/core';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { VentilationMode } from '../../store/controller/proto/mcu_pb';
-import { getParametersRequestMode } from '../../store/controller/selectors';
+import { getIsVentilating, getParametersRequestMode } from '../../store/controller/selectors';
+import { QUICKSTART_ROUTE } from '../navigation/constants';
 import HFNCMainView from './views/HFNCMainView';
 import PressureControlMainView from './views/PressureControlMainView';
 
@@ -37,7 +39,15 @@ const renderModeLayout = (mode: VentilationMode): JSX.Element => {
  */
 export const DashboardPage = (): JSX.Element => {
   const classes = useStyles();
+  const history = useHistory();
+  const ventilating = useSelector(getIsVentilating);
   const currentMode = useSelector(getParametersRequestMode);
+
+  useEffect(() => {
+    if (!ventilating) {
+      history.push(QUICKSTART_ROUTE.path);
+    }
+  }, [ventilating, history]);
 
   return (
     <Grid container className={classes.root}>
