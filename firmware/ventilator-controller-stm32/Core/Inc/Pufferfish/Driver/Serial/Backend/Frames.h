@@ -23,7 +23,7 @@ struct FrameProps {
   using EncodedBuffer = Util::ByteVector<encoded_max_size>;
   using PayloadBuffer = Util::ByteVector<payload_max_size>;
 
-  using InputStatus = Protocols::ChunkInputStatus;
+  enum class InputStatus { ok = 0, output_ready, invalid_length, input_overwritten };
   using OutputStatus = Protocols::ChunkOutputStatus;
 };
 
