@@ -1,5 +1,5 @@
-import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
-import React, { useCallback, useEffect } from 'react';
+import { Button, Grid, makeStyles, Theme, Typography, useTheme } from '@material-ui/core';
+import React, { RefObject, useCallback, useEffect, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { updateCommittedState } from '../../store/controller/actions';
 import { getAlarmLimitsRequest } from '../../store/controller/selectors';
@@ -7,6 +7,9 @@ import { Range } from '../../store/controller/proto/mcu_pb';
 import { ALARM_LIMITS, ALARM_LIMITS_STANDBY } from '../../store/controller/types';
 import ModalPopup from './ModalPopup';
 import ValueClicker from './ValueClicker';
+import ValueSlider from './ValueSlider';
+import useRotaryReference from '../utils/useRotaryReference';
+import { setActiveRotaryReference } from '../app/Service';
 
 const useStyles = makeStyles((theme: Theme) => ({
   contentContainer: {
@@ -83,9 +86,12 @@ export const AlarmModal = ({
   alarmRangeValues = [],
 }: Props): JSX.Element => {
   const classes = useStyles();
+  const dispatch = useDispatch();
+  const theme = useTheme();
+  const { initRefListener } = useRotaryReference(theme);
   const [open, setOpen] = React.useState(false);
-  // const [min] = React.useState(committedMin);
-  // const [max] = React.useState(committedMax);
+  const [min] = React.useState(committedMin);
+  const [max] = React.useState(committedMax);
   const alarmLimits: Record<string, Range> = useSelector(
     getAlarmLimitsRequest,
     shallowEqual,
@@ -94,11 +100,18 @@ export const AlarmModal = ({
     alarmRangeValues.length ? alarmRangeValues[0] : alarmLimits[stateKey]?.lower,
     alarmRangeValues.length ? alarmRangeValues[1] : alarmLimits[stateKey]?.upper,
   ]);
-  const dispatch = useDispatch();
+  const [refs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
+    [`${stateKey}_LOWER`]: useRef(null),
+    [`${stateKey}_HIGHER`]: useRef(null),
+  });
 
   const initSetValue = useCallback(() => {
     setOpen(openModal);
   }, [openModal]);
+
+  useEffect(() => {
+    initRefListener(refs);
+  }, [initRefListener, refs]);
 
   useEffect(() => {
     initSetValue();
@@ -147,8 +160,18 @@ export const AlarmModal = ({
     requestCommitRange(rangeValue[0], rangeValue[1]);
   }, [requestCommitRange, rangeValue]);
 
+  const OnClickPage = () => {
+    setActiveRotaryReference(null);
+  };
+
   const modalContent = (
-    <Grid container direction="column" alignItems="stretch" className={classes.contentContainer}>
+    <Grid
+      container
+      direction="column"
+      alignItems="stretch"
+      className={classes.contentContainer}
+      onClick={OnClickPage}
+    >
       {labelHeading && (
         <Grid
           container
@@ -174,8 +197,9 @@ export const AlarmModal = ({
             {rangeValue[0] !== undefined ? Number(rangeValue[0]) : '--'}
           </Typography>
         </Grid>
-        <Grid item>
+        <Grid item ref={refs[`${stateKey}_LOWER`]}>
           <ValueClicker
+            referenceKey={`${stateKey}_LOWER`}
             value={rangeValue[0]}
             step={step}
             min={committedMin}
@@ -198,8 +222,9 @@ export const AlarmModal = ({
             {rangeValue[1] !== undefined ? Number(rangeValue[1]) : '--'}
           </Typography>
         </Grid>
-        <Grid item>
+        <Grid item ref={refs[`${stateKey}_HIGHER`]}>
           <ValueClicker
+            referenceKey={`${stateKey}_HIGHER`}
             value={rangeValue[1]}
             step={step}
             min={committedMin}
@@ -209,15 +234,16 @@ export const AlarmModal = ({
           />
         </Grid>
       </Grid>
-      {/* <Grid container item xs alignItems="center">
+      <Grid container item xs alignItems="center">
         <ValueSlider
+          disabled={true}
           rangeValues={rangeValue}
           onChange={setRangeValue}
           min={min}
           max={max}
           step={step}
         />
-      </Grid> */}
+      </Grid>
     </Grid>
   );
 

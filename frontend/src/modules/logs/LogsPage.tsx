@@ -7,6 +7,7 @@ import { LogEvent } from '../../store/controller/proto/mcu_pb';
 import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
 import { EXPECTED_LOG_EVENT_ID } from '../../store/controller/types';
 import { ALARM_EVENT_PATIENT, getEventType } from '../app/EventAlerts';
+import { setMultiPopupOpen } from '../app/Service';
 import { AlarmModal } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';
 import SimpleTable, {
@@ -39,11 +40,11 @@ interface Data {
 //
 
 const headCells: HeadCell[] = [
-  { id: 'type', numeric: false, disablePadding: true, label: 'Type' },
-  { id: 'alarm', numeric: true, disablePadding: false, label: 'Alarm' },
-  { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date' },
-  { id: 'details', numeric: false, disablePadding: false, label: 'Details' },
-  { id: 'settings', numeric: true, disablePadding: false, label: 'Settings' },
+  { id: 'type', numeric: false, disablePadding: true, label: 'Type', enableSort: false },
+  { id: 'alarm', numeric: true, disablePadding: false, label: 'Alarm', enableSort: false },
+  { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date', enableSort: true },
+  { id: 'details', numeric: false, disablePadding: false, label: 'Details', enableSort: false },
+  { id: 'settings', numeric: true, disablePadding: false, label: 'Settings', enableSort: false },
 ];
 
 const useStyles = makeStyles(() =>
@@ -114,6 +115,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   const loggedEvents = useSelector(getNextLogEvents, shallowEqual);
   const activeLogEventIds = useSelector(getActiveLogEventIds, shallowEqual);
+  const settingsAllowed = ['hr', 'spo2'];
 
   const updateLogEvent = useCallback(
     (maxId) => {
@@ -206,7 +208,10 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   };
 
   const onSettings = (row: Data) => {
-    setAlarmOpen(true);
+    // setAlarmOpen(true);
+    if (row.stateKey) {
+      setMultiPopupOpen(true, row.stateKey);
+    }
     setCurrentRow(row);
   };
 
@@ -284,7 +289,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                   {row.details}
                 </TableCell>
                 <TableCell component="td">
-                  {row.type === ALARM_EVENT_PATIENT && row.stateKey && (
+                  {row.type === ALARM_EVENT_PATIENT && settingsAllowed.indexOf(row.stateKey) > -1 && (
                     <Button
                       variant="contained"
                       color="primary"

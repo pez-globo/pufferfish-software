@@ -94,6 +94,7 @@ export interface HeadCell {
   id: string | number;
   label: string;
   numeric: boolean;
+  enableSort: boolean;
 }
 
 export interface EnhancedTableProps {
@@ -145,7 +146,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             padding="default"
             sortDirection={orderBy === headCell.id ? order : false}
           >
-            {orderBy ? (
+            {headCell.enableSort && orderBy ? (
               <TableSortLabel
                 active={orderBy === headCell.id}
                 direction={orderBy === headCell.id ? order : 'asc'}

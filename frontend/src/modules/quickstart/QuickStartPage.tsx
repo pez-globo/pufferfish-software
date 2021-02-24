@@ -1,6 +1,6 @@
 import { Grid, Typography } from '@material-ui/core';
-import { makeStyles, Theme } from '@material-ui/core/styles';
-import React, { useCallback, useEffect } from 'react';
+import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
+import React, { RefObject, useCallback, useEffect, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { updateCommittedState } from '../../store/controller/actions';
 import { VentilationMode } from '../../store/controller/proto/mcu_pb';
@@ -9,9 +9,18 @@ import {
   getParametersRequestStandby,
 } from '../../store/controller/selectors';
 import { PARAMETER_STANDBY } from '../../store/controller/types';
+import { setActiveRotaryReference } from '../app/Service';
 import ValueClicker from '../controllers/ValueController';
 import ModeBanner from '../displays/ModeBanner';
 import { LMIN, PERCENT } from '../info/units';
+import {
+  FIO2_REFERENCE_KEY,
+  PEEP_REFERENCE_KEY,
+  RR_REFERENCE_KEY,
+  TV_REFERENCE_KEY,
+  FLOW_REFERENCE_KEY,
+} from '../settings/containers/constants';
+import { useRotaryReference } from '../utils/useRotaryReference';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -73,6 +82,13 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const SettableParameters = (): JSX.Element => {
   const classes = useStyles();
+  const [elRefs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
+    [PEEP_REFERENCE_KEY]: useRef(null),
+    [RR_REFERENCE_KEY]: useRef(null),
+    [FIO2_REFERENCE_KEY]: useRef(null),
+    [TV_REFERENCE_KEY]: useRef(null),
+    [FLOW_REFERENCE_KEY]: useRef(null),
+  });
   const parameterStandby = useSelector(getParametersRequestStandby, shallowEqual);
 
   const [PEEP, setPEEP] = React.useState(parameterStandby.peep);
@@ -81,6 +97,8 @@ const SettableParameters = (): JSX.Element => {
   const [TV, setTV] = React.useState(parameterStandby.vt);
   const [FiO2, setFiO2] = React.useState(parameterStandby.fio2);
   const dispatch = useDispatch();
+  const theme = useTheme();
+  const { initRefListener } = useRotaryReference(theme);
 
   const initParameterUpdate = useCallback(() => {
     dispatch(
@@ -96,7 +114,8 @@ const SettableParameters = (): JSX.Element => {
 
   useEffect(() => {
     initParameterUpdate();
-  }, [initParameterUpdate]);
+    initRefListener(elRefs);
+  }, [initParameterUpdate, initRefListener, elRefs]);
 
   const ventilationMode = useSelector(getParametersRequestMode);
   switch (ventilationMode) {
@@ -109,18 +128,47 @@ const SettableParameters = (): JSX.Element => {
         <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
           <Grid container item xs direction="row" className={classes.bottomBorder}>
             <Grid item xs className={classes.rightBorder}>
-              <ValueClicker label="PEEP" units="cm H2O" value={PEEP} onClick={setPEEP} />
+              <ValueClicker
+                reference={elRefs[PEEP_REFERENCE_KEY]}
+                referenceKey={PEEP_REFERENCE_KEY}
+                label="PEEP"
+                units="cm H2O"
+                value={PEEP}
+                onClick={setPEEP}
+              />
             </Grid>
             <Grid item xs>
-              <ValueClicker label="RR" units="cm H2O" value={RR} onClick={setRR} />
+              <ValueClicker
+                reference={elRefs[RR_REFERENCE_KEY]}
+                referenceKey={RR_REFERENCE_KEY}
+                label="RR"
+                units="cm H2O"
+                value={RR}
+                onClick={setRR}
+              />
             </Grid>
           </Grid>
           <Grid container item xs direction="row">
             <Grid item xs className={classes.rightBorder}>
-              <ValueClicker label="FiO2" units="%" value={FiO2} onClick={setFiO2} />
+              <ValueClicker
+                reference={elRefs[FIO2_REFERENCE_KEY]}
+                referenceKey={FIO2_REFERENCE_KEY}
+                label="FiO2"
+                units="%"
+                value={FiO2}
+                onClick={setFiO2}
+              />
             </Grid>
             <Grid item xs>
-              <ValueClicker label="TV" units="mL" value={TV} max={500} onClick={setTV} />
+              <ValueClicker
+                reference={elRefs[TV_REFERENCE_KEY]}
+                referenceKey={TV_REFERENCE_KEY}
+                label="TV"
+                units="mL"
+                value={TV}
+                max={500}
+                onClick={setTV}
+              />
             </Grid>
           </Grid>
         </Grid>
@@ -131,10 +179,24 @@ const SettableParameters = (): JSX.Element => {
         <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
           <Grid container item xs direction="row" className={classes.bottomBorder}>
             <Grid item xs className={classes.rightBorder}>
-              <ValueClicker label="FiO2" units={PERCENT} value={FiO2} onClick={setFiO2} />
+              <ValueClicker
+                reference={elRefs[FIO2_REFERENCE_KEY]}
+                referenceKey={FIO2_REFERENCE_KEY}
+                label="FiO2"
+                units={PERCENT}
+                value={FiO2}
+                onClick={setFiO2}
+              />
             </Grid>
             <Grid item xs>
-              <ValueClicker label="Flow" units={LMIN} value={Flow} onClick={setFlow} />
+              <ValueClicker
+                reference={elRefs[FLOW_REFERENCE_KEY]}
+                referenceKey={FLOW_REFERENCE_KEY}
+                label="Flow"
+                units={LMIN}
+                value={Flow}
+                onClick={setFlow}
+              />
             </Grid>
           </Grid>
           <Grid container item xs direction="row">
@@ -154,8 +216,12 @@ export const QuickStartPage = (): JSX.Element => {
   // const [patientCircuitTestDate] = React.useState(new Date());
   // const [preUseCheckDate] = React.useState(new Date());
 
+  const OnClickPage = () => {
+    setActiveRotaryReference(null);
+  };
+
   return (
-    <Grid container direction="column" className={classes.root}>
+    <Grid container direction="column" className={classes.root} onClick={OnClickPage}>
       <Grid container item className={classes.topPanel}>
         <Grid item xs className={classes.standby}>
           <Typography variant="h3">Standby</Typography>

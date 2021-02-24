@@ -43,8 +43,14 @@ const rows = [
 ];
 
 const headCells: HeadCell[] = [
-  { id: 'value', numeric: false, disablePadding: true, label: 'Value' },
-  { id: 'measurement', numeric: false, disablePadding: false, label: 'Measurement' },
+  { id: 'value', numeric: false, disablePadding: true, label: 'Value', enableSort: false },
+  {
+    id: 'measurement',
+    numeric: false,
+    disablePadding: false,
+    label: 'Measurement',
+    enableSort: false,
+  },
 ];
 
 /**

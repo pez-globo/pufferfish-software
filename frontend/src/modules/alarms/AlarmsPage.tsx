@@ -1,7 +1,7 @@
 import { Button, Grid, Typography } from '@material-ui/core';
-import { makeStyles, Theme } from '@material-ui/core/styles';
+import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
-import React, { useEffect, useState } from 'react';
+import React, { RefObject, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateCommittedState } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
@@ -10,8 +10,11 @@ import {
   getParametersRequestMode,
 } from '../../store/controller/selectors';
 import { ALARM_LIMITS, ALARM_LIMITS_STANDBY } from '../../store/controller/types';
+import { setActiveRotaryReference } from '../app/Service';
+import { ValueClicker } from '../controllers';
 import ValueSlider from '../controllers/ValueSlider';
 import ModeBanner from '../displays/ModeBanner';
+import useRotaryReference from '../utils/useRotaryReference';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -56,6 +59,11 @@ interface AlarmProps {
   setAlarmLimits(alarmLimits: Partial<AlarmLimitsRequest>): void;
 }
 
+enum SliderType {
+  LOWER,
+  UPPER,
+}
+
 const Alarm = ({
   label,
   min,
@@ -65,22 +73,63 @@ const Alarm = ({
   alarmLimits,
   setAlarmLimits,
 }: AlarmProps): JSX.Element => {
+  const theme = useTheme();
+  const { initRefListener } = useRotaryReference(theme);
   const rangeValues: number[] = [alarmLimits[stateKey].lower, alarmLimits[stateKey].upper];
+  const [refs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
+    [`${stateKey}_LOWER`]: useRef(null),
+    [`${stateKey}_HIGHER`]: useRef(null),
+  });
   const setRangevalue = (range: number[]) => {
     setAlarmLimits({ [stateKey]: { lower: range[0], upper: range[1] } });
   };
+  const onClick = (value: number, type: SliderType) => {
+    setActiveRotaryReference(
+      type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
+    );
+    setAlarmLimits({
+      [stateKey]: {
+        lower: type === SliderType.LOWER ? value : rangeValues[0],
+        upper: type === SliderType.UPPER ? value : rangeValues[1],
+      },
+    });
+  };
+
+  useEffect(() => {
+    initRefListener(refs);
+  }, [initRefListener, refs]);
+
   return (
     <Grid container>
       <Grid item xs={12} style={{ paddingBottom: 20 }}>
         <Typography variant="h5">{label}</Typography>
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={2} ref={refs[`${stateKey}_LOWER`]}>
+        <ValueClicker
+          referenceKey={`${stateKey}_LOWER`}
+          value={rangeValues[0]}
+          onClick={(value: number) => onClick(value, SliderType.LOWER)}
+          min={min}
+          max={max}
+        />
+      </Grid>
+      <Grid item xs={8}>
         <ValueSlider
+          disabled={true}
           min={min}
           max={max}
           step={step}
           onChange={setRangevalue}
           rangeValues={rangeValues}
+        />
+      </Grid>
+      <Grid item xs={2} ref={refs[`${stateKey}_HIGHER`]}>
+        <ValueClicker
+          referenceKey={`${stateKey}_HIGHER`}
+          value={rangeValues[1]}
+          onClick={(value: number) => onClick(value, SliderType.UPPER)}
+          min={min}
+          max={max}
         />
       </Grid>
     </Grid>
@@ -154,8 +203,12 @@ export const AlarmsPage = (): JSX.Element => {
     setPageCount(Math.ceil(alarmConfig.length / itemsPerPage));
   }, [alarmConfig]);
 
+  const OnClickPage = () => {
+    setActiveRotaryReference(null);
+  };
+
   return (
-    <Grid container direction="column" className={classes.root}>
+    <Grid container direction="column" className={classes.root} onClick={OnClickPage}>
       <Grid container item xs direction="row" className={classes.panel}>
         <Grid container item xs={3} direction="column" className={classes.leftContainer}>
           <Grid item>

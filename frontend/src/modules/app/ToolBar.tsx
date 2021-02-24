@@ -12,7 +12,9 @@ import {
   getIsVentilating,
   getParametersRequestMode,
   getParametersRequestStandby,
+  getPopupEventLog,
 } from '../../store/controller/selectors';
+import { BACKEND_CONNECTION_LOST_CODE } from '../../store/controller/types';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
 import { BackIcon } from '../icons';
 import ClockIcon from '../icons/ClockIcon';
@@ -53,7 +55,7 @@ export const HeaderClock = (): JSX.Element => {
   return <span className={classes.paddingRight}>{clockTime}</span>;
 };
 
-const PowerIndicator = (): JSX.Element => {
+export const PowerIndicator = (): JSX.Element => {
   const classes = useStyles();
   const batteryPower = useSelector(getBatteryPower);
   const chargingStatus = useSelector(getChargingStatus);
@@ -105,11 +107,13 @@ export const ToolBar = ({
   const dispatch = useDispatch();
   const history = useHistory();
   const currentMode = useSelector(getParametersRequestMode);
+  const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const parameterRequestStandby = useSelector(getParametersRequestStandby, shallowEqual);
   const ventilating = useSelector(getIsVentilating);
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
   const [label, setLabel] = useState('Start Ventilation');
-  const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
+  const [isDisabled, setIsDisabled] = useState(false);
+  // const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
   const updateVentilationStatus = () => {
     if (!staticStart) {
       dispatch(updateCommittedParameter({ ventilating: !isVentilatorOn }));
@@ -149,6 +153,14 @@ export const ToolBar = ({
       }
     }
   }, [isVentilatorOn, parameterRequestStandby, currentMode, dispatch]);
+
+  useEffect(() => {
+    if (popupEventLog && popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
+      setIsDisabled(true);
+    } else {
+      setIsDisabled(false);
+    }
+  }, [popupEventLog]);
 
   useEffect(() => {
     initParameterUpdate();

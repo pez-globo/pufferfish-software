@@ -120,6 +120,8 @@ enum LogEventCode {
   rr_too_high = 5;
   battery_low = 6;
   screen_locked = 7;
+  hr_too_low = 8;
+  hr_too_high = 9;
 }
 
 message LogEvent {

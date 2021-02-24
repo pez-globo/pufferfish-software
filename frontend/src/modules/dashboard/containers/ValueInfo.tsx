@@ -351,7 +351,11 @@ const GridControlValuesDisplay = ({
  * Component for showing information.
  *
  */
-const ValueInfo = (props: ValueInfoProps): JSX.Element => {
+const ValueInfo = (props: {
+  mainContainer: Props;
+  subContainer1?: Props;
+  subContainer2?: Props;
+}): JSX.Element => {
   const { mainContainer, subContainer1, subContainer2 } = props;
   const classes = useStyles();
   const Render = () => {

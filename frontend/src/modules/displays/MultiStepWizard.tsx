@@ -148,60 +148,60 @@ const HFNCControls = (): JSX.Element => {
   );
 };
 
+const createData = (
+  label: string,
+  stateKey: string,
+  units: string,
+  isSetvalEnabled: boolean,
+  isAlarmEnabled: boolean,
+  alarmValuesActual: number[],
+  committedSetting?: number | null,
+  minValue?: number | null,
+  maxValue?: number | null,
+): Data => {
+  return {
+    label,
+    stateKey,
+    units,
+    isSetvalEnabled,
+    isAlarmEnabled,
+    committedSetting,
+    minValue,
+    maxValue,
+    alarmValues: alarmValuesActual,
+    alarmValuesActual,
+    setValue: committedSetting as number,
+    setValueActual: committedSetting as number,
+  };
+};
+
+const getStoreValueData = (stateKey: string): number | null => {
+  const storeData = store.getState();
+  switch (stateKey) {
+    case 'fio2':
+      return roundValue(storeData.controller.parameters.fio2);
+    case 'flow':
+      return roundValue(storeData.controller.parameters.flow);
+    default:
+  }
+  return null;
+};
+
+const getStoreAlarmData = (stateKey: string): number[] | null => {
+  const storeData = store.getState();
+  const alarmLimits = storeData.controller.alarmLimitsRequest;
+  switch (stateKey) {
+    case 'spo2':
+      return [alarmLimits.spo2?.lower as number, alarmLimits.spo2?.upper as number];
+    case 'hr':
+      return [alarmLimits.hr?.lower as number, alarmLimits.hr?.upper as number];
+    default:
+  }
+  return null;
+};
+
 // TODO: Make a constant file for stateKey Constants
-const determineInput = (stateKey: string): Data | null => {
-  const createData = (
-    label: string,
-    stateKey: string,
-    units: string,
-    isSetvalEnabled: boolean,
-    isAlarmEnabled: boolean,
-    alarmValuesActual: number[],
-    committedSetting?: number | null,
-    minValue?: number | null,
-    maxValue?: number | null,
-  ): Data => {
-    return {
-      label,
-      stateKey,
-      units,
-      isSetvalEnabled,
-      isAlarmEnabled,
-      committedSetting,
-      minValue,
-      maxValue,
-      alarmValues: alarmValuesActual,
-      alarmValuesActual,
-      setValue: committedSetting as number,
-      setValueActual: committedSetting as number,
-    };
-  };
-
-  const getStoreValueData = (stateKey: string): number | null => {
-    const storeData = store.getState();
-    switch (stateKey) {
-      case 'fio2':
-        return roundValue(storeData.controller.parameters.fio2);
-      case 'flow':
-        return roundValue(storeData.controller.parameters.flow);
-      default:
-    }
-    return null;
-  };
-
-  const getStoreAlarmData = (stateKey: string): number[] | null => {
-    const storeData = store.getState();
-    const alarmLimits = storeData.controller.alarmLimitsRequest;
-    switch (stateKey) {
-      case 'spo2':
-        return [alarmLimits.spo2?.lower as number, alarmLimits.spo2?.upper as number];
-      case 'hr':
-        return [alarmLimits.hr?.lower as number, alarmLimits.hr?.upper as number];
-      default:
-    }
-    return null;
-  };
-
+const determineInput = (stateKey: string): Data | undefined => {
   switch (stateKey) {
     case 'spo2':
       return createData(
@@ -249,8 +249,7 @@ const determineInput = (stateKey: string): Data | null => {
       );
     default:
   }
-
-  return null;
+  return undefined;
 };
 
 const MultiStepWizard = (): JSX.Element => {
@@ -262,7 +261,7 @@ const MultiStepWizard = (): JSX.Element => {
   const [label, setLabel] = React.useState('Ventilation Controls');
   const [stateKey, setStateKey] = React.useState('');
   const [tabIndex, setTabIndex] = React.useState(0);
-  const [parameter, setParameter] = React.useState<Data | null>();
+  const [parameter, setParameter] = React.useState<Data>();
   const [multiParams, setMultiParams] = React.useState<Data[]>([]);
 
   const handleChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
@@ -288,6 +287,8 @@ const MultiStepWizard = (): JSX.Element => {
       if (stateKeyEventSubscription) {
         stateKeyEventSubscription.unsubscribe();
       }
+      setConfirmOpen(false);
+      setCancelOpen(false);
     };
   }, []);
 
@@ -371,14 +372,14 @@ const MultiStepWizard = (): JSX.Element => {
     if (isAnyChanges()) {
       setCancelOpen(true);
     }
-    setMultiPopupOpen(false);
+    setMultiPopupOpen(false, stateKey);
   };
 
   const onConfirm = () => {
     if (isAnyChanges()) {
       setConfirmOpen(true);
     }
-    setMultiPopupOpen(false);
+    setMultiPopupOpen(false, stateKey);
   };
 
   const handleConfirm = () => {
@@ -417,6 +418,16 @@ const MultiStepWizard = (): JSX.Element => {
     setCancelOpen(false);
   };
 
+  const handleCancelOnConfirmPopup = () => {
+    setConfirmOpen(false);
+    setMultiPopupOpen(true, stateKey);
+  };
+
+  const handleCancelOnCancelPopup = () => {
+    setCancelOpen(false);
+    setMultiPopupOpen(true, stateKey);
+  };
+
   return (
     <React.Fragment>
       <ModalPopup withAction={false} label={label} open={open}>
@@ -451,10 +462,11 @@ const MultiStepWizard = (): JSX.Element => {
             <HFNCControls />
           </TabPanel>
           <TabPanel value={tabIndex} index={1}>
-            {parameter?.isSetvalEnabled ? (
+            {parameter && parameter.isSetvalEnabled ? (
               <SetValueContent
-                openModal={open}
-                committedSetting={getSetValues(stateKey)}
+                openModal={open && parameter.stateKey === stateKey}
+                key={parameter.stateKey}
+                committedSetting={getSetValues(parameter.stateKey)}
                 label={parameter.label}
                 units={parameter.units}
                 requestCommitSetting={doSetValue}
@@ -462,16 +474,18 @@ const MultiStepWizard = (): JSX.Element => {
                 {...(parameter.maxValue && { max: parameter.maxValue })}
               />
             ) : (
-              <AlarmModal
-                openModal={open}
-                label={parameter?.label || ''}
-                units={parameter?.units || ''}
-                stateKey={stateKey}
-                requestCommitRange={doSetAlarmValues}
-                contentOnly={true}
-                labelHeading={true}
-                alarmRangeValues={getAlarmValues(stateKey)}
-              />
+              parameter && (
+                <AlarmModal
+                  openModal={open && parameter.stateKey === stateKey}
+                  label={parameter.label}
+                  units={parameter.units}
+                  stateKey={parameter.stateKey}
+                  requestCommitRange={doSetAlarmValues}
+                  contentOnly={true}
+                  labelHeading={true}
+                  alarmRangeValues={getAlarmValues(parameter.stateKey)}
+                />
+              )
             )}
           </TabPanel>
         </Grid>
@@ -505,7 +519,7 @@ const MultiStepWizard = (): JSX.Element => {
         maxWidth="xs"
         label=""
         open={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
+        onClose={handleCancelOnConfirmPopup}
         onConfirm={handleConfirm}
       >
         <Grid container alignItems="center" className={classes.marginHeader}>
@@ -539,7 +553,7 @@ const MultiStepWizard = (): JSX.Element => {
         maxWidth="xs"
         label=""
         open={cancelOpen}
-        onClose={() => setCancelOpen(false)}
+        onClose={handleCancelOnCancelPopup}
         onConfirm={handleCancelConfirm}
       >
         <Grid container alignItems="center" className={classes.marginHeader}>

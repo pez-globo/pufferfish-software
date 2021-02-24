@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { getIsVentilating } from '../../store/controller/selectors';
+import { setMultiPopupOpen } from './Service';
 
 const IdleTimer = ({ timeout, onTimeOut }: { timeout: number; onTimeOut(): void }): JSX.Element => {
   const idle = useCallback(() => {
@@ -52,6 +53,7 @@ export const UserActivity = (): JSX.Element => {
 
   const onTimeOut = () => {
     if (ventilating) {
+      setMultiPopupOpen(false);
       history.push('/screensaver');
     }
   };

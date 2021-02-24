@@ -75,6 +75,8 @@ export enum LogEventCode {
   rr_too_high = 5,
   battery_low = 6,
   screen_locked = 7,
+  hr_too_low = 8,
+  hr_too_high = 9,
   UNRECOGNIZED = -1,
 }
 
@@ -104,6 +106,12 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case 7:
     case "screen_locked":
       return LogEventCode.screen_locked;
+    case 8:
+    case "hr_too_low":
+      return LogEventCode.hr_too_low;
+    case 9:
+    case "hr_too_high":
+      return LogEventCode.hr_too_high;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -129,6 +137,10 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "battery_low";
     case LogEventCode.screen_locked:
       return "screen_locked";
+    case LogEventCode.hr_too_low:
+      return "hr_too_low";
+    case LogEventCode.hr_too_high:
+      return "hr_too_high";
     default:
       return "UNKNOWN";
   }

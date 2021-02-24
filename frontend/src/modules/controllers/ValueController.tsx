@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 import { Grid, makeStyles, Theme } from '@material-ui/core';
 import { ValueClicker } from '.';
 import ValueDisplay from '../displays/ValueDisplay';
@@ -19,6 +19,8 @@ interface Props {
   min?: number;
   max?: number;
   units?: string;
+  reference: RefObject<HTMLDivElement>;
+  referenceKey: string;
 }
 
 /**
@@ -33,16 +35,24 @@ const ValueController = ({
   max = 100,
   onClick,
   units,
+  reference,
+  referenceKey,
 }: Props): JSX.Element => {
   const classes = useStyles();
 
   return (
-    <Grid container className={classes.root}>
+    <Grid ref={reference} container className={classes.root}>
       <Grid item xs>
         <ValueDisplay value={value} label={label} units={units} />
       </Grid>
       <Grid item>
-        <ValueClicker value={value} onClick={onClick} min={min} max={max} />
+        <ValueClicker
+          referenceKey={referenceKey}
+          value={value}
+          onClick={onClick}
+          min={min}
+          max={max}
+        />
       </Grid>
     </Grid>
   );

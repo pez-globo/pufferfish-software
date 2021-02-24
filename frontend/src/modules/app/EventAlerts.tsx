@@ -5,7 +5,7 @@ import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import { LogEventCode } from '../../store/controller/proto/mcu_pb';
-import { BMIN, PERCENT } from '../info/units';
+import { BMIN, BPM, PERCENT } from '../info/units';
 import {
   getActiveLogEventIds,
   getAlarmMuteStatus,
@@ -137,12 +137,14 @@ export const getEventType = (
       return {
         type: ALARM_EVENT_PATIENT,
         label: 'spO2 is too low',
+        stateKey: 'spo2',
         unit: PERCENT,
       };
     case LogEventCode.spo2_too_high:
       return {
         type: ALARM_EVENT_PATIENT,
         label: 'spO2 is too high',
+        stateKey: 'spo2',
         unit: PERCENT,
       };
     case LogEventCode.battery_low:
@@ -156,6 +158,18 @@ export const getEventType = (
         type: ALARM_EVENT_SYSTEM,
         label: 'Screen is locked',
         unit: '',
+      };
+    case LogEventCode.hr_too_low:
+      return {
+        type: ALARM_EVENT_SYSTEM,
+        label: 'HR is too low',
+        unit: BPM,
+      };
+    case LogEventCode.hr_too_high:
+      return {
+        type: ALARM_EVENT_SYSTEM,
+        label: 'HR is too high',
+        unit: BPM,
       };
     case BACKEND_CONNECTION_LOST_CODE:
       return {
