@@ -42,9 +42,12 @@ class Vector {
   constexpr Element &operator[](size_t position);
 
   template <size_t source_size>
-  void copy_from(const std::array<Element, source_size> &source_bytes, size_t dest_start_index = 0);
-  void copy_from(const Vector<Element, array_size> &source_bytes, size_t dest_start_index = 0);
-  void copy_from(const Element *source_bytes, size_t source_size, size_t dest_start_index = 0);
+  IndexStatus copy_from(
+      const std::array<Element, source_size> &source_bytes, size_t dest_start_index = 0);
+  IndexStatus copy_from(
+      const Vector<Element, array_size> &source_bytes, size_t dest_start_index = 0);
+  IndexStatus copy_from(
+      const Element *source_bytes, size_t source_size, size_t dest_start_index = 0);
 
   [[nodiscard]] constexpr const Element *buffer() const { return buffer_.data(); }
   constexpr Element *buffer() { return buffer_.data(); }

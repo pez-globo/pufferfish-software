@@ -38,8 +38,11 @@ IndexStatus CRCElement<PayloadBuffer>::write_protected(
     return IndexStatus::out_of_bounds;
   }
 
-  output_buffer.copy_from(
-      payload_.buffer(), payload_.size(), CRCElementHeaderProps::payload_offset);
+  if (output_buffer.copy_from(
+          payload_.buffer(), payload_.size(), CRCElementHeaderProps::payload_offset) !=
+      IndexStatus::ok) {
+    return IndexStatus::out_of_bounds;
+  };
   return IndexStatus::ok;
 }
 
@@ -53,10 +56,12 @@ IndexStatus CRCElement<PayloadBuffer>::parse(const Util::ByteVector<input_size> 
   if (input_buffer.size() < CRCElementHeaderProps::header_size) {
     return IndexStatus::out_of_bounds;
   }
+  if (payload_.copy_from(
+          input_buffer.buffer() + CRCElementHeaderProps::payload_offset,
+          input_buffer.size() - CRCElementHeaderProps::payload_offset) != IndexStatus::ok) {
+    return IndexStatus::out_of_bounds;
+  };
   Util::read_ntoh(input_buffer.buffer(), crc_);
-  payload_.copy_from(
-      input_buffer.buffer() + CRCElementHeaderProps::payload_offset,
-      input_buffer.size() - CRCElementHeaderProps::payload_offset);
   return IndexStatus::ok;
 }
 

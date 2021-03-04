@@ -37,7 +37,9 @@ ChunkOutputStatus ChunkSplitter<buffer_size, Byte>::output(
     return ChunkOutputStatus::waiting;
   }
 
-  output_buffer.copy_from(buffer_);
+  if (output_buffer.copy_from(buffer_) != IndexStatus::ok) {
+    return ChunkOutputStatus::invalid_length;
+  };
   buffer_.clear();
   ChunkOutputStatus output_status = ChunkOutputStatus::ok;
   if (input_status_ == ChunkInputStatus::invalid_length) {
