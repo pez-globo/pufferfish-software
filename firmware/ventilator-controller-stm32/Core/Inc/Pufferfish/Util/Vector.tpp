@@ -83,18 +83,14 @@ IndexStatus Vector<Element, array_size>::copy_from(
 template <typename Element, size_t array_size>
 IndexStatus Vector<Element, array_size>::copy_from(
     const Element *source_bytes, size_t source_size, size_t dest_start_index) {
-  size_ = array_size;
-  if (source_size + dest_start_index > size_) {
+  if (source_size + dest_start_index > array_size) {
     return IndexStatus::out_of_bounds;
   }
-  if (source_size + dest_start_index <= size_) {
-    size_ = source_size + dest_start_index;
-
-    memcpy(
-        buffer_.data() + dest_start_index,
-        source_bytes,
-        sizeof(Element) * (size_ - dest_start_index));
-  }
+  size_ = source_size + dest_start_index;
+  memcpy(
+      buffer_.data() + dest_start_index,
+      source_bytes,
+      sizeof(Element) * (size_ - dest_start_index));
   return IndexStatus::ok;
 }
 

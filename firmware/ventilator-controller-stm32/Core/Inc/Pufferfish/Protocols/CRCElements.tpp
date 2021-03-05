@@ -56,12 +56,12 @@ IndexStatus CRCElement<PayloadBuffer>::parse(const Util::ByteVector<input_size> 
   if (input_buffer.size() < CRCElementHeaderProps::header_size) {
     return IndexStatus::out_of_bounds;
   }
+  Util::read_ntoh(input_buffer.buffer(), crc_);
   if (payload_.copy_from(
           input_buffer.buffer() + CRCElementHeaderProps::payload_offset,
           input_buffer.size() - CRCElementHeaderProps::payload_offset) != IndexStatus::ok) {
     return IndexStatus::out_of_bounds;
   };
-  Util::read_ntoh(input_buffer.buffer(), crc_);
   return IndexStatus::ok;
 }
 
