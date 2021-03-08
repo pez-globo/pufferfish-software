@@ -73,10 +73,12 @@ export enum LogEventCode {
   spo2_too_high = 3,
   rr_too_low = 4,
   rr_too_high = 5,
-  battery_low = 6,
-  screen_locked = 7,
-  hr_too_low = 8,
-  hr_too_high = 9,
+  hr_too_low = 6,
+  hr_too_high = 7,
+  fio2_setting_changed = 8,
+  flow_setting_changed = 9,
+  battery_low = 10,
+  screen_locked = 11,
   UNRECOGNIZED = -1,
 }
 
@@ -101,9 +103,21 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case "rr_too_high":
       return LogEventCode.rr_too_high;
     case 6:
+    case "hr_too_low":
+      return LogEventCode.hr_too_low;
+    case 7:
+    case "hr_too_high":
+      return LogEventCode.hr_too_high;
+    case 8:
+    case "fio2_setting_changed":
+      return LogEventCode.fio2_setting_changed;
+    case 9:
+    case "flow_setting_changed":
+      return LogEventCode.flow_setting_changed;
+    case 10:
     case "battery_low":
       return LogEventCode.battery_low;
-    case 7:
+    case 11:
     case "screen_locked":
       return LogEventCode.screen_locked;
     case 8:
@@ -133,6 +147,14 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "rr_too_low";
     case LogEventCode.rr_too_high:
       return "rr_too_high";
+    case LogEventCode.hr_too_low:
+      return "hr_too_low";
+    case LogEventCode.hr_too_high:
+      return "hr_too_high";
+    case LogEventCode.fio2_setting_changed:
+      return "fio2_setting_changed";
+    case LogEventCode.flow_setting_changed:
+      return "flow_setting_changed";
     case LogEventCode.battery_low:
       return "battery_low";
     case LogEventCode.screen_locked:
@@ -141,6 +163,44 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "hr_too_low";
     case LogEventCode.hr_too_high:
       return "hr_too_high";
+    default:
+      return "UNKNOWN";
+  }
+}
+
+export enum LogEventType {
+  patient = 0,
+  system = 1,
+  control = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function logEventTypeFromJSON(object: any): LogEventType {
+  switch (object) {
+    case 0:
+    case "patient":
+      return LogEventType.patient;
+    case 1:
+    case "system":
+      return LogEventType.system;
+    case 2:
+    case "control":
+      return LogEventType.control;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return LogEventType.UNRECOGNIZED;
+  }
+}
+
+export function logEventTypeToJSON(object: LogEventType): string {
+  switch (object) {
+    case LogEventType.patient:
+      return "patient";
+    case LogEventType.system:
+      return "system";
+    case LogEventType.control:
+      return "control";
     default:
       return "UNKNOWN";
   }
@@ -251,6 +311,7 @@ export interface LogEvent {
   alarmLimits: Range | undefined;
   oldValue: number;
   newValue: number;
+  type: LogEventType;
 }
 
 export interface ExpectedLogEvent {
@@ -1850,6 +1911,7 @@ const baseLogEvent: object = {
   code: 0,
   oldValue: 0,
   newValue: 0,
+  type: 0,
 };
 
 export const LogEvent = {
@@ -1865,6 +1927,7 @@ export const LogEvent = {
     }
     writer.uint32(45).float(message.oldValue);
     writer.uint32(53).float(message.newValue);
+    writer.uint32(56).int32(message.type);
     return writer;
   },
 
@@ -1892,6 +1955,9 @@ export const LogEvent = {
           break;
         case 6:
           message.newValue = reader.float();
+          break;
+        case 7:
+          message.type = reader.int32() as any;
           break;
         default:
           reader.skipType(tag & 7);
@@ -1933,6 +1999,11 @@ export const LogEvent = {
     } else {
       message.newValue = 0;
     }
+    if (object.type !== undefined && object.type !== null) {
+      message.type = logEventTypeFromJSON(object.type);
+    } else {
+      message.type = 0;
+    }
     return message;
   },
 
@@ -1968,6 +2039,11 @@ export const LogEvent = {
     } else {
       message.newValue = 0;
     }
+    if (object.type !== undefined && object.type !== null) {
+      message.type = object.type;
+    } else {
+      message.type = 0;
+    }
     return message;
   },
 
@@ -1982,6 +2058,7 @@ export const LogEvent = {
         : undefined);
     message.oldValue !== undefined && (obj.oldValue = message.oldValue);
     message.newValue !== undefined && (obj.newValue = message.newValue);
+    message.type !== undefined && (obj.type = logEventTypeToJSON(message.type));
     return obj;
   },
 };

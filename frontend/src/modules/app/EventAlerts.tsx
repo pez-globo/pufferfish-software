@@ -4,8 +4,8 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
-import { LogEventCode } from '../../store/controller/proto/mcu_pb';
-import { BMIN, BPM, PERCENT } from '../info/units';
+import { LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
+import { BMIN, BPM, LMIN, PERCENT } from '../info/units';
 import {
   getActiveLogEventIds,
   getAlarmMuteStatus,
@@ -16,9 +16,6 @@ import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
 import { updateCommittedState } from '../../store/controller/actions';
 import { ALARM_MUTE, BACKEND_CONNECTION_LOST_CODE } from '../../store/controller/types';
-
-export const ALARM_EVENT_PATIENT = 'Patient';
-export const ALARM_EVENT_SYSTEM = 'System';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -101,13 +98,18 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export const getEventType = (
-  code: LogEventCode,
-): { type: string; label: string; unit: string; head?: string; stateKey?: string } => {
+export interface EventType {
+  type: LogEventType;
+  label: string;
+  unit: string;
+  head?: string;
+  stateKey?: string;
+}
+export const getEventType = (code: LogEventCode): EventType => {
   switch (code) {
     case LogEventCode.fio2_too_low:
       return {
-        type: ALARM_EVENT_PATIENT,
+        type: LogEventType.patient,
         label: 'fiO2 is too low',
         head: 'FiO2',
         stateKey: 'fio2',
@@ -115,7 +117,7 @@ export const getEventType = (
       };
     case LogEventCode.fio2_too_high:
       return {
-        type: ALARM_EVENT_PATIENT,
+        type: LogEventType.patient,
         label: 'fiO2 is too high',
         head: 'FiO2',
         stateKey: 'fio2',
@@ -123,62 +125,80 @@ export const getEventType = (
       };
     case LogEventCode.rr_too_low:
       return {
-        type: ALARM_EVENT_PATIENT,
+        type: LogEventType.patient,
         label: 'Respiratory Rate is too low',
+        stateKey: 'rr',
         unit: BMIN,
       };
     case LogEventCode.rr_too_high:
       return {
-        type: ALARM_EVENT_PATIENT,
+        type: LogEventType.patient,
         label: 'Respiratory Rate is too high',
+        stateKey: 'rr',
         unit: BMIN,
+      };
+    case LogEventCode.hr_too_low:
+      return {
+        type: LogEventType.patient,
+        label: 'Heart Rate is too low',
+        stateKey: 'hr',
+        unit: BPM,
+      };
+    case LogEventCode.hr_too_high:
+      return {
+        type: LogEventType.patient,
+        label: 'Heart Rate is too high',
+        stateKey: 'hr',
+        unit: BPM,
       };
     case LogEventCode.spo2_too_low:
       return {
-        type: ALARM_EVENT_PATIENT,
+        type: LogEventType.patient,
         label: 'spO2 is too low',
         stateKey: 'spo2',
         unit: PERCENT,
       };
     case LogEventCode.spo2_too_high:
       return {
-        type: ALARM_EVENT_PATIENT,
+        type: LogEventType.patient,
         label: 'spO2 is too high',
         stateKey: 'spo2',
         unit: PERCENT,
       };
+    case LogEventCode.fio2_setting_changed:
+      return {
+        type: LogEventType.control,
+        label: 'Fio2 Settings changed',
+        stateKey: 'fio2',
+        unit: PERCENT,
+      };
+    case LogEventCode.flow_setting_changed:
+      return {
+        type: LogEventType.control,
+        label: 'Flow Settings changed',
+        stateKey: 'flow',
+        unit: LMIN,
+      };
     case LogEventCode.battery_low:
       return {
-        type: ALARM_EVENT_SYSTEM,
+        type: LogEventType.system,
         label: 'Battery power is low',
         unit: PERCENT,
       };
     case LogEventCode.screen_locked:
       return {
-        type: ALARM_EVENT_SYSTEM,
+        type: LogEventType.system,
         label: 'Screen is locked',
         unit: '',
       };
-    case LogEventCode.hr_too_low:
-      return {
-        type: ALARM_EVENT_SYSTEM,
-        label: 'HR is too low',
-        unit: BPM,
-      };
-    case LogEventCode.hr_too_high:
-      return {
-        type: ALARM_EVENT_SYSTEM,
-        label: 'HR is too high',
-        unit: BPM,
-      };
     case BACKEND_CONNECTION_LOST_CODE:
       return {
-        type: ALARM_EVENT_SYSTEM,
+        type: LogEventType.system,
         label: 'Software connectivity lost',
         unit: '',
       };
     default:
-      return { type: '', label: '', unit: '' };
+      return { type: LogEventType.system, label: '', unit: '' };
   }
 };
 
@@ -237,7 +257,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   useEffect(() => {
     if (popupEventLog) {
       const eventType = getEventType(popupEventLog.code);
-      if (eventType.type) {
+      if (eventType.label) {
         setAlertCount(activeLog.length);
         setAlert({ label: eventType.label });
       }

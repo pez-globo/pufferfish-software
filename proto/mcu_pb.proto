@@ -118,10 +118,18 @@ enum LogEventCode {
   spo2_too_high = 3;
   rr_too_low = 4;
   rr_too_high = 5;
-  battery_low = 6;
-  screen_locked = 7;
-  hr_too_low = 8;
-  hr_too_high = 9;
+  hr_too_low = 6;
+  hr_too_high = 7;
+  fio2_setting_changed = 8;
+  flow_setting_changed = 9;
+  battery_low = 10;
+  screen_locked = 11;
+}
+
+enum LogEventType {
+  patient = 0;
+  system = 1;
+  control = 2;
 }
 
 message LogEvent {
@@ -131,6 +139,7 @@ message LogEvent {
   Range alarm_limits = 4;
   float old_value = 5;
   float new_value = 6;
+  LogEventType type = 7;
 }
 
 message ExpectedLogEvent {
