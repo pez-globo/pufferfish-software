@@ -19,12 +19,18 @@ const useStyles = makeStyles((theme: Theme) => ({
     color: theme.palette.text.primary,
     border: `1px solid ${theme.palette.text.primary}`,
     borderRadius: 6,
+    padding: '5px',
   },
   dialogActions: {
     padding: 0,
   },
   popupWidth: {
     '& .MuiDialog-container': {
+      '& .MuiPaper-root': {
+        display: 'flex',
+        alignItems: 'center',
+        minHeight: 'calc(100% - 64px)',
+      },
       '& .MuiDialog-paperWidthSm': {
         maxWidth: '750px',
 
@@ -37,6 +43,34 @@ const useStyles = makeStyles((theme: Theme) => ({
           overflow: 'hidden',
         },
       },
+    },
+  },
+  containerClass: {
+    maxWidth: '80%',
+    maxHeight: '80%',
+    margin: '0 auto',
+  },
+  wrapper: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    marginTop: 'auto',
+    marginBottom: 'auto',
+  },
+  wrapperFlex: {
+    width: '100%',
+    '& .MuiDialogTitle-root': {
+      padding: '0px 24px',
+    },
+  },
+  actionButtons: {
+    marginBottom: '10px',
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    '& .MuiGrid-item': {
+      padding: '0px 10px',
     },
   },
 }));
@@ -58,15 +92,17 @@ interface ActionProps {
 }
 
 const ModalAction = ({ onClose, onConfirm }: ActionProps): JSX.Element => {
+  const classes = useStyles();
   return (
-    <Grid container justify="center" style={{ marginBottom: '10px' }}>
-      <Grid container item xs justify="center">
-        <Button onClick={onClose} variant="contained" color="primary" style={{ width: '90%' }}>
+    <Grid container justify="center" className={classes.actionButtons}>
+      <Grid item justify="center">
+        <Button onClick={onClose} variant="contained" color="primary">
+          {/* style={{ width: '90%' }} */}
           Cancel
         </Button>
       </Grid>
-      <Grid container item xs justify="center">
-        <Button onClick={onConfirm} variant="contained" color="secondary" style={{ width: '90%' }}>
+      <Grid item justify="center">
+        <Button onClick={onConfirm} variant="contained" color="secondary">
           Confirm
         </Button>
       </Grid>
@@ -84,8 +120,8 @@ export const ModalPopup = (props: PropsWithChildren<Props>): JSX.Element => {
     children,
     withAction,
     onConfirm,
-    fullWidth = false,
-    maxWidth = 'sm',
+    fullWidth = true,
+    maxWidth = 'xl',
   } = props;
   return (
     <Dialog
@@ -96,24 +132,32 @@ export const ModalPopup = (props: PropsWithChildren<Props>): JSX.Element => {
       className={classes.popupWidth}
       scroll="paper"
     >
-      <DialogTitle id="form-dialog-title">
-        <Grid container alignItems="center">
-          <Grid item xs>
-            <Typography variant="h4">{label}</Typography>
+      <Grid alignItems="center" className={classes.wrapper}>
+        <Grid alignItems="center" className={classes.wrapperFlex}>
+          <DialogTitle id="form-dialog-title">
+            <Grid container alignItems="center">
+              {label && (
+                <Grid item xs>
+                  <Typography variant="h4">{label}</Typography>
+                </Grid>
+              )}
+              <Grid item>
+                {showCloseIcon && (
+                  <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
+                    <CloseIcon />
+                  </IconButton>
+                )}
+              </Grid>
+            </Grid>
+          </DialogTitle>
+          <Grid container alignItems="center" className={classes.containerClass}>
+            <DialogContent>{children}</DialogContent>
           </Grid>
-          <Grid item>
-            {showCloseIcon && (
-              <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
-                <CloseIcon />
-              </IconButton>
-            )}
-          </Grid>
+          <DialogActions className={classes.dialogActions}>
+            {withAction && <ModalAction onClose={onClose} onConfirm={onConfirm} />}
+          </DialogActions>
         </Grid>
-      </DialogTitle>
-      <DialogContent>{children}</DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        {withAction && <ModalAction onClose={onClose} onConfirm={onConfirm} />}
-      </DialogActions>
+      </Grid>
     </Dialog>
   );
 };

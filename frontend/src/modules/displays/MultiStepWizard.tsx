@@ -37,6 +37,8 @@ interface Data {
   setValue: number;
   minValue?: number | null;
   maxValue?: number | null;
+  alarmLimitMin?: number | null;
+  alarmLimitMax?: number | null;
   alarmValuesActual: number[];
   setValueActual: number;
 }
@@ -107,6 +109,7 @@ const HFNCControls = (): JSX.Element => {
         item
         justify="center"
         alignItems="stretch"
+        direction="column"
         style={{ borderRight: '2px solid #030e17' }}
       >
         <ValueInfo
@@ -158,6 +161,8 @@ const createData = (
   committedSetting?: number | null,
   minValue?: number | null,
   maxValue?: number | null,
+  alarmLimitMin?: number | null,
+  alarmLimitMax?: number | null,
 ): Data => {
   return {
     label,
@@ -168,6 +173,8 @@ const createData = (
     committedSetting,
     minValue,
     maxValue,
+    alarmLimitMin,
+    alarmLimitMax,
     alarmValues: alarmValuesActual,
     alarmValuesActual,
     setValue: committedSetting as number,
@@ -222,6 +229,10 @@ const determineInput = (stateKey: string): Data | undefined => {
         true,
         getStoreAlarmData(stateKey) as number[],
         -1,
+        null,
+        null,
+        0,
+        200,
       );
     case 'fio2':
       return createData(
@@ -343,8 +354,8 @@ const MultiStepWizard = (): JSX.Element => {
 
   const getSetValues = (stateKey: string) => {
     const param = multiParams.find((param: Data) => param.stateKey === stateKey);
-    if (param) {
-      if (param.setValue) return param.setValue as number;
+    if (param && param.setValue) {
+      return param.setValue as number;
     }
     if (parameter) return parameter.committedSetting as number;
     return 0;
@@ -371,15 +382,17 @@ const MultiStepWizard = (): JSX.Element => {
   const onCancel = () => {
     if (isAnyChanges()) {
       setCancelOpen(true);
+    } else {
+      setMultiPopupOpen(false, stateKey);
     }
-    setMultiPopupOpen(false, stateKey);
   };
 
   const onConfirm = () => {
     if (isAnyChanges()) {
       setConfirmOpen(true);
+    } else {
+      setMultiPopupOpen(false, stateKey);
     }
-    setMultiPopupOpen(false, stateKey);
   };
 
   const handleConfirm = () => {
@@ -411,21 +424,33 @@ const MultiStepWizard = (): JSX.Element => {
     });
     setMultiParams([]);
     setConfirmOpen(false);
+    setMultiPopupOpen(false);
   };
 
   const handleCancelConfirm = () => {
+    if (parameter) {
+      parameter.setValue = parameter.setValueActual;
+      parameter.alarmValues = parameter.alarmValuesActual;
+    }
+    multiParams.map((parameter: Data) => {
+      const param = parameter;
+      param.setValue = param.setValueActual;
+      param.alarmValues = param.alarmValuesActual;
+      return param;
+    });
     setMultiParams([]);
     setCancelOpen(false);
+    setMultiPopupOpen(false);
   };
 
   const handleCancelOnConfirmPopup = () => {
     setConfirmOpen(false);
-    setMultiPopupOpen(true, stateKey);
+    // setMultiPopupOpen(true, stateKey);
   };
 
   const handleCancelOnCancelPopup = () => {
     setCancelOpen(false);
-    setMultiPopupOpen(true, stateKey);
+    // setMultiPopupOpen(true, stateKey);s
   };
 
   return (
@@ -484,6 +509,8 @@ const MultiStepWizard = (): JSX.Element => {
                   contentOnly={true}
                   labelHeading={true}
                   alarmRangeValues={getAlarmValues(parameter.stateKey)}
+                  {...(parameter.alarmLimitMin && { committedMin: parameter.alarmLimitMin })}
+                  {...(parameter.alarmLimitMax && { committedMax: parameter.alarmLimitMax })}
                 />
               )
             )}

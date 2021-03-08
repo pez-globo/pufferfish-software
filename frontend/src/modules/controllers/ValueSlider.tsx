@@ -12,7 +12,7 @@ const boxShadow = '0 3px 1px rgba(0,0,0,0.1),0 4px 8px rgba(0,0,0,0.13),0 0 0 1p
 
 const StyledSlider = withStyles({
   root: {
-    color: '#3880ff',
+    color: 'rgb(41 71 98) !important',
     height: 2,
     padding: '15px 0',
     '& .Mui-disabled': {
@@ -20,7 +20,7 @@ const StyledSlider = withStyles({
       width: '32px',
       marginTop: '-14px',
       marginLeft: '-14px',
-      backgroundColor: '#bfbfbf',
+      backgroundColor: 'rgb(41 71 98)',
     },
   },
   thumb: {
@@ -55,7 +55,7 @@ const StyledSlider = withStyles({
   rail: {
     height: 2,
     opacity: 0.5,
-    backgroundColor: '#bfbfbf',
+    backgroundColor: 'rgb(41 71 98)',
   },
   mark: {
     backgroundColor: '#bfbfbf',
