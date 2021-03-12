@@ -52,7 +52,7 @@ class States {
   SensorMeasurements &sensor_measurements();
   CycleMeasurements &cycle_measurements();
 
-  static constexpr bool should_input(MessageTypes type);
+  static constexpr bool should_input(MessageTypes type) noexcept;
 
   void input(const StateSegment &input);
   void output(MessageTypes type, StateSegment &output) const;
