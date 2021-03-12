@@ -59,14 +59,15 @@ MessageStatus Message<TaggedUnion, MessageTypes, max_size>::parse(
   }
 
   type = input_buffer[Message::type_offset];
-  if (type > pb_protobuf_descriptors.size()) {
-    return MessageStatus::invalid_type;
-  }
-
   if (!MessageTypes::includes(type)) {
     return MessageStatus::invalid_type;
   }
+
   payload.tag = static_cast<typename TaggedUnion::Tag>(type);
+  if (type >= pb_protobuf_descriptors.size()) {
+    return MessageStatus::invalid_type;
+  }
+
   const pb_msgdesc_t *fields = pb_protobuf_descriptors[type];
   if (fields == Util::get_protobuf_descriptor<Util::UnrecognizedMessage>()) {
     return MessageStatus::invalid_type;
