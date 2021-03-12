@@ -16,7 +16,7 @@ namespace Pufferfish::Util {
 // EnumValues is inspired by https://stackoverflow.com/a/33091821 by user janm,
 // but the implementation of the variadic template recursion is different
 
-template <typename Enum, Enum... Values>
+template <typename Enum, Enum... values>
 class EnumValues;
 
 template <typename Enum>
@@ -28,12 +28,12 @@ class EnumValues<Enum> {
   }
 };
 
-template <typename Enum, Enum Value, Enum... Values>
-class EnumValues<Enum, Value, Values...> {
+template <typename Enum, Enum value, Enum... values>
+class EnumValues<Enum, value, values...> {
  public:
   template <typename Underlying>
   static bool constexpr includes(Underlying value) {
-    return value == static_cast<Underlying>(Value) || EnumValues<Enum, Values...>::includes(value);
+    return value == static_cast<Underlying>(value) || EnumValues<Enum, values...>::includes(value);
   }
 };
 
