@@ -23,17 +23,18 @@ template <typename Enum>
 class EnumValues<Enum> {
  public:
   template <typename Underlying>
-  static bool constexpr includes(Underlying /*value*/) {
+  static bool constexpr includes(Underlying /*test_value*/) {
     return false;
   }
 };
 
-template <typename Enum, Enum value, Enum... values>
-class EnumValues<Enum, value, values...> {
+template <typename Enum, Enum first_value, Enum... remaining_values>
+class EnumValues<Enum, first_value, remaining_values...> {
  public:
   template <typename Underlying>
-  static bool constexpr includes(Underlying value) {
-    return value == static_cast<Underlying>(value) || EnumValues<Enum, values...>::includes(value);
+  static bool constexpr includes(Underlying test_value) {
+    return test_value == static_cast<Underlying>(first_value) ||
+           EnumValues<Enum, remaining_values...>::includes(test_value);
   }
 };
 
