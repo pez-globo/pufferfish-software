@@ -78,7 +78,8 @@ Scenario: CRCElement: The parse method correctly updates its internal crc value 
       THEN("After the parse method is called, the value returned by the crc accessor method remains unchanged")
       THEN("the payload accessor method returns a reference to the payload buffer given in the CRCElement constructor")
       THEN("the payload given in the CRCElement constructor is independent of the input buffer body")      
-  
+      THEN("the constructor's payload buffer remains unchanged")
+
     WHEN("A body with a complete 4-byte header, and a payload consistent with the CRC field of the header, is parsed")
       THEN("the parse method reports ok status")
       THEN("After the parse method is called, the value returned by the crc accessor method is equal to the crc field of the input_buffer body's header")
@@ -141,6 +142,7 @@ Scenario: CRCElementReceiver correctly parses CRCElement bodies and performs con
       THEN("After the transform method is called, the value returned by the output_crcelement's crc accessor method remains unchanged")
       THEN("The output_crcelement's payload accessor method returns a reference to the payload given in its constructor")
       THEN("The data in the output_crcelement's payload buffer is independent of the data in input_buffer")
+      THEN("the constructor's payload buffer remains unchanged")
 
     WHEN("A body with less than 4 bytes is given to the crc element receiver")
       // body of length 1,2,3 bytes is passed, passing 4 bytes will give a invalid_crc error instead
@@ -148,6 +150,7 @@ Scenario: CRCElementReceiver correctly parses CRCElement bodies and performs con
       THEN("After the transform method is called, the value returned by the output_crcelement's crc accessor method remains unchanged")
       THEN("The output_crcelement's payload accessor method returns a reference to the payload given in its constructor")
       THEN("The data in the output_crcelement's payload buffer is independent of the data in input_buffer")
+      THEN("the constructor's payload buffer remains unchanged")      
 
     WHEN("A body with a complete 4-byte header, and a payload consistent with the CRC field of the header, is given to the receiver")
       THEN("the transform method reports ok status")
@@ -172,6 +175,7 @@ Scenario: CRCElementReceiver correctly parses CRCElement bodies and performs con
       THEN("After the transform method is called, the value returned by the output_crcelement's crc accessor method remains unchanged")
       THEN("The output_crcelement's payload accessor method returns a reference to the payload given in its constructor")
       THEN("The data in the output_crcelement's payload buffer is independent of the data in input_buffer")
+      THEN("the constructor's payload buffer remains unchanged")
 
     WHEN("A body with a complete 4-byte header, and a payload consistent with the CRC field of the header, is given to the receiver")
       THEN("the transform method reports ok status")
@@ -189,6 +193,7 @@ Scenario: CRCElementReceiver correctly parses CRCElement bodies and performs con
       THEN("After the transform method is called, the value returned by the output_crcelement's crc accessor method remains unchanged")
       THEN("The output_crcelement's payload accessor method returns a reference to the payload given in its constructor")
       THEN("The data in the output_crcelement's payload buffer is independent of the data in input_buffer")
+      THEN("the constructor's payload buffer remains unchanged")
 
     WHEN("A body with a complete 4-byte header, and a payload consistent with the CRC field of the header, is given to the receiver")
       THEN("the transform method reports ok status")
@@ -205,6 +210,7 @@ Scenario: CRCElementSender: correctly generates CRCElement bodies from payloads
       THEN("the transform method reports ok status")
       THEN("output buffer is as expected, equal to (crc + input_buffer)")
       THEN("The CRC field of the output buffer's header is consistent with the input_payload.")
+      THEN("The contents of the output buffer remains unchanged")
 
   GIVEN("A CRC element sender of buffer size 20 bytes")
 

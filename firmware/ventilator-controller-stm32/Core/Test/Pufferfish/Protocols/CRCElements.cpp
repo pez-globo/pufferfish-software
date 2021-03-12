@@ -361,6 +361,7 @@ SCENARIO(
 
         REQUIRE(crc_element.payload() == data);
       }
+      THEN("the constructor's payload buffer remains unchanged") { REQUIRE(payload == data); }
     }
 
     WHEN(
@@ -671,6 +672,9 @@ SCENARIO(
         auto expected = crc_element.payload();
         REQUIRE(expected.empty() == true);
       }
+      THEN("the constructor's payload buffer remains unchanged") {
+        REQUIRE(input_payload.empty() == true);
+      }
     }
 
     WHEN("body with less than 4 bytes is given to the crc element receiver") {
@@ -706,6 +710,9 @@ SCENARIO(
         auto expected = crc_element.payload();
         REQUIRE(expected.empty() == true);
       }
+      THEN("the constructor's payload buffer remains unchanged") {
+        REQUIRE(input_payload.empty() == true);
+      }
 
       // body of length 2 bytes
       auto input1 = std::string("\x01", 1);
@@ -738,6 +745,9 @@ SCENARIO(
         auto expected = crc_element.payload();
         REQUIRE(expected.empty() == true);
       }
+      THEN("the constructor's payload buffer remains unchanged") {
+        REQUIRE(input_payload.empty() == true);
+      }
 
       // body of length 3 bytes
       auto input2 = std::string("\x00\x01", 2);
@@ -769,6 +779,9 @@ SCENARIO(
         input_buffer.push_back(0x02);
         auto expected = crc_element.payload();
         REQUIRE(expected.empty() == true);
+      }
+      THEN("the constructor's payload buffer remains unchanged") {
+        REQUIRE(input_payload.empty() == true);
       }
     }
 
@@ -890,6 +903,7 @@ SCENARIO(
         input_buffer.push_back(0x02);
         REQUIRE(crc_element.payload() == body);
       }
+      THEN("the constructor's payload buffer remains unchanged") { REQUIRE(input_payload == body); }
     }
 
     WHEN(
@@ -974,6 +988,7 @@ SCENARIO(
         input_buffer.push_back(0x02);
         REQUIRE(crc_element.payload() == body);
       }
+      THEN("the constructor's payload buffer remains unchanged") { REQUIRE(input_payload == body); }
     }
 
     WHEN(
@@ -1018,8 +1033,8 @@ SCENARIO(
       THEN("the transform status is ok") {
         REQUIRE(transform_status == TestCRCElementSender::Status::ok);
       }
+      auto expected_output = std::string("\x81\xfc\x34\x57\x13\x03\x05\x06\x23", 9);
       THEN("output buffer is as expected, equal to (crc + input_buffer)") {
-        auto expected_output = std::string("\x81\xfc\x34\x57\x13\x03\x05\x06\x23", 9);
         REQUIRE(output_buffer == expected_output);
       }
       THEN("The CRC field of the output buffer's header is consistent with the input_payload.") {
@@ -1027,6 +1042,9 @@ SCENARIO(
         uint32_t expected_crc = 0x81FC3457;
         auto crc_compute = crc32c.compute(input_payload.buffer(), input_payload.size());
         REQUIRE(expected_crc == crc_compute);
+      }
+      THEN("The contents of the output buffer remains unchanged") {
+        REQUIRE(output_buffer == expected_output);
       }
     }
   }
