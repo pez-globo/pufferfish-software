@@ -54,8 +54,6 @@ class States {
   SensorMeasurements &sensor_measurements();
   CycleMeasurements &cycle_measurements();
 
-  static constexpr bool should_input(MessageTypes type);
-
   InputStatus input(const StateSegment &input);
   OutputStatus output(MessageTypes type, StateSegment &output) const;
 

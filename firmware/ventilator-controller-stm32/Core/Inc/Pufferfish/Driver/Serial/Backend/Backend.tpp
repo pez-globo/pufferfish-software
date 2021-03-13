@@ -160,7 +160,7 @@ Backend::Status Backend::input(uint8_t new_byte) {
       return Status::waiting;
   }
 
-  if (!states_.should_input(message.payload.tag)) {
+  if (!accept_message(message.payload.tag)) {
     return Status::invalid;
   }
 
@@ -178,6 +178,11 @@ Backend::Status Backend::input(uint8_t new_byte) {
 
 void Backend::update_clock(uint32_t current_time) {
   synchronizer_.input(current_time);
+}
+
+constexpr bool Backend::accept_message(Application::MessageTypes type) {
+  return type == Application::MessageTypes::parameters_request ||
+         type == Application::MessageTypes::alarm_limits_request;
 }
 
 Backend::Status Backend::output(FrameProps::ChunkBuffer &output_buffer) {

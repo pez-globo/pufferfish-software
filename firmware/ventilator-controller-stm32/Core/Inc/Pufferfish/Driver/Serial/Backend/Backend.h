@@ -133,6 +133,7 @@ class Backend {
         states_(states),
         synchronizer_(states, state_sync_schedule) {}
 
+  static constexpr bool accept_message(Application::MessageTypes type);
   Status input(uint8_t new_byte);
   void update_clock(uint32_t current_time);
   Status output(FrameProps::ChunkBuffer &output_buffer);
