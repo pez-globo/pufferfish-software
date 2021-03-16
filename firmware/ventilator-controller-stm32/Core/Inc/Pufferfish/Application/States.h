@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "Pufferfish/Util/Enums.h"
 #include "Pufferfish/Util/TaggedUnion.h"
 #include "mcu_pb.h"
 
@@ -23,6 +24,17 @@ enum class MessageTypes : uint8_t {
   alarm_limits = 6,
   alarm_limits_request = 7
 };
+
+// MessageTypeValues should include all defined values of MessageTypes
+using MessageTypeValues = Util::EnumValues<
+    MessageTypes,
+    MessageTypes::unknown,
+    MessageTypes::sensor_measurements,
+    MessageTypes::cycle_measurements,
+    MessageTypes::parameters,
+    MessageTypes::parameters_request,
+    MessageTypes::alarm_limits,
+    MessageTypes::alarm_limits_request>;
 
 // Since nanopb is running dynamically, we cannot have extensive compile-time type-checking.
 // It's not clear how we might use variants to replace this union, since the nanopb functions
@@ -46,16 +58,16 @@ struct StateSegments {
 class States {
  public:
   States() = default;
+  enum class InputStatus { ok = 0, invalid_type };
+  enum class OutputStatus { ok = 0, invalid_type };
 
   [[nodiscard]] const ParametersRequest &parameters_request() const;
   Parameters &parameters();
   SensorMeasurements &sensor_measurements();
   CycleMeasurements &cycle_measurements();
 
-  static constexpr bool should_input(MessageTypes type) noexcept;
-
-  void input(const StateSegment &input);
-  void output(MessageTypes type, StateSegment &output) const;
+  InputStatus input(const StateSegment &input);
+  OutputStatus output(MessageTypes type, StateSegment &output) const;
 
  private:
   StateSegments state_segments_;

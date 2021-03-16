@@ -52,12 +52,13 @@ static const auto state_sync_schedule = Util::make_array<const StateOutputSchedu
 // Backend
 using BackendMessage = Protocols::Message<
     Application::StateSegment,
+    Application::MessageTypeValues,
     Protocols::DatagramProps<
         Driver::Serial::Backend::FrameProps::payload_max_size>::payload_max_size>;
 
 class BackendReceiver {
  public:
-  enum class InputStatus { ok = 0, output_ready, invalid_frame_length };
+  enum class InputStatus { ok = 0, output_ready, invalid_frame_length, input_overwritten };
   enum class OutputStatus {
     available = 0,
     waiting,
@@ -128,8 +129,12 @@ class Backend {
   enum class Status { ok = 0, waiting, invalid };
 
   Backend(HAL::CRC32 &crc32c, Application::States &states)
-      : receiver_(crc32c), sender_(crc32c), synchronizer_(states, state_sync_schedule) {}
+      : receiver_(crc32c),
+        sender_(crc32c),
+        states_(states),
+        synchronizer_(states, state_sync_schedule) {}
 
+  static constexpr bool accept_message(Application::MessageTypes type);
   Status input(uint8_t new_byte);
   void update_clock(uint32_t current_time);
   Status output(FrameProps::ChunkBuffer &output_buffer);
@@ -143,6 +148,7 @@ class Backend {
 
   BackendReceiver receiver_;
   BackendSender sender_;
+  Application::States &states_;
   BackendStateSynchronizer synchronizer_;
 };
 

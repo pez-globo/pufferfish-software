@@ -19,6 +19,8 @@ BackendReceiver::InputStatus BackendReceiver::input(uint8_t new_byte) {
       return InputStatus::output_ready;
     case FrameProps::InputStatus::invalid_length:
       return InputStatus::invalid_frame_length;
+    case FrameProps::InputStatus::input_overwritten:
+      return InputStatus::input_overwritten;
     case FrameProps::InputStatus::ok:
       break;
   }
@@ -134,6 +136,7 @@ Backend::Status Backend::input(uint8_t new_byte) {
     case BackendReceiver::InputStatus::output_ready:
       break;
     case BackendReceiver::InputStatus::invalid_frame_length:
+    case BackendReceiver::InputStatus::input_overwritten:
       // TODO(lietk12): handle error case first
     case BackendReceiver::InputStatus::ok:
       return Status::waiting;
@@ -160,11 +163,15 @@ Backend::Status Backend::input(uint8_t new_byte) {
       return Status::waiting;
   }
 
+  if (!accept_message(message.payload.tag)) {
+    return Status::invalid;
+  }
+
   // Input into state synchronization
-  switch (synchronizer_.input(message.payload)) {
-    case BackendStateSynchronizer::InputStatus::ok:
+  switch (states_.input(message.payload)) {
+    case Application::States::InputStatus::ok:
       break;
-    case BackendStateSynchronizer::InputStatus::invalid_type:
+    case Application::States::InputStatus::invalid_type:
       // TODO(lietk12): handle error case
       return Status::invalid;
   }
@@ -176,12 +183,19 @@ void Backend::update_clock(uint32_t current_time) {
   synchronizer_.input(current_time);
 }
 
+constexpr bool Backend::accept_message(Application::MessageTypes type) {
+  return type == Application::MessageTypes::parameters_request ||
+         type == Application::MessageTypes::alarm_limits_request;
+}
+
 Backend::Status Backend::output(FrameProps::ChunkBuffer &output_buffer) {
   // Output from state synchronization
   BackendMessage message;
   switch (synchronizer_.output(message.payload)) {
-    case BackendStateSynchronizer::OutputStatus::available:
+    case BackendStateSynchronizer::OutputStatus::ok:
       break;
+    case BackendStateSynchronizer::OutputStatus::invalid_type:
+      return Status::invalid;
     case BackendStateSynchronizer::OutputStatus::waiting:
       return Status::waiting;
   }

@@ -20,8 +20,4 @@ union StateSegmentUnion {
   AlarmLimitsRequest alarm_limits_request;
 };
 
-constexpr bool States::should_input(MessageTypes type) noexcept {
-  return type == MessageTypes::parameters_request || type == MessageTypes::alarm_limits_request;
-}
-
 }  // namespace Pufferfish::Application
