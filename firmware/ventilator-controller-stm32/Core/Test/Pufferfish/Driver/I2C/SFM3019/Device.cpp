@@ -24,7 +24,7 @@ SCENARIO("SFM3019: flow sensor driver behaves properly", "[device]") {
   PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
 
   auto buffer = PF::Util::make_array<uint8_t>(0x04, 0x02, 0x60, 0x06, 0x11, 0xa9, 0x12, 0x24, 0x74);
-  dev.set_read(buffer.data(), buffer.size());
+  dev.add_read(buffer.data(), buffer.size());
 
   GIVEN("A Mock I2C device") {
     PF::Driver::I2C::SFM3019::Device device{dev, gdev, gas};

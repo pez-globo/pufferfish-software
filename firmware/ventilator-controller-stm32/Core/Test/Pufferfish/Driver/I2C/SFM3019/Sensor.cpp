@@ -26,10 +26,14 @@ SCENARIO("SFM3019: flow sensor behaves properly", "[sensor]") {
   bool resetter = false;
 
   GIVEN("A Mock I2C device") {
-    auto body = PF::Util::make_array<uint8_t>(0x04, 0x02, 0x06, 0x11, 0x00);
+    // write product_id to the MOCKI2Cdevice by add_read
+    auto product_id_body = PF::Util::make_array<uint8_t>(0x04, 0x02, 0x60, 0x06, 0x11, 0xA9);
+    dev.add_read(product_id_body.data(), product_id_body.size());
 
-    // write to the MOCKI2Cdevice by set_read
-    dev.set_read(body.data(), body.size());
+    // write conversion_factors to the MOCKI2Cdevice by add_read
+    auto conversion_factors_body = PF::Util::make_array<uint8_t>(0x00, 0xAA, 0xA6, 0xA0, 0x00, 0x7E, 0x01, 0x48, 0xF1);
+    dev.add_read(conversion_factors_body.data(), conversion_factors_body.size());
+
     PF::Driver::I2C::SFM3019::Device device{dev, gdev, gas};
 
     WHEN("the device is initialised") {
@@ -39,10 +43,11 @@ SCENARIO("SFM3019: flow sensor behaves properly", "[sensor]") {
 
       PF::Driver::I2C::SFM3019::Sensor sensor(device, resetter, time);
 
-      sensor.setup();
+      auto status = sensor.setup();
 
-      // THEN("status should be equal to setup") { REQUIRE(status == PF::InitializableState::setup);
-      // }
+      THEN("status should be equal to setup") {
+        REQUIRE(status == PF::InitializableState::setup);
+      }
     }
   }
 
@@ -54,7 +59,7 @@ SCENARIO("SFM3019: flow sensor behaves properly", "[sensor]") {
 
     WHEN("sensor output is calculated") {
       float flow = 0;
-      sensor.output(flow);
+      auto output_status = sensor.output(flow);
 
       THEN("the final status should ok") {
         // REQUIRE(output_status == PF::InitializableState::ok);

@@ -29,7 +29,7 @@ SCENARIO("BreathingCircuit::Controlloop behaves correctly", "[ControlLoop]") {
     auto body = PF::Util::make_array<uint8_t>(0x2e, 0x04, 0x02, 0x06, 0x11);
 
     // wrtie to the MOCKI2Cdevice by set_read
-    dev.set_read(body.data(), body.size());
+    dev.add_read(body.data(), body.size());
 
     PF::HAL::MockI2CDevice gdev;
     PF::Driver::I2C::SFM3019::GasType gas_air = PF::Driver::I2C::SFM3019::GasType::air;
