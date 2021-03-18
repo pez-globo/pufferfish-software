@@ -1,0 +1,143 @@
+Scenario: The CobsDecoder class correctly generates a body by decoding COBS encoded payloads
+ 
+ GIVEN("A CobsDecoder object constructed with default parameters")
+ // assertions in given:
+ // output_buffer is empty
+
+  WHEN("The size of input buffer is greater than the payload max size (254 bytes) + COBS byte)
+   THEN("The transform method reports invalid_length status")
+   THEN("The output_buffer remains unchanged")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("The max size of the output_buffer is less than the input payload size")
+  // setup:
+  // encoded input payload of size 13 bytes
+  // output buffer max size is 12 bytes
+   THEN("The transform method reports invalid_length status")
+   THEN("The output_buffer remains unchanged")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains '\x00\x00' bytes")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains '\x01\x01\x01' bytes")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains '\x03\x11\x22\x02\x33' bytes")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains '\x05\x11\x22\x33\x44' bytes")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains '\x02\x78' bytes")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains '\x03\x78\x79' bytes")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains string '\x0cHello World' as bytes")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains a encoded sensor measurements message payload")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+
+Scenario: The CobsEncoder class correctly generates a body by encoding the payload with COBS
+
+ GIVEN("A CobsEncoder object constructed with default parameters")
+ // assertions in given:
+ // output_buffer is empty
+  
+  WHEN("Input buffer size is greater than the payload max size (254 bytes)")
+   THEN("The transform method reports invalid_length status")
+   THEN("The output buffer remains unchanged")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("The size of the output buffer is smaller than the size required for an encoded input buffer")
+  // setup:
+  // input buffer of capacity 254 filled until 12 bytes
+  // output buffer size less than 12 bytes
+  
+   THEN("The transform method reports invalid_length status")
+   THEN("The output buffer remains unchanged")
+
+  WHEN("The input to the CobsEncoder contains multiple delimited bytes")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer does not contain the delimited bytes")
+
+  WHEN("transform is called on an input buffer that contains a null byte")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains '\x00\x00'")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains '\x11\x22\x00\x33'")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains '\x11\x22\x33\x44'")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains char 'x')
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains char 'xy')
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains string 'Hello world')
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer that contains a sensor measurements message payload")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer is as expected")
+   THEN("The Input buffer is unchanged after transform")
+
+Scenario: The FrameReceiver class correctly generates COBS decoded bodies from encoded buffers
+
+ GIVEN("A FrameReceiver object constructed with default parameters")
+ // assertions carried out in given:
+ // output_buffer is empty
+
+  WHEN("255 non-delimiter bytes are passed as input and output is called after that")
+   THEN("The input method reports ok status for all 255 non delimiter bytes")
+   THEN("The output method reports waiting status")
+   THEN("The output buffer remains unchanged")
+
+  WHEN("256 non-delimiter bytes are passed as input and output is called after that")
+   THEN("The input method reports ok status for all 255 non delimiter bytes and invalid_length for 256th byte")
+   THEN("The output method reports invalid_length status")
+   THEN("The output buffer remains unchanged")
+
+  WHEN("128 non-delimiter bytes with COBS byte are passed as input, 129th byte is passed as a delimiter, and output is called after that") 
+   THEN("The input method reports ok status for all 128 non delimiter bytes and output_ready for 129th byte")
+   THEN("The output method reports ok status")
+   THEN("The output buffer is as expected")
