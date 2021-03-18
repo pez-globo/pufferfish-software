@@ -30,7 +30,7 @@ SCENARIO(
 
     REQUIRE(output_buffer.empty() == true);
 
-    WHEN("Input to the CobsDecoder is '\x00\x00'") {
+    WHEN("Input to the CobsDecoder is '0x00 0x00'") {
       auto body = std::string("\x01\x01", 2);
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
 
@@ -217,7 +217,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
         REQUIRE(input_buffer == expected);
       }
     }
-    WHEN("Input to the cobsEncoder is '\x00\x00'") {
+    WHEN("Input to the cobsEncoder is '0x00 0x00'") {
       input_buffer.push_back(0x00);
       input_buffer.push_back(0x00);
 
@@ -235,7 +235,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
         REQUIRE(input_buffer == expected);
       }
     }
-    WHEN("Input to the cobsEncoder is '\x11\x22\x00\x33'") {
+    WHEN("Input to the cobsEncoder is '0x11 0x22 0x00 0x33'") {
       auto body = std::string("\x11\x22\x00\x33", 4);
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
 
