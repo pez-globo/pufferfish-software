@@ -47,9 +47,13 @@ SCENARIO(
         payload_max_size>;
     TestMessage test_message;
     constexpr size_t buffer_size = 252UL;
-    PF::Util::ByteVector<buffer_size> buffer;
+    PF::Util::ByteVector<buffer_size> output_buffer;
 
-    WHEN("The index of payload tag is greater than the message descriptor array size") {
+    REQUIRE(output_buffer.empty() == true);
+
+    WHEN(
+        "The value of the message payload tag is greater than the size of the message descriptor "
+        "array") {
       constexpr auto message_descriptors = PF::Util::make_array<PF::Util::ProtobufDescriptor>(
           // array index should match the type code value
           PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>());
@@ -59,25 +63,26 @@ SCENARIO(
       parameters_request.flow = 60;
       test_message.payload.set(parameters_request);
 
-      auto write_status = test_message.write(buffer, message_descriptors);
+      auto write_status = test_message.write(output_buffer, message_descriptors);
 
-      THEN("The write status is equal to invalid type") {
+      THEN("The write method reports invalid type status") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::invalid_type);
+      }
+      THEN("After the write method is called, the output buffer remains unchanged") {
+        REQUIRE(output_buffer.empty() == true);
       }
     }
 
     WHEN("The Message type in the payload is Unrecognized") {
       test_message.payload.tag = PF::Application::MessageTypes::unknown;
-      ParametersRequest parameters_request;
-      memset(&parameters_request, 0, sizeof(parameters_request));
-      parameters_request.flow = 60;
-      test_message.payload.value.parameters_request =
-          parameters_request;  // NOLINT(cppcoreguidelines-pro-type-union-access)
 
-      auto write_status = test_message.write(buffer, BE::message_descriptors);
+      auto write_status = test_message.write(output_buffer, BE::message_descriptors);
 
       THEN("The write status is equal to invalid type") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::invalid_type);
+      }
+      THEN("After the write method is called, the output buffer remains unchanged") {
+        REQUIRE(output_buffer.empty() == true);
       }
     }
 
@@ -100,9 +105,9 @@ SCENARIO(
 
     WHEN("The alarm limits data is written to a buffer of zero size") {
       constexpr size_t buffer_size = 0UL;
-      PF::Util::ByteVector<buffer_size> buffer;
+      PF::Util::ByteVector<buffer_size> output_buffer;
       test_message.payload.tag = PF::Application::MessageTypes::alarm_limits;
-      auto status = test_message.write(buffer, BE::message_descriptors);
+      auto status = test_message.write(output_buffer, BE::message_descriptors);
 
       THEN("The final status should be invalid_length") {
         REQUIRE(status == PF::Protocols::MessageStatus::invalid_length);
@@ -117,7 +122,7 @@ SCENARIO(
 
       test_message.payload.set(sensor_measurements);
 
-      auto write_status = test_message.write(buffer, BE::message_descriptors);
+      auto write_status = test_message.write(output_buffer, BE::message_descriptors);
 
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
@@ -137,13 +142,17 @@ SCENARIO(
 
       test_message.payload.set(sensor_measurements);
 
-      auto write_status = test_message.write(buffer, BE::message_descriptors);
+      auto write_status = test_message.write(output_buffer, BE::message_descriptors);
 
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("first byte in the output buffer is equal to the type") { REQUIRE(buffer[0] == 0x02); }
-      THEN("The output buffer is as expected") { REQUIRE(buffer == exp_sensor_measurements); }
+      THEN("first byte in the output buffer is equal to the type") {
+        REQUIRE(output_buffer[0] == 0x02);
+      }
+      THEN("The output buffer is as expected") {
+        REQUIRE(output_buffer == exp_sensor_measurements);
+      }
     }
 
     // cycle measurments
@@ -155,12 +164,14 @@ SCENARIO(
 
       test_message.payload.set(cycle_measurements);
 
-      auto write_status = test_message.write(buffer, BE::message_descriptors);
+      auto write_status = test_message.write(output_buffer, BE::message_descriptors);
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("first byte in the output buffer is equal to the type") { REQUIRE(buffer[0] == 0x03); }
-      THEN("The output buffer is as expected") { REQUIRE(buffer == exp_cycle_measurements); }
+      THEN("first byte in the output buffer is equal to the type") {
+        REQUIRE(output_buffer[0] == 0x03);
+      }
+      THEN("The output buffer is as expected") { REQUIRE(output_buffer == exp_cycle_measurements); }
     }
 
     // parameters
@@ -172,13 +183,15 @@ SCENARIO(
       parameters.ventilating = true;
       test_message.payload.set(parameters);
 
-      auto write_status = test_message.write(buffer, BE::message_descriptors);
+      auto write_status = test_message.write(output_buffer, BE::message_descriptors);
 
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("first byte in the output buffer is equal to the type") { REQUIRE(buffer[0] == 0x04); }
-      THEN("The output buffer is as expected") { REQUIRE(buffer == exp_parameters); }
+      THEN("first byte in the output buffer is equal to the type") {
+        REQUIRE(output_buffer[0] == 0x04);
+      }
+      THEN("The output buffer is as expected") { REQUIRE(output_buffer == exp_parameters); }
     }
 
     // parameters request
@@ -191,13 +204,15 @@ SCENARIO(
 
       test_message.payload.set(parameters_request);
 
-      auto write_status = test_message.write(buffer, BE::message_descriptors);
+      auto write_status = test_message.write(output_buffer, BE::message_descriptors);
 
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("first byte in the output buffer is equal to the type") { REQUIRE(buffer[0] == 0x05); }
-      THEN("The output buffer is as expected") { REQUIRE(buffer == exp_parameters_request); }
+      THEN("first byte in the output buffer is equal to the type") {
+        REQUIRE(output_buffer[0] == 0x05);
+      }
+      THEN("The output buffer is as expected") { REQUIRE(output_buffer == exp_parameters_request); }
     }
 
     // alarm limits
@@ -211,13 +226,15 @@ SCENARIO(
 
       test_message.payload.set(alarm_limits);
 
-      auto write_status = test_message.write(buffer, BE::message_descriptors);
+      auto write_status = test_message.write(output_buffer, BE::message_descriptors);
 
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("first byte in the output buffer is equal to the type") { REQUIRE(buffer[0] == 0x06); }
-      THEN("The output buffer is as expected") { REQUIRE(buffer == exp_alarm_limits); }
+      THEN("first byte in the output buffer is equal to the type") {
+        REQUIRE(output_buffer[0] == 0x06);
+      }
+      THEN("The output buffer is as expected") { REQUIRE(output_buffer == exp_alarm_limits); }
     }
 
     // alarm limits
@@ -231,14 +248,14 @@ SCENARIO(
 
       test_message.payload.set(alarm_limits);
 
-      auto write_status = test_message.write(buffer, BE::message_descriptors);
+      auto write_status = test_message.write(output_buffer, BE::message_descriptors);
 
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
       }
       THEN("The fio2 field is not written to the buffer") {
         auto expected = std::string("\06", 1);
-        REQUIRE(buffer == expected);
+        REQUIRE(output_buffer == expected);
       }
     }
 
@@ -253,13 +270,17 @@ SCENARIO(
 
       test_message.payload.set(alarm_limits_request);
 
-      auto write_status = test_message.write(buffer, BE::message_descriptors);
+      auto write_status = test_message.write(output_buffer, BE::message_descriptors);
 
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("first byte in the output buffer is equal to the type") { REQUIRE(buffer[0] == 0x07); }
-      THEN("The output buffer is as expected") { REQUIRE(buffer == exp_alarm_limits_request); }
+      THEN("first byte in the output buffer is equal to the type") {
+        REQUIRE(output_buffer[0] == 0x07);
+      }
+      THEN("The output buffer is as expected") {
+        REQUIRE(output_buffer == exp_alarm_limits_request);
+      }
     }
 
     // alarm limits request
@@ -273,14 +294,14 @@ SCENARIO(
 
       test_message.payload.set(alarm_limits_request);
 
-      auto write_status = test_message.write(buffer, BE::message_descriptors);
+      auto write_status = test_message.write(output_buffer, BE::message_descriptors);
 
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
       }
       THEN("The fio2 field is not written to the buffer") {
         auto expected = std::string("\07", 1);
-        REQUIRE(buffer == expected);
+        REQUIRE(output_buffer == expected);
       }
     }
 
@@ -393,8 +414,9 @@ SCENARIO(
       memset(&cycle_measurements, 0, sizeof(cycle_measurements));
       cycle_measurements.ve = 300;
       cycle_measurements.rr = 10;
-      test_message.payload.value.cycle_measurements =
-          cycle_measurements;  // NOLINT(cppcoreguidelines-pro-type-union-access)
+      test_message.payload.value
+          .cycle_measurements =  // NOLINT(cppcoreguidelines-pro-type-union-access)
+          cycle_measurements;
 
       test_message.payload.tag = MessageTypes::parameters;
 
@@ -447,6 +469,7 @@ SCENARIO(
       THEN("The parse status is equal to invalid type") {
         REQUIRE(parse_status == PF::Protocols::MessageStatus::invalid_type);
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+        REQUIRE(test_message.type == 0);
       }
     }
 
@@ -457,6 +480,8 @@ SCENARIO(
 
       THEN("The parse status is equal to invalid length") {
         REQUIRE(parse_status == PF::Protocols::MessageStatus::invalid_length);
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+        REQUIRE(test_message.type == 0);
       }
     }
 
@@ -471,6 +496,8 @@ SCENARIO(
 
       THEN("The parse status is equal to invalid length") {
         REQUIRE(parse_status == PF::Protocols::MessageStatus::invalid_type);
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+        REQUIRE(test_message.type == 8);
       }
     }
 
@@ -499,6 +526,8 @@ SCENARIO(
 
       THEN("The parse status is equal to invalid encoding") {
         REQUIRE(status == PF::Protocols::MessageStatus::invalid_encoding);
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
+        REQUIRE(test_message.type == 2);
       }
     }
 
@@ -517,14 +546,17 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
         REQUIRE(
-            test_message.payload.value.sensor_measurements.cycle ==
-            10);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .sensor_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .cycle == 10);
         REQUIRE(
-            test_message.payload.value.sensor_measurements.paw ==
-            20);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .sensor_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .paw == 20);
         REQUIRE(
-            test_message.payload.value.sensor_measurements.time ==
-            2);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .sensor_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .time == 2);
       }
       THEN("The input buffer is unchanged after parse") { REQUIRE(input_buffer == data); }
     }
@@ -544,11 +576,13 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::cycle_measurements);
         REQUIRE(
-            test_message.payload.value.cycle_measurements.peep ==
-            30);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .cycle_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .peep == 30);
         REQUIRE(
-            test_message.payload.value.cycle_measurements.ip ==
-            10);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .cycle_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .ip == 10);
       }
       THEN("The input buffer is unchanged after parse") { REQUIRE(input_buffer == data); }
     }
@@ -568,14 +602,17 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
         REQUIRE(
-            test_message.payload.value.parameters.vt ==
-            45);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .vt == 45);
         REQUIRE(
-            test_message.payload.value.parameters.ventilating ==
-            true);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .ventilating == true);
         REQUIRE(
-            test_message.payload.value.parameters.mode ==
-            VentilationMode_hfnc);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .mode == VentilationMode_hfnc);
       }
       THEN("The input buffer is unchanged after parse") { REQUIRE(input_buffer == data); }
     }
@@ -595,14 +632,17 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
         REQUIRE(
-            test_message.payload.value.parameters_request.ie ==
-            20);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .ie == 20);
         REQUIRE(
-            test_message.payload.value.parameters_request.time ==
-            0);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .time == 0);
         REQUIRE(
-            test_message.payload.value.parameters_request.ventilating ==
-            false);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .ventilating == false);
       }
       THEN("The input buffer is unchanged after parse") { REQUIRE(input_buffer == data); }
     }
@@ -621,14 +661,17 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits);
         REQUIRE(
-            test_message.payload.value.alarm_limits.fio2.lower ==
-            21);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .alarm_limits  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2.lower == 21);
         REQUIRE(
-            test_message.payload.value.alarm_limits.fio2.upper ==
-            100);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .alarm_limits  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2.upper == 100);
         REQUIRE(
-            test_message.payload.value.alarm_limits.has_fio2 ==
-            true);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .alarm_limits  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .has_fio2 == true);
       }
       THEN("The input buffer is unchanged after parse") {
         REQUIRE(input_buffer == exp_alarm_limits);
@@ -649,14 +692,17 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits_request);
         REQUIRE(
-            test_message.payload.value.alarm_limits.fio2.lower ==
-            50);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .alarm_limits  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2.lower == 50);
         REQUIRE(
-            test_message.payload.value.alarm_limits.fio2.upper ==
-            92);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .alarm_limits  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2.upper == 92);
         REQUIRE(
-            test_message.payload.value.alarm_limits.has_fio2 ==
-            true);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .alarm_limits  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .has_fio2 == true);
       }
       THEN("The input buffer is unchanged after parse") {
         REQUIRE(input_buffer == exp_alarm_limits_request);
@@ -712,11 +758,13 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
         REQUIRE(
-            test_message.payload.value.parameters_request.fio2 ==
-            40);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2 == 40);
         REQUIRE(
-            test_message.payload.value.parameters_request.flow ==
-            60);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .flow == 60);
       }
       THEN("The type field of message class is equal to 5") { REQUIRE(test_message.type == 5); }
       THEN("The input buffer is as expected") {
@@ -835,8 +883,9 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
         REQUIRE(
-            test_message.payload.value.parameters.flow ==
-            30);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .flow == 30);
       }
     }
 
@@ -859,14 +908,17 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
         REQUIRE(
-            test_message.payload.value.parameters.fio2 ==
-            60);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2 == 60);
         REQUIRE(
-            test_message.payload.value.parameters.mode ==
-            VentilationMode_hfnc);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .mode == VentilationMode_hfnc);
         REQUIRE(
-            test_message.payload.value.parameters.ventilating ==
-            true);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .ventilating == true);
       }
       THEN("The type field of message class is equal to 4") { REQUIRE(test_message.type == 4); }
       THEN("The input buffer is unchanged after transform") {
@@ -887,14 +939,17 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
         REQUIRE(
-            test_message.payload.value.parameters.fio2 ==
-            60);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2 == 60);
         REQUIRE(
-            test_message.payload.value.parameters.mode ==
-            VentilationMode_hfnc);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .mode == VentilationMode_hfnc);
         REQUIRE(
-            test_message.payload.value.parameters.ventilating ==
-            true);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .ventilating == true);
       }
       THEN("The type field of message class is equal to 4") { REQUIRE(test_message.type == 4); }
       THEN("The input buffer is unchanged after transform") {
@@ -906,14 +961,17 @@ SCENARIO(
       THEN("The message payload values are unchanged") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
         REQUIRE(
-            test_message.payload.value.parameters.fio2 ==
-            60);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2 == 60);
         REQUIRE(
-            test_message.payload.value.parameters.mode ==
-            VentilationMode_hfnc);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .mode == VentilationMode_hfnc);
         REQUIRE(
-            test_message.payload.value.parameters.ventilating ==
-            true);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .ventilating == true);
       }
     }
 
@@ -930,14 +988,17 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
         REQUIRE(
-            test_message.payload.value.sensor_measurements.flow ==
-            30);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .sensor_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .flow == 30);
         REQUIRE(
-            test_message.payload.value.sensor_measurements.fio2 ==
-            85);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .sensor_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2 == 85);
         REQUIRE(
-            test_message.payload.value.sensor_measurements.spo2 ==
-            72);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .sensor_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .spo2 == 72);
       }
       THEN("The type field of message class is equal to 3") { REQUIRE(test_message.type == 2); }
       THEN("The input buffer is unchanged after transform") {
@@ -958,11 +1019,13 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::cycle_measurements);
         REQUIRE(
-            test_message.payload.value.cycle_measurements.ve ==
-            300);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .cycle_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .ve == 300);
         REQUIRE(
-            test_message.payload.value.cycle_measurements.rr ==
-            10);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .cycle_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .rr == 10);
       }
       THEN("The type field of message class is equal to 3") { REQUIRE(test_message.type == 3); }
       THEN("The input buffer is unchanged after transform") {
@@ -983,14 +1046,17 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
         REQUIRE(
-            test_message.payload.value.parameters.fio2 ==
-            60);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2 == 60);
         REQUIRE(
-            test_message.payload.value.parameters.mode ==
-            VentilationMode_hfnc);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .mode == VentilationMode_hfnc);
         REQUIRE(
-            test_message.payload.value.parameters.ventilating ==
-            true);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .ventilating == true);
       }
       THEN("The type field of message class is equal to 4") { REQUIRE(test_message.type == 4); }
       THEN("The input buffer is unchanged after transform") {
@@ -1011,14 +1077,17 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
         REQUIRE(
-            test_message.payload.value.parameters_request.fio2 ==
-            80);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2 == 80);
         REQUIRE(
-            test_message.payload.value.parameters_request.mode ==
-            VentilationMode_hfnc);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .mode == VentilationMode_hfnc);
         REQUIRE(
-            test_message.payload.value.parameters_request.ventilating ==
-            true);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .parameters_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .ventilating == true);
       }
       THEN("The type field of message class is equal to 5") { REQUIRE(test_message.type == 5); }
       THEN("The input buffer is unchanged after transform") {
@@ -1039,11 +1108,13 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits);
         REQUIRE(
-            test_message.payload.value.alarm_limits.fio2.lower ==
-            21);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .alarm_limits  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2.lower == 21);
         REQUIRE(
-            test_message.payload.value.alarm_limits.fio2.upper ==
-            100);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .alarm_limits  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2.upper == 100);
       }
       THEN("The type field of message class is equal to 6") { REQUIRE(test_message.type == 6); }
       THEN("The input buffer is unchanged after transform") {
@@ -1064,14 +1135,17 @@ SCENARIO(
       THEN("The message payload values are as expected") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits_request);
         REQUIRE(
-            test_message.payload.value.alarm_limits_request.has_fio2 ==
-            true);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .alarm_limits_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .has_fio2 == true);
         REQUIRE(
-            test_message.payload.value.alarm_limits_request.fio2.lower ==
-            50);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .alarm_limits_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2.lower == 50);
         REQUIRE(
-            test_message.payload.value.alarm_limits_request.fio2.upper ==
-            92);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+            test_message.payload.value
+                .alarm_limits_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2.upper == 92);
       }
       THEN("The type field of message class is equal to 7") { REQUIRE(test_message.type == 7); }
       THEN("The input buffer is unchanged after transform") {
