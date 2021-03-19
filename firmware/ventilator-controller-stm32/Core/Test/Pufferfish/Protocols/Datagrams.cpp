@@ -738,13 +738,15 @@ SCENARIO(
     auto body = std::string("\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 10);
     PF::Util::convert_string_to_byte_vector(body, input_payload);
     TestConstructedDatagram datagram(input_payload, 1);
-    TestParsedDatagram parsed_datagram(input_payload);
+
+    TestDatagramProps::PayloadBuffer parsed_payload;
+    TestParsedDatagram parsed_datagram(parsed_payload);
 
     WHEN(
         "A body with seq, length and payload is generated, parsed into a new ParsedDatagram "
         "object, and generated again with a ConstructedDatagram object") {
-      PF::Util::ByteVector<buffer_size> output_buffer;
-      auto write_status = datagram.write(output_buffer);
+      PF::Util::ByteVector<buffer_size> first_body_output;
+      auto write_status = datagram.write(first_body_output);
 
       THEN("The first write method reports ok status") {
         REQUIRE(write_status == PF::IndexStatus::ok);
@@ -769,12 +771,12 @@ SCENARIO(
       THEN(
           "The seq field of the body's header matches the value returned by the seq accessor "
           "method") {
-        REQUIRE(output_buffer.operator[](0) == datagram.seq());
+        REQUIRE(first_body_output.operator[](0) == datagram.seq());
       }
       THEN(
           "The length field of the body's header is equal to the size of the payload given in the "
           "constructor") {
-        REQUIRE(output_buffer.operator[](1) == datagram.length());
+        REQUIRE(first_body_output.operator[](1) == datagram.length());
       }
       THEN(
           "The body's payload section correctly stores the paylaod as '0x61 0x6a 0x1a 0x6a 0x29 "
@@ -782,19 +784,16 @@ SCENARIO(
         for (size_t i = 2; i < 10; ++i) {
           auto data = PF::Util::make_array<uint8_t>(
               0x61, 0x6a, 0x1a, 0x6a, 0x29, 0xcf, 0x01, 0x81, 0xbe, 0x9d);
-          REQUIRE(output_buffer.operator[](i) == data[i - 2]);
+          REQUIRE(first_body_output.operator[](i) == data[i - 2]);
         }
       }
       THEN("The output buffer is as expected") {
         auto expected_output = std::string("\x01\x0a\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 12);
-        REQUIRE(output_buffer == expected_output);
+        REQUIRE(first_body_output == expected_output);
       }
 
       // Parse
-      auto body = std::string("\x01\x0a\xca\x9b\xc7\xf9\x5c\x10\xa1\x77\x23\x82", 12);
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
-      auto parse_status = parsed_datagram.parse(input_buffer);
+      auto parse_status = parsed_datagram.parse(first_body_output);
 
       THEN("The parse method reports ok status") { REQUIRE(parse_status == PF::IndexStatus::ok); }
       THEN(
@@ -810,25 +809,26 @@ SCENARIO(
       THEN(
           "The paylaod buffer returned by the paylaod accessor method is equal to the payload from "
           "the body") {
-        auto expected_payload = std::string("\xca\x9b\xc7\xf9\x5c\x10\xa1\x77\x23\x82", 10);
+        auto expected_payload = std::string("\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 10);
         REQUIRE(parsed_datagram.payload() == expected_payload);
       }
       THEN(
           "the payload given in the ParsedDatagram constructor is independent of the input buffer "
           "body") {
-        input_buffer.push_back(0x02);
-        auto expected_payload = std::string("\xca\x9b\xc7\xf9\x5c\x10\xa1\x77\x23\x82", 10);
+        output_buffer.push_back(0x02);
+        auto expected_payload = std::string("\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 10);
         REQUIRE(parsed_datagram.payload() == expected_payload);
       }
 
       // Write
-      auto final_data = std::string("\x56\xd6\x42\xc5\xe1\xf0\x30\xe5\xc8\x4d", 10);
+      // payload_output = parsed_datagram.payload()
+      auto payload_output = std::string("\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 10);
       TestDatagramProps::PayloadBuffer input_payload;
-      PF::Util::convert_string_to_byte_vector(final_data, input_payload);
+      PF::Util::convert_string_to_byte_vector(payload_output, input_payload);
       TestConstructedDatagram write_datagram(input_payload, 1);
 
-      PF::Util::ByteVector<buffer_size> final_buffer;
-      auto final_status = write_datagram.write(final_buffer);
+      PF::Util::ByteVector<buffer_size> second_body_output;
+      auto final_status = write_datagram.write(second_body_output);
       THEN("The second write method reports ok status") {
         REQUIRE(final_status == PF::IndexStatus::ok);
       }
@@ -845,33 +845,33 @@ SCENARIO(
       THEN(
           "The buffer returned by the paylaod accessor method is same as the paylaod buffer given "
           "in the constructor") {
-        auto expected_payload = std::string("\x56\xd6\x42\xc5\xe1\xf0\x30\xe5\xc8\x4d", 10);
+        auto expected_payload = std::string("\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 10);
         REQUIRE(write_datagram.payload() == expected_payload);
       }
       THEN(
           "The seq field of the body's header matches the value returned by the seq accessor "
           "method") {
-        REQUIRE(final_buffer.operator[](0) == write_datagram.seq());
+        REQUIRE(second_body_output.operator[](0) == write_datagram.seq());
       }
       THEN(
           "The length field of the body's header is equal to the size of the payload given in the "
           "constructor") {
-        REQUIRE(final_buffer.operator[](1) == write_datagram.length());
+        REQUIRE(second_body_output.operator[](1) == write_datagram.length());
       }
       THEN(
           "The body's payload section correctly stores the paylaod as '0x56 0xd6 0x42 0xc5 0xe1 "
           "0xf0 0x30 0xe5 0xc8 0x4d'") {
         for (size_t i = 2; i < 10; ++i) {
           auto data = PF::Util::make_array<uint8_t>(
-              0x56, 0xd6, 0x42, 0xc5, 0xe1, 0xf0, 0x30, 0xe5, 0xc8, 0x4d);
-          REQUIRE(final_buffer.operator[](i) == data[i - 2]);
+              0x61, 0x6a, 0x1a, 0x6a, 0x29, 0xcf, 0x01, 0x81, 0xbe, 0x9d);
+          REQUIRE(second_body_output.operator[](i) == data[i - 2]);
         }
       }
       THEN(
           "The output buffer is as expected '0x01 0x0a 0x56 0xd6 0x42 0xc5 0xe1 0xf0 0x30 0xe5 "
           "0xc8 0x4d'") {
-        auto expected_output = std::string("\x01\x0a\x56\xd6\x42\xc5\xe1\xf0\x30\xe5\xc8\x4d", 12);
-        REQUIRE(final_buffer == expected_output);
+        auto expected_output = std::string("\x01\x0a\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 12);
+        REQUIRE(second_body_output == expected_output);
       }
     }
   }
