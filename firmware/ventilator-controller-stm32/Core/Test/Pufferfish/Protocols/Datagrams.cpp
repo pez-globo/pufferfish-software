@@ -821,11 +821,7 @@ SCENARIO(
       }
 
       // Write
-      // payload_output = parsed_datagram.payload()
-      auto payload_output = std::string("\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 10);
-      TestDatagramProps::PayloadBuffer input_payload;
-      PF::Util::convert_string_to_byte_vector(payload_output, input_payload);
-      TestConstructedDatagram write_datagram(input_payload, 1);
+      TestConstructedDatagram write_datagram(parsed_datagram.payload(), 1);
 
       PF::Util::ByteVector<buffer_size> second_body_output;
       auto final_status = write_datagram.write(second_body_output);
