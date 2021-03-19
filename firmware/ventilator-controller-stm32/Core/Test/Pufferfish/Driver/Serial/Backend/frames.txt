@@ -127,17 +127,31 @@ Scenario: The FrameReceiver class correctly generates COBS decoded bodies from e
  // assertions carried out in given:
  // output_buffer is empty
 
-  WHEN("255 non-delimiter bytes are passed as input and output is called after that")
+  WHEN("255 non-delimiter frame body is passed as input and output is called after that")
    THEN("The input method reports ok status for all 255 non delimiter bytes")
    THEN("The output method reports waiting status")
-   THEN("The output buffer remains unchanged")
+   THEN("The output buffer remains empty")
 
-  WHEN("256 non-delimiter bytes are passed as input and output is called after that")
+  WHEN("256 non-delimiter frame body is passed as input and output is called after that")
    THEN("The input method reports ok status for all 255 non delimiter bytes and invalid_length for 256th byte")
    THEN("The output method reports invalid_length status")
-   THEN("The output buffer remains unchanged")
+   THEN("The output buffer remains empty")
 
-  WHEN("128 non-delimiter bytes with COBS byte are passed as input, 129th byte is passed as a delimiter, and output is called after that") 
+  WHEN("128 non-delimiter frame body is passed as input, 129th byte is passed as a delimiter, and output is called after that") 
    THEN("The input method reports ok status for all 128 non delimiter bytes and output_ready for 129th byte")
    THEN("The output method reports ok status")
    THEN("The output buffer is as expected")
+
+  WHEN("128 non-delimiter frame body is passed as input,and 129th byte is passed as a delimiter, same cycle is repeated again and then output is called")
+   THEN("The input method reports ok status for all 128 non delimiter bytes and output_ready for 129th byte")
+   THEN("Then input method reports input_overwritten on the next input byte and ok status for subsequent bytes)
+   THEN("The output method reports ok status")
+   THEN("The output buffer is as expected")
+
+Scenario: The FrameSender class correctly encodes frame bodies and appends a delimiter
+
+ GIVEN("A FrameReceiver object constructed with default parameters")
+
+   WHEN("A input buffer frame body of 254 bytes is given to the sender")
+      THEN("The transform method reports ok status")
+      THEN("The output buffer has an expected sequence of 256 bytes with delimiter as the last byte)

@@ -418,5 +418,37 @@ SCENARIO(
         }
       }
     }
+
+    WHEN("Encoded payload is passed") {
+      PF::Driver::Serial::Backend::FrameProps::InputStatus input_status;
+      auto data = PF::Util::make_array<uint8_t>(0x03, 0xc0, 0xf7, 0x03, 0xfa, 0x43);
+      for (auto& bytes : data) {
+        input_status = frame_receiver.input(bytes);
+        REQUIRE(input_status == TestFrameProps::InputStatus::ok);
+      }
+
+      input_status = frame_receiver.input(0);
+      THEN(
+          "The input method reports ok status for all 128 non delimiter bytes and output_ready for "
+          "129th byte") {
+        REQUIRE(input_status == TestFrameProps::InputStatus::output_ready);
+      }
+
+      input_status = frame_receiver.input(data[0]);
+      REQUIRE(input_status == TestFrameProps::InputStatus::input_overwritten);
+      for (size_t i = 1; i < data.size(); i++)
+      {
+        input_status = frame_receiver.input(data[i]);
+        REQUIRE(input_status == TestFrameProps::InputStatus::ok);        
+      }
+      
+      input_status = frame_receiver.input(0);
+      auto output_status = frame_receiver.output(output_buffer);
+
+      THEN("The output method reports ok status") {
+        REQUIRE(output_status == TestFrameProps::OutputStatus::ok);
+      }
+      REQUIRE(output_buffer.empty() == true);
+    }
   }
 }
