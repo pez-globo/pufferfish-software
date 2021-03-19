@@ -214,7 +214,7 @@ Scenario: Datagram correctly preserves data in roundtrip writing and parsing
       THEN("The seq field of the body's header matches the value returned by the seq accessor method")
       THEN("The length field of the body's header matches the value returned by the length accessor method")
       THEN("The body's payload section correctly stores the paylaod as '0x61 0x6a 0x1a 0x6a 0x29 0xcf 0x01 0x81 0xbe 0x9d'")
-      THEN("The output buffer is as expected '0x01 0x0a 0x56 0xd6 0x42 0xc5 0xe1 0xf0 0x30 0xe5 0xc8 0x4d'")
+      THEN("The output buffer is as expected '0x01 0x0a 0x61 0x6a 0x1a 0x6a 0x29 0xcf 0x01 0x81 0xbe 0x9d'")
 
 /* Datagram Receiver
 
