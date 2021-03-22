@@ -39,7 +39,7 @@
 #include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/HAL/STM32/Endian.h"
 #include "Pufferfish/Util/Bytes.h"
-#include "Pufferfish/Util/Parse.h"
+#include "Pufferfish/Util/Endian.h"
 
 namespace Pufferfish::Driver::I2C {
 
@@ -68,11 +68,11 @@ I2CDeviceStatus SDPSensor::serial_number(uint32_t &pn, uint64_t &sn) {
   }
 
   // read 32 bits product number
-  pn = HAL::ntoh(Util::parse_network_order<uint32_t>(data.data(), sizeof(uint32_t)));
+  Util::read_ntoh(data.data(), pn);
 
   // read 64 bits serial number
   static const size_t sn_offset = 4;
-  sn = HAL::ntoh(Util::parse_network_order<uint64_t>(&(data[sn_offset]), sizeof(uint64_t)));
+  Util::read_ntoh(&data[sn_offset], sn);
 
   return I2CDeviceStatus::ok;
 }
