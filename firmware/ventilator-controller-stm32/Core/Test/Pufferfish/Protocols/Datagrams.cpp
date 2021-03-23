@@ -12,8 +12,6 @@
 
 #include "Pufferfish/Protocols/Datagrams.h"
 
-#include <iostream>
-
 #include "Pufferfish/Test/Util.h"
 #include "Pufferfish/Util/Array.h"
 #include "catch2/catch.hpp"
@@ -26,10 +24,12 @@ SCENARIO(
     "[Datagram]") {
   constexpr size_t buffer_size = 254UL;
   using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
+  using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
   using TestDatagram = PF::Protocols::ConstructedDatagram<buffer_size>;
 
   PF::Util::ByteVector<buffer_size> output_buffer;
   TestDatagramProps::PayloadBuffer input_payload;
+  PF::Util::ByteVector<buffer_size> expected_buffer;
 
   GIVEN("A Datagram constructed with an empty paylaod and sequence equal to 0") {
     TestDatagram datagram(input_payload);
@@ -114,7 +114,10 @@ SCENARIO(
         }
       }
       THEN("The output buffer is as expected '0x00 0x05 0xb7 0xe1 0x8d 0xaa 0x4d' ") {
-        auto expected_buffer = std::string("\x00\x05\xb7\xe1\x8d\xaa\x4d", 7);
+        expected_buffer.push_back(0x00);
+        expected_buffer.push_back(0x05);
+        expected_buffer.copy_from(
+            input_payload.buffer(), input_payload.size(), TestDatagramHeaderProps::payload_offset);
         REQUIRE(output_buffer == expected_buffer);
       }
     }
@@ -141,11 +144,10 @@ SCENARIO(
       THEN("the length accessor method returns a value equal to the size of the altered payload") {
         REQUIRE(datagram.length() == 6);
       }
-      auto expected = std::string("\xb7\xe1\x8d\xaa\x4d\x02", 6);
       THEN(
           "The paylaod returned by the paylaod accessor method is same as the altered paylaod "
           "buffer") {
-        REQUIRE(datagram.payload() == expected);
+        REQUIRE(datagram.payload() == input_payload);
       }
       THEN(
           "The seq field of the body's header matches the value returned by the seq accessor "
@@ -166,7 +168,10 @@ SCENARIO(
         }
       }
       THEN("The output buffer is as expected '0x00 0x06 0xb7 0xe1 0x8d 0xaa 0x4d 0x02'") {
-        auto expected_buffer = std::string("\x00\x06\xb7\xe1\x8d\xaa\x4d\x02", 8);
+        expected_buffer.push_back(0x00);
+        expected_buffer.push_back(0x06);
+        expected_buffer.copy_from(
+            input_payload.buffer(), input_payload.size(), TestDatagramHeaderProps::payload_offset);
         REQUIRE(output_buffer == expected_buffer);
       }
     }
@@ -260,7 +265,7 @@ SCENARIO(
         REQUIRE(datagram.length() == data.length());
       }
       THEN("The payload returned by the paylaod accessor method remains unchanged") {
-        REQUIRE(datagram.payload() == data);
+        REQUIRE(datagram.payload() == input_payload);
       }
       THEN(
           "The seq field of the body's header matches the value returned by the seq accessor "
@@ -281,7 +286,10 @@ SCENARIO(
         }
       }
       THEN("The output buffer is as expected '0x0a 0x06 0xc2 0x22 0x10 0xa6 0x3a 0xa5' ") {
-        auto expected_buffer = std::string("\x0A\x06\xc2\x22\x10\xa6\x3a\xa5", 8);
+        expected_buffer.push_back(0x0a);
+        expected_buffer.push_back(0x06);
+        expected_buffer.copy_from(
+            input_payload.buffer(), input_payload.size(), TestDatagramHeaderProps::payload_offset);
         REQUIRE(output_buffer == expected_buffer);
       }
     }
@@ -315,7 +323,7 @@ SCENARIO(
         REQUIRE(datagram.length() == data.length());
       }
       THEN("The payload returned by the paylaod accessor method remains unchanged") {
-        REQUIRE(datagram.payload() == data);
+        REQUIRE(datagram.payload() == input_payload);
       }
       THEN(
           "The seq field of the body's header matches the value returned by the seq accessor "
@@ -356,9 +364,11 @@ SCENARIO(
   constexpr size_t buffer_size = 254UL;
   using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
   using TestDatagram = PF::Protocols::Datagram<TestDatagramProps::PayloadBuffer>;
+  using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
 
   TestDatagramProps::PayloadBuffer payload;
   PF::Util::ByteVector<buffer_size> input_buffer;
+  TestDatagramProps::PayloadBuffer expected_buffer;
 
   GIVEN("A Datagram constructed with an empty paylaod and sequence equal to 0") {
     uint8_t seq = 0;
@@ -394,8 +404,14 @@ SCENARIO(
     WHEN(
         "A body with a complete 2-byte header, and a non-empty paylaod buffer consistent with the "
         "length field of the header is parsed") {
-      auto body = std::string("\x01\x05\xb5\x83\x6d\xf6\x1c\xf0\xb1\x58", 10);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      auto body = std::string("\xb5\x83\x6d\xf6\x1c\xf0\xb1\x58", 8);
+      PF::Util::convert_string_to_byte_vector(body, expected_buffer);
+      input_buffer.push_back(0x01);
+      input_buffer.push_back(0x05);
+      input_buffer.copy_from(
+          expected_buffer.buffer(),
+          expected_buffer.size(),
+          TestDatagramHeaderProps::payload_offset);
 
       auto parse_status = datagram.parse(input_buffer);
       THEN("The parse method reports ok status") { REQUIRE(parse_status == PF::IndexStatus::ok); }
@@ -409,23 +425,22 @@ SCENARIO(
           "input_buffer body's header") {
         REQUIRE(datagram.length() == 5);
       }
-      auto expected_payload = std::string("\xb5\x83\x6d\xf6\x1c\xf0\xb1\x58", 8);
       THEN(
           "The payload returned from the payload accessor method is equal to the payload from the "
           "body") {
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload accessor method returns a reference to the payload buffer given in the "
           "Datagram constructor") {
         payload.push_back(0x01);
-        auto expected_payload = std::string("\xb5\x83\x6d\xf6\x1c\xf0\xb1\x58\x01", 9);
-        REQUIRE(datagram.payload() == expected_payload);
+        expected_buffer.push_back(0x01);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload given in the Datagram constructor is independent of the input buffer body") {
         input_buffer.push_back(0x02);
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
     }
   }
@@ -434,6 +449,7 @@ SCENARIO(
     auto data = std::string("\x7e\x9b\x20\x1b\xb9", 5);
     PF::Util::convert_string_to_byte_vector(data, payload);
     TestDatagram datagram{payload};
+    PF::Util::convert_string_to_byte_vector(data, expected_buffer);
 
     REQUIRE(datagram.seq() == 0);
     REQUIRE(datagram.length() == 5);
@@ -453,22 +469,22 @@ SCENARIO(
         REQUIRE(datagram.length() == 5);
       }
       THEN("The paylaod returned by the paylaod accessor method remains unchanged") {
-        REQUIRE(datagram.payload() == data);
+        REQUIRE(datagram.payload() == payload);
       }
       THEN(
           "the payload accessor method returns a reference to the payload buffer given in the "
           "Datagram constructor") {
         payload.push_back(0x02);
-        auto expected = std::string("\x7e\x9b\x20\x1b\xb9\x02", 6);
-        REQUIRE(datagram.payload() == expected);
+        expected_buffer.push_back(0x02);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload given in the Datagram constructor is independent of the input buffer body") {
         input_buffer.push_back(0x02);
-        REQUIRE(datagram.payload() == data);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN("The constructor's payload buffer remains unchanged") {
-        REQUIRE(datagram.payload() == data);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
     }
 
@@ -487,30 +503,36 @@ SCENARIO(
         REQUIRE(datagram.length() == 5);
       }
       THEN("The paylaod returned by the paylaod accessor method remains unchanged") {
-        REQUIRE(datagram.payload() == data);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload accessor method returns a reference to the payload buffer given in the "
           "Datagram constructor") {
         payload.push_back(0x02);
-        auto expected = std::string("\x7e\x9b\x20\x1b\xb9\x02", 6);
-        REQUIRE(datagram.payload() == expected);
+        expected_buffer.push_back(0x02);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload given in the Datagram constructor is independent of the input buffer body") {
         input_buffer.push_back(0x02);
-        REQUIRE(datagram.payload() == data);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN("The constructor's payload buffer remains unchanged") {
-        REQUIRE(datagram.payload() == data);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
     }
 
     WHEN(
         "A body with a complete 2-byte header, and a non-empty paylaod buffer consistent with the "
         "length field of the header is parsed") {
-      auto body = std::string("\x01\x05\xaa\x10\x8d\xf1\x05\x2c\x67\x0d\xa2\x1a", 12);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      auto body = std::string("\xaa\x10\x8d\xf1\x05\x2c\x67\x0d\xa2\x1a", 10);
+      PF::Util::convert_string_to_byte_vector(body, expected_buffer);
+      input_buffer.push_back(0x01);
+      input_buffer.push_back(0x05);
+      input_buffer.copy_from(
+          expected_buffer.buffer(),
+          expected_buffer.size(),
+          TestDatagramHeaderProps::payload_offset);
 
       auto parse_status = datagram.parse(input_buffer);
       THEN("The parse method reports ok status") { REQUIRE(parse_status == PF::IndexStatus::ok); }
@@ -524,23 +546,22 @@ SCENARIO(
           "input_buffer body's header") {
         REQUIRE(datagram.length() == 5);
       }
-      auto expected_payload = std::string("\xaa\x10\x8d\xf1\x05\x2c\x67\x0d\xa2\x1a", 10);
       THEN(
           "The payload returned from the payload accessor method is equal to the payload from the "
           "input_buffer body") {
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload accessor method returns a reference to the payload buffer given in the "
           "Datagram constructor") {
         payload.push_back(0x01);
-        auto expected_payload = std::string("\xaa\x10\x8d\xf1\x05\x2c\x67\x0d\xa2\x1a\x01", 11);
-        REQUIRE(datagram.payload() == expected_payload);
+        expected_buffer.push_back(0x01);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload given in the Datagram constructor is independent of the input buffer body") {
         input_buffer.push_back(0x02);
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
     }
 
@@ -548,12 +569,17 @@ SCENARIO(
         "A body with a complete 2-byte header, and a non empty payload buffer consistent with the "
         "length field of the header, is altered after it's parsed") {
       auto body = std::string("\x01\x05\x11\x12\x13\x14\x15", 7);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      PF::Util::convert_string_to_byte_vector(body, expected_buffer);
+      input_buffer.push_back(0x01);
+      input_buffer.push_back(0x05);
+      input_buffer.copy_from(
+          expected_buffer.buffer(),
+          expected_buffer.size(),
+          TestDatagramHeaderProps::payload_offset);
 
       auto parse_status = datagram.parse(input_buffer);
 
       THEN("The parse method reports ok status") { REQUIRE(parse_status == PF::IndexStatus::ok); }
-      auto expected_payload = std::string("\x11\x12\x13\x14\x15", 5);
       THEN(
           "After the parse method is called, The value returned by the seq accessor method is "
           "equal to the sequence field of the original input_buffer body's header") {
@@ -567,19 +593,19 @@ SCENARIO(
       THEN(
           "The payload buffer returned from the payload accessor method is equal to the original "
           "payload from the body") {
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload accessor method returns a reference to the payload buffer given in the "
           "Datagram constructor") {
         payload.push_back(0x01);
-        auto expected_payload = std::string("\x11\x12\x13\x14\x15\x01", 6);
-        REQUIRE(datagram.payload() == expected_payload);
+        expected_buffer.push_back(0x01);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload given in the Datagram constructor is independent of the input buffer body") {
         input_buffer.push_back(0x02);
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
 
       input_buffer.push_back(0x16);
@@ -587,7 +613,7 @@ SCENARIO(
       THEN(
           "After the input buffer is changed, The payload buffer returned from the payload "
           "accessor method is unchanged") {
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
     }
 
@@ -598,7 +624,6 @@ SCENARIO(
       for (auto& data : input_data) {
         input_buffer.push_back(data);
       }
-
       auto parse_status = datagram.parse(input_buffer);
 
       THEN("The parse method reports ok status") { REQUIRE(parse_status == PF::IndexStatus::ok); }
@@ -612,23 +637,24 @@ SCENARIO(
           "input_buffer body's header") {
         REQUIRE(datagram.length() == 1);
       }
-      auto expected_payload = std::string("\x00", 1);
+      expected_buffer.clear();
+      expected_buffer.push_back(0x00);
       THEN(
           "The payload returned from the payload accessor method is equal to the payload from the "
           "input_buffer body") {
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload accessor method returns a reference to the payload buffer given in the "
           "Datagram constructor") {
         payload.push_back(0x01);
-        auto expected_payload = std::string("\x00\x01", 2);
-        REQUIRE(datagram.payload() == expected_payload);
+        expected_buffer.push_back(0x01);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload given in the Datagram constructor is independent of the input buffer body") {
         input_buffer.push_back(0x02);
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
     }
 
@@ -636,8 +662,14 @@ SCENARIO(
         "The parse method is called on a body with a complete 2-byte header, and a non-empty "
         "payload buffer where the length field of the header is inconsistent with the actual "
         "length of the payload buffer") {
-      auto body = std::string("\x00\x05\x4b\xb6\x08\x37\x4f\xf9", 8);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      auto body = std::string("\x4b\xb6\x08\x37\x4f\xf9", 6);
+      PF::Util::convert_string_to_byte_vector(body, expected_buffer);
+      input_buffer.push_back(0x00);
+      input_buffer.push_back(0x05);
+      input_buffer.copy_from(
+          expected_buffer.buffer(),
+          expected_buffer.size(),
+          TestDatagramHeaderProps::payload_offset);
 
       auto parse_status = datagram.parse(input_buffer);
 
@@ -652,28 +684,27 @@ SCENARIO(
           "input_buffer body's header") {
         REQUIRE(datagram.length() == 5);
       }
-      auto expected_payload = std::string("\x4B\xB6\x08\x37\x4F\xF9", 6);
       THEN(
           "The value returned by the length accessor method is not equal to the size of the "
           "payload buffer in the input_buffer body") {
-        REQUIRE(datagram.length() != expected_payload.size());
+        REQUIRE(datagram.length() != expected_buffer.size());
       }
       THEN(
           "The payload returned from the payload accessor method is equal to the payload from the "
           "input_buffer body") {
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload accessor method returns a reference to the payload buffer given in the "
           "Datagram constructor") {
         payload.push_back(0x01);
-        auto expected_payload = std::string("\x4B\xB6\x08\x37\x4F\xF9\x01", 7);
-        REQUIRE(datagram.payload() == expected_payload);
+        expected_buffer.push_back(0x01);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload given in the Datagram constructor is independent of the input buffer body") {
         input_buffer.push_back(0x02);
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
     }
 
@@ -698,23 +729,24 @@ SCENARIO(
           "input_buffer body's header") {
         REQUIRE(datagram.length() == 1);
       }
-      auto expected_payload = std::string("\x01", 1);
+      expected_buffer.clear();
+      expected_buffer.push_back(0x01);
       THEN(
           "The payload returned from the payload accessor method is equal to the payload from the "
           "input_buffer body") {
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload accessor method returns a reference to the payload buffer given in the "
           "Datagram constructor") {
         payload.push_back(0x01);
-        auto expected_payload = std::string("\x01\x01", 2);
-        REQUIRE(datagram.payload() == expected_payload);
+        expected_buffer.push_back(0x01);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "the payload given in the Datagram constructor is independent of the input buffer body") {
         input_buffer.push_back(0x02);
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
     }
 
@@ -731,6 +763,7 @@ SCENARIO(
   using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
   using TestConstructedDatagram = PF::Protocols::ConstructedDatagram<buffer_size>;
   using TestParsedDatagram = PF::Protocols::ParsedDatagram<buffer_size>;
+  using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
 
   PF::Util::ByteVector<buffer_size> output_buffer;
   GIVEN("A datagram constructed with an non-empty payload buffer and a non-zero sequence number") {
@@ -740,6 +773,7 @@ SCENARIO(
     TestConstructedDatagram datagram(input_payload, 1);
 
     TestDatagramProps::PayloadBuffer parsed_payload;
+    PF::Util::ByteVector<buffer_size> expected_buffer;
     TestParsedDatagram parsed_datagram(parsed_payload);
 
     WHEN(
@@ -765,8 +799,7 @@ SCENARIO(
       THEN(
           "The buffer returned by the paylaod accessor method is same as the paylaod buffer given "
           "in the constructor") {
-        auto expected_payload = std::string("\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 10);
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == input_payload);
       }
       THEN(
           "The seq field of the body's header matches the value returned by the seq accessor "
@@ -787,10 +820,11 @@ SCENARIO(
           REQUIRE(first_body_output.operator[](i) == data[i - 2]);
         }
       }
-      THEN("The output buffer is as expected") {
-        auto expected_output = std::string("\x01\x0a\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 12);
-        REQUIRE(first_body_output == expected_output);
-      }
+      expected_buffer.push_back(0x01);
+      expected_buffer.push_back(0x0a);
+      expected_buffer.copy_from(
+          input_payload.buffer(), input_payload.size(), TestDatagramHeaderProps::payload_offset);
+      THEN("The output buffer is as expected") { REQUIRE(first_body_output == expected_buffer); }
 
       // Parse
       auto parse_status = parsed_datagram.parse(first_body_output);
@@ -809,15 +843,13 @@ SCENARIO(
       THEN(
           "The paylaod buffer returned by the paylaod accessor method is equal to the payload from "
           "the body") {
-        auto expected_payload = std::string("\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 10);
-        REQUIRE(parsed_datagram.payload() == expected_payload);
+        REQUIRE(parsed_datagram.payload() == input_payload);
       }
       THEN(
           "the payload given in the ParsedDatagram constructor is independent of the input buffer "
           "body") {
         output_buffer.push_back(0x02);
-        auto expected_payload = std::string("\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 10);
-        REQUIRE(parsed_datagram.payload() == expected_payload);
+        REQUIRE(parsed_datagram.payload() == input_payload);
       }
 
       // Write
@@ -841,8 +873,7 @@ SCENARIO(
       THEN(
           "The buffer returned by the paylaod accessor method is same as the paylaod buffer given "
           "in the constructor") {
-        auto expected_payload = std::string("\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 10);
-        REQUIRE(write_datagram.payload() == expected_payload);
+        REQUIRE(write_datagram.payload() == input_payload);
       }
       THEN(
           "The seq field of the body's header matches the value returned by the seq accessor "
@@ -866,8 +897,7 @@ SCENARIO(
       THEN(
           "The output buffer is as expected '0x01 0x0a 0x56 0xd6 0x42 0xc5 0xe1 0xf0 0x30 0xe5 "
           "0xc8 0x4d'") {
-        auto expected_output = std::string("\x01\x0a\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 12);
-        REQUIRE(second_body_output == expected_output);
+        REQUIRE(second_body_output == expected_buffer);
       }
     }
   }
@@ -881,6 +911,7 @@ SCENARIO(
   using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
   using TestDatagram = PF::Protocols::Datagram<TestDatagramProps::PayloadBuffer>;
   using TestDatagramReceiver = PF::Protocols::DatagramReceiver<buffer_size>;
+  using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
 
   TestDatagramProps::PayloadBuffer payload;
   TestDatagramReceiver datagram_receiver{};
@@ -890,6 +921,7 @@ SCENARIO(
       "A Datagram receiver of buffer size 254 bytes and expected sequence number equal to 0, with "
       "output_datagram constructed with empty payload buffer") {
     TestDatagram datagram{payload};
+    TestDatagramProps::PayloadBuffer expected_buffer;
 
     REQUIRE(datagram.seq() == 0);
     REQUIRE(datagram.length() == 0);
@@ -914,12 +946,12 @@ SCENARIO(
           "unchanged") {
         REQUIRE(payload_buffer.empty() == true);
       }
+      expected_buffer.push_back(0x01);
       THEN(
           "The output_datagram's payload accessor method returns a reference to the payload given "
           "in its constructor") {
         payload.push_back(0x01);
-        auto expected = std::string("\x01", 1);
-        REQUIRE(datagram.payload() == expected);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "The data in the output_datagram's payload buffer is independent of the data in "
@@ -958,8 +990,8 @@ SCENARIO(
           "The output_datagram's payload accessor method returns a reference to the payload given "
           "in its constructor") {
         payload.push_back(0x01);
-        auto expected = std::string("\x01", 1);
-        REQUIRE(datagram.payload() == expected);
+        expected_buffer.push_back(0x01);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "The data in the output_datagram's payload buffer is independent of the data in "
@@ -976,9 +1008,14 @@ SCENARIO(
     WHEN(
         "transform is called on a body with a complete 2-byte header, and a non-empty paylaod "
         "buffer inconsistent with the length field of the header") {
-      auto body = std::string("\x00\x05\xaa\xd1\x64\xa8\x85\xf4", 8);
-
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      auto expected_payload = std::string("\xaa\xd1\x64\xa8\x85\xf4", 6);
+      PF::Util::convert_string_to_byte_vector(expected_payload, expected_buffer);
+      input_buffer.push_back(0x00);
+      input_buffer.push_back(0x05);
+      input_buffer.copy_from(
+          expected_buffer.buffer(),
+          expected_buffer.size(),
+          TestDatagramHeaderProps::payload_offset);
 
       auto transform_status = datagram_receiver.transform(input_buffer, datagram);
 
@@ -995,7 +1032,6 @@ SCENARIO(
           "length field of the input_buffer body's header") {
         REQUIRE(datagram.length() == 5);
       }
-      auto expected_payload = std::string("\xaa\xd1\x64\xa8\x85\xf4", 6);
       THEN(
           "The value returned by the output_datagram's length accessor method is inconsistent with "
           "the actual length of the payload buffer from the body") {
@@ -1004,20 +1040,20 @@ SCENARIO(
       THEN(
           "The paylaod returned by the output_datagram's paylaod accessor method is equal to the "
           "paylaod from the input_buffer body") {
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "The output_datagram's payload accessor method returns a reference to the payload given "
           "in its constructor") {
-        auto expected_payload = std::string("\xaa\xd1\x64\xa8\x85\xf4\x02", 7);
         payload.push_back(0x02);
-        REQUIRE(datagram.payload() == expected_payload);
+        expected_buffer.push_back(0x02);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "The data in the output_datagram's payload buffer is independent of the data in "
           "input_buffer") {
         input_buffer.push_back(0x04);
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
     }
 
@@ -1025,8 +1061,15 @@ SCENARIO(
         "transform is called on a body with a non-empty paylaod buffer and a complete 2-byte "
         "header where the sequence field of the header does not match sequence given in "
         "output_datagram's constructor") {
-      auto body = std::string("\x04\x06\x5f\xee\x40\xeb\x41\x6e", 8);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      auto body = std::string("\x5f\xee\x40\xeb\x41\x6e", 6);
+      PF::Util::convert_string_to_byte_vector(body, expected_buffer);
+      input_buffer.push_back(0x04);
+      input_buffer.push_back(0x06);
+
+      input_buffer.copy_from(
+          expected_buffer.buffer(),
+          expected_buffer.size(),
+          TestDatagramHeaderProps::payload_offset);
 
       auto transform_status = datagram_receiver.transform(input_buffer, datagram);
 
@@ -1043,34 +1086,39 @@ SCENARIO(
           "length field of the input_buffer body's header") {
         REQUIRE(datagram.length() == 6);
       }
-      auto expected_payload = std::string("\x5f\xee\x40\xeb\x41\x6e", 6);
       THEN(
           "The paylaod returned by the output_datagram's paylaod accessor method is equal to the "
           "paylaod from the input_buffer body") {
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "The output_datagram's payload accessor method returns a reference to the payload given "
           "in its constructor") {
         payload.push_back(0x02);
-        auto expected_payload = std::string("\x5f\xee\x40\xeb\x41\x6e\x02", 7);
-        REQUIRE(datagram.payload() == expected_payload);
+        expected_buffer.push_back(0x02);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "The data in the output_datagram's payload buffer is independent of the data in "
           "input_buffer") {
         input_buffer.push_back(0x04);
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
     }
 
     WHEN(
         "A body with a complete 2-byte header, a non-empty payload buffer consistent with the "
         "length field of the header is given to the receiver") {
-      auto body = std::string("\x00\x05\xec\x1f\xa9\x9a\x75", 7);
+      auto body = std::string("\xec\x1f\xa9\x9a\x75", 5);
 
       PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      PF::Util::convert_string_to_byte_vector(body, expected_buffer);
+      input_buffer.push_back(0x00);
+      input_buffer.push_back(0x05);
+      input_buffer.copy_from(
+          expected_buffer.buffer(),
+          expected_buffer.size(),
+          TestDatagramHeaderProps::payload_offset);
 
       auto transform_status = datagram_receiver.transform(input_buffer, datagram);
 
@@ -1087,24 +1135,23 @@ SCENARIO(
           "length field of the input_buffer body's header") {
         REQUIRE(datagram.length() == 5);
       }
-      auto expected_payload = std::string("\xec\x1f\xa9\x9a\x75", 5);
       THEN(
           "The paylaod returned by the output_datagram's paylaod accessor method is equal to the "
           "paylaod from the input_buffer body") {
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "The output_datagram's payload accessor method returns a reference to the payload given "
           "in its constructor") {
         payload.push_back(0x02);
-        auto expected_payload = std::string("\xec\x1f\xa9\x9a\x75\x02", 6);
-        REQUIRE(datagram.payload() == expected_payload);
+        expected_buffer.push_back(0x02);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "The data in the output_datagram's payload buffer is independent of the data in "
           "input_buffer") {
         input_buffer.push_back(0x04);
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
     }
   }
@@ -1114,6 +1161,8 @@ SCENARIO(
       "output_datagram constructed with a non-empty payload buffer") {
     auto body = std::string("\x51\xb0\x6e\xf7\x86\x71\xcd\x00", 8);
     PF::Util::convert_string_to_byte_vector(body, payload);
+    TestDatagramProps::PayloadBuffer expected_buffer;
+    expected_buffer.copy_from(payload.buffer(), payload.size(), 0);
 
     TestDatagram datagram{payload};
     REQUIRE(datagram.seq() == 0);
@@ -1137,23 +1186,22 @@ SCENARIO(
       THEN(
           "the paylaod returned by the output_datagram's paylaod accessor method remains "
           "unchanged") {
-        REQUIRE(datagram.payload() == body);
+        REQUIRE(datagram.payload() == payload);
       }
       THEN(
           "The output_datagram's payload accessor method returns a reference to the payload given "
           "in its constructor") {
         payload.push_back(0x02);
-        auto expected_payload = std::string("\x51\xb0\x6e\xf7\x86\x71\xcd\x00\x02", 9);
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == payload);
       }
       THEN(
           "The data in the output_datagram's payload buffer is independent of the data in "
           "input_buffer") {
         input_buffer.push_back(0x02);
-        REQUIRE(datagram.payload() == body);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN("the constructor's payload buffer remains unchanged") {
-        REQUIRE(datagram.payload() == body);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
     }
 
@@ -1177,10 +1225,10 @@ SCENARIO(
           "length field of the input_buffer body's header") {
         REQUIRE(datagram.length() == 5);
       }
-      auto expected_payload = std::string("\xaa\xd1\x64\xa8\x85\xf4", 6);
       THEN(
           "The value returned by the output_datagram's length accessor method is inconsistent with "
           "the actual length of the payload buffer from the body") {
+        auto expected_payload = std::string("\xaa\xd1\x64\xa8\x85\xf4", 6);
         REQUIRE(datagram.length() != expected_payload.length());
       }
     }
@@ -1189,8 +1237,16 @@ SCENARIO(
         "transform is called on a body with a non-empty paylaod buffer and a complete 2-byte "
         "header where the sequence field of the header does not match sequence given in "
         "output_datagram's constructor") {
-      auto body = std::string("\x04\x06\x5f\xee\x40\xeb\x41\x6e", 8);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      expected_buffer.clear();
+      auto expected_payload = std::string("\x5f\xee\x40\xeb\x41\x6e", 6);
+      PF::Util::convert_string_to_byte_vector(expected_payload, expected_buffer);
+      input_buffer.push_back(0x04);
+      input_buffer.push_back(0x06);
+      input_buffer.copy_from(
+          expected_buffer.buffer(),
+          expected_buffer.size(),
+          TestDatagramHeaderProps::payload_offset);
+
       auto transform_status = datagram_receiver.transform(input_buffer, datagram);
 
       THEN("The transform method reports invalid sequence status") {
@@ -1206,33 +1262,40 @@ SCENARIO(
           "length field of the input_buffer body's header") {
         REQUIRE(datagram.length() == 6);
       }
-      auto expected_payload = std::string("\x5f\xee\x40\xeb\x41\x6e", 6);
       THEN(
           "The paylaod returned by the output_datagram's paylaod accessor method is equal to the "
           "paylaod from the input_buffer body") {
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "The output_datagram's payload accessor method returns a reference to the payload given "
           "in its constructor") {
         payload.push_back(0x02);
-        auto expected_payload = std::string("\x5f\xee\x40\xeb\x41\x6e\x02", 7);
-        REQUIRE(datagram.payload() == expected_payload);
+        expected_buffer.push_back(0x02);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "The data in the output_datagram's payload buffer is independent of the data in "
           "input_buffer") {
         input_buffer.push_back(0x04);
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
     }
 
     WHEN(
         "A body with a complete 2-byte header, a non-empty payload buffer consistent with the "
         "length field of the header is given to the receiver") {
-      auto body = std::string("\x00\x0c\x23\xce\xb3\x32\xca\x33\xa0\x97\x17\x2a\x2b\x85", 14);
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      expected_buffer.clear();
+      auto body = std::string("\x23\xce\xb3\x32\xca\x33\xa0\x97\x17\x2a\x2b\x85", 12);
+      PF::Util::convert_string_to_byte_vector(body, expected_buffer);
+
+      input_buffer.push_back(0x00);
+      input_buffer.push_back(0x0c);
+      input_buffer.copy_from(
+          expected_buffer.buffer(),
+          expected_buffer.size(),
+          TestDatagramHeaderProps::payload_offset);
+
       auto transform_status = datagram_receiver.transform(input_buffer, datagram);
 
       THEN("The transform method reports ok status") {
@@ -1248,25 +1311,23 @@ SCENARIO(
           "length field of the input_buffer body's header") {
         REQUIRE(datagram.length() == 12);
       }
-      auto expected_payload = std::string("\x23\xce\xb3\x32\xca\x33\xa0\x97\x17\x2a\x2b\x85", 12);
       THEN(
           "The paylaod returned by the output_datagram's paylaod accessor method is equal to the "
           "paylaod from the input_buffer body") {
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "The output_datagram's payload accessor method returns a reference to the payload given "
           "in its constructor") {
         payload.push_back(0x02);
-        auto expected_payload =
-            std::string("\x23\xce\xb3\x32\xca\x33\xa0\x97\x17\x2a\x2b\x85\x02", 13);
-        REQUIRE(datagram.payload() == expected_payload);
+        expected_buffer.push_back(0x02);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
       THEN(
           "The data in the output_datagram's payload buffer is independent of the data in "
           "input_buffer") {
         input_buffer.push_back(0x04);
-        REQUIRE(datagram.payload() == expected_payload);
+        REQUIRE(datagram.payload() == expected_buffer);
       }
     }
   }
@@ -1546,11 +1607,15 @@ SCENARIO(
   }
 
   GIVEN("A Datagram receiver of buffer size 254 bytes and expected sequence number equal to 0xff") {
+    using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
     TestDatagram datagram{payload};
-    auto body = std::string("\xfe\x06\xcd\x6a\xc2\x7f\xa1\x5b", 8);
     auto expected_payload = std::string("\xcd\x6a\xc2\x7f\xa1\x5b", 6);
-
-    PF::Util::convert_string_to_byte_vector(body, input_buffer);
+    TestDatagramProps::PayloadBuffer expected_buffer;
+    PF::Util::convert_string_to_byte_vector(expected_payload, expected_buffer);
+    input_buffer.push_back(0xfe);
+    input_buffer.push_back(0x06);
+    input_buffer.copy_from(
+        expected_buffer.buffer(), expected_buffer.size(), TestDatagramHeaderProps::payload_offset);
 
     auto transform_status = datagram_receiver.transform(input_buffer, datagram);
     REQUIRE(transform_status == TestDatagramReceiver::Status::invalid_sequence);
@@ -1659,12 +1724,14 @@ SCENARIO(
     "[DatagramSender]") {
   constexpr size_t buffer_size = 254UL;
   using TestDatagramSender = PF::Protocols::DatagramSender<buffer_size>;
+  using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
   TestDatagramSender datagram_sender{};
 
   GIVEN("A Datagram sender of buffer size 254 bytes with next sequence equal to 0") {
     WHEN("A non empty payload buffer is given to the datagram sender") {
       using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
       TestDatagramProps::PayloadBuffer payload;
+      PF::Util::ByteVector<buffer_size> expected_buffer;
 
       auto data = std::string("\xf9\x23\x4a\xd4\xe0", 5);
 
@@ -1690,8 +1757,11 @@ SCENARIO(
         }
       }
       THEN("The output datagram is as expected '0x00 0x05 0xf9 0x23 0x4a 0xd4 0xe0'") {
-        auto expected_datagram = std::string("\x00\x05\xf9\x23\x4a\xd4\xe0", 7);
-        REQUIRE(output_datagram == expected_datagram);
+        expected_buffer.push_back(0x00);
+        expected_buffer.push_back(0x05);
+        expected_buffer.copy_from(
+            payload.buffer(), payload.size(), TestDatagramHeaderProps::payload_offset);
+        REQUIRE(output_datagram == expected_buffer);
       }
     }
 
@@ -1711,7 +1781,11 @@ SCENARIO(
         REQUIRE(transform_status == TestDatagramSender::Status::ok);
       }
       THEN("The output datagram is as expected '0x00 0x02 0x00 0x00' ") {
-        auto expected = std::string("\x00\x02\x00\x00", 4);
+        PF::Util::ByteVector<buffer_size> expected;
+        expected.push_back(0x00);
+        expected.push_back(0x02);
+        expected.copy_from(
+            payload.buffer(), payload.size(), TestDatagramHeaderProps::payload_offset);
         REQUIRE(output_datagram == expected);
       }
     }
@@ -1726,6 +1800,7 @@ SCENARIO(
   using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
   using TestDatagram = PF::Protocols::Datagram<TestDatagramProps::PayloadBuffer>;
   using TestDatagramSender = PF::Protocols::DatagramSender<buffer_size>;
+  using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
   TestDatagramSender datagram_sender{};
 
   GIVEN("A Datagram sender of buffer size 254 bytes with next sequence equal to 1") {
@@ -1758,7 +1833,11 @@ SCENARIO(
         }
       }
       THEN("The output datagram is as expected '0x01 0x06 0x88 0xf3 0x52 0xec 0x5c 0x31 ' ") {
-        auto expected = std::string("\x01\x06\x88\xf3\x52\xec\x5c\x31", 8);
+        PF::Util::ByteVector<buffer_size> expected;
+        expected.push_back(0x01);
+        expected.push_back(0x06);
+        expected.copy_from(
+            payload.buffer(), payload.size(), TestDatagramHeaderProps::payload_offset);
         REQUIRE(output_datagram == expected);
       }
 
@@ -1786,7 +1865,11 @@ SCENARIO(
         }
       }
       THEN("The output datagram is as expected '0x02 0x06 0x1d 0xf5 0x2a 0xbc 0x97 0x2c' ") {
-        auto expected = std::string("\x02\x06\x1d\xf5\x2a\xbc\x97\x2c", 8);
+        PF::Util::ByteVector<buffer_size> expected;
+        expected.push_back(0x02);
+        expected.push_back(0x06);
+        expected.copy_from(
+            input_payload.buffer(), input_payload.size(), TestDatagramHeaderProps::payload_offset);
         REQUIRE(output_datagram == expected);
       }
     }
@@ -1820,7 +1903,11 @@ SCENARIO(
         }
       }
       THEN("The output datagram is as expected '0x00 0x06 0xc0 0x18 0x65 0xd1 0x03 0x5c' ") {
-        auto expected = std::string("\x00\x06\xc0\x18\x65\xd1\x03\x5c", 8);
+        PF::Util::ByteVector<buffer_size> expected;
+        expected.push_back(0x00);
+        expected.push_back(0x06);
+        expected.copy_from(
+            payload.buffer(), payload.size(), TestDatagramHeaderProps::payload_offset);
         REQUIRE(output_datagram == expected);
       }
 
@@ -1848,7 +1935,11 @@ SCENARIO(
         }
       }
       THEN("The output datagram is as expected '0x01 0x06 0x6b 0x05 0xb9 0xf3 0xe5 0xb6' ") {
-        auto expected = std::string("\x01\x06\x6b\x05\xb9\xf3\xe5\xb6", 8);
+        PF::Util::ByteVector<buffer_size> expected;
+        expected.push_back(0x01);
+        expected.push_back(0x06);
+        expected.copy_from(
+            input_payload.buffer(), input_payload.size(), TestDatagramHeaderProps::payload_offset);
         REQUIRE(output_datagram == expected);
       }
     }
@@ -1888,7 +1979,11 @@ SCENARIO(
         }
       }
       THEN("The output datagram is as expected '0xff 0x06 0xa0 0x47 0x65 0x6b 0x20 0xe9' ") {
-        auto expected = std::string("\xff\x06\xa0\x47\x65\x6b\x20\xe9", 8);
+        PF::Util::ByteVector<buffer_size> expected;
+        expected.push_back(0xff);
+        expected.push_back(0x06);
+        expected.copy_from(
+            payload.buffer(), payload.size(), TestDatagramHeaderProps::payload_offset);
         REQUIRE(output_datagram == expected);
       }
 
@@ -1916,7 +2011,11 @@ SCENARIO(
         }
       }
       THEN("The output datagram is as expected '0x00 0x06 0x51 0xb5 0x55 0x69 0x8f 0x67' ") {
-        auto expected = std::string("\x00\x06\x51\xb5\x55\x69\x8f\x67", 8);
+        PF::Util::ByteVector<buffer_size> expected;
+        expected.push_back(0x00);
+        expected.push_back(0x06);
+        expected.copy_from(
+            input_payload.buffer(), input_payload.size(), TestDatagramHeaderProps::payload_offset);
         REQUIRE(output_datagram == expected);
       }
     }
