@@ -24,7 +24,7 @@ struct FrameProps {
   using PayloadBuffer = Util::ByteVector<payload_max_size>;
 
   enum class InputStatus { ok = 0, output_ready, invalid_length, input_overwritten };
-  using OutputStatus = Protocols::ChunkOutputStatus;
+  enum class OutputStatus { ok = 0, waiting, invalid_length, invalid_cobs };
 };
 
 using FrameChunkSplitter = Protocols::ChunkSplitter<FrameProps::encoded_max_size>;
@@ -35,7 +35,7 @@ class COBSDecoder {
   COBSDecoder() = default;
 
   template <size_t input_size, size_t output_size>
-  FrameProps::OutputStatus transform(
+  IndexStatus transform(
       const Util::ByteVector<input_size> &input_buffer,
       Util::ByteVector<output_size> &output_buffer) const;
 };
@@ -46,7 +46,7 @@ class COBSEncoder {
   COBSEncoder() = default;
 
   template <size_t input_size, size_t output_size>
-  FrameProps::OutputStatus transform(
+  IndexStatus transform(
       const Util::ByteVector<input_size> &input_buffer,
       Util::ByteVector<output_size> &output_buffer) const;
 };
