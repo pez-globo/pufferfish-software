@@ -110,13 +110,15 @@ class BackendSender {
 
   explicit BackendSender(HAL::CRC32 &crc32c) : message_(message_descriptors), crc_(crc32c) {}
 
-  Status transform(const BackendMessage &input_message, FrameProps::ChunkBuffer &output_buffer);
+  Status transform(
+      const Application::StateSegment &state_segment, FrameProps::ChunkBuffer &output_buffer);
 
  private:
   using BackendCRCSender = Protocols::CRCElementSender<FrameProps::payload_max_size>;
   using BackendDatagramSender =
       Protocols::DatagramSender<BackendCRCSender::Props::payload_max_size>;
-  using BackendMessageSender = Protocols::MessageSender<BackendMessage, message_descriptors.size()>;
+  using BackendMessageSender = Protocols::
+      MessageSender<BackendMessage, Application::StateSegment, message_descriptors.size()>;
 
   BackendMessageSender message_;
   BackendDatagramSender datagram_;
