@@ -229,7 +229,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       </ModalPopup>
       <Grid hidden={alertCount <= 0}>
         <Button
-          style={{ marginLeft: 12 }}
+          style={{ marginLeft: 5 }}
           onClick={() => muteAlarmState(isMuted)}
           variant="contained"
           color="primary"
@@ -238,7 +238,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
         </Button>
         <Button
-          style={{ margin: '0px 12px', padding: 0 }}
+          style={{ margin: '0px 10px', padding: 0 }}
           variant="contained"
           color="primary"
           className={classes.alertColor}

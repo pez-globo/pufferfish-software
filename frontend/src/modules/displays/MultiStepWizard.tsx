@@ -77,13 +77,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     color: '#fff',
   },
   closeBtn: {
-    minHeight: '38px',
     minWidth: '38px',
-    zIndex: 9999,
-    cursor: 'pointer',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
     marginRight: theme.spacing(1),
+    borderRadius: '8px',
   },
   marginContent: {
     textAlign: 'center',
@@ -98,7 +94,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   tabAligning: {
     maxWidth: '60%',
     margin: '0 auto',
-
+    marginTop: '5%',
     '& .MuiTabs-root': {
       '& .MuiTabs-scroller': {
         '& .MuiTabs-flexContainer': {
@@ -282,6 +278,7 @@ const MultiStepWizard = (): JSX.Element => {
   const [tabIndex, setTabIndex] = React.useState(0);
   const [parameter, setParameter] = React.useState<Data>();
   const [multiParams, setMultiParams] = React.useState<Data[]>([]);
+  const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);
 
   const handleChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setTabIndex(newValue);
@@ -341,6 +338,11 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.setValue = setting;
       parameter.setValue = setting;
+      if (isAnyChanges()) {
+        setIsSubmitDisabled(false);
+      } else {
+        setIsSubmitDisabled(true);
+      }
     }
   };
 
@@ -349,6 +351,11 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.alarmValues = [min, max];
       parameter.alarmValues = [min, max];
+      if (isAnyChanges()) {
+        setIsSubmitDisabled(false);
+      } else {
+        setIsSubmitDisabled(true);
+      }
     }
   };
 
@@ -470,95 +477,103 @@ const MultiStepWizard = (): JSX.Element => {
         showCloseIcon={true}
         onClose={onCancel}
       >
-        <Grid container item className={classes.tabAligning}>
-          {tabIndex > 0 && (
+        <Grid style={{ flexGrow: 1 }}>
+          <Grid container item className={classes.tabAligning}>
             <Grid style={{ minHeight: 38, minWidth: 38 }}>
-              <ReplyIcon onClick={() => setTabIndex(tabIndex - 1)} className={classes.closeBtn} />
+              <Button
+                onClick={() => setTabIndex(tabIndex - 1)}
+                variant="contained"
+                color="primary"
+                disabled={!(tabIndex > 0)}
+                className={classes.closeBtn}
+              >
+                <ReplyIcon />
+              </Button>
             </Grid>
-          )}
-          <Tabs
-            value={tabIndex}
-            onChange={handleChange}
-            classes={{ indicator: classes.tabIndicator }}
-          >
-            <Tab
-              label="HFNC Control"
-              {...a11yProps(0)}
-              className={classes.tab}
-              classes={{ selected: classes.selectedTab }}
-            />
-            <Tab
-              style={{ visibility: tabIndex === 0 ? 'hidden' : 'visible' }}
-              label={parameter?.isSetvalEnabled ? 'Set New' : 'Alarms'}
-              {...a11yProps(1)}
-              className={classes.tab}
-              classes={{ selected: classes.selectedTab }}
-            />
-          </Tabs>
-        </Grid>
-        <Grid container className={classes.tabAligning}>
-          <TabPanel value={tabIndex} index={0}>
-            <HFNCControls />
-          </TabPanel>
-          <TabPanel value={tabIndex} index={1}>
-            {parameter && parameter.isSetvalEnabled ? (
-              <SetValueContent
-                openModal={open && parameter.stateKey === stateKey}
-                key={parameter.stateKey}
-                committedSetting={getSetValues(parameter.stateKey)}
-                label={parameter.label}
-                units={parameter.units}
-                requestCommitSetting={doSetValue}
-                {...(parameter.minValue && { min: parameter.minValue })}
-                {...(parameter.maxValue && { max: parameter.maxValue })}
+            <Tabs
+              value={tabIndex}
+              onChange={handleChange}
+              classes={{ indicator: classes.tabIndicator }}
+            >
+              <Tab
+                label="HFNC Control"
+                {...a11yProps(0)}
+                className={classes.tab}
+                classes={{ selected: classes.selectedTab }}
               />
-            ) : (
-              parameter && (
-                <AlarmModal
+              <Tab
+                style={{ visibility: tabIndex === 0 ? 'hidden' : 'visible' }}
+                label={parameter?.isSetvalEnabled ? 'Set New' : 'Alarms'}
+                {...a11yProps(1)}
+                className={classes.tab}
+                classes={{ selected: classes.selectedTab }}
+              />
+            </Tabs>
+          </Grid>
+          <Grid container className={classes.tabAligning}>
+            <TabPanel value={tabIndex} index={0}>
+              <HFNCControls />
+            </TabPanel>
+            <TabPanel value={tabIndex} index={1}>
+              {parameter && parameter.isSetvalEnabled ? (
+                <SetValueContent
                   openModal={open && parameter.stateKey === stateKey}
+                  key={parameter.stateKey}
+                  committedSetting={getSetValues(parameter.stateKey)}
                   label={parameter.label}
                   units={parameter.units}
-                  stateKey={parameter.stateKey}
-                  requestCommitRange={doSetAlarmValues}
-                  contentOnly={true}
-                  labelHeading={true}
-                  alarmRangeValues={getAlarmValues(parameter.stateKey)}
-                  {...(parameter.alarmLimitMin && { committedMin: parameter.alarmLimitMin })}
-                  {...(parameter.alarmLimitMax && { committedMax: parameter.alarmLimitMax })}
+                  requestCommitSetting={doSetValue}
+                  {...(parameter.minValue && { min: parameter.minValue })}
+                  {...(parameter.maxValue && { max: parameter.maxValue })}
                 />
-              )
-            )}
-          </TabPanel>
-        </Grid>
-
-        <Grid
-          container
-          item
-          alignItems="center"
-          justify="flex-end"
-          className={classes.actionButtons}
-        >
-          <Grid item>
-            <Button
-              variant="contained"
-              className={classes.aButtons}
-              style={{ marginRight: '15px' }}
-              onClick={onCancel}
-              color="primary"
-            >
-              Cancel
-            </Button>
+              ) : (
+                parameter && (
+                  <AlarmModal
+                    openModal={open && parameter.stateKey === stateKey}
+                    label={parameter.label}
+                    units={parameter.units}
+                    stateKey={parameter.stateKey}
+                    requestCommitRange={doSetAlarmValues}
+                    contentOnly={true}
+                    labelHeading={true}
+                    alarmRangeValues={getAlarmValues(parameter.stateKey)}
+                    {...(parameter.alarmLimitMin && { committedMin: parameter.alarmLimitMin })}
+                    {...(parameter.alarmLimitMax && { committedMax: parameter.alarmLimitMax })}
+                  />
+                )
+              )}
+            </TabPanel>
           </Grid>
-          <Grid item>
-            <Button
-              variant="contained"
-              className={classes.aButtons}
-              onClick={onConfirm}
-              color="secondary"
-              style={{ color: '#000' }}
-            >
-              Submit
-            </Button>
+          <Grid
+            container
+            item
+            alignItems="center"
+            justify="flex-end"
+            className={classes.actionButtons}
+          >
+            <Grid item>
+              <Button
+                variant="contained"
+                className={classes.aButtons}
+                style={{ marginRight: '15px' }}
+                onClick={onCancel}
+                color="primary"
+              >
+                Cancel
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                disabled={isSubmitDisabled}
+                className={classes.aButtons}
+                onClick={onConfirm}
+                color="secondary"
+                style={{ color: '#000' }}
+              >
+                Submit
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
       </ModalPopup>

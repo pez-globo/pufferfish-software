@@ -76,7 +76,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexGrow: 1,
 
     '& .MuiDialogTitle-root': {
-      padding: '25px',
+      // padding: '25px',
       width: '100%',
     },
   },
