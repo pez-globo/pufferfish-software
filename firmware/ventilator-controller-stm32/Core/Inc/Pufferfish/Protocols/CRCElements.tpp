@@ -52,6 +52,10 @@ IndexStatus CRCElement<PayloadBuffer>::parse(const Util::ByteVector<input_size> 
   static_assert(
       !std::is_const<PayloadBuffer>::value,
       "Parse method unavailable for CRCElements with const PayloadBuffer type");
+  static_assert(
+      Util::ByteVector<input_size>::max_size() <=
+          (PayloadBuffer::max_size() + CRCElementHeaderProps::header_size),
+      "Parse method unavailable as the input buffer size is too large");
 
   if (input_buffer.size() < CRCElementHeaderProps::header_size) {
     return IndexStatus::out_of_bounds;
@@ -81,13 +85,13 @@ template <size_t body_max_size>
 template <size_t input_size>
 typename CRCElementReceiver<body_max_size>::Status CRCElementReceiver<body_max_size>::transform(
     const Util::ByteVector<input_size> &input_buffer,
-    ParsedCRCElement<body_max_size> &output_datagram) {
-  if (output_datagram.parse(input_buffer) != IndexStatus::ok) {
+    ParsedCRCElement<body_max_size> &output_crcelement) {
+  if (output_crcelement.parse(input_buffer) != IndexStatus::ok) {
     return Status::invalid_parse;
   }
 
   if (ParsedCRCElement<body_max_size>::compute_body_crc(input_buffer, crc32c_) !=
-      output_datagram.crc()) {
+      output_crcelement.crc()) {
     return Status::invalid_crc;
   }
 
@@ -101,8 +105,8 @@ template <size_t output_size>
 typename CRCElementSender<body_max_size>::Status CRCElementSender<body_max_size>::transform(
     const typename Props::PayloadBuffer &input_payload,
     Util::ByteVector<output_size> &output_buffer) {
-  ConstructedCRCElement<body_max_size> datagram(input_payload);
-  if (datagram.write(output_buffer, crc32c_) != IndexStatus::ok) {
+  ConstructedCRCElement<body_max_size> crcelement(input_payload);
+  if (crcelement.write(output_buffer, crc32c_) != IndexStatus::ok) {
     return Status::invalid_length;
   }
 

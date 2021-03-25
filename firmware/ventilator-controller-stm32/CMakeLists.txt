@@ -38,15 +38,39 @@ include_directories(
 )
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "TestCatch2")
+    set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
+    include(CodeCoverage)
+    append_coverage_compiler_flags()
+
+    # disable all optimization
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
+    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0")
+    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -fno-inline -fno-inline-small-functions -fno-default-inline")
+
+    setup_target_for_coverage_lcov(
+        NAME ${CMAKE_BUILD_TYPE}_coverage
+        EXECUTABLE ${CMAKE_BUILD_TYPE}
+        EXCLUDE "/usr/include/*" "Core/Inc/catch2/*" "Core/Test/*" "Core/Src/nanopb/*"
+    )
+
     file(
         GLOB_RECURSE LIBRARY_SOURCES
         "Core/Src/Pufferfish/Driver/Indicators/PulseGenerator.cpp"
-        "Core/Src/Pufferfish/Driver/Serial/*.cpp"
+        "Core/Src/Pufferfish/Driver/Serial/*.*"
+        "Core/Src/Pufferfish/Application/*.*"
+        "Core/Src/Pufferfish/Util/*.*"
+        "Core/Src/Pufferfish/HAL/CRC.cpp"
+        "Core/Src/Pufferfish/HAL/Mock/*.cpp"
+        "Core/Src/nanopb/*.c"
     )
     add_library(Pufferfish ${LIBRARY_SOURCES})
+
     file(GLOB_RECURSE EXECUTABLE_SOURCES "Core/Test/*.*")
+
     add_executable(${CMAKE_BUILD_TYPE} ${EXECUTABLE_SOURCES})
-    target_link_libraries(${CMAKE_BUILD_TYPE} Pufferfish)
+    include_directories("Core/Inc")
+    include_directories("Core/Test/Inc")
+    target_link_libraries(${CMAKE_BUILD_TYPE} Pufferfish gcov)
 else ()
     add_definitions(-DUSE_HAL_DRIVER -DSTM32H743xx -DDEBUG)
 

@@ -14,7 +14,7 @@
 namespace Pufferfish::Util {
 
 template <typename ElementType, typename... Arg>
-constexpr auto make_array(Arg&&... arg) {
+constexpr auto make_array(Arg&&... arg) noexcept {
   return std::array<ElementType, sizeof...(Arg)>{{std::forward<ElementType>(arg)...}};
 }
 

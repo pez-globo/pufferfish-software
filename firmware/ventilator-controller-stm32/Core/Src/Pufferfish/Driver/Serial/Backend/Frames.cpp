@@ -12,11 +12,26 @@ namespace Pufferfish::Driver::Serial::Backend {
 // FrameReceiver
 
 FrameProps::InputStatus FrameReceiver::input(uint8_t new_byte) {
-  return chunk_splitter_.input(new_byte);
+  bool input_overwritten = false;
+  auto status = chunk_splitter_.input(new_byte, input_overwritten);
+  if (input_overwritten) {
+    return FrameProps::InputStatus::input_overwritten;
+  }
+
+  switch (status) {
+    case Protocols::ChunkInputStatus::output_ready:
+      return FrameProps::InputStatus::output_ready;
+    case Protocols::ChunkInputStatus::invalid_length:
+      return FrameProps::InputStatus::invalid_length;
+    case Protocols::ChunkInputStatus::ok:
+      break;
+  }
+
+  return FrameProps::InputStatus::ok;
 }
 
-FrameProps::OutputStatus FrameReceiver::output(FrameProps::ChunkBuffer &output_buffer) {
-  FrameProps::ChunkBuffer temp_buffer;
+FrameProps::OutputStatus FrameReceiver::output(FrameProps::PayloadBuffer &output_buffer) {
+  FrameProps::EncodedBuffer temp_buffer;
 
   // Chunk
   FrameProps::OutputStatus status = chunk_splitter_.output(temp_buffer);
@@ -36,7 +51,7 @@ FrameProps::OutputStatus FrameReceiver::output(FrameProps::ChunkBuffer &output_b
 // FrameSender
 
 FrameProps::OutputStatus FrameSender::transform(
-    const FrameProps::ChunkBuffer &input_buffer, FrameProps::ChunkBuffer &output_buffer) const {
+    const FrameProps::PayloadBuffer &input_buffer, FrameProps::ChunkBuffer &output_buffer) const {
   // COBS
   FrameProps::OutputStatus status = cobs_encoder.transform(input_buffer, output_buffer);
   if (status != FrameProps::OutputStatus::ok) {

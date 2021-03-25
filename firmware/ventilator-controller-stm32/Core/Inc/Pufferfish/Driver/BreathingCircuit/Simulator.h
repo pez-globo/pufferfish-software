@@ -33,7 +33,9 @@ class Simulator {
 
   static constexpr float fio2_responsiveness = 0.01;  // ms
 
-  [[nodiscard]] constexpr uint32_t time_step() const { return current_time_ - previous_time_; }
+  [[nodiscard]] constexpr uint32_t time_step() const noexcept {
+    return current_time_ - previous_time_;
+  }
   [[nodiscard]] bool update_needed() const;
 
   [[nodiscard]] uint32_t current_time() const;

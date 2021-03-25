@@ -11,7 +11,6 @@ import {
 } from '../../store/controller/selectors';
 import { EXPECTED_LOG_EVENT_ID } from '../../store/controller/types';
 import { setMultiPopupOpen } from '../app/Service';
-import { EventType, getEventType } from '../app/EventAlerts';
 import { AlarmModal } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';
 
@@ -23,6 +22,7 @@ import SimpleTable, {
   StyledTableRow,
 } from '../controllers/SimpleTable';
 import EventlogDetails from './container/EventlogDetails';
+import { getEventDetails, getEventType } from './EventType';
 
 /**
  * LogsPage
@@ -146,25 +146,11 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     [dispatch],
   );
 
+  const getDetails = useCallback(getEventDetails, []);
+
   useEffect(() => {
     const eventIds: number[] = [];
     const data: Data[] = [];
-
-    const getDetails = (event: LogEvent, eventType: EventType) => {
-      if (event.type === LogEventType.patient) {
-        if (eventType?.stateKey) {
-          return eventType.label.includes('high')
-            ? `Upper limit of ${eventType?.stateKey} is ${alarmLimits[eventType.stateKey].upper}`
-            : `Lower limit of ${eventType?.stateKey} is ${alarmLimits[eventType.stateKey].lower}`;
-        }
-      } else if (event.type === LogEventType.control) {
-        return event.oldValue != null && event.newValue != null
-          ? `Control ${eventType?.stateKey} changed from ${event.oldValue} ${eventType.unit} to ${event.newValue} ${eventType.unit}`
-          : '';
-      }
-      return '';
-    };
-
     loggedEvents.sort((a: LogEvent, b: LogEvent) => a.time - b.time);
     loggedEvents.forEach((event: LogEvent) => {
       const eventType = getEventType(event.code);
@@ -179,7 +165,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
               event.time,
               activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
               event.id,
-              getDetails(event, eventType),
+              getDetails(event, eventType, alarmLimits),
               eventType.stateKey || '',
               eventType.head || '',
               eventType.unit || '',
@@ -194,7 +180,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
             event.time,
             activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
             event.id,
-            getDetails(event, eventType),
+            getDetails(event, eventType, alarmLimits),
             eventType.stateKey || '',
             eventType.head || '',
             eventType.unit || '',
@@ -205,7 +191,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     setRows(data.length ? data : []);
     // update ExpectedLogEvent
     updateLogEvent(Math.max(...eventIds));
-  }, [loggedEvents, activeLogEventIds, updateLogEvent, filter, alarmLimits]);
+  }, [loggedEvents, activeLogEventIds, updateLogEvent, filter, alarmLimits, getDetails]);
 
   const handleClose = () => {
     setOpen(false);
