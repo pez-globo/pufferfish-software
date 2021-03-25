@@ -37,7 +37,7 @@ SCENARIO(
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected = std::string("\x00", 1);
@@ -51,7 +51,7 @@ SCENARIO(
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected = std::string("\x00\x00", 2);
@@ -66,7 +66,7 @@ SCENARIO(
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected = std::string("\x11\x22\x00\x33", 4);
@@ -81,7 +81,7 @@ SCENARIO(
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected = std::string("\x11\x22\x33\x44", 4);
@@ -96,7 +96,7 @@ SCENARIO(
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected = std::string("x", 1);
@@ -111,7 +111,7 @@ SCENARIO(
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected = std::string("xy", 2);
@@ -126,7 +126,7 @@ SCENARIO(
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected = std::string("Hello World", 11);
@@ -143,7 +143,7 @@ SCENARIO(
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected =
@@ -171,7 +171,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
       }
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::invalid_length);
+        REQUIRE(status == PF::IndexStatus::out_of_bounds);
       }
       THEN("The output buffer remains unchanged") { REQUIRE(output_buffer.empty() == true); }
     }
@@ -184,7 +184,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
       PF::Util::ByteVector<buffer_size> output_buffer;
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::invalid_length);
+        REQUIRE(status == PF::IndexStatus::out_of_bounds);
       }
       THEN("The output buffer remains unchanged") { REQUIRE(output_buffer.empty() == true); }
     }
@@ -193,7 +193,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer remains unchanged") {
         auto expected = std::string("\x03\x01\x02\x01\x03\x03\x04\x01\x01", 9);
@@ -206,7 +206,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected = std::string("\x01\x01", 2);
@@ -224,7 +224,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected = std::string("\x01\x01\x01", 3);
@@ -242,7 +242,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected = std::string("\x03\x11\x22\x02\x33", 5);
@@ -257,7 +257,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected = std::string("\x05\x11\x22\x33\x44", 5);
@@ -272,7 +272,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected = std::string("\x02\x78", 2);
@@ -287,7 +287,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected = std::string("\x03\x78\x79", 3);
@@ -302,7 +302,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected = std::string("\x0cHello World", 12);
@@ -319,7 +319,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::Driver::Serial::Backend::FrameProps::OutputStatus::ok);
+        REQUIRE(status == PF::IndexStatus::ok);
       }
       THEN("The output buffer is as expected") {
         auto expected =
@@ -448,7 +448,6 @@ SCENARIO(
       THEN("The output method reports ok status") {
         REQUIRE(output_status == TestFrameProps::OutputStatus::ok);
       }
-      REQUIRE(output_buffer.empty() == true);
     }
   }
 }
