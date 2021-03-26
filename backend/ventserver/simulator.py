@@ -24,7 +24,9 @@ from ventserver.protocols import server
 from ventserver.protocols import exceptions
 from ventserver.protocols.application import lists
 from ventserver.protocols.protobuf import mcu_pb
-from ventserver.simulation import alarm_limits, alarms, parameters, simulators
+from ventserver.simulation import (
+    alarm_limits, alarms, log, parameters, simulators
+)
 from ventserver import application
 
 
@@ -37,14 +39,15 @@ REQUEST_SERVICE_INTERVAL = 20
 async def service_requests(
         all_states: Mapping[
             Type[betterproto.Message], Optional[betterproto.Message]
-        ]
+        ],
+        log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent]
 ) -> None:
     """Simulate evolution of all states."""
     parameters_services = parameters.Services()
     alarm_limits_services = alarm_limits.Services()
 
     while True:
-        parameters_services.transform(all_states)
+        parameters_services.transform(all_states, log_events_sender)
         alarm_limits_services.transform(all_states)
         await trio.sleep(REQUEST_SERVICE_INTERVAL / 1000)
 
@@ -52,8 +55,7 @@ async def service_requests(
 async def simulate_states(
         all_states: Mapping[
             Type[betterproto.Message], Optional[betterproto.Message]
-        ],
-        log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent]
+        ], log_manager: log.Manager
 ) -> None:
     """Simulate evolution of all states."""
     simulation_services = simulators.Services()
@@ -61,7 +63,7 @@ async def simulate_states(
 
     while True:
         simulation_services.transform(time.time(), all_states)
-        alarms_services.transform(time.time(), all_states, log_events_sender)
+        alarms_services.transform(time.time(), all_states, log_manager)
         await trio.sleep(simulators.SENSOR_UPDATE_INTERVAL / 1000)
 
 
@@ -117,6 +119,9 @@ async def main() -> None:
         all_states, protocol, filehandler
     )
 
+    # Initialize events log manager
+    log_manager = log.Manager(sender=protocol.receive.backend.log_events_sender)
+
     try:
         async with channel.push_endpoint:
             async with trio.open_nursery() as nursery:
@@ -127,10 +132,12 @@ async def main() -> None:
                     ),
                     protocol, None, websocket_endpoint, rotary_encoder
                 )
-                nursery.start_soon(service_requests, all_states)
                 nursery.start_soon(
-                    simulate_states, all_states,
+                    service_requests, all_states,
                     protocol.receive.backend.log_events_sender
+                )
+                nursery.start_soon(
+                    simulate_states, all_states, log_manager
                 )
 
                 while True:
