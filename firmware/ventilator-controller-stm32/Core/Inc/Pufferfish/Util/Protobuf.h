@@ -22,12 +22,12 @@ using ProtobufDescriptors = std::array<ProtobufDescriptor, size>;
 using UnrecognizedMessage = std::nullptr_t;
 
 template <typename MessageType>
-constexpr ProtobufDescriptor get_protobuf_descriptor() {
+constexpr ProtobufDescriptor get_protobuf_descriptor() noexcept {
   return nanopb::MessageDescriptor<MessageType>::fields();
 }
 
 template <>
-constexpr ProtobufDescriptor get_protobuf_descriptor<UnrecognizedMessage>() {
+constexpr ProtobufDescriptor get_protobuf_descriptor<UnrecognizedMessage>() noexcept {
   return nullptr;
 }
 

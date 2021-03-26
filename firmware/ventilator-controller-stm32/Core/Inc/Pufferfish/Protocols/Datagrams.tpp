@@ -19,6 +19,10 @@ namespace Pufferfish::Protocols {
 template <typename PayloadBuffer>
 template <size_t output_size>
 IndexStatus Datagram<PayloadBuffer>::write(Util::ByteVector<output_size> &output_buffer) {
+  static_assert(
+      Util::ByteVector<output_size>::max_size() >=
+          (PayloadBuffer::max_size() + DatagramHeaderProps::header_size),
+      "Write method unavailable as the size of the output buffer is too small");
   if (output_buffer.resize(DatagramHeaderProps::header_size + payload_.size()) != IndexStatus::ok) {
     return IndexStatus::out_of_bounds;
   }
@@ -40,6 +44,10 @@ IndexStatus Datagram<PayloadBuffer>::parse(const Util::ByteVector<input_size> &i
   static_assert(
       !std::is_const<PayloadBuffer>::value,
       "Parse method unavailable for Datagrams with const PayloadBuffer type");
+  static_assert(
+      Util::ByteVector<input_size>::max_size() <=
+          (PayloadBuffer::max_size() + DatagramHeaderProps::header_size),
+      "Parse method unavailable as the input buffer size is too large");
 
   if (input_buffer.size() < DatagramHeaderProps::header_size) {
     return IndexStatus::out_of_bounds;

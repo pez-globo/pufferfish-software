@@ -23,7 +23,7 @@ namespace Pufferfish::Util {
  * @return A number of the specified type with the given byte shifted into the given location
  */
 template <size_t byte_index, typename T>
-constexpr uint8_t get_byte(T number) {
+constexpr uint8_t get_byte(T number) noexcept {
   return number >> static_cast<size_t>(byte_index * CHAR_BIT);
 }
 
@@ -36,7 +36,7 @@ constexpr uint8_t get_byte(T number) {
  * @return A number of the specified type with the given byte shifted into the given location
  */
 template <size_t byte_index, typename T>
-constexpr T set_byte(uint8_t byte) {
+constexpr T set_byte(uint8_t byte) noexcept {
   return byte << static_cast<size_t>(byte_index * CHAR_BIT);
 }
 

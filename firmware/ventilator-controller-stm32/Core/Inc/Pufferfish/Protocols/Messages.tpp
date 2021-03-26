@@ -15,9 +15,9 @@ namespace Pufferfish::Protocols {
 
 // Message
 
-template <typename TaggedUnion, size_t max_size>
+template <typename TaggedUnion, typename MessageTypes, size_t max_size>
 template <size_t output_size, size_t num_descriptors>
-MessageStatus Message<TaggedUnion, max_size>::write(
+MessageStatus Message<TaggedUnion, MessageTypes, max_size>::write(
     Util::ByteVector<output_size> &output_buffer,
     const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) const {
   auto type = static_cast<uint8_t>(payload.tag);
@@ -49,9 +49,9 @@ MessageStatus Message<TaggedUnion, max_size>::write(
   return MessageStatus::ok;
 }
 
-template <typename TaggedUnion, size_t max_size>
+template <typename TaggedUnion, typename MessageTypes, size_t max_size>
 template <size_t input_size, size_t num_descriptors>
-MessageStatus Message<TaggedUnion, max_size>::parse(
+MessageStatus Message<TaggedUnion, MessageTypes, max_size>::parse(
     const Util::ByteVector<input_size> &input_buffer,
     const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) {
   if (input_buffer.size() < Message::header_size) {
@@ -59,12 +59,15 @@ MessageStatus Message<TaggedUnion, max_size>::parse(
   }
 
   type = input_buffer[Message::type_offset];
-  if (type > pb_protobuf_descriptors.size()) {
+  if (!MessageTypes::includes(type)) {
     return MessageStatus::invalid_type;
   }
 
-  // TODO(lietk12): add proper checking
   payload.tag = static_cast<typename TaggedUnion::Tag>(type);
+  if (type >= pb_protobuf_descriptors.size()) {
+    return MessageStatus::invalid_type;
+  }
+
   const pb_msgdesc_t *fields = pb_protobuf_descriptors[type];
   if (fields == Util::get_protobuf_descriptor<Util::UnrecognizedMessage>()) {
     return MessageStatus::invalid_type;
