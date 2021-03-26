@@ -26,17 +26,17 @@ def transform_limits_range(
 
 
 def service_limits_range(
-        request: mcu_pb.Range, response: mcu_pb.Range, floor: int, ceiling: int,
+        floor: int, ceiling: int, request: mcu_pb.Range, response: mcu_pb.Range,
         code: mcu_pb.LogEventCode, log_manager: log.Manager
 ) -> None:
     """Handle the request's alarm limits range."""
-    if request.lower == response.lower and request.upper == response.upper:
-        return
-
     (new_lower, new_upper) = transform_limits_range(
         floor, ceiling, request.lower, request.upper,
         response.lower, response.upper
     )
+    if response.lower == new_lower and response.upper == new_upper:
+        return
+
     old_response = dataclasses.replace(response)
     response.lower = new_lower
     response.upper = new_upper
@@ -68,15 +68,15 @@ class Service:
     ) -> None:
         """Update the alarm limits."""
         service_limits_range(
-            request.fio2, response.fio2, self.FIO2_MIN, self.FIO2_MAX,
+            self.FIO2_MIN, self.FIO2_MAX, request.fio2, response.fio2,
             mcu_pb.LogEventCode.fio2_alarm_limits_changed, log_manager
         )
         service_limits_range(
-            request.spo2, response.spo2, self.SPO2_MIN, self.SPO2_MAX,
+            self.SPO2_MIN, self.SPO2_MAX, request.spo2, response.spo2,
             mcu_pb.LogEventCode.spo2_alarm_limits_changed, log_manager
         )
         service_limits_range(
-            request.hr, response.hr, self.HR_MIN, self.HR_MAX,
+            self.HR_MIN, self.HR_MAX, request.hr, response.hr,
             mcu_pb.LogEventCode.hr_alarm_limits_changed, log_manager
         )
 
