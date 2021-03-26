@@ -33,13 +33,16 @@ typedef enum _LogEventCode {
     LogEventCode_ventilation_operation_changed = 10,
     LogEventCode_ventilation_mode_changed = 11,
     LogEventCode_fio2_setting_changed = 12,
-    LogEventCode_flow_setting_changed = 13
+    LogEventCode_flow_setting_changed = 13,
+    LogEventCode_fio2_alarm_limits_changed = 14,
+    LogEventCode_spo2_alarm_limits_changed = 15
 } LogEventCode;
 
 typedef enum _LogEventType {
     LogEventType_patient = 0,
     LogEventType_system = 1,
-    LogEventType_control = 2
+    LogEventType_control = 2,
+    LogEventType_alarm_limits = 3
 } LogEventType;
 
 /* Struct definitions */
@@ -91,28 +94,28 @@ typedef struct _NextLogEvents {
 
 typedef struct _Parameters {
     uint32_t time;
+    bool ventilating;
     VentilationMode mode;
+    float fio2;
+    float flow;
     float pip;
     float peep;
     float vt;
     float rr;
     float ie;
-    float fio2;
-    float flow;
-    bool ventilating;
 } Parameters;
 
 typedef struct _ParametersRequest {
     uint32_t time;
+    bool ventilating;
     VentilationMode mode;
+    float fio2;
+    float flow;
     float pip;
     float peep;
     float vt;
     float rr;
     float ie;
-    float fio2;
-    float flow;
-    bool ventilating;
 } ParametersRequest;
 
 typedef struct _Ping {
@@ -132,20 +135,24 @@ typedef struct _ScreenStatus {
 typedef struct _SensorMeasurements {
     uint32_t time;
     uint32_t cycle;
-    float paw;
-    float flow;
-    float volume;
     float fio2;
     float spo2;
     float hr;
+    float paw;
+    float flow;
+    float volume;
 } SensorMeasurements;
 
 typedef struct _AlarmLimits {
     uint32_t time;
     bool has_fio2;
     Range fio2;
+    bool has_flow;
+    Range flow;
     bool has_spo2;
     Range spo2;
+    bool has_hr;
+    Range hr;
     bool has_rr;
     Range rr;
     bool has_pip;
@@ -164,20 +171,20 @@ typedef struct _AlarmLimits {
     Range tv;
     bool has_etco2;
     Range etco2;
-    bool has_flow;
-    Range flow;
     bool has_apnea;
     Range apnea;
-    bool has_hr;
-    Range hr;
 } AlarmLimits;
 
 typedef struct _AlarmLimitsRequest {
     uint32_t time;
     bool has_fio2;
     Range fio2;
+    bool has_flow;
+    Range flow;
     bool has_spo2;
     Range spo2;
+    bool has_hr;
+    Range hr;
     bool has_rr;
     Range rr;
     bool has_pip;
@@ -196,12 +203,8 @@ typedef struct _AlarmLimitsRequest {
     Range tv;
     bool has_etco2;
     Range etco2;
-    bool has_flow;
-    Range flow;
     bool has_apnea;
     Range apnea;
-    bool has_hr;
-    Range hr;
 } AlarmLimitsRequest;
 
 typedef struct _LogEvent {
@@ -232,12 +235,12 @@ typedef struct _LogEvent {
 #define _VentilationMode_ARRAYSIZE ((VentilationMode)(VentilationMode_psv+1))
 
 #define _LogEventCode_MIN LogEventCode_fio2_too_low
-#define _LogEventCode_MAX LogEventCode_flow_setting_changed
-#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_flow_setting_changed+1))
+#define _LogEventCode_MAX LogEventCode_spo2_alarm_limits_changed
+#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_spo2_alarm_limits_changed+1))
 
 #define _LogEventType_MIN LogEventType_patient
-#define _LogEventType_MAX LogEventType_control
-#define _LogEventType_ARRAYSIZE ((LogEventType)(LogEventType_control+1))
+#define _LogEventType_MAX LogEventType_alarm_limits
+#define _LogEventType_ARRAYSIZE ((LogEventType)(LogEventType_alarm_limits+1))
 
 
 #ifdef __cplusplus
@@ -250,8 +253,8 @@ extern "C" {
 #define AlarmLimitsRequest_init_default          {0, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default}
 #define SensorMeasurements_init_default          {0, 0, 0, 0, 0, 0, 0, 0}
 #define CycleMeasurements_init_default           {0, 0, 0, 0, 0, 0, 0}
-#define Parameters_init_default                  {0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0, 0}
-#define ParametersRequest_init_default           {0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0, 0}
+#define Parameters_init_default                  {0, 0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0}
+#define ParametersRequest_init_default           {0, 0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0}
 #define Ping_init_default                        {0, 0}
 #define Announcement_init_default                {0, {0, {0}}}
 #define LogEvent_init_default                    {0, 0, _LogEventCode_MIN, _LogEventType_MIN, false, Range_init_default, 0, 0, 0, 0, 0, 0, false, Range_init_default, false, Range_init_default, _VentilationMode_MIN, _VentilationMode_MIN}
@@ -267,8 +270,8 @@ extern "C" {
 #define AlarmLimitsRequest_init_zero             {0, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero}
 #define SensorMeasurements_init_zero             {0, 0, 0, 0, 0, 0, 0, 0}
 #define CycleMeasurements_init_zero              {0, 0, 0, 0, 0, 0, 0}
-#define Parameters_init_zero                     {0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0, 0}
-#define ParametersRequest_init_zero              {0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0, 0}
+#define Parameters_init_zero                     {0, 0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0}
+#define ParametersRequest_init_zero              {0, 0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0}
 #define Ping_init_zero                           {0, 0}
 #define Announcement_init_zero                   {0, {0, {0}}}
 #define LogEvent_init_zero                       {0, 0, _LogEventCode_MIN, _LogEventType_MIN, false, Range_init_zero, 0, 0, 0, 0, 0, 0, false, Range_init_zero, false, Range_init_zero, _VentilationMode_MIN, _VentilationMode_MIN}
@@ -303,25 +306,25 @@ extern "C" {
 #define NextLogEvents_remaining_tag              3
 #define NextLogEvents_elements_tag               4
 #define Parameters_time_tag                      1
-#define Parameters_mode_tag                      2
-#define Parameters_pip_tag                       3
-#define Parameters_peep_tag                      4
-#define Parameters_vt_tag                        5
-#define Parameters_rr_tag                        6
-#define Parameters_ie_tag                        7
-#define Parameters_fio2_tag                      8
-#define Parameters_flow_tag                      9
-#define Parameters_ventilating_tag               10
+#define Parameters_ventilating_tag               2
+#define Parameters_mode_tag                      3
+#define Parameters_fio2_tag                      4
+#define Parameters_flow_tag                      5
+#define Parameters_pip_tag                       6
+#define Parameters_peep_tag                      7
+#define Parameters_vt_tag                        8
+#define Parameters_rr_tag                        9
+#define Parameters_ie_tag                        10
 #define ParametersRequest_time_tag               1
-#define ParametersRequest_mode_tag               2
-#define ParametersRequest_pip_tag                3
-#define ParametersRequest_peep_tag               4
-#define ParametersRequest_vt_tag                 5
-#define ParametersRequest_rr_tag                 6
-#define ParametersRequest_ie_tag                 7
-#define ParametersRequest_fio2_tag               8
-#define ParametersRequest_flow_tag               9
-#define ParametersRequest_ventilating_tag        10
+#define ParametersRequest_ventilating_tag        2
+#define ParametersRequest_mode_tag               3
+#define ParametersRequest_fio2_tag               4
+#define ParametersRequest_flow_tag               5
+#define ParametersRequest_pip_tag                6
+#define ParametersRequest_peep_tag               7
+#define ParametersRequest_vt_tag                 8
+#define ParametersRequest_rr_tag                 9
+#define ParametersRequest_ie_tag                 10
 #define Ping_time_tag                            1
 #define Ping_id_tag                              2
 #define Range_lower_tag                          1
@@ -329,42 +332,42 @@ extern "C" {
 #define ScreenStatus_lock_tag                    1
 #define SensorMeasurements_time_tag              1
 #define SensorMeasurements_cycle_tag             2
-#define SensorMeasurements_paw_tag               3
-#define SensorMeasurements_flow_tag              4
-#define SensorMeasurements_volume_tag            5
-#define SensorMeasurements_fio2_tag              6
-#define SensorMeasurements_spo2_tag              7
-#define SensorMeasurements_hr_tag                8
+#define SensorMeasurements_fio2_tag              3
+#define SensorMeasurements_spo2_tag              4
+#define SensorMeasurements_hr_tag                5
+#define SensorMeasurements_paw_tag               6
+#define SensorMeasurements_flow_tag              7
+#define SensorMeasurements_volume_tag            8
 #define AlarmLimits_time_tag                     1
 #define AlarmLimits_fio2_tag                     2
-#define AlarmLimits_spo2_tag                     3
-#define AlarmLimits_rr_tag                       4
-#define AlarmLimits_pip_tag                      5
-#define AlarmLimits_peep_tag                     6
-#define AlarmLimits_ip_above_peep_tag            7
-#define AlarmLimits_insp_time_tag                8
-#define AlarmLimits_paw_tag                      9
-#define AlarmLimits_mve_tag                      10
-#define AlarmLimits_tv_tag                       11
-#define AlarmLimits_etco2_tag                    12
-#define AlarmLimits_flow_tag                     13
-#define AlarmLimits_apnea_tag                    14
-#define AlarmLimits_hr_tag                       15
+#define AlarmLimits_flow_tag                     3
+#define AlarmLimits_spo2_tag                     4
+#define AlarmLimits_hr_tag                       5
+#define AlarmLimits_rr_tag                       6
+#define AlarmLimits_pip_tag                      7
+#define AlarmLimits_peep_tag                     8
+#define AlarmLimits_ip_above_peep_tag            9
+#define AlarmLimits_insp_time_tag                10
+#define AlarmLimits_paw_tag                      11
+#define AlarmLimits_mve_tag                      12
+#define AlarmLimits_tv_tag                       13
+#define AlarmLimits_etco2_tag                    14
+#define AlarmLimits_apnea_tag                    15
 #define AlarmLimitsRequest_time_tag              1
 #define AlarmLimitsRequest_fio2_tag              2
-#define AlarmLimitsRequest_spo2_tag              3
-#define AlarmLimitsRequest_rr_tag                4
-#define AlarmLimitsRequest_pip_tag               5
-#define AlarmLimitsRequest_peep_tag              6
-#define AlarmLimitsRequest_ip_above_peep_tag     7
-#define AlarmLimitsRequest_insp_time_tag         8
-#define AlarmLimitsRequest_paw_tag               9
-#define AlarmLimitsRequest_mve_tag               10
-#define AlarmLimitsRequest_tv_tag                11
-#define AlarmLimitsRequest_etco2_tag             12
-#define AlarmLimitsRequest_flow_tag              13
-#define AlarmLimitsRequest_apnea_tag             14
-#define AlarmLimitsRequest_hr_tag                15
+#define AlarmLimitsRequest_flow_tag              3
+#define AlarmLimitsRequest_spo2_tag              4
+#define AlarmLimitsRequest_hr_tag                5
+#define AlarmLimitsRequest_rr_tag                6
+#define AlarmLimitsRequest_pip_tag               7
+#define AlarmLimitsRequest_peep_tag              8
+#define AlarmLimitsRequest_ip_above_peep_tag     9
+#define AlarmLimitsRequest_insp_time_tag         10
+#define AlarmLimitsRequest_paw_tag               11
+#define AlarmLimitsRequest_mve_tag               12
+#define AlarmLimitsRequest_tv_tag                13
+#define AlarmLimitsRequest_etco2_tag             14
+#define AlarmLimitsRequest_apnea_tag             15
 #define LogEvent_id_tag                          1
 #define LogEvent_time_tag                        2
 #define LogEvent_code_tag                        3
@@ -391,23 +394,25 @@ X(a, STATIC,   SINGULAR, UINT32,   upper,             2)
 #define AlarmLimits_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   time,              1) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  fio2,              2) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  spo2,              3) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  rr,                4) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  pip,               5) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  peep,              6) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  ip_above_peep,     7) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  insp_time,         8) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  paw,               9) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  mve,              10) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  tv,               11) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  etco2,            12) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  flow,             13) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  apnea,            14) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  hr,               15)
+X(a, STATIC,   OPTIONAL, MESSAGE,  flow,              3) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  spo2,              4) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  hr,                5) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  rr,                6) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  pip,               7) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  peep,              8) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  ip_above_peep,     9) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  insp_time,        10) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  paw,              11) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  mve,              12) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  tv,               13) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  etco2,            14) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  apnea,            15)
 #define AlarmLimits_CALLBACK NULL
 #define AlarmLimits_DEFAULT NULL
 #define AlarmLimits_fio2_MSGTYPE Range
+#define AlarmLimits_flow_MSGTYPE Range
 #define AlarmLimits_spo2_MSGTYPE Range
+#define AlarmLimits_hr_MSGTYPE Range
 #define AlarmLimits_rr_MSGTYPE Range
 #define AlarmLimits_pip_MSGTYPE Range
 #define AlarmLimits_peep_MSGTYPE Range
@@ -417,30 +422,30 @@ X(a, STATIC,   OPTIONAL, MESSAGE,  hr,               15)
 #define AlarmLimits_mve_MSGTYPE Range
 #define AlarmLimits_tv_MSGTYPE Range
 #define AlarmLimits_etco2_MSGTYPE Range
-#define AlarmLimits_flow_MSGTYPE Range
 #define AlarmLimits_apnea_MSGTYPE Range
-#define AlarmLimits_hr_MSGTYPE Range
 
 #define AlarmLimitsRequest_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   time,              1) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  fio2,              2) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  spo2,              3) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  rr,                4) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  pip,               5) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  peep,              6) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  ip_above_peep,     7) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  insp_time,         8) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  paw,               9) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  mve,              10) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  tv,               11) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  etco2,            12) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  flow,             13) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  apnea,            14) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  hr,               15)
+X(a, STATIC,   OPTIONAL, MESSAGE,  flow,              3) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  spo2,              4) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  hr,                5) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  rr,                6) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  pip,               7) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  peep,              8) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  ip_above_peep,     9) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  insp_time,        10) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  paw,              11) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  mve,              12) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  tv,               13) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  etco2,            14) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  apnea,            15)
 #define AlarmLimitsRequest_CALLBACK NULL
 #define AlarmLimitsRequest_DEFAULT NULL
 #define AlarmLimitsRequest_fio2_MSGTYPE Range
+#define AlarmLimitsRequest_flow_MSGTYPE Range
 #define AlarmLimitsRequest_spo2_MSGTYPE Range
+#define AlarmLimitsRequest_hr_MSGTYPE Range
 #define AlarmLimitsRequest_rr_MSGTYPE Range
 #define AlarmLimitsRequest_pip_MSGTYPE Range
 #define AlarmLimitsRequest_peep_MSGTYPE Range
@@ -450,19 +455,17 @@ X(a, STATIC,   OPTIONAL, MESSAGE,  hr,               15)
 #define AlarmLimitsRequest_mve_MSGTYPE Range
 #define AlarmLimitsRequest_tv_MSGTYPE Range
 #define AlarmLimitsRequest_etco2_MSGTYPE Range
-#define AlarmLimitsRequest_flow_MSGTYPE Range
 #define AlarmLimitsRequest_apnea_MSGTYPE Range
-#define AlarmLimitsRequest_hr_MSGTYPE Range
 
 #define SensorMeasurements_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   time,              1) \
 X(a, STATIC,   SINGULAR, UINT32,   cycle,             2) \
-X(a, STATIC,   SINGULAR, FLOAT,    paw,               3) \
-X(a, STATIC,   SINGULAR, FLOAT,    flow,              4) \
-X(a, STATIC,   SINGULAR, FLOAT,    volume,            5) \
-X(a, STATIC,   SINGULAR, FLOAT,    fio2,              6) \
-X(a, STATIC,   SINGULAR, FLOAT,    spo2,              7) \
-X(a, STATIC,   SINGULAR, FLOAT,    hr,                8)
+X(a, STATIC,   SINGULAR, FLOAT,    fio2,              3) \
+X(a, STATIC,   SINGULAR, FLOAT,    spo2,              4) \
+X(a, STATIC,   SINGULAR, FLOAT,    hr,                5) \
+X(a, STATIC,   SINGULAR, FLOAT,    paw,               6) \
+X(a, STATIC,   SINGULAR, FLOAT,    flow,              7) \
+X(a, STATIC,   SINGULAR, FLOAT,    volume,            8)
 #define SensorMeasurements_CALLBACK NULL
 #define SensorMeasurements_DEFAULT NULL
 
@@ -479,29 +482,29 @@ X(a, STATIC,   SINGULAR, FLOAT,    ve,                7)
 
 #define Parameters_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   time,              1) \
-X(a, STATIC,   SINGULAR, UENUM,    mode,              2) \
-X(a, STATIC,   SINGULAR, FLOAT,    pip,               3) \
-X(a, STATIC,   SINGULAR, FLOAT,    peep,              4) \
-X(a, STATIC,   SINGULAR, FLOAT,    vt,                5) \
-X(a, STATIC,   SINGULAR, FLOAT,    rr,                6) \
-X(a, STATIC,   SINGULAR, FLOAT,    ie,                7) \
-X(a, STATIC,   SINGULAR, FLOAT,    fio2,              8) \
-X(a, STATIC,   SINGULAR, FLOAT,    flow,              9) \
-X(a, STATIC,   SINGULAR, BOOL,     ventilating,      10)
+X(a, STATIC,   SINGULAR, BOOL,     ventilating,       2) \
+X(a, STATIC,   SINGULAR, UENUM,    mode,              3) \
+X(a, STATIC,   SINGULAR, FLOAT,    fio2,              4) \
+X(a, STATIC,   SINGULAR, FLOAT,    flow,              5) \
+X(a, STATIC,   SINGULAR, FLOAT,    pip,               6) \
+X(a, STATIC,   SINGULAR, FLOAT,    peep,              7) \
+X(a, STATIC,   SINGULAR, FLOAT,    vt,                8) \
+X(a, STATIC,   SINGULAR, FLOAT,    rr,                9) \
+X(a, STATIC,   SINGULAR, FLOAT,    ie,               10)
 #define Parameters_CALLBACK NULL
 #define Parameters_DEFAULT NULL
 
 #define ParametersRequest_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   time,              1) \
-X(a, STATIC,   SINGULAR, UENUM,    mode,              2) \
-X(a, STATIC,   SINGULAR, FLOAT,    pip,               3) \
-X(a, STATIC,   SINGULAR, FLOAT,    peep,              4) \
-X(a, STATIC,   SINGULAR, FLOAT,    vt,                5) \
-X(a, STATIC,   SINGULAR, FLOAT,    rr,                6) \
-X(a, STATIC,   SINGULAR, FLOAT,    ie,                7) \
-X(a, STATIC,   SINGULAR, FLOAT,    fio2,              8) \
-X(a, STATIC,   SINGULAR, FLOAT,    flow,              9) \
-X(a, STATIC,   SINGULAR, BOOL,     ventilating,      10)
+X(a, STATIC,   SINGULAR, BOOL,     ventilating,       2) \
+X(a, STATIC,   SINGULAR, UENUM,    mode,              3) \
+X(a, STATIC,   SINGULAR, FLOAT,    fio2,              4) \
+X(a, STATIC,   SINGULAR, FLOAT,    flow,              5) \
+X(a, STATIC,   SINGULAR, FLOAT,    pip,               6) \
+X(a, STATIC,   SINGULAR, FLOAT,    peep,              7) \
+X(a, STATIC,   SINGULAR, FLOAT,    vt,                8) \
+X(a, STATIC,   SINGULAR, FLOAT,    rr,                9) \
+X(a, STATIC,   SINGULAR, FLOAT,    ie,               10)
 #define ParametersRequest_CALLBACK NULL
 #define ParametersRequest_DEFAULT NULL
 

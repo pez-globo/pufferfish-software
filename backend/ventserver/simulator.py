@@ -46,7 +46,7 @@ async def service_requests(
 
     while True:
         parameters_services.transform(time.time(), all_states, log_manager)
-        alarm_limits_services.transform(all_states)
+        alarm_limits_services.transform(time.time(), all_states, log_manager)
         await trio.sleep(REQUEST_SERVICE_INTERVAL / 1000)
 
 

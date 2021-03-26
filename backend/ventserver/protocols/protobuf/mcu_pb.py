@@ -36,12 +36,16 @@ class LogEventCode(betterproto.Enum):
     ventilation_mode_changed = 11
     fio2_setting_changed = 12
     flow_setting_changed = 13
+    # Alarm Limits
+    fio2_alarm_limits_changed = 14
+    spo2_alarm_limits_changed = 15
 
 
 class LogEventType(betterproto.Enum):
     patient = 0
     system = 1
     control = 2
+    alarm_limits = 3
 
 
 @dataclass
@@ -54,50 +58,50 @@ class Range(betterproto.Message):
 class AlarmLimits(betterproto.Message):
     time: int = betterproto.uint32_field(1)
     fio2: "Range" = betterproto.message_field(2)
-    spo2: "Range" = betterproto.message_field(3)
-    rr: "Range" = betterproto.message_field(4)
-    pip: "Range" = betterproto.message_field(5)
-    peep: "Range" = betterproto.message_field(6)
-    ip_above_peep: "Range" = betterproto.message_field(7)
-    insp_time: "Range" = betterproto.message_field(8)
-    paw: "Range" = betterproto.message_field(9)
-    mve: "Range" = betterproto.message_field(10)
-    tv: "Range" = betterproto.message_field(11)
-    etco2: "Range" = betterproto.message_field(12)
-    flow: "Range" = betterproto.message_field(13)
-    apnea: "Range" = betterproto.message_field(14)
-    hr: "Range" = betterproto.message_field(15)
+    flow: "Range" = betterproto.message_field(3)
+    spo2: "Range" = betterproto.message_field(4)
+    hr: "Range" = betterproto.message_field(5)
+    rr: "Range" = betterproto.message_field(6)
+    pip: "Range" = betterproto.message_field(7)
+    peep: "Range" = betterproto.message_field(8)
+    ip_above_peep: "Range" = betterproto.message_field(9)
+    insp_time: "Range" = betterproto.message_field(10)
+    paw: "Range" = betterproto.message_field(11)
+    mve: "Range" = betterproto.message_field(12)
+    tv: "Range" = betterproto.message_field(13)
+    etco2: "Range" = betterproto.message_field(14)
+    apnea: "Range" = betterproto.message_field(15)
 
 
 @dataclass
 class AlarmLimitsRequest(betterproto.Message):
     time: int = betterproto.uint32_field(1)
     fio2: "Range" = betterproto.message_field(2)
-    spo2: "Range" = betterproto.message_field(3)
-    rr: "Range" = betterproto.message_field(4)
-    pip: "Range" = betterproto.message_field(5)
-    peep: "Range" = betterproto.message_field(6)
-    ip_above_peep: "Range" = betterproto.message_field(7)
-    insp_time: "Range" = betterproto.message_field(8)
-    paw: "Range" = betterproto.message_field(9)
-    mve: "Range" = betterproto.message_field(10)
-    tv: "Range" = betterproto.message_field(11)
-    etco2: "Range" = betterproto.message_field(12)
-    flow: "Range" = betterproto.message_field(13)
-    apnea: "Range" = betterproto.message_field(14)
-    hr: "Range" = betterproto.message_field(15)
+    flow: "Range" = betterproto.message_field(3)
+    spo2: "Range" = betterproto.message_field(4)
+    hr: "Range" = betterproto.message_field(5)
+    rr: "Range" = betterproto.message_field(6)
+    pip: "Range" = betterproto.message_field(7)
+    peep: "Range" = betterproto.message_field(8)
+    ip_above_peep: "Range" = betterproto.message_field(9)
+    insp_time: "Range" = betterproto.message_field(10)
+    paw: "Range" = betterproto.message_field(11)
+    mve: "Range" = betterproto.message_field(12)
+    tv: "Range" = betterproto.message_field(13)
+    etco2: "Range" = betterproto.message_field(14)
+    apnea: "Range" = betterproto.message_field(15)
 
 
 @dataclass
 class SensorMeasurements(betterproto.Message):
     time: int = betterproto.uint32_field(1)
     cycle: int = betterproto.uint32_field(2)
-    paw: float = betterproto.float_field(3)
-    flow: float = betterproto.float_field(4)
-    volume: float = betterproto.float_field(5)
-    fio2: float = betterproto.float_field(6)
-    spo2: float = betterproto.float_field(7)
-    hr: float = betterproto.float_field(8)
+    fio2: float = betterproto.float_field(3)
+    spo2: float = betterproto.float_field(4)
+    hr: float = betterproto.float_field(5)
+    paw: float = betterproto.float_field(6)
+    flow: float = betterproto.float_field(7)
+    volume: float = betterproto.float_field(8)
 
 
 @dataclass
@@ -114,29 +118,29 @@ class CycleMeasurements(betterproto.Message):
 @dataclass
 class Parameters(betterproto.Message):
     time: int = betterproto.uint32_field(1)
-    mode: "VentilationMode" = betterproto.enum_field(2)
-    pip: float = betterproto.float_field(3)
-    peep: float = betterproto.float_field(4)
-    vt: float = betterproto.float_field(5)
-    rr: float = betterproto.float_field(6)
-    ie: float = betterproto.float_field(7)
-    fio2: float = betterproto.float_field(8)
-    flow: float = betterproto.float_field(9)
-    ventilating: bool = betterproto.bool_field(10)
+    ventilating: bool = betterproto.bool_field(2)
+    mode: "VentilationMode" = betterproto.enum_field(3)
+    fio2: float = betterproto.float_field(4)
+    flow: float = betterproto.float_field(5)
+    pip: float = betterproto.float_field(6)
+    peep: float = betterproto.float_field(7)
+    vt: float = betterproto.float_field(8)
+    rr: float = betterproto.float_field(9)
+    ie: float = betterproto.float_field(10)
 
 
 @dataclass
 class ParametersRequest(betterproto.Message):
     time: int = betterproto.uint32_field(1)
-    mode: "VentilationMode" = betterproto.enum_field(2)
-    pip: float = betterproto.float_field(3)
-    peep: float = betterproto.float_field(4)
-    vt: float = betterproto.float_field(5)
-    rr: float = betterproto.float_field(6)
-    ie: float = betterproto.float_field(7)
-    fio2: float = betterproto.float_field(8)
-    flow: float = betterproto.float_field(9)
-    ventilating: bool = betterproto.bool_field(10)
+    ventilating: bool = betterproto.bool_field(2)
+    mode: "VentilationMode" = betterproto.enum_field(3)
+    fio2: float = betterproto.float_field(4)
+    flow: float = betterproto.float_field(5)
+    pip: float = betterproto.float_field(6)
+    peep: float = betterproto.float_field(7)
+    vt: float = betterproto.float_field(8)
+    rr: float = betterproto.float_field(9)
+    ie: float = betterproto.float_field(10)
 
 
 @dataclass

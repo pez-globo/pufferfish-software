@@ -14,7 +14,7 @@ from ventserver.simulation import log
 
 # Update Functions
 
-def transform_mode(
+def service_mode(
         request: mcu_pb.ParametersRequest, response: mcu_pb.Parameters,
         log_manager: log.Manager
 ) -> None:
@@ -30,7 +30,7 @@ def transform_mode(
     response.mode = request.mode
 
 
-def transform_ventilating(
+def service_ventilating(
         request: mcu_pb.ParametersRequest, response: mcu_pb.Parameters,
         log_manager: log.Manager
 ) -> None:
@@ -67,7 +67,7 @@ class Service(abc.ABC):
     ) -> None:
         """Update the parameters."""
 
-    def transform_fio2(
+    def service_fio2(
             self, request: mcu_pb.ParametersRequest,
             response: mcu_pb.Parameters, log_manager: log.Manager
     ) -> None:
@@ -99,11 +99,11 @@ class PCAC(Service):
             response: mcu_pb.Parameters, log_manager: log.Manager
     ) -> None:
         """Implement ParametersService.transform."""
-        transform_mode(request, response, log_manager)
+        service_mode(request, response, log_manager)
         if not self.mode_active(response):
             return
 
-        transform_ventilating(request, response, log_manager)
+        service_ventilating(request, response, log_manager)
         if request.rr > 0:
             response.rr = request.rr
         if request.ie > 0:
@@ -111,7 +111,7 @@ class PCAC(Service):
         if request.pip > 0:
             response.pip = request.pip
         response.peep = request.peep
-        self.transform_fio2(request, response, log_manager)
+        self.service_fio2(request, response, log_manager)
 
 
 class HFNC(Service):
@@ -129,15 +129,15 @@ class HFNC(Service):
             response: mcu_pb.Parameters, log_manager: log.Manager
     ) -> None:
         """Implement ParametersService.transform."""
-        transform_mode(request, response, log_manager)
+        service_mode(request, response, log_manager)
         if not self.mode_active(response):
             return
 
-        transform_ventilating(request, response, log_manager)
-        self.transform_flow(request, response, log_manager)
-        self.transform_fio2(request, response, log_manager)
+        service_ventilating(request, response, log_manager)
+        self.service_flow(request, response, log_manager)
+        self.service_fio2(request, response, log_manager)
 
-    def transform_flow(
+    def service_flow(
             self, request: mcu_pb.ParametersRequest,
             response: mcu_pb.Parameters, log_manager: log.Manager
     ) -> None:
