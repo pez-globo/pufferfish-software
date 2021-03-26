@@ -30,9 +30,10 @@ typedef enum _LogEventCode {
     LogEventCode_hr_too_high = 7,
     LogEventCode_battery_low = 8,
     LogEventCode_screen_locked = 9,
-    LogEventCode_ventilation_mode_changed = 10,
-    LogEventCode_fio2_setting_changed = 11,
-    LogEventCode_flow_setting_changed = 12
+    LogEventCode_ventilation_operation_changed = 10,
+    LogEventCode_ventilation_mode_changed = 11,
+    LogEventCode_fio2_setting_changed = 12,
+    LogEventCode_flow_setting_changed = 13
 } LogEventCode;
 
 typedef enum _LogEventType {
@@ -216,6 +217,10 @@ typedef struct _LogEvent {
     uint32_t new_uint32;
     bool old_bool;
     bool new_bool;
+    bool has_old_range;
+    Range old_range;
+    bool has_new_range;
+    Range new_range;
     VentilationMode old_mode;
     VentilationMode new_mode;
 } LogEvent;
@@ -249,7 +254,7 @@ extern "C" {
 #define ParametersRequest_init_default           {0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0, 0}
 #define Ping_init_default                        {0, 0}
 #define Announcement_init_default                {0, {0, {0}}}
-#define LogEvent_init_default                    {0, 0, _LogEventCode_MIN, _LogEventType_MIN, false, Range_init_default, 0, 0, 0, 0, 0, 0, _VentilationMode_MIN, _VentilationMode_MIN}
+#define LogEvent_init_default                    {0, 0, _LogEventCode_MIN, _LogEventType_MIN, false, Range_init_default, 0, 0, 0, 0, 0, 0, false, Range_init_default, false, Range_init_default, _VentilationMode_MIN, _VentilationMode_MIN}
 #define ExpectedLogEvent_init_default            {0}
 #define NextLogEvents_init_default               {0, 0, 0, {{NULL}, NULL}}
 #define ActiveLogEvents_init_default             {{{NULL}, NULL}}
@@ -266,7 +271,7 @@ extern "C" {
 #define ParametersRequest_init_zero              {0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0, 0}
 #define Ping_init_zero                           {0, 0}
 #define Announcement_init_zero                   {0, {0, {0}}}
-#define LogEvent_init_zero                       {0, 0, _LogEventCode_MIN, _LogEventType_MIN, false, Range_init_zero, 0, 0, 0, 0, 0, 0, _VentilationMode_MIN, _VentilationMode_MIN}
+#define LogEvent_init_zero                       {0, 0, _LogEventCode_MIN, _LogEventType_MIN, false, Range_init_zero, 0, 0, 0, 0, 0, 0, false, Range_init_zero, false, Range_init_zero, _VentilationMode_MIN, _VentilationMode_MIN}
 #define ExpectedLogEvent_init_zero               {0}
 #define NextLogEvents_init_zero                  {0, 0, 0, {{NULL}, NULL}}
 #define ActiveLogEvents_init_zero                {{{NULL}, NULL}}
@@ -371,8 +376,10 @@ extern "C" {
 #define LogEvent_new_uint32_tag                  9
 #define LogEvent_old_bool_tag                    10
 #define LogEvent_new_bool_tag                    11
-#define LogEvent_old_mode_tag                    12
-#define LogEvent_new_mode_tag                    13
+#define LogEvent_old_range_tag                   12
+#define LogEvent_new_range_tag                   13
+#define LogEvent_old_mode_tag                    14
+#define LogEvent_new_mode_tag                    15
 
 /* Struct field encoding specification for nanopb */
 #define Range_FIELDLIST(X, a) \
@@ -522,11 +529,15 @@ X(a, STATIC,   SINGULAR, UINT32,   old_uint32,        8) \
 X(a, STATIC,   SINGULAR, UINT32,   new_uint32,        9) \
 X(a, STATIC,   SINGULAR, BOOL,     old_bool,         10) \
 X(a, STATIC,   SINGULAR, BOOL,     new_bool,         11) \
-X(a, STATIC,   SINGULAR, UENUM,    old_mode,         12) \
-X(a, STATIC,   SINGULAR, UENUM,    new_mode,         13)
+X(a, STATIC,   OPTIONAL, MESSAGE,  old_range,        12) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  new_range,        13) \
+X(a, STATIC,   SINGULAR, UENUM,    old_mode,         14) \
+X(a, STATIC,   SINGULAR, UENUM,    new_mode,         15)
 #define LogEvent_CALLBACK NULL
 #define LogEvent_DEFAULT NULL
 #define LogEvent_alarm_limits_MSGTYPE Range
+#define LogEvent_old_range_MSGTYPE Range
+#define LogEvent_new_range_MSGTYPE Range
 
 #define ExpectedLogEvent_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   id,                1)
@@ -617,7 +628,7 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define ParametersRequest_size                   45
 #define Ping_size                                12
 #define Announcement_size                        72
-#define LogEvent_size                            60
+#define LogEvent_size                            88
 #define ExpectedLogEvent_size                    6
 /* NextLogEvents_size depends on runtime parameters */
 /* ActiveLogEvents_size depends on runtime parameters */
@@ -698,7 +709,7 @@ struct MessageDescriptor<Announcement> {
 };
 template <>
 struct MessageDescriptor<LogEvent> {
-    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 13;
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 15;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &LogEvent_msg;
     }

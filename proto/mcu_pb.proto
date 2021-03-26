@@ -124,9 +124,10 @@ enum LogEventCode {
   battery_low = 8;
   screen_locked = 9;
   // Control
-  ventilation_mode_changed = 10;
-  fio2_setting_changed = 11;
-  flow_setting_changed = 12;
+  ventilation_operation_changed = 10;
+  ventilation_mode_changed = 11;
+  fio2_setting_changed = 12;
+  flow_setting_changed = 13;
 }
 
 enum LogEventType {

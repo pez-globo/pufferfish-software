@@ -29,16 +29,19 @@ class Manager:
     # Log Events
 
     def activate_alarm(
-            self, code: mcu_pb.LogEventCode, lower_limit: int, upper_limit: int,
+            self, code: mcu_pb.LogEventCode, event_type: mcu_pb.LogEventType,
+            lower_limit: int, upper_limit: int,
             log_manager: log.Manager
     ) -> None:
         """Create a new Log Event if it is not active."""
         if code in self.active_alarm_ids:
             return
 
-        log_event = mcu_pb.LogEvent(code=code, alarm_limits=mcu_pb.Range(
-            lower=lower_limit, upper=upper_limit
-        ))
+        log_event = mcu_pb.LogEvent(
+            code=code, type=event_type, alarm_limits=mcu_pb.Range(
+                lower=lower_limit, upper=upper_limit
+            )
+        )
         self.active_alarm_ids[code] = log_manager.add_event(log_event)
 
     def deactivate_alarm(self, code: mcu_pb.LogEventCode) -> None:
@@ -103,14 +106,16 @@ class Service:
         """Update the alarms for a particular parameter."""
         if value < lower_limit:
             self._manager.activate_alarm(
-                too_low_code, lower_limit, upper_limit, log_manager
+                too_low_code, mcu_pb.LogEventType.patient,
+                lower_limit, upper_limit, log_manager
             )
         else:
             self._manager.deactivate_alarm(too_low_code)
 
         if value > upper_limit:
             self._manager.activate_alarm(
-                too_high_code, lower_limit, upper_limit, log_manager
+                too_high_code, mcu_pb.LogEventType.patient,
+                lower_limit, upper_limit, log_manager
             )
         else:
             self._manager.deactivate_alarm(too_high_code)

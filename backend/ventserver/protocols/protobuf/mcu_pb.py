@@ -32,9 +32,10 @@ class LogEventCode(betterproto.Enum):
     battery_low = 8
     screen_locked = 9
     # Control
-    ventilation_mode_changed = 10
-    fio2_setting_changed = 11
-    flow_setting_changed = 12
+    ventilation_operation_changed = 10
+    ventilation_mode_changed = 11
+    fio2_setting_changed = 12
+    flow_setting_changed = 13
 
 
 class LogEventType(betterproto.Enum):
@@ -163,8 +164,10 @@ class LogEvent(betterproto.Message):
     new_uint32: int = betterproto.uint32_field(9)
     old_bool: bool = betterproto.bool_field(10)
     new_bool: bool = betterproto.bool_field(11)
-    old_mode: "VentilationMode" = betterproto.enum_field(12)
-    new_mode: "VentilationMode" = betterproto.enum_field(13)
+    old_range: "Range" = betterproto.message_field(12)
+    new_range: "Range" = betterproto.message_field(13)
+    old_mode: "VentilationMode" = betterproto.enum_field(14)
+    new_mode: "VentilationMode" = betterproto.enum_field(15)
 
 
 @dataclass

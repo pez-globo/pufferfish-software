@@ -73,10 +73,11 @@ export enum LogEventCode {
   /** battery_low - System */
   battery_low = 8,
   screen_locked = 9,
-  /** ventilation_mode_changed - Control */
-  ventilation_mode_changed = 10,
-  fio2_setting_changed = 11,
-  flow_setting_changed = 12,
+  /** ventilation_operation_changed - Control */
+  ventilation_operation_changed = 10,
+  ventilation_mode_changed = 11,
+  fio2_setting_changed = 12,
+  flow_setting_changed = 13,
   UNRECOGNIZED = -1,
 }
 
@@ -113,12 +114,15 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case "screen_locked":
       return LogEventCode.screen_locked;
     case 10:
+    case "ventilation_operation_changed":
+      return LogEventCode.ventilation_operation_changed;
+    case 11:
     case "ventilation_mode_changed":
       return LogEventCode.ventilation_mode_changed;
-    case 11:
+    case 12:
     case "fio2_setting_changed":
       return LogEventCode.fio2_setting_changed;
-    case 12:
+    case 13:
     case "flow_setting_changed":
       return LogEventCode.flow_setting_changed;
     case -1:
@@ -150,6 +154,8 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "battery_low";
     case LogEventCode.screen_locked:
       return "screen_locked";
+    case LogEventCode.ventilation_operation_changed:
+      return "ventilation_operation_changed";
     case LogEventCode.ventilation_mode_changed:
       return "ventilation_mode_changed";
     case LogEventCode.fio2_setting_changed:
@@ -309,6 +315,8 @@ export interface LogEvent {
   newUint32: number;
   oldBool: boolean;
   newBool: boolean;
+  oldRange: Range | undefined;
+  newRange: Range | undefined;
   oldMode: VentilationMode;
   newMode: VentilationMode;
 }
@@ -1937,8 +1945,14 @@ export const LogEvent = {
     writer.uint32(72).uint32(message.newUint32);
     writer.uint32(80).bool(message.oldBool);
     writer.uint32(88).bool(message.newBool);
-    writer.uint32(96).int32(message.oldMode);
-    writer.uint32(104).int32(message.newMode);
+    if (message.oldRange !== undefined && message.oldRange !== undefined) {
+      Range.encode(message.oldRange, writer.uint32(98).fork()).ldelim();
+    }
+    if (message.newRange !== undefined && message.newRange !== undefined) {
+      Range.encode(message.newRange, writer.uint32(106).fork()).ldelim();
+    }
+    writer.uint32(112).int32(message.oldMode);
+    writer.uint32(120).int32(message.newMode);
     return writer;
   },
 
@@ -1983,9 +1997,15 @@ export const LogEvent = {
           message.newBool = reader.bool();
           break;
         case 12:
-          message.oldMode = reader.int32() as any;
+          message.oldRange = Range.decode(reader, reader.uint32());
           break;
         case 13:
+          message.newRange = Range.decode(reader, reader.uint32());
+          break;
+        case 14:
+          message.oldMode = reader.int32() as any;
+          break;
+        case 15:
           message.newMode = reader.int32() as any;
           break;
         default:
@@ -2052,6 +2072,16 @@ export const LogEvent = {
       message.newBool = Boolean(object.newBool);
     } else {
       message.newBool = false;
+    }
+    if (object.oldRange !== undefined && object.oldRange !== null) {
+      message.oldRange = Range.fromJSON(object.oldRange);
+    } else {
+      message.oldRange = undefined;
+    }
+    if (object.newRange !== undefined && object.newRange !== null) {
+      message.newRange = Range.fromJSON(object.newRange);
+    } else {
+      message.newRange = undefined;
     }
     if (object.oldMode !== undefined && object.oldMode !== null) {
       message.oldMode = ventilationModeFromJSON(object.oldMode);
@@ -2123,6 +2153,16 @@ export const LogEvent = {
     } else {
       message.newBool = false;
     }
+    if (object.oldRange !== undefined && object.oldRange !== null) {
+      message.oldRange = Range.fromPartial(object.oldRange);
+    } else {
+      message.oldRange = undefined;
+    }
+    if (object.newRange !== undefined && object.newRange !== null) {
+      message.newRange = Range.fromPartial(object.newRange);
+    } else {
+      message.newRange = undefined;
+    }
     if (object.oldMode !== undefined && object.oldMode !== null) {
       message.oldMode = object.oldMode;
     } else {
@@ -2152,6 +2192,14 @@ export const LogEvent = {
     message.newUint32 !== undefined && (obj.newUint32 = message.newUint32);
     message.oldBool !== undefined && (obj.oldBool = message.oldBool);
     message.newBool !== undefined && (obj.newBool = message.newBool);
+    message.oldRange !== undefined &&
+      (obj.oldRange = message.oldRange
+        ? Range.toJSON(message.oldRange)
+        : undefined);
+    message.newRange !== undefined &&
+      (obj.newRange = message.newRange
+        ? Range.toJSON(message.newRange)
+        : undefined);
     message.oldMode !== undefined &&
       (obj.oldMode = ventilationModeToJSON(message.oldMode));
     message.newMode !== undefined &&

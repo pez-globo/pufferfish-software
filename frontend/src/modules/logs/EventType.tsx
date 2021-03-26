@@ -34,7 +34,7 @@ export const getEventType = (code: LogEventCode): EventType => {
     case LogEventCode.fio2_too_low:
       return {
         type: LogEventType.patient,
-        label: 'fiO2 is too low',
+        label: 'FiO2 is too low',
         head: 'FiO2',
         stateKey: 'fio2',
         unit: PERCENT,
@@ -42,7 +42,7 @@ export const getEventType = (code: LogEventCode): EventType => {
     case LogEventCode.fio2_too_high:
       return {
         type: LogEventType.patient,
-        label: 'fiO2 is too high',
+        label: 'FiO2 is too high',
         head: 'FiO2',
         stateKey: 'fio2',
         unit: PERCENT,
@@ -78,28 +78,28 @@ export const getEventType = (code: LogEventCode): EventType => {
     case LogEventCode.spo2_too_low:
       return {
         type: LogEventType.patient,
-        label: 'spO2 is too low',
+        label: 'SpO2 is too low',
         stateKey: 'spo2',
         unit: PERCENT,
       };
     case LogEventCode.spo2_too_high:
       return {
         type: LogEventType.patient,
-        label: 'spO2 is too high',
+        label: 'SpO2 is too high',
         stateKey: 'spo2',
         unit: PERCENT,
       };
     case LogEventCode.fio2_setting_changed:
       return {
         type: LogEventType.control,
-        label: 'Fio2 Settings changed',
+        label: 'FiO2 changed',
         stateKey: 'fio2',
         unit: PERCENT,
       };
     case LogEventCode.flow_setting_changed:
       return {
         type: LogEventType.control,
-        label: 'Flow Settings changed',
+        label: 'Flow Rate changed',
         stateKey: 'flow',
         unit: LMIN,
       };
