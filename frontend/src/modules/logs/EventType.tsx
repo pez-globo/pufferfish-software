@@ -15,7 +15,7 @@ export const getEventDetails = (
   eventType: EventType,
   alarmLimits: Record<string, Range>,
 ): string => {
-  const unit = (eventType.unit === PERCENT) ? eventType.unit : ` ${eventType.unit}`;
+  const unit = eventType.unit === PERCENT ? eventType.unit : ` ${eventType.unit}`;
   if (event.type === LogEventType.patient) {
     if (eventType?.stateKey) {
       return eventType.label.includes('high')
@@ -26,22 +26,21 @@ export const getEventDetails = (
     if (event.code === LogEventCode.ventilation_operation_changed) {
       if (event.newBool === true) {
         return 'Ventilation started';
-      } else if (event.newBool === false) {
-        return 'Ventilation stopped';
-      } else {
-        return '';
       }
-    } else if (event.oldFloat != null && event.newFloat != null) {
-        return `Changed from ${event.oldFloat}${unit} to ${event.newFloat}${unit}`;
-    } else {
-        return '';
+      if (event.newBool === false) {
+        return 'Ventilation stopped';
+      }
+      return '';
     }
+    if (event.oldFloat != null && event.newFloat != null) {
+      return `Changed from ${event.oldFloat}${unit} to ${event.newFloat}${unit}`;
+    }
+    return '';
   } else if (event.type === LogEventType.alarm_limits) {
     if (event.oldRange != null && event.newRange != null) {
       return `Changed from [${event.oldRange.lower}${unit} - ${event.newRange.lower}${unit}] to [${event.oldRange.upper}${unit} - ${event.newRange.upper}${unit}]`;
-    } else {
-      return '';
     }
+    return '';
   }
   return '';
 };
