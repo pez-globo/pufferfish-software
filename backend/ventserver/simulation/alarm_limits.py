@@ -53,10 +53,12 @@ def service_limits_range(
 class Service:
     """Base class for the AlarmLimits/AlarmLimitsRequest service."""
 
-    SPO2_MIN = 0
-    SPO2_MAX = 100
     FIO2_MIN = 21
     FIO2_MAX = 100
+    SPO2_MIN = 0
+    SPO2_MAX = 100
+    HR_MIN = 0
+    HR_MAX = 200
 
     # Update methods
 
@@ -72,6 +74,10 @@ class Service:
         service_limits_range(
             request.spo2, response.spo2, self.SPO2_MIN, self.SPO2_MAX,
             mcu_pb.LogEventCode.spo2_alarm_limits_changed, log_manager
+        )
+        service_limits_range(
+            request.hr, response.hr, self.HR_MIN, self.HR_MAX,
+            mcu_pb.LogEventCode.hr_alarm_limits_changed, log_manager
         )
 
 
@@ -92,7 +98,6 @@ class Services:
 
     _active_service: Optional[Service] = attr.ib(default=None)
     _services = {
-        mcu_pb.VentilationMode.pc_ac: PCAC(),
         mcu_pb.VentilationMode.hfnc: HFNC()
     }
 

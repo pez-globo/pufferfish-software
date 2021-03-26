@@ -10,6 +10,7 @@ export enum VentilationMode {
   niv_pc = 3,
   niv_ps = 4,
   psv = 5,
+  prvc = 6,
   UNRECOGNIZED = -1,
 }
 
@@ -33,6 +34,9 @@ export function ventilationModeFromJSON(object: any): VentilationMode {
     case 5:
     case "psv":
       return VentilationMode.psv;
+    case 6:
+    case "prvc":
+      return VentilationMode.prvc;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -54,6 +58,8 @@ export function ventilationModeToJSON(object: VentilationMode): string {
       return "niv_ps";
     case VentilationMode.psv:
       return "psv";
+    case VentilationMode.prvc:
+      return "prvc";
     default:
       return "UNKNOWN";
   }
@@ -81,6 +87,7 @@ export enum LogEventCode {
   /** fio2_alarm_limits_changed - Alarm Limits */
   fio2_alarm_limits_changed = 14,
   spo2_alarm_limits_changed = 15,
+  hr_alarm_limits_changed = 16,
   UNRECOGNIZED = -1,
 }
 
@@ -134,6 +141,9 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case 15:
     case "spo2_alarm_limits_changed":
       return LogEventCode.spo2_alarm_limits_changed;
+    case 16:
+    case "hr_alarm_limits_changed":
+      return LogEventCode.hr_alarm_limits_changed;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -175,6 +185,8 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "fio2_alarm_limits_changed";
     case LogEventCode.spo2_alarm_limits_changed:
       return "spo2_alarm_limits_changed";
+    case LogEventCode.hr_alarm_limits_changed:
+      return "hr_alarm_limits_changed";
     default:
       return "UNKNOWN";
   }

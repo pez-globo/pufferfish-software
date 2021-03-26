@@ -16,7 +16,8 @@ typedef enum _VentilationMode {
     VentilationMode_vc_ac = 2,
     VentilationMode_niv_pc = 3,
     VentilationMode_niv_ps = 4,
-    VentilationMode_psv = 5
+    VentilationMode_psv = 5,
+    VentilationMode_prvc = 6
 } VentilationMode;
 
 typedef enum _LogEventCode {
@@ -35,7 +36,8 @@ typedef enum _LogEventCode {
     LogEventCode_fio2_setting_changed = 12,
     LogEventCode_flow_setting_changed = 13,
     LogEventCode_fio2_alarm_limits_changed = 14,
-    LogEventCode_spo2_alarm_limits_changed = 15
+    LogEventCode_spo2_alarm_limits_changed = 15,
+    LogEventCode_hr_alarm_limits_changed = 16
 } LogEventCode;
 
 typedef enum _LogEventType {
@@ -231,12 +233,12 @@ typedef struct _LogEvent {
 
 /* Helper constants for enums */
 #define _VentilationMode_MIN VentilationMode_hfnc
-#define _VentilationMode_MAX VentilationMode_psv
-#define _VentilationMode_ARRAYSIZE ((VentilationMode)(VentilationMode_psv+1))
+#define _VentilationMode_MAX VentilationMode_prvc
+#define _VentilationMode_ARRAYSIZE ((VentilationMode)(VentilationMode_prvc+1))
 
 #define _LogEventCode_MIN LogEventCode_fio2_too_low
-#define _LogEventCode_MAX LogEventCode_spo2_alarm_limits_changed
-#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_spo2_alarm_limits_changed+1))
+#define _LogEventCode_MAX LogEventCode_hr_alarm_limits_changed
+#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_hr_alarm_limits_changed+1))
 
 #define _LogEventType_MIN LogEventType_patient
 #define _LogEventType_MAX LogEventType_alarm_limits

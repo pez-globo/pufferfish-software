@@ -14,6 +14,7 @@ class VentilationMode(betterproto.Enum):
     niv_pc = 3
     niv_ps = 4
     psv = 5
+    prvc = 6
 
 
 class LogEventCode(betterproto.Enum):
@@ -39,6 +40,7 @@ class LogEventCode(betterproto.Enum):
     # Alarm Limits
     fio2_alarm_limits_changed = 14
     spo2_alarm_limits_changed = 15
+    hr_alarm_limits_changed = 16
 
 
 class LogEventType(betterproto.Enum):
