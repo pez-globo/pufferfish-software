@@ -127,11 +127,19 @@ export const ToolBar = ({
   const initParameterUpdate = useCallback(() => {
     if (isVentilatorOn) {
       switch (currentMode) {
+        case VentilationMode.hfnc:
+          dispatch(
+            updateCommittedParameter({
+              fio2: parameterRequestStandby.fio2,
+              flow: parameterRequestStandby.flow,
+            }),
+          );
+          break;
         case VentilationMode.pc_ac:
-        case VentilationMode.pc_simv:
         case VentilationMode.vc_ac:
-        case VentilationMode.vc_simv:
-        case VentilationMode.niv:
+        case VentilationMode.niv_pc:
+        case VentilationMode.niv_ps:
+        case VentilationMode.psv:
           dispatch(
             updateCommittedParameter({
               peep: parameterRequestStandby.peep,
@@ -141,14 +149,7 @@ export const ToolBar = ({
             }),
           );
           break;
-        case VentilationMode.hfnc:
         default:
-          dispatch(
-            updateCommittedParameter({
-              fio2: parameterRequestStandby.fio2,
-              flow: parameterRequestStandby.flow,
-            }),
-          );
           break;
       }
     }

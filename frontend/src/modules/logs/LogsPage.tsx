@@ -46,7 +46,7 @@ interface Data {
 
 const headCells: HeadCell[] = [
   { id: 'type', numeric: false, disablePadding: true, label: 'Type', enableSort: false },
-  { id: 'alarm', numeric: true, disablePadding: false, label: 'Alarm', enableSort: false },
+  { id: 'alarm', numeric: true, disablePadding: false, label: 'Event', enableSort: false },
   { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date', enableSort: true },
   { id: 'details', numeric: false, disablePadding: false, label: 'Details', enableSort: false },
   { id: 'settings', numeric: true, disablePadding: false, label: 'Settings', enableSort: false },
@@ -98,10 +98,12 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     switch (type) {
       case LogEventType.patient:
         return 'Patient';
-      case LogEventType.control:
-        return 'Control';
       case LogEventType.system:
         return 'System';
+      case LogEventType.control:
+        return 'Control';
+      case LogEventType.alarm_limits:
+        return 'Alarm Limits';
       default:
         return 'System';
     }
@@ -202,10 +204,17 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   };
 
   const typeColor = (type: LogEventType | undefined) => {
-    if (type === LogEventType.control) return { backgroundColor: theme.palette.primary.main };
-    if (type === LogEventType.patient) return { backgroundColor: '#92D25B', color: 'black' };
-    if (type === LogEventType.system) return { backgroundColor: '#E68619' };
-    return { backgroundColor: '#E68619' };
+    switch (type) {
+      case LogEventType.patient:
+        return { backgroundColor: '#FF3B30' };
+      case LogEventType.system:
+        return { backgroundColor: '#E68619' };
+      case LogEventType.control:
+      case LogEventType.alarm_limits:
+        return { backgroundColor: theme.palette.primary.main };
+      default:
+        return { backgroundColor: '#E68619' };
+    }
   };
 
   const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
@@ -295,14 +304,14 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                 </TableCell>
                 <TableCell align="left">
                   {`
-                                        ${new Date(row.time * 1000).toLocaleTimeString([], {
-                                          hour: '2-digit',
-                                          minute: '2-digit',
-                                        })}
                                         ${new Date(row.time * 1000).toLocaleDateString([], {
                                           month: '2-digit',
                                           day: '2-digit',
                                           year: 'numeric',
+                                        })}
+                                        ${new Date(row.time * 1000).toLocaleTimeString([], {
+                                          hour: '2-digit',
+                                          minute: '2-digit',
                                         })}
                                     `}
                 </TableCell>

@@ -15,26 +15,43 @@ export const getEventDetails = (
   eventType: EventType,
   alarmLimits: Record<string, Range>,
 ): string => {
+  const unit = eventType.unit === PERCENT ? eventType.unit : ` ${eventType.unit}`;
   if (event.type === LogEventType.patient) {
     if (eventType?.stateKey) {
       return eventType.label.includes('high')
-        ? `Upper limit of ${eventType?.stateKey} is ${alarmLimits[eventType.stateKey].upper}`
-        : `Lower limit of ${eventType?.stateKey} is ${alarmLimits[eventType.stateKey].lower}`;
+        ? `Upper limit is ${alarmLimits[eventType.stateKey].upper}${unit}`
+        : `Lower limit is ${alarmLimits[eventType.stateKey].lower}${unit}`;
     }
   } else if (event.type === LogEventType.control) {
-    return event.oldValue != null && event.newValue != null
-      ? `Control ${eventType?.stateKey} changed from ${event.oldValue} ${eventType.unit} to ${event.newValue} ${eventType.unit}`
-      : '';
+    if (event.code === LogEventCode.ventilation_operation_changed) {
+      if (event.newBool === true) {
+        return 'Ventilation started';
+      }
+      if (event.newBool === false) {
+        return 'Ventilation stopped';
+      }
+      return '';
+    }
+    if (event.oldFloat != null && event.newFloat != null) {
+      return `${eventType.stateKey}: ${event.oldFloat}${unit} \u2794 ${event.newFloat}${unit}`;
+    }
+    return '';
+  } else if (event.type === LogEventType.alarm_limits) {
+    if (event.oldRange != null && event.newRange != null) {
+      return `${eventType.stateKey}: [${event.oldRange.lower}${unit} - ${event.oldRange.upper}${unit}] \u2794 [${event.newRange.lower}${unit} - ${event.newRange.upper}${unit}]`;
+    }
+    return '';
   }
   return '';
 };
 
 export const getEventType = (code: LogEventCode): EventType => {
   switch (code) {
+    // Patient
     case LogEventCode.fio2_too_low:
       return {
         type: LogEventType.patient,
-        label: 'fiO2 is too low',
+        label: 'FiO2 is too low',
         head: 'FiO2',
         stateKey: 'fio2',
         unit: PERCENT,
@@ -42,9 +59,23 @@ export const getEventType = (code: LogEventCode): EventType => {
     case LogEventCode.fio2_too_high:
       return {
         type: LogEventType.patient,
-        label: 'fiO2 is too high',
+        label: 'FiO2 is too high',
         head: 'FiO2',
         stateKey: 'fio2',
+        unit: PERCENT,
+      };
+    case LogEventCode.spo2_too_low:
+      return {
+        type: LogEventType.patient,
+        label: 'SpO2 is too low',
+        stateKey: 'spo2',
+        unit: PERCENT,
+      };
+    case LogEventCode.spo2_too_high:
+      return {
+        type: LogEventType.patient,
+        label: 'SpO2 is too high',
+        stateKey: 'spo2',
         unit: PERCENT,
       };
     case LogEventCode.rr_too_low:
@@ -75,33 +106,12 @@ export const getEventType = (code: LogEventCode): EventType => {
         stateKey: 'hr',
         unit: BPM,
       };
-    case LogEventCode.spo2_too_low:
+    // System
+    case BACKEND_CONNECTION_LOST_CODE:
       return {
-        type: LogEventType.patient,
-        label: 'spO2 is too low',
-        stateKey: 'spo2',
-        unit: PERCENT,
-      };
-    case LogEventCode.spo2_too_high:
-      return {
-        type: LogEventType.patient,
-        label: 'spO2 is too high',
-        stateKey: 'spo2',
-        unit: PERCENT,
-      };
-    case LogEventCode.fio2_setting_changed:
-      return {
-        type: LogEventType.control,
-        label: 'Fio2 Settings changed',
-        stateKey: 'fio2',
-        unit: PERCENT,
-      };
-    case LogEventCode.flow_setting_changed:
-      return {
-        type: LogEventType.control,
-        label: 'Flow Settings changed',
-        stateKey: 'flow',
-        unit: LMIN,
+        type: LogEventType.system,
+        label: 'Software connectivity lost',
+        unit: '',
       };
     case LogEventCode.battery_low:
       return {
@@ -115,11 +125,56 @@ export const getEventType = (code: LogEventCode): EventType => {
         label: 'Screen is locked',
         unit: '',
       };
-    case BACKEND_CONNECTION_LOST_CODE:
+    // Control
+    case LogEventCode.ventilation_operation_changed:
       return {
-        type: LogEventType.system,
-        label: 'Software connectivity lost',
+        type: LogEventType.control,
+        label: 'Ventilation',
+        stateKey: 'ventilating',
         unit: '',
+      };
+    case LogEventCode.ventilation_mode_changed:
+      return {
+        type: LogEventType.control,
+        label: 'Ventilation mode changed',
+        stateKey: 'mode',
+        unit: '',
+      };
+    case LogEventCode.fio2_setting_changed:
+      return {
+        type: LogEventType.control,
+        label: 'FiO2 changed',
+        stateKey: 'FiO2',
+        unit: PERCENT,
+      };
+    case LogEventCode.flow_setting_changed:
+      return {
+        type: LogEventType.control,
+        label: 'Flow Rate changed',
+        stateKey: 'Flow',
+        unit: LMIN,
+      };
+    // Alarm Limits
+    case LogEventCode.fio2_alarm_limits_changed:
+      return {
+        type: LogEventType.alarm_limits,
+        label: 'FiO2 limits changed',
+        stateKey: 'FiO2',
+        unit: PERCENT,
+      };
+    case LogEventCode.spo2_alarm_limits_changed:
+      return {
+        type: LogEventType.alarm_limits,
+        label: 'SpO2 limits changed',
+        stateKey: 'SpO2',
+        unit: PERCENT,
+      };
+    case LogEventCode.hr_alarm_limits_changed:
+      return {
+        type: LogEventType.alarm_limits,
+        label: 'Heart Rate limits changed',
+        stateKey: 'HR',
+        unit: BPM,
       };
     default:
       return { type: LogEventType.system, label: '', unit: '' };

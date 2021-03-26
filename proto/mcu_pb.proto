@@ -8,48 +8,48 @@ message Range {
 message AlarmLimits {
   uint32 time = 1;
   Range fio2 = 2;
-  Range spo2 = 3;
-  Range rr = 4;
-  Range pip = 5;
-  Range peep = 6;
-  Range ip_above_peep = 7;
-  Range insp_time = 8;
-  Range paw = 9;
-  Range mve = 10;
-  Range tv = 11;
-  Range etco2 = 12;
-  Range flow = 13;
-  Range apnea = 14;
-  Range hr = 15;
+  Range flow = 3;
+  Range spo2 = 4;
+  Range hr = 5;
+  Range rr = 6;
+  Range pip = 7;
+  Range peep = 8;
+  Range ip_above_peep = 9;
+  Range insp_time = 10;
+  Range paw = 11;
+  Range mve = 12;
+  Range tv = 13;
+  Range etco2 = 14;
+  Range apnea = 15;
 }
 
 message AlarmLimitsRequest {
   uint32 time = 1;
   Range fio2 = 2;
-  Range spo2 = 3;
-  Range rr = 4;
-  Range pip = 5;
-  Range peep = 6;
-  Range ip_above_peep = 7;
-  Range insp_time = 8;
-  Range paw = 9;
-  Range mve = 10;
-  Range tv = 11;
-  Range etco2 = 12;
-  Range flow = 13;
-  Range apnea = 14;
-  Range hr = 15;
+  Range flow = 3;
+  Range spo2 = 4;
+  Range hr = 5;
+  Range rr = 6;
+  Range pip = 7;
+  Range peep = 8;
+  Range ip_above_peep = 9;
+  Range insp_time = 10;
+  Range paw = 11;
+  Range mve = 12;
+  Range tv = 13;
+  Range etco2 = 14;
+  Range apnea = 15;
 }
 
 message SensorMeasurements {
   uint32 time = 1;
   uint32 cycle = 2;
-  float paw = 3;
-  float flow = 4;
-  float volume = 5;
-  float fio2 = 6;
-  float spo2 = 7;
-  float hr = 8;
+  float fio2 = 3;
+  float spo2 = 4;
+  float hr = 5;
+  float paw = 6;
+  float flow = 7;
+  float volume = 8;
 }
 
 message CycleMeasurements {
@@ -63,39 +63,39 @@ message CycleMeasurements {
 }
 
 enum VentilationMode {
-  pc_ac = 0;
-  pc_simv = 1;
+  hfnc = 0;
+  pc_ac = 1;
   vc_ac = 2;
-  vc_simv = 3;
-  psv = 4;
-  niv = 5;
-  hfnc = 6;
+  niv_pc = 3;
+  niv_ps = 4;
+  psv = 5;
+  prvc = 6;
 }
 
 message Parameters {
   uint32 time = 1;
-  VentilationMode mode = 2;
-  float pip = 3;
-  float peep = 4;
-  float vt = 5;
-  float rr = 6;
-  float ie = 7;
-  float fio2 = 8;
-  float flow = 9;
-  bool ventilating = 10;
+  bool ventilating = 2;
+  VentilationMode mode = 3;
+  float fio2 = 4;
+  float flow = 5;
+  float pip = 6;
+  float peep = 7;
+  float vt = 8;
+  float rr = 9;
+  float ie = 10;
 }
 
 message ParametersRequest {
   uint32 time = 1;
-  VentilationMode mode = 2;
-  float pip = 3;
-  float peep = 4;
-  float vt = 5;
-  float rr = 6;
-  float ie = 7;
-  float fio2 = 8;
-  float flow = 9;
-  bool ventilating = 10;
+  bool ventilating = 2;
+  VentilationMode mode = 3;
+  float fio2 = 4;
+  float flow = 5;
+  float pip = 6;
+  float peep = 7;
+  float vt = 8;
+  float rr = 9;
+  float ie = 10;
 }
 
 // Testing messages
@@ -112,6 +112,7 @@ message Announcement {
 
 // Log Events
 enum LogEventCode {
+  // Patient
   fio2_too_low = 0;
   fio2_too_high = 1;
   spo2_too_low = 2;
@@ -120,26 +121,43 @@ enum LogEventCode {
   rr_too_high = 5;
   hr_too_low = 6;
   hr_too_high = 7;
-  fio2_setting_changed = 8;
-  flow_setting_changed = 9;
-  battery_low = 10;
-  screen_locked = 11;
+  // System
+  battery_low = 8;
+  screen_locked = 9;
+  // Control
+  ventilation_operation_changed = 10;
+  ventilation_mode_changed = 11;
+  fio2_setting_changed = 12;
+  flow_setting_changed = 13;
+  // Alarm Limits
+  fio2_alarm_limits_changed = 14;
+  spo2_alarm_limits_changed = 15;
+  hr_alarm_limits_changed = 16;
 }
 
 enum LogEventType {
   patient = 0;
   system = 1;
   control = 2;
+  alarm_limits = 3;
 }
 
 message LogEvent {
   uint32 id = 1;
   uint32 time = 2;
   LogEventCode code = 3;
-  Range alarm_limits = 4;
-  float old_value = 5;
-  float new_value = 6;
-  LogEventType type = 7;
+  LogEventType type = 4;
+  Range alarm_limits = 5;
+  float old_float = 6;
+  float new_float = 7;
+  uint32 old_uint32 = 8;
+  uint32 new_uint32 = 9;
+  bool old_bool = 10;
+  bool new_bool = 11;
+  Range old_range = 12;
+  Range new_range = 13;
+  VentilationMode old_mode = 14;
+  VentilationMode new_mode = 15;
 }
 
 message ExpectedLogEvent {
