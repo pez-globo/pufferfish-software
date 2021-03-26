@@ -76,6 +76,7 @@ IndexStatus decode_cobs(
 
   size_t read_index = 0;
 
+  decoded_buffer.resize(0);
   while (read_index < encoded_buffer.size()) {
     uint8_t code = encoded_buffer[read_index];
 
