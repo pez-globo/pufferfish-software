@@ -1,17 +1,27 @@
 /* Write function
 Scenario: Message: The write method correctly generates an encoded body from the protobuf message descriptor payload
 
-  GIVEN("A Message object constructed with StateSegment Taggedunion, default message types and a max size of 252 bytes")
+  GIVEN("A Message object default-constructed with StateSegment Taggedunion, default message types and a max size of 252 bytes as its class template parameters")
   // assertions carried out in given:
-  // output buffer is empty
+  // message class type member is 0
 
+    // setup:
+    // message class type member set to 5
+    // payload of parameters_request is set
+    // message descriptor array containing one element corresponding to Unknown message
     WHEN("The value of the message payload tag is greater than the size of the message descriptor array")
       THEN("The write method reports invalid type status")
-      THEN("After the write method is called, the output buffer remains unchanged")
+      THEN("After the write method is called, the type member remains unchanged")
+      THEN("The payload.values field data remains unchanged")
+      THEN("The output buffer remains unchanged")
 
+    // setup:
+    // message class type member is unchanged
+    // payload tag is set to Unknown
     WHEN("The message payload tag is such that it corresponds to Unrecognized message descriptor in descriptor array")
       THEN("The write method reports invalid type status")
-      THEN("After the write method is called, the output buffer remains unchanged")
+      THEN("After the write method is called, the type member remains unchanged")
+      THEN("The output buffer remains unchanged")
 
     WHEN("The output buffer is too small to hold the generated body")
       THEN("The write method reports invalid length status")
@@ -19,15 +29,6 @@ Scenario: Message: The write method correctly generates an encoded body from the
 
     WHEN("The size of the output buffer is zero")
       THEN("The write method reports invalid length status")
-
-    // Intent: To show that the write method does not change the internal "type" member of the message class
-    WHEN("The internal type member is set to an arbitrary value and then write method is called")
-    // setup:
-    // type is set to 4
-    // A sensor measurements payload message is set, which has value of type as 2
-      THEN("The write method reports ok status")
-      THEN("After the write method is called, type member remains unchanged)
-
 
   GIVEN("A Message object constructed with StateSegment Taggedunion, default message types and a max size of 126 bytes")
     WHEN("The payload is a sensor measurements message and write method is called")
