@@ -3,31 +3,31 @@ Scenario: The cobs::decode method correctly decodes encoded buffers
  GIVEN("The Util COBS::decode function")
 
    WHEN("The COBS::decode method is called on a buffer containing '0x01' as the only byte")
-    THEN("The decoded size is 0")
+    THEN("The decode_cobs method reports ok status")
     THEN("The decoded buffer is emppty")
 
    WHEN("The COBS::decode method is called on a buffer containing '0x03' as the only byte")      
-    THEN("The decoded size is 0")
+    THEN("The decode_cobs method reports out_of_bounds status")
     THEN("The decoded buffer is emppty")
      
    WHEN("The COBS::decode method is called on a buffer that contains these bytes '0x05 0x02 0x03' ")    
-    THEN("The decoded size is 0")
+    THEN("The decode_cobs method reports out_of_bounds status")
     THEN("The decoded buffer is emppty")
 
    WHEN("The COBS::decode method is called on a buffer that contains these bytes '0x03, 0x9c, 0xb8, 0x03, 0xbe, 0xce'")
-    THEN("The decoded size is 5")
+    THEN("The decode_cobs method reports ok status")
     THEN("The decoded buffer is as expected '\x9c\xb8\x00\xbe\xce' ")
 
    WHEN("The COBS::decode method is called on a encoded buffer of capacity 254 bytes whose original buffer was of capacity 253 with no null bytes")
-    THEN("The decoded size is 253")   
+    THEN("The decode_cobs method reports ok status")
     THEN("The decoded buffer has expected sequence of 253 bytes")
 
    WHEN("The COBS::decode method is called on a encoded buffer of capacity 256 bytes whose original buffer was of capacity 254 with null byte at the end")   
-    THEN("The decoded size is 254")    
+    THEN("The decode_cobs method reports ok status")
     THEN("The decoded buffer has expected sequence of 254 bytes with last byte as null byte")    
 
    WHEN("The COBS::decode method is called on a encoded buffer of capacity 257 bytes whose original buffer was of capacity 255 with no null bytes") 
-    THEN("The decoded size is 255")
+    THEN("The decode_cobs method reports ok status")
     THEN("The decoded buffer has expected sequence of 255 bytes as '0xff 0x71 0xcf ......0x02 0xa2 0xd2')
 
 Scenario: The Util encode_cobs method correctly encodes buffers

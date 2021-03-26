@@ -241,7 +241,7 @@ SCENARIO("The Util encode_cobs method correctly encodes buffers", "[COBS]") {
         for (size_t i = 1; i < 254; i++) {
           REQUIRE(encoded_buffer.operator[](i) == 10);
         }
-        // REQUIRE(encoded_buffer.operator[](256) == 1);
+        REQUIRE(encoded_buffer.operator[](255) == 1);
       }
     }
 
@@ -258,8 +258,8 @@ SCENARIO("The Util encode_cobs method correctly encodes buffers", "[COBS]") {
         for (size_t i = 1; i < 254; i++) {
           REQUIRE(encoded_buffer.operator[](i) == 10);
         }
-        // REQUIRE(encoded_buffer.operator[](256) == 2);
-        // REQUIRE(encoded_buffer.operator[](257) == 10);
+        REQUIRE(encoded_buffer.operator[](255) == 2);
+        REQUIRE(encoded_buffer.operator[](256) == 10);
       }
     }
   }
