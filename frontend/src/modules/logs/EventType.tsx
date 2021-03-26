@@ -33,12 +33,12 @@ export const getEventDetails = (
       return '';
     }
     if (event.oldFloat != null && event.newFloat != null) {
-      return `Changed from ${event.oldFloat}${unit} to ${event.newFloat}${unit}`;
+      return `${eventType.stateKey}: ${event.oldFloat}${unit} \u2794 ${event.newFloat}${unit}`;
     }
     return '';
   } else if (event.type === LogEventType.alarm_limits) {
     if (event.oldRange != null && event.newRange != null) {
-      return `Changed from [${event.oldRange.lower}${unit} - ${event.newRange.lower}${unit}] to [${event.oldRange.upper}${unit} - ${event.newRange.upper}${unit}]`;
+      return `${eventType.stateKey}: [${event.oldRange.lower}${unit} - ${event.oldRange.upper}${unit}] \u2794 [${event.newRange.lower}${unit} - ${event.newRange.upper}${unit}]`;
     }
     return '';
   }
@@ -144,30 +144,37 @@ export const getEventType = (code: LogEventCode): EventType => {
       return {
         type: LogEventType.control,
         label: 'FiO2 changed',
-        stateKey: 'Fio2',
+        stateKey: 'FiO2',
         unit: PERCENT,
       };
     case LogEventCode.flow_setting_changed:
       return {
         type: LogEventType.control,
         label: 'Flow Rate changed',
-        stateKey: 'flow',
+        stateKey: 'Flow',
         unit: LMIN,
       };
     // Alarm Limits
     case LogEventCode.fio2_alarm_limits_changed:
       return {
         type: LogEventType.alarm_limits,
-        label: 'FiO2 alarm limits changed',
-        stateKey: 'fio2',
+        label: 'FiO2 limits changed',
+        stateKey: 'FiO2',
         unit: PERCENT,
       };
     case LogEventCode.spo2_alarm_limits_changed:
       return {
         type: LogEventType.alarm_limits,
-        label: 'SpO2 alarm limits changed',
-        stateKey: 'spo2',
+        label: 'SpO2 limits changed',
+        stateKey: 'SpO2',
         unit: PERCENT,
+      };
+    case LogEventCode.hr_alarm_limits_changed:
+      return {
+        type: LogEventType.alarm_limits,
+        label: 'Heart Rate limits changed',
+        stateKey: 'HR',
+        unit: BPM,
       };
     default:
       return { type: LogEventType.system, label: '', unit: '' };
