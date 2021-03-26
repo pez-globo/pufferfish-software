@@ -74,6 +74,9 @@ export const getSmoothedFiO2 = createSelector(getController, (states: Controller
 export const getSmoothedSpO2 = createSelector(getController, (states: ControllerStates): number =>
   roundValue(states.smoothedMeasurements.spo2.smoothed),
 );
+export const getSmoothedHR = createSelector(getController, (states: ControllerStates): number =>
+  roundValue(states.smoothedMeasurements.hr.smoothed),
+);
 
 // CycleMeasurements
 export const getCycleMeasurements = createSelector(
