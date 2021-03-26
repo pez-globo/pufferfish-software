@@ -203,7 +203,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
 
   const typeColor = (type: LogEventType | undefined) => {
     if (type === LogEventType.control) return { backgroundColor: theme.palette.primary.main };
-    if (type === LogEventType.patient) return { backgroundColor: '#92D25B', color: 'black' };
+    if (type === LogEventType.patient) return { backgroundColor: '#FF3B30' };
     if (type === LogEventType.system) return { backgroundColor: '#E68619' };
     return { backgroundColor: '#E68619' };
   };

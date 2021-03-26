@@ -8,26 +8,39 @@ import betterproto
 
 
 class VentilationMode(betterproto.Enum):
-    pc_ac = 0
-    pc_simv = 1
+    hfnc = 0
+    pc_ac = 1
     vc_ac = 2
-    vc_simv = 3
-    psv = 4
-    niv = 5
-    hfnc = 6
+    niv_pc = 3
+    niv_ps = 4
+    psv = 5
 
 
 class LogEventCode(betterproto.Enum):
     """Log Events"""
 
+    # Patient
     fio2_too_low = 0
     fio2_too_high = 1
     spo2_too_low = 2
     spo2_too_high = 3
     rr_too_low = 4
     rr_too_high = 5
-    battery_low = 6
-    screen_locked = 7
+    hr_too_low = 6
+    hr_too_high = 7
+    # System
+    battery_low = 8
+    screen_locked = 9
+    # Control
+    ventilation_mode_changed = 10
+    fio2_setting_changed = 11
+    flow_setting_changed = 12
+
+
+class LogEventType(betterproto.Enum):
+    patient = 0
+    system = 1
+    control = 2
 
 
 @dataclass
@@ -52,6 +65,7 @@ class AlarmLimits(betterproto.Message):
     etco2: "Range" = betterproto.message_field(12)
     flow: "Range" = betterproto.message_field(13)
     apnea: "Range" = betterproto.message_field(14)
+    hr: "Range" = betterproto.message_field(15)
 
 
 @dataclass
@@ -70,6 +84,7 @@ class AlarmLimitsRequest(betterproto.Message):
     etco2: "Range" = betterproto.message_field(12)
     flow: "Range" = betterproto.message_field(13)
     apnea: "Range" = betterproto.message_field(14)
+    hr: "Range" = betterproto.message_field(15)
 
 
 @dataclass
@@ -81,6 +96,7 @@ class SensorMeasurements(betterproto.Message):
     volume: float = betterproto.float_field(5)
     fio2: float = betterproto.float_field(6)
     spo2: float = betterproto.float_field(7)
+    hr: float = betterproto.float_field(8)
 
 
 @dataclass
@@ -139,9 +155,16 @@ class LogEvent(betterproto.Message):
     id: int = betterproto.uint32_field(1)
     time: int = betterproto.uint32_field(2)
     code: "LogEventCode" = betterproto.enum_field(3)
-    alarm_limits: "Range" = betterproto.message_field(4)
-    old_value: float = betterproto.float_field(5)
-    new_value: float = betterproto.float_field(6)
+    type: "LogEventType" = betterproto.enum_field(4)
+    alarm_limits: "Range" = betterproto.message_field(5)
+    old_float: float = betterproto.float_field(6)
+    new_float: float = betterproto.float_field(7)
+    old_uint32: int = betterproto.uint32_field(8)
+    new_uint32: int = betterproto.uint32_field(9)
+    old_bool: bool = betterproto.bool_field(10)
+    new_bool: bool = betterproto.bool_field(11)
+    old_mode: "VentilationMode" = betterproto.enum_field(12)
+    new_mode: "VentilationMode" = betterproto.enum_field(13)
 
 
 @dataclass
@@ -165,6 +188,7 @@ class ActiveLogEvents(betterproto.Message):
 @dataclass
 class BatteryPower(betterproto.Message):
     power_left: int = betterproto.uint32_field(1)
+    charging_status: bool = betterproto.bool_field(2)
 
 
 @dataclass

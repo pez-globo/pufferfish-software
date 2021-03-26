@@ -22,8 +22,8 @@ export const getEventDetails = (
         : `Lower limit of ${eventType?.stateKey} is ${alarmLimits[eventType.stateKey].lower}`;
     }
   } else if (event.type === LogEventType.control) {
-    return event.oldValue != null && event.newValue != null
-      ? `Control ${eventType?.stateKey} changed from ${event.oldValue} ${eventType.unit} to ${event.newValue} ${eventType.unit}`
+    return event.oldFloat != null && event.newFloat != null
+      ? `Control ${eventType?.stateKey} changed from ${event.oldFloat} ${eventType.unit} to ${event.newFloat} ${eventType.unit}`
       : '';
   }
   return '';

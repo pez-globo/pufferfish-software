@@ -234,11 +234,18 @@ interface AlarmConfiguration {
 
 const alarmConfiguration = (ventilationMode: VentilationMode): Array<AlarmConfiguration> => {
   switch (ventilationMode) {
+    case VentilationMode.hfnc:
+      return [
+        { label: 'FiO2', stateKey: 'fio2' },
+        { label: 'SpO2', stateKey: 'spo2' },
+        { label: 'HR', stateKey: 'hr', max: 200 },
+      ];
     case VentilationMode.pc_ac:
-    case VentilationMode.pc_simv:
     case VentilationMode.vc_ac:
-    case VentilationMode.vc_simv:
-    case VentilationMode.niv:
+    case VentilationMode.niv_pc:
+    case VentilationMode.niv_ps:
+    case VentilationMode.psv:
+    default:
       return [
         { label: 'RR', stateKey: 'rr' },
         { label: 'TV', stateKey: 'tv' },
@@ -250,13 +257,6 @@ const alarmConfiguration = (ventilationMode: VentilationMode): Array<AlarmConfig
         { label: 'PiP', stateKey: 'pip' },
         { label: 'PEEP', stateKey: 'peep' },
         { label: 'Insp. Time', stateKey: 'inspTime', step: 0.5 },
-      ];
-    case VentilationMode.hfnc:
-    default:
-      return [
-        { label: 'FiO2', stateKey: 'fio2' },
-        { label: 'SpO2', stateKey: 'spo2' },
-        { label: 'HR', stateKey: 'hr', max: 200 },
       ];
   }
 };

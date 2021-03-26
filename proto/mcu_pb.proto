@@ -63,13 +63,12 @@ message CycleMeasurements {
 }
 
 enum VentilationMode {
-  pc_ac = 0;
-  pc_simv = 1;
+  hfnc = 0;
+  pc_ac = 1;
   vc_ac = 2;
-  vc_simv = 3;
-  psv = 4;
-  niv = 5;
-  hfnc = 6;
+  niv_pc = 3;
+  niv_ps = 4;
+  psv = 5;
 }
 
 message Parameters {
@@ -112,6 +111,7 @@ message Announcement {
 
 // Log Events
 enum LogEventCode {
+  // Patient
   fio2_too_low = 0;
   fio2_too_high = 1;
   spo2_too_low = 2;
@@ -120,10 +120,13 @@ enum LogEventCode {
   rr_too_high = 5;
   hr_too_low = 6;
   hr_too_high = 7;
-  fio2_setting_changed = 8;
-  flow_setting_changed = 9;
-  battery_low = 10;
-  screen_locked = 11;
+  // System
+  battery_low = 8;
+  screen_locked = 9;
+  // Control
+  ventilation_mode_changed = 10;
+  fio2_setting_changed = 11;
+  flow_setting_changed = 12;
 }
 
 enum LogEventType {
@@ -136,10 +139,18 @@ message LogEvent {
   uint32 id = 1;
   uint32 time = 2;
   LogEventCode code = 3;
-  Range alarm_limits = 4;
-  float old_value = 5;
-  float new_value = 6;
-  LogEventType type = 7;
+  LogEventType type = 4;
+  Range alarm_limits = 5;
+  float old_float = 6;
+  float new_float = 7;
+  uint32 old_uint32 = 8;
+  uint32 new_uint32 = 9;
+  bool old_bool = 10;
+  bool new_bool = 11;
+  Range old_range = 12;
+  Range new_range = 13;
+  VentilationMode old_mode = 14;
+  VentilationMode new_mode = 15;
 }
 
 message ExpectedLogEvent {

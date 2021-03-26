@@ -19,15 +19,15 @@ const useStyles = makeStyles(() => ({
 
 const renderModeLayout = (mode: VentilationMode): JSX.Element => {
   switch (mode) {
-    case VentilationMode.pc_ac:
-    case VentilationMode.pc_simv:
-    case VentilationMode.vc_ac:
-    case VentilationMode.vc_simv:
-    case VentilationMode.niv:
-      return <PressureControlMainView />;
     case VentilationMode.hfnc:
-    default:
       return <HFNCMainView />;
+    case VentilationMode.pc_ac:
+    case VentilationMode.vc_ac:
+    case VentilationMode.niv_pc:
+    case VentilationMode.niv_ps:
+    case VentilationMode.psv:
+    default:
+      return <PressureControlMainView />;
   }
 };
 
