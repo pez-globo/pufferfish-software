@@ -23,13 +23,10 @@ IndexStatus COBSDecoder::transform(
       Util::ByteVector<input_size>::max_size() <= FrameProps::encoded_max_size,
       "COBSDecoder unavailable as the input buffer size is too large");
   static_assert(
-      Util::ByteVector<output_size>::max_size() <= FrameProps::payload_max_size,
-      "COBSDecoder unavailable as the output buffer size is too large");
+      Util::ByteVector<output_size>::max_size() >= FrameProps::payload_max_size,
+      "COBSDecoder unavailable as the output buffer size is too small");
 
-  if (Util::decode_cobs(input_buffer, output_buffer) != IndexStatus::ok) {
-    return IndexStatus::out_of_bounds;
-  }
-  return IndexStatus::ok;
+  return Util::decode_cobs(input_buffer, output_buffer);
 }
 
 // COBSEncoder
@@ -39,18 +36,13 @@ IndexStatus COBSEncoder::transform(
     const Util::ByteVector<input_size> &input_buffer,
     Util::ByteVector<output_size> &output_buffer) const {
   static_assert(
-      Util::ByteVector<input_size>::max_size() <= FrameProps::encoded_max_size,
-      "COBSDecoder unavailable as the input buffer size is too large");
+      Util::ByteVector<input_size>::max_size() <= FrameProps::payload_max_size,
+      "COBSEncoder unavailable as the input buffer size is too large");
+  static_assert(
+      Util::ByteVector<output_size>::max_size() >= FrameProps::encoded_max_size,
+      "COBSEncoder unavailable as the output buffer size is too small");
 
-  size_t encoded_size = Util::get_encoded_cobs_buffer_size(input_buffer.size());
-  if (output_buffer.max_size() < encoded_size) {
-    return IndexStatus::out_of_bounds;
-  }
-
-  if (Util::encode_cobs(input_buffer, output_buffer) != IndexStatus::ok) {
-    return IndexStatus::out_of_bounds;
-  }
-  return IndexStatus::ok;
+  return Util::encode_cobs(input_buffer, output_buffer);
 }
 
 }  // namespace Pufferfish::Driver::Serial::Backend

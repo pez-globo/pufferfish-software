@@ -40,7 +40,7 @@ IndexStatus encode_cobs(
   uint8_t code = 1;
 
   if (encoded_buffer.empty()) {
-    encoded_buffer.resize(buffer.size() + 1);
+    encoded_buffer.resize(get_encoded_cobs_buffer_size(buffer.size()));
   }
 
   while (read_index < buffer.size()) {
@@ -98,7 +98,7 @@ IndexStatus decode_cobs(
   return IndexStatus::ok;
 }
 
-inline size_t get_encoded_cobs_buffer_size(size_t unencoded_buffer_size) {
+constexpr size_t get_encoded_cobs_buffer_size(size_t unencoded_buffer_size) {
   return unencoded_buffer_size + unencoded_buffer_size / max_block_size + 1;
 }
 
