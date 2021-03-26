@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Subscription } from 'rxjs';
 import { useDispatch } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
 import ReplyIcon from '@material-ui/icons/Reply';
 import ModalPopup from '../controllers/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
@@ -70,24 +69,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     background: theme.palette.primary.main,
   },
   actionButtons: {
-    marginBottom: '10px',
+    position: 'absolute',
+    bottom: '15px',
+    right: '15px',
   },
   aButtons: {
-    background: '#234562',
     color: '#fff',
-
-    '&:hover': {
-      background: '#124876',
-    },
   },
   closeBtn: {
-    position: 'absolute',
-    top: '25px',
-    right: '25px',
-    zIndex: 9999,
-    cursor: 'pointer',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
+    minWidth: '38px',
+    marginRight: theme.spacing(1),
+    borderRadius: '8px',
   },
   marginContent: {
     textAlign: 'center',
@@ -98,6 +90,18 @@ const useStyles = makeStyles((theme: Theme) => ({
     textAlign: 'center',
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(1),
+  },
+  tabAligning: {
+    maxWidth: '60%',
+    margin: '0 auto',
+    marginTop: '5%',
+    '& .MuiTabs-root': {
+      '& .MuiTabs-scroller': {
+        '& .MuiTabs-flexContainer': {
+          alignItems: 'center',
+        },
+      },
+    },
   },
 }));
 
@@ -274,6 +278,7 @@ const MultiStepWizard = (): JSX.Element => {
   const [tabIndex, setTabIndex] = React.useState(0);
   const [parameter, setParameter] = React.useState<Data>();
   const [multiParams, setMultiParams] = React.useState<Data[]>([]);
+  const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);
 
   const handleChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setTabIndex(newValue);
@@ -333,6 +338,11 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.setValue = setting;
       parameter.setValue = setting;
+      if (isAnyChanges()) {
+        setIsSubmitDisabled(false);
+      } else {
+        setIsSubmitDisabled(true);
+      }
     }
   };
 
@@ -341,6 +351,11 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.alarmValues = [min, max];
       parameter.alarmValues = [min, max];
+      if (isAnyChanges()) {
+        setIsSubmitDisabled(false);
+      } else {
+        setIsSubmitDisabled(true);
+      }
     }
   };
 
@@ -455,89 +470,110 @@ const MultiStepWizard = (): JSX.Element => {
 
   return (
     <React.Fragment>
-      <ModalPopup withAction={false} label={label} open={open}>
-        {tabIndex === 0 ? (
-          <CloseIcon onClick={() => setMultiPopupOpen(false)} className={classes.closeBtn} />
-        ) : (
-          <ReplyIcon onClick={() => setTabIndex(tabIndex - 1)} className={classes.closeBtn} />
-        )}
-        <Grid container item>
-          <Tabs
-            value={tabIndex}
-            onChange={handleChange}
-            classes={{ indicator: classes.tabIndicator }}
-          >
-            <Tab
-              label="HFNC Control"
-              {...a11yProps(0)}
-              className={classes.tab}
-              classes={{ selected: classes.selectedTab }}
-            />
-            <Tab
-              style={{ visibility: tabIndex === 0 ? 'hidden' : 'visible' }}
-              label={parameter?.isSetvalEnabled ? 'Set New' : 'Alarms'}
-              {...a11yProps(1)}
-              className={classes.tab}
-              classes={{ selected: classes.selectedTab }}
-            />
-          </Tabs>
-        </Grid>
-        <Grid container>
-          <TabPanel value={tabIndex} index={0}>
-            <HFNCControls />
-          </TabPanel>
-          <TabPanel value={tabIndex} index={1}>
-            {parameter && parameter.isSetvalEnabled ? (
-              <SetValueContent
-                openModal={open && parameter.stateKey === stateKey}
-                key={parameter.stateKey}
-                committedSetting={getSetValues(parameter.stateKey)}
-                label={parameter.label}
-                units={parameter.units}
-                requestCommitSetting={doSetValue}
-                {...(parameter.minValue && { min: parameter.minValue })}
-                {...(parameter.maxValue && { max: parameter.maxValue })}
+      <ModalPopup
+        withAction={false}
+        label={label}
+        open={open}
+        showCloseIcon={true}
+        onClose={onCancel}
+      >
+        <Grid style={{ flexGrow: 1 }}>
+          <Grid container item className={classes.tabAligning}>
+            <Grid style={{ minHeight: 38, minWidth: 38 }}>
+              <Button
+                onClick={() => setTabIndex(tabIndex - 1)}
+                variant="contained"
+                color="primary"
+                disabled={!(tabIndex > 0)}
+                className={classes.closeBtn}
+              >
+                <ReplyIcon />
+              </Button>
+            </Grid>
+            <Tabs
+              value={tabIndex}
+              onChange={handleChange}
+              classes={{ indicator: classes.tabIndicator }}
+            >
+              <Tab
+                label="HFNC Control"
+                {...a11yProps(0)}
+                className={classes.tab}
+                classes={{ selected: classes.selectedTab }}
               />
-            ) : (
-              parameter && (
-                <AlarmModal
+              <Tab
+                style={{ visibility: tabIndex === 0 ? 'hidden' : 'visible' }}
+                label={parameter?.isSetvalEnabled ? 'Set New' : 'Alarms'}
+                {...a11yProps(1)}
+                className={classes.tab}
+                classes={{ selected: classes.selectedTab }}
+              />
+            </Tabs>
+          </Grid>
+          <Grid container className={classes.tabAligning}>
+            <TabPanel value={tabIndex} index={0}>
+              <HFNCControls />
+            </TabPanel>
+            <TabPanel value={tabIndex} index={1}>
+              {parameter && parameter.isSetvalEnabled ? (
+                <SetValueContent
                   openModal={open && parameter.stateKey === stateKey}
+                  key={parameter.stateKey}
+                  committedSetting={getSetValues(parameter.stateKey)}
                   label={parameter.label}
                   units={parameter.units}
-                  stateKey={parameter.stateKey}
-                  requestCommitRange={doSetAlarmValues}
-                  contentOnly={true}
-                  labelHeading={true}
-                  alarmRangeValues={getAlarmValues(parameter.stateKey)}
-                  {...(parameter.alarmLimitMin && { committedMin: parameter.alarmLimitMin })}
-                  {...(parameter.alarmLimitMax && { committedMax: parameter.alarmLimitMax })}
+                  requestCommitSetting={doSetValue}
+                  {...(parameter.minValue && { min: parameter.minValue })}
+                  {...(parameter.maxValue && { max: parameter.maxValue })}
                 />
-              )
-            )}
-          </TabPanel>
-        </Grid>
-
-        <Grid
-          container
-          item
-          alignItems="center"
-          justify="flex-end"
-          className={classes.actionButtons}
-        >
-          <Grid item>
-            <Button
-              variant="contained"
-              className={classes.aButtons}
-              style={{ marginRight: '15px' }}
-              onClick={onCancel}
-            >
-              Cancel
-            </Button>
+              ) : (
+                parameter && (
+                  <AlarmModal
+                    openModal={open && parameter.stateKey === stateKey}
+                    label={parameter.label}
+                    units={parameter.units}
+                    stateKey={parameter.stateKey}
+                    requestCommitRange={doSetAlarmValues}
+                    contentOnly={true}
+                    labelHeading={true}
+                    alarmRangeValues={getAlarmValues(parameter.stateKey)}
+                    {...(parameter.alarmLimitMin && { committedMin: parameter.alarmLimitMin })}
+                    {...(parameter.alarmLimitMax && { committedMax: parameter.alarmLimitMax })}
+                  />
+                )
+              )}
+            </TabPanel>
           </Grid>
-          <Grid item>
-            <Button variant="contained" className={classes.aButtons} onClick={onConfirm}>
-              Submit
-            </Button>
+          <Grid
+            container
+            item
+            alignItems="center"
+            justify="flex-end"
+            className={classes.actionButtons}
+          >
+            <Grid item>
+              <Button
+                variant="contained"
+                className={classes.aButtons}
+                style={{ marginRight: '15px' }}
+                onClick={onCancel}
+                color="primary"
+              >
+                Cancel
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                disabled={isSubmitDisabled}
+                className={classes.aButtons}
+                onClick={onConfirm}
+                color="secondary"
+                style={{ color: '#000' }}
+              >
+                Submit
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
       </ModalPopup>
@@ -549,30 +585,34 @@ const MultiStepWizard = (): JSX.Element => {
         onClose={handleCancelOnConfirmPopup}
         onConfirm={handleConfirm}
       >
-        <Grid container alignItems="center" className={classes.marginHeader}>
-          <Grid item xs>
-            <Typography variant="h4">Confirm New Changes?</Typography>
+        <Grid container alignItems="center">
+          <Grid container alignItems="center" justify="center">
+            <Grid container alignItems="center" className={classes.marginHeader}>
+              <Grid item xs>
+                <Typography variant="h4">Confirm New Changes?</Typography>
+              </Grid>
+            </Grid>
+            <Grid item alignItems="center" className={classes.marginContent}>
+              {multiParams.map((param: Data) => {
+                if (param.isSetvalEnabled) {
+                  if (param.setValue !== param.setValueActual) {
+                    return (
+                      <Typography variant="subtitle1">{`Change ${param.label} to ${param.setValue} ${param.units}?`}</Typography>
+                    );
+                  }
+                } else if (
+                  param.alarmValues.length &&
+                  (param.alarmValues[0] !== param.alarmValuesActual[0] ||
+                    param.alarmValues[1] !== param.alarmValuesActual[1])
+                ) {
+                  return (
+                    <Typography variant="subtitle1">{`Change ${param.label} alarm range to ${param.alarmValues[0]} - ${param.alarmValues[1]}?`}</Typography>
+                  );
+                }
+                return <React.Fragment />;
+              })}
+            </Grid>
           </Grid>
-        </Grid>
-        <Grid item alignItems="center" className={classes.marginContent}>
-          {multiParams.map((param: Data) => {
-            if (param.isSetvalEnabled) {
-              if (param.setValue !== param.setValueActual) {
-                return (
-                  <Typography variant="subtitle1">{`Change ${param.label} to ${param.setValue} ${param.units}?`}</Typography>
-                );
-              }
-            } else if (
-              param.alarmValues.length &&
-              (param.alarmValues[0] !== param.alarmValuesActual[0] ||
-                param.alarmValues[1] !== param.alarmValuesActual[1])
-            ) {
-              return (
-                <Typography variant="subtitle1">{`Change ${param.label} alarm range to ${param.alarmValues[0]} - ${param.alarmValues[1]}?`}</Typography>
-              );
-            }
-            return <React.Fragment />;
-          })}
         </Grid>
       </ModalPopup>
       <ModalPopup
@@ -583,30 +623,34 @@ const MultiStepWizard = (): JSX.Element => {
         onClose={handleCancelOnCancelPopup}
         onConfirm={handleCancelConfirm}
       >
-        <Grid container alignItems="center" className={classes.marginHeader}>
-          <Grid item xs>
-            <Typography variant="h4">Keep Previous Values?</Typography>
+        <Grid container alignItems="center">
+          <Grid container alignItems="center" justify="center">
+            <Grid container alignItems="center" className={classes.marginHeader}>
+              <Grid item xs>
+                <Typography variant="h4">Keep Previous Values?</Typography>
+              </Grid>
+            </Grid>
+            <Grid item alignItems="center" className={classes.marginContent}>
+              {multiParams.map((param: Data) => {
+                if (param.isSetvalEnabled) {
+                  if (param.setValue !== param.setValueActual) {
+                    return (
+                      <Typography variant="subtitle1">{`Keep ${param.label} to ${param.setValueActual} ${param.units}?`}</Typography>
+                    );
+                  }
+                } else if (
+                  param.alarmValues.length &&
+                  (param.alarmValues[0] !== param.alarmValuesActual[0] ||
+                    param.alarmValues[1] !== param.alarmValuesActual[1])
+                ) {
+                  return (
+                    <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${param.alarmValuesActual[0]} - ${param.alarmValuesActual[1]}?`}</Typography>
+                  );
+                }
+                return <React.Fragment />;
+              })}
+            </Grid>
           </Grid>
-        </Grid>
-        <Grid item alignItems="center" className={classes.marginContent}>
-          {multiParams.map((param: Data) => {
-            if (param.isSetvalEnabled) {
-              if (param.setValue !== param.setValueActual) {
-                return (
-                  <Typography variant="subtitle1">{`Keep ${param.label} to ${param.setValueActual} ${param.units}?`}</Typography>
-                );
-              }
-            } else if (
-              param.alarmValues.length &&
-              (param.alarmValues[0] !== param.alarmValuesActual[0] ||
-                param.alarmValues[1] !== param.alarmValuesActual[1])
-            ) {
-              return (
-                <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${param.alarmValuesActual[0]} - ${param.alarmValuesActual[1]}?`}</Typography>
-              );
-            }
-            return <React.Fragment />;
-          })}
         </Grid>
       </ModalPopup>
     </React.Fragment>

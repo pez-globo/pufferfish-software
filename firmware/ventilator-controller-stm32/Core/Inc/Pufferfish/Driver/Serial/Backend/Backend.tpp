@@ -183,7 +183,7 @@ void Backend::update_clock(uint32_t current_time) {
   synchronizer_.input(current_time);
 }
 
-constexpr bool Backend::accept_message(Application::MessageTypes type) {
+constexpr bool Backend::accept_message(Application::MessageTypes type) noexcept {
   return type == Application::MessageTypes::parameters_request ||
          type == Application::MessageTypes::alarm_limits_request;
 }

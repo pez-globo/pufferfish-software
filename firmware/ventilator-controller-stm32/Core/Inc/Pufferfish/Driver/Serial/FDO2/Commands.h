@@ -38,7 +38,7 @@ static const int arg_base = 10;
 static const char arg_delimiter = ' ';
 static const size_t max_field_digits = 11;  /// number of digits in -2^31
 
-constexpr size_t max_frame_len(size_t num_fields) {
+constexpr size_t max_frame_len(size_t num_fields) noexcept {
   return Headers::length + num_fields * (1 + max_field_digits) + 1;
 }
 

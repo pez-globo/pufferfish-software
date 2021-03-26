@@ -71,7 +71,7 @@ enum class Unit : uint16_t {
 };
 static const size_t unit_shift = 8;
 
-constexpr uint16_t make_flow_unit(UnitPrefix prefix, TimeBase time, Unit unit) {
+constexpr uint16_t make_flow_unit(UnitPrefix prefix, TimeBase time, Unit unit) noexcept {
   return (static_cast<uint16_t>(prefix) << unit_prefix_shift) +
          (static_cast<uint16_t>(time) << time_base_shift) +
          (static_cast<uint16_t>(unit) << unit_shift);
