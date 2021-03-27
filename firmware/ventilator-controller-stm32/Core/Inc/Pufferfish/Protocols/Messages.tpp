@@ -108,7 +108,7 @@ template <size_t output_size>
 MessageStatus MessageSender<Message, TaggedUnion, num_descriptors>::transform(
     const TaggedUnion &input_payload, Util::ByteVector<output_size> &output_buffer) const {
   Message input_message;
-  input_message.payload = input_payload;  // NOLINT(cppcoreguidelines-pro-type-union-access)
+  input_message.payload = input_payload;
   return input_message.write(output_buffer, descriptors_);
 }
 

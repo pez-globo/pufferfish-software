@@ -23,8 +23,12 @@ class TaggedUnion {
   template <typename Value>
   void set(const Value &new_value);
 
+  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes);
   TagValue tag;
+  // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes);
   Union value;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+  TaggedUnion& operator=(const TaggedUnion& other) = default;
 };
 
 }  // namespace Pufferfish::Util
