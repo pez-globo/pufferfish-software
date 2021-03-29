@@ -20,6 +20,12 @@ class TaggedUnion {
  public:
   using Tag = TagValue;
 
+  inline ~TaggedUnion() = default;
+  inline TaggedUnion() = default;
+  inline TaggedUnion(const TaggedUnion&) = default;
+  inline TaggedUnion(TaggedUnion&&) noexcept = default;
+  inline TaggedUnion& operator=(TaggedUnion&&) noexcept = default;
+
   template <typename Value>
   void set(const Value &new_value);
 
