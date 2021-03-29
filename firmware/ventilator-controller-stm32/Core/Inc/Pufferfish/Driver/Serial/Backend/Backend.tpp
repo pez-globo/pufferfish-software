@@ -154,7 +154,7 @@ Backend::Status Backend::input(uint8_t new_byte) {
     case BackendReceiver::OutputStatus::available:
       break;
     case BackendReceiver::OutputStatus::invalid_frame_length:
-    case BackendReceiver::OutputStatus::invalid_frame_decoding:
+    case BackendReceiver::OutputStatus::invalid_frame_encoding:
     case BackendReceiver::OutputStatus::invalid_crcelement_parse:
     case BackendReceiver::OutputStatus::invalid_crcelement_crc:
     case BackendReceiver::OutputStatus::invalid_datagram_parse:
