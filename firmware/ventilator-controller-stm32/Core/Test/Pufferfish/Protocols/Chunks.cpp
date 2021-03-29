@@ -1177,3 +1177,119 @@ SCENARIO("Protocols::ChunkMerger behaves correctly", "[chunks]") {
     }
   }
 }
+
+SCENARIO("ChunkMerger and Chunksplitter roundtrip behaves properly", "[chunks]") {
+  GIVEN(
+      "A chunkmerger object with delimiter as 0x00,A chunksplitter object with empty internal "
+      "buffer and multiple bytevectors") {
+    constexpr size_t buffer_size = 256;
+    PF::Protocols::ChunkMerger chunk_merger{};
+    PF::Protocols::ChunkOutputStatus output_status;
+    PF::Util::ByteVector<buffer_size> expected1;
+    PF::Util::ByteVector<buffer_size> expected2;
+    PF::Util::ByteVector<buffer_size> expected3;
+
+    PF::Protocols::ChunkSplitter<buffer_size, uint8_t> chunk_splitter{};
+
+    WHEN(
+        "A merged chunk from 3 different byte vectors after transform is generated, then passed as "
+        "input to a chunksplitter, after which the merged output is passed to a new Chunkmerger") {
+      PF::Util::ByteVector<buffer_size> vector1;
+      auto body1 = std::string("\xda\xb3\x1b\x94\xa5"s);
+      PF::Util::convert_string_to_byte_vector(body1, vector1);
+      PF::Util::ByteVector<buffer_size> vector2;
+      auto body2 = std::string("\x1b\x1a\xc5\xd9\xf3"s);
+      PF::Util::convert_string_to_byte_vector(body2, vector2);
+      PF::Util::ByteVector<buffer_size> vector3;
+      auto body3 = std::string("\xbb\x7d\xa8\x01\xf1"s);
+      PF::Util::convert_string_to_byte_vector(body3, vector3);
+
+      expected1.copy_from(vector1.buffer(), vector1.size());
+      expected2.copy_from(vector2.buffer(), vector2.size());
+      expected3.copy_from(vector3.buffer(), vector3.size());
+
+      // ChunkMerger
+      auto status_1 = chunk_merger.transform<buffer_size, uint8_t>(vector1);
+      THEN("The transform method reports ok status for first bytevector") {
+        REQUIRE(status_1 == PF::Protocols::ChunkOutputStatus::ok);
+      }
+      expected1.push_back(0);
+      THEN("The ChunkMerger appends the delimeter") { REQUIRE(vector1 == expected1); }
+      auto status_2 = chunk_merger.transform<buffer_size, uint8_t>(vector2);
+      THEN("The transform method reports ok status for second bytevector") {
+        REQUIRE(status_2 == PF::Protocols::ChunkOutputStatus::ok);
+      }
+      expected2.push_back(0);
+      THEN("The ChunkMerger appends the delimeter") { REQUIRE(vector2 == expected2); }
+      auto status_3 = chunk_merger.transform<buffer_size, uint8_t>(vector3);
+      THEN("The transform method reports ok status for third bytevector") {
+        REQUIRE(status_3 == PF::Protocols::ChunkOutputStatus::ok);
+      }
+      expected3.push_back(0);
+      THEN("The ChunkMerger appends the delimeter") { REQUIRE(vector3 == expected3); }
+
+      PF::Util::ByteVector<buffer_size> merged1;
+      merged1.copy_from(vector1.buffer(), vector1.size());
+      merged1.copy_from(vector2.buffer(), vector2.size(), 6);
+      merged1.copy_from(vector3.buffer(), vector3.size(), 12);
+
+      // ChunkSplitter
+      PF::Util::ByteVector<buffer_size> split1;
+      PF::Util::ByteVector<buffer_size> split2;
+      PF::Util::ByteVector<buffer_size> split3;
+      bool input_overwritten = false;
+      PF::Util::ByteVector<buffer_size> output_buffer;
+
+      for (size_t i = 0; i < 6; i++) {
+        auto input_status = chunk_splitter.input(merged1[i], input_overwritten);
+        if (input_status == PF::Protocols::ChunkInputStatus::output_ready) {
+          output_status = chunk_splitter.output(output_buffer);
+          split1.copy_from(output_buffer.buffer(), output_buffer.size());
+          REQUIRE(output_status == PF::Protocols::ChunkOutputStatus::ok);
+        }
+      }
+
+      for (size_t i = 6; i < 12; i++) {
+        auto input_status = chunk_splitter.input(merged1[i], input_overwritten);
+        if (input_status == PF::Protocols::ChunkInputStatus::output_ready) {
+          output_status = chunk_splitter.output(output_buffer);
+          split2.copy_from(output_buffer.buffer(), output_buffer.size());
+          REQUIRE(output_status == PF::Protocols::ChunkOutputStatus::ok);
+        }
+      }
+
+      for (size_t i = 12; i < merged1.size(); i++) {
+        auto input_status = chunk_splitter.input(merged1[i], input_overwritten);
+        if (input_status == PF::Protocols::ChunkInputStatus::output_ready) {
+          output_status = chunk_splitter.output(output_buffer);
+          split3.copy_from(output_buffer.buffer(), output_buffer.size());
+          REQUIRE(output_status == PF::Protocols::ChunkOutputStatus::ok);
+        }
+      }
+
+      // ChunkMerger
+      auto merge1 = chunk_merger.transform<buffer_size, uint8_t>(split1);
+      THEN("The transform method reports ok status for first bytevector") {
+        REQUIRE(merge1 == PF::Protocols::ChunkOutputStatus::ok);
+      }
+      THEN("The ChunkMerger appends the delimeter") { REQUIRE(split1 == expected1); }
+      auto merge2 = chunk_merger.transform<buffer_size, uint8_t>(split2);
+      THEN("The transform method reports ok status for second bytevector") {
+        REQUIRE(merge2 == PF::Protocols::ChunkOutputStatus::ok);
+      }
+      THEN("The ChunkMerger appends the delimeter") { REQUIRE(split2 == expected2); }
+      auto merge3 = chunk_merger.transform<buffer_size, uint8_t>(split3);
+      THEN("The transform method reports ok status for third bytevector") {
+        REQUIRE(merge3 == PF::Protocols::ChunkOutputStatus::ok);
+      }
+      THEN("The ChunkMerger appends the delimeter") { REQUIRE(split3 == expected3); }
+
+      PF::Util::ByteVector<buffer_size> merged2;
+      merged2.copy_from(split1.buffer(), split1.size());
+      merged2.copy_from(split2.buffer(), split2.size(), 6);
+      merged2.copy_from(split3.buffer(), split3.size(), 12);
+
+      REQUIRE(merged1 == merged2);
+    }
+  }
+}
