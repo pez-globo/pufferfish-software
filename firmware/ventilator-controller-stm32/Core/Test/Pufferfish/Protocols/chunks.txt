@@ -105,8 +105,9 @@ Scenario: After output is consumed, ChunkSplitter's behavior resets to that of a
   // assertions:
   // The output buffer has expected sequence of 256 bytes that had initially filled the internal buffer
 
-  WHEN("chunks of varying sizes ranging from 1 to 255 are passed as input") 
+  WHEN("chunks of capacity 254 bytes with varying data are passed as input, after which a delimiter is passed and output is called")
     THEN("The input method reports ok status for each chunk")
+    THEN("the output method reports ok status for each chunk")
 
 Scenario: A chunksplitter constructed with a non-zero delimeter parameter correctly handles input chunks
 

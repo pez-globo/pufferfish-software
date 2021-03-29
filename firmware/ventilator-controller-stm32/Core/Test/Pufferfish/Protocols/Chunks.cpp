@@ -12,6 +12,8 @@
 
 #include "Pufferfish/Protocols/Chunks.h"
 
+#include <iostream>
+
 #include "Pufferfish/Test/Util.h"
 #include "Pufferfish/Util/Array.h"
 #include "Pufferfish/Util/Vector.h"
@@ -436,16 +438,18 @@ SCENARIO(
     output_status = chunks.output(output_buffer);
     REQUIRE(output_status == PF::Protocols::ChunkOutputStatus::ok);
 
-    WHEN("chunks of varying sizes ranging from 1 to 255 are passed as input") {
-      size_t buffer_size = GENERATE(1, 255);
-
+    WHEN(
+        "chunks of capacity 254 bytes with varying data are passed as input, after which a "
+        "delimiter is passed and output is called") {
+      uint8_t val = GENERATE(take(255, random(0, 255)));
       for (size_t i = 0; i < buffer_size; i++) {
-        val = 10;
-        input_status = chunks.input(val, input_overwritten);
-        THEN("The input method reports ok status for each chunk") {
-          REQUIRE(input_status == PF::Protocols::ChunkInputStatus::ok);
-        }
+        val++;
+        chunks.input(val, input_overwritten);
       }
+      input_status = chunks.input(0, input_overwritten);
+      REQUIRE(input_status == PF::Protocols::ChunkInputStatus::output_ready);
+      output_status = chunks.output(output_buffer);
+      REQUIRE(output_status == PF::Protocols::ChunkOutputStatus::ok);
     }
   }
 }
