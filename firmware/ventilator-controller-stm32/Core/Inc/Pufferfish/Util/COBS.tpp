@@ -39,9 +39,9 @@ IndexStatus encode_cobs(
   size_t code_index = 0;
   uint8_t code = 1;
 
-  if (encoded_buffer.empty()) {
-    encoded_buffer.resize(get_encoded_cobs_buffer_size(buffer.size()));
-  }
+  if (encoded_buffer.resize(get_encoded_cobs_buffer_size(buffer.size())) != IndexStatus::ok) {
+    return IndexStatus::out_of_bounds;
+  };
 
   while (read_index < buffer.size()) {
     if (buffer[read_index] == 0) {

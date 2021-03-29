@@ -63,7 +63,7 @@ class BackendReceiver {
     available = 0,
     waiting,
     invalid_frame_length,
-    invalid_frame_decoding,
+    invalid_frame_encoding,
     invalid_crcelement_parse,
     invalid_crcelement_crc,
     invalid_datagram_parse,

@@ -39,7 +39,7 @@ BackendReceiver::OutputStatus BackendReceiver::output(BackendMessage &output_mes
     case FrameProps::OutputStatus::invalid_length:
       return OutputStatus::invalid_frame_length;
     case FrameProps::OutputStatus::invalid_cobs:
-      return OutputStatus::invalid_frame_decoding;
+      return OutputStatus::invalid_frame_encoding;
     case FrameProps::OutputStatus::ok:
       break;
   }
