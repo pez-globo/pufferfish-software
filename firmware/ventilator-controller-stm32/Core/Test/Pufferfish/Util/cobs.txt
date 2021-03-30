@@ -16,7 +16,11 @@ Scenario: The Util encode_cobs function correctly encodes buffers
 
   WHEN("The cobs::encode function is called on a buffer that contains these bytes '0x11 0x22 0x00 0x33'")
     THEN("The encode_cobs function reports ok status")
-    THEN("The encoded buffer is as expected '\x03\x11\x22\x02\x33'") {
+    THEN("The encoded buffer is as expected '\x03\x11\x22\x02\x33'")
+
+  WHEN("The cobs::encode function is called on a buffer that contains these bytes '0x11 0x22 0x00 0x33' and a non-empty output_buffer is passed")
+    THEN("The encode_cobs function reports ok status")
+    THEN("The encoded buffer is as expected '\x03\x11\x22\x02\x33'")
 
   WHEN("The cobs::encode function is called on a buffer that contains these bytes '\x11\x22\x33\x44'")
     THEN("The encode_cobs function reports ok status")
@@ -81,7 +85,7 @@ Scenario: The cobs::decode function correctly decodes encoded buffers
   WHEN("The COBS::decode function is called on a buffer that contains these bytes '0x02 0x02 0xff' ")    
     THEN("The decode_cobs function reports out_of_bounds status")
 
-  WHEN("The decoded buffer is too small to hold the decoded data") {
+  WHEN("The decoded buffer is too small to hold the decoded data")
     THEN("The decode_cobs function reports out_of_bounds status")
     THEN("The decoded buffer is empty")
 
@@ -93,7 +97,7 @@ Scenario: The cobs::decode function correctly decodes encoded buffers
     THEN("The decode_cobs function reports ok status")
     THEN("The decoded buffer is as expected '0x00'")
 
-  WHEN("The COBS::decode function is called on a buffer containing these bytes '\x01\x01\x01'") {    
+  WHEN("The COBS::decode function is called on a buffer containing these bytes '\x01\x01\x01'")    
     THEN("The decode_cobs function reports ok status")
     THEN("The decoded buffer is as expected '0x00 0x00'")
 
@@ -105,7 +109,7 @@ Scenario: The cobs::decode function correctly decodes encoded buffers
     THEN("The decode_cobs function reports ok status")
     THEN("The decoded buffer is as expected '\x11\x22\x33\x44'")            
 
-  WHEN("The COBS::decode function is called on a buffer containing these bytes '\x02x'") {
+  WHEN("The COBS::decode function is called on a buffer containing these bytes '\x02x'")
     THEN("The decode_cobs function reports ok status")
     THEN("The decoded buffer is as expected 'x' ")
 

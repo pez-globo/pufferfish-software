@@ -52,6 +52,7 @@ namespace Pufferfish::Util {
 /// \brief Encode a byte buffer with the COBS encoder.
 /// \param buffer A ByteVector to the unencoded buffer to encode.
 /// \param encodedBuffer The ByteVector for the encoded bytes.
+/// The encoded buffer is resized to fit the encoded data, returns out_of_bounds otherwise
 /// \returns IndexStatus as ok/out_of_bounds
 template <size_t input_size, size_t output_size>
 IndexStatus encode_cobs(
