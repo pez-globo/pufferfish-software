@@ -25,6 +25,7 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
     constexpr size_t encoded_buffer_size = 257UL;
     PF::Util::ByteVector<buffer_size> input_buffer;
     PF::Util::ByteVector<encoded_buffer_size> encoded_buffer;
+    PF::IndexStatus push_status;
 
     WHEN("The encoded byte vector is too small to hold the encoded data") {
       constexpr size_t encoded_buffer_size = 4UL;
@@ -41,7 +42,8 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
     }
 
     WHEN("The cobs::encode function is called on a null byte") {
-      input_buffer.push_back(0x00);
+      push_status = input_buffer.push_back(0x00);
+      REQUIRE(push_status == PF::IndexStatus::ok);
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
 
@@ -53,8 +55,9 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
     }
 
     WHEN("The cobs::encode function is called on a buffer that contains these bytes '0x00 0x00'") {
-      input_buffer.push_back(0x00);
-      input_buffer.push_back(0x00);
+      push_status = input_buffer.push_back(0x00);
+      push_status = input_buffer.push_back(0x00);
+      REQUIRE(push_status == PF::IndexStatus::ok);
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
 
@@ -155,7 +158,8 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
         "0xf7 0xab' ") {
       auto data = PF::Util::make_array<uint8_t>(0x6e, 0xd7, 0xf1, 0x00, 0xf7, 0xab);
       for (auto& bytes : data) {
-        input_buffer.push_back(bytes);
+        push_status = input_buffer.push_back(bytes);
+        REQUIRE(push_status == PF::IndexStatus::ok);
       }
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
@@ -170,7 +174,8 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
     WHEN("The cobs::encode function is called on a 253 byte buffer") {
       for (size_t i = 0; i < 253; i++) {
         uint8_t val = 10;
-        input_buffer.push_back(val);
+        push_status = input_buffer.push_back(val);
+        REQUIRE(push_status == PF::IndexStatus::ok);
       }
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
@@ -188,9 +193,11 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
         "byte") {
       for (size_t i = 0; i < 252; i++) {
         uint8_t val = 10;
-        input_buffer.push_back(val);
+        push_status = input_buffer.push_back(val);
+        REQUIRE(push_status == PF::IndexStatus::ok);
       }
-      input_buffer.push_back(0);
+      push_status = input_buffer.push_back(0);
+      REQUIRE(push_status == PF::IndexStatus::ok);
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
       THEN("The encode_cobs function reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
@@ -206,7 +213,8 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
     WHEN("The cobs::encode function is called on a 254 byte buffer with no null bytes") {
       for (size_t i = 0; i < 254; i++) {
         uint8_t val = 10;
-        input_buffer.push_back(val);
+        push_status = input_buffer.push_back(val);
+        REQUIRE(push_status == PF::IndexStatus::ok);
       }
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
@@ -223,7 +231,8 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
     WHEN("The cobs::encode function is called on a 255 byte buffer with no null bytes") {
       for (size_t i = 0; i < 255; i++) {
         uint8_t val = 10;
-        input_buffer.push_back(val);
+        push_status = input_buffer.push_back(val);
+        REQUIRE(push_status == PF::IndexStatus::ok);
       }
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
@@ -246,9 +255,11 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
     constexpr size_t decoded_buffer_size = 254UL;
     PF::Util::ByteVector<buffer_size> input_buffer;
     PF::Util::ByteVector<decoded_buffer_size> decoded_buffer;
+    PF::IndexStatus push_status;
 
     WHEN("The COBS::decode function is called on a buffer containing '0x01' as the only byte") {
-      input_buffer.push_back(0x01);
+      push_status = input_buffer.push_back(0x01);
+      REQUIRE(push_status == PF::IndexStatus::ok);
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
       THEN("The decode_cobs function reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
@@ -256,7 +267,8 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
     }
 
     WHEN("The COBS::decode function is called on a buffer containing '0x03' as the only byte") {
-      input_buffer.push_back(0x03);
+      push_status = input_buffer.push_back(0x03);
+      REQUIRE(push_status == PF::IndexStatus::ok);
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
       THEN("The decode_cobs function reports out_of_bounds status") {
@@ -270,7 +282,8 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
         "0x03' ") {
       auto data = PF::Util::make_array<uint8_t>(0x05, 0x02, 0x03);
       for (auto& bytes : data) {
-        input_buffer.push_back(bytes);
+        push_status = input_buffer.push_back(bytes);
+        REQUIRE(push_status == PF::IndexStatus::ok);
       }
 
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
@@ -286,7 +299,8 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
         "0xff' ") {
       auto data = PF::Util::make_array<uint8_t>(0x05, 0x02, 0xff);
       for (auto& bytes : data) {
-        input_buffer.push_back(bytes);
+        push_status = input_buffer.push_back(bytes);
+        REQUIRE(push_status == PF::IndexStatus::ok);
       }
 
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
@@ -302,7 +316,8 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
         "0xff' ") {
       auto data = PF::Util::make_array<uint8_t>(0x02, 0x02, 0xff);
       for (auto& bytes : data) {
-        input_buffer.push_back(bytes);
+        push_status = input_buffer.push_back(bytes);
+        REQUIRE(push_status == PF::IndexStatus::ok);
       }
 
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
@@ -324,6 +339,42 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
         REQUIRE(status == PF::IndexStatus::out_of_bounds);
       }
       THEN("The decoded buffer is empty") { REQUIRE(decoded_buffer.empty() == true); }
+    }
+
+    WHEN(
+        "The COBS::decode function is called on a 257-byte buffer filled with the manual encoding "
+        "of a 255 non-null-byte payload with a bad null header byte") {
+      constexpr size_t buffer_size = 257UL;
+      constexpr size_t decoded_buffer_size = 255UL;
+      PF::Util::ByteVector<buffer_size> input_buffer;
+      PF::Util::ByteVector<decoded_buffer_size> decoded_buffer;
+      uint8_t val = 10;
+      push_status = input_buffer.push_back(0xff);
+      for (size_t i = 0; i < 253; i++) {
+        push_status = input_buffer.push_back(val);
+        REQUIRE(push_status == PF::IndexStatus::ok);
+      }
+      push_status = input_buffer.push_back(0x02);
+      REQUIRE(push_status == PF::IndexStatus::ok);
+      push_status = input_buffer.push_back(val);
+      REQUIRE(push_status == PF::IndexStatus::ok);
+      push_status = input_buffer.push_back(val);
+      REQUIRE(push_status == PF::IndexStatus::ok);
+
+      auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
+
+      THEN("The decode_cobs function reports ok status") {
+        REQUIRE(status == PF::IndexStatus::out_of_bounds);
+      }
+      THEN(
+          "The decoded buffer has expected sequence of 255 bytes as '0xff 0x71 0xcf ......0x02 "
+          "0xa2 0xd2' ") {
+        for (size_t i = 0; i < 253; i++) {
+          uint8_t val = 10;
+          REQUIRE(decoded_buffer.operator[](i) == val);
+        }
+        REQUIRE(decoded_buffer.operator[](253) == 0x02);
+      }
     }
 
     WHEN("The COBS::decode function is called on a buffer containing these bytes '\x01\x01'") {
@@ -445,7 +496,8 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
         "0xb8, 0x03, 0xbe, 0xce'") {
       auto data = PF::Util::make_array<uint8_t>(0x03, 0x9c, 0xb8, 0x03, 0xbe, 0xce);
       for (auto& bytes : data) {
-        input_buffer.push_back(bytes);
+        push_status = input_buffer.push_back(bytes);
+        REQUIRE(push_status == PF::IndexStatus::ok);
       }
 
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
@@ -458,12 +510,13 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
     }
 
     WHEN(
-        "The COBS::decode function is called on a encoded buffer of capacity 254 bytes filled with "
-        "data whose original buffer was of capacity 253 with no null bytes") {
-      input_buffer.push_back(0xfe);
+        "The COBS::decode function is called on a 254-byte buffer filled with the manual encoding "
+        "of a 253 non-null-byte payload") {
+      push_status = input_buffer.push_back(0xfe);
       for (size_t i = 0; i < 253; i++) {
         uint8_t val = 10;
-        input_buffer.push_back(val);
+        push_status = input_buffer.push_back(val);
+        REQUIRE(push_status == PF::IndexStatus::ok);
       }
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
@@ -477,18 +530,20 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
     }
 
     WHEN(
-        "The COBS::decode function is called on a encoded buffer of capacity 256 bytes filled with "
-        "data whose original buffer was of capacity 254 with null byte at the end") {
+        "The COBS::decode function is called on a 256-byte buffer filled with the manual encoding "
+        "of a 254 byte payload with null byte at the end") {
       constexpr size_t buffer_size = 256UL;
       constexpr size_t decoded_buffer_size = 254UL;
       PF::Util::ByteVector<buffer_size> input_buffer;
       PF::Util::ByteVector<decoded_buffer_size> decoded_buffer;
-      input_buffer.push_back(0xff);
+      push_status = input_buffer.push_back(0xff);
       for (size_t i = 0; i < 253; i++) {
         uint8_t val = 10;
-        input_buffer.push_back(val);
+        push_status = input_buffer.push_back(val);
+        REQUIRE(push_status == PF::IndexStatus::ok);
       }
-      input_buffer.push_back(0x01);
+      push_status = input_buffer.push_back(0x01);
+      REQUIRE(push_status == PF::IndexStatus::ok);
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
       THEN("The decode_cobs function reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
@@ -502,20 +557,22 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
     }
 
     WHEN(
-        "The COBS::decode function is called on a encoded buffer of capacity 257 bytes whose "
-        "original buffer was of capacity 255 with no null bytes") {
+        "The COBS::decode function is called on a 257-byte buffer filled with the manual encoding "
+        "of a 255 non-null-byte payload") {
       constexpr size_t buffer_size = 257UL;
       constexpr size_t decoded_buffer_size = 255UL;
       PF::Util::ByteVector<buffer_size> input_buffer;
       PF::Util::ByteVector<decoded_buffer_size> decoded_buffer;
       uint8_t val = 10;
-      input_buffer.push_back(0xff);
+      push_status = input_buffer.push_back(0xff);
       for (size_t i = 0; i < 254; i++) {
-        input_buffer.push_back(val);
+        push_status = input_buffer.push_back(val);
+        REQUIRE(push_status == PF::IndexStatus::ok);
       }
-      input_buffer.push_back(0x02);
-      input_buffer.push_back(val);
-      input_buffer.push_back(val);
+      push_status = input_buffer.push_back(0x02);
+      REQUIRE(push_status == PF::IndexStatus::ok);
+      push_status = input_buffer.push_back(val);
+      REQUIRE(push_status == PF::IndexStatus::ok);
 
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
@@ -523,7 +580,7 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
       THEN(
           "The decoded buffer has expected sequence of 255 bytes as '0xff 0x71 0xcf ......0x02 "
           "0xa2 0xd2' ") {
-        for (size_t i = 0; i < 254; i++) {
+        for (size_t i = 0; i < 255; i++) {
           uint8_t val = 10;
           REQUIRE(decoded_buffer.operator[](i) == val);
         }
