@@ -36,8 +36,9 @@ SCENARIO("The TaggedUnion class behaves properly", "[taggedunion]") {
 
       tag2 = tag1;
 
-      THEN("The taggedunion values field are as expected")
-      REQUIRE(tag2.value.first == 10);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+      THEN("The taggedunion values field are as expected") {
+        REQUIRE(tag2.value.first == 10);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+      }
     }
 
     WHEN("Two instances of given taggedunion for the uint16_t field are copied by value") {
@@ -50,8 +51,9 @@ SCENARIO("The TaggedUnion class behaves properly", "[taggedunion]") {
 
       tag2 = tag1;
 
-      THEN("The taggedunion values field are as expected")
-      REQUIRE(tag2.value.second == 0xffff);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+      THEN("The taggedunion values field are as expected") {
+        REQUIRE(tag2.value.second == 0xffff);  // NOLINT(cppcoreguidelines-pro-type-union-access)
+      }
     }
   }
 }
