@@ -50,11 +50,13 @@ static const auto state_sync_schedule = Util::make_array<const StateOutputSchedu
     StateOutputScheduleEntry{10, Application::MessageTypes::cycle_measurements});
 
 // Backend
-using BackendMessage = Protocols::Message<
+using CRCElementProps =
+    Protocols::CRCElementProps<Driver::Serial::Backend::FrameProps::payload_max_size>;
+using DatagramProps = Protocols::DatagramProps<CRCElementProps::payload_max_size>;
+using Message = Protocols::Message<
     Application::StateSegment,
     Application::MessageTypeValues,
-    Protocols::CRCElementProps<
-        Driver::Serial::Backend::FrameProps::payload_max_size>::payload_max_size>;
+    DatagramProps::payload_max_size>;
 
 class BackendReceiver {
  public:
@@ -77,7 +79,7 @@ class BackendReceiver {
 
   // Call this until it returns outputReady, then call output
   InputStatus input(uint8_t new_byte);
-  OutputStatus output(BackendMessage &output_message);
+  OutputStatus output(Message &output_message);
 
  private:
   using BackendCRCReceiver = Protocols::CRCElementReceiver<FrameProps::payload_max_size>;
@@ -86,8 +88,7 @@ class BackendReceiver {
       Protocols::DatagramReceiver<BackendCRCReceiver::Props::payload_max_size>;
   using BackendParsedDatagram =
       Protocols::ParsedDatagram<BackendCRCReceiver::Props::payload_max_size>;
-  using BackendMessageReceiver =
-      Protocols::MessageReceiver<BackendMessage, message_descriptors.size()>;
+  using BackendMessageReceiver = Protocols::MessageReceiver<Message, message_descriptors.size()>;
 
   FrameReceiver frame_;
   BackendCRCReceiver crc_;
@@ -114,11 +115,11 @@ class BackendSender {
       const Application::StateSegment &state_segment, FrameProps::ChunkBuffer &output_buffer);
 
  private:
-  using BackendCRCSender = Protocols::CRCElementSender<FrameProps::chunk_max_size>;
+  using BackendCRCSender = Protocols::CRCElementSender<FrameProps::payload_max_size>;
   using BackendDatagramSender =
       Protocols::DatagramSender<BackendCRCSender::Props::payload_max_size>;
-  using BackendMessageSender = Protocols::
-      MessageSender<BackendMessage, Application::StateSegment, message_descriptors.size()>;
+  using BackendMessageSender =
+      Protocols::MessageSender<Message, Application::StateSegment, message_descriptors.size()>;
 
   BackendMessageSender message_;
   BackendDatagramSender datagram_;

@@ -27,7 +27,7 @@ BackendReceiver::InputStatus BackendReceiver::input(uint8_t new_byte) {
   return InputStatus::ok;
 }
 
-BackendReceiver::OutputStatus BackendReceiver::output(BackendMessage &output_message) {
+BackendReceiver::OutputStatus BackendReceiver::output(Message &output_message) {
   FrameProps::PayloadBuffer temp_buffer1;
   BackendCRCReceiver::Props::PayloadBuffer temp_buffer2;
   BackendDatagramReceiver::Props::PayloadBuffer temp_buffer3;
@@ -143,7 +143,7 @@ Backend::Status Backend::input(uint8_t new_byte) {
   }
 
   // Output from receiver
-  BackendMessage message;
+  Message message;
   switch (receiver_.output(message)) {
     case BackendReceiver::OutputStatus::invalid_datagram_sequence:
       // TODO(lietk12): handle warning case first
