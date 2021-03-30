@@ -187,7 +187,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
             justify="flex-start"
             alignItems="center"
             wrap="nowrap"
-            style={{ padding: '15px' }}
+            style={{ paddingRight: '15px' }}
           >
             <Grid item xs={6}>
               <Typography variant="h4" style={{ fontWeight: 'normal' }}>
@@ -213,7 +213,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
                 onClick={() => setActiveFilter(!activeFilter)}
                 variant="contained"
                 color="primary"
-                style={{ padding: '6px 3rem' }}
+                style={{ width: '10rem' }}
               >
                 {activeFilter ? 'Events Log' : 'Active Alarms'}
               </Button>

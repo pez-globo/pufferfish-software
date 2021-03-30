@@ -65,8 +65,11 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.background.paper,
       '& tbody': {
         '& tr': {
+          '& th': {
+            padding: '12px 16px',
+          },
           '& td': {
-            borderBottom: 'none',
+            padding: '12px 16px',
           },
         },
       },
@@ -93,6 +96,15 @@ const useStyles = makeStyles((theme: Theme) =>
       fontSize: 16,
       marginTop: 15,
       fontWeight: 100,
+    },
+    tableContainerStyle: {
+      position: 'absolute',
+      width: '100%',
+      top: '0px',
+      marginBottom: 'auto',
+      left: 0,
+      padding: '20px 24px 8px',
+      height: '100%',
     },
   }),
 );
@@ -239,7 +251,7 @@ export const SimpleTable = (props: PropsWithChildren<TableProps>): JSX.Element =
 
   return (
     <React.Fragment>
-      <Grid item>
+      <Grid item className={classes.tableContainerStyle}>
         <TableContainer className={classes.tableContainer}>
           <Table
             className={classes.table}
@@ -260,20 +272,21 @@ export const SimpleTable = (props: PropsWithChildren<TableProps>): JSX.Element =
             <TableBody>{children}</TableBody>
           </Table>
         </TableContainer>
-      </Grid>
-      <Grid container direction="row" justify="space-between">
-        <Grid item className={classes.footer}>
-          {footer}
+
+        <Grid container direction="row" justify="space-between">
+          <Grid item className={classes.footer}>
+            {footer}
+          </Grid>
+          <TablePagination
+            rowsPerPageOptions={[8]}
+            component="div"
+            count={rows.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+          />
         </Grid>
-        <TablePagination
-          rowsPerPageOptions={[8]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
-        />
       </Grid>
     </React.Fragment>
   );

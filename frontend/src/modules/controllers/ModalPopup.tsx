@@ -55,7 +55,6 @@ const useStyles = makeStyles((theme: Theme) => ({
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
-      padding: '0px 0px 64px',
     },
   },
   wrapper: {
@@ -155,7 +154,9 @@ export const ModalPopup = (props: PropsWithChildren<Props>): JSX.Element => {
           <DialogTitle id="form-dialog-title">
             <Grid container alignItems="center">
               <Grid item xs>
-                <Typography variant="h4">{label}</Typography>
+                <Typography variant="h4" style={{ fontWeight: 'normal' }}>
+                  {label}
+                </Typography>
               </Grid>
               <Grid item>
                 {showCloseIcon && (

@@ -126,7 +126,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const [orderBy, setOrderBy] = React.useState<keyof Data>('time');
   const [selected, setSelected] = React.useState<string[]>([]);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(8);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [open, setOpen] = React.useState(false);
   const [alarmOpen, setAlarmOpen] = React.useState(false);
   const [currentRow, setCurrentRow] = React.useState<Data>();
@@ -325,8 +325,8 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
             );
           })}
         {emptyRows > 0 && (
-          <TableRow style={{ height: 53 * emptyRows }}>
-            <TableCell colSpan={6} />
+          <TableRow>
+            <TableCell colSpan={6} style={{ padding: 0 }} />
           </TableRow>
         )}
       </SimpleTable>
