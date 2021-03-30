@@ -53,7 +53,7 @@ static const auto state_sync_schedule = Util::make_array<const StateOutputSchedu
 using BackendMessage = Protocols::Message<
     Application::StateSegment,
     Application::MessageTypeValues,
-    Protocols::DatagramProps<
+    Protocols::CRCElementProps<
         Driver::Serial::Backend::FrameProps::payload_max_size>::payload_max_size>;
 
 class BackendReceiver {
@@ -114,7 +114,7 @@ class BackendSender {
       const Application::StateSegment &state_segment, FrameProps::ChunkBuffer &output_buffer);
 
  private:
-  using BackendCRCSender = Protocols::CRCElementSender<FrameProps::payload_max_size>;
+  using BackendCRCSender = Protocols::CRCElementSender<FrameProps::chunk_max_size>;
   using BackendDatagramSender =
       Protocols::DatagramSender<BackendCRCSender::Props::payload_max_size>;
   using BackendMessageSender = Protocols::
