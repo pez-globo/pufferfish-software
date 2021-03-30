@@ -1210,19 +1210,20 @@ SCENARIO("ChunkMerger and Chunksplitter roundtrip behaves properly", "[chunks]")
 
       // ChunkMerger
       auto status_1 = chunk_merger.transform<buffer_size, uint8_t>(vector1);
-      THEN("The transform method reports ok status for first bytevector") {
+      THEN("The transform method of the first ChunkMerger reports ok status for first ByteVector") {
         REQUIRE(status_1 == PF::Protocols::ChunkOutputStatus::ok);
       }
       expected1.push_back(0);
       THEN("The ChunkMerger appends the delimeter") { REQUIRE(vector1 == expected1); }
       auto status_2 = chunk_merger.transform<buffer_size, uint8_t>(vector2);
-      THEN("The transform method reports ok status for second bytevector") {
+      THEN(
+          "The transform method of the first ChunkMerger reports ok status for second ByteVector") {
         REQUIRE(status_2 == PF::Protocols::ChunkOutputStatus::ok);
       }
       expected2.push_back(0);
       THEN("The ChunkMerger appends the delimeter") { REQUIRE(vector2 == expected2); }
       auto status_3 = chunk_merger.transform<buffer_size, uint8_t>(vector3);
-      THEN("The transform method reports ok status for third bytevector") {
+      THEN("The transform method of the first ChunkMerger reports ok status for third ByteVector") {
         REQUIRE(status_3 == PF::Protocols::ChunkOutputStatus::ok);
       }
       expected3.push_back(0);
