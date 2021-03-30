@@ -47,9 +47,8 @@ if (("${CMAKE_BUILD_TYPE}" STREQUAL "TestCatch2") OR ("${CMAKE_BUILD_TYPE}" STRE
         append_coverage_compiler_flags()
 
         # disable all optimization
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0")
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -fno-inline -fno-inline-small-functions -fno-default-inline")
+        add_compile_options(-g -O0 -Wall -W -fprofile-arcs -ftest-coverage -fno-inline -fno-inline-small-functions -fno-default-inline)
+        add_link_options(-fprofile-arcs -ftest-coverage)
 
         setup_target_for_coverage_lcov(
             NAME ${CMAKE_BUILD_TYPE}_coverage
