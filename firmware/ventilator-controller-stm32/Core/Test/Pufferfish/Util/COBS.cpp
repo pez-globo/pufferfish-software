@@ -86,7 +86,7 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
 
     WHEN(
         "The cobs::encode function is called on a buffer that contains these bytes '0x11 0x22 0x00 "
-        "0x33' and a non-empty output_buffer is passed") {
+        "0x33' and a output_buffer filled with 2-bytes is passed") {
       auto body = std::string("\x11\x22\x00\x33"s);
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
       push_status = encoded_buffer.push_back(0x01);
@@ -99,6 +99,23 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
       THEN("The encode_cobs function reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
       THEN("The encoded buffer is as expected '\x03\x11\x22\x02\x33'") {
         auto expected = std::string("\x03\x11\x22\x02\x33"s);
+        REQUIRE(encoded_buffer == expected);
+      }
+    }
+
+    WHEN(
+        "The cobs::encode function is called on a buffer that contains these bytes "
+        "'\x74\x27\xab\xfb' and a output_buffer filled with 10-bytes is passed") {
+      auto body = std::string("\x74\x27\xab\xfb"s);
+      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      auto data = std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA"s);
+      PF::Util::convert_string_to_byte_vector(data, encoded_buffer);
+
+      auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
+
+      THEN("The encode_cobs function reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The encoded buffer is as expected '\x05\x74\x27\xab\xfb'") {
+        auto expected = std::string("\x05\x74\x27\xab\xfb"s);
         REQUIRE(encoded_buffer == expected);
       }
     }
@@ -440,6 +457,23 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
 
     WHEN(
         "The COBS::decode function is called on a buffer containing these bytes "
+        "'\x03\x9f\x8c\x01\x03\x21\xe8' and decoded buffer filled with 3-bytes is passed") {
+      auto body = std::string("\x03\x9f\x8c\x01\x03\x21\xe8"s);
+      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      auto data = std::string("\x01\x02\x03"s);
+      PF::Util::convert_string_to_byte_vector(data, decoded_buffer);
+
+      auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
+
+      THEN("The decode_cobs function reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The decoded buffer is as expected '0x9f 0x8c 0x00 0x00 0x21 0xe8'") {
+        auto expected = std::string("\x9f\x8c\x00\x00\x21\xe8"s);
+        REQUIRE(decoded_buffer == expected);
+      }
+    }
+
+    WHEN(
+        "The COBS::decode function is called on a buffer containing these bytes "
         "'\x05\x11\x22\x33\x44'") {
       auto body = std::string("\x05\x11\x22\x33\x44"s);
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
@@ -529,7 +563,17 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
         REQUIRE(decoded_buffer == expected);
       }
     }
+  }
+}
 
+SCENARIO(
+    "The Util decode_cobs function correctly decodes encoded buffers of large size", "[COBS]") {
+  GIVEN("The Util COBS::decode function") {
+    constexpr size_t buffer_size = 255UL;
+    constexpr size_t decoded_buffer_size = 254UL;
+    PF::Util::ByteVector<buffer_size> input_buffer;
+    PF::Util::ByteVector<decoded_buffer_size> decoded_buffer;
+    PF::IndexStatus push_status;
     WHEN(
         "The COBS::decode function is called on a 254-byte buffer filled with the manual encoding "
         "of a 253 non-null-byte payload") {

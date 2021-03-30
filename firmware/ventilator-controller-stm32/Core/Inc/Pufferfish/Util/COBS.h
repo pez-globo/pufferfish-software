@@ -61,6 +61,7 @@ IndexStatus encode_cobs(
 /// \brief Decode a COBS-encoded buffer.
 /// \param encodedBuffer A ByteVector to the \p encodedBuffer to decode.
 /// \param decodedBuffer The target ByteVector for the decoded bytes.
+/// The decoded buffer is resized to fit the decoded data, returns out_of_bounds otherwise
 /// \returns IndexStatus as ok/out_of_bounds
 template <size_t input_size, size_t output_size>
 IndexStatus decode_cobs(

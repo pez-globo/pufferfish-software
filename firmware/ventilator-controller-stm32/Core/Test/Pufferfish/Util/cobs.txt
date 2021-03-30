@@ -18,9 +18,13 @@ Scenario: The Util encode_cobs function correctly encodes buffers
     THEN("The encode_cobs function reports ok status")
     THEN("The encoded buffer is as expected '\x03\x11\x22\x02\x33'")
 
-  WHEN("The cobs::encode function is called on a buffer that contains these bytes '0x11 0x22 0x00 0x33' and a non-empty output_buffer is passed")
+  WHEN("The cobs::encode function is called on a buffer that contains these bytes '0x11 0x22 0x00 0x33' and a output_buffer filled with 2-bytes is passed")
     THEN("The encode_cobs function reports ok status")
     THEN("The encoded buffer is as expected '\x03\x11\x22\x02\x33'")
+
+  WHEN("The cobs::encode function is called on a buffer that contains these bytes '\x74\x27\xab\xfb' and a output_buffer filled with 10-bytes is passed")
+    THEN("The encode_cobs function reports ok status")
+    THEN("The encoded buffer is as expected '\x05\x74\x27\xab\xfb'")      
 
   WHEN("The cobs::encode function is called on a buffer that contains these bytes '\x11\x22\x33\x44'")
     THEN("The encode_cobs function reports ok status")
@@ -104,6 +108,10 @@ Scenario: The cobs::decode function correctly decodes encoded buffers
   WHEN("The COBS::decode function is called on a buffer containing these bytes '\x03\x11\x22\x02\x33'")
     THEN("The decode_cobs function reports ok status")
     THEN("The decoded buffer is as expected '0x11 0x22 0x00 0x33'")
+
+  WHEN("The COBS::decode function is called on a buffer containing these bytes '\x03\x9f\x8c\x01\x03\x21\xe8' and decoded buffer filled with 3-bytes is passed")
+    THEN("The decode_cobs function reports ok status")
+    THEN("The decoded buffer is as expected '0x9f 0x8c 0x00 0x00 0x21 0xe8'")
 
   WHEN("The COBS::decode function is called on a buffer containing these bytes '\x05\x11\x22\x33\x44'")
     THEN("The decode_cobs function reports ok status")
