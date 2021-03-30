@@ -289,8 +289,8 @@ Scenario: ChunkMerger and Chunksplitter roundtrip behaves properly
       // output is only called after input_status is output_ready
       THEN("The input method of the ChunkSplitter reports ok status for the non-delimeter bytes")
       THEN("The input method of the ChunkSplitter reports output_ready status for the delimeter bytes")
-      THEN("The output method of the chunksplitter reports ok status")
-      THEN("The ChunkSplitter outputs 3 ByteVectors") :
+      THEN("The output method of the chunksplitter reports ok status after each delimeter")
+      THEN("The ChunkSplitter outputs 3 ByteVectors as expected") :
       // first: '\xda\xb3\x1b\x94\xa5'
       // second:'\x1b\x1a\xc5\xd9\xf3'
       // third: ''\xbb\x7d\xa8\x01\xf1'

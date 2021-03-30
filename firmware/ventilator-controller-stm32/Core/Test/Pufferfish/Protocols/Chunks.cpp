@@ -1246,7 +1246,9 @@ SCENARIO("ChunkMerger and Chunksplitter roundtrip behaves properly", "[chunks]")
         if (input_status == PF::Protocols::ChunkInputStatus::output_ready) {
           output_status = chunk_splitter.output(output_buffer);
           split1.copy_from(output_buffer.buffer(), output_buffer.size());
-          REQUIRE(output_status == PF::Protocols::ChunkOutputStatus::ok);
+          THEN("The output method of the chunksplitter reports ok status after each delimeter") {
+            REQUIRE(output_status == PF::Protocols::ChunkOutputStatus::ok);
+          }
         }
       }
 
@@ -1255,7 +1257,9 @@ SCENARIO("ChunkMerger and Chunksplitter roundtrip behaves properly", "[chunks]")
         if (input_status == PF::Protocols::ChunkInputStatus::output_ready) {
           output_status = chunk_splitter.output(output_buffer);
           split2.copy_from(output_buffer.buffer(), output_buffer.size());
-          REQUIRE(output_status == PF::Protocols::ChunkOutputStatus::ok);
+          THEN("The output method of the chunksplitter reports ok status after each delimeter") {
+            REQUIRE(output_status == PF::Protocols::ChunkOutputStatus::ok);
+          }
         }
       }
 
@@ -1264,8 +1268,15 @@ SCENARIO("ChunkMerger and Chunksplitter roundtrip behaves properly", "[chunks]")
         if (input_status == PF::Protocols::ChunkInputStatus::output_ready) {
           output_status = chunk_splitter.output(output_buffer);
           split3.copy_from(output_buffer.buffer(), output_buffer.size());
-          REQUIRE(output_status == PF::Protocols::ChunkOutputStatus::ok);
+          THEN("The output method of the chunksplitter reports ok status after each delimeter") {
+            REQUIRE(output_status == PF::Protocols::ChunkOutputStatus::ok);
+          }
         }
+      }
+      THEN("The ChunkSplitter outputs 3 ByteVectors as expected") {
+        REQUIRE(split1 == body1);
+        REQUIRE(split2 == body2);
+        REQUIRE(split3 == body3);
       }
 
       // ChunkMerger
