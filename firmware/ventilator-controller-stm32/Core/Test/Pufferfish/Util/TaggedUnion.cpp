@@ -26,7 +26,7 @@ SCENARIO("The TaggedUnion class behaves properly", "[taggedunion]") {
 
     using TestTaggedUnion = PF::Util::TaggedUnion<TestUnion, TestEnum>;
 
-    WHEN("Two instances of given taggedunion are copied by value") {
+    WHEN("Two instances of given taggedunion for the uint8_t field are copied by value") {
       TestTaggedUnion tag1{};
       TestTaggedUnion tag2{};
       TestUnion test_union{};
@@ -40,7 +40,7 @@ SCENARIO("The TaggedUnion class behaves properly", "[taggedunion]") {
       REQUIRE(tag2.value.first == 10);  // NOLINT(cppcoreguidelines-pro-type-union-access)
     }
 
-    WHEN("Two instances of given taggedunion are copied by value") {
+    WHEN("Two instances of given taggedunion for the uint16_t field are copied by value") {
       TestTaggedUnion tag1{};
       TestTaggedUnion tag2{};
       TestUnion test_union{};
