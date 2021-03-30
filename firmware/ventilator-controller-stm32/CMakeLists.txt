@@ -22,6 +22,15 @@ elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
 elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "Clang")
     message(STATUS "Minimal optimization, debug info included")
     add_compile_options(-Og -g)
+elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "TestCatch2")
+    message(STATUS "Runing unit tests")
+elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "TestCoverage")
+    message(STATUS "Runing coverage tools with debug info, all optimizations disabled")
+    set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
+    include(CodeCoverage)
+    append_coverage_compiler_flags()
+    add_compile_options(-g -O0 -Wall -W -fprofile-arcs -ftest-coverage -fno-inline -fno-inline-small-functions -fno-default-inline)
+    add_link_options(-fprofile-arcs -ftest-coverage)
 else ()
     message(STATUS "Minimal optimization, debug info included")
     add_compile_options(-Og -g)
@@ -38,18 +47,9 @@ include_directories(
 )
 
 if (("${CMAKE_BUILD_TYPE}" STREQUAL "TestCatch2") OR ("${CMAKE_BUILD_TYPE}" STREQUAL "TestCoverage"))
-    set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
-
     set(TEST_LIBS Pufferfish)
 
     if ("${CMAKE_BUILD_TYPE}" STREQUAL "TestCoverage")
-        include(CodeCoverage)
-        append_coverage_compiler_flags()
-
-        # disable all optimization
-        add_compile_options(-g -O0 -Wall -W -fprofile-arcs -ftest-coverage -fno-inline -fno-inline-small-functions -fno-default-inline)
-        add_link_options(-fprofile-arcs -ftest-coverage)
-
         setup_target_for_coverage_lcov(
             NAME ${CMAKE_BUILD_TYPE}_coverage
             EXECUTABLE ${CMAKE_BUILD_TYPE}
