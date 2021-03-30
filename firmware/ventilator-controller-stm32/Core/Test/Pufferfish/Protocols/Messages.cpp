@@ -4,7 +4,7 @@
  * Messages.cpp
  *
  *  Created on: Nov 3, 2020
- *      Author: Renji Panicker
+ *      Author: Rohan Purohit
  *
  * Unit tests to confirm behavior of Message class
  *
@@ -23,6 +23,7 @@
 
 namespace PF = Pufferfish;
 namespace BE = PF::Driver::Serial::Backend;
+using namespace std::string_literals;
 
 static constexpr size_t num_descriptors = 8;
 
@@ -30,12 +31,12 @@ SCENARIO(
     "Protocols::The message correctly writes to the output buffer and also updates type",
     "[messages]") {
   auto exp_sensor_measurements =
-      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42", 16);
-  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43", 11);
-  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01", 10);
-  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01", 10);
-  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64", 7);
-  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C", 7);
+      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
@@ -76,7 +77,9 @@ SCENARIO(
       }
     }
 
-    WHEN("The Message type in the payload is Unrecognized") {
+    WHEN(
+        "Write method is called on a message object where it's payload tag value is such that it "
+        "corresponds to Unrecognized message descriptor in descriptor array") {
       test_message.payload.tag = PF::Application::MessageTypes::unknown;
 
       auto write_status = test_message.write(output_buffer, BE::message_descriptors);
@@ -84,54 +87,13 @@ SCENARIO(
       THEN("The write status is equal to invalid type") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::invalid_type);
       }
+      THEN(
+          "After the write method is called, the type field is set to the value of the message "
+          "payload tag") {
+        REQUIRE(test_message.type == 0);
+      }
       THEN("After the write method is called, the output buffer remains unchanged") {
         REQUIRE(output_buffer.empty() == true);
-      }
-    }
-
-    WHEN("The output buffer cannot hold the payload data") {
-      constexpr size_t size = 10UL;
-      PF::Util::ByteVector<size> output_buffer;
-
-      SensorMeasurements sensor_measurements;
-      memset(&sensor_measurements, 0, sizeof(sensor_measurements));
-      sensor_measurements.fio2 = 40;
-      sensor_measurements.spo2 = 92;
-      test_message.payload.set(sensor_measurements);
-
-      auto write_status = test_message.write(output_buffer, BE::message_descriptors);
-
-      THEN("The write status is equal to invalid length") {
-        REQUIRE(write_status == PF::Protocols::MessageStatus::invalid_length);
-      }
-    }
-
-    WHEN("The alarm limits data is written to a buffer of zero size") {
-      constexpr size_t buffer_size = 0UL;
-      PF::Util::ByteVector<buffer_size> output_buffer;
-      test_message.payload.tag = PF::Application::MessageTypes::alarm_limits;
-      auto status = test_message.write(output_buffer, BE::message_descriptors);
-
-      THEN("The final status should be invalid_length") {
-        REQUIRE(status == PF::Protocols::MessageStatus::invalid_length);
-      }
-    }
-
-    WHEN("The sensor measurements data is written") {
-      test_message.type = 4;
-      SensorMeasurements sensor_measurements;
-      memset(&sensor_measurements, 0, sizeof(sensor_measurements));
-      sensor_measurements.flow = 60;
-
-      test_message.payload.set(sensor_measurements);
-
-      auto write_status = test_message.write(output_buffer, BE::message_descriptors);
-
-      THEN("The write status is equal to ok") {
-        REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
-      }
-      THEN("The type field of message is unchanged after write method") {
-        REQUIRE(test_message.type == 2);
       }
     }
 
@@ -149,6 +111,11 @@ SCENARIO(
 
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
+      }
+      THEN(
+          "After the write method is called, the type field is set to the value of the message "
+          "payload tag") {
+        REQUIRE(test_message.type == 2);
       }
       THEN("first byte in the output buffer is equal to the type") {
         REQUIRE(output_buffer[0] == 0x02);
@@ -171,6 +138,11 @@ SCENARIO(
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
       }
+      THEN(
+          "After the write method is called, the type field is set to the value of the message "
+          "payload tag") {
+        REQUIRE(test_message.type == 3);
+      }
       THEN("first byte in the output buffer is equal to the type") {
         REQUIRE(output_buffer[0] == 0x03);
       }
@@ -190,6 +162,11 @@ SCENARIO(
 
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
+      }
+      THEN(
+          "After the write method is called, the type field is set to the value of the message "
+          "payload tag") {
+        REQUIRE(test_message.type == 4);
       }
       THEN("first byte in the output buffer is equal to the type") {
         REQUIRE(output_buffer[0] == 0x04);
@@ -211,6 +188,11 @@ SCENARIO(
 
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
+      }
+      THEN(
+          "After the write method is called, the type field is set to the value of the message "
+          "payload tag") {
+        REQUIRE(test_message.type == 5);
       }
       THEN("first byte in the output buffer is equal to the type") {
         REQUIRE(output_buffer[0] == 0x05);
@@ -234,6 +216,11 @@ SCENARIO(
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
       }
+      THEN(
+          "After the write method is called, the type field is set to the value of the message "
+          "payload tag") {
+        REQUIRE(test_message.type == 6);
+      }
       THEN("first byte in the output buffer is equal to the type") {
         REQUIRE(output_buffer[0] == 0x06);
       }
@@ -256,6 +243,11 @@ SCENARIO(
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
       }
+      THEN(
+          "After the write method is called, the type field is set to the value of the message "
+          "payload tag") {
+        REQUIRE(test_message.type == 6);
+      }
       THEN("The fio2 field is not written to the buffer") {
         auto expected = std::string("\06", 1);
         REQUIRE(output_buffer == expected);
@@ -277,6 +269,11 @@ SCENARIO(
 
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
+      }
+      THEN(
+          "After the write method is called, the type field is set to the value of the message "
+          "payload tag") {
+        REQUIRE(test_message.type == 7);
       }
       THEN("first byte in the output buffer is equal to the type") {
         REQUIRE(output_buffer[0] == 0x07);
@@ -301,6 +298,11 @@ SCENARIO(
 
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
+      }
+      THEN(
+          "After the write method is called, the type field is set to the value of the message "
+          "payload tag") {
+        REQUIRE(test_message.type == 7);
       }
       THEN("The fio2 field is not written to the buffer") {
         auto expected = std::string("\07", 1);
@@ -352,6 +354,11 @@ SCENARIO(
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
       }
+      THEN(
+          "After the write method is called, the type field is set to the value of the message "
+          "payload tag") {
+        REQUIRE(test_message.type == 2);
+      }
       THEN("first byte in the output buffer is equal to the type") { REQUIRE(buffer[0] == 0x02); }
       THEN("The output buffer is as expected") { REQUIRE(buffer == exp_sensor_measurements); }
     }
@@ -370,22 +377,27 @@ SCENARIO(
     PF::Util::ByteVector<buffer_size> buffer;
 
     WHEN("The sensor measurments message data is written") {
-      SensorMeasurements sensor_measurements;
-      memset(&sensor_measurements, 0, sizeof(sensor_measurements));
-      sensor_measurements.flow = 30;
-      sensor_measurements.fio2 = 85;
-      sensor_measurements.spo2 = 72;
+      Parameters parameters;
+      memset(&parameters, 0, sizeof(parameters));
+      parameters.fio2 = 60;
+      parameters.mode = VentilationMode_hfnc;
+      parameters.ventilating = true;
+      test_message.payload.set(parameters);
 
-      test_message.payload.set(sensor_measurements);
+      test_message.payload.set(parameters);
 
       auto write_status = test_message.write(buffer, BE::message_descriptors);
 
       THEN("The write status is equal to ok") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
       }
-
-      THEN("first byte in the output buffer is equal to the type") { REQUIRE(buffer[0] == 0x02); }
-      THEN("The output buffer is as expected") { REQUIRE(buffer == exp_sensor_measurements); }
+      THEN(
+          "After the write method is called, the type field is set to the value of the message "
+          "payload tag") {
+        REQUIRE(test_message.type == 4);
+      }
+      THEN("first byte in the output buffer is equal to the type") { REQUIRE(buffer[0] == 0x04); }
+      THEN("The output buffer is as expected") { REQUIRE(buffer == exp_parameters); }
     }
   }
 
@@ -441,17 +453,17 @@ SCENARIO(
     "fields",
     "[messages]") {
   auto exp_sensor_measurements =
-      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42", 16);
-  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43", 11);
-  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01", 10);
-  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01", 10);
-  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64", 7);
-  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C", 7);
+      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
       "bytes") {
-    constexpr size_t payload_max_size = 252UL;
+    constexpr size_t payload_max_size = 254UL;
     using TestMessage = PF::Protocols::Message<
         PF::Application::StateSegment,
         PF::Application::MessageTypeValues,
@@ -462,17 +474,20 @@ SCENARIO(
 
     WHEN("The value at zero index of the input buffer is equal to 0") {
       PF::Util::ByteVector<buffer_size> input_buffer;
-      auto data = PF::Util::make_array<uint8_t>(0x00);
-      for (auto& input : data) {
-        input_buffer.push_back(input);
-      }
+      input_buffer.push_back(0x00);
 
       auto parse_status = test_message.parse(input_buffer, BE::message_descriptors);
 
-      THEN("The parse status is equal to invalid type") {
+      THEN("The parse method reports invalid type status") {
         REQUIRE(parse_status == PF::Protocols::MessageStatus::invalid_type);
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+      }
+      THEN(
+          "After the parse method is called, The value assigned to the type member is equal to the "
+          "type field of the input_buffer body's header") {
         REQUIRE(test_message.type == 0);
+      }
+      THEN("The payload Taggedunion tag is set to Unknown") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
       }
     }
 
@@ -481,36 +496,49 @@ SCENARIO(
 
       auto parse_status = test_message.parse(input_buffer, BE::message_descriptors);
 
-      THEN("The parse status is equal to invalid length") {
+      THEN("The parse method reports invalid length status") {
         REQUIRE(parse_status == PF::Protocols::MessageStatus::invalid_length);
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+      }
+      THEN(
+          "After the parse method is called, The value assigned to the type member is equal to the "
+          "type field of the input_buffer body's header") {
         REQUIRE(test_message.type == 0);
+      }
+      THEN("The payload Taggedunion tag is set to Unknown") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
       }
     }
 
-    WHEN("The first byte of input buffer is greater than descriptor array size") {
+    WHEN("The first byte of input buffer is equal to the descriptor array size") {
       PF::Util::ByteVector<buffer_size> input_buffer;
-      auto data = PF::Util::make_array<uint8_t>(0x08);  // SIGSEGV - Segmentation violation signal
-      for (auto& input : data) {
-        input_buffer.push_back(input);
-      }
+      input_buffer.push_back(0x08);
 
       auto parse_status = test_message.parse(input_buffer, BE::message_descriptors);
 
-      THEN("The parse status is equal to invalid length") {
+      THEN("The parse status is equal to invalid type") {
         REQUIRE(parse_status == PF::Protocols::MessageStatus::invalid_type);
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
         REQUIRE(test_message.type == 8);
       }
     }
 
+    WHEN("The first byte of input buffer is greater than the descriptor array size") {
+      PF::Util::ByteVector<buffer_size> input_buffer;
+      input_buffer.push_back(0x09);
+
+      auto parse_status = test_message.parse(input_buffer, BE::message_descriptors);
+
+      THEN("The parse status is equal to invalid type") {
+        REQUIRE(parse_status == PF::Protocols::MessageStatus::invalid_type);
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+        REQUIRE(test_message.type == 9);
+      }
+    }
+
     WHEN("The data from an invalid buffer is parsed") {
       constexpr size_t buffer_size = 253UL;
       PF::Util::ByteVector<buffer_size> buffer;
-      auto data = PF::Util::make_array<uint8_t>(0x06);
-      for (auto& input : data) {
-        buffer.push_back(input);
-      }
+      buffer.push_back(0x06);
       buffer.resize(buffer_size);
       auto status = test_message.parse(buffer, BE::message_descriptors);
 
@@ -522,7 +550,7 @@ SCENARIO(
     WHEN("The input buffer has invalid data for the payload fields") {
       constexpr size_t buffer_size = 253UL;
       PF::Util::ByteVector<buffer_size> buffer;
-      auto data = std::string("\x02\x08\xa0\x10\x0A\x1D\x00\x00\xA0\x41", 10);
+      auto data = std::string("\x02\x08\xa0\x10\x0A\x1D\x00\x00\xA0\x41"s);
       PF::Util::convert_string_to_byte_vector(data, buffer);
 
       auto status = test_message.parse(buffer, BE::message_descriptors);
@@ -536,7 +564,7 @@ SCENARIO(
 
     // sensor measurements
     WHEN("The buffer of sensor measurments is parsed") {
-      auto data = std::string("\x02\x08\x02\x10\x0A\x1D\x00\x00\xA0\x41", 10);
+      auto data = std::string("\x02\x08\x02\x10\x0A\x1D\x00\x00\xA0\x41"s);
       PF::Util::ByteVector<buffer_size> input_buffer;
       PF::Util::convert_string_to_byte_vector(data, input_buffer);
 
@@ -566,7 +594,7 @@ SCENARIO(
 
     // cycle measurements
     WHEN("The buffer of cycle measurements is parsed") {
-      auto data = std::string("\x03\x25\x00\x00\xF0\x41\x35\x00\x00\x20\x41", 11);
+      auto data = std::string("\x03\x25\x00\x00\xF0\x41\x35\x00\x00\x20\x41"s);
       PF::Util::ByteVector<buffer_size> input_buffer;
       PF::Util::convert_string_to_byte_vector(data, input_buffer);
 
@@ -592,7 +620,7 @@ SCENARIO(
 
     // parameters
     WHEN("The buffer of parameters is parsed") {
-      auto data = std::string("\x04\x10\x06\x2D\x00\x00\x34\x42\x50\x01", 10);
+      auto data = std::string("\x04\x10\x06\x2D\x00\x00\x34\x42\x50\x01"s);
       PF::Util::ByteVector<buffer_size> input_buffer;
       PF::Util::convert_string_to_byte_vector(data, input_buffer);
 
@@ -622,7 +650,7 @@ SCENARIO(
 
     // parameters request
     WHEN("The buffer of parameters request is parsed") {
-      auto data = std::string("\x05\x3D\x00\x00\xA0\x41", 6);
+      auto data = std::string("\x05\x3D\x00\x00\xA0\x41"s);
       PF::Util::ByteVector<buffer_size> input_buffer;
       PF::Util::convert_string_to_byte_vector(data, input_buffer);
 
@@ -715,6 +743,64 @@ SCENARIO(
 }
 
 SCENARIO(
+    "The parse method correctly parses bodies when the payload and field members have data",
+    "[messages]") {
+  GIVEN(
+      "A Message object constructed with StateSegment Taggedunion, default message types and a max "
+      "size of 252 bytes") {
+    constexpr size_t payload_max_size = 254UL;
+    using TestMessage = PF::Protocols::Message<
+        PF::Application::StateSegment,
+        PF::Application::MessageTypeValues,
+        payload_max_size>;
+    TestMessage test_message;
+    constexpr size_t buffer_size = 254UL;
+    PF::Util::ByteVector<buffer_size> buffer;
+
+    ParametersRequest parameters_request;
+    memset(&parameters_request, 0, sizeof(parameters_request));
+    parameters_request.fio2 = 80;
+    parameters_request.mode = VentilationMode_hfnc;
+    parameters_request.ventilating = true;
+
+    test_message.payload.set(parameters_request);
+    test_message.type = 5;
+
+    WHEN("input buffer size is less than 1 byte") {
+      PF::Util::ByteVector<buffer_size> input_buffer;
+
+      auto parse_status = test_message.parse(input_buffer, BE::message_descriptors);
+
+      THEN("The parse status is equal to invalid length") {
+        REQUIRE(parse_status == PF::Protocols::MessageStatus::invalid_length);
+      }
+      THEN(
+          "After the parse method is called, The value assigned to the type member remains "
+          "unchanged") {
+        REQUIRE(test_message.type == 5);
+      }
+      THEN("The payload Taggedunion tag is set to parameters_request") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+      }
+      THEN("the payload.values field remain unchanged") {
+        REQUIRE(
+            test_message.payload.value
+                .parameters_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .fio2 == 80);
+        REQUIRE(
+            test_message.payload.value
+                .parameters_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .mode == VentilationMode_hfnc);
+        REQUIRE(
+            test_message.payload.value
+                .parameters_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
+                .ventilating == true);
+      }
+    }
+  }
+}
+
+SCENARIO(
     "Protocols::The Message class correctly writes to a buffer then parses from it", "[messages]") {
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
@@ -748,7 +834,7 @@ SCENARIO(
       THEN("first byte in the output buffer is equal to the type") { REQUIRE(buffer[0] == 0x05); }
       THEN("The output buffer is as expected") {
         auto expected =
-            std::string("\x05\x10\x06\x45\x00\x00\x20\x42\x4D\x00\x00\x70\x42\x50\x01", 15);
+            std::string("\x05\x10\x06\x45\x00\x00\x20\x42\x4D\x00\x00\x70\x42\x50\x01"s);
         REQUIRE(buffer == expected);
       }
 
@@ -772,7 +858,7 @@ SCENARIO(
       THEN("The type field of message class is equal to 5") { REQUIRE(test_message.type == 5); }
       THEN("The input buffer is as expected") {
         auto expected =
-            std::string("\x05\x10\x06\x45\x00\x00\x20\x42\x4D\x00\x00\x70\x42\x50\x01", 15);
+            std::string("\x05\x10\x06\x45\x00\x00\x20\x42\x4D\x00\x00\x70\x42\x50\x01"s);
         REQUIRE(buffer == expected);
       }
 
@@ -790,7 +876,7 @@ SCENARIO(
       }
       THEN("first byte in the output buffer is equal to the type") { REQUIRE(buffer[0] == 0x02); }
       THEN("The output buffer is as expected") {
-        auto expected = std::string("\x02\x25\x00\x00\x20\x42\x3D\x00\x00\xA0\x42", 11);
+        auto expected = std::string("\x02\x25\x00\x00\x20\x42\x3D\x00\x00\xA0\x42"s);
         REQUIRE(buffer == expected);
       }
     }
@@ -801,15 +887,15 @@ SCENARIO(
     "Protocols::The Message Receiver class correctly transforms messages into paylaods",
     "[messages]") {
   auto exp_sensor_measurements =
-      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42", 16);
-  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43", 11);
-  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01", 10);
-  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01", 10);
-  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64", 7);
-  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C", 7);
+      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
   GIVEN("A MessageReceiver object is constructed with default parameters") {
-    constexpr size_t payload_max_size = 252UL;
+    constexpr size_t payload_max_size = 254UL;
     using TestMessage = PF::Protocols::Message<
         PF::Application::StateSegment,
         PF::Application::MessageTypeValues,
@@ -837,9 +923,8 @@ SCENARIO(
       PF::Protocols::MessageReceiver<TestMessage, num_descriptors> receiver{
           BE::message_descriptors};
 
-      auto data = std::string("\x00", 1);
       PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(data, input_buffer);
+      input_buffer.push_back(0x00);
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
@@ -852,7 +937,7 @@ SCENARIO(
       PF::Util::ByteVector<buffer_size> input_buffer;
       // std::string("\x02\x08\x02\x10\x0A\x1D\x00\x00\xA0\x41", 10); original buffer
       auto data = std::string(
-          "\x02\x08\xa0\x10\x0A\x1D\x00\x00\xA0\x41", 10);  // 3rd byte changed to random value
+          "\x02\x08\xa0\x10\x0A\x1D\x00\x00\xA0\x41"s);  // 3rd byte changed to random value
       PF::Util::convert_string_to_byte_vector(data, input_buffer);
 
       auto transform_status = receiver.transform(input_buffer, test_message);
@@ -874,7 +959,7 @@ SCENARIO(
       constexpr size_t number_desc = 5;
       PF::Protocols::MessageReceiver<TestMessage, number_desc> receiver{message_descriptors};
 
-      auto data = std::string("\x04\x4D\x00\x00\xF0\x41", 6);
+      auto data = std::string("\x04\x4D\x00\x00\xF0\x41"s);
       PF::Util::ByteVector<buffer_size> input_buffer;
       PF::Util::convert_string_to_byte_vector(data, input_buffer);
 
@@ -930,7 +1015,7 @@ SCENARIO(
     }
 
     WHEN("The input buffer is changed after transform is called on it") {
-      auto parameters_data = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01", 10);
+      auto parameters_data = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
       PF::Util::ByteVector<buffer_size> input_buffer;
       PF::Util::convert_string_to_byte_vector(parameters_data, input_buffer);
 
@@ -959,7 +1044,7 @@ SCENARIO(
         REQUIRE(input_buffer == exp_parameters);
       }
 
-      parameters_data.append("\x02", 1);
+      parameters_data.append("\x02");
 
       THEN("The message payload values are unchanged") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
@@ -1162,12 +1247,12 @@ SCENARIO(
     "Protocols::The Message Sender class correctly transforms payloads into messages",
     "[messages]") {
   auto exp_sensor_measurements =
-      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42", 16);
-  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43", 11);
-  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01", 10);
-  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01", 10);
-  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64", 7);
-  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C", 7);
+      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
   GIVEN("A MessageSender object is constructed with default parameters") {
     using TestTaggedUnion = PF::Application::StateSegment;
@@ -1181,7 +1266,8 @@ SCENARIO(
     PF::Util::ByteVector<buffer_size> output_buffer;
     PF::Application::StateSegment tagged_union;
 
-    PF::Protocols::MessageSender<TestMessage, PF::Application::StateSegment, num_descriptors> sender{BE::message_descriptors};
+    PF::Protocols::MessageSender<TestMessage, PF::Application::StateSegment, num_descriptors>
+        sender{BE::message_descriptors};
 
     WHEN("The message type value is greater than descriptor size") {
       constexpr size_t num_descriptors = 1;
@@ -1189,7 +1275,8 @@ SCENARIO(
           // array index should match the type code value
           PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>());
 
-      PF::Protocols::MessageSender<TestMessage, PF::Application::StateSegment, num_descriptors> sender{message_descriptors};
+      PF::Protocols::MessageSender<TestMessage, PF::Application::StateSegment, num_descriptors>
+          sender{message_descriptors};
 
       tagged_union.tag = PF::Application::MessageTypes::unknown;
 
@@ -1210,19 +1297,6 @@ SCENARIO(
       }
     }
 
-    WHEN("The output buffer cannot hold message data") {
-      constexpr size_t buffer_size = 0UL;
-      PF::Util::ByteVector<buffer_size> output_buffer;
-
-      tagged_union.tag = PF::Application::MessageTypes::sensor_measurements;
-
-      auto transform_status = sender.transform(tagged_union, output_buffer);
-
-      THEN("The transform status should be invalid type") {
-        REQUIRE(transform_status == PF::Protocols::MessageStatus::invalid_length);
-      }
-    }
-
     // sensor measurments
     WHEN("The sensor measurments data from the message is written to the buffer") {
       SensorMeasurements sensor_measurements;
@@ -1231,8 +1305,8 @@ SCENARIO(
       sensor_measurements.fio2 = 85;
       sensor_measurements.spo2 = 72;
       test_message.payload.set(sensor_measurements);
-      // using TestTaggedUnion = PF::Util::TaggedUnion<PF::Application::StateSegmentUnion, PF::Application::MessageTypes>;
-      // TestTaggedUnion tagged_union;
+      // using TestTaggedUnion = PF::Util::TaggedUnion<PF::Application::StateSegmentUnion,
+      // PF::Application::MessageTypes>; TestTaggedUnion tagged_union;
       PF::Application::StateSegment tagged_union;
       tagged_union.set(sensor_measurements);
 
