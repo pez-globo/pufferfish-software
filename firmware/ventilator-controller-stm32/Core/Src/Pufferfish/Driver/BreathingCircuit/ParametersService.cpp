@@ -12,7 +12,7 @@ namespace Pufferfish::Driver::BreathingCircuit {
 // ParametersService
 
 void ParametersService::transform_fio2(float fio2_request, float &fio2) {
-  if (fio2_request >= fio2_min && fio2_request <= fio2_max) {
+  if (fio2_request >= allowed_fio2.lower && fio2_request <= allowed_fio2.upper) {
     fio2 = fio2_request;
   }
 }
@@ -54,7 +54,7 @@ void HFNCParameters::transform(
   }
 
   parameters.ventilating = parameters_request.ventilating;
-  if (parameters_request.flow >= 0 && parameters_request.flow <= max_flow) {
+  if (parameters_request.flow >= allowed_flow.lower && parameters_request.flow <= allowed_flow.upper) {
     parameters.flow = parameters_request.flow;
   }
   transform_fio2(parameters_request.fio2, parameters.fio2);

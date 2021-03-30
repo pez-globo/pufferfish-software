@@ -63,6 +63,8 @@ class States {
 
   [[nodiscard]] const ParametersRequest &parameters_request() const;
   Parameters &parameters();
+  [[nodiscard]] const AlarmLimitsRequest &alarm_limits_request() const;
+  AlarmLimits &alarm_limits();
   SensorMeasurements &sensor_measurements();
   CycleMeasurements &cycle_measurements();
 

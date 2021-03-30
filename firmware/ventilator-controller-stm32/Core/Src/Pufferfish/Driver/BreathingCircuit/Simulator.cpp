@@ -129,7 +129,7 @@ void HFNCSimulator::transform(
   } else if (std::abs(sensor_vars.flow_air + sensor_vars.flow_o2) >= 1) {
     // simulate FiO2 from relative flow rates if flow rates are available
     float flow_o2_ratio = sensor_vars.flow_o2 / (sensor_vars.flow_air + sensor_vars.flow_o2);
-    float inferred_fio2 = fio2_min * (1 - flow_o2_ratio) + fio2_max * flow_o2_ratio;
+    float inferred_fio2 = allowed_fio2.lower * (1 - flow_o2_ratio) + allowed_fio2.upper * flow_o2_ratio;
     transform_fio2(inferred_fio2, sensor_measurements.fio2);
   } else {
     // simulate FiO2 from params

@@ -41,12 +41,11 @@ using StateOutputScheduleEntry = Protocols::StateOutputScheduleEntry<Application
 static const auto state_sync_schedule = Util::make_array<const StateOutputScheduleEntry>(
     StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
     StateOutputScheduleEntry{10, Application::MessageTypes::parameters},
-    StateOutputScheduleEntry{10, Application::MessageTypes::alarm_limits},
+    StateOutputScheduleEntry{10, Application::MessageTypes::parameters_request},
     StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-    StateOutputScheduleEntry{10, Application::MessageTypes::cycle_measurements},
+    StateOutputScheduleEntry{10, Application::MessageTypes::alarm_limits},
     StateOutputScheduleEntry{10, Application::MessageTypes::alarm_limits_request},
     StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-    StateOutputScheduleEntry{10, Application::MessageTypes::parameters_request},
     StateOutputScheduleEntry{10, Application::MessageTypes::cycle_measurements});
 
 // Backend

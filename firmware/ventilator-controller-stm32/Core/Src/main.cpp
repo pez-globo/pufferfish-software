@@ -33,6 +33,7 @@
 
 #include "Pufferfish/AlarmsManager.h"
 #include "Pufferfish/Application/States.h"
+#include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
@@ -101,8 +102,9 @@ namespace PF = Pufferfish;
 // Application State
 PF::Application::States all_states;
 
-// Parameters
+// Request/Response Services
 PF::Driver::BreathingCircuit::ParametersServices parameters_service;
+PF::Driver::BreathingCircuit::AlarmLimitsServices alarm_limits_service;
 
 // Breathing Circuit Simulation
 PF::Driver::BreathingCircuit::Simulators simulator;
@@ -540,8 +542,9 @@ int main(void)
     blinker.input(time.millis());
     dimmer.input(time.millis());
 
-    // Parameters update
+    // Request/response services update
     parameters_service.transform(all_states.parameters_request(), all_states.parameters());
+    alarm_limits_service.transform(all_states.parameters(), all_states.alarm_limits_request(), all_states.alarm_limits());
 
     // Breathing Circuit Sensor Simulator
     simulator.transform(

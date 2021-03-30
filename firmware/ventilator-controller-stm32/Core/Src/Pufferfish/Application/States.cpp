@@ -57,6 +57,14 @@ Parameters &States::parameters() {
   return state_segments_.parameters;
 }
 
+const AlarmLimitsRequest &States::alarm_limits_request() const {
+  return state_segments_.alarm_limits_request;
+}
+
+AlarmLimits &States::alarm_limits() {
+  return state_segments_.alarm_limits;
+}
+
 SensorMeasurements &States::sensor_measurements() {
   return state_segments_.sensor_measurements;
 }

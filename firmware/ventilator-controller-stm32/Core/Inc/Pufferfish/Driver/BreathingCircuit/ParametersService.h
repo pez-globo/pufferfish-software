@@ -37,7 +37,7 @@ class HFNCParameters : public ParametersService {
   [[nodiscard]] bool mode_active(const Parameters &parameters) const override;
 
  private:
-  static constexpr float max_flow = 80;  // L/min
+  static constexpr Range allowed_flow{0, 80};  // L/min
 };
 
 class ParametersServices {

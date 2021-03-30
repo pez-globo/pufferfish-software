@@ -21,6 +21,7 @@ from ventserver.sansio import protocols
 
 MCU_SYNCHRONIZER_SCHEDULE = collections.deque([
     states.ScheduleEntry(time=0.05, type=mcu_pb.ParametersRequest),
+    states.ScheduleEntry(time=0.05, type=mcu_pb.AlarmLimitsRequest),
 ])
 
 FRONTEND_SYNCHRONIZER_SCHEDULE = collections.deque([
