@@ -86,7 +86,7 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
 
     WHEN(
         "The cobs::encode function is called on a buffer that contains these bytes '0x11 0x22 0x00 "
-        "0x33' and a output_buffer filled with 2-bytes is passed") {
+        "0x33' and a output_buffer paritally filled with 2-bytes is passed") {
       auto body = std::string("\x11\x22\x00\x33"s);
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
       push_status = encoded_buffer.push_back(0x01);
@@ -105,7 +105,7 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
 
     WHEN(
         "The cobs::encode function is called on a buffer that contains these bytes "
-        "'\x74\x27\xab\xfb' and a output_buffer filled with 10-bytes is passed") {
+        "'\x74\x27\xab\xfb' and a output_buffer partially filled with 10-bytes is passed") {
       auto body = std::string("\x74\x27\xab\xfb"s);
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
       auto data = std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA"s);
@@ -457,7 +457,8 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
 
     WHEN(
         "The COBS::decode function is called on a buffer containing these bytes "
-        "'\x03\x9f\x8c\x01\x03\x21\xe8' and decoded buffer filled with 3-bytes is passed") {
+        "'\x03\x9f\x8c\x01\x03\x21\xe8' and a decoded buffer partially filled with 3-bytes is "
+        "passed") {
       auto body = std::string("\x03\x9f\x8c\x01\x03\x21\xe8"s);
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
       auto data = std::string("\x01\x02\x03"s);
