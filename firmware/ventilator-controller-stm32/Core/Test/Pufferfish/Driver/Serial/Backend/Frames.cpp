@@ -11,14 +11,13 @@
  */
 #include "Pufferfish/Driver/Serial/Backend/Frames.h"
 
-#include <iostream>
-
 #include "Pufferfish/HAL/CRCChecker.h"
 #include "Pufferfish/Test/Util.h"
 #include "Pufferfish/Util/Array.h"
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
+using namespace std::string_literals;
 
 SCENARIO(
     "Serial::The CobsDecoder class correctly decodes payloads with COBS to payloads", "[Backend]") {
@@ -27,127 +26,123 @@ SCENARIO(
     PF::Driver::Serial::Backend::COBSDecoder cobs_decoder{};
     PF::Util::ByteVector<buffer_size> input_buffer;
     PF::Util::ByteVector<buffer_size> output_buffer;
+    PF::IndexStatus push_status;
 
     REQUIRE(output_buffer.empty() == true);
 
-    WHEN("Input to the CobsDecoder is '0x00 0x00'") {
-      auto body = std::string("\x01\x01", 2);
+    WHEN("transform is called on an input buffer that contains these bytes '0x00 0x00'") {
+      auto body = std::string("\x01\x01"s);
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
-        auto expected = std::string("\x00", 1);
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer is as expected '0x00'") {
+        auto expected = std::string("\x00"s);
         REQUIRE(output_buffer == expected);
       }
-      THEN("Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
     }
-    WHEN("Input to the CobsDecoder is '\x01\x01\x01'") {
-      auto body = std::string("\x01\x01\x01", 3);
+
+    WHEN("transform is called on an input buffer that contains these bytes '\x01\x01\x01'") {
+      auto body = std::string("\x01\x01\x01"s);
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
-        auto expected = std::string("\x00\x00", 2);
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer is as expected '0x00 0x00'") {
+        auto expected = std::string("\x00\x00"s);
         REQUIRE(output_buffer == expected);
       }
-      THEN("Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
     }
-    WHEN("Input to the CobsDecoder is '\x03\x11\x22\x02\x33'") {
-      auto body = std::string("\x03\x11\x22\x02\x33", 5);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
 
-      auto status = cobs_decoder.transform(input_buffer, output_buffer);
-
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
-        auto expected = std::string("\x11\x22\x00\x33", 4);
-        REQUIRE(output_buffer == expected);
-      }
-      THEN("Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
-    }
-    WHEN("Input to the CobsDecoder is '\x05\x11\x22\x33\x44'") {
-      auto body = std::string("\x05\x11\x22\x33\x44", 5);
+    WHEN(
+        "transform is called on an input buffer that contains these bytes '\x03\x11\x22\x02\x33'") {
+      auto body = std::string("\x03\x11\x22\x02\x33"s);
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
-        auto expected = std::string("\x11\x22\x33\x44", 4);
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer is as expected '0x11 0x22 0x00 0x33'") {
+        auto expected = std::string("\x11\x22\x00\x33"s);
         REQUIRE(output_buffer == expected);
       }
-      THEN("Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
     }
-    WHEN("Input to the CobsDecoder is char '\x02\x78'") {
-      auto body = std::string("\x02\x78", 2);
+
+    WHEN(
+        "transform is called on an input buffer that contains these bytes '\x05\x11\x22\x33\x44'") {
+      auto body = std::string("\x05\x11\x22\x33\x44"s);
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
-        auto expected = std::string("x", 1);
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer is as expected '\x11\x22\x33\x44'") {
+        auto expected = std::string("\x11\x22\x33\x44"s);
         REQUIRE(output_buffer == expected);
       }
-      THEN("Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
     }
-    WHEN("Input to the CobsDecoder is char '\x03\x78\x79'") {
-      auto body = std::string("\x03\x78\x79", 3);
+
+    WHEN("transform is called on an input buffer that contains these bytes '\x02x'") {
+      auto body = std::string("\x02\x78"s);
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
-        auto expected = std::string("xy", 2);
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer is as expected 'x'") {
+        auto expected = std::string("x"s);
         REQUIRE(output_buffer == expected);
       }
-      THEN("Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
     }
-    WHEN("Input to the CobsDecoder is string '\x0cHello World'") {
-      auto body = std::string("\x0cHello World", 12);
+
+    WHEN("transform is called on an input buffer that contains these bytes '\x03xy'") {
+      auto body = std::string("\x03\x78\x79"s);
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
-        auto expected = std::string("Hello World", 11);
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer is as expected 'xy'") {
+        auto expected = std::string("xy"s);
         REQUIRE(output_buffer == expected);
       }
-      THEN("Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
     }
-    WHEN("Input to the CobsDecoder is a encoded sensor measurements message payload") {
+
+    WHEN("transform is called on an input buffer containing the bytestring '\x0cHello World'") {
+      auto body = std::string("\x0cHello World"s);
+      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+
+      auto status = cobs_decoder.transform(input_buffer, output_buffer);
+
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer is as expected 'Hello World'") {
+        auto expected = std::string("Hello World"s);
+        REQUIRE(output_buffer == expected);
+      }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+    }
+
+    WHEN(
+        "transform is called on an input buffer that contains a encoded sensor measurements "
+        "message payload") {
       auto body =
-          std::string("\x03\x02\x25\x01\x04\xF0\x41\x35\x01\x04\xAA\x42\x3D\x01\x03\x90\x42", 17);
+          std::string("\x03\x02\x25\x01\x04\xF0\x41\x35\x01\x04\xAA\x42\x3D\x01\x03\x90\x42"s);
 
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer has an expected sequence of 16 bytes") {
         auto expected =
-            std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42", 16);
+            std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
         REQUIRE(output_buffer == expected);
       }
       THEN("The Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
@@ -158,172 +153,129 @@ SCENARIO(
 SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "[Backend]") {
   GIVEN("A CobsEncoder object constructed with default parameters") {
     constexpr size_t buffer_size = 254UL;
+    constexpr size_t encoded_buffer_size = 255UL;
     PF::Driver::Serial::Backend::COBSEncoder cobs_encoder{};
     PF::Util::ByteVector<buffer_size> input_buffer;
-    PF::Util::ByteVector<buffer_size> output_buffer;
+    PF::Util::ByteVector<encoded_buffer_size> output_buffer;
+    PF::IndexStatus push_status;
+    const PF::IndexStatus push_ok = PF::IndexStatus::ok;
 
     REQUIRE(output_buffer.empty() == true);
 
-    WHEN("Input buffer size is greater than the payload max size (254 bytes)") {
-      for (size_t i = 0; i < 255; ++i) {
-        uint8_t val = 10;
-        input_buffer.push_back(val);
-      }
+    WHEN("transform is called on an input buffer that contains a null byte") {
+      push_status = input_buffer.push_back(0x00);
+      REQUIRE(push_status == push_ok);
+
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::out_of_bounds);
+
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer is as expected '\x01\x01'") {
+        auto expected = std::string("\x01\x01"s);
+        REQUIRE(output_buffer == expected);
       }
-      THEN("The output buffer remains unchanged") { REQUIRE(output_buffer.empty() == true); }
+      THEN("The input buffer is unchanged after transform") {
+        auto expected = std::string("\x00"s);
+        REQUIRE(input_buffer == expected);
+      }
     }
+
+    WHEN("transform is called on an input buffer that contains these bytes '0x00 0x00'") {
+      auto body = std::string("\x00\x00"s);
+      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+
+      auto status = cobs_encoder.transform(input_buffer, output_buffer);
+
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer is as expected '\x01\x01\x01'") {
+        auto expected = std::string("\x01\x01\x01"s);
+        REQUIRE(output_buffer == expected);
+      }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+    }
+
+    WHEN("transform is called on an input buffer that contains these bytes '0x11 0x22 0x00 0x33'") {
+      auto body = std::string("\x11\x22\x00\x33"s);
+      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+
+      auto status = cobs_encoder.transform(input_buffer, output_buffer);
+
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer is as expected '\x03\x11\x22\x02\x33'") {
+        auto expected = std::string("\x03\x11\x22\x02\x33"s);
+        REQUIRE(output_buffer == expected);
+      }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+    }
+
+    WHEN("transform is called on an input buffer that contains these bytes '\x11\x22\x33\x44'") {
+      auto body = std::string("\x11\x22\x33\x44"s);
+      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+
+      auto status = cobs_encoder.transform(input_buffer, output_buffer);
+
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer is as expected '\x05\x11\x22\x33\x44'") {
+        auto expected = std::string("\x05\x11\x22\x33\x44"s);
+        REQUIRE(output_buffer == expected);
+      }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+    }
+
+    WHEN("transform is called on an input buffer that contains the char 'x'") {
+      auto body = std::string("x"s);
+      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+
+      auto status = cobs_encoder.transform(input_buffer, output_buffer);
+
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer is as expected '\x02\x78'") {
+        auto expected = std::string("\x02\x78"s);
+        REQUIRE(output_buffer == expected);
+      }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+    }
+
+    WHEN("transform is called on an input buffer that contains the char 'xy'") {
+      auto body = std::string("xy"s);
+      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+
+      auto status = cobs_encoder.transform(input_buffer, output_buffer);
+
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer is as expected '\x03\x78\x79'") {
+        auto expected = std::string("\x03\x78\x79"s);
+        REQUIRE(output_buffer == expected);
+      }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+    }
+
+    WHEN("transform is called on an input buffer containing the string 'Hello world'") {
+      auto body = std::string("Hello World"s);
+      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+
+      auto status = cobs_encoder.transform(input_buffer, output_buffer);
+
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer is as expected '\x0cHello World'") {
+        auto expected = std::string("\x0cHello World"s);
+        REQUIRE(output_buffer == expected);
+      }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+    }
+
     WHEN(
-        "The size of the output buffer is smaller than the size required for an encoded input "
-        "buffer") {
-      constexpr size_t buffer_size = 11UL;
-      auto body = std::string("\x45\x00\x00\x2c\x4c\x79\x00\x00\x40\x06\x4f\x37", 12);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
-      PF::Util::ByteVector<buffer_size> output_buffer;
-      auto status = cobs_encoder.transform(input_buffer, output_buffer);
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::out_of_bounds);
-      }
-      THEN("The output buffer remains unchanged") { REQUIRE(output_buffer.empty() == true); }
-    }
-    WHEN("The input to the CobsEncoder contains multiple delimited bytes") {
-      auto body = std::string("\x01\x02\x00\x00\x03\x04\x00\x00", 8);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
-      auto status = cobs_encoder.transform(input_buffer, output_buffer);
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer remains unchanged") {
-        auto expected = std::string("\x03\x01\x02\x01\x03\x03\x04\x01\x01", 9);
-        REQUIRE(output_buffer == expected);
-      }
-    }
-    WHEN("Input to the cobsEncoder is a null byte") {
-      input_buffer.push_back(0x00);
-
-      auto status = cobs_encoder.transform(input_buffer, output_buffer);
-
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
-        auto expected = std::string("\x01\x01", 2);
-        REQUIRE(output_buffer == expected);
-      }
-      THEN("Input buffer is unchanged after transform") {
-        auto expected = std::string("\x00", 1);
-        REQUIRE(input_buffer == expected);
-      }
-    }
-    WHEN("Input to the cobsEncoder is '0x00 0x00'") {
-      input_buffer.push_back(0x00);
-      input_buffer.push_back(0x00);
-
-      auto status = cobs_encoder.transform(input_buffer, output_buffer);
-
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
-        auto expected = std::string("\x01\x01\x01", 3);
-        REQUIRE(output_buffer == expected);
-      }
-      THEN("Input buffer is unchanged after transform") {
-        auto expected = std::string("\x00\x00", 2);
-        REQUIRE(input_buffer == expected);
-      }
-    }
-    WHEN("Input to the cobsEncoder is '0x11 0x22 0x00 0x33'") {
-      auto body = std::string("\x11\x22\x00\x33", 4);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
-
-      auto status = cobs_encoder.transform(input_buffer, output_buffer);
-
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
-        auto expected = std::string("\x03\x11\x22\x02\x33", 5);
-        REQUIRE(output_buffer == expected);
-      }
-      THEN("Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
-    }
-    WHEN("Input to the cobsEncoder is '\x11\x22\x33\x44'") {
-      auto body = std::string("\x11\x22\x33\x44", 4);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
-
-      auto status = cobs_encoder.transform(input_buffer, output_buffer);
-
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
-        auto expected = std::string("\x05\x11\x22\x33\x44", 5);
-        REQUIRE(output_buffer == expected);
-      }
-      THEN("Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
-    }
-    WHEN("Input to the cobsEncoder is char 'x'") {
-      auto body = std::string("x", 1);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
-
-      auto status = cobs_encoder.transform(input_buffer, output_buffer);
-
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
-        auto expected = std::string("\x02\x78", 2);
-        REQUIRE(output_buffer == expected);
-      }
-      THEN("Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
-    }
-    WHEN("Input to the cobsEncoder is char 'xy'") {
-      auto body = std::string("xy", 2);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
-
-      auto status = cobs_encoder.transform(input_buffer, output_buffer);
-
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
-        auto expected = std::string("\x03\x78\x79", 3);
-        REQUIRE(output_buffer == expected);
-      }
-      THEN("Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
-    }
-    WHEN("Input to the cobsEncoder is string 'Hello world'") {
-      auto body = std::string("Hello World", 11);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
-
-      auto status = cobs_encoder.transform(input_buffer, output_buffer);
-
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
-        auto expected = std::string("\x0cHello World", 12);
-        REQUIRE(output_buffer == expected);
-      }
-      THEN("Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
-    }
-    WHEN("Input to the CobsEncoder is a sensor measurements message payload") {
-      auto body =
-          std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42", 16);
+        "transform is called on an input buffer that contains a 16-byte sensor measurements "
+        "message payload") {
+      auto body = std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
 
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
-      THEN("The transform method reports ok status") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The output buffer is as expected") {
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer has an expected sequence of 17 bytes") {
         auto expected =
-            std::string("\x03\x02\x25\x01\x04\xF0\x41\x35\x01\x04\xAA\x42\x3D\x01\x03\x90\x42", 17);
+            std::string("\x03\x02\x25\x01\x04\xF0\x41\x35\x01\x04\xAA\x42\x3D\x01\x03\x90\x42"s);
         REQUIRE(output_buffer == expected);
       }
       THEN("The Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
@@ -342,11 +294,11 @@ SCENARIO(
 
     PF::Driver::Serial::Backend::FrameReceiver frame_receiver{};
 
-    WHEN("255 non-delimiter bytes are passed as input and output is called after that") {
+    WHEN("255 non-delimiter frame body is passed as input and output is called after that") {
       for (size_t i = 0; i < buffer_size; ++i) {
         uint8_t val = 10;
         auto input_status = frame_receiver.input(val);
-        THEN("The input method reports ok status for all 255 non delimiter bytes") {
+        THEN("The input method reports ok status for all 255 non delimiter") {
           REQUIRE(input_status == TestFrameProps::InputStatus::ok);
         }
       }
@@ -358,7 +310,7 @@ SCENARIO(
       THEN("The output buffer remains unchanged") { REQUIRE(output_buffer.empty() == true); }
     }
 
-    WHEN("256 non-delimiter bytes are passed as input and output is called after that") {
+    WHEN("256 non-delimiter frame body is passed as input and output is called after that") {
       for (size_t i = 0; i < buffer_size; ++i) {
         uint8_t val = 10;
         auto input_status = frame_receiver.input(val);
@@ -383,8 +335,8 @@ SCENARIO(
     }
 
     WHEN(
-        "128 non-delimiter bytes with COBS byte are passed as input, 129th byte is passed as a "
-        "delimiter, and output is called after that") {
+        "128 non-delimiter frame body followed by a delimiter are passed as input, and output is "
+        "called after that") {
       PF::Driver::Serial::Backend::FrameProps::InputStatus input_status;
       uint8_t val = 0x80;
       input_status = frame_receiver.input(val);
@@ -419,11 +371,13 @@ SCENARIO(
       }
     }
 
-    WHEN("Encoded payload is passed") {
+    WHEN(
+        "256 byte frame body with a delimiter at the 129th and 256th-byte position is passed as "
+        "input, and output is called after that") {
       PF::Driver::Serial::Backend::FrameProps::InputStatus input_status;
-      auto data = PF::Util::make_array<uint8_t>(0x03, 0xc0, 0xf7, 0x03, 0xfa, 0x43);
-      for (auto& bytes : data) {
-        input_status = frame_receiver.input(bytes);
+      uint8_t val = 10;
+      for (size_t i = 0; i < 128; i++) {
+        input_status = frame_receiver.input(val);
         REQUIRE(input_status == TestFrameProps::InputStatus::ok);
       }
 
@@ -434,19 +388,99 @@ SCENARIO(
         REQUIRE(input_status == TestFrameProps::InputStatus::output_ready);
       }
 
-      input_status = frame_receiver.input(data[0]);
-      REQUIRE(input_status == TestFrameProps::InputStatus::input_overwritten);
-      for (size_t i = 1; i < data.size(); i++)
-      {
-        input_status = frame_receiver.input(data[i]);
-        REQUIRE(input_status == TestFrameProps::InputStatus::ok);        
+      input_status = frame_receiver.input(0x80);
+      THEN(
+          "Then input method reports input_overwritten on the next input byte and ok status for "
+          "subsequent bytes") {
+        REQUIRE(input_status == TestFrameProps::InputStatus::input_overwritten);
       }
-      
+
+      for (size_t i = 0; i < 127; i++) {
+        input_status = frame_receiver.input(val);
+        REQUIRE(input_status == TestFrameProps::InputStatus::ok);
+      }
+
       input_status = frame_receiver.input(0);
+      THEN("The input method reports output ready status for the delimiter byte") {
+        REQUIRE(input_status == TestFrameProps::InputStatus::output_ready);
+      }
       auto output_status = frame_receiver.output(output_buffer);
 
       THEN("The output method reports ok status") {
         REQUIRE(output_status == TestFrameProps::OutputStatus::ok);
+      }
+      THEN(
+          "The output buffer has an expected sequence of 128 bytes of the input data passed after "
+          "the 129th delimiter byte") {
+        for (size_t i = 0; i < 127; i++) {
+          REQUIRE(output_buffer.operator[](i) == val);
+        }
+      }
+    }
+
+    WHEN(
+        "A 10-byte frame body with improper encoding followed by a delimiter is passed as input "
+        "and output is called after that") {
+      PF::Driver::Serial::Backend::FrameProps::InputStatus input_status;
+      auto data =
+          PF::Util::make_array<uint8_t>(0x0c, 0x25, 0x39, 0xbb, 0x30, 0xf1, 0x6b, 0x62, 0x95, 0xfd);
+      for (auto& bytes : data) {
+        input_status = frame_receiver.input(bytes);
+        THEN("The input method reports ok status for all the non-delimiter bytes") {
+          REQUIRE(input_status == TestFrameProps::InputStatus::ok);
+        }
+      }
+
+      input_status = frame_receiver.input(0);
+      THEN("The input method reports output ready status for the delimiter byte") {
+        REQUIRE(input_status == TestFrameProps::InputStatus::output_ready);
+      }
+
+      auto output_status = frame_receiver.output(output_buffer);
+
+      THEN("The output method reports invalid_cobs status") {
+        REQUIRE(output_status == TestFrameProps::OutputStatus::invalid_cobs);
+      }
+
+      THEN("The output buffer remains empty") { REQUIRE(output_buffer.empty() == true); }
+    }
+  }
+}
+
+SCENARIO(
+    "Serial::The FrameSender class correctly encodes frame bodies and appends a delimiter",
+    "[Backend]") {
+  GIVEN("A FrameReceiver object constructed with default parameters") {
+    constexpr size_t buffer_size = 254UL;
+    using TestFrameProps = PF::Driver::Serial::Backend::FrameProps;
+    TestFrameProps::PayloadBuffer input_buffer;
+    TestFrameProps::ChunkBuffer output_buffer;
+
+    PF::Driver::Serial::Backend::FrameSender frame_sender{};
+
+    WHEN("transform is called on a 254-byte frame body") {
+      uint8_t val = 10;
+      for (size_t i = 0; i < buffer_size; i++) {
+        auto push_status = input_buffer.push_back(val);
+        REQUIRE(push_status == PF::IndexStatus::ok);
+      }
+
+      auto transform_status = frame_sender.transform(input_buffer, output_buffer);
+      THEN("The transform method reports invalid_length status") {
+        REQUIRE(transform_status == TestFrameProps::OutputStatus::invalid_length);
+      }
+
+      THEN("The output buffer has an expected sequence of 256 bytes with no delimiters") {
+        REQUIRE(output_buffer.operator[](0) == 0xff);
+        for (size_t i = 1; i < buffer_size; i++) {
+          REQUIRE(output_buffer.operator[](i) == val);
+        }
+        REQUIRE(output_buffer.operator[](255) == 0x01);
+      }
+      THEN("The input buffer is unchanged after transform") {
+        for (size_t i = 0; i < buffer_size; i++) {
+          REQUIRE(input_buffer.operator[](i) == val);
+        }
       }
     }
   }
