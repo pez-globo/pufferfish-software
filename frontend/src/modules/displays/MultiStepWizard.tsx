@@ -3,7 +3,7 @@ import { Subscription } from 'rxjs';
 import { useDispatch } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
 import ReplyIcon from '@material-ui/icons/Reply';
-import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
+// import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import ModalPopup from '../controllers/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
@@ -504,10 +504,18 @@ const MultiStepWizard = (): JSX.Element => {
                 className={classes.tab}
                 classes={{ selected: classes.selectedTab }}
               />
-              <ArrowForwardIosIcon />
+              {/* <Tab
+                label={<ArrowForwardIosIcon />}
+                {...a11yProps(98)}
+                className={classes.nonTab}
+              /> */}
               <Tab
                 style={{ visibility: tabIndex === 0 ? 'hidden' : 'visible' }}
-                label={parameter?.isSetvalEnabled ? 'Set New' : 'Alarms'}
+                label={
+                  parameter?.isSetvalEnabled
+                    ? `${parameter.label} Settings`
+                    : `${parameter?.label} Alarms`
+                }
                 {...a11yProps(1)}
                 className={classes.tab}
                 classes={{ selected: classes.selectedTab }}
