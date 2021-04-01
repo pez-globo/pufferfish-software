@@ -11,7 +11,6 @@ import {
 } from '../../store/controller/selectors';
 import { EXPECTED_LOG_EVENT_ID } from '../../store/controller/types';
 import { setMultiPopupOpen } from '../app/Service';
-import { EventType, getEventType } from '../app/EventAlerts';
 import { AlarmModal } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';
 
@@ -23,6 +22,7 @@ import SimpleTable, {
   StyledTableRow,
 } from '../controllers/SimpleTable';
 import EventlogDetails from './container/EventlogDetails';
+import { getEventDetails, getEventType } from './EventType';
 
 /**
  * LogsPage
@@ -46,7 +46,7 @@ interface Data {
 
 const headCells: HeadCell[] = [
   { id: 'type', numeric: false, disablePadding: true, label: 'Type', enableSort: false },
-  { id: 'alarm', numeric: true, disablePadding: false, label: 'Alarm', enableSort: false },
+  { id: 'alarm', numeric: true, disablePadding: false, label: 'Event', enableSort: false },
   { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date', enableSort: true },
   { id: 'details', numeric: false, disablePadding: false, label: 'Details', enableSort: false },
   { id: 'settings', numeric: true, disablePadding: false, label: 'Settings', enableSort: false },
@@ -98,10 +98,12 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     switch (type) {
       case LogEventType.patient:
         return 'Patient';
-      case LogEventType.control:
-        return 'Control';
       case LogEventType.system:
         return 'System';
+      case LogEventType.control:
+        return 'Control';
+      case LogEventType.alarm_limits:
+        return 'Alarm Limits';
       default:
         return 'System';
     }
@@ -146,25 +148,11 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     [dispatch],
   );
 
+  const getDetails = useCallback(getEventDetails, []);
+
   useEffect(() => {
     const eventIds: number[] = [];
     const data: Data[] = [];
-
-    const getDetails = (event: LogEvent, eventType: EventType) => {
-      if (event.type === LogEventType.patient) {
-        if (eventType?.stateKey) {
-          return eventType.label.includes('high')
-            ? `Upper limit of ${eventType?.stateKey} is ${alarmLimits[eventType.stateKey].upper}`
-            : `Lower limit of ${eventType?.stateKey} is ${alarmLimits[eventType.stateKey].lower}`;
-        }
-      } else if (event.type === LogEventType.control) {
-        return event.oldValue != null && event.newValue != null
-          ? `Control ${eventType?.stateKey} changed from ${event.oldValue} ${eventType.unit} to ${event.newValue} ${eventType.unit}`
-          : '';
-      }
-      return '';
-    };
-
     loggedEvents.sort((a: LogEvent, b: LogEvent) => a.time - b.time);
     loggedEvents.forEach((event: LogEvent) => {
       const eventType = getEventType(event.code);
@@ -179,7 +167,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
               event.time,
               activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
               event.id,
-              getDetails(event, eventType),
+              getDetails(event, eventType, alarmLimits),
               eventType.stateKey || '',
               eventType.head || '',
               eventType.unit || '',
@@ -194,7 +182,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
             event.time,
             activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
             event.id,
-            getDetails(event, eventType),
+            getDetails(event, eventType, alarmLimits),
             eventType.stateKey || '',
             eventType.head || '',
             eventType.unit || '',
@@ -205,7 +193,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     setRows(data.length ? data : []);
     // update ExpectedLogEvent
     updateLogEvent(Math.max(...eventIds));
-  }, [loggedEvents, activeLogEventIds, updateLogEvent, filter, alarmLimits]);
+  }, [loggedEvents, activeLogEventIds, updateLogEvent, filter, alarmLimits, getDetails]);
 
   const handleClose = () => {
     setOpen(false);
@@ -216,10 +204,17 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   };
 
   const typeColor = (type: LogEventType | undefined) => {
-    if (type === LogEventType.control) return { backgroundColor: theme.palette.primary.main };
-    if (type === LogEventType.patient) return { backgroundColor: '#92D25B', color: 'black' };
-    if (type === LogEventType.system) return { backgroundColor: '#E68619' };
-    return { backgroundColor: '#E68619' };
+    switch (type) {
+      case LogEventType.patient:
+        return { backgroundColor: '#FF3B30' };
+      case LogEventType.system:
+        return { backgroundColor: '#E68619' };
+      case LogEventType.control:
+      case LogEventType.alarm_limits:
+        return { backgroundColor: theme.palette.primary.main };
+      default:
+        return { backgroundColor: '#E68619' };
+    }
   };
 
   const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
@@ -309,14 +304,14 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                 </TableCell>
                 <TableCell align="left">
                   {`
-                                        ${new Date(row.time * 1000).toLocaleTimeString([], {
-                                          hour: '2-digit',
-                                          minute: '2-digit',
-                                        })}
                                         ${new Date(row.time * 1000).toLocaleDateString([], {
                                           month: '2-digit',
                                           day: '2-digit',
                                           year: 'numeric',
+                                        })}
+                                        ${new Date(row.time * 1000).toLocaleTimeString([], {
+                                          hour: '2-digit',
+                                          minute: '2-digit',
                                         })}
                                     `}
                 </TableCell>

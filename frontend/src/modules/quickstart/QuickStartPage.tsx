@@ -119,11 +119,43 @@ const SettableParameters = (): JSX.Element => {
 
   const ventilationMode = useSelector(getParametersRequestMode);
   switch (ventilationMode) {
+    case VentilationMode.hfnc:
+      return (
+        <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
+          <Grid container item xs direction="row" className={classes.bottomBorder}>
+            <Grid item xs className={classes.rightBorder}>
+              <ValueClicker
+                reference={elRefs[FIO2_REFERENCE_KEY]}
+                referenceKey={FIO2_REFERENCE_KEY}
+                label="FiO2"
+                units={PERCENT}
+                value={FiO2}
+                onClick={setFiO2}
+              />
+            </Grid>
+            <Grid item xs>
+              <ValueClicker
+                reference={elRefs[FLOW_REFERENCE_KEY]}
+                referenceKey={FLOW_REFERENCE_KEY}
+                label="Flow"
+                units={LMIN}
+                value={Flow}
+                onClick={setFlow}
+              />
+            </Grid>
+          </Grid>
+          <Grid container item xs direction="row">
+            <Grid item xs className={classes.rightBorder} />
+            <Grid item xs />
+          </Grid>
+        </Grid>
+      );
     case VentilationMode.pc_ac:
-    case VentilationMode.pc_simv:
     case VentilationMode.vc_ac:
-    case VentilationMode.vc_simv:
-    case VentilationMode.niv:
+    case VentilationMode.niv_pc:
+    case VentilationMode.niv_ps:
+    case VentilationMode.psv:
+    default:
       return (
         <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
           <Grid container item xs direction="row" className={classes.bottomBorder}>
@@ -170,38 +202,6 @@ const SettableParameters = (): JSX.Element => {
                 onClick={setTV}
               />
             </Grid>
-          </Grid>
-        </Grid>
-      );
-    case VentilationMode.hfnc:
-    default:
-      return (
-        <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
-          <Grid container item xs direction="row" className={classes.bottomBorder}>
-            <Grid item xs className={classes.rightBorder}>
-              <ValueClicker
-                reference={elRefs[FIO2_REFERENCE_KEY]}
-                referenceKey={FIO2_REFERENCE_KEY}
-                label="FiO2"
-                units={PERCENT}
-                value={FiO2}
-                onClick={setFiO2}
-              />
-            </Grid>
-            <Grid item xs>
-              <ValueClicker
-                reference={elRefs[FLOW_REFERENCE_KEY]}
-                referenceKey={FLOW_REFERENCE_KEY}
-                label="Flow"
-                units={LMIN}
-                value={Flow}
-                onClick={setFlow}
-              />
-            </Grid>
-          </Grid>
-          <Grid container item xs direction="row">
-            <Grid item xs className={classes.rightBorder} />
-            <Grid item xs />
           </Grid>
         </Grid>
       );
