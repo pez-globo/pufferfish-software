@@ -12,7 +12,7 @@ import {
   Typography,
   IconButton,
 } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import ReplyIcon from '@material-ui/icons/Reply';
 
 const useStyles = makeStyles((theme: Theme) => ({
   closeButton: {
@@ -161,7 +161,7 @@ export const ModalPopup = (props: PropsWithChildren<Props>): JSX.Element => {
               <Grid item>
                 {showCloseIcon && (
                   <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
-                    <CloseIcon />
+                    <ReplyIcon />
                   </IconButton>
                 )}
               </Grid>

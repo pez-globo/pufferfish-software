@@ -170,9 +170,17 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
     dispatch(updateCommittedState(ALARM_MUTE, { active: state }));
   };
 
-  const onActiveAlarmClick = () => {
+  const openEventLogPopup = (filter: boolean) => {
     setOpen(true);
-    setActiveFilter(true);
+    setActiveFilter(filter);
+  };
+
+  const openPopup = () => {
+    openEventLogPopup(false);
+  };
+
+  const onActiveAlarmClick = () => {
+    openEventLogPopup(true);
   };
 
   return (
@@ -276,12 +284,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         </Button>
       </Grid>
       <Grid>
-        <Button
-          style={{ marginRight: 12 }}
-          variant="contained"
-          color="primary"
-          onClick={() => setOpen(true)}
-        >
+        <Button style={{ marginRight: 12 }} variant="contained" color="primary" onClick={openPopup}>
           <BellIcon />
         </Button>
         {label}
