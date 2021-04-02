@@ -5,10 +5,10 @@ import {
   getParametersFiO2,
   getParametersFlow,
   getROXIndex,
-  getSensorMeasurementsHR,
   getSmoothedFiO2Value,
   getSmoothedFlow,
   getSmoothedSpO2,
+  getSmoothedHR,
 } from '../../../store/controller/selectors';
 import { a11yProps, TabPanel } from '../../controllers/TabPanel';
 import { BPM, LMIN, PERCENT } from '../../info/units';
@@ -149,7 +149,7 @@ const HFNCMainView = (): JSX.Element => {
           <Grid container item justify="center" alignItems="stretch">
             <ValueInfo
               mainContainer={{
-                selector: getSensorMeasurementsHR,
+                selector: getSmoothedHR,
                 label: 'HR',
                 stateKey: 'hr',
                 units: BPM,

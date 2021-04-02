@@ -15,18 +15,18 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 export const getModeText = (mode: VentilationMode): string => {
   switch (mode) {
-    case VentilationMode.pc_ac:
-      return 'Pressure Control (AC)';
-    case VentilationMode.pc_simv:
-      return 'Pressure Control (SIMV)';
-    case VentilationMode.vc_ac:
-      return 'Volume Control (AC)';
-    case VentilationMode.vc_simv:
-      return 'Volume Control (SIMV)';
-    case VentilationMode.niv:
-      return 'Non Invasive (NIV)';
     case VentilationMode.hfnc:
-      return 'High Flow Nasal Canula (HFNC)';
+      return 'High Flow Nasal Cannula (HFNC)';
+    case VentilationMode.pc_ac:
+      return 'Pressure Control (A/C)';
+    case VentilationMode.vc_ac:
+      return 'Volume Control (A/C)';
+    case VentilationMode.niv_pc:
+      return 'Non-Invasive (PC)';
+    case VentilationMode.niv_ps:
+      return 'Non-Invasive (PS)';
+    case VentilationMode.psv:
+      return 'Pressure Support Ventilation';
     default:
       return 'No Mode Selected';
   }

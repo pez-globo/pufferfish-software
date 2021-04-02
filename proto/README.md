@@ -39,7 +39,7 @@ $ pip3 install nanopb
 
 
 $ # Generate C++ Code
-$ ../proto/generate_mcu.sh
+$ ./generate_mcu.sh
 ```
 
 ## Frontend/Backend

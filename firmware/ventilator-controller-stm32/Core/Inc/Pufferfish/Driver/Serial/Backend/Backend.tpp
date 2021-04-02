@@ -38,6 +38,8 @@ BackendReceiver::OutputStatus BackendReceiver::output(BackendMessage &output_mes
       return OutputStatus::waiting;
     case FrameProps::OutputStatus::invalid_length:
       return OutputStatus::invalid_frame_length;
+    case FrameProps::OutputStatus::invalid_cobs:
+      return OutputStatus::invalid_frame_encoding;
     case FrameProps::OutputStatus::ok:
       break;
   }
@@ -120,6 +122,8 @@ BackendSender::Status BackendSender::transform(
   switch (frame_.transform(temp_buffer3, output_buffer)) {
     case FrameProps::OutputStatus::invalid_length:
       return Status::invalid_frame_length;
+    case FrameProps::OutputStatus::invalid_cobs:
+      return Status::invalid_frame_encoding;
     case FrameProps::OutputStatus::ok:
       break;
     default:
@@ -150,6 +154,7 @@ Backend::Status Backend::input(uint8_t new_byte) {
     case BackendReceiver::OutputStatus::available:
       break;
     case BackendReceiver::OutputStatus::invalid_frame_length:
+    case BackendReceiver::OutputStatus::invalid_frame_encoding:
     case BackendReceiver::OutputStatus::invalid_crcelement_parse:
     case BackendReceiver::OutputStatus::invalid_crcelement_crc:
     case BackendReceiver::OutputStatus::invalid_datagram_parse:
@@ -209,6 +214,7 @@ Backend::Status Backend::output(FrameProps::ChunkBuffer &output_buffer) {
     case BackendSender::Status::invalid_datagram_length:
     case BackendSender::Status::invalid_crcelement_length:
     case BackendSender::Status::invalid_frame_length:
+    case BackendSender::Status::invalid_frame_encoding:
     case BackendSender::Status::invalid_return_code:
       // TODO(lietk12): handle error cases first
       return Status::invalid;

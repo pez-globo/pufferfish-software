@@ -1,5 +1,6 @@
 """Servicing of AlarmLimits and AlarmLimitsRequest states."""
 
+import dataclasses
 import typing
 from typing import Mapping, Optional, Tuple, Type
 
@@ -8,6 +9,7 @@ import attr
 import betterproto
 
 from ventserver.protocols.protobuf import mcu_pb
+from ventserver.simulation import log
 
 
 def transform_limits_range(
@@ -23,33 +25,59 @@ def transform_limits_range(
     return (current_min, current_max)
 
 
+def service_limits_range(
+        request: mcu_pb.Range, response: mcu_pb.Range, floor: int, ceiling: int,
+        code: mcu_pb.LogEventCode, log_manager: log.Manager
+) -> None:
+    """Handle the request's alarm limits range."""
+    if request.lower == response.lower and request.upper == response.upper:
+        return
+
+    (new_lower, new_upper) = transform_limits_range(
+        floor, ceiling, request.lower, request.upper,
+        response.lower, response.upper
+    )
+    old_response = dataclasses.replace(response)
+    response.lower = new_lower
+    response.upper = new_upper
+    new_response = dataclasses.replace(response)
+    log_manager.add_event(mcu_pb.LogEvent(
+        code=code, type=mcu_pb.LogEventType.alarm_limits,
+        old_range=old_response, new_range=new_response
+    ))
+
+
 # Services
 
 
 class Service:
     """Base class for the AlarmLimits/AlarmLimitsRequest service."""
 
-    SPO2_MIN = 0
-    SPO2_MAX = 100
     FIO2_MIN = 21
     FIO2_MAX = 100
+    SPO2_MIN = 0
+    SPO2_MAX = 100
+    HR_MIN = 0
+    HR_MAX = 200
 
     # Update methods
 
     def transform(
             self, request: mcu_pb.AlarmLimitsRequest,
-            response: mcu_pb.AlarmLimits
+            response: mcu_pb.AlarmLimits, log_manager: log.Manager
     ) -> None:
         """Update the alarm limits."""
-        (response.fio2.lower, response.fio2.upper) = transform_limits_range(
-            self.FIO2_MIN, self.FIO2_MAX,
-            request.fio2.lower, request.fio2.upper,
-            response.fio2.lower, response.fio2.upper
+        service_limits_range(
+            request.fio2, response.fio2, self.FIO2_MIN, self.FIO2_MAX,
+            mcu_pb.LogEventCode.fio2_alarm_limits_changed, log_manager
         )
-        (response.spo2.lower, response.spo2.upper) = transform_limits_range(
-            self.SPO2_MIN, self.SPO2_MAX,
-            request.spo2.lower, request.spo2.upper,
-            response.spo2.lower, response.spo2.upper
+        service_limits_range(
+            request.spo2, response.spo2, self.SPO2_MIN, self.SPO2_MAX,
+            mcu_pb.LogEventCode.spo2_alarm_limits_changed, log_manager
+        )
+        service_limits_range(
+            request.hr, response.hr, self.HR_MIN, self.HR_MAX,
+            mcu_pb.LogEventCode.hr_alarm_limits_changed, log_manager
         )
 
 
@@ -70,13 +98,14 @@ class Services:
 
     _active_service: Optional[Service] = attr.ib(default=None)
     _services = {
-        mcu_pb.VentilationMode.pc_ac: PCAC(),
         mcu_pb.VentilationMode.hfnc: HFNC()
     }
 
-    def transform(self, all_states: Mapping[
-            Type[betterproto.Message], Optional[betterproto.Message]
-    ]) -> None:
+    def transform(
+            self, current_time: float, all_states: Mapping[
+                Type[betterproto.Message], Optional[betterproto.Message]
+            ], log_manager: log.Manager
+    ) -> None:
         """Update the alarm limits for the requested mode."""
         parameters = typing.cast(
             mcu_pb.Parameters, all_states[mcu_pb.Parameters]
@@ -92,4 +121,5 @@ class Services:
         if self._active_service is None:
             return
 
-        self._active_service.transform(request, response)
+        log_manager.update_clock(current_time)
+        self._active_service.transform(request, response, log_manager)

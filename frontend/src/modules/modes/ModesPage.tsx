@@ -88,7 +88,7 @@ export const ModesPage = (): JSX.Element => {
         <Grid container item xs>
           <Grid container item direction="column" className={classes.modeContainer}>
             <Grid item className={classes.modeTitleItem}>
-              <Typography variant="h6">Pressure Controlled</Typography>
+              <Typography variant="h6">Invasive</Typography>
             </Grid>
             <Grid container item xs>
               <Grid container item xs className={classes.leftModeButtonOutline}>
@@ -97,41 +97,25 @@ export const ModesPage = (): JSX.Element => {
                   className={buttonClass(VentilationMode.pc_ac)}
                   variant="outlined"
                 >
-                  <Typography variant="h5">AC</Typography>
+                  <Typography variant="h5">A/C PC</Typography>
                 </Button>
               </Grid>
               <Grid container item xs className={classes.modeButtonOutline}>
-                <Button
-                  onClick={() => updateMode(VentilationMode.pc_simv)}
-                  className={buttonClass(VentilationMode.pc_simv)}
-                  variant="outlined"
-                >
-                  <Typography variant="h5">SIMV</Typography>
-                </Button>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid container item direction="column" className={classes.modeContainer}>
-            <Grid item className={classes.modeTitleItem}>
-              <Typography variant="h6">Volume Controlled</Typography>
-            </Grid>
-            <Grid container item xs>
-              <Grid container item xs className={classes.leftModeButtonOutline}>
                 <Button
                   onClick={() => updateMode(VentilationMode.vc_ac)}
                   className={buttonClass(VentilationMode.vc_ac)}
                   variant="outlined"
                 >
-                  <Typography variant="h5">AC</Typography>
+                  <Typography variant="h5">A/C VC</Typography>
                 </Button>
               </Grid>
               <Grid container item xs className={classes.modeButtonOutline}>
                 <Button
-                  onClick={() => updateMode(VentilationMode.vc_simv)}
-                  className={buttonClass(VentilationMode.vc_simv)}
+                  onClick={() => updateMode(VentilationMode.psv)}
+                  className={buttonClass(VentilationMode.psv)}
                   variant="outlined"
                 >
-                  <Typography variant="h5">SIMV</Typography>
+                  <Typography variant="h5">PSV</Typography>
                 </Button>
               </Grid>
             </Grid>
@@ -143,11 +127,20 @@ export const ModesPage = (): JSX.Element => {
             <Grid container item xs>
               <Grid container item xs className={classes.leftModeButtonOutline}>
                 <Button
-                  onClick={() => updateMode(VentilationMode.niv)}
-                  className={buttonClass(VentilationMode.niv)}
+                  onClick={() => updateMode(VentilationMode.niv_pc)}
+                  className={buttonClass(VentilationMode.niv_pc)}
                   variant="outlined"
                 >
-                  <Typography variant="h5">NIV</Typography>
+                  <Typography variant="h5">NIV PC</Typography>
+                </Button>
+              </Grid>
+              <Grid container item xs className={classes.leftModeButtonOutline}>
+                <Button
+                  onClick={() => updateMode(VentilationMode.niv_ps)}
+                  className={buttonClass(VentilationMode.niv_ps)}
+                  variant="outlined"
+                >
+                  <Typography variant="h5">NIV PS</Typography>
                 </Button>
               </Grid>
               <Grid container item xs className={classes.modeButtonOutline}>
