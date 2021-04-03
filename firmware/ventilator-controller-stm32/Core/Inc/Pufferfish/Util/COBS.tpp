@@ -39,7 +39,19 @@ IndexStatus encode_cobs(
   size_t code_index = 0;
   uint8_t code = 1;
 
-  if (encoded_buffer.resize(get_encoded_cobs_buffer_size(buffer.size())) != IndexStatus::ok) {
+  size_t encoded_buffer_size = 0;
+
+  if (buffer.size() == max_block_size) {
+    if (buffer[max_block_size - 1] == 0) {
+      encoded_buffer_size = max_block_size + 1;
+    } else {
+      encoded_buffer_size = max_block_size + 2;
+    }
+  } else {
+    encoded_buffer_size = get_encoded_cobs_buffer_size(buffer.size());
+  }
+
+  if (encoded_buffer.resize(encoded_buffer_size) != IndexStatus::ok) {
     return IndexStatus::out_of_bounds;
   };
 

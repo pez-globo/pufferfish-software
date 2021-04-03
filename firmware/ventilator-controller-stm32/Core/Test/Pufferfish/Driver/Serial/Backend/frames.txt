@@ -4,6 +4,21 @@ Scenario: The CobsDecoder class correctly generates a body by decoding COBS enco
  // assertions in given:
  // output_buffer is empty
 
+  WHEN("transform is called on a buffer containing '0x03' as the only byte")
+   THEN("The transform method reports out of bounds status")
+   THEN("The output buffer remains unchanged")
+   THEN("The input buffer is unchanged after transform")
+
+  WHEN("transform is called on a buffer that contains these bytes '0x05 0x02 0xff'")
+   THEN("The transform method reports out of bounds status")
+   THEN("The output buffer remains unchanged")
+   THEN("The input buffer is unchanged after transform")
+
+  WHEN("transform is called on a buffer that contains these bytes '0x02 0x02 0xff'")
+   THEN("The transform method reports out of bounds status")
+   THEN("The output buffer remains unchanged")
+   THEN("The input buffer is unchanged after transform")
+
   WHEN("transform is called on an input buffer that contains these bytes '\x00\x00'")
    THEN("The transform method reports ok status")
    THEN("The output buffer is as expected '0x00'")
@@ -43,6 +58,10 @@ Scenario: The CobsDecoder class correctly generates a body by decoding COBS enco
    THEN("The transform method reports ok status")
    THEN("The output buffer has an expected sequence of 16 bytes")
    THEN("The input buffer is unchanged after transform")
+
+  WHEN("transform is called on a 255-byte buffer filled with the manual encoding of a 254 non-null-byte payload")
+   THEN("The transform method reports ok status")
+   THEN("The output buffer has an expected sequence of 254 bytes")   
 
 Scenario: The CobsEncoder class correctly generates a body by encoding the payload with COBS
 

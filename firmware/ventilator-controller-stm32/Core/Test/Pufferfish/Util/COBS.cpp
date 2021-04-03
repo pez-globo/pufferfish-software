@@ -228,7 +228,7 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
     WHEN(
         "The cobs::encode function is called on a 254 bytes buffer with null byte as the last "
         "byte") {
-      for (size_t i = 0; i < 252; i++) {
+      for (size_t i = 0; i < 253; i++) {
         uint8_t val = 10;
         push_status = input_buffer.push_back(val);
         REQUIRE(push_status == PF::IndexStatus::ok);
@@ -238,12 +238,12 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
       THEN("The encode_cobs function reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
-      THEN("The encoded buffer has an expected sequence of 254 bytes with first byte as 0xfd") {
-        REQUIRE(encoded_buffer.operator[](0) == 0xfd);
+      THEN("The encoded buffer has an expected sequence of 255 bytes with first byte as 0xfe") {
+        REQUIRE(encoded_buffer.operator[](0) == 0xfe);
         for (size_t i = 1; i < 253; i++) {
           REQUIRE(encoded_buffer.operator[](i) == 10);
         }
-        REQUIRE(encoded_buffer.operator[](253) == 1);
+        REQUIRE(encoded_buffer.operator[](254) == 1);
       }
     }
 
@@ -256,7 +256,7 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
       THEN("The encode_cobs function reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
-      THEN("The encoded buffer has an expected sequence of 254 bytes with first byte as 0xff") {
+      THEN("The encoded buffer has an expected sequence of 256 bytes with first byte as 0xff") {
         REQUIRE(encoded_buffer.operator[](0) == 0xff);
         for (size_t i = 1; i < 254; i++) {
           REQUIRE(encoded_buffer.operator[](i) == 10);

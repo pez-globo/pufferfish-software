@@ -30,6 +30,50 @@ SCENARIO(
 
     REQUIRE(output_buffer.empty() == true);
 
+    WHEN("transform is called on a buffer containing '0x03' as the only byte") {
+      push_status = input_buffer.push_back(0x03);
+      REQUIRE(push_status == PF::IndexStatus::ok);
+      auto status = cobs_decoder.transform(input_buffer, output_buffer);
+
+      THEN("The transform method reports out of bounds status") {
+        REQUIRE(status == PF::IndexStatus::out_of_bounds);
+      }
+      THEN("The decoded buffer is empty") { REQUIRE(output_buffer.empty() == true); }
+      THEN("The input buffer is unchanged after transform") {
+        auto expected = std::string("\x03"s);
+        REQUIRE(input_buffer == expected);
+      }
+    }
+
+    WHEN(
+        "transform is called on a buffer that contains these bytes '0x05 0x02 "
+        "0xff' ") {
+      auto body = std::string("\x05\x02\xff"s);
+      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+
+      auto status = cobs_decoder.transform(input_buffer, output_buffer);
+
+      THEN("The transform method reports out of bounds status") {
+        REQUIRE(status == PF::IndexStatus::out_of_bounds);
+      }
+      THEN("The decoded buffer is empty") { REQUIRE(output_buffer.empty() == true); }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+    }
+
+    WHEN(
+        "transform is called on a buffer that contains these bytes '0x02 0x02 "
+        "0xff' ") {
+      auto body = std::string("\x02\x02\xff"s);
+      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+
+      auto status = cobs_decoder.transform(input_buffer, output_buffer);
+
+      THEN("The transform method reports out of bounds status") {
+        REQUIRE(status == PF::IndexStatus::out_of_bounds);
+      }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+    }
+
     WHEN("transform is called on an input buffer that contains these bytes '0x00 0x00'") {
       auto body = std::string("\x01\x01"s);
       PF::Util::convert_string_to_byte_vector(body, input_buffer);
@@ -146,6 +190,31 @@ SCENARIO(
         REQUIRE(output_buffer == expected);
       }
       THEN("The Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+    }
+
+    WHEN(
+        "transform is called on a 255-byte buffer filled with the manual encoding "
+        "of a 254 non-null-byte payload") {
+      constexpr size_t buffer_size = 255UL;
+      PF::Util::ByteVector<buffer_size> input_buffer;
+      push_status = input_buffer.push_back(0xff);
+      REQUIRE(push_status == PF::IndexStatus::ok);
+      for (size_t i = 0; i < 254; i++) {
+        uint8_t val = 10;
+        push_status = input_buffer.push_back(val);
+        REQUIRE(push_status == PF::IndexStatus::ok);
+      }
+      REQUIRE(push_status == PF::IndexStatus::ok);
+
+      auto status = cobs_decoder.transform(input_buffer, output_buffer);
+
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer has expected sequence of 254 bytes") {
+        for (size_t i = 0; i < 254; i++) {
+          uint8_t val = 10;
+          REQUIRE(output_buffer.operator[](i) == val);
+        }
+      }
     }
   }
 }
@@ -279,6 +348,28 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
         REQUIRE(output_buffer == expected);
       }
       THEN("The Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
+    }
+
+    WHEN("The cobs::encode function is called on a 255 byte buffer with no null bytes") {
+      for (size_t i = 0; i < 253; i++) {
+        uint8_t val = 10;
+        push_status = input_buffer.push_back(val);
+        REQUIRE(push_status == PF::IndexStatus::ok);
+      }
+      input_buffer.push_back(0x00);
+      REQUIRE(push_status == PF::IndexStatus::ok);
+      REQUIRE(input_buffer.size() == 254);
+
+      auto status = cobs_encoder.transform(input_buffer, output_buffer);
+
+      THEN("The encode_cobs function reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The encoded buffer has an expected sequence of 257 bytes with first byte as 0xff") {
+        REQUIRE(output_buffer.operator[](0) == 0xfe);
+        for (size_t i = 1; i < 254; i++) {
+          REQUIRE(output_buffer.operator[](i) == 10);
+        }
+        REQUIRE(output_buffer.operator[](254) == 1);
+      }
     }
   }
 }
