@@ -11,6 +11,8 @@
  */
 #include "Pufferfish/Driver/Serial/Backend/Frames.h"
 
+#include <iostream>
+
 #include "Pufferfish/HAL/CRCChecker.h"
 #include "Pufferfish/Test/Util.h"
 #include "Pufferfish/Util/Array.h"
@@ -350,7 +352,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
       THEN("The Input buffer is unchanged after transform") { REQUIRE(input_buffer == body); }
     }
 
-    WHEN("The cobs::encode function is called on a 255 byte buffer with no null bytes") {
+    WHEN("transform is called on a 254 byte buffer with last byte as the delimiter") {
       for (size_t i = 0; i < 253; i++) {
         uint8_t val = 10;
         push_status = input_buffer.push_back(val);
@@ -359,24 +361,46 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
       input_buffer.push_back(0x00);
       REQUIRE(push_status == PF::IndexStatus::ok);
       REQUIRE(input_buffer.size() == 254);
+      PF::Util::ByteVector<buffer_size> expected;
+      expected.copy_from(input_buffer.buffer(), input_buffer.size());
 
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
-      THEN("The encode_cobs function reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
-      THEN("The encoded buffer has an expected sequence of 257 bytes with first byte as 0xff") {
+      THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The output buffer has an expected sequence of 255 bytes with first byte as 0xfe") {
         REQUIRE(output_buffer.operator[](0) == 0xfe);
         for (size_t i = 1; i < 254; i++) {
           REQUIRE(output_buffer.operator[](i) == 10);
         }
         REQUIRE(output_buffer.operator[](254) == 1);
       }
+      THEN("The Input buffer is unchanged after transform") { REQUIRE(input_buffer == expected); }
+    }
+
+    WHEN("transform is called on a buffer filled with 254 non-delimiter bytes") {
+      for (size_t i = 0; i < 254; i++) {
+        uint8_t val = 10;
+        push_status = input_buffer.push_back(val);
+        REQUIRE(push_status == PF::IndexStatus::ok);
+      }
+      REQUIRE(input_buffer.size() == 254);
+      PF::Util::ByteVector<buffer_size> expected;
+      expected.copy_from(input_buffer.buffer(), input_buffer.size());
+
+      auto status = cobs_encoder.transform(input_buffer, output_buffer);
+
+      THEN("The transform method reports out_of_bounds status") {
+        REQUIRE(status == PF::IndexStatus::out_of_bounds);
+      }
+      THEN("The output buffer remains empty") { REQUIRE(output_buffer.empty() == true); }
+      THEN("The Input buffer is unchanged after transform") { REQUIRE(input_buffer == expected); }
     }
   }
 }
 
 SCENARIO(
     "Serial::The FrameReceiver class correctly generates COBS decoded bodies from encoded buffers",
-    "[Backend]") {
+    "[framereceiver]") {
   GIVEN("A FrameReceiver object constructed with default parameters") {
     constexpr size_t buffer_size = 255UL;
     PF::Util::ByteVector<buffer_size> input_buffer;
@@ -463,8 +487,8 @@ SCENARIO(
     }
 
     WHEN(
-        "256 byte frame body with a delimiter at the 129th and 256th-byte position is passed as "
-        "input, and output is called after that") {
+        "256 bytes are passed as input, where the input's delimiter bytes are at positions 129 and "
+        "256, and then output is called after that") {
       PF::Driver::Serial::Backend::FrameProps::InputStatus input_status;
       uint8_t val = 10;
       for (size_t i = 0; i < 128; i++) {
@@ -539,8 +563,146 @@ SCENARIO(
 }
 
 SCENARIO(
+    "After output is consumed, FrameReceiver's behavior resets to that of a FramReceiver with an "
+    "empty buffer",
+    "[framereceiver]") {
+  GIVEN(
+      "A FrameReceiver object constructed with default parameters, is given a 255 non-delimiter "
+      "frame body followed by a delimiter and output is called after that") {
+    constexpr size_t buffer_size = 255UL;
+    using TestFrameProps = PF::Driver::Serial::Backend::FrameProps;
+    PF::Driver::Serial::Backend::FrameProps::InputStatus input_status;
+    PF::Driver::Serial::Backend::FrameProps::OutputStatus output_status;
+    PF::Driver::Serial::Backend::FrameReceiver frame_receiver{};
+    TestFrameProps::PayloadBuffer output_buffer;
+
+    uint8_t val = 10;
+    input_status = frame_receiver.input(0xff);
+    REQUIRE(input_status == TestFrameProps::InputStatus::ok);
+    for (size_t i = 0; i < buffer_size - 1; ++i) {
+      input_status = frame_receiver.input(val);
+      REQUIRE(input_status == TestFrameProps::InputStatus::ok);
+    }
+
+    input_status = frame_receiver.input(0);
+    REQUIRE(input_status == TestFrameProps::InputStatus::output_ready);
+
+    output_status = frame_receiver.output(output_buffer);
+    REQUIRE(output_status == TestFrameProps::OutputStatus::ok);
+
+    for (size_t i = 0; i < buffer_size - 1; ++i) {
+      REQUIRE(output_buffer.operator[](i) == val);
+    }
+
+    WHEN(
+        "254-byte frame body is given as input followed by a delimiter, and output is called after "
+        "that") {
+      input_status = frame_receiver.input(0xff);
+      REQUIRE(input_status == TestFrameProps::InputStatus::ok);
+      for (size_t i = 0; i < buffer_size - 1; ++i) {
+        input_status = frame_receiver.input(val);
+        THEN("The input method reports ok status for all the non-delimiter bytes") {
+          REQUIRE(input_status == TestFrameProps::InputStatus::ok);
+        }
+      }
+
+      input_status = frame_receiver.input(0);
+      THEN("The input method reports output ready status for the delimiter byte") {
+        REQUIRE(input_status == TestFrameProps::InputStatus::output_ready);
+      }
+
+      output_status = frame_receiver.output(output_buffer);
+      THEN("The output method reports ok status") {
+        REQUIRE(output_status == TestFrameProps::OutputStatus::ok);
+      }
+
+      THEN("The output buffer has the expected sequence of 254 bytes") {
+        for (size_t i = 0; i < buffer_size - 1; ++i) {
+          REQUIRE(output_buffer.operator[](i) == val);
+        }
+      }
+    }
+  }
+
+  GIVEN(
+      "A FrameReceiver object constructed with default parameters, and a 254-byte frame body is "
+      "given as input") {
+    constexpr size_t buffer_size = 254UL;
+    using TestFrameProps = PF::Driver::Serial::Backend::FrameProps;
+    PF::Driver::Serial::Backend::FrameProps::InputStatus input_status;
+    PF::Driver::Serial::Backend::FrameProps::OutputStatus output_status;
+    TestFrameProps::PayloadBuffer output_buffer;
+
+    PF::Driver::Serial::Backend::FrameReceiver frame_receiver{};
+    uint8_t val = 10;
+    input_status = frame_receiver.input(0xfe);
+    REQUIRE(input_status == TestFrameProps::InputStatus::ok);
+    for (size_t i = 0; i < buffer_size - 1; ++i) {
+      input_status = frame_receiver.input(val);
+      REQUIRE(input_status == TestFrameProps::InputStatus::ok);
+    }
+
+    WHEN("The output method is called, after which a 254-byte frame body is given as input") {
+      output_status = frame_receiver.output(output_buffer);
+      THEN("The output method reports waiting status") {
+        REQUIRE(output_status == TestFrameProps::OutputStatus::waiting);
+      }
+
+      for (size_t i = 0; i < buffer_size; ++i) {
+        input_status = frame_receiver.input(val);
+        THEN("The input method reports ok status") {
+          REQUIRE(input_status == TestFrameProps::InputStatus::ok);
+        }
+      }
+    }
+
+    WHEN(
+        "A delimiter is passed as input and output method is called, after which a 254-byte frame "
+        "body is given as input") {
+      input_status = frame_receiver.input(0);
+      THEN("The input method reports output ready status for the delimiter byte") {
+        REQUIRE(input_status == TestFrameProps::InputStatus::output_ready);
+      }
+
+      output_status = frame_receiver.output(output_buffer);
+      THEN("The output method reports ok status") {
+        REQUIRE(output_status == TestFrameProps::OutputStatus::ok);
+      }
+
+      for (size_t i = 0; i < buffer_size; ++i) {
+        input_status = frame_receiver.input(val);
+        THEN("The input method reports ok status") {
+          REQUIRE(input_status == TestFrameProps::InputStatus::ok);
+        }
+      }
+    }
+
+    WHEN(
+        "2 non-delimiter bytes are passed as input and output method is called, after which a "
+        "254-byte frame body is given as input") {
+      input_status = frame_receiver.input(val);
+      REQUIRE(input_status == TestFrameProps::InputStatus::ok);
+      input_status = frame_receiver.input(val);
+      REQUIRE(input_status == TestFrameProps::InputStatus::invalid_length);
+
+      output_status = frame_receiver.output(output_buffer);
+      THEN("The output method reports invalid_length status") {
+        REQUIRE(output_status == TestFrameProps::OutputStatus::invalid_length);
+      }
+
+      for (size_t i = 0; i < buffer_size; ++i) {
+        input_status = frame_receiver.input(val);
+        THEN("The input method reports ok status") {
+          REQUIRE(input_status == TestFrameProps::InputStatus::ok);
+        }
+      }
+    }
+  }
+}
+
+SCENARIO(
     "Serial::The FrameSender class correctly encodes frame bodies and appends a delimiter",
-    "[Backend]") {
+    "[frameresender]") {
   GIVEN("A FrameReceiver object constructed with default parameters") {
     constexpr size_t buffer_size = 254UL;
     using TestFrameProps = PF::Driver::Serial::Backend::FrameProps;

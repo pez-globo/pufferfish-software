@@ -109,6 +109,16 @@ Scenario: The CobsEncoder class correctly generates a body by encoding the paylo
    THEN("The output buffer has an expected sequence of 17 bytes")
    THEN("The input buffer is unchanged after transform")
 
+  WHEN("transform is called on a 254 byte buffer with last byte as the delimiter")   
+   THEN("The transform method reports ok status")
+   THEN("The output buffer has an expected sequence of 255 bytes with first byte as 0xfe")
+   THEN("The input buffer is unchanged after transform")
+
+  WHEN("transform is called on an input buffer completely filled with 254 non-delimiter bytes")
+   THEN("The transform method reports out_of_bounds status")
+   THEN("The output buffer remains unchanged")   
+   THEN("The input buffer is unchanged after transform")
+
 Scenario: The FrameReceiver class correctly generates COBS decoded bodies from encoded buffers
 
  GIVEN("A FrameReceiver object constructed with default parameters")
@@ -130,7 +140,7 @@ Scenario: The FrameReceiver class correctly generates COBS decoded bodies from e
    THEN("The output method reports ok status")
    THEN("The output buffer has an expected sequence of 128 bytes")
 
-  WHEN("256-byte frame body with a delimiter at the 129th and 256th-byte position is passed as input, and output is called after that")
+  WHEN("256 bytes are passed as input, where the input's delimiter bytes are at positions 129 and 256, and then output is called after that")
    THEN("The input method reports ok status for all 128 non-delimiter bytes and output_ready for 129th byte")
    THEN("Then input method reports input_overwritten on the next input byte and ok status for subsequent bytes)
    THEN("The output method reports ok status")
@@ -141,6 +151,33 @@ Scenario: The FrameReceiver class correctly generates COBS decoded bodies from e
    THEN("The input method reports output ready status for the delimiter byte")
    THEN("The output method reports invalid_cobs status")
    THEN("The output buffer remains empty")
+
+Scenario: After output is consumed, FrameReceiver's behavior resets to that of a FramReceiver with an empty buffer
+ 
+ GIVEN("A FrameReceiver object constructed with default parameters, is given a 255 non-delimiter frame body as input followed by a delimiter and output is called after that")
+
+  WHEN("254-byte frame body is given as input followed by a delimiter, and output is called after that")
+   THEN("The input method reports ok status for all the non-delimiter bytes")
+   THEN("The input method reports output ready status for the delimiter byte")
+   THEN("The output method reports ok status")
+   THEN("The output buffer has the expected sequence of 254 bytes")
+
+ GIVEN("A FrameReceiver object constructed with default parameters, and a 254-byte frame body is given as input")
+  
+  WHEN("The output method is called, after which a 254-byte frame body is given as input")
+   THEN("The output method reports waiting status")
+   THEN("The input method reports ok status for the subsequent 254-byte frame body")
+
+  WHEN("A delimiter is passed as input and output method is called, after which a 254-byte frame body is given as input")
+   THEN("The input method reports output ready status for the delimiter byte")
+   THEN("The output method reports ok status")
+   THEN("The input method reports ok status for the subsequent 254-byte frame body")
+
+  WHEN("2 non-delimiter bytes are passed as input and output method is called, after which a 254-byte frame body is given as input")   
+   THEN("The input method reports ok status for the first byte")
+   THEN("The input method reports invalid_length status for the second byte")
+   THEN("The output method reports invalid_length status")
+   THEN("The input method reports ok status for the subsequent 254-byte frame body")
 
 Scenario: The FrameSender class correctly encodes frame bodies and appends a delimiter
 
