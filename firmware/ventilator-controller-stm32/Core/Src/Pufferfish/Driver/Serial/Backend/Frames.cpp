@@ -58,6 +58,7 @@ FrameProps::OutputStatus FrameSender::transform(
     const FrameProps::PayloadBuffer &input_buffer, FrameProps::ChunkBuffer &output_buffer) const {
   // COBS
   if (cobs_encoder.transform(input_buffer, output_buffer) != IndexStatus::ok) {
+    // does not return invalid_cobs status
     return FrameProps::OutputStatus::invalid_cobs;
   }
 
@@ -66,6 +67,7 @@ FrameProps::OutputStatus FrameSender::transform(
   switch (status) {
     case Protocols::ChunkOutputStatus::invalid_length:
       return FrameProps::OutputStatus::invalid_length;
+    // does not return waiting status
     case Protocols::ChunkOutputStatus::waiting:
       return FrameProps::OutputStatus::waiting;
     case Protocols::ChunkOutputStatus::ok:
