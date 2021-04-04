@@ -37,7 +37,7 @@ constexpr uint8_t get_byte(T number) noexcept {
  */
 template <size_t byte_index, typename T>
 constexpr T set_byte(uint8_t byte) noexcept {
-  return byte << static_cast<size_t>(byte_index * CHAR_BIT);
+  return static_cast<T>(byte) << static_cast<size_t>(byte_index * CHAR_BIT);
 }
 
 /**
