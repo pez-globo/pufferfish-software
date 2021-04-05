@@ -12,8 +12,6 @@
 
 #include "Pufferfish/Protocols/Messages.h"
 
-#include <iostream>
-
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/Application/mcu_pb.h"
 #include "Pufferfish/Test/BackendDefs.h"
@@ -22,6 +20,7 @@
 #include "Pufferfish/Util/Vector.h"
 #include "catch2/catch.hpp"
 #include "nanopb/pb.h"
+
 namespace PF = Pufferfish;
 namespace BE = PF::Driver::Serial::Backend;
 using namespace std::string_literals;
@@ -31,14 +30,6 @@ static constexpr size_t num_descriptors = 8;
 SCENARIO(
     "Protocols::The message correctly writes to the output buffer and also updates type",
     "[messages]") {
-  auto exp_sensor_measurements =
-      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
-
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
       "bytes") {
@@ -54,11 +45,49 @@ SCENARIO(
     REQUIRE(output_buffer.empty() == true);
 
     WHEN(
-        "Write method is called on a message object with it's value of the payload tag greater "
-        "than the size of the descriptor array") {
+        "Write method is called on a message object whose payload.tag value is equal to the size "
+        "of the descriptor array") {
       constexpr auto message_descriptors = PF::Util::make_array<PF::Util::ProtobufDescriptor>(
           // array index should match the type code value
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>());
+          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 0
+          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>()   // 1
+      );
+
+      SensorMeasurements sensor_measurements;
+      memset(&sensor_measurements, 0, sizeof(sensor_measurements));
+      sensor_measurements.flow = 60;
+      test_message.payload.set(sensor_measurements);
+
+      auto write_status = test_message.write(output_buffer, message_descriptors);
+
+      THEN("The write method reports invalid type status") {
+        REQUIRE(write_status == PF::Protocols::MessageStatus::invalid_type);
+      }
+      THEN("After the write method is called, the type member remains unchanged") {
+        REQUIRE(test_message.type == 2);
+      }
+      THEN("The payload.tag field remains unchanged") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
+      }
+      THEN("The payload.values field data remains unchanged") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.sensor_measurements.flow == 60);
+      }
+      THEN("After the write method is called, the output buffer remains unchanged") {
+        REQUIRE(output_buffer.empty() == true);
+      }
+    }
+
+    WHEN(
+        "Write method is called on a message object whose payload.tag value is greater than the "
+        "size of the descriptor array") {
+      constexpr auto message_descriptors = PF::Util::make_array<PF::Util::ProtobufDescriptor>(
+          // array index should match the type code value
+          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 0
+          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 1
+          PF::Util::get_protobuf_descriptor<SensorMeasurements>(),             // 2
+          PF::Util::get_protobuf_descriptor<CycleMeasurements>()               // 3
+      );
 
       ParametersRequest parameters_request;
       memset(&parameters_request, 0, sizeof(parameters_request));
@@ -112,6 +141,34 @@ SCENARIO(
         REQUIRE(output_buffer.empty() == true);
       }
     }
+  }
+}
+
+SCENARIO(
+    "Protocols::The message correctly writes to the output buffer and also updates type for each "
+    "message type",
+    "[messages]") {
+  auto exp_sensor_measurements =
+      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+
+  GIVEN(
+      "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
+      "bytes") {
+    constexpr size_t payload_max_size = 252UL;
+    using TestMessage = PF::Protocols::Message<
+        PF::Application::StateSegment,
+        PF::Application::MessageTypeValues,
+        payload_max_size>;
+    TestMessage test_message;
+    constexpr size_t buffer_size = 252UL;
+    PF::Util::ByteVector<buffer_size> output_buffer;
+
+    REQUIRE(output_buffer.empty() == true);
 
     // sensor measurments
     WHEN("The payload is a sensor measurements message and write method is called") {
@@ -441,6 +498,19 @@ SCENARIO(
     //   }
     // }
   }
+}
+
+SCENARIO(
+    "Protocols::The message correctly writes to the output buffer and also updates type for "
+    "different max sizes",
+    "[messages]") {
+  auto exp_sensor_measurements =
+      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 126 "
@@ -577,67 +647,12 @@ SCENARIO(
       }
     }
   }
-
-  // fields and payload values are not of the same message type yet encoding is successful
-  GIVEN("A TaggedUnion with a subset of message types") {
-    constexpr size_t payload_max_size = 252UL;
-    enum class MessageTypes : uint8_t {
-      unknown = 0,
-      parameters = 2,
-      parameters_request = 3,
-    };
-    using TestTaggedUnion = PF::Util::TaggedUnion<PF::Application::StateSegmentUnion, MessageTypes>;
-    using TestMessage = PF::Protocols::
-        Message<TestTaggedUnion, PF::Application::MessageTypeValues, payload_max_size>;
-    TestMessage test_message;
-    constexpr size_t buffer_size = 252UL;
-    PF::Util::ByteVector<buffer_size> buffer;
-
-    WHEN("The cycle measurments message data is written") {
-      constexpr auto message_descriptors = PF::Util::make_array<PF::Util::ProtobufDescriptor>(
-          // array index should match the type code value
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 0
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 1
-          PF::Util::get_protobuf_descriptor<SensorMeasurements>(),             // 2
-          PF::Util::get_protobuf_descriptor<ParametersRequest>()               // 3
-      );
-
-      CycleMeasurements cycle_measurements;
-      memset(&cycle_measurements, 0, sizeof(cycle_measurements));
-      cycle_measurements.ve = 300;
-      cycle_measurements.rr = 10;
-      test_message.payload.value
-          .cycle_measurements =  // NOLINT(cppcoreguidelines-pro-type-union-access)
-          cycle_measurements;
-
-      test_message.payload.tag = MessageTypes::parameters;
-
-      auto write_status = test_message.write(buffer, message_descriptors);
-
-      THEN("The write method reports ok status") {
-        REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
-      }
-      THEN("The buffer is as expected") {
-        auto expected_buffer = std::string("\x02\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43", 11);
-        REQUIRE(buffer == expected_buffer);
-      }
-    }
-  }
 }
 
 SCENARIO(
     "Protocols::The Messages class correctly parses the input buffer and updates type and payload "
     "fields",
     "[messages]") {
-  auto exp_sensor_measurements =
-      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
-  PF::IndexStatus push_status;
-
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
       "bytes") {
@@ -649,6 +664,7 @@ SCENARIO(
     TestMessage test_message;
     constexpr size_t buffer_size = 252UL;
     PF::Util::ByteVector<buffer_size> buffer;
+    PF::IndexStatus push_status;
 
     WHEN("An empty input buffer body is parsed") {
       PF::Util::ByteVector<buffer_size> input_buffer;
@@ -812,6 +828,33 @@ SCENARIO(
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
       }
     }
+  }
+}
+
+SCENARIO(
+    "Protocols::The Messages class correctly parses the input buffer for each message type and "
+    "updates type and payload "
+    "fields",
+    "[messages]") {
+  auto exp_sensor_measurements =
+      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+
+  GIVEN(
+      "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
+      "bytes") {
+    constexpr size_t payload_max_size = 254UL;
+    using TestMessage = PF::Protocols::Message<
+        PF::Application::StateSegment,
+        PF::Application::MessageTypeValues,
+        payload_max_size>;
+    TestMessage test_message;
+    constexpr size_t buffer_size = 252UL;
+    PF::Util::ByteVector<buffer_size> buffer;
 
     // sensor measurements
     WHEN("A body with 1 byte header and a paylod of sensor measurments message type is parsed") {
@@ -1166,17 +1209,17 @@ SCENARIO(
         REQUIRE(buffer[0] == 0x05);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(parse_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(parse_message.payload.value.parameters_request.fio2 == 40);
+        REQUIRE(test_message.payload.value.parameters_request.fio2 == 40);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(parse_message.payload.value.parameters_request.flow == 60);
+        REQUIRE(test_message.payload.value.parameters_request.flow == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(parse_message.payload.value.parameters_request.mode == VentilationMode_hfnc);
+        REQUIRE(test_message.payload.value.parameters_request.mode == VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(parse_message.payload.value.parameters_request.ventilating == true);
+        REQUIRE(test_message.payload.value.parameters_request.ventilating == true);
       }
       THEN("The output buffer has an expected sequence of bytes") {
         auto expected =
@@ -1242,7 +1285,7 @@ SCENARIO(
       THEN(
           "The type field of the body's header correctly stores the value of message type obtained "
           "from the message payload tag") {
-        REQUIRE(output_buffer[0] == 0x02);
+        REQUIRE(output_buffer[0] == 0x05);
       }
       THEN("The output buffer has an expected sequence of bytes") {
         REQUIRE(output_buffer == buffer);

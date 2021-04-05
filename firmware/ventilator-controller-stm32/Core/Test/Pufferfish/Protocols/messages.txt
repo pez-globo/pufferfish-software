@@ -6,17 +6,27 @@ Scenario: Message: The write method correctly generates an encoded body from the
   // message class type member is 0
   // output buffer is empty
 
-    WHEN("Write method is called on a message object with it's value of the payload tag greater than the size of the descriptor array")
+    WHEN("Write method is called on a message object whose payload.tag value is equal to the size of the descriptor array")
     // setup:
-    // message class type member set to 5
-    // payload of parameters_request is set
-    // message descriptor array containing one element corresponding to Unknown message
+    // payload.tag = sensor_measurements
+    // payload of sensor_measurements is set
+    // message descriptor array containing 2 elements    
       THEN("The write method reports invalid type status")
-      THEN("After the write method is called, the type member remains unchanged")
+      THEN("After the write method is called, the type member is set to the value of the message payload tag")
       THEN("The payload.tag field remains unchanged")
       THEN("The payload.values field data remains unchanged")
       THEN("The output buffer remains unchanged")
 
+    WHEN("Write method is called on a message object whose payload.tag value is greater than the size of the descriptor array")
+    // setup:
+    // payload.tag = parameters_request
+    // payload of parameters_request is set
+    // message descriptor array containing 3 elements    
+      THEN("The write method reports invalid type status")
+      THEN("After the write method is called, the type member is set to the value of the message payload tag")
+      THEN("The payload.tag field remains unchanged")
+      THEN("The payload.values field data remains unchanged")
+      THEN("The output buffer remains unchanged")
 
     WHEN("Write method is called on a message object whose payload.tag value corresponds to an Unrecognized message descriptor in the descriptor array")
     // setup:
@@ -35,17 +45,26 @@ Scenario: Message: The write method correctly generates an encoded body from the
 
   WHEN("The output buffer size is too small to hold the encoded data")
   // setup:
+  // payload.tag = sensor_measurements
   // sensor_measurements.flow = 30;
   // sensor_measurements.fio2 = 85;
   // sensor_measurements.spo2 = 72;  
       THEN("The write method reports invalid length status")
-      THEN("After the write method is called, the type member is equal to 2")
+      THEN("After the write method is called, the type member is set to the value of the message payload tag")
       THEN("The payload.tag field remains unchanged")
       THEN("The payload.values field data remains unchanged")
       THEN("The output buffer remains unchanged")
 
+  // field descriptor and payload.value are of different message types yet write method does not report invalid_encoding
+  WHEN("The payload is set as cycle_measurements message and the tag as parameters, write method is called after that")
+      THEN("The write method reports ok status")
+      THEN("The payload.tag field remains unchanged")
+      THEN("The payload.values field data remains unchanged")
+      THEN("The output buffer has an expected sequence of 11 bytes")      
+
   GIVEN("A Message object default-constructed with StateSegment Taggedunion, default message types and a max size of 126 bytes as its class template parameters")
     // setup:
+    // payload.tag = sensor_measurements
     // sensor_measurements.flow = 30;
     // sensor_measurements.fio2 = 85;
     // sensor_measurements.spo2 = 72;  
@@ -59,6 +78,7 @@ Scenario: Message: The write method correctly generates an encoded body from the
 
   GIVEN("A Message object default-constructed with StateSegment Taggedunion, default message types and a max size of 508 bytes")
     // setup:
+    // payload.tag = parameters
     // parameters.fio2 = 60;
     // parameters.mode = VentilationMode_hfnc;
     // parameters.ventilating = true;
@@ -127,7 +147,7 @@ Scenario: Message: The parse method correctly updates internal message type and 
       THEN("The payload.tag field is set to Unknown")
       THEN("the payload.values field remains unchanged")
 
-    WHEN("A body with a 1-byte header of value 2 and a payload of null bytes is parsed")
+    WHEN("A body with a 1-byte header of value 2 and a payload of 253 null bytes is parsed")
       THEN("The parse method reports invalid encoding status")
       THEN("After the parse method is called, The value assigned to the type member is equal to the input_buffer body's header")
       THEN("The payload.tag field is set to sensor_measurements")
