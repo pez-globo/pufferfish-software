@@ -58,6 +58,7 @@ const useStyles = makeStyles((theme: Theme) =>
       width: '100%',
       border: `2px dashed ${theme.palette.background.default}`,
       borderRadius: theme.panel.borderRadius,
+      flexGrow: 1,
     },
     table: {
       minWidth: 500,
@@ -105,6 +106,7 @@ const useStyles = makeStyles((theme: Theme) =>
       left: 0,
       padding: '20px 24px 8px',
       height: '100%',
+      display: 'flex',
     },
   }),
 );
@@ -251,7 +253,7 @@ export const SimpleTable = (props: PropsWithChildren<TableProps>): JSX.Element =
 
   return (
     <React.Fragment>
-      <Grid item className={classes.tableContainerStyle}>
+      <Grid item className={classes.tableContainerStyle} direction="column">
         <TableContainer className={classes.tableContainer}>
           <Table
             className={classes.table}
