@@ -875,7 +875,7 @@ SCENARIO(
       THEN("The payload.tag field is set to sensor_measurements") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
       }
-      THEN("the payload.values field are as expected") {
+      THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.sensor_measurements.cycle == 10);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -905,7 +905,7 @@ SCENARIO(
       THEN("The payload.tag field is set to cycle_measurements") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::cycle_measurements);
       }
-      THEN("the payload.values field are as expected") {
+      THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.cycle_measurements.peep == 30);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -933,7 +933,7 @@ SCENARIO(
       THEN("The payload.tag field is set to parameters") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
       }
-      THEN("the payload.values field are as expected") {
+      THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.vt == 45);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -963,7 +963,7 @@ SCENARIO(
       THEN("The payload.tag field is set to parameters_request") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
       }
-      THEN("the payload.values field are as expected") {
+      THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters_request.ie == 20);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -992,7 +992,7 @@ SCENARIO(
       THEN("The payload.tag field is set to alarm_limits") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits);
       }
-      THEN("the payload.values field are as expected") {
+      THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.alarm_limits.fio2.lower == 21);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1023,7 +1023,7 @@ SCENARIO(
       THEN("The payload.tag field is set to alarm_limits_request") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits_request);
       }
-      THEN("the payload.values field are as expected") {
+      THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.alarm_limits.fio2.lower == 50);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1055,7 +1055,7 @@ SCENARIO(
       THEN("The payload.tag field is set to sensor_measurements") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
       }
-      THEN("the payload.values field are as expected") {
+      THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.sensor_measurements.cycle == 10);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1160,7 +1160,7 @@ SCENARIO(
       THEN("The payload.tag field is set to cycle_measurements") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::cycle_measurements);
       }
-      THEN("the payload.values field are as expected") {
+      THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.cycle_measurements.peep == 30);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1241,7 +1241,7 @@ SCENARIO(
       THEN("The payload.tag field is set to parameters_request") {
         REQUIRE(parse_message.payload.tag == PF::Application::MessageTypes::parameters_request);
       }
-      THEN("the payload.values field are as expected") {
+      THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(parse_message.payload.value.parameters_request.fio2 == 40);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1272,7 +1272,7 @@ SCENARIO(
       THEN("The payload.tag field is set to parameters_request") {
         REQUIRE(parse_message.payload.tag == PF::Application::MessageTypes::parameters_request);
       }
-      THEN("the payload.values field are as expected") {
+      THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(parse_message.payload.value.parameters_request.fio2 == 40);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1317,45 +1317,178 @@ SCENARIO(
 
     PF::Protocols::MessageReceiver<TestMessage, num_descriptors> receiver{BE::message_descriptors};
 
-    WHEN("The input buffer size is smaller than message header size") {
+    WHEN("An empty input buffer body is parsed") {
       PF::Protocols::MessageReceiver<TestMessage, num_descriptors> receiver{
           BE::message_descriptors};
       PF::Util::ByteVector<buffer_size> input_buffer;
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
-      THEN("The transform status should be invalid_length") {
+      THEN("The transform method reports invalid_length status") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::invalid_length);
+      }
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 0);
+      }
+      THEN("The payload.tag field of the output message is set to {Message type}") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+      }
+      THEN("The input buffer is unchanged after transform") {
+        REQUIRE(input_buffer.empty() == true);
       }
     }
 
-    WHEN("The type offset of the input buffer is invalid") {
+    WHEN(
+        "A body with an empty payload and 1-byte header whose value is not included in "
+        "MessageTypes enum") {
       constexpr size_t buffer_size = 253UL;
       PF::Protocols::MessageReceiver<TestMessage, num_descriptors> receiver{
           BE::message_descriptors};
 
       PF::Util::ByteVector<buffer_size> input_buffer;
-      input_buffer.push_back(0x00);
+      auto push_status = input_buffer.push_back(0x08);
+      REQUIRE(push_status == PF::IndexStatus::ok);
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
-      THEN("The transform status should be invalid_length") {
+      THEN("The transform method reports invalid_type status") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::invalid_type);
+      }
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 8);
+      }
+      THEN("The payload.tag field of the output message remains unchanged") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+      }
+      THEN("The input buffer is unchanged after transform") {
+        auto expected = std::string("\x08");
+        REQUIRE(input_buffer == expected);
       }
     }
 
-    WHEN("The payload of the input buffer is invalid") {
+    WHEN(
+        "A body with an empty payload and 1 byte header of value equal to the message descriptor "
+        "array size is parsed") {
+      constexpr size_t num_descriptors = 4;
+      constexpr auto message_descriptors = PF::Util::make_array<PF::Util::ProtobufDescriptor>(
+          // array index should match the type code value
+          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 0
+          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 1
+          PF::Util::get_protobuf_descriptor<SensorMeasurements>(),             // 2
+          PF::Util::get_protobuf_descriptor<CycleMeasurements>()               // 3
+      );
+
+      PF::Protocols::MessageReceiver<TestMessage, num_descriptors> receiver{message_descriptors};
+
       PF::Util::ByteVector<buffer_size> input_buffer;
-      // std::string("\x02\x08\x02\x10\x0A\x1D\x00\x00\xA0\x41", 10); original buffer
+      auto push_status = input_buffer.push_back(0x04);
+      REQUIRE(push_status == PF::IndexStatus::ok);
+
+      auto transform_status = receiver.transform(input_buffer, test_message);
+
+      THEN("The transform method reports invalid_type status") {
+        REQUIRE(transform_status == PF::Protocols::MessageStatus::invalid_type);
+      }
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 4);
+      }
+      THEN("The payload.tag field of the output message is set to parameters") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
+      }
+      THEN("The input buffer is unchanged after transform") {
+        auto expected = std::string("\x04");
+        REQUIRE(input_buffer == expected);
+      }
+    }
+
+    WHEN(
+        "A body with an empty payload and 1 byte header of value equal to the message descriptor "
+        "array size is parsed") {
+      constexpr size_t num_descriptors = 4;
+      constexpr auto message_descriptors = PF::Util::make_array<PF::Util::ProtobufDescriptor>(
+          // array index should match the type code value
+          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 0
+          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 1
+          PF::Util::get_protobuf_descriptor<SensorMeasurements>(),             // 2
+          PF::Util::get_protobuf_descriptor<CycleMeasurements>()               // 3
+      );
+
+      PF::Util::ByteVector<buffer_size> input_buffer;
+      auto push_status = input_buffer.push_back(0x05);
+      REQUIRE(push_status == PF::IndexStatus::ok);
+
+      auto transform_status = test_message.parse(input_buffer, message_descriptors);
+
+      THEN("The transform method reports invalid_type status") {
+        REQUIRE(transform_status == PF::Protocols::MessageStatus::invalid_type);
+      }
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 5);
+      }
+      THEN("The payload.tag field of the output message is set to parameters_request") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+      }
+      THEN("The input buffer is unchanged after transform") {
+        auto expected = std::string("\x05");
+        REQUIRE(input_buffer == expected);
+      }
+    }
+
+    WHEN("A body with an encoded payload and 1-byte header of value equal to 0 is parsed") {
+      PF::Util::ByteVector<buffer_size> input_buffer;
+      auto push_status = input_buffer.push_back(0x00);
+      REQUIRE(push_status == PF::IndexStatus::ok);
+
+      auto transform_status = receiver.transform(input_buffer, test_message);
+
+      THEN("The transform method reports invalid_type status") {
+        REQUIRE(transform_status == PF::Protocols::MessageStatus::invalid_type);
+      }
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 0);
+      }
+      THEN("The payload.tag field of the output message is set to unknown") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+      }
+      THEN("The input buffer is unchanged after transform") {
+        auto expected = std::string("\x00"s);
+        REQUIRE(input_buffer == expected);
+      }
+    }
+
+    WHEN(
+        "A body with a 1-byte header of value 2 and payload of sensor_measurements message with "
+        "invalid encoding is parsed") {
+      PF::Util::ByteVector<buffer_size> input_buffer;
+      // std::string("\x02\x08\x02\x10\x0A\x1D\x00\x00\xA0\x41"); original buffer
       auto data = std::string(
           "\x02\x08\xa0\x10\x0A\x1D\x00\x00\xA0\x41"s);  // 3rd byte changed to random value
       PF::Util::convert_string_to_byte_vector(data, input_buffer);
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
-      THEN("The transform status should be invalid encoding") {
+      THEN("The transform method reports invalid encoding") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::invalid_encoding);
       }
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 2);
+      }
+      THEN("The payload.tag field of the output message is set to sensor_measurements") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
+      }
+      THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == data); }
     }
 
     WHEN("A MessageReceiver object is initialised with a smaller descriptors array") {
@@ -1376,19 +1509,24 @@ SCENARIO(
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("the payload.values field are as expected") {
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 4);
+      }
+      THEN("The payload.tag field of the output message is set to parameters") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
-        REQUIRE(
-            test_message.payload.value
-                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .flow == 30);
+      }
+      THEN("the payload.values field of the output message are as expected") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.flow == 30);
       }
     }
 
-    WHEN("The message has some data prior to transform") {
+    WHEN("The output message has some data prior to transform") {
       CycleMeasurements cycle_measurements;
       memset(&cycle_measurements, 0, sizeof(cycle_measurements));
       cycle_measurements.ve = 300;
@@ -1401,25 +1539,25 @@ SCENARIO(
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("the payload.values field are as expected") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
-        REQUIRE(
-            test_message.payload.value
-                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .fio2 == 60);
-        REQUIRE(
-            test_message.payload.value
-                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .mode == VentilationMode_hfnc);
-        REQUIRE(
-            test_message.payload.value
-                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .ventilating == true);
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 4);
       }
-      THEN("The type field of message class is equal to 4") { REQUIRE(test_message.type == 4); }
+      THEN("The payload.tag field of the output message is set to parameters") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
+      }
+      THEN("the payload.values field of the output message are as expected") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.fio2 == 60);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.mode == VentilationMode_hfnc);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.ventilating == true);
+      }
       THEN("The input buffer is unchanged after transform") {
         REQUIRE(input_buffer == exp_parameters);
       }
@@ -1432,47 +1570,70 @@ SCENARIO(
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("the payload.values field are as expected") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
-        REQUIRE(
-            test_message.payload.value
-                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .fio2 == 60);
-        REQUIRE(
-            test_message.payload.value
-                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .mode == VentilationMode_hfnc);
-        REQUIRE(
-            test_message.payload.value
-                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .ventilating == true);
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 4);
       }
-      THEN("The type field of message class is equal to 4") { REQUIRE(test_message.type == 4); }
+      THEN("The payload.tag field of the output message is set to parameters") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
+      }
+      THEN("the payload.values field of the output message are as expected") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.fio2 == 60);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.mode == VentilationMode_hfnc);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.ventilating == true);
+      }
       THEN("The input buffer is unchanged after transform") {
         REQUIRE(input_buffer == exp_parameters);
       }
 
-      parameters_data.append("\x02");
+      auto push_status = input_buffer.push_back(0x02);
+      REQUIRE(push_status == PF::IndexStatus::ok);
 
-      THEN("the payload.values field are unchanged") {
+      THEN("The payload.tag field of the output message is set to parameters") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
-        REQUIRE(
-            test_message.payload.value
-                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .fio2 == 60);
-        REQUIRE(
-            test_message.payload.value
-                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .mode == VentilationMode_hfnc);
-        REQUIRE(
-            test_message.payload.value
-                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .ventilating == true);
+      }
+      THEN("the payload.values field of the output message are unchanged") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.fio2 == 60);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.mode == VentilationMode_hfnc);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.ventilating == true);
       }
     }
+  }
+}
+
+SCENARIO(
+    "Protocols::The Message Receiver class correctly transforms messages into paylaods for each "
+    "message type",
+    "[messages]") {
+  auto exp_sensor_measurements =
+      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+
+  GIVEN("A MessageReceiver object is constructed with default parameters") {
+    constexpr size_t payload_max_size = 254UL;
+    using TestMessage = PF::Protocols::Message<
+        PF::Application::StateSegment,
+        PF::Application::MessageTypeValues,
+        payload_max_size>;
+    TestMessage test_message;
+    constexpr size_t buffer_size = 252UL;
+    PF::Util::ByteVector<buffer_size> buffer;
+
+    PF::Protocols::MessageReceiver<TestMessage, num_descriptors> receiver{BE::message_descriptors};
 
     // sensor measurements
     WHEN("A body with 1 byte header and a paylod of sensor measurements is parsed") {
@@ -1481,25 +1642,25 @@ SCENARIO(
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("the payload.values field are as expected") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
-        REQUIRE(
-            test_message.payload.value
-                .sensor_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .flow == 30);
-        REQUIRE(
-            test_message.payload.value
-                .sensor_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .fio2 == 85);
-        REQUIRE(
-            test_message.payload.value
-                .sensor_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .spo2 == 72);
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 2);
       }
-      THEN("The type field of message class is equal to 3") { REQUIRE(test_message.type == 2); }
+      THEN("The payload.tag field of the output message is set to sensor_measurements") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
+      }
+      THEN("the payload.values field of the output message are as expected") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.sensor_measurements.flow == 30);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.sensor_measurements.fio2 == 85);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.sensor_measurements.spo2 == 72);
+      }
       THEN("The input buffer is unchanged after transform") {
         REQUIRE(input_buffer == exp_sensor_measurements);
       }
@@ -1512,21 +1673,23 @@ SCENARIO(
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("the payload.values field are as expected") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::cycle_measurements);
-        REQUIRE(
-            test_message.payload.value
-                .cycle_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .ve == 300);
-        REQUIRE(
-            test_message.payload.value
-                .cycle_measurements  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .rr == 10);
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 3);
       }
-      THEN("The type field of message class is equal to 3") { REQUIRE(test_message.type == 3); }
+      THEN("The payload.tag field of the output message is set to cycle_measurements") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::cycle_measurements);
+      }
+      THEN("the payload.values field of the output message are as expected") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.cycle_measurements.ve == 300);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.cycle_measurements.rr == 10);
+      }
       THEN("The input buffer is unchanged after transform") {
         REQUIRE(input_buffer == exp_cycle_measurements);
       }
@@ -1539,25 +1702,25 @@ SCENARIO(
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("the payload.values field are as expected") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
-        REQUIRE(
-            test_message.payload.value
-                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .fio2 == 60);
-        REQUIRE(
-            test_message.payload.value
-                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .mode == VentilationMode_hfnc);
-        REQUIRE(
-            test_message.payload.value
-                .parameters  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .ventilating == true);
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 4);
       }
-      THEN("The type field of message class is equal to 4") { REQUIRE(test_message.type == 4); }
+      THEN("The payload.tag field of the output message is set to parameters") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
+      }
+      THEN("the payload.values field of the output message are as expected") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.fio2 == 60);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.mode == VentilationMode_hfnc);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.ventilating == true);
+      }
       THEN("The input buffer is unchanged after transform") {
         REQUIRE(input_buffer == exp_parameters);
       }
@@ -1570,25 +1733,25 @@ SCENARIO(
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("the payload.values field are as expected") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
-        REQUIRE(
-            test_message.payload.value
-                .parameters_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .fio2 == 80);
-        REQUIRE(
-            test_message.payload.value
-                .parameters_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .mode == VentilationMode_hfnc);
-        REQUIRE(
-            test_message.payload.value
-                .parameters_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .ventilating == true);
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 5);
       }
-      THEN("The type field of message class is equal to 5") { REQUIRE(test_message.type == 5); }
+      THEN("The payload.tag field of the output message is set to parameters_request") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+      }
+      THEN("the payload.values field of the output message are as expected") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters_request.fio2 == 80);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters_request.mode == VentilationMode_hfnc);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters_request.ventilating == true);
+      }
       THEN("The input buffer is unchanged after transform") {
         REQUIRE(input_buffer == exp_parameters_request);
       }
@@ -1601,21 +1764,24 @@ SCENARIO(
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("the payload.values field are as expected") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits);
-        REQUIRE(
-            test_message.payload.value
-                .alarm_limits  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .fio2.lower == 21);
-        REQUIRE(
-            test_message.payload.value
-                .alarm_limits  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .fio2.upper == 100);
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 6);
       }
-      THEN("The type field of message class is equal to 6") { REQUIRE(test_message.type == 6); }
+      THEN("The payload.tag field of the output message is set to alarm_limits") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits);
+      }
+      THEN("the payload.values field of the output message are as expected") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.alarm_limits.fio2.lower == 21);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.alarm_limits.fio2.upper == 100);
+      }
       THEN("The input buffer is unchanged after transform") {
         REQUIRE(input_buffer == exp_alarm_limits);
       }
@@ -1628,25 +1794,25 @@ SCENARIO(
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
       }
-      THEN("the payload.values field are as expected") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits_request);
-        REQUIRE(
-            test_message.payload.value
-                .alarm_limits_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .has_fio2 == true);
-        REQUIRE(
-            test_message.payload.value
-                .alarm_limits_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .fio2.lower == 50);
-        REQUIRE(
-            test_message.payload.value
-                .alarm_limits_request  // NOLINT(cppcoreguidelines-pro-type-union-access)
-                .fio2.upper == 92);
+      THEN(
+          "After the transform method is called, The type member of the output message is set to "
+          "the type field of the input_buffer body's header") {
+        REQUIRE(test_message.type == 7);
       }
-      THEN("The type field of message class is equal to 7") { REQUIRE(test_message.type == 7); }
+      THEN("The payload.tag field of the output message is set to alarm_limits_request") {
+        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits_request);
+      }
+      THEN("the payload.values field of the output message are as expected") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.alarm_limits_request.has_fio2 == true);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.alarm_limits_request.fio2.lower == 50);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.alarm_limits_request.fio2.upper == 92);
+      }
       THEN("The input buffer is unchanged after transform") {
         REQUIRE(input_buffer == exp_alarm_limits_request);
       }
@@ -1680,32 +1846,111 @@ SCENARIO(
     PF::Protocols::MessageSender<TestMessage, PF::Application::StateSegment, num_descriptors>
         sender{BE::message_descriptors};
 
-    WHEN("The message type value is greater than descriptor size") {
-      constexpr size_t num_descriptors = 1;
+    WHEN(
+        "transform is called on a payload whose tag value is equal to the size of descriptor "
+        "array") {
+      constexpr size_t num_descriptors = 3;
       constexpr auto message_descriptors = PF::Util::make_array<PF::Util::ProtobufDescriptor>(
           // array index should match the type code value
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>());
+          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),
+          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),
+          PF::Util::get_protobuf_descriptor<SensorMeasurements>());
 
       PF::Protocols::MessageSender<TestMessage, PF::Application::StateSegment, num_descriptors>
           sender{message_descriptors};
 
-      tagged_union.tag = PF::Application::MessageTypes::unknown;
+      tagged_union.tag = PF::Application::MessageTypes::cycle_measurements;
 
       auto transform_status = sender.transform(tagged_union, output_buffer);
 
-      THEN("The transform status should be invalid type") {
+      THEN("The transform method reports invalid type status") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::invalid_type);
+      }
+      THEN("The payload.tag field remains unchanged") {
+        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::cycle_measurements);
       }
     }
 
-    WHEN("The message type value is unknown") {
+    WHEN(
+        "transform is called on a payload whose tag value is greater than the size of descriptor "
+        "array") {
+      constexpr size_t num_descriptors = 3;
+      constexpr auto message_descriptors = PF::Util::make_array<PF::Util::ProtobufDescriptor>(
+          // array index should match the type code value
+          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),
+          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),
+          PF::Util::get_protobuf_descriptor<SensorMeasurements>());
+
+      PF::Protocols::MessageSender<TestMessage, PF::Application::StateSegment, num_descriptors>
+          sender{message_descriptors};
+
+      tagged_union.tag = PF::Application::MessageTypes::parameters;
+
+      auto transform_status = sender.transform(tagged_union, output_buffer);
+
+      THEN("The transform method reports invalid type status") {
+        REQUIRE(transform_status == PF::Protocols::MessageStatus::invalid_type);
+      }
+      THEN("The payload.tag field remains unchanged") {
+        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::parameters);
+      }
+    }
+
+    WHEN(
+        "transform is called on a payload whose payload.tag value corresponds to an Unrecognized "
+        "message descriptor in the descriptor array") {
       tagged_union.tag = PF::Application::MessageTypes::unknown;
 
       auto transform_status = sender.transform(tagged_union, output_buffer);
 
-      THEN("The transform status should be invalid type") {
+      THEN("The transform method reports invalid type status") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::invalid_type);
       }
+      THEN("The payload.tag field remains unchanged") {
+        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::unknown);
+      }
+    }
+
+    // sensor measurments
+    WHEN("The sensor measurments data from the message is written to the buffer") {
+      constexpr size_t payload_max_size = 14UL;
+      using TestMessage = PF::Protocols::Message<
+          PF::Application::StateSegment,
+          PF::Application::MessageTypeValues,
+          payload_max_size>;
+      constexpr size_t output_size = 14UL;
+      PF::Util::ByteVector<output_size> output_buffer;
+
+      PF::Protocols::MessageSender<TestMessage, PF::Application::StateSegment, num_descriptors>
+          sender{BE::message_descriptors};
+
+      SensorMeasurements sensor_measurements;
+      memset(&sensor_measurements, 0, sizeof(sensor_measurements));
+      sensor_measurements.flow = 30;
+      sensor_measurements.fio2 = 85;
+      sensor_measurements.spo2 = 72;
+      test_message.payload.set(sensor_measurements);
+
+      PF::Application::StateSegment tagged_union;
+      tagged_union.set(sensor_measurements);
+
+      auto transform_status = sender.transform(tagged_union, output_buffer);
+
+      THEN("The transform method reports ok") {
+        REQUIRE(transform_status == PF::Protocols::MessageStatus::invalid_length);
+      }
+      THEN("The payload.tag field remains unchanged") {
+        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::sensor_measurements);
+      }
+      THEN("The payload.values field data remains unchanged") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.sensor_measurements.flow == 30);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.sensor_measurements.fio2 == 85);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.sensor_measurements.spo2 == 72);
+      }
+      THEN("The output buffer remains unchanged") { REQUIRE(output_buffer.empty() == true); }
     }
 
     // sensor measurments
@@ -1722,8 +1967,19 @@ SCENARIO(
 
       auto transform_status = sender.transform(tagged_union, output_buffer);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
+      }
+      THEN("The payload.tag field remains unchanged") {
+        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::sensor_measurements);
+      }
+      THEN("The payload.values field data remains unchanged") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.sensor_measurements.flow == 30);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.sensor_measurements.fio2 == 85);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.sensor_measurements.spo2 == 72);
       }
       THEN(
           "The type field of the body's header correctly stores the value of message type obtained "
@@ -1746,8 +2002,17 @@ SCENARIO(
 
       auto transform_status = sender.transform(tagged_union, output_buffer);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
+      }
+      THEN("The payload.tag field remains unchanged") {
+        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::cycle_measurements);
+      }
+      THEN("The payload.values field data remains unchanged") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.cycle_measurements.ve == 300);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.cycle_measurements.rr == 10);
       }
       THEN(
           "The type field of the body's header correctly stores the value of message type obtained "
@@ -1770,8 +2035,19 @@ SCENARIO(
 
       auto transform_status = sender.transform(tagged_union, output_buffer);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
+      }
+      THEN("The payload.tag field remains unchanged") {
+        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::parameters);
+      }
+      THEN("The payload.values field data remains unchanged") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.parameters.fio2 == 60);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.parameters.mode == VentilationMode_hfnc);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.parameters.ventilating == true);
       }
       THEN(
           "The type field of the body's header correctly stores the value of message type obtained "
@@ -1795,8 +2071,19 @@ SCENARIO(
 
       auto transform_status = sender.transform(tagged_union, output_buffer);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
+      }
+      THEN("The payload.tag field remains unchanged") {
+        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::parameters_request);
+      }
+      THEN("The payload.values field data remains unchanged") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.parameters_request.fio2 == 80);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.parameters_request.mode == VentilationMode_hfnc);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.parameters_request.ventilating == true);
       }
       THEN(
           "The type field of the body's header correctly stores the value of message type obtained "
@@ -1820,8 +2107,17 @@ SCENARIO(
       tagged_union.set(alarm_limits);
       auto transform_status = sender.transform(tagged_union, output_buffer);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
+      }
+      THEN("The payload.tag field remains unchanged") {
+        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::alarm_limits);
+      }
+      THEN("The payload.values field data remains unchanged") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.alarm_limits.fio2.lower == 21);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.alarm_limits.fio2.upper == 100);
       }
       THEN(
           "The type field of the body's header correctly stores the value of message type obtained "
@@ -1845,8 +2141,17 @@ SCENARIO(
       tagged_union.set(alarm_limits_request);
       auto transform_status = sender.transform(tagged_union, output_buffer);
 
-      THEN("The transform status should be ok") {
+      THEN("The transform method reports ok") {
         REQUIRE(transform_status == PF::Protocols::MessageStatus::ok);
+      }
+      THEN("The payload.tag field remains unchanged") {
+        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::alarm_limits_request);
+      }
+      THEN("The payload.values field data remains unchanged") {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.alarm_limits_request.fio2.lower == 50);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(tagged_union.value.alarm_limits_request.fio2.upper == 92);
       }
       THEN(
           "The type field of the body's header correctly stores the value of message type obtained "

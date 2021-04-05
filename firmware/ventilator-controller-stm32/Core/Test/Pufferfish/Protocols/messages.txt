@@ -246,60 +246,85 @@ Scenario: The Message class correctly preserves data in roundtrip writing and pa
 
 Scenario: The Message Receiver class correctly transforms messages into payloads
 
-  GIVEN("A MessageReceiver object is constructed with default parameters")
+  GIVEN("A MessageReceiver object is constructed with descriptor array of size 8 with default template parameters")
 
-    WHEN("A body with a 1-byte header and a payload of {Message type} message type is given to the Receiver")
-      THEN("The transform method reports ok status")
-      THEN("After the transform method is called, The value assigned to the type member is equal to the input_buffer body's header")
-      THEN("The payload.tag field is set to {Message type}")
-      THEN("The message payload field values are as expected")
-      THEN("The input buffer is unchanged after transform")      
+    // test cases that return error codes are repeated similar to parse
 
     WHEN("A MessageReceiver object is constructed with a smaller descriptors array and transform method is called")
       THEN("The transform method reports ok status")
-      THEN("After the transform method is called, The value assigned to the type member is equal to the input_buffer body's header")
-      THEN("The payload.tag field is set to {Message type}")
-      THEN("The message payload field values are as expected")
+      THEN("After the transform method is called, The type member of the output message is set to the type field of the input_buffer body's header")
+      THEN("The payload.tag field of the output message is set to {Message type}")
+      THEN("the payload.values of the output message field are as expected")
       THEN("The input buffer is unchanged after transform")      
 
-    WHEN("The message object has some data prior to the transform method call")
+    WHEN("The output message parameter has some data prior to the transform method call")
       THEN("The transform method reports ok status")
-      THEN("After the transform method is called, The value assigned to the type member is equal to the input_buffer body's header")
-      THEN("The payload.tag field is set to {Message type}")
-      THEN("The message payload field values are as expected")
+      THEN("After the transform method is called, The type member of the output message is set to the type field of the input_buffer body's header")
+      THEN("The payload.tag field of the output message is set to {Message type}")
+      THEN("the payload.values field of the output message are as expected")    
       THEN("The input buffer is unchanged after transform")
 
     WHEN("The input buffer is altered after the transform method is called")
       THEN("The transform method reports ok status")
-      THEN("After the transform method is called, The value assigned to the type member is equal to the input_buffer body's header")
-      THEN("The payload.tag field is set to {Message type}")
-      THEN("The message payload field values are as expected")
+      THEN("After the transform method is called, The type member of the output message is set to the type field of the input_buffer body's header")      
+      THEN("The payload.tag field of the output message is set to {Message type}")
+      THEN("the payload.values field of the output message are as expected")    
       THEN("The input buffer is unchanged after transform")
       THEN("After the input buffer is altered, The message payload field values remains unchanged")
 
 /* test cases for each message type
     WHEN("A body with 1-byte header and a payload of {Message type} message type is given to the Receiver")
       THEN("The transform method reports ok status")
-      THEN("After the transform method is called, The value assigned to the type member is equal to the input_buffer body's header")
-      THEN("The payload.tag field is set to {Message type}")
-      THEN("The message payload field values are as expected")
+      THEN("After the transform method is called, The type member of the output message is set to the type field of the input_buffer body's header")      
+      THEN("The payload.tag field of the output message is set to {Message type}")
+      THEN("the payload.values field of the output message are as expected")          
       THEN("The input buffer is unchanged after transform")
 /*
-
-    // Error test cases similar to parse function
 
 /* Message Sender
 
 Scenario: The Message Sender class correctly transforms payloads into messages
 
-  GIVEN("A MessageSender object is constructed with default parameters")
+  GIVEN("A MessageSender object is constructed with descriptor array of size 3 with default template parameters")
+
+    WHEN("transform is called on a payload whose tag value is equal to the size of descriptor array")
+      THEN("The transform method reports invalid type status")
+      THEN("The payload.tag field remains unchanged")
+      THEN("The payload.values field data remains unchanged")
+      THEN("The output buffer remains unchanged")
+
+    WHEN("transform is called on a payload whose tag value is greater than the size of descriptor array")
+      THEN("The transform method reports invalid type status")
+      THEN("The payload.tag field remains unchanged")
+      THEN("The payload.values field data remains unchanged")
+      THEN("The output buffer remains unchanged")
+
+  GIVEN("A MessageSender object is constructed with descriptor array of size 8 with default template parameters")
+    WHEN("transform is called on a payload whose payload.tag value corresponds to an Unrecognized message descriptor in the descriptor array")
+      THEN("The transform method reports invalid type status")
+      THEN("The payload.tag field is set to Unknown")
+      THEN("The payload.values field data remains unchanged")
+      THEN("The output buffer remains unchanged")
+
+  GIVEN("A MessageSender object is constructed with descriptor array of size 8, with message template parameter of size 14 bytes")
+    WHEN("The output buffer size is too small to hold the encoded data")
+    // setup:
+    // payload.tag = sensor_measurements
+    // sensor_measurements.flow = 30;
+    // sensor_measurements.fio2 = 85;
+    // sensor_measurements.spo2 = 72;  
+        THEN("The transform method reports invalid length status")
+        THEN("The payload.tag field remains unchanged")
+        THEN("The payload.values field data remains unchanged")
+        THEN("The output buffer remains unchanged")      
 
 /* test cases for each message type (example: sensor_measurements)
     WHEN("The payload is a sensor measurements message and transform method is called")
     // setup: sensor_measurements.flow = 50
       THEN("The transform method reports ok status")
+      THEN("The payload.tag field remains unchanged")
+      THEN("The payload.values field data remains unchanged")      
+      THEN("The type field of the body's header correctly stores the value of message type obtained from the message payload tag")    
       THEN("The body's header correctly stores the value of message type obtained from the message payload tag")
-      THEN("The output buffer is as expected")
+      THEN("The output buffer has an expected sequence of 'n' bytes")
 /*
-
-    // Error test cases similar to write function
