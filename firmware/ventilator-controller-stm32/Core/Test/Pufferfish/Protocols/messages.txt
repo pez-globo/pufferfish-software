@@ -4,27 +4,45 @@ Scenario: Message: The write method correctly generates an encoded body from the
   GIVEN("A Message object default-constructed with StateSegment Taggedunion, default message types and a max size of 252 bytes as its class template parameters")
   // assertions carried out in given:
   // message class type member is 0
+  // output buffer is empty
 
+    WHEN("Write method is called on a message object with it's value of the payload tag greater than the size of the descriptor array")
     // setup:
     // message class type member set to 5
     // payload of parameters_request is set
     // message descriptor array containing one element corresponding to Unknown message
-
-    WHEN("Write method is called on a message object with it's value of the payload tag greater than the size of the descriptor array")
       THEN("The write method reports invalid type status")
       THEN("After the write method is called, the type member remains unchanged")
+      THEN("The payload.tag field remains unchanged")
       THEN("The payload.values field data remains unchanged")
-      THEN("The output buffer remains empty")
+      THEN("The output buffer remains unchanged")
 
+
+    WHEN("Write method is called on a message object whose payload.tag value corresponds to an Unrecognized message descriptor in the descriptor array")
     // setup:
     // message class type member is unchanged
     // payload tag is set to Unknown
-
-    WHEN("Write method is called on a message object where it's payload tag value is such that it corresponds to Unrecognized message descriptor in descriptor array")
       THEN("The write method reports invalid type status")
       THEN("After the write method is called, the type member remains unchanged")
+      THEN("The payload.tag field remains unchanged")
       THEN("The payload.values field data remains unchanged")
-      THEN("The output buffer remains empty")
+      THEN("The output buffer remains unchanged")
+
+  GIVEN("A Message object default-constructed with StateSegment Taggedunion, default message types and a max size of 14 bytes as its 
+  class template parameters")
+  // assertions carried out in given:
+  // output buffer is empty
+
+  WHEN("The output buffer size is too small to hold the encoded data")
+  // setup:
+  // sensor_measurements.flow = 30;
+  // sensor_measurements.fio2 = 85;
+  // sensor_measurements.spo2 = 72;  
+      THEN("The write method reports invalid length status")
+      THEN("After the write method is called, the type member is equal to 2")
+      THEN("The payload.tag field remains unchanged")
+      THEN("The payload.values field data remains unchanged")
+      THEN("The output buffer remains unchanged")
 
   GIVEN("A Message object default-constructed with StateSegment Taggedunion, default message types and a max size of 126 bytes as its class template parameters")
     // setup:
@@ -34,10 +52,12 @@ Scenario: Message: The write method correctly generates an encoded body from the
     WHEN("The payload is a sensor measurements message and write method is called")
       THEN("The write method reports ok status")
       THEN("After the write method is called, the type member is set to the value of the message payload tag")
+      THEN("The payload.tag field remains unchanged")
+      THEN("The payload.values field data remains unchanged")
       THEN("The type field of the body's header correctly stores the value of message type obtained from the message payload tag")
       THEN("The output buffer has an expected sequence of 16 bytes")
 
-  GIVEN("A Message object constructed with StateSegment Taggedunion, default message types and a max size of 508 bytes")
+  GIVEN("A Message object default-constructed with StateSegment Taggedunion, default message types and a max size of 508 bytes")
     // setup:
     // parameters.fio2 = 60;
     // parameters.mode = VentilationMode_hfnc;
@@ -45,6 +65,8 @@ Scenario: Message: The write method correctly generates an encoded body from the
     WHEN("The parameters message data is written")
       THEN("The write method reports ok status")
       THEN("After the write method is called, the type member is set to the value of the message payload tag")
+      THEN("The payload.tag field remains unchanged")
+      THEN("The payload.values field data remains unchanged")      
       THEN("The type field of the body's header correctly stores the value of message type obtained from the message payload tag")
       THEN("The output buffer has an expected sequence of 10 bytes")
 
@@ -56,6 +78,8 @@ Scenario: Message: The write method correctly generates an encoded body from the
     WHEN("The payload is a sensor measurements message and write method is called")
       THEN("The write method reports ok status")
       THEN("After the write method is called, the type member is equal to the value of sensor_measurements tag")
+      THEN("The payload.tag field remains unchanged")
+      THEN("The payload.values field data remains unchanged")      
       THEN("The type field of the body's header correctly stores the value of message type obtained from the message payload tag")
       THEN("The output buffer has an expected sequence of 16 bytes")
 /*
@@ -64,54 +88,82 @@ Scenario: Message: The write method correctly generates an encoded body from the
 
 Scenario: Message: The parse method correctly updates internal message type and sets the message payload fields after decoding from the input buffer
 
-  GIVEN("A Message object constructed with StateSegment Taggedunion, default message types and a max size of 252 bytes")
+  GIVEN("A Message object default-constructed with StateSegment Taggedunion, default message types and a max size of 252 bytes")
     // setup:
     // message class type member is unchanged
     // payload is uninitialised
 
     WHEN("An empty input buffer body is parsed")
       THEN("The parse method reports invalid length status")
-      THEN("The payload Taggedunion tag is set to Unknown")
+      THEN("After the parse method is called, the type member is set to 0")
+      THEN("The payload.tag field remains unchanged")
       THEN("the payload.values field remains unchanged")
 
-    WHEN("A body with an encoded payload and 1 byte header of value equal to 0 is parsed")
+    WHEN("A body with an empty payload and 1-byte header whose value is not included in MessageTypes enum")
       THEN("The parse method reports invalid type status")
       THEN("After the parse method is called, The value assigned to the type member is equal to the type field of the input_buffer body's header")
-      THEN("The payload Taggedunion tag is set to Unknown")
+      THEN("The payload.tag field remains unchanged")
       THEN("the payload.values field remains unchanged")
 
-    WHEN("A body with an empty payload and 1 byte header of value equal to the message descriptor array size is parsed")
+    WHEN("A body with an empty payload and 1-byte header of value equal to the message descriptor array size is parsed")
+    // setup:
+    // custom descriptor array of size 4
       THEN("The parse method reports invalid type status")
       THEN("After the parse method is called, The value assigned to the type member is equal to the type field of the input_buffer body's header")
-      THEN("The payload Taggedunion tag is set to Unknown")
+      THEN("The payload.tag field is set to parameters")
       THEN("the payload.values field remains unchanged")
 
-    WHEN("A body with an empty payload and 1 byte header of value greater than the message descriptor array size is parsed")
+    WHEN("A body with an empty payload and 1-byte header of value greater than the message descriptor array size is parsed")
+    // setup:
+    // custom descriptor array of size 4
       THEN("The parse method reports invalid type status")
       THEN("After the parse method is called, The value assigned to the type member is equal to the type field of the input_buffer body's header")
-      THEN("The payload Taggedunion tag is set to Unknown")
+      THEN("The payload.tag field is set to parameters_request")
       THEN("the payload.values field remains unchanged")
 
-    WHEN("A body with a 1 byte header and payload of sensor_measurements message with invalid encoding is parsed")
+    WHEN("A body with an encoded payload and 1-byte header of value equal to 0 is parsed")
+      THEN("The parse method reports invalid type status")
+      THEN("After the parse method is called, The value assigned to the type member is equal to the type field of the input_buffer body's header")
+      THEN("The payload.tag field is set to Unknown")
+      THEN("the payload.values field remains unchanged")
+
+    WHEN("A body with a 1-byte header of value 2 and a payload of null bytes is parsed")
       THEN("The parse method reports invalid encoding status")
       THEN("After the parse method is called, The value assigned to the type member is equal to the input_buffer body's header")
-      THEN("The payload Taggedunion tag is set to sensor_measurements")
-      THEN("The message payload fields are not set")
+      THEN("The payload.tag field is set to sensor_measurements")
+      THEN("the payload.values field remains unchanged")
+
+    WHEN("A body with a 1-byte header of value 2 and payload of sensor_measurements message with invalid encoding is parsed")
+      THEN("The parse method reports invalid encoding status")
+      THEN("After the parse method is called, The value assigned to the type member is equal to the input_buffer body's header")
+      THEN("The payload.tag field is set to sensor_measurements")
+      THEN("the payload.values field remains unchanged")
 
 /* test cases for parse functions for each message type
-    WHEN("A body with 1 byte header and a paylod of {Message type} message type is parsed")
+    WHEN("A body with 1-byte header and a payload of {Message type} message type is parsed")
       THEN("The parse method reports ok status")
       THEN("After the parse method is called, The value assigned to the type member is equal to the input_buffer body's header")
-      THEN("The payload Taggedunion tag is set to {Message type}")
-      THEN("The message payload field values are as expected")
+      THEN("The payload.tag field is set to {Message type}")
+      THEN("the payload.values field are as expected")
       THEN("The input buffer is unchanged after parse")
 /*
 
+    WHEN("A body with 1-byte header whose value is inconsistent with the payload message type")
+    //setup:
+    // header = 4
+    // payload of sensor_measurements
+      THEN("The parse method reports ok status")
+      THEN("After the parse method is called, The value assigned to the type member is equal to the input_buffer body's header")
+      THEN("The payload.tag field is set to parameters")
+      THEN("the payload.values field are as expected")
+      THEN("The input buffer is unchanged after parse")
+
 Scenario: The parse method correctly parses bodies when the payload and field members have data
 
-  GIVEN("A Message object constructed with StateSegment Taggedunion, default message types and a max size of 252 bytes")
+  GIVEN("A Message object default-constructed with StateSegment Taggedunion, default message types and a max size of 252 bytes")
   // setup:
   // type = 5
+  // payload.tag = parameters_request
   // parameters_request.fio2 = 80;
   // parameters_request.mode = VentilationMode_hfnc;
   // parameters_request.ventilating = true;
@@ -119,30 +171,56 @@ Scenario: The parse method correctly parses bodies when the payload and field me
     WHEN("An empty input buffer body is parsed")
       THEN("The parse method reports invalid length status")
       THEN("After the parse method is called, The value assigned to the type member remains unchanged")
-      THEN("The payload Taggedunion tag is set to Unknown")
+      THEN("The payload.tag field remains unchanged")
       THEN("the payload.values field remains unchanged")
+
+    WHEN("A body with an empty payload and 1-byte header whose value is not included in MessageTypes enum")
+      THEN("The parse method reports invalid type status")
+      THEN("After the parse method is called, The value assigned to the type member is equal to the type field of the input_buffer body's header")
+      THEN("The payload.tag field remains unchanged")
+      THEN("the payload.values field remains unchanged")
+
+    WHEN("A body with 1-byte header and a payload of cycle measurements message type is parsed")
+      THEN("The parse method reports ok status")
+      THEN("After the parse method is called, The value assigned to the type member is equal to the input_buffer body's header")
+      THEN("The payload.tag field is set to cycle_measurements")
+      THEN("the payload.values field are as expected")
+      THEN("The input buffer is unchanged after parse")
 
 /* Roundtrip
 Scenario: The Message class correctly preserves data in roundtrip writing and parsing
 
-  GIVEN("A Message object constructed with StateSegment Taggedunion, default message types and a max size of 252 bytes")
-    WHEN("A body is generated from the payload of parameters request message, which is then parsed into a new message object and generated again")
+  GIVEN("A Message object default-constructed with StateSegment Taggedunion, default message types and a max size of 252 bytes")
+    WHEN("A body is generated from the payload of parameters request message, which is then parsed into a new message object and a body is generated from the same object")
+    //setup :
+    //payload.tag = parameters_request
+    //parameters_request.ventilating = true;
+    //parameters_request.fio2 = 40;
+    //parameters_request.mode = VentilationMode_hfnc;
+    //parameters_request.flow = 60;
+
       // write
-      THEN("The write method reports ok status")
-      THEN("The body's header correctly stores the value of message type obtained from the message payload tag")
-      THEN("The output buffer is as expected")
+      THEN("The first write method reports ok status")
+      THEN("After the first write method is called, the type member is set to the value of the message payload tag")
+      THEN("The payload.tag field remains unchanged")
+      THEN("The payload.values field data remains unchanged")      
+      THEN("The type field of the body's header correctly stores the value of message type obtained from the message payload tag")
+      THEN("The output buffer is as expected '\x05\x10\x06\x45\x00\x00\x20\x42\x4D\x00\x00\x70\x42\x50\x01'")
 
       // parse
       THEN("The parse method reports ok status")
       THEN("After the parse method is called, The value assigned to the type member is equal to the input_buffer body's header")
-      THEN("The payload Taggedunion tag is set to {Message type}")
-      THEN("The message payload field values are as expected")
+      THEN("The payload.tag field is set to parameters_request")
+      THEN("the payload.values field are as expected")
       THEN("The input buffer is unchanged after parse")
 
       // write
-      THEN("The write method reports ok status")
-      THEN("The body's header correctly stores the value of message type obtained from the message payload tag")
-      THEN("The output buffer is as expected")
+      THEN("The second write method reports ok status")
+      THEN("After the second write method is called, the type member is set to the value of the message payload tag")
+      THEN("The payload.tag field remains unchanged")
+      THEN("The payload.values field data remains unchanged")         
+      THEN("The type field of the body's header correctly stores the value of message type obtained from the message payload tag")
+      THEN("The output buffer is as expected '\x05\x10\x06\x45\x00\x00\x20\x42\x4D\x00\x00\x70\x42\x50\x01'")
 
 /* Message Receiver
 
@@ -150,40 +228,40 @@ Scenario: The Message Receiver class correctly transforms messages into payloads
 
   GIVEN("A MessageReceiver object is constructed with default parameters")
 
-    WHEN("A body with a 1 byte header and a paylod of {Message type} message type is given to the Receiver")
+    WHEN("A body with a 1-byte header and a payload of {Message type} message type is given to the Receiver")
       THEN("The transform method reports ok status")
       THEN("After the transform method is called, The value assigned to the type member is equal to the input_buffer body's header")
-      THEN("The payload Taggedunion tag is set to {Message type}")
+      THEN("The payload.tag field is set to {Message type}")
       THEN("The message payload field values are as expected")
       THEN("The input buffer is unchanged after transform")      
 
     WHEN("A MessageReceiver object is constructed with a smaller descriptors array and transform method is called")
       THEN("The transform method reports ok status")
       THEN("After the transform method is called, The value assigned to the type member is equal to the input_buffer body's header")
-      THEN("The payload Taggedunion tag is set to {Message type}")
+      THEN("The payload.tag field is set to {Message type}")
       THEN("The message payload field values are as expected")
       THEN("The input buffer is unchanged after transform")      
 
     WHEN("The message object has some data prior to the transform method call")
       THEN("The transform method reports ok status")
       THEN("After the transform method is called, The value assigned to the type member is equal to the input_buffer body's header")
-      THEN("The payload Taggedunion tag is set to {Message type}")
+      THEN("The payload.tag field is set to {Message type}")
       THEN("The message payload field values are as expected")
       THEN("The input buffer is unchanged after transform")
 
     WHEN("The input buffer is altered after the transform method is called")
       THEN("The transform method reports ok status")
       THEN("After the transform method is called, The value assigned to the type member is equal to the input_buffer body's header")
-      THEN("The payload Taggedunion tag is set to {Message type}")
+      THEN("The payload.tag field is set to {Message type}")
       THEN("The message payload field values are as expected")
       THEN("The input buffer is unchanged after transform")
       THEN("After the input buffer is altered, The message payload field values remains unchanged")
 
 /* test cases for each message type
-    WHEN("A body with 1 byte header and a paylod of {Message type} message type is given to the Receiver")
+    WHEN("A body with 1-byte header and a payload of {Message type} message type is given to the Receiver")
       THEN("The transform method reports ok status")
       THEN("After the transform method is called, The value assigned to the type member is equal to the input_buffer body's header")
-      THEN("The payload Taggedunion tag is set to {Message type}")
+      THEN("The payload.tag field is set to {Message type}")
       THEN("The message payload field values are as expected")
       THEN("The input buffer is unchanged after transform")
 /*
