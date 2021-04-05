@@ -24,7 +24,7 @@ MessageStatus Message<TaggedUnion, MessageTypes, max_size>::write(
       Util::ByteVector<output_size>::max_size() >= max_size,
       "Write method unavailable as output buffer is too small");
   type = static_cast<uint8_t>(payload.tag);
-  if (type > pb_protobuf_descriptors.size()) {
+  if (type >= pb_protobuf_descriptors.size()) {
     return MessageStatus::invalid_type;
   }
 
