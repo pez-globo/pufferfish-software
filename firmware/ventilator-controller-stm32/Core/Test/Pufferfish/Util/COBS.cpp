@@ -15,7 +15,6 @@
 #include "Pufferfish/Test/Util.h"
 #include "Pufferfish/Util/Array.h"
 #include "catch2/catch.hpp"
-
 namespace PF = Pufferfish;
 using namespace std::string_literals;
 
@@ -244,6 +243,35 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
           REQUIRE(encoded_buffer.operator[](i) == 10);
         }
         REQUIRE(encoded_buffer.operator[](254) == 1);
+      }
+    }
+
+    WHEN(
+        "The cobs::encode function is called on a 254 bytes buffer with null byte at 129th byte "
+        "position") {
+      uint8_t val = 10;
+      for (size_t i = 0; i < 128; i++) {
+        push_status = input_buffer.push_back(val);
+        REQUIRE(push_status == PF::IndexStatus::ok);
+      }
+      push_status = input_buffer.push_back(0);
+      REQUIRE(push_status == PF::IndexStatus::ok);
+      for (size_t i = 0; i < 125; i++) {
+        push_status = input_buffer.push_back(val);
+        REQUIRE(push_status == PF::IndexStatus::ok);
+      }
+
+      auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
+      THEN("The encode_cobs function reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The encoded buffer has an expected sequence of 255 bytes with first byte as 0x81") {
+        REQUIRE(encoded_buffer.operator[](0) == 0x81);
+        for (size_t i = 1; i < 128; i++) {
+          REQUIRE(encoded_buffer.operator[](i) == val);
+        }
+        REQUIRE(encoded_buffer.operator[](129) == 126);
+        for (size_t i = 130; i < 255; i++) {
+          REQUIRE(encoded_buffer.operator[](i) == val);
+        }
       }
     }
 

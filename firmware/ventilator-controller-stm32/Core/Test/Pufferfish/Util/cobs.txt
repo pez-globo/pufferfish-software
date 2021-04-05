@@ -58,6 +58,10 @@ Scenario: The Util encode_cobs function correctly encodes buffers
     THEN("The encode_cobs function reports ok status")
     THEN("The encoded buffer has an expected sequence of 255 bytes with first byte as 0xfd")
 
+  WHEN("The cobs::encode is called on a 254 bytes buffer with null byte at 129th byte position")
+    THEN("The encode_cobs function reports ok status")
+    THEN("The encoded buffer has an expected sequence of 255 bytes with first byte as 0x81")
+
   WHEN("The cobs::encode is called on a 254 byte buffer with no null bytes")
     THEN("The encode_cobs function reports ok status")
     THEN("The encoded buffer has an expected sequence of 256 bytes with first byte as 0xff")

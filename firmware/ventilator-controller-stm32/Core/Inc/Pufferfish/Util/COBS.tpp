@@ -42,10 +42,13 @@ IndexStatus encode_cobs(
   size_t encoded_buffer_size = 0;
 
   if (buffer.size() == max_block_size) {
-    if (buffer[max_block_size - 1] == 0) {
-      encoded_buffer_size = max_block_size + 1;
-    } else {
-      encoded_buffer_size = max_block_size + 2;
+    for (size_t i = 0; i < max_block_size; i++) {
+      if (buffer[i] == 0) {
+        encoded_buffer_size = max_block_size + 1;
+        break;
+      } else {
+        encoded_buffer_size = max_block_size + 2;
+      }
     }
   } else {
     encoded_buffer_size = get_encoded_cobs_buffer_size(buffer.size());
