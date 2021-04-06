@@ -42,7 +42,7 @@ I2CDeviceStatus SFM3000::serial_number(uint32_t &sn) {
     return ret2;
   }
 
-  Util::read_ntoh(buffer.data(), sn);
+  Util::read_bigend(buffer.data(), sn);
   return I2CDeviceStatus::ok;
 }
 
@@ -62,7 +62,7 @@ I2CDeviceStatus SFM3000::read_sample(SFM3000Sample &sample) {
     return ret;
   }
 
-  Util::read_ntoh(buffer.data(), sample.raw_flow);
+  Util::read_bigend(buffer.data(), sample.raw_flow);
 
   // convert to actual flow rate
   sample.flow =
