@@ -33,7 +33,7 @@ Scenario: Message: The write method correctly generates an encoded body from the
     // message class type member is unchanged
     // payload tag is set to Unknown
       THEN("The write method reports invalid type status")
-      THEN("After the write method is called, the type member remains unchanged")
+      THEN("After the write method is called, the type member is set to the value of the message payload tag")
       THEN("The payload.tag field remains unchanged")
       THEN("The payload.values field data remains unchanged")
       THEN("The output buffer remains unchanged")
@@ -160,7 +160,7 @@ Scenario: Message: The parse method correctly updates internal message type and 
       THEN("the payload.values field remains unchanged")
 
 /* test cases for parse functions for each message type
-    WHEN("A body with 1-byte header and a payload of {Message type} message type is parsed")
+    WHEN("A body with a payload of {Message type} with a 1-byte header of value equal to the message payload tag")
       THEN("The parse method reports ok status")
       THEN("After the parse method is called, The value assigned to the type member is equal to the input_buffer body's header")
       THEN("The payload.tag field is set to {Message type}")
