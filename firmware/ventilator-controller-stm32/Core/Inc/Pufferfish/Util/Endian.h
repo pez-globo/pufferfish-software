@@ -14,6 +14,23 @@
 
 namespace Pufferfish::Util {
 
+constexpr void read_ntoh(const uint8_t *network_endian, int16_t &host_endian) noexcept {
+  uint16_t network_endian_value =
+      (set_byte<1, uint16_t>(network_endian[1]) + set_byte<0, uint16_t>(network_endian[0]));
+  host_endian = HAL::ntoh(network_endian_value);
+}
+
+constexpr void read_ntoh(const uint8_t *network_endian, uint64_t &host_endian) noexcept {
+  uint64_t network_endian_value =
+      // NOLINTNEXTLINE(readability-magic-numbers)
+      (set_byte<7, uint64_t>(network_endian[7]) + set_byte<6, uint64_t>(network_endian[6]) +
+       // NOLINTNEXTLINE(readability-magic-numbers)
+       set_byte<5, uint64_t>(network_endian[5]) + set_byte<4, uint64_t>(network_endian[4]) +
+       set_byte<3, uint64_t>(network_endian[3]) + set_byte<2, uint64_t>(network_endian[2]) +
+       set_byte<1, uint64_t>(network_endian[1]) + set_byte<0, uint64_t>(network_endian[0]));
+  host_endian = HAL::ntoh(network_endian_value);
+}
+
 constexpr void read_ntoh(const uint8_t *network_endian, uint32_t &host_endian) noexcept {
   uint32_t network_endian_value =
       (set_byte<3, uint32_t>(network_endian[3]) + set_byte<2, uint32_t>(network_endian[2]) +

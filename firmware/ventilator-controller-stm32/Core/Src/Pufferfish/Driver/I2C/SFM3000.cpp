@@ -12,7 +12,7 @@
 
 #include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/HAL/STM32/Endian.h"
-#include "Pufferfish/Util/Parse.h"
+#include "Pufferfish/Util/Endian.h"
 
 namespace Pufferfish::Driver::I2C {
 
@@ -42,7 +42,7 @@ I2CDeviceStatus SFM3000::serial_number(uint32_t &sn) {
     return ret2;
   }
 
-  sn = HAL::ntoh(Util::parse_network_order<uint32_t>(buffer.data(), buffer.size()));
+  Util::read_ntoh(buffer.data(), sn);
   return I2CDeviceStatus::ok;
 }
 
@@ -62,7 +62,7 @@ I2CDeviceStatus SFM3000::read_sample(SFM3000Sample &sample) {
     return ret;
   }
 
-  sample.raw_flow = HAL::ntoh(Util::parse_network_order<uint16_t>(buffer.data(), buffer.size()));
+  Util::read_ntoh(buffer.data(), sample.raw_flow);
 
   // convert to actual flow rate
   sample.flow =

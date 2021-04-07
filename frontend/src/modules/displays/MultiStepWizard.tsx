@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { useDispatch } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
 import ReplyIcon from '@material-ui/icons/Reply';
+// import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import ModalPopup from '../controllers/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
@@ -94,7 +95,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   tabAligning: {
     maxWidth: '60%',
     margin: '0 auto',
-    marginTop: '5%',
+    marginTop: '10px',
     '& .MuiTabs-root': {
       '& .MuiTabs-scroller': {
         '& .MuiTabs-flexContainer': {
@@ -311,7 +312,9 @@ const MultiStepWizard = (): JSX.Element => {
   useEffect(() => {
     if (parameter) {
       if (tabIndex > 0) {
-        setLabel(parameter.isSetvalEnabled ? 'Set New' : 'Alarms');
+        setLabel(
+          parameter.isSetvalEnabled ? `${parameter.label} Settings` : `${parameter.label} Alarms`,
+        );
       } else {
         setLabel('Ventilation Controls');
       }
@@ -501,9 +504,18 @@ const MultiStepWizard = (): JSX.Element => {
                 className={classes.tab}
                 classes={{ selected: classes.selectedTab }}
               />
+              {/* <Tab
+                label={<ArrowForwardIosIcon />}
+                {...a11yProps(98)}
+                className={classes.nonTab}
+              /> */}
               <Tab
                 style={{ visibility: tabIndex === 0 ? 'hidden' : 'visible' }}
-                label={parameter?.isSetvalEnabled ? 'Set New' : 'Alarms'}
+                label={
+                  parameter?.isSetvalEnabled
+                    ? `${parameter.label} Settings`
+                    : `${parameter?.label} Alarms`
+                }
                 {...a11yProps(1)}
                 className={classes.tab}
                 classes={{ selected: classes.selectedTab }}

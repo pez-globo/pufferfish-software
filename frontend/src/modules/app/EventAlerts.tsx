@@ -170,9 +170,17 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
     dispatch(updateCommittedState(ALARM_MUTE, { active: state }));
   };
 
-  const onActiveAlarmClick = () => {
+  const openEventLogPopup = (filter: boolean) => {
     setOpen(true);
-    setActiveFilter(true);
+    setActiveFilter(filter);
+  };
+
+  const openPopup = () => {
+    openEventLogPopup(false);
+  };
+
+  const onActiveAlarmClick = () => {
+    openEventLogPopup(true);
   };
 
   return (
@@ -187,7 +195,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
             justify="flex-start"
             alignItems="center"
             wrap="nowrap"
-            style={{ padding: '15px' }}
+            style={{ paddingRight: '15px' }}
           >
             <Grid item xs={6}>
               <Typography variant="h4" style={{ fontWeight: 'normal' }}>
@@ -213,7 +221,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
                 onClick={() => setActiveFilter(!activeFilter)}
                 variant="contained"
                 color="primary"
-                style={{ padding: '6px 3rem' }}
+                style={{ width: '10rem' }}
               >
                 {activeFilter ? 'Events Log' : 'Active Alarms'}
               </Button>
@@ -276,12 +284,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         </Button>
       </Grid>
       <Grid>
-        <Button
-          style={{ marginRight: 12 }}
-          variant="contained"
-          color="primary"
-          onClick={() => setOpen(true)}
-        >
+        <Button style={{ marginRight: 12 }} variant="contained" color="primary" onClick={openPopup}>
           <BellIcon />
         </Button>
         {label}

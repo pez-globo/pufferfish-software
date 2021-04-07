@@ -1,4 +1,4 @@
-import { LogEvent, LogEventCode, LogEventType, Range } from '../../store/controller/proto/mcu_pb';
+import { LogEvent, LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
 import { BACKEND_CONNECTION_LOST_CODE } from '../../store/controller/types';
 import { PERCENT, BMIN, BPM, LMIN } from '../info/units';
 
@@ -10,17 +10,14 @@ export interface EventType {
   stateKey?: string;
 }
 
-export const getEventDetails = (
-  event: LogEvent,
-  eventType: EventType,
-  alarmLimits: Record<string, Range>,
-): string => {
+export const getEventDetails = (event: LogEvent, eventType: EventType): string => {
   const unit = eventType.unit === PERCENT ? eventType.unit : ` ${eventType.unit}`;
   if (event.type === LogEventType.patient) {
-    if (eventType?.stateKey) {
+    const alarmLimits = event?.alarmLimits;
+    if (eventType?.stateKey && alarmLimits) {
       return eventType.label.includes('high')
-        ? `Upper limit is ${alarmLimits[eventType.stateKey].upper}${unit}`
-        : `Lower limit is ${alarmLimits[eventType.stateKey].lower}${unit}`;
+        ? `Upper limit is ${alarmLimits.upper}${unit}`
+        : `Lower limit is ${alarmLimits.lower}${unit}`;
     }
   } else if (event.type === LogEventType.control) {
     if (event.code === LogEventCode.ventilation_operation_changed) {
