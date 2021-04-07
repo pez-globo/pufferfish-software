@@ -78,7 +78,7 @@ class RingBuffer {
    * @param[out] read_element the element popped from the queue
    * @return ok on success, empty otherwise
    */
-  BufferStatus read(ElementType &read_element) volatile;
+  BufferStatus pop(ElementType &read_element) volatile;
 
   /**
    * Attempt to "pop" an element from the head of the queue.
@@ -88,7 +88,7 @@ class RingBuffer {
    * @param[out] read_element the element popped from the queue
    * @return ok on success, empty otherwise
    */
-  BufferStatus read(ElementType &read_element);
+  BufferStatus pop(ElementType &read_element);
 
   /**
    * Attempt to "peek" at the element at the head of the queue.
@@ -101,14 +101,16 @@ class RingBuffer {
   BufferStatus peek(ElementType &peek_element) const volatile;
 
   /**
-   * Attempt to "peek" at the element at the head of the queue.
+   * Attempt to "peek" at the element at some offset after the head of the queue.
    *
-   * Gives up without causing any side-effects if the queue is empty;
-   * if it gives up, peek_element will be left unmodified.
+   * Not interrupt-safe! Gives up without causing any side-effects if
+   * no element exists at the specified offset; if it gives up, peek_element
+   * will be left unmodified.
+   * @param offset how many elements beyond the head to "look ahead"
    * @param[out] peek_element the byte at the head of the queue
    * @return ok on success, empty otherwise
    */
-  BufferStatus peek(ElementType &peek_element) const;
+  BufferStatus peek(ElementType &peek_element, size_t offset = 0) const;
 
   /**
    * Attempt to "push" the provided element onto the tail of the queue.
@@ -117,7 +119,7 @@ class RingBuffer {
    * @param writeByte the byte to push onto the tail of the queue
    * @return ok on success, full otherwise
    */
-  BufferStatus write(const ElementType &write_element) volatile;
+  BufferStatus push(const ElementType &write_element) volatile;
 
   /**
    * Attempt to "push" the provided element onto the tail of the queue.
@@ -126,7 +128,15 @@ class RingBuffer {
    * @param writeByte the byte to push onto the tail of the queue
    * @return ok on success, full otherwise
    */
-  BufferStatus write(const ElementType &write_element);
+  BufferStatus push(const ElementType &write_element);
+
+  /**
+   * Report the number of elements in the buffer.
+   *
+   * Not interrupt-safe! So a volatile version is not provided.
+   * @return number of elements in the buffer
+   */
+  size_t size() const;
 
  private:
   // We have to use a C-style array because std::array doesn't work with

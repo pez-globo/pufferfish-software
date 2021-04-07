@@ -56,7 +56,7 @@ template <HAL::AtomicSize buffer_size, typename ElementType>
 RingBuffer<buffer_size, ElementType>::RingBuffer() = default;
 
 template <HAL::AtomicSize buffer_size, typename ElementType>
-BufferStatus RingBuffer<buffer_size, ElementType>::read(ElementType &read_element) volatile {
+BufferStatus RingBuffer<buffer_size, ElementType>::pop(ElementType &read_element) volatile {
   if (newest_index_ == oldest_index_) {
     return BufferStatus::empty;
   }
@@ -67,7 +67,7 @@ BufferStatus RingBuffer<buffer_size, ElementType>::read(ElementType &read_elemen
 }
 
 template <HAL::AtomicSize buffer_size, typename ElementType>
-BufferStatus RingBuffer<buffer_size, ElementType>::read(ElementType &read_element) {
+BufferStatus RingBuffer<buffer_size, ElementType>::pop(ElementType &read_element) {
   if (newest_index_ == oldest_index_) {
     return BufferStatus::empty;
   }
@@ -88,17 +88,27 @@ BufferStatus RingBuffer<buffer_size, ElementType>::peek(ElementType &peek_elemen
 }
 
 template <HAL::AtomicSize buffer_size, typename ElementType>
-BufferStatus RingBuffer<buffer_size, ElementType>::peek(ElementType &peek_element) const {
-  if (newest_index_ == oldest_index_) {
+BufferStatus RingBuffer<buffer_size, ElementType>::peek(ElementType &peek_element, size_t offset) const {
+  HAL::AtomicSize peek_index = oldest_index_;
+  if (peek_index == newest_index_) {
     return BufferStatus::empty;
   }
 
-  peek_element = buffer_[oldest_index_];
+  // Advance the peek index if offset is non-zero
+  for (HAL::AtomicSize i = 0; i < offset; ++i) {
+    if (peek_index == newest_index_) {
+      // Offset is greater than the number of elements in the buffer
+      return BufferStatus::empty;
+    }
+    peek_index = (peek_index + 1) % buffer_size;
+  }
+
+  peek_element = buffer_[peek_index];
   return BufferStatus::ok;
 }
 
 template <HAL::AtomicSize buffer_size, typename ElementType>
-BufferStatus RingBuffer<buffer_size, ElementType>::write(const ElementType &write_element) volatile {
+BufferStatus RingBuffer<buffer_size, ElementType>::push(const ElementType &write_element) volatile {
   HAL::AtomicSize next_index = (newest_index_ + 1) % buffer_size;
   if (next_index == oldest_index_) {
     return BufferStatus::full;
@@ -110,7 +120,7 @@ BufferStatus RingBuffer<buffer_size, ElementType>::write(const ElementType &writ
 }
 
 template <HAL::AtomicSize buffer_size, typename ElementType>
-BufferStatus RingBuffer<buffer_size, ElementType>::write(const ElementType &write_element) {
+BufferStatus RingBuffer<buffer_size, ElementType>::push(const ElementType &write_element) {
   HAL::AtomicSize next_index = (newest_index_ + 1) % buffer_size;
   if (next_index == oldest_index_) {
     return BufferStatus::full;
@@ -119,6 +129,11 @@ BufferStatus RingBuffer<buffer_size, ElementType>::write(const ElementType &writ
   buffer_[newest_index_] = write_element;
   newest_index_ = next_index;
   return BufferStatus::ok;
+}
+
+template <HAL::AtomicSize buffer_size, typename ElementType>
+size_t RingBuffer<buffer_size, ElementType>::size() const {
+  return (newest_index_ - oldest_index_) % buffer_size;
 }
 
 }  // namespace Pufferfish::Util
