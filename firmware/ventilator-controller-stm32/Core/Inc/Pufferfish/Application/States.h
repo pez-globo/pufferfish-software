@@ -13,10 +13,14 @@
 
 namespace Pufferfish::Application {
 
+// Message constants
+static const size_t next_log_events_max_elems = 2;
+
 // Type tags
 
 // To add a new message type, add it to MessageTypes, MessageTypeValues,
-// and Driver::Serial::Backend::message_descriptors. Then add a setter to
+// and Driver::Serial::Backend::message_descriptors in this file.
+// Then update StateSegmentUnion in States.tpp. Then add a setter to
 // States.cpp using the STATESEGMENT_TAGGED_SETTER macro, add setters and
 // getters to the States class as needed, and add switch cases to the
 // States::input and States::output methods.

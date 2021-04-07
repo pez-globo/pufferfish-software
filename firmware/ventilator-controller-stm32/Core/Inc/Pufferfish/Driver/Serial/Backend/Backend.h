@@ -11,6 +11,7 @@
 
 #include "Frames.h"
 #include "Pufferfish/Application/States.h"
+#include "Pufferfish/Application/LogEvents.h"
 #include "Pufferfish/HAL/Interfaces/CRCChecker.h"
 #include "Pufferfish/Protocols/CRCElements.h"
 #include "Pufferfish/Protocols/Datagrams.h"
@@ -141,9 +142,9 @@ class BackendSender {
 
 
 static const size_t log_events_list_buffer_len = 128;
-static const size_t next_log_events_max_elems = 2;
+
 using LogEventsSender = Protocols::ListSender<
-    NextLogEvents, LogEvent, log_events_list_buffer_len, next_log_events_max_elems>;
+    NextLogEvents, LogEvent, log_events_list_buffer_len, Application::next_log_events_max_elems>;
 
 class Backend {
  public:

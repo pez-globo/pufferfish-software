@@ -33,6 +33,7 @@
 
 #include "Pufferfish/AlarmsManager.h"
 #include "Pufferfish/Application/States.h"
+#include "Pufferfish/Application/LogEvents.h"
 #include "Pufferfish/Application/mcu_pb.h" // Only used for debugging
 #include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
@@ -103,6 +104,11 @@ namespace PF = Pufferfish;
 // Application State
 PF::Application::States all_states;
 
+// Event Logging
+PF::Driver::Serial::Backend::LogEventsSender log_events_sender;
+PF::Application::LogEventsManager<
+  PF::Driver::Serial::Backend::LogEventsSender> log_events_manager(log_events_sender);
+
 // Request/Response Services
 PF::Driver::BreathingCircuit::ParametersServices parameters_service;
 PF::Driver::BreathingCircuit::AlarmLimitsServices alarm_limits_service;
@@ -122,7 +128,6 @@ volatile Pufferfish::HAL::LargeBufferedUART fdo2_uart(huart7, time);
 volatile Pufferfish::HAL::ReadOnlyBufferedUART nonin_oem_uart(huart4, time);
 
 // UART Serial Communication
-PF::Driver::Serial::Backend::LogEventsSender log_events_sender;
 PF::Driver::Serial::Backend::UARTBackend backend(backend_uart, crc32c, all_states, log_events_sender);
 
 // Create an object for ADC3 of AnalogInput Class
@@ -543,13 +548,11 @@ int main(void)
     LogEventType::LogEventType_control};
   event.old_float = 21;
   event.new_float = 50;
-  LogEvent discard;
-  log_events_sender.input(event, discard);
-  event.id = 1;
+  log_events_manager.add_event(event);
   event.code = LogEventCode::LogEventCode_flow_setting_changed;
   event.old_float = 10;
   event.new_float = 30;
-  log_events_sender.input(event, discard);
+  log_events_manager.add_event(event);
   all_states.active_log_events().id_count = 1;
   all_states.active_log_events().id[0] = 1;
 
@@ -561,6 +564,9 @@ int main(void)
     flasher.input(time.millis());
     blinker.input(time.millis());
     dimmer.input(time.millis());
+
+    // Clock updates
+    log_events_manager.update_time(current_time);
 
     // Request/response services update
     parameters_service.transform(all_states.parameters_request(), all_states.parameters());
