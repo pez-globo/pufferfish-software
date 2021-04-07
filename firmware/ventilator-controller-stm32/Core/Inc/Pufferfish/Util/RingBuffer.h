@@ -1,5 +1,5 @@
 /// \file
-/// \brief An interrupt-safe byte stream backed by a circular buffer.
+/// \brief An interrupt-safe stream backed by a circular buffer.
 
 // Copyright (c) 2020 Pez-Globo and the Pufferfish project contributors
 // SPDX-License-Identifier: Apache-2.0
@@ -61,47 +61,78 @@ namespace Pufferfish::Util {
  * This class provides a bounded-length queue data structure which is
  * statically allocated. Behind the scenes, it is backed by an array.
  * BufferSize is recommended to be a power of two for compiler optimization.
- * Methods are declared volatile because they are usable with ISRs.
+ * Volatile methods are declared so that this can be usable with ISRs.
+ * It is interrupt-safe (i.e. usable with ISRs) if the element type is uint8_t;
+ * otherwise, no guarantees are made.
  */
-template <HAL::AtomicSize buffer_size>
+template <HAL::AtomicSize buffer_size, typename ElementType>
 class RingBuffer {
  public:
   RingBuffer();
 
   /**
-   * Attempt to "pop" a byte from the head of the queue.
+   * Attempt to "pop" an element from the head of the queue.
    *
    * Gives up without causing any side-effects if the queue is empty;
-   * if it gives up, readByte will be left unmodified.
-   * @param[out] readByte the byte popped from the queue
+   * if it gives up, read_element will be left unmodified.
+   * @param[out] read_element the element popped from the queue
    * @return ok on success, empty otherwise
    */
-  BufferStatus read(uint8_t &read_byte) volatile;
+  BufferStatus read(ElementType &read_element) volatile;
 
   /**
-   * Attempt to "peek" at the byte at the head of the queue.
+   * Attempt to "pop" an element from the head of the queue.
    *
    * Gives up without causing any side-effects if the queue is empty;
-   * if it gives up, peekByte will be left unmodified.
-   * @param[out] peekByte the byte at the head of the queue
+   * if it gives up, read_element will be left unmodified.
+   * @param[out] read_element the element popped from the queue
    * @return ok on success, empty otherwise
    */
-  BufferStatus peek(uint8_t &peek_byte) const volatile;
+  BufferStatus read(ElementType &read_element);
 
   /**
-   * Attempt to "push" the provided byte onto the tail of the queue.
+   * Attempt to "peek" at the element at the head of the queue.
+   *
+   * Gives up without causing any side-effects if the queue is empty;
+   * if it gives up, peek_element will be left unmodified.
+   * @param[out] peek_element the byte at the head of the queue
+   * @return ok on success, empty otherwise
+   */
+  BufferStatus peek(ElementType &peek_element) const volatile;
+
+  /**
+   * Attempt to "peek" at the element at the head of the queue.
+   *
+   * Gives up without causing any side-effects if the queue is empty;
+   * if it gives up, peek_element will be left unmodified.
+   * @param[out] peek_element the byte at the head of the queue
+   * @return ok on success, empty otherwise
+   */
+  BufferStatus peek(ElementType &peek_element) const;
+
+  /**
+   * Attempt to "push" the provided element onto the tail of the queue.
    *
    * Gives up without causing any side-effects if the queue is full.
    * @param writeByte the byte to push onto the tail of the queue
    * @return ok on success, full otherwise
    */
-  BufferStatus write(uint8_t write_byte) volatile;
+  BufferStatus write(const ElementType &write_element) volatile;
+
+  /**
+   * Attempt to "push" the provided element onto the tail of the queue.
+   *
+   * Gives up without causing any side-effects if the queue is full.
+   * @param writeByte the byte to push onto the tail of the queue
+   * @return ok on success, full otherwise
+   */
+  BufferStatus write(const ElementType &write_element);
 
  private:
   // We have to use a C-style array because std::array doesn't work with
   // volatile
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  uint8_t buffer_[buffer_size];
+  ElementType buffer_[buffer_size];
 
   HAL::AtomicSize newest_index_ = 0;
   HAL::AtomicSize oldest_index_ = 0;
