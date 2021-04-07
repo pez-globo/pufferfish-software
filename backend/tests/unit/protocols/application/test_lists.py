@@ -61,3 +61,6 @@ def test_sync_new_elements() -> None:
     for (i, event) in enumerate(output.elements):
         assert event.id == 19 + i
     assert len(output.elements) == 2
+
+# TODO: add a test where we send all events, then reset expected event to 0.
+# All events should be sent again.

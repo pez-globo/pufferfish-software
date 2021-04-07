@@ -59,8 +59,9 @@ class SendSynchronizer(
 
     Inputs are descriptions received from the peer about the id of the next
     list element it expects as well as any new element to add to the list.
-    The id of the next expected list element should never decrease, and the
-    id of the next element to add to the list should never decrease (and it
+    The id of the next expected list element should never decrease, unless it
+    is reset to 0 (which is equivalent to requesting all list elements).
+    The id of the next element to add to the list should never decrease (and it
     should preferably increment by 1).
     Outputs are the next elements to send to the peer.
     """
@@ -110,7 +111,10 @@ class SendSynchronizer(
         if event.next_expected is None:
             return None
 
-        if event.next_expected < self._next_expected:
+        if (
+                event.next_expected != 0
+                and event.next_expected < self._next_expected
+        ):
             raise exceptions.ProtocolDataError(
                 'Next expected event id cannot decrease from {} to {}!'
                 .format(self._next_expected, event.next_expected)
