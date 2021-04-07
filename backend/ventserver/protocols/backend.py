@@ -20,8 +20,10 @@ from ventserver.sansio import protocols
 
 
 MCU_SYNCHRONIZER_SCHEDULE = collections.deque([
-    states.ScheduleEntry(time=0.05, type=mcu_pb.ParametersRequest),
-    states.ScheduleEntry(time=0.05, type=mcu_pb.AlarmLimitsRequest),
+    states.ScheduleEntry(time=0.02, type=mcu_pb.ParametersRequest),
+    states.ScheduleEntry(time=0.02, type=mcu_pb.ExpectedLogEvent),
+    states.ScheduleEntry(time=0.02, type=mcu_pb.AlarmLimitsRequest),
+    states.ScheduleEntry(time=0.02, type=mcu_pb.ExpectedLogEvent),
 ])
 
 FRONTEND_SYNCHRONIZER_SCHEDULE = collections.deque([
@@ -32,11 +34,11 @@ FRONTEND_SYNCHRONIZER_SCHEDULE = collections.deque([
     states.ScheduleEntry(time=0.01, type=mcu_pb.AlarmLimits),
     states.ScheduleEntry(time=0.01, type=mcu_pb.AlarmLimitsRequest),
     states.ScheduleEntry(time=0.01, type=mcu_pb.SensorMeasurements),
+    states.ScheduleEntry(time=0.01, type=mcu_pb.NextLogEvents),
+    states.ScheduleEntry(time=0.01, type=mcu_pb.ActiveLogEvents),
+    states.ScheduleEntry(time=0.01, type=mcu_pb.SensorMeasurements),
     states.ScheduleEntry(time=0.01, type=frontend_pb.RotaryEncoder),
     states.ScheduleEntry(time=0.01, type=mcu_pb.CycleMeasurements),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.SensorMeasurements),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.ActiveLogEvents),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.NextLogEvents),
 ])
 
 FILE_SYNCHRONIZER_SCHEDULE = collections.deque([
@@ -106,6 +108,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         mcu_pb.CycleMeasurements,
         mcu_pb.Parameters,
         mcu_pb.AlarmLimits,
+        mcu_pb.NextLogEvents,
+        mcu_pb.ActiveLogEvents,
     }
     FRONTEND_INPUT_TYPES = {
         mcu_pb.ParametersRequest,
@@ -197,7 +201,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         self._handle_frontend_inbound_state(event)
 
         # Maintain internal data connections
-        self._handle_log_events_sending()
+        # This is disabled because for testing we are routing events directly
+        # from the MCU to the frontend.
+        # self._handle_log_events_sending()
 
         # Output any scheduled outbound state update
         mcu_send = None

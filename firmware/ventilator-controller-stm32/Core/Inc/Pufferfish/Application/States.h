@@ -22,7 +22,10 @@ enum class MessageTypes : uint8_t {
   parameters = 4,
   parameters_request = 5,
   alarm_limits = 6,
-  alarm_limits_request = 7
+  alarm_limits_request = 7,
+  expected_log_event = 8,
+  next_log_events = 9,
+  active_log_events = 10,
 };
 
 // MessageTypeValues should include all defined values of MessageTypes
@@ -53,6 +56,9 @@ struct StateSegments {
   ParametersRequest parameters_request;
   AlarmLimits alarm_limits;
   AlarmLimitsRequest alarm_limits_request;
+  ExpectedLogEvent expected_log_event;
+  NextLogEvents next_log_events;
+  ActiveLogEvents active_log_events;
 };
 
 class States {
@@ -67,6 +73,9 @@ class States {
   AlarmLimits &alarm_limits();
   SensorMeasurements &sensor_measurements();
   CycleMeasurements &cycle_measurements();
+  [[nodiscard]] const ExpectedLogEvent &expected_log_event() const;
+  NextLogEvents &next_log_events();
+  ActiveLogEvents &active_log_events();
 
   InputStatus input(const StateSegment &input);
   OutputStatus output(MessageTypes type, StateSegment &output) const;

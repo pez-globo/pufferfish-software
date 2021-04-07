@@ -33,6 +33,7 @@
 
 #include "Pufferfish/AlarmsManager.h"
 #include "Pufferfish/Application/States.h"
+#include "Pufferfish/Application/mcu_pb.h" // Only used for debugging
 #include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
@@ -532,6 +533,22 @@ int main(void)
     board_led1.write(blinker.output());
   }
   board_led1.write(false);
+
+  // Debugging test
+  all_states.next_log_events().next_expected = 1;
+  all_states.next_log_events().total = 1;
+  all_states.next_log_events().remaining = 0;
+  all_states.next_log_events().elements_count = 1;
+  LogEvent event{
+    0,
+    time.millis(),
+    LogEventCode::LogEventCode_fio2_setting_changed,
+    LogEventType::LogEventType_control};
+  event.old_float = 21;
+  event.new_float = 50;
+  all_states.next_log_events().elements[0] = event;
+  all_states.active_log_events().id_count = 1;
+  all_states.active_log_events().id[0] = 0;
 
   // Normal loop
   while (true) {

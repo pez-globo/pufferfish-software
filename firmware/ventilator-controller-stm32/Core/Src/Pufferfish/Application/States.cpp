@@ -42,6 +42,9 @@ STATESEGMENT_TAGGED_SETTER(Parameters, parameters)
 STATESEGMENT_TAGGED_SETTER(ParametersRequest, parameters_request)
 STATESEGMENT_TAGGED_SETTER(AlarmLimits, alarm_limits)
 STATESEGMENT_TAGGED_SETTER(AlarmLimitsRequest, alarm_limits_request)
+STATESEGMENT_TAGGED_SETTER(ExpectedLogEvent, expected_log_event)
+STATESEGMENT_TAGGED_SETTER(NextLogEvents, next_log_events)
+STATESEGMENT_TAGGED_SETTER(ActiveLogEvents, active_log_events)
 
 }  // namespace Pufferfish::Util
 
@@ -73,6 +76,18 @@ CycleMeasurements &States::cycle_measurements() {
   return state_segments_.cycle_measurements;
 }
 
+const ExpectedLogEvent &States::expected_log_event() const {
+  return state_segments_.expected_log_event;
+}
+
+NextLogEvents &States::next_log_events() {
+  return state_segments_.next_log_events;
+}
+
+ActiveLogEvents &States::active_log_events() {
+  return state_segments_.active_log_events;
+}
+
 States::InputStatus States::input(const StateSegment &input) {
   switch (input.tag) {
     case MessageTypes::sensor_measurements:
@@ -92,6 +107,15 @@ States::InputStatus States::input(const StateSegment &input) {
       return InputStatus::ok;
     case MessageTypes::alarm_limits_request:
       STATESEGMENT_GET_TAGGED(alarm_limits_request, input);
+      return InputStatus::ok;
+    case MessageTypes::expected_log_event:
+      STATESEGMENT_GET_TAGGED(expected_log_event, input);
+      return InputStatus::ok;
+    case MessageTypes::next_log_events:
+      STATESEGMENT_GET_TAGGED(next_log_events, input);
+      return InputStatus::ok;
+    case MessageTypes::active_log_events:
+      STATESEGMENT_GET_TAGGED(active_log_events, input);
       return InputStatus::ok;
     default:
       return InputStatus::invalid_type;
@@ -117,6 +141,15 @@ States::OutputStatus States::output(MessageTypes type, StateSegment &output) con
       return OutputStatus::ok;
     case MessageTypes::alarm_limits_request:
       output.set(state_segments_.alarm_limits_request);
+      return OutputStatus::ok;
+    case MessageTypes::expected_log_event:
+      output.set(state_segments_.expected_log_event);
+      return OutputStatus::ok;
+    case MessageTypes::next_log_events:
+      output.set(state_segments_.next_log_events);
+      return OutputStatus::ok;
+    case MessageTypes::active_log_events:
+      output.set(state_segments_.active_log_events);
       return OutputStatus::ok;
     default:
       return OutputStatus::invalid_type;

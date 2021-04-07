@@ -49,7 +49,8 @@ typedef enum _LogEventType {
 
 /* Struct definitions */
 typedef struct _ActiveLogEvents {
-    pb_callback_t id;
+    pb_size_t id_count;
+    uint32_t id[32];
 } ActiveLogEvents;
 
 typedef struct _AlarmMute {
@@ -86,13 +87,6 @@ typedef struct _CycleMeasurements {
 typedef struct _ExpectedLogEvent {
     uint32_t id;
 } ExpectedLogEvent;
-
-typedef struct _NextLogEvents {
-    uint32_t next_expected;
-    uint32_t total;
-    uint32_t remaining;
-    pb_callback_t elements;
-} NextLogEvents;
 
 typedef struct _Parameters {
     uint32_t time;
@@ -230,6 +224,14 @@ typedef struct _LogEvent {
     VentilationMode new_mode;
 } LogEvent;
 
+typedef struct _NextLogEvents {
+    uint32_t next_expected;
+    uint32_t total;
+    uint32_t remaining;
+    pb_size_t elements_count;
+    LogEvent elements[2];
+} NextLogEvents;
+
 
 /* Helper constants for enums */
 #define _VentilationMode_MIN VentilationMode_hfnc
@@ -261,8 +263,8 @@ extern "C" {
 #define Announcement_init_default                {0, {0, {0}}}
 #define LogEvent_init_default                    {0, 0, _LogEventCode_MIN, _LogEventType_MIN, false, Range_init_default, 0, 0, 0, 0, 0, 0, false, Range_init_default, false, Range_init_default, _VentilationMode_MIN, _VentilationMode_MIN}
 #define ExpectedLogEvent_init_default            {0}
-#define NextLogEvents_init_default               {0, 0, 0, {{NULL}, NULL}}
-#define ActiveLogEvents_init_default             {{{NULL}, NULL}}
+#define NextLogEvents_init_default               {0, 0, 0, 0, {LogEvent_init_default, LogEvent_init_default}}
+#define ActiveLogEvents_init_default             {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define BatteryPower_init_default                {0, 0}
 #define ScreenStatus_init_default                {0}
 #define AlarmMute_init_default                   {0, 0}
@@ -278,8 +280,8 @@ extern "C" {
 #define Announcement_init_zero                   {0, {0, {0}}}
 #define LogEvent_init_zero                       {0, 0, _LogEventCode_MIN, _LogEventType_MIN, false, Range_init_zero, 0, 0, 0, 0, 0, 0, false, Range_init_zero, false, Range_init_zero, _VentilationMode_MIN, _VentilationMode_MIN}
 #define ExpectedLogEvent_init_zero               {0}
-#define NextLogEvents_init_zero                  {0, 0, 0, {{NULL}, NULL}}
-#define ActiveLogEvents_init_zero                {{{NULL}, NULL}}
+#define NextLogEvents_init_zero                  {0, 0, 0, 0, {LogEvent_init_zero, LogEvent_init_zero}}
+#define ActiveLogEvents_init_zero                {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define BatteryPower_init_zero                   {0, 0}
 #define ScreenStatus_init_zero                   {0}
 #define AlarmMute_init_zero                      {0, 0}
@@ -303,10 +305,6 @@ extern "C" {
 #define CycleMeasurements_ip_tag                 6
 #define CycleMeasurements_ve_tag                 7
 #define ExpectedLogEvent_id_tag                  1
-#define NextLogEvents_next_expected_tag          1
-#define NextLogEvents_total_tag                  2
-#define NextLogEvents_remaining_tag              3
-#define NextLogEvents_elements_tag               4
 #define Parameters_time_tag                      1
 #define Parameters_ventilating_tag               2
 #define Parameters_mode_tag                      3
@@ -385,6 +383,10 @@ extern "C" {
 #define LogEvent_new_range_tag                   13
 #define LogEvent_old_mode_tag                    14
 #define LogEvent_new_mode_tag                    15
+#define NextLogEvents_next_expected_tag          1
+#define NextLogEvents_total_tag                  2
+#define NextLogEvents_remaining_tag              3
+#define NextLogEvents_elements_tag               4
 
 /* Struct field encoding specification for nanopb */
 #define Range_FIELDLIST(X, a) \
@@ -553,14 +555,14 @@ X(a, STATIC,   SINGULAR, UINT32,   id,                1)
 X(a, STATIC,   SINGULAR, UINT32,   next_expected,     1) \
 X(a, STATIC,   SINGULAR, UINT32,   total,             2) \
 X(a, STATIC,   SINGULAR, UINT32,   remaining,         3) \
-X(a, CALLBACK, REPEATED, MESSAGE,  elements,          4)
-#define NextLogEvents_CALLBACK pb_default_field_callback
+X(a, STATIC,   REPEATED, MESSAGE,  elements,          4)
+#define NextLogEvents_CALLBACK NULL
 #define NextLogEvents_DEFAULT NULL
 #define NextLogEvents_elements_MSGTYPE LogEvent
 
 #define ActiveLogEvents_FIELDLIST(X, a) \
-X(a, CALLBACK, REPEATED, UINT32,   id,                1)
-#define ActiveLogEvents_CALLBACK pb_default_field_callback
+X(a, STATIC,   REPEATED, UINT32,   id,                1)
+#define ActiveLogEvents_CALLBACK NULL
 #define ActiveLogEvents_DEFAULT NULL
 
 #define BatteryPower_FIELDLIST(X, a) \
@@ -635,8 +637,8 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define Announcement_size                        72
 #define LogEvent_size                            88
 #define ExpectedLogEvent_size                    6
-/* NextLogEvents_size depends on runtime parameters */
-/* ActiveLogEvents_size depends on runtime parameters */
+#define NextLogEvents_size                       198
+#define ActiveLogEvents_size                     192
 #define BatteryPower_size                        8
 #define ScreenStatus_size                        2
 #define AlarmMute_size                           7

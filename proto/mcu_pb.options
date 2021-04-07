@@ -1,1 +1,3 @@
-Announcement.announcement     max_size:64
+NextLogEvents.elements max_count:2
+ActiveLogEvents.id max_count:32
+Announcement.announcement max_size:64
