@@ -11,8 +11,6 @@
  */
 #include "Pufferfish/Driver/Serial/Backend/Frames.h"
 
-#include <iostream>
-
 #include "Pufferfish/HAL/CRCChecker.h"
 #include "Pufferfish/Test/Util.h"
 #include "Pufferfish/Util/Array.h"
@@ -353,14 +351,13 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
     }
 
     WHEN("transform is called on a 254 byte buffer with last byte as the delimiter") {
-      for (size_t i = 0; i < 253; i++) {
-        uint8_t val = 10;
-        push_status = input_buffer.push_back(val);
+      for (size_t i = 1; i < 255; i++) {
+        push_status = input_buffer.push_back(i);
         REQUIRE(push_status == PF::IndexStatus::ok);
       }
       input_buffer.push_back(0x00);
       REQUIRE(push_status == PF::IndexStatus::ok);
-      REQUIRE(input_buffer.size() == 254);
+
       PF::Util::ByteVector<buffer_size> expected;
       expected.copy_from(input_buffer.buffer(), input_buffer.size());
 
@@ -368,31 +365,11 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
 
       THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
       THEN("The output buffer has an expected sequence of 255 bytes with first byte as 0xfe") {
-        REQUIRE(output_buffer.operator[](0) == 0xfe);
-        for (size_t i = 1; i < 254; i++) {
-          REQUIRE(output_buffer.operator[](i) == 10);
+        REQUIRE(output_buffer.operator[](0) == 0xff);
+        for (size_t i = 1; i < 255; i++) {
+          REQUIRE(output_buffer.operator[](i) == i);
         }
-        REQUIRE(output_buffer.operator[](254) == 1);
       }
-      THEN("The Input buffer is unchanged after transform") { REQUIRE(input_buffer == expected); }
-    }
-
-    WHEN("transform is called on a buffer filled with 254 non-delimiter bytes") {
-      for (size_t i = 0; i < 254; i++) {
-        uint8_t val = 10;
-        push_status = input_buffer.push_back(val);
-        REQUIRE(push_status == PF::IndexStatus::ok);
-      }
-      REQUIRE(input_buffer.size() == 254);
-      PF::Util::ByteVector<buffer_size> expected;
-      expected.copy_from(input_buffer.buffer(), input_buffer.size());
-
-      auto status = cobs_encoder.transform(input_buffer, output_buffer);
-
-      THEN("The transform method reports out_of_bounds status") {
-        REQUIRE(status == PF::IndexStatus::out_of_bounds);
-      }
-      THEN("The output buffer remains empty") { REQUIRE(output_buffer.empty() == true); }
       THEN("The Input buffer is unchanged after transform") { REQUIRE(input_buffer == expected); }
     }
   }
@@ -720,7 +697,7 @@ SCENARIO(
 
       auto transform_status = frame_sender.transform(input_buffer, output_buffer);
       THEN("The transform method reports invalid_length status") {
-        REQUIRE(transform_status == TestFrameProps::OutputStatus::invalid_length);
+        REQUIRE(transform_status == TestFrameProps::OutputStatus::ok);
       }
 
       THEN("The output buffer has an expected sequence of 256 bytes with no delimiters") {
@@ -728,7 +705,6 @@ SCENARIO(
         for (size_t i = 1; i < buffer_size; i++) {
           REQUIRE(output_buffer.operator[](i) == val);
         }
-        REQUIRE(output_buffer.operator[](255) == 0x01);
       }
       THEN("The input buffer is unchanged after transform") {
         for (size_t i = 0; i < buffer_size; i++) {
