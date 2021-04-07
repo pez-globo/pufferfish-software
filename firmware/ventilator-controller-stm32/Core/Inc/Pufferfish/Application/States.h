@@ -15,6 +15,14 @@ namespace Pufferfish::Application {
 
 // Type tags
 
+// To add a new message type, add it to MessageTypes, MessageTypeValues,
+// and Driver::Serial::Backend::message_descriptors. Then add a setter to
+// States.cpp using the STATESEGMENT_TAGGED_SETTER macro, add setters and
+// getters to the States class as needed, and add switch cases to the
+// States::input and States::output methods.
+// To make the Backend recognize it as an input, add it to
+// Driver::Serial::Backend::InputStates. To make Backend send it as an
+// output, add it to Driver::Serial::Backend::state_sync_schedule.
 enum class MessageTypes : uint8_t {
   unknown = 0,
   sensor_measurements = 2,
@@ -37,7 +45,10 @@ using MessageTypeValues = Util::EnumValues<
     MessageTypes::parameters,
     MessageTypes::parameters_request,
     MessageTypes::alarm_limits,
-    MessageTypes::alarm_limits_request>;
+    MessageTypes::alarm_limits_request,
+    MessageTypes::expected_log_event,
+    MessageTypes::next_log_events,
+    MessageTypes::active_log_events>;
 
 // Since nanopb is running dynamically, we cannot have extensive compile-time type-checking.
 // It's not clear how we might use variants to replace this union, since the nanopb functions

@@ -49,6 +49,7 @@ void UARTBackend::update_clock(uint32_t current_time) {
 void UARTBackend::send() {
   // Create a new output to write if needed
   if (sent_ >= send_output_.size()) {
+    backend_.update_list_senders();
     switch (backend_.output(send_output_)) {
       case Backend::Status::ok:  // ready to write to UART
         sent_ = 0;

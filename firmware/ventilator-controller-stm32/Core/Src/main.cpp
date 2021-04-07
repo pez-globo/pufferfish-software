@@ -122,7 +122,8 @@ volatile Pufferfish::HAL::LargeBufferedUART fdo2_uart(huart7, time);
 volatile Pufferfish::HAL::ReadOnlyBufferedUART nonin_oem_uart(huart4, time);
 
 // UART Serial Communication
-PF::Driver::Serial::Backend::UARTBackend backend(backend_uart, crc32c, all_states);
+PF::Driver::Serial::Backend::LogEventsSender log_events_sender;
+PF::Driver::Serial::Backend::UARTBackend backend(backend_uart, crc32c, all_states, log_events_sender);
 
 // Create an object for ADC3 of AnalogInput Class
 static const uint32_t adc_poll_timeout = 10;
@@ -535,10 +536,6 @@ int main(void)
   board_led1.write(false);
 
   // Debugging test
-  all_states.next_log_events().next_expected = 1;
-  all_states.next_log_events().total = 1;
-  all_states.next_log_events().remaining = 0;
-  all_states.next_log_events().elements_count = 1;
   LogEvent event{
     0,
     time.millis(),
@@ -546,9 +543,15 @@ int main(void)
     LogEventType::LogEventType_control};
   event.old_float = 21;
   event.new_float = 50;
-  all_states.next_log_events().elements[0] = event;
+  LogEvent discard;
+  log_events_sender.input(event, discard);
+  event.id = 1;
+  event.code = LogEventCode::LogEventCode_flow_setting_changed;
+  event.old_float = 10;
+  event.new_float = 30;
+  log_events_sender.input(event, discard);
   all_states.active_log_events().id_count = 1;
-  all_states.active_log_events().id[0] = 0;
+  all_states.active_log_events().id[0] = 1;
 
   // Normal loop
   while (true) {

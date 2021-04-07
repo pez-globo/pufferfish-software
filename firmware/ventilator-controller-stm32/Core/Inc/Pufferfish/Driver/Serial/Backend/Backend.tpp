@@ -134,6 +134,10 @@ BackendSender::Status BackendSender::transform(
 
 // Backend
 
+constexpr bool Backend::accept_message(Application::MessageTypes type) noexcept {
+  return InputStates::includes(type);
+}
+
 Backend::Status Backend::input(uint8_t new_byte) {
   // Input into receiver
   switch (receiver_.input(new_byte)) {
@@ -188,20 +192,22 @@ void Backend::update_clock(uint32_t current_time) {
   synchronizer_.input(current_time);
 }
 
-constexpr bool Backend::accept_message(Application::MessageTypes type) noexcept {
-  return type == Application::MessageTypes::parameters_request ||
-         type == Application::MessageTypes::alarm_limits_request;
+void Backend::update_list_senders() {
+  if (log_events_sender_.input(states_.expected_log_event().id) != Protocols::ListInputStatus::ok) {
+    // TODO(lietk12): handle warning case
+  }
+  log_events_sender_.output(states_.next_log_events());
 }
 
 Backend::Status Backend::output(FrameProps::ChunkBuffer &output_buffer) {
   // Output from state synchronization
   BackendMessage message;
   switch (synchronizer_.output(message.payload)) {
-    case BackendStateSynchronizer::OutputStatus::ok:
+    case StateSynchronizer::OutputStatus::ok:
       break;
-    case BackendStateSynchronizer::OutputStatus::invalid_type:
+    case StateSynchronizer::OutputStatus::invalid_type:
       return Status::invalid;
-    case BackendStateSynchronizer::OutputStatus::waiting:
+    case StateSynchronizer::OutputStatus::waiting:
       return Status::waiting;
   }
 

@@ -14,9 +14,11 @@
 #include "Pufferfish/HAL/Interfaces/CRCChecker.h"
 #include "Pufferfish/Protocols/CRCElements.h"
 #include "Pufferfish/Protocols/Datagrams.h"
+#include "Pufferfish/Protocols/Lists.h"
 #include "Pufferfish/Protocols/Messages.h"
 #include "Pufferfish/Protocols/States.h"
 #include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Enums.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
@@ -60,6 +62,12 @@ using BackendMessage = Protocols::Message<
     Application::MessageTypeValues,
     Protocols::DatagramProps<
         Driver::Serial::Backend::FrameProps::payload_max_size>::payload_max_size>;
+
+using InputStates = Util::EnumValues<
+    Application::MessageTypes,
+    Application::MessageTypes::parameters_request,
+    Application::MessageTypes::alarm_limits_request,
+    Application::MessageTypes::expected_log_event>;
 
 class BackendReceiver {
  public:
@@ -131,23 +139,31 @@ class BackendSender {
   FrameSender frame_;
 };
 
+
+static const size_t log_events_list_buffer_len = 128;
+static const size_t next_log_events_max_elems = 2;
+using LogEventsSender = Protocols::ListSender<
+    NextLogEvents, LogEvent, log_events_list_buffer_len, next_log_events_max_elems>;
+
 class Backend {
  public:
   enum class Status { ok = 0, waiting, invalid };
 
-  Backend(HAL::CRC32 &crc32c, Application::States &states)
+  Backend(HAL::CRC32 &crc32c, Application::States &states, LogEventsSender &sender)
       : receiver_(crc32c),
         sender_(crc32c),
         states_(states),
-        synchronizer_(states, state_sync_schedule) {}
+        synchronizer_(states, state_sync_schedule),
+        log_events_sender_(sender){}
 
   static constexpr bool accept_message(Application::MessageTypes type) noexcept;
   Status input(uint8_t new_byte);
   void update_clock(uint32_t current_time);
+  void update_list_senders();
   Status output(FrameProps::ChunkBuffer &output_buffer);
 
  private:
-  using BackendStateSynchronizer = Protocols::StateSynchronizer<
+  using StateSynchronizer = Protocols::StateSynchronizer<
       Application::States,
       Application::StateSegment,
       Application::MessageTypes,
@@ -156,7 +172,8 @@ class Backend {
   BackendReceiver receiver_;
   BackendSender sender_;
   Application::States &states_;
-  BackendStateSynchronizer synchronizer_;
+  StateSynchronizer synchronizer_;
+  LogEventsSender &log_events_sender_;
 };
 
 }  // namespace Pufferfish::Driver::Serial::Backend

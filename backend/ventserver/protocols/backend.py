@@ -202,7 +202,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
 
         # Maintain internal data connections
         # This is disabled because for testing we are routing events directly
-        # from the MCU to the frontend.
+        # from the MCU to the frontend. We'll want to instead have a log
+        # events receiver and a log events sender.
         # self._handle_log_events_sending()
 
         # Output any scheduled outbound state update
