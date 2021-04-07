@@ -8,6 +8,7 @@ import {
   AlarmMuteRequest,
   CycleMeasurements,
   LogEvent,
+  ExpectedLogEvent,
   Parameters,
   ParametersRequest,
   SensorMeasurements,
@@ -276,6 +277,10 @@ export const getNextLogEvents = createSelector(
 export const getExpectedLogEvent = createSelector(
   getController,
   (states: ControllerStates): number => states.expectedLogEvent.id,
+);
+export const getFullExpectedLogEvent = createSelector(
+  getController,
+  (states: ControllerStates): ExpectedLogEvent => states.expectedLogEvent,
 );
 
 // Active log event Ids
