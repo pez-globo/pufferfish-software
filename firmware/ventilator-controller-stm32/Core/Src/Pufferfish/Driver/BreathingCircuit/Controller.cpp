@@ -23,7 +23,8 @@ void HFNCController::transform(
   }
 
   // Open-loop setpoints
-  float flow_o2_ratio = (parameters.fio2 - allowed_fio2.lower) / (allowed_fio2.upper - allowed_fio2.lower);
+  float flow_o2_ratio =
+      (parameters.fio2 - allowed_fio2.lower) / (allowed_fio2.upper - allowed_fio2.lower);
   if (parameters.ventilating) {
     actuator_setpoints.flow_o2 = flow_o2_ratio * parameters.flow;
     actuator_setpoints.flow_air = parameters.flow - actuator_setpoints.flow_o2;

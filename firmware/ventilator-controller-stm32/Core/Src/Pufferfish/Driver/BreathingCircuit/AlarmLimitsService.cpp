@@ -6,25 +6,27 @@
  */
 
 #include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
+
 #include "Pufferfish/Util/Ranges.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
 // Update functions
 
-Range transform_limits_range(
-    uint32_t floor, uint32_t ceiling, Range request, Range current) {
+Range transform_limits_range(uint32_t floor, uint32_t ceiling, Range request, Range current) {
   if (current.lower > current.upper) {
     std::swap(current.lower, current.upper);
   }
   if (request.lower > request.upper) {
     std::swap(request.lower, request.upper);
   }
-  if (!Util::within(current.lower, floor, current.upper) || !Util::within(current.upper, current.lower, ceiling)) {
+  if (!Util::within(current.lower, floor, current.upper) ||
+      !Util::within(current.upper, current.lower, ceiling)) {
     request.lower = Util::clamp(request.lower, floor, ceiling);
     request.upper = Util::clamp(request.upper, floor, ceiling);
   }
-  if (Util::within(request.lower, floor, request.upper) && Util::within(request.upper, request.lower, ceiling)) {
+  if (Util::within(request.lower, floor, request.upper) &&
+      Util::within(request.upper, request.lower, ceiling)) {
     return request;
   }
 
@@ -32,7 +34,10 @@ Range transform_limits_range(
 }
 
 void service_limits_range(
-    Range request, Range &response, const Range &allowed, LogEventCode code,
+    Range request,
+    Range &response,
+    const Range &allowed,
+    LogEventCode code,
     Application::LogEventsManager &log_manager) {
   Range old_response;
   old_response = response;
@@ -54,26 +59,41 @@ void service_limits_range(
 // AlarmLimitsService
 
 void AlarmLimitsService::service_fio2(
-    const AlarmLimitsRequest &request, AlarmLimits &response, Application::LogEventsManager &log_manager) {
+    const AlarmLimitsRequest &request,
+    AlarmLimits &response,
+    Application::LogEventsManager &log_manager) {
   service_limits_range(
-    request.fio2, response.fio2, allowed_fio2,
-    LogEventCode::LogEventCode_fio2_alarm_limits_changed, log_manager);
+      request.fio2,
+      response.fio2,
+      allowed_fio2,
+      LogEventCode::LogEventCode_fio2_alarm_limits_changed,
+      log_manager);
   response.has_fio2 = true;
 }
 
 void AlarmLimitsService::service_spo2(
-    const AlarmLimitsRequest &request, AlarmLimits &response, Application::LogEventsManager &log_manager) {
+    const AlarmLimitsRequest &request,
+    AlarmLimits &response,
+    Application::LogEventsManager &log_manager) {
   service_limits_range(
-    request.spo2, response.spo2, allowed_spo2,
-    LogEventCode::LogEventCode_spo2_alarm_limits_changed, log_manager);
+      request.spo2,
+      response.spo2,
+      allowed_spo2,
+      LogEventCode::LogEventCode_spo2_alarm_limits_changed,
+      log_manager);
   response.has_spo2 = true;
 }
 
 void AlarmLimitsService::service_hr(
-    const AlarmLimitsRequest &request, AlarmLimits &response, Application::LogEventsManager &log_manager) {
+    const AlarmLimitsRequest &request,
+    AlarmLimits &response,
+    Application::LogEventsManager &log_manager) {
   service_limits_range(
-    request.hr, response.hr, allowed_hr,
-    LogEventCode::LogEventCode_hr_alarm_limits_changed, log_manager);
+      request.hr,
+      response.hr,
+      allowed_hr,
+      LogEventCode::LogEventCode_hr_alarm_limits_changed,
+      log_manager);
   response.has_hr = true;
 }
 

@@ -12,8 +12,8 @@
 #include <cstdint>
 
 #include "Controller.h"
-#include "Pufferfish/Application/States.h"
 #include "Pufferfish/Application/LogEvents.h"
+#include "Pufferfish/Application/States.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
@@ -57,7 +57,7 @@ class HFNCParameters : public ParametersService {
   static constexpr Range allowed_flow{0, 80};  // L/min
 
   static void service_flow(
-        float request, float &response, Application::LogEventsManager &log_manager);
+      float request, float &response, Application::LogEventsManager &log_manager);
 
   void transform(
       const ParametersRequest &parameters_request,

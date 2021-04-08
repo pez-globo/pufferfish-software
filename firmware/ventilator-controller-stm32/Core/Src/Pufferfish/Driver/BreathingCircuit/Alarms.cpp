@@ -6,6 +6,7 @@
  */
 
 #include "Pufferfish/Driver/BreathingCircuit/Alarms.h"
+
 #include "Pufferfish/Util/Ranges.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
@@ -51,20 +52,18 @@ IndexStatus AlarmsManager::transform(ActiveLogEvents &active_log_events) const {
 // AlarmsService
 
 void AlarmsService::check_parameter(
-      const Range &alarm_limits,
-      float measured_value,
-      LogEventCode too_low_code,
-      LogEventCode too_high_code,
-      AlarmsManager &alarms_manager) {
+    const Range &alarm_limits,
+    float measured_value,
+    LogEventCode too_low_code,
+    LogEventCode too_high_code,
+    AlarmsManager &alarms_manager) {
   if (measured_value < alarm_limits.lower) {
-    alarms_manager.activate_alarm(
-        too_low_code, LogEventType::LogEventType_patient, alarm_limits);
+    alarms_manager.activate_alarm(too_low_code, LogEventType::LogEventType_patient, alarm_limits);
   } else {
     alarms_manager.deactivate_alarm(too_low_code);
   }
   if (measured_value > alarm_limits.upper) {
-    alarms_manager.activate_alarm(
-            too_high_code, LogEventType::LogEventType_patient, alarm_limits);
+    alarms_manager.activate_alarm(too_high_code, LogEventType::LogEventType_patient, alarm_limits);
   } else {
     alarms_manager.deactivate_alarm(too_high_code);
   }
@@ -82,19 +81,17 @@ void AlarmsService::transform(
   }
 
   check_parameter(
-    alarm_limits.spo2,
-    sensor_measurements.spo2,
-    LogEventCode::LogEventCode_spo2_too_low,
-    LogEventCode::LogEventCode_spo2_too_high,
-    alarms_manager
-  );
+      alarm_limits.spo2,
+      sensor_measurements.spo2,
+      LogEventCode::LogEventCode_spo2_too_low,
+      LogEventCode::LogEventCode_spo2_too_high,
+      alarms_manager);
   check_parameter(
-    alarm_limits.hr,
-    sensor_measurements.hr,
-    LogEventCode::LogEventCode_hr_too_low,
-    LogEventCode::LogEventCode_hr_too_high,
-    alarms_manager
-  );
+      alarm_limits.hr,
+      sensor_measurements.hr,
+      LogEventCode::LogEventCode_hr_too_low,
+      LogEventCode::LogEventCode_hr_too_high,
+      alarms_manager);
 
   alarms_manager.transform(active_log_events);
 }

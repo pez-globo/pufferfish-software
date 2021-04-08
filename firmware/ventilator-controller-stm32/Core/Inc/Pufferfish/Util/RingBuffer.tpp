@@ -88,7 +88,8 @@ BufferStatus RingBuffer<buffer_size, ElementType>::peek(ElementType &peek_elemen
 }
 
 template <HAL::AtomicSize buffer_size, typename ElementType>
-BufferStatus RingBuffer<buffer_size, ElementType>::peek(ElementType &peek_element, size_t offset) const {
+BufferStatus RingBuffer<buffer_size, ElementType>::peek(
+    ElementType &peek_element, size_t offset) const {
   HAL::AtomicSize peek_index = oldest_index_;
   if (peek_index == newest_index_) {
     return BufferStatus::empty;

@@ -12,24 +12,33 @@
 #include <cstdint>
 
 #include "Controller.h"
-#include "Pufferfish/Application/States.h"
 #include "Pufferfish/Application/LogEvents.h"
+#include "Pufferfish/Application/States.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
 Range transform_limits_range(uint32_t floor, uint32_t ceiling, Range request, Range current);
 void service_limits_range(
-    Range request, Range &response, const Range &allowed, LogEventCode code,
+    Range request,
+    Range &response,
+    const Range &allowed,
+    LogEventCode code,
     Application::LogEventsManager &log_manager);
 
 class AlarmLimitsService {
  public:
   static void service_fio2(
-      const AlarmLimitsRequest &request, AlarmLimits &response, Application::LogEventsManager &log_manager);
+      const AlarmLimitsRequest &request,
+      AlarmLimits &response,
+      Application::LogEventsManager &log_manager);
   static void service_spo2(
-      const AlarmLimitsRequest &request, AlarmLimits &response, Application::LogEventsManager &log_manager);
+      const AlarmLimitsRequest &request,
+      AlarmLimits &response,
+      Application::LogEventsManager &log_manager);
   static void service_hr(
-      const AlarmLimitsRequest &request, AlarmLimits &response, Application::LogEventsManager &log_manager);
+      const AlarmLimitsRequest &request,
+      AlarmLimits &response,
+      Application::LogEventsManager &log_manager);
 
   virtual void transform(
       const AlarmLimitsRequest &alarm_limits_request,

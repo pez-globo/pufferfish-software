@@ -32,11 +32,11 @@
 #include <functional>
 
 #include "Pufferfish/AlarmsManager.h"
-#include "Pufferfish/Application/States.h"
 #include "Pufferfish/Application/LogEvents.h"
-#include "Pufferfish/Application/mcu_pb.h" // Only used for debugging
-#include "Pufferfish/Driver/BreathingCircuit/Alarms.h"
+#include "Pufferfish/Application/States.h"
+#include "Pufferfish/Application/mcu_pb.h"  // Only used for debugging
 #include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
+#include "Pufferfish/Driver/BreathingCircuit/Alarms.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
@@ -128,7 +128,8 @@ volatile Pufferfish::HAL::LargeBufferedUART fdo2_uart(huart7, time);
 volatile Pufferfish::HAL::ReadOnlyBufferedUART nonin_oem_uart(huart4, time);
 
 // UART Serial Communication
-PF::Driver::Serial::Backend::UARTBackend backend(backend_uart, crc32c, all_states, log_events_sender);
+PF::Driver::Serial::Backend::UARTBackend backend(
+    backend_uart, crc32c, all_states, log_events_sender);
 
 // Create an object for ADC3 of AnalogInput Class
 static const uint32_t adc_poll_timeout = 10;
@@ -193,7 +194,7 @@ PF::HAL::HALDigitalOutput alarm_buzzer(
 PF::Driver::Indicators::LEDAlarm alarm_dev_led(alarm_led_r, alarm_led_g, alarm_led_b);
 PF::Driver::Indicators::AuditoryAlarm alarm_dev_sound(
     alarm_reg_high, alarm_reg_med, alarm_reg_low, alarm_buzzer);
-//PF::AlarmsManager h_alarms(alarm_dev_led, alarm_dev_sound);
+// PF::AlarmsManager h_alarms(alarm_dev_led, alarm_dev_sound);
 
 PF::HAL::HALDigitalInput button_alarm_en(
     *SET_ALARM_EN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
@@ -577,9 +578,7 @@ int main(void)
 
     // Request/response services update
     parameters_service.transform(
-        all_states.parameters_request(),
-        all_states.parameters(),
-        log_events_manager);
+        all_states.parameters_request(), all_states.parameters(), log_events_manager);
     alarm_limits_service.transform(
         all_states.parameters(),
         all_states.alarm_limits_request(),
@@ -596,9 +595,7 @@ int main(void)
 
     // Independent Sensors
     fdo2.output(hfnc.sensor_vars().po2);
-    nonin_oem.output(
-        all_states.sensor_measurements().spo2,
-        all_states.sensor_measurements().hr);
+    nonin_oem.output(all_states.sensor_measurements().spo2, all_states.sensor_measurements().hr);
 
     // Breathing Circuit Control Loop
     hfnc.update(current_time);

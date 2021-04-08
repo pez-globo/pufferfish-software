@@ -22,7 +22,6 @@ enum class ListInputStatus { ok = 0, stale_next_expected, oldest_overwritten };
 template <typename ListSegment, typename ListElement, size_t max_buffer_len, size_t max_segment_len>
 class ListSender {
  public:
-
   using Segment = ListSegment;
   using Element = ListElement;
 

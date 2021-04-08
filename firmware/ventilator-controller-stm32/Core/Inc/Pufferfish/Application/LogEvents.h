@@ -17,8 +17,7 @@ class IncrementalEventsSender {
  public:
   using Element = typename LogEventsSender::Element;
 
-  IncrementalEventsSender(LogEventsSender &sender) :
-    sender_(sender) {}
+  IncrementalEventsSender(LogEventsSender &sender) : sender_(sender) {}
 
   void update_time(uint32_t current_time);
   // Create a new event with the provided data. The id and time fields
@@ -34,8 +33,8 @@ class IncrementalEventsSender {
 };
 
 static const size_t log_events_list_buffer_len = 128;
-using LogEventsSender = Protocols::ListSender<
-    NextLogEvents, LogEvent, log_events_list_buffer_len, next_log_events_max_elems>;
+using LogEventsSender = Protocols::
+    ListSender<NextLogEvents, LogEvent, log_events_list_buffer_len, next_log_events_max_elems>;
 using LogEventsManager = IncrementalEventsSender<LogEventsSender>;
 
 }  // namespace Pufferfish::Application

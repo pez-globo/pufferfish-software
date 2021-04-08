@@ -5,8 +5,9 @@
  *      Author: Ethan Li
  */
 
-#include "Pufferfish/Application/mcu_pb.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
+
+#include "Pufferfish/Application/mcu_pb.h"
 #include "Pufferfish/Util/Ranges.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {

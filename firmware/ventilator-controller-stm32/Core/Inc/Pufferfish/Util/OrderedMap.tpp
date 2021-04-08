@@ -7,7 +7,6 @@
 
 #pragma once
 
-
 #include "OrderedMap.h"
 
 namespace Pufferfish::Util {

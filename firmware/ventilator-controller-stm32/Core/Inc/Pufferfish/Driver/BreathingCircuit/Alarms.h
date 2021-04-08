@@ -11,8 +11,8 @@
 
 #include <cstdint>
 
-#include "Pufferfish/Statuses.h"
 #include "Pufferfish/Application/LogEvents.h"
+#include "Pufferfish/Statuses.h"
 #include "Pufferfish/Util/Array.h"
 #include "Pufferfish/Util/OrderedMap.h"
 
@@ -31,11 +31,9 @@ static constexpr auto alarm_codes = Util::make_array<LogEventCode>(
 
 class AlarmsManager {
  public:
-  AlarmsManager(Application::LogEventsManager &log_manager) :
-    log_manager_(log_manager) {}
+  AlarmsManager(Application::LogEventsManager &log_manager) : log_manager_(log_manager) {}
 
-  void activate_alarm(
-      LogEventCode alarm_code, LogEventType alarm_type, const Range &alarm_limits);
+  void activate_alarm(LogEventCode alarm_code, LogEventType alarm_type, const Range &alarm_limits);
   void deactivate_alarm(LogEventCode alarm_code);
   IndexStatus transform(ActiveLogEvents &active_log_events) const;
 

@@ -10,8 +10,8 @@
 #include <cstdint>
 
 #include "Frames.h"
-#include "Pufferfish/Application/States.h"
 #include "Pufferfish/Application/LogEvents.h"
+#include "Pufferfish/Application/States.h"
 #include "Pufferfish/HAL/Interfaces/CRCChecker.h"
 #include "Pufferfish/Protocols/CRCElements.h"
 #include "Pufferfish/Protocols/Datagrams.h"
@@ -149,7 +149,7 @@ class Backend {
         sender_(crc32c),
         states_(states),
         synchronizer_(states, state_sync_schedule),
-        log_events_sender_(sender){}
+        log_events_sender_(sender) {}
 
   static constexpr bool accept_message(Application::MessageTypes type) noexcept;
   Status input(uint8_t new_byte);

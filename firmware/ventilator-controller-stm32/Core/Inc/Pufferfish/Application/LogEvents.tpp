@@ -22,7 +22,8 @@ void IncrementalEventsSender<ListSender>::add_event(Element event, uint32_t &id)
   event.time = time_;
   Element overwritten;
   sender_.input(event, overwritten);
-  // TODO(lietk12): if an event was overwritten, increment a counter somewhere to support investigations
+  // TODO(lietk12): if an event was overwritten, increment a counter somewhere to support
+  // investigations
   id = event.id;
   ++next_event_id_;
 }
