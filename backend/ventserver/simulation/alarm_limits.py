@@ -12,17 +12,24 @@ from ventserver.protocols.protobuf import mcu_pb
 from ventserver.simulation import log
 
 
+# Update Functions
+
 def transform_limits_range(
         floor: int, ceiling: int, requested_min: int, requested_max: int,
         current_min: int, current_max: int
 ) -> Tuple[int, int]:
     """Return requested if between floor and ceiling, or else return current."""
-    if floor <= requested_min <= requested_max <= ceiling:
-        return (requested_min, requested_max)
-    current_min = max(current_min, floor)
-    current_max = min(current_max, ceiling)
+    if current_min > current_max:
+        (current_min, current_max) = (current_max, current_min)
+    if requested_min > requested_max:
+        (requested_min, requested_max) = (requested_max, requested_min)
+    if not floor <= current_min <= current_max <= ceiling:
+        requested_min = min(ceiling, max(floor, requested_min))
+        requested_max = min(ceiling, max(floor, requested_max))
+    if not floor <= requested_min <= requested_max <= ceiling:
+        return (current_min, current_max)
 
-    return (current_min, current_max)
+    return (requested_min, requested_max)
 
 
 def service_limits_range(
@@ -30,21 +37,24 @@ def service_limits_range(
         code: mcu_pb.LogEventCode, log_manager: log.Manager
 ) -> None:
     """Handle the request's alarm limits range."""
-    (new_lower, new_upper) = transform_limits_range(
+    old_response = dataclasses.replace(response)
+    (response.lower, response.upper) = transform_limits_range(
         floor, ceiling, request.lower, request.upper,
         response.lower, response.upper
     )
-    if response.lower == new_lower and response.upper == new_upper:
+    if (
+            old_response.lower == response.lower and
+            old_response.upper == response.upper
+    ):
         return
 
-    old_response = dataclasses.replace(response)
-    response.lower = new_lower
-    response.upper = new_upper
     new_response = dataclasses.replace(response)
     log_manager.add_event(mcu_pb.LogEvent(
         code=code, type=mcu_pb.LogEventType.alarm_limits,
         old_range=old_response, new_range=new_response
     ))
+
+
 # Services
 
 

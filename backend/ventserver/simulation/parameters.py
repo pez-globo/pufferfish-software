@@ -46,6 +46,18 @@ def service_ventilating(
     response.ventilating = request.ventilating
 
 
+def transform_parameter(
+        floor: float, ceiling: float, request: float, current: float
+) -> float:
+    """Return requested if between floor and ceiling, or else return current."""
+    if not floor <= current <= ceiling:
+        request = min(ceiling, max(floor, request))
+    if floor <= request <= ceiling:
+        return request
+
+    return current
+
+
 # Services
 
 
@@ -72,19 +84,17 @@ class Service(abc.ABC):
             response: mcu_pb.Parameters, log_manager: log.Manager
     ) -> None:
         """Handle the request's FiO2."""
-        if not self.FIO2_MIN <= request.fio2 <= self.FIO2_MAX:
+        old_response = response.fio2
+        response.fio2 = transform_parameter(
+            self.FIO2_MIN, self.FIO2_MAX, request.fio2, response.fio2)
+        if old_response == response.fio2:
             return
 
-        if response.fio2 == request.fio2:
-            return
-
-        print(request.fio2, response.fio2)
         log_manager.add_event(mcu_pb.LogEvent(
             code=mcu_pb.LogEventCode.fio2_setting_changed,
             type=mcu_pb.LogEventType.control,
-            old_float=response.fio2, new_float=request.fio2
+            old_float=old_response, new_float=response.fio2
         ))
-        response.fio2 = request.fio2
 
 
 class PCAC(Service):
@@ -142,18 +152,17 @@ class HFNC(Service):
             response: mcu_pb.Parameters, log_manager: log.Manager
     ) -> None:
         """Handle the request's flow rate."""
-        if not self.FLOW_MIN <= request.flow <= self.FLOW_MAX:
-            return
-
-        if response.flow == request.flow:
+        old_response = response.flow
+        response.flow = transform_parameter(
+            self.FLOW_MIN, self.FLOW_MAX, request.flow, response.flow)
+        if old_response == response.flow:
             return
 
         log_manager.add_event(mcu_pb.LogEvent(
             code=mcu_pb.LogEventCode.flow_setting_changed,
             type=mcu_pb.LogEventType.control,
-            old_float=response.flow, new_float=request.flow
+            old_float=old_response, new_float=response.flow
         ))
-        response.flow = request.flow
 
 
 # Aggregation
