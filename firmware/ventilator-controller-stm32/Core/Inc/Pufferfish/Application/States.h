@@ -15,6 +15,7 @@ namespace Pufferfish::Application {
 
 // Message constants
 static const size_t next_log_events_max_elems = 2;
+static const size_t active_log_events_max_elems = 32;
 
 // Type tags
 

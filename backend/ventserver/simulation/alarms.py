@@ -57,10 +57,14 @@ class Service:
     """Base class for a breathing circuit simulator."""
 
     ALARM_CODES = {
-        mcu_pb.LogEventCode.spo2_too_low,
-        mcu_pb.LogEventCode.spo2_too_high,
         mcu_pb.LogEventCode.fio2_too_low,
         mcu_pb.LogEventCode.fio2_too_high,
+        mcu_pb.LogEventCode.spo2_too_low,
+        mcu_pb.LogEventCode.spo2_too_high,
+        mcu_pb.LogEventCode.rr_too_low,
+        mcu_pb.LogEventCode.rr_too_high,
+        mcu_pb.LogEventCode.hr_too_low,
+        mcu_pb.LogEventCode.hr_too_high,
     }
 
     _manager: Manager = attr.ib(factory=Manager)

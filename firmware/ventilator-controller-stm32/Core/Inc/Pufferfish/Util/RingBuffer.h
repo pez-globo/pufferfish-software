@@ -46,7 +46,7 @@
 
 #pragma once
 
-#include <cstdint>
+#include <cstddef>
 
 #include "Pufferfish/HAL/Types.h"
 #include "Pufferfish/Statuses.h"

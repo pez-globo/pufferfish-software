@@ -21,7 +21,7 @@ void IncrementalEventsSender<ListSender>::add_event(Element event, uint32_t &id)
   event.id = next_event_id_;
   event.time = time_;
   Element overwritten;
-  Protocols::ListInputStatus status = sender_.input(event, overwritten);
+  sender_.input(event, overwritten);
   // TODO(lietk12): if an event was overwritten, increment a counter somewhere to support investigations
   id = event.id;
   ++next_event_id_;

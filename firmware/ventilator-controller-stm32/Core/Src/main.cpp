@@ -35,6 +35,7 @@
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/Application/LogEvents.h"
 #include "Pufferfish/Application/mcu_pb.h" // Only used for debugging
+#include "Pufferfish/Driver/BreathingCircuit/Alarms.h"
 #include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
@@ -192,7 +193,7 @@ PF::HAL::HALDigitalOutput alarm_buzzer(
 PF::Driver::Indicators::LEDAlarm alarm_dev_led(alarm_led_r, alarm_led_g, alarm_led_b);
 PF::Driver::Indicators::AuditoryAlarm alarm_dev_sound(
     alarm_reg_high, alarm_reg_med, alarm_reg_low, alarm_buzzer);
-PF::AlarmsManager h_alarms(alarm_dev_led, alarm_dev_sound);
+//PF::AlarmsManager h_alarms(alarm_dev_led, alarm_dev_sound);
 
 PF::HAL::HALDigitalInput button_alarm_en(
     *SET_ALARM_EN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
@@ -342,6 +343,10 @@ auto i2c_test_list = PF::Util::make_array<PF::Driver::Testable *>(
 
 int interface_test_state = 0;
 int interface_test_millis = 0;
+
+// Alarms
+PF::Driver::BreathingCircuit::AlarmsManager alarms_manager(log_events_manager);
+PF::Driver::BreathingCircuit::AlarmsServices breathing_circuit_alarms;
 
 // Breathing Circuit Control
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
@@ -595,6 +600,13 @@ int main(void)
 
     // Breathing Circuit Control Loop
     hfnc.update(current_time);
+    breathing_circuit_alarms.transform(
+        current_time,
+        all_states.parameters(),
+        all_states.alarm_limits(),
+        all_states.sensor_measurements(),
+        all_states.active_log_events(),
+        alarms_manager);
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;
