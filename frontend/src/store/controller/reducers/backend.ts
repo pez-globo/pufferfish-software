@@ -1,4 +1,9 @@
-import { LogEvent, NextLogEvents } from '../proto/mcu_pb';
+import {
+  LogEvent,
+  NextLogEvents,
+  ExpectedLogEvent,
+  ActiveLogEvents
+} from '../proto/mcu_pb';
 import { RotaryEncoder } from '../proto/frontend_pb';
 import {
   MessageType,
@@ -10,6 +15,7 @@ import {
   BACKEND_CONNECTION_LOST,
   BACKEND_CONNECTION_LOST_CODE,
   commitAction,
+  EventLog,
 } from '../types';
 
 export const messageReducer = <T extends PBMessage>(
@@ -27,39 +33,75 @@ export const messageReducer = <T extends PBMessage>(
   }
 };
 
-export const nextLogEventsReducer = (
-  state: NextLogEvents = NextLogEvents.fromJSON({}),
+export const eventLogReducer = (
+  state: EventLog = {
+    nextLogEvents: NextLogEvents.fromJSON({}),
+    expectedLogEvent: ExpectedLogEvent.fromJSON({ id: 0 }),
+    activeLogEvents: ActiveLogEvents.fromJSON({}),
+  },
   action: commitAction | StateUpdateAction,
-): NextLogEvents => {
+): EventLog => {
   switch (action.type) {
     case STATE_UPDATED: {
       const actionClone = { ...(action as StateUpdateAction) };
       if (actionClone.messageType === MessageType.NextLogEvents) {
         const newEventState = actionClone.state as NextLogEvents;
-        const oldEventState = state as NextLogEvents;
+        const oldEventState = state.nextLogEvents as NextLogEvents;
         if (!oldEventState || !oldEventState.elements.length) {
-          return newEventState as NextLogEvents;
+          // Initialize the elements list
+          const numElements = newEventState.elements.length;
+          const nextEventID = numElements ? newEventState.elements[numElements - 1].id + 1 : 0;
+          return {
+            ...state,
+            nextLogEvents: newEventState as NextLogEvents,
+            expectedLogEvent: { id: nextEventID },
+          };
         }
+
+        // Update the elements list with new ones
         const ids = new Set(oldEventState.elements.map((d) => d.id));
         const events = [
           ...oldEventState.elements.filter((d) => d.code !== BACKEND_CONNECTION_LOST_CODE),
           ...newEventState.elements.filter((d) => !ids.has(d.id)),
         ];
-        return {
+        const nextLogEvents = {
           ...newEventState,
           elements: events,
+        };
+        const numElements = nextLogEvents.elements.length;
+        const nextEventID = numElements ? nextLogEvents.elements[numElements - 1].id + 1 : 0;
+        return {
+          ...state,
+          nextLogEvents,
+          expectedLogEvent: { id: nextEventID },
+        };
+      }
+      if (actionClone.messageType === MessageType.ActiveLogEvents) {
+        return {
+          ...state,
+          activeLogEvents: actionClone.state as ActiveLogEvents,
         };
       }
       return state;
     }
     case BACKEND_CONNECTION_LOST: {
+      // Make an ephemeral frontend-only event
       const logEvent = (action.update as unknown) as LogEvent;
-      logEvent.id = state.elements.length ? state.elements.length + 1 : 1;
-      state.elements.push(logEvent);
       return {
         ...state,
-        nextExpected: logEvent.id + 1,
-        elements: state.elements,
+        nextLogEvents: {
+          ...state.nextLogEvents,
+          elements: [
+            ...state.nextLogEvents.elements,
+            {
+              ...logEvent,
+              id: state.expectedLogEvent.id,
+            },
+          ],
+        },
+        activeLogEvents: {
+          id: [...state.activeLogEvents.id, state.expectedLogEvent.id],
+        },
       };
     }
     default:

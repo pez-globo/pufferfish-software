@@ -1,11 +1,9 @@
 import { Button, Grid, TableCell, TableRow, Typography } from '@material-ui/core';
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { updateCommittedState } from '../../store/controller/actions';
+import { shallowEqual, useSelector } from 'react-redux';
 import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
 import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
-import { EXPECTED_LOG_EVENT_ID } from '../../store/controller/types';
 import { setMultiPopupOpen } from '../app/Service';
 import { AlarmModal } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';
@@ -89,7 +87,6 @@ const useStyles = makeStyles(() =>
 export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
-  const dispatch = useDispatch();
 
   const getEventTypeLabel = (type: LogEventType): string => {
     switch (type) {
@@ -134,13 +131,6 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const activeLogEventIds = useSelector(getActiveLogEventIds, shallowEqual);
   const settingsAllowed = ['hr', 'spo2'];
 
-  const updateLogEvent = useCallback(
-    (maxId) => {
-      dispatch(updateCommittedState(EXPECTED_LOG_EVENT_ID, { id: maxId + 1 }));
-    },
-    [dispatch],
-  );
-
   const getDetails = useCallback(getEventDetails, []);
 
   useEffect(() => {
@@ -184,9 +174,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
       }
     });
     setRows(data.length ? data : []);
-    // update ExpectedLogEvent
-    updateLogEvent(Math.max(...eventIds));
-  }, [loggedEvents, activeLogEventIds, updateLogEvent, filter, getDetails]);
+  }, [loggedEvents, activeLogEventIds, filter, getDetails]);
 
   const handleClose = () => {
     setOpen(false);

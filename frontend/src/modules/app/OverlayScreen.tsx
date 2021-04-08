@@ -16,6 +16,7 @@ import {
   BACKEND_CONNECTION_LOST_CODE,
   MessageType,
 } from '../../store/controller/types';
+import { LogEventType } from '../../store/controller/proto/mcu_pb';
 import ModalPopup from '../controllers/ModalPopup';
 import MultiStepWizard from '../displays/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
@@ -39,6 +40,8 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+export const BACKEND_CONNECTION_LOST_ALARM_TIMEOUT = 3000;
+
 export const HeartbeatBackendListener = (): JSX.Element => {
   const clock = useSelector(getClock);
   const dispatch = useDispatch();
@@ -47,17 +50,17 @@ export const HeartbeatBackendListener = (): JSX.Element => {
     const storeData = store.getState();
     const heartbeat: Date = storeData.controller.heartbeatBackend.time;
     const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
-    const events = storeData.controller.nextLogEvents.elements;
+    const events = storeData.controller.eventLog.nextLogEvents.elements;
     const lostConnectionAlarm = events.find(
       (el: LogEvent) => (el.code as number) === BACKEND_CONNECTION_LOST_CODE,
     );
-    // After 3 seconds of no connection
-    if (diff > 3000) {
+    if (diff > BACKEND_CONNECTION_LOST_ALARM_TIMEOUT) {
       if (!lostConnectionAlarm) {
         dispatch({
           type: BACKEND_CONNECTION_LOST,
           update: {
             code: BACKEND_CONNECTION_LOST_CODE,
+            type: LogEventType.system,
             time: new Date().getTime() / 1000,
           },
         });
