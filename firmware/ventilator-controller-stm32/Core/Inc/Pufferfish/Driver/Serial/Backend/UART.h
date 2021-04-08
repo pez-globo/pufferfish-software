@@ -19,7 +19,10 @@ class UARTBackend {
   using BufferedUART = HAL::LargeBufferedUART;
 
   UARTBackend(
-      volatile BufferedUART &uart, HAL::CRC32 &crc32c, Application::States &states, LogEventsSender &sender)
+      volatile BufferedUART &uart,
+      HAL::CRC32 &crc32c,
+      Application::States &states,
+      Application::LogEventsSender &sender)
       : uart_(uart), backend_(crc32c, states, sender) {}
 
   void setup_irq();

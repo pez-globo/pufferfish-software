@@ -140,17 +140,11 @@ class BackendSender {
   FrameSender frame_;
 };
 
-
-static const size_t log_events_list_buffer_len = 128;
-
-using LogEventsSender = Protocols::ListSender<
-    NextLogEvents, LogEvent, log_events_list_buffer_len, Application::next_log_events_max_elems>;
-
 class Backend {
  public:
   enum class Status { ok = 0, waiting, invalid };
 
-  Backend(HAL::CRC32 &crc32c, Application::States &states, LogEventsSender &sender)
+  Backend(HAL::CRC32 &crc32c, Application::States &states, Application::LogEventsSender &sender)
       : receiver_(crc32c),
         sender_(crc32c),
         states_(states),
@@ -174,7 +168,7 @@ class Backend {
   BackendSender sender_;
   Application::States &states_;
   StateSynchronizer synchronizer_;
-  LogEventsSender &log_events_sender_;
+  Application::LogEventsSender &log_events_sender_;
 };
 
 }  // namespace Pufferfish::Driver::Serial::Backend

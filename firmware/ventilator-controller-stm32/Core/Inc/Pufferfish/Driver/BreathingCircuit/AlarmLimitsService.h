@@ -13,38 +13,49 @@
 
 #include "Controller.h"
 #include "Pufferfish/Application/States.h"
+#include "Pufferfish/Application/LogEvents.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+Range transform_limits_range(uint32_t floor, uint32_t ceiling, Range request, Range current);
+void service_limits_range(
+    Range request, Range &response, const Range &allowed, LogEventCode code,
+    Application::LogEventsManager &log_manager);
+
 class AlarmLimitsService {
  public:
-  virtual void transform(const AlarmLimitsRequest &alarm_limits_request, AlarmLimits &alarm_limits) = 0;
+  static void service_fio2(
+      const AlarmLimitsRequest &request, AlarmLimits &response, Application::LogEventsManager &log_manager);
+  static void service_spo2(
+      const AlarmLimitsRequest &request, AlarmLimits &response, Application::LogEventsManager &log_manager);
+  static void service_hr(
+      const AlarmLimitsRequest &request, AlarmLimits &response, Application::LogEventsManager &log_manager);
 
-  static void transform_limits_range(
-      uint32_t floor,
-      uint32_t ceiling,
-      uint32_t min_request,
-      uint32_t max_request,
-      uint32_t &min_response,
-      uint32_t &max_response);
-
-  static void service_limits_range(
-      const Range &allowed_range, const Range &request, Range &response);
+  virtual void transform(
+      const AlarmLimitsRequest &alarm_limits_request,
+      AlarmLimits &alarm_limits,
+      Application::LogEventsManager &log_manager) = 0;
 
  protected:
   static constexpr Range allowed_fio2{21, 100};
-  static constexpr Range allowed_spo2{0, 100};
+  static constexpr Range allowed_spo2{21, 100};
   static constexpr Range allowed_hr{0, 200};
 };
 
 class PCACAlarmLimits : public AlarmLimitsService {
  public:
-  void transform(const AlarmLimitsRequest &alarm_limits_request, AlarmLimits &alarm_limits) override;
+  void transform(
+      const AlarmLimitsRequest &alarm_limits_request,
+      AlarmLimits &alarm_limits,
+      Application::LogEventsManager &log_manager) override;
 };
 
 class HFNCAlarmLimits : public AlarmLimitsService {
  public:
-  void transform(const AlarmLimitsRequest &alarm_limits_request, AlarmLimits &alarm_limits) override;
+  void transform(
+      const AlarmLimitsRequest &alarm_limits_request,
+      AlarmLimits &alarm_limits,
+      Application::LogEventsManager &log_manager) override;
 
  private:
   static constexpr float max_flow = 80;  // L/min
@@ -52,7 +63,11 @@ class HFNCAlarmLimits : public AlarmLimitsService {
 
 class AlarmLimitsServices {
  public:
-  void transform(const Parameters &parameters, const AlarmLimitsRequest &alarm_limits_request, AlarmLimits &alarm_limits);
+  void transform(
+      const Parameters &parameters,
+      const AlarmLimitsRequest &alarm_limits_request,
+      AlarmLimits &alarm_limits,
+      Application::LogEventsManager &log_manager);
 
  private:
   AlarmLimitsService *active_service_ = nullptr;

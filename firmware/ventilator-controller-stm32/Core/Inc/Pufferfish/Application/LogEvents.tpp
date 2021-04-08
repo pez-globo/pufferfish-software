@@ -7,18 +7,17 @@
 
 #pragma once
 
-#include "Pufferfish/Protocols/Lists.h"
 #include "LogEvents.h"
 
 namespace Pufferfish::Application {
 
 template <typename ListSender>
-void LogEventsManager<ListSender>::update_time(uint32_t current_time) {
+void IncrementalEventsSender<ListSender>::update_time(uint32_t current_time) {
   time_ = current_time;
 }
 
 template <typename ListSender>
-void LogEventsManager<ListSender>::add_event(Element event, uint32_t &id) {
+void IncrementalEventsSender<ListSender>::add_event(Element event, uint32_t &id) {
   event.id = next_event_id_;
   event.time = time_;
   Element overwritten;
@@ -29,7 +28,7 @@ void LogEventsManager<ListSender>::add_event(Element event, uint32_t &id) {
 }
 
 template <typename ListSender>
-void LogEventsManager<ListSender>::add_event(const Element &event) {
+void IncrementalEventsSender<ListSender>::add_event(const Element &event) {
   uint32_t id_discard;
   add_event(event, id_discard);
 }

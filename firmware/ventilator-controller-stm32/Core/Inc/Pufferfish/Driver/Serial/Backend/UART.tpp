@@ -49,6 +49,9 @@ void UARTBackend::update_clock(uint32_t current_time) {
 void UARTBackend::send() {
   // Create a new output to write if needed
   if (sent_ >= send_output_.size()) {
+    // TODO(lietk12): when the synchronizer says it's time to send the next message,
+    // if another write is in progress we shouldn't wait for it to complete;
+    // instead, we should just start sending the next message immediately
     backend_.update_list_senders();
     switch (backend_.output(send_output_)) {
       case Backend::Status::ok:  // ready to write to UART

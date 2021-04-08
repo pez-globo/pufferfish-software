@@ -105,9 +105,8 @@ namespace PF = Pufferfish;
 PF::Application::States all_states;
 
 // Event Logging
-PF::Driver::Serial::Backend::LogEventsSender log_events_sender;
-PF::Application::LogEventsManager<
-  PF::Driver::Serial::Backend::LogEventsSender> log_events_manager(log_events_sender);
+PF::Application::LogEventsSender log_events_sender;
+PF::Application::LogEventsManager log_events_manager(log_events_sender);
 
 // Request/Response Services
 PF::Driver::BreathingCircuit::ParametersServices parameters_service;
@@ -496,6 +495,46 @@ int main(void)
   flasher.start(time.millis());
   dimmer.start(time.millis());
 
+  // Initialize request/response states
+  PF::Application::StateSegment init_segment;
+
+  // Initialize parameters into allowed ranges
+  // TODO(lietk12): move this code into ParametersService
+  all_states.parameters().fio2 = 21;
+  all_states.parameters().flow = 0;
+
+  // Initialize parameter requests into allowed ranges
+  // TODO(lietk12): move this code into ParametersService
+  ParametersRequest init_parameters_request;
+  init_parameters_request.fio2 = all_states.parameters().fio2;
+  init_parameters_request.flow = all_states.parameters().flow;
+  init_segment.set(init_parameters_request);
+  all_states.input(init_segment);
+
+  // Initialize alarm limits into allowed ranges
+  // TODO(lietk12): move this code into AlarmLimitsService
+  all_states.alarm_limits().has_fio2 = true;
+  all_states.alarm_limits().fio2.lower = 21;
+  all_states.alarm_limits().fio2.upper = 100;
+  all_states.alarm_limits().has_spo2 = true;
+  all_states.alarm_limits().spo2.lower = 21;
+  all_states.alarm_limits().spo2.upper = 100;
+  all_states.alarm_limits().has_hr = true;
+  all_states.alarm_limits().hr.lower = 0;
+  all_states.alarm_limits().hr.upper = 200;
+
+  // Initialize alarm limits requests into allowed ranges
+  // TODO(lietk12): move this code into AlarmLimitsService
+  AlarmLimitsRequest init_alarm_limits_request;
+  init_alarm_limits_request.has_fio2 = true;
+  init_alarm_limits_request.fio2 = all_states.alarm_limits().fio2;
+  init_alarm_limits_request.has_spo2 = true;
+  init_alarm_limits_request.spo2 = all_states.alarm_limits().spo2;
+  init_alarm_limits_request.has_hr = true;
+  init_alarm_limits_request.hr = all_states.alarm_limits().hr;
+  init_segment.set(init_alarm_limits_request);
+  all_states.input(init_segment);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -540,22 +579,6 @@ int main(void)
   }
   board_led1.write(false);
 
-  // Debugging test
-  LogEvent event{
-    0,
-    time.millis(),
-    LogEventCode::LogEventCode_fio2_setting_changed,
-    LogEventType::LogEventType_control};
-  event.old_float = 21;
-  event.new_float = 50;
-  log_events_manager.add_event(event);
-  event.code = LogEventCode::LogEventCode_flow_setting_changed;
-  event.old_float = 10;
-  event.new_float = 30;
-  log_events_manager.add_event(event);
-  all_states.active_log_events().id_count = 1;
-  all_states.active_log_events().id[0] = 1;
-
   // Normal loop
   while (true) {
     uint32_t current_time = time.millis();
@@ -569,8 +592,15 @@ int main(void)
     log_events_manager.update_time(current_time);
 
     // Request/response services update
-    parameters_service.transform(all_states.parameters_request(), all_states.parameters());
-    alarm_limits_service.transform(all_states.parameters(), all_states.alarm_limits_request(), all_states.alarm_limits());
+    parameters_service.transform(
+        all_states.parameters_request(),
+        all_states.parameters(),
+        log_events_manager);
+    alarm_limits_service.transform(
+        all_states.parameters(),
+        all_states.alarm_limits_request(),
+        all_states.alarm_limits(),
+        log_events_manager);
 
     // Breathing Circuit Sensor Simulator
     simulator.transform(
