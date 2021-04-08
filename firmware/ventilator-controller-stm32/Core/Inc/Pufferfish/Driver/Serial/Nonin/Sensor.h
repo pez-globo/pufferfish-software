@@ -26,7 +26,7 @@ class Sensor : public Initializable {
   explicit Sensor(Device &device) : device_(device) {}
 
   InitializableState setup() override;
-  InitializableState output(float &spo2);
+  InitializableState output(float &spo2, float &hr);
 
  private:
   Device &device_;

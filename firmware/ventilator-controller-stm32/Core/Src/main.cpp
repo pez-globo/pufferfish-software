@@ -596,7 +596,9 @@ int main(void)
 
     // Independent Sensors
     fdo2.output(hfnc.sensor_vars().po2);
-    nonin_oem.output(all_states.sensor_measurements().spo2);
+    nonin_oem.output(
+        all_states.sensor_measurements().spo2,
+        all_states.sensor_measurements().hr);
 
     // Breathing Circuit Control Loop
     hfnc.update(current_time);
