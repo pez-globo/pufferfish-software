@@ -15,13 +15,13 @@ namespace Pufferfish::Driver::BreathingCircuit {
 
 void AlarmsManager::activate_alarm(
     LogEventCode alarm_code, LogEventType alarm_type, const Range &alarm_limits) {
-  size_t index_discard;
+  size_t index_discard = 0;
   if (active_alarms_.find(alarm_code, index_discard) == IndexStatus::ok) {
     // Alarm is already active
     return;
   }
 
-  uint32_t event_id;
+  uint32_t event_id = 0;
   LogEvent event;
   event.code = alarm_code;
   event.type = alarm_type;
@@ -76,7 +76,7 @@ void AlarmsService::transform(
     ActiveLogEvents &active_log_events,
     AlarmsManager &alarms_manager) {
   if (!parameters.ventilating) {
-    // TODO: deactivate all breathing circuit alarms
+    // TODO(lietk12): deactivate all breathing circuit alarms
     return;
   }
 
@@ -107,7 +107,6 @@ void AlarmsService::deactivate_alarms(
 // AlarmsServices
 
 void AlarmsServices::transform(
-    uint32_t current_time,
     const Parameters &parameters,
     const AlarmLimits &alarm_limits,
     const SensorMeasurements &sensor_measurements,

@@ -148,14 +148,11 @@ void AlarmLimitsServices::transform(
 
 void make_state_initializers(Application::StateSegment &request_segment, AlarmLimits &response) {
   response.has_fio2 = true;
-  response.fio2.lower = 21;
-  response.fio2.upper = 100;
+  response.fio2 = allowed_fio2;
   response.has_spo2 = true;
-  response.spo2.lower = 21;
-  response.spo2.upper = 100;
+  response.spo2 = AlarmLimitsService::allowed_spo2;
   response.has_hr = true;
-  response.hr.lower = 0;
-  response.hr.upper = 200;
+  response.hr = AlarmLimitsService::allowed_hr;
 
   AlarmLimitsRequest request{};
   request.has_fio2 = true;

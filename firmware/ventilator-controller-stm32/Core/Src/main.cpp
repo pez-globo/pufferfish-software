@@ -600,7 +600,6 @@ int main(void)
     // Breathing Circuit Control Loop
     hfnc.update(current_time);
     breathing_circuit_alarms.transform(
-        current_time,
         all_states.parameters(),
         all_states.alarm_limits(),
         all_states.sensor_measurements(),

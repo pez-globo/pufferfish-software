@@ -25,8 +25,8 @@ ListInputStatus ListSender<ListSegment, ListElement, max_buffer_len, max_segment
     return ListInputStatus::ok;
   }
 
-  ListElement oldest_element;
-  if (elements.peek(oldest_element) != BufferStatus::ok || next_expected_ >= oldest_element.id) {
+  ListElement oldest_element{};
+  if (elements_.peek(oldest_element) != BufferStatus::ok || next_expected_ >= oldest_element.id) {
     return ListInputStatus::ok;
   }
 
@@ -37,28 +37,28 @@ template <typename ListSegment, typename ListElement, size_t max_buffer_len, siz
 ListInputStatus ListSender<ListSegment, ListElement, max_buffer_len, max_segment_len>::input(
     const ListElement &new_element, ListElement &overwritten_element) {
   ++total_elements_;
-  if (elements.push(new_element) == BufferStatus::ok) {
+  if (elements_.push(new_element) == BufferStatus::ok) {
     return ListInputStatus::ok;
   }
 
-  elements.pop(overwritten_element);  // after this, elements is guaranteed to have capacity
-  elements.push(new_element);
+  elements_.pop(overwritten_element);  // after this, elements is guaranteed to have capacity
+  elements_.push(new_element);
   return ListInputStatus::oldest_overwritten;
 }
 
 template <typename ListSegment, typename ListElement, size_t max_buffer_len, size_t max_segment_len>
 void ListSender<ListSegment, ListElement, max_buffer_len, max_segment_len>::output(
     ListSegment &segment) {
-  ListElement next_element;
+  ListElement next_element{};
   // Pop all elements consumed by the receiver
-  while (elements.peek(next_element) == BufferStatus::ok && next_element.id < next_expected_) {
-    elements.pop(next_element);
+  while (elements_.peek(next_element) == BufferStatus::ok && next_element.id < next_expected_) {
+    elements_.pop(next_element);
   }
   // Copy remaining elements into output
   for (segment.elements_count = 0; segment.elements_count < max_segment_len;
        ++segment.elements_count) {
-    ListElement next_element;
-    if (elements.peek(next_element, segment.elements_count) == BufferStatus::empty) {
+    ListElement next_element{};
+    if (elements_.peek(next_element, segment.elements_count) == BufferStatus::empty) {
       break;
     }
 
@@ -66,7 +66,7 @@ void ListSender<ListSegment, ListElement, max_buffer_len, max_segment_len>::outp
   }
   segment.next_expected = next_expected_;
   segment.total = total_elements_;
-  segment.remaining = elements.size();
+  segment.remaining = elements_.size();
 }
 
 }  // namespace Pufferfish::Protocols

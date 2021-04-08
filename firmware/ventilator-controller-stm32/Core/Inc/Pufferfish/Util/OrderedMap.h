@@ -39,7 +39,7 @@ class OrderedMap {
   IndexStatus erase(const Key &key);
   IndexStatus find(const Key &key, size_t &index) const;
 
-  constexpr const Vector<Pair, max_pairs> &items() const { return buffer_; }
+  [[nodiscard]] constexpr const Vector<Pair, max_pairs> &items() const { return buffer_; }
   constexpr Vector<Pair, max_pairs> &items() { return buffer_; }
 
  private:

@@ -38,7 +38,7 @@ void OrderedMap<Key, Value, max_pairs>::clear() {
 
 template <typename Key, typename Value, size_t max_pairs>
 IndexStatus OrderedMap<Key, Value, max_pairs>::insert(const Key &key, const Value &value) {
-  size_t index;
+  size_t index = 0;
   if (find(key, index) == IndexStatus::ok) {
     buffer_[index].second = value;
     return IndexStatus::ok;
@@ -50,7 +50,7 @@ IndexStatus OrderedMap<Key, Value, max_pairs>::insert(const Key &key, const Valu
 
 template <typename Key, typename Value, size_t max_pairs>
 IndexStatus OrderedMap<Key, Value, max_pairs>::erase(const Key &key) {
-  size_t index;
+  size_t index = 0;
   if (find(key, index) == IndexStatus::ok) {
     buffer_.erase(index);
   }

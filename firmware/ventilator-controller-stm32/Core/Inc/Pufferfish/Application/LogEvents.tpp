@@ -30,7 +30,7 @@ void IncrementalEventsSender<ListSender>::add_event(Element event, uint32_t &id)
 
 template <typename ListSender>
 void IncrementalEventsSender<ListSender>::add_event(const Element &event) {
-  uint32_t id_discard;
+  uint32_t id_discard = 0;
   add_event(event, id_discard);
 }
 

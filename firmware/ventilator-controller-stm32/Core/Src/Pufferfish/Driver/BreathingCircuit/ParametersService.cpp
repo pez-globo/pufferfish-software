@@ -177,7 +177,7 @@ void ParametersServices::transform(
 // Initializers
 
 void make_state_initializers(Application::StateSegment &request_segment, Parameters &response) {
-  response.fio2 = 21;
+  response.fio2 = allowed_fio2.lower;
   response.flow = 0;
 
   ParametersRequest request;

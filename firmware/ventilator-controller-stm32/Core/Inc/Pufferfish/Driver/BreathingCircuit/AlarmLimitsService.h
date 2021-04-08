@@ -45,8 +45,6 @@ class AlarmLimitsService {
       AlarmLimits &alarm_limits,
       Application::LogEventsManager &log_manager) = 0;
 
- protected:
-  static constexpr Range allowed_fio2{21, 100};
   static constexpr Range allowed_spo2{21, 100};
   static constexpr Range allowed_hr{0, 200};
 };

@@ -17,7 +17,7 @@ class IncrementalEventsSender {
  public:
   using Element = typename LogEventsSender::Element;
 
-  IncrementalEventsSender(LogEventsSender &sender) : sender_(sender) {}
+  explicit IncrementalEventsSender(LogEventsSender &sender) : sender_(sender) {}
 
   void update_time(uint32_t current_time);
   // Create a new event with the provided data. The id and time fields

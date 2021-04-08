@@ -31,7 +31,7 @@ static constexpr auto alarm_codes = Util::make_array<LogEventCode>(
 
 class AlarmsManager {
  public:
-  AlarmsManager(Application::LogEventsManager &log_manager) : log_manager_(log_manager) {}
+  explicit AlarmsManager(Application::LogEventsManager &log_manager) : log_manager_(log_manager) {}
 
   void activate_alarm(LogEventCode alarm_code, LogEventType alarm_type, const Range &alarm_limits);
   void deactivate_alarm(LogEventCode alarm_code);
@@ -68,7 +68,6 @@ class HFNCAlarms : public AlarmsService {};
 class AlarmsServices {
  public:
   void transform(
-      uint32_t current_time,
       const Parameters &parameters,
       const AlarmLimits &alarm_limits,
       const SensorMeasurements &sensor_measurements,

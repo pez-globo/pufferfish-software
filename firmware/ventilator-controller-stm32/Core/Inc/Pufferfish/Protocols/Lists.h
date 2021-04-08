@@ -33,7 +33,7 @@ class ListSender {
   void output(ListSegment &segment);
 
  private:
-  Util::RingBuffer<max_buffer_len, ListElement> elements;
+  Util::RingBuffer<max_buffer_len, ListElement> elements_;
   uint32_t next_expected_ = 0;
   uint32_t total_elements_ = 0;
 };

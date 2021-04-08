@@ -63,8 +63,9 @@ IndexStatus Vector<Element, array_size>::erase(size_t index) {
     return IndexStatus::out_of_bounds;
   }
 
-  memmove(
-      buffer_.data() + index, buffer_.data() + index + 1, sizeof(Element) * (size_ - index - 1));
+  for (size_t i = index; i < size_ - 1; ++i) {
+    buffer_[i] = buffer_[i + 1];
+  }
 
   --size_;
   return IndexStatus::ok;

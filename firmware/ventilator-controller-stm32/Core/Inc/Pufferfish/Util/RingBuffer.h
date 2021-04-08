@@ -136,7 +136,7 @@ class RingBuffer {
    * Not interrupt-safe! So a volatile version is not provided.
    * @return number of elements in the buffer
    */
-  size_t size() const;
+  [[nodiscard]] size_t size() const;
 
  private:
   // We have to use a C-style array because std::array doesn't work with
