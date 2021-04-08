@@ -173,4 +173,16 @@ void ParametersServices::transform(
   active_service_->transform(parameters_request, parameters, log_manager);
 }
 
+// Initializers
+
+void make_state_initializers(Application::StateSegment &request_segment, Parameters &response) {
+  response.fio2 = 21;
+  response.flow = 0;
+
+  ParametersRequest request;
+  request.fio2 = response.fio2;
+  request.flow = response.flow;
+  request_segment.set(request);
+}
+
 }  // namespace Pufferfish::Driver::BreathingCircuit

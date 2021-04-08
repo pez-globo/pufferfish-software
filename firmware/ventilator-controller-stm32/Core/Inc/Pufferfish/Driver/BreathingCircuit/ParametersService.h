@@ -79,4 +79,6 @@ class ParametersServices {
   HFNCParameters hfnc_;
 };
 
+void make_state_initializers(Application::StateSegment &request_segment, Parameters &response);
+
 }  // namespace Pufferfish::Driver::BreathingCircuit

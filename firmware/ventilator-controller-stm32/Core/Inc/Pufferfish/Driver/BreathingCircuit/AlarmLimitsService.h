@@ -75,4 +75,6 @@ class AlarmLimitsServices {
   HFNCAlarmLimits hfnc_;
 };
 
+void make_state_initializers(Application::StateSegment &request_segment, AlarmLimits &response);
+
 }  // namespace Pufferfish::Driver::BreathingCircuit

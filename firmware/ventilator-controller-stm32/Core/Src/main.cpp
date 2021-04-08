@@ -380,6 +380,22 @@ static void MX_TIM12_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void initialize_states() {
+  // Parameters
+  Parameters parameters;
+  PF::Application::StateSegment parameters_request;
+  PF::Driver::BreathingCircuit::make_state_initializers(parameters_request, parameters);
+  all_states.parameters() = parameters;
+  all_states.input(parameters_request);
+
+  // Alarm Limits
+  AlarmLimits alarm_limits;
+  PF::Application::StateSegment alarm_limits_request;
+  PF::Driver::BreathingCircuit::make_state_initializers(alarm_limits_request, alarm_limits);
+  all_states.alarm_limits() = alarm_limits;
+  all_states.input(alarm_limits_request);
+}
+
 void interface_test_loop() {
   // get state of buttons
   bool l_alarm_en = button_alarm_en.read();
@@ -496,44 +512,7 @@ int main(void)
   dimmer.start(time.millis());
 
   // Initialize request/response states
-  PF::Application::StateSegment init_segment;
-
-  // Initialize parameters into allowed ranges
-  // TODO(lietk12): move this code into ParametersService
-  all_states.parameters().fio2 = 21;
-  all_states.parameters().flow = 0;
-
-  // Initialize parameter requests into allowed ranges
-  // TODO(lietk12): move this code into ParametersService
-  ParametersRequest init_parameters_request;
-  init_parameters_request.fio2 = all_states.parameters().fio2;
-  init_parameters_request.flow = all_states.parameters().flow;
-  init_segment.set(init_parameters_request);
-  all_states.input(init_segment);
-
-  // Initialize alarm limits into allowed ranges
-  // TODO(lietk12): move this code into AlarmLimitsService
-  all_states.alarm_limits().has_fio2 = true;
-  all_states.alarm_limits().fio2.lower = 21;
-  all_states.alarm_limits().fio2.upper = 100;
-  all_states.alarm_limits().has_spo2 = true;
-  all_states.alarm_limits().spo2.lower = 21;
-  all_states.alarm_limits().spo2.upper = 100;
-  all_states.alarm_limits().has_hr = true;
-  all_states.alarm_limits().hr.lower = 0;
-  all_states.alarm_limits().hr.upper = 200;
-
-  // Initialize alarm limits requests into allowed ranges
-  // TODO(lietk12): move this code into AlarmLimitsService
-  AlarmLimitsRequest init_alarm_limits_request;
-  init_alarm_limits_request.has_fio2 = true;
-  init_alarm_limits_request.fio2 = all_states.alarm_limits().fio2;
-  init_alarm_limits_request.has_spo2 = true;
-  init_alarm_limits_request.spo2 = all_states.alarm_limits().spo2;
-  init_alarm_limits_request.has_hr = true;
-  init_alarm_limits_request.hr = all_states.alarm_limits().hr;
-  init_segment.set(init_alarm_limits_request);
-  all_states.input(init_segment);
+  initialize_states();
 
   /* USER CODE END 2 */
 

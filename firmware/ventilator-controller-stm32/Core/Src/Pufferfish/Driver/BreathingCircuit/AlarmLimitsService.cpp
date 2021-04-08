@@ -71,9 +71,6 @@ void AlarmLimitsService::service_spo2(
 
 void AlarmLimitsService::service_hr(
     const AlarmLimitsRequest &request, AlarmLimits &response, Application::LogEventsManager &log_manager) {
-  if (request.hr.upper == 0) {
-    response.hr.upper = 200;
-  }
   service_limits_range(
     request.hr, response.hr, allowed_hr,
     LogEventCode::LogEventCode_hr_alarm_limits_changed, log_manager);
@@ -125,6 +122,29 @@ void AlarmLimitsServices::transform(
   }
 
   active_service_->transform(alarm_limits_request, alarm_limits, log_manager);
+}
+
+// Initializers
+
+void make_state_initializers(Application::StateSegment &request_segment, AlarmLimits &response) {
+  response.has_fio2 = true;
+  response.fio2.lower = 21;
+  response.fio2.upper = 100;
+  response.has_spo2 = true;
+  response.spo2.lower = 21;
+  response.spo2.upper = 100;
+  response.has_hr = true;
+  response.hr.lower = 0;
+  response.hr.upper = 200;
+
+  AlarmLimitsRequest request{};
+  request.has_fio2 = true;
+  request.fio2 = response.fio2;
+  request.has_spo2 = true;
+  request.spo2 = response.spo2;
+  request.has_hr = true;
+  request.hr = response.hr;
+  request_segment.set(request);
 }
 
 }  // namespace Pufferfish::Driver::BreathingCircuit
