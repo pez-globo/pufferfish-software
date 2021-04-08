@@ -109,7 +109,24 @@ async def main() -> None:
         if state is mcu_pb.ParametersRequest:
             all_states[state] = mcu_pb.ParametersRequest(
                 mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
-                fio2=60, flow=6
+                fio2=21, flow=0
+            )
+        elif state is mcu_pb.Parameters:
+            all_states[state] = mcu_pb.Parameters(
+                mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
+                fio2=21, flow=0
+            )
+        elif state is mcu_pb.AlarmLimitsRequest:
+            all_states[state] = mcu_pb.AlarmLimitsRequest(
+                fio2=mcu_pb.Range(lower=21, upper=100),
+                spo2=mcu_pb.Range(lower=21, upper=100),
+                hr=mcu_pb.Range(lower=0, upper=200),
+            )
+        elif state is mcu_pb.AlarmLimits:
+            all_states[state] = mcu_pb.AlarmLimits(
+                fio2=mcu_pb.Range(lower=21, upper=100),
+                spo2=mcu_pb.Range(lower=21, upper=100),
+                hr=mcu_pb.Range(lower=0, upper=200),
             )
         else:
             all_states[state] = state()
