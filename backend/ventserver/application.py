@@ -91,8 +91,6 @@ async def main() -> None:
 
     # Initialize states
     all_states = protocol.receive.backend.all_states
-    for state in all_states:
-        all_states[state] = state()
     await initialize_states_from_file(all_states, protocol, filehandler)
 
     try:
