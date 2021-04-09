@@ -57,7 +57,6 @@ void ListSender<ListSegment, ListElement, max_buffer_len, max_segment_len>::outp
   // Copy remaining elements into output
   for (segment.elements_count = 0; segment.elements_count < max_segment_len;
        ++segment.elements_count) {
-    ListElement next_element{};
     if (elements_.peek(next_element, segment.elements_count) == BufferStatus::empty) {
       break;
     }
