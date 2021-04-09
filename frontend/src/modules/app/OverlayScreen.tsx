@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import store from '../../store';
 import { getClock } from '../../store/app/selectors';
 import { RED_BORDER } from '../../store/app/types';
-import { LogEvent } from '../../store/controller/proto/mcu_pb';
+import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
 import {
   getAlarmMuteStatus,
   getPopupEventLog,
@@ -16,7 +16,7 @@ import {
   BACKEND_CONNECTION_LOST_CODE,
   MessageType,
 } from '../../store/controller/types';
-import { LogEventType } from '../../store/controller/proto/mcu_pb';
+
 import ModalPopup from '../controllers/ModalPopup';
 import MultiStepWizard from '../displays/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';

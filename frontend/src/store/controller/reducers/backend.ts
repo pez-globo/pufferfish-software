@@ -1,9 +1,4 @@
-import {
-  LogEvent,
-  NextLogEvents,
-  ExpectedLogEvent,
-  ActiveLogEvents
-} from '../proto/mcu_pb';
+import { LogEvent, NextLogEvents, ExpectedLogEvent, ActiveLogEvents } from '../proto/mcu_pb';
 import { RotaryEncoder } from '../proto/frontend_pb';
 import {
   MessageType,
