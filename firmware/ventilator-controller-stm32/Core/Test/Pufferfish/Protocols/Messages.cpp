@@ -148,13 +148,13 @@ SCENARIO(
     "Protocols::The message correctly writes to the output buffer and also updates type for each "
     "message type",
     "[messages]") {
-  auto exp_sensor_measurements =
+  const auto exp_sensor_measurements =
       std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+  const auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+  const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+  const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+  const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+  const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
@@ -504,13 +504,13 @@ SCENARIO(
     "Protocols::The message correctly writes to the output buffer and also updates type for "
     "different max sizes",
     "[messages]") {
-  auto exp_sensor_measurements =
+  const auto exp_sensor_measurements =
       std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+  const auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+  const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+  const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+  const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+  const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 126 "
@@ -707,7 +707,8 @@ SCENARIO(
     }
 
     WHEN(
-        "A body with an empty payload and 1 byte header of value equal to the message descriptor "
+        "A body with an empty payload and 1 byte header of value (0x04) equal to the message "
+        "descriptor "
         "array size is parsed") {
       constexpr auto message_descriptors = PF::Util::make_array<PF::Util::ProtobufDescriptor>(
           // array index should match the type code value
@@ -718,7 +719,7 @@ SCENARIO(
       );
 
       PF::Util::ByteVector<buffer_size> input_buffer;
-      input_buffer.push_back(0x04);
+      push_status = input_buffer.push_back(0x04);
       REQUIRE(push_status == PF::IndexStatus::ok);
 
       auto parse_status = test_message.parse(input_buffer, message_descriptors);
@@ -737,7 +738,8 @@ SCENARIO(
     }
 
     WHEN(
-        "A body with an empty payload and 1 byte header of value equal to the message descriptor "
+        "A body with an empty payload and 1 byte header of value (0x05) equal to the message "
+        "descriptor "
         "array size is parsed") {
       constexpr auto message_descriptors = PF::Util::make_array<PF::Util::ProtobufDescriptor>(
           // array index should match the type code value
@@ -748,7 +750,7 @@ SCENARIO(
       );
 
       PF::Util::ByteVector<buffer_size> input_buffer;
-      input_buffer.push_back(0x05);
+      push_status = input_buffer.push_back(0x05);
       REQUIRE(push_status == PF::IndexStatus::ok);
 
       auto parse_status = test_message.parse(input_buffer, message_descriptors);
@@ -836,13 +838,13 @@ SCENARIO(
     "updates type and payload "
     "fields",
     "[messages]") {
-  auto exp_sensor_measurements =
+  const auto exp_sensor_measurements =
       std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+  const auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+  const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+  const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+  const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+  const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
@@ -1297,13 +1299,13 @@ SCENARIO(
 SCENARIO(
     "Protocols::The Message Receiver class correctly transforms messages into paylaods",
     "[messages]") {
-  auto exp_sensor_measurements =
+  const auto exp_sensor_measurements =
       std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+  const auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+  const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+  const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+  const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+  const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
   GIVEN("A MessageReceiver object is constructed with default parameters") {
     constexpr size_t payload_max_size = 254UL;
@@ -1615,13 +1617,13 @@ SCENARIO(
     "Protocols::The Message Receiver class correctly transforms messages into paylaods for each "
     "message type",
     "[messages]") {
-  auto exp_sensor_measurements =
+  const auto exp_sensor_measurements =
       std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+  const auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+  const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+  const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+  const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+  const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
   GIVEN("A MessageReceiver object is constructed with default parameters") {
     constexpr size_t payload_max_size = 254UL;
@@ -1823,13 +1825,13 @@ SCENARIO(
 SCENARIO(
     "Protocols::The Message Sender class correctly transforms payloads into messages",
     "[messages]") {
-  auto exp_sensor_measurements =
+  const auto exp_sensor_measurements =
       std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-  auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-  auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-  auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-  auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-  auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+  const auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+  const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+  const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+  const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+  const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
   GIVEN("A MessageSender object is constructed with default parameters") {
     using TestTaggedUnion = PF::Application::StateSegment;
