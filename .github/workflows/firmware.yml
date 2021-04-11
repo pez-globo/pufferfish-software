@@ -180,3 +180,36 @@ jobs:
       run: |
         cd cmake-build-testcatch2
         ./TestCatch2
+
+  catch2-test-coverage:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install cmake
+        sudo apt-get install -y lcov
+
+    - name: Run CMake
+      run: |
+        ./cmake.sh TestCoverage
+
+    - name: Run make
+      run: |
+        cd cmake-build-testcoverage
+        make -j2
+
+    - name: Run Catch2 Test Coverage
+      run: |
+        cd cmake-build-testcoverage
+        ./TestCoverage
+        lcov -c -d . -o name.info
+        genhtml name.info
+
+    - name: TestCoverage HTML
+      uses: actions/upload-artifact@v2
+      with:
+        name: index html
+        path: firmware/ventilator-controller-stm32/cmake-build-testcoverage/index.html
