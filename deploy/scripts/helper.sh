@@ -14,7 +14,7 @@ backend_file=$(realpath $backend_dir)/simulator.py
 frontend_dir=$script_dir/../../frontend
 
 # query git for the latest commit
-latest_commit_hash=$(git rev-parse --verify HEAD)
+latest_commit_hash=$(git rev-parse --short --verify HEAD)
 tag=$(git tag --contains $latest_commit_hash)
 
 if [ -z $tag ]
