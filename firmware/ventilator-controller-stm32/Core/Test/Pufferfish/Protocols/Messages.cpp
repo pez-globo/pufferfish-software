@@ -148,17 +148,18 @@ SCENARIO(
     "Protocols::The message correctly writes to the output buffer and also updates type for each "
     "message type",
     "[messages]") {
-  const auto exp_sensor_measurements =
-      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-  const auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-  const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-  const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-  const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-  const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
-
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
       "bytes") {
+    const auto exp_sensor_measurements =
+        std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+    const auto exp_cycle_measurements =
+        std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+    const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+    const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+    const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+    const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+
     constexpr size_t payload_max_size = 252UL;
     using TestMessage = PF::Protocols::Message<
         PF::Application::StateSegment,
@@ -504,17 +505,18 @@ SCENARIO(
     "Protocols::The message correctly writes to the output buffer and also updates type for "
     "different max sizes",
     "[messages]") {
-  const auto exp_sensor_measurements =
-      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-  const auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-  const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-  const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-  const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-  const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
-
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 126 "
       "bytes") {
+    const auto exp_sensor_measurements =
+        std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+    const auto exp_cycle_measurements =
+        std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+    const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+    const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+    const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+    const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+
     constexpr size_t payload_max_size = 126UL;
     using TestMessage = PF::Protocols::Message<
         PF::Application::StateSegment,
@@ -608,6 +610,7 @@ SCENARIO(
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 508 "
       "bytes") {
+    const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
     constexpr size_t payload_max_size = 508UL;
     using TestMessage = PF::Protocols::Message<
         PF::Application::StateSegment,
@@ -732,7 +735,7 @@ SCENARIO(
           "type field of the input_buffer body's header") {
         REQUIRE(test_message.type == 4);
       }
-      THEN("The payload.tag field is set to parameters") {
+      THEN("The payload.tag field is set to parameters, which corresponds to value 0x04") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
       }
     }
@@ -763,7 +766,7 @@ SCENARIO(
           "type field of the input_buffer body's header") {
         REQUIRE(test_message.type == 5);
       }
-      THEN("The payload.tag field is set to parameters_request") {
+      THEN("The payload.tag field is set to parameters, which corresponds to value 0x05") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
       }
     }
@@ -838,17 +841,18 @@ SCENARIO(
     "updates type and payload "
     "fields",
     "[messages]") {
-  const auto exp_sensor_measurements =
-      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-  const auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-  const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-  const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-  const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-  const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
-
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
       "bytes") {
+    const auto exp_sensor_measurements =
+        std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+    const auto exp_cycle_measurements =
+        std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+    const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+    const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+    const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+    const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+
     constexpr size_t payload_max_size = 254UL;
     using TestMessage = PF::Protocols::Message<
         PF::Application::StateSegment,
@@ -1299,15 +1303,16 @@ SCENARIO(
 SCENARIO(
     "Protocols::The Message Receiver class correctly transforms messages into paylaods",
     "[messages]") {
-  const auto exp_sensor_measurements =
-      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-  const auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-  const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-  const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-  const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-  const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
-
   GIVEN("A MessageReceiver object is constructed with default parameters") {
+    const auto exp_sensor_measurements =
+        std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+    const auto exp_cycle_measurements =
+        std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+    const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+    const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+    const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+    const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+
     constexpr size_t payload_max_size = 254UL;
     using TestMessage = PF::Protocols::Message<
         PF::Application::StateSegment,
@@ -1617,15 +1622,16 @@ SCENARIO(
     "Protocols::The Message Receiver class correctly transforms messages into paylaods for each "
     "message type",
     "[messages]") {
-  const auto exp_sensor_measurements =
-      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-  const auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-  const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-  const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-  const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-  const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
-
   GIVEN("A MessageReceiver object is constructed with default parameters") {
+    const auto exp_sensor_measurements =
+        std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+    const auto exp_cycle_measurements =
+        std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+    const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+    const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+    const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+    const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+
     constexpr size_t payload_max_size = 254UL;
     using TestMessage = PF::Protocols::Message<
         PF::Application::StateSegment,
@@ -1825,15 +1831,16 @@ SCENARIO(
 SCENARIO(
     "Protocols::The Message Sender class correctly transforms payloads into messages",
     "[messages]") {
-  const auto exp_sensor_measurements =
-      std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-  const auto exp_cycle_measurements = std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-  const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-  const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-  const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-  const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
-
   GIVEN("A MessageSender object is constructed with default parameters") {
+    const auto exp_sensor_measurements =
+        std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+    const auto exp_cycle_measurements =
+        std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
+    const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+    const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+    const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
+    const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+
     using TestTaggedUnion = PF::Application::StateSegment;
     constexpr size_t payload_max_size = 252UL;
     using TestMessage = PF::Protocols::Message<

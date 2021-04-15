@@ -130,7 +130,7 @@ Scenario: Message: The parse method correctly updates internal message type and 
     // custom descriptor array of size 4
       THEN("The parse method reports invalid type status")
       THEN("After the parse method is called, The value assigned to the type member is equal to the type field of the input_buffer body's header")
-      THEN("The payload.tag field is set to parameters")
+      THEN("The payload.tag field is set to parameters, which corresponds to value 0x04")
       THEN("the payload.values field remains unchanged")
 
     WHEN("A body with an empty payload and 1-byte header of value (0x05) greater than the message descriptor array size is parsed")
@@ -138,7 +138,7 @@ Scenario: Message: The parse method correctly updates internal message type and 
     // custom descriptor array of size 4
       THEN("The parse method reports invalid type status")
       THEN("After the parse method is called, The value assigned to the type member is equal to the type field of the input_buffer body's header")
-      THEN("The payload.tag field is set to parameters_request")
+      THEN("The payload.tag field is set to parameters_request, which corresponds to value 0x05")
       THEN("the payload.values field remains unchanged")
 
     WHEN("A body with an encoded payload and 1-byte header of value equal to 0 is parsed")
