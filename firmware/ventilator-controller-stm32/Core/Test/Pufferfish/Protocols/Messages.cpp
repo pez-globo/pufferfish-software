@@ -14,7 +14,7 @@
 
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/Application/mcu_pb.h"
-#include "Pufferfish/Test/BackendDefs.h"
+#include "Pufferfish/Driver/Serial/Backend/Backend.h"
 #include "Pufferfish/Test/Util.h"
 #include "Pufferfish/Util/Array.h"
 #include "Pufferfish/Util/Vector.h"
