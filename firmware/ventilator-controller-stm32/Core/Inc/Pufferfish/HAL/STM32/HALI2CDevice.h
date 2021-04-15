@@ -29,11 +29,15 @@ class HALI2CDevice : public I2CDevice {
 
   I2CDeviceStatus read(uint8_t *buf, size_t count) override;
 
+  I2CDeviceStatus read(uint16_t address, uint8_t *buf, size_t count) override;
+
   /**
    * Note: there *could* be a race condition that modifies buf
    *    when this is being used with DMA and IT HAL_I2C
    */
   I2CDeviceStatus write(uint8_t *buf, size_t count) override;
+
+  I2CDeviceStatus write(uint16_t address, uint8_t *buf, size_t count) override;
 
  private:
   I2C_HandleTypeDef &dev_;
