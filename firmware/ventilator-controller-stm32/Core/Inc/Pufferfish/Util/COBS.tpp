@@ -42,12 +42,10 @@ IndexStatus encode_cobs(
   // calculate the exact encoded buffer size
   while (read_index < buffer.size()) {
     if (code == max_block_size + 1) {
-      code = 1;
-      code_index = write_index++;
+      write_index++;
     }
     if (buffer[read_index] == 0) {
-      code = 1;
-      code_index = write_index++;
+      write_index++;
       read_index++;
     } else {
       write_index++;
@@ -62,7 +60,6 @@ IndexStatus encode_cobs(
   };
 
   // fill the encoded_buffer
-  code_index = 0;
   write_index = 1;
   read_index = 0;
   code = 1;

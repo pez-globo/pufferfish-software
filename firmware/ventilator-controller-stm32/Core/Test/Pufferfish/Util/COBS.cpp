@@ -206,6 +206,16 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
         REQUIRE(encoded_buffer == expected);
       }
     }
+  }
+}
+SCENARIO(
+    "The Util encode_cobs function correctly encodes buffers for large buffer lengths", "[COBS]") {
+  GIVEN("The Util COBS::encode function") {
+    constexpr size_t buffer_size = 256UL;
+    constexpr size_t encoded_buffer_size = 257UL;
+    PF::Util::ByteVector<buffer_size> input_buffer;
+    PF::Util::ByteVector<encoded_buffer_size> encoded_buffer;
+    PF::IndexStatus push_status;
 
     WHEN("The cobs::encode function is called on a 253 byte buffer") {
       for (size_t i = 1; i < 254; i++) {
