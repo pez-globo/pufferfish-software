@@ -13,9 +13,6 @@ function exit_script {
   exit 1
 }
 
-# Install required components
-$script_path/install.sh "deploy" || exit_script "Development components installation failed"
-
 # Setup Nginx web server for serving frontend
 $script_path/scripts/nginx_setup.sh || exit_script "Nginx webserver setup failed"
 
@@ -39,20 +36,5 @@ $script_path/scripts/live_usb.sh || exit_script "USB Mass Storage setup failed"
 
 # Modify eeprom to setup watchdog to handle Raspberry Pi failures and crashes
 $script_path/scripts/setup_watchdog.sh || exit_script "Watchdog setup failed"
-
-# Enable Overlayfs and change /boot partition to read-only
-$script_path/scripts/overlayfs.sh || exit_script "Read-only setup failed"
-
-# Disable unnecessary background services
-$script_path/scripts/disable_services.sh || exit_script "Disabling background services failed"
-
-# Setup network security protocols
-$script_path/scripts/security_network.sh || exit_script "Network security setup failed"
-
-# Setup tampering security protocols
-$script_path/scripts/security_tampering.sh || exit_script "Tampering security setup failed"
-
-# Setup user security protocols
-$script_path/scripts/security_user.sh || exit_script "User security setup failed"
 
 echo -e "Reboot required for changes to take effect. Please restart!"
