@@ -43,12 +43,30 @@ class I2CDevice {
   virtual I2CDeviceStatus read(uint8_t *buf, size_t count) = 0;
 
   /**
+   * Reads data from the device
+   * @param address of the specific register
+   * @param buf[out]    output of the data
+   * @param count   the number of bytes to be read
+   * @return ok on success, error code otherwise
+   */
+  virtual I2CDeviceStatus read(uint16_t address, uint8_t *buf, size_t count) = 0;
+
+  /**
    * Writes data to the device
    * @param buf the data to be written
    * @param count the number of bytes to write
    * @return ok on success, error code otherwise
    */
   virtual I2CDeviceStatus write(uint8_t *buf, size_t count) = 0;
+
+  /**
+   * Writes data to the device
+   * @param address of the specific register
+   * @param buf the data to be written
+   * @param count the number of bytes to write
+   * @return ok on success, error code otherwise
+   */
+  virtual I2CDeviceStatus write(uint16_t address, uint8_t *buf, size_t count) = 0;
 };
 
 }  // namespace HAL
