@@ -13,17 +13,6 @@ backend_dir=$script_dir/../../backend/ventserver
 backend_file=$(realpath $backend_dir)/simulator.py
 frontend_dir=$script_dir/../../frontend
 
-# query git for the latest commit
-latest_commit_hash=$(git rev-parse --short --verify HEAD)
-tag=$(git tag --contains $latest_commit_hash)
-
-if [ -z $tag ]
-then
-  version_number=$latest_commit_hash
-else
-  version_number=$tag
-fi
-
 # Function to exit script on failure
 function exit_script {
   echo -e "${ERROR} $1 ${NC}"

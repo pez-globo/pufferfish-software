@@ -18,7 +18,6 @@ else
 fi
 
 cd $frontend_dir
-echo "REACT_APP_VERSION=$version_number" >> .env
 yarn install || exit_script "Could not install yarn packages"
 yarn build || exit_script "Could not create a release build"
 
