@@ -91,10 +91,10 @@ class Service:
             log_manager
         )
         self.transform_parameter_alarms(
-            alarm_limits.fio2.lower, alarm_limits.fio2.upper,
-            sensor_measurements.fio2,
-            mcu_pb.LogEventCode.fio2_too_low,
-            mcu_pb.LogEventCode.fio2_too_high,
+            alarm_limits.hr.lower, alarm_limits.hr.upper,
+            sensor_measurements.hr,
+            mcu_pb.LogEventCode.hr_too_low,
+            mcu_pb.LogEventCode.hr_too_high,
             log_manager
         )
         self._manager.transform_active_log_event_ids(active_log_events)
