@@ -13,6 +13,7 @@
 namespace Pufferfish {
 namespace HAL {
 
+
 template <typename Checksum>
 SoftCRC<Checksum>::SoftCRC(
     Checksum polynomial, Checksum init, bool ref_in, bool ref_out, Checksum xor_out)
@@ -88,6 +89,7 @@ T reflect(T num) {
 
   return reflection;
 }
+
 
 }  // namespace HAL
 }  // namespace Pufferfish

@@ -10,7 +10,7 @@
 #pragma once
 
 #include "AlarmDevice.h"
-#include "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/STM32/HAL.h"
 
 struct LEDAlarmParameters {
   bool out_high;
@@ -35,7 +35,7 @@ class LEDAlarm : public AlarmDevice {
    * @param green   output for the green LED
    * @param blue    output for the blue LED
    */
-  LEDAlarm(HAL::DigitalOutput &red, HAL::DigitalOutput &green, HAL::DigitalOutput &blue)
+  LEDAlarm(HAL::Interfaces::DigitalOutput &red, HAL::Interfaces::DigitalOutput &green, HAL::Interfaces::DigitalOutput &blue)
       : red_(red), green_(green), blue_(blue) {}
 
   AlarmManagerStatus update(uint32_t current_time) override;
@@ -49,9 +49,9 @@ class LEDAlarm : public AlarmDevice {
     uint32_t period;
   };
 
-  HAL::DigitalOutput &red_;
-  HAL::DigitalOutput &green_;
-  HAL::DigitalOutput &blue_;
+  HAL::Interfaces::DigitalOutput &red_;
+  HAL::Interfaces::DigitalOutput &green_;
+  HAL::Interfaces::DigitalOutput &blue_;
 
   bool reset_ = false;
   Parameters parameters_{false, false, false, 0};

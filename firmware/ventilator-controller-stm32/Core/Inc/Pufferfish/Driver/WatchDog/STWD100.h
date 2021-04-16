@@ -31,7 +31,7 @@ class STWD100 {
    * @param enablePin for STWD100
    * @param inputPin for STWD100
    */
-  STWD100(HAL::DigitalOutput &enable_pin, HAL::DigitalOutput &input_pin, HAL::Time &time)
+  STWD100(HAL::Interfaces::DigitalOutput &enable_pin, HAL::Interfaces::DigitalOutput &input_pin, HAL::Interfaces::Time &time)
       : enable_pin_(enable_pin), input_pin_(input_pin), time_(time) {}
 
   /**
@@ -49,10 +49,10 @@ class STWD100 {
 
  private:
   static const uint32_t reset_time = 2;  /// TBD: resetTime as to be fixed
-  HAL::DigitalOutput &enable_pin_;
-  HAL::DigitalOutput &input_pin_;
+  HAL::Interfaces::DigitalOutput &enable_pin_;
+  HAL::Interfaces::DigitalOutput &input_pin_;
 
-  HAL::Time &time_;
+  HAL::Interfaces::Time &time_;
 };
 
 }  // namespace WatchDog

@@ -101,7 +101,7 @@ class EdgeDetector {
  */
 class Button {
  public:
-  Button(HAL::DigitalInput &buttoninput, Debouncer &debounce, HAL::Time &time)
+  Button(HAL::Interfaces::DigitalInput &buttoninput, Debouncer &debounce, HAL::Interfaces::Time &time)
       : button_input_(buttoninput), debounce_(debounce), time_(time) {}
 
   /**
@@ -113,9 +113,9 @@ class Button {
   ButtonStatus read_state(bool &debouned_output, EdgeState &switch_state_changed);
 
  private:
-  HAL::DigitalInput &button_input_;
+  HAL::Interfaces::DigitalInput &button_input_;
   Debouncer &debounce_;
-  HAL::Time &time_;
+  HAL::Interfaces::Time &time_;
   EdgeDetector edge_detect_;
 };
 

@@ -22,6 +22,7 @@
 
 namespace Pufferfish {
 namespace HAL {
+namespace Interfaces {
 
 /**
  * Represents a GPIO input in STM32
@@ -35,5 +36,6 @@ class DigitalInput {
   virtual bool read() = 0;
 };
 
+}  //namespace Interfaces
 }  // namespace HAL
 }  // namespace Pufferfish

@@ -22,6 +22,7 @@
 
 namespace Pufferfish {
 namespace HAL {
+namespace Interfaces {
 
 /**
  * An abstract class which represents a GPIO output
@@ -35,5 +36,8 @@ class DigitalOutput {
   virtual void write(bool output) = 0;
 };
 
+}  //namespace Interfaces
 }  // namespace HAL
 }  // namespace Pufferfish
+
+

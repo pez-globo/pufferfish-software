@@ -46,7 +46,7 @@ class StateMachine {
  */
 class Sensor : public Initializable {
  public:
-  Sensor(Device &device, bool resetter, HAL::Time &time)
+  Sensor(Device &device, bool resetter, HAL::Interfaces::Time &time)
       : resetter(resetter), device_(device), time_(time) {}
 
   InitializableState setup() override;
@@ -79,7 +79,7 @@ class Sensor : public Initializable {
   ConversionFactors conversion_{};
   Sample sample_{};
 
-  HAL::Time &time_;
+  HAL::Interfaces::Time &time_;
 
   InitializableState initialize(uint32_t current_time);
   InitializableState check_range(uint32_t current_time_us);

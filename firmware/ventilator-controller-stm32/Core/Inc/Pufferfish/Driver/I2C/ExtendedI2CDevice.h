@@ -7,7 +7,7 @@
 #pragma once
 
 #include "I2CMux.h"
-#include "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/STM32/HAL.h"
 #include "Pufferfish/Types.h"
 
 namespace Pufferfish {
@@ -17,7 +17,7 @@ namespace I2C {
 /**
  * An abstraction of an I2C device behind I2C multiplexer(s)
  */
-class ExtendedI2CDevice : public HAL::I2CDevice {
+class ExtendedI2CDevice : public HAL::Interfaces::I2CDevice {
  public:
   /**
    * Construct a new extended I2C device

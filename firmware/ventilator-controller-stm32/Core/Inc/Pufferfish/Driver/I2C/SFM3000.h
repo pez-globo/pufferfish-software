@@ -38,7 +38,7 @@ class SFM3000 : public Testable {
   static constexpr float scale_factor_air = 140.0F;
   static constexpr float scale_factor_o2 = 142.8F;
 
-  explicit SFM3000(HAL::I2CDevice &dev, HAL::Time &time, float scale_factor = scale_factor_air)
+  explicit SFM3000(HAL::Interfaces::I2CDevice &dev, HAL::Interfaces::Time &time, float scale_factor = scale_factor_air)
       : crc8_(crc_params), sensirion_(dev, crc8_), time_(time), scale_factor_(scale_factor) {}
 
   /**
@@ -70,7 +70,7 @@ class SFM3000 : public Testable {
   HAL::SoftCRC8 crc8_;
   SensirionDevice sensirion_;
   bool measuring_ = false;
-  HAL::Time &time_;
+  HAL::Interfaces::Time &time_;
   float scale_factor_;
 };
 

@@ -12,7 +12,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace Pufferfish::HAL {
+namespace Pufferfish::HAL::Interfaces  {
 
 template <typename Checksum>
 class CRCChecker {
@@ -29,4 +29,4 @@ class CRCChecker {
 using CRC8 = CRCChecker<uint8_t>;
 using CRC32 = CRCChecker<uint32_t>;
 
-}  // namespace Pufferfish::HAL
+}  // namespace Pufferfish::HAL::Interfaces

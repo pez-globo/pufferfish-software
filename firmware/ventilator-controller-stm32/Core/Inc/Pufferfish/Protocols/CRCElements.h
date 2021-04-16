@@ -41,14 +41,14 @@ class CRCElement {
   template <size_t output_size>
   IndexStatus write(
       Util::ByteVector<output_size> &output_buffer,
-      HAL::CRC32 &crc32c);  // updates length and crc fields
+      HAL::Interfaces::CRC32 &crc32c);  // updates length and crc fields
 
   template <size_t input_size>
   IndexStatus parse(
       const Util::ByteVector<input_size> &input_buffer);  // updates all fields, including payload
 
   template <size_t buffer_size>
-  static uint32_t compute_body_crc(const Util::ByteVector<buffer_size> &buffer, HAL::CRC32 &crc32c);
+  static uint32_t compute_body_crc(const Util::ByteVector<buffer_size> &buffer, HAL::Interfaces::CRC32 &crc32c);
 
  private:
   uint32_t crc_ = 0;
@@ -77,7 +77,7 @@ class CRCElementReceiver {
   using Props = CRCElementProps<body_max_size>;
   enum class Status { ok = 0, invalid_parse, invalid_crc };
 
-  explicit CRCElementReceiver(HAL::CRC32 &crc32c) : crc32c_(crc32c) {}
+  explicit CRCElementReceiver(HAL::Interfaces::CRC32 &crc32c) : crc32c_(crc32c) {}
 
   template <size_t input_size>
   Status transform(
@@ -85,7 +85,7 @@ class CRCElementReceiver {
       ParsedCRCElement<body_max_size> &output_crcelement);
 
  private:
-  HAL::CRC32 &crc32c_;
+  HAL::Interfaces::CRC32 &crc32c_;
 };
 
 // Generates datagrams from payloads
@@ -95,7 +95,7 @@ class CRCElementSender {
   using Props = CRCElementProps<body_max_size>;
   enum class Status { ok = 0, invalid_length };
 
-  explicit CRCElementSender(HAL::CRC32 &crc32c) : crc32c_(crc32c) {}
+  explicit CRCElementSender(HAL::Interfaces::CRC32 &crc32c) : crc32c_(crc32c) {}
 
   template <size_t output_size>
   Status transform(
@@ -103,7 +103,7 @@ class CRCElementSender {
       Util::ByteVector<output_size> &output_buffer);
 
  private:
-  HAL::CRC32 &crc32c_;
+  HAL::Interfaces::CRC32 &crc32c_;
 };
 
 }  // namespace Pufferfish::Protocols

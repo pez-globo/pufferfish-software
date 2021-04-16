@@ -27,7 +27,7 @@ static const uint16_t default_i2c_addr = 0x2e;
  */
 class Device {
  public:
-  explicit Device(HAL::I2CDevice &dev, HAL::I2CDevice &global_dev, GasType gas)
+  explicit Device(HAL::Interfaces::I2CDevice &dev, HAL::Interfaces::I2CDevice &global_dev, GasType gas)
       : crc8_(crc_params), sensirion_(dev, crc8_), global_(global_dev, crc8_), gas(gas) {}
 
   /**

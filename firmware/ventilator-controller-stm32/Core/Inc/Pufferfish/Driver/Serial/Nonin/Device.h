@@ -49,7 +49,7 @@ class Device {
    * Constructor for Device
    * @param  noninOEMUART BufferedUART with 512 bytes reception buffer
    */
-  explicit Device(volatile HAL::BufferedUART &uart) : nonin_uart_(uart) {}
+  explicit Device(volatile HAL::Interfaces::BufferedUART &uart) : nonin_uart_(uart) {}
 
   /**
    * @brief  Method inputs the byte to packet and reads the packet measurements
@@ -61,7 +61,7 @@ class Device {
 
  private:
   /* Create an object bufferredUART with 512 bytes of reception buffer */
-  volatile HAL::BufferedUART &nonin_uart_;
+  volatile HAL::Interfaces::BufferedUART &nonin_uart_;
 
   /* Create an object of FrameReceiver */
   FrameReceiver frame_receiver_;

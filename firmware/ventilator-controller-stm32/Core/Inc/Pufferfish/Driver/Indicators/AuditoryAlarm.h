@@ -10,7 +10,7 @@
 #pragma once
 
 #include "AlarmDevice.h"
-#include "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/STM32/HAL.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -29,10 +29,10 @@ class AuditoryAlarm : public AlarmDevice {
    * @param buzzer  output for the general purpose buzzer pin
    */
   AuditoryAlarm(
-      HAL::DigitalOutput &reg_high,
-      HAL::DigitalOutput &reg_med,
-      HAL::DigitalOutput &reg_low,
-      HAL::DigitalOutput &buzzer)
+      HAL::Interfaces::DigitalOutput &reg_high,
+      HAL::Interfaces::DigitalOutput &reg_med,
+      HAL::Interfaces::DigitalOutput &reg_low,
+      HAL::Interfaces::DigitalOutput &buzzer)
       : reg_high_(reg_high), reg_med_(reg_med), reg_low_(reg_low), buzzer_(buzzer) {}
 
   AlarmManagerStatus update(uint32_t current_time) override;
@@ -47,10 +47,10 @@ class AuditoryAlarm : public AlarmDevice {
     uint32_t buzzer_pulse_duty;
   };
 
-  HAL::DigitalOutput &reg_high_;
-  HAL::DigitalOutput &reg_med_;
-  HAL::DigitalOutput &reg_low_;
-  HAL::DigitalOutput &buzzer_;
+  HAL::Interfaces::DigitalOutput &reg_high_;
+  HAL::Interfaces::DigitalOutput &reg_med_;
+  HAL::Interfaces::DigitalOutput &reg_low_;
+  HAL::Interfaces::DigitalOutput &buzzer_;
 
   bool reset_ = false;
   Parameters parameters_{false, false, false, 0, 0};
