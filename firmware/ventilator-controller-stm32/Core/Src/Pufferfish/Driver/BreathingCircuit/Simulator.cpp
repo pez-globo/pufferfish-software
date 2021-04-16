@@ -137,6 +137,7 @@ void HFNCSimulator::transform(
     transform_fio2(parameters.fio2, sensor_measurements.fio2);
   }
   transform_spo2(sensor_measurements.fio2, sensor_measurements.spo2);
+  transform_hr(sensor_measurements.fio2, sensor_measurements.hr);
 }
 
 void HFNCSimulator::init_cycle() {
@@ -149,11 +150,23 @@ void HFNCSimulator::transform_flow(float params_flow, float &sens_meas_flow) {
 
 void HFNCSimulator::transform_spo2(float fio2, float &spo2) {
   spo2 += (spo2_fio2_scale * fio2 - spo2) * spo2_responsiveness / time_step();
+  // We don't use clamp because we want to preserve NaNs
   if (spo2 < spo2_min) {
     spo2 = spo2_min;
   }
   if (spo2 > spo2_max) {
     spo2 = spo2_max;
+  }
+}
+
+void HFNCSimulator::transform_hr(float fio2, float &hr) {
+  hr += (hr_fio2_scale * fio2 - hr) * hr_responsiveness / time_step();
+  // We don't use clamp because we want to preserve NaNs
+  if (hr < hr_min) {
+    hr = hr_min;
+  }
+  if (hr > hr_max) {
+    hr = hr_max;
   }
 }
 

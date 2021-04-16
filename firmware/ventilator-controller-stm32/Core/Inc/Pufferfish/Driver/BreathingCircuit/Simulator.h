@@ -30,6 +30,8 @@ class Simulator {
   static constexpr float po2_fio2_conversion = 100.0 / 1013250;  // % FiO2 / dPa O2 at 1 atm
   static constexpr float spo2_min = 21;                          // % SpO2
   static constexpr float spo2_max = 100;                         // % SpO2
+  static constexpr float hr_min = 0;                             // bpm
+  static constexpr float hr_max = 200;                           // bpm
 
   static constexpr float fio2_responsiveness = 0.01;  // ms
 
@@ -97,11 +99,14 @@ class HFNCSimulator : public Simulator {
   const float flow_responsiveness = 0.01;    // ms
   const float spo2_fio2_scale = 2.5;         // % SpO2 / % FiO2
   const float spo2_responsiveness = 0.0005;  // ms
+  const float hr_fio2_scale = 2;             // bpm / % FiO2
+  const float hr_responsiveness = 0.0003;    // ms
 
   void init_cycle();
   static void transform_rr(float params_rr, float &cycle_meas_rr);
   void transform_flow(float params_flow, float &sens_meas_flow);
   void transform_spo2(float fio2, float &spo2);
+  void transform_hr(float fio2, float &hr);
 };
 
 class Simulators {

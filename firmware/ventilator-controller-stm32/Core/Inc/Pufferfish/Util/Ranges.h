@@ -41,6 +41,8 @@ constexpr bool within(Numeric value, Numeric floor, Numeric ceiling) {
 
 /**
  * Clamps the value to be within the provided range
+ *
+ * Note: overrides NaNs
  * @param value the number to clamp
  * @param floor the minimum allowed value
  * @param ceiling the maximum allowed value
