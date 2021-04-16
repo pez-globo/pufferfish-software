@@ -68,6 +68,14 @@ IndexStatus decode_cobs(
     const Util::ByteVector<input_size> &encoded_buffer,
     Util::ByteVector<output_size> &decoded_buffer);
 
+template <size_t input_size>
+/// \brief Get the actual encoded buffer size for an unencoded buffer size.
+/// \param unencodedBuffer The unencoded ByteVector.
+/// \param unencodedBufferSize The size of the ByteVector to be encoded.
+/// \returns the actual size of the required encoded buffer.
+constexpr size_t get_encoded_cobs_buffer_size(
+    const Util::ByteVector<input_size> &unencoded_buffer, size_t unencoded_buffer_size);
+
 }  // namespace Pufferfish::Util
 
 #include "COBS.tpp"
