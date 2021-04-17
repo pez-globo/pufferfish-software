@@ -25,8 +25,6 @@ namespace PF = Pufferfish;
 namespace BE = PF::Driver::Serial::Backend;
 using namespace std::string_literals;
 
-static constexpr size_t num_descriptors = 8;
-
 SCENARIO(
     "Protocols::The message correctly writes to the output buffer and also updates type",
     "[messages]") {
@@ -152,11 +150,11 @@ SCENARIO(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
       "bytes") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
     const auto exp_cycle_measurements =
         std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-    const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-    const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+    const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
+    const auto exp_parameters_request = std::string("\x05\x10\x01\x25\x00\x00\xA0\x42"s);
     const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
     const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
@@ -284,7 +282,7 @@ SCENARIO(
           "from the message payload tag") {
         REQUIRE(output_buffer[0] == 0x04);
       }
-      THEN("The output buffer has an expected sequence of 10 bytes") {
+      THEN("The output buffer has an expected sequence of 8 bytes") {
         REQUIRE(output_buffer == exp_parameters);
       }
     }
@@ -325,7 +323,7 @@ SCENARIO(
           "from the message payload tag") {
         REQUIRE(output_buffer[0] == 0x05);
       }
-      THEN("The output buffer has an expected sequence of 10 bytes") {
+      THEN("The output buffer has an expected sequence of 8 bytes") {
         REQUIRE(output_buffer == exp_parameters_request);
       }
     }
@@ -401,7 +399,7 @@ SCENARIO(
         REQUIRE(test_message.payload.value.alarm_limits.fio2.upper == 100);
       }
       THEN("The fio2 field is not written to the buffer") {
-        auto expected = std::string("\06", 1);
+        auto expected = std::string("\06"s);
         REQUIRE(output_buffer == expected);
       }
     }
@@ -441,7 +439,7 @@ SCENARIO(
           "from the message payload tag") {
         REQUIRE(output_buffer[0] == 0x07);
       }
-      THEN("The output buffer has an expected sequence of bytes") {
+      THEN("The output buffer has an expected sequence of 7 bytes") {
         REQUIRE(output_buffer == exp_alarm_limits_request);
       }
     }
@@ -477,7 +475,7 @@ SCENARIO(
         REQUIRE(test_message.payload.value.alarm_limits_request.fio2.upper == 92);
       }
       THEN("The fio2 field is not written to the buffer") {
-        auto expected = std::string("\07", 1);
+        auto expected = std::string("\07"s);
         REQUIRE(output_buffer == expected);
       }
     }
@@ -509,7 +507,7 @@ SCENARIO(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 126 "
       "bytes") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
     const auto exp_cycle_measurements =
         std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
     const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
@@ -561,7 +559,7 @@ SCENARIO(
           "from the message payload tag") {
         REQUIRE(buffer[0] == 0x02);
       }
-      THEN("The output buffer has an expected sequence of bytes") {
+      THEN("The output buffer has an expected sequence of 16 bytes") {
         REQUIRE(buffer == exp_sensor_measurements);
       }
     }
@@ -610,7 +608,7 @@ SCENARIO(
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 508 "
       "bytes") {
-    const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
+    const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
     constexpr size_t payload_max_size = 508UL;
     using TestMessage = PF::Protocols::Message<
         PF::Application::StateSegment,
@@ -645,7 +643,7 @@ SCENARIO(
           "from the message payload tag") {
         REQUIRE(buffer[0] == 0x04);
       }
-      THEN("The output buffer has an expected sequence of bytes") {
+      THEN("The output buffer has an expected sequence of 8 bytes") {
         REQUIRE(buffer == exp_parameters);
       }
     }
@@ -845,11 +843,11 @@ SCENARIO(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
       "bytes") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
     const auto exp_cycle_measurements =
-        std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-    const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-    const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+        std::string("\x03\x25\x00\x00\xF0\x41\x35\x00\x00\x20\x41"s);
+    const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
+    const auto exp_parameters_request = std::string("\x05\x10\x01\x25\x00\x00\xA0\x42"s);
     const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
     const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
@@ -864,9 +862,8 @@ SCENARIO(
 
     // sensor measurements
     WHEN("A body with 1 byte header and a paylod of sensor measurments message type is parsed") {
-      auto data = std::string("\x02\x08\x02\x10\x0A\x1D\x00\x00\xA0\x41"s);
       PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(data, input_buffer);
+      PF::Util::convert_string_to_byte_vector(exp_sensor_measurements, input_buffer);
 
       auto parse_status = test_message.parse(input_buffer, BE::message_descriptors);
 
@@ -883,20 +880,21 @@ SCENARIO(
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.sensor_measurements.cycle == 10);
+        REQUIRE(test_message.payload.value.sensor_measurements.flow == 30);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.sensor_measurements.paw == 20);
+        REQUIRE(test_message.payload.value.sensor_measurements.fio2 == 85);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.sensor_measurements.time == 2);
+        REQUIRE(test_message.payload.value.sensor_measurements.spo2 == 72);
       }
-      THEN("The input buffer is unchanged after parse") { REQUIRE(input_buffer == data); }
+      THEN("The input buffer is unchanged after parse") {
+        REQUIRE(input_buffer == exp_sensor_measurements);
+      }
     }
 
     // cycle measurements
     WHEN("A body with 1 byte header and a paylod of cycle measurements message type is parsed") {
-      auto data = std::string("\x03\x25\x00\x00\xF0\x41\x35\x00\x00\x20\x41"s);
       PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(data, input_buffer);
+      PF::Util::convert_string_to_byte_vector(exp_cycle_measurements, input_buffer);
 
       auto parse_status = test_message.parse(input_buffer, BE::message_descriptors);
 
@@ -917,14 +915,15 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.cycle_measurements.ip == 10);
       }
-      THEN("The input buffer is unchanged after parse") { REQUIRE(input_buffer == data); }
+      THEN("The input buffer is unchanged after parse") {
+        REQUIRE(input_buffer == exp_cycle_measurements);
+      }
     }
 
     // parameters
     WHEN("A body with 1 byte header and a paylod of parameters message type is parsed") {
-      auto data = std::string("\x04\x10\x06\x2D\x00\x00\x34\x42\x50\x01"s);
       PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(data, input_buffer);
+      PF::Util::convert_string_to_byte_vector(exp_parameters, input_buffer);
 
       auto parse_status = test_message.parse(input_buffer, BE::message_descriptors);
 
@@ -941,20 +940,19 @@ SCENARIO(
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters.vt == 45);
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters.ventilating == true);
+        REQUIRE(test_message.payload.value.parameters.fio2 == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.mode == VentilationMode_hfnc);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.ventilating == true);
       }
-      THEN("The input buffer is unchanged after parse") { REQUIRE(input_buffer == data); }
+      THEN("The input buffer is unchanged after parse") { REQUIRE(input_buffer == exp_parameters); }
     }
 
     // parameters request
     WHEN("A body with 1 byte header and a paylod of parameters request message type is parsed") {
-      auto data = std::string("\x05\x3D\x00\x00\xA0\x41"s);
       PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(data, input_buffer);
+      PF::Util::convert_string_to_byte_vector(exp_parameters_request, input_buffer);
 
       auto parse_status = test_message.parse(input_buffer, BE::message_descriptors);
 
@@ -971,13 +969,15 @@ SCENARIO(
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters_request.ie == 20);
+        REQUIRE(test_message.payload.value.parameters_request.fio2 == 80);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters_request.time == 0);
+        REQUIRE(test_message.payload.value.parameters_request.mode == VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters_request.ventilating == false);
+        REQUIRE(test_message.payload.value.parameters_request.ventilating == true);
       }
-      THEN("The input buffer is unchanged after parse") { REQUIRE(input_buffer == data); }
+      THEN("The input buffer is unchanged after parse") {
+        REQUIRE(input_buffer == exp_parameters_request);
+      }
     }
 
     // alarm limits
@@ -1040,36 +1040,6 @@ SCENARIO(
       THEN("The input buffer is unchanged after parse") {
         REQUIRE(input_buffer == exp_alarm_limits_request);
       }
-    }
-
-    // sensor measurements
-    WHEN("A body with 1-byte header whose value is inconsistent with the payload message type") {
-      auto data = std::string("\x04\x08\x02\x10\x0A\x1D\x00\x00\xA0\x41"s);
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(data, input_buffer);
-
-      auto parse_status = test_message.parse(input_buffer, BE::message_descriptors);
-
-      THEN("The parse method reports ok status") {
-        REQUIRE(parse_status == PF::Protocols::MessageStatus::ok);
-      }
-      THEN(
-          "After the parse method is called, The value assigned to the type member is equal to the "
-          "type field of the input_buffer body's header") {
-        REQUIRE(test_message.type == 4);
-      }
-      THEN("The payload.tag field is set to sensor_measurements") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
-      }
-      THEN("the payload.values field of the output message are as expected") {
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.sensor_measurements.cycle == 10);
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.sensor_measurements.paw == 20);
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.sensor_measurements.time == 2);
-      }
-      THEN("The input buffer is unchanged after parse") { REQUIRE(input_buffer == data); }
     }
   }
 }
@@ -1195,13 +1165,10 @@ SCENARIO(
     WHEN("The parameters request message type is written and then parsed from the buffer") {
       ParametersRequest parameters_request;
       memset(&parameters_request, 0, sizeof(parameters_request));
-      parameters_request.ventilating = true;
       parameters_request.fio2 = 40;
       parameters_request.mode = VentilationMode_hfnc;
       parameters_request.flow = 60;
       test_message.payload.set(parameters_request);
-
-      PF::Util::ByteVector<buffer_size> buffer;
 
       // write
       auto write_status = test_message.write(buffer, BE::message_descriptors);
@@ -1224,12 +1191,9 @@ SCENARIO(
         REQUIRE(test_message.payload.value.parameters_request.flow == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters_request.mode == VentilationMode_hfnc);
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters_request.ventilating == true);
       }
-      THEN("The output buffer has an expected sequence of bytes") {
-        auto expected =
-            std::string("\x05\x10\x06\x45\x00\x00\x20\x42\x4D\x00\x00\x70\x42\x50\x01"s);
+      THEN("The output buffer has an expected sequence of 11 bytes") {
+        auto expected = std::string("\x05\x25\x00\x00\x20\x42\x2D\x00\x00\x70\x42"s);
         REQUIRE(buffer == expected);
       }
 
@@ -1255,7 +1219,6 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(parse_message.payload.value.parameters_request.mode == VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(parse_message.payload.value.parameters_request.ventilating == true);
       }
       THEN("The input buffer is unchanged after parse") {
         PF::Util::ByteVector<buffer_size> expected;
@@ -1285,15 +1248,13 @@ SCENARIO(
         REQUIRE(parse_message.payload.value.parameters_request.flow == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(parse_message.payload.value.parameters_request.mode == VentilationMode_hfnc);
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(parse_message.payload.value.parameters_request.ventilating == true);
       }
       THEN(
           "The type field of the body's header correctly stores the value of message type obtained "
           "from the message payload tag") {
         REQUIRE(output_buffer[0] == 0x05);
       }
-      THEN("The output buffer has an expected sequence of bytes") {
+      THEN("The output buffer has an expected sequence of 11 bytes") {
         REQUIRE(output_buffer == buffer);
       }
     }
@@ -1304,14 +1265,7 @@ SCENARIO(
     "Protocols::The Message Receiver class correctly transforms messages into paylaods",
     "[messages]") {
   GIVEN("A MessageReceiver object is constructed with default parameters") {
-    const auto exp_sensor_measurements =
-        std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
-    const auto exp_cycle_measurements =
-        std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-    const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-    const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
-    const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
-    const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
+    const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
 
     constexpr size_t payload_max_size = 254UL;
     using TestMessage = PF::Protocols::Message<
@@ -1322,10 +1276,11 @@ SCENARIO(
     constexpr size_t buffer_size = 252UL;
     PF::Util::ByteVector<buffer_size> buffer;
 
-    PF::Protocols::MessageReceiver<TestMessage, num_descriptors> receiver{BE::message_descriptors};
+    PF::Protocols::MessageReceiver<TestMessage, BE::message_descriptors.size()> receiver{
+        BE::message_descriptors};
 
     WHEN("An empty input buffer body is parsed") {
-      PF::Protocols::MessageReceiver<TestMessage, num_descriptors> receiver{
+      PF::Protocols::MessageReceiver<TestMessage, BE::message_descriptors.size()> receiver{
           BE::message_descriptors};
       PF::Util::ByteVector<buffer_size> input_buffer;
 
@@ -1351,7 +1306,7 @@ SCENARIO(
         "A body with an empty payload and 1-byte header whose value is not included in "
         "MessageTypes enum") {
       constexpr size_t buffer_size = 253UL;
-      PF::Protocols::MessageReceiver<TestMessage, num_descriptors> receiver{
+      PF::Protocols::MessageReceiver<TestMessage, BE::message_descriptors.size()> receiver{
           BE::message_descriptors};
 
       PF::Util::ByteVector<buffer_size> input_buffer;
@@ -1372,7 +1327,7 @@ SCENARIO(
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
       }
       THEN("The input buffer is unchanged after transform") {
-        auto expected = std::string("\x08");
+        auto expected = std::string("\x08"s);
         REQUIRE(input_buffer == expected);
       }
     }
@@ -1409,7 +1364,7 @@ SCENARIO(
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
       }
       THEN("The input buffer is unchanged after transform") {
-        auto expected = std::string("\x04");
+        auto expected = std::string("\x04"s);
         REQUIRE(input_buffer == expected);
       }
     }
@@ -1444,7 +1399,7 @@ SCENARIO(
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
       }
       THEN("The input buffer is unchanged after transform") {
-        auto expected = std::string("\x05");
+        auto expected = std::string("\x05"s);
         REQUIRE(input_buffer == expected);
       }
     }
@@ -1510,9 +1465,8 @@ SCENARIO(
       constexpr size_t number_desc = 5;
       PF::Protocols::MessageReceiver<TestMessage, number_desc> receiver{message_descriptors};
 
-      auto data = std::string("\x04\x4D\x00\x00\xF0\x41"s);
       PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(data, input_buffer);
+      PF::Util::convert_string_to_byte_vector(exp_parameters, input_buffer);
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
@@ -1529,7 +1483,11 @@ SCENARIO(
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters.flow == 30);
+        REQUIRE(test_message.payload.value.parameters.fio2 == 60);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.mode == VentilationMode_hfnc);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
+        REQUIRE(test_message.payload.value.parameters.ventilating == true);
       }
     }
 
@@ -1571,9 +1529,8 @@ SCENARIO(
     }
 
     WHEN("The input buffer is changed after transform is called on it") {
-      auto parameters_data = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
       PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(parameters_data, input_buffer);
+      PF::Util::convert_string_to_byte_vector(exp_parameters, input_buffer);
 
       auto transform_status = receiver.transform(input_buffer, test_message);
 
@@ -1624,11 +1581,11 @@ SCENARIO(
     "[messages]") {
   GIVEN("A MessageReceiver object is constructed with default parameters") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
     const auto exp_cycle_measurements =
         std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-    const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-    const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+    const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
+    const auto exp_parameters_request = std::string("\x05\x10\x01\x25\x00\x00\xA0\x42"s);
     const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
     const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
@@ -1641,7 +1598,8 @@ SCENARIO(
     constexpr size_t buffer_size = 252UL;
     PF::Util::ByteVector<buffer_size> buffer;
 
-    PF::Protocols::MessageReceiver<TestMessage, num_descriptors> receiver{BE::message_descriptors};
+    PF::Protocols::MessageReceiver<TestMessage, BE::message_descriptors.size()> receiver{
+        BE::message_descriptors};
 
     // sensor measurements
     WHEN("A body with 1 byte header and a paylod of sensor measurements is parsed") {
@@ -1833,11 +1791,11 @@ SCENARIO(
     "[messages]") {
   GIVEN("A MessageSender object is constructed with default parameters") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
     const auto exp_cycle_measurements =
         std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
-    const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
-    const auto exp_parameters_request = std::string("\x05\x10\x06\x45\x00\x00\xA0\x42\x50\x01"s);
+    const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
+    const auto exp_parameters_request = std::string("\x05\x10\x01\x25\x00\x00\xA0\x42"s);
     const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
     const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
@@ -1852,8 +1810,9 @@ SCENARIO(
     PF::Util::ByteVector<buffer_size> output_buffer;
     PF::Application::StateSegment tagged_union;
 
-    PF::Protocols::MessageSender<TestMessage, PF::Application::StateSegment, num_descriptors>
-        sender{BE::message_descriptors};
+    PF::Protocols::
+        MessageSender<TestMessage, PF::Application::StateSegment, BE::message_descriptors.size()>
+            sender{BE::message_descriptors};
 
     WHEN(
         "transform is called on a payload whose tag value is equal to the size of descriptor "
@@ -1930,8 +1889,9 @@ SCENARIO(
       constexpr size_t output_size = 14UL;
       PF::Util::ByteVector<output_size> output_buffer;
 
-      PF::Protocols::MessageSender<TestMessage, PF::Application::StateSegment, num_descriptors>
-          sender{BE::message_descriptors};
+      PF::Protocols::
+          MessageSender<TestMessage, PF::Application::StateSegment, BE::message_descriptors.size()>
+              sender{BE::message_descriptors};
 
       SensorMeasurements sensor_measurements;
       memset(&sensor_measurements, 0, sizeof(sensor_measurements));
@@ -1995,7 +1955,7 @@ SCENARIO(
           "from the message payload tag") {
         REQUIRE(output_buffer[0] == 0x02);
       }
-      THEN("The output buffer has an expected sequence of bytes") {
+      THEN("The output buffer has an expected sequence of 16 bytes") {
         REQUIRE(output_buffer == exp_sensor_measurements);
       }
     }
@@ -2028,7 +1988,7 @@ SCENARIO(
           "from the message payload tag") {
         REQUIRE(output_buffer[0] == 0x03);
       }
-      THEN("The output buffer has an expected sequence of bytes") {
+      THEN("The output buffer has an expected sequence of 11 bytes") {
         REQUIRE(output_buffer == exp_cycle_measurements);
       }
     }
@@ -2063,7 +2023,7 @@ SCENARIO(
           "from the message payload tag") {
         REQUIRE(output_buffer[0] == 0x04);
       }
-      THEN("The output buffer has an expected sequence of bytes") {
+      THEN("The output buffer has an expected sequence of 8 bytes") {
         REQUIRE(output_buffer == exp_parameters);
       }
     }
@@ -2099,7 +2059,7 @@ SCENARIO(
           "from the message payload tag") {
         REQUIRE(output_buffer[0] == 0x05);
       }
-      THEN("The output buffer has an expected sequence of bytes") {
+      THEN("The output buffer has an expected sequence of 8 bytes") {
         REQUIRE(output_buffer == exp_parameters_request);
       }
     }
@@ -2133,7 +2093,7 @@ SCENARIO(
           "from the message payload tag") {
         REQUIRE(output_buffer[0] == 0x06);
       }
-      THEN("The output buffer has an expected sequence of bytes") {
+      THEN("The output buffer has an expected sequence of 7 bytes") {
         REQUIRE(output_buffer == exp_alarm_limits);
       }
     }
@@ -2167,7 +2127,7 @@ SCENARIO(
           "from the message payload tag") {
         REQUIRE(output_buffer[0] == 0x07);
       }
-      THEN("The output buffer has an expected sequence of bytes") {
+      THEN("The output buffer has an expected sequence of 7 bytes") {
         REQUIRE(output_buffer == exp_alarm_limits_request);
       }
     }
