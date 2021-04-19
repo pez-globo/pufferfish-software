@@ -14,7 +14,7 @@
 
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/HAL/CRCChecker.h"
-#include "Pufferfish/HAL/Mock/MockTime.h"
+#include "Pufferfish/HAL/Mock/Time.h"
 #include "Pufferfish/Protocols/Chunks.h"
 #include "Pufferfish/Test/BackendDefs.h"
 #include "Pufferfish/Util/Array.h"

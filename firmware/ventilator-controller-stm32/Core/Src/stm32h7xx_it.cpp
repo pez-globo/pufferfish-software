@@ -19,12 +19,12 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
+#include <Pufferfish/HAL/STM32/BufferedUART.h>
 #include "main.h"
 #include "stm32h7xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Pufferfish/Driver/Serial/Nonin/Device.h"
-#include "Pufferfish/HAL/STM32/HALBufferedUART.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,9 +45,9 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 /// Buffered UART
-extern volatile Pufferfish::HAL::LargeBufferedUART backend_uart;
-extern volatile Pufferfish::HAL::LargeBufferedUART fdo2_uart;
-extern volatile Pufferfish::HAL::ReadOnlyBufferedUART nonin_oem_uart;
+extern volatile Pufferfish::HAL::STM32::LargeBufferedUART backend_uart;
+extern volatile Pufferfish::HAL::STM32::LargeBufferedUART fdo2_uart;
+extern volatile Pufferfish::HAL::STM32::ReadOnlyBufferedUART nonin_oem_uart;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

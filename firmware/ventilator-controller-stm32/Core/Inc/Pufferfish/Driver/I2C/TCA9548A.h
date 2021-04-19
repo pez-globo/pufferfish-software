@@ -8,7 +8,7 @@
 
 #include "I2CMux.h"
 #include "Pufferfish/Driver/Testable.h"
-#include "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/STM32/HAL.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -21,7 +21,7 @@ class TCA9548A : public I2CMux, public Testable {
  public:
   static constexpr uint16_t default_i2c_addr = 0x70;
 
-  explicit TCA9548A(HAL::I2CDevice &dev) : dev_(dev) {}
+  explicit TCA9548A(HAL::Interfaces::I2CDevice &dev) : dev_(dev) {}
 
   I2CDeviceStatus select_slot(uint8_t slot) override;
 
@@ -40,7 +40,7 @@ class TCA9548A : public I2CMux, public Testable {
  private:
   static const uint8_t default_slot = 0xff;
   uint8_t current_slot_ = default_slot;
-  HAL::I2CDevice &dev_;
+  HAL::Interfaces::I2CDevice &dev_;
 };
 
 }  // namespace I2C

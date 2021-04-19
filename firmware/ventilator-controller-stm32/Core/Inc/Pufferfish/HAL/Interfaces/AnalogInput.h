@@ -26,6 +26,7 @@
 
 namespace Pufferfish {
 namespace HAL {
+namespace Interfaces {
 
 /**
  * Represents a Analog input in STM32
@@ -54,5 +55,6 @@ class AnalogInput {
   virtual ADCStatus stop() = 0;
 };
 
+}  //namespace Interfaces
 }  // namespace HAL
 }  // namespace Pufferfish

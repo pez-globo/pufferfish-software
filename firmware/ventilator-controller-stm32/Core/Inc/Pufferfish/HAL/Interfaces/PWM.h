@@ -26,6 +26,7 @@
 
 namespace Pufferfish {
 namespace HAL {
+namespace Interfaces {
 
 /**
  * A generic PWM driver
@@ -68,5 +69,7 @@ class PWM {
   virtual uint32_t get_max_duty_cycle() = 0;
 };
 
+
+} /* namespace Interfaces */
 } /* namespace HAL */
 } /* namespace Pufferfish */
