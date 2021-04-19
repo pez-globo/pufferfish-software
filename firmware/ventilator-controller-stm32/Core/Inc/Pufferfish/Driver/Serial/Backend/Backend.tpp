@@ -27,7 +27,7 @@ BackendReceiver::InputStatus BackendReceiver::input(uint8_t new_byte) {
   return InputStatus::ok;
 }
 
-BackendReceiver::OutputStatus BackendReceiver::output(BackendMessage &output_message) {
+BackendReceiver::OutputStatus BackendReceiver::output(Message &output_message) {
   FrameProps::PayloadBuffer temp_buffer1;
   BackendCRCReceiver::Props::PayloadBuffer temp_buffer2;
   BackendDatagramReceiver::Props::PayloadBuffer temp_buffer3;
@@ -85,13 +85,13 @@ BackendReceiver::OutputStatus BackendReceiver::output(BackendMessage &output_mes
 // BackendSender
 
 BackendSender::Status BackendSender::transform(
-    const BackendMessage &input_message, FrameProps::ChunkBuffer &output_buffer) {
+    const Application::StateSegment &state_segment, FrameProps::ChunkBuffer &output_buffer) {
   BackendDatagramSender::Props::PayloadBuffer temp_buffer1;
   BackendCRCSender::Props::PayloadBuffer temp_buffer2;
   FrameProps::PayloadBuffer temp_buffer3;
 
   // Message
-  switch (message_.transform(input_message, temp_buffer1)) {
+  switch (message_.transform(state_segment, temp_buffer1)) {
     case Protocols::MessageStatus::invalid_length:
       return Status::invalid_message_length;
     case Protocols::MessageStatus::invalid_type:
@@ -147,7 +147,7 @@ Backend::Status Backend::input(uint8_t new_byte) {
   }
 
   // Output from receiver
-  BackendMessage message;
+  Message message;
   switch (receiver_.output(message)) {
     case BackendReceiver::OutputStatus::invalid_datagram_sequence:
       // TODO(lietk12): handle warning case first
@@ -195,8 +195,8 @@ constexpr bool Backend::accept_message(Application::MessageTypes type) noexcept 
 
 Backend::Status Backend::output(FrameProps::ChunkBuffer &output_buffer) {
   // Output from state synchronization
-  BackendMessage message;
-  switch (synchronizer_.output(message.payload)) {
+  Application::StateSegment state_segment;
+  switch (synchronizer_.output(state_segment)) {
     case BackendStateSynchronizer::OutputStatus::ok:
       break;
     case BackendStateSynchronizer::OutputStatus::invalid_type:
@@ -205,7 +205,7 @@ Backend::Status Backend::output(FrameProps::ChunkBuffer &output_buffer) {
       return Status::waiting;
   }
 
-  switch (sender_.transform(message, output_buffer)) {
+  switch (sender_.transform(state_segment, output_buffer)) {
     case BackendSender::Status::ok:
       break;
     case BackendSender::Status::invalid_message_length:
