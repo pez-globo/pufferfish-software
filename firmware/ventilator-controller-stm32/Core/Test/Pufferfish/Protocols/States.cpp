@@ -1,22 +1,22 @@
 /*
  * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
  *
- * States.cpp
+ * Chunks.cpp
  *
  *  Created on: Nov 3, 2020
  *      Author: Renji Panicker
  *
- * Unit tests to confirm behavior of states
+ * Unit tests to confirm behavior of chunk splitter
  *
  */
 
 #include "Pufferfish/Protocols/States.h"
 
 #include "Pufferfish/Application/States.h"
-#include "Pufferfish/Driver/Serial/Backend/Backend.h"
 #include "Pufferfish/HAL/CRCChecker.h"
 #include "Pufferfish/HAL/Mock/MockTime.h"
 #include "Pufferfish/Protocols/Chunks.h"
+#include "Pufferfish/Test/BackendDefs.h"
 #include "Pufferfish/Util/Array.h"
 #include "catch2/catch.hpp"
 
