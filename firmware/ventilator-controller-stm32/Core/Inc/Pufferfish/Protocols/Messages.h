@@ -41,7 +41,7 @@ class Message {
   template <size_t output_size, size_t num_descriptors>
   MessageStatus write(
       Util::ByteVector<output_size> &output_buffer,
-      const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) const;
+      const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors);
 
   template <size_t input_size, size_t num_descriptors>
   MessageStatus parse(
@@ -65,14 +65,14 @@ class MessageReceiver {
 };
 
 // Generates messages from payloads
-template <typename Message, size_t num_descriptors>
+template <typename Message, typename TaggedUnion, size_t num_descriptors>
 class MessageSender {
  public:
   explicit MessageSender(const Util::ProtobufDescriptors<num_descriptors> &descriptors);
 
   template <size_t output_size>
   MessageStatus transform(
-      const Message &input_message, Util::ByteVector<output_size> &output_buffer) const;
+      const TaggedUnion &payload, Util::ByteVector<output_size> &output_buffer) const;
 
  private:
   const Util::ProtobufDescriptors<num_descriptors> &descriptors_;

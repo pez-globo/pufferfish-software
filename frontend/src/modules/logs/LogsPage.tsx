@@ -3,12 +3,8 @@ import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { updateCommittedState } from '../../store/controller/actions';
-import { LogEvent, LogEventType, Range } from '../../store/controller/proto/mcu_pb';
-import {
-  getActiveLogEventIds,
-  getAlarmLimitsRequest,
-  getNextLogEvents,
-} from '../../store/controller/selectors';
+import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
+import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
 import { EXPECTED_LOG_EVENT_ID } from '../../store/controller/types';
 import { setMultiPopupOpen } from '../app/Service';
 import { AlarmModal } from '../controllers';
@@ -78,8 +74,9 @@ const useStyles = makeStyles(() =>
       color: '#fff',
     },
     eventType: {
+      width: '10rem',
       boxShadow: 'none !important',
-      padding: '0rem 3rem !important',
+      padding: '2px 2rem !important',
       border: 'none',
       color: '#fff',
     },
@@ -128,17 +125,13 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const [orderBy, setOrderBy] = React.useState<keyof Data>('time');
   const [selected, setSelected] = React.useState<string[]>([]);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(8);
+  const [rowsPerPage, setRowsPerPage] = React.useState(9);
   const [open, setOpen] = React.useState(false);
   const [alarmOpen, setAlarmOpen] = React.useState(false);
   const [currentRow, setCurrentRow] = React.useState<Data>();
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   const loggedEvents = useSelector(getNextLogEvents, shallowEqual);
   const activeLogEventIds = useSelector(getActiveLogEventIds, shallowEqual);
-  const alarmLimits: Record<string, Range> = useSelector(
-    getAlarmLimitsRequest,
-    shallowEqual,
-  ) as Record<string, Range>;
   const settingsAllowed = ['hr', 'spo2'];
 
   const updateLogEvent = useCallback(
@@ -167,7 +160,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
               event.time,
               activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
               event.id,
-              getDetails(event, eventType, alarmLimits),
+              getDetails(event, eventType),
               eventType.stateKey || '',
               eventType.head || '',
               eventType.unit || '',
@@ -182,7 +175,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
             event.time,
             activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
             event.id,
-            getDetails(event, eventType, alarmLimits),
+            getDetails(event, eventType),
             eventType.stateKey || '',
             eventType.head || '',
             eventType.unit || '',
@@ -193,7 +186,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     setRows(data.length ? data : []);
     // update ExpectedLogEvent
     updateLogEvent(Math.max(...eventIds));
-  }, [loggedEvents, activeLogEventIds, updateLogEvent, filter, alarmLimits, getDetails]);
+  }, [loggedEvents, activeLogEventIds, updateLogEvent, filter, getDetails]);
 
   const handleClose = () => {
     setOpen(false);
@@ -324,7 +317,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                       variant="contained"
                       color="primary"
                       onClick={() => onSettings(row)}
-                      style={{ padding: '6px 3rem' }}
+                      style={{ padding: '2px 2rem' }}
                     >
                       Settings
                     </Button>
