@@ -14,12 +14,12 @@ function exit_script {
 }
 
 # Install required components
-$script_path/install.sh "deploy" || exit_script "Development components installation failed"
+$script_path/install.sh "pipeline" || exit_script "Development components installation failed"
 
 # Deploy services
-$script_path/deploy.sh "deploy" || exit_script "Development of services failed"
+$script_path/deploy.sh "pipeline" || exit_script "Development of services failed"
 
 # Deploy lock services
-$script_path/lock.sh "deploy" || exit_script "Development of lock services failed"
+$script_path/lock.sh || exit_script "Development of lock services failed"
 
 echo -e "Reboot required for changes to take effect. Please restart!"

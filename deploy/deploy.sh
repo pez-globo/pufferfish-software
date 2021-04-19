@@ -37,4 +37,12 @@ $script_path/scripts/live_usb.sh || exit_script "USB Mass Storage setup failed"
 # Modify eeprom to setup watchdog to handle Raspberry Pi failures and crashes
 $script_path/scripts/setup_watchdog.sh || exit_script "Watchdog setup failed"
 
-echo -e "Reboot required for changes to take effect. Please restart!"
+if [[ "$@" != "pipeline" ]]
+then
+    echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/N]: "
+    read answer
+    if echo "$answer" | grep -iq "^y"
+    then
+        sudo reboot
+    fi
+fi
