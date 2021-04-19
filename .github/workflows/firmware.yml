@@ -204,12 +204,10 @@ jobs:
     - name: Run Catch2 Test Coverage
       run: |
         cd cmake-build-testcoverage
-        ./TestCoverage
-        lcov -c -d . -o name.info
-        genhtml name.info
+        make TestCoverage_coverage
 
-    - name: TestCoverage HTML
+    - name: TestCoverage
       uses: actions/upload-artifact@v2
       with:
-        name: index html
-        path: firmware/ventilator-controller-stm32/cmake-build-testcoverage/*
+        name: coverage folder
+        path: firmware/ventilator-controller-stm32/cmake-build-testcoverage/TestCoverage_coverage/*
