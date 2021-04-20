@@ -6,6 +6,10 @@ Scenario: The Util encode_cobs function correctly encodes buffers
     THEN("The encode_cobs function reports out_of_bounds status")
     THEN("The encoded buffer is empty")
 
+  WHEN("The cobs::encode function is called on an empty input buffer")
+    THEN("The encode_cobs function reports ok status")
+    THEN("The encoded buffer is as expected '\x01' ")
+
   WHEN("The cobs::encode is called on a null byte")
     THEN("The encode_cobs function reports ok status")
     THEN("The encoded buffer is as expected '\x01\x01' ")

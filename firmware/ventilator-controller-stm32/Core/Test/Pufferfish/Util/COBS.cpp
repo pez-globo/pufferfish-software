@@ -40,6 +40,16 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
       THEN("The encoded buffer is empty") { REQUIRE(encoded_buffer.empty() == true); }
     }
 
+    WHEN("The cobs::encode function is called on an empty input buffer") {
+      auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
+
+      THEN("The encode_cobs function reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The encoded buffer is as expected '0x01'") {
+        auto expected = std::string("\x01"s);
+        REQUIRE(encoded_buffer == expected);
+      }
+    }
+
     WHEN("The cobs::encode function is called on a null byte") {
       push_status = input_buffer.push_back(0x00);
       REQUIRE(push_status == PF::IndexStatus::ok);
