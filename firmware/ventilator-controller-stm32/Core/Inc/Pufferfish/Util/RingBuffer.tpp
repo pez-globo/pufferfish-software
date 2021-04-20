@@ -102,7 +102,7 @@ BufferStatus RingBuffer<buffer_size, ElementType>::peek(
       return BufferStatus::empty;
     }
 
-    if (!offset) {
+    if (offset == 0) {
       break;
     }
 
