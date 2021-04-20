@@ -2,13 +2,14 @@
 
 import dataclasses
 import typing
-from typing import Mapping, Optional, Tuple, Type
+from typing import Mapping, Optional, Tuple
 
 import attr
 
 import betterproto
 
 from ventserver.protocols.protobuf import mcu_pb
+from ventserver.protocols import backend
 from ventserver.simulation import log
 
 
@@ -111,18 +112,19 @@ class Services:
 
     def transform(
             self, current_time: float, all_states: Mapping[
-                Type[betterproto.Message], Optional[betterproto.Message]
+                backend.StateSegment, Optional[betterproto.Message]
             ], log_manager: log.Manager
     ) -> None:
         """Update the alarm limits for the requested mode."""
         parameters = typing.cast(
-            mcu_pb.Parameters, all_states[mcu_pb.Parameters]
+            mcu_pb.Parameters, all_states[backend.StateSegment.PARAMETERS]
         )
         request = typing.cast(
-            mcu_pb.AlarmLimitsRequest, all_states[mcu_pb.AlarmLimitsRequest]
+            mcu_pb.AlarmLimitsRequest,
+            all_states[backend.StateSegment.ALARM_LIMITS_REQUEST]
         )
         response = typing.cast(
-            mcu_pb.AlarmLimits, all_states[mcu_pb.AlarmLimits]
+            mcu_pb.AlarmLimits, all_states[backend.StateSegment.ALARM_LIMITS]
         )
         self._active_service = self._services.get(parameters.mode, None)
 

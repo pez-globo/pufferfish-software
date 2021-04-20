@@ -33,6 +33,7 @@ class FrontendConnectionEvent(events.Event):
             and self.is_frontend_connected is not None
         )
 
+
 @attr.s
 class ReceiveEvent(events.Event):
     """Server receive input event."""

@@ -2,13 +2,14 @@
 
 import abc
 import typing
-from typing import Mapping, Optional, Type
+from typing import Mapping, Optional
 
 import attr
 
 import betterproto
 
 from ventserver.protocols.protobuf import mcu_pb
+from ventserver.protocols import backend
 from ventserver.simulation import log
 
 
@@ -180,15 +181,16 @@ class Services:
 
     def transform(
             self, current_time: float, all_states: Mapping[
-                Type[betterproto.Message], Optional[betterproto.Message]
+                backend.StateSegment, Optional[betterproto.Message]
             ], log_manager: log.Manager
     ) -> None:
         """Update the parameters for the requested mode."""
         request = typing.cast(
-            mcu_pb.ParametersRequest, all_states[mcu_pb.ParametersRequest]
+            mcu_pb.ParametersRequest,
+            all_states[backend.StateSegment.PARAMETERS_REQUEST]
         )
         response = typing.cast(
-            mcu_pb.Parameters, all_states[mcu_pb.Parameters]
+            mcu_pb.Parameters, all_states[backend.StateSegment.PARAMETERS]
         )
         self._active_service = self._services.get(request.mode, None)
 

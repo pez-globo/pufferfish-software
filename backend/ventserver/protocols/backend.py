@@ -1,9 +1,10 @@
 """Sans-I/O backend service protocol."""
 
 import collections
+import enum
 import logging
 import typing
-from typing import Dict, Optional, Type, Union
+from typing import Dict, Optional, Union
 
 import attr
 
@@ -19,33 +20,51 @@ from ventserver.sansio import channels
 from ventserver.sansio import protocols
 
 
+@enum.unique
+class StateSegment(enum.Enum):
+    """Enum for addressing state segments in the state store."""
+    SENSOR_MEASUREMENTS = enum.auto()
+    CYCLE_MEASUREMENTS = enum.auto()
+    PARAMETERS = enum.auto()
+    PARAMETERS_REQUEST = enum.auto()
+    ALARM_LIMITS = enum.auto()
+    ALARM_LIMITS_REQUEST = enum.auto()
+    EXPECTED_LOG_EVENT_MCU = enum.auto()
+    NEXT_LOG_EVENTS_MCU = enum.auto()
+    ACTIVE_LOG_EVENTS_MCU = enum.auto()
+    EXPECTED_LOG_EVENT_BE = enum.auto()
+    NEXT_LOG_EVENTS_BE = enum.auto()
+    ACTIVE_LOG_EVENTS_BE = enum.auto()
+    ROTARY_ENCODER = enum.auto()
+
+
 MCU_SYNCHRONIZER_SCHEDULE = collections.deque([
-    states.ScheduleEntry(time=0.02, type=mcu_pb.ParametersRequest),
-    states.ScheduleEntry(time=0.02, type=mcu_pb.ExpectedLogEvent),
-    states.ScheduleEntry(time=0.02, type=mcu_pb.AlarmLimitsRequest),
-    states.ScheduleEntry(time=0.02, type=mcu_pb.ExpectedLogEvent),
+    states.ScheduleEntry(time=0.02, type=StateSegment.PARAMETERS_REQUEST),
+    states.ScheduleEntry(time=0.02, type=StateSegment.EXPECTED_LOG_EVENT_MCU),
+    states.ScheduleEntry(time=0.02, type=StateSegment.ALARM_LIMITS_REQUEST),
+    states.ScheduleEntry(time=0.02, type=StateSegment.EXPECTED_LOG_EVENT_MCU),
 ])
 
 FRONTEND_SYNCHRONIZER_SCHEDULE = collections.deque([
-    states.ScheduleEntry(time=0.01, type=mcu_pb.SensorMeasurements),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.Parameters),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.ParametersRequest),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.SensorMeasurements),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.AlarmLimits),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.AlarmLimitsRequest),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.SensorMeasurements),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.NextLogEvents),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.ActiveLogEvents),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.SensorMeasurements),
-    states.ScheduleEntry(time=0.01, type=frontend_pb.RotaryEncoder),
-    states.ScheduleEntry(time=0.01, type=mcu_pb.CycleMeasurements),
+    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
+    states.ScheduleEntry(time=0.01, type=StateSegment.PARAMETERS),
+    states.ScheduleEntry(time=0.01, type=StateSegment.PARAMETERS_REQUEST),
+    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
+    states.ScheduleEntry(time=0.01, type=StateSegment.ALARM_LIMITS),
+    states.ScheduleEntry(time=0.01, type=StateSegment.ALARM_LIMITS_REQUEST),
+    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
+    states.ScheduleEntry(time=0.01, type=StateSegment.NEXT_LOG_EVENTS_BE),
+    states.ScheduleEntry(time=0.01, type=StateSegment.ACTIVE_LOG_EVENTS_BE),
+    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
+    states.ScheduleEntry(time=0.01, type=StateSegment.ROTARY_ENCODER),
+    states.ScheduleEntry(time=0.01, type=StateSegment.CYCLE_MEASUREMENTS),
 ])
 
 FILE_SYNCHRONIZER_SCHEDULE = collections.deque([
-    states.ScheduleEntry(time=0.3, type=mcu_pb.Parameters),
-    states.ScheduleEntry(time=0.3, type=mcu_pb.ParametersRequest),
-    states.ScheduleEntry(time=0.3, type=mcu_pb.AlarmLimits),
-    states.ScheduleEntry(time=0.3, type=mcu_pb.AlarmLimitsRequest),
+    states.ScheduleEntry(time=0.3, type=StateSegment.PARAMETERS),
+    states.ScheduleEntry(time=0.3, type=StateSegment.PARAMETERS_REQUEST),
+    states.ScheduleEntry(time=0.3, type=StateSegment.ALARM_LIMITS),
+    states.ScheduleEntry(time=0.3, type=StateSegment.ALARM_LIMITS_REQUEST),
 ])
 
 # Events
@@ -104,18 +123,24 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
     """Filter which passes input data in an event class."""
 
     MCU_INPUT_TYPES = {
-        mcu_pb.SensorMeasurements,
-        mcu_pb.CycleMeasurements,
-        mcu_pb.Parameters,
-        mcu_pb.AlarmLimits,
-        mcu_pb.NextLogEvents,
-        mcu_pb.ActiveLogEvents,
+        mcu_pb.SensorMeasurements: StateSegment.SENSOR_MEASUREMENTS,
+        mcu_pb.CycleMeasurements: StateSegment.CYCLE_MEASUREMENTS,
+        mcu_pb.Parameters: StateSegment.PARAMETERS,
+        mcu_pb.AlarmLimits: StateSegment.ALARM_LIMITS,
+        mcu_pb.NextLogEvents: StateSegment.NEXT_LOG_EVENTS_MCU,
+        mcu_pb.ActiveLogEvents: StateSegment.ACTIVE_LOG_EVENTS_MCU,
     }
     FRONTEND_INPUT_TYPES = {
-        mcu_pb.ParametersRequest,
-        mcu_pb.AlarmLimitsRequest,
-        mcu_pb.ExpectedLogEvent,
-        frontend_pb.RotaryEncoder
+        mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
+        mcu_pb.AlarmLimitsRequest: StateSegment.ALARM_LIMITS_REQUEST,
+        mcu_pb.ExpectedLogEvent: StateSegment.EXPECTED_LOG_EVENT_BE,
+        frontend_pb.RotaryEncoder: StateSegment.ROTARY_ENCODER
+    }
+    FILE_INPUT_TYPES = {
+        mcu_pb.Parameters: StateSegment.PARAMETERS,
+        mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
+        mcu_pb.AlarmLimits: StateSegment.ALARM_LIMITS,
+        mcu_pb.AlarmLimitsRequest: StateSegment.ALARM_LIMITS_REQUEST,
     }
 
     _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
@@ -124,53 +149,49 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         factory=channels.DequeChannel
     )
     current_time: float = attr.ib(default=0)
-    all_states: Dict[
-        Type[betterproto.Message], Optional[betterproto.Message]
-    ] = attr.ib()
+    all_states: Dict[StateSegment, Optional[betterproto.Message]] = attr.ib()
 
-    _mcu_state_synchronizer: states.Synchronizer = attr.ib()
-    _frontend_state_synchronizer: states.Synchronizer = attr.ib()
-    _file_state_synchronizer: states.Synchronizer = attr.ib()
+    # State Synchronizers
+    _mcu_state_synchronizer: states.Synchronizer[StateSegment] = attr.ib()
+    _frontend_state_synchronizer: states.Synchronizer[StateSegment] = attr.ib()
+    _file_state_synchronizer: states.Synchronizer[StateSegment] = attr.ib()
     log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent] = attr.ib()
 
     @all_states.default
     def init_all_states(self) -> Dict[
-            Type[betterproto.Message], Optional[betterproto.Message]
+            StateSegment, Optional[betterproto.Message]
     ]:  # pylint: disable=no-self-use
         """Initialize the synchronizable states.
 
         Each pair consists of the type class to specify the states, and an
         actual object to store the state values.
         """
-        return {
-            type: None for type in frontend.MESSAGE_CLASSES.values()
-            # FRONTEND_MESSAGE_CLASSES is a superset of MCU_MESSAGE_CLASSES
-        }
+        return {type: None for type in StateSegment}
 
     @_mcu_state_synchronizer.default
-    def init_mcu_synchronizer(self) -> states.Synchronizer:  # pylint: disable=no-self-use
+    def init_mcu_synchronizer(self) -> \
+            states.Synchronizer[StateSegment]:  # pylint: disable=no-self-use
         """Initialize the mcu state synchronizer."""
         return states.Synchronizer(
-            message_classes=mcu.MESSAGE_CLASSES,
-            all_states=self.all_states,
+            segment_types=StateSegment, all_states=self.all_states,
             output_schedule=MCU_SYNCHRONIZER_SCHEDULE
         )
 
     @_frontend_state_synchronizer.default
-    def init_frontend_synchronizer(self) -> states.Synchronizer:
+    def init_frontend_synchronizer(self) -> \
+            states.Synchronizer[StateSegment]:
         """Initialize the frontend state synchronizer."""
         return states.Synchronizer(
-            message_classes=frontend.MESSAGE_CLASSES,
-            all_states=self.all_states,
+            segment_types=StateSegment, all_states=self.all_states,
             output_schedule=FRONTEND_SYNCHRONIZER_SCHEDULE
         )
 
     @_file_state_synchronizer.default
-    def init_file_synchronizer(self) -> states.Synchronizer:  # pylint: disable=no-self-use
+    def init_file_synchronizer(self) -> \
+            states.Synchronizer[StateSegment]:  # pylint: disable=no-self-use
         """Initialize the file state synchronizer."""
         return states.Synchronizer(
-            message_classes=mcu.MESSAGE_CLASSES,
-            all_states=self.all_states,
+            segment_types=StateSegment, all_states=self.all_states,
             output_schedule=FILE_SYNCHRONIZER_SCHEDULE
         )
 
@@ -251,18 +272,20 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             return
 
         try:
-            self._mcu_state_synchronizer.input(
-                states.UpdateEvent(pb_message=event.mcu_receive)
-            )
+            self._mcu_state_synchronizer.input(states.UpdateEvent(
+                pb_message=event.mcu_receive,
+                segment_type=self.MCU_INPUT_TYPES[type(event.mcu_receive)]
+            ))
         except exceptions.ProtocolDataError:
             self._logger.exception(
                 'MCU State Synchronizer: %s', event.mcu_receive
             )
 
         try:
-            self._file_state_synchronizer.input(
-                states.UpdateEvent(pb_message=event.mcu_receive)
-            )
+            self._file_state_synchronizer.input(states.UpdateEvent(
+                pb_message=event.mcu_receive,
+                segment_type=self.MCU_INPUT_TYPES[type(event.mcu_receive)]
+            ))
         except exceptions.ProtocolDataError:
             self._logger.exception(
                 'File Save State Synchronizer Save: %s', event.mcu_receive
@@ -277,9 +300,10 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             return
 
         try:
-            self._file_state_synchronizer.input(
-                states.UpdateEvent(pb_message=event.file_receive)
-            )
+            self._file_state_synchronizer.input(states.UpdateEvent(
+                pb_message=event.file_receive,
+                segment_type=self.FILE_INPUT_TYPES[type(event.file_receive)]
+            ))
         except exceptions.ProtocolDataError:
             self._logger.exception(
                 'File State Synchronizer Read: %s', event.file_receive
@@ -294,9 +318,12 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             return
 
         try:
-            self._frontend_state_synchronizer.input(
-                states.UpdateEvent(pb_message=event.frontend_receive)
-            )
+            self._frontend_state_synchronizer.input(states.UpdateEvent(
+                pb_message=event.frontend_receive,
+                segment_type=self.FRONTEND_INPUT_TYPES[
+                    type(event.frontend_receive)
+                ]
+            ))
         except exceptions.ProtocolDataError:
             self._logger.exception(
                 'Frontend State Synchronizer: %s', event.frontend_receive
@@ -305,7 +332,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
     def _handle_log_events_sending(self) -> None:
         """Handle any updates to log events list sending."""
         expected_log_event = typing.cast(
-            mcu_pb.ExpectedLogEvent, self.all_states[mcu_pb.ExpectedLogEvent]
+            mcu_pb.ExpectedLogEvent,
+            self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
         )
         if expected_log_event is not None:
             self.log_events_sender.input(lists.UpdateEvent(
@@ -314,7 +342,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         next_log_events = self.log_events_sender.output()
         if next_log_events is not None:
             assert isinstance(next_log_events, mcu_pb.NextLogEvents)
-            self.all_states[mcu_pb.NextLogEvents] = next_log_events
+            self.all_states[StateSegment.NEXT_LOG_EVENTS_BE] = next_log_events
 
 
 @attr.s

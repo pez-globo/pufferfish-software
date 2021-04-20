@@ -9,7 +9,7 @@ server to act as a mock in place of the real backend server.
 import logging
 import time
 import functools
-from typing import Mapping, Optional, Type
+from typing import Mapping, Optional
 
 import betterproto
 import trio
@@ -20,6 +20,7 @@ from ventserver.io.trio import channels
 from ventserver.io.trio import websocket
 from ventserver.io.trio import fileio
 from ventserver.io.subprocess import frozen_frontend
+from ventserver.protocols import backend
 from ventserver.protocols import server
 from ventserver.protocols import exceptions
 from ventserver.protocols.protobuf import mcu_pb
@@ -37,7 +38,7 @@ REQUEST_SERVICE_INTERVAL = 20
 
 async def service_requests(
         all_states: Mapping[
-            Type[betterproto.Message], Optional[betterproto.Message]
+            backend.StateSegment, Optional[betterproto.Message]
         ], log_manager: log.Manager
 ) -> None:
     """Simulate evolution of all states."""
@@ -52,7 +53,7 @@ async def service_requests(
 
 async def simulate_states(
         all_states: Mapping[
-            Type[betterproto.Message], Optional[betterproto.Message]
+            backend.StateSegment, Optional[betterproto.Message]
         ], log_manager: log.Manager
 ) -> None:
     """Simulate evolution of all states."""
@@ -106,36 +107,38 @@ async def main() -> None:
     # Initialize states with defaults
     all_states = protocol.receive.backend.all_states
     for state in all_states:
-        if state is mcu_pb.ParametersRequest:
+        if state is backend.StateSegment.PARAMETERS_REQUEST:
             all_states[state] = mcu_pb.ParametersRequest(
                 mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
                 fio2=21, flow=0
             )
-        elif state is mcu_pb.Parameters:
+        elif state is backend.StateSegment.PARAMETERS:
             all_states[state] = mcu_pb.Parameters(
                 mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
                 fio2=21, flow=0
             )
-        elif state is mcu_pb.AlarmLimitsRequest:
+        elif state is backend.StateSegment.ALARM_LIMITS_REQUEST:
             all_states[state] = mcu_pb.AlarmLimitsRequest(
                 fio2=mcu_pb.Range(lower=21, upper=100),
                 spo2=mcu_pb.Range(lower=21, upper=100),
                 hr=mcu_pb.Range(lower=0, upper=200),
             )
-        elif state is mcu_pb.AlarmLimits:
+        elif state is backend.StateSegment.ALARM_LIMITS:
             all_states[state] = mcu_pb.AlarmLimits(
                 fio2=mcu_pb.Range(lower=21, upper=100),
                 spo2=mcu_pb.Range(lower=21, upper=100),
                 hr=mcu_pb.Range(lower=0, upper=200),
             )
-        else:
-            all_states[state] = state()
+        # else:
+        #     all_states[state] = state()
     await application.initialize_states_from_file(
         all_states, protocol, filehandler
     )
 
     # Initialize events log manager
-    log_manager = log.Manager(sender=protocol.receive.backend.log_events_sender)
+    log_manager = log.Manager(
+        receiver=protocol.receive.backend.log_events_receiver
+    )
 
     try:
         async with channel.push_endpoint:
