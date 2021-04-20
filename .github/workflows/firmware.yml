@@ -209,5 +209,5 @@ jobs:
     - name: TestCoverage
       uses: actions/upload-artifact@v2
       with:
-        name: coverage folder
+        name: coverage-report
         path: firmware/ventilator-controller-stm32/cmake-build-testcoverage/TestCoverage_coverage/*
