@@ -61,7 +61,7 @@ export const HeartbeatBackendListener = (): JSX.Element => {
           update: {
             code: BACKEND_CONNECTION_LOST_CODE,
             type: LogEventType.system,
-            time: new Date().getTime() / 1000,
+            time: new Date().getTime(),
           },
         });
       }

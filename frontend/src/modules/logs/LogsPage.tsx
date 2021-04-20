@@ -286,12 +286,12 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                 </TableCell>
                 <TableCell align="left">
                   {`
-                                        ${new Date(row.time * 1000).toLocaleDateString([], {
+                                        ${new Date(row.time).toLocaleDateString([], {
                                           month: '2-digit',
                                           day: '2-digit',
                                           year: 'numeric',
                                         })}
-                                        ${new Date(row.time * 1000).toLocaleTimeString([], {
+                                        ${new Date(row.time).toLocaleTimeString([], {
                                           hour: '2-digit',
                                           minute: '2-digit',
                                         })}
