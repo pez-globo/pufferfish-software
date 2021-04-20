@@ -91,17 +91,23 @@ template <HAL::AtomicSize buffer_size, typename ElementType>
 BufferStatus RingBuffer<buffer_size, ElementType>::peek(
     ElementType &peek_element, size_t offset) const {
   HAL::AtomicSize peek_index = oldest_index_;
-  if (peek_index == newest_index_) {
+  if (offset >= buffer_size) {
     return BufferStatus::empty;
   }
 
-  // Advance the peek index if offset is non-zero
-  for (HAL::AtomicSize i = 0; i < offset; ++i) {
+  // Advance the peek index until offset is zero
+  while (true) {
     if (peek_index == newest_index_) {
       // Offset is greater than the number of elements in the buffer
       return BufferStatus::empty;
     }
+
+    if (!offset) {
+      break;
+    }
+
     peek_index = (peek_index + 1) % buffer_size;
+    --offset;
   }
 
   peek_element = buffer_[peek_index];
