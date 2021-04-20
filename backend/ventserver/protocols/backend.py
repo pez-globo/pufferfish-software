@@ -222,10 +222,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         self._handle_frontend_inbound_state(event)
 
         # Maintain internal data connections
-        # This is disabled because for testing we are routing events directly
-        # from the MCU to the frontend. We'll want to instead have a log
-        # events receiver and a log events sender.
-        # self._handle_log_events_sending()
+        self._handle_log_events_receiving()
+        self._handle_log_events_sending()
 
         # Output any scheduled outbound state update
         mcu_send = None
@@ -329,8 +327,19 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
                 'Frontend State Synchronizer: %s', event.frontend_receive
             )
 
+    def _handle_log_events_receiving(self) -> None:
+        """Handle any updates to log events list receiving."""
+        self.all_states[StateSegment.EXPECTED_LOG_EVENT_MCU] = \
+            self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
+
     def _handle_log_events_sending(self) -> None:
         """Handle any updates to log events list sending."""
+        self.all_states[StateSegment.ACTIVE_LOG_EVENTS_BE] = \
+            self.all_states[StateSegment.ACTIVE_LOG_EVENTS_MCU]
+        self.all_states[StateSegment.NEXT_LOG_EVENTS_BE] = \
+            self.all_states[StateSegment.NEXT_LOG_EVENTS_MCU]
+        return
+
         expected_log_event = typing.cast(
             mcu_pb.ExpectedLogEvent,
             self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
