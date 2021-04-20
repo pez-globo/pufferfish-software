@@ -1,0 +1,131 @@
+Scenario: The States output method correctly updates output StateSegment tag and value fields on an output schedule array of single message type
+
+  GIVEN("A StateSynchronizer object constructed with an output schedule array of single message type and an all_state object with values for parameters request")
+   // setup
+   // schedule array {parameters_req : 5, parameters_req : 6}
+
+    WHEN("The synchroniser clock advances by 10 secs and output is called after that")
+      THEN("The output method reports ok status")
+      THEN("After the output method is called, The output StateSegment tag field is set to parameters_request")
+      THEN("The output StateSegment values fields are set and match the parameters request of the all_states object")
+
+    WHEN("The synchroniser is on the 0th entry and it's clock advances less than the timeout of next entry and output is called after that")
+      THEN("The output method reports waiting status")
+      THEN("After the output method is called, The output StateSegment tag field remains unchanged")
+      THEN("The output StateSegment values field remains unchanged")
+
+    WHEN("The synchroniser is on the 0th entry and it's clock advances by 16 seconds, greater than the timeout of next entry and output is called after that")
+      THEN("The output method reports ok status")
+      THEN("After the output method is called, The output StateSegment tag field is set to parameters_request")
+      THEN("The output StateSegment values fields are set and match the parameters request of the all_states object")
+
+    WHEN("The synchroniser is on the 1st entry and it's clock advances by 5 seconds, greater than the timeout of the 0th entry and output is called after that")
+      THEN("The output method reports ok status")
+      THEN("After the output method is called, The output StateSegment tag field is set to parameters_request")
+      THEN("The output StateSegment values fields are set and match the parameters request of the all_states object")
+
+  GIVEN("A StateSynchronizer object constructed with output schedule array containing unknown message type and an empty all_states object")
+
+    WHEN("The output is called on a scheduler array with unknown message type")
+      THEN("The output method reports invalid type status")
+      THEN("After the output method is called, The output StateSegment tag field remains unchanged")
+      THEN("The output StateSegment values field remains unchanged")      
+
+Scenario: The States output method correctly updates output StateSegment tag and value fields on an output schedule array of multiple message types
+
+  GIVEN("A StateSynchronizer object constructed with an output schedule array of multiple message types and an all_states object")
+    // setup
+    // schedule array {parameters_req: 1, parameters: 2, sensor_meausrements: 3, cycle_measurements: 4}
+
+    WHEN("The synchroniser clock advances by 1 sec and output is called after that")
+      THEN("The output method reports ok status")
+      THEN("After the output method is called, The output StateSegment tag field is set to parameters_request")
+      THEN("The output StateSegment values fields are set and match the parameters request of the all_states object")    
+      THEN("After changing parameters_req of all_states object, output StateSegment fields remain unchanged")
+
+    WHEN("The synchroniser is on the 0th entry and output is called without advancing the synchroniser clock and output is called after that")
+      THEN("The output method reports waiting status")
+      THEN("After the output method is called, The output StateSegment tag field remains unchanged")
+      THEN("The output StateSegment values field remains unchanged")
+
+    WHEN("The synchroniser is on the 0th entry and it's clock advances by 3 secs greater than the timeout of next entry and output is called after that")
+      THEN("The output method reports ok status")
+      THEN("After the output method is called, The output StateSegment tag field is set to parameters")
+      THEN("The output StateSegment values fields are set and match the parameters of the all_states object")    
+      THEN("After changing parameters of all_states object, output StateSegment fields remain unchanged")    
+
+    WHEN("The synchroniser is on the 1st entry and it's clock advances by 4 secs greater than the timeout of next entry and output is called after that")
+      THEN("The output method reports ok status")
+      THEN("After the output method is called, The output StateSegment tag field is set to sensor_meausrements")
+      THEN("The output StateSegment values fields are set and match the sensor_meausrements of the all_states object")    
+      THEN("After changing sensor_meausrements of all_states object, output StateSegment fields remain unchanged")        
+
+    WHEN("The synchroniser is on the 2nd entry and it's clock advances by 5 secs greater than the timeout of next entry and output is called after that")
+      THEN("The output method reports ok status")
+      THEN("After the output method is called, The output StateSegment tag field is set to cycle_measurements")
+      THEN("The output StateSegment values fields are set and match the cycle_measurements of the all_states object")    
+      THEN("After changing cycle_measurements of all_states object, output StateSegment fields remain unchanged")      
+ 
+    WHEN("The synchroniser is on the 3rd entry and it's clock advances by 1 sec equal to the timeout of the 0th entry and output is called after that")
+      THEN("The output method reports ok status")
+      THEN("After the output method is called, The output StateSegment tag field is set to parameters_request")
+      THEN("The output StateSegment values fields are set and match the parameters request of the all_states object")    
+      THEN("After changing parameters_req of all_states object, output StateSegment fields remain unchanged")
+
+GIVEN("A StateSynchronizer object constructed with output schedule array from backend and an all_states object")
+  # https://github.com/pez-globo/pufferfish-software/blob/develop/firmware/ventilator-controller-stm32/Core/Inc/Pufferfish/Driver/Serial/Backend/Backend.h#L41
+
+    WHEN("The synchroniser clock advances by 10 secs and output is called after that")
+      THEN("The output method reports ok status")
+      THEN("After the output method is called, The output StateSegment tag field is set to sensor_meausrements")
+      THEN("The output StateSegment values fields are set and match the sensor_meausrements of the all_states object")    
+      THEN("After changing sensor_meausrements of all_states object, output StateSegment fields remain unchanged") 
+
+    WHEN("The synchroniser is on the 1st entry and it's clock advances by 10 secs equal to the timeout of next entry and output is called after that")
+      THEN("The output method reports ok status")
+      THEN("After the output method is called, The output StateSegment tag field is set to parameters")
+      THEN("The output StateSegment values fields are set and match the parameters of the all_states object")    
+      THEN("After changing parameters of all_states object, output StateSegment fields remain unchanged")   
+
+Scenario: The States output method behaves correctly when an exceptionally long time passes between subsequent entries
+
+  GIVEN("A StateSynchronizer object constructed with an output schedule array of 4 message types and an all_states object")
+    // setup
+    // schedule array {parameters_req: 10, parameters: 10, sensor_meausrements: 10, cycle_measurements: 10}
+
+    // Intent: make an exceptionally long time pass between schedule entries, longer than their timeouts
+    WHEN("The synchroniser clock advances by 100 secs and output is called after that")
+      THEN("The output method reports ok status")
+      THEN("After the output method is called, The output StateSegment tag field is set to parameters_request")
+      THEN("The output StateSegment values fields are set and match the parameters request of the all_states object")    
+      THEN("After changing parameters_req of all_states object, output StateSegment fields remain unchanged")
+
+    WHEN("The synchroniser is on the 0th entry and it's clock advances by 100 secs greater than the timeout of next entry and output is called after that")
+      THEN("The output method reports ok status")
+      THEN("After the output method is called, The output StateSegment tag field is set to parameters")
+      THEN("The output StateSegment values fields are set and match the parameters of the all_states object")    
+      THEN("After changing parameters of all_states object, output StateSegment fields remain unchanged")    
+
+    WHEN("The synchroniser is on the 1st entry The all_states fields for the next entry are altered before output method is called")
+      THEN("The output method reports ok status")
+      THEN("After the output method is called, The output StateSegment tag field is set to sensor_meausrements")
+      THEN("The output StateSegment values fields are set and match the sensor_meausrements of the changed field values")
+
+  GIVEN("A StateSynchronizer object constructed with an output schedule array of 4 message types and an all_states object")
+    // setup
+    // schedule array {parameters_req: 10, parameters: 10, sensor_meausrements: 10, cycle_measurements: 10}
+
+    // Intent: make 40 seconds pass which is equal to the timeout for the last entry
+    WHEN("The synchroniser clock advances by 40 seconds") {
+      THEN("The output method reports ok status")
+      THEN("After the output method is called, The output StateSegment tag field is set to parameters_request")
+      THEN("The output StateSegment values fields are set and match the parameters request of the all_states object")    
+      THEN("After changing parameters_req of all_states object, output StateSegment fields remain unchanged")      
+
+    // Intent: advance the synchronizer clock in-between the timeouts of the entries
+    WHEN("The synchronizer is on the 0th entry and its clock advances in between the timeouts") {
+      // cycle between 4 entries with clock advancing in between their timeouts
+
+    // Intent: advance to the last entry and back to the 0th entry
+    WHEN("The synchroniser is on the 0th entry, advances till the last entry and resets back to 0th entry")
+      // cycle between 4 entries with clock advancing equal to their timeouts
