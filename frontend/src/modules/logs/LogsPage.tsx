@@ -136,8 +136,9 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   useEffect(() => {
     const eventIds: number[] = [];
     const data: Data[] = [];
-    loggedEvents.sort((a: LogEvent, b: LogEvent) => a.time - b.time);
-    loggedEvents.forEach((event: LogEvent) => {
+    const loggedEventsCopy = [...loggedEvents];
+    loggedEventsCopy.sort((a: LogEvent, b: LogEvent) => a.time - b.time);
+    loggedEventsCopy.forEach((event: LogEvent) => {
       const eventType = getEventType(event.code);
       eventIds.push(event.id);
       if (filter) {
