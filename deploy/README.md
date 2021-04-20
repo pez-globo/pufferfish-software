@@ -5,11 +5,13 @@
 1. [Prerequisites](#prerequisites)
 2. [Installation (Development Environment)](#installation-(development-environment))
 3. [Deployment (Production Environment)](#deployment-(production-environment))
-4. [Cloning Raspberry Pi SD Card](#cloning-raspberry-pi-sd-card)
+4. [Lock (Production Environment)](#lock-(production-environment))
+5. [Full Deployment (Production Environment)](#full-deployment-(production-environment))
+6. [Cloning Raspberry Pi SD Card](#cloning-raspberry-pi-sd-card)
     1. [Cloning](#cloning)
     2. [Pishrink](#pishrink)
     3. [Writing img to SD Card](#writing-img-to-sd-card)
-5. [References](#references)
+7. [References](#references)
 
 >To start with a fresh setup, download the standard Pufferfish OS image and flash it to a SD Card by following the steps [here](#writing-img-to-sd-card)
 
@@ -44,7 +46,7 @@ This will install the required components for pufferfish-vent-software in the gi
 ---
 
 ### Deployment (Production Environment)
-These instructions are to setup Raspberry Pi with Pufferfish-Vent-Software in a production environment.
+These instructions are to setup Raspberry Pi with all the critical services.
 
 > **Note:** USB Mass Storage Device with Label **LOGS** is needed for logging in production environment.
 >
@@ -53,7 +55,7 @@ These instructions are to setup Raspberry Pi with Pufferfish-Vent-Software in a 
 > - Select FAT32 as the storage format
 > - Enter **LOGS** in the name section to set the Label for the device
 
-All the components required for the production environment can be setup by running `deploy.sh` on a terminal.
+All the components required services can be setup by running `deploy.sh` on a terminal.
 
 ```sh
 $ ./deploy.sh
@@ -74,13 +76,28 @@ This will setup required components for pufferfish-vent-software in the given or
 - USB Logging
 - Live USB Boot
 - Internal Watchdog
+---
+
+### Lock (Production Environment)
+These instructions are to lock the Raspberry pi to avoid tampering.
+
+```sh
+$ ./lock.sh
+```
+
+This will setup the following components.
 - Read-only filesystem (Overlayfs)
 - Disables unnecessary background services
 - Network Security
 - Data Tampering Security
 - User Security
 
----
+### Full Deployment (Production Environment)
+This will run `install.sh`, `deploy.sh` and `lock.sh` to setup Raspberry Pi with Pufferfish-Vent-Software in a production environment.
+
+```sh
+$ ./deploy_full.sh
+```
 
 ### Cloning Raspberry Pi SD Card
 
