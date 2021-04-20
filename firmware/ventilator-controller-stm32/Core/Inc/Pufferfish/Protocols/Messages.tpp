@@ -15,13 +15,16 @@ namespace Pufferfish::Protocols {
 
 // Message
 
-template <typename TaggedUnion, size_t max_size>
+template <typename TaggedUnion, typename MessageTypes, size_t max_size>
 template <size_t output_size, size_t num_descriptors>
-MessageStatus Message<TaggedUnion, max_size>::write(
+MessageStatus Message<TaggedUnion, MessageTypes, max_size>::write(
     Util::ByteVector<output_size> &output_buffer,
-    const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) const {
-  auto type = static_cast<uint8_t>(payload.tag);
-  if (type > pb_protobuf_descriptors.size()) {
+    const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) {
+  static_assert(
+      Util::ByteVector<output_size>::max_size() >= max_size,
+      "Write method unavailable as output buffer is too small");
+  type = static_cast<uint8_t>(payload.tag);
+  if (type >= pb_protobuf_descriptors.size()) {
     return MessageStatus::invalid_type;
   }
 
@@ -49,22 +52,28 @@ MessageStatus Message<TaggedUnion, max_size>::write(
   return MessageStatus::ok;
 }
 
-template <typename TaggedUnion, size_t max_size>
+template <typename TaggedUnion, typename MessageTypes, size_t max_size>
 template <size_t input_size, size_t num_descriptors>
-MessageStatus Message<TaggedUnion, max_size>::parse(
+MessageStatus Message<TaggedUnion, MessageTypes, max_size>::parse(
     const Util::ByteVector<input_size> &input_buffer,
     const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) {
+  static_assert(
+      Util::ByteVector<input_size>::max_size() <= max_size,
+      "Parse method unavailable as input buffer size is too large");
   if (input_buffer.size() < Message::header_size) {
     return MessageStatus::invalid_length;
   }
 
   type = input_buffer[Message::type_offset];
-  if (type > pb_protobuf_descriptors.size()) {
+  if (!MessageTypes::includes(type)) {
     return MessageStatus::invalid_type;
   }
 
-  // TODO(lietk12): add proper checking
   payload.tag = static_cast<typename TaggedUnion::Tag>(type);
+  if (type >= pb_protobuf_descriptors.size()) {
+    return MessageStatus::invalid_type;
+  }
+
   const pb_msgdesc_t *fields = pb_protobuf_descriptors[type];
   if (fields == Util::get_protobuf_descriptor<Util::UnrecognizedMessage>()) {
     return MessageStatus::invalid_type;
@@ -95,15 +104,17 @@ MessageStatus MessageReceiver<Message, num_descriptors>::transform(
 
 // MessageSender
 
-template <typename Message, size_t num_descriptors>
-MessageSender<Message, num_descriptors>::MessageSender(
+template <typename Message, typename TaggedUnion, size_t num_descriptors>
+MessageSender<Message, TaggedUnion, num_descriptors>::MessageSender(
     const Util::ProtobufDescriptors<num_descriptors> &descriptors)
     : descriptors_(descriptors) {}
 
-template <typename Message, size_t num_descriptors>
+template <typename Message, typename TaggedUnion, size_t num_descriptors>
 template <size_t output_size>
-MessageStatus MessageSender<Message, num_descriptors>::transform(
-    const Message &input_message, Util::ByteVector<output_size> &output_buffer) const {
+MessageStatus MessageSender<Message, TaggedUnion, num_descriptors>::transform(
+    const TaggedUnion &input_payload, Util::ByteVector<output_size> &output_buffer) const {
+  Message input_message;
+  input_message.payload = input_payload;
   return input_message.write(output_buffer, descriptors_);
 }
 

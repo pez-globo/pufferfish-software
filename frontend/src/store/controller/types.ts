@@ -170,9 +170,10 @@ export interface ControllerStates {
 
   // Derived states
   smoothedMeasurements: {
-    spo2: SmoothingData;
     fio2: SmoothingData;
     flow: SmoothingData;
+    spo2: SmoothingData;
+    hr: SmoothingData;
   };
   waveformHistoryPaw: WaveformHistory;
   waveformHistoryFlow: WaveformHistory;

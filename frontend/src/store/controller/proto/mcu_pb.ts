@@ -4,39 +4,39 @@ import { Writer, Reader } from "protobufjs/minimal";
 export const protobufPackage = "";
 
 export enum VentilationMode {
-  pc_ac = 0,
-  pc_simv = 1,
+  hfnc = 0,
+  pc_ac = 1,
   vc_ac = 2,
-  vc_simv = 3,
-  psv = 4,
-  niv = 5,
-  hfnc = 6,
+  niv_pc = 3,
+  niv_ps = 4,
+  psv = 5,
+  prvc = 6,
   UNRECOGNIZED = -1,
 }
 
 export function ventilationModeFromJSON(object: any): VentilationMode {
   switch (object) {
     case 0:
+    case "hfnc":
+      return VentilationMode.hfnc;
+    case 1:
     case "pc_ac":
       return VentilationMode.pc_ac;
-    case 1:
-    case "pc_simv":
-      return VentilationMode.pc_simv;
     case 2:
     case "vc_ac":
       return VentilationMode.vc_ac;
     case 3:
-    case "vc_simv":
-      return VentilationMode.vc_simv;
+    case "niv_pc":
+      return VentilationMode.niv_pc;
     case 4:
+    case "niv_ps":
+      return VentilationMode.niv_ps;
+    case 5:
     case "psv":
       return VentilationMode.psv;
-    case 5:
-    case "niv":
-      return VentilationMode.niv;
     case 6:
-    case "hfnc":
-      return VentilationMode.hfnc;
+    case "prvc":
+      return VentilationMode.prvc;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -46,20 +46,20 @@ export function ventilationModeFromJSON(object: any): VentilationMode {
 
 export function ventilationModeToJSON(object: VentilationMode): string {
   switch (object) {
-    case VentilationMode.pc_ac:
-      return "pc_ac";
-    case VentilationMode.pc_simv:
-      return "pc_simv";
-    case VentilationMode.vc_ac:
-      return "vc_ac";
-    case VentilationMode.vc_simv:
-      return "vc_simv";
-    case VentilationMode.psv:
-      return "psv";
-    case VentilationMode.niv:
-      return "niv";
     case VentilationMode.hfnc:
       return "hfnc";
+    case VentilationMode.pc_ac:
+      return "pc_ac";
+    case VentilationMode.vc_ac:
+      return "vc_ac";
+    case VentilationMode.niv_pc:
+      return "niv_pc";
+    case VentilationMode.niv_ps:
+      return "niv_ps";
+    case VentilationMode.psv:
+      return "psv";
+    case VentilationMode.prvc:
+      return "prvc";
     default:
       return "UNKNOWN";
   }
@@ -67,6 +67,7 @@ export function ventilationModeToJSON(object: VentilationMode): string {
 
 /** Log Events */
 export enum LogEventCode {
+  /** fio2_too_low - Patient */
   fio2_too_low = 0,
   fio2_too_high = 1,
   spo2_too_low = 2,
@@ -75,10 +76,18 @@ export enum LogEventCode {
   rr_too_high = 5,
   hr_too_low = 6,
   hr_too_high = 7,
-  fio2_setting_changed = 8,
-  flow_setting_changed = 9,
-  battery_low = 10,
-  screen_locked = 11,
+  /** battery_low - System */
+  battery_low = 8,
+  screen_locked = 9,
+  /** ventilation_operation_changed - Control */
+  ventilation_operation_changed = 10,
+  ventilation_mode_changed = 11,
+  fio2_setting_changed = 12,
+  flow_setting_changed = 13,
+  /** fio2_alarm_limits_changed - Alarm Limits */
+  fio2_alarm_limits_changed = 14,
+  spo2_alarm_limits_changed = 15,
+  hr_alarm_limits_changed = 16,
   UNRECOGNIZED = -1,
 }
 
@@ -109,23 +118,32 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case "hr_too_high":
       return LogEventCode.hr_too_high;
     case 8:
-    case "fio2_setting_changed":
-      return LogEventCode.fio2_setting_changed;
-    case 9:
-    case "flow_setting_changed":
-      return LogEventCode.flow_setting_changed;
-    case 10:
     case "battery_low":
       return LogEventCode.battery_low;
-    case 11:
+    case 9:
     case "screen_locked":
       return LogEventCode.screen_locked;
-    case 8:
-    case "hr_too_low":
-      return LogEventCode.hr_too_low;
-    case 9:
-    case "hr_too_high":
-      return LogEventCode.hr_too_high;
+    case 10:
+    case "ventilation_operation_changed":
+      return LogEventCode.ventilation_operation_changed;
+    case 11:
+    case "ventilation_mode_changed":
+      return LogEventCode.ventilation_mode_changed;
+    case 12:
+    case "fio2_setting_changed":
+      return LogEventCode.fio2_setting_changed;
+    case 13:
+    case "flow_setting_changed":
+      return LogEventCode.flow_setting_changed;
+    case 14:
+    case "fio2_alarm_limits_changed":
+      return LogEventCode.fio2_alarm_limits_changed;
+    case 15:
+    case "spo2_alarm_limits_changed":
+      return LogEventCode.spo2_alarm_limits_changed;
+    case 16:
+    case "hr_alarm_limits_changed":
+      return LogEventCode.hr_alarm_limits_changed;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -151,18 +169,24 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "hr_too_low";
     case LogEventCode.hr_too_high:
       return "hr_too_high";
-    case LogEventCode.fio2_setting_changed:
-      return "fio2_setting_changed";
-    case LogEventCode.flow_setting_changed:
-      return "flow_setting_changed";
     case LogEventCode.battery_low:
       return "battery_low";
     case LogEventCode.screen_locked:
       return "screen_locked";
-    case LogEventCode.hr_too_low:
-      return "hr_too_low";
-    case LogEventCode.hr_too_high:
-      return "hr_too_high";
+    case LogEventCode.ventilation_operation_changed:
+      return "ventilation_operation_changed";
+    case LogEventCode.ventilation_mode_changed:
+      return "ventilation_mode_changed";
+    case LogEventCode.fio2_setting_changed:
+      return "fio2_setting_changed";
+    case LogEventCode.flow_setting_changed:
+      return "flow_setting_changed";
+    case LogEventCode.fio2_alarm_limits_changed:
+      return "fio2_alarm_limits_changed";
+    case LogEventCode.spo2_alarm_limits_changed:
+      return "spo2_alarm_limits_changed";
+    case LogEventCode.hr_alarm_limits_changed:
+      return "hr_alarm_limits_changed";
     default:
       return "UNKNOWN";
   }
@@ -172,6 +196,7 @@ export enum LogEventType {
   patient = 0,
   system = 1,
   control = 2,
+  alarm_limits = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -186,6 +211,9 @@ export function logEventTypeFromJSON(object: any): LogEventType {
     case 2:
     case "control":
       return LogEventType.control;
+    case 3:
+    case "alarm_limits":
+      return LogEventType.alarm_limits;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -201,6 +229,8 @@ export function logEventTypeToJSON(object: LogEventType): string {
       return "system";
     case LogEventType.control:
       return "control";
+    case LogEventType.alarm_limits:
+      return "alarm_limits";
     default:
       return "UNKNOWN";
   }
@@ -214,7 +244,9 @@ export interface Range {
 export interface AlarmLimits {
   time: number;
   fio2: Range | undefined;
+  flow: Range | undefined;
   spo2: Range | undefined;
+  hr: Range | undefined;
   rr: Range | undefined;
   pip: Range | undefined;
   peep: Range | undefined;
@@ -224,15 +256,15 @@ export interface AlarmLimits {
   mve: Range | undefined;
   tv: Range | undefined;
   etco2: Range | undefined;
-  flow: Range | undefined;
   apnea: Range | undefined;
-  hr: Range | undefined;
 }
 
 export interface AlarmLimitsRequest {
   time: number;
   fio2: Range | undefined;
+  flow: Range | undefined;
   spo2: Range | undefined;
+  hr: Range | undefined;
   rr: Range | undefined;
   pip: Range | undefined;
   peep: Range | undefined;
@@ -242,20 +274,18 @@ export interface AlarmLimitsRequest {
   mve: Range | undefined;
   tv: Range | undefined;
   etco2: Range | undefined;
-  flow: Range | undefined;
   apnea: Range | undefined;
-  hr: Range | undefined;
 }
 
 export interface SensorMeasurements {
   time: number;
   cycle: number;
-  paw: number;
-  flow: number;
-  volume: number;
   fio2: number;
   spo2: number;
   hr: number;
+  paw: number;
+  flow: number;
+  volume: number;
 }
 
 export interface CycleMeasurements {
@@ -270,28 +300,28 @@ export interface CycleMeasurements {
 
 export interface Parameters {
   time: number;
+  ventilating: boolean;
   mode: VentilationMode;
+  fio2: number;
+  flow: number;
   pip: number;
   peep: number;
   vt: number;
   rr: number;
   ie: number;
-  fio2: number;
-  flow: number;
-  ventilating: boolean;
 }
 
 export interface ParametersRequest {
   time: number;
+  ventilating: boolean;
   mode: VentilationMode;
+  fio2: number;
+  flow: number;
   pip: number;
   peep: number;
   vt: number;
   rr: number;
   ie: number;
-  fio2: number;
-  flow: number;
-  ventilating: boolean;
 }
 
 export interface Ping {
@@ -308,10 +338,18 @@ export interface LogEvent {
   id: number;
   time: number;
   code: LogEventCode;
-  alarmLimits: Range | undefined;
-  oldValue: number;
-  newValue: number;
   type: LogEventType;
+  alarmLimits: Range | undefined;
+  oldFloat: number;
+  newFloat: number;
+  oldUint32: number;
+  newUint32: number;
+  oldBool: boolean;
+  newBool: boolean;
+  oldRange: Range | undefined;
+  newRange: Range | undefined;
+  oldMode: VentilationMode;
+  newMode: VentilationMode;
 }
 
 export interface ExpectedLogEvent {
@@ -424,47 +462,47 @@ export const AlarmLimits = {
     if (message.fio2 !== undefined && message.fio2 !== undefined) {
       Range.encode(message.fio2, writer.uint32(18).fork()).ldelim();
     }
+    if (message.flow !== undefined && message.flow !== undefined) {
+      Range.encode(message.flow, writer.uint32(26).fork()).ldelim();
+    }
     if (message.spo2 !== undefined && message.spo2 !== undefined) {
-      Range.encode(message.spo2, writer.uint32(26).fork()).ldelim();
+      Range.encode(message.spo2, writer.uint32(34).fork()).ldelim();
+    }
+    if (message.hr !== undefined && message.hr !== undefined) {
+      Range.encode(message.hr, writer.uint32(42).fork()).ldelim();
     }
     if (message.rr !== undefined && message.rr !== undefined) {
-      Range.encode(message.rr, writer.uint32(34).fork()).ldelim();
+      Range.encode(message.rr, writer.uint32(50).fork()).ldelim();
     }
     if (message.pip !== undefined && message.pip !== undefined) {
-      Range.encode(message.pip, writer.uint32(42).fork()).ldelim();
+      Range.encode(message.pip, writer.uint32(58).fork()).ldelim();
     }
     if (message.peep !== undefined && message.peep !== undefined) {
-      Range.encode(message.peep, writer.uint32(50).fork()).ldelim();
+      Range.encode(message.peep, writer.uint32(66).fork()).ldelim();
     }
     if (
       message.ipAbovePeep !== undefined &&
       message.ipAbovePeep !== undefined
     ) {
-      Range.encode(message.ipAbovePeep, writer.uint32(58).fork()).ldelim();
+      Range.encode(message.ipAbovePeep, writer.uint32(74).fork()).ldelim();
     }
     if (message.inspTime !== undefined && message.inspTime !== undefined) {
-      Range.encode(message.inspTime, writer.uint32(66).fork()).ldelim();
+      Range.encode(message.inspTime, writer.uint32(82).fork()).ldelim();
     }
     if (message.paw !== undefined && message.paw !== undefined) {
-      Range.encode(message.paw, writer.uint32(74).fork()).ldelim();
+      Range.encode(message.paw, writer.uint32(90).fork()).ldelim();
     }
     if (message.mve !== undefined && message.mve !== undefined) {
-      Range.encode(message.mve, writer.uint32(82).fork()).ldelim();
+      Range.encode(message.mve, writer.uint32(98).fork()).ldelim();
     }
     if (message.tv !== undefined && message.tv !== undefined) {
-      Range.encode(message.tv, writer.uint32(90).fork()).ldelim();
+      Range.encode(message.tv, writer.uint32(106).fork()).ldelim();
     }
     if (message.etco2 !== undefined && message.etco2 !== undefined) {
-      Range.encode(message.etco2, writer.uint32(98).fork()).ldelim();
-    }
-    if (message.flow !== undefined && message.flow !== undefined) {
-      Range.encode(message.flow, writer.uint32(106).fork()).ldelim();
+      Range.encode(message.etco2, writer.uint32(114).fork()).ldelim();
     }
     if (message.apnea !== undefined && message.apnea !== undefined) {
-      Range.encode(message.apnea, writer.uint32(114).fork()).ldelim();
-    }
-    if (message.hr !== undefined && message.hr !== undefined) {
-      Range.encode(message.hr, writer.uint32(122).fork()).ldelim();
+      Range.encode(message.apnea, writer.uint32(122).fork()).ldelim();
     }
     return writer;
   },
@@ -483,43 +521,43 @@ export const AlarmLimits = {
           message.fio2 = Range.decode(reader, reader.uint32());
           break;
         case 3:
-          message.spo2 = Range.decode(reader, reader.uint32());
-          break;
-        case 4:
-          message.rr = Range.decode(reader, reader.uint32());
-          break;
-        case 5:
-          message.pip = Range.decode(reader, reader.uint32());
-          break;
-        case 6:
-          message.peep = Range.decode(reader, reader.uint32());
-          break;
-        case 7:
-          message.ipAbovePeep = Range.decode(reader, reader.uint32());
-          break;
-        case 8:
-          message.inspTime = Range.decode(reader, reader.uint32());
-          break;
-        case 9:
-          message.paw = Range.decode(reader, reader.uint32());
-          break;
-        case 10:
-          message.mve = Range.decode(reader, reader.uint32());
-          break;
-        case 11:
-          message.tv = Range.decode(reader, reader.uint32());
-          break;
-        case 12:
-          message.etco2 = Range.decode(reader, reader.uint32());
-          break;
-        case 13:
           message.flow = Range.decode(reader, reader.uint32());
           break;
+        case 4:
+          message.spo2 = Range.decode(reader, reader.uint32());
+          break;
+        case 5:
+          message.hr = Range.decode(reader, reader.uint32());
+          break;
+        case 6:
+          message.rr = Range.decode(reader, reader.uint32());
+          break;
+        case 7:
+          message.pip = Range.decode(reader, reader.uint32());
+          break;
+        case 8:
+          message.peep = Range.decode(reader, reader.uint32());
+          break;
+        case 9:
+          message.ipAbovePeep = Range.decode(reader, reader.uint32());
+          break;
+        case 10:
+          message.inspTime = Range.decode(reader, reader.uint32());
+          break;
+        case 11:
+          message.paw = Range.decode(reader, reader.uint32());
+          break;
+        case 12:
+          message.mve = Range.decode(reader, reader.uint32());
+          break;
+        case 13:
+          message.tv = Range.decode(reader, reader.uint32());
+          break;
         case 14:
-          message.apnea = Range.decode(reader, reader.uint32());
+          message.etco2 = Range.decode(reader, reader.uint32());
           break;
         case 15:
-          message.hr = Range.decode(reader, reader.uint32());
+          message.apnea = Range.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -541,10 +579,20 @@ export const AlarmLimits = {
     } else {
       message.fio2 = undefined;
     }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Range.fromJSON(object.flow);
+    } else {
+      message.flow = undefined;
+    }
     if (object.spo2 !== undefined && object.spo2 !== null) {
       message.spo2 = Range.fromJSON(object.spo2);
     } else {
       message.spo2 = undefined;
+    }
+    if (object.hr !== undefined && object.hr !== null) {
+      message.hr = Range.fromJSON(object.hr);
+    } else {
+      message.hr = undefined;
     }
     if (object.rr !== undefined && object.rr !== null) {
       message.rr = Range.fromJSON(object.rr);
@@ -591,20 +639,10 @@ export const AlarmLimits = {
     } else {
       message.etco2 = undefined;
     }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = Range.fromJSON(object.flow);
-    } else {
-      message.flow = undefined;
-    }
     if (object.apnea !== undefined && object.apnea !== null) {
       message.apnea = Range.fromJSON(object.apnea);
     } else {
       message.apnea = undefined;
-    }
-    if (object.hr !== undefined && object.hr !== null) {
-      message.hr = Range.fromJSON(object.hr);
-    } else {
-      message.hr = undefined;
     }
     return message;
   },
@@ -621,10 +659,20 @@ export const AlarmLimits = {
     } else {
       message.fio2 = undefined;
     }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Range.fromPartial(object.flow);
+    } else {
+      message.flow = undefined;
+    }
     if (object.spo2 !== undefined && object.spo2 !== null) {
       message.spo2 = Range.fromPartial(object.spo2);
     } else {
       message.spo2 = undefined;
+    }
+    if (object.hr !== undefined && object.hr !== null) {
+      message.hr = Range.fromPartial(object.hr);
+    } else {
+      message.hr = undefined;
     }
     if (object.rr !== undefined && object.rr !== null) {
       message.rr = Range.fromPartial(object.rr);
@@ -671,20 +719,10 @@ export const AlarmLimits = {
     } else {
       message.etco2 = undefined;
     }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = Range.fromPartial(object.flow);
-    } else {
-      message.flow = undefined;
-    }
     if (object.apnea !== undefined && object.apnea !== null) {
       message.apnea = Range.fromPartial(object.apnea);
     } else {
       message.apnea = undefined;
-    }
-    if (object.hr !== undefined && object.hr !== null) {
-      message.hr = Range.fromPartial(object.hr);
-    } else {
-      message.hr = undefined;
     }
     return message;
   },
@@ -694,8 +732,12 @@ export const AlarmLimits = {
     message.time !== undefined && (obj.time = message.time);
     message.fio2 !== undefined &&
       (obj.fio2 = message.fio2 ? Range.toJSON(message.fio2) : undefined);
+    message.flow !== undefined &&
+      (obj.flow = message.flow ? Range.toJSON(message.flow) : undefined);
     message.spo2 !== undefined &&
       (obj.spo2 = message.spo2 ? Range.toJSON(message.spo2) : undefined);
+    message.hr !== undefined &&
+      (obj.hr = message.hr ? Range.toJSON(message.hr) : undefined);
     message.rr !== undefined &&
       (obj.rr = message.rr ? Range.toJSON(message.rr) : undefined);
     message.pip !== undefined &&
@@ -718,12 +760,8 @@ export const AlarmLimits = {
       (obj.tv = message.tv ? Range.toJSON(message.tv) : undefined);
     message.etco2 !== undefined &&
       (obj.etco2 = message.etco2 ? Range.toJSON(message.etco2) : undefined);
-    message.flow !== undefined &&
-      (obj.flow = message.flow ? Range.toJSON(message.flow) : undefined);
     message.apnea !== undefined &&
       (obj.apnea = message.apnea ? Range.toJSON(message.apnea) : undefined);
-    message.hr !== undefined &&
-      (obj.hr = message.hr ? Range.toJSON(message.hr) : undefined);
     return obj;
   },
 };
@@ -739,47 +777,47 @@ export const AlarmLimitsRequest = {
     if (message.fio2 !== undefined && message.fio2 !== undefined) {
       Range.encode(message.fio2, writer.uint32(18).fork()).ldelim();
     }
+    if (message.flow !== undefined && message.flow !== undefined) {
+      Range.encode(message.flow, writer.uint32(26).fork()).ldelim();
+    }
     if (message.spo2 !== undefined && message.spo2 !== undefined) {
-      Range.encode(message.spo2, writer.uint32(26).fork()).ldelim();
+      Range.encode(message.spo2, writer.uint32(34).fork()).ldelim();
+    }
+    if (message.hr !== undefined && message.hr !== undefined) {
+      Range.encode(message.hr, writer.uint32(42).fork()).ldelim();
     }
     if (message.rr !== undefined && message.rr !== undefined) {
-      Range.encode(message.rr, writer.uint32(34).fork()).ldelim();
+      Range.encode(message.rr, writer.uint32(50).fork()).ldelim();
     }
     if (message.pip !== undefined && message.pip !== undefined) {
-      Range.encode(message.pip, writer.uint32(42).fork()).ldelim();
+      Range.encode(message.pip, writer.uint32(58).fork()).ldelim();
     }
     if (message.peep !== undefined && message.peep !== undefined) {
-      Range.encode(message.peep, writer.uint32(50).fork()).ldelim();
+      Range.encode(message.peep, writer.uint32(66).fork()).ldelim();
     }
     if (
       message.ipAbovePeep !== undefined &&
       message.ipAbovePeep !== undefined
     ) {
-      Range.encode(message.ipAbovePeep, writer.uint32(58).fork()).ldelim();
+      Range.encode(message.ipAbovePeep, writer.uint32(74).fork()).ldelim();
     }
     if (message.inspTime !== undefined && message.inspTime !== undefined) {
-      Range.encode(message.inspTime, writer.uint32(66).fork()).ldelim();
+      Range.encode(message.inspTime, writer.uint32(82).fork()).ldelim();
     }
     if (message.paw !== undefined && message.paw !== undefined) {
-      Range.encode(message.paw, writer.uint32(74).fork()).ldelim();
+      Range.encode(message.paw, writer.uint32(90).fork()).ldelim();
     }
     if (message.mve !== undefined && message.mve !== undefined) {
-      Range.encode(message.mve, writer.uint32(82).fork()).ldelim();
+      Range.encode(message.mve, writer.uint32(98).fork()).ldelim();
     }
     if (message.tv !== undefined && message.tv !== undefined) {
-      Range.encode(message.tv, writer.uint32(90).fork()).ldelim();
+      Range.encode(message.tv, writer.uint32(106).fork()).ldelim();
     }
     if (message.etco2 !== undefined && message.etco2 !== undefined) {
-      Range.encode(message.etco2, writer.uint32(98).fork()).ldelim();
-    }
-    if (message.flow !== undefined && message.flow !== undefined) {
-      Range.encode(message.flow, writer.uint32(106).fork()).ldelim();
+      Range.encode(message.etco2, writer.uint32(114).fork()).ldelim();
     }
     if (message.apnea !== undefined && message.apnea !== undefined) {
-      Range.encode(message.apnea, writer.uint32(114).fork()).ldelim();
-    }
-    if (message.hr !== undefined && message.hr !== undefined) {
-      Range.encode(message.hr, writer.uint32(122).fork()).ldelim();
+      Range.encode(message.apnea, writer.uint32(122).fork()).ldelim();
     }
     return writer;
   },
@@ -798,43 +836,43 @@ export const AlarmLimitsRequest = {
           message.fio2 = Range.decode(reader, reader.uint32());
           break;
         case 3:
-          message.spo2 = Range.decode(reader, reader.uint32());
-          break;
-        case 4:
-          message.rr = Range.decode(reader, reader.uint32());
-          break;
-        case 5:
-          message.pip = Range.decode(reader, reader.uint32());
-          break;
-        case 6:
-          message.peep = Range.decode(reader, reader.uint32());
-          break;
-        case 7:
-          message.ipAbovePeep = Range.decode(reader, reader.uint32());
-          break;
-        case 8:
-          message.inspTime = Range.decode(reader, reader.uint32());
-          break;
-        case 9:
-          message.paw = Range.decode(reader, reader.uint32());
-          break;
-        case 10:
-          message.mve = Range.decode(reader, reader.uint32());
-          break;
-        case 11:
-          message.tv = Range.decode(reader, reader.uint32());
-          break;
-        case 12:
-          message.etco2 = Range.decode(reader, reader.uint32());
-          break;
-        case 13:
           message.flow = Range.decode(reader, reader.uint32());
           break;
+        case 4:
+          message.spo2 = Range.decode(reader, reader.uint32());
+          break;
+        case 5:
+          message.hr = Range.decode(reader, reader.uint32());
+          break;
+        case 6:
+          message.rr = Range.decode(reader, reader.uint32());
+          break;
+        case 7:
+          message.pip = Range.decode(reader, reader.uint32());
+          break;
+        case 8:
+          message.peep = Range.decode(reader, reader.uint32());
+          break;
+        case 9:
+          message.ipAbovePeep = Range.decode(reader, reader.uint32());
+          break;
+        case 10:
+          message.inspTime = Range.decode(reader, reader.uint32());
+          break;
+        case 11:
+          message.paw = Range.decode(reader, reader.uint32());
+          break;
+        case 12:
+          message.mve = Range.decode(reader, reader.uint32());
+          break;
+        case 13:
+          message.tv = Range.decode(reader, reader.uint32());
+          break;
         case 14:
-          message.apnea = Range.decode(reader, reader.uint32());
+          message.etco2 = Range.decode(reader, reader.uint32());
           break;
         case 15:
-          message.hr = Range.decode(reader, reader.uint32());
+          message.apnea = Range.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -856,10 +894,20 @@ export const AlarmLimitsRequest = {
     } else {
       message.fio2 = undefined;
     }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Range.fromJSON(object.flow);
+    } else {
+      message.flow = undefined;
+    }
     if (object.spo2 !== undefined && object.spo2 !== null) {
       message.spo2 = Range.fromJSON(object.spo2);
     } else {
       message.spo2 = undefined;
+    }
+    if (object.hr !== undefined && object.hr !== null) {
+      message.hr = Range.fromJSON(object.hr);
+    } else {
+      message.hr = undefined;
     }
     if (object.rr !== undefined && object.rr !== null) {
       message.rr = Range.fromJSON(object.rr);
@@ -906,20 +954,10 @@ export const AlarmLimitsRequest = {
     } else {
       message.etco2 = undefined;
     }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = Range.fromJSON(object.flow);
-    } else {
-      message.flow = undefined;
-    }
     if (object.apnea !== undefined && object.apnea !== null) {
       message.apnea = Range.fromJSON(object.apnea);
     } else {
       message.apnea = undefined;
-    }
-    if (object.hr !== undefined && object.hr !== null) {
-      message.hr = Range.fromJSON(object.hr);
-    } else {
-      message.hr = undefined;
     }
     return message;
   },
@@ -936,10 +974,20 @@ export const AlarmLimitsRequest = {
     } else {
       message.fio2 = undefined;
     }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Range.fromPartial(object.flow);
+    } else {
+      message.flow = undefined;
+    }
     if (object.spo2 !== undefined && object.spo2 !== null) {
       message.spo2 = Range.fromPartial(object.spo2);
     } else {
       message.spo2 = undefined;
+    }
+    if (object.hr !== undefined && object.hr !== null) {
+      message.hr = Range.fromPartial(object.hr);
+    } else {
+      message.hr = undefined;
     }
     if (object.rr !== undefined && object.rr !== null) {
       message.rr = Range.fromPartial(object.rr);
@@ -986,20 +1034,10 @@ export const AlarmLimitsRequest = {
     } else {
       message.etco2 = undefined;
     }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = Range.fromPartial(object.flow);
-    } else {
-      message.flow = undefined;
-    }
     if (object.apnea !== undefined && object.apnea !== null) {
       message.apnea = Range.fromPartial(object.apnea);
     } else {
       message.apnea = undefined;
-    }
-    if (object.hr !== undefined && object.hr !== null) {
-      message.hr = Range.fromPartial(object.hr);
-    } else {
-      message.hr = undefined;
     }
     return message;
   },
@@ -1009,8 +1047,12 @@ export const AlarmLimitsRequest = {
     message.time !== undefined && (obj.time = message.time);
     message.fio2 !== undefined &&
       (obj.fio2 = message.fio2 ? Range.toJSON(message.fio2) : undefined);
+    message.flow !== undefined &&
+      (obj.flow = message.flow ? Range.toJSON(message.flow) : undefined);
     message.spo2 !== undefined &&
       (obj.spo2 = message.spo2 ? Range.toJSON(message.spo2) : undefined);
+    message.hr !== undefined &&
+      (obj.hr = message.hr ? Range.toJSON(message.hr) : undefined);
     message.rr !== undefined &&
       (obj.rr = message.rr ? Range.toJSON(message.rr) : undefined);
     message.pip !== undefined &&
@@ -1033,12 +1075,8 @@ export const AlarmLimitsRequest = {
       (obj.tv = message.tv ? Range.toJSON(message.tv) : undefined);
     message.etco2 !== undefined &&
       (obj.etco2 = message.etco2 ? Range.toJSON(message.etco2) : undefined);
-    message.flow !== undefined &&
-      (obj.flow = message.flow ? Range.toJSON(message.flow) : undefined);
     message.apnea !== undefined &&
       (obj.apnea = message.apnea ? Range.toJSON(message.apnea) : undefined);
-    message.hr !== undefined &&
-      (obj.hr = message.hr ? Range.toJSON(message.hr) : undefined);
     return obj;
   },
 };
@@ -1046,12 +1084,12 @@ export const AlarmLimitsRequest = {
 const baseSensorMeasurements: object = {
   time: 0,
   cycle: 0,
-  paw: 0,
-  flow: 0,
-  volume: 0,
   fio2: 0,
   spo2: 0,
   hr: 0,
+  paw: 0,
+  flow: 0,
+  volume: 0,
 };
 
 export const SensorMeasurements = {
@@ -1061,12 +1099,12 @@ export const SensorMeasurements = {
   ): Writer {
     writer.uint32(8).uint32(message.time);
     writer.uint32(16).uint32(message.cycle);
-    writer.uint32(29).float(message.paw);
-    writer.uint32(37).float(message.flow);
-    writer.uint32(45).float(message.volume);
-    writer.uint32(53).float(message.fio2);
-    writer.uint32(61).float(message.spo2);
-    writer.uint32(69).float(message.hr);
+    writer.uint32(29).float(message.fio2);
+    writer.uint32(37).float(message.spo2);
+    writer.uint32(45).float(message.hr);
+    writer.uint32(53).float(message.paw);
+    writer.uint32(61).float(message.flow);
+    writer.uint32(69).float(message.volume);
     return writer;
   },
 
@@ -1084,22 +1122,22 @@ export const SensorMeasurements = {
           message.cycle = reader.uint32();
           break;
         case 3:
-          message.paw = reader.float();
-          break;
-        case 4:
-          message.flow = reader.float();
-          break;
-        case 5:
-          message.volume = reader.float();
-          break;
-        case 6:
           message.fio2 = reader.float();
           break;
-        case 7:
+        case 4:
           message.spo2 = reader.float();
           break;
-        case 8:
+        case 5:
           message.hr = reader.float();
+          break;
+        case 6:
+          message.paw = reader.float();
+          break;
+        case 7:
+          message.flow = reader.float();
+          break;
+        case 8:
+          message.volume = reader.float();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1121,21 +1159,6 @@ export const SensorMeasurements = {
     } else {
       message.cycle = 0;
     }
-    if (object.paw !== undefined && object.paw !== null) {
-      message.paw = Number(object.paw);
-    } else {
-      message.paw = 0;
-    }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = Number(object.flow);
-    } else {
-      message.flow = 0;
-    }
-    if (object.volume !== undefined && object.volume !== null) {
-      message.volume = Number(object.volume);
-    } else {
-      message.volume = 0;
-    }
     if (object.fio2 !== undefined && object.fio2 !== null) {
       message.fio2 = Number(object.fio2);
     } else {
@@ -1150,6 +1173,21 @@ export const SensorMeasurements = {
       message.hr = Number(object.hr);
     } else {
       message.hr = 0;
+    }
+    if (object.paw !== undefined && object.paw !== null) {
+      message.paw = Number(object.paw);
+    } else {
+      message.paw = 0;
+    }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Number(object.flow);
+    } else {
+      message.flow = 0;
+    }
+    if (object.volume !== undefined && object.volume !== null) {
+      message.volume = Number(object.volume);
+    } else {
+      message.volume = 0;
     }
     return message;
   },
@@ -1166,21 +1204,6 @@ export const SensorMeasurements = {
     } else {
       message.cycle = 0;
     }
-    if (object.paw !== undefined && object.paw !== null) {
-      message.paw = object.paw;
-    } else {
-      message.paw = 0;
-    }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = object.flow;
-    } else {
-      message.flow = 0;
-    }
-    if (object.volume !== undefined && object.volume !== null) {
-      message.volume = object.volume;
-    } else {
-      message.volume = 0;
-    }
     if (object.fio2 !== undefined && object.fio2 !== null) {
       message.fio2 = object.fio2;
     } else {
@@ -1196,6 +1219,21 @@ export const SensorMeasurements = {
     } else {
       message.hr = 0;
     }
+    if (object.paw !== undefined && object.paw !== null) {
+      message.paw = object.paw;
+    } else {
+      message.paw = 0;
+    }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = object.flow;
+    } else {
+      message.flow = 0;
+    }
+    if (object.volume !== undefined && object.volume !== null) {
+      message.volume = object.volume;
+    } else {
+      message.volume = 0;
+    }
     return message;
   },
 
@@ -1203,12 +1241,12 @@ export const SensorMeasurements = {
     const obj: any = {};
     message.time !== undefined && (obj.time = message.time);
     message.cycle !== undefined && (obj.cycle = message.cycle);
-    message.paw !== undefined && (obj.paw = message.paw);
-    message.flow !== undefined && (obj.flow = message.flow);
-    message.volume !== undefined && (obj.volume = message.volume);
     message.fio2 !== undefined && (obj.fio2 = message.fio2);
     message.spo2 !== undefined && (obj.spo2 = message.spo2);
     message.hr !== undefined && (obj.hr = message.hr);
+    message.paw !== undefined && (obj.paw = message.paw);
+    message.flow !== undefined && (obj.flow = message.flow);
+    message.volume !== undefined && (obj.volume = message.volume);
     return obj;
   },
 };
@@ -1366,29 +1404,29 @@ export const CycleMeasurements = {
 
 const baseParameters: object = {
   time: 0,
+  ventilating: false,
   mode: 0,
+  fio2: 0,
+  flow: 0,
   pip: 0,
   peep: 0,
   vt: 0,
   rr: 0,
   ie: 0,
-  fio2: 0,
-  flow: 0,
-  ventilating: false,
 };
 
 export const Parameters = {
   encode(message: Parameters, writer: Writer = Writer.create()): Writer {
     writer.uint32(8).uint32(message.time);
-    writer.uint32(16).int32(message.mode);
-    writer.uint32(29).float(message.pip);
-    writer.uint32(37).float(message.peep);
-    writer.uint32(45).float(message.vt);
-    writer.uint32(53).float(message.rr);
-    writer.uint32(61).float(message.ie);
-    writer.uint32(69).float(message.fio2);
-    writer.uint32(77).float(message.flow);
-    writer.uint32(80).bool(message.ventilating);
+    writer.uint32(16).bool(message.ventilating);
+    writer.uint32(24).int32(message.mode);
+    writer.uint32(37).float(message.fio2);
+    writer.uint32(45).float(message.flow);
+    writer.uint32(53).float(message.pip);
+    writer.uint32(61).float(message.peep);
+    writer.uint32(69).float(message.vt);
+    writer.uint32(77).float(message.rr);
+    writer.uint32(85).float(message.ie);
     return writer;
   },
 
@@ -1403,31 +1441,31 @@ export const Parameters = {
           message.time = reader.uint32();
           break;
         case 2:
-          message.mode = reader.int32() as any;
+          message.ventilating = reader.bool();
           break;
         case 3:
-          message.pip = reader.float();
+          message.mode = reader.int32() as any;
           break;
         case 4:
-          message.peep = reader.float();
-          break;
-        case 5:
-          message.vt = reader.float();
-          break;
-        case 6:
-          message.rr = reader.float();
-          break;
-        case 7:
-          message.ie = reader.float();
-          break;
-        case 8:
           message.fio2 = reader.float();
           break;
-        case 9:
+        case 5:
           message.flow = reader.float();
           break;
+        case 6:
+          message.pip = reader.float();
+          break;
+        case 7:
+          message.peep = reader.float();
+          break;
+        case 8:
+          message.vt = reader.float();
+          break;
+        case 9:
+          message.rr = reader.float();
+          break;
         case 10:
-          message.ventilating = reader.bool();
+          message.ie = reader.float();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1444,10 +1482,25 @@ export const Parameters = {
     } else {
       message.time = 0;
     }
+    if (object.ventilating !== undefined && object.ventilating !== null) {
+      message.ventilating = Boolean(object.ventilating);
+    } else {
+      message.ventilating = false;
+    }
     if (object.mode !== undefined && object.mode !== null) {
       message.mode = ventilationModeFromJSON(object.mode);
     } else {
       message.mode = 0;
+    }
+    if (object.fio2 !== undefined && object.fio2 !== null) {
+      message.fio2 = Number(object.fio2);
+    } else {
+      message.fio2 = 0;
+    }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Number(object.flow);
+    } else {
+      message.flow = 0;
     }
     if (object.pip !== undefined && object.pip !== null) {
       message.pip = Number(object.pip);
@@ -1474,21 +1527,6 @@ export const Parameters = {
     } else {
       message.ie = 0;
     }
-    if (object.fio2 !== undefined && object.fio2 !== null) {
-      message.fio2 = Number(object.fio2);
-    } else {
-      message.fio2 = 0;
-    }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = Number(object.flow);
-    } else {
-      message.flow = 0;
-    }
-    if (object.ventilating !== undefined && object.ventilating !== null) {
-      message.ventilating = Boolean(object.ventilating);
-    } else {
-      message.ventilating = false;
-    }
     return message;
   },
 
@@ -1499,10 +1537,25 @@ export const Parameters = {
     } else {
       message.time = 0;
     }
+    if (object.ventilating !== undefined && object.ventilating !== null) {
+      message.ventilating = object.ventilating;
+    } else {
+      message.ventilating = false;
+    }
     if (object.mode !== undefined && object.mode !== null) {
       message.mode = object.mode;
     } else {
       message.mode = 0;
+    }
+    if (object.fio2 !== undefined && object.fio2 !== null) {
+      message.fio2 = object.fio2;
+    } else {
+      message.fio2 = 0;
+    }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = object.flow;
+    } else {
+      message.flow = 0;
     }
     if (object.pip !== undefined && object.pip !== null) {
       message.pip = object.pip;
@@ -1529,67 +1582,52 @@ export const Parameters = {
     } else {
       message.ie = 0;
     }
-    if (object.fio2 !== undefined && object.fio2 !== null) {
-      message.fio2 = object.fio2;
-    } else {
-      message.fio2 = 0;
-    }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = object.flow;
-    } else {
-      message.flow = 0;
-    }
-    if (object.ventilating !== undefined && object.ventilating !== null) {
-      message.ventilating = object.ventilating;
-    } else {
-      message.ventilating = false;
-    }
     return message;
   },
 
   toJSON(message: Parameters): unknown {
     const obj: any = {};
     message.time !== undefined && (obj.time = message.time);
+    message.ventilating !== undefined &&
+      (obj.ventilating = message.ventilating);
     message.mode !== undefined &&
       (obj.mode = ventilationModeToJSON(message.mode));
+    message.fio2 !== undefined && (obj.fio2 = message.fio2);
+    message.flow !== undefined && (obj.flow = message.flow);
     message.pip !== undefined && (obj.pip = message.pip);
     message.peep !== undefined && (obj.peep = message.peep);
     message.vt !== undefined && (obj.vt = message.vt);
     message.rr !== undefined && (obj.rr = message.rr);
     message.ie !== undefined && (obj.ie = message.ie);
-    message.fio2 !== undefined && (obj.fio2 = message.fio2);
-    message.flow !== undefined && (obj.flow = message.flow);
-    message.ventilating !== undefined &&
-      (obj.ventilating = message.ventilating);
     return obj;
   },
 };
 
 const baseParametersRequest: object = {
   time: 0,
+  ventilating: false,
   mode: 0,
+  fio2: 0,
+  flow: 0,
   pip: 0,
   peep: 0,
   vt: 0,
   rr: 0,
   ie: 0,
-  fio2: 0,
-  flow: 0,
-  ventilating: false,
 };
 
 export const ParametersRequest = {
   encode(message: ParametersRequest, writer: Writer = Writer.create()): Writer {
     writer.uint32(8).uint32(message.time);
-    writer.uint32(16).int32(message.mode);
-    writer.uint32(29).float(message.pip);
-    writer.uint32(37).float(message.peep);
-    writer.uint32(45).float(message.vt);
-    writer.uint32(53).float(message.rr);
-    writer.uint32(61).float(message.ie);
-    writer.uint32(69).float(message.fio2);
-    writer.uint32(77).float(message.flow);
-    writer.uint32(80).bool(message.ventilating);
+    writer.uint32(16).bool(message.ventilating);
+    writer.uint32(24).int32(message.mode);
+    writer.uint32(37).float(message.fio2);
+    writer.uint32(45).float(message.flow);
+    writer.uint32(53).float(message.pip);
+    writer.uint32(61).float(message.peep);
+    writer.uint32(69).float(message.vt);
+    writer.uint32(77).float(message.rr);
+    writer.uint32(85).float(message.ie);
     return writer;
   },
 
@@ -1604,31 +1642,31 @@ export const ParametersRequest = {
           message.time = reader.uint32();
           break;
         case 2:
-          message.mode = reader.int32() as any;
+          message.ventilating = reader.bool();
           break;
         case 3:
-          message.pip = reader.float();
+          message.mode = reader.int32() as any;
           break;
         case 4:
-          message.peep = reader.float();
-          break;
-        case 5:
-          message.vt = reader.float();
-          break;
-        case 6:
-          message.rr = reader.float();
-          break;
-        case 7:
-          message.ie = reader.float();
-          break;
-        case 8:
           message.fio2 = reader.float();
           break;
-        case 9:
+        case 5:
           message.flow = reader.float();
           break;
+        case 6:
+          message.pip = reader.float();
+          break;
+        case 7:
+          message.peep = reader.float();
+          break;
+        case 8:
+          message.vt = reader.float();
+          break;
+        case 9:
+          message.rr = reader.float();
+          break;
         case 10:
-          message.ventilating = reader.bool();
+          message.ie = reader.float();
           break;
         default:
           reader.skipType(tag & 7);
@@ -1645,10 +1683,25 @@ export const ParametersRequest = {
     } else {
       message.time = 0;
     }
+    if (object.ventilating !== undefined && object.ventilating !== null) {
+      message.ventilating = Boolean(object.ventilating);
+    } else {
+      message.ventilating = false;
+    }
     if (object.mode !== undefined && object.mode !== null) {
       message.mode = ventilationModeFromJSON(object.mode);
     } else {
       message.mode = 0;
+    }
+    if (object.fio2 !== undefined && object.fio2 !== null) {
+      message.fio2 = Number(object.fio2);
+    } else {
+      message.fio2 = 0;
+    }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Number(object.flow);
+    } else {
+      message.flow = 0;
     }
     if (object.pip !== undefined && object.pip !== null) {
       message.pip = Number(object.pip);
@@ -1675,21 +1728,6 @@ export const ParametersRequest = {
     } else {
       message.ie = 0;
     }
-    if (object.fio2 !== undefined && object.fio2 !== null) {
-      message.fio2 = Number(object.fio2);
-    } else {
-      message.fio2 = 0;
-    }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = Number(object.flow);
-    } else {
-      message.flow = 0;
-    }
-    if (object.ventilating !== undefined && object.ventilating !== null) {
-      message.ventilating = Boolean(object.ventilating);
-    } else {
-      message.ventilating = false;
-    }
     return message;
   },
 
@@ -1700,10 +1738,25 @@ export const ParametersRequest = {
     } else {
       message.time = 0;
     }
+    if (object.ventilating !== undefined && object.ventilating !== null) {
+      message.ventilating = object.ventilating;
+    } else {
+      message.ventilating = false;
+    }
     if (object.mode !== undefined && object.mode !== null) {
       message.mode = object.mode;
     } else {
       message.mode = 0;
+    }
+    if (object.fio2 !== undefined && object.fio2 !== null) {
+      message.fio2 = object.fio2;
+    } else {
+      message.fio2 = 0;
+    }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = object.flow;
+    } else {
+      message.flow = 0;
     }
     if (object.pip !== undefined && object.pip !== null) {
       message.pip = object.pip;
@@ -1730,38 +1783,23 @@ export const ParametersRequest = {
     } else {
       message.ie = 0;
     }
-    if (object.fio2 !== undefined && object.fio2 !== null) {
-      message.fio2 = object.fio2;
-    } else {
-      message.fio2 = 0;
-    }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = object.flow;
-    } else {
-      message.flow = 0;
-    }
-    if (object.ventilating !== undefined && object.ventilating !== null) {
-      message.ventilating = object.ventilating;
-    } else {
-      message.ventilating = false;
-    }
     return message;
   },
 
   toJSON(message: ParametersRequest): unknown {
     const obj: any = {};
     message.time !== undefined && (obj.time = message.time);
+    message.ventilating !== undefined &&
+      (obj.ventilating = message.ventilating);
     message.mode !== undefined &&
       (obj.mode = ventilationModeToJSON(message.mode));
+    message.fio2 !== undefined && (obj.fio2 = message.fio2);
+    message.flow !== undefined && (obj.flow = message.flow);
     message.pip !== undefined && (obj.pip = message.pip);
     message.peep !== undefined && (obj.peep = message.peep);
     message.vt !== undefined && (obj.vt = message.vt);
     message.rr !== undefined && (obj.rr = message.rr);
     message.ie !== undefined && (obj.ie = message.ie);
-    message.fio2 !== undefined && (obj.fio2 = message.fio2);
-    message.flow !== undefined && (obj.flow = message.flow);
-    message.ventilating !== undefined &&
-      (obj.ventilating = message.ventilating);
     return obj;
   },
 };
@@ -1909,9 +1947,15 @@ const baseLogEvent: object = {
   id: 0,
   time: 0,
   code: 0,
-  oldValue: 0,
-  newValue: 0,
   type: 0,
+  oldFloat: 0,
+  newFloat: 0,
+  oldUint32: 0,
+  newUint32: 0,
+  oldBool: false,
+  newBool: false,
+  oldMode: 0,
+  newMode: 0,
 };
 
 export const LogEvent = {
@@ -1919,15 +1963,27 @@ export const LogEvent = {
     writer.uint32(8).uint32(message.id);
     writer.uint32(16).uint32(message.time);
     writer.uint32(24).int32(message.code);
+    writer.uint32(32).int32(message.type);
     if (
       message.alarmLimits !== undefined &&
       message.alarmLimits !== undefined
     ) {
-      Range.encode(message.alarmLimits, writer.uint32(34).fork()).ldelim();
+      Range.encode(message.alarmLimits, writer.uint32(42).fork()).ldelim();
     }
-    writer.uint32(45).float(message.oldValue);
-    writer.uint32(53).float(message.newValue);
-    writer.uint32(56).int32(message.type);
+    writer.uint32(53).float(message.oldFloat);
+    writer.uint32(61).float(message.newFloat);
+    writer.uint32(64).uint32(message.oldUint32);
+    writer.uint32(72).uint32(message.newUint32);
+    writer.uint32(80).bool(message.oldBool);
+    writer.uint32(88).bool(message.newBool);
+    if (message.oldRange !== undefined && message.oldRange !== undefined) {
+      Range.encode(message.oldRange, writer.uint32(98).fork()).ldelim();
+    }
+    if (message.newRange !== undefined && message.newRange !== undefined) {
+      Range.encode(message.newRange, writer.uint32(106).fork()).ldelim();
+    }
+    writer.uint32(112).int32(message.oldMode);
+    writer.uint32(120).int32(message.newMode);
     return writer;
   },
 
@@ -1948,16 +2004,40 @@ export const LogEvent = {
           message.code = reader.int32() as any;
           break;
         case 4:
-          message.alarmLimits = Range.decode(reader, reader.uint32());
+          message.type = reader.int32() as any;
           break;
         case 5:
-          message.oldValue = reader.float();
+          message.alarmLimits = Range.decode(reader, reader.uint32());
           break;
         case 6:
-          message.newValue = reader.float();
+          message.oldFloat = reader.float();
           break;
         case 7:
-          message.type = reader.int32() as any;
+          message.newFloat = reader.float();
+          break;
+        case 8:
+          message.oldUint32 = reader.uint32();
+          break;
+        case 9:
+          message.newUint32 = reader.uint32();
+          break;
+        case 10:
+          message.oldBool = reader.bool();
+          break;
+        case 11:
+          message.newBool = reader.bool();
+          break;
+        case 12:
+          message.oldRange = Range.decode(reader, reader.uint32());
+          break;
+        case 13:
+          message.newRange = Range.decode(reader, reader.uint32());
+          break;
+        case 14:
+          message.oldMode = reader.int32() as any;
+          break;
+        case 15:
+          message.newMode = reader.int32() as any;
           break;
         default:
           reader.skipType(tag & 7);
@@ -1984,25 +2064,65 @@ export const LogEvent = {
     } else {
       message.code = 0;
     }
+    if (object.type !== undefined && object.type !== null) {
+      message.type = logEventTypeFromJSON(object.type);
+    } else {
+      message.type = 0;
+    }
     if (object.alarmLimits !== undefined && object.alarmLimits !== null) {
       message.alarmLimits = Range.fromJSON(object.alarmLimits);
     } else {
       message.alarmLimits = undefined;
     }
-    if (object.oldValue !== undefined && object.oldValue !== null) {
-      message.oldValue = Number(object.oldValue);
+    if (object.oldFloat !== undefined && object.oldFloat !== null) {
+      message.oldFloat = Number(object.oldFloat);
     } else {
-      message.oldValue = 0;
+      message.oldFloat = 0;
     }
-    if (object.newValue !== undefined && object.newValue !== null) {
-      message.newValue = Number(object.newValue);
+    if (object.newFloat !== undefined && object.newFloat !== null) {
+      message.newFloat = Number(object.newFloat);
     } else {
-      message.newValue = 0;
+      message.newFloat = 0;
     }
-    if (object.type !== undefined && object.type !== null) {
-      message.type = logEventTypeFromJSON(object.type);
+    if (object.oldUint32 !== undefined && object.oldUint32 !== null) {
+      message.oldUint32 = Number(object.oldUint32);
     } else {
-      message.type = 0;
+      message.oldUint32 = 0;
+    }
+    if (object.newUint32 !== undefined && object.newUint32 !== null) {
+      message.newUint32 = Number(object.newUint32);
+    } else {
+      message.newUint32 = 0;
+    }
+    if (object.oldBool !== undefined && object.oldBool !== null) {
+      message.oldBool = Boolean(object.oldBool);
+    } else {
+      message.oldBool = false;
+    }
+    if (object.newBool !== undefined && object.newBool !== null) {
+      message.newBool = Boolean(object.newBool);
+    } else {
+      message.newBool = false;
+    }
+    if (object.oldRange !== undefined && object.oldRange !== null) {
+      message.oldRange = Range.fromJSON(object.oldRange);
+    } else {
+      message.oldRange = undefined;
+    }
+    if (object.newRange !== undefined && object.newRange !== null) {
+      message.newRange = Range.fromJSON(object.newRange);
+    } else {
+      message.newRange = undefined;
+    }
+    if (object.oldMode !== undefined && object.oldMode !== null) {
+      message.oldMode = ventilationModeFromJSON(object.oldMode);
+    } else {
+      message.oldMode = 0;
+    }
+    if (object.newMode !== undefined && object.newMode !== null) {
+      message.newMode = ventilationModeFromJSON(object.newMode);
+    } else {
+      message.newMode = 0;
     }
     return message;
   },
@@ -2024,25 +2144,65 @@ export const LogEvent = {
     } else {
       message.code = 0;
     }
+    if (object.type !== undefined && object.type !== null) {
+      message.type = object.type;
+    } else {
+      message.type = 0;
+    }
     if (object.alarmLimits !== undefined && object.alarmLimits !== null) {
       message.alarmLimits = Range.fromPartial(object.alarmLimits);
     } else {
       message.alarmLimits = undefined;
     }
-    if (object.oldValue !== undefined && object.oldValue !== null) {
-      message.oldValue = object.oldValue;
+    if (object.oldFloat !== undefined && object.oldFloat !== null) {
+      message.oldFloat = object.oldFloat;
     } else {
-      message.oldValue = 0;
+      message.oldFloat = 0;
     }
-    if (object.newValue !== undefined && object.newValue !== null) {
-      message.newValue = object.newValue;
+    if (object.newFloat !== undefined && object.newFloat !== null) {
+      message.newFloat = object.newFloat;
     } else {
-      message.newValue = 0;
+      message.newFloat = 0;
     }
-    if (object.type !== undefined && object.type !== null) {
-      message.type = object.type;
+    if (object.oldUint32 !== undefined && object.oldUint32 !== null) {
+      message.oldUint32 = object.oldUint32;
     } else {
-      message.type = 0;
+      message.oldUint32 = 0;
+    }
+    if (object.newUint32 !== undefined && object.newUint32 !== null) {
+      message.newUint32 = object.newUint32;
+    } else {
+      message.newUint32 = 0;
+    }
+    if (object.oldBool !== undefined && object.oldBool !== null) {
+      message.oldBool = object.oldBool;
+    } else {
+      message.oldBool = false;
+    }
+    if (object.newBool !== undefined && object.newBool !== null) {
+      message.newBool = object.newBool;
+    } else {
+      message.newBool = false;
+    }
+    if (object.oldRange !== undefined && object.oldRange !== null) {
+      message.oldRange = Range.fromPartial(object.oldRange);
+    } else {
+      message.oldRange = undefined;
+    }
+    if (object.newRange !== undefined && object.newRange !== null) {
+      message.newRange = Range.fromPartial(object.newRange);
+    } else {
+      message.newRange = undefined;
+    }
+    if (object.oldMode !== undefined && object.oldMode !== null) {
+      message.oldMode = object.oldMode;
+    } else {
+      message.oldMode = 0;
+    }
+    if (object.newMode !== undefined && object.newMode !== null) {
+      message.newMode = object.newMode;
+    } else {
+      message.newMode = 0;
     }
     return message;
   },
@@ -2052,13 +2212,29 @@ export const LogEvent = {
     message.id !== undefined && (obj.id = message.id);
     message.time !== undefined && (obj.time = message.time);
     message.code !== undefined && (obj.code = logEventCodeToJSON(message.code));
+    message.type !== undefined && (obj.type = logEventTypeToJSON(message.type));
     message.alarmLimits !== undefined &&
       (obj.alarmLimits = message.alarmLimits
         ? Range.toJSON(message.alarmLimits)
         : undefined);
-    message.oldValue !== undefined && (obj.oldValue = message.oldValue);
-    message.newValue !== undefined && (obj.newValue = message.newValue);
-    message.type !== undefined && (obj.type = logEventTypeToJSON(message.type));
+    message.oldFloat !== undefined && (obj.oldFloat = message.oldFloat);
+    message.newFloat !== undefined && (obj.newFloat = message.newFloat);
+    message.oldUint32 !== undefined && (obj.oldUint32 = message.oldUint32);
+    message.newUint32 !== undefined && (obj.newUint32 = message.newUint32);
+    message.oldBool !== undefined && (obj.oldBool = message.oldBool);
+    message.newBool !== undefined && (obj.newBool = message.newBool);
+    message.oldRange !== undefined &&
+      (obj.oldRange = message.oldRange
+        ? Range.toJSON(message.oldRange)
+        : undefined);
+    message.newRange !== undefined &&
+      (obj.newRange = message.newRange
+        ? Range.toJSON(message.newRange)
+        : undefined);
+    message.oldMode !== undefined &&
+      (obj.oldMode = ventilationModeToJSON(message.oldMode));
+    message.newMode !== undefined &&
+      (obj.newMode = ventilationModeToJSON(message.newMode));
     return obj;
   },
 };

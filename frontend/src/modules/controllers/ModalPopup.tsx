@@ -12,7 +12,7 @@ import {
   Typography,
   IconButton,
 } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import ReplyIcon from '@material-ui/icons/Reply';
 
 const useStyles = makeStyles((theme: Theme) => ({
   closeButton: {
@@ -46,32 +46,44 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
   },
   containerClass: {
-    maxWidth: '80%',
-    maxHeight: '80%',
-    margin: '0 auto',
+    flexDirection: 'column',
+    flexGrow: 1,
+
+    '& .MuiDialogContent-root': {
+      position: 'relative',
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+    },
   },
   wrapper: {
     width: '100%',
     height: '100%',
     display: 'flex',
-    alignItems: 'center',
-    marginTop: 'auto',
-    marginBottom: 'auto',
+    // alignItems: 'center',
+    // marginTop: 'auto',
+    // marginBottom: 'auto'
+    flexDirection: 'column',
+    flexGrow: 1,
   },
   wrapperFlex: {
     width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+
     '& .MuiDialogTitle-root': {
-      padding: '0px 24px',
+      // padding: '25px',
+      width: '100%',
     },
   },
   actionButtons: {
-    marginBottom: '10px',
+    margin: '15px',
     display: 'flex',
     alignItems: 'center',
     width: '100%',
-    '& .MuiGrid-item': {
-      padding: '0px 10px',
-    },
   },
 }));
 
@@ -96,7 +108,12 @@ const ModalAction = ({ onClose, onConfirm }: ActionProps): JSX.Element => {
   return (
     <Grid container justify="center" className={classes.actionButtons}>
       <Grid item justify="center">
-        <Button onClick={onClose} variant="contained" color="primary">
+        <Button
+          onClick={onClose}
+          variant="contained"
+          color="primary"
+          style={{ marginRight: '15px' }}
+        >
           {/* style={{ width: '90%' }} */}
           Cancel
         </Button>
@@ -136,26 +153,28 @@ export const ModalPopup = (props: PropsWithChildren<Props>): JSX.Element => {
         <Grid alignItems="center" className={classes.wrapperFlex}>
           <DialogTitle id="form-dialog-title">
             <Grid container alignItems="center">
-              {label && (
-                <Grid item xs>
-                  <Typography variant="h4">{label}</Typography>
-                </Grid>
-              )}
+              <Grid item xs>
+                <Typography variant="h4" style={{ fontWeight: 'normal' }}>
+                  {label}
+                </Typography>
+              </Grid>
               <Grid item>
                 {showCloseIcon && (
                   <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
-                    <CloseIcon />
+                    <ReplyIcon />
                   </IconButton>
                 )}
               </Grid>
             </Grid>
           </DialogTitle>
           <Grid container alignItems="center" className={classes.containerClass}>
-            <DialogContent>{children}</DialogContent>
+            <DialogContent>
+              {children}
+              <DialogActions style={{ width: '100%' }} className={classes.dialogActions}>
+                {withAction && <ModalAction onClose={onClose} onConfirm={onConfirm} />}
+              </DialogActions>
+            </DialogContent>
           </Grid>
-          <DialogActions className={classes.dialogActions}>
-            {withAction && <ModalAction onClose={onClose} onConfirm={onConfirm} />}
-          </DialogActions>
         </Grid>
       </Grid>
     </Dialog>

@@ -81,12 +81,12 @@ const HFNCControlGrid = (): JSX.Element => {
 
 const ConfigureControlMode = ({ mode }: { mode: VentilationMode }): JSX.Element => {
   switch (mode) {
-    case VentilationMode.pc_ac:
-    case VentilationMode.pc_simv:
-    case VentilationMode.vc_ac:
-    case VentilationMode.vc_simv:
-    case VentilationMode.niv:
     case VentilationMode.hfnc:
+    case VentilationMode.pc_ac:
+    case VentilationMode.vc_ac:
+    case VentilationMode.niv_pc:
+    case VentilationMode.niv_ps:
+    case VentilationMode.psv:
     default:
       return <HFNCControlGrid />;
   }
@@ -94,12 +94,12 @@ const ConfigureControlMode = ({ mode }: { mode: VentilationMode }): JSX.Element 
 
 const ConfigureValueMode = ({ mode }: { mode: VentilationMode }): JSX.Element => {
   switch (mode) {
-    case VentilationMode.pc_ac:
-    case VentilationMode.pc_simv:
-    case VentilationMode.vc_ac:
-    case VentilationMode.vc_simv:
-    case VentilationMode.niv:
     case VentilationMode.hfnc:
+    case VentilationMode.pc_ac:
+    case VentilationMode.vc_ac:
+    case VentilationMode.niv_pc:
+    case VentilationMode.niv_ps:
+    case VentilationMode.psv:
     default:
       return <HFNCValueGrid />;
   }

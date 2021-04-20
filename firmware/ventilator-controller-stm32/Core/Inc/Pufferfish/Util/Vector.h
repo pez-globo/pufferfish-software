@@ -29,7 +29,7 @@ class Vector {
   Vector() = default;
 
   [[nodiscard]] size_t size() const;
-  [[nodiscard]] static constexpr size_t max_size() { return array_size; }
+  [[nodiscard]] static constexpr size_t max_size() noexcept { return array_size; }
   [[nodiscard]] bool empty() const;
   [[nodiscard]] bool full() const;
   [[nodiscard]] size_t available() const;
@@ -38,8 +38,8 @@ class Vector {
   IndexStatus resize(size_t new_size);
   IndexStatus push_back(uint8_t new_byte);
 
-  constexpr const Element &operator[](size_t position) const;
-  constexpr Element &operator[](size_t position);
+  constexpr const Element &operator[](size_t position) const noexcept;
+  constexpr Element &operator[](size_t position) noexcept;
 
   template <size_t source_size>
   IndexStatus copy_from(
@@ -49,8 +49,8 @@ class Vector {
   IndexStatus copy_from(
       const Element *source_bytes, size_t source_size, size_t dest_start_index = 0);
 
-  [[nodiscard]] constexpr const Element *buffer() const { return buffer_.data(); }
-  constexpr Element *buffer() { return buffer_.data(); }
+  [[nodiscard]] constexpr const Element *buffer() const noexcept { return buffer_.data(); }
+  constexpr Element *buffer() noexcept { return buffer_.data(); }
 
  private:
   std::array<Element, array_size> buffer_{};

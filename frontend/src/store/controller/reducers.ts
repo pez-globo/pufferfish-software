@@ -58,13 +58,6 @@ export const controllerReducer = combineReducers({
 
   // Derived states
   smoothedMeasurements: combineReducers({
-    spo2: sensorMeasurementSmoothingReducer(
-      0.5,
-      1.0,
-      200,
-      500,
-      (sensorMeasurements) => sensorMeasurements.spo2,
-    ),
     fio2: sensorMeasurementSmoothingReducer(
       0.5,
       0.1,
@@ -78,6 +71,20 @@ export const controllerReducer = combineReducers({
       500,
       200,
       (sensorMeasurements) => sensorMeasurements.flow,
+    ),
+    spo2: sensorMeasurementSmoothingReducer(
+      0.5,
+      1.0,
+      200,
+      500,
+      (sensorMeasurements) => sensorMeasurements.spo2,
+    ),
+    hr: sensorMeasurementSmoothingReducer(
+      0.4,
+      5.0,
+      100,
+      2000,
+      (sensorMeasurements) => sensorMeasurements.hr,
     ),
   }),
   waveformHistoryPaw: waveformHistoryReducer<SensorMeasurements>(

@@ -58,12 +58,12 @@ IndexStatus Vector<Element, array_size>::push_back(uint8_t new_byte) {
 }
 
 template <typename Element, size_t array_size>
-constexpr const Element &Vector<Element, array_size>::operator[](size_t position) const {
+constexpr const Element &Vector<Element, array_size>::operator[](size_t position) const noexcept {
   return buffer_[position];
 }
 
 template <typename Element, size_t array_size>
-constexpr Element &Vector<Element, array_size>::operator[](size_t position) {
+constexpr Element &Vector<Element, array_size>::operator[](size_t position) noexcept {
   return buffer_[position];
 }
 

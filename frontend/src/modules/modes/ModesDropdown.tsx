@@ -33,12 +33,12 @@ const useStyles = makeStyles(() => ({
 }));
 
 const modes = [
-  VentilationMode.pc_ac,
-  VentilationMode.pc_simv,
-  VentilationMode.vc_ac,
-  VentilationMode.vc_simv,
-  VentilationMode.niv,
   VentilationMode.hfnc,
+  VentilationMode.pc_ac,
+  VentilationMode.vc_ac,
+  VentilationMode.niv_pc,
+  VentilationMode.niv_ps,
+  VentilationMode.psv,
 ];
 
 const StyledMenu = withStyles((theme: Theme) => ({

@@ -5,10 +5,10 @@ import {
   getParametersFiO2,
   getParametersFlow,
   getROXIndex,
-  getSensorMeasurementsHR,
   getSmoothedFiO2Value,
   getSmoothedFlow,
   getSmoothedSpO2,
+  getSmoothedHR,
 } from '../../../store/controller/selectors';
 import { a11yProps, TabPanel } from '../../controllers/TabPanel';
 import { BPM, LMIN, PERCENT } from '../../info/units';
@@ -77,7 +77,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     minWidth: '500px',
     // marginRight: theme.spacing(2),
     backgroundColor: theme.palette.background.paper,
-    borderRadius: '16px 0px 0px 16px',
+    borderRadius: '16px',
     height: '100%',
   },
   bottomRightPanel: {
@@ -97,6 +97,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   rightBorder: {
     borderRight: `2px dashed ${theme.palette.background.default}`,
     height: '100%',
+    '&:last-child': {
+      borderRight: 'none !important',
+    },
   },
   graphMainPanel: {
     display: 'grid',
@@ -146,7 +149,7 @@ const HFNCMainView = (): JSX.Element => {
           <Grid container item justify="center" alignItems="stretch">
             <ValueInfo
               mainContainer={{
-                selector: getSensorMeasurementsHR,
+                selector: getSmoothedHR,
                 label: 'HR',
                 stateKey: 'hr',
                 units: BPM,

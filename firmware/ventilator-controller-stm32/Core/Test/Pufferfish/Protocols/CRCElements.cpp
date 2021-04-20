@@ -126,7 +126,7 @@ SCENARIO(
 
     TestConstructedCRCElement crc_element{input_payload};
     WHEN("The crc and payload are written to the output buffer") {
-      TestCRCElementProps::PayloadBuffer output_buffer;
+      PF::Util::ByteVector<buffer_size> output_buffer;
 
       THEN("the crc accessor method returns 0 before the write method is called") {
         REQUIRE(crc_element.crc() == 0x00000000);
@@ -546,29 +546,23 @@ SCENARIO("Protocols::CRCElement: correctly preserves data in roundtrip writing a
       }
 
       // Parse
-      auto payload = std::string("\x01\x05\x01\x02\x03\x04\x05", 7);
       TestCRCElementProps::PayloadBuffer parsed_payload;
-      PF::Util::convert_string_to_byte_vector(payload, parsed_payload);
       TestParsedCRCElement parsed_crc_element{parsed_payload};
 
-      auto body = std::string("\x2B\x01\xD0\x2C\x01\x06\x11\x22\x33\x44\x55\x66", 12);
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
-
-      auto parse_status = parsed_crc_element.parse(input_buffer);
+      auto parse_status = parsed_crc_element.parse(output_buffer);
 
       THEN("The parse method reports ok status") { REQUIRE(parse_status == PF::IndexStatus::ok); }
       THEN(
           "After the parse method is called, the value returned by the crc accessor method is "
           "equal to the crc field of the input "
           "body's header") {
-        uint32_t crc_body = 0x2B01D02C;
+        uint32_t crc_body = 0x98DBE355;
         REQUIRE(parsed_crc_element.crc() == crc_body);
       }
       THEN(
           "the payload returned from the payload accessor method is equal to the payload from the "
           "body") {
-        auto expected_payload = std::string("\x01\x06\x11\x22\x33\x44\x55\x66", 8);
+        auto expected_payload = std::string("\x01\x05\x01\x02\x03\x04\x05", 7);
         REQUIRE(parsed_crc_element.payload() == expected_payload);
       }
 
@@ -576,14 +570,14 @@ SCENARIO("Protocols::CRCElement: correctly preserves data in roundtrip writing a
           "the payload given in the ParsedCRCElement constructor is independent of the input "
           "body") {
         // change the input_buffer
-        input_buffer.push_back(0x06);
+        output_buffer.push_back(0x06);
 
-        auto expected_payload = std::string("\x01\x06\x11\x22\x33\x44\x55\x66", 8);
+        auto expected_payload = std::string("\x01\x05\x01\x02\x03\x04\x05", 7);
         REQUIRE(parsed_crc_element.payload() == expected_payload);
       }
 
       // Write
-      auto final_payload = std::string("\x12\x06\x41\x52\x63\x74\x85\x96", 8);
+      auto final_payload = std::string("\x01\x05\x01\x02\x03\x04\x05", 7);
       TestCRCElementProps::PayloadBuffer const_payload;
       PF::Util::convert_string_to_byte_vector(final_payload, const_payload);
 
@@ -606,7 +600,7 @@ SCENARIO("Protocols::CRCElement: correctly preserves data in roundtrip writing a
           "The CRC field of the body's header matches the value returned by the crc accessor "
           "method.") {
         // Calculated using the Sunshine Online CRC Calculator
-        uint32_t expected_crc = 0x02BB4143;
+        uint32_t expected_crc = 0x98DBE355;
         REQUIRE(constructed_crc_element.crc() == expected_crc);
       }
       THEN(
@@ -615,7 +609,7 @@ SCENARIO("Protocols::CRCElement: correctly preserves data in roundtrip writing a
         REQUIRE(constructed_crc_element.payload() == final_payload);
       }
       THEN("The output buffer is as expected") {
-        auto expected_buffer = std::string("\x02\xBB\x41\x43\x12\x06\x41\x52\x63\x74\x85\x96", 12);
+        auto expected_buffer = std::string("\x98\xDB\xE3\x55\x01\x05\x01\x02\x03\x04\x05", 11);
         REQUIRE(final_buffer == expected_buffer);
       }
     }
@@ -1045,33 +1039,6 @@ SCENARIO(
       }
       THEN("The contents of the output buffer remains unchanged") {
         REQUIRE(output_buffer == expected_output);
-      }
-    }
-  }
-
-  GIVEN("A CRC element sender of buffer size 20 bytes") {
-    constexpr size_t buffer_size = 20UL;
-    using TestCRCElementProps = PF::Protocols::CRCElementProps<buffer_size>;
-    using TestCRCElementSender = PF::Protocols::CRCElementSender<buffer_size>;
-
-    PF::HAL::SoftCRC32 crc32c{PF::HAL::crc32c_params};
-    TestCRCElementSender crc_element_sender{crc32c};
-
-    WHEN("The output buffer is not large enough for the input payload") {
-      auto body = std::string("\x81\xfc\x34\x57\x13\x03\x05\x06\x23\x01\x09", 11);
-      constexpr size_t output_buffer_size = 10UL;
-
-      TestCRCElementProps::PayloadBuffer input_payload;
-      for (auto& data : body) {
-        input_payload.push_back(data);
-      }
-
-      PF::Util::ByteVector<output_buffer_size> output_buffer;
-
-      auto transform_status = crc_element_sender.transform(input_payload, output_buffer);
-
-      THEN("the transform status is equal to invalid_length") {
-        REQUIRE(transform_status == TestCRCElementSender::Status::invalid_length);
       }
     }
   }

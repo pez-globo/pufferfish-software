@@ -1,0 +1,304 @@
+/* chunks
+
+Scenario: A ChunkSplitter constructed with default parameters correctly handles input chunks of acceptable lengths
+
+  GIVEN("A char chunk splitter with an empty internal buffer of 102 bytes")
+  // assertions:
+  // output buffer is empty
+
+    WHEN("102 non-delimiter bytes are passed as input, and 103rd byte is passed as a delimiter, and output is called between each input")
+      THEN("The input method reports ok status for all the 102 non-delimeter bytes")
+      THEN("After the input of 102 non-delimiter bytes, The output method reports waiting status")
+      THEN("The input method reports output_ready status on the 103rd byte")
+      THEN("After the delimiter is passed to input, The output method reports ok status")
+      THEN("The output buffer has the expected sequence of 102 bytes with no delimeters")
+
+  GIVEN("A uint8_t chunksplitter with an empty internal buffer of capacity 256 bytes")
+  // assertions:
+  // output buffer is empty
+
+    WHEN("A delimiter is passed as input and output method is called after that")
+      THEN("The input method reports output_ready status")
+      THEN("The output method reports ok status")      
+      THEN("The output buffer remains empty")
+
+    WHEN("255 non-delimiter bytes and 256th byte as a delimeter are passed as input, after which output is called")
+      THEN("The input method reports ok status for all the 255 non-delimeter bytes")
+      THEN("The input method reports output_ready status on the 256th delimeter byte")
+      THEN("After the delimiter is passed as input, The output method reports ok status")
+      THEN("The output buffer has the expected sequence of 255 bytes with no delimeters")      
+
+    WHEN("256 non-delimiter bytes are passed as input, and 257th byte is passed as a delimiter, and output is called between each input")
+      THEN("The input method reports ok status for all the 256 non-delimeter bytes")
+      THEN("The output method reports waiting status")
+      THEN("The output buffer remains empty")
+      THEN("The input method reports output_ready status on the 257th delimeter byte")
+      THEN("After the delimiter is passed as input, The output method reports ok status")
+      THEN("The output buffer has the expected sequence of 256 bytes with no delimeters")         
+
+Scenario: A ChunkSplitter constructed with default value for delimeter and include_delimeter boolean as true correctly handles input chunks of acceptable lengths
+
+  GIVEN("A uint8_t chunksplitter with an empty internal buffer of capacity 256 bytes")
+  // assertions:
+  // output buffer is empty
+
+    WHEN("A delimiter is passed as input and output method is called after that")
+      THEN("The input method reports output_ready status")
+      THEN("The output method reports ok status")      
+      THEN("The output buffer is a single null byte buffer")
+
+    WHEN("255 non-delimiter bytes and 256th byte as a delimeter are passed as input, after which output is called") {
+      THEN("The input method reports ok status for all the 255 non-delimeter bytes")
+      THEN("The input method reports output_ready status on the 256th delimeter byte")
+      THEN("After the delimiter is passed as input, The output method reports ok status")
+      THEN("The output buffer has the expected sequence of 256 bytes where the last byte is a delimeter")         
+
+    WHEN("255 non-delimiter bytes are passed as input, and 256th byte is passed as a delimiter, and output is called between each input")
+      THEN("The input method reports ok status for all the 255 non-delimeter bytes")
+      THEN("The output method reports waiting status")
+      THEN("The output buffer remains empty")
+      THEN("The input method reports output_ready status on the 256th delimeter byte")
+      THEN("After the delimiter is passed as input, The output method reports ok status")
+      THEN("The output buffer has the expected sequence of 256 bytes where the last byte is a delimeter")      
+
+Scenario: A ChunkSplitter constructed with default parameters correctly handles unacceptably long input chunks
+
+  GIVEN("A uint8_t chunk splitter with a completely full internal buffer of 256 bytes with no delimeters")
+  // assertions:
+  // output buffer is empty
+
+    WHEN("257th non-delimiter byte is passed as input")
+      THEN("The input method reports invalid_length status")
+
+    WHEN("A non-delimiter byte is passed as input and output is called")
+      THEN("The input method reports invalid_length status")
+      THEN("the output method reports invalid_length status")
+      THEN("The output buffer has the expected sequence of 256 bytes consisting of the 256 bytes which had initially filled the internal buffer")
+
+    WHEN("A delimeter byte is passed as input and output is called")
+      THEN("The input method reports output_ready status")
+      THEN("the output method reports ok status")
+      THEN("The output buffer has the expected sequence of 256 bytes consisting of the 256 bytes which had initially filled the internal buffer")
+
+Scenario: ChunkSplitter constructed with with default value for delimeter and include_delimeter boolean as true correctly handles unacceptably long input chunks
+
+  GIVEN("A uint8_t chunk splitter with a completely full internal buffer of 256 bytes")
+  // assertions:
+  // output buffer is empty
+
+    WHEN("257th non-delimiter byte is passed as input")
+      THEN("The input method reports invalid_length status")
+
+    WHEN("A non-delimiter byte is passed as input and output is called")
+      THEN("The input method reports invalid_length status")
+      THEN("the output method reports invalid_length status")
+      THEN("The output buffer has the expected sequence of 256 bytes that had initially filled the internal buffer without the delimeter as the last byte")
+
+    WHEN("A delimeter byte is passed as input and output is called")
+      THEN("The input method reports invalid_length status")
+      THEN("the output method reports invalid_length status")
+      THEN("The output buffer has the expected sequence of 256 bytes that had initially filled the internal buffer without the delimeter as the last byte")
+
+Scenario: After output is consumed, ChunkSplitter's behavior resets to that of a ChunkSplitter with an empty buffer      
+  
+  GIVEN("A uint8_t chunksplitter constructed with default parameters, which is completely filled with 256 bytes of input data followed by a delimiter, and whose output is then consumed"")
+  // assertions:
+  // The output buffer has expected sequence of 256 bytes that had initially filled the internal buffer
+
+  WHEN("chunks of capacity 254 bytes with varying data are passed as input, after which a delimiter is passed and output is called")
+    THEN("The input method reports ok status for each chunk")
+    THEN("the output method reports ok status for each chunk")
+
+Scenario: A chunksplitter constructed with a non-zero delimeter parameter correctly handles input chunks
+
+  GIVEN("A uint8_t chunksplitter constructed with value of delimeter parameter as 0x01 and include_delimeter boolean as false is completely filled with non-delimeter input data")
+  // assertions:
+  // output buffer is empty
+
+    WHEN("A single null (0x00) byte is passed as input")
+      THEN("The input method reports invalid_length status")
+
+    WHEN("The output method is called")
+      THEN("The output method returns waiting status")
+      THEN("The output buffer remains empty")
+
+    WHEN("A delimeter byte (0x01) is passed as input and output is called")
+      THEN("the input method reports output ready status on the delimeter byte")
+      THEN("the output method reports ok status")
+      THEN("The output buffer has expected sequence of 256 bytes consisting of the 256 bytes which had initially filled the internal buffer")
+
+  GIVEN("A uint8_t chunksplitter constructed with value of delimeter parameter as 0xff and include_delimeter boolean as false is completely filled with non-delimeter input data")
+  // assertions:
+  // output buffer is empty
+
+    WHEN("A single null (0x00) byte is passed as input")
+      THEN("The input method reports invalid_length status")
+
+    WHEN("The output method is called")
+      THEN("The output method returns waiting status")
+      THEN("The output buffer remains empty")
+
+    WHEN("A delimeter byte (0xff) is passed as input and output is called")
+      THEN("the input method reports output ready status on the delimeter byte")
+      THEN("the output method reports ok status")
+      THEN("The output buffer has expected sequence of 256 bytes consisting of the 256 bytes which had initially filled the internal buffer")
+
+  GIVEN("A uint8_t chunksplitter constructed with value of delimeter parameter as 0x01 and include_delimeter boolean as true is completely filled with non-delimeter input data")
+  // assertions:
+  // output buffer is empty
+
+    WHEN("A single null (0x00) byte is passed as input")
+      THEN("The input method reports invalid_length status")
+
+    WHEN("A delimeter byte (0x01) is passed as input and output is called")
+      THEN("the input method reports invalid_length status on the delimeter byte")
+      THEN("the output method reports invalid length status")
+      THEN("The output buffer has expected sequence of 256 bytes consisting of the 256 bytes which had initially filled the internal buffer without the delimeter as the last byte")
+
+  GIVEN("A uint8_t chunksplitter constructed with value of delimeter parameter as 0x01 and include_delimeter boolean as true is partially filled with 128 non-delimeter bytes input data")  
+  // assertions:
+  // output buffer is empty  
+
+    WHEN("The output method is called")
+      THEN("The output method reports waiting status")
+      THEN("The output buffer remains empty")
+
+    WHEN("A delimeter byte (0x01) is passed as input and output is called")
+      THEN("The input method reports output_ready status on the delimeter byte")
+      THEN("the output method reports ok status")
+      THEN("The output buffer has expected sequence of 129 bytes consisting of the 128 bytes which had initially filled the internal buffer with delimeter as the last byte")
+
+Scenario: A ChunkSplitter correctly reports if input is overwritten before or after the output is consumed
+
+  GIVEN("A uint8_t chunksplitter constructed with default parameters with an empty internal buffer of capacity 256 bytes")
+
+    WHEN("input to the chunksplitter is '0x01 0x02 0x03 0x00 0x04 0x05 0x00' with the input method's input_overwritten flag initalised as false, and output is called after each delimeter input")
+      THEN("The input method reports ok status for the first 3 non-delimeter bytes")
+      THEN("The input method reports output_ready status for the first delimeter byte")
+      THEN("The input_overwritten flag is unchanged")
+      THEN("The output method reports ok status")
+      THEN("The output buffer is as expected '\x01\x02\x03' ")
+      THEN("The input method reports ok status for the subsequent non-delimeter bytes")
+      THEN("The input method reports output_ready status for the delimeter byte")
+      THEN("The input_overwritten flag is unchanged")
+      THEN("the output method reports ok status after the last delimeter byte")
+      THEN("The output buffer is as expected '\x04\x05' ")   
+
+    WHEN("input to the chunksplitter is '0x01 0x02 0x03 0x00 0x04 0x05 0x00' with the input method's input_overwritten flag initalised as false, and output is called after all the bytes are passed")
+      THEN("The input method reports ok status on the first 3 bytes")
+      THEN("The input method reports output_ready status on the 4th byte") // delimeter byte
+      THEN("The input method reports ok status and sets the input_overwritten flag to true on the 5th byte")
+      THEN("The input method reports ok status for every subsequent byte")
+      THEN("The output method reports ok status")
+      THEN("The output buffer only contains the last chunk '0x04 0x05' ")
+
+  GIVEN("A uint8_t ChunkSplitter constructed with default parameters, and capacity of 256 bytes which has received 256 non-delimiter bytes as input, and then a delimeter is passed as input")
+
+    WHEN("10 bytes of non-delimiter bytes followed by a delimiter byte are passed as input, with the input method's input_overwritten flag initalised as true, and output is called between each input")
+      THEN("The input method reports ok status for all the non-delimeter bytes")
+      THEN("The input_overwritten flag remains unchanged after input of all 10 bytes")
+      THEN("The output method reports waiting status")
+      THEN("The input method reports output_ready status on passing the delimeter")
+      THEN("The input_overwritten flag is unchanged")
+      THEN("The output method reports ok status")
+      THEN("The output buffer has an expected sequence of 10 bytes without delimeters")
+
+  GIVEN("A uint8_t ChunkSplitter constructed with default parameters, and capacity of 256 bytes which is partially filled with 128 non-delimeter bytes input data")
+
+    WHEN("10 bytes of non-delimiter bytes followed by a delimiter byte are passed as input, with the input method's input_overwritten flag initalised as false, and output is called between each input")
+      THEN("The input method reports ok status for all the non-delimeter bytes")
+      THEN("The output method reports waiting status")
+      THEN("The input method reports output_ready status on passing the delimeter")
+      THEN("The input_overwritten flag remains unchanged")
+      THEN("The output method reports ok status")
+      THEN("The output buffer has an expected sequence of 138 bytes consisting of the 128 bytes which had initially filled the internal buffer without delimeters")
+
+  GIVEN("A uint8_t chunksplitter constructed with default delimeter parameter and include_delimeter boolean as true with an empty internal buffer of capacity 256 bytes")
+
+    WHEN("input to the chunksplitter is '0x01 0x02 0x03 0x00 0x04 0x05 0x00' with the input method's input_overwritten flag initalised as false, and output is called after each delimeter")
+      THEN("The input method reports ok status for all the non-delimeter bytes")
+      THEN("The input method reports output_ready status for the delimeter byte")
+      THEN("The input_overwritten flag is unchanged")
+      THEN("The output method reports ok status")
+      THEN("The output buffer is as expected '\x01\x02\x03\x00' ")
+      THEN("The input method reports ok status for the subsequent non-delimeter bytes")
+      THEN("The input method reports output_ready status for the delimeter byte")
+      THEN("The input_overwritten flag remains unchanged")
+      THEN("the output method reports ok status after the last delimeter byte")
+      THEN("The output buffer is as expected '0x04 0x05 0x00' ")       
+
+    WHEN("input to the chunksplitter is '0x01 0x02 0x03 0x00 0x04 0x05 0x00' with the input method's input_overwritten flag initalised as false, and output is called after all the bytes are passed")
+      THEN("The input method reports ok status on the first 3 bytes")
+      THEN("The input method reports output_ready status on the 4th byte") // delimeter byte
+      THEN("The input method reports ok status and sets the input_overwritten flag to true on the 5th byte")
+      THEN("The input method reports ok status for the subsequent byte and input_overwritten flag remains unchanged")
+      THEN("The output method reports ok status")
+      THEN("The output buffer only contains the last chunk '0x04 0x05 0x00' ")  
+
+/* ChunkMerger
+
+Scenario: Protocols::ChunkMerger behaves correctly
+
+  GIVEN("A ChunkMerger with delimiter equal to 0x00")
+    WHEN("A partially full buffer of size 10 bytes is passed as input to transform method")
+      THEN("The transform method reports ok status")
+      THEN("The ChunkMerger appends a delimeter")
+
+    WHEN("Completely full buffer of size 30 bytes is passed as input to transform method")
+      THEN("The transform method reports out_of_bounds status")
+      THEN("The delimeter is not appended to the buffer")
+
+    WHEN("An input data with it's last byte equal to the delimiter is passed to transform")
+      THEN("The transform method reports ok status")
+      THEN("The ChunkMerger appends a delimeter") 
+      // assertion done on buffer as expected
+
+    WHEN("An input data with it's first byte equal to the delimiter is passed to transform")
+      THEN("The transform method reports ok status")
+      THEN("The ChunkMerger appends a delimeter") 
+      // assertion done on buffer as expected
+
+    WHEN("An input data with multiple delimited chunks is passed as input to transform")
+      THEN("The transform method reports ok status")
+      THEN("The ChunkMerger appends a delimeter") 
+
+  GIVEN("A ChunkMerger with delimeter equal to 0x01")
+    WHEN("A partially full buffer of size 10 bytes is passed as input to transform method")
+      THEN("The transform method reports ok status")
+      THEN("The ChunkMerger appends a delimeter")
+
+    WHEN("Completely full buffer of size 30 bytes is passed as input to transform method")
+      THEN("The transform method reports out_of_bounds status")
+      THEN("The delimeter is not appended to the buffer")
+
+Scenario: ChunkMerger and Chunksplitter roundtrip behaves properly
+
+  GIVEN("A uint8_t chunksplitter with empty internal buffer and a ChunkMerger constructed with default parameters")
+
+    WHEN("A merged chunk is generated by passing 3 different byte vectors and calling transform, and its results are then passed as input to a ChunkSplitter, and its outputs are passed to a new ChunkMerger")
+    //ChunkMerger
+      THEN("The transform method of the first ChunkMerger reports ok status for first ByteVector")
+      THEN("The ChunkMerger appends the delimeter '\xda\xb3\x1b\x94\xa5\x00'")    
+      THEN("The transform method of the first ChunkMerger reports ok status for second ByteVector")
+      THEN("The ChunkMerger appends the delimeter '\x1b\x1a\xc5\xd9\xf3\x00'")
+      THEN("The transform method of the first ChunkMerger reports ok status for third ByteVector")
+      THEN("The ChunkMerger appends the delimeter '\xbb\x7d\xa8\x01\xf1\x00'")
+    
+    //ChunkSplitter
+      //setup : input to chunksplitter '\xda\xb3\x1b\x94\xa5\x00\x1b\x1a\xc5\xd9\xf3\x00\xbb\x7d\xa8\x01\xf1\x00'
+      // output is only called after input_status is output_ready
+      THEN("The input method of the ChunkSplitter reports ok status for the non-delimeter bytes")
+      THEN("The input method of the ChunkSplitter reports output_ready status for the delimeter bytes")
+      THEN("The output method of the chunksplitter reports ok status after each delimeter")
+      THEN("The ChunkSplitter outputs 3 ByteVectors as expected") :
+      // first: '\xda\xb3\x1b\x94\xa5'
+      // second:'\x1b\x1a\xc5\xd9\xf3'
+      // third: ''\xbb\x7d\xa8\x01\xf1'
+
+    //ChunkMerger
+      THEN("The transform method reports ok status for first bytevector")
+      THEN("The ChunkMerger appends the delimeter '\xda\xb3\x1b\x94\xa5\x00'")    
+      THEN("The transform method reports ok status for second bytevector")
+      THEN("The ChunkMerger appends the delimeter '\x1b\x1a\xc5\xd9\xf3\x00'")
+      THEN("The transform method reports ok status for third bytevector")
+      THEN("The ChunkMerger appends the delimeter '\xbb\x7d\xa8\x01\xf1\x00'")

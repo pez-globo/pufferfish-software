@@ -16,40 +16,33 @@ namespace Pufferfish::Driver::Serial::Backend {
 // COBSDecoder
 
 template <size_t input_size, size_t output_size>
-FrameProps::OutputStatus COBSDecoder::transform(
+IndexStatus COBSDecoder::transform(
     const Util::ByteVector<input_size> &input_buffer,
     Util::ByteVector<output_size> &output_buffer) const {
-  if (input_buffer.size() > FrameProps::payload_max_size + 1) {
-    return FrameProps::OutputStatus::invalid_length;
-  }
+  static_assert(
+      Util::ByteVector<input_size>::max_size() <= FrameProps::encoded_max_size,
+      "COBSDecoder unavailable as the input buffer size is too large");
+  static_assert(
+      Util::ByteVector<output_size>::max_size() >= FrameProps::payload_max_size,
+      "COBSDecoder unavailable as the output buffer size is too small");
 
-  if (output_buffer.max_size() < input_buffer.size()) {
-    return FrameProps::OutputStatus::invalid_length;
-  }
-
-  output_buffer.resize(
-      Util::decode_cobs(input_buffer.buffer(), input_buffer.size(), output_buffer.buffer()));
-  return FrameProps::OutputStatus::ok;
+  return Util::decode_cobs(input_buffer, output_buffer);
 }
 
 // COBSEncoder
 
 template <size_t input_size, size_t output_size>
-FrameProps::OutputStatus COBSEncoder::transform(
+IndexStatus COBSEncoder::transform(
     const Util::ByteVector<input_size> &input_buffer,
     Util::ByteVector<output_size> &output_buffer) const {
-  if (input_buffer.size() > FrameProps::payload_max_size) {
-    return FrameProps::OutputStatus::invalid_length;
-  }
+  static_assert(
+      Util::ByteVector<input_size>::max_size() <= FrameProps::payload_max_size,
+      "COBSEncoder unavailable as the input buffer size is too large");
+  static_assert(
+      Util::ByteVector<output_size>::max_size() >= FrameProps::encoded_max_size,
+      "COBSEncoder unavailable as the output buffer size is too small");
 
-  size_t encoded_size = Util::get_encoded_cobs_buffer_size(input_buffer.size());
-  if (output_buffer.max_size() < encoded_size) {
-    return FrameProps::OutputStatus::invalid_length;
-  }
-
-  output_buffer.resize(
-      Util::encode_cobs(input_buffer.buffer(), input_buffer.size(), output_buffer.buffer()));
-  return FrameProps::OutputStatus::ok;
+  return Util::encode_cobs(input_buffer, output_buffer);
 }
 
 }  // namespace Pufferfish::Driver::Serial::Backend
