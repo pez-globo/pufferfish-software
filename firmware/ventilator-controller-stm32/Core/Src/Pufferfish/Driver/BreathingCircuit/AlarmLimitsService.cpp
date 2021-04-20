@@ -46,7 +46,7 @@ void service_limits_range(
     return;
   }
 
-  LogEvent event;
+  LogEvent event{};
   event.code = code;
   event.type = LogEventType::LogEventType_alarm_limits;
   event.old_range = old_response;

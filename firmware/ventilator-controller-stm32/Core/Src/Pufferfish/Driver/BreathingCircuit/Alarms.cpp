@@ -22,7 +22,7 @@ void AlarmsManager::activate_alarm(
   }
 
   uint32_t event_id = 0;
-  LogEvent event;
+  LogEvent event{};
   event.code = alarm_code;
   event.type = alarm_type;
   event.alarm_limits = alarm_limits;

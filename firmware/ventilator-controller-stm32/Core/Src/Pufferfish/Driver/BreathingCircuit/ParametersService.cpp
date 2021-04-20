@@ -39,7 +39,7 @@ void service_parameter(
     return;
   }
 
-  LogEvent event;
+  LogEvent event{};
   event.code = code;
   event.type = LogEventType::LogEventType_control;
   event.old_float = old_response;
@@ -55,7 +55,7 @@ void ParametersService::service_ventilating(
     return;
   }
 
-  LogEvent event;
+  LogEvent event{};
   event.code = LogEventCode::LogEventCode_ventilation_operation_changed;
   event.type = LogEventType::LogEventType_control;
   event.old_bool = response;
@@ -72,7 +72,7 @@ void ParametersService::service_mode(
     return;
   }
 
-  LogEvent event;
+  LogEvent event{};
   event.code = LogEventCode::LogEventCode_ventilation_mode_changed;
   event.type = LogEventType::LogEventType_control;
   event.old_mode = response;
