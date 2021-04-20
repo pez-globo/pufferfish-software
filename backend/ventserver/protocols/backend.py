@@ -32,8 +32,10 @@ class StateSegment(enum.Enum):
     ALARM_LIMITS_REQUEST = enum.auto()
     EXPECTED_LOG_EVENT_MCU = enum.auto()
     NEXT_LOG_EVENTS_MCU = enum.auto()
+    NEXT_LOG_EVENTS_MCU_PREV = enum.auto()
     ACTIVE_LOG_EVENTS_MCU = enum.auto()
     EXPECTED_LOG_EVENT_BE = enum.auto()
+    EXPECTED_LOG_EVENT_BE_PREV = enum.auto()
     NEXT_LOG_EVENTS_BE = enum.auto()
     ACTIVE_LOG_EVENTS_BE = enum.auto()
     ROTARY_ENCODER = enum.auto()
@@ -346,11 +348,20 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
     def _handle_log_events_receiving(self) -> None:
         """Handle any updates to log events list receiving."""
         # TODO: decompose event log sync into a separate class in this module
-        next_log_events = typing.cast(
-            mcu_pb.NextLogEvents,
-            self.all_states[StateSegment.NEXT_LOG_EVENTS_MCU]
-        )
-        self.log_events_receiver.input(next_log_events)
+        next_log_events = self.all_states[StateSegment.NEXT_LOG_EVENTS_MCU]
+        next_log_events_prev = \
+            self.all_states[StateSegment.NEXT_LOG_EVENTS_MCU_PREV]
+        if next_log_events != next_log_events_prev:
+            # Don't re-input previously received segments into receiver.
+            # This saves a bit of work, but more importantly it prevents the
+            # 0th element from flooding the receiver, since the receiver treats
+            # any element with id 0 as a reset and thus a non-duplicate event.
+            if isinstance(next_log_events, mcu_pb.NextLogEvents):
+                self.log_events_receiver.input(next_log_events)
+                self.all_states[StateSegment.NEXT_LOG_EVENTS_MCU_PREV] = \
+                    dataclasses.replace(next_log_events)
+            else:
+                self.all_states[StateSegment.NEXT_LOG_EVENTS_MCU_PREV] = None
         update_event = self.log_events_receiver.output()
         if update_event is None:
             return
@@ -359,6 +370,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             self.all_states[
                 StateSegment.EXPECTED_LOG_EVENT_MCU
             ] = mcu_pb.ExpectedLogEvent(id=update_event.next_expected)
+
         new_elements = []
         for element in update_event.new_elements:
             new_element = dataclasses.replace(element)
@@ -377,21 +389,35 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
                 + self._start_time_backend * 1000
             )
             new_elements.append(new_element)
-        self._log_events_sender.input(lists.UpdateEvent(
+        if not new_elements:
+            return
+
+        sender_input = lists.UpdateEvent(
             new_elements=new_elements
-        ))
+        )
+        expected_log_event = self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
+        if isinstance(expected_log_event, mcu_pb.ExpectedLogEvent):
+            # trigger sender to generate an output
+            sender_input.next_expected = expected_log_event.id
+        self._log_events_sender.input(sender_input)
+
         # TODO: mark events for saving to disk
 
     def _handle_log_events_sending(self) -> None:
         """Handle any updates to log events list sending."""
-        expected_log_event = typing.cast(
-            mcu_pb.ExpectedLogEvent,
-            self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
-        )
-        if expected_log_event is not None:
-            self._log_events_sender.input(lists.UpdateEvent(
-                next_expected=expected_log_event.id  # input needed for output
-            ))
+        expected_log_event = self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
+        expected_log_event_prev = \
+            self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE_PREV]
+        if expected_log_event != expected_log_event_prev:
+            if isinstance(expected_log_event, mcu_pb.ExpectedLogEvent):
+                # trigger sender to generate an output
+                self._log_events_sender.input(lists.UpdateEvent(
+                    next_expected=expected_log_event.id
+                ))
+                self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE_PREV] =\
+                    dataclasses.replace(expected_log_event)
+            else:
+                self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE_PREV] = None
         next_log_events = self._log_events_sender.output()
         if next_log_events is None:
             return

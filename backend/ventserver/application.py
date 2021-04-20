@@ -3,6 +3,7 @@
 import logging
 from typing import Dict, List, Optional, Type
 import functools
+import time
 
 import trio
 import betterproto
@@ -93,6 +94,9 @@ async def main() -> None:
     # Initialize states
     all_states = protocol.receive.backend.all_states
     await initialize_states_from_file(all_states, protocol, filehandler)
+
+    # Initialize time
+    protocol.receive.input(server.ReceiveEvent(time=time.time()))
 
     try:
         async with channel.push_endpoint:
