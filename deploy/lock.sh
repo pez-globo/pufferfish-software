@@ -28,4 +28,12 @@ $script_path/scripts/security_tampering.sh || exit_script "Tampering security se
 # Setup user security protocols
 $script_path/scripts/security_user.sh || exit_script "User security setup failed"
 
-echo -e "Reboot required for changes to take effect. Please restart!"
+if [[ "$@" != "pipeline" ]]
+then
+    echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/n]: "
+    read answer
+    if echo "$answer" | grep -iq "^y"
+    then
+        sudo reboot
+    fi
+fi

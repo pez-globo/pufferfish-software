@@ -33,7 +33,7 @@ $script_path/scripts/yarn.sh || exit_script "Yarn installation failed"
 
 if [[ "$@" != "pipeline" ]]
 then
-    echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/N]: "
+    echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/n]: "
     read answer
     if echo "$answer" | grep -iq "^y"
     then

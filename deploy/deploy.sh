@@ -39,7 +39,7 @@ $script_path/scripts/setup_watchdog.sh || exit_script "Watchdog setup failed"
 
 if [[ "$@" != "pipeline" ]]
 then
-    echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/N]: "
+    echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/n]: "
     read answer
     if echo "$answer" | grep -iq "^y"
     then
