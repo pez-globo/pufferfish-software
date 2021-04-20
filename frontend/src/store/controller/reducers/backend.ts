@@ -8,7 +8,6 @@ import {
   STATE_UPDATED,
   RotaryEncoderParameter,
   BACKEND_CONNECTION_LOST,
-  BACKEND_CONNECTION_LOST_CODE,
   commitAction,
   EventLog,
 } from '../types';
@@ -33,70 +32,72 @@ export const eventLogReducer = (
     nextLogEvents: NextLogEvents.fromJSON({}),
     expectedLogEvent: ExpectedLogEvent.fromJSON({ id: 0 }),
     activeLogEvents: ActiveLogEvents.fromJSON({}),
+    ephemeralLogEvents: { id: [] },
   },
   action: commitAction | StateUpdateAction,
 ): EventLog => {
   switch (action.type) {
     case STATE_UPDATED: {
-      const actionClone = { ...(action as StateUpdateAction) };
-      if (actionClone.messageType === MessageType.NextLogEvents) {
-        const newEventState = actionClone.state as NextLogEvents;
-        const oldEventState = state.nextLogEvents as NextLogEvents;
-        if (!oldEventState || !oldEventState.elements.length) {
-          // Initialize the elements list
-          const numElements = newEventState.elements.length;
-          const nextEventID = numElements ? newEventState.elements[numElements - 1].id + 1 : 0;
+      const updateAction = action as StateUpdateAction;
+      switch (updateAction.messageType) {
+        case MessageType.ActiveLogEvents:
           return {
             ...state,
-            nextLogEvents: newEventState as NextLogEvents,
+            activeLogEvents: updateAction.state as ActiveLogEvents,
+          };
+        case MessageType.NextLogEvents: {
+          const newNextLogEvents = updateAction.state as NextLogEvents;
+          if (!state.nextLogEvents || state.nextLogEvents.elements.length === 0) {
+            // Initialize the elements list from the action's list
+            const numElements = newNextLogEvents.elements.length;
+            const nextEventID = numElements ? newNextLogEvents.elements[numElements - 1].id + 1 : 0;
+            return {
+              ...state,
+              nextLogEvents: newNextLogEvents as NextLogEvents,
+              expectedLogEvent: { id: nextEventID },
+              ephemeralLogEvents: { id: [] }, // any ephemeral events are now overwritten
+            };
+          }
+
+          // Add any new events to the elements list
+          const ephemeralIDs = new Set(state.ephemeralLogEvents.id);
+          const nextLogEvents = {
+            ...newNextLogEvents,
+            elements: [
+              ...state.nextLogEvents.elements.filter(
+                // Discard ephemeral events and any stored events at/past expected ID
+                (d) => !ephemeralIDs.has(d.id) && d.id < state.expectedLogEvent.id,
+              ),
+              // Discard received events below expected ID
+              ...newNextLogEvents.elements.filter((d) => d.id >= state.expectedLogEvent.id),
+            ],
+          };
+          const numElements = nextLogEvents.elements.length;
+          const nextEventID = numElements ? nextLogEvents.elements[numElements - 1].id + 1 : 0;
+          return {
+            nextLogEvents,
             expectedLogEvent: { id: nextEventID },
+            // Deactivate active ephemeral events
+            activeLogEvents: { id: state.activeLogEvents.id.filter((d) => !ephemeralIDs.has(d)) },
+            ephemeralLogEvents: { id: [] },
           };
         }
-
-        // Update the elements list with new ones
-        const ids = new Set(oldEventState.elements.map((d) => d.id));
-        const events = [
-          ...oldEventState.elements.filter((d) => d.code !== BACKEND_CONNECTION_LOST_CODE),
-          ...newEventState.elements.filter((d) => !ids.has(d.id)),
-        ];
-        const nextLogEvents = {
-          ...newEventState,
-          elements: events,
-        };
-        const numElements = nextLogEvents.elements.length;
-        const nextEventID = numElements ? nextLogEvents.elements[numElements - 1].id + 1 : 0;
-        return {
-          ...state,
-          nextLogEvents,
-          expectedLogEvent: { id: nextEventID },
-        };
+        default:
+          return state;
       }
-      if (actionClone.messageType === MessageType.ActiveLogEvents) {
-        return {
-          ...state,
-          activeLogEvents: actionClone.state as ActiveLogEvents,
-        };
-      }
-      return state;
     }
     case BACKEND_CONNECTION_LOST: {
       // Make an ephemeral frontend-only event
       const logEvent = (action.update as unknown) as LogEvent;
+      const eventID = state.expectedLogEvent.id;
       return {
         ...state,
         nextLogEvents: {
           ...state.nextLogEvents,
-          elements: [
-            ...state.nextLogEvents.elements,
-            {
-              ...logEvent,
-              id: state.expectedLogEvent.id,
-            },
-          ],
+          elements: [...state.nextLogEvents.elements, { ...logEvent, id: eventID }],
         },
-        activeLogEvents: {
-          id: [...state.activeLogEvents.id, state.expectedLogEvent.id],
-        },
+        activeLogEvents: { id: [...state.activeLogEvents.id, eventID] },
+        ephemeralLogEvents: { id: [...state.ephemeralLogEvents.id, eventID] },
       };
     }
     default:

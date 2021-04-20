@@ -147,6 +147,9 @@ export interface EventLog {
   expectedLogEvent: ExpectedLogEvent;
   nextLogEvents: NextLogEvents;
   activeLogEvents: ActiveLogEvents;
+  ephemeralLogEvents: {
+    id: number[];
+  };
 }
 
 export interface ControllerStates {
