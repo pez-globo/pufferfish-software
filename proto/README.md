@@ -79,9 +79,19 @@ Then run, from this directory:
 $ export PROTOC=/path/to/local/bin/protoc  # replace the path with the one for your computer
 
 $ # Generate TypeScript Code (make sure to run yarn install in frontend first)
-$ $PROTOC -I=. --ts_proto_out=../frontend/src/store/controller/proto --plugin="../frontend/node_modules/ts-proto/protoc-gen-ts_proto" mcu_pb.proto
-$ $PROTOC -I=. --ts_proto_out=../frontend/src/store/controller/proto --plugin="../frontend/node_modules/ts-proto/protoc-gen-ts_proto" frontend_pb.proto
+$ $PROTOC -I=. --ts_proto_out=../frontend/src/store/controller/proto --plugin="../frontend/node_modules/ts-proto/protoc-gen-ts_proto" --ts_proto_opt=esModuleInterop=true mcu_pb.proto
+$ $PROTOC -I=. --ts_proto_out=../frontend/src/store/controller/proto --plugin="../frontend/node_modules/ts-proto/protoc-gen-ts_proto" --ts_proto_opt=esModuleInterop=true frontend_pb.proto
 ```
 
 Note that if you installed the `protobuf-compiler` package on Ubuntu, then you
 should replace `$PROTOC` with `protoc`.
+
+## All
+
+To regenerate the protobuf parsers and generators for the MCU, backend, and frontend
+all together, instead of running the individual commands above you can just run:
+
+```bash
+$ export PROTOC=/path/to/local/bin/protoc  # replace the path with the one for your computer
+$ ./generate_all.sh
+```

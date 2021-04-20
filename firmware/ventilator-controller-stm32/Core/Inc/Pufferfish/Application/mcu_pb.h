@@ -65,7 +65,7 @@ typedef struct _AlarmMuteRequest {
 
 typedef PB_BYTES_ARRAY_T(64) Announcement_announcement_t;
 typedef struct _Announcement {
-    uint32_t time;
+    uint64_t time;
     Announcement_announcement_t announcement;
 } Announcement;
 
@@ -75,7 +75,7 @@ typedef struct _BatteryPower {
 } BatteryPower;
 
 typedef struct _CycleMeasurements {
-    uint32_t time;
+    uint64_t time;
     float vt;
     float rr;
     float peep;
@@ -89,7 +89,7 @@ typedef struct _ExpectedLogEvent {
 } ExpectedLogEvent;
 
 typedef struct _Parameters {
-    uint32_t time;
+    uint64_t time;
     bool ventilating;
     VentilationMode mode;
     float fio2;
@@ -102,7 +102,7 @@ typedef struct _Parameters {
 } Parameters;
 
 typedef struct _ParametersRequest {
-    uint32_t time;
+    uint64_t time;
     bool ventilating;
     VentilationMode mode;
     float fio2;
@@ -115,7 +115,7 @@ typedef struct _ParametersRequest {
 } ParametersRequest;
 
 typedef struct _Ping {
-    uint32_t time;
+    uint64_t time;
     uint32_t id;
 } Ping;
 
@@ -129,7 +129,7 @@ typedef struct _ScreenStatus {
 } ScreenStatus;
 
 typedef struct _SensorMeasurements {
-    uint32_t time;
+    uint64_t time;
     uint32_t cycle;
     float fio2;
     float spo2;
@@ -140,7 +140,7 @@ typedef struct _SensorMeasurements {
 } SensorMeasurements;
 
 typedef struct _AlarmLimits {
-    uint32_t time;
+    uint64_t time;
     bool has_fio2;
     Range fio2;
     bool has_flow;
@@ -172,7 +172,7 @@ typedef struct _AlarmLimits {
 } AlarmLimits;
 
 typedef struct _AlarmLimitsRequest {
-    uint32_t time;
+    uint64_t time;
     bool has_fio2;
     Range fio2;
     bool has_flow;
@@ -205,7 +205,7 @@ typedef struct _AlarmLimitsRequest {
 
 typedef struct _LogEvent {
     uint32_t id;
-    uint32_t time;
+    uint64_t time;
     LogEventCode code;
     LogEventType type;
     bool has_alarm_limits;
@@ -396,7 +396,7 @@ X(a, STATIC,   SINGULAR, UINT32,   upper,             2)
 #define Range_DEFAULT NULL
 
 #define AlarmLimits_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   time,              1) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  fio2,              2) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  flow,              3) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  spo2,              4) \
@@ -429,7 +429,7 @@ X(a, STATIC,   OPTIONAL, MESSAGE,  apnea,            15)
 #define AlarmLimits_apnea_MSGTYPE Range
 
 #define AlarmLimitsRequest_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   time,              1) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  fio2,              2) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  flow,              3) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  spo2,              4) \
@@ -462,7 +462,7 @@ X(a, STATIC,   OPTIONAL, MESSAGE,  apnea,            15)
 #define AlarmLimitsRequest_apnea_MSGTYPE Range
 
 #define SensorMeasurements_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   time,              1) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
 X(a, STATIC,   SINGULAR, UINT32,   cycle,             2) \
 X(a, STATIC,   SINGULAR, FLOAT,    fio2,              3) \
 X(a, STATIC,   SINGULAR, FLOAT,    spo2,              4) \
@@ -474,7 +474,7 @@ X(a, STATIC,   SINGULAR, FLOAT,    volume,            8)
 #define SensorMeasurements_DEFAULT NULL
 
 #define CycleMeasurements_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   time,              1) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
 X(a, STATIC,   SINGULAR, FLOAT,    vt,                2) \
 X(a, STATIC,   SINGULAR, FLOAT,    rr,                3) \
 X(a, STATIC,   SINGULAR, FLOAT,    peep,              4) \
@@ -485,7 +485,7 @@ X(a, STATIC,   SINGULAR, FLOAT,    ve,                7)
 #define CycleMeasurements_DEFAULT NULL
 
 #define Parameters_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   time,              1) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
 X(a, STATIC,   SINGULAR, BOOL,     ventilating,       2) \
 X(a, STATIC,   SINGULAR, UENUM,    mode,              3) \
 X(a, STATIC,   SINGULAR, FLOAT,    fio2,              4) \
@@ -499,7 +499,7 @@ X(a, STATIC,   SINGULAR, FLOAT,    ie,               10)
 #define Parameters_DEFAULT NULL
 
 #define ParametersRequest_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   time,              1) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
 X(a, STATIC,   SINGULAR, BOOL,     ventilating,       2) \
 X(a, STATIC,   SINGULAR, UENUM,    mode,              3) \
 X(a, STATIC,   SINGULAR, FLOAT,    fio2,              4) \
@@ -513,20 +513,20 @@ X(a, STATIC,   SINGULAR, FLOAT,    ie,               10)
 #define ParametersRequest_DEFAULT NULL
 
 #define Ping_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   time,              1) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
 X(a, STATIC,   SINGULAR, UINT32,   id,                2)
 #define Ping_CALLBACK NULL
 #define Ping_DEFAULT NULL
 
 #define Announcement_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   time,              1) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
 X(a, STATIC,   SINGULAR, BYTES,    announcement,      2)
 #define Announcement_CALLBACK NULL
 #define Announcement_DEFAULT NULL
 
 #define LogEvent_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   id,                1) \
-X(a, STATIC,   SINGULAR, UINT32,   time,              2) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              2) \
 X(a, STATIC,   SINGULAR, UENUM,    code,              3) \
 X(a, STATIC,   SINGULAR, UENUM,    type,              4) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  alarm_limits,      5) \
@@ -627,17 +627,17 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 
 /* Maximum encoded size of messages (where known) */
 #define Range_size                               12
-#define AlarmLimits_size                         202
-#define AlarmLimitsRequest_size                  202
-#define SensorMeasurements_size                  42
-#define CycleMeasurements_size                   36
-#define Parameters_size                          45
-#define ParametersRequest_size                   45
-#define Ping_size                                12
-#define Announcement_size                        72
-#define LogEvent_size                            88
+#define AlarmLimits_size                         207
+#define AlarmLimitsRequest_size                  207
+#define SensorMeasurements_size                  47
+#define CycleMeasurements_size                   41
+#define Parameters_size                          50
+#define ParametersRequest_size                   50
+#define Ping_size                                17
+#define Announcement_size                        77
+#define LogEvent_size                            93
 #define ExpectedLogEvent_size                    6
-#define NextLogEvents_size                       198
+#define NextLogEvents_size                       208
 #define ActiveLogEvents_size                     192
 #define BatteryPower_size                        8
 #define ScreenStatus_size                        2
