@@ -63,7 +63,8 @@ class SendSynchronizer(
     is reset to 0 (which is equivalent to requesting all list elements).
     The id of the next element to add to the list should never decrease (and it
     should preferably increment by 1).
-    Outputs are the next elements to send to the peer.
+    Outputs are the next elements to send to the peer. An output is only
+    generated in response to an UpdateEvent with a next_expected!
     """
 
     ID_TYPE_SIZE = 32
@@ -137,12 +138,19 @@ class SendSynchronizer(
 
     def _advance_next_expected_index(self) -> None:
         """Advance the next_expected index to the next expected id."""
-        self._next_expected_index = next(
-            (
-                i for (i, elem) in enumerate(self._elements)
-                if elem.id >= self._next_expected
-            ), len(self._elements)
-        )
+        if self._next_expected == 0:
+            self._next_expected_index = 0
+            return
+
+        while True:
+            if self._next_expected_index >= len(self._elements):
+                return
+
+            current_element = self._elements[self._next_expected_index]
+            if current_element.id >= self._next_expected:
+                return
+
+            self._next_expected_index += 1
 
     def _add_element(self, element: _ListElement) -> None:
         """Attempt to add the element to the end of the list."""
