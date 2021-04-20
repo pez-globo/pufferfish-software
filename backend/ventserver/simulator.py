@@ -131,7 +131,7 @@ async def main() -> None:
                 spo2=mcu_pb.Range(lower=21, upper=100),
                 hr=mcu_pb.Range(lower=0, upper=200),
             )
-        elif segment_type is backend.StateSegment.ACTIVE_LOG_EVENTS_BE:
+        elif segment_type is backend.StateSegment.ACTIVE_LOG_EVENTS_MCU:
             all_states[segment_type] = mcu_pb.ActiveLogEvents()
     await application.initialize_states_from_file(
         all_states, protocol, filehandler
