@@ -4,10 +4,10 @@ from ventserver.protocols.application import lists
 from ventserver.protocols.protobuf import mcu_pb as pb
 
 
-def test_sync_new_elements() -> None:
-    """Test adding new elements to a list."""
+def test_send_new_elements() -> None:
+    """Test adding new elements to a list for sending."""
     example_sequence = [
-        lists.UpdateEvent(new_element=pb.LogEvent(id=i))
+        lists.UpdateEvent(new_elements=[pb.LogEvent(id=i)])
         for i in range(20)
     ]
 
@@ -51,7 +51,7 @@ def test_sync_new_elements() -> None:
     # New elements should be in the segment resulting from a repeated request
     assert synchronizer.output() is None
     synchronizer.input(lists.UpdateEvent(
-        new_element=pb.LogEvent(id=20), next_expected=19
+        new_elements=[pb.LogEvent(id=20)], next_expected=19
     ))
     output = synchronizer.output()
     assert isinstance(output, pb.NextLogEvents)
@@ -64,3 +64,46 @@ def test_sync_new_elements() -> None:
 
 # TODO: add a test where we send all events, then reset expected event to 0.
 # All events should be sent again.
+
+
+def test_receive_new_elements() -> None:
+    """Test adding new elements to a list from receiving."""
+    example_sequence = [
+        pb.NextLogEvents(elements=[pb.LogEvent(id=i) for i in range(0, 5)]),
+        pb.NextLogEvents(elements=[pb.LogEvent(id=i) for i in range(5, 10)]),
+        pb.NextLogEvents(elements=[pb.LogEvent(id=i) for i in range(7, 11)]),
+        pb.NextLogEvents(elements=[pb.LogEvent(id=i) for i in range(0, 4)]),
+    ]
+
+    synchronizer: lists.ReceiveSynchronizer[pb.LogEvent] = \
+        lists.ReceiveSynchronizer()
+    assert synchronizer.output() is None
+    for segment in example_sequence:
+        synchronizer.input(segment)
+
+    update_event = synchronizer.output()
+    assert update_event is not None
+    assert update_event.next_expected == 5
+    assert len(update_event.new_elements) == 5
+    for (i, element) in enumerate(update_event.new_elements):
+        assert element.id == i
+
+    update_event = synchronizer.output()
+    assert update_event is not None
+    assert update_event.next_expected == 10
+    assert len(update_event.new_elements) == 5
+    for (i, element) in enumerate(update_event.new_elements):
+        assert element.id == 5 + i
+
+    update_event = synchronizer.output()
+    assert update_event is not None
+    assert update_event.next_expected == 11
+    assert len(update_event.new_elements) == 1
+    assert update_event.new_elements[0].id == 10
+
+    update_event = synchronizer.output()
+    assert update_event is not None
+    assert update_event.next_expected == 4
+    assert len(update_event.new_elements) == 4
+    for (i, element) in enumerate(update_event.new_elements):
+        assert element.id == i
