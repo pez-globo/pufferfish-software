@@ -9,7 +9,7 @@ server to act as a mock in place of the real backend server.
 import logging
 import time
 import functools
-from typing import Mapping, Optional
+from typing import Mapping, MutableMapping, Optional
 
 import betterproto
 import trio
@@ -66,6 +66,39 @@ async def simulate_states(
         await trio.sleep(simulators.SENSOR_UPDATE_INTERVAL / 1000)
 
 
+def initialize_states(all_states: MutableMapping[
+        backend.StateSegment, Optional[betterproto.Message]
+]) -> None:
+    """Set initial values for the states."""
+    for segment_type in all_states:
+        if segment_type is backend.StateSegment.PARAMETERS_REQUEST:
+            all_states[segment_type] = mcu_pb.ParametersRequest(
+                mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
+                fio2=21, flow=0
+            )
+        elif segment_type is backend.StateSegment.PARAMETERS:
+            all_states[segment_type] = mcu_pb.Parameters(
+                mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
+                fio2=21, flow=0
+            )
+        elif segment_type is backend.StateSegment.SENSOR_MEASUREMENTS:
+            all_states[segment_type] = mcu_pb.SensorMeasurements()
+        elif segment_type is backend.StateSegment.ALARM_LIMITS_REQUEST:
+            all_states[segment_type] = mcu_pb.AlarmLimitsRequest(
+                fio2=mcu_pb.Range(lower=21, upper=100),
+                spo2=mcu_pb.Range(lower=21, upper=100),
+                hr=mcu_pb.Range(lower=0, upper=200),
+            )
+        elif segment_type is backend.StateSegment.ALARM_LIMITS:
+            all_states[segment_type] = mcu_pb.AlarmLimits(
+                fio2=mcu_pb.Range(lower=21, upper=100),
+                spo2=mcu_pb.Range(lower=21, upper=100),
+                hr=mcu_pb.Range(lower=0, upper=200),
+            )
+        elif segment_type is backend.StateSegment.ACTIVE_LOG_EVENTS_MCU:
+            all_states[segment_type] = mcu_pb.ActiveLogEvents()
+
+
 async def main() -> None:
     """Set up wiring between subsystems and process until completion."""
     # Configure logging
@@ -106,33 +139,7 @@ async def main() -> None:
 
     # Initialize states with defaults
     all_states = protocol.receive.backend.all_states
-    for segment_type in all_states:
-        if segment_type is backend.StateSegment.PARAMETERS_REQUEST:
-            all_states[segment_type] = mcu_pb.ParametersRequest(
-                mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
-                fio2=21, flow=0
-            )
-        elif segment_type is backend.StateSegment.PARAMETERS:
-            all_states[segment_type] = mcu_pb.Parameters(
-                mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
-                fio2=21, flow=0
-            )
-        elif segment_type is backend.StateSegment.SENSOR_MEASUREMENTS:
-            all_states[segment_type] = mcu_pb.SensorMeasurements()
-        elif segment_type is backend.StateSegment.ALARM_LIMITS_REQUEST:
-            all_states[segment_type] = mcu_pb.AlarmLimitsRequest(
-                fio2=mcu_pb.Range(lower=21, upper=100),
-                spo2=mcu_pb.Range(lower=21, upper=100),
-                hr=mcu_pb.Range(lower=0, upper=200),
-            )
-        elif segment_type is backend.StateSegment.ALARM_LIMITS:
-            all_states[segment_type] = mcu_pb.AlarmLimits(
-                fio2=mcu_pb.Range(lower=21, upper=100),
-                spo2=mcu_pb.Range(lower=21, upper=100),
-                hr=mcu_pb.Range(lower=0, upper=200),
-            )
-        elif segment_type is backend.StateSegment.ACTIVE_LOG_EVENTS_MCU:
-            all_states[segment_type] = mcu_pb.ActiveLogEvents()
+    initialize_states(all_states)
     await application.initialize_states_from_file(
         all_states, protocol, filehandler
     )
