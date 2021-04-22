@@ -4,7 +4,6 @@ import collections
 import dataclasses
 import enum
 import logging
-import typing
 from typing import Dict, Optional, Union
 
 import attr
@@ -15,7 +14,7 @@ from ventserver.protocols import events
 from ventserver.protocols import exceptions
 from ventserver.protocols import frontend
 from ventserver.protocols import mcu
-from ventserver.protocols.application import lists, states
+from ventserver.protocols.application import clocks, lists, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
@@ -164,9 +163,10 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
     _log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent] = attr.ib()
     _events_log_next_id: int = attr.ib(default=0)
 
-    # Time Synchronization
-    _start_time_mcu: Optional[int] = attr.ib(default=None)
-    _start_time_backend: Optional[float] = attr.ib(default=None)
+    # Clock Synchronization
+    _clock_synchronizer: clocks.ClockSynchronizer = attr.ib(
+        factory=clocks.ClockSynchronizer
+    )
 
     @all_states.default
     def init_all_states(self) -> Dict[
@@ -376,25 +376,15 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             new_element = dataclasses.replace(element)
             new_element.id = self._events_log_next_id
             self._events_log_next_id += 1
-            # TODO: decompose time sync into a separate class in this module
-            if self._start_time_mcu is None:
-                self._start_time_mcu = new_element.time
-                self._start_time_backend = self.current_time
-            if self._start_time_backend is None:
-                raise exceptions.ProtocolDataError(
-                    'Backend protocol time was not initialized!'
-                )
-            new_element.time = int(
-                new_element.time - self._start_time_mcu
-                + self._start_time_backend * 1000
-            )
+            self._clock_synchronizer.input(clocks.UpdateEvent(
+                current_time=self.current_time, remote_time=new_element.time
+            ))
+            new_element.time += self._clock_synchronizer.output()
             new_elements.append(new_element)
         if not new_elements:
             return
 
-        sender_input = lists.UpdateEvent(
-            new_elements=new_elements
-        )
+        sender_input = lists.UpdateEvent(new_elements=new_elements)
         expected_log_event = self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
         if isinstance(expected_log_event, mcu_pb.ExpectedLogEvent):
             # trigger sender to generate an output
