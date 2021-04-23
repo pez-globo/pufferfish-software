@@ -72,7 +72,7 @@ using InputStates = Util::EnumValues<
     Application::MessageTypes::alarm_limits_request,
     Application::MessageTypes::expected_log_event>;
 
-class BackendReceiver {
+class Receiver {
  public:
   enum class InputStatus { ok = 0, output_ready, invalid_frame_length, input_overwritten };
   enum class OutputStatus {
@@ -90,28 +90,28 @@ class BackendReceiver {
     invalid_message_encoding
   };
 
-  explicit BackendReceiver(HAL::CRC32 &crc32c) : crc_(crc32c), message_(message_descriptors) {}
+  explicit Receiver(HAL::CRC32 &crc32c) : crc_(crc32c), message_(message_descriptors) {}
 
   // Call this until it returns outputReady, then call output
   InputStatus input(uint8_t new_byte);
   OutputStatus output(Message &output_message);
 
  private:
-  using BackendCRCReceiver = Protocols::CRCElementReceiver<FrameProps::payload_max_size>;
-  using BackendParsedCRC = Protocols::ParsedCRCElement<FrameProps::payload_max_size>;
-  using BackendDatagramReceiver =
-      Protocols::DatagramReceiver<BackendCRCReceiver::Props::payload_max_size>;
-  using BackendParsedDatagram =
-      Protocols::ParsedDatagram<BackendCRCReceiver::Props::payload_max_size>;
-  using BackendMessageReceiver = Protocols::MessageReceiver<Message, message_descriptors.size()>;
+  using CRCReceiver = Protocols::CRCElementReceiver<FrameProps::payload_max_size>;
+  using ParsedCRC = Protocols::ParsedCRCElement<FrameProps::payload_max_size>;
+  using DatagramReceiver =
+      Protocols::DatagramReceiver<CRCReceiver::Props::payload_max_size>;
+  using ParsedDatagram =
+      Protocols::ParsedDatagram<CRCReceiver::Props::payload_max_size>;
+  using MessageReceiver = Protocols::MessageReceiver<Message, message_descriptors.size()>;
 
   FrameReceiver frame_;
-  BackendCRCReceiver crc_;
-  BackendDatagramReceiver datagram_;
-  BackendMessageReceiver message_;
+  CRCReceiver crc_;
+  DatagramReceiver datagram_;
+  MessageReceiver message_;
 };
 
-class BackendSender {
+class Sender {
  public:
   enum class Status {
     ok = 0,
@@ -125,21 +125,21 @@ class BackendSender {
     invalid_return_code
   };
 
-  explicit BackendSender(HAL::CRC32 &crc32c) : message_(message_descriptors), crc_(crc32c) {}
+  explicit Sender(HAL::CRC32 &crc32c) : message_(message_descriptors), crc_(crc32c) {}
 
   Status transform(
       const Application::StateSegment &state_segment, FrameProps::ChunkBuffer &output_buffer);
 
  private:
-  using BackendCRCSender = Protocols::CRCElementSender<FrameProps::payload_max_size>;
-  using BackendDatagramSender =
-      Protocols::DatagramSender<BackendCRCSender::Props::payload_max_size>;
-  using BackendMessageSender =
+  using CRCSender = Protocols::CRCElementSender<FrameProps::payload_max_size>;
+  using DatagramSender =
+      Protocols::DatagramSender<CRCSender::Props::payload_max_size>;
+  using MessageSender =
       Protocols::MessageSender<Message, Application::StateSegment, message_descriptors.size()>;
 
-  BackendMessageSender message_;
-  BackendDatagramSender datagram_;
-  BackendCRCSender crc_;
+  MessageSender message_;
+  DatagramSender datagram_;
+  CRCSender crc_;
   FrameSender frame_;
 };
 
@@ -167,8 +167,8 @@ class Backend {
       Application::MessageTypes,
       state_sync_schedule.size()>;
 
-  BackendReceiver receiver_;
-  BackendSender sender_;
+  Receiver receiver_;
+  Sender sender_;
   Application::States &states_;
   StateSynchronizer synchronizer_;
   Application::LogEventsSender &log_events_sender_;
