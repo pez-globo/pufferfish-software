@@ -13,8 +13,9 @@ import betterproto
 from ventserver.protocols import events
 from ventserver.protocols import exceptions
 from ventserver.protocols import frontend
+from ventserver.protocols import log
 from ventserver.protocols import mcu
-from ventserver.protocols.application import clocks, lists, states
+from ventserver.protocols.application import lists, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
@@ -31,7 +32,6 @@ class StateSegment(enum.Enum):
     ALARM_LIMITS_REQUEST = enum.auto()
     EXPECTED_LOG_EVENT_MCU = enum.auto()
     NEXT_LOG_EVENTS_MCU = enum.auto()
-    NEXT_LOG_EVENTS_MCU_PREV = enum.auto()
     ACTIVE_LOG_EVENTS_MCU = enum.auto()
     EXPECTED_LOG_EVENT_BE = enum.auto()
     EXPECTED_LOG_EVENT_BE_PREV = enum.auto()
@@ -159,14 +159,11 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
     _file_state_synchronizer: states.Synchronizer[StateSegment] = attr.ib()
 
     # Events Log
-    log_events_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent] = attr.ib()
-    _log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent] = attr.ib()
-    _events_log_next_id: int = attr.ib(default=0)
-
-    # Clock Synchronization
-    _clock_synchronizer: clocks.ClockSynchronizer = attr.ib(
-        factory=clocks.ClockSynchronizer
+    _events_log_receiver: log.EventLogReceiver = attr.ib(
+        factory=log.EventLogReceiver
     )
+    _log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent] = attr.ib()
+    _id_mapping: Dict[int, int] = attr.ib(factory=dict)
 
     @all_states.default
     def init_all_states(self) -> Dict[
@@ -205,13 +202,6 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             segment_types=StateSegment, all_states=self.all_states,
             output_schedule=FILE_SYNCHRONIZER_SCHEDULE
         )
-
-    @log_events_receiver.default
-    def init_log_events_list_receiver(self) -> lists.ReceiveSynchronizer[
-            mcu_pb.LogEvent
-    ]:   # pylint: disable=no-self-use
-        """Initialize the frontend log events list sender."""
-        return lists.ReceiveSynchronizer()
 
     @_log_events_sender.default
     def init_log_events_list_sender(self) -> lists.SendSynchronizer[
@@ -347,51 +337,29 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
 
     def _handle_log_events_receiving(self) -> None:
         """Handle any updates to log events list receiving."""
-        # TODO: decompose event log sync into a separate class in this module
         next_log_events = self.all_states[StateSegment.NEXT_LOG_EVENTS_MCU]
-        next_log_events_prev = \
-            self.all_states[StateSegment.NEXT_LOG_EVENTS_MCU_PREV]
-        if next_log_events != next_log_events_prev:
-            # Don't re-input previously received segments into receiver.
-            # This saves a bit of work, but more importantly it prevents the
-            # 0th element from flooding the receiver, since the receiver treats
-            # any element with id 0 as a reset and thus a non-duplicate event.
-            if isinstance(next_log_events, mcu_pb.NextLogEvents):
-                self.log_events_receiver.input(next_log_events)
-                self.all_states[StateSegment.NEXT_LOG_EVENTS_MCU_PREV] = \
-                    dataclasses.replace(next_log_events)
-            else:
-                self.all_states[StateSegment.NEXT_LOG_EVENTS_MCU_PREV] = None
-        update_event = self.log_events_receiver.output()
-        if update_event is None:
+        if isinstance(next_log_events, mcu_pb.NextLogEvents):
+            self._events_log_receiver.input(log.ReceiveInputEvent(
+                next_log_events=next_log_events, current_time=self.current_time
+            ))
+        output_event = self._events_log_receiver.output()
+        if output_event is None or not output_event.has_data():
             return
 
-        if update_event.next_expected is not None:
+        if output_event.expected_log_event is not None:
             self.all_states[
                 StateSegment.EXPECTED_LOG_EVENT_MCU
-            ] = mcu_pb.ExpectedLogEvent(id=update_event.next_expected)
-
-        new_elements = []
-        for element in update_event.new_elements:
-            new_element = dataclasses.replace(element)
-            new_element.id = self._events_log_next_id
-            self._events_log_next_id += 1
-            self._clock_synchronizer.input(clocks.UpdateEvent(
-                current_time=self.current_time, remote_time=new_element.time
-            ))
-            new_element.time += self._clock_synchronizer.output()
-            new_elements.append(new_element)
-        if not new_elements:
-            return
-
-        sender_input = lists.UpdateEvent(new_elements=new_elements)
+            ] = output_event.expected_log_event
+        for (mcu_id, backend_id) in output_event.id_mapping.items():
+            self._id_mapping[mcu_id] = backend_id
+        # Pass new log events to sender
+        sender_input = lists.UpdateEvent(new_elements=output_event.new_elements)
         expected_log_event = self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
         if isinstance(expected_log_event, mcu_pb.ExpectedLogEvent):
             # trigger sender to generate an output
             sender_input.next_expected = expected_log_event.id
         self._log_events_sender.input(sender_input)
-
-        # TODO: mark events for saving to disk
+        # TODO: pass new elements to a log events sender for saving to disk
 
     def _handle_log_events_sending(self) -> None:
         """Handle any updates to log events list sending."""
@@ -414,7 +382,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
 
         assert isinstance(next_log_events, mcu_pb.NextLogEvents)
         self.all_states[StateSegment.NEXT_LOG_EVENTS_BE] = next_log_events
-        # TODO: translate MCU event IDs to backend event IDs
+        # TODO: translate MCU event IDs to backend event IDs using _id_mapping
+        # TODO: move active log events remapping somewhere else
         self.all_states[StateSegment.ACTIVE_LOG_EVENTS_BE] = \
             self.all_states[StateSegment.ACTIVE_LOG_EVENTS_MCU]
 
