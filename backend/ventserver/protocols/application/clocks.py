@@ -13,12 +13,12 @@ from ventserver.sansio import protocols
 class UpdateEvent(events.Event):
     """State update event."""
 
-    current_time: Optional[float] = attr.ib(default=None)
+    current_time: float = attr.ib()
     remote_time: Optional[int] = attr.ib(default=None)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
-        return self.current_time is not None or self.remote_time is not None
+        return True
 
 
 @attr.s
@@ -32,18 +32,21 @@ class ClockSynchronizer(protocols.Filter[UpdateEvent, int]):
     clock time is a float in units of seconds, while the remote clock time is a
     int in units of milliseconds.
     Outputs are the offset to add to a remote clock time to translate it into
-    the local clock. They are still correct even if the local clock rolls over.
+    the local clock. Currently, they become invalid if the remote clock rolls
+    over, because we need to figue out a robust heuristic to differentiate
+    between clock rollover and input of an older remote timestamp when remote
+    time hasn't rolled over.
     """
 
     REMOTE_CLOCK_ROLLOVER = 2 ** 32
 
-    _current_time: float = attr.ib(default=0)
+    _current_time: Optional[float] = attr.ib(default=None)
     _remote_sync_time: Optional[int] = attr.ib(default=None)  # ms
     _local_sync_time: Optional[float] = attr.ib(default=None)  # sec
 
     def input(self, event: Optional[UpdateEvent]) -> None:
         """Handle input events."""
-        if event is None or not event.has_data():
+        if event is None:
             return
 
         if event.current_time is not None:

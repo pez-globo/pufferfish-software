@@ -4,6 +4,8 @@ import logging
 import time
 import functools
 
+import trio
+
 from ventserver.integration import _trio
 from ventserver.io.trio import _serial
 from ventserver.io.trio import channels
@@ -12,8 +14,6 @@ from ventserver.io.trio import fileio
 from ventserver.protocols import backend
 from ventserver.protocols import server
 from ventserver.protocols.protobuf import mcu_pb as pb
-
-import trio
 
 
 logger = logging.getLogger()
