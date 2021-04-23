@@ -16,20 +16,13 @@ from ventserver.simulation import log
 # Update Functions
 
 def transform_limits_range(
-        floor: int, ceiling: int, requested_min: int, requested_max: int,
-        current_min: int, current_max: int
+        floor: int, ceiling: int, requested_min: int, requested_max: int
 ) -> Tuple[int, int]:
-    """Return requested if between floor and ceiling, or else return current."""
-    if current_min > current_max:
-        (current_min, current_max) = (current_max, current_min)
+    """Return requested, clamped between floor and ceiling."""
     if requested_min > requested_max:
         (requested_min, requested_max) = (requested_max, requested_min)
-    if not floor <= current_min <= current_max <= ceiling:
-        requested_min = min(ceiling, max(floor, requested_min))
-        requested_max = min(ceiling, max(floor, requested_max))
-    if not floor <= requested_min <= requested_max <= ceiling:
-        return (current_min, current_max)
-
+    requested_min = min(ceiling, max(floor, requested_min))
+    requested_max = min(ceiling, max(floor, requested_max))
     return (requested_min, requested_max)
 
 
@@ -40,8 +33,7 @@ def service_limits_range(
     """Handle the request's alarm limits range."""
     old_response = dataclasses.replace(response)
     (response.lower, response.upper) = transform_limits_range(
-        floor, ceiling, request.lower, request.upper,
-        response.lower, response.upper
+        floor, ceiling, request.lower, request.upper
     )
     if (
             old_response.lower == response.lower and

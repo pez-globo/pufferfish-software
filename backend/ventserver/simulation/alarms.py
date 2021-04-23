@@ -98,6 +98,14 @@ class Service:
             mcu_pb.LogEventCode.hr_too_high,
             log_manager
         )
+        self.transform_parameter_alarms(
+            alarm_limits.fio2.lower, alarm_limits.fio2.upper,
+            sensor_measurements.fio2,
+            mcu_pb.LogEventCode.fio2_too_low,
+            mcu_pb.LogEventCode.fio2_too_high,
+            log_manager
+        )
+
         self._manager.transform_active_log_event_ids(active_log_events)
 
     # Update methods
@@ -157,14 +165,6 @@ class HFNC(Service):
         )
         if not parameters.ventilating:
             return
-
-        self.transform_parameter_alarms(
-            alarm_limits.fio2.lower, alarm_limits.fio2.upper,
-            sensor_measurements.fio2,
-            mcu_pb.LogEventCode.fio2_too_low,
-            mcu_pb.LogEventCode.fio2_too_high,
-            log_manager
-        )
         self.transform_parameter_alarms(
             alarm_limits.flow.lower, alarm_limits.flow.upper,
             sensor_measurements.flow,
