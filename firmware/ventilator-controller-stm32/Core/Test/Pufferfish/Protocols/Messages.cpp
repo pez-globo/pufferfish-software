@@ -657,11 +657,18 @@ SCENARIO(
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
       "bytes") {
+    using TestMessageTypeValues = PF::Util::EnumValues<
+        PF::Application::MessageTypes,
+        PF::Application::MessageTypes::unknown,
+        PF::Application::MessageTypes::sensor_measurements,
+        PF::Application::MessageTypes::cycle_measurements,
+        PF::Application::MessageTypes::parameters,
+        PF::Application::MessageTypes::parameters_request,
+        PF::Application::MessageTypes::alarm_limits,
+        PF::Application::MessageTypes::alarm_limits_request>;
     constexpr size_t payload_max_size = 254UL;
-    using TestMessage = PF::Protocols::Message<
-        PF::Application::StateSegment,
-        PF::Application::MessageTypeValues,
-        payload_max_size>;
+    using TestMessage = PF::Protocols::
+        Message<PF::Application::StateSegment, TestMessageTypeValues, payload_max_size>;
     TestMessage test_message;
     constexpr size_t buffer_size = 252UL;
     PF::Util::ByteVector<buffer_size> buffer;
@@ -1050,11 +1057,18 @@ SCENARIO(
   GIVEN(
       "A Message object constructed with StateSegment Taggedunion, default message types and a max "
       "size of 252 bytes") {
+    using TestMessageTypeValues = PF::Util::EnumValues<
+        PF::Application::MessageTypes,
+        PF::Application::MessageTypes::unknown,
+        PF::Application::MessageTypes::sensor_measurements,
+        PF::Application::MessageTypes::cycle_measurements,
+        PF::Application::MessageTypes::parameters,
+        PF::Application::MessageTypes::parameters_request,
+        PF::Application::MessageTypes::alarm_limits,
+        PF::Application::MessageTypes::alarm_limits_request>;
     constexpr size_t payload_max_size = 254UL;
-    using TestMessage = PF::Protocols::Message<
-        PF::Application::StateSegment,
-        PF::Application::MessageTypeValues,
-        payload_max_size>;
+    using TestMessage = PF::Protocols::
+        Message<PF::Application::StateSegment, TestMessageTypeValues, payload_max_size>;
     TestMessage test_message;
     constexpr size_t buffer_size = 254UL;
     PF::Util::ByteVector<buffer_size> buffer;
@@ -1265,13 +1279,19 @@ SCENARIO(
     "Protocols::The Message Receiver class correctly transforms messages into paylaods",
     "[messages]") {
   GIVEN("A MessageReceiver object is constructed with default parameters") {
+    using TestMessageTypeValues = PF::Util::EnumValues<
+        PF::Application::MessageTypes,
+        PF::Application::MessageTypes::unknown,
+        PF::Application::MessageTypes::sensor_measurements,
+        PF::Application::MessageTypes::cycle_measurements,
+        PF::Application::MessageTypes::parameters,
+        PF::Application::MessageTypes::parameters_request,
+        PF::Application::MessageTypes::alarm_limits,
+        PF::Application::MessageTypes::alarm_limits_request>;
     const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
-
     constexpr size_t payload_max_size = 254UL;
-    using TestMessage = PF::Protocols::Message<
-        PF::Application::StateSegment,
-        PF::Application::MessageTypeValues,
-        payload_max_size>;
+    using TestMessage = PF::Protocols::
+        Message<PF::Application::StateSegment, TestMessageTypeValues, payload_max_size>;
     TestMessage test_message;
     constexpr size_t buffer_size = 252UL;
     PF::Util::ByteVector<buffer_size> buffer;
