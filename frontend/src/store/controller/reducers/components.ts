@@ -2,7 +2,6 @@ import {
   ParametersRequest,
   AlarmLimitsRequest,
   VentilationMode,
-  ExpectedLogEvent,
   AlarmMuteRequest,
 } from '../proto/mcu_pb';
 import {
@@ -20,7 +19,6 @@ import {
   FRONTEND_DISPLAY_SETTINGS,
   SYSTEM_SETTINGS,
   commitAction,
-  EXPECTED_LOG_EVENT_ID,
   ALARM_LIMITS_STANDBY,
   PARAMETER_STANDBY,
   ALARM_MUTE,
@@ -94,7 +92,7 @@ export const parametersRequestStanbyReducer = (
       peep: 0,
       rr: 30,
       ie: 1.0,
-      fio2: 60.0,
+      fio2: 21.0,
     }),
   } as { parameters: ParametersRequest },
   action: commitAction,
@@ -122,15 +120,6 @@ export const frontendDisplaySettingReducer = (
   action: commitAction,
 ): FrontendDisplaySetting => {
   return withRequestUpdate<FrontendDisplaySetting>(state, action, FRONTEND_DISPLAY_SETTINGS);
-};
-
-export const expectedLogEventReducer = (
-  state: ExpectedLogEvent = ExpectedLogEvent.fromJSON({
-    id: 0,
-  }) as ExpectedLogEvent,
-  action: commitAction,
-): ExpectedLogEvent => {
-  return withRequestUpdate<ExpectedLogEvent>(state, action, EXPECTED_LOG_EVENT_ID);
 };
 
 export const systemSettingRequestReducer = (
@@ -185,7 +174,7 @@ export const parametersRequestReducer = (
     peep: 0,
     rr: 30,
     ie: 1.0,
-    fio2: 60.0,
+    fio2: 21.0,
     ventilating: false,
   }) as ParametersRequest,
   action: StateUpdateAction | ParameterCommitAction,

@@ -20,15 +20,21 @@ static const uint8_t value_unavailable = 127;
 
 InitializableState Sensor::setup() {
   float spo2 = NAN;
-  return output(spo2);
+  float hr = NAN;
+  return output(spo2, hr);
 }
 
-InitializableState Sensor::output(float &spo2) {
+InitializableState Sensor::output(float &spo2, float &hr) {
   if (device_.output(measurements_) == Device::PacketStatus::available) {
-    if (measurements_.spo2 == value_unavailable) {
+    if (measurements_.e_spo2_d == value_unavailable) {
       spo2 = NAN;
     } else {
-      spo2 = measurements_.spo2;
+      spo2 = measurements_.e_spo2_d;
+    }
+    if (measurements_.e_heart_rate_d == value_unavailable) {
+      hr = NAN;
+    } else {
+      hr = measurements_.e_heart_rate_d;
     }
   }
   return InitializableState::ok;

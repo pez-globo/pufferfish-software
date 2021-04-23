@@ -3,6 +3,7 @@
 import logging
 from typing import Dict, List, Optional, Type
 import functools
+import time
 
 import trio
 import betterproto
@@ -14,13 +15,14 @@ from ventserver.io.trio import websocket
 from ventserver.io.trio import fileio
 from ventserver.io.trio import rotaryencoder
 from ventserver.io.subprocess import frozen_frontend
+from ventserver.protocols import backend
 from ventserver.protocols import server
 from ventserver.protocols import exceptions
 from ventserver.protocols.protobuf import mcu_pb
 
 
 async def initialize_states_from_file(all_states: Dict[
-        Type[betterproto.Message], Optional[betterproto.Message]
+        backend.StateSegment, Optional[betterproto.Message]
 ], protocol: server.Protocol, filehandler: fileio.Handler) -> None:
     """Initialize states from filesystem and turn off ventilation."""
 
@@ -32,7 +34,7 @@ async def initialize_states_from_file(all_states: Dict[
     await _trio.load_file_states(states, protocol, filehandler)
 
     # Turn off ventilation
-    parameters_request = all_states[mcu_pb.ParametersRequest]
+    parameters_request = all_states[backend.StateSegment.PARAMETERS_REQUEST]
     if parameters_request is not None:
         parameters_request.ventilating = False
 
@@ -91,9 +93,10 @@ async def main() -> None:
 
     # Initialize states
     all_states = protocol.receive.backend.all_states
-    for state in all_states:
-        all_states[state] = state()
     await initialize_states_from_file(all_states, protocol, filehandler)
+
+    # Initialize time
+    protocol.receive.input(server.ReceiveEvent(time=time.time()))
 
     try:
         async with channel.push_endpoint:

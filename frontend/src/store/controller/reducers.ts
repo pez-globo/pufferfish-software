@@ -7,12 +7,11 @@ import {
   ScreenStatus,
   SensorMeasurements,
 } from './proto/mcu_pb';
-import { messageReducer, nextLogEventsReducer, rotaryEncoderReducer } from './reducers/backend';
+import { messageReducer, eventLogReducer, rotaryEncoderReducer } from './reducers/backend';
 import {
   alarmLimitsReducer,
   alarmLimitsRequestStandbyReducer,
   alarmMuteRequestReducer,
-  expectedLogEventReducer,
   frontendDisplaySettingReducer,
   heartbeatBackendReducer,
   parametersRequestReducer,
@@ -20,7 +19,6 @@ import {
   systemSettingRequestReducer,
 } from './reducers/components';
 import {
-  activeLogEventsReducer,
   pvHistoryReducer,
   waveformHistoryReducer,
   sensorMeasurementSmoothingReducer,
@@ -35,12 +33,10 @@ export const controllerReducer = combineReducers({
   alarmMuteRequest: alarmMuteRequestReducer,
   systemSettingRequest: systemSettingRequestReducer,
   frontendDisplaySetting: frontendDisplaySettingReducer,
-  expectedLogEvent: expectedLogEventReducer,
-  nextLogEvents: nextLogEventsReducer,
+  eventLog: eventLogReducer,
   heartbeatBackend: heartbeatBackendReducer,
   batteryPower: messageReducer<BatteryPower>(MessageType.BatteryPower, BatteryPower),
   screenStatus: messageReducer<ScreenStatus>(MessageType.ScreenStatus, ScreenStatus),
-  activeLogEvents: activeLogEventsReducer,
   sensorMeasurements: messageReducer<SensorMeasurements>(
     MessageType.SensorMeasurements,
     SensorMeasurements,
@@ -73,17 +69,17 @@ export const controllerReducer = combineReducers({
       (sensorMeasurements) => sensorMeasurements.flow,
     ),
     spo2: sensorMeasurementSmoothingReducer(
-      0.5,
+      1,
       1.0,
       200,
-      500,
+      1000,
       (sensorMeasurements) => sensorMeasurements.spo2,
     ),
     hr: sensorMeasurementSmoothingReducer(
-      0.4,
-      5.0,
-      100,
-      2000,
+      1,
+      1.0,
+      200,
+      1000,
       (sensorMeasurements) => sensorMeasurements.hr,
     ),
   }),

@@ -8,6 +8,7 @@ import {
   AlarmMuteRequest,
   CycleMeasurements,
   LogEvent,
+  ExpectedLogEvent,
   Parameters,
   ParametersRequest,
   SensorMeasurements,
@@ -269,27 +270,31 @@ export const getSystemSettingRequest = createSelector(
 // Next Log Events
 export const getNextLogEvents = createSelector(
   getController,
-  (states: ControllerStates): LogEvent[] => states.nextLogEvents.elements,
+  (states: ControllerStates): LogEvent[] => states.eventLog.nextLogEvents.elements,
 );
 
 // Patient Alarm Event
 export const getExpectedLogEvent = createSelector(
   getController,
-  (states: ControllerStates): number => states.expectedLogEvent.id,
+  (states: ControllerStates): number => states.eventLog.expectedLogEvent.id,
+);
+export const getFullExpectedLogEvent = createSelector(
+  getController,
+  (states: ControllerStates): ExpectedLogEvent => states.eventLog.expectedLogEvent,
 );
 
 // Active log event Ids
 export const getActiveLogEventIds = createSelector(
   getController,
-  (states: ControllerStates): number[] => states.activeLogEvents.id,
+  (states: ControllerStates): number[] => states.eventLog.activeLogEvents.id,
 );
 
 // Active popup event log
 export const getPopupEventLog = createSelector(getController, (states: ControllerStates):
   | LogEvent
   | undefined => {
-  const maxId = Math.max(...states.activeLogEvents.id);
-  return states.nextLogEvents.elements.find((el: LogEvent) => el.id === maxId);
+  const maxId = Math.max(...states.eventLog.activeLogEvents.id);
+  return states.eventLog.nextLogEvents.elements.find((el: LogEvent) => el.id === maxId);
 });
 
 // Battery power

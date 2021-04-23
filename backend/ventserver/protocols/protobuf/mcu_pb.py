@@ -58,7 +58,7 @@ class Range(betterproto.Message):
 
 @dataclass
 class AlarmLimits(betterproto.Message):
-    time: int = betterproto.uint32_field(1)
+    time: int = betterproto.uint64_field(1)
     fio2: "Range" = betterproto.message_field(2)
     flow: "Range" = betterproto.message_field(3)
     spo2: "Range" = betterproto.message_field(4)
@@ -77,7 +77,7 @@ class AlarmLimits(betterproto.Message):
 
 @dataclass
 class AlarmLimitsRequest(betterproto.Message):
-    time: int = betterproto.uint32_field(1)
+    time: int = betterproto.uint64_field(1)
     fio2: "Range" = betterproto.message_field(2)
     flow: "Range" = betterproto.message_field(3)
     spo2: "Range" = betterproto.message_field(4)
@@ -96,7 +96,7 @@ class AlarmLimitsRequest(betterproto.Message):
 
 @dataclass
 class SensorMeasurements(betterproto.Message):
-    time: int = betterproto.uint32_field(1)
+    time: int = betterproto.uint64_field(1)
     cycle: int = betterproto.uint32_field(2)
     fio2: float = betterproto.float_field(3)
     spo2: float = betterproto.float_field(4)
@@ -108,7 +108,7 @@ class SensorMeasurements(betterproto.Message):
 
 @dataclass
 class CycleMeasurements(betterproto.Message):
-    time: int = betterproto.uint32_field(1)
+    time: int = betterproto.uint64_field(1)
     vt: float = betterproto.float_field(2)
     rr: float = betterproto.float_field(3)
     peep: float = betterproto.float_field(4)
@@ -119,7 +119,7 @@ class CycleMeasurements(betterproto.Message):
 
 @dataclass
 class Parameters(betterproto.Message):
-    time: int = betterproto.uint32_field(1)
+    time: int = betterproto.uint64_field(1)
     ventilating: bool = betterproto.bool_field(2)
     mode: "VentilationMode" = betterproto.enum_field(3)
     fio2: float = betterproto.float_field(4)
@@ -133,7 +133,7 @@ class Parameters(betterproto.Message):
 
 @dataclass
 class ParametersRequest(betterproto.Message):
-    time: int = betterproto.uint32_field(1)
+    time: int = betterproto.uint64_field(1)
     ventilating: bool = betterproto.bool_field(2)
     mode: "VentilationMode" = betterproto.enum_field(3)
     fio2: float = betterproto.float_field(4)
@@ -147,20 +147,20 @@ class ParametersRequest(betterproto.Message):
 
 @dataclass
 class Ping(betterproto.Message):
-    time: int = betterproto.uint32_field(1)
+    time: int = betterproto.uint64_field(1)
     id: int = betterproto.uint32_field(2)
 
 
 @dataclass
 class Announcement(betterproto.Message):
-    time: int = betterproto.uint32_field(1)
+    time: int = betterproto.uint64_field(1)
     announcement: bytes = betterproto.bytes_field(2)
 
 
 @dataclass
 class LogEvent(betterproto.Message):
     id: int = betterproto.uint32_field(1)
-    time: int = betterproto.uint32_field(2)
+    time: int = betterproto.uint64_field(2)
     code: "LogEventCode" = betterproto.enum_field(3)
     type: "LogEventType" = betterproto.enum_field(4)
     alarm_limits: "Range" = betterproto.message_field(5)

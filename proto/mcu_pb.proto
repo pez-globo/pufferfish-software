@@ -6,7 +6,7 @@ message Range {
 }
 
 message AlarmLimits {
-  uint32 time = 1;
+  uint64 time = 1;
   Range fio2 = 2;
   Range flow = 3;
   Range spo2 = 4;
@@ -24,7 +24,7 @@ message AlarmLimits {
 }
 
 message AlarmLimitsRequest {
-  uint32 time = 1;
+  uint64 time = 1;
   Range fio2 = 2;
   Range flow = 3;
   Range spo2 = 4;
@@ -42,7 +42,7 @@ message AlarmLimitsRequest {
 }
 
 message SensorMeasurements {
-  uint32 time = 1;
+  uint64 time = 1;
   uint32 cycle = 2;
   float fio2 = 3;
   float spo2 = 4;
@@ -53,7 +53,7 @@ message SensorMeasurements {
 }
 
 message CycleMeasurements {
-  uint32 time = 1;
+  uint64 time = 1;
   float vt = 2;
   float rr = 3;
   float peep = 4;
@@ -73,7 +73,7 @@ enum VentilationMode {
 }
 
 message Parameters {
-  uint32 time = 1;
+  uint64 time = 1;
   bool ventilating = 2;
   VentilationMode mode = 3;
   float fio2 = 4;
@@ -86,7 +86,7 @@ message Parameters {
 }
 
 message ParametersRequest {
-  uint32 time = 1;
+  uint64 time = 1;
   bool ventilating = 2;
   VentilationMode mode = 3;
   float fio2 = 4;
@@ -101,12 +101,12 @@ message ParametersRequest {
 // Testing messages
 
 message Ping {
-  uint32 time = 1;
+  uint64 time = 1;
   uint32 id = 2;
 }
 
 message Announcement {
-  uint32 time = 1;
+  uint64 time = 1;
   bytes announcement = 2;
 }
 
@@ -144,7 +144,7 @@ enum LogEventType {
 
 message LogEvent {
   uint32 id = 1;
-  uint32 time = 2;
+  uint64 time = 2;
   LogEventCode code = 3;
   LogEventType type = 4;
   Range alarm_limits = 5;

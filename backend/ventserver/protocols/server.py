@@ -33,6 +33,7 @@ class FrontendConnectionEvent(events.Event):
             and self.is_frontend_connected is not None
         )
 
+
 @attr.s
 class ReceiveEvent(events.Event):
     """Server receive input event."""
@@ -66,7 +67,7 @@ class ReceiveOutputEvent(events.Event):
         return self.server_send is not None and self.server_send.has_data()
 
 
-SendEvent = Union[backend.Announcement, backend.OutputEvent]
+SendEvent = backend.OutputEvent
 
 
 @attr.s
@@ -79,15 +80,17 @@ class SendOutputEvent(events.Event):
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
-        return (bool(self.serial_send) or
+        return (
+            bool(self.serial_send) or
             self.websocket_send is not None or
-            self.file_send is not None)
+            self.file_send is not None
+        )
 
 
 def make_serial_receive(
         serial_receive: bytes,
         time: float
-    ) -> ReceiveEvent:
+) -> ReceiveEvent:
     """Make a ReceiveEvent from serial receive data."""
     return ReceiveEvent(serial_receive=serial_receive, time=time)
 
@@ -95,14 +98,15 @@ def make_serial_receive(
 def make_websocket_receive(
         ws_receive: bytes,
         time: float
-    ) -> ReceiveEvent:
+) -> ReceiveEvent:
     """Make a ReceiveEvent from websocket receive data."""
     return ReceiveEvent(websocket_receive=ws_receive, time=time)
+
 
 def make_rotary_encoder_receive(
         re_receive: Tuple[int, bool],
         time: float
-    ) -> ReceiveEvent:
+) -> ReceiveEvent:
     """Make a ReceiveEvent from rotary encoder receive data."""
     return ReceiveEvent(rotary_encoder_receive=re_receive, time=time)
 
@@ -146,10 +150,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         factory=file.ReceiveFilter
     )
 
-
     def input(self, event: Optional[
-                            Union[ReceiveEvent, FrontendConnectionEvent
-                            ]
+            Union[ReceiveEvent, FrontendConnectionEvent]
     ]) -> None:
         """Handle input events."""
         if event is None or not event.has_data():
@@ -193,8 +195,10 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         # Kill frontend process if it stops responding.
         # The frontend service will automatically restart the frontend process.
         delayed = False
-        if int(self.current_time - self._kill_props.last_fe_event) >\
-            self._kill_props.fe_delayed_duration:
+        if (
+                int(self.current_time - self._kill_props.last_fe_event)
+                > self._kill_props.fe_delayed_duration
+        ):
             if int(self.current_time - self._kill_props.last_fe_kill) > 2:
                 connection_duration = int(
                     self.current_time - self._kill_props.fe_connection_time
@@ -202,7 +206,6 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
                 if self._kill_props.fe_connected and connection_duration > 2:
                     self._kill_props.last_fe_kill = self.current_time
                     delayed = True
-
 
         output = ReceiveOutputEvent(
             server_send=backend_output, frontend_delayed=delayed
@@ -231,7 +234,6 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             )
         )
         self._file.input(event.file_receive)
-
 
     def _process_mcu(self) -> bool:
         """Process the next event from the mcu protocol."""
@@ -270,7 +272,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
 
     def _process_file(self) -> bool:
         """Process the next event from the file."""
-        file_output = self._file.output() # throws ProtocolDataError
+        file_output = self._file.output()  # throws ProtocolDataError
         if file_output is None:
             return False
         self._backend.input(backend.ReceiveEvent(
@@ -278,7 +280,6 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             frontend_receive=None, file_receive=file_output
         ))
         return True
-
 
     def input_serial(self, serial_receive: bytes) -> None:
         """Input a ReceiveEvent corresponding to serial data.
@@ -305,7 +306,6 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     def file(self) -> file.ReceiveFilter:
         """Return the file receiver"""
         return self._file
-
 
 
 @attr.s
