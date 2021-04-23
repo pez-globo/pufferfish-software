@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid red'
     backgroundColor: '#010010',
     borderRadius: '8px',
-    padding: '10px',
+    padding: '2rem',
     height: '100%',
   },
   displayContainer: {
@@ -36,13 +36,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     textAlign: 'right',
     // border: '1px solid blue'
   },
-  liveBox: {
-    textAlign: 'center',
-    width: '100%',
-    fontSize: 14,
-    borderRadius: 5,
-    border: `2px solid ${theme.palette.primary.main}`,
-  },
   valueContainer: {
     justifyContent: 'flex-start',
     alignItems: 'center',
@@ -50,13 +43,12 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid yellow',
   },
   valueLabel: {
-    fontSize: '3.5rem',
+    fontSize: '6rem',
     lineHeight: '1',
     // border: '1px solid red',
   },
   unitsLabel: {
-    // paddingLeft: theme.spacing(1),
-    // paddingTop: theme.spacing(4),
+    fontSize: '2rem',
     opacity: 0.8,
     // border: '1px solid red'
   },
@@ -81,34 +73,12 @@ const useStyles = makeStyles((theme: Theme) => ({
   gridAreavalues3: {
     gridArea: 'gridAreavalues3',
   },
-
-  gridRoot: {
-    width: '100%',
-    // border: '1px solid red'
-    backgroundColor: '#010010',
-    borderRadius: '8px',
-    padding: '5px 10px',
-    height: '100%',
-  },
   gridLiveContainer: {
     // display: 'flex',
     justifyContent: 'flex-end',
     height: '100%',
     // border: '1px solid blue'
     textAlign: 'right',
-  },
-
-  gridValueLabel: {
-    fontSize: '2rem',
-    lineHeight: '1',
-    // border: '1px solid red',
-  },
-  gridUnitsLabel: {
-    // paddingLeft: theme.spacing(1),
-    paddingTop: theme.spacing(3),
-    opacity: 0.8,
-    fontSize: '12px',
-    // border: '1px solid red'
   },
   whiteFont: {
     color: '#fff',
@@ -202,16 +172,16 @@ const ControlValuesDisplay = ({
               wrap="nowrap"
             >
               <Grid item xs style={{ width: '100%' }}>
-                <Typography className={classes.whiteFont} style={{ fontSize: '16px' }}>
+                <Typography className={classes.whiteFont} style={{ fontSize: '3rem' }}>
                   {label}
                 </Typography>
               </Grid>
               {showLimits && stateKey && (
                 <Grid container item xs={3} className={classes.liveContainer}>
-                  <Typography className={classes.whiteFont}>
+                  <Typography className={classes.whiteFont} style={{ fontSize: '1.5rem' }}>
                     {alarmLimits[stateKey].lower}
                   </Typography>
-                  <Typography className={classes.whiteFont}>
+                  <Typography className={classes.whiteFont} style={{ fontSize: '1.5rem' }}>
                     {alarmLimits[stateKey].upper}
                   </Typography>
                 </Grid>

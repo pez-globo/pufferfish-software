@@ -35,6 +35,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'grid',
     overflow: 'hidden',
   },
+  panelValue: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  }
 }));
 
 /**
@@ -47,19 +51,19 @@ const HFNCMainView = (): JSX.Element => {
     <Grid container direction="row" className={classes.root}>
       <Grid container item xs direction="row" alignItems="stretch" className={classes.leftPanel}>
         <Grid container item xs direction="column" alignItems="stretch" className={classes.panelColumn}>
-          <Grid container item justify="center" alignItems="stretch">
+          <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
             <LargeValueInfo
               selector={getSmoothedSpO2}
-              label='Measured SpO2'
+              label='SpO2'
               stateKey='spo2'
               units={PERCENT}
               showLimits
             />
           </Grid>
-          <Grid container item justify="center" alignItems="stretch">
+          <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
             <LargeValueInfo
               selector={getSmoothedHR}
-              label='Measured HR'
+              label='HR'
               stateKey='hr'
               units={BPM}
               showLimits
@@ -67,19 +71,19 @@ const HFNCMainView = (): JSX.Element => {
           </Grid>
         </Grid>
         <Grid container item xs direction="column" alignItems="stretch" className={classes.panelColumn}>
-          <Grid container item justify="center" alignItems="stretch">
+          <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
             <LargeValueInfo
               selector={getSmoothedFiO2Value}
-              label='Measured FiO2'
+              label='FiO2'
               stateKey='fio2'
               units={PERCENT}
               showLimits
             />
           </Grid>
-          <Grid container item justify="center" alignItems="stretch">
+          <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
             <LargeValueInfo
               selector={getSmoothedFlow}
-              label='Measured Flow'
+              label='Flow'
               stateKey='flow'
               units={LMIN}
               showLimits
@@ -89,7 +93,7 @@ const HFNCMainView = (): JSX.Element => {
       </Grid>
       <Grid container item xs={4} direction="row" className={classes.rightPanel} wrap="nowrap">
         <Grid container item xs direction="column" alignItems="stretch" className={classes.panelColumn}>
-          <Grid container item justify="center" alignItems="stretch">
+          <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
             <LargeValueInfo
               selector={getParametersFiO2}
               label='FiO2 Setting'
@@ -97,7 +101,7 @@ const HFNCMainView = (): JSX.Element => {
               units={PERCENT}
             />
           </Grid>
-          <Grid container item justify="center" alignItems="stretch">
+          <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
             <LargeValueInfo
               selector={getParametersFlow}
               label='Flow Setting'
