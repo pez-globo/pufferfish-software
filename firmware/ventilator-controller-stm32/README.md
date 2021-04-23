@@ -225,6 +225,32 @@ cd cmake-build-testcatch2
 scan-build make -j4
 ```
 
+### Running the Coverage Tools
+This is similar to TestCatch2
+
+First run:
+```
+./cmake.sh TestCoverage  # run from the firmware/ventilator-controller-stm32 directory
+cd cmake-build-testcoverage
+make -j4
+```
+
+Next, run all the tests with `./TestCoverage`.
+
+Next, generate the info file:
+```
+lcov -c -d . -o name.info
+```
+
+Finally, generate the HTML files:
+```
+genhtml name.info
+```
+
+At this stage, you will see an index.html in the current directory. You can open it in any browser.
+
+
+
 ### Clang-tidy
 
 
