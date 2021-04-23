@@ -68,10 +68,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     gridTemplateAreas: `'gridAreavalues1 gridAreavalues2'
     'gridAreavalues1 gridAreavalues3'`,
   },
-  mainWithSubcontainer: {
-    gridTemplateAreas: `'gridAreavalues1 gridAreavalues2'
-    'gridAreavalues1 gridAreavalues3'`,
-  },
   mainContainer: {
     gridTemplateAreas: `'gridAreavalues1 gridAreavalues1'
     'gridAreavalues1 gridAreavalues1'`,
@@ -121,8 +117,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 export interface ValueInfoProps {
   mainContainer: Props;
-  subContainer1?: Props;
-  subContainer2?: Props;
 }
 
 export interface Props {
@@ -165,7 +159,7 @@ const ControlValuesDisplay = ({
   stateKey,
   units = '',
   isMain = false,
-  showLimits = true,
+  showLimits = false,
   decimal,
 }: Props): JSX.Element => {
   const classes = useStyles();
@@ -261,160 +255,37 @@ const ControlValuesDisplay = ({
   );
 };
 
-const GridControlValuesDisplay = ({
-  selector,
-  label,
-  stateKey,
-  units = '',
-  decimal,
-}: Props): JSX.Element => {
-  const classes = useStyles();
-  const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual) as Record<string, Range>;
-  const onClick = () => {
-    // setOpen(true);
-    if (stateKey) {
-      setMultiPopupOpen(true, stateKey);
-    }
-  };
-  const handleClick = ClickHandler(onClick, () => {
-    return false;
-  });
-  const updateModalStatus = (status: boolean) => {
-    setOpen(status);
-  };
-  return (
-    <div
-      style={{ outline: 'none', height: '100%' }}
-      role="button"
-      onKeyDown={() => null}
-      onClick={handleClick}
-      tabIndex={0}
-    >
-      <Grid container direction="column" className={classes.rootParent}>
-        <Grid item xs style={{ width: '100%', height: '100%' }}>
-          <Grid container direction="column" className={classes.gridRoot}>
-            <Grid container item style={{ height: '100%' }}>
-              <Grid item xs>
-                <Typography className={classes.whiteFont}>{label}</Typography>
-              </Grid>
-
-              <Grid container item xs justify="flex-start" alignItems="center" wrap="nowrap">
-                <Grid className={classes.displayContainer}>
-                  <Typography
-                    align="center"
-                    variant="h5"
-                    className={`${classes.gridValueLabel} ${classes.whiteFont}`}
-                  >
-                    <ValueSelectorDisplay decimal={decimal} selector={selector} />
-                  </Typography>
-                  {units !== '' && (
-                    <Typography
-                      align="center"
-                      variant="body1"
-                      className={`${classes.gridUnitsLabel} ${classes.whiteFont}`}
-                    >
-                      {units}
-                    </Typography>
-                  )}
-                </Grid>
-              </Grid>
-              {stateKey && (
-                <Grid item xs className={classes.gridLiveContainer}>
-                  <Typography className={classes.whiteFont}>
-                    {alarmLimits[stateKey].lower}
-                  </Typography>
-                  <Typography className={classes.whiteFont}>
-                    {alarmLimits[stateKey].upper}
-                  </Typography>
-                </Grid>
-              )}
-            </Grid>
-          </Grid>
-        </Grid>
-        {stateKey && (
-          <AlarmModal
-            updateModalStatus={updateModalStatus}
-            openModal={open}
-            disableAlarmButton={true}
-            label={label}
-            units={units}
-            stateKey={stateKey}
-            requestCommitRange={() => null}
-          />
-        )}
-      </Grid>
-    </div>
-  );
-};
 /**
  * Value Info
  *
  * Component for showing information.
  *
  */
-const ValueInfo = (props: {
-  mainContainer: Props;
-  subContainer1?: Props;
-  subContainer2?: Props;
-}): JSX.Element => {
-  const { mainContainer, subContainer1, subContainer2 } = props;
+const ValueInfo = ({
+  selector,
+  label,
+  stateKey,
+  units = '',
+  isMain = false,
+  showLimits = false,
+  decimal,
+}: Props): JSX.Element => {
   const classes = useStyles();
-  const Render = () => {
-    if (mainContainer && !subContainer1 && !subContainer2) {
-      return (
-        <Grid item xs container className={`${classes.valuesPanel} ${classes.mainContainer}`}>
-          <Grid item xs className={classes.gridAreavalues1}>
-            <ControlValuesDisplay
-              isMain={true}
-              stateKey={mainContainer.stateKey}
-              selector={mainContainer.selector}
-              label={mainContainer.label}
-              units={mainContainer.units}
-              showLimits={mainContainer.showLimits}
-              decimal={mainContainer.decimal || 0}
-            />
-          </Grid>
-        </Grid>
-      );
-    }
-    return (
-      <Grid item xs container className={`${classes.valuesPanel} ${classes.mainWithSubcontainer}`}>
-        <Grid item xs className={classes.gridAreavalues1}>
-          <ControlValuesDisplay
-            stateKey={mainContainer.stateKey}
-            selector={mainContainer.selector}
-            label={mainContainer.label}
-            units={mainContainer.units}
-            decimal={mainContainer.decimal || 0}
-          />
-        </Grid>
-        <Grid item xs className={classes.gridAreavalues2}>
-          {subContainer1 && (
-            <GridControlValuesDisplay
-              stateKey={subContainer1.stateKey}
-              selector={subContainer1.selector}
-              label={subContainer1.label}
-              units={subContainer1.units}
-              decimal={subContainer1.decimal || 0}
-            />
-          )}
-        </Grid>
-        <Grid item xs className={classes.gridAreavalues3}>
-          {subContainer2 && (
-            <GridControlValuesDisplay
-              stateKey={subContainer2.stateKey}
-              selector={subContainer2.selector}
-              label={subContainer2.label}
-              units={subContainer2.units}
-              decimal={subContainer2.decimal || 0}
-            />
-          )}
-        </Grid>
+  return (
+    <Grid item xs container className={`${classes.valuesPanel} ${classes.mainContainer}`}>
+      <Grid item xs className={classes.gridAreavalues1}>
+        <ControlValuesDisplay
+          isMain={true}
+          stateKey={stateKey}
+          selector={selector}
+          label={label}
+          units={units}
+          showLimits={showLimits}
+          decimal={decimal || 0}
+        />
       </Grid>
-    );
-  };
-  return <Render />;
+    </Grid>
+  );
 };
 
 export default ValueInfo;
