@@ -1,5 +1,6 @@
 """Appication protocol for clock synchronization."""
 
+import logging
 from typing import Optional
 
 import attr
@@ -32,15 +33,14 @@ class ClockSynchronizer(protocols.Filter[UpdateEvent, int]):
     clock time is a float in units of seconds, while the remote clock time is a
     int in units of milliseconds.
     Outputs are the offset to add to a remote clock time to translate it into
-    the local clock. Currently, they become invalid if the remote clock rolls
-    over, because we need to figue out a robust heuristic to differentiate
-    between clock rollover and input of an older remote timestamp when remote
-    time hasn't rolled over.
+    the local clock. The offset stays the same until the remote time decreases,
+    which triggers a resynchronization of the clock.
     """
 
     REMOTE_CLOCK_ROLLOVER = 2 ** 32
 
-    _current_time: Optional[float] = attr.ib(default=None)
+    _logger = logging.getLogger('.'.join((__name__, 'ClockSynchronizer')))
+
     _remote_sync_time: Optional[int] = attr.ib(default=None)  # ms
     _local_sync_time: Optional[float] = attr.ib(default=None)  # sec
 
@@ -49,10 +49,22 @@ class ClockSynchronizer(protocols.Filter[UpdateEvent, int]):
         if event is None:
             return
 
-        self._current_time = event.current_time
+        event.current_time = event.current_time
         if self._remote_sync_time is None:
-            self._remote_sync_time = event.remote_time
-            self._local_sync_time = self._current_time
+            self._logger.info(
+                'Synchronized remote time %d with local time %f',
+                event.remote_time, event.current_time
+            )
+        elif event.remote_time < self._remote_sync_time:
+            self._logger.warning(
+                'Resynchronized remote time %d with local time %f',
+                event.remote_time, event.current_time
+            )
+        else:
+            return
+
+        self._remote_sync_time = event.remote_time
+        self._local_sync_time = event.current_time
 
     def output(self) -> int:
         """Emit the next output event."""
