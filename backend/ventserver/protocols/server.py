@@ -67,7 +67,7 @@ class ReceiveOutputEvent(events.Event):
         return self.server_send is not None and self.server_send.has_data()
 
 
-SendEvent = Union[backend.Announcement, backend.OutputEvent]
+SendEvent = backend.OutputEvent
 
 
 @attr.s

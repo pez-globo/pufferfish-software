@@ -1,11 +1,10 @@
 """Sans-I/O backend service protocol."""
 
 import collections
-import dataclasses
 import enum
 import logging
 import typing
-from typing import Dict, Optional, Union
+from typing import Dict, Optional
 
 import attr
 
@@ -16,7 +15,7 @@ from ventserver.protocols import exceptions
 from ventserver.protocols import frontend
 from ventserver.protocols import log
 from ventserver.protocols import mcu
-from ventserver.protocols.application import lists, states
+from ventserver.protocols.application import states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
@@ -35,7 +34,6 @@ class StateSegment(enum.Enum):
     NEXT_LOG_EVENTS_MCU = enum.auto()
     ACTIVE_LOG_EVENTS_MCU = enum.auto()
     EXPECTED_LOG_EVENT_BE = enum.auto()
-    EXPECTED_LOG_EVENT_BE_PREV = enum.auto()
     NEXT_LOG_EVENTS_BE = enum.auto()
     ACTIVE_LOG_EVENTS_BE = enum.auto()
     ROTARY_ENCODER = enum.auto()
@@ -104,18 +102,7 @@ class OutputEvent(events.Event):
         return self.mcu_send is not None or self.frontend_send is not None
 
 
-@attr.s
-class Announcement(events.Event):
-    """Backend send input event."""
-
-    message: bytes = attr.ib(default=b'ping')
-
-    def has_data(self) -> bool:
-        """Return whether the event has data."""
-        return True
-
-
-SendEvent = Union[Announcement, OutputEvent]
+SendEvent = OutputEvent
 
 
 # Filters
@@ -160,10 +147,10 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
     _file_state_synchronizer: states.Synchronizer[StateSegment] = attr.ib()
 
     # Events Log
-    _events_log_receiver: log.EventLogReceiver = attr.ib(
+    _event_log_receiver: log.EventLogReceiver = attr.ib(
         factory=log.EventLogReceiver
     )
-    _log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent] = attr.ib()
+    _event_log_sender: log.EventLogSender = attr.ib(factory=log.EventLogSender)
 
     @all_states.default
     def init_all_states(self) -> Dict[
@@ -202,13 +189,6 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             segment_types=StateSegment, all_states=self.all_states,
             output_schedule=FILE_SYNCHRONIZER_SCHEDULE
         )
-
-    @_log_events_sender.default
-    def init_log_events_list_sender(self) -> lists.SendSynchronizer[
-            mcu_pb.LogEvent
-    ]:   # pylint: disable=no-self-use
-        """Initialize the frontend log events list sender."""
-        return lists.SendSynchronizer(segment_type=mcu_pb.NextLogEvents)
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
         """Handle input events."""
@@ -348,52 +328,50 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             Optional[mcu_pb.ActiveLogEvents],
             self.all_states[StateSegment.ACTIVE_LOG_EVENTS_MCU]
         )
-        self._events_log_receiver.input(log.ReceiveInputEvent(
+        self._event_log_receiver.input(log.ReceiveInputEvent(
             current_time=self.current_time, next_log_events=next_log_events,
             active_log_events=active_log_events
         ))
-        output_event = self._events_log_receiver.output()
-        if output_event is None or not output_event.has_data():
-            return
+        while True:
+            output_event = self._event_log_receiver.output()
+            if output_event is None or not output_event.has_data():
+                return
 
-        if output_event.expected_log_event is not None:
-            self.all_states[
-                StateSegment.EXPECTED_LOG_EVENT_MCU
-            ] = output_event.expected_log_event
-        # Pass new log events to sender
-        sender_input = lists.UpdateEvent(new_elements=output_event.new_elements)
-        expected_log_event = self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
-        if isinstance(expected_log_event, mcu_pb.ExpectedLogEvent):
-            # trigger sender to generate an output
-            sender_input.next_expected = expected_log_event.id
-        self._log_events_sender.input(sender_input)
-        # Update active log events
-        if output_event.active_log_events is not None:
-            self.all_states[StateSegment.ACTIVE_LOG_EVENTS_BE] = \
-                output_event.active_log_events
-        # TODO: pass new elements to a log events sender for saving to disk
+            if output_event.expected_log_event is not None:
+                self.all_states[
+                    StateSegment.EXPECTED_LOG_EVENT_MCU
+                ] = output_event.expected_log_event
+            # Pass new log events to sender
+            expected_log_event = typing.cast(
+                Optional[mcu_pb.ExpectedLogEvent],
+                self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
+            )
+            self._event_log_sender.input(log.SendInputEvent(
+                new_log_events=output_event.new_elements,
+                # trigger sender to produce output by giving expected log event
+                expected_log_event=expected_log_event
+            ))
+            # Update active log events
+            if output_event.active_log_events is not None:
+                self.all_states[StateSegment.ACTIVE_LOG_EVENTS_BE] = \
+                    output_event.active_log_events
+            # TODO: pass new elements to a log events sender for saving to disk
 
     def _handle_log_events_sending(self) -> None:
-        """Handle any updates to log events list sending."""
-        expected_log_event = self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
-        expected_log_event_prev = \
-            self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE_PREV]
-        if expected_log_event != expected_log_event_prev:
-            if isinstance(expected_log_event, mcu_pb.ExpectedLogEvent):
-                # trigger sender to generate an output
-                self._log_events_sender.input(lists.UpdateEvent(
-                    next_expected=expected_log_event.id
-                ))
-                self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE_PREV] =\
-                    dataclasses.replace(expected_log_event)
-            else:
-                self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE_PREV] = None
-        next_log_events = self._log_events_sender.output()
-        if next_log_events is None:
-            return
+        """Handle any updates to log events for the frontend."""
+        expected_log_event = typing.cast(
+            Optional[mcu_pb.ExpectedLogEvent],
+            self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
+        )
+        self._event_log_sender.input(log.SendInputEvent(
+            expected_log_event=expected_log_event
+        ))
+        while True:
+            next_log_events = self._event_log_sender.output()
+            if next_log_events is None:
+                return
 
-        assert isinstance(next_log_events, mcu_pb.NextLogEvents)
-        self.all_states[StateSegment.NEXT_LOG_EVENTS_BE] = next_log_events
+            self.all_states[StateSegment.NEXT_LOG_EVENTS_BE] = next_log_events
 
 
 @attr.s
@@ -419,10 +397,6 @@ class SendFilter(protocols.Filter[SendEvent, OutputEvent]):
 
         if isinstance(event, OutputEvent):
             return event
-
-        if isinstance(event, Announcement):
-            message = mcu_pb.Announcement(announcement=event.message)
-            return OutputEvent(mcu_send=message, frontend_send=message)
 
         return None
 
