@@ -45,6 +45,34 @@ export const getEventDetails = (event: LogEvent, eventType: EventType): string =
 export const getEventType = (code: LogEventCode): EventType => {
   switch (code) {
     // Patient
+    case LogEventCode.spo2_too_low:
+      return {
+        type: LogEventType.patient,
+        label: 'SpO2 is too low',
+        stateKey: 'spo2',
+        unit: PERCENT,
+      };
+    case LogEventCode.spo2_too_high:
+      return {
+        type: LogEventType.patient,
+        label: 'SpO2 is too high',
+        stateKey: 'spo2',
+        unit: PERCENT,
+      };
+    case LogEventCode.hr_too_low:
+      return {
+        type: LogEventType.patient,
+        label: 'Heart Rate is too low',
+        stateKey: 'hr',
+        unit: BPM,
+      };
+    case LogEventCode.hr_too_high:
+      return {
+        type: LogEventType.patient,
+        label: 'Heart Rate is too high',
+        stateKey: 'hr',
+        unit: BPM,
+      };
     case LogEventCode.fio2_too_low:
       return {
         type: LogEventType.patient,
@@ -61,47 +89,19 @@ export const getEventType = (code: LogEventCode): EventType => {
         stateKey: 'fio2',
         unit: PERCENT,
       };
-    case LogEventCode.spo2_too_low:
+    case LogEventCode.flow_too_low:
       return {
         type: LogEventType.patient,
-        label: 'SpO2 is too low',
-        stateKey: 'spo2',
-        unit: PERCENT,
+        label: 'Flow Rate is too low',
+        stateKey: 'flow',
+        unit: LMIN,
       };
-    case LogEventCode.spo2_too_high:
+    case LogEventCode.flow_too_high:
       return {
         type: LogEventType.patient,
-        label: 'SpO2 is too high',
-        stateKey: 'spo2',
-        unit: PERCENT,
-      };
-    case LogEventCode.rr_too_low:
-      return {
-        type: LogEventType.patient,
-        label: 'Respiratory Rate is too low',
-        stateKey: 'rr',
-        unit: BMIN,
-      };
-    case LogEventCode.rr_too_high:
-      return {
-        type: LogEventType.patient,
-        label: 'Respiratory Rate is too high',
-        stateKey: 'rr',
-        unit: BMIN,
-      };
-    case LogEventCode.hr_too_low:
-      return {
-        type: LogEventType.patient,
-        label: 'Heart Rate is too low',
-        stateKey: 'hr',
-        unit: BPM,
-      };
-    case LogEventCode.hr_too_high:
-      return {
-        type: LogEventType.patient,
-        label: 'Heart Rate is too high',
-        stateKey: 'hr',
-        unit: BPM,
+        label: 'Flow Rate is too high',
+        stateKey: 'flow',
+        unit: LMIN,
       };
     // System
     case BACKEND_CONNECTION_LOST_CODE:
@@ -152,13 +152,6 @@ export const getEventType = (code: LogEventCode): EventType => {
         unit: LMIN,
       };
     // Alarm Limits
-    case LogEventCode.fio2_alarm_limits_changed:
-      return {
-        type: LogEventType.alarm_limits,
-        label: 'FiO2 limits changed',
-        stateKey: 'FiO2',
-        unit: PERCENT,
-      };
     case LogEventCode.spo2_alarm_limits_changed:
       return {
         type: LogEventType.alarm_limits,
@@ -172,6 +165,20 @@ export const getEventType = (code: LogEventCode): EventType => {
         label: 'Heart Rate limits changed',
         stateKey: 'HR',
         unit: BPM,
+      };
+    case LogEventCode.fio2_alarm_limits_changed:
+      return {
+        type: LogEventType.alarm_limits,
+        label: 'FiO2 limits changed',
+        stateKey: 'FiO2',
+        unit: PERCENT,
+      };
+    case LogEventCode.flow_alarm_limits_changed:
+      return {
+        type: LogEventType.alarm_limits,
+        label: 'Flow limits changed',
+        stateKey: 'Flow',
+        unit: PERCENT,
       };
     default:
       return { type: LogEventType.system, label: '', unit: '' };

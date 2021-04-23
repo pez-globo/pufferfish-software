@@ -21,14 +21,14 @@ class LogEventCode(betterproto.Enum):
     """Log Events"""
 
     # Patient
-    fio2_too_low = 0
-    fio2_too_high = 1
-    spo2_too_low = 2
-    spo2_too_high = 3
-    rr_too_low = 4
-    rr_too_high = 5
-    hr_too_low = 6
-    hr_too_high = 7
+    spo2_too_low = 0
+    spo2_too_high = 1
+    hr_too_low = 2
+    hr_too_high = 3
+    fio2_too_low = 4
+    fio2_too_high = 5
+    flow_too_low = 6
+    flow_too_high = 7
     # System
     battery_low = 8
     screen_locked = 9
@@ -38,9 +38,10 @@ class LogEventCode(betterproto.Enum):
     fio2_setting_changed = 12
     flow_setting_changed = 13
     # Alarm Limits
-    fio2_alarm_limits_changed = 14
-    spo2_alarm_limits_changed = 15
-    hr_alarm_limits_changed = 16
+    spo2_alarm_limits_changed = 14
+    hr_alarm_limits_changed = 15
+    fio2_alarm_limits_changed = 16
+    flow_alarm_limits_changed = 17
 
 
 class LogEventType(betterproto.Enum):
