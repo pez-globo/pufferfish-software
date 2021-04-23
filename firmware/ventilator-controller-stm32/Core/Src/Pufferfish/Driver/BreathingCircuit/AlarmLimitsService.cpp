@@ -13,7 +13,7 @@ namespace Pufferfish::Driver::BreathingCircuit {
 
 // Update functions
 
-Range transform_limits_range(uint32_t floor, uint32_t ceiling, Range request) {
+Range transform_limits_range(int32_t floor, int32_t ceiling, Range request) {
   if (request.lower > request.upper) {
     std::swap(request.lower, request.upper);
   }
@@ -159,7 +159,7 @@ void make_state_initializers(Application::StateSegment &request_segment, AlarmLi
   response.fio2.upper = response.fio2.lower + AlarmLimitsService::fio2_tolerance;
   response.has_flow = true;
   response.flow.lower = HFNCAlarmLimits::allowed_flow.lower;
-  response.flow.upper = response.flow.lower + HFNCAlarmLimits::flow_tolerance;
+  response.flow.upper = response.flow.lower + 2 * HFNCAlarmLimits::flow_tolerance;
   response.has_spo2 = true;
   response.spo2 = AlarmLimitsService::allowed_spo2;
   response.has_hr = true;

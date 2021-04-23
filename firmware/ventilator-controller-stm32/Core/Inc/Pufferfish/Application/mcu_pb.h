@@ -121,8 +121,8 @@ typedef struct _Ping {
 } Ping;
 
 typedef struct _Range {
-    uint32_t lower;
-    uint32_t upper;
+    int32_t lower;
+    int32_t upper;
 } Range;
 
 typedef struct _ScreenStatus {
@@ -391,8 +391,8 @@ extern "C" {
 
 /* Struct field encoding specification for nanopb */
 #define Range_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   lower,             1) \
-X(a, STATIC,   SINGULAR, UINT32,   upper,             2)
+X(a, STATIC,   SINGULAR, INT32,    lower,             1) \
+X(a, STATIC,   SINGULAR, INT32,    upper,             2)
 #define Range_CALLBACK NULL
 #define Range_DEFAULT NULL
 
@@ -627,18 +627,18 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define AlarmMuteRequest_fields &AlarmMuteRequest_msg
 
 /* Maximum encoded size of messages (where known) */
-#define Range_size                               12
-#define AlarmLimits_size                         207
-#define AlarmLimitsRequest_size                  207
+#define Range_size                               22
+#define AlarmLimits_size                         347
+#define AlarmLimitsRequest_size                  347
 #define SensorMeasurements_size                  47
 #define CycleMeasurements_size                   41
 #define Parameters_size                          50
 #define ParametersRequest_size                   50
 #define Ping_size                                17
 #define Announcement_size                        77
-#define LogEvent_size                            93
+#define LogEvent_size                            123
 #define ExpectedLogEvent_size                    6
-#define NextLogEvents_size                       208
+#define NextLogEvents_size                       268
 #define ActiveLogEvents_size                     192
 #define BatteryPower_size                        8
 #define ScreenStatus_size                        2

@@ -17,7 +17,7 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
-Range transform_limits_range(uint32_t floor, uint32_t ceiling, Range request);
+Range transform_limits_range(int32_t floor, int32_t ceiling, Range request);
 void service_limits_range(
     Range request,
     Range &response,
@@ -27,7 +27,7 @@ void service_limits_range(
 
 class AlarmLimitsService {
  public:
-  static const uint8_t fio2_tolerance = 2;       // % FiO2
+  static const int8_t fio2_tolerance = 2;        // % FiO2
   static constexpr Range allowed_fio2{21, 100};  // % SpO2
   static constexpr Range allowed_spo2{21, 100};  // % SpO2
   static constexpr Range allowed_hr{0, 200};     // bpm
@@ -57,8 +57,8 @@ class PCACAlarmLimits : public AlarmLimitsService {};
 
 class HFNCAlarmLimits : public AlarmLimitsService {
  public:
-  static const uint8_t flow_tolerance = 2;  // L/min
-  static constexpr Range allowed_flow{0, 80};  // L/min
+  static const int8_t flow_tolerance = 2;                    // L/min
+  static constexpr Range allowed_flow{-flow_tolerance, 80};  // L/min
 
   void transform(
       const Parameters &parameters,
@@ -67,7 +67,6 @@ class HFNCAlarmLimits : public AlarmLimitsService {
       Application::LogEventsManager &log_manager) override;
 
  private:
-
   static void service_flow(
       const Parameters &parameters,
       AlarmLimits &response,

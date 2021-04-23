@@ -398,10 +398,10 @@ const baseRange: object = { lower: 0, upper: 0 };
 export const Range = {
   encode(message: Range, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.lower !== 0) {
-      writer.uint32(8).uint32(message.lower);
+      writer.uint32(8).int32(message.lower);
     }
     if (message.upper !== 0) {
-      writer.uint32(16).uint32(message.upper);
+      writer.uint32(16).int32(message.upper);
     }
     return writer;
   },
@@ -414,10 +414,10 @@ export const Range = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.lower = reader.uint32();
+          message.lower = reader.int32();
           break;
         case 2:
-          message.upper = reader.uint32();
+          message.upper = reader.int32();
           break;
         default:
           reader.skipType(tag & 7);

@@ -53,8 +53,8 @@ class LogEventType(betterproto.Enum):
 
 @dataclass
 class Range(betterproto.Message):
-    lower: int = betterproto.uint32_field(1)
-    upper: int = betterproto.uint32_field(2)
+    lower: int = betterproto.int32_field(1)
+    upper: int = betterproto.int32_field(2)
 
 
 @dataclass
