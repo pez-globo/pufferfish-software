@@ -14,7 +14,7 @@ class UpdateEvent(events.Event):
     """State update event."""
 
     current_time: float = attr.ib()
-    remote_time: Optional[int] = attr.ib(default=None)
+    remote_time: int = attr.ib()
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
@@ -49,9 +49,8 @@ class ClockSynchronizer(protocols.Filter[UpdateEvent, int]):
         if event is None:
             return
 
-        if event.current_time is not None:
-            self._current_time = event.current_time
-        if event.remote_time is not None and self._remote_sync_time is None:
+        self._current_time = event.current_time
+        if self._remote_sync_time is None:
             self._remote_sync_time = event.remote_time
             self._local_sync_time = self._current_time
 
