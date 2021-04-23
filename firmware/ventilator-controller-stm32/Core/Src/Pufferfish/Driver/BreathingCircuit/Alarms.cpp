@@ -76,7 +76,7 @@ void AlarmsService::transform(
     ActiveLogEvents &active_log_events,
     AlarmsManager &alarms_manager) {
   if (!parameters.ventilating) {
-    // TODO(lietk12): deactivate all breathing circuit alarms
+    deactivate_alarms(active_log_events, alarms_manager);
     return;
   }
 
@@ -92,6 +92,12 @@ void AlarmsService::transform(
       LogEventCode::LogEventCode_hr_too_low,
       LogEventCode::LogEventCode_hr_too_high,
       alarms_manager);
+  check_parameter(
+      alarm_limits.fio2,
+      sensor_measurements.fio2,
+      LogEventCode::LogEventCode_fio2_too_low,
+      LogEventCode::LogEventCode_fio2_too_high,
+      alarms_manager);
 
   alarms_manager.transform(active_log_events);
 }
@@ -101,6 +107,30 @@ void AlarmsService::deactivate_alarms(
   for (size_t i = 0; i < alarm_codes.max_size(); ++i) {
     alarms_manager.deactivate_alarm(alarm_codes[i]);
   }
+  alarms_manager.transform(active_log_events);
+}
+
+// HFNCAlarms
+
+void HFNCAlarms::transform(
+    const Parameters &parameters,
+    const AlarmLimits &alarm_limits,
+    const SensorMeasurements &sensor_measurements,
+    ActiveLogEvents &active_log_events,
+    AlarmsManager &alarms_manager) {
+  AlarmsService::transform(
+      parameters, alarm_limits, sensor_measurements, active_log_events, alarms_manager);
+  if (!parameters.ventilating) {
+    return;
+  }
+
+  check_parameter(
+      alarm_limits.flow,
+      sensor_measurements.flow,
+      LogEventCode::LogEventCode_flow_too_low,
+      LogEventCode::LogEventCode_flow_too_high,
+      alarms_manager);
+
   alarms_manager.transform(active_log_events);
 }
 
