@@ -4,7 +4,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { getClockTime } from '../../store/app/selectors';
-import { updateCommittedParameter } from '../../store/controller/actions';
+import {
+  updateCommittedParameter,
+  updateCommittedState,
+} from '../../store/controller/actions';
 import { VentilationMode } from '../../store/controller/proto/mcu_pb';
 import {
   getBatteryPower,
@@ -12,9 +15,10 @@ import {
   getIsVentilating,
   getParametersRequestMode,
   getParametersRequestStandby,
+  getAlarmLimitsRequestStandby,
   getPopupEventLog,
 } from '../../store/controller/selectors';
-import { BACKEND_CONNECTION_LOST_CODE } from '../../store/controller/types';
+import { BACKEND_CONNECTION_LOST_CODE, ALARM_LIMITS } from '../../store/controller/types';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
 import { BackIcon } from '../icons';
 import ClockIcon from '../icons/ClockIcon';
@@ -109,6 +113,7 @@ export const ToolBar = ({
   const currentMode = useSelector(getParametersRequestMode);
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const parameterRequestStandby = useSelector(getParametersRequestStandby, shallowEqual);
+  const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby, shallowEqual);
   const ventilating = useSelector(getIsVentilating);
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
   const [label, setLabel] = useState('Start Ventilation');
@@ -134,6 +139,12 @@ export const ToolBar = ({
               flow: parameterRequestStandby.flow,
             }),
           );
+          dispatch(updateCommittedState(
+                ALARM_LIMITS, {
+                  spo2: alarmLimitsRequestStandby.spo2,
+                  hr: alarmLimitsRequestStandby.hr,
+                }
+          ));
           break;
         case VentilationMode.pc_ac:
         case VentilationMode.vc_ac:
