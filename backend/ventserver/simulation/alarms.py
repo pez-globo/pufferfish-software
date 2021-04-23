@@ -58,14 +58,14 @@ class Service:
     """Base class for a breathing circuit simulator."""
 
     ALARM_CODES = {
-        mcu_pb.LogEventCode.spo2_too_low,
-        mcu_pb.LogEventCode.spo2_too_high,
-        mcu_pb.LogEventCode.hr_too_low,
-        mcu_pb.LogEventCode.hr_too_high,
         mcu_pb.LogEventCode.fio2_too_low,
         mcu_pb.LogEventCode.fio2_too_high,
         mcu_pb.LogEventCode.flow_too_low,
         mcu_pb.LogEventCode.flow_too_high,
+        mcu_pb.LogEventCode.spo2_too_low,
+        mcu_pb.LogEventCode.spo2_too_high,
+        mcu_pb.LogEventCode.hr_too_low,
+        mcu_pb.LogEventCode.hr_too_high,
     }
 
     _manager: Manager = attr.ib(factory=Manager)
@@ -85,6 +85,13 @@ class Service:
             return
 
         self.transform_parameter_alarms(
+            alarm_limits.fio2.lower, alarm_limits.fio2.upper,
+            sensor_measurements.fio2,
+            mcu_pb.LogEventCode.fio2_too_low,
+            mcu_pb.LogEventCode.fio2_too_high,
+            log_manager
+        )
+        self.transform_parameter_alarms(
             alarm_limits.spo2.lower, alarm_limits.spo2.upper,
             sensor_measurements.spo2,
             mcu_pb.LogEventCode.spo2_too_low,
@@ -96,13 +103,6 @@ class Service:
             sensor_measurements.hr,
             mcu_pb.LogEventCode.hr_too_low,
             mcu_pb.LogEventCode.hr_too_high,
-            log_manager
-        )
-        self.transform_parameter_alarms(
-            alarm_limits.fio2.lower, alarm_limits.fio2.upper,
-            sensor_measurements.fio2,
-            mcu_pb.LogEventCode.fio2_too_low,
-            mcu_pb.LogEventCode.fio2_too_high,
             log_manager
         )
 

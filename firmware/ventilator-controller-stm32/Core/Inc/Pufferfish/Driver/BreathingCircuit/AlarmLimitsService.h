@@ -27,11 +27,18 @@ void service_limits_range(
 
 class AlarmLimitsService {
  public:
+  static const uint8_t fio2_tolerance = 2;       // % FiO2
+  static constexpr Range allowed_fio2{21, 100};  // % SpO2
   static constexpr Range allowed_spo2{21, 100};  // % SpO2
   static constexpr Range allowed_hr{0, 200};     // bpm
-  static constexpr Range allowed_fio2{21, 100};  // % SpO2
-  static const uint8_t fio2_tolerance = 2;       // % FiO2
 
+  virtual void transform(
+      const Parameters &parameters,
+      const AlarmLimitsRequest &alarm_limits_request,
+      AlarmLimits &alarm_limits,
+      Application::LogEventsManager &log_manager);
+
+ private:
   static void service_fio2(
       const Parameters &parameters,
       AlarmLimits &response,
@@ -44,25 +51,13 @@ class AlarmLimitsService {
       const AlarmLimitsRequest &request,
       AlarmLimits &response,
       Application::LogEventsManager &log_manager);
-
-  virtual void transform(
-      const Parameters &parameters,
-      const AlarmLimitsRequest &alarm_limits_request,
-      AlarmLimits &alarm_limits,
-      Application::LogEventsManager &log_manager) = 0;
 };
 
-class PCACAlarmLimits : public AlarmLimitsService {
- public:
-  void transform(
-      const Parameters &parameters,
-      const AlarmLimitsRequest &alarm_limits_request,
-      AlarmLimits &alarm_limits,
-      Application::LogEventsManager &log_manager) override;
-};
+class PCACAlarmLimits : public AlarmLimitsService {};
 
 class HFNCAlarmLimits : public AlarmLimitsService {
  public:
+  static const uint8_t flow_tolerance = 2;  // L/min
   static constexpr Range allowed_flow{0, 80};  // L/min
 
   void transform(
@@ -72,7 +67,6 @@ class HFNCAlarmLimits : public AlarmLimitsService {
       Application::LogEventsManager &log_manager) override;
 
  private:
-  static const uint8_t flow_tolerance = 2;  // L/min
 
   static void service_flow(
       const Parameters &parameters,

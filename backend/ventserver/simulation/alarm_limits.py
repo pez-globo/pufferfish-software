@@ -54,6 +54,7 @@ def service_limits_range(
 class Service:
     """Base class for the AlarmLimits/AlarmLimitsRequest service."""
 
+    FIO2_TOLERANCE = 2  # % FiO2
     FIO2_MIN = 21  # % FiO2
     FIO2_MAX = 100  # % FiO2
     SPO2_MIN = 0  # % SpO2
@@ -70,6 +71,14 @@ class Service:
             log_manager: log.Manager
     ) -> None:
         """Update the alarm limits."""
+        fio2_range = mcu_pb.Range(
+            lower=int(parameters.fio2 - self.FIO2_TOLERANCE),
+            upper=int(parameters.fio2 + self.FIO2_TOLERANCE)
+        )
+        service_limits_range(
+            fio2_range, response.fio2, self.FIO2_MIN, self.FIO2_MAX,
+            mcu_pb.LogEventCode.fio2_alarm_limits_changed, log_manager
+        )
         service_limits_range(
             request.spo2, response.spo2, self.SPO2_MIN, self.SPO2_MAX,
             mcu_pb.LogEventCode.spo2_alarm_limits_changed, log_manager
@@ -87,7 +96,6 @@ class PCAC(Service):
 class HFNC(Service):
     """Alarm limits servicing for HFNC mode."""
 
-    FIO2_TOLERANCE = 2  # % FiO2
     FLOW_TOLERANCE = 2  # L/min
     FLOW_MIN = 0  # L/min
     FLOW_MAX = 80  # L/min
@@ -99,14 +107,6 @@ class HFNC(Service):
     ) -> None:
         """Update the alarm limits."""
         super().transform(parameters, request, response, log_manager)
-        fio2_range = mcu_pb.Range(
-            lower=int(parameters.fio2 - self.FIO2_TOLERANCE),
-            upper=int(parameters.fio2 + self.FIO2_TOLERANCE)
-        )
-        service_limits_range(
-            fio2_range, response.fio2, self.FIO2_MIN, self.FIO2_MAX,
-            mcu_pb.LogEventCode.fio2_alarm_limits_changed, log_manager
-        )
         flow_range = mcu_pb.Range(
             lower=int(parameters.flow - self.FLOW_TOLERANCE),
             upper=int(parameters.flow + self.FLOW_TOLERANCE)

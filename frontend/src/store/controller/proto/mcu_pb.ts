@@ -68,15 +68,15 @@ export function ventilationModeToJSON(object: VentilationMode): string {
 
 /** Log Events */
 export enum LogEventCode {
-  /** spo2_too_low - Patient */
-  spo2_too_low = 0,
-  spo2_too_high = 1,
-  hr_too_low = 2,
-  hr_too_high = 3,
-  fio2_too_low = 4,
-  fio2_too_high = 5,
-  flow_too_low = 6,
-  flow_too_high = 7,
+  /** fio2_too_low - Patient */
+  fio2_too_low = 0,
+  fio2_too_high = 1,
+  flow_too_low = 2,
+  flow_too_high = 3,
+  spo2_too_low = 4,
+  spo2_too_high = 5,
+  hr_too_low = 6,
+  hr_too_high = 7,
   /** battery_low - System */
   battery_low = 8,
   screen_locked = 9,
@@ -85,40 +85,40 @@ export enum LogEventCode {
   ventilation_mode_changed = 11,
   fio2_setting_changed = 12,
   flow_setting_changed = 13,
-  /** spo2_alarm_limits_changed - Alarm Limits */
-  spo2_alarm_limits_changed = 14,
-  hr_alarm_limits_changed = 15,
-  fio2_alarm_limits_changed = 16,
-  flow_alarm_limits_changed = 17,
+  /** fio2_alarm_limits_changed - Alarm Limits */
+  fio2_alarm_limits_changed = 14,
+  flow_alarm_limits_changed = 15,
+  spo2_alarm_limits_changed = 16,
+  hr_alarm_limits_changed = 17,
   UNRECOGNIZED = -1,
 }
 
 export function logEventCodeFromJSON(object: any): LogEventCode {
   switch (object) {
     case 0:
-    case "spo2_too_low":
-      return LogEventCode.spo2_too_low;
-    case 1:
-    case "spo2_too_high":
-      return LogEventCode.spo2_too_high;
-    case 2:
-    case "hr_too_low":
-      return LogEventCode.hr_too_low;
-    case 3:
-    case "hr_too_high":
-      return LogEventCode.hr_too_high;
-    case 4:
     case "fio2_too_low":
       return LogEventCode.fio2_too_low;
-    case 5:
+    case 1:
     case "fio2_too_high":
       return LogEventCode.fio2_too_high;
-    case 6:
+    case 2:
     case "flow_too_low":
       return LogEventCode.flow_too_low;
-    case 7:
+    case 3:
     case "flow_too_high":
       return LogEventCode.flow_too_high;
+    case 4:
+    case "spo2_too_low":
+      return LogEventCode.spo2_too_low;
+    case 5:
+    case "spo2_too_high":
+      return LogEventCode.spo2_too_high;
+    case 6:
+    case "hr_too_low":
+      return LogEventCode.hr_too_low;
+    case 7:
+    case "hr_too_high":
+      return LogEventCode.hr_too_high;
     case 8:
     case "battery_low":
       return LogEventCode.battery_low;
@@ -138,17 +138,17 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case "flow_setting_changed":
       return LogEventCode.flow_setting_changed;
     case 14:
-    case "spo2_alarm_limits_changed":
-      return LogEventCode.spo2_alarm_limits_changed;
-    case 15:
-    case "hr_alarm_limits_changed":
-      return LogEventCode.hr_alarm_limits_changed;
-    case 16:
     case "fio2_alarm_limits_changed":
       return LogEventCode.fio2_alarm_limits_changed;
-    case 17:
+    case 15:
     case "flow_alarm_limits_changed":
       return LogEventCode.flow_alarm_limits_changed;
+    case 16:
+    case "spo2_alarm_limits_changed":
+      return LogEventCode.spo2_alarm_limits_changed;
+    case 17:
+    case "hr_alarm_limits_changed":
+      return LogEventCode.hr_alarm_limits_changed;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -158,14 +158,6 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
 
 export function logEventCodeToJSON(object: LogEventCode): string {
   switch (object) {
-    case LogEventCode.spo2_too_low:
-      return "spo2_too_low";
-    case LogEventCode.spo2_too_high:
-      return "spo2_too_high";
-    case LogEventCode.hr_too_low:
-      return "hr_too_low";
-    case LogEventCode.hr_too_high:
-      return "hr_too_high";
     case LogEventCode.fio2_too_low:
       return "fio2_too_low";
     case LogEventCode.fio2_too_high:
@@ -174,6 +166,14 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "flow_too_low";
     case LogEventCode.flow_too_high:
       return "flow_too_high";
+    case LogEventCode.spo2_too_low:
+      return "spo2_too_low";
+    case LogEventCode.spo2_too_high:
+      return "spo2_too_high";
+    case LogEventCode.hr_too_low:
+      return "hr_too_low";
+    case LogEventCode.hr_too_high:
+      return "hr_too_high";
     case LogEventCode.battery_low:
       return "battery_low";
     case LogEventCode.screen_locked:
@@ -186,14 +186,14 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "fio2_setting_changed";
     case LogEventCode.flow_setting_changed:
       return "flow_setting_changed";
-    case LogEventCode.spo2_alarm_limits_changed:
-      return "spo2_alarm_limits_changed";
-    case LogEventCode.hr_alarm_limits_changed:
-      return "hr_alarm_limits_changed";
     case LogEventCode.fio2_alarm_limits_changed:
       return "fio2_alarm_limits_changed";
     case LogEventCode.flow_alarm_limits_changed:
       return "flow_alarm_limits_changed";
+    case LogEventCode.spo2_alarm_limits_changed:
+      return "spo2_alarm_limits_changed";
+    case LogEventCode.hr_alarm_limits_changed:
+      return "hr_alarm_limits_changed";
     default:
       return "UNKNOWN";
   }

@@ -47,6 +47,16 @@ void service_limits_range(
 
 // AlarmLimitsService
 
+void AlarmLimitsService::transform(
+    const Parameters &parameters,
+    const AlarmLimitsRequest &alarm_limits_request,
+    AlarmLimits &alarm_limits,
+    Application::LogEventsManager &log_manager) {
+  service_fio2(parameters, alarm_limits, log_manager);
+  service_spo2(alarm_limits_request, alarm_limits, log_manager);
+  service_hr(alarm_limits_request, alarm_limits, log_manager);
+}
+
 void AlarmLimitsService::service_fio2(
     const Parameters &parameters,
     AlarmLimits &response,
@@ -89,18 +99,6 @@ void AlarmLimitsService::service_hr(
   response.has_hr = true;
 }
 
-// PCAC AlarmLimits
-
-void PCACAlarmLimits::transform(
-    const Parameters &parameters,
-    const AlarmLimitsRequest &alarm_limits_request,
-    AlarmLimits &alarm_limits,
-    Application::LogEventsManager &log_manager) {
-  service_spo2(alarm_limits_request, alarm_limits, log_manager);
-  service_hr(alarm_limits_request, alarm_limits, log_manager);
-  service_fio2(parameters, alarm_limits, log_manager);
-}
-
 // HFNC AlarmLimits
 
 void HFNCAlarmLimits::transform(
@@ -108,9 +106,7 @@ void HFNCAlarmLimits::transform(
     const AlarmLimitsRequest &alarm_limits_request,
     AlarmLimits &alarm_limits,
     Application::LogEventsManager &log_manager) {
-  service_spo2(alarm_limits_request, alarm_limits, log_manager);
-  service_hr(alarm_limits_request, alarm_limits, log_manager);
-  service_fio2(parameters, alarm_limits, log_manager);
+  AlarmLimitsService::transform(parameters, alarm_limits_request, alarm_limits, log_manager);
   service_flow(parameters, alarm_limits, log_manager);
 }
 
@@ -119,8 +115,8 @@ void HFNCAlarmLimits::service_flow(
     AlarmLimits &response,
     Application::LogEventsManager &log_manager) {
   Range flow_range{};
-  flow_range.lower = parameters.flow - fio2_tolerance;
-  flow_range.upper = parameters.flow + fio2_tolerance;
+  flow_range.lower = parameters.flow - flow_tolerance;
+  flow_range.upper = parameters.flow + flow_tolerance;
   service_limits_range(
       flow_range,
       response.flow,
@@ -158,24 +154,26 @@ void AlarmLimitsServices::transform(
 // Initializers
 
 void make_state_initializers(Application::StateSegment &request_segment, AlarmLimits &response) {
+  response.has_fio2 = true;
+  response.fio2.lower = allowed_fio2.lower;
+  response.fio2.upper = response.fio2.lower + AlarmLimitsService::fio2_tolerance;
+  response.has_flow = true;
+  response.flow.lower = HFNCAlarmLimits::allowed_flow.lower;
+  response.flow.upper = response.flow.lower + HFNCAlarmLimits::flow_tolerance;
   response.has_spo2 = true;
   response.spo2 = AlarmLimitsService::allowed_spo2;
   response.has_hr = true;
   response.hr = AlarmLimitsService::allowed_hr;
-  response.has_fio2 = true;
-  response.fio2 = allowed_fio2;
-  response.has_flow = true;
-  response.flow = HFNCAlarmLimits::allowed_flow;
 
   AlarmLimitsRequest request{};
-  request.has_spo2 = true;
-  request.spo2 = response.spo2;
-  request.has_hr = true;
-  request.hr = response.hr;
   request.has_fio2 = true;
   request.fio2 = response.fio2;
   request.has_flow = true;
   request.flow = response.flow;
+  request.has_spo2 = true;
+  request.spo2 = response.spo2;
+  request.has_hr = true;
+  request.hr = response.hr;
   request_segment.set(request);
 }
 
