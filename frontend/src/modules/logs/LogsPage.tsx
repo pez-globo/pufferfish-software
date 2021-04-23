@@ -3,7 +3,7 @@ import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
-import { getActiveLogEventIds, getNextLogEventsCopy } from '../../store/controller/selectors';
+import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
 import { setMultiPopupOpen } from '../app/Service';
 import { AlarmModal } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';
@@ -127,7 +127,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const [alarmOpen, setAlarmOpen] = React.useState(false);
   const [currentRow, setCurrentRow] = React.useState<Data>();
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-  const loggedEvents = useSelector(getNextLogEventsCopy, shallowEqual);
+  const loggedEvents = useSelector(getNextLogEvents, shallowEqual);
   const activeLogEventIds = useSelector(getActiveLogEventIds, shallowEqual);
   const settingsAllowed = ['hr', 'spo2'];
 
@@ -136,8 +136,9 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   useEffect(() => {
     const eventIds: number[] = [];
     const data: Data[] = [];
-    loggedEvents.reverse();
-    loggedEvents.forEach((event: LogEvent) => {
+    var loggedEventsCopy = [...loggedEvents];
+    loggedEventsCopy.reverse();
+    loggedEventsCopy.forEach((event: LogEvent) => {
       const eventType = getEventType(event.code);
       eventIds.push(event.id);
       if (filter) {

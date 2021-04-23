@@ -272,9 +272,6 @@ export const getNextLogEvents = createSelector(
   getController,
   (states: ControllerStates): LogEvent[] => states.eventLog.nextLogEvents.elements,
 );
-export const getNextLogEventsCopy = createSelector(getNextLogEvents, (elements): LogEvent[] => [
-  ...elements,
-]);
 
 // Patient Alarm Event
 export const getExpectedLogEvent = createSelector(
