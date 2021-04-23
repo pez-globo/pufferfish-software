@@ -1,6 +1,6 @@
 import { LogEvent, LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
 import { BACKEND_CONNECTION_LOST_CODE } from '../../store/controller/types';
-import { PERCENT, BMIN, BPM, LMIN } from '../info/units';
+import { PERCENT, BPM, LMIN } from '../info/units';
 
 export interface EventType {
   type: LogEventType;
@@ -75,20 +75,6 @@ export const getEventType = (code: LogEventCode): EventType => {
         stateKey: 'spo2',
         unit: PERCENT,
       };
-    case LogEventCode.rr_too_low:
-      return {
-        type: LogEventType.patient,
-        label: 'Respiratory Rate is too low',
-        stateKey: 'rr',
-        unit: BMIN,
-      };
-    case LogEventCode.rr_too_high:
-      return {
-        type: LogEventType.patient,
-        label: 'Respiratory Rate is too high',
-        stateKey: 'rr',
-        unit: BMIN,
-      };
     case LogEventCode.hr_too_low:
       return {
         type: LogEventType.patient,
@@ -102,6 +88,20 @@ export const getEventType = (code: LogEventCode): EventType => {
         label: 'Heart Rate is too high',
         stateKey: 'hr',
         unit: BPM,
+      };
+    case LogEventCode.flow_too_low:
+      return {
+        type: LogEventType.patient,
+        label: 'Flow Rate is too low',
+        stateKey: 'flow',
+        unit: LMIN,
+      };
+    case LogEventCode.flow_too_high:
+      return {
+        type: LogEventType.patient,
+        label: 'Flow Rate is too high',
+        stateKey: 'flow',
+        unit: LMIN,
       };
     // System
     case BACKEND_CONNECTION_LOST_CODE:
@@ -157,6 +157,13 @@ export const getEventType = (code: LogEventCode): EventType => {
         type: LogEventType.alarm_limits,
         label: 'FiO2 limits changed',
         stateKey: 'FiO2',
+        unit: PERCENT,
+      };
+    case LogEventCode.flow_alarm_limits_changed:
+      return {
+        type: LogEventType.alarm_limits,
+        label: 'Flow limits changed',
+        stateKey: 'Flow',
         unit: PERCENT,
       };
     case LogEventCode.spo2_alarm_limits_changed:

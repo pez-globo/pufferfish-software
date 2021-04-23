@@ -142,8 +142,8 @@ void HFNCParameters::transform(
   }
 
   service_ventilating(parameters_request.ventilating, parameters.ventilating, log_manager);
-  service_flow(parameters_request.flow, parameters.flow, log_manager);
   service_fio2(parameters_request.fio2, parameters.fio2, log_manager);
+  service_flow(parameters_request.flow, parameters.flow, log_manager);
 }
 
 bool HFNCParameters::mode_active(const Parameters &parameters) const {

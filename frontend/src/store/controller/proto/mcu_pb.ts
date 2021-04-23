@@ -71,10 +71,10 @@ export enum LogEventCode {
   /** fio2_too_low - Patient */
   fio2_too_low = 0,
   fio2_too_high = 1,
-  spo2_too_low = 2,
-  spo2_too_high = 3,
-  rr_too_low = 4,
-  rr_too_high = 5,
+  flow_too_low = 2,
+  flow_too_high = 3,
+  spo2_too_low = 4,
+  spo2_too_high = 5,
   hr_too_low = 6,
   hr_too_high = 7,
   /** battery_low - System */
@@ -87,8 +87,9 @@ export enum LogEventCode {
   flow_setting_changed = 13,
   /** fio2_alarm_limits_changed - Alarm Limits */
   fio2_alarm_limits_changed = 14,
-  spo2_alarm_limits_changed = 15,
-  hr_alarm_limits_changed = 16,
+  flow_alarm_limits_changed = 15,
+  spo2_alarm_limits_changed = 16,
+  hr_alarm_limits_changed = 17,
   UNRECOGNIZED = -1,
 }
 
@@ -101,17 +102,17 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case "fio2_too_high":
       return LogEventCode.fio2_too_high;
     case 2:
+    case "flow_too_low":
+      return LogEventCode.flow_too_low;
+    case 3:
+    case "flow_too_high":
+      return LogEventCode.flow_too_high;
+    case 4:
     case "spo2_too_low":
       return LogEventCode.spo2_too_low;
-    case 3:
+    case 5:
     case "spo2_too_high":
       return LogEventCode.spo2_too_high;
-    case 4:
-    case "rr_too_low":
-      return LogEventCode.rr_too_low;
-    case 5:
-    case "rr_too_high":
-      return LogEventCode.rr_too_high;
     case 6:
     case "hr_too_low":
       return LogEventCode.hr_too_low;
@@ -140,9 +141,12 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case "fio2_alarm_limits_changed":
       return LogEventCode.fio2_alarm_limits_changed;
     case 15:
+    case "flow_alarm_limits_changed":
+      return LogEventCode.flow_alarm_limits_changed;
+    case 16:
     case "spo2_alarm_limits_changed":
       return LogEventCode.spo2_alarm_limits_changed;
-    case 16:
+    case 17:
     case "hr_alarm_limits_changed":
       return LogEventCode.hr_alarm_limits_changed;
     case -1:
@@ -158,14 +162,14 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "fio2_too_low";
     case LogEventCode.fio2_too_high:
       return "fio2_too_high";
+    case LogEventCode.flow_too_low:
+      return "flow_too_low";
+    case LogEventCode.flow_too_high:
+      return "flow_too_high";
     case LogEventCode.spo2_too_low:
       return "spo2_too_low";
     case LogEventCode.spo2_too_high:
       return "spo2_too_high";
-    case LogEventCode.rr_too_low:
-      return "rr_too_low";
-    case LogEventCode.rr_too_high:
-      return "rr_too_high";
     case LogEventCode.hr_too_low:
       return "hr_too_low";
     case LogEventCode.hr_too_high:
@@ -184,6 +188,8 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "flow_setting_changed";
     case LogEventCode.fio2_alarm_limits_changed:
       return "fio2_alarm_limits_changed";
+    case LogEventCode.flow_alarm_limits_changed:
+      return "flow_alarm_limits_changed";
     case LogEventCode.spo2_alarm_limits_changed:
       return "spo2_alarm_limits_changed";
     case LogEventCode.hr_alarm_limits_changed:
@@ -392,10 +398,10 @@ const baseRange: object = { lower: 0, upper: 0 };
 export const Range = {
   encode(message: Range, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.lower !== 0) {
-      writer.uint32(8).uint32(message.lower);
+      writer.uint32(8).int32(message.lower);
     }
     if (message.upper !== 0) {
-      writer.uint32(16).uint32(message.upper);
+      writer.uint32(16).int32(message.upper);
     }
     return writer;
   },
@@ -408,10 +414,10 @@ export const Range = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.lower = reader.uint32();
+          message.lower = reader.int32();
           break;
         case 2:
-          message.upper = reader.uint32();
+          message.upper = reader.int32();
           break;
         default:
           reader.skipType(tag & 7);

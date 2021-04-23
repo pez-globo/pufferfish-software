@@ -17,7 +17,7 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
-Range transform_limits_range(uint32_t floor, uint32_t ceiling, Range request, Range current);
+Range transform_limits_range(int32_t floor, int32_t ceiling, Range request);
 void service_limits_range(
     Range request,
     Range &response,
@@ -27,8 +27,20 @@ void service_limits_range(
 
 class AlarmLimitsService {
  public:
+  static const int8_t fio2_tolerance = 2;        // % FiO2
+  static constexpr Range allowed_fio2{21, 100};  // % SpO2
+  static constexpr Range allowed_spo2{21, 100};  // % SpO2
+  static constexpr Range allowed_hr{0, 200};     // bpm
+
+  virtual void transform(
+      const Parameters &parameters,
+      const AlarmLimitsRequest &alarm_limits_request,
+      AlarmLimits &alarm_limits,
+      Application::LogEventsManager &log_manager);
+
+ private:
   static void service_fio2(
-      const AlarmLimitsRequest &request,
+      const Parameters &parameters,
       AlarmLimits &response,
       Application::LogEventsManager &log_manager);
   static void service_spo2(
@@ -39,33 +51,26 @@ class AlarmLimitsService {
       const AlarmLimitsRequest &request,
       AlarmLimits &response,
       Application::LogEventsManager &log_manager);
-
-  virtual void transform(
-      const AlarmLimitsRequest &alarm_limits_request,
-      AlarmLimits &alarm_limits,
-      Application::LogEventsManager &log_manager) = 0;
-
-  static constexpr Range allowed_spo2{21, 100};
-  static constexpr Range allowed_hr{0, 200};
 };
 
-class PCACAlarmLimits : public AlarmLimitsService {
- public:
-  void transform(
-      const AlarmLimitsRequest &alarm_limits_request,
-      AlarmLimits &alarm_limits,
-      Application::LogEventsManager &log_manager) override;
-};
+class PCACAlarmLimits : public AlarmLimitsService {};
 
 class HFNCAlarmLimits : public AlarmLimitsService {
  public:
+  static const int8_t flow_tolerance = 2;                    // L/min
+  static constexpr Range allowed_flow{-flow_tolerance, 80};  // L/min
+
   void transform(
+      const Parameters &parameters,
       const AlarmLimitsRequest &alarm_limits_request,
       AlarmLimits &alarm_limits,
       Application::LogEventsManager &log_manager) override;
 
  private:
-  static constexpr float max_flow = 80;  // L/min
+  static void service_flow(
+      const Parameters &parameters,
+      AlarmLimits &response,
+      Application::LogEventsManager &log_manager);
 };
 
 class AlarmLimitsServices {

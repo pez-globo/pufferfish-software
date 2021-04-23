@@ -88,11 +88,8 @@ export const parametersRequestStanbyReducer = (
   state: { parameters: ParametersRequest } = {
     parameters: ParametersRequest.fromJSON({
       mode: VentilationMode.hfnc,
-      pip: 30,
-      peep: 0,
-      rr: 30,
-      ie: 1.0,
-      fio2: 21.0,
+      fio2: 80.0,
+      flow: 30,
     }),
   } as { parameters: ParametersRequest },
   action: commitAction,
@@ -170,11 +167,8 @@ export const withRequestUpdate = <T>(state: T, action: commitAction, prefix: str
 export const parametersRequestReducer = (
   state: ParametersRequest = ParametersRequest.fromJSON({
     mode: VentilationMode.hfnc,
-    pip: 30,
-    peep: 0,
-    rr: 30,
-    ie: 1.0,
     fio2: 21.0,
+    flow: 0,
     ventilating: false,
   }) as ParametersRequest,
   action: StateUpdateAction | ParameterCommitAction,

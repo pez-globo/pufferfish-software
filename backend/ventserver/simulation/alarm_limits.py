@@ -16,20 +16,13 @@ from ventserver.simulation import log
 # Update Functions
 
 def transform_limits_range(
-        floor: int, ceiling: int, requested_min: int, requested_max: int,
-        current_min: int, current_max: int
+        floor: int, ceiling: int, requested_min: int, requested_max: int
 ) -> Tuple[int, int]:
-    """Return requested if between floor and ceiling, or else return current."""
-    if current_min > current_max:
-        (current_min, current_max) = (current_max, current_min)
+    """Return requested, clamped between floor and ceiling."""
     if requested_min > requested_max:
         (requested_min, requested_max) = (requested_max, requested_min)
-    if not floor <= current_min <= current_max <= ceiling:
-        requested_min = min(ceiling, max(floor, requested_min))
-        requested_max = min(ceiling, max(floor, requested_max))
-    if not floor <= requested_min <= requested_max <= ceiling:
-        return (current_min, current_max)
-
+    requested_min = min(ceiling, max(floor, requested_min))
+    requested_max = min(ceiling, max(floor, requested_max))
     return (requested_min, requested_max)
 
 
@@ -40,8 +33,7 @@ def service_limits_range(
     """Handle the request's alarm limits range."""
     old_response = dataclasses.replace(response)
     (response.lower, response.upper) = transform_limits_range(
-        floor, ceiling, request.lower, request.upper,
-        response.lower, response.upper
+        floor, ceiling, request.lower, request.upper
     )
     if (
             old_response.lower == response.lower and
@@ -62,22 +54,29 @@ def service_limits_range(
 class Service:
     """Base class for the AlarmLimits/AlarmLimitsRequest service."""
 
-    FIO2_MIN = 21
-    FIO2_MAX = 100
-    SPO2_MIN = 0
-    SPO2_MAX = 100
-    HR_MIN = 0
-    HR_MAX = 200
+    FIO2_TOLERANCE = 2  # % FiO2
+    FIO2_MIN = 21  # % FiO2
+    FIO2_MAX = 100  # % FiO2
+    SPO2_MIN = 0  # % SpO2
+    SPO2_MAX = 100  # % SpO2
+    HR_MIN = 0  # bpm
+    HR_MAX = 200  # bpm
 
     # Update methods
 
     def transform(
-            self, request: mcu_pb.AlarmLimitsRequest,
-            response: mcu_pb.AlarmLimits, log_manager: log.Manager
+            self,
+            parameters: mcu_pb.Parameters,  # pylint: disable=unused-argument
+            request: mcu_pb.AlarmLimitsRequest, response: mcu_pb.AlarmLimits,
+            log_manager: log.Manager
     ) -> None:
         """Update the alarm limits."""
+        fio2_range = mcu_pb.Range(
+            lower=int(parameters.fio2 - self.FIO2_TOLERANCE),
+            upper=int(parameters.fio2 + self.FIO2_TOLERANCE)
+        )
         service_limits_range(
-            request.fio2, response.fio2, self.FIO2_MIN, self.FIO2_MAX,
+            fio2_range, response.fio2, self.FIO2_MIN, self.FIO2_MAX,
             mcu_pb.LogEventCode.fio2_alarm_limits_changed, log_manager
         )
         service_limits_range(
@@ -96,6 +95,26 @@ class PCAC(Service):
 
 class HFNC(Service):
     """Alarm limits servicing for HFNC mode."""
+
+    FLOW_TOLERANCE = 2  # L/min
+    FLOW_MIN = 0  # L/min
+    FLOW_MAX = 80  # L/min
+
+    def transform(
+            self, parameters: mcu_pb.Parameters,
+            request: mcu_pb.AlarmLimitsRequest, response: mcu_pb.AlarmLimits,
+            log_manager: log.Manager
+    ) -> None:
+        """Update the alarm limits."""
+        super().transform(parameters, request, response, log_manager)
+        flow_range = mcu_pb.Range(
+            lower=int(parameters.flow - self.FLOW_TOLERANCE),
+            upper=int(parameters.flow + self.FLOW_TOLERANCE)
+        )
+        service_limits_range(
+            flow_range, response.flow, self.FLOW_MIN, self.FLOW_MAX,
+            mcu_pb.LogEventCode.flow_alarm_limits_changed, log_manager
+        )
 
 
 # Aggregation
@@ -132,4 +151,6 @@ class Services:
             return
 
         log_manager.update_clock(current_time)
-        self._active_service.transform(request, response, log_manager)
+        self._active_service.transform(
+            parameters, request, response, log_manager
+        )

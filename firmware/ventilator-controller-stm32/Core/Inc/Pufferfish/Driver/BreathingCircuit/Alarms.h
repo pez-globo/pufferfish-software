@@ -20,14 +20,14 @@ namespace Pufferfish::Driver::BreathingCircuit {
 
 // All alarm codes need to be registered in the following array:
 static constexpr auto alarm_codes = Util::make_array<LogEventCode>(
-    LogEventCode::LogEventCode_fio2_too_low,
-    LogEventCode::LogEventCode_fio2_too_high,
     LogEventCode::LogEventCode_spo2_too_low,
     LogEventCode::LogEventCode_spo2_too_high,
-    LogEventCode::LogEventCode_rr_too_low,
-    LogEventCode::LogEventCode_rr_too_high,
     LogEventCode::LogEventCode_hr_too_low,
-    LogEventCode::LogEventCode_hr_too_high);
+    LogEventCode::LogEventCode_hr_too_high,
+    LogEventCode::LogEventCode_fio2_too_low,
+    LogEventCode::LogEventCode_fio2_too_high,
+    LogEventCode::LogEventCode_flow_too_low,
+    LogEventCode::LogEventCode_flow_too_high);
 
 class AlarmsManager {
  public:
@@ -51,7 +51,7 @@ class AlarmsService {
       LogEventCode too_high_code,
       AlarmsManager &alarms_manager);
 
-  static void transform(
+  virtual void transform(
       const Parameters &parameters,
       const AlarmLimits &alarm_limits,
       const SensorMeasurements &sensor_measurements,
@@ -63,7 +63,15 @@ class AlarmsService {
 
 class PCACAlarms : public AlarmsService {};
 
-class HFNCAlarms : public AlarmsService {};
+class HFNCAlarms : public AlarmsService {
+ public:
+  void transform(
+      const Parameters &parameters,
+      const AlarmLimits &alarm_limits,
+      const SensorMeasurements &sensor_measurements,
+      ActiveLogEvents &active_log_events,
+      AlarmsManager &alarms_manager) override;
+};
 
 class AlarmsServices {
  public:

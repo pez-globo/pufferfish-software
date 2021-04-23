@@ -23,10 +23,10 @@ class LogEventCode(betterproto.Enum):
     # Patient
     fio2_too_low = 0
     fio2_too_high = 1
-    spo2_too_low = 2
-    spo2_too_high = 3
-    rr_too_low = 4
-    rr_too_high = 5
+    flow_too_low = 2
+    flow_too_high = 3
+    spo2_too_low = 4
+    spo2_too_high = 5
     hr_too_low = 6
     hr_too_high = 7
     # System
@@ -39,8 +39,9 @@ class LogEventCode(betterproto.Enum):
     flow_setting_changed = 13
     # Alarm Limits
     fio2_alarm_limits_changed = 14
-    spo2_alarm_limits_changed = 15
-    hr_alarm_limits_changed = 16
+    flow_alarm_limits_changed = 15
+    spo2_alarm_limits_changed = 16
+    hr_alarm_limits_changed = 17
 
 
 class LogEventType(betterproto.Enum):
@@ -52,8 +53,8 @@ class LogEventType(betterproto.Enum):
 
 @dataclass
 class Range(betterproto.Message):
-    lower: int = betterproto.uint32_field(1)
-    upper: int = betterproto.uint32_field(2)
+    lower: int = betterproto.int32_field(1)
+    upper: int = betterproto.int32_field(2)
 
 
 @dataclass
