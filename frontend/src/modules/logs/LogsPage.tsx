@@ -41,7 +41,7 @@ interface Data {
 const headCells: HeadCell[] = [
   { id: 'type', numeric: false, disablePadding: true, label: 'Type', enableSort: false },
   { id: 'alarm', numeric: true, disablePadding: false, label: 'Event', enableSort: false },
-  { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date', enableSort: true },
+  { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date', enableSort: false },
   { id: 'details', numeric: false, disablePadding: false, label: 'Details', enableSort: false },
   { id: 'settings', numeric: true, disablePadding: false, label: 'Settings', enableSort: false },
 ];
@@ -136,7 +136,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   useEffect(() => {
     const eventIds: number[] = [];
     const data: Data[] = [];
-    loggedEvents.sort((a: LogEvent, b: LogEvent) => a.time - b.time);
+    loggedEvents.reverse();
     loggedEvents.forEach((event: LogEvent) => {
       const eventType = getEventType(event.code);
       eventIds.push(event.id);
