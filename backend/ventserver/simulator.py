@@ -146,7 +146,9 @@ async def main() -> None:
 
     # Initialize events log manager
     log_manager = log.Manager(
-        receiver=protocol.receive.backend.log_events_receiver
+        receiver=protocol.receive.backend.  # pylint: disable=protected-access
+        _event_log_receiver.  # pylint: disable=protected-access
+        _log_events_receiver
     )
 
     try:
