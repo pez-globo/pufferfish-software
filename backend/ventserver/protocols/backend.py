@@ -336,20 +336,22 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             )
 
     def _handle_log_events_receiving(self) -> None:
-        """Handle any updates to log events list receiving.
+        """Handle any updates to log events from the MCU.
 
         This includes active log events (active alarms).
         """
-        next_log_events = self.all_states[StateSegment.NEXT_LOG_EVENTS_MCU]
+        next_log_events = typing.cast(
+            Optional[mcu_pb.NextLogEvents],
+            self.all_states[StateSegment.NEXT_LOG_EVENTS_MCU]
+        )
         active_log_events = typing.cast(
             Optional[mcu_pb.ActiveLogEvents],
             self.all_states[StateSegment.ACTIVE_LOG_EVENTS_MCU]
         )
-        if isinstance(next_log_events, mcu_pb.NextLogEvents):
-            self._events_log_receiver.input(log.ReceiveInputEvent(
-                current_time=self.current_time, next_log_events=next_log_events,
-                active_log_events=active_log_events
-            ))
+        self._events_log_receiver.input(log.ReceiveInputEvent(
+            current_time=self.current_time, next_log_events=next_log_events,
+            active_log_events=active_log_events
+        ))
         output_event = self._events_log_receiver.output()
         if output_event is None or not output_event.has_data():
             return
