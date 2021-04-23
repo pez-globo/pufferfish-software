@@ -57,7 +57,9 @@ export const UserActivity = (): JSX.Element => {
       history.push('/screensaver');
     }
   };
-  return <IdleTimer timeout={idleTimeout} onTimeOut={onTimeOut} />;
+  // We are temporarily disabling the screensaver
+  return <React.Fragment />;
+  // return <IdleTimer timeout={idleTimeout} onTimeOut={onTimeOut} />;
 };
 
 export default UserActivity;
