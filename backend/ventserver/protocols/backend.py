@@ -4,6 +4,7 @@ import collections
 import dataclasses
 import enum
 import logging
+import typing
 from typing import Dict, Optional, Union
 
 import attr
@@ -163,7 +164,6 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         factory=log.EventLogReceiver
     )
     _log_events_sender: lists.SendSynchronizer[mcu_pb.LogEvent] = attr.ib()
-    _id_mapping: Dict[int, int] = attr.ib(factory=dict)
 
     @all_states.default
     def init_all_states(self) -> Dict[
@@ -336,11 +336,19 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             )
 
     def _handle_log_events_receiving(self) -> None:
-        """Handle any updates to log events list receiving."""
+        """Handle any updates to log events list receiving.
+
+        This includes active log events (active alarms).
+        """
         next_log_events = self.all_states[StateSegment.NEXT_LOG_EVENTS_MCU]
+        active_log_events = typing.cast(
+            Optional[mcu_pb.ActiveLogEvents],
+            self.all_states[StateSegment.ACTIVE_LOG_EVENTS_MCU]
+        )
         if isinstance(next_log_events, mcu_pb.NextLogEvents):
             self._events_log_receiver.input(log.ReceiveInputEvent(
-                next_log_events=next_log_events, current_time=self.current_time
+                current_time=self.current_time, next_log_events=next_log_events,
+                active_log_events=active_log_events
             ))
         output_event = self._events_log_receiver.output()
         if output_event is None or not output_event.has_data():
@@ -350,8 +358,6 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             self.all_states[
                 StateSegment.EXPECTED_LOG_EVENT_MCU
             ] = output_event.expected_log_event
-        for (mcu_id, backend_id) in output_event.id_mapping.items():
-            self._id_mapping[mcu_id] = backend_id
         # Pass new log events to sender
         sender_input = lists.UpdateEvent(new_elements=output_event.new_elements)
         expected_log_event = self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
@@ -359,6 +365,10 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             # trigger sender to generate an output
             sender_input.next_expected = expected_log_event.id
         self._log_events_sender.input(sender_input)
+        # Update active log events
+        if output_event.active_log_events is not None:
+            self.all_states[StateSegment.ACTIVE_LOG_EVENTS_BE] = \
+                output_event.active_log_events
         # TODO: pass new elements to a log events sender for saving to disk
 
     def _handle_log_events_sending(self) -> None:
@@ -382,10 +392,6 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
 
         assert isinstance(next_log_events, mcu_pb.NextLogEvents)
         self.all_states[StateSegment.NEXT_LOG_EVENTS_BE] = next_log_events
-        # TODO: translate MCU event IDs to backend event IDs using _id_mapping
-        # TODO: move active log events remapping somewhere else
-        self.all_states[StateSegment.ACTIVE_LOG_EVENTS_BE] = \
-            self.all_states[StateSegment.ACTIVE_LOG_EVENTS_MCU]
 
 
 @attr.s
