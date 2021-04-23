@@ -99,10 +99,8 @@ class Receiver {
  private:
   using CRCReceiver = Protocols::CRCElementReceiver<FrameProps::payload_max_size>;
   using ParsedCRC = Protocols::ParsedCRCElement<FrameProps::payload_max_size>;
-  using DatagramReceiver =
-      Protocols::DatagramReceiver<CRCReceiver::Props::payload_max_size>;
-  using ParsedDatagram =
-      Protocols::ParsedDatagram<CRCReceiver::Props::payload_max_size>;
+  using DatagramReceiver = Protocols::DatagramReceiver<CRCReceiver::Props::payload_max_size>;
+  using ParsedDatagram = Protocols::ParsedDatagram<CRCReceiver::Props::payload_max_size>;
   using MessageReceiver = Protocols::MessageReceiver<Message, message_descriptors.size()>;
 
   FrameReceiver frame_;
@@ -132,8 +130,7 @@ class Sender {
 
  private:
   using CRCSender = Protocols::CRCElementSender<FrameProps::payload_max_size>;
-  using DatagramSender =
-      Protocols::DatagramSender<CRCSender::Props::payload_max_size>;
+  using DatagramSender = Protocols::DatagramSender<CRCSender::Props::payload_max_size>;
   using MessageSender =
       Protocols::MessageSender<Message, Application::StateSegment, message_descriptors.size()>;
 
