@@ -7,8 +7,8 @@ import ReplyIcon from '@material-ui/icons/Reply';
 import ModalPopup from '../controllers/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
-  getSmoothedFiO2Value,
-  getSmoothedFlow,
+  getParametersFiO2,
+  getParametersFlow,
   getSmoothedSpO2,
   getSmoothedHR,
   roundValue,
@@ -137,7 +137,7 @@ const HFNCControls = (): JSX.Element => {
       <Grid container item justify="center" alignItems="stretch" direction="column">
         <ValueInfo
           mainContainer={{
-            selector: getSmoothedFiO2Value,
+            selector: getParametersFiO2,
             label: 'FiO2',
             stateKey: 'fio2',
             units: PERCENT,
@@ -145,7 +145,7 @@ const HFNCControls = (): JSX.Element => {
         />
         <ValueInfo
           mainContainer={{
-            selector: getSmoothedFlow,
+            selector: getParametersFlow,
             label: 'Flow',
             stateKey: 'flow',
             units: LMIN,
