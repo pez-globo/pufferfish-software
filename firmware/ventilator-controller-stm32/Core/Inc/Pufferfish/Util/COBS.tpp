@@ -40,12 +40,8 @@ IndexStatus encode_cobs(
   uint8_t code = 1;
   size_t encoded_buffer_size = 0;
 
-  if (get_encoded_cobs_buffer_size(buffer, encoded_buffer_size) != IndexStatus::ok) {
-    return IndexStatus::out_of_bounds;
-  }
-
   // resize to the calculated encoded buffer size
-  if (encoded_buffer.resize(encoded_buffer_size) != IndexStatus::ok) {
+  if (encoded_buffer.resize(get_encoded_cobs_buffer_size(buffer)) != IndexStatus::ok) {
     return IndexStatus::out_of_bounds;
   };
 
@@ -105,8 +101,8 @@ IndexStatus decode_cobs(
 }
 
 template <size_t input_size>
-IndexStatus get_encoded_cobs_buffer_size(
-    const Util::ByteVector<input_size> &unencoded_buffer, size_t &encoded_buffer_size) {
+constexpr size_t get_encoded_cobs_buffer_size(
+    const Util::ByteVector<input_size> &unencoded_buffer) {
   size_t read_index = 0;
   size_t write_index = 1;
   uint8_t code = 1;
@@ -114,9 +110,6 @@ IndexStatus get_encoded_cobs_buffer_size(
   while (read_index < unencoded_buffer.size()) {
     if (code == max_block_size + 1) {
       write_index++;
-    }
-    if (read_index > unencoded_buffer.size()) {
-      return IndexStatus::out_of_bounds;
     }
     if (unencoded_buffer[read_index] == 0) {
       write_index++;
@@ -127,8 +120,7 @@ IndexStatus get_encoded_cobs_buffer_size(
       code++;
     }
   }
-  encoded_buffer_size = write_index;
-  return IndexStatus::ok;
+  return write_index;
 }
 
 }  // namespace Pufferfish::Util
