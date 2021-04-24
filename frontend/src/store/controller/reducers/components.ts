@@ -31,8 +31,8 @@ export const alarmLimitsReducer = (
     spo2: { lower: 21, upper: 100 },
     hr: { lower: 0, upper: 200 },
     // Ignored
-    fio2: { lower: 21, upper: 100 },
-    flow: { upper: 100 },
+    fio2: { lower: 78, upper: 82 },
+    flow: { lower: 28, upper: 32 },
     rr: { upper: 100 },
     pip: { upper: 100 },
     peep: { upper: 100 },
@@ -55,8 +55,8 @@ export const alarmLimitsRequestStandbyReducer = (
       spo2: { lower: 90, upper: 100 },
       hr: { lower: 60, upper: 100 },
       // Ignored
-      fio2: { lower: 21, upper: 100 },
-      flow: { upper: 100 },
+      fio2: { lower: 78, upper: 82 },
+      flow: { lower: 28, upper: 32 },
       rr: { upper: 100 },
       pip: { upper: 100 },
       peep: { upper: 100 },
