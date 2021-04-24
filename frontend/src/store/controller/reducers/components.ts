@@ -28,20 +28,21 @@ import DECIMAL_RADIX from '../../../modules/app/AppConstants';
 
 export const alarmLimitsReducer = (
   state: AlarmLimitsRequest = AlarmLimitsRequest.fromJSON({
+    spo2: { lower: 21, upper: 100 },
+    hr: { lower: 0, upper: 200 },
+    // Ignored
+    fio2: { lower: 78, upper: 82 },
+    flow: { lower: 28, upper: 32 },
     rr: { upper: 100 },
     pip: { upper: 100 },
     peep: { upper: 100 },
     ipAbovePeep: { upper: 100 },
     inspTime: { upper: 100 },
-    fio2: { lower: 21, upper: 100 },
     paw: { upper: 100 },
     mve: { upper: 100 },
     tv: { upper: 100 },
     etco2: { upper: 100 },
-    flow: { upper: 100 },
     apnea: { upper: 100 },
-    spo2: { lower: 21, upper: 100 },
-    hr: { lower: 0, upper: 200 },
   }) as AlarmLimitsRequest,
   action: commitAction,
 ): AlarmLimitsRequest => {
@@ -51,20 +52,21 @@ export const alarmLimitsReducer = (
 export const alarmLimitsRequestStandbyReducer = (
   state: { alarmLimits: AlarmLimitsRequest } = {
     alarmLimits: AlarmLimitsRequest.fromJSON({
+      spo2: { lower: 90, upper: 100 },
+      hr: { lower: 60, upper: 100 },
+      // Ignored
+      fio2: { lower: 78, upper: 82 },
+      flow: { lower: 28, upper: 32 },
       rr: { upper: 100 },
       pip: { upper: 100 },
       peep: { upper: 100 },
       ipAbovePeep: { upper: 100 },
       inspTime: { upper: 100 },
-      fio2: { lower: 21, upper: 100 },
       paw: { upper: 100 },
       mve: { upper: 100 },
       tv: { upper: 100 },
       etco2: { upper: 100 },
-      flow: { upper: 100 },
       apnea: { upper: 100 },
-      spo2: { lower: 21, upper: 100 },
-      hr: { lower: 0, upper: 200 },
     }),
   } as { alarmLimits: AlarmLimitsRequest },
   action: commitAction,

@@ -27,7 +27,13 @@ import { MessageType } from './types';
 
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb
-  alarmLimits: messageReducer<AlarmLimits>(MessageType.AlarmLimits, AlarmLimits),
+  alarmLimits: messageReducer<AlarmLimits>(MessageType.AlarmLimits, AlarmLimits, {
+    // Needed so that values aren't undefined when dashboard is loaded before redirecting to quickstart
+    spo2: { lower: 90, upper: 100 },
+    hr: { lower: 60, upper: 100 },
+    fio2: { lower: 78, upper: 82 },
+    flow: { lower: 28, upper: 32 },
+  }),
   alarmLimitsRequest: alarmLimitsReducer,
   alarmLimitsRequestStandby: alarmLimitsRequestStandbyReducer,
   alarmMuteRequest: alarmMuteRequestReducer,

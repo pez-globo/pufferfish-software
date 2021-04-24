@@ -85,13 +85,15 @@ def initialize_states(all_states: MutableMapping[
             all_states[segment_type] = mcu_pb.SensorMeasurements()
         elif segment_type is backend.StateSegment.ALARM_LIMITS_REQUEST:
             all_states[segment_type] = mcu_pb.AlarmLimitsRequest(
-                fio2=mcu_pb.Range(lower=21, upper=100),
+                fio2=mcu_pb.Range(lower=21, upper=23),
+                flow=mcu_pb.Range(lower=-2, upper=2),
                 spo2=mcu_pb.Range(lower=21, upper=100),
                 hr=mcu_pb.Range(lower=0, upper=200),
             )
         elif segment_type is backend.StateSegment.ALARM_LIMITS:
             all_states[segment_type] = mcu_pb.AlarmLimits(
-                fio2=mcu_pb.Range(lower=21, upper=100),
+                fio2=mcu_pb.Range(lower=21, upper=23),
+                flow=mcu_pb.Range(lower=-2, upper=2),
                 spo2=mcu_pb.Range(lower=21, upper=100),
                 hr=mcu_pb.Range(lower=0, upper=200),
             )

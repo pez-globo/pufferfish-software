@@ -97,7 +97,7 @@ class HFNC(Service):
     """Alarm limits servicing for HFNC mode."""
 
     FLOW_TOLERANCE = 2  # L/min
-    FLOW_MIN = 0  # L/min
+    FLOW_MIN = -2  # L/min
     FLOW_MAX = 80  # L/min
 
     def transform(

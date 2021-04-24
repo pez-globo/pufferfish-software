@@ -15,7 +15,8 @@ import {
 export const messageReducer = <T extends PBMessage>(
   messageType: MessageType,
   pbMessageType: PBMessageType,
-) => (state: T = pbMessageType.fromJSON({}) as T, action: StateUpdateAction): T => {
+  initializer: Record<string, unknown> = {},
+) => (state: T = pbMessageType.fromJSON(initializer) as T, action: StateUpdateAction): T => {
   switch (action.type) {
     case STATE_UPDATED:
       if (action.messageType === messageType) {

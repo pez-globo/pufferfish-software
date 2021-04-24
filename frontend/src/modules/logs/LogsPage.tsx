@@ -129,7 +129,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   const loggedEvents = useSelector(getNextLogEvents, shallowEqual);
   const activeLogEventIds = useSelector(getActiveLogEventIds, shallowEqual);
-  const settingsAllowed = ['hr', 'spo2'];
+  const settingsAllowed = ['fio2', 'flow', 'hr', 'spo2'];
 
   const getDetails = useCallback(getEventDetails, []);
 

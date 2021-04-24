@@ -3,6 +3,7 @@ import DECIMAL_RADIX from '../../modules/app/AppConstants';
 import { StoreState } from '../types';
 import { FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import {
+  AlarmLimits,
   AlarmLimitsRequest,
   AlarmMute,
   AlarmMuteRequest,
@@ -243,6 +244,10 @@ export const getPVLoop = createSelector(
 );
 
 // Alarm Limits
+export const getAlarmLimits = createSelector(
+  getController,
+  (states: ControllerStates): AlarmLimits | Record<string, Range> => states.alarmLimits,
+);
 export const getAlarmLimitsRequest = createSelector(
   getController,
   (states: ControllerStates): AlarmLimitsRequest | Record<string, Range> =>
