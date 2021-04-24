@@ -1,4 +1,4 @@
-import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
+import { Grid, makeStyles, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
@@ -7,7 +7,7 @@ import { AlarmModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
 import { Range } from '../../../store/controller/proto/mcu_pb';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles(() => ({
   rootParent: {
     flexDirection: 'initial',
     height: '100%',
@@ -95,7 +95,6 @@ export interface Props {
   stateKey: string;
   units?: string;
   isLive?: boolean;
-  isMain?: boolean;
   showLimits?: boolean;
   decimal?: number;
 }
@@ -128,7 +127,6 @@ const ControlValuesDisplay = ({
   label,
   stateKey,
   units = '',
-  isMain = false,
   showLimits = false,
   decimal,
 }: Props): JSX.Element => {
@@ -161,7 +159,7 @@ const ControlValuesDisplay = ({
             container
             direction="column"
             className={classes.root}
-            style={isMain ? { width: '80%', margin: '0 auto' } : {}}
+            style={{ width: '80%', margin: '0 auto' }}
           >
             <Grid
               container
@@ -236,7 +234,6 @@ const ValueInfo = ({
   label,
   stateKey,
   units = '',
-  isMain = false,
   showLimits = false,
   decimal,
 }: Props): JSX.Element => {
@@ -245,7 +242,6 @@ const ValueInfo = ({
     <Grid item xs container className={`${classes.valuesPanel} ${classes.mainContainer}`}>
       <Grid item xs className={classes.gridAreavalues1}>
         <ControlValuesDisplay
-          isMain={true}
           stateKey={stateKey}
           selector={selector}
           label={label}

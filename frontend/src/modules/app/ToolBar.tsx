@@ -161,7 +161,7 @@ export const ToolBar = ({
           break;
       }
     }
-  }, [isVentilatorOn, parameterRequestStandby, currentMode, dispatch]);
+  }, [isVentilatorOn, parameterRequestStandby, alarmLimitsRequestStandby, currentMode, dispatch]);
 
   useEffect(() => {
     if (popupEventLog && popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
