@@ -38,7 +38,6 @@ IndexStatus encode_cobs(
   size_t write_index = 1;
   size_t code_index = 0;
   uint8_t code = 1;
-  size_t encoded_buffer_size = 0;
 
   // resize to the calculated encoded buffer size
   if (encoded_buffer.resize(get_encoded_cobs_buffer_size(buffer)) != IndexStatus::ok) {
