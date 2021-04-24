@@ -43,12 +43,12 @@ const useStyles = makeStyles(() => ({
     // border: '1px solid yellow',
   },
   valueLabel: {
-    fontSize: '6rem',
+    fontSize: '5rem',
     lineHeight: '1',
     // border: '1px solid red',
   },
   unitsLabel: {
-    fontSize: '2rem',
+    fontSize: '1.5rem',
     opacity: 0.8,
     // border: '1px solid red'
   },
@@ -170,16 +170,16 @@ const ControlValuesDisplay = ({
               wrap="nowrap"
             >
               <Grid item xs style={{ width: '100%' }}>
-                <Typography className={classes.whiteFont} style={{ fontSize: '3rem' }}>
+                <Typography className={classes.whiteFont} style={{ fontSize: '2rem' }}>
                   {label}
                 </Typography>
               </Grid>
               {showLimits && stateKey && (
                 <Grid container item xs={3} className={classes.liveContainer}>
-                  <Typography className={classes.whiteFont} style={{ fontSize: '1.5rem' }}>
+                  <Typography className={classes.whiteFont} style={{ fontSize: '1.25rem' }}>
                     {alarmLimits[stateKey].lower}
                   </Typography>
-                  <Typography className={classes.whiteFont} style={{ fontSize: '1.5rem' }}>
+                  <Typography className={classes.whiteFont} style={{ fontSize: '1.25rem' }}>
                     {alarmLimits[stateKey].upper}
                   </Typography>
                 </Grid>
