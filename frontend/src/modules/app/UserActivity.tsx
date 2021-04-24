@@ -47,7 +47,9 @@ const IdleTimer = ({ timeout, onTimeOut }: { timeout: number; onTimeOut(): void 
 };
 
 export const UserActivity = (): JSX.Element => {
-  const [idleTimeout] = useState(10 * 60 * 1000);
+  // 10 year timeout, so that we can temporarily disable the screensaver for v0.7
+  const [idleTimeout] = useState(10 * 52 * 7 * 24 * 60 * 60 * 1000);
+  // const [idleTimeout] = useState(10 * 60 * 1000);
   const history = useHistory();
   const ventilating = useSelector(getIsVentilating);
 

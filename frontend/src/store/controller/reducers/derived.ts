@@ -1,4 +1,4 @@
-import { ActiveLogEvents, SensorMeasurements } from '../proto/mcu_pb';
+import { SensorMeasurements } from '../proto/mcu_pb';
 import {
   MessageType,
   PBMessage,
@@ -6,8 +6,6 @@ import {
   STATE_UPDATED,
   WaveformHistory,
   PVHistory,
-  commitAction,
-  BACKEND_CONNECTION_LOST,
   SmoothingData,
 } from '../types';
 
@@ -225,28 +223,6 @@ export const pvHistoryReducer = (
         };
       }
       return state;
-    default:
-      return state;
-  }
-};
-
-export const activeLogEventsReducer = (
-  state: ActiveLogEvents = ActiveLogEvents.fromJSON({
-    id: [],
-  }),
-  action: commitAction | StateUpdateAction,
-): ActiveLogEvents => {
-  switch (action.type) {
-    case STATE_UPDATED: {
-      const actionClone = { ...(action as StateUpdateAction) };
-      if (actionClone.messageType === MessageType.ActiveLogEvents) {
-        return actionClone.state as ActiveLogEvents;
-      }
-      return state;
-    }
-    case BACKEND_CONNECTION_LOST:
-      state.id.push((action.update.id as unknown) as number);
-      return { ...state, id: state.id };
     default:
       return state;
   }

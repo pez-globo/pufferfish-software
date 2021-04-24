@@ -7,12 +7,11 @@ import {
   ScreenStatus,
   SensorMeasurements,
 } from './proto/mcu_pb';
-import { messageReducer, nextLogEventsReducer, rotaryEncoderReducer } from './reducers/backend';
+import { messageReducer, eventLogReducer, rotaryEncoderReducer } from './reducers/backend';
 import {
   alarmLimitsReducer,
   alarmLimitsRequestStandbyReducer,
   alarmMuteRequestReducer,
-  expectedLogEventReducer,
   frontendDisplaySettingReducer,
   heartbeatBackendReducer,
   parametersRequestReducer,
@@ -20,7 +19,6 @@ import {
   systemSettingRequestReducer,
 } from './reducers/components';
 import {
-  activeLogEventsReducer,
   pvHistoryReducer,
   waveformHistoryReducer,
   sensorMeasurementSmoothingReducer,
@@ -29,18 +27,22 @@ import { MessageType } from './types';
 
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb
-  alarmLimits: messageReducer<AlarmLimits>(MessageType.AlarmLimits, AlarmLimits),
+  alarmLimits: messageReducer<AlarmLimits>(MessageType.AlarmLimits, AlarmLimits, {
+    // Needed so that values aren't undefined when dashboard is loaded before redirecting to quickstart
+    spo2: { lower: 90, upper: 100 },
+    hr: { lower: 60, upper: 100 },
+    fio2: { lower: 78, upper: 82 },
+    flow: { lower: 28, upper: 32 },
+  }),
   alarmLimitsRequest: alarmLimitsReducer,
   alarmLimitsRequestStandby: alarmLimitsRequestStandbyReducer,
   alarmMuteRequest: alarmMuteRequestReducer,
   systemSettingRequest: systemSettingRequestReducer,
   frontendDisplaySetting: frontendDisplaySettingReducer,
-  expectedLogEvent: expectedLogEventReducer,
-  nextLogEvents: nextLogEventsReducer,
+  eventLog: eventLogReducer,
   heartbeatBackend: heartbeatBackendReducer,
   batteryPower: messageReducer<BatteryPower>(MessageType.BatteryPower, BatteryPower),
   screenStatus: messageReducer<ScreenStatus>(MessageType.ScreenStatus, ScreenStatus),
-  activeLogEvents: activeLogEventsReducer,
   sensorMeasurements: messageReducer<SensorMeasurements>(
     MessageType.SensorMeasurements,
     SensorMeasurements,
@@ -73,17 +75,17 @@ export const controllerReducer = combineReducers({
       (sensorMeasurements) => sensorMeasurements.flow,
     ),
     spo2: sensorMeasurementSmoothingReducer(
-      0.5,
+      1,
       1.0,
       200,
-      500,
+      1000,
       (sensorMeasurements) => sensorMeasurements.spo2,
     ),
     hr: sensorMeasurementSmoothingReducer(
-      0.4,
-      5.0,
-      100,
-      2000,
+      1,
+      1.0,
+      200,
+      1000,
       (sensorMeasurements) => sensorMeasurements.hr,
     ),
   }),

@@ -1,15 +1,9 @@
 import { Button, Grid, TableCell, TableRow, Typography } from '@material-ui/core';
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { updateCommittedState } from '../../store/controller/actions';
-import { LogEvent, LogEventType, Range } from '../../store/controller/proto/mcu_pb';
-import {
-  getActiveLogEventIds,
-  getAlarmLimitsRequest,
-  getNextLogEvents,
-} from '../../store/controller/selectors';
-import { EXPECTED_LOG_EVENT_ID } from '../../store/controller/types';
+import { shallowEqual, useSelector } from 'react-redux';
+import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
+import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
 import { setMultiPopupOpen } from '../app/Service';
 import { AlarmModal } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';
@@ -47,7 +41,7 @@ interface Data {
 const headCells: HeadCell[] = [
   { id: 'type', numeric: false, disablePadding: true, label: 'Type', enableSort: false },
   { id: 'alarm', numeric: true, disablePadding: false, label: 'Event', enableSort: false },
-  { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date', enableSort: true },
+  { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date', enableSort: false },
   { id: 'details', numeric: false, disablePadding: false, label: 'Details', enableSort: false },
   { id: 'settings', numeric: true, disablePadding: false, label: 'Settings', enableSort: false },
 ];
@@ -78,8 +72,9 @@ const useStyles = makeStyles(() =>
       color: '#fff',
     },
     eventType: {
+      width: '10rem',
       boxShadow: 'none !important',
-      padding: '0rem 3rem !important',
+      padding: '2px 2rem !important',
       border: 'none',
       color: '#fff',
     },
@@ -92,7 +87,6 @@ const useStyles = makeStyles(() =>
 export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
-  const dispatch = useDispatch();
 
   const getEventTypeLabel = (type: LogEventType): string => {
     switch (type) {
@@ -128,33 +122,23 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const [orderBy, setOrderBy] = React.useState<keyof Data>('time');
   const [selected, setSelected] = React.useState<string[]>([]);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(8);
+  const [rowsPerPage, setRowsPerPage] = React.useState(9);
   const [open, setOpen] = React.useState(false);
   const [alarmOpen, setAlarmOpen] = React.useState(false);
   const [currentRow, setCurrentRow] = React.useState<Data>();
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   const loggedEvents = useSelector(getNextLogEvents, shallowEqual);
   const activeLogEventIds = useSelector(getActiveLogEventIds, shallowEqual);
-  const alarmLimits: Record<string, Range> = useSelector(
-    getAlarmLimitsRequest,
-    shallowEqual,
-  ) as Record<string, Range>;
-  const settingsAllowed = ['hr', 'spo2'];
-
-  const updateLogEvent = useCallback(
-    (maxId) => {
-      dispatch(updateCommittedState(EXPECTED_LOG_EVENT_ID, { id: maxId + 1 }));
-    },
-    [dispatch],
-  );
+  const settingsAllowed = ['fio2', 'flow', 'hr', 'spo2'];
 
   const getDetails = useCallback(getEventDetails, []);
 
   useEffect(() => {
     const eventIds: number[] = [];
     const data: Data[] = [];
-    loggedEvents.sort((a: LogEvent, b: LogEvent) => a.time - b.time);
-    loggedEvents.forEach((event: LogEvent) => {
+    const loggedEventsCopy = [...loggedEvents];
+    loggedEventsCopy.reverse();
+    loggedEventsCopy.forEach((event: LogEvent) => {
       const eventType = getEventType(event.code);
       eventIds.push(event.id);
       if (filter) {
@@ -167,7 +151,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
               event.time,
               activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
               event.id,
-              getDetails(event, eventType, alarmLimits),
+              getDetails(event, eventType),
               eventType.stateKey || '',
               eventType.head || '',
               eventType.unit || '',
@@ -182,7 +166,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
             event.time,
             activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
             event.id,
-            getDetails(event, eventType, alarmLimits),
+            getDetails(event, eventType),
             eventType.stateKey || '',
             eventType.head || '',
             eventType.unit || '',
@@ -191,9 +175,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
       }
     });
     setRows(data.length ? data : []);
-    // update ExpectedLogEvent
-    updateLogEvent(Math.max(...eventIds));
-  }, [loggedEvents, activeLogEventIds, updateLogEvent, filter, alarmLimits, getDetails]);
+  }, [loggedEvents, activeLogEventIds, filter, getDetails]);
 
   const handleClose = () => {
     setOpen(false);
@@ -304,12 +286,12 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                 </TableCell>
                 <TableCell align="left">
                   {`
-                                        ${new Date(row.time * 1000).toLocaleDateString([], {
+                                        ${new Date(row.time).toLocaleDateString([], {
                                           month: '2-digit',
                                           day: '2-digit',
                                           year: 'numeric',
                                         })}
-                                        ${new Date(row.time * 1000).toLocaleTimeString([], {
+                                        ${new Date(row.time).toLocaleTimeString([], {
                                           hour: '2-digit',
                                           minute: '2-digit',
                                         })}
@@ -324,7 +306,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                       variant="contained"
                       color="primary"
                       onClick={() => onSettings(row)}
-                      style={{ padding: '6px 3rem' }}
+                      style={{ padding: '2px 2rem' }}
                     >
                       Settings
                     </Button>
@@ -334,8 +316,8 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
             );
           })}
         {emptyRows > 0 && (
-          <TableRow style={{ height: 53 * emptyRows }}>
-            <TableCell colSpan={6} />
+          <TableRow>
+            <TableCell colSpan={6} style={{ padding: 0 }} />
           </TableRow>
         )}
       </SimpleTable>

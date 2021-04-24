@@ -16,8 +16,8 @@ from ventserver.protocols.protobuf import mcu_pb
 class Manager:
     """Shared LogEvent manager."""
 
-    sender: lists.SendSynchronizer[mcu_pb.LogEvent] = attr.ib(
-        default=lists.SendSynchronizer(segment_type=mcu_pb.NextLogEvents)
+    receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent] = attr.ib(
+        default=lists.ReceiveSynchronizer()
     )
 
     current_time: float = attr.ib(default=0)  # ms after initial_time
@@ -40,6 +40,6 @@ class Manager:
         log_event = dataclasses.replace(event_data)
         log_event.id = self.next_log_event_id
         log_event.time = int(self.current_time)
-        self.sender.input(lists.UpdateEvent(new_element=log_event))
+        self.receiver.input(mcu_pb.NextLogEvents(elements=[log_event]))
         self.next_log_event_id += 1
         return log_event.id
