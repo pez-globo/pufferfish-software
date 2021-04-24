@@ -7,10 +7,10 @@ import ReplyIcon from '@material-ui/icons/Reply';
 import ModalPopup from '../controllers/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
-  getCycleMeasurementsRR,
-  getSensorMeasurementsSpO2,
   getSmoothedFiO2Value,
   getSmoothedFlow,
+  getSmoothedSpO2,
+  getSmoothedHR,
   roundValue,
 } from '../../store/controller/selectors';
 import { SetValueContent } from '../controllers/ValueModal';
@@ -119,18 +119,18 @@ const HFNCControls = (): JSX.Element => {
       >
         <ValueInfo
           mainContainer={{
-            selector: getCycleMeasurementsRR,
-            label: 'HR',
-            stateKey: 'hr',
-            units: BPM,
+            selector: getSmoothedSpO2,
+            label: 'SpO2',
+            stateKey: 'spo2',
+            units: PERCENT,
           }}
         />
         <ValueInfo
           mainContainer={{
-            selector: getSensorMeasurementsSpO2,
-            label: 'SpO2',
-            stateKey: 'spo2',
-            units: PERCENT,
+            selector: getSmoothedHR,
+            label: 'HR',
+            stateKey: 'hr',
+            units: BPM,
           }}
         />
       </Grid>
@@ -146,7 +146,7 @@ const HFNCControls = (): JSX.Element => {
         <ValueInfo
           mainContainer={{
             selector: getSmoothedFlow,
-            label: 'Flow Rate',
+            label: 'Flow',
             stateKey: 'flow',
             units: LMIN,
           }}
