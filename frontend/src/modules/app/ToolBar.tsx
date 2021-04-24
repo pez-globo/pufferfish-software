@@ -4,10 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { getClockTime } from '../../store/app/selectors';
-import {
-  updateCommittedParameter,
-  updateCommittedState,
-} from '../../store/controller/actions';
+import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
 import { VentilationMode } from '../../store/controller/proto/mcu_pb';
 import {
   getBatteryPower,
@@ -139,12 +136,12 @@ export const ToolBar = ({
               flow: parameterRequestStandby.flow,
             }),
           );
-          dispatch(updateCommittedState(
-                ALARM_LIMITS, {
-                  spo2: alarmLimitsRequestStandby.spo2,
-                  hr: alarmLimitsRequestStandby.hr,
-                }
-          ));
+          dispatch(
+            updateCommittedState(ALARM_LIMITS, {
+              spo2: alarmLimitsRequestStandby.spo2,
+              hr: alarmLimitsRequestStandby.hr,
+            }),
+          );
           break;
         case VentilationMode.pc_ac:
         case VentilationMode.vc_ac:
