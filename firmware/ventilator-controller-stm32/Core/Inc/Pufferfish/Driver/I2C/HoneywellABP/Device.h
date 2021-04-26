@@ -11,53 +11,19 @@
 
 #include "Pufferfish/Driver/Testable.h"
 #include "Pufferfish/HAL/HAL.h"
-#include "Pufferfish/Types.h"
+#include "Types.h"
 
 namespace Pufferfish {
 namespace Driver {
 namespace I2C {
-
-/**
- * Configuration parameters for HoneywellABP constructor
- */
-struct ABPConfig {
-  uint16_t i2c_addr;
-  float pmin;
-  float pmax;
-  PressureUnit unit;
-};
-
-/**
- * Status code reported by the Honeywell ABP pressure sensor as part of its
- * reading
- */
-enum class ABPStatus {
-  no_error = 0,
-  command_mode = 1,
-  stale_data = 2,
-  diagnostic = 3,
-};
-
-/**
- * All data in a reading from the Honeywell ABP pressure sensor.
- */
-struct ABPSample {
-  ABPStatus status;
-  uint16_t bridge_data;
-  float pressure;
-  PressureUnit unit;
-};
-
-static const ABPConfig abpxxxx001pg2a3 = {0x28, 0.0, 1.0, PressureUnit::psi};
-static const ABPConfig abpxxxx005pg2a3 = {0x28, 0.0, 5.0, PressureUnit::psi};
-static const ABPConfig abpxxxx030pg2a3 = {0x28, 0.0, 30.0, PressureUnit::psi};
+namespace HoneywellABP {
 
 /**
  * Driver for Honeywell ABP pressure sensor
  */
-class HoneywellABP : public Testable {
+class Device : public Testable {
  public:
-  HoneywellABP(HAL::I2CDevice &dev, const ABPConfig &cfg)
+  Device(HAL::I2CDevice &dev, const ABPConfig &cfg)
       : dev_(dev), pmin(cfg.pmin), pmax(cfg.pmax), unit(cfg.unit) {}
 
   [[nodiscard]] float raw_to_pressure(uint16_t output) const;
@@ -85,6 +51,7 @@ class HoneywellABP : public Testable {
   const PressureUnit unit;
 };
 
+}  // namespace HoneywellABP
 }  // namespace I2C
 }  // namespace Driver
 }  // namespace Pufferfish

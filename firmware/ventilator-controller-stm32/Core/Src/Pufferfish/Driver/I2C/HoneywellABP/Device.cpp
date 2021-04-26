@@ -10,14 +10,14 @@
  *    Arduino library by ij96 (https://github.com/ij96)
  */
 
-#include "Pufferfish/Driver/I2C/HoneywellABP.h"
+#include "Pufferfish/Driver/I2C/HoneywellABP/Device.h"
 
 #include <array>
 #include <climits>
 
-namespace Pufferfish::Driver::I2C {
+namespace Pufferfish::Driver::I2C::HoneywellABP {
 
-I2CDeviceStatus HoneywellABP::read_sample(ABPSample &sample) {
+I2CDeviceStatus Device::read_sample(ABPSample &sample) {
   std::array<uint8_t, 2> data{{0, 0}};
   I2CDeviceStatus ret = dev_.read(data.data(), data.size());
   if (ret != I2CDeviceStatus::ok) {
@@ -37,7 +37,7 @@ I2CDeviceStatus HoneywellABP::read_sample(ABPSample &sample) {
   return I2CDeviceStatus::ok;
 }
 
-float HoneywellABP::raw_to_pressure(uint16_t output) const {
+float Device::raw_to_pressure(uint16_t output) const {
   if (output < output_min) {
     output = output_min;
   } else if (output > output_max) {
@@ -54,7 +54,7 @@ float HoneywellABP::raw_to_pressure(uint16_t output) const {
          pmin;
 }
 
-I2CDeviceStatus HoneywellABP::test() {
+I2CDeviceStatus Device::test() {
   I2CDeviceStatus status;
 
   ABPSample sample{};
@@ -75,8 +75,8 @@ I2CDeviceStatus HoneywellABP::test() {
   return I2CDeviceStatus::ok;
 }
 
-I2CDeviceStatus HoneywellABP::reset() {
+I2CDeviceStatus Device::reset() {
   return I2CDeviceStatus::not_supported;
 }
 
-}  // namespace Pufferfish::Driver::I2C
+}  // namespace Pufferfish::Driver::I2C::HoneywellABP
