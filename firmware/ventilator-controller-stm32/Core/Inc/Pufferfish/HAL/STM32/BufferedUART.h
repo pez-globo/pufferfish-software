@@ -9,7 +9,6 @@
 
 #pragma once
 
-
 #include "Pufferfish/HAL/Interfaces/BufferedUART.h"
 #include "Pufferfish/HAL/STM32/Time.h"
 #include "Pufferfish/Statuses.h"

@@ -41,6 +41,6 @@ class I2CDevice : public Interfaces::I2CDevice {
   const uint16_t addr;
 };
 
-} //namespace STM32
+}  // namespace STM32
 }  // namespace HAL
 }  // namespace Pufferfish

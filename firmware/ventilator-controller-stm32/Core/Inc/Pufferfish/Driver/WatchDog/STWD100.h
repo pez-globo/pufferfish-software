@@ -31,7 +31,10 @@ class STWD100 {
    * @param enablePin for STWD100
    * @param inputPin for STWD100
    */
-  STWD100(HAL::Interfaces::DigitalOutput &enable_pin, HAL::Interfaces::DigitalOutput &input_pin, HAL::Interfaces::Time &time)
+  STWD100(
+      HAL::Interfaces::DigitalOutput &enable_pin,
+      HAL::Interfaces::DigitalOutput &input_pin,
+      HAL::Interfaces::Time &time)
       : enable_pin_(enable_pin), input_pin_(input_pin), time_(time) {}
 
   /**

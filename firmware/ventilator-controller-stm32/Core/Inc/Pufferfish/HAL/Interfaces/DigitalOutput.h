@@ -36,8 +36,6 @@ class DigitalOutput {
   virtual void write(bool output) = 0;
 };
 
-}  //namespace Interfaces
+}  // namespace Interfaces
 }  // namespace HAL
 }  // namespace Pufferfish
-
-

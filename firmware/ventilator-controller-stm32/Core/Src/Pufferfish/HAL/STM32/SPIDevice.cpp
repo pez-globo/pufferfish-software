@@ -19,6 +19,7 @@
 // limitations under the License.
 
 #include "Pufferfish/HAL/STM32/SPIDevice.h"
+
 #include "stm32h7xx_hal.h"
 
 namespace Pufferfish::HAL::STM32 {

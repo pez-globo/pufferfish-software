@@ -41,7 +41,8 @@ class SPIDevice : public Interfaces::SPIDevice {
    * @param hspi    STM32 HAL handler for the SPI port
    * @param cspin   Chip select pin for SPI
    */
-  SPIDevice(SPI_HandleTypeDef &hspi, Interfaces::DigitalOutput &cspin) : dev_(hspi), cs_pin_(cspin) {}
+  SPIDevice(SPI_HandleTypeDef &hspi, Interfaces::DigitalOutput &cspin)
+      : dev_(hspi), cs_pin_(cspin) {}
 
   /**
    * Reads data from the device
@@ -79,6 +80,6 @@ class SPIDevice : public Interfaces::SPIDevice {
   Interfaces::DigitalOutput &cs_pin_;
 };
 
-} //namespace STM32
+}  // namespace STM32
 }  // namespace HAL
 }  // namespace Pufferfish

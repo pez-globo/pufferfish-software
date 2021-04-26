@@ -89,6 +89,6 @@ class AnalogInput : public Interfaces::AnalogInput {
   ADCStatus set_return_status_ = ADCStatus::ok;
 };
 
-} //namespace Mock
+}  // namespace Mock
 }  // namespace HAL
 }  // namespace Pufferfish

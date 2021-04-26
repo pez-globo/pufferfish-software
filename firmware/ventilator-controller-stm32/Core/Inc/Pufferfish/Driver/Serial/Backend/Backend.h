@@ -76,7 +76,8 @@ class BackendReceiver {
     invalid_message_encoding
   };
 
-  explicit BackendReceiver(HAL::Interfaces::CRC32 &crc32c) : crc_(crc32c), message_(message_descriptors) {}
+  explicit BackendReceiver(HAL::Interfaces::CRC32 &crc32c)
+      : crc_(crc32c), message_(message_descriptors) {}
 
   // Call this until it returns outputReady, then call output
   InputStatus input(uint8_t new_byte);
@@ -111,7 +112,8 @@ class BackendSender {
     invalid_return_code
   };
 
-  explicit BackendSender(HAL::Interfaces::CRC32 &crc32c) : message_(message_descriptors), crc_(crc32c) {}
+  explicit BackendSender(HAL::Interfaces::CRC32 &crc32c)
+      : message_(message_descriptors), crc_(crc32c) {}
 
   Status transform(
       const Application::StateSegment &state_segment, FrameProps::ChunkBuffer &output_buffer);

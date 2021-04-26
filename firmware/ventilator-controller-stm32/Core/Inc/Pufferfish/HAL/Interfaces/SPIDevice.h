@@ -66,6 +66,6 @@ class SPIDevice {
   virtual void chip_select(bool input) = 0;
 };
 
-}  //namespace Interfaces
+}  // namespace Interfaces
 }  // namespace HAL
 }  // namespace Pufferfish

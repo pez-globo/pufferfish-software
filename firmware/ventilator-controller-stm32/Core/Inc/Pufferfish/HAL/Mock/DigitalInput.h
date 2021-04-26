@@ -55,6 +55,6 @@ class DigitalInput : public Interfaces::DigitalInput {
   bool last_input_ = false;
 };
 
-} //namespace Mock
+}  // namespace Mock
 }  // namespace HAL
 }  // namespace Pufferfish

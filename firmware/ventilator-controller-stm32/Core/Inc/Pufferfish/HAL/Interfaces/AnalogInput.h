@@ -55,6 +55,6 @@ class AnalogInput {
   virtual ADCStatus stop() = 0;
 };
 
-}  //namespace Interfaces
+}  // namespace Interfaces
 }  // namespace HAL
 }  // namespace Pufferfish

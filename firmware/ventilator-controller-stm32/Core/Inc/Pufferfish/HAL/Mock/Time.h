@@ -84,7 +84,6 @@ class Time : public Interfaces::Time {
   uint32_t millis_value_ = 0;
 };
 
-
 }  // namespace Mock
 }  // namespace HAL
 }  // namespace Pufferfish

@@ -121,8 +121,7 @@ class BufferedUART : public Interfaces::BufferedUART {
 };
 
 static const size_t mock_large_uart_buffer_size = 4096;
-using LargeBufferedUART =
-    BufferedUART<mock_large_uart_buffer_size, mock_large_uart_buffer_size>;
+using LargeBufferedUART = BufferedUART<mock_large_uart_buffer_size, mock_large_uart_buffer_size>;
 
 static const size_t mock_read_only_uart_buffer_size = 512;
 using ReadOnlyBufferedUART = BufferedUART<mock_read_only_uart_buffer_size, 1>;

@@ -36,6 +36,6 @@ class DigitalInput {
   virtual bool read() = 0;
 };
 
-}  //namespace Interfaces
+}  // namespace Interfaces
 }  // namespace HAL
 }  // namespace Pufferfish

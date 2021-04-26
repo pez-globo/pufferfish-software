@@ -65,6 +65,6 @@ class AnalogInput : public Interfaces::AnalogInput {
   uint32_t timeout_ = 0;
 };
 
-}  //namespace STM32
+}  // namespace STM32
 }  // namespace HAL
 }  // namespace Pufferfish

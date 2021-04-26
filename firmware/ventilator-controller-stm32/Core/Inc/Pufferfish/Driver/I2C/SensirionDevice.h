@@ -20,7 +20,8 @@ namespace Pufferfish::Driver::I2C {
  */
 class SensirionDevice {
  public:
-  explicit SensirionDevice(HAL::Interfaces::I2CDevice &dev, HAL::Interfaces::CRC8 &crc8) : dev_(dev), crc8_(crc8) {}
+  explicit SensirionDevice(HAL::Interfaces::I2CDevice &dev, HAL::Interfaces::CRC8 &crc8)
+      : dev_(dev), crc8_(crc8) {}
 
   /**
    * Reads a data from the sensor, while performing CRC check

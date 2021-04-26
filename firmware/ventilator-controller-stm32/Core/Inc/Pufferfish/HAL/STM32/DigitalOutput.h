@@ -6,11 +6,9 @@
 
 #pragma once
 
-
 #include "Pufferfish/HAL/Interfaces/DigitalOutput.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
 #include "stm32h7xx_hal.h"
-
 
 namespace Pufferfish {
 namespace HAL {
@@ -44,6 +42,6 @@ class DigitalOutput : public Interfaces::DigitalOutput {
   const bool inverted;
 };
 
-}  //namespace STM32
+}  // namespace STM32
 }  // namespace HAL
 }  // namespace Pufferfish

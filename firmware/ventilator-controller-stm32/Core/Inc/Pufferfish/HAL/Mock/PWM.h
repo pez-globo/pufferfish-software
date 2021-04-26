@@ -101,7 +101,6 @@ class PWM : public Interfaces::PWM {
   bool state_ = false;
 };
 
-
 } /* namespace Mock */
 } /* namespace HAL */
 } /* namespace Pufferfish */

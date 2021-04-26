@@ -76,6 +76,6 @@ class BufferedUART {
       HAL::AtomicSize &written_size) volatile = 0;
 };
 
-} // namespace Interfaces
+}  // namespace Interfaces
 }  // namespace HAL
 }  // namespace Pufferfish

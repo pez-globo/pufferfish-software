@@ -40,6 +40,6 @@ class DigitalInput : public Interfaces::DigitalInput {
   const bool inverted;
 };
 
-} //namespace STM32
+}  // namespace STM32
 }  // namespace HAL
 }  // namespace Pufferfish

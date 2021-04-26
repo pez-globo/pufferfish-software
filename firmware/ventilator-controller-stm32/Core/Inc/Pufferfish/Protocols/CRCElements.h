@@ -48,7 +48,8 @@ class CRCElement {
       const Util::ByteVector<input_size> &input_buffer);  // updates all fields, including payload
 
   template <size_t buffer_size>
-  static uint32_t compute_body_crc(const Util::ByteVector<buffer_size> &buffer, HAL::Interfaces::CRC32 &crc32c);
+  static uint32_t compute_body_crc(
+      const Util::ByteVector<buffer_size> &buffer, HAL::Interfaces::CRC32 &crc32c);
 
  private:
   uint32_t crc_ = 0;

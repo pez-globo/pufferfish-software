@@ -58,6 +58,6 @@ class Time : public Interfaces::Time {
   void delay_micros(uint32_t microseconds) override;
 };
 
-}  //namespace STM32
+}  // namespace STM32
 }  // namespace HAL
 }  // namespace Pufferfish

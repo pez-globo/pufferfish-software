@@ -36,7 +36,8 @@ class SPIFlash {
    * @brief Constructor for SPI Flash memory
    * @param spi STM32 HAL handler for the SPI port
    */
-  explicit SPIFlash(HAL::Interfaces::SPIDevice &spi, HAL::Interfaces::Time &time) : spi_(spi), time_(time) {}
+  explicit SPIFlash(HAL::Interfaces::SPIDevice &spi, HAL::Interfaces::Time &time)
+      : spi_(spi), time_(time) {}
 
   /**
    * @brief Read the specific device ID (14h).

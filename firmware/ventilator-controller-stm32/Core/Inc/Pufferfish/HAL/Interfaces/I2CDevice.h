@@ -52,6 +52,6 @@ class I2CDevice {
   virtual I2CDeviceStatus write(uint8_t *buf, size_t count) = 0;
 };
 
-}  //namespace Interfaces
+}  // namespace Interfaces
 }  // namespace HAL
 }  // namespace Pufferfish
