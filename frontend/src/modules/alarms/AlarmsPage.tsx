@@ -7,6 +7,7 @@ import { updateCommittedState } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
 import {
   getAlarmLimitsRequestStandby,
+  getIsVentilating,
   getParametersRequestMode,
 } from '../../store/controller/selectors';
 import { ALARM_LIMITS, ALARM_LIMITS_STANDBY } from '../../store/controller/types';
@@ -277,6 +278,7 @@ export const AlarmsPage = (): JSX.Element => {
   const alarmLimitsRequest = useSelector(getAlarmLimitsRequestStandby);
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
+  const ventilating = useSelector(getIsVentilating);
   const [alarmLimits, setAlarmLimits] = useState(alarmLimitsRequest as Record<string, Range>);
   const updateAlarmLimits = (data: Partial<AlarmLimitsRequest>) => {
     setAlarmLimits({ ...alarmLimits, ...data } as Record<string, Range>);
@@ -334,14 +336,16 @@ export const AlarmsPage = (): JSX.Element => {
               </Grid>
             )}
             <Grid item style={{ textAlign: 'right' }}>
-              <Button
-                onClick={applyChanges}
-                color="secondary"
-                variant="contained"
-                className={classes.applyButton}
-              >
-                Apply Changes
-              </Button>
+              {ventilating ? (
+                <Button
+                  onClick={applyChanges}
+                  color="secondary"
+                  variant="contained"
+                  className={classes.applyButton}
+                >
+                  Apply Changes
+                </Button>
+              ) : null}
             </Grid>
           </Grid>
         </Grid>
