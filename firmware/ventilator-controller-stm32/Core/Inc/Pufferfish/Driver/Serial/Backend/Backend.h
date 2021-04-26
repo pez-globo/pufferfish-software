@@ -144,7 +144,10 @@ class Backend {
  public:
   enum class Status { ok = 0, waiting, invalid };
 
-  Backend(HAL::Interfaces::CRC32 &crc32c, Application::States &states, Application::LogEventsSender &sender)
+  Backend(
+      HAL::Interfaces::CRC32 &crc32c,
+      Application::States &states,
+      Application::LogEventsSender &sender)
       : receiver_(crc32c),
         sender_(crc32c),
         states_(states),
