@@ -42,7 +42,7 @@
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 #include "Pufferfish/Driver/Button/Button.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
-#include "Pufferfish/Driver/I2C/HoneywellABP.h"
+#include "Pufferfish/Driver/I2C/HoneywellABP/Device.h"
 #include "Pufferfish/Driver/I2C/SDP.h"
 #include "Pufferfish/Driver/I2C/SFM3000.h"
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
