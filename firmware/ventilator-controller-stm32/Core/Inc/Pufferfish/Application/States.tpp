@@ -18,6 +18,9 @@ union StateSegmentUnion {
   ParametersRequest parameters_request;
   AlarmLimits alarm_limits;
   AlarmLimitsRequest alarm_limits_request;
+  ExpectedLogEvent expected_log_event;
+  NextLogEvents next_log_events;
+  ActiveLogEvents active_log_events;
 };
 
 }  // namespace Pufferfish::Application

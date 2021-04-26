@@ -15,12 +15,12 @@ BufferedUART<rx_buffer_size, tx_buffer_size>::BufferedUART(
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 BufferStatus BufferedUART<rx_buffer_size, tx_buffer_size>::read(uint8_t &read_byte) volatile {
-  return rx_buffer_.read(read_byte);
+  return rx_buffer_.pop(read_byte);
 }
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 BufferStatus BufferedUART<rx_buffer_size, tx_buffer_size>::write(uint8_t write_byte) volatile {
-  BufferStatus status = tx_buffer_.write(write_byte);
+  BufferStatus status = tx_buffer_.push(write_byte);
   __HAL_UART_ENABLE_IT(&huart_, UART_IT_TXE);  // write a byte on the next TX empty interrupt
   return status;
 }
@@ -101,7 +101,7 @@ void BufferedUART<rx_buffer_size, tx_buffer_size>::handle_irq_rx() volatile {
   }
 
   auto rx_byte = static_cast<uint8_t>(huart_.Instance->RDR & huart_.Mask);  // assumes 8-bit byte
-  if (rx_buffer_.write(rx_byte) != BufferStatus::ok) {
+  if (rx_buffer_.push(rx_byte) != BufferStatus::ok) {
     ++rx_dropped_;
   }
   __HAL_UART_SEND_REQ(&huart_, UART_RXDATA_FLUSH_REQUEST);  // clear RXNE flag
@@ -116,7 +116,7 @@ void BufferedUART<rx_buffer_size, tx_buffer_size>::handle_irq_tx() volatile {
   }
 
   uint8_t tx_byte = 0;
-  if (tx_buffer_.read(tx_byte) == BufferStatus::empty) {
+  if (tx_buffer_.pop(tx_byte) == BufferStatus::empty) {
     // stop receiving TX empty interrupts until we have more data for TX
     __HAL_UART_DISABLE_IT(&huart_, UART_IT_TXE);
     return;

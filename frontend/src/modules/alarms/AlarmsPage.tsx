@@ -236,7 +236,6 @@ const alarmConfiguration = (ventilationMode: VentilationMode): Array<AlarmConfig
   switch (ventilationMode) {
     case VentilationMode.hfnc:
       return [
-        { label: 'FiO2', stateKey: 'fio2' },
         { label: 'SpO2', stateKey: 'spo2' },
         { label: 'HR', stateKey: 'hr', max: 200 },
       ];

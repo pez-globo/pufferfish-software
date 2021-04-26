@@ -29,23 +29,23 @@ BufferedUART<rx_buffer_size, tx_buffer_size>::BufferedUART() = default;
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 BufferStatus BufferedUART<rx_buffer_size, tx_buffer_size>::read(uint8_t &read_byte) volatile {
-  return rx_buffer_.read(read_byte);
+  return rx_buffer_.pop(read_byte);
 }
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 void BufferedUART<rx_buffer_size, tx_buffer_size>::set_read(const uint8_t &byte) volatile {
-  rx_buffer_.write(byte);
+  rx_buffer_.push(byte);
 }
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 BufferStatus BufferedUART<rx_buffer_size, tx_buffer_size>::write(uint8_t write_byte) volatile {
-  BufferStatus status = tx_buffer_.write(write_byte);
+  BufferStatus status = tx_buffer_.push(write_byte);
   return status;
 }
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>
 void BufferedUART<rx_buffer_size, tx_buffer_size>::get_write(uint8_t &byte) volatile {
-  tx_buffer_.read(byte);
+  tx_buffer_.pop(byte);
 }
 
 template <AtomicSize rx_buffer_size, AtomicSize tx_buffer_size>

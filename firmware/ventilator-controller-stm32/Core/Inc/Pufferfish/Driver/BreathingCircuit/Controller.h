@@ -32,8 +32,7 @@ struct ActuatorVars {
   float valve_o2_opening;
 };
 
-static const uint8_t fio2_min = 21;
-static const uint8_t fio2_max = 100;
+static constexpr Range allowed_fio2{21, 100};
 
 class Controller {
  public:

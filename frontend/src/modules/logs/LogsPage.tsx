@@ -1,11 +1,9 @@
 import { Button, Grid, TableCell, TableRow, Typography } from '@material-ui/core';
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { updateCommittedState } from '../../store/controller/actions';
+import { shallowEqual, useSelector } from 'react-redux';
 import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
 import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
-import { EXPECTED_LOG_EVENT_ID } from '../../store/controller/types';
 import { setMultiPopupOpen } from '../app/Service';
 import { AlarmModal } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';
@@ -43,7 +41,7 @@ interface Data {
 const headCells: HeadCell[] = [
   { id: 'type', numeric: false, disablePadding: true, label: 'Type', enableSort: false },
   { id: 'alarm', numeric: true, disablePadding: false, label: 'Event', enableSort: false },
-  { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date', enableSort: true },
+  { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date', enableSort: false },
   { id: 'details', numeric: false, disablePadding: false, label: 'Details', enableSort: false },
   { id: 'settings', numeric: true, disablePadding: false, label: 'Settings', enableSort: false },
 ];
@@ -89,7 +87,6 @@ const useStyles = makeStyles(() =>
 export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
-  const dispatch = useDispatch();
 
   const getEventTypeLabel = (type: LogEventType): string => {
     switch (type) {
@@ -132,22 +129,16 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   const loggedEvents = useSelector(getNextLogEvents, shallowEqual);
   const activeLogEventIds = useSelector(getActiveLogEventIds, shallowEqual);
-  const settingsAllowed = ['hr', 'spo2'];
-
-  const updateLogEvent = useCallback(
-    (maxId) => {
-      dispatch(updateCommittedState(EXPECTED_LOG_EVENT_ID, { id: maxId + 1 }));
-    },
-    [dispatch],
-  );
+  const settingsAllowed = ['fio2', 'flow', 'hr', 'spo2'];
 
   const getDetails = useCallback(getEventDetails, []);
 
   useEffect(() => {
     const eventIds: number[] = [];
     const data: Data[] = [];
-    loggedEvents.sort((a: LogEvent, b: LogEvent) => a.time - b.time);
-    loggedEvents.forEach((event: LogEvent) => {
+    const loggedEventsCopy = [...loggedEvents];
+    loggedEventsCopy.reverse();
+    loggedEventsCopy.forEach((event: LogEvent) => {
       const eventType = getEventType(event.code);
       eventIds.push(event.id);
       if (filter) {
@@ -184,9 +175,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
       }
     });
     setRows(data.length ? data : []);
-    // update ExpectedLogEvent
-    updateLogEvent(Math.max(...eventIds));
-  }, [loggedEvents, activeLogEventIds, updateLogEvent, filter, getDetails]);
+  }, [loggedEvents, activeLogEventIds, filter, getDetails]);
 
   const handleClose = () => {
     setOpen(false);
@@ -297,12 +286,12 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                 </TableCell>
                 <TableCell align="left">
                   {`
-                                        ${new Date(row.time * 1000).toLocaleDateString([], {
+                                        ${new Date(row.time).toLocaleDateString([], {
                                           month: '2-digit',
                                           day: '2-digit',
                                           year: 'numeric',
                                         })}
-                                        ${new Date(row.time * 1000).toLocaleTimeString([], {
+                                        ${new Date(row.time).toLocaleTimeString([], {
                                           hour: '2-digit',
                                           minute: '2-digit',
                                         })}

@@ -3,13 +3,14 @@
 import random
 import time
 import typing
-from typing import Dict, Mapping, Optional, Type
+from typing import Dict, Mapping, Optional
 
 import attr
 
 import betterproto
 
 from ventserver.protocols.protobuf import mcu_pb
+from ventserver.protocols import backend
 
 
 SENSOR_UPDATE_INTERVAL = 2
@@ -289,12 +290,12 @@ class Services:
 
     def transform(
             self, current_time: float, all_states: Mapping[
-                Type[betterproto.Message], Optional[betterproto.Message]
+                backend.StateSegment, Optional[betterproto.Message]
             ],
     ) -> None:
         """Update the parameters for the requested mode."""
         parameters = typing.cast(
-            mcu_pb.Parameters, all_states[mcu_pb.Parameters]
+            mcu_pb.Parameters, all_states[backend.StateSegment.PARAMETERS]
         )
 
         self._active_service = self._services.get(parameters.mode, None)
@@ -304,10 +305,11 @@ class Services:
 
         sensor_measurements = typing.cast(
             mcu_pb.SensorMeasurements,
-            all_states[mcu_pb.SensorMeasurements]
+            all_states[backend.StateSegment.SENSOR_MEASUREMENTS]
         )
         cycle_measurements = typing.cast(
-            mcu_pb.CycleMeasurements, all_states[mcu_pb.CycleMeasurements]
+            mcu_pb.CycleMeasurements,
+            all_states[backend.StateSegment.CYCLE_MEASUREMENTS]
         )
         self._active_service.update_clock(current_time)
         self._active_service.transform(

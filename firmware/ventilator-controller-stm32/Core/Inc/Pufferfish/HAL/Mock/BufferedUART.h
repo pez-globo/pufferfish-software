@@ -116,8 +116,8 @@ class BufferedUART : public Interfaces::BufferedUART {
       HAL::AtomicSize &written_size) volatile override;
 
  private:
-  volatile Util::RingBuffer<rx_buffer_size> rx_buffer_;
-  volatile Util::RingBuffer<tx_buffer_size> tx_buffer_;
+  volatile Util::RingBuffer<rx_buffer_size, uint8_t> rx_buffer_;
+  volatile Util::RingBuffer<tx_buffer_size, uint8_t> tx_buffer_;
 };
 
 static const size_t mock_large_uart_buffer_size = 4096;

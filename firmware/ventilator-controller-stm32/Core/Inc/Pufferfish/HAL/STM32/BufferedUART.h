@@ -138,8 +138,8 @@ class BufferedUART : public Interfaces::BufferedUART {
   UART_HandleTypeDef &huart_;
   Interfaces::Time &time_;
 
-  volatile Util::RingBuffer<rx_buffer_size> rx_buffer_;
-  volatile Util::RingBuffer<tx_buffer_size> tx_buffer_;
+  volatile Util::RingBuffer<rx_buffer_size, uint8_t> rx_buffer_;
+  volatile Util::RingBuffer<tx_buffer_size, uint8_t> tx_buffer_;
 
   void handle_irq_rx() volatile;
   void handle_irq_tx() volatile;
