@@ -172,8 +172,8 @@ export const ToolBar = ({
   }, [popupEventLog]);
 
   useEffect(() => {
-    initParameterUpdate();
-  }, [initParameterUpdate]);
+    if (!ventilating) initParameterUpdate();
+  }, [ventilating, initParameterUpdate]);
 
   useEffect(() => {
     if (ventilating) {
