@@ -13,6 +13,7 @@ import {
 import { ALARM_LIMITS, ALARM_LIMITS_STANDBY } from '../../store/controller/types';
 import { setActiveRotaryReference } from '../app/Service';
 import { ValueClicker } from '../controllers';
+import ModalPopup from '../controllers/ModalPopup';
 import ValueSlider from '../controllers/ValueSlider';
 import ModeBanner from '../displays/ModeBanner';
 import useRotaryReference from '../utils/useRotaryReference';
@@ -53,6 +54,16 @@ const useStyles = makeStyles((theme: Theme) => ({
     padding: theme.spacing(2),
     backgroundColor: theme.palette.background.paper,
     marginBottom: theme.spacing(2),
+  },
+  marginContent: {
+    textAlign: 'center',
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(3),
+  },
+  marginHeader: {
+    textAlign: 'center',
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(1),
   },
   panelTitle: {
     padding: '5px 16px',
@@ -286,6 +297,19 @@ export const AlarmsPage = (): JSX.Element => {
   };
   const applyChanges = () => dispatch(updateCommittedState(ALARM_LIMITS, alarmLimits));
   const alarmConfig = alarmConfiguration(currentMode);
+  const [open, setOpen] = useState(false);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleConfirm = () => {
+    setOpen(false);
+    applyChanges();
+  };
+  const handleOpen = () => {
+    setOpen(true);
+  };
 
   useEffect(() => {
     setPageCount(Math.ceil(alarmConfig.length / itemsPerPage));
@@ -338,7 +362,7 @@ export const AlarmsPage = (): JSX.Element => {
             <Grid item style={{ textAlign: 'right' }}>
               {ventilating ? (
                 <Button
-                  onClick={applyChanges}
+                  onClick={handleOpen}
                   color="secondary"
                   variant="contained"
                   className={classes.applyButton}
@@ -346,6 +370,24 @@ export const AlarmsPage = (): JSX.Element => {
                   Apply Changes
                 </Button>
               ) : null}
+              <ModalPopup
+                withAction={true}
+                label="Set Alarms"
+                open={open}
+                onClose={handleClose}
+                onConfirm={handleConfirm}
+              >
+                <Grid container alignItems="center">
+                  <Grid container alignItems="center" justify="center">
+                    <Grid container alignItems="center" className={classes.marginHeader}>
+                      <Grid item xs>
+                        <Typography variant="h4">Confirm New Changes?</Typography>
+                      </Grid>
+                    </Grid>
+                    <Grid item alignItems="center" className={classes.marginContent} />
+                  </Grid>
+                </Grid>
+              </ModalPopup>
             </Grid>
           </Grid>
         </Grid>
