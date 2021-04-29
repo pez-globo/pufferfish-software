@@ -40,13 +40,4 @@ I2CDeviceStatus HALI2CDevice::write(uint8_t *buf, size_t count) {
   return I2CDeviceStatus::write_error;
 }
 
-I2CDeviceStatus HALI2CDevice::write(uint16_t address, uint8_t *buf, size_t count) {
-  HAL_StatusTypeDef stat = HAL_I2C_Mem_Write(
-      &dev_, addr << 1U, address, sizeof(address), buf, count, HALI2CDevice::default_timeout);
-  if (stat == HAL_OK) {
-    return I2CDeviceStatus::ok;
-  }
-  return I2CDeviceStatus::write_error;
-}
-
 }  // namespace Pufferfish::HAL

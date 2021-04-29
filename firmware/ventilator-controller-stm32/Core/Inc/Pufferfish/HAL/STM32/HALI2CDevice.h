@@ -37,8 +37,6 @@ class HALI2CDevice : public I2CDevice {
    */
   I2CDeviceStatus write(uint8_t *buf, size_t count) override;
 
-  I2CDeviceStatus write(uint16_t address, uint8_t *buf, size_t count) override;
-
  private:
   I2C_HandleTypeDef &dev_;
   const uint16_t addr;
