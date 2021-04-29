@@ -26,6 +26,8 @@ enum class Command : uint16_t {
   config_bits = 0x1400
 };
 
+enum class Mask : uint16_t { charger_enabled = 0x2000 };
+
 }  // namespace LTC4015
 }  // namespace I2C
 }  // namespace Driver

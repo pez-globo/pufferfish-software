@@ -30,7 +30,7 @@ class Device {
    * Checks if the charger is enabled
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus is_charger_enabled(uint8_t &charger_enabled);
+  I2CDeviceStatus is_charger_enabled(bool &charger_enabled);
 
   /**
    * suspends charging of battery
