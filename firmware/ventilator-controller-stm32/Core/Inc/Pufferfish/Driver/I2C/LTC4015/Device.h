@@ -12,7 +12,7 @@
 
 #include <climits>
 
-#include "Pufferfish/Driver/I2C/LTC4015/LTC4015.h"
+#include "Pufferfish/Driver/I2C/LTC4015/I2CDevice.h"
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 #include "Types.h"
 
@@ -24,25 +24,19 @@ static const uint16_t device_addr = 0xD0;
  */
 class Device {
  public:
-  explicit Device(HAL::I2CDevice &dev) : ltc4015_(dev) {}
-
-  /**
-   * suspends charging of battery
-   * @return ok on success, error code otherwise
-   */
-  I2CDeviceStatus suspend_battery_charger();
-
-  /**
-   * enables coloumb counter
-   * @return ok on success, error code otherwise
-   */
-  I2CDeviceStatus enable_coloumb_counter();
+  explicit Device(HAL::I2CDevice &dev) : i2cdevice_(dev) {}
 
   /**
    * Checks if the charger is enabled
    * @return ok on success, error code otherwise
    */
   I2CDeviceStatus is_charger_enabled(uint8_t &charger_enabled);
+
+  /**
+   * suspends charging of battery
+   * @return ok on success, error code otherwise
+   */
+  I2CDeviceStatus suspend_battery_charger();
 
   /**
    * Reads out the battery voltage
@@ -75,7 +69,7 @@ class Device {
   I2CDeviceStatus read_input_current(uint16_t &i_in);
 
  private:
-  LTC4015 ltc4015_;
+  I2CDevice i2cdevice_;
 };
 
 }  // namespace Pufferfish::Driver::I2C::LTC4015

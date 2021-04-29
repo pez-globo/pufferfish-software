@@ -13,17 +13,9 @@
 
 namespace Pufferfish::Driver::I2C::LTC4015 {
 
-I2CDeviceStatus Device::enable_coloumb_counter() {
-  return ltc4015_.write(static_cast<uint16_t>(Command::enable_qcount));
-}
-
-I2CDeviceStatus Device::suspend_battery_charger() {
-  return ltc4015_.write(static_cast<uint16_t>(Command::suspend_charger));
-}
-
 I2CDeviceStatus Device::read_battery_voltage(uint16_t &v_bat) {
   std::array<uint8_t, sizeof(uint16_t)> buffer{};
-  I2CDeviceStatus ret = ltc4015_.read(static_cast<uint16_t>(Command::vbat_addr), buffer);
+  I2CDeviceStatus ret = i2cdevice_.read(static_cast<uint16_t>(Command::vbat_addr), buffer);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
@@ -37,7 +29,7 @@ I2CDeviceStatus Device::read_battery_voltage(uint16_t &v_bat) {
 
 I2CDeviceStatus Device::read_input_voltage(uint16_t &v_in) {
   std::array<uint8_t, sizeof(uint16_t)> buffer{};
-  I2CDeviceStatus ret = ltc4015_.read(static_cast<uint16_t>(Command::vin_addr), buffer);
+  I2CDeviceStatus ret = i2cdevice_.read(static_cast<uint16_t>(Command::vin_addr), buffer);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
@@ -46,6 +38,48 @@ I2CDeviceStatus Device::read_input_voltage(uint16_t &v_in) {
   Util::read_ntoh(buffer.data(), vin_value);
   // NOLINTNEXTLINE(readability-magic-numbers)
   v_in = vin_value * 1.648;  // Vin = [VIN] • 1.648mV
+  return I2CDeviceStatus::ok;
+}
+
+I2CDeviceStatus Device::read_system_voltage(uint16_t &v_sys) {
+  std::array<uint8_t, sizeof(uint16_t)> buffer{};
+  I2CDeviceStatus ret = i2cdevice_.read(static_cast<uint16_t>(Command::vsys_addr), buffer);
+  if (ret != I2CDeviceStatus::ok) {
+    return ret;
+  }
+
+  uint16_t vsys_value = 0;
+  Util::read_ntoh(buffer.data(), vsys_value);
+  // NOLINTNEXTLINE(readability-magic-numbers)
+  v_sys = vsys_value * 1.648;  // Vsys = [VSYS] • 1.648mV
+  return I2CDeviceStatus::ok;
+}
+
+I2CDeviceStatus Device::read_battery_current(uint16_t &i_bat) {
+  std::array<uint8_t, sizeof(uint16_t)> buffer{};
+  I2CDeviceStatus ret = i2cdevice_.read(static_cast<uint16_t>(Command::ibat_addr), buffer);
+  if (ret != I2CDeviceStatus::ok) {
+    return ret;
+  }
+
+  uint16_t i_bat_value = 0;
+  Util::read_ntoh(buffer.data(), i_bat_value);
+  // NOLINTNEXTLINE(readability-magic-numbers)
+  i_bat = i_bat_value * 1.46487;  // Ibat = [IBAT] • 1.46487mV
+  return I2CDeviceStatus::ok;
+}
+
+I2CDeviceStatus Device::read_input_current(uint16_t &i_in) {
+  std::array<uint8_t, sizeof(uint16_t)> buffer{};
+  I2CDeviceStatus ret = i2cdevice_.read(static_cast<uint16_t>(Command::iin_addr), buffer);
+  if (ret != I2CDeviceStatus::ok) {
+    return ret;
+  }
+
+  uint16_t i_in_value = 0;
+  Util::read_ntoh(buffer.data(), i_in_value);
+  // NOLINTNEXTLINE(readability-magic-numbers)
+  i_in = i_in_value * 1.46487;  // Iin = [IIN] • 1.46487mV
   return I2CDeviceStatus::ok;
 }
 

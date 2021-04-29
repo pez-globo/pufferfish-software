@@ -16,9 +16,9 @@ namespace Pufferfish::Driver::I2C::LTC4015 {
 /**
  * A class for LTC4015 I2C device
  */
-class LTC4015 {
+class I2CDevice {
  public:
-  explicit LTC4015(HAL::I2CDevice &dev) : dev_(dev) {}
+  explicit I2CDevice(HAL::I2CDevice &dev) : dev_(dev) {}
 
   /**
    * Reads a data from the sensor
