@@ -20,7 +20,6 @@ import { SystemSettingRequest, FrontendDisplaySetting, RotaryEncoder } from './p
 export const STATE_UPDATED = '@controller/STATE_UPDATED';
 export const PARAMETER_COMMITTED = '@controller/PARAMETER_COMMITTED';
 export const ALARM_LIMITS = 'ALARM_LIMITS';
-export const EXPECTED_LOG_EVENT_ID = 'EXPECTED_LOG_EVENT_ID';
 export const ALARM_LIMITS_STANDBY = 'ALARM_LIMITS_STANDBY';
 export const PARAMETER_STANDBY = 'PARAMETERS_STANDBY';
 export const FRONTEND_DISPLAY_SETTINGS = 'FRONTEND_DISPLAY_SETTINGS';
@@ -144,6 +143,15 @@ export interface SmoothingData {
   changeStartTime?: number;
 }
 
+export interface EventLog {
+  expectedLogEvent: ExpectedLogEvent;
+  nextLogEvents: NextLogEvents;
+  activeLogEvents: ActiveLogEvents;
+  ephemeralLogEvents: {
+    id: number[];
+  };
+}
+
 export interface ControllerStates {
   // Message states from mcu_pb
   sensorMeasurements: SensorMeasurements;
@@ -154,16 +162,14 @@ export interface ControllerStates {
   alarmLimits: AlarmLimits;
   alarmLimitsRequest: AlarmLimitsRequest;
   alarmLimitsRequestStandby: { alarmLimits: AlarmLimitsRequest };
-  expectedLogEvent: ExpectedLogEvent;
-  nextLogEvents: NextLogEvents;
-  heartbeatBackend: { time: Date };
-  activeLogEvents: ActiveLogEvents;
+  eventLog: EventLog;
   alarmMuteRequest: AlarmMuteRequest;
   alarmMute: AlarmMute;
   systemSettingRequest: SystemSettingRequest;
   frontendDisplaySetting: FrontendDisplaySetting;
   batteryPower: BatteryPower;
   screenStatus: ScreenStatus;
+  heartbeatBackend: { time: Date };
 
   // Message states from frontend_pb
   rotaryEncoder: RotaryEncoderParameter;

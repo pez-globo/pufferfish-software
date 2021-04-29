@@ -2,7 +2,6 @@ import {
   ParametersRequest,
   AlarmLimitsRequest,
   VentilationMode,
-  ExpectedLogEvent,
   AlarmMuteRequest,
 } from '../proto/mcu_pb';
 import {
@@ -20,7 +19,6 @@ import {
   FRONTEND_DISPLAY_SETTINGS,
   SYSTEM_SETTINGS,
   commitAction,
-  EXPECTED_LOG_EVENT_ID,
   ALARM_LIMITS_STANDBY,
   PARAMETER_STANDBY,
   ALARM_MUTE,
@@ -30,20 +28,21 @@ import DECIMAL_RADIX from '../../../modules/app/AppConstants';
 
 export const alarmLimitsReducer = (
   state: AlarmLimitsRequest = AlarmLimitsRequest.fromJSON({
+    spo2: { lower: 21, upper: 100 },
+    hr: { lower: 0, upper: 200 },
+    // Ignored
+    fio2: { lower: 78, upper: 82 },
+    flow: { lower: 28, upper: 32 },
     rr: { upper: 100 },
     pip: { upper: 100 },
     peep: { upper: 100 },
     ipAbovePeep: { upper: 100 },
     inspTime: { upper: 100 },
-    fio2: { lower: 21, upper: 100 },
     paw: { upper: 100 },
     mve: { upper: 100 },
     tv: { upper: 100 },
     etco2: { upper: 100 },
-    flow: { upper: 100 },
     apnea: { upper: 100 },
-    spo2: { lower: 21, upper: 100 },
-    hr: { lower: 0, upper: 200 },
   }) as AlarmLimitsRequest,
   action: commitAction,
 ): AlarmLimitsRequest => {
@@ -53,20 +52,21 @@ export const alarmLimitsReducer = (
 export const alarmLimitsRequestStandbyReducer = (
   state: { alarmLimits: AlarmLimitsRequest } = {
     alarmLimits: AlarmLimitsRequest.fromJSON({
+      spo2: { lower: 90, upper: 100 },
+      hr: { lower: 60, upper: 100 },
+      // Ignored
+      fio2: { lower: 78, upper: 82 },
+      flow: { lower: 28, upper: 32 },
       rr: { upper: 100 },
       pip: { upper: 100 },
       peep: { upper: 100 },
       ipAbovePeep: { upper: 100 },
       inspTime: { upper: 100 },
-      fio2: { lower: 21, upper: 100 },
       paw: { upper: 100 },
       mve: { upper: 100 },
       tv: { upper: 100 },
       etco2: { upper: 100 },
-      flow: { upper: 100 },
       apnea: { upper: 100 },
-      spo2: { lower: 21, upper: 100 },
-      hr: { lower: 0, upper: 200 },
     }),
   } as { alarmLimits: AlarmLimitsRequest },
   action: commitAction,
@@ -90,11 +90,8 @@ export const parametersRequestStanbyReducer = (
   state: { parameters: ParametersRequest } = {
     parameters: ParametersRequest.fromJSON({
       mode: VentilationMode.hfnc,
-      pip: 30,
-      peep: 0,
-      rr: 30,
-      ie: 1.0,
-      fio2: 60.0,
+      fio2: 80.0,
+      flow: 30,
     }),
   } as { parameters: ParametersRequest },
   action: commitAction,
@@ -122,15 +119,6 @@ export const frontendDisplaySettingReducer = (
   action: commitAction,
 ): FrontendDisplaySetting => {
   return withRequestUpdate<FrontendDisplaySetting>(state, action, FRONTEND_DISPLAY_SETTINGS);
-};
-
-export const expectedLogEventReducer = (
-  state: ExpectedLogEvent = ExpectedLogEvent.fromJSON({
-    id: 0,
-  }) as ExpectedLogEvent,
-  action: commitAction,
-): ExpectedLogEvent => {
-  return withRequestUpdate<ExpectedLogEvent>(state, action, EXPECTED_LOG_EVENT_ID);
 };
 
 export const systemSettingRequestReducer = (
@@ -181,11 +169,8 @@ export const withRequestUpdate = <T>(state: T, action: commitAction, prefix: str
 export const parametersRequestReducer = (
   state: ParametersRequest = ParametersRequest.fromJSON({
     mode: VentilationMode.hfnc,
-    pip: 30,
-    peep: 0,
-    rr: 30,
-    ie: 1.0,
-    fio2: 60.0,
+    fio2: 21.0,
+    flow: 0,
     ventilating: false,
   }) as ParametersRequest,
   action: StateUpdateAction | ParameterCommitAction,

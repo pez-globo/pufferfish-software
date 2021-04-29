@@ -48,12 +48,26 @@ IndexStatus Vector<Element, array_size>::resize(size_t new_size) {
 }
 
 template <typename Element, size_t array_size>
-IndexStatus Vector<Element, array_size>::push_back(uint8_t new_byte) {
+IndexStatus Vector<Element, array_size>::push_back(const Element &new_elem) {
   if (size_ == array_size) {
     return IndexStatus::out_of_bounds;
   }
-  buffer_[size_] = new_byte;
+  buffer_[size_] = new_elem;
   ++size_;
+  return IndexStatus::ok;
+}
+
+template <typename Element, size_t array_size>
+IndexStatus Vector<Element, array_size>::erase(size_t index) {
+  if (index >= size_) {
+    return IndexStatus::out_of_bounds;
+  }
+
+  for (size_t i = index; i < size_ - 1; ++i) {
+    buffer_[i] = buffer_[i + 1];
+  }
+
+  --size_;
   return IndexStatus::ok;
 }
 

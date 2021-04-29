@@ -19,9 +19,12 @@ template <typename TaggedUnion, typename MessageTypes, size_t max_size>
 template <size_t output_size, size_t num_descriptors>
 MessageStatus Message<TaggedUnion, MessageTypes, max_size>::write(
     Util::ByteVector<output_size> &output_buffer,
-    const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) const {
-  auto type = static_cast<uint8_t>(payload.tag);
-  if (type > pb_protobuf_descriptors.size()) {
+    const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) {
+  static_assert(
+      Util::ByteVector<output_size>::max_size() >= max_size,
+      "Write method unavailable as output buffer is too small");
+  type = static_cast<uint8_t>(payload.tag);
+  if (type >= pb_protobuf_descriptors.size()) {
     return MessageStatus::invalid_type;
   }
 
@@ -54,6 +57,9 @@ template <size_t input_size, size_t num_descriptors>
 MessageStatus Message<TaggedUnion, MessageTypes, max_size>::parse(
     const Util::ByteVector<input_size> &input_buffer,
     const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) {
+  static_assert(
+      Util::ByteVector<input_size>::max_size() <= max_size,
+      "Parse method unavailable as input buffer size is too large");
   if (input_buffer.size() < Message::header_size) {
     return MessageStatus::invalid_length;
   }
@@ -98,15 +104,17 @@ MessageStatus MessageReceiver<Message, num_descriptors>::transform(
 
 // MessageSender
 
-template <typename Message, size_t num_descriptors>
-MessageSender<Message, num_descriptors>::MessageSender(
+template <typename Message, typename TaggedUnion, size_t num_descriptors>
+MessageSender<Message, TaggedUnion, num_descriptors>::MessageSender(
     const Util::ProtobufDescriptors<num_descriptors> &descriptors)
     : descriptors_(descriptors) {}
 
-template <typename Message, size_t num_descriptors>
+template <typename Message, typename TaggedUnion, size_t num_descriptors>
 template <size_t output_size>
-MessageStatus MessageSender<Message, num_descriptors>::transform(
-    const Message &input_message, Util::ByteVector<output_size> &output_buffer) const {
+MessageStatus MessageSender<Message, TaggedUnion, num_descriptors>::transform(
+    const TaggedUnion &input_payload, Util::ByteVector<output_size> &output_buffer) const {
+  Message input_message;
+  input_message.payload = input_payload;
   return input_message.write(output_buffer, descriptors_);
 }
 

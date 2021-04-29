@@ -15,14 +15,11 @@
 
 #include <array>
 #include <cstddef>
-#include <cstdint>
 
-#include "Pufferfish/HAL/Types.h"
 #include "Pufferfish/Statuses.h"
 
 namespace Pufferfish::Util {
 
-// BufferSize is recommended to be a power of two for compiler optimization.
 template <typename Element, size_t array_size>
 class Vector {
  public:
@@ -36,11 +33,14 @@ class Vector {
 
   void clear();
   IndexStatus resize(size_t new_size);
-  IndexStatus push_back(uint8_t new_byte);
+  IndexStatus push_back(const Element &new_elem);
+  IndexStatus erase(size_t index);
 
+  // Note: these don't perform bounds-checking!
   constexpr const Element &operator[](size_t position) const noexcept;
   constexpr Element &operator[](size_t position) noexcept;
 
+  // Note: these perform shallow copies!
   template <size_t source_size>
   IndexStatus copy_from(
       const std::array<Element, source_size> &source_bytes, size_t dest_start_index = 0);

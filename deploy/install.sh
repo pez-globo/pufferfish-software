@@ -31,9 +31,9 @@ $script_path/scripts/install_fonts.sh || exit_script "Roboto Fonts installation 
 # Setup yarn and install required libraries
 $script_path/scripts/yarn.sh || exit_script "Yarn installation failed"
 
-if [[ "$@" != "deploy" ]]
+if [[ "$@" != "pipeline" ]]
 then
-    echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/N]: "
+    echo -n "Reboot required for changes to take effect. Do you want to reboot now? [y/n]: "
     read answer
     if echo "$answer" | grep -iq "^y"
     then

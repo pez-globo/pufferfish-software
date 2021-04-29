@@ -1,13 +1,14 @@
 """Servicing of Parameters and ParametersRequest states."""
 
 import typing
-from typing import Dict, Mapping, Optional, Type, Union
+from typing import Dict, Mapping, Optional, Union
 
 import attr
 
 import betterproto
 
 from ventserver.protocols.protobuf import mcu_pb
+from ventserver.protocols import backend
 from ventserver.simulation import log
 
 
@@ -57,10 +58,14 @@ class Service:
     """Base class for a breathing circuit simulator."""
 
     ALARM_CODES = {
-        mcu_pb.LogEventCode.spo2_too_low,
-        mcu_pb.LogEventCode.spo2_too_high,
         mcu_pb.LogEventCode.fio2_too_low,
         mcu_pb.LogEventCode.fio2_too_high,
+        mcu_pb.LogEventCode.flow_too_low,
+        mcu_pb.LogEventCode.flow_too_high,
+        mcu_pb.LogEventCode.spo2_too_low,
+        mcu_pb.LogEventCode.spo2_too_high,
+        mcu_pb.LogEventCode.hr_too_low,
+        mcu_pb.LogEventCode.hr_too_high,
     }
 
     _manager: Manager = attr.ib(factory=Manager)
@@ -80,6 +85,13 @@ class Service:
             return
 
         self.transform_parameter_alarms(
+            alarm_limits.fio2.lower, alarm_limits.fio2.upper,
+            sensor_measurements.fio2,
+            mcu_pb.LogEventCode.fio2_too_low,
+            mcu_pb.LogEventCode.fio2_too_high,
+            log_manager
+        )
+        self.transform_parameter_alarms(
             alarm_limits.spo2.lower, alarm_limits.spo2.upper,
             sensor_measurements.spo2,
             mcu_pb.LogEventCode.spo2_too_low,
@@ -87,12 +99,13 @@ class Service:
             log_manager
         )
         self.transform_parameter_alarms(
-            alarm_limits.fio2.lower, alarm_limits.fio2.upper,
-            sensor_measurements.fio2,
-            mcu_pb.LogEventCode.fio2_too_low,
-            mcu_pb.LogEventCode.fio2_too_high,
+            alarm_limits.hr.lower, alarm_limits.hr.upper,
+            sensor_measurements.hr,
+            mcu_pb.LogEventCode.hr_too_low,
+            mcu_pb.LogEventCode.hr_too_high,
             log_manager
         )
+
         self._manager.transform_active_log_event_ids(active_log_events)
 
     # Update methods
@@ -138,6 +151,29 @@ class PCAC(Service):
 class HFNC(Service):
     """Breathing circuit simulator in HFNC mode."""
 
+    def transform(
+            self, parameters: mcu_pb.Parameters,
+            alarm_limits: mcu_pb.AlarmLimits,
+            sensor_measurements: mcu_pb.SensorMeasurements,
+            active_log_events: mcu_pb.ActiveLogEvents,
+            log_manager: log.Manager
+    ) -> None:
+        """Update the simulation."""
+        super().transform(
+            parameters, alarm_limits, sensor_measurements, active_log_events,
+            log_manager
+        )
+        if not parameters.ventilating:
+            return
+        self.transform_parameter_alarms(
+            alarm_limits.flow.lower, alarm_limits.flow.upper,
+            sensor_measurements.flow,
+            mcu_pb.LogEventCode.flow_too_low,
+            mcu_pb.LogEventCode.flow_too_high,
+            log_manager
+        )
+        self._manager.transform_active_log_event_ids(active_log_events)
+
 
 # Aggregation
 
@@ -160,12 +196,12 @@ class Services:
 
     def transform(
             self, current_time: float, all_states: Mapping[
-                Type[betterproto.Message], Optional[betterproto.Message]
+                backend.StateSegment, Optional[betterproto.Message]
             ], log_manager: log.Manager
     ) -> None:
         """Update the parameters for the requested mode."""
         parameters = typing.cast(
-            mcu_pb.Parameters, all_states[mcu_pb.Parameters]
+            mcu_pb.Parameters, all_states[backend.StateSegment.PARAMETERS]
         )
         self._active_service = self._services.get(parameters.mode, None)
 
@@ -173,14 +209,15 @@ class Services:
             return
 
         alarm_limits = typing.cast(
-            mcu_pb.AlarmLimits, all_states[mcu_pb.AlarmLimits]
+            mcu_pb.AlarmLimits, all_states[backend.StateSegment.ALARM_LIMITS]
         )
         sensor_measurements = typing.cast(
             mcu_pb.SensorMeasurements,
-            all_states[mcu_pb.SensorMeasurements]
+            all_states[backend.StateSegment.SENSOR_MEASUREMENTS]
         )
         active_log_events = typing.cast(
-            mcu_pb.ActiveLogEvents, all_states[mcu_pb.ActiveLogEvents]
+            mcu_pb.ActiveLogEvents,
+            all_states[backend.StateSegment.ACTIVE_LOG_EVENTS_MCU]
         )
         log_manager.update_clock(current_time)
         self._active_service.transform(

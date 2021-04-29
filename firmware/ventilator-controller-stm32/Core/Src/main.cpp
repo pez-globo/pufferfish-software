@@ -32,7 +32,11 @@
 #include <functional>
 
 #include "Pufferfish/AlarmsManager.h"
+#include "Pufferfish/Application/LogEvents.h"
 #include "Pufferfish/Application/States.h"
+#include "Pufferfish/Application/mcu_pb.h"  // Only used for debugging
+#include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
+#include "Pufferfish/Driver/BreathingCircuit/Alarms.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
@@ -101,8 +105,13 @@ namespace PF = Pufferfish;
 // Application State
 PF::Application::States all_states;
 
-// Parameters
+// Event Logging
+PF::Application::LogEventsSender log_events_sender;
+PF::Application::LogEventsManager log_events_manager(log_events_sender);
+
+// Request/Response Services
 PF::Driver::BreathingCircuit::ParametersServices parameters_service;
+PF::Driver::BreathingCircuit::AlarmLimitsServices alarm_limits_service;
 
 // Breathing Circuit Simulation
 PF::Driver::BreathingCircuit::Simulators simulator;
@@ -119,7 +128,8 @@ volatile Pufferfish::HAL::LargeBufferedUART fdo2_uart(huart7, time);
 volatile Pufferfish::HAL::ReadOnlyBufferedUART nonin_oem_uart(huart4, time);
 
 // UART Serial Communication
-PF::Driver::Serial::Backend::UARTBackend backend(backend_uart, crc32c, all_states);
+PF::Driver::Serial::Backend::UARTBackend backend(
+    backend_uart, crc32c, all_states, log_events_sender);
 
 // Create an object for ADC3 of AnalogInput Class
 static const uint32_t adc_poll_timeout = 10;
@@ -184,7 +194,7 @@ PF::HAL::HALDigitalOutput alarm_buzzer(
 PF::Driver::Indicators::LEDAlarm alarm_dev_led(alarm_led_r, alarm_led_g, alarm_led_b);
 PF::Driver::Indicators::AuditoryAlarm alarm_dev_sound(
     alarm_reg_high, alarm_reg_med, alarm_reg_low, alarm_buzzer);
-PF::AlarmsManager h_alarms(alarm_dev_led, alarm_dev_sound);
+// PF::AlarmsManager h_alarms(alarm_dev_led, alarm_dev_sound);
 
 PF::HAL::HALDigitalInput button_alarm_en(
     *SET_ALARM_EN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
@@ -309,7 +319,7 @@ PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 // Initializables
 
 auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
-    sfm3019_air, sfm3019_o2, /*fdo2, */ nonin_oem);
+    sfm3019_air, sfm3019_o2, fdo2, nonin_oem);
 std::array<PF::InitializableState, initializables.size()> initialization_states;
 
 /*
@@ -334,6 +344,10 @@ auto i2c_test_list = PF::Util::make_array<PF::Driver::Testable *>(
 
 int interface_test_state = 0;
 int interface_test_millis = 0;
+
+// Alarms
+PF::Driver::BreathingCircuit::AlarmsManager alarms_manager(log_events_manager);
+PF::Driver::BreathingCircuit::AlarmsServices breathing_circuit_alarms;
 
 // Breathing Circuit Control
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
@@ -372,6 +386,22 @@ static void MX_TIM12_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void initialize_states() {
+  // Parameters
+  Parameters parameters;
+  PF::Application::StateSegment parameters_request;
+  PF::Driver::BreathingCircuit::make_state_initializers(parameters_request, parameters);
+  all_states.parameters() = parameters;
+  all_states.input(parameters_request);
+
+  // Alarm Limits
+  AlarmLimits alarm_limits;
+  PF::Application::StateSegment alarm_limits_request;
+  PF::Driver::BreathingCircuit::make_state_initializers(alarm_limits_request, alarm_limits);
+  all_states.alarm_limits() = alarm_limits;
+  all_states.input(alarm_limits_request);
+}
+
 void interface_test_loop() {
   // get state of buttons
   bool l_alarm_en = button_alarm_en.read();
@@ -487,6 +517,9 @@ int main(void)
   flasher.start(time.millis());
   dimmer.start(time.millis());
 
+  // Initialize request/response states
+  initialize_states();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -540,8 +573,17 @@ int main(void)
     blinker.input(time.millis());
     dimmer.input(time.millis());
 
-    // Parameters update
-    parameters_service.transform(all_states.parameters_request(), all_states.parameters());
+    // Clock updates
+    log_events_manager.update_time(current_time);
+
+    // Request/response services update
+    parameters_service.transform(
+        all_states.parameters_request(), all_states.parameters(), log_events_manager);
+    alarm_limits_service.transform(
+        all_states.parameters(),
+        all_states.alarm_limits_request(),
+        all_states.alarm_limits(),
+        log_events_manager);
 
     // Breathing Circuit Sensor Simulator
     simulator.transform(
@@ -553,10 +595,16 @@ int main(void)
 
     // Independent Sensors
     fdo2.output(hfnc.sensor_vars().po2);
-    nonin_oem.output(all_states.sensor_measurements().spo2);
+    nonin_oem.output(all_states.sensor_measurements().spo2, all_states.sensor_measurements().hr);
 
     // Breathing Circuit Control Loop
     hfnc.update(current_time);
+    breathing_circuit_alarms.transform(
+        all_states.parameters(),
+        all_states.alarm_limits(),
+        all_states.sensor_measurements(),
+        all_states.active_log_events(),
+        alarms_manager);
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;
