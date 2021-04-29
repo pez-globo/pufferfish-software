@@ -11,7 +11,7 @@
 
 #include <cstdint>
 
-#include "Pufferfish/Application/LogEvents.h"
+#include "Pufferfish/Application/Alarms.h"
 #include "Pufferfish/Statuses.h"
 #include "Pufferfish/Util/Array.h"
 #include "Pufferfish/Util/OrderedMap.h"
@@ -34,7 +34,8 @@ class AlarmsService {
       ActiveLogEvents &active_log_events,
       Application::AlarmsManager &alarms_manager);
 
-  static void deactivate_alarms(ActiveLogEvents &active_log_events, AlarmsManager &alarms_manager);
+  static void deactivate_alarms(
+      ActiveLogEvents &active_log_events, Application::AlarmsManager &alarms_manager);
 };
 
 class PCACAlarms : public AlarmsService {};

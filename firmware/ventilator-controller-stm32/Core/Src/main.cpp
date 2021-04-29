@@ -36,13 +36,14 @@
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/Application/mcu_pb.h"  // Only used for debugging
 #include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
-#include "Pufferfish/Driver/BreathingCircuit/Alarms.h"
+#include "Pufferfish/Driver/BreathingCircuit/AlarmsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 #include "Pufferfish/Driver/Button/Button.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
 #include "Pufferfish/Driver/I2C/HoneywellABP.h"
+#include "Pufferfish/Driver/I2C/LTC4015/Sensor.h"
 #include "Pufferfish/Driver/I2C/SDP.h"
 #include "Pufferfish/Driver/I2C/SFM3000.h"
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
@@ -255,8 +256,10 @@ PF::HAL::HALI2CDevice i2c_hal_press16(hi2c2, PF::Driver::I2C::SFM3000::default_i
 PF::HAL::HALI2CDevice i2c_hal_press17(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_press18(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);*/
 
+PF::HAL::HALI2CDevice i2c1_hal_global(hi2c1, 0x00);
 PF::HAL::HALI2CDevice i2c2_hal_global(hi2c2, 0x00);
 PF::HAL::HALI2CDevice i2c4_hal_global(hi2c4, 0x00);
+PF::HAL::HALI2CDevice i2c_hal_ltc4015(hi2c1, PF::Driver::I2C::LTC4015::device_addr);
 PF::HAL::HALI2CDevice i2c_hal_sfm3019_air(hi2c2, PF::Driver::I2C::SFM3019::default_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_sfm3019_o2(hi2c4, PF::Driver::I2C::SFM3019::default_i2c_addr);
 /*
@@ -316,6 +319,10 @@ PF::Driver::Serial::FDO2::Sensor fdo2(fdo2_dev, time);
 PF::Driver::Serial::Nonin::Device nonin_oem_dev(nonin_oem_uart);
 PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 
+// LTC4015
+PF::Driver::I2C::LTC4015::Device ltc4015_dev(i2c_hal_ltc4015);
+PF::Driver::I2C::LTC4015::Sensor ltc4015_sensor(ltc4015_dev);
+
 // Initializables
 
 auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
@@ -346,7 +353,7 @@ int interface_test_state = 0;
 int interface_test_millis = 0;
 
 // Alarms
-PF::Driver::BreathingCircuit::AlarmsManager alarms_manager(log_events_manager);
+PF::Application::AlarmsManager alarms_manager(log_events_manager);
 PF::Driver::BreathingCircuit::AlarmsServices breathing_circuit_alarms;
 
 // Breathing Circuit Control
@@ -605,6 +612,10 @@ int main(void)
         all_states.sensor_measurements(),
         all_states.active_log_events(),
         alarms_manager);
+
+    // LTC4015 trigger alarm
+    ltc4015_sensor.trigger_alarm(
+        all_states.battery_power(), all_states.active_log_events(), alarms_manager);
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;

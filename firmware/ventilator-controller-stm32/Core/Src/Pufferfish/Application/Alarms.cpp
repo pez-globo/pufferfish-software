@@ -28,6 +28,21 @@ void AlarmsManager::activate_alarm(
   active_alarms_.insert(alarm_code, event_id);
 }
 
+void AlarmsManager::activate_alarm(LogEventCode alarm_code, LogEventType alarm_type) {
+  size_t index_discard = 0;
+  if (active_alarms_.find(alarm_code, index_discard) == IndexStatus::ok) {
+    // Alarm is already active
+    return;
+  }
+
+  uint32_t event_id = 0;
+  LogEvent event{};
+  event.code = alarm_code;
+  event.type = alarm_type;
+  log_manager_.add_event(event, event_id);
+  active_alarms_.insert(alarm_code, event_id);
+}
+
 void AlarmsManager::deactivate_alarm(LogEventCode alarm_code) {
   active_alarms_.erase(alarm_code);
 }

@@ -18,7 +18,7 @@ void AlarmsService::check_parameter(
     float measured_value,
     LogEventCode too_low_code,
     LogEventCode too_high_code,
-    AlarmsManager &alarms_manager) {
+    Application::AlarmsManager &alarms_manager) {
   if (measured_value < alarm_limits.lower) {
     alarms_manager.activate_alarm(too_low_code, LogEventType::LogEventType_patient, alarm_limits);
   } else {
@@ -36,7 +36,7 @@ void AlarmsService::transform(
     const AlarmLimits &alarm_limits,
     const SensorMeasurements &sensor_measurements,
     ActiveLogEvents &active_log_events,
-    AlarmsManager &alarms_manager) {
+    Application::AlarmsManager &alarms_manager) {
   if (!parameters.ventilating) {
     deactivate_alarms(active_log_events, alarms_manager);
     return;
@@ -65,9 +65,9 @@ void AlarmsService::transform(
 }
 
 void AlarmsService::deactivate_alarms(
-    ActiveLogEvents &active_log_events, AlarmsManager &alarms_manager) {
-  for (size_t i = 0; i < alarm_codes.max_size(); ++i) {
-    alarms_manager.deactivate_alarm(alarm_codes[i]);
+    ActiveLogEvents &active_log_events, Application::AlarmsManager &alarms_manager) {
+  for (size_t i = 0; i < Application::alarm_codes.max_size(); ++i) {
+    alarms_manager.deactivate_alarm(Application::alarm_codes[i]);
   }
   alarms_manager.transform(active_log_events);
 }
@@ -79,7 +79,7 @@ void HFNCAlarms::transform(
     const AlarmLimits &alarm_limits,
     const SensorMeasurements &sensor_measurements,
     ActiveLogEvents &active_log_events,
-    AlarmsManager &alarms_manager) {
+    Application::AlarmsManager &alarms_manager) {
   AlarmsService::transform(
       parameters, alarm_limits, sensor_measurements, active_log_events, alarms_manager);
   if (!parameters.ventilating) {
@@ -103,7 +103,7 @@ void AlarmsServices::transform(
     const AlarmLimits &alarm_limits,
     const SensorMeasurements &sensor_measurements,
     ActiveLogEvents &active_log_events,
-    AlarmsManager &alarms_manager) {
+    Application::AlarmsManager &alarms_manager) {
   switch (parameters.mode) {
     case VentilationMode_pc_ac:
       active_service_ = &pc_ac_;

@@ -12,6 +12,7 @@
 
 #include <climits>
 
+#include "Pufferfish/Application/States.h"
 #include "Pufferfish/Driver/I2C/LTC4015/I2CDevice.h"
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 #include "Types.h"
@@ -30,13 +31,7 @@ class Device {
    * Checks if the charger is enabled
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus is_charger_enabled(bool &charger_enabled);
-
-  /**
-   * suspends charging of battery
-   * @return ok on success, error code otherwise
-   */
-  I2CDeviceStatus suspend_battery_charger();
+  I2CDeviceStatus is_charger_enabled(BatteryPower &battery_power);
 
   /**
    * Reads out the battery voltage
