@@ -80,16 +80,17 @@ export enum LogEventCode {
   /** battery_low - System */
   battery_low = 8,
   screen_locked = 9,
+  charger_disconnected = 10,
   /** ventilation_operation_changed - Control */
-  ventilation_operation_changed = 10,
-  ventilation_mode_changed = 11,
-  fio2_setting_changed = 12,
-  flow_setting_changed = 13,
+  ventilation_operation_changed = 11,
+  ventilation_mode_changed = 12,
+  fio2_setting_changed = 13,
+  flow_setting_changed = 14,
   /** fio2_alarm_limits_changed - Alarm Limits */
-  fio2_alarm_limits_changed = 14,
-  flow_alarm_limits_changed = 15,
-  spo2_alarm_limits_changed = 16,
-  hr_alarm_limits_changed = 17,
+  fio2_alarm_limits_changed = 15,
+  flow_alarm_limits_changed = 16,
+  spo2_alarm_limits_changed = 17,
+  hr_alarm_limits_changed = 18,
   UNRECOGNIZED = -1,
 }
 
@@ -126,27 +127,30 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case "screen_locked":
       return LogEventCode.screen_locked;
     case 10:
+    case "charger_disconnected":
+      return LogEventCode.charger_disconnected;
+    case 11:
     case "ventilation_operation_changed":
       return LogEventCode.ventilation_operation_changed;
-    case 11:
+    case 12:
     case "ventilation_mode_changed":
       return LogEventCode.ventilation_mode_changed;
-    case 12:
+    case 13:
     case "fio2_setting_changed":
       return LogEventCode.fio2_setting_changed;
-    case 13:
+    case 14:
     case "flow_setting_changed":
       return LogEventCode.flow_setting_changed;
-    case 14:
+    case 15:
     case "fio2_alarm_limits_changed":
       return LogEventCode.fio2_alarm_limits_changed;
-    case 15:
+    case 16:
     case "flow_alarm_limits_changed":
       return LogEventCode.flow_alarm_limits_changed;
-    case 16:
+    case 17:
     case "spo2_alarm_limits_changed":
       return LogEventCode.spo2_alarm_limits_changed;
-    case 17:
+    case 18:
     case "hr_alarm_limits_changed":
       return LogEventCode.hr_alarm_limits_changed;
     case -1:
@@ -178,6 +182,8 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "battery_low";
     case LogEventCode.screen_locked:
       return "screen_locked";
+    case LogEventCode.charger_disconnected:
+      return "charger_disconnected";
     case LogEventCode.ventilation_operation_changed:
       return "ventilation_operation_changed";
     case LogEventCode.ventilation_mode_changed:
