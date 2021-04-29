@@ -56,7 +56,8 @@ static const auto state_sync_schedule = Util::make_array<const StateOutputSchedu
     StateOutputScheduleEntry{10, Application::MessageTypes::next_log_events},
     StateOutputScheduleEntry{10, Application::MessageTypes::active_log_events},
     StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-    StateOutputScheduleEntry{10, Application::MessageTypes::cycle_measurements});
+    StateOutputScheduleEntry{10, Application::MessageTypes::cycle_measurements},
+    StateOutputScheduleEntry{10, Application::MessageTypes::battery_power});
 
 // Backend
 using CRCElementProps =
@@ -71,8 +72,7 @@ using InputStates = Util::EnumValues<
     Application::MessageTypes,
     Application::MessageTypes::parameters_request,
     Application::MessageTypes::alarm_limits_request,
-    Application::MessageTypes::expected_log_event,
-    Application::MessageTypes::battery_power>;
+    Application::MessageTypes::expected_log_event>;
 
 class Receiver {
  public:
