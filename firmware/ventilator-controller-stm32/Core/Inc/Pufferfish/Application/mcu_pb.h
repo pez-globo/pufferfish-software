@@ -31,14 +31,15 @@ typedef enum _LogEventCode {
     LogEventCode_hr_too_high = 7,
     LogEventCode_battery_low = 8,
     LogEventCode_screen_locked = 9,
-    LogEventCode_ventilation_operation_changed = 10,
-    LogEventCode_ventilation_mode_changed = 11,
-    LogEventCode_fio2_setting_changed = 12,
-    LogEventCode_flow_setting_changed = 13,
-    LogEventCode_fio2_alarm_limits_changed = 14,
-    LogEventCode_flow_alarm_limits_changed = 15,
-    LogEventCode_spo2_alarm_limits_changed = 16,
-    LogEventCode_hr_alarm_limits_changed = 17
+    LogEventCode_charger_disconnected = 10,
+    LogEventCode_ventilation_operation_changed = 11,
+    LogEventCode_ventilation_mode_changed = 12,
+    LogEventCode_fio2_setting_changed = 13,
+    LogEventCode_flow_setting_changed = 14,
+    LogEventCode_fio2_alarm_limits_changed = 15,
+    LogEventCode_flow_alarm_limits_changed = 16,
+    LogEventCode_spo2_alarm_limits_changed = 17,
+    LogEventCode_hr_alarm_limits_changed = 18
 } LogEventCode;
 
 typedef enum _LogEventType {

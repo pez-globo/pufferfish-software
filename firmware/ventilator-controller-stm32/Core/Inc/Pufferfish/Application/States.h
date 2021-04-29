@@ -39,6 +39,7 @@ enum class MessageTypes : uint8_t {
   expected_log_event = 8,
   next_log_events = 9,
   active_log_events = 10,
+  battery_power = 11,
 };
 
 // MessageTypeValues should include all defined values of MessageTypes
@@ -53,7 +54,8 @@ using MessageTypeValues = Util::EnumValues<
     MessageTypes::alarm_limits_request,
     MessageTypes::expected_log_event,
     MessageTypes::next_log_events,
-    MessageTypes::active_log_events>;
+    MessageTypes::active_log_events,
+    MessageTypes::battery_power>;
 
 // Since nanopb is running dynamically, we cannot have extensive compile-time type-checking.
 // It's not clear how we might use variants to replace this union, since the nanopb functions
@@ -75,6 +77,7 @@ struct StateSegments {
   ExpectedLogEvent expected_log_event;
   NextLogEvents next_log_events;
   ActiveLogEvents active_log_events;
+  BatteryPower battery_power;
 };
 
 class States {
@@ -92,6 +95,7 @@ class States {
   [[nodiscard]] const ExpectedLogEvent &expected_log_event() const;
   NextLogEvents &next_log_events();
   ActiveLogEvents &active_log_events();
+  BatteryPower &battery_power();
 
   InputStatus input(const StateSegment &input);
   OutputStatus output(MessageTypes type, StateSegment &output) const;

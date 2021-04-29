@@ -37,7 +37,8 @@ static const auto message_descriptors = Util::make_array<Util::ProtobufDescripto
     Util::get_protobuf_descriptor<AlarmLimitsRequest>(),         // 7
     Util::get_protobuf_descriptor<ExpectedLogEvent>(),           // 8
     Util::get_protobuf_descriptor<NextLogEvents>(),              // 9
-    Util::get_protobuf_descriptor<ActiveLogEvents>()             // 10
+    Util::get_protobuf_descriptor<ActiveLogEvents>(),            // 10
+    Util::get_protobuf_descriptor<BatteryPower>(),               // 10
 );
 
 // State Synchronization
@@ -70,7 +71,8 @@ using InputStates = Util::EnumValues<
     Application::MessageTypes,
     Application::MessageTypes::parameters_request,
     Application::MessageTypes::alarm_limits_request,
-    Application::MessageTypes::expected_log_event>;
+    Application::MessageTypes::expected_log_event,
+    Application::MessageTypes::battery_power>;
 
 class Receiver {
  public:

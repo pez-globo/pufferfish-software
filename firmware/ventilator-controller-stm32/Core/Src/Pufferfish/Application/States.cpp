@@ -45,6 +45,7 @@ STATESEGMENT_TAGGED_SETTER(AlarmLimitsRequest, alarm_limits_request)
 STATESEGMENT_TAGGED_SETTER(ExpectedLogEvent, expected_log_event)
 STATESEGMENT_TAGGED_SETTER(NextLogEvents, next_log_events)
 STATESEGMENT_TAGGED_SETTER(ActiveLogEvents, active_log_events)
+STATESEGMENT_TAGGED_SETTER(BatteryPower, battery_power)
 
 }  // namespace Pufferfish::Util
 
@@ -88,6 +89,10 @@ ActiveLogEvents &States::active_log_events() {
   return state_segments_.active_log_events;
 }
 
+BatteryPower &States::battery_power() {
+  return state_segments_.battery_power;
+}
+
 States::InputStatus States::input(const StateSegment &input) {
   switch (input.tag) {
     case MessageTypes::sensor_measurements:
@@ -116,6 +121,9 @@ States::InputStatus States::input(const StateSegment &input) {
       return InputStatus::ok;
     case MessageTypes::active_log_events:
       STATESEGMENT_GET_TAGGED(active_log_events, input);
+      return InputStatus::ok;
+    case MessageTypes::battery_power:
+      STATESEGMENT_GET_TAGGED(battery_power, input);
       return InputStatus::ok;
     default:
       return InputStatus::invalid_type;
@@ -150,6 +158,9 @@ States::OutputStatus States::output(MessageTypes type, StateSegment &output) con
       return OutputStatus::ok;
     case MessageTypes::active_log_events:
       output.set(state_segments_.active_log_events);
+      return OutputStatus::ok;
+    case MessageTypes::battery_power:
+      output.set(state_segments_.battery_power);
       return OutputStatus::ok;
     default:
       return OutputStatus::invalid_type;
