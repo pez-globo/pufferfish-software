@@ -12,18 +12,25 @@ const boxShadow = '0 3px 1px rgba(0,0,0,0.1),0 4px 8px rgba(0,0,0,0.13),0 0 0 1p
 
 const StyledSlider = withStyles({
   root: {
-    color: '#3880ff',
+    color: 'rgb(41 71 98) !important',
     height: 2,
     padding: '15px 0',
+    '& .Mui-disabled': {
+      height: '28px',
+      width: '32px',
+      marginTop: '-14px',
+      marginLeft: '-14px',
+      backgroundColor: 'rgb(41 71 98)',
+    },
   },
   thumb: {
-    height: 28,
-    width: 32,
+    height: '28px',
+    width: '32px',
     backgroundColor: '#0053b1',
     borderRadius: 5,
     boxShadow,
-    marginTop: -14,
-    marginLeft: -14,
+    marginTop: '-14px',
+    marginLeft: '-14px',
     '&:focus, &:hover, &$active': {
       border: '1px solid #fff',
       boxShadow: '0 3px 1px rgba(0,0,0,0.1),0 4px 8px rgba(0,0,0,0.3),0 0 0 1px rgba(0,0,0,0.02)',
@@ -48,7 +55,7 @@ const StyledSlider = withStyles({
   rail: {
     height: 2,
     opacity: 0.5,
-    backgroundColor: '#bfbfbf',
+    backgroundColor: 'rgb(41 71 98)',
   },
   mark: {
     backgroundColor: '#bfbfbf',
@@ -68,9 +75,17 @@ interface Props {
   onChange?(values: number[]): void;
   rangeValues?: number[];
   step?: number;
+  disabled?: boolean;
 }
 
-export const ValueSlider = ({ min, max, onChange, rangeValues, step }: Props): JSX.Element => {
+export const ValueSlider = ({
+  min,
+  max,
+  onChange,
+  rangeValues,
+  step,
+  disabled = false,
+}: Props): JSX.Element => {
   const classes = useStyles();
   const [value, setValue] = React.useState<number[]>([min, max]);
   if (rangeValues) {
@@ -95,11 +110,14 @@ export const ValueSlider = ({ min, max, onChange, rangeValues, step }: Props): J
         </Grid>
         <Grid container item xs={8} alignItems="center">
           <StyledSlider
+            max={max}
+            min={min}
             valueLabelDisplay="on"
             value={value}
             step={step || 1}
             onChange={handleChange}
             defaultValue={60}
+            disabled={disabled}
           />
         </Grid>
         <Grid container item xs justify="center" alignItems="center">

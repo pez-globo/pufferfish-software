@@ -1,5 +1,6 @@
 // Rates
 export const BMIN = 'b/min';
+export const BPM = 'BPM';
 export const LMIN = 'L/min';
 // Pressure
 export const CMH20 = 'cmH20';

@@ -11,24 +11,26 @@
 
 namespace Pufferfish::Driver::Serial::Backend {
 
-// BackendReceiver
+// Receiver
 
-BackendReceiver::InputStatus BackendReceiver::input(uint8_t new_byte) {
+Receiver::InputStatus Receiver::input(uint8_t new_byte) {
   switch (frame_.input(new_byte)) {
     case FrameProps::InputStatus::output_ready:
       return InputStatus::output_ready;
     case FrameProps::InputStatus::invalid_length:
       return InputStatus::invalid_frame_length;
+    case FrameProps::InputStatus::input_overwritten:
+      return InputStatus::input_overwritten;
     case FrameProps::InputStatus::ok:
       break;
   }
   return InputStatus::ok;
 }
 
-BackendReceiver::OutputStatus BackendReceiver::output(BackendMessage &output_message) {
-  FrameProps::ChunkBuffer temp_buffer1;
-  BackendCRCReceiver::Props::PayloadBuffer temp_buffer2;
-  BackendDatagramReceiver::Props::PayloadBuffer temp_buffer3;
+Receiver::OutputStatus Receiver::output(Message &output_message) {
+  FrameProps::PayloadBuffer temp_buffer1;
+  CRCReceiver::Props::PayloadBuffer temp_buffer2;
+  DatagramReceiver::Props::PayloadBuffer temp_buffer3;
 
   // Frame
   switch (frame_.output(temp_buffer1)) {
@@ -36,31 +38,33 @@ BackendReceiver::OutputStatus BackendReceiver::output(BackendMessage &output_mes
       return OutputStatus::waiting;
     case FrameProps::OutputStatus::invalid_length:
       return OutputStatus::invalid_frame_length;
+    case FrameProps::OutputStatus::invalid_cobs:
+      return OutputStatus::invalid_frame_encoding;
     case FrameProps::OutputStatus::ok:
       break;
   }
 
   // CRCElement
-  BackendParsedCRC receive_crc(temp_buffer2);
+  ParsedCRC receive_crc(temp_buffer2);
   switch (crc_.transform(temp_buffer1, receive_crc)) {
-    case BackendCRCReceiver::Status::invalid_parse:
+    case CRCReceiver::Status::invalid_parse:
       return OutputStatus::invalid_crcelement_parse;
-    case BackendCRCReceiver::Status::invalid_crc:
+    case CRCReceiver::Status::invalid_crc:
       return OutputStatus::invalid_crcelement_crc;
-    case BackendCRCReceiver::Status::ok:
+    case CRCReceiver::Status::ok:
       break;
   }
 
   // Datagram
-  BackendParsedDatagram receive_datagram(temp_buffer3);
+  ParsedDatagram receive_datagram(temp_buffer3);
   switch (datagram_.transform(temp_buffer2, receive_datagram)) {
-    case BackendDatagramReceiver::Status::invalid_parse:
+    case DatagramReceiver::Status::invalid_parse:
       return OutputStatus::invalid_datagram_parse;
-    case BackendDatagramReceiver::Status::invalid_length:
+    case DatagramReceiver::Status::invalid_length:
       return OutputStatus::invalid_datagram_length;
-    case BackendDatagramReceiver::Status::invalid_sequence:
+    case DatagramReceiver::Status::invalid_sequence:
       // TODO(lietk12): emit a warning about invalid sequence
-    case BackendDatagramReceiver::Status::ok:
+    case DatagramReceiver::Status::ok:
       break;
   }
 
@@ -78,16 +82,16 @@ BackendReceiver::OutputStatus BackendReceiver::output(BackendMessage &output_mes
   return OutputStatus::available;
 }
 
-// BackendSender
+// Sender
 
-BackendSender::Status BackendSender::transform(
-    const BackendMessage &input_message, FrameProps::ChunkBuffer &output_buffer) {
-  BackendDatagramSender::Props::PayloadBuffer temp_buffer1;
-  BackendCRCSender::Props::PayloadBuffer temp_buffer2;
-  FrameProps::ChunkBuffer temp_buffer3;
+Sender::Status Sender::transform(
+    const Application::StateSegment &state_segment, FrameProps::ChunkBuffer &output_buffer) {
+  DatagramSender::Props::PayloadBuffer temp_buffer1;
+  CRCSender::Props::PayloadBuffer temp_buffer2;
+  FrameProps::PayloadBuffer temp_buffer3;
 
   // Message
-  switch (message_.transform(input_message, temp_buffer1)) {
+  switch (message_.transform(state_segment, temp_buffer1)) {
     case Protocols::MessageStatus::invalid_length:
       return Status::invalid_message_length;
     case Protocols::MessageStatus::invalid_type:
@@ -100,17 +104,17 @@ BackendSender::Status BackendSender::transform(
 
   // Datagram
   switch (datagram_.transform(temp_buffer1, temp_buffer2)) {
-    case BackendDatagramSender::Status::invalid_length:
+    case DatagramSender::Status::invalid_length:
       return Status::invalid_datagram_length;
-    case BackendDatagramSender::Status::ok:
+    case DatagramSender::Status::ok:
       break;
   }
 
   // CRCElement
   switch (crc_.transform(temp_buffer2, temp_buffer3)) {
-    case BackendCRCSender::Status::invalid_length:
+    case CRCSender::Status::invalid_length:
       return Status::invalid_crcelement_length;
-    case BackendCRCSender::Status::ok:
+    case CRCSender::Status::ok:
       break;
   }
 
@@ -118,6 +122,8 @@ BackendSender::Status BackendSender::transform(
   switch (frame_.transform(temp_buffer3, output_buffer)) {
     case FrameProps::OutputStatus::invalid_length:
       return Status::invalid_frame_length;
+    case FrameProps::OutputStatus::invalid_cobs:
+      return Status::invalid_frame_encoding;
     case FrameProps::OutputStatus::ok:
       break;
     default:
@@ -128,43 +134,53 @@ BackendSender::Status BackendSender::transform(
 
 // Backend
 
+constexpr bool Backend::accept_message(Application::MessageTypes type) noexcept {
+  return InputStates::includes(type);
+}
+
 Backend::Status Backend::input(uint8_t new_byte) {
   // Input into receiver
   switch (receiver_.input(new_byte)) {
-    case BackendReceiver::InputStatus::output_ready:
+    case Receiver::InputStatus::output_ready:
       break;
-    case BackendReceiver::InputStatus::invalid_frame_length:
+    case Receiver::InputStatus::invalid_frame_length:
+    case Receiver::InputStatus::input_overwritten:
       // TODO(lietk12): handle error case first
-    case BackendReceiver::InputStatus::ok:
+    case Receiver::InputStatus::ok:
       return Status::waiting;
   }
 
   // Output from receiver
-  BackendMessage message;
+  Message message;
   switch (receiver_.output(message)) {
-    case BackendReceiver::OutputStatus::invalid_datagram_sequence:
+    case Receiver::OutputStatus::invalid_datagram_sequence:
       // TODO(lietk12): handle warning case first
-    case BackendReceiver::OutputStatus::available:
+    case Receiver::OutputStatus::available:
       break;
-    case BackendReceiver::OutputStatus::invalid_frame_length:
-    case BackendReceiver::OutputStatus::invalid_crcelement_parse:
-    case BackendReceiver::OutputStatus::invalid_crcelement_crc:
-    case BackendReceiver::OutputStatus::invalid_datagram_parse:
-    case BackendReceiver::OutputStatus::invalid_datagram_length:
-    case BackendReceiver::OutputStatus::invalid_message_length:
-    case BackendReceiver::OutputStatus::invalid_message_type:
-    case BackendReceiver::OutputStatus::invalid_message_encoding:
+    case Receiver::OutputStatus::invalid_frame_length:
+    case Receiver::OutputStatus::invalid_frame_encoding:
+    case Receiver::OutputStatus::invalid_crcelement_parse:
+    case Receiver::OutputStatus::invalid_crcelement_crc:
+    case Receiver::OutputStatus::invalid_datagram_parse:
+    case Receiver::OutputStatus::invalid_datagram_length:
+    case Receiver::OutputStatus::invalid_message_length:
+    case Receiver::OutputStatus::invalid_message_type:
+    case Receiver::OutputStatus::invalid_message_encoding:
       // TODO(lietk12): handle error cases first
       return Status::invalid;
-    case BackendReceiver::OutputStatus::waiting:
+    case Receiver::OutputStatus::waiting:
       return Status::waiting;
   }
 
+  if (!accept_message(message.payload.tag)) {
+    return Status::invalid;
+  }
+
   // Input into state synchronization
-  switch (synchronizer_.input(message.payload)) {
-    case BackendStateSynchronizer::InputStatus::ok:
+  switch (states_.input(message.payload)) {
+    case Application::States::InputStatus::ok:
       break;
-    case BackendStateSynchronizer::InputStatus::invalid_type:
+    case Application::States::InputStatus::invalid_type:
       // TODO(lietk12): handle error case
       return Status::invalid;
   }
@@ -176,26 +192,36 @@ void Backend::update_clock(uint32_t current_time) {
   synchronizer_.input(current_time);
 }
 
+void Backend::update_list_senders() {
+  if (log_events_sender_.input(states_.expected_log_event().id) != Protocols::ListInputStatus::ok) {
+    // TODO(lietk12): handle warning case
+  }
+  log_events_sender_.output(states_.next_log_events());
+}
+
 Backend::Status Backend::output(FrameProps::ChunkBuffer &output_buffer) {
   // Output from state synchronization
-  BackendMessage message;
-  switch (synchronizer_.output(message.payload)) {
-    case BackendStateSynchronizer::OutputStatus::available:
+  Application::StateSegment state_segment;
+  switch (synchronizer_.output(state_segment)) {
+    case StateSynchronizer::OutputStatus::ok:
       break;
-    case BackendStateSynchronizer::OutputStatus::waiting:
+    case StateSynchronizer::OutputStatus::invalid_type:
+      return Status::invalid;
+    case StateSynchronizer::OutputStatus::waiting:
       return Status::waiting;
   }
 
-  switch (sender_.transform(message, output_buffer)) {
-    case BackendSender::Status::ok:
+  switch (sender_.transform(state_segment, output_buffer)) {
+    case Sender::Status::ok:
       break;
-    case BackendSender::Status::invalid_message_length:
-    case BackendSender::Status::invalid_message_type:
-    case BackendSender::Status::invalid_message_encoding:
-    case BackendSender::Status::invalid_datagram_length:
-    case BackendSender::Status::invalid_crcelement_length:
-    case BackendSender::Status::invalid_frame_length:
-    case BackendSender::Status::invalid_return_code:
+    case Sender::Status::invalid_message_length:
+    case Sender::Status::invalid_message_type:
+    case Sender::Status::invalid_message_encoding:
+    case Sender::Status::invalid_datagram_length:
+    case Sender::Status::invalid_crcelement_length:
+    case Sender::Status::invalid_frame_length:
+    case Sender::Status::invalid_frame_encoding:
+    case Sender::Status::invalid_return_code:
       // TODO(lietk12): handle error cases first
       return Status::invalid;
   }

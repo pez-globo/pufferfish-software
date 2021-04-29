@@ -7,14 +7,12 @@ import { AppBar, Grid, makeStyles, Theme } from '@material-ui/core';
 import React, { PropsWithChildren, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Route, RouteProps, useHistory } from 'react-router-dom';
-import { getBatteryPower, getIsVentilating } from '../../../store/controller/selectors';
+import { getIsVentilating } from '../../../store/controller/selectors';
 import ClockIcon from '../../icons/ClockIcon';
-import PowerFullIcon from '../../icons/PowerFullIcon';
-import { PERCENT } from '../../info/units';
 import { DASHBOARD_ROUTE, LOGS_ROUTE, QUICKSTART_ROUTE } from '../../navigation/constants';
 import EventAlerts from '../EventAlerts';
 import UserActivity from '../UserActivity';
-import { HeaderClock } from '../ToolBar';
+import { HeaderClock, PowerIndicator } from '../ToolBar';
 import OverlayScreen from '../OverlayScreen';
 import { getAlarmNotifyStatus } from '../../../store/app/selectors';
 
@@ -85,7 +83,6 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
   const classes = useStyles();
   const history = useHistory();
   const ventilating = useSelector(getIsVentilating);
-  const batteryPower = useSelector(getBatteryPower);
   const notifyAlarm = useSelector(getAlarmNotifyStatus);
   const [showBorder, setShowBorder] = React.useState(false);
 
@@ -111,10 +108,7 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
             <EventAlerts label={LOGS_ROUTE.label} />
           </Grid>
           <Grid container item xs justify="flex-end" alignItems="center">
-            <span className={classes.paddingRight}>{`${
-              batteryPower !== undefined ? batteryPower.toFixed(0) : '--'
-            }${PERCENT}`}</span>
-            <PowerFullIcon style={{ fontSize: '2.5rem' }} />
+            <PowerIndicator />
             <HeaderClock />
             <ClockIcon style={{ fontSize: '2.5rem' }} />
           </Grid>

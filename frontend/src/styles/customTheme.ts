@@ -20,6 +20,9 @@ function createCustomTheme(options: ThemeOptions) {
     panel: {
       borderRadius: 16,
     },
+    transitions: {
+      create: () => 'none',
+    },
     // End custom attributes.
     ...options,
   });

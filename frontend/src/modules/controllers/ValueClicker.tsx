@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Grid, Button, makeStyles, Theme } from '@material-ui/core';
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
+import { Subscription } from 'rxjs';
+import { setActiveRotaryReference, getActiveRotaryReference } from '../app/Service';
+import RotaryEncodeController from './RotaryEncodeController';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -31,8 +34,12 @@ interface Props {
   max?: number;
   direction?: Direction;
   step?: number;
+  referenceKey: string;
 }
-
+enum Type {
+  INCREMENT,
+  DECREMENT,
+}
 /**
  * ValueClicker
  *
@@ -45,27 +52,93 @@ export const ValueClicker = ({
   onClick,
   direction = 'column',
   step = 1,
+  referenceKey,
 }: Props): JSX.Element => {
   const classes = useStyles();
+  const [disabledInterval] = useState(100);
   const [disableIncrement, setDisableIncrement] = useState(false);
   const [disableDecrement, setDisableDecrement] = useState(false);
+  const [isRotaryActive, setIsRotaryActive] = React.useState(false);
+  const [activeRef, setActiveRef] = React.useState<string | null>();
 
-  const update = (step: number) => () => {
+  const update = (step: number) => {
     const change = value + step;
     setDisableIncrement(change >= max);
     setDisableDecrement(change <= min);
     return onClick(change);
   };
 
-  setDisableIncrement(value >= max);
-  setDisableDecrement(value <= min);
+  useEffect(() => {
+    setDisableIncrement(value >= max);
+    setDisableDecrement(value <= min);
+  }, [min, max, value]);
+
+  const clickHandlerIncrement = (step: number) => {
+    setDisableIncrement(true);
+    setTimeout(() => {
+      setDisableIncrement(false);
+      update(step);
+    }, disabledInterval);
+  };
+
+  const clickHandlerDecrement = (step: number) => {
+    setDisableDecrement(true);
+    setTimeout(() => {
+      setDisableDecrement(false);
+      update(step);
+    }, disabledInterval);
+  };
+
+  const internalClick = (value: number, type: Type) => {
+    if (type === Type.INCREMENT) {
+      clickHandlerIncrement(value);
+    } else {
+      clickHandlerDecrement(value);
+    }
+    if (!activeRef || (activeRef && activeRef !== referenceKey)) {
+      setActiveRotaryReference(referenceKey);
+    }
+  };
+
+  useEffect(() => {
+    const refSubscription: Subscription = getActiveRotaryReference().subscribe(
+      (refString: string | null) => {
+        setActiveRef(refString);
+        if (refString && refString === referenceKey) {
+          setIsRotaryActive(true);
+        } else {
+          setIsRotaryActive(false);
+        }
+      },
+    );
+    return () => {
+      if (refSubscription) {
+        refSubscription.unsubscribe();
+      }
+    };
+  }, [referenceKey]);
 
   return (
-    <Grid container direction={direction} className={classes.root} wrap="nowrap">
+    <Grid
+      container
+      direction={direction}
+      className={classes.root}
+      wrap="nowrap"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <RotaryEncodeController
+        isActive={isRotaryActive}
+        value={value}
+        onClick={(num: number) => {
+          onClick(num);
+        }}
+        min={min}
+        max={max}
+      />
       <Grid item className={direction === 'row' ? classes.marginRight : classes.marginBottom}>
         <Button
           disabled={disableIncrement}
-          onClick={update(step)}
+          onClick={() => internalClick(step, Type.INCREMENT)}
           variant="contained"
           color="primary"
           className={classes.iconButton}
@@ -76,7 +149,7 @@ export const ValueClicker = ({
       <Grid item>
         <Button
           disabled={disableDecrement}
-          onClick={update(-step)}
+          onClick={() => internalClick(-step, Type.DECREMENT)}
           variant="contained"
           color="primary"
           className={classes.iconButton}

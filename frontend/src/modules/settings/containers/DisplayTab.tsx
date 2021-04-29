@@ -1,5 +1,14 @@
-import { Box, Button, FormControl, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
-import React, { useEffect } from 'react';
+import {
+  Box,
+  Button,
+  FormControl,
+  Grid,
+  makeStyles,
+  Theme,
+  Typography,
+  useTheme,
+} from '@material-ui/core';
+import React, { RefObject, useEffect, useRef } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { getClock } from '../../../store/app/selectors';
 import { ThemeVariant, Unit } from '../../../store/controller/proto/frontend_pb';
@@ -10,6 +19,16 @@ import {
 import { DECIMAL_RADIX } from '../../app/AppConstants';
 import ValueController from '../../controllers/ValueController';
 import { ToggleValue } from '../../displays/ToggleValue';
+import {
+  BRIGHTNESS_REFERENCE_KEY,
+  HOUR_REFERENCE_KEY,
+  MINUTE_REFERENCE_KEY,
+  MONTH_REFERENCE_KEY,
+  DAY_REFERENCE_KEY,
+  YEAR_REFERENCE_KEY,
+} from './constants';
+import { useRotaryReference } from '../../utils/useRotaryReference';
+import { setActiveRotaryReference } from '../../app/Service';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -122,6 +141,16 @@ const DateTimeDisplay = () => {
  */
 export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   const classes = useStyles();
+  const [elRefs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
+    [BRIGHTNESS_REFERENCE_KEY]: useRef(null),
+    [HOUR_REFERENCE_KEY]: useRef(null),
+    [MINUTE_REFERENCE_KEY]: useRef(null),
+    [MONTH_REFERENCE_KEY]: useRef(null),
+    [DAY_REFERENCE_KEY]: useRef(null),
+    [YEAR_REFERENCE_KEY]: useRef(null),
+  });
+  const themeObj = useTheme();
+  const { initRefListener } = useRotaryReference(themeObj);
   const systemSettings = useSelector(getSystemSettingRequest, shallowEqual);
   const displaySettings = useSelector(getFrontendDisplaySetting, shallowEqual);
   const [brightness, setBrightness] = React.useState(systemSettings.brightness);
@@ -136,6 +165,10 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
     date.getMonth() + 1,
   ); /* Note: `getMonth()` returns a value in [0, 11] */
   const [year, setYear] = React.useState(date.getFullYear());
+
+  useEffect(() => {
+    initRefListener(elRefs);
+  }, [initRefListener, elRefs]);
 
   useEffect(() => {
     const dateChange = new Date(year, month - 1, day, to24HourClock(hour, period), minute);
@@ -161,13 +194,19 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
       ? `${classes.periodButton} ${classes.selected}`
       : `${classes.periodButton}`;
 
+  const OnClickPage = () => {
+    setActiveRotaryReference(null);
+  };
+
   return (
-    <Grid container className={classes.root}>
+    <Grid container className={classes.root} onClick={OnClickPage}>
       <Grid container item xs={4}>
         <Grid container item direction="column" className={classes.leftPanel}>
           {/* Brightness */}
           <Grid container item xs direction="row">
             <ValueController
+              reference={elRefs[BRIGHTNESS_REFERENCE_KEY]}
+              referenceKey={BRIGHTNESS_REFERENCE_KEY}
               value={brightness}
               label="Brightness"
               units="%"
@@ -237,10 +276,26 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
         <Grid container item xs direction="column" className={classes.rightPanel}>
           <Grid container item xs alignItems="stretch" className={classes.borderBottom}>
             <Grid item xs className={classes.rightBorder}>
-              <ValueController value={hour} label="Hour" onClick={setHour} min={1} max={12} />
+              <ValueController
+                reference={elRefs[HOUR_REFERENCE_KEY]}
+                referenceKey={HOUR_REFERENCE_KEY}
+                value={hour}
+                label="Hour"
+                onClick={setHour}
+                min={1}
+                max={12}
+              />
             </Grid>
             <Grid item xs>
-              <ValueController value={minute} label="Minute" onClick={setMinute} min={0} max={59} />
+              <ValueController
+                reference={elRefs[MINUTE_REFERENCE_KEY]}
+                referenceKey={MINUTE_REFERENCE_KEY}
+                value={minute}
+                label="Minute"
+                onClick={setMinute}
+                min={0}
+                max={59}
+              />
             </Grid>
             <Grid container item justify="center" alignItems="center" xs={3}>
               <FormControl component="fieldset" className={classes.periodFormControl}>
@@ -268,6 +323,8 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
           <Grid container item xs direction="row" className={classes.borderBottom}>
             <Grid item xs className={classes.rightBorder}>
               <ValueController
+                reference={elRefs[MONTH_REFERENCE_KEY]}
+                referenceKey={MONTH_REFERENCE_KEY}
                 value={month}
                 label="Month"
                 onClick={handleMonthChange}
@@ -277,6 +334,8 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
             </Grid>
             <Grid item xs>
               <ValueController
+                reference={elRefs[DAY_REFERENCE_KEY]}
+                referenceKey={DAY_REFERENCE_KEY}
                 value={day}
                 label="Day"
                 onClick={setDay}
@@ -288,7 +347,15 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
           </Grid>
           <Grid container item xs direction="row" className={classes.borderBottom}>
             <Grid item xs className={classes.rightBorder}>
-              <ValueController value={year} label="Year" onClick={setYear} min={year} max={year} />
+              <ValueController
+                reference={elRefs[YEAR_REFERENCE_KEY]}
+                referenceKey={YEAR_REFERENCE_KEY}
+                value={year}
+                label="Year"
+                onClick={setYear}
+                min={year}
+                max={year}
+              />
             </Grid>
             {/* Moved Apply button out of the tab */}
             {/* <Grid container item xs justify='center' alignItems='center' >

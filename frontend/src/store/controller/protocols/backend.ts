@@ -2,7 +2,7 @@ import { PBMessageType } from '../types';
 import {
   getParametersRequest,
   getAlarmLimitsRequest,
-  getExpectedLogEvent,
+  getFullExpectedLogEvent,
   getAlarmMuteRequest,
 } from '../selectors';
 import { MessageSerializer, serializeMessage } from './messages';
@@ -36,7 +36,7 @@ export const MessageSerializers = new Map<PBMessageType, MessageSerializer>([
 export const MessageSelectors = new Map<PBMessageType, any>([
   [AlarmLimitsRequest, getAlarmLimitsRequest],
   [ParametersRequest, getParametersRequest],
-  [ExpectedLogEvent, getExpectedLogEvent],
+  [ExpectedLogEvent, getFullExpectedLogEvent],
   [AlarmMuteRequest, getAlarmMuteRequest],
 ]);
 

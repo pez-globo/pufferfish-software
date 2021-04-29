@@ -9,7 +9,7 @@ const useStyles = makeStyles(() => ({
     height: '100%',
   },
   carouselFlex: {
-    maxWidth: '700px',
+    maxWidth: '750px',
     display: 'flex',
     justifyContent: 'center',
     flexDirection: 'column',
@@ -49,7 +49,7 @@ const useStyles = makeStyles(() => ({
     },
   },
   carouselArrowRight: {
-    right: '13%',
+    right: '10%',
     border: '1px solid #fff',
     width: '45px',
     height: '45px',
@@ -63,7 +63,7 @@ const useStyles = makeStyles(() => ({
     },
   },
   carouselArrowLeft: {
-    left: '13%',
+    left: '10%',
     border: '1px solid #fff',
     width: '45px',
     height: '45px',

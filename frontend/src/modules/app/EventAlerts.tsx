@@ -4,8 +4,6 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
-import { LogEventCode } from '../../store/controller/proto/mcu_pb';
-import { BMIN, PERCENT } from '../info/units';
 import {
   getActiveLogEventIds,
   getAlarmMuteStatus,
@@ -15,11 +13,8 @@ import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
 import { updateCommittedState } from '../../store/controller/actions';
-import { ALARM_MUTE, BACKEND_CONNECTION_LOST_CODE } from '../../store/controller/types';
-import { RED_BORDER } from '../../store/app/types';
-
-export const ALARM_EVENT_PATIENT = 'Patient';
-export const ALARM_EVENT_SYSTEM = 'System';
+import { ALARM_MUTE } from '../../store/controller/types';
+import { getEventType } from '../logs/EventType';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -102,67 +97,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export const getEventType = (code: LogEventCode): { type: string; label: string; unit: string } => {
-  switch (code) {
-    case LogEventCode.fio2_too_low:
-      return {
-        type: ALARM_EVENT_PATIENT,
-        label: 'fiO2 is too low',
-        unit: PERCENT,
-      };
-    case LogEventCode.fio2_too_high:
-      return {
-        type: ALARM_EVENT_PATIENT,
-        label: 'fiO2 is too high',
-        unit: PERCENT,
-      };
-    case LogEventCode.rr_too_low:
-      return {
-        type: ALARM_EVENT_PATIENT,
-        label: 'Respiratory Rate is too low',
-        unit: BMIN,
-      };
-    case LogEventCode.rr_too_high:
-      return {
-        type: ALARM_EVENT_PATIENT,
-        label: 'Respiratory Rate is too high',
-        unit: BMIN,
-      };
-    case LogEventCode.spo2_too_low:
-      return {
-        type: ALARM_EVENT_PATIENT,
-        label: 'spO2 is too low',
-        unit: PERCENT,
-      };
-    case LogEventCode.spo2_too_high:
-      return {
-        type: ALARM_EVENT_PATIENT,
-        label: 'spO2 is too high',
-        unit: PERCENT,
-      };
-    case LogEventCode.battery_low:
-      return {
-        type: ALARM_EVENT_SYSTEM,
-        label: 'Battery power is low',
-        unit: PERCENT,
-      };
-    case LogEventCode.screen_locked:
-      return {
-        type: ALARM_EVENT_SYSTEM,
-        label: 'Battery power is low',
-        unit: PERCENT,
-      };
-    case BACKEND_CONNECTION_LOST_CODE:
-      return {
-        type: ALARM_EVENT_SYSTEM,
-        label: 'Software connectivity lost',
-        unit: '',
-      };
-    default:
-      return { type: '', label: '', unit: '' };
-  }
-};
-
 interface Props {
   label: string;
 }
@@ -208,24 +142,22 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [alert, setAlert] = useState({ label: '' });
-  const [isMuted, setIsMuted] = useState<boolean>(true);
   const [open, setOpen] = useState<boolean>(false);
   const [activeFilter, setActiveFilter] = useState<boolean>(false);
   const [alertCount, setAlertCount] = useState<number>(0);
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
+  const [isMuted, setIsMuted] = useState<boolean>(!alarmMuteStatus.active);
   useEffect(() => {
     if (popupEventLog) {
       const eventType = getEventType(popupEventLog.code);
-      if (eventType.type) {
+      if (eventType.label) {
         setAlertCount(activeLog.length);
-        dispatch({ type: RED_BORDER, status: true });
         setAlert({ label: eventType.label });
       }
     } else {
       setAlertCount(0);
-      dispatch({ type: RED_BORDER, status: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popupEventLog, JSON.stringify(activeLog)]);
@@ -236,12 +168,19 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
 
   const muteAlarmState = (state: boolean) => {
     dispatch(updateCommittedState(ALARM_MUTE, { active: state }));
-    dispatch({ type: RED_BORDER, status: !state });
+  };
+
+  const openEventLogPopup = (filter: boolean) => {
+    setOpen(true);
+    setActiveFilter(filter);
+  };
+
+  const openPopup = () => {
+    openEventLogPopup(false);
   };
 
   const onActiveAlarmClick = () => {
-    setOpen(true);
-    setActiveFilter(true);
+    openEventLogPopup(true);
   };
 
   return (
@@ -256,7 +195,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
             justify="flex-start"
             alignItems="center"
             wrap="nowrap"
-            style={{ padding: '15px' }}
+            style={{ paddingRight: '15px' }}
           >
             <Grid item xs={6}>
               <Typography variant="h4" style={{ fontWeight: 'normal' }}>
@@ -264,7 +203,11 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               </Typography>
             </Grid>
             <Grid container item xs justify="flex-end" alignItems="center">
-              <div className={classes.timerText}>2:00</div>
+              {!isMuted && (
+                <div className={classes.timerText}>
+                  {new Date(alarmMuteStatus.remaining * 1000).toISOString().substr(14, 5)}
+                </div>
+              )}
               <Button
                 style={{ marginLeft: 12, marginRight: 12 }}
                 onClick={() => muteAlarmState(isMuted)}
@@ -278,7 +221,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
                 onClick={() => setActiveFilter(!activeFilter)}
                 variant="contained"
                 color="primary"
-                style={{ padding: '6px 3rem' }}
+                style={{ width: '10rem' }}
               >
                 {activeFilter ? 'Events Log' : 'Active Alarms'}
               </Button>
@@ -294,7 +237,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       </ModalPopup>
       <Grid hidden={alertCount <= 0}>
         <Button
-          style={{ marginLeft: 12 }}
+          style={{ marginLeft: 5 }}
           onClick={() => muteAlarmState(isMuted)}
           variant="contained"
           color="primary"
@@ -303,16 +246,13 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
         </Button>
         <Button
-          style={{ margin: '0px 12px', padding: 0 }}
+          style={{ margin: '0px 10px', padding: 0 }}
           variant="contained"
           color="primary"
           className={classes.alertColor}
           onClick={onActiveAlarmClick}
         >
-          <span
-            className={!isMuted ? `${classes.alertMargin}` : ''}
-            style={{ padding: '6px 16px' }}
-          >
+          <span className={isMuted ? `${classes.alertMargin}` : ''} style={{ padding: '6px 16px' }}>
             {alert.label}
           </span>
           {alertCount > 1 && (
@@ -323,7 +263,11 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               {alertCount}
             </div>
           )}
-          {isMuted && <div className={classes.timer}>2:00</div>}
+          {!isMuted && (
+            <div className={classes.timer}>
+              {new Date(alarmMuteStatus.remaining * 1000).toISOString().substr(14, 5)}
+            </div>
+          )}
         </Button>
       </Grid>
       <Grid hidden={alertCount > 0}>
@@ -340,12 +284,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         </Button>
       </Grid>
       <Grid>
-        <Button
-          style={{ marginRight: 12 }}
-          variant="contained"
-          color="primary"
-          onClick={() => setOpen(true)}
-        >
+        <Button style={{ marginRight: 12 }} variant="contained" color="primary" onClick={openPopup}>
           <BellIcon />
         </Button>
         {label}

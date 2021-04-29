@@ -3,11 +3,13 @@ import DECIMAL_RADIX from '../../modules/app/AppConstants';
 import { StoreState } from '../types';
 import { FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import {
+  AlarmLimits,
   AlarmLimitsRequest,
   AlarmMute,
   AlarmMuteRequest,
   CycleMeasurements,
   LogEvent,
+  ExpectedLogEvent,
   Parameters,
   ParametersRequest,
   SensorMeasurements,
@@ -59,6 +61,10 @@ export const getSensorMeasurementsSpO2 = createSelector(
   getSensorMeasurements,
   (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.spo2),
 );
+export const getSensorMeasurementsHR = createSelector(
+  getSensorMeasurements,
+  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.hr),
+);
 
 // SensorMeasurementsSmoothed
 export const getSmoothedFlow = createSelector(getController, (states: ControllerStates): number =>
@@ -69,6 +75,9 @@ export const getSmoothedFiO2 = createSelector(getController, (states: Controller
 );
 export const getSmoothedSpO2 = createSelector(getController, (states: ControllerStates): number =>
   roundValue(states.smoothedMeasurements.spo2.smoothed),
+);
+export const getSmoothedHR = createSelector(getController, (states: ControllerStates): number =>
+  roundValue(states.smoothedMeasurements.hr.smoothed),
 );
 
 // CycleMeasurements
@@ -235,6 +244,10 @@ export const getPVLoop = createSelector(
 );
 
 // Alarm Limits
+export const getAlarmLimits = createSelector(
+  getController,
+  (states: ControllerStates): AlarmLimits | Record<string, Range> => states.alarmLimits,
+);
 export const getAlarmLimitsRequest = createSelector(
   getController,
   (states: ControllerStates): AlarmLimitsRequest | Record<string, Range> =>
@@ -262,33 +275,43 @@ export const getSystemSettingRequest = createSelector(
 // Next Log Events
 export const getNextLogEvents = createSelector(
   getController,
-  (states: ControllerStates): LogEvent[] => states.nextLogEvents.elements,
+  (states: ControllerStates): LogEvent[] => states.eventLog.nextLogEvents.elements,
 );
 
 // Patient Alarm Event
 export const getExpectedLogEvent = createSelector(
   getController,
-  (states: ControllerStates): number => states.expectedLogEvent.id,
+  (states: ControllerStates): number => states.eventLog.expectedLogEvent.id,
+);
+export const getFullExpectedLogEvent = createSelector(
+  getController,
+  (states: ControllerStates): ExpectedLogEvent => states.eventLog.expectedLogEvent,
 );
 
 // Active log event Ids
 export const getActiveLogEventIds = createSelector(
   getController,
-  (states: ControllerStates): number[] => states.activeLogEvents.id,
+  (states: ControllerStates): number[] => states.eventLog.activeLogEvents.id,
 );
 
 // Active popup event log
 export const getPopupEventLog = createSelector(getController, (states: ControllerStates):
   | LogEvent
   | undefined => {
-  const maxId = Math.max(...states.activeLogEvents.id);
-  return states.nextLogEvents.elements.find((el: LogEvent) => el.id === maxId);
+  const maxId = Math.max(...states.eventLog.activeLogEvents.id);
+  return states.eventLog.nextLogEvents.elements.find((el: LogEvent) => el.id === maxId);
 });
 
 // Battery power
 export const getBatteryPower = createSelector(
   getController,
   (states: ControllerStates): number => states.batteryPower.powerLeft,
+);
+
+// Charging Status
+export const getChargingStatus = createSelector(
+  getController,
+  (states: ControllerStates): boolean => states.batteryPower.chargingStatus,
 );
 
 // Srceen Status

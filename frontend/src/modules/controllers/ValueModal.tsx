@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core';
 import { shallowEqual, useSelector } from 'react-redux';
 import ValueClicker from './ValueClicker';
@@ -156,7 +156,7 @@ export const ValueModal = ({
         </Grid>
       </Grid>
       <Grid item>
-        <ValueClicker value={value} min={min} max={max} onClick={setValue} />
+        <ValueClicker referenceKey="" value={value} min={min} max={max} onClick={setValue} />
       </Grid>
     </Grid>
   );
@@ -199,9 +199,17 @@ export const SetValueContent = ({
   max = 100,
 }: ContentProps): JSX.Element => {
   const classes = useStyles();
+  const isInitialMount = useRef(true);
   const rotaryEncoder = useSelector(getRotaryEncoder, shallowEqual);
-  const [open] = React.useState(openModal);
+  const [open, setOpen] = React.useState(openModal);
   const [value, setValue] = React.useState(committedSetting);
+
+  useEffect(() => {
+    setOpen(openModal);
+    return () => {
+      setOpen(false);
+    };
+  }, [openModal]);
 
   const initSetValue = useCallback(() => {
     setValue(committedSetting >= min ? committedSetting : min);
@@ -228,7 +236,7 @@ export const SetValueContent = ({
 
   const updateRotaryData = useCallback(
     () => {
-      if (open) {
+      if (open && !Number.isNaN(rotaryEncoder.stepDiff)) {
         const stepDiff = rotaryEncoder.stepDiff || 0;
         const valueClone = value >= min ? value : min;
         const newValue = valueClone + stepDiff;
@@ -249,8 +257,13 @@ export const SetValueContent = ({
   );
 
   useEffect(() => {
-    updateRotaryData();
-  }, [updateRotaryData]);
+    // Disable on initial mount since multi step dialog will run everytime when dialog opens
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    } else {
+      updateRotaryData();
+    }
+  }, [updateRotaryData, rotaryEncoder.stepDiff]);
 
   function pipClarify(label: string) {
     if (label === 'PIP') return '*not PEEP compensated';
@@ -280,7 +293,7 @@ export const SetValueContent = ({
         </Grid>
       </Grid>
       <Grid item>
-        <ValueClicker value={value} min={min} max={max} onClick={setValue} />
+        <ValueClicker referenceKey="" value={value} min={min} max={max} onClick={setValue} />
       </Grid>
     </Grid>
   );

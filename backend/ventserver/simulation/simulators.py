@@ -3,13 +3,14 @@
 import random
 import time
 import typing
-from typing import Dict, Mapping, Optional, Type
+from typing import Dict, Mapping, Optional
 
 import attr
 
 import betterproto
 
 from ventserver.protocols.protobuf import mcu_pb
+from ventserver.protocols import backend
 
 
 SENSOR_UPDATE_INTERVAL = 2
@@ -189,7 +190,9 @@ class HFNC(Service):
     spo2_fio2_scale: float = attr.ib(default=2.5)  # % SpO2 / % FiO2
     spo2_responsiveness: float = attr.ib(default=0.0005)  # ms
     spo2_noise: float = 0.1  # % SpO2
-    rr_noise: float = 5  # b/min
+    hr_fio2_scale: float = attr.ib(default=2)  # bpm / % FiO2
+    hr_responsiveness: float = attr.ib(default=0.0003)  # ms
+    hr_noise: float = 0.5  # bpm
 
     def transform(
             self, parameters: mcu_pb.Parameters,
@@ -211,6 +214,7 @@ class HFNC(Service):
         self._transform_flow(parameters, sensor_measurements)
         self._transform_fio2(parameters, sensor_measurements)
         self._transform_spo2(sensor_measurements)
+        self._transform_hr(sensor_measurements)
 
     def _transform_flow(
             self, parameters: mcu_pb.Parameters,
@@ -246,6 +250,26 @@ class HFNC(Service):
             sensor_measurements.spo2, 21
         )
 
+    def _transform_hr(
+            self, sensor_measurements: mcu_pb.SensorMeasurements
+    ) -> None:
+        """Update HR measurements."""
+        sensor_measurements.hr += (
+            (
+                self.hr_fio2_scale * sensor_measurements.fio2
+                - sensor_measurements.hr
+            )
+            * self.hr_responsiveness / SENSOR_UPDATE_INTERVAL
+        )
+        sensor_measurements.hr += \
+            self.hr_noise * (random.random() - 0.5)
+        sensor_measurements.hr = min(
+            sensor_measurements.hr, 200
+        )
+        sensor_measurements.hr = max(
+            sensor_measurements.hr, 0
+        )
+
     def _init_cycle(self) -> None:
         """Initialize at the start of the cycle."""
         self.cycle_start_time = self.current_time
@@ -266,12 +290,12 @@ class Services:
 
     def transform(
             self, current_time: float, all_states: Mapping[
-                Type[betterproto.Message], Optional[betterproto.Message]
+                backend.StateSegment, Optional[betterproto.Message]
             ],
     ) -> None:
         """Update the parameters for the requested mode."""
         parameters = typing.cast(
-            mcu_pb.Parameters, all_states[mcu_pb.Parameters]
+            mcu_pb.Parameters, all_states[backend.StateSegment.PARAMETERS]
         )
 
         self._active_service = self._services.get(parameters.mode, None)
@@ -281,10 +305,11 @@ class Services:
 
         sensor_measurements = typing.cast(
             mcu_pb.SensorMeasurements,
-            all_states[mcu_pb.SensorMeasurements]
+            all_states[backend.StateSegment.SENSOR_MEASUREMENTS]
         )
         cycle_measurements = typing.cast(
-            mcu_pb.CycleMeasurements, all_states[mcu_pb.CycleMeasurements]
+            mcu_pb.CycleMeasurements,
+            all_states[backend.StateSegment.CYCLE_MEASUREMENTS]
         )
         self._active_service.update_clock(current_time)
         self._active_service.transform(

@@ -30,6 +30,7 @@
 #include <cstddef>
 #include <cstdint>
 
+#include "Pufferfish/Util/Vector.h"
 namespace Pufferfish::Util {
 
 /// \brief A Consistent Overhead Byte Stuffing (COBS) Encoder.
@@ -49,25 +50,29 @@ namespace Pufferfish::Util {
 /// \sa http://www.jacquesf.com/2011/03/consistent-overhead-byte-stuffing
 
 /// \brief Encode a byte buffer with the COBS encoder.
-/// \param buffer A pointer to the unencoded buffer to encode.
-/// \param size  The number of bytes in the \p buffer.
-/// \param encodedBuffer The buffer for the encoded bytes.
-/// \returns The number of bytes written to the \p encodedBuffer.
-/// \warning The encodedBuffer must have at least getEncodedBufferSize()
-///          allocated.
-size_t encode_cobs(const uint8_t *buffer, size_t size, uint8_t *encoded_buffer);
+/// \param buffer A ByteVector to the unencoded buffer to encode.
+/// \param encodedBuffer The ByteVector for the encoded bytes.
+/// The encoded buffer is resized to fit the encoded data, returns out_of_bounds otherwise
+/// \returns IndexStatus as ok/out_of_bounds
+template <size_t input_size, size_t output_size>
+IndexStatus encode_cobs(
+    const Util::ByteVector<input_size> &buffer, Util::ByteVector<output_size> &encoded_buffer);
 
 /// \brief Decode a COBS-encoded buffer.
-/// \param encodedBuffer A pointer to the \p encodedBuffer to decode.
-/// \param size The number of bytes in the \p encodedBuffer.
-/// \param decodedBuffer The target buffer for the decoded bytes.
-/// \returns The number of bytes written to the \p decodedBuffer.
-/// \warning decodedBuffer must have a minimum capacity of size.
-size_t decode_cobs(const uint8_t *encoded_buffer, size_t size, uint8_t *decoded_buffer);
+/// \param encodedBuffer A ByteVector to the \p encodedBuffer to decode.
+/// \param decodedBuffer The target ByteVector for the decoded bytes.
+/// The decoded buffer is resized to fit the decoded data, returns out_of_bounds otherwise
+/// \returns IndexStatus as ok/out_of_bounds
+template <size_t input_size, size_t output_size>
+IndexStatus decode_cobs(
+    const Util::ByteVector<input_size> &encoded_buffer,
+    Util::ByteVector<output_size> &decoded_buffer);
 
 /// \brief Get the maximum encoded buffer size for an unencoded buffer size.
 /// \param unencodedBufferSize The size of the buffer to be encoded.
 /// \returns the maximum size of the required encoded buffer.
-size_t get_encoded_cobs_buffer_size(size_t unencoded_buffer_size);
+constexpr size_t get_encoded_cobs_buffer_size(size_t unencoded_buffer_size);
 
 }  // namespace Pufferfish::Util
+
+#include "COBS.tpp"

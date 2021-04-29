@@ -16,10 +16,13 @@ defineFeature(feature, (test) => {
   let wrapper: RenderResult;
   let store: MockStore;
   let commitChange: (min: number, max: number) => void;
+  const clickInterval = 100;
 
   beforeEach(() => {
     commitChange = jest.fn();
-    store = mockStore({ controller: { alarmLimitsRequest: { rr: { lower: 0, upper: 100 } } } });
+    store = mockStore({
+      controller: { alarmLimitsRequest: { rr: { lower: 0, upper: clickInterval } } },
+    });
     wrapper = render(
       <Provider store={store}>
         <MuiThemeProvider theme={darkTheme}>
@@ -50,6 +53,7 @@ defineFeature(feature, (test) => {
       const buttons = wrapper.getAllByRole('button');
       expect(valueClickerMin.textContent).toBe('0');
       await fireEvent.click(buttons[0]);
+      await new Promise((r) => setTimeout(r, clickInterval));
     });
 
     then(/^I should get the result as incremented value$/, () => {
@@ -70,6 +74,7 @@ defineFeature(feature, (test) => {
       const buttons = wrapper.getAllByRole('button');
       expect(valueClickerMax.textContent).toBe('100');
       await fireEvent.click(buttons[3]);
+      await new Promise((r) => setTimeout(r, clickInterval));
     });
 
     then(/^I should get the result as decremented value$/, () => {
@@ -82,7 +87,9 @@ defineFeature(feature, (test) => {
       const buttons = wrapper.getAllByRole('button');
       expect(wrapper).toBeDefined();
       await fireEvent.click(buttons[0]);
+      await new Promise((r) => setTimeout(r, clickInterval));
       await fireEvent.click(buttons[3]);
+      await new Promise((r) => setTimeout(r, clickInterval));
     });
 
     when(/^I click on confirm button$/, async () => {

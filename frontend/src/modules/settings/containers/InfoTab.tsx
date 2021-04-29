@@ -55,7 +55,7 @@ interface Props {
  */
 export const InfoTab = ({
   model = '1.0',
-  softwareVersion = '1.1',
+  softwareVersion = process.env.REACT_APP_VERSION || '',
   serialNumber = 'X1H4KJ348FKJHE43-1H495',
   batteryTime = '15 Minutes',
 }: Props): JSX.Element => {

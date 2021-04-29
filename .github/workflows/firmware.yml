@@ -92,6 +92,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install gcc-arm-none-eabi cmake
+        sudo apt-get install -y lcov
         sudo apt-get remove -y libllvm10
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
         sudo add-apt-repository -y -s 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main'
@@ -139,6 +140,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install gcc-arm-none-eabi cmake
+        sudo apt-get install -y lcov
         sudo apt-get remove -y libllvm10
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
         sudo add-apt-repository -y -s 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main'
@@ -163,6 +165,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install cmake
+        sudo apt-get install -y lcov
 
     - name: Run CMake
       run: |
@@ -177,3 +180,34 @@ jobs:
       run: |
         cd cmake-build-testcatch2
         ./TestCatch2
+
+  catch2-test-coverage:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install cmake
+        sudo apt-get install -y lcov
+
+    - name: Run CMake
+      run: |
+        ./cmake.sh TestCoverage
+
+    - name: Run make
+      run: |
+        cd cmake-build-testcoverage
+        make -j2
+
+    - name: Run Catch2 Test Coverage
+      run: |
+        cd cmake-build-testcoverage
+        make TestCoverage_coverage
+
+    - name: TestCoverage
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage-report
+        path: firmware/ventilator-controller-stm32/cmake-build-testcoverage/TestCoverage_coverage/*

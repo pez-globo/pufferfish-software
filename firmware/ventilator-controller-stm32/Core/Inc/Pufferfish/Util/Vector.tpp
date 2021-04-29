@@ -48,49 +48,64 @@ IndexStatus Vector<Element, array_size>::resize(size_t new_size) {
 }
 
 template <typename Element, size_t array_size>
-IndexStatus Vector<Element, array_size>::push_back(uint8_t new_byte) {
+IndexStatus Vector<Element, array_size>::push_back(const Element &new_elem) {
   if (size_ == array_size) {
     return IndexStatus::out_of_bounds;
   }
-  buffer_[size_] = new_byte;
+  buffer_[size_] = new_elem;
   ++size_;
   return IndexStatus::ok;
 }
 
 template <typename Element, size_t array_size>
-constexpr const Element &Vector<Element, array_size>::operator[](size_t position) const {
+IndexStatus Vector<Element, array_size>::erase(size_t index) {
+  if (index >= size_) {
+    return IndexStatus::out_of_bounds;
+  }
+
+  for (size_t i = index; i < size_ - 1; ++i) {
+    buffer_[i] = buffer_[i + 1];
+  }
+
+  --size_;
+  return IndexStatus::ok;
+}
+
+template <typename Element, size_t array_size>
+constexpr const Element &Vector<Element, array_size>::operator[](size_t position) const noexcept {
   return buffer_[position];
 }
 
 template <typename Element, size_t array_size>
-constexpr Element &Vector<Element, array_size>::operator[](size_t position) {
+constexpr Element &Vector<Element, array_size>::operator[](size_t position) noexcept {
   return buffer_[position];
 }
 
 template <typename Element, size_t array_size>
 template <size_t source_size>
-void Vector<Element, array_size>::copy_from(
+IndexStatus Vector<Element, array_size>::copy_from(
     const std::array<Element, source_size> &source_bytes, size_t dest_start_index) {
-  copy_from(source_bytes.data(), source_bytes.size(), dest_start_index);
+  return copy_from(source_bytes.data(), source_bytes.size(), dest_start_index);
 }
 
 template <typename Element, size_t array_size>
-void Vector<Element, array_size>::copy_from(
+IndexStatus Vector<Element, array_size>::copy_from(
     const Vector<Element, array_size> &source_bytes, size_t dest_start_index) {
-  copy_from(source_bytes.buffer(), source_bytes.size(), dest_start_index);
+  return copy_from(source_bytes.buffer(), source_bytes.size(), dest_start_index);
 }
 
 template <typename Element, size_t array_size>
-void Vector<Element, array_size>::copy_from(
+IndexStatus Vector<Element, array_size>::copy_from(
     const Element *source_bytes, size_t source_size, size_t dest_start_index) {
-  size_ = array_size;
-  if (source_size + dest_start_index < size_) {
-    size_ = source_size + dest_start_index;
+  if (source_size + dest_start_index > array_size) {
+    return IndexStatus::out_of_bounds;
   }
+  size_ = source_size + dest_start_index;
   memcpy(
       buffer_.data() + dest_start_index,
       source_bytes,
       sizeof(Element) * (size_ - dest_start_index));
+  return IndexStatus::ok;
 }
 
 }  // namespace Pufferfish::Util

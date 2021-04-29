@@ -43,8 +43,8 @@
     "typescript": "^3.9.7"
   },
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
+    "start": ". ../deploy/scripts/version.sh; react-app-rewired start",
+    "build": ". ../deploy/scripts/version.sh; react-app-rewired build",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --fix --ext .ts,.tsx",
     "test": "jest --env=jsdom",
@@ -88,7 +88,7 @@
     "redux-devtools-extension": "^2.13.8",
     "redux-mock-store": "^1.5.4",
     "ts-jest": "^26.4.1",
-    "ts-proto": "^1.18.3",
-    "typedoc": "^0.20.20"
+    "typedoc": "^0.20.20",
+    "ts-proto": "^1.79.3"
   }
 }

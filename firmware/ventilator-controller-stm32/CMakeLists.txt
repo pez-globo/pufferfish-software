@@ -22,6 +22,15 @@ elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
 elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "Clang")
     message(STATUS "Minimal optimization, debug info included")
     add_compile_options(-Og -g)
+elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "TestCatch2")
+    message(STATUS "Runing unit tests")
+elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "TestCoverage")
+    message(STATUS "Runing coverage tools with debug info, all optimizations disabled")
+    set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
+    include(CodeCoverage)
+    append_coverage_compiler_flags()
+    add_compile_options(-g -O0 -Wall -W -fprofile-arcs -ftest-coverage -fno-inline -fno-inline-small-functions -fno-default-inline)
+    add_link_options(-fprofile-arcs -ftest-coverage)
 else ()
     message(STATUS "Minimal optimization, debug info included")
     add_compile_options(-Og -g)
@@ -37,16 +46,37 @@ include_directories(
     ${CMAKE_CURRENT_LIST_DIR}/Core/Inc
 )
 
-if ("${CMAKE_BUILD_TYPE}" STREQUAL "TestCatch2")
+if (("${CMAKE_BUILD_TYPE}" STREQUAL "TestCatch2") OR ("${CMAKE_BUILD_TYPE}" STREQUAL "TestCoverage"))
+    set(TEST_LIBS Pufferfish)
+
+    if ("${CMAKE_BUILD_TYPE}" STREQUAL "TestCoverage")
+        setup_target_for_coverage_lcov(
+            NAME ${CMAKE_BUILD_TYPE}_coverage
+            EXECUTABLE ${CMAKE_BUILD_TYPE}
+            EXCLUDE "/usr/include/*" "Core/Inc/catch2/*" "Core/Test/*" "Core/Src/nanopb/*"
+        )
+
+        set(TEST_LIBS ${TEST_LIBS} gcov)
+    endif ()
+
     file(
         GLOB_RECURSE LIBRARY_SOURCES
         "Core/Src/Pufferfish/Driver/Indicators/PulseGenerator.cpp"
-        "Core/Src/Pufferfish/Driver/Serial/*.cpp"
+        "Core/Src/Pufferfish/Driver/Serial/*.*"
+        "Core/Src/Pufferfish/Application/*.*"
+        "Core/Src/Pufferfish/Util/*.*"
+        "Core/Src/Pufferfish/HAL/CRC.cpp"
+        "Core/Src/Pufferfish/HAL/Mock/*.cpp"
+        "Core/Src/nanopb/*.c"
     )
     add_library(Pufferfish ${LIBRARY_SOURCES})
+
     file(GLOB_RECURSE EXECUTABLE_SOURCES "Core/Test/*.*")
+
     add_executable(${CMAKE_BUILD_TYPE} ${EXECUTABLE_SOURCES})
-    target_link_libraries(${CMAKE_BUILD_TYPE} Pufferfish)
+    include_directories("Core/Inc")
+    include_directories("Core/Test/Inc")
+    target_link_libraries(${CMAKE_BUILD_TYPE} ${TEST_LIBS})
 else ()
     add_definitions(-DUSE_HAL_DRIVER -DSTM32H743xx -DDEBUG)
 

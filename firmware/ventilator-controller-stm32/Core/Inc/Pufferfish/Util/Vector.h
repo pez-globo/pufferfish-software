@@ -15,39 +15,42 @@
 
 #include <array>
 #include <cstddef>
-#include <cstdint>
 
-#include "Pufferfish/HAL/Types.h"
 #include "Pufferfish/Statuses.h"
 
 namespace Pufferfish::Util {
 
-// BufferSize is recommended to be a power of two for compiler optimization.
 template <typename Element, size_t array_size>
 class Vector {
  public:
   Vector() = default;
 
   [[nodiscard]] size_t size() const;
-  [[nodiscard]] constexpr size_t max_size() const { return array_size; }
+  [[nodiscard]] static constexpr size_t max_size() noexcept { return array_size; }
   [[nodiscard]] bool empty() const;
   [[nodiscard]] bool full() const;
   [[nodiscard]] size_t available() const;
 
   void clear();
   IndexStatus resize(size_t new_size);
-  IndexStatus push_back(uint8_t new_byte);
+  IndexStatus push_back(const Element &new_elem);
+  IndexStatus erase(size_t index);
 
-  constexpr const Element &operator[](size_t position) const;
-  constexpr Element &operator[](size_t position);
+  // Note: these don't perform bounds-checking!
+  constexpr const Element &operator[](size_t position) const noexcept;
+  constexpr Element &operator[](size_t position) noexcept;
 
+  // Note: these perform shallow copies!
   template <size_t source_size>
-  void copy_from(const std::array<Element, source_size> &source_bytes, size_t dest_start_index = 0);
-  void copy_from(const Vector<Element, array_size> &source_bytes, size_t dest_start_index = 0);
-  void copy_from(const Element *source_bytes, size_t source_size, size_t dest_start_index = 0);
+  IndexStatus copy_from(
+      const std::array<Element, source_size> &source_bytes, size_t dest_start_index = 0);
+  IndexStatus copy_from(
+      const Vector<Element, array_size> &source_bytes, size_t dest_start_index = 0);
+  IndexStatus copy_from(
+      const Element *source_bytes, size_t source_size, size_t dest_start_index = 0);
 
-  [[nodiscard]] constexpr const Element *buffer() const { return buffer_.data(); }
-  constexpr Element *buffer() { return buffer_.data(); }
+  [[nodiscard]] constexpr const Element *buffer() const noexcept { return buffer_.data(); }
+  constexpr Element *buffer() noexcept { return buffer_.data(); }
 
  private:
   std::array<Element, array_size> buffer_{};

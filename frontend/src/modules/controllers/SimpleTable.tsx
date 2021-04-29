@@ -53,15 +53,27 @@ export function stableSort<T>(array: T[], comparator: (a: T, b: T) => number): T
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    tableRowStyle: {},
     tableContainer: {
       width: '100%',
       border: `2px dashed ${theme.palette.background.default}`,
       borderRadius: theme.panel.borderRadius,
+      flexGrow: 1,
     },
     table: {
       minWidth: 500,
       padding: '3px solid black',
       backgroundColor: theme.palette.background.paper,
+      '& tbody': {
+        '& tr': {
+          '& th': {
+            padding: '12px 16px',
+          },
+          '& td': {
+            padding: '12px 16px',
+          },
+        },
+      },
     },
     visuallyHidden: {
       border: 0,
@@ -86,6 +98,16 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: 15,
       fontWeight: 100,
     },
+    tableContainerStyle: {
+      position: 'absolute',
+      width: '100%',
+      top: '0px',
+      marginBottom: 'auto',
+      left: 0,
+      padding: '20px 24px 8px',
+      height: '100%',
+      display: 'flex',
+    },
   }),
 );
 
@@ -94,6 +116,7 @@ export interface HeadCell {
   id: string | number;
   label: string;
   numeric: boolean;
+  enableSort: boolean;
 }
 
 export interface EnhancedTableProps {
@@ -137,7 +160,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
   return (
     <TableHead>
-      <TableRow>
+      <TableRow className={classes.tableRowStyle}>
         {headCells.map((headCell: HeadCell) => (
           <StyledTableCell
             key={headCell.id}
@@ -145,7 +168,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             padding="default"
             sortDirection={orderBy === headCell.id ? order : false}
           >
-            {orderBy ? (
+            {headCell.enableSort && orderBy ? (
               <TableSortLabel
                 active={orderBy === headCell.id}
                 direction={orderBy === headCell.id ? order : 'asc'}
@@ -230,7 +253,7 @@ export const SimpleTable = (props: PropsWithChildren<TableProps>): JSX.Element =
 
   return (
     <React.Fragment>
-      <Grid item>
+      <Grid item className={classes.tableContainerStyle} direction="column">
         <TableContainer className={classes.tableContainer}>
           <Table
             className={classes.table}
@@ -251,20 +274,21 @@ export const SimpleTable = (props: PropsWithChildren<TableProps>): JSX.Element =
             <TableBody>{children}</TableBody>
           </Table>
         </TableContainer>
-      </Grid>
-      <Grid container direction="row" justify="space-between">
-        <Grid item className={classes.footer}>
-          {footer}
+
+        <Grid container direction="row" justify="space-between">
+          <Grid item className={classes.footer}>
+            {footer}
+          </Grid>
+          <TablePagination
+            rowsPerPageOptions={[8]}
+            component="div"
+            count={rows.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+          />
         </Grid>
-        <TablePagination
-          rowsPerPageOptions={[8]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
-        />
       </Grid>
     </React.Fragment>
   );

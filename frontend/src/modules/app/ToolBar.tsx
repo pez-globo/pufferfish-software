@@ -1,20 +1,28 @@
 import { AppBar, Button, Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import { getClockTime } from '../../store/app/selectors';
-import { updateCommittedParameter } from '../../store/controller/actions';
+import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
 import { VentilationMode } from '../../store/controller/proto/mcu_pb';
 import {
   getBatteryPower,
+  getChargingStatus,
   getIsVentilating,
   getParametersRequestMode,
   getParametersRequestStandby,
+  getAlarmLimitsRequestStandby,
+  getPopupEventLog,
 } from '../../store/controller/selectors';
+import { BACKEND_CONNECTION_LOST_CODE, ALARM_LIMITS } from '../../store/controller/types';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
 import { BackIcon } from '../icons';
 import ClockIcon from '../icons/ClockIcon';
+import Power25Icon from '../icons/Power25Icon';
+import Power50Icon from '../icons/Power50Icon';
+import Power75Icon from '../icons/Power75Icon';
+import PowerChargingIcon from '../icons/PowerChargingIcon';
 import PowerFullIcon from '../icons/PowerFullIcon';
 import { PERCENT } from '../info/units';
 import ModesDropdown from '../modes/ModesDropdown';
@@ -31,7 +39,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid red',
   },
   marginRight: {
-    marginRight: theme.spacing(2),
+    marginRight: theme.spacing(0.5),
   },
   paddingRight: {
     paddingRight: theme.spacing(1),
@@ -46,6 +54,38 @@ export const HeaderClock = (): JSX.Element => {
   const classes = useStyles();
   const clockTime = useSelector(getClockTime);
   return <span className={classes.paddingRight}>{clockTime}</span>;
+};
+
+export const PowerIndicator = (): JSX.Element => {
+  const classes = useStyles();
+  const batteryPower = useSelector(getBatteryPower);
+  const chargingStatus = useSelector(getChargingStatus);
+  const [icon, setIcon] = useState(<PowerFullIcon style={{ fontSize: '2.5rem' }} />);
+
+  useEffect(() => {
+    if (batteryPower >= 0 && batteryPower <= 25) {
+      setIcon(<Power25Icon style={{ fontSize: '2.5rem' }} />);
+    } else if (batteryPower > 25 && batteryPower <= 50) {
+      setIcon(<Power50Icon style={{ fontSize: '2.5rem' }} />);
+    } else if (batteryPower > 50 && batteryPower <= 75) {
+      setIcon(<Power75Icon style={{ fontSize: '2.5rem' }} />);
+    } else {
+      setIcon(<PowerFullIcon style={{ fontSize: '2.5rem' }} />);
+    }
+
+    if (chargingStatus) {
+      setIcon(<PowerChargingIcon style={{ fontSize: '2.5rem' }} />);
+    }
+  }, [batteryPower, chargingStatus]);
+
+  return (
+    <React.Fragment>
+      <span className={classes.paddingRight}>{`${
+        batteryPower !== undefined ? batteryPower.toFixed(0) : '--'
+      }${PERCENT}`}</span>
+      {icon}
+    </React.Fragment>
+  );
 };
 
 /**
@@ -66,29 +106,48 @@ export const ToolBar = ({
   // depending on the current route.
   const location = useLocation();
   const dispatch = useDispatch();
+  const history = useHistory();
   const currentMode = useSelector(getParametersRequestMode);
+  const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const parameterRequestStandby = useSelector(getParametersRequestStandby, shallowEqual);
+  const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby, shallowEqual);
   const ventilating = useSelector(getIsVentilating);
-  const batteryPower = useSelector(getBatteryPower);
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
-  const label = isVentilatorOn ? 'Pause Ventilation' : 'Start Ventilation';
-  const toPath = isVentilatorOn || staticStart ? QUICKSTART_ROUTE.path : DASHBOARD_ROUTE.path;
-  const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
+  const [label, setLabel] = useState('Start Ventilation');
+  const [isDisabled, setIsDisabled] = useState(false);
+  // const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
   const updateVentilationStatus = () => {
     if (!staticStart) {
       dispatch(updateCommittedParameter({ ventilating: !isVentilatorOn }));
       setIsVentilatorOn(!isVentilatorOn);
+    }
+    if (isVentilatorOn || staticStart) {
+      history.push(QUICKSTART_ROUTE.path);
     }
   };
 
   const initParameterUpdate = useCallback(() => {
     if (isVentilatorOn) {
       switch (currentMode) {
+        case VentilationMode.hfnc:
+          dispatch(
+            updateCommittedParameter({
+              fio2: parameterRequestStandby.fio2,
+              flow: parameterRequestStandby.flow,
+            }),
+          );
+          dispatch(
+            updateCommittedState(ALARM_LIMITS, {
+              spo2: alarmLimitsRequestStandby.spo2,
+              hr: alarmLimitsRequestStandby.hr,
+            }),
+          );
+          break;
         case VentilationMode.pc_ac:
-        case VentilationMode.pc_simv:
         case VentilationMode.vc_ac:
-        case VentilationMode.vc_simv:
-        case VentilationMode.niv:
+        case VentilationMode.niv_pc:
+        case VentilationMode.niv_ps:
+        case VentilationMode.psv:
           dispatch(
             updateCommittedParameter({
               peep: parameterRequestStandby.peep,
@@ -98,31 +157,34 @@ export const ToolBar = ({
             }),
           );
           break;
-        case VentilationMode.hfnc:
         default:
-          dispatch(
-            updateCommittedParameter({
-              fio2: parameterRequestStandby.fio2,
-              flow: parameterRequestStandby.flow,
-            }),
-          );
           break;
       }
     }
-  }, [isVentilatorOn, parameterRequestStandby, currentMode, dispatch]);
+  }, [isVentilatorOn, parameterRequestStandby, alarmLimitsRequestStandby, currentMode, dispatch]);
 
   useEffect(() => {
-    initParameterUpdate();
-  }, [initParameterUpdate]);
+    if (popupEventLog && popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
+      setIsDisabled(true);
+    } else {
+      setIsDisabled(false);
+    }
+  }, [popupEventLog]);
 
   useEffect(() => {
+    if (!ventilating) initParameterUpdate();
+  }, [ventilating, initParameterUpdate]);
+
+  useEffect(() => {
+    if (ventilating) {
+      history.push(DASHBOARD_ROUTE.path);
+    }
     setIsVentilatorOn(ventilating);
-  }, [ventilating]);
+    setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
+  }, [ventilating, history]);
 
   const StartPauseButton = (
     <Button
-      component={Link}
-      to={toPath}
       onClick={updateVentilationStatus}
       variant="contained"
       color="secondary"
@@ -131,17 +193,15 @@ export const ToolBar = ({
       {staticStart ? 'Start' : label}
     </Button>
   );
-
   const tools = [<ModesDropdown />];
   if (location.pathname === DASHBOARD_ROUTE.path) {
     tools.push(<ViewDropdown />);
-    tools.push(<EventAlerts label={LOGS_ROUTE.label} />);
   } else if (location.pathname === QUICKSTART_ROUTE.path) {
-    tools.push(
-      <Button variant="contained" color="primary" disabled>
-        Last Patient Settings
-      </Button>,
-    );
+    // tools.push(
+    //   <Button variant="contained" color="primary" disabled>
+    //     Last Patient Settings
+    //   </Button>,
+    // );
   } else if (isVentilatorOn && location.pathname !== SCREENSAVER_ROUTE.path) {
     tools.push(
       <Button component={Link} to={DASHBOARD_ROUTE.path} variant="contained" color="primary">
@@ -149,6 +209,9 @@ export const ToolBar = ({
         {DASHBOARD_ROUTE.label}
       </Button>,
     );
+  }
+  if (location.pathname !== '/') {
+    tools.push(<EventAlerts label={LOGS_ROUTE.label} />);
   }
 
   return (
@@ -190,10 +253,7 @@ export const ToolBar = ({
           className={classes.toolContainer}
         >
           <Grid container item xs justify="flex-end" alignItems="center">
-            <span className={classes.paddingRight}>{`${
-              batteryPower !== undefined ? batteryPower.toFixed(0) : '--'
-            }${PERCENT}`}</span>
-            <PowerFullIcon style={{ fontSize: '2.5rem' }} />
+            <PowerIndicator />
             <HeaderClock />
             <ClockIcon style={{ fontSize: '2.5rem' }} />
           </Grid>

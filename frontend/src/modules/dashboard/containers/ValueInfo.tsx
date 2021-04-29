@@ -1,7 +1,7 @@
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
-import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
+import { getAlarmLimits } from '../../../store/controller/selectors';
 import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
@@ -132,6 +132,7 @@ export interface Props {
   units?: string;
   isLive?: boolean;
   isMain?: boolean;
+  showLimits?: boolean;
   decimal?: number;
 }
 
@@ -164,11 +165,12 @@ const ControlValuesDisplay = ({
   stateKey,
   units = '',
   isMain = false,
+  showLimits = true,
   decimal,
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual) as Record<string, Range>;
+  const alarmLimits = useSelector(getAlarmLimits, shallowEqual) as Record<string, Range>;
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
@@ -195,7 +197,7 @@ const ControlValuesDisplay = ({
             container
             direction="column"
             className={classes.root}
-            style={isMain ? { width: '50%', margin: '0 auto' } : {}}
+            style={isMain ? { width: '80%', margin: '0 auto' } : {}}
           >
             <Grid
               container
@@ -210,7 +212,7 @@ const ControlValuesDisplay = ({
                   {label}
                 </Typography>
               </Grid>
-              {stateKey && (
+              {showLimits && stateKey && (
                 <Grid container item xs={3} className={classes.liveContainer}>
                   <Typography className={classes.whiteFont}>
                     {alarmLimits[stateKey].lower}
@@ -268,7 +270,7 @@ const GridControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual) as Record<string, Range>;
+  const alarmLimits = useSelector(getAlarmLimits, shallowEqual) as Record<string, Range>;
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
@@ -351,7 +353,11 @@ const GridControlValuesDisplay = ({
  * Component for showing information.
  *
  */
-const ValueInfo = (props: ValueInfoProps): JSX.Element => {
+const ValueInfo = (props: {
+  mainContainer: Props;
+  subContainer1?: Props;
+  subContainer2?: Props;
+}): JSX.Element => {
   const { mainContainer, subContainer1, subContainer2 } = props;
   const classes = useStyles();
   const Render = () => {
@@ -365,6 +371,7 @@ const ValueInfo = (props: ValueInfoProps): JSX.Element => {
               selector={mainContainer.selector}
               label={mainContainer.label}
               units={mainContainer.units}
+              showLimits={mainContainer.showLimits}
               decimal={mainContainer.decimal || 0}
             />
           </Grid>

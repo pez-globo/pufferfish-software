@@ -1,13 +1,13 @@
 import { Button, Grid, TableCell, TableRow, Typography } from '@material-ui/core';
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { updateCommittedState } from '../../store/controller/actions';
-import { LogEvent } from '../../store/controller/proto/mcu_pb';
+import { shallowEqual, useSelector } from 'react-redux';
+import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
 import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
-import { EXPECTED_LOG_EVENT_ID } from '../../store/controller/types';
-import { getEventType } from '../app/EventAlerts';
+import { setMultiPopupOpen } from '../app/Service';
+import { AlarmModal } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';
+
 import SimpleTable, {
   getComparator,
   HeadCell,
@@ -16,6 +16,7 @@ import SimpleTable, {
   StyledTableRow,
 } from '../controllers/SimpleTable';
 import EventlogDetails from './container/EventlogDetails';
+import { getEventDetails, getEventType } from './EventType';
 
 /**
  * LogsPage
@@ -24,20 +25,25 @@ import EventlogDetails from './container/EventlogDetails';
  */
 
 interface Data {
-  type: string;
+  type: LogEventType;
   alarm: string;
   time: number; // Note: Make this a date object?
   status: number;
   id: number;
+  details: string;
+  stateKey: string;
+  head: string;
+  unit: string;
 }
 
 //
 
 const headCells: HeadCell[] = [
-  { id: 'type', numeric: false, disablePadding: true, label: 'Type' },
-  { id: 'alarm', numeric: true, disablePadding: false, label: 'Alarm' },
-  { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date' },
-  { id: 'Status', numeric: true, disablePadding: false, label: 'Status' },
+  { id: 'type', numeric: false, disablePadding: true, label: 'Type', enableSort: false },
+  { id: 'alarm', numeric: true, disablePadding: false, label: 'Event', enableSort: false },
+  { id: 'time', numeric: true, disablePadding: false, label: 'Time/Date', enableSort: false },
+  { id: 'details', numeric: false, disablePadding: false, label: 'Details', enableSort: false },
+  { id: 'settings', numeric: true, disablePadding: false, label: 'Settings', enableSort: false },
 ];
 
 const useStyles = makeStyles(() =>
@@ -66,8 +72,9 @@ const useStyles = makeStyles(() =>
       color: '#fff',
     },
     eventType: {
+      width: '10rem',
       boxShadow: 'none !important',
-      padding: '0rem 3rem !important',
+      padding: '2px 2rem !important',
       border: 'none',
       color: '#fff',
     },
@@ -80,16 +87,34 @@ const useStyles = makeStyles(() =>
 export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
-  const dispatch = useDispatch();
+
+  const getEventTypeLabel = (type: LogEventType): string => {
+    switch (type) {
+      case LogEventType.patient:
+        return 'Patient';
+      case LogEventType.system:
+        return 'System';
+      case LogEventType.control:
+        return 'Control';
+      case LogEventType.alarm_limits:
+        return 'Alarm Limits';
+      default:
+        return 'System';
+    }
+  };
 
   const createData = (
-    type: string,
+    type: LogEventType,
     alarm: string,
     time: number,
     status: number,
     id: number,
+    details: string,
+    stateKey: string,
+    head: string,
+    unit: string,
   ): Data => {
-    return { type, alarm, time, status, id };
+    return { type, alarm, time, status, id, details, stateKey, head, unit };
   };
 
   const [rows, setRows] = React.useState<Data[]>([]);
@@ -97,30 +122,24 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const [orderBy, setOrderBy] = React.useState<keyof Data>('time');
   const [selected, setSelected] = React.useState<string[]>([]);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(8);
+  const [rowsPerPage, setRowsPerPage] = React.useState(9);
   const [open, setOpen] = React.useState(false);
-  const [currentRow] = React.useState<Data>();
+  const [alarmOpen, setAlarmOpen] = React.useState(false);
+  const [currentRow, setCurrentRow] = React.useState<Data>();
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   const loggedEvents = useSelector(getNextLogEvents, shallowEqual);
   const activeLogEventIds = useSelector(getActiveLogEventIds, shallowEqual);
+  const settingsAllowed = ['fio2', 'flow', 'hr', 'spo2'];
 
-  const updateLogEvent = useCallback(
-    (maxId) => {
-      dispatch(updateCommittedState(EXPECTED_LOG_EVENT_ID, { id: maxId + 1 }));
-    },
-    [dispatch],
-  );
+  const getDetails = useCallback(getEventDetails, []);
 
   useEffect(() => {
     const eventIds: number[] = [];
     const data: Data[] = [];
-    loggedEvents.sort((a: LogEvent, b: LogEvent) => a.time - b.time);
-    loggedEvents.forEach((event: LogEvent) => {
+    const loggedEventsCopy = [...loggedEvents];
+    loggedEventsCopy.reverse();
+    loggedEventsCopy.forEach((event: LogEvent) => {
       const eventType = getEventType(event.code);
-      const diffString =
-        event.oldValue && event.newValue
-          ? `(${event.oldValue} ${eventType.unit} to ${event.newValue} ${eventType.unit})`
-          : '';
       eventIds.push(event.id);
       if (filter) {
         setPage(0);
@@ -128,10 +147,14 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
           data.push(
             createData(
               eventType.type,
-              `${eventType.label} ${diffString}`,
+              eventType.label,
               event.time,
               activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
               event.id,
+              getDetails(event, eventType),
+              eventType.stateKey || '',
+              eventType.head || '',
+              eventType.unit || '',
             ),
           );
         }
@@ -139,18 +162,20 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
         data.push(
           createData(
             eventType.type,
-            `${eventType.label} ${diffString}`,
+            eventType.label,
             event.time,
             activeLogEventIds.indexOf(event.id) > -1 ? 1 : 0,
             event.id,
+            getDetails(event, eventType),
+            eventType.stateKey || '',
+            eventType.head || '',
+            eventType.unit || '',
           ),
         );
       }
     });
     setRows(data.length ? data : []);
-    // update ExpectedLogEvent
-    updateLogEvent(Math.max(...eventIds));
-  }, [loggedEvents, activeLogEventIds, updateLogEvent, filter]);
+  }, [loggedEvents, activeLogEventIds, filter, getDetails]);
 
   const handleClose = () => {
     setOpen(false);
@@ -160,11 +185,18 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     handleClose();
   };
 
-  const typeColor = (type: string | undefined) => {
-    if (type === 'Operator') return { backgroundColor: theme.palette.primary.main };
-    if (type === 'Patient') return { backgroundColor: '#92D25B', color: 'black' };
-    if (type === 'System') return { backgroundColor: '#E68619' };
-    return { backgroundColor: '#E68619' };
+  const typeColor = (type: LogEventType | undefined) => {
+    switch (type) {
+      case LogEventType.patient:
+        return { backgroundColor: '#FF3B30' };
+      case LogEventType.system:
+        return { backgroundColor: '#E68619' };
+      case LogEventType.control:
+      case LogEventType.alarm_limits:
+        return { backgroundColor: theme.palette.primary.main };
+      default:
+        return { backgroundColor: '#E68619' };
+    }
   };
 
   const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
@@ -184,6 +216,13 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
       );
     }
     setSelected(newSelected);
+  };
+
+  const onSettings = (row: Data) => {
+    if (row.stateKey) {
+      setMultiPopupOpen(true, row.stateKey);
+    }
+    setCurrentRow(row);
   };
 
   return (
@@ -216,7 +255,9 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
             return (
               <StyledTableRow
                 hover
-                onClick={(event: React.MouseEvent<unknown>) => handleClick(event, row.type)}
+                onClick={(event: React.MouseEvent<unknown>) =>
+                  handleClick(event, getEventTypeLabel(row.type))
+                }
                 tabIndex={-1}
                 key={row.id}
               >
@@ -226,7 +267,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                     className={classes.eventType}
                     style={typeColor(row.type)}
                   >
-                    {row.type}
+                    {getEventTypeLabel(row.type)}
                   </Button>
                   {/* {row.status ? (
                     <Button
@@ -245,28 +286,38 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                 </TableCell>
                 <TableCell align="left">
                   {`
-                                        ${new Date(row.time * 1000).toLocaleTimeString([], {
-                                          hour: '2-digit',
-                                          minute: '2-digit',
-                                        })}
-                                        ${new Date(row.time * 1000).toLocaleDateString([], {
+                                        ${new Date(row.time).toLocaleDateString([], {
                                           month: '2-digit',
                                           day: '2-digit',
                                           year: 'numeric',
                                         })}
+                                        ${new Date(row.time).toLocaleTimeString([], {
+                                          hour: '2-digit',
+                                          minute: '2-digit',
+                                        })}
                                     `}
                 </TableCell>
+                <TableCell align="left" component="th" id={labelId} scope="row">
+                  {row.details}
+                </TableCell>
                 <TableCell component="td">
-                  <Button variant="contained" color="primary" style={{ padding: '6px 3rem' }}>
-                    Settings
-                  </Button>
+                  {row.type === LogEventType.patient && settingsAllowed.indexOf(row.stateKey) > -1 && (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => onSettings(row)}
+                      style={{ padding: '2px 2rem' }}
+                    >
+                      Settings
+                    </Button>
+                  )}
                 </TableCell>
               </StyledTableRow>
             );
           })}
         {emptyRows > 0 && (
-          <TableRow style={{ height: 53 * emptyRows }}>
-            <TableCell colSpan={6} />
+          <TableRow>
+            <TableCell colSpan={6} style={{ padding: 0 }} />
           </TableRow>
         )}
       </SimpleTable>
@@ -275,7 +326,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
         label={
           <Grid container direction="row" justify="space-around" alignItems="center">
             <Grid xs={2} className={classes.typeWrapper2} style={typeColor(currentRow?.type)}>
-              {currentRow?.type}
+              {getEventTypeLabel(currentRow?.type as LogEventType)}
             </Grid>
             <Grid xs={9}>
               <Typography variant="h4">{currentRow?.alarm}</Typography>
@@ -290,6 +341,17 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
           <EventlogDetails />
         </Grid>
       </ModalPopup>
+      {currentRow && currentRow.stateKey && (
+        <AlarmModal
+          onModalClose={() => setAlarmOpen(false)}
+          openModal={alarmOpen}
+          disableAlarmButton={true}
+          label={currentRow.head}
+          units={currentRow.unit}
+          stateKey={currentRow.stateKey}
+          requestCommitRange={() => null}
+        />
+      )}
     </Grid>
   );
 };

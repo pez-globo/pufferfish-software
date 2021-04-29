@@ -129,13 +129,15 @@ void HFNCSimulator::transform(
   } else if (std::abs(sensor_vars.flow_air + sensor_vars.flow_o2) >= 1) {
     // simulate FiO2 from relative flow rates if flow rates are available
     float flow_o2_ratio = sensor_vars.flow_o2 / (sensor_vars.flow_air + sensor_vars.flow_o2);
-    float inferred_fio2 = fio2_min * (1 - flow_o2_ratio) + fio2_max * flow_o2_ratio;
+    float inferred_fio2 =
+        allowed_fio2.lower * (1 - flow_o2_ratio) + allowed_fio2.upper * flow_o2_ratio;
     transform_fio2(inferred_fio2, sensor_measurements.fio2);
   } else {
     // simulate FiO2 from params
     transform_fio2(parameters.fio2, sensor_measurements.fio2);
   }
   transform_spo2(sensor_measurements.fio2, sensor_measurements.spo2);
+  transform_hr(sensor_measurements.fio2, sensor_measurements.hr);
 }
 
 void HFNCSimulator::init_cycle() {
@@ -148,11 +150,23 @@ void HFNCSimulator::transform_flow(float params_flow, float &sens_meas_flow) {
 
 void HFNCSimulator::transform_spo2(float fio2, float &spo2) {
   spo2 += (spo2_fio2_scale * fio2 - spo2) * spo2_responsiveness / time_step();
+  // We don't use clamp because we want to preserve NaNs
   if (spo2 < spo2_min) {
     spo2 = spo2_min;
   }
   if (spo2 > spo2_max) {
     spo2 = spo2_max;
+  }
+}
+
+void HFNCSimulator::transform_hr(float fio2, float &hr) {
+  hr += (hr_fio2_scale * fio2 - hr) * hr_responsiveness / time_step();
+  // We don't use clamp because we want to preserve NaNs
+  if (hr < hr_min) {
+    hr = hr_min;
+  }
+  if (hr > hr_max) {
+    hr = hr_max;
   }
 }
 

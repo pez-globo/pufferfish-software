@@ -2,21 +2,21 @@ import React, { useEffect } from 'react';
 import { Subscription } from 'rxjs';
 import { useDispatch } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
 import ReplyIcon from '@material-ui/icons/Reply';
+// import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import ModalPopup from '../controllers/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
-  getCycleMeasurementsRR,
-  getSensorMeasurementsSpO2,
-  getSmoothedFiO2Value,
-  getSmoothedFlow,
+  getParametersFiO2,
+  getParametersFlow,
+  getSmoothedSpO2,
+  getSmoothedHR,
   roundValue,
 } from '../../store/controller/selectors';
 import { SetValueContent } from '../controllers/ValueModal';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import ValueInfo from '../dashboard/containers/ValueInfo';
-import { BMIN, LMIN, PERCENT } from '../info/units';
+import { BPM, LMIN, PERCENT } from '../info/units';
 import { AlarmModal } from '../controllers';
 import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
 import {
@@ -37,6 +37,8 @@ interface Data {
   setValue: number;
   minValue?: number | null;
   maxValue?: number | null;
+  alarmLimitMin?: number | null;
+  alarmLimitMax?: number | null;
   alarmValuesActual: number[];
   setValueActual: number;
 }
@@ -68,24 +70,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     background: theme.palette.primary.main,
   },
   actionButtons: {
-    marginBottom: '10px',
+    position: 'absolute',
+    bottom: '15px',
+    right: '15px',
   },
   aButtons: {
-    background: '#234562',
     color: '#fff',
-
-    '&:hover': {
-      background: '#124876',
-    },
   },
   closeBtn: {
-    position: 'absolute',
-    top: '25px',
-    right: '25px',
-    zIndex: 9999,
-    cursor: 'pointer',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
+    minWidth: '38px',
+    marginRight: theme.spacing(1),
+    borderRadius: '8px',
   },
   marginContent: {
     textAlign: 'center',
@@ -97,6 +92,18 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(1),
   },
+  tabAligning: {
+    maxWidth: '60%',
+    margin: '0 auto',
+    marginTop: '10px',
+    '& .MuiTabs-root': {
+      '& .MuiTabs-scroller': {
+        '& .MuiTabs-flexContainer': {
+          alignItems: 'center',
+        },
+      },
+    },
+  },
 }));
 
 const HFNCControls = (): JSX.Element => {
@@ -107,29 +114,30 @@ const HFNCControls = (): JSX.Element => {
         item
         justify="center"
         alignItems="stretch"
+        direction="column"
         style={{ borderRight: '2px solid #030e17' }}
       >
         <ValueInfo
           mainContainer={{
-            selector: getCycleMeasurementsRR,
-            label: 'RR',
-            stateKey: 'rr',
-            units: BMIN,
+            selector: getSmoothedSpO2,
+            label: 'SpO2',
+            stateKey: 'spo2',
+            units: PERCENT,
           }}
         />
         <ValueInfo
           mainContainer={{
-            selector: getSensorMeasurementsSpO2,
-            label: 'SpO2',
-            stateKey: 'spo2',
-            units: PERCENT,
+            selector: getSmoothedHR,
+            label: 'HR',
+            stateKey: 'hr',
+            units: BPM,
           }}
         />
       </Grid>
       <Grid container item justify="center" alignItems="stretch" direction="column">
         <ValueInfo
           mainContainer={{
-            selector: getSmoothedFiO2Value,
+            selector: getParametersFiO2,
             label: 'FiO2',
             stateKey: 'fio2',
             units: PERCENT,
@@ -137,8 +145,8 @@ const HFNCControls = (): JSX.Element => {
         />
         <ValueInfo
           mainContainer={{
-            selector: getSmoothedFlow,
-            label: 'Flow Rate',
+            selector: getParametersFlow,
+            label: 'Flow',
             stateKey: 'flow',
             units: LMIN,
           }}
@@ -148,60 +156,64 @@ const HFNCControls = (): JSX.Element => {
   );
 };
 
+const createData = (
+  label: string,
+  stateKey: string,
+  units: string,
+  isSetvalEnabled: boolean,
+  isAlarmEnabled: boolean,
+  alarmValuesActual: number[],
+  committedSetting?: number | null,
+  minValue?: number | null,
+  maxValue?: number | null,
+  alarmLimitMin?: number | null,
+  alarmLimitMax?: number | null,
+): Data => {
+  return {
+    label,
+    stateKey,
+    units,
+    isSetvalEnabled,
+    isAlarmEnabled,
+    committedSetting,
+    minValue,
+    maxValue,
+    alarmLimitMin,
+    alarmLimitMax,
+    alarmValues: alarmValuesActual,
+    alarmValuesActual,
+    setValue: committedSetting as number,
+    setValueActual: committedSetting as number,
+  };
+};
+
+const getStoreValueData = (stateKey: string): number | null => {
+  const storeData = store.getState();
+  switch (stateKey) {
+    case 'fio2':
+      return roundValue(storeData.controller.parameters.fio2);
+    case 'flow':
+      return roundValue(storeData.controller.parameters.flow);
+    default:
+  }
+  return null;
+};
+
+const getStoreAlarmData = (stateKey: string): number[] | null => {
+  const storeData = store.getState();
+  const alarmLimits = storeData.controller.alarmLimitsRequest;
+  switch (stateKey) {
+    case 'spo2':
+      return [alarmLimits.spo2?.lower as number, alarmLimits.spo2?.upper as number];
+    case 'hr':
+      return [alarmLimits.hr?.lower as number, alarmLimits.hr?.upper as number];
+    default:
+  }
+  return null;
+};
+
 // TODO: Make a constant file for stateKey Constants
-const determineInput = (stateKey: string): Data | null => {
-  const createData = (
-    label: string,
-    stateKey: string,
-    units: string,
-    isSetvalEnabled: boolean,
-    isAlarmEnabled: boolean,
-    alarmValuesActual: number[],
-    committedSetting?: number | null,
-    minValue?: number | null,
-    maxValue?: number | null,
-  ): Data => {
-    return {
-      label,
-      stateKey,
-      units,
-      isSetvalEnabled,
-      isAlarmEnabled,
-      committedSetting,
-      minValue,
-      maxValue,
-      alarmValues: alarmValuesActual,
-      alarmValuesActual,
-      setValue: committedSetting as number,
-      setValueActual: committedSetting as number,
-    };
-  };
-
-  const getStoreValueData = (stateKey: string): number | null => {
-    const storeData = store.getState();
-    switch (stateKey) {
-      case 'fio2':
-        return roundValue(storeData.controller.parameters.fio2);
-      case 'flow':
-        return roundValue(storeData.controller.parameters.flow);
-      default:
-    }
-    return null;
-  };
-
-  const getStoreAlarmData = (stateKey: string): number[] | null => {
-    const storeData = store.getState();
-    const alarmLimits = storeData.controller.alarmLimitsRequest;
-    switch (stateKey) {
-      case 'spo2':
-        return [alarmLimits.spo2?.lower as number, alarmLimits.spo2?.upper as number];
-      case 'rr':
-        return [alarmLimits.rr?.lower as number, alarmLimits.rr?.upper as number];
-      default:
-    }
-    return null;
-  };
-
+const determineInput = (stateKey: string): Data | undefined => {
   switch (stateKey) {
     case 'spo2':
       return createData(
@@ -213,15 +225,19 @@ const determineInput = (stateKey: string): Data | null => {
         getStoreAlarmData(stateKey) as number[],
         -1,
       );
-    case 'rr':
+    case 'hr':
       return createData(
-        'RR',
+        'HR',
         stateKey,
-        BMIN,
+        BPM,
         false,
         true,
         getStoreAlarmData(stateKey) as number[],
         -1,
+        null,
+        null,
+        0,
+        200,
       );
     case 'fio2':
       return createData(
@@ -249,8 +265,7 @@ const determineInput = (stateKey: string): Data | null => {
       );
     default:
   }
-
-  return null;
+  return undefined;
 };
 
 const MultiStepWizard = (): JSX.Element => {
@@ -262,8 +277,9 @@ const MultiStepWizard = (): JSX.Element => {
   const [label, setLabel] = React.useState('Ventilation Controls');
   const [stateKey, setStateKey] = React.useState('');
   const [tabIndex, setTabIndex] = React.useState(0);
-  const [parameter, setParameter] = React.useState<Data | null>();
+  const [parameter, setParameter] = React.useState<Data>();
   const [multiParams, setMultiParams] = React.useState<Data[]>([]);
+  const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);
 
   const handleChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setTabIndex(newValue);
@@ -288,13 +304,17 @@ const MultiStepWizard = (): JSX.Element => {
       if (stateKeyEventSubscription) {
         stateKeyEventSubscription.unsubscribe();
       }
+      setConfirmOpen(false);
+      setCancelOpen(false);
     };
   }, []);
 
   useEffect(() => {
     if (parameter) {
       if (tabIndex > 0) {
-        setLabel(parameter.isSetvalEnabled ? 'Set New' : 'Alarms');
+        setLabel(
+          parameter.isSetvalEnabled ? `${parameter.label} Settings` : `${parameter.label} Alarms`,
+        );
       } else {
         setLabel('Ventilation Controls');
       }
@@ -321,6 +341,11 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.setValue = setting;
       parameter.setValue = setting;
+      if (isAnyChanges()) {
+        setIsSubmitDisabled(false);
+      } else {
+        setIsSubmitDisabled(true);
+      }
     }
   };
 
@@ -329,6 +354,11 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.alarmValues = [min, max];
       parameter.alarmValues = [min, max];
+      if (isAnyChanges()) {
+        setIsSubmitDisabled(false);
+      } else {
+        setIsSubmitDisabled(true);
+      }
     }
   };
 
@@ -342,8 +372,8 @@ const MultiStepWizard = (): JSX.Element => {
 
   const getSetValues = (stateKey: string) => {
     const param = multiParams.find((param: Data) => param.stateKey === stateKey);
-    if (param) {
-      if (param.setValue) return param.setValue as number;
+    if (param && param.setValue) {
+      return param.setValue as number;
     }
     if (parameter) return parameter.committedSetting as number;
     return 0;
@@ -370,15 +400,17 @@ const MultiStepWizard = (): JSX.Element => {
   const onCancel = () => {
     if (isAnyChanges()) {
       setCancelOpen(true);
+    } else {
+      setMultiPopupOpen(false, stateKey);
     }
-    setMultiPopupOpen(false);
   };
 
   const onConfirm = () => {
     if (isAnyChanges()) {
       setConfirmOpen(true);
+    } else {
+      setMultiPopupOpen(false, stateKey);
     }
-    setMultiPopupOpen(false);
   };
 
   const handleConfirm = () => {
@@ -410,93 +442,150 @@ const MultiStepWizard = (): JSX.Element => {
     });
     setMultiParams([]);
     setConfirmOpen(false);
+    setMultiPopupOpen(false);
   };
 
   const handleCancelConfirm = () => {
+    if (parameter) {
+      parameter.setValue = parameter.setValueActual;
+      parameter.alarmValues = parameter.alarmValuesActual;
+    }
+    multiParams.map((parameter: Data) => {
+      const param = parameter;
+      param.setValue = param.setValueActual;
+      param.alarmValues = param.alarmValuesActual;
+      return param;
+    });
     setMultiParams([]);
     setCancelOpen(false);
+    setMultiPopupOpen(false);
+  };
+
+  const handleCancelOnConfirmPopup = () => {
+    setConfirmOpen(false);
+    // setMultiPopupOpen(true, stateKey);
+  };
+
+  const handleCancelOnCancelPopup = () => {
+    setCancelOpen(false);
+    // setMultiPopupOpen(true, stateKey);s
   };
 
   return (
     <React.Fragment>
-      <ModalPopup withAction={false} label={label} open={open}>
-        {tabIndex === 0 ? (
-          <CloseIcon onClick={() => setMultiPopupOpen(false)} className={classes.closeBtn} />
-        ) : (
-          <ReplyIcon onClick={() => setTabIndex(tabIndex - 1)} className={classes.closeBtn} />
-        )}
-        <Grid container item>
-          <Tabs
-            value={tabIndex}
-            onChange={handleChange}
-            classes={{ indicator: classes.tabIndicator }}
-          >
-            <Tab
-              label="HFNC Control"
-              {...a11yProps(0)}
-              className={classes.tab}
-              classes={{ selected: classes.selectedTab }}
-            />
-            <Tab
-              style={{ visibility: tabIndex === 0 ? 'hidden' : 'visible' }}
-              label={parameter?.isSetvalEnabled ? 'Set New' : 'Alarms'}
-              {...a11yProps(1)}
-              className={classes.tab}
-              classes={{ selected: classes.selectedTab }}
-            />
-          </Tabs>
-        </Grid>
-        <Grid container>
-          <TabPanel value={tabIndex} index={0}>
-            <HFNCControls />
-          </TabPanel>
-          <TabPanel value={tabIndex} index={1}>
-            {parameter?.isSetvalEnabled ? (
-              <SetValueContent
-                openModal={open}
-                committedSetting={getSetValues(stateKey)}
-                label={parameter.label}
-                units={parameter.units}
-                requestCommitSetting={doSetValue}
-                {...(parameter.minValue && { min: parameter.minValue })}
-                {...(parameter.maxValue && { max: parameter.maxValue })}
-              />
-            ) : (
-              <AlarmModal
-                openModal={open}
-                label={parameter?.label || ''}
-                units={parameter?.units || ''}
-                stateKey={stateKey}
-                requestCommitRange={doSetAlarmValues}
-                contentOnly={true}
-                labelHeading={true}
-                alarmRangeValues={getAlarmValues(stateKey)}
-              />
-            )}
-          </TabPanel>
-        </Grid>
-
-        <Grid
-          container
-          item
-          alignItems="center"
-          justify="flex-end"
-          className={classes.actionButtons}
-        >
-          <Grid item>
-            <Button
-              variant="contained"
-              className={classes.aButtons}
-              style={{ marginRight: '15px' }}
-              onClick={onCancel}
+      <ModalPopup
+        withAction={false}
+        label={label}
+        open={open}
+        showCloseIcon={true}
+        onClose={onCancel}
+      >
+        <Grid style={{ flexGrow: 1 }}>
+          <Grid container item className={classes.tabAligning}>
+            <Grid style={{ minHeight: 38, minWidth: 38 }}>
+              <Button
+                onClick={() => setTabIndex(tabIndex - 1)}
+                variant="contained"
+                color="primary"
+                disabled={!(tabIndex > 0)}
+                className={classes.closeBtn}
+              >
+                <ReplyIcon />
+              </Button>
+            </Grid>
+            <Tabs
+              value={tabIndex}
+              onChange={handleChange}
+              classes={{ indicator: classes.tabIndicator }}
             >
-              Cancel
-            </Button>
+              <Tab
+                label="HFNC Control"
+                {...a11yProps(0)}
+                className={classes.tab}
+                classes={{ selected: classes.selectedTab }}
+              />
+              {/* <Tab
+                label={<ArrowForwardIosIcon />}
+                {...a11yProps(98)}
+                className={classes.nonTab}
+              /> */}
+              <Tab
+                style={{ visibility: tabIndex === 0 ? 'hidden' : 'visible' }}
+                label={
+                  parameter?.isSetvalEnabled
+                    ? `${parameter.label} Settings`
+                    : `${parameter?.label} Alarms`
+                }
+                {...a11yProps(1)}
+                className={classes.tab}
+                classes={{ selected: classes.selectedTab }}
+              />
+            </Tabs>
           </Grid>
-          <Grid item>
-            <Button variant="contained" className={classes.aButtons} onClick={onConfirm}>
-              Submit
-            </Button>
+          <Grid container className={classes.tabAligning}>
+            <TabPanel value={tabIndex} index={0}>
+              <HFNCControls />
+            </TabPanel>
+            <TabPanel value={tabIndex} index={1}>
+              {parameter && parameter.isSetvalEnabled ? (
+                <SetValueContent
+                  openModal={open && parameter.stateKey === stateKey}
+                  key={parameter.stateKey}
+                  committedSetting={getSetValues(parameter.stateKey)}
+                  label={parameter.label}
+                  units={parameter.units}
+                  requestCommitSetting={doSetValue}
+                  {...(parameter.minValue && { min: parameter.minValue })}
+                  {...(parameter.maxValue && { max: parameter.maxValue })}
+                />
+              ) : (
+                parameter && (
+                  <AlarmModal
+                    openModal={open && parameter.stateKey === stateKey}
+                    label={parameter.label}
+                    units={parameter.units}
+                    stateKey={parameter.stateKey}
+                    requestCommitRange={doSetAlarmValues}
+                    contentOnly={true}
+                    labelHeading={true}
+                    alarmRangeValues={getAlarmValues(parameter.stateKey)}
+                    {...(parameter.alarmLimitMin && { committedMin: parameter.alarmLimitMin })}
+                    {...(parameter.alarmLimitMax && { committedMax: parameter.alarmLimitMax })}
+                  />
+                )
+              )}
+            </TabPanel>
+          </Grid>
+          <Grid
+            container
+            item
+            alignItems="center"
+            justify="flex-end"
+            className={classes.actionButtons}
+          >
+            <Grid item>
+              <Button
+                variant="contained"
+                className={classes.aButtons}
+                style={{ marginRight: '15px' }}
+                onClick={onCancel}
+                color="primary"
+              >
+                Cancel
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                disabled={isSubmitDisabled}
+                className={classes.aButtons}
+                onClick={onConfirm}
+                color="secondary"
+                style={{ color: '#000' }}
+              >
+                Submit
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
       </ModalPopup>
@@ -505,33 +594,37 @@ const MultiStepWizard = (): JSX.Element => {
         maxWidth="xs"
         label=""
         open={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
+        onClose={handleCancelOnConfirmPopup}
         onConfirm={handleConfirm}
       >
-        <Grid container alignItems="center" className={classes.marginHeader}>
-          <Grid item xs>
-            <Typography variant="h4">Confirm New Changes?</Typography>
+        <Grid container alignItems="center">
+          <Grid container alignItems="center" justify="center">
+            <Grid container alignItems="center" className={classes.marginHeader}>
+              <Grid item xs>
+                <Typography variant="h4">Confirm New Changes?</Typography>
+              </Grid>
+            </Grid>
+            <Grid item alignItems="center" className={classes.marginContent}>
+              {multiParams.map((param: Data) => {
+                if (param.isSetvalEnabled) {
+                  if (param.setValue !== param.setValueActual) {
+                    return (
+                      <Typography variant="subtitle1">{`Change ${param.label} to ${param.setValue} ${param.units}?`}</Typography>
+                    );
+                  }
+                } else if (
+                  param.alarmValues.length &&
+                  (param.alarmValues[0] !== param.alarmValuesActual[0] ||
+                    param.alarmValues[1] !== param.alarmValuesActual[1])
+                ) {
+                  return (
+                    <Typography variant="subtitle1">{`Change ${param.label} alarm range to ${param.alarmValues[0]} - ${param.alarmValues[1]}?`}</Typography>
+                  );
+                }
+                return <React.Fragment />;
+              })}
+            </Grid>
           </Grid>
-        </Grid>
-        <Grid item alignItems="center" className={classes.marginContent}>
-          {multiParams.map((param: Data) => {
-            if (param.isSetvalEnabled) {
-              if (param.setValue !== param.setValueActual) {
-                return (
-                  <Typography variant="subtitle1">{`Change ${param.label} to ${param.setValue} ${param.units}?`}</Typography>
-                );
-              }
-            } else if (
-              param.alarmValues.length &&
-              (param.alarmValues[0] !== param.alarmValuesActual[0] ||
-                param.alarmValues[1] !== param.alarmValuesActual[1])
-            ) {
-              return (
-                <Typography variant="subtitle1">{`Change ${param.label} alarm range to ${param.alarmValues[0]} - ${param.alarmValues[1]}?`}</Typography>
-              );
-            }
-            return <React.Fragment />;
-          })}
         </Grid>
       </ModalPopup>
       <ModalPopup
@@ -539,33 +632,37 @@ const MultiStepWizard = (): JSX.Element => {
         maxWidth="xs"
         label=""
         open={cancelOpen}
-        onClose={() => setCancelOpen(false)}
+        onClose={handleCancelOnCancelPopup}
         onConfirm={handleCancelConfirm}
       >
-        <Grid container alignItems="center" className={classes.marginHeader}>
-          <Grid item xs>
-            <Typography variant="h4">Keep Previous Values?</Typography>
+        <Grid container alignItems="center">
+          <Grid container alignItems="center" justify="center">
+            <Grid container alignItems="center" className={classes.marginHeader}>
+              <Grid item xs>
+                <Typography variant="h4">Keep Previous Values?</Typography>
+              </Grid>
+            </Grid>
+            <Grid item alignItems="center" className={classes.marginContent}>
+              {multiParams.map((param: Data) => {
+                if (param.isSetvalEnabled) {
+                  if (param.setValue !== param.setValueActual) {
+                    return (
+                      <Typography variant="subtitle1">{`Keep ${param.label} to ${param.setValueActual} ${param.units}?`}</Typography>
+                    );
+                  }
+                } else if (
+                  param.alarmValues.length &&
+                  (param.alarmValues[0] !== param.alarmValuesActual[0] ||
+                    param.alarmValues[1] !== param.alarmValuesActual[1])
+                ) {
+                  return (
+                    <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${param.alarmValuesActual[0]} - ${param.alarmValuesActual[1]}?`}</Typography>
+                  );
+                }
+                return <React.Fragment />;
+              })}
+            </Grid>
           </Grid>
-        </Grid>
-        <Grid item alignItems="center" className={classes.marginContent}>
-          {multiParams.map((param: Data) => {
-            if (param.isSetvalEnabled) {
-              if (param.setValue !== param.setValueActual) {
-                return (
-                  <Typography variant="subtitle1">{`Keep ${param.label} to ${param.setValueActual} ${param.units}?`}</Typography>
-                );
-              }
-            } else if (
-              param.alarmValues.length &&
-              (param.alarmValues[0] !== param.alarmValuesActual[0] ||
-                param.alarmValues[1] !== param.alarmValuesActual[1])
-            ) {
-              return (
-                <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${param.alarmValuesActual[0]} - ${param.alarmValuesActual[1]}?`}</Typography>
-              );
-            }
-            return <React.Fragment />;
-          })}
         </Grid>
       </ModalPopup>
     </React.Fragment>
