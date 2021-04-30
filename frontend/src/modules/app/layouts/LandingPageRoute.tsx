@@ -5,8 +5,16 @@
  */
 import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Route, RouteProps } from 'react-router-dom';
+import store from '../../../store';
+import { getClock } from '../../../store/app/selectors';
+import { LogEvent, LogEventType } from '../../../store/controller/proto/mcu_pb';
+import {
+  BACKEND_CONNECTION_LOST,
+  BACKEND_CONNECTION_LOST_CODE,
+} from '../../../store/controller/types';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
 
@@ -50,6 +58,37 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+const BACKEND_CONNECTION_LOST_TIMEOUT = 500;
+
+export const BackendListener = (): JSX.Element => {
+  const clock = useSelector(getClock);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const storeData = store.getState();
+    const heartbeat: Date = storeData.controller.heartbeatBackend.time;
+    const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
+    const events = storeData.controller.eventLog.nextLogEvents.elements;
+    const lostConnectionAlarm = events.find(
+      (el: LogEvent) => (el.code as number) === BACKEND_CONNECTION_LOST_CODE,
+    );
+
+    if (diff > BACKEND_CONNECTION_LOST_TIMEOUT) {
+      if (!lostConnectionAlarm) {
+        dispatch({
+          type: BACKEND_CONNECTION_LOST,
+          update: {
+            code: BACKEND_CONNECTION_LOST_CODE,
+            type: LogEventType.system,
+            time: new Date().getTime(),
+          },
+        });
+      }
+    }
+  }, [clock, dispatch]);
+  return <React.Fragment />;
+};
+
 const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
 
@@ -76,6 +115,7 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
           {children}
         </Grid>
       </Grid>
+      <BackendListener />
     </React.Fragment>
   );
 });

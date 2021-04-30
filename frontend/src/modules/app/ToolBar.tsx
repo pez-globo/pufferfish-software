@@ -166,10 +166,16 @@ export const ToolBar = ({
   useEffect(() => {
     if (popupEventLog && popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
       setIsDisabled(true);
+      setLabel('Loading');
     } else {
       setIsDisabled(false);
+      if (staticStart) {
+        setLabel('Start');
+      } else {
+        setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
+      }
     }
-  }, [popupEventLog]);
+  }, [popupEventLog, ventilating, staticStart]);
 
   useEffect(() => {
     if (!ventilating) initParameterUpdate();
@@ -180,7 +186,6 @@ export const ToolBar = ({
       history.push(DASHBOARD_ROUTE.path);
     }
     setIsVentilatorOn(ventilating);
-    setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
   }, [ventilating, history]);
 
   const StartPauseButton = (
@@ -188,9 +193,9 @@ export const ToolBar = ({
       onClick={updateVentilationStatus}
       variant="contained"
       color="secondary"
-      disabled={staticStart ? false : isDisabled}
+      disabled={isDisabled}
     >
-      {staticStart ? 'Start' : label}
+      {label}
     </Button>
   );
   const tools = [<ModesDropdown />];
