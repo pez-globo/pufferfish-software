@@ -77,8 +77,10 @@ const AudioAlarm = (): JSX.Element => {
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
+  const storeData = store.getState();
+  const events = storeData.controller.eventLog.nextLogEvents.elements;
   const [playing, setPlaying] = useState(alarmMuteStatus.active);
-
+  const patientLogEvent = events.find((el: LogEvent) => (el.type as number) < 2);
   useEffect(() => {
     if (playing) {
       audio.play();
@@ -93,22 +95,21 @@ const AudioAlarm = (): JSX.Element => {
   useEffect(() => {
     if (popupEventLog) {
       setPlaying(false);
-      if (popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
+      if (popupEventLog && patientLogEvent) {
         setPlaying(true);
+        dispatch({ type: RED_BORDER, status: true });
       }
-      dispatch({ type: RED_BORDER, status: true });
     } else {
       setPlaying(false);
       dispatch({ type: RED_BORDER, status: false });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [popupEventLog]);
+  }, [popupEventLog, patientLogEvent, dispatch]);
 
   useEffect(() => {
     if (popupEventLog) {
       dispatch({ type: RED_BORDER, status: !alarmMuteStatus.active });
     }
-    if (popupEventLog && popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
+    if (popupEventLog && patientLogEvent) {
       setPlaying(!alarmMuteStatus.active);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
