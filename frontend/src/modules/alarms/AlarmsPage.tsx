@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateCommittedState } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
 import {
+  getAlarmLimits,
   getAlarmLimitsRequestStandby,
   getIsVentilating,
   getParametersRequestMode,
@@ -296,8 +297,22 @@ export const AlarmsPage = (): JSX.Element => {
     dispatch(updateCommittedState(ALARM_LIMITS_STANDBY, alarmLimits));
   };
   const applyChanges = () => dispatch(updateCommittedState(ALARM_LIMITS, alarmLimits));
+  const alarmLimitsActual = useSelector(getAlarmLimits);
+  const [alarmLimitsAct] = useState(alarmLimitsActual as Record<string, Range>);
   const alarmConfig = alarmConfiguration(currentMode);
   const [open, setOpen] = useState(false);
+  const [isDisabled] = useState(false);
+
+  const hasAnyChanges = (stateKey: string): boolean => {
+    let anyChange = false;
+    if (
+      alarmLimitsAct[stateKey]?.lower !== alarmLimits[stateKey]?.lower ||
+      alarmLimitsAct[stateKey]?.upper !== alarmLimits[stateKey]?.upper
+    ) {
+      anyChange = true;
+    }
+    return anyChange;
+  };
 
   const handleClose = () => {
     setOpen(false);
@@ -314,6 +329,16 @@ export const AlarmsPage = (): JSX.Element => {
   useEffect(() => {
     setPageCount(Math.ceil(alarmConfig.length / itemsPerPage));
   }, [alarmConfig]);
+
+  // const changeValues = () => {
+  //   alarmConfig.forEach((alarm) => {
+  //     if (hasAnyChanges(alarm.stateKey)) {
+  //       setIsDisabled(false);
+  //     } else {
+  //       setIsDisabled(true);
+  //     }
+  //   });
+  // };
 
   const OnClickPage = () => {
     setActiveRotaryReference(null);
@@ -366,6 +391,7 @@ export const AlarmsPage = (): JSX.Element => {
                   color="secondary"
                   variant="contained"
                   className={classes.applyButton}
+                  disabled={isDisabled}
                 >
                   Apply Changes
                 </Button>
@@ -383,6 +409,19 @@ export const AlarmsPage = (): JSX.Element => {
                       <Grid item xs>
                         <Typography variant="h4">Confirm New Changes?</Typography>
                       </Grid>
+                    </Grid>
+                    <Grid item alignItems="center" className={classes.marginContent}>
+                      {alarmConfig.map((alarm) => {
+                        if (hasAnyChanges(alarm.stateKey)) {
+                          return (
+                            <Typography variant="subtitle1">{`Change ${alarm.label} to ${
+                              alarmLimits[alarm.stateKey]?.lower
+                            } -
+                                ${alarmLimits[alarm.stateKey]?.upper}?`}</Typography>
+                          );
+                        }
+                        return <React.Fragment />;
+                      })}
                     </Grid>
                     <Grid item alignItems="center" className={classes.marginContent} />
                   </Grid>
