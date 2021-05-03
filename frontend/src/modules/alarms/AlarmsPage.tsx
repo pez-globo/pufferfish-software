@@ -1,12 +1,12 @@
 import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
-import React, { RefObject, useEffect, useRef, useState } from 'react';
+import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import store from '../../store';
 import { updateCommittedState } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
 import {
-  getAlarmLimits,
   getAlarmLimitsRequestStandby,
   getIsVentilating,
   getParametersRequestMode,
@@ -297,22 +297,42 @@ export const AlarmsPage = (): JSX.Element => {
     dispatch(updateCommittedState(ALARM_LIMITS_STANDBY, alarmLimits));
   };
   const applyChanges = () => dispatch(updateCommittedState(ALARM_LIMITS, alarmLimits));
-  const alarmLimitsActual = useSelector(getAlarmLimits);
-  const [alarmLimitsAct] = useState(alarmLimitsActual as Record<string, Range>);
   const alarmConfig = alarmConfiguration(currentMode);
   const [open, setOpen] = useState(false);
-  const [isDisabled] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
 
-  const hasAnyChanges = (stateKey: string): boolean => {
-    let anyChange = false;
-    if (
-      alarmLimitsAct[stateKey]?.lower !== alarmLimits[stateKey]?.lower ||
-      alarmLimitsAct[stateKey]?.upper !== alarmLimits[stateKey]?.upper
-    ) {
-      anyChange = true;
+  const hasAnyChanges = useCallback(
+    (stateKey: string): boolean => {
+      let anyChange = false;
+      const range = getStoreValues(stateKey);
+      if (range[0] !== alarmLimits[stateKey]?.lower || range[1] !== alarmLimits[stateKey]?.upper) {
+        anyChange = true;
+      }
+      return anyChange;
+    },
+    [alarmLimits],
+  );
+
+  const getStoreValues = (stateKey: string): number[] => {
+    const storeData = store.getState();
+    const alarmLimits = storeData.controller.alarmLimits;
+    switch (stateKey) {
+      case 'spo2':
+        return [alarmLimits.spo2?.lower as number, alarmLimits.spo2?.upper as number];
+      case 'hr':
+        return [alarmLimits.hr?.lower as number, alarmLimits.hr?.upper as number];
+      default:
+        return [0, 0];
     }
-    return anyChange;
   };
+
+  useEffect(() => {
+    if (hasAnyChanges('spo2') || hasAnyChanges('hr')) {
+      setIsDisabled(false);
+    } else {
+      setIsDisabled(true);
+    }
+  }, [hasAnyChanges, setIsDisabled]);
 
   const handleClose = () => {
     setOpen(false);
@@ -321,7 +341,9 @@ export const AlarmsPage = (): JSX.Element => {
   const handleConfirm = () => {
     setOpen(false);
     applyChanges();
+    setIsDisabled(true);
   };
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -329,16 +351,6 @@ export const AlarmsPage = (): JSX.Element => {
   useEffect(() => {
     setPageCount(Math.ceil(alarmConfig.length / itemsPerPage));
   }, [alarmConfig]);
-
-  // const changeValues = () => {
-  //   alarmConfig.forEach((alarm) => {
-  //     if (hasAnyChanges(alarm.stateKey)) {
-  //       setIsDisabled(false);
-  //     } else {
-  //       setIsDisabled(true);
-  //     }
-  //   });
-  // };
 
   const OnClickPage = () => {
     setActiveRotaryReference(null);
