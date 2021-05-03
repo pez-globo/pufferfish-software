@@ -1,12 +1,13 @@
 import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
-import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import React, { RefObject, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import store from '../../store';
 import { updateCommittedState } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
 import {
+  getAlarmLimits,
   getAlarmLimitsRequestStandby,
   getIsVentilating,
   getParametersRequestMode,
@@ -105,7 +106,8 @@ interface AlarmProps {
   stateKey: string;
   step?: number;
   alarmLimits: Record<string, Range>;
-  setAlarmLimits(alarmLimits: Partial<AlarmLimitsRequest>): void;
+  setAlarmLimits(alarmLimitsRequest: Partial<AlarmLimitsRequest>): void;
+  onAlarmUpdate(stateKey: string): void;
 }
 
 enum SliderType {
@@ -121,6 +123,7 @@ const Alarm = ({
   step,
   alarmLimits,
   setAlarmLimits,
+  onAlarmUpdate,
 }: AlarmProps): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
@@ -137,6 +140,7 @@ const Alarm = ({
     setActiveRotaryReference(
       type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
     );
+    onAlarmUpdate(stateKey);
     setAlarmLimits({
       [stateKey]: {
         lower: type === SliderType.LOWER ? value : rangeValues[0],
@@ -288,10 +292,12 @@ export const AlarmsPage = (): JSX.Element => {
   };
 
   const alarmLimitsRequest = useSelector(getAlarmLimitsRequestStandby);
+  const alarmLimitsActual = useSelector(getAlarmLimits);
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
   const ventilating = useSelector(getIsVentilating);
   const [alarmLimits, setAlarmLimits] = useState(alarmLimitsRequest as Record<string, Range>);
+  const [alarmLimitsAct] = useState(alarmLimitsActual as Record<string, Range>);
   const updateAlarmLimits = (data: Partial<AlarmLimitsRequest>) => {
     setAlarmLimits({ ...alarmLimits, ...data } as Record<string, Range>);
     dispatch(updateCommittedState(ALARM_LIMITS_STANDBY, alarmLimits));
@@ -299,43 +305,15 @@ export const AlarmsPage = (): JSX.Element => {
   const applyChanges = () => dispatch(updateCommittedState(ALARM_LIMITS, alarmLimits));
   const alarmConfig = alarmConfiguration(currentMode);
   const [open, setOpen] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(false);
-
-  const hasAnyChanges = useCallback(
-    (stateKey: string): boolean => {
-      let anyChange = false;
-      const range = getStoreValues(stateKey);
-      if (range[0] !== alarmLimits[stateKey]?.lower || range[1] !== alarmLimits[stateKey]?.upper) {
-        anyChange = true;
-      }
-      return anyChange;
-    },
-    [alarmLimits],
-  );
-
-  const getStoreValues = (stateKey: string): number[] => {
-    const storeData = store.getState();
-    const alarmLimits = storeData.controller.alarmLimits;
-    switch (stateKey) {
-      case 'spo2':
-        return [alarmLimits.spo2?.lower as number, alarmLimits.spo2?.upper as number];
-      case 'hr':
-        return [alarmLimits.hr?.lower as number, alarmLimits.hr?.upper as number];
-      default:
-        return [0, 0];
-    }
-  };
-
-  useEffect(() => {
-    if (hasAnyChanges('spo2') || hasAnyChanges('hr')) {
-      setIsDisabled(false);
-    } else {
-      setIsDisabled(true);
-    }
-  }, [hasAnyChanges, setIsDisabled]);
+  const [discardOpen, setDiscardOpen] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleDiscardClose = () => {
+    setDiscardOpen(false);
   };
 
   const handleConfirm = () => {
@@ -344,8 +322,24 @@ export const AlarmsPage = (): JSX.Element => {
     setIsDisabled(true);
   };
 
+  const handleDiscardConfirm = () => {
+    setDiscardOpen(false);
+    handleDiscard();
+    setIsDisabled(true);
+  };
+
+  const handleDiscard = () => {
+    const storeData = store.getState();
+    const alarmLimits = storeData.controller.alarmLimits;
+    updateAlarmLimits(alarmLimits);
+  };
+
   const handleOpen = () => {
     setOpen(true);
+  };
+
+  const handleDiscardOpen = () => {
+    setDiscardOpen(true);
   };
 
   useEffect(() => {
@@ -354,6 +348,17 @@ export const AlarmsPage = (): JSX.Element => {
 
   const OnClickPage = () => {
     setActiveRotaryReference(null);
+  };
+
+  const handleAlarmUpdate = (stateKey: string) => {
+    if (
+      alarmLimitsAct[stateKey].lower !== alarmLimits[stateKey]?.lower ||
+      alarmLimitsAct[stateKey].upper !== alarmLimits[stateKey]?.upper
+    ) {
+      setIsDisabled(false);
+    } else {
+      setIsDisabled(true);
+    }
   };
 
   return (
@@ -373,6 +378,7 @@ export const AlarmsPage = (): JSX.Element => {
                   step={alarm.step || 1}
                   alarmLimits={alarmLimits}
                   setAlarmLimits={updateAlarmLimits}
+                  onAlarmUpdate={handleAlarmUpdate}
                 />
               );
             })}
@@ -397,6 +403,15 @@ export const AlarmsPage = (): JSX.Element => {
               </Grid>
             )}
             <Grid item style={{ textAlign: 'right' }}>
+              <Button
+                onClick={handleDiscardOpen}
+                color="secondary"
+                variant="contained"
+                className={classes.applyButton}
+                disabled={isDisabled}
+              >
+                Discard Changes
+              </Button>
               {ventilating ? (
                 <Button
                   onClick={handleOpen}
@@ -423,13 +438,54 @@ export const AlarmsPage = (): JSX.Element => {
                       </Grid>
                     </Grid>
                     <Grid item alignItems="center" className={classes.marginContent}>
-                      {alarmConfig.map((alarm) => {
-                        if (hasAnyChanges(alarm.stateKey)) {
+                      {alarmConfig.map((param) => {
+                        if (
+                          alarmLimitsAct[param.stateKey].lower !==
+                            alarmLimits[param.stateKey]?.lower ||
+                          alarmLimitsAct[param.stateKey].upper !==
+                            alarmLimits[param.stateKey]?.upper
+                        ) {
                           return (
-                            <Typography variant="subtitle1">{`Change ${alarm.label} to ${
-                              alarmLimits[alarm.stateKey]?.lower
+                            <Typography variant="subtitle1">{`Change ${param.label} to ${
+                              alarmLimits[param.stateKey]?.lower
                             } -
-                                ${alarmLimits[alarm.stateKey]?.upper}?`}</Typography>
+                                ${alarmLimits[param.stateKey]?.upper}?`}</Typography>
+                          );
+                        }
+                        return <React.Fragment />;
+                      })}
+                    </Grid>
+                    <Grid item alignItems="center" className={classes.marginContent} />
+                  </Grid>
+                </Grid>
+              </ModalPopup>
+              <ModalPopup
+                withAction={true}
+                label="Set Alarms"
+                open={discardOpen}
+                onClose={handleDiscardClose}
+                onConfirm={handleDiscardConfirm}
+              >
+                <Grid container alignItems="center">
+                  <Grid container alignItems="center" justify="center">
+                    <Grid container alignItems="center" className={classes.marginHeader}>
+                      <Grid item xs>
+                        <Typography variant="h4">Discard New Changes?</Typography>
+                      </Grid>
+                    </Grid>
+                    <Grid item alignItems="center" className={classes.marginContent}>
+                      {alarmConfig.map((param) => {
+                        if (
+                          alarmLimitsAct[param.stateKey].lower !==
+                            alarmLimits[param.stateKey]?.lower ||
+                          alarmLimitsAct[param.stateKey].upper !==
+                            alarmLimits[param.stateKey]?.upper
+                        ) {
+                          return (
+                            <Typography variant="subtitle1">{`Change ${param.label} to ${
+                              alarmLimitsAct[param.stateKey].lower
+                            } -
+                                ${alarmLimitsAct[param.stateKey].upper}?`}</Typography>
                           );
                         }
                         return <React.Fragment />;
