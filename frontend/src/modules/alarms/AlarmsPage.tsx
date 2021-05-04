@@ -3,7 +3,6 @@ import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
 import React, { RefObject, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import store from '../../store';
 import { updateCommittedState } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
 import {
@@ -329,9 +328,7 @@ export const AlarmsPage = (): JSX.Element => {
   };
 
   const handleDiscard = () => {
-    const storeData = store.getState();
-    const alarmLimits = storeData.controller.alarmLimits;
-    updateAlarmLimits(alarmLimits);
+    updateAlarmLimits(alarmLimitsAct);
   };
 
   const handleOpen = () => {
