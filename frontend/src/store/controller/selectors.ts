@@ -278,6 +278,12 @@ export const getNextLogEvents = createSelector(
   (states: ControllerStates): LogEvent[] => states.eventLog.nextLogEvents.elements,
 );
 
+export const getAlarmLogEvents = createSelector(getController, (states: ControllerStates):
+  | LogEvent
+  | undefined => {
+  return states.eventLog.nextLogEvents.elements.find((el: LogEvent) => (el.type as number) < 2);
+});
+
 // Patient Alarm Event
 export const getExpectedLogEvent = createSelector(
   getController,

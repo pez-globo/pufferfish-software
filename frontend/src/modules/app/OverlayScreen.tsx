@@ -7,6 +7,7 @@ import { getClock } from '../../store/app/selectors';
 import { RED_BORDER } from '../../store/app/types';
 import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
 import {
+  getAlarmLogEvents,
   getAlarmMuteStatus,
   getPopupEventLog,
   getScreenStatus,
@@ -77,10 +78,8 @@ const AudioAlarm = (): JSX.Element => {
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
-  const storeData = store.getState();
-  const events = storeData.controller.eventLog.nextLogEvents.elements;
-  const [playing, setPlaying] = useState(alarmMuteStatus.active);
-  const patientLogEvent = events.find((el: LogEvent) => (el.type as number) < 2);
+  const alarmLogEvents = useSelector(getAlarmLogEvents, shallowEqual);
+  const [playing, setPlaying] = useState<boolean>(alarmMuteStatus.active);
   useEffect(() => {
     if (playing) {
       audio.play();
@@ -95,7 +94,7 @@ const AudioAlarm = (): JSX.Element => {
   useEffect(() => {
     if (popupEventLog) {
       setPlaying(false);
-      if (popupEventLog && patientLogEvent) {
+      if (alarmLogEvents) {
         setPlaying(true);
         dispatch({ type: RED_BORDER, status: true });
       }
@@ -103,13 +102,13 @@ const AudioAlarm = (): JSX.Element => {
       setPlaying(false);
       dispatch({ type: RED_BORDER, status: false });
     }
-  }, [popupEventLog, patientLogEvent, dispatch]);
+  }, [popupEventLog, alarmLogEvents, dispatch]);
 
   useEffect(() => {
     if (popupEventLog) {
       dispatch({ type: RED_BORDER, status: !alarmMuteStatus.active });
     }
-    if (popupEventLog && patientLogEvent) {
+    if (popupEventLog && alarmLogEvents) {
       setPlaying(!alarmMuteStatus.active);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
