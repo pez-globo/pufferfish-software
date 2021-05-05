@@ -6,12 +6,7 @@ import store from '../../store';
 import { getClock } from '../../store/app/selectors';
 import { RED_BORDER } from '../../store/app/types';
 import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
-import {
-  getAlarmLogEvents,
-  getAlarmMuteStatus,
-  getPopupEventLog,
-  getScreenStatus,
-} from '../../store/controller/selectors';
+import { getAlarmMuteStatus, getAlarms, getScreenStatus } from '../../store/controller/selectors';
 import {
   BACKEND_CONNECTION_LOST,
   BACKEND_CONNECTION_LOST_CODE,
@@ -74,11 +69,10 @@ export const HeartbeatBackendListener = (): JSX.Element => {
 
 const AudioAlarm = (): JSX.Element => {
   const dispatch = useDispatch();
-  const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
+  const activeAlarms = useSelector(getAlarms, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
-  const alarmLogEvents = useSelector(getAlarmLogEvents, shallowEqual);
   const [playing, setPlaying] = useState<boolean>(alarmMuteStatus.active);
   useEffect(() => {
     if (playing) {
@@ -92,23 +86,20 @@ const AudioAlarm = (): JSX.Element => {
   }, [playing, audio]);
 
   useEffect(() => {
-    if (popupEventLog) {
-      setPlaying(false);
-      if (alarmLogEvents) {
-        setPlaying(true);
-        dispatch({ type: RED_BORDER, status: true });
-      }
+    if (activeAlarms) {
+      setPlaying(true);
+      dispatch({ type: RED_BORDER, status: true });
     } else {
       setPlaying(false);
       dispatch({ type: RED_BORDER, status: false });
     }
-  }, [popupEventLog, alarmLogEvents, dispatch]);
+  }, [activeAlarms, dispatch]);
 
   useEffect(() => {
-    if (popupEventLog) {
+    if (activeAlarms) {
       dispatch({ type: RED_BORDER, status: !alarmMuteStatus.active });
     }
-    if (popupEventLog && alarmLogEvents) {
+    if (activeAlarms) {
       setPlaying(!alarmMuteStatus.active);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -278,12 +278,6 @@ export const getNextLogEvents = createSelector(
   (states: ControllerStates): LogEvent[] => states.eventLog.nextLogEvents.elements,
 );
 
-export const getAlarmLogEvents = createSelector(getController, (states: ControllerStates):
-  | LogEvent
-  | undefined => {
-  return states.eventLog.nextLogEvents.elements.find((el: LogEvent) => (el.type as number) < 2);
-});
-
 // Patient Alarm Event
 export const getExpectedLogEvent = createSelector(
   getController,
@@ -299,6 +293,11 @@ export const getActiveLogEventIds = createSelector(
   getController,
   (states: ControllerStates): number[] => states.eventLog.activeLogEvents.id,
 );
+
+// Active Alarms
+export const getAlarms = createSelector(getActiveLogEventIds, (activeId: number[]): boolean => {
+  return activeId.length > 0;
+});
 
 // Active popup event log
 export const getPopupEventLog = createSelector(getController, (states: ControllerStates):
