@@ -39,14 +39,28 @@ class StateSegment(enum.Enum):
     ROTARY_ENCODER = enum.auto()
 
 
-MCU_SYNCHRONIZER_SCHEDULE = collections.deque([
+MCU_INPUT_TYPES = {
+    mcu_pb.SensorMeasurements: StateSegment.SENSOR_MEASUREMENTS,
+    mcu_pb.CycleMeasurements: StateSegment.CYCLE_MEASUREMENTS,
+    mcu_pb.Parameters: StateSegment.PARAMETERS,
+    mcu_pb.AlarmLimits: StateSegment.ALARM_LIMITS,
+    mcu_pb.NextLogEvents: StateSegment.NEXT_LOG_EVENTS_MCU,
+    mcu_pb.ActiveLogEvents: StateSegment.ACTIVE_LOG_EVENTS_MCU,
+}
+MCU_OUTPUT_SCHEDULE = collections.deque([
     states.ScheduleEntry(time=0.02, type=StateSegment.PARAMETERS_REQUEST),
     states.ScheduleEntry(time=0.02, type=StateSegment.EXPECTED_LOG_EVENT_MCU),
     states.ScheduleEntry(time=0.02, type=StateSegment.ALARM_LIMITS_REQUEST),
     states.ScheduleEntry(time=0.02, type=StateSegment.EXPECTED_LOG_EVENT_MCU),
 ])
 
-FRONTEND_SYNCHRONIZER_SCHEDULE = collections.deque([
+FRONTEND_INPUT_TYPES = {
+    mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
+    mcu_pb.AlarmLimitsRequest: StateSegment.ALARM_LIMITS_REQUEST,
+    mcu_pb.ExpectedLogEvent: StateSegment.EXPECTED_LOG_EVENT_BE,
+    frontend_pb.RotaryEncoder: StateSegment.ROTARY_ENCODER
+}
+FRONTEND_OUTPUT_SCHEDULE = collections.deque([
     states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
     states.ScheduleEntry(time=0.01, type=StateSegment.PARAMETERS),
     states.ScheduleEntry(time=0.01, type=StateSegment.PARAMETERS_REQUEST),
@@ -61,12 +75,19 @@ FRONTEND_SYNCHRONIZER_SCHEDULE = collections.deque([
     states.ScheduleEntry(time=0.01, type=StateSegment.CYCLE_MEASUREMENTS),
 ])
 
-FILE_SYNCHRONIZER_SCHEDULE = collections.deque([
+FILE_INPUT_TYPES = {
+    mcu_pb.Parameters: StateSegment.PARAMETERS,
+    mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
+    mcu_pb.AlarmLimits: StateSegment.ALARM_LIMITS,
+    mcu_pb.AlarmLimitsRequest: StateSegment.ALARM_LIMITS_REQUEST,
+}
+FILE_OUTPUT_SCHEDULE = collections.deque([
     states.ScheduleEntry(time=0.3, type=StateSegment.PARAMETERS),
     states.ScheduleEntry(time=0.3, type=StateSegment.PARAMETERS_REQUEST),
     states.ScheduleEntry(time=0.3, type=StateSegment.ALARM_LIMITS),
     states.ScheduleEntry(time=0.3, type=StateSegment.ALARM_LIMITS_REQUEST),
 ])
+
 
 # Events
 
@@ -105,33 +126,169 @@ class OutputEvent(events.Event):
 SendEvent = OutputEvent
 
 
+# Helpers
+
+
+@attr.s
+class StateSynchronizers(protocols.Filter[ReceiveEvent, OutputEvent]):
+    """Helper class for updating the backend's state synchronizers.
+
+    Warning: if all_states is used by other things, this filter is only safe to
+    use in synchronous environments, such as part of another Filter which
+    completely owns all_states. However, if access to all_states is only done
+    through the input and output methods, then this Filter is safe to use in
+    concurrent environments.
+    """
+
+    _logger = logging.getLogger('.'.join((__name__, 'StateSynchronizers')))
+
+    all_states: Dict[StateSegment, Optional[betterproto.Message]] = attr.ib()
+
+    # Synchronizers
+    _mcu: states.Synchronizer[StateSegment] = attr.ib()
+    _frontend: states.Synchronizer[StateSegment] = attr.ib()
+    _file: states.Synchronizer[StateSegment] = attr.ib()
+
+    @_mcu.default
+    def init_mcu(self) -> \
+            states.Synchronizer[StateSegment]:  # pylint: disable=no-self-use
+        """Initialize the mcu state synchronizer."""
+        return states.Synchronizer(
+            segment_types=StateSegment, all_states=self.all_states,
+            output_schedule=MCU_OUTPUT_SCHEDULE
+        )
+
+    @_frontend.default
+    def init_frontend(self) -> \
+            states.Synchronizer[StateSegment]:
+        """Initialize the frontend state synchronizer."""
+        return states.Synchronizer(
+            segment_types=StateSegment, all_states=self.all_states,
+            output_schedule=FRONTEND_OUTPUT_SCHEDULE
+        )
+
+    @_file.default
+    def init_file(self) -> \
+            states.Synchronizer[StateSegment]:  # pylint: disable=no-self-use
+        """Initialize the file state synchronizer."""
+        return states.Synchronizer(
+            segment_types=StateSegment, all_states=self.all_states,
+            output_schedule=FILE_OUTPUT_SCHEDULE
+        )
+
+    def input(self, event: Optional[ReceiveEvent]) -> None:
+        """Handle input events."""
+        if event is None or not event.has_data():
+            return
+
+        self._update_clock(event)
+        self._handle_mcu_inbound_state(event)
+        self._handle_file_inbound_state(event)
+        self._handle_frontend_inbound_state(event)
+
+    def output(self) -> Optional[OutputEvent]:
+        """Emit the next output event."""
+        mcu_send = None
+        try:
+            mcu_send = self._mcu.output()
+        except exceptions.ProtocolDataError:
+            self._logger.exception('MCU State Synchronizer:')
+        frontend_send = None
+        try:
+            frontend_send = self._frontend.output()
+        except exceptions.ProtocolDataError:
+            self._logger.exception('Frontend State Synchronizer:')
+        file_send = None
+        try:
+            file_send = self._file.output()
+        except exceptions.ProtocolDataError:
+            self._logger.exception('File State Synchronizer:')
+        return OutputEvent(
+            mcu_send=mcu_send,
+            frontend_send=frontend_send,
+            file_send=file_send
+        )
+
+    def _update_clock(self, event: ReceiveEvent) -> None:
+        """Handle any clock update."""
+        self._mcu.input(states.UpdateEvent(time=event.time))
+        self._frontend.input(states.UpdateEvent(time=event.time))
+        self._file.input(states.UpdateEvent(time=event.time))
+
+    def _handle_mcu_inbound_state(self, event: ReceiveEvent) -> None:
+        """Handle any inbound state update from the MCU."""
+        if (
+                event.mcu_receive is None
+                or type(event.mcu_receive) not in MCU_INPUT_TYPES
+        ):
+            return
+
+        try:
+            self._mcu.input(states.UpdateEvent(
+                pb_message=event.mcu_receive,
+                segment_type=MCU_INPUT_TYPES[type(event.mcu_receive)]
+            ))
+        except exceptions.ProtocolDataError:
+            self._logger.exception(
+                'MCU State Synchronizer: %s', event.mcu_receive
+            )
+
+        # TODO: do we actually need this block, or can we delete it?
+        try:
+            self._file.input(states.UpdateEvent(
+                pb_message=event.mcu_receive,
+                segment_type=MCU_INPUT_TYPES[type(event.mcu_receive)]
+            ))
+        except exceptions.ProtocolDataError:
+            self._logger.exception(
+                'File Save State Synchronizer Save: %s', event.mcu_receive
+            )
+
+    def _handle_file_inbound_state(self, event: ReceiveEvent) -> None:
+        """Handle any inbound state update from the filesystem."""
+        if (
+                event.file_receive is None
+                or type(event.file_receive) not in MCU_INPUT_TYPES
+        ):
+            return
+
+        try:
+            self._file.input(states.UpdateEvent(
+                pb_message=event.file_receive,
+                segment_type=FILE_INPUT_TYPES[type(event.file_receive)]
+            ))
+        except exceptions.ProtocolDataError:
+            self._logger.exception(
+                'File State Synchronizer Read: %s', event.file_receive
+            )
+
+    def _handle_frontend_inbound_state(self, event: ReceiveEvent) -> None:
+        """Handle any inbound state update from the frontend."""
+        if (
+                event.frontend_receive is None
+                or type(event.frontend_receive) not in FRONTEND_INPUT_TYPES
+        ):
+            return
+
+        try:
+            self._frontend.input(states.UpdateEvent(
+                pb_message=event.frontend_receive,
+                segment_type=FRONTEND_INPUT_TYPES[
+                    type(event.frontend_receive)
+                ]
+            ))
+        except exceptions.ProtocolDataError:
+            self._logger.exception(
+                'Frontend State Synchronizer: %s', event.frontend_receive
+            )
+
+
 # Filters
 
 
 @attr.s
 class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
     """Filter which passes input data in an event class."""
-
-    MCU_INPUT_TYPES = {
-        mcu_pb.SensorMeasurements: StateSegment.SENSOR_MEASUREMENTS,
-        mcu_pb.CycleMeasurements: StateSegment.CYCLE_MEASUREMENTS,
-        mcu_pb.Parameters: StateSegment.PARAMETERS,
-        mcu_pb.AlarmLimits: StateSegment.ALARM_LIMITS,
-        mcu_pb.NextLogEvents: StateSegment.NEXT_LOG_EVENTS_MCU,
-        mcu_pb.ActiveLogEvents: StateSegment.ACTIVE_LOG_EVENTS_MCU,
-    }
-    FRONTEND_INPUT_TYPES = {
-        mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
-        mcu_pb.AlarmLimitsRequest: StateSegment.ALARM_LIMITS_REQUEST,
-        mcu_pb.ExpectedLogEvent: StateSegment.EXPECTED_LOG_EVENT_BE,
-        frontend_pb.RotaryEncoder: StateSegment.ROTARY_ENCODER
-    }
-    FILE_INPUT_TYPES = {
-        mcu_pb.Parameters: StateSegment.PARAMETERS,
-        mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
-        mcu_pb.AlarmLimits: StateSegment.ALARM_LIMITS,
-        mcu_pb.AlarmLimitsRequest: StateSegment.ALARM_LIMITS_REQUEST,
-    }
 
     _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
 
@@ -142,9 +299,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
     all_states: Dict[StateSegment, Optional[betterproto.Message]] = attr.ib()
 
     # State Synchronizers
-    _mcu_state_synchronizer: states.Synchronizer[StateSegment] = attr.ib()
-    _frontend_state_synchronizer: states.Synchronizer[StateSegment] = attr.ib()
-    _file_state_synchronizer: states.Synchronizer[StateSegment] = attr.ib()
+    _state_synchronizers: StateSynchronizers = attr.ib()
 
     # Events Log
     _event_log_receiver: log.EventLogReceiver = attr.ib(
@@ -163,32 +318,11 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         """
         return {type: None for type in StateSegment}
 
-    @_mcu_state_synchronizer.default
-    def init_mcu_synchronizer(self) -> \
-            states.Synchronizer[StateSegment]:  # pylint: disable=no-self-use
+    @_state_synchronizers.default
+    def init_state_synchronizers(self) -> \
+            StateSynchronizers:  # pylint: disable=no-self-use
         """Initialize the mcu state synchronizer."""
-        return states.Synchronizer(
-            segment_types=StateSegment, all_states=self.all_states,
-            output_schedule=MCU_SYNCHRONIZER_SCHEDULE
-        )
-
-    @_frontend_state_synchronizer.default
-    def init_frontend_synchronizer(self) -> \
-            states.Synchronizer[StateSegment]:
-        """Initialize the frontend state synchronizer."""
-        return states.Synchronizer(
-            segment_types=StateSegment, all_states=self.all_states,
-            output_schedule=FRONTEND_SYNCHRONIZER_SCHEDULE
-        )
-
-    @_file_state_synchronizer.default
-    def init_file_synchronizer(self) -> \
-            states.Synchronizer[StateSegment]:  # pylint: disable=no-self-use
-        """Initialize the file state synchronizer."""
-        return states.Synchronizer(
-            segment_types=StateSegment, all_states=self.all_states,
-            output_schedule=FILE_SYNCHRONIZER_SCHEDULE
-        )
+        return StateSynchronizers(all_states=self.all_states)
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
         """Handle input events."""
@@ -205,115 +339,19 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
 
         # Process input event
         self._update_clock(event)
-        self._handle_mcu_inbound_state(event)
-        self._handle_file_inbound_state(event)
-        self._handle_frontend_inbound_state(event)
+        self._state_synchronizers.input(event)
 
         # Maintain internal data connections
         self._handle_log_events_receiving()
         self._handle_log_events_sending()
 
         # Output any scheduled outbound state update
-        mcu_send = None
-        try:
-            mcu_send = self._mcu_state_synchronizer.output()
-        except exceptions.ProtocolDataError:
-            self._logger.exception('MCU State Synchronizer:')
-        frontend_send = None
-        try:
-            frontend_send = self._frontend_state_synchronizer.output()
-        except exceptions.ProtocolDataError:
-            self._logger.exception('Frontend State Synchronizer:')
-        file_send = None
-        try:
-            file_send = self._file_state_synchronizer.output()
-        except exceptions.ProtocolDataError:
-            self._logger.exception('File State Synchronizer:')
-        return OutputEvent(
-            mcu_send=mcu_send,
-            frontend_send=frontend_send,
-            file_send=file_send
-        )
+        return self._state_synchronizers.output()
 
     def _update_clock(self, event: ReceiveEvent) -> None:
         """Handle any clock update."""
         if event.time is not None:
             self.current_time = event.time
-        self._mcu_state_synchronizer.input(states.UpdateEvent(
-            time=self.current_time
-        ))
-        self._frontend_state_synchronizer.input(states.UpdateEvent(
-            time=self.current_time
-        ))
-        self._file_state_synchronizer.input(states.UpdateEvent(
-            time=self.current_time
-        ))
-
-    def _handle_mcu_inbound_state(self, event: ReceiveEvent) -> None:
-        """Handle any inbound state update from the MCU."""
-        if (
-                event.mcu_receive is None
-                or type(event.mcu_receive) not in self.MCU_INPUT_TYPES
-        ):
-            return
-
-        try:
-            self._mcu_state_synchronizer.input(states.UpdateEvent(
-                pb_message=event.mcu_receive,
-                segment_type=self.MCU_INPUT_TYPES[type(event.mcu_receive)]
-            ))
-        except exceptions.ProtocolDataError:
-            self._logger.exception(
-                'MCU State Synchronizer: %s', event.mcu_receive
-            )
-
-        try:
-            self._file_state_synchronizer.input(states.UpdateEvent(
-                pb_message=event.mcu_receive,
-                segment_type=self.MCU_INPUT_TYPES[type(event.mcu_receive)]
-            ))
-        except exceptions.ProtocolDataError:
-            self._logger.exception(
-                'File Save State Synchronizer Save: %s', event.mcu_receive
-            )
-
-    def _handle_file_inbound_state(self, event: ReceiveEvent) -> None:
-        """Handle any inbound state update from the filesystem."""
-        if (
-                event.file_receive is None
-                or type(event.file_receive) not in self.MCU_INPUT_TYPES
-        ):
-            return
-
-        try:
-            self._file_state_synchronizer.input(states.UpdateEvent(
-                pb_message=event.file_receive,
-                segment_type=self.FILE_INPUT_TYPES[type(event.file_receive)]
-            ))
-        except exceptions.ProtocolDataError:
-            self._logger.exception(
-                'File State Synchronizer Read: %s', event.file_receive
-            )
-
-    def _handle_frontend_inbound_state(self, event: ReceiveEvent) -> None:
-        """Handle any inbound state update from the frontend."""
-        if (
-                event.frontend_receive is None
-                or type(event.frontend_receive) not in self.FRONTEND_INPUT_TYPES
-        ):
-            return
-
-        try:
-            self._frontend_state_synchronizer.input(states.UpdateEvent(
-                pb_message=event.frontend_receive,
-                segment_type=self.FRONTEND_INPUT_TYPES[
-                    type(event.frontend_receive)
-                ]
-            ))
-        except exceptions.ProtocolDataError:
-            self._logger.exception(
-                'Frontend State Synchronizer: %s', event.frontend_receive
-            )
 
     def _handle_log_events_receiving(self) -> None:
         """Handle any updates to log events from the MCU.

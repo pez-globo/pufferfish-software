@@ -75,7 +75,7 @@ class EventLogReceiver(protocols.Filter[ReceiveInputEvent, ReceiveOutputEvent]):
     """Receipt of an event log from a remote peer.
 
     Receives log events and the list of active log events from the, remaps IDs
-    and timestmps, and outputs newly received events and ID-remapped active log
+    and timestamps, and outputs newly received events and ID-remapped active log
     events.
     If an event has not yet been received but it's on the list of active events,
     it will be excluded from the active events list until the event is received
@@ -159,7 +159,7 @@ class EventLogReceiver(protocols.Filter[ReceiveInputEvent, ReceiveOutputEvent]):
 
 @attr.s
 class EventLogSender(protocols.Filter[SendInputEvent, mcu_pb.NextLogEvents]):
-    """Sending of an event log from a remote peer.
+    """Sending of an event log to a remote peer.
 
     Receives event log list synchronization cursor from the peer, and sends any
     events starting at that cursor.
