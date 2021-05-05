@@ -6,8 +6,9 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import { Provider } from 'react-redux';
 import { AlarmModal } from '../../src/modules/controllers';
 import { darkTheme } from '../../src/styles/customTheme';
-import { updateCommittedState } from '../../src/store/controller/actions';
-import { ALARM_LIMITS, commitAction } from '../../src/store/controller/types';
+import { commitRequest } from '../../src/store/controller/actions';
+import { AlarmLimitsRequest } from '../../src/store/controller/proto/mcu_pb';
+import { MessageType, CommitAction } from '../../src/store/controller/types';
 
 const feature = loadFeature('tests/features/alarm-modal.feature');
 
@@ -21,7 +22,7 @@ defineFeature(feature, (test) => {
   beforeEach(() => {
     commitChange = jest.fn();
     store = mockStore({
-      controller: { alarmLimitsRequest: { rr: { lower: 0, upper: clickInterval } } },
+      controller: { alarmLimits: { request: { rr: { lower: 0, upper: clickInterval } } } },
     });
     wrapper = render(
       <Provider store={store}>
@@ -105,10 +106,13 @@ defineFeature(feature, (test) => {
   });
 
   test('To check if alarm values are stored in redux', ({ given, when, then }) => {
-    let actionCommitted: commitAction;
+    let actionCommitted: CommitAction;
 
     given(/^I set alarm limit values$/, async () => {
-      actionCommitted = updateCommittedState(ALARM_LIMITS, { rr: { lower: 10, upper: 20 } });
+      actionCommitted = commitRequest<AlarmLimitsRequest>(
+        MessageType.AlarmLimitsRequest,
+        { rr: { lower: 10, upper: 20 } },
+      );
     });
 
     when(/^I commit changes to redux action$/, async () => {
@@ -118,7 +122,8 @@ defineFeature(feature, (test) => {
     then(/^I should get action values verified with triggered one's$/, () => {
       const actions = store.getActions();
       const expectedPayload = {
-        type: '@controller/ALARM_LIMITS_COMMITTED',
+        type: '@controller/REQUEST_COMMITTED',
+        messageType: MessageType.AlarmLimitsRequest,
         update: { rr: { lower: 10, upper: 20 } },
       };
       expect(actions).toEqual([expectedPayload]);
