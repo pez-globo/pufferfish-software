@@ -109,10 +109,9 @@ defineFeature(feature, (test) => {
     let actionCommitted: CommitAction;
 
     given(/^I set alarm limit values$/, async () => {
-      actionCommitted = commitRequest<AlarmLimitsRequest>(
-        MessageType.AlarmLimitsRequest,
-        { rr: { lower: 10, upper: 20 } },
-      );
+      actionCommitted = commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, {
+        rr: { lower: 10, upper: 20 },
+      });
     });
 
     when(/^I commit changes to redux action$/, async () => {
