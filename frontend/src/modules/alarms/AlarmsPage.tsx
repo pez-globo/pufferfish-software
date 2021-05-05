@@ -291,11 +291,14 @@ export const AlarmsPage = (): JSX.Element => {
   };
 
   const alarmLimitsRequest = useSelector(getAlarmLimitsRequestStandby);
-  const alarmLimitsActual = useSelector(getAlarmLimits) as Record<string, Range>;
+  const alarmLimitsActual = useSelector(getAlarmLimits);
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
   const ventilating = useSelector(getIsVentilating);
   const [alarmLimits, setAlarmLimits] = useState(alarmLimitsRequest as Record<string, Range>);
+  const [alarmLimitsAct, setAlarmLimitsActual] = useState(
+    alarmLimitsActual as Record<string, Range>,
+  );
   const updateAlarmLimits = (data: Partial<AlarmLimitsRequest>) => {
     setAlarmLimits({ ...alarmLimits, ...data } as Record<string, Range>);
     if (!ventilating) dispatch(updateCommittedState(ALARM_LIMITS_STANDBY, alarmLimits));
@@ -319,12 +322,13 @@ export const AlarmsPage = (): JSX.Element => {
   const handleConfirm = () => {
     setOpen(false);
     applyChanges();
+    setAlarmLimitsActual(alarmLimits);
     setIsDisabled(true);
   };
 
   const handleDiscardConfirm = () => {
     setDiscardOpen(false);
-    updateAlarmLimits(alarmLimitsActual);
+    updateAlarmLimits(alarmLimitsAct);
     setIsDisabled(true);
   };
 
@@ -346,8 +350,8 @@ export const AlarmsPage = (): JSX.Element => {
 
   const handleAlarmUpdate = (stateKey: string) => {
     if (
-      alarmLimitsActual[stateKey].lower !== alarmLimits[stateKey]?.lower ||
-      alarmLimitsActual[stateKey].upper !== alarmLimits[stateKey]?.upper
+      alarmLimitsAct[stateKey].lower !== alarmLimits[stateKey]?.lower ||
+      alarmLimitsAct[stateKey].upper !== alarmLimits[stateKey]?.upper
     ) {
       setIsDisabled(false);
     } else {
@@ -434,9 +438,9 @@ export const AlarmsPage = (): JSX.Element => {
                     <Grid item alignItems="center" className={classes.marginContent}>
                       {alarmConfig.map((param) => {
                         if (
-                          alarmLimitsActual[param.stateKey].lower !==
+                          alarmLimitsAct[param.stateKey].lower !==
                             alarmLimits[param.stateKey]?.lower ||
-                          alarmLimitsActual[param.stateKey].upper !==
+                          alarmLimitsAct[param.stateKey].upper !==
                             alarmLimits[param.stateKey]?.upper
                         ) {
                           return (
@@ -470,16 +474,16 @@ export const AlarmsPage = (): JSX.Element => {
                     <Grid item alignItems="center" className={classes.marginContent}>
                       {alarmConfig.map((param) => {
                         if (
-                          alarmLimitsActual[param.stateKey].lower !==
+                          alarmLimitsAct[param.stateKey].lower !==
                             alarmLimits[param.stateKey]?.lower ||
-                          alarmLimitsActual[param.stateKey].upper !==
+                          alarmLimitsAct[param.stateKey].upper !==
                             alarmLimits[param.stateKey]?.upper
                         ) {
                           return (
                             <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${
-                              alarmLimitsActual[param.stateKey].lower
+                              alarmLimitsAct[param.stateKey].lower
                             } -
-                                ${alarmLimitsActual[param.stateKey].upper}?`}</Typography>
+                                ${alarmLimitsAct[param.stateKey].upper}?`}</Typography>
                           );
                         }
                         return <React.Fragment />;
