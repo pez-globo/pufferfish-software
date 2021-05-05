@@ -55,67 +55,35 @@ export const getSensorMeasurements = createSelector(
   getMeasurements,
   (measurements: Measurements): SensorMeasurements | null => measurements.sensor,
 );
-export const getSensorMeasurementsTime = createSelector(
-  getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements | null): number =>
-    sensorMeasurements === null ? NaN : roundValue(sensorMeasurements.time),
-);
-export const getSensorMeasurementsPaw = createSelector(
-  getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements | null): number =>
-    sensorMeasurements === null ? NaN : roundValue(sensorMeasurements.paw),
-);
-export const getSensorMeasurementsFlow = createSelector(
-  getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements | null): number =>
-    sensorMeasurements === null ? NaN : roundValue(sensorMeasurements.flow),
-);
-export const getSensorMeasurementsVolume = createSelector(
-  getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements | null): number =>
-    sensorMeasurements === null ? NaN : roundValue(sensorMeasurements.volume),
-);
-export const getSensorMeasurementsFiO2 = createSelector(
-  getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements | null): number =>
-    sensorMeasurements === null ? NaN : roundValue(sensorMeasurements.fio2),
-);
-export const getSensorMeasurementsSpO2 = createSelector(
-  getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements | null): number =>
-    sensorMeasurements === null ? NaN : roundValue(sensorMeasurements.spo2),
-);
-export const getSensorMeasurementsHR = createSelector(
-  getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements | null): number =>
-    sensorMeasurements === null ? NaN : roundValue(sensorMeasurements.hr),
-);
+const sensorMeasurementSelector = (key: string) =>
+  createSelector(getSensorMeasurements, (measurements: SensorMeasurements | null): number =>
+    measurements === null
+      ? NaN
+      : roundValue(((measurements as unknown) as Record<string, number>)[key]),
+  );
+export const getSensorMeasurementsTime = sensorMeasurementSelector('time');
+export const getSensorMeasurementsPaw = sensorMeasurementSelector('paw');
+export const getSensorMeasurementsFlow = sensorMeasurementSelector('flow');
+export const getSensorMeasurementsVolume = sensorMeasurementSelector('volume');
+export const getSensorMeasurementsFiO2 = sensorMeasurementSelector('fio2');
+export const getSensorMeasurementsSpO2 = sensorMeasurementSelector('spo2');
+export const getSensorMeasurementsHR = sensorMeasurementSelector('hr');
 
 // CycleMeasurements
 export const getCycleMeasurements = createSelector(
   getMeasurements,
   (measurements: Measurements): CycleMeasurements | null => measurements.cycle,
 );
-export const getCycleMeasurementsPIP = createSelector(
-  getCycleMeasurements,
-  (cycleMeasurements: CycleMeasurements | null): number =>
-    cycleMeasurements === null ? NaN : roundValue(cycleMeasurements.pip),
-);
-export const getCycleMeasurementsPEEP = createSelector(
-  getCycleMeasurements,
-  (cycleMeasurements: CycleMeasurements | null): number =>
-    cycleMeasurements === null ? NaN : roundValue(cycleMeasurements.peep),
-);
-export const getCycleMeasurementsRR = createSelector(
-  getCycleMeasurements,
-  (cycleMeasurements: CycleMeasurements | null): number =>
-    cycleMeasurements === null ? NaN : roundValue(cycleMeasurements.rr),
-);
-export const getCycleMeasurementsVT = createSelector(
-  getCycleMeasurements,
-  (cycleMeasurements: CycleMeasurements | null): number =>
-    cycleMeasurements === null ? NaN : roundValue(cycleMeasurements.vt),
-);
+const cycleMeasurementSelector = (key: string) =>
+  createSelector(getCycleMeasurements, (measurements: CycleMeasurements | null): number =>
+    measurements === null
+      ? NaN
+      : roundValue(((measurements as unknown) as Record<string, number>)[key]),
+  );
+export const getCycleMeasurementsPIP = cycleMeasurementSelector('pip');
+export const getCycleMeasurementsPEEP = cycleMeasurementSelector('peep');
+export const getCycleMeasurementsRR = cycleMeasurementSelector('rr');
+export const getCycleMeasurementsVT = cycleMeasurementSelector('vt');
 
 // ROX Index
 export const getROXIndex = createSelector(
@@ -334,6 +302,8 @@ export const getSmoothedMeasurements = createSelector(
   getController,
   (states: ControllerStates): SmoothedMeasurements => states.smoothedMeasurements,
 );
+// TODO: we could unify this code with a generic selector, but it's only worth it
+// if we need selectors for any more fields besides "smoothed".
 export const getSmoothedFlow = createSelector(
   getSmoothedMeasurements,
   (smoothed: SmoothedMeasurements): number => roundValue(smoothed.flow.smoothed),
