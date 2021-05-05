@@ -18,11 +18,13 @@ enum ThemeVariant {
   light = 1;
 }
 
+// TODO: we also need a request version of this message, FrontendDisplaySettingsRequest
 message FrontendDisplaySetting {
   ThemeVariant theme = 1;
   Unit unit = 2;
 }
 
+// TODO: we also need a response version of this message, SystemSettings
 message SystemSettingRequest {
   uint32 brightness = 1;
   uint32 date = 2;

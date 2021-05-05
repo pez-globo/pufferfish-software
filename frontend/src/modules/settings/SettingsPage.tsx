@@ -2,12 +2,12 @@ import { Button, Grid, Tab, Tabs } from '@material-ui/core/';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { updateCommittedState } from '../../store/controller/actions';
+import { commitRequest } from '../../store/controller/actions';
 import {
   FrontendDisplaySetting,
   SystemSettingRequest,
 } from '../../store/controller/proto/frontend_pb';
-import { FRONTEND_DISPLAY_SETTINGS, SYSTEM_SETTINGS } from '../../store/controller/types';
+import { MessageType } from '../../store/controller/types';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import { DisplayTab, InfoTab, TestCalibrationTab } from './containers';
 
@@ -85,9 +85,17 @@ export const SettingsPage = (): JSX.Element => {
 
   const handleSubmit = () => {
     dispatch(
-      updateCommittedState(FRONTEND_DISPLAY_SETTINGS, displaySetting as Record<string, unknown>),
+      commitRequest<FrontendDisplaySetting>(
+        MessageType.FrontendDisplaySetting,
+        displaySetting as Record<string, unknown>,
+      ),
     );
-    dispatch(updateCommittedState(SYSTEM_SETTINGS, systemSetting as Record<string, unknown>));
+    dispatch(
+      commitRequest<SystemSettingRequest>(
+        MessageType.SystemSettingRequest,
+        systemSetting as Record<string, unknown>,
+      ),
+    );
   };
 
   return (

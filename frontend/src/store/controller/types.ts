@@ -15,32 +15,7 @@ import {
 } from './proto/mcu_pb';
 import { SystemSettingRequest, FrontendDisplaySetting, RotaryEncoder } from './proto/frontend_pb';
 
-// Action Types
-
-export const STATE_UPDATED = '@controller/STATE_UPDATED';
-export const PARAMETER_COMMITTED = '@controller/PARAMETER_COMMITTED';
-export const ALARM_LIMITS = 'ALARM_LIMITS';
-export const ALARM_LIMITS_STANDBY = 'ALARM_LIMITS_STANDBY';
-export const PARAMETER_STANDBY = 'PARAMETERS_STANDBY';
-export const FRONTEND_DISPLAY_SETTINGS = 'FRONTEND_DISPLAY_SETTINGS';
-export const SYSTEM_SETTINGS = 'SYSTEM_SETTINGS';
-export const ALARM_MUTE = 'ALARM_MUTE';
-export const HEARTBEAT_BACKEND = '@controller/HEARTBEAT_BACKEND';
-export const BACKEND_CONNECTION_LOST = '@controller/BACKEND_CONNECTION_LOST';
-export const BACKEND_CONNECTION_LOST_CODE = 101;
-
-// Rotary encoder overriden params
-
-export interface RotaryEncoderParameter {
-  step: number;
-  lastStepChange: number;
-  buttonPressed: boolean;
-  lastButtonDown: number;
-  lastButtonUp: number;
-  stepDiff: number;
-}
-
-// Protocol Buffers
+// MESSAGES
 
 export type PBMessage =
   // mcu_pb
@@ -95,96 +70,12 @@ export enum MessageType {
   ActiveLogEvents = 10,
   AlarmMuteRequest = 11,
   AlarmMute = 12,
-  // frontend_pb
   BatteryPower = 64,
+  // frontend_pb
   ScreenStatus = 65,
   RotaryEncoder = 128,
   SystemSettingRequest = 129,
   FrontendDisplaySetting = 130,
-}
-
-// States
-
-export interface WaveformPoint {
-  date: number;
-  value: number;
-}
-
-export interface WaveformHistory {
-  waveformOld: {
-    full: WaveformPoint[];
-  };
-  waveformNew: {
-    full: WaveformPoint[];
-    buffer: WaveformPoint[];
-    segmented: WaveformPoint[][];
-  };
-  waveformNewStart: number;
-}
-
-export interface PVPoint {
-  pressure: number;
-  volume: number;
-}
-
-export interface PVHistory {
-  loop: PVPoint[];
-  loopOrigin: PVPoint;
-  cycle: number;
-}
-
-export interface SmoothingData {
-  raw: number;
-  average: number;
-  converged: number;
-  smoothed: number;
-  time?: number;
-  convergenceStartTime?: number;
-  changeStartTime?: number;
-}
-
-export interface EventLog {
-  expectedLogEvent: ExpectedLogEvent;
-  nextLogEvents: NextLogEvents;
-  activeLogEvents: ActiveLogEvents;
-  ephemeralLogEvents: {
-    id: number[];
-  };
-}
-
-export interface ControllerStates {
-  // Message states from mcu_pb
-  sensorMeasurements: SensorMeasurements;
-  cycleMeasurements: CycleMeasurements;
-  parameters: Parameters;
-  parametersRequest: ParametersRequest;
-  parametersRequestStandby: { parameters: ParametersRequest };
-  alarmLimits: AlarmLimits;
-  alarmLimitsRequest: AlarmLimitsRequest;
-  alarmLimitsRequestStandby: { alarmLimits: AlarmLimitsRequest };
-  eventLog: EventLog;
-  alarmMuteRequest: AlarmMuteRequest;
-  alarmMute: AlarmMute;
-  systemSettingRequest: SystemSettingRequest;
-  frontendDisplaySetting: FrontendDisplaySetting;
-  batteryPower: BatteryPower;
-  screenStatus: ScreenStatus;
-  heartbeatBackend: { time: Date };
-
-  // Message states from frontend_pb
-  rotaryEncoder: RotaryEncoderParameter;
-
-  // Derived states
-  smoothedMeasurements: {
-    fio2: SmoothingData;
-    flow: SmoothingData;
-    spo2: SmoothingData;
-    hr: SmoothingData;
-  };
-  waveformHistoryPaw: WaveformHistory;
-  waveformHistoryFlow: WaveformHistory;
-  waveformHistoryVolume: WaveformHistory;
-  pvHistory: PVHistory;
 }
 
 export const MessageClass = new Map<MessageType, PBMessageType>([
@@ -229,8 +120,141 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
   [RotaryEncoder, MessageType.RotaryEncoder],
 ]);
 
-// State Update Actions
+// STATES
 
+export interface Measurements {
+  sensor: SensorMeasurements | null;
+  cycle: CycleMeasurements | null;
+}
+export interface ParametersRequestResponse {
+  current: Parameters | null;
+  request: ParametersRequest | null;
+  // standby is a scratchpad for modifying individual fields of ParametersRequest
+  // across different screens in standby mode, before committing the final values
+  // of all fields to ParametersRequest to send to the backend
+  standby: ParametersRequest | null;
+}
+export interface AlarmLimitsRequestResponse {
+  current: AlarmLimits | null;
+  request: AlarmLimitsRequest | null;
+  // standby is a scratchpad for modifying individual fields of AlarmLimitsRequest
+  // across different screens in standby mode, before committing the final values
+  // of all fields to AlarmLimitsRequest to send to the backend
+  standby: AlarmLimitsRequest | null;
+}
+export interface EventLog {
+  expectedLogEvent: ExpectedLogEvent;
+  nextLogEvents: NextLogEvents;
+  activeLogEvents: ActiveLogEvents;
+  ephemeralLogEvents: {
+    id: number[];
+  };
+}
+
+export interface RotaryEncoderParameter {
+  step: number;
+  lastStepChange: number;
+  buttonPressed: boolean;
+  lastButtonDown: number;
+  lastButtonUp: number;
+  stepDiff: number; // this is a derived value not in RotaryEncoder
+}
+
+// Smoothed measurements
+
+export interface SmoothingData {
+  raw: number;
+  average: number;
+  converged: number;
+  smoothed: number;
+  time?: number;
+  convergenceStartTime?: number;
+  changeStartTime?: number;
+}
+export interface SmoothedMeasurements {
+  fio2: SmoothingData;
+  flow: SmoothingData;
+  spo2: SmoothingData;
+  hr: SmoothingData;
+}
+
+// Plots
+
+// Waveform histories
+export interface WaveformPoint {
+  date: number;
+  value: number;
+}
+export interface WaveformHistory {
+  waveformOld: {
+    full: WaveformPoint[];
+  };
+  waveformNew: {
+    full: WaveformPoint[];
+    buffer: WaveformPoint[];
+    segmented: WaveformPoint[][];
+  };
+  waveformNewStart: number;
+}
+export interface WaveformHistories {
+  paw: WaveformHistory;
+  flow: WaveformHistory;
+  volume: WaveformHistory;
+}
+// P-V loops
+export interface PVPoint {
+  pressure: number;
+  volume: number;
+}
+export interface PVHistory {
+  loop: PVPoint[];
+  loopOrigin: PVPoint;
+  cycle: number;
+}
+// All plots
+export interface Plots {
+  waveforms: WaveformHistories;
+  pvLoop: PVHistory;
+}
+
+// All states
+
+export interface ControllerStates {
+  // Message states from mcu_pb
+  measurements: Measurements;
+  parameters: ParametersRequestResponse;
+  alarmLimits: AlarmLimitsRequestResponse;
+  eventLog: EventLog;
+  alarmMuteRequest: AlarmMuteRequest | null;
+  alarmMute: AlarmMute | null;
+  systemSettingRequest: SystemSettingRequest | null;
+  frontendDisplaySetting: FrontendDisplaySetting | null;
+  batteryPower: BatteryPower | null;
+  screenStatus: ScreenStatus | null;
+  heartbeatBackend: { time: Date };
+
+  // Message states from frontend_pb
+  rotaryEncoder: RotaryEncoderParameter | null;
+
+  // Derived states
+  smoothedMeasurements: SmoothedMeasurements;
+  plots: Plots;
+}
+
+// ACTIONS
+
+// Action Types
+
+// TODO: rename STATE_UPDATED to STATE_MESSAGE_RECEIVED
+export const STATE_UPDATED = '@controller/STATE_UPDATED';
+export const REQUEST_COMMITTED = '@controller/REQUEST_COMMITTED';
+export const STANDBY_REQUEST_COMMITTED = '@controller/STANDBY_COMMITTED';
+// TODO: find a better place to define BACKEND_CONNECTION_LOST_CODE, as it's not an action
+export const BACKEND_CONNECTION_LOST_CODE = 101;
+
+// State Update Action
+
+// TODO: rename to StateMessageReceived
 interface StateUpdatedAction {
   type: typeof STATE_UPDATED;
   messageType: MessageType;
@@ -239,18 +263,11 @@ interface StateUpdatedAction {
 
 export type StateUpdateAction = StateUpdatedAction;
 
-// State Update Actions
+// State Commit Actions
 
-export interface commitAction {
+// TODO: rename to SettingCommitted
+export interface CommitAction {
   type: string;
+  messageType: MessageType;
   update: Record<string, unknown>;
 }
-
-// Parameter Commit Actions
-
-interface ParameterCommittedAction {
-  type: typeof PARAMETER_COMMITTED;
-  update: Record<string, unknown>;
-}
-
-export type ParameterCommitAction = ParameterCommittedAction;
