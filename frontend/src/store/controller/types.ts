@@ -5,15 +5,15 @@ import {
   ParametersRequest,
   AlarmLimits,
   AlarmLimitsRequest,
-  ActiveLogEvents,
   ExpectedLogEvent,
   NextLogEvents,
+  ActiveLogEvents,
+  AlarmMute,
+  AlarmMuteRequest,
   BatteryPower,
   ScreenStatus,
-  AlarmMuteRequest,
-  AlarmMute,
 } from './proto/mcu_pb';
-import { SystemSettingRequest, FrontendDisplaySetting, RotaryEncoder } from './proto/frontend_pb';
+import { RotaryEncoder, SystemSettingRequest, FrontendDisplaySetting } from './proto/frontend_pb';
 
 // MESSAGES
 
@@ -28,14 +28,14 @@ export type PBMessage =
   | ExpectedLogEvent
   | NextLogEvents
   | ActiveLogEvents
-  | AlarmMuteRequest
   | AlarmMute
-  // frontend_pb
+  | AlarmMuteRequest
   | BatteryPower
   | ScreenStatus
+  // frontend_pb
+  | RotaryEncoder
   | SystemSettingRequest
-  | FrontendDisplaySetting
-  | RotaryEncoder;
+  | FrontendDisplaySetting;
 
 export type PBMessageType =
   // mcu_pb
@@ -48,14 +48,14 @@ export type PBMessageType =
   | typeof ExpectedLogEvent
   | typeof NextLogEvents
   | typeof ActiveLogEvents
-  | typeof AlarmMuteRequest
   | typeof AlarmMute
-  // frontend_pb
+  | typeof AlarmMuteRequest
   | typeof BatteryPower
   | typeof ScreenStatus
+  // frontend_pb
+  | typeof RotaryEncoder
   | typeof SystemSettingRequest
-  | typeof FrontendDisplaySetting
-  | typeof RotaryEncoder;
+  | typeof FrontendDisplaySetting;
 
 export enum MessageType {
   // mcu_pb
@@ -68,14 +68,16 @@ export enum MessageType {
   ExpectedLogEvent = 8,
   NextLogEvents = 9,
   ActiveLogEvents = 10,
-  AlarmMuteRequest = 11,
-  AlarmMute = 12,
+  AlarmMute = 11,
+  AlarmMuteRequest = 12,
   BatteryPower = 64,
-  // frontend_pb
   ScreenStatus = 65,
+  // frontend_pb
   RotaryEncoder = 128,
-  SystemSettingRequest = 129,
-  FrontendDisplaySetting = 130,
+  SystemSetting = 130,
+  SystemSettingRequest = 131,
+  FrontendDisplaySetting = 132,
+  FrontendDisplaySettingRequest = 133,
 }
 
 export const MessageClass = new Map<MessageType, PBMessageType>([
@@ -89,11 +91,11 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.ExpectedLogEvent, ExpectedLogEvent],
   [MessageType.NextLogEvents, NextLogEvents],
   [MessageType.ActiveLogEvents, ActiveLogEvents],
-  [MessageType.AlarmMuteRequest, AlarmMuteRequest],
   [MessageType.AlarmMute, AlarmMute],
-  // frontend_pb
+  [MessageType.AlarmMuteRequest, AlarmMuteRequest],
   [MessageType.BatteryPower, BatteryPower],
   [MessageType.ScreenStatus, ScreenStatus],
+  // frontend_pb
   [MessageType.SystemSettingRequest, SystemSettingRequest],
   [MessageType.FrontendDisplaySetting, FrontendDisplaySetting],
   [MessageType.RotaryEncoder, RotaryEncoder],
@@ -110,11 +112,11 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
   [ExpectedLogEvent, MessageType.ExpectedLogEvent],
   [NextLogEvents, MessageType.NextLogEvents],
   [ActiveLogEvents, MessageType.ActiveLogEvents],
-  [AlarmMuteRequest, MessageType.AlarmMuteRequest],
   [AlarmMute, MessageType.AlarmMute],
-  // frontend_pb
+  [AlarmMuteRequest, MessageType.AlarmMuteRequest],
   [BatteryPower, MessageType.BatteryPower],
   [ScreenStatus, MessageType.ScreenStatus],
+  // frontend_pb
   [SystemSettingRequest, MessageType.SystemSettingRequest],
   [FrontendDisplaySetting, MessageType.FrontendDisplaySetting],
   [RotaryEncoder, MessageType.RotaryEncoder],

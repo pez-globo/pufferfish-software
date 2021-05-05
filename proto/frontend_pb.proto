@@ -8,6 +8,7 @@ message RotaryEncoder {
   float last_button_up = 5;
 }
 
+// TODO: should metric be 0? (i.e. the default)
 enum Unit {
   imperial = 0;
   metric = 1;
