@@ -8,7 +8,7 @@ import { RED_BORDER } from '../../store/app/types';
 import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
 import {
   getAlarmMuteStatus,
-  getPopupEventLog,
+  getHasActiveAlarms,
   getScreenStatus,
 } from '../../store/controller/selectors';
 import {
@@ -73,12 +73,11 @@ export const HeartbeatBackendListener = (): JSX.Element => {
 
 const AudioAlarm = (): JSX.Element => {
   const dispatch = useDispatch();
-  const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
+  const activeAlarms = useSelector(getHasActiveAlarms, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
-  const [playing, setPlaying] = useState(alarmMuteStatus.active);
-
+  const [playing, setPlaying] = useState<boolean>(alarmMuteStatus.active);
   useEffect(() => {
     if (playing) {
       audio.play();
@@ -91,24 +90,20 @@ const AudioAlarm = (): JSX.Element => {
   }, [playing, audio]);
 
   useEffect(() => {
-    if (popupEventLog) {
-      setPlaying(false);
-      if (popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
-        setPlaying(true);
-      }
+    if (activeAlarms) {
+      setPlaying(true);
       dispatch({ type: RED_BORDER, status: true });
     } else {
       setPlaying(false);
       dispatch({ type: RED_BORDER, status: false });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [popupEventLog]);
+  }, [activeAlarms, dispatch]);
 
   useEffect(() => {
-    if (popupEventLog) {
+    if (activeAlarms) {
       dispatch({ type: RED_BORDER, status: !alarmMuteStatus.active });
     }
-    if (popupEventLog && popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
+    if (activeAlarms) {
       setPlaying(!alarmMuteStatus.active);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

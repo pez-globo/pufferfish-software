@@ -294,6 +294,14 @@ export const getActiveLogEventIds = createSelector(
   (states: ControllerStates): number[] => states.eventLog.activeLogEvents.id,
 );
 
+// Active Alarms
+export const getHasActiveAlarms = createSelector(
+  getActiveLogEventIds,
+  (activeId: number[]): boolean => {
+    return activeId.length > 0;
+  },
+);
+
 // Active popup event log
 export const getPopupEventLog = createSelector(getController, (states: ControllerStates):
   | LogEvent
