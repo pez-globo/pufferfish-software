@@ -120,6 +120,7 @@ PF::Driver::BreathingCircuit::Simulators simulator;
 
 // HAL Utilities
 PF::HAL::HALCRC32 crc32c(hcrc);
+PF::HAL::STM32::Random random(hrng);
 
 // HAL Time
 PF::HAL::HALTime time;
@@ -505,6 +506,9 @@ int main(void)
   adc3_input.start();
   */
 
+  // HAL utilities
+  random.setup();
+
   // UARTs
   backend_uart.setup_irq();
   fdo2_uart.setup_irq();
@@ -521,9 +525,12 @@ int main(void)
   flasher.start(time.millis());
   dimmer.start(time.millis());
 
-  // Initialize request/response states
+  // Request/response states
   initialize_states();
 
+  // Log events sender
+  uint32_t session_id;
+  random.generate(session_id);
   /* USER CODE END 2 */
 
   /* Infinite loop */
