@@ -87,6 +87,7 @@ typedef struct _CycleMeasurements {
 
 typedef struct _ExpectedLogEvent {
     uint32_t id;
+    uint32_t session_id;
 } ExpectedLogEvent;
 
 typedef struct _Parameters {
@@ -229,6 +230,7 @@ typedef struct _NextLogEvents {
     uint32_t next_expected;
     uint32_t total;
     uint32_t remaining;
+    uint32_t session_id;
     pb_size_t elements_count;
     LogEvent elements[2];
 } NextLogEvents;
@@ -263,8 +265,8 @@ extern "C" {
 #define Ping_init_default                        {0, 0}
 #define Announcement_init_default                {0, {0, {0}}}
 #define LogEvent_init_default                    {0, 0, _LogEventCode_MIN, _LogEventType_MIN, false, Range_init_default, 0, 0, 0, 0, 0, 0, false, Range_init_default, false, Range_init_default, _VentilationMode_MIN, _VentilationMode_MIN}
-#define ExpectedLogEvent_init_default            {0}
-#define NextLogEvents_init_default               {0, 0, 0, 0, {LogEvent_init_default, LogEvent_init_default}}
+#define ExpectedLogEvent_init_default            {0, 0}
+#define NextLogEvents_init_default               {0, 0, 0, 0, 0, {LogEvent_init_default, LogEvent_init_default}}
 #define ActiveLogEvents_init_default             {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define BatteryPower_init_default                {0, 0}
 #define ScreenStatus_init_default                {0}
@@ -280,8 +282,8 @@ extern "C" {
 #define Ping_init_zero                           {0, 0}
 #define Announcement_init_zero                   {0, {0, {0}}}
 #define LogEvent_init_zero                       {0, 0, _LogEventCode_MIN, _LogEventType_MIN, false, Range_init_zero, 0, 0, 0, 0, 0, 0, false, Range_init_zero, false, Range_init_zero, _VentilationMode_MIN, _VentilationMode_MIN}
-#define ExpectedLogEvent_init_zero               {0}
-#define NextLogEvents_init_zero                  {0, 0, 0, 0, {LogEvent_init_zero, LogEvent_init_zero}}
+#define ExpectedLogEvent_init_zero               {0, 0}
+#define NextLogEvents_init_zero                  {0, 0, 0, 0, 0, {LogEvent_init_zero, LogEvent_init_zero}}
 #define ActiveLogEvents_init_zero                {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define BatteryPower_init_zero                   {0, 0}
 #define ScreenStatus_init_zero                   {0}
@@ -306,6 +308,7 @@ extern "C" {
 #define CycleMeasurements_ip_tag                 6
 #define CycleMeasurements_ve_tag                 7
 #define ExpectedLogEvent_id_tag                  1
+#define ExpectedLogEvent_session_id_tag          2
 #define Parameters_time_tag                      1
 #define Parameters_ventilating_tag               2
 #define Parameters_mode_tag                      3
@@ -387,7 +390,8 @@ extern "C" {
 #define NextLogEvents_next_expected_tag          1
 #define NextLogEvents_total_tag                  2
 #define NextLogEvents_remaining_tag              3
-#define NextLogEvents_elements_tag               4
+#define NextLogEvents_session_id_tag             4
+#define NextLogEvents_elements_tag               5
 
 /* Struct field encoding specification for nanopb */
 #define Range_FIELDLIST(X, a) \
@@ -548,7 +552,8 @@ X(a, STATIC,   SINGULAR, UENUM,    new_mode,         15)
 #define LogEvent_new_range_MSGTYPE Range
 
 #define ExpectedLogEvent_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   id,                1)
+X(a, STATIC,   SINGULAR, UINT32,   id,                1) \
+X(a, STATIC,   SINGULAR, UINT32,   session_id,        2)
 #define ExpectedLogEvent_CALLBACK NULL
 #define ExpectedLogEvent_DEFAULT NULL
 
@@ -556,7 +561,8 @@ X(a, STATIC,   SINGULAR, UINT32,   id,                1)
 X(a, STATIC,   SINGULAR, UINT32,   next_expected,     1) \
 X(a, STATIC,   SINGULAR, UINT32,   total,             2) \
 X(a, STATIC,   SINGULAR, UINT32,   remaining,         3) \
-X(a, STATIC,   REPEATED, MESSAGE,  elements,          4)
+X(a, STATIC,   SINGULAR, UINT32,   session_id,        4) \
+X(a, STATIC,   REPEATED, MESSAGE,  elements,          5)
 #define NextLogEvents_CALLBACK NULL
 #define NextLogEvents_DEFAULT NULL
 #define NextLogEvents_elements_MSGTYPE LogEvent
@@ -637,8 +643,8 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define Ping_size                                17
 #define Announcement_size                        77
 #define LogEvent_size                            123
-#define ExpectedLogEvent_size                    6
-#define NextLogEvents_size                       268
+#define ExpectedLogEvent_size                    12
+#define NextLogEvents_size                       274
 #define ActiveLogEvents_size                     192
 #define BatteryPower_size                        8
 #define ScreenStatus_size                        2
@@ -724,14 +730,14 @@ struct MessageDescriptor<LogEvent> {
 };
 template <>
 struct MessageDescriptor<ExpectedLogEvent> {
-    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 1;
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &ExpectedLogEvent_msg;
     }
 };
 template <>
 struct MessageDescriptor<NextLogEvents> {
-    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 4;
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 5;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &NextLogEvents_msg;
     }

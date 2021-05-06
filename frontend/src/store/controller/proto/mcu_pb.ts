@@ -361,12 +361,16 @@ export interface LogEvent {
 
 export interface ExpectedLogEvent {
   id: number;
+  /** used when the sender's log is ephemeral */
+  sessionId: number;
 }
 
 export interface NextLogEvents {
   nextExpected: number;
   total: number;
   remaining: number;
+  /** used when the sender's log is ephemeral */
+  sessionId: number;
   elements: LogEvent[];
 }
 
@@ -2367,7 +2371,7 @@ export const LogEvent = {
   },
 };
 
-const baseExpectedLogEvent: object = { id: 0 };
+const baseExpectedLogEvent: object = { id: 0, sessionId: 0 };
 
 export const ExpectedLogEvent = {
   encode(
@@ -2376,6 +2380,9 @@ export const ExpectedLogEvent = {
   ): _m0.Writer {
     if (message.id !== 0) {
       writer.uint32(8).uint32(message.id);
+    }
+    if (message.sessionId !== 0) {
+      writer.uint32(16).uint32(message.sessionId);
     }
     return writer;
   },
@@ -2389,6 +2396,9 @@ export const ExpectedLogEvent = {
       switch (tag >>> 3) {
         case 1:
           message.id = reader.uint32();
+          break;
+        case 2:
+          message.sessionId = reader.uint32();
           break;
         default:
           reader.skipType(tag & 7);
@@ -2405,12 +2415,18 @@ export const ExpectedLogEvent = {
     } else {
       message.id = 0;
     }
+    if (object.sessionId !== undefined && object.sessionId !== null) {
+      message.sessionId = Number(object.sessionId);
+    } else {
+      message.sessionId = 0;
+    }
     return message;
   },
 
   toJSON(message: ExpectedLogEvent): unknown {
     const obj: any = {};
     message.id !== undefined && (obj.id = message.id);
+    message.sessionId !== undefined && (obj.sessionId = message.sessionId);
     return obj;
   },
 
@@ -2421,11 +2437,21 @@ export const ExpectedLogEvent = {
     } else {
       message.id = 0;
     }
+    if (object.sessionId !== undefined && object.sessionId !== null) {
+      message.sessionId = object.sessionId;
+    } else {
+      message.sessionId = 0;
+    }
     return message;
   },
 };
 
-const baseNextLogEvents: object = { nextExpected: 0, total: 0, remaining: 0 };
+const baseNextLogEvents: object = {
+  nextExpected: 0,
+  total: 0,
+  remaining: 0,
+  sessionId: 0,
+};
 
 export const NextLogEvents = {
   encode(
@@ -2441,8 +2467,11 @@ export const NextLogEvents = {
     if (message.remaining !== 0) {
       writer.uint32(24).uint32(message.remaining);
     }
+    if (message.sessionId !== 0) {
+      writer.uint32(32).uint32(message.sessionId);
+    }
     for (const v of message.elements) {
-      LogEvent.encode(v!, writer.uint32(34).fork()).ldelim();
+      LogEvent.encode(v!, writer.uint32(42).fork()).ldelim();
     }
     return writer;
   },
@@ -2465,6 +2494,9 @@ export const NextLogEvents = {
           message.remaining = reader.uint32();
           break;
         case 4:
+          message.sessionId = reader.uint32();
+          break;
+        case 5:
           message.elements.push(LogEvent.decode(reader, reader.uint32()));
           break;
         default:
@@ -2493,6 +2525,11 @@ export const NextLogEvents = {
     } else {
       message.remaining = 0;
     }
+    if (object.sessionId !== undefined && object.sessionId !== null) {
+      message.sessionId = Number(object.sessionId);
+    } else {
+      message.sessionId = 0;
+    }
     if (object.elements !== undefined && object.elements !== null) {
       for (const e of object.elements) {
         message.elements.push(LogEvent.fromJSON(e));
@@ -2507,6 +2544,7 @@ export const NextLogEvents = {
       (obj.nextExpected = message.nextExpected);
     message.total !== undefined && (obj.total = message.total);
     message.remaining !== undefined && (obj.remaining = message.remaining);
+    message.sessionId !== undefined && (obj.sessionId = message.sessionId);
     if (message.elements) {
       obj.elements = message.elements.map((e) =>
         e ? LogEvent.toJSON(e) : undefined
@@ -2534,6 +2572,11 @@ export const NextLogEvents = {
       message.remaining = object.remaining;
     } else {
       message.remaining = 0;
+    }
+    if (object.sessionId !== undefined && object.sessionId !== null) {
+      message.sessionId = object.sessionId;
+    } else {
+      message.sessionId = 0;
     }
     if (object.elements !== undefined && object.elements !== null) {
       for (const e of object.elements) {

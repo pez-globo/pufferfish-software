@@ -163,13 +163,15 @@ message LogEvent {
 
 message ExpectedLogEvent {
   uint32 id = 1;
+  uint32 session_id = 2;  // used when the sender's log is ephemeral
 }
 
 message NextLogEvents {
   uint32 next_expected = 1;
   uint32 total = 2;
   uint32 remaining = 3;
-  repeated LogEvent elements = 4;
+  uint32 session_id = 4;  // used when the sender's log is ephemeral
+  repeated LogEvent elements = 5;
 }
 
 message ActiveLogEvents {

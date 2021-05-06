@@ -2,7 +2,7 @@
 
 import dataclasses
 import typing
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 import attr
 
@@ -16,7 +16,7 @@ from ventserver.sansio import channels, protocols
 
 
 @attr.s
-class ReceiveInputEvent(events.Event):
+class ReceiveRemoteInputEvent(events.Event):
     """Event log receiver input event."""
 
     current_time: float = attr.ib()
@@ -31,6 +31,27 @@ class ReceiveInputEvent(events.Event):
             # current_time only matters if next_log_events is not None, so it
             # doesn't count for has_data.
         )
+
+
+@attr.s
+class ReceiveLocalInputEvent(events.Event):
+    """Event log receiver input event."""
+
+    current_time: float = attr.ib()
+    next_log_events: Optional[mcu_pb.NextLogEvents] = attr.ib(default=None)
+    active_log_events: Optional[mcu_pb.ActiveLogEvents] = attr.ib(default=None)
+
+    def has_data(self) -> bool:
+        """Return whether the event has data."""
+        return (
+            self.next_log_events is not None
+            or self.active_log_events is not None
+            # current_time only matters if next_log_events is not None, so it
+            # doesn't count for has_data.
+        )
+
+
+ReceiveInputEvent = Union[ReceiveRemoteInputEvent, ReceiveLocalInputEvent]
 
 
 @attr.s
@@ -71,7 +92,7 @@ class SendInputEvent(events.Event):
 
 @attr.s
 class EventLogReceiver(protocols.Filter[ReceiveInputEvent, ReceiveOutputEvent]):
-    """Receipt of an event log from a remote peer.
+    """Receipt of an event log from a local or remote source.
 
     Receives log events and the list of active log events from the, remaps IDs
     and timestamps, and outputs newly received events and ID-remapped active log
@@ -93,7 +114,8 @@ class EventLogReceiver(protocols.Filter[ReceiveInputEvent, ReceiveOutputEvent]):
         default=None
     )
     _events_log_next_id: int = attr.ib(default=0)
-    _id_mapping: Dict[int, int] = attr.ib(factory=dict)
+    _remote_id_mapping: Dict[int, int] = attr.ib(factory=dict)
+    _session_id: int = attr.ib(default=0)
 
     @_log_events_receiver.default
     def init_log_events_list_receiver(self) -> lists.ReceiveSynchronizer[
@@ -115,45 +137,112 @@ class EventLogReceiver(protocols.Filter[ReceiveInputEvent, ReceiveOutputEvent]):
         if event is None:
             return None
 
+        if isinstance(event, ReceiveRemoteInputEvent):
+            return self._handle_remote_event(event)
+
+        if isinstance(event, ReceiveLocalInputEvent):
+            return self._handle_local_event(event)
+
+        return None
+
+    def _handle_remote_session_reset(
+            self, update_event: lists.UpdateEvent[mcu_pb.LogEvent]
+    ) -> None:
+        """Handle a reset of the remote peer's log session."""
+        self._remote_id_mapping.clear()
+        self._clock_synchronizer.input(clocks.ResetEvent())
+        self._session_id = update_event.session_id
+
+    def _remap_remote_element(
+            self, element: mcu_pb.LogEvent, current_time: float
+    ) -> mcu_pb.LogEvent:
+        """Remap a remote log event's ID & time into the local reference."""
+        new_element = dataclasses.replace(element)
+        # Remap ID
+        new_element.id = self._events_log_next_id
+        self._events_log_next_id += 1
+        # Maintain ID mappings for active log events
+        self._remote_id_mapping[element.id] = new_element.id
+        # Remap time
+        self._clock_synchronizer.input(clocks.UpdateEvent(
+            current_time=current_time,
+            remote_time=new_element.time
+        ))
+        new_element.time += self._clock_synchronizer.output()
+        return new_element
+
+    def _handle_remote_event(
+            self, event: ReceiveRemoteInputEvent
+    ) -> ReceiveOutputEvent:
+        """Process events received from a remote source."""
         # Check for newly-received events
         if event.next_log_events != self._next_log_events_prev:
             # Don't re-input previously received segments into receiver.
-            # This saves a bit of work, but more importantly it prevents the
-            # 0th element from flooding the receiver, since the receiver treats
-            # any element with id 0 as a reset and thus a non-duplicate event.
             self._log_events_receiver.input(event.next_log_events)
             self._next_log_events_prev = \
                 dataclasses.replace(event.next_log_events)
         update_event = self._log_events_receiver.output()
-        expected_log_event = None
-        new_elements = []
-        active_log_events = mcu_pb.ActiveLogEvents()
+        output_event = ReceiveOutputEvent()
         if update_event is not None:
-            if update_event.next_expected is not None:
-                expected_log_event = mcu_pb.ExpectedLogEvent(
-                    id=update_event.next_expected
-                )
+            # Reset session-specific state when needed
+            if update_event.session_id != self._session_id:
+                # The remote peer reset its event log, so invalidate all id
+                # mappings for active log events and reset the clock sychronizer
+                self._handle_remote_session_reset(update_event)
             # Remap remote IDs and times to local ID numbering & clock
-            for element in update_event.new_elements:
-                new_element = dataclasses.replace(element)
-                new_element.id = self._events_log_next_id
-                self._id_mapping[element.id] = new_element.id
-                self._events_log_next_id += 1
-                self._clock_synchronizer.input(clocks.UpdateEvent(
-                    current_time=event.current_time,
-                    remote_time=new_element.time
-                ))
-                new_element.time += self._clock_synchronizer.output()
-                new_elements.append(new_element)
-        if event.active_log_events is not None:
-            active_log_events.id = [
-                self._id_mapping[id] for id in event.active_log_events.id
-                if id in self._id_mapping
+            output_event.new_elements = [
+                self._remap_remote_element(element, event.current_time)
+                for element in update_event.new_elements
             ]
-        return ReceiveOutputEvent(
-            expected_log_event=expected_log_event, new_elements=new_elements,
-            active_log_events=active_log_events
-        )
+            # Generate the next ExpectedLogEvent
+            if update_event.next_expected is not None:
+                output_event.expected_log_event = mcu_pb.ExpectedLogEvent(
+                    id=update_event.next_expected, session_id=self._session_id
+                )
+        # TODO: we'll update active local events and store it locally, and then
+        # in output() we'll concatenate it together with remapped active remote
+        # events for each event source.
+        if event.active_log_events is not None:
+            output_event.active_log_events = mcu_pb.ActiveLogEvents(
+                id=[
+                    self._remote_id_mapping[id]
+                    for id in event.active_log_events.id
+                    if id in self._remote_id_mapping
+                    # TODO: we may need error handling if id isn't in mapping
+                    # (e.g. because the backend crashed and restarted while
+                    # the firmware stayed running. But if active_log_events
+                    # arrived before the corresponding log event arrived,
+                    # that shouldn't be treated like an error. So maybe we
+                    # actually just need to map (session ID, event ID) pairs,
+                    # and we need to persist that mapping to the filesystem,
+                    # and we can discard any keys with stale sessions.
+                ]
+            )
+        return output_event
+
+    def _handle_local_event(
+            self, event: ReceiveLocalInputEvent
+    ) -> Optional[ReceiveOutputEvent]:
+        """Process events received from a local source."""
+        # new_elements = []
+        # active_log_events = mcu_pb.ActiveLogEvents()
+        # if update_event is not None:
+        #     # Remap local IDs to local ID numbering
+        #     for element in update_event.new_elements:
+        #         new_element = dataclasses.replace(element)
+        #         new_element.id = self._events_log_next_id
+        #         self._remote_id_mapping[element.id] = new_element.id
+        #         self._events_log_next_id += 1
+        #         new_elements.append(new_element)
+        # if event.active_log_events is not None:
+        #     active_log_events.id = [
+        #         self._remote_id_mapping[id]
+        #         for id in event.active_log_events.id
+        #         if id in self._remote_id_mapping
+        #     ]
+        # return ReceiveOutputEvent(
+        #     new_elements=new_elements, active_log_events=active_log_events
+        # )
 
 
 @attr.s

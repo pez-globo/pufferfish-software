@@ -180,6 +180,7 @@ class LogEvent(betterproto.Message):
 @dataclass
 class ExpectedLogEvent(betterproto.Message):
     id: int = betterproto.uint32_field(1)
+    session_id: int = betterproto.uint32_field(2)
 
 
 @dataclass
@@ -187,7 +188,8 @@ class NextLogEvents(betterproto.Message):
     next_expected: int = betterproto.uint32_field(1)
     total: int = betterproto.uint32_field(2)
     remaining: int = betterproto.uint32_field(3)
-    elements: List["LogEvent"] = betterproto.message_field(4)
+    session_id: int = betterproto.uint32_field(4)
+    elements: List["LogEvent"] = betterproto.message_field(5)
 
 
 @dataclass

@@ -531,6 +531,8 @@ int main(void)
   // Log events sender
   uint32_t session_id;
   random.generate(session_id);
+  log_events_sender.setup(session_id);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */

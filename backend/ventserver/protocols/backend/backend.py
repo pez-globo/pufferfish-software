@@ -99,7 +99,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             Optional[mcu_pb.ActiveLogEvents],
             self.store[states.StateSegment.ACTIVE_LOG_EVENTS_MCU]
         )
-        self._event_log_receiver.input(log.ReceiveInputEvent(
+        self._event_log_receiver.input(log.ReceiveRemoteInputEvent(
             current_time=self.current_time, next_log_events=next_log_events,
             active_log_events=active_log_events
         ))

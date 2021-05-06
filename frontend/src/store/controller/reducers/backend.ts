@@ -55,7 +55,8 @@ export const eventLogReducer = (
             return {
               ...state,
               nextLogEvents: newNextLogEvents as NextLogEvents,
-              expectedLogEvent: { id: nextEventID },
+              // The backend's event log is persistent, so its session ID is always 0
+              expectedLogEvent: { id: nextEventID, sessionId: 0 },
               ephemeralLogEvents: { id: [] }, // any ephemeral events are now overwritten
             };
           }
@@ -77,7 +78,7 @@ export const eventLogReducer = (
           const nextEventID = numElements ? nextLogEvents.elements[numElements - 1].id + 1 : 0;
           return {
             nextLogEvents,
-            expectedLogEvent: { id: nextEventID },
+            expectedLogEvent: { id: nextEventID, sessionId: 0 },
             // Deactivate active ephemeral events
             activeLogEvents: { id: state.activeLogEvents.id.filter((d) => !ephemeralIDs.has(d)) },
             ephemeralLogEvents: { id: [] },
