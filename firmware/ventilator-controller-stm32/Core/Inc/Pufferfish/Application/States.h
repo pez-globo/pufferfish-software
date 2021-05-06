@@ -39,7 +39,7 @@ enum class MessageTypes : uint8_t {
   expected_log_event = 8,
   next_log_events = 9,
   active_log_events = 10,
-  battery_power = 11,
+  battery = 11,
 };
 
 // MessageTypeValues should include all defined values of MessageTypes
@@ -55,7 +55,7 @@ using MessageTypeValues = Util::EnumValues<
     MessageTypes::expected_log_event,
     MessageTypes::next_log_events,
     MessageTypes::active_log_events,
-    MessageTypes::battery_power>;
+    MessageTypes::battery>;
 
 // Since nanopb is running dynamically, we cannot have extensive compile-time type-checking.
 // It's not clear how we might use variants to replace this union, since the nanopb functions

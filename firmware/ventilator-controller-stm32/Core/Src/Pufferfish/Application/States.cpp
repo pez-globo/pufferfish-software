@@ -110,6 +110,7 @@ States::InputStatus States::input(const StateSegment &input) {
     case MessageTypes::alarm_limits:
       STATESEGMENT_GET_TAGGED(alarm_limits, input);
       return InputStatus::ok;
+
     case MessageTypes::alarm_limits_request:
       STATESEGMENT_GET_TAGGED(alarm_limits_request, input);
       return InputStatus::ok;
@@ -122,8 +123,8 @@ States::InputStatus States::input(const StateSegment &input) {
     case MessageTypes::active_log_events:
       STATESEGMENT_GET_TAGGED(active_log_events, input);
       return InputStatus::ok;
-    case MessageTypes::battery_power:
-      STATESEGMENT_GET_TAGGED(battery_power, input);
+    case MessageTypes::battery:
+      STATESEGMENT_GET_TAGGED(battery, input);
       return InputStatus::ok;
     default:
       return InputStatus::invalid_type;
@@ -159,8 +160,8 @@ States::OutputStatus States::output(MessageTypes type, StateSegment &output) con
     case MessageTypes::active_log_events:
       output.set(state_segments_.active_log_events);
       return OutputStatus::ok;
-    case MessageTypes::battery_power:
-      output.set(state_segments_.battery_power);
+    case MessageTypes::battery:
+      output.set(state_segments_.battery);
       return OutputStatus::ok;
     default:
       return OutputStatus::invalid_type;

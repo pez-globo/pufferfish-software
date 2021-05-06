@@ -37,7 +37,7 @@ class StateSegment(enum.Enum):
     NEXT_LOG_EVENTS_BE = enum.auto()
     ACTIVE_LOG_EVENTS_BE = enum.auto()
     ROTARY_ENCODER = enum.auto()
-    BATTERY_POWER = enum.auto()
+    BATTERY = enum.auto()
 
 
 MCU_SYNCHRONIZER_SCHEDULE = collections.deque([
@@ -61,7 +61,7 @@ FRONTEND_SYNCHRONIZER_SCHEDULE = collections.deque([
     states.ScheduleEntry(time=0.01, type=StateSegment.ROTARY_ENCODER),
     states.ScheduleEntry(time=0.01, type=StateSegment.CYCLE_MEASUREMENTS),
     states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.BATTERY_POWER),
+    states.ScheduleEntry(time=0.01, type=StateSegment.BATTERY),
 
 ])
 
