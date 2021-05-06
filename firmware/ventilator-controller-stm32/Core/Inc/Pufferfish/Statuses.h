@@ -83,12 +83,8 @@ enum class SPIDeviceStatus {
  * An outcome of performing an operation on random number generator
  */
 enum class RandomStatus {
-  ok = 0,         /// success
-  timeout_error,  /// the operation timed out
-  busy_error,     /// the operation was busy
-  seed_error,     /// the operation encountered a problem with the seed
-  clock_error,    /// the operation encountered a problem with the clock
-  error,          /// the operation encountered an unknown error
+  ok = 0,  /// success
+  error,   /// the operation encountered an error
 };
 
 /**

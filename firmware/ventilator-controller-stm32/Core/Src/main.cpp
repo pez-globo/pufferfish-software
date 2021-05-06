@@ -120,7 +120,7 @@ PF::Driver::BreathingCircuit::Simulators simulator;
 
 // HAL Utilities
 PF::HAL::HALCRC32 crc32c(hcrc);
-PF::HAL::STM32::Random random(hrng);
+PF::HAL::STM32::Random rng(hrng);
 
 // HAL Time
 PF::HAL::HALTime time;
@@ -507,7 +507,7 @@ int main(void)
   */
 
   // HAL utilities
-  random.setup();
+  rng.setup();
 
   // UARTs
   backend_uart.setup_irq();
@@ -529,8 +529,8 @@ int main(void)
   initialize_states();
 
   // Log events sender
-  uint32_t session_id;
-  random.generate(session_id);
+  uint32_t session_id = 0;
+  rng.generate(session_id);
   log_events_sender.setup(session_id);
 
   /* USER CODE END 2 */

@@ -33,10 +33,9 @@ ListInputStatus ListSender<ListSegment, ListElement, max_buffer_len, max_segment
     if (next_expected == 0) {
       // The receiver is uninitialized (i.e. it doesn't know the session yet)
       return ListInputStatus::ok;
-    } else {
-      // The receiver has a stale session id
-      return ListInputStatus::stale_session;
     }
+
+    return ListInputStatus::stale_session;
   }
 
   // We only update next_expected_ if the expected session id matches our session id;
