@@ -617,7 +617,7 @@ int main(void)
 
     // LTC4015 battery charging
     ltc4015_sensor.transform(all_states.battery());
-    power_alarms.transform(all_states.battery, all_states.active_log_events, alarms_manager);
+    power_alarms.transform(all_states.battery(), all_states.active_log_events(), alarms_manager);
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;

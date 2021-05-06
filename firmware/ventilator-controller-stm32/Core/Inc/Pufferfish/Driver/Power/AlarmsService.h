@@ -10,9 +10,10 @@
 #include "Pufferfish/Application/Alarms.h"
 
 namespace Pufferfish::Driver::Power {
+
 class AlarmsService {
  public:
-  void transform(
+  virtual void transform(
       Battery &battery,
       ActiveLogEvents &active_log_events,
       Application::AlarmsManager &alarms_manager);

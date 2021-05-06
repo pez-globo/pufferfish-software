@@ -9,6 +9,8 @@
 
 namespace Pufferfish::Driver::I2C::LTC4015 {
 
+// Sensor
+
 void Sensor::transform(Battery &battery) {
   // check if charger is connected
   bool charging_status = false;
