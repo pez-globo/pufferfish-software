@@ -24,7 +24,7 @@ I2CDeviceStatus HALI2CDevice::read(uint8_t *buf, size_t count) {
 
 I2CDeviceStatus HALI2CDevice::read(uint16_t address, uint8_t *buf, size_t count) {
   HAL_StatusTypeDef stat = HAL_I2C_Mem_Read(
-      &dev_, addr << 1U, address, sizeof(address), buf, count, HALI2CDevice::default_timeout);
+      &dev_, addr, address, sizeof(address), buf, count, HALI2CDevice::default_timeout);
   if (stat == HAL_OK) {
     return I2CDeviceStatus::ok;
   }
