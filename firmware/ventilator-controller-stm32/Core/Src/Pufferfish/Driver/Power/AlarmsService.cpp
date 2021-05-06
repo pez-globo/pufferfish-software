@@ -14,7 +14,6 @@ void AlarmsService::transform(
     Battery &battery,
     ActiveLogEvents &active_log_events,
     Application::AlarmsManager &alarms_manager) {
-
   if (!battery.charging) {
     alarms_manager.activate_alarm(
         LogEventCode_charger_disconnected, LogEventType::LogEventType_system);
@@ -24,4 +23,4 @@ void AlarmsService::transform(
   alarms_manager.transform(active_log_events);
 }
 
-} // namespace Pufferfish::Driver::Power
+}  // namespace Pufferfish::Driver::Power
