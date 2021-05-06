@@ -221,6 +221,13 @@ export const getActiveLogEventIds = createSelector(
   getController,
   (states: ControllerStates): number[] => states.eventLog.activeLogEvents.id,
 );
+export const getHasActiveAlarms = createSelector(
+  getActiveLogEventIds,
+  (activeId: number[]): boolean => {
+    return activeId.length > 0;
+  },
+);
+// TODO: rename this selector to something more descriptive:
 export const getPopupEventLog = createSelector(getController, (states: ControllerStates):
   | LogEvent
   | undefined => {
