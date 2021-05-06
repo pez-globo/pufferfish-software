@@ -7,12 +7,8 @@ import functools
 import trio
 
 from ventserver.integration import _trio
-from ventserver.io.trio import _serial
-from ventserver.io.trio import channels
-from ventserver.io.trio import websocket
-from ventserver.io.trio import fileio
-from ventserver.protocols import backend
-from ventserver.protocols import server
+from ventserver.io.trio import _serial, channels, fileio, websocket
+from ventserver.protocols.backend import server, states
 from ventserver.protocols.protobuf import mcu_pb as pb
 
 
@@ -42,8 +38,8 @@ async def main() -> None:
     ] = channels.TrioChannel()
 
     # Initialize State
-    protocol.receive.backend.all_states[
-        backend.StateSegment.PARAMETERS
+    protocol.receive.backend.store[
+        states.StateSegment.PARAMETERS
     ] = pb.Parameters(pip=30, peep=10)
 
     report_interval = 0.03
@@ -61,8 +57,8 @@ async def main() -> None:
                 while True:
                     receive_output = await channel.output()
                     if time.time() - last_report_time >= report_interval:
-                        logger.info(protocol.receive.backend.all_states[
-                            backend.StateSegment.SENSOR_MEASUREMENTS
+                        logger.info(protocol.receive.backend.store[
+                            states.StateSegment.SENSOR_MEASUREMENTS
                         ])
                         last_report_time = time.time()
                     await _trio.process_protocol_send(

@@ -6,15 +6,10 @@ import time as _time
 
 import attr
 
-from ventserver.protocols import backend
-from ventserver.protocols import events
-from ventserver.protocols import frontend
-from ventserver.protocols import mcu
-from ventserver.protocols import file
-from ventserver.protocols import rotary_encoder
-from ventserver.protocols import exceptions
-from ventserver.sansio import channels
-from ventserver.sansio import protocols
+from ventserver.protocols.backend import backend
+from ventserver.protocols.devices import file, frontend, mcu, rotary_encoder
+from ventserver.protocols import events, exceptions
+from ventserver.sansio import channels, protocols
 
 
 # Events
@@ -35,7 +30,7 @@ class FrontendConnectionEvent(events.Event):
 
 
 @attr.s
-class ReceiveEvent(events.Event):
+class ReceiveDataEvent(events.Event):
     """Server receive input event."""
 
     time: Optional[float] = attr.ib(default=None)
@@ -67,6 +62,7 @@ class ReceiveOutputEvent(events.Event):
         return self.server_send is not None and self.server_send.has_data()
 
 
+ReceiveEvent = Union[ReceiveDataEvent, FrontendConnectionEvent]
 SendEvent = backend.OutputEvent
 
 
@@ -90,25 +86,25 @@ class SendOutputEvent(events.Event):
 def make_serial_receive(
         serial_receive: bytes,
         time: float
-) -> ReceiveEvent:
-    """Make a ReceiveEvent from serial receive data."""
-    return ReceiveEvent(serial_receive=serial_receive, time=time)
+) -> ReceiveDataEvent:
+    """Make a ReceiveDataEvent from serial receive data."""
+    return ReceiveDataEvent(serial_receive=serial_receive, time=time)
 
 
 def make_websocket_receive(
         ws_receive: bytes,
         time: float
-) -> ReceiveEvent:
-    """Make a ReceiveEvent from websocket receive data."""
-    return ReceiveEvent(websocket_receive=ws_receive, time=time)
+) -> ReceiveDataEvent:
+    """Make a ReceiveDataEvent from websocket receive data."""
+    return ReceiveDataEvent(websocket_receive=ws_receive, time=time)
 
 
 def make_rotary_encoder_receive(
         re_receive: Tuple[int, bool],
         time: float
-) -> ReceiveEvent:
-    """Make a ReceiveEvent from rotary encoder receive data."""
-    return ReceiveEvent(rotary_encoder_receive=re_receive, time=time)
+) -> ReceiveDataEvent:
+    """Make a ReceiveDataEvent from rotary encoder receive data."""
+    return ReceiveDataEvent(rotary_encoder_receive=re_receive, time=time)
 
 
 # Frontend kill props
@@ -133,9 +129,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     """Filter which transforms receive bytes into high-level events."""
     _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
 
-    _buffer: channels.DequeChannel[
-                        Union[ReceiveEvent, FrontendConnectionEvent]
-            ] = attr.ib(factory=channels.DequeChannel)
+    _buffer: channels.DequeChannel[ReceiveEvent] =\
+        attr.ib(factory=channels.DequeChannel)
 
     current_time: float = attr.ib(default=0)
     _kill_props: FrontendKillProps = attr.ib(factory=FrontendKillProps)
@@ -150,9 +145,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         factory=file.ReceiveFilter
     )
 
-    def input(self, event: Optional[
-            Union[ReceiveEvent, FrontendConnectionEvent]
-    ]) -> None:
+    def input(self, event: Optional[ReceiveEvent]) -> None:
         """Handle input events."""
         if event is None or not event.has_data():
             return
@@ -282,7 +275,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         return True
 
     def input_serial(self, serial_receive: bytes) -> None:
-        """Input a ReceiveEvent corresponding to serial data.
+        """Input a ReceiveDataEvent corresponding to serial data.
 
         This is just a convenience function intended for writing unit tests
         more concisely.
@@ -290,7 +283,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         self.input(make_serial_receive(serial_receive, self.current_time))
 
     def input_websocket(self, websocket: bytes) -> None:
-        """Input a ReceiveEvent corresponding to websocket data.
+        """Input a ReceiveDataEvent corresponding to websocket data.
 
         This is just a convenience function intended for writing unit tests
         more concisely.

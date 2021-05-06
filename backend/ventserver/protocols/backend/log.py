@@ -9,8 +9,7 @@ import attr
 from ventserver.protocols import events
 from ventserver.protocols.application import clocks, lists
 from ventserver.protocols.protobuf import mcu_pb
-from ventserver.sansio import channels
-from ventserver.sansio import protocols
+from ventserver.sansio import channels, protocols
 
 
 # Events

@@ -1,23 +1,18 @@
-"""Sans-I/O backend service protocol."""
+"""Sans-I/O backend service state synchronization protocol."""
 
 import collections
 import enum
 import logging
-import typing
 from typing import Dict, Mapping, Optional, Type
 
 import attr
 
 import betterproto
 
-from ventserver.protocols import events
-from ventserver.protocols import exceptions
-from ventserver.protocols import frontend
-from ventserver.protocols import log
-from ventserver.protocols import mcu
+from ventserver.protocols import events, exceptions
 from ventserver.protocols.application import states
+from ventserver.protocols.devices import frontend, mcu
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
-from ventserver.sansio import channels
 from ventserver.sansio import protocols
 
 
@@ -37,6 +32,9 @@ class StateSegment(enum.Enum):
     NEXT_LOG_EVENTS_BE = enum.auto()
     ACTIVE_LOG_EVENTS_BE = enum.auto()
     ROTARY_ENCODER = enum.auto()
+
+
+Store = Dict[StateSegment, Optional[betterproto.Message]]
 
 
 MCU_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
@@ -123,26 +121,23 @@ class OutputEvent(events.Event):
         return self.mcu_send is not None or self.frontend_send is not None
 
 
-SendEvent = OutputEvent
-
-
 # Filters
 
 
 @attr.s
-class StateSynchronizers(protocols.Filter[ReceiveEvent, OutputEvent]):
+class Synchronizers(protocols.Filter[ReceiveEvent, OutputEvent]):
     """Helper class for updating the backend's state synchronizers.
 
-    Warning: if all_states is used by other things, this filter is only safe to
+    Warning: if store is used by other things, this filter is only safe to
     use in synchronous environments, such as part of another Filter which
-    completely owns all_states. However, if access to all_states is only done
+    completely owns store. However, if access to store is only done
     through the input and output methods, then this Filter is safe to use in
     concurrent environments.
     """
 
-    _logger = logging.getLogger('.'.join((__name__, 'StateSynchronizers')))
+    _logger = logging.getLogger('.'.join((__name__, 'Synchronizers')))
 
-    all_states: Dict[StateSegment, Optional[betterproto.Message]] = attr.ib()
+    store: Store = attr.ib()
 
     # State sending synchronizers
     _mcu: states.Synchronizer[StateSegment] = attr.ib()
@@ -154,7 +149,7 @@ class StateSynchronizers(protocols.Filter[ReceiveEvent, OutputEvent]):
             states.Synchronizer[StateSegment]:  # pylint: disable=no-self-use
         """Initialize the mcu state synchronizer."""
         return states.Synchronizer(
-            segment_types=StateSegment, all_states=self.all_states,
+            segment_types=StateSegment, all_states=self.store,
             output_schedule=MCU_OUTPUT_SCHEDULE
         )
 
@@ -163,7 +158,7 @@ class StateSynchronizers(protocols.Filter[ReceiveEvent, OutputEvent]):
             states.Synchronizer[StateSegment]:
         """Initialize the frontend state synchronizer."""
         return states.Synchronizer(
-            segment_types=StateSegment, all_states=self.all_states,
+            segment_types=StateSegment, all_states=self.store,
             output_schedule=FRONTEND_OUTPUT_SCHEDULE
         )
 
@@ -172,7 +167,7 @@ class StateSynchronizers(protocols.Filter[ReceiveEvent, OutputEvent]):
             states.Synchronizer[StateSegment]:  # pylint: disable=no-self-use
         """Initialize the file state synchronizer."""
         return states.Synchronizer(
-            segment_types=StateSegment, all_states=self.all_states,
+            segment_types=StateSegment, all_states=self.store,
             output_schedule=FILE_OUTPUT_SCHEDULE
         )
 
@@ -189,7 +184,7 @@ class StateSynchronizers(protocols.Filter[ReceiveEvent, OutputEvent]):
         self._file.input(clock_update_event)
 
         # Handle inbound state segments
-        # We directly input states into all_states, instead of passing them in
+        # We directly input states into store, instead of passing them in
         # through the StateSynchronizer objects; we're only using those to
         # generate outputs.
         self._handle_inbound_state(event.mcu_receive, MCU_INPUT_TYPES)
@@ -227,201 +222,9 @@ class StateSynchronizers(protocols.Filter[ReceiveEvent, OutputEvent]):
         segment_type = input_types[type(segment)]
         self._logger.debug('Received: %s', segment)
         try:
-            self.all_states[segment_type] = segment
+            self.store[segment_type] = segment
         except KeyError:
             self._logger.exception(
                 'Received state segment type is not a valid state: %s',
                 segment_type
             )
-
-
-@attr.s
-class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
-    """Filter which passes input data in an event class."""
-
-    _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
-
-    _buffer: channels.DequeChannel[ReceiveEvent] = attr.ib(
-        factory=channels.DequeChannel
-    )
-    current_time: float = attr.ib(default=0)
-    all_states: Dict[StateSegment, Optional[betterproto.Message]] = attr.ib()
-
-    # State Synchronizers
-    _state_synchronizers: StateSynchronizers = attr.ib()
-
-    # Events Log
-    _event_log_receiver: log.EventLogReceiver = attr.ib(
-        factory=log.EventLogReceiver
-    )
-    _event_log_sender: log.EventLogSender = attr.ib(factory=log.EventLogSender)
-
-    @all_states.default
-    def init_all_states(self) -> Dict[
-            StateSegment, Optional[betterproto.Message]
-    ]:  # pylint: disable=no-self-use
-        """Initialize the synchronizable states.
-
-        Each pair consists of the type class to specify the states, and an
-        actual object to store the state values.
-        """
-        return {type: None for type in StateSegment}
-
-    @_state_synchronizers.default
-    def init_state_synchronizers(self) -> \
-            StateSynchronizers:  # pylint: disable=no-self-use
-        """Initialize the mcu state synchronizer."""
-        return StateSynchronizers(all_states=self.all_states)
-
-    def input(self, event: Optional[ReceiveEvent]) -> None:
-        """Handle input events."""
-        if event is None or not event.has_data():
-            return
-
-        self._buffer.input(event)
-
-    def output(self) -> Optional[OutputEvent]:
-        """Emit the next output event."""
-        event = self._buffer.output()
-        if event is None:
-            return None
-
-        # Process input event
-        self._update_clock(event)
-        self._state_synchronizers.input(event)
-
-        # Maintain internal data connections
-        self._handle_log_events_receiving()
-        self._handle_log_events_sending()
-
-        # Output any scheduled outbound state update
-        return self._state_synchronizers.output()
-
-    def _update_clock(self, event: ReceiveEvent) -> None:
-        """Handle any clock update."""
-        if event.time is not None:
-            self.current_time = event.time
-
-    def _handle_log_events_receiving(self) -> None:
-        """Handle any updates to log events from the MCU.
-
-        This includes active log events (active alarms).
-        """
-        next_log_events = typing.cast(
-            Optional[mcu_pb.NextLogEvents],
-            self.all_states[StateSegment.NEXT_LOG_EVENTS_MCU]
-        )
-        active_log_events = typing.cast(
-            Optional[mcu_pb.ActiveLogEvents],
-            self.all_states[StateSegment.ACTIVE_LOG_EVENTS_MCU]
-        )
-        self._event_log_receiver.input(log.ReceiveInputEvent(
-            current_time=self.current_time, next_log_events=next_log_events,
-            active_log_events=active_log_events
-        ))
-        while True:
-            output_event = self._event_log_receiver.output()
-            if output_event is None or not output_event.has_data():
-                return
-
-            if output_event.expected_log_event is not None:
-                self.all_states[
-                    StateSegment.EXPECTED_LOG_EVENT_MCU
-                ] = output_event.expected_log_event
-            # Pass new log events to sender
-            expected_log_event = typing.cast(
-                Optional[mcu_pb.ExpectedLogEvent],
-                self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
-            )
-            self._event_log_sender.input(log.SendInputEvent(
-                new_log_events=output_event.new_elements,
-                # trigger sender to produce output by giving expected log event
-                expected_log_event=expected_log_event
-            ))
-            # Update active log events
-            if output_event.active_log_events is not None:
-                self.all_states[StateSegment.ACTIVE_LOG_EVENTS_BE] = \
-                    output_event.active_log_events
-            # TODO: pass new elements to a log events sender for saving to disk
-
-    def _handle_log_events_sending(self) -> None:
-        """Handle any updates to log events for the frontend."""
-        expected_log_event = typing.cast(
-            Optional[mcu_pb.ExpectedLogEvent],
-            self.all_states[StateSegment.EXPECTED_LOG_EVENT_BE]
-        )
-        self._event_log_sender.input(log.SendInputEvent(
-            expected_log_event=expected_log_event
-        ))
-        while True:
-            next_log_events = self._event_log_sender.output()
-            if next_log_events is None:
-                return
-
-            self.all_states[StateSegment.NEXT_LOG_EVENTS_BE] = next_log_events
-
-
-@attr.s
-class SendFilter(protocols.Filter[SendEvent, OutputEvent]):
-    """Filter which unwraps output data from an event class."""
-
-    _buffer: channels.DequeChannel[SendEvent] = attr.ib(
-        factory=channels.DequeChannel
-    )
-
-    def input(self, event: Optional[SendEvent]) -> None:
-        """Handle input events."""
-        if event is None or not event.has_data():
-            return
-
-        self._buffer.input(event)
-
-    def output(self) -> Optional[OutputEvent]:
-        """Emit the next output event."""
-        event = self._buffer.output()
-        if event is None:
-            return None
-
-        if isinstance(event, OutputEvent):
-            return event
-
-        return None
-
-
-# Protocols
-
-
-def get_mcu_send(
-        backend_output: Optional[OutputEvent]
-) -> Optional[mcu.UpperEvent]:
-    """Convert a OutputEvent to an MCUUpperEvent."""
-    if backend_output is None:
-        return None
-    if backend_output.mcu_send is None:
-        return None
-
-    return backend_output.mcu_send
-
-
-def get_frontend_send(
-        backend_output: Optional[OutputEvent]
-) -> Optional[frontend.UpperEvent]:
-    """Convert a OutputEvent to an FrontendUpperEvent."""
-    if backend_output is None:
-        return None
-    if backend_output.frontend_send is None:
-        return None
-
-    return backend_output.frontend_send
-
-
-def get_file_send(
-        backend_output: Optional[OutputEvent]
-) -> Optional[mcu.UpperEvent]:
-    """Convert a OutputEvent to an MCUUpperEvent."""
-    if backend_output is None:
-        return None
-    if backend_output.file_send is None:
-        return None
-
-    return backend_output.file_send

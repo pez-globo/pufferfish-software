@@ -8,11 +8,10 @@ import attr
 import betterproto
 
 from ventserver.protocols import exceptions
-from ventserver.protocols import mcu
-from ventserver.protocols import messages
+from ventserver.protocols.devices import mcu
 from ventserver.protocols.protobuf import frontend_pb
-from ventserver.sansio import channels
-from ventserver.sansio import protocols
+from ventserver.protocols.transport import messages
+from ventserver.sansio import channels, protocols
 
 
 # Events

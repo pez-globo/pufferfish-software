@@ -14,15 +14,11 @@ from typing import Mapping, MutableMapping, Optional
 import betterproto
 import trio
 
-from ventserver.io.trio import rotaryencoder
 from ventserver.integration import _trio
-from ventserver.io.trio import channels
-from ventserver.io.trio import websocket
-from ventserver.io.trio import fileio
+from ventserver.io.trio import channels, fileio, rotaryencoder, websocket
 from ventserver.io.subprocess import frozen_frontend
-from ventserver.protocols import backend
-from ventserver.protocols import server
 from ventserver.protocols import exceptions
+from ventserver.protocols.backend import server, states
 from ventserver.protocols.protobuf import mcu_pb
 from ventserver.simulation import (
     alarm_limits, alarms, log, parameters, simulators
@@ -37,8 +33,8 @@ REQUEST_SERVICE_INTERVAL = 20
 
 
 async def service_requests(
-        all_states: Mapping[
-            backend.StateSegment, Optional[betterproto.Message]
+        store: Mapping[
+            states.StateSegment, Optional[betterproto.Message]
         ], log_manager: log.Manager
 ) -> None:
     """Simulate evolution of all states."""
@@ -46,14 +42,14 @@ async def service_requests(
     alarm_limits_services = alarm_limits.Services()
 
     while True:
-        parameters_services.transform(time.time(), all_states, log_manager)
-        alarm_limits_services.transform(time.time(), all_states, log_manager)
+        parameters_services.transform(time.time(), store, log_manager)
+        alarm_limits_services.transform(time.time(), store, log_manager)
         await trio.sleep(REQUEST_SERVICE_INTERVAL / 1000)
 
 
 async def simulate_states(
-        all_states: Mapping[
-            backend.StateSegment, Optional[betterproto.Message]
+        store: Mapping[
+            states.StateSegment, Optional[betterproto.Message]
         ], log_manager: log.Manager
 ) -> None:
     """Simulate evolution of all states."""
@@ -61,44 +57,44 @@ async def simulate_states(
     alarms_services = alarms.Services()
 
     while True:
-        simulation_services.transform(time.time(), all_states)
-        alarms_services.transform(time.time(), all_states, log_manager)
+        simulation_services.transform(time.time(), store)
+        alarms_services.transform(time.time(), store, log_manager)
         await trio.sleep(simulators.SENSOR_UPDATE_INTERVAL / 1000)
 
 
-def initialize_states(all_states: MutableMapping[
-        backend.StateSegment, Optional[betterproto.Message]
+def initialize_states(store: MutableMapping[
+        states.StateSegment, Optional[betterproto.Message]
 ]) -> None:
     """Set initial values for the states."""
-    for segment_type in all_states:
-        if segment_type is backend.StateSegment.PARAMETERS_REQUEST:
-            all_states[segment_type] = mcu_pb.ParametersRequest(
+    for segment_type in store:
+        if segment_type is states.StateSegment.PARAMETERS_REQUEST:
+            store[segment_type] = mcu_pb.ParametersRequest(
                 mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
                 fio2=21, flow=0
             )
-        elif segment_type is backend.StateSegment.PARAMETERS:
-            all_states[segment_type] = mcu_pb.Parameters(
+        elif segment_type is states.StateSegment.PARAMETERS:
+            store[segment_type] = mcu_pb.Parameters(
                 mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
                 fio2=21, flow=0
             )
-        elif segment_type is backend.StateSegment.SENSOR_MEASUREMENTS:
-            all_states[segment_type] = mcu_pb.SensorMeasurements()
-        elif segment_type is backend.StateSegment.ALARM_LIMITS_REQUEST:
-            all_states[segment_type] = mcu_pb.AlarmLimitsRequest(
+        elif segment_type is states.StateSegment.SENSOR_MEASUREMENTS:
+            store[segment_type] = mcu_pb.SensorMeasurements()
+        elif segment_type is states.StateSegment.ALARM_LIMITS_REQUEST:
+            store[segment_type] = mcu_pb.AlarmLimitsRequest(
                 fio2=mcu_pb.Range(lower=21, upper=23),
                 flow=mcu_pb.Range(lower=-2, upper=2),
                 spo2=mcu_pb.Range(lower=21, upper=100),
                 hr=mcu_pb.Range(lower=0, upper=200),
             )
-        elif segment_type is backend.StateSegment.ALARM_LIMITS:
-            all_states[segment_type] = mcu_pb.AlarmLimits(
+        elif segment_type is states.StateSegment.ALARM_LIMITS:
+            store[segment_type] = mcu_pb.AlarmLimits(
                 fio2=mcu_pb.Range(lower=21, upper=23),
                 flow=mcu_pb.Range(lower=-2, upper=2),
                 spo2=mcu_pb.Range(lower=21, upper=100),
                 hr=mcu_pb.Range(lower=0, upper=200),
             )
-        elif segment_type is backend.StateSegment.ACTIVE_LOG_EVENTS_MCU:
-            all_states[segment_type] = mcu_pb.ActiveLogEvents()
+        elif segment_type is states.StateSegment.ACTIVE_LOG_EVENTS_MCU:
+            store[segment_type] = mcu_pb.ActiveLogEvents()
 
 
 async def main() -> None:
@@ -140,10 +136,10 @@ async def main() -> None:
     ] = channels.TrioChannel()
 
     # Initialize states with defaults
-    all_states = protocol.receive.backend.all_states
-    initialize_states(all_states)
+    store = protocol.receive.backend.store
+    initialize_states(store)
     await application.initialize_states_from_file(
-        all_states, protocol, filehandler
+        store, protocol, filehandler
     )
 
     # Initialize events log manager
@@ -163,8 +159,8 @@ async def main() -> None:
                     ),
                     protocol, None, websocket_endpoint, rotary_encoder
                 )
-                nursery.start_soon(service_requests, all_states, log_manager)
-                nursery.start_soon(simulate_states, all_states, log_manager)
+                nursery.start_soon(service_requests, store, log_manager)
+                nursery.start_soon(simulate_states, store, log_manager)
 
                 while True:
                     receive_output = await channel.output()

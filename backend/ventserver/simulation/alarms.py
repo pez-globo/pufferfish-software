@@ -8,7 +8,7 @@ import attr
 import betterproto
 
 from ventserver.protocols.protobuf import mcu_pb
-from ventserver.protocols import backend
+from ventserver.protocols.backend import states
 from ventserver.simulation import log
 
 
@@ -195,13 +195,13 @@ class Services:
         }
 
     def transform(
-            self, current_time: float, all_states: Mapping[
-                backend.StateSegment, Optional[betterproto.Message]
+            self, current_time: float, store: Mapping[
+                states.StateSegment, Optional[betterproto.Message]
             ], log_manager: log.Manager
     ) -> None:
         """Update the parameters for the requested mode."""
         parameters = typing.cast(
-            mcu_pb.Parameters, all_states[backend.StateSegment.PARAMETERS]
+            mcu_pb.Parameters, store[states.StateSegment.PARAMETERS]
         )
         self._active_service = self._services.get(parameters.mode, None)
 
@@ -209,15 +209,15 @@ class Services:
             return
 
         alarm_limits = typing.cast(
-            mcu_pb.AlarmLimits, all_states[backend.StateSegment.ALARM_LIMITS]
+            mcu_pb.AlarmLimits, store[states.StateSegment.ALARM_LIMITS]
         )
         sensor_measurements = typing.cast(
             mcu_pb.SensorMeasurements,
-            all_states[backend.StateSegment.SENSOR_MEASUREMENTS]
+            store[states.StateSegment.SENSOR_MEASUREMENTS]
         )
         active_log_events = typing.cast(
             mcu_pb.ActiveLogEvents,
-            all_states[backend.StateSegment.ACTIVE_LOG_EVENTS_MCU]
+            store[states.StateSegment.ACTIVE_LOG_EVENTS_MCU]
         )
         log_manager.update_clock(current_time)
         self._active_service.transform(

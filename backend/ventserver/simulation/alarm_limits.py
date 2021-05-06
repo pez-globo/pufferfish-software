@@ -9,7 +9,7 @@ import attr
 import betterproto
 
 from ventserver.protocols.protobuf import mcu_pb
-from ventserver.protocols import backend
+from ventserver.protocols.backend import states
 from ventserver.simulation import log
 
 
@@ -130,20 +130,20 @@ class Services:
     }
 
     def transform(
-            self, current_time: float, all_states: Mapping[
-                backend.StateSegment, Optional[betterproto.Message]
+            self, current_time: float, store: Mapping[
+                states.StateSegment, Optional[betterproto.Message]
             ], log_manager: log.Manager
     ) -> None:
         """Update the alarm limits for the requested mode."""
         parameters = typing.cast(
-            mcu_pb.Parameters, all_states[backend.StateSegment.PARAMETERS]
+            mcu_pb.Parameters, store[states.StateSegment.PARAMETERS]
         )
         request = typing.cast(
             mcu_pb.AlarmLimitsRequest,
-            all_states[backend.StateSegment.ALARM_LIMITS_REQUEST]
+            store[states.StateSegment.ALARM_LIMITS_REQUEST]
         )
         response = typing.cast(
-            mcu_pb.AlarmLimits, all_states[backend.StateSegment.ALARM_LIMITS]
+            mcu_pb.AlarmLimits, store[states.StateSegment.ALARM_LIMITS]
         )
         self._active_service = self._services.get(parameters.mode, None)
 
