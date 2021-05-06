@@ -19,7 +19,7 @@ interface Props {
   initialize: typeof initialize;
   locale: string;
   messages: Record<string, string>;
-  displaySetting: FrontendDisplaySetting;
+  displaySetting: FrontendDisplaySetting | null;
 }
 
 class App extends Component<Props> {
@@ -39,7 +39,10 @@ class App extends Component<Props> {
 
   render() {
     const { locale, messages, displaySetting }: Props = this.props;
-    const theme = displaySetting.theme === ThemeVariant.dark ? darkTheme : lightTheme;
+    const theme =
+      displaySetting === null || displaySetting.theme === ThemeVariant.dark
+        ? darkTheme
+        : lightTheme;
     return (
       <IntlProvider key={locale} locale={locale} messages={messages}>
         <MuiThemeProvider theme={theme}>
@@ -53,7 +56,11 @@ class App extends Component<Props> {
 
 const selector = createStructuredSelector<
   StoreState,
-  { locale: string; messages: Record<string, string>; displaySetting: FrontendDisplaySetting }
+  {
+    locale: string;
+    messages: Record<string, string>;
+    displaySetting: FrontendDisplaySetting | null;
+  }
 >({
   locale: getLocale,
   messages: getMessages,

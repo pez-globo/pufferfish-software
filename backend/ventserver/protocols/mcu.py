@@ -36,6 +36,10 @@ MESSAGE_CLASSES: Mapping[int, Type[betterproto.Message]] = {
     8: mcu_pb.ExpectedLogEvent,
     9: mcu_pb.NextLogEvents,
     10: mcu_pb.ActiveLogEvents,
+    11: mcu_pb.AlarmMute,
+    12: mcu_pb.AlarmMuteRequest,
+    64: mcu_pb.BatteryPower,
+    65: mcu_pb.ScreenStatus,
     254: mcu_pb.Ping,
     255: mcu_pb.Announcement
 }

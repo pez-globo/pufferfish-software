@@ -24,6 +24,7 @@ from ventserver.sansio import protocols
 @enum.unique
 class StateSegment(enum.Enum):
     """Enum for addressing state segments in the state store."""
+    # mcu_pb
     SENSOR_MEASUREMENTS = enum.auto()
     CYCLE_MEASUREMENTS = enum.auto()
     PARAMETERS = enum.auto()
@@ -36,7 +37,16 @@ class StateSegment(enum.Enum):
     EXPECTED_LOG_EVENT_BE = enum.auto()
     NEXT_LOG_EVENTS_BE = enum.auto()
     ACTIVE_LOG_EVENTS_BE = enum.auto()
+    ALARM_MUTE = enum.auto()
+    ALARM_MUTE_REQUEST = enum.auto()
+    BATTERY_POWER = enum.auto()
+    SCREEN_STATUS = enum.auto()
+    # frontend_pb
     ROTARY_ENCODER = enum.auto()
+    SYSTEM_SETTING = enum.auto()
+    SYSTEM_SETTING_REQUEST = enum.auto()
+    FRONTEND_DISPLAY = enum.auto()
+    FRONTEND_DISPLAY_REQUEST = enum.auto()
 
 
 MCU_SYNCHRONIZER_SCHEDULE = collections.deque([
@@ -44,6 +54,7 @@ MCU_SYNCHRONIZER_SCHEDULE = collections.deque([
     states.ScheduleEntry(time=0.02, type=StateSegment.EXPECTED_LOG_EVENT_MCU),
     states.ScheduleEntry(time=0.02, type=StateSegment.ALARM_LIMITS_REQUEST),
     states.ScheduleEntry(time=0.02, type=StateSegment.EXPECTED_LOG_EVENT_MCU),
+    states.ScheduleEntry(time=0.02, type=StateSegment.ALARM_MUTE_REQUEST),
 ])
 
 FRONTEND_SYNCHRONIZER_SCHEDULE = collections.deque([
@@ -57,8 +68,20 @@ FRONTEND_SYNCHRONIZER_SCHEDULE = collections.deque([
     states.ScheduleEntry(time=0.01, type=StateSegment.NEXT_LOG_EVENTS_BE),
     states.ScheduleEntry(time=0.01, type=StateSegment.ACTIVE_LOG_EVENTS_BE),
     states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.ROTARY_ENCODER),
+    states.ScheduleEntry(time=0.01, type=StateSegment.ALARM_MUTE),
+    states.ScheduleEntry(time=0.01, type=StateSegment.ALARM_MUTE_REQUEST),
+    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
+    states.ScheduleEntry(time=0.01, type=StateSegment.BATTERY_POWER),
+    states.ScheduleEntry(time=0.01, type=StateSegment.SCREEN_STATUS),
+    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
     states.ScheduleEntry(time=0.01, type=StateSegment.CYCLE_MEASUREMENTS),
+    states.ScheduleEntry(time=0.01, type=StateSegment.ROTARY_ENCODER),
+    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
+    states.ScheduleEntry(time=0.01, type=StateSegment.SYSTEM_SETTING),
+    states.ScheduleEntry(time=0.01, type=StateSegment.SYSTEM_SETTING_REQUEST),
+    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
+    states.ScheduleEntry(time=0.01, type=StateSegment.FRONTEND_DISPLAY),
+    states.ScheduleEntry(time=0.01, type=StateSegment.FRONTEND_DISPLAY_REQUEST),
 ])
 
 FILE_SYNCHRONIZER_SCHEDULE = collections.deque([
@@ -119,12 +142,19 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         mcu_pb.AlarmLimits: StateSegment.ALARM_LIMITS,
         mcu_pb.NextLogEvents: StateSegment.NEXT_LOG_EVENTS_MCU,
         mcu_pb.ActiveLogEvents: StateSegment.ACTIVE_LOG_EVENTS_MCU,
+        mcu_pb.AlarmMute: StateSegment.ALARM_MUTE,
+        mcu_pb.BatteryPower: StateSegment.BATTERY_POWER,
+        mcu_pb.ScreenStatus: StateSegment.SCREEN_STATUS,
     }
     FRONTEND_INPUT_TYPES = {
         mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
         mcu_pb.AlarmLimitsRequest: StateSegment.ALARM_LIMITS_REQUEST,
         mcu_pb.ExpectedLogEvent: StateSegment.EXPECTED_LOG_EVENT_BE,
-        frontend_pb.RotaryEncoder: StateSegment.ROTARY_ENCODER
+        mcu_pb.AlarmMuteRequest: StateSegment.ALARM_MUTE_REQUEST,
+        frontend_pb.RotaryEncoder: StateSegment.ROTARY_ENCODER,
+        frontend_pb.SystemSettingRequest: StateSegment.SYSTEM_SETTING_REQUEST,
+        # Frontend protobuf message isn't defined yet:
+        # frontend_pb.FrontendDisplay: StateSegment.FRONTEND_DISPLAY_REQUEST,
     }
     FILE_INPUT_TYPES = {
         mcu_pb.Parameters: StateSegment.PARAMETERS,

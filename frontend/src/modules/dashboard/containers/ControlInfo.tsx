@@ -1,8 +1,9 @@
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateCommittedParameter, updateCommittedState } from '../../../store/controller/actions';
-import { PARAMETER_STANDBY } from '../../../store/controller/types';
+import { ParametersRequest } from '../../../store/controller/proto/mcu_pb';
+import { MessageType } from '../../../store/controller/types';
+import { commitRequest, commitStandbyRequest } from '../../../store/controller/actions';
 import { setMultiPopupOpen } from '../../app/Service';
 import { ValueModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
@@ -125,8 +126,9 @@ const ControlInfo = (props: Props): JSX.Element => {
   const committedSetting = useSelector(committedSettingSelector);
   const dispatch = useDispatch();
   const doSetValue = (setting: number) => {
-    dispatch(updateCommittedParameter({ [stateKey]: setting }));
-    dispatch(updateCommittedState(PARAMETER_STANDBY, { [stateKey]: setting }));
+    const update = { [stateKey]: setting };
+    dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+    dispatch(commitStandbyRequest<ParametersRequest>(MessageType.ParametersRequest, update));
   };
   const onClick = () => {
     // setOpen(true);
