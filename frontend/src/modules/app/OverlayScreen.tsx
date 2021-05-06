@@ -6,7 +6,11 @@ import store from '../../store';
 import { getClock } from '../../store/app/selectors';
 import { RED_BORDER } from '../../store/app/types';
 import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
-import { getAlarmMuteStatus, getAlarms, getScreenStatus } from '../../store/controller/selectors';
+import {
+  getAlarmMuteStatus,
+  getHasActiveAlarms,
+  getScreenStatus,
+} from '../../store/controller/selectors';
 import {
   BACKEND_CONNECTION_LOST,
   BACKEND_CONNECTION_LOST_CODE,
@@ -69,7 +73,7 @@ export const HeartbeatBackendListener = (): JSX.Element => {
 
 const AudioAlarm = (): JSX.Element => {
   const dispatch = useDispatch();
-  const activeAlarms = useSelector(getAlarms, shallowEqual);
+  const activeAlarms = useSelector(getHasActiveAlarms, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
