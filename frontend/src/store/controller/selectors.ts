@@ -1,5 +1,6 @@
 import { createSelector, OutputSelector } from 'reselect';
 import DECIMAL_RADIX from '../../modules/app/AppConstants';
+import { getBackendDisconnected } from '../app/selectors';
 import { StoreState } from '../types';
 import { FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import {
@@ -232,6 +233,14 @@ export const getPopupEventLog = createSelector(getController, (states: Controlle
   const maxId = Math.max(...states.eventLog.activeLogEvents.id);
   return states.eventLog.nextLogEvents.elements.find((el: LogEvent) => el.id === maxId);
 });
+
+// Backend Initialized
+export const getBackendInitialized = createSelector(
+  getSensorMeasurements,
+  getBackendDisconnected,
+  (sensorMeasurements: SensorMeasurements | null, backendDisconnected: boolean): boolean =>
+    sensorMeasurements === null && backendDisconnected ? false : true,
+);
 
 // Alarm muting
 

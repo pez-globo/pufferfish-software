@@ -17,9 +17,9 @@ import {
   getParametersRequestMode,
   getParametersRequestStandby,
   getAlarmLimitsRequestStandby,
-  getPopupEventLog,
+  getBackendInitialized,
 } from '../../store/controller/selectors';
-import { BACKEND_CONNECTION_LOST_CODE, MessageType } from '../../store/controller/types';
+import { MessageType } from '../../store/controller/types';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
 import { BackIcon } from '../icons';
 import ClockIcon from '../icons/ClockIcon';
@@ -112,7 +112,7 @@ export const ToolBar = ({
   const dispatch = useDispatch();
   const history = useHistory();
   const currentMode = useSelector(getParametersRequestMode);
-  const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
+  const backendInitialized = useSelector(getBackendInitialized);
   const parameterRequestStandby = useSelector(getParametersRequestStandby, shallowEqual);
   const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby, shallowEqual);
   const ventilating = useSelector(getParametersIsVentilating);
@@ -178,18 +178,14 @@ export const ToolBar = ({
   }, [isVentilatorOn, parameterRequestStandby, alarmLimitsRequestStandby, currentMode, dispatch]);
 
   useEffect(() => {
-    if (popupEventLog && popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
+    if (!backendInitialized) {
       setIsDisabled(true);
       setLabel('Loading');
     } else {
       setIsDisabled(false);
-      if (staticStart) {
-        setLabel('Start');
-      } else {
-        setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
-      }
+      setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
     }
-  }, [popupEventLog, ventilating, staticStart]);
+  }, [backendInitialized, ventilating, staticStart]);
 
   useEffect(() => {
     if (ventilating) {

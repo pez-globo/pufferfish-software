@@ -5,6 +5,7 @@ export interface AppState {
   clock: Date;
   notifyAlarm: boolean;
   backendHeartbeat: Date;
+  backendConnectionLost: boolean;
 }
 
 // ACTIONS
@@ -50,6 +51,7 @@ interface UpdateBackendHeartbeat {
 
 interface BackendConnectionLost {
   type: typeof BACKEND_CONNECTION_LOST;
+  connectionLost: boolean;
 }
 
 export type AppAction =

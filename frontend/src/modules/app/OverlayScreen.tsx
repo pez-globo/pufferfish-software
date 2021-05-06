@@ -5,13 +5,12 @@ import { Subscription } from 'rxjs';
 import store from '../../store';
 import { getClock } from '../../store/app/selectors';
 import { RED_BORDER, BACKEND_CONNECTION_LOST } from '../../store/app/types';
-import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
 import {
   getAlarmMuteStatus,
   getHasActiveAlarms,
   getScreenStatusLock,
 } from '../../store/controller/selectors';
-import { BACKEND_CONNECTION_LOST_CODE, MessageType } from '../../store/controller/types';
+import { MessageType } from '../../store/controller/types';
 
 import ModalPopup from '../controllers/ModalPopup';
 import MultiStepWizard from '../displays/MultiStepWizard';
@@ -36,7 +35,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export const BACKEND_CONNECTION_LOST_ALARM_TIMEOUT = 3000;
+export const BACKEND_CONNECTION_LOST_ALARM_TIMEOUT = 500;
 
 export const HeartbeatBackendListener = (): JSX.Element => {
   const clock = useSelector(getClock);
@@ -47,21 +46,11 @@ export const HeartbeatBackendListener = (): JSX.Element => {
     const storeData = store.getState();
     const heartbeat: Date = storeData.app.backendHeartbeat;
     const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
-    const events = storeData.controller.eventLog.nextLogEvents.elements;
-    const lostConnectionAlarm = events.find(
-      (el: LogEvent) => (el.code as number) === BACKEND_CONNECTION_LOST_CODE,
-    );
     if (diff > BACKEND_CONNECTION_LOST_ALARM_TIMEOUT) {
-      if (!lostConnectionAlarm) {
-        dispatch({
-          type: BACKEND_CONNECTION_LOST,
-          update: {
-            code: BACKEND_CONNECTION_LOST_CODE,
-            type: LogEventType.system,
-            time: new Date().getTime(),
-          },
-        });
-      }
+      dispatch({
+        type: BACKEND_CONNECTION_LOST,
+        connectionLost: true,
+      });
     }
   }, [clock, dispatch]);
 

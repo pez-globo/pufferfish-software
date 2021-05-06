@@ -6,6 +6,7 @@ import {
   CLOCK_UPDATED,
   RED_BORDER,
   BACKEND_HEARTBEAT,
+  BACKEND_CONNECTION_LOST,
 } from './types';
 
 const initialState: AppState = {
@@ -13,6 +14,7 @@ const initialState: AppState = {
   clock: new Date(),
   notifyAlarm: false,
   backendHeartbeat: new Date(),
+  backendConnectionLost: false,
 };
 
 export function appReducer(state = initialState, action: AppAction): AppState {
@@ -31,6 +33,8 @@ export function appReducer(state = initialState, action: AppAction): AppState {
       // TODO: Redux recommends **against** using new date inside reducers; instead
       // it should come from the code which creates the action to dispatch.
       return { ...state, backendHeartbeat: new Date() };
+    case BACKEND_CONNECTION_LOST:
+      return { ...state, backendConnectionLost: action.connectionLost };
     default:
       return state;
   }
