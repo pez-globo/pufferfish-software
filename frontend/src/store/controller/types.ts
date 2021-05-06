@@ -8,7 +8,7 @@ import {
   ActiveLogEvents,
   ExpectedLogEvent,
   NextLogEvents,
-  BatteryPower,
+  Battery,
   ScreenStatus,
   AlarmMuteRequest,
   AlarmMute,
@@ -56,7 +56,7 @@ export type PBMessage =
   | AlarmMuteRequest
   | AlarmMute
   // frontend_pb
-  | BatteryPower
+  | Battery
   | ScreenStatus
   | SystemSettingRequest
   | FrontendDisplaySetting
@@ -76,7 +76,7 @@ export type PBMessageType =
   | typeof AlarmMuteRequest
   | typeof AlarmMute
   // frontend_pb
-  | typeof BatteryPower
+  | typeof Battery
   | typeof ScreenStatus
   | typeof SystemSettingRequest
   | typeof FrontendDisplaySetting
@@ -96,7 +96,7 @@ export enum MessageType {
   AlarmMuteRequest = 11,
   AlarmMute = 12,
   // frontend_pb
-  BatteryPower = 64,
+  Battery = 64,
   ScreenStatus = 65,
   RotaryEncoder = 128,
   SystemSettingRequest = 129,
@@ -167,7 +167,7 @@ export interface ControllerStates {
   alarmMute: AlarmMute;
   systemSettingRequest: SystemSettingRequest;
   frontendDisplaySetting: FrontendDisplaySetting;
-  batteryPower: BatteryPower;
+  battery: Battery;
   screenStatus: ScreenStatus;
   heartbeatBackend: { time: Date };
 
@@ -201,7 +201,7 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.AlarmMuteRequest, AlarmMuteRequest],
   [MessageType.AlarmMute, AlarmMute],
   // frontend_pb
-  [MessageType.BatteryPower, BatteryPower],
+  [MessageType.Battery, Battery],
   [MessageType.ScreenStatus, ScreenStatus],
   [MessageType.SystemSettingRequest, SystemSettingRequest],
   [MessageType.FrontendDisplaySetting, FrontendDisplaySetting],
@@ -222,7 +222,7 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
   [AlarmMuteRequest, MessageType.AlarmMuteRequest],
   [AlarmMute, MessageType.AlarmMute],
   // frontend_pb
-  [BatteryPower, MessageType.BatteryPower],
+  [Battery, MessageType.Battery],
   [ScreenStatus, MessageType.ScreenStatus],
   [SystemSettingRequest, MessageType.SystemSettingRequest],
   [FrontendDisplaySetting, MessageType.FrontendDisplaySetting],

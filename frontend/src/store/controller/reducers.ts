@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import {
   AlarmLimits,
-  BatteryPower,
+  Battery,
   CycleMeasurements,
   Parameters,
   ScreenStatus,
@@ -41,7 +41,7 @@ export const controllerReducer = combineReducers({
   frontendDisplaySetting: frontendDisplaySettingReducer,
   eventLog: eventLogReducer,
   heartbeatBackend: heartbeatBackendReducer,
-  batteryPower: messageReducer<BatteryPower>(MessageType.BatteryPower, BatteryPower),
+  batteryPower: messageReducer<Battery>(MessageType.Battery, Battery),
   screenStatus: messageReducer<ScreenStatus>(MessageType.ScreenStatus, ScreenStatus),
   sensorMeasurements: messageReducer<SensorMeasurements>(
     MessageType.SensorMeasurements,

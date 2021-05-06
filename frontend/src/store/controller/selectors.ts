@@ -305,13 +305,13 @@ export const getPopupEventLog = createSelector(getController, (states: Controlle
 // Battery power
 export const getBatteryPower = createSelector(
   getController,
-  (states: ControllerStates): number => states.batteryPower.powerLeft,
+  (states: ControllerStates): number => states.battery.powerLeft,
 );
 
 // Charging Status
 export const getChargingStatus = createSelector(
   getController,
-  (states: ControllerStates): boolean => states.batteryPower.chargingStatus,
+  (states: ControllerStates): boolean => states.battery.charging,
 );
 
 // Srceen Status

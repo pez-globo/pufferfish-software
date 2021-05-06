@@ -197,9 +197,9 @@ class ActiveLogEvents(betterproto.Message):
 
 
 @dataclass
-class BatteryPower(betterproto.Message):
+class Battery(betterproto.Message):
     power_left: int = betterproto.uint32_field(1)
-    charging_status: bool = betterproto.bool_field(2)
+    charging: bool = betterproto.bool_field(2)
 
 
 @dataclass

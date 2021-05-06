@@ -38,7 +38,7 @@ static const auto message_descriptors = Util::make_array<Util::ProtobufDescripto
     Util::get_protobuf_descriptor<ExpectedLogEvent>(),           // 8
     Util::get_protobuf_descriptor<NextLogEvents>(),              // 9
     Util::get_protobuf_descriptor<ActiveLogEvents>(),            // 10
-    Util::get_protobuf_descriptor<BatteryPower>()                // 11
+    Util::get_protobuf_descriptor<Battery>()                // 11
 );
 
 // State Synchronization

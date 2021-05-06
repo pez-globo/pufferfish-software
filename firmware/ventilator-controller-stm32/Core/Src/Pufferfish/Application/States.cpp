@@ -45,7 +45,7 @@ STATESEGMENT_TAGGED_SETTER(AlarmLimitsRequest, alarm_limits_request)
 STATESEGMENT_TAGGED_SETTER(ExpectedLogEvent, expected_log_event)
 STATESEGMENT_TAGGED_SETTER(NextLogEvents, next_log_events)
 STATESEGMENT_TAGGED_SETTER(ActiveLogEvents, active_log_events)
-STATESEGMENT_TAGGED_SETTER(BatteryPower, battery_power)
+STATESEGMENT_TAGGED_SETTER(Battery, battery)
 
 }  // namespace Pufferfish::Util
 
@@ -89,8 +89,8 @@ ActiveLogEvents &States::active_log_events() {
   return state_segments_.active_log_events;
 }
 
-BatteryPower &States::battery_power() {
-  return state_segments_.battery_power;
+Battery &States::battery() {
+  return state_segments_.battery;
 }
 
 States::InputStatus States::input(const StateSegment &input) {

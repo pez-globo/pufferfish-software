@@ -77,7 +77,7 @@ struct StateSegments {
   ExpectedLogEvent expected_log_event;
   NextLogEvents next_log_events;
   ActiveLogEvents active_log_events;
-  BatteryPower battery_power;
+  Battery battery;
 };
 
 class States {
@@ -95,7 +95,7 @@ class States {
   [[nodiscard]] const ExpectedLogEvent &expected_log_event() const;
   NextLogEvents &next_log_events();
   ActiveLogEvents &active_log_events();
-  BatteryPower &battery_power();
+  Battery &battery();
 
   InputStatus input(const StateSegment &input);
   OutputStatus output(MessageTypes type, StateSegment &output) const;

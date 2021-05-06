@@ -76,10 +76,10 @@ typedef struct _Announcement {
     Announcement_announcement_t announcement;
 } Announcement;
 
-typedef struct _BatteryPower {
+typedef struct _Battery {
     uint32_t power_left;
-    bool charging_status;
-} BatteryPower;
+    bool charging;
+} Battery;
 
 typedef struct _CycleMeasurements {
     uint64_t time;
@@ -272,7 +272,7 @@ extern "C" {
 #define ExpectedLogEvent_init_default            {0}
 #define NextLogEvents_init_default               {0, 0, 0, 0, {LogEvent_init_default, LogEvent_init_default}}
 #define ActiveLogEvents_init_default             {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
-#define BatteryPower_init_default                {0, 0}
+#define Battery_init_default                     {0, 0}
 #define ScreenStatus_init_default                {0}
 #define AlarmMute_init_default                   {0, 0}
 #define AlarmMuteRequest_init_default            {0, 0}
@@ -289,7 +289,7 @@ extern "C" {
 #define ExpectedLogEvent_init_zero               {0}
 #define NextLogEvents_init_zero                  {0, 0, 0, 0, {LogEvent_init_zero, LogEvent_init_zero}}
 #define ActiveLogEvents_init_zero                {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
-#define BatteryPower_init_zero                   {0, 0}
+#define Battery_init_zero                        {0, 0}
 #define ScreenStatus_init_zero                   {0}
 #define AlarmMute_init_zero                      {0, 0}
 #define AlarmMuteRequest_init_zero               {0, 0}
@@ -302,8 +302,8 @@ extern "C" {
 #define AlarmMuteRequest_remaining_tag           2
 #define Announcement_time_tag                    1
 #define Announcement_announcement_tag            2
-#define BatteryPower_power_left_tag              1
-#define BatteryPower_charging_status_tag         2
+#define Battery_power_left_tag                   1
+#define Battery_charging_tag                     2
 #define CycleMeasurements_time_tag               1
 #define CycleMeasurements_vt_tag                 2
 #define CycleMeasurements_rr_tag                 3
@@ -572,11 +572,11 @@ X(a, STATIC,   REPEATED, UINT32,   id,                1)
 #define ActiveLogEvents_CALLBACK NULL
 #define ActiveLogEvents_DEFAULT NULL
 
-#define BatteryPower_FIELDLIST(X, a) \
+#define Battery_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   power_left,        1) \
-X(a, STATIC,   SINGULAR, BOOL,     charging_status,   2)
-#define BatteryPower_CALLBACK NULL
-#define BatteryPower_DEFAULT NULL
+X(a, STATIC,   SINGULAR, BOOL,     charging,          2)
+#define Battery_CALLBACK NULL
+#define Battery_DEFAULT NULL
 
 #define ScreenStatus_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     lock,              1)
@@ -608,7 +608,7 @@ extern const pb_msgdesc_t LogEvent_msg;
 extern const pb_msgdesc_t ExpectedLogEvent_msg;
 extern const pb_msgdesc_t NextLogEvents_msg;
 extern const pb_msgdesc_t ActiveLogEvents_msg;
-extern const pb_msgdesc_t BatteryPower_msg;
+extern const pb_msgdesc_t Battery_msg;
 extern const pb_msgdesc_t ScreenStatus_msg;
 extern const pb_msgdesc_t AlarmMute_msg;
 extern const pb_msgdesc_t AlarmMuteRequest_msg;
@@ -627,7 +627,7 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define ExpectedLogEvent_fields &ExpectedLogEvent_msg
 #define NextLogEvents_fields &NextLogEvents_msg
 #define ActiveLogEvents_fields &ActiveLogEvents_msg
-#define BatteryPower_fields &BatteryPower_msg
+#define Battery_fields &Battery_msg
 #define ScreenStatus_fields &ScreenStatus_msg
 #define AlarmMute_fields &AlarmMute_msg
 #define AlarmMuteRequest_fields &AlarmMuteRequest_msg
@@ -639,7 +639,7 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define AlarmMuteRequest_size                    7
 #define AlarmMute_size                           7
 #define Announcement_size                        77
-#define BatteryPower_size                        8
+#define Battery_size                             8
 #define CycleMeasurements_size                   41
 #define ExpectedLogEvent_size                    6
 #define LogEvent_size                            123
@@ -750,10 +750,10 @@ struct MessageDescriptor<ActiveLogEvents> {
     }
 };
 template <>
-struct MessageDescriptor<BatteryPower> {
+struct MessageDescriptor<Battery> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
-        return &BatteryPower_msg;
+        return &Battery_msg;
     }
 };
 template <>

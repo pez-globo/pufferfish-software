@@ -380,9 +380,9 @@ export interface ActiveLogEvents {
   id: number[];
 }
 
-export interface BatteryPower {
+export interface Battery {
   powerLeft: number;
-  chargingStatus: boolean;
+  charging: boolean;
 }
 
 export interface ScreenStatus {
@@ -2624,26 +2624,26 @@ export const ActiveLogEvents = {
   },
 };
 
-const baseBatteryPower: object = { powerLeft: 0, chargingStatus: false };
+const baseBattery: object = { powerLeft: 0, charging: false };
 
-export const BatteryPower = {
+export const Battery = {
   encode(
-    message: BatteryPower,
+    message: Battery,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
     if (message.powerLeft !== 0) {
       writer.uint32(8).uint32(message.powerLeft);
     }
-    if (message.chargingStatus === true) {
-      writer.uint32(16).bool(message.chargingStatus);
+    if (message.charging === true) {
+      writer.uint32(16).bool(message.charging);
     }
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): BatteryPower {
+  decode(input: _m0.Reader | Uint8Array, length?: number): Battery {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseBatteryPower } as BatteryPower;
+    const message = { ...baseBattery } as Battery;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2651,7 +2651,7 @@ export const BatteryPower = {
           message.powerLeft = reader.uint32();
           break;
         case 2:
-          message.chargingStatus = reader.bool();
+          message.charging = reader.bool();
           break;
         default:
           reader.skipType(tag & 7);
@@ -2661,40 +2661,39 @@ export const BatteryPower = {
     return message;
   },
 
-  fromJSON(object: any): BatteryPower {
-    const message = { ...baseBatteryPower } as BatteryPower;
+  fromJSON(object: any): Battery {
+    const message = { ...baseBattery } as Battery;
     if (object.powerLeft !== undefined && object.powerLeft !== null) {
       message.powerLeft = Number(object.powerLeft);
     } else {
       message.powerLeft = 0;
     }
-    if (object.chargingStatus !== undefined && object.chargingStatus !== null) {
-      message.chargingStatus = Boolean(object.chargingStatus);
+    if (object.charging !== undefined && object.charging !== null) {
+      message.charging = Boolean(object.charging);
     } else {
-      message.chargingStatus = false;
+      message.charging = false;
     }
     return message;
   },
 
-  toJSON(message: BatteryPower): unknown {
+  toJSON(message: Battery): unknown {
     const obj: any = {};
     message.powerLeft !== undefined && (obj.powerLeft = message.powerLeft);
-    message.chargingStatus !== undefined &&
-      (obj.chargingStatus = message.chargingStatus);
+    message.charging !== undefined && (obj.charging = message.charging);
     return obj;
   },
 
-  fromPartial(object: DeepPartial<BatteryPower>): BatteryPower {
-    const message = { ...baseBatteryPower } as BatteryPower;
+  fromPartial(object: DeepPartial<Battery>): Battery {
+    const message = { ...baseBattery } as Battery;
     if (object.powerLeft !== undefined && object.powerLeft !== null) {
       message.powerLeft = object.powerLeft;
     } else {
       message.powerLeft = 0;
     }
-    if (object.chargingStatus !== undefined && object.chargingStatus !== null) {
-      message.chargingStatus = object.chargingStatus;
+    if (object.charging !== undefined && object.charging !== null) {
+      message.charging = object.charging;
     } else {
-      message.chargingStatus = false;
+      message.charging = false;
     }
     return message;
   },
