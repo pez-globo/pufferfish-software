@@ -15,7 +15,7 @@ RandomStatus Random::setup() {
 
 RandomStatus Random::generate(uint32_t &result) {
   HAL_StatusTypeDef status = HAL_RNG_GenerateRandomNumber(&hrng_, &result);
-  if (status != 0u) {
+  if (status != 0) {
     return RandomStatus::ok;
   }
 
