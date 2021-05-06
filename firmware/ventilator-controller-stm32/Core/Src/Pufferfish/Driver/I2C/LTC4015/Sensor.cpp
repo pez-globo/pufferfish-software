@@ -9,20 +9,12 @@
 
 namespace Pufferfish::Driver::I2C::LTC4015 {
 
-void Sensor::trigger_alarm(
-    BatteryPower &battery_power,
-    ActiveLogEvents &active_log_events,
-    Application::AlarmsManager &alarms_manager) {
+void Sensor::transform(Battery &battery) {
   // check if charger is connected
-  device_.is_charger_enabled(battery_power);
+  bool charging_status = false;
+  device_.read_charging_status(charging_status);
 
-  if (!battery_power.charging_status) {
-    alarms_manager.activate_alarm(
-        LogEventCode_charger_disconnected, LogEventType::LogEventType_patient);
-  } else {
-    alarms_manager.deactivate_alarm(LogEventCode_charger_disconnected);
-  }
-  alarms_manager.transform(active_log_events);
+  battery.charging = charging_status;
 }
 
 }  // namespace Pufferfish::Driver::I2C::LTC4015

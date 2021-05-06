@@ -18,10 +18,8 @@ class Sensor {
  public:
   explicit Sensor(Device &device) : device_(device) {}
 
-  void trigger_alarm(
-      BatteryPower &battery_power,
-      ActiveLogEvents &active_log_events,
-      Application::AlarmsManager &alarms_manager);
+  // updates the battery power charging field
+  void transform(Battery &battery);
 
  private:
   Device device_;

@@ -31,7 +31,7 @@ class Device {
    * Checks if the charger is enabled
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus is_charger_enabled(BatteryPower &battery_power);
+  I2CDeviceStatus read_charging_status(bool &charging_status);
 
   /**
    * Reads out the battery voltage

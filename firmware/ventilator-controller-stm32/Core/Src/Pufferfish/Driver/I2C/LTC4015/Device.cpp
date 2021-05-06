@@ -13,18 +13,18 @@
 
 namespace Pufferfish::Driver::I2C::LTC4015 {
 
-I2CDeviceStatus Device::is_charger_enabled(BatteryPower &battery_power) {
+I2CDeviceStatus Device::read_charging_status(bool &charging_status) {
   std::array<uint8_t, sizeof(uint16_t)> buffer{};
   I2CDeviceStatus ret = i2cdevice_.read(static_cast<uint16_t>(Command::system_status), buffer);
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
 
-  battery_power.charging_status = false;
+  charging_status = false;
   uint16_t system_status = 0;
   Util::read_ntoh(buffer.data(), system_status);
   if ((system_status & static_cast<uint16_t>(Mask::charger_enabled)) != 0) {
-    battery_power.charging_status = true;
+    charging_status = true;
   }
   return I2CDeviceStatus::ok;
 }
