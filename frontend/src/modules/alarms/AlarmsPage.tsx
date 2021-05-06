@@ -1,12 +1,12 @@
 import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
-import React, { RefObject, useEffect, useRef, useState } from 'react';
+import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
 import {
-  getAlarmLimits,
+  getAlarmLimitsCurrent,
   getAlarmLimitsRequestStandby,
   getParametersIsVentilating,
   getParametersRequestMode,
@@ -121,7 +121,6 @@ const Alarm = ({
   step,
   alarmLimits,
   setAlarmLimits,
-  onAlarmUpdate,
 }: AlarmProps): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
@@ -151,7 +150,6 @@ const Alarm = ({
     setActiveRotaryReference(
       type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
     );
-    onAlarmUpdate(stateKey);
     setAlarmLimits({
       [stateKey]: {
         lower: type === SliderType.LOWER ? value : rangeValues[0],
@@ -296,9 +294,12 @@ export const AlarmsPage = (): JSX.Element => {
   };
 
   const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby);
+  const alarmLimitsCurrent = useSelector(getAlarmLimitsCurrent);
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
   const ventilating = useSelector(getParametersIsVentilating);
+  const [alarmLimits] = useState((alarmLimitsCurrent as unknown) as Record<string, Range>);
+  const alarmLimitsStandby = (alarmLimitsRequestStandby as unknown) as Record<string, Range>;
   const setAlarmLimits = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
@@ -327,13 +328,12 @@ export const AlarmsPage = (): JSX.Element => {
   const handleConfirm = () => {
     setOpen(false);
     applyChanges();
-    setAlarmLimitsActual(alarmLimits);
     setIsDisabled(true);
   };
 
   const handleDiscardConfirm = () => {
     setDiscardOpen(false);
-    updateAlarmLimits(alarmLimitsAct);
+    setAlarmLimits(alarmLimits);
     setIsDisabled(true);
   };
 
@@ -349,19 +349,29 @@ export const AlarmsPage = (): JSX.Element => {
     setPageCount(Math.ceil(alarmConfig.length / itemsPerPage));
   }, [alarmConfig]);
 
-  const OnClickPage = () => {
-    setActiveRotaryReference(null);
-  };
-
-  const handleAlarmUpdate = (stateKey: string) => {
+  const hasChanges = useCallback((): boolean => {
+    let hasChange = false;
     if (
-      alarmLimitsAct[stateKey].lower !== alarmLimits[stateKey]?.lower ||
-      alarmLimitsAct[stateKey].upper !== alarmLimits[stateKey]?.upper
+      alarmLimitsCurrent?.spo2?.lower !== alarmLimitsRequestStandby?.spo2?.lower ||
+      alarmLimitsCurrent?.spo2?.upper !== alarmLimitsRequestStandby?.spo2?.upper ||
+      alarmLimitsCurrent?.hr?.lower !== alarmLimitsRequestStandby?.hr?.lower ||
+      alarmLimitsCurrent?.hr?.upper !== alarmLimitsRequestStandby?.hr?.upper
     ) {
+      hasChange = true;
+    }
+    return hasChange;
+  }, [alarmLimitsCurrent, alarmLimitsRequestStandby]);
+
+  useEffect(() => {
+    if (hasChanges()) {
       setIsDisabled(false);
     } else {
       setIsDisabled(true);
     }
+  }, [hasChanges]);
+
+  const OnClickPage = () => {
+    setActiveRotaryReference(null);
   };
 
   return (
@@ -405,15 +415,17 @@ export const AlarmsPage = (): JSX.Element => {
               </Grid>
             )}
             <Grid item style={{ textAlign: 'right' }}>
-              <Button
-                onClick={handleDiscardOpen}
-                color="primary"
-                variant="contained"
-                className={classes.applyButton}
-                disabled={isDisabled}
-              >
-                {ventilating ? 'Cancel' : 'Discard Changes'}
-              </Button>
+              {ventilating ? (
+                <Button
+                  onClick={handleDiscardOpen}
+                  color="primary"
+                  variant="contained"
+                  className={classes.applyButton}
+                  disabled={isDisabled}
+                >
+                  Cancel
+                </Button>
+              ) : null}
               {ventilating ? (
                 <Button
                   onClick={handleOpen}
@@ -442,16 +454,16 @@ export const AlarmsPage = (): JSX.Element => {
                     <Grid item alignItems="center" className={classes.marginContent}>
                       {alarmConfig.map((param) => {
                         if (
-                          alarmLimitsAct[param.stateKey].lower !==
-                            alarmLimits[param.stateKey]?.lower ||
-                          alarmLimitsAct[param.stateKey].upper !==
-                            alarmLimits[param.stateKey]?.upper
+                          alarmLimits[param.stateKey].lower !==
+                            alarmLimitsStandby[param.stateKey]?.lower ||
+                          alarmLimits[param.stateKey].upper !==
+                            alarmLimitsStandby[param.stateKey]?.upper
                         ) {
                           return (
-                            <Typography variant="subtitle1">{`Change ${param.label} to ${
-                              alarmLimits[param.stateKey]?.lower
-                            } -
-                                ${alarmLimits[param.stateKey]?.upper}?`}</Typography>
+                            <Typography variant="subtitle1">{`Change ${
+                              param.label
+                            } alarm range to ${alarmLimitsStandby[param.stateKey].lower} -
+                                ${alarmLimitsStandby[param.stateKey].upper}?`}</Typography>
                           );
                         }
                         return <React.Fragment />;
@@ -478,16 +490,16 @@ export const AlarmsPage = (): JSX.Element => {
                     <Grid item alignItems="center" className={classes.marginContent}>
                       {alarmConfig.map((param) => {
                         if (
-                          alarmLimitsAct[param.stateKey].lower !==
-                            alarmLimits[param.stateKey]?.lower ||
-                          alarmLimitsAct[param.stateKey].upper !==
-                            alarmLimits[param.stateKey]?.upper
+                          alarmLimits[param.stateKey].lower !==
+                            alarmLimitsStandby[param.stateKey]?.lower ||
+                          alarmLimits[param.stateKey].upper !==
+                            alarmLimitsStandby[param.stateKey]?.upper
                         ) {
                           return (
                             <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${
-                              alarmLimitsAct[param.stateKey].lower
+                              alarmLimits[param.stateKey].lower
                             } -
-                                ${alarmLimitsAct[param.stateKey].upper}?`}</Typography>
+                                ${alarmLimits[param.stateKey].upper}?`}</Typography>
                           );
                         }
                         return <React.Fragment />;
