@@ -7,7 +7,7 @@ import { AppBar, Grid, makeStyles, Theme } from '@material-ui/core';
 import React, { PropsWithChildren, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Route, RouteProps, useHistory } from 'react-router-dom';
-import { getIsVentilating } from '../../../store/controller/selectors';
+import { getParametersIsVentilating } from '../../../store/controller/selectors';
 import ClockIcon from '../../icons/ClockIcon';
 import { DASHBOARD_ROUTE, LOGS_ROUTE, QUICKSTART_ROUTE } from '../../navigation/constants';
 import EventAlerts from '../EventAlerts';
@@ -82,7 +82,7 @@ const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Elemen
 const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
   const history = useHistory();
-  const ventilating = useSelector(getIsVentilating);
+  const ventilating = useSelector(getParametersIsVentilating);
   const notifyAlarm = useSelector(getAlarmNotifyStatus);
   const [showBorder, setShowBorder] = React.useState(false);
 
