@@ -5,9 +5,10 @@ import logging
 
 import attr
 
+from ventserver.protocols import events, exceptions
+from ventserver.protocols.application import connections
 from ventserver.protocols.backend import backend
 from ventserver.protocols.devices import file, frontend, mcu, rotary_encoder
-from ventserver.protocols import events, exceptions
 from ventserver.sansio import channels, protocols
 
 
@@ -121,47 +122,6 @@ def make_rotary_encoder_receive(
 
 # TODO: we could convert into a filter in protocols.application
 @attr.s
-class ConnectionStatus:
-    """Helper class to track the status of a connection."""
-    event_timeout: float = attr.ib()
-    _last_event: Optional[float] = attr.ib(default=None)
-    _last_connection: Optional[float] = attr.ib(default=None)
-
-    def change(self, connected: bool, current_time: float) -> None:
-        """Reset the stopwatch on when an event was last received."""
-        self._last_event = current_time
-        if connected:
-            self._last_connection = current_time
-        else:
-            self._last_connection = None
-
-    def receive_event(self, current_time: float) -> None:
-        """Reset the stopwatch on when an event was last received."""
-        self._last_event = current_time
-
-    def timed_out(self, current_time: float) -> bool:
-        """Determine whether it's been too long since the last event.
-
-        Return value is independent of whether the connection is up.
-        """
-        if self._last_event is None:
-            return False
-
-        return int(current_time - self._last_event) > self.event_timeout
-
-    def connection_uptime(self, current_time: float) -> float:
-        """Determine how long a connection has been up.
-
-        Returns 0 if the connection is not up.
-        """
-        if self._last_connection is None:
-            return 0
-
-        return current_time - self._last_connection
-
-
-# TODO: we could convert into a filter in protocols.application
-@attr.s
 class ConnectionActionDebouncer:
     """Helper class to debounce an action.
 
@@ -225,25 +185,25 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     )
     _backend: backend.ReceiveFilter = attr.ib(factory=backend.ReceiveFilter)
 
-    _mcu_status: ConnectionStatus = attr.ib()
+    _mcu_status: connections.TimeoutDetector = attr.ib()
     _mcu_alarm_debouncer: ConnectionActionDebouncer = \
         attr.ib(factory=ConnectionActionDebouncer)
-    _frontend_status: ConnectionStatus = attr.ib()
+    _frontend_status: connections.TimeoutDetector = attr.ib()
     _frontend_kill_debouncer: ConnectionActionDebouncer = attr.ib()
     _frontend_alarm_debouncer: ConnectionActionDebouncer = \
         attr.ib(factory=ConnectionActionDebouncer)
 
     @_mcu_status.default
     def init_mcu_status(self) -> \
-            ConnectionStatus:  # pylint: disable=no-self-use
+            connections.TimeoutDetector:  # pylint: disable=no-self-use
         """Initialize the MCU connection status tracker."""
-        return ConnectionStatus(event_timeout=2)
+        return connections.TimeoutDetector(event_timeout=2)
 
     @_frontend_status.default
     def init_frontend_status(self) -> \
-            ConnectionStatus:  # pylint: disable=no-self-use
+            connections.TimeoutDetector:  # pylint: disable=no-self-use
         """Initialize the frontend connection status tracker."""
-        return ConnectionStatus(event_timeout=2)
+        return connections.TimeoutDetector(event_timeout=2)
 
     @_frontend_kill_debouncer.default
     def init_frontend_kill_debouncer(self) -> \
@@ -296,24 +256,34 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         # connections!
 
         # Handle unresponsive mcu
-        if self._mcu_status.timed_out(self.current_time):
-            self._mcu_alarm_debouncer.set_trigger()
-        else:
-            self._mcu_alarm_debouncer.clear_trigger()
+        self._mcu_status.input(connections.UpdateEvent(
+            current_time=self.current_time
+        ))
+        mcu_status = self._mcu_status.output()
+        if mcu_status is not None:
+            if mcu_status.timed_out:
+                self._mcu_alarm_debouncer.set_trigger()
+            else:
+                self._mcu_alarm_debouncer.clear_trigger()
         if self._mcu_alarm_debouncer.should_run_action(self.current_time):
             self._logger.info('TODO: create an active alarm for lost mcu!')
             self._mcu_alarm_debouncer.run_action(self.current_time)
 
         # Handle unresponsive frontend
-        if self._frontend_status.timed_out(self.current_time):
-            self._frontend_alarm_debouncer.set_trigger()
-            if self._frontend_status.connection_uptime(self.current_time) > 2:
-                # Start trying to kill the frontend process so that the frontend
-                # systemd service can automatically restart the frontend
-                self._frontend_kill_debouncer.set_trigger()
-        else:
-            self._frontend_kill_debouncer.clear_trigger()
-            self._frontend_alarm_debouncer.clear_trigger()
+        self._frontend_status.input(connections.UpdateEvent(
+            current_time=self.current_time
+        ))
+        frontend_status = self._frontend_status.output()
+        if frontend_status is not None:
+            if frontend_status.timed_out:
+                self._frontend_alarm_debouncer.set_trigger()
+                if frontend_status.uptime > 2:
+                    # Start trying to kill the frontend process so that the
+                    # frontend systemd service can automatically restart it
+                    self._frontend_kill_debouncer.set_trigger()
+            else:
+                self._frontend_kill_debouncer.clear_trigger()
+                self._frontend_alarm_debouncer.clear_trigger()
         if self._frontend_kill_debouncer.should_run_action(self.current_time):
             output.frontend_unresponsive = True
             self._frontend_kill_debouncer.run_action(self.current_time)
@@ -338,7 +308,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
                 self._logger.debug('Received connection to the MCU.')
             else:
                 self._logger.debug('Lost connection to the MCU!')
-            self._mcu_status.change(event.connected, self.current_time)
+            self._mcu_status.input(connections.UpdateEvent(
+                connected=event.connected, current_time=self.current_time
+            ))
             return
 
         if isinstance(event, FrontendConnectionEvent):
@@ -349,7 +321,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
                 self._frontend_kill_debouncer.clear_trigger()
             else:
                 self._logger.debug('Lost connection to the frontend!')
-            self._frontend_status.change(event.connected, self.current_time)
+            self._frontend_status.input(connections.UpdateEvent(
+                connected=event.connected, current_time=self.current_time
+            ))
             return
 
         if event.time is not None:
@@ -371,7 +345,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             time=self.current_time, mcu_receive=mcu_output,
             frontend_receive=None
         ))
-        self._mcu_status.receive_event(self.current_time)
+        self._mcu_status.input(connections.UpdateEvent(
+            current_time=self.current_time, event_received=True
+        ))
         return True
 
     def _process_frontend(self) -> bool:
@@ -383,7 +359,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         self._backend.input(backend.ReceiveEvent(
             time=self.current_time, frontend_receive=frontend_output
         ))
-        self._frontend_status.receive_event(self.current_time)
+        self._frontend_status.input(connections.UpdateEvent(
+            current_time=self.current_time, event_received=True
+        ))
         return True
 
     def _process_rotary_encoder(self) -> bool:
