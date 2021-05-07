@@ -184,7 +184,7 @@ async def main() -> None:
                         None, websocket_endpoint, filehandler
                     )
 
-                    if receive_output.frontend_unresponsive:
+                    if receive_output.kill_frontend:
                         nursery.start_soon(frozen_frontend.kill_frozen_frontend)
 
                 nursery.cancel_scope.cancel()

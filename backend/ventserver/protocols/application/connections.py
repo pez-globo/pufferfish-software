@@ -125,12 +125,9 @@ class ActionDebouncer(protocols.Filter[ActionStatus, bool]):
             if not event.trigger:
                 self._last_execution = None
 
-    def output(self) -> Optional[bool]:
+    def output(self) -> bool:
         """Emit the next output event."""
-        if self._current_time is None:
-            return None
-
-        if not self._triggered:
+        if self._current_time is None or not self._triggered:
             return False
 
         # Action has been triggered; then:

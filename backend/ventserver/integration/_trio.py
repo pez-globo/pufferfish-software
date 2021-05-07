@@ -8,9 +8,7 @@ from typing import Callable, Optional, TypeVar, Tuple, List, Type
 import trio
 import betterproto
 
-from ventserver.io.trio import (
-    channels as triochannels, endpoints, fileio, websocket as websocket_io
-)
+from ventserver.io.trio import channels as triochannels, endpoints, fileio
 from ventserver.protocols import exceptions
 from ventserver.protocols.backend import server
 from ventserver.protocols.devices import file
@@ -265,7 +263,7 @@ async def process_io_persistently(
                         io_endpoint, protocol, receive_event_maker,
                         channel, push_endpoint.clone()
                     )
-            except BrokenPipeError:
+            except (BrokenPipeError, OSError):
                 logger.warning(
                     'Lost I/O endpoint, reconnecting: %s', io_endpoint
                 )
