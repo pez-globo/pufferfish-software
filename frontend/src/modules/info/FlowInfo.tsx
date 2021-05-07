@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
-import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
+import { ParametersRequest } from '../../store/controller/proto/mcu_pb';
+import { MessageType } from '../../store/controller/types';
+import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
 import { getParametersFlow, getSensorMeasurementsFlow } from '../../store/controller/selectors';
-import { PARAMETER_STANDBY } from '../../store/controller/types';
 import { StoreState } from '../../store/types';
 import { AlarmModal, Knob } from '../controllers';
 import { SettingAdjustProps, ValueModal } from '../controllers/ValueModal';
@@ -34,8 +35,12 @@ const units = LMIN;
 const FlowInfo = (): JSX.Element => {
   const dispatch = useDispatch();
   const doSetFlow = (setting: number) => {
-    dispatch(updateCommittedParameter({ flow: setting }));
-    dispatch(updateCommittedState(PARAMETER_STANDBY, { flow: setting }));
+    dispatch(
+      commitRequest<ParametersRequest>(MessageType.ParametersRequest, { flow: setting }),
+    );
+    dispatch(
+      commitStandbyRequest<ParametersRequest>(MessageType.ParametersRequest, { flow: setting }),
+    );
   };
   return (
     <Knob

@@ -2,9 +2,10 @@ import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Typography, Button } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateCommittedParameter } from '../../store/controller/actions';
+import { ParametersRequest, VentilationMode } from '../../store/controller/proto/mcu_pb';
+import { MessageType } from '../../store/controller/types';
+import { commitRequest } from '../../store/controller/actions';
 import { getParametersRequestMode } from '../../store/controller/selectors';
-import { VentilationMode } from '../../store/controller/proto/mcu_pb';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -76,7 +77,10 @@ export const ModesPage = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
-  const updateMode = (mode: VentilationMode) => dispatch(updateCommittedParameter({ mode }));
+  const updateMode = (mode: VentilationMode) =>
+    dispatch(
+      commitRequest<ParametersRequest>(MessageType.ParametersRequest, { mode }),
+    );
   const buttonClass = (mode: VentilationMode) =>
     mode === currentMode ? `${classes.modeButton} ${classes.selected}` : `${classes.modeButton}`;
   return (
