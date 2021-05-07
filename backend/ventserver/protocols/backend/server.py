@@ -2,7 +2,6 @@
 
 from typing import Optional, Union, Tuple
 import logging
-import time as _time
 
 import attr
 
@@ -14,19 +13,27 @@ from ventserver.sansio import channels, protocols
 
 # Events
 
-@attr.s
-class FrontendConnectionEvent(events.Event):
-    """Server frontend connection status event."""
 
-    last_connection_time: float = attr.ib(default=None)
-    is_frontend_connected: bool = attr.ib(default=False)
+@attr.s
+class GenericConnectionEvent(events.Event):
+    """Generic connection status event."""
+
+    connected: bool = attr.ib(default=False)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
-        return (
-            self.last_connection_time is not None
-            and self.is_frontend_connected is not None
-        )
+        return True
+
+
+class FrontendConnectionEvent(GenericConnectionEvent):
+    """Frontend connection status event."""
+
+
+class MCUConnectionEvent(GenericConnectionEvent):
+    """MCU connection status event."""
+
+
+ConnectionEvent = Union[MCUConnectionEvent, FrontendConnectionEvent]
 
 
 @attr.s
@@ -55,14 +62,16 @@ class ReceiveOutputEvent(events.Event):
     """Server receive output/send event."""
 
     server_send: Optional[backend.OutputEvent] = attr.ib(default=None)
-    frontend_delayed: bool = attr.ib(default=False)
+    frontend_unresponsive: bool = attr.ib(default=False)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
         return self.server_send is not None and self.server_send.has_data()
 
 
-ReceiveEvent = Union[ReceiveDataEvent, FrontendConnectionEvent]
+ReceiveEvent = Union[
+    ReceiveDataEvent, FrontendConnectionEvent, MCUConnectionEvent
+]
 SendEvent = backend.OutputEvent
 
 
@@ -107,18 +116,92 @@ def make_rotary_encoder_receive(
     return ReceiveDataEvent(rotary_encoder_receive=re_receive, time=time)
 
 
-# Frontend kill props
+# Helper classes
 
+
+# TODO: we could convert into a filter in protocols.application
 @attr.s
-class FrontendKillProps():
-    """Variables used to implement frozen frontend kill logic."""
+class ConnectionStatus:
+    """Helper class to track the status of a connection."""
+    event_timeout: float = attr.ib()
+    _last_event: Optional[float] = attr.ib(default=None)
+    _last_connection: Optional[float] = attr.ib(default=None)
 
-    # fe = frontend
-    last_fe_event: float = attr.ib(default=0)
-    fe_connected: bool = attr.ib(default=False)
-    fe_connection_time: float = attr.ib(default=0)
-    last_fe_kill: float = attr.ib(factory=_time.time)
-    fe_delayed_duration: int = attr.ib(default=5)
+    def change(self, connected: bool, current_time: float) -> None:
+        """Reset the stopwatch on when an event was last received."""
+        self._last_event = current_time
+        if connected:
+            self._last_connection = current_time
+        else:
+            self._last_connection = None
+
+    def receive_event(self, current_time: float) -> None:
+        """Reset the stopwatch on when an event was last received."""
+        self._last_event = current_time
+
+    def timed_out(self, current_time: float) -> bool:
+        """Determine whether it's been too long since the last event.
+
+        Return value is independent of whether the connection is up.
+        """
+        if self._last_event is None:
+            return False
+
+        return int(current_time - self._last_event) > self.event_timeout
+
+    def connection_uptime(self, current_time: float) -> float:
+        """Determine how long a connection has been up.
+
+        Returns 0 if the connection is not up.
+        """
+        if self._last_connection is None:
+            return 0
+
+        return current_time - self._last_connection
+
+
+# TODO: we could convert into a filter in protocols.application
+@attr.s
+class ConnectionActionDebouncer:
+    """Helper class to debounce an action.
+
+    If the interval is 0, the action will not be debounced - it will always be
+    specified as ready to run. If the interval is None, the action will not be
+    repeated until after the trigger is cleared. Otherwise, the action will
+    be specified as ready to run with the specified repetition interval.
+    """
+    repeat_interval: Optional[float] = attr.ib(default=None)
+    _triggered: bool = attr.ib(default=False)
+    _last_run_time: Optional[float] = attr.ib(default=None)
+
+    def set_trigger(self) -> None:
+        """Trigger the action to run."""
+        self._triggered = True
+
+    def clear_trigger(self) -> None:
+        """Stop triggering the action to run."""
+        self._triggered = False
+        self._last_run_time = None
+
+    def should_run_action(self, current_time: float) -> bool:
+        """Determine whether it's been too long since the last event."""
+        if not self._triggered:
+            return False
+
+        # Action has been triggered; then:
+        if self._last_run_time is None:
+            return True
+
+        # Action has been run at least once since the trigger; then:
+        if self.repeat_interval is None:
+            return False
+
+        # Action should be repeated; then:
+        return int(current_time - self._last_run_time) > self.repeat_interval
+
+    def run_action(self, current_time: float) -> None:
+        """Reset the stopwatch on repeating the action."""
+        self._last_run_time = current_time
 
 
 # Filters
@@ -133,17 +216,40 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         attr.ib(factory=channels.DequeChannel)
 
     current_time: float = attr.ib(default=0)
-    _kill_props: FrontendKillProps = attr.ib(factory=FrontendKillProps)
 
     _mcu: mcu.ReceiveFilter = attr.ib(factory=mcu.ReceiveFilter)
     _frontend: frontend.ReceiveFilter = attr.ib(factory=frontend.ReceiveFilter)
+    _file: file.ReceiveFilter = attr.ib(factory=file.ReceiveFilter)
     _rotary_encoder: rotary_encoder.ReceiveFilter = attr.ib(
         factory=rotary_encoder.ReceiveFilter
     )
     _backend: backend.ReceiveFilter = attr.ib(factory=backend.ReceiveFilter)
-    _file: file.ReceiveFilter = attr.ib(
-        factory=file.ReceiveFilter
-    )
+
+    _mcu_status: ConnectionStatus = attr.ib()
+    _mcu_alarm_debouncer: ConnectionActionDebouncer = \
+        attr.ib(factory=ConnectionActionDebouncer)
+    _frontend_status: ConnectionStatus = attr.ib()
+    _frontend_kill_debouncer: ConnectionActionDebouncer = attr.ib()
+    _frontend_alarm_debouncer: ConnectionActionDebouncer = \
+        attr.ib(factory=ConnectionActionDebouncer)
+
+    @_mcu_status.default
+    def init_mcu_status(self) -> \
+            ConnectionStatus:  # pylint: disable=no-self-use
+        """Initialize the MCU connection status tracker."""
+        return ConnectionStatus(event_timeout=2)
+
+    @_frontend_status.default
+    def init_frontend_status(self) -> \
+            ConnectionStatus:  # pylint: disable=no-self-use
+        """Initialize the frontend connection status tracker."""
+        return ConnectionStatus(event_timeout=2)
+
+    @_frontend_kill_debouncer.default
+    def init_frontend_kill_debouncer(self) -> \
+            ConnectionActionDebouncer:  # pylint: disable=no-self-use
+        """Initialize the frontend kill debouncer."""
+        return ConnectionActionDebouncer(repeat_interval=5)
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
         """Handle input events."""
@@ -164,6 +270,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         # Process rotary encoder output
         any_updated = self._process_rotary_encoder() or any_updated
         # Process file output
+        # TODO: why do we need an exception handler here?
         try:
             any_updated = self._process_file() or any_updated
         except exceptions.ProtocolDataError as err:
@@ -175,34 +282,49 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         # Process backend output
         # Consume any outputs as long as the backend is indicating that it still
         # has receive data to process, even if it has no data to output
+        output = ReceiveOutputEvent()
         while True:
-            backend_output = self._backend.output()
-            if backend_output is None:
+            output.server_send = self._backend.output()
+            if output.server_send is None:
                 break
-            if backend_output.has_data():
+            if output.server_send.has_data():
                 break
-        any_updated = any_updated or backend_output is not None
+        any_updated = any_updated or output.server_send is not None
+
+        # TODO: decompose the output method into smaller chunks!
+        # TODO: make a filter or helper class for dealing with unresponsive
+        # connections!
+
+        # Handle unresponsive mcu
+        if self._mcu_status.timed_out(self.current_time):
+            self._mcu_alarm_debouncer.set_trigger()
+        else:
+            self._mcu_alarm_debouncer.clear_trigger()
+        if self._mcu_alarm_debouncer.should_run_action(self.current_time):
+            self._logger.info('TODO: create an active alarm for lost mcu!')
+            self._mcu_alarm_debouncer.run_action(self.current_time)
+
+        # Handle unresponsive frontend
+        if self._frontend_status.timed_out(self.current_time):
+            self._frontend_alarm_debouncer.set_trigger()
+            if self._frontend_status.connection_uptime(self.current_time) > 2:
+                # Start trying to kill the frontend process so that the frontend
+                # systemd service can automatically restart the frontend
+                self._frontend_kill_debouncer.set_trigger()
+        else:
+            self._frontend_kill_debouncer.clear_trigger()
+            self._frontend_alarm_debouncer.clear_trigger()
+        if self._frontend_kill_debouncer.should_run_action(self.current_time):
+            output.frontend_unresponsive = True
+            self._frontend_kill_debouncer.run_action(self.current_time)
+        if self._frontend_alarm_debouncer.should_run_action(self.current_time):
+            self._logger.info('TODO: create an active alarm for lost frontend!')
+            self._frontend_alarm_debouncer.run_action(self.current_time)
+        any_updated = any_updated or output.frontend_unresponsive
+
         if not any_updated:
             return None
 
-        # Kill frontend process if it stops responding.
-        # The frontend service will automatically restart the frontend process.
-        delayed = False
-        if (
-                int(self.current_time - self._kill_props.last_fe_event)
-                > self._kill_props.fe_delayed_duration
-        ):
-            if int(self.current_time - self._kill_props.last_fe_kill) > 2:
-                connection_duration = int(
-                    self.current_time - self._kill_props.fe_connection_time
-                )
-                if self._kill_props.fe_connected and connection_duration > 2:
-                    self._kill_props.last_fe_kill = self.current_time
-                    delayed = True
-
-        output = ReceiveOutputEvent(
-            server_send=backend_output, frontend_delayed=delayed
-        )
         return output
 
     def _process_buffer(self) -> None:
@@ -211,21 +333,32 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         if event is None:
             return
 
+        if isinstance(event, MCUConnectionEvent):
+            if event.connected:
+                self._logger.debug('Received connection to the MCU.')
+            else:
+                self._logger.debug('Lost connection to the MCU!')
+            self._mcu_status.change(event.connected, self.current_time)
+            return
+
         if isinstance(event, FrontendConnectionEvent):
-            self._kill_props.fe_connection_time = event.last_connection_time
-            self._kill_props.fe_connected = event.is_frontend_connected
+            if event.connected:
+                self._logger.debug('Received connection to the frontend.')
+                # Stop repeatedly killing the frontend to give the frontend
+                # connection some time to start producing events
+                self._frontend_kill_debouncer.clear_trigger()
+            else:
+                self._logger.debug('Lost connection to the frontend!')
+            self._frontend_status.change(event.connected, self.current_time)
             return
 
         if event.time is not None:
             self.current_time = event.time
         self._mcu.input(event.serial_receive)
         self._frontend.input(event.websocket_receive)
-        self._rotary_encoder.input(
-            rotary_encoder.ReceiveEvent(
-                time=self.current_time,
-                re_data=event.rotary_encoder_receive
-            )
-        )
+        self._rotary_encoder.input(rotary_encoder.ReceiveEvent(
+            time=self.current_time, re_data=event.rotary_encoder_receive
+        ))
         self._file.input(event.file_receive)
 
     def _process_mcu(self) -> bool:
@@ -238,6 +371,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             time=self.current_time, mcu_receive=mcu_output,
             frontend_receive=None
         ))
+        self._mcu_status.receive_event(self.current_time)
         return True
 
     def _process_frontend(self) -> bool:
@@ -245,11 +379,11 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         frontend_output = self._frontend.output()
         if frontend_output is None:
             return False
+
         self._backend.input(backend.ReceiveEvent(
-            time=self.current_time, mcu_receive=None,
-            frontend_receive=frontend_output
+            time=self.current_time, frontend_receive=frontend_output
         ))
-        self._kill_props.last_fe_event = self.current_time
+        self._frontend_status.receive_event(self.current_time)
         return True
 
     def _process_rotary_encoder(self) -> bool:
@@ -257,9 +391,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         rotary_encoder_output = self._rotary_encoder.output()
         if rotary_encoder_output is None:
             return False
+
         self._backend.input(backend.ReceiveEvent(
-            time=self.current_time, mcu_receive=None,
-            frontend_receive=rotary_encoder_output
+            time=self.current_time, frontend_receive=rotary_encoder_output
         ))
         return True
 
@@ -268,9 +402,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         file_output = self._file.output()  # throws ProtocolDataError
         if file_output is None:
             return False
+
         self._backend.input(backend.ReceiveEvent(
-            time=self.current_time, mcu_receive=None,
-            frontend_receive=None, file_receive=file_output
+            time=self.current_time, file_receive=file_output
         ))
         return True
 

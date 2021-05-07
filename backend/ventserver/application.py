@@ -115,10 +115,8 @@ async def main() -> None:
                         filehandler
                     )
 
-                    if receive_output.frontend_delayed:
-                        nursery.start_soon(
-                            frozen_frontend.kill_frozen_frontend
-                        )
+                    if receive_output.frontend_unresponsive:
+                        nursery.start_soon(frozen_frontend.kill_frozen_frontend)
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
         logger.info('Finished, quitting!')

@@ -184,11 +184,8 @@ async def main() -> None:
                         None, websocket_endpoint, filehandler
                     )
 
-                    if receive_output.frontend_delayed:
-                        print("calling")
-                        nursery.start_soon(
-                            frozen_frontend.kill_frozen_frontend
-                        )
+                    if receive_output.frontend_unresponsive:
+                        nursery.start_soon(frozen_frontend.kill_frozen_frontend)
 
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:

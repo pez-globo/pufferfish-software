@@ -155,21 +155,6 @@ async def process_protocol_send(
     protocol.send.input(send_event)
     await process_protocol_send_output(protocol, serial, websocket, filehandler)
 
-# Receive frontend connection event
-
-
-def receive_frontend_connection(
-        protocol: server.Protocol,
-        websocket: websocket_io.Driver
-) -> None:
-    """Process frontend connection status."""
-    protocol.receive.input(
-        server.FrontendConnectionEvent(
-            last_connection_time=websocket.connection_time,
-            is_frontend_connected=websocket.is_open
-        )
-    )
-
 
 # Protocol Receive Outputs
 
@@ -254,6 +239,7 @@ async def process_io_persistently(
         nursery: trio.Nursery,
         channel: triochannels.TrioChannel[server.ReceiveOutputEvent],
         push_endpoint: 'trio.MemorySendChannel[server.ReceiveOutputEvent]',
+        connection_event_type: Optional[Type[server.ConnectionEvent]],
         reconnect_interval: float = 0.01
 ) -> None:
     """Process all traffic on the I/O endpoint and reconnect on broken pipes.
@@ -270,10 +256,8 @@ async def process_io_persistently(
     async with push_endpoint:
         while True:
             await io_endpoint.persistently_open(nursery=nursery)
-            if isinstance(io_endpoint, websocket_io.Driver):
-                receive_frontend_connection(
-                    protocol, io_endpoint
-                )
+            if connection_event_type is not None:
+                protocol.receive.input(connection_event_type(connected=True))
 
             try:
                 async with io_endpoint:
@@ -285,9 +269,9 @@ async def process_io_persistently(
                 logger.warning(
                     'Lost I/O endpoint, reconnecting: %s', io_endpoint
                 )
-                if isinstance(io_endpoint, websocket_io.Driver):
-                    receive_frontend_connection(
-                        protocol, io_endpoint
+                if connection_event_type is not None:
+                    protocol.receive.input(
+                        connection_event_type(connected=False)
                     )
 
                 await trio.sleep(reconnect_interval)
@@ -336,27 +320,28 @@ async def process_all(
                     # mypy only supports <= 5 args with trio-typing
                     functools.partial(
                         process_io_persistently, serial, protocol,
-                        server.make_serial_receive, nursery, channel,
-                        push_endpoint.clone()
-                    )
+                        server.make_serial_receive, nursery
+                    ),
+                    channel, push_endpoint.clone(), server.MCUConnectionEvent
                 )
             if websocket is not None:
                 nursery.start_soon(
                     # mypy only supports <= 5 args with trio-typing
                     functools.partial(
                         process_io_persistently, websocket, protocol,
-                        server.make_websocket_receive, nursery, channel,
-                        push_endpoint.clone()
-                    )
+                        server.make_websocket_receive, nursery
+                    ),
+                    channel, push_endpoint.clone(),
+                    server.FrontendConnectionEvent
                 )
             if rotary_encoder is not None:
                 nursery.start_soon(
                     # mypy only supports <= 5 args with trio-typing
                     functools.partial(
                         process_io_receive, rotary_encoder, protocol,
-                        server.make_rotary_encoder_receive, channel,
-                        push_endpoint.clone()
-                    )
+                        server.make_rotary_encoder_receive
+                    ),
+                    channel, push_endpoint.clone()
                 )
             nursery.start_soon(
                 process_clock, protocol, channel, push_endpoint.clone()
