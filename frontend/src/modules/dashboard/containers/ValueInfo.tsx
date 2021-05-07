@@ -1,7 +1,7 @@
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
-import { getAlarmLimits } from '../../../store/controller/selectors';
+import { getAlarmLimitsCurrent } from '../../../store/controller/selectors';
 import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
@@ -170,7 +170,12 @@ const ControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimits, shallowEqual) as Record<string, Range>;
+  const alarmLimits = useSelector(getAlarmLimitsCurrent, shallowEqual);
+  const range =
+    alarmLimits === null
+      ? undefined
+      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
+  const { lower, upper } = range === undefined ? { lower: '--', upper: '--' } : range;
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
@@ -214,12 +219,8 @@ const ControlValuesDisplay = ({
               </Grid>
               {showLimits && stateKey && (
                 <Grid container item xs={3} className={classes.liveContainer}>
-                  <Typography className={classes.whiteFont}>
-                    {alarmLimits[stateKey].lower}
-                  </Typography>
-                  <Typography className={classes.whiteFont}>
-                    {alarmLimits[stateKey].upper}
-                  </Typography>
+                  <Typography className={classes.whiteFont}>{lower}</Typography>
+                  <Typography className={classes.whiteFont}>{upper}</Typography>
                 </Grid>
               )}
             </Grid>
@@ -270,7 +271,12 @@ const GridControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimits, shallowEqual) as Record<string, Range>;
+  const alarmLimits = useSelector(getAlarmLimitsCurrent, shallowEqual);
+  const range =
+    alarmLimits === null
+      ? undefined
+      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
+  const { lower, upper } = range === undefined ? { lower: '--', upper: '--' } : range;
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
@@ -321,12 +327,8 @@ const GridControlValuesDisplay = ({
               </Grid>
               {stateKey && (
                 <Grid item xs className={classes.gridLiveContainer}>
-                  <Typography className={classes.whiteFont}>
-                    {alarmLimits[stateKey].lower}
-                  </Typography>
-                  <Typography className={classes.whiteFont}>
-                    {alarmLimits[stateKey].upper}
-                  </Typography>
+                  <Typography className={classes.whiteFont}>{lower}</Typography>
+                  <Typography className={classes.whiteFont}>{upper}</Typography>
                 </Grid>
               )}
             </Grid>

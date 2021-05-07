@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
-import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
+import { ParametersRequest } from '../../store/controller/proto/mcu_pb';
+import { MessageType } from '../../store/controller/types';
+import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
 import { getParametersFiO2, getSensorMeasurementsFiO2 } from '../../store/controller/selectors';
-import { PARAMETER_STANDBY } from '../../store/controller/types';
 import { StoreState } from '../../store/types';
 import { AlarmModal, Knob } from '../controllers';
 import { SettingAdjustProps, ValueModal } from '../controllers/ValueModal';
@@ -34,8 +35,12 @@ const units = PERCENT;
 const FiO2Info = (): JSX.Element => {
   const dispatch = useDispatch();
   const doSetFiO2 = (setting: number) => {
-    dispatch(updateCommittedParameter({ fio2: setting }));
-    dispatch(updateCommittedState(PARAMETER_STANDBY, { fio2: setting }));
+    dispatch(
+      commitRequest<ParametersRequest>(MessageType.ParametersRequest, { fio2: setting }),
+    );
+    dispatch(
+      commitStandbyRequest<ParametersRequest>(MessageType.ParametersRequest, { fio2: setting }),
+    );
   };
   return (
     <Knob

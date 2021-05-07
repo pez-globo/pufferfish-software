@@ -23,7 +23,7 @@ from ventserver.io.subprocess import frozen_frontend
 from ventserver.protocols import backend
 from ventserver.protocols import server
 from ventserver.protocols import exceptions
-from ventserver.protocols.protobuf import mcu_pb
+from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.simulation import (
     alarm_limits, alarms, log, parameters, simulators
 )
@@ -34,6 +34,47 @@ from ventserver import application
 
 
 REQUEST_SERVICE_INTERVAL = 20
+
+INITIAL_VALUES = {
+    backend.StateSegment.SENSOR_MEASUREMENTS: mcu_pb.SensorMeasurements(),
+    backend.StateSegment.PARAMETERS: mcu_pb.Parameters(
+        mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
+        fio2=21, flow=0
+    ),
+    backend.StateSegment.PARAMETERS_REQUEST: mcu_pb.ParametersRequest(
+        mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
+        fio2=80, flow=30
+    ),
+    backend.StateSegment.ALARM_LIMITS: mcu_pb.AlarmLimits(
+        fio2=mcu_pb.Range(lower=21, upper=23),
+        flow=mcu_pb.Range(lower=-2, upper=2),
+        spo2=mcu_pb.Range(lower=21, upper=100),
+        hr=mcu_pb.Range(lower=0, upper=200),
+    ),
+    backend.StateSegment.ALARM_LIMITS_REQUEST: mcu_pb.AlarmLimitsRequest(
+        fio2=mcu_pb.Range(lower=78, upper=82),
+        flow=mcu_pb.Range(lower=28, upper=32),
+        spo2=mcu_pb.Range(lower=90, upper=100),
+        hr=mcu_pb.Range(lower=60, upper=100),
+    ),
+    backend.StateSegment.ACTIVE_LOG_EVENTS_MCU: mcu_pb.ActiveLogEvents(),
+    backend.StateSegment.ALARM_MUTE: mcu_pb.AlarmMute(
+        active=False, remaining=120
+    ),
+    backend.StateSegment.ALARM_MUTE_REQUEST: mcu_pb.AlarmMute(
+        active=False, remaining=120
+    ),
+    backend.StateSegment.BATTERY_POWER: mcu_pb.BatteryPower(
+        power_left=0, charging_status=False
+    ),
+    backend.StateSegment.SCREEN_STATUS: mcu_pb.ScreenStatus(lock=False),
+    backend.StateSegment.SYSTEM_SETTING_REQUEST:
+        frontend_pb.SystemSettingRequest(brightness=100, date=int(time.time())),
+    backend.StateSegment.FRONTEND_DISPLAY: frontend_pb.FrontendDisplaySetting(
+        theme=frontend_pb.ThemeVariant.dark,
+        unit=frontend_pb.Unit.metric,
+    )
+}
 
 
 async def service_requests(
@@ -71,34 +112,8 @@ def initialize_states(all_states: MutableMapping[
 ]) -> None:
     """Set initial values for the states."""
     for segment_type in all_states:
-        if segment_type is backend.StateSegment.PARAMETERS_REQUEST:
-            all_states[segment_type] = mcu_pb.ParametersRequest(
-                mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
-                fio2=21, flow=0
-            )
-        elif segment_type is backend.StateSegment.PARAMETERS:
-            all_states[segment_type] = mcu_pb.Parameters(
-                mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
-                fio2=21, flow=0
-            )
-        elif segment_type is backend.StateSegment.SENSOR_MEASUREMENTS:
-            all_states[segment_type] = mcu_pb.SensorMeasurements()
-        elif segment_type is backend.StateSegment.ALARM_LIMITS_REQUEST:
-            all_states[segment_type] = mcu_pb.AlarmLimitsRequest(
-                fio2=mcu_pb.Range(lower=21, upper=23),
-                flow=mcu_pb.Range(lower=-2, upper=2),
-                spo2=mcu_pb.Range(lower=21, upper=100),
-                hr=mcu_pb.Range(lower=0, upper=200),
-            )
-        elif segment_type is backend.StateSegment.ALARM_LIMITS:
-            all_states[segment_type] = mcu_pb.AlarmLimits(
-                fio2=mcu_pb.Range(lower=21, upper=23),
-                flow=mcu_pb.Range(lower=-2, upper=2),
-                spo2=mcu_pb.Range(lower=21, upper=100),
-                hr=mcu_pb.Range(lower=0, upper=200),
-            )
-        elif segment_type is backend.StateSegment.ACTIVE_LOG_EVENTS_MCU:
-            all_states[segment_type] = mcu_pb.ActiveLogEvents()
+        if segment_type in INITIAL_VALUES:
+            all_states[segment_type] = INITIAL_VALUES[segment_type]
 
 
 async def main() -> None:

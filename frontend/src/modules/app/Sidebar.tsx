@@ -2,7 +2,7 @@ import { Button, Grid, makeStyles, Theme } from '@material-ui/core';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { getIsVentilating } from '../../store/controller/selectors';
+import { getParametersIsVentilating } from '../../store/controller/selectors';
 import { DASHBOARD_ROUTE, QUICKSTART_ROUTE, SCREENSAVER_ROUTE } from '../navigation/constants';
 import Navigation from '../navigation/Navigation';
 
@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  */
 const Sidebar = (): JSX.Element => {
   const classes = useStyles();
-  const ventilating = useSelector(getIsVentilating);
+  const ventilating = useSelector(getParametersIsVentilating);
 
   return (
     <Grid

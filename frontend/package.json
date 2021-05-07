@@ -88,7 +88,7 @@
     "redux-devtools-extension": "^2.13.8",
     "redux-mock-store": "^1.5.4",
     "ts-jest": "^26.4.1",
-    "typedoc": "^0.20.20",
-    "ts-proto": "^1.79.3"
+    "ts-proto": "^1.79.3",
+    "typedoc": "^0.20.20"
   }
 }
