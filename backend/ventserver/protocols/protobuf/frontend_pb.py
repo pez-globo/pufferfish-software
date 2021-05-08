@@ -7,8 +7,6 @@ import betterproto
 
 
 class Unit(betterproto.Enum):
-    """TODO: should metric be 0? (i.e. the default)"""
-
     imperial = 0
     metric = 1
 
@@ -29,20 +27,11 @@ class RotaryEncoder(betterproto.Message):
 
 @dataclass
 class FrontendDisplaySetting(betterproto.Message):
-    """
-    TODO: we also need a request version of this message,
-    FrontendDisplaySettingsRequest
-    """
-
     theme: "ThemeVariant" = betterproto.enum_field(1)
     unit: "Unit" = betterproto.enum_field(2)
 
 
 @dataclass
 class SystemSettingRequest(betterproto.Message):
-    """
-    TODO: we also need a response version of this message, SystemSettings
-    """
-
     brightness: int = betterproto.uint32_field(1)
     date: int = betterproto.uint32_field(2)
