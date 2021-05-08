@@ -37,23 +37,22 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export const BACKEND_CONNECTION_LOST_ALARM_TIMEOUT = 3000;
-export const BACKEND_CONNECTION_LOST_TIMEOUT = 400;
+export const BACKEND_CONNECTION_DOWN_TIMEOUT = 3000;
+export const BACKEND_CONNECTION_UP_TIMEOUT = 500;
 
 export const HeartbeatBackendListener = (): JSX.Element => {
   const clock = useSelector(getClock);
   const dispatch = useDispatch();
   const heartbeat = useSelector(getBackendHeartBeat);
   const events = useSelector(getNextLogEvents);
+  const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
 
   useEffect(() => {
-    // TODO: can we just use a selector here, or do we need to access the store directly?
-    const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
     const lostConnectionAlarm = events.find(
       (el: LogEvent) => (el.code as number) === LogEventCode.backend_connection_down,
     );
 
-    if (diff > BACKEND_CONNECTION_LOST_ALARM_TIMEOUT) {
+    if (diff > BACKEND_CONNECTION_DOWN_TIMEOUT) {
       if (!lostConnectionAlarm) {
         dispatch({
           type: BACKEND_CONNECTION_DOWN,
@@ -67,21 +66,13 @@ export const HeartbeatBackendListener = (): JSX.Element => {
         });
       }
     }
-  }, [clock, dispatch, events, heartbeat]);
+  }, [clock, diff, dispatch, events, heartbeat]);
 
   useEffect(() => {
-    // TODO: can we just use a selector here, or do we need to access the store directly?
-    const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
-    const lostConnectionAlarm = events.find(
-      (el: LogEvent) => (el.code as number) === LogEventCode.backend_connection_up,
-    );
-
-    if (diff < BACKEND_CONNECTION_LOST_TIMEOUT) {
-      if (!lostConnectionAlarm) {
-        dispatch(establishedBackendConnection(true, new Date()));
-      }
+    if (diff < BACKEND_CONNECTION_UP_TIMEOUT) {
+      dispatch(establishedBackendConnection(true, new Date()));
     }
-  }, [clock, dispatch, events, heartbeat]);
+  }, [clock, diff, dispatch, heartbeat]);
 
   return <React.Fragment />;
 };
