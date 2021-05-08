@@ -37,8 +37,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export const BACKEND_CONNECTION_DOWN_TIMEOUT = 3000;
-export const BACKEND_CONNECTION_UP_TIMEOUT = 500;
+export const BACKEND_CONNECTION_TIMEOUT = 3000;
 
 export const HeartbeatBackendListener = (): JSX.Element => {
   const clock = useSelector(getClock);
@@ -48,11 +47,17 @@ export const HeartbeatBackendListener = (): JSX.Element => {
   const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
 
   useEffect(() => {
+    if (diff < BACKEND_CONNECTION_TIMEOUT) {
+      dispatch(establishedBackendConnection(true, new Date()));
+    }
+  }, [clock, diff, dispatch, heartbeat]);
+
+  useEffect(() => {
     const lostConnectionAlarm = events.find(
       (el: LogEvent) => (el.code as number) === LogEventCode.backend_connection_down,
     );
 
-    if (diff > BACKEND_CONNECTION_DOWN_TIMEOUT) {
+    if (diff > BACKEND_CONNECTION_TIMEOUT) {
       if (!lostConnectionAlarm) {
         dispatch({
           type: BACKEND_CONNECTION_DOWN,
@@ -67,12 +72,6 @@ export const HeartbeatBackendListener = (): JSX.Element => {
       }
     }
   }, [clock, diff, dispatch, events, heartbeat]);
-
-  useEffect(() => {
-    if (diff < BACKEND_CONNECTION_UP_TIMEOUT) {
-      dispatch(establishedBackendConnection(true, new Date()));
-    }
-  }, [clock, diff, dispatch, heartbeat]);
 
   return <React.Fragment />;
 };
