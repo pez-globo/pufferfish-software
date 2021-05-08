@@ -68,7 +68,7 @@ export function ventilationModeToJSON(object: VentilationMode): string {
 
 /** Log Events */
 export enum LogEventCode {
-  /** fio2_too_low - Patient */
+  /** fio2_too_low - Patient alarms */
   fio2_too_low = 0,
   fio2_too_high = 1,
   flow_too_low = 2,
@@ -77,19 +77,25 @@ export enum LogEventCode {
   spo2_too_high = 5,
   hr_too_low = 6,
   hr_too_high = 7,
-  /** battery_low - System */
-  battery_low = 8,
-  screen_locked = 9,
-  /** ventilation_operation_changed - Control */
-  ventilation_operation_changed = 10,
-  ventilation_mode_changed = 11,
-  fio2_setting_changed = 12,
-  flow_setting_changed = 13,
-  /** fio2_alarm_limits_changed - Alarm Limits */
-  fio2_alarm_limits_changed = 14,
-  flow_alarm_limits_changed = 15,
-  spo2_alarm_limits_changed = 16,
-  hr_alarm_limits_changed = 17,
+  /** ventilation_operation_changed - Control settings */
+  ventilation_operation_changed = 64,
+  ventilation_mode_changed = 65,
+  fio2_setting_changed = 66,
+  flow_setting_changed = 67,
+  /** fio2_alarm_limits_changed - Alarm limits settings */
+  fio2_alarm_limits_changed = 80,
+  flow_alarm_limits_changed = 81,
+  spo2_alarm_limits_changed = 82,
+  hr_alarm_limits_changed = 83,
+  /** screen_locked - System settings */
+  screen_locked = 129,
+  mcu_lost = 130,
+  backend_lost = 131,
+  frontend_lost = 132,
+  mcu_restored = 133,
+  backend_restored = 134,
+  frontend_restored = 135,
+  battery_low = 136,
   UNRECOGNIZED = -1,
 }
 
@@ -119,36 +125,54 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case 7:
     case "hr_too_high":
       return LogEventCode.hr_too_high;
-    case 8:
-    case "battery_low":
-      return LogEventCode.battery_low;
-    case 9:
-    case "screen_locked":
-      return LogEventCode.screen_locked;
-    case 10:
+    case 64:
     case "ventilation_operation_changed":
       return LogEventCode.ventilation_operation_changed;
-    case 11:
+    case 65:
     case "ventilation_mode_changed":
       return LogEventCode.ventilation_mode_changed;
-    case 12:
+    case 66:
     case "fio2_setting_changed":
       return LogEventCode.fio2_setting_changed;
-    case 13:
+    case 67:
     case "flow_setting_changed":
       return LogEventCode.flow_setting_changed;
-    case 14:
+    case 80:
     case "fio2_alarm_limits_changed":
       return LogEventCode.fio2_alarm_limits_changed;
-    case 15:
+    case 81:
     case "flow_alarm_limits_changed":
       return LogEventCode.flow_alarm_limits_changed;
-    case 16:
+    case 82:
     case "spo2_alarm_limits_changed":
       return LogEventCode.spo2_alarm_limits_changed;
-    case 17:
+    case 83:
     case "hr_alarm_limits_changed":
       return LogEventCode.hr_alarm_limits_changed;
+    case 129:
+    case "screen_locked":
+      return LogEventCode.screen_locked;
+    case 130:
+    case "mcu_lost":
+      return LogEventCode.mcu_lost;
+    case 131:
+    case "backend_lost":
+      return LogEventCode.backend_lost;
+    case 132:
+    case "frontend_lost":
+      return LogEventCode.frontend_lost;
+    case 133:
+    case "mcu_restored":
+      return LogEventCode.mcu_restored;
+    case 134:
+    case "backend_restored":
+      return LogEventCode.backend_restored;
+    case 135:
+    case "frontend_restored":
+      return LogEventCode.frontend_restored;
+    case 136:
+    case "battery_low":
+      return LogEventCode.battery_low;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -174,10 +198,6 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "hr_too_low";
     case LogEventCode.hr_too_high:
       return "hr_too_high";
-    case LogEventCode.battery_low:
-      return "battery_low";
-    case LogEventCode.screen_locked:
-      return "screen_locked";
     case LogEventCode.ventilation_operation_changed:
       return "ventilation_operation_changed";
     case LogEventCode.ventilation_mode_changed:
@@ -194,6 +214,22 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "spo2_alarm_limits_changed";
     case LogEventCode.hr_alarm_limits_changed:
       return "hr_alarm_limits_changed";
+    case LogEventCode.screen_locked:
+      return "screen_locked";
+    case LogEventCode.mcu_lost:
+      return "mcu_lost";
+    case LogEventCode.backend_lost:
+      return "backend_lost";
+    case LogEventCode.frontend_lost:
+      return "frontend_lost";
+    case LogEventCode.mcu_restored:
+      return "mcu_restored";
+    case LogEventCode.backend_restored:
+      return "backend_restored";
+    case LogEventCode.frontend_restored:
+      return "frontend_restored";
+    case LogEventCode.battery_low:
+      return "battery_low";
     default:
       return "UNKNOWN";
   }

@@ -122,7 +122,7 @@ FILE_OUTPUT_SCHEDULE = collections.deque([
 
 @attr.s
 class ReceiveEvent(events.Event):
-    """Backend receive input event."""
+    """Store synchronizers receive event."""
 
     time: Optional[float] = attr.ib(default=None)
     mcu_receive: Optional[mcu.UpperEvent] = attr.ib(default=None)
@@ -139,8 +139,8 @@ class ReceiveEvent(events.Event):
 
 
 @attr.s
-class OutputEvent(events.Event):
-    """Backend receive output/send output/send input event."""
+class SendEvent(events.Event):
+    """Store synchronizers send event."""
 
     mcu_send: Optional[mcu.UpperEvent] = attr.ib(default=None)
     frontend_send: Optional[frontend.UpperEvent] = attr.ib(default=None)
@@ -155,7 +155,7 @@ class OutputEvent(events.Event):
 
 
 @attr.s
-class Synchronizers(protocols.Filter[ReceiveEvent, OutputEvent]):
+class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
     """Helper class for updating the backend's state synchronizers.
 
     Warning: if store is used by other things, this filter is only safe to
@@ -221,9 +221,9 @@ class Synchronizers(protocols.Filter[ReceiveEvent, OutputEvent]):
         self._handle_inbound_state(event.file_receive, FILE_INPUT_TYPES)
         self._handle_inbound_state(event.frontend_receive, FRONTEND_INPUT_TYPES)
 
-    def output(self) -> Optional[OutputEvent]:
+    def output(self) -> Optional[SendEvent]:
         """Emit the next output event."""
-        output_event = OutputEvent()
+        output_event = SendEvent()
         try:
             output_event.mcu_send = self._mcu.output()
         except exceptions.ProtocolDataError:

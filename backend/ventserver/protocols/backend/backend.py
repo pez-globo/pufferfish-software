@@ -2,10 +2,11 @@
 
 import logging
 import typing
-from typing import Optional
+from typing import Optional, Union
 
 import attr
 
+from ventserver.protocols import events
 from ventserver.protocols.backend import log, states
 from ventserver.protocols.devices import frontend, mcu
 from ventserver.protocols.protobuf import mcu_pb
@@ -13,9 +14,23 @@ from ventserver.sansio import channels
 from ventserver.sansio import protocols
 
 
-ReceiveEvent = states.ReceiveEvent
-OutputEvent = states.OutputEvent
-SendEvent = states.OutputEvent
+@attr.s
+class ExternalAlarmEvent(events.Event):
+    """External alarm input event."""
+
+    time: float = attr.ib()
+    active: bool = attr.ib()
+    code: mcu_pb.LogEventCode = attr.ib()
+
+    def has_data(self) -> bool:
+        """Return whether the event has data."""
+        return True
+
+
+ReceiveDataEvent = states.ReceiveEvent
+ReceiveEvent = Union[ExternalAlarmEvent, states.ReceiveEvent]
+OutputEvent = states.SendEvent
+SendEvent = states.SendEvent
 
 
 # Filters
@@ -72,7 +87,10 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
 
         # Process input event
         self._update_clock(event)
-        self._state_synchronizers.input(event)
+        if isinstance(event, states.ReceiveEvent):
+            self._state_synchronizers.input(event)
+        elif isinstance(event, ExternalAlarmEvent):
+            print('ALARM UPDATE RECEIVED:', event)
 
         # Maintain internal data connections
         self._handle_log_events_receiving()

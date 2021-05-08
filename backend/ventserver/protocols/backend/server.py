@@ -8,6 +8,7 @@ import attr
 from ventserver.protocols import events, exceptions
 from ventserver.protocols.backend import backend, connections
 from ventserver.protocols.devices import file, frontend, mcu, rotary_encoder
+from ventserver.protocols.protobuf import mcu_pb
 from ventserver.sansio import channels, protocols
 
 
@@ -150,7 +151,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         self._process_buffer()
         any_updated = self._process_devices()
         if not any_updated:
-            self._backend.input(backend.ReceiveEvent(time=self.current_time))
+            self._backend.input(backend.ReceiveDataEvent(
+                time=self.current_time
+            ))
         # Process backend output until the backend has data to output or it
         # indicates that it has no more receive data to process.
         output = ReceiveOutputEvent()
@@ -212,14 +215,17 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         if mcu_output is None:
             return False
 
-        self._backend.input(backend.ReceiveEvent(
+        self._backend.input(backend.ReceiveDataEvent(
             time=self.current_time, mcu_receive=mcu_output,
             frontend_receive=None
         ))
         self._connections.input(connections.UpdateEvent(
             current_time=self.current_time, type=connections.Update.MCU_RECEIVED
         ))
-        # TODO: deactivate any alarm for unresponsive/lost MCU
+        self._backend.input(backend.ExternalAlarmEvent(
+            time=self.current_time, active=False,
+            code=mcu_pb.LogEventCode.mcu_lost
+        ))
         return True
 
     def _process_frontend(self) -> bool:
@@ -228,14 +234,17 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         if frontend_output is None:
             return False
 
-        self._backend.input(backend.ReceiveEvent(
+        self._backend.input(backend.ReceiveDataEvent(
             time=self.current_time, frontend_receive=frontend_output
         ))
         self._connections.input(connections.UpdateEvent(
             current_time=self.current_time,
             type=connections.Update.FRONTEND_RECEIVED
         ))
-        # TODO: deactivate any alarm for unresponsive/lost frontend
+        self._backend.input(backend.ExternalAlarmEvent(
+            time=self.current_time, active=False,
+            code=mcu_pb.LogEventCode.frontend_lost
+        ))
         return True
 
     def _process_rotary_encoder(self) -> bool:
@@ -244,7 +253,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         if rotary_encoder_output is None:
             return False
 
-        self._backend.input(backend.ReceiveEvent(
+        self._backend.input(backend.ReceiveDataEvent(
             time=self.current_time, frontend_receive=rotary_encoder_output
         ))
         return True
@@ -255,7 +264,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         if file_output is None:
             return False
 
-        self._backend.input(backend.ReceiveEvent(
+        self._backend.input(backend.ReceiveDataEvent(
             time=self.current_time, file_receive=file_output
         ))
         return True
@@ -279,9 +288,15 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         """Handle any connection timeouts."""
         actions = self._connections.output()
         if actions.alarm_mcu:
-            print('TODO: generate alarm for MCU lost!')
+            self._backend.input(backend.ExternalAlarmEvent(
+                time=self.current_time, active=True,
+                code=mcu_pb.LogEventCode.mcu_lost
+            ))
         if actions.alarm_frontend:
-            print('TODO: generate alarm for frontend lost!')
+            self._backend.input(backend.ExternalAlarmEvent(
+                time=self.current_time, active=True,
+                code=mcu_pb.LogEventCode.frontend_lost
+            ))
         return actions.kill_frontend
 
     def input_serial(self, serial_receive: bytes) -> None:

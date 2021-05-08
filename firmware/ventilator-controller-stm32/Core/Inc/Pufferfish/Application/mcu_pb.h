@@ -29,16 +29,22 @@ typedef enum _LogEventCode {
     LogEventCode_spo2_too_high = 5,
     LogEventCode_hr_too_low = 6,
     LogEventCode_hr_too_high = 7,
-    LogEventCode_battery_low = 8,
-    LogEventCode_screen_locked = 9,
-    LogEventCode_ventilation_operation_changed = 10,
-    LogEventCode_ventilation_mode_changed = 11,
-    LogEventCode_fio2_setting_changed = 12,
-    LogEventCode_flow_setting_changed = 13,
-    LogEventCode_fio2_alarm_limits_changed = 14,
-    LogEventCode_flow_alarm_limits_changed = 15,
-    LogEventCode_spo2_alarm_limits_changed = 16,
-    LogEventCode_hr_alarm_limits_changed = 17
+    LogEventCode_ventilation_operation_changed = 64,
+    LogEventCode_ventilation_mode_changed = 65,
+    LogEventCode_fio2_setting_changed = 66,
+    LogEventCode_flow_setting_changed = 67,
+    LogEventCode_fio2_alarm_limits_changed = 80,
+    LogEventCode_flow_alarm_limits_changed = 81,
+    LogEventCode_spo2_alarm_limits_changed = 82,
+    LogEventCode_hr_alarm_limits_changed = 83,
+    LogEventCode_screen_locked = 129,
+    LogEventCode_mcu_lost = 130,
+    LogEventCode_backend_lost = 131,
+    LogEventCode_frontend_lost = 132,
+    LogEventCode_mcu_restored = 133,
+    LogEventCode_backend_restored = 134,
+    LogEventCode_frontend_restored = 135,
+    LogEventCode_battery_low = 136
 } LogEventCode;
 
 typedef enum _LogEventType {
@@ -242,8 +248,8 @@ typedef struct _NextLogEvents {
 #define _VentilationMode_ARRAYSIZE ((VentilationMode)(VentilationMode_prvc+1))
 
 #define _LogEventCode_MIN LogEventCode_fio2_too_low
-#define _LogEventCode_MAX LogEventCode_hr_alarm_limits_changed
-#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_hr_alarm_limits_changed+1))
+#define _LogEventCode_MAX LogEventCode_battery_low
+#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_battery_low+1))
 
 #define _LogEventType_MIN LogEventType_patient
 #define _LogEventType_MAX LogEventType_alarm_limits
@@ -642,9 +648,9 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define ParametersRequest_size                   50
 #define Ping_size                                17
 #define Announcement_size                        77
-#define LogEvent_size                            123
+#define LogEvent_size                            124
 #define ExpectedLogEvent_size                    12
-#define NextLogEvents_size                       274
+#define NextLogEvents_size                       276
 #define ActiveLogEvents_size                     192
 #define BatteryPower_size                        8
 #define ScreenStatus_size                        2

@@ -20,7 +20,7 @@ class VentilationMode(betterproto.Enum):
 class LogEventCode(betterproto.Enum):
     """Log Events"""
 
-    # Patient
+    # Patient alarms
     fio2_too_low = 0
     fio2_too_high = 1
     flow_too_low = 2
@@ -29,19 +29,25 @@ class LogEventCode(betterproto.Enum):
     spo2_too_high = 5
     hr_too_low = 6
     hr_too_high = 7
-    # System
-    battery_low = 8
-    screen_locked = 9
-    # Control
-    ventilation_operation_changed = 10
-    ventilation_mode_changed = 11
-    fio2_setting_changed = 12
-    flow_setting_changed = 13
-    # Alarm Limits
-    fio2_alarm_limits_changed = 14
-    flow_alarm_limits_changed = 15
-    spo2_alarm_limits_changed = 16
-    hr_alarm_limits_changed = 17
+    # Control settings
+    ventilation_operation_changed = 64
+    ventilation_mode_changed = 65
+    fio2_setting_changed = 66
+    flow_setting_changed = 67
+    # Alarm limits settings
+    fio2_alarm_limits_changed = 80
+    flow_alarm_limits_changed = 81
+    spo2_alarm_limits_changed = 82
+    hr_alarm_limits_changed = 83
+    # System settings
+    screen_locked = 129
+    mcu_lost = 130
+    backend_lost = 131
+    frontend_lost = 132
+    mcu_restored = 133
+    backend_restored = 134
+    frontend_restored = 135
+    battery_low = 136
 
 
 class LogEventType(betterproto.Enum):
