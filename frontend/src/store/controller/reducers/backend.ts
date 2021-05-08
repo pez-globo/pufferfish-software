@@ -9,7 +9,7 @@ import {
   STATE_UPDATED,
   CommitAction,
 } from '../types';
-import { BACKEND_CONNECTION_LOST } from '../../app/types';
+import { BACKEND_CONNECTION_DOWN } from '../../app/types';
 
 // GENERIC REDUCERS
 
@@ -125,7 +125,7 @@ export const eventLogReducer = (
           return state;
       }
     }
-    case BACKEND_CONNECTION_LOST: {
+    case BACKEND_CONNECTION_DOWN: {
       // Make an ephemeral frontend-only event
       const logEvent = (action.update as unknown) as LogEvent;
       const eventID = state.expectedLogEvent.id;

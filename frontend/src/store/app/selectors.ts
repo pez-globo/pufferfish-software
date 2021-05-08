@@ -31,9 +31,13 @@ export const getAlarmNotifyStatus = createSelector(
   getApp,
   (app: AppState): boolean => app.notifyAlarm,
 );
+export const getBackendHeartBeat = createSelector(
+  getApp,
+  (app: AppState): Date => app.backendHeartbeat,
+);
 export const getBackendDisconnected = createSelector(
   getApp,
-  (app: AppState): boolean => app.backendConnectionLost,
+  (app: AppState): boolean => app.backendConnection,
 );
 export const getClockTime = createSelector(getApp, (states: AppState): string =>
   states.clock.toLocaleTimeString([], {

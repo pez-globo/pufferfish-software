@@ -5,7 +5,7 @@ export interface AppState {
   clock: Date;
   notifyAlarm: boolean;
   backendHeartbeat: Date;
-  backendConnectionLost: boolean;
+  backendConnection: boolean;
 }
 
 // ACTIONS
@@ -20,7 +20,8 @@ export const INITIALIZED = '@app/INITIALIZED';
 
 // TODO: move BACKEND actions, reducers, and saga stuff into a separate domain, '@connection'
 export const BACKEND_HEARTBEAT = '@app/BACKEND_HEARTBEAT';
-export const BACKEND_CONNECTION_LOST = '@app/BACKEND_CONNECTION_LOST';
+export const BACKEND_CONNECTION_DOWN = '@app/BACKEND_CONNECTION_DOWN';
+export const BACKEND_CONNECTION_UP = '@app/BACKEND_CONNECTION_UP';
 
 export const CLOCK_UPDATED = '@app/CLOCK_UPDATED';
 export const RED_BORDER = '@app/RED_BORDER';
@@ -49,9 +50,16 @@ interface UpdateBackendHeartbeat {
   type: typeof BACKEND_HEARTBEAT;
 }
 
-interface BackendConnectionLost {
-  type: typeof BACKEND_CONNECTION_LOST;
-  connectionLost: boolean;
+interface BackendConnectionDown {
+  type: typeof BACKEND_CONNECTION_DOWN;
+  clock: Date;
+  backendConnection: boolean;
+}
+
+interface BackendConnectionUp {
+  type: typeof BACKEND_CONNECTION_UP;
+  clock: Date;
+  backendConnection: boolean;
 }
 
 export type AppAction =
@@ -60,4 +68,5 @@ export type AppAction =
   | SetClock
   | SetRedBorder
   | UpdateBackendHeartbeat
-  | BackendConnectionLost;
+  | BackendConnectionDown
+  | BackendConnectionUp;

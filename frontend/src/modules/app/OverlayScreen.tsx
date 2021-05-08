@@ -2,20 +2,22 @@ import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Subscription } from 'rxjs';
-import store from '../../store';
-import { getClock } from '../../store/app/selectors';
-import { RED_BORDER, BACKEND_CONNECTION_LOST } from '../../store/app/types';
+import { RED_BORDER } from '../../store/app/types';
 import {
   getAlarmMuteStatus,
   getHasActiveAlarms,
+  getNextLogEvents,
   getScreenStatusLock,
 } from '../../store/controller/selectors';
-import { MessageType } from '../../store/controller/types';
+import { BACKEND_CONNECTION_LOST_CODE, MessageType } from '../../store/controller/types';
 
 import ModalPopup from '../controllers/ModalPopup';
 import MultiStepWizard from '../displays/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { updateState } from '../../store/controller/actions';
+import { establishedBackendConnection, lostBackendConnection } from '../../store/app/actions';
+import { LogEvent } from '../../store/controller/proto/mcu_pb';
+import { getBackendHeartBeat, getClock } from '../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   overlay: {
@@ -35,24 +37,41 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export const BACKEND_CONNECTION_LOST_ALARM_TIMEOUT = 500;
+export const BACKEND_CONNECTION_LOST_ALARM_TIMEOUT = 3000;
 
 export const HeartbeatBackendListener = (): JSX.Element => {
   const clock = useSelector(getClock);
   const dispatch = useDispatch();
+  const heartbeat = useSelector(getBackendHeartBeat);
+  const events = useSelector(getNextLogEvents);
 
   useEffect(() => {
     // TODO: can we just use a selector here, or do we need to access the store directly?
-    const storeData = store.getState();
-    const heartbeat: Date = storeData.app.backendHeartbeat;
     const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
+    const lostConnectionAlarm = events.find(
+      (el: LogEvent) => (el.code as number) === BACKEND_CONNECTION_LOST_CODE,
+    );
+
     if (diff > BACKEND_CONNECTION_LOST_ALARM_TIMEOUT) {
-      dispatch({
-        type: BACKEND_CONNECTION_LOST,
-        connectionLost: true,
-      });
+      if (!lostConnectionAlarm) {
+        dispatch(lostBackendConnection(false, new Date()));
+      }
     }
-  }, [clock, dispatch]);
+  }, [clock, dispatch, events, heartbeat]);
+
+  useEffect(() => {
+    // TODO: can we just use a selector here, or do we need to access the store directly?
+    const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
+    const lostConnectionAlarm = events.find(
+      (el: LogEvent) => (el.code as number) === BACKEND_CONNECTION_LOST_CODE,
+    );
+
+    if (diff < BACKEND_CONNECTION_LOST_ALARM_TIMEOUT) {
+      if (!lostConnectionAlarm) {
+        dispatch(establishedBackendConnection(true, new Date()));
+      }
+    }
+  }, [clock, dispatch, events, heartbeat]);
 
   return <React.Fragment />;
 };

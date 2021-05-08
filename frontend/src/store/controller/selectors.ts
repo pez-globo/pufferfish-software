@@ -239,7 +239,7 @@ export const getBackendInitialized = createSelector(
   getSensorMeasurements,
   getBackendDisconnected,
   (sensorMeasurements: SensorMeasurements | null, backendDisconnected: boolean): boolean =>
-    sensorMeasurements === null && backendDisconnected ? false : true,
+    sensorMeasurements !== null && backendDisconnected,
 );
 
 // Alarm muting
