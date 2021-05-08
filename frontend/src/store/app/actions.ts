@@ -2,8 +2,8 @@ import {
   INITIALIZED,
   SET_LOCALE,
   AppAction,
-  BACKEND_CONNECTION_DOWN,
   BACKEND_CONNECTION_UP,
+  BACKEND_CONNECTION_DOWN,
 } from './types';
 
 export function initialize(): AppAction {

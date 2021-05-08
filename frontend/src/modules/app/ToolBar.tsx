@@ -3,7 +3,7 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory, useLocation } from 'react-router-dom';
-import { getBackendDisconnected, getClockTime } from '../../store/app/selectors';
+import { getClockTime } from '../../store/app/selectors';
 import { commitRequest } from '../../store/controller/actions';
 import {
   ParametersRequest,
@@ -112,7 +112,6 @@ export const ToolBar = ({
   const dispatch = useDispatch();
   const history = useHistory();
   const currentMode = useSelector(getParametersRequestMode);
-  const backendLost = useSelector(getBackendDisconnected);
   const backendInitialized = useSelector(getBackendInitialized);
   const parameterRequestStandby = useSelector(getParametersRequestStandby, shallowEqual);
   const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby, shallowEqual);
@@ -121,8 +120,6 @@ export const ToolBar = ({
   const [label, setLabel] = useState('Start');
   const [isDisabled, setIsDisabled] = useState(false);
   // const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
-  const path = location.pathname === QUICKSTART_ROUTE.path;
-  const dashboardPath = location.pathname === DASHBOARD_ROUTE.path;
   const updateVentilationStatus = () => {
     if (!staticStart) {
       dispatch(
@@ -181,24 +178,14 @@ export const ToolBar = ({
   }, [isVentilatorOn, parameterRequestStandby, alarmLimitsRequestStandby, currentMode, dispatch]);
 
   useEffect(() => {
-    if (!path && !dashboardPath) {
-      if (backendInitialized) {
-        setIsDisabled(false);
-        setLabel('Start');
-      } else {
-        setIsDisabled(true);
-        setLabel('Loading');
-      }
+    if (backendInitialized) {
+      setIsDisabled(false);
+      setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
     } else {
-      if (!backendLost) {
-        setIsDisabled(true);
-        setLabel('Loading');
-      } else {
-        setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
-        setIsDisabled(false);
-      }
+      setIsDisabled(true);
+      setLabel('Loading');
     }
-  }, [path, dashboardPath, backendInitialized, backendLost, ventilating]);
+  }, [backendInitialized, ventilating]);
 
   useEffect(() => {
     if (ventilating) {

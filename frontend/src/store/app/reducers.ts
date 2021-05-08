@@ -6,8 +6,8 @@ import {
   CLOCK_UPDATED,
   RED_BORDER,
   BACKEND_HEARTBEAT,
-  BACKEND_CONNECTION_DOWN,
   BACKEND_CONNECTION_UP,
+  BACKEND_CONNECTION_DOWN,
 } from './types';
 
 const initialState: AppState = {
