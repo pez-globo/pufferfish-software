@@ -117,7 +117,7 @@ export const ToolBar = ({
   const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby, shallowEqual);
   const ventilating = useSelector(getParametersIsVentilating);
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
-  const [landingLabel, setlandingLabel] = useState('Loading...');
+  const [landingLabel, setLandingLabel] = useState('Loading...');
   const [label, setLabel] = useState('Start Ventilation');
   const [isDisabled, setIsDisabled] = useState(false);
   // const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
@@ -180,11 +180,11 @@ export const ToolBar = ({
 
   useEffect(() => {
     if (backendInitialized) {
-      setlandingLabel('Start');
+      setLandingLabel('Start');
       setIsDisabled(false);
       setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
     } else {
-      setlandingLabel('Loading...');
+      setLandingLabel('Loading...');
       setIsDisabled(true);
       setLabel('Loading...');
     }
