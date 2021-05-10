@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import React from 'react';
 import { Grid, Typography, Slider, withStyles, makeStyles } from '@material-ui/core';
 
@@ -69,6 +76,20 @@ const StyledSlider = withStyles({
   },
 })(Slider);
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the slider adjustments
+ *
+ * @prop {number} min desc for min
+ * @prop {number} max desc for max
+ * @prop {function} onChange desc for onChange
+ * @prop {number[]} rangeValues desc for rangeValues
+ * @prop {number} step desc for step
+ * @prop {boolean} disabled desc for disabled
+ *
+ */
+
 interface Props {
   min: number;
   max: number;
@@ -77,6 +98,16 @@ interface Props {
   step?: number;
   disabled?: boolean;
 }
+
+/**
+ * ValueSlider
+ *
+ * @component A container for displaying slider range values.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns JSX.Element
+ */
 
 export const ValueSlider = ({
   min,
@@ -91,6 +122,12 @@ export const ValueSlider = ({
   if (rangeValues) {
     setValue(rangeValues);
   }
+
+  /**
+   * Function for handling the slider value change.
+   * @param {React.ChangeEvent<Record<string, unknown>>} event some desc for event
+   * @param {number | number[]} newValue some desc for newValue
+   */
 
   const handleChange = (
     event: React.ChangeEvent<Record<string, unknown>>,

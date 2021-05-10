@@ -1,7 +1,26 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { LogEvent, LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
 import { BACKEND_CONNECTION_LOST_CODE } from '../../store/controller/types';
 import { PERCENT, BPM, LMIN } from '../info/units';
 
+/**
+ * @typedef EventType
+ *
+ * Interface for get data about event.
+ * 
+ * @prop {LogEventType} type  desc of type
+ * @prop {string} label desc of label
+ * @prop {string} unit desc of unit
+ * @prop {string} head unit of head
+ * @prop {string} stateKey unit of stateKey
+ * 
+ */
 export interface EventType {
   type: LogEventType;
   label: string;
@@ -10,6 +29,15 @@ export interface EventType {
   stateKey?: string;
 }
 
+/**
+ * function to get event details
+ *
+ * @param {LogEvent} event desc of event
+ * @param {EventType} eventType desc of eventType
+ * 
+ * @returns {string} some description
+ * 
+ */
 export const getEventDetails = (event: LogEvent, eventType: EventType): string => {
   const unit = eventType.unit === PERCENT ? eventType.unit : ` ${eventType.unit}`;
   if (event.type === LogEventType.patient) {
@@ -41,6 +69,15 @@ export const getEventDetails = (event: LogEvent, eventType: EventType): string =
   }
   return '';
 };
+
+/**
+ * function to get event type data
+ *
+ * @param {LogEventCode} code desc of code
+ * 
+ * @returns {EventType} some description
+ * 
+ */
 
 export const getEventType = (code: LogEventCode): EventType => {
   switch (code) {

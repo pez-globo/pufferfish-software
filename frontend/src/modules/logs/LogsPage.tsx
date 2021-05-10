@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { Button, Grid, TableCell, TableRow, Typography } from '@material-ui/core';
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
@@ -19,9 +26,20 @@ import EventlogDetails from './container/EventlogDetails';
 import { getEventDetails, getEventType } from './EventType';
 
 /**
- * LogsPage
+ * @typedef Data
  *
- * TODO: Abstract this into components!
+ * Interface to create log data.
+ * 
+ * @prop {LogEventType} type  desc of type
+ * @prop {string} alarm desc of alarm
+ * @prop {number} time desc of time
+ * @prop {number} status desc of status
+ * @prop {number} id desc of id
+ * @prop {number} details desc of details
+ * @prop {string} stateKey desc of stateKey
+ * @prop {string} head desc of head
+ * @prop {string} unit desc of unit
+ * 
  */
 
 interface Data {
@@ -83,11 +101,28 @@ const useStyles = makeStyles(() =>
 
 /**
  * LogsPage
+ *
+ * @component LogsPage
+ * 
+ * TODO: Abstract this into components!
+ *
+ * @param {boolean} filter desc of filter
+ * 
+ * @returns {JSX.Element}
+ * 
  */
 export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
 
+  /**
+   * function to get event label
+   *
+   * @param {LogEventType} type desc of type
+   * 
+   * @returns {string}
+   * 
+   */
   const getEventTypeLabel = (type: LogEventType): string => {
     switch (type) {
       case LogEventType.patient:
@@ -102,6 +137,23 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
         return 'System';
     }
   };
+
+/**
+ *  some description
+ * 
+ * @param {LogEventType}  type desc for type
+ * @param {string}  alarm desc for alarm
+ * @param {number}  time desc for time
+ * @param {number}  status desc for status
+ * @param {number}  id desc for id
+ * @param {string}  details desc for details
+ * @param {string}  stateKey desc for stateKey
+ * @param {string}  head desc for head
+ * @param {string}  unit desc for unit
+ * 
+ * @returns {Data}  some description
+ * 
+ */
 
   const createData = (
     type: LogEventType,
@@ -177,14 +229,28 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     setRows(data.length ? data : []);
   }, [loggedEvents, activeLogEventIds, filter, getDetails]);
 
+  /**
+   * Function for handling the close popup.
+   */
   const handleClose = () => {
     setOpen(false);
   };
 
+  /**
+   * Function for handling  confirmation popup.
+   */
   const handleConfirm = () => {
     handleClose();
   };
 
+  /**
+   * Function return background color based on different conditions.
+   * 
+   * @param {LogEventType | undefined} type desc for type
+   * 
+   * @returns {object} some description
+   * 
+   */
   const typeColor = (type: LogEventType | undefined) => {
     switch (type) {
       case LogEventType.patient:
@@ -199,6 +265,13 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     }
   };
 
+  /**
+   * Function for handling the click event.
+   * 
+   * @param {React.MouseEvent<unknown>} event desc for event
+   * @param {string} name desc for name
+   * 
+   */
   const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
     const selectedIndex = selected.indexOf(name);
     let newSelected: string[] = [];
@@ -218,6 +291,12 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     setSelected(newSelected);
   };
 
+  /**
+   * Function for opening multi popup based on stateKey condiotion
+   * 
+   * @param {Data} row desc for row
+   * 
+   */
   const onSettings = (row: Data) => {
     if (row.stateKey) {
       setMultiPopupOpen(true, row.stateKey);

@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import React, { useState, useEffect } from 'react';
 import { Alert } from '@material-ui/lab';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
@@ -97,10 +104,28 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the Event alert.
+ *
+ * @prop {string} label desc for label
+ *
+ */
 interface Props {
   label: string;
 }
 
+/**
+ * AlertToast
+ *
+ * @component some description
+ *
+ * @prop {function} onClose - desc for onClose
+ * @prop {string} label - desc for label
+ *
+ * @returns {JSX.Element}
+ */
 export const AlertToast = ({
   onClose,
   label,
@@ -138,6 +163,15 @@ export const AlertToast = ({
   );
 };
 
+/**
+ * EventAlerts
+ *
+ * @component some description
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns {JSX.Element}
+ */
 export const EventAlerts = ({ label }: Props): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -166,19 +200,35 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
     setIsMuted(!alarmMuteStatus.active);
   }, [alarmMuteStatus.active]);
 
+  /**
+   * Function for handling Alarm state.
+   *
+   * @param {boolean} state desc for state
+   */
   const muteAlarmState = (state: boolean) => {
     dispatch(updateCommittedState(ALARM_MUTE, { active: state }));
   };
 
+  /**
+   * Function for handling event log popup.
+   *
+   * @param {boolean} filter desc for filter
+   */
   const openEventLogPopup = (filter: boolean) => {
     setOpen(true);
     setActiveFilter(filter);
   };
 
+  /**
+   * Function for opening popup.
+   */
   const openPopup = () => {
     openEventLogPopup(false);
   };
 
+  /**
+   * Function for activating the alarm.
+   */
   const onActiveAlarmClick = () => {
     openEventLogPopup(true);
   };

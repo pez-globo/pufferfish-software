@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { Grid, Tab, Tabs, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
@@ -124,10 +131,23 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 /**
  * HFNCMainView
+ *
+ * @component HFNCMainView.
+ *
+ * @returns {JSX.Element}
+ * 
  */
 const HFNCMainView = (): JSX.Element => {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
+
+  /**
+   * some description
+   * 
+   * @param {React.ChangeEvent<Record<string, unknown>>} event desc of event
+   * @param {number} newValue desc of newValue
+   * 
+   */
   const handleTabChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setValue(newValue);
   };

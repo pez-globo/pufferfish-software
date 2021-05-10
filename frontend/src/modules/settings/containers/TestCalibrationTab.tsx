@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import React from 'react';
 import { Grid, makeStyles, Theme } from '@material-ui/core';
 import TestTool from '../../controllers/TestTool';
@@ -20,10 +27,15 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 /**
- * InfoTab
+ * TestCalibrationTab
  *
+ * @component TestCalibrationTab
+ * 
  * TODO: Remove the default properties in the destructured `Props` argument below
  *       after hooking the `props` up to the redux store.
+ * 
+ * @returns {JSX.Element}
+ * 
  */
 export const TestCalibrationTab = (): JSX.Element => {
   const classes = useStyles();

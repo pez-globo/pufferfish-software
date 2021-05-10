@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
@@ -31,6 +38,14 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+/**
+ * LandingPage
+ *
+ * @component Landing page component with pufferfish ventilator information data.
+ *
+ * @returns {JSX.Element}
+ * 
+ */
 export const LandingPage = (): JSX.Element => {
   const classes = useStyles();
 

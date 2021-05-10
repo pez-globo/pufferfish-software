@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 export const BRIGHTNESS_REFERENCE_KEY = 'brightness';
 export const HOUR_REFERENCE_KEY = 'hour';
 export const MINUTE_REFERENCE_KEY = 'minute';

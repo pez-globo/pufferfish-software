@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { makeStyles, Menu, MenuItem, MenuProps, Theme } from '@material-ui/core';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { withStyles } from '@material-ui/core/styles';
@@ -66,23 +73,45 @@ const StyledMenuItem = withStyles((theme) => ({
 /**
  * ViewDropdown
  *
- * TODO: This component may rely on a redux state that stores the current
- *       view.
+ * @component some description
+ * 
+ * TODO:This component may rely on a redux state that stores the current view..
+ *
+ * @returns {JSX.Element}
+ * 
  */
 export const ViewDropdown = (): JSX.Element => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
+  /**
+   * handle dropdown selection
+   * 
+   * @param {React.MouseEvent<HTMLElement} event desc of event
+   * @param {number} index desc of index
+   * 
+   */
   const handleItemClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => {
     setSelectedIndex(index);
     handleClose();
   };
 
+  /**
+   * function for handling dropdown close
+   */
   const handleClose = () => {
     setAnchorEl(null);
   };
 
+  /**
+   * function for adding border using css property
+   * 
+   * @param {number} view desc for view
+   * 
+   * @returns {object}
+   * 
+   */
   function addBorder(view: number) {
     if (view > 0) return { borderTop: '1px solid black' };
     if (view === 0) return { borderTop: '0px solid black' };

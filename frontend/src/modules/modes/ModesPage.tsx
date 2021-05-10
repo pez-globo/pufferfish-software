@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Typography, Button } from '@material-ui/core';
@@ -69,8 +76,13 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * ModesPage
  *
- * TODO: This page should be hooked up into the redux store so that it has access
+ * @component some description
+ * 
+ *TODO: This page should be hooked up into the redux store so that it has access
  *       to the current ventilation `mode` and a dispatcher to update the mode.
+ *
+ * @returns {JSX.Element}
+ * 
  */
 export const ModesPage = (): JSX.Element => {
   const classes = useStyles();

@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
@@ -40,8 +47,18 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * variable to define backend connection timeout
+ */
 export const BACKEND_CONNECTION_LOST_ALARM_TIMEOUT = 3000;
 
+/**
+ * HeartbeatBackendListener
+ *
+ * @component some description.
+ *
+ * @returns {JSX.Element}
+ */
 export const HeartbeatBackendListener = (): JSX.Element => {
   const clock = useSelector(getClock);
   const dispatch = useDispatch();
@@ -71,6 +88,13 @@ export const HeartbeatBackendListener = (): JSX.Element => {
   return <React.Fragment />;
 };
 
+/**
+ * AudioAlarm
+ *
+ * @component some description.
+ *
+ * @returns {JSX.Element}
+ */
 const AudioAlarm = (): JSX.Element => {
   const dispatch = useDispatch();
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
@@ -117,6 +141,13 @@ const AudioAlarm = (): JSX.Element => {
   return <React.Fragment />;
 };
 
+/**
+ * ScreenLockModal
+ *
+ * @component some description.
+ *
+ * @returns {JSX.Element}
+ */
 export const ScreenLockModal = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -132,6 +163,9 @@ export const ScreenLockModal = (): JSX.Element => {
       }, 30000);
     };
 
+    /**
+     * some description
+     */
     const popupEventSubscription: Subscription = getScreenLockPopup().subscribe(
       (state: boolean) => {
         setOpen(state);
@@ -145,6 +179,9 @@ export const ScreenLockModal = (): JSX.Element => {
     };
   }, [open]);
 
+  /**
+   * some description
+   */
   const onConfirm = () => {
     dispatch(updateState(MessageType.ScreenStatus, { lock: false }));
     setScreenLockPopup(false);
@@ -168,6 +205,13 @@ export const ScreenLockModal = (): JSX.Element => {
   );
 };
 
+/**
+ * OverlayScreen
+ *
+ * @component some description.
+ *
+ * @returns {JSX.Element}
+ */
 export const OverlayScreen = (): JSX.Element => {
   const classes = useStyles();
   const screenStatus = useSelector(getScreenStatus);

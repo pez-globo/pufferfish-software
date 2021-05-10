@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { Grid, makeStyles } from '@material-ui/core';
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
@@ -17,6 +24,16 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+/**
+ * renderModeLayout
+ *
+ * @component Component for handling layout of ventilation mode.
+ * 
+ * @param {VentilationMode} mode desc for mode
+ *
+ * @returns {JSX.Element}
+ * 
+ */
 const renderModeLayout = (mode: VentilationMode): JSX.Element => {
   switch (mode) {
     case VentilationMode.hfnc:
@@ -34,8 +51,12 @@ const renderModeLayout = (mode: VentilationMode): JSX.Element => {
 /**
  * DashboardPage
  *
- * TODO: Hook into the redux store to get the current dashboard `view` from the
- * `ViewDropdown`
+ * @component some description
+ * 
+ * TODO: Hook into the redux store to get the current dashboard `view` from the `ViewDropdown`
+ * 
+ * @returns {JSX.Element}
+ * 
  */
 export const DashboardPage = (): JSX.Element => {
   const classes = useStyles();

@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Tabs, Tab, Typography, Button } from '@material-ui/core';
@@ -123,11 +130,23 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 /**
  * PressureControlMainView
+ *
+ * @component PressureControlMainView.
+ *
+ * @returns {JSX.Element}
+ * 
  */
 const PressureControlMainView = (): JSX.Element => {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
 
+  /**
+   * some description
+   * 
+   * @param {React.ChangeEvent<Record<string, unknown>>} event desc of event
+   * @param {number} newValue desc of newValue
+   * 
+   */
   const handleTabChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setValue(newValue);
   };

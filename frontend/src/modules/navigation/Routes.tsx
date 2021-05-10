@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Switch } from 'react-router-dom';
@@ -26,6 +33,14 @@ import {
   VALUES_ROUTE,
 } from './constants';
 
+/**
+ * Routes
+ *
+ * @component handling router/page-based navigation.
+ *
+ * @returns {JSX.Element}
+ * 
+ */
 const Routes = (): JSX.Element => {
   const ventilating = useSelector(getIsVentilating);
   const RouteLayout = ventilating ? SidebarSlideRoute : SidebarRoute;

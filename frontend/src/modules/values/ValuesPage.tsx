@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
@@ -55,6 +62,11 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 /**
  * ValuesPage
+ *
+ * @component some description.
+ * 
+ * @returns {JSX.Element}
+ * 
  */
 export const ValuesPage = (): JSX.Element => {
   const classes = useStyles();

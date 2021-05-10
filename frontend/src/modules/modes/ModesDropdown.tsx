@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { Button, makeStyles, Menu, MenuItem, MenuProps, Theme } from '@material-ui/core';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { withStyles } from '@material-ui/core/styles';
@@ -82,22 +89,47 @@ const StyledMenuItem = withStyles((theme) => ({
 /**
  * ModesDropdown
  *
+ * @component some description
+ * 
  * TODO: This component should rely on a redux state that stores the current
  *       mode as it has application-wide consequences. Updating that redux
  *       state should be triggered by a dispatcher in the `handleItemClick`
  *       handler.
+ *
+ * @returns {JSX.Element}
+ * 
  */
 export const ModesDropdown = (): JSX.Element => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const dispatch = useDispatch();
   const ventilationMode = useSelector(getParametersRequestMode);
+
+  /**
+   * some description
+   * 
+   * @param {VentilationMode} mode desc for mode
+   * 
+   */
   const updateMode = (mode: VentilationMode) => dispatch(updateCommittedParameter({ mode }));
 
+  /**
+   * some description
+   * 
+   * @param {React.MouseEvent<HTMLButtonElement>} event desc for event
+   * 
+   */
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
+  /**
+   * function for handling dropdown item event.
+   *
+   * @param {React.MouseEvent<HTMLElement, MouseEvent>} event desc for event 
+   * @param {VentilationMode} value desc for value 
+   * 
+   */
   const handleItemClick = (
     _event: React.MouseEvent<HTMLElement, MouseEvent>,
     value: VentilationMode,
@@ -106,10 +138,21 @@ export const ModesDropdown = (): JSX.Element => {
     handleClose();
   };
 
+  /**
+   * some description
+   */
   const handleClose = () => {
     setAnchorEl(null);
   };
 
+  /**
+   * function for adding border to dropdown item.
+   * 
+   * @param {number} mode desc for mode
+   * 
+   * @returns {object}
+   * 
+   */
   function addBorder(mode: number) {
     if (mode > 0) return { borderTop: '1px solid black' };
     return {};

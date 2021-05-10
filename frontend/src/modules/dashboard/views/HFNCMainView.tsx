@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
@@ -43,6 +50,11 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 /**
  * HFNCMainView
+ *
+ * @component HFNCMainView.
+ *
+ * @returns {JSX.Element}
+ * 
  */
 const HFNCMainView = (): JSX.Element => {
   const classes = useStyles();

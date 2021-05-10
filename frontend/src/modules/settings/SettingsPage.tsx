@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { Button, Grid, Tab, Tabs } from '@material-ui/core/';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
@@ -48,10 +55,14 @@ enum TabType {
   TEST_CALIBRATION_TAB,
   DISPLAY_TAB,
 }
+
 /**
  * SettingsPage
  *
- * A container storing various setting panels.
+ * @component A container storing various setting panels.
+ * 
+ * @returns {JSX.Element}
+ * 
  */
 export const SettingsPage = (): JSX.Element => {
   const classes = useStyles();
@@ -64,10 +75,23 @@ export const SettingsPage = (): JSX.Element => {
     SystemSettingRequest | Record<string, unknown>
   >();
 
+  /**
+   * function for handling tab change.
+   * 
+   * @param {React.ChangeEvent<Record<string, unknown>>} event desc for event
+   * @param {number} newValue desc for newValue
+   * 
+   */
   const handleChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setValue(newValue);
   };
 
+  /**
+   * function for handling settings tab change.
+   * 
+   * @param {Record<string, unknown>} settings desc for settings
+   * 
+   */
   const onSettingChange = (settings: Record<string, unknown>) => {
     setDisplaySetting(
       FrontendDisplaySetting.fromJSON({
@@ -83,6 +107,9 @@ export const SettingsPage = (): JSX.Element => {
     );
   };
 
+  /**
+   * function for handling submit event.
+   */
   const handleSubmit = () => {
     dispatch(
       updateCommittedState(FRONTEND_DISPLAY_SETTINGS, displaySetting as Record<string, unknown>),

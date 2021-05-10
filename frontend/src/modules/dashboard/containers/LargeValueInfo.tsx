@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
@@ -85,10 +92,32 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+/**
+ * @typedef ValueInfoProps
+ *
+ * some description
+ * 
+ * @prop {Props} mainContainer desc for mainContainer
+ * 
+ */
 export interface ValueInfoProps {
   mainContainer: Props;
 }
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the control value information.
+ * 
+ * @prop {SelectorType} selector desc for selector
+ * @prop {string} label desc for label
+ * @prop {string} stateKey desc for stateKey
+ * @prop {string} units desc for units
+ * @prop {boolean} isLive desc for isLive
+ * @prop {boolean} showLimits desc for showLimits
+ * @prop {number} decimal desc for decimal
+ * 
+ */
 export interface Props {
   selector: SelectorType;
   label: string;
@@ -99,6 +128,17 @@ export interface Props {
   decimal?: number;
 }
 
+/**
+ * ClickHandler
+ *
+ * @component Component for handling click event listener.
+ *
+ * @prop {function} singleClickAction handling single click
+ * @prop {function} doubleClickAction handling double click
+ * 
+ * @returns {function}
+ * 
+ */
 export const ClickHandler = (
   singleClickAction: () => void,
   doubleClickAction: () => void,
@@ -122,6 +162,15 @@ export const ClickHandler = (
   };
 };
 
+/**
+ * ControlValuesDisplay
+ *
+ * @component Component for handling value display.
+ *
+ * Uses the [[Props]] interface
+ * 
+ * @return {JSX.Element}
+ */
 const ControlValuesDisplay = ({
   selector,
   label,
@@ -133,15 +182,30 @@ const ControlValuesDisplay = ({
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const alarmLimits = useSelector(getAlarmLimits, shallowEqual) as Record<string, Range>;
+
+  /**
+   * Function for handling click event listener
+   */
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
       setMultiPopupOpen(true, stateKey);
     }
   };
+
+  /**
+   * some description
+   */
   const handleClick = ClickHandler(onClick, () => {
     return false;
   });
+
+  /**
+   * Function for updating modal status.
+   * 
+   * @param {boolean} status desc for status
+   * 
+   */
   const updateModalStatus = (status: boolean) => {
     setOpen(status);
   };
@@ -224,10 +288,14 @@ const ControlValuesDisplay = ({
 };
 
 /**
- * Value Info
+ * ValueInfo
  *
- * Component for showing information.
+ * @component Component for showing information.
  *
+ * Uses the [[Props]] interface
+ * 
+ * @returns {JSX.Element}
+ * 
  */
 const ValueInfo = ({
   selector,

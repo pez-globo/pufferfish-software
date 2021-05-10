@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import React, { RefObject, useCallback, useEffect, useRef } from 'react';
@@ -80,6 +87,14 @@ const useStyles = makeStyles((theme: Theme) => ({
 //   PEDIATRIC,
 // }
 
+/**
+ * SettableParameters
+ *
+ * @component for setting quick start parameters
+ * 
+ * @returns {JSX.Element}
+ * 
+ */
 const SettableParameters = (): JSX.Element => {
   const classes = useStyles();
   const [elRefs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
@@ -100,6 +115,10 @@ const SettableParameters = (): JSX.Element => {
   const theme = useTheme();
   const { initRefListener } = useRotaryReference(theme);
 
+  /**
+   * some description
+   * 
+   */
   const initParameterUpdate = useCallback(() => {
     dispatch(
       updateCommittedState(PARAMETER_STANDBY, {
@@ -208,6 +227,14 @@ const SettableParameters = (): JSX.Element => {
   }
 };
 
+/**
+ * QuickStartPage
+ *
+ * @component for displaying quick start page
+ *
+ * @returns {JSX.Element}
+ * 
+ */
 export const QuickStartPage = (): JSX.Element => {
   const classes = useStyles();
   // const [patientSex, setPatientSex] = React.useState(PatientSex.MALE);
@@ -216,6 +243,10 @@ export const QuickStartPage = (): JSX.Element => {
   // const [patientCircuitTestDate] = React.useState(new Date());
   // const [preUseCheckDate] = React.useState(new Date());
 
+
+  /**
+   * some description
+   */
   const OnClickPage = () => {
     setActiveRotaryReference(null);
   };

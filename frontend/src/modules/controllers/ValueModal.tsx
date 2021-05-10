@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import React, { useCallback, useEffect, useRef } from 'react';
 import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core';
 import { shallowEqual, useSelector } from 'react-redux';
@@ -30,10 +37,33 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * @typedef SettingAdjustProps
+ *
+ * Interface for the adjusting props settings
+ *
+ * @prop {number} committedSetting desc for committedSetting
+ */
 export interface SettingAdjustProps {
   committedSetting: number;
 }
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the value model
+ *
+ * @prop {string} label desc for label
+ * @prop {string} units desc for units
+ * @prop {number} committedSetting desc for onChange
+ * @prop {boolean} disableSetNewButton desc for disableSetNewButton
+ * @prop {function} requestCommitSetting desc for requestCommitSetting
+ * @prop {function} updateModalStatus desc for updateModalStatus
+ * @prop {boolean} openModal desc for openModal
+ * @prop {number} min desc for min
+ * @prop {number} max desc for max
+ *
+ */
 interface Props {
   label: string;
   units?: string;
@@ -46,6 +76,22 @@ interface Props {
   max?: number;
 }
 
+/**
+ * @typedef ContentProps
+ *
+ * Props interface for the setting value
+ *
+ * @prop {string} label desc for label
+ * @prop {string} units desc for units
+ * @prop {number} committedSetting desc for onChange
+ * @prop {boolean} disableSetNewButton desc for disableSetNewButton
+ * @prop {function} requestCommitSetting desc for requestCommitSetting
+ * @prop {function} updateModalStatus desc for updateModalStatus
+ * @prop {boolean} openModal desc for openModal
+ * @prop {number} min desc for min
+ * @prop {number} max desc for max
+ *
+ */
 interface ContentProps {
   label: string;
   units?: string;
@@ -57,6 +103,15 @@ interface ContentProps {
   max?: number;
 }
 
+/**
+ * ValueModal
+ *
+ * @component A container for displaying value modal settings.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns JSX.Element
+ */
 export const ValueModal = ({
   label,
   units,
@@ -89,19 +144,29 @@ export const ValueModal = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  /**
+   * Function for handling opening of the model.
+   */
   const handleOpen = () => {
     setOpen(true);
   };
-
+  /**
+   * Function for handling closing of the model.
+   */
   const handleClose = () => {
     setOpen(false);
   };
-
+  /**
+   * Function for handling confirmation of the model.
+   */
   const handleConfirm = () => {
     requestCommitSetting(value);
     setOpen(false);
   };
 
+  /**
+   * Function for updating the slider Rotary data.
+   */
   const updateRotaryData = useCallback(
     () => {
       if (open) {
@@ -128,6 +193,13 @@ export const ValueModal = ({
     updateRotaryData();
   }, [updateRotaryData]);
 
+  /**
+   * Function for matching label with PIP.
+   *
+   * @param {string} label - desc for label
+   *
+   * @returns empty string
+   */
   function pipClarify(label: string) {
     if (label === 'PIP') return '*not PEEP compensated';
     return '';
@@ -188,6 +260,15 @@ export const ValueModal = ({
   );
 };
 
+/**
+ * SetValueContent
+ *
+ * @component A container for setting the value of modal settings.
+ *
+ * Uses the [[ContentProps]] interface
+ * @returns JSX.Element
+ */
+
 export const SetValueContent = ({
   label,
   units,
@@ -230,6 +311,9 @@ export const SetValueContent = ({
     requestCommitSetting(value);
   }, [requestCommitSetting, value]);
 
+  /**
+   * Function for handling the request commit setting.
+   */
   const handleConfirm = () => {
     requestCommitSetting(value);
   };
@@ -265,6 +349,13 @@ export const SetValueContent = ({
     }
   }, [updateRotaryData, rotaryEncoder.stepDiff]);
 
+  /**
+   * Function for matching label with PIP.
+   *
+   * @param {string} label - desc for label
+   *
+   * @returns empty string
+   */
   function pipClarify(label: string) {
     if (label === 'PIP') return '*not PEEP compensated';
     return '';

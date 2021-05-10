@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { CssBaseline } from '@material-ui/core';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import React, { Component } from 'react';
@@ -15,6 +22,17 @@ import Routes from '../navigation/Routes';
 const RIGHT_CLICK_BUTTON_KEY = 2;
 const TOUCH_SCREEN_BUTTON_KEY = 0;
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the App component
+ *
+ * @prop {typeof initialize} initialize desc for initialize
+ * @prop {string} locale desc for locale
+ * @prop {Record<string, string>} messages desc for messages
+ * @prop {FrontendDisplaySetting} displaySetting desc for displaySetting
+ *
+ */
 interface Props {
   initialize: typeof initialize;
   locale: string;
@@ -22,11 +40,27 @@ interface Props {
   displaySetting: FrontendDisplaySetting;
 }
 
+/**
+ * App
+ *
+ * @component some description
+ *
+ * Uses the [[Props]] interface
+ *
+ */
 class App extends Component<Props> {
   componentDidMount() {
     const { initialize } = this.props;
     initialize();
-    // Disable Right click across app
+
+    /**
+     * Disable Right click across app.
+     * 
+     * @param {MouseEvent} event desc for event
+     *
+     * @return {boolean}
+     *
+     */
     const disableContext = (event: MouseEvent): boolean => {
       if (event.button === RIGHT_CLICK_BUTTON_KEY || event.button === TOUCH_SCREEN_BUTTON_KEY) {
         event.preventDefault();
@@ -51,6 +85,9 @@ class App extends Component<Props> {
   }
 }
 
+/**
+ * some description
+ */
 const selector = createStructuredSelector<
   StoreState,
   { locale: string; messages: Record<string, string>; displaySetting: FrontendDisplaySetting }

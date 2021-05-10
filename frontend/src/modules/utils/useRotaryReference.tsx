@@ -1,8 +1,23 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { Theme } from '@material-ui/core';
 import { RefObject } from 'react';
 import { Subscription } from 'rxjs';
 import { getActiveRotaryReference } from '../app/Service';
 
+/**
+ * function for handling rotary reference.
+ * 
+ * @param {Theme} theme desc for theme
+ * 
+ * @returns {function} some description
+ * 
+ */
 export const useRotaryReference = (
   theme: Theme,
 ): { initRefListener(elRefs: Record<string, RefObject<HTMLDivElement>>): void } => {

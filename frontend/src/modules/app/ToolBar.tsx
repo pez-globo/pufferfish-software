@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { AppBar, Button, Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -50,11 +57,26 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * HeaderClock
+ *
+ * @component A container for displaying header clock of the page.
+ *
+ * @returns {JSX.Element} current time
+ */
 export const HeaderClock = (): JSX.Element => {
   const classes = useStyles();
   const clockTime = useSelector(getClockTime);
   return <span className={classes.paddingRight}>{clockTime}</span>;
 };
+
+/**
+ * PowerIndicator
+ *
+ * @component  A container for displaying battery indicator of the page.
+ *
+ * @returns {JSX.Element} battery percentage remain
+ */
 
 export const PowerIndicator = (): JSX.Element => {
   const classes = useStyles();
@@ -91,8 +113,13 @@ export const PowerIndicator = (): JSX.Element => {
 /**
  * ToolBar
  *
- * A container for displaying buttons that handle system changes based on
+ * @component A container for displaying buttons that handle system changes based on
  * various states and conditions such as ventilator state and current page route.
+ * 
+ * @param {React.ReactNode} children desc for children
+ * @param {boolean} staticStart desc for staticStart 
+ * 
+ * @returns {JSX.Element}
  */
 export const ToolBar = ({
   children,
@@ -116,6 +143,10 @@ export const ToolBar = ({
   const [label, setLabel] = useState('Start Ventilation');
   const [isDisabled, setIsDisabled] = useState(false);
   // const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
+
+  /**
+   * some description
+   */
   const updateVentilationStatus = () => {
     if (!staticStart) {
       dispatch(updateCommittedParameter({ ventilating: !isVentilatorOn }));
@@ -126,6 +157,9 @@ export const ToolBar = ({
     }
   };
 
+  /**
+   * some description
+   */
   const initParameterUpdate = useCallback(() => {
     if (isVentilatorOn) {
       switch (currentMode) {

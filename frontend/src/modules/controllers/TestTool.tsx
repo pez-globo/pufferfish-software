@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import React from 'react';
 import { Button, Grid, Typography, makeStyles, Theme } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
@@ -40,6 +47,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the Test tool
+ * @prop {string} label desc for label
+ * @prop {boolean} isSuccess desc for isSuccess
+ * @prop {Date} timestamp desc for timestamp
+ *
+ */
 interface Props {
   label: string;
   isSuccess: boolean;
@@ -49,7 +65,11 @@ interface Props {
 /**
  * TestTool
  *
- * A component for performing tests and calibrations.
+ * @component A component for performing tests and calibrations.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns JSX.Element
  */
 export const TestTool = ({ label, isSuccess, timestamp }: Props): JSX.Element => {
   const classes = useStyles();

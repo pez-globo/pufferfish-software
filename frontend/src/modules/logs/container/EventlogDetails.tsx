@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { Grid, TableCell, TableRow } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import React from 'react';
@@ -10,16 +17,31 @@ import SimpleTable, {
 } from '../../controllers/SimpleTable';
 
 /**
- * Event log details
+ * @typedef Data
  *
+ * Interface for event log details.
+ * 
+ * @prop {string} value  desc of value
+ * @prop {string} measurement desc of measurement
+ * @prop {number} id desc of id
+ * 
  */
-
 interface Data {
   value: string;
   measurement: string;
   id: number;
 }
 
+/**
+ * some description
+ * 
+ * @prop {string} value desc for value
+ * @prop {string} measurement desc for measurement
+ * @prop {number} id desc for id
+ * 
+ * @returns {Data}
+ * 
+ */
 function createData(value: string, measurement: string, id: number): Data {
   return { value, measurement, id };
 }
@@ -54,7 +76,12 @@ const headCells: HeadCell[] = [
 ];
 
 /**
- * Event Logs detail page
+ * EventlogDetails
+ *
+ * @component Event Logs detail page
+ *
+ * @returns {JSX.Element}
+ * 
  */
 export const EventlogDetails = (): JSX.Element => {
   const theme = useTheme();
@@ -65,6 +92,13 @@ export const EventlogDetails = (): JSX.Element => {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
+  /**
+   * Function for handling the click event.
+   * 
+   * @param {React.MouseEvent<unknown>} event desc for event
+   * @param {string} name desc for name
+   * 
+   */
   const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
     const selectedIndex = selected.indexOf(name);
     let newSelected: string[] = [];
@@ -84,6 +118,14 @@ export const EventlogDetails = (): JSX.Element => {
     setSelected(newSelected);
   };
 
+  /**
+   * Function for handling error message and shown in red color
+   * 
+   * @param {number} id  table row id
+   * 
+   * @returns {object} some description
+   * 
+   */
   function makeRed(id: number) {
     if (id === 3) return { color: theme.palette.error.main };
     return {};

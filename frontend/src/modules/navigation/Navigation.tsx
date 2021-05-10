@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import { Tab, Tabs, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { PropsWithChildren, useEffect } from 'react';
@@ -58,10 +65,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
   },
 }));
+
 /**
  * Navigation
  *
- * The main interface for router/page-based navigation.
+ * @component The main interface for router/page-based navigation.
+ * 
+ * @param {boolean} fullPage desc for fullPage
+ * @param {function} toggleStatus desc for toggleStatus
+ *
+ * @returns {JSX.Element}
+ * 
  */
 export const Navigation = ({
   fullPage,
@@ -90,6 +104,13 @@ export const Navigation = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
+  /**
+   * function for handling route changes
+   * 
+   * @param {React.ChangeEvent<Record<string, unknown>>} event desc for event
+   * @param {number} newRoute desc for newRoute
+   * 
+   */
   const handleRouteChange = (
     event: React.ChangeEvent<Record<string, unknown>>,
     newRoute: number,
@@ -100,6 +121,14 @@ export const Navigation = ({
     setRoute(newRoute);
   };
 
+  /**
+   * RouteLabel
+   * 
+   * @component handles route labels
+   * 
+   * @returns {JSX.Element}
+   * 
+   */
   const RouteLabel = (
     props: PropsWithChildren<{ fullPage?: boolean; label: string }>,
   ): JSX.Element => {
