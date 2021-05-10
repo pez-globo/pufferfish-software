@@ -4,7 +4,7 @@
  *      Author: March Boonyapaluk
  */
 
-#include <Pufferfish/HAL/STM32/DigitalOutput.h>
+#include "Pufferfish/HAL/STM32/DigitalOutput.h"
 
 namespace Pufferfish::HAL::STM32 {
 

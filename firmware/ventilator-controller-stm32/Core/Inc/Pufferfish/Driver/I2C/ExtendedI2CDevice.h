@@ -7,7 +7,7 @@
 #pragma once
 
 #include "I2CMux.h"
-#include "Pufferfish/HAL/STM32/HAL.h"
+#include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 #include "Pufferfish/Types.h"
 
 namespace Pufferfish {

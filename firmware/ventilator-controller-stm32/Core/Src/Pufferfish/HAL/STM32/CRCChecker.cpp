@@ -4,7 +4,7 @@
  *      Author: March Boonyapaluk
  */
 
-#include <Pufferfish/HAL/STM32/CRCChecker.h>
+#include "Pufferfish/HAL/STM32/CRCChecker.h"
 
 namespace Pufferfish::HAL::STM32 {
 

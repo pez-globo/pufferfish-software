@@ -18,7 +18,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <Pufferfish/HAL/STM32/AnalogInput.h>
+#include "Pufferfish/HAL/STM32/AnalogInput.h"
 
 namespace Pufferfish::HAL::STM32 {
 

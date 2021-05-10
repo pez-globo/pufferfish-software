@@ -7,7 +7,6 @@
 #pragma once
 
 #include "Pufferfish/HAL/Interfaces/DigitalOutput.h"
-#include "Pufferfish/HAL/STM32/HAL.h"
 #include "stm32h7xx_hal.h"
 
 namespace Pufferfish {

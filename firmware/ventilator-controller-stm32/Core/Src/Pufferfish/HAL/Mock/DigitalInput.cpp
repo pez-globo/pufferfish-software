@@ -19,7 +19,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <Pufferfish/HAL/Mock/DigitalInput.h>
+#include "Pufferfish/HAL/Mock/DigitalInput.h"
 
 namespace Pufferfish::HAL::Mock {
 

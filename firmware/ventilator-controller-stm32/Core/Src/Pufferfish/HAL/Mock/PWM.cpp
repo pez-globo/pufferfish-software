@@ -18,7 +18,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <Pufferfish/HAL/Mock/PWM.h>
+#include "Pufferfish/HAL/Mock/PWM.h"
 
 namespace Pufferfish::HAL::Mock {
 

@@ -10,7 +10,7 @@
 #pragma once
 
 #include "AlarmDevice.h"
-#include "Pufferfish/HAL/STM32/HAL.h"
+#include "Pufferfish/HAL/Interfaces/DigitalOutput.h"
 
 struct LEDAlarmParameters {
   bool out_high;

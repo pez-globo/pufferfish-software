@@ -10,13 +10,13 @@
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/Driver/Serial/Backend/Backend.h"
 #include "Pufferfish/HAL/Interfaces/CRCChecker.h"
-#include "Pufferfish/HAL/STM32/BufferedUART.h"
+#include "Pufferfish/HAL/Interfaces/BufferedUART.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
 class UARTBackend {
  public:
-  using BufferedUART = HAL::STM32::LargeBufferedUART;
+  using BufferedUART = HAL::Interfaces::BufferedUART;
 
   UARTBackend(
       volatile BufferedUART &uart,
