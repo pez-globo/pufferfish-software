@@ -61,7 +61,7 @@ INITIAL_VALUES = {
     backend.StateSegment.ALARM_MUTE: mcu_pb.AlarmMute(
         active=False, remaining=120
     ),
-    backend.StateSegment.ALARM_MUTE_REQUEST: mcu_pb.AlarmMute(
+    backend.StateSegment.ALARM_MUTE_REQUEST: mcu_pb.AlarmMuteRequest(
         active=False, remaining=120
     ),
     backend.StateSegment.BATTERY_POWER: mcu_pb.BatteryPower(
