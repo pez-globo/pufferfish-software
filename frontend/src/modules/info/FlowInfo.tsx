@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -27,12 +33,20 @@ const units = LMIN;
 /**
  * FlowInfo
  *
- * A `Knob`-based component for handling Flow information.
+ * @component A `Knob`-based component for handling Flow information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const FlowInfo = (): JSX.Element => {
   const dispatch = useDispatch();
+
+  /**
+   * Sets the flow
+   *
+   * @param {number} setting - desc for setting
+   */
   const doSetFlow = (setting: number) => {
     dispatch(updateCommittedParameter({ flow: setting }));
     dispatch(updateCommittedState(PARAMETER_STANDBY, { flow: setting }));

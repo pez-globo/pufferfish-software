@@ -1,6 +1,21 @@
+/**
+ * @summary SVG based component for "Trend Up" icon
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 
+/**
+ * TrendUpIcon
+ *
+ * @component Component for displaying "Trend Up" icon
+ *
+ * @param {SvgIconProps} props - some desc for props
+ *
+ * @returns {JSX.Element} - "Trend Up" icon
+ */
 const TrendUpIcon = (props: SvgIconProps): JSX.Element => {
   return (
     <SvgIcon {...props} width="44" height="44" viewBox="0 0 44 44">

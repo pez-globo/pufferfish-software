@@ -1,6 +1,21 @@
+/**
+ * @summary SVG based component for "Gear" icon
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 
+/**
+ * GearIcon
+ *
+ * @component Component for displaying "Gear" icon
+ *
+ * @param {SvgIconProps} props - some desc for props
+ *
+ * @returns {JSX.Element} - "Gear" icon
+ */
 const GearIcon = (props: SvgIconProps): JSX.Element => {
   return (
     <SvgIcon {...props} width="28.451" height="28.451" viewBox="0 0 28.451 28.451">

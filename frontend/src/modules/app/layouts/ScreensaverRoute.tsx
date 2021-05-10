@@ -1,7 +1,8 @@
 /**
- * This is the doc comment for Screensaver Layout
- * @packageDocumentation
- * @module screensaver-layout
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
  */
 import { AppBar, Grid, makeStyles, Theme } from '@material-ui/core';
 import React, { PropsWithChildren, useEffect } from 'react';
@@ -65,6 +66,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * ScreensaverLayout
+ *
+ * @component Component for screensaver layout
+ *
+ * @returns {JSX.Element}
+ */
 const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
 
@@ -79,6 +87,13 @@ const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Elemen
   );
 };
 
+/**
+ * ContentComponent
+ *
+ * @component Component for displaying the main content
+ *
+ * @returns {JSX.Element}
+ */
 const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
   const history = useHistory();
@@ -90,6 +105,9 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
     setShowBorder(notifyAlarm);
   }, [notifyAlarm]);
 
+  /**
+   * some description
+   */
   const onClick = () => {
     history.push(ventilating ? DASHBOARD_ROUTE.path : QUICKSTART_ROUTE.path);
   };
@@ -121,6 +139,13 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
   );
 });
 
+/**
+ * ScreensaverRoute
+ *
+ * @component Component for displaying the screen saver layout
+ *
+ * @returns {JSX.Element | null}
+ */
 const ScreensaverRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
   if (!Component) return null;
   return (

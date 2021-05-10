@@ -1,6 +1,21 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 
+/**
+ * Clock
+ *
+ * @component some description
+ *
+ * @param {SvgIconProps} props - some desc for props
+ *
+ * @returns {JSX.Element} - some description for return value
+ */
 const Clock = (props: SvgIconProps): JSX.Element => {
   return (
     <SvgIcon {...props} width="87" height="24" viewBox="0 0 87 24">

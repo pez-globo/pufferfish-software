@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React from 'react';
 import { ValueSelectorDisplay } from '../displays/ValueSelectorDisplay';
@@ -42,7 +48,11 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * ValueJumbotron
  *
- * A component for displaying values in a large way.
+ * @component A component for displaying values in a large way.
+ *
+ * Uses the [[SelectorProps]] interface
+ *
+ * @returns {JSX.Element}
  */
 export const ValueJumbotron = ({
   selector,

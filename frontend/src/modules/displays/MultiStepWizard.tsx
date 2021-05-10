@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React, { useEffect } from 'react';
 import { Subscription } from 'rxjs';
 import { useDispatch } from 'react-redux';
@@ -26,6 +32,26 @@ import {
 } from '../../store/controller/types';
 import store from '../../store';
 
+/**
+ * @typedef Data
+ *
+ * Interface for Data
+ *
+ * @prop {string} stateKey desc for stateKey
+ * @prop {string} label desc for label
+ * @prop {string} units desc for units
+ * @prop {boolean} isAlarmEnabled desc for isAlarmEnabled
+ * @prop {boolean} isSetvalEnabled desc for isSetvalEnabled
+ * @prop {number | null} committedSetting desc for committedSetting
+ * @prop {number[]} alarmValues desc for alarmValues
+ * @prop {number} setValue desc for setValue
+ * @prop {number | null} minValue desc for minValue
+ * @prop {number | null} maxValue desc for maxValue
+ * @prop {number | null} alarmLimitMin desc for alarmLimitMin
+ * @prop {number | null} alarmLimitMax desc for alarmLimitMax
+ * @prop {number[]} alarmValuesActual desc for alarmValuesActual
+ * @prop {number} setValueActual desc for setValueActual
+ */
 interface Data {
   stateKey: string;
   label: string;
@@ -106,6 +132,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * HFNCControls
+ *
+ * @component A container for displaying the HFNC controls.
+ *
+ * @returns {JSX.Element}
+ */
 const HFNCControls = (): JSX.Element => {
   return (
     <React.Fragment>
@@ -156,6 +189,23 @@ const HFNCControls = (): JSX.Element => {
   );
 };
 
+/**
+ * some description
+ *
+ * @param {string} label - some desc for label
+ * @param {string} stateKey - some desc for stateKey
+ * @param {string} units - some desc for units
+ * @param {boolean} isSetvalEnabled - some desc for isSetvalEnabled
+ * @param {boolean} isAlarmEnabled - some desc for isAlarmEnabled
+ * @param {number[]} alarmValuesActual - some desc for alarmValuesActual
+ * @param {number | null} committedSetting - some desc for committedSetting
+ * @param {number | null} minValue - some desc for minValue
+ * @param {number | null} maxValue - some desc for maxValue
+ * @param {number | null} alarmLimitMin - some desc for alarmLimitMin
+ * @param {number | null} alarmLimitMax - some desc for alarmLimitMax
+ *
+ * @returns {Data} - some description for the return value
+ */
 const createData = (
   label: string,
   stateKey: string,
@@ -187,6 +237,13 @@ const createData = (
   };
 };
 
+/**
+ * some description
+ *
+ * @param {string} stateKey - some desc for stateKey
+ *
+ * @returns {number | null} - some description for the return value
+ */
 const getStoreValueData = (stateKey: string): number | null => {
   const storeData = store.getState();
   switch (stateKey) {
@@ -199,6 +256,13 @@ const getStoreValueData = (stateKey: string): number | null => {
   return null;
 };
 
+/**
+ * some description
+ *
+ * @param {string} stateKey - some desc for stateKey
+ *
+ * @returns {number[] | null} - some description for the return value
+ */
 const getStoreAlarmData = (stateKey: string): number[] | null => {
   const storeData = store.getState();
   const alarmLimits = storeData.controller.alarmLimitsRequest;
@@ -212,7 +276,15 @@ const getStoreAlarmData = (stateKey: string): number[] | null => {
   return null;
 };
 
-// TODO: Make a constant file for stateKey Constants
+/**
+ * some description
+ *
+ * TODO: Make a constant file for stateKey Constants
+ *
+ * @param {string} stateKey - some desc for stateKey
+ *
+ * @returns {Data | undefined} - some description for the return value
+ */
 const determineInput = (stateKey: string): Data | undefined => {
   switch (stateKey) {
     case 'spo2':
@@ -268,6 +340,13 @@ const determineInput = (stateKey: string): Data | undefined => {
   return undefined;
 };
 
+/**
+ * MultiStepWizard
+ *
+ * @component A container for displaying the multi-step wizard.
+ *
+ * @returns {JSX.Element}
+ */
 const MultiStepWizard = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -281,6 +360,13 @@ const MultiStepWizard = (): JSX.Element => {
   const [multiParams, setMultiParams] = React.useState<Data[]>([]);
   const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);
 
+  /**
+   * Some description
+   *
+   * @param {React.ChangeEvent<Record<string, unknown>>} event - some desc for event
+   * @param {number} newValue - some desc for newValue
+   *
+   */
   const handleChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setTabIndex(newValue);
   };
@@ -336,6 +422,12 @@ const MultiStepWizard = (): JSX.Element => {
     }
   }, [parameter, multiParams]);
 
+  /**
+   * Some description
+   *
+   * @param {number} setting - some desc for setting
+   *
+   */
   const doSetValue = (setting: number) => {
     if (parameter) {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
@@ -349,6 +441,13 @@ const MultiStepWizard = (): JSX.Element => {
     }
   };
 
+  /**
+   * Some description
+   *
+   * @param {number} min - the lower limit for the alarm value
+   * @param {number} max - the upper limit for the alarm value
+   *
+   */
   const doSetAlarmValues = (min: number, max: number) => {
     if (parameter) {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
@@ -362,6 +461,14 @@ const MultiStepWizard = (): JSX.Element => {
     }
   };
 
+  /**
+   * Some description
+   *
+   * @param {string} stateKey - some desc for stateKey
+   *
+   * @return {Array} - some description for the return value
+   *
+   */
   const getAlarmValues = (stateKey: string) => {
     const param = multiParams.find((param: Data) => param.stateKey === stateKey);
     if (param) {
@@ -370,6 +477,14 @@ const MultiStepWizard = (): JSX.Element => {
     return [];
   };
 
+  /**
+   * Some description
+   *
+   * @param {string} stateKey - some desc for stateKey
+   *
+   * @return {number} - some description for the return value
+   *
+   */
   const getSetValues = (stateKey: string) => {
     const param = multiParams.find((param: Data) => param.stateKey === stateKey);
     if (param && param.setValue) {
@@ -379,6 +494,12 @@ const MultiStepWizard = (): JSX.Element => {
     return 0;
   };
 
+  /**
+   * Checks if there are any changes
+   *
+   * @return {boolean} - true if change is there; false if there are no changes
+   *
+   */
   const isAnyChanges = () => {
     let anyChange = false;
     multiParams.forEach((param: Data) => {
@@ -397,6 +518,9 @@ const MultiStepWizard = (): JSX.Element => {
     return anyChange;
   };
 
+  /**
+   * some description
+   */
   const onCancel = () => {
     if (isAnyChanges()) {
       setCancelOpen(true);
@@ -405,6 +529,9 @@ const MultiStepWizard = (): JSX.Element => {
     }
   };
 
+  /**
+   * some description
+   */
   const onConfirm = () => {
     if (isAnyChanges()) {
       setConfirmOpen(true);
@@ -413,6 +540,10 @@ const MultiStepWizard = (): JSX.Element => {
     }
   };
 
+  /**
+   * Handles the click of confirm button
+   *
+   */
   const handleConfirm = () => {
     multiParams.forEach((parameter: Data) => {
       if (parameter.isSetvalEnabled) {
@@ -445,6 +576,10 @@ const MultiStepWizard = (): JSX.Element => {
     setMultiPopupOpen(false);
   };
 
+  /**
+   * Some description
+   *
+   */
   const handleCancelConfirm = () => {
     if (parameter) {
       parameter.setValue = parameter.setValueActual;
@@ -461,11 +596,19 @@ const MultiStepWizard = (): JSX.Element => {
     setMultiPopupOpen(false);
   };
 
+  /**
+   * Some description
+   *
+   */
   const handleCancelOnConfirmPopup = () => {
     setConfirmOpen(false);
     // setMultiPopupOpen(true, stateKey);
   };
 
+  /**
+   * Some description
+   *
+   */
   const handleCancelOnCancelPopup = () => {
     setCancelOpen(false);
     // setMultiPopupOpen(true, stateKey);s

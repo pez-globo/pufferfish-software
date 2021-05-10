@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 import { makeStyles, Theme } from '@material-ui/core/styles';
@@ -8,6 +14,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * Power25Icon
+ *
+ * @component some description
+ *
+ * @param {SvgIconProps} props - some desc for props
+ *
+ * @returns {JSX.Element} - some description
+ */
 const Power25Icon = (props: SvgIconProps): JSX.Element => {
   const classes = useStyles();
   return (

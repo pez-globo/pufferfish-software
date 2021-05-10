@@ -1,7 +1,24 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useSelector, shallowEqual } from 'react-redux';
 import { getRotaryEncoder } from '../../store/controller/selectors';
 
+/**
+ * @typedef Props
+ *
+ * Props interface for RotaryEncodeController component
+ *
+ * @prop {number} value desc for value
+ * @prop {function} onClick desc for onClick
+ * @prop {number} min desc for min
+ * @prop {number} max desc for max
+ * @prop {boolean} isActive desc for isActive
+ */
 interface Props {
   value: number;
   onClick: (value: number) => void;
@@ -13,7 +30,11 @@ interface Props {
 /**
  * RotaryEncodeController
  *
- * A re-usable "RotaryEncoder" component for adjusting ValueClicker value
+ * @component A re-usable "RotaryEncoder" component for adjusting ValueClicker value
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns JSX.Element
  */
 export const RotaryEncodeController = ({
   value,

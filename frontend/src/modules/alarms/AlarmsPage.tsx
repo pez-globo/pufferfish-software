@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
@@ -97,6 +103,19 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 // NOTE: Temporary Alarm until the UI team address interface concerns.
+/**
+ * @typedef AlarmProps
+ *
+ * Interface for the Alarm page
+ *
+ * @prop {string} label desc for label
+ * @prop {number} min desc for min
+ * @prop {number} max desc for max
+ * @prop {string} stateKey desc for stateKey
+ * @prop {number} step desc for step
+ * @prop {Record<string, Range>} alarmLimits desc for alarmLimits
+ * @prop {function} setAlarmLimits desc for setAlarmLimits
+ */
 interface AlarmProps {
   label: string;
   min: number;
@@ -112,6 +131,15 @@ enum SliderType {
   UPPER,
 }
 
+/**
+ * Alarm
+ *
+ * @component Component for displaying Alarm
+ *
+ * Uses the [[AlarmProps]] interface
+ *
+ * @returns {JSX.Element}
+ */
 const Alarm = ({
   label,
   min,
@@ -129,9 +157,24 @@ const Alarm = ({
     [`${stateKey}_LOWER`]: useRef(null),
     [`${stateKey}_HIGHER`]: useRef(null),
   });
+
+  /**
+   * some description
+   *
+   * @param {number[]} range - some desc for range
+   *
+   */
   const setRangevalue = (range: number[]) => {
     setAlarmLimits({ [stateKey]: { lower: range[0], upper: range[1] } });
   };
+
+  /**
+   * some description
+   *
+   * @param {number} value - some desc for value
+   * @param {SliderType} type - some desc for type
+   *
+   */
   const onClick = (value: number, type: SliderType) => {
     setActiveRotaryReference(
       type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
@@ -236,6 +279,17 @@ const Alarm = ({
   );
 };
 
+/**
+ * @typedef AlarmConfiguration
+ *
+ * Interface for the alarm configuration
+ *
+ * @prop {string} label desc for label
+ * @prop {number} min desc for min
+ * @prop {number} max desc for max
+ * @prop {string} stateKey desc for stateKey
+ * @prop {number} step desc for step
+ */
 interface AlarmConfiguration {
   label: string;
   min?: number;
@@ -244,6 +298,12 @@ interface AlarmConfiguration {
   step?: number;
 }
 
+/**
+ * @param {VentilationMode} ventilationMode - desc for ventilationMode
+ *
+ * @returns {AlarmConfiguration[]} description for return value
+ *
+ */
 const alarmConfiguration = (ventilationMode: VentilationMode): Array<AlarmConfiguration> => {
   switch (ventilationMode) {
     case VentilationMode.hfnc:
@@ -275,13 +335,22 @@ const alarmConfiguration = (ventilationMode: VentilationMode): Array<AlarmConfig
 /**
  * AlarmsPage
  *
- * A container for housing all alarm configurations.
+ * @component A container for housing all alarm configurations.
+ *
+ * @returns {JSX.Element}
  */
 export const AlarmsPage = (): JSX.Element => {
   const classes = useStyles();
   const itemsPerPage = 5;
   const [page, setPage] = React.useState(1);
   const [pageCount, setPageCount] = React.useState(1);
+
+  /**
+   * some desc
+   *
+   * @param {React.ChangeEvent<unknown>} event - desc for event
+   * @param {number} value - desc for value
+   */
   const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
@@ -291,6 +360,12 @@ export const AlarmsPage = (): JSX.Element => {
   const currentMode = useSelector(getParametersRequestMode);
   const ventilating = useSelector(getIsVentilating);
   const [alarmLimits, setAlarmLimits] = useState(alarmLimitsRequest as Record<string, Range>);
+
+  /**
+   * Function for updating alarm limits
+   *
+   * @param {Partial<AlarmLimitsRequest>} data - desc for data
+   */
   const updateAlarmLimits = (data: Partial<AlarmLimitsRequest>) => {
     setAlarmLimits({ ...alarmLimits, ...data } as Record<string, Range>);
     dispatch(updateCommittedState(ALARM_LIMITS_STANDBY, alarmLimits));
@@ -299,14 +374,24 @@ export const AlarmsPage = (): JSX.Element => {
   const alarmConfig = alarmConfiguration(currentMode);
   const [open, setOpen] = useState(false);
 
+  /**
+   * Function for handling close
+   */
   const handleClose = () => {
     setOpen(false);
   };
 
+  /**
+   * Function for handling the confirm button
+   */
   const handleConfirm = () => {
     setOpen(false);
     applyChanges();
   };
+
+  /**
+   * Function for handling open
+   */
   const handleOpen = () => {
     setOpen(true);
   };
@@ -315,6 +400,9 @@ export const AlarmsPage = (): JSX.Element => {
     setPageCount(Math.ceil(alarmConfig.length / itemsPerPage));
   }, [alarmConfig]);
 
+  /**
+   * some description
+   */
   const OnClickPage = () => {
     setActiveRotaryReference(null);
   };

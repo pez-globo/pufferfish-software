@@ -1,3 +1,9 @@
+/**
+ * @summary SVG based component for "Chart" icon
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 import { makeStyles, Theme } from '@material-ui/core/styles';
@@ -8,6 +14,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * ChartIcon
+ *
+ * @component Component for displaying "Chart" icon
+ *
+ * @param {SvgIconProps} props - some desc for props
+ *
+ * @returns {JSX.Element} - "Chart" icon
+ */
 const ChartIcon = (props: SvgIconProps): JSX.Element => {
   const classes = useStyles();
   return (

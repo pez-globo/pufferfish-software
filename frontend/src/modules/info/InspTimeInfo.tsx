@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -20,9 +26,11 @@ const units = SECOND;
 /**
  * InspTimeInfo
  *
- * A `Knob`-based component for handling Inspiration Time information.
+ * @component A `Knob`-based component for handling Inspiration Time information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const InspTimeInfo = (): JSX.Element => (
   <Knob

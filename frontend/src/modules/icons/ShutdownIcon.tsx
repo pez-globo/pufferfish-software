@@ -1,6 +1,21 @@
+/**
+ * @summary SVG based component for "Shutdown" icon
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 
+/**
+ * ShutdownIcon
+ *
+ * @component Component for displaying "Shutdown" icon
+ *
+ * @param {SvgIconProps} props - some desc for props
+ *
+ * @returns {JSX.Element} - "Shutdown" icon
+ */
 const ShutdownIcon = (props: SvgIconProps): JSX.Element => {
   return (
     <SvgIcon {...props} width="20.235" height="22.164" viewBox="0 0 20.235 22.164">

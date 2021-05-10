@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -19,9 +25,11 @@ const units = CMH20;
 /**
  * PawInfo
  *
- * A `Knob`-based component for handling Paw information.
+ * @component A `Knob`-based component for handling Paw information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const PawInfo = (): JSX.Element => (
   <Knob

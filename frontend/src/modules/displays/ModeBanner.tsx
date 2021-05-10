@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import { Grid, Typography, makeStyles, Theme } from '@material-ui/core';
 import { useSelector } from 'react-redux';
@@ -13,6 +19,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * Get display-text for the selected ventilation mode
+ *
+ * @param {VentilationMode} mode - description for mode
+ *
+ * @returns {string} - corresponding text for the selected mode
+ */
 export const getModeText = (mode: VentilationMode): string => {
   switch (mode) {
     case VentilationMode.hfnc:
@@ -32,6 +45,13 @@ export const getModeText = (mode: VentilationMode): string => {
   }
 };
 
+/**
+ * @typedef Props
+ *
+ * Props Interface for the Mode Banner component
+ *
+ * @prop {string} bannerType desc for bannerType
+ */
 export interface Props {
   bannerType: string;
 }
@@ -39,14 +59,27 @@ export interface Props {
 /**
  * ModeBanner
  *
- * A contianer for displaying the current mode in a large font banner.
+ * @component A container for displaying the current mode in a large font banner.
+ *
+ * Uses the [[Props]] interface
  *
  * TODO: Hook up the `mode` prop to the redux store so we can display
  *       the current mode below.
+ *
+ * @returns {JSX.Element}
+ *
  */
 export const ModeBanner = ({ bannerType }: Props): JSX.Element => {
   const classes = useStyles();
   const mode = useSelector(getParametersRequestMode);
+
+  /**
+   * some description
+   *
+   * @param {string} bannerType desc for bannerType
+   *
+   * @returns {}
+   */
   function color(bannerType: string) {
     if (bannerType === 'screenSaver') return classes.screenSaver;
     return classes.normal;

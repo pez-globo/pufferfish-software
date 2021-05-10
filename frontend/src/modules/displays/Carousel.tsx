@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import { makeStyles } from '@material-ui/core';
 import React, { ReactElement, useState } from 'react';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
@@ -122,6 +128,15 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+/**
+ * CarouselLeftArrow
+ *
+ * @component A container for displaying the left arrow of carousel.
+ *
+ * @param {function} onClick - some desc for onClick
+ *
+ * @returns {JSX.Element}
+ */
 const CarouselLeftArrow = ({ onClick }: { onClick(): void }): JSX.Element => {
   const classes = useStyles();
 
@@ -139,6 +154,15 @@ const CarouselLeftArrow = ({ onClick }: { onClick(): void }): JSX.Element => {
   );
 };
 
+/**
+ * CarouselRightArrow
+ *
+ * @component A container for displaying the right arrow of carousel.
+ *
+ * @param {function} onClick - some desc for onClick
+ *
+ * @returns {JSX.Element}
+ */
 const CarouselRightArrow = ({ onClick }: { onClick(): void }): JSX.Element => {
   const classes = useStyles();
 
@@ -156,6 +180,17 @@ const CarouselRightArrow = ({ onClick }: { onClick(): void }): JSX.Element => {
   );
 };
 
+/**
+ * CarouselIndicator
+ *
+ * @component A container for displaying the indicators of carousel.
+ *
+ * @param {function} onClick - some desc for onClick
+ * @param {number} activeIndex - some desc for activeIndex
+ * @param {number} index - some desc for index
+ *
+ * @returns {JSX.Element}
+ */
 const CarouselIndicator = ({
   onClick,
   activeIndex,
@@ -185,6 +220,17 @@ const CarouselIndicator = ({
   );
 };
 
+/**
+ * CarouselSlide
+ *
+ * @component A container for displaying the slides of carousel.
+ *
+ * @param {ReactElement} slide - some desc for slide
+ * @param {number} activeIndex - some desc for activeIndex
+ * @param {number} index - some desc for index
+ *
+ * @returns {JSX.Element}
+ */
 const CarouselSlide = ({
   slide,
   activeIndex,
@@ -210,10 +256,22 @@ const CarouselSlide = ({
 };
 
 // Carousel wrapper component
+/**
+ * Carousel
+ *
+ * @component A container for displaying the carousel wrapper.
+ *
+ * @param {ReactElement[]} slides - some desc for slides
+ *
+ * @returns {JSX.Element}
+ */
 export const Carousel = ({ slides }: { slides: ReactElement[] }): JSX.Element => {
   const classes = useStyles();
   const [activeIndex, setActiveIndex] = useState(0);
 
+  /**
+   * Goes to the previous slide
+   */
   const goToPrevSlide = () => {
     let index = activeIndex;
     const slidesLength = slides.length;
@@ -224,6 +282,9 @@ export const Carousel = ({ slides }: { slides: ReactElement[] }): JSX.Element =>
     setActiveIndex(index);
   };
 
+  /**
+   * Goes to the next slide
+   */
   const goToNextSlide = () => {
     let index = activeIndex;
     const slidesLength = slides.length - 1;

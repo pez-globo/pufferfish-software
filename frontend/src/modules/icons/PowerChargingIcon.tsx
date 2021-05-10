@@ -1,3 +1,9 @@
+/**
+ * @summary SVG based component for "Power Charging" icon
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 import { makeStyles, Theme } from '@material-ui/core/styles';
@@ -8,6 +14,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * PowerChargingIcon
+ *
+ * @component Component for displaying "Power Charging" icon
+ *
+ * @param {SvgIconProps} props - some desc for props
+ *
+ * @returns {JSX.Element} - "Power Charging" icon
+ */
 const PowerChargingIcon = (props: SvgIconProps): JSX.Element => {
   const classes = useStyles();
   return (

@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import { ValueDisplay } from '../displays/ValueDisplay';
 import { Knob } from '../controllers';
@@ -5,9 +11,11 @@ import { Knob } from '../controllers';
 /**
  * IERatioInfo
  *
- * A `Knob`-based component for handling I:E Ratio information.
+ * @component A `Knob`-based component for handling I:E Ratio information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const IERatioInfo = (): JSX.Element => (
   <Knob

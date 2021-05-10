@@ -1,6 +1,21 @@
+/**
+ * @summary SVG based component for "Dropdown Arrow" icon
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 import React from 'react';
 
+/**
+ * ArrowDropdown
+ *
+ * @component Component for displaying "Dropdown Arrow" icon
+ *
+ * @param {SvgIconProps} props - some desc for props
+ *
+ * @returns {JSX.Element} - "Dropdown Arrow" icon
+ */
 const ArrowDropdown = (props: SvgIconProps): JSX.Element => {
   return (
     <SvgIcon {...props} width="12.3" height="6.15" viewBox="0 0 12.3 6.15">

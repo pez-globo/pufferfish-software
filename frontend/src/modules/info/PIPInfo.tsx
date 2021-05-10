@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -27,12 +33,20 @@ const units = CMH20;
 /**
  * PIPInfo
  *
- * A `Knob`-based component for handling PIP information.
+ * @component A `Knob`-based component for handling PIP information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const PIPInfo = (): JSX.Element => {
   const dispatch = useDispatch();
+
+  /**
+   * some description
+   *
+   * @param {number} setting - desc for setting
+   */
   const doSetPIP = (setting: number) => {
     dispatch(updateCommittedParameter({ pip: setting }));
     dispatch(updateCommittedState(PARAMETER_STANDBY, { pip: setting }));

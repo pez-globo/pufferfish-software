@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import { OutputSelector } from 'reselect';
 import { useSelector } from 'react-redux';
@@ -7,11 +13,28 @@ import { useSelector } from 'react-redux';
 // eslint-disable-next-line
 export type SelectorType = OutputSelector<any, any, any>;
 
+/**
+ * @typedef ValueSelectorDisplayProps
+ *
+ * Props Interface for the ValueSelectorDisplay component
+ *
+ * @prop {SelectorType} selector desc for selector
+ * @prop {number} decimal desc for decimal
+ */
 interface ValueSelectorDisplayProps {
   selector: SelectorType;
   decimal?: number;
 }
 
+/**
+ * ValueSelectorDisplay
+ *
+ * @component A container for displaying the value selectors.
+ *
+ * Uses the [[ValueSelectorDisplay]] interface
+ *
+ * @returns {JSX.Element}
+ */
 export const ValueSelectorDisplay = ({
   selector,
   decimal = 0,

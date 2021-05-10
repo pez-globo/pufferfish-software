@@ -1,6 +1,21 @@
+/**
+ * @summary SVG based component for "Lungs" icon
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 
+/**
+ * LungsIcon
+ *
+ * @component Component for displaying "Lungs" icon
+ *
+ * @param {SvgIconProps} props - some desc for props
+ *
+ * @returns {JSX.Element} - "Lungs" icon
+ */
 const LungsIcon = (props: SvgIconProps): JSX.Element => {
   return (
     <SvgIcon {...props} width="31.522" height="28.272" viewBox="0 0 31.522 28.272">

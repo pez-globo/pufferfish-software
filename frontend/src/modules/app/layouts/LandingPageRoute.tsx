@@ -1,7 +1,8 @@
 /**
- * This is the doc comment for Landing Page Layout
- * @packageDocumentation
- * @module landing-page-layout
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
  */
 import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
@@ -50,6 +51,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * SidebarLayout
+ *
+ * @component Component for displaying sidebar
+ *
+ * @returns {JSX.Element}
+ */
 const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
 
@@ -63,6 +71,13 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
   );
 };
 
+/**
+ * ContentComponent
+ *
+ * @component Component for displaying the main content
+ *
+ * @returns {JSX.Element}
+ */
 const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
 
@@ -80,6 +95,13 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
   );
 });
 
+/**
+ * ContentComponent
+ *
+ * @component Component for displaying the landing page layout
+ *
+ * @returns {JSX.Element | null}
+ */
 const LandingPageRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
   if (!Component) return null;
   return (

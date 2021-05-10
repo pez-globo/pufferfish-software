@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import { Button, Grid, makeStyles, Theme, Typography, useTheme } from '@material-ui/core';
 import React, { RefObject, useCallback, useEffect, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
@@ -44,11 +50,39 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * @typedef AlarmAdjustProps
+ *
+ * Interface for the alarm adjustments
+ *
+ * @prop {number} committedMin desc for committedMin
+ * @prop {number} committedMax desc for committedMax
+ */
 export interface AlarmAdjustProps {
   committedMin: number;
   committedMax: number;
 }
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the AlarmModal component
+ *
+ * @prop {string} label desc for label
+ * @prop {string} units desc for units
+ * @prop {number} committedMin desc for committedMin
+ * @prop {number} committedMax desc for committedMax
+ * @prop {boolean} disableAlarmButton desc for disableAlarmButton
+ * @prop {function} updateModalStatus desc for updateModalStatus
+ * @prop {function} onModalClose desc for onModalClose
+ * @prop {function} requestCommitRange desc for requestCommitRange
+ * @prop {string} stateKey desc for stateKey
+ * @prop {number} step desc for step
+ * @prop {boolean} openModal desc for openModal
+ * @prop {boolean} contentOnly desc for contentOnly
+ * @prop {boolean} labelHeading desc for labelHeading
+ * @prop {number[]} alarmRangeValues desc for alarmRangeValues
+ */
 interface Props {
   label: string;
   units?: string;
@@ -66,6 +100,15 @@ interface Props {
   alarmRangeValues?: number[];
 }
 
+/**
+ * AlarmModal
+ *
+ * @component A container for displaying alarm modal.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns JSX.Element
+ */
 export const AlarmModal = ({
   label,
   committedMin = 0,
@@ -121,10 +164,16 @@ export const AlarmModal = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  /**
+   * Function for handling the opening of the modal.
+   */
   const handleOpen = () => {
     setOpen(true);
   };
 
+  /**
+   * Function for handling the closing of the modal.
+   */
   const handleClose = () => {
     setOpen(false);
     if (onModalClose) {
@@ -132,6 +181,9 @@ export const AlarmModal = ({
     }
   };
 
+  /**
+   * Function for opening a modal to confirm the changes.
+   */
   const handleConfirm = () => {
     dispatch(
       updateCommittedState(ALARM_LIMITS, {
@@ -158,6 +210,9 @@ export const AlarmModal = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestCommitRange, JSON.stringify(rangeValue)]);
 
+  /**
+   * Enter the description here
+   */
   const OnClickPage = () => {
     setActiveRotaryReference(null);
   };

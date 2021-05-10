@@ -1,7 +1,8 @@
 /**
- * This is the doc comment for Sliding Sidebar based Layout
- * @packageDocumentation
- * @module sliding-sidebar-layout
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
  */
 import React, { PropsWithChildren, useEffect } from 'react';
 import { Route, RouteProps } from 'react-router-dom';
@@ -73,10 +74,22 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * FullWidthToolBar
+ *
+ * @component some description
+ *
+ * @returns {JSX.Element}
+ */
 const FullWidthToolBar = (): JSX.Element => {
   const classes = useStyles();
   const [toggle, setToggle] = React.useState<boolean>(false);
 
+  /**
+   * Toggles the drawer
+   *
+   * @param {boolean} value - some desc for value
+   */
   const toggleDrawer = (value: boolean) => () => {
     setToggle(value);
   };
@@ -105,6 +118,13 @@ const FullWidthToolBar = (): JSX.Element => {
   );
 };
 
+/**
+ * SidebarLayout
+ *
+ * @component Component for displaying the sidebar
+ *
+ * @returns {JSX.Element}
+ */
 const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
   return (
@@ -118,6 +138,13 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
   );
 };
 
+/**
+ * ContentComponent
+ *
+ * @component Component for displaying the main content
+ *
+ * @returns {JSX.Element}
+ */
 const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
   const notifyAlarm = useSelector(getAlarmNotifyStatus);
@@ -146,6 +173,13 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
   );
 });
 
+/**
+ * DashboardRoute
+ *
+ * @component some description
+ *
+ * @returns {JSX.Element | null}
+ */
 const DashboardRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
   if (!Component) return null;
   return (

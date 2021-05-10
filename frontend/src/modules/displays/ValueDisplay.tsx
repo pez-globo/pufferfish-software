@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 
@@ -42,10 +48,27 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * @typedef ValueProps
+ *
+ * Interface for the value props
+ *
+ * @prop {number} value desc for value
+ */
 export interface ValueProps {
   value: number;
 }
 
+/**
+ * @typedef Props
+ *
+ * Props Interface for the ValueDisplay component
+ *
+ * @prop {number} value desc for value
+ * @prop {string} label desc for label
+ * @prop {string} units desc for units
+ * @prop {boolean} isLive desc for isLive
+ */
 interface Props {
   value: number;
   label: string;
@@ -56,7 +79,11 @@ interface Props {
 /**
  * ValueDisplay
  *
- * A re-usable component for displaying numeric values.
+ * @component A re-usable component for displaying numeric values.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns {JSX.Element}
  */
 export const ValueDisplay = ({ value, label, units = '', isLive = false }: Props): JSX.Element => {
   const classes = useStyles();

@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import { Grid, makeStyles, Theme, withStyles } from '@material-ui/core';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
@@ -45,6 +51,16 @@ const StyledToggleButton = withStyles(({ palette }) => ({
   },
 }))(ToggleButton);
 
+/**
+ * @typedef Props
+ *
+ * Props Interface for the ToggleValue component
+ *
+ * @prop {string} toggleBetween.label desc for toggleBetween.label
+ * @prop {number} toggleBetween.value desc for toggleBetween.value
+ * @prop {number} selected desc for selected
+ * @prop {function} onToggle desc for onToggle
+ */
 interface Props {
   toggleBetween: { label: string; value: number }[];
   selected: number;
@@ -54,12 +70,22 @@ interface Props {
 /**
  * ToggleValue
  *
- * A re-usable component for toggling between values.
+ * @component A re-usable component for toggling between values.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns {JSX.Element}
  */
 export const ToggleValue = ({ toggleBetween, selected, onToggle }: Props): JSX.Element => {
   const classes = useStyles();
   const [toggleValue, setToggleValue] = React.useState(selected);
 
+  /**
+   * Function for handling the alignment
+   *
+   * @param {React.MouseEvent<HTMLElement>} event - some desc for event
+   * @param {React.SetStateAction<number>} newToggleValue - some desc for newToggleValue
+   */
   const handleAlignment = (
     event: React.MouseEvent<HTMLElement>,
     newToggleValue: React.SetStateAction<number>,

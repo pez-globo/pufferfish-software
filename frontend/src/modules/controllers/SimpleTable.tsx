@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Grid,
@@ -16,10 +22,15 @@ import React, { PropsWithChildren, ReactNode } from 'react';
 import { DECIMAL_RADIX } from '../app/AppConstants';
 
 /**
- * Simple table reusable component
+ * @template T
+ *
+ * @param {T} a some description for a
+ * @param {T} b some description for b
+ * @param {keyof T} orderBy some description for orderBy
+ *
+ * @return {number} some description for the return value
  *
  */
-
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -32,6 +43,14 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 
 export type Order = 'asc' | 'desc';
 
+/**
+ *
+ * @param {Order} order some desc for order
+ * @param {Key} orderBy some desc for orderBy
+ *
+ * @returns the output of [[descendingComparator]] function
+ *
+ */
 export function getComparator<Key extends keyof number | string>(
   order: Order,
   orderBy: Key,
@@ -41,6 +60,15 @@ export function getComparator<Key extends keyof number | string>(
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
+/**
+ * @template T
+ *
+ * @param {T[]} array some desc for array
+ * @param {function} comparator some desc for comparator
+ *
+ * @returns {T[]} some description for the return value
+ *
+ */
 export function stableSort<T>(array: T[], comparator: (a: T, b: T) => number): T[] {
   const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
   stabilizedThis.sort((a, b) => {
@@ -111,6 +139,17 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
+/**
+ * @typedef HeadCell
+ *
+ * Interface for Header Cell
+ *
+ * @prop {boolean} disablePadding desc for disablePadding
+ * @prop {string | number} id desc for id
+ * @prop {string} label desc for label
+ * @prop {boolean} numeric desc for numeric
+ * @prop {boolean} enableSort desc for enableSort
+ */
 export interface HeadCell {
   disablePadding: boolean;
   id: string | number;
@@ -119,6 +158,20 @@ export interface HeadCell {
   enableSort: boolean;
 }
 
+/**
+ * @typedef EnhancedTableProps
+ *
+ * Props interface for Enhanced table
+ *
+ * @prop {ReturnType<typeof useStyles>} classes desc for classes
+ * @prop {number} numSelected desc for numSelected
+ * @prop {function} onRequestSort desc for onRequestSort
+ * @prop {function} onSelectAllClick desc for onSelectAllClick
+ * @prop {Order} order desc for order
+ * @prop {string} orderBy desc for orderBy
+ * @prop {number} rowCount desc for rowCount
+ * @prop {HeadCell[]} headCells desc for headCells
+ */
 export interface EnhancedTableProps {
   classes: ReturnType<typeof useStyles>;
   numSelected: number;
@@ -152,6 +205,12 @@ const StyledTableCell = withStyles((theme: Theme) =>
   }),
 )(TableCell);
 
+/**
+ * @param {EnhancedTableProps} props - desc for props
+ *
+ * @returns JSX.Element
+ *
+ */
 function EnhancedTableHead(props: EnhancedTableProps) {
   const { classes, order, orderBy, onRequestSort, headCells } = props;
   const createSortHandler = (property: string | number) => (event: React.MouseEvent<unknown>) => {
@@ -191,6 +250,25 @@ function EnhancedTableHead(props: EnhancedTableProps) {
   );
 }
 
+/**
+ * @typedef TableProps
+ *
+ * Props interface for table
+ *
+ * @prop {Order} order desc for order
+ * @prop {function} setOrder desc for setOrder
+ * @prop {string} orderBy desc for orderBy
+ * @prop {function} setOrderBy desc for setOrderBy
+ * @prop {string[]} selected desc for selected
+ * @prop {function} setSelected desc for setSelected
+ * @prop {number} page desc for page
+ * @prop {function} setPage desc for setPage
+ * @prop {number} rowsPerPage - number of rows to be displayed on each page
+ * @prop {function} setRowsPerPage - sets the number of rows to be displayed on each page
+ * @prop {HeadCell[]} headCells desc for headCells
+ * @prop {any[]} rows desc for rows
+ * @prop {string | ReactNode} footer desc for footer
+ */
 interface TableProps {
   order?: Order;
   setOrder(key: Order): void;
@@ -207,6 +285,13 @@ interface TableProps {
   footer?: string | ReactNode;
 }
 
+/**
+ * SimpleTable
+ *
+ * @component Simple table reusable component
+ *
+ * @returns JSX.Element
+ */
 export const SimpleTable = (props: PropsWithChildren<TableProps>): JSX.Element => {
   const {
     order = 'asc',
@@ -225,6 +310,14 @@ export const SimpleTable = (props: PropsWithChildren<TableProps>): JSX.Element =
     children,
   } = props;
   const classes = useStyles();
+
+  /**
+   * some description
+   *
+   * @param {React.MouseEvent<unknown>} event - some desc for event
+   * @param {string | number} property - some desc for property
+   *
+   */
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: string | number) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -233,6 +326,12 @@ export const SimpleTable = (props: PropsWithChildren<TableProps>): JSX.Element =
     }
   };
 
+  /**
+   * some description
+   *
+   * @param {React.ChangeEvent<HTMLInputElement>} event - some desc for event
+   *
+   */
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelecteds = rows.map((n) => n.id);
@@ -242,10 +341,23 @@ export const SimpleTable = (props: PropsWithChildren<TableProps>): JSX.Element =
     setSelected([]);
   };
 
+  /**
+   * Handles page change
+   *
+   * @param {unknown} event - some desc for event
+   * @param {number} newPage - some desc for newPage
+   *
+   */
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
+  /**
+   * Handles the number of rows to be displayed on each page
+   *
+   * @param {React.ChangeEvent<HTMLInputElement>} event - some desc for event
+   *
+   */
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, DECIMAL_RADIX));
     setPage(0);
