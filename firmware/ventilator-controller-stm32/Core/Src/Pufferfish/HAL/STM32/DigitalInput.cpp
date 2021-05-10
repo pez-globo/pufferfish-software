@@ -4,7 +4,7 @@
  *      Author: March Boonyapaluk
  */
 
-#include <Pufferfish/HAL/STM32/DigitalInput.h>
+#include "Pufferfish/HAL/STM32/DigitalInput.h"
 
 namespace Pufferfish::HAL::STM32 {
 

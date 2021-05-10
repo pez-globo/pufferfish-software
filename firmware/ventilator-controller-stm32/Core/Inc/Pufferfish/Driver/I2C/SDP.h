@@ -37,7 +37,8 @@
 
 #include "Pufferfish/Driver/Testable.h"
 #include "Pufferfish/HAL/CRCChecker.h"
-#include "Pufferfish/HAL/STM32/HAL.h"
+#include "Pufferfish/HAL/Interfaces/I2CDevice.h"
+#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "SensirionDevice.h"
 
 namespace Pufferfish {

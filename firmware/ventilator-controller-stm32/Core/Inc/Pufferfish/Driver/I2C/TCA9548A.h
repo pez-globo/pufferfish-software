@@ -8,7 +8,7 @@
 
 #include "I2CMux.h"
 #include "Pufferfish/Driver/Testable.h"
-#include "Pufferfish/HAL/STM32/HAL.h"
+#include "Pufferfish/HAL/Interfaces/DigitalOutput.h"
 
 namespace Pufferfish {
 namespace Driver {

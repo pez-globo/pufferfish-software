@@ -19,7 +19,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <Pufferfish/HAL/Mock/DigitalOutput.h>
+#include "Pufferfish/HAL/Mock/DigitalOutput.h"
 
 namespace Pufferfish::HAL::Mock {
 
