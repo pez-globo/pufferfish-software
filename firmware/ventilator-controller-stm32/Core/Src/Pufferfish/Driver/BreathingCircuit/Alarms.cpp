@@ -35,6 +35,16 @@ void AlarmsManager::deactivate_alarm(LogEventCode alarm_code) {
   active_alarms_.erase(alarm_code);
 }
 
+void AlarmsManager::mute_alarm(AlarmMute &alarm_mute, const AlarmMuteRequest &alarm_mute_request) {
+  if (active_alarms_.empty()) {
+    return;
+  }
+  alarm_mute.active = false;
+  if (alarm_mute_request.active) {
+    alarm_mute.active = true;
+  }
+}
+
 IndexStatus AlarmsManager::transform(ActiveLogEvents &active_log_events) const {
   IndexStatus status = IndexStatus::ok;
   size_t num_elems = active_alarms_.size();
@@ -73,6 +83,8 @@ void AlarmsService::transform(
     const Parameters &parameters,
     const AlarmLimits &alarm_limits,
     const SensorMeasurements &sensor_measurements,
+    const AlarmMuteRequest &alarm_mute_request,
+    AlarmMute &alarm_mute,
     ActiveLogEvents &active_log_events,
     AlarmsManager &alarms_manager) {
   if (!parameters.ventilating) {
@@ -100,6 +112,7 @@ void AlarmsService::transform(
       alarms_manager);
 
   alarms_manager.transform(active_log_events);
+  alarms_manager.mute_alarm(alarm_mute, alarm_mute_request);
 }
 
 void AlarmsService::deactivate_alarms(
@@ -116,10 +129,18 @@ void HFNCAlarms::transform(
     const Parameters &parameters,
     const AlarmLimits &alarm_limits,
     const SensorMeasurements &sensor_measurements,
+    const AlarmMuteRequest &alarm_mute_request,
+    AlarmMute &alarm_mute,
     ActiveLogEvents &active_log_events,
     AlarmsManager &alarms_manager) {
   AlarmsService::transform(
-      parameters, alarm_limits, sensor_measurements, active_log_events, alarms_manager);
+      parameters,
+      alarm_limits,
+      sensor_measurements,
+      alarm_mute_request,
+      alarm_mute,
+      active_log_events,
+      alarms_manager);
   if (!parameters.ventilating) {
     return;
   }
@@ -140,6 +161,8 @@ void AlarmsServices::transform(
     const Parameters &parameters,
     const AlarmLimits &alarm_limits,
     const SensorMeasurements &sensor_measurements,
+    const AlarmMuteRequest &alarm_mute_request,
+    AlarmMute &alarm_mute,
     ActiveLogEvents &active_log_events,
     AlarmsManager &alarms_manager) {
   switch (parameters.mode) {
@@ -158,7 +181,13 @@ void AlarmsServices::transform(
   }
 
   active_service_->transform(
-      parameters, alarm_limits, sensor_measurements, active_log_events, alarms_manager);
+      parameters,
+      alarm_limits,
+      sensor_measurements,
+      alarm_mute_request,
+      alarm_mute,
+      active_log_events,
+      alarms_manager);
 }
 
 }  // namespace Pufferfish::Driver::BreathingCircuit

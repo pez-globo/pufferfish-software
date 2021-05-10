@@ -37,7 +37,9 @@ static const auto message_descriptors = Util::make_array<Util::ProtobufDescripto
     Util::get_protobuf_descriptor<AlarmLimitsRequest>(),         // 7
     Util::get_protobuf_descriptor<ExpectedLogEvent>(),           // 8
     Util::get_protobuf_descriptor<NextLogEvents>(),              // 9
-    Util::get_protobuf_descriptor<ActiveLogEvents>()             // 10
+    Util::get_protobuf_descriptor<ActiveLogEvents>(),            // 10
+    Util::get_protobuf_descriptor<AlarmMute>(),                  // 11
+    Util::get_protobuf_descriptor<AlarmMuteRequest>()            // 12
 );
 
 // State Synchronization
@@ -54,6 +56,9 @@ static const auto state_sync_schedule = Util::make_array<const StateOutputSchedu
     StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
     StateOutputScheduleEntry{10, Application::MessageTypes::next_log_events},
     StateOutputScheduleEntry{10, Application::MessageTypes::active_log_events},
+    StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
+    StateOutputScheduleEntry{10, Application::MessageTypes::alarm_mute},
+    StateOutputScheduleEntry{10, Application::MessageTypes::alarm_mute_request},
     StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
     StateOutputScheduleEntry{10, Application::MessageTypes::cycle_measurements});
 

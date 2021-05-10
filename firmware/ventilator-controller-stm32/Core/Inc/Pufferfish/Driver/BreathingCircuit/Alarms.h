@@ -35,6 +35,7 @@ class AlarmsManager {
 
   void activate_alarm(LogEventCode alarm_code, LogEventType alarm_type, const Range &alarm_limits);
   void deactivate_alarm(LogEventCode alarm_code);
+  void mute_alarm(AlarmMute &alarm_mute, const AlarmMuteRequest &alarm_mute_request);
   IndexStatus transform(ActiveLogEvents &active_log_events) const;
 
  private:
@@ -55,6 +56,8 @@ class AlarmsService {
       const Parameters &parameters,
       const AlarmLimits &alarm_limits,
       const SensorMeasurements &sensor_measurements,
+      const AlarmMuteRequest &alarm_mute_request,
+      AlarmMute &alarm_mute,
       ActiveLogEvents &active_log_events,
       AlarmsManager &alarms_manager);
 
@@ -69,6 +72,8 @@ class HFNCAlarms : public AlarmsService {
       const Parameters &parameters,
       const AlarmLimits &alarm_limits,
       const SensorMeasurements &sensor_measurements,
+      const AlarmMuteRequest &alarm_mute_request,
+      AlarmMute &alarm_mute,
       ActiveLogEvents &active_log_events,
       AlarmsManager &alarms_manager) override;
 };
@@ -79,6 +84,8 @@ class AlarmsServices {
       const Parameters &parameters,
       const AlarmLimits &alarm_limits,
       const SensorMeasurements &sensor_measurements,
+      const AlarmMuteRequest &alarm_mute_request,
+      AlarmMute &alarm_mute,
       ActiveLogEvents &active_log_events,
       AlarmsManager &alarms_manager);
 
