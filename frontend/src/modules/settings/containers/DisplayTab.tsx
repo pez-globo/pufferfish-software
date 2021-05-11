@@ -209,10 +209,18 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   const { initRefListener } = useRotaryReference(themeObj);
   const systemSettings = useSelector(getSystemSettingRequest, shallowEqual);
   const displaySettings = useSelector(getFrontendDisplaySetting, shallowEqual);
-  const [brightness, setBrightness] = React.useState(systemSettings.brightness);
-  const [theme, setTheme] = React.useState(displaySettings.theme);
-  const [unit, setUnit] = React.useState(displaySettings.unit);
-  const [date] = React.useState<Date>(new Date(systemSettings.date * 1000));
+  const [brightness, setBrightness] = React.useState(
+    systemSettings === null ? 100 : systemSettings.brightness,
+  );
+  const [theme, setTheme] = React.useState(
+    displaySettings === null ? ThemeVariant.dark : displaySettings.theme,
+  );
+  const [unit, setUnit] = React.useState(
+    displaySettings === null ? Unit.imperial : displaySettings.unit,
+  );
+  const [date] = React.useState<Date>(
+    systemSettings === null ? new Date() : new Date(systemSettings.date * 1000),
+  );
   const [period, setPeriod] = React.useState(date.getHours() >= 12 ? Period.PM : Period.AM);
   const [minute, setMinute] = React.useState(date.getMinutes());
   const [hour, setHour] = React.useState(to12HourClock(date.getHours())); // Note: `date.hours()` is 24-hour formatted.

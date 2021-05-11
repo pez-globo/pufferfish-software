@@ -3,30 +3,68 @@ import { RotaryEncoder } from '../proto/frontend_pb';
 import {
   MessageType,
   PBMessage,
-  PBMessageType,
   StateUpdateAction,
-  STATE_UPDATED,
-  RotaryEncoderParameter,
-  BACKEND_CONNECTION_LOST,
-  commitAction,
   EventLog,
+  RotaryEncoderParameter,
+  STATE_UPDATED,
+  CommitAction,
 } from '../types';
+import { BACKEND_CONNECTION_LOST } from '../../app/types';
 
-export const messageReducer = <T extends PBMessage>(
-  messageType: MessageType,
-  pbMessageType: PBMessageType,
-  initializer: Record<string, unknown> = {},
-) => (state: T = pbMessageType.fromJSON(initializer) as T, action: StateUpdateAction): T => {
+// GENERIC REDUCERS
+
+export const messageReducer = <T extends PBMessage>(messageType: MessageType) => (
+  state: T | null = null,
+  action: StateUpdateAction,
+): T | null => {
   switch (action.type) {
     case STATE_UPDATED:
-      if (action.messageType === messageType) {
-        return action.state as T;
+      if (action.messageType !== messageType) {
+        // ignore irrelevant messages
+        return state;
       }
-      return state;
+
+      return action.state as T;
     default:
       return state;
   }
 };
+
+export const requestReducer = <T extends PBMessage>(
+  requestMessageType: MessageType,
+  actionType: string,
+) => (state: T | null = null, action: StateUpdateAction | CommitAction): T | null => {
+  switch (action.type) {
+    case STATE_UPDATED: {
+      const updateAction = action as StateUpdateAction;
+      if (updateAction.messageType !== requestMessageType) {
+        // ignore irrelevant messages
+        return state;
+      }
+
+      if (state === null) {
+        // initialize the store with the backend's value...
+        return updateAction.state as T;
+      }
+
+      // ...but ignore the backend otherwise
+      return state;
+    }
+    case actionType: {
+      const commitAction = action as CommitAction;
+      if (commitAction.messageType !== requestMessageType) {
+        // ignore irrelevant messages
+        return state;
+      }
+
+      return { ...state, ...commitAction.update } as T;
+    }
+    default:
+      return state;
+  }
+};
+
+// MESSAGE STATES FROM mcu_pb
 
 export const eventLogReducer = (
   state: EventLog = {
@@ -35,7 +73,7 @@ export const eventLogReducer = (
     activeLogEvents: ActiveLogEvents.fromJSON({}),
     ephemeralLogEvents: { id: [] },
   },
-  action: commitAction | StateUpdateAction,
+  action: CommitAction | StateUpdateAction,
 ): EventLog => {
   switch (action.type) {
     case STATE_UPDATED: {
@@ -106,22 +144,27 @@ export const eventLogReducer = (
   }
 };
 
+// MESSAGE STATES FROM frontend_pb
+
 export const rotaryEncoderReducer = (
-  state: RotaryEncoder = RotaryEncoder.fromJSON({}),
+  state: RotaryEncoderParameter | null = null,
   action: StateUpdateAction,
-): RotaryEncoderParameter => {
+): RotaryEncoderParameter | null => {
   switch (action.type) {
-    case STATE_UPDATED:
-      if (action.messageType === MessageType.RotaryEncoder) {
-        const newState = action.state as RotaryEncoder;
-        const oldState = state as RotaryEncoder;
-        const stepDiff = newState.step - oldState.step;
-        const stateCopy = { ...newState } as RotaryEncoderParameter;
-        stateCopy.stepDiff = stepDiff;
-        return stateCopy;
+    case STATE_UPDATED: {
+      if (action.messageType !== MessageType.RotaryEncoder) {
+        // ignore irrelevant messages
+        return state;
       }
-      return state as RotaryEncoderParameter;
+
+      const newState = action.state as RotaryEncoder;
+      const oldState = state as RotaryEncoder;
+      const stepDiff = newState.step - oldState.step;
+      const stateCopy = { ...newState } as RotaryEncoderParameter;
+      stateCopy.stepDiff = stepDiff;
+      return stateCopy;
+    }
     default:
-      return state as RotaryEncoderParameter;
+      return state;
   }
 };

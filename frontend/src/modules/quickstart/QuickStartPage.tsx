@@ -7,15 +7,19 @@
  */
 import { Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
-import React, { RefObject, useCallback, useEffect, useRef } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { updateCommittedState } from '../../store/controller/actions';
-import { VentilationMode } from '../../store/controller/proto/mcu_pb';
+import React, { RefObject, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { commitStandbyRequest } from '../../store/controller/actions';
+import { VentilationMode, ParametersRequest } from '../../store/controller/proto/mcu_pb';
 import {
   getParametersRequestMode,
-  getParametersRequestStandby,
+  getParametersRequestStandbyFiO2,
+  getParametersRequestStandbyFlow,
+  getParametersRequestStandbyPEEP,
+  getParametersRequestStandbyRR,
+  getParametersRequestStandbyVT,
 } from '../../store/controller/selectors';
-import { PARAMETER_STANDBY } from '../../store/controller/types';
+import { MessageType } from '../../store/controller/types';
 import { setActiveRotaryReference } from '../app/Service';
 import ValueClicker from '../controllers/ValueController';
 import ModeBanner from '../displays/ModeBanner';
@@ -104,13 +108,13 @@ const SettableParameters = (): JSX.Element => {
     [TV_REFERENCE_KEY]: useRef(null),
     [FLOW_REFERENCE_KEY]: useRef(null),
   });
-  const parameterStandby = useSelector(getParametersRequestStandby, shallowEqual);
 
-  const [PEEP, setPEEP] = React.useState(parameterStandby.peep);
-  const [Flow, setFlow] = React.useState(parameterStandby.flow);
-  const [RR, setRR] = React.useState(parameterStandby.rr);
-  const [TV, setTV] = React.useState(parameterStandby.vt);
-  const [FiO2, setFiO2] = React.useState(parameterStandby.fio2);
+  const fio2 = useSelector(getParametersRequestStandbyFiO2);
+  const flow = useSelector(getParametersRequestStandbyFlow);
+  const peep = useSelector(getParametersRequestStandbyPEEP);
+  const rr = useSelector(getParametersRequestStandbyRR);
+  const vt = useSelector(getParametersRequestStandbyVT);
+
   const dispatch = useDispatch();
   const theme = useTheme();
   const { initRefListener } = useRotaryReference(theme);
@@ -119,25 +123,23 @@ const SettableParameters = (): JSX.Element => {
    * some description
    *
    */
-  const initParameterUpdate = useCallback(() => {
-    dispatch(
-      updateCommittedState(PARAMETER_STANDBY, {
-        peep: PEEP,
-        vt: TV,
-        rr: RR,
-        fio2: FiO2,
-        flow: Flow,
-      }),
-    );
-  }, [PEEP, Flow, RR, TV, FiO2, dispatch]);
+  const setValue = (key: string) => (value: number) => {
+    const update = { [key]: value } as Partial<ParametersRequest>;
+    // TODO: for some reason, every time the ValueClicker hears a click, it calls
+    // setValue twice. This doesn't cause problems, but is a symptom of some sort
+    // of deeper bug. Maybe it's related to the buggy behavior that ValueClicker
+    // has with the rotary encoder?
+    // console.log('setValue', key, value);
+    dispatch(commitStandbyRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+  };
 
   useEffect(() => {
-    initParameterUpdate();
     initRefListener(elRefs);
-  }, [initParameterUpdate, initRefListener, elRefs]);
+  }, [initRefListener, elRefs]);
 
   const ventilationMode = useSelector(getParametersRequestMode);
   switch (ventilationMode) {
+    case null:
     case VentilationMode.hfnc:
       return (
         <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
@@ -148,8 +150,8 @@ const SettableParameters = (): JSX.Element => {
                 referenceKey={FIO2_REFERENCE_KEY}
                 label="FiO2"
                 units={PERCENT}
-                value={FiO2}
-                onClick={setFiO2}
+                value={fio2}
+                onClick={setValue('fio2')}
               />
             </Grid>
             <Grid item xs>
@@ -158,8 +160,8 @@ const SettableParameters = (): JSX.Element => {
                 referenceKey={FLOW_REFERENCE_KEY}
                 label="Flow"
                 units={LMIN}
-                value={Flow}
-                onClick={setFlow}
+                value={flow}
+                onClick={setValue('flow')}
               />
             </Grid>
           </Grid>
@@ -184,8 +186,8 @@ const SettableParameters = (): JSX.Element => {
                 referenceKey={PEEP_REFERENCE_KEY}
                 label="PEEP"
                 units="cm H2O"
-                value={PEEP}
-                onClick={setPEEP}
+                value={peep}
+                onClick={setValue('peep')}
               />
             </Grid>
             <Grid item xs>
@@ -194,8 +196,8 @@ const SettableParameters = (): JSX.Element => {
                 referenceKey={RR_REFERENCE_KEY}
                 label="RR"
                 units="cm H2O"
-                value={RR}
-                onClick={setRR}
+                value={rr}
+                onClick={setValue('rr')}
               />
             </Grid>
           </Grid>
@@ -206,8 +208,8 @@ const SettableParameters = (): JSX.Element => {
                 referenceKey={FIO2_REFERENCE_KEY}
                 label="FiO2"
                 units="%"
-                value={FiO2}
-                onClick={setFiO2}
+                value={fio2}
+                onClick={setValue('fio2')}
               />
             </Grid>
             <Grid item xs>
@@ -216,9 +218,9 @@ const SettableParameters = (): JSX.Element => {
                 referenceKey={TV_REFERENCE_KEY}
                 label="TV"
                 units="mL"
-                value={TV}
+                value={vt}
                 max={500}
-                onClick={setTV}
+                onClick={setValue('vt')}
               />
             </Grid>
           </Grid>

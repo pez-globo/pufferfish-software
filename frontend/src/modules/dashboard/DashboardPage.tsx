@@ -10,7 +10,10 @@ import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { VentilationMode } from '../../store/controller/proto/mcu_pb';
-import { getIsVentilating, getParametersRequestMode } from '../../store/controller/selectors';
+import {
+  getParametersIsVentilating,
+  getParametersRequestMode,
+} from '../../store/controller/selectors';
 import { QUICKSTART_ROUTE } from '../navigation/constants';
 import HFNCMainView from './views/HFNCMainView';
 import PressureControlMainView from './views/PressureControlMainView';
@@ -29,22 +32,23 @@ const useStyles = makeStyles(() => ({
  *
  * @component Component for handling layout of ventilation mode.
  *
- * @param {VentilationMode} mode desc for mode
+ * @param {VentilationMode | null} mode desc for mode
  *
  * @returns {JSX.Element}
  *
  */
-const renderModeLayout = (mode: VentilationMode): JSX.Element => {
+const renderModeLayout = (mode: VentilationMode | null): JSX.Element => {
   switch (mode) {
     case VentilationMode.hfnc:
       return <HFNCMainView />;
     case VentilationMode.pc_ac:
+      return <PressureControlMainView />;
     case VentilationMode.vc_ac:
     case VentilationMode.niv_pc:
     case VentilationMode.niv_ps:
     case VentilationMode.psv:
     default:
-      return <PressureControlMainView />;
+      return <HFNCMainView />;
   }
 };
 
@@ -61,7 +65,7 @@ const renderModeLayout = (mode: VentilationMode): JSX.Element => {
 export const DashboardPage = (): JSX.Element => {
   const classes = useStyles();
   const history = useHistory();
-  const ventilating = useSelector(getIsVentilating);
+  const ventilating = useSelector(getParametersIsVentilating);
   const currentMode = useSelector(getParametersRequestMode);
 
   useEffect(() => {

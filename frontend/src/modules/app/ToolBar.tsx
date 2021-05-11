@@ -11,18 +11,22 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { getClockTime } from '../../store/app/selectors';
-import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
-import { VentilationMode } from '../../store/controller/proto/mcu_pb';
+import { commitRequest } from '../../store/controller/actions';
 import {
-  getBatteryPower,
+  ParametersRequest,
+  VentilationMode,
+  AlarmLimitsRequest,
+} from '../../store/controller/proto/mcu_pb';
+import {
+  getBatteryPowerLeft,
   getChargingStatus,
-  getIsVentilating,
+  getParametersIsVentilating,
   getParametersRequestMode,
   getParametersRequestStandby,
   getAlarmLimitsRequestStandby,
   getPopupEventLog,
 } from '../../store/controller/selectors';
-import { BACKEND_CONNECTION_LOST_CODE, ALARM_LIMITS } from '../../store/controller/types';
+import { BACKEND_CONNECTION_LOST_CODE, MessageType } from '../../store/controller/types';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
 import { BackIcon } from '../icons';
 import ClockIcon from '../icons/ClockIcon';
@@ -80,7 +84,7 @@ export const HeaderClock = (): JSX.Element => {
 
 export const PowerIndicator = (): JSX.Element => {
   const classes = useStyles();
-  const batteryPower = useSelector(getBatteryPower);
+  const batteryPower = useSelector(getBatteryPowerLeft);
   const chargingStatus = useSelector(getChargingStatus);
   const [icon, setIcon] = useState(<PowerFullIcon style={{ fontSize: '2.5rem' }} />);
 
@@ -138,7 +142,7 @@ export const ToolBar = ({
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const parameterRequestStandby = useSelector(getParametersRequestStandby, shallowEqual);
   const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby, shallowEqual);
-  const ventilating = useSelector(getIsVentilating);
+  const ventilating = useSelector(getParametersIsVentilating);
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
   const [label, setLabel] = useState('Start Ventilation');
   const [isDisabled, setIsDisabled] = useState(false);
@@ -149,7 +153,11 @@ export const ToolBar = ({
    */
   const updateVentilationStatus = () => {
     if (!staticStart) {
-      dispatch(updateCommittedParameter({ ventilating: !isVentilatorOn }));
+      dispatch(
+        commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
+          ventilating: !isVentilatorOn,
+        }),
+      );
       setIsVentilatorOn(!isVentilatorOn);
     }
     if (isVentilatorOn || staticStart) {
@@ -161,39 +169,45 @@ export const ToolBar = ({
    * some description
    */
   const initParameterUpdate = useCallback(() => {
-    if (isVentilatorOn) {
-      switch (currentMode) {
-        case VentilationMode.hfnc:
-          dispatch(
-            updateCommittedParameter({
-              fio2: parameterRequestStandby.fio2,
-              flow: parameterRequestStandby.flow,
-            }),
-          );
-          dispatch(
-            updateCommittedState(ALARM_LIMITS, {
-              spo2: alarmLimitsRequestStandby.spo2,
-              hr: alarmLimitsRequestStandby.hr,
-            }),
-          );
-          break;
-        case VentilationMode.pc_ac:
-        case VentilationMode.vc_ac:
-        case VentilationMode.niv_pc:
-        case VentilationMode.niv_ps:
-        case VentilationMode.psv:
-          dispatch(
-            updateCommittedParameter({
-              peep: parameterRequestStandby.peep,
-              vt: parameterRequestStandby.vt,
-              rr: parameterRequestStandby.rr,
-              fio2: parameterRequestStandby.fio2,
-            }),
-          );
-          break;
-        default:
-          break;
-      }
+    if (parameterRequestStandby === null || alarmLimitsRequestStandby === null) {
+      return;
+    }
+
+    if (!isVentilatorOn) {
+      return;
+    }
+
+    switch (currentMode) {
+      case VentilationMode.hfnc:
+        dispatch(
+          commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
+            fio2: parameterRequestStandby.fio2,
+            flow: parameterRequestStandby.flow,
+          }),
+        );
+        dispatch(
+          commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, {
+            spo2: alarmLimitsRequestStandby.spo2,
+            hr: alarmLimitsRequestStandby.hr,
+          }),
+        );
+        break;
+      case VentilationMode.pc_ac:
+      case VentilationMode.vc_ac:
+      case VentilationMode.niv_pc:
+      case VentilationMode.niv_ps:
+      case VentilationMode.psv:
+        dispatch(
+          commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
+            peep: parameterRequestStandby.peep,
+            vt: parameterRequestStandby.vt,
+            rr: parameterRequestStandby.rr,
+            fio2: parameterRequestStandby.fio2,
+          }),
+        );
+        break;
+      default:
+        break;
     }
   }, [isVentilatorOn, parameterRequestStandby, alarmLimitsRequestStandby, currentMode, dispatch]);
 
@@ -206,7 +220,11 @@ export const ToolBar = ({
   }, [popupEventLog]);
 
   useEffect(() => {
-    if (!ventilating) initParameterUpdate();
+    if (ventilating) {
+      return;
+    }
+
+    initParameterUpdate();
   }, [ventilating, initParameterUpdate]);
 
   useEffect(() => {

@@ -24,12 +24,9 @@ import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import ValueInfo from '../dashboard/containers/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../info/units';
 import { AlarmModal } from '../controllers';
-import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
-import {
-  ALARM_LIMITS,
-  ALARM_LIMITS_STANDBY,
-  PARAMETER_STANDBY,
-} from '../../store/controller/types';
+import { ParametersRequest, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
+import { MessageType } from '../../store/controller/types';
+import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
 import store from '../../store';
 
 /**
@@ -245,15 +242,21 @@ const createData = (
  * @returns {number | null} - some description for the return value
  */
 const getStoreValueData = (stateKey: string): number | null => {
+  // TODO: is there a reason this function directly accesses the store, rather than
+  // using the getParametersFiO2 and getParametersFlow2 selectors?
   const storeData = store.getState();
+  if (storeData.controller.parameters.current === null) {
+    return null;
+  }
+
   switch (stateKey) {
     case 'fio2':
-      return roundValue(storeData.controller.parameters.fio2);
+      return roundValue(storeData.controller.parameters.current.fio2);
     case 'flow':
-      return roundValue(storeData.controller.parameters.flow);
+      return roundValue(storeData.controller.parameters.current.flow);
     default:
+      return null;
   }
-  return null;
 };
 
 /**
@@ -264,16 +267,22 @@ const getStoreValueData = (stateKey: string): number | null => {
  * @returns {number[] | null} - some description for the return value
  */
 const getStoreAlarmData = (stateKey: string): number[] | null => {
+  // TODO: is there a reason this function directly access the store, rather than
+  // using the getAlarmLimitsRequest selector?
   const storeData = store.getState();
-  const alarmLimits = storeData.controller.alarmLimitsRequest;
+  const alarmLimits = storeData.controller.alarmLimits.request;
+  if (alarmLimits === null) {
+    return null;
+  }
+
   switch (stateKey) {
     case 'spo2':
       return [alarmLimits.spo2?.lower as number, alarmLimits.spo2?.upper as number];
     case 'hr':
       return [alarmLimits.hr?.lower as number, alarmLimits.hr?.upper as number];
     default:
+      return null;
   }
-  return null;
 };
 
 /**
@@ -547,28 +556,19 @@ const MultiStepWizard = (): JSX.Element => {
   const handleConfirm = () => {
     multiParams.forEach((parameter: Data) => {
       if (parameter.isSetvalEnabled) {
-        dispatch(updateCommittedParameter({ [parameter.stateKey]: parameter.setValue }));
-        dispatch(
-          updateCommittedState(PARAMETER_STANDBY, { [parameter.stateKey]: parameter.setValue }),
-        );
+        const update = { [parameter.stateKey]: parameter.setValue };
+        dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+        dispatch(commitStandbyRequest<ParametersRequest>(MessageType.ParametersRequest, update));
       }
       if (parameter.isAlarmEnabled && parameter.alarmValues.length) {
-        dispatch(
-          updateCommittedState(ALARM_LIMITS, {
-            [parameter.stateKey]: {
-              lower: parameter.alarmValues[0],
-              upper: parameter.alarmValues[1],
-            },
-          }),
-        );
-        dispatch(
-          updateCommittedState(ALARM_LIMITS_STANDBY, {
-            [parameter.stateKey]: {
-              lower: parameter.alarmValues[0],
-              upper: parameter.alarmValues[1],
-            },
-          }),
-        );
+        const update = {
+          [parameter.stateKey]: {
+            lower: parameter.alarmValues[0],
+            upper: parameter.alarmValues[1],
+          },
+        };
+        dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
+        dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
       }
     });
     setMultiParams([]);

@@ -169,24 +169,30 @@ export const ValueModal = ({
    */
   const updateRotaryData = useCallback(
     () => {
-      if (open) {
-        const stepDiff = rotaryEncoder.stepDiff || 0;
-        const valueClone = value >= min ? value : min;
-        const newValue = valueClone + stepDiff;
-        if (newValue < min) {
-          setValue(min);
-        } else if (newValue > max) {
-          setValue(max);
-        } else {
-          setValue(newValue);
-        }
-        if (rotaryEncoder.buttonPressed) {
-          handleConfirm();
-        }
+      if (rotaryEncoder === null) {
+        return;
+      }
+
+      if (!open) {
+        return;
+      }
+
+      const stepDiff = rotaryEncoder.stepDiff || 0;
+      const valueClone = value >= min ? value : min;
+      const newValue = valueClone + stepDiff;
+      if (newValue < min) {
+        setValue(min);
+      } else if (newValue > max) {
+        setValue(max);
+      } else {
+        setValue(newValue);
+      }
+      if (rotaryEncoder.buttonPressed) {
+        handleConfirm();
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rotaryEncoder.step, rotaryEncoder.buttonPressed, min, max],
+    [rotaryEncoder, min, max],
   );
 
   useEffect(() => {
@@ -320,24 +326,30 @@ export const SetValueContent = ({
 
   const updateRotaryData = useCallback(
     () => {
-      if (open && !Number.isNaN(rotaryEncoder.stepDiff)) {
-        const stepDiff = rotaryEncoder.stepDiff || 0;
-        const valueClone = value >= min ? value : min;
-        const newValue = valueClone + stepDiff;
-        if (newValue < min) {
-          setValue(min);
-        } else if (newValue > max) {
-          setValue(max);
-        } else {
-          setValue(newValue);
-        }
-        if (rotaryEncoder.buttonPressed) {
-          handleConfirm();
-        }
+      if (rotaryEncoder === null) {
+        return;
+      }
+
+      if (!open || Number.isNaN(rotaryEncoder.stepDiff)) {
+        return;
+      }
+
+      const stepDiff = rotaryEncoder.stepDiff || 0;
+      const valueClone = value >= min ? value : min;
+      const newValue = valueClone + stepDiff;
+      if (newValue < min) {
+        setValue(min);
+      } else if (newValue > max) {
+        setValue(max);
+      } else {
+        setValue(newValue);
+      }
+      if (rotaryEncoder.buttonPressed) {
+        handleConfirm();
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rotaryEncoder.step, rotaryEncoder.buttonPressed, min, max],
+    [rotaryEncoder, min, max],
   );
 
   useEffect(() => {
@@ -347,7 +359,7 @@ export const SetValueContent = ({
     } else {
       updateRotaryData();
     }
-  }, [updateRotaryData, rotaryEncoder.stepDiff]);
+  }, [updateRotaryData, rotaryEncoder]);
 
   /**
    * Function for matching label with PIP.

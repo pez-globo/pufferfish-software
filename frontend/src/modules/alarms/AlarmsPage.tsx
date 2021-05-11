@@ -9,14 +9,14 @@ import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
 import React, { RefObject, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateCommittedState } from '../../store/controller/actions';
+import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
 import {
   getAlarmLimitsRequestStandby,
-  getIsVentilating,
+  getParametersIsVentilating,
   getParametersRequestMode,
 } from '../../store/controller/selectors';
-import { ALARM_LIMITS, ALARM_LIMITS_STANDBY } from '../../store/controller/types';
+import { MessageType } from '../../store/controller/types';
 import { setActiveRotaryReference } from '../app/Service';
 import { ValueClicker } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';
@@ -122,7 +122,7 @@ interface AlarmProps {
   max: number;
   stateKey: string;
   step?: number;
-  alarmLimits: Record<string, Range>;
+  alarmLimits: AlarmLimitsRequest | null;
   setAlarmLimits(alarmLimits: Partial<AlarmLimitsRequest>): void;
 }
 
@@ -152,7 +152,20 @@ const Alarm = ({
   const classes = useStyles();
   const theme = useTheme();
   const { initRefListener } = useRotaryReference(theme);
-  const rangeValues: number[] = [alarmLimits[stateKey].lower, alarmLimits[stateKey].upper];
+  // TODO: when the software is in ventilating mode, the user must be able to
+  // discard changes (which means that any alarm limits being persisted in
+  // AlarmLimitsRequestStandby would need to be reset using the values from
+  // AlarmLimitsRequest, when the user wants to discard values). This could
+  // be done with by dispatching a commitStandbyRequest action with the
+  // alarmLimitsRequest selector as the update field.
+  const range =
+    alarmLimits === null
+      ? undefined
+      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
+  const rangeValues: number[] = [
+    range === undefined ? NaN : range.lower,
+    range === undefined ? NaN : range.upper,
+  ];
   const [refs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
     [`${stateKey}_LOWER`]: useRef(null),
     [`${stateKey}_HIGHER`]: useRef(null),
@@ -219,7 +232,9 @@ const Alarm = ({
           >
             <Grid alignItems="center" item className={classes.alarmValue}>
               <Typography align="center" variant="h4">
-                {rangeValues[0] !== undefined ? Number(rangeValues[0]) : '--'}
+                {rangeValues[0] === undefined || Number.isNaN(rangeValues[0])
+                  ? '--'
+                  : Number(rangeValues[0])}
               </Typography>
             </Grid>
             <Grid item>
@@ -249,7 +264,9 @@ const Alarm = ({
           >
             <Grid alignItems="center" item className={classes.alarmValue}>
               <Typography align="center" variant="h4">
-                {rangeValues[1] !== undefined ? Number(rangeValues[1]) : '--'}
+                {rangeValues[1] === undefined || Number.isNaN(rangeValues[1])
+                  ? '--'
+                  : Number(rangeValues[1])}
               </Typography>
             </Grid>
             <Grid item>
@@ -299,12 +316,12 @@ interface AlarmConfiguration {
 }
 
 /**
- * @param {VentilationMode} ventilationMode - desc for ventilationMode
+ * @param {VentilationMode | null} ventilationMode - desc for ventilationMode
  *
  * @returns {AlarmConfiguration[]} description for return value
  *
  */
-const alarmConfiguration = (ventilationMode: VentilationMode): Array<AlarmConfiguration> => {
+const alarmConfiguration = (ventilationMode: VentilationMode | null): Array<AlarmConfiguration> => {
   switch (ventilationMode) {
     case VentilationMode.hfnc:
       return [
@@ -317,18 +334,7 @@ const alarmConfiguration = (ventilationMode: VentilationMode): Array<AlarmConfig
     case VentilationMode.niv_ps:
     case VentilationMode.psv:
     default:
-      return [
-        { label: 'RR', stateKey: 'rr' },
-        { label: 'TV', stateKey: 'tv' },
-        { label: 'Flow', stateKey: 'flow' },
-        { label: 'MVe', stateKey: 'mve' },
-        { label: 'Apnea', stateKey: 'apnea' },
-        { label: 'Pressure above PEEP', stateKey: 'ipAbovePeep' },
-        { label: 'PAW', stateKey: 'paw' },
-        { label: 'PiP', stateKey: 'pip' },
-        { label: 'PEEP', stateKey: 'peep' },
-        { label: 'Insp. Time', stateKey: 'inspTime', step: 0.5 },
-      ];
+      return [];
   }
 };
 
@@ -355,22 +361,32 @@ export const AlarmsPage = (): JSX.Element => {
     setPage(value);
   };
 
-  const alarmLimitsRequest = useSelector(getAlarmLimitsRequestStandby);
+  const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby);
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
-  const ventilating = useSelector(getIsVentilating);
-  const [alarmLimits, setAlarmLimits] = useState(alarmLimitsRequest as Record<string, Range>);
+  const ventilating = useSelector(getParametersIsVentilating);
 
   /**
    * Function for updating alarm limits
    *
    * @param {Partial<AlarmLimitsRequest>} data - desc for data
    */
-  const updateAlarmLimits = (data: Partial<AlarmLimitsRequest>) => {
-    setAlarmLimits({ ...alarmLimits, ...data } as Record<string, Range>);
-    dispatch(updateCommittedState(ALARM_LIMITS_STANDBY, alarmLimits));
+  const setAlarmLimits = (data: Partial<AlarmLimitsRequest>) => {
+    dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
-  const applyChanges = () => dispatch(updateCommittedState(ALARM_LIMITS, alarmLimits));
+
+  /**
+   * some description
+   */
+  const applyChanges = () => {
+    if (alarmLimitsRequestStandby === null) {
+      return;
+    }
+
+    dispatch(
+      commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, alarmLimitsRequestStandby),
+    );
+  };
   const alarmConfig = alarmConfiguration(currentMode);
   const [open, setOpen] = useState(false);
 
@@ -422,8 +438,8 @@ export const AlarmsPage = (): JSX.Element => {
                   max={alarm.max || 100}
                   stateKey={alarm.stateKey}
                   step={alarm.step || 1}
-                  alarmLimits={alarmLimits}
-                  setAlarmLimits={updateAlarmLimits}
+                  alarmLimits={alarmLimitsRequestStandby}
+                  setAlarmLimits={setAlarmLimits}
                 />
               );
             })}

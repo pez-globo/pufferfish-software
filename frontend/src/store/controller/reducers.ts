@@ -1,62 +1,69 @@
 import { combineReducers } from 'redux';
 import {
-  AlarmLimits,
-  BatteryPower,
+  SensorMeasurements,
   CycleMeasurements,
   Parameters,
+  ParametersRequest,
+  AlarmLimits,
+  AlarmLimitsRequest,
+  AlarmMuteRequest,
+  BatteryPower,
   ScreenStatus,
-  SensorMeasurements,
 } from './proto/mcu_pb';
-import { messageReducer, eventLogReducer, rotaryEncoderReducer } from './reducers/backend';
+import { SystemSettingRequest, FrontendDisplaySetting } from './proto/frontend_pb';
 import {
-  alarmLimitsReducer,
-  alarmLimitsRequestStandbyReducer,
-  alarmMuteRequestReducer,
-  frontendDisplaySettingReducer,
-  heartbeatBackendReducer,
-  parametersRequestReducer,
-  parametersRequestStanbyReducer,
-  systemSettingRequestReducer,
-} from './reducers/components';
+  messageReducer,
+  requestReducer,
+  eventLogReducer,
+  rotaryEncoderReducer,
+} from './reducers/backend';
 import {
-  pvHistoryReducer,
-  waveformHistoryReducer,
   sensorMeasurementSmoothingReducer,
+  waveformHistoryReducer,
+  pvHistoryReducer,
 } from './reducers/derived';
-import { MessageType } from './types';
+import { MessageType, REQUEST_COMMITTED, STANDBY_REQUEST_COMMITTED } from './types';
 
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb
-  alarmLimits: messageReducer<AlarmLimits>(MessageType.AlarmLimits, AlarmLimits, {
-    // Needed so that values aren't undefined when dashboard is loaded before redirecting to quickstart
-    spo2: { lower: 90, upper: 100 },
-    hr: { lower: 60, upper: 100 },
-    fio2: { lower: 78, upper: 82 },
-    flow: { lower: 28, upper: 32 },
+  measurements: combineReducers({
+    sensor: messageReducer<SensorMeasurements>(MessageType.SensorMeasurements),
+    cycle: messageReducer<CycleMeasurements>(MessageType.CycleMeasurements),
   }),
-  alarmLimitsRequest: alarmLimitsReducer,
-  alarmLimitsRequestStandby: alarmLimitsRequestStandbyReducer,
-  alarmMuteRequest: alarmMuteRequestReducer,
-  systemSettingRequest: systemSettingRequestReducer,
-  frontendDisplaySetting: frontendDisplaySettingReducer,
+  parameters: combineReducers({
+    current: messageReducer<Parameters>(MessageType.Parameters),
+    request: requestReducer<ParametersRequest>(MessageType.ParametersRequest, REQUEST_COMMITTED),
+    standby: requestReducer<ParametersRequest>(
+      MessageType.ParametersRequest,
+      STANDBY_REQUEST_COMMITTED,
+    ),
+  }),
+  alarmLimits: combineReducers({
+    current: messageReducer<AlarmLimits>(MessageType.AlarmLimits),
+    request: requestReducer<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, REQUEST_COMMITTED),
+    standby: requestReducer<AlarmLimitsRequest>(
+      MessageType.AlarmLimitsRequest,
+      STANDBY_REQUEST_COMMITTED,
+    ),
+  }),
   eventLog: eventLogReducer,
-  heartbeatBackend: heartbeatBackendReducer,
-  batteryPower: messageReducer<BatteryPower>(MessageType.BatteryPower, BatteryPower),
-  screenStatus: messageReducer<ScreenStatus>(MessageType.ScreenStatus, ScreenStatus),
-  sensorMeasurements: messageReducer<SensorMeasurements>(
-    MessageType.SensorMeasurements,
-    SensorMeasurements,
+  alarmMuteRequest: requestReducer<AlarmMuteRequest>(
+    MessageType.AlarmMuteRequest,
+    REQUEST_COMMITTED,
   ),
-  cycleMeasurements: messageReducer<CycleMeasurements>(
-    MessageType.CycleMeasurements,
-    CycleMeasurements,
-  ),
-  parameters: messageReducer<Parameters>(MessageType.Parameters, Parameters),
-  parametersRequest: parametersRequestReducer,
-  parametersRequestStandby: parametersRequestStanbyReducer,
+  batteryPower: messageReducer<BatteryPower>(MessageType.BatteryPower),
 
   // Message states from frontend_pb
+  screenStatus: messageReducer<ScreenStatus>(MessageType.ScreenStatus),
   rotaryEncoder: rotaryEncoderReducer,
+  systemSettingRequest: requestReducer<SystemSettingRequest>(
+    MessageType.SystemSettingRequest,
+    REQUEST_COMMITTED,
+  ),
+  frontendDisplaySetting: requestReducer<FrontendDisplaySetting>(
+    MessageType.FrontendDisplaySetting,
+    REQUEST_COMMITTED,
+  ),
 
   // Derived states
   smoothedMeasurements: combineReducers({
@@ -89,28 +96,32 @@ export const controllerReducer = combineReducers({
       (sensorMeasurements) => sensorMeasurements.hr,
     ),
   }),
-  waveformHistoryPaw: waveformHistoryReducer<SensorMeasurements>(
-    MessageType.SensorMeasurements,
-    (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
-    (sensorMeasurements: SensorMeasurements) => sensorMeasurements.paw,
-    60,
-    0,
-  ),
-  waveformHistoryFlow: waveformHistoryReducer<SensorMeasurements>(
-    MessageType.SensorMeasurements,
-    (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
-    (sensorMeasurements: SensorMeasurements) => sensorMeasurements.flow,
-    60,
-    20,
-  ),
-  waveformHistoryVolume: waveformHistoryReducer<SensorMeasurements>(
-    MessageType.SensorMeasurements,
-    (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
-    (sensorMeasurements: SensorMeasurements) => sensorMeasurements.volume,
-    60,
-    40,
-  ),
-  pvHistory: pvHistoryReducer,
+  plots: combineReducers({
+    waveforms: combineReducers({
+      paw: waveformHistoryReducer<SensorMeasurements>(
+        MessageType.SensorMeasurements,
+        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
+        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.paw,
+        60,
+        0,
+      ),
+      flow: waveformHistoryReducer<SensorMeasurements>(
+        MessageType.SensorMeasurements,
+        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
+        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.flow,
+        60,
+        20,
+      ),
+      volume: waveformHistoryReducer<SensorMeasurements>(
+        MessageType.SensorMeasurements,
+        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
+        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.volume,
+        60,
+        40,
+      ),
+    }),
+    pvLoop: pvHistoryReducer,
+  }),
 });
 
 export default controllerReducer;

@@ -11,18 +11,14 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Subscription } from 'rxjs';
 import store from '../../store';
 import { getClock } from '../../store/app/selectors';
-import { RED_BORDER } from '../../store/app/types';
+import { RED_BORDER, BACKEND_CONNECTION_LOST } from '../../store/app/types';
 import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
 import {
   getAlarmMuteStatus,
-  getPopupEventLog,
-  getScreenStatus,
+  getHasActiveAlarms,
+  getScreenStatusLock,
 } from '../../store/controller/selectors';
-import {
-  BACKEND_CONNECTION_LOST,
-  BACKEND_CONNECTION_LOST_CODE,
-  MessageType,
-} from '../../store/controller/types';
+import { BACKEND_CONNECTION_LOST_CODE, MessageType } from '../../store/controller/types';
 
 import ModalPopup from '../controllers/ModalPopup';
 import MultiStepWizard from '../displays/MultiStepWizard';
@@ -64,8 +60,9 @@ export const HeartbeatBackendListener = (): JSX.Element => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    // TODO: can we just use a selector here, or do we need to access the store directly?
     const storeData = store.getState();
-    const heartbeat: Date = storeData.controller.heartbeatBackend.time;
+    const heartbeat: Date = storeData.app.backendHeartbeat;
     const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
     const events = storeData.controller.eventLog.nextLogEvents.elements;
     const lostConnectionAlarm = events.find(
@@ -97,11 +94,11 @@ export const HeartbeatBackendListener = (): JSX.Element => {
  */
 const AudioAlarm = (): JSX.Element => {
   const dispatch = useDispatch();
-  const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
+  const activeAlarms = useSelector(getHasActiveAlarms, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
-  const [playing, setPlaying] = useState(alarmMuteStatus.active);
+  const [playing, setPlaying] = useState(alarmMuteStatus !== null && alarmMuteStatus.active);
 
   useEffect(() => {
     if (playing) {
@@ -115,28 +112,22 @@ const AudioAlarm = (): JSX.Element => {
   }, [playing, audio]);
 
   useEffect(() => {
-    if (popupEventLog) {
-      setPlaying(false);
-      if (popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
-        setPlaying(true);
-      }
+    if (activeAlarms) {
+      setPlaying(true);
       dispatch({ type: RED_BORDER, status: true });
     } else {
       setPlaying(false);
       dispatch({ type: RED_BORDER, status: false });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [popupEventLog]);
+  }, [activeAlarms, dispatch]);
 
   useEffect(() => {
-    if (popupEventLog) {
-      dispatch({ type: RED_BORDER, status: !alarmMuteStatus.active });
-    }
-    if (popupEventLog && popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
-      setPlaying(!alarmMuteStatus.active);
+    if (activeAlarms) {
+      dispatch({ type: RED_BORDER, status: alarmMuteStatus !== null && !alarmMuteStatus.active });
+      setPlaying(alarmMuteStatus !== null && !alarmMuteStatus.active);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [alarmMuteStatus.active, dispatch]);
+  }, [alarmMuteStatus !== null && alarmMuteStatus.active, dispatch]);
 
   return <React.Fragment />;
 };
@@ -214,7 +205,7 @@ export const ScreenLockModal = (): JSX.Element => {
  */
 export const OverlayScreen = (): JSX.Element => {
   const classes = useStyles();
-  const screenStatus = useSelector(getScreenStatus);
+  const screenStatus = useSelector(getScreenStatusLock);
   const [overlay, setOverlay] = useState(screenStatus || false);
 
   useEffect(() => {

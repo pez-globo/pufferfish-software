@@ -22,11 +22,11 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * Get display-text for the selected ventilation mode
  *
- * @param {VentilationMode} mode - description for mode
+ * @param {VentilationMode | null} mode - description for mode
  *
  * @returns {string} - corresponding text for the selected mode
  */
-export const getModeText = (mode: VentilationMode): string => {
+export const getModeText = (mode: VentilationMode | null): string => {
   switch (mode) {
     case VentilationMode.hfnc:
       return 'High Flow Nasal Cannula (HFNC)';

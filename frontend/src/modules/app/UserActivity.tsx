@@ -8,7 +8,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { getIsVentilating } from '../../store/controller/selectors';
+import { getParametersIsVentilating } from '../../store/controller/selectors';
 import { setMultiPopupOpen } from './Service';
 
 /**
@@ -84,7 +84,7 @@ export const UserActivity = (): JSX.Element => {
   const [idleTimeout] = useState(10 * 52 * 7 * 24 * 60 * 60 * 1000);
   // const [idleTimeout] = useState(10 * 60 * 1000);
   const history = useHistory();
-  const ventilating = useSelector(getIsVentilating);
+  const ventilating = useSelector(getParametersIsVentilating);
 
   /**
    * some description

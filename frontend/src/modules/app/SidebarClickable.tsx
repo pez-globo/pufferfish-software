@@ -11,7 +11,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { updateState } from '../../store/controller/actions';
-import { getIsVentilating } from '../../store/controller/selectors';
+import { getParametersIsVentilating } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { HomeIcon } from '../icons';
 import ShutdownIcon from '../icons/ShutdownIcon';
@@ -91,7 +91,7 @@ const SidebarClickable = ({
     dispatch(updateState(MessageType.ScreenStatus, { lock: true }));
   };
 
-  const ventilating = useSelector(getIsVentilating);
+  const ventilating = useSelector(getParametersIsVentilating);
 
   return (
     <Grid

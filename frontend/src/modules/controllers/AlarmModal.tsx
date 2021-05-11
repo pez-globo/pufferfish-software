@@ -7,10 +7,10 @@
 import { Button, Grid, makeStyles, Theme, Typography, useTheme } from '@material-ui/core';
 import React, { RefObject, useCallback, useEffect, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { updateCommittedState } from '../../store/controller/actions';
+import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
 import { getAlarmLimitsRequest } from '../../store/controller/selectors';
-import { Range } from '../../store/controller/proto/mcu_pb';
-import { ALARM_LIMITS, ALARM_LIMITS_STANDBY } from '../../store/controller/types';
+import { Range, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
+import { MessageType } from '../../store/controller/types';
 import ModalPopup from './ModalPopup';
 import ValueClicker from './ValueClicker';
 import ValueSlider from './ValueSlider';
@@ -132,13 +132,15 @@ export const AlarmModal = ({
   const [open, setOpen] = React.useState(false);
   const [min] = React.useState(committedMin);
   const [max] = React.useState(committedMax);
-  const alarmLimits: Record<string, Range> = useSelector(
-    getAlarmLimitsRequest,
-    shallowEqual,
-  ) as Record<string, Range>;
+  const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual);
+  const range =
+    alarmLimits === null
+      ? undefined
+      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
+  const { lower, upper } = range === undefined ? Range.fromJSON({ lower: NaN, upper: NaN }) : range;
   const [rangeValue, setRangeValue] = React.useState<number[]>([
-    alarmRangeValues.length ? alarmRangeValues[0] : alarmLimits[stateKey]?.lower,
-    alarmRangeValues.length ? alarmRangeValues[1] : alarmLimits[stateKey]?.upper,
+    alarmRangeValues.length ? alarmRangeValues[0] : lower,
+    alarmRangeValues.length ? alarmRangeValues[1] : upper,
   ]);
   const [refs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
     [`${stateKey}_LOWER`]: useRef(null),
@@ -185,22 +187,14 @@ export const AlarmModal = ({
    * Function for opening a modal to confirm the changes.
    */
   const handleConfirm = () => {
-    dispatch(
-      updateCommittedState(ALARM_LIMITS, {
-        [stateKey]: {
-          lower: rangeValue[0],
-          upper: rangeValue[1],
-        },
-      }),
-    );
-    dispatch(
-      updateCommittedState(ALARM_LIMITS_STANDBY, {
-        [stateKey]: {
-          lower: rangeValue[0],
-          upper: rangeValue[1],
-        },
-      }),
-    );
+    const update = {
+      [stateKey]: {
+        lower: rangeValue[0],
+        upper: rangeValue[1],
+      },
+    };
+    dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
+    dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
     requestCommitRange(rangeValue[0], rangeValue[1]);
     handleClose();
   };

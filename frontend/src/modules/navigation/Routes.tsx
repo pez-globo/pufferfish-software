@@ -8,7 +8,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Switch } from 'react-router-dom';
-import { getIsVentilating } from '../../store/controller/selectors';
+import { getParametersIsVentilating } from '../../store/controller/selectors';
 import AlarmsPage from '../alarms/AlarmsPage';
 import LandingPageRoute from '../app/layouts/LandingPageRoute';
 import ScreensaverRoute from '../app/layouts/ScreensaverRoute';
@@ -42,7 +42,7 @@ import {
  *
  */
 const Routes = (): JSX.Element => {
-  const ventilating = useSelector(getIsVentilating);
+  const ventilating = useSelector(getParametersIsVentilating);
   const RouteLayout = ventilating ? SidebarSlideRoute : SidebarRoute;
 
   return (

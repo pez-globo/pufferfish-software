@@ -19,8 +19,9 @@ import {
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
-import { updateCommittedState } from '../../store/controller/actions';
-import { ALARM_MUTE } from '../../store/controller/types';
+import { commitRequest } from '../../store/controller/actions';
+import { AlarmMute } from '../../store/controller/proto/mcu_pb';
+import { MessageType } from '../../store/controller/types';
 import { getEventType } from '../logs/EventType';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -182,7 +183,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
-  const [isMuted, setIsMuted] = useState<boolean>(!alarmMuteStatus.active);
+  const [isMuted, setIsMuted] = useState<boolean>(
+    alarmMuteStatus !== null && !alarmMuteStatus.active,
+  );
   useEffect(() => {
     if (popupEventLog) {
       const eventType = getEventType(popupEventLog.code);
@@ -197,8 +200,8 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   }, [popupEventLog, JSON.stringify(activeLog)]);
 
   useEffect(() => {
-    setIsMuted(!alarmMuteStatus.active);
-  }, [alarmMuteStatus.active]);
+    setIsMuted(alarmMuteStatus !== null && !alarmMuteStatus.active);
+  }, [alarmMuteStatus]);
 
   /**
    * Function for handling Alarm state.
@@ -206,7 +209,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    * @param {boolean} state desc for state
    */
   const muteAlarmState = (state: boolean) => {
-    dispatch(updateCommittedState(ALARM_MUTE, { active: state }));
+    dispatch(
+      commitRequest<AlarmMute>(MessageType.AlarmMute, { active: state }),
+    );
   };
 
   /**
@@ -253,7 +258,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               </Typography>
             </Grid>
             <Grid container item xs justify="flex-end" alignItems="center">
-              {!isMuted && (
+              {!isMuted && alarmMuteStatus !== null && (
                 <div className={classes.timerText}>
                   {new Date(alarmMuteStatus.remaining * 1000).toISOString().substr(14, 5)}
                 </div>
@@ -313,7 +318,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               {alertCount}
             </div>
           )}
-          {!isMuted && (
+          {!isMuted && alarmMuteStatus !== null && (
             <div className={classes.timer}>
               {new Date(alarmMuteStatus.remaining * 1000).toISOString().substr(14, 5)}
             </div>
