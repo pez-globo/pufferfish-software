@@ -80,16 +80,18 @@ export enum LogEventCode {
   /** battery_low - System */
   battery_low = 8,
   screen_locked = 9,
+  backend_connection_down = 10,
+  backend_connection_up = 11,
   /** ventilation_operation_changed - Control */
-  ventilation_operation_changed = 10,
-  ventilation_mode_changed = 11,
-  fio2_setting_changed = 12,
-  flow_setting_changed = 13,
+  ventilation_operation_changed = 12,
+  ventilation_mode_changed = 13,
+  fio2_setting_changed = 14,
+  flow_setting_changed = 15,
   /** fio2_alarm_limits_changed - Alarm Limits */
-  fio2_alarm_limits_changed = 14,
-  flow_alarm_limits_changed = 15,
-  spo2_alarm_limits_changed = 16,
-  hr_alarm_limits_changed = 17,
+  fio2_alarm_limits_changed = 16,
+  flow_alarm_limits_changed = 17,
+  spo2_alarm_limits_changed = 18,
+  hr_alarm_limits_changed = 19,
   UNRECOGNIZED = -1,
 }
 
@@ -126,27 +128,33 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case "screen_locked":
       return LogEventCode.screen_locked;
     case 10:
+    case "backend_connection_down":
+      return LogEventCode.backend_connection_down;
+    case 11:
+    case "backend_connection_up":
+      return LogEventCode.backend_connection_up;
+    case 12:
     case "ventilation_operation_changed":
       return LogEventCode.ventilation_operation_changed;
-    case 11:
+    case 13:
     case "ventilation_mode_changed":
       return LogEventCode.ventilation_mode_changed;
-    case 12:
+    case 14:
     case "fio2_setting_changed":
       return LogEventCode.fio2_setting_changed;
-    case 13:
+    case 15:
     case "flow_setting_changed":
       return LogEventCode.flow_setting_changed;
-    case 14:
+    case 16:
     case "fio2_alarm_limits_changed":
       return LogEventCode.fio2_alarm_limits_changed;
-    case 15:
+    case 17:
     case "flow_alarm_limits_changed":
       return LogEventCode.flow_alarm_limits_changed;
-    case 16:
+    case 18:
     case "spo2_alarm_limits_changed":
       return LogEventCode.spo2_alarm_limits_changed;
-    case 17:
+    case 19:
     case "hr_alarm_limits_changed":
       return LogEventCode.hr_alarm_limits_changed;
     case -1:
@@ -178,6 +186,10 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "battery_low";
     case LogEventCode.screen_locked:
       return "screen_locked";
+    case LogEventCode.backend_connection_down:
+      return "backend_connection_down";
+    case LogEventCode.backend_connection_up:
+      return "backend_connection_up";
     case LogEventCode.ventilation_operation_changed:
       return "ventilation_operation_changed";
     case LogEventCode.ventilation_mode_changed:
