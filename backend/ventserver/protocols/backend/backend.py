@@ -56,6 +56,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         factory=log.EventLogReceiver
     )
     _event_log_sender: log.EventLogSender = attr.ib(factory=log.EventLogSender)
+    local_log_source: log.LocalLogSource = attr.ib(factory=log.LocalLogSource)
 
     @store.default
     def init_store(self) -> states.Store:  # pylint: disable=no-self-use
@@ -90,7 +91,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         if isinstance(event, states.ReceiveEvent):
             self._state_synchronizers.input(event)
         elif isinstance(event, ExternalAlarmEvent):
-            print('ALARM UPDATE RECEIVED:', event)
+            pass
+            # print('ALARM UPDATE RECEIVED:', event)
 
         # Maintain internal data connections
         self._handle_log_events_receiving()
@@ -101,8 +103,13 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
 
     def _update_clock(self, event: ReceiveEvent) -> None:
         """Handle any clock update."""
-        if event.time is not None:
-            self.current_time = event.time
+        if event.time is None:
+            return
+
+        self.current_time = event.time
+        self.local_log_source.input(log.LocalLogInputEvent(
+            current_time=self.current_time
+        ))
 
     def _handle_log_events_receiving(self) -> None:
         """Handle any updates to log events from the MCU.

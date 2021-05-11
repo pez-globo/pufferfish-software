@@ -2,7 +2,7 @@
 
 import dataclasses
 import typing
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Mapping, Optional, Union
 
 import attr
 
@@ -85,6 +85,35 @@ class SendInputEvent(events.Event):
         return (
             self.expected_log_event is not None or len(self.new_log_events) > 0
         )
+
+
+@attr.s
+class LocalLogInputEvent(events.Event):
+    """Local event log input event.
+
+    next_log_event's id and time fields are ignored.
+    """
+
+    current_time: Optional[float] = attr.ib(default=None)  # s
+    new_event: Optional[mcu_pb.LogEvent] = attr.ib(default=None)
+    active: bool = attr.ib(default=False)
+
+    def has_data(self) -> bool:
+        """Return whether the event has data."""
+        return self.current_time is not None or self.new_event is not None
+
+
+@attr.s
+class LocalLogOutputEvent(events.Event):
+    """Local event log output event.
+    """
+
+    new_events: List[mcu_pb.LogEvent] = attr.ib(factory=list)
+    new_active_events: Mapping[mcu_pb.LogEventCode, int] = attr.ib(factory=dict)
+
+    def has_data(self) -> bool:
+        """Return whether the event has data."""
+        return bool(self.new_events) or bool(self.new_active_events)
 
 
 # Synchronizers
@@ -289,3 +318,51 @@ class EventLogSender(protocols.Filter[SendInputEvent, mcu_pb.NextLogEvents]):
         return typing.cast(
             mcu_pb.NextLogEvents, self._log_events_sender.output()
         )
+
+
+@attr.s
+class LocalLogSource(protocols.Filter[
+        LocalLogInputEvent, LocalLogOutputEvent
+]):
+    """Annotation of new local log events with IDs and timestamps.
+
+    The IDs of all events passed through this filter are numbered consecutively.
+    Takes input events, each of which contains a LogEvent whose id and timestamp
+    fields are to be overridden (in a copy, so that the input is not modified),
+    and a flag specifying whether the event is active.
+    Outputs a list of annotated LogEvents to input into an EventLogReceiver, and
+    a mapping of LogEventCodes to IDs for active log events.
+    """
+
+    current_time: float = attr.ib(default=0)  # s
+    next_log_event_id: int = attr.ib(default=0)
+    _new_events: List[mcu_pb.LogEvent] = attr.ib(factory=list)
+    _new_active_events: Dict[mcu_pb.LogEventCode, int] = attr.ib(factory=dict)
+
+    def input(self, event: Optional[LocalLogInputEvent]) -> None:
+        """Handle input events."""
+        if event is None or not event.has_data():
+            return
+
+        if event.current_time is not None:
+            self.current_time = event.current_time
+        if event.new_event is None:
+            return
+
+        log_event = dataclasses.replace(event.new_event)
+        log_event.id = self.next_log_event_id
+        log_event.time = int(self.current_time * 1000)
+        self._new_events.append(log_event)
+        if event.active:
+            self._new_active_events[log_event.code] = log_event.id
+        self.next_log_event_id += 1
+
+    def output(self) -> LocalLogOutputEvent:
+        """Emit the next output event."""
+        output = LocalLogOutputEvent(
+            new_events=self._new_events,
+            new_active_events=self._new_active_events
+        )
+        self._new_events = []
+        self._new_active_events = {}
+        return output

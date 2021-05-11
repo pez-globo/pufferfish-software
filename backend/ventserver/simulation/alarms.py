@@ -7,9 +7,9 @@ import attr
 
 import betterproto
 
+from ventserver.protocols.application import lists
 from ventserver.protocols.protobuf import mcu_pb
-from ventserver.protocols.backend import states
-from ventserver.simulation import log
+from ventserver.protocols.backend import log, states
 
 
 # Simulators
@@ -32,18 +32,26 @@ class Manager:
     def activate_alarm(
             self, code: mcu_pb.LogEventCode, event_type: mcu_pb.LogEventType,
             lower_limit: int, upper_limit: int,
-            log_manager: log.Manager
+            simulated_log: log.LocalLogSource,
+            log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
     ) -> None:
         """Create a new Log Event if it is not active."""
         if code in self.active_alarm_ids:
             return
 
-        log_event = mcu_pb.LogEvent(
-            code=code, type=event_type, alarm_limits=mcu_pb.Range(
-                lower=lower_limit, upper=upper_limit
-            )
-        )
-        self.active_alarm_ids[code] = log_manager.add_event(log_event)
+        simulated_log.input(log.LocalLogInputEvent(
+            new_event=mcu_pb.LogEvent(
+                code=code, type=event_type, alarm_limits=mcu_pb.Range(
+                    lower=lower_limit, upper=upper_limit
+                )
+            ), active=True
+        ))
+        result = simulated_log.output()
+        log_receiver.input(mcu_pb.NextLogEvents(
+            elements=result.new_events
+        ))
+        for (event_code, event_id) in result.new_active_events.items():
+            self.active_alarm_ids[event_code] = event_id
 
     def deactivate_alarm(self, code: mcu_pb.LogEventCode) -> None:
         """Dectivate the Log Event if it's active."""
@@ -77,7 +85,8 @@ class Service:
             alarm_limits: mcu_pb.AlarmLimits,
             sensor_measurements: mcu_pb.SensorMeasurements,
             active_log_events: mcu_pb.ActiveLogEvents,
-            log_manager: log.Manager
+            simulated_log: log.LocalLogSource,
+            log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
     ) -> None:
         """Update the simulation."""
         if not parameters.ventilating:
@@ -89,21 +98,21 @@ class Service:
             sensor_measurements.fio2,
             mcu_pb.LogEventCode.fio2_too_low,
             mcu_pb.LogEventCode.fio2_too_high,
-            log_manager
+            simulated_log, log_receiver
         )
         self.transform_parameter_alarms(
             alarm_limits.spo2.lower, alarm_limits.spo2.upper,
             sensor_measurements.spo2,
             mcu_pb.LogEventCode.spo2_too_low,
             mcu_pb.LogEventCode.spo2_too_high,
-            log_manager
+            simulated_log, log_receiver
         )
         self.transform_parameter_alarms(
             alarm_limits.hr.lower, alarm_limits.hr.upper,
             sensor_measurements.hr,
             mcu_pb.LogEventCode.hr_too_low,
             mcu_pb.LogEventCode.hr_too_high,
-            log_manager
+            simulated_log, log_receiver
         )
 
         self._manager.transform_active_log_event_ids(active_log_events)
@@ -114,13 +123,14 @@ class Service:
             self, lower_limit: int, upper_limit: int, value: Union[float, int],
             too_low_code: mcu_pb.LogEventCode,
             too_high_code: mcu_pb.LogEventCode,
-            log_manager: log.Manager
+            simulated_log: log.LocalLogSource,
+            log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
     ) -> None:
         """Update the alarms for a particular parameter."""
         if value < lower_limit:
             self._manager.activate_alarm(
                 too_low_code, mcu_pb.LogEventType.patient,
-                lower_limit, upper_limit, log_manager
+                lower_limit, upper_limit, simulated_log, log_receiver
             )
         else:
             self._manager.deactivate_alarm(too_low_code)
@@ -128,7 +138,7 @@ class Service:
         if value > upper_limit:
             self._manager.activate_alarm(
                 too_high_code, mcu_pb.LogEventType.patient,
-                lower_limit, upper_limit, log_manager
+                lower_limit, upper_limit, simulated_log, log_receiver
             )
         else:
             self._manager.deactivate_alarm(too_high_code)
@@ -156,12 +166,13 @@ class HFNC(Service):
             alarm_limits: mcu_pb.AlarmLimits,
             sensor_measurements: mcu_pb.SensorMeasurements,
             active_log_events: mcu_pb.ActiveLogEvents,
-            log_manager: log.Manager
+            simulated_log: log.LocalLogSource,
+            log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
     ) -> None:
         """Update the simulation."""
         super().transform(
             parameters, alarm_limits, sensor_measurements, active_log_events,
-            log_manager
+            simulated_log, log_receiver
         )
         if not parameters.ventilating:
             return
@@ -170,7 +181,7 @@ class HFNC(Service):
             sensor_measurements.flow,
             mcu_pb.LogEventCode.flow_too_low,
             mcu_pb.LogEventCode.flow_too_high,
-            log_manager
+            simulated_log, log_receiver
         )
         self._manager.transform_active_log_event_ids(active_log_events)
 
@@ -197,7 +208,8 @@ class Services:
     def transform(
             self, current_time: float, store: Mapping[
                 states.StateSegment, Optional[betterproto.Message]
-            ], log_manager: log.Manager
+            ], simulated_log: log.LocalLogSource,
+            log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
     ) -> None:
         """Update the parameters for the requested mode."""
         parameters = typing.cast(
@@ -219,8 +231,8 @@ class Services:
             mcu_pb.ActiveLogEvents,
             store[states.StateSegment.ACTIVE_LOG_EVENTS_MCU]
         )
-        log_manager.update_clock(current_time)
+        simulated_log.input(log.LocalLogInputEvent(current_time=current_time))
         self._active_service.transform(
             parameters, alarm_limits, sensor_measurements,
-            active_log_events, log_manager
+            active_log_events, simulated_log, log_receiver
         )

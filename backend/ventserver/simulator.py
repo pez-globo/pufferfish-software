@@ -18,11 +18,10 @@ from ventserver.integration import _trio
 from ventserver.io.trio import channels, fileio, rotaryencoder, websocket
 from ventserver.io.subprocess import frozen_frontend
 from ventserver.protocols import exceptions
-from ventserver.protocols.backend import server, states
+from ventserver.protocols.application import lists
+from ventserver.protocols.backend import log, server, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
-from ventserver.simulation import (
-    alarm_limits, alarms, log, parameters, simulators
-)
+from ventserver.simulation import alarm_limits, alarms, parameters, simulators
 from ventserver import application
 
 
@@ -76,22 +75,28 @@ INITIAL_VALUES = {
 async def service_requests(
         store: Mapping[
             states.StateSegment, Optional[betterproto.Message]
-        ], log_manager: log.Manager
+        ], simulated_log: log.LocalLogSource,
+        simulated_log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
 ) -> None:
     """Simulate evolution of all states."""
     parameters_services = parameters.Services()
     alarm_limits_services = alarm_limits.Services()
 
     while True:
-        parameters_services.transform(time.time(), store, log_manager)
-        alarm_limits_services.transform(time.time(), store, log_manager)
+        parameters_services.transform(
+            time.time(), store, simulated_log, simulated_log_receiver
+        )
+        alarm_limits_services.transform(
+            time.time(), store, simulated_log, simulated_log_receiver
+        )
         await trio.sleep(REQUEST_SERVICE_INTERVAL / 1000)
 
 
 async def simulate_states(
         store: Mapping[
             states.StateSegment, Optional[betterproto.Message]
-        ], log_manager: log.Manager
+        ], simulated_log: log.LocalLogSource,
+        simulated_log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
 ) -> None:
     """Simulate evolution of all states."""
     simulation_services = simulators.Services()
@@ -99,7 +104,9 @@ async def simulate_states(
 
     while True:
         simulation_services.transform(time.time(), store)
-        alarms_services.transform(time.time(), store, log_manager)
+        alarms_services.transform(
+            time.time(), store, simulated_log, simulated_log_receiver
+        )
         await trio.sleep(simulators.SENSOR_UPDATE_INTERVAL / 1000)
 
 
@@ -158,8 +165,9 @@ async def main() -> None:
     )
 
     # Initialize events log manager
-    log_manager = log.Manager(
-        receiver=protocol.receive.backend.  # pylint: disable=protected-access
+    simulated_log = log.LocalLogSource()
+    simulated_log_receiver = (
+        protocol.receive.backend.  # pylint: disable=protected-access
         _event_log_receiver.  # pylint: disable=protected-access
         _log_events_receiver
     )
@@ -174,8 +182,14 @@ async def main() -> None:
                     ),
                     protocol, None, websocket_endpoint, rotary_encoder
                 )
-                nursery.start_soon(service_requests, store, log_manager)
-                nursery.start_soon(simulate_states, store, log_manager)
+                nursery.start_soon(
+                    service_requests, store,
+                    simulated_log, simulated_log_receiver
+                )
+                nursery.start_soon(
+                    simulate_states, store,
+                    simulated_log, simulated_log_receiver
+                )
 
                 while True:
                     receive_output = await channel.output()
