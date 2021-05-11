@@ -19,10 +19,10 @@ import { Axes } from './Axes';
  * @typedef DateValue
  *
  * Interface for defining date value.
- * 
+ *
  * @prop {number} date  display date in x axes
  * @prop {number} value display value in y axes
- * 
+ *
  */
 interface DateValue {
   date: number;
@@ -75,9 +75,9 @@ export interface Props {
  * @component Component for showing wave form data.
  *
  * Uses the [[Props]] interface
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const Waveform = ({
   width,
@@ -133,28 +133,28 @@ export const Waveform = ({
     range: [(height - margin.bottom + margin.top) / 2, 0],
   });
 
-/**
- * function for handling responsive utils for axis ticks
- * 
- * @param {string} type type of wave data.
- * 
- * @returns {} some description
- * 
- */
+  /**
+   * function for handling responsive utils for axis ticks
+   *
+   * @param {string} type type of wave data.
+   *
+   * @returns {} some description
+   *
+   */
   function findAxis(type: string) {
     if (type === 'flow') return yScale2;
     if (type === 'paw' || type === 'volume') return yScale1;
     return yScale;
   }
 
-/**
- * some description
- * 
- * @param {boolean} fill add color based on wave form type
- * 
- * @returns {} some description
- * 
- */
+  /**
+   * some description
+   *
+   * @param {boolean} fill add color based on wave form type
+   *
+   * @returns {} some description
+   *
+   */
   function fillF(fill: boolean) {
     if (fill) return fade(theme.palette.info.main, 0.5);
     return 'rgba(0,0,0,0)';
@@ -162,25 +162,25 @@ export const Waveform = ({
 
   /**
    * function for handling x axes value accessor
-   * 
+   *
    * Uses the [[DateValue]] interface
-   * 
+   *
    * @param {DateValue} date desc for date
-   * 
+   *
    * @returns {number}
-   * 
+   *
    */
   const xAccessor = ({ date }: DateValue): number => xScale(date) as number;
 
   /**
    * function for handling  y axes value accessor
-   * 
+   *
    * Uses the [[DateValue]] interface
-   * 
+   *
    * @param {DateValue} value desc for value
-   * 
+   *
    * @returns {number}
-   * 
+   *
    */
   const yAccessor = ({ value }: DateValue): number => yScale(value) as number;
 

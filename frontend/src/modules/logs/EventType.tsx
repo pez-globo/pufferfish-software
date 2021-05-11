@@ -13,13 +13,13 @@ import { PERCENT, BPM, LMIN } from '../info/units';
  * @typedef EventType
  *
  * Interface for get data about event.
- * 
+ *
  * @prop {LogEventType} type  desc of type
  * @prop {string} label desc of label
  * @prop {string} unit desc of unit
  * @prop {string} head unit of head
  * @prop {string} stateKey unit of stateKey
- * 
+ *
  */
 export interface EventType {
   type: LogEventType;
@@ -34,9 +34,9 @@ export interface EventType {
  *
  * @param {LogEvent} event desc of event
  * @param {EventType} eventType desc of eventType
- * 
+ *
  * @returns {string} some description
- * 
+ *
  */
 export const getEventDetails = (event: LogEvent, eventType: EventType): string => {
   const unit = eventType.unit === PERCENT ? eventType.unit : ` ${eventType.unit}`;
@@ -74,9 +74,9 @@ export const getEventDetails = (event: LogEvent, eventType: EventType): string =
  * function to get event type data
  *
  * @param {LogEventCode} code desc of code
- * 
+ *
  * @returns {EventType} some description
- * 
+ *
  */
 
 export const getEventType = (code: LogEventCode): EventType => {

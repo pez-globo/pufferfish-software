@@ -15,7 +15,7 @@ import { setMultiPopupOpen } from './Service';
  * IdleTimer
  *
  * @component some description
- * 
+ *
  * @param {number} timeout desc for timeout
  * @param {function} onTimeOut desc for onTimeOut
  *

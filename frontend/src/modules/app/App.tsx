@@ -55,7 +55,7 @@ class App extends Component<Props> {
 
     /**
      * Disable Right click across app.
-     * 
+     *
      * @param {MouseEvent} event desc for event
      *
      * @return {boolean}

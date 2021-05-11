@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  * @component HFNCMainView.
  *
  * @returns {JSX.Element}
- * 
+ *
  */
 const HFNCMainView = (): JSX.Element => {
   const classes = useStyles();

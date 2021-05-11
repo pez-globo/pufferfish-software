@@ -44,7 +44,7 @@ const useStyles = makeStyles(() => ({
  * @component Landing page component with pufferfish ventilator information data.
  *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const LandingPage = (): JSX.Element => {
   const classes = useStyles();

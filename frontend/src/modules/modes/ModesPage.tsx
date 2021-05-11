@@ -77,12 +77,12 @@ const useStyles = makeStyles((theme: Theme) => ({
  * ModesPage
  *
  * @component some description
- * 
+ *
  *TODO: This page should be hooked up into the redux store so that it has access
  *       to the current ventilation `mode` and a dispatcher to update the mode.
  *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const ModesPage = (): JSX.Element => {
   const classes = useStyles();

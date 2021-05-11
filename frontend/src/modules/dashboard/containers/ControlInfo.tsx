@@ -19,7 +19,7 @@ import { ClickHandler } from './ValueInfo';
  * @typedef Props
  *
  * Props interface for the ControlInfo component.
- * 
+ *
  * @prop {SelectorType} selector desc for selector
  * @prop {SelectorType} committedSettingSelector desc for committedSettingSelector
  * @prop {string} label desc for label
@@ -27,7 +27,7 @@ import { ClickHandler } from './ValueInfo';
  * @prop {string} units desc for units
  * @prop {number} min desc for min
  * @prop {number} max desc for max
- * 
+ *
  */
 interface Props {
   selector: SelectorType;
@@ -43,11 +43,11 @@ interface Props {
  * @typedef ValueProps
  *
  * Props interface for the ValueControl component.
- * 
+ *
  * @prop {SelectorType} selector desc for selector
  * @prop {string} label desc for label
  * @prop {string} units desc for units
- * 
+ *
  */
 interface ValueProps {
   selector: SelectorType;
@@ -114,9 +114,9 @@ const useStyles = makeStyles((theme: Theme) => ({
  * @component some information.
  *
  * Uses the [[ValueProps]] interface
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const ValueControl = ({ selector, label, units }: ValueProps): JSX.Element => {
   const classes = useStyles();
@@ -160,9 +160,9 @@ export const ValueControl = ({ selector, label, units }: ValueProps): JSX.Elemen
  * @component Component for showing information.
  *
  * Uses the [[Props]] interface
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 const ControlInfo = (props: Props): JSX.Element => {
   const { selector, label, units, stateKey, committedSettingSelector, min, max } = props;
@@ -174,7 +174,7 @@ const ControlInfo = (props: Props): JSX.Element => {
    * some description
    *
    * @param {number} setting desc for setting
-   * 
+   *
    */
   const doSetValue = (setting: number) => {
     dispatch(updateCommittedParameter({ [stateKey]: setting }));
@@ -200,7 +200,7 @@ const ControlInfo = (props: Props): JSX.Element => {
 
   /**
    * Function for updating the modal status.
-   * 
+   *
    * @param {boolean} status desc ofr status
    */
   const updateModalStatus = (status: boolean) => {

@@ -43,7 +43,7 @@ type Direction = 'column' | 'column-reverse' | 'row' | 'row-reverse' | undefined
  * @prop {number} min desc for min
  * @prop {number} max desc for max
  * @prop {Direction} direction desc for direction
- * @prop {number} step desc for step 
+ * @prop {number} step desc for step
  * @prop {string} referenceKey desc for referenceKey
  *
  */
@@ -85,7 +85,7 @@ export const ValueClicker = ({
   const [disableDecrement, setDisableDecrement] = useState(false);
   const [isRotaryActive, setIsRotaryActive] = React.useState(false);
   const [activeRef, setActiveRef] = React.useState<string | null>();
-  
+
   /**
    * add description.
    *

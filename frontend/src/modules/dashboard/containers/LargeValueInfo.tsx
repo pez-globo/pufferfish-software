@@ -96,9 +96,9 @@ const useStyles = makeStyles(() => ({
  * @typedef ValueInfoProps
  *
  * some description
- * 
+ *
  * @prop {Props} mainContainer desc for mainContainer
- * 
+ *
  */
 export interface ValueInfoProps {
   mainContainer: Props;
@@ -108,7 +108,7 @@ export interface ValueInfoProps {
  * @typedef Props
  *
  * Props interface for the control value information.
- * 
+ *
  * @prop {SelectorType} selector desc for selector
  * @prop {string} label desc for label
  * @prop {string} stateKey desc for stateKey
@@ -116,7 +116,7 @@ export interface ValueInfoProps {
  * @prop {boolean} isLive desc for isLive
  * @prop {boolean} showLimits desc for showLimits
  * @prop {number} decimal desc for decimal
- * 
+ *
  */
 export interface Props {
   selector: SelectorType;
@@ -135,9 +135,9 @@ export interface Props {
  *
  * @prop {function} singleClickAction handling single click
  * @prop {function} doubleClickAction handling double click
- * 
+ *
  * @returns {function}
- * 
+ *
  */
 export const ClickHandler = (
   singleClickAction: () => void,
@@ -168,7 +168,7 @@ export const ClickHandler = (
  * @component Component for handling value display.
  *
  * Uses the [[Props]] interface
- * 
+ *
  * @return {JSX.Element}
  */
 const ControlValuesDisplay = ({
@@ -202,9 +202,9 @@ const ControlValuesDisplay = ({
 
   /**
    * Function for updating modal status.
-   * 
+   *
    * @param {boolean} status desc for status
-   * 
+   *
    */
   const updateModalStatus = (status: boolean) => {
     setOpen(status);
@@ -293,9 +293,9 @@ const ControlValuesDisplay = ({
  * @component Component for showing information.
  *
  * Uses the [[Props]] interface
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 const ValueInfo = ({
   selector,

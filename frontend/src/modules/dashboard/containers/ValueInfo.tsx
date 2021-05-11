@@ -130,11 +130,11 @@ const useStyles = makeStyles((theme: Theme) => ({
  * @typedef ValueInfoProps
  *
  * Props interface for the showing value information.
- * 
+ *
  * @prop {Props} mainContainer desc for mainContainer
  * @prop {Props} subContainer1 desc for subContainer1
  * @prop {Props} subContainer2 desc for subContainer2
- * 
+ *
  */
 export interface ValueInfoProps {
   mainContainer: Props;
@@ -146,7 +146,7 @@ export interface ValueInfoProps {
  * @typedef Props
  *
  * Props interface for the showing information.
- * 
+ *
  * @prop {SelectorType} selector desc for selector
  * @prop {string} label desc for label
  * @prop {string} stateKey desc for stateKey
@@ -155,7 +155,7 @@ export interface ValueInfoProps {
  * @prop {boolean} isMain desc for isMain
  * @prop {boolean} showLimits desc for showLimits
  * @prop {number} decimal desc for decimal
- * 
+ *
  */
 export interface Props {
   selector: SelectorType;
@@ -175,7 +175,7 @@ export interface Props {
  *
  * @prop {function} singleClickAction handling single click
  * @prop {function} doubleClickAction handling double click
- * 
+ *
  * @returns {function}
  */
 export const ClickHandler = (
@@ -207,9 +207,9 @@ export const ClickHandler = (
  * @component Component for handling value display.
  *
  * Uses the [[Props]] interface
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 const ControlValuesDisplay = ({
   selector,
@@ -243,9 +243,9 @@ const ControlValuesDisplay = ({
 
   /**
    * Function for updating modal status.
-   * 
+   *
    * @param {boolean} status desc for status
-   * 
+   *
    */
   const updateModalStatus = (status: boolean) => {
     setOpen(status);
@@ -334,9 +334,9 @@ const ControlValuesDisplay = ({
  * @component Component for showing grid control value information.
  *
  * Uses the [[Props]] interface
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 const GridControlValuesDisplay = ({
   selector,
@@ -359,7 +359,6 @@ const GridControlValuesDisplay = ({
     }
   };
 
-
   /**
    * some description
    */
@@ -369,9 +368,9 @@ const GridControlValuesDisplay = ({
 
   /**
    * Function for updating modal status.
-   * 
+   *
    * @param {boolean} status desc for status
-   * 
+   *
    */
   const updateModalStatus = (status: boolean) => {
     setOpen(status);
@@ -447,9 +446,9 @@ const GridControlValuesDisplay = ({
  * @component Component for showing information.
  *
  * Uses the [[ValueInfoProps]] interface
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 const ValueInfo = (props: {
   mainContainer: Props;

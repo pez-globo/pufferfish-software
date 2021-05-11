@@ -21,12 +21,12 @@ import {
  * @typedef DataProps
  *
  * some description.
- * 
+ *
  * @prop {number} time desc for time
  * @prop {number} paw desc for paw
  * @prop {number} flow desc for flow
  * @prop {number} volume desc for volume
- * 
+ *
  */
 interface Props {
   time: number;
@@ -41,9 +41,9 @@ interface Props {
  * @component Component for showing waveform information.
  *
  * Uses the [[Props]] interface
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const WaveformInfo = ({ time, paw, flow, volume }: Props): JSX.Element => (
   <Grid container item direction="column" alignItems="center" justify="space-evenly">
@@ -65,7 +65,7 @@ export const WaveformInfo = ({ time, paw, flow, volume }: Props): JSX.Element =>
 );
 
 /**
- * some description 
+ * some description
  */
 const selector = createStructuredSelector<StoreState, Props>({
   time: getSensorMeasurementsTime,

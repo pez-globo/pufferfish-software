@@ -60,9 +60,9 @@ enum TabType {
  * SettingsPage
  *
  * @component A container storing various setting panels.
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const SettingsPage = (): JSX.Element => {
   const classes = useStyles();
@@ -77,10 +77,10 @@ export const SettingsPage = (): JSX.Element => {
 
   /**
    * function for handling tab change.
-   * 
+   *
    * @param {React.ChangeEvent<Record<string, unknown>>} event desc for event
    * @param {number} newValue desc for newValue
-   * 
+   *
    */
   const handleChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setValue(newValue);
@@ -88,9 +88,9 @@ export const SettingsPage = (): JSX.Element => {
 
   /**
    * function for handling settings tab change.
-   * 
+   *
    * @param {Record<string, unknown>} settings desc for settings
-   * 
+   *
    */
   const onSettingChange = (settings: Record<string, unknown>) => {
     setDisplaySetting(

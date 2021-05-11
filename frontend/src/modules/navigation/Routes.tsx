@@ -39,7 +39,7 @@ import {
  * @component handling router/page-based navigation.
  *
  * @returns {JSX.Element}
- * 
+ *
  */
 const Routes = (): JSX.Element => {
   const ventilating = useSelector(getIsVentilating);

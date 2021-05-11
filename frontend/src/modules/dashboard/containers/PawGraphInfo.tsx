@@ -19,9 +19,9 @@ import { Axes } from '../components/Axes';
  * @typedef DataProps
  *
  * some description.
- * 
+ *
  * @prop {WaveformPoint[]} data desc for data
- * 
+ *
  */
 interface DataProps {
   data: WaveformPoint[];
@@ -36,9 +36,9 @@ const oldSelector = createStructuredSelector<StoreState, DataProps>({
 
 /**
  * Function for handling segement selection
- * 
+ *
  * @param {number} segmentIndex Index of the segment
- * 
+ *
  */
 const newSegmentSelector = (segmentIndex: number) =>
   createStructuredSelector<StoreState, DataProps>({
@@ -49,10 +49,10 @@ const newSegmentSelector = (segmentIndex: number) =>
  * @typedef AutoSizerProps
  *
  * Props interface for setting graph height and width.
- * 
+ *
  * @prop {number} width width of graph
  * @prop {number} height height of graph
- * 
+ *
  */
 interface AutoSizerProps {
   width: number;
@@ -63,10 +63,10 @@ interface AutoSizerProps {
  * @typedef WaveformProps
  *
  * Props interface for setting wave form graph with strokeWidth and fill values.
- * 
+ *
  * @prop {number} strokeWidth strokeWidth of waveform graph
  * @prop {boolean} fill fill of waveform graph
- * 
+ *
  */
 interface WaveformProps extends DataProps, AutoSizerProps {
   strokeWidth: number;
@@ -79,9 +79,9 @@ interface WaveformProps extends DataProps, AutoSizerProps {
  * @component Component for showing waveform information.
  *
  * Uses the [[WaveformProps]] interface
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 const PawWaveform = ({ data, width, height, strokeWidth, fill }: WaveformProps) => (
   <Waveform
@@ -106,9 +106,9 @@ const WaveformNew3 = connect(newSegmentSelector(3))(PawWaveform);
 /**
  *
  * function for handling wave form data.
- * 
+ *
  * Uses the [[AutoSizerProps]] interface
- * 
+ *
  * @return {JSX.Element}
  */
 const waveforms = ({ width, height }: AutoSizerProps) => (

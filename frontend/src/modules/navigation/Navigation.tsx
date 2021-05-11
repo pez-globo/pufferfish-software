@@ -70,12 +70,12 @@ const useStyles = makeStyles((theme: Theme) => ({
  * Navigation
  *
  * @component The main interface for router/page-based navigation.
- * 
+ *
  * @param {boolean} fullPage desc for fullPage
  * @param {function} toggleStatus desc for toggleStatus
  *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const Navigation = ({
   fullPage,
@@ -106,10 +106,10 @@ export const Navigation = ({
 
   /**
    * function for handling route changes
-   * 
+   *
    * @param {React.ChangeEvent<Record<string, unknown>>} event desc for event
    * @param {number} newRoute desc for newRoute
-   * 
+   *
    */
   const handleRouteChange = (
     event: React.ChangeEvent<Record<string, unknown>>,
@@ -123,11 +123,11 @@ export const Navigation = ({
 
   /**
    * RouteLabel
-   * 
+   *
    * @component handles route labels
-   * 
+   *
    * @returns {JSX.Element}
-   * 
+   *
    */
   const RouteLabel = (
     props: PropsWithChildren<{ fullPage?: boolean; label: string }>,

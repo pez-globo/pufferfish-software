@@ -12,11 +12,11 @@ import { getActiveRotaryReference } from '../app/Service';
 
 /**
  * function for handling rotary reference.
- * 
+ *
  * @param {Theme} theme desc for theme
- * 
+ *
  * @returns {function} some description
- * 
+ *
  */
 export const useRotaryReference = (
   theme: Theme,

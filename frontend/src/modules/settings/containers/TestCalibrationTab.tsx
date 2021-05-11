@@ -30,12 +30,12 @@ const useStyles = makeStyles((theme: Theme) => ({
  * TestCalibrationTab
  *
  * @component TestCalibrationTab
- * 
+ *
  * TODO: Remove the default properties in the destructured `Props` argument below
  *       after hooking the `props` up to the redux store.
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const TestCalibrationTab = (): JSX.Element => {
   const classes = useStyles();

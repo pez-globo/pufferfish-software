@@ -14,11 +14,11 @@ import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../constants';
  * StartPauseButton
  *
  * @component A button component for handling the starting & pausing of the ventilator.
- * 
+ *
  * TODO: The `isVentilatorOn` state should be hooked into redux.
  *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const StartPauseButton = (): JSX.Element => {
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(false);

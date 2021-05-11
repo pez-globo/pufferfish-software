@@ -134,7 +134,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  * @component PressureControlMainView.
  *
  * @returns {JSX.Element}
- * 
+ *
  */
 const PressureControlMainView = (): JSX.Element => {
   const classes = useStyles();
@@ -142,10 +142,10 @@ const PressureControlMainView = (): JSX.Element => {
 
   /**
    * some description
-   * 
+   *
    * @param {React.ChangeEvent<Record<string, unknown>>} event desc of event
    * @param {number} newValue desc of newValue
-   * 
+   *
    */
   const handleTabChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setValue(newValue);

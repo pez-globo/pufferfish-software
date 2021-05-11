@@ -20,11 +20,11 @@ import SimpleTable, {
  * @typedef Data
  *
  * Interface for event log details.
- * 
+ *
  * @prop {string} value  desc of value
  * @prop {string} measurement desc of measurement
  * @prop {number} id desc of id
- * 
+ *
  */
 interface Data {
   value: string;
@@ -34,13 +34,13 @@ interface Data {
 
 /**
  * some description
- * 
+ *
  * @prop {string} value desc for value
  * @prop {string} measurement desc for measurement
  * @prop {number} id desc for id
- * 
+ *
  * @returns {Data}
- * 
+ *
  */
 function createData(value: string, measurement: string, id: number): Data {
   return { value, measurement, id };
@@ -81,7 +81,7 @@ const headCells: HeadCell[] = [
  * @component Event Logs detail page
  *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const EventlogDetails = (): JSX.Element => {
   const theme = useTheme();
@@ -94,10 +94,10 @@ export const EventlogDetails = (): JSX.Element => {
 
   /**
    * Function for handling the click event.
-   * 
+   *
    * @param {React.MouseEvent<unknown>} event desc for event
    * @param {string} name desc for name
-   * 
+   *
    */
   const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
     const selectedIndex = selected.indexOf(name);
@@ -120,11 +120,11 @@ export const EventlogDetails = (): JSX.Element => {
 
   /**
    * Function for handling error message and shown in red color
-   * 
+   *
    * @param {number} id  table row id
-   * 
+   *
    * @returns {object} some description
-   * 
+   *
    */
   function makeRed(id: number) {
     if (id === 3) return { color: theme.palette.error.main };

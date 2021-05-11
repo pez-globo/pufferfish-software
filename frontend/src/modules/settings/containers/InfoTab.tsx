@@ -46,14 +46,14 @@ const useStyles = makeStyles((theme: Theme) => ({
  * @typedef Props
  *
  * some description.
- * 
+ *
  * TODO: These props should be connected to the redux store.
- * 
+ *
  * @prop {string} model  desc of model
  * @prop {string} softwareVersion  desc of softwareVersion
  * @prop {string} serialNumber  desc of serialNumber
  * @prop {string} batteryTime  desc of batteryTime
- * 
+ *
  */
 interface Props {
   model?: string;
@@ -66,14 +66,14 @@ interface Props {
  * InfoTab
  *
  * @component InfoTab
- * 
+ *
  * uses [[Props]] interface
- * 
+ *
  * TODO: Remove the default properties in the destructured `Props` argument below
  *  after hooking the `props` up to the redux store.
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const InfoTab = ({
   model = '1.0',

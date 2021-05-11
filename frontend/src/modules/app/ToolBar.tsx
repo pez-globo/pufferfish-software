@@ -115,10 +115,10 @@ export const PowerIndicator = (): JSX.Element => {
  *
  * @component A container for displaying buttons that handle system changes based on
  * various states and conditions such as ventilator state and current page route.
- * 
+ *
  * @param {React.ReactNode} children desc for children
- * @param {boolean} staticStart desc for staticStart 
- * 
+ * @param {boolean} staticStart desc for staticStart
+ *
  * @returns {JSX.Element}
  */
 export const ToolBar = ({

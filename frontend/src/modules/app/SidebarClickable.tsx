@@ -83,9 +83,9 @@ const SidebarClickable = ({
   const classes = useStyles();
   const dispatch = useDispatch();
 
-/**
- * Function to set lock on screen.
- */
+  /**
+   * Function to set lock on screen.
+   */
   const lockScreen = () => {
     toggleStatus(false);
     dispatch(updateState(MessageType.ScreenStatus, { lock: true }));

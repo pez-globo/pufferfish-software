@@ -74,11 +74,11 @@ const StyledMenuItem = withStyles((theme) => ({
  * ViewDropdown
  *
  * @component some description
- * 
+ *
  * TODO:This component may rely on a redux state that stores the current view..
  *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const ViewDropdown = (): JSX.Element => {
   const classes = useStyles();
@@ -87,10 +87,10 @@ export const ViewDropdown = (): JSX.Element => {
 
   /**
    * handle dropdown selection
-   * 
+   *
    * @param {React.MouseEvent<HTMLElement} event desc of event
    * @param {number} index desc of index
-   * 
+   *
    */
   const handleItemClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => {
     setSelectedIndex(index);
@@ -106,11 +106,11 @@ export const ViewDropdown = (): JSX.Element => {
 
   /**
    * function for adding border using css property
-   * 
+   *
    * @param {number} view desc for view
-   * 
+   *
    * @returns {object}
-   * 
+   *
    */
   function addBorder(view: number) {
     if (view > 0) return { borderTop: '1px solid black' };

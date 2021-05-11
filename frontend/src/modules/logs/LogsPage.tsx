@@ -29,7 +29,7 @@ import { getEventDetails, getEventType } from './EventType';
  * @typedef Data
  *
  * Interface to create log data.
- * 
+ *
  * @prop {LogEventType} type  desc of type
  * @prop {string} alarm desc of alarm
  * @prop {number} time desc of time
@@ -39,7 +39,7 @@ import { getEventDetails, getEventType } from './EventType';
  * @prop {string} stateKey desc of stateKey
  * @prop {string} head desc of head
  * @prop {string} unit desc of unit
- * 
+ *
  */
 
 interface Data {
@@ -103,13 +103,13 @@ const useStyles = makeStyles(() =>
  * LogsPage
  *
  * @component LogsPage
- * 
+ *
  * TODO: Abstract this into components!
  *
  * @param {boolean} filter desc of filter
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const classes = useStyles();
@@ -119,9 +119,9 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
    * function to get event label
    *
    * @param {LogEventType} type desc of type
-   * 
+   *
    * @returns {string}
-   * 
+   *
    */
   const getEventTypeLabel = (type: LogEventType): string => {
     switch (type) {
@@ -138,22 +138,22 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     }
   };
 
-/**
- *  some description
- * 
- * @param {LogEventType}  type desc for type
- * @param {string}  alarm desc for alarm
- * @param {number}  time desc for time
- * @param {number}  status desc for status
- * @param {number}  id desc for id
- * @param {string}  details desc for details
- * @param {string}  stateKey desc for stateKey
- * @param {string}  head desc for head
- * @param {string}  unit desc for unit
- * 
- * @returns {Data}  some description
- * 
- */
+  /**
+   *  some description
+   *
+   * @param {LogEventType}  type desc for type
+   * @param {string}  alarm desc for alarm
+   * @param {number}  time desc for time
+   * @param {number}  status desc for status
+   * @param {number}  id desc for id
+   * @param {string}  details desc for details
+   * @param {string}  stateKey desc for stateKey
+   * @param {string}  head desc for head
+   * @param {string}  unit desc for unit
+   *
+   * @returns {Data}  some description
+   *
+   */
 
   const createData = (
     type: LogEventType,
@@ -245,11 +245,11 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
 
   /**
    * Function return background color based on different conditions.
-   * 
+   *
    * @param {LogEventType | undefined} type desc for type
-   * 
+   *
    * @returns {object} some description
-   * 
+   *
    */
   const typeColor = (type: LogEventType | undefined) => {
     switch (type) {
@@ -267,10 +267,10 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
 
   /**
    * Function for handling the click event.
-   * 
+   *
    * @param {React.MouseEvent<unknown>} event desc for event
    * @param {string} name desc for name
-   * 
+   *
    */
   const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
     const selectedIndex = selected.indexOf(name);
@@ -293,9 +293,9 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
 
   /**
    * Function for opening multi popup based on stateKey condiotion
-   * 
+   *
    * @param {Data} row desc for row
-   * 
+   *
    */
   const onSettings = (row: Data) => {
     if (row.stateKey) {

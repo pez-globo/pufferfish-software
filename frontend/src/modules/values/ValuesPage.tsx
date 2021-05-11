@@ -64,9 +64,9 @@ const useStyles = makeStyles((theme: Theme) => ({
  * ValuesPage
  *
  * @component some description.
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const ValuesPage = (): JSX.Element => {
   const classes = useStyles();

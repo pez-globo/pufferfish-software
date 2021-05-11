@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  * @prop {function} onClick desc for onClick
  * @prop {number} min desc for min
  * @prop {number} max desc for max
- * @prop {string} units desc for units 
+ * @prop {string} units desc for units
  * @prop {RefObject<HTMLDivElement>} reference desc for reference
  * @prop {string} referenceKey desc for referenceKey
  *

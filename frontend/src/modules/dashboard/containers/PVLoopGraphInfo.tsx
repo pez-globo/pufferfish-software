@@ -19,9 +19,9 @@ import { Axes } from '../components/Axes';
  * @typedef DataProps
  *
  * some description
- * 
+ *
  * @prop {PVPoint[]} data desc for data
- * 
+ *
  */
 interface DataProps {
   data: PVPoint[];
@@ -38,10 +38,10 @@ const selector = createStructuredSelector<StoreState, DataProps>({
  * @typedef AutoSizerProps
  *
  * Props interface for setting graph height and width.
- * 
+ *
  * @prop {number} width width of graph
  * @prop {number} height height of graph
- * 
+ *
  */
 interface AutoSizerProps {
   width: number;
@@ -52,9 +52,9 @@ interface AutoSizerProps {
  * @typedef WaveformProps
  *
  * Props interface for setting wave form graph with strokeWidth and fill values.
- * 
+ *
  * @prop {number} strokeWidth strokeWidth of waveform graph
- * 
+ *
  */
 interface WaveformProps extends DataProps, AutoSizerProps {
   strokeWidth: number;
@@ -63,11 +63,11 @@ interface WaveformProps extends DataProps, AutoSizerProps {
 /**
  *
  * function for setting PV point.
- * 
+ *
  * @param {PVPoint} data desc of data
- * 
+ *
  * @returns {Point}
- * 
+ *
  */
 const pointMapper = (data: PVPoint): Point => ({
   x: data.pressure,
@@ -77,9 +77,9 @@ const pointMapper = (data: PVPoint): Point => ({
 /**
  *
  * function for setting wave form graph with strokeWidth and fill values.
- * 
+ *
  * Uses the [[WaveformProps]] interface
- * 
+ *
  * @returns {JSX.Element}
  */
 const PVLoop = ({ data, width, height, strokeWidth }: WaveformProps) => (
@@ -99,13 +99,13 @@ const PVLoop = ({ data, width, height, strokeWidth }: WaveformProps) => (
 const CurrentLoop = connect(selector)(PVLoop);
 
 /**
- * 
+ *
  * some description.
- * 
+ *
  * Uses the [[AutoSizerProps]] interface
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 const loops = ({ width, height }: AutoSizerProps) => (
   <React.Fragment>
@@ -119,7 +119,7 @@ const loops = ({ width, height }: AutoSizerProps) => (
  * @component Component for showing Pressure volume graph information.
  *
  * @returns {JSX.Element}
- * 
+ *
  */
 const PVLoopGraphInfo = (): JSX.Element => (
   <AutoSizer>

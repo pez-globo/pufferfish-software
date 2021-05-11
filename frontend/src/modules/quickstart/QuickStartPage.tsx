@@ -91,9 +91,9 @@ const useStyles = makeStyles((theme: Theme) => ({
  * SettableParameters
  *
  * @component for setting quick start parameters
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 const SettableParameters = (): JSX.Element => {
   const classes = useStyles();
@@ -117,7 +117,7 @@ const SettableParameters = (): JSX.Element => {
 
   /**
    * some description
-   * 
+   *
    */
   const initParameterUpdate = useCallback(() => {
     dispatch(
@@ -233,7 +233,7 @@ const SettableParameters = (): JSX.Element => {
  * @component for displaying quick start page
  *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const QuickStartPage = (): JSX.Element => {
   const classes = useStyles();
@@ -242,7 +242,6 @@ export const QuickStartPage = (): JSX.Element => {
   // const [patientHeight, setPatientHeight] = React.useState(62);
   // const [patientCircuitTestDate] = React.useState(new Date());
   // const [preUseCheckDate] = React.useState(new Date());
-
 
   /**
    * some description

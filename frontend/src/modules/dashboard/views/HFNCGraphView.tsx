@@ -135,7 +135,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  * @component HFNCMainView.
  *
  * @returns {JSX.Element}
- * 
+ *
  */
 const HFNCMainView = (): JSX.Element => {
   const classes = useStyles();
@@ -143,10 +143,10 @@ const HFNCMainView = (): JSX.Element => {
 
   /**
    * some description
-   * 
+   *
    * @param {React.ChangeEvent<Record<string, unknown>>} event desc of event
    * @param {number} newValue desc of newValue
-   * 
+   *
    */
   const handleTabChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setValue(newValue);

@@ -20,7 +20,7 @@ const activeRotaryReference = new Subject<string | null>();
  * @param {string} stateKey - desc for stateKey
  *
  * @return {void}
- * 
+ *
  */
 export function setMultiPopupOpen(state: boolean, stateKey?: string): void {
   isMultiPopupOpen.next(state);
@@ -39,7 +39,7 @@ export function getMultiPopupOpenState(): Observable<boolean> {
 
 /**
  * Function to get current state key
- * 
+ *
  * @return {Observable<boolean>}
  */
 export function getcurrentStateKey(): Observable<string> {
@@ -59,9 +59,9 @@ export function setScreenLockPopup(state: boolean): void {
 
 /**
  * Function to get screen lock popup
- * 
+ *
  * @return {Observable<boolean>}
- * 
+ *
  */
 export function getScreenLockPopup(): Observable<boolean> {
   return isScreenLockPopupOpen.asObservable();
@@ -70,7 +70,7 @@ export function getScreenLockPopup(): Observable<boolean> {
 /**
  * Function to set the active rotary reference
  *
- * @param {string | null} refString - desc for refString  
+ * @param {string | null} refString - desc for refString
  *
  * @return {void}
  *

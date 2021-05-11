@@ -28,11 +28,11 @@ const useStyles = makeStyles(() => ({
  * renderModeLayout
  *
  * @component Component for handling layout of ventilation mode.
- * 
+ *
  * @param {VentilationMode} mode desc for mode
  *
  * @returns {JSX.Element}
- * 
+ *
  */
 const renderModeLayout = (mode: VentilationMode): JSX.Element => {
   switch (mode) {
@@ -52,11 +52,11 @@ const renderModeLayout = (mode: VentilationMode): JSX.Element => {
  * DashboardPage
  *
  * @component some description
- * 
+ *
  * TODO: Hook into the redux store to get the current dashboard `view` from the `ViewDropdown`
- * 
+ *
  * @returns {JSX.Element}
- * 
+ *
  */
 export const DashboardPage = (): JSX.Element => {
   const classes = useStyles();
