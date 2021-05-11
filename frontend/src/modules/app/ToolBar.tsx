@@ -159,7 +159,7 @@ export const ToolBar = ({
   const [label, setLabel] = useState('Start Ventilation');
   const [isDisabled, setIsDisabled] = useState(false);
   const [open, setOpen] = useState(false);
-  const setAlarmLimits = (data: Partial<AlarmLimitsRequest>) => {
+  const setAlarmLimitsRequestStandby = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
   const alarmConfig = alarmConfiguration(currentMode);
@@ -307,7 +307,7 @@ export const ToolBar = ({
   };
 
   const handleConfirm = () => {
-    setAlarmLimits(alarmLimits);
+    setAlarmLimitsRequestStandby(alarmLimits);
     history.push(DASHBOARD_ROUTE.path);
     setOpen(false);
   };

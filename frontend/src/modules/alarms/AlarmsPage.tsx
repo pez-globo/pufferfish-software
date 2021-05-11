@@ -300,7 +300,7 @@ export const AlarmsPage = (): JSX.Element => {
   const ventilating = useSelector(getParametersIsVentilating);
   const [alarmLimits] = useState((alarmLimitsCurrent as unknown) as Record<string, Range>);
   const alarmLimitsStandby = (alarmLimitsRequestStandby as unknown) as Record<string, Range>;
-  const setAlarmLimits = (data: Partial<AlarmLimitsRequest>) => {
+  const setAlarmLimitsRequestStandby = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
   const applyChanges = () => {
@@ -333,7 +333,7 @@ export const AlarmsPage = (): JSX.Element => {
 
   const handleDiscardConfirm = () => {
     setDiscardOpen(false);
-    setAlarmLimits(alarmLimits);
+    setAlarmLimitsRequestStandby(alarmLimits);
     setIsDisabled(true);
   };
 
@@ -390,7 +390,7 @@ export const AlarmsPage = (): JSX.Element => {
                   stateKey={alarm.stateKey}
                   step={alarm.step || 1}
                   alarmLimits={alarmLimitsRequestStandby}
-                  setAlarmLimits={setAlarmLimits}
+                  setAlarmLimits={setAlarmLimitsRequestStandby}
                 />
               );
             })}
