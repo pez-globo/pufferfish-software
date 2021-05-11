@@ -317,7 +317,7 @@ export const AlarmsPage = (): JSX.Element => {
   const alarmConfig = alarmConfiguration(currentMode);
   const [open, setOpen] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(alarmLimitsUnsaved);
+  const [isDisabled, setIsDisabled] = useState(!alarmLimitsUnsaved);
 
   const handleClose = () => {
     setOpen(false);
@@ -352,9 +352,6 @@ export const AlarmsPage = (): JSX.Element => {
   }, [alarmConfig]);
 
   useEffect(() => {
-    if (alarmLimitsUnsaved === null) {
-      return;
-    }
     if (alarmLimitsUnsaved) {
       setIsDisabled(false);
     } else {

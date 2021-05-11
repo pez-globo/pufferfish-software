@@ -262,9 +262,6 @@ export const ToolBar = ({
   );
 
   const handleOnClick = () => {
-    if (alarmLimitsUnsaved === null) {
-      return;
-    }
     if (!alarmLimitsUnsaved) {
       setOpen(false);
       history.push(DASHBOARD_ROUTE.path);
