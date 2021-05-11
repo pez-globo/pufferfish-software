@@ -119,11 +119,7 @@ void HFNCAlarms::transform(
     ActiveLogEvents &active_log_events,
     AlarmsManager &alarms_manager) {
   AlarmsService::transform(
-      parameters,
-      alarm_limits,
-      sensor_measurements,
-      active_log_events,
-      alarms_manager);
+      parameters, alarm_limits, sensor_measurements, active_log_events, alarms_manager);
   if (!parameters.ventilating) {
     return;
   }
@@ -162,11 +158,7 @@ void AlarmsServices::transform(
   }
 
   active_service_->transform(
-      parameters,
-      alarm_limits,
-      sensor_measurements,
-      active_log_events,
-      alarms_manager);
+      parameters, alarm_limits, sensor_measurements, active_log_events, alarms_manager);
 }
 
 }  // namespace Pufferfish::Driver::BreathingCircuit
