@@ -1,6 +1,6 @@
 import { createSelector, OutputSelector } from 'reselect';
 import DECIMAL_RADIX from '../../modules/app/AppConstants';
-import { getBackendDisconnected } from '../app/selectors';
+import { getBackendConnected } from '../app/selectors';
 import { StoreState } from '../types';
 import { FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import {
@@ -236,10 +236,14 @@ export const getPopupEventLog = createSelector(getController, (states: Controlle
 
 // Backend Initialized
 export const getBackendInitialized = createSelector(
-  getSensorMeasurements,
-  getBackendDisconnected,
-  (sensorMeasurements: SensorMeasurements | null, backendDisconnected: boolean): boolean =>
-    sensorMeasurements !== null && backendDisconnected,
+  getParametersRequest,
+  getAlarmLimitsRequest,
+  getBackendConnected,
+  (
+    parametersRequest: ParametersRequest | null,
+    alarmLimitsRequest: AlarmLimitsRequest | null,
+    backendConnected: boolean,
+  ): boolean => parametersRequest !== null && alarmLimitsRequest !== null && backendConnected,
 );
 
 // Alarm muting

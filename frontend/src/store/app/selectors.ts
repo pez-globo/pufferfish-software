@@ -35,7 +35,7 @@ export const getBackendHeartBeat = createSelector(
   getApp,
   (app: AppState): Date => app.backendHeartbeat,
 );
-export const getBackendDisconnected = createSelector(
+export const getBackendConnected = createSelector(
   getApp,
   (app: AppState): boolean => app.backendConnection,
 );

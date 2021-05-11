@@ -47,12 +47,6 @@ export const HeartbeatBackendListener = (): JSX.Element => {
   const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
 
   useEffect(() => {
-    if (diff < BACKEND_CONNECTION_TIMEOUT) {
-      dispatch(establishedBackendConnection(true, new Date()));
-    }
-  }, [clock, diff, dispatch, heartbeat]);
-
-  useEffect(() => {
     const lostConnectionAlarm = events.find(
       (el: LogEvent) => (el.code as number) === LogEventCode.backend_connection_down,
     );
@@ -62,7 +56,6 @@ export const HeartbeatBackendListener = (): JSX.Element => {
         dispatch({
           type: BACKEND_CONNECTION_DOWN,
           clock: new Date(),
-          backendConnection: false,
           update: {
             code: LogEventCode.backend_connection_down,
             type: LogEventType.system,
@@ -70,6 +63,8 @@ export const HeartbeatBackendListener = (): JSX.Element => {
           },
         });
       }
+    } else {
+      dispatch(establishedBackendConnection(new Date()));
     }
   }, [clock, diff, dispatch, events, heartbeat]);
 

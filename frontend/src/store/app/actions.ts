@@ -14,10 +14,10 @@ export function setLocale(locale: string): AppAction {
   return { type: SET_LOCALE, locale };
 }
 
-export function lostBackendConnection(backendConnection: boolean, clock: Date): AppAction {
-  return { type: BACKEND_CONNECTION_DOWN, clock, backendConnection };
+export function lostBackendConnection(clock: Date): AppAction {
+  return { type: BACKEND_CONNECTION_DOWN, clock };
 }
 
-export function establishedBackendConnection(backendConnection: boolean, clock: Date): AppAction {
-  return { type: BACKEND_CONNECTION_UP, clock, backendConnection };
+export function establishedBackendConnection(clock: Date): AppAction {
+  return { type: BACKEND_CONNECTION_UP, clock };
 }
