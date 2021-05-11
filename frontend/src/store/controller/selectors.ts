@@ -232,13 +232,15 @@ export const getAlarmLimitsUnsavedChanges = createSelector(
     currentHR: Range | null,
     standbySpo2: Range | null,
     standbyHR: Range | null,
-  ): boolean | null =>
-    currentSpo2 === null && currentHR === null && standbySpo2 === null && standbyHR === null
-      ? null
-      : currentSpo2?.lower !== standbySpo2?.lower ||
-        currentSpo2?.upper !== standbySpo2?.upper ||
-        currentHR?.lower !== standbyHR?.lower ||
-        currentHR?.upper !== standbyHR?.upper,
+  ): boolean =>
+    (currentSpo2 !== null &&
+      currentHR !== null &&
+      standbySpo2 !== null &&
+      standbyHR !== null &&
+      currentSpo2?.lower !== standbySpo2?.lower) ||
+    currentSpo2?.upper !== standbySpo2?.upper ||
+    currentHR?.lower !== standbyHR?.lower ||
+    currentHR?.upper !== standbyHR?.upper,
 );
 
 // Event log

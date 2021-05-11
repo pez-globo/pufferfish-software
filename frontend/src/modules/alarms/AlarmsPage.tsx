@@ -317,7 +317,7 @@ export const AlarmsPage = (): JSX.Element => {
   const alarmConfig = alarmConfiguration(currentMode);
   const [open, setOpen] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(true);
+  const [isDisabled, setIsDisabled] = useState(alarmLimitsUnsaved);
 
   const handleClose = () => {
     setOpen(false);
