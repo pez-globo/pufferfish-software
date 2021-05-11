@@ -60,8 +60,7 @@ class Manager:
         if self.active_alarm_ids is None:
             return
 
-        if request.active is True:
-            alarm_mute.active = True
+        alarm_mute.active = request.active
 
 @attr.s
 class Service:
