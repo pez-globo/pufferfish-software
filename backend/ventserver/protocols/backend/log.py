@@ -100,7 +100,7 @@ class LocalLogInputEvent(events.Event):
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
-        return self.current_time is not None or self.new_event is not None
+        return self.new_event is not None
 
 
 @attr.s
@@ -318,6 +318,9 @@ class EventLogSender(protocols.Filter[SendInputEvent, mcu_pb.NextLogEvents]):
         return typing.cast(
             mcu_pb.NextLogEvents, self._log_events_sender.output()
         )
+
+
+# Managers
 
 
 @attr.s

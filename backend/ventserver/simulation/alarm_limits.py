@@ -8,8 +8,7 @@ import attr
 
 import betterproto
 
-from ventserver.protocols.application import lists
-from ventserver.protocols.backend import log, states
+from ventserver.protocols.backend import alarms, log, states
 from ventserver.protocols.protobuf import mcu_pb
 
 
@@ -28,8 +27,7 @@ def transform_limits_range(
 
 def service_limits_range(
         request: mcu_pb.Range, response: mcu_pb.Range, floor: int, ceiling: int,
-        code: mcu_pb.LogEventCode, simulated_log: log.LocalLogSource,
-        log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
+        code: mcu_pb.LogEventCode, events_log: alarms.Manager
 ) -> None:
     """Handle the request's alarm limits range."""
     old_response = dataclasses.replace(response)
@@ -43,13 +41,10 @@ def service_limits_range(
         return
 
     new_response = dataclasses.replace(response)
-    simulated_log.input(log.LocalLogInputEvent(new_event=mcu_pb.LogEvent(
+    events_log.input(log.LocalLogInputEvent(new_event=mcu_pb.LogEvent(
         code=code, type=mcu_pb.LogEventType.alarm_limits,
         old_range=old_response, new_range=new_response
     )))
-    log_receiver.input(mcu_pb.NextLogEvents(
-        elements=simulated_log.output().new_events
-    ))
 
 
 # Services
@@ -72,8 +67,7 @@ class Service:
             self,
             parameters: mcu_pb.Parameters,  # pylint: disable=unused-argument
             request: mcu_pb.AlarmLimitsRequest, response: mcu_pb.AlarmLimits,
-            simulated_log: log.LocalLogSource,
-            log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
+            events_log: alarms.Manager
     ) -> None:
         """Update the alarm limits."""
         fio2_range = mcu_pb.Range(
@@ -82,18 +76,15 @@ class Service:
         )
         service_limits_range(
             fio2_range, response.fio2, self.FIO2_MIN, self.FIO2_MAX,
-            mcu_pb.LogEventCode.fio2_alarm_limits_changed,
-            simulated_log, log_receiver
+            mcu_pb.LogEventCode.fio2_alarm_limits_changed, events_log
         )
         service_limits_range(
             request.spo2, response.spo2, self.SPO2_MIN, self.SPO2_MAX,
-            mcu_pb.LogEventCode.spo2_alarm_limits_changed,
-            simulated_log, log_receiver
+            mcu_pb.LogEventCode.spo2_alarm_limits_changed, events_log
         )
         service_limits_range(
             request.hr, response.hr, self.HR_MIN, self.HR_MAX,
-            mcu_pb.LogEventCode.hr_alarm_limits_changed,
-            simulated_log, log_receiver
+            mcu_pb.LogEventCode.hr_alarm_limits_changed, events_log
         )
 
 
@@ -111,21 +102,17 @@ class HFNC(Service):
     def transform(
             self, parameters: mcu_pb.Parameters,
             request: mcu_pb.AlarmLimitsRequest, response: mcu_pb.AlarmLimits,
-            simulated_log: log.LocalLogSource,
-            log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
+            events_log: alarms.Manager
     ) -> None:
         """Update the alarm limits."""
-        super().transform(
-            parameters, request, response, simulated_log, log_receiver
-        )
+        super().transform(parameters, request, response, events_log)
         flow_range = mcu_pb.Range(
             lower=int(parameters.flow - self.FLOW_TOLERANCE),
             upper=int(parameters.flow + self.FLOW_TOLERANCE)
         )
         service_limits_range(
             flow_range, response.flow, self.FLOW_MIN, self.FLOW_MAX,
-            mcu_pb.LogEventCode.flow_alarm_limits_changed,
-            simulated_log, log_receiver
+            mcu_pb.LogEventCode.flow_alarm_limits_changed, events_log
         )
 
 
@@ -142,10 +129,9 @@ class Services:
     }
 
     def transform(
-            self, current_time: float, store: Mapping[
+            self, store: Mapping[
                 states.StateSegment, Optional[betterproto.Message]
-            ], simulated_log: log.LocalLogSource,
-            log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
+            ], events_log: alarms.Manager
     ) -> None:
         """Update the alarm limits for the requested mode."""
         parameters = typing.cast(
@@ -163,7 +149,6 @@ class Services:
         if self._active_service is None:
             return
 
-        simulated_log.input(log.LocalLogInputEvent(current_time=current_time))
         self._active_service.transform(
-            parameters, request, response, simulated_log, log_receiver
+            parameters, request, response, events_log
         )

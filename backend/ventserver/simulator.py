@@ -9,6 +9,7 @@ server to act as a mock in place of the real backend server.
 import logging
 import time
 import functools
+import typing
 from typing import Mapping, MutableMapping, Optional
 
 import betterproto
@@ -19,9 +20,11 @@ from ventserver.io.trio import channels, fileio, rotaryencoder, websocket
 from ventserver.io.subprocess import frozen_frontend
 from ventserver.protocols import exceptions
 from ventserver.protocols.application import lists
-from ventserver.protocols.backend import log, server, states
+from ventserver.protocols.backend import alarms, log, server, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
-from ventserver.simulation import alarm_limits, alarms, parameters, simulators
+from ventserver.simulation import (
+    alarm_limits, alarms as sim_alarms, parameters, simulators
+)
 from ventserver import application
 
 
@@ -72,22 +75,39 @@ INITIAL_VALUES = {
 }
 
 
+def service_event_log(
+    simulated_log: alarms.Manager, active_log_events: mcu_pb.ActiveLogEvents,
+    simulated_log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
+) -> None:
+    """Output outstanding events."""
+    result = simulated_log.output()
+    if result is None:
+        return
+
+    simulated_log_receiver.input(result.next_log_events)
+    if result.active_log_events is not None:
+        active_log_events.id = result.active_log_events.id
+
+
 async def service_requests(
-        store: Mapping[
-            states.StateSegment, Optional[betterproto.Message]
-        ], simulated_log: log.LocalLogSource,
-        simulated_log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
+    store: Mapping[states.StateSegment, Optional[betterproto.Message]],
+    simulated_log: alarms.Manager,
+    simulated_log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
 ) -> None:
     """Simulate evolution of all states."""
     parameters_services = parameters.Services()
     alarm_limits_services = alarm_limits.Services()
+    active_log_events = typing.cast(
+        mcu_pb.ActiveLogEvents,
+        store[states.StateSegment.ACTIVE_LOG_EVENTS_MCU]
+    )
 
     while True:
-        parameters_services.transform(
-            time.time(), store, simulated_log, simulated_log_receiver
-        )
-        alarm_limits_services.transform(
-            time.time(), store, simulated_log, simulated_log_receiver
+        simulated_log.input(log.LocalLogInputEvent(current_time=time.time()))
+        parameters_services.transform(store, simulated_log)
+        alarm_limits_services.transform(store, simulated_log)
+        service_event_log(
+            simulated_log, active_log_events, simulated_log_receiver
         )
         await trio.sleep(REQUEST_SERVICE_INTERVAL / 1000)
 
@@ -95,17 +115,23 @@ async def service_requests(
 async def simulate_states(
         store: Mapping[
             states.StateSegment, Optional[betterproto.Message]
-        ], simulated_log: log.LocalLogSource,
+        ], simulated_log: alarms.Manager,
         simulated_log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
 ) -> None:
     """Simulate evolution of all states."""
     simulation_services = simulators.Services()
-    alarms_services = alarms.Services()
+    alarms_services = sim_alarms.Services()
+    active_log_events = typing.cast(
+        mcu_pb.ActiveLogEvents,
+        store[states.StateSegment.ACTIVE_LOG_EVENTS_MCU]
+    )
 
     while True:
+        simulated_log.input(log.LocalLogInputEvent(current_time=time.time()))
         simulation_services.transform(time.time(), store)
-        alarms_services.transform(
-            time.time(), store, simulated_log, simulated_log_receiver
+        alarms_services.transform(store, simulated_log)
+        service_event_log(
+            simulated_log, active_log_events, simulated_log_receiver
         )
         await trio.sleep(simulators.SENSOR_UPDATE_INTERVAL / 1000)
 
@@ -165,7 +191,7 @@ async def main() -> None:
     )
 
     # Initialize events log manager
-    simulated_log = log.LocalLogSource()
+    simulated_log = alarms.Manager()
     simulated_log_receiver = (
         protocol.receive.backend.  # pylint: disable=protected-access
         _event_log_receiver.  # pylint: disable=protected-access
