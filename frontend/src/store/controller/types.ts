@@ -251,8 +251,6 @@ export interface ControllerStates {
 export const STATE_UPDATED = '@controller/STATE_UPDATED';
 export const REQUEST_COMMITTED = '@controller/REQUEST_COMMITTED';
 export const STANDBY_REQUEST_COMMITTED = '@controller/STANDBY_COMMITTED';
-// TODO: find a better place to define BACKEND_CONNECTION_LOST_CODE, as it's not an action
-export const BACKEND_CONNECTION_LOST_CODE = 101;
 
 // State Update Action
 
