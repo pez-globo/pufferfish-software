@@ -20,6 +20,7 @@ import {
   getAlarmLimitsRequestStandby,
   getAlarmLimitsCurrent,
   getBackendInitialized,
+  getAlarmLimitsUnsavedChanges,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { ModalPopup } from '../controllers/ModalPopup';
@@ -152,6 +153,7 @@ export const ToolBar = ({
   const ventilating = useSelector(getParametersIsVentilating);
   const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby);
   const alarmLimitsCurrent = useSelector(getAlarmLimitsCurrent);
+  const alarmLimitsUnsaved = useSelector(getAlarmLimitsUnsavedChanges);
   const alarmLimits = (alarmLimitsCurrent as unknown) as Record<string, Range>;
   const alarmLimitsStandby = (alarmLimitsRequestStandby as unknown) as Record<string, Range>;
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
@@ -259,21 +261,11 @@ export const ToolBar = ({
     </Button>
   );
 
-  const hasChanges = (): boolean => {
-    let hasChange = false;
-    if (
-      alarmLimitsCurrent?.spo2?.lower !== alarmLimitsRequestStandby?.spo2?.lower ||
-      alarmLimitsCurrent?.spo2?.upper !== alarmLimitsRequestStandby?.spo2?.upper ||
-      alarmLimitsCurrent?.hr?.lower !== alarmLimitsRequestStandby?.hr?.lower ||
-      alarmLimitsCurrent?.hr?.upper !== alarmLimitsRequestStandby?.hr?.upper
-    ) {
-      hasChange = true;
-    }
-    return hasChange;
-  };
-
   const handleOnClick = () => {
-    if (!hasChanges()) {
+    if (alarmLimitsUnsaved === null) {
+      return;
+    }
+    if (!alarmLimitsUnsaved) {
       setOpen(false);
       history.push(DASHBOARD_ROUTE.path);
     } else {

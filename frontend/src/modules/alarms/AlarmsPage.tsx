@@ -1,13 +1,14 @@
 import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
-import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import React, { RefObject, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
 import {
   getAlarmLimitsCurrent,
   getAlarmLimitsRequestStandby,
+  getAlarmLimitsUnsavedChanges,
   getParametersIsVentilating,
   getParametersRequestMode,
 } from '../../store/controller/selectors';
@@ -298,6 +299,7 @@ export const AlarmsPage = (): JSX.Element => {
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
   const ventilating = useSelector(getParametersIsVentilating);
+  const alarmLimitsUnsaved = useSelector(getAlarmLimitsUnsavedChanges);
   const [alarmLimits] = useState((alarmLimitsCurrent as unknown) as Record<string, Range>);
   const alarmLimitsStandby = (alarmLimitsRequestStandby as unknown) as Record<string, Range>;
   const setAlarmLimitsRequestStandby = (data: Partial<AlarmLimitsRequest>) => {
@@ -349,26 +351,16 @@ export const AlarmsPage = (): JSX.Element => {
     setPageCount(Math.ceil(alarmConfig.length / itemsPerPage));
   }, [alarmConfig]);
 
-  const hasChanges = useCallback((): boolean => {
-    let hasChange = false;
-    if (
-      alarmLimitsCurrent?.spo2?.lower !== alarmLimitsRequestStandby?.spo2?.lower ||
-      alarmLimitsCurrent?.spo2?.upper !== alarmLimitsRequestStandby?.spo2?.upper ||
-      alarmLimitsCurrent?.hr?.lower !== alarmLimitsRequestStandby?.hr?.lower ||
-      alarmLimitsCurrent?.hr?.upper !== alarmLimitsRequestStandby?.hr?.upper
-    ) {
-      hasChange = true;
-    }
-    return hasChange;
-  }, [alarmLimitsCurrent, alarmLimitsRequestStandby]);
-
   useEffect(() => {
-    if (hasChanges()) {
+    if (alarmLimitsUnsaved === null) {
+      return;
+    }
+    if (alarmLimitsUnsaved) {
       setIsDisabled(false);
     } else {
       setIsDisabled(true);
     }
-  }, [hasChanges]);
+  }, [alarmLimitsUnsaved]);
 
   const OnClickPage = () => {
     setActiveRotaryReference(null);

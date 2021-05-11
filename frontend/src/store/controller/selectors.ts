@@ -17,6 +17,7 @@ import {
   VentilationMode,
   BatteryPower,
   ScreenStatus,
+  Range,
 } from './proto/mcu_pb';
 import {
   Measurements,
@@ -199,6 +200,45 @@ export const getAlarmLimitsRequest = createSelector(
 export const getAlarmLimitsRequestStandby = createSelector(
   getAlarmLimits,
   (alarmLimits: AlarmLimitsRequestResponse): AlarmLimitsRequest | null => alarmLimits.standby,
+);
+const alarmLimitsCurrentSelector = (key: string) =>
+  createSelector(getAlarmLimitsCurrent, (alarmLimitsCurrent: AlarmLimits | null): Range | null =>
+    alarmLimitsCurrent === null
+      ? null
+      : ((alarmLimitsCurrent as unknown) as Record<string, Range>)[key],
+  );
+
+export const getAlarmLimitsCurrentSpo2 = alarmLimitsCurrentSelector('spo2');
+export const getAlarmLimitsCurrentHR = alarmLimitsCurrentSelector('hr');
+
+const alarmLimitsStandbySelector = (key: string) =>
+  createSelector(
+    getAlarmLimitsRequestStandby,
+    (alarmLimitsRequestStandby: AlarmLimits | null): Range | null =>
+      alarmLimitsRequestStandby === null
+        ? null
+        : ((alarmLimitsRequestStandby as unknown) as Record<string, Range>)[key],
+  );
+export const getAlarmLimitsStandbySpo2 = alarmLimitsStandbySelector('spo2');
+export const getAlarmLimitsStandbyHR = alarmLimitsStandbySelector('hr');
+
+export const getAlarmLimitsUnsavedChanges = createSelector(
+  getAlarmLimitsCurrentSpo2,
+  getAlarmLimitsCurrentHR,
+  getAlarmLimitsStandbySpo2,
+  getAlarmLimitsStandbyHR,
+  (
+    currentSpo2: Range | null,
+    currentHR: Range | null,
+    standbySpo2: Range | null,
+    standbyHR: Range | null,
+  ): boolean | null =>
+    currentSpo2 === null && currentHR === null && standbySpo2 === null && standbyHR === null
+      ? null
+      : currentSpo2?.lower !== standbySpo2?.lower ||
+        currentSpo2?.upper !== standbySpo2?.upper ||
+        currentHR?.lower !== standbyHR?.lower ||
+        currentHR?.upper !== standbyHR?.upper,
 );
 
 // Event log
