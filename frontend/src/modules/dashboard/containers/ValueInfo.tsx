@@ -1,7 +1,10 @@
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
-import { getAlarmLimitsCurrent } from '../../../store/controller/selectors';
+import {
+  getAlarmLimitsCurrent,
+  getAlarmLimitsRequestStandby,
+} from '../../../store/controller/selectors';
 import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
@@ -170,7 +173,7 @@ const ControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsCurrent, shallowEqual);
+  const alarmLimits = useSelector(getAlarmLimitsRequestStandby, shallowEqual);
   const range =
     alarmLimits === null
       ? undefined

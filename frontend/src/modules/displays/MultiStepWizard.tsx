@@ -363,6 +363,13 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.alarmValues = [min, max];
       parameter.alarmValues = [min, max];
+      const update = {
+        [parameter.stateKey]: {
+          lower: min,
+          upper: max,
+        },
+      };
+      dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
       } else {
