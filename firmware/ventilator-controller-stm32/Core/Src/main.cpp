@@ -36,6 +36,7 @@
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/Application/mcu_pb.h"  // Only used for debugging
 #include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
+#include "Pufferfish/Driver/BreathingCircuit/AlarmMuteService.h"
 #include "Pufferfish/Driver/BreathingCircuit/Alarms.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
@@ -348,6 +349,7 @@ int interface_test_millis = 0;
 // Alarms
 PF::Driver::BreathingCircuit::AlarmsManager alarms_manager(log_events_manager);
 PF::Driver::BreathingCircuit::AlarmsServices breathing_circuit_alarms;
+PF::Driver::BreathingCircuit::AlarmMuteService alarm_mute_service;
 
 // Breathing Circuit Control
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
@@ -603,10 +605,9 @@ int main(void)
         all_states.parameters(),
         all_states.alarm_limits(),
         all_states.sensor_measurements(),
-        all_states.alarm_mute_request(),
-        all_states.alarm_mute(),
         all_states.active_log_events(),
         alarms_manager);
+    alarm_mute_service.transform(all_states.alarm_mute(), all_states.alarm_mute_request());
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;
