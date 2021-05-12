@@ -138,11 +138,12 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         else:
             if event.active:
                 self._local_alarms.input(alarms.AlarmActivationEvent(
+                    current_time=self.current_time,
                     code=event.code, event_type=event_type
                 ))
             else:
                 self._local_alarms.input(alarms.AlarmDeactivationEvent(
-                    codes=[event.code]
+                    current_time=self.current_time, codes=[event.code]
                 ))
         self._event_log_receiver.input(self._local_alarms.output())
 

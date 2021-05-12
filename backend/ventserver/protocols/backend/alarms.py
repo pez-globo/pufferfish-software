@@ -21,6 +21,7 @@ class AlarmActivationEvent(events.Event):
     event_type: mcu_pb.LogEventType = attr.ib()
     lower_limit: int = attr.ib(default=0)
     upper_limit: int = attr.ib(default=0)
+    current_time: Optional[float] = attr.ib(default=None)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
@@ -31,6 +32,7 @@ class AlarmActivationEvent(events.Event):
 class AlarmDeactivationEvent(events.Event):
     """Alarm deactivation event."""
 
+    current_time: Optional[float] = attr.ib(default=None)
     codes: Collection[mcu_pb.LogEventCode] = attr.ib(factory=list)
 
     def has_data(self) -> bool:
@@ -62,10 +64,7 @@ class Manager(protocols.Filter[InputEvent, log.ReceiveInputEvent]):
         if event is None:
             return
 
-        if (
-                isinstance(event, log.LocalLogInputEvent) and
-                event.current_time is not None
-        ):
+        if event.current_time is not None:
             self.current_time = event.current_time
         if not event.has_data():
             return
@@ -75,12 +74,13 @@ class Manager(protocols.Filter[InputEvent, log.ReceiveInputEvent]):
         elif isinstance(event, AlarmActivationEvent):
             if event.code not in self._active_alarm_ids:
                 self._event_log.input(log.LocalLogInputEvent(
+                    current_time=self.current_time, active=True,
                     new_event=mcu_pb.LogEvent(
                         code=event.code, type=event.event_type,
                         alarm_limits=mcu_pb.Range(
                             lower=event.lower_limit, upper=event.upper_limit
                         )
-                    ), active=True
+                    )
                 ))
         elif isinstance(event, AlarmDeactivationEvent):
             for code in event.codes:

@@ -119,7 +119,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
 
   const [rows, setRows] = React.useState<Data[]>([]);
   const [order, setOrder] = React.useState<Order>('desc');
-  const [orderBy, setOrderBy] = React.useState<keyof Data>('time');
+  const [orderBy, setOrderBy] = React.useState<keyof Data>('id');
   const [selected, setSelected] = React.useState<string[]>([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(9);

@@ -257,7 +257,7 @@ class EventLogReceiver(protocols.Filter[ReceiveInputEvent, ReceiveOutputEvent]):
             -> Optional[ReceiveOutputEvent]:
         """Process events received from a local source."""
         output_event = ReceiveOutputEvent()
-        # Remap remote IDs and times to local ID numbering & clock
+        # Remap ID numbering
         output_event.new_elements = []
         if event.next_log_events is not None:
             output_event.new_elements = [
@@ -347,7 +347,7 @@ class LocalLogSource(protocols.Filter[
 
     def input(self, event: Optional[LocalLogInputEvent]) -> None:
         """Handle input events."""
-        if event is None or not event.has_data():
+        if event is None:
             return
 
         if event.current_time is not None:
