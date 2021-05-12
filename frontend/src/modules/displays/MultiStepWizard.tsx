@@ -22,6 +22,8 @@ import { ParametersRequest, AlarmLimitsRequest } from '../../store/controller/pr
 import { MessageType } from '../../store/controller/types';
 import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
 import store from '../../store';
+import { DASHBOARD_ROUTE } from '../navigation/constants';
+import { useLocation } from 'react-router-dom';
 
 interface Data {
   stateKey: string;
@@ -280,6 +282,7 @@ const determineInput = (stateKey: string): Data | undefined => {
 const MultiStepWizard = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const location = useLocation();
   const [open, setOpen] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [cancelOpen, setCancelOpen] = React.useState(false);
@@ -363,13 +366,15 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.alarmValues = [min, max];
       parameter.alarmValues = [min, max];
-      const update = {
-        [parameter.stateKey]: {
-          lower: min,
-          upper: max,
-        },
-      };
-      dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
+      if (location.pathname === DASHBOARD_ROUTE.path) {
+        const update = {
+          [parameter.stateKey]: {
+            lower: min,
+            upper: max,
+          },
+        };
+        dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
+      }
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
       } else {
