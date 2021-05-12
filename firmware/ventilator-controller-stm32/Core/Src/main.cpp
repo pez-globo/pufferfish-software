@@ -47,7 +47,6 @@
 #include "Pufferfish/Driver/I2C/SFM3000.h"
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 #include "Pufferfish/Driver/I2C/TCA9548A.h"
-#include "Pufferfish/HAL/STM32/Endian.h"
 #include "Pufferfish/Driver/Indicators/AuditoryAlarm.h"
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
 #include "Pufferfish/Driver/Indicators/PulseGenerator.h"
@@ -58,6 +57,7 @@
 #include "Pufferfish/HAL/STM32/HAL.h"
 #include "Pufferfish/Statuses.h"
 #include "Pufferfish/Util/Timeouts.h"
+#include "Pufferfish/HAL/STM32/Endian.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
