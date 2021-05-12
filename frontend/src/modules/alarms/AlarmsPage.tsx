@@ -189,7 +189,7 @@ const Alarm = ({
               height: '100%',
             }}
           >
-            <Grid alignItems="center" item className={classes.alarmValue}>
+            <Grid item className={classes.alarmValue}>
               <Typography align="center" variant="h4">
                 {rangeValues[0] === undefined || Number.isNaN(rangeValues[0])
                   ? '--'
@@ -221,7 +221,7 @@ const Alarm = ({
               height: '100%',
             }}
           >
-            <Grid alignItems="center" item className={classes.alarmValue}>
+            <Grid item className={classes.alarmValue}>
               <Typography align="center" variant="h4">
                 {rangeValues[1] === undefined || Number.isNaN(rangeValues[1])
                   ? '--'
@@ -440,7 +440,7 @@ export const AlarmsPage = (): JSX.Element => {
                         <Typography variant="h4">Confirm New Changes?</Typography>
                       </Grid>
                     </Grid>
-                    <Grid item alignItems="center" className={classes.marginContent}>
+                    <Grid item className={classes.marginContent}>
                       {alarmConfig.map((param) => {
                         if (
                           alarmLimits[param.stateKey].lower !==
@@ -458,7 +458,7 @@ export const AlarmsPage = (): JSX.Element => {
                         return <React.Fragment />;
                       })}
                     </Grid>
-                    <Grid item alignItems="center" className={classes.marginContent} />
+                    <Grid item className={classes.marginContent} />
                   </Grid>
                 </Grid>
               </ModalPopup>
@@ -476,7 +476,7 @@ export const AlarmsPage = (): JSX.Element => {
                         <Typography variant="h4">Keep Previous Values?</Typography>
                       </Grid>
                     </Grid>
-                    <Grid item alignItems="center" className={classes.marginContent}>
+                    <Grid item className={classes.marginContent}>
                       {alarmConfig.map((param) => {
                         if (
                           alarmLimits[param.stateKey].lower !==
@@ -494,7 +494,7 @@ export const AlarmsPage = (): JSX.Element => {
                         return <React.Fragment />;
                       })}
                     </Grid>
-                    <Grid item alignItems="center" className={classes.marginContent} />
+                    <Grid item className={classes.marginContent} />
                   </Grid>
                 </Grid>
               </ModalPopup>

@@ -107,7 +107,7 @@ const ModalAction = ({ onClose, onConfirm }: ActionProps): JSX.Element => {
   const classes = useStyles();
   return (
     <Grid container justify="center" className={classes.actionButtons}>
-      <Grid item justify="center">
+      <Grid item>
         <Button
           onClick={onClose}
           variant="contained"
@@ -118,7 +118,7 @@ const ModalAction = ({ onClose, onConfirm }: ActionProps): JSX.Element => {
           Cancel
         </Button>
       </Grid>
-      <Grid item justify="center">
+      <Grid item>
         <Button onClick={onConfirm} variant="contained" color="secondary">
           Confirm
         </Button>
@@ -149,8 +149,8 @@ export const ModalPopup = (props: PropsWithChildren<Props>): JSX.Element => {
       className={classes.popupWidth}
       scroll="paper"
     >
-      <Grid alignItems="center" className={classes.wrapper}>
-        <Grid alignItems="center" className={classes.wrapperFlex}>
+      <Grid className={classes.wrapper}>
+        <Grid className={classes.wrapperFlex}>
           <DialogTitle id="form-dialog-title">
             <Grid container alignItems="center">
               <Grid item xs>

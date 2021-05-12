@@ -611,7 +611,7 @@ const MultiStepWizard = (): JSX.Element => {
                 <Typography variant="h4">Confirm New Changes?</Typography>
               </Grid>
             </Grid>
-            <Grid item alignItems="center" className={classes.marginContent}>
+            <Grid item className={classes.marginContent}>
               {multiParams.map((param: Data) => {
                 if (param.isSetvalEnabled) {
                   if (param.setValue !== param.setValueActual) {
@@ -649,7 +649,7 @@ const MultiStepWizard = (): JSX.Element => {
                 <Typography variant="h4">Keep Previous Values?</Typography>
               </Grid>
             </Grid>
-            <Grid item alignItems="center" className={classes.marginContent}>
+            <Grid item className={classes.marginContent}>
               {multiParams.map((param: Data) => {
                 if (param.isSetvalEnabled) {
                   if (param.setValue !== param.setValueActual) {

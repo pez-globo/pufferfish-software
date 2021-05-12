@@ -361,7 +361,7 @@ export const ToolBar = ({
                 <Typography variant="h4">Keep Previous Values?</Typography>
               </Grid>
             </Grid>
-            <Grid item alignItems="center" className={classes.marginContent}>
+            <Grid item className={classes.marginContent}>
               {alarmConfig.map((param: AlarmConfiguration) => {
                 if (alarmLimits !== null && alarmLimitsStandby !== null) {
                   if (

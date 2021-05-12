@@ -242,12 +242,7 @@ export const Carousel = ({ slides }: { slides: ReactElement[] }): JSX.Element =>
 
         <ul>
           {slides.map((slide: ReactElement, index: number) => (
-            <CarouselSlide
-              key={`slide-${slide}`}
-              index={index}
-              activeIndex={activeIndex}
-              slide={slide}
-            />
+            <CarouselSlide key={slide.key} index={index} activeIndex={activeIndex} slide={slide} />
           ))}
         </ul>
 
@@ -256,7 +251,7 @@ export const Carousel = ({ slides }: { slides: ReactElement[] }): JSX.Element =>
         <ul className={classes.carouselIndicators}>
           {slides.map((slide: ReactElement, index: number) => (
             <CarouselIndicator
-              key={`indicator-${slide}`}
+              key={slide.key}
               index={index}
               activeIndex={activeIndex}
               onClick={() => setActiveIndex(index)}
