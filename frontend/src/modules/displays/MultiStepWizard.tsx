@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
 import ReplyIcon from '@material-ui/icons/Reply';
 // import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
+import { useLocation } from 'react-router-dom';
 import ModalPopup from '../controllers/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
@@ -23,7 +24,6 @@ import { MessageType } from '../../store/controller/types';
 import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
 import store from '../../store';
 import { DASHBOARD_ROUTE } from '../navigation/constants';
-import { useLocation } from 'react-router-dom';
 
 interface Data {
   stateKey: string;
