@@ -255,7 +255,7 @@ export const getAlarmMuteRequest = createSelector(
 // TODO: Need to change state from 'alarmMuteRequest' to 'alarmMute'
 export const getAlarmMuteStatus = createSelector(
   getController,
-  (states: ControllerStates): AlarmMute | null => states.alarmMute,
+  (states: ControllerStates): AlarmMute | null => states.alarmMuteRequest,
 );
 export const getAlarmMuteActive = createSelector(
   getAlarmMuteStatus,
