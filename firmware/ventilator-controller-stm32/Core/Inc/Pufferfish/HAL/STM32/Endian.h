@@ -24,4 +24,4 @@ constexpr uint32_t hton(uint32_t host_value);
 constexpr uint32_t ntoh(uint32_t network_value); 
 constexpr uint16_t hton(uint16_t host_value);
 constexpr uint16_t ntoh(uint16_t network_value);
-}  // namespace Pufferfi2h::HAL::STM32
+}  // namespace Pufferfish::HAL::STM32
