@@ -158,7 +158,7 @@ export const rotaryEncoderReducer = (
       }
 
       const newState = action.state as RotaryEncoder;
-      const oldState = state as RotaryEncoder;
+      const oldState = { ...state } as RotaryEncoder;
       const stepDiff = newState.step - oldState.step;
       const stateCopy = { ...newState } as RotaryEncoderParameter;
       stateCopy.stepDiff = stepDiff;
