@@ -38,20 +38,20 @@ typedef enum _LogEventCode {
     LogEventCode_spo2_alarm_limits_changed = 82,
     LogEventCode_hr_alarm_limits_changed = 83,
     LogEventCode_screen_locked = 129,
-    LogEventCode_mcu_lost = 130,
-    LogEventCode_backend_lost = 131,
-    LogEventCode_frontend_lost = 132,
-    LogEventCode_mcu_restored = 133,
-    LogEventCode_backend_restored = 134,
-    LogEventCode_frontend_restored = 135,
+    LogEventCode_mcu_connection_down = 130,
+    LogEventCode_backend_connection_down = 131,
+    LogEventCode_frontend_connection_down = 132,
+    LogEventCode_mcu_connection_up = 133,
+    LogEventCode_backend_connection_up = 134,
+    LogEventCode_frontend_connection_up = 135,
     LogEventCode_battery_low = 136
 } LogEventCode;
 
 typedef enum _LogEventType {
     LogEventType_patient = 0,
-    LogEventType_system = 1,
-    LogEventType_control = 2,
-    LogEventType_alarm_limits = 3
+    LogEventType_control = 1,
+    LogEventType_alarm_limits = 2,
+    LogEventType_system = 3
 } LogEventType;
 
 /* Struct definitions */
@@ -252,8 +252,8 @@ typedef struct _NextLogEvents {
 #define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_battery_low+1))
 
 #define _LogEventType_MIN LogEventType_patient
-#define _LogEventType_MAX LogEventType_alarm_limits
-#define _LogEventType_ARRAYSIZE ((LogEventType)(LogEventType_alarm_limits+1))
+#define _LogEventType_MAX LogEventType_system
+#define _LogEventType_ARRAYSIZE ((LogEventType)(LogEventType_system+1))
 
 
 #ifdef __cplusplus

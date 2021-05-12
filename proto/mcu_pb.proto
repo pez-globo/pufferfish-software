@@ -131,22 +131,22 @@ enum LogEventCode {
   flow_alarm_limits_changed = 81;
   spo2_alarm_limits_changed = 82;
   hr_alarm_limits_changed = 83;
-  // System settings
+  // System settings & alarms
   screen_locked = 129;
-  mcu_lost = 130;
-  backend_lost = 131;
-  frontend_lost = 132;
-  mcu_restored = 133;
-  backend_restored = 134;
-  frontend_restored = 135;
+  mcu_connection_down = 130;
+  backend_connection_down = 131;
+  frontend_connection_down = 132;
+  mcu_connection_up = 133;
+  backend_connection_up = 134;
+  frontend_connection_up = 135;
   battery_low = 136;
 }
 
 enum LogEventType {
   patient = 0;
-  system = 1;
-  control = 2;
-  alarm_limits = 3;
+  control = 1;
+  alarm_limits = 2;
+  system = 3;
 }
 
 message LogEvent {

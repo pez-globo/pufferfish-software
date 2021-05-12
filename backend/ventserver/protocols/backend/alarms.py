@@ -19,8 +19,8 @@ class AlarmActivationEvent(events.Event):
 
     code: mcu_pb.LogEventCode = attr.ib()
     event_type: mcu_pb.LogEventType = attr.ib()
-    lower_limit: int = attr.ib()
-    upper_limit: int = attr.ib()
+    lower_limit: int = attr.ib(default=0)
+    upper_limit: int = attr.ib(default=0)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
@@ -47,10 +47,10 @@ InputEvent = Union[
 
 
 @attr.s
-class Manager(protocols.Filter[
-        InputEvent, log.ReceiveLocalInputEvent
-]):
+class Manager(protocols.Filter[InputEvent, log.ReceiveInputEvent]):
     """Management of alarm and non-alarm events for the local event log."""
+
+    SOURCE = log.EventSource.BACKEND
 
     current_time: float = attr.ib(default=0)  # s
     _event_log: log.LocalLogSource = attr.ib(factory=log.LocalLogSource)
@@ -90,10 +90,10 @@ class Manager(protocols.Filter[
         for (event_code, event_id) in new_events.new_active_events.items():
             self._active_alarm_ids[event_code] = event_id
 
-    def output(self) -> Optional[log.ReceiveLocalInputEvent]:
+    def output(self) -> Optional[log.ReceiveInputEvent]:
         """Emit the next output event."""
-        output = log.ReceiveLocalInputEvent(
-            current_time=self.current_time,
+        output = log.ReceiveInputEvent(
+            source=self.SOURCE, current_time=self.current_time,
             next_log_events=mcu_pb.NextLogEvents(elements=self._new_events),
             active_log_events=mcu_pb.ActiveLogEvents(
                 id=list(self._active_alarm_ids.values())

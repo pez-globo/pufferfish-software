@@ -138,6 +138,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
 
     _connections: connections.TimeoutHandler = \
         attr.ib(factory=connections.TimeoutHandler)
+    _mcu_connected: bool = attr.ib(default=False)
+    _frontend_connected: bool = attr.ib(default=False)
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
         """Handle input events."""
@@ -222,10 +224,16 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         self._connections.input(connections.UpdateEvent(
             current_time=self.current_time, type=connections.Update.MCU_RECEIVED
         ))
-        self._backend.input(backend.ExternalAlarmEvent(
-            time=self.current_time, active=False,
-            code=mcu_pb.LogEventCode.mcu_lost
-        ))
+        if not self._mcu_connected:
+            self._backend.input(backend.ExternalLogEvent(
+                time=self.current_time, active=False,
+                code=mcu_pb.LogEventCode.mcu_connection_down
+            ))
+            self._backend.input(backend.ExternalLogEvent(
+                time=self.current_time,
+                code=mcu_pb.LogEventCode.mcu_connection_up
+            ))
+            self._mcu_connected = True
         return True
 
     def _process_frontend(self) -> bool:
@@ -241,10 +249,16 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             current_time=self.current_time,
             type=connections.Update.FRONTEND_RECEIVED
         ))
-        self._backend.input(backend.ExternalAlarmEvent(
-            time=self.current_time, active=False,
-            code=mcu_pb.LogEventCode.frontend_lost
-        ))
+        if not self._frontend_connected:
+            self._backend.input(backend.ExternalLogEvent(
+                time=self.current_time, active=False,
+                code=mcu_pb.LogEventCode.frontend_connection_down
+            ))
+            self._backend.input(backend.ExternalLogEvent(
+                time=self.current_time,
+                code=mcu_pb.LogEventCode.frontend_connection_up
+            ))
+            self._frontend_connected = True
         return True
 
     def _process_rotary_encoder(self) -> bool:
@@ -288,15 +302,17 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         """Handle any connection timeouts."""
         actions = self._connections.output()
         if actions.alarm_mcu:
-            self._backend.input(backend.ExternalAlarmEvent(
+            self._backend.input(backend.ExternalLogEvent(
                 time=self.current_time, active=True,
-                code=mcu_pb.LogEventCode.mcu_lost
+                code=mcu_pb.LogEventCode.mcu_connection_down
             ))
+            self._mcu_connected = False
         if actions.alarm_frontend:
-            self._backend.input(backend.ExternalAlarmEvent(
+            self._backend.input(backend.ExternalLogEvent(
                 time=self.current_time, active=True,
-                code=mcu_pb.LogEventCode.frontend_lost
+                code=mcu_pb.LogEventCode.frontend_connection_down
             ))
+            self._frontend_connected = False
         return actions.kill_frontend
 
     def input_serial(self, serial_receive: bytes) -> None:

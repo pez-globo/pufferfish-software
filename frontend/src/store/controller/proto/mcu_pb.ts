@@ -87,14 +87,14 @@ export enum LogEventCode {
   flow_alarm_limits_changed = 81,
   spo2_alarm_limits_changed = 82,
   hr_alarm_limits_changed = 83,
-  /** screen_locked - System settings */
+  /** screen_locked - System settings & alarms */
   screen_locked = 129,
-  mcu_lost = 130,
-  backend_lost = 131,
-  frontend_lost = 132,
-  mcu_restored = 133,
-  backend_restored = 134,
-  frontend_restored = 135,
+  mcu_connection_down = 130,
+  backend_connection_down = 131,
+  frontend_connection_down = 132,
+  mcu_connection_up = 133,
+  backend_connection_up = 134,
+  frontend_connection_up = 135,
   battery_low = 136,
   UNRECOGNIZED = -1,
 }
@@ -153,23 +153,23 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case "screen_locked":
       return LogEventCode.screen_locked;
     case 130:
-    case "mcu_lost":
-      return LogEventCode.mcu_lost;
+    case "mcu_connection_down":
+      return LogEventCode.mcu_connection_down;
     case 131:
-    case "backend_lost":
-      return LogEventCode.backend_lost;
+    case "backend_connection_down":
+      return LogEventCode.backend_connection_down;
     case 132:
-    case "frontend_lost":
-      return LogEventCode.frontend_lost;
+    case "frontend_connection_down":
+      return LogEventCode.frontend_connection_down;
     case 133:
-    case "mcu_restored":
-      return LogEventCode.mcu_restored;
+    case "mcu_connection_up":
+      return LogEventCode.mcu_connection_up;
     case 134:
-    case "backend_restored":
-      return LogEventCode.backend_restored;
+    case "backend_connection_up":
+      return LogEventCode.backend_connection_up;
     case 135:
-    case "frontend_restored":
-      return LogEventCode.frontend_restored;
+    case "frontend_connection_up":
+      return LogEventCode.frontend_connection_up;
     case 136:
     case "battery_low":
       return LogEventCode.battery_low;
@@ -216,18 +216,18 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "hr_alarm_limits_changed";
     case LogEventCode.screen_locked:
       return "screen_locked";
-    case LogEventCode.mcu_lost:
-      return "mcu_lost";
-    case LogEventCode.backend_lost:
-      return "backend_lost";
-    case LogEventCode.frontend_lost:
-      return "frontend_lost";
-    case LogEventCode.mcu_restored:
-      return "mcu_restored";
-    case LogEventCode.backend_restored:
-      return "backend_restored";
-    case LogEventCode.frontend_restored:
-      return "frontend_restored";
+    case LogEventCode.mcu_connection_down:
+      return "mcu_connection_down";
+    case LogEventCode.backend_connection_down:
+      return "backend_connection_down";
+    case LogEventCode.frontend_connection_down:
+      return "frontend_connection_down";
+    case LogEventCode.mcu_connection_up:
+      return "mcu_connection_up";
+    case LogEventCode.backend_connection_up:
+      return "backend_connection_up";
+    case LogEventCode.frontend_connection_up:
+      return "frontend_connection_up";
     case LogEventCode.battery_low:
       return "battery_low";
     default:
@@ -237,9 +237,9 @@ export function logEventCodeToJSON(object: LogEventCode): string {
 
 export enum LogEventType {
   patient = 0,
-  system = 1,
-  control = 2,
-  alarm_limits = 3,
+  control = 1,
+  alarm_limits = 2,
+  system = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -249,14 +249,14 @@ export function logEventTypeFromJSON(object: any): LogEventType {
     case "patient":
       return LogEventType.patient;
     case 1:
-    case "system":
-      return LogEventType.system;
-    case 2:
     case "control":
       return LogEventType.control;
-    case 3:
+    case 2:
     case "alarm_limits":
       return LogEventType.alarm_limits;
+    case 3:
+    case "system":
+      return LogEventType.system;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -268,12 +268,12 @@ export function logEventTypeToJSON(object: LogEventType): string {
   switch (object) {
     case LogEventType.patient:
       return "patient";
-    case LogEventType.system:
-      return "system";
     case LogEventType.control:
       return "control";
     case LogEventType.alarm_limits:
       return "alarm_limits";
+    case LogEventType.system:
+      return "system";
     default:
       return "UNKNOWN";
   }

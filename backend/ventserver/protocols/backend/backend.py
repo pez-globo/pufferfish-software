@@ -7,7 +7,7 @@ from typing import Optional, Union
 import attr
 
 from ventserver.protocols import events
-from ventserver.protocols.backend import log, states
+from ventserver.protocols.backend import alarms, log, states
 from ventserver.protocols.devices import frontend, mcu
 from ventserver.protocols.protobuf import mcu_pb
 from ventserver.sansio import channels
@@ -15,12 +15,16 @@ from ventserver.sansio import protocols
 
 
 @attr.s
-class ExternalAlarmEvent(events.Event):
-    """External alarm input event."""
+class ExternalLogEvent(events.Event):
+    """External alarm input event.
+
+    The active flag must be set to True or False for alarms, while it should be
+    set to None for non-alarm events.
+    """
 
     time: float = attr.ib()
-    active: bool = attr.ib()
     code: mcu_pb.LogEventCode = attr.ib()
+    active: Optional[bool] = attr.ib(default=None)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
@@ -28,7 +32,7 @@ class ExternalAlarmEvent(events.Event):
 
 
 ReceiveDataEvent = states.ReceiveEvent
-ReceiveEvent = Union[ExternalAlarmEvent, states.ReceiveEvent]
+ReceiveEvent = Union[ExternalLogEvent, states.ReceiveEvent]
 OutputEvent = states.SendEvent
 SendEvent = states.SendEvent
 
@@ -56,7 +60,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         factory=log.EventLogReceiver
     )
     _event_log_sender: log.EventLogSender = attr.ib(factory=log.EventLogSender)
-    local_log_source: log.LocalLogSource = attr.ib(factory=log.LocalLogSource)
+    _local_alarms: alarms.Manager = attr.ib(factory=alarms.Manager)
 
     @store.default
     def init_store(self) -> states.Store:  # pylint: disable=no-self-use
@@ -90,11 +94,11 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         self._update_clock(event)
         if isinstance(event, states.ReceiveEvent):
             self._state_synchronizers.input(event)
-        elif isinstance(event, ExternalAlarmEvent):
-            pass
-            # print('ALARM UPDATE RECEIVED:', event)
+        elif isinstance(event, ExternalLogEvent):
+            self._handle_local_log_event(event)
 
         # Maintain internal data connections
+        self._handle_mcu_log_events()
         self._handle_log_events_receiving()
         self._handle_log_events_sending()
 
@@ -107,11 +111,42 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             return
 
         self.current_time = event.time
-        self.local_log_source.input(log.LocalLogInputEvent(
-            current_time=self.current_time
-        ))
 
-    def _handle_log_events_receiving(self) -> None:
+    def _handle_local_log_event(self, event: ExternalLogEvent) -> None:
+        """Handle any locally-generated log events.
+
+        This includes active log events (active alarms).
+        """
+        if event.code == mcu_pb.LogEventCode.mcu_connection_down:
+            event_type = mcu_pb.LogEventType.system
+        elif event.code == mcu_pb.LogEventCode.frontend_connection_down:
+            event_type = mcu_pb.LogEventType.system
+        elif event.code == mcu_pb.LogEventCode.mcu_connection_up:
+            event_type = mcu_pb.LogEventType.system
+        elif event.code == mcu_pb.LogEventCode.frontend_connection_up:
+            event_type = mcu_pb.LogEventType.system
+        else:
+            self._logger.error('Unrecognized local event type %s', event.code)
+            return
+
+        if event.active is None:
+            self._local_alarms.input(log.LocalLogInputEvent(
+                current_time=self.current_time, new_event=mcu_pb.LogEvent(
+                    code=event.code, type=event_type
+                )
+            ))
+        else:
+            if event.active:
+                self._local_alarms.input(alarms.AlarmActivationEvent(
+                    code=event.code, event_type=event_type
+                ))
+            else:
+                self._local_alarms.input(alarms.AlarmDeactivationEvent(
+                    codes=[event.code]
+                ))
+        self._event_log_receiver.input(self._local_alarms.output())
+
+    def _handle_mcu_log_events(self) -> None:
         """Handle any updates to log events from the MCU.
 
         This includes active log events (active alarms).
@@ -124,10 +159,16 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             Optional[mcu_pb.ActiveLogEvents],
             self.store[states.StateSegment.ACTIVE_LOG_EVENTS_MCU]
         )
-        self._event_log_receiver.input(log.ReceiveRemoteInputEvent(
-            current_time=self.current_time, next_log_events=next_log_events,
-            active_log_events=active_log_events
+        self._event_log_receiver.input(log.ReceiveInputEvent(
+            source=log.EventSource.MCU, current_time=self.current_time,
+            next_log_events=next_log_events, active_log_events=active_log_events
         ))
+
+    def _handle_log_events_receiving(self) -> None:
+        """Handle any received log events which need to be routed.
+
+        This includes active log events (active alarms).
+        """
         while True:
             output_event = self._event_log_receiver.output()
             if output_event is None or not output_event.has_data():
