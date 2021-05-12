@@ -9,6 +9,7 @@ import {
   ParametersRequest,
   VentilationMode,
   AlarmLimitsRequest,
+  AlarmMuteRequest,
 } from '../../store/controller/proto/mcu_pb';
 import {
   getBatteryPowerLeft,
@@ -156,6 +157,12 @@ export const ToolBar = ({
           commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, {
             spo2: alarmLimitsRequestStandby.spo2,
             hr: alarmLimitsRequestStandby.hr,
+          }),
+        );
+        dispatch(
+          commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, {
+            active: false,
+            remaining: 0,
           }),
         );
         break;

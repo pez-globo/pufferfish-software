@@ -77,7 +77,7 @@ const AudioAlarm = (): JSX.Element => {
   const alarmMuteActive = useSelector(getAlarmMuteActive, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
-  const [playing, setPlaying] = useState(alarmMuteActive);
+  const [playing, setPlaying] = useState(!alarmMuteActive);
 
   useEffect(() => {
     if (playing) {
