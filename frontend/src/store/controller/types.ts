@@ -134,15 +134,15 @@ export interface ParametersRequestResponse {
   // standby is a scratchpad for modifying individual fields of ParametersRequest
   // across different screens in standby mode, before committing the final values
   // of all fields to ParametersRequest to send to the backend
-  standby: ParametersRequest | null;
+  draft: ParametersRequest | null;
 }
 export interface AlarmLimitsRequestResponse {
   current: AlarmLimits | null;
   request: AlarmLimitsRequest | null;
-  // standby is a scratchpad for modifying individual fields of AlarmLimitsRequest
+  // draft is a scratchpad for modifying individual fields of AlarmLimitsRequest
   // across different screens in standby mode, before committing the final values
   // of all fields to AlarmLimitsRequest to send to the backend
-  standby: AlarmLimitsRequest | null;
+  draft: AlarmLimitsRequest | null;
 }
 export interface EventLog {
   expectedLogEvent: ExpectedLogEvent;

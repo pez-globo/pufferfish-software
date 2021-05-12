@@ -16,8 +16,8 @@ import {
   getChargingStatus,
   getParametersIsVentilating,
   getParametersRequestMode,
-  getParametersRequestStandby,
-  getAlarmLimitsRequestStandby,
+  getParametersRequestDraft,
+  getAlarmLimitsRequestDraft,
   getAlarmLimitsCurrent,
   getBackendInitialized,
   getAlarmLimitsUnsavedChanges,
@@ -149,19 +149,19 @@ export const ToolBar = ({
   const history = useHistory();
   const currentMode = useSelector(getParametersRequestMode);
   const backendInitialized = useSelector(getBackendInitialized);
-  const parameterRequestStandby = useSelector(getParametersRequestStandby, shallowEqual);
+  const parameterRequestDraft = useSelector(getParametersRequestDraft, shallowEqual);
   const ventilating = useSelector(getParametersIsVentilating);
-  const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby);
+  const alarmLimitsRequestDraft = useSelector(getAlarmLimitsRequestDraft);
   const alarmLimitsCurrent = useSelector(getAlarmLimitsCurrent);
   const alarmLimitsUnsaved = useSelector(getAlarmLimitsUnsavedChanges);
   const alarmLimits = (alarmLimitsCurrent as unknown) as Record<string, Range>;
-  const alarmLimitsStandby = (alarmLimitsRequestStandby as unknown) as Record<string, Range>;
+  const alarmLimitsStandby = (alarmLimitsRequestDraft as unknown) as Record<string, Range>;
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
   const [landingLabel, setLandingLabel] = useState('Loading...');
   const [label, setLabel] = useState('Start Ventilation');
   const [isDisabled, setIsDisabled] = useState(false);
   const [open, setOpen] = useState(false);
-  const setAlarmLimitsRequestStandby = (data: Partial<AlarmLimitsRequest>) => {
+  const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
   const alarmConfig = alarmConfiguration(currentMode);
@@ -181,7 +181,7 @@ export const ToolBar = ({
   };
 
   const initParameterUpdate = useCallback(() => {
-    if (parameterRequestStandby === null || alarmLimitsRequestStandby === null) {
+    if (parameterRequestDraft === null || alarmLimitsRequestDraft === null) {
       return;
     }
 
@@ -193,14 +193,14 @@ export const ToolBar = ({
       case VentilationMode.hfnc:
         dispatch(
           commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
-            fio2: parameterRequestStandby.fio2,
-            flow: parameterRequestStandby.flow,
+            fio2: parameterRequestDraft.fio2,
+            flow: parameterRequestDraft.flow,
           }),
         );
         dispatch(
           commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, {
-            spo2: alarmLimitsRequestStandby.spo2,
-            hr: alarmLimitsRequestStandby.hr,
+            spo2: alarmLimitsRequestDraft.spo2,
+            hr: alarmLimitsRequestDraft.hr,
           }),
         );
         break;
@@ -211,17 +211,17 @@ export const ToolBar = ({
       case VentilationMode.psv:
         dispatch(
           commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
-            peep: parameterRequestStandby.peep,
-            vt: parameterRequestStandby.vt,
-            rr: parameterRequestStandby.rr,
-            fio2: parameterRequestStandby.fio2,
+            peep: parameterRequestDraft.peep,
+            vt: parameterRequestDraft.vt,
+            rr: parameterRequestDraft.rr,
+            fio2: parameterRequestDraft.fio2,
           }),
         );
         break;
       default:
         break;
     }
-  }, [isVentilatorOn, parameterRequestStandby, alarmLimitsRequestStandby, currentMode, dispatch]);
+  }, [isVentilatorOn, parameterRequestDraft, alarmLimitsRequestDraft, currentMode, dispatch]);
 
   useEffect(() => {
     if (backendInitialized) {
@@ -296,7 +296,7 @@ export const ToolBar = ({
   };
 
   const handleConfirm = () => {
-    setAlarmLimitsRequestStandby(alarmLimits);
+    setAlarmLimitsRequestDraft(alarmLimits);
     history.push(DASHBOARD_ROUTE.path);
     setOpen(false);
   };

@@ -33,7 +33,7 @@ export const controllerReducer = combineReducers({
   parameters: combineReducers({
     current: messageReducer<Parameters>(MessageType.Parameters),
     request: requestReducer<ParametersRequest>(MessageType.ParametersRequest, REQUEST_COMMITTED),
-    standby: requestReducer<ParametersRequest>(
+    draft: requestReducer<ParametersRequest>(
       MessageType.ParametersRequest,
       STANDBY_REQUEST_COMMITTED,
     ),
@@ -41,7 +41,7 @@ export const controllerReducer = combineReducers({
   alarmLimits: combineReducers({
     current: messageReducer<AlarmLimits>(MessageType.AlarmLimits),
     request: requestReducer<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, REQUEST_COMMITTED),
-    standby: requestReducer<AlarmLimitsRequest>(
+    draft: requestReducer<AlarmLimitsRequest>(
       MessageType.AlarmLimitsRequest,
       STANDBY_REQUEST_COMMITTED,
     ),

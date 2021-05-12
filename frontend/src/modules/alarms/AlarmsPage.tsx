@@ -7,7 +7,7 @@ import { commitRequest, commitStandbyRequest } from '../../store/controller/acti
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
 import {
   getAlarmLimitsCurrent,
-  getAlarmLimitsRequestStandby,
+  getAlarmLimitsRequestDraft,
   getAlarmLimitsUnsavedChanges,
   getParametersIsVentilating,
   getParametersRequestMode,
@@ -294,24 +294,24 @@ export const AlarmsPage = (): JSX.Element => {
     setPage(value);
   };
 
-  const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby);
+  const alarmLimitsRequestDraft = useSelector(getAlarmLimitsRequestDraft);
   const alarmLimitsCurrent = useSelector(getAlarmLimitsCurrent);
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
   const ventilating = useSelector(getParametersIsVentilating);
   const alarmLimitsUnsaved = useSelector(getAlarmLimitsUnsavedChanges);
   const [alarmLimits] = useState((alarmLimitsCurrent as unknown) as Record<string, Range>);
-  const alarmLimitsStandby = (alarmLimitsRequestStandby as unknown) as Record<string, Range>;
-  const setAlarmLimitsRequestStandby = (data: Partial<AlarmLimitsRequest>) => {
+  const alarmLimitsDraft = (alarmLimitsRequestDraft as unknown) as Record<string, Range>;
+  const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
   const applyChanges = () => {
-    if (alarmLimitsRequestStandby === null) {
+    if (alarmLimitsRequestDraft === null) {
       return;
     }
 
     dispatch(
-      commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, alarmLimitsRequestStandby),
+      commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, alarmLimitsRequestDraft),
     );
   };
   const alarmConfig = alarmConfiguration(currentMode);
@@ -335,7 +335,7 @@ export const AlarmsPage = (): JSX.Element => {
 
   const handleDiscardConfirm = () => {
     setDiscardOpen(false);
-    setAlarmLimitsRequestStandby(alarmLimits);
+    setAlarmLimitsRequestDraft(alarmLimits);
     setIsDisabled(true);
   };
 
@@ -378,8 +378,8 @@ export const AlarmsPage = (): JSX.Element => {
                   max={alarm.max || 100}
                   stateKey={alarm.stateKey}
                   step={alarm.step || 1}
-                  alarmLimits={alarmLimitsRequestStandby}
-                  setAlarmLimits={setAlarmLimitsRequestStandby}
+                  alarmLimits={alarmLimitsRequestDraft}
+                  setAlarmLimits={setAlarmLimitsRequestDraft}
                 />
               );
             })}
@@ -444,15 +444,15 @@ export const AlarmsPage = (): JSX.Element => {
                       {alarmConfig.map((param) => {
                         if (
                           alarmLimits[param.stateKey].lower !==
-                            alarmLimitsStandby[param.stateKey]?.lower ||
+                            alarmLimitsDraft[param.stateKey]?.lower ||
                           alarmLimits[param.stateKey].upper !==
-                            alarmLimitsStandby[param.stateKey]?.upper
+                            alarmLimitsDraft[param.stateKey]?.upper
                         ) {
                           return (
                             <Typography variant="subtitle1">{`Change ${
                               param.label
-                            } alarm range to ${alarmLimitsStandby[param.stateKey].lower} -
-                                ${alarmLimitsStandby[param.stateKey].upper}?`}</Typography>
+                            } alarm range to ${alarmLimitsDraft[param.stateKey].lower} -
+                                ${alarmLimitsDraft[param.stateKey].upper}?`}</Typography>
                           );
                         }
                         return <React.Fragment />;
@@ -480,9 +480,9 @@ export const AlarmsPage = (): JSX.Element => {
                       {alarmConfig.map((param) => {
                         if (
                           alarmLimits[param.stateKey].lower !==
-                            alarmLimitsStandby[param.stateKey]?.lower ||
+                            alarmLimitsDraft[param.stateKey]?.lower ||
                           alarmLimits[param.stateKey].upper !==
-                            alarmLimitsStandby[param.stateKey]?.upper
+                            alarmLimitsDraft[param.stateKey]?.upper
                         ) {
                           return (
                             <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${

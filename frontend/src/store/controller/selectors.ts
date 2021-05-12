@@ -154,32 +154,32 @@ export const getParametersRequest = createSelector(
 );
 export const getParametersRequestMode = ventilationModeSelector(getParametersRequest);
 // Standby
-export const getParametersRequestStandby = createSelector(
+export const getParametersRequestDraft = createSelector(
   getParameters,
-  (parameters: ParametersRequestResponse): ParametersRequest | null => parameters.standby,
+  (parameters: ParametersRequestResponse): ParametersRequest | null => parameters.draft,
 );
-export const getParametersRequestStandbyFiO2 = numericParameterSelector(
-  getParametersRequestStandby,
+export const getParametersRequestDraftFiO2 = numericParameterSelector(
+  getParametersRequestDraft,
   'fio2',
 );
-export const getParametersRequestStandbyFlow = numericParameterSelector(
-  getParametersRequestStandby,
+export const getParametersRequestDraftFlow = numericParameterSelector(
+  getParametersRequestDraft,
   'flow',
 );
-export const getParametersRequestStandbyPIP = numericParameterSelector(
-  getParametersRequestStandby,
+export const getParametersRequestDraftPIP = numericParameterSelector(
+  getParametersRequestDraft,
   'pip',
 );
-export const getParametersRequestStandbyPEEP = numericParameterSelector(
-  getParametersRequestStandby,
+export const getParametersRequestDraftPEEP = numericParameterSelector(
+  getParametersRequestDraft,
   'peep',
 );
-export const getParametersRequestStandbyVT = numericParameterSelector(
-  getParametersRequestStandby,
+export const getParametersRequestDraftVT = numericParameterSelector(
+  getParametersRequestDraft,
   'vt',
 );
-export const getParametersRequestStandbyRR = numericParameterSelector(
-  getParametersRequestStandby,
+export const getParametersRequestDraftRR = numericParameterSelector(
+  getParametersRequestDraft,
   'rr',
 );
 
@@ -197,9 +197,9 @@ export const getAlarmLimitsRequest = createSelector(
   getAlarmLimits,
   (alarmLimits: AlarmLimitsRequestResponse): AlarmLimitsRequest | null => alarmLimits.request,
 );
-export const getAlarmLimitsRequestStandby = createSelector(
+export const getAlarmLimitsRequestDraft = createSelector(
   getAlarmLimits,
-  (alarmLimits: AlarmLimitsRequestResponse): AlarmLimitsRequest | null => alarmLimits.standby,
+  (alarmLimits: AlarmLimitsRequestResponse): AlarmLimitsRequest | null => alarmLimits.draft,
 );
 const alarmLimitsCurrentSelector = (key: string) =>
   createSelector(getAlarmLimitsCurrent, (alarmLimitsCurrent: AlarmLimits | null): Range | null =>
@@ -213,11 +213,11 @@ export const getAlarmLimitsCurrentHR = alarmLimitsCurrentSelector('hr');
 
 const alarmLimitsStandbySelector = (key: string) =>
   createSelector(
-    getAlarmLimitsRequestStandby,
-    (alarmLimitsRequestStandby: AlarmLimits | null): Range | null =>
-      alarmLimitsRequestStandby === null
+    getAlarmLimitsRequestDraft,
+    (alarmLimitsRequestDraft: AlarmLimitsRequest | null): Range | null =>
+      alarmLimitsRequestDraft === null
         ? null
-        : ((alarmLimitsRequestStandby as unknown) as Record<string, Range>)[key],
+        : ((alarmLimitsRequestDraft as unknown) as Record<string, Range>)[key],
   );
 export const getAlarmLimitsStandbySpo2 = alarmLimitsStandbySelector('spo2');
 export const getAlarmLimitsStandbyHR = alarmLimitsStandbySelector('hr');

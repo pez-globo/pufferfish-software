@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import {
   getAlarmLimitsCurrent,
-  getAlarmLimitsRequestStandby,
+  getAlarmLimitsRequestDraft,
 } from '../../../store/controller/selectors';
 import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../controllers';
@@ -173,7 +173,7 @@ const ControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsRequestStandby, shallowEqual);
+  const alarmLimits = useSelector(getAlarmLimitsRequestDraft, shallowEqual);
   const range =
     alarmLimits === null
       ? undefined
