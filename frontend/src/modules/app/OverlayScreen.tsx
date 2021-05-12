@@ -4,7 +4,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Subscription } from 'rxjs';
 import { BACKEND_CONNECTION_DOWN, RED_BORDER } from '../../store/app/types';
 import {
-  getAlarmMuteStatus,
+  getAlarmMuteActive,
   getHasActiveAlarms,
   getNextLogEvents,
   getScreenStatusLock,
@@ -74,10 +74,10 @@ export const HeartbeatBackendListener = (): JSX.Element => {
 const AudioAlarm = (): JSX.Element => {
   const dispatch = useDispatch();
   const activeAlarms = useSelector(getHasActiveAlarms, shallowEqual);
-  const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
+  const alarmMuteActive = useSelector(getAlarmMuteActive, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
-  const [playing, setPlaying] = useState(alarmMuteStatus !== null && alarmMuteStatus.active);
+  const [playing, setPlaying] = useState(alarmMuteActive);
 
   useEffect(() => {
     if (playing) {
@@ -102,11 +102,11 @@ const AudioAlarm = (): JSX.Element => {
 
   useEffect(() => {
     if (activeAlarms) {
-      dispatch({ type: RED_BORDER, status: alarmMuteStatus !== null && !alarmMuteStatus.active });
-      setPlaying(alarmMuteStatus !== null && !alarmMuteStatus.active);
+      dispatch({ type: RED_BORDER, status: !alarmMuteActive });
+      setPlaying(!alarmMuteActive);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [alarmMuteStatus !== null && alarmMuteStatus.active, dispatch]);
+  }, [alarmMuteActive, dispatch]);
 
   return <React.Fragment />;
 };

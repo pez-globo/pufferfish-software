@@ -6,6 +6,7 @@ import {
   ParametersRequest,
   AlarmLimits,
   AlarmLimitsRequest,
+  AlarmMute,
   AlarmMuteRequest,
   BatteryPower,
   ScreenStatus,
@@ -47,6 +48,7 @@ export const controllerReducer = combineReducers({
     ),
   }),
   eventLog: eventLogReducer,
+  alarmMute: requestReducer<AlarmMute>(MessageType.AlarmMuteRequest, REQUEST_COMMITTED),
   alarmMuteRequest: requestReducer<AlarmMuteRequest>(
     MessageType.AlarmMuteRequest,
     REQUEST_COMMITTED,
