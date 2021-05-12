@@ -54,10 +54,11 @@
 #include "Pufferfish/Driver/Serial/FDO2/Sensor.h"
 #include "Pufferfish/Driver/Serial/Nonin/Sensor.h"
 #include "Pufferfish/Driver/ShiftedOutput.h"
+#include "Pufferfish/HAL/STM32/Endian.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
 #include "Pufferfish/Statuses.h"
 #include "Pufferfish/Util/Timeouts.h"
-#include "Pufferfish/HAL/STM32/Endian.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
