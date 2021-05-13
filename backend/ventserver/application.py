@@ -1,12 +1,10 @@
 """Trio I/O with sans-I/O protocol, running application."""
 
 import logging
-from typing import List, Type
 import functools
 import time
 
 import trio
-import betterproto
 
 from ventserver.integration import _trio
 from ventserver.io.trio import (
@@ -15,7 +13,6 @@ from ventserver.io.trio import (
 from ventserver.io.subprocess import frozen_frontend
 from ventserver.protocols import exceptions
 from ventserver.protocols.backend import server, states
-from ventserver.protocols.protobuf import mcu_pb
 
 
 async def initialize_states_from_file(
@@ -24,10 +21,7 @@ async def initialize_states_from_file(
     """Initialize states from filesystem and turn off ventilation."""
 
     # Load state from file
-    load_states: List[Type[betterproto.Message]] = [
-        mcu_pb.Parameters, mcu_pb.CycleMeasurements,
-        mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
-    ]
+    load_states = list(states.FILE_INPUT_TYPES.keys())
     await _trio.load_file_states(load_states, protocol, filehandler)
 
     # Turn off ventilation
