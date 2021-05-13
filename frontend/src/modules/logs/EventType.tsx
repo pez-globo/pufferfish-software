@@ -1,5 +1,4 @@
 import { LogEvent, LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
-import { BACKEND_CONNECTION_LOST_CODE } from '../../store/controller/types';
 import { PERCENT, BPM, LMIN } from '../info/units';
 
 export interface EventType {
@@ -194,13 +193,6 @@ export const getEventType = (code: LogEventCode): EventType => {
         unit: '',
       };
     case LogEventCode.backend_connection_down:
-      return {
-        type: LogEventType.system,
-        label: 'Software connectivity lost',
-        unit: '',
-      };
-    // TODO: remove the following case, as it's redundant with the previous case
-    case BACKEND_CONNECTION_LOST_CODE:
       return {
         type: LogEventType.system,
         label: 'Software connectivity lost',
