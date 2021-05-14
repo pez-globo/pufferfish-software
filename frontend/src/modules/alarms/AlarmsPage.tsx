@@ -300,7 +300,7 @@ export const AlarmsPage = (): JSX.Element => {
   const currentMode = useSelector(getParametersRequestMode);
   const ventilating = useSelector(getParametersIsVentilating);
   const alarmLimitsUnsaved = useSelector(getAlarmLimitsUnsavedChanges);
-  const [alarmLimits] = useState((alarmLimitsCurrent as unknown) as Record<string, Range>);
+  const alarmLimits = (alarmLimitsCurrent as unknown) as Record<string, Range>;
   const alarmLimitsDraft = (alarmLimitsRequestDraft as unknown) as Record<string, Range>;
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
