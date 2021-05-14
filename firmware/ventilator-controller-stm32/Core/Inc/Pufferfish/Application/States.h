@@ -86,10 +86,10 @@ class Store {
   SensorMeasurements &sensor_measurements();
   CycleMeasurements &cycle_measurements();
   Parameters &parameters();
-  bool has_parameters_request() const;
+  [[nodiscard]] bool has_parameters_request() const;
   [[nodiscard]] const ParametersRequest &parameters_request() const;
   AlarmLimits &alarm_limits();
-  bool has_alarm_limits_request() const;
+  [[nodiscard]] bool has_alarm_limits_request() const;
   [[nodiscard]] const AlarmLimitsRequest &alarm_limits_request() const;
   [[nodiscard]] const ExpectedLogEvent &expected_log_event() const;
   NextLogEvents &next_log_events();
@@ -99,7 +99,7 @@ class Store {
   OutputStatus output(MessageTypes type, StateSegment &output) const;
 
  private:
-  StateSegments state_segments_;
+  StateSegments state_segments_{};
   bool has_parameters_request_ = false;
   bool has_alarm_limits_request_ = false;
 };
