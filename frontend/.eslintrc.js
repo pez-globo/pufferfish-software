@@ -15,7 +15,7 @@ module.exports = {
         "ecmaVersion": 2020,
         "sourceType": "module"
     },
-    "plugins": ["react", "@typescript-eslint", "prettier"],
+    "plugins": ["preact", "@typescript-eslint", "prettier"],
     "extends": [
         "airbnb",
         "preact",
@@ -50,7 +50,7 @@ module.exports = {
         ]
     },
     "settings": {
-        "react": {
+        "preact": {
             "version": "detect"
         },
         "import/resolver": {
