@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 import { getClockTime } from '../../store/app/selectors';
-import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
+import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import {
   ParametersRequest,
   VentilationMode,
@@ -162,7 +162,7 @@ export const ToolBar = ({
   const [isDisabled, setIsDisabled] = useState(false);
   const [open, setOpen] = useState(false);
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
-    dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
+    dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
   const alarmConfig = alarmConfiguration(currentMode);
   // const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;

@@ -5,7 +5,7 @@ import {
   STATE_UPDATED,
   CommitAction,
   REQUEST_COMMITTED,
-  STANDBY_REQUEST_COMMITTED,
+  DRAFT_REQUEST_COMMITTED,
 } from './types';
 
 // TODO: rename this to receiveMessage, and make SidebarClickable.tsx and OverlayScreen not use it.
@@ -25,11 +25,11 @@ export const commitRequest = <T extends PBMessage>(
   update: updates,
 });
 
-export const commitStandbyRequest = <T extends PBMessage>(
+export const commitDraftRequest = <T extends PBMessage>(
   requestMessageType: MessageType,
   updates: Partial<T>,
 ): CommitAction => ({
-  type: STANDBY_REQUEST_COMMITTED,
+  type: DRAFT_REQUEST_COMMITTED,
   messageType: requestMessageType,
   update: updates,
 });

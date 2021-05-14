@@ -21,7 +21,7 @@ import { BPM, LMIN, PERCENT } from '../info/units';
 import { AlarmModal } from '../controllers';
 import { ParametersRequest, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
-import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
+import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import store from '../../store';
 import { DASHBOARD_ROUTE } from '../navigation/constants';
 
@@ -373,7 +373,7 @@ const MultiStepWizard = (): JSX.Element => {
             upper: max,
           },
         };
-        dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
+        dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
       }
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
@@ -439,7 +439,7 @@ const MultiStepWizard = (): JSX.Element => {
       if (parameter.isSetvalEnabled) {
         const update = { [parameter.stateKey]: parameter.setValue };
         dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
-        dispatch(commitStandbyRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+        dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
       }
       if (parameter.isAlarmEnabled && parameter.alarmValues.length) {
         const update = {
@@ -449,7 +449,7 @@ const MultiStepWizard = (): JSX.Element => {
           },
         };
         dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
-        dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
+        dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
       }
     });
     setMultiParams([]);

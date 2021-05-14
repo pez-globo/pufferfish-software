@@ -2,7 +2,7 @@ import { Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import React, { RefObject, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { commitStandbyRequest } from '../../store/controller/actions';
+import { commitDraftRequest } from '../../store/controller/actions';
 import { VentilationMode, ParametersRequest } from '../../store/controller/proto/mcu_pb';
 import {
   getParametersRequestMode,
@@ -111,7 +111,7 @@ const SettableParameters = (): JSX.Element => {
     // of deeper bug. Maybe it's related to the buggy behavior that ValueClicker
     // has with the rotary encoder?
     // console.log('setValue', key, value);
-    dispatch(commitStandbyRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+    dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
   };
 
   useEffect(() => {

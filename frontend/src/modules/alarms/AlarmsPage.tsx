@@ -3,7 +3,7 @@ import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
 import React, { RefObject, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
+import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
 import {
   getAlarmLimitsCurrent,
@@ -130,7 +130,7 @@ const Alarm = ({
   // discard changes (which means that any alarm limits being persisted in
   // AlarmLimitsRequestStandby would need to be reset using the values from
   // AlarmLimitsRequest, when the user wants to discard values). This could
-  // be done with by dispatching a commitStandbyRequest action with the
+  // be done with by dispatching a commitDraftRequest action with the
   // alarmLimitsRequest selector as the update field.
   const range =
     alarmLimits === null
@@ -303,7 +303,7 @@ export const AlarmsPage = (): JSX.Element => {
   const alarmLimits = (alarmLimitsCurrent as unknown) as Record<string, Range>;
   const alarmLimitsDraft = (alarmLimitsRequestDraft as unknown) as Record<string, Range>;
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
-    dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
+    dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
   const applyChanges = () => {
     if (alarmLimitsRequestDraft === null) {
