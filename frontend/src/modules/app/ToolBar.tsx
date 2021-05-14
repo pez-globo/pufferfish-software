@@ -20,7 +20,7 @@ import {
   getAlarmLimitsRequestDraft,
   getAlarmLimitsCurrent,
   getBackendInitialized,
-  getAlarmLimitsUnsavedChanges,
+  getAlarmLimitsRequestUnsaved,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { ModalPopup } from '../controllers/ModalPopup';
@@ -153,7 +153,7 @@ export const ToolBar = ({
   const ventilating = useSelector(getParametersIsVentilating);
   const alarmLimitsRequestDraft = useSelector(getAlarmLimitsRequestDraft);
   const alarmLimitsCurrent = useSelector(getAlarmLimitsCurrent);
-  const alarmLimitsUnsaved = useSelector(getAlarmLimitsUnsavedChanges);
+  const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
   const alarmLimits = (alarmLimitsCurrent as unknown) as Record<string, Range>;
   const alarmLimitsStandby = (alarmLimitsRequestDraft as unknown) as Record<string, Range>;
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
@@ -262,7 +262,7 @@ export const ToolBar = ({
   );
 
   const handleOnClick = () => {
-    if (!alarmLimitsUnsaved) {
+    if (!alarmLimitsRequestUnsaved) {
       setOpen(false);
       history.push(DASHBOARD_ROUTE.path);
     } else {

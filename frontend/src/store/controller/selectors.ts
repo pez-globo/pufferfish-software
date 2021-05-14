@@ -153,7 +153,7 @@ export const getParametersRequest = createSelector(
   (parameters: ParametersRequestResponse): ParametersRequest | null => parameters.request,
 );
 export const getParametersRequestMode = ventilationModeSelector(getParametersRequest);
-// Standby
+// Draft
 export const getParametersRequestDraft = createSelector(
   getParameters,
   (parameters: ParametersRequestResponse): ParametersRequest | null => parameters.draft,
@@ -201,46 +201,45 @@ export const getAlarmLimitsRequestDraft = createSelector(
   getAlarmLimits,
   (alarmLimits: AlarmLimitsRequestResponse): AlarmLimitsRequest | null => alarmLimits.draft,
 );
-const alarmLimitsCurrentSelector = (key: string) =>
-  createSelector(getAlarmLimitsCurrent, (alarmLimitsCurrent: AlarmLimits | null): Range | null =>
-    alarmLimitsCurrent === null
-      ? null
-      : ((alarmLimitsCurrent as unknown) as Record<string, Range>)[key],
-  );
-
-export const getAlarmLimitsCurrentSpo2 = alarmLimitsCurrentSelector('spo2');
-export const getAlarmLimitsCurrentHR = alarmLimitsCurrentSelector('hr');
-
-const alarmLimitsStandbySelector = (key: string) =>
+type OptionalAlarmLimitsLike = AlarmLimits | AlarmLimitsRequest | null;
+type AlarmLimitsSelector = OutputSelector<
+  StoreState,
+  AlarmLimits | null,
+  (res: AlarmLimitsRequestResponse) => OptionalAlarmLimitsLike
+>;
+const rangeSelector = (alarmLimitsSelector: AlarmLimitsSelector) =>
   createSelector(
-    getAlarmLimitsRequestDraft,
-    (alarmLimitsRequestDraft: AlarmLimitsRequest | null): Range | null =>
-      alarmLimitsRequestDraft === null
-        ? null
-        : ((alarmLimitsRequestDraft as unknown) as Record<string, Range>)[key],
+    alarmLimitsSelector,
+    (alarmLimits: AlarmLimits | AlarmLimitsRequest | null): Record<string, Range> | null =>
+      alarmLimits === null ? null : ((alarmLimits as unknown) as Record<string, Range>),
   );
-export const getAlarmLimitsStandbySpo2 = alarmLimitsStandbySelector('spo2');
-export const getAlarmLimitsStandbyHR = alarmLimitsStandbySelector('hr');
 
-export const getAlarmLimitsUnsavedChanges = createSelector(
-  getAlarmLimitsCurrentSpo2,
-  getAlarmLimitsCurrentHR,
-  getAlarmLimitsStandbySpo2,
-  getAlarmLimitsStandbyHR,
+export const getAlarmLimitsRangeCurrent = rangeSelector(getAlarmLimitsCurrent);
+export const getAlarmLimitsRangeDraft = rangeSelector(getAlarmLimitsRequestDraft);
+
+export const getAlarmLimitsUnsavedKeys = createSelector(
+  getAlarmLimitsRangeCurrent,
+  getAlarmLimitsRangeDraft,
   (
-    currentSpo2: Range | null,
-    currentHR: Range | null,
-    standbySpo2: Range | null,
-    standbyHR: Range | null,
-  ): boolean =>
-    (currentSpo2 !== null &&
-      currentHR !== null &&
-      standbySpo2 !== null &&
-      standbyHR !== null &&
-      currentSpo2?.lower !== standbySpo2?.lower) ||
-    currentSpo2?.upper !== standbySpo2?.upper ||
-    currentHR?.lower !== standbyHR?.lower ||
-    currentHR?.upper !== standbyHR?.upper,
+    currentLimits: Record<string, Range> | null,
+    draftLimits: Record<string, Range> | null,
+  ): string[] => {
+    const keys = ['spo2', 'hr'];
+    return keys.filter(
+      (key: string) =>
+        (currentLimits !== null &&
+          draftLimits !== null &&
+          currentLimits[key]?.lower !== draftLimits[key]?.lower) ||
+        (currentLimits !== null &&
+          draftLimits !== null &&
+          currentLimits[key]?.upper !== draftLimits[key]?.upper),
+    );
+  },
+);
+
+export const getAlarmLimitsRequestUnsaved = createSelector(
+  getAlarmLimitsUnsavedKeys,
+  (unsavedKeys: string[]): boolean => unsavedKeys.length > 0,
 );
 
 // Event log

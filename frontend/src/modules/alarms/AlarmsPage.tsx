@@ -6,9 +6,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
 import {
-  getAlarmLimitsCurrent,
+  getAlarmLimitsRangeCurrent,
+  getAlarmLimitsRangeDraft,
   getAlarmLimitsRequestDraft,
-  getAlarmLimitsUnsavedChanges,
+  getAlarmLimitsRequestUnsaved,
+  getAlarmLimitsUnsavedKeys,
   getParametersIsVentilating,
   getParametersRequestMode,
 } from '../../store/controller/selectors';
@@ -295,13 +297,13 @@ export const AlarmsPage = (): JSX.Element => {
   };
 
   const alarmLimitsRequestDraft = useSelector(getAlarmLimitsRequestDraft);
-  const alarmLimitsCurrent = useSelector(getAlarmLimitsCurrent);
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
   const ventilating = useSelector(getParametersIsVentilating);
-  const alarmLimitsUnsaved = useSelector(getAlarmLimitsUnsavedChanges);
-  const alarmLimits = (alarmLimitsCurrent as unknown) as Record<string, Range>;
-  const alarmLimitsDraft = (alarmLimitsRequestDraft as unknown) as Record<string, Range>;
+  const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
+  const alarmLimitsKeys = useSelector(getAlarmLimitsUnsavedKeys);
+  const alarmLimits = useSelector(getAlarmLimitsRangeCurrent);
+  const alarmLimitsDraft = useSelector(getAlarmLimitsRangeDraft);
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
@@ -317,7 +319,6 @@ export const AlarmsPage = (): JSX.Element => {
   const alarmConfig = alarmConfiguration(currentMode);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(!alarmLimitsUnsaved);
 
   const handleClose = () => {
     setConfirmOpen(false);
@@ -330,13 +331,11 @@ export const AlarmsPage = (): JSX.Element => {
   const handleConfirm = () => {
     setConfirmOpen(false);
     applyChanges();
-    setIsDisabled(true);
   };
 
   const handleDiscardConfirm = () => {
     setDiscardOpen(false);
-    setAlarmLimitsRequestDraft(alarmLimits);
-    setIsDisabled(true);
+    if (alarmLimits !== null) setAlarmLimitsRequestDraft(alarmLimits);
   };
 
   const handleConfirmOpen = () => {
@@ -350,14 +349,6 @@ export const AlarmsPage = (): JSX.Element => {
   useEffect(() => {
     setPageCount(Math.ceil(alarmConfig.length / itemsPerPage));
   }, [alarmConfig]);
-
-  useEffect(() => {
-    if (alarmLimitsUnsaved) {
-      setIsDisabled(false);
-    } else {
-      setIsDisabled(true);
-    }
-  }, [alarmLimitsUnsaved]);
 
   const OnClickPage = () => {
     setActiveRotaryReference(null);
@@ -410,7 +401,7 @@ export const AlarmsPage = (): JSX.Element => {
                   color="primary"
                   variant="contained"
                   className={classes.applyButton}
-                  disabled={isDisabled}
+                  disabled={!alarmLimitsRequestUnsaved}
                 >
                   Cancel
                 </Button>
@@ -421,7 +412,7 @@ export const AlarmsPage = (): JSX.Element => {
                   color="secondary"
                   variant="contained"
                   className={classes.applyButton}
-                  disabled={isDisabled}
+                  disabled={!alarmLimitsRequestUnsaved}
                 >
                   Submit
                 </Button>
@@ -442,17 +433,17 @@ export const AlarmsPage = (): JSX.Element => {
                     </Grid>
                     <Grid item className={classes.marginContent}>
                       {alarmConfig.map((param) => {
-                        if (
-                          alarmLimits[param.stateKey].lower !==
-                            alarmLimitsDraft[param.stateKey]?.lower ||
-                          alarmLimits[param.stateKey].upper !==
-                            alarmLimitsDraft[param.stateKey]?.upper
-                        ) {
+                        if (alarmLimitsKeys.includes(param.stateKey)) {
                           return (
                             <Typography variant="subtitle1">{`Change ${
                               param.label
-                            } alarm range to ${alarmLimitsDraft[param.stateKey].lower} -
-                                ${alarmLimitsDraft[param.stateKey].upper}?`}</Typography>
+                            } alarm range to ${
+                              alarmLimitsDraft !== null && alarmLimitsDraft[param.stateKey].lower
+                            } -
+                                ${
+                                  alarmLimitsDraft !== null &&
+                                  alarmLimitsDraft[param.stateKey].upper
+                                }?`}</Typography>
                           );
                         }
                         return <React.Fragment />;
@@ -478,17 +469,14 @@ export const AlarmsPage = (): JSX.Element => {
                     </Grid>
                     <Grid item className={classes.marginContent}>
                       {alarmConfig.map((param) => {
-                        if (
-                          alarmLimits[param.stateKey].lower !==
-                            alarmLimitsDraft[param.stateKey]?.lower ||
-                          alarmLimits[param.stateKey].upper !==
-                            alarmLimitsDraft[param.stateKey]?.upper
-                        ) {
+                        if (alarmLimitsKeys.includes(param.stateKey)) {
                           return (
                             <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${
-                              alarmLimits[param.stateKey].lower
+                              alarmLimits !== null && alarmLimits[param.stateKey].lower
                             } -
-                                ${alarmLimits[param.stateKey].upper}?`}</Typography>
+                                ${
+                                  alarmLimits !== null && alarmLimits[param.stateKey].upper
+                                }?`}</Typography>
                           );
                         }
                         return <React.Fragment />;
