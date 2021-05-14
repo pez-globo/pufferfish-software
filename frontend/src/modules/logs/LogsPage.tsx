@@ -139,15 +139,15 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   /**
    *  Formulates Row data format
    *
-  * @param {LogEventType} type  Event Alarm type
-  * @param {string} alarm Event Alarm Label
-  * @param {number} time Event Alarm timestamp
-  * @param {number} status desc of status
-  * @param {number} id unique identifier of row
-  * @param {number} details Event Alarm details
-  * @param {string} stateKey Event log parameter measurements identifier
-  * @param {string} head Label passed to `AlarmModal` Label prop
-  * @param {string} unit Unit of `stateKey`
+   * @param {LogEventType} type  Event Alarm type
+   * @param {string} alarm Event Alarm Label
+   * @param {number} time Event Alarm timestamp
+   * @param {number} status desc of status
+   * @param {number} id unique identifier of row
+   * @param {number} details Event Alarm details
+   * @param {string} stateKey Event log parameter measurements identifier
+   * @param {string} head Label passed to `AlarmModal` Label prop
+   * @param {string} unit Unit of `stateKey`
    *
    * @returns {Data} Row Data
    *
@@ -167,52 +167,52 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     return { type, alarm, time, status, id, details, stateKey, head, unit };
   };
 
-  /** 
+  /**
    * State to manage row data in table
    */
   const [rows, setRows] = React.useState<Data[]>([]);
-  /** 
+  /**
    * State to manage order type
    */
   const [order, setOrder] = React.useState<Order>('desc');
-  /** 
+  /**
    * State to manage order by column
    */
   const [orderBy, setOrderBy] = React.useState<keyof Data>('time');
-  /** 
+  /**
    * State to manage row selection
    */
   const [selected, setSelected] = React.useState<string[]>([]);
-  /** 
+  /**
    * State to manage pagination
    */
   const [page, setPage] = React.useState(0);
-  /** 
+  /**
    * State to manage rows per page
    */
   const [rowsPerPage, setRowsPerPage] = React.useState(9);
-  /** 
+  /**
    * State to LogsPage modal
    */
   const [open, setOpen] = React.useState(false);
-  /** 
+  /**
    * State to manage Alarm Modal open status
    */
   const [alarmOpen, setAlarmOpen] = React.useState(false);
-  /** 
+  /**
    * State to manage current selected row
    */
   const [currentRow, setCurrentRow] = React.useState<Data>();
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   const loggedEvents = useSelector(getNextLogEvents, shallowEqual);
   const activeLogEventIds = useSelector(getActiveLogEventIds, shallowEqual);
-  /** 
+  /**
    * List to determine which paramter is allowed to show Settings button
    */
   const settingsAllowed = ['fio2', 'flow', 'hr', 'spo2'];
 
   const getDetails = useCallback(getEventDetails, []);
-  /** 
+  /**
    * Initialized & Updates Row data
    */
   useEffect(() => {

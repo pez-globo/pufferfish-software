@@ -115,7 +115,7 @@ export const ValueSlider = ({
   disabled = false,
 }: Props): JSX.Element => {
   const classes = useStyles();
-  /** 
+  /**
    * State to manage Slider Range value
    */
   const [value, setValue] = React.useState<number[]>([min, max]);

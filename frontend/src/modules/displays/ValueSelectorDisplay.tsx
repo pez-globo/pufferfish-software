@@ -17,7 +17,7 @@ export type SelectorType = OutputSelector<any, any, any>;
  * Props Interface for the ValueSelectorDisplay component
  *
  * @prop {SelectorType} selector Redux Selector
- * @prop {number} decimal Number of Decimals on the value 
+ * @prop {number} decimal Number of Decimals on the value
  */
 interface ValueSelectorDisplayProps {
   selector: SelectorType;

@@ -68,13 +68,13 @@ export const SettingsPage = (): JSX.Element => {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
   const dispatch = useDispatch();
-  /** 
+  /**
    * State to manage theme setting
    */
   const [displaySetting, setDisplaySetting] = React.useState<
     FrontendDisplaySetting | Record<string, unknown>
   >();
-  /** 
+  /**
    * State to manage System Brightness & time setting
    */
   const [systemSetting, setSystemSetting] = React.useState<

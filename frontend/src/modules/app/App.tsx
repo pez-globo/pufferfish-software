@@ -26,7 +26,7 @@ const TOUCH_SCREEN_BUTTON_KEY = 0;
  *
  * Props interface for the App component
  *
- * @prop {typeof initialize} initialize Redux action type triggered on app initalization 
+ * @prop {typeof initialize} initialize Redux action type triggered on app initalization
  * @prop {string} locale Localization of the text displayed in app (i18n)
  * @prop {Record<string, string>} messages Localization configuration to set US English as locale
  * @prop {FrontendDisplaySetting} displaySetting Settings to set global config for theme & unit

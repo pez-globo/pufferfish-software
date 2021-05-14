@@ -1,6 +1,6 @@
 /**
  * @summary Display Setting Tab of Settings page
- * 
+ *
  * @file All the Display Settings are configured here
  */
 import {

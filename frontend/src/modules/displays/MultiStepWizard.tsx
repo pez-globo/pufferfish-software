@@ -362,39 +362,39 @@ const determineInput = (stateKey: string): Data | undefined => {
 const MultiStepWizard = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  /** 
+  /**
    * State to manage Multi step Modal `open` status
    */
   const [open, setOpen] = React.useState(false);
-  /** 
+  /**
    * State to manage Confirmation Modal `open` status
    */
   const [confirmOpen, setConfirmOpen] = React.useState(false);
-  /** 
+  /**
    * State to manage Cancellation Modal `open` status
    */
   const [cancelOpen, setCancelOpen] = React.useState(false);
-  /** 
+  /**
    * State to manage dynamic label displayed on each step
    */
   const [label, setLabel] = React.useState('Ventilation Controls');
-  /** 
+  /**
    * State to manage current `stateKey`
    */
   const [stateKey, setStateKey] = React.useState('');
-  /** 
+  /**
    * State to manage Tab index
    */
   const [tabIndex, setTabIndex] = React.useState(0);
-  /** 
+  /**
    * State to manage Parameter `Data`
    */
   const [parameter, setParameter] = React.useState<Data>();
-  /** 
+  /**
    * State to manage all Parameter `Data`
    */
   const [multiParams, setMultiParams] = React.useState<Data[]>([]);
-  /** 
+  /**
    * State to manage if button submitted is disabled
    */
   const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);

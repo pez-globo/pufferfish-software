@@ -1,6 +1,6 @@
 /**
  * @summary Info Tab of Settings page
- * 
+ *
  * @file System Level info are displayed here
  */
 import React from 'react';

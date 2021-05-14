@@ -176,7 +176,7 @@ const ControlValuesDisplay = ({
   decimal,
 }: Props): JSX.Element => {
   const classes = useStyles();
-  /** 
+  /**
    * State to toggle opening Alarm popup
    */
   const [open, setOpen] = useState(false);

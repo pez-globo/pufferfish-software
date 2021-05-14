@@ -102,9 +102,9 @@ const AudioAlarm = (): JSX.Element => {
   audio.loop = true;
   const [playing, setPlaying] = useState(alarmMuteStatus !== null && alarmMuteStatus.active);
 
-/**
- * Toggle between Play/Pause
- */
+  /**
+   * Toggle between Play/Pause
+   */
   useEffect(() => {
     if (playing) {
       audio.play();
@@ -116,9 +116,9 @@ const AudioAlarm = (): JSX.Element => {
     };
   }, [playing, audio]);
 
-/**
- * On activeAlarms redux store changes, update RED_BORDER & Audio Play state
- */
+  /**
+   * On activeAlarms redux store changes, update RED_BORDER & Audio Play state
+   */
   useEffect(() => {
     if (activeAlarms) {
       setPlaying(true);
@@ -129,9 +129,9 @@ const AudioAlarm = (): JSX.Element => {
     }
   }, [activeAlarms, dispatch]);
 
-/**
- * On alarmMuteStatus redux store changes, update RED_BORDER & Audio Play state
- */
+  /**
+   * On alarmMuteStatus redux store changes, update RED_BORDER & Audio Play state
+   */
   useEffect(() => {
     if (activeAlarms) {
       dispatch({ type: RED_BORDER, status: alarmMuteStatus !== null && !alarmMuteStatus.active });
@@ -218,9 +218,9 @@ export const OverlayScreen = (): JSX.Element => {
   const classes = useStyles();
   const screenStatus = useSelector(getScreenStatusLock);
   const [overlay, setOverlay] = useState(screenStatus || false);
-/**
- * Listens to screenLock status changes & update overlay state accordingly
- */
+  /**
+   * Listens to screenLock status changes & update overlay state accordingly
+   */
   useEffect(() => {
     const popupEventSubscription: Subscription = getScreenLockPopup().subscribe(
       (state: boolean) => {
@@ -236,9 +236,9 @@ export const OverlayScreen = (): JSX.Element => {
     };
   }, [screenStatus]);
 
-/**
- * On screenStatus redux store changes, update overlay state
- */
+  /**
+   * On screenStatus redux store changes, update overlay state
+   */
   useEffect(() => {
     setOverlay(screenStatus);
   }, [screenStatus]);

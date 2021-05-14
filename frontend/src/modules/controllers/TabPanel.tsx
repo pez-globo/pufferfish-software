@@ -31,7 +31,7 @@ interface Props {
 
 /**
  * Add Unique Id to DOM element of `Tab` component
- * 
+ *
  * @param {number} index - Tab index
  *
  * @returns {Record<string, unknown>} Attributes object with id

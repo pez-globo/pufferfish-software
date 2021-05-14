@@ -44,7 +44,7 @@ export type Order = 'asc' | 'desc';
 
 /**
  * Comparator used for sorting
- * 
+ *
  * @param {Order} order Order type asc/desc
  * @param {Key} key Key for which to Order/Sort by
  *
@@ -207,7 +207,7 @@ const StyledTableCell = withStyles((theme: Theme) =>
 
 /**
  * Table Header
- * 
+ *
  * @param {EnhancedTableProps} props - Configuration for Table Header
  *
  * @returns JSX.Element

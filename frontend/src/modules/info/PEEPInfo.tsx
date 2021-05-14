@@ -1,7 +1,7 @@
 /**
  * @deprecated
  * @summary Component to display Value, Set Value Modal & Alarm Modal for PEEP parameter
- * 
+ *
  * Set Value & Alarm Modal is optional
  *
  */

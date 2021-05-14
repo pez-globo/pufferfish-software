@@ -132,7 +132,7 @@ enum SliderType {
 }
 
 /**
- * UI visual container displaying Alarm Slider & Increment/Decrement value clicker 
+ * UI visual container displaying Alarm Slider & Increment/Decrement value clicker
  *
  * @component Component for displaying individual Alarm
  *

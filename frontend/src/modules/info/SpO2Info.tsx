@@ -1,7 +1,7 @@
 /**
  * @deprecated
  * @summary Component to display Value, Set Value Modal & Alarm Modal for SpO2 parameter
- * 
+ *
  * Set Value & Alarm Modal is optional
  *
  */

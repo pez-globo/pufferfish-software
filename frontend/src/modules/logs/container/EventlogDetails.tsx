@@ -84,23 +84,23 @@ const headCells: HeadCell[] = [
  */
 export const EventlogDetails = (): JSX.Element => {
   const theme = useTheme();
-  /** 
+  /**
    * State to manage order type
    */
   const [order, setOrder] = React.useState<Order>('asc');
-  /** 
+  /**
    * State to manage order by column
    */
   const [orderBy] = React.useState<keyof Data>('value');
-  /** 
+  /**
    * State to manage row selection
    */
   const [selected, setSelected] = React.useState<string[]>([]);
-  /** 
+  /**
    * State to manage row selection
    */
   const [page, setPage] = React.useState(0);
-  /** 
+  /**
    * State to manage row selection
    */
   const [rowsPerPage, setRowsPerPage] = React.useState(5);

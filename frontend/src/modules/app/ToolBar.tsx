@@ -86,7 +86,7 @@ export const PowerIndicator = (): JSX.Element => {
   const batteryPower = useSelector(getBatteryPowerLeft);
   const chargingStatus = useSelector(getChargingStatus);
   const [icon, setIcon] = useState(<PowerFullIcon style={{ fontSize: '2.5rem' }} />);
-  /** 
+  /**
    * Updates Icons based on batteryPower/chargingStatus
    */
   useEffect(() => {
@@ -144,16 +144,16 @@ export const ToolBar = ({
   const parameterRequestStandby = useSelector(getParametersRequestStandby, shallowEqual);
   const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby, shallowEqual);
   const ventilating = useSelector(getParametersIsVentilating);
-  /** 
+  /**
    * State to manage toggling ventilationState
    */
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
-  /** 
+  /**
    * State to manage ventilation label
    * Label is Dynamic based on ventilation state
    */
   const [label, setLabel] = useState('Start Ventilation');
-  /** 
+  /**
    * State to toggle if Ventilating isDisabled
    */
   const [isDisabled, setIsDisabled] = useState(false);

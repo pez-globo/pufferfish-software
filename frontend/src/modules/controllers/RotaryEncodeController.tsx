@@ -11,7 +11,7 @@ import { getRotaryEncoder } from '../../store/controller/selectors';
  *
  * Props interface for RotaryEncodeController component
  *
- * @prop {number} value values passed from `ValueClicker` 
+ * @prop {number} value values passed from `ValueClicker`
  * @prop {function} onClick Triggers when rotation step is changed in rotary encoder
  * @prop {number} min Value below which rotary encoder rotation will not decrement
  * @prop {number} max Value above which rotary encoder rotation will not increment

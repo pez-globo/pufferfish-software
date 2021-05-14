@@ -1,6 +1,6 @@
 /**
  * @summary Constants for Reference key used in Settings
- * 
+ *
  * Reference key is used to identify HTML wrapper to add border around it for Rotary Encoder
  */
 export const BRIGHTNESS_REFERENCE_KEY = 'brightness';

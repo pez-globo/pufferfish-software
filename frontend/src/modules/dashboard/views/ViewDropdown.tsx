@@ -79,11 +79,11 @@ const StyledMenuItem = withStyles((theme) => ({
  */
 export const ViewDropdown = (): JSX.Element => {
   const classes = useStyles();
-  /** 
+  /**
    * State to manage HTML element of dropdown anchor
    */
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  /** 
+  /**
    * State to manage dropdown value index
    */
   const [selectedIndex, setSelectedIndex] = React.useState(0);

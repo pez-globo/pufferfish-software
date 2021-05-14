@@ -1,7 +1,7 @@
 /**
  * @summary Sidebar Drawer Component
  *
- * @file Component consisting Navigation bar 
+ * @file Component consisting Navigation bar
  *
  */
 import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';

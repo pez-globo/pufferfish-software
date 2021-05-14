@@ -118,7 +118,7 @@ interface Props {
 
 /**
  * @deprecated
- * 
+ *
  * AlertToast
  *
  * @component Alert Toaster showing on active event log
@@ -177,36 +177,36 @@ export const AlertToast = ({
 export const EventAlerts = ({ label }: Props): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  /** 
+  /**
    * State to show active event's label
    * Defaults to empty as no active event while initalization
    */
   const [alert, setAlert] = useState({ label: '' });
-  /** 
+  /**
    * State to toggle opening logsPage popup
    */
   const [open, setOpen] = useState<boolean>(false);
-  /** 
+  /**
    * Stores whether Active events filter is applied on LogsPage listing
    */
   const [activeFilter, setActiveFilter] = useState<boolean>(false);
-  /** 
+  /**
    * Stores the number of active alert count
    */
   const [alertCount, setAlertCount] = useState<number>(0);
-  /** 
+  /**
    * Selectors to get all Events, Active Event Ids & Alarm mute Status
    */
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
-  /** 
+  /**
    * Stores the state which toggles Alarm Mute Status
    */
   const [isMuted, setIsMuted] = useState<boolean>(
     alarmMuteStatus !== null && !alarmMuteStatus.active,
   );
-  /** 
+  /**
    * Triggers whenever Active or Event log is updated in redux
    */
   useEffect(() => {
@@ -222,7 +222,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popupEventLog, JSON.stringify(activeLog)]);
 
-  /** 
+  /**
    * Triggers whenever AlarmMute status is updated in redux store
    */
   useEffect(() => {

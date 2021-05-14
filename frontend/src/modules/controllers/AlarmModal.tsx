@@ -127,15 +127,15 @@ export const AlarmModal = ({
   const dispatch = useDispatch();
   const theme = useTheme();
   const { initRefListener } = useRotaryReference(theme);
-  /** 
+  /**
    * State to toggle opening Alarm popup
    */
   const [open, setOpen] = React.useState(false);
-  /** 
+  /**
    * State to initalize Lower Set value
    */
   const [min] = React.useState(committedMin);
-  /** 
+  /**
    * State to initalize Upper Set value
    */
   const [max] = React.useState(committedMax);
@@ -149,7 +149,7 @@ export const AlarmModal = ({
     alarmRangeValues.length ? alarmRangeValues[0] : lower,
     alarmRangeValues.length ? alarmRangeValues[1] : upper,
   ]);
-  /** 
+  /**
    * State to provide reference HTML element for Lower/Upper Wrapper
    * Its used in highlighting the HTML Element while using rotary encoder
    */
@@ -209,7 +209,7 @@ export const AlarmModal = ({
     requestCommitRange(rangeValue[0], rangeValue[1]);
     handleClose();
   };
-  /** 
+  /**
    * Triggers whenever rangeValue is updated in redux
    */
   useEffect(() => {

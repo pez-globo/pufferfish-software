@@ -137,7 +137,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  */
 const PressureControlMainView = (): JSX.Element => {
   const classes = useStyles();
-  /** 
+  /**
    * State to manage tab index value
    */
   const [value, setValue] = React.useState(0);

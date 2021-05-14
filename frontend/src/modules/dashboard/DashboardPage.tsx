@@ -67,11 +67,11 @@ export const DashboardPage = (): JSX.Element => {
   /**
    * Triggers whenever vetilation status in redux store changes
    */
-  // useEffect(() => {
-  //   if (!ventilating) {
-  //     history.push(QUICKSTART_ROUTE.path);
-  //   }
-  // }, [ventilating, history]);
+  useEffect(() => {
+    if (!ventilating) {
+      history.push(QUICKSTART_ROUTE.path);
+    }
+  }, [ventilating, history]);
 
   return (
     <Grid container className={classes.root}>

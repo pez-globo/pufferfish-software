@@ -123,15 +123,15 @@ export const ValueModal = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const rotaryEncoder = useSelector(getRotaryEncoder, shallowEqual);
-  /** 
+  /**
    * State to manage modal status
    */
   const [open, setOpen] = React.useState(false);
-  /** 
+  /**
    * State to manage value
    */
   const [value, setValue] = React.useState(committedSetting);
-  /** 
+  /**
    * Initalization to set default value & modal status
    */
   const initSetValue = useCallback(() => {
@@ -143,7 +143,7 @@ export const ValueModal = ({
     initSetValue();
   }, [initSetValue]);
 
-  /** 
+  /**
    * Triggers callback when modal status changes
    */
   useEffect(() => {
@@ -297,15 +297,15 @@ export const SetValueContent = ({
   const classes = useStyles();
   const isInitialMount = useRef(true);
   const rotaryEncoder = useSelector(getRotaryEncoder, shallowEqual);
-  /** 
+  /**
    * State to manage modal status
    */
   const [open, setOpen] = React.useState(openModal);
-  /** 
+  /**
    * Initalization to set default value & modal status
    */
   const [value, setValue] = React.useState(committedSetting);
-  /** 
+  /**
    * Triggers whenever openModal status updates
    */
   useEffect(() => {
@@ -314,7 +314,7 @@ export const SetValueContent = ({
       setOpen(false);
     };
   }, [openModal]);
-  /** 
+  /**
    * Initalization to set default value & modal status
    */
   const initSetValue = useCallback(() => {
@@ -324,7 +324,7 @@ export const SetValueContent = ({
   useEffect(() => {
     initSetValue();
   }, [initSetValue]);
-  /** 
+  /**
    * Triggers callback when modal status changes
    */
   useEffect(() => {

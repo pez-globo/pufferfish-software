@@ -99,7 +99,7 @@ const StyledMenuItem = withStyles((theme) => ({
  */
 export const ModesDropdown = (): JSX.Element => {
   const classes = useStyles();
-   /** 
+  /**
    * State to manage HTML element of dropdown anchor
    */
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
