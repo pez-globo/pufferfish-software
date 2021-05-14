@@ -315,12 +315,12 @@ export const AlarmsPage = (): JSX.Element => {
     );
   };
   const alarmConfig = alarmConfiguration(currentMode);
-  const [open, setOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const [isDisabled, setIsDisabled] = useState(!alarmLimitsUnsaved);
 
   const handleClose = () => {
-    setOpen(false);
+    setConfirmOpen(false);
   };
 
   const handleDiscardClose = () => {
@@ -328,7 +328,7 @@ export const AlarmsPage = (): JSX.Element => {
   };
 
   const handleConfirm = () => {
-    setOpen(false);
+    setConfirmOpen(false);
     applyChanges();
     setIsDisabled(true);
   };
@@ -339,8 +339,8 @@ export const AlarmsPage = (): JSX.Element => {
     setIsDisabled(true);
   };
 
-  const handleOpen = () => {
-    setOpen(true);
+  const handleConfirmOpen = () => {
+    setConfirmOpen(true);
   };
 
   const handleDiscardOpen = () => {
@@ -417,7 +417,7 @@ export const AlarmsPage = (): JSX.Element => {
               ) : null}
               {ventilating ? (
                 <Button
-                  onClick={handleOpen}
+                  onClick={handleConfirmOpen}
                   color="secondary"
                   variant="contained"
                   className={classes.applyButton}
@@ -429,7 +429,7 @@ export const AlarmsPage = (): JSX.Element => {
               <ModalPopup
                 withAction={true}
                 label="Set Alarms"
-                open={open}
+                open={confirmOpen}
                 onClose={handleClose}
                 onConfirm={handleConfirm}
               >
