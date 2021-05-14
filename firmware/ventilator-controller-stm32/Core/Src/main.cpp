@@ -105,7 +105,7 @@ UART_HandleTypeDef huart3;
 namespace PF = Pufferfish;
 
 // Application State
-PF::Application::States all_states;
+PF::Application::Store store;
 
 // Event Logging
 PF::Application::LogEventsSender log_events_sender;
@@ -131,8 +131,7 @@ volatile Pufferfish::HAL::LargeBufferedUART fdo2_uart(huart7, time);
 volatile Pufferfish::HAL::ReadOnlyBufferedUART nonin_oem_uart(huart4, time);
 
 // UART Serial Communication
-PF::Driver::Serial::Backend::UARTBackend backend(
-    backend_uart, crc32c, all_states, log_events_sender);
+PF::Driver::Serial::Backend::UARTBackend backend(backend_uart, crc32c, store, log_events_sender);
 
 // Create an object for ADC3 of AnalogInput Class
 static const uint32_t adc_poll_timeout = 10;
@@ -354,8 +353,8 @@ PF::Driver::BreathingCircuit::AlarmsServices breathing_circuit_alarms;
 
 // Breathing Circuit Control
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
-    all_states.parameters(),
-    all_states.sensor_measurements(),
+    store.parameters(),
+    store.sensor_measurements(),
     sfm3019_air,
     sfm3019_o2,
     drive1_ch1,
@@ -395,15 +394,15 @@ void initialize_states() {
   Parameters parameters;
   PF::Application::StateSegment parameters_request;
   PF::Driver::BreathingCircuit::make_state_initializers(parameters_request, parameters);
-  all_states.parameters() = parameters;
-  all_states.input(parameters_request);
+  store.parameters() = parameters;
+  store.input(parameters_request, true);
 
   // Alarm Limits
   AlarmLimits alarm_limits;
   PF::Application::StateSegment alarm_limits_request;
   PF::Driver::BreathingCircuit::make_state_initializers(alarm_limits_request, alarm_limits);
-  all_states.alarm_limits() = alarm_limits;
-  all_states.input(alarm_limits_request);
+  store.alarm_limits() = alarm_limits;
+  store.input(alarm_limits_request, true);
 }
 
 void interface_test_loop() {
@@ -591,32 +590,36 @@ int main(void)
 
     // Request/response services update
     parameters_service.transform(
-        all_states.parameters_request(), all_states.parameters(), log_events_manager);
+        store.parameters_request(),
+        store.parameters(),
+        log_events_manager,
+        store.has_parameters_request());
     alarm_limits_service.transform(
-        all_states.parameters(),
-        all_states.alarm_limits_request(),
-        all_states.alarm_limits(),
-        log_events_manager);
+        store.parameters(),
+        store.alarm_limits_request(),
+        store.alarm_limits(),
+        log_events_manager,
+        store.has_parameters_request() && store.has_alarm_limits_request());
 
     // Breathing Circuit Sensor Simulator
     simulator.transform(
         current_time,
-        all_states.parameters(),
+        store.parameters(),
         hfnc.sensor_vars(),
-        all_states.sensor_measurements(),
-        all_states.cycle_measurements());
+        store.sensor_measurements(),
+        store.cycle_measurements());
 
     // Independent Sensors
     fdo2.output(hfnc.sensor_vars().po2);
-    nonin_oem.output(all_states.sensor_measurements().spo2, all_states.sensor_measurements().hr);
+    nonin_oem.output(store.sensor_measurements().spo2, store.sensor_measurements().hr);
 
     // Breathing Circuit Control Loop
     hfnc.update(current_time);
     breathing_circuit_alarms.transform(
-        all_states.parameters(),
-        all_states.alarm_limits(),
-        all_states.sensor_measurements(),
-        all_states.active_log_events(),
+        store.parameters(),
+        store.alarm_limits(),
+        store.sensor_measurements(),
+        store.active_log_events(),
         alarms_manager);
 
     // Indicators for debugging

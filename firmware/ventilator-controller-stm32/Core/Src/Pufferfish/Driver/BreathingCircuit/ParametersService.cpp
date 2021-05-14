@@ -32,10 +32,15 @@ void service_parameter(
     float &response,
     const Range &allowed,
     LogEventCode code,
-    Application::LogEventsManager &log_manager) {
+    Application::LogEventsManager &log_manager,
+    bool log_changes) {
   float old_response = response;
   response = transform_parameter(allowed.lower, allowed.upper, request, response);
   if (old_response == response) {
+    return;
+  }
+
+  if (!log_changes) {
     return;
   }
 
@@ -67,28 +72,32 @@ void ParametersService::service_ventilating(
 void ParametersService::service_mode(
     VentilationMode request,
     VentilationMode &response,
-    Application::LogEventsManager &log_manager) {
+    Application::LogEventsManager &log_manager,
+    bool log_changes) {
   if (response == request) {
     return;
   }
 
-  LogEvent event{};
-  event.code = LogEventCode::LogEventCode_ventilation_mode_changed;
-  event.type = LogEventType::LogEventType_control;
-  event.old_mode = response;
-  event.new_mode = request;
-  log_manager.add_event(event);
+  if (log_changes) {
+    LogEvent event{};
+    event.code = LogEventCode::LogEventCode_ventilation_mode_changed;
+    event.type = LogEventType::LogEventType_control;
+    event.old_mode = response;
+    event.new_mode = request;
+    log_manager.add_event(event);
+  }
   response = request;
 }
 
 void ParametersService::service_fio2(
-    float request, float &response, Application::LogEventsManager &log_manager) {
+    float request, float &response, Application::LogEventsManager &log_manager, bool log_changes) {
   service_parameter(
       request,
       response,
       allowed_fio2,
       LogEventCode::LogEventCode_fio2_setting_changed,
-      log_manager);
+      log_manager,
+      log_changes);
 }
 
 // PCAC Parameters
@@ -96,8 +105,9 @@ void ParametersService::service_fio2(
 void PCACParameters::transform(
     const ParametersRequest &parameters_request,
     Parameters &parameters,
-    Application::LogEventsManager &log_manager) {
-  service_mode(parameters_request.mode, parameters.mode, log_manager);
+    Application::LogEventsManager &log_manager,
+    bool log_changes) {
+  service_mode(parameters_request.mode, parameters.mode, log_manager, log_changes);
   if (!mode_active(parameters)) {
     return;
   }
@@ -113,7 +123,7 @@ void PCACParameters::transform(
     parameters.pip = parameters_request.pip;
   }
   parameters.peep = parameters_request.peep;
-  service_fio2(parameters_request.fio2, parameters.fio2, log_manager);
+  service_fio2(parameters_request.fio2, parameters.fio2, log_manager, log_changes);
 }
 
 bool PCACParameters::mode_active(const Parameters &parameters) const {
@@ -123,27 +133,29 @@ bool PCACParameters::mode_active(const Parameters &parameters) const {
 // HFNC Parameters
 
 void HFNCParameters::service_flow(
-    float request, float &response, Application::LogEventsManager &log_manager) {
+    float request, float &response, Application::LogEventsManager &log_manager, bool log_changes) {
   service_parameter(
       request,
       response,
       allowed_flow,
       LogEventCode::LogEventCode_flow_setting_changed,
-      log_manager);
+      log_manager,
+      log_changes);
 }
 
 void HFNCParameters::transform(
     const ParametersRequest &parameters_request,
     Parameters &parameters,
-    Application::LogEventsManager &log_manager) {
-  service_mode(parameters_request.mode, parameters.mode, log_manager);
+    Application::LogEventsManager &log_manager,
+    bool log_changes) {
+  service_mode(parameters_request.mode, parameters.mode, log_manager, log_changes);
   if (!mode_active(parameters)) {
     return;
   }
 
   service_ventilating(parameters_request.ventilating, parameters.ventilating, log_manager);
-  service_fio2(parameters_request.fio2, parameters.fio2, log_manager);
-  service_flow(parameters_request.flow, parameters.flow, log_manager);
+  service_fio2(parameters_request.fio2, parameters.fio2, log_manager, log_changes);
+  service_flow(parameters_request.flow, parameters.flow, log_manager, log_changes);
 }
 
 bool HFNCParameters::mode_active(const Parameters &parameters) const {
@@ -155,7 +167,8 @@ bool HFNCParameters::mode_active(const Parameters &parameters) const {
 void ParametersServices::transform(
     const ParametersRequest &parameters_request,
     Parameters &parameters,
-    Application::LogEventsManager &log_manager) {
+    Application::LogEventsManager &log_manager,
+    bool request_initialized) {
   switch (parameters_request.mode) {
     case VentilationMode_pc_ac:
       active_service_ = &pc_ac_;
@@ -171,7 +184,9 @@ void ParametersServices::transform(
     return;
   }
 
-  active_service_->transform(parameters_request, parameters, log_manager);
+  active_service_->transform(parameters_request, parameters, log_manager, request_initialized_);
+  // Changes are logged only after the initialization request is processed
+  request_initialized_ |= request_initialized;
 }
 
 // Initializers
