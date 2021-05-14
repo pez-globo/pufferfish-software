@@ -459,6 +459,9 @@ const GridControlValuesDisplay = ({
  * @returns {JSX.Element}
  *
  */
+// TODO: we should delete this component if it's not being used in any current code;
+// its structure is weird and its proptypes doesn't pass the linter
+/* eslint-disable react/prop-types */
 const ValueInfo = (props: {
   mainContainer: Props;
   subContainer1?: Props;

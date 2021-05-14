@@ -32,16 +32,18 @@ class LogEventCode(betterproto.Enum):
     # System
     battery_low = 8
     screen_locked = 9
+    backend_connection_down = 10
+    backend_connection_up = 11
     # Control
-    ventilation_operation_changed = 10
-    ventilation_mode_changed = 11
-    fio2_setting_changed = 12
-    flow_setting_changed = 13
+    ventilation_operation_changed = 12
+    ventilation_mode_changed = 13
+    fio2_setting_changed = 14
+    flow_setting_changed = 15
     # Alarm Limits
-    fio2_alarm_limits_changed = 14
-    flow_alarm_limits_changed = 15
-    spo2_alarm_limits_changed = 16
-    hr_alarm_limits_changed = 17
+    fio2_alarm_limits_changed = 16
+    flow_alarm_limits_changed = 17
+    spo2_alarm_limits_changed = 18
+    hr_alarm_limits_changed = 19
 
 
 class LogEventType(betterproto.Enum):

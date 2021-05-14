@@ -23,9 +23,9 @@ import {
   getParametersRequestMode,
   getParametersRequestStandby,
   getAlarmLimitsRequestStandby,
-  getPopupEventLog,
+  getBackendInitialized,
 } from '../../store/controller/selectors';
-import { BACKEND_CONNECTION_LOST_CODE, MessageType } from '../../store/controller/types';
+import { MessageType } from '../../store/controller/types';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
 import { BackIcon } from '../icons';
 import ClockIcon from '../icons/ClockIcon';
@@ -140,7 +140,7 @@ export const ToolBar = ({
   const dispatch = useDispatch();
   const history = useHistory();
   const currentMode = useSelector(getParametersRequestMode);
-  const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
+  const backendInitialized = useSelector(getBackendInitialized);
   const parameterRequestStandby = useSelector(getParametersRequestStandby, shallowEqual);
   const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby, shallowEqual);
   const ventilating = useSelector(getParametersIsVentilating);
@@ -148,6 +148,10 @@ export const ToolBar = ({
    * State to manage toggling ventilationState
    */
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
+  /**
+   * State to manage label for Landing page
+   */
+  const [landingLabel, setLandingLabel] = useState('Loading...');
   /**
    * State to manage ventilation label
    * Label is Dynamic based on ventilation state
@@ -226,12 +230,16 @@ export const ToolBar = ({
    * Disabled Start/Pause Ventilation button when backend connection is lost
    */
   useEffect(() => {
-    if (popupEventLog && popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
-      setIsDisabled(true);
-    } else {
+    if (backendInitialized) {
+      setLandingLabel('Start');
       setIsDisabled(false);
+      setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
+    } else {
+      setLandingLabel('Loading...');
+      setIsDisabled(true);
+      setLabel('Loading...');
     }
-  }, [popupEventLog]);
+  }, [backendInitialized, ventilating]);
 
   useEffect(() => {
     if (ventilating) {
@@ -249,7 +257,6 @@ export const ToolBar = ({
       history.push(DASHBOARD_ROUTE.path);
     }
     setIsVentilatorOn(ventilating);
-    setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
   }, [ventilating, history]);
 
   const StartPauseButton = (
@@ -257,9 +264,9 @@ export const ToolBar = ({
       onClick={updateVentilationStatus}
       variant="contained"
       color="secondary"
-      disabled={staticStart ? false : isDisabled}
+      disabled={isDisabled}
     >
-      {staticStart ? 'Start' : label}
+      {staticStart ? landingLabel : label}
     </Button>
   );
   const tools = [<ModesDropdown />];
