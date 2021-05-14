@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Re-usable UI component for Carousel
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import { makeStyles } from '@material-ui/core';
 import React, { ReactElement, useState } from 'react';
@@ -131,7 +129,7 @@ const useStyles = makeStyles(() => ({
 /**
  * CarouselLeftArrow
  *
- * @component A container for displaying the left arrow of carousel.
+ * @component A container for displaying the left arrow design of carousel.
  *
  * @param {function} onClick - some desc for onClick
  *
@@ -157,7 +155,7 @@ const CarouselLeftArrow = ({ onClick }: { onClick(): void }): JSX.Element => {
 /**
  * CarouselRightArrow
  *
- * @component A container for displaying the right arrow of carousel.
+ * @component A container for displaying the right arrow design of carousel.
  *
  * @param {function} onClick - some desc for onClick
  *
@@ -185,9 +183,9 @@ const CarouselRightArrow = ({ onClick }: { onClick(): void }): JSX.Element => {
  *
  * @component A container for displaying the indicators of carousel.
  *
- * @param {function} onClick - some desc for onClick
- * @param {number} activeIndex - some desc for activeIndex
- * @param {number} index - some desc for index
+ * @param {function} onClick - Callback on clicking Carousel indicator
+ * @param {number} activeIndex - Active index of Carousel
+ * @param {number} index - Current index
  *
  * @returns {JSX.Element}
  */
@@ -225,9 +223,9 @@ const CarouselIndicator = ({
  *
  * @component A container for displaying the slides of carousel.
  *
- * @param {ReactElement} slide - some desc for slide
- * @param {number} activeIndex - some desc for activeIndex
- * @param {number} index - some desc for index
+ * @param {ReactElement} slide - Content inside slide
+ * @param {number} activeIndex - Active index of Carousel
+ * @param {number} index - Current index
  *
  * @returns {JSX.Element}
  */
@@ -255,7 +253,6 @@ const CarouselSlide = ({
   );
 };
 
-// Carousel wrapper component
 /**
  * Carousel
  *

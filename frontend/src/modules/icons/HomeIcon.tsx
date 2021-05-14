@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * @component Component for displaying "Home" icon
  *
- * @param {SvgIconProps} props - some desc for props
+ * @param {SvgIconProps} props - SVG props to override
  *
  * @returns {JSX.Element} - "Home" icon
  */

@@ -68,9 +68,15 @@ export const SettingsPage = (): JSX.Element => {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
   const dispatch = useDispatch();
+  /** 
+   * State to manage theme setting
+   */
   const [displaySetting, setDisplaySetting] = React.useState<
     FrontendDisplaySetting | Record<string, unknown>
   >();
+  /** 
+   * State to manage System Brightness & time setting
+   */
   const [systemSetting, setSystemSetting] = React.useState<
     SystemSettingRequest | Record<string, unknown>
   >();
@@ -78,8 +84,8 @@ export const SettingsPage = (): JSX.Element => {
   /**
    * function for handling tab change.
    *
-   * @param {React.ChangeEvent<Record<string, unknown>>} event desc for event
-   * @param {number} newValue desc for newValue
+   * @param {React.ChangeEvent<Record<string, unknown>>} event DOM Change Event
+   * @param {number} newValue New tab index value
    *
    */
   const handleChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
@@ -87,9 +93,9 @@ export const SettingsPage = (): JSX.Element => {
   };
 
   /**
-   * function for handling settings tab change.
+   * Function for updating System & Display Settings
    *
-   * @param {Record<string, unknown>} settings desc for settings
+   * @param {Record<string, unknown>} settings System & Display Settings object
    *
    */
   const onSettingChange = (settings: Record<string, unknown>) => {
@@ -108,7 +114,7 @@ export const SettingsPage = (): JSX.Element => {
   };
 
   /**
-   * function for handling submit event.
+   * Function for update System & Display settings to redux store
    */
   const handleSubmit = () => {
     dispatch(

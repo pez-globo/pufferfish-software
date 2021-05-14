@@ -1,8 +1,5 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @summary Re-usable component for Increment/Decrement Click button pair
  *
  */
 import React, { useEffect, useState } from 'react';
@@ -38,13 +35,13 @@ type Direction = 'column' | 'column-reverse' | 'row' | 'row-reverse' | undefined
  *
  * Props interface for the value clicker
  *
- * @prop {number} value desc for value
- * @prop {function} onClick desc for onClick
- * @prop {number} min desc for min
- * @prop {number} max desc for max
- * @prop {Direction} direction desc for direction
- * @prop {number} step desc for step
- * @prop {string} referenceKey desc for referenceKey
+ * @prop {number} value Paramater value displayed in UI
+ * @prop {function} onClick Callback with value on button click or Rotary encoder
+ * @prop {number} min Allowed minimum range value
+ * @prop {number} max Allowed maximum range value
+ * @prop {Direction} direction Decides styling of `ValueClicker` placed Vertically or Horizontally
+ * @prop {number} step Alarm step difference between Range (Defaults to 1)
+ * @prop {string} referenceKey Unique identifier of alarm lower/upper range
  *
  */
 interface Props {
@@ -87,11 +84,11 @@ export const ValueClicker = ({
   const [activeRef, setActiveRef] = React.useState<string | null>();
 
   /**
-   * add description.
+   * Triggers callback with updated value
    *
-   * @param {number} step - desc for step
+   * @param {number} step - Alarm step difference
    *
-   * @returns output of onClick function
+   * @returns callback function
    */
   const update = (step: number) => {
     const change = value + step;
@@ -100,15 +97,18 @@ export const ValueClicker = ({
     return onClick(change);
   };
 
+  /**
+   * Validating & disabling button when reached min/max value
+   */
   useEffect(() => {
     setDisableIncrement(value >= max);
     setDisableDecrement(value <= min);
   }, [min, max, value]);
 
   /**
-   * add description.
+   * Click handler for Increment button
    *
-   * @param {number} step - desc for step
+   * @param {number} step - Alarm step difference
    *
    */
   const clickHandlerIncrement = (step: number) => {
@@ -120,9 +120,9 @@ export const ValueClicker = ({
   };
 
   /**
-   * add description.
+   * Click handler for Decrement button
    *
-   * @param {number} step - desc for step
+   * @param {number} step - Alarm step difference
    *
    */
   const clickHandlerDecrement = (step: number) => {
@@ -134,10 +134,10 @@ export const ValueClicker = ({
   };
 
   /**
-   * add description.
+   * Button Click Wrapper
    *
-   * @param {number} value - desc for value
-   * @param {Type} type - desc for type
+   * @param {number} value - current value
+   * @param {Type} type - Clicker type increment/decrement
    *
    */
   const internalClick = (value: number, type: Type) => {
@@ -151,6 +151,10 @@ export const ValueClicker = ({
     }
   };
 
+  /**
+   * Triggered whenever reference key is updated
+   * Updates Rotary Encoder reference to active
+   */
   useEffect(() => {
     const refSubscription: Subscription = getActiveRotaryReference().subscribe(
       (refString: string | null) => {

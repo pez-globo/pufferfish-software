@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Constants for Navigation Routes
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  *
  */
 import { GearIcon, LungsIcon, BellIcon, ChartIcon, PufferfishIcon, HomeIcon } from '../icons';

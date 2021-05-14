@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary UI wrapper for Tabs
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
@@ -21,9 +19,9 @@ const useStyles = makeStyles(() => ({
  *
  * Props interface for the tab panel component
  *
- * @prop {React.ReactNode} children desc for children
- * @prop {number} index desc for index
- * @prop {number} value desc for value
+ * @prop {React.ReactNode} children Content loaded inside the tab
+ * @prop {number} index Tab index
+ * @prop {number} value Current tab index value
  */
 interface Props {
   children?: React.ReactNode;
@@ -32,9 +30,11 @@ interface Props {
 }
 
 /**
- * @param {number} index - desc for index
+ * Add Unique Id to DOM element of `Tab` component
+ * 
+ * @param {number} index - Tab index
  *
- * @returns {Record<string, unknown>} description for return value
+ * @returns {Record<string, unknown>} Attributes object with id
  *
  */
 export const a11yProps = (index: number): Record<string, unknown> => {
@@ -47,7 +47,7 @@ export const a11yProps = (index: number): Record<string, unknown> => {
 /**
  * TabPanel
  *
- * @component Some desc for tab panel component
+ * @component Component wrapper for Tabs
  *
  * Uses the [[Props]] interface
  *

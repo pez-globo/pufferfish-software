@@ -44,7 +44,7 @@ interface Props {
 
 /**
  * Knob
- *
+ * @deprecated
  * @component A re-usable "knob" component for adjusting alarms and updating values all-in-one.
  *
  * Uses the [[Props]] interface

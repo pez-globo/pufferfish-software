@@ -1,8 +1,7 @@
 /**
- * @summary A short one-line description for the file
+ * @deprecated
+ * @summary Component to Select Ventialtion mode
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  *
  */
 import React from 'react';
@@ -77,7 +76,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * ModesPage
  *
- * @component some description
+ * @component Ventilation mode selection page
  *
  *TODO: This page should be hooked up into the redux store so that it has access
  *       to the current ventilation `mode` and a dispatcher to update the mode.
@@ -89,10 +88,22 @@ export const ModesPage = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
+  /**
+   * Function for updating ventilation mode in redux store
+   *
+   * @param {VentilationMode} mode ventilation mode
+   *
+   */
   const updateMode = (mode: VentilationMode) =>
     dispatch(
       commitRequest<ParametersRequest>(MessageType.ParametersRequest, { mode }),
     );
+  /**
+   * Function for updating button CSS class
+   *
+   * @param {VentilationMode} mode ventilation mode
+   *
+   */
   const buttonClass = (mode: VentilationMode) =>
     mode === currentMode ? `${classes.modeButton} ${classes.selected}` : `${classes.modeButton}`;
   return (

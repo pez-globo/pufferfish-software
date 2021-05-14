@@ -1,8 +1,5 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @summary Component to Handle Start/Pause of Ventilation
  *
  */
 import { Button } from '@material-ui/core';

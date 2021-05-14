@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Component to display Value wrapper for Screensaver
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React from 'react';

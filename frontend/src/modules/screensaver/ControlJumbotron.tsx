@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Component to display Control wrapper for Screensaver
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import React from 'react';
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
@@ -49,10 +47,10 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * Interface for the Control Jumbotron
  *
- * @prop {SelectorType} selector desc for selector
- * @prop {number} decimal desc for decimal
- * @prop {string} label desc for label
- * @prop {string} units desc for units
+ * @prop {SelectorType} selector Redux Selector
+ * @prop {number} decimal Number of Decimals on the value
+ * @prop {string} label Value label
+ * @prop {string} units Unit measurement of value to display
  */
 export interface SelectorProps {
   selector: SelectorType;

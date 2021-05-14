@@ -1,8 +1,5 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @summary Re-usable component to control value using Slider
  *
  */
 import React from 'react';
@@ -81,12 +78,12 @@ const StyledSlider = withStyles({
  *
  * Props interface for the slider adjustments
  *
- * @prop {number} min desc for min
- * @prop {number} max desc for max
- * @prop {function} onChange desc for onChange
- * @prop {number[]} rangeValues desc for rangeValues
- * @prop {number} step desc for step
- * @prop {boolean} disabled desc for disabled
+ * @prop {number} min Minimum Range of Alarm
+ * @prop {number} max Minimum Range of the Slider
+ * @prop {function} onChange Callback on slider value change
+ * @prop {number[]} rangeValues Slider [minValue,maxValue] range value
+ * @prop {number} step Step difference between Range
+ * @prop {boolean} disabled Configuration to disable slider
  *
  */
 
@@ -118,6 +115,9 @@ export const ValueSlider = ({
   disabled = false,
 }: Props): JSX.Element => {
   const classes = useStyles();
+  /** 
+   * State to manage Slider Range value
+   */
   const [value, setValue] = React.useState<number[]>([min, max]);
   if (rangeValues) {
     setValue(rangeValues);
@@ -125,8 +125,8 @@ export const ValueSlider = ({
 
   /**
    * Function for handling the slider value change.
-   * @param {React.ChangeEvent<Record<string, unknown>>} event some desc for event
-   * @param {number | number[]} newValue some desc for newValue
+   * @param {React.ChangeEvent<Record<string, unknown>>} event DOM event
+   * @param {number | number[]} newValue Updated Range value
    */
 
   const handleChange = (

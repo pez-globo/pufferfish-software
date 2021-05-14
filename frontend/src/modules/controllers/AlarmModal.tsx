@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Alarm Modal controller to set alarm range
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import { Button, Grid, makeStyles, Theme, Typography, useTheme } from '@material-ui/core';
 import React, { RefObject, useCallback, useEffect, useRef } from 'react';
@@ -55,8 +53,8 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * Interface for the alarm adjustments
  *
- * @prop {number} committedMin desc for committedMin
- * @prop {number} committedMax desc for committedMax
+ * @prop {number} committedMin Lower Set Alarm Range Value
+ * @prop {number} committedMax Upper Set Alarm Range Value
  */
 export interface AlarmAdjustProps {
   committedMin: number;
@@ -68,20 +66,20 @@ export interface AlarmAdjustProps {
  *
  * Props interface for the AlarmModal component
  *
- * @prop {string} label desc for label
- * @prop {string} units desc for units
- * @prop {number} committedMin desc for committedMin
- * @prop {number} committedMax desc for committedMax
- * @prop {boolean} disableAlarmButton desc for disableAlarmButton
- * @prop {function} updateModalStatus desc for updateModalStatus
- * @prop {function} onModalClose desc for onModalClose
- * @prop {function} requestCommitRange desc for requestCommitRange
- * @prop {string} stateKey desc for stateKey
- * @prop {number} step desc for step
- * @prop {boolean} openModal desc for openModal
- * @prop {boolean} contentOnly desc for contentOnly
- * @prop {boolean} labelHeading desc for labelHeading
- * @prop {number[]} alarmRangeValues desc for alarmRangeValues
+ * @prop {string} label Alarm label to display in UI
+ * @prop {string} units Alarm paramater unit measurement to display
+ * @prop {number} committedMin Lower Set Alarm Range Value
+ * @prop {number} committedMax Upper Set Alarm Range Value
+ * @prop {boolean} disableAlarmButton Toggle to show/hide alarm button
+ * @prop {function} updateModalStatus Callback to send current modal open/close status
+ * @prop {function} onModalClose Callback on Modal close
+ * @prop {function} requestCommitRange Callback on updating the Alarm range values
+ * @prop {string} stateKey Unique identifier of alarm (eg spo2, fio2...)
+ * @prop {number} step Alarm step difference between Range (Defaults to 1)
+ * @prop {boolean} openModal Default value to toggle Open/Close Alarm Modal
+ * @prop {boolean} contentOnly Switch to display only Alarm Modal content vs Alarm Modal
+ * @prop {boolean} labelHeading Switch to show/hide Alarm Label inside Alarm Modal content
+ * @prop {number[]} alarmRangeValues Alarm Range Values
  */
 interface Props {
   label: string;
@@ -129,8 +127,17 @@ export const AlarmModal = ({
   const dispatch = useDispatch();
   const theme = useTheme();
   const { initRefListener } = useRotaryReference(theme);
+  /** 
+   * State to toggle opening Alarm popup
+   */
   const [open, setOpen] = React.useState(false);
+  /** 
+   * State to initalize Lower Set value
+   */
   const [min] = React.useState(committedMin);
+  /** 
+   * State to initalize Upper Set value
+   */
   const [max] = React.useState(committedMax);
   const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual);
   const range =
@@ -142,6 +149,10 @@ export const AlarmModal = ({
     alarmRangeValues.length ? alarmRangeValues[0] : lower,
     alarmRangeValues.length ? alarmRangeValues[1] : upper,
   ]);
+  /** 
+   * State to provide reference HTML element for Lower/Upper Wrapper
+   * Its used in highlighting the HTML Element while using rotary encoder
+   */
   const [refs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
     [`${stateKey}_LOWER`]: useRef(null),
     [`${stateKey}_HIGHER`]: useRef(null),
@@ -198,14 +209,17 @@ export const AlarmModal = ({
     requestCommitRange(rangeValue[0], rangeValue[1]);
     handleClose();
   };
-
+  /** 
+   * Triggers whenever rangeValue is updated in redux
+   */
   useEffect(() => {
     requestCommitRange(rangeValue[0], rangeValue[1]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestCommitRange, JSON.stringify(rangeValue)]);
 
   /**
-   * Enter the description here
+   * Resets highlighting border around alarm container when clicked across the page
+   * Border is usually added on `ValueClicker` button click
    */
   const OnClickPage = () => {
     setActiveRotaryReference(null);

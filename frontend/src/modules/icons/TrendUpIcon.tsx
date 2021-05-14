@@ -12,7 +12,7 @@ import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
  *
  * @component Component for displaying "Trend Up" icon
  *
- * @param {SvgIconProps} props - some desc for props
+ * @param {SvgIconProps} props - SVG props to override
  *
  * @returns {JSX.Element} - "Trend Up" icon
  */

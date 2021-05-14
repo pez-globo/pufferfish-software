@@ -1,8 +1,7 @@
 /**
- * @summary A short one-line description for the file
+ * @summary UI container for displaying PressureControl mode ValueControl
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file UI container with Layout for Graph
  *
  */
 import React from 'react';
@@ -131,20 +130,23 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * PressureControlMainView
  *
- * @component PressureControlMainView.
+ * @component PressureControlMainView container
  *
  * @returns {JSX.Element}
  *
  */
 const PressureControlMainView = (): JSX.Element => {
   const classes = useStyles();
+  /** 
+   * State to manage tab index value
+   */
   const [value, setValue] = React.useState(0);
 
   /**
-   * some description
+   * Callback event on Tab change
    *
-   * @param {React.ChangeEvent<Record<string, unknown>>} event desc of event
-   * @param {number} newValue desc of newValue
+   * @param {React.ChangeEvent<Record<string, unknown>>} event DOM change event
+   * @param {number} newValue New tab index value
    *
    */
   const handleTabChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {

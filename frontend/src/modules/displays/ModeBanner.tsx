@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Component to display Mode text in banner
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import React from 'react';
 import { Grid, Typography, makeStyles, Theme } from '@material-ui/core';
@@ -50,7 +48,7 @@ export const getModeText = (mode: VentilationMode | null): string => {
  *
  * Props Interface for the Mode Banner component
  *
- * @prop {string} bannerType desc for bannerType
+ * @prop {string} bannerType banner type for deciding font color
  */
 export interface Props {
   bannerType: string;
@@ -74,11 +72,11 @@ export const ModeBanner = ({ bannerType }: Props): JSX.Element => {
   const mode = useSelector(getParametersRequestMode);
 
   /**
-   * some description
+   * Function to configure color of the banner text
    *
-   * @param {string} bannerType desc for bannerType
+   * @param {string} bannerType banner type for deciding font color
    *
-   * @returns {}
+   * @returns CSS class
    */
   function color(bannerType: string) {
     if (bannerType === 'screenSaver') return classes.screenSaver;

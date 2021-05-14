@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Re-usable component wrapper for Value Control & Set Value Modal
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  *
  */
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
@@ -21,13 +19,13 @@ import { ClickHandler } from './ValueInfo';
  *
  * Props interface for the ControlInfo component.
  *
- * @prop {SelectorType} selector desc for selector
- * @prop {SelectorType} committedSettingSelector desc for committedSettingSelector
- * @prop {string} label desc for label
- * @prop {string} stateKey desc for stateKey
- * @prop {string} units desc for units
- * @prop {number} min desc for min
- * @prop {number} max desc for max
+ * @prop {SelectorType} selector Redux store data Selector
+ * @prop {SelectorType} committedSettingSelector Selector Wrapper to update value in redux store
+ * @prop {string} label Label for the control value
+ * @prop {string} stateKey Unique identifier of value
+ * @prop {string} units Unit measurement of the value
+ * @prop {number} min Allowed minimum range value
+ * @prop {number} max Allowed maximum range value
  *
  */
 interface Props {
@@ -45,9 +43,9 @@ interface Props {
  *
  * Props interface for the ValueControl component.
  *
- * @prop {SelectorType} selector desc for selector
- * @prop {string} label desc for label
- * @prop {string} units desc for units
+ * @prop {SelectorType} selector Redux Selector
+ * @prop {string} label Label for the control value
+ * @prop {string} units Unit measurement of the value
  *
  */
 interface ValueProps {
@@ -112,7 +110,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * ValueControl
  *
- * @component some information.
+ * @component Value Control UI wrapper to display Value from Redux store
  *
  * Uses the [[ValueProps]] interface
  *
@@ -158,7 +156,7 @@ export const ValueControl = ({ selector, label, units }: ValueProps): JSX.Elemen
 /**
  * ControlInfo
  *
- * @component Component for showing information.
+ * @component UI wrapper to display Value & Set Value Modal popup
  *
  * Uses the [[Props]] interface
  *
@@ -172,9 +170,9 @@ const ControlInfo = (props: Props): JSX.Element => {
   const dispatch = useDispatch();
 
   /**
-   * some description
+   * Update paramter value to redux store
    *
-   * @param {number} setting desc for setting
+   * @param {number} setting value
    *
    */
   const doSetValue = (setting: number) => {
@@ -184,7 +182,7 @@ const ControlInfo = (props: Props): JSX.Element => {
   };
 
   /**
-   * some description
+   * Opens Multistep Popup on Clicking over component
    */
   const onClick = () => {
     // setOpen(true);
@@ -194,7 +192,7 @@ const ControlInfo = (props: Props): JSX.Element => {
   };
 
   /**
-   * some description
+   * Disable click events over component
    */
   const handleClick = ClickHandler(onClick, () => {
     return false;

@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Component for Quick Start page
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  *
  */
 import { Grid, Typography } from '@material-ui/core';
@@ -120,7 +118,7 @@ const SettableParameters = (): JSX.Element => {
   const { initRefListener } = useRotaryReference(theme);
 
   /**
-   * some description
+   * Updates the Parameter Request value to the Redux store
    *
    */
   const setValue = (key: string) => (value: number) => {
@@ -129,6 +127,8 @@ const SettableParameters = (): JSX.Element => {
     // setValue twice. This doesn't cause problems, but is a symptom of some sort
     // of deeper bug. Maybe it's related to the buggy behavior that ValueClicker
     // has with the rotary encoder?
+    // It could be an issue with Rotary encoder event conflicts
+    // Need to check if this issue is consistent across other components using Rotary encoder
     // console.log('setValue', key, value);
     dispatch(commitStandbyRequest<ParametersRequest>(MessageType.ParametersRequest, update));
   };
@@ -246,7 +246,8 @@ export const QuickStartPage = (): JSX.Element => {
   // const [preUseCheckDate] = React.useState(new Date());
 
   /**
-   * some description
+   * Resets highlighting border around container when clicked across the page
+   * Border is usually added on `ValueClicker` button click
    */
   const OnClickPage = () => {
     setActiveRotaryReference(null);

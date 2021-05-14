@@ -1,8 +1,7 @@
 /**
- * @summary A short one-line description for the file
+ * @summary All components which runs based on Events or in background
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file These components are included in higher order file like Layout files
  *
  */
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
@@ -51,7 +50,7 @@ export const BACKEND_CONNECTION_LOST_ALARM_TIMEOUT = 3000;
 /**
  * HeartbeatBackendListener
  *
- * @component some description.
+ * @component Dispatches BACKEND_CONNECTION_LOST event if no backendHeartbeat updates before timeout
  *
  * @returns {JSX.Element}
  */
@@ -61,6 +60,9 @@ export const HeartbeatBackendListener = (): JSX.Element => {
 
   useEffect(() => {
     // TODO: can we just use a selector here, or do we need to access the store directly?
+    // We can use selector only on component level but
+    // Here we need to access backendHeartbeat value from redux store on every clock update
+    // And as we cannot use Selector inside react hooks, we have accessed the store directly
     const storeData = store.getState();
     const heartbeat: Date = storeData.app.backendHeartbeat;
     const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
@@ -86,9 +88,9 @@ export const HeartbeatBackendListener = (): JSX.Element => {
 };
 
 /**
- * AudioAlarm
+ * Dispatches RED_BORDER event & toggles Audio Alarm
  *
- * @component some description.
+ * @component Dispatches RED_BORDER event if any activeAlarms are present
  *
  * @returns {JSX.Element}
  */
@@ -100,6 +102,9 @@ const AudioAlarm = (): JSX.Element => {
   audio.loop = true;
   const [playing, setPlaying] = useState(alarmMuteStatus !== null && alarmMuteStatus.active);
 
+/**
+ * Toggle between Play/Pause
+ */
   useEffect(() => {
     if (playing) {
       audio.play();
@@ -111,6 +116,9 @@ const AudioAlarm = (): JSX.Element => {
     };
   }, [playing, audio]);
 
+/**
+ * On activeAlarms redux store changes, update RED_BORDER & Audio Play state
+ */
   useEffect(() => {
     if (activeAlarms) {
       setPlaying(true);
@@ -121,6 +129,9 @@ const AudioAlarm = (): JSX.Element => {
     }
   }, [activeAlarms, dispatch]);
 
+/**
+ * On alarmMuteStatus redux store changes, update RED_BORDER & Audio Play state
+ */
   useEffect(() => {
     if (activeAlarms) {
       dispatch({ type: RED_BORDER, status: alarmMuteStatus !== null && !alarmMuteStatus.active });
@@ -135,7 +146,7 @@ const AudioAlarm = (): JSX.Element => {
 /**
  * ScreenLockModal
  *
- * @component some description.
+ * @component Manages Locking/UnLocking Screen feature
  *
  * @returns {JSX.Element}
  */
@@ -155,7 +166,7 @@ export const ScreenLockModal = (): JSX.Element => {
     };
 
     /**
-     * some description
+     * Listens to screenLock status to close screenLock info popup in 'n' seconds (30s)
      */
     const popupEventSubscription: Subscription = getScreenLockPopup().subscribe(
       (state: boolean) => {
@@ -171,7 +182,7 @@ export const ScreenLockModal = (): JSX.Element => {
   }, [open]);
 
   /**
-   * some description
+   * On Confirming unlock screen, updates ScreenStatus to redux store
    */
   const onConfirm = () => {
     dispatch(updateState(MessageType.ScreenStatus, { lock: false }));
@@ -199,7 +210,7 @@ export const ScreenLockModal = (): JSX.Element => {
 /**
  * OverlayScreen
  *
- * @component some description.
+ * @component Showing overlay screen with an alert when user clicks anywhere while screen is locked
  *
  * @returns {JSX.Element}
  */
@@ -207,7 +218,9 @@ export const OverlayScreen = (): JSX.Element => {
   const classes = useStyles();
   const screenStatus = useSelector(getScreenStatusLock);
   const [overlay, setOverlay] = useState(screenStatus || false);
-
+/**
+ * Listens to screenLock status changes & update overlay state accordingly
+ */
   useEffect(() => {
     const popupEventSubscription: Subscription = getScreenLockPopup().subscribe(
       (state: boolean) => {
@@ -223,6 +236,9 @@ export const OverlayScreen = (): JSX.Element => {
     };
   }, [screenStatus]);
 
+/**
+ * On screenStatus redux store changes, update overlay state
+ */
   useEffect(() => {
     setOverlay(screenStatus);
   }, [screenStatus]);

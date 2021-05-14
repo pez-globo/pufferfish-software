@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Layout with full empty container
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import React from 'react';
 import { Route, RouteProps } from 'react-router-dom';

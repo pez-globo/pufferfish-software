@@ -1,8 +1,7 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Sidebar Drawer Component
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file Component consisting Navigation bar 
  *
  */
 import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
@@ -71,7 +70,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * @component The main FullPageNavigation panel of the application.
  *
- * @param {function} toggleStatus - desc for toggleStatus
+ * @param {function} toggleStatus - Callback with toggleStatus
  *
  * @returns {JSX.Element}
  */

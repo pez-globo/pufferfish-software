@@ -1,8 +1,7 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Tracks User Activity
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file Component to track User Activity based on user idle time
  *
  */
 import React, { useCallback, useEffect, useState } from 'react';
@@ -14,7 +13,7 @@ import { setMultiPopupOpen } from './Service';
 /**
  * IdleTimer
  *
- * @component some description
+ * @component Idle Timer tracker
  *
  * @param {number} timeout desc for timeout
  * @param {function} onTimeOut desc for onTimeOut

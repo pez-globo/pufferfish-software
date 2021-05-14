@@ -12,7 +12,7 @@ import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
  *
  * @component some description
  *
- * @param {SvgIconProps} props - some desc for props
+ * @param {SvgIconProps} props - SVG props to override
  *
  * @returns {JSX.Element} - some description for return value
  */

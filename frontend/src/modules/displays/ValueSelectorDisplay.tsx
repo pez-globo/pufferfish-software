@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Re-usable wrapper component for fetch dynamic Redux Selector
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import React from 'react';
 import { OutputSelector } from 'reselect';
@@ -18,8 +16,8 @@ export type SelectorType = OutputSelector<any, any, any>;
  *
  * Props Interface for the ValueSelectorDisplay component
  *
- * @prop {SelectorType} selector desc for selector
- * @prop {number} decimal desc for decimal
+ * @prop {SelectorType} selector Redux Selector
+ * @prop {number} decimal Number of Decimals on the value 
  */
 interface ValueSelectorDisplayProps {
   selector: SelectorType;

@@ -1,8 +1,5 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @summary Re-usable UI wrapper for displaying Large size `ValueInfo`
  *
  */
 import { Grid, makeStyles, Typography } from '@material-ui/core';
@@ -97,7 +94,7 @@ const useStyles = makeStyles(() => ({
  *
  * some description
  *
- * @prop {Props} mainContainer desc for mainContainer
+ * @prop {Props} mainContainer Main Container wrapper
  *
  */
 export interface ValueInfoProps {
@@ -109,13 +106,13 @@ export interface ValueInfoProps {
  *
  * Props interface for the control value information.
  *
- * @prop {SelectorType} selector desc for selector
- * @prop {string} label desc for label
- * @prop {string} stateKey desc for stateKey
- * @prop {string} units desc for units
- * @prop {boolean} isLive desc for isLive
- * @prop {boolean} showLimits desc for showLimits
- * @prop {number} decimal desc for decimal
+ * @prop {SelectorType} selector Redux Selector
+ * @prop {string} label Value label
+ * @prop {string} stateKey Unique identifier
+ * @prop {string} units Unit measurement of value to display
+ * @prop {boolean} isLive Config to show isLive in UI
+ * @prop {boolean} showLimits Config to show Alarm limts in container (on top left - small size)
+ * @prop {number} decimal Number of Decimals on the value
  *
  */
 export interface Props {
@@ -131,13 +128,12 @@ export interface Props {
 /**
  * ClickHandler
  *
- * @component Component for handling click event listener.
+ * @component Component for manually dispatching Click & Double Click event based on timeout
  *
- * @prop {function} singleClickAction handling single click
- * @prop {function} doubleClickAction handling double click
+ * @prop {function} singleClickAction Callback on Single click
+ * @prop {function} doubleClickAction Callback on Double click
  *
  * @returns {function}
- *
  */
 export const ClickHandler = (
   singleClickAction: () => void,
@@ -180,11 +176,14 @@ const ControlValuesDisplay = ({
   decimal,
 }: Props): JSX.Element => {
   const classes = useStyles();
+  /** 
+   * State to toggle opening Alarm popup
+   */
   const [open, setOpen] = useState(false);
   const alarmLimits = useSelector(getAlarmLimitsCurrent, shallowEqual);
 
   /**
-   * Function for handling click event listener
+   * Opens Multistep Popup on Clicking over component
    */
   const onClick = () => {
     // setOpen(true);
@@ -194,7 +193,7 @@ const ControlValuesDisplay = ({
   };
 
   /**
-   * some description
+   * Disable click events over component
    */
   const handleClick = ClickHandler(onClick, () => {
     return false;

@@ -12,7 +12,7 @@ import React from 'react';
  *
  * @component Component for displaying "Dropdown Arrow" icon
  *
- * @param {SvgIconProps} props - some desc for props
+ * @param {SvgIconProps} props - SVG props to override
  *
  * @returns {JSX.Element} - "Dropdown Arrow" icon
  */

@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Component responsible for Application Routing
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  *
  */
 import React from 'react';
@@ -36,7 +34,7 @@ import {
 /**
  * Routes
  *
- * @component handling router/page-based navigation.
+ * @component Handling router/page-based navigation.
  *
  * @returns {JSX.Element}
  *

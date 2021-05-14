@@ -1,8 +1,5 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @summary Re-usable Wrapper container to control & display Paramaters value
  *
  */
 import React, { RefObject } from 'react';
@@ -24,14 +21,14 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * Props interface for the value controller
  *
- * @prop {number} value desc for value
- * @prop {string} label desc for label
- * @prop {function} onClick desc for onClick
- * @prop {number} min desc for min
- * @prop {number} max desc for max
- * @prop {string} units desc for units
- * @prop {RefObject<HTMLDivElement>} reference desc for reference
- * @prop {string} referenceKey desc for referenceKey
+ * @prop {number} value Paramater value displayed in UI
+ * @prop {string} label Label to associate to which value belongs to
+ * @prop {function} onClick Callback with value on button click or Rotary encoder
+ * @prop {number} min Minimum Range of an Alarm (Default to 0)
+ * @prop {number} max Minimum Range of an Alarm (Default to 100)
+ * @prop {string} units Paramater unit measurement to display
+ * @prop {RefObject<HTMLDivElement>} reference HTML element reference to highlight element for rotary encoder
+ * @prop {string} referenceKey Unique identifier of alarm range for Rotary encoder
  *
  */
 interface Props {

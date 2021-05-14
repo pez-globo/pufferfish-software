@@ -1,9 +1,7 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
- *
+ * @summary Constants for Reference key used in Settings
+ * 
+ * Reference key is used to identify HTML wrapper to add border around it for Rotary Encoder
  */
 export const BRIGHTNESS_REFERENCE_KEY = 'brightness';
 export const HOUR_REFERENCE_KEY = 'hour';

@@ -1,8 +1,7 @@
 /**
- * @summary A short one-line description for the file
+ * @deprecated
+ * @summary Component to display Event log details
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  *
  */
 import { Grid, TableCell, TableRow } from '@material-ui/core';
@@ -21,9 +20,9 @@ import SimpleTable, {
  *
  * Interface for event log details.
  *
- * @prop {string} value  desc of value
- * @prop {string} measurement desc of measurement
- * @prop {number} id desc of id
+ * @prop {string} value Display Value of Event log
+ * @prop {string} measurement Unit measurement of event
+ * @prop {number} id Event log Id
  *
  */
 interface Data {
@@ -33,11 +32,11 @@ interface Data {
 }
 
 /**
- * some description
+ * Function to create row data to display in table
  *
- * @prop {string} value desc for value
- * @prop {string} measurement desc for measurement
- * @prop {number} id desc for id
+ * @prop {string} value Display Value of Event log
+ * @prop {string} measurement Unit measurement of event
+ * @prop {number} id Event log Id
  *
  * @returns {Data}
  *
@@ -85,18 +84,33 @@ const headCells: HeadCell[] = [
  */
 export const EventlogDetails = (): JSX.Element => {
   const theme = useTheme();
+  /** 
+   * State to manage order type
+   */
   const [order, setOrder] = React.useState<Order>('asc');
+  /** 
+   * State to manage order by column
+   */
   const [orderBy] = React.useState<keyof Data>('value');
+  /** 
+   * State to manage row selection
+   */
   const [selected, setSelected] = React.useState<string[]>([]);
+  /** 
+   * State to manage row selection
+   */
   const [page, setPage] = React.useState(0);
+  /** 
+   * State to manage row selection
+   */
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
   /**
-   * Function for handling the click event.
+   * Trigger row slection on click at row
    *
-   * @param {React.MouseEvent<unknown>} event desc for event
-   * @param {string} name desc for name
+   * @param {React.MouseEvent<unknown>} event Mouse Event
+   * @param {string} name Column name
    *
    */
   const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
@@ -123,7 +137,7 @@ export const EventlogDetails = (): JSX.Element => {
    *
    * @param {number} id  table row id
    *
-   * @returns {object} some description
+   * @returns {object}
    *
    */
   function makeRed(id: number) {

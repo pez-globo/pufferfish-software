@@ -1,8 +1,7 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Modal Popup Wrapper
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file Reusable component to create Modal Popup
  */
 import React, { PropsWithChildren, ReactNode } from 'react';
 import {
@@ -98,14 +97,14 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * Props interface for ModalPopup component
  *
- * @prop {boolean} open desc for open
- * @prop {string | ReactNode} label desc for label
- * @prop {boolean} withAction desc for withAction
- * @prop {boolean} fullWidth desc for fullWidth
- * @prop {boolean} showCloseIcon desc for showCloseIcon
- * @prop {function} onClose desc for onClose
- * @prop {function} onConfirm desc for onConfirm
- * @prop {DialogProps['maxWidth']} maxWidth desc for maxWidth
+ * @prop {boolean} open Toggle to open/close Modal
+ * @prop {string | ReactNode} label Modal header Label
+ * @prop {boolean} withAction Toggle to show/hide confirm/cancel buttons
+ * @prop {boolean} fullWidth Toggle to full width modal popup size
+ * @prop {boolean} showCloseIcon Toggle to show/hide close Icon
+ * @prop {function} onClose Callback on Closing modal
+ * @prop {function} onConfirm Callback on Confirming modal
+ * @prop {DialogProps['maxWidth']} maxWidth Size of modal popup
  */
 interface Props {
   open: boolean;
@@ -123,8 +122,8 @@ interface Props {
  *
  * Interface for Action Props
  *
- * @prop {function} onClose desc for onClose
- * @prop {function} onConfirm desc for onConfirm
+ * @prop {function} onClose Callback on Closing modal
+ * @prop {function} onConfirm Callback on Confirming modal
  */
 interface ActionProps {
   onClose?(): void;
@@ -134,7 +133,7 @@ interface ActionProps {
 /**
  * ModalAction
  *
- * Description for ModalAction
+ * Confirm/Cancel options for Modal
  *
  * Uses the [[ActionProps]] interface
  *

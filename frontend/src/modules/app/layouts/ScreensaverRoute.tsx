@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Layout for screensaver page
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import { AppBar, Grid, makeStyles, Theme } from '@material-ui/core';
 import React, { PropsWithChildren, useEffect } from 'react';
@@ -106,7 +104,7 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
   }, [notifyAlarm]);
 
   /**
-   * some description
+   * Triggerred when clicking on anywhere in page
    */
   const onClick = () => {
     history.push(ventilating ? DASHBOARD_ROUTE.path : QUICKSTART_ROUTE.path);

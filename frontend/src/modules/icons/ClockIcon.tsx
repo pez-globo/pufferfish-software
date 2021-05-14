@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * @component Component for displaying "Clock" icon
  *
- * @param {SvgIconProps} props - some desc for props
+ * @param {SvgIconProps} props - SVG props to override
  *
  * @returns {JSX.Element} - "Clock" icon
  */

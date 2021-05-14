@@ -1,9 +1,7 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
- *
+ * @summary Info Tab of Settings page
+ * 
+ * @file System Level info are displayed here
  */
 import React from 'react';
 import { Grid, Typography, makeStyles, Theme } from '@material-ui/core';
@@ -49,10 +47,10 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * TODO: These props should be connected to the redux store.
  *
- * @prop {string} model  desc of model
- * @prop {string} softwareVersion  desc of softwareVersion
- * @prop {string} serialNumber  desc of serialNumber
- * @prop {string} batteryTime  desc of batteryTime
+ * @prop {string} model  System Model number
+ * @prop {string} softwareVersion  Software version number - Currently shows commit hash
+ * @prop {string} serialNumber  Serial Number of the System
+ * @prop {string} batteryTime  Battery Power time
  *
  */
 interface Props {

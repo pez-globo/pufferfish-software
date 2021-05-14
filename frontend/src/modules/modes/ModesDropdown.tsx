@@ -1,8 +1,5 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @summary Component for display Ventilation mode dropdown
  *
  */
 import { Button, makeStyles, Menu, MenuItem, MenuProps, Theme } from '@material-ui/core';
@@ -102,14 +99,17 @@ const StyledMenuItem = withStyles((theme) => ({
  */
 export const ModesDropdown = (): JSX.Element => {
   const classes = useStyles();
+   /** 
+   * State to manage HTML element of dropdown anchor
+   */
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const dispatch = useDispatch();
   const ventilationMode = useSelector(getParametersRequestMode);
 
   /**
-   * some description
+   * Update Ventilation mode in Redux store
    *
-   * @param {VentilationMode} mode desc for mode
+   * @param {VentilationMode} mode Ventilation mode
    *
    */
   const updateMode = (mode: VentilationMode) =>
@@ -118,9 +118,9 @@ export const ModesDropdown = (): JSX.Element => {
     );
 
   /**
-   * some description
+   * Function to open dropdown selection
    *
-   * @param {React.MouseEvent<HTMLButtonElement>} event desc for event
+   * @param {React.MouseEvent<HTMLElement} event Mouse Event
    *
    */
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -128,10 +128,10 @@ export const ModesDropdown = (): JSX.Element => {
   };
 
   /**
-   * function for handling dropdown item event.
+   * Function for handling dropdown item event.
    *
-   * @param {React.MouseEvent<HTMLElement, MouseEvent>} event desc for event
-   * @param {VentilationMode} value desc for value
+   * @param {React.MouseEvent<HTMLElement} event Mouse Event
+   * @param {number} index index of dropdown
    *
    */
   const handleItemClick = (
@@ -143,16 +143,16 @@ export const ModesDropdown = (): JSX.Element => {
   };
 
   /**
-   * some description
+   * Function for handling dropdown close
    */
   const handleClose = () => {
     setAnchorEl(null);
   };
 
   /**
-   * function for adding border to dropdown item.
+   * Function for adding border using css property
    *
-   * @param {number} mode desc for mode
+   * @param {number} view Index of Dropdown value
    *
    * @returns {object}
    *

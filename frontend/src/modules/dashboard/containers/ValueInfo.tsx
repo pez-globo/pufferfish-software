@@ -1,8 +1,9 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Re-usable UI wrapper for displaying Value Info
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file ValueInfo is a configurable component on Layout level
+ * Each Value Info must have 1 main Container & optional 2 subContainer
+ * This matches with Dashboard  Display Value Layout design
  *
  */
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
@@ -131,9 +132,9 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * Props interface for the showing value information.
  *
- * @prop {Props} mainContainer desc for mainContainer
- * @prop {Props} subContainer1 desc for subContainer1
- * @prop {Props} subContainer2 desc for subContainer2
+ * @prop {Props} mainContainer Main Container placed on Left side in layout with more space
+ * @prop {Props} subContainer1 Sub Container placed on Right side, with half the Main container height
+ * @prop {Props} subContainer2 Sub Container placed on Right side, with other half
  *
  */
 export interface ValueInfoProps {
@@ -147,14 +148,14 @@ export interface ValueInfoProps {
  *
  * Props interface for the showing information.
  *
- * @prop {SelectorType} selector desc for selector
- * @prop {string} label desc for label
- * @prop {string} stateKey desc for stateKey
- * @prop {string} units desc for units
- * @prop {boolean} isLive desc for isLive
- * @prop {boolean} isMain desc for isMain
- * @prop {boolean} showLimits desc for showLimits
- * @prop {number} decimal desc for decimal
+ * @prop {SelectorType} selector Redux Selector
+ * @prop {string} label Value label
+ * @prop {string} stateKey Unique identifier
+ * @prop {string} units Unit measurement to display
+ * @prop {boolean} isLive Config to show isLive in UI
+ * @prop {boolean} isMain Config to know if its main or sub container
+ * @prop {boolean} showLimits Config to show Alarm limts in container (on top left - small size)
+ * @prop {number} decimal Number of Decimals on the value
  *
  */
 export interface Props {
@@ -171,10 +172,10 @@ export interface Props {
 /**
  * ClickHandler
  *
- * @component Component for handling click event listener.
+ * @component Component for manually dispatching Click & Double Click event based on timeout
  *
- * @prop {function} singleClickAction handling single click
- * @prop {function} doubleClickAction handling double click
+ * @prop {function} singleClickAction Callback on Single click
+ * @prop {function} doubleClickAction Callback on Double click
  *
  * @returns {function}
  */
@@ -221,6 +222,9 @@ const ControlValuesDisplay = ({
   decimal,
 }: Props): JSX.Element => {
   const classes = useStyles();
+  /** 
+   * State to toggle opening Alarm popup
+   */
   const [open, setOpen] = useState(false);
   const alarmLimits = useSelector(getAlarmLimitsCurrent, shallowEqual);
   const range =
@@ -230,7 +234,7 @@ const ControlValuesDisplay = ({
   const { lower, upper } = range === undefined ? { lower: '--', upper: '--' } : range;
 
   /**
-   * Function for handling click event listener
+   * Opens Multistep Popup on Clicking over component
    */
   const onClick = () => {
     // setOpen(true);
@@ -240,7 +244,7 @@ const ControlValuesDisplay = ({
   };
 
   /**
-   * some description
+   * Disable click events over component
    */
   const handleClick = ClickHandler(onClick, () => {
     return false;
@@ -347,6 +351,9 @@ const GridControlValuesDisplay = ({
   decimal,
 }: Props): JSX.Element => {
   const classes = useStyles();
+  /** 
+   * State to toggle opening Alarm popup
+   */
   const [open, setOpen] = useState(false);
   const alarmLimits = useSelector(getAlarmLimitsCurrent, shallowEqual);
   const range =
@@ -356,7 +363,7 @@ const GridControlValuesDisplay = ({
   const { lower, upper } = range === undefined ? { lower: '--', upper: '--' } : range;
 
   /**
-   * Function for handling click event listener
+   * Opens Multistep Popup on Clicking over component
    */
   const onClick = () => {
     // setOpen(true);
@@ -366,7 +373,7 @@ const GridControlValuesDisplay = ({
   };
 
   /**
-   * some description
+   * Disable click events over component
    */
   const handleClick = ClickHandler(onClick, () => {
     return false;
@@ -445,7 +452,7 @@ const GridControlValuesDisplay = ({
 /**
  * ValueInfo
  *
- * @component Component for showing information.
+ * @component Component for showing information based on layout configured.
  *
  * Uses the [[ValueInfoProps]] interface
  *

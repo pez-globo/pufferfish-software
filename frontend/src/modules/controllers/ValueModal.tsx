@@ -1,8 +1,5 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @summary Re-usable wrapper components to display & control value
  *
  */
 import React, { useCallback, useEffect, useRef } from 'react';
@@ -42,26 +39,27 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * Interface for the adjusting props settings
  *
- * @prop {number} committedSetting desc for committedSetting
+ * @prop {number} committedSetting updated value
  */
 export interface SettingAdjustProps {
   committedSetting: number;
 }
 
 /**
+ * @deprecated
  * @typedef Props
  *
  * Props interface for the value model
  *
  * @prop {string} label desc for label
  * @prop {string} units desc for units
- * @prop {number} committedSetting desc for onChange
- * @prop {boolean} disableSetNewButton desc for disableSetNewButton
- * @prop {function} requestCommitSetting desc for requestCommitSetting
- * @prop {function} updateModalStatus desc for updateModalStatus
- * @prop {boolean} openModal desc for openModal
- * @prop {number} min desc for min
- * @prop {number} max desc for max
+ * @prop {number} committedSetting current value
+ * @prop {boolean} disableSetNewButton Configuration to show/hide `Set New` outside modal
+ * @prop {function} requestCommitSetting Callback when value changes
+ * @prop {function} updateModalStatus Callback when modal status changes
+ * @prop {boolean} openModal Configure Modal open/close status
+ * @prop {number} min Minimum under which value cannot decrement
+ * @prop {number} max Maximum above which value cannot increment
  *
  */
 interface Props {
@@ -81,15 +79,15 @@ interface Props {
  *
  * Props interface for the setting value
  *
- * @prop {string} label desc for label
- * @prop {string} units desc for units
- * @prop {number} committedSetting desc for onChange
- * @prop {boolean} disableSetNewButton desc for disableSetNewButton
- * @prop {function} requestCommitSetting desc for requestCommitSetting
- * @prop {function} updateModalStatus desc for updateModalStatus
- * @prop {boolean} openModal desc for openModal
- * @prop {number} min desc for min
- * @prop {number} max desc for max
+ * @prop {string} label Label for the value
+ * @prop {string} units Unit measurement of the value
+ * @prop {number} committedSetting current value
+ * @prop {boolean} disableSetNewButton Configuration to show/hide `Set New` outside modal
+ * @prop {function} requestCommitSetting Callback when value changes
+ * @prop {function} updateModalStatus Callback when modal status changes
+ * @prop {boolean} openModal Configure Modal open/close status
+ * @prop {number} min Minimum under which value cannot decrement
+ * @prop {number} max Maximum above which value cannot increment
  *
  */
 interface ContentProps {
@@ -125,9 +123,17 @@ export const ValueModal = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const rotaryEncoder = useSelector(getRotaryEncoder, shallowEqual);
+  /** 
+   * State to manage modal status
+   */
   const [open, setOpen] = React.useState(false);
+  /** 
+   * State to manage value
+   */
   const [value, setValue] = React.useState(committedSetting);
-
+  /** 
+   * Initalization to set default value & modal status
+   */
   const initSetValue = useCallback(() => {
     setValue(committedSetting >= min ? committedSetting : min);
     setOpen(openModal);
@@ -137,6 +143,9 @@ export const ValueModal = ({
     initSetValue();
   }, [initSetValue]);
 
+  /** 
+   * Triggers callback when modal status changes
+   */
   useEffect(() => {
     if (updateModalStatus) {
       updateModalStatus(open);
@@ -165,7 +174,7 @@ export const ValueModal = ({
   };
 
   /**
-   * Function for updating the slider Rotary data.
+   * Updates the value using Rotary encoder.
    */
   const updateRotaryData = useCallback(
     () => {
@@ -200,11 +209,11 @@ export const ValueModal = ({
   }, [updateRotaryData]);
 
   /**
-   * Function for matching label with PIP.
+   * Function for handling label changed for PIP.
    *
-   * @param {string} label - desc for label
+   * @param {string} label - Value label
    *
-   * @returns empty string
+   * @returns string
    */
   function pipClarify(label: string) {
     if (label === 'PIP') return '*not PEEP compensated';
@@ -269,7 +278,7 @@ export const ValueModal = ({
 /**
  * SetValueContent
  *
- * @component A container for setting the value of modal settings.
+ * @component A container for setting the value of modal settings in multistep popup.
  *
  * Uses the [[ContentProps]] interface
  * @returns JSX.Element
@@ -288,16 +297,26 @@ export const SetValueContent = ({
   const classes = useStyles();
   const isInitialMount = useRef(true);
   const rotaryEncoder = useSelector(getRotaryEncoder, shallowEqual);
+  /** 
+   * State to manage modal status
+   */
   const [open, setOpen] = React.useState(openModal);
+  /** 
+   * Initalization to set default value & modal status
+   */
   const [value, setValue] = React.useState(committedSetting);
-
+  /** 
+   * Triggers whenever openModal status updates
+   */
   useEffect(() => {
     setOpen(openModal);
     return () => {
       setOpen(false);
     };
   }, [openModal]);
-
+  /** 
+   * Initalization to set default value & modal status
+   */
   const initSetValue = useCallback(() => {
     setValue(committedSetting >= min ? committedSetting : min);
   }, [committedSetting, min]);
@@ -305,7 +324,9 @@ export const SetValueContent = ({
   useEffect(() => {
     initSetValue();
   }, [initSetValue]);
-
+  /** 
+   * Triggers callback when modal status changes
+   */
   useEffect(() => {
     if (updateModalStatus) {
       updateModalStatus(open);
@@ -323,7 +344,9 @@ export const SetValueContent = ({
   const handleConfirm = () => {
     requestCommitSetting(value);
   };
-
+  /**
+   * Updates the value using Rotary encoder.
+   */
   const updateRotaryData = useCallback(
     () => {
       if (rotaryEncoder === null) {
@@ -351,7 +374,9 @@ export const SetValueContent = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [rotaryEncoder, min, max],
   );
-
+  /**
+   * Triggers whenever rotaryEncoder value in redux store is updated.
+   */
   useEffect(() => {
     // Disable on initial mount since multi step dialog will run everytime when dialog opens
     if (isInitialMount.current) {
@@ -362,7 +387,7 @@ export const SetValueContent = ({
   }, [updateRotaryData, rotaryEncoder]);
 
   /**
-   * Function for matching label with PIP.
+   * Function for handling label changed for PIP.
    *
    * @param {string} label - desc for label
    *

@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Controller handling the Rotary encoder functionality
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useSelector, shallowEqual } from 'react-redux';
@@ -13,11 +11,11 @@ import { getRotaryEncoder } from '../../store/controller/selectors';
  *
  * Props interface for RotaryEncodeController component
  *
- * @prop {number} value desc for value
- * @prop {function} onClick desc for onClick
- * @prop {number} min desc for min
- * @prop {number} max desc for max
- * @prop {boolean} isActive desc for isActive
+ * @prop {number} value values passed from `ValueClicker` 
+ * @prop {function} onClick Triggers when rotation step is changed in rotary encoder
+ * @prop {number} min Value below which rotary encoder rotation will not decrement
+ * @prop {number} max Value above which rotary encoder rotation will not increment
+ * @prop {boolean} isActive Determines if Rotary enoder should operate
  */
 interface Props {
   value: number;
@@ -30,7 +28,7 @@ interface Props {
 /**
  * RotaryEncodeController
  *
- * @component A re-usable "RotaryEncoder" component for adjusting ValueClicker value
+ * @component A re-usable "RotaryEncoder" component for adjusting `ValueClicker` value
  *
  * Uses the [[Props]] interface
  *

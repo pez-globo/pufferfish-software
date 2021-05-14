@@ -1,8 +1,5 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @summary Dropdown component Switch between different views
  *
  */
 import { makeStyles, Menu, MenuItem, MenuProps, Theme } from '@material-ui/core';
@@ -73,7 +70,7 @@ const StyledMenuItem = withStyles((theme) => ({
 /**
  * ViewDropdown
  *
- * @component some description
+ * @component View Dropdown Component
  *
  * TODO:This component may rely on a redux state that stores the current view..
  *
@@ -82,14 +79,20 @@ const StyledMenuItem = withStyles((theme) => ({
  */
 export const ViewDropdown = (): JSX.Element => {
   const classes = useStyles();
+  /** 
+   * State to manage HTML element of dropdown anchor
+   */
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  /** 
+   * State to manage dropdown value index
+   */
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
   /**
-   * handle dropdown selection
+   * Function for handling dropdown item event.
    *
-   * @param {React.MouseEvent<HTMLElement} event desc of event
-   * @param {number} index desc of index
+   * @param {React.MouseEvent<HTMLElement} event Mouse Event
+   * @param {number} index index of dropdown
    *
    */
   const handleItemClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => {
@@ -98,16 +101,16 @@ export const ViewDropdown = (): JSX.Element => {
   };
 
   /**
-   * function for handling dropdown close
+   * Function for handling dropdown close
    */
   const handleClose = () => {
     setAnchorEl(null);
   };
 
   /**
-   * function for adding border using css property
+   * Function for adding border using css property
    *
-   * @param {number} view desc for view
+   * @param {number} view Index of Dropdown value
    *
    * @returns {object}
    *

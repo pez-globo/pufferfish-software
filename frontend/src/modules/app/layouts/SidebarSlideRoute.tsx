@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Layout with Slider styled Sidebar based pages (Dashboard page)
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import React, { PropsWithChildren, useEffect } from 'react';
 import { Route, RouteProps } from 'react-router-dom';
@@ -75,9 +73,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 /**
- * FullWidthToolBar
+ * Toolbar extending full width of the page
  *
- * @component some description
+ * @component Component for Toolbar
  *
  * @returns {JSX.Element}
  */
@@ -86,9 +84,9 @@ const FullWidthToolBar = (): JSX.Element => {
   const [toggle, setToggle] = React.useState<boolean>(false);
 
   /**
-   * Toggles the drawer
+   * Toggles the slider sidebar UI drawer
    *
-   * @param {boolean} value - some desc for value
+   * @param {boolean} value - show/hide value
    */
   const toggleDrawer = (value: boolean) => () => {
     setToggle(value);
@@ -176,7 +174,7 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
 /**
  * DashboardRoute
  *
- * @component some description
+ * @component Component for displaying the Dashboard page layout
  *
  * @returns {JSX.Element | null}
  */

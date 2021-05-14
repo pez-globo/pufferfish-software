@@ -1,8 +1,7 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Sidebar component
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file Component consisting Navigation bar
  *
  */
 import { Button, Grid, makeStyles, Theme } from '@material-ui/core';

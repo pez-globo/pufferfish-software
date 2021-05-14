@@ -1,8 +1,9 @@
 /**
- * @summary A short one-line description for the file
+ * @deprecated
+ * @summary Component to display Value, Set Value Modal & Alarm Modal for Paw parameter
+ * 
+ * Set Value & Alarm Modal is optional
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import React from 'react';
 import { connect } from 'react-redux';

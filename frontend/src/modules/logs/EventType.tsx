@@ -1,8 +1,5 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @summary Components for Event Type & Event Alarm Details
  *
  */
 import { LogEvent, LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
@@ -14,10 +11,10 @@ import { PERCENT, BPM, LMIN } from '../info/units';
  *
  * Interface for get data about event.
  *
- * @prop {LogEventType} type  desc of type
- * @prop {string} label desc of label
- * @prop {string} unit desc of unit
- * @prop {string} head unit of head
+ * @prop {LogEventType} type  Event log type
+ * @prop {string} label Event Alarm Label
+ * @prop {string} unit Unit measurement
+ * @prop {string} head Header text
  * @prop {string} stateKey unit of stateKey
  *
  */
@@ -32,10 +29,10 @@ export interface EventType {
 /**
  * function to get event details
  *
- * @param {LogEvent} event desc of event
- * @param {EventType} eventType desc of eventType
+ * @param {LogEvent} event Event log object
+ * @param {EventType} eventType Event log Type
  *
- * @returns {string} some description
+ * @returns {string} Event log details
  *
  */
 export const getEventDetails = (event: LogEvent, eventType: EventType): string => {
@@ -73,9 +70,9 @@ export const getEventDetails = (event: LogEvent, eventType: EventType): string =
 /**
  * function to get event type data
  *
- * @param {LogEventCode} code desc of code
+ * @param {LogEventCode} code Event log code
  *
- * @returns {EventType} some description
+ * @returns {EventType}
  *
  */
 

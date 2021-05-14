@@ -1,8 +1,8 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Page where range of all alarms in system can be configured
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file Alarms page has capablity to paginate if lot more Alarms
+ * Alarms listed are based on current Ventialtion Mode selected
  */
 import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
@@ -106,15 +106,15 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * @typedef AlarmProps
  *
- * Interface for the Alarm page
+ * Configurable properties passed to initialize an Alarm container
  *
- * @prop {string} label desc for label
- * @prop {number} min desc for min
- * @prop {number} max desc for max
- * @prop {string} stateKey desc for stateKey
- * @prop {number} step desc for step
- * @prop {Record<string, Range>} alarmLimits desc for alarmLimits
- * @prop {function} setAlarmLimits desc for setAlarmLimits
+ * @prop {string} label Alarm label to display in UI
+ * @prop {number} min Minimum Range of an Alarm (Default to 0)
+ * @prop {number} max Minimum Range of an Alarm (Default to 100)
+ * @prop {string} stateKey Unique identifier of alarm (eg spo2, fio2...)
+ * @prop {number} step Alarm step difference between Range (Defaults to 1)
+ * @prop {Record<string, Range>} alarmLimits Object to store Alarm Lower/Higher limits
+ * @prop {function} setAlarmLimits Callback triggers to save updated Alarm limits
  */
 interface AlarmProps {
   label: string;
@@ -132,9 +132,9 @@ enum SliderType {
 }
 
 /**
- * Alarm
+ * UI visual container displaying Alarm Slider & Increment/Decrement value clicker 
  *
- * @component Component for displaying Alarm
+ * @component Component for displaying individual Alarm
  *
  * Uses the [[AlarmProps]] interface
  *
@@ -172,9 +172,9 @@ const Alarm = ({
   });
 
   /**
-   * some description
+   * Updates Alarm limit value on Slider change event
    *
-   * @param {number[]} range - some desc for range
+   * @param {number[]} range - Alarm range values
    *
    */
   const setRangevalue = (range: number[]) => {
@@ -182,10 +182,10 @@ const Alarm = ({
   };
 
   /**
-   * some description
+   * Updates Alarm limit value on value clicker click event
    *
-   * @param {number} value - some desc for value
-   * @param {SliderType} type - some desc for type
+   * @param {number} value - Updated value of Alarm range
+   * @param {SliderType} type - Upper or Lower Range
    *
    */
   const onClick = (value: number, type: SliderType) => {
@@ -301,11 +301,11 @@ const Alarm = ({
  *
  * Interface for the alarm configuration
  *
- * @prop {string} label desc for label
- * @prop {number} min desc for min
- * @prop {number} max desc for max
- * @prop {string} stateKey desc for stateKey
- * @prop {number} step desc for step
+ * @prop {string} label Alarm label to display in UI
+ * @prop {number} min Minimum Range of an Alarm (Default to 0)
+ * @prop {number} max Minimum Range of an Alarm (Default to 100)
+ * @prop {string} stateKey Unique identifier of alarm (eg spo2, fio2...)
+ * @prop {number} step Alarm step difference between Range (Defaults to 1)
  */
 interface AlarmConfiguration {
   label: string;
@@ -316,9 +316,9 @@ interface AlarmConfiguration {
 }
 
 /**
- * @param {VentilationMode | null} ventilationMode - desc for ventilationMode
+ * @param {VentilationMode | null} ventilationMode - List of Alarms displayed in UI based on selected ventilation mode
  *
- * @returns {AlarmConfiguration[]} description for return value
+ * @returns {AlarmConfiguration[]} List of alarms
  *
  */
 const alarmConfiguration = (ventilationMode: VentilationMode | null): Array<AlarmConfiguration> => {
@@ -339,7 +339,7 @@ const alarmConfiguration = (ventilationMode: VentilationMode | null): Array<Alar
 };
 
 /**
- * AlarmsPage
+ * Main container of Alarms page
  *
  * @component A container for housing all alarm configurations.
  *
@@ -352,10 +352,10 @@ export const AlarmsPage = (): JSX.Element => {
   const [pageCount, setPageCount] = React.useState(1);
 
   /**
-   * some desc
+   * Trigger on Pagination click event
    *
-   * @param {React.ChangeEvent<unknown>} event - desc for event
-   * @param {number} value - desc for value
+   * @param {React.ChangeEvent<unknown>} event - Default Change event object
+   * @param {number} value - Page number value to update current page
    */
   const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
@@ -369,14 +369,14 @@ export const AlarmsPage = (): JSX.Element => {
   /**
    * Function for updating alarm limits
    *
-   * @param {Partial<AlarmLimitsRequest>} data - desc for data
+   * @param {Partial<AlarmLimitsRequest>} data - Alarm ranges which to be updated
    */
   const setAlarmLimits = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
 
   /**
-   * some description
+   * Updating the alarm limit request to redux
    */
   const applyChanges = () => {
     if (alarmLimitsRequestStandby === null) {
@@ -391,14 +391,14 @@ export const AlarmsPage = (): JSX.Element => {
   const [open, setOpen] = useState(false);
 
   /**
-   * Function for handling close
+   * Closes modal popup
    */
   const handleClose = () => {
     setOpen(false);
   };
 
   /**
-   * Function for handling the confirm button
+   * Closes modal popup & updates the changes
    */
   const handleConfirm = () => {
     setOpen(false);
@@ -406,18 +406,23 @@ export const AlarmsPage = (): JSX.Element => {
   };
 
   /**
-   * Function for handling open
+   * Opens modal popup
    */
   const handleOpen = () => {
     setOpen(true);
   };
 
+  /**
+   * Calls everytime when `alarmConfig` variable changes
+   * Updates the page count
+   */
   useEffect(() => {
     setPageCount(Math.ceil(alarmConfig.length / itemsPerPage));
   }, [alarmConfig]);
 
   /**
-   * some description
+   * Resets highlighting border around alarm container when clicked across the page
+   * Border is usually added on `ValueClicker` button click
    */
   const OnClickPage = () => {
     setActiveRotaryReference(null);

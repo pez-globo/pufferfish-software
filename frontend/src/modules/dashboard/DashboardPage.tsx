@@ -1,8 +1,5 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @summary Main Wrapper component for Dashboard
  *
  */
 import { Grid, makeStyles } from '@material-ui/core';
@@ -30,9 +27,9 @@ const useStyles = makeStyles(() => ({
 /**
  * renderModeLayout
  *
- * @component Component for handling layout of ventilation mode.
+ * @component Component for loading dashboard wrapper based on ventilation mode.
  *
- * @param {VentilationMode | null} mode desc for mode
+ * @param {VentilationMode | null} mode Ventilatiom mode
  *
  * @returns {JSX.Element}
  *
@@ -55,7 +52,7 @@ const renderModeLayout = (mode: VentilationMode | null): JSX.Element => {
 /**
  * DashboardPage
  *
- * @component some description
+ * @component Main Wrapper component for Dashboard
  *
  * TODO: Hook into the redux store to get the current dashboard `view` from the `ViewDropdown`
  *
@@ -67,12 +64,14 @@ export const DashboardPage = (): JSX.Element => {
   const history = useHistory();
   const ventilating = useSelector(getParametersIsVentilating);
   const currentMode = useSelector(getParametersRequestMode);
-
-  useEffect(() => {
-    if (!ventilating) {
-      history.push(QUICKSTART_ROUTE.path);
-    }
-  }, [ventilating, history]);
+  /**
+   * Triggers whenever vetilation status in redux store changes
+   */
+  // useEffect(() => {
+  //   if (!ventilating) {
+  //     history.push(QUICKSTART_ROUTE.path);
+  //   }
+  // }, [ventilating, history]);
 
   return (
     <Grid container className={classes.root}>

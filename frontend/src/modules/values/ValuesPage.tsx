@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @deprecated
+ * @summary Component to handle ValuePage
  *
  */
 import React from 'react';
@@ -63,7 +61,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * ValuesPage
  *
- * @component some description.
+ * @component Values Page to display all Set & Control Values in single page
  *
  * @returns {JSX.Element}
  *

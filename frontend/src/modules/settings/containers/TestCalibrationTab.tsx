@@ -1,9 +1,7 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
- *
+ * @summary Test Calibration Tab of Settings page
+ * 
+ * @file All the Test Calibration for the System is performed & displayed here
  */
 import React from 'react';
 import { Grid, makeStyles, Theme } from '@material-ui/core';

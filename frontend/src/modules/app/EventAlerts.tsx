@@ -1,8 +1,7 @@
 /**
- * @summary A short one-line description for the file
+ * @summary UI component to display Event highlight in toolbar
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file More Specifically shows Active Event count, Event title & Alarm mute status
  *
  */
 import React, { useState, useEffect } from 'react';
@@ -108,9 +107,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * @typedef Props
  *
- * Props interface for the Event alert.
+ * Props for Event Alerts
  *
- * @prop {string} label desc for label
+ * @prop {string} label active event label
  *
  */
 interface Props {
@@ -118,12 +117,14 @@ interface Props {
 }
 
 /**
+ * @deprecated
+ * 
  * AlertToast
  *
- * @component some description
+ * @component Alert Toaster showing on active event log
  *
- * @prop {function} onClose - desc for onClose
- * @prop {string} label - desc for label
+ * @prop {function} onClose - Event on closing Alert Toaster
+ * @prop {string} label - Label to show content inside Toaster
  *
  * @returns {JSX.Element}
  */
@@ -167,7 +168,7 @@ export const AlertToast = ({
 /**
  * EventAlerts
  *
- * @component some description
+ * @component Component to display Event log details
  *
  * Uses the [[Props]] interface
  *
@@ -176,16 +177,38 @@ export const AlertToast = ({
 export const EventAlerts = ({ label }: Props): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  /** 
+   * State to show active event's label
+   * Defaults to empty as no active event while initalization
+   */
   const [alert, setAlert] = useState({ label: '' });
+  /** 
+   * State to toggle opening logsPage popup
+   */
   const [open, setOpen] = useState<boolean>(false);
+  /** 
+   * Stores whether Active events filter is applied on LogsPage listing
+   */
   const [activeFilter, setActiveFilter] = useState<boolean>(false);
+  /** 
+   * Stores the number of active alert count
+   */
   const [alertCount, setAlertCount] = useState<number>(0);
+  /** 
+   * Selectors to get all Events, Active Event Ids & Alarm mute Status
+   */
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
+  /** 
+   * Stores the state which toggles Alarm Mute Status
+   */
   const [isMuted, setIsMuted] = useState<boolean>(
     alarmMuteStatus !== null && !alarmMuteStatus.active,
   );
+  /** 
+   * Triggers whenever Active or Event log is updated in redux
+   */
   useEffect(() => {
     if (popupEventLog) {
       const eventType = getEventType(popupEventLog.code);
@@ -199,12 +222,15 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popupEventLog, JSON.stringify(activeLog)]);
 
+  /** 
+   * Triggers whenever AlarmMute status is updated in redux store
+   */
   useEffect(() => {
     setIsMuted(alarmMuteStatus !== null && !alarmMuteStatus.active);
   }, [alarmMuteStatus]);
 
   /**
-   * Function for handling Alarm state.
+   * Update mute AlarmStatus in redux store
    *
    * @param {boolean} state desc for state
    */
@@ -215,9 +241,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   };
 
   /**
-   * Function for handling event log popup.
+   * Opens LogsPage popup listing event log details
    *
-   * @param {boolean} filter desc for filter
+   * @param {boolean} filter Shows only active events if set true
    */
   const openEventLogPopup = (filter: boolean) => {
     setOpen(true);
@@ -225,14 +251,14 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   };
 
   /**
-   * Function for opening popup.
+   * Opens LogsPage popup listing event log details
    */
   const openPopup = () => {
     openEventLogPopup(false);
   };
 
   /**
-   * Function for activating the alarm.
+   * Opens LogsPage popup listing event log details on toggling Active from LogsPage popup header
    */
   const onActiveAlarmClick = () => {
     openEventLogPopup(true);

@@ -1,9 +1,6 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
- *
+ * @summary Component to display Navigation Routes with Icon
+ * 
  */
 import { Tab, Tabs, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
@@ -96,8 +93,14 @@ export const Navigation = ({
   ];
 
   const routePath = routes.find((route) => location.pathname.startsWith(route.path));
+  /**
+   * State to manage Route path
+   */
   const [route, setRoute] = React.useState(routePath ? routePath.key : 0);
 
+  /**
+   * Triggers once to update current route in State
+   */
   useEffect(() => {
     const routePath = routes.find((route) => location.pathname.startsWith(route.path));
     setRoute(routePath ? routePath.key : 0);
@@ -105,10 +108,10 @@ export const Navigation = ({
   }, [location]);
 
   /**
-   * function for handling route changes
+   * Function for handling route changes
    *
-   * @param {React.ChangeEvent<Record<string, unknown>>} event desc for event
-   * @param {number} newRoute desc for newRoute
+   * @param {React.ChangeEvent<Record<string, unknown>>} event DOM Change Event
+   * @param {number} newRoute Route path to be navigated
    *
    */
   const handleRouteChange = (
@@ -124,7 +127,7 @@ export const Navigation = ({
   /**
    * RouteLabel
    *
-   * @component handles route labels
+   * @component Handles route labels
    *
    * @returns {JSX.Element}
    *

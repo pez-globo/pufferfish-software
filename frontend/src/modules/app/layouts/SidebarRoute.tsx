@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Layout with Sidebar based pages
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';

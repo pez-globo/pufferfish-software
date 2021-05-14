@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Re-usable UI component to perform Test calibration
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  *
  */
 import React from 'react';
@@ -51,9 +49,9 @@ const useStyles = makeStyles((theme: Theme) => ({
  * @typedef Props
  *
  * Props interface for the Test tool
- * @prop {string} label desc for label
- * @prop {boolean} isSuccess desc for isSuccess
- * @prop {Date} timestamp desc for timestamp
+ * @prop {string} label TestTool Label
+ * @prop {boolean} isSuccess To determine whether Test is success
+ * @prop {Date} timestamp Time to show in UI
  *
  */
 interface Props {

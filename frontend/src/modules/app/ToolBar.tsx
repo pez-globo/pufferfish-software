@@ -1,8 +1,7 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Toolbar
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file Header toolbar with dynamic sub components
  *
  */
 import { AppBar, Button, Grid } from '@material-ui/core';
@@ -87,7 +86,9 @@ export const PowerIndicator = (): JSX.Element => {
   const batteryPower = useSelector(getBatteryPowerLeft);
   const chargingStatus = useSelector(getChargingStatus);
   const [icon, setIcon] = useState(<PowerFullIcon style={{ fontSize: '2.5rem' }} />);
-
+  /** 
+   * Updates Icons based on batteryPower/chargingStatus
+   */
   useEffect(() => {
     if (batteryPower >= 0 && batteryPower <= 25) {
       setIcon(<Power25Icon style={{ fontSize: '2.5rem' }} />);
@@ -120,8 +121,8 @@ export const PowerIndicator = (): JSX.Element => {
  * @component A container for displaying buttons that handle system changes based on
  * various states and conditions such as ventilator state and current page route.
  *
- * @param {React.ReactNode} children desc for children
- * @param {boolean} staticStart desc for staticStart
+ * @param {React.ReactNode} children Adds dynamic items as children for SidebarSlideRoute
+ * @param {boolean} staticStart staticStart is used as a config for reusing Start/Pause Ventilation button for LandingPage Layout
  *
  * @returns {JSX.Element}
  */
@@ -143,13 +144,23 @@ export const ToolBar = ({
   const parameterRequestStandby = useSelector(getParametersRequestStandby, shallowEqual);
   const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby, shallowEqual);
   const ventilating = useSelector(getParametersIsVentilating);
+  /** 
+   * State to manage toggling ventilationState
+   */
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
+  /** 
+   * State to manage ventilation label
+   * Label is Dynamic based on ventilation state
+   */
   const [label, setLabel] = useState('Start Ventilation');
+  /** 
+   * State to toggle if Ventilating isDisabled
+   */
   const [isDisabled, setIsDisabled] = useState(false);
   // const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
 
   /**
-   * some description
+   * Updates Ventilation status on clicking Start/Pause ventilation
    */
   const updateVentilationStatus = () => {
     if (!staticStart) {
@@ -166,7 +177,7 @@ export const ToolBar = ({
   };
 
   /**
-   * some description
+   * Update Paramters to redux store when ventilation starts
    */
   const initParameterUpdate = useCallback(() => {
     if (parameterRequestStandby === null || alarmLimitsRequestStandby === null) {
@@ -211,6 +222,9 @@ export const ToolBar = ({
     }
   }, [isVentilatorOn, parameterRequestStandby, alarmLimitsRequestStandby, currentMode, dispatch]);
 
+  /**
+   * Disabled Start/Pause Ventilation button when backend connection is lost
+   */
   useEffect(() => {
     if (popupEventLog && popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
       setIsDisabled(true);
@@ -227,6 +241,9 @@ export const ToolBar = ({
     initParameterUpdate();
   }, [ventilating, initParameterUpdate]);
 
+  /**
+   * Update Label on Button based on ventilation status
+   */
   useEffect(() => {
     if (ventilating) {
       history.push(DASHBOARD_ROUTE.path);

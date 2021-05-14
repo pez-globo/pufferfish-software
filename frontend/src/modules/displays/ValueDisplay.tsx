@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Re-usable Component to display value
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import React from 'react';
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
@@ -53,7 +51,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * Interface for the value props
  *
- * @prop {number} value desc for value
+ * @prop {number} value value to be displayed
  */
 export interface ValueProps {
   value: number;
@@ -64,10 +62,10 @@ export interface ValueProps {
  *
  * Props Interface for the ValueDisplay component
  *
- * @prop {number} value desc for value
- * @prop {string} label desc for label
- * @prop {string} units desc for units
- * @prop {boolean} isLive desc for isLive
+ * @prop {number} value value to be displayed
+ * @prop {string} label Label of the value
+ * @prop {string} units unit measurement of the value
+ * @prop {boolean} isLive Config to show/hide `Live` text
  */
 interface Props {
   value: number;

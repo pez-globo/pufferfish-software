@@ -1,8 +1,7 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Main entry point of the application
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file Setting up theme, CSS styles & Routes are initialized here
  *
  */
 import { CssBaseline } from '@material-ui/core';
@@ -27,10 +26,10 @@ const TOUCH_SCREEN_BUTTON_KEY = 0;
  *
  * Props interface for the App component
  *
- * @prop {typeof initialize} initialize desc for initialize
- * @prop {string} locale desc for locale
- * @prop {Record<string, string>} messages desc for messages
- * @prop {FrontendDisplaySetting} displaySetting desc for displaySetting
+ * @prop {typeof initialize} initialize Redux action type triggered on app initalization 
+ * @prop {string} locale Localization of the text displayed in app (i18n)
+ * @prop {Record<string, string>} messages Localization configuration to set US English as locale
+ * @prop {FrontendDisplaySetting} displaySetting Settings to set global config for theme & unit
  *
  */
 interface Props {
@@ -43,7 +42,7 @@ interface Props {
 /**
  * App
  *
- * @component some description
+ * @component Component responsible to initalize app
  *
  * Uses the [[Props]] interface
  *
@@ -56,7 +55,7 @@ class App extends Component<Props> {
     /**
      * Disable Right click across app.
      *
-     * @param {MouseEvent} event desc for event
+     * @param {MouseEvent} event DOM mouse event object
      *
      * @return {boolean}
      *
@@ -89,7 +88,7 @@ class App extends Component<Props> {
 }
 
 /**
- * some description
+ * Selectors to access locale & displaySetting configuration from redux
  */
 const selector = createStructuredSelector<
   StoreState,

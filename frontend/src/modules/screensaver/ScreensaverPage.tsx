@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Component for Screensaver page
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
@@ -102,7 +100,7 @@ const HFNCControlGrid = (): JSX.Element => {
 /**
  * ConfigureControlMode
  *
- * @component A component for configuring control mode.
+ * @component A component for configuring value control wrapper based on ventilation mode.
  *
  * @param {VentilationMode | null} mode - some desc for mode
  *
@@ -125,9 +123,9 @@ const ConfigureControlMode = ({ mode }: { mode: VentilationMode | null }): JSX.E
 /**
  * ConfigureValueMode
  *
- * @component A component for configuring value mode.
+ * @component A component for configuring value grid wrapper based on ventilation mode.
  *
- * @param {VentilationMode | null} mode - some desc for mode
+ * @param {VentilationMode | null} mode - Ventilation mode
  *
  * @returns {JSX.Element}
  */

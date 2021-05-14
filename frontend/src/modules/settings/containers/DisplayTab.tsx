@@ -1,9 +1,7 @@
 /**
- * @summary A short one-line description for the file
- *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
- *
+ * @summary Display Setting Tab of Settings page
+ * 
+ * @file All the Display Settings are configured here
  */
 import {
   Box,
@@ -144,7 +142,7 @@ const to24HourClock = (hour: number, period: Period) => {
  *
  * Interface for change settings.
  *
- * @prop {function} onSettingChange  desc of type
+ * @prop {function} onSettingChange Callback to be called once Settings changes
  *
  */
 interface Props {

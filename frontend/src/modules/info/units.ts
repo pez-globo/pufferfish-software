@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Unit Constants
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 // Rates
 export const BMIN = 'b/min';

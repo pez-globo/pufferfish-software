@@ -1,8 +1,7 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Component handling Multi step Modal popup
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file Modal popup has steps to update Set Value & Alarm Range values
  */
 import React, { useEffect } from 'react';
 import { Subscription } from 'rxjs';
@@ -34,20 +33,20 @@ import store from '../../store';
  *
  * Interface for Data
  *
- * @prop {string} stateKey desc for stateKey
- * @prop {string} label desc for label
- * @prop {string} units desc for units
- * @prop {boolean} isAlarmEnabled desc for isAlarmEnabled
- * @prop {boolean} isSetvalEnabled desc for isSetvalEnabled
- * @prop {number | null} committedSetting desc for committedSetting
- * @prop {number[]} alarmValues desc for alarmValues
- * @prop {number} setValue desc for setValue
- * @prop {number | null} minValue desc for minValue
- * @prop {number | null} maxValue desc for maxValue
- * @prop {number | null} alarmLimitMin desc for alarmLimitMin
- * @prop {number | null} alarmLimitMax desc for alarmLimitMax
- * @prop {number[]} alarmValuesActual desc for alarmValuesActual
- * @prop {number} setValueActual desc for setValueActual
+ * @prop {string} stateKey Unique identifier for the value
+ * @prop {string} label Label for the value
+ * @prop {string} units Unit measurement of the value
+ * @prop {boolean} isAlarmEnabled Config to set if value is Alarm type
+ * @prop {boolean} isSetvalEnabled Config to set if value is Set type
+ * @prop {number | null} committedSetting Current value
+ * @prop {number[]} alarmValues Alarm range values
+ * @prop {number} setValue Set Value
+ * @prop {number | null} minValue Minimum under which value cannot decrement
+ * @prop {number | null} maxValue Maximum above which value cannot increment
+ * @prop {number | null} alarmLimitMin Alarm limit Minimum Range value
+ * @prop {number | null} alarmLimitMax Alarm limit Maximum Range value
+ * @prop {number[]} alarmValuesActual Actual Alarm Value when Component was initalized
+ * @prop {number} setValueActual Actual Set Value when Component was initalized
  */
 interface Data {
   stateKey: string;
@@ -189,17 +188,17 @@ const HFNCControls = (): JSX.Element => {
 /**
  * some description
  *
- * @param {string} label - some desc for label
- * @param {string} stateKey - some desc for stateKey
- * @param {string} units - some desc for units
- * @param {boolean} isSetvalEnabled - some desc for isSetvalEnabled
- * @param {boolean} isAlarmEnabled - some desc for isAlarmEnabled
+ * @param {string} stateKey Unique identifier for the value
+ * @param {string} label Label for the value
+ * @param {string} units Unit measurement of the value
+ * @param {boolean} isAlarmEnabled Config to set if value is Alarm type
+ * @param {boolean} isSetvalEnabled Config to set if value is Set type
  * @param {number[]} alarmValuesActual - some desc for alarmValuesActual
- * @param {number | null} committedSetting - some desc for committedSetting
- * @param {number | null} minValue - some desc for minValue
- * @param {number | null} maxValue - some desc for maxValue
- * @param {number | null} alarmLimitMin - some desc for alarmLimitMin
- * @param {number | null} alarmLimitMax - some desc for alarmLimitMax
+ * @param {number | null} committedSetting - Actual Alarm Value when Component was initalized
+ * @param {number | null} minValue Minimum under which value cannot decrement
+ * @param {number | null} maxValue Maximum above which value cannot increment
+ * @param {number | null} alarmLimitMin Alarm limit Minimum Range value
+ * @param {number | null} alarmLimitMax Alarm limit Maximum Range value
  *
  * @returns {Data} - some description for the return value
  */
@@ -235,15 +234,17 @@ const createData = (
 };
 
 /**
- * some description
+ * Function to get value from redux store for parameters
  *
- * @param {string} stateKey - some desc for stateKey
+ * @param {string} stateKey - Unique identifier for the value
  *
- * @returns {number | null} - some description for the return value
+ * @returns {number | null} - Value from redux store
  */
 const getStoreValueData = (stateKey: string): number | null => {
   // TODO: is there a reason this function directly accesses the store, rather than
   // using the getParametersFiO2 and getParametersFlow2 selectors?
+  // Yes, since its non React function, it does not have access to Hooks
+  // So it directly accesses from the store
   const storeData = store.getState();
   if (storeData.controller.parameters.current === null) {
     return null;
@@ -260,15 +261,17 @@ const getStoreValueData = (stateKey: string): number | null => {
 };
 
 /**
- * some description
+ * Function to get value from redux store for Alarms
  *
- * @param {string} stateKey - some desc for stateKey
+ * @param {string} stateKey - Unique identifier for the value
  *
- * @returns {number[] | null} - some description for the return value
+ * @returns {number | null} - Value from redux store
  */
 const getStoreAlarmData = (stateKey: string): number[] | null => {
   // TODO: is there a reason this function directly access the store, rather than
   // using the getAlarmLimitsRequest selector?
+  // Yes, since its non React function, it does not have access to Hooks
+  // So it directly accesses from the store
   const storeData = store.getState();
   const alarmLimits = storeData.controller.alarmLimits.request;
   if (alarmLimits === null) {
@@ -286,13 +289,13 @@ const getStoreAlarmData = (stateKey: string): number[] | null => {
 };
 
 /**
- * some description
+ * Function to frame `Data` object based on `stateKey` provided
  *
  * TODO: Make a constant file for stateKey Constants
  *
- * @param {string} stateKey - some desc for stateKey
+ * @param {string} stateKey - Unique identifier for the value
  *
- * @returns {Data | undefined} - some description for the return value
+ * @returns {Data | undefined} - `Data` object containing configurations
  */
 const determineInput = (stateKey: string): Data | undefined => {
   switch (stateKey) {
@@ -359,27 +362,62 @@ const determineInput = (stateKey: string): Data | undefined => {
 const MultiStepWizard = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  /** 
+   * State to manage Multi step Modal `open` status
+   */
   const [open, setOpen] = React.useState(false);
+  /** 
+   * State to manage Confirmation Modal `open` status
+   */
   const [confirmOpen, setConfirmOpen] = React.useState(false);
+  /** 
+   * State to manage Cancellation Modal `open` status
+   */
   const [cancelOpen, setCancelOpen] = React.useState(false);
+  /** 
+   * State to manage dynamic label displayed on each step
+   */
   const [label, setLabel] = React.useState('Ventilation Controls');
+  /** 
+   * State to manage current `stateKey`
+   */
   const [stateKey, setStateKey] = React.useState('');
+  /** 
+   * State to manage Tab index
+   */
   const [tabIndex, setTabIndex] = React.useState(0);
+  /** 
+   * State to manage Parameter `Data`
+   */
   const [parameter, setParameter] = React.useState<Data>();
+  /** 
+   * State to manage all Parameter `Data`
+   */
   const [multiParams, setMultiParams] = React.useState<Data[]>([]);
+  /** 
+   * State to manage if button submitted is disabled
+   */
   const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);
 
   /**
-   * Some description
+   * Trigger on Tab index change event
    *
-   * @param {React.ChangeEvent<Record<string, unknown>>} event - some desc for event
-   * @param {number} newValue - some desc for newValue
+   * @param {React.ChangeEvent<Record<string, unknown>>} event - Default Change event object
+   * @param {number} newValue - Tab index value to update current tab
    *
    */
   const handleChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setTabIndex(newValue);
   };
 
+  /**
+   * Triggers on Component Initalization
+   * Listens to 2 events `isMultiPopupOpen` & `currentStateKey`
+   * On `isMultiPopupOpen` open event, multistep popup is displayed in UI
+   * Current stateKey decides which Tab to be shown once open
+   * For example if user click on `FiO2` Set Value container in Dashboard,
+   * Then current stateKey would be `FiO2` and multistep popup will show Set Value modal
+   */
   useEffect(() => {
     const popupEventSubscription: Subscription = getMultiPopupOpenState().subscribe(
       (state: boolean) => {
@@ -404,6 +442,10 @@ const MultiStepWizard = (): JSX.Element => {
     };
   }, []);
 
+  /**
+   * Triggers on TabIndex or Parameter change
+   * Updates the label based on Parameter type configured
+   */
   useEffect(() => {
     if (parameter) {
       if (tabIndex > 0) {
@@ -416,6 +458,12 @@ const MultiStepWizard = (): JSX.Element => {
     }
   }, [tabIndex, parameter]);
 
+  /**
+   * Triggers on parameter or multiParams change
+   * Initally multiParams has only 1 parameter which is set in Component Initalization
+   * As user moves around the tabs and clicks on various Set/Alarm container
+   * Then those are added into multiParams array
+   */
   useEffect(() => {
     if (parameter) {
       setTabIndex(1);
@@ -432,10 +480,11 @@ const MultiStepWizard = (): JSX.Element => {
   }, [parameter, multiParams]);
 
   /**
-   * Some description
+   * Callback on whenever Set Value of parameter changes
    *
-   * @param {number} setting - some desc for setting
+   * @param {number} setting - Updated value of parameter
    *
+   * Updates the new Set value into multiParams `Data` object
    */
   const doSetValue = (setting: number) => {
     if (parameter) {
@@ -451,11 +500,12 @@ const MultiStepWizard = (): JSX.Element => {
   };
 
   /**
-   * Some description
+   * Callback on whenever Alarm range value of parameter changes
    *
-   * @param {number} min - the lower limit for the alarm value
-   * @param {number} max - the upper limit for the alarm value
+   * @param {number} min - Updated lower limit for the alarm value
+   * @param {number} max - Updated upper limit for the alarm value
    *
+   * Updates the new alarm range values into multiParams `Data` object
    */
   const doSetAlarmValues = (min: number, max: number) => {
     if (parameter) {
@@ -471,11 +521,11 @@ const MultiStepWizard = (): JSX.Element => {
   };
 
   /**
-   * Some description
+   * Function to get Alarm values from Parameter `Data` object
    *
-   * @param {string} stateKey - some desc for stateKey
+   * @param {string} stateKey - stateKey identifier for which parameter `Data` corresponds to
    *
-   * @return {Array} - some description for the return value
+   * @return {Array} - Current alarm range values
    *
    */
   const getAlarmValues = (stateKey: string) => {
@@ -487,11 +537,11 @@ const MultiStepWizard = (): JSX.Element => {
   };
 
   /**
-   * Some description
+   * Function to get Set values from Parameter `Data` object
    *
-   * @param {string} stateKey - some desc for stateKey
+   * @param {string} stateKey - stateKey identifier for which parameter `Data` corresponds to
    *
-   * @return {number} - some description for the return value
+   * @return {number} - Current Set Value
    *
    */
   const getSetValues = (stateKey: string) => {
@@ -504,7 +554,7 @@ const MultiStepWizard = (): JSX.Element => {
   };
 
   /**
-   * Checks if there are any changes
+   * Checks if there are any changes user has made
    *
    * @return {boolean} - true if change is there; false if there are no changes
    *
@@ -528,7 +578,8 @@ const MultiStepWizard = (): JSX.Element => {
   };
 
   /**
-   * some description
+   * Callback on clicking of cancel button
+   * Opens Cancel popup
    */
   const onCancel = () => {
     if (isAnyChanges()) {
@@ -539,7 +590,8 @@ const MultiStepWizard = (): JSX.Element => {
   };
 
   /**
-   * some description
+   * Callback on clicking of confirm button
+   * Opens Confirmation popup
    */
   const onConfirm = () => {
     if (isAnyChanges()) {
@@ -550,8 +602,9 @@ const MultiStepWizard = (): JSX.Element => {
   };
 
   /**
-   * Handles the click of confirm button
-   *
+   * Callback on clicking Confirm button on Confirmation popup
+   * Updates multiParams data into redux store
+   * Closes all te popup
    */
   const handleConfirm = () => {
     multiParams.forEach((parameter: Data) => {
@@ -577,8 +630,8 @@ const MultiStepWizard = (): JSX.Element => {
   };
 
   /**
-   * Some description
-   *
+   * Callback on clicking Confirm button on Cancel popup
+   * Undo all the user made changes
    */
   const handleCancelConfirm = () => {
     if (parameter) {
@@ -597,8 +650,8 @@ const MultiStepWizard = (): JSX.Element => {
   };
 
   /**
-   * Some description
-   *
+   * Callback on clicking Cancel button on Confirmation popup
+   * Navigates back to MultiStep popup
    */
   const handleCancelOnConfirmPopup = () => {
     setConfirmOpen(false);
@@ -606,8 +659,8 @@ const MultiStepWizard = (): JSX.Element => {
   };
 
   /**
-   * Some description
-   *
+   * Callback on clicking Cancel button on Cancel popup
+   * Navigates back to MultiStep popup
    */
   const handleCancelOnCancelPopup = () => {
     setCancelOpen(false);
