@@ -21,6 +21,7 @@ import {
   getAlarmLimitsCurrent,
   getBackendInitialized,
   getAlarmLimitsRequestUnsaved,
+  getAlarmLimitsUnsavedKeys,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { ModalPopup } from '../controllers/ModalPopup';
@@ -154,13 +155,14 @@ export const ToolBar = ({
   const alarmLimitsRequestDraft = useSelector(getAlarmLimitsRequestDraft);
   const alarmLimitsCurrent = useSelector(getAlarmLimitsCurrent);
   const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
+  const alarmLimitsKeys = useSelector(getAlarmLimitsUnsavedKeys);
   const alarmLimits = (alarmLimitsCurrent as unknown) as Record<string, Range>;
-  const alarmLimitsStandby = (alarmLimitsRequestDraft as unknown) as Record<string, Range>;
+  const alarmLimitsDraft = (alarmLimitsRequestDraft as unknown) as Record<string, Range>;
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
   const [landingLabel, setLandingLabel] = useState('Loading...');
   const [label, setLabel] = useState('Start Ventilation');
   const [isDisabled, setIsDisabled] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
@@ -263,10 +265,10 @@ export const ToolBar = ({
 
   const handleOnClick = () => {
     if (!alarmLimitsRequestUnsaved) {
-      setOpen(false);
+      setDiscardOpen(false);
       history.push(DASHBOARD_ROUTE.path);
     } else {
-      setOpen(true);
+      setDiscardOpen(true);
     }
   };
 
@@ -291,14 +293,14 @@ export const ToolBar = ({
     tools.push(<EventAlerts label={LOGS_ROUTE.label} />);
   }
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleDiscardClose = () => {
+    setDiscardOpen(false);
   };
 
-  const handleConfirm = () => {
+  const handleDiscardConfirm = () => {
     setAlarmLimitsRequestDraft(alarmLimits);
     history.push(DASHBOARD_ROUTE.path);
-    setOpen(false);
+    setDiscardOpen(false);
   };
 
   return (
@@ -350,9 +352,9 @@ export const ToolBar = ({
       <ModalPopup
         withAction={true}
         label="Set Alarms"
-        open={open}
-        onClose={handleClose}
-        onConfirm={handleConfirm}
+        open={discardOpen}
+        onClose={handleDiscardClose}
+        onConfirm={handleDiscardConfirm}
       >
         <Grid container alignItems="center">
           <Grid container alignItems="center" justify="center">
@@ -363,12 +365,8 @@ export const ToolBar = ({
             </Grid>
             <Grid item className={classes.marginContent}>
               {alarmConfig.map((param: AlarmConfiguration) => {
-                if (alarmLimits !== null && alarmLimitsStandby !== null) {
-                  if (
-                    alarmLimits[param.stateKey].lower !==
-                      alarmLimitsStandby[param.stateKey]?.lower ||
-                    alarmLimits[param.stateKey].upper !== alarmLimitsStandby[param.stateKey]?.upper
-                  ) {
+                if (alarmLimits !== null && alarmLimitsDraft !== null) {
+                  if (alarmLimitsKeys.includes(param.stateKey)) {
                     return (
                       <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${
                         alarmLimits[param.stateKey].lower
