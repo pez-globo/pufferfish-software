@@ -155,7 +155,7 @@ export const ToolBar = ({
   const alarmLimitsRequestDraft = useSelector(getAlarmLimitsRequestDraft);
   const alarmLimitsCurrent = useSelector(getAlarmLimitsCurrent);
   const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
-  const alarmLimitsKeys = useSelector(getAlarmLimitsUnsavedKeys);
+  const alarmLimitsUnsavedKeys = useSelector(getAlarmLimitsUnsavedKeys);
   const alarmLimits = (alarmLimitsCurrent as unknown) as Record<string, Range>;
   const alarmLimitsDraft = (alarmLimitsRequestDraft as unknown) as Record<string, Range>;
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
@@ -366,7 +366,7 @@ export const ToolBar = ({
             <Grid item className={classes.marginContent}>
               {alarmConfig.map((param: AlarmConfiguration) => {
                 if (alarmLimits !== null && alarmLimitsDraft !== null) {
-                  if (alarmLimitsKeys.includes(param.stateKey)) {
+                  if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
                     return (
                       <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${
                         alarmLimits[param.stateKey].lower

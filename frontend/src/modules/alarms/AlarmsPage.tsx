@@ -301,7 +301,7 @@ export const AlarmsPage = (): JSX.Element => {
   const currentMode = useSelector(getParametersRequestMode);
   const ventilating = useSelector(getParametersIsVentilating);
   const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
-  const alarmLimitsKeys = useSelector(getAlarmLimitsUnsavedKeys);
+  const alarmLimitsUnsavedKeys = useSelector(getAlarmLimitsUnsavedKeys);
   const alarmLimits = useSelector(getAlarmLimitsRangeCurrent);
   const alarmLimitsDraft = useSelector(getAlarmLimitsRangeDraft);
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
@@ -433,7 +433,7 @@ export const AlarmsPage = (): JSX.Element => {
                     </Grid>
                     <Grid item className={classes.marginContent}>
                       {alarmConfig.map((param) => {
-                        if (alarmLimitsKeys.includes(param.stateKey)) {
+                        if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
                           return (
                             <Typography variant="subtitle1">{`Change ${
                               param.label
@@ -469,7 +469,7 @@ export const AlarmsPage = (): JSX.Element => {
                     </Grid>
                     <Grid item className={classes.marginContent}>
                       {alarmConfig.map((param) => {
-                        if (alarmLimitsKeys.includes(param.stateKey)) {
+                        if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
                           return (
                             <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${
                               alarmLimits !== null && alarmLimits[param.stateKey].lower
