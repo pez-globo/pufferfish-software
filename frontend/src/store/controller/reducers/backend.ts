@@ -158,11 +158,14 @@ export const rotaryEncoderReducer = (
       }
 
       const newState = action.state as RotaryEncoder;
+      if (state === null) {
+        // initialize the store with the backend's value
+        return { ...newState, stepDiff: 0 };
+      }
+
       const oldState = state as RotaryEncoder;
       const stepDiff = newState.step - oldState.step;
-      const stateCopy = { ...newState } as RotaryEncoderParameter;
-      stateCopy.stepDiff = stepDiff;
-      return stateCopy;
+      return { ...newState, stepDiff };
     }
     default:
       return state;
