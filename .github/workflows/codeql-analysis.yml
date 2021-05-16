@@ -1,0 +1,90 @@
+name: CodeQL Analysis
+
+on:
+  push:
+    branches: [ develop, master, quality ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ develop, master, quality ]
+  schedule:
+    - cron: '25 22 * * 5'
+
+jobs:
+  analyze-frontend:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: javascript
+        queries: +security-and-quality
+
+    - name: Analyze
+      uses: github/codeql-action/analyze@v1
+
+  analyze-backend:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: python
+        queries: +security-and-quality
+
+    - name: Analyze
+      uses: github/codeql-action/analyze@v1
+
+  analyze-firmware:
+    name: Analyze
+    runs-on: ubuntu-20.04
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      matrix:
+        build-type: [Debug, Release]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        queries: +security-and-quality
+        languages: 'cpp'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install gcc-arm-none-eabi cmake
+
+    - name: Run CMake
+      run: |
+        ./cmake.sh ${{ matrix.build-type }}
+
+    - name: Run make
+      run: |
+        cd cmake-build-`echo ${{ matrix.build-type }} | awk '{print tolower($0)}'`
+        make -j2
+
+    - name: Analyze
+      uses: github/codeql-action/analyze@v1

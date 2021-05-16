@@ -72,22 +72,3 @@ jobs:
       with:
         name: frontend-build
         path: frontend/build
-
-  codeql-analyze:
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
-      with:
-        queries: +security-and-quality
-        languages: 'javascript'
-
-    - name: Perform CodeQL analysis
-      uses: github/codeql-action/analyze@v1
