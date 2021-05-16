@@ -193,7 +193,8 @@ void Backend::update_clock(uint32_t current_time) {
 }
 
 void Backend::update_list_senders() {
-  if (log_events_sender_.input(states_.expected_log_event().id) != Protocols::ListInputStatus::ok) {
+  const ExpectedLogEvent &event = states_.expected_log_event();
+  if (log_events_sender_.input(event.id, event.session_id) != Protocols::ListInputStatus::ok) {
     // TODO(lietk12): handle warning case
   }
   log_events_sender_.output(states_.next_log_events());

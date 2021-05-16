@@ -6,11 +6,8 @@ import functools
 import trio
 
 from ventserver.integration import _trio
-from ventserver.io.trio import _serial
-from ventserver.io.trio import channels
-from ventserver.io.trio import websocket
-from ventserver.io.trio import fileio
-from ventserver.protocols import server
+from ventserver.io.trio import _serial, channels, fileio, websocket
+from ventserver.protocols.backend import server
 
 
 logger = logging.getLogger()

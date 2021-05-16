@@ -18,3 +18,4 @@
 #include "HALPWM.h"
 #include "HALSPIDevice.h"
 #include "HALTime.h"
+#include "Random.h"

@@ -4,7 +4,7 @@ from typing import List, Tuple
 
 import pytest as pt  # type: ignore
 
-from ventserver.protocols import rotary_encoder
+from ventserver.protocols.devices import rotary_encoder
 from ventserver.protocols.protobuf import frontend_pb as pb
 
 

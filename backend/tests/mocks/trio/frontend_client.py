@@ -6,7 +6,7 @@ import trio
 
 import trio_websocket  # type: ignore
 
-from ventserver.protocols import frontend
+from ventserver.protocols.devices import frontend
 from ventserver.protocols.protobuf import mcu_pb as pb
 
 

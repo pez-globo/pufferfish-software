@@ -9,8 +9,7 @@ import attr
 import betterproto
 
 from ventserver.protocols import exceptions
-from ventserver.sansio import channels
-from ventserver.sansio import protocols
+from ventserver.sansio import channels, protocols
 
 
 # Classes

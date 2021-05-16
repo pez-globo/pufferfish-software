@@ -1,10 +1,10 @@
-"""Filter to generate protected bytes using crc function.
+"""Filters for assuring data integrity over an unreliable messaging channel.
 
 Provides Filters which compute and check data integrity fields in headers
 prepended to arbitrary data payloads (limited by payload length) to detect and
 handle data corruption.
 
-A CRCProtectedData is defined as the data unit of the data integrity layer,
+A CRCElement is defined as a data unit of the data integrity layer,
 consisting of a payload preceded by a header which contains a 32-bit CRC
 checksum field. The CRC checksum fields allow detection of byte corruption in
 the header and payload.
@@ -48,11 +48,14 @@ from crcmod import predefined  # type: ignore
 import attr
 
 from ventserver.protocols import exceptions
-from ventserver.sansio import channels
-from ventserver.sansio import protocols
+from ventserver.sansio import channels, protocols
 
 
 CRC_FUNC = predefined.mkCrcFun('crc-32c')
+
+
+# Classes
+
 
 def quad_byte_attr(
         _: Any, __: 'attr.Attribute[bytes]', value: bytes
@@ -98,7 +101,6 @@ class CRCElement:
             lambda value: '0x{:08x}'.format(value)  # pylint: disable=unnecessary-lambda
         )
     )
-
 
     def parse(self, body: bytes) -> None:
         """Extracts CRC and payload from incoming message.
@@ -166,10 +168,12 @@ class CRCElement:
 
     def get_body(self) -> bytes:
         """Returns the CRC combined with the payload."""
-        self.crc = self._compute_crc() # raises ProtocolDataError
+        self.crc = self._compute_crc()  # raises ProtocolDataError
         return self.crc + self.payload
 
-# CRC Filters
+
+# Filters
+
 
 @attr.s
 class CRCSender(protocols.Filter[bytes, bytes]):
@@ -209,8 +213,9 @@ class CRCSender(protocols.Filter[bytes, bytes]):
         if event is None:
             return None
         crc_element = CRCElement(payload=event)
-        message = crc_element.get_body() # raises ProtocolDataError
+        message = crc_element.get_body()  # raises ProtocolDataError
         return message
+
 
 @attr.s
 class CRCReceiver(protocols.Filter[bytes, bytes]):
@@ -252,6 +257,6 @@ class CRCReceiver(protocols.Filter[bytes, bytes]):
         if event is None:
             return None
         crc_element = CRCElement()
-        crc_element.parse(event) # raises ProtocolDataError
-        crc_element.check_integrity() # raises ProtocolDataError
+        crc_element.parse(event)  # raises ProtocolDataError
+        crc_element.check_integrity()  # raises ProtocolDataError
         return crc_element.payload
