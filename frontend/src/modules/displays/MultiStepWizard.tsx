@@ -366,6 +366,9 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.alarmValues = [min, max];
       parameter.alarmValues = [min, max];
+      // we want to dispatch commitDraftRequest to AlarmLimitsRequest to show the unsaved alarm limit changes
+      // in the HFNC control (value info right corner), but doing so when in set alarms page will discard the unsaved changes
+      // which is unwanted, thus only do this when we are on dashboard.
       if (location.pathname === DASHBOARD_ROUTE.path) {
         const update = {
           [parameter.stateKey]: {
