@@ -228,7 +228,8 @@ jobs:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v1
       with:
-        languages: [ 'cpp' ]
+        queries: +security-and-quality
+        languages: 'cpp'
 
     - name: Install dependencies
       run: |
