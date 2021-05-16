@@ -15,7 +15,7 @@ module.exports = {
         "ecmaVersion": 2020,
         "sourceType": "module"
     },
-    "plugins": ["react", "@typescript-eslint", "prettier"],
+    "plugins": ["preact", "@typescript-eslint", "prettier"],
     "extends": [
         "airbnb",
         "preact",
@@ -36,6 +36,7 @@ module.exports = {
         ],
         "import/no-unresolved": 0,
         'react/jsx-props-no-spreading': 0,
+        'react/jsx-fragments': 0,
         "react/require-default-props": 0,
         "no-use-before-define": "off",
         "jest/no-test-callback": 0,
@@ -50,7 +51,7 @@ module.exports = {
         ]
     },
     "settings": {
-        "react": {
+        "preact": {
             "version": "detect"
         },
         "import/resolver": {
