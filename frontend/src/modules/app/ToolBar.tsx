@@ -18,10 +18,10 @@ import {
   getParametersRequestMode,
   getParametersRequestDraft,
   getAlarmLimitsRequestDraft,
-  getAlarmLimitsCurrent,
   getBackendInitialized,
   getAlarmLimitsRequestUnsaved,
   getAlarmLimitsUnsavedKeys,
+  getAlarmLimitsRequest,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { ModalPopup } from '../controllers/ModalPopup';
@@ -152,12 +152,15 @@ export const ToolBar = ({
   const backendInitialized = useSelector(getBackendInitialized);
   const parameterRequestDraft = useSelector(getParametersRequestDraft, shallowEqual);
   const ventilating = useSelector(getParametersIsVentilating);
-  const alarmLimitsRequestDraft = useSelector(getAlarmLimitsRequestDraft);
-  const alarmLimitsCurrent = useSelector(getAlarmLimitsCurrent);
+  const alarmLimitsRequestDraftSelect = useSelector(getAlarmLimitsRequestDraft);
+  const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
   const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
   const alarmLimitsUnsavedKeys = useSelector(getAlarmLimitsUnsavedKeys);
-  const alarmLimits = (alarmLimitsCurrent as unknown) as Record<string, Range>;
-  const alarmLimitsDraft = (alarmLimitsRequestDraft as unknown) as Record<string, Range>;
+  const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
+  const alarmLimitsRequestDraft = (alarmLimitsRequestDraftSelect as unknown) as Record<
+    string,
+    Range
+  >;
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
   const [landingLabel, setLandingLabel] = useState('Loading...');
   const [label, setLabel] = useState('Start Ventilation');
@@ -298,7 +301,7 @@ export const ToolBar = ({
   };
 
   const handleDiscardConfirm = () => {
-    setAlarmLimitsRequestDraft(alarmLimits);
+    setAlarmLimitsRequestDraft(alarmLimitsRequest);
     history.push(DASHBOARD_ROUTE.path);
     setDiscardOpen(false);
   };
@@ -365,13 +368,13 @@ export const ToolBar = ({
             </Grid>
             <Grid item className={classes.marginContent}>
               {alarmConfig.map((param: AlarmConfiguration) => {
-                if (alarmLimits !== null && alarmLimitsDraft !== null) {
+                if (alarmLimitsRequest !== null && alarmLimitsRequestDraft !== null) {
                   if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
                     return (
                       <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${
-                        alarmLimits[param.stateKey].lower
+                        alarmLimitsRequest[param.stateKey].lower
                       } -
-                                ${alarmLimits[param.stateKey].upper}?`}</Typography>
+                                ${alarmLimitsRequest[param.stateKey].upper}?`}</Typography>
                     );
                   }
                 }

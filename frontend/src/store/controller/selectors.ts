@@ -201,38 +201,26 @@ export const getAlarmLimitsRequestDraft = createSelector(
   getAlarmLimits,
   (alarmLimits: AlarmLimitsRequestResponse): AlarmLimitsRequest | null => alarmLimits.draft,
 );
-type OptionalAlarmLimitsLike = AlarmLimits | AlarmLimitsRequest | null;
-type AlarmLimitsSelector = OutputSelector<
-  StoreState,
-  AlarmLimits | null,
-  (res: AlarmLimitsRequestResponse) => OptionalAlarmLimitsLike
->;
-const rangeSelector = (alarmLimitsSelector: AlarmLimitsSelector) =>
-  createSelector(
-    alarmLimitsSelector,
-    (alarmLimits: AlarmLimits | AlarmLimitsRequest | null): Record<string, Range> | null =>
-      alarmLimits === null ? null : ((alarmLimits as unknown) as Record<string, Range>),
-  );
-
-export const getAlarmLimitsRangeCurrent = rangeSelector(getAlarmLimitsCurrent);
-export const getAlarmLimitsRangeDraft = rangeSelector(getAlarmLimitsRequestDraft);
-
 export const getAlarmLimitsUnsavedKeys = createSelector(
-  getAlarmLimitsRangeCurrent,
-  getAlarmLimitsRangeDraft,
+  getAlarmLimitsRequest,
+  getAlarmLimitsRequestDraft,
   (
-    currentLimits: Record<string, Range> | null,
-    draftLimits: Record<string, Range> | null,
+    alarmLimitsRequest: AlarmLimitsRequest | null,
+    alarmLimitsRequestDraft: AlarmLimitsRequest | null,
   ): string[] => {
+    if (alarmLimitsRequest === null || alarmLimitsRequestDraft === null) {
+      return [];
+    }
+    const alarmLimitsRequestRange = (alarmLimitsRequest as unknown) as Record<string, Range>;
+    const alarmLimitsRequestDraftRange = (alarmLimitsRequestDraft as unknown) as Record<
+      string,
+      Range
+    >;
     const keys = ['spo2', 'hr'];
     return keys.filter(
       (key: string) =>
-        (currentLimits !== null &&
-          draftLimits !== null &&
-          currentLimits[key]?.lower !== draftLimits[key]?.lower) ||
-        (currentLimits !== null &&
-          draftLimits !== null &&
-          currentLimits[key]?.upper !== draftLimits[key]?.upper),
+        alarmLimitsRequestRange[key]?.lower !== alarmLimitsRequestDraftRange[key]?.lower ||
+        alarmLimitsRequestRange[key]?.upper !== alarmLimitsRequestDraftRange[key]?.upper,
     );
   },
 );

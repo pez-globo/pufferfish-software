@@ -6,8 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
 import {
-  getAlarmLimitsRangeCurrent,
-  getAlarmLimitsRangeDraft,
+  getAlarmLimitsRequest,
   getAlarmLimitsRequestDraft,
   getAlarmLimitsRequestUnsaved,
   getAlarmLimitsUnsavedKeys,
@@ -296,14 +295,18 @@ export const AlarmsPage = (): JSX.Element => {
     setPage(value);
   };
 
-  const alarmLimitsRequestDraft = useSelector(getAlarmLimitsRequestDraft);
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
   const ventilating = useSelector(getParametersIsVentilating);
+  const alarmLimitsRequestDraftSelect = useSelector(getAlarmLimitsRequestDraft);
+  const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
   const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
   const alarmLimitsUnsavedKeys = useSelector(getAlarmLimitsUnsavedKeys);
-  const alarmLimits = useSelector(getAlarmLimitsRangeCurrent);
-  const alarmLimitsDraft = useSelector(getAlarmLimitsRangeDraft);
+  const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
+  const alarmLimitsRequestDraft = (alarmLimitsRequestDraftSelect as unknown) as Record<
+    string,
+    Range
+  >;
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
@@ -335,7 +338,7 @@ export const AlarmsPage = (): JSX.Element => {
 
   const handleDiscardConfirm = () => {
     setDiscardOpen(false);
-    if (alarmLimits !== null) setAlarmLimitsRequestDraft(alarmLimits);
+    if (alarmLimitsRequest !== null) setAlarmLimitsRequestDraft(alarmLimitsRequest);
   };
 
   const handleConfirmOpen = () => {
@@ -369,7 +372,7 @@ export const AlarmsPage = (): JSX.Element => {
                   max={alarm.max || 100}
                   stateKey={alarm.stateKey}
                   step={alarm.step || 1}
-                  alarmLimits={alarmLimitsRequestDraft}
+                  alarmLimits={alarmLimitsRequestDraftSelect}
                   setAlarmLimits={setAlarmLimitsRequestDraft}
                 />
               );
@@ -433,18 +436,15 @@ export const AlarmsPage = (): JSX.Element => {
                     </Grid>
                     <Grid item className={classes.marginContent}>
                       {alarmConfig.map((param) => {
-                        if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
-                          return (
-                            <Typography variant="subtitle1">{`Change ${
-                              param.label
-                            } alarm range to ${
-                              alarmLimitsDraft !== null && alarmLimitsDraft[param.stateKey].lower
-                            } -
-                                ${
-                                  alarmLimitsDraft !== null &&
-                                  alarmLimitsDraft[param.stateKey].upper
-                                }?`}</Typography>
-                          );
+                        if (alarmLimitsRequestDraft !== null) {
+                          if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
+                            return (
+                              <Typography variant="subtitle1">{`Change ${
+                                param.label
+                              } alarm range to ${alarmLimitsRequestDraft[param.stateKey].lower} -
+                                  ${alarmLimitsRequestDraft[param.stateKey].upper}?`}</Typography>
+                            );
+                          }
                         }
                         return <React.Fragment />;
                       })}
@@ -469,15 +469,15 @@ export const AlarmsPage = (): JSX.Element => {
                     </Grid>
                     <Grid item className={classes.marginContent}>
                       {alarmConfig.map((param) => {
-                        if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
-                          return (
-                            <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${
-                              alarmLimits !== null && alarmLimits[param.stateKey].lower
-                            } -
-                                ${
-                                  alarmLimits !== null && alarmLimits[param.stateKey].upper
-                                }?`}</Typography>
-                          );
+                        if (alarmLimitsRequest !== null) {
+                          if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
+                            return (
+                              <Typography variant="subtitle1">{`Keep ${
+                                param.label
+                              } alarm range to ${alarmLimitsRequest[param.stateKey].lower} -
+                                ${alarmLimitsRequest[param.stateKey].upper}?`}</Typography>
+                            );
+                          }
                         }
                         return <React.Fragment />;
                       })}
