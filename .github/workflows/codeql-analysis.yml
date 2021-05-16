@@ -10,8 +10,8 @@ on:
     - cron: '25 22 * * 5'
 
 jobs:
-  analyze-frontend:
-    name: Analyze
+  frontend:
+    name: frontend
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -31,8 +31,8 @@ jobs:
     - name: Analyze
       uses: github/codeql-action/analyze@v1
 
-  analyze-backend:
-    name: Analyze
+  backend:
+    name: backend
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -52,8 +52,8 @@ jobs:
     - name: Analyze
       uses: github/codeql-action/analyze@v1
 
-  analyze-firmware:
-    name: Analyze
+  firmware:
+    name: firmware
     runs-on: ubuntu-20.04
     permissions:
       actions: read
