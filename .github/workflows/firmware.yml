@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       name: Checkout repository
 
     - name: Install dependencies
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -59,7 +59,7 @@ jobs:
         build-type: [Debug, Release]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -87,7 +87,7 @@ jobs:
         build-type: [Debug, Release, TestCatch2]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -112,7 +112,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -135,7 +135,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -160,7 +160,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -185,7 +185,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -211,3 +211,37 @@ jobs:
       with:
         name: coverage-report
         path: firmware/ventilator-controller-stm32/cmake-build-testcoverage/TestCoverage_coverage/*
+
+  codeql-analyze:
+    runs-on: ubuntu-20.04
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      matrix:
+        build-type: [Debug, Release]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: [ 'cpp' ]
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install gcc-arm-none-eabi cmake
+
+    - name: Run CMake
+      run: |
+        ./cmake.sh ${{ matrix.build-type }}
+
+    - name: Run make
+      run: |
+        cd cmake-build-`echo ${{ matrix.build-type }} | awk '{print tolower($0)}'`
+        make -j2
+
+    - name: Perform CodeQL analysis
+      uses: github/codeql-action/analyze@v1

@@ -23,13 +23,13 @@ defaults:
 
 jobs:
   test:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         node_version: [12]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       name: Checkout repository
 
     - name: Use Node.js ${{ matrix.node_version }}
@@ -47,13 +47,13 @@ jobs:
       run: yarn test
 
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         node_version: [12]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       name: Checkout repository
 
     - name: Use Node.js ${{ matrix.node_version }}
@@ -72,3 +72,21 @@ jobs:
       with:
         name: frontend-build
         path: frontend/build
+
+  codeql-analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: [ 'javascript' ]
+
+    - name: Perform CodeQL analysis
+      uses: github/codeql-action/analyze@v1
