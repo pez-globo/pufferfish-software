@@ -78,10 +78,12 @@ jobs:
         sudo apt-get install gcc-arm-none-eabi cmake
 
     - name: Run CMake
+      working-directory: firmware/ventilator-controller-stm32
       run: |
         ./cmake.sh ${{ matrix.build-type }}
 
     - name: Run make
+      working-directory: firmware/ventilator-controller-stm32
       run: |
         cd cmake-build-`echo ${{ matrix.build-type }} | awk '{print tolower($0)}'`
         make -j2
