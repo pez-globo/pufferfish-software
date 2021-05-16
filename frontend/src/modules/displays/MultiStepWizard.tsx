@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
 import ReplyIcon from '@material-ui/icons/Reply';
 // import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
+import { useLocation } from 'react-router-dom';
 import ModalPopup from '../controllers/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
@@ -20,8 +21,9 @@ import { BPM, LMIN, PERCENT } from '../info/units';
 import { AlarmModal } from '../controllers';
 import { ParametersRequest, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
-import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
+import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import store from '../../store';
+import { DASHBOARD_ROUTE } from '../navigation/constants';
 
 interface Data {
   stateKey: string;
@@ -280,6 +282,7 @@ const determineInput = (stateKey: string): Data | undefined => {
 const MultiStepWizard = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const location = useLocation();
   const [open, setOpen] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [cancelOpen, setCancelOpen] = React.useState(false);
@@ -363,6 +366,18 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.alarmValues = [min, max];
       parameter.alarmValues = [min, max];
+      // we want to dispatch commitDraftRequest to AlarmLimitsRequest to show the unsaved alarm limit changes
+      // in the HFNC control (value info right corner), but doing so when in set alarms page will discard the unsaved changes
+      // which is unwanted, thus only do this when we are on dashboard.
+      if (location.pathname === DASHBOARD_ROUTE.path) {
+        const update = {
+          [parameter.stateKey]: {
+            lower: min,
+            upper: max,
+          },
+        };
+        dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
+      }
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
       } else {
@@ -427,7 +442,7 @@ const MultiStepWizard = (): JSX.Element => {
       if (parameter.isSetvalEnabled) {
         const update = { [parameter.stateKey]: parameter.setValue };
         dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
-        dispatch(commitStandbyRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+        dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
       }
       if (parameter.isAlarmEnabled && parameter.alarmValues.length) {
         const update = {
@@ -437,7 +452,7 @@ const MultiStepWizard = (): JSX.Element => {
           },
         };
         dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
-        dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
+        dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
       }
     });
     setMultiParams([]);
@@ -604,7 +619,7 @@ const MultiStepWizard = (): JSX.Element => {
                 <Typography variant="h4">Confirm New Changes?</Typography>
               </Grid>
             </Grid>
-            <Grid item alignItems="center" className={classes.marginContent}>
+            <Grid item className={classes.marginContent}>
               {multiParams.map((param: Data) => {
                 if (param.isSetvalEnabled) {
                   if (param.setValue !== param.setValueActual) {
@@ -642,7 +657,7 @@ const MultiStepWizard = (): JSX.Element => {
                 <Typography variant="h4">Keep Previous Values?</Typography>
               </Grid>
             </Grid>
-            <Grid item alignItems="center" className={classes.marginContent}>
+            <Grid item className={classes.marginContent}>
               {multiParams.map((param: Data) => {
                 if (param.isSetvalEnabled) {
                   if (param.setValue !== param.setValueActual) {
