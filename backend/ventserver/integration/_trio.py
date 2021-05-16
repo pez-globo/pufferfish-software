@@ -8,16 +8,11 @@ from typing import Callable, Optional, TypeVar, Tuple, List, Type
 import trio
 import betterproto
 
-from ventserver.io.trio import channels as triochannels
-from ventserver.io.trio import endpoints
-from ventserver.io.trio import fileio
-from ventserver.io.trio import websocket as websocket_io
-from ventserver.protocols import server
-from ventserver.protocols import file
+from ventserver.io.trio import channels as triochannels, endpoints, fileio
 from ventserver.protocols import exceptions
-from ventserver.sansio import channels
-from ventserver.sansio import protocols
-from ventserver.sansio import streams
+from ventserver.protocols.backend import server
+from ventserver.protocols.devices import file
+from ventserver.sansio import channels, protocols, streams
 
 
 logger = logging.getLogger(__name__)
@@ -89,7 +84,7 @@ async def send_all_websocket(
 
 async def send_all_file(
         filehandler: fileio.Handler,
-        write_channel:protocols.Filter[_InputEvent, file.StateData]
+        write_channel: protocols.Filter[_InputEvent, file.StateData]
 ) -> None:
     """Saves protobuf data to files (prototype)"""
 
@@ -158,21 +153,6 @@ async def process_protocol_send(
     protocol.send.input(send_event)
     await process_protocol_send_output(protocol, serial, websocket, filehandler)
 
-# Receive frontend connection event
-
-
-def receive_frontend_connection(
-        protocol: server.Protocol,
-        websocket: websocket_io.Driver
-) -> None:
-    """Process frontend connection status."""
-    protocol.receive.input(
-        server.FrontendConnectionEvent(
-            last_connection_time=websocket.connection_time,
-            is_frontend_connected=websocket.is_open
-        )
-    )
-
 
 # Protocol Receive Outputs
 
@@ -212,6 +192,7 @@ async def process_protocol_receive_output(
 
 _ReceiveInputType = TypeVar("_ReceiveInputType")
 _ReceiveOutputType = TypeVar("_ReceiveOutputType")
+
 
 async def process_io_receive(
         io_endpoint: endpoints.IOEndpoint[
@@ -256,6 +237,7 @@ async def process_io_persistently(
         nursery: trio.Nursery,
         channel: triochannels.TrioChannel[server.ReceiveOutputEvent],
         push_endpoint: 'trio.MemorySendChannel[server.ReceiveOutputEvent]',
+        connection_event_type: Optional[Type[server.ConnectionEvent]],
         reconnect_interval: float = 0.01
 ) -> None:
     """Process all traffic on the I/O endpoint and reconnect on broken pipes.
@@ -272,10 +254,8 @@ async def process_io_persistently(
     async with push_endpoint:
         while True:
             await io_endpoint.persistently_open(nursery=nursery)
-            if isinstance(io_endpoint, websocket_io.Driver):
-                receive_frontend_connection(
-                    protocol, io_endpoint
-                )
+            if connection_event_type is not None:
+                protocol.receive.input(connection_event_type(connected=True))
 
             try:
                 async with io_endpoint:
@@ -283,13 +263,13 @@ async def process_io_persistently(
                         io_endpoint, protocol, receive_event_maker,
                         channel, push_endpoint.clone()
                     )
-            except BrokenPipeError:
+            except (BrokenPipeError, OSError):
                 logger.warning(
                     'Lost I/O endpoint, reconnecting: %s', io_endpoint
                 )
-                if isinstance(io_endpoint, websocket_io.Driver):
-                    receive_frontend_connection(
-                        protocol, io_endpoint
+                if connection_event_type is not None:
+                    protocol.receive.input(
+                        connection_event_type(connected=False)
                     )
 
                 await trio.sleep(reconnect_interval)
@@ -304,7 +284,7 @@ async def process_clock(
     """Process all clock updates, forever."""
     async with push_endpoint:
         while True:
-            protocol.receive.input(server.ReceiveEvent(time=time.time()))
+            protocol.receive.input(server.ReceiveDataEvent(time=time.time()))
             await process_protocol_receive_output(protocol, channel)
             await trio.sleep(clock_update_interval)
 
@@ -338,27 +318,28 @@ async def process_all(
                     # mypy only supports <= 5 args with trio-typing
                     functools.partial(
                         process_io_persistently, serial, protocol,
-                        server.make_serial_receive, nursery, channel,
-                        push_endpoint.clone()
-                    )
+                        server.make_serial_receive, nursery
+                    ),
+                    channel, push_endpoint.clone(), server.MCUConnectionEvent
                 )
             if websocket is not None:
                 nursery.start_soon(
                     # mypy only supports <= 5 args with trio-typing
                     functools.partial(
                         process_io_persistently, websocket, protocol,
-                        server.make_websocket_receive, nursery, channel,
-                        push_endpoint.clone()
-                    )
+                        server.make_websocket_receive, nursery
+                    ),
+                    channel, push_endpoint.clone(),
+                    server.FrontendConnectionEvent
                 )
             if rotary_encoder is not None:
                 nursery.start_soon(
                     # mypy only supports <= 5 args with trio-typing
                     functools.partial(
                         process_io_receive, rotary_encoder, protocol,
-                        server.make_rotary_encoder_receive, channel,
-                        push_endpoint.clone()
-                    )
+                        server.make_rotary_encoder_receive
+                    ),
+                    channel, push_endpoint.clone()
                 )
             nursery.start_soon(
                 process_clock, protocol, channel, push_endpoint.clone()
@@ -379,7 +360,7 @@ async def load_file_states(
                 message = await filehandler.receive()
                 logger.info("State initialized from file: %s", state.__name__)
                 protocol.receive.input(
-                    server.ReceiveEvent(
+                    server.ReceiveDataEvent(
                         file_receive=file.StateData(
                             state_type=state.__name__, data=message
                         )

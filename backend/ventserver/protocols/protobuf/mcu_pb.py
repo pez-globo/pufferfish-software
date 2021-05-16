@@ -20,7 +20,7 @@ class VentilationMode(betterproto.Enum):
 class LogEventCode(betterproto.Enum):
     """Log Events"""
 
-    # Patient
+    # Patient alarms
     fio2_too_low = 0
     fio2_too_high = 1
     flow_too_low = 2
@@ -29,28 +29,32 @@ class LogEventCode(betterproto.Enum):
     spo2_too_high = 5
     hr_too_low = 6
     hr_too_high = 7
-    # System
-    battery_low = 8
-    screen_locked = 9
-    backend_connection_down = 10
-    backend_connection_up = 11
-    # Control
-    ventilation_operation_changed = 12
-    ventilation_mode_changed = 13
-    fio2_setting_changed = 14
-    flow_setting_changed = 15
-    # Alarm Limits
-    fio2_alarm_limits_changed = 16
-    flow_alarm_limits_changed = 17
-    spo2_alarm_limits_changed = 18
-    hr_alarm_limits_changed = 19
+    # Control settings
+    ventilation_operation_changed = 64
+    ventilation_mode_changed = 65
+    fio2_setting_changed = 66
+    flow_setting_changed = 67
+    # Alarm limits settings
+    fio2_alarm_limits_changed = 80
+    flow_alarm_limits_changed = 81
+    spo2_alarm_limits_changed = 82
+    hr_alarm_limits_changed = 83
+    # System settings & alarms
+    screen_locked = 129
+    mcu_connection_down = 130
+    backend_connection_down = 131
+    frontend_connection_down = 132
+    mcu_connection_up = 133
+    backend_connection_up = 134
+    frontend_connection_up = 135
+    battery_low = 136
 
 
 class LogEventType(betterproto.Enum):
     patient = 0
-    system = 1
-    control = 2
-    alarm_limits = 3
+    control = 1
+    alarm_limits = 2
+    system = 3
 
 
 @dataclass
@@ -182,6 +186,7 @@ class LogEvent(betterproto.Message):
 @dataclass
 class ExpectedLogEvent(betterproto.Message):
     id: int = betterproto.uint32_field(1)
+    session_id: int = betterproto.uint32_field(2)
 
 
 @dataclass
@@ -189,7 +194,8 @@ class NextLogEvents(betterproto.Message):
     next_expected: int = betterproto.uint32_field(1)
     total: int = betterproto.uint32_field(2)
     remaining: int = betterproto.uint32_field(3)
-    elements: List["LogEvent"] = betterproto.message_field(4)
+    session_id: int = betterproto.uint32_field(4)
+    elements: List["LogEvent"] = betterproto.message_field(5)
 
 
 @dataclass

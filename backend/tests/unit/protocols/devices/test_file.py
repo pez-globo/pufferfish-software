@@ -4,7 +4,7 @@ import pytest as pt  # type: ignore
 import betterproto
 
 from ventserver.protocols import exceptions
-from ventserver.protocols import file
+from ventserver.protocols.devices import file
 from ventserver.protocols.protobuf import mcu_pb
 
 

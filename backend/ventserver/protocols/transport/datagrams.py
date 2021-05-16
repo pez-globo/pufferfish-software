@@ -1,10 +1,10 @@
-"""Filters for handling data integrity over an unreliable messaging channel.
+"""Filters for detecting data loss over an unreliable messaging channel.
 
 Provides Filters which check data integrity fields in headers prepended to
 arbitrary data payloads (limited by payload length) to detect and handle
 data loss.
 
-A Datagram is defined as the data unit of the data integrity layer, consisting
+A Datagram is defined as a data unit of the data integrity layer, consisting
 of a payload preceded by a header which contains a 1-byte sequence number field,
 and a 1-byte length field. The length fields allow detection of byte loss in the
 header and payload. The sequence number field allows detection of loss or
@@ -48,8 +48,7 @@ from typing import Any, Optional
 import attr
 
 from ventserver.protocols import exceptions
-from ventserver.sansio import channels
-from ventserver.sansio import protocols
+from ventserver.sansio import channels, protocols
 
 
 # Constants
@@ -71,6 +70,7 @@ def single_byte_attr(
 
     """
     bytes([value])
+
 
 @attr.s
 class Datagram:
@@ -186,6 +186,7 @@ class Datagram:
             ) from exc
 
         return header + self.payload
+
 
 # Filters
 

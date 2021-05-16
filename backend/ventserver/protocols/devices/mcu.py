@@ -7,11 +7,10 @@ import attr
 
 import betterproto
 
-from ventserver.protocols import datagrams
 from ventserver.protocols import exceptions
-from ventserver.protocols import frames
-from ventserver.protocols import messages
-from ventserver.protocols import crcelements
+from ventserver.protocols.transport import (
+    crcelements, datagrams, frames, messages
+)
 from ventserver.protocols.protobuf import mcu_pb
 from ventserver.sansio import protocols
 

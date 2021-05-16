@@ -34,7 +34,6 @@ def test_send_new_elements() -> None:
 
     # Segments should be returned as requested
     for next_expected in range(10, 20):
-        print(next_expected)
         synchronizer.input(lists.UpdateEvent(next_expected=next_expected))
         output = synchronizer.output()
         assert isinstance(output, pb.NextLogEvents)
@@ -69,10 +68,22 @@ def test_send_new_elements() -> None:
 def test_receive_new_elements() -> None:
     """Test adding new elements to a list from receiving."""
     example_sequence = [
-        pb.NextLogEvents(elements=[pb.LogEvent(id=i) for i in range(0, 5)]),
-        pb.NextLogEvents(elements=[pb.LogEvent(id=i) for i in range(5, 10)]),
-        pb.NextLogEvents(elements=[pb.LogEvent(id=i) for i in range(7, 11)]),
-        pb.NextLogEvents(elements=[pb.LogEvent(id=i) for i in range(0, 4)]),
+        pb.NextLogEvents(
+            session_id=0, elements=[pb.LogEvent(id=i) for i in range(0, 5)]
+        ),
+        pb.NextLogEvents(
+            session_id=0, elements=[pb.LogEvent(id=i) for i in range(5, 10)]
+        ),
+        pb.NextLogEvents(
+            session_id=0, elements=[pb.LogEvent(id=i) for i in range(7, 11)]
+        ),
+        pb.NextLogEvents(
+            session_id=0, elements=[pb.LogEvent(id=i) for i in range(0, 4)]
+        ),
+        pb.NextLogEvents(session_id=1),
+        pb.NextLogEvents(
+            session_id=1, elements=[pb.LogEvent(id=i) for i in range(0, 4)]
+        ),
     ]
 
     synchronizer: lists.ReceiveSynchronizer[pb.LogEvent] = \
@@ -83,6 +94,7 @@ def test_receive_new_elements() -> None:
 
     update_event = synchronizer.output()
     assert update_event is not None
+    assert update_event.session_id == 0
     assert update_event.next_expected == 5
     assert len(update_event.new_elements) == 5
     for (i, element) in enumerate(update_event.new_elements):
@@ -90,6 +102,7 @@ def test_receive_new_elements() -> None:
 
     update_event = synchronizer.output()
     assert update_event is not None
+    assert update_event.session_id == 0
     assert update_event.next_expected == 10
     assert len(update_event.new_elements) == 5
     for (i, element) in enumerate(update_event.new_elements):
@@ -97,12 +110,26 @@ def test_receive_new_elements() -> None:
 
     update_event = synchronizer.output()
     assert update_event is not None
+    assert update_event.session_id == 0
     assert update_event.next_expected == 11
     assert len(update_event.new_elements) == 1
     assert update_event.new_elements[0].id == 10
 
     update_event = synchronizer.output()
     assert update_event is not None
+    assert update_event.session_id == 0
+    assert update_event.next_expected == 11
+    assert len(update_event.new_elements) == 0
+
+    update_event = synchronizer.output()
+    assert update_event is not None
+    assert update_event.session_id == 1
+    assert update_event.next_expected == 0
+    assert len(update_event.new_elements) == 0
+
+    update_event = synchronizer.output()
+    assert update_event is not None
+    assert update_event.session_id == 1
     assert update_event.next_expected == 4
     assert len(update_event.new_elements) == 4
     for (i, element) in enumerate(update_event.new_elements):

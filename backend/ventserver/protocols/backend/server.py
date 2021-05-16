@@ -2,40 +2,43 @@
 
 from typing import Optional, Union, Tuple
 import logging
-import time as _time
 
 import attr
 
-from ventserver.protocols import backend
-from ventserver.protocols import events
-from ventserver.protocols import frontend
-from ventserver.protocols import mcu
-from ventserver.protocols import file
-from ventserver.protocols import rotary_encoder
-from ventserver.protocols import exceptions
-from ventserver.sansio import channels
-from ventserver.sansio import protocols
+from ventserver.protocols import events, exceptions
+from ventserver.protocols.backend import backend, connections
+from ventserver.protocols.devices import file, frontend, mcu, rotary_encoder
+from ventserver.protocols.protobuf import mcu_pb
+from ventserver.sansio import channels, protocols
 
 
 # Events
 
-@attr.s
-class FrontendConnectionEvent(events.Event):
-    """Server frontend connection status event."""
 
-    last_connection_time: float = attr.ib(default=None)
-    is_frontend_connected: bool = attr.ib(default=False)
+@attr.s
+class GenericConnectionEvent(events.Event):
+    """Generic connection status event."""
+
+    connected: bool = attr.ib(default=False)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
-        return (
-            self.last_connection_time is not None
-            and self.is_frontend_connected is not None
-        )
+        return True
+
+
+class FrontendConnectionEvent(GenericConnectionEvent):
+    """Frontend connection status event."""
+
+
+class MCUConnectionEvent(GenericConnectionEvent):
+    """MCU connection status event."""
+
+
+ConnectionEvent = Union[MCUConnectionEvent, FrontendConnectionEvent]
 
 
 @attr.s
-class ReceiveEvent(events.Event):
+class ReceiveDataEvent(events.Event):
     """Server receive input event."""
 
     time: Optional[float] = attr.ib(default=None)
@@ -60,13 +63,14 @@ class ReceiveOutputEvent(events.Event):
     """Server receive output/send event."""
 
     server_send: Optional[backend.OutputEvent] = attr.ib(default=None)
-    frontend_delayed: bool = attr.ib(default=False)
+    kill_frontend: bool = attr.ib(default=False)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
         return self.server_send is not None and self.server_send.has_data()
 
 
+ReceiveEvent = Union[ReceiveDataEvent, ConnectionEvent]
 SendEvent = backend.OutputEvent
 
 
@@ -90,39 +94,25 @@ class SendOutputEvent(events.Event):
 def make_serial_receive(
         serial_receive: bytes,
         time: float
-) -> ReceiveEvent:
-    """Make a ReceiveEvent from serial receive data."""
-    return ReceiveEvent(serial_receive=serial_receive, time=time)
+) -> ReceiveDataEvent:
+    """Make a ReceiveDataEvent from serial receive data."""
+    return ReceiveDataEvent(serial_receive=serial_receive, time=time)
 
 
 def make_websocket_receive(
         ws_receive: bytes,
         time: float
-) -> ReceiveEvent:
-    """Make a ReceiveEvent from websocket receive data."""
-    return ReceiveEvent(websocket_receive=ws_receive, time=time)
+) -> ReceiveDataEvent:
+    """Make a ReceiveDataEvent from websocket receive data."""
+    return ReceiveDataEvent(websocket_receive=ws_receive, time=time)
 
 
 def make_rotary_encoder_receive(
         re_receive: Tuple[int, bool],
         time: float
-) -> ReceiveEvent:
-    """Make a ReceiveEvent from rotary encoder receive data."""
-    return ReceiveEvent(rotary_encoder_receive=re_receive, time=time)
-
-
-# Frontend kill props
-
-@attr.s
-class FrontendKillProps():
-    """Variables used to implement frozen frontend kill logic."""
-
-    # fe = frontend
-    last_fe_event: float = attr.ib(default=0)
-    fe_connected: bool = attr.ib(default=False)
-    fe_connection_time: float = attr.ib(default=0)
-    last_fe_kill: float = attr.ib(factory=_time.time)
-    fe_delayed_duration: int = attr.ib(default=5)
+) -> ReceiveDataEvent:
+    """Make a ReceiveDataEvent from rotary encoder receive data."""
+    return ReceiveDataEvent(rotary_encoder_receive=re_receive, time=time)
 
 
 # Filters
@@ -133,26 +123,25 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     """Filter which transforms receive bytes into high-level events."""
     _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
 
-    _buffer: channels.DequeChannel[
-                        Union[ReceiveEvent, FrontendConnectionEvent]
-            ] = attr.ib(factory=channels.DequeChannel)
+    _buffer: channels.DequeChannel[ReceiveEvent] =\
+        attr.ib(factory=channels.DequeChannel)
 
     current_time: float = attr.ib(default=0)
-    _kill_props: FrontendKillProps = attr.ib(factory=FrontendKillProps)
 
     _mcu: mcu.ReceiveFilter = attr.ib(factory=mcu.ReceiveFilter)
     _frontend: frontend.ReceiveFilter = attr.ib(factory=frontend.ReceiveFilter)
+    _file: file.ReceiveFilter = attr.ib(factory=file.ReceiveFilter)
     _rotary_encoder: rotary_encoder.ReceiveFilter = attr.ib(
         factory=rotary_encoder.ReceiveFilter
     )
     _backend: backend.ReceiveFilter = attr.ib(factory=backend.ReceiveFilter)
-    _file: file.ReceiveFilter = attr.ib(
-        factory=file.ReceiveFilter
-    )
 
-    def input(self, event: Optional[
-            Union[ReceiveEvent, FrontendConnectionEvent]
-    ]) -> None:
+    _connections: connections.TimeoutHandler = \
+        attr.ib(factory=connections.TimeoutHandler)
+    _mcu_connected: bool = attr.ib(default=False)
+    _frontend_connected: bool = attr.ib(default=False)
+
+    def input(self, event: Optional[ReceiveEvent]) -> None:
         """Handle input events."""
         if event is None or not event.has_data():
             return
@@ -162,54 +151,26 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     def output(self) -> Optional[ReceiveOutputEvent]:
         """Emit the next output event."""
         self._process_buffer()
-        any_updated = False
-
-        # Process mcu output
-        any_updated = self._process_mcu() or any_updated
-        # Process frontend output
-        any_updated = self._process_frontend() or any_updated
-        # Process rotary encoder output
-        any_updated = self._process_rotary_encoder() or any_updated
-        # Process file output
-        try:
-            any_updated = self._process_file() or any_updated
-        except exceptions.ProtocolDataError as err:
-            self._logger.error(err)
-        # Process time
+        any_updated = self._process_devices()
         if not any_updated:
-            self._backend.input(backend.ReceiveEvent(time=self.current_time))
-
-        # Process backend output
-        # Consume any outputs as long as the backend is indicating that it still
-        # has receive data to process, even if it has no data to output
+            self._backend.input(backend.ReceiveDataEvent(
+                time=self.current_time
+            ))
+        # Process backend output until the backend has data to output or it
+        # indicates that it has no more receive data to process.
+        output = ReceiveOutputEvent()
         while True:
-            backend_output = self._backend.output()
-            if backend_output is None:
+            output.server_send = self._backend.output()
+            if output.server_send is None:
                 break
-            if backend_output.has_data():
+            if output.server_send.has_data():
                 break
-        any_updated = any_updated or backend_output is not None
+        any_updated = any_updated or output.server_send is not None
+        output.kill_frontend = self._process_connection_statuses()
+        any_updated = any_updated or output.kill_frontend
         if not any_updated:
             return None
 
-        # Kill frontend process if it stops responding.
-        # The frontend service will automatically restart the frontend process.
-        delayed = False
-        if (
-                int(self.current_time - self._kill_props.last_fe_event)
-                > self._kill_props.fe_delayed_duration
-        ):
-            if int(self.current_time - self._kill_props.last_fe_kill) > 2:
-                connection_duration = int(
-                    self.current_time - self._kill_props.fe_connection_time
-                )
-                if self._kill_props.fe_connected and connection_duration > 2:
-                    self._kill_props.last_fe_kill = self.current_time
-                    delayed = True
-
-        output = ReceiveOutputEvent(
-            server_send=backend_output, frontend_delayed=delayed
-        )
         return output
 
     def _process_buffer(self) -> None:
@@ -218,21 +179,36 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         if event is None:
             return
 
+        if isinstance(event, MCUConnectionEvent):
+            update_type = (
+                connections.Update.MCU_CONNECTED if event.connected
+                else connections.Update.MCU_DISCONNECTED
+            )
+            self._connections.input(connections.UpdateEvent(
+                current_time=self.current_time, type=update_type
+            ))
+            return
+
         if isinstance(event, FrontendConnectionEvent):
-            self._kill_props.fe_connection_time = event.last_connection_time
-            self._kill_props.fe_connected = event.is_frontend_connected
+            update_type = (
+                connections.Update.FRONTEND_CONNECTED if event.connected
+                else connections.Update.FRONTEND_DISCONNECTED
+            )
+            self._connections.input(connections.UpdateEvent(
+                current_time=self.current_time, type=update_type
+            ))
             return
 
         if event.time is not None:
             self.current_time = event.time
+            self._connections.input(connections.UpdateEvent(
+                current_time=self.current_time
+            ))
         self._mcu.input(event.serial_receive)
         self._frontend.input(event.websocket_receive)
-        self._rotary_encoder.input(
-            rotary_encoder.ReceiveEvent(
-                time=self.current_time,
-                re_data=event.rotary_encoder_receive
-            )
-        )
+        self._rotary_encoder.input(rotary_encoder.ReceiveEvent(
+            time=self.current_time, re_data=event.rotary_encoder_receive
+        ))
         self._file.input(event.file_receive)
 
     def _process_mcu(self) -> bool:
@@ -241,10 +217,23 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         if mcu_output is None:
             return False
 
-        self._backend.input(backend.ReceiveEvent(
+        self._backend.input(backend.ReceiveDataEvent(
             time=self.current_time, mcu_receive=mcu_output,
             frontend_receive=None
         ))
+        self._connections.input(connections.UpdateEvent(
+            current_time=self.current_time, type=connections.Update.MCU_RECEIVED
+        ))
+        if not self._mcu_connected:
+            self._backend.input(backend.ExternalLogEvent(
+                time=self.current_time, active=False,
+                code=mcu_pb.LogEventCode.mcu_connection_down
+            ))
+            self._backend.input(backend.ExternalLogEvent(
+                time=self.current_time,
+                code=mcu_pb.LogEventCode.mcu_connection_up
+            ))
+            self._mcu_connected = True
         return True
 
     def _process_frontend(self) -> bool:
@@ -252,11 +241,24 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         frontend_output = self._frontend.output()
         if frontend_output is None:
             return False
-        self._backend.input(backend.ReceiveEvent(
-            time=self.current_time, mcu_receive=None,
-            frontend_receive=frontend_output
+
+        self._backend.input(backend.ReceiveDataEvent(
+            time=self.current_time, frontend_receive=frontend_output
         ))
-        self._kill_props.last_fe_event = self.current_time
+        self._connections.input(connections.UpdateEvent(
+            current_time=self.current_time,
+            type=connections.Update.FRONTEND_RECEIVED
+        ))
+        if not self._frontend_connected:
+            self._backend.input(backend.ExternalLogEvent(
+                time=self.current_time, active=False,
+                code=mcu_pb.LogEventCode.frontend_connection_down
+            ))
+            self._backend.input(backend.ExternalLogEvent(
+                time=self.current_time,
+                code=mcu_pb.LogEventCode.frontend_connection_up
+            ))
+            self._frontend_connected = True
         return True
 
     def _process_rotary_encoder(self) -> bool:
@@ -264,9 +266,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         rotary_encoder_output = self._rotary_encoder.output()
         if rotary_encoder_output is None:
             return False
-        self._backend.input(backend.ReceiveEvent(
-            time=self.current_time, mcu_receive=None,
-            frontend_receive=rotary_encoder_output
+
+        self._backend.input(backend.ReceiveDataEvent(
+            time=self.current_time, frontend_receive=rotary_encoder_output
         ))
         return True
 
@@ -275,14 +277,46 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         file_output = self._file.output()  # throws ProtocolDataError
         if file_output is None:
             return False
-        self._backend.input(backend.ReceiveEvent(
-            time=self.current_time, mcu_receive=None,
-            frontend_receive=None, file_receive=file_output
+
+        self._backend.input(backend.ReceiveDataEvent(
+            time=self.current_time, file_receive=file_output
         ))
         return True
 
+    def _process_devices(self) -> bool:
+        """Process the next event from every device."""
+        any_updated = False
+
+        any_updated = self._process_mcu() or any_updated
+        any_updated = self._process_frontend() or any_updated
+        any_updated = self._process_rotary_encoder() or any_updated
+        # TODO: why do we need an exception handler here?
+        try:
+            any_updated = self._process_file() or any_updated
+        except exceptions.ProtocolDataError as err:
+            self._logger.error(err)
+
+        return any_updated
+
+    def _process_connection_statuses(self) -> bool:
+        """Handle any connection timeouts."""
+        actions = self._connections.output()
+        if actions.alarm_mcu:
+            self._backend.input(backend.ExternalLogEvent(
+                time=self.current_time, active=True,
+                code=mcu_pb.LogEventCode.mcu_connection_down
+            ))
+            self._mcu_connected = False
+        if actions.alarm_frontend:
+            self._backend.input(backend.ExternalLogEvent(
+                time=self.current_time, active=True,
+                code=mcu_pb.LogEventCode.frontend_connection_down
+            ))
+            self._frontend_connected = False
+        return actions.kill_frontend
+
     def input_serial(self, serial_receive: bytes) -> None:
-        """Input a ReceiveEvent corresponding to serial data.
+        """Input a ReceiveDataEvent corresponding to serial data.
 
         This is just a convenience function intended for writing unit tests
         more concisely.
@@ -290,7 +324,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         self.input(make_serial_receive(serial_receive, self.current_time))
 
     def input_websocket(self, websocket: bytes) -> None:
-        """Input a ReceiveEvent corresponding to websocket data.
+        """Input a ReceiveDataEvent corresponding to websocket data.
 
         This is just a convenience function intended for writing unit tests
         more concisely.

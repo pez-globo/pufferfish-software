@@ -55,6 +55,18 @@ def test_no_reinitialization(time_delta: int) -> None:
     assert offset == synchronizer.output()
 
 
+def test_reset() -> None:
+    """Test clock synchronization offset reinitialization with manual reset."""
+    synchronizer = clocks.ClockSynchronizer()
+    synchronizer.input(clocks.UpdateEvent(current_time=1.0, remote_time=1000))
+    assert synchronizer.output() == 0
+    synchronizer.input(clocks.UpdateEvent(current_time=1.0, remote_time=2000))
+    assert synchronizer.output() == 0
+    synchronizer.input(clocks.ResetEvent())
+    synchronizer.input(clocks.UpdateEvent(current_time=1.0, remote_time=2000))
+    assert synchronizer.output() == -1000
+
+
 def test_rollover() -> None:
     """Test clock synchronization offset reinitialization with rollover."""
     synchronizer = clocks.ClockSynchronizer()

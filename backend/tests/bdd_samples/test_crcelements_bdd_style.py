@@ -8,8 +8,8 @@ import hypothesis.strategies as st
 
 import pytest as pt  # type: ignore
 
-from ventserver.protocols import crcelements
 from ventserver.protocols import exceptions
+from ventserver.protocols.transport import crcelements
 
 example_crc_good = [
     (
