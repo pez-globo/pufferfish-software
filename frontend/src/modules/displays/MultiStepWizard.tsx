@@ -4,15 +4,14 @@ import { useDispatch } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
 import ReplyIcon from '@material-ui/icons/Reply';
 // import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
-import { useLocation } from 'react-router-dom';
 import ModalPopup from '../controllers/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
-  getParametersFiO2,
-  getParametersFlow,
   getSmoothedSpO2,
   getSmoothedHR,
   roundValue,
+  getParametersRequestDraftFlow,
+  getParametersRequestDraftFiO2,
 } from '../../store/controller/selectors';
 import { SetValueContent } from '../controllers/ValueModal';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
@@ -23,7 +22,6 @@ import { ParametersRequest, AlarmLimitsRequest } from '../../store/controller/pr
 import { MessageType } from '../../store/controller/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import store from '../../store';
-import { DASHBOARD_ROUTE } from '../navigation/constants';
 
 interface Data {
   stateKey: string;
@@ -136,7 +134,7 @@ const HFNCControls = (): JSX.Element => {
       <Grid container item justify="center" alignItems="stretch" direction="column">
         <ValueInfo
           mainContainer={{
-            selector: getParametersFiO2,
+            selector: getParametersRequestDraftFiO2,
             label: 'FiO2',
             stateKey: 'fio2',
             units: PERCENT,
@@ -144,7 +142,7 @@ const HFNCControls = (): JSX.Element => {
         />
         <ValueInfo
           mainContainer={{
-            selector: getParametersFlow,
+            selector: getParametersRequestDraftFlow,
             label: 'Flow',
             stateKey: 'flow',
             units: LMIN,
@@ -282,7 +280,6 @@ const determineInput = (stateKey: string): Data | undefined => {
 const MultiStepWizard = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const location = useLocation();
   const [open, setOpen] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [cancelOpen, setCancelOpen] = React.useState(false);
@@ -353,6 +350,10 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.setValue = setting;
       parameter.setValue = setting;
+      if (open) {
+        const update = { [stateKey]: setting };
+        dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+      }
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
       } else {
@@ -369,7 +370,7 @@ const MultiStepWizard = (): JSX.Element => {
       // we want to dispatch commitDraftRequest to AlarmLimitsRequest to show the unsaved alarm limit changes
       // in the HFNC control (value info right corner), but doing so when in set alarms page will discard the unsaved changes
       // which is unwanted, thus only do this when we are on dashboard.
-      if (location.pathname === DASHBOARD_ROUTE.path) {
+      if (open) {
         const update = {
           [parameter.stateKey]: {
             lower: min,
