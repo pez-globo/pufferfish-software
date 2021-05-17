@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Subscription } from 'rxjs';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
 import ReplyIcon from '@material-ui/icons/Reply';
 // import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
@@ -12,6 +12,7 @@ import {
   roundValue,
   getParametersRequestDraftFlow,
   getParametersRequestDraftFiO2,
+  getAlarmLimitsRequestUnsaved,
 } from '../../store/controller/selectors';
 import { SetValueContent } from '../controllers/ValueModal';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
@@ -280,6 +281,7 @@ const determineInput = (stateKey: string): Data | undefined => {
 const MultiStepWizard = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
   const [open, setOpen] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [cancelOpen, setCancelOpen] = React.useState(false);
@@ -368,9 +370,9 @@ const MultiStepWizard = (): JSX.Element => {
       if (param) param.alarmValues = [min, max];
       parameter.alarmValues = [min, max];
       // we want to dispatch commitDraftRequest to AlarmLimitsRequest to show the unsaved alarm limit changes
-      // in the HFNC control (value info right corner), but doing so when in set alarms page will discard the unsaved changes
-      // which is unwanted, thus only do this when we are on dashboard.
-      if (open) {
+      // in the HFNC control (value info right corner), but only dispatch the update if there are no unsaved changes
+      // and multiPopup window is open.
+      if (open && !alarmLimitsRequestUnsaved) {
         const update = {
           [parameter.stateKey]: {
             lower: min,
