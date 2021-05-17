@@ -51,9 +51,7 @@ const FiO2Info = (): JSX.Element => {
    *
    */
   const doSetFiO2 = (setting: number) => {
-    dispatch(
-      commitRequest<ParametersRequest>(MessageType.ParametersRequest, { fio2: setting }),
-    );
+    dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, { fio2: setting }));
     dispatch(
       commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, { fio2: setting }),
     );

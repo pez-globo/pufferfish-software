@@ -365,7 +365,7 @@ const MultiStepWizard = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const location = useLocation();
-    /**
+  /**
    * State to manage Multi step Modal `open` status
    */
   const [open, setOpen] = React.useState(false);

@@ -13,56 +13,54 @@ import { BACKEND_CONNECTION_DOWN } from '../../app/types';
 
 // GENERIC REDUCERS
 
-export const messageReducer = <T extends PBMessage>(messageType: MessageType) => (
-  state: T | null = null,
-  action: StateUpdateAction,
-): T | null => {
-  switch (action.type) {
-    case STATE_UPDATED:
-      if (action.messageType !== messageType) {
-        // ignore irrelevant messages
+export const messageReducer =
+  <T extends PBMessage>(messageType: MessageType) =>
+  (state: T | null = null, action: StateUpdateAction): T | null => {
+    switch (action.type) {
+      case STATE_UPDATED:
+        if (action.messageType !== messageType) {
+          // ignore irrelevant messages
+          return state;
+        }
+
+        return action.state as T;
+      default:
         return state;
-      }
-
-      return action.state as T;
-    default:
-      return state;
-  }
-};
-
-export const requestReducer = <T extends PBMessage>(
-  requestMessageType: MessageType,
-  actionType: string,
-) => (state: T | null = null, action: StateUpdateAction | CommitAction): T | null => {
-  switch (action.type) {
-    case STATE_UPDATED: {
-      const updateAction = action as StateUpdateAction;
-      if (updateAction.messageType !== requestMessageType) {
-        // ignore irrelevant messages
-        return state;
-      }
-
-      if (state === null) {
-        // initialize the store with the backend's value...
-        return updateAction.state as T;
-      }
-
-      // ...but ignore the backend otherwise
-      return state;
     }
-    case actionType: {
-      const commitAction = action as CommitAction;
-      if (commitAction.messageType !== requestMessageType) {
-        // ignore irrelevant messages
+  };
+
+export const requestReducer =
+  <T extends PBMessage>(requestMessageType: MessageType, actionType: string) =>
+  (state: T | null = null, action: StateUpdateAction | CommitAction): T | null => {
+    switch (action.type) {
+      case STATE_UPDATED: {
+        const updateAction = action as StateUpdateAction;
+        if (updateAction.messageType !== requestMessageType) {
+          // ignore irrelevant messages
+          return state;
+        }
+
+        if (state === null) {
+          // initialize the store with the backend's value...
+          return updateAction.state as T;
+        }
+
+        // ...but ignore the backend otherwise
         return state;
       }
+      case actionType: {
+        const commitAction = action as CommitAction;
+        if (commitAction.messageType !== requestMessageType) {
+          // ignore irrelevant messages
+          return state;
+        }
 
-      return { ...state, ...commitAction.update } as T;
+        return { ...state, ...commitAction.update } as T;
+      }
+      default:
+        return state;
     }
-    default:
-      return state;
-  }
-};
+  };
 
 // MESSAGE STATES FROM mcu_pb
 
@@ -128,7 +126,7 @@ export const eventLogReducer = (
     }
     case BACKEND_CONNECTION_DOWN: {
       // Make an ephemeral frontend-only event
-      const logEvent = (action.update as unknown) as LogEvent;
+      const logEvent = action.update as unknown as LogEvent;
       const eventID = state.expectedLogEvent.id;
       return {
         ...state,

@@ -141,9 +141,7 @@ export const AlarmModal = ({
   const [max] = React.useState(committedMax);
   const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual);
   const range =
-    alarmLimits === null
-      ? undefined
-      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
+    alarmLimits === null ? undefined : (alarmLimits as unknown as Record<string, Range>)[stateKey];
   const { lower, upper } = range === undefined ? Range.fromJSON({ lower: NaN, upper: NaN }) : range;
   const [rangeValue, setRangeValue] = React.useState<number[]>([
     alarmRangeValues.length ? alarmRangeValues[0] : lower,

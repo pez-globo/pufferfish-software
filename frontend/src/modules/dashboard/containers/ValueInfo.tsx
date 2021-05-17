@@ -231,9 +231,7 @@ const ControlValuesDisplay = ({
   const [open, setOpen] = useState(false);
   const alarmLimits = useSelector(getAlarmLimitsRequestDraft, shallowEqual);
   const range =
-    alarmLimits === null
-      ? undefined
-      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
+    alarmLimits === null ? undefined : (alarmLimits as unknown as Record<string, Range>)[stateKey];
   const { lower, upper } = range === undefined ? { lower: '--', upper: '--' } : range;
 
   /**
@@ -360,9 +358,7 @@ const GridControlValuesDisplay = ({
   const [open, setOpen] = useState(false);
   const alarmLimits = useSelector(getAlarmLimitsCurrent, shallowEqual);
   const range =
-    alarmLimits === null
-      ? undefined
-      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
+    alarmLimits === null ? undefined : (alarmLimits as unknown as Record<string, Range>)[stateKey];
   const { lower, upper } = range === undefined ? { lower: '--', upper: '--' } : range;
 
   /**

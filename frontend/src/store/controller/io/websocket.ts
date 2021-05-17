@@ -54,9 +54,7 @@ export interface Connection {
   connectionChannel: EventChannel<ConnectionEvent>;
 }
 
-export function* setupConnection(
-  retryInterval = 10,
-): Generator<
+export function* setupConnection(retryInterval = 10): Generator<
   CallEffect<true | EventChannel<ConnectionEvent>> | TakeEffect | CallEffect<true>,
   // The Generator type is templated and so complicated that we can't specify its type.
   // eslint-disable @typescript-eslint/no-explicit-any
