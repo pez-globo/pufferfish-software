@@ -7,8 +7,8 @@ import hypothesis.strategies as st
 
 import pytest as pt  # type: ignore
 
-from ventserver.protocols import datagrams
 from ventserver.protocols import exceptions
+from ventserver.protocols.transport import datagrams
 
 
 example_datagrams_good = [

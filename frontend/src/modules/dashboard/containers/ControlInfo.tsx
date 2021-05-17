@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ParametersRequest } from '../../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../../store/controller/types';
-import { commitRequest, commitStandbyRequest } from '../../../store/controller/actions';
+import { commitRequest, commitDraftRequest } from '../../../store/controller/actions';
 import { setMultiPopupOpen } from '../../app/Service';
 import { ValueModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
@@ -178,7 +178,7 @@ const ControlInfo = (props: Props): JSX.Element => {
   const doSetValue = (setting: number) => {
     const update = { [stateKey]: setting };
     dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
-    dispatch(commitStandbyRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+    dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
   };
 
   /**

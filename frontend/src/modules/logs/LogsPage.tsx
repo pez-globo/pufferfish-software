@@ -178,7 +178,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   /**
    * State to manage order by column
    */
-  const [orderBy, setOrderBy] = React.useState<keyof Data>('time');
+  const [orderBy, setOrderBy] = React.useState<keyof Data>('id');
   /**
    * State to manage row selection
    */

@@ -5,7 +5,7 @@
 import { Button, Grid, makeStyles, Theme, Typography, useTheme } from '@material-ui/core';
 import React, { RefObject, useCallback, useEffect, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
+import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { getAlarmLimitsRequest } from '../../store/controller/selectors';
 import { Range, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
@@ -205,7 +205,7 @@ export const AlarmModal = ({
       },
     };
     dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
-    dispatch(commitStandbyRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
+    dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
     requestCommitRange(rangeValue[0], rangeValue[1]);
     handleClose();
   };
@@ -262,7 +262,7 @@ export const AlarmModal = ({
               height: '100%',
             }}
           >
-            <Grid alignItems="center" item className={classes.alarmValue}>
+            <Grid item className={classes.alarmValue}>
               <Typography align="center" variant="h4">
                 {rangeValue[0] !== undefined ? Number(rangeValue[0]) : '--'}
               </Typography>

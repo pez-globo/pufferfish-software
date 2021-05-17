@@ -17,6 +17,7 @@ import {
   VentilationMode,
   BatteryPower,
   ScreenStatus,
+  Range,
 } from './proto/mcu_pb';
 import {
   Measurements,
@@ -152,33 +153,33 @@ export const getParametersRequest = createSelector(
   (parameters: ParametersRequestResponse): ParametersRequest | null => parameters.request,
 );
 export const getParametersRequestMode = ventilationModeSelector(getParametersRequest);
-// Standby
-export const getParametersRequestStandby = createSelector(
+// Draft
+export const getParametersRequestDraft = createSelector(
   getParameters,
-  (parameters: ParametersRequestResponse): ParametersRequest | null => parameters.standby,
+  (parameters: ParametersRequestResponse): ParametersRequest | null => parameters.draft,
 );
-export const getParametersRequestStandbyFiO2 = numericParameterSelector(
-  getParametersRequestStandby,
+export const getParametersRequestDraftFiO2 = numericParameterSelector(
+  getParametersRequestDraft,
   'fio2',
 );
-export const getParametersRequestStandbyFlow = numericParameterSelector(
-  getParametersRequestStandby,
+export const getParametersRequestDraftFlow = numericParameterSelector(
+  getParametersRequestDraft,
   'flow',
 );
-export const getParametersRequestStandbyPIP = numericParameterSelector(
-  getParametersRequestStandby,
+export const getParametersRequestDraftPIP = numericParameterSelector(
+  getParametersRequestDraft,
   'pip',
 );
-export const getParametersRequestStandbyPEEP = numericParameterSelector(
-  getParametersRequestStandby,
+export const getParametersRequestDraftPEEP = numericParameterSelector(
+  getParametersRequestDraft,
   'peep',
 );
-export const getParametersRequestStandbyVT = numericParameterSelector(
-  getParametersRequestStandby,
+export const getParametersRequestDraftVT = numericParameterSelector(
+  getParametersRequestDraft,
   'vt',
 );
-export const getParametersRequestStandbyRR = numericParameterSelector(
-  getParametersRequestStandby,
+export const getParametersRequestDraftRR = numericParameterSelector(
+  getParametersRequestDraft,
   'rr',
 );
 
@@ -196,9 +197,37 @@ export const getAlarmLimitsRequest = createSelector(
   getAlarmLimits,
   (alarmLimits: AlarmLimitsRequestResponse): AlarmLimitsRequest | null => alarmLimits.request,
 );
-export const getAlarmLimitsRequestStandby = createSelector(
+export const getAlarmLimitsRequestDraft = createSelector(
   getAlarmLimits,
-  (alarmLimits: AlarmLimitsRequestResponse): AlarmLimitsRequest | null => alarmLimits.standby,
+  (alarmLimits: AlarmLimitsRequestResponse): AlarmLimitsRequest | null => alarmLimits.draft,
+);
+export const getAlarmLimitsUnsavedKeys = createSelector(
+  getAlarmLimitsRequest,
+  getAlarmLimitsRequestDraft,
+  (
+    alarmLimitsRequest: AlarmLimitsRequest | null,
+    alarmLimitsRequestDraft: AlarmLimitsRequest | null,
+  ): string[] => {
+    if (alarmLimitsRequest === null || alarmLimitsRequestDraft === null) {
+      return [];
+    }
+    const alarmLimitsRequestRange = (alarmLimitsRequest as unknown) as Record<string, Range>;
+    const alarmLimitsRequestDraftRange = (alarmLimitsRequestDraft as unknown) as Record<
+      string,
+      Range
+    >;
+    const keys = ['spo2', 'hr'];
+    return keys.filter(
+      (key: string) =>
+        alarmLimitsRequestRange[key]?.lower !== alarmLimitsRequestDraftRange[key]?.lower ||
+        alarmLimitsRequestRange[key]?.upper !== alarmLimitsRequestDraftRange[key]?.upper,
+    );
+  },
+);
+
+export const getAlarmLimitsRequestUnsaved = createSelector(
+  getAlarmLimitsUnsavedKeys,
+  (unsavedKeys: string[]): boolean => unsavedKeys.length > 0,
 );
 
 // Event log

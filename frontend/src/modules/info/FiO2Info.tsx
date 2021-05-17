@@ -10,7 +10,7 @@ import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { ParametersRequest } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
-import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
+import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { getParametersFiO2, getSensorMeasurementsFiO2 } from '../../store/controller/selectors';
 import { StoreState } from '../../store/types';
 import { AlarmModal, Knob } from '../controllers';
@@ -55,7 +55,7 @@ const FiO2Info = (): JSX.Element => {
       commitRequest<ParametersRequest>(MessageType.ParametersRequest, { fio2: setting }),
     );
     dispatch(
-      commitStandbyRequest<ParametersRequest>(MessageType.ParametersRequest, { fio2: setting }),
+      commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, { fio2: setting }),
     );
   };
   return (

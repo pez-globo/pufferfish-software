@@ -7,15 +7,15 @@ import { Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import React, { RefObject, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { commitStandbyRequest } from '../../store/controller/actions';
+import { commitDraftRequest } from '../../store/controller/actions';
 import { VentilationMode, ParametersRequest } from '../../store/controller/proto/mcu_pb';
 import {
   getParametersRequestMode,
-  getParametersRequestStandbyFiO2,
-  getParametersRequestStandbyFlow,
-  getParametersRequestStandbyPEEP,
-  getParametersRequestStandbyRR,
-  getParametersRequestStandbyVT,
+  getParametersRequestDraftFiO2,
+  getParametersRequestDraftFlow,
+  getParametersRequestDraftPEEP,
+  getParametersRequestDraftRR,
+  getParametersRequestDraftVT,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { setActiveRotaryReference } from '../app/Service';
@@ -107,11 +107,11 @@ const SettableParameters = (): JSX.Element => {
     [FLOW_REFERENCE_KEY]: useRef(null),
   });
 
-  const fio2 = useSelector(getParametersRequestStandbyFiO2);
-  const flow = useSelector(getParametersRequestStandbyFlow);
-  const peep = useSelector(getParametersRequestStandbyPEEP);
-  const rr = useSelector(getParametersRequestStandbyRR);
-  const vt = useSelector(getParametersRequestStandbyVT);
+  const fio2 = useSelector(getParametersRequestDraftFiO2);
+  const flow = useSelector(getParametersRequestDraftFlow);
+  const peep = useSelector(getParametersRequestDraftPEEP);
+  const rr = useSelector(getParametersRequestDraftRR);
+  const vt = useSelector(getParametersRequestDraftVT);
 
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -130,7 +130,7 @@ const SettableParameters = (): JSX.Element => {
     // It could be an issue with Rotary encoder event conflicts
     // Need to check if this issue is consistent across other components using Rotary encoder
     // console.log('setValue', key, value);
-    dispatch(commitStandbyRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+    dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
   };
 
   useEffect(() => {

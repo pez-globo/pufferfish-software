@@ -8,42 +8,41 @@ import attr
 
 import betterproto
 
+from ventserver.protocols.backend import alarms, log, states
 from ventserver.protocols.protobuf import mcu_pb
-from ventserver.protocols import backend
-from ventserver.simulation import log
 
 
 # Update Functions
 
 def service_mode(
         request: mcu_pb.ParametersRequest, response: mcu_pb.Parameters,
-        log_manager: log.Manager
+        events_log: alarms.Manager
 ) -> None:
     """Handle the request's ventilation mode."""
     if response.mode == request.mode:
         return
 
-    log_manager.add_event(mcu_pb.LogEvent(
+    events_log.input(log.LocalLogInputEvent(new_event=mcu_pb.LogEvent(
         code=mcu_pb.LogEventCode.ventilation_mode_changed,
         type=mcu_pb.LogEventType.control,
         old_mode=response.mode, new_mode=request.mode
-    ))
+    )))
     response.mode = request.mode
 
 
 def service_ventilating(
         request: mcu_pb.ParametersRequest, response: mcu_pb.Parameters,
-        log_manager: log.Manager
+        events_log: alarms.Manager
 ) -> None:
     """Handle the request's ventilation operation status."""
     if response.ventilating == request.ventilating:
         return
 
-    log_manager.add_event(mcu_pb.LogEvent(
+    events_log.input(log.LocalLogInputEvent(new_event=mcu_pb.LogEvent(
         code=mcu_pb.LogEventCode.ventilation_operation_changed,
         type=mcu_pb.LogEventType.control,
         old_bool=response.ventilating, new_bool=request.ventilating
-    ))
+    )))
     response.ventilating = request.ventilating
 
 
@@ -76,13 +75,13 @@ class Service(abc.ABC):
 
     def transform(
             self, request: mcu_pb.ParametersRequest,
-            response: mcu_pb.Parameters, log_manager: log.Manager
+            response: mcu_pb.Parameters, events_log: alarms.Manager
     ) -> None:
         """Update the parameters."""
 
     def service_fio2(
             self, request: mcu_pb.ParametersRequest,
-            response: mcu_pb.Parameters, log_manager: log.Manager
+            response: mcu_pb.Parameters, events_log: alarms.Manager
     ) -> None:
         """Handle the request's FiO2."""
         old_response = response.fio2
@@ -91,11 +90,11 @@ class Service(abc.ABC):
         if old_response == response.fio2:
             return
 
-        log_manager.add_event(mcu_pb.LogEvent(
+        events_log.input(log.LocalLogInputEvent(new_event=mcu_pb.LogEvent(
             code=mcu_pb.LogEventCode.fio2_setting_changed,
             type=mcu_pb.LogEventType.control,
             old_float=old_response, new_float=response.fio2
-        ))
+        )))
 
 
 class PCAC(Service):
@@ -107,14 +106,14 @@ class PCAC(Service):
 
     def transform(
             self, request: mcu_pb.ParametersRequest,
-            response: mcu_pb.Parameters, log_manager: log.Manager
+            response: mcu_pb.Parameters, events_log: alarms.Manager
     ) -> None:
         """Implement ParametersService.transform."""
-        service_mode(request, response, log_manager)
+        service_mode(request, response, events_log)
         if not self.mode_active(response):
             return
 
-        service_ventilating(request, response, log_manager)
+        service_ventilating(request, response, events_log)
         if request.rr > 0:
             response.rr = request.rr
         if request.ie > 0:
@@ -122,7 +121,7 @@ class PCAC(Service):
         if request.pip > 0:
             response.pip = request.pip
         response.peep = request.peep
-        self.service_fio2(request, response, log_manager)
+        self.service_fio2(request, response, events_log)
 
 
 class HFNC(Service):
@@ -137,20 +136,20 @@ class HFNC(Service):
 
     def transform(
             self, request: mcu_pb.ParametersRequest,
-            response: mcu_pb.Parameters, log_manager: log.Manager
+            response: mcu_pb.Parameters, events_log: alarms.Manager
     ) -> None:
         """Implement ParametersService.transform."""
-        service_mode(request, response, log_manager)
+        service_mode(request, response, events_log)
         if not self.mode_active(response):
             return
 
-        service_ventilating(request, response, log_manager)
-        self.service_flow(request, response, log_manager)
-        self.service_fio2(request, response, log_manager)
+        service_ventilating(request, response, events_log)
+        self.service_flow(request, response, events_log)
+        self.service_fio2(request, response, events_log)
 
     def service_flow(
             self, request: mcu_pb.ParametersRequest,
-            response: mcu_pb.Parameters, log_manager: log.Manager
+            response: mcu_pb.Parameters, events_log: alarms.Manager
     ) -> None:
         """Handle the request's flow rate."""
         old_response = response.flow
@@ -159,11 +158,11 @@ class HFNC(Service):
         if old_response == response.flow:
             return
 
-        log_manager.add_event(mcu_pb.LogEvent(
+        events_log.input(log.LocalLogInputEvent(new_event=mcu_pb.LogEvent(
             code=mcu_pb.LogEventCode.flow_setting_changed,
             type=mcu_pb.LogEventType.control,
             old_float=old_response, new_float=response.flow
-        ))
+        )))
 
 
 # Aggregation
@@ -180,22 +179,21 @@ class Services:
     }
 
     def transform(
-            self, current_time: float, all_states: Mapping[
-                backend.StateSegment, Optional[betterproto.Message]
-            ], log_manager: log.Manager
+            self, store: Mapping[
+                states.StateSegment, Optional[betterproto.Message]
+            ], events_log: alarms.Manager
     ) -> None:
         """Update the parameters for the requested mode."""
         request = typing.cast(
             mcu_pb.ParametersRequest,
-            all_states[backend.StateSegment.PARAMETERS_REQUEST]
+            store[states.StateSegment.PARAMETERS_REQUEST]
         )
         response = typing.cast(
-            mcu_pb.Parameters, all_states[backend.StateSegment.PARAMETERS]
+            mcu_pb.Parameters, store[states.StateSegment.PARAMETERS]
         )
         self._active_service = self._services.get(request.mode, None)
 
         if self._active_service is None:
             return
 
-        log_manager.update_clock(current_time)
-        self._active_service.transform(request, response, log_manager)
+        self._active_service.transform(request, response, events_log)

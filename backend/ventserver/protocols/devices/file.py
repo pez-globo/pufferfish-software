@@ -6,16 +6,14 @@ from typing import Optional
 import attr
 import betterproto
 
-from ventserver.protocols import mcu
-from ventserver.protocols import exceptions
-from ventserver.protocols import messages
-from ventserver.protocols import crcelements
-from ventserver.protocols import events
-from ventserver.sansio import protocols
-from ventserver.sansio import channels
+from ventserver.protocols.devices import mcu
+from ventserver.protocols import events, exceptions
+from ventserver.protocols.transport import crcelements, messages
+from ventserver.sansio import channels, protocols
 
 
 # Classes
+
 
 @attr.s(auto_attribs=True)
 class StateData(events.Event):
@@ -29,10 +27,13 @@ class StateData(events.Event):
 
 # Events
 
+
 LowerEvent = StateData
 UpperEvent = betterproto.Message
 
+
 # Filters
+
 
 @attr.s
 class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
@@ -47,14 +48,12 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
     )
     _message_receiver: messages.MessageReceiver = attr.ib()
 
-
     @_message_receiver.default
     def init_message_receiver(self) -> messages.MessageReceiver:  # pylint: disable=no-self-use
         """Initialize the mcu message receiver."""
         return messages.MessageReceiver(
             message_classes=mcu.MESSAGE_CLASSES
         )
-
 
     def input(self, event: Optional[LowerEvent]) -> None:
         """Handle input events."""
@@ -101,6 +100,7 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
             )
         return message
 
+
 @attr.s
 class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
     """Filter which unwraps output data from message to raw data."""
@@ -112,7 +112,6 @@ class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
     _crc_sender: crcelements.CRCSender = attr.ib(factory=crcelements.CRCSender)
 
     _message_sender: messages.MessageSender = attr.ib()
-
 
     @_message_sender.default
     def init_message_sender(self) -> messages.MessageSender:  # pylint: disable=no-self-use

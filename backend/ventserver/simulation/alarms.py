@@ -7,50 +7,34 @@ import attr
 
 import betterproto
 
+from ventserver.protocols.backend import alarms, states
 from ventserver.protocols.protobuf import mcu_pb
-from ventserver.protocols import backend
-from ventserver.simulation import log
 
 
 # Simulators
 
 
-@attr.s
-class Manager:
-    """Shared alarms manager."""
+def transform_parameter_alarms(
+        lower_limit: int, upper_limit: int, value: Union[float, int],
+        too_low_code: mcu_pb.LogEventCode, too_high_code: mcu_pb.LogEventCode,
+        events_log: alarms.Manager
+) -> None:
+    """Update the alarms for a particular parameter."""
+    if value < lower_limit:
+        events_log.input(alarms.AlarmActivationEvent(
+            code=too_low_code, event_type=mcu_pb.LogEventType.patient,
+            lower_limit=lower_limit, upper_limit=upper_limit
+        ))
+    else:
+        events_log.input(alarms.AlarmDeactivationEvent(codes=[too_low_code]))
 
-    active_alarm_ids: Dict[mcu_pb.LogEventCode, int] = attr.ib(default={})
-
-    def transform_active_log_event_ids(
-            self, active_log_events: mcu_pb.ActiveLogEvents
-    ) -> None:
-        """Update the list of active log events."""
-        active_log_events.id = list(self.active_alarm_ids.values())
-
-    # Log Events
-
-    def activate_alarm(
-            self, code: mcu_pb.LogEventCode, event_type: mcu_pb.LogEventType,
-            lower_limit: int, upper_limit: int,
-            log_manager: log.Manager
-    ) -> None:
-        """Create a new Log Event if it is not active."""
-        if code in self.active_alarm_ids:
-            return
-
-        log_event = mcu_pb.LogEvent(
-            code=code, type=event_type, alarm_limits=mcu_pb.Range(
-                lower=lower_limit, upper=upper_limit
-            )
-        )
-        self.active_alarm_ids[code] = log_manager.add_event(log_event)
-
-    def deactivate_alarm(self, code: mcu_pb.LogEventCode) -> None:
-        """Dectivate the Log Event if it's active."""
-        if code not in self.active_alarm_ids:
-            return
-
-        self.active_alarm_ids.pop(code)
+    if value > upper_limit:
+        events_log.input(alarms.AlarmActivationEvent(
+            code=too_high_code, event_type=mcu_pb.LogEventType.patient,
+            lower_limit=lower_limit, upper_limit=upper_limit
+        ))
+    else:
+        events_log.input(alarms.AlarmDeactivationEvent(codes=[too_high_code]))
 
 
 @attr.s
@@ -68,78 +52,43 @@ class Service:
         mcu_pb.LogEventCode.hr_too_high,
     }
 
-    _manager: Manager = attr.ib(factory=Manager)
-
     # Log Events
 
     def transform(
             self, parameters: mcu_pb.Parameters,
             alarm_limits: mcu_pb.AlarmLimits,
             sensor_measurements: mcu_pb.SensorMeasurements,
-            active_log_events: mcu_pb.ActiveLogEvents,
-            log_manager: log.Manager
+            events_log: alarms.Manager
     ) -> None:
         """Update the simulation."""
         if not parameters.ventilating:
-            self.deactivate_alarms(active_log_events)
+            # Deactivate all alarms
+            events_log.input(alarms.AlarmDeactivationEvent(
+                codes=self.ALARM_CODES
+            ))
             return
 
-        self.transform_parameter_alarms(
+        transform_parameter_alarms(
             alarm_limits.fio2.lower, alarm_limits.fio2.upper,
             sensor_measurements.fio2,
             mcu_pb.LogEventCode.fio2_too_low,
             mcu_pb.LogEventCode.fio2_too_high,
-            log_manager
+            events_log
         )
-        self.transform_parameter_alarms(
+        transform_parameter_alarms(
             alarm_limits.spo2.lower, alarm_limits.spo2.upper,
             sensor_measurements.spo2,
             mcu_pb.LogEventCode.spo2_too_low,
             mcu_pb.LogEventCode.spo2_too_high,
-            log_manager
+            events_log
         )
-        self.transform_parameter_alarms(
+        transform_parameter_alarms(
             alarm_limits.hr.lower, alarm_limits.hr.upper,
             sensor_measurements.hr,
             mcu_pb.LogEventCode.hr_too_low,
             mcu_pb.LogEventCode.hr_too_high,
-            log_manager
+            events_log
         )
-
-        self._manager.transform_active_log_event_ids(active_log_events)
-
-    # Update methods
-
-    def transform_parameter_alarms(
-            self, lower_limit: int, upper_limit: int, value: Union[float, int],
-            too_low_code: mcu_pb.LogEventCode,
-            too_high_code: mcu_pb.LogEventCode,
-            log_manager: log.Manager
-    ) -> None:
-        """Update the alarms for a particular parameter."""
-        if value < lower_limit:
-            self._manager.activate_alarm(
-                too_low_code, mcu_pb.LogEventType.patient,
-                lower_limit, upper_limit, log_manager
-            )
-        else:
-            self._manager.deactivate_alarm(too_low_code)
-
-        if value > upper_limit:
-            self._manager.activate_alarm(
-                too_high_code, mcu_pb.LogEventType.patient,
-                lower_limit, upper_limit, log_manager
-            )
-        else:
-            self._manager.deactivate_alarm(too_high_code)
-
-    def deactivate_alarms(
-            self, active_log_events: mcu_pb.ActiveLogEvents
-    ) -> None:
-        """Deactivate all alarms for all parameters."""
-        for code in self.ALARM_CODES:
-            self._manager.deactivate_alarm(code)
-        self._manager.transform_active_log_event_ids(active_log_events)
 
 
 @attr.s
@@ -155,24 +104,21 @@ class HFNC(Service):
             self, parameters: mcu_pb.Parameters,
             alarm_limits: mcu_pb.AlarmLimits,
             sensor_measurements: mcu_pb.SensorMeasurements,
-            active_log_events: mcu_pb.ActiveLogEvents,
-            log_manager: log.Manager
+            events_log: alarms.Manager
     ) -> None:
         """Update the simulation."""
         super().transform(
-            parameters, alarm_limits, sensor_measurements, active_log_events,
-            log_manager
+            parameters, alarm_limits, sensor_measurements, events_log
         )
         if not parameters.ventilating:
             return
-        self.transform_parameter_alarms(
+        transform_parameter_alarms(
             alarm_limits.flow.lower, alarm_limits.flow.upper,
             sensor_measurements.flow,
             mcu_pb.LogEventCode.flow_too_low,
             mcu_pb.LogEventCode.flow_too_high,
-            log_manager
+            events_log
         )
-        self._manager.transform_active_log_event_ids(active_log_events)
 
 
 # Aggregation
@@ -182,26 +128,27 @@ class HFNC(Service):
 class Services:
     """Aggregator and selector of services for different modes."""
 
-    _manager: Manager = attr.ib(factory=Manager)
     _active_service: Optional[Service] = attr.ib(default=None)
     _services: Dict[mcu_pb.VentilationMode, Service] = attr.ib()
 
     @_services.default
-    def init_services(self) -> Dict[mcu_pb.VentilationMode, Service]:
+    def init_services(self) -> Dict[
+            mcu_pb.VentilationMode, Service
+    ]:  # pylint: disable=no-self-use
         """Initialize the services."""
         return {
-            mcu_pb.VentilationMode.pc_ac: PCAC(manager=self._manager),
-            mcu_pb.VentilationMode.hfnc: HFNC(manager=self._manager)
+            mcu_pb.VentilationMode.pc_ac: PCAC(),
+            mcu_pb.VentilationMode.hfnc: HFNC()
         }
 
     def transform(
-            self, current_time: float, all_states: Mapping[
-                backend.StateSegment, Optional[betterproto.Message]
-            ], log_manager: log.Manager
+            self, store: Mapping[
+                states.StateSegment, Optional[betterproto.Message]
+            ], events_log: alarms.Manager
     ) -> None:
         """Update the parameters for the requested mode."""
         parameters = typing.cast(
-            mcu_pb.Parameters, all_states[backend.StateSegment.PARAMETERS]
+            mcu_pb.Parameters, store[states.StateSegment.PARAMETERS]
         )
         self._active_service = self._services.get(parameters.mode, None)
 
@@ -209,18 +156,12 @@ class Services:
             return
 
         alarm_limits = typing.cast(
-            mcu_pb.AlarmLimits, all_states[backend.StateSegment.ALARM_LIMITS]
+            mcu_pb.AlarmLimits, store[states.StateSegment.ALARM_LIMITS]
         )
         sensor_measurements = typing.cast(
             mcu_pb.SensorMeasurements,
-            all_states[backend.StateSegment.SENSOR_MEASUREMENTS]
+            store[states.StateSegment.SENSOR_MEASUREMENTS]
         )
-        active_log_events = typing.cast(
-            mcu_pb.ActiveLogEvents,
-            all_states[backend.StateSegment.ACTIVE_LOG_EVENTS_MCU]
-        )
-        log_manager.update_clock(current_time)
         self._active_service.transform(
-            parameters, alarm_limits, sensor_measurements,
-            active_log_events, log_manager
+            parameters, alarm_limits, sensor_measurements, events_log
         )

@@ -10,7 +10,7 @@ import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { ParametersRequest } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
-import { commitRequest, commitStandbyRequest } from '../../store/controller/actions';
+import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { getParametersFlow, getSensorMeasurementsFlow } from '../../store/controller/selectors';
 import { StoreState } from '../../store/types';
 import { AlarmModal, Knob } from '../controllers';
@@ -54,7 +54,7 @@ const FlowInfo = (): JSX.Element => {
       commitRequest<ParametersRequest>(MessageType.ParametersRequest, { flow: setting }),
     );
     dispatch(
-      commitStandbyRequest<ParametersRequest>(MessageType.ParametersRequest, { flow: setting }),
+      commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, { flow: setting }),
     );
   };
   return (

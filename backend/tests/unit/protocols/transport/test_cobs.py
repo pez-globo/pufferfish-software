@@ -8,7 +8,7 @@ import hypothesis.strategies as st
 import pytest as pt  # type: ignore
 
 from ventserver.protocols import exceptions
-from ventserver.protocols import frames
+from ventserver.protocols.transport import frames
 
 
 example_encodings = {

@@ -9,7 +9,10 @@
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
-import { getAlarmLimitsCurrent } from '../../../store/controller/selectors';
+import {
+  getAlarmLimitsCurrent,
+  getAlarmLimitsRequestDraft,
+} from '../../../store/controller/selectors';
 import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
@@ -226,7 +229,7 @@ const ControlValuesDisplay = ({
    * State to toggle opening Alarm popup
    */
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsCurrent, shallowEqual);
+  const alarmLimits = useSelector(getAlarmLimitsRequestDraft, shallowEqual);
   const range =
     alarmLimits === null
       ? undefined
@@ -295,7 +298,7 @@ const ControlValuesDisplay = ({
                 </Grid>
               )}
             </Grid>
-            <Grid item xs alignItems="center" className={classes.displayContainer}>
+            <Grid item xs className={classes.displayContainer}>
               <Grid>
                 <Typography
                   align="center"
