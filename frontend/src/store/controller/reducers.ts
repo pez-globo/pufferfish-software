@@ -48,11 +48,10 @@ export const controllerReducer = combineReducers({
     ),
   }),
   eventLog: eventLogReducer,
-  alarmMute: requestReducer<AlarmMute>(MessageType.AlarmMuteRequest, REQUEST_COMMITTED),
-  alarmMuteRequest: requestReducer<AlarmMuteRequest>(
-    MessageType.AlarmMuteRequest,
-    REQUEST_COMMITTED,
-  ),
+  alarmMute: combineReducers({
+    current: messageReducer<AlarmMute>(MessageType.AlarmMute),
+    request: requestReducer<AlarmMuteRequest>(MessageType.AlarmMuteRequest, REQUEST_COMMITTED),
+  }),
   batteryPower: messageReducer<BatteryPower>(MessageType.BatteryPower),
 
   // Message states from frontend_pb
