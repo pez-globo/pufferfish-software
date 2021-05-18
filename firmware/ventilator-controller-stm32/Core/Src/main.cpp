@@ -41,6 +41,7 @@
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 #include "Pufferfish/Driver/Button/Button.h"
+#include "Pufferfish/HAL/Endian.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
 #include "Pufferfish/Driver/I2C/HoneywellABP.h"
 #include "Pufferfish/Driver/I2C/SDP.h"
