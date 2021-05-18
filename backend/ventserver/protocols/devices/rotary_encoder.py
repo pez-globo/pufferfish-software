@@ -8,9 +8,9 @@ import attr
 
 # from ventserver.protocols import exceptions
 from ventserver.protocols import events
-from ventserver.sansio import protocols
-from ventserver.sansio import channels
 from ventserver.protocols.protobuf import frontend_pb
+from ventserver.sansio import channels, protocols
+
 
 @attr.s
 class ReceiveEvent(events.Event):

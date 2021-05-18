@@ -190,7 +190,7 @@ const ControlValuesDisplay = ({
                 </Grid>
               )}
             </Grid>
-            <Grid item xs alignItems="center" className={classes.displayContainer}>
+            <Grid item xs className={classes.displayContainer}>
               <Grid>
                 <Typography
                   align="center"

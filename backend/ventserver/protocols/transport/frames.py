@@ -60,9 +60,7 @@ import attr
 from cobs import cobs  # type: ignore
 
 from ventserver.protocols import exceptions
-from ventserver.sansio import channels
-from ventserver.sansio import protocols
-from ventserver.sansio import streams
+from ventserver.sansio import channels, protocols, streams
 
 
 # Constants

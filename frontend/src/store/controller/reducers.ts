@@ -23,7 +23,7 @@ import {
   waveformHistoryReducer,
   pvHistoryReducer,
 } from './reducers/derived';
-import { MessageType, REQUEST_COMMITTED, STANDBY_REQUEST_COMMITTED } from './types';
+import { MessageType, REQUEST_COMMITTED, DRAFT_REQUEST_COMMITTED } from './types';
 
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb
@@ -34,17 +34,17 @@ export const controllerReducer = combineReducers({
   parameters: combineReducers({
     current: messageReducer<Parameters>(MessageType.Parameters),
     request: requestReducer<ParametersRequest>(MessageType.ParametersRequest, REQUEST_COMMITTED),
-    standby: requestReducer<ParametersRequest>(
+    draft: requestReducer<ParametersRequest>(
       MessageType.ParametersRequest,
-      STANDBY_REQUEST_COMMITTED,
+      DRAFT_REQUEST_COMMITTED,
     ),
   }),
   alarmLimits: combineReducers({
     current: messageReducer<AlarmLimits>(MessageType.AlarmLimits),
     request: requestReducer<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, REQUEST_COMMITTED),
-    standby: requestReducer<AlarmLimitsRequest>(
+    draft: requestReducer<AlarmLimitsRequest>(
       MessageType.AlarmLimitsRequest,
-      STANDBY_REQUEST_COMMITTED,
+      DRAFT_REQUEST_COMMITTED,
     ),
   }),
   eventLog: eventLogReducer,

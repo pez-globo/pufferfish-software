@@ -1,40 +1,31 @@
 """Trio I/O with sans-I/O protocol, running application."""
 
 import logging
-from typing import Dict, List, Optional, Type
 import functools
 import time
 
 import trio
-import betterproto
 
 from ventserver.integration import _trio
-from ventserver.io.trio import _serial
-from ventserver.io.trio import channels
-from ventserver.io.trio import websocket
-from ventserver.io.trio import fileio
-from ventserver.io.trio import rotaryencoder
+from ventserver.io.trio import (
+    _serial, channels, fileio, rotaryencoder, websocket
+)
 from ventserver.io.subprocess import frozen_frontend
-from ventserver.protocols import backend
-from ventserver.protocols import server
 from ventserver.protocols import exceptions
-from ventserver.protocols.protobuf import mcu_pb
+from ventserver.protocols.backend import server, states
 
 
-async def initialize_states_from_file(all_states: Dict[
-        backend.StateSegment, Optional[betterproto.Message]
-], protocol: server.Protocol, filehandler: fileio.Handler) -> None:
+async def initialize_states_from_file(
+    store: states.Store, protocol: server.Protocol, filehandler: fileio.Handler
+) -> None:
     """Initialize states from filesystem and turn off ventilation."""
 
     # Load state from file
-    states: List[Type[betterproto.Message]] = [
-        mcu_pb.Parameters, mcu_pb.CycleMeasurements,
-        mcu_pb.SensorMeasurements, mcu_pb.ParametersRequest
-    ]
-    await _trio.load_file_states(states, protocol, filehandler)
+    load_states = list(states.FILE_INPUT_TYPES.keys())
+    await _trio.load_file_states(load_states, protocol, filehandler)
 
     # Turn off ventilation
-    parameters_request = all_states[backend.StateSegment.PARAMETERS_REQUEST]
+    parameters_request = store[states.StateSegment.PARAMETERS_REQUEST]
     if parameters_request is not None:
         parameters_request.ventilating = False
 
@@ -92,11 +83,11 @@ async def main() -> None:
     ] = channels.TrioChannel()
 
     # Initialize states
-    all_states = protocol.receive.backend.all_states
-    await initialize_states_from_file(all_states, protocol, filehandler)
+    store = protocol.receive.backend.store
+    await initialize_states_from_file(store, protocol, filehandler)
 
     # Initialize time
-    protocol.receive.input(server.ReceiveEvent(time=time.time()))
+    protocol.receive.input(server.ReceiveDataEvent(time=time.time()))
 
     try:
         async with channel.push_endpoint:
@@ -118,10 +109,8 @@ async def main() -> None:
                         filehandler
                     )
 
-                    if receive_output.frontend_delayed:
-                        nursery.start_soon(
-                            frozen_frontend.kill_frozen_frontend
-                        )
+                    if receive_output.kill_frontend:
+                        nursery.start_soon(frozen_frontend.kill_frozen_frontend)
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
         logger.info('Finished, quitting!')

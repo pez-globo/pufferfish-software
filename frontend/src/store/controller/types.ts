@@ -131,18 +131,18 @@ export interface Measurements {
 export interface ParametersRequestResponse {
   current: Parameters | null;
   request: ParametersRequest | null;
-  // standby is a scratchpad for modifying individual fields of ParametersRequest
+  // draft is a scratchpad for modifying individual fields of ParametersRequest
   // across different screens in standby mode, before committing the final values
   // of all fields to ParametersRequest to send to the backend
-  standby: ParametersRequest | null;
+  draft: ParametersRequest | null;
 }
 export interface AlarmLimitsRequestResponse {
   current: AlarmLimits | null;
   request: AlarmLimitsRequest | null;
-  // standby is a scratchpad for modifying individual fields of AlarmLimitsRequest
+  // draft is a scratchpad for modifying individual fields of AlarmLimitsRequest
   // across different screens in standby mode, before committing the final values
   // of all fields to AlarmLimitsRequest to send to the backend
-  standby: AlarmLimitsRequest | null;
+  draft: AlarmLimitsRequest | null;
 }
 export interface AlarmMuteRequestResponse {
   current: AlarmMute | null;
@@ -253,7 +253,7 @@ export interface ControllerStates {
 // TODO: rename STATE_UPDATED to STATE_MESSAGE_RECEIVED
 export const STATE_UPDATED = '@controller/STATE_UPDATED';
 export const REQUEST_COMMITTED = '@controller/REQUEST_COMMITTED';
-export const STANDBY_REQUEST_COMMITTED = '@controller/STANDBY_COMMITTED';
+export const DRAFT_REQUEST_COMMITTED = '@controller/DRAFT_COMMITTED';
 
 // State Update Action
 

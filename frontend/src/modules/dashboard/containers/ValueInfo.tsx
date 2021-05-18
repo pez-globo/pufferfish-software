@@ -1,7 +1,10 @@
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
-import { getAlarmLimitsCurrent } from '../../../store/controller/selectors';
+import {
+  getAlarmLimitsCurrent,
+  getAlarmLimitsRequestDraft,
+} from '../../../store/controller/selectors';
 import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
@@ -170,7 +173,7 @@ const ControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsCurrent, shallowEqual);
+  const alarmLimits = useSelector(getAlarmLimitsRequestDraft, shallowEqual);
   const range =
     alarmLimits === null
       ? undefined
@@ -224,7 +227,7 @@ const ControlValuesDisplay = ({
                 </Grid>
               )}
             </Grid>
-            <Grid item xs alignItems="center" className={classes.displayContainer}>
+            <Grid item xs className={classes.displayContainer}>
               <Grid>
                 <Typography
                   align="center"
@@ -355,6 +358,9 @@ const GridControlValuesDisplay = ({
  * Component for showing information.
  *
  */
+// TODO: we should delete this component if it's not being used in any current code;
+// its structure is weird and its proptypes doesn't pass the linter
+/* eslint-disable react/prop-types */
 const ValueInfo = (props: {
   mainContainer: Props;
   subContainer1?: Props;

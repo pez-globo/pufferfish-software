@@ -7,9 +7,9 @@ import betterproto
 import pytest as pt  # type: ignore
 
 from ventserver.protocols import exceptions
-from ventserver.protocols import mcu
-from ventserver.protocols import messages
+from ventserver.protocols.devices import mcu
 from ventserver.protocols.protobuf import mcu_pb as pb
+from ventserver.protocols.transport import messages
 
 
 example_messages_good = [

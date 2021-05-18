@@ -84,6 +84,8 @@ I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 I2C_HandleTypeDef hi2c4;
 
+RNG_HandleTypeDef hrng;
+
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim2;
@@ -119,6 +121,7 @@ PF::Driver::BreathingCircuit::Simulators simulator;
 
 // HAL Utilities
 PF::HAL::HALCRC32 crc32c(hcrc);
+PF::HAL::STM32::Random rng(hrng);
 
 // HAL Time
 PF::HAL::HALTime time;
@@ -382,6 +385,7 @@ static void MX_TIM4_Init(void);
 static void MX_TIM5_Init(void);
 static void MX_TIM8_Init(void);
 static void MX_TIM12_Init(void);
+static void MX_RNG_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -492,6 +496,7 @@ int main(void)
   MX_TIM5_Init();
   MX_TIM8_Init();
   MX_TIM12_Init();
+  MX_RNG_Init();
   /* USER CODE BEGIN 2 */
   // Time
   PF::HAL::HALTime::micros_delay_init();
@@ -502,6 +507,9 @@ int main(void)
   // ADCs
   adc3_input.start();
   */
+
+  // HAL utilities
+  rng.setup();
 
   // UARTs
   backend_uart.setup_irq();
@@ -519,8 +527,13 @@ int main(void)
   flasher.start(time.millis());
   dimmer.start(time.millis());
 
-  // Initialize request/response states
+  // Request/response states
   initialize_states();
+
+  // Log events sender
+  uint32_t session_id = 0;
+  rng.generate(session_id);
+  log_events_sender.setup(session_id);
 
   /* USER CODE END 2 */
 
@@ -691,10 +704,12 @@ void SystemClock_Config(void)
   __HAL_RCC_PLL_PLLSOURCE_CONFIG(RCC_PLLSOURCE_HSE);
   /** Initializes the CPU, AHB and APB busses clocks
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48|RCC_OSCILLATORTYPE_HSI
+                              |RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
   RCC_OscInitStruct.HSIState = RCC_HSI_DIV1;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 1;
@@ -728,9 +743,10 @@ void SystemClock_Config(void)
   }
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_UART4
                               |RCC_PERIPHCLK_UART7|RCC_PERIPHCLK_USART1
-                              |RCC_PERIPHCLK_UART8|RCC_PERIPHCLK_SPI1
-                              |RCC_PERIPHCLK_I2C2|RCC_PERIPHCLK_ADC
-                              |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_I2C4;
+                              |RCC_PERIPHCLK_UART8|RCC_PERIPHCLK_RNG
+                              |RCC_PERIPHCLK_SPI1|RCC_PERIPHCLK_I2C2
+                              |RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_I2C1
+                              |RCC_PERIPHCLK_I2C4;
   PeriphClkInitStruct.PLL2.PLL2M = 1;
   PeriphClkInitStruct.PLL2.PLL2N = 19;
   PeriphClkInitStruct.PLL2.PLL2P = 3;
@@ -742,6 +758,7 @@ void SystemClock_Config(void)
   PeriphClkInitStruct.Spi123ClockSelection = RCC_SPI123CLKSOURCE_PLL;
   PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
   PeriphClkInitStruct.Usart16ClockSelection = RCC_USART16CLKSOURCE_D2PCLK2;
+  PeriphClkInitStruct.RngClockSelection = RCC_RNGCLKSOURCE_HSI48;
   PeriphClkInitStruct.I2c123ClockSelection = RCC_I2C123CLKSOURCE_D2PCLK1;
   PeriphClkInitStruct.I2c4ClockSelection = RCC_I2C4CLKSOURCE_D3PCLK1;
   PeriphClkInitStruct.AdcClockSelection = RCC_ADCCLKSOURCE_PLL2;
@@ -981,6 +998,33 @@ static void MX_I2C4_Init(void)
   /* USER CODE BEGIN I2C4_Init 2 */
 
   /* USER CODE END I2C4_Init 2 */
+
+}
+
+/**
+  * @brief RNG Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_RNG_Init(void)
+{
+
+  /* USER CODE BEGIN RNG_Init 0 */
+
+  /* USER CODE END RNG_Init 0 */
+
+  /* USER CODE BEGIN RNG_Init 1 */
+
+  /* USER CODE END RNG_Init 1 */
+  hrng.Instance = RNG;
+  hrng.Init.ClockErrorDetection = RNG_CED_ENABLE;
+  if (HAL_RNG_Init(&hrng) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN RNG_Init 2 */
+
+  /* USER CODE END RNG_Init 2 */
 
 }
 
