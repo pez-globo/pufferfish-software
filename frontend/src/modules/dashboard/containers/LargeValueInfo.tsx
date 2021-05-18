@@ -209,7 +209,9 @@ const ControlValuesDisplay = ({
     setOpen(status);
   };
   const range =
-    alarmLimits === null ? undefined : (alarmLimits as unknown as Record<string, Range>)[stateKey];
+    alarmLimits === null
+      ? undefined
+      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
   const { lower, upper } = range === undefined ? { lower: '--', upper: '--' } : range;
   return (
     <div

@@ -162,7 +162,9 @@ const Alarm = ({
   // be done with by dispatching a commitDraftRequest action with the
   // alarmLimitsRequest selector as the update field.
   const range =
-    alarmLimits === null ? undefined : (alarmLimits as unknown as Record<string, Range>)[stateKey];
+    alarmLimits === null
+      ? undefined
+      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
   const rangeValues: number[] = [
     range === undefined ? NaN : range.lower,
     range === undefined ? NaN : range.upper,
@@ -369,8 +371,11 @@ export const AlarmsPage = (): JSX.Element => {
   const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
   const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
   const alarmLimitsUnsavedKeys = useSelector(getAlarmLimitsUnsavedKeys);
-  const alarmLimitsRequest = alarmLimitsRequestSelect as unknown as Record<string, Range>;
-  const alarmLimitsRequestDraft = alarmLimitsRequestDraftSelect as unknown as Record<string, Range>;
+  const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
+  const alarmLimitsRequestDraft = (alarmLimitsRequestDraftSelect as unknown) as Record<
+    string,
+    Range
+  >;
   /**
    * Function for updating alarm limits
    *

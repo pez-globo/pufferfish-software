@@ -184,8 +184,11 @@ export const ToolBar = ({
   const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
   const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
   const alarmLimitsUnsavedKeys = useSelector(getAlarmLimitsUnsavedKeys);
-  const alarmLimitsRequest = alarmLimitsRequestSelect as unknown as Record<string, Range>;
-  const alarmLimitsRequestDraft = alarmLimitsRequestDraftSelect as unknown as Record<string, Range>;
+  const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
+  const alarmLimitsRequestDraft = (alarmLimitsRequestDraftSelect as unknown) as Record<
+    string,
+    Range
+  >;
   /**
    * State to manage toggling ventilationState
    */

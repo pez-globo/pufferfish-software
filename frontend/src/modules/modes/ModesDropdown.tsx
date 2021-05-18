@@ -113,7 +113,9 @@ export const ModesDropdown = (): JSX.Element => {
    *
    */
   const updateMode = (mode: VentilationMode) =>
-    dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, { mode }));
+    dispatch(
+      commitRequest<ParametersRequest>(MessageType.ParametersRequest, { mode }),
+    );
 
   /**
    * Function to open dropdown selection

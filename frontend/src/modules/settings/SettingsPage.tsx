@@ -71,13 +71,15 @@ export const SettingsPage = (): JSX.Element => {
   /**
    * State to manage theme setting
    */
-  const [displaySetting, setDisplaySetting] =
-    React.useState<FrontendDisplaySetting | Record<string, unknown>>();
+  const [displaySetting, setDisplaySetting] = React.useState<
+    FrontendDisplaySetting | Record<string, unknown>
+  >();
   /**
    * State to manage System Brightness & time setting
    */
-  const [systemSetting, setSystemSetting] =
-    React.useState<SystemSettingRequest | Record<string, unknown>>();
+  const [systemSetting, setSystemSetting] = React.useState<
+    SystemSettingRequest | Record<string, unknown>
+  >();
 
   /**
    * function for handling tab change.

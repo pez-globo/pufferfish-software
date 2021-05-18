@@ -50,8 +50,12 @@ const RRInfo = ({ disableSetValue = false }: { disableSetValue?: boolean }): JSX
    * @param {number} setting - desc for setting
    */
   const doSetRR = (setting: number) => {
-    dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, { rr: setting }));
-    dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, { rr: setting }));
+    dispatch(
+      commitRequest<ParametersRequest>(MessageType.ParametersRequest, { rr: setting }),
+    );
+    dispatch(
+      commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, { rr: setting }),
+    );
   };
   return (
     <Knob

@@ -235,7 +235,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    * @param {boolean} state desc for state
    */
   const muteAlarmState = (state: boolean) => {
-    dispatch(commitRequest<AlarmMute>(MessageType.AlarmMute, { active: state }));
+    dispatch(
+      commitRequest<AlarmMute>(MessageType.AlarmMute, { active: state }),
+    );
   };
 
   /**

@@ -50,7 +50,9 @@ const PIPInfo = (): JSX.Element => {
    * @param {number} setting - desc for setting
    */
   const doSetPIP = (setting: number) => {
-    dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, { pip: setting }));
+    dispatch(
+      commitRequest<ParametersRequest>(MessageType.ParametersRequest, { pip: setting }),
+    );
     dispatch(
       commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, { pip: setting }),
     );

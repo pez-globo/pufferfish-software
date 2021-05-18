@@ -61,7 +61,7 @@ const sensorMeasurementSelector = (key: string) =>
   createSelector(getSensorMeasurements, (measurements: SensorMeasurements | null): number =>
     measurements === null
       ? NaN
-      : roundValue((measurements as unknown as Record<string, number>)[key]),
+      : roundValue(((measurements as unknown) as Record<string, number>)[key]),
   );
 export const getSensorMeasurementsTime = sensorMeasurementSelector('time');
 export const getSensorMeasurementsPaw = sensorMeasurementSelector('paw');
@@ -80,7 +80,7 @@ const cycleMeasurementSelector = (key: string) =>
   createSelector(getCycleMeasurements, (measurements: CycleMeasurements | null): number =>
     measurements === null
       ? NaN
-      : roundValue((measurements as unknown as Record<string, number>)[key]),
+      : roundValue(((measurements as unknown) as Record<string, number>)[key]),
   );
 export const getCycleMeasurementsPIP = cycleMeasurementSelector('pip');
 export const getCycleMeasurementsPEEP = cycleMeasurementSelector('peep');
@@ -131,7 +131,9 @@ const ventilationModeSelector = (parametersSelector: ParametersSelector) =>
   );
 const numericParameterSelector = (parametersSelector: ParametersSelector, key: string) =>
   createSelector(parametersSelector, (parameters: Parameters | ParametersRequest | null): number =>
-    parameters === null ? NaN : roundValue((parameters as unknown as Record<string, number>)[key]),
+    parameters === null
+      ? NaN
+      : roundValue(((parameters as unknown) as Record<string, number>)[key]),
   );
 // Current
 export const getParametersCurrent = createSelector(
@@ -209,8 +211,8 @@ export const getAlarmLimitsUnsavedKeys = createSelector(
     if (alarmLimitsRequest === null || alarmLimitsRequestDraft === null) {
       return [];
     }
-    const alarmLimitsRequestRange = alarmLimitsRequest as unknown as Record<string, Range>;
-    const alarmLimitsRequestDraftRange = alarmLimitsRequestDraft as unknown as Record<
+    const alarmLimitsRequestRange = (alarmLimitsRequest as unknown) as Record<string, Range>;
+    const alarmLimitsRequestDraftRange = (alarmLimitsRequestDraft as unknown) as Record<
       string,
       Range
     >;
@@ -399,19 +401,17 @@ const waveformNewSegmentsSelector = (waveformSelector: WaveformSelector) =>
     waveformSelector,
     (waveformHistory: WaveformHistory): WaveformPoint[][] => waveformHistory.waveformNew.segmented,
   );
-const waveformNewSegmentSelector =
-  (
-    waveformNewSegmentsSelector: OutputSelector<
-      StoreState,
-      WaveformPoint[][],
-      (res: WaveformHistory) => WaveformPoint[][]
-    >,
-  ) =>
-  (segmentIndex: number) =>
-    createSelector(
-      waveformNewSegmentsSelector,
-      (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex],
-    );
+const waveformNewSegmentSelector = (
+  waveformNewSegmentsSelector: OutputSelector<
+    StoreState,
+    WaveformPoint[][],
+    (res: WaveformHistory) => WaveformPoint[][]
+  >,
+) => (segmentIndex: number) =>
+  createSelector(
+    waveformNewSegmentsSelector,
+    (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex],
+  );
 // Paw Waveform
 export const getWaveformPaw = createSelector(
   getWaveforms,

@@ -50,7 +50,9 @@ const PEEPInfo = (): JSX.Element => {
    * @param {number} setting - desc for setting
    */
   const doSetPEEP = (setting: number) => {
-    dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, { peep: setting }));
+    dispatch(
+      commitRequest<ParametersRequest>(MessageType.ParametersRequest, { peep: setting }),
+    );
     dispatch(
       commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, { peep: setting }),
     );

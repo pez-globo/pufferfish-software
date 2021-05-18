@@ -50,7 +50,9 @@ const FlowInfo = (): JSX.Element => {
    * @param {number} setting - desc for setting
    */
   const doSetFlow = (setting: number) => {
-    dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, { flow: setting }));
+    dispatch(
+      commitRequest<ParametersRequest>(MessageType.ParametersRequest, { flow: setting }),
+    );
     dispatch(
       commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, { flow: setting }),
     );
