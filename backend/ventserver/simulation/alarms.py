@@ -52,15 +52,6 @@ class Manager:
 
         self.active_alarm_ids.pop(code)
 
-    def mute_alarm(
-        self, alarm_mute: mcu_pb.AlarmMute,
-        request: mcu_pb.AlarmMuteRequest
-    ) -> None:
-        """Mute the active alarm on request"""
-        if self.active_alarm_ids is None:
-            return
-
-        alarm_mute.active = request.active
 
 @attr.s
 class Service:
@@ -150,11 +141,6 @@ class Service:
             self._manager.deactivate_alarm(code)
         self._manager.transform_active_log_event_ids(active_log_events)
 
-    def transform_mute(
-        self, alarm_mute: mcu_pb.AlarmMute,
-        request: mcu_pb.AlarmMuteRequest
-    ) -> None:
-        """Mute the current active alarm"""
 
 @attr.s
 class PCAC(Service):
@@ -188,11 +174,6 @@ class HFNC(Service):
         )
         self._manager.transform_active_log_event_ids(active_log_events)
 
-    def transform_mute(
-        self, alarm_mute: mcu_pb.AlarmMute,
-        request: mcu_pb.AlarmMuteRequest
-    ) -> None:
-        self._manager.mute_alarm(alarm_mute, request)
 
 # Aggregation
 
@@ -230,12 +211,6 @@ class Services:
         alarm_limits = typing.cast(
             mcu_pb.AlarmLimits, all_states[backend.StateSegment.ALARM_LIMITS]
         )
-        alarm_mute = typing.cast(
-            mcu_pb.AlarmMute,
-            all_states[backend.StateSegment.ALARM_MUTE])
-        alarm_mute_request = typing.cast(
-            mcu_pb.AlarmMuteRequest,
-            all_states[backend.StateSegment.ALARM_MUTE_REQUEST])
         sensor_measurements = typing.cast(
             mcu_pb.SensorMeasurements,
             all_states[backend.StateSegment.SENSOR_MEASUREMENTS]
@@ -245,7 +220,6 @@ class Services:
             all_states[backend.StateSegment.ACTIVE_LOG_EVENTS_MCU]
         )
         log_manager.update_clock(current_time)
-        self._active_service.transform_mute(alarm_mute, alarm_mute_request)
         self._active_service.transform(
             parameters, alarm_limits, sensor_measurements,
             active_log_events, log_manager

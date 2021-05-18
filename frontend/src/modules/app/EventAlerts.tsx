@@ -15,7 +15,7 @@ import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
 import { commitRequest } from '../../store/controller/actions';
-import { AlarmMuteRequest } from '../../store/controller/proto/mcu_pb';
+import { AlarmMute } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
 import { getEventType } from '../logs/EventType';
 
@@ -173,7 +173,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
 
   const muteAlarmState = (state: boolean) => {
     dispatch(
-      commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { active: state }),
+      commitRequest<AlarmMute>(MessageType.AlarmMute, { active: state }),
     );
   };
 
