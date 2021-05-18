@@ -18,6 +18,14 @@
 
 namespace Pufferfish::HAL::STM32 {
 
+    constexpr int hton(const int& i) {
+              return i;
+          }
+
+  constexpr int ntoh(const int& i) {
+              return i;
+          }
+
 /**
  * Convert endianness of a 64-bit data in host-order to network-order
  * @param hostValue a 64-bit number in host-order
