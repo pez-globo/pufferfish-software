@@ -8,15 +8,13 @@ import {
   getCycleMeasurementsPEEP,
   getCycleMeasurementsPIP,
   getCycleMeasurementsRR,
-  getCycleMeasurementsVT,
   getParametersFiO2,
   getParametersPEEP,
   getParametersPIP,
   getParametersRR,
   getSensorMeasurementsFiO2,
 } from '../../../store/controller/selectors';
-import { BMIN, CMH20, LMIN, PERCENT } from '../../info/units';
-import ValueInfo from '../containers/ValueInfo';
+import { BMIN, CMH20, PERCENT } from '../../info/units';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -136,7 +134,7 @@ const PressureControlMainView = (): JSX.Element => {
     <Grid container className={classes.root}>
       <Grid container item xs={12} alignItems="stretch" className={classes.topPanel}>
         <Grid item xs={4} justify="center" alignItems="stretch" className={classes.topLeftPanel}>
-          <Grid container item justify="center" alignItems="stretch">
+          {/* <Grid container item justify="center" alignItems="stretch">
             <ValueInfo
               mainContainer={{
                 selector: getCycleMeasurementsPIP,
@@ -177,7 +175,7 @@ const PressureControlMainView = (): JSX.Element => {
                 stateKey: '',
               }}
             />
-          </Grid>
+          </Grid> */}
           <Grid item xs={12} className={classes.moreValues}>
             More Values
           </Grid>

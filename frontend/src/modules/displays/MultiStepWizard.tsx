@@ -8,11 +8,11 @@ import { useLocation } from 'react-router-dom';
 import ModalPopup from '../controllers/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
-  getParametersFiO2,
-  getParametersFlow,
   getSmoothedSpO2,
   getSmoothedHR,
   roundValue,
+  getParametersRequestDraftFiO2,
+  getParametersRequestDraftFlow,
 } from '../../store/controller/selectors';
 import { SetValueContent } from '../controllers/ValueModal';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
@@ -40,6 +40,13 @@ interface Data {
   alarmLimitMax?: number | null;
   alarmValuesActual: number[];
   setValueActual: number;
+}
+
+interface HFNCProps {
+  alarmValuesSpO2: number[];
+  alarmValuesHR: number[];
+  alarmValuesFiO2: number;
+  alarmValuesFlow: number;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -105,7 +112,12 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const HFNCControls = (): JSX.Element => {
+const HFNCControls = ({
+  alarmValuesSpO2,
+  alarmValuesHR,
+  alarmValuesFiO2,
+  alarmValuesFlow,
+}: HFNCProps): JSX.Element => {
   return (
     <React.Fragment>
       <Grid
@@ -122,6 +134,7 @@ const HFNCControls = (): JSX.Element => {
             label: 'SpO2',
             stateKey: 'spo2',
             units: PERCENT,
+            alarmLimits: alarmValuesSpO2,
           }}
         />
         <ValueInfo
@@ -130,24 +143,27 @@ const HFNCControls = (): JSX.Element => {
             label: 'HR',
             stateKey: 'hr',
             units: BPM,
+            alarmLimits: alarmValuesHR,
           }}
         />
       </Grid>
       <Grid container item justify="center" alignItems="stretch" direction="column">
         <ValueInfo
           mainContainer={{
-            selector: getParametersFiO2,
+            selector: getParametersRequestDraftFiO2,
             label: 'FiO2',
             stateKey: 'fio2',
             units: PERCENT,
+            alarmLimits: alarmValuesFiO2,
           }}
         />
         <ValueInfo
           mainContainer={{
-            selector: getParametersFlow,
+            selector: getParametersRequestDraftFlow,
             label: 'Flow',
             stateKey: 'flow',
             units: LMIN,
+            alarmLimits: alarmValuesFlow,
           }}
         />
       </Grid>
@@ -353,6 +369,10 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.setValue = setting;
       parameter.setValue = setting;
+      if (open) {
+        const update = { [stateKey]: setting };
+        dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+      }
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
       } else {
@@ -539,7 +559,12 @@ const MultiStepWizard = (): JSX.Element => {
           </Grid>
           <Grid container className={classes.tabAligning}>
             <TabPanel value={tabIndex} index={0}>
-              <HFNCControls />
+              <HFNCControls
+                alarmValuesSpO2={getAlarmValues('spo2')}
+                alarmValuesHR={getAlarmValues('hr')}
+                alarmValuesFiO2={getSetValues('fio2')}
+                alarmValuesFlow={getSetValues('flow')}
+              />
             </TabPanel>
             <TabPanel value={tabIndex} index={1}>
               {parameter && parameter.isSetvalEnabled ? (
