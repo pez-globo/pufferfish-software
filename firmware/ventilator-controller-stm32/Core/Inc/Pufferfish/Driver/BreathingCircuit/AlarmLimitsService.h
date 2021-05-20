@@ -23,7 +23,8 @@ void service_limits_range(
     Range &response,
     const Range &allowed,
     LogEventCode code,
-    Application::LogEventsManager &log_manager);
+    Application::LogEventsManager &log_manager,
+    bool log_changes);
 
 class AlarmLimitsService {
  public:
@@ -36,21 +37,25 @@ class AlarmLimitsService {
       const Parameters &parameters,
       const AlarmLimitsRequest &alarm_limits_request,
       AlarmLimits &alarm_limits,
-      Application::LogEventsManager &log_manager);
+      Application::LogEventsManager &log_manager,
+      bool log_changes);
 
  private:
   static void service_fio2(
       const Parameters &parameters,
       AlarmLimits &response,
-      Application::LogEventsManager &log_manager);
+      Application::LogEventsManager &log_manager,
+      bool log_changes);
   static void service_spo2(
       const AlarmLimitsRequest &request,
       AlarmLimits &response,
-      Application::LogEventsManager &log_manager);
+      Application::LogEventsManager &log_manager,
+      bool log_changes);
   static void service_hr(
       const AlarmLimitsRequest &request,
       AlarmLimits &response,
-      Application::LogEventsManager &log_manager);
+      Application::LogEventsManager &log_manager,
+      bool log_changes);
 };
 
 class PCACAlarmLimits : public AlarmLimitsService {};
@@ -64,13 +69,15 @@ class HFNCAlarmLimits : public AlarmLimitsService {
       const Parameters &parameters,
       const AlarmLimitsRequest &alarm_limits_request,
       AlarmLimits &alarm_limits,
-      Application::LogEventsManager &log_manager) override;
+      Application::LogEventsManager &log_manager,
+      bool log_changes) override;
 
  private:
   static void service_flow(
       const Parameters &parameters,
       AlarmLimits &response,
-      Application::LogEventsManager &log_manager);
+      Application::LogEventsManager &log_manager,
+      bool log_changes);
 };
 
 class AlarmLimitsServices {
@@ -79,12 +86,14 @@ class AlarmLimitsServices {
       const Parameters &parameters,
       const AlarmLimitsRequest &alarm_limits_request,
       AlarmLimits &alarm_limits,
-      Application::LogEventsManager &log_manager);
+      Application::LogEventsManager &log_manager,
+      bool request_initialized);
 
  private:
   AlarmLimitsService *active_service_ = nullptr;
   PCACAlarmLimits pc_ac_;
   HFNCAlarmLimits hfnc_;
+  bool request_initialized_ = false;
 };
 
 void make_state_initializers(Application::StateSegment &request_segment, AlarmLimits &response);
