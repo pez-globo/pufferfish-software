@@ -77,7 +77,8 @@ const AudioAlarm = (): JSX.Element => {
   const alarmMuteActive = useSelector(getAlarmMuteActive, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
-  const [playing, setPlaying] = useState(!alarmMuteActive);
+  const [playing, setPlaying] = useState(false);
+  console.log(playing);
 
   useEffect(() => {
     if (playing) {
@@ -91,11 +92,13 @@ const AudioAlarm = (): JSX.Element => {
   }, [playing, audio]);
 
   useEffect(() => {
+    if (activeAlarms) setPlaying(!alarmMuteActive);
+  }, [activeAlarms, alarmMuteActive]);
+
+  useEffect(() => {
     if (activeAlarms) {
-      setPlaying(true);
       dispatch({ type: RED_BORDER, status: true });
     } else {
-      setPlaying(false);
       dispatch({ type: RED_BORDER, status: false });
     }
   }, [activeAlarms, dispatch]);
@@ -103,11 +106,8 @@ const AudioAlarm = (): JSX.Element => {
   useEffect(() => {
     if (activeAlarms) {
       dispatch({ type: RED_BORDER, status: !alarmMuteActive });
-      setPlaying(!alarmMuteActive);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [alarmMuteActive, dispatch]);
-
+  }, [alarmMuteActive, activeAlarms, dispatch]);
   return <React.Fragment />;
 };
 

@@ -8,7 +8,6 @@ import {
   getActiveLogEventIds,
   getAlarmMuteActive,
   getAlarmMuteStatus,
-  getHasActiveAlarms,
   getPopupEventLog,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
@@ -150,10 +149,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const [alertCount, setAlertCount] = useState<number>(0);
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
-  const activeAlarms = useSelector(getHasActiveAlarms, shallowEqual);
   const alarmMuteActive = useSelector(getAlarmMuteActive, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
-  const [isMuted, setIsMuted] = useState(!alarmMuteActive);
+  const [isMuted, setIsMuted] = useState(alarmMuteActive);
   useEffect(() => {
     if (popupEventLog) {
       const eventType = getEventType(popupEventLog.code);
@@ -168,8 +166,8 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   }, [popupEventLog, JSON.stringify(activeLog)]);
 
   useEffect(() => {
-    if (activeAlarms) setIsMuted(!alarmMuteActive);
-  }, [activeAlarms, alarmMuteActive]);
+    setIsMuted(!alarmMuteActive);
+  }, [alarmMuteActive]);
 
   const muteAlarmState = (state: boolean) => {
     dispatch(
