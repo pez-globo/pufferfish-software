@@ -45,8 +45,6 @@ interface Data {
 interface HFNCProps {
   alarmValuesSpO2: number[];
   alarmValuesHR: number[];
-  alarmValuesFiO2: number;
-  alarmValuesFlow: number;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -112,12 +110,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const HFNCControls = ({
-  alarmValuesSpO2,
-  alarmValuesHR,
-  alarmValuesFiO2,
-  alarmValuesFlow,
-}: HFNCProps): JSX.Element => {
+const HFNCControls = ({ alarmValuesSpO2, alarmValuesHR }: HFNCProps): JSX.Element => {
   return (
     <React.Fragment>
       <Grid
@@ -154,7 +147,6 @@ const HFNCControls = ({
             label: 'FiO2',
             stateKey: 'fio2',
             units: PERCENT,
-            alarmLimits: alarmValuesFiO2,
           }}
         />
         <ValueInfo
@@ -163,7 +155,6 @@ const HFNCControls = ({
             label: 'Flow',
             stateKey: 'flow',
             units: LMIN,
-            alarmLimits: alarmValuesFlow,
           }}
         />
       </Grid>
@@ -562,8 +553,6 @@ const MultiStepWizard = (): JSX.Element => {
               <HFNCControls
                 alarmValuesSpO2={getAlarmValues('spo2')}
                 alarmValuesHR={getAlarmValues('hr')}
-                alarmValuesFiO2={getSetValues('fio2')}
-                alarmValuesFlow={getSetValues('flow')}
               />
             </TabPanel>
             <TabPanel value={tabIndex} index={1}>

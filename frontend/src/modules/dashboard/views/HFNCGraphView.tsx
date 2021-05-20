@@ -4,13 +4,17 @@ import React from 'react';
 import {
   getParametersFiO2,
   getParametersFlow,
+  getROXIndex,
   getSmoothedFiO2Value,
   getSmoothedFlow,
+  getSmoothedSpO2,
+  getSmoothedHR,
 } from '../../../store/controller/selectors';
 import { a11yProps, TabPanel } from '../../controllers/TabPanel';
-import { LMIN, PERCENT } from '../../info/units';
+import { BPM, LMIN, PERCENT } from '../../info/units';
 import { FlowGraphInfo, PawGraphInfo, VolumeGraphInfo } from '../containers';
 import ControlInfo from '../containers/ControlInfo';
+import ValueInfo from '../containers/ValueInfo';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -132,7 +136,7 @@ const HFNCMainView = (): JSX.Element => {
     <Grid container className={classes.root}>
       <Grid container item xs={12} alignItems="stretch" className={classes.topPanel}>
         <Grid item xs={4} alignItems="stretch" className={classes.topLeftPanel}>
-          {/* <Grid container item justify="center" alignItems="stretch">
+          <Grid container item justify="center" alignItems="stretch">
             <ValueInfo
               mainContainer={{
                 selector: getSmoothedSpO2,
@@ -161,7 +165,7 @@ const HFNCMainView = (): JSX.Element => {
                 decimal: 2,
               }}
             />
-          </Grid> */}
+          </Grid>
         </Grid>
         <Grid container item xs direction="column" className={classes.graphMainPanel} wrap="nowrap">
           <Grid container item xs direction="column" className={classes.graphPanel} wrap="nowrap">

@@ -129,7 +129,7 @@ export interface Props {
   selector: SelectorType;
   label: string;
   stateKey: string;
-  alarmLimits: number | number[];
+  alarmLimits?: number[];
   units?: string;
   isLive?: boolean;
   isMain?: boolean;
@@ -178,7 +178,8 @@ const ControlValuesDisplay = ({
       ? undefined
       : ((alarmLimitsRequest as unknown) as Record<string, Range>)[stateKey];
   const rangeValues = range === undefined ? { lower: '--', upper: '--' } : range;
-  const alarmLimitsRange = alarmLimits as number[];
+  const alarmTemp = alarmLimits === undefined ? { lower: '--', upper: '--' } : alarmLimits;
+  const alarmLimitsRange = alarmTemp as number[];
   const { lower, upper } =
     alarmLimitsRange?.length === 0
       ? rangeValues
@@ -285,7 +286,8 @@ const GridControlValuesDisplay = ({
       ? undefined
       : ((alarmLimitsRequest as unknown) as Record<string, Range>)[stateKey];
   const rangeValues = range === undefined ? { lower: '--', upper: '--' } : range;
-  const alarmLimitsRange = alarmLimits as number[];
+  const alarmTemp = alarmLimits === undefined ? { lower: '--', upper: '--' } : alarmLimits;
+  const alarmLimitsRange = alarmTemp as number[];
   const { lower, upper } =
     alarmLimitsRange?.length === 0
       ? rangeValues
@@ -414,7 +416,6 @@ const ValueInfo = (props: {
             <GridControlValuesDisplay
               stateKey={subContainer1.stateKey}
               selector={subContainer1.selector}
-              alarmLimits={subContainer1.alarmLimits}
               label={subContainer1.label}
               units={subContainer1.units}
               decimal={subContainer1.decimal || 0}
@@ -426,7 +427,6 @@ const ValueInfo = (props: {
             <GridControlValuesDisplay
               stateKey={subContainer2.stateKey}
               selector={subContainer2.selector}
-              alarmLimits={subContainer2.alarmLimits}
               label={subContainer2.label}
               units={subContainer2.units}
               decimal={subContainer2.decimal || 0}
