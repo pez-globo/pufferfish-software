@@ -21,9 +21,9 @@ class UARTBackend {
   UARTBackend(
       volatile BufferedUART &uart,
       HAL::CRC32 &crc32c,
-      Application::States &states,
+      Application::Store &store,
       Application::LogEventsSender &sender)
-      : uart_(uart), backend_(crc32c, states, sender) {}
+      : uart_(uart), backend_(crc32c, store, sender) {}
 
   void setup_irq();
   void receive();
