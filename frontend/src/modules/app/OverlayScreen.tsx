@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { BACKEND_CONNECTION_DOWN, RED_BORDER } from '../../store/app/types';
 import {
   getAlarmMuteActive,
+  getAlarmMuteRequestActive,
   getHasActiveAlarms,
   getNextLogEvents,
   getScreenStatusLock,
@@ -16,7 +17,7 @@ import MultiStepWizard from '../displays/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { updateState } from '../../store/controller/actions';
 import { LogEvent, LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
-import { getBackendHeartBeat, getClock } from '../../store/app/selectors';
+import { getBackendConnected, getBackendHeartBeat, getClock } from '../../store/app/selectors';
 import { establishedBackendConnection } from '../../store/app/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -75,38 +76,44 @@ const AudioAlarm = (): JSX.Element => {
   const dispatch = useDispatch();
   const activeAlarms = useSelector(getHasActiveAlarms, shallowEqual);
   const alarmMuteActive = useSelector(getAlarmMuteActive, shallowEqual);
+  const backendConnected = useSelector(getBackendConnected, shallowEqual);
+  const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
-  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
-    if (playing) {
-      audio.play();
-    } else {
-      audio.pause();
+    if (activeAlarms) {
+      if (backendConnected && alarmMuteActive) {
+        audio.pause();
+      } else if (backendConnected && !alarmMuteActive) {
+        audio.play();
+      } else if (!backendConnected && alarmMuteRequestActive) {
+        audio.pause();
+      } else if (!backendConnected && !alarmMuteRequestActive) {
+        audio.play();
+      }
     }
     return () => {
       audio.pause();
     };
-  }, [playing, audio]);
+  }, [activeAlarms, alarmMuteActive, audio, backendConnected, alarmMuteRequestActive]);
 
   useEffect(() => {
-    if (activeAlarms) setPlaying(!alarmMuteActive);
-  }, [activeAlarms, alarmMuteActive]);
-
-  useEffect(() => {
-    if (activeAlarms) {
+    if (activeAlarms || !backendConnected) {
       dispatch({ type: RED_BORDER, status: true });
     } else {
       dispatch({ type: RED_BORDER, status: false });
     }
-  }, [activeAlarms, dispatch]);
+  }, [activeAlarms, backendConnected, dispatch]);
 
   useEffect(() => {
     if (activeAlarms) {
       dispatch({ type: RED_BORDER, status: !alarmMuteActive });
     }
-  }, [alarmMuteActive, activeAlarms, dispatch]);
+    if (!backendConnected) {
+      dispatch({ type: RED_BORDER, status: !alarmMuteRequestActive });
+    }
+  }, [alarmMuteActive, activeAlarms, dispatch, alarmMuteRequestActive, backendConnected]);
   return <React.Fragment />;
 };
 

@@ -8,6 +8,7 @@ import {
   getActiveLogEventIds,
   getAlarmMuteActive,
   getAlarmMuteStatus,
+  getAlarmMuteRequestActive,
   getPopupEventLog,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
@@ -17,6 +18,7 @@ import { commitRequest } from '../../store/controller/actions';
 import { AlarmMuteRequest } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
 import { getEventType } from '../logs/EventType';
+import { getBackendConnected } from '../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -151,6 +153,8 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
   const alarmMuteActive = useSelector(getAlarmMuteActive, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
+  const backendConnected = useSelector(getBackendConnected, shallowEqual);
+  const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive, shallowEqual);
   const [isMuted, setIsMuted] = useState(alarmMuteActive);
   useEffect(() => {
     if (popupEventLog) {
@@ -167,7 +171,8 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
 
   useEffect(() => {
     setIsMuted(!alarmMuteActive);
-  }, [alarmMuteActive]);
+    if (!backendConnected) setIsMuted(!alarmMuteRequestActive);
+  }, [alarmMuteActive, backendConnected, alarmMuteRequestActive]);
 
   const muteAlarmState = (state: boolean) => {
     dispatch(

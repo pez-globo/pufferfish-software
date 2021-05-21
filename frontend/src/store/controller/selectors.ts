@@ -289,6 +289,11 @@ export const getAlarmMuteActive = createSelector(
   getAlarmMuteStatus,
   (alarmMute: AlarmMute | null): boolean => (alarmMute === null ? false : alarmMute.active),
 );
+export const getAlarmMuteRequestActive = createSelector(
+  getAlarmMuteRequest,
+  (alarmMuteRequest: AlarmMuteRequest | null) =>
+    alarmMuteRequest === null ? false : alarmMuteRequest.active,
+);
 
 // Battery power
 
