@@ -1,10 +1,7 @@
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
-import {
-  getAlarmLimitsCurrent,
-  getAlarmLimitsRequestDraft,
-} from '../../../store/controller/selectors';
+import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
 import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
@@ -132,6 +129,7 @@ export interface Props {
   selector: SelectorType;
   label: string;
   stateKey: string;
+  alarmLimits?: number[];
   units?: string;
   isLive?: boolean;
   isMain?: boolean;
@@ -164,6 +162,7 @@ export const ClickHandler = (
 
 const ControlValuesDisplay = ({
   selector,
+  alarmLimits,
   label,
   stateKey,
   units = '',
@@ -173,12 +172,18 @@ const ControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsRequestDraft, shallowEqual);
+  const alarmLimitsRequest = useSelector(getAlarmLimitsRequest, shallowEqual);
   const range =
-    alarmLimits === null
+    alarmLimitsRequest === null
       ? undefined
-      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
-  const { lower, upper } = range === undefined ? { lower: '--', upper: '--' } : range;
+      : ((alarmLimitsRequest as unknown) as Record<string, Range>)[stateKey];
+  const rangeValues = range === undefined ? { lower: '--', upper: '--' } : range;
+  const alarmTemp = alarmLimits === undefined ? { lower: '--', upper: '--' } : alarmLimits;
+  const alarmLimitsRange = alarmTemp as number[];
+  const { lower, upper } =
+    alarmLimitsRange?.length === 0
+      ? rangeValues
+      : { lower: alarmLimitsRange[0], upper: alarmLimitsRange[1] };
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
@@ -267,6 +272,7 @@ const ControlValuesDisplay = ({
 
 const GridControlValuesDisplay = ({
   selector,
+  alarmLimits,
   label,
   stateKey,
   units = '',
@@ -274,12 +280,18 @@ const GridControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsCurrent, shallowEqual);
+  const alarmLimitsRequest = useSelector(getAlarmLimitsRequest);
   const range =
-    alarmLimits === null
+    alarmLimitsRequest === null
       ? undefined
-      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
-  const { lower, upper } = range === undefined ? { lower: '--', upper: '--' } : range;
+      : ((alarmLimitsRequest as unknown) as Record<string, Range>)[stateKey];
+  const rangeValues = range === undefined ? { lower: '--', upper: '--' } : range;
+  const alarmTemp = alarmLimits === undefined ? { lower: '--', upper: '--' } : alarmLimits;
+  const alarmLimitsRange = alarmTemp as number[];
+  const { lower, upper } =
+    alarmLimitsRange?.length === 0
+      ? rangeValues
+      : { lower: alarmLimitsRange[0], upper: alarmLimitsRange[1] };
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
@@ -376,6 +388,7 @@ const ValueInfo = (props: {
             <ControlValuesDisplay
               isMain={true}
               stateKey={mainContainer.stateKey}
+              alarmLimits={mainContainer.alarmLimits}
               selector={mainContainer.selector}
               label={mainContainer.label}
               units={mainContainer.units}
@@ -392,6 +405,7 @@ const ValueInfo = (props: {
           <ControlValuesDisplay
             stateKey={mainContainer.stateKey}
             selector={mainContainer.selector}
+            alarmLimits={mainContainer.alarmLimits}
             label={mainContainer.label}
             units={mainContainer.units}
             decimal={mainContainer.decimal || 0}
