@@ -30,6 +30,7 @@ import {
   getAlarmLimitsRequest,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
+import { AlarmConfiguration, alarmConfiguration } from '../alarms/AlarmsPage';
 import { ModalPopup } from '../controllers/ModalPopup';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
 import { BackIcon } from '../icons';
@@ -74,11 +75,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid red'
   },
 }));
-
-interface AlarmConfiguration {
-  label: string;
-  stateKey: string;
-}
 
 /**
  * HeaderClock
@@ -133,23 +129,6 @@ export const PowerIndicator = (): JSX.Element => {
       {icon}
     </React.Fragment>
   );
-};
-
-const alarmConfiguration = (ventilationMode: VentilationMode | null): Array<AlarmConfiguration> => {
-  switch (ventilationMode) {
-    case VentilationMode.hfnc:
-      return [
-        { label: 'SpO2', stateKey: 'spo2' },
-        { label: 'HR', stateKey: 'hr' },
-      ];
-    case VentilationMode.pc_ac:
-    case VentilationMode.vc_ac:
-    case VentilationMode.niv_pc:
-    case VentilationMode.niv_ps:
-    case VentilationMode.psv:
-    default:
-      return [];
-  }
 };
 
 /**

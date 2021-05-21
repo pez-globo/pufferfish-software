@@ -310,7 +310,7 @@ const Alarm = ({
  * @prop {string} stateKey Unique identifier of alarm (eg spo2, fio2...)
  * @prop {number} step Alarm step difference between Range (Defaults to 1)
  */
-interface AlarmConfiguration {
+export interface AlarmConfiguration {
   label: string;
   min?: number;
   max?: number;
@@ -324,7 +324,9 @@ interface AlarmConfiguration {
  * @returns {AlarmConfiguration[]} List of alarms
  *
  */
-const alarmConfiguration = (ventilationMode: VentilationMode | null): Array<AlarmConfiguration> => {
+export const alarmConfiguration = (
+  ventilationMode: VentilationMode | null,
+): Array<AlarmConfiguration> => {
   switch (ventilationMode) {
     case VentilationMode.hfnc:
       return [
