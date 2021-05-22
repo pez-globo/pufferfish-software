@@ -623,7 +623,7 @@ int main(void)
         store.sensor_measurements(),
         store.active_log_events(),
         alarms_manager);
-    alarm_mute_service.transform(all_states.alarm_mute(), all_states.alarm_mute_request());
+    alarm_mute_service.transform(store.alarm_mute(), store.alarm_mute_request());
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;
