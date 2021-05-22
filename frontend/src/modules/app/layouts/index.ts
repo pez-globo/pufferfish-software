@@ -1,8 +1,15 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Components comprising of all Layout files
+ * These Layout files are used in `Route.tsx` file
+ * to define which layout to use for which page route
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file Layout file contains wrapper for Sidebar & Toolbar
+ * To create new customized layout will require
+ * to add a file in this directory with customized changes
+ *
+ * To use the layout for a page, Define Layout while declaring page route, Example below
+ * `SidebarSlideRoute` layout can be used by `NewPage` using following example
+ * `<SidebarSlideRoute exact path={NewRoutePath} component={NewPage} />`
  */
 export * from './LandingPageRoute';
 export * from './NoLayoutRoute';

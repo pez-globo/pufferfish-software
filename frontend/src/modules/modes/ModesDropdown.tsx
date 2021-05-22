@@ -87,7 +87,7 @@ const StyledMenuItem = withStyles((theme) => ({
 /**
  * ModesDropdown
  *
- * @component some description
+ * @component Display Ventilation mode dropdown
  *
  * TODO: This component should rely on a redux state that stores the current
  *       mode as it has application-wide consequences. Updating that redux

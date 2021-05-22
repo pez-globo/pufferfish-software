@@ -122,7 +122,7 @@ interface Props {
  *
  * Interface for Action Props
  *
- * @prop {function} onClose Callback on Closing modal
+ * @prop {function} onClose Callback on Closing modal by clicking on `cancel` button
  * @prop {function} onConfirm Callback on Confirming modal
  */
 interface ActionProps {

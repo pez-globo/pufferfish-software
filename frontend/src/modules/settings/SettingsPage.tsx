@@ -1,8 +1,7 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Component to manage System Info, Settings and Test & Calibaratin
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file It is displayed it different tabs for each
  *
  */
 import { Button, Grid, Tab, Tabs } from '@material-ui/core/';
@@ -66,6 +65,9 @@ enum TabType {
  */
 export const SettingsPage = (): JSX.Element => {
   const classes = useStyles();
+  /**
+   * State to manage active Tab
+   */
   const [value, setValue] = React.useState(0);
   const dispatch = useDispatch();
   /**

@@ -1,7 +1,8 @@
 /**
  * @summary Sidebar Drawer Component
  *
- * @file Component consisting Navigation bar
+ * @file Its shown when frontend is 'ventilating' & toggled by clicking the home icon
+ * Its referenced in `SiderbarSlideRoute` layout file
  *
  */
 import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
@@ -70,7 +71,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * @component The main FullPageNavigation panel of the application.
  *
- * @param {function} toggleStatus - Callback with toggleStatus
+ * @param {function} toggleStatus - Callback with toggleStatus to show/hide Sidebar drawer status
  *
  * @returns {JSX.Element}
  */

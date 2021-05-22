@@ -1,4 +1,5 @@
 /**
+ * @deprecated
  * @summary Re-usable UI wrapper for displaying Value Info
  *
  * @file ValueInfo is a configurable component on Layout level
@@ -128,6 +129,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 /**
+ *
  * @typedef ValueInfoProps
  *
  * Props interface for the showing value information.
@@ -240,7 +242,7 @@ const ControlValuesDisplay = ({
     alarmLimitsRange?.length === 0
       ? rangeValues
       : { lower: alarmLimitsRange[0], upper: alarmLimitsRange[1] };
-  
+
   /**
    * Opens Multistep Popup on Clicking over component
    */
@@ -252,7 +254,7 @@ const ControlValuesDisplay = ({
   };
 
   /**
-   * Disable click events over component
+   * Disable double click events over component & dispatch onClick manually
    */
   const handleClick = ClickHandler(onClick, () => {
     return false;

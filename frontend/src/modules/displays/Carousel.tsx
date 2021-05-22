@@ -182,6 +182,7 @@ const CarouselRightArrow = ({ onClick }: { onClick(): void }): JSX.Element => {
  * CarouselIndicator
  *
  * @component A container for displaying the indicators of carousel.
+ * Shows indicators below the Carousel Slides with highlighting the active one
  *
  * @param {function} onClick - Callback on clicking Carousel indicator
  * @param {number} activeIndex - Active index of Carousel

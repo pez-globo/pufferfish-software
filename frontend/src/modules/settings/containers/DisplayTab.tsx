@@ -195,6 +195,11 @@ const DateTimeDisplay = () => {
  */
 export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   const classes = useStyles();
+  /**
+   * Calls on initalization of the component
+   * This is an event listener which listens to user input on `ValueClicker` buttons click
+   * Based on this event Border around Alarm's HTML wrapper is added/removed
+   */
   const [elRefs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
     [BRIGHTNESS_REFERENCE_KEY]: useRef(null),
     [HOUR_REFERENCE_KEY]: useRef(null),
@@ -232,6 +237,10 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
     initRefListener(elRefs);
   }, [initRefListener, elRefs]);
 
+  /**
+   * Listens to state change of date, period, minute, hour, day, month, year, unit, theme, brightness
+   * And triggers callback to parent component `SettingsPage`
+   */
   useEffect(() => {
     const dateChange = new Date(year, month - 1, day, to24HourClock(hour, period), minute);
     onSettingChange({
@@ -259,7 +268,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   };
 
   /**
-   * function for handling buttom css based on AM and PM period.
+   * function for handling button css based on AM and PM period.
    *
    * @param {Period} updatedPeriod - input value AM and PM
    *

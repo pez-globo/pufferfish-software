@@ -35,6 +35,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 /**
+ * @deprecated
  * @typedef SettingAdjustProps
  *
  * Interface for the adjusting props settings
@@ -102,6 +103,7 @@ interface ContentProps {
 }
 
 /**
+ * @deprecated
  * ValueModal
  *
  * @component A container for displaying value modal settings.

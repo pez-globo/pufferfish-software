@@ -169,6 +169,11 @@ const Alarm = ({
     range === undefined ? NaN : range.lower,
     range === undefined ? NaN : range.upper,
   ];
+  /**
+   * State to manage Wrapper HTML reference of Alarm's lower & higher Controls(ValueSlider & ValueClicker)
+   * This wrapper's HTML border is added or removed based on user's interaction with Alarm Controls
+   * It is used for UI identification of which alarm value is changing via rotary encoder
+   */
   const [refs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
     [`${stateKey}_LOWER`]: useRef(null),
     [`${stateKey}_HIGHER`]: useRef(null),
@@ -203,6 +208,11 @@ const Alarm = ({
     });
   };
 
+  /**
+   * Calls on initalization of the component
+   * This is an event listener which listens to user input on Alarm Controls(ValueSlider & ValueClicker)
+   * Based on this event Border around Alarm's HTML wrapper is added/removed
+   */
   useEffect(() => {
     initRefListener(refs);
   }, [initRefListener, refs]);
@@ -444,8 +454,10 @@ export const AlarmsPage = (): JSX.Element => {
   }, [alarmConfig]);
 
   /**
+   * Triggers an event to reset active UI wrapper of Alarm Controls
    * Resets highlighting border around alarm container when clicked across the page
    * Border is usually added on `ValueClicker` button click
+   * This allows to reset rotary reference border when user clic
    */
   const OnClickPage = () => {
     setActiveRotaryReference(null);
@@ -456,6 +468,7 @@ export const AlarmsPage = (): JSX.Element => {
       <Grid container item xs direction="column" className={classes.panel}>
         <Grid container item xs direction="row">
           <Grid container spacing={3} style={{ margin: '-10px -12px' }}>
+            {/* Splits Alarms based on page number & itemsPerPage count to show in the page */}
             {alarmConfig.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((alarm) => {
               const key = `alarm-config-${alarm.stateKey}`;
               return (

@@ -1,8 +1,6 @@
 /**
  * @summary A short one-line description for the file
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
@@ -10,11 +8,11 @@ import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 /**
  * BellNoneIcon
  *
- * @component some description
+ * @component Component for displaying "Bell" icon with blank filling
  *
  * @param {SvgIconProps} props - SVG props to override
  *
- * @returns {JSX.Element} - some description
+ * @returns {JSX.Element} - "Bell" with no filling icon used Sidebar for `Set Alarms` icon
  */
 const BellNoneIcon = (props: SvgIconProps): JSX.Element => {
   return (

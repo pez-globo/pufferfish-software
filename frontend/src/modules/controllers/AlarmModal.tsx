@@ -72,7 +72,7 @@ export interface AlarmAdjustProps {
  * @prop {number} committedMax Upper Set Alarm Range Value
  * @prop {boolean} disableAlarmButton Toggle to show/hide alarm button
  * @prop {function} updateModalStatus Callback to send current modal open/close status
- * @prop {function} onModalClose Callback on Modal close
+ * @prop {function} onModalClose Callback after Modal close
  * @prop {function} requestCommitRange Callback on updating the Alarm range values
  * @prop {string} stateKey Unique identifier of alarm (eg spo2, fio2...)
  * @prop {number} step Alarm step difference between Range (Defaults to 1)

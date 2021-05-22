@@ -51,7 +51,7 @@ export const BACKEND_CONNECTION_TIMEOUT = 3000;
 /**
  * HeartbeatBackendListener
  *
- * @component Dispatches BACKEND_CONNECTION_LOST event if no backendHeartbeat updates before timeout
+ * @component Dispatches BACKEND_CONNECTION_DOWN event if no backendHeartbeat updates before timeout
  *
  * @returns {JSX.Element}
  */
@@ -104,6 +104,9 @@ const AudioAlarm = (): JSX.Element => {
 
   /**
    * Toggle between Play/Pause
+   * UseEffect causes status change to Play/Pause based on `playing` state change
+   * useEffect also pasues audio whenever component instance is out of context or destroyed
+   * So Based on local state Audio is played or paused.
    */
   useEffect(() => {
     if (playing) {

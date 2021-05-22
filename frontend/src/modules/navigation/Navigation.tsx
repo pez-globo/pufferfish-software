@@ -68,8 +68,8 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * @component The main interface for router/page-based navigation.
  *
- * @param {boolean} fullPage desc for fullPage
- * @param {function} toggleStatus desc for toggleStatus
+ * @param {boolean} fullPage Takes full width of the page if true
+ * @param {function} toggleStatus Defines the status of Sidebar drawer Open/Close
  *
  * @returns {JSX.Element}
  *

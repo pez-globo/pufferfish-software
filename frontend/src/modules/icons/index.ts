@@ -1,8 +1,18 @@
 /**
- * @summary A short one-line description for the file
+ * @summary All icons (SVG) which are used in our App
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * To convert existing SVG icon to be compatible to our App,
+ * SVG tag should be replaced with `SvgIcon` tag of Material
+ * And also copy the props to override settings using `<SvgIcon {...props}` /> syntac
+ *
+ * Example to use Icons in react compoennt
+ *
+ * <ClockIcon/>
+ *
+ * To override the settings for icon, use following syntax
+ *
+ * <ClockIcon style={{ fontSize: '2.5rem' }} />
+ *
  */
 export { default as BackIcon } from './BackIcon';
 export { default as BellIcon } from './BellIcon';

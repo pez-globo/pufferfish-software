@@ -14,7 +14,7 @@ import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
  *
  * @param {SvgIconProps} props - SVG props to override
  *
- * @returns {JSX.Element} - "Shutdown" icon
+ * @returns {JSX.Element} - "Shutdown" icon to represent lock screen
  */
 const ShutdownIcon = (props: SvgIconProps): JSX.Element => {
   return (

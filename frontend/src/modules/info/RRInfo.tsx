@@ -45,7 +45,7 @@ const RRInfo = ({ disableSetValue = false }: { disableSetValue?: boolean }): JSX
   const dispatch = useDispatch();
 
   /**
-   * some description
+   * Function to set RR value to redux store
    *
    * @param {number} setting - desc for setting
    */

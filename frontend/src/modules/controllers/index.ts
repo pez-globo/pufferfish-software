@@ -1,8 +1,10 @@
 /**
- * @summary A short one-line description for the file
+ * @summary Components which are used to control or set data based on User UI interaction
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
+ * @file Slider, Modal popup's, Rotary encoder, etc are the means through which
+ * user can control UI values in a particular section
+ *
+ * Files which lets user control or configure UI should be placed here
  */
 /**
  * controls

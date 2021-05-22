@@ -1,8 +1,6 @@
 /**
  * @summary SVG based component for "Dropdown Arrow" icon
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 import React from 'react';

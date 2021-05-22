@@ -1,8 +1,6 @@
 /**
  * @summary SVG based component for "Bell" icon
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
@@ -14,7 +12,7 @@ import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
  *
  * @param {SvgIconProps} props - SVG props to override
  *
- * @returns {JSX.Element} - "Bell" icon
+ * @returns {JSX.Element} - "Bell" icon used in `EventLogs` Toolbar
  */
 const BellIcon = (props: SvgIconProps): JSX.Element => {
   return (

@@ -1,7 +1,15 @@
 /**
  * @summary Component responsible for Application Routing
  *
+ * For any new page to be accessible via url path,
+ * It is required to add an Route object in `constants` file
+ * And add it inside the `<Switch>` tag in below format
  *
+ * <RouteLayout component={PageComponent} path={UrlPath} />
+ *
+ * Use appropriate RouteLayout based on available layouts in `app/Layout` directory'
+ *
+ * To Visibly see the Route in Sidebar, Update `routes` array in `Navigation` file
  */
 import React from 'react';
 import { useSelector } from 'react-redux';

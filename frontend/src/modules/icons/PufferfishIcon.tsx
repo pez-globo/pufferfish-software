@@ -14,7 +14,7 @@ import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
  *
  * @param {SvgIconProps} props - SVG props to override
  *
- * @returns {JSX.Element} - "Pufferfish" icon
+ * @returns {JSX.Element} - "Pufferfish" icon used in Screen saver page
  */
 const PufferfishIcon = (props: SvgIconProps): JSX.Element => {
   return (

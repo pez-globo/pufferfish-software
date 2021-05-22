@@ -1,6 +1,6 @@
 /**
+ * @deprecated
  * @summary Re-usable component wrapper for Value Control & Set Value Modal
- *
  *
  */
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';

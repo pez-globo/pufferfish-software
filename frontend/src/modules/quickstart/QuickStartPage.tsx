@@ -99,6 +99,12 @@ const useStyles = makeStyles((theme: Theme) => ({
  */
 const SettableParameters = (): JSX.Element => {
   const classes = useStyles();
+
+  /**
+   * State to manage Wrapper HTML reference of parameter `ValueClicker`
+   * This wrapper's HTML border is added or removed based on user's interaction with Controls
+   * It is used for UI identification of which control value is changing via rotary encoder
+   */
   const [elRefs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
     [PEEP_REFERENCE_KEY]: useRef(null),
     [RR_REFERENCE_KEY]: useRef(null),
@@ -133,6 +139,11 @@ const SettableParameters = (): JSX.Element => {
     dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
   };
 
+  /**
+   * Calls on initalization of the component
+   * This is an event listener which listens to user input on `ValueClicker` buttons click
+   * Based on this event Border around Alarm's HTML wrapper is added/removed
+   */
   useEffect(() => {
     initRefListener(elRefs);
   }, [initRefListener, elRefs]);

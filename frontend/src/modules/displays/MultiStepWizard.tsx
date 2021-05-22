@@ -202,21 +202,21 @@ const HFNCControls = ({
 };
 
 /**
- * some description
+ * Function to return object with configured values
  *
  * @param {string} stateKey Unique identifier for the value
  * @param {string} label Label for the value
  * @param {string} units Unit measurement of the value
  * @param {boolean} isAlarmEnabled Config to set if value is Alarm type
  * @param {boolean} isSetvalEnabled Config to set if value is Set type
- * @param {number[]} alarmValuesActual - some desc for alarmValuesActual
+ * @param {number[]} alarmValuesActual - Current Alarm values from redux store
  * @param {number | null} committedSetting - Actual Alarm Value when Component was initalized
  * @param {number | null} minValue Minimum under which value cannot decrement
  * @param {number | null} maxValue Maximum above which value cannot increment
  * @param {number | null} alarmLimitMin Alarm limit Minimum Range value
  * @param {number | null} alarmLimitMax Alarm limit Maximum Range value
  *
- * @returns {Data} - some description for the return value
+ * @returns {Data} - returns the `Data` value
  */
 const createData = (
   label: string,

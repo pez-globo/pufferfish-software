@@ -86,7 +86,7 @@ export const UserActivity = (): JSX.Element => {
   const ventilating = useSelector(getParametersIsVentilating);
 
   /**
-   * some description
+   * Handle callback once `IdleTimer` is timed out
    */
   const onTimeOut = () => {
     if (ventilating) {

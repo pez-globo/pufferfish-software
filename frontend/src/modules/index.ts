@@ -1,8 +1,6 @@
 /**
- * @summary A short one-line description for the file
+ * @summary All UI components & routes of the app resides here
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 export * from './alarms/AlarmsPage';
 export * from './app';

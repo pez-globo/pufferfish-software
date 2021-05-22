@@ -8,7 +8,7 @@ import { PERCENT, BPM, LMIN } from '../info/units';
 /**
  * @typedef EventType
  *
- * Interface for get data about event.
+ * Interface to get data about event.
  *
  * @prop {LogEventType} type  Event log type
  * @prop {string} label Event Alarm Label

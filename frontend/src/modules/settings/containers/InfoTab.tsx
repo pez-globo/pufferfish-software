@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * @typedef Props
  *
- * some description.
+ * System info data shown in UI
  *
  * TODO: These props should be connected to the redux store.
  *

@@ -31,7 +31,7 @@ import { getEventDetails, getEventType } from './EventType';
  * @prop {LogEventType} type  Event Alarm type
  * @prop {string} alarm Event Alarm Label
  * @prop {number} time Event Alarm timestamp
- * @prop {number} status desc of status
+ * @prop {number} status Active status of the alarm
  * @prop {number} id unique identifier of row
  * @prop {number} details Event Alarm details
  * @prop {string} stateKey Event log parameter measurements identifier
@@ -142,7 +142,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
    * @param {LogEventType} type  Event Alarm type
    * @param {string} alarm Event Alarm Label
    * @param {number} time Event Alarm timestamp
-   * @param {number} status desc of status
+   * @param {number} status Active status of the alarm
    * @param {number} id unique identifier of row
    * @param {number} details Event Alarm details
    * @param {string} stateKey Event log parameter measurements identifier
@@ -192,7 +192,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
    */
   const [rowsPerPage, setRowsPerPage] = React.useState(9);
   /**
-   * State to LogsPage modal
+   * State to manage opening of LogsPage modal
    */
   const [open, setOpen] = React.useState(false);
   /**

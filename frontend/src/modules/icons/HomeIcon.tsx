@@ -1,8 +1,6 @@
 /**
  * @summary SVG based component for "Home" icon
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
  */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
@@ -21,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * @param {SvgIconProps} props - SVG props to override
  *
- * @returns {JSX.Element} - "Home" icon
+ * @returns {JSX.Element} - "Home" icon used in `SidebarClickable`
  */
 const HomeIcon = (props: SvgIconProps): JSX.Element => {
   const classes = useStyles();

@@ -1,5 +1,5 @@
 /**
- * @summary Component to display Control wrapper for Screensaver
+ * @summary Component wrapper to display Sensor Measurement's Controls in Screensaver
  *
  */
 import React from 'react';

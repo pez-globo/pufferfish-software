@@ -1,5 +1,7 @@
 /**
  * @deprecated
+ * Values page was previously used to control all values for the Paramters
+ * Its deprecated as we have removed its references from the UI sidebar navigation
  * @summary Component to handle ValuePage
  *
  */

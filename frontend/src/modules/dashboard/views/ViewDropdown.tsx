@@ -1,4 +1,5 @@
 /**
+ * @deprecated
  * @summary Dropdown component Switch between different views
  *
  */

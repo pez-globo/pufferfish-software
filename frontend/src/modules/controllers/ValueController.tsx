@@ -1,5 +1,5 @@
 /**
- * @summary Re-usable Wrapper container to control & display Paramaters value
+ * @summary Re-usable Wrapper container to control & display value
  *
  */
 import React, { RefObject } from 'react';

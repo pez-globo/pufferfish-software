@@ -1,9 +1,9 @@
 /**
- * @summary A short one-line description for the file
+ * @summary App directory consists entry point, all main & supporting Sub components
  *
- * @file More detailed description for the file, if necessary;
- * perhaps spanning multiple lines.
- *
+ * @file Main Components related to Layout, Toolbar, Sideba, etc are placed here
+ * Sub components which are related to main components like
+ * AudioAlarm (Toolbar), UserActivity(Accross App), HeartbeatBackendListener(Toolbar) are placed here
  */
 
 /**

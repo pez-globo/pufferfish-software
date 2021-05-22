@@ -1,4 +1,5 @@
 /**
+ * @deprecated
  * @summary Component to Handle Start/Pause of Ventilation
  *
  */

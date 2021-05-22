@@ -1,5 +1,5 @@
 /**
- * @summary Component to display Value wrapper for Screensaver
+ * @summary Component wrapper to display Sensor Measurement's Value in Screensaver
  *
  */
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';

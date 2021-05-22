@@ -91,6 +91,11 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
   const notifyAlarm = useSelector(getAlarmNotifyStatus);
   const [showBorder, setShowBorder] = React.useState(false);
 
+  /**
+   * Triggers when Alarm event is active (Referenced in `OverlayScreen` )
+   * RED_BORDER reduxs store is dispatched when alarm is active
+   * It adds a red border around the page
+   */
   useEffect(() => {
     setShowBorder(notifyAlarm);
   }, [notifyAlarm]);
