@@ -149,11 +149,11 @@ class Backend {
  public:
   enum class Status { ok = 0, waiting, invalid };
 
-  Backend(HAL::CRC32 &crc32c, Application::States &states, Application::LogEventsSender &sender)
+  Backend(HAL::CRC32 &crc32c, Application::Store &store, Application::LogEventsSender &sender)
       : receiver_(crc32c),
         sender_(crc32c),
-        states_(states),
-        synchronizer_(states, state_sync_schedule),
+        store_(store),
+        synchronizer_(store, state_sync_schedule),
         log_events_sender_(sender) {}
 
   static constexpr bool accept_message(Application::MessageTypes type) noexcept;
@@ -164,14 +164,14 @@ class Backend {
 
  private:
   using StateSynchronizer = Protocols::StateSynchronizer<
-      Application::States,
+      Application::Store,
       Application::StateSegment,
       Application::MessageTypes,
       state_sync_schedule.size()>;
 
   Receiver receiver_;
   Sender sender_;
-  Application::States &states_;
+  Application::Store &store_;
   StateSynchronizer synchronizer_;
   Application::LogEventsSender &log_events_sender_;
 };

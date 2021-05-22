@@ -177,10 +177,10 @@ Backend::Status Backend::input(uint8_t new_byte) {
   }
 
   // Input into state synchronization
-  switch (states_.input(message.payload)) {
-    case Application::States::InputStatus::ok:
+  switch (store_.input(message.payload)) {
+    case Application::Store::InputStatus::ok:
       break;
-    case Application::States::InputStatus::invalid_type:
+    case Application::Store::InputStatus::invalid_type:
       // TODO(lietk12): handle error case
       return Status::invalid;
   }
@@ -193,11 +193,11 @@ void Backend::update_clock(uint32_t current_time) {
 }
 
 void Backend::update_list_senders() {
-  const ExpectedLogEvent &event = states_.expected_log_event();
+  const ExpectedLogEvent &event = store_.expected_log_event();
   if (log_events_sender_.input(event.id, event.session_id) != Protocols::ListInputStatus::ok) {
     // TODO(lietk12): handle warning case
   }
-  log_events_sender_.output(states_.next_log_events());
+  log_events_sender_.output(store_.next_log_events());
 }
 
 Backend::Status Backend::output(FrameProps::ChunkBuffer &output_buffer) {

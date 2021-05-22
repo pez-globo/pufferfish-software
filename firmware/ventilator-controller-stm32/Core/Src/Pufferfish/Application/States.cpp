@@ -52,53 +52,61 @@ STATESEGMENT_TAGGED_SETTER(AlarmMuteRequest, alarm_mute_request)
 
 namespace Pufferfish::Application {
 
-// States
+// Store
 
-const ParametersRequest &States::parameters_request() const {
-  return state_segments_.parameters_request;
-}
-
-Parameters &States::parameters() {
-  return state_segments_.parameters;
-}
-
-const AlarmLimitsRequest &States::alarm_limits_request() const {
-  return state_segments_.alarm_limits_request;
-}
-
-AlarmLimits &States::alarm_limits() {
-  return state_segments_.alarm_limits;
-}
-
-SensorMeasurements &States::sensor_measurements() {
+SensorMeasurements &Store::sensor_measurements() {
   return state_segments_.sensor_measurements;
 }
 
-CycleMeasurements &States::cycle_measurements() {
+CycleMeasurements &Store::cycle_measurements() {
   return state_segments_.cycle_measurements;
 }
 
-const ExpectedLogEvent &States::expected_log_event() const {
+Parameters &Store::parameters() {
+  return state_segments_.parameters;
+}
+
+bool Store::has_parameters_request() const {
+  return has_parameters_request_;
+}
+
+const ParametersRequest &Store::parameters_request() const {
+  return state_segments_.parameters_request;
+}
+
+AlarmLimits &Store::alarm_limits() {
+  return state_segments_.alarm_limits;
+}
+
+bool Store::has_alarm_limits_request() const {
+  return has_alarm_limits_request_;
+}
+
+const AlarmLimitsRequest &Store::alarm_limits_request() const {
+  return state_segments_.alarm_limits_request;
+}
+
+const ExpectedLogEvent &Store::expected_log_event() const {
   return state_segments_.expected_log_event;
 }
 
-NextLogEvents &States::next_log_events() {
+NextLogEvents &Store::next_log_events() {
   return state_segments_.next_log_events;
 }
 
-ActiveLogEvents &States::active_log_events() {
+ActiveLogEvents &Store::active_log_events() {
   return state_segments_.active_log_events;
 }
 
-AlarmMute &States::alarm_mute() {
+AlarmMute &Store::alarm_mute() {
   return state_segments_.alarm_mute;
 }
 
-AlarmMuteRequest &States::alarm_mute_request() {
+AlarmMuteRequest &Store::alarm_mute_request() {
   return state_segments_.alarm_mute_request;
 }
 
-States::InputStatus States::input(const StateSegment &input) {
+Store::InputStatus Store::input(const StateSegment &input, bool default_initialization) {
   switch (input.tag) {
     case MessageTypes::sensor_measurements:
       STATESEGMENT_GET_TAGGED(sensor_measurements, input);
@@ -111,12 +119,18 @@ States::InputStatus States::input(const StateSegment &input) {
       return InputStatus::ok;
     case MessageTypes::parameters_request:
       STATESEGMENT_GET_TAGGED(parameters_request, input);
+      if (!default_initialization) {
+        has_parameters_request_ = true;
+      }
       return InputStatus::ok;
     case MessageTypes::alarm_limits:
       STATESEGMENT_GET_TAGGED(alarm_limits, input);
       return InputStatus::ok;
     case MessageTypes::alarm_limits_request:
       STATESEGMENT_GET_TAGGED(alarm_limits_request, input);
+      if (!default_initialization) {
+        has_alarm_limits_request_ = true;
+      }
       return InputStatus::ok;
     case MessageTypes::expected_log_event:
       STATESEGMENT_GET_TAGGED(expected_log_event, input);
@@ -138,7 +152,7 @@ States::InputStatus States::input(const StateSegment &input) {
   }
 }
 
-States::OutputStatus States::output(MessageTypes type, StateSegment &output) const {
+Store::OutputStatus Store::output(MessageTypes type, StateSegment &output) const {
   switch (type) {
     case MessageTypes::sensor_measurements:
       output.set(state_segments_.sensor_measurements);

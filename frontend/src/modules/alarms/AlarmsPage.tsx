@@ -256,7 +256,7 @@ const Alarm = ({
   );
 };
 
-interface AlarmConfiguration {
+export interface AlarmConfiguration {
   label: string;
   min?: number;
   max?: number;
@@ -264,7 +264,9 @@ interface AlarmConfiguration {
   step?: number;
 }
 
-const alarmConfiguration = (ventilationMode: VentilationMode | null): Array<AlarmConfiguration> => {
+export const alarmConfiguration = (
+  ventilationMode: VentilationMode | null,
+): Array<AlarmConfiguration> => {
   switch (ventilationMode) {
     case VentilationMode.hfnc:
       return [

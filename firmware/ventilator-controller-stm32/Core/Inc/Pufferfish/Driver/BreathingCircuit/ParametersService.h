@@ -23,7 +23,8 @@ void service_parameter(
     float &response,
     const Range &allowed,
     LogEventCode code,
-    Application::LogEventsManager &log_manager);
+    Application::LogEventsManager &log_manager,
+    bool log_changes);
 
 class ParametersService {
  public:
@@ -32,14 +33,16 @@ class ParametersService {
   static void service_mode(
       VentilationMode request,
       VentilationMode &response,
-      Application::LogEventsManager &log_manager);
+      Application::LogEventsManager &log_manager,
+      bool log_changes);
   static void service_fio2(
-      float request, float &response, Application::LogEventsManager &log_manager);
+      float request, float &response, Application::LogEventsManager &log_manager, bool log_changes);
 
   virtual void transform(
       const ParametersRequest &parameters_request,
       Parameters &parameters,
-      Application::LogEventsManager &log_manager) = 0;
+      Application::LogEventsManager &log_manager,
+      bool log_changes) = 0;
   [[nodiscard]] virtual bool mode_active(const Parameters &parameters) const = 0;
 };
 
@@ -48,7 +51,8 @@ class PCACParameters : public ParametersService {
   void transform(
       const ParametersRequest &parameters_request,
       Parameters &parameters,
-      Application::LogEventsManager &log_manager) override;
+      Application::LogEventsManager &log_manager,
+      bool log_changes) override;
   [[nodiscard]] bool mode_active(const Parameters &parameters) const override;
 };
 
@@ -57,12 +61,13 @@ class HFNCParameters : public ParametersService {
   static constexpr Range allowed_flow{0, 80};  // L/min
 
   static void service_flow(
-      float request, float &response, Application::LogEventsManager &log_manager);
+      float request, float &response, Application::LogEventsManager &log_manager, bool log_changes);
 
   void transform(
       const ParametersRequest &parameters_request,
       Parameters &parameters,
-      Application::LogEventsManager &log_manager) override;
+      Application::LogEventsManager &log_manager,
+      bool log_changes) override;
   [[nodiscard]] bool mode_active(const Parameters &parameters) const override;
 };
 
@@ -71,12 +76,14 @@ class ParametersServices {
   void transform(
       const ParametersRequest &parameters_request,
       Parameters &parameters,
-      Application::LogEventsManager &log_manager);
+      Application::LogEventsManager &log_manager,
+      bool request_initialized);
 
  private:
   ParametersService *active_service_ = nullptr;
   PCACParameters pc_ac_;
   HFNCParameters hfnc_;
+  bool request_initialized_ = false;
 };
 
 void make_state_initializers(Application::StateSegment &request_segment, Parameters &response);

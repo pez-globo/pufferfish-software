@@ -4,15 +4,14 @@ import { useDispatch } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
 import ReplyIcon from '@material-ui/icons/Reply';
 // import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
-import { useLocation } from 'react-router-dom';
 import ModalPopup from '../controllers/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
-  getParametersFiO2,
-  getParametersFlow,
   getSmoothedSpO2,
   getSmoothedHR,
   roundValue,
+  getParametersRequestDraftFiO2,
+  getParametersRequestDraftFlow,
 } from '../../store/controller/selectors';
 import { SetValueContent } from '../controllers/ValueModal';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
@@ -23,7 +22,6 @@ import { ParametersRequest, AlarmLimitsRequest } from '../../store/controller/pr
 import { MessageType } from '../../store/controller/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import store from '../../store';
-import { DASHBOARD_ROUTE } from '../navigation/constants';
 
 interface Data {
   stateKey: string;
@@ -40,6 +38,13 @@ interface Data {
   alarmLimitMax?: number | null;
   alarmValuesActual: number[];
   setValueActual: number;
+}
+
+interface HFNCProps {
+  alarmValuesSpO2: number[];
+  alarmValuesHR: number[];
+  alarmValuesFiO2: number[];
+  alarmValuesFlow: number[];
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -105,7 +110,12 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const HFNCControls = (): JSX.Element => {
+const HFNCControls = ({
+  alarmValuesSpO2,
+  alarmValuesHR,
+  alarmValuesFiO2,
+  alarmValuesFlow,
+}: HFNCProps): JSX.Element => {
   return (
     <React.Fragment>
       <Grid
@@ -122,6 +132,7 @@ const HFNCControls = (): JSX.Element => {
             label: 'SpO2',
             stateKey: 'spo2',
             units: PERCENT,
+            alarmLimits: alarmValuesSpO2,
           }}
         />
         <ValueInfo
@@ -130,24 +141,27 @@ const HFNCControls = (): JSX.Element => {
             label: 'HR',
             stateKey: 'hr',
             units: BPM,
+            alarmLimits: alarmValuesHR,
           }}
         />
       </Grid>
       <Grid container item justify="center" alignItems="stretch" direction="column">
         <ValueInfo
           mainContainer={{
-            selector: getParametersFiO2,
+            selector: getParametersRequestDraftFiO2,
             label: 'FiO2',
             stateKey: 'fio2',
             units: PERCENT,
+            alarmLimits: alarmValuesFiO2,
           }}
         />
         <ValueInfo
           mainContainer={{
-            selector: getParametersFlow,
+            selector: getParametersRequestDraftFlow,
             label: 'Flow',
             stateKey: 'flow',
             units: LMIN,
+            alarmLimits: alarmValuesFlow,
           }}
         />
       </Grid>
@@ -218,6 +232,10 @@ const getStoreAlarmData = (stateKey: string): number[] | null => {
       return [alarmLimits.spo2?.lower as number, alarmLimits.spo2?.upper as number];
     case 'hr':
       return [alarmLimits.hr?.lower as number, alarmLimits.hr?.upper as number];
+    case 'fio2':
+      return [alarmLimits.fio2?.lower as number, alarmLimits.fio2?.upper as number];
+    case 'flow':
+      return [alarmLimits.flow?.lower as number, alarmLimits.flow?.upper as number];
     default:
       return null;
   }
@@ -282,7 +300,6 @@ const determineInput = (stateKey: string): Data | undefined => {
 const MultiStepWizard = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const location = useLocation();
   const [open, setOpen] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [cancelOpen, setCancelOpen] = React.useState(false);
@@ -353,6 +370,10 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.setValue = setting;
       parameter.setValue = setting;
+      if (open) {
+        const update = { [stateKey]: setting };
+        dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+      }
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
       } else {
@@ -366,18 +387,6 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.alarmValues = [min, max];
       parameter.alarmValues = [min, max];
-      // we want to dispatch commitDraftRequest to AlarmLimitsRequest to show the unsaved alarm limit changes
-      // in the HFNC control (value info right corner), but doing so when in set alarms page will discard the unsaved changes
-      // which is unwanted, thus only do this when we are on dashboard.
-      if (location.pathname === DASHBOARD_ROUTE.path) {
-        const update = {
-          [parameter.stateKey]: {
-            lower: min,
-            upper: max,
-          },
-        };
-        dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
-      }
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
       } else {
@@ -539,7 +548,12 @@ const MultiStepWizard = (): JSX.Element => {
           </Grid>
           <Grid container className={classes.tabAligning}>
             <TabPanel value={tabIndex} index={0}>
-              <HFNCControls />
+              <HFNCControls
+                alarmValuesSpO2={getAlarmValues('spo2')}
+                alarmValuesHR={getAlarmValues('hr')}
+                alarmValuesFiO2={getAlarmValues('fio2')}
+                alarmValuesFlow={getAlarmValues('flow')}
+              />
             </TabPanel>
             <TabPanel value={tabIndex} index={1}>
               {parameter && parameter.isSetvalEnabled ? (
