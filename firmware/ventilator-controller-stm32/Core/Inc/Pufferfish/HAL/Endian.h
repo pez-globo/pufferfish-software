@@ -11,15 +11,10 @@
 
 #pragma once
 
-#include <cstdint>
 #include "Pufferfish/HAL/STM32/Endian.h"
-
-
 
 namespace Pufferfish {
 namespace HAL{
-
-
 
 template<typename T>
 constexpr T hton(const T& i) {
@@ -29,7 +24,6 @@ template<typename T>
 constexpr T ntoh(const T& i) {
             return Pufferfish::HAL::STM32::ntoh(i);
         }
-
 
 }// namespace HAL
 }// namespace Pufferfish
