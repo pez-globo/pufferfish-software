@@ -1,0 +1,13 @@
+SCENARIO("Value is in provided range")
+  GIVEN("A value '\x83'")
+  WHEN("Value is in range")
+     THEN("values are as expected")
+
+
+SCENARIO("Value is clamped")
+   GIVEN("A value '\x83'")
+   WHEN("Value is in range")
+     THEN("Returns correct given value")
+
+   WHEN("Value is not in range")
+     THEN("Returns max_val, value is greater than max_value")

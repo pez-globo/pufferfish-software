@@ -1,0 +1,12 @@
+SCENARIO("read endian data")
+  GIVEN("A buffer '\x01\x0f'")
+  WHEN("read buffer 2UL ")
+     THEN("reads correct value")
+
+  GIVEN("A buffer '\x00\x05\x0f\x07'")
+  WHEN("read buffer 4UL ")
+     THEN("reads correct value")
+
+  GIVEN("A buffer '\x02\x08\x00\x0d\x0e\x03\x0c\x00")
+  WHEN("read buffer 8UL ") 
+     THEN("reads correct value")

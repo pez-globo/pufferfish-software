@@ -1,0 +1,22 @@
+SCENARIO( " Vectors are resized")
+  GIVEN("Vector array of 252UL size")
+  WHEN("Vector is resized to 256")
+  THEN("Vector is resized correctly to 256 ")
+
+SCENARIO("Adding bytes to vector")
+  GIVEN("A vector and byte '0x08'")
+  WHEN("Adding 0x08 to vector")
+     THEN("0x08 is added to vector correctly")
+
+SCENARIO("Adding a string to vector")
+  GIVEN("A vector and string '\xe3\x03'")
+  WHEN("Adding a string \xe3\x03 ")
+     THEN("String is added correctly")
+
+SCENARIO("Copy one vector to another")
+  GIVEN("Two  vectors with 254UL buffer size")
+  WHEN("Copy one vector of 254UL size  to another of same size")
+     THEN("Vector is copied correctly")
+
+  WHEN("Vector one of buffer size 254UL is copied to vector of buffer size 8UL")
+    THEN("Copy from vector1 to vector 2 works correctly")

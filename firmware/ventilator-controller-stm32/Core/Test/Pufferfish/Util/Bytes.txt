@@ -1,0 +1,14 @@
+SCENARIO("Get the byte from expected position", "[bytes]")
+   GIVEN("A Byte '\xff'")
+   WHEN("a byte is fetched ")
+     THEN("value is as expected")
+
+
+SCENARIO("Set byte ")
+  GIVEN("A Byte '\x05' ")
+  WHEN("a byte is set at 0")
+     THEN("Value is as expected")
+
+  GIVEN("A Byte '\x05'")
+  WHEN("A byte is set at 1")
+     THEN("Value is as expected")
