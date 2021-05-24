@@ -21,7 +21,7 @@ union StateSegmentUnion {
   ExpectedLogEvent expected_log_event;
   NextLogEvents next_log_events;
   ActiveLogEvents active_log_events;
-  Battery battery;
+  PowerManagement power_management;
 };
 
 }  // namespace Pufferfish::Application

@@ -19,7 +19,7 @@ class Sensor {
   explicit Sensor(Device &device) : device_(device) {}
 
   // updates the battery power charging field
-  void transform(Battery &battery);
+  void transform(PowerManagement &power_management);
 
  private:
   Device device_;

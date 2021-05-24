@@ -14,7 +14,7 @@ namespace Pufferfish::Driver::Power {
 class AlarmsService {
  public:
   virtual void transform(
-      Battery &battery,
+      PowerManagement &power_management,
       ActiveLogEvents &active_log_events,
       Application::AlarmsManager &alarms_manager);
 };

@@ -22,7 +22,7 @@ I2CDeviceStatus Device::read_charging_status(bool &charging_status) {
 
   charging_status = false;
   uint16_t system_status = 0;
-  Util::read_ntoh(buffer.data(), system_status);
+  Util::read_bigend(buffer.data(), system_status);
   if ((system_status & static_cast<uint16_t>(Mask::charger_enabled)) != 0) {
     charging_status = true;
   }
@@ -37,7 +37,7 @@ I2CDeviceStatus Device::read_battery_voltage(uint16_t &v_bat) {
   }
 
   uint16_t vbat_value = 0;
-  Util::read_ntoh(buffer.data(), vbat_value);
+  Util::read_bigend(buffer.data(), vbat_value);
   // NOLINTNEXTLINE(readability-magic-numbers)
   v_bat = vbat_value * 128.176;  // Vbat = [VBAT] • 128.176µV for lead-acid
   return I2CDeviceStatus::ok;
@@ -51,7 +51,7 @@ I2CDeviceStatus Device::read_input_voltage(uint16_t &v_in) {
   }
 
   uint16_t vin_value = 0;
-  Util::read_ntoh(buffer.data(), vin_value);
+  Util::read_bigend(buffer.data(), vin_value);
   // NOLINTNEXTLINE(readability-magic-numbers)
   v_in = vin_value * 1.648;  // Vin = [VIN] • 1.648mV
   return I2CDeviceStatus::ok;
@@ -65,7 +65,7 @@ I2CDeviceStatus Device::read_system_voltage(uint16_t &v_sys) {
   }
 
   uint16_t vsys_value = 0;
-  Util::read_ntoh(buffer.data(), vsys_value);
+  Util::read_bigend(buffer.data(), vsys_value);
   // NOLINTNEXTLINE(readability-magic-numbers)
   v_sys = vsys_value * 1.648;  // Vsys = [VSYS] • 1.648mV
   return I2CDeviceStatus::ok;
@@ -79,7 +79,7 @@ I2CDeviceStatus Device::read_battery_current(uint16_t &i_bat) {
   }
 
   uint16_t i_bat_value = 0;
-  Util::read_ntoh(buffer.data(), i_bat_value);
+  Util::read_bigend(buffer.data(), i_bat_value);
   // NOLINTNEXTLINE(readability-magic-numbers)
   i_bat = i_bat_value * 1.46487;  // Ibat = [IBAT] • 1.46487mV
   return I2CDeviceStatus::ok;
@@ -93,7 +93,7 @@ I2CDeviceStatus Device::read_input_current(uint16_t &i_in) {
   }
 
   uint16_t i_in_value = 0;
-  Util::read_ntoh(buffer.data(), i_in_value);
+  Util::read_bigend(buffer.data(), i_in_value);
   // NOLINTNEXTLINE(readability-magic-numbers)
   i_in = i_in_value * 1.46487;  // Iin = [IIN] • 1.46487mV
   return I2CDeviceStatus::ok;

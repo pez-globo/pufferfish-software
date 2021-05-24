@@ -10,237 +10,241 @@
 #endif
 
 /* Enum definitions */
-typedef enum _VentilationMode {
-    VentilationMode_hfnc = 0,
-    VentilationMode_pc_ac = 1,
-    VentilationMode_vc_ac = 2,
-    VentilationMode_niv_pc = 3,
-    VentilationMode_niv_ps = 4,
-    VentilationMode_psv = 5,
-    VentilationMode_prvc = 6
+typedef enum _VentilationMode { 
+    VentilationMode_hfnc = 0, 
+    VentilationMode_pc_ac = 1, 
+    VentilationMode_vc_ac = 2, 
+    VentilationMode_niv_pc = 3, 
+    VentilationMode_niv_ps = 4, 
+    VentilationMode_psv = 5, 
+    VentilationMode_prvc = 6 
 } VentilationMode;
 
 /* Log Events */
-typedef enum _LogEventCode {
-    /* Patient */
-    LogEventCode_fio2_too_low = 0,
-    LogEventCode_fio2_too_high = 1,
-    LogEventCode_flow_too_low = 2,
-    LogEventCode_flow_too_high = 3,
-    LogEventCode_spo2_too_low = 4,
-    LogEventCode_spo2_too_high = 5,
-    LogEventCode_hr_too_low = 6,
-    LogEventCode_hr_too_high = 7,
-    LogEventCode_ventilation_operation_changed = 64,
-    LogEventCode_ventilation_mode_changed = 65,
-    LogEventCode_fio2_setting_changed = 66,
-    LogEventCode_flow_setting_changed = 67,
-    LogEventCode_fio2_alarm_limits_changed = 80,
-    LogEventCode_flow_alarm_limits_changed = 81,
-    LogEventCode_spo2_alarm_limits_changed = 82,
-    LogEventCode_hr_alarm_limits_changed = 83,
-    LogEventCode_screen_locked = 129,
-    LogEventCode_mcu_connection_down = 130,
-    LogEventCode_backend_connection_down = 131,
-    LogEventCode_frontend_connection_down = 132,
-    LogEventCode_mcu_connection_up = 133,
-    LogEventCode_backend_connection_up = 134,
-    LogEventCode_frontend_connection_up = 135,
-    LogEventCode_battery_low = 136
+typedef enum _LogEventCode { 
+    /* Patient alarms */
+    LogEventCode_fio2_too_low = 0, 
+    LogEventCode_fio2_too_high = 1, 
+    LogEventCode_flow_too_low = 2, 
+    LogEventCode_flow_too_high = 3, 
+    LogEventCode_spo2_too_low = 4, 
+    LogEventCode_spo2_too_high = 5, 
+    LogEventCode_hr_too_low = 6, 
+    LogEventCode_hr_too_high = 7, 
+    /* Control settings */
+    LogEventCode_ventilation_operation_changed = 64, 
+    LogEventCode_ventilation_mode_changed = 65, 
+    LogEventCode_fio2_setting_changed = 66, 
+    LogEventCode_flow_setting_changed = 67, 
+    /* Alarm limits settings */
+    LogEventCode_fio2_alarm_limits_changed = 80, 
+    LogEventCode_flow_alarm_limits_changed = 81, 
+    LogEventCode_spo2_alarm_limits_changed = 82, 
+    LogEventCode_hr_alarm_limits_changed = 83, 
+    /* System settings & alarms */
+    LogEventCode_screen_locked = 129, 
+    LogEventCode_mcu_connection_down = 130, 
+    LogEventCode_backend_connection_down = 131, 
+    LogEventCode_frontend_connection_down = 132, 
+    LogEventCode_mcu_connection_up = 133, 
+    LogEventCode_backend_connection_up = 134, 
+    LogEventCode_frontend_connection_up = 135, 
+    LogEventCode_battery_low = 136, 
+    LogEventCode_charger_disconnected = 137 
 } LogEventCode;
 
-typedef enum _LogEventType {
-    LogEventType_patient = 0,
-    LogEventType_control = 1,
-    LogEventType_alarm_limits = 2,
-    LogEventType_system = 3
+typedef enum _LogEventType { 
+    LogEventType_patient = 0, 
+    LogEventType_control = 1, 
+    LogEventType_alarm_limits = 2, 
+    LogEventType_system = 3 
 } LogEventType;
 
 /* Struct definitions */
-typedef struct _ActiveLogEvents {
+typedef struct _ActiveLogEvents { 
     pb_size_t id_count;
-    uint32_t id[32];
+    uint32_t id[32]; 
 } ActiveLogEvents;
 
-typedef struct _AlarmMute {
-    bool active;
-    float remaining;
+typedef struct _AlarmMute { 
+    bool active; 
+    float remaining; 
 } AlarmMute;
 
-typedef struct _AlarmMuteRequest {
-    bool active;
-    float remaining;
+typedef struct _AlarmMuteRequest { 
+    bool active; 
+    float remaining; 
 } AlarmMuteRequest;
 
 typedef PB_BYTES_ARRAY_T(64) Announcement_announcement_t;
-typedef struct _Announcement {
-    uint64_t time;
-    Announcement_announcement_t announcement;
+typedef struct _Announcement { 
+    uint64_t time; 
+    Announcement_announcement_t announcement; 
 } Announcement;
 
-typedef struct _Battery {
-    uint32_t power_left;
-    bool charging;
-} Battery;
-
-typedef struct _CycleMeasurements {
-    uint64_t time;
-    float vt;
-    float rr;
-    float peep;
-    float pip;
-    float ip;
-    float ve;
+typedef struct _CycleMeasurements { 
+    uint64_t time; 
+    float vt; 
+    float rr; 
+    float peep; 
+    float pip; 
+    float ip; 
+    float ve; 
 } CycleMeasurements;
 
-typedef struct _ExpectedLogEvent {
-    uint32_t id;
-    uint32_t session_id;
+typedef struct _ExpectedLogEvent { 
+    uint32_t id; 
+    uint32_t session_id; /* used when the sender's log is ephemeral */
 } ExpectedLogEvent;
 
-typedef struct _Parameters {
-    uint64_t time;
-    bool ventilating;
-    VentilationMode mode;
-    float fio2;
-    float flow;
-    float pip;
-    float peep;
-    float vt;
-    float rr;
-    float ie;
+typedef struct _Parameters { 
+    uint64_t time; 
+    bool ventilating; 
+    VentilationMode mode; 
+    float fio2; 
+    float flow; 
+    float pip; 
+    float peep; 
+    float vt; 
+    float rr; 
+    float ie; 
 } Parameters;
 
-typedef struct _ParametersRequest {
-    uint64_t time;
-    bool ventilating;
-    VentilationMode mode;
-    float fio2;
-    float flow;
-    float pip;
-    float peep;
-    float vt;
-    float rr;
-    float ie;
+typedef struct _ParametersRequest { 
+    uint64_t time; 
+    bool ventilating; 
+    VentilationMode mode; 
+    float fio2; 
+    float flow; 
+    float pip; 
+    float peep; 
+    float vt; 
+    float rr; 
+    float ie; 
 } ParametersRequest;
 
-typedef struct _Ping {
-    uint64_t time;
-    uint32_t id;
+typedef struct _Ping { 
+    uint64_t time; 
+    uint32_t id; 
 } Ping;
 
-typedef struct _Range {
-    int32_t lower;
-    int32_t upper;
+typedef struct _PowerManagement { 
+    uint32_t power_left; 
+    bool charging; 
+} PowerManagement;
+
+typedef struct _Range { 
+    int32_t lower; 
+    int32_t upper; 
 } Range;
 
-typedef struct _ScreenStatus {
-    bool lock;
+typedef struct _ScreenStatus { 
+    bool lock; 
 } ScreenStatus;
 
-typedef struct _SensorMeasurements {
-    uint64_t time;
-    uint32_t cycle;
-    float fio2;
-    float spo2;
-    float hr;
-    float paw;
-    float flow;
-    float volume;
+typedef struct _SensorMeasurements { 
+    uint64_t time; 
+    uint32_t cycle; 
+    float fio2; 
+    float spo2; 
+    float hr; 
+    float paw; 
+    float flow; 
+    float volume; 
 } SensorMeasurements;
 
-typedef struct _AlarmLimits {
-    uint64_t time;
+typedef struct _AlarmLimits { 
+    uint64_t time; 
     bool has_fio2;
-    Range fio2;
+    Range fio2; 
     bool has_flow;
-    Range flow;
+    Range flow; 
     bool has_spo2;
-    Range spo2;
+    Range spo2; 
     bool has_hr;
-    Range hr;
+    Range hr; 
     bool has_rr;
-    Range rr;
+    Range rr; 
     bool has_pip;
-    Range pip;
+    Range pip; 
     bool has_peep;
-    Range peep;
+    Range peep; 
     bool has_ip_above_peep;
-    Range ip_above_peep;
+    Range ip_above_peep; 
     bool has_insp_time;
-    Range insp_time;
+    Range insp_time; 
     bool has_paw;
-    Range paw;
+    Range paw; 
     bool has_mve;
-    Range mve;
+    Range mve; 
     bool has_tv;
-    Range tv;
+    Range tv; 
     bool has_etco2;
-    Range etco2;
+    Range etco2; 
     bool has_apnea;
-    Range apnea;
+    Range apnea; 
 } AlarmLimits;
 
-typedef struct _AlarmLimitsRequest {
-    uint64_t time;
+typedef struct _AlarmLimitsRequest { 
+    uint64_t time; 
     bool has_fio2;
-    Range fio2;
+    Range fio2; 
     bool has_flow;
-    Range flow;
+    Range flow; 
     bool has_spo2;
-    Range spo2;
+    Range spo2; 
     bool has_hr;
-    Range hr;
+    Range hr; 
     bool has_rr;
-    Range rr;
+    Range rr; 
     bool has_pip;
-    Range pip;
+    Range pip; 
     bool has_peep;
-    Range peep;
+    Range peep; 
     bool has_ip_above_peep;
-    Range ip_above_peep;
+    Range ip_above_peep; 
     bool has_insp_time;
-    Range insp_time;
+    Range insp_time; 
     bool has_paw;
-    Range paw;
+    Range paw; 
     bool has_mve;
-    Range mve;
+    Range mve; 
     bool has_tv;
-    Range tv;
+    Range tv; 
     bool has_etco2;
-    Range etco2;
+    Range etco2; 
     bool has_apnea;
-    Range apnea;
+    Range apnea; 
 } AlarmLimitsRequest;
 
-typedef struct _LogEvent {
-    uint32_t id;
-    uint64_t time;
-    LogEventCode code;
-    LogEventType type;
+typedef struct _LogEvent { 
+    uint32_t id; 
+    uint64_t time; 
+    LogEventCode code; 
+    LogEventType type; 
     bool has_alarm_limits;
-    Range alarm_limits;
-    float old_float;
-    float new_float;
-    uint32_t old_uint32;
-    uint32_t new_uint32;
-    bool old_bool;
-    bool new_bool;
+    Range alarm_limits; 
+    float old_float; 
+    float new_float; 
+    uint32_t old_uint32; 
+    uint32_t new_uint32; 
+    bool old_bool; 
+    bool new_bool; 
     bool has_old_range;
-    Range old_range;
+    Range old_range; 
     bool has_new_range;
-    Range new_range;
-    VentilationMode old_mode;
-    VentilationMode new_mode;
+    Range new_range; 
+    VentilationMode old_mode; 
+    VentilationMode new_mode; 
 } LogEvent;
 
-typedef struct _NextLogEvents {
-    uint32_t next_expected;
-    uint32_t total;
-    uint32_t remaining;
-    uint32_t session_id;
+typedef struct _NextLogEvents { 
+    uint32_t next_expected; 
+    uint32_t total; 
+    uint32_t remaining; 
+    uint32_t session_id; /* used when the sender's log is ephemeral */
     pb_size_t elements_count;
-    LogEvent elements[2];
+    LogEvent elements[2]; 
 } NextLogEvents;
 
 
@@ -250,8 +254,8 @@ typedef struct _NextLogEvents {
 #define _VentilationMode_ARRAYSIZE ((VentilationMode)(VentilationMode_prvc+1))
 
 #define _LogEventCode_MIN LogEventCode_fio2_too_low
-#define _LogEventCode_MAX LogEventCode_battery_low
-#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_battery_low+1))
+#define _LogEventCode_MAX LogEventCode_charger_disconnected
+#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_charger_disconnected+1))
 
 #define _LogEventType_MIN LogEventType_patient
 #define _LogEventType_MAX LogEventType_system
@@ -276,7 +280,7 @@ extern "C" {
 #define ExpectedLogEvent_init_default            {0, 0}
 #define NextLogEvents_init_default               {0, 0, 0, 0, 0, {LogEvent_init_default, LogEvent_init_default}}
 #define ActiveLogEvents_init_default             {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
-#define Battery_init_default                     {0, 0}
+#define PowerManagement_init_default             {0, 0}
 #define ScreenStatus_init_default                {0}
 #define AlarmMute_init_default                   {0, 0}
 #define AlarmMuteRequest_init_default            {0, 0}
@@ -293,7 +297,7 @@ extern "C" {
 #define ExpectedLogEvent_init_zero               {0, 0}
 #define NextLogEvents_init_zero                  {0, 0, 0, 0, 0, {LogEvent_init_zero, LogEvent_init_zero}}
 #define ActiveLogEvents_init_zero                {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
-#define Battery_init_zero                        {0, 0}
+#define PowerManagement_init_zero                {0, 0}
 #define ScreenStatus_init_zero                   {0}
 #define AlarmMute_init_zero                      {0, 0}
 #define AlarmMuteRequest_init_zero               {0, 0}
@@ -306,8 +310,6 @@ extern "C" {
 #define AlarmMuteRequest_remaining_tag           2
 #define Announcement_time_tag                    1
 #define Announcement_announcement_tag            2
-#define Battery_power_left_tag                   1
-#define Battery_charging_tag                     2
 #define CycleMeasurements_time_tag               1
 #define CycleMeasurements_vt_tag                 2
 #define CycleMeasurements_rr_tag                 3
@@ -339,6 +341,8 @@ extern "C" {
 #define ParametersRequest_ie_tag                 10
 #define Ping_time_tag                            1
 #define Ping_id_tag                              2
+#define PowerManagement_power_left_tag           1
+#define PowerManagement_charging_tag             2
 #define Range_lower_tag                          1
 #define Range_upper_tag                          2
 #define ScreenStatus_lock_tag                    1
@@ -580,11 +584,11 @@ X(a, STATIC,   REPEATED, UINT32,   id,                1)
 #define ActiveLogEvents_CALLBACK NULL
 #define ActiveLogEvents_DEFAULT NULL
 
-#define Battery_FIELDLIST(X, a) \
+#define PowerManagement_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   power_left,        1) \
 X(a, STATIC,   SINGULAR, BOOL,     charging,          2)
-#define Battery_CALLBACK NULL
-#define Battery_DEFAULT NULL
+#define PowerManagement_CALLBACK NULL
+#define PowerManagement_DEFAULT NULL
 
 #define ScreenStatus_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     lock,              1)
@@ -616,7 +620,7 @@ extern const pb_msgdesc_t LogEvent_msg;
 extern const pb_msgdesc_t ExpectedLogEvent_msg;
 extern const pb_msgdesc_t NextLogEvents_msg;
 extern const pb_msgdesc_t ActiveLogEvents_msg;
-extern const pb_msgdesc_t Battery_msg;
+extern const pb_msgdesc_t PowerManagement_msg;
 extern const pb_msgdesc_t ScreenStatus_msg;
 extern const pb_msgdesc_t AlarmMute_msg;
 extern const pb_msgdesc_t AlarmMuteRequest_msg;
@@ -635,7 +639,7 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define ExpectedLogEvent_fields &ExpectedLogEvent_msg
 #define NextLogEvents_fields &NextLogEvents_msg
 #define ActiveLogEvents_fields &ActiveLogEvents_msg
-#define Battery_fields &Battery_msg
+#define PowerManagement_fields &PowerManagement_msg
 #define ScreenStatus_fields &ScreenStatus_msg
 #define AlarmMute_fields &AlarmMute_msg
 #define AlarmMuteRequest_fields &AlarmMuteRequest_msg
@@ -647,11 +651,15 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define AlarmMuteRequest_size                    7
 #define AlarmMute_size                           7
 #define Announcement_size                        77
-#define LogEvent_size                            124
+#define CycleMeasurements_size                   41
 #define ExpectedLogEvent_size                    12
+#define LogEvent_size                            124
 #define NextLogEvents_size                       276
-#define ActiveLogEvents_size                     192
-#define BatteryPower_size                        8
+#define ParametersRequest_size                   50
+#define Parameters_size                          50
+#define Ping_size                                17
+#define PowerManagement_size                     8
+#define Range_size                               22
 #define ScreenStatus_size                        2
 #define SensorMeasurements_size                  47
 
@@ -754,10 +762,10 @@ struct MessageDescriptor<ActiveLogEvents> {
     }
 };
 template <>
-struct MessageDescriptor<Battery> {
+struct MessageDescriptor<PowerManagement> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
-        return &Battery_msg;
+        return &PowerManagement_msg;
     }
 };
 template <>

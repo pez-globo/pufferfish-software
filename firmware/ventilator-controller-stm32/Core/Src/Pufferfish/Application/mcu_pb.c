@@ -45,7 +45,7 @@ PB_BIND(NextLogEvents, NextLogEvents, AUTO)
 PB_BIND(ActiveLogEvents, ActiveLogEvents, AUTO)
 
 
-PB_BIND(Battery, Battery, AUTO)
+PB_BIND(PowerManagement, PowerManagement, AUTO)
 
 
 PB_BIND(ScreenStatus, ScreenStatus, AUTO)

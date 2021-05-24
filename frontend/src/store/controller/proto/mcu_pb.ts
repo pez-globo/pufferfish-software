@@ -1,8 +1,8 @@
 /* eslint-disable */
-import Long from 'long';
-import _m0 from 'protobufjs/minimal';
+import Long from "long";
+import _m0 from "protobufjs/minimal";
 
-export const protobufPackage = '';
+export const protobufPackage = "";
 
 export enum VentilationMode {
   hfnc = 0,
@@ -18,28 +18,28 @@ export enum VentilationMode {
 export function ventilationModeFromJSON(object: any): VentilationMode {
   switch (object) {
     case 0:
-    case 'hfnc':
+    case "hfnc":
       return VentilationMode.hfnc;
     case 1:
-    case 'pc_ac':
+    case "pc_ac":
       return VentilationMode.pc_ac;
     case 2:
-    case 'vc_ac':
+    case "vc_ac":
       return VentilationMode.vc_ac;
     case 3:
-    case 'niv_pc':
+    case "niv_pc":
       return VentilationMode.niv_pc;
     case 4:
-    case 'niv_ps':
+    case "niv_ps":
       return VentilationMode.niv_ps;
     case 5:
-    case 'psv':
+    case "psv":
       return VentilationMode.psv;
     case 6:
-    case 'prvc':
+    case "prvc":
       return VentilationMode.prvc;
     case -1:
-    case 'UNRECOGNIZED':
+    case "UNRECOGNIZED":
     default:
       return VentilationMode.UNRECOGNIZED;
   }
@@ -48,21 +48,21 @@ export function ventilationModeFromJSON(object: any): VentilationMode {
 export function ventilationModeToJSON(object: VentilationMode): string {
   switch (object) {
     case VentilationMode.hfnc:
-      return 'hfnc';
+      return "hfnc";
     case VentilationMode.pc_ac:
-      return 'pc_ac';
+      return "pc_ac";
     case VentilationMode.vc_ac:
-      return 'vc_ac';
+      return "vc_ac";
     case VentilationMode.niv_pc:
-      return 'niv_pc';
+      return "niv_pc";
     case VentilationMode.niv_ps:
-      return 'niv_ps';
+      return "niv_ps";
     case VentilationMode.psv:
-      return 'psv';
+      return "psv";
     case VentilationMode.prvc:
-      return 'prvc';
+      return "prvc";
     default:
-      return 'UNKNOWN';
+      return "UNKNOWN";
   }
 }
 
@@ -96,85 +96,89 @@ export enum LogEventCode {
   backend_connection_up = 134,
   frontend_connection_up = 135,
   battery_low = 136,
+  charger_disconnected = 137,
   UNRECOGNIZED = -1,
 }
 
 export function logEventCodeFromJSON(object: any): LogEventCode {
   switch (object) {
     case 0:
-    case 'fio2_too_low':
+    case "fio2_too_low":
       return LogEventCode.fio2_too_low;
     case 1:
-    case 'fio2_too_high':
+    case "fio2_too_high":
       return LogEventCode.fio2_too_high;
     case 2:
-    case 'flow_too_low':
+    case "flow_too_low":
       return LogEventCode.flow_too_low;
     case 3:
-    case 'flow_too_high':
+    case "flow_too_high":
       return LogEventCode.flow_too_high;
     case 4:
-    case 'spo2_too_low':
+    case "spo2_too_low":
       return LogEventCode.spo2_too_low;
     case 5:
-    case 'spo2_too_high':
+    case "spo2_too_high":
       return LogEventCode.spo2_too_high;
     case 6:
-    case 'hr_too_low':
+    case "hr_too_low":
       return LogEventCode.hr_too_low;
     case 7:
-    case 'hr_too_high':
+    case "hr_too_high":
       return LogEventCode.hr_too_high;
     case 64:
-    case 'ventilation_operation_changed':
+    case "ventilation_operation_changed":
       return LogEventCode.ventilation_operation_changed;
     case 65:
-    case 'ventilation_mode_changed':
+    case "ventilation_mode_changed":
       return LogEventCode.ventilation_mode_changed;
     case 66:
-    case 'fio2_setting_changed':
+    case "fio2_setting_changed":
       return LogEventCode.fio2_setting_changed;
     case 67:
-    case 'flow_setting_changed':
+    case "flow_setting_changed":
       return LogEventCode.flow_setting_changed;
     case 80:
-    case 'fio2_alarm_limits_changed':
+    case "fio2_alarm_limits_changed":
       return LogEventCode.fio2_alarm_limits_changed;
     case 81:
-    case 'flow_alarm_limits_changed':
+    case "flow_alarm_limits_changed":
       return LogEventCode.flow_alarm_limits_changed;
     case 82:
-    case 'spo2_alarm_limits_changed':
+    case "spo2_alarm_limits_changed":
       return LogEventCode.spo2_alarm_limits_changed;
     case 83:
-    case 'hr_alarm_limits_changed':
+    case "hr_alarm_limits_changed":
       return LogEventCode.hr_alarm_limits_changed;
     case 129:
-    case 'screen_locked':
+    case "screen_locked":
       return LogEventCode.screen_locked;
     case 130:
-    case 'mcu_connection_down':
+    case "mcu_connection_down":
       return LogEventCode.mcu_connection_down;
     case 131:
-    case 'backend_connection_down':
+    case "backend_connection_down":
       return LogEventCode.backend_connection_down;
     case 132:
-    case 'frontend_connection_down':
+    case "frontend_connection_down":
       return LogEventCode.frontend_connection_down;
     case 133:
-    case 'mcu_connection_up':
+    case "mcu_connection_up":
       return LogEventCode.mcu_connection_up;
     case 134:
-    case 'backend_connection_up':
+    case "backend_connection_up":
       return LogEventCode.backend_connection_up;
     case 135:
-    case 'frontend_connection_up':
+    case "frontend_connection_up":
       return LogEventCode.frontend_connection_up;
     case 136:
-    case 'battery_low':
+    case "battery_low":
       return LogEventCode.battery_low;
+    case 137:
+    case "charger_disconnected":
+      return LogEventCode.charger_disconnected;
     case -1:
-    case 'UNRECOGNIZED':
+    case "UNRECOGNIZED":
     default:
       return LogEventCode.UNRECOGNIZED;
   }
@@ -183,55 +187,57 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
 export function logEventCodeToJSON(object: LogEventCode): string {
   switch (object) {
     case LogEventCode.fio2_too_low:
-      return 'fio2_too_low';
+      return "fio2_too_low";
     case LogEventCode.fio2_too_high:
-      return 'fio2_too_high';
+      return "fio2_too_high";
     case LogEventCode.flow_too_low:
-      return 'flow_too_low';
+      return "flow_too_low";
     case LogEventCode.flow_too_high:
-      return 'flow_too_high';
+      return "flow_too_high";
     case LogEventCode.spo2_too_low:
-      return 'spo2_too_low';
+      return "spo2_too_low";
     case LogEventCode.spo2_too_high:
-      return 'spo2_too_high';
+      return "spo2_too_high";
     case LogEventCode.hr_too_low:
-      return 'hr_too_low';
+      return "hr_too_low";
     case LogEventCode.hr_too_high:
-      return 'hr_too_high';
+      return "hr_too_high";
     case LogEventCode.ventilation_operation_changed:
-      return 'ventilation_operation_changed';
+      return "ventilation_operation_changed";
     case LogEventCode.ventilation_mode_changed:
-      return 'ventilation_mode_changed';
+      return "ventilation_mode_changed";
     case LogEventCode.fio2_setting_changed:
-      return 'fio2_setting_changed';
+      return "fio2_setting_changed";
     case LogEventCode.flow_setting_changed:
-      return 'flow_setting_changed';
+      return "flow_setting_changed";
     case LogEventCode.fio2_alarm_limits_changed:
-      return 'fio2_alarm_limits_changed';
+      return "fio2_alarm_limits_changed";
     case LogEventCode.flow_alarm_limits_changed:
-      return 'flow_alarm_limits_changed';
+      return "flow_alarm_limits_changed";
     case LogEventCode.spo2_alarm_limits_changed:
-      return 'spo2_alarm_limits_changed';
+      return "spo2_alarm_limits_changed";
     case LogEventCode.hr_alarm_limits_changed:
-      return 'hr_alarm_limits_changed';
+      return "hr_alarm_limits_changed";
     case LogEventCode.screen_locked:
-      return 'screen_locked';
+      return "screen_locked";
     case LogEventCode.mcu_connection_down:
-      return 'mcu_connection_down';
+      return "mcu_connection_down";
     case LogEventCode.backend_connection_down:
-      return 'backend_connection_down';
+      return "backend_connection_down";
     case LogEventCode.frontend_connection_down:
-      return 'frontend_connection_down';
+      return "frontend_connection_down";
     case LogEventCode.mcu_connection_up:
-      return 'mcu_connection_up';
+      return "mcu_connection_up";
     case LogEventCode.backend_connection_up:
-      return 'backend_connection_up';
+      return "backend_connection_up";
     case LogEventCode.frontend_connection_up:
-      return 'frontend_connection_up';
+      return "frontend_connection_up";
     case LogEventCode.battery_low:
-      return 'battery_low';
+      return "battery_low";
+    case LogEventCode.charger_disconnected:
+      return "charger_disconnected";
     default:
-      return 'UNKNOWN';
+      return "UNKNOWN";
   }
 }
 
@@ -246,19 +252,19 @@ export enum LogEventType {
 export function logEventTypeFromJSON(object: any): LogEventType {
   switch (object) {
     case 0:
-    case 'patient':
+    case "patient":
       return LogEventType.patient;
     case 1:
-    case 'control':
+    case "control":
       return LogEventType.control;
     case 2:
-    case 'alarm_limits':
+    case "alarm_limits":
       return LogEventType.alarm_limits;
     case 3:
-    case 'system':
+    case "system":
       return LogEventType.system;
     case -1:
-    case 'UNRECOGNIZED':
+    case "UNRECOGNIZED":
     default:
       return LogEventType.UNRECOGNIZED;
   }
@@ -267,15 +273,15 @@ export function logEventTypeFromJSON(object: any): LogEventType {
 export function logEventTypeToJSON(object: LogEventType): string {
   switch (object) {
     case LogEventType.patient:
-      return 'patient';
+      return "patient";
     case LogEventType.control:
-      return 'control';
+      return "control";
     case LogEventType.alarm_limits:
-      return 'alarm_limits';
+      return "alarm_limits";
     case LogEventType.system:
-      return 'system';
+      return "system";
     default:
-      return 'UNKNOWN';
+      return "UNKNOWN";
   }
 }
 
@@ -414,7 +420,7 @@ export interface ActiveLogEvents {
   id: number[];
 }
 
-export interface Battery {
+export interface PowerManagement {
   powerLeft: number;
   charging: boolean;
 }
@@ -508,7 +514,10 @@ export const Range = {
 const baseAlarmLimits: object = { time: 0 };
 
 export const AlarmLimits = {
-  encode(message: AlarmLimits, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: AlarmLimits,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     if (message.time !== 0) {
       writer.uint32(8).uint64(message.time);
     }
@@ -706,18 +715,28 @@ export const AlarmLimits = {
       (obj.flow = message.flow ? Range.toJSON(message.flow) : undefined);
     message.spo2 !== undefined &&
       (obj.spo2 = message.spo2 ? Range.toJSON(message.spo2) : undefined);
-    message.hr !== undefined && (obj.hr = message.hr ? Range.toJSON(message.hr) : undefined);
-    message.rr !== undefined && (obj.rr = message.rr ? Range.toJSON(message.rr) : undefined);
-    message.pip !== undefined && (obj.pip = message.pip ? Range.toJSON(message.pip) : undefined);
+    message.hr !== undefined &&
+      (obj.hr = message.hr ? Range.toJSON(message.hr) : undefined);
+    message.rr !== undefined &&
+      (obj.rr = message.rr ? Range.toJSON(message.rr) : undefined);
+    message.pip !== undefined &&
+      (obj.pip = message.pip ? Range.toJSON(message.pip) : undefined);
     message.peep !== undefined &&
       (obj.peep = message.peep ? Range.toJSON(message.peep) : undefined);
     message.ipAbovePeep !== undefined &&
-      (obj.ipAbovePeep = message.ipAbovePeep ? Range.toJSON(message.ipAbovePeep) : undefined);
+      (obj.ipAbovePeep = message.ipAbovePeep
+        ? Range.toJSON(message.ipAbovePeep)
+        : undefined);
     message.inspTime !== undefined &&
-      (obj.inspTime = message.inspTime ? Range.toJSON(message.inspTime) : undefined);
-    message.paw !== undefined && (obj.paw = message.paw ? Range.toJSON(message.paw) : undefined);
-    message.mve !== undefined && (obj.mve = message.mve ? Range.toJSON(message.mve) : undefined);
-    message.tv !== undefined && (obj.tv = message.tv ? Range.toJSON(message.tv) : undefined);
+      (obj.inspTime = message.inspTime
+        ? Range.toJSON(message.inspTime)
+        : undefined);
+    message.paw !== undefined &&
+      (obj.paw = message.paw ? Range.toJSON(message.paw) : undefined);
+    message.mve !== undefined &&
+      (obj.mve = message.mve ? Range.toJSON(message.mve) : undefined);
+    message.tv !== undefined &&
+      (obj.tv = message.tv ? Range.toJSON(message.tv) : undefined);
     message.etco2 !== undefined &&
       (obj.etco2 = message.etco2 ? Range.toJSON(message.etco2) : undefined);
     message.apnea !== undefined &&
@@ -809,7 +828,10 @@ export const AlarmLimits = {
 const baseAlarmLimitsRequest: object = { time: 0 };
 
 export const AlarmLimitsRequest = {
-  encode(message: AlarmLimitsRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: AlarmLimitsRequest,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     if (message.time !== 0) {
       writer.uint32(8).uint64(message.time);
     }
@@ -1007,18 +1029,28 @@ export const AlarmLimitsRequest = {
       (obj.flow = message.flow ? Range.toJSON(message.flow) : undefined);
     message.spo2 !== undefined &&
       (obj.spo2 = message.spo2 ? Range.toJSON(message.spo2) : undefined);
-    message.hr !== undefined && (obj.hr = message.hr ? Range.toJSON(message.hr) : undefined);
-    message.rr !== undefined && (obj.rr = message.rr ? Range.toJSON(message.rr) : undefined);
-    message.pip !== undefined && (obj.pip = message.pip ? Range.toJSON(message.pip) : undefined);
+    message.hr !== undefined &&
+      (obj.hr = message.hr ? Range.toJSON(message.hr) : undefined);
+    message.rr !== undefined &&
+      (obj.rr = message.rr ? Range.toJSON(message.rr) : undefined);
+    message.pip !== undefined &&
+      (obj.pip = message.pip ? Range.toJSON(message.pip) : undefined);
     message.peep !== undefined &&
       (obj.peep = message.peep ? Range.toJSON(message.peep) : undefined);
     message.ipAbovePeep !== undefined &&
-      (obj.ipAbovePeep = message.ipAbovePeep ? Range.toJSON(message.ipAbovePeep) : undefined);
+      (obj.ipAbovePeep = message.ipAbovePeep
+        ? Range.toJSON(message.ipAbovePeep)
+        : undefined);
     message.inspTime !== undefined &&
-      (obj.inspTime = message.inspTime ? Range.toJSON(message.inspTime) : undefined);
-    message.paw !== undefined && (obj.paw = message.paw ? Range.toJSON(message.paw) : undefined);
-    message.mve !== undefined && (obj.mve = message.mve ? Range.toJSON(message.mve) : undefined);
-    message.tv !== undefined && (obj.tv = message.tv ? Range.toJSON(message.tv) : undefined);
+      (obj.inspTime = message.inspTime
+        ? Range.toJSON(message.inspTime)
+        : undefined);
+    message.paw !== undefined &&
+      (obj.paw = message.paw ? Range.toJSON(message.paw) : undefined);
+    message.mve !== undefined &&
+      (obj.mve = message.mve ? Range.toJSON(message.mve) : undefined);
+    message.tv !== undefined &&
+      (obj.tv = message.tv ? Range.toJSON(message.tv) : undefined);
     message.etco2 !== undefined &&
       (obj.etco2 = message.etco2 ? Range.toJSON(message.etco2) : undefined);
     message.apnea !== undefined &&
@@ -1119,7 +1151,10 @@ const baseSensorMeasurements: object = {
 };
 
 export const SensorMeasurements = {
-  encode(message: SensorMeasurements, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: SensorMeasurements,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     if (message.time !== 0) {
       writer.uint32(8).uint64(message.time);
     }
@@ -1301,7 +1336,10 @@ const baseCycleMeasurements: object = {
 };
 
 export const CycleMeasurements = {
-  encode(message: CycleMeasurements, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: CycleMeasurements,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     if (message.time !== 0) {
       writer.uint32(8).uint64(message.time);
     }
@@ -1469,7 +1507,10 @@ const baseParameters: object = {
 };
 
 export const Parameters = {
-  encode(message: Parameters, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: Parameters,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     if (message.time !== 0) {
       writer.uint32(8).uint64(message.time);
     }
@@ -1606,8 +1647,10 @@ export const Parameters = {
   toJSON(message: Parameters): unknown {
     const obj: any = {};
     message.time !== undefined && (obj.time = message.time);
-    message.ventilating !== undefined && (obj.ventilating = message.ventilating);
-    message.mode !== undefined && (obj.mode = ventilationModeToJSON(message.mode));
+    message.ventilating !== undefined &&
+      (obj.ventilating = message.ventilating);
+    message.mode !== undefined &&
+      (obj.mode = ventilationModeToJSON(message.mode));
     message.fio2 !== undefined && (obj.fio2 = message.fio2);
     message.flow !== undefined && (obj.flow = message.flow);
     message.pip !== undefined && (obj.pip = message.pip);
@@ -1688,7 +1731,10 @@ const baseParametersRequest: object = {
 };
 
 export const ParametersRequest = {
-  encode(message: ParametersRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: ParametersRequest,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     if (message.time !== 0) {
       writer.uint32(8).uint64(message.time);
     }
@@ -1825,8 +1871,10 @@ export const ParametersRequest = {
   toJSON(message: ParametersRequest): unknown {
     const obj: any = {};
     message.time !== undefined && (obj.time = message.time);
-    message.ventilating !== undefined && (obj.ventilating = message.ventilating);
-    message.mode !== undefined && (obj.mode = ventilationModeToJSON(message.mode));
+    message.ventilating !== undefined &&
+      (obj.ventilating = message.ventilating);
+    message.mode !== undefined &&
+      (obj.mode = ventilationModeToJSON(message.mode));
     message.fio2 !== undefined && (obj.fio2 = message.fio2);
     message.flow !== undefined && (obj.flow = message.flow);
     message.pip !== undefined && (obj.pip = message.pip);
@@ -1968,7 +2016,10 @@ export const Ping = {
 const baseAnnouncement: object = { time: 0 };
 
 export const Announcement = {
-  encode(message: Announcement, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: Announcement,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     if (message.time !== 0) {
       writer.uint32(8).uint64(message.time);
     }
@@ -2019,7 +2070,9 @@ export const Announcement = {
     message.time !== undefined && (obj.time = message.time);
     message.announcement !== undefined &&
       (obj.announcement = base64FromBytes(
-        message.announcement !== undefined ? message.announcement : new Uint8Array(),
+        message.announcement !== undefined
+          ? message.announcement
+          : new Uint8Array()
       ));
     return obj;
   },
@@ -2056,7 +2109,10 @@ const baseLogEvent: object = {
 };
 
 export const LogEvent = {
-  encode(message: LogEvent, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: LogEvent,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     if (message.id !== 0) {
       writer.uint32(8).uint32(message.id);
     }
@@ -2252,7 +2308,9 @@ export const LogEvent = {
     message.code !== undefined && (obj.code = logEventCodeToJSON(message.code));
     message.type !== undefined && (obj.type = logEventTypeToJSON(message.type));
     message.alarmLimits !== undefined &&
-      (obj.alarmLimits = message.alarmLimits ? Range.toJSON(message.alarmLimits) : undefined);
+      (obj.alarmLimits = message.alarmLimits
+        ? Range.toJSON(message.alarmLimits)
+        : undefined);
     message.oldFloat !== undefined && (obj.oldFloat = message.oldFloat);
     message.newFloat !== undefined && (obj.newFloat = message.newFloat);
     message.oldUint32 !== undefined && (obj.oldUint32 = message.oldUint32);
@@ -2260,11 +2318,17 @@ export const LogEvent = {
     message.oldBool !== undefined && (obj.oldBool = message.oldBool);
     message.newBool !== undefined && (obj.newBool = message.newBool);
     message.oldRange !== undefined &&
-      (obj.oldRange = message.oldRange ? Range.toJSON(message.oldRange) : undefined);
+      (obj.oldRange = message.oldRange
+        ? Range.toJSON(message.oldRange)
+        : undefined);
     message.newRange !== undefined &&
-      (obj.newRange = message.newRange ? Range.toJSON(message.newRange) : undefined);
-    message.oldMode !== undefined && (obj.oldMode = ventilationModeToJSON(message.oldMode));
-    message.newMode !== undefined && (obj.newMode = ventilationModeToJSON(message.newMode));
+      (obj.newRange = message.newRange
+        ? Range.toJSON(message.newRange)
+        : undefined);
+    message.oldMode !== undefined &&
+      (obj.oldMode = ventilationModeToJSON(message.oldMode));
+    message.newMode !== undefined &&
+      (obj.newMode = ventilationModeToJSON(message.newMode));
     return obj;
   },
 
@@ -2352,7 +2416,10 @@ export const LogEvent = {
 const baseExpectedLogEvent: object = { id: 0, sessionId: 0 };
 
 export const ExpectedLogEvent = {
-  encode(message: ExpectedLogEvent, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: ExpectedLogEvent,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     if (message.id !== 0) {
       writer.uint32(8).uint32(message.id);
     }
@@ -2429,7 +2496,10 @@ const baseNextLogEvents: object = {
 };
 
 export const NextLogEvents = {
-  encode(message: NextLogEvents, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: NextLogEvents,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     if (message.nextExpected !== 0) {
       writer.uint32(8).uint32(message.nextExpected);
     }
@@ -2512,12 +2582,15 @@ export const NextLogEvents = {
 
   toJSON(message: NextLogEvents): unknown {
     const obj: any = {};
-    message.nextExpected !== undefined && (obj.nextExpected = message.nextExpected);
+    message.nextExpected !== undefined &&
+      (obj.nextExpected = message.nextExpected);
     message.total !== undefined && (obj.total = message.total);
     message.remaining !== undefined && (obj.remaining = message.remaining);
     message.sessionId !== undefined && (obj.sessionId = message.sessionId);
     if (message.elements) {
-      obj.elements = message.elements.map((e) => (e ? LogEvent.toJSON(e) : undefined));
+      obj.elements = message.elements.map((e) =>
+        e ? LogEvent.toJSON(e) : undefined
+      );
     } else {
       obj.elements = [];
     }
@@ -2559,7 +2632,10 @@ export const NextLogEvents = {
 const baseActiveLogEvents: object = { id: 0 };
 
 export const ActiveLogEvents = {
-  encode(message: ActiveLogEvents, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: ActiveLogEvents,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     writer.uint32(10).fork();
     for (const v of message.id) {
       writer.uint32(v);
@@ -2627,10 +2703,13 @@ export const ActiveLogEvents = {
   },
 };
 
-const baseBattery: object = { powerLeft: 0, charging: false };
+const basePowerManagement: object = { powerLeft: 0, charging: false };
 
-export const Battery = {
-  encode(message: Battery, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+export const PowerManagement = {
+  encode(
+    message: PowerManagement,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     if (message.powerLeft !== 0) {
       writer.uint32(8).uint32(message.powerLeft);
     }
@@ -2640,10 +2719,10 @@ export const Battery = {
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): Battery {
+  decode(input: _m0.Reader | Uint8Array, length?: number): PowerManagement {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseBattery } as Battery;
+    const message = { ...basePowerManagement } as PowerManagement;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2661,8 +2740,8 @@ export const Battery = {
     return message;
   },
 
-  fromJSON(object: any): Battery {
-    const message = { ...baseBattery } as Battery;
+  fromJSON(object: any): PowerManagement {
+    const message = { ...basePowerManagement } as PowerManagement;
     if (object.powerLeft !== undefined && object.powerLeft !== null) {
       message.powerLeft = Number(object.powerLeft);
     } else {
@@ -2676,15 +2755,15 @@ export const Battery = {
     return message;
   },
 
-  toJSON(message: Battery): unknown {
+  toJSON(message: PowerManagement): unknown {
     const obj: any = {};
     message.powerLeft !== undefined && (obj.powerLeft = message.powerLeft);
     message.charging !== undefined && (obj.charging = message.charging);
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Battery>): Battery {
-    const message = { ...baseBattery } as Battery;
+  fromPartial(object: DeepPartial<PowerManagement>): PowerManagement {
+    const message = { ...basePowerManagement } as PowerManagement;
     if (object.powerLeft !== undefined && object.powerLeft !== null) {
       message.powerLeft = object.powerLeft;
     } else {
@@ -2702,7 +2781,10 @@ export const Battery = {
 const baseScreenStatus: object = { lock: false };
 
 export const ScreenStatus = {
-  encode(message: ScreenStatus, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: ScreenStatus,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     if (message.lock === true) {
       writer.uint32(8).bool(message.lock);
     }
@@ -2757,7 +2839,10 @@ export const ScreenStatus = {
 const baseAlarmMute: object = { active: false, remaining: 0 };
 
 export const AlarmMute = {
-  encode(message: AlarmMute, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: AlarmMute,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     if (message.active === true) {
       writer.uint32(8).bool(message.active);
     }
@@ -2829,7 +2914,10 @@ export const AlarmMute = {
 const baseAlarmMuteRequest: object = { active: false, remaining: 0 };
 
 export const AlarmMuteRequest = {
-  encode(message: AlarmMuteRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: AlarmMuteRequest,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
     if (message.active === true) {
       writer.uint32(8).bool(message.active);
     }
@@ -2901,15 +2989,16 @@ export const AlarmMuteRequest = {
 declare var self: any | undefined;
 declare var window: any | undefined;
 var globalThis: any = (() => {
-  if (typeof globalThis !== 'undefined') return globalThis;
-  if (typeof self !== 'undefined') return self;
-  if (typeof window !== 'undefined') return window;
-  if (typeof global !== 'undefined') return global;
-  throw 'Unable to locate global object';
+  if (typeof globalThis !== "undefined") return globalThis;
+  if (typeof self !== "undefined") return self;
+  if (typeof window !== "undefined") return window;
+  if (typeof global !== "undefined") return global;
+  throw "Unable to locate global object";
 })();
 
 const atob: (b64: string) => string =
-  globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
+  globalThis.atob ||
+  ((b64) => globalThis.Buffer.from(b64, "base64").toString("binary"));
 function bytesFromBase64(b64: string): Uint8Array {
   const bin = atob(b64);
   const arr = new Uint8Array(bin.length);
@@ -2920,13 +3009,14 @@ function bytesFromBase64(b64: string): Uint8Array {
 }
 
 const btoa: (bin: string) => string =
-  globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
+  globalThis.btoa ||
+  ((bin) => globalThis.Buffer.from(bin, "binary").toString("base64"));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
   for (let i = 0; i < arr.byteLength; ++i) {
     bin.push(String.fromCharCode(arr[i]));
   }
-  return btoa(bin.join(''));
+  return btoa(bin.join(""));
 }
 
 type Builtin = Date | Function | Uint8Array | string | number | undefined;
@@ -2942,7 +3032,7 @@ export type DeepPartial<T> = T extends Builtin
 
 function longToNumber(long: Long): number {
   if (long.gt(Number.MAX_SAFE_INTEGER)) {
-    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
   }
   return long.toNumber();
 }

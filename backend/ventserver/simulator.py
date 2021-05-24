@@ -62,7 +62,7 @@ INITIAL_VALUES = {
     states.StateSegment.ALARM_MUTE_REQUEST: mcu_pb.AlarmMute(
         active=False, remaining=120
     ),
-    states.StateSegment.BATTERY_POWER: mcu_pb.BatteryPower(
+    states.StateSegment.POWER_MANAGEMENT: mcu_pb.PowerManagement(
         power_left=0, charging_status=False
     ),
     states.StateSegment.SCREEN_STATUS: mcu_pb.ScreenStatus(lock=False),

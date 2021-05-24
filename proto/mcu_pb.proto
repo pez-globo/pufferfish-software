@@ -140,6 +140,7 @@ enum LogEventCode {
   backend_connection_up = 134;
   frontend_connection_up = 135;
   battery_low = 136;
+  charger_disconnected = 137;
 }
 
 enum LogEventType {
@@ -186,7 +187,7 @@ message ActiveLogEvents {
 
 // Power Management
 
-message Battery {
+message PowerManagement {
   uint32 power_left = 1;
   bool charging = 2;
 }
