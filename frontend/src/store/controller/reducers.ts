@@ -7,7 +7,7 @@ import {
   AlarmLimits,
   AlarmLimitsRequest,
   AlarmMuteRequest,
-  BatteryPower,
+  PowerManagement,
   ScreenStatus,
 } from './proto/mcu_pb';
 import { SystemSettingRequest, FrontendDisplaySetting } from './proto/frontend_pb';
@@ -51,7 +51,7 @@ export const controllerReducer = combineReducers({
     MessageType.AlarmMuteRequest,
     REQUEST_COMMITTED,
   ),
-  batteryPower: messageReducer<BatteryPower>(MessageType.BatteryPower),
+  powerManagement: messageReducer<PowerManagement>(MessageType.PowerManagement),
 
   // Message states from frontend_pb
   screenStatus: messageReducer<ScreenStatus>(MessageType.ScreenStatus),

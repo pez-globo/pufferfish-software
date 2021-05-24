@@ -63,7 +63,7 @@ INITIAL_VALUES = {
         active=False, remaining=120
     ),
     states.StateSegment.POWER_MANAGEMENT: mcu_pb.PowerManagement(
-        power_left=0, charging_status=False
+        power_left=0, charging=False
     ),
     states.StateSegment.SCREEN_STATUS: mcu_pb.ScreenStatus(lock=False),
     states.StateSegment.SYSTEM_SETTING_REQUEST:

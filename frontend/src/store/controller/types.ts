@@ -10,7 +10,7 @@ import {
   ActiveLogEvents,
   AlarmMute,
   AlarmMuteRequest,
-  BatteryPower,
+  PowerManagement,
   ScreenStatus,
 } from './proto/mcu_pb';
 import { RotaryEncoder, SystemSettingRequest, FrontendDisplaySetting } from './proto/frontend_pb';
@@ -30,7 +30,7 @@ export type PBMessage =
   | ActiveLogEvents
   | AlarmMute
   | AlarmMuteRequest
-  | BatteryPower
+  | PowerManagement
   | ScreenStatus
   // frontend_pb
   | RotaryEncoder
@@ -50,7 +50,7 @@ export type PBMessageType =
   | typeof ActiveLogEvents
   | typeof AlarmMute
   | typeof AlarmMuteRequest
-  | typeof BatteryPower
+  | typeof PowerManagement
   | typeof ScreenStatus
   // frontend_pb
   | typeof RotaryEncoder
@@ -70,7 +70,7 @@ export enum MessageType {
   ActiveLogEvents = 10,
   AlarmMute = 11,
   AlarmMuteRequest = 12,
-  BatteryPower = 64,
+  PowerManagement = 64,
   ScreenStatus = 65,
   // frontend_pb
   RotaryEncoder = 128,
@@ -93,7 +93,7 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.ActiveLogEvents, ActiveLogEvents],
   [MessageType.AlarmMute, AlarmMute],
   [MessageType.AlarmMuteRequest, AlarmMuteRequest],
-  [MessageType.BatteryPower, BatteryPower],
+  [MessageType.PowerManagement, PowerManagement],
   [MessageType.ScreenStatus, ScreenStatus],
   // frontend_pb
   [MessageType.SystemSettingRequest, SystemSettingRequest],
@@ -114,7 +114,7 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
   [ActiveLogEvents, MessageType.ActiveLogEvents],
   [AlarmMute, MessageType.AlarmMute],
   [AlarmMuteRequest, MessageType.AlarmMuteRequest],
-  [BatteryPower, MessageType.BatteryPower],
+  [PowerManagement, MessageType.PowerManagement],
   [ScreenStatus, MessageType.ScreenStatus],
   // frontend_pb
   [SystemSettingRequest, MessageType.SystemSettingRequest],
@@ -231,7 +231,7 @@ export interface ControllerStates {
   alarmMute: AlarmMute | null;
   systemSettingRequest: SystemSettingRequest | null;
   frontendDisplaySetting: FrontendDisplaySetting | null;
-  batteryPower: BatteryPower | null;
+  powerManagement: PowerManagement | null;
   screenStatus: ScreenStatus | null;
   heartbeatBackend: { time: Date };
 
