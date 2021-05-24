@@ -31,27 +31,29 @@ typedef enum _LogEventCode {
     LogEventCode_spo2_too_high = 5,
     LogEventCode_hr_too_low = 6,
     LogEventCode_hr_too_high = 7,
-    /* System */
-    LogEventCode_battery_low = 8,
-    LogEventCode_screen_locked = 9,
-    LogEventCode_charger_disconnected = 10,
-    /* Control */
-    LogEventCode_ventilation_operation_changed = 11,
-    LogEventCode_ventilation_mode_changed = 12,
-    LogEventCode_fio2_setting_changed = 13,
-    LogEventCode_flow_setting_changed = 14,
-    /* Alarm Limits */
-    LogEventCode_fio2_alarm_limits_changed = 15,
-    LogEventCode_flow_alarm_limits_changed = 16,
-    LogEventCode_spo2_alarm_limits_changed = 17,
-    LogEventCode_hr_alarm_limits_changed = 18
+    LogEventCode_ventilation_operation_changed = 64,
+    LogEventCode_ventilation_mode_changed = 65,
+    LogEventCode_fio2_setting_changed = 66,
+    LogEventCode_flow_setting_changed = 67,
+    LogEventCode_fio2_alarm_limits_changed = 80,
+    LogEventCode_flow_alarm_limits_changed = 81,
+    LogEventCode_spo2_alarm_limits_changed = 82,
+    LogEventCode_hr_alarm_limits_changed = 83,
+    LogEventCode_screen_locked = 129,
+    LogEventCode_mcu_connection_down = 130,
+    LogEventCode_backend_connection_down = 131,
+    LogEventCode_frontend_connection_down = 132,
+    LogEventCode_mcu_connection_up = 133,
+    LogEventCode_backend_connection_up = 134,
+    LogEventCode_frontend_connection_up = 135,
+    LogEventCode_battery_low = 136
 } LogEventCode;
 
 typedef enum _LogEventType {
     LogEventType_patient = 0,
-    LogEventType_system = 1,
-    LogEventType_control = 2,
-    LogEventType_alarm_limits = 3
+    LogEventType_control = 1,
+    LogEventType_alarm_limits = 2,
+    LogEventType_system = 3
 } LogEventType;
 
 /* Struct definitions */
@@ -93,6 +95,7 @@ typedef struct _CycleMeasurements {
 
 typedef struct _ExpectedLogEvent {
     uint32_t id;
+    uint32_t session_id;
 } ExpectedLogEvent;
 
 typedef struct _Parameters {
@@ -235,6 +238,7 @@ typedef struct _NextLogEvents {
     uint32_t next_expected;
     uint32_t total;
     uint32_t remaining;
+    uint32_t session_id;
     pb_size_t elements_count;
     LogEvent elements[2];
 } NextLogEvents;
@@ -246,12 +250,12 @@ typedef struct _NextLogEvents {
 #define _VentilationMode_ARRAYSIZE ((VentilationMode)(VentilationMode_prvc+1))
 
 #define _LogEventCode_MIN LogEventCode_fio2_too_low
-#define _LogEventCode_MAX LogEventCode_hr_alarm_limits_changed
-#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_hr_alarm_limits_changed+1))
+#define _LogEventCode_MAX LogEventCode_battery_low
+#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_battery_low+1))
 
 #define _LogEventType_MIN LogEventType_patient
-#define _LogEventType_MAX LogEventType_alarm_limits
-#define _LogEventType_ARRAYSIZE ((LogEventType)(LogEventType_alarm_limits+1))
+#define _LogEventType_MAX LogEventType_system
+#define _LogEventType_ARRAYSIZE ((LogEventType)(LogEventType_system+1))
 
 
 #ifdef __cplusplus
@@ -269,8 +273,8 @@ extern "C" {
 #define Ping_init_default                        {0, 0}
 #define Announcement_init_default                {0, {0, {0}}}
 #define LogEvent_init_default                    {0, 0, _LogEventCode_MIN, _LogEventType_MIN, false, Range_init_default, 0, 0, 0, 0, 0, 0, false, Range_init_default, false, Range_init_default, _VentilationMode_MIN, _VentilationMode_MIN}
-#define ExpectedLogEvent_init_default            {0}
-#define NextLogEvents_init_default               {0, 0, 0, 0, {LogEvent_init_default, LogEvent_init_default}}
+#define ExpectedLogEvent_init_default            {0, 0}
+#define NextLogEvents_init_default               {0, 0, 0, 0, 0, {LogEvent_init_default, LogEvent_init_default}}
 #define ActiveLogEvents_init_default             {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define Battery_init_default                     {0, 0}
 #define ScreenStatus_init_default                {0}
@@ -286,8 +290,8 @@ extern "C" {
 #define Ping_init_zero                           {0, 0}
 #define Announcement_init_zero                   {0, {0, {0}}}
 #define LogEvent_init_zero                       {0, 0, _LogEventCode_MIN, _LogEventType_MIN, false, Range_init_zero, 0, 0, 0, 0, 0, 0, false, Range_init_zero, false, Range_init_zero, _VentilationMode_MIN, _VentilationMode_MIN}
-#define ExpectedLogEvent_init_zero               {0}
-#define NextLogEvents_init_zero                  {0, 0, 0, 0, {LogEvent_init_zero, LogEvent_init_zero}}
+#define ExpectedLogEvent_init_zero               {0, 0}
+#define NextLogEvents_init_zero                  {0, 0, 0, 0, 0, {LogEvent_init_zero, LogEvent_init_zero}}
 #define ActiveLogEvents_init_zero                {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define Battery_init_zero                        {0, 0}
 #define ScreenStatus_init_zero                   {0}
@@ -312,6 +316,7 @@ extern "C" {
 #define CycleMeasurements_ip_tag                 6
 #define CycleMeasurements_ve_tag                 7
 #define ExpectedLogEvent_id_tag                  1
+#define ExpectedLogEvent_session_id_tag          2
 #define Parameters_time_tag                      1
 #define Parameters_ventilating_tag               2
 #define Parameters_mode_tag                      3
@@ -393,7 +398,8 @@ extern "C" {
 #define NextLogEvents_next_expected_tag          1
 #define NextLogEvents_total_tag                  2
 #define NextLogEvents_remaining_tag              3
-#define NextLogEvents_elements_tag               4
+#define NextLogEvents_session_id_tag             4
+#define NextLogEvents_elements_tag               5
 
 /* Struct field encoding specification for nanopb */
 #define Range_FIELDLIST(X, a) \
@@ -554,7 +560,8 @@ X(a, STATIC,   SINGULAR, UENUM,    new_mode,         15)
 #define LogEvent_new_range_MSGTYPE Range
 
 #define ExpectedLogEvent_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   id,                1)
+X(a, STATIC,   SINGULAR, UINT32,   id,                1) \
+X(a, STATIC,   SINGULAR, UINT32,   session_id,        2)
 #define ExpectedLogEvent_CALLBACK NULL
 #define ExpectedLogEvent_DEFAULT NULL
 
@@ -562,7 +569,8 @@ X(a, STATIC,   SINGULAR, UINT32,   id,                1)
 X(a, STATIC,   SINGULAR, UINT32,   next_expected,     1) \
 X(a, STATIC,   SINGULAR, UINT32,   total,             2) \
 X(a, STATIC,   SINGULAR, UINT32,   remaining,         3) \
-X(a, STATIC,   REPEATED, MESSAGE,  elements,          4)
+X(a, STATIC,   SINGULAR, UINT32,   session_id,        4) \
+X(a, STATIC,   REPEATED, MESSAGE,  elements,          5)
 #define NextLogEvents_CALLBACK NULL
 #define NextLogEvents_DEFAULT NULL
 #define NextLogEvents_elements_MSGTYPE LogEvent
@@ -639,15 +647,11 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define AlarmMuteRequest_size                    7
 #define AlarmMute_size                           7
 #define Announcement_size                        77
-#define Battery_size                             8
-#define CycleMeasurements_size                   41
-#define ExpectedLogEvent_size                    6
-#define LogEvent_size                            123
-#define NextLogEvents_size                       268
-#define ParametersRequest_size                   50
-#define Parameters_size                          50
-#define Ping_size                                17
-#define Range_size                               22
+#define LogEvent_size                            124
+#define ExpectedLogEvent_size                    12
+#define NextLogEvents_size                       276
+#define ActiveLogEvents_size                     192
+#define BatteryPower_size                        8
 #define ScreenStatus_size                        2
 #define SensorMeasurements_size                  47
 
@@ -730,14 +734,14 @@ struct MessageDescriptor<LogEvent> {
 };
 template <>
 struct MessageDescriptor<ExpectedLogEvent> {
-    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 1;
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &ExpectedLogEvent_msg;
     }
 };
 template <>
 struct MessageDescriptor<NextLogEvents> {
-    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 4;
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 5;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &NextLogEvents_msg;
     }

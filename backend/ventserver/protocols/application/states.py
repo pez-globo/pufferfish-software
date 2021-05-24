@@ -44,8 +44,14 @@ class Synchronizer(
 ):
     """State synchronization filter.
 
-    Inputs are clock updates or state updatess received from the peer. Outputs
+    Inputs are clock updates or state updates received from the peer. Outputs
     are state updates for the peer.
+
+    Warning: if all_states is used by other things, this filter is only safe to
+    use in synchronous environments, such as part of another Filter which
+    completely owns all_states. However, if access to all_states is only done
+    through the input and output methods, then this Filter is safe to use in
+    concurrent environments.
     """
 
     _logger = logging.getLogger('.'.join((__name__, 'Synchronizer')))

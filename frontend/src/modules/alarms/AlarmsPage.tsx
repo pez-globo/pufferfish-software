@@ -3,16 +3,20 @@ import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
 import React, { RefObject, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateCommittedState } from '../../store/controller/actions';
+import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
 import {
-  getAlarmLimitsRequestStandby,
-  getIsVentilating,
+  getAlarmLimitsRequest,
+  getAlarmLimitsRequestDraft,
+  getAlarmLimitsRequestUnsaved,
+  getAlarmLimitsUnsavedKeys,
+  getParametersIsVentilating,
   getParametersRequestMode,
 } from '../../store/controller/selectors';
-import { ALARM_LIMITS, ALARM_LIMITS_STANDBY } from '../../store/controller/types';
+import { MessageType } from '../../store/controller/types';
 import { setActiveRotaryReference } from '../app/Service';
 import { ValueClicker } from '../controllers';
+import ModalPopup from '../controllers/ModalPopup';
 import ValueSlider from '../controllers/ValueSlider';
 import ModeBanner from '../displays/ModeBanner';
 import useRotaryReference from '../utils/useRotaryReference';
@@ -54,6 +58,16 @@ const useStyles = makeStyles((theme: Theme) => ({
     backgroundColor: theme.palette.background.paper,
     marginBottom: theme.spacing(2),
   },
+  marginContent: {
+    textAlign: 'center',
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(3),
+  },
+  marginHeader: {
+    textAlign: 'center',
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(1),
+  },
   panelTitle: {
     padding: '5px 16px',
     borderBottom: `2px dashed ${theme.palette.background.default}`,
@@ -92,7 +106,7 @@ interface AlarmProps {
   max: number;
   stateKey: string;
   step?: number;
-  alarmLimits: Record<string, Range>;
+  alarmLimits: AlarmLimitsRequest | null;
   setAlarmLimits(alarmLimits: Partial<AlarmLimitsRequest>): void;
 }
 
@@ -113,7 +127,20 @@ const Alarm = ({
   const classes = useStyles();
   const theme = useTheme();
   const { initRefListener } = useRotaryReference(theme);
-  const rangeValues: number[] = [alarmLimits[stateKey].lower, alarmLimits[stateKey].upper];
+  // TODO: when the software is in ventilating mode, the user must be able to
+  // discard changes (which means that any alarm limits being persisted in
+  // AlarmLimitsRequestStandby would need to be reset using the values from
+  // AlarmLimitsRequest, when the user wants to discard values). This could
+  // be done with by dispatching a commitDraftRequest action with the
+  // alarmLimitsRequest selector as the update field.
+  const range =
+    alarmLimits === null
+      ? undefined
+      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
+  const rangeValues: number[] = [
+    range === undefined ? NaN : range.lower,
+    range === undefined ? NaN : range.upper,
+  ];
   const [refs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
     [`${stateKey}_LOWER`]: useRef(null),
     [`${stateKey}_HIGHER`]: useRef(null),
@@ -163,9 +190,11 @@ const Alarm = ({
               height: '100%',
             }}
           >
-            <Grid alignItems="center" item className={classes.alarmValue}>
+            <Grid item className={classes.alarmValue}>
               <Typography align="center" variant="h4">
-                {rangeValues[0] !== undefined ? Number(rangeValues[0]) : '--'}
+                {rangeValues[0] === undefined || Number.isNaN(rangeValues[0])
+                  ? '--'
+                  : Number(rangeValues[0])}
               </Typography>
             </Grid>
             <Grid item>
@@ -193,9 +222,11 @@ const Alarm = ({
               height: '100%',
             }}
           >
-            <Grid alignItems="center" item className={classes.alarmValue}>
+            <Grid item className={classes.alarmValue}>
               <Typography align="center" variant="h4">
-                {rangeValues[1] !== undefined ? Number(rangeValues[1]) : '--'}
+                {rangeValues[1] === undefined || Number.isNaN(rangeValues[1])
+                  ? '--'
+                  : Number(rangeValues[1])}
               </Typography>
             </Grid>
             <Grid item>
@@ -225,7 +256,7 @@ const Alarm = ({
   );
 };
 
-interface AlarmConfiguration {
+export interface AlarmConfiguration {
   label: string;
   min?: number;
   max?: number;
@@ -233,7 +264,9 @@ interface AlarmConfiguration {
   step?: number;
 }
 
-const alarmConfiguration = (ventilationMode: VentilationMode): Array<AlarmConfiguration> => {
+export const alarmConfiguration = (
+  ventilationMode: VentilationMode | null,
+): Array<AlarmConfiguration> => {
   switch (ventilationMode) {
     case VentilationMode.hfnc:
       return [
@@ -246,18 +279,7 @@ const alarmConfiguration = (ventilationMode: VentilationMode): Array<AlarmConfig
     case VentilationMode.niv_ps:
     case VentilationMode.psv:
     default:
-      return [
-        { label: 'RR', stateKey: 'rr' },
-        { label: 'TV', stateKey: 'tv' },
-        { label: 'Flow', stateKey: 'flow' },
-        { label: 'MVe', stateKey: 'mve' },
-        { label: 'Apnea', stateKey: 'apnea' },
-        { label: 'Pressure above PEEP', stateKey: 'ipAbovePeep' },
-        { label: 'PAW', stateKey: 'paw' },
-        { label: 'PiP', stateKey: 'pip' },
-        { label: 'PEEP', stateKey: 'peep' },
-        { label: 'Insp. Time', stateKey: 'inspTime', step: 0.5 },
-      ];
+      return [];
   }
 };
 
@@ -275,17 +297,59 @@ export const AlarmsPage = (): JSX.Element => {
     setPage(value);
   };
 
-  const alarmLimitsRequest = useSelector(getAlarmLimitsRequestStandby);
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
-  const ventilating = useSelector(getIsVentilating);
-  const [alarmLimits, setAlarmLimits] = useState(alarmLimitsRequest as Record<string, Range>);
-  const updateAlarmLimits = (data: Partial<AlarmLimitsRequest>) => {
-    setAlarmLimits({ ...alarmLimits, ...data } as Record<string, Range>);
-    dispatch(updateCommittedState(ALARM_LIMITS_STANDBY, alarmLimits));
+  const ventilating = useSelector(getParametersIsVentilating);
+  const alarmLimitsRequestDraftSelect = useSelector(getAlarmLimitsRequestDraft);
+  const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
+  const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
+  const alarmLimitsUnsavedKeys = useSelector(getAlarmLimitsUnsavedKeys);
+  const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
+  const alarmLimitsRequestDraft = (alarmLimitsRequestDraftSelect as unknown) as Record<
+    string,
+    Range
+  >;
+  const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
+    dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
-  const applyChanges = () => dispatch(updateCommittedState(ALARM_LIMITS, alarmLimits));
+  const applyChanges = () => {
+    if (alarmLimitsRequestDraft === null) {
+      return;
+    }
+
+    dispatch(
+      commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, alarmLimitsRequestDraft),
+    );
+  };
   const alarmConfig = alarmConfiguration(currentMode);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
+
+  const handleClose = () => {
+    setConfirmOpen(false);
+  };
+
+  const handleDiscardClose = () => {
+    setDiscardOpen(false);
+  };
+
+  const handleConfirm = () => {
+    setConfirmOpen(false);
+    applyChanges();
+  };
+
+  const handleDiscardConfirm = () => {
+    setDiscardOpen(false);
+    if (alarmLimitsRequest !== null) setAlarmLimitsRequestDraft(alarmLimitsRequest);
+  };
+
+  const handleConfirmOpen = () => {
+    setConfirmOpen(true);
+  };
+
+  const handleDiscardOpen = () => {
+    setDiscardOpen(true);
+  };
 
   useEffect(() => {
     setPageCount(Math.ceil(alarmConfig.length / itemsPerPage));
@@ -310,8 +374,8 @@ export const AlarmsPage = (): JSX.Element => {
                   max={alarm.max || 100}
                   stateKey={alarm.stateKey}
                   step={alarm.step || 1}
-                  alarmLimits={alarmLimits}
-                  setAlarmLimits={updateAlarmLimits}
+                  alarmLimits={alarmLimitsRequestDraftSelect}
+                  setAlarmLimits={setAlarmLimitsRequestDraft}
                 />
               );
             })}
@@ -338,14 +402,92 @@ export const AlarmsPage = (): JSX.Element => {
             <Grid item style={{ textAlign: 'right' }}>
               {ventilating ? (
                 <Button
-                  onClick={applyChanges}
+                  onClick={handleDiscardOpen}
+                  color="primary"
+                  variant="contained"
+                  className={classes.applyButton}
+                  disabled={!alarmLimitsRequestUnsaved}
+                >
+                  Cancel
+                </Button>
+              ) : null}
+              {ventilating ? (
+                <Button
+                  onClick={handleConfirmOpen}
                   color="secondary"
                   variant="contained"
                   className={classes.applyButton}
+                  disabled={!alarmLimitsRequestUnsaved}
                 >
-                  Apply Changes
+                  Submit
                 </Button>
               ) : null}
+              <ModalPopup
+                withAction={true}
+                label="Set Alarms"
+                open={confirmOpen}
+                onClose={handleClose}
+                onConfirm={handleConfirm}
+              >
+                <Grid container alignItems="center">
+                  <Grid container alignItems="center" justify="center">
+                    <Grid container alignItems="center" className={classes.marginHeader}>
+                      <Grid item xs>
+                        <Typography variant="h4">Confirm New Changes?</Typography>
+                      </Grid>
+                    </Grid>
+                    <Grid item className={classes.marginContent}>
+                      {alarmConfig.map((param) => {
+                        if (alarmLimitsRequestDraft !== null) {
+                          if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
+                            return (
+                              <Typography variant="subtitle1">{`Change ${
+                                param.label
+                              } alarm range to ${alarmLimitsRequestDraft[param.stateKey].lower} -
+                                  ${alarmLimitsRequestDraft[param.stateKey].upper}?`}</Typography>
+                            );
+                          }
+                        }
+                        return <React.Fragment />;
+                      })}
+                    </Grid>
+                    <Grid item className={classes.marginContent} />
+                  </Grid>
+                </Grid>
+              </ModalPopup>
+              <ModalPopup
+                withAction={true}
+                label="Set Alarms"
+                open={discardOpen}
+                onClose={handleDiscardClose}
+                onConfirm={handleDiscardConfirm}
+              >
+                <Grid container alignItems="center">
+                  <Grid container alignItems="center" justify="center">
+                    <Grid container alignItems="center" className={classes.marginHeader}>
+                      <Grid item xs>
+                        <Typography variant="h4">Keep Previous Values?</Typography>
+                      </Grid>
+                    </Grid>
+                    <Grid item className={classes.marginContent}>
+                      {alarmConfig.map((param) => {
+                        if (alarmLimitsRequest !== null) {
+                          if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
+                            return (
+                              <Typography variant="subtitle1">{`Keep ${
+                                param.label
+                              } alarm range to ${alarmLimitsRequest[param.stateKey].lower} -
+                                ${alarmLimitsRequest[param.stateKey].upper}?`}</Typography>
+                            );
+                          }
+                        }
+                        return <React.Fragment />;
+                      })}
+                    </Grid>
+                    <Grid item className={classes.marginContent} />
+                  </Grid>
+                </Grid>
+              </ModalPopup>
             </Grid>
           </Grid>
         </Grid>

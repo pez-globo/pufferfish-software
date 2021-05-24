@@ -6,6 +6,10 @@ Scenario: The Util encode_cobs function correctly encodes buffers
     THEN("The encode_cobs function reports out_of_bounds status")
     THEN("The encoded buffer is empty")
 
+  WHEN("The cobs::encode function is called on an empty input buffer")
+    THEN("The encode_cobs function reports ok status")
+    THEN("The encoded buffer is as expected '\x01' ")
+
   WHEN("The cobs::encode is called on a null byte")
     THEN("The encode_cobs function reports ok status")
     THEN("The encoded buffer is as expected '\x01\x01' ")
@@ -56,11 +60,15 @@ Scenario: The Util encode_cobs function correctly encodes buffers
 
   WHEN("The cobs::encode is called on a 254 bytes buffer with last byte as a null byte")
     THEN("The encode_cobs function reports ok status")
-    THEN("The encoded buffer has an expected sequence of 254 bytes with first byte as 0xfd")
+    THEN("The encoded buffer has an expected sequence of 255 bytes with first byte as 0xfd")
+
+  WHEN("The cobs::encode is called on a 254 bytes buffer with null byte at 129th byte position")
+    THEN("The encode_cobs function reports ok status")
+    THEN("The encoded buffer has an expected sequence of 255 bytes with first byte as 0x81")
 
   WHEN("The cobs::encode is called on a 254 byte buffer with no null bytes")
     THEN("The encode_cobs function reports ok status")
-    THEN("The encoded buffer has an expected sequence of 254 bytes with first byte as 0xff")
+    THEN("The encoded buffer has an expected sequence of 256 bytes with first byte as 0xff")
 
   WHEN("The cobs::encode is called on a 255 byte buffer with no null bytes")
     THEN("The encode_cobs function reports ok status")

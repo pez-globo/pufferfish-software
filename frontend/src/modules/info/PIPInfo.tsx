@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
-import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
+import { ParametersRequest } from '../../store/controller/proto/mcu_pb';
+import { MessageType } from '../../store/controller/types';
+import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { getCycleMeasurementsPIP, getParametersPIP } from '../../store/controller/selectors';
-import { PARAMETER_STANDBY } from '../../store/controller/types';
 import { StoreState } from '../../store/types';
 import { AlarmModal, Knob } from '../controllers';
 import { SettingAdjustProps, ValueModal } from '../controllers/ValueModal';
@@ -34,8 +35,12 @@ const units = CMH20;
 const PIPInfo = (): JSX.Element => {
   const dispatch = useDispatch();
   const doSetPIP = (setting: number) => {
-    dispatch(updateCommittedParameter({ pip: setting }));
-    dispatch(updateCommittedState(PARAMETER_STANDBY, { pip: setting }));
+    dispatch(
+      commitRequest<ParametersRequest>(MessageType.ParametersRequest, { pip: setting }),
+    );
+    dispatch(
+      commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, { pip: setting }),
+    );
   };
   return (
     <Knob

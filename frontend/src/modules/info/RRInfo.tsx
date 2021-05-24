@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
-import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
+import { ParametersRequest } from '../../store/controller/proto/mcu_pb';
+import { MessageType } from '../../store/controller/types';
+import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { getCycleMeasurementsRR, getParametersRR } from '../../store/controller/selectors';
-import { PARAMETER_STANDBY } from '../../store/controller/types';
 import { StoreState } from '../../store/types';
 import { AlarmModal, Knob } from '../controllers';
 import { SettingAdjustProps, ValueModal } from '../controllers/ValueModal';
@@ -34,8 +35,12 @@ const units = BMIN;
 const RRInfo = ({ disableSetValue = false }: { disableSetValue?: boolean }): JSX.Element => {
   const dispatch = useDispatch();
   const doSetRR = (setting: number) => {
-    dispatch(updateCommittedParameter({ rr: setting }));
-    dispatch(updateCommittedState(PARAMETER_STANDBY, { rr: setting }));
+    dispatch(
+      commitRequest<ParametersRequest>(MessageType.ParametersRequest, { rr: setting }),
+    );
+    dispatch(
+      commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, { rr: setting }),
+    );
   };
   return (
     <Knob

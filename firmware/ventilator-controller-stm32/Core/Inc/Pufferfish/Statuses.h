@@ -80,6 +80,14 @@ enum class SPIDeviceStatus {
 };
 
 /**
+ * An outcome of performing an operation on random number generator
+ */
+enum class RandomStatus {
+  ok = 0,  /// success
+  error,   /// the operation encountered an error
+};
+
+/**
  * SPI Instructions
  */
 enum class SPIInstruction {

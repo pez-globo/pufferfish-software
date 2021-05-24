@@ -1,7 +1,7 @@
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
-import { getAlarmLimits } from '../../../store/controller/selectors';
+import { getAlarmLimitsCurrent } from '../../../store/controller/selectors';
 import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
@@ -132,7 +132,7 @@ const ControlValuesDisplay = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimits, shallowEqual) as Record<string, Range>;
+  const alarmLimits = useSelector(getAlarmLimitsCurrent, shallowEqual);
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
@@ -145,6 +145,11 @@ const ControlValuesDisplay = ({
   const updateModalStatus = (status: boolean) => {
     setOpen(status);
   };
+  const range =
+    alarmLimits === null
+      ? undefined
+      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
+  const { lower, upper } = range === undefined ? { lower: '--', upper: '--' } : range;
   return (
     <div
       style={{ outline: 'none', height: '100%' }}
@@ -177,15 +182,15 @@ const ControlValuesDisplay = ({
               {showLimits && stateKey && (
                 <Grid container item xs={3} className={classes.liveContainer}>
                   <Typography className={classes.whiteFont} style={{ fontSize: '1.25rem' }}>
-                    {alarmLimits[stateKey].lower}
+                    {lower}
                   </Typography>
                   <Typography className={classes.whiteFont} style={{ fontSize: '1.25rem' }}>
-                    {alarmLimits[stateKey].upper}
+                    {upper}
                   </Typography>
                 </Grid>
               )}
             </Grid>
-            <Grid item xs alignItems="center" className={classes.displayContainer}>
+            <Grid item xs className={classes.displayContainer}>
               <Grid>
                 <Typography
                   align="center"

@@ -79,9 +79,10 @@ const HFNCControlGrid = (): JSX.Element => {
   );
 };
 
-const ConfigureControlMode = ({ mode }: { mode: VentilationMode }): JSX.Element => {
+const ConfigureControlMode = ({ mode }: { mode: VentilationMode | null }): JSX.Element => {
   switch (mode) {
     case VentilationMode.hfnc:
+      return <HFNCControlGrid />;
     case VentilationMode.pc_ac:
     case VentilationMode.vc_ac:
     case VentilationMode.niv_pc:
@@ -92,9 +93,10 @@ const ConfigureControlMode = ({ mode }: { mode: VentilationMode }): JSX.Element 
   }
 };
 
-const ConfigureValueMode = ({ mode }: { mode: VentilationMode }): JSX.Element => {
+const ConfigureValueMode = ({ mode }: { mode: VentilationMode | null }): JSX.Element => {
   switch (mode) {
     case VentilationMode.hfnc:
+      return <HFNCValueGrid />;
     case VentilationMode.pc_ac:
     case VentilationMode.vc_ac:
     case VentilationMode.niv_pc:

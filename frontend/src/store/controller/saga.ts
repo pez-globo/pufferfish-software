@@ -10,8 +10,8 @@ import {
   ChannelTakeEffect,
   all,
 } from 'redux-saga/effects';
-import { INITIALIZED } from '../app/types';
-import { HEARTBEAT_BACKEND, PBMessageType } from './types';
+import { INITIALIZED, BACKEND_HEARTBEAT } from '../app/types';
+import { PBMessageType } from './types';
 import { updateState } from './actions';
 import { deserializeMessage } from './protocols/messages';
 import { advanceSchedule } from './protocols/states';
@@ -28,7 +28,7 @@ function* receive(response: ChannelTakeEffect<Response>) {
   try {
     const results = yield deserializeResponse(yield response);
     yield put(updateState(results.messageType, results.pbMessage));
-    yield put({ type: HEARTBEAT_BACKEND });
+    yield put({ type: BACKEND_HEARTBEAT });
   } catch (err) {
     console.error(err);
   }
@@ -44,8 +44,10 @@ function* receiveAll(channel: EventChannel<Response>) {
 function* sendState(sock: WebSocket, pbMessageType: PBMessageType) {
   const processor = getStateProcessor(pbMessageType);
   const pbMessage = yield select(processor.selector);
-  const body = processor.serializer(pbMessage);
-  yield sendBuffer(sock, body);
+  if (pbMessage !== null) {
+    const body = processor.serializer(pbMessage);
+    yield sendBuffer(sock, body);
+  }
 }
 
 function* sendAll(sock: WebSocket) {

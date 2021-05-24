@@ -37,7 +37,7 @@ I2CDeviceStatus Device::read_product_id(uint32_t &product_number) {
     return ret2;
   }
 
-  Util::read_ntoh(buffer.data(), product_number);
+  Util::read_bigend(buffer.data(), product_number);
   return I2CDeviceStatus::ok;
 }
 
@@ -57,9 +57,9 @@ I2CDeviceStatus Device::read_conversion_factors(ConversionFactors &conversion) {
     return ret;
   }
 
-  Util::read_ntoh(buffer.data(), conversion.scale_factor);
-  Util::read_ntoh(buffer.data() + sizeof(uint16_t), conversion.offset);
-  Util::read_ntoh(buffer.data() + 2 * sizeof(uint16_t), conversion.flow_unit);
+  Util::read_bigend(buffer.data(), conversion.scale_factor);
+  Util::read_bigend(buffer.data() + sizeof(uint16_t), conversion.offset);
+  Util::read_bigend(buffer.data() + 2 * sizeof(uint16_t), conversion.flow_unit);
   return I2CDeviceStatus::ok;
 }
 
@@ -71,7 +71,7 @@ I2CDeviceStatus Device::read_sample(Sample &sample, int16_t scale_factor, int16_
     return ret;
   }
 
-  Util::read_ntoh(buffer.data(), sample.raw_flow);
+  Util::read_bigend(buffer.data(), sample.raw_flow);
 
   // convert to actual flow rate
   sample.flow = static_cast<float>(sample.raw_flow - offset) / static_cast<float>(scale_factor);

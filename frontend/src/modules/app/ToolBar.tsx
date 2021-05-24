@@ -1,21 +1,31 @@
-import { AppBar, Button, Grid } from '@material-ui/core';
+import { AppBar, Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { Link, useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { getClockTime } from '../../store/app/selectors';
-import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
-import { VentilationMode } from '../../store/controller/proto/mcu_pb';
+import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import {
-  getBatteryPower,
+  ParametersRequest,
+  VentilationMode,
+  AlarmLimitsRequest,
+  Range,
+} from '../../store/controller/proto/mcu_pb';
+import {
+  getBatteryPowerLeft,
   getChargingStatus,
-  getIsVentilating,
+  getParametersIsVentilating,
   getParametersRequestMode,
-  getParametersRequestStandby,
-  getAlarmLimitsRequestStandby,
-  getPopupEventLog,
+  getParametersRequestDraft,
+  getAlarmLimitsRequestDraft,
+  getBackendInitialized,
+  getAlarmLimitsRequestUnsaved,
+  getAlarmLimitsUnsavedKeys,
+  getAlarmLimitsRequest,
 } from '../../store/controller/selectors';
-import { BACKEND_CONNECTION_LOST_CODE, ALARM_LIMITS } from '../../store/controller/types';
+import { MessageType } from '../../store/controller/types';
+import { AlarmConfiguration, alarmConfiguration } from '../alarms/AlarmsPage';
+import { ModalPopup } from '../controllers/ModalPopup';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
 import { BackIcon } from '../icons';
 import ClockIcon from '../icons/ClockIcon';
@@ -38,6 +48,16 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {
     // border: '1px solid red',
   },
+  marginContent: {
+    textAlign: 'center',
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(3),
+  },
+  marginHeader: {
+    textAlign: 'center',
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(1),
+  },
   marginRight: {
     marginRight: theme.spacing(0.5),
   },
@@ -58,7 +78,7 @@ export const HeaderClock = (): JSX.Element => {
 
 export const PowerIndicator = (): JSX.Element => {
   const classes = useStyles();
-  const batteryPower = useSelector(getBatteryPower);
+  const batteryPower = useSelector(getBatteryPowerLeft);
   const chargingStatus = useSelector(getChargingStatus);
   const [icon, setIcon] = useState(<PowerFullIcon style={{ fontSize: '2.5rem' }} />);
 
@@ -108,17 +128,35 @@ export const ToolBar = ({
   const dispatch = useDispatch();
   const history = useHistory();
   const currentMode = useSelector(getParametersRequestMode);
-  const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
-  const parameterRequestStandby = useSelector(getParametersRequestStandby, shallowEqual);
-  const alarmLimitsRequestStandby = useSelector(getAlarmLimitsRequestStandby, shallowEqual);
-  const ventilating = useSelector(getIsVentilating);
+  const backendInitialized = useSelector(getBackendInitialized);
+  const parameterRequestDraft = useSelector(getParametersRequestDraft, shallowEqual);
+  const ventilating = useSelector(getParametersIsVentilating);
+  const alarmLimitsRequestDraftSelect = useSelector(getAlarmLimitsRequestDraft);
+  const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
+  const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
+  const alarmLimitsUnsavedKeys = useSelector(getAlarmLimitsUnsavedKeys);
+  const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
+  const alarmLimitsRequestDraft = (alarmLimitsRequestDraftSelect as unknown) as Record<
+    string,
+    Range
+  >;
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
+  const [landingLabel, setLandingLabel] = useState('Loading...');
   const [label, setLabel] = useState('Start Ventilation');
   const [isDisabled, setIsDisabled] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
+  const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
+    dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
+  };
+  const alarmConfig = alarmConfiguration(currentMode);
   // const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
   const updateVentilationStatus = () => {
     if (!staticStart) {
-      dispatch(updateCommittedParameter({ ventilating: !isVentilatorOn }));
+      dispatch(
+        commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
+          ventilating: !isVentilatorOn,
+        }),
+      );
       setIsVentilatorOn(!isVentilatorOn);
     }
     if (isVentilatorOn || staticStart) {
@@ -127,52 +165,66 @@ export const ToolBar = ({
   };
 
   const initParameterUpdate = useCallback(() => {
-    if (isVentilatorOn) {
-      switch (currentMode) {
-        case VentilationMode.hfnc:
-          dispatch(
-            updateCommittedParameter({
-              fio2: parameterRequestStandby.fio2,
-              flow: parameterRequestStandby.flow,
-            }),
-          );
-          dispatch(
-            updateCommittedState(ALARM_LIMITS, {
-              spo2: alarmLimitsRequestStandby.spo2,
-              hr: alarmLimitsRequestStandby.hr,
-            }),
-          );
-          break;
-        case VentilationMode.pc_ac:
-        case VentilationMode.vc_ac:
-        case VentilationMode.niv_pc:
-        case VentilationMode.niv_ps:
-        case VentilationMode.psv:
-          dispatch(
-            updateCommittedParameter({
-              peep: parameterRequestStandby.peep,
-              vt: parameterRequestStandby.vt,
-              rr: parameterRequestStandby.rr,
-              fio2: parameterRequestStandby.fio2,
-            }),
-          );
-          break;
-        default:
-          break;
-      }
+    if (parameterRequestDraft === null || alarmLimitsRequestDraft === null) {
+      return;
     }
-  }, [isVentilatorOn, parameterRequestStandby, alarmLimitsRequestStandby, currentMode, dispatch]);
+
+    if (!isVentilatorOn) {
+      return;
+    }
+
+    switch (currentMode) {
+      case VentilationMode.hfnc:
+        dispatch(
+          commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
+            fio2: parameterRequestDraft.fio2,
+            flow: parameterRequestDraft.flow,
+          }),
+        );
+        dispatch(
+          commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, {
+            spo2: alarmLimitsRequestDraft.spo2,
+            hr: alarmLimitsRequestDraft.hr,
+          }),
+        );
+        break;
+      case VentilationMode.pc_ac:
+      case VentilationMode.vc_ac:
+      case VentilationMode.niv_pc:
+      case VentilationMode.niv_ps:
+      case VentilationMode.psv:
+        dispatch(
+          commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
+            peep: parameterRequestDraft.peep,
+            vt: parameterRequestDraft.vt,
+            rr: parameterRequestDraft.rr,
+            fio2: parameterRequestDraft.fio2,
+          }),
+        );
+        break;
+      default:
+        break;
+    }
+  }, [isVentilatorOn, parameterRequestDraft, alarmLimitsRequestDraft, currentMode, dispatch]);
 
   useEffect(() => {
-    if (popupEventLog && popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
-      setIsDisabled(true);
-    } else {
+    if (backendInitialized) {
+      setLandingLabel('Start');
       setIsDisabled(false);
+      setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
+    } else {
+      setLandingLabel('Loading...');
+      setIsDisabled(true);
+      setLabel('Loading...');
     }
-  }, [popupEventLog]);
+  }, [backendInitialized, ventilating]);
 
   useEffect(() => {
-    if (!ventilating) initParameterUpdate();
+    if (ventilating) {
+      return;
+    }
+
+    initParameterUpdate();
   }, [ventilating, initParameterUpdate]);
 
   useEffect(() => {
@@ -180,7 +232,6 @@ export const ToolBar = ({
       history.push(DASHBOARD_ROUTE.path);
     }
     setIsVentilatorOn(ventilating);
-    setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
   }, [ventilating, history]);
 
   const StartPauseButton = (
@@ -188,11 +239,21 @@ export const ToolBar = ({
       onClick={updateVentilationStatus}
       variant="contained"
       color="secondary"
-      disabled={staticStart ? false : isDisabled}
+      disabled={isDisabled}
     >
-      {staticStart ? 'Start' : label}
+      {staticStart ? landingLabel : label}
     </Button>
   );
+
+  const handleOnClick = () => {
+    if (!alarmLimitsRequestUnsaved) {
+      setDiscardOpen(false);
+      history.push(DASHBOARD_ROUTE.path);
+    } else {
+      setDiscardOpen(true);
+    }
+  };
+
   const tools = [<ModesDropdown />];
   if (location.pathname === DASHBOARD_ROUTE.path) {
     tools.push(<ViewDropdown />);
@@ -204,7 +265,7 @@ export const ToolBar = ({
     // );
   } else if (isVentilatorOn && location.pathname !== SCREENSAVER_ROUTE.path) {
     tools.push(
-      <Button component={Link} to={DASHBOARD_ROUTE.path} variant="contained" color="primary">
+      <Button onClick={handleOnClick} variant="contained" color="primary">
         <BackIcon style={{ paddingRight: 8 }} />
         {DASHBOARD_ROUTE.label}
       </Button>,
@@ -213,6 +274,16 @@ export const ToolBar = ({
   if (location.pathname !== '/') {
     tools.push(<EventAlerts label={LOGS_ROUTE.label} />);
   }
+
+  const handleDiscardClose = () => {
+    setDiscardOpen(false);
+  };
+
+  const handleDiscardConfirm = () => {
+    setAlarmLimitsRequestDraft(alarmLimitsRequest);
+    history.push(DASHBOARD_ROUTE.path);
+    setDiscardOpen(false);
+  };
 
   return (
     <AppBar color="transparent" elevation={0} position="static">
@@ -260,6 +331,38 @@ export const ToolBar = ({
           <Grid item>{StartPauseButton}</Grid>
         </Grid>
       </Grid>
+      <ModalPopup
+        withAction={true}
+        label="Set Alarms"
+        open={discardOpen}
+        onClose={handleDiscardClose}
+        onConfirm={handleDiscardConfirm}
+      >
+        <Grid container alignItems="center">
+          <Grid container alignItems="center" justify="center">
+            <Grid container alignItems="center" className={classes.marginHeader}>
+              <Grid item xs>
+                <Typography variant="h4">Keep Previous Values?</Typography>
+              </Grid>
+            </Grid>
+            <Grid item className={classes.marginContent}>
+              {alarmConfig.map((param: AlarmConfiguration) => {
+                if (alarmLimitsRequest !== null && alarmLimitsRequestDraft !== null) {
+                  if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
+                    return (
+                      <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${
+                        alarmLimitsRequest[param.stateKey].lower
+                      } -
+                                ${alarmLimitsRequest[param.stateKey].upper}?`}</Typography>
+                    );
+                  }
+                }
+                return <React.Fragment />;
+              })}
+            </Grid>
+          </Grid>
+        </Grid>
+      </ModalPopup>
     </AppBar>
   );
 };

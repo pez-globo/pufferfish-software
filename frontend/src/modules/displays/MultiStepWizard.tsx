@@ -7,23 +7,20 @@ import ReplyIcon from '@material-ui/icons/Reply';
 import ModalPopup from '../controllers/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
-  getParametersFiO2,
-  getParametersFlow,
   getSmoothedSpO2,
   getSmoothedHR,
   roundValue,
+  getParametersRequestDraftFiO2,
+  getParametersRequestDraftFlow,
 } from '../../store/controller/selectors';
 import { SetValueContent } from '../controllers/ValueModal';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import ValueInfo from '../dashboard/containers/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../info/units';
 import { AlarmModal } from '../controllers';
-import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
-import {
-  ALARM_LIMITS,
-  ALARM_LIMITS_STANDBY,
-  PARAMETER_STANDBY,
-} from '../../store/controller/types';
+import { ParametersRequest, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
+import { MessageType } from '../../store/controller/types';
+import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import store from '../../store';
 
 interface Data {
@@ -41,6 +38,13 @@ interface Data {
   alarmLimitMax?: number | null;
   alarmValuesActual: number[];
   setValueActual: number;
+}
+
+interface HFNCProps {
+  alarmValuesSpO2: number[];
+  alarmValuesHR: number[];
+  alarmValuesFiO2: number[];
+  alarmValuesFlow: number[];
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -106,7 +110,12 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const HFNCControls = (): JSX.Element => {
+const HFNCControls = ({
+  alarmValuesSpO2,
+  alarmValuesHR,
+  alarmValuesFiO2,
+  alarmValuesFlow,
+}: HFNCProps): JSX.Element => {
   return (
     <React.Fragment>
       <Grid
@@ -123,6 +132,7 @@ const HFNCControls = (): JSX.Element => {
             label: 'SpO2',
             stateKey: 'spo2',
             units: PERCENT,
+            alarmLimits: alarmValuesSpO2,
           }}
         />
         <ValueInfo
@@ -131,24 +141,27 @@ const HFNCControls = (): JSX.Element => {
             label: 'HR',
             stateKey: 'hr',
             units: BPM,
+            alarmLimits: alarmValuesHR,
           }}
         />
       </Grid>
       <Grid container item justify="center" alignItems="stretch" direction="column">
         <ValueInfo
           mainContainer={{
-            selector: getParametersFiO2,
+            selector: getParametersRequestDraftFiO2,
             label: 'FiO2',
             stateKey: 'fio2',
             units: PERCENT,
+            alarmLimits: alarmValuesFiO2,
           }}
         />
         <ValueInfo
           mainContainer={{
-            selector: getParametersFlow,
+            selector: getParametersRequestDraftFlow,
             label: 'Flow',
             stateKey: 'flow',
             units: LMIN,
+            alarmLimits: alarmValuesFlow,
           }}
         />
       </Grid>
@@ -188,28 +201,44 @@ const createData = (
 };
 
 const getStoreValueData = (stateKey: string): number | null => {
+  // TODO: is there a reason this function directly accesses the store, rather than
+  // using the getParametersFiO2 and getParametersFlow2 selectors?
   const storeData = store.getState();
+  if (storeData.controller.parameters.current === null) {
+    return null;
+  }
+
   switch (stateKey) {
     case 'fio2':
-      return roundValue(storeData.controller.parameters.fio2);
+      return roundValue(storeData.controller.parameters.current.fio2);
     case 'flow':
-      return roundValue(storeData.controller.parameters.flow);
+      return roundValue(storeData.controller.parameters.current.flow);
     default:
+      return null;
   }
-  return null;
 };
 
 const getStoreAlarmData = (stateKey: string): number[] | null => {
+  // TODO: is there a reason this function directly access the store, rather than
+  // using the getAlarmLimitsRequest selector?
   const storeData = store.getState();
-  const alarmLimits = storeData.controller.alarmLimitsRequest;
+  const alarmLimits = storeData.controller.alarmLimits.request;
+  if (alarmLimits === null) {
+    return null;
+  }
+
   switch (stateKey) {
     case 'spo2':
       return [alarmLimits.spo2?.lower as number, alarmLimits.spo2?.upper as number];
     case 'hr':
       return [alarmLimits.hr?.lower as number, alarmLimits.hr?.upper as number];
+    case 'fio2':
+      return [alarmLimits.fio2?.lower as number, alarmLimits.fio2?.upper as number];
+    case 'flow':
+      return [alarmLimits.flow?.lower as number, alarmLimits.flow?.upper as number];
     default:
+      return null;
   }
-  return null;
 };
 
 // TODO: Make a constant file for stateKey Constants
@@ -341,6 +370,10 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.setValue = setting;
       parameter.setValue = setting;
+      if (open) {
+        const update = { [stateKey]: setting };
+        dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+      }
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
       } else {
@@ -416,28 +449,19 @@ const MultiStepWizard = (): JSX.Element => {
   const handleConfirm = () => {
     multiParams.forEach((parameter: Data) => {
       if (parameter.isSetvalEnabled) {
-        dispatch(updateCommittedParameter({ [parameter.stateKey]: parameter.setValue }));
-        dispatch(
-          updateCommittedState(PARAMETER_STANDBY, { [parameter.stateKey]: parameter.setValue }),
-        );
+        const update = { [parameter.stateKey]: parameter.setValue };
+        dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+        dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
       }
       if (parameter.isAlarmEnabled && parameter.alarmValues.length) {
-        dispatch(
-          updateCommittedState(ALARM_LIMITS, {
-            [parameter.stateKey]: {
-              lower: parameter.alarmValues[0],
-              upper: parameter.alarmValues[1],
-            },
-          }),
-        );
-        dispatch(
-          updateCommittedState(ALARM_LIMITS_STANDBY, {
-            [parameter.stateKey]: {
-              lower: parameter.alarmValues[0],
-              upper: parameter.alarmValues[1],
-            },
-          }),
-        );
+        const update = {
+          [parameter.stateKey]: {
+            lower: parameter.alarmValues[0],
+            upper: parameter.alarmValues[1],
+          },
+        };
+        dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
+        dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
       }
     });
     setMultiParams([]);
@@ -524,7 +548,12 @@ const MultiStepWizard = (): JSX.Element => {
           </Grid>
           <Grid container className={classes.tabAligning}>
             <TabPanel value={tabIndex} index={0}>
-              <HFNCControls />
+              <HFNCControls
+                alarmValuesSpO2={getAlarmValues('spo2')}
+                alarmValuesHR={getAlarmValues('hr')}
+                alarmValuesFiO2={getAlarmValues('fio2')}
+                alarmValuesFlow={getAlarmValues('flow')}
+              />
             </TabPanel>
             <TabPanel value={tabIndex} index={1}>
               {parameter && parameter.isSetvalEnabled ? (
@@ -604,7 +633,7 @@ const MultiStepWizard = (): JSX.Element => {
                 <Typography variant="h4">Confirm New Changes?</Typography>
               </Grid>
             </Grid>
-            <Grid item alignItems="center" className={classes.marginContent}>
+            <Grid item className={classes.marginContent}>
               {multiParams.map((param: Data) => {
                 if (param.isSetvalEnabled) {
                   if (param.setValue !== param.setValueActual) {
@@ -642,7 +671,7 @@ const MultiStepWizard = (): JSX.Element => {
                 <Typography variant="h4">Keep Previous Values?</Typography>
               </Grid>
             </Grid>
-            <Grid item alignItems="center" className={classes.marginContent}>
+            <Grid item className={classes.marginContent}>
               {multiParams.map((param: Data) => {
                 if (param.isSetvalEnabled) {
                   if (param.setValue !== param.setValueActual) {

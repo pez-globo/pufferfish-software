@@ -3,10 +3,11 @@ import enUS from '../../translations/en-us.json';
 import { StoreState } from '../types';
 import { LOCALE_DEFAULT, LOCALE_EN_US, AppState } from './types';
 
+// Locale
+
 const MESSAGE_CATALOG: Record<string, Record<string, string>> = {
   [LOCALE_EN_US]: enUS,
 };
-
 export const getLocale = ({ app }: StoreState): string => app.locale;
 export const getLocales = (): Array<string> => [LOCALE_EN_US];
 export const getMessages = createSelector(
@@ -19,15 +20,25 @@ export const getMessages = createSelector(
   },
 );
 
+// App
+
 export const getApp = (store: StoreState): AppState => store.app;
 
 // Clock
+
 export const getClock = createSelector(getApp, (app: AppState): Date => app.clock);
 export const getAlarmNotifyStatus = createSelector(
   getApp,
   (app: AppState): boolean => app.notifyAlarm,
 );
-
+export const getBackendHeartBeat = createSelector(
+  getApp,
+  (app: AppState): Date => app.backendHeartbeat,
+);
+export const getBackendConnected = createSelector(
+  getApp,
+  (app: AppState): boolean => app.backendConnection,
+);
 export const getClockTime = createSelector(getApp, (states: AppState): string =>
   states.clock.toLocaleTimeString([], {
     hour: '2-digit',

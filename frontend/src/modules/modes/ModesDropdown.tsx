@@ -5,8 +5,9 @@ import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import FiberManualRecord from '@material-ui/icons/FiberManualRecord';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateCommittedParameter } from '../../store/controller/actions';
-import { VentilationMode } from '../../store/controller/proto/mcu_pb';
+import { VentilationMode, ParametersRequest } from '../../store/controller/proto/mcu_pb';
+import { MessageType } from '../../store/controller/types';
+import { commitRequest } from '../../store/controller/actions';
 import { getParametersRequestMode } from '../../store/controller/selectors';
 import { getModeText } from '../displays/ModeBanner';
 
@@ -92,7 +93,10 @@ export const ModesDropdown = (): JSX.Element => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const dispatch = useDispatch();
   const ventilationMode = useSelector(getParametersRequestMode);
-  const updateMode = (mode: VentilationMode) => dispatch(updateCommittedParameter({ mode }));
+  const updateMode = (mode: VentilationMode) =>
+    dispatch(
+      commitRequest<ParametersRequest>(MessageType.ParametersRequest, { mode }),
+    );
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
