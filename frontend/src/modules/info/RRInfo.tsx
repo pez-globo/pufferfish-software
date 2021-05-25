@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * @summary Component to display Value, Set Value Modal & Alarm Modal for RRInfo parameter
+ *
+ * Set Value & Alarm Modal is optional
+ *
+ */
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -28,12 +35,20 @@ const units = BMIN;
 /**
  * RRInfo
  *
- * A `Knob`-based component for handling RR information.
+ * @component A `Knob`-based component for handling RR information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const RRInfo = ({ disableSetValue = false }: { disableSetValue?: boolean }): JSX.Element => {
   const dispatch = useDispatch();
+
+  /**
+   * Function to set RR value to redux store
+   *
+   * @param {number} setting - desc for setting
+   */
   const doSetRR = (setting: number) => {
     dispatch(
       commitRequest<ParametersRequest>(MessageType.ParametersRequest, { rr: setting }),

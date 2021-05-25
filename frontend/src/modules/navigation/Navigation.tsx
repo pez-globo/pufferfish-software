@@ -1,3 +1,7 @@
+/**
+ * @summary Component to display Navigation Routes with Icon
+ *
+ */
 import { Tab, Tabs, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { PropsWithChildren, useEffect } from 'react';
@@ -58,10 +62,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
   },
 }));
+
 /**
  * Navigation
  *
- * The main interface for router/page-based navigation.
+ * @component The main interface for router/page-based navigation.
+ *
+ * @param {boolean} fullPage Takes full width of the page if true
+ * @param {function} toggleStatus Defines the status of Sidebar drawer Open/Close
+ *
+ * @returns {JSX.Element}
+ *
  */
 export const Navigation = ({
   fullPage,
@@ -82,14 +93,27 @@ export const Navigation = ({
   ];
 
   const routePath = routes.find((route) => location.pathname.startsWith(route.path));
+  /**
+   * State to manage Route path
+   */
   const [route, setRoute] = React.useState(routePath ? routePath.key : 0);
 
+  /**
+   * Triggers once to update current route in State
+   */
   useEffect(() => {
     const routePath = routes.find((route) => location.pathname.startsWith(route.path));
     setRoute(routePath ? routePath.key : 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
+  /**
+   * Function for handling route changes
+   *
+   * @param {React.ChangeEvent<Record<string, unknown>>} event DOM Change Event
+   * @param {number} newRoute Route path to be navigated
+   *
+   */
   const handleRouteChange = (
     event: React.ChangeEvent<Record<string, unknown>>,
     newRoute: number,
@@ -100,6 +124,14 @@ export const Navigation = ({
     setRoute(newRoute);
   };
 
+  /**
+   * RouteLabel
+   *
+   * @component Handles route labels
+   *
+   * @returns {JSX.Element}
+   *
+   */
   const RouteLabel = (
     props: PropsWithChildren<{ fullPage?: boolean; label: string }>,
   ): JSX.Element => {

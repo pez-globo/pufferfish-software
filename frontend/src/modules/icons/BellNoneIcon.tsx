@@ -1,6 +1,19 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 
+/**
+ * BellNoneIcon
+ *
+ * @component Component for displaying "Bell" icon with blank filling
+ *
+ * @param {SvgIconProps} props - SVG props to override
+ *
+ * @returns {JSX.Element} - "Bell" with no filling icon used Sidebar for `Set Alarms` icon
+ */
 const BellNoneIcon = (props: SvgIconProps): JSX.Element => {
   return (
     <SvgIcon {...props} width="23.952" height="29.082" viewBox="0 0 23.952 29.082">

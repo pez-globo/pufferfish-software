@@ -1,3 +1,7 @@
+/**
+ * @summary Unit Constants
+ *
+ */
 // Rates
 export const BMIN = 'b/min';
 export const BPM = 'BPM';

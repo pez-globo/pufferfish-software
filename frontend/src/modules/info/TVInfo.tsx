@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * @summary Component to display Value, Set Value Modal & Alarm Modal for TVInfo parameter
+ *
+ * Set Value & Alarm Modal is optional
+ *
+ */
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -19,9 +26,11 @@ const units = LMIN;
 /**
  * TVInfo
  *
- * A `Knob`-based component for handling TV information.
+ * @component A `Knob`-based component for handling TV information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const TVInfo = (): JSX.Element => (
   <Knob

@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * @summary Component to display Value, Set Value Modal & Alarm Modal for PplatInfo parameter
+ *
+ * Set Value & Alarm Modal is optional
+ *
+ */
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -16,11 +23,13 @@ const label = 'Pplat';
 const units = CMH20;
 
 /**
- * Pplat
+ * PplatInfo
  *
- * A `Knob`-based component for handling IP Above PEEP information.
+ * @component A `Knob`-based component for handling Pplat information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const PplatInfo = (): JSX.Element => (
   <Knob

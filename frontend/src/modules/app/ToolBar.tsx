@@ -1,3 +1,9 @@
+/**
+ * @summary Toolbar
+ *
+ * @file Header toolbar with dynamic sub components
+ *
+ */
 import { AppBar, Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -70,18 +76,35 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * HeaderClock
+ *
+ * @component A container for displaying header clock of the page.
+ *
+ * @returns {JSX.Element} current time
+ */
 export const HeaderClock = (): JSX.Element => {
   const classes = useStyles();
   const clockTime = useSelector(getClockTime);
   return <span className={classes.paddingRight}>{clockTime}</span>;
 };
 
+/**
+ * PowerIndicator
+ *
+ * @component  A container for displaying battery indicator of the page.
+ *
+ * @returns {JSX.Element} battery percentage remain
+ */
+
 export const PowerIndicator = (): JSX.Element => {
   const classes = useStyles();
   const batteryPower = useSelector(getBatteryPowerLeft);
   const chargingStatus = useSelector(getChargingStatus);
   const [icon, setIcon] = useState(<PowerFullIcon style={{ fontSize: '2.5rem' }} />);
-
+  /**
+   * Updates Icons based on batteryPower/chargingStatus
+   */
   useEffect(() => {
     if (batteryPower >= 0 && batteryPower <= 25) {
       setIcon(<Power25Icon style={{ fontSize: '2.5rem' }} />);
@@ -111,8 +134,13 @@ export const PowerIndicator = (): JSX.Element => {
 /**
  * ToolBar
  *
- * A container for displaying buttons that handle system changes based on
+ * @component A container for displaying buttons that handle system changes based on
  * various states and conditions such as ventilator state and current page route.
+ *
+ * @param {React.ReactNode} children Adds dynamic items as children for SidebarSlideRoute
+ * @param {boolean} staticStart staticStart is used as a config for reusing Start/Pause Ventilation button for LandingPage Layout
+ *
+ * @returns {JSX.Element}
  */
 export const ToolBar = ({
   children,
@@ -140,9 +168,22 @@ export const ToolBar = ({
     string,
     Range
   >;
+  /**
+   * State to manage toggling ventilationState
+   */
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
+  /**
+   * State to manage label for Landing page
+   */
   const [landingLabel, setLandingLabel] = useState('Loading...');
+  /**
+   * State to manage ventilation label
+   * Label is Dynamic based on ventilation state
+   */
   const [label, setLabel] = useState('Start Ventilation');
+  /**
+   * State to toggle if Ventilating isDisabled
+   */
   const [isDisabled, setIsDisabled] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
@@ -150,6 +191,10 @@ export const ToolBar = ({
   };
   const alarmConfig = alarmConfiguration(currentMode);
   // const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
+
+  /**
+   * Updates Ventilation status on clicking Start/Pause ventilation
+   */
   const updateVentilationStatus = () => {
     if (!staticStart) {
       dispatch(
@@ -164,6 +209,9 @@ export const ToolBar = ({
     }
   };
 
+  /**
+   * Update Paramters to redux store when ventilation starts
+   */
   const initParameterUpdate = useCallback(() => {
     if (parameterRequestDraft === null || alarmLimitsRequestDraft === null) {
       return;
@@ -207,6 +255,9 @@ export const ToolBar = ({
     }
   }, [isVentilatorOn, parameterRequestDraft, alarmLimitsRequestDraft, currentMode, dispatch]);
 
+  /**
+   * Disabled Start/Pause Ventilation button when backend connection is lost
+   */
   useEffect(() => {
     if (backendInitialized) {
       setLandingLabel('Start');
@@ -227,6 +278,9 @@ export const ToolBar = ({
     initParameterUpdate();
   }, [ventilating, initParameterUpdate]);
 
+  /**
+   * Update Label on Button based on ventilation status
+   */
   useEffect(() => {
     if (ventilating) {
       history.push(DASHBOARD_ROUTE.path);

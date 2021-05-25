@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * @summary Component to display Value, Set Value Modal & Alarm Modal for FiO2 parameter
+ *
+ * Set Value & Alarm Modal is optional
+ *
+ */
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -28,12 +35,21 @@ const units = PERCENT;
 /**
  * FiO2Info
  *
- * A `Knob`-based component for handling FiO2 information.
+ * @component A `Knob`-based component for handling FiO2 information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const FiO2Info = (): JSX.Element => {
   const dispatch = useDispatch();
+
+  /**
+   * sets FiO2
+   *
+   * @param {number} setting - some desc for setting
+   *
+   */
   const doSetFiO2 = (setting: number) => {
     dispatch(
       commitRequest<ParametersRequest>(MessageType.ParametersRequest, { fio2: setting }),

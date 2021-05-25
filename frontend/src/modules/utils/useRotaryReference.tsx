@@ -1,8 +1,21 @@
+/**
+ * @summary Function to update Border Styles which is added to highlight the HTML element for Rotary encoder
+ *
+ * Function is called on initalization of component which uses Rotary encoder
+ */
 import { Theme } from '@material-ui/core';
 import { RefObject } from 'react';
 import { Subscription } from 'rxjs';
 import { getActiveRotaryReference } from '../app/Service';
 
+/**
+ * function for handling rotary reference.
+ *
+ * @param {Theme} theme Material's Theme Object
+ *
+ * @returns {function} Function to Run on Component Initalization
+ *
+ */
 export const useRotaryReference = (
   theme: Theme,
 ): { initRefListener(elRefs: Record<string, RefObject<HTMLDivElement>>): void } => {

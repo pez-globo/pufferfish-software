@@ -1,3 +1,7 @@
+/**
+ * @summary Component wrapper to display Sensor Measurement's Controls in Screensaver
+ *
+ */
 import React from 'react';
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import { SelectorType, ValueSelectorDisplay } from '../displays/ValueSelectorDisplay';
@@ -38,6 +42,16 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * @typedef SelectorProps
+ *
+ * Interface for the Control Jumbotron
+ *
+ * @prop {SelectorType} selector Redux Selector
+ * @prop {number} decimal Number of Decimals on the value
+ * @prop {string} label Value label
+ * @prop {string} units Unit measurement of value to display
+ */
 export interface SelectorProps {
   selector: SelectorType;
   decimal?: number;
@@ -48,7 +62,11 @@ export interface SelectorProps {
 /**
  * ControlJumbotron
  *
- * A component for displaying values in a large way.
+ * @component A component for displaying values in a large way.
+ *
+ * Uses the [[SelectorProps]] interface
+ *
+ * @returns {JSX.Element}
  */
 export const ControlJumbotron = ({ selector, label, units = '' }: SelectorProps): JSX.Element => {
   const classes = useStyles();

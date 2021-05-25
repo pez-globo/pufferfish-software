@@ -1,3 +1,9 @@
+/**
+ * @summary Sidebar component
+ *
+ * @file Component consisting Navigation bar
+ *
+ */
 import { Button, Grid, makeStyles, Theme } from '@material-ui/core';
 import React from 'react';
 import { useSelector } from 'react-redux';
@@ -36,7 +42,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * Sidebar
  *
- * The main navigation panel of the application.
+ * @component The main navigation panel of the application.
+ *
+ * @returns {JSX.Element}
  */
 const Sidebar = (): JSX.Element => {
   const classes = useStyles();

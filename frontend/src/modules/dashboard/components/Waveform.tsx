@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import React from 'react';
 import { useTheme } from '@material-ui/core';
 import { fade } from '@material-ui/core/styles/colorManipulator';
@@ -8,11 +15,41 @@ import { LinearGradient } from '@vx/gradient';
 import { scaleLinear } from '@vx/scale';
 import { Axes } from './Axes';
 
+/**
+ * @typedef DateValue
+ *
+ * Interface for defining date value.
+ *
+ * @prop {number} date  display date in x axes
+ * @prop {number} value display value in y axes
+ *
+ */
 interface DateValue {
   date: number;
   value: number;
 }
 
+/**
+ * @typedef Props
+ *
+ * Props interface for Waveform component.
+ *
+ * @prop {number} width desc for width
+ * @prop {number} height desc for height
+ * @prop {DateValue[]} data desc for data
+ * @prop {number} margin.left desc for margin.left
+ * @prop {number} margin.top desc for margin.top
+ * @prop {number} margin.bottom desc for margin.bottom
+ * @prop {number} margin.right desc for margin.right
+ * @prop {number} strokeWidth desc for strokeWidth
+ * @prop {boolean} fill desc for fill
+ * @prop {number} xRangeMin desc for xRangeMin
+ * @prop {number} xRangeMax desc for xRangeMax
+ * @prop {number} yRangeMin desc for yRangeMin
+ * @prop {number} yRangeMax desc for yRangeMax
+ * @prop {string} type desc for type
+ *
+ */
 export interface Props {
   width: number;
   height: number;
@@ -32,6 +69,16 @@ export interface Props {
   type: string;
 }
 
+/**
+ * Waveform
+ *
+ * @component Component for showing wave form data.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns {JSX.Element}
+ *
+ */
 export const Waveform = ({
   width,
   height,
@@ -53,35 +100,88 @@ export const Waveform = ({
   const yMin = margin.top;
   const yMax = height - margin.bottom;
 
-  // scales
+  /**
+   * some description
+   */
   const xScale = scaleLinear({
     domain: [xRangeMin, xRangeMax],
     range: [xMin, xMax],
   });
+
+  /**
+   * some description
+   */
   const yScale = scaleLinear({
     domain: [yRangeMin, yRangeMax],
     range: [yMax, yMin],
     nice: true,
   });
+
+  /**
+   * some description
+   */
   const yScale1 = scaleLinear({
     domain: [yRangeMin, yRangeMax],
     range: [height - margin.bottom, 0],
   });
+
+  /**
+   * some description
+   */
   const yScale2 = scaleLinear({
     domain: [yRangeMin, yRangeMax],
     range: [(height - margin.bottom + margin.top) / 2, 0],
   });
+
+  /**
+   * function for handling responsive utils for axis ticks
+   *
+   * @param {string} type type of wave data.
+   *
+   * @returns {} some description
+   *
+   */
   function findAxis(type: string) {
     if (type === 'flow') return yScale2;
     if (type === 'paw' || type === 'volume') return yScale1;
     return yScale;
   }
+
+  /**
+   * some description
+   *
+   * @param {boolean} fill add color based on wave form type
+   *
+   * @returns {} some description
+   *
+   */
   function fillF(fill: boolean) {
     if (fill) return fade(theme.palette.info.main, 0.5);
     return 'rgba(0,0,0,0)';
   }
 
+  /**
+   * function for handling x axes value accessor
+   *
+   * Uses the [[DateValue]] interface
+   *
+   * @param {DateValue} date desc for date
+   *
+   * @returns {number}
+   *
+   */
   const xAccessor = ({ date }: DateValue): number => xScale(date) as number;
+
+  /**
+   * function for handling  y axes value accessor
+   *
+   * Uses the [[DateValue]] interface
+   *
+   * @param {DateValue} value desc for value
+   *
+   * @returns {number}
+   *
+   */
   const yAccessor = ({ value }: DateValue): number => yScale(value) as number;
 
   return (
