@@ -118,7 +118,7 @@ const AudioAlarm = (): JSX.Element => {
         } else {
           audio.play();
         }
-      } else {
+      } else if (!backendConnected) {
         if (alarmMuteRequestActive) {
           audio.pause();
         } else {
