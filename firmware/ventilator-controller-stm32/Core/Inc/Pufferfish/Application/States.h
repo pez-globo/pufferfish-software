@@ -39,7 +39,7 @@ enum class MessageTypes : uint8_t {
   expected_log_event = 8,
   next_log_events = 9,
   active_log_events = 10,
-  power_management = 64,
+  power_management = 20,
 };
 
 // MessageTypeValues should include all defined values of MessageTypes

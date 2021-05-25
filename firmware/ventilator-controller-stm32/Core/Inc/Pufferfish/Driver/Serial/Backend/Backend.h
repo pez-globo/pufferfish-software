@@ -38,7 +38,16 @@ static const auto message_descriptors = Util::make_array<Util::ProtobufDescripto
     Util::get_protobuf_descriptor<ExpectedLogEvent>(),           // 8
     Util::get_protobuf_descriptor<NextLogEvents>(),              // 9
     Util::get_protobuf_descriptor<ActiveLogEvents>(),            // 10
-    Util::get_protobuf_descriptor<PowerManagement>()             // 11
+    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 11
+    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 12
+    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 13
+    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 14
+    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 15
+    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 16
+    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 17
+    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 18
+    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 19
+    Util::get_protobuf_descriptor<PowerManagement>()             // 20
 );
 
 // State Synchronization
