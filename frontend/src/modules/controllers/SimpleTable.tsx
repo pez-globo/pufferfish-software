@@ -1,3 +1,8 @@
+/**
+ * @summary Re-usable Component for Table
+ *
+ * @file Consits configuration for Pagination, Sorting, Row Selection
+ */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Grid,
@@ -16,10 +21,15 @@ import React, { PropsWithChildren, ReactNode } from 'react';
 import { DECIMAL_RADIX } from '../app/AppConstants';
 
 /**
- * Simple table reusable component
+ * @template T Sub comparator method
+ *
+ * @param {T} a Comparison object a
+ * @param {T} b Comparison object b
+ * @param {keyof T} orderBy column to be sorted by
+ *
+ * @return {number} Comparation result
  *
  */
-
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -32,6 +42,15 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 
 export type Order = 'asc' | 'desc';
 
+/**
+ * Comparator used for sorting
+ *
+ * @param {Order} order Order type asc/desc
+ * @param {Key} key Key for which to Order/Sort by
+ *
+ * @returns the output of [[descendingComparator]] Comparation result
+ *
+ */
 export function getComparator<Key extends keyof number | string>(
   order: Order,
   orderBy: Key,
@@ -41,6 +60,15 @@ export function getComparator<Key extends keyof number | string>(
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
+/**
+ * @template T Wrapper for Sorting
+ *
+ * @param {T[]} array Rows of table
+ * @param {function} comparator `getComparator` function
+ *
+ * @returns {T[]} Sorted Rows
+ *
+ */
 export function stableSort<T>(array: T[], comparator: (a: T, b: T) => number): T[] {
   const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
   stabilizedThis.sort((a, b) => {
@@ -111,6 +139,17 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
+/**
+ * @typedef HeadCell
+ *
+ * Interface for Header Cell
+ *
+ * @prop {boolean} disablePadding Dynamic styling used to decide content padding in row cell
+ * @prop {string | number} id Unique Identifier of column
+ * @prop {string} label Column label shows in UI
+ * @prop {boolean} numeric Column type
+ * @prop {boolean} enableSort Toggle for sorting feature at column level
+ */
 export interface HeadCell {
   disablePadding: boolean;
   id: string | number;
@@ -119,6 +158,20 @@ export interface HeadCell {
   enableSort: boolean;
 }
 
+/**
+ * @typedef EnhancedTableProps
+ *
+ * Props interface for Enhanced table
+ *
+ * @prop {ReturnType<typeof useStyles>} classes Css Class applied to row header
+ * @prop {number} numSelected Number of row selected
+ * @prop {function} onRequestSort Callback when Sorting by clicking on row header
+ * @prop {function} onSelectAllClick Callback on All row selection
+ * @prop {Order} order Order type asc/desc
+ * @prop {string} orderBy Order column identifier
+ * @prop {number} rowCount Count of rows
+ * @prop {HeadCell[]} headCells list of all columns coonfigured in table
+ */
 export interface EnhancedTableProps {
   classes: ReturnType<typeof useStyles>;
   numSelected: number;
@@ -152,6 +205,14 @@ const StyledTableCell = withStyles((theme: Theme) =>
   }),
 )(TableCell);
 
+/**
+ * Table Header
+ *
+ * @param {EnhancedTableProps} props - Configuration for Table Header
+ *
+ * @returns JSX.Element
+ *
+ */
 function EnhancedTableHead(props: EnhancedTableProps) {
   const { classes, order, orderBy, onRequestSort, headCells } = props;
   const createSortHandler = (property: string | number) => (event: React.MouseEvent<unknown>) => {
@@ -191,6 +252,25 @@ function EnhancedTableHead(props: EnhancedTableProps) {
   );
 }
 
+/**
+ * @typedef TableProps
+ *
+ * Props interface for table
+ *
+ * @prop {Order} order Order type asc/desc
+ * @prop {function} setOrder Callback on updating Order type
+ * @prop {string} orderBy Order column identifier
+ * @prop {function} setOrderBy Callback on updating Order column identifier
+ * @prop {string[]} selected List of selected rows
+ * @prop {function} setSelected Callback on selection of rows
+ * @prop {number} page current page
+ * @prop {function} setPage Callback on updating current page
+ * @prop {number} rowsPerPage - Rows per page
+ * @prop {function} setRowsPerPage - Configuration for setting number of rows per page
+ * @prop {HeadCell[]} headCells list of all columns coonfigured in table
+ * @prop {any[]} rows Row data
+ * @prop {string | ReactNode} footer Table footer
+ */
 interface TableProps {
   order?: Order;
   setOrder(key: Order): void;
@@ -207,6 +287,13 @@ interface TableProps {
   footer?: string | ReactNode;
 }
 
+/**
+ * SimpleTable
+ *
+ * @component Simple table reusable component
+ *
+ * @returns JSX.Element
+ */
 export const SimpleTable = (props: PropsWithChildren<TableProps>): JSX.Element => {
   const {
     order = 'asc',
@@ -225,6 +312,14 @@ export const SimpleTable = (props: PropsWithChildren<TableProps>): JSX.Element =
     children,
   } = props;
   const classes = useStyles();
+
+  /**
+   * Callback when Sorting by clicking on row header
+   *
+   * @param {React.MouseEvent<unknown>} event - DOM mouse Event
+   * @param {string | number} property - Column to sort by
+   *
+   */
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: string | number) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -233,6 +328,12 @@ export const SimpleTable = (props: PropsWithChildren<TableProps>): JSX.Element =
     }
   };
 
+  /**
+   * Callback when Sorting by clicking on row header
+   *
+   * @param {React.ChangeEvent<HTMLInputElement>} event - DOM Input change event
+   *
+   */
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelecteds = rows.map((n) => n.id);
@@ -242,10 +343,23 @@ export const SimpleTable = (props: PropsWithChildren<TableProps>): JSX.Element =
     setSelected([]);
   };
 
+  /**
+   * Handles page change
+   *
+   * @param {unknown} event - DOM event
+   * @param {number} newPage - Page number
+   *
+   */
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
+  /**
+   * Handles the number of rows to be displayed on each page
+   *
+   * @param {React.ChangeEvent<HTMLInputElement>} event - DOM input event
+   *
+   */
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, DECIMAL_RADIX));
     setPage(0);

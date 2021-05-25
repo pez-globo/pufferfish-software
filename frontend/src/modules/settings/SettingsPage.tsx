@@ -1,3 +1,9 @@
+/**
+ * @summary Component to manage System Info, Settings and Test & Calibaratin
+ *
+ * @file It is displayed it different tabs for each
+ *
+ */
 import { Button, Grid, Tab, Tabs } from '@material-ui/core/';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
@@ -48,26 +54,52 @@ enum TabType {
   TEST_CALIBRATION_TAB,
   DISPLAY_TAB,
 }
+
 /**
  * SettingsPage
  *
- * A container storing various setting panels.
+ * @component A container storing various setting panels.
+ *
+ * @returns {JSX.Element}
+ *
  */
 export const SettingsPage = (): JSX.Element => {
   const classes = useStyles();
+  /**
+   * State to manage active Tab
+   */
   const [value, setValue] = React.useState(0);
   const dispatch = useDispatch();
+  /**
+   * State to manage theme setting
+   */
   const [displaySetting, setDisplaySetting] = React.useState<
     FrontendDisplaySetting | Record<string, unknown>
   >();
+  /**
+   * State to manage System Brightness & time setting
+   */
   const [systemSetting, setSystemSetting] = React.useState<
     SystemSettingRequest | Record<string, unknown>
   >();
 
+  /**
+   * function for handling tab change.
+   *
+   * @param {React.ChangeEvent<Record<string, unknown>>} event DOM Change Event
+   * @param {number} newValue New tab index value
+   *
+   */
   const handleChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setValue(newValue);
   };
 
+  /**
+   * Function for updating System & Display Settings
+   *
+   * @param {Record<string, unknown>} settings System & Display Settings object
+   *
+   */
   const onSettingChange = (settings: Record<string, unknown>) => {
     setDisplaySetting(
       FrontendDisplaySetting.fromJSON({
@@ -83,6 +115,9 @@ export const SettingsPage = (): JSX.Element => {
     );
   };
 
+  /**
+   * Function for update System & Display settings to redux store
+   */
   const handleSubmit = () => {
     dispatch(
       commitRequest<FrontendDisplaySetting>(

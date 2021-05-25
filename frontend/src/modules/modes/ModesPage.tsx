@@ -1,3 +1,9 @@
+/**
+ * @deprecated
+ * @summary Component to Select Ventialtion mode
+ *
+ *
+ */
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Typography, Button } from '@material-ui/core';
@@ -70,17 +76,34 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * ModesPage
  *
- * TODO: This page should be hooked up into the redux store so that it has access
+ * @component Ventilation mode selection page
+ *
+ *TODO: This page should be hooked up into the redux store so that it has access
  *       to the current ventilation `mode` and a dispatcher to update the mode.
+ *
+ * @returns {JSX.Element}
+ *
  */
 export const ModesPage = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const currentMode = useSelector(getParametersRequestMode);
+  /**
+   * Function for updating ventilation mode in redux store
+   *
+   * @param {VentilationMode} mode ventilation mode
+   *
+   */
   const updateMode = (mode: VentilationMode) =>
     dispatch(
       commitRequest<ParametersRequest>(MessageType.ParametersRequest, { mode }),
     );
+  /**
+   * Function for updating button CSS class
+   *
+   * @param {VentilationMode} mode ventilation mode
+   *
+   */
   const buttonClass = (mode: VentilationMode) =>
     mode === currentMode ? `${classes.modeButton} ${classes.selected}` : `${classes.modeButton}`;
   return (

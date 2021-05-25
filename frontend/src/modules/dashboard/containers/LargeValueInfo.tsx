@@ -1,3 +1,7 @@
+/**
+ * @summary Re-usable UI wrapper for displaying Large size `ValueInfo`
+ *
+ */
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
@@ -85,10 +89,32 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+/**
+ * @typedef ValueInfoProps
+ *
+ * some description
+ *
+ * @prop {Props} mainContainer Main Container wrapper
+ *
+ */
 export interface ValueInfoProps {
   mainContainer: Props;
 }
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the control value information.
+ *
+ * @prop {SelectorType} selector Redux Selector
+ * @prop {string} label Value label
+ * @prop {string} stateKey Unique identifier
+ * @prop {string} units Unit measurement of value to display
+ * @prop {boolean} isLive Config to show isLive in UI
+ * @prop {boolean} showLimits Config to show Alarm limts in container (on top left - small size)
+ * @prop {number} decimal Number of Decimals on the value
+ *
+ */
 export interface Props {
   selector: SelectorType;
   label: string;
@@ -99,6 +125,16 @@ export interface Props {
   decimal?: number;
 }
 
+/**
+ * ClickHandler
+ *
+ * @component Component for manually dispatching Click & Double Click event based on timeout
+ *
+ * @prop {function} singleClickAction Callback on Single click
+ * @prop {function} doubleClickAction Callback on Double click
+ *
+ * @returns {function}
+ */
 export const ClickHandler = (
   singleClickAction: () => void,
   doubleClickAction: () => void,
@@ -122,6 +158,15 @@ export const ClickHandler = (
   };
 };
 
+/**
+ * ControlValuesDisplay
+ *
+ * @component Component for handling value display.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @return {JSX.Element}
+ */
 const ControlValuesDisplay = ({
   selector,
   label,
@@ -131,17 +176,35 @@ const ControlValuesDisplay = ({
   decimal,
 }: Props): JSX.Element => {
   const classes = useStyles();
+  /**
+   * State to toggle opening Alarm popup
+   */
   const [open, setOpen] = useState(false);
   const alarmLimits = useSelector(getAlarmLimitsCurrent, shallowEqual);
+
+  /**
+   * Opens Multistep Popup on Clicking over component
+   */
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
       setMultiPopupOpen(true, stateKey);
     }
   };
+
+  /**
+   * Disable click events over component
+   */
   const handleClick = ClickHandler(onClick, () => {
     return false;
   });
+
+  /**
+   * Function for updating modal status.
+   *
+   * @param {boolean} status desc for status
+   *
+   */
   const updateModalStatus = (status: boolean) => {
     setOpen(status);
   };
@@ -229,9 +292,13 @@ const ControlValuesDisplay = ({
 };
 
 /**
- * Value Info
+ * ValueInfo
  *
- * Component for showing information.
+ * @component Component for showing information.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns {JSX.Element}
  *
  */
 const ValueInfo = ({

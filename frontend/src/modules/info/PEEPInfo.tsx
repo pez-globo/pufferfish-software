@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * @summary Component to display Value, Set Value Modal & Alarm Modal for PEEP parameter
+ *
+ * Set Value & Alarm Modal is optional
+ *
+ */
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -28,12 +35,20 @@ const units = CMH20;
 /**
  * PEEPInfo
  *
- * A `Knob`-based component for handling PEEP information.
+ * @component A `Knob`-based component for handling PEEP information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const PEEPInfo = (): JSX.Element => {
   const dispatch = useDispatch();
+
+  /**
+   * some description
+   *
+   * @param {number} setting - desc for setting
+   */
   const doSetPEEP = (setting: number) => {
     dispatch(
       commitRequest<ParametersRequest>(MessageType.ParametersRequest, { peep: setting }),

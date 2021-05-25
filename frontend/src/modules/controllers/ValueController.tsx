@@ -1,3 +1,7 @@
+/**
+ * @summary Re-usable Wrapper container to control & display value
+ *
+ */
 import React, { RefObject } from 'react';
 import { Grid, makeStyles, Theme } from '@material-ui/core';
 import { ValueClicker } from '.';
@@ -12,6 +16,21 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the value controller
+ *
+ * @prop {number} value Paramater value displayed in UI
+ * @prop {string} label Label to associate to which value belongs to
+ * @prop {function} onClick Callback with value on button click or Rotary encoder
+ * @prop {number} min Minimum Range of an Alarm (Default to 0)
+ * @prop {number} max Minimum Range of an Alarm (Default to 100)
+ * @prop {string} units Paramater unit measurement to display
+ * @prop {RefObject<HTMLDivElement>} reference HTML element reference to highlight element for rotary encoder
+ * @prop {string} referenceKey Unique identifier of alarm range for Rotary encoder
+ *
+ */
 interface Props {
   value: number;
   label: string;
@@ -27,7 +46,11 @@ interface Props {
 /**
  * ValueController
  *
- * A re-usable component for adjusting some value with a clicker.
+ * @component A re-usable component for adjusting some value with a clicker.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns JSX.Element
  */
 const ValueController = ({
   label,

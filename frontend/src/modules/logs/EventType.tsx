@@ -1,6 +1,22 @@
+/**
+ * @summary Components for Event Type & Event Alarm Details
+ *
+ */
 import { LogEvent, LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
 import { PERCENT, BPM, LMIN } from '../info/units';
 
+/**
+ * @typedef EventType
+ *
+ * Interface to get data about event.
+ *
+ * @prop {LogEventType} type  Event log type
+ * @prop {string} label Event Alarm Label
+ * @prop {string} unit Unit measurement
+ * @prop {string} head Header text
+ * @prop {string} stateKey unit of stateKey
+ *
+ */
 export interface EventType {
   type: LogEventType;
   label: string;
@@ -9,6 +25,15 @@ export interface EventType {
   stateKey?: string;
 }
 
+/**
+ * function to get event details
+ *
+ * @param {LogEvent} event Event log object
+ * @param {EventType} eventType Event log Type
+ *
+ * @returns {string} Event log details
+ *
+ */
 export const getEventDetails = (event: LogEvent, eventType: EventType): string => {
   const unit = eventType.unit === PERCENT ? eventType.unit : ` ${eventType.unit}`;
   if (event.type === LogEventType.patient) {
@@ -59,6 +84,15 @@ export const getEventDetails = (event: LogEvent, eventType: EventType): string =
   }
   return '';
 };
+
+/**
+ * function to get event type data
+ *
+ * @param {LogEventCode} code Event log code
+ *
+ * @returns {EventType}
+ *
+ */
 
 export const getEventType = (code: LogEventCode): EventType => {
   switch (code) {

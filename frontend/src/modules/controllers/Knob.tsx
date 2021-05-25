@@ -1,3 +1,9 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import { Grid, makeStyles, Theme } from '@material-ui/core';
 
@@ -21,6 +27,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * @typedef Props
+ *
+ * Props interface for Knob component
+ *
+ * @prop {React.ReactNode} valueDisplay desc for valueDisplay
+ * @prop {React.ReactNode} valueModal desc for valueModal
+ * @prop {React.ReactNode} alarmModal desc for alarmModal
+ */
 interface Props {
   valueDisplay: React.ReactNode;
   valueModal: React.ReactNode;
@@ -29,9 +44,12 @@ interface Props {
 
 /**
  * Knob
+ * @deprecated
+ * @component A re-usable "knob" component for adjusting alarms and updating values all-in-one.
  *
- * A re-usable "knob" component for adjusting alarms and updating values all-
- * in-one.
+ * Uses the [[Props]] interface
+ *
+ * @returns JSX.Element
  */
 export const Knob = ({ valueDisplay, valueModal, alarmModal }: Props): JSX.Element => {
   const classes = useStyles();
