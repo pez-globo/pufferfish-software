@@ -83,14 +83,18 @@ const AudioAlarm = (): JSX.Element => {
 
   useEffect(() => {
     if (activeAlarms) {
-      if (backendConnected && alarmMuteActive) {
-        audio.pause();
-      } else if (backendConnected && !alarmMuteActive) {
-        audio.play();
-      } else if (!backendConnected && alarmMuteRequestActive) {
-        audio.pause();
-      } else if (!backendConnected && !alarmMuteRequestActive) {
-        audio.play();
+      if (backendConnected) {
+        if (alarmMuteActive) {
+          audio.pause();
+        } else {
+          audio.play();
+        }
+      } else {
+        if (alarmMuteRequestActive) {
+          audio.pause();
+        } else {
+          audio.play();
+        }
       }
     }
     return () => {
