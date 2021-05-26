@@ -24,7 +24,7 @@
 #include "stm32h7xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <Pufferfish/HAL/STM32/BufferedUART.h>
+#include "Pufferfish/HAL/STM32/BufferedUART.h"
 
 #include "Pufferfish/Driver/Serial/Nonin/Device.h"
 
