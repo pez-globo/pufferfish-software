@@ -1,3 +1,7 @@
+/**
+ * @summary Layout with Sidebar based pages
+ *
+ */
 import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { PropsWithChildren, useEffect } from 'react';
@@ -54,6 +58,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * SidebarLayout
+ *
+ * @component Component for sidebar based layout
+ *
+ * @returns {JSX.Element}
+ */
 const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
 
@@ -68,11 +79,23 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
   );
 };
 
+/**
+ * ContentComponent
+ *
+ * @component Component for displaying the main content
+ *
+ * @returns {JSX.Element}
+ */
 const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
   const notifyAlarm = useSelector(getAlarmNotifyStatus);
   const [showBorder, setShowBorder] = React.useState(false);
 
+  /**
+   * Triggers when Alarm event is active (Referenced in `OverlayScreen` )
+   * RED_BORDER reduxs store is dispatched when alarm is active
+   * It adds a red border around the page
+   */
   useEffect(() => {
     setShowBorder(notifyAlarm);
   }, [notifyAlarm]);
@@ -94,6 +117,13 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
   );
 });
 
+/**
+ * SidebarRoute
+ *
+ * @component Component for displaying the sidebar based layout
+ *
+ * @returns {JSX.Element | null}
+ */
 const SidebarRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
   if (!Component) return null;
   return (

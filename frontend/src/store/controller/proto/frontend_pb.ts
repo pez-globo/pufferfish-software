@@ -4,6 +4,7 @@ import _m0 from "protobufjs/minimal";
 
 export const protobufPackage = "";
 
+/** TODO: should metric be 0? (i.e. the default) */
 export enum Unit {
   imperial = 0,
   metric = 1,
@@ -76,11 +77,13 @@ export interface RotaryEncoder {
   lastButtonUp: number;
 }
 
+/** TODO: we also need a request version of this message, FrontendDisplaySettingsRequest */
 export interface FrontendDisplaySetting {
   theme: ThemeVariant;
   unit: Unit;
 }
 
+/** TODO: we also need a response version of this message, SystemSettings */
 export interface SystemSettingRequest {
   brightness: number;
   date: number;

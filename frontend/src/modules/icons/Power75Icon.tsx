@@ -1,3 +1,7 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 import { makeStyles, Theme } from '@material-ui/core/styles';
@@ -8,6 +12,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * Power75Icon
+ *
+ * @component Component for displaying "Batter Power" icon
+ *
+ * @param {SvgIconProps} props - SVG props to override
+ *
+ * @returns {JSX.Element} - Power Icon 75 represents Icon with 75% Battery power
+ */
 const Power75Icon = (props: SvgIconProps): JSX.Element => {
   const classes = useStyles();
   return (

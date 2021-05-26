@@ -1,6 +1,19 @@
+/**
+ * @summary SVG based component for "Back" icon
+ *
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 
+/**
+ * BackIcon
+ *
+ * @component Component for displaying "Back" icon
+ *
+ * @param {SvgIconProps} props - SVG props to override
+ *
+ * @returns {JSX.Element} - "Back" icon
+ */
 const BackIcon = (props: SvgIconProps): JSX.Element => {
   return (
     <SvgIcon {...props} width="13.766" height="20.27" viewBox="0 0 13.766 20.27">

@@ -1,6 +1,21 @@
+/**
+ * @summary SVG based component for "Pufferfish" icon
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 
+/**
+ * PufferfishIcon
+ *
+ * @component Component for displaying "Pufferfish" icon
+ *
+ * @param {SvgIconProps} props - SVG props to override
+ *
+ * @returns {JSX.Element} - "Pufferfish" icon used in Screen saver page
+ */
 const PufferfishIcon = (props: SvgIconProps): JSX.Element => {
   return (
     <SvgIcon {...props} width="30.528" height="24.391" viewBox="0 0 30.528 24.391">

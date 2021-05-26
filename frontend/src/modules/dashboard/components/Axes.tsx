@@ -1,3 +1,10 @@
+/**
+ * @summary A short one-line description for the file
+ *
+ * @file More detailed description for the file, if necessary;
+ * perhaps spanning multiple lines.
+ *
+ */
 import React from 'react';
 import { useTheme } from '@material-ui/core';
 import { Grid, GridRows, GridColumns } from '@vx/grid';
@@ -6,19 +13,53 @@ import { AxisLeft, AxisBottom } from '@vx/axis';
 import { Line } from '@vx/shape';
 import { scaleLinear } from '@vx/scale';
 
-// responsive utils for axis ticks
+/**
+ * function for handling responsive utils for axis ticks
+ *
+ * @param {number} height height of the axis
+ *
+ * @returns {number} it will retuns 3,5 or 10.
+ */
 function numTicksForHeight(height: number) {
   if (height <= 300) return 3;
   if (height > 300 && height <= 600) return 5;
   return 10;
 }
 
+/**
+ * some description
+ *
+ * @param {number} width width of the axis
+ *
+ * @returns {number} it will retuns 2,5 or 10.
+ */
 function numTicksForWidth(width: number) {
   if (width <= 300) return 2;
   if (width > 300 && width <= 400) return 5;
   return 10;
 }
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the Axes component.
+ *
+ * @prop {number} width desc for width
+ * @prop {number} height desc for height
+ * @prop {React.ReactNode} waveforms desc for waveforms
+ * @prop {number} margin.left desc for margin.left
+ * @prop {number} margin.top desc for margin.top
+ * @prop {number} margin.bottom desc for margin.bottom
+ * @prop {number} margin.right desc for margin.right
+ * @prop {number} xRangeMin desc for xRangeMin
+ * @prop {number} xRangeMax desc for xRangeMax
+ * @prop {number} xRangeRescale desc for xRangeRescale
+ * @prop {number} yRangeMin desc for yRangeMin
+ * @prop {number} yRangeMax desc for yRangeMax
+ * @prop {string} title desc for title
+ * @prop {string} units desc for units
+ *
+ */
 export interface Props {
   width: number;
   height: number;
@@ -38,6 +79,16 @@ export interface Props {
   units: string;
 }
 
+/**
+ * Axes
+ *
+ * @component Component for showing Axes graph data.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns {JSX.Element}
+ *
+ */
 export const Axes = ({
   width,
   height,
@@ -57,11 +108,17 @@ export const Axes = ({
   const xMax = width - margin.left - margin.right;
   const yMax = height - margin.top - margin.bottom;
 
-  // scales
+  /**
+   * some description
+   */
   const xScale = scaleLinear({
     domain: [xRangeMin * xRangeRescale, xRangeMax * xRangeRescale],
     range: [0, xMax],
   });
+
+  /**
+   * some description
+   */
   const yScale = scaleLinear({
     domain: [yRangeMin, yRangeMax],
     range: [yMax, 0],

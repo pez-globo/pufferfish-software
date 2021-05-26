@@ -1,0 +1,11 @@
+{
+  "name": "Pufferfish Frontend Document",
+  "out": "docs",
+  "disableOutputCheck": true,
+  "listInvalidSymbolLinks": true,
+  "hideGenerator": true,
+  "logger": true,
+  "entryPoints": [
+    "./src/modules/index.ts", "./src/store/index.ts"
+  ]
+}

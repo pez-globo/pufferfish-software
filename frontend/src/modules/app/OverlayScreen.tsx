@@ -1,26 +1,29 @@
+/**
+ * @summary All components which runs based on Events or in background
+ *
+ * @file These components are included in higher order file like Layout files
+ *
+ */
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Subscription } from 'rxjs';
-import store from '../../store';
-import { getClock } from '../../store/app/selectors';
-import { RED_BORDER } from '../../store/app/types';
-import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
+import { BACKEND_CONNECTION_DOWN, RED_BORDER } from '../../store/app/types';
 import {
   getAlarmMuteStatus,
-  getPopupEventLog,
-  getScreenStatus,
+  getHasActiveAlarms,
+  getNextLogEvents,
+  getScreenStatusLock,
 } from '../../store/controller/selectors';
-import {
-  BACKEND_CONNECTION_LOST,
-  BACKEND_CONNECTION_LOST_CODE,
-  MessageType,
-} from '../../store/controller/types';
+import { MessageType } from '../../store/controller/types';
 
 import ModalPopup from '../controllers/ModalPopup';
 import MultiStepWizard from '../displays/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { updateState } from '../../store/controller/actions';
+import { LogEvent, LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
+import { getBackendHeartBeat, getClock } from '../../store/app/selectors';
+import { establishedBackendConnection } from '../../store/app/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
   overlay: {
@@ -40,45 +43,71 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export const BACKEND_CONNECTION_LOST_ALARM_TIMEOUT = 3000;
+/**
+ * variable to define backend connection timeout
+ */
+export const BACKEND_CONNECTION_TIMEOUT = 3000;
 
+/**
+ * HeartbeatBackendListener
+ *
+ * @component Dispatches BACKEND_CONNECTION_DOWN event if no backendHeartbeat updates before timeout
+ *
+ * @returns {JSX.Element}
+ */
 export const HeartbeatBackendListener = (): JSX.Element => {
   const clock = useSelector(getClock);
   const dispatch = useDispatch();
+  const heartbeat = useSelector(getBackendHeartBeat);
+  const events = useSelector(getNextLogEvents);
+  const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
 
   useEffect(() => {
-    const storeData = store.getState();
-    const heartbeat: Date = storeData.controller.heartbeatBackend.time;
-    const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
-    const events = storeData.controller.eventLog.nextLogEvents.elements;
     const lostConnectionAlarm = events.find(
-      (el: LogEvent) => (el.code as number) === BACKEND_CONNECTION_LOST_CODE,
+      (el: LogEvent) => (el.code as number) === LogEventCode.backend_connection_down,
     );
-    if (diff > BACKEND_CONNECTION_LOST_ALARM_TIMEOUT) {
+
+    if (diff > BACKEND_CONNECTION_TIMEOUT) {
       if (!lostConnectionAlarm) {
         dispatch({
-          type: BACKEND_CONNECTION_LOST,
+          type: BACKEND_CONNECTION_DOWN,
+          clock: new Date(),
           update: {
-            code: BACKEND_CONNECTION_LOST_CODE,
+            code: LogEventCode.backend_connection_down,
             type: LogEventType.system,
             time: new Date().getTime(),
           },
         });
       }
+    } else {
+      dispatch(establishedBackendConnection(new Date()));
     }
-  }, [clock, dispatch]);
+  }, [clock, diff, dispatch, events, heartbeat]);
 
   return <React.Fragment />;
 };
 
+/**
+ * Dispatches RED_BORDER event & toggles Audio Alarm
+ *
+ * @component Dispatches RED_BORDER event if any activeAlarms are present
+ *
+ * @returns {JSX.Element}
+ */
 const AudioAlarm = (): JSX.Element => {
   const dispatch = useDispatch();
-  const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
+  const activeAlarms = useSelector(getHasActiveAlarms, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
-  const [playing, setPlaying] = useState(alarmMuteStatus.active);
+  const [playing, setPlaying] = useState(alarmMuteStatus !== null && alarmMuteStatus.active);
 
+  /**
+   * Toggle between Play/Pause
+   * UseEffect causes status change to Play/Pause based on `playing` state change
+   * useEffect also pasues audio whenever component instance is out of context or destroyed
+   * So Based on local state Audio is played or paused.
+   */
   useEffect(() => {
     if (playing) {
       audio.play();
@@ -90,33 +119,40 @@ const AudioAlarm = (): JSX.Element => {
     };
   }, [playing, audio]);
 
+  /**
+   * On activeAlarms redux store changes, update RED_BORDER & Audio Play state
+   */
   useEffect(() => {
-    if (popupEventLog) {
-      setPlaying(false);
-      if (popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
-        setPlaying(true);
-      }
+    if (activeAlarms) {
+      setPlaying(true);
       dispatch({ type: RED_BORDER, status: true });
     } else {
       setPlaying(false);
       dispatch({ type: RED_BORDER, status: false });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [popupEventLog]);
+  }, [activeAlarms, dispatch]);
 
+  /**
+   * On alarmMuteStatus redux store changes, update RED_BORDER & Audio Play state
+   */
   useEffect(() => {
-    if (popupEventLog) {
-      dispatch({ type: RED_BORDER, status: !alarmMuteStatus.active });
-    }
-    if (popupEventLog && popupEventLog.code === BACKEND_CONNECTION_LOST_CODE) {
-      setPlaying(!alarmMuteStatus.active);
+    if (activeAlarms) {
+      dispatch({ type: RED_BORDER, status: alarmMuteStatus !== null && !alarmMuteStatus.active });
+      setPlaying(alarmMuteStatus !== null && !alarmMuteStatus.active);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [alarmMuteStatus.active, dispatch]);
+  }, [alarmMuteStatus !== null && alarmMuteStatus.active, dispatch]);
 
   return <React.Fragment />;
 };
 
+/**
+ * ScreenLockModal
+ *
+ * @component Manages Locking/UnLocking Screen feature
+ *
+ * @returns {JSX.Element}
+ */
 export const ScreenLockModal = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -132,6 +168,9 @@ export const ScreenLockModal = (): JSX.Element => {
       }, 30000);
     };
 
+    /**
+     * Listens to screenLock status to close screenLock info popup in 'n' seconds (30s)
+     */
     const popupEventSubscription: Subscription = getScreenLockPopup().subscribe(
       (state: boolean) => {
         setOpen(state);
@@ -145,6 +184,9 @@ export const ScreenLockModal = (): JSX.Element => {
     };
   }, [open]);
 
+  /**
+   * On Confirming unlock screen, updates ScreenStatus to redux store
+   */
   const onConfirm = () => {
     dispatch(updateState(MessageType.ScreenStatus, { lock: false }));
     setScreenLockPopup(false);
@@ -168,11 +210,20 @@ export const ScreenLockModal = (): JSX.Element => {
   );
 };
 
+/**
+ * OverlayScreen
+ *
+ * @component Showing overlay screen with an alert when user clicks anywhere while screen is locked
+ *
+ * @returns {JSX.Element}
+ */
 export const OverlayScreen = (): JSX.Element => {
   const classes = useStyles();
-  const screenStatus = useSelector(getScreenStatus);
+  const screenStatus = useSelector(getScreenStatusLock);
   const [overlay, setOverlay] = useState(screenStatus || false);
-
+  /**
+   * Listens to screenLock status changes & update overlay state accordingly
+   */
   useEffect(() => {
     const popupEventSubscription: Subscription = getScreenLockPopup().subscribe(
       (state: boolean) => {
@@ -188,6 +239,9 @@ export const OverlayScreen = (): JSX.Element => {
     };
   }, [screenStatus]);
 
+  /**
+   * On screenStatus redux store changes, update overlay state
+   */
   useEffect(() => {
     setOverlay(screenStatus);
   }, [screenStatus]);

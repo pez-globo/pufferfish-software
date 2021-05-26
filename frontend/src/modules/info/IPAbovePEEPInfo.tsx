@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * @summary Component to display Value, Set Value Modal & Alarm Modal for IPAbovePEEP parameter
+ *
+ * Set Value & Alarm Modal is optional
+ *
+ */
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -17,11 +24,13 @@ const stateKey = 'ipAbovePeep';
 const units = CMH20;
 
 /**
- * IPAbovePEEP
+ * IPAbovePEEPInfo
  *
- * A `Knob`-based component for handling IP Above PEEP information.
+ * @component A `Knob`-based component for handling IP Above PEEP information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const IPAbovePEEPInfo = (): JSX.Element => (
   <Knob

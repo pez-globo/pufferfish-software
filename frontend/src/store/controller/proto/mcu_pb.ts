@@ -68,7 +68,7 @@ export function ventilationModeToJSON(object: VentilationMode): string {
 
 /** Log Events */
 export enum LogEventCode {
-  /** fio2_too_low - Patient */
+  /** fio2_too_low - Patient alarms */
   fio2_too_low = 0,
   fio2_too_high = 1,
   flow_too_low = 2,
@@ -77,19 +77,25 @@ export enum LogEventCode {
   spo2_too_high = 5,
   hr_too_low = 6,
   hr_too_high = 7,
-  /** battery_low - System */
-  battery_low = 8,
-  screen_locked = 9,
-  /** ventilation_operation_changed - Control */
-  ventilation_operation_changed = 10,
-  ventilation_mode_changed = 11,
-  fio2_setting_changed = 12,
-  flow_setting_changed = 13,
-  /** fio2_alarm_limits_changed - Alarm Limits */
-  fio2_alarm_limits_changed = 14,
-  flow_alarm_limits_changed = 15,
-  spo2_alarm_limits_changed = 16,
-  hr_alarm_limits_changed = 17,
+  /** ventilation_operation_changed - Control settings */
+  ventilation_operation_changed = 64,
+  ventilation_mode_changed = 65,
+  fio2_setting_changed = 66,
+  flow_setting_changed = 67,
+  /** fio2_alarm_limits_changed - Alarm limits settings */
+  fio2_alarm_limits_changed = 80,
+  flow_alarm_limits_changed = 81,
+  spo2_alarm_limits_changed = 82,
+  hr_alarm_limits_changed = 83,
+  /** screen_locked - System settings & alarms */
+  screen_locked = 129,
+  mcu_connection_down = 130,
+  backend_connection_down = 131,
+  frontend_connection_down = 132,
+  mcu_connection_up = 133,
+  backend_connection_up = 134,
+  frontend_connection_up = 135,
+  battery_low = 136,
   UNRECOGNIZED = -1,
 }
 
@@ -119,36 +125,54 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case 7:
     case "hr_too_high":
       return LogEventCode.hr_too_high;
-    case 8:
-    case "battery_low":
-      return LogEventCode.battery_low;
-    case 9:
-    case "screen_locked":
-      return LogEventCode.screen_locked;
-    case 10:
+    case 64:
     case "ventilation_operation_changed":
       return LogEventCode.ventilation_operation_changed;
-    case 11:
+    case 65:
     case "ventilation_mode_changed":
       return LogEventCode.ventilation_mode_changed;
-    case 12:
+    case 66:
     case "fio2_setting_changed":
       return LogEventCode.fio2_setting_changed;
-    case 13:
+    case 67:
     case "flow_setting_changed":
       return LogEventCode.flow_setting_changed;
-    case 14:
+    case 80:
     case "fio2_alarm_limits_changed":
       return LogEventCode.fio2_alarm_limits_changed;
-    case 15:
+    case 81:
     case "flow_alarm_limits_changed":
       return LogEventCode.flow_alarm_limits_changed;
-    case 16:
+    case 82:
     case "spo2_alarm_limits_changed":
       return LogEventCode.spo2_alarm_limits_changed;
-    case 17:
+    case 83:
     case "hr_alarm_limits_changed":
       return LogEventCode.hr_alarm_limits_changed;
+    case 129:
+    case "screen_locked":
+      return LogEventCode.screen_locked;
+    case 130:
+    case "mcu_connection_down":
+      return LogEventCode.mcu_connection_down;
+    case 131:
+    case "backend_connection_down":
+      return LogEventCode.backend_connection_down;
+    case 132:
+    case "frontend_connection_down":
+      return LogEventCode.frontend_connection_down;
+    case 133:
+    case "mcu_connection_up":
+      return LogEventCode.mcu_connection_up;
+    case 134:
+    case "backend_connection_up":
+      return LogEventCode.backend_connection_up;
+    case 135:
+    case "frontend_connection_up":
+      return LogEventCode.frontend_connection_up;
+    case 136:
+    case "battery_low":
+      return LogEventCode.battery_low;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -174,10 +198,6 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "hr_too_low";
     case LogEventCode.hr_too_high:
       return "hr_too_high";
-    case LogEventCode.battery_low:
-      return "battery_low";
-    case LogEventCode.screen_locked:
-      return "screen_locked";
     case LogEventCode.ventilation_operation_changed:
       return "ventilation_operation_changed";
     case LogEventCode.ventilation_mode_changed:
@@ -194,6 +214,22 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "spo2_alarm_limits_changed";
     case LogEventCode.hr_alarm_limits_changed:
       return "hr_alarm_limits_changed";
+    case LogEventCode.screen_locked:
+      return "screen_locked";
+    case LogEventCode.mcu_connection_down:
+      return "mcu_connection_down";
+    case LogEventCode.backend_connection_down:
+      return "backend_connection_down";
+    case LogEventCode.frontend_connection_down:
+      return "frontend_connection_down";
+    case LogEventCode.mcu_connection_up:
+      return "mcu_connection_up";
+    case LogEventCode.backend_connection_up:
+      return "backend_connection_up";
+    case LogEventCode.frontend_connection_up:
+      return "frontend_connection_up";
+    case LogEventCode.battery_low:
+      return "battery_low";
     default:
       return "UNKNOWN";
   }
@@ -201,9 +237,9 @@ export function logEventCodeToJSON(object: LogEventCode): string {
 
 export enum LogEventType {
   patient = 0,
-  system = 1,
-  control = 2,
-  alarm_limits = 3,
+  control = 1,
+  alarm_limits = 2,
+  system = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -213,14 +249,14 @@ export function logEventTypeFromJSON(object: any): LogEventType {
     case "patient":
       return LogEventType.patient;
     case 1:
-    case "system":
-      return LogEventType.system;
-    case 2:
     case "control":
       return LogEventType.control;
-    case 3:
+    case 2:
     case "alarm_limits":
       return LogEventType.alarm_limits;
+    case 3:
+    case "system":
+      return LogEventType.system;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -232,12 +268,12 @@ export function logEventTypeToJSON(object: LogEventType): string {
   switch (object) {
     case LogEventType.patient:
       return "patient";
-    case LogEventType.system:
-      return "system";
     case LogEventType.control:
       return "control";
     case LogEventType.alarm_limits:
       return "alarm_limits";
+    case LogEventType.system:
+      return "system";
     default:
       return "UNKNOWN";
   }
@@ -361,12 +397,16 @@ export interface LogEvent {
 
 export interface ExpectedLogEvent {
   id: number;
+  /** used when the sender's log is ephemeral */
+  sessionId: number;
 }
 
 export interface NextLogEvents {
   nextExpected: number;
   total: number;
   remaining: number;
+  /** used when the sender's log is ephemeral */
+  sessionId: number;
   elements: LogEvent[];
 }
 
@@ -2367,7 +2407,7 @@ export const LogEvent = {
   },
 };
 
-const baseExpectedLogEvent: object = { id: 0 };
+const baseExpectedLogEvent: object = { id: 0, sessionId: 0 };
 
 export const ExpectedLogEvent = {
   encode(
@@ -2376,6 +2416,9 @@ export const ExpectedLogEvent = {
   ): _m0.Writer {
     if (message.id !== 0) {
       writer.uint32(8).uint32(message.id);
+    }
+    if (message.sessionId !== 0) {
+      writer.uint32(16).uint32(message.sessionId);
     }
     return writer;
   },
@@ -2389,6 +2432,9 @@ export const ExpectedLogEvent = {
       switch (tag >>> 3) {
         case 1:
           message.id = reader.uint32();
+          break;
+        case 2:
+          message.sessionId = reader.uint32();
           break;
         default:
           reader.skipType(tag & 7);
@@ -2405,12 +2451,18 @@ export const ExpectedLogEvent = {
     } else {
       message.id = 0;
     }
+    if (object.sessionId !== undefined && object.sessionId !== null) {
+      message.sessionId = Number(object.sessionId);
+    } else {
+      message.sessionId = 0;
+    }
     return message;
   },
 
   toJSON(message: ExpectedLogEvent): unknown {
     const obj: any = {};
     message.id !== undefined && (obj.id = message.id);
+    message.sessionId !== undefined && (obj.sessionId = message.sessionId);
     return obj;
   },
 
@@ -2421,11 +2473,21 @@ export const ExpectedLogEvent = {
     } else {
       message.id = 0;
     }
+    if (object.sessionId !== undefined && object.sessionId !== null) {
+      message.sessionId = object.sessionId;
+    } else {
+      message.sessionId = 0;
+    }
     return message;
   },
 };
 
-const baseNextLogEvents: object = { nextExpected: 0, total: 0, remaining: 0 };
+const baseNextLogEvents: object = {
+  nextExpected: 0,
+  total: 0,
+  remaining: 0,
+  sessionId: 0,
+};
 
 export const NextLogEvents = {
   encode(
@@ -2441,8 +2503,11 @@ export const NextLogEvents = {
     if (message.remaining !== 0) {
       writer.uint32(24).uint32(message.remaining);
     }
+    if (message.sessionId !== 0) {
+      writer.uint32(32).uint32(message.sessionId);
+    }
     for (const v of message.elements) {
-      LogEvent.encode(v!, writer.uint32(34).fork()).ldelim();
+      LogEvent.encode(v!, writer.uint32(42).fork()).ldelim();
     }
     return writer;
   },
@@ -2465,6 +2530,9 @@ export const NextLogEvents = {
           message.remaining = reader.uint32();
           break;
         case 4:
+          message.sessionId = reader.uint32();
+          break;
+        case 5:
           message.elements.push(LogEvent.decode(reader, reader.uint32()));
           break;
         default:
@@ -2493,6 +2561,11 @@ export const NextLogEvents = {
     } else {
       message.remaining = 0;
     }
+    if (object.sessionId !== undefined && object.sessionId !== null) {
+      message.sessionId = Number(object.sessionId);
+    } else {
+      message.sessionId = 0;
+    }
     if (object.elements !== undefined && object.elements !== null) {
       for (const e of object.elements) {
         message.elements.push(LogEvent.fromJSON(e));
@@ -2507,6 +2580,7 @@ export const NextLogEvents = {
       (obj.nextExpected = message.nextExpected);
     message.total !== undefined && (obj.total = message.total);
     message.remaining !== undefined && (obj.remaining = message.remaining);
+    message.sessionId !== undefined && (obj.sessionId = message.sessionId);
     if (message.elements) {
       obj.elements = message.elements.map((e) =>
         e ? LogEvent.toJSON(e) : undefined
@@ -2534,6 +2608,11 @@ export const NextLogEvents = {
       message.remaining = object.remaining;
     } else {
       message.remaining = 0;
+    }
+    if (object.sessionId !== undefined && object.sessionId !== null) {
+      message.sessionId = object.sessionId;
+    } else {
+      message.sessionId = 0;
     }
     if (object.elements !== undefined && object.elements !== null) {
       for (const e of object.elements) {

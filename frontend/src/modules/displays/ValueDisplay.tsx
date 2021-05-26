@@ -1,3 +1,7 @@
+/**
+ * @summary Re-usable Component to display value
+ *
+ */
 import React from 'react';
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 
@@ -42,11 +46,28 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * @typedef ValueProps
+ *
+ * Interface for the value props
+ *
+ * @prop {number} value value to be displayed
+ */
 export interface ValueProps {
   value: number;
 }
 
-export interface Props {
+/**
+ * @typedef Props
+ *
+ * Props Interface for the ValueDisplay component
+ *
+ * @prop {number} value value to be displayed
+ * @prop {string} label Label of the value
+ * @prop {string} units unit measurement of the value
+ * @prop {boolean} isLive Config to show/hide `Live` text
+ */
+interface Props {
   value: number;
   label: string;
   units?: string;
@@ -56,7 +77,11 @@ export interface Props {
 /**
  * ValueDisplay
  *
- * A re-usable component for displaying numeric values.
+ * @component A re-usable component for displaying numeric values.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns {JSX.Element}
  */
 export const ValueDisplay = ({ value, label, units = '', isLive = false }: Props): JSX.Element => {
   const classes = useStyles();

@@ -1,3 +1,8 @@
+/**
+ * @summary Info Tab of Settings page
+ *
+ * @file System Level info are displayed here
+ */
 import React from 'react';
 import { Grid, Typography, makeStyles, Theme } from '@material-ui/core';
 
@@ -36,9 +41,17 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 /**
- * Props
+ * @typedef Props
+ *
+ * System info data shown in UI
  *
  * TODO: These props should be connected to the redux store.
+ *
+ * @prop {string} model  System Model number
+ * @prop {string} softwareVersion  Software version number - Currently shows commit hash
+ * @prop {string} serialNumber  Serial Number of the System
+ * @prop {string} batteryTime  Battery Power time
+ *
  */
 interface Props {
   model?: string;
@@ -50,8 +63,15 @@ interface Props {
 /**
  * InfoTab
  *
+ * @component InfoTab
+ *
+ * uses [[Props]] interface
+ *
  * TODO: Remove the default properties in the destructured `Props` argument below
- *       after hooking the `props` up to the redux store.
+ *  after hooking the `props` up to the redux store.
+ *
+ * @returns {JSX.Element}
+ *
  */
 export const InfoTab = ({
   model = '1.0',

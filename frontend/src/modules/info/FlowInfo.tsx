@@ -1,9 +1,17 @@
+/**
+ * @deprecated
+ * @summary Component to display Value, Set Value Modal & Alarm Modal for Flow parameter
+ *
+ * Set Value & Alarm Modal is optional
+ *
+ */
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
-import { updateCommittedParameter, updateCommittedState } from '../../store/controller/actions';
+import { ParametersRequest } from '../../store/controller/proto/mcu_pb';
+import { MessageType } from '../../store/controller/types';
+import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { getParametersFlow, getSensorMeasurementsFlow } from '../../store/controller/selectors';
-import { PARAMETER_STANDBY } from '../../store/controller/types';
 import { StoreState } from '../../store/types';
 import { AlarmModal, Knob } from '../controllers';
 import { SettingAdjustProps, ValueModal } from '../controllers/ValueModal';
@@ -27,15 +35,27 @@ const units = LMIN;
 /**
  * FlowInfo
  *
- * A `Knob`-based component for handling Flow information.
+ * @component A `Knob`-based component for handling Flow information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const FlowInfo = (): JSX.Element => {
   const dispatch = useDispatch();
+
+  /**
+   * Sets the flow
+   *
+   * @param {number} setting - desc for setting
+   */
   const doSetFlow = (setting: number) => {
-    dispatch(updateCommittedParameter({ flow: setting }));
-    dispatch(updateCommittedState(PARAMETER_STANDBY, { flow: setting }));
+    dispatch(
+      commitRequest<ParametersRequest>(MessageType.ParametersRequest, { flow: setting }),
+    );
+    dispatch(
+      commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, { flow: setting }),
+    );
   };
   return (
     <Knob

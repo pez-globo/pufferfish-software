@@ -1,5 +1,6 @@
 import { createSelector, OutputSelector } from 'reselect';
 import DECIMAL_RADIX from '../../modules/app/AppConstants';
+import { getBackendConnected } from '../app/selectors';
 import { StoreState } from '../types';
 import { FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import {
@@ -14,15 +15,23 @@ import {
   ParametersRequest,
   SensorMeasurements,
   VentilationMode,
+  BatteryPower,
+  ScreenStatus,
   Range,
 } from './proto/mcu_pb';
 import {
-  ControllerStates,
-  PVHistory,
-  PVPoint,
+  Measurements,
+  ParametersRequestResponse,
+  AlarmLimitsRequestResponse,
   RotaryEncoderParameter,
+  SmoothedMeasurements,
+  Plots,
+  WaveformHistories,
   WaveformHistory,
   WaveformPoint,
+  PVHistory,
+  PVPoint,
+  ControllerStates,
 } from './types';
 
 export const roundValue = (value: number): number => {
@@ -30,255 +39,205 @@ export const roundValue = (value: number): number => {
     ? parseInt(value.toFixed(0).replace(/^-0$/, '0'), DECIMAL_RADIX)
     : NaN;
 };
+
 export const getController = ({ controller }: StoreState): ControllerStates => controller;
+
+// MESSAGE STATES FROM mcu_pb
+// TODO: split this section off into a new file
+
+// Measurements
+
+export const getMeasurements = createSelector(
+  getController,
+  (states: ControllerStates): Measurements => states.measurements,
+);
 
 // SensorMeasurements
 export const getSensorMeasurements = createSelector(
-  getController,
-  (states: ControllerStates): SensorMeasurements => states.sensorMeasurements,
+  getMeasurements,
+  (measurements: Measurements): SensorMeasurements | null => measurements.sensor,
 );
-export const getSensorMeasurementsTime = createSelector(
-  getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.time),
-);
-export const getSensorMeasurementsPaw = createSelector(
-  getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.paw),
-);
-export const getSensorMeasurementsFlow = createSelector(
-  getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.flow),
-);
-export const getSensorMeasurementsVolume = createSelector(
-  getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.volume),
-);
-export const getSensorMeasurementsFiO2 = createSelector(
-  getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.fio2),
-);
-export const getSensorMeasurementsSpO2 = createSelector(
-  getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.spo2),
-);
-export const getSensorMeasurementsHR = createSelector(
-  getSensorMeasurements,
-  (sensorMeasurements: SensorMeasurements): number => roundValue(sensorMeasurements.hr),
-);
-
-// SensorMeasurementsSmoothed
-export const getSmoothedFlow = createSelector(getController, (states: ControllerStates): number =>
-  roundValue(states.smoothedMeasurements.flow.smoothed),
-);
-export const getSmoothedFiO2 = createSelector(getController, (states: ControllerStates): number =>
-  roundValue(states.smoothedMeasurements.fio2.smoothed),
-);
-export const getSmoothedSpO2 = createSelector(getController, (states: ControllerStates): number =>
-  roundValue(states.smoothedMeasurements.spo2.smoothed),
-);
-export const getSmoothedHR = createSelector(getController, (states: ControllerStates): number =>
-  roundValue(states.smoothedMeasurements.hr.smoothed),
-);
+const sensorMeasurementSelector = (key: string) =>
+  createSelector(getSensorMeasurements, (measurements: SensorMeasurements | null): number =>
+    measurements === null
+      ? NaN
+      : roundValue(((measurements as unknown) as Record<string, number>)[key]),
+  );
+export const getSensorMeasurementsTime = sensorMeasurementSelector('time');
+export const getSensorMeasurementsPaw = sensorMeasurementSelector('paw');
+export const getSensorMeasurementsFlow = sensorMeasurementSelector('flow');
+export const getSensorMeasurementsVolume = sensorMeasurementSelector('volume');
+export const getSensorMeasurementsFiO2 = sensorMeasurementSelector('fio2');
+export const getSensorMeasurementsSpO2 = sensorMeasurementSelector('spo2');
+export const getSensorMeasurementsHR = sensorMeasurementSelector('hr');
 
 // CycleMeasurements
 export const getCycleMeasurements = createSelector(
-  getController,
-  (states: ControllerStates): CycleMeasurements => states.cycleMeasurements,
+  getMeasurements,
+  (measurements: Measurements): CycleMeasurements | null => measurements.cycle,
 );
-export const getCycleMeasurementsPIP = createSelector(
-  getCycleMeasurements,
-  (cycleMeasurements: CycleMeasurements): number => roundValue(cycleMeasurements.pip),
-);
-export const getCycleMeasurementsPEEP = createSelector(
-  getCycleMeasurements,
-  (cycleMeasurements: CycleMeasurements): number => roundValue(cycleMeasurements.peep),
-);
-export const getCycleMeasurementsRR = createSelector(
-  getCycleMeasurements,
-  (cycleMeasurements: CycleMeasurements): number => roundValue(cycleMeasurements.rr),
-);
-export const getCycleMeasurementsVT = createSelector(
-  getCycleMeasurements,
-  (cycleMeasurements: CycleMeasurements): number => roundValue(cycleMeasurements.vt),
-);
+const cycleMeasurementSelector = (key: string) =>
+  createSelector(getCycleMeasurements, (measurements: CycleMeasurements | null): number =>
+    measurements === null
+      ? NaN
+      : roundValue(((measurements as unknown) as Record<string, number>)[key]),
+  );
+export const getCycleMeasurementsPIP = cycleMeasurementSelector('pip');
+export const getCycleMeasurementsPEEP = cycleMeasurementSelector('peep');
+export const getCycleMeasurementsRR = cycleMeasurementSelector('rr');
+export const getCycleMeasurementsVT = cycleMeasurementSelector('vt');
 
 // ROX Index
 export const getROXIndex = createSelector(
   getSensorMeasurements,
   getCycleMeasurements,
-  (sensorMeasurements: SensorMeasurements, cycleMeasurements: CycleMeasurements): number => {
+  (
+    sensorMeasurements: SensorMeasurements | null,
+    cycleMeasurements: CycleMeasurements | null,
+  ): number => {
+    if (sensorMeasurements === null || cycleMeasurements === null) {
+      return NaN;
+    }
+
     if (sensorMeasurements.spo2 && sensorMeasurements.fio2 && cycleMeasurements.rr) {
       return parseFloat(
         (sensorMeasurements.spo2 / sensorMeasurements.fio2 / cycleMeasurements.rr).toFixed(2),
       );
     }
-    return 0;
+    return NaN;
   },
 );
 
 // Parameters
+
+// Generic parameters
 export const getParameters = createSelector(
   getController,
-  (states: ControllerStates): Parameters => states.parameters,
+  (states: ControllerStates): ParametersRequestResponse => states.parameters,
 );
-export const getParametersPIP = createSelector(getParameters, (parameters: Parameters): number =>
-  roundValue(parameters.pip),
-);
-export const getParametersPEEP = createSelector(getParameters, (parameters: Parameters): number =>
-  roundValue(parameters.peep),
-);
-export const getParametersRR = createSelector(getParameters, (parameters: Parameters): number =>
-  roundValue(parameters.rr),
-);
-export const getParametersFiO2 = createSelector(getParameters, (parameters: Parameters): number =>
-  roundValue(parameters.fio2),
-);
-export const getParametersFlow = createSelector(getParameters, (parameters: Parameters): number =>
-  roundValue(parameters.flow),
-);
-export const getIsVentilating = createSelector(
+type OptionalParametersLike = Parameters | ParametersRequest | null;
+type ParametersSelector = OutputSelector<
+  StoreState,
+  Parameters | null,
+  (res: ParametersRequestResponse) => OptionalParametersLike
+>;
+const isVentilatingSelector = (parametersSelector: ParametersSelector) =>
+  createSelector(parametersSelector, (parameters: OptionalParametersLike): boolean | null =>
+    parameters === null ? null : parameters.ventilating,
+  );
+const ventilationModeSelector = (parametersSelector: ParametersSelector) =>
+  createSelector(parametersSelector, (parameters: OptionalParametersLike): VentilationMode | null =>
+    parameters === null ? null : parameters.mode,
+  );
+const numericParameterSelector = (parametersSelector: ParametersSelector, key: string) =>
+  createSelector(parametersSelector, (parameters: Parameters | ParametersRequest | null): number =>
+    parameters === null
+      ? NaN
+      : roundValue(((parameters as unknown) as Record<string, number>)[key]),
+  );
+// Current
+export const getParametersCurrent = createSelector(
   getParameters,
-  (parameters: Parameters): boolean => parameters.ventilating,
+  (parameters: ParametersRequestResponse): Parameters | null => parameters.current,
 );
-// ParametersRequest
+export const getParametersIsVentilating = isVentilatingSelector(getParametersCurrent);
+export const getParametersFiO2 = numericParameterSelector(getParametersCurrent, 'fio2');
+export const getParametersFlow = numericParameterSelector(getParametersCurrent, 'flow');
+export const getParametersPIP = numericParameterSelector(getParametersCurrent, 'pip');
+export const getParametersPEEP = numericParameterSelector(getParametersCurrent, 'peep');
+export const getParametersVT = numericParameterSelector(getParametersCurrent, 'vt');
+export const getParametersRR = numericParameterSelector(getParametersCurrent, 'rr');
+// Request
 export const getParametersRequest = createSelector(
-  getController,
-  (states: ControllerStates): ParametersRequest => states.parametersRequest,
+  getParameters,
+  (parameters: ParametersRequestResponse): ParametersRequest | null => parameters.request,
 );
-
-export const getParametersRequestStandby = createSelector(
-  getController,
-  (states: ControllerStates): ParametersRequest =>
-    states.parametersRequestStandby.parameters as ParametersRequest,
+export const getParametersRequestMode = ventilationModeSelector(getParametersRequest);
+// Draft
+export const getParametersRequestDraft = createSelector(
+  getParameters,
+  (parameters: ParametersRequestResponse): ParametersRequest | null => parameters.draft,
 );
-
-export const getParametersRequestMode = createSelector(
-  getParametersRequest,
-  (parametersRequest: ParametersRequest): VentilationMode => parametersRequest.mode,
+export const getParametersRequestDraftFiO2 = numericParameterSelector(
+  getParametersRequestDraft,
+  'fio2',
 );
-
-// Derived FiO2 Sensor Measurements
-export const getSmoothedFiO2Value = createSelector(
-  getSmoothedFiO2,
-  getParametersFlow,
-  (fio2: number, getParametersFlow: number): number | undefined => {
-    return getParametersFlow > 0 ? roundValue(fio2) : undefined;
-  },
+export const getParametersRequestDraftFlow = numericParameterSelector(
+  getParametersRequestDraft,
+  'flow',
 );
-
-// RotaryEncoder
-export const getRotaryEncoder = createSelector(
-  getController,
-  (states: ControllerStates): RotaryEncoderParameter => states.rotaryEncoder,
+export const getParametersRequestDraftPIP = numericParameterSelector(
+  getParametersRequestDraft,
+  'pip',
 );
-
-// Waveforms
-export const getWaveformHistoryPaw = createSelector(
-  getController,
-  (states: ControllerStates): WaveformHistory => states.waveformHistoryPaw,
+export const getParametersRequestDraftPEEP = numericParameterSelector(
+  getParametersRequestDraft,
+  'peep',
 );
-export const getWaveformPawOld = createSelector(
-  getWaveformHistoryPaw,
-  (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformOld.full,
+export const getParametersRequestDraftVT = numericParameterSelector(
+  getParametersRequestDraft,
+  'vt',
 );
-// Paw Waveforms
-export const getWaveformPawNewSegments = createSelector(
-  getWaveformHistoryPaw,
-  (waveformHistory: WaveformHistory): WaveformPoint[][] => waveformHistory.waveformNew.segmented,
-);
-export const getWaveformPawNewSegment = (
-  segmentIndex: number,
-): OutputSelector<StoreState, WaveformPoint[], unknown> =>
-  createSelector(
-    getWaveformPawNewSegments,
-    (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex],
-  );
-export const getWaveformHistoryFlow = createSelector(
-  getController,
-  (states: ControllerStates): WaveformHistory => states.waveformHistoryFlow,
-);
-export const getWaveformHistoryVolume = createSelector(
-  getController,
-  (states: ControllerStates): WaveformHistory => states.waveformHistoryVolume,
-);
-export const getWaveformFlowOld = createSelector(
-  getWaveformHistoryFlow,
-  (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformOld.full,
-);
-export const getWaveformFlowNewSegments = createSelector(
-  getWaveformHistoryFlow,
-  (waveformHistory: WaveformHistory): WaveformPoint[][] => waveformHistory.waveformNew.segmented,
-);
-export const getWaveformFlowNewSegment = (
-  segmentIndex: number,
-): OutputSelector<StoreState, WaveformPoint[], unknown> =>
-  createSelector(
-    getWaveformFlowNewSegments,
-    (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex],
-  );
-// Volume Waveforms
-export const getWaveformVolumeOld = createSelector(
-  getWaveformHistoryVolume,
-  (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformOld.full,
-);
-export const getWaveformVolumeNewSegments = createSelector(
-  getWaveformHistoryVolume,
-  (waveformHistory: WaveformHistory): WaveformPoint[][] => waveformHistory.waveformNew.segmented,
-);
-export const getWaveformVolumeNewSegment = (
-  segmentIndex: number,
-): OutputSelector<StoreState, WaveformPoint[], unknown> =>
-  createSelector(
-    getWaveformVolumeNewSegments,
-    (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex],
-  );
-
-// P-V Loops
-export const getPVHistory = createSelector(
-  getController,
-  (states: ControllerStates): PVHistory => states.pvHistory,
-);
-export const getPVLoop = createSelector(
-  getPVHistory,
-  (pvHistory: PVHistory): PVPoint[] => pvHistory.loop,
+export const getParametersRequestDraftRR = numericParameterSelector(
+  getParametersRequestDraft,
+  'rr',
 );
 
 // Alarm Limits
+
 export const getAlarmLimits = createSelector(
   getController,
-  (states: ControllerStates): AlarmLimits | Record<string, Range> => states.alarmLimits,
+  (states: ControllerStates): AlarmLimitsRequestResponse => states.alarmLimits,
+);
+export const getAlarmLimitsCurrent = createSelector(
+  getAlarmLimits,
+  (alarmLimits: AlarmLimitsRequestResponse): AlarmLimits | null => alarmLimits.current,
 );
 export const getAlarmLimitsRequest = createSelector(
-  getController,
-  (states: ControllerStates): AlarmLimitsRequest | Record<string, Range> =>
-    states.alarmLimitsRequest,
+  getAlarmLimits,
+  (alarmLimits: AlarmLimitsRequestResponse): AlarmLimitsRequest | null => alarmLimits.request,
+);
+export const getAlarmLimitsRequestDraft = createSelector(
+  getAlarmLimits,
+  (alarmLimits: AlarmLimitsRequestResponse): AlarmLimitsRequest | null => alarmLimits.draft,
+);
+export const getAlarmLimitsUnsavedKeys = createSelector(
+  getAlarmLimitsRequest,
+  getAlarmLimitsRequestDraft,
+  (
+    alarmLimitsRequest: AlarmLimitsRequest | null,
+    alarmLimitsRequestDraft: AlarmLimitsRequest | null,
+  ): string[] => {
+    if (alarmLimitsRequest === null || alarmLimitsRequestDraft === null) {
+      return [];
+    }
+    const alarmLimitsRequestRange = (alarmLimitsRequest as unknown) as Record<string, Range>;
+    const alarmLimitsRequestDraftRange = (alarmLimitsRequestDraft as unknown) as Record<
+      string,
+      Range
+    >;
+    const keys = ['spo2', 'hr'];
+    return keys.filter(
+      (key: string) =>
+        alarmLimitsRequestRange[key]?.lower !== alarmLimitsRequestDraftRange[key]?.lower ||
+        alarmLimitsRequestRange[key]?.upper !== alarmLimitsRequestDraftRange[key]?.upper,
+    );
+  },
 );
 
-export const getAlarmLimitsRequestStandby = createSelector(
-  getController,
-  (states: ControllerStates): AlarmLimitsRequest | Record<string, Range> =>
-    states.alarmLimitsRequestStandby.alarmLimits as AlarmLimitsRequest,
+export const getAlarmLimitsRequestUnsaved = createSelector(
+  getAlarmLimitsUnsavedKeys,
+  (unsavedKeys: string[]): boolean => unsavedKeys.length > 0,
 );
 
-// Display Settings
-export const getFrontendDisplaySetting = createSelector(
-  getController,
-  (states: ControllerStates): FrontendDisplaySetting => states.frontendDisplaySetting,
-);
+// Event log
 
-// Display Settings
-export const getSystemSettingRequest = createSelector(
-  getController,
-  (states: ControllerStates): SystemSettingRequest => states.systemSettingRequest,
-);
-
-// Next Log Events
+// Next log events
 export const getNextLogEvents = createSelector(
   getController,
   (states: ControllerStates): LogEvent[] => states.eventLog.nextLogEvents.elements,
 );
 
-// Patient Alarm Event
 export const getExpectedLogEvent = createSelector(
   getController,
   (states: ControllerStates): number => states.eventLog.expectedLogEvent.id,
@@ -287,14 +246,16 @@ export const getFullExpectedLogEvent = createSelector(
   getController,
   (states: ControllerStates): ExpectedLogEvent => states.eventLog.expectedLogEvent,
 );
-
-// Active log event Ids
+// Active log events
 export const getActiveLogEventIds = createSelector(
   getController,
   (states: ControllerStates): number[] => states.eventLog.activeLogEvents.id,
 );
-
-// Active popup event log
+export const getHasActiveAlarms = createSelector(
+  getActiveLogEventIds,
+  (activeLogEventIds: number[]): boolean => activeLogEventIds.length > 0,
+);
+// TODO: rename this selector to something more descriptive:
 export const getPopupEventLog = createSelector(getController, (states: ControllerStates):
   | LogEvent
   | undefined => {
@@ -302,32 +263,182 @@ export const getPopupEventLog = createSelector(getController, (states: Controlle
   return states.eventLog.nextLogEvents.elements.find((el: LogEvent) => el.id === maxId);
 });
 
-// Battery power
-export const getBatteryPower = createSelector(
-  getController,
-  (states: ControllerStates): number => states.batteryPower.powerLeft,
+// Backend Initialized
+export const getBackendInitialized = createSelector(
+  getParametersRequest,
+  getAlarmLimitsRequest,
+  getBackendConnected,
+  (
+    parametersRequest: ParametersRequest | null,
+    alarmLimitsRequest: AlarmLimitsRequest | null,
+    backendConnected: boolean,
+  ): boolean => parametersRequest !== null && alarmLimitsRequest !== null && backendConnected,
 );
 
-// Charging Status
-export const getChargingStatus = createSelector(
-  getController,
-  (states: ControllerStates): boolean => states.batteryPower.chargingStatus,
-);
+// Alarm muting
 
-// Srceen Status
-export const getScreenStatus = createSelector(
-  getController,
-  (states: ControllerStates): boolean => states.screenStatus.lock,
-);
-
-// Alarm mute Status
 export const getAlarmMuteRequest = createSelector(
   getController,
-  (states: ControllerStates): AlarmMuteRequest => states.alarmMuteRequest,
+  (states: ControllerStates): AlarmMuteRequest | null => states.alarmMuteRequest,
 );
-
 // TODO: Need to change state from 'alarmMuteRequest' to 'alarmMute'
 export const getAlarmMuteStatus = createSelector(
   getController,
-  (states: ControllerStates): AlarmMute => states.alarmMuteRequest,
+  (states: ControllerStates): AlarmMute | null => states.alarmMuteRequest,
+);
+
+// Battery power
+
+export const getBatteryPower = createSelector(
+  getController,
+  (states: ControllerStates): BatteryPower | null => states.batteryPower,
+);
+export const getBatteryPowerLeft = createSelector(
+  getBatteryPower,
+  (batteryPower: BatteryPower | null): number =>
+    batteryPower === null ? 0 : batteryPower.powerLeft,
+);
+export const getChargingStatus = createSelector(
+  getBatteryPower,
+  (batteryPower: BatteryPower | null): boolean =>
+    batteryPower === null ? false : batteryPower.chargingStatus,
+);
+
+// MESSAGE STATES FROM frontend_pb
+// TODO: split this section off into a new file
+
+// Screen Status
+
+export const getScreenStatus = createSelector(
+  getController,
+  (states: ControllerStates): ScreenStatus | null => states.screenStatus,
+);
+export const getScreenStatusLock = createSelector(
+  getScreenStatus,
+  (screenStatus: ScreenStatus | null): boolean =>
+    screenStatus === null ? false : screenStatus.lock,
+);
+
+// RotaryEncoder
+
+export const getRotaryEncoder = createSelector(
+  getController,
+  (states: ControllerStates): RotaryEncoderParameter | null => states.rotaryEncoder,
+);
+
+// System Settings
+
+export const getSystemSettingRequest = createSelector(
+  getController,
+  (states: ControllerStates): SystemSettingRequest | null => states.systemSettingRequest,
+);
+
+// Display Settings
+
+export const getFrontendDisplaySetting = createSelector(
+  getController,
+  (states: ControllerStates): FrontendDisplaySetting | null => states.frontendDisplaySetting,
+);
+
+// DERIVED STATES
+// TODO: split this section off into a new file
+
+// Smoothed measurements
+
+export const getSmoothedMeasurements = createSelector(
+  getController,
+  (states: ControllerStates): SmoothedMeasurements => states.smoothedMeasurements,
+);
+// TODO: we could unify this code with a generic selector, but it's only worth it
+// if we need selectors for any more fields besides "smoothed".
+export const getSmoothedFlow = createSelector(
+  getSmoothedMeasurements,
+  (smoothed: SmoothedMeasurements): number => roundValue(smoothed.flow.smoothed),
+);
+export const getSmoothedFiO2 = createSelector(
+  getSmoothedMeasurements,
+  (smoothed: SmoothedMeasurements): number => roundValue(smoothed.fio2.smoothed),
+);
+export const getSmoothedFiO2Value = createSelector(
+  getSmoothedFiO2,
+  getParametersFlow,
+  (fio2: number, getParametersFlow: number): number => {
+    return getParametersFlow > 0 ? roundValue(fio2) : NaN;
+  },
+);
+export const getSmoothedSpO2 = createSelector(
+  getSmoothedMeasurements,
+  (smoothed: SmoothedMeasurements): number => roundValue(smoothed.spo2.smoothed),
+);
+export const getSmoothedHR = createSelector(
+  getSmoothedMeasurements,
+  (smoothed: SmoothedMeasurements): number => roundValue(smoothed.hr.smoothed),
+);
+
+// Plots
+
+export const getPlots = createSelector(
+  getController,
+  (states: ControllerStates): Plots => states.plots,
+);
+// Generic waveforms
+export const getWaveforms = createSelector(
+  getPlots,
+  (plots: Plots): WaveformHistories => plots.waveforms,
+);
+type WaveformSelector = OutputSelector<
+  StoreState,
+  WaveformHistory,
+  (res: WaveformHistories) => WaveformHistory
+>;
+const waveformOldSelector = (waveformSelector: WaveformSelector) =>
+  createSelector(
+    waveformSelector,
+    (waveformHistory: WaveformHistory): WaveformPoint[] => waveformHistory.waveformOld.full,
+  );
+const waveformNewSegmentsSelector = (waveformSelector: WaveformSelector) =>
+  createSelector(
+    waveformSelector,
+    (waveformHistory: WaveformHistory): WaveformPoint[][] => waveformHistory.waveformNew.segmented,
+  );
+const waveformNewSegmentSelector = (
+  waveformNewSegmentsSelector: OutputSelector<
+    StoreState,
+    WaveformPoint[][],
+    (res: WaveformHistory) => WaveformPoint[][]
+  >,
+) => (segmentIndex: number) =>
+  createSelector(
+    waveformNewSegmentsSelector,
+    (waveformSegments: WaveformPoint[][]): WaveformPoint[] => waveformSegments[segmentIndex],
+  );
+// Paw Waveform
+export const getWaveformPaw = createSelector(
+  getWaveforms,
+  (histories: WaveformHistories): WaveformHistory => histories.paw,
+);
+export const getWaveformPawOld = waveformOldSelector(getWaveformPaw);
+export const getWaveformPawNewSegments = waveformNewSegmentsSelector(getWaveformPaw);
+export const getWaveformPawNewSegment = waveformNewSegmentSelector(getWaveformPawNewSegments);
+// Flow Waveform
+export const getWaveformFlow = createSelector(
+  getWaveforms,
+  (histories: WaveformHistories): WaveformHistory => histories.paw,
+);
+export const getWaveformFlowOld = waveformOldSelector(getWaveformFlow);
+export const getWaveformFlowNewSegments = waveformNewSegmentsSelector(getWaveformFlow);
+export const getWaveformFlowNewSegment = waveformNewSegmentSelector(getWaveformFlowNewSegments);
+// Volume Waveform
+export const getWaveformVolume = createSelector(
+  getWaveforms,
+  (histories: WaveformHistories): WaveformHistory => histories.paw,
+);
+export const getWaveformVolumeOld = waveformOldSelector(getWaveformVolume);
+export const getWaveformVolumeNewSegments = waveformNewSegmentsSelector(getWaveformVolume);
+export const getWaveformVolumeNewSegment = waveformNewSegmentSelector(getWaveformVolumeNewSegments);
+// P-V Loop
+export const getPVHistory = createSelector(getPlots, (plots: Plots): PVHistory => plots.pvLoop);
+export const getPVLoop = createSelector(
+  getPVHistory,
+  (pvHistory: PVHistory): PVPoint[] => pvHistory.loop,
 );

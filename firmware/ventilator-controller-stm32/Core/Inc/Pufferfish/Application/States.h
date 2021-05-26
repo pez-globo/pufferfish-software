@@ -77,27 +77,31 @@ struct StateSegments {
   ActiveLogEvents active_log_events;
 };
 
-class States {
+class Store {
  public:
-  States() = default;
+  Store() = default;
   enum class InputStatus { ok = 0, invalid_type };
   enum class OutputStatus { ok = 0, invalid_type };
 
-  [[nodiscard]] const ParametersRequest &parameters_request() const;
-  Parameters &parameters();
-  [[nodiscard]] const AlarmLimitsRequest &alarm_limits_request() const;
-  AlarmLimits &alarm_limits();
   SensorMeasurements &sensor_measurements();
   CycleMeasurements &cycle_measurements();
+  Parameters &parameters();
+  [[nodiscard]] bool has_parameters_request() const;
+  [[nodiscard]] const ParametersRequest &parameters_request() const;
+  AlarmLimits &alarm_limits();
+  [[nodiscard]] bool has_alarm_limits_request() const;
+  [[nodiscard]] const AlarmLimitsRequest &alarm_limits_request() const;
   [[nodiscard]] const ExpectedLogEvent &expected_log_event() const;
   NextLogEvents &next_log_events();
   ActiveLogEvents &active_log_events();
 
-  InputStatus input(const StateSegment &input);
+  InputStatus input(const StateSegment &input, bool default_initialization = false);
   OutputStatus output(MessageTypes type, StateSegment &output) const;
 
  private:
-  StateSegments state_segments_;
+  StateSegments state_segments_{};
+  bool has_parameters_request_ = false;
+  bool has_alarm_limits_request_ = false;
 };
 
 }  // namespace Pufferfish::Application

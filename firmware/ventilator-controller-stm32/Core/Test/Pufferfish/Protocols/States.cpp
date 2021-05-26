@@ -25,12 +25,12 @@ namespace BE = PF::Driver::Serial::Backend;
 
 using StateOutputScheduleEntry =
     PF::Protocols::StateOutputScheduleEntry<PF::Application::MessageTypes>;
-using States = PF::Application::States;
+using Store = PF::Application::Store;
 using StateSegment = PF::Application::StateSegment;
 using MessageTypes = PF::Application::MessageTypes;
 
 SCENARIO(
-    "Protocols::The States output method correctly updates output StateSegment tag and field "
+    "Protocols::The Store output method correctly updates output StateSegment tag and field "
     "parameters according to a schedule",
     "[states]") {
   constexpr auto state_sync_schedule = PF::Util::make_array<const StateOutputScheduleEntry>(
@@ -38,14 +38,14 @@ SCENARIO(
       StateOutputScheduleEntry{6, MessageTypes::parameters_request});
 
   using BackendStateSynchronizer = PF::Protocols::
-      StateSynchronizer<States, StateSegment, MessageTypes, state_sync_schedule.size()>;
+      StateSynchronizer<Store, StateSegment, MessageTypes, state_sync_schedule.size()>;
 
   const BackendStateSynchronizer::OutputStatus output_ok =
       BackendStateSynchronizer::OutputStatus::ok;
   const BackendStateSynchronizer::OutputStatus waiting =
       BackendStateSynchronizer::OutputStatus::waiting;
 
-  States states{};
+  Store store{};
 
   StateSegment input_state;
   StateSegment output_state;
@@ -60,11 +60,11 @@ SCENARIO(
     parameters_request.mode = VentilationMode_hfnc;
     input_state.set(parameters_request);
 
-    auto input_segment = states.input(input_state);
-    REQUIRE(input_segment == States::InputStatus::ok);
+    auto input_segment = store.input(input_state);
+    REQUIRE(input_segment == Store::InputStatus::ok);
     REQUIRE(input_state.tag == MessageTypes::parameters_request);
 
-    BackendStateSynchronizer synchronizer{states, state_sync_schedule};
+    BackendStateSynchronizer synchronizer{store, state_sync_schedule};
 
     uint32_t time = 10;
     synchronizer.input(time);
@@ -89,7 +89,7 @@ SCENARIO(
       // change state field values
       parameters_request.fio2 = 70;
       input_state.set(parameters_request);
-      states.input(input_state);
+      store.input(input_state);
 
       THEN("The Output StateSegment fields are unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -158,7 +158,7 @@ SCENARIO(
       // change state field values
       parameters_request.fio2 = 70;
       input_state.set(parameters_request);
-      states.input(input_state);
+      store.input(input_state);
 
       THEN("The Output StateSegment fields are unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -175,7 +175,7 @@ SCENARIO(
         StateOutputScheduleEntry{1, MessageTypes::parameters_request});
 
     using BackendStateSynchronizer = PF::Protocols::
-        StateSynchronizer<States, StateSegment, MessageTypes, state_sync_schedule.size()>;
+        StateSynchronizer<Store, StateSegment, MessageTypes, state_sync_schedule.size()>;
 
     const BackendStateSynchronizer::OutputStatus output_ok =
         BackendStateSynchronizer::OutputStatus::ok;
@@ -184,16 +184,16 @@ SCENARIO(
     const BackendStateSynchronizer::OutputStatus waiting =
         BackendStateSynchronizer::OutputStatus::waiting;
 
-    States states{};
+    Store store{};
 
     StateSegment input_state;
     StateSegment output_state;
     input_state.tag = MessageTypes::unknown;
 
-    auto input_segment = states.input(input_state);
-    REQUIRE(input_segment == States::InputStatus::invalid_type);
+    auto input_segment = store.input(input_state);
+    REQUIRE(input_segment == Store::InputStatus::invalid_type);
 
-    BackendStateSynchronizer synchronizer{states, state_sync_schedule};
+    BackendStateSynchronizer synchronizer{store, state_sync_schedule};
 
     WHEN("The output is called on scheduler array with unknown message type") {
       uint32_t ftime = 10;
@@ -207,7 +207,7 @@ SCENARIO(
 }
 
 SCENARIO(
-    "The States output method correctly updates output StateSegment tag and value fields on an "
+    "The Store output method correctly updates output StateSegment tag and value fields on an "
     "output schedule array of multiple message types",
     "[states]") {
   GIVEN(
@@ -220,14 +220,14 @@ SCENARIO(
         StateOutputScheduleEntry{4, MessageTypes::cycle_measurements});
 
     using BackendStateSynchronizer = PF::Protocols::
-        StateSynchronizer<States, StateSegment, MessageTypes, state_sync_schedule.size()>;
+        StateSynchronizer<Store, StateSegment, MessageTypes, state_sync_schedule.size()>;
 
     const BackendStateSynchronizer::OutputStatus output_ok =
         BackendStateSynchronizer::OutputStatus::ok;
     const BackendStateSynchronizer::OutputStatus waiting =
         BackendStateSynchronizer::OutputStatus::waiting;
 
-    States states{};
+    Store store{};
 
     StateSegment input_state;
     StateSegment output_state;
@@ -238,37 +238,37 @@ SCENARIO(
     parameters_request.fio2 = 56;
     parameters_request.mode = VentilationMode_hfnc;
     input_state.set(parameters_request);
-    auto input_pr = states.input(input_state);
-    REQUIRE(input_pr == States::InputStatus::ok);
+    auto input_pr = store.input(input_state);
+    REQUIRE(input_pr == Store::InputStatus::ok);
 
     Parameters parameters;
     memset(&parameters, 0, sizeof(parameters));
     parameters.flow = 60;
     parameters.ventilating = true;
     input_state.set(parameters);
-    auto input_parameters = states.input(input_state);
-    REQUIRE(input_parameters == States::InputStatus::ok);
+    auto input_parameters = store.input(input_state);
+    REQUIRE(input_parameters == Store::InputStatus::ok);
 
     SensorMeasurements sensor_measurements;
     memset(&sensor_measurements, 0, sizeof(sensor_measurements));
     sensor_measurements.paw = 20;
     sensor_measurements.spo2 = 94;
     input_state.set(sensor_measurements);
-    auto input_sm = states.input(input_state);
-    REQUIRE(input_sm == States::InputStatus::ok);
+    auto input_sm = store.input(input_state);
+    REQUIRE(input_sm == Store::InputStatus::ok);
 
     CycleMeasurements cycle_measurements;
     memset(&cycle_measurements, 0, sizeof(cycle_measurements));
     cycle_measurements.rr = 20;
     input_state.set(cycle_measurements);
-    auto input_cm = states.input(input_state);
-    REQUIRE(input_cm == States::InputStatus::ok);
+    auto input_cm = store.input(input_state);
+    REQUIRE(input_cm == Store::InputStatus::ok);
 
     // input all_states
-    auto input_segment = states.input(input_state);
-    REQUIRE(input_segment == States::InputStatus::ok);
+    auto input_segment = store.input(input_state);
+    REQUIRE(input_segment == Store::InputStatus::ok);
 
-    BackendStateSynchronizer synchronizer{states, state_sync_schedule};
+    BackendStateSynchronizer synchronizer{store, state_sync_schedule};
 
     uint32_t time = 1;
     synchronizer.input(time);
@@ -293,7 +293,7 @@ SCENARIO(
       // Change parameters req field values
       parameters_request.fio2 = 90;
       input_state.set(parameters_request);
-      states.input(input_state);
+      store.input(input_state);
 
       THEN("The output StateSegment fields are unchagned") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -343,7 +343,7 @@ SCENARIO(
       // Change parameters field values
       parameters.flow = 90;
       input_state.set(parameters);
-      states.input(input_state);
+      store.input(input_state);
 
       THEN("The output StateSegment fields are unchagned") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -382,7 +382,7 @@ SCENARIO(
       // change sensor measurements fields values
       sensor_measurements.paw = 30;
       input_state.set(sensor_measurements);
-      states.input(input_state);
+      store.input(input_state);
 
       THEN("The output StateSegment fields are unchagned") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -423,7 +423,7 @@ SCENARIO(
       // change cycle measurements fields values
       cycle_measurements.rr = 45;
       input_state.set(cycle_measurements);
-      states.input(input_state);
+      store.input(input_state);
 
       THEN("The output StateSegment fields are unchagned") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -469,7 +469,7 @@ SCENARIO(
       // Change parameters req field values
       parameters_request.fio2 = 90;
       input_state.set(parameters_request);
-      states.input(input_state);
+      store.input(input_state);
 
       THEN("The output StateSegment fields are unchagned") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -482,14 +482,14 @@ SCENARIO(
       "A StateSynchronizer object constructed with output schedule array from backend and a "
       "all_states object") {
     using BackendStateSynchronizer = PF::Protocols::
-        StateSynchronizer<States, StateSegment, MessageTypes, BE::state_sync_schedule.size()>;
+        StateSynchronizer<Store, StateSegment, MessageTypes, BE::state_sync_schedule.size()>;
 
     const BackendStateSynchronizer::OutputStatus output_ok =
         BackendStateSynchronizer::OutputStatus::ok;
     const BackendStateSynchronizer::OutputStatus waiting =
         BackendStateSynchronizer::OutputStatus::waiting;
 
-    States states{};
+    Store store{};
 
     StateSegment input_state;
     StateSegment output_state;
@@ -500,24 +500,24 @@ SCENARIO(
     parameters_request.fio2 = 56;
     parameters_request.mode = VentilationMode_hfnc;
     input_state.set(parameters_request);
-    auto input_pr = states.input(input_state);
-    REQUIRE(input_pr == States::InputStatus::ok);
+    auto input_pr = store.input(input_state);
+    REQUIRE(input_pr == Store::InputStatus::ok);
 
     Parameters parameters;
     memset(&parameters, 0, sizeof(parameters));
     parameters.flow = 60;
     parameters.ventilating = true;
     input_state.set(parameters);
-    auto input_parameters = states.input(input_state);
-    REQUIRE(input_parameters == States::InputStatus::ok);
+    auto input_parameters = store.input(input_state);
+    REQUIRE(input_parameters == Store::InputStatus::ok);
 
     SensorMeasurements sensor_measurements;
     memset(&sensor_measurements, 0, sizeof(sensor_measurements));
     sensor_measurements.paw = 20;
     sensor_measurements.spo2 = 94;
     input_state.set(sensor_measurements);
-    auto input_sm = states.input(input_state);
-    REQUIRE(input_sm == States::InputStatus::ok);
+    auto input_sm = store.input(input_state);
+    REQUIRE(input_sm == Store::InputStatus::ok);
 
     AlarmLimits alarm_limits = {};
     Range range = {};
@@ -526,21 +526,21 @@ SCENARIO(
     alarm_limits.has_fio2 = true;
     alarm_limits.fio2 = range;
     input_state.set(alarm_limits);
-    auto input_al = states.input(input_state);
-    REQUIRE(input_al == States::InputStatus::ok);
+    auto input_al = store.input(input_state);
+    REQUIRE(input_al == Store::InputStatus::ok);
 
     AlarmLimitsRequest alarm_limits_request = {};
     alarm_limits_request.has_fio2 = true;
     alarm_limits_request.fio2 = range;
     input_state.set(alarm_limits_request);
-    auto input_ar = states.input(input_state);
-    REQUIRE(input_ar == States::InputStatus::ok);
+    auto input_ar = store.input(input_state);
+    REQUIRE(input_ar == Store::InputStatus::ok);
 
     // input all_states
-    auto input_segment = states.input(input_state);
-    REQUIRE(input_segment == States::InputStatus::ok);
+    auto input_segment = store.input(input_state);
+    REQUIRE(input_segment == Store::InputStatus::ok);
 
-    BackendStateSynchronizer synchronizer{states, BE::state_sync_schedule};
+    BackendStateSynchronizer synchronizer{store, BE::state_sync_schedule};
 
     uint32_t time = 10;
     synchronizer.input(time);
@@ -567,7 +567,7 @@ SCENARIO(
       // change sensor measurements field values
       sensor_measurements.spo2 = 90;
       input_state.set(sensor_measurements);
-      states.input(input_state);
+      store.input(input_state);
 
       THEN("The output StateSegment fields remain unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -604,7 +604,7 @@ SCENARIO(
       // change parameter field values
       parameters.ventilating = false;
       input_state.set(parameters);
-      states.input(input_state);
+      store.input(input_state);
 
       THEN("The output StateSegment fields remain unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -651,7 +651,7 @@ SCENARIO(
 
       alarm_limits.fio2 = range;
       input_state.set(alarm_limits);
-      states.input(input_state);
+      store.input(input_state);
 
       THEN("The output StateSegment fields remain unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -664,7 +664,7 @@ SCENARIO(
 }
 
 SCENARIO(
-    "The States output method behaves correctly when an exceptionally long time passes between "
+    "The Store output method behaves correctly when an exceptionally long time passes between "
     "subsequent entries",
     "[states]") {
   GIVEN(
@@ -677,14 +677,14 @@ SCENARIO(
         StateOutputScheduleEntry{10, MessageTypes::cycle_measurements});
 
     using BackendStateSynchronizer = PF::Protocols::
-        StateSynchronizer<States, StateSegment, MessageTypes, state_sync_schedule.size()>;
+        StateSynchronizer<Store, StateSegment, MessageTypes, state_sync_schedule.size()>;
 
     const BackendStateSynchronizer::OutputStatus output_ok =
         BackendStateSynchronizer::OutputStatus::ok;
     const BackendStateSynchronizer::OutputStatus waiting =
         BackendStateSynchronizer::OutputStatus::waiting;
 
-    States states{};
+    Store store{};
 
     StateSegment input_state;
     StateSegment output_state;
@@ -695,20 +695,20 @@ SCENARIO(
     parameters_request.fio2 = 56;
     parameters_request.mode = VentilationMode_hfnc;
     input_state.set(parameters_request);
-    auto input_pr = states.input(input_state);
-    REQUIRE(input_pr == States::InputStatus::ok);
+    auto input_pr = store.input(input_state);
+    REQUIRE(input_pr == Store::InputStatus::ok);
 
     Parameters parameters;
     memset(&parameters, 0, sizeof(parameters));
     parameters.flow = 60;
     parameters.ventilating = true;
     input_state.set(parameters);
-    auto input_parameters = states.input(input_state);
-    REQUIRE(input_parameters == States::InputStatus::ok);
+    auto input_parameters = store.input(input_state);
+    REQUIRE(input_parameters == Store::InputStatus::ok);
 
-    states.input(input_state);
+    store.input(input_state);
 
-    BackendStateSynchronizer synchronizer{states, state_sync_schedule};
+    BackendStateSynchronizer synchronizer{store, state_sync_schedule};
 
     uint32_t time = 10;
     synchronizer.input(time);
@@ -750,7 +750,7 @@ SCENARIO(
       parameters.ventilating = false;
       input_state.set(parameters);
 
-      states.input(input_state);
+      store.input(input_state);
 
       auto status = synchronizer.output(output_state);
 
@@ -776,14 +776,14 @@ SCENARIO(
         StateOutputScheduleEntry{10, MessageTypes::cycle_measurements});
 
     using BackendStateSynchronizer = PF::Protocols::
-        StateSynchronizer<States, StateSegment, MessageTypes, state_sync_schedule.size()>;
+        StateSynchronizer<Store, StateSegment, MessageTypes, state_sync_schedule.size()>;
 
     const BackendStateSynchronizer::OutputStatus output_ok =
         BackendStateSynchronizer::OutputStatus::ok;
     const BackendStateSynchronizer::OutputStatus waiting =
         BackendStateSynchronizer::OutputStatus::waiting;
 
-    States states{};
+    Store store{};
 
     StateSegment input_state;
     StateSegment output_state;
@@ -794,35 +794,35 @@ SCENARIO(
     parameters_request.fio2 = 56;
     parameters_request.mode = VentilationMode_hfnc;
     input_state.set(parameters_request);
-    auto input_pr = states.input(input_state);
-    REQUIRE(input_pr == States::InputStatus::ok);
+    auto input_pr = store.input(input_state);
+    REQUIRE(input_pr == Store::InputStatus::ok);
 
     Parameters parameters;
     memset(&parameters, 0, sizeof(parameters));
     parameters.flow = 60;
     parameters.ventilating = true;
     input_state.set(parameters);
-    auto input_parameters = states.input(input_state);
-    REQUIRE(input_parameters == States::InputStatus::ok);
+    auto input_parameters = store.input(input_state);
+    REQUIRE(input_parameters == Store::InputStatus::ok);
 
     SensorMeasurements sensor_measurements;
     memset(&sensor_measurements, 0, sizeof(sensor_measurements));
     sensor_measurements.paw = 20;
     sensor_measurements.spo2 = 94;
     input_state.set(sensor_measurements);
-    auto input_sm = states.input(input_state);
-    REQUIRE(input_sm == States::InputStatus::ok);
+    auto input_sm = store.input(input_state);
+    REQUIRE(input_sm == Store::InputStatus::ok);
 
     CycleMeasurements cycle_measurements;
     memset(&cycle_measurements, 0, sizeof(cycle_measurements));
     cycle_measurements.rr = 20;
     input_state.set(cycle_measurements);
-    auto input_cm = states.input(input_state);
-    REQUIRE(input_cm == States::InputStatus::ok);
+    auto input_cm = store.input(input_state);
+    REQUIRE(input_cm == Store::InputStatus::ok);
 
-    states.input(input_state);
+    store.input(input_state);
 
-    BackendStateSynchronizer synchronizer{states, state_sync_schedule};
+    BackendStateSynchronizer synchronizer{store, state_sync_schedule};
 
     // Intent: make 40 seconds pass equal to the timeout for the last entry
     WHEN("the synchronizer is on the 0th entry and its clock advances by 40 seconds") {

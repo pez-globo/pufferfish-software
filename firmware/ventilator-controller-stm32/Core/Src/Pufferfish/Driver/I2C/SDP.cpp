@@ -68,11 +68,11 @@ I2CDeviceStatus SDPSensor::serial_number(uint32_t &pn, uint64_t &sn) {
   }
 
   // read 32 bits product number
-  Util::read_ntoh(data.data(), pn);
+  Util::read_bigend(data.data(), pn);
 
   // read 64 bits serial number
   static const size_t sn_offset = 4;
-  Util::read_ntoh(&data[sn_offset], sn);
+  Util::read_bigend(&data[sn_offset], sn);
 
   return I2CDeviceStatus::ok;
 }

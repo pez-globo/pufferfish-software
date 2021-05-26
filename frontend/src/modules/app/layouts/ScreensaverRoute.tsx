@@ -1,8 +1,12 @@
+/**
+ * @summary Layout for screensaver page
+ *
+ */
 import { AppBar, Grid, makeStyles, Theme } from '@material-ui/core';
 import React, { PropsWithChildren, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Route, RouteProps, useHistory } from 'react-router-dom';
-import { getIsVentilating } from '../../../store/controller/selectors';
+import { getParametersIsVentilating } from '../../../store/controller/selectors';
 import ClockIcon from '../../icons/ClockIcon';
 import { DASHBOARD_ROUTE, LOGS_ROUTE, QUICKSTART_ROUTE } from '../../navigation/constants';
 import EventAlerts from '../EventAlerts';
@@ -60,6 +64,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * ScreensaverLayout
+ *
+ * @component Component for screensaver layout
+ *
+ * @returns {JSX.Element}
+ */
 const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
 
@@ -74,17 +85,32 @@ const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Elemen
   );
 };
 
+/**
+ * ContentComponent
+ *
+ * @component Component for displaying the main content
+ *
+ * @returns {JSX.Element}
+ */
 const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
   const history = useHistory();
-  const ventilating = useSelector(getIsVentilating);
+  const ventilating = useSelector(getParametersIsVentilating);
   const notifyAlarm = useSelector(getAlarmNotifyStatus);
   const [showBorder, setShowBorder] = React.useState(false);
 
+  /**
+   * Triggers when Alarm event is active (Referenced in `OverlayScreen` )
+   * RED_BORDER reduxs store is dispatched when alarm is active
+   * It adds a red border around the page
+   */
   useEffect(() => {
     setShowBorder(notifyAlarm);
   }, [notifyAlarm]);
 
+  /**
+   * Triggerred when clicking on anywhere in page
+   */
   const onClick = () => {
     history.push(ventilating ? DASHBOARD_ROUTE.path : QUICKSTART_ROUTE.path);
   };
@@ -116,6 +142,13 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
   );
 });
 
+/**
+ * ScreensaverRoute
+ *
+ * @component Component for displaying the screen saver layout
+ *
+ * @returns {JSX.Element | null}
+ */
 const ScreensaverRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
   if (!Component) return null;
   return (

@@ -1,3 +1,7 @@
+/**
+ * @summary Re-usable wrapper component for fetch dynamic Redux Selector
+ *
+ */
 import React from 'react';
 import { OutputSelector } from 'reselect';
 import { useSelector } from 'react-redux';
@@ -7,11 +11,28 @@ import { useSelector } from 'react-redux';
 // eslint-disable-next-line
 export type SelectorType = OutputSelector<any, any, any>;
 
+/**
+ * @typedef ValueSelectorDisplayProps
+ *
+ * Props Interface for the ValueSelectorDisplay component
+ *
+ * @prop {SelectorType} selector Redux Selector
+ * @prop {number} decimal Number of Decimals on the value
+ */
 interface ValueSelectorDisplayProps {
   selector: SelectorType;
   decimal?: number;
 }
 
+/**
+ * ValueSelectorDisplay
+ *
+ * @component A container for displaying the value selectors.
+ *
+ * Uses the [[ValueSelectorDisplay]] interface
+ *
+ * @returns {JSX.Element}
+ */
 export const ValueSelectorDisplay = ({
   selector,
   decimal = 0,

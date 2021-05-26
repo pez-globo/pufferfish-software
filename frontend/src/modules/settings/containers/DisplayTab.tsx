@@ -1,3 +1,8 @@
+/**
+ * @summary Display Setting Tab of Settings page
+ *
+ * @file All the Display Settings are configured here
+ */
 import {
   Box,
   Button,
@@ -92,24 +97,66 @@ enum Period {
   PM,
 }
 
-// Returns the number of days in a month for a given year.
+/**
+ * Returns the number of days in a month for a given year.
+ *
+ * @param {number} month input argument numeric value from 1-12
+ * @param{number} year input argument numeric value
+ *
+ * @returns {Date} some description
+ *
+ */
 const getDaysInMonth = (month: number, year: number) => {
   const days: number = new Date(year, month, 0).getDate();
   return days;
 };
-// Converts a 24-hour formatted hour to 12-hour period based format.
+//
+
+/**
+ * Converts a 24-hour formatted hour to 12-hour period based format.
+ *
+ * @param {number} hour input argument numeric value from 1-24
+ *
+ * @returns {number}
+ *
+ */
 const to12HourClock = (hour: number) => {
   return hour % 12 || 12;
 };
-// Converts a 12-hour formatted hour to 24-hour based format.
+
+/**
+ * Converts a 12-hour formatted hour to 24-hour based format.
+ *
+ * @param {number} hour input argument numeric value from 1-24
+ * @param {Period} period either AM or PM
+ *
+ * @returns {number}
+ *
+ */
 const to24HourClock = (hour: number, period: Period) => {
   return period === Period.PM ? hour + 12 : hour;
 };
 
+/**
+ * @typedef Props
+ *
+ * Interface for change settings.
+ *
+ * @prop {function} onSettingChange Callback to be called once Settings changes
+ *
+ */
 interface Props {
   onSettingChange(settings: Record<string, unknown>): void;
 }
 
+/**
+ * DateTimeDisplay
+ *
+ * @component to display date and time.
+ *
+ * @returns {JSX.Element}
+ *
+ */
 const DateTimeDisplay = () => {
   const classes = useStyles();
   const clock = useSelector(getClock);
@@ -136,11 +183,23 @@ const DateTimeDisplay = () => {
 /**
  * DisplayTab
  *
+ * @component DisplayTab
+ *
+ * uses [[Props]] interface
+ *
  * TODO: Hook this up to the redux state to persist changes across the system's state.
- *       We need to make sure that updates to dat
+ * We need to make sure that updates to dat
+ *
+ * @returns {JSX.Element}
+ *
  */
 export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   const classes = useStyles();
+  /**
+   * Calls on initalization of the component
+   * This is an event listener which listens to user input on `ValueClicker` buttons click
+   * Based on this event Border around Alarm's HTML wrapper is added/removed
+   */
   const [elRefs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
     [BRIGHTNESS_REFERENCE_KEY]: useRef(null),
     [HOUR_REFERENCE_KEY]: useRef(null),
@@ -153,10 +212,18 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   const { initRefListener } = useRotaryReference(themeObj);
   const systemSettings = useSelector(getSystemSettingRequest, shallowEqual);
   const displaySettings = useSelector(getFrontendDisplaySetting, shallowEqual);
-  const [brightness, setBrightness] = React.useState(systemSettings.brightness);
-  const [theme, setTheme] = React.useState(displaySettings.theme);
-  const [unit, setUnit] = React.useState(displaySettings.unit);
-  const [date] = React.useState<Date>(new Date(systemSettings.date * 1000));
+  const [brightness, setBrightness] = React.useState(
+    systemSettings === null ? 100 : systemSettings.brightness,
+  );
+  const [theme, setTheme] = React.useState(
+    displaySettings === null ? ThemeVariant.dark : displaySettings.theme,
+  );
+  const [unit, setUnit] = React.useState(
+    displaySettings === null ? Unit.imperial : displaySettings.unit,
+  );
+  const [date] = React.useState<Date>(
+    systemSettings === null ? new Date() : new Date(systemSettings.date * 1000),
+  );
   const [period, setPeriod] = React.useState(date.getHours() >= 12 ? Period.PM : Period.AM);
   const [minute, setMinute] = React.useState(date.getMinutes());
   const [hour, setHour] = React.useState(to12HourClock(date.getHours())); // Note: `date.hours()` is 24-hour formatted.
@@ -170,6 +237,10 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
     initRefListener(elRefs);
   }, [initRefListener, elRefs]);
 
+  /**
+   * Listens to state change of date, period, minute, hour, day, month, year, unit, theme, brightness
+   * And triggers callback to parent component `SettingsPage`
+   */
   useEffect(() => {
     const dateChange = new Date(year, month - 1, day, to24HourClock(hour, period), minute);
     onSettingChange({
@@ -181,6 +252,12 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date, period, minute, hour, day, month, year, unit, theme, brightness]);
 
+  /**
+   * function for handling month change.
+   *
+   * @param {number} change - min 1 and max 12
+   *
+   */
   const handleMonthChange = (change: number) => {
     const maxDaysInMonth = getDaysInMonth(change, year);
     // Update `day` component if its value > max days in the new month.
@@ -189,11 +266,23 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
     }
     setMonth(change);
   };
+
+  /**
+   * function for handling button css based on AM and PM period.
+   *
+   * @param {Period} updatedPeriod - input value AM and PM
+   *
+   * @returns {string} some description
+   *
+   */
   const buttonClass = (updatedPeriod: Period) =>
     updatedPeriod === period
       ? `${classes.periodButton} ${classes.selected}`
       : `${classes.periodButton}`;
 
+  /**
+   * function for handling page click event
+   */
   const OnClickPage = () => {
     setActiveRotaryReference(null);
   };
