@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "BufferedUART.h"
+#include "Endian.h"
 #include "Pufferfish/HAL/STM32/AnalogInput.h"
 #include "Pufferfish/HAL/STM32/CRCChecker.h"
 #include "Pufferfish/HAL/STM32/DigitalInput.h"
@@ -17,7 +19,3 @@
 #include "Pufferfish/HAL/STM32/Random.h"
 #include "Pufferfish/HAL/STM32/SPIDevice.h"
 #include "Pufferfish/HAL/STM32/Time.h"
-
-
-#include "BufferedUART.h"
-#include "Endian.h"

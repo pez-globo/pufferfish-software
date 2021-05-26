@@ -12,7 +12,6 @@
 #include "Pufferfish/HAL/Interfaces/BufferedUART.h"
 #include "Pufferfish/HAL/Interfaces/CRCChecker.h"
 
-
 namespace Pufferfish::Driver::Serial::Backend {
 
 class UARTBackend {

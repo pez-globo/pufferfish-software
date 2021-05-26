@@ -14,17 +14,16 @@
 #include "Pufferfish/HAL/STM32/Endian.h"
 
 namespace Pufferfish {
-namespace HAL{
+namespace HAL {
 
-template<typename T>
+template <typename T>
 constexpr T hton(const T& i) {
-            return Pufferfish::HAL::STM32::hton(i);
-        }
-template<typename T>
+  return Pufferfish::HAL::STM32::hton(i);
+}
+template <typename T>
 constexpr T ntoh(const T& i) {
-            return Pufferfish::HAL::STM32::ntoh(i);
-        }
+  return Pufferfish::HAL::STM32::ntoh(i);
+}
 
-}// namespace HAL
-}// namespace Pufferfish
-
+}  // namespace HAL
+}  // namespace Pufferfish
