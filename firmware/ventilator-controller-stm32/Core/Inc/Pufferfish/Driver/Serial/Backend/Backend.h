@@ -75,6 +75,7 @@ using InputStates = Util::EnumValues<
     Application::MessageTypes,
     Application::MessageTypes::parameters_request,
     Application::MessageTypes::alarm_limits_request,
+    Application::MessageTypes::alarm_mute_request,
     Application::MessageTypes::expected_log_event>;
 
 class Receiver {
