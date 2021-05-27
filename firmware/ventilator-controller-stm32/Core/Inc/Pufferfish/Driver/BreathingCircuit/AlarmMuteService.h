@@ -16,7 +16,7 @@ namespace Pufferfish::Driver::BreathingCircuit {
 
 class AlarmMuteService {
  public:
-  void transform(AlarmMute &alarm_mute, const AlarmMuteRequest &alarm_mute_request);
+  static void transform(AlarmMute &alarm_mute, const AlarmMuteRequest &alarm_mute_request);
 };
 
 }  // namespace Pufferfish::Driver::BreathingCircuit
