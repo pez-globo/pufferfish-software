@@ -17,11 +17,7 @@ import {
   eventLogReducer,
   rotaryEncoderReducer,
 } from './reducers/backend';
-import {
-  sensorMeasurementSmoothingReducer,
-  waveformHistoryReducer,
-  pvHistoryReducer,
-} from './reducers/derived';
+import { waveformHistoryReducer, pvHistoryReducer } from './reducers/derived';
 import { MessageType, REQUEST_COMMITTED, DRAFT_REQUEST_COMMITTED } from './types';
 
 export const controllerReducer = combineReducers({
@@ -66,50 +62,6 @@ export const controllerReducer = combineReducers({
   ),
 
   // Derived states
-  smoothedMeasurements: combineReducers({
-    fio2: sensorMeasurementSmoothingReducer(
-      // 0.5,
-      1,
-      // 0.1,
-      0,
-      // 500,
-      10000,
-      // 200,
-      0,
-      (sensorMeasurements) => sensorMeasurements.fio2,
-    ),
-    flow: sensorMeasurementSmoothingReducer(
-      // 0.5,
-      1,
-      // 0.5,
-      0,
-      // 500,
-      10000,
-      // 200,
-      0,
-      (sensorMeasurements) => sensorMeasurements.flow,
-    ),
-    spo2: sensorMeasurementSmoothingReducer(
-      1,
-      // 1.0,
-      0,
-      // 200,
-      10000,
-      // 1000,
-      0,
-      (sensorMeasurements) => sensorMeasurements.spo2,
-    ),
-    hr: sensorMeasurementSmoothingReducer(
-      1,
-      // 1.0,
-      0,
-      // 200,
-      10000,
-      // 1000,
-      0,
-      (sensorMeasurements) => sensorMeasurements.hr,
-    ),
-  }),
   plots: combineReducers({
     waveforms: combineReducers({
       paw: waveformHistoryReducer<SensorMeasurements>(

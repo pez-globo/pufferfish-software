@@ -24,7 +24,6 @@ import {
   ParametersRequestResponse,
   AlarmLimitsRequestResponse,
   RotaryEncoderParameter,
-  SmoothedMeasurements,
   Plots,
   WaveformHistories,
   WaveformHistory,
@@ -53,6 +52,8 @@ export const getMeasurements = createSelector(
 );
 
 // SensorMeasurements
+// Note: these are currently smoothed measurements if the firmware is running, as the
+// firmware does smoothing. However, the simulator backend does not perform smoothing.
 export const getSensorMeasurements = createSelector(
   getMeasurements,
   (measurements: Measurements): SensorMeasurements | null => measurements.sensor,
@@ -345,20 +346,8 @@ export const getFrontendDisplaySetting = createSelector(
 
 // Smoothed measurements
 
-export const getSmoothedMeasurements = createSelector(
-  getController,
-  (states: ControllerStates): SmoothedMeasurements => states.smoothedMeasurements,
-);
-// TODO: we could unify this code with a generic selector, but it's only worth it
-// if we need selectors for any more fields besides "smoothed".
-export const getSmoothedFlow = createSelector(
-  getSmoothedMeasurements,
-  (smoothed: SmoothedMeasurements): number => roundValue(smoothed.flow.smoothed),
-);
-export const getSmoothedFiO2 = createSelector(
-  getSmoothedMeasurements,
-  (smoothed: SmoothedMeasurements): number => roundValue(smoothed.fio2.smoothed),
-);
+export const getSmoothedFlow = getSensorMeasurementsFlow;
+export const getSmoothedFiO2 = getSensorMeasurementsFiO2;
 export const getSmoothedFiO2Value = createSelector(
   getSmoothedFiO2,
   getParametersFlow,
@@ -366,14 +355,8 @@ export const getSmoothedFiO2Value = createSelector(
     return getParametersFlow > 0 ? roundValue(fio2) : NaN;
   },
 );
-export const getSmoothedSpO2 = createSelector(
-  getSmoothedMeasurements,
-  (smoothed: SmoothedMeasurements): number => roundValue(smoothed.spo2.smoothed),
-);
-export const getSmoothedHR = createSelector(
-  getSmoothedMeasurements,
-  (smoothed: SmoothedMeasurements): number => roundValue(smoothed.hr.smoothed),
-);
+export const getSmoothedSpO2 = getSensorMeasurementsSpO2;
+export const getSmoothedHR = getSensorMeasurementsHR;
 
 // Plots
 

@@ -162,24 +162,6 @@ export interface RotaryEncoderParameter {
   stepDiff: number; // this is a derived value not in RotaryEncoder
 }
 
-// Smoothed measurements
-
-export interface SmoothingData {
-  raw: number;
-  average: number;
-  converged: number;
-  smoothed: number;
-  time?: number;
-  convergenceStartTime?: number;
-  changeStartTime?: number;
-}
-export interface SmoothedMeasurements {
-  fio2: SmoothingData;
-  flow: SmoothingData;
-  spo2: SmoothingData;
-  hr: SmoothingData;
-}
-
 // Plots
 
 // Waveform histories
@@ -239,7 +221,6 @@ export interface ControllerStates {
   rotaryEncoder: RotaryEncoderParameter | null;
 
   // Derived states
-  smoothedMeasurements: SmoothedMeasurements;
   plots: Plots;
 }
 
