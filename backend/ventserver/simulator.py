@@ -23,7 +23,7 @@ from ventserver.protocols.application import lists
 from ventserver.protocols.backend import alarms, log, server, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.simulation import (
-    alarm_limits, alarms as sim_alarms, parameters, simulators
+    alarm_limits, alarms as sim_alarms, parameters, power_management, simulators
 )
 from ventserver import application
 
@@ -121,6 +121,7 @@ async def simulate_states(
     """Simulate evolution of all states."""
     simulation_services = simulators.Services()
     alarms_services = sim_alarms.Services()
+    power_service = power_management.Service()
     active_log_events = typing.cast(
         mcu_pb.ActiveLogEvents,
         store[states.StateSegment.ACTIVE_LOG_EVENTS_MCU]
@@ -130,6 +131,7 @@ async def simulate_states(
         simulated_log.input(log.LocalLogInputEvent(current_time=time.time()))
         simulation_services.transform(time.time(), store)
         alarms_services.transform(store, simulated_log)
+        power_service.transform(time.time(), store)
         service_event_log(
             simulated_log, active_log_events, simulated_log_receiver
         )
