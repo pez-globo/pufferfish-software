@@ -70,7 +70,7 @@ export enum MessageType {
   ActiveLogEvents = 10,
   AlarmMute = 11,
   AlarmMuteRequest = 12,
-  PowerManagement = 64,
+  PowerManagement = 20,
   ScreenStatus = 65,
   // frontend_pb
   RotaryEncoder = 128,
