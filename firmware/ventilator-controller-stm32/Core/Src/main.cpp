@@ -105,9 +105,6 @@ UART_HandleTypeDef huart3;
 
 namespace PF = Pufferfish;
 
-// Alarms
-using alarm_mute_service = PF::Driver::BreathingCircuit::AlarmMuteService;
-
 // Application State
 PF::Application::Store store;
 
@@ -627,7 +624,8 @@ int main(void)
         alarms_manager);
 
     // Alarm Mute Service
-    alarm_mute_service::transform(store.alarm_mute(), store.alarm_mute_request());
+    PF::Driver::BreathingCircuit::AlarmMuteService::transform(
+        store.alarm_mute(), store.alarm_mute_request());
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;
