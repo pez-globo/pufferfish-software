@@ -14,12 +14,16 @@ namespace Pufferfish::Driver::BreathingCircuit {
 class SensorMeasurementsSmoothers {
  public:
   static const uint32_t sampling_interval = 5;  // ms
+  static constexpr Application::DisplaySmoother::SmoothingParameters fio2_params{1, 0.5, 1000, 100};
+  static constexpr Application::DisplaySmoother::SmoothingParameters flow_params{1, 1, 200, 1000};
+  static constexpr Application::DisplaySmoother::SmoothingParameters spo2_params{1, 1, 200, 1000};
+  static constexpr Application::DisplaySmoother::SmoothingParameters hr_params{1, 1, 200, 100};
 
   SensorMeasurementsSmoothers()
-      : fio2_(sampling_interval, 1, 0.5, 1000, 100),
-        flow_(sampling_interval, 1, 0.5, 1000, 100),
-        spo2_(sampling_interval, 1, 1, 200, 1000),
-        hr_(sampling_interval, 1, 1, 200, 1000) {}
+      : fio2_(sampling_interval, fio2_params),
+        flow_(sampling_interval, flow_params),
+        spo2_(sampling_interval, spo2_params),
+        hr_(sampling_interval, hr_params) {}
 
   void transform(
       uint32_t current_time, const SensorMeasurements &raw, SensorMeasurements &filtered);

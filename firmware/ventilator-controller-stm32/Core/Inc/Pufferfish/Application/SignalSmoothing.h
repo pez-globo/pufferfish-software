@@ -74,6 +74,12 @@ class ConvergenceSmoother {
 class DisplaySmoother {
  public:
   enum class Status { ok = 0, waiting };
+  struct SmoothingParameters {
+    float ewma_responsiveness;
+    float change_min_magnitude;
+    float convergence_min_duration;
+    float change_min_duration;
+  };
 
   DisplaySmoother(
       uint32_t sampling_interval,
@@ -84,6 +90,13 @@ class DisplaySmoother {
       : sampling_interval(sampling_interval),
         ewma_(ewma_responsiveness),
         convergence_(change_min_magnitude, convergence_min_duration, change_min_duration) {}
+  DisplaySmoother(uint32_t sampling_interval, SmoothingParameters params)
+      : DisplaySmoother(
+            sampling_interval,
+            params.ewma_responsiveness,
+            params.change_min_magnitude,
+            params.convergence_min_duration,
+            params.change_min_duration) {}
 
   Status transform(uint32_t current_time, float raw, float &filtered);
 
