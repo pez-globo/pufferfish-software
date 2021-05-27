@@ -14,7 +14,7 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
-std::ranlux24_base prng;  // fixed seed for pseudo-random number generation
+std::ranlux24_base prng(42);  // fixed seed for pseudo-random number generation
 std::uniform_real_distribution<float> uniform(0, 1);
 
 // Simulator

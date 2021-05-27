@@ -20,12 +20,12 @@ static constexpr float float_nan = std::numeric_limits<float>::quiet_NaN();
 // the EWMA filter!
 class EWMA {
  public:
-  EWMA(float responsiveness) : responsiveness_(responsiveness) {}
+  explicit EWMA(float responsiveness) : responsiveness(responsiveness) {}
 
   void transform(float raw, float &filtered);
 
  private:
-  const float responsiveness_;
+  const float responsiveness;
   float average_ = float_nan;
 };
 
@@ -47,26 +47,26 @@ class ConvergenceSmoother {
  public:
   ConvergenceSmoother(
       float change_min_magnitude, uint32_t convergence_min_duration, uint32_t change_min_duration)
-      : change_min_magnitude_(change_min_magnitude),
-        convergence_min_duration_(convergence_min_duration),
-        change_min_duration_(change_min_duration) {}
+      : change_min_magnitude(change_min_magnitude),
+        convergence_min_duration(convergence_min_duration),
+        change_min_duration(change_min_duration) {}
 
   void transform(uint32_t current_time, float raw, float &filtered);
 
  private:
-  const float change_min_magnitude_;
-  const uint32_t convergence_min_duration_;  // ms
-  const uint32_t change_min_duration_;       // ms
+  const float change_min_magnitude;
+  const uint32_t convergence_min_duration;  // ms
+  const uint32_t change_min_duration;       // ms
 
-  bool started_changing_;
-  uint32_t change_start_;  // ms
-  bool started_converging_;
-  uint32_t convergence_start_;  // ms
+  bool started_changing_ = false;
+  uint32_t change_start_ = 0;  // ms
+  bool started_converging_ = false;
+  uint32_t convergence_start_ = 0;  // ms
   float converged_ = float_nan;
   float filtered_ = float_nan;
 
   float prev_raw_ = float_nan;
-  uint32_t prev_time_;  // ms
+  uint32_t prev_time_ = 0;  // ms
 };
 
 // A class to combine EWMA with ConvergenceSmoother, to smooth & stabilize
@@ -81,19 +81,19 @@ class DisplaySmoother {
       float change_min_magnitude,
       float convergence_min_duration,
       float change_min_duration)
-      : sampling_interval_(sampling_interval),
+      : sampling_interval(sampling_interval),
         ewma_(ewma_responsiveness),
         convergence_(change_min_magnitude, convergence_min_duration, change_min_duration) {}
 
   Status transform(uint32_t current_time, float raw, float &filtered);
 
  private:
-  const uint32_t sampling_interval_;  // ms
+  const uint32_t sampling_interval;  // ms
 
   EWMA ewma_;
   ConvergenceSmoother convergence_;
 
-  uint32_t prev_sample_time_;  // ms
+  uint32_t prev_sample_time_ = 0;  // ms
 };
 
 }  // namespace Pufferfish::Application

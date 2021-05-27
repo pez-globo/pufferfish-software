@@ -19,7 +19,7 @@ void EWMA::transform(float raw, float &filtered) {
   if (std::isnan(average_)) {
     average_ = raw;
   }
-  average_ = responsiveness_ * raw + (1 - responsiveness_) * average_;
+  average_ = responsiveness * raw + (1 - responsiveness) * average_;
   filtered = average_;
 }
 
@@ -35,9 +35,9 @@ void ConvergenceSmoother::transform(uint32_t current_time, float raw, float &fil
   }
   const float change_magnitude = std::abs(raw - prev_raw_);
   const bool possibly_converging =
-      std::isnan(converged_) && !std::isnan(prev_raw_) && change_magnitude < change_min_magnitude_;
+      std::isnan(converged_) && !std::isnan(prev_raw_) && change_magnitude < change_min_magnitude;
   const float residual = std::abs(raw - converged_);
-  const bool possibly_converged = !std::isnan(converged_) && residual < change_min_magnitude_;
+  const bool possibly_converged = !std::isnan(converged_) && residual < change_min_magnitude;
   if (possibly_converging || possibly_converged) {
     // Value may be converging or is already converged
     started_changing_ = false;  // stop the "changing" timer
@@ -47,9 +47,9 @@ void ConvergenceSmoother::transform(uint32_t current_time, float raw, float &fil
       started_converging_ = true;
     }
     const bool converged =
-        !Util::within_timeout(convergence_start_, convergence_min_duration_, current_time);
+        !Util::within_timeout(convergence_start_, convergence_min_duration, current_time);
     const bool prev_converged =
-        !Util::within_timeout(convergence_start_, convergence_min_duration_, prev_time_);
+        !Util::within_timeout(convergence_start_, convergence_min_duration, prev_time_);
     if (converged && !prev_converged) {
       // Value has just converged
       converged_ = raw;
@@ -63,7 +63,7 @@ void ConvergenceSmoother::transform(uint32_t current_time, float raw, float &fil
       change_start_ = current_time;
       started_changing_ = true;
     }
-    if (!Util::within_timeout(change_start_, change_min_duration_, current_time)) {
+    if (!Util::within_timeout(change_start_, change_min_duration, current_time)) {
       // Value is transitioning to a different level
       filtered_ = raw;
       converged_ = float_nan;
@@ -78,12 +78,12 @@ void ConvergenceSmoother::transform(uint32_t current_time, float raw, float &fil
 
 DisplaySmoother::Status DisplaySmoother::transform(
     uint32_t current_time, float raw, float &filtered) {
-  if (Util::within_timeout(prev_sample_time_, sampling_interval_, current_time)) {
+  if (Util::within_timeout(prev_sample_time_, sampling_interval, current_time)) {
     return Status::waiting;
   }
 
   prev_sample_time_ = current_time;
-  float ewma_result;
+  float ewma_result = float_nan;
   ewma_.transform(raw, ewma_result);
   convergence_.transform(current_time, ewma_result, filtered);
   return Status::ok;

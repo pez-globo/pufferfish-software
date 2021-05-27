@@ -54,7 +54,7 @@ void HFNCControlLoop::update(uint32_t current_time) {
   if (air_status == InitializableState::ok && o2_status == InitializableState::ok) {
     sensor_measurements_.flow = sensor_vars_.flow_air + sensor_vars_.flow_o2;
   }
-  // TODO: we should probably set flow to NaN otherwise, but for now we do nothing
+  // TODO(lietk12): we should probably set flow to NaN otherwise, but for now we do nothing
   // so that we don't overwrite the simulated values if the sensors aren't available
 
   // Update controller
