@@ -101,7 +101,7 @@ class HFNCSimulator : public Simulator {
 
   uint32_t cycle_start_time_ = 0;            // ms
   const float flow_responsiveness = 0.01;    // ms
-  const float flow_noise = 0.1;              // L/min
+  const float flow_noise = 0.05;              // L/min
   const float spo2_fio2_scale = 2.5;         // % SpO2 / % FiO2
   const float spo2_responsiveness = 0.0005;  // ms
   const float spo2_noise = 0.1;              // L/min

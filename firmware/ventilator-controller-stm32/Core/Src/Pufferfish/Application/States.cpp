@@ -52,7 +52,7 @@ namespace Pufferfish::Application {
 
 // Store
 
-SensorMeasurements &Store::sensor_measurements() {
+SensorMeasurements &Store::sensor_measurements_filtered() {
   return state_segments_.sensor_measurements;
 }
 
@@ -94,6 +94,10 @@ NextLogEvents &Store::next_log_events() {
 
 ActiveLogEvents &Store::active_log_events() {
   return state_segments_.active_log_events;
+}
+
+SensorMeasurements &Store::sensor_measurements_raw() {
+  return state_segments_.sensor_measurements_raw;
 }
 
 Store::InputStatus Store::input(const StateSegment &input, bool default_initialization) {
