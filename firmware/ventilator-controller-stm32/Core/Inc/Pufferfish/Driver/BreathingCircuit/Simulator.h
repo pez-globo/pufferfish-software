@@ -72,9 +72,9 @@ class PCACSimulator : public Simulator {
   const float exp_init_flow_rate = -120;        // L / min
   const float insp_flow_responsiveness = 0.02;  // ms
   const float exp_flow_responsiveness = 0.02;   // ms
-  const float rr_noise = 0.5;   // breaths/min
-  const float peep_noise = 1.0;   // cm H2O
-  const float pip_noise = 1.0;   // cm H2O
+  const float rr_noise = 0.5;                   // breaths/min
+  const float peep_noise = 1.0;                 // cm H2O
+  const float pip_noise = 1.0;                  // cm H2O
 
   void init_cycle(
       uint32_t cycle_period, const Parameters &parameters, SensorMeasurements &sensor_measurements);
