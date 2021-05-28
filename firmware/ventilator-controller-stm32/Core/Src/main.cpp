@@ -404,6 +404,13 @@ void initialize_states() {
   PF::Driver::BreathingCircuit::make_state_initializers(alarm_limits_request, alarm_limits);
   store.alarm_limits() = alarm_limits;
   store.input(alarm_limits_request, true);
+
+  // Alarm Mute
+  AlarmMute alarm_mute;
+  PF::Application::StateSegment alarm_mute_request;
+  PF::Driver::BreathingCircuit::make_state_initializers(alarm_mute_request, alarm_mute);
+  store.alarm_mute() = alarm_mute;
+  store.input(alarm_mute_request, true);
 }
 
 void interface_test_loop() {

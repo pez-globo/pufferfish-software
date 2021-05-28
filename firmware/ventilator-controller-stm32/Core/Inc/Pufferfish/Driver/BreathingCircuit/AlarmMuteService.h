@@ -19,4 +19,6 @@ class AlarmMuteService {
   static void transform(AlarmMute &alarm_mute, const AlarmMuteRequest &alarm_mute_request);
 };
 
+void make_state_initializers(Application::StateSegment &request_segment, AlarmMute &response);
+
 }  // namespace Pufferfish::Driver::BreathingCircuit

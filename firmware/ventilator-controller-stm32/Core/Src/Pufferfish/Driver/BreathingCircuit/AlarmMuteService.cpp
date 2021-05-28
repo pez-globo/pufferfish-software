@@ -16,4 +16,12 @@ void AlarmMuteService::transform(
   alarm_mute.active = alarm_mute_request.active;
 }
 
+void make_state_initializers(Application::StateSegment &request_segment, AlarmMute &response) {
+  response.remaining = 120;
+
+  AlarmMuteRequest request{};
+  request.active = false;
+  request.remaining = 120;
+  request_segment.set(request);
+}
 }  // namespace Pufferfish::Driver::BreathingCircuit
