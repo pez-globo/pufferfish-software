@@ -181,6 +181,11 @@ SCENARIO(
 
       auto write_status = test_message.write(output_buffer, BE::message_descriptors);
 
+      // print the output buffer
+      // auto hexString = PF::Util::convert_byte_vector_to_hex_string(output_buffer);
+      // std::cout << "hex string"
+      //           << " " << hexString << std::endl;
+
       THEN("The write method reports ok status") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
       }
