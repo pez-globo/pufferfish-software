@@ -56,6 +56,9 @@ export const getEventDetails = (event: LogEvent, eventType: EventType): string =
     if (event.code === LogEventCode.frontend_connection_up) {
       return 'Connected to user interface';
     }
+    if (event.code === LogEventCode.charger_disconnected) {
+      return 'Battery charger is disconnected';
+    }
   }
   return '';
 };
@@ -227,6 +230,12 @@ export const getEventType = (code: LogEventCode): EventType => {
         type: LogEventType.system,
         label: 'Battery power is low',
         unit: PERCENT,
+      };
+    case LogEventCode.charger_disconnected:
+      return {
+        type: LogEventType.system,
+        label: 'Charger is disconnected',
+        unit: '',
       };
     default:
       return { type: LogEventType.system, label: '', unit: '' };
