@@ -177,12 +177,8 @@ SCENARIO(
     using BackendStateSynchronizer = PF::Protocols::
         StateSynchronizer<Store, StateSegment, MessageTypes, state_sync_schedule.size()>;
 
-    const BackendStateSynchronizer::OutputStatus output_ok =
-        BackendStateSynchronizer::OutputStatus::ok;
     const BackendStateSynchronizer::OutputStatus invalid_type =
         BackendStateSynchronizer::OutputStatus::invalid_type;
-    const BackendStateSynchronizer::OutputStatus waiting =
-        BackendStateSynchronizer::OutputStatus::waiting;
 
     Store store{};
 
@@ -224,8 +220,6 @@ SCENARIO(
 
     const BackendStateSynchronizer::OutputStatus output_ok =
         BackendStateSynchronizer::OutputStatus::ok;
-    const BackendStateSynchronizer::OutputStatus waiting =
-        BackendStateSynchronizer::OutputStatus::waiting;
 
     Store store{};
 
@@ -486,8 +480,6 @@ SCENARIO(
 
     const BackendStateSynchronizer::OutputStatus output_ok =
         BackendStateSynchronizer::OutputStatus::ok;
-    const BackendStateSynchronizer::OutputStatus waiting =
-        BackendStateSynchronizer::OutputStatus::waiting;
 
     Store store{};
 
@@ -681,8 +673,6 @@ SCENARIO(
 
     const BackendStateSynchronizer::OutputStatus output_ok =
         BackendStateSynchronizer::OutputStatus::ok;
-    const BackendStateSynchronizer::OutputStatus waiting =
-        BackendStateSynchronizer::OutputStatus::waiting;
 
     Store store{};
 
@@ -780,8 +770,6 @@ SCENARIO(
 
     const BackendStateSynchronizer::OutputStatus output_ok =
         BackendStateSynchronizer::OutputStatus::ok;
-    const BackendStateSynchronizer::OutputStatus waiting =
-        BackendStateSynchronizer::OutputStatus::waiting;
 
     Store store{};
 

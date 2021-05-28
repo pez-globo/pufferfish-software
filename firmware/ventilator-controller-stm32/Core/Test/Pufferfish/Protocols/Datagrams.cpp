@@ -183,7 +183,7 @@ SCENARIO(
     // as payload buffer is a ByteVector of size 252
     int payload_size = GENERATE(0, 252);
 
-    for (size_t i = 0; i < payload_size; ++i) {
+    for (int i = 0; i < payload_size; ++i) {
       uint8_t val = 9;
       input_payload.push_back(val);
     }
@@ -205,7 +205,7 @@ SCENARIO(
       }
       THEN("The payload returned by the paylaod accessor method remains unchanged") {
         auto buffer = datagram.payload();
-        for (size_t i = 0; i < payload_size; ++i) {
+        for (int i = 0; i < payload_size; ++i) {
           uint8_t val = 9;
           REQUIRE(buffer.operator[](i) == val);
         }
@@ -223,7 +223,7 @@ SCENARIO(
       THEN(
           "The body's payload section correctly stores the paylaod as '0x09 ...' for varying "
           "payload lengths") {
-        for (size_t i = 2; i < payload_size + 1; ++i) {
+        for (int i = 2; i < payload_size + 1; ++i) {
           uint8_t val = 9;
           REQUIRE(output_buffer.operator[](i) == val);
         }
@@ -231,7 +231,7 @@ SCENARIO(
       THEN("The output buffer is as expected for all the different paylaod buffers") {
         REQUIRE(output_buffer.operator[](0) == 0);
         REQUIRE(output_buffer.operator[](1) == payload_size);
-        for (size_t i = 2; i < payload_size + 1; ++i) {
+        for (int i = 2; i < payload_size + 1; ++i) {
           uint8_t val = 9;
           REQUIRE(output_buffer.operator[](i) == val);
         }
@@ -1767,7 +1767,6 @@ SCENARIO(
 
     WHEN("The input payload to the transform method is '0x00 0x00'") {
       using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
-      using TestDatagram = PF::Protocols::Datagram<TestDatagramProps::PayloadBuffer>;
 
       auto data = std::string("\x00\x00", 2);
 
@@ -1798,7 +1797,6 @@ SCENARIO(
     "[DatagramSender]") {
   constexpr size_t buffer_size = 254UL;
   using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
-  using TestDatagram = PF::Protocols::Datagram<TestDatagramProps::PayloadBuffer>;
   using TestDatagramSender = PF::Protocols::DatagramSender<buffer_size>;
   using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
   TestDatagramSender datagram_sender{};
