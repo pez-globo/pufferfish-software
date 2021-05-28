@@ -1,7 +1,7 @@
 """alarm muting request and response"""
 
 import typing
-from typing import Dict, Mapping, Optional
+from typing import Mapping, Optional
 
 import attr
 
@@ -11,13 +11,10 @@ from ventserver.protocols.backend import states
 from ventserver.protocols.protobuf import mcu_pb
 
 def transform(
-    active_alarm_ids: mcu_pb.ActiveLogEvents,
     request: mcu_pb.AlarmMuteRequest,
     response: mcu_pb.AlarmMute
 ) -> None:
     """Mute the current active alarm"""
-    if active_alarm_ids is None:
-        return
 
     response.active = request.active
 
@@ -25,9 +22,7 @@ def transform(
 class AlarmMuteService:
     """Implement Alarm Mute Service"""
 
-    _active_alarm_ids: Dict[mcu_pb.LogEventCode, int] = attr.ib(factory=dict)
-
-    def transform(
+    def transform(# pylint: disable=no-self-use
             self, store: Mapping[
                 states.StateSegment, Optional[betterproto.Message]
             ]
@@ -41,10 +36,6 @@ class AlarmMuteService:
         alarm_mute = typing.cast(
             mcu_pb.AlarmMute, store[states.StateSegment.ALARM_MUTE]
         )
-        active_alarm_ids = typing.cast(
-            mcu_pb.ActiveLogEvents,
-            self._active_alarm_ids
-        )
         transform(
-            active_alarm_ids, alarm_mute_request, alarm_mute
+            alarm_mute_request, alarm_mute
         )
