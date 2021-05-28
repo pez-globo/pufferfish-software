@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * @summary Component to display Value, Set Value Modal & Alarm Modal for ROXIndex parameter
+ *
+ * Set Value & Alarm Modal is optional
+ *
+ */
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -17,9 +24,11 @@ const label = 'ROX Index';
 /**
  * ROXIndexInfo
  *
- * A `Knob`-based component for handling SpO2 information.
+ * @component A `Knob`-based component for handling ROX Index information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const ROXIndexInfo = (): JSX.Element => (
   <Knob

@@ -1,3 +1,8 @@
+/**
+ * @summary Re-usable UI component to perform Test calibration
+ *
+ *
+ */
 import React from 'react';
 import { Button, Grid, Typography, makeStyles, Theme } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
@@ -40,6 +45,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the Test tool
+ * @prop {string} label TestTool Label
+ * @prop {boolean} isSuccess To determine whether Test is success
+ * @prop {Date} timestamp Time to show in UI
+ *
+ */
 interface Props {
   label: string;
   isSuccess: boolean;
@@ -49,7 +63,11 @@ interface Props {
 /**
  * TestTool
  *
- * A component for performing tests and calibrations.
+ * @component A component for performing tests and calibrations.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns JSX.Element
  */
 export const TestTool = ({ label, isSuccess, timestamp }: Props): JSX.Element => {
   const classes = useStyles();

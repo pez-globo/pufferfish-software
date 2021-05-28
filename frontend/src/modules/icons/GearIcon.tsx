@@ -1,6 +1,19 @@
+/**
+ * @summary SVG based component for "Gear" icon
+ *
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 
+/**
+ * GearIcon
+ *
+ * @component Component for displaying "Gear" icon
+ *
+ * @param {SvgIconProps} props - SVG props to override
+ *
+ * @returns {JSX.Element} - "Gear" icon used in Settings icon in navigation
+ */
 const GearIcon = (props: SvgIconProps): JSX.Element => {
   return (
     <SvgIcon {...props} width="28.451" height="28.451" viewBox="0 0 28.451 28.451">

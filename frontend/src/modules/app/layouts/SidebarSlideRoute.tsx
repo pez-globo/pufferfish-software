@@ -1,7 +1,6 @@
 /**
- * This is the doc comment for Sliding Sidebar based Layout
- * @packageDocumentation
- * @module sliding-sidebar-layout
+ * @summary Layout with Slider styled Sidebar based pages (Dashboard page)
+ *
  */
 import React, { PropsWithChildren, useEffect } from 'react';
 import { Route, RouteProps } from 'react-router-dom';
@@ -73,10 +72,22 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * Toolbar extending full width of the page
+ *
+ * @component Component for Toolbar
+ *
+ * @returns {JSX.Element}
+ */
 const FullWidthToolBar = (): JSX.Element => {
   const classes = useStyles();
   const [toggle, setToggle] = React.useState<boolean>(false);
 
+  /**
+   * Toggles the slider sidebar UI drawer
+   *
+   * @param {boolean} value - show/hide value
+   */
   const toggleDrawer = (value: boolean) => () => {
     setToggle(value);
   };
@@ -105,6 +116,13 @@ const FullWidthToolBar = (): JSX.Element => {
   );
 };
 
+/**
+ * SidebarLayout
+ *
+ * @component Component for displaying the sidebar
+ *
+ * @returns {JSX.Element}
+ */
 const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
   return (
@@ -118,11 +136,23 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
   );
 };
 
+/**
+ * ContentComponent
+ *
+ * @component Component for displaying the main content
+ *
+ * @returns {JSX.Element}
+ */
 const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
   const notifyAlarm = useSelector(getAlarmNotifyStatus);
   const [showBorder, setShowBorder] = React.useState(false);
 
+  /**
+   * Triggers when Alarm event is active (Referenced in `OverlayScreen` )
+   * RED_BORDER reduxs store is dispatched when alarm is active
+   * It adds a red border around the page
+   */
   useEffect(() => {
     setShowBorder(notifyAlarm);
   }, [notifyAlarm]);
@@ -146,6 +176,13 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
   );
 });
 
+/**
+ * DashboardRoute
+ *
+ * @component Component for displaying the Dashboard page layout
+ *
+ * @returns {JSX.Element | null}
+ */
 const DashboardRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
   if (!Component) return null;
   return (

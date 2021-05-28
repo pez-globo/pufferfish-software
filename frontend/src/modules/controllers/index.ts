@@ -1,4 +1,12 @@
 /**
+ * @summary Components which are used to control or set data based on User UI interaction
+ *
+ * @file Slider, Modal popup's, Rotary encoder, etc are the means through which
+ * user can control UI values in a particular section
+ *
+ * Files which lets user control or configure UI should be placed here
+ */
+/**
  * controls
  *
  * Re-usable controller components.

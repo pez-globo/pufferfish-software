@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * @summary Component to display Value, Set Value Modal & Alarm Modal for InspTime parameter
+ *
+ * Set Value & Alarm Modal is optional
+ *
+ */
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -20,9 +27,11 @@ const units = SECOND;
 /**
  * InspTimeInfo
  *
- * A `Knob`-based component for handling Inspiration Time information.
+ * @component A `Knob`-based component for handling Inspiration Time information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const InspTimeInfo = (): JSX.Element => (
   <Knob
