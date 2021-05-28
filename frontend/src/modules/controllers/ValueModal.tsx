@@ -4,6 +4,7 @@ import { shallowEqual, useSelector } from 'react-redux';
 import ValueClicker from './ValueClicker';
 import ModalPopup from './ModalPopup';
 import { getRotaryEncoder } from '../../store/controller/selectors';
+import { RotaryEncodeController } from './RotaryEncodeController';
 
 const useStyles = makeStyles((theme: Theme) => ({
   contentContainer: {
@@ -102,38 +103,6 @@ export const ValueModal = ({
     setOpen(false);
   };
 
-  const updateRotaryData = useCallback(
-    () => {
-      if (rotaryEncoder === null) {
-        return;
-      }
-
-      if (!open) {
-        return;
-      }
-
-      const stepDiff = rotaryEncoder.stepDiff || 0;
-      const valueClone = value >= min ? value : min;
-      const newValue = valueClone + stepDiff;
-      if (newValue < min) {
-        setValue(min);
-      } else if (newValue > max) {
-        setValue(max);
-      } else {
-        setValue(newValue);
-      }
-      if (rotaryEncoder.buttonPressed) {
-        handleConfirm();
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rotaryEncoder, min, max],
-  );
-
-  useEffect(() => {
-    updateRotaryData();
-  }, [updateRotaryData]);
-
   function pipClarify(label: string) {
     if (label === 'PIP') return '*not PEEP compensated';
     return '';
@@ -181,6 +150,17 @@ export const ValueModal = ({
           </Button>
         )}
       </Grid>
+      {rotaryEncoder !== null ? (
+        <RotaryEncodeController
+          isActive={true}
+          value={value}
+          onClick={(num: number) => {
+            setValue(num);
+          }}
+          min={min}
+          max={max}
+        />
+      ) : null}
       <ModalPopup
         withAction={true}
         label="Set New"
@@ -209,6 +189,7 @@ export const SetValueContent = ({
   const rotaryEncoder = useSelector(getRotaryEncoder, shallowEqual);
   const [open, setOpen] = React.useState(openModal);
   const [value, setValue] = React.useState(committedSetting);
+  const [isRotaryActive, setIsRotaryActive] = React.useState(false);
 
   useEffect(() => {
     setOpen(openModal);
@@ -236,46 +217,18 @@ export const SetValueContent = ({
     requestCommitSetting(value);
   }, [requestCommitSetting, value]);
 
-  const handleConfirm = () => {
-    requestCommitSetting(value);
-  };
-
-  const updateRotaryData = useCallback(
-    () => {
-      if (rotaryEncoder === null) {
-        return;
-      }
-
-      if (!open || Number.isNaN(rotaryEncoder.stepDiff)) {
-        return;
-      }
-
-      const stepDiff = rotaryEncoder.stepDiff || 0;
-      const valueClone = value >= min ? value : min;
-      const newValue = valueClone + stepDiff;
-      if (newValue < min) {
-        setValue(min);
-      } else if (newValue > max) {
-        setValue(max);
-      } else {
-        setValue(newValue);
-      }
-      if (rotaryEncoder.buttonPressed) {
-        handleConfirm();
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rotaryEncoder, min, max],
-  );
+  // const handleConfirm = () => {
+  //   requestCommitSetting(value);
+  // };
 
   useEffect(() => {
     // Disable on initial mount since multi step dialog will run everytime when dialog opens
     if (isInitialMount.current) {
       isInitialMount.current = false;
     } else {
-      updateRotaryData();
+      setIsRotaryActive(true);
     }
-  }, [updateRotaryData, rotaryEncoder]);
+  }, [rotaryEncoder]);
 
   function pipClarify(label: string) {
     if (label === 'PIP') return '*not PEEP compensated';
@@ -312,7 +265,20 @@ export const SetValueContent = ({
 
   return (
     <Grid container direction="column" alignItems="center" justify="center">
-      {modalContent}
+      {rotaryEncoder !== null ? (
+        <RotaryEncodeController
+          isActive={isRotaryActive}
+          value={value}
+          onClick={(num: number) => {
+            setValue(num);
+          }}
+          min={min}
+          max={max}
+        />
+      ) : null}
+      <Grid container direction="column" alignItems="center" justify="center">
+        {modalContent}
+      </Grid>
     </Grid>
   );
 };
