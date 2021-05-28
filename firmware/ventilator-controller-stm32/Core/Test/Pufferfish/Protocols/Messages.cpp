@@ -150,7 +150,7 @@ SCENARIO(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
       "bytes") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\xF0\x41\x2D\x00\x00\x90\x42"s);
     const auto exp_cycle_measurements =
         std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
     const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
@@ -507,7 +507,7 @@ SCENARIO(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 126 "
       "bytes") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\xF0\x41\x2D\x00\x00\x90\x42"s);
     const auto exp_cycle_measurements =
         std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
     const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
@@ -593,11 +593,6 @@ SCENARIO(
       }
       THEN("The payload.tag field remains unchanged") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
-      }
-      THEN("The payload.values field data remains unchanged") {
-        ParametersRequest parameters_request;
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters_request.flow == 0);
       }
       THEN("After the write method is called, the output buffer remains unchanged") {
         REQUIRE(output_buffer.empty() == true);
@@ -850,7 +845,7 @@ SCENARIO(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
       "bytes") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\xF0\x41\x2D\x00\x00\x90\x42"s);
     const auto exp_cycle_measurements =
         std::string("\x03\x25\x00\x00\xF0\x41\x35\x00\x00\x20\x41"s);
     const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
@@ -1601,7 +1596,7 @@ SCENARIO(
     "[messages]") {
   GIVEN("A MessageReceiver object is constructed with default parameters") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\xF0\x41\x2D\x00\x00\x90\x42"s);
     const auto exp_cycle_measurements =
         std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
     const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
@@ -1811,7 +1806,7 @@ SCENARIO(
     "[messages]") {
   GIVEN("A MessageSender object is constructed with default parameters") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\xF0\x41\x2D\x00\x00\x90\x42"s);
     const auto exp_cycle_measurements =
         std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
     const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
