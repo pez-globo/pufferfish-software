@@ -17,11 +17,11 @@ void AlarmMuteService::transform(
 }
 
 void make_state_initializers(Application::StateSegment &request_segment, AlarmMute &response) {
-  response.remaining = 120;
+  response.remaining = countdown_time;
 
   AlarmMuteRequest request{};
   request.active = false;
-  request.remaining = 120;
+  request.remaining = countdown_time;
   request_segment.set(request);
 }
 }  // namespace Pufferfish::Driver::BreathingCircuit
