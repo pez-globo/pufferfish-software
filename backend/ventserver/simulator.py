@@ -63,7 +63,7 @@ INITIAL_VALUES = {
         active=False, remaining=120
     ),
     states.StateSegment.POWER_MANAGEMENT: mcu_pb.PowerManagement(
-        power_left=0, charging=False
+        power_left=0, charging=True
     ),
     states.StateSegment.SCREEN_STATUS: mcu_pb.ScreenStatus(lock=False),
     states.StateSegment.SYSTEM_SETTING_REQUEST:
@@ -131,7 +131,7 @@ async def simulate_states(
         simulated_log.input(log.LocalLogInputEvent(current_time=time.time()))
         simulation_services.transform(time.time(), store)
         alarms_services.transform(store, simulated_log)
-        power_service.transform(time.time(), store)
+        power_service.transform(store, simulated_log)
         service_event_log(
             simulated_log, active_log_events, simulated_log_receiver
         )
