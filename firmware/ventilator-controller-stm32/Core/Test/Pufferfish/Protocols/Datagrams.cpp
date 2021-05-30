@@ -181,9 +181,9 @@ SCENARIO(
       "A Datagram constructed with a non-empty payload buffer of any length from 0 to 252 and "
       "sequence equal to 0") {
     // as payload buffer is a ByteVector of size 252
-    int payload_size = GENERATE(0, 252);
+    size_t payload_size = GENERATE(0, 252);
 
-    for (int i = 0; i < payload_size; ++i) {
+    for (size_t i = 0; i < payload_size; ++i) {
       uint8_t val = 9;
       input_payload.push_back(val);
     }
@@ -205,7 +205,7 @@ SCENARIO(
       }
       THEN("The payload returned by the paylaod accessor method remains unchanged") {
         auto buffer = datagram.payload();
-        for (int i = 0; i < payload_size; ++i) {
+        for (size_t i = 0; i < payload_size; ++i) {
           uint8_t val = 9;
           REQUIRE(buffer.operator[](i) == val);
         }
@@ -223,7 +223,7 @@ SCENARIO(
       THEN(
           "The body's payload section correctly stores the paylaod as '0x09 ...' for varying "
           "payload lengths") {
-        for (int i = 2; i < payload_size + 1; ++i) {
+        for (size_t i = 2; i < payload_size + 1; ++i) {
           uint8_t val = 9;
           REQUIRE(output_buffer.operator[](i) == val);
         }
@@ -231,7 +231,7 @@ SCENARIO(
       THEN("The output buffer is as expected for all the different paylaod buffers") {
         REQUIRE(output_buffer.operator[](0) == 0);
         REQUIRE(output_buffer.operator[](1) == payload_size);
-        for (int i = 2; i < payload_size + 1; ++i) {
+        for (size_t i = 2; i < payload_size + 1; ++i) {
           uint8_t val = 9;
           REQUIRE(output_buffer.operator[](i) == val);
         }
