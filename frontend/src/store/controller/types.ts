@@ -144,6 +144,10 @@ export interface AlarmLimitsRequestResponse {
   // of all fields to AlarmLimitsRequest to send to the backend
   draft: AlarmLimitsRequest | null;
 }
+export interface AlarmMuteRequestResponse {
+  current: AlarmMute | null;
+  request: AlarmMuteRequest | null;
+}
 export interface EventLog {
   expectedLogEvent: ExpectedLogEvent;
   nextLogEvents: NextLogEvents;
@@ -227,8 +231,7 @@ export interface ControllerStates {
   parameters: ParametersRequestResponse;
   alarmLimits: AlarmLimitsRequestResponse;
   eventLog: EventLog;
-  alarmMuteRequest: AlarmMuteRequest | null;
-  alarmMute: AlarmMute | null;
+  alarmMute: AlarmMuteRequestResponse;
   systemSettingRequest: SystemSettingRequest | null;
   frontendDisplaySetting: FrontendDisplaySetting | null;
   batteryPower: BatteryPower | null;
