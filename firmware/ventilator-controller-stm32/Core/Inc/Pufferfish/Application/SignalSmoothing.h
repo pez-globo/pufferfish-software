@@ -46,6 +46,14 @@ class EWMA {
 class ConvergenceSmoother {
  public:
   ConvergenceSmoother(
+      // change_min_magnitude specifies the convergence interval - if it's bigger, the smoother
+      // will tolerate larger changes of the input as still being within the convergence condition.
+      // If convergence_min_duration is higher, the convergence condition will be more conservative
+      // - the input value will need to have stopped changing for a longer continuous duration
+      // before the smoother decides that the value has converged.
+      // If change_min_duration is higher, the convergence estimate will be "stickier" - the input
+      // value will need to be far from the convergence estimate for a longer continuous duration
+      // before the smoother decides that the value has left the convergence interval.
       float change_min_magnitude, uint32_t convergence_min_duration, uint32_t change_min_duration)
       : change_min_magnitude(change_min_magnitude),
         convergence_min_duration(convergence_min_duration),
