@@ -12,6 +12,14 @@
 
 namespace Pufferfish::Driver::I2C::LTC4015 {
 
+I2CDeviceStatus I2CDevice::is_device_ready() {
+  I2CDeviceStatus ret = dev_.is_device_ready();
+  if (ret != I2CDeviceStatus::ok) {
+    return ret;
+  }
+  return I2CDeviceStatus::ok;
+}
+
 I2CDeviceStatus I2CDevice::read(uint16_t address, std::array<uint8_t, sizeof(uint16_t)> &buf) {
   I2CDeviceStatus ret = dev_.read(address, buf.data(), buf.size());
   if (ret != I2CDeviceStatus::ok) {

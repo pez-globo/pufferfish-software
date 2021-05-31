@@ -48,6 +48,7 @@ enum class AlarmManagerStatus {
  */
 enum class I2CDeviceStatus {
   ok = 0,             /// success
+  not_ready,          /// an error occured when establishing communication with the device
   not_supported,      /// the operation is not supported
   write_error,        /// an error occur when writing to an I2C device
   read_error,         /// an error occur when reading from an I2C device

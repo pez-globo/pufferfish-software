@@ -28,6 +28,12 @@ class Device {
   explicit Device(HAL::I2CDevice &dev) : i2cdevice_(dev) {}
 
   /**
+   * Checks if device is ready
+   * @return ok on success, error code otherwise
+   */
+  I2CDeviceStatus is_device_ready();
+
+  /**
    * Checks if the charger is enabled
    * @return ok on success, error code otherwise
    */

@@ -35,6 +35,12 @@ namespace HAL {
 class I2CDevice {
  public:
   /**
+   * checks if device is ready to communicate
+   * @return ok on success, error code otherwise
+   */
+  virtual I2CDeviceStatus is_device_ready() = 0;
+
+  /**
    * Reads data from the device
    * @param buf[out]    output of the data
    * @param count   the number of bytes to be read

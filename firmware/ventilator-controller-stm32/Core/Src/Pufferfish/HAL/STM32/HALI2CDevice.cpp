@@ -13,6 +13,15 @@
 
 namespace Pufferfish::HAL {
 
+I2CDeviceStatus HALI2CDevice::is_device_ready() {
+  HAL_StatusTypeDef stat =
+      HAL_I2C_IsDeviceReady(&dev_, addr, trials, HALI2CDevice::default_timeout);
+  if (stat == HAL_OK) {
+    return I2CDeviceStatus::ok;
+  }
+  return I2CDeviceStatus::not_ready;
+}
+
 I2CDeviceStatus HALI2CDevice::read(uint8_t *buf, size_t count) {
   HAL_StatusTypeDef stat =
       HAL_I2C_Master_Receive(&dev_, addr << 1U, buf, count, HALI2CDevice::default_timeout);

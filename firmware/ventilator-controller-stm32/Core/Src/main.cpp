@@ -325,7 +325,7 @@ PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 
 // LTC4015
 PF::Driver::I2C::LTC4015::Device ltc4015_dev(i2c_hal_ltc4015);
-PF::Driver::I2C::LTC4015::Sensor ltc4015_sensor(ltc4015_dev);
+PF::Driver::I2C::LTC4015::Sensor ltc4015_sensor(ltc4015_dev, time);
 
 // Power
 PF::Driver::Power::Simulator power_simulator;
@@ -333,7 +333,7 @@ PF::Driver::Power::Simulator power_simulator;
 // Initializables
 
 auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
-    sfm3019_air, sfm3019_o2, fdo2, nonin_oem);
+    sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015_sensor);
 std::array<PF::InitializableState, initializables.size()> initialization_states;
 
 /*
@@ -622,9 +622,6 @@ int main(void)
         store.sensor_measurements(),
         store.cycle_measurements());
 
-    // Power simulator
-    power_simulator.transform(store.power_management());
-
     // Independent Sensors
     fdo2.output(hfnc.sensor_vars().po2);
     nonin_oem.output(store.sensor_measurements().spo2, store.sensor_measurements().hr);
@@ -638,8 +635,11 @@ int main(void)
         store.active_log_events(),
         alarms_manager);
 
+    // Power simulator
+    power_simulator.transform(store.power_management());
+
     // LTC4015 battery charging
-    ltc4015_sensor.transform(store.power_management());
+    ltc4015_sensor.output(store.power_management());
     power_alarms.transform(store.power_management(), store.active_log_events(), alarms_manager);
 
     // Indicators for debugging

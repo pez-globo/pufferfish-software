@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 #include "stm32h7xx_hal.h"
 
@@ -27,6 +29,8 @@ class HALI2CDevice : public I2CDevice {
    */
   HALI2CDevice(I2C_HandleTypeDef &hi2c, uint16_t address) : dev_(hi2c), addr(address) {}
 
+  I2CDeviceStatus is_device_ready() override;
+
   I2CDeviceStatus read(uint8_t *buf, size_t count) override;
 
   I2CDeviceStatus read(uint16_t address, uint8_t *buf, size_t count) override;
@@ -40,6 +44,7 @@ class HALI2CDevice : public I2CDevice {
  private:
   I2C_HandleTypeDef &dev_;
   const uint16_t addr;
+  const uint32_t trials = 10;
 };
 
 }  // namespace HAL
