@@ -54,7 +54,9 @@ class ConvergenceSmoother {
       // If change_min_duration is higher, the convergence estimate will be "stickier" - the input
       // value will need to be far from the convergence estimate for a longer continuous duration
       // before the smoother decides that the value has left the convergence interval.
-      float change_min_magnitude, uint32_t convergence_min_duration, uint32_t change_min_duration)
+      float change_min_magnitude,
+      uint32_t convergence_min_duration,
+      uint32_t change_min_duration)
       : change_min_magnitude(change_min_magnitude),
         convergence_min_duration(convergence_min_duration),
         change_min_duration(change_min_duration) {}
