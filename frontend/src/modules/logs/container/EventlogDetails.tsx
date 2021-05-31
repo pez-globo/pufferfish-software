@@ -1,3 +1,9 @@
+/**
+ * @deprecated
+ * @summary Component to display Event log details
+ *
+ *
+ */
 import { Grid, TableCell, TableRow } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import React from 'react';
@@ -10,16 +16,31 @@ import SimpleTable, {
 } from '../../controllers/SimpleTable';
 
 /**
- * Event log details
+ * @typedef Data
+ *
+ * Interface for event log details.
+ *
+ * @prop {string} value Display Value of Event log
+ * @prop {string} measurement Unit measurement of event
+ * @prop {number} id Event log Id
  *
  */
-
 interface Data {
   value: string;
   measurement: string;
   id: number;
 }
 
+/**
+ * Function to create row data to display in table
+ *
+ * @prop {string} value Display Value of Event log
+ * @prop {string} measurement Unit measurement of event
+ * @prop {number} id Event log Id
+ *
+ * @returns {Data}
+ *
+ */
 function createData(value: string, measurement: string, id: number): Data {
   return { value, measurement, id };
 }
@@ -54,17 +75,44 @@ const headCells: HeadCell[] = [
 ];
 
 /**
- * Event Logs detail page
+ * EventlogDetails
+ *
+ * @component Event Logs detail page
+ *
+ * @returns {JSX.Element}
+ *
  */
 export const EventlogDetails = (): JSX.Element => {
   const theme = useTheme();
+  /**
+   * State to manage order type
+   */
   const [order, setOrder] = React.useState<Order>('asc');
+  /**
+   * State to manage order by column
+   */
   const [orderBy] = React.useState<keyof Data>('value');
+  /**
+   * State to manage row selection
+   */
   const [selected, setSelected] = React.useState<string[]>([]);
+  /**
+   * State to manage row selection
+   */
   const [page, setPage] = React.useState(0);
+  /**
+   * State to manage row selection
+   */
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
+  /**
+   * Trigger row slection on click at row
+   *
+   * @param {React.MouseEvent<unknown>} event Mouse Event
+   * @param {string} name Column name
+   *
+   */
   const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
     const selectedIndex = selected.indexOf(name);
     let newSelected: string[] = [];
@@ -84,6 +132,14 @@ export const EventlogDetails = (): JSX.Element => {
     setSelected(newSelected);
   };
 
+  /**
+   * Function for handling error message and shown in red color
+   *
+   * @param {number} id  table row id
+   *
+   * @returns {object}
+   *
+   */
   function makeRed(id: number) {
     if (id === 3) return { color: theme.palette.error.main };
     return {};

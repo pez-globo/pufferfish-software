@@ -1,3 +1,9 @@
+/**
+ * @summary UI container for displaying HFNC mode ValueControl
+ *
+ * @file UI container with Layout for Graph
+ *
+ */
 import { Grid, Tab, Tabs, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
@@ -124,10 +130,26 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 /**
  * HFNCMainView
+ *
+ * @component HFNCMainView container
+ *
+ * @returns {JSX.Element}
+ *
  */
 const HFNCMainView = (): JSX.Element => {
   const classes = useStyles();
+  /**
+   * State to manage tab index value
+   */
   const [value, setValue] = React.useState(0);
+
+  /**
+   * Callback event on Tab change
+   *
+   * @param {React.ChangeEvent<Record<string, unknown>>} event DOM change event
+   * @param {number} newValue New tab index value
+   *
+   */
   const handleTabChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setValue(newValue);
   };

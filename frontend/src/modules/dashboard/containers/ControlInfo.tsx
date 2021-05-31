@@ -1,3 +1,8 @@
+/**
+ * @deprecated
+ * @summary Re-usable component wrapper for Value Control & Set Value Modal
+ *
+ */
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,6 +14,20 @@ import { ValueModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
 import { ClickHandler } from './ValueInfo';
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the ControlInfo component.
+ *
+ * @prop {SelectorType} selector Redux store data Selector
+ * @prop {SelectorType} committedSettingSelector Selector Wrapper to update value in redux store
+ * @prop {string} label Label for the control value
+ * @prop {string} stateKey Unique identifier of value
+ * @prop {string} units Unit measurement of the value
+ * @prop {number} min Allowed minimum range value
+ * @prop {number} max Allowed maximum range value
+ *
+ */
 interface Props {
   selector: SelectorType;
   committedSettingSelector: SelectorType;
@@ -19,6 +38,16 @@ interface Props {
   max?: number;
 }
 
+/**
+ * @typedef ValueProps
+ *
+ * Props interface for the ValueControl component.
+ *
+ * @prop {SelectorType} selector Redux Selector
+ * @prop {string} label Label for the control value
+ * @prop {string} units Unit measurement of the value
+ *
+ */
 interface ValueProps {
   selector: SelectorType;
   label: string;
@@ -78,6 +107,16 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * ValueControl
+ *
+ * @component Value Control UI wrapper to display Value from Redux store
+ *
+ * Uses the [[ValueProps]] interface
+ *
+ * @returns {JSX.Element}
+ *
+ */
 export const ValueControl = ({ selector, label, units }: ValueProps): JSX.Element => {
   const classes = useStyles();
   return (
@@ -115,9 +154,13 @@ export const ValueControl = ({ selector, label, units }: ValueProps): JSX.Elemen
 };
 
 /**
- * Control Info
+ * ControlInfo
  *
- * Component for showing information.
+ * @component UI wrapper to display Value & Set Value Modal popup
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns {JSX.Element}
  *
  */
 const ControlInfo = (props: Props): JSX.Element => {
@@ -125,20 +168,41 @@ const ControlInfo = (props: Props): JSX.Element => {
   const [open, setOpen] = useState(false);
   const committedSetting = useSelector(committedSettingSelector);
   const dispatch = useDispatch();
+
+  /**
+   * Update paramter value to redux store
+   *
+   * @param {number} setting value
+   *
+   */
   const doSetValue = (setting: number) => {
     const update = { [stateKey]: setting };
     dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
     dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
   };
+
+  /**
+   * Opens Multistep Popup on Clicking over component
+   */
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
       setMultiPopupOpen(true, stateKey);
     }
   };
+
+  /**
+   * Disable click events over component
+   */
   const handleClick = ClickHandler(onClick, () => {
     return false;
   });
+
+  /**
+   * Function for updating the modal status.
+   *
+   * @param {boolean} status desc ofr status
+   */
   const updateModalStatus = (status: boolean) => {
     setOpen(status);
   };

@@ -1,3 +1,7 @@
+/**
+ * @summary SVG based component for "Chart" icon
+ *
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 import { makeStyles, Theme } from '@material-ui/core/styles';
@@ -8,6 +12,16 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * @deprecated
+ * ChartIcon
+ *
+ * @component Component for displaying "Chart" icon
+ *
+ * @param {SvgIconProps} props - SVG props to override
+ *
+ * @returns {JSX.Element} - "Chart" icon were used in `Values` page now @deprecated
+ */
 const ChartIcon = (props: SvgIconProps): JSX.Element => {
   const classes = useStyles();
   return (

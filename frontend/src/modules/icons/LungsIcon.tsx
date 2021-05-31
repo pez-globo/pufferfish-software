@@ -1,6 +1,20 @@
+/**
+ * @summary SVG based component for "Lungs" icon
+ *
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 
+/**
+ * @deprecated
+ * LungsIcon
+ *
+ * @component Component for displaying "Lungs" icon
+ *
+ * @param {SvgIconProps} props - SVG props to override
+ *
+ * @returns {JSX.Element} - "Lungs" icon used in modes page
+ */
 const LungsIcon = (props: SvgIconProps): JSX.Element => {
   return (
     <SvgIcon {...props} width="31.522" height="28.272" viewBox="0 0 31.522 28.272">

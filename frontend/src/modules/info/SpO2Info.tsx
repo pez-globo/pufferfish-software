@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * @summary Component to display Value, Set Value Modal & Alarm Modal for SpO2 parameter
+ *
+ * Set Value & Alarm Modal is optional
+ *
+ */
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -19,9 +26,11 @@ const units = PERCENT;
 /**
  * SpO2Info
  *
- * A `Knob`-based component for handling SpO2 information.
+ * @component A `Knob`-based component for handling SpO2 information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const SpO2Info = (): JSX.Element => (
   <Knob

@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * @summary Component to display Value, Set Value Modal & Alarm Modal for IERatio parameter
+ *
+ * Set Value & Alarm Modal is optional
+ *
+ */
 import React from 'react';
 import { ValueDisplay } from '../displays/ValueDisplay';
 import { Knob } from '../controllers';
@@ -5,9 +12,11 @@ import { Knob } from '../controllers';
 /**
  * IERatioInfo
  *
- * A `Knob`-based component for handling I:E Ratio information.
+ * @component A `Knob`-based component for handling I:E Ratio information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const IERatioInfo = (): JSX.Element => (
   <Knob

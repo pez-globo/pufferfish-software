@@ -32,10 +32,12 @@
 #include <functional>
 
 #include "Pufferfish/AlarmsManager.h"
+#include "Pufferfish/Application/Alarms.h"
 #include "Pufferfish/Application/LogEvents.h"
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/Application/mcu_pb.h"  // Only used for debugging
 #include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
+#include "Pufferfish/Driver/BreathingCircuit/AlarmMuteService.h"
 #include "Pufferfish/Driver/BreathingCircuit/AlarmsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
@@ -333,7 +335,7 @@ PF::Driver::Power::Simulator power_simulator(ltc4015_sensor);
 // Initializables
 
 auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
-    sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015_sensor);
+    /*sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015_sensor*/);
 std::array<PF::InitializableState, initializables.size()> initialization_states;
 
 /*
@@ -416,6 +418,13 @@ void initialize_states() {
   PF::Driver::BreathingCircuit::make_state_initializers(alarm_limits_request, alarm_limits);
   store.alarm_limits() = alarm_limits;
   store.input(alarm_limits_request, true);
+
+  // Alarm Mute
+  AlarmMute alarm_mute;
+  PF::Application::StateSegment alarm_mute_request;
+  PF::Driver::BreathingCircuit::make_state_initializers(alarm_mute_request, alarm_mute);
+  store.alarm_mute() = alarm_mute;
+  store.input(alarm_mute_request, true);
 }
 
 void interface_test_loop() {
@@ -634,6 +643,10 @@ int main(void)
         store.sensor_measurements(),
         store.active_log_events(),
         alarms_manager);
+
+    // Alarm Mute Service
+    PF::Driver::BreathingCircuit::AlarmMuteService::transform(
+        store.alarm_mute(), store.alarm_mute_request());
 
     // Power simulator
     power_simulator.transform(store.power_management());

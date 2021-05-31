@@ -1,3 +1,8 @@
+/**
+ * @deprecated
+ * @summary Dropdown component Switch between different views
+ *
+ */
 import { makeStyles, Menu, MenuItem, MenuProps, Theme } from '@material-ui/core';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { withStyles } from '@material-ui/core/styles';
@@ -66,23 +71,51 @@ const StyledMenuItem = withStyles((theme) => ({
 /**
  * ViewDropdown
  *
- * TODO: This component may rely on a redux state that stores the current
- *       view.
+ * @component View Dropdown Component
+ *
+ * TODO:This component may rely on a redux state that stores the current view..
+ *
+ * @returns {JSX.Element}
+ *
  */
 export const ViewDropdown = (): JSX.Element => {
   const classes = useStyles();
+  /**
+   * State to manage HTML element of dropdown anchor
+   */
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  /**
+   * State to manage dropdown value index
+   */
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
+  /**
+   * Function for handling dropdown item event.
+   *
+   * @param {React.MouseEvent<HTMLElement} event Mouse Event
+   * @param {number} index index of dropdown
+   *
+   */
   const handleItemClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => {
     setSelectedIndex(index);
     handleClose();
   };
 
+  /**
+   * Function for handling dropdown close
+   */
   const handleClose = () => {
     setAnchorEl(null);
   };
 
+  /**
+   * Function for adding border using css property
+   *
+   * @param {number} view Index of Dropdown value
+   *
+   * @returns {object}
+   *
+   */
   function addBorder(view: number) {
     if (view > 0) return { borderTop: '1px solid black' };
     if (view === 0) return { borderTop: '0px solid black' };

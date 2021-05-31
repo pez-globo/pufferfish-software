@@ -6,6 +6,7 @@ import {
   ParametersRequest,
   AlarmLimits,
   AlarmLimitsRequest,
+  AlarmMute,
   AlarmMuteRequest,
   PowerManagement,
   ScreenStatus,
@@ -47,10 +48,10 @@ export const controllerReducer = combineReducers({
     ),
   }),
   eventLog: eventLogReducer,
-  alarmMuteRequest: requestReducer<AlarmMuteRequest>(
-    MessageType.AlarmMuteRequest,
-    REQUEST_COMMITTED,
-  ),
+  alarmMute: combineReducers({
+    current: messageReducer<AlarmMute>(MessageType.AlarmMute),
+    request: requestReducer<AlarmMuteRequest>(MessageType.AlarmMuteRequest, REQUEST_COMMITTED),
+  }),
   powerManagement: messageReducer<PowerManagement>(MessageType.PowerManagement),
 
   // Message states from frontend_pb

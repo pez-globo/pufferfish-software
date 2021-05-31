@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * @summary Component to display Value, Set Value Modal & Alarm Modal for Flow parameter
+ *
+ * Set Value & Alarm Modal is optional
+ *
+ */
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -28,12 +35,20 @@ const units = LMIN;
 /**
  * FlowInfo
  *
- * A `Knob`-based component for handling Flow information.
+ * @component A `Knob`-based component for handling Flow information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const FlowInfo = (): JSX.Element => {
   const dispatch = useDispatch();
+
+  /**
+   * Sets the flow
+   *
+   * @param {number} setting - desc for setting
+   */
   const doSetFlow = (setting: number) => {
     dispatch(
       commitRequest<ParametersRequest>(MessageType.ParametersRequest, { flow: setting }),
