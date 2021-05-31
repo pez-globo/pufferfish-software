@@ -280,12 +280,20 @@ export const getBackendInitialized = createSelector(
 
 export const getAlarmMuteRequest = createSelector(
   getController,
-  (states: ControllerStates): AlarmMuteRequest | null => states.alarmMuteRequest,
+  (states: ControllerStates): AlarmMuteRequest | null => states.alarmMute.request,
 );
-// TODO: Need to change state from 'alarmMuteRequest' to 'alarmMute'
 export const getAlarmMuteStatus = createSelector(
   getController,
-  (states: ControllerStates): AlarmMute | null => states.alarmMuteRequest,
+  (states: ControllerStates): AlarmMute | null => states.alarmMute.current,
+);
+export const getAlarmMuteActive = createSelector(
+  getAlarmMuteStatus,
+  (alarmMute: AlarmMute | null): boolean => (alarmMute === null ? false : alarmMute.active),
+);
+export const getAlarmMuteRequestActive = createSelector(
+  getAlarmMuteRequest,
+  (alarmMuteRequest: AlarmMuteRequest | null) =>
+    alarmMuteRequest === null ? false : alarmMuteRequest.active,
 );
 
 // Battery power

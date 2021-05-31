@@ -45,6 +45,8 @@ STATESEGMENT_TAGGED_SETTER(AlarmLimitsRequest, alarm_limits_request)
 STATESEGMENT_TAGGED_SETTER(ExpectedLogEvent, expected_log_event)
 STATESEGMENT_TAGGED_SETTER(NextLogEvents, next_log_events)
 STATESEGMENT_TAGGED_SETTER(ActiveLogEvents, active_log_events)
+STATESEGMENT_TAGGED_SETTER(AlarmMute, alarm_mute)
+STATESEGMENT_TAGGED_SETTER(AlarmMuteRequest, alarm_mute_request)
 
 }  // namespace Pufferfish::Util
 
@@ -96,6 +98,14 @@ ActiveLogEvents &Store::active_log_events() {
   return state_segments_.active_log_events;
 }
 
+AlarmMute &Store::alarm_mute() {
+  return state_segments_.alarm_mute;
+}
+
+AlarmMuteRequest &Store::alarm_mute_request() {
+  return state_segments_.alarm_mute_request;
+}
+
 SensorMeasurements &Store::sensor_measurements_raw() {
   return state_segments_.sensor_measurements_raw;
 }
@@ -135,6 +145,12 @@ Store::InputStatus Store::input(const StateSegment &input, bool default_initiali
     case MessageTypes::active_log_events:
       STATESEGMENT_GET_TAGGED(active_log_events, input);
       return InputStatus::ok;
+    case MessageTypes::alarm_mute:
+      STATESEGMENT_GET_TAGGED(alarm_mute, input);
+      return InputStatus::ok;
+    case MessageTypes::alarm_mute_request:
+      STATESEGMENT_GET_TAGGED(alarm_mute_request, input);
+      return InputStatus::ok;
     default:
       return InputStatus::invalid_type;
   }
@@ -168,6 +184,12 @@ Store::OutputStatus Store::output(MessageTypes type, StateSegment &output) const
       return OutputStatus::ok;
     case MessageTypes::active_log_events:
       output.set(state_segments_.active_log_events);
+      return OutputStatus::ok;
+    case MessageTypes::alarm_mute:
+      output.set(state_segments_.alarm_mute);
+      return OutputStatus::ok;
+    case MessageTypes::alarm_mute_request:
+      output.set(state_segments_.alarm_mute_request);
       return OutputStatus::ok;
     default:
       return OutputStatus::invalid_type;

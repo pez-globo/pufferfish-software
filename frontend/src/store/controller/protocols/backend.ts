@@ -18,7 +18,7 @@ export const initialSendSchedule: Schedule = [
   { time: 50, pbMessageType: ParametersRequest },
   { time: 50, pbMessageType: AlarmLimitsRequest },
   { time: 50, pbMessageType: ExpectedLogEvent },
-  // { time: 50, pbMessageType: AlarmMuteRequest },
+  { time: 50, pbMessageType: AlarmMuteRequest },
 ];
 
 export const MessageSerializers = new Map<PBMessageType, MessageSerializer>([
