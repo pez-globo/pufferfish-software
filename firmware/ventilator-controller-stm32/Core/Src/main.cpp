@@ -52,6 +52,7 @@
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
 #include "Pufferfish/Driver/Indicators/PulseGenerator.h"
 #include "Pufferfish/Driver/Power/AlarmsService.h"
+#include "Pufferfish/Driver/Power/Simulator.h"
 #include "Pufferfish/Driver/Serial/Backend/UART.h"
 #include "Pufferfish/Driver/Serial/FDO2/Sensor.h"
 #include "Pufferfish/Driver/Serial/Nonin/Sensor.h"
@@ -325,6 +326,9 @@ PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 // LTC4015
 PF::Driver::I2C::LTC4015::Device ltc4015_dev(i2c_hal_ltc4015);
 PF::Driver::I2C::LTC4015::Sensor ltc4015_sensor(ltc4015_dev);
+
+// Power
+PF::Driver::Power::Simulator power_simulator;
 
 // Initializables
 
@@ -617,6 +621,9 @@ int main(void)
         hfnc.sensor_vars(),
         store.sensor_measurements(),
         store.cycle_measurements());
+
+    // Power simulator
+    power_simulator.transform(store.power_management());
 
     // Independent Sensors
     fdo2.output(hfnc.sensor_vars().po2);
