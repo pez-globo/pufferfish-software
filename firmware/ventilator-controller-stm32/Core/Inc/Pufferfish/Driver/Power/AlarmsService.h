@@ -11,6 +11,10 @@
 
 namespace Pufferfish::Driver::Power {
 
+// All alarm codes for power management need to be registered in the following array:
+static constexpr auto alarm_codes =
+    Util::make_array<LogEventCode>(LogEventCode::LogEventCode_charger_disconnected);
+
 class AlarmsService {
  public:
   virtual void transform(

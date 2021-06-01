@@ -13,18 +13,6 @@
 
 namespace Pufferfish::Application {
 
-// All alarm codes need to be registered in the following array:
-static constexpr auto alarm_codes = Util::make_array<LogEventCode>(
-    LogEventCode::LogEventCode_spo2_too_low,
-    LogEventCode::LogEventCode_spo2_too_high,
-    LogEventCode::LogEventCode_hr_too_low,
-    LogEventCode::LogEventCode_hr_too_high,
-    LogEventCode::LogEventCode_fio2_too_low,
-    LogEventCode::LogEventCode_fio2_too_high,
-    LogEventCode::LogEventCode_flow_too_low,
-    LogEventCode::LogEventCode_flow_too_high,
-    LogEventCode::LogEventCode_charger_disconnected);
-
 class AlarmsManager {
  public:
   explicit AlarmsManager(Application::LogEventsManager &log_manager) : log_manager_(log_manager) {}

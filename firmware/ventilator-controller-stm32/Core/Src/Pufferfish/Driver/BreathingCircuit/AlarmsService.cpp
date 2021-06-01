@@ -66,8 +66,8 @@ void AlarmsService::transform(
 
 void AlarmsService::deactivate_alarms(
     ActiveLogEvents &active_log_events, Application::AlarmsManager &alarms_manager) {
-  for (size_t i = 0; i < Application::alarm_codes.max_size(); ++i) {
-    alarms_manager.deactivate_alarm(Application::alarm_codes[i]);
+  for (size_t i = 0; i < alarm_codes.max_size(); ++i) {
+    alarms_manager.deactivate_alarm(alarm_codes[i]);
   }
   alarms_manager.transform(active_log_events);
 }
