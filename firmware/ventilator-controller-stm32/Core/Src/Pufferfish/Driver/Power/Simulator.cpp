@@ -31,10 +31,8 @@ void Simulator::transform_charge(PowerManagement &power_management) const {
   power_management.power_left +=
       (1 + (power_responsiveness * uniform_centered(prng))) / uniform_int(prng);
   power_management.charging = true;
-  if (power_management.power_left > max_charge) {
+  if (power_management.power_left >= max_charge) {
     power_management.power_left = max_charge;
-  }
-  if (power_management.power_left == max_charge) {
     power_management.charging = false;
   }
 }

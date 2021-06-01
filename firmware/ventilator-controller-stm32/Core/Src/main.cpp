@@ -335,7 +335,7 @@ PF::Driver::Power::Simulator power_simulator(ltc4015_sensor);
 // Initializables
 
 auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
-    /*sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015_sensor*/);
+    sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015_sensor);
 std::array<PF::InitializableState, initializables.size()> initialization_states;
 
 /*
@@ -653,7 +653,8 @@ int main(void)
 
     // LTC4015 battery charging
     ltc4015_sensor.output(store.power_management());
-    power_alarms.transform(store.power_management(), store.active_log_events(), alarms_manager);
+    power_alarms.transform(
+        store.parameters(), store.power_management(), store.active_log_events(), alarms_manager);
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;
