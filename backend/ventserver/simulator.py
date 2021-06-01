@@ -23,7 +23,8 @@ from ventserver.protocols.application import lists
 from ventserver.protocols.backend import alarms, log, server, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.simulation import (
-    alarm_limits, alarm_mute, alarms as sim_alarms, parameters, power_management, simulators
+    alarm_limits, alarm_mute, alarms as sim_alarms,
+    parameters, power_management, simulators
 )
 from ventserver import application
 
