@@ -144,6 +144,10 @@ export interface AlarmLimitsRequestResponse {
   // of all fields to AlarmLimitsRequest to send to the backend
   draft: AlarmLimitsRequest | null;
 }
+export interface AlarmMuteRequestResponse {
+  current: AlarmMute | null;
+  request: AlarmMuteRequest | null;
+}
 export interface EventLog {
   expectedLogEvent: ExpectedLogEvent;
   nextLogEvents: NextLogEvents;
@@ -160,24 +164,6 @@ export interface RotaryEncoderParameter {
   lastButtonDown: number;
   lastButtonUp: number;
   stepDiff: number; // this is a derived value not in RotaryEncoder
-}
-
-// Smoothed measurements
-
-export interface SmoothingData {
-  raw: number;
-  average: number;
-  converged: number;
-  smoothed: number;
-  time?: number;
-  convergenceStartTime?: number;
-  changeStartTime?: number;
-}
-export interface SmoothedMeasurements {
-  fio2: SmoothingData;
-  flow: SmoothingData;
-  spo2: SmoothingData;
-  hr: SmoothingData;
 }
 
 // Plots
@@ -227,8 +213,7 @@ export interface ControllerStates {
   parameters: ParametersRequestResponse;
   alarmLimits: AlarmLimitsRequestResponse;
   eventLog: EventLog;
-  alarmMuteRequest: AlarmMuteRequest | null;
-  alarmMute: AlarmMute | null;
+  alarmMute: AlarmMuteRequestResponse;
   systemSettingRequest: SystemSettingRequest | null;
   frontendDisplaySetting: FrontendDisplaySetting | null;
   batteryPower: BatteryPower | null;
@@ -239,7 +224,6 @@ export interface ControllerStates {
   rotaryEncoder: RotaryEncoderParameter | null;
 
   // Derived states
-  smoothedMeasurements: SmoothedMeasurements;
   plots: Plots;
 }
 

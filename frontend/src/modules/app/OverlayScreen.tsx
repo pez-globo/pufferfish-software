@@ -10,7 +10,8 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Subscription } from 'rxjs';
 import { BACKEND_CONNECTION_DOWN, RED_BORDER } from '../../store/app/types';
 import {
-  getAlarmMuteStatus,
+  getAlarmMuteActive,
+  getAlarmMuteRequestActive,
   getHasActiveAlarms,
   getNextLogEvents,
   getScreenStatusLock,
@@ -22,7 +23,7 @@ import MultiStepWizard from '../displays/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { updateState } from '../../store/controller/actions';
 import { LogEvent, LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
-import { getBackendHeartBeat, getClock } from '../../store/app/selectors';
+import { getBackendConnected, getBackendHeartBeat, getClock } from '../../store/app/selectors';
 import { establishedBackendConnection } from '../../store/app/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -97,10 +98,11 @@ export const HeartbeatBackendListener = (): JSX.Element => {
 const AudioAlarm = (): JSX.Element => {
   const dispatch = useDispatch();
   const activeAlarms = useSelector(getHasActiveAlarms, shallowEqual);
-  const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
+  const alarmMuteActive = useSelector(getAlarmMuteActive, shallowEqual);
+  const backendConnected = useSelector(getBackendConnected, shallowEqual);
+  const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
-  const [playing, setPlaying] = useState(alarmMuteStatus !== null && alarmMuteStatus.active);
 
   /**
    * Toggle between Play/Pause
@@ -109,40 +111,48 @@ const AudioAlarm = (): JSX.Element => {
    * So Based on local state Audio is played or paused.
    */
   useEffect(() => {
-    if (playing) {
-      audio.play();
-    } else {
-      audio.pause();
+    if (activeAlarms) {
+      if (backendConnected) {
+        if (alarmMuteActive) {
+          audio.pause();
+        } else {
+          audio.play();
+        }
+      } else if (!backendConnected) {
+        if (alarmMuteRequestActive) {
+          audio.pause();
+        } else {
+          audio.play();
+        }
+      }
     }
     return () => {
       audio.pause();
     };
-  }, [playing, audio]);
+  }, [activeAlarms, alarmMuteActive, audio, backendConnected, alarmMuteRequestActive]);
 
   /**
    * On activeAlarms redux store changes, update RED_BORDER & Audio Play state
    */
   useEffect(() => {
-    if (activeAlarms) {
-      setPlaying(true);
+    if (activeAlarms || !backendConnected) {
       dispatch({ type: RED_BORDER, status: true });
     } else {
-      setPlaying(false);
       dispatch({ type: RED_BORDER, status: false });
     }
-  }, [activeAlarms, dispatch]);
+  }, [activeAlarms, backendConnected, dispatch]);
 
   /**
    * On alarmMuteStatus redux store changes, update RED_BORDER & Audio Play state
    */
   useEffect(() => {
     if (activeAlarms) {
-      dispatch({ type: RED_BORDER, status: alarmMuteStatus !== null && !alarmMuteStatus.active });
-      setPlaying(alarmMuteStatus !== null && !alarmMuteStatus.active);
+      dispatch({ type: RED_BORDER, status: !alarmMuteActive });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [alarmMuteStatus !== null && alarmMuteStatus.active, dispatch]);
-
+    if (!backendConnected) {
+      dispatch({ type: RED_BORDER, status: !alarmMuteRequestActive });
+    }
+  }, [alarmMuteActive, activeAlarms, dispatch, alarmMuteRequestActive, backendConnected]);
   return <React.Fragment />;
 };
 

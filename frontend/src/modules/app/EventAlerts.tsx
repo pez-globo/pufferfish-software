@@ -12,16 +12,19 @@ import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import {
   getActiveLogEventIds,
+  getAlarmMuteActive,
   getAlarmMuteStatus,
+  getAlarmMuteRequestActive,
   getPopupEventLog,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
 import { commitRequest } from '../../store/controller/actions';
-import { AlarmMute } from '../../store/controller/proto/mcu_pb';
+import { AlarmMuteRequest } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
 import { getEventType } from '../logs/EventType';
+import { getBackendConnected } from '../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -199,13 +202,14 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    */
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
+  const alarmMuteActive = useSelector(getAlarmMuteActive, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
+  const backendConnected = useSelector(getBackendConnected, shallowEqual);
+  const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive, shallowEqual);
   /**
    * Stores the state which toggles Alarm Mute Status
    */
-  const [isMuted, setIsMuted] = useState<boolean>(
-    alarmMuteStatus !== null && !alarmMuteStatus.active,
-  );
+  const [isMuted, setIsMuted] = useState(alarmMuteActive);
   /**
    * Triggers whenever Active or Event log is updated in redux
    */
@@ -226,8 +230,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    * Triggers whenever AlarmMute status is updated in redux store
    */
   useEffect(() => {
-    setIsMuted(alarmMuteStatus !== null && !alarmMuteStatus.active);
-  }, [alarmMuteStatus]);
+    setIsMuted(!alarmMuteActive);
+    if (!backendConnected) setIsMuted(!alarmMuteRequestActive);
+  }, [alarmMuteActive, backendConnected, alarmMuteRequestActive]);
 
   /**
    * Update mute AlarmStatus in redux store
@@ -236,7 +241,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    */
   const muteAlarmState = (state: boolean) => {
     dispatch(
-      commitRequest<AlarmMute>(MessageType.AlarmMute, { active: state }),
+      commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { active: state }),
     );
   };
 
