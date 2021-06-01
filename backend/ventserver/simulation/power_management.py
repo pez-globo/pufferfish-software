@@ -11,8 +11,6 @@ import betterproto
 from ventserver.protocols.backend import alarms, states
 from ventserver.protocols.protobuf import mcu_pb
 
-SENSOR_UPDATE_INTERVAL = 2
-
 @attr.s
 class Service:
     """power management service"""
@@ -48,12 +46,9 @@ class Service:
             1 + self.power_noise * (random.random())
         ) / random.randint(1, 100))
 
-        power_management.power_left = min(
-            power_management.power_left, 100
-        )
-        power_management.power_left = max(
-            power_management.power_left, 0
-        )
+        power_management.power_left = \
+            min(100, max(power_management.power_left, 0))
+
         if power_management.power_left == 100:
             power_management.charging = False
 
@@ -70,11 +65,8 @@ class Service:
             1 + self.power_noise * (random.random())
         ) / random.randint(1, 100))
 
-        power_management.power_left = min(
-            power_management.power_left, 100
-        )
-        power_management.power_left = max(
-            power_management.power_left, 0
-        )
+        power_management.power_left = \
+            min(100, max(power_management.power_left, 0))
+
         if power_management.power_left == 0:
             power_management.charging = True
