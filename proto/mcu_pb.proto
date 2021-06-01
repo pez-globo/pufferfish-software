@@ -45,10 +45,10 @@ message SensorMeasurements {
   uint64 time = 1;
   uint32 cycle = 2;
   float fio2 = 3;
-  float spo2 = 4;
-  float hr = 5;
-  float paw = 6;
-  float flow = 7;
+  float flow = 4;
+  float spo2 = 5;
+  float hr = 6;
+  float paw = 7;
   float volume = 8;
 }
 

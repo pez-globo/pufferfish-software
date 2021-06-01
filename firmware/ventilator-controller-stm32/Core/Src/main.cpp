@@ -41,6 +41,7 @@
 #include "Pufferfish/Driver/BreathingCircuit/AlarmsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
+#include "Pufferfish/Driver/BreathingCircuit/SignalSmoothing.h"
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 #include "Pufferfish/Driver/Button/Button.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
@@ -369,11 +370,14 @@ PF::Driver::Power::AlarmsService power_alarms;
 // Breathing Circuit Control
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
     store.parameters(),
-    store.sensor_measurements(),
+    store.sensor_measurements_raw(),
     sfm3019_air,
     sfm3019_o2,
     drive1_ch1,
     drive1_ch2);
+
+// Signal processing
+PF::Driver::BreathingCircuit::SensorMeasurementsSmoothers sensor_smoothers;
 
 /* USER CODE END PV */
 
@@ -628,19 +632,25 @@ int main(void)
         current_time,
         store.parameters(),
         hfnc.sensor_vars(),
-        store.sensor_measurements(),
+        store.sensor_measurements_raw(),
         store.cycle_measurements());
 
     // Independent Sensors
     fdo2.output(hfnc.sensor_vars().po2);
-    nonin_oem.output(store.sensor_measurements().spo2, store.sensor_measurements().hr);
+    nonin_oem.output(store.sensor_measurements_raw().spo2, store.sensor_measurements_raw().hr);
 
     // Breathing Circuit Control Loop
     hfnc.update(current_time);
+
+    // Signal Processing
+    sensor_smoothers.transform(
+        current_time, store.sensor_measurements_raw(), store.sensor_measurements_filtered());
+
+    // Alarms
     breathing_circuit_alarms.transform(
         store.parameters(),
         store.alarm_limits(),
-        store.sensor_measurements(),
+        store.sensor_measurements_filtered(),
         store.active_log_events(),
         alarms_manager);
 

@@ -55,7 +55,7 @@ namespace Pufferfish::Application {
 
 // Store
 
-SensorMeasurements &Store::sensor_measurements() {
+SensorMeasurements &Store::sensor_measurements_filtered() {
   return state_segments_.sensor_measurements;
 }
 
@@ -109,6 +109,10 @@ AlarmMuteRequest &Store::alarm_mute_request() {
 
 PowerManagement &Store::power_management() {
   return state_segments_.power_management;
+}
+
+SensorMeasurements &Store::sensor_measurements_raw() {
+  return state_segments_.sensor_measurements_raw;
 }
 
 Store::InputStatus Store::input(const StateSegment &input, bool default_initialization) {

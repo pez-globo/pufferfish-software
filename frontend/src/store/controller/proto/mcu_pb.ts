@@ -330,10 +330,10 @@ export interface SensorMeasurements {
   time: number;
   cycle: number;
   fio2: number;
+  flow: number;
   spo2: number;
   hr: number;
   paw: number;
-  flow: number;
   volume: number;
 }
 
@@ -1143,10 +1143,10 @@ const baseSensorMeasurements: object = {
   time: 0,
   cycle: 0,
   fio2: 0,
+  flow: 0,
   spo2: 0,
   hr: 0,
   paw: 0,
-  flow: 0,
   volume: 0,
 };
 
@@ -1164,17 +1164,17 @@ export const SensorMeasurements = {
     if (message.fio2 !== 0) {
       writer.uint32(29).float(message.fio2);
     }
+    if (message.flow !== 0) {
+      writer.uint32(37).float(message.flow);
+    }
     if (message.spo2 !== 0) {
-      writer.uint32(37).float(message.spo2);
+      writer.uint32(45).float(message.spo2);
     }
     if (message.hr !== 0) {
-      writer.uint32(45).float(message.hr);
+      writer.uint32(53).float(message.hr);
     }
     if (message.paw !== 0) {
-      writer.uint32(53).float(message.paw);
-    }
-    if (message.flow !== 0) {
-      writer.uint32(61).float(message.flow);
+      writer.uint32(61).float(message.paw);
     }
     if (message.volume !== 0) {
       writer.uint32(69).float(message.volume);
@@ -1199,16 +1199,16 @@ export const SensorMeasurements = {
           message.fio2 = reader.float();
           break;
         case 4:
-          message.spo2 = reader.float();
+          message.flow = reader.float();
           break;
         case 5:
-          message.hr = reader.float();
+          message.spo2 = reader.float();
           break;
         case 6:
-          message.paw = reader.float();
+          message.hr = reader.float();
           break;
         case 7:
-          message.flow = reader.float();
+          message.paw = reader.float();
           break;
         case 8:
           message.volume = reader.float();
@@ -1238,6 +1238,11 @@ export const SensorMeasurements = {
     } else {
       message.fio2 = 0;
     }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Number(object.flow);
+    } else {
+      message.flow = 0;
+    }
     if (object.spo2 !== undefined && object.spo2 !== null) {
       message.spo2 = Number(object.spo2);
     } else {
@@ -1253,11 +1258,6 @@ export const SensorMeasurements = {
     } else {
       message.paw = 0;
     }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = Number(object.flow);
-    } else {
-      message.flow = 0;
-    }
     if (object.volume !== undefined && object.volume !== null) {
       message.volume = Number(object.volume);
     } else {
@@ -1271,10 +1271,10 @@ export const SensorMeasurements = {
     message.time !== undefined && (obj.time = message.time);
     message.cycle !== undefined && (obj.cycle = message.cycle);
     message.fio2 !== undefined && (obj.fio2 = message.fio2);
+    message.flow !== undefined && (obj.flow = message.flow);
     message.spo2 !== undefined && (obj.spo2 = message.spo2);
     message.hr !== undefined && (obj.hr = message.hr);
     message.paw !== undefined && (obj.paw = message.paw);
-    message.flow !== undefined && (obj.flow = message.flow);
     message.volume !== undefined && (obj.volume = message.volume);
     return obj;
   },
@@ -1296,6 +1296,11 @@ export const SensorMeasurements = {
     } else {
       message.fio2 = 0;
     }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = object.flow;
+    } else {
+      message.flow = 0;
+    }
     if (object.spo2 !== undefined && object.spo2 !== null) {
       message.spo2 = object.spo2;
     } else {
@@ -1310,11 +1315,6 @@ export const SensorMeasurements = {
       message.paw = object.paw;
     } else {
       message.paw = 0;
-    }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = object.flow;
-    } else {
-      message.flow = 0;
     }
     if (object.volume !== undefined && object.volume !== null) {
       message.volume = object.volume;

@@ -107,10 +107,10 @@ class SensorMeasurements(betterproto.Message):
     time: int = betterproto.uint64_field(1)
     cycle: int = betterproto.uint32_field(2)
     fio2: float = betterproto.float_field(3)
-    spo2: float = betterproto.float_field(4)
-    hr: float = betterproto.float_field(5)
-    paw: float = betterproto.float_field(6)
-    flow: float = betterproto.float_field(7)
+    flow: float = betterproto.float_field(4)
+    spo2: float = betterproto.float_field(5)
+    hr: float = betterproto.float_field(6)
+    paw: float = betterproto.float_field(7)
     volume: float = betterproto.float_field(8)
 
 

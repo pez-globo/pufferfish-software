@@ -72,7 +72,7 @@ using StateSegment = Util::TaggedUnion<StateSegmentUnion, MessageTypes>;
 
 struct StateSegments {
   // Backend States
-  SensorMeasurements sensor_measurements;
+  SensorMeasurements sensor_measurements;  // noise-filtered
   CycleMeasurements cycle_measurements;
   Parameters parameters;
   ParametersRequest parameters_request;
@@ -84,6 +84,9 @@ struct StateSegments {
   AlarmMute alarm_mute;
   AlarmMuteRequest alarm_mute_request;
   PowerManagement power_management;
+
+  // Internal States
+  SensorMeasurements sensor_measurements_raw;
 };
 
 class Store {
@@ -92,7 +95,8 @@ class Store {
   enum class InputStatus { ok = 0, invalid_type };
   enum class OutputStatus { ok = 0, invalid_type };
 
-  SensorMeasurements &sensor_measurements();
+  // Backend States
+  SensorMeasurements &sensor_measurements_filtered();
   CycleMeasurements &cycle_measurements();
   Parameters &parameters();
   [[nodiscard]] bool has_parameters_request() const;
@@ -106,6 +110,9 @@ class Store {
   AlarmMute &alarm_mute();
   AlarmMuteRequest &alarm_mute_request();
   PowerManagement &power_management();
+
+  // Internal States
+  SensorMeasurements &sensor_measurements_raw();
 
   InputStatus input(const StateSegment &input, bool default_initialization = false);
   OutputStatus output(MessageTypes type, StateSegment &output) const;

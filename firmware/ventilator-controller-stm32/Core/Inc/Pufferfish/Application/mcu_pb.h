@@ -146,10 +146,10 @@ typedef struct _SensorMeasurements {
     uint64_t time;
     uint32_t cycle;
     float fio2;
+    float flow;
     float spo2;
     float hr;
     float paw;
-    float flow;
     float volume;
 } SensorMeasurements;
 
@@ -349,10 +349,10 @@ extern "C" {
 #define SensorMeasurements_time_tag              1
 #define SensorMeasurements_cycle_tag             2
 #define SensorMeasurements_fio2_tag              3
-#define SensorMeasurements_spo2_tag              4
-#define SensorMeasurements_hr_tag                5
-#define SensorMeasurements_paw_tag               6
-#define SensorMeasurements_flow_tag              7
+#define SensorMeasurements_flow_tag              4
+#define SensorMeasurements_spo2_tag              5
+#define SensorMeasurements_hr_tag                6
+#define SensorMeasurements_paw_tag               7
 #define SensorMeasurements_volume_tag            8
 #define AlarmLimits_time_tag                     1
 #define AlarmLimits_fio2_tag                     2
@@ -482,10 +482,10 @@ X(a, STATIC,   OPTIONAL, MESSAGE,  apnea,            15)
 X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
 X(a, STATIC,   SINGULAR, UINT32,   cycle,             2) \
 X(a, STATIC,   SINGULAR, FLOAT,    fio2,              3) \
-X(a, STATIC,   SINGULAR, FLOAT,    spo2,              4) \
-X(a, STATIC,   SINGULAR, FLOAT,    hr,                5) \
-X(a, STATIC,   SINGULAR, FLOAT,    paw,               6) \
-X(a, STATIC,   SINGULAR, FLOAT,    flow,              7) \
+X(a, STATIC,   SINGULAR, FLOAT,    flow,              4) \
+X(a, STATIC,   SINGULAR, FLOAT,    spo2,              5) \
+X(a, STATIC,   SINGULAR, FLOAT,    hr,                6) \
+X(a, STATIC,   SINGULAR, FLOAT,    paw,               7) \
 X(a, STATIC,   SINGULAR, FLOAT,    volume,            8)
 #define SensorMeasurements_CALLBACK NULL
 #define SensorMeasurements_DEFAULT NULL
