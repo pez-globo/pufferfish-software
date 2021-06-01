@@ -161,6 +161,15 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
                 self._props.button_pin,
                 pigpio.PUD_UP
             )
+            self.rpi.set_pull_up_down(
+                self._props.a_quad_pin,  #if external pull-ups are not connected on hardware on channel A
+                pigpio.PUD_UP
+            )
+            self.rpi.set_pull_up_down(
+                self._props.b_quad_pin,   #if external pull-ups are not connected on hardware on channel B
+                pigpio.PUD_UP
+            )
+            
             self.rpi.set_glitch_filter(
                 self._props.button_pin,
                 self.button_debounce_time
