@@ -104,9 +104,7 @@ FRONTEND_OUTPUT_SCHEDULE = collections.deque([
 ])
 
 FILE_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
-    mcu_pb.Parameters: StateSegment.PARAMETERS,
     mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
-    mcu_pb.AlarmLimits: StateSegment.ALARM_LIMITS,
     mcu_pb.AlarmLimitsRequest: StateSegment.ALARM_LIMITS_REQUEST,
 }
 FILE_OUTPUT_SCHEDULE = collections.deque([
