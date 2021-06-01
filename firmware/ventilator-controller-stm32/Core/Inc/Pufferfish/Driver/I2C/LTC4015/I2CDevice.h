@@ -21,13 +21,6 @@ class I2CDevice {
   explicit I2CDevice(HAL::I2CDevice &dev) : dev_(dev) {}
 
   /**
-   * checks if device is ready to communicate
-   *
-   * @return ok on success, error code otherwise
-   */
-  I2CDeviceStatus is_device_ready();
-
-  /**
    * Reads a data from the sensor
    *
    * @param buf[out] the buffer for the data output
