@@ -153,6 +153,7 @@ export const getParametersRequest = createSelector(
   getParameters,
   (parameters: ParametersRequestResponse): ParametersRequest | null => parameters.request,
 );
+export const getParametersRequestVentilating = isVentilatingSelector(getParametersRequest);
 export const getParametersRequestMode = ventilationModeSelector(getParametersRequest);
 // Draft
 export const getParametersRequestDraft = createSelector(
@@ -274,6 +275,14 @@ export const getBackendInitialized = createSelector(
     alarmLimitsRequest: AlarmLimitsRequest | null,
     backendConnected: boolean,
   ): boolean => parametersRequest !== null && alarmLimitsRequest !== null && backendConnected,
+);
+
+// Firmware lost
+export const getFirmwareLost = createSelector(
+  getParametersIsVentilating,
+  getParametersRequestVentilating,
+  (parameters: boolean | null, parametersRequest: boolean | null) =>
+    parameters !== parametersRequest,
 );
 
 // Alarm muting
