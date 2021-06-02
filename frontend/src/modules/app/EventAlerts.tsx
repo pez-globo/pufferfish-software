@@ -249,6 +249,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
     );
   };
 
+  /**
+   * Dispatch unmute request after 2 min countdown
+   */
   useEffect(() => {
     if (alarmMuteRemaining === 0) {
       dispatch(
@@ -309,10 +312,10 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               <Button
                 style={{ marginLeft: 12, marginRight: 12 }}
                 onClick={() => muteAlarmState(isMuted)}
+                disabled={firmwareLost}
                 variant="contained"
                 color="primary"
                 className={classes.alertColor}
-                disabled={firmwareLost}
               >
                 {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
               </Button>
