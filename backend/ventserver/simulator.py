@@ -131,7 +131,7 @@ async def simulate_states(
         simulated_log.input(log.LocalLogInputEvent(current_time=time.time()))
         simulation_services.transform(time.time(), store)
         alarms_services.transform(store, simulated_log)
-        alarm_mute_service.transform(store)
+        alarm_mute_service.transform(time.time(), store)
         service_event_log(
             simulated_log, active_log_events, simulated_log_receiver
         )

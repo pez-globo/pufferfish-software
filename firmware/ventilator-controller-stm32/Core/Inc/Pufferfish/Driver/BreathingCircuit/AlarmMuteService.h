@@ -10,7 +10,6 @@
 #pragma once
 
 #include "Pufferfish/Application/LogEvents.h"
-#include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/Util/OrderedMap.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
