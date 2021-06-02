@@ -323,7 +323,7 @@ PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 // Initializables
 
 auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
-    sfm3019_air, sfm3019_o2, fdo2, nonin_oem);
+    /*sfm3019_air, sfm3019_o2, fdo2, nonin_oem*/);
 std::array<PF::InitializableState, initializables.size()> initialization_states;
 
 /*
@@ -352,6 +352,7 @@ int interface_test_millis = 0;
 // Alarms
 PF::Driver::BreathingCircuit::AlarmsManager alarms_manager(log_events_manager);
 PF::Driver::BreathingCircuit::AlarmsServices breathing_circuit_alarms;
+PF::Driver::BreathingCircuit::AlarmMuteService alarm_mute_service;
 
 // Breathing Circuit Control
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
@@ -641,8 +642,7 @@ int main(void)
         alarms_manager);
 
     // Alarm Mute Service
-    PF::Driver::BreathingCircuit::AlarmMuteService::transform(
-        store.alarm_mute(), store.alarm_mute_request());
+    alarm_mute_service.transform(current_time, store.alarm_mute(), store.alarm_mute_request());
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;
