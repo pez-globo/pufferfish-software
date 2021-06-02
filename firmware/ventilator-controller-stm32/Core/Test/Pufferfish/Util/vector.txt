@@ -1,22 +1,60 @@
-SCENARIO( " Vectors are resized")
-  GIVEN("Vector array of 252UL size")
-  WHEN("Vector is resized to 256")
-  THEN("Vector is resized correctly to 256 ")
+Scenario: The function in Util Vectors works correctly
+  GIVEN("The util resize function")
+  WHEN("the util resize function is called on 252UL buffer size")
+    THEN("Result is as expected ")
 
-SCENARIO("Adding bytes to vector")
-  GIVEN("A vector and byte '0x08'")
-  WHEN("Adding 0x08 to vector")
-     THEN("0x08 is added to vector correctly")
+  WHEN("Util function empty is used on vector")
+    THEN("Result is as expected")  
 
-SCENARIO("Adding a string to vector")
-  GIVEN("A vector and string '\xe3\x03'")
-  WHEN("Adding a string \xe3\x03 ")
-     THEN("String is added correctly")
+  WHEN("Util function avaliable is used on vector")
+    THEN("Result is as expected")  
 
-SCENARIO("Copy one vector to another")
-  GIVEN("Two  vectors with 254UL buffer size")
-  WHEN("Copy one vector of 254UL size  to another of same size")
-     THEN("Vector is copied correctly")
+  GIVEN("Util full function")   
+  WHEN("Util function full is used on vector")
+    THEN("Result is as expected")
 
-  WHEN("Vector one of buffer size 254UL is copied to vector of buffer size 8UL")
-    THEN("Copy from vector1 to vector 2 works correctly")
+    
+Scenario: The function in Util push_back works correctly
+  GIVEN("the Util push_back function")
+  WHEN("the util push_back is called in bounds")
+     THEN("Result is as expected")
+
+
+  GIVEN("the Util push_back function")
+  WHEN("the util push_back is called on out of bound vector")
+     THEN("Vector is out of bound, push_back fails")
+
+
+  GIVEN("the Util push_back function ")
+  WHEN("the util push_back is called on string")
+     THEN("Result is as expceted")
+
+
+Scenario: The function in Util copy_from works correctly
+  GIVEN("the Util copy_from function")
+  WHEN("the util copy_from is called on both 4UL buffer vector")
+     THEN("Result is as expected")
+
+  WHEN("the util copy_from is called on vector of buffer 2UL and 4UL")
+    THEN("Result is as expected")
+
+  WHEN("the util copy_from is called on both same sized buffer vector")  
+    THEN("Result is as expected")
+
+
+  GIVEN("the Util copy_from function")  
+  WHEN("the Util copy_from function on array")
+     THEN("Result is as expected");
+
+  GIVEN("the Util copy_from function")
+  WHEN("the Util copy_from function on vector")
+     THEN("Result is as expected")   
+
+Scenario:  Data is erased from particular index   
+   GIVEN("the Util erase function ")
+   WHEN("the util erase function is called on vector")
+     THEN("Result is as expected")
+
+
+   WHEN("the util erase function is called on vector for out of bound index") 
+     THEN("Result is as expected")

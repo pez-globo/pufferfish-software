@@ -1,13 +1,31 @@
-SCENARIO("Value is in provided range")
-  GIVEN("A value '\x83'")
-  WHEN("Value is in range")
-     THEN("values are as expected")
+Scenario: The Util Ranges  within function works correctly
+  GIVEN("The Util within function")
+  WHEN("floor is '\x01' and ceiling is '\0ff' , value is within range")
+     THEN("Returns true , as value is in range")
 
 
-SCENARIO("Value is clamped")
-   GIVEN("A value '\x83'")
-   WHEN("Value is in range")
-     THEN("Returns correct given value")
+Scenario:The Util Ranges  clamp function works correctly
+  GIVEN("The Util clamp function'")
+   WHEN("Value is equal to ceiling")
+      THEN("Returns correct value '\x83'")
 
-   WHEN("Value is not in range")
-     THEN("Returns max_val, value is greater than max_value")
+   WHEN("Value is greater than ceiling")
+     THEN("Returns expected value ceiling ")
+  
+  GIVEN("The Util clamp function ")
+  WHEN("Value is less than floor")
+    THEN("Returns expected floor value 0x0a")
+
+  WHEN("Value is equal to floor")
+    THEN("Returns expected  input value 0x08 ")  
+
+  GIVEN("The Util clamp function")  
+  WHEN("Value is in the range")
+    THEN("Returns expected  input value 0x53 ")
+
+
+  WHEN("floor is equal to ceiling")
+     THEN("Returns expected value ") 
+
+  WHEN("floor is greater than ceiling") 
+    THEN("Result is as expected ")   

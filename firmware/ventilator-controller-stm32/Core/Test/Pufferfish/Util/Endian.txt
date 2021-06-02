@@ -1,12 +1,20 @@
-SCENARIO("read endian data")
-  GIVEN("A buffer '\x01\x0f'")
-  WHEN("read buffer 2UL ")
-     THEN("reads correct value")
+Scenario: Util function read_bigend works correctly
+  GIVEN("Util function read_bigend'")
+  WHEN("Util function read_bigend is used on  buffer 2UL ")
+     THEN("Reads 0x010f as expected")
 
-  GIVEN("A buffer '\x00\x05\x0f\x07'")
-  WHEN("read buffer 4UL ")
-     THEN("reads correct value")
+  GIVEN("Util function read_bigend'")
+  WHEN("Util function read_bigend is used on  buffer 4UL ")
+     THEN("Result is as expected")
 
-  GIVEN("A buffer '\x02\x08\x00\x0d\x0e\x03\x0c\x00")
-  WHEN("read buffer 8UL ") 
-     THEN("reads correct value")
+  GIVEN("Util function read_bigend")
+  WHEN("Util function read_bigend is used on  buffer 8UL ") 
+     THEN("Result is as expected")
+
+
+Scenario: Util function write_hton works correctly
+  WHEN("Util function write_hton is used on uint16_t") 
+    THEN("Result is as expected")   
+
+   WHEN("Util function write_hton is used on uint32_t")  
+     THEN("Result is as expected")

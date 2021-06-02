@@ -64,3 +64,34 @@ SCENARIO("read endian data") {
         }
     }
 }
+
+
+SCENARIO("Write host endian to network endian value"){
+    GIVEN("A buffer"){
+       uint16_t data = 0x0803;
+       WHEN("Host endian is converted in network endian"){
+           uint8_t re = 0 ;
+           uint8_t * network_endian = &re ;
+           PF::Util::write_hton(data, network_endian); 
+           THEN("Result is as  expected"){
+              REQUIRE(re == 8);
+           }
+        }
+    }
+
+
+    GIVEN("Util function write_hton"){
+        uint32_t data = 0x03020703;
+        WHEN("Util function write_hton on uint32_t"){
+            uint8_t re = 0;
+            uint8_t * network_endian = &re;
+            PF::Util::write_hton(data, network_endian);
+            THEN("Result is as expected"){
+                REQUIRE(re == 3);
+            }
+        }
+    }
+
+}
+
+

@@ -1,14 +1,59 @@
-SCENARIO("Get the byte from expected position", "[bytes]")
-   GIVEN("A Byte '\xff'")
-   WHEN("a byte is fetched ")
-     THEN("value is as expected")
+Scenario:The Util get_byte function correctly gets bytes from the given position
+   GIVEN("The util get_byte function")
+       WHEN("the get_byte function is called on 0x86 ")
+          THEN(""The value at the least significant byte position is "0x0a'")
+   GIVEN("The util get_byte function " )
+       WHEN("the get_byte function is called on 0x860a")  
+       THEN(""The value at the least significant byte position is "0x0a")
+       THEN("The value at the most signficant postiion is 0x86")
 
 
-SCENARIO("Set byte ")
-  GIVEN("A Byte '\x05' ")
-  WHEN("a byte is set at 0")
-     THEN("Value is as expected")
+   GIVEN("The util get_byte function'")
+       WHEN("the get_byte function is called on 0x86010f0a")
+       THEN("value is as expected ")
 
-  GIVEN("A Byte '\x05'")
-  WHEN("A byte is set at 1")
-     THEN("Value is as expected")
+
+Scenario: The Util set_byte function correctly sets bytes to the given position
+  GIVEN("The Util set_byte function ")
+  WHEN("the get_byte function is called on 0x86 for 0th index")
+     THEN("Value is as expected 134 ")
+
+  GIVEN("The Util set_byte function ")
+  WHEN("the get_byte function is called on 0x86 for 0th index")
+     THEN("Value is as expected 0 ")
+
+  GIVEN("The Util set_byte function ")
+  WHEN("the get_byte function is called on 0x83 for 0th index")
+     THEN("Value is as expected in uint16_t data-type ")
+  
+  GIVEN("The Util set_byte function ")
+  WHEN("the get_byte function is called on 0x83 for 1st index")
+     THEN("Value is as expected in uint16_t data-type ")
+     
+  GIVEN("The Util set_byte function ")
+  WHEN("the get_byte function is called on 0x83 for 2nd index")
+     THEN("Value is as expected in uint32_t data-type ")
+
+  GIVEN("The Util set_byte function ")
+  WHEN("the get_byte function is called on 0x83 for 3rd index")
+     THEN("Value is as expected in uint32_t data-type ")
+
+  GIVEN("The Util set_byte function ")
+  WHEN("the get_byte function is called on 0x860a for 0th index")
+     THEN("Value is as expected in uint16_t data-type ")
+
+  GIVEN("The Util set_byte function ")
+  WHEN("the get_byte function is called on 0x860a for 1st index")
+     THEN("Value is as expected in uint16_t data-type ")
+
+  GIVEN("The Util set_byte function ")
+  WHEN("the get_byte function is called on 0x860a for 2nd index")
+     THEN("Value is as expected in uint16_t data-type ")
+
+  GIVEN("The Util set_byte function ")
+  WHEN("the get_byte function is called on 0x860a for 2nd index")
+     THEN("Value is as expected in uint32_t data-type ")
+
+  GIVEN("The Util set_byte function ")
+  WHEN("the get_byte function is called on 0x860a for 3rd index")
+     THEN("Value is as expected in uint32_t data-type ")

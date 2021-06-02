@@ -1,25 +1,21 @@
-SCENARIO("Create an array", "[array]")
-  GIVEN("A set of int values '\x0f\x36\x08\xff\x89\x01\x80\x02' ")
-  WHEN("An array of given int size is created properly")
-     THEN("Value at index 5 in array is as expected")
+Scenario: The Util array function creates array correctly.
+  GIVEN("The Util make_array function")
+   WHEN("an array is created from 'n' uint8_t")
+      THEN("the array is as expected")
+      THEN("Size of an array is as expected")
+
+
+  GIVEN("The Util make_array function ")
+   WHEN("an array is created from 'n' string")
+     THEN("the array is as expected")
      THEN("Size of an array is as expected")
 
-   GIVEN("set of values '\x01\x81\x01\x00' ")
-   WHEN("An array of 4UL size with   given values is created properly")
-     THEN("Value at index 5 in array is as expected")
-     THEN("Size of array is as expected")
+  GIVEN("The Util make_array function") 
+  WHEN("an array is created from const references")
+    THEN("the array is as expected")
+   
 
-   GIVEN("A set of string '\ab\bc\cd' ")
-   WHEN("An array is created with given set of string")
-     THEN("Value at 0 index in array is as expected")
-     THEN("Size of an array is as expected")
-
-SCENARIO("Create an array and check data and size of array") 
-  GIVEN("An array ")
-   WHEN("Array is created with '\x01\x08\x0f\x0a'  ")
-     THEN("Value at 2 index in array is as expected")
-     THEN("Size of an array is as expected")
-
-  GIVEN("An array is given '\02\x03\x0a' ")
+Scenario: Empty an array
+  GIVEN("The Util make_array function ")
   WHEN("Array is emptied")
-     THEN("The results are as expected")
+     THEN("The array is as expected")
