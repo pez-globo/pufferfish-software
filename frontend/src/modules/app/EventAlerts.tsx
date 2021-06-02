@@ -16,6 +16,7 @@ import {
   getAlarmMuteStatus,
   getAlarmMuteRequestActive,
   getPopupEventLog,
+  getAlarmMuteRemaining,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
@@ -204,6 +205,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
   const alarmMuteActive = useSelector(getAlarmMuteActive, shallowEqual);
   const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
+  const alarmMuteRemaining = useSelector(getAlarmMuteRemaining, shallowEqual);
   const backendConnected = useSelector(getBackendConnected, shallowEqual);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive, shallowEqual);
   /**
@@ -244,6 +246,14 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { active: state }),
     );
   };
+
+  useEffect(() => {
+    if (alarmMuteRemaining === 0) {
+      dispatch(
+        commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { active: false }),
+      );
+    }
+  }, [dispatch, alarmMuteRemaining]);
 
   /**
    * Opens LogsPage popup listing event log details
@@ -349,9 +359,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               {alertCount}
             </div>
           )}
-          {!isMuted && alarmMuteStatus !== null && (
+          {!isMuted && alarmMuteRemaining !== undefined && (
             <div className={classes.timer}>
-              {new Date(alarmMuteStatus.remaining * 1000).toISOString().substr(14, 5)}
+              {new Date(alarmMuteRemaining * 1000).toISOString().substr(14, 5)}
             </div>
           )}
         </Button>

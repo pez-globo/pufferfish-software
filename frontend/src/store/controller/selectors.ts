@@ -290,6 +290,10 @@ export const getAlarmMuteActive = createSelector(
   getAlarmMuteStatus,
   (alarmMute: AlarmMute | null): boolean => (alarmMute === null ? false : alarmMute.active),
 );
+export const getAlarmMuteRemaining = createSelector(
+  getAlarmMuteStatus,
+  (alarmMute: AlarmMute | null) => (alarmMute === null ? 0 : alarmMute.remaining),
+);
 export const getAlarmMuteRequestActive = createSelector(
   getAlarmMuteRequest,
   (alarmMuteRequest: AlarmMuteRequest | null) =>
