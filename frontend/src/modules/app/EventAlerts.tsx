@@ -17,7 +17,7 @@ import {
   getAlarmMuteRequestActive,
   getPopupEventLog,
   getAlarmMuteRemaining,
-  getFirmwareLost,
+  getFirmwareDisconnected,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
@@ -209,7 +209,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const alarmMuteRemaining = useSelector(getAlarmMuteRemaining, shallowEqual);
   const backendConnected = useSelector(getBackendConnected, shallowEqual);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive, shallowEqual);
-  const firmwareLost = useSelector(getFirmwareLost, shallowEqual);
+  const firmwareDisconnected = useSelector(getFirmwareDisconnected, shallowEqual);
   /**
    * Stores the state which toggles Alarm Mute Status
    */
@@ -312,7 +312,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               <Button
                 style={{ marginLeft: 12, marginRight: 12 }}
                 onClick={() => muteAlarmState(isMuted)}
-                disabled={firmwareLost}
+                disabled={firmwareDisconnected}
                 variant="contained"
                 color="primary"
                 className={classes.alertColor}

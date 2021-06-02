@@ -28,7 +28,7 @@ import {
   getAlarmLimitsRequestUnsaved,
   getAlarmLimitsUnsavedKeys,
   getAlarmLimitsRequest,
-  getFirmwareLost,
+  getVentilatingStatus,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { AlarmConfiguration, alarmConfiguration } from '../alarms/AlarmsPage';
@@ -169,7 +169,7 @@ export const ToolBar = ({
     string,
     Range
   >;
-  const firmwareLost = useSelector(getFirmwareLost, shallowEqual);
+  const ventilatingStatus = useSelector(getVentilatingStatus, shallowEqual);
   /**
    * State to manage toggling ventilationState
    */
@@ -265,7 +265,7 @@ export const ToolBar = ({
       setLandingLabel('Start');
       setIsDisabled(false);
       setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
-    } else if (firmwareLost) {
+    } else if (ventilatingStatus) {
       setIsDisabled(true);
       setLabel('Connecting...');
     } else {
@@ -273,7 +273,7 @@ export const ToolBar = ({
       setIsDisabled(true);
       setLabel('Loading...');
     }
-  }, [backendInitialized, firmwareLost, ventilating]);
+  }, [backendInitialized, ventilatingStatus, ventilating]);
 
   useEffect(() => {
     if (ventilating) {

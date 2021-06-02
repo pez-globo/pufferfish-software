@@ -18,6 +18,7 @@ import {
   BatteryPower,
   ScreenStatus,
   Range,
+  LogEventCode,
 } from './proto/mcu_pb';
 import {
   Measurements,
@@ -264,7 +265,14 @@ export const getPopupEventLog = createSelector(getController, (states: Controlle
   const maxId = Math.max(...states.eventLog.activeLogEvents.id);
   return states.eventLog.nextLogEvents.elements.find((el: LogEvent) => el.id === maxId);
 });
+// Event log code selector
+const getLogEventCode = (logEventCode: number) =>
+  createSelector(getNextLogEvents, (events: LogEvent[]): LogEvent | undefined =>
+    events.find((el: LogEvent) => (el.code as number) === logEventCode),
+  );
 
+export const getBackendLogEvent = getLogEventCode(LogEventCode.backend_connection_down);
+export const getFirmwareLogEvent = getLogEventCode(LogEventCode.mcu_connection_down);
 // Backend Initialized
 export const getBackendInitialized = createSelector(
   getParametersRequest,
@@ -278,11 +286,15 @@ export const getBackendInitialized = createSelector(
 );
 
 // Firmware lost
-export const getFirmwareLost = createSelector(
+export const getVentilatingStatus = createSelector(
   getParametersIsVentilating,
   getParametersRequestVentilating,
   (parameters: boolean | null, parametersRequest: boolean | null) =>
     parameters !== parametersRequest,
+);
+export const getFirmwareDisconnected = createSelector(
+  getFirmwareLogEvent,
+  (event: LogEvent | undefined): boolean => event !== undefined,
 );
 
 // Alarm muting

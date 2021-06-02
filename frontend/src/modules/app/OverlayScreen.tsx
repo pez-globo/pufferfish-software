@@ -12,8 +12,8 @@ import { BACKEND_CONNECTION_DOWN, RED_BORDER } from '../../store/app/types';
 import {
   getAlarmMuteActive,
   getAlarmMuteRequestActive,
+  getBackendLogEvent,
   getHasActiveAlarms,
-  getNextLogEvents,
   getScreenStatusLock,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
@@ -22,7 +22,7 @@ import ModalPopup from '../controllers/ModalPopup';
 import MultiStepWizard from '../displays/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { updateState } from '../../store/controller/actions';
-import { LogEvent, LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
+import { LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
 import { getBackendConnected, getBackendHeartBeat, getClock } from '../../store/app/selectors';
 import { establishedBackendConnection } from '../../store/app/actions';
 
@@ -60,14 +60,10 @@ export const HeartbeatBackendListener = (): JSX.Element => {
   const clock = useSelector(getClock);
   const dispatch = useDispatch();
   const heartbeat = useSelector(getBackendHeartBeat);
-  const events = useSelector(getNextLogEvents);
   const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
+  const lostConnectionAlarm = useSelector(getBackendLogEvent);
 
   useEffect(() => {
-    const lostConnectionAlarm = events.find(
-      (el: LogEvent) => (el.code as number) === LogEventCode.backend_connection_down,
-    );
-
     if (diff > BACKEND_CONNECTION_TIMEOUT) {
       if (!lostConnectionAlarm) {
         dispatch({
@@ -83,7 +79,7 @@ export const HeartbeatBackendListener = (): JSX.Element => {
     } else {
       dispatch(establishedBackendConnection(new Date()));
     }
-  }, [clock, diff, dispatch, events, heartbeat]);
+  }, [clock, diff, lostConnectionAlarm, dispatch, heartbeat]);
 
   return <React.Fragment />;
 };
