@@ -312,7 +312,6 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               <Button
                 style={{ marginLeft: 12, marginRight: 12 }}
                 onClick={() => muteAlarmState(isMuted)}
-                disabled={firmwareDisconnected}
                 variant="contained"
                 color="primary"
                 className={classes.alertColor}
@@ -341,6 +340,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         <Button
           style={{ marginLeft: 5 }}
           onClick={() => muteAlarmState(isMuted)}
+          disabled={firmwareDisconnected}
           variant="contained"
           color="primary"
           className={classes.alertColor}
