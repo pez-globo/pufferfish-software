@@ -5,7 +5,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useSelector, shallowEqual } from 'react-redux';
 import {
-  getRotaryEncoderButtonPressed,
+  // getRotaryEncoderButtonPressed,
   getRotaryEncoderStep,
   getRotaryEncoderStepDiff,
 } from '../../store/controller/selectors';
@@ -47,7 +47,7 @@ export const RotaryEncodeController = ({
 }: Props): JSX.Element => {
   const step = useSelector(getRotaryEncoderStep, shallowEqual);
   const stepDiff = useSelector(getRotaryEncoderStepDiff, shallowEqual);
-  const buttonPressed = useSelector(getRotaryEncoderButtonPressed, shallowEqual);
+  // const buttonPressed = useSelector(getRotaryEncoderButtonPressed, shallowEqual);
   const [prevStep, setPrevStep] = React.useState(step);
   const isInitialMount = useRef(true);
 
