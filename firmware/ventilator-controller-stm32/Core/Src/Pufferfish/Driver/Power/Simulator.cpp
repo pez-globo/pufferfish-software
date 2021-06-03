@@ -12,6 +12,8 @@
 #include <cmath>
 #include <random>
 
+#include "Pufferfish/Util/Timeouts.h"
+
 namespace Pufferfish::Driver::Power {
 
 // NOLINTNEXTLINE(cert-msc51-cpp)
@@ -20,7 +22,7 @@ std::uniform_int_distribution<int> uniform_int(1, 100);
 static constexpr float uniform_width = 1;
 std::uniform_real_distribution<float> uniform_centered(-uniform_width / 2, uniform_width / 2);
 
-void AlarmMuteService::input_clock(uint32_t current_time) {
+void Simulator::input_clock(uint32_t current_time) {
   if (initial_time_ == 0) {
     initial_time_ = current_time;
   }
@@ -48,7 +50,7 @@ void Simulator::transform_charge(PowerManagement &power_management) const {
   }
 }
 
-bool AlarmMuteService::update_needed() const {
+bool Simulator::update_needed() const {
   return !Util::within_timeout(previous_time_, sensor_update_interval, current_time_);
 }
 

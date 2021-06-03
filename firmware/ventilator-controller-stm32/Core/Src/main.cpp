@@ -331,7 +331,7 @@ PF::Driver::I2C::LTC4015::Device ltc4015_dev(i2c_hal_ltc4015);
 PF::Driver::I2C::LTC4015::Sensor ltc4015_sensor(ltc4015_dev, time);
 
 // Power
-PF::Driver::Power::Simulator power_simulator(ltc4015_sensor);
+PF::Driver::Power::Simulator power_simulator;
 
 // Initializables
 
