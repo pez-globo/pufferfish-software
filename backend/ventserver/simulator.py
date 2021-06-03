@@ -23,7 +23,7 @@ from ventserver.protocols.application import lists
 from ventserver.protocols.backend import alarms, log, server, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.simulation import (
-    alarm_limits, alarms as sim_alarms, parameters, simulators
+    alarm_limits, alarm_mute, alarms as sim_alarms, parameters, simulators
 )
 from ventserver import application
 
@@ -59,7 +59,7 @@ INITIAL_VALUES = {
     states.StateSegment.ALARM_MUTE: mcu_pb.AlarmMute(
         active=False, remaining=120
     ),
-    states.StateSegment.ALARM_MUTE_REQUEST: mcu_pb.AlarmMute(
+    states.StateSegment.ALARM_MUTE_REQUEST: mcu_pb.AlarmMuteRequest(
         active=False, remaining=120
     ),
     states.StateSegment.BATTERY_POWER: mcu_pb.BatteryPower(
@@ -121,6 +121,7 @@ async def simulate_states(
     """Simulate evolution of all states."""
     simulation_services = simulators.Services()
     alarms_services = sim_alarms.Services()
+    alarm_mute_service = alarm_mute.AlarmMuteService()
     active_log_events = typing.cast(
         mcu_pb.ActiveLogEvents,
         store[states.StateSegment.ACTIVE_LOG_EVENTS_MCU]
@@ -130,6 +131,7 @@ async def simulate_states(
         simulated_log.input(log.LocalLogInputEvent(current_time=time.time()))
         simulation_services.transform(time.time(), store)
         alarms_services.transform(store, simulated_log)
+        alarm_mute_service.transform(store)
         service_event_log(
             simulated_log, active_log_events, simulated_log_receiver
         )

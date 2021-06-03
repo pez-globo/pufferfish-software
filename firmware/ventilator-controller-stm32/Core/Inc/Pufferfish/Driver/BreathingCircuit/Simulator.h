@@ -34,6 +34,7 @@ class Simulator {
   static constexpr float hr_max = 200;                           // bpm
 
   static constexpr float fio2_responsiveness = 0.01;  // ms
+  static constexpr float fio2_noise = 0.005;          // % FiO2
 
   [[nodiscard]] constexpr uint32_t time_step() const noexcept {
     return current_time_ - previous_time_;
@@ -71,6 +72,9 @@ class PCACSimulator : public Simulator {
   const float exp_init_flow_rate = -120;        // L / min
   const float insp_flow_responsiveness = 0.02;  // ms
   const float exp_flow_responsiveness = 0.02;   // ms
+  const float rr_noise = 0.5;                   // breaths/min
+  const float peep_noise = 1.0;                 // cm H2O
+  const float pip_noise = 1.0;                  // cm H2O
 
   void init_cycle(
       uint32_t cycle_period, const Parameters &parameters, SensorMeasurements &sensor_measurements);
@@ -97,10 +101,13 @@ class HFNCSimulator : public Simulator {
 
   uint32_t cycle_start_time_ = 0;            // ms
   const float flow_responsiveness = 0.01;    // ms
+  const float flow_noise = 0.05;             // L/min
   const float spo2_fio2_scale = 2.5;         // % SpO2 / % FiO2
   const float spo2_responsiveness = 0.0005;  // ms
+  const float spo2_noise = 0.1;              // L/min
   const float hr_fio2_scale = 2;             // bpm / % FiO2
   const float hr_responsiveness = 0.0003;    // ms
+  const float hr_noise = 0.5;                // L/min
 
   void init_cycle();
   static void transform_rr(float params_rr, float &cycle_meas_rr);

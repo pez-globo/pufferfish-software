@@ -49,10 +49,13 @@ void HFNCControlLoop::update(uint32_t current_time) {
   }
 
   // Update sensors
-  // TODO(lietk12): handle errors from sensors
-  sfm3019_air_.output(sensor_vars_.flow_air);
-  sfm3019_o2_.output(sensor_vars_.flow_o2);
-  sensor_measurements_.flow = sensor_vars_.flow_air + sensor_vars_.flow_o2;
+  InitializableState air_status = sfm3019_air_.output(sensor_vars_.flow_air);
+  InitializableState o2_status = sfm3019_o2_.output(sensor_vars_.flow_o2);
+  if (air_status == InitializableState::ok && o2_status == InitializableState::ok) {
+    sensor_measurements_.flow = sensor_vars_.flow_air + sensor_vars_.flow_o2;
+  }
+  // TODO(lietk12): we should probably set flow to NaN otherwise, but for now we do nothing
+  // so that we don't overwrite the simulated values if the sensors aren't available
 
   // Update controller
   controller_.transform(

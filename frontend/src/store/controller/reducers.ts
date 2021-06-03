@@ -6,6 +6,7 @@ import {
   ParametersRequest,
   AlarmLimits,
   AlarmLimitsRequest,
+  AlarmMute,
   AlarmMuteRequest,
   BatteryPower,
   ScreenStatus,
@@ -17,11 +18,7 @@ import {
   eventLogReducer,
   rotaryEncoderReducer,
 } from './reducers/backend';
-import {
-  sensorMeasurementSmoothingReducer,
-  waveformHistoryReducer,
-  pvHistoryReducer,
-} from './reducers/derived';
+import { waveformHistoryReducer, pvHistoryReducer } from './reducers/derived';
 import { MessageType, REQUEST_COMMITTED, DRAFT_REQUEST_COMMITTED } from './types';
 
 export const controllerReducer = combineReducers({
@@ -47,10 +44,10 @@ export const controllerReducer = combineReducers({
     ),
   }),
   eventLog: eventLogReducer,
-  alarmMuteRequest: requestReducer<AlarmMuteRequest>(
-    MessageType.AlarmMuteRequest,
-    REQUEST_COMMITTED,
-  ),
+  alarmMute: combineReducers({
+    current: messageReducer<AlarmMute>(MessageType.AlarmMute),
+    request: requestReducer<AlarmMuteRequest>(MessageType.AlarmMuteRequest, REQUEST_COMMITTED),
+  }),
   batteryPower: messageReducer<BatteryPower>(MessageType.BatteryPower),
 
   // Message states from frontend_pb
@@ -66,36 +63,6 @@ export const controllerReducer = combineReducers({
   ),
 
   // Derived states
-  smoothedMeasurements: combineReducers({
-    fio2: sensorMeasurementSmoothingReducer(
-      0.5,
-      0.1,
-      500,
-      200,
-      (sensorMeasurements) => sensorMeasurements.fio2,
-    ),
-    flow: sensorMeasurementSmoothingReducer(
-      0.5,
-      0.5,
-      500,
-      200,
-      (sensorMeasurements) => sensorMeasurements.flow,
-    ),
-    spo2: sensorMeasurementSmoothingReducer(
-      1,
-      1.0,
-      200,
-      1000,
-      (sensorMeasurements) => sensorMeasurements.spo2,
-    ),
-    hr: sensorMeasurementSmoothingReducer(
-      1,
-      1.0,
-      200,
-      1000,
-      (sensorMeasurements) => sensorMeasurements.hr,
-    ),
-  }),
   plots: combineReducers({
     waveforms: combineReducers({
       paw: waveformHistoryReducer<SensorMeasurements>(

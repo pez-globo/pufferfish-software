@@ -131,7 +131,6 @@ SCENARIO(
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
       }
       THEN("The payload.values field data remains unchanged") {
-        ParametersRequest parameters_request;
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters_request.flow == 0);
       }
@@ -150,7 +149,7 @@ SCENARIO(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
       "bytes") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\xF0\x41\x2D\x00\x00\x90\x42"s);
     const auto exp_cycle_measurements =
         std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
     const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
@@ -180,6 +179,11 @@ SCENARIO(
       test_message.payload.set(sensor_measurements);
 
       auto write_status = test_message.write(output_buffer, BE::message_descriptors);
+
+      // print the output buffer
+      // auto hexString = PF::Util::convert_byte_vector_to_hex_string(output_buffer);
+      // std::cout << "hex string"
+      //           << " " << hexString << std::endl;
 
       THEN("The write method reports ok status") {
         REQUIRE(write_status == PF::Protocols::MessageStatus::ok);
@@ -507,7 +511,7 @@ SCENARIO(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 126 "
       "bytes") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\xF0\x41\x2D\x00\x00\x90\x42"s);
     const auto exp_cycle_measurements =
         std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
     const auto exp_parameters = std::string("\x04\x10\x06\x45\x00\x00\x70\x42\x50\x01"s);
@@ -593,11 +597,6 @@ SCENARIO(
       }
       THEN("The payload.tag field remains unchanged") {
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
-      }
-      THEN("The payload.values field data remains unchanged") {
-        ParametersRequest parameters_request;
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters_request.flow == 0);
       }
       THEN("After the write method is called, the output buffer remains unchanged") {
         REQUIRE(output_buffer.empty() == true);
@@ -850,7 +849,7 @@ SCENARIO(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
       "bytes") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\xF0\x41\x2D\x00\x00\x90\x42"s);
     const auto exp_cycle_measurements =
         std::string("\x03\x25\x00\x00\xF0\x41\x35\x00\x00\x20\x41"s);
     const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
@@ -1392,7 +1391,6 @@ SCENARIO(
     WHEN(
         "A body with an empty payload and 1 byte header of value equal to the message descriptor "
         "array size is parsed") {
-      constexpr size_t num_descriptors = 4;
       constexpr auto message_descriptors = PF::Util::make_array<PF::Util::ProtobufDescriptor>(
           // array index should match the type code value
           PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 0
@@ -1601,7 +1599,7 @@ SCENARIO(
     "[messages]") {
   GIVEN("A MessageReceiver object is constructed with default parameters") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\xF0\x41\x2D\x00\x00\x90\x42"s);
     const auto exp_cycle_measurements =
         std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
     const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
@@ -1811,7 +1809,7 @@ SCENARIO(
     "[messages]") {
   GIVEN("A MessageSender object is constructed with default parameters") {
     const auto exp_sensor_measurements =
-        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\x90\x42\x3D\x00\x00\xF0\x41"s);
+        std::string("\x02\x1D\x00\x00\xAA\x42\x25\x00\x00\xF0\x41\x2D\x00\x00\x90\x42"s);
     const auto exp_cycle_measurements =
         std::string("\x03\x1D\x00\x00\x20\x41\x3D\x00\x00\x96\x43"s);
     const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
@@ -1819,7 +1817,6 @@ SCENARIO(
     const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
     const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
-    using TestTaggedUnion = PF::Application::StateSegment;
     constexpr size_t payload_max_size = 252UL;
     using TestMessage = PF::Protocols::Message<
         PF::Application::StateSegment,

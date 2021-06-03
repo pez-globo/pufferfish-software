@@ -7,9 +7,19 @@
 
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 
+#include <cmath>
+#include <random>
+
 #include "Pufferfish/Util/Timeouts.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
+
+// We're using PRNG only to simulate values, so security isn't a problem
+// NOLINTNEXTLINE(cert-msc51-cpp)
+std::ranlux24_base prng;  // we use a fixed seed for pseudo-random number generation
+static constexpr float uniform_width = 1;
+std::uniform_real_distribution<float> uniform(0, uniform_width);
+std::uniform_real_distribution<float> uniform_centered(-uniform_width / 2, uniform_width / 2);
 
 // Simulator
 
@@ -29,6 +39,7 @@ uint32_t Simulator::current_time() const {
 void Simulator::transform_fio2(float params_fio2, float &sensor_meas_fio2) {
   sensor_meas_fio2 +=
       (params_fio2 - sensor_meas_fio2) * fio2_responsiveness / sensor_update_interval;
+  sensor_meas_fio2 += fio2_noise * uniform(prng);
 }
 
 bool Simulator::update_needed() const {
@@ -77,9 +88,9 @@ void PCACSimulator::init_cycle(
 void PCACSimulator::transform_cycle_measurements(
     const Parameters &parameters, CycleMeasurements &cycle_measurements) {
   cycle_measurements.time = current_time();
-  cycle_measurements.rr = parameters.rr;
-  cycle_measurements.peep = parameters.peep;
-  cycle_measurements.pip = parameters.pip;
+  cycle_measurements.rr = parameters.rr + rr_noise * uniform_centered(prng);
+  cycle_measurements.peep = parameters.peep + peep_noise * uniform_centered(prng);
+  cycle_measurements.pip = parameters.pip + pip_noise * uniform_centered(prng);
 }
 
 void PCACSimulator::transform_airway_inspiratory(
@@ -146,10 +157,12 @@ void HFNCSimulator::init_cycle() {
 
 void HFNCSimulator::transform_flow(float params_flow, float &sens_meas_flow) {
   sens_meas_flow += (params_flow - sens_meas_flow) * flow_responsiveness / time_step();
+  sens_meas_flow += flow_noise * uniform_centered(prng);
 }
 
 void HFNCSimulator::transform_spo2(float fio2, float &spo2) {
   spo2 += (spo2_fio2_scale * fio2 - spo2) * spo2_responsiveness / time_step();
+  spo2 += spo2_noise * uniform_centered(prng);
   // We don't use clamp because we want to preserve NaNs
   if (spo2 < spo2_min) {
     spo2 = spo2_min;
@@ -161,6 +174,7 @@ void HFNCSimulator::transform_spo2(float fio2, float &spo2) {
 
 void HFNCSimulator::transform_hr(float fio2, float &hr) {
   hr += (hr_fio2_scale * fio2 - hr) * hr_responsiveness / time_step();
+  hr += hr_noise * uniform_centered(prng);
   // We don't use clamp because we want to preserve NaNs
   if (hr < hr_min) {
     hr = hr_min;

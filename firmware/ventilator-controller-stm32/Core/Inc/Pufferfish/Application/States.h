@@ -39,6 +39,8 @@ enum class MessageTypes : uint8_t {
   expected_log_event = 8,
   next_log_events = 9,
   active_log_events = 10,
+  alarm_mute = 11,
+  alarm_mute_request = 12,
 };
 
 // MessageTypeValues should include all defined values of MessageTypes
@@ -53,7 +55,9 @@ using MessageTypeValues = Util::EnumValues<
     MessageTypes::alarm_limits_request,
     MessageTypes::expected_log_event,
     MessageTypes::next_log_events,
-    MessageTypes::active_log_events>;
+    MessageTypes::active_log_events,
+    MessageTypes::alarm_mute,
+    MessageTypes::alarm_mute_request>;
 
 // Since nanopb is running dynamically, we cannot have extensive compile-time type-checking.
 // It's not clear how we might use variants to replace this union, since the nanopb functions
@@ -66,7 +70,7 @@ using StateSegment = Util::TaggedUnion<StateSegmentUnion, MessageTypes>;
 
 struct StateSegments {
   // Backend States
-  SensorMeasurements sensor_measurements;
+  SensorMeasurements sensor_measurements;  // noise-filtered
   CycleMeasurements cycle_measurements;
   Parameters parameters;
   ParametersRequest parameters_request;
@@ -75,6 +79,11 @@ struct StateSegments {
   ExpectedLogEvent expected_log_event;
   NextLogEvents next_log_events;
   ActiveLogEvents active_log_events;
+  AlarmMute alarm_mute;
+  AlarmMuteRequest alarm_mute_request;
+
+  // Internal States
+  SensorMeasurements sensor_measurements_raw;
 };
 
 class Store {
@@ -83,7 +92,8 @@ class Store {
   enum class InputStatus { ok = 0, invalid_type };
   enum class OutputStatus { ok = 0, invalid_type };
 
-  SensorMeasurements &sensor_measurements();
+  // Backend States
+  SensorMeasurements &sensor_measurements_filtered();
   CycleMeasurements &cycle_measurements();
   Parameters &parameters();
   [[nodiscard]] bool has_parameters_request() const;
@@ -94,6 +104,11 @@ class Store {
   [[nodiscard]] const ExpectedLogEvent &expected_log_event() const;
   NextLogEvents &next_log_events();
   ActiveLogEvents &active_log_events();
+  AlarmMute &alarm_mute();
+  AlarmMuteRequest &alarm_mute_request();
+
+  // Internal States
+  SensorMeasurements &sensor_measurements_raw();
 
   InputStatus input(const StateSegment &input, bool default_initialization = false);
   OutputStatus output(MessageTypes type, StateSegment &output) const;
