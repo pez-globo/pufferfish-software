@@ -337,17 +337,17 @@ export const getRotaryEncoder = createSelector(
 export const getRotaryEncoderStep = createSelector(
   getRotaryEncoder,
   (rotaryEncoder: RotaryEncoderParameter | null) =>
-    rotaryEncoder === null ? 0 : rotaryEncoder.step,
+    rotaryEncoder === null ? 0 : rotaryEncoder?.step,
 );
 export const getRotaryEncoderStepDiff = createSelector(
   getRotaryEncoder,
   (rotaryEncoder: RotaryEncoderParameter | null) =>
-    rotaryEncoder === null ? 0 : rotaryEncoder.stepDiff,
+    rotaryEncoder === null ? 0 : rotaryEncoder?.stepDiff,
 );
 export const getRotaryEncoderButtonPressed = createSelector(
   getRotaryEncoder,
   (rotaryEncoder: RotaryEncoderParameter | null) =>
-    rotaryEncoder === null ? false : rotaryEncoder.buttonPressed,
+    rotaryEncoder === null ? false : rotaryEncoder?.buttonPressed,
 );
 
 // System Settings
