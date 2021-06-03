@@ -589,10 +589,6 @@ int main(void)
             initialization_states.cend(),
             PF::InitializableState::setup) != initialization_states.cend()) {
       board_led1.write(true);
-      // we need to do this similarly for SFM3019 drivers
-    } else if (ltc4015_sensor.setup() == PF::InitializableState::failed) {
-      uint32_t current_time = time.millis();
-      power_simulator.transform(current_time, store.power_management());
     } else {  // All are done with setup and ok
       break;
     }
@@ -663,6 +659,10 @@ int main(void)
         store.alarm_mute(), store.alarm_mute_request());
 
     // LTC4015 battery charging
+    // we need to do this similarly for other sfm drivers
+    if (ltc4015_sensor.setup() == PF::InitializableState::failed) {
+      power_simulator.transform(current_time, store.power_management());
+    }
     ltc4015_sensor.output(store.power_management());
     power_alarms.transform(
         store.parameters(), store.power_management(), store.active_log_events(), alarms_manager);

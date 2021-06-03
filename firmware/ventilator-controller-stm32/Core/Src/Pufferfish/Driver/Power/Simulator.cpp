@@ -50,20 +50,24 @@ void Simulator::transform_charge(PowerManagement &power_management) const {
   }
 }
 
+void Simulator::transform_discharge(PowerManagement &power_management) const {
+  if (!update_needed()) {
+    return;
+  }
+  power_management.power_left -=
+      (1 + (power_responsiveness * uniform_centered(prng))) / uniform_int(prng);
+
+  power_management.charging = false;
+  if (power_management.power_left < 0) {
+    power_management.power_left = 0;
+  }
+  if (power_management.power_left == 0) {
+    power_management.charging = true;
+  }
+}
+
 bool Simulator::update_needed() const {
   return !Util::within_timeout(previous_time_, sensor_update_interval, current_time_);
 }
-
-// void Simulator::transform_discharge(PowerManagement &power_management) const {
-//   power_management.power_left -=
-//       (1 + (power_responsiveness * uniform_centered(prng))) / uniform_int(prng);
-
-//   if (power_management.power_left < 0) {
-//     power_management.power_left = 0;
-//   }
-//   if (power_management.power_left == 0) {
-//     power_management.charging = false;
-//   }
-// }
 
 }  // namespace Pufferfish::Driver::Power

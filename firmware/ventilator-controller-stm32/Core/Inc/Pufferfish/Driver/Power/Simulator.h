@@ -22,7 +22,7 @@ class Simulator {
  private:
   const float power_responsiveness = 0.5;
   static const int max_charge = 100;
-  static const uint32_t sensor_update_interval = 2;  // ms
+  static const uint32_t sensor_update_interval = 1;  // ms
 
   uint32_t current_time_ = 0;   // ms
   uint32_t previous_time_ = 0;  // ms
