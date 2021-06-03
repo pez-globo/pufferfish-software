@@ -13,11 +13,11 @@ import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import {
   getActiveLogEventIds,
   getAlarmMuteActive,
-  getAlarmMuteStatus,
   getAlarmMuteRequestActive,
   getPopupEventLog,
   getAlarmMuteRemaining,
   getFirmwareDisconnected,
+  getAlarmMuteRequestRemaining,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
@@ -205,15 +205,25 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
   const alarmMuteActive = useSelector(getAlarmMuteActive, shallowEqual);
-  const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
   const alarmMuteRemaining = useSelector(getAlarmMuteRemaining, shallowEqual);
   const backendConnected = useSelector(getBackendConnected, shallowEqual);
+  const alarmMuteRequestRemaining = useSelector(getAlarmMuteRequestRemaining, shallowEqual);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive, shallowEqual);
   const firmwareDisconnected = useSelector(getFirmwareDisconnected, shallowEqual);
   /**
-   * Stores the state which toggles Alarm Mute Status
+   * Stores the state which toggles AlarmMute/AlarmMuteRequest Status
    */
   const [isMuted, setIsMuted] = useState(alarmMuteActive);
+  /**
+   * Local state to update the AlarmMuteRequest remaining time
+   * when backend is disconnected
+   */
+  const [remaining, setRemaining] = useState(alarmMuteRequestRemaining);
+  /**
+   * Local variable that decides which timer to display depending on the
+   * backend connection
+   */
+  const countdownTimer = backendConnected ? alarmMuteRemaining : alarmMuteRequestRemaining;
   /**
    * Triggers whenever Active or Event log is updated in redux
    */
@@ -232,11 +242,30 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
 
   /**
    * Triggers whenever AlarmMute status is updated in redux store
+   *
+   * Triggers when AlarmMuteRequest is updated in redux store
+   * when backend is disconnected
+   *
+   * starts timer when backend is disconnected
    */
   useEffect(() => {
     setIsMuted(!alarmMuteActive);
-    if (!backendConnected) setIsMuted(!alarmMuteRequestActive);
-  }, [alarmMuteActive, backendConnected, alarmMuteRequestActive]);
+
+    if (!backendConnected) {
+      // Update local state that controls the mute button
+      setIsMuted(!alarmMuteRequestActive);
+      // Reset the timer
+      if (!alarmMuteRequestActive) setRemaining(120);
+      // Start the timer
+      setTimeout(() => {
+        setRemaining(remaining - 1);
+      }, 1000);
+      // dispatch the remaining time
+      dispatch(
+        commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { remaining }),
+      );
+    }
+  }, [alarmMuteActive, remaining, dispatch, backendConnected, alarmMuteRequestActive]);
 
   /**
    * Update mute AlarmStatus in redux store
@@ -253,12 +282,12 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    * Dispatch unmute request after 2 min countdown
    */
   useEffect(() => {
-    if (alarmMuteRemaining === 0) {
+    if (alarmMuteRemaining === 0 || alarmMuteRequestRemaining === 0) {
       dispatch(
         commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { active: false }),
       );
     }
-  }, [dispatch, alarmMuteRemaining]);
+  }, [dispatch, alarmMuteRemaining, alarmMuteRequestRemaining]);
 
   /**
    * Opens LogsPage popup listing event log details
@@ -304,9 +333,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               </Typography>
             </Grid>
             <Grid container item xs justify="flex-end" alignItems="center">
-              {!isMuted && alarmMuteStatus !== null && (
+              {!isMuted && countdownTimer !== undefined && (
                 <div className={classes.timerText}>
-                  {new Date(alarmMuteStatus.remaining * 1000).toISOString().substr(14, 5)}
+                  {new Date(countdownTimer * 1000).toISOString().substr(14, 5)}
                 </div>
               )}
               <Button
@@ -365,9 +394,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               {alertCount}
             </div>
           )}
-          {!isMuted && alarmMuteRemaining !== undefined && (
+          {!isMuted && countdownTimer !== undefined && (
             <div className={classes.timer}>
-              {new Date(alarmMuteRemaining * 1000).toISOString().substr(14, 5)}
+              {new Date(countdownTimer * 1000).toISOString().substr(14, 5)}
             </div>
           )}
         </Button>
