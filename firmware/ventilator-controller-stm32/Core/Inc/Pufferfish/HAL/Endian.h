@@ -16,7 +16,7 @@
 namespace Pufferfish {
 namespace HAL {
 
-namespace Platform = Pufferfish::HAL::STM32;  
+namespace Platform = Pufferfish::HAL::STM32;
 
 template <typename T>
 constexpr T hton(const T& i) {
