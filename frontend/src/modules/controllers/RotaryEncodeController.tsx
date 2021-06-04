@@ -3,7 +3,7 @@
  *
  */
 import React, { useCallback, useEffect, useRef } from 'react';
-import { useSelector, shallowEqual } from 'react-redux';
+import { useSelector } from 'react-redux';
 import {
   // getRotaryEncoderButtonPressed,
   getRotaryEncoderStep,
@@ -45,40 +45,36 @@ export const RotaryEncodeController = ({
   max = 100,
   isActive,
 }: Props): JSX.Element => {
-  const step = useSelector(getRotaryEncoderStep, shallowEqual);
-  const stepDiff = useSelector(getRotaryEncoderStepDiff, shallowEqual);
-  // const buttonPressed = useSelector(getRotaryEncoderButtonPressed, shallowEqual);
+  const step = useSelector(getRotaryEncoderStep);
+  const stepDiff = useSelector(getRotaryEncoderStepDiff);
+  // const buttonPressed = useSelector(getRotaryEncoderButtonPressed);
   const [prevStep, setPrevStep] = React.useState(step);
   const isInitialMount = useRef(true);
 
-  const updateRotaryData = useCallback(
-    () => {
-      if (!isInitialMount.current) {
-        isInitialMount.current = false;
-        return;
-      }
-      if (Number.isNaN(stepDiff)) {
-        return;
-      }
-      if (step === prevStep) {
-        return;
-      }
-      setPrevStep(step);
-      const newValue = value + stepDiff;
-      if (newValue < min) {
-        onClick(min);
-      } else if (newValue > max) {
-        onClick(max);
-      } else {
-        onClick(newValue);
-      }
-      // if (buttonPressed) {
-      //   handleConfirm();
-      // }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [step, min, max, value, prevStep, onClick],
-  );
+  const updateRotaryData = useCallback(() => {
+    if (!isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    if (Number.isNaN(stepDiff)) {
+      return;
+    }
+    if (step === prevStep) {
+      return;
+    }
+    setPrevStep(step);
+    const newValue = value + stepDiff;
+    if (newValue < min) {
+      onClick(min);
+    } else if (newValue > max) {
+      onClick(max);
+    } else {
+      onClick(newValue);
+    }
+    // if (buttonPressed) {
+    //   handleConfirm();
+    // }
+  }, [step, stepDiff, min, max, value, prevStep, onClick]);
 
   useEffect(() => {
     if (isActive) {
