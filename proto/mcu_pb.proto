@@ -199,10 +199,10 @@ message ScreenStatus {
 
 message AlarmMute {
   bool active = 1;
-  float remaining = 2;
+  uint64 remaining = 2;
 }
 
 message AlarmMuteRequest {
   bool active = 1;
-  float remaining = 2;
+  uint64 remaining = 2;
 }

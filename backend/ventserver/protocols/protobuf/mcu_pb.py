@@ -217,10 +217,10 @@ class ScreenStatus(betterproto.Message):
 @dataclass
 class AlarmMute(betterproto.Message):
     active: bool = betterproto.bool_field(1)
-    remaining: float = betterproto.float_field(2)
+    remaining: int = betterproto.uint64_field(2)
 
 
 @dataclass
 class AlarmMuteRequest(betterproto.Message):
     active: bool = betterproto.bool_field(1)
-    remaining: float = betterproto.float_field(2)
+    remaining: int = betterproto.uint64_field(2)

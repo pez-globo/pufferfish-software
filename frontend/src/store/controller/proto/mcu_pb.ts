@@ -2842,7 +2842,7 @@ export const AlarmMute = {
       writer.uint32(8).bool(message.active);
     }
     if (message.remaining !== 0) {
-      writer.uint32(21).float(message.remaining);
+      writer.uint32(16).uint64(message.remaining);
     }
     return writer;
   },
@@ -2858,7 +2858,7 @@ export const AlarmMute = {
           message.active = reader.bool();
           break;
         case 2:
-          message.remaining = reader.float();
+          message.remaining = longToNumber(reader.uint64() as Long);
           break;
         default:
           reader.skipType(tag & 7);
@@ -2917,7 +2917,7 @@ export const AlarmMuteRequest = {
       writer.uint32(8).bool(message.active);
     }
     if (message.remaining !== 0) {
-      writer.uint32(21).float(message.remaining);
+      writer.uint32(16).uint64(message.remaining);
     }
     return writer;
   },
@@ -2933,7 +2933,7 @@ export const AlarmMuteRequest = {
           message.active = reader.bool();
           break;
         case 2:
-          message.remaining = reader.float();
+          message.remaining = longToNumber(reader.uint64() as Long);
           break;
         default:
           reader.skipType(tag & 7);
