@@ -14,9 +14,7 @@
 
 #pragma once
 
-#include <cstdint>
-
-namespace Pufferfish::HAL {
+namespace Pufferfish::HAL::STM32 {
 
 /**
  * Convert endianness of a 64-bit data in host-order to network-order
@@ -71,5 +69,4 @@ constexpr uint16_t hton(uint16_t host_value) noexcept {
 constexpr uint16_t ntoh(uint16_t network_value) noexcept {
   return __builtin_bswap16(network_value);
 }
-
-}  // namespace Pufferfish::HAL
+}  // namespace Pufferfish::HAL::STM32

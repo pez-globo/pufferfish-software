@@ -46,7 +46,7 @@ class StateMachine {
  */
 class Sensor : public Initializable {
  public:
-  explicit Sensor(Device &device, HAL::Time &time) : device_(device), time_(time) {}
+  explicit Sensor(Device &device, HAL::Interfaces::Time &time) : device_(device), time_(time) {}
 
   InitializableState setup() override;
   InitializableState output(uint32_t &po2);
@@ -60,7 +60,7 @@ class Sensor : public Initializable {
 
   Device &device_;
   StateMachine fsm_;
-  HAL::Time &time_;
+  HAL::Interfaces::Time &time_;
   Action next_action_ = Action::request_version;
   size_t retry_count_ = 0;
 

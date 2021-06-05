@@ -16,7 +16,7 @@ namespace Driver {
 /**
  * Represents an output in shift register
  */
-class ShiftedOutput : public HAL::DigitalOutput {
+class ShiftedOutput : public HAL::Interfaces::DigitalOutput {
  public:
   ShiftedOutput(ShiftRegister &dev, uint8_t channel) : dev_(dev), channel(channel) {}
 

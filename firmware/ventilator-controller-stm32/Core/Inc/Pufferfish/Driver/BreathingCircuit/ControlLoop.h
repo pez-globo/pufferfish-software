@@ -40,8 +40,8 @@ class HFNCControlLoop : public ControlLoop {
       SensorMeasurements &sensor_measurements,
       Driver::I2C::SFM3019::Sensor &sfm3019_air,
       Driver::I2C::SFM3019::Sensor &sfm3019_o2,
-      HAL::PWM &valve_air,
-      HAL::PWM &valve_o2)
+      HAL::Interfaces::PWM &valve_air,
+      HAL::Interfaces::PWM &valve_o2)
       : parameters_(parameters),
         sensor_measurements_(sensor_measurements),
         sfm3019_air_(sfm3019_air),
@@ -72,8 +72,8 @@ class HFNCControlLoop : public ControlLoop {
 
   // ActuatorVars
   ActuatorVars actuator_vars_{};
-  HAL::PWM &valve_air_;
-  HAL::PWM &valve_o2_;
+  HAL::Interfaces::PWM &valve_air_;
+  HAL::Interfaces::PWM &valve_o2_;
 };
 
 }  // namespace Pufferfish::Driver::BreathingCircuit
