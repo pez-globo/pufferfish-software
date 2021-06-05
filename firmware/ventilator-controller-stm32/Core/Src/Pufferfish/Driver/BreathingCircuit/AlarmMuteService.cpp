@@ -24,23 +24,23 @@ void AlarmMuteService::input_clock(uint32_t current_time) {
 }
 
 void AlarmMuteService::transform(
-    uint32_t current_time, AlarmMute &alarm_mute, const AlarmMuteRequest &alarm_mute_request) {
+    uint32_t current_time, const AlarmMuteRequest &alarm_mute_request, AlarmMute &alarm_mute) {
+  alarm_mute.active = alarm_mute_request.active;
   input_clock(current_time);
 
   if (alarm_mute.active) {
-    start_countdown(alarm_mute);
+    continue_countdown(alarm_mute);
   } else {
+    initial_time_ = 0;
     alarm_mute.remaining = countdown_time;
   }
-  alarm_mute.active = alarm_mute_request.active;
 }
 
-void AlarmMuteService::start_countdown(AlarmMute &alarm_mute) {
+void AlarmMuteService::continue_countdown(AlarmMute &alarm_mute) {
   if (!update_needed()) {
     return;
   }
-
-  alarm_mute.remaining -= 1;
+  alarm_mute.remaining = countdown_time - current_time_;
 }
 
 bool AlarmMuteService::update_needed() const {

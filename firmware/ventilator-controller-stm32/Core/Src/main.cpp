@@ -642,7 +642,7 @@ int main(void)
         alarms_manager);
 
     // Alarm Mute Service
-    alarm_mute_service.transform(current_time, store.alarm_mute(), store.alarm_mute_request());
+    alarm_mute_service.transform(current_time, store.alarm_mute_request(), store.alarm_mute());
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;
