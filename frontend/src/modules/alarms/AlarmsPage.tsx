@@ -7,7 +7,7 @@
 import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
-import React, { RefObject, useEffect, useRef, useState } from 'react';
+import React, { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
@@ -165,10 +165,10 @@ const Alarm = ({
     alarmLimits === null
       ? undefined
       : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
-  const rangeValues: number[] = [
-    range === undefined ? NaN : range.lower,
-    range === undefined ? NaN : range.upper,
-  ];
+  const rangeValues: number[] = useMemo(
+    () => [range === undefined ? NaN : range.lower, range === undefined ? NaN : range.upper],
+    [range],
+  );
   /**
    * State to manage Wrapper HTML reference of Alarm's lower & higher Controls(ValueSlider & ValueClicker)
    * This wrapper's HTML border is added or removed based on user's interaction with Alarm Controls
