@@ -219,16 +219,8 @@ const Alarm = ({
    * are the current AlarmLimits
    */
   useEffect(() => {
-    if (rangeValues[1] <= rangeValues[0]) {
-      setDisableDecrement(true);
-    } else {
-      setDisableDecrement(false);
-    }
-    if (rangeValues[0] >= rangeValues[1]) {
-      setDisableIncrement(true);
-    } else {
-      setDisableIncrement(false);
-    }
+    setDisableDecrement(rangeValues[1] <= rangeValues[0]);
+    setDisableIncrement(rangeValues[0] >= rangeValues[1]);
   }, [rangeValues]);
 
   /**

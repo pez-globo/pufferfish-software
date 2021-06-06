@@ -172,16 +172,8 @@ export const AlarmModal = ({
    * are the current AlarmLimits
    */
   useEffect(() => {
-    if (rangeValue[1] <= rangeValue[0]) {
-      setDisableDecrement(true);
-    } else {
-      setDisableDecrement(false);
-    }
-    if (rangeValue[0] >= rangeValue[1]) {
-      setDisableIncrement(true);
-    } else {
-      setDisableIncrement(false);
-    }
+    setDisableDecrement(rangeValue[1] <= rangeValue[0]);
+    setDisableIncrement(rangeValue[0] >= rangeValue[1]);
   }, [rangeValue]);
 
   useEffect(() => {
