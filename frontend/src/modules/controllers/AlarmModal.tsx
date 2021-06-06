@@ -157,10 +157,25 @@ export const AlarmModal = ({
     [`${stateKey}_LOWER`]: useRef(null),
     [`${stateKey}_HIGHER`]: useRef(null),
   });
+  const [disableDecrement, setDisableDecrement] = React.useState(false);
+  const [disableIncrement, setDisableIncrement] = React.useState(false);
 
   const initSetValue = useCallback(() => {
     setOpen(openModal);
   }, [openModal]);
+
+  useEffect(() => {
+    if (rangeValue[1] <= rangeValue[0]) {
+      setDisableDecrement(true);
+    } else {
+      setDisableDecrement(false);
+    }
+    if (rangeValue[0] >= rangeValue[1]) {
+      setDisableIncrement(true);
+    } else {
+      setDisableIncrement(false);
+    }
+  }, [rangeValue]);
 
   useEffect(() => {
     initRefListener(refs);
@@ -274,6 +289,7 @@ export const AlarmModal = ({
                 step={step}
                 min={committedMin}
                 max={committedMax}
+                disableMin={disableIncrement}
                 onClick={(value) => setRangeValue(Object.assign([], rangeValue, { 0: value }))}
                 direction="column"
               />
@@ -312,6 +328,7 @@ export const AlarmModal = ({
                 step={step}
                 min={committedMin}
                 max={committedMax}
+                disableMax={disableDecrement}
                 onClick={(value) => setRangeValue(Object.assign([], rangeValue, { 1: value }))}
                 direction="column"
               />
