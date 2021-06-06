@@ -207,6 +207,21 @@ const Alarm = ({
       },
     });
   };
+  const [disableDecrement, setDisableDecrement] = useState(false);
+  const [disableIncrement, setDisableIncrement] = useState(false);
+
+  useEffect(() => {
+    if (rangeValues[1] <= rangeValues[0]) {
+      setDisableDecrement(true);
+    } else {
+      setDisableDecrement(false);
+    }
+    if (rangeValues[0] >= rangeValues[1]) {
+      setDisableIncrement(true);
+    } else {
+      setDisableIncrement(false);
+    }
+  }, [rangeValues]);
 
   /**
    * Calls on initalization of the component
@@ -257,6 +272,7 @@ const Alarm = ({
                 onClick={(value: number) => onClick(value, SliderType.LOWER)}
                 min={min}
                 max={max}
+                disableMin={disableIncrement}
                 direction="column"
               />
             </Grid>
@@ -289,6 +305,7 @@ const Alarm = ({
                 onClick={(value: number) => onClick(value, SliderType.UPPER)}
                 min={min}
                 max={max}
+                disableMax={disableDecrement}
                 direction="column"
               />
             </Grid>

@@ -105,11 +105,9 @@ export const ValueClicker = ({
    * Validating & disabling button when reached min/max value
    */
   useEffect(() => {
-    setDisableIncrement(value >= max);
-    setDisableDecrement(value <= min);
-    setDisableDecrement(disableMax);
-    setDisableIncrement(disableMin);
-  }, [min, max, value, disableMax, disableMin]);
+    setDisableIncrement(value >= max || disableMin);
+    setDisableDecrement(value <= min || disableMax);
+  }, [min, max, value, disableMin, disableMax]);
 
   /**
    * Click handler for Increment button
