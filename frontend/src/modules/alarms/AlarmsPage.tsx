@@ -207,9 +207,17 @@ const Alarm = ({
       },
     });
   };
+
+  /**
+   * Local state to pass to ValueClicker to disable increment/decrement buttons
+   */
   const [disableDecrement, setDisableDecrement] = useState(false);
   const [disableIncrement, setDisableIncrement] = useState(false);
 
+  /**
+   * This is a changeListener that sets disableDecrement, disableIncrement on change in RangeValues which
+   * are the current AlarmLimits
+   */
   useEffect(() => {
     if (rangeValues[1] <= rangeValues[0]) {
       setDisableDecrement(true);

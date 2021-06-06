@@ -157,6 +157,9 @@ export const AlarmModal = ({
     [`${stateKey}_LOWER`]: useRef(null),
     [`${stateKey}_HIGHER`]: useRef(null),
   });
+  /**
+   * Local state to pass to ValueClicker to disable increment/decrement buttons
+   */
   const [disableDecrement, setDisableDecrement] = React.useState(false);
   const [disableIncrement, setDisableIncrement] = React.useState(false);
 
@@ -164,6 +167,10 @@ export const AlarmModal = ({
     setOpen(openModal);
   }, [openModal]);
 
+  /**
+   * This is a changeListener that sets disableDecrement, disableIncrement on change in RangeValues which
+   * are the current AlarmLimits
+   */
   useEffect(() => {
     if (rangeValue[1] <= rangeValue[0]) {
       setDisableDecrement(true);
