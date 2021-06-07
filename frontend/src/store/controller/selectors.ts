@@ -271,8 +271,12 @@ const getLogEventCode = (logEventCode: number) =>
     events.find((el: LogEvent) => (el.code as number) === logEventCode),
   );
 
-export const getBackendLogEvent = getLogEventCode(LogEventCode.backend_connection_down);
-export const getFirmwareLogEvent = getLogEventCode(LogEventCode.mcu_connection_down);
+export const getBackendDown = getLogEventCode(LogEventCode.backend_connection_down);
+export const getFirmwareDown = getLogEventCode(LogEventCode.mcu_connection_down);
+export const getFirmwareDisconnected = createSelector(
+  getFirmwareDown,
+  (event: LogEvent | undefined): boolean => event !== undefined,
+);
 // Backend Initialized
 export const getBackendInitialized = createSelector(
   getParametersRequest,
@@ -285,16 +289,12 @@ export const getBackendInitialized = createSelector(
   ): boolean => parametersRequest !== null && alarmLimitsRequest !== null && backendConnected,
 );
 
-// Firmware lost
-export const getVentilatingStatus = createSelector(
+// Changing Ventilating Status
+export const getVentilatingStatusChanging = createSelector(
   getParametersIsVentilating,
   getParametersRequestVentilating,
   (parameters: boolean | null, parametersRequest: boolean | null) =>
     parameters !== parametersRequest,
-);
-export const getFirmwareDisconnected = createSelector(
-  getFirmwareLogEvent,
-  (event: LogEvent | undefined): boolean => event !== undefined,
 );
 
 // Alarm muting

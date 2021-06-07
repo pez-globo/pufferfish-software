@@ -12,7 +12,7 @@ import { BACKEND_CONNECTION_DOWN, RED_BORDER } from '../../store/app/types';
 import {
   getAlarmMuteActive,
   getAlarmMuteRequestActive,
-  getBackendLogEvent,
+  getBackendDown,
   getHasActiveAlarms,
   getScreenStatusLock,
 } from '../../store/controller/selectors';
@@ -61,7 +61,7 @@ export const HeartbeatBackendListener = (): JSX.Element => {
   const dispatch = useDispatch();
   const heartbeat = useSelector(getBackendHeartBeat);
   const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
-  const lostConnectionAlarm = useSelector(getBackendLogEvent);
+  const lostConnectionAlarm = useSelector(getBackendDown);
 
   useEffect(() => {
     if (diff > BACKEND_CONNECTION_TIMEOUT) {

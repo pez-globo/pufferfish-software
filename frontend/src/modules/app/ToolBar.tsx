@@ -28,7 +28,7 @@ import {
   getAlarmLimitsRequestUnsaved,
   getAlarmLimitsUnsavedKeys,
   getAlarmLimitsRequest,
-  getVentilatingStatus,
+  getVentilatingStatusChanging,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { AlarmConfiguration, alarmConfiguration } from '../alarms/AlarmsPage';
@@ -169,7 +169,7 @@ export const ToolBar = ({
     string,
     Range
   >;
-  const ventilatingStatus = useSelector(getVentilatingStatus, shallowEqual);
+  const ventilatingStatus = useSelector(getVentilatingStatusChanging);
   /**
    * State to manage toggling ventilationState
    */

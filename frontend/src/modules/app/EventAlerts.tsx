@@ -16,7 +16,6 @@ import {
   getAlarmMuteRequestActive,
   getPopupEventLog,
   getAlarmMuteRemaining,
-  getFirmwareDisconnected,
   getAlarmMuteRequestRemaining,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
@@ -209,7 +208,6 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const backendConnected = useSelector(getBackendConnected);
   const alarmMuteRequestRemaining = useSelector(getAlarmMuteRequestRemaining);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive);
-  const firmwareDisconnected = useSelector(getFirmwareDisconnected);
   /**
    * Stores the state which toggles AlarmMute/AlarmMuteRequest Status
    */
@@ -369,7 +367,6 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         <Button
           style={{ marginLeft: 5 }}
           onClick={() => muteAlarmState(isMuted)}
-          disabled={firmwareDisconnected}
           variant="contained"
           color="primary"
           className={classes.alertColor}
