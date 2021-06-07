@@ -79,7 +79,7 @@ export const RotaryEncodeController = ({
     // if (buttonPressed) {
     //   handleConfirm();
     // }
-  }, [step, stepDiff, min, max, value, prevStep, onClick]);
+  }, [step, stepDiff, disableChange, min, max, value, prevStep, onClick]);
 
   useEffect(() => {
     if (isActive) {
