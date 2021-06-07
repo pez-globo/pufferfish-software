@@ -34,35 +34,37 @@ void Simulator::input_clock(uint32_t current_time) {
 
 void Simulator::transform(uint32_t current_time, PowerManagement &power_management) {
   input_clock(current_time);
-  transform_charge(power_management);
+  if (charging) {
+    transform_charge(power_management);
+  } else {
+    initial_time_ = current_time;
+    transform_discharge(power_management);
+  }
 }
 
-void Simulator::transform_charge(PowerManagement &power_management) const {
+void Simulator::transform_charge(PowerManagement &power_management) {
   if (!update_needed()) {
     return;
   }
+  power_management.charging = true;
   power_management.power_left +=
       (1 + (power_responsiveness * uniform_centered(prng))) / uniform_int(prng);
-  power_management.charging = true;
   if (power_management.power_left >= max_charge) {
     power_management.power_left = max_charge;
-    power_management.charging = false;
+    charging = false;
   }
 }
 
-void Simulator::transform_discharge(PowerManagement &power_management) const {
+void Simulator::transform_discharge(PowerManagement &power_management) {
   if (!update_needed()) {
     return;
   }
+  power_management.charging = false;
   power_management.power_left -=
       (1 + (power_responsiveness * uniform_centered(prng))) / uniform_int(prng);
-
-  power_management.charging = false;
-  if (power_management.power_left < 0) {
+  if (power_management.power_left <= 0) {
     power_management.power_left = 0;
-  }
-  if (power_management.power_left == 0) {
-    power_management.charging = true;
+    charging = true;
   }
 }
 
