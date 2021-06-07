@@ -11,7 +11,6 @@ namespace Pufferfish::Driver::Power {
 
 // AlarmsService
 void AlarmsService::transform(
-    const Parameters &parameters,
     PowerManagement &power_management,
     ActiveLogEvents &active_log_events,
     Application::AlarmsManager &alarms_manager) {

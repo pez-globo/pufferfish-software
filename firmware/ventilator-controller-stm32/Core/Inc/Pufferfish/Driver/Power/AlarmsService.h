@@ -18,7 +18,6 @@ static constexpr auto alarm_codes =
 class AlarmsService {
  public:
   virtual void transform(
-      const Parameters &parameters,
       PowerManagement &power_management,
       ActiveLogEvents &active_log_events,
       Application::AlarmsManager &alarms_manager);

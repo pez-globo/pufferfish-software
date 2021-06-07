@@ -18,7 +18,7 @@ namespace Pufferfish::Driver::I2C::LTC4015 {
  */
 class I2CDevice {
  public:
-  explicit I2CDevice(HAL::I2CDevice &dev) : dev_(dev) {}
+  explicit I2CDevice(HAL::Interfaces::I2CDevice &dev) : dev_(dev) {}
 
   /**
    * Reads a data from the sensor
@@ -37,6 +37,6 @@ class I2CDevice {
   I2CDeviceStatus write(uint16_t command);
 
  private:
-  HAL::I2CDevice &dev_;
+  HAL::Interfaces::I2CDevice &dev_;
 };
 }  // namespace Pufferfish::Driver::I2C::LTC4015

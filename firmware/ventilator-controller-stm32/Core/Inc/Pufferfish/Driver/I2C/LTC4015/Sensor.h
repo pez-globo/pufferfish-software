@@ -35,7 +35,7 @@ class StateMachine {
  */
 class Sensor : public Initializable {
  public:
-  Sensor(Device &device, HAL::Time &time) : device_(device), time_(time) {}
+  Sensor(Device &device, HAL::Interfaces::Time &time) : device_(device), time_(time) {}
 
   InitializableState setup() override;
   // updates the battery power charging field
@@ -51,7 +51,7 @@ class Sensor : public Initializable {
   Action next_action_ = Action::initialize;
   size_t retry_count_ = 0;
 
-  HAL::Time &time_;
+  HAL::Interfaces::Time &time_;
 
   InitializableState initialize(uint32_t current_time);
   InitializableState measure(uint32_t current_time_us, PowerManagement &power_management);

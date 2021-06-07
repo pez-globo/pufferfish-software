@@ -25,7 +25,7 @@ static const uint16_t device_addr = 0xD0;
  */
 class Device {
  public:
-  explicit Device(HAL::I2CDevice &dev) : i2cdevice_(dev) {}
+  explicit Device(HAL::Interfaces::I2CDevice &dev) : i2cdevice_(dev) {}
 
   /**
    * Checks if the charger is enabled

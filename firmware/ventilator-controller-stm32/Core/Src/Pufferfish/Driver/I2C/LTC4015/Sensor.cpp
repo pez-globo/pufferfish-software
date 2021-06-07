@@ -19,6 +19,8 @@ StateMachine::Action StateMachine::update(uint32_t current_time_us) {
     case Action::initialize:
       next_action_ = Action::measure;
       break;
+    case Action::measure:
+      break;
   }
   return next_action_;
 }
