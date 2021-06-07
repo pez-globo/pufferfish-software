@@ -666,8 +666,7 @@ int main(void)
       ltc4015_sensor.output(store.power_management());
     }
 
-    power_alarms.transform(
-        store.power_management(), store.active_log_events(), alarms_manager);
+    power_alarms.transform(store.power_management(), store.active_log_events(), alarms_manager);
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;
