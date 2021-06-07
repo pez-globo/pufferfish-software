@@ -191,6 +191,7 @@ export const ValueClicker = ({
         onClick={(num: number) => {
           onClick(num);
         }}
+        disableChange={disableMin || disableMax}
         min={min}
         max={max}
       />

@@ -27,6 +27,7 @@ interface Props {
   min?: number;
   max?: number;
   isActive: boolean;
+  disableChange?: boolean;
 }
 
 /**
@@ -44,6 +45,7 @@ export const RotaryEncodeController = ({
   min = 0,
   max = 100,
   isActive,
+  disableChange,
 }: Props): JSX.Element => {
   const step = useSelector(getRotaryEncoderStep);
   const stepDiff = useSelector(getRotaryEncoderStepDiff);
@@ -60,6 +62,9 @@ export const RotaryEncodeController = ({
       return;
     }
     if (step === prevStep) {
+      return;
+    }
+    if (disableChange) {
       return;
     }
     setPrevStep(step);
