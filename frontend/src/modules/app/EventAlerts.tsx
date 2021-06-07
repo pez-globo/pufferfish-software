@@ -204,12 +204,12 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    */
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
-  const alarmMuteActive = useSelector(getAlarmMuteActive, shallowEqual);
-  const alarmMuteRemaining = useSelector(getAlarmMuteRemaining, shallowEqual);
-  const backendConnected = useSelector(getBackendConnected, shallowEqual);
-  const alarmMuteRequestRemaining = useSelector(getAlarmMuteRequestRemaining, shallowEqual);
-  const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive, shallowEqual);
-  const firmwareDisconnected = useSelector(getFirmwareDisconnected, shallowEqual);
+  const alarmMuteActive = useSelector(getAlarmMuteActive);
+  const alarmMuteRemaining = useSelector(getAlarmMuteRemaining);
+  const backendConnected = useSelector(getBackendConnected);
+  const alarmMuteRequestRemaining = useSelector(getAlarmMuteRequestRemaining);
+  const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive);
+  const firmwareDisconnected = useSelector(getFirmwareDisconnected);
   /**
    * Stores the state which toggles AlarmMute/AlarmMuteRequest Status
    */
