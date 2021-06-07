@@ -21,19 +21,13 @@ namespace Pufferfish::Driver::I2C::LTC4015 {
 class StateMachine {
  public:
   // More actions will be added later
-  enum class Action { initialize, measure, wait_measurement };
+  enum class Action { initialize, measure };
 
   [[nodiscard]] Action update(uint32_t current_time_us);
 
  private:
-  static const uint32_t measuring_duration_us = 500;  // us
-
   Action next_action_ = Action::initialize;
-  uint32_t wait_start_time_us_ = 0;
   uint32_t current_time_us_ = 0;
-
-  void start_waiting();
-  [[nodiscard]] bool finished_waiting(uint32_t timeout_us) const;
 };
 
 /**

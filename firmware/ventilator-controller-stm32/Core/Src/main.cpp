@@ -336,7 +336,7 @@ PF::Driver::Power::Simulator power_simulator;
 // Initializables
 
 auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
-    sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015_sensor);
+    /*sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015_sensor*/);
 std::array<PF::InitializableState, initializables.size()> initialization_states;
 
 /*
@@ -662,8 +662,10 @@ int main(void)
     // we need to do this similarly for other sfm drivers
     if (ltc4015_sensor.setup() == PF::InitializableState::failed) {
       power_simulator.transform(current_time, store.power_management());
+    } else {
+      ltc4015_sensor.output(store.power_management());
     }
-    ltc4015_sensor.output(store.power_management());
+
     power_alarms.transform(
         store.parameters(), store.power_management(), store.active_log_events(), alarms_manager);
 
