@@ -181,7 +181,7 @@ SCENARIO(
       "A Datagram constructed with a non-empty payload buffer of any length from 0 to 252 and "
       "sequence equal to 0") {
     // as payload buffer is a ByteVector of size 252
-    int payload_size = GENERATE(0, 252);
+    size_t payload_size = GENERATE(0, 252);
 
     for (size_t i = 0; i < payload_size; ++i) {
       uint8_t val = 9;
@@ -1767,7 +1767,6 @@ SCENARIO(
 
     WHEN("The input payload to the transform method is '0x00 0x00'") {
       using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
-      using TestDatagram = PF::Protocols::Datagram<TestDatagramProps::PayloadBuffer>;
 
       auto data = std::string("\x00\x00", 2);
 
@@ -1798,7 +1797,6 @@ SCENARIO(
     "[DatagramSender]") {
   constexpr size_t buffer_size = 254UL;
   using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
-  using TestDatagram = PF::Protocols::Datagram<TestDatagramProps::PayloadBuffer>;
   using TestDatagramSender = PF::Protocols::DatagramSender<buffer_size>;
   using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
   TestDatagramSender datagram_sender{};

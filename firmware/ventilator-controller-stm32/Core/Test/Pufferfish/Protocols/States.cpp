@@ -14,7 +14,7 @@
 
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/HAL/CRCChecker.h"
-#include "Pufferfish/HAL/Mock/MockTime.h"
+#include "Pufferfish/HAL/Mock/Time.h"
 #include "Pufferfish/Protocols/Chunks.h"
 #include "Pufferfish/Test/BackendDefs.h"
 #include "Pufferfish/Util/Array.h"
@@ -177,12 +177,8 @@ SCENARIO(
     using BackendStateSynchronizer = PF::Protocols::
         StateSynchronizer<Store, StateSegment, MessageTypes, state_sync_schedule.size()>;
 
-    const BackendStateSynchronizer::OutputStatus output_ok =
-        BackendStateSynchronizer::OutputStatus::ok;
     const BackendStateSynchronizer::OutputStatus invalid_type =
         BackendStateSynchronizer::OutputStatus::invalid_type;
-    const BackendStateSynchronizer::OutputStatus waiting =
-        BackendStateSynchronizer::OutputStatus::waiting;
 
     Store store{};
 
@@ -224,8 +220,6 @@ SCENARIO(
 
     const BackendStateSynchronizer::OutputStatus output_ok =
         BackendStateSynchronizer::OutputStatus::ok;
-    const BackendStateSynchronizer::OutputStatus waiting =
-        BackendStateSynchronizer::OutputStatus::waiting;
 
     Store store{};
 
@@ -486,8 +480,6 @@ SCENARIO(
 
     const BackendStateSynchronizer::OutputStatus output_ok =
         BackendStateSynchronizer::OutputStatus::ok;
-    const BackendStateSynchronizer::OutputStatus waiting =
-        BackendStateSynchronizer::OutputStatus::waiting;
 
     Store store{};
 
@@ -681,8 +673,6 @@ SCENARIO(
 
     const BackendStateSynchronizer::OutputStatus output_ok =
         BackendStateSynchronizer::OutputStatus::ok;
-    const BackendStateSynchronizer::OutputStatus waiting =
-        BackendStateSynchronizer::OutputStatus::waiting;
 
     Store store{};
 
@@ -780,8 +770,6 @@ SCENARIO(
 
     const BackendStateSynchronizer::OutputStatus output_ok =
         BackendStateSynchronizer::OutputStatus::ok;
-    const BackendStateSynchronizer::OutputStatus waiting =
-        BackendStateSynchronizer::OutputStatus::waiting;
 
     Store store{};
 

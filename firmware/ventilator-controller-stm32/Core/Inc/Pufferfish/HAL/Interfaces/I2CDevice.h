@@ -27,6 +27,7 @@
 
 namespace Pufferfish {
 namespace HAL {
+namespace Interfaces {
 
 /**
  * An abstract class which represents an arbitrary I2C device with read/write
@@ -60,5 +61,6 @@ class I2CDevice {
   virtual I2CDeviceStatus write(uint8_t *buf, size_t count) = 0;
 };
 
+}  // namespace Interfaces
 }  // namespace HAL
 }  // namespace Pufferfish
