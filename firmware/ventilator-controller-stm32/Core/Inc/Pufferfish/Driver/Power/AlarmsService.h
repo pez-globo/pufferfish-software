@@ -22,9 +22,6 @@ class AlarmsService {
       PowerManagement &power_management,
       ActiveLogEvents &active_log_events,
       Application::AlarmsManager &alarms_manager);
-
-  static void deactivate_alarms(
-      ActiveLogEvents &active_log_events, Application::AlarmsManager &alarms_manager);
 };
 
 }  // namespace Pufferfish::Driver::Power
