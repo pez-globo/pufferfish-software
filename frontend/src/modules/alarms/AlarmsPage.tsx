@@ -200,6 +200,11 @@ const Alarm = ({
     setActiveRotaryReference(
       type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
     );
+    if (type === SliderType.LOWER) {
+      setDisableIncrement(value >= rangeValues[1]);
+    } else {
+      setDisableDecrement(value <= rangeValues[0]);
+    }
     setAlarmLimits({
       [stateKey]: {
         lower: type === SliderType.LOWER ? value : rangeValues[0],

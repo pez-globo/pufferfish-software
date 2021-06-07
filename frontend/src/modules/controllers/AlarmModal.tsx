@@ -163,6 +163,16 @@ export const AlarmModal = ({
   const [disableDecrement, setDisableDecrement] = React.useState(false);
   const [disableIncrement, setDisableIncrement] = React.useState(false);
 
+  const setUpperLimit = (value: number) => {
+    setRangeValue(Object.assign([], rangeValue, { 1: value }));
+    setDisableDecrement(value <= rangeValue[0]);
+  };
+
+  const setLowerLimit = (value: number) => {
+    setRangeValue(Object.assign([], rangeValue, { 0: value }));
+    setDisableIncrement(value >= rangeValue[1]);
+  };
+
   const initSetValue = useCallback(() => {
     setOpen(openModal);
   }, [openModal]);
@@ -289,7 +299,7 @@ export const AlarmModal = ({
                 min={committedMin}
                 max={committedMax}
                 disableMin={disableIncrement}
-                onClick={(value) => setRangeValue(Object.assign([], rangeValue, { 0: value }))}
+                onClick={setLowerLimit}
                 direction="column"
               />
             </Grid>
@@ -328,7 +338,7 @@ export const AlarmModal = ({
                 min={committedMin}
                 max={committedMax}
                 disableMax={disableDecrement}
-                onClick={(value) => setRangeValue(Object.assign([], rangeValue, { 1: value }))}
+                onClick={setUpperLimit}
                 direction="column"
               />
             </Grid>
