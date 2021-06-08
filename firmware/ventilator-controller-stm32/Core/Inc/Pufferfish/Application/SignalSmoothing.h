@@ -2,7 +2,7 @@
  * SignalSmoothing.h
  *
  *  Signal processing and denoising
- *  TODO: move this file into a more appropriate place!
+ *  TODO: move this file into Protocols/Application!
  */
 
 #pragma once

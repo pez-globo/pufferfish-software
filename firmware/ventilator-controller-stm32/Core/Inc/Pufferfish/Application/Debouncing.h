@@ -1,0 +1,69 @@
+/// Debouncing.h
+/// Classes for event debouncing and edge detection
+/// TODO: move this file into Protocols/Application!
+
+// Copyright (c) 2020 Pez-Globo and the Pufferfish project contributors
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+// either express or implied.
+//
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#pragma once
+
+#include <cstdint>
+
+namespace Pufferfish::Application {
+
+// Debouncing
+
+class Debouncer {
+ public:
+  enum class Status { ok = 0, waiting, unstable };
+
+  Debouncer(
+      uint8_t max_integrator_samples = 100,
+      uint32_t sampling_interval = 10,
+      uint32_t allowed_bounce_duration = 2000)
+      : max_integrator_samples_(max_integrator_samples),
+        sampling_interval_(sampling_interval),
+        allowed_bounce_duration_(allowed_bounce_duration) {}
+
+  Status transform(bool input, uint32_t current_time, bool &output);
+
+ private:
+  const uint8_t max_integrator_samples_;
+  const uint32_t sampling_interval_;        // ms
+  const uint32_t allowed_bounce_duration_;  // ms
+
+  uint8_t integrator_ = 0;
+  bool output_ = false;
+  uint32_t prev_sample_time_ = 0;  // ms
+  uint32_t prev_stable_time_ = 0;  // ms
+};
+
+// Edge detection
+
+class EdgeDetector {
+ public:
+  enum class State { no_edge = 0, rising_edge, falling_edge };
+
+  EdgeDetector() = default;
+
+  void transform(bool input, State &output);
+
+ private:
+  bool last_state_ = false;
+};
+
+}  // namespace Pufferfish::Application

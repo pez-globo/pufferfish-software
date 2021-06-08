@@ -221,8 +221,7 @@ PF::HAL::HALDigitalInput button_power(
     SET_PWR_ON_OFF_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
 
-PF::Driver::Button::Debouncer switch_debounce;
-PF::Driver::Button::EdgeDetector switch_transition;
+PF::Application::Debouncer switch_debounce;
 PF::Driver::Button::Button button_membrane(button_alarm_en, switch_debounce, time);
 
 // Solenoid Valves
