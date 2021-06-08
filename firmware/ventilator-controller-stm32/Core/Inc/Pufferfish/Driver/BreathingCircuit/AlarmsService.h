@@ -11,14 +11,14 @@
 
 #include <cstdint>
 
-#include "Pufferfish/Application/LogEvents.h"
+#include "Pufferfish/Application/Alarms.h"
 #include "Pufferfish/Statuses.h"
 #include "Pufferfish/Util/Array.h"
 #include "Pufferfish/Util/OrderedMap.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
-// All alarm codes need to be registered in the following array:
+// All alarm codes for BreathingCircuit need to be registered in the following array:
 static constexpr auto alarm_codes = Util::make_array<LogEventCode>(
     LogEventCode::LogEventCode_spo2_too_low,
     LogEventCode::LogEventCode_spo2_too_high,
@@ -29,19 +29,6 @@ static constexpr auto alarm_codes = Util::make_array<LogEventCode>(
     LogEventCode::LogEventCode_flow_too_low,
     LogEventCode::LogEventCode_flow_too_high);
 
-class AlarmsManager {
- public:
-  explicit AlarmsManager(Application::LogEventsManager &log_manager) : log_manager_(log_manager) {}
-
-  void activate_alarm(LogEventCode alarm_code, LogEventType alarm_type, const Range &alarm_limits);
-  void deactivate_alarm(LogEventCode alarm_code);
-  IndexStatus transform(ActiveLogEvents &active_log_events) const;
-
- private:
-  Application::LogEventsManager &log_manager_;
-  Util::OrderedMap<LogEventCode, uint32_t, Application::active_log_events_max_elems> active_alarms_;
-};
-
 class AlarmsService {
  public:
   static void check_parameter(
@@ -49,16 +36,17 @@ class AlarmsService {
       float measured_value,
       LogEventCode too_low_code,
       LogEventCode too_high_code,
-      AlarmsManager &alarms_manager);
+      Application::AlarmsManager &alarms_manager);
 
   virtual void transform(
       const Parameters &parameters,
       const AlarmLimits &alarm_limits,
       const SensorMeasurements &sensor_measurements,
       ActiveLogEvents &active_log_events,
-      AlarmsManager &alarms_manager);
+      Application::AlarmsManager &alarms_manager);
 
-  static void deactivate_alarms(ActiveLogEvents &active_log_events, AlarmsManager &alarms_manager);
+  static void deactivate_alarms(
+      ActiveLogEvents &active_log_events, Application::AlarmsManager &alarms_manager);
 };
 
 class PCACAlarms : public AlarmsService {};
@@ -70,7 +58,7 @@ class HFNCAlarms : public AlarmsService {
       const AlarmLimits &alarm_limits,
       const SensorMeasurements &sensor_measurements,
       ActiveLogEvents &active_log_events,
-      AlarmsManager &alarms_manager) override;
+      Application::AlarmsManager &alarms_manager) override;
 };
 
 class AlarmsServices {
@@ -80,7 +68,7 @@ class AlarmsServices {
       const AlarmLimits &alarm_limits,
       const SensorMeasurements &sensor_measurements,
       ActiveLogEvents &active_log_events,
-      AlarmsManager &alarms_manager);
+      Application::AlarmsManager &alarms_manager);
 
  private:
   AlarmsService *active_service_ = nullptr;
