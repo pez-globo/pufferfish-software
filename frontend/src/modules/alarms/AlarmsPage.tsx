@@ -7,7 +7,7 @@
 import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
-import React, { RefObject, useEffect, useRef, useState } from 'react';
+import React, { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
@@ -165,10 +165,10 @@ const Alarm = ({
     alarmLimits === null
       ? undefined
       : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
-  const rangeValues: number[] = [
-    range === undefined ? NaN : range.lower,
-    range === undefined ? NaN : range.upper,
-  ];
+  const rangeValues: number[] = useMemo(
+    () => [range === undefined ? NaN : range.lower, range === undefined ? NaN : range.upper],
+    [range],
+  );
   /**
    * State to manage Wrapper HTML reference of Alarm's lower & higher Controls(ValueSlider & ValueClicker)
    * This wrapper's HTML border is added or removed based on user's interaction with Alarm Controls
@@ -200,6 +200,11 @@ const Alarm = ({
     setActiveRotaryReference(
       type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
     );
+    if (type === SliderType.LOWER) {
+      setDisableIncrement(value >= rangeValues[1]);
+    } else {
+      setDisableDecrement(value <= rangeValues[0]);
+    }
     setAlarmLimits({
       [stateKey]: {
         lower: type === SliderType.LOWER ? value : rangeValues[0],
@@ -207,6 +212,21 @@ const Alarm = ({
       },
     });
   };
+
+  /**
+   * Local state to pass to ValueClicker to disable increment/decrement buttons
+   */
+  const [disableDecrement, setDisableDecrement] = useState(false);
+  const [disableIncrement, setDisableIncrement] = useState(false);
+
+  /**
+   * This is a changeListener that sets disableDecrement, disableIncrement on change in RangeValues which
+   * are the current AlarmLimits
+   */
+  useEffect(() => {
+    setDisableDecrement(rangeValues[1] <= rangeValues[0]);
+    setDisableIncrement(rangeValues[0] >= rangeValues[1]);
+  }, [rangeValues]);
 
   /**
    * Calls on initalization of the component
@@ -257,6 +277,7 @@ const Alarm = ({
                 onClick={(value: number) => onClick(value, SliderType.LOWER)}
                 min={min}
                 max={max}
+                disableMin={disableIncrement}
                 direction="column"
               />
             </Grid>
@@ -289,6 +310,7 @@ const Alarm = ({
                 onClick={(value: number) => onClick(value, SliderType.UPPER)}
                 min={min}
                 max={max}
+                disableMax={disableDecrement}
                 direction="column"
               />
             </Grid>
