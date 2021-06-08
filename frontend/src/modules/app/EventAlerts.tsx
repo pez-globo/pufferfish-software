@@ -221,7 +221,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    * Local variable that decides which timer to display depending on the
    * backend connection
    */
-  const countdownTimer = backendConnected ? alarmMuteRemaining : alarmMuteRequestRemaining;
+  const countdownTimer = backendConnected ? alarmMuteRemaining : remaining;
   /**
    * Triggers whenever Active or Event log is updated in redux
    */
@@ -258,10 +258,6 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       setTimeout(() => {
         setRemaining(remaining - 1);
       }, 1000);
-      // dispatch the remaining time
-      dispatch(
-        commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { remaining }),
-      );
     }
   }, [alarmMuteActive, remaining, dispatch, backendConnected, alarmMuteRequestActive]);
 
