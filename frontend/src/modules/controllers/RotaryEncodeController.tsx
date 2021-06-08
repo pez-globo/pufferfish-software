@@ -27,7 +27,6 @@ interface Props {
   min?: number;
   max?: number;
   isActive: boolean;
-  disableChange?: boolean;
 }
 
 /**
@@ -45,7 +44,6 @@ export const RotaryEncodeController = ({
   min = 0,
   max = 100,
   isActive,
-  disableChange,
 }: Props): JSX.Element => {
   const step = useSelector(getRotaryEncoderStep);
   const stepDiff = useSelector(getRotaryEncoderStepDiff);
@@ -64,9 +62,6 @@ export const RotaryEncodeController = ({
     if (step === prevStep) {
       return;
     }
-    if (disableChange) {
-      return;
-    }
     setPrevStep(step);
     const newValue = value + stepDiff;
     if (newValue < min) {
@@ -79,7 +74,7 @@ export const RotaryEncodeController = ({
     // if (buttonPressed) {
     //   handleConfirm();
     // }
-  }, [step, stepDiff, disableChange, min, max, value, prevStep, onClick]);
+  }, [step, stepDiff, min, max, value, prevStep, onClick]);
 
   useEffect(() => {
     if (isActive) {
