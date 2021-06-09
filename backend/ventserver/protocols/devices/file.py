@@ -6,7 +6,7 @@ from typing import Optional, Union
 import attr
 import betterproto
 
-from ventserver.protocols.devices import mcu
+from ventserver.protocols.devices import frontend
 from ventserver.protocols import events, exceptions
 from ventserver.protocols.transport import crcelements, messages
 from ventserver.sansio import channels, protocols
@@ -53,7 +53,7 @@ class ReceiveFilter(protocols.Filter[LowerReceiveEvent, UpperEvent]):
     def init_message_receiver(self) -> messages.MessageReceiver:  # pylint: disable=no-self-use
         """Initialize the mcu message receiver."""
         return messages.MessageReceiver(
-            message_classes=mcu.MESSAGE_CLASSES
+            message_classes=frontend.MESSAGE_CLASSES
         )
 
     def input(self, event: Optional[LowerReceiveEvent]) -> None:
@@ -116,7 +116,7 @@ class SendFilter(protocols.Filter[UpperEvent, LowerSendEvent]):
     def init_message_sender(self) -> messages.MessageSender:  # pylint: disable=no-self-use
         """Initialize the message sender."""
         return messages.MessageSender(
-            message_types=mcu.MESSAGE_TYPES
+            message_types=frontend.MESSAGE_TYPES
         )
 
     def input(self, event: Optional[UpperEvent]) -> None:
