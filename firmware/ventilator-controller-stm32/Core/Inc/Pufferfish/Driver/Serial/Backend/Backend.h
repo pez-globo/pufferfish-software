@@ -31,9 +31,10 @@ using MessageDescriptors = Protocols::Transport::
     ProtobufDescriptors<Application::MessageTypes, Application::MessageTypeValues::max()>;
 
 // This relies on a EnumMap constructor which performs dynamic initialization, so it's not safe to
-// use in multithreaded contexts. We don't use it in multithreaded contexts, so we can ignore this
-// clang-tidy complaint.
-// NOLINTNEXTLINE(bugprone-dynamic-static-initializers)
+// use in multithreaded contexts. We don't use it in multithreaded contexts, so we can ignore the
+// first clang-tidy complaint. As for the second complaint, std::pair is not marked noexcept but
+// in practice it won't throw exceptions in this initializer list here.
+// NOLINTNEXTLINE(bugprone-dynamic-static-initializers,cert-err58-cpp)
 static const MessageDescriptors message_descriptors{
     {MessageTypes::unknown, Util::get_protobuf_desc<Util::UnrecognizedMessage>()},
     {MessageTypes::reserved, Util::get_protobuf_desc<Util::UnrecognizedMessage>()},

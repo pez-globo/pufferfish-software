@@ -29,7 +29,6 @@ using PF::Util::get_protobuf_desc;
 using PF::Util::UnrecognizedMessage;
 using PF::Util::Containers::ByteVector;
 using PF::Util::Containers::convert_string_to_byte_vector;
-using PF::Util::Containers::make_array;
 using namespace std::string_literals;
 
 SCENARIO(
@@ -1294,12 +1293,16 @@ SCENARIO(
     constexpr size_t buffer_size = 252UL;
     ByteVector<buffer_size> buffer;
 
-    Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value()> receiver{
-        BE::message_descriptors};
+    Transport::MessageReceiver<
+        TestMessage,
+        Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_key_value()>
+        receiver{BE::message_descriptors};
 
     WHEN("An empty input buffer body is parsed") {
-      Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value()> receiver{
-          BE::message_descriptors};
+      Transport::MessageReceiver<
+          TestMessage,
+          Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_key_value()>
+          receiver{BE::message_descriptors};
       ByteVector<buffer_size> input_buffer;
 
       auto transform_status = receiver.transform(input_buffer, test_message);
@@ -1324,8 +1327,10 @@ SCENARIO(
         "A body with an empty payload and 1-byte header whose value is not included in "
         "MessageTypes enum") {
       constexpr size_t buffer_size = 253UL;
-      Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value()> receiver{
-          BE::message_descriptors};
+      Transport::MessageReceiver<
+          TestMessage,
+          Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_key_value()>
+          receiver{BE::message_descriptors};
 
       ByteVector<buffer_size> input_buffer;
       auto push_status = input_buffer.push_back(0x08);
@@ -1359,8 +1364,10 @@ SCENARIO(
           {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()},
           {MessageTypes::cycle_measurements, get_protobuf_desc<CycleMeasurements>()}};
 
-      Transport::MessageReceiver<TestMessage, message_descriptors.max_key_value()> receiver{
-          message_descriptors};
+      Transport::MessageReceiver<
+          TestMessage,
+          Transport::ProtobufDescriptors<MessageTypes, 3>::max_key_value()>
+          receiver{message_descriptors};
 
       ByteVector<buffer_size> input_buffer;
       auto push_status = input_buffer.push_back(0x04);
@@ -1473,8 +1480,10 @@ SCENARIO(
           {MessageTypes::sensor_measurements, get_protobuf_desc<AlarmLimits>()},
           {MessageTypes::cycle_measurements, get_protobuf_desc<AlarmLimitsRequest>()},
           {MessageTypes::parameters, get_protobuf_desc<Parameters>()}};
-      Transport::MessageReceiver<TestMessage, message_descriptors.max_key_value()> receiver{
-          message_descriptors};
+      Transport::MessageReceiver<
+          TestMessage,
+          Transport::ProtobufDescriptors<MessageTypes, 4>::max_key_value()>
+          receiver{message_descriptors};
 
       ByteVector<buffer_size> input_buffer;
       convert_string_to_byte_vector(exp_parameters, input_buffer);
@@ -1609,8 +1618,10 @@ SCENARIO(
     constexpr size_t buffer_size = 252UL;
     ByteVector<buffer_size> buffer;
 
-    Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value()> receiver{
-        BE::message_descriptors};
+    Transport::MessageReceiver<
+        TestMessage,
+        Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_key_value()>
+        receiver{BE::message_descriptors};
 
     // sensor measurements
     WHEN("A body with 1 byte header and a paylod of sensor measurements is parsed") {
@@ -1823,7 +1834,7 @@ SCENARIO(
     Transport::MessageSender<
         TestMessage,
         PF::Application::StateSegment,
-        BE::message_descriptors.max_key_value()>
+        Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_key_value()>
         sender{BE::message_descriptors};
 
     WHEN(
@@ -1837,7 +1848,7 @@ SCENARIO(
       Transport::MessageSender<
           TestMessage,
           PF::Application::StateSegment,
-          message_descriptors.max_key_value()>
+          Transport::ProtobufDescriptors<MessageTypes, 2>::max_key_value()>
           sender{message_descriptors};
 
       tagged_union.tag = MessageTypes::cycle_measurements;
@@ -1863,7 +1874,7 @@ SCENARIO(
       Transport::MessageSender<
           TestMessage,
           PF::Application::StateSegment,
-          message_descriptors.max_key_value()>
+          Transport::ProtobufDescriptors<MessageTypes, 2>::max_key_value()>
           sender{message_descriptors};
 
       tagged_union.tag = MessageTypes::parameters;
@@ -1906,7 +1917,7 @@ SCENARIO(
       Transport::MessageSender<
           TestMessage,
           PF::Application::StateSegment,
-          BE::message_descriptors.max_key_value()>
+          Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_key_value()>
           sender{BE::message_descriptors};
 
       SensorMeasurements sensor_measurements;

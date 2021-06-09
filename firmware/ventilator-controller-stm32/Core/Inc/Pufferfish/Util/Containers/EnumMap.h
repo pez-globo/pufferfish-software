@@ -34,7 +34,7 @@ class EnumMap {
   // cppcheck has a false positive in wanting this constructor to be explicit:
   // clang-tidy says we can't use explicit for a constructor with an initializer list!
   // cppcheck-suppress noExplicitConstructor
-  EnumMap(std::initializer_list<std::pair<Key, Value>> init);
+  EnumMap(std::initializer_list<std::pair<Key, Value>> init) noexcept;
 
   [[nodiscard]] static constexpr size_t max_key_value() noexcept { return max_key; }
 
@@ -46,9 +46,9 @@ class EnumMap {
 
   void clear();  // O(n)
   // Note: this makes a copy of value!
-  IndexStatus insert(const Key &key, const Value &value);  // O(1)
-  IndexStatus erase(const Key &key);                       // O(1)
-  [[nodiscard]] bool has(const Key &key) const;            // O(1)
+  IndexStatus insert(const Key &key, const Value &value) noexcept;  // O(1)
+  IndexStatus erase(const Key &key) noexcept;                       // O(1)
+  [[nodiscard]] bool has(const Key &key) const;                     // O(1)
   // Note: this copies the value in the map to the value output parameter!
   IndexStatus find(const Key &key, Value &value) const;  // O(1)
 
@@ -57,9 +57,8 @@ class EnumMap {
   Value &operator[](const Key &key) noexcept;
 
  private:
-  using Pair = std::pair<bool, Value>;
-
-  std::array<Pair, max_key + 1> buffer_{};
+  std::array<bool, max_key + 1> occupancies_{};
+  std::array<Value, max_key + 1> values_{};
   size_t size_ = 0;
 };
 
