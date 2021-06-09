@@ -255,8 +255,14 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       // Reset the timer
       if (!alarmMuteRequestActive) setRemaining(120);
       // Start the timer
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         setRemaining(remaining - 1);
+        if (remaining <= 0) {
+          clearTimeout(timer);
+          dispatch(
+            commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { active: false }),
+          );
+        }
       }, 1000);
     }
   }, [alarmMuteActive, remaining, dispatch, backendConnected, alarmMuteRequestActive]);
