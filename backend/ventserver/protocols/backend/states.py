@@ -106,6 +106,10 @@ FRONTEND_OUTPUT_SCHEDULE = collections.deque([
 FILE_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
     mcu_pb.AlarmLimitsRequest: StateSegment.ALARM_LIMITS_REQUEST,
+    mcu_pb.AlarmMuteRequest: StateSegment.ALARM_MUTE_REQUEST,
+    frontend_pb.SystemSettingRequest: StateSegment.SYSTEM_SETTING_REQUEST,
+    # Frontend protobuf message isn't defined yet:
+    # frontend_pb.FrontendDisplay: StateSegment.FRONTEND_DISPLAY_REQUEST,
 }
 FILE_OUTPUT_SCHEDULE = collections.deque([
     states.ScheduleEntry(time=0.3, type=StateSegment.PARAMETERS),

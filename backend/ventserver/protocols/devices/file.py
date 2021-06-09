@@ -1,7 +1,7 @@
 """Sans-I/O protobuf file handling protocol."""
 
 import logging
-from typing import Optional
+from typing import Optional, Union
 
 import attr
 import betterproto
@@ -15,20 +15,21 @@ from ventserver.sansio import channels, protocols
 # Classes
 
 
-@attr.s(auto_attribs=True)
+@attr.s
 class StateData(events.Event):
     """Data info payload details"""
-    state_type: Optional[str] = None
-    data: Optional[bytes] = None
+    state_type: str = attr.ib()
+    data: bytes = attr.ib()
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
-        return self.data is not None
+        return True
 
 # Events
 
 
-LowerEvent = StateData
+LowerReceiveEvent = Union[StateData, betterproto.Message]
+LowerSendEvent = StateData
 UpperEvent = betterproto.Message
 
 
@@ -36,11 +37,11 @@ UpperEvent = betterproto.Message
 
 
 @attr.s
-class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
+class ReceiveFilter(protocols.Filter[LowerReceiveEvent, UpperEvent]):
     """Filter which wraps raw data from file to message."""
     _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
 
-    _buffer: channels.DequeChannel[LowerEvent] = attr.ib(
+    _buffer: channels.DequeChannel[LowerReceiveEvent] = attr.ib(
         factory=channels.DequeChannel
     )
     _crc_receiver: crcelements.CRCReceiver = attr.ib(
@@ -55,15 +56,10 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
             message_classes=mcu.MESSAGE_CLASSES
         )
 
-    def input(self, event: Optional[LowerEvent]) -> None:
+    def input(self, event: Optional[LowerReceiveEvent]) -> None:
         """Handle input events."""
         if not event:
             return
-
-        if not event.has_data():
-            raise exceptions.ProtocolDataError(
-                "Empty file: {0}".format(event.state_type)
-            )
 
         self._buffer.input(event)
 
@@ -72,6 +68,9 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
         event = self._buffer.output()
         if not event:
             return None
+
+        if isinstance(event, betterproto.Message):
+            return event
 
         # Add data integrity to the state
         crc_message = None
@@ -102,7 +101,7 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
 
 
 @attr.s
-class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
+class SendFilter(protocols.Filter[UpperEvent, LowerSendEvent]):
     """Filter which unwraps output data from message to raw data."""
     _logger = logging.getLogger('.'.join((__name__, 'SendFilter')))
 
@@ -125,7 +124,7 @@ class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
         if event:
             self._buffer.input(event)
 
-    def output(self) -> Optional[LowerEvent]:
+    def output(self) -> Optional[LowerSendEvent]:
         """Emit the next output event."""
         event = self._buffer.output()
         if not event:
