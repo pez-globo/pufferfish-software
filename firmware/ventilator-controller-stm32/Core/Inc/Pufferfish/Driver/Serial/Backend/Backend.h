@@ -19,28 +19,34 @@
 #include "Pufferfish/Protocols/Transport/Datagrams.h"
 #include "Pufferfish/Protocols/Transport/Messages.h"
 #include "Pufferfish/Util/Containers/Array.h"
+#include "Pufferfish/Util/Containers/EnumMap.h"
 #include "Pufferfish/Util/Enums.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
 // States
 
-static const auto message_descriptors = Util::Containers::make_array<Util::ProtobufDescriptor>(
-    // array index should match the type code value
-    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 0
-    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 1
-    Util::get_protobuf_descriptor<SensorMeasurements>(),         // 2
-    Util::get_protobuf_descriptor<CycleMeasurements>(),          // 3
-    Util::get_protobuf_descriptor<Parameters>(),                 // 4
-    Util::get_protobuf_descriptor<ParametersRequest>(),          // 5
-    Util::get_protobuf_descriptor<AlarmLimits>(),                // 6
-    Util::get_protobuf_descriptor<AlarmLimitsRequest>(),         // 7
-    Util::get_protobuf_descriptor<ExpectedLogEvent>(),           // 8
-    Util::get_protobuf_descriptor<NextLogEvents>(),              // 9
-    Util::get_protobuf_descriptor<ActiveLogEvents>(),            // 10
-    Util::get_protobuf_descriptor<AlarmMute>(),                  // 11
-    Util::get_protobuf_descriptor<AlarmMuteRequest>()            // 12
-);
+using MessageTypes = Application::MessageTypes;
+using MessageDescriptors = Protocols::Transport::
+    ProtobufDescriptors<Application::MessageTypes, Application::MessageTypeValues::max()>;
+
+// This relies on a EnumMap constructor which performs dynamic initialization, so it's not safe to
+// use in multithreaded contexts. We don't use it in multithreaded contexts, so we can ignore this
+// clang-tidy complaint.
+// NOLINTNEXTLINE(bugprone-dynamic-static-initializers)
+static const MessageDescriptors message_descriptors{
+    {MessageTypes::unknown, Util::get_protobuf_desc<Util::UnrecognizedMessage>()},
+    {MessageTypes::sensor_measurements, Util::get_protobuf_desc<SensorMeasurements>()},
+    {MessageTypes::cycle_measurements, Util::get_protobuf_desc<CycleMeasurements>()},
+    {MessageTypes::parameters, Util::get_protobuf_desc<Parameters>()},
+    {MessageTypes::parameters_request, Util::get_protobuf_desc<ParametersRequest>()},
+    {MessageTypes::alarm_limits, Util::get_protobuf_desc<AlarmLimits>()},
+    {MessageTypes::alarm_limits_request, Util::get_protobuf_desc<AlarmLimitsRequest>()},
+    {MessageTypes::expected_log_event, Util::get_protobuf_desc<ExpectedLogEvent>()},
+    {MessageTypes::next_log_events, Util::get_protobuf_desc<NextLogEvents>()},
+    {MessageTypes::active_log_events, Util::get_protobuf_desc<ActiveLogEvents>()},
+    {MessageTypes::alarm_mute, Util::get_protobuf_desc<AlarmMute>()},
+    {MessageTypes::alarm_mute_request, Util::get_protobuf_desc<AlarmMuteRequest>()}};
 
 // State Synchronization
 
@@ -111,7 +117,7 @@ class Receiver {
       Protocols::Transport::DatagramReceiver<CRCReceiver::Props::payload_max_size>;
   using ParsedDatagram = Protocols::Transport::ParsedDatagram<CRCReceiver::Props::payload_max_size>;
   using MessageReceiver =
-      Protocols::Transport::MessageReceiver<Message, message_descriptors.size()>;
+      Protocols::Transport::MessageReceiver<Message, Application::MessageTypeValues::max()>;
 
   FrameReceiver frame_;
   CRCReceiver crc_;
@@ -142,7 +148,7 @@ class Sender {
   using CRCSender = Protocols::Transport::CRCElementSender<FrameProps::payload_max_size>;
   using DatagramSender = Protocols::Transport::DatagramSender<CRCSender::Props::payload_max_size>;
   using MessageSender = Protocols::Transport::
-      MessageSender<Message, Application::StateSegment, message_descriptors.size()>;
+      MessageSender<Message, Application::StateSegment, Application::MessageTypeValues::max()>;
 
   MessageSender message_;
   DatagramSender datagram_;

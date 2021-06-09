@@ -16,20 +16,20 @@ namespace Pufferfish::Protocols::Transport {
 // Message
 
 template <typename TaggedUnion, typename MessageTypes, size_t max_size>
-template <size_t output_size, size_t num_descriptors>
+template <size_t output_size, size_t max_key>
 MessageStatus Message<TaggedUnion, MessageTypes, max_size>::write(
     Util::Containers::ByteVector<output_size> &output_buffer,
-    const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) {
+    const ProtobufDescriptors<max_key> &pb_protobuf_descriptors) {
   static_assert(
       Util::Containers::ByteVector<output_size>::max_size() >= max_size,
       "Write method unavailable as output buffer is too small");
   type = static_cast<uint8_t>(payload.tag);
-  if (type >= pb_protobuf_descriptors.size()) {
+  if (!pb_protobuf_descriptors.has(payload.tag)) {
     return MessageStatus::invalid_type;
   }
 
-  const pb_msgdesc_t *fields = pb_protobuf_descriptors[type];
-  if (fields == Util::get_protobuf_descriptor<Util::UnrecognizedMessage>()) {
+  const pb_msgdesc_t *fields = pb_protobuf_descriptors[payload.tag];
+  if (fields == Util::get_protobuf_desc<Util::UnrecognizedMessage>()) {
     return MessageStatus::invalid_type;
   }
 
@@ -53,10 +53,10 @@ MessageStatus Message<TaggedUnion, MessageTypes, max_size>::write(
 }
 
 template <typename TaggedUnion, typename MessageTypes, size_t max_size>
-template <size_t input_size, size_t num_descriptors>
+template <size_t input_size, size_t max_key>
 MessageStatus Message<TaggedUnion, MessageTypes, max_size>::parse(
     const Util::Containers::ByteVector<input_size> &input_buffer,
-    const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors) {
+    const ProtobufDescriptors<max_key> &pb_protobuf_descriptors) {
   static_assert(
       Util::Containers::ByteVector<input_size>::max_size() <= max_size,
       "Parse method unavailable as input buffer size is too large");
@@ -70,12 +70,12 @@ MessageStatus Message<TaggedUnion, MessageTypes, max_size>::parse(
   }
 
   payload.tag = static_cast<typename TaggedUnion::Tag>(type);
-  if (type >= pb_protobuf_descriptors.size()) {
+  if (!pb_protobuf_descriptors.has(payload.tag)) {
     return MessageStatus::invalid_type;
   }
 
-  const pb_msgdesc_t *fields = pb_protobuf_descriptors[type];
-  if (fields == Util::get_protobuf_descriptor<Util::UnrecognizedMessage>()) {
+  const pb_msgdesc_t *fields = pb_protobuf_descriptors[payload.tag];
+  if (fields == Util::get_protobuf_desc<Util::UnrecognizedMessage>()) {
     return MessageStatus::invalid_type;
   }
 
@@ -90,28 +90,18 @@ MessageStatus Message<TaggedUnion, MessageTypes, max_size>::parse(
 
 // MessageReceiver
 
-template <typename Message, size_t num_descriptors>
-MessageReceiver<Message, num_descriptors>::MessageReceiver(
-    const Util::ProtobufDescriptors<num_descriptors> &descriptors)
-    : descriptors_(descriptors) {}
-
-template <typename Message, size_t num_descriptors>
+template <typename Message, size_t max_key>
 template <size_t input_size>
-MessageStatus MessageReceiver<Message, num_descriptors>::transform(
+MessageStatus MessageReceiver<Message, max_key>::transform(
     const Util::Containers::ByteVector<input_size> &input_buffer, Message &output_message) const {
   return output_message.parse(input_buffer, descriptors_);
 }
 
 // MessageSender
 
-template <typename Message, typename TaggedUnion, size_t num_descriptors>
-MessageSender<Message, TaggedUnion, num_descriptors>::MessageSender(
-    const Util::ProtobufDescriptors<num_descriptors> &descriptors)
-    : descriptors_(descriptors) {}
-
-template <typename Message, typename TaggedUnion, size_t num_descriptors>
+template <typename Message, typename TaggedUnion, size_t max_key>
 template <size_t output_size>
-MessageStatus MessageSender<Message, TaggedUnion, num_descriptors>::transform(
+MessageStatus MessageSender<Message, TaggedUnion, max_key>::transform(
     const TaggedUnion &input_payload,
     Util::Containers::ByteVector<output_size> &output_buffer) const {
   Message input_message;

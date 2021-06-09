@@ -16,18 +16,15 @@ namespace Pufferfish::Util {
 
 using ProtobufDescriptor = const pb_msgdesc_t *;
 
-template <size_t size>
-using ProtobufDescriptors = std::array<ProtobufDescriptor, size>;
-
 using UnrecognizedMessage = std::nullptr_t;
 
 template <typename MessageType>
-constexpr ProtobufDescriptor get_protobuf_descriptor() noexcept {
+constexpr ProtobufDescriptor get_protobuf_desc() noexcept {
   return nanopb::MessageDescriptor<MessageType>::fields();
 }
 
 template <>
-constexpr ProtobufDescriptor get_protobuf_descriptor<UnrecognizedMessage>() noexcept {
+constexpr ProtobufDescriptor get_protobuf_desc<UnrecognizedMessage>() noexcept {
   return nullptr;
 }
 
