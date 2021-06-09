@@ -24,6 +24,9 @@
 namespace PF = Pufferfish;
 namespace BE = PF::Driver::Serial::Backend;
 namespace Transport = PF::Protocols::Transport;
+using PF::Application::MessageTypes;
+using PF::Util::get_protobuf_desc;
+using PF::Util::UnrecognizedMessage;
 using PF::Util::Containers::ByteVector;
 using PF::Util::Containers::convert_string_to_byte_vector;
 using PF::Util::Containers::make_array;
@@ -49,11 +52,9 @@ SCENARIO(
     WHEN(
         "Write method is called on a message object whose payload.tag value is equal to the size "
         "of the descriptor array") {
-      constexpr auto message_descriptors = make_array<PF::Util::ProtobufDescriptor>(
-          // array index should match the type code value
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 0
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>()   // 1
-      );
+      const Transport::ProtobufDescriptors<MessageTypes, 1> message_descriptors{
+          {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()}};
 
       SensorMeasurements sensor_measurements;
       memset(&sensor_measurements, 0, sizeof(sensor_measurements));
@@ -69,7 +70,7 @@ SCENARIO(
         REQUIRE(test_message.type == 2);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
+        REQUIRE(test_message.payload.tag == MessageTypes::sensor_measurements);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -83,13 +84,11 @@ SCENARIO(
     WHEN(
         "Write method is called on a message object whose payload.tag value is greater than the "
         "size of the descriptor array") {
-      constexpr auto message_descriptors = make_array<PF::Util::ProtobufDescriptor>(
-          // array index should match the type code value
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 0
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 1
-          PF::Util::get_protobuf_descriptor<SensorMeasurements>(),             // 2
-          PF::Util::get_protobuf_descriptor<CycleMeasurements>()               // 3
-      );
+      const Transport::ProtobufDescriptors<MessageTypes, 3> message_descriptors{
+          {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()},
+          {MessageTypes::cycle_measurements, get_protobuf_desc<CycleMeasurements>()}};
 
       ParametersRequest parameters_request;
       memset(&parameters_request, 0, sizeof(parameters_request));
@@ -105,7 +104,7 @@ SCENARIO(
         REQUIRE(test_message.type == 5);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters_request);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -119,7 +118,7 @@ SCENARIO(
     WHEN(
         "Write method is called on a message object whose payload.tag value corresponds to an "
         "Unrecognized message descriptor in the descriptor array") {
-      test_message.payload.tag = PF::Application::MessageTypes::unknown;
+      test_message.payload.tag = MessageTypes::unknown;
 
       auto write_status = test_message.write(output_buffer, BE::message_descriptors);
 
@@ -132,7 +131,7 @@ SCENARIO(
         REQUIRE(test_message.type == 0);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+        REQUIRE(test_message.payload.tag == MessageTypes::unknown);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -198,7 +197,7 @@ SCENARIO(
         REQUIRE(test_message.type == 2);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
+        REQUIRE(test_message.payload.tag == MessageTypes::sensor_measurements);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -237,7 +236,7 @@ SCENARIO(
         REQUIRE(test_message.type == 3);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::cycle_measurements);
+        REQUIRE(test_message.payload.tag == MessageTypes::cycle_measurements);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -275,7 +274,7 @@ SCENARIO(
         REQUIRE(test_message.type == 4);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -316,7 +315,7 @@ SCENARIO(
         REQUIRE(test_message.type == 5);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters_request);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -358,7 +357,7 @@ SCENARIO(
         REQUIRE(test_message.type == 6);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits);
+        REQUIRE(test_message.payload.tag == MessageTypes::alarm_limits);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -398,7 +397,7 @@ SCENARIO(
         REQUIRE(test_message.type == 6);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits);
+        REQUIRE(test_message.payload.tag == MessageTypes::alarm_limits);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -434,7 +433,7 @@ SCENARIO(
         REQUIRE(test_message.type == 7);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits_request);
+        REQUIRE(test_message.payload.tag == MessageTypes::alarm_limits_request);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -474,7 +473,7 @@ SCENARIO(
         REQUIRE(test_message.type == 7);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits_request);
+        REQUIRE(test_message.payload.tag == MessageTypes::alarm_limits_request);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -490,7 +489,7 @@ SCENARIO(
 
     // field descriptor and payload values are different, yet message status is not invalid encoding
     // WHEN("Unkown message data is written") {
-    //   test_message.payload.tag = PF::Application::MessageTypes::parameters;
+    //   test_message.payload.tag = MessageTypes::parameters;
 
     //   CycleMeasurements cycle_measurements;
     //   memset(&cycle_measurements, 0, sizeof(cycle_measurements));
@@ -552,7 +551,7 @@ SCENARIO(
         REQUIRE(test_message.type == 2);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
+        REQUIRE(test_message.payload.tag == MessageTypes::sensor_measurements);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -600,7 +599,7 @@ SCENARIO(
         REQUIRE(test_message.type == 2);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
+        REQUIRE(test_message.payload.tag == MessageTypes::sensor_measurements);
       }
       THEN("After the write method is called, the output buffer remains unchanged") {
         REQUIRE(output_buffer.empty() == true);
@@ -661,14 +660,14 @@ SCENARIO(
       "A Message object constructed with StateSegment Taggedunion and a payload of size 252 "
       "bytes") {
     using TestMessageTypeValues = PF::Util::EnumValues<
-        PF::Application::MessageTypes,
-        PF::Application::MessageTypes::unknown,
-        PF::Application::MessageTypes::sensor_measurements,
-        PF::Application::MessageTypes::cycle_measurements,
-        PF::Application::MessageTypes::parameters,
-        PF::Application::MessageTypes::parameters_request,
-        PF::Application::MessageTypes::alarm_limits,
-        PF::Application::MessageTypes::alarm_limits_request>;
+        MessageTypes,
+        MessageTypes::unknown,
+        MessageTypes::sensor_measurements,
+        MessageTypes::cycle_measurements,
+        MessageTypes::parameters,
+        MessageTypes::parameters_request,
+        MessageTypes::alarm_limits,
+        MessageTypes::alarm_limits_request>;
     constexpr size_t payload_max_size = 254UL;
     using TestMessage =
         Transport::Message<PF::Application::StateSegment, TestMessageTypeValues, payload_max_size>;
@@ -691,7 +690,7 @@ SCENARIO(
         REQUIRE(test_message.type == 0);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+        REQUIRE(test_message.payload.tag == MessageTypes::unknown);
       }
     }
 
@@ -713,7 +712,7 @@ SCENARIO(
         REQUIRE(test_message.type == 8);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+        REQUIRE(test_message.payload.tag == MessageTypes::unknown);
       }
     }
 
@@ -721,13 +720,11 @@ SCENARIO(
         "A body with an empty payload and 1 byte header of value (0x04) equal to the message "
         "descriptor "
         "array size is parsed") {
-      constexpr auto message_descriptors = make_array<PF::Util::ProtobufDescriptor>(
-          // array index should match the type code value
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 0
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 1
-          PF::Util::get_protobuf_descriptor<SensorMeasurements>(),             // 2
-          PF::Util::get_protobuf_descriptor<CycleMeasurements>()               // 3
-      );
+      const Transport::ProtobufDescriptors<MessageTypes, 3> message_descriptors{
+          {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()},
+          {MessageTypes::cycle_measurements, get_protobuf_desc<CycleMeasurements>()}};
 
       ByteVector<buffer_size> input_buffer;
       push_status = input_buffer.push_back(0x04);
@@ -744,7 +741,7 @@ SCENARIO(
         REQUIRE(test_message.type == 4);
       }
       THEN("The payload.tag field is set to parameters, which corresponds to value 0x04") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters);
       }
     }
 
@@ -752,13 +749,11 @@ SCENARIO(
         "A body with an empty payload and 1 byte header of value (0x05) equal to the message "
         "descriptor "
         "array size is parsed") {
-      constexpr auto message_descriptors = make_array<PF::Util::ProtobufDescriptor>(
-          // array index should match the type code value
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 0
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 1
-          PF::Util::get_protobuf_descriptor<SensorMeasurements>(),             // 2
-          PF::Util::get_protobuf_descriptor<CycleMeasurements>()               // 3
-      );
+      const Transport::ProtobufDescriptors<MessageTypes, 3> message_descriptors{
+          {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()},
+          {MessageTypes::cycle_measurements, get_protobuf_desc<CycleMeasurements>()}};
 
       ByteVector<buffer_size> input_buffer;
       push_status = input_buffer.push_back(0x05);
@@ -775,7 +770,7 @@ SCENARIO(
         REQUIRE(test_message.type == 5);
       }
       THEN("The payload.tag field is set to parameters, which corresponds to value 0x05") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters_request);
       }
     }
 
@@ -795,7 +790,7 @@ SCENARIO(
         REQUIRE(test_message.type == 0);
       }
       THEN("The payload.tag field is set to Unknown") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+        REQUIRE(test_message.payload.tag == MessageTypes::unknown);
       }
     }
 
@@ -815,7 +810,7 @@ SCENARIO(
         REQUIRE(test_message.type == 2);
       }
       THEN("The payload.tag field is set to sensor_measurements") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
+        REQUIRE(test_message.payload.tag == MessageTypes::sensor_measurements);
       }
     }
 
@@ -838,7 +833,7 @@ SCENARIO(
         REQUIRE(test_message.type == 2);
       }
       THEN("The payload.tag field is set to sensor_measurements") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
+        REQUIRE(test_message.payload.tag == MessageTypes::sensor_measurements);
       }
     }
   }
@@ -886,7 +881,7 @@ SCENARIO(
         REQUIRE(test_message.type == 2);
       }
       THEN("The payload.tag field is set to sensor_measurements") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
+        REQUIRE(test_message.payload.tag == MessageTypes::sensor_measurements);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -917,7 +912,7 @@ SCENARIO(
         REQUIRE(test_message.type == 3);
       }
       THEN("The payload.tag field is set to cycle_measurements") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::cycle_measurements);
+        REQUIRE(test_message.payload.tag == MessageTypes::cycle_measurements);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -946,7 +941,7 @@ SCENARIO(
         REQUIRE(test_message.type == 4);
       }
       THEN("The payload.tag field is set to parameters") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -975,7 +970,7 @@ SCENARIO(
         REQUIRE(test_message.type == 5);
       }
       THEN("The payload.tag field is set to parameters_request") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters_request);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1006,7 +1001,7 @@ SCENARIO(
         REQUIRE(test_message.type == 6);
       }
       THEN("The payload.tag field is set to alarm_limits") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits);
+        REQUIRE(test_message.payload.tag == MessageTypes::alarm_limits);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1037,7 +1032,7 @@ SCENARIO(
         REQUIRE(test_message.type == 7);
       }
       THEN("The payload.tag field is set to alarm_limits_request") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits_request);
+        REQUIRE(test_message.payload.tag == MessageTypes::alarm_limits_request);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1061,14 +1056,14 @@ SCENARIO(
       "A Message object constructed with StateSegment Taggedunion, default message types and a max "
       "size of 252 bytes") {
     using TestMessageTypeValues = PF::Util::EnumValues<
-        PF::Application::MessageTypes,
-        PF::Application::MessageTypes::unknown,
-        PF::Application::MessageTypes::sensor_measurements,
-        PF::Application::MessageTypes::cycle_measurements,
-        PF::Application::MessageTypes::parameters,
-        PF::Application::MessageTypes::parameters_request,
-        PF::Application::MessageTypes::alarm_limits,
-        PF::Application::MessageTypes::alarm_limits_request>;
+        MessageTypes,
+        MessageTypes::unknown,
+        MessageTypes::sensor_measurements,
+        MessageTypes::cycle_measurements,
+        MessageTypes::parameters,
+        MessageTypes::parameters_request,
+        MessageTypes::alarm_limits,
+        MessageTypes::alarm_limits_request>;
     constexpr size_t payload_max_size = 254UL;
     using TestMessage =
         Transport::Message<PF::Application::StateSegment, TestMessageTypeValues, payload_max_size>;
@@ -1100,7 +1095,7 @@ SCENARIO(
         REQUIRE(test_message.type == 5);
       }
       THEN("The payload Taggedunion tag is set to parameters_request") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters_request);
       }
       THEN("the payload.values field remain unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1130,7 +1125,7 @@ SCENARIO(
         REQUIRE(test_message.type == 8);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters_request);
       }
     }
 
@@ -1151,7 +1146,7 @@ SCENARIO(
         REQUIRE(test_message.type == 3);
       }
       THEN("The payload.tag field is set to cycle_measurements") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::cycle_measurements);
+        REQUIRE(test_message.payload.tag == MessageTypes::cycle_measurements);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1199,7 +1194,7 @@ SCENARIO(
         REQUIRE(buffer[0] == 0x05);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters_request);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1226,7 +1221,7 @@ SCENARIO(
         REQUIRE(parse_message.type == 5);
       }
       THEN("The payload.tag field is set to parameters_request") {
-        REQUIRE(parse_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+        REQUIRE(parse_message.payload.tag == MessageTypes::parameters_request);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1256,7 +1251,7 @@ SCENARIO(
         REQUIRE(parse_message.type == 5);
       }
       THEN("The payload.tag field is set to parameters_request") {
-        REQUIRE(parse_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+        REQUIRE(parse_message.payload.tag == MessageTypes::parameters_request);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1283,14 +1278,14 @@ SCENARIO(
     "[messages]") {
   GIVEN("A MessageReceiver object is constructed with default parameters") {
     using TestMessageTypeValues = PF::Util::EnumValues<
-        PF::Application::MessageTypes,
-        PF::Application::MessageTypes::unknown,
-        PF::Application::MessageTypes::sensor_measurements,
-        PF::Application::MessageTypes::cycle_measurements,
-        PF::Application::MessageTypes::parameters,
-        PF::Application::MessageTypes::parameters_request,
-        PF::Application::MessageTypes::alarm_limits,
-        PF::Application::MessageTypes::alarm_limits_request>;
+        MessageTypes,
+        MessageTypes::unknown,
+        MessageTypes::sensor_measurements,
+        MessageTypes::cycle_measurements,
+        MessageTypes::parameters,
+        MessageTypes::parameters_request,
+        MessageTypes::alarm_limits,
+        MessageTypes::alarm_limits_request>;
     const auto exp_parameters = std::string("\x04\x10\x01\x25\x00\x00\x70\x42"s);
     constexpr size_t payload_max_size = 254UL;
     using TestMessage =
@@ -1299,11 +1294,11 @@ SCENARIO(
     constexpr size_t buffer_size = 252UL;
     ByteVector<buffer_size> buffer;
 
-    Transport::MessageReceiver<TestMessage, BE::message_descriptors.size()> receiver{
+    Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value> receiver{
         BE::message_descriptors};
 
     WHEN("An empty input buffer body is parsed") {
-      Transport::MessageReceiver<TestMessage, BE::message_descriptors.size()> receiver{
+      Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value> receiver{
           BE::message_descriptors};
       ByteVector<buffer_size> input_buffer;
 
@@ -1318,7 +1313,7 @@ SCENARIO(
         REQUIRE(test_message.type == 0);
       }
       THEN("The payload.tag field of the output message is set to {Message type}") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+        REQUIRE(test_message.payload.tag == MessageTypes::unknown);
       }
       THEN("The input buffer is unchanged after transform") {
         REQUIRE(input_buffer.empty() == true);
@@ -1329,7 +1324,7 @@ SCENARIO(
         "A body with an empty payload and 1-byte header whose value is not included in "
         "MessageTypes enum") {
       constexpr size_t buffer_size = 253UL;
-      Transport::MessageReceiver<TestMessage, BE::message_descriptors.size()> receiver{
+      Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value> receiver{
           BE::message_descriptors};
 
       ByteVector<buffer_size> input_buffer;
@@ -1347,7 +1342,7 @@ SCENARIO(
         REQUIRE(test_message.type == 8);
       }
       THEN("The payload.tag field of the output message remains unchanged") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+        REQUIRE(test_message.payload.tag == MessageTypes::unknown);
       }
       THEN("The input buffer is unchanged after transform") {
         auto expected = std::string("\x08"s);
@@ -1358,16 +1353,14 @@ SCENARIO(
     WHEN(
         "A body with an empty payload and 1 byte header of value equal to the message descriptor "
         "array size is parsed") {
-      constexpr size_t num_descriptors = 4;
-      constexpr auto message_descriptors = make_array<PF::Util::ProtobufDescriptor>(
-          // array index should match the type code value
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 0
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 1
-          PF::Util::get_protobuf_descriptor<SensorMeasurements>(),             // 2
-          PF::Util::get_protobuf_descriptor<CycleMeasurements>()               // 3
-      );
+      const Transport::ProtobufDescriptors<MessageTypes, 3> message_descriptors{
+          {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()},
+          {MessageTypes::cycle_measurements, get_protobuf_desc<CycleMeasurements>()}};
 
-      Transport::MessageReceiver<TestMessage, num_descriptors> receiver{message_descriptors};
+      Transport::MessageReceiver<TestMessage, message_descriptors.max_key_value> receiver{
+          message_descriptors};
 
       ByteVector<buffer_size> input_buffer;
       auto push_status = input_buffer.push_back(0x04);
@@ -1384,7 +1377,7 @@ SCENARIO(
         REQUIRE(test_message.type == 4);
       }
       THEN("The payload.tag field of the output message is set to parameters") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters);
       }
       THEN("The input buffer is unchanged after transform") {
         auto expected = std::string("\x04"s);
@@ -1395,13 +1388,11 @@ SCENARIO(
     WHEN(
         "A body with an empty payload and 1 byte header of value equal to the message descriptor "
         "array size is parsed") {
-      constexpr auto message_descriptors = make_array<PF::Util::ProtobufDescriptor>(
-          // array index should match the type code value
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 0
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 1
-          PF::Util::get_protobuf_descriptor<SensorMeasurements>(),             // 2
-          PF::Util::get_protobuf_descriptor<CycleMeasurements>()               // 3
-      );
+      const Transport::ProtobufDescriptors<MessageTypes, 3> message_descriptors{
+          {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()},
+          {MessageTypes::cycle_measurements, get_protobuf_desc<CycleMeasurements>()}};
 
       ByteVector<buffer_size> input_buffer;
       auto push_status = input_buffer.push_back(0x05);
@@ -1418,7 +1409,7 @@ SCENARIO(
         REQUIRE(test_message.type == 5);
       }
       THEN("The payload.tag field of the output message is set to parameters_request") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters_request);
       }
       THEN("The input buffer is unchanged after transform") {
         auto expected = std::string("\x05"s);
@@ -1442,7 +1433,7 @@ SCENARIO(
         REQUIRE(test_message.type == 0);
       }
       THEN("The payload.tag field of the output message is set to unknown") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
+        REQUIRE(test_message.payload.tag == MessageTypes::unknown);
       }
       THEN("The input buffer is unchanged after transform") {
         auto expected = std::string("\x00"s);
@@ -1470,22 +1461,19 @@ SCENARIO(
         REQUIRE(test_message.type == 2);
       }
       THEN("The payload.tag field of the output message is set to sensor_measurements") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
+        REQUIRE(test_message.payload.tag == MessageTypes::sensor_measurements);
       }
       THEN("The input buffer is unchanged after transform") { REQUIRE(input_buffer == data); }
     }
 
     WHEN("A MessageReceiver object is initialised with a smaller descriptors array") {
-      constexpr auto message_descriptors = make_array<PF::Util::ProtobufDescriptor>(
-          // array index should match the type code value
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 0
-          PF::Util::get_protobuf_descriptor<ParametersRequest>(),              // 1
-          PF::Util::get_protobuf_descriptor<AlarmLimits>(),                    // 2
-          PF::Util::get_protobuf_descriptor<AlarmLimitsRequest>(),             // 3
-          PF::Util::get_protobuf_descriptor<Parameters>()                      // 4
-      );
-      constexpr size_t number_desc = 5;
-      Transport::MessageReceiver<TestMessage, number_desc> receiver{message_descriptors};
+      const Transport::ProtobufDescriptors<MessageTypes, 4> message_descriptors{
+          {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::reserved, get_protobuf_desc<ParametersRequest>()},
+          {MessageTypes::sensor_measurements, get_protobuf_desc<AlarmLimits>()},
+          {MessageTypes::cycle_measurements, get_protobuf_desc<AlarmLimitsRequest>()},
+          {MessageTypes::parameters, get_protobuf_desc<Parameters>()}};
+      Transport::MessageReceiver<TestMessage, message_descriptors.max_key_value> receiver{message_descriptors};
 
       ByteVector<buffer_size> input_buffer;
       convert_string_to_byte_vector(exp_parameters, input_buffer);
@@ -1501,7 +1489,7 @@ SCENARIO(
         REQUIRE(test_message.type == 4);
       }
       THEN("The payload.tag field of the output message is set to parameters") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1535,7 +1523,7 @@ SCENARIO(
         REQUIRE(test_message.type == 4);
       }
       THEN("The payload.tag field of the output message is set to parameters") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1565,7 +1553,7 @@ SCENARIO(
         REQUIRE(test_message.type == 4);
       }
       THEN("The payload.tag field of the output message is set to parameters") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1583,7 +1571,7 @@ SCENARIO(
       REQUIRE(push_status == PF::IndexStatus::ok);
 
       THEN("The payload.tag field of the output message is set to parameters") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters);
       }
       THEN("the payload.values field of the output message are unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1620,7 +1608,7 @@ SCENARIO(
     constexpr size_t buffer_size = 252UL;
     ByteVector<buffer_size> buffer;
 
-    Transport::MessageReceiver<TestMessage, BE::message_descriptors.size()> receiver{
+    Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value> receiver{
         BE::message_descriptors};
 
     // sensor measurements
@@ -1639,7 +1627,7 @@ SCENARIO(
         REQUIRE(test_message.type == 2);
       }
       THEN("The payload.tag field of the output message is set to sensor_measurements") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::sensor_measurements);
+        REQUIRE(test_message.payload.tag == MessageTypes::sensor_measurements);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1670,7 +1658,7 @@ SCENARIO(
         REQUIRE(test_message.type == 3);
       }
       THEN("The payload.tag field of the output message is set to cycle_measurements") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::cycle_measurements);
+        REQUIRE(test_message.payload.tag == MessageTypes::cycle_measurements);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1699,7 +1687,7 @@ SCENARIO(
         REQUIRE(test_message.type == 4);
       }
       THEN("The payload.tag field of the output message is set to parameters") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1730,7 +1718,7 @@ SCENARIO(
         REQUIRE(test_message.type == 5);
       }
       THEN("The payload.tag field of the output message is set to parameters_request") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::parameters_request);
+        REQUIRE(test_message.payload.tag == MessageTypes::parameters_request);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1761,10 +1749,10 @@ SCENARIO(
         REQUIRE(test_message.type == 6);
       }
       THEN("The payload.tag field of the output message is set to alarm_limits") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits);
+        REQUIRE(test_message.payload.tag == MessageTypes::alarm_limits);
       }
       THEN("the payload.values field of the output message are as expected") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits);
+        REQUIRE(test_message.payload.tag == MessageTypes::alarm_limits);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.alarm_limits.fio2.lower == 21);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1791,7 +1779,7 @@ SCENARIO(
         REQUIRE(test_message.type == 7);
       }
       THEN("The payload.tag field of the output message is set to alarm_limits_request") {
-        REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::alarm_limits_request);
+        REQUIRE(test_message.payload.tag == MessageTypes::alarm_limits_request);
       }
       THEN("the payload.values field of the output message are as expected") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1831,24 +1819,27 @@ SCENARIO(
     ByteVector<buffer_size> output_buffer;
     PF::Application::StateSegment tagged_union;
 
-    Transport::
-        MessageSender<TestMessage, PF::Application::StateSegment, BE::message_descriptors.size()>
-            sender{BE::message_descriptors};
+    Transport::MessageSender<
+        TestMessage,
+        PF::Application::StateSegment,
+        BE::message_descriptors.max_key_value>
+        sender{BE::message_descriptors};
 
     WHEN(
         "transform is called on a payload whose tag value is equal to the size of descriptor "
         "array") {
-      constexpr size_t num_descriptors = 3;
-      constexpr auto message_descriptors = make_array<PF::Util::ProtobufDescriptor>(
-          // array index should match the type code value
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),
-          PF::Util::get_protobuf_descriptor<SensorMeasurements>());
+      const Transport::ProtobufDescriptors<MessageTypes, 2> message_descriptors{
+          {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()}};
 
-      Transport::MessageSender<TestMessage, PF::Application::StateSegment, num_descriptors> sender{
-          message_descriptors};
+      Transport::MessageSender<
+          TestMessage,
+          PF::Application::StateSegment,
+          message_descriptors.max_key_value>
+          sender{message_descriptors};
 
-      tagged_union.tag = PF::Application::MessageTypes::cycle_measurements;
+      tagged_union.tag = MessageTypes::cycle_measurements;
 
       auto transform_status = sender.transform(tagged_union, output_buffer);
 
@@ -1856,24 +1847,25 @@ SCENARIO(
         REQUIRE(transform_status == Transport::MessageStatus::invalid_type);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::cycle_measurements);
+        REQUIRE(tagged_union.tag == MessageTypes::cycle_measurements);
       }
     }
 
     WHEN(
         "transform is called on a payload whose tag value is greater than the size of descriptor "
         "array") {
-      constexpr size_t num_descriptors = 3;
-      constexpr auto message_descriptors = make_array<PF::Util::ProtobufDescriptor>(
-          // array index should match the type code value
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),
-          PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),
-          PF::Util::get_protobuf_descriptor<SensorMeasurements>());
+      const Transport::ProtobufDescriptors<MessageTypes, 2> message_descriptors{
+          {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()},
+          {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()}};
 
-      Transport::MessageSender<TestMessage, PF::Application::StateSegment, num_descriptors> sender{
-          message_descriptors};
+      Transport::MessageSender<
+          TestMessage,
+          PF::Application::StateSegment,
+          message_descriptors.max_key_value>
+          sender{message_descriptors};
 
-      tagged_union.tag = PF::Application::MessageTypes::parameters;
+      tagged_union.tag = MessageTypes::parameters;
 
       auto transform_status = sender.transform(tagged_union, output_buffer);
 
@@ -1881,14 +1873,14 @@ SCENARIO(
         REQUIRE(transform_status == Transport::MessageStatus::invalid_type);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::parameters);
+        REQUIRE(tagged_union.tag == MessageTypes::parameters);
       }
     }
 
     WHEN(
         "transform is called on a payload whose payload.tag value corresponds to an Unrecognized "
         "message descriptor in the descriptor array") {
-      tagged_union.tag = PF::Application::MessageTypes::unknown;
+      tagged_union.tag = MessageTypes::unknown;
 
       auto transform_status = sender.transform(tagged_union, output_buffer);
 
@@ -1896,7 +1888,7 @@ SCENARIO(
         REQUIRE(transform_status == Transport::MessageStatus::invalid_type);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::unknown);
+        REQUIRE(tagged_union.tag == MessageTypes::unknown);
       }
     }
 
@@ -1910,9 +1902,11 @@ SCENARIO(
       constexpr size_t output_size = 14UL;
       ByteVector<output_size> output_buffer;
 
-      Transport::
-          MessageSender<TestMessage, PF::Application::StateSegment, BE::message_descriptors.size()>
-              sender{BE::message_descriptors};
+      Transport::MessageSender<
+          TestMessage,
+          PF::Application::StateSegment,
+          BE::message_descriptors.max_key_value>
+          sender{BE::message_descriptors};
 
       SensorMeasurements sensor_measurements;
       memset(&sensor_measurements, 0, sizeof(sensor_measurements));
@@ -1930,7 +1924,7 @@ SCENARIO(
         REQUIRE(transform_status == Transport::MessageStatus::invalid_length);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::sensor_measurements);
+        REQUIRE(tagged_union.tag == MessageTypes::sensor_measurements);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1961,7 +1955,7 @@ SCENARIO(
         REQUIRE(transform_status == Transport::MessageStatus::ok);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::sensor_measurements);
+        REQUIRE(tagged_union.tag == MessageTypes::sensor_measurements);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -1996,7 +1990,7 @@ SCENARIO(
         REQUIRE(transform_status == Transport::MessageStatus::ok);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::cycle_measurements);
+        REQUIRE(tagged_union.tag == MessageTypes::cycle_measurements);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -2029,7 +2023,7 @@ SCENARIO(
         REQUIRE(transform_status == Transport::MessageStatus::ok);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::parameters);
+        REQUIRE(tagged_union.tag == MessageTypes::parameters);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -2065,7 +2059,7 @@ SCENARIO(
         REQUIRE(transform_status == Transport::MessageStatus::ok);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::parameters_request);
+        REQUIRE(tagged_union.tag == MessageTypes::parameters_request);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -2101,7 +2095,7 @@ SCENARIO(
         REQUIRE(transform_status == Transport::MessageStatus::ok);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::alarm_limits);
+        REQUIRE(tagged_union.tag == MessageTypes::alarm_limits);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
@@ -2135,7 +2129,7 @@ SCENARIO(
         REQUIRE(transform_status == Transport::MessageStatus::ok);
       }
       THEN("The payload.tag field remains unchanged") {
-        REQUIRE(tagged_union.tag == PF::Application::MessageTypes::alarm_limits_request);
+        REQUIRE(tagged_union.tag == MessageTypes::alarm_limits_request);
       }
       THEN("The payload.values field data remains unchanged") {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);

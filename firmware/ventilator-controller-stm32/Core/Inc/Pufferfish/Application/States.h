@@ -30,6 +30,7 @@ static const size_t active_log_events_max_elems = 32;
 // output, add it to Driver::Serial::Backend::state_sync_schedule.
 enum class MessageTypes : uint8_t {
   unknown = 0,
+  reserved = 1,
   sensor_measurements = 2,
   cycle_measurements = 3,
   parameters = 4,

@@ -26,6 +26,8 @@ namespace Pufferfish::Util::Containers {
 template <typename Key, typename Value, size_t max_key>
 class EnumMap {
  public:
+  static const size_t max_key_value = max_key;
+
   EnumMap() = default;
   // Construct the EnumMap with an initial set of key-value pairs, given as an
   // initializer list (e.g. EnumMap map{{k1, v1}, {k2, v2}, {k3, v3}};)

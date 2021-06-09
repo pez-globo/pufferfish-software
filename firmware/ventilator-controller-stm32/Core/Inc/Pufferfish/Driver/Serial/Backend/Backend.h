@@ -26,7 +26,7 @@ namespace Pufferfish::Driver::Serial::Backend {
 
 // States
 
-using MessageTypes = Application::MessageTypes;
+using Application::MessageTypes;
 using MessageDescriptors = Protocols::Transport::
     ProtobufDescriptors<Application::MessageTypes, Application::MessageTypeValues::max()>;
 
@@ -36,6 +36,7 @@ using MessageDescriptors = Protocols::Transport::
 // NOLINTNEXTLINE(bugprone-dynamic-static-initializers)
 static const MessageDescriptors message_descriptors{
     {MessageTypes::unknown, Util::get_protobuf_desc<Util::UnrecognizedMessage>()},
+    {MessageTypes::reserved, Util::get_protobuf_desc<Util::UnrecognizedMessage>()},
     {MessageTypes::sensor_measurements, Util::get_protobuf_desc<SensorMeasurements>()},
     {MessageTypes::cycle_measurements, Util::get_protobuf_desc<CycleMeasurements>()},
     {MessageTypes::parameters, Util::get_protobuf_desc<Parameters>()},
