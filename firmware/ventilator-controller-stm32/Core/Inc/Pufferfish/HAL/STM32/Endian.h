@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace Pufferfish::HAL::STM32 {
 
 /**

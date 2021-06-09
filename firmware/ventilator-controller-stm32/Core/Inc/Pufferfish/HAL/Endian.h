@@ -11,12 +11,9 @@
 
 #pragma once
 
-#include "Pufferfish/HAL/STM32/Endian.h"
+#include "Platform.h"
 
-namespace Pufferfish {
-namespace HAL {
-
-namespace Platform = Pufferfish::HAL::STM32;
+namespace Pufferfish::HAL {
 
 template <typename T>
 constexpr T hton(const T& i) {
@@ -27,5 +24,4 @@ constexpr T ntoh(const T& i) {
   return Platform::ntoh(i);
 }
 
-}  // namespace HAL
-}  // namespace Pufferfish
+}  // namespace Pufferfish::HAL
