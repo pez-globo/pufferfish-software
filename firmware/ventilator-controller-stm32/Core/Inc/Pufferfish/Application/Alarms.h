@@ -7,8 +7,11 @@
 
 #pragma once
 
+#include <functional>
+
 #include "Pufferfish/Application/LogEvents.h"
 #include "Pufferfish/Protocols/Application/Debouncing.h"
+#include "Pufferfish/Util/Containers/EnumMap.h"
 #include "Pufferfish/Util/Containers/OrderedMap.h"
 
 namespace Pufferfish::Application {
@@ -24,26 +27,23 @@ class AlarmsManager {
   IndexStatus transform(ActiveLogEvents &active_log_events) const;
 
  private:
+  Util::Containers::EnumMap<
+    LogEventCode,
+    Protocols::Application::Debouncer,
+    LogEventCode::LogEventCode_hr_too_high> debouncers_{
+      {LogEventCode::LogEventCode_fio2_too_low, Protocols::Application::Debouncer()},
+      {LogEventCode::LogEventCode_fio2_too_high, Protocols::Application::Debouncer()},
+      {LogEventCode::LogEventCode_flow_too_low, Protocols::Application::Debouncer()},
+      {LogEventCode::LogEventCode_flow_too_high, Protocols::Application::Debouncer()},
+      {LogEventCode::LogEventCode_spo2_too_low, Protocols::Application::Debouncer()},
+      {LogEventCode::LogEventCode_spo2_too_high, Protocols::Application::Debouncer()},
+      {LogEventCode::LogEventCode_hr_too_low, Protocols::Application::Debouncer()},
+      {LogEventCode::LogEventCode_hr_too_high, Protocols::Application::Debouncer()}
+  };
   uint32_t current_time_ = 0;
   Application::LogEventsManager &log_manager_;
   Util::Containers::OrderedMap<LogEventCode, uint32_t, Application::active_log_events_max_elems>
       active_alarms_;
-  // TODO(lietk12): allow for elements in debouncers_ to be empty, i.e. no debouncer for an alarm
-  // code. This will need a TaggedUnion or an Optional (maybe we should make a special IntMap class
-  // with size_t keys backed by an array); we could also use it for pb_message_descriptors
-  // Array size is not a magic number; it should be updated to match the number of debouncers
-  // NOLINTNEXTLINE(readability-magic-numbers)
-  std::array<Protocols::Application::Debouncer, 8> debouncers_{
-      // array index should match the LogEventCode value
-      Protocols::Application::Debouncer(),  // fio2_too_low
-      Protocols::Application::Debouncer(),  // fio2_too_high
-      Protocols::Application::Debouncer(),  // flow_too_low
-      Protocols::Application::Debouncer(),  // flow_too_high
-      Protocols::Application::Debouncer(),  // spo2_too_low
-      Protocols::Application::Debouncer(),  // spo2_too_high
-      Protocols::Application::Debouncer(),  // hr_too_low
-      Protocols::Application::Debouncer()   // hr_too_high
-  };
 
   [[nodiscard]] bool is_active(LogEventCode alarm_code) const;
   [[nodiscard]] bool has_debouncer(LogEventCode alarm_code) const;

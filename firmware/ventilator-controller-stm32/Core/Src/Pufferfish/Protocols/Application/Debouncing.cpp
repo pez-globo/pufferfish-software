@@ -29,6 +29,13 @@ namespace Pufferfish::Protocols::Application {
 
 // Debouncer
 
+Debouncer &Debouncer::operator=(const Debouncer &other) {
+  integrator_ = other.integrator_;
+  output_ = other.output_;
+  prev_sample_time_ = other.prev_sample_time_;
+  prev_stable_time_ = other.prev_stable_time_;
+}
+
 Debouncer::Status Debouncer::transform(bool input, uint32_t current_time, bool &output) {
   if (Util::within_timeout(prev_sample_time_, sampling_interval, current_time)) {
     output = output_;

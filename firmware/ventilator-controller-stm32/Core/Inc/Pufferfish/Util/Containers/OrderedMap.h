@@ -14,6 +14,7 @@
 #pragma once
 
 #include <cstddef>
+#include <initializer_list>
 #include <utility>
 
 #include "Pufferfish/Statuses.h"
@@ -27,6 +28,7 @@ class OrderedMap {
   using Pair = std::pair<Key, Value>;
 
   OrderedMap() = default;
+  OrderedMap(std::initializer_list<Pair> init) : buffer_(init) {}
 
   [[nodiscard]] size_t size() const;
   [[nodiscard]] static constexpr size_t max_size() noexcept { return max_pairs; }
@@ -34,10 +36,12 @@ class OrderedMap {
   [[nodiscard]] bool full() const;
   [[nodiscard]] size_t available() const;
 
-  void clear();
-  IndexStatus insert(const Key &key, const Value &value);
-  IndexStatus erase(const Key &key);
-  IndexStatus find(const Key &key, size_t &index) const;
+  void clear(); // O(1)
+  // Note: this makes a copy of value!
+  IndexStatus insert(const Key &key, const Value &value); // O(m)
+  IndexStatus erase(const Key &key); // O(m)
+  bool has(const Key &key) const; // O(m)
+  IndexStatus find(const Key &key, size_t &index) const; // O(m)
 
   [[nodiscard]] constexpr const Vector<Pair, max_pairs> &items() const { return buffer_; }
   constexpr Vector<Pair, max_pairs> &items() { return buffer_; }

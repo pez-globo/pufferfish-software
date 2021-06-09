@@ -52,10 +52,21 @@ template <typename Key, typename Value, size_t max_pairs>
 IndexStatus OrderedMap<Key, Value, max_pairs>::erase(const Key &key) {
   size_t index = 0;
   if (find(key, index) == IndexStatus::ok) {
-    buffer_.erase(index);
+    return buffer_.erase(index);
   }
 
   return IndexStatus::out_of_bounds;
+}
+
+template <typename Key, typename Value, size_t max_pairs>
+bool OrderedMap<Key, Value, max_pairs>::has(const Key &key) const {
+  for (size_t index = 0; index < size(); ++index) {
+    if (buffer_[index].first == key) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 template <typename Key, typename Value, size_t max_pairs>

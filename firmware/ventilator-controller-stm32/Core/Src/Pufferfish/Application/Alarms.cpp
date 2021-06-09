@@ -16,7 +16,7 @@ void AlarmsManager::update_time(uint32_t current_time) {
 }
 
 void AlarmsManager::activate_alarm(LogEventCode alarm_code, LogEventType alarm_type) {
-  if (has_debouncer(alarm_code) && !debounce(alarm_code, true)) {
+  if (debouncers_.has(alarm_code) && !debounce(alarm_code, true)) {
     return;
   }
 
@@ -35,7 +35,7 @@ void AlarmsManager::activate_alarm(LogEventCode alarm_code, LogEventType alarm_t
 
 void AlarmsManager::activate_alarm(
     LogEventCode alarm_code, LogEventType alarm_type, const Range &alarm_limits) {
-  if (has_debouncer(alarm_code) && !debounce(alarm_code, true)) {
+  if (debouncers_.has(alarm_code) && !debounce(alarm_code, true)) {
     return;
   }
 
@@ -55,7 +55,7 @@ void AlarmsManager::activate_alarm(
 }
 
 void AlarmsManager::deactivate_alarm(LogEventCode alarm_code) {
-  if (has_debouncer(alarm_code) && debounce(alarm_code, false)) {
+  if (debouncers_.has(alarm_code) && debounce(alarm_code, false)) {
     return;
   }
 
@@ -81,17 +81,15 @@ bool AlarmsManager::is_active(LogEventCode alarm_code) const {
   return active_alarms_.find(alarm_code, index_discard) == IndexStatus::ok;
 }
 
-bool AlarmsManager::has_debouncer(LogEventCode alarm_code) const {
-  // TODO(lietk12): allow for elements in debouncers_ to be empty, i.e. no debouncer for an alarm
-  // code
-  return alarm_code < debouncers_.size();
-}
-
 bool AlarmsManager::debounce(LogEventCode alarm_code, bool input_value) {
-  Protocols::Application::Debouncer &debouncer = debouncers_[static_cast<size_t>(alarm_code)];
+  if (!debouncers_.has(alarm_code)) {
+    // Always pass the input through if no debouncer exists for this alarm code
+    return input_value;
+  }
+
   bool output = false;
   // This ignores the return code of the debouncer
-  debouncer.transform(input_value, current_time_, output);
+  debouncers_[alarm_code].transform(input_value, current_time_, output);
   return output;
 }
 

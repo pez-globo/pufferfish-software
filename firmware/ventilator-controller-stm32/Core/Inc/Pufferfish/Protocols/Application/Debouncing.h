@@ -30,6 +30,8 @@ class Debouncer {
  public:
   enum class Status { ok = 0, waiting, unstable };
 
+  Debouncer &operator=(const Debouncer &other);
+
   Status transform(bool input, uint32_t current_time, bool &output);
 
  private:

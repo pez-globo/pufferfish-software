@@ -14,6 +14,7 @@
 #pragma once
 
 #include <array>
+#include <initializer_list>
 #include <cstddef>
 
 #include "Pufferfish/Statuses.h"
@@ -24,6 +25,7 @@ template <typename Element, size_t array_size>
 class Vector {
  public:
   Vector() = default;
+  Vector(std::initializer_list<Element> init) : buffer_(init), size_(init.size()) {}
 
   [[nodiscard]] size_t size() const;
   [[nodiscard]] static constexpr size_t max_size() noexcept { return array_size; }
