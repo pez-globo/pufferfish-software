@@ -34,6 +34,7 @@ Debouncer &Debouncer::operator=(const Debouncer &other) {
   output_ = other.output_;
   prev_sample_time_ = other.prev_sample_time_;
   prev_stable_time_ = other.prev_stable_time_;
+  return *this;
 }
 
 Debouncer::Status Debouncer::transform(bool input, uint32_t current_time, bool &output) {

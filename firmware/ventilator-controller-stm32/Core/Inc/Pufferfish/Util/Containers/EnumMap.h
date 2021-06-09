@@ -27,7 +27,10 @@ template <typename Key, typename Value, size_t max_key>
 class EnumMap {
  public:
   EnumMap() = default;
-  // Note: this makes copies of the values!
+  // Construct the EnumMap with an initial set of key-value pairs, given as an
+  // initializer list (e.g. EnumMap map{{k1, v1}, {k2, v2}, {k3, v3}};)
+  // Note: you must ensure that keys are unique; the value for the last copy of a duplicated key
+  // will overwrite all previous values. Note: this makes copies of the values!
   EnumMap(std::initializer_list<std::pair<Key, Value>> init);
 
   [[nodiscard]] size_t size() const;
@@ -41,7 +44,8 @@ class EnumMap {
   IndexStatus insert(const Key &key, const Value &value);  // O(1)
   IndexStatus erase(const Key &key);                       // O(1)
   [[nodiscard]] bool has(const Key &key) const;            // O(1)
-  IndexStatus find(const Key &key, Value &value) const;    // O(1)
+  // Note: this copies the value in the map to the value output parameter!
+  IndexStatus find(const Key &key, Value &value) const;  // O(1)
 
   // Note: these don't check whether the key exists or is in-bounds!
   const Value &operator[](const Key &key) const noexcept;
@@ -49,6 +53,7 @@ class EnumMap {
 
  private:
   using Pair = std::pair<bool, Value>;
+
   std::array<Pair, max_key + 1> buffer_{};
   size_t size_ = 0;
 };

@@ -28,6 +28,10 @@ class OrderedMap {
   using Pair = std::pair<Key, Value>;
 
   OrderedMap() = default;
+  // Construct the OrderedMap with an initial set of key-value pairs, given as an
+  // initializer list (e.g. OrderedMap map{{k1, v1}, {k2, v2}, {k3, v3}};)
+  // Note: you must ensure that keys are unique; the value for the last copy of a duplicated key
+  // will overwrite all previous values. Note: this makes copies of the values!
   OrderedMap(std::initializer_list<Pair> init) : buffer_(init) {}
 
   [[nodiscard]] size_t size() const;

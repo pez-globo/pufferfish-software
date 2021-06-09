@@ -30,7 +30,17 @@ class Debouncer {
  public:
   enum class Status { ok = 0, waiting, unstable };
 
+  Debouncer() = default;
+  ~Debouncer() = default;
+  Debouncer(const Debouncer &other)
+      : integrator_(other.integrator_),
+        output_(other.output_),
+        prev_sample_time_(other.prev_sample_time_),
+        prev_stable_time_(other.prev_stable_time_) {}
+  Debouncer(Debouncer &&other) = delete;
+
   Debouncer &operator=(const Debouncer &other);
+  Debouncer &operator=(Debouncer &&other) = delete;
 
   Status transform(bool input, uint32_t current_time, bool &output);
 

@@ -25,6 +25,9 @@ template <typename Element, size_t array_size>
 class Vector {
  public:
   Vector() = default;
+  // Construct the Vector with an initial list of elements, given as an
+  // initializer list (e.g. Vector vect{v1, v2, v3};)
+  // Note: this makes copies of the values!
   Vector(std::initializer_list<Element> init) : buffer_(init), size_(init.size()) {}
 
   [[nodiscard]] size_t size() const;
