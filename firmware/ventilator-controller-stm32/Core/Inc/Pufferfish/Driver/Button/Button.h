@@ -20,9 +20,9 @@
 
 #pragma once
 
-#include "Pufferfish/Application/Debouncing.h"
 #include "Pufferfish/HAL/Interfaces/DigitalInput.h"
 #include "Pufferfish/HAL/Interfaces/Time.h"
+#include "Pufferfish/Protocols/Application/Debouncing.h"
 #include "Pufferfish/Statuses.h"
 
 namespace Pufferfish::Driver::Button {
@@ -32,11 +32,11 @@ namespace Pufferfish::Driver::Button {
  */
 class Button {
  public:
-  using Status = Application::Debouncer::Status;
+  using Status = Protocols::Application::Debouncer::Status;
 
   Button(
       HAL::Interfaces::DigitalInput &buttoninput,
-      Application::Debouncer &debounce,
+      Protocols::Application::Debouncer &debounce,
       HAL::Interfaces::Time &time)
       : button_input_(buttoninput), debounce_(debounce), time_(time) {}
 
@@ -46,13 +46,14 @@ class Button {
    * @param EdgeState rising edge on Low to High or falling edge on High to Low
    * @return rising edge on Low to High or falling edge on High to Low
    */
-  Status read_state(bool &debounced_output, Application::EdgeDetector::State &switch_state_changed);
+  Status read_state(
+      bool &debounced_output, Protocols::Application::EdgeDetector::State &switch_state_changed);
 
  private:
   HAL::Interfaces::DigitalInput &button_input_;
-  Application::Debouncer &debounce_;
+  Protocols::Application::Debouncer &debounce_;
   HAL::Interfaces::Time &time_;
-  Application::EdgeDetector edge_detect_;
+  Protocols::Application::EdgeDetector edge_detect_;
 };
 
 }  // namespace Pufferfish::Driver::Button

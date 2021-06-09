@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace Pufferfish::Protocols {
+namespace Pufferfish::Protocols::Application {
 
 // State Synchronization
 
@@ -46,6 +46,6 @@ class StateSynchronizer {
   [[nodiscard]] bool should_output() const;
 };
 
-}  // namespace Pufferfish::Protocols
+}  // namespace Pufferfish::Protocols::Application
 
 #include "States.tpp"

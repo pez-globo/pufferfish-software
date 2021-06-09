@@ -9,7 +9,7 @@
 
 #include "Chunks.h"
 
-namespace Pufferfish::Protocols {
+namespace Pufferfish::Protocols::Transport {
 
 // ChunkSplitter
 
@@ -67,4 +67,4 @@ ChunkOutputStatus ChunkMerger::transform(
   return ChunkOutputStatus::invalid_length;
 }
 
-}  // namespace Pufferfish::Protocols
+}  // namespace Pufferfish::Protocols::Transport

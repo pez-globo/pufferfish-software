@@ -5,13 +5,13 @@
  *      Author: Ethan Li
  */
 
-#include "Pufferfish/Application/SignalSmoothing.h"
+#include "Pufferfish/Protocols/Application/SignalSmoothing.h"
 
 #include <cmath>
 
 #include "Pufferfish/Util/Timeouts.h"
 
-namespace Pufferfish::Application {
+namespace Pufferfish::Protocols::Application {
 
 // EWMA
 
@@ -89,4 +89,4 @@ DisplaySmoother::Status DisplaySmoother::transform(
   return Status::ok;
 }
 
-}  // namespace Pufferfish::Application
+}  // namespace Pufferfish::Protocols::Application

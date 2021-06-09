@@ -13,11 +13,11 @@
 #include "Pufferfish/Application/LogEvents.h"
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/HAL/Interfaces/CRCChecker.h"
-#include "Pufferfish/Protocols/CRCElements.h"
-#include "Pufferfish/Protocols/Datagrams.h"
-#include "Pufferfish/Protocols/Lists.h"
-#include "Pufferfish/Protocols/Messages.h"
-#include "Pufferfish/Protocols/States.h"
+#include "Pufferfish/Protocols/Application/Lists.h"
+#include "Pufferfish/Protocols/Application/States.h"
+#include "Pufferfish/Protocols/Transport/CRCElements.h"
+#include "Pufferfish/Protocols/Transport/Datagrams.h"
+#include "Pufferfish/Protocols/Transport/Messages.h"
 #include "Pufferfish/Util/Array.h"
 #include "Pufferfish/Util/Enums.h"
 
@@ -44,7 +44,8 @@ static const auto message_descriptors = Util::make_array<Util::ProtobufDescripto
 
 // State Synchronization
 
-using StateOutputScheduleEntry = Protocols::StateOutputScheduleEntry<Application::MessageTypes>;
+using StateOutputScheduleEntry =
+    Protocols::Application::StateOutputScheduleEntry<Application::MessageTypes>;
 
 static const auto state_sync_schedule = Util::make_array<const StateOutputScheduleEntry>(
     StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
@@ -64,9 +65,9 @@ static const auto state_sync_schedule = Util::make_array<const StateOutputSchedu
 
 // Backend
 using CRCElementProps =
-    Protocols::CRCElementProps<Driver::Serial::Backend::FrameProps::payload_max_size>;
-using DatagramProps = Protocols::DatagramProps<CRCElementProps::payload_max_size>;
-using Message = Protocols::Message<
+    Protocols::Transport::CRCElementProps<Driver::Serial::Backend::FrameProps::payload_max_size>;
+using DatagramProps = Protocols::Transport::DatagramProps<CRCElementProps::payload_max_size>;
+using Message = Protocols::Transport::Message<
     Application::StateSegment,
     Application::MessageTypeValues,
     DatagramProps::payload_max_size>;
@@ -103,11 +104,13 @@ class Receiver {
   OutputStatus output(Message &output_message);
 
  private:
-  using CRCReceiver = Protocols::CRCElementReceiver<FrameProps::payload_max_size>;
-  using ParsedCRC = Protocols::ParsedCRCElement<FrameProps::payload_max_size>;
-  using DatagramReceiver = Protocols::DatagramReceiver<CRCReceiver::Props::payload_max_size>;
-  using ParsedDatagram = Protocols::ParsedDatagram<CRCReceiver::Props::payload_max_size>;
-  using MessageReceiver = Protocols::MessageReceiver<Message, message_descriptors.size()>;
+  using CRCReceiver = Protocols::Transport::CRCElementReceiver<FrameProps::payload_max_size>;
+  using ParsedCRC = Protocols::Transport::ParsedCRCElement<FrameProps::payload_max_size>;
+  using DatagramReceiver =
+      Protocols::Transport::DatagramReceiver<CRCReceiver::Props::payload_max_size>;
+  using ParsedDatagram = Protocols::Transport::ParsedDatagram<CRCReceiver::Props::payload_max_size>;
+  using MessageReceiver =
+      Protocols::Transport::MessageReceiver<Message, message_descriptors.size()>;
 
   FrameReceiver frame_;
   CRCReceiver crc_;
@@ -135,10 +138,10 @@ class Sender {
       const Application::StateSegment &state_segment, FrameProps::ChunkBuffer &output_buffer);
 
  private:
-  using CRCSender = Protocols::CRCElementSender<FrameProps::payload_max_size>;
-  using DatagramSender = Protocols::DatagramSender<CRCSender::Props::payload_max_size>;
-  using MessageSender =
-      Protocols::MessageSender<Message, Application::StateSegment, message_descriptors.size()>;
+  using CRCSender = Protocols::Transport::CRCElementSender<FrameProps::payload_max_size>;
+  using DatagramSender = Protocols::Transport::DatagramSender<CRCSender::Props::payload_max_size>;
+  using MessageSender = Protocols::Transport::
+      MessageSender<Message, Application::StateSegment, message_descriptors.size()>;
 
   MessageSender message_;
   DatagramSender datagram_;
@@ -167,7 +170,7 @@ class Backend {
   Status output(FrameProps::ChunkBuffer &output_buffer);
 
  private:
-  using StateSynchronizer = Protocols::StateSynchronizer<
+  using StateSynchronizer = Protocols::Application::StateSynchronizer<
       Application::Store,
       Application::StateSegment,
       Application::MessageTypes,

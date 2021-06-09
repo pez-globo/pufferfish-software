@@ -12,7 +12,7 @@
 
 #include "Lists.h"
 
-namespace Pufferfish::Protocols {
+namespace Pufferfish::Protocols::Application {
 
 // ListSender
 
@@ -104,4 +104,4 @@ void ListSender<ListSegment, ListElement, max_buffer_len, max_segment_len>::outp
   segment.session_id = session_id_;
 }
 
-}  // namespace Pufferfish::Protocols
+}  // namespace Pufferfish::Protocols::Application

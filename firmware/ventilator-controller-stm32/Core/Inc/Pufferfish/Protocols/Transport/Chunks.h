@@ -12,7 +12,7 @@
 
 #include "Pufferfish/Util/Vector.h"
 
-namespace Pufferfish::Protocols {
+namespace Pufferfish::Protocols::Transport {
 
 enum class ChunkInputStatus { ok = 0, output_ready, invalid_length };
 enum class ChunkOutputStatus { ok = 0, waiting, invalid_length };
@@ -47,6 +47,6 @@ class ChunkMerger {
   const uint8_t delimiter = 0x00;
 };
 
-}  // namespace Pufferfish::Protocols
+}  // namespace Pufferfish::Protocols::Transport
 
 #include "Chunks.tpp"

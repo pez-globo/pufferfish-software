@@ -12,7 +12,7 @@
 
 #include "Pufferfish/Util/Vector.h"
 
-namespace Pufferfish::Protocols {
+namespace Pufferfish::Protocols::Transport {
 
 struct DatagramHeaderProps {
   static const size_t seq_offset = 0;
@@ -103,6 +103,6 @@ class DatagramSender {
   uint8_t next_seq_ = 0;
 };
 
-}  // namespace Pufferfish::Protocols
+}  // namespace Pufferfish::Protocols::Transport
 
 #include "Datagrams.tpp"

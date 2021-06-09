@@ -13,7 +13,7 @@
 #include "Pufferfish/Util/Vector.h"
 #include "nanopb/pb_common.h"
 
-namespace Pufferfish::Protocols {
+namespace Pufferfish::Protocols::Transport {
 
 enum class MessageStatus { ok = 0, invalid_length, invalid_type, invalid_encoding };
 
@@ -78,6 +78,6 @@ class MessageSender {
   const Util::ProtobufDescriptors<num_descriptors> &descriptors_;
 };
 
-}  // namespace Pufferfish::Protocols
+}  // namespace Pufferfish::Protocols::Transport
 
 #include "Messages.tpp"

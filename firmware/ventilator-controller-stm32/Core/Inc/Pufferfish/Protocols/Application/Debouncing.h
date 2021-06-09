@@ -1,6 +1,5 @@
 /// Debouncing.h
 /// Classes for event debouncing and edge detection
-/// TODO: move this file into Protocols/Application!
 
 // Copyright (c) 2020 Pez-Globo and the Pufferfish project contributors
 // SPDX-License-Identifier: Apache-2.0
@@ -23,7 +22,7 @@
 
 #include <cstdint>
 
-namespace Pufferfish::Application {
+namespace Pufferfish::Protocols::Application {
 
 // Debouncing
 
@@ -66,4 +65,4 @@ class EdgeDetector {
   bool last_state_ = false;
 };
 
-}  // namespace Pufferfish::Application
+}  // namespace Pufferfish::Protocols::Application

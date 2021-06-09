@@ -222,7 +222,7 @@ PF::HAL::STM32::DigitalInput button_power(
     SET_PWR_ON_OFF_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
 
-PF::Application::Debouncer switch_debounce;
+PF::Protocols::Application::Debouncer switch_debounce;
 PF::Driver::Button::Button button_membrane(button_alarm_en, switch_debounce, time);
 
 // Solenoid Valves
@@ -323,7 +323,7 @@ PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 // Initializables
 
 auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
-    sfm3019_air, sfm3019_o2, fdo2, nonin_oem);
+    sfm3019_air, sfm3019_o2, /*fdo2, */ nonin_oem);
 std::array<PF::InitializableState, initializables.size()> initialization_states;
 
 /*

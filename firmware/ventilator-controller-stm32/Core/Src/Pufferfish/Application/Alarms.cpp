@@ -87,7 +87,7 @@ bool AlarmsManager::has_debouncer(LogEventCode alarm_code) const {
 }
 
 bool AlarmsManager::debounce(LogEventCode alarm_code, bool input_value) {
-  Debouncer &debouncer = debouncers_[static_cast<size_t>(alarm_code)];
+  Protocols::Application::Debouncer &debouncer = debouncers_[static_cast<size_t>(alarm_code)];
   bool output;
   // This ignores the return code of the debouncer
   debouncer.transform(input_value, current_time_, output);

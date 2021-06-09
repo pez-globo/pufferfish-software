@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "Pufferfish/Protocols/Chunks.h"
+#include "Pufferfish/Protocols/Transport/Chunks.h"
 #include "Pufferfish/Util/Vector.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
@@ -27,7 +27,7 @@ struct FrameProps {
   enum class OutputStatus { ok = 0, waiting, invalid_length, invalid_cobs };
 };
 
-using FrameChunkSplitter = Protocols::ChunkSplitter<FrameProps::encoded_max_size>;
+using FrameChunkSplitter = Protocols::Transport::ChunkSplitter<FrameProps::encoded_max_size>;
 
 // Decodes frames (length up to 255 bytes, excluding frame delimiter) with COBS
 class COBSDecoder {
@@ -61,7 +61,7 @@ class FrameReceiver {
 
  private:
   FrameChunkSplitter chunk_splitter_;
-  const COBSDecoder cobs_decoder = COBSDecoder();
+  const COBSDecoder cobs_decoder;
 };
 
 class FrameSender {
@@ -72,8 +72,8 @@ class FrameSender {
       const FrameProps::PayloadBuffer &input_buffer, FrameProps::ChunkBuffer &output_buffer) const;
 
  private:
-  const COBSEncoder cobs_encoder = COBSEncoder();
-  const Protocols::ChunkMerger chunk_merger = Protocols::ChunkMerger();
+  const COBSEncoder cobs_encoder;
+  const Protocols::Transport::ChunkMerger chunk_merger;
 };
 
 }  // namespace Pufferfish::Driver::Serial::Backend

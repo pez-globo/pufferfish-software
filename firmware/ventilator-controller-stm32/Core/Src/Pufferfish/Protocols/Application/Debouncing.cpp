@@ -21,11 +21,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Pufferfish/Application/Debouncing.h"
+#include "Pufferfish/Protocols/Application/Debouncing.h"
 
 #include "Pufferfish/Util/Timeouts.h"
 
-namespace Pufferfish::Application {
+namespace Pufferfish::Protocols::Application {
 
 // Debouncer
 
@@ -77,4 +77,4 @@ void EdgeDetector::transform(bool input, State &output) {
   }
 }
 
-}  // namespace Pufferfish::Application
+}  // namespace Pufferfish::Protocols::Application

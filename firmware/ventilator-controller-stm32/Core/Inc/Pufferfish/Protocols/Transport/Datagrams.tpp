@@ -12,7 +12,7 @@
 #include "Datagrams.h"
 #include "Pufferfish/Util/Endian.h"
 
-namespace Pufferfish::Protocols {
+namespace Pufferfish::Protocols::Transport {
 
 // Datagram
 
@@ -102,4 +102,4 @@ typename DatagramSender<body_max_size>::Status DatagramSender<body_max_size>::tr
   return Status::ok;
 }
 
-}  // namespace Pufferfish::Protocols
+}  // namespace Pufferfish::Protocols::Transport

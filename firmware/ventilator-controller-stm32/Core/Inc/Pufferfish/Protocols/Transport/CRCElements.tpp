@@ -12,7 +12,7 @@
 #include "CRCElements.h"
 #include "Pufferfish/Util/Endian.h"
 
-namespace Pufferfish::Protocols {
+namespace Pufferfish::Protocols::Transport {
 
 // CRCElement
 
@@ -118,4 +118,4 @@ typename CRCElementSender<body_max_size>::Status CRCElementSender<body_max_size>
   return Status::ok;
 }
 
-}  // namespace Pufferfish::Protocols
+}  // namespace Pufferfish::Protocols::Transport

@@ -26,7 +26,7 @@
 namespace Pufferfish::Driver::Button {
 
 Button::Status Button::read_state(
-    bool &debounced_output, Application::EdgeDetector::State &switch_state_changed) {
+    bool &debounced_output, Protocols::Application::EdgeDetector::State &switch_state_changed) {
   bool input = button_input_.read();
   uint32_t ms_time = time_.millis();
 

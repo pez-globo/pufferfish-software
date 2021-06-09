@@ -13,7 +13,7 @@
 #include "Pufferfish/HAL/Interfaces/CRCChecker.h"
 #include "Pufferfish/Util/Vector.h"
 
-namespace Pufferfish::Protocols {
+namespace Pufferfish::Protocols::Transport {
 
 struct CRCElementHeaderProps {
   static const size_t payload_offset = sizeof(uint32_t);
@@ -107,6 +107,6 @@ class CRCElementSender {
   HAL::Interfaces::CRC32 &crc32c_;
 };
 
-}  // namespace Pufferfish::Protocols
+}  // namespace Pufferfish::Protocols::Transport
 
 #include "CRCElements.tpp"

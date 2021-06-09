@@ -2,7 +2,6 @@
  * SignalSmoothing.h
  *
  *  Signal processing and denoising
- *  TODO: move this file into Protocols/Application!
  */
 
 #pragma once
@@ -10,7 +9,7 @@
 #include <cstdint>
 #include <limits>
 
-namespace Pufferfish::Application {
+namespace Pufferfish::Protocols::Application {
 
 static constexpr float float_nan = std::numeric_limits<float>::quiet_NaN();
 
@@ -119,4 +118,4 @@ class DisplaySmoother {
   uint32_t prev_sample_time_ = 0;  // ms
 };
 
-}  // namespace Pufferfish::Application
+}  // namespace Pufferfish::Protocols::Application

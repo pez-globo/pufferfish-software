@@ -12,7 +12,7 @@
 #include "Pufferfish/Statuses.h"
 #include "Pufferfish/Util/RingBuffer.h"
 
-namespace Pufferfish::Protocols {
+namespace Pufferfish::Protocols::Application {
 
 enum class ListInputStatus { ok = 0, stale_next_expected, oldest_overwritten, stale_session };
 
@@ -40,6 +40,6 @@ class ListSender {
   uint32_t session_id_ = 0;
 };
 
-}  // namespace Pufferfish::Protocols
+}  // namespace Pufferfish::Protocols::Application
 
 #include "Lists.tpp"

@@ -11,7 +11,7 @@
 #include "nanopb/pb_decode.h"
 #include "nanopb/pb_encode.h"
 
-namespace Pufferfish::Protocols {
+namespace Pufferfish::Protocols::Transport {
 
 // Message
 
@@ -118,4 +118,4 @@ MessageStatus MessageSender<Message, TaggedUnion, num_descriptors>::transform(
   return input_message.write(output_buffer, descriptors_);
 }
 
-}  // namespace Pufferfish::Protocols
+}  // namespace Pufferfish::Protocols::Transport

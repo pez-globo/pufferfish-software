@@ -10,7 +10,7 @@
 #include "Pufferfish/Util/Timeouts.h"
 #include "States.h"
 
-namespace Pufferfish::Protocols {
+namespace Pufferfish::Protocols::Application {
 
 // StateSynchronizer
 
@@ -43,4 +43,4 @@ bool StateSynchronizer<States, StateSegment, MessageTypes, schedule_size>::shoul
       current_time_);
 }
 
-}  // namespace Pufferfish::Protocols
+}  // namespace Pufferfish::Protocols::Application
