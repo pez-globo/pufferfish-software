@@ -30,20 +30,20 @@ class Debouncer {
  public:
   enum class Status { ok = 0, waiting, unstable };
 
-  Debouncer(
+  explicit Debouncer(
       uint8_t max_integrator_samples = 100,
       uint32_t sampling_interval = 10,
       uint32_t allowed_bounce_duration = 2000)
-      : max_integrator_samples_(max_integrator_samples),
-        sampling_interval_(sampling_interval),
-        allowed_bounce_duration_(allowed_bounce_duration) {}
+      : max_integrator_samples(max_integrator_samples),
+        sampling_interval(sampling_interval),
+        allowed_bounce_duration(allowed_bounce_duration) {}
 
   Status transform(bool input, uint32_t current_time, bool &output);
 
  private:
-  const uint8_t max_integrator_samples_;
-  const uint32_t sampling_interval_;        // ms
-  const uint32_t allowed_bounce_duration_;  // ms
+  const uint8_t max_integrator_samples;
+  const uint32_t sampling_interval;        // ms
+  const uint32_t allowed_bounce_duration;  // ms
 
   uint8_t integrator_ = 0;
   bool output_ = false;

@@ -21,12 +21,12 @@ void AlarmsService::check_parameter(
     LogEventCode too_low_code,
     LogEventCode too_high_code,
     Application::AlarmsManager &alarms_manager) {
-  if (lround(measured_value) < alarm_limits.lower) {
+  if (std::lround(measured_value) < alarm_limits.lower) {
     alarms_manager.activate_alarm(too_low_code, LogEventType::LogEventType_patient, alarm_limits);
   } else {
     alarms_manager.deactivate_alarm(too_low_code);
   }
-  if (lround(measured_value) > alarm_limits.upper) {
+  if (std::lround(measured_value) > alarm_limits.upper) {
     alarms_manager.activate_alarm(too_high_code, LogEventType::LogEventType_patient, alarm_limits);
   } else {
     alarms_manager.deactivate_alarm(too_high_code);

@@ -82,13 +82,14 @@ bool AlarmsManager::is_active(LogEventCode alarm_code) const {
 }
 
 bool AlarmsManager::has_debouncer(LogEventCode alarm_code) const {
-  // TODO: allow for elements in debouncers_ to be empty, i.e. no debouncer for an alarm code
+  // TODO(lietk12): allow for elements in debouncers_ to be empty, i.e. no debouncer for an alarm
+  // code
   return alarm_code < debouncers_.size();
 }
 
 bool AlarmsManager::debounce(LogEventCode alarm_code, bool input_value) {
   Protocols::Application::Debouncer &debouncer = debouncers_[static_cast<size_t>(alarm_code)];
-  bool output;
+  bool output = false;
   // This ignores the return code of the debouncer
   debouncer.transform(input_value, current_time_, output);
   return output;

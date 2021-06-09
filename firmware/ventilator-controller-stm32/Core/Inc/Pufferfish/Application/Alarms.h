@@ -24,13 +24,15 @@ class AlarmsManager {
   IndexStatus transform(ActiveLogEvents &active_log_events) const;
 
  private:
-  unsigned long current_time_ = 0;
+  uint32_t current_time_ = 0;
   Application::LogEventsManager &log_manager_;
   Util::Containers::OrderedMap<LogEventCode, uint32_t, Application::active_log_events_max_elems>
       active_alarms_;
-  // TODO: allow for elements in debouncers_ to be empty, i.e. no debouncer for an alarm code.
-  // This will need a TaggedUnion or an Optional (maybe we should make a special IntMap class
+  // TODO(lietk12): allow for elements in debouncers_ to be empty, i.e. no debouncer for an alarm
+  // code. This will need a TaggedUnion or an Optional (maybe we should make a special IntMap class
   // with size_t keys backed by an array); we could also use it for pb_message_descriptors
+  // Array size is not a magic number; it should be updated to match the number of debouncers
+  // NOLINTNEXTLINE(readability-magic-numbers)
   std::array<Protocols::Application::Debouncer, 8> debouncers_{
       // array index should match the LogEventCode value
       Protocols::Application::Debouncer(),  // fio2_too_low
@@ -43,8 +45,8 @@ class AlarmsManager {
       Protocols::Application::Debouncer()   // hr_too_high
   };
 
-  bool is_active(LogEventCode alarm_code) const;
-  bool has_debouncer(LogEventCode alarm_code) const;
+  [[nodiscard]] bool is_active(LogEventCode alarm_code) const;
+  [[nodiscard]] bool has_debouncer(LogEventCode alarm_code) const;
   // Returns the output value from the debouncer:
   bool debounce(LogEventCode alarm_code, bool input_value);
 };
