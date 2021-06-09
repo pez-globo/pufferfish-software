@@ -599,6 +599,7 @@ int main(void)
 
     // Clock updates
     log_events_manager.update_time(current_time);
+    alarms_manager.update_time(current_time);
 
     // Request/response services update
     parameters_service.transform(

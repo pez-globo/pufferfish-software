@@ -31,6 +31,7 @@ namespace Pufferfish::Application {
 
 Debouncer::Status Debouncer::transform(bool input, uint32_t current_time, bool &output) {
   if (Util::within_timeout(prev_sample_time_, sampling_interval_, current_time)) {
+    output = output_;
     return Status::waiting;
   }
 
@@ -51,11 +52,11 @@ Debouncer::Status Debouncer::transform(bool input, uint32_t current_time, bool &
     prev_stable_time_ = current_time;
     integrator_ = max_integrator_samples_;  // defensive code if integrator got corrupted
   }
+  output = output_;
   // Report fault if the input has been bouncing for too long
   if (!Util::within_timeout(prev_stable_time_, allowed_bounce_duration_, current_time)) {
     return Status::unstable;
   }
-  output = output_;
 
   return Status::ok;
 }
