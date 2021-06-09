@@ -16,7 +16,8 @@ class AlarmMuteService:
     """Implement Alarm Mute Service"""
 
     mute_duration: float = attr.ib(default=0)  # ms after mute_start_time
-    mute_start_time: float = attr.ib(default=time.time() * 1000)  # ms, Unix time
+    mute_start_time: float = \
+        attr.ib(default=time.time() * 1000)  # ms, Unix time
     mute_max_duration: int = 120000 # ms
 
     def transform(
@@ -66,5 +67,6 @@ class AlarmMuteService:
         self, response: mcu_pb.AlarmMute
     ) -> None:
         """countdown for two minutes."""
-        response.remaining = int((self.mute_max_duration - self.mute_duration) / 1000)
+        response.remaining = \
+            int((self.mute_max_duration - self.mute_duration) / 1000)
         response.remaining = max(0, min(response.remaining, 120))
