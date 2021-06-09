@@ -10,21 +10,23 @@
  *
  */
 
-#include "Pufferfish/Protocols/States.h"
+#include "Pufferfish/Protocols/Application/States.h"
 
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/HAL/CRCChecker.h"
 #include "Pufferfish/HAL/Mock/Time.h"
-#include "Pufferfish/Protocols/Chunks.h"
+#include "Pufferfish/Protocols/Transport/Chunks.h"
 #include "Pufferfish/Test/BackendDefs.h"
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
 namespace BE = PF::Driver::Serial::Backend;
+namespace Application = PF::Protocols::Application;
+using PF::Util::Containers::make_array;
 
 using StateOutputScheduleEntry =
-    PF::Protocols::StateOutputScheduleEntry<PF::Application::MessageTypes>;
+    Application::StateOutputScheduleEntry<PF::Application::MessageTypes>;
 using Store = PF::Application::Store;
 using StateSegment = PF::Application::StateSegment;
 using MessageTypes = PF::Application::MessageTypes;
@@ -33,12 +35,12 @@ SCENARIO(
     "Protocols::The Store output method correctly updates output StateSegment tag and field "
     "parameters according to a schedule",
     "[states]") {
-  constexpr auto state_sync_schedule = PF::Util::make_array<const StateOutputScheduleEntry>(
+  constexpr auto state_sync_schedule = make_array<const StateOutputScheduleEntry>(
       StateOutputScheduleEntry{5, MessageTypes::parameters_request},
       StateOutputScheduleEntry{6, MessageTypes::parameters_request});
 
-  using BackendStateSynchronizer = PF::Protocols::
-      StateSynchronizer<Store, StateSegment, MessageTypes, state_sync_schedule.size()>;
+  using BackendStateSynchronizer =
+      Application::StateSynchronizer<Store, StateSegment, MessageTypes, state_sync_schedule.size()>;
 
   const BackendStateSynchronizer::OutputStatus output_ok =
       BackendStateSynchronizer::OutputStatus::ok;
@@ -170,11 +172,11 @@ SCENARIO(
   GIVEN(
       "A StateSynchronizer object constructed with output schedule array containing unknown "
       "message type") {
-    constexpr auto state_sync_schedule = PF::Util::make_array<const StateOutputScheduleEntry>(
+    constexpr auto state_sync_schedule = make_array<const StateOutputScheduleEntry>(
         StateOutputScheduleEntry{1, MessageTypes::unknown},
         StateOutputScheduleEntry{1, MessageTypes::parameters_request});
 
-    using BackendStateSynchronizer = PF::Protocols::
+    using BackendStateSynchronizer = Application::
         StateSynchronizer<Store, StateSegment, MessageTypes, state_sync_schedule.size()>;
 
     const BackendStateSynchronizer::OutputStatus invalid_type =
@@ -209,13 +211,13 @@ SCENARIO(
   GIVEN(
       "A StateSynchronizer object constructed with an output schedule array of multiple message "
       "types and a all_states object") {
-    constexpr auto state_sync_schedule = PF::Util::make_array<const StateOutputScheduleEntry>(
+    constexpr auto state_sync_schedule = make_array<const StateOutputScheduleEntry>(
         StateOutputScheduleEntry{1, MessageTypes::parameters_request},
         StateOutputScheduleEntry{2, MessageTypes::parameters},
         StateOutputScheduleEntry{3, MessageTypes::sensor_measurements},
         StateOutputScheduleEntry{4, MessageTypes::cycle_measurements});
 
-    using BackendStateSynchronizer = PF::Protocols::
+    using BackendStateSynchronizer = Application::
         StateSynchronizer<Store, StateSegment, MessageTypes, state_sync_schedule.size()>;
 
     const BackendStateSynchronizer::OutputStatus output_ok =
@@ -475,7 +477,7 @@ SCENARIO(
   GIVEN(
       "A StateSynchronizer object constructed with output schedule array from backend and a "
       "all_states object") {
-    using BackendStateSynchronizer = PF::Protocols::
+    using BackendStateSynchronizer = Application::
         StateSynchronizer<Store, StateSegment, MessageTypes, BE::state_sync_schedule.size()>;
 
     const BackendStateSynchronizer::OutputStatus output_ok =
@@ -662,13 +664,13 @@ SCENARIO(
   GIVEN(
       "A StateSynchronizer object constructed with an output schedule array of 4 message "
       "types and a all_states object and on the 1st entry") {
-    constexpr auto state_sync_schedule = PF::Util::make_array<const StateOutputScheduleEntry>(
+    constexpr auto state_sync_schedule = make_array<const StateOutputScheduleEntry>(
         StateOutputScheduleEntry{10, MessageTypes::parameters_request},
         StateOutputScheduleEntry{10, MessageTypes::parameters},
         StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
         StateOutputScheduleEntry{10, MessageTypes::cycle_measurements});
 
-    using BackendStateSynchronizer = PF::Protocols::
+    using BackendStateSynchronizer = Application::
         StateSynchronizer<Store, StateSegment, MessageTypes, state_sync_schedule.size()>;
 
     const BackendStateSynchronizer::OutputStatus output_ok =
@@ -759,13 +761,13 @@ SCENARIO(
   GIVEN(
       "A StateSynchronizer object constructed with an output schedule array of 4 message "
       "types and a all_states object") {
-    constexpr auto state_sync_schedule = PF::Util::make_array<const StateOutputScheduleEntry>(
+    constexpr auto state_sync_schedule = make_array<const StateOutputScheduleEntry>(
         StateOutputScheduleEntry{10, MessageTypes::parameters_request},
         StateOutputScheduleEntry{10, MessageTypes::parameters},
         StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
         StateOutputScheduleEntry{10, MessageTypes::cycle_measurements});
 
-    using BackendStateSynchronizer = PF::Protocols::
+    using BackendStateSynchronizer = Application::
         StateSynchronizer<Store, StateSegment, MessageTypes, state_sync_schedule.size()>;
 
     const BackendStateSynchronizer::OutputStatus output_ok =

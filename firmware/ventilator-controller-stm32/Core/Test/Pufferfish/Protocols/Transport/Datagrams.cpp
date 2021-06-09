@@ -10,32 +10,36 @@
  *
  */
 
-#include "Pufferfish/Protocols/Datagrams.h"
+#include "Pufferfish/Protocols/Transport/Datagrams.h"
 
 #include "Pufferfish/Test/Util.h"
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
+namespace Transport = PF::Protocols::Transport;
+using PF::Util::Containers::ByteVector;
+using PF::Util::Containers::convert_string_to_byte_vector;
+using PF::Util::Containers::make_array;
 
 SCENARIO(
     "Protocols::The write function correctly calculates length of internal payload and writes body "
     "with sequence, length and payload",
     "[Datagram]") {
   constexpr size_t buffer_size = 254UL;
-  using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
-  using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
-  using TestDatagram = PF::Protocols::ConstructedDatagram<buffer_size>;
+  using TestDatagramProps = Transport::DatagramProps<buffer_size>;
+  using TestDatagramHeaderProps = Transport::DatagramHeaderProps;
+  using TestDatagram = Transport::ConstructedDatagram<buffer_size>;
 
-  PF::Util::ByteVector<buffer_size> output_buffer;
+  ByteVector<buffer_size> output_buffer;
   TestDatagramProps::PayloadBuffer input_payload;
-  PF::Util::ByteVector<buffer_size> expected_buffer;
+  ByteVector<buffer_size> expected_buffer;
 
   GIVEN("A Datagram constructed with an empty paylaod and sequence equal to 0") {
     TestDatagram datagram(input_payload);
 
     WHEN("The sequence, length and paylaod are written to the output buffer") {
-      PF::Util::ByteVector<buffer_size> output_buffer;
+      ByteVector<buffer_size> output_buffer;
       auto write_status = datagram.write(output_buffer);
 
       THEN("The write method reports ok status") { REQUIRE(write_status == PF::IndexStatus::ok); }
@@ -73,7 +77,7 @@ SCENARIO(
 
   GIVEN("A Datagram constructed with a non-empty payload buffer and sequence equal to 0") {
     auto data = std::string("\xb7\xe1\x8d\xaa\x4d", 5);
-    PF::Util::convert_string_to_byte_vector(data, input_payload);
+    convert_string_to_byte_vector(data, input_payload);
 
     TestDatagram datagram{input_payload};
 
@@ -109,7 +113,7 @@ SCENARIO(
       THEN(
           "The body's payload section correctly stores the paylaod as '0xb7 0xe1 0x8d 0xaa 0x4d'") {
         for (size_t i = 2; i < 7; ++i) {
-          auto data = PF::Util::make_array<uint8_t>(0xb7, 0xe1, 0x8d, 0xaa, 0x4d);
+          auto data = make_array<uint8_t>(0xb7, 0xe1, 0x8d, 0xaa, 0x4d);
           REQUIRE(output_buffer.operator[](i) == data[i - 2]);
         }
       }
@@ -163,7 +167,7 @@ SCENARIO(
           "The body's payload section correctly stores the paylaod as '0xb7 0xe1 0x8d 0xaa 0x4d "
           "0x02'") {
         for (size_t i = 2; i < 8; ++i) {
-          auto data = PF::Util::make_array<uint8_t>(0xb7, 0xe1, 0x8d, 0xaa, 0x4d, 0x02);
+          auto data = make_array<uint8_t>(0xb7, 0xe1, 0x8d, 0xaa, 0x4d, 0x02);
           REQUIRE(output_buffer.operator[](i) == data[i - 2]);
         }
       }
@@ -241,7 +245,7 @@ SCENARIO(
 
   GIVEN("A Datagram constructed with a non-empty paylaod buffer and non-zero sequence") {
     auto data = std::string("\xc2\x22\x10\xa6\x3a\xa5", 6);
-    PF::Util::convert_string_to_byte_vector(data, input_payload);
+    convert_string_to_byte_vector(data, input_payload);
 
     uint8_t seq = 10;
     TestDatagram datagram{input_payload, seq};
@@ -251,7 +255,7 @@ SCENARIO(
     REQUIRE(datagram.payload() == data);
 
     WHEN("The sequence, length and paylaod are written to the output buffer") {
-      PF::Util::ByteVector<buffer_size> output_buffer;
+      ByteVector<buffer_size> output_buffer;
 
       auto write_status = datagram.write(output_buffer);
 
@@ -281,7 +285,7 @@ SCENARIO(
           "The body's payload section correctly stores the paylaod as '0xc2 0x22 0x10 0xa6 0x3a "
           "0xa5'") {
         for (size_t i = 2; i < 8; ++i) {
-          auto data = PF::Util::make_array<uint8_t>(0xc2, 0x22, 0x10, 0xa6, 0x3a, 0xa5);
+          auto data = make_array<uint8_t>(0xc2, 0x22, 0x10, 0xa6, 0x3a, 0xa5);
           REQUIRE(output_buffer.operator[](i) == data[i - 2]);
         }
       }
@@ -299,7 +303,7 @@ SCENARIO(
       "A Datagram constructed with a non-empty paylaod buffer and a sequence ranging from 0 to "
       "0xff") {
     auto data = std::string("\x01\x23\x45\x0a\x4d\x04\x05", 7);
-    PF::Util::convert_string_to_byte_vector(data, input_payload);
+    convert_string_to_byte_vector(data, input_payload);
 
     uint8_t sequence = GENERATE(range(0, 256));
 
@@ -310,7 +314,7 @@ SCENARIO(
     REQUIRE(datagram.payload() == data);
 
     WHEN("The sequence, length and paylaod are written to the output buffer") {
-      PF::Util::ByteVector<buffer_size> output_buffer;
+      ByteVector<buffer_size> output_buffer;
 
       auto write_status = datagram.write(output_buffer);
       THEN("The write method reports ok status") { REQUIRE(write_status == PF::IndexStatus::ok); }
@@ -339,7 +343,7 @@ SCENARIO(
           "The body's payload section correctly stores the paylaod as '0x01 0x23 0x45 0x0a 0x4d "
           "0x04 0x05'") {
         for (size_t i = 2; i < 9; ++i) {
-          auto data = PF::Util::make_array<uint8_t>(0x01, 0x23, 0x45, 0x0a, 0x4d, 0x04, 0x05);
+          auto data = make_array<uint8_t>(0x01, 0x23, 0x45, 0x0a, 0x4d, 0x04, 0x05);
           REQUIRE(output_buffer.operator[](i) == data[i - 2]);
         }
       }
@@ -349,7 +353,7 @@ SCENARIO(
         REQUIRE(output_buffer.operator[](0) == sequence);
         REQUIRE(output_buffer.operator[](1) == 7);
         for (size_t i = 2; i < 9; ++i) {
-          auto data = PF::Util::make_array<uint8_t>(0x01, 0x23, 0x45, 0x0a, 0x4d, 0x04, 0x05);
+          auto data = make_array<uint8_t>(0x01, 0x23, 0x45, 0x0a, 0x4d, 0x04, 0x05);
           REQUIRE(output_buffer.operator[](i) == data[i - 2]);
         }
       }
@@ -362,12 +366,12 @@ SCENARIO(
     "paylaod buffer and sequence fields from the input_buffer",
     "[Datagram]") {
   constexpr size_t buffer_size = 254UL;
-  using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
-  using TestDatagram = PF::Protocols::Datagram<TestDatagramProps::PayloadBuffer>;
-  using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
+  using TestDatagramProps = Transport::DatagramProps<buffer_size>;
+  using TestDatagram = Transport::Datagram<TestDatagramProps::PayloadBuffer>;
+  using TestDatagramHeaderProps = Transport::DatagramHeaderProps;
 
   TestDatagramProps::PayloadBuffer payload;
-  PF::Util::ByteVector<buffer_size> input_buffer;
+  ByteVector<buffer_size> input_buffer;
   TestDatagramProps::PayloadBuffer expected_buffer;
 
   GIVEN("A Datagram constructed with an empty paylaod and sequence equal to 0") {
@@ -405,7 +409,7 @@ SCENARIO(
         "A body with a complete 2-byte header, and a non-empty paylaod buffer consistent with the "
         "length field of the header is parsed") {
       auto body = std::string("\xb5\x83\x6d\xf6\x1c\xf0\xb1\x58", 8);
-      PF::Util::convert_string_to_byte_vector(body, expected_buffer);
+      convert_string_to_byte_vector(body, expected_buffer);
       input_buffer.push_back(0x01);
       input_buffer.push_back(0x05);
       input_buffer.copy_from(
@@ -447,9 +451,9 @@ SCENARIO(
 
   GIVEN("A Datagram constructed with paylaod a non-empty paylaod buffer and sequence equal to 0") {
     auto data = std::string("\x7e\x9b\x20\x1b\xb9", 5);
-    PF::Util::convert_string_to_byte_vector(data, payload);
+    convert_string_to_byte_vector(data, payload);
     TestDatagram datagram{payload};
-    PF::Util::convert_string_to_byte_vector(data, expected_buffer);
+    convert_string_to_byte_vector(data, expected_buffer);
 
     REQUIRE(datagram.seq() == 0);
     REQUIRE(datagram.length() == 5);
@@ -526,7 +530,7 @@ SCENARIO(
         "A body with a complete 2-byte header, and a non-empty paylaod buffer consistent with the "
         "length field of the header is parsed") {
       auto body = std::string("\xaa\x10\x8d\xf1\x05\x2c\x67\x0d\xa2\x1a", 10);
-      PF::Util::convert_string_to_byte_vector(body, expected_buffer);
+      convert_string_to_byte_vector(body, expected_buffer);
       input_buffer.push_back(0x01);
       input_buffer.push_back(0x05);
       input_buffer.copy_from(
@@ -569,7 +573,7 @@ SCENARIO(
         "A body with a complete 2-byte header, and a non empty payload buffer consistent with the "
         "length field of the header, is altered after it's parsed") {
       auto body = std::string("\x01\x05\x11\x12\x13\x14\x15", 7);
-      PF::Util::convert_string_to_byte_vector(body, expected_buffer);
+      convert_string_to_byte_vector(body, expected_buffer);
       input_buffer.push_back(0x01);
       input_buffer.push_back(0x05);
       input_buffer.copy_from(
@@ -620,7 +624,7 @@ SCENARIO(
     WHEN(
         "A body with a complete 2-byte header, and paylaod buffer as '0x00' consistent with the "
         "length field of the header is parsed") {
-      auto input_data = PF::Util::make_array<uint8_t>(0x00, 0x01, 0x00);
+      auto input_data = make_array<uint8_t>(0x00, 0x01, 0x00);
       for (auto& data : input_data) {
         input_buffer.push_back(data);
       }
@@ -663,7 +667,7 @@ SCENARIO(
         "payload buffer where the length field of the header is inconsistent with the actual "
         "length of the payload buffer") {
       auto body = std::string("\x4b\xb6\x08\x37\x4f\xf9", 6);
-      PF::Util::convert_string_to_byte_vector(body, expected_buffer);
+      convert_string_to_byte_vector(body, expected_buffer);
       input_buffer.push_back(0x00);
       input_buffer.push_back(0x05);
       input_buffer.copy_from(
@@ -711,7 +715,7 @@ SCENARIO(
     WHEN(
         "The parse method is called on a body with sequence field of the header inconsistent with "
         "sequence given in the constructor of the datagram") {
-      auto body = PF::Util::make_array<uint8_t>(0x05, 0x01, 0x01);
+      auto body = make_array<uint8_t>(0x05, 0x01, 0x01);
 
       for (auto& data : body) {
         input_buffer.push_back(data);
@@ -760,26 +764,26 @@ SCENARIO(
 SCENARIO(
     "Protocols: Datagram correctly preserves data in roundtrip writing and parsing", "[Datagram]") {
   constexpr size_t buffer_size = 254UL;
-  using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
-  using TestConstructedDatagram = PF::Protocols::ConstructedDatagram<buffer_size>;
-  using TestParsedDatagram = PF::Protocols::ParsedDatagram<buffer_size>;
-  using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
+  using TestDatagramProps = Transport::DatagramProps<buffer_size>;
+  using TestConstructedDatagram = Transport::ConstructedDatagram<buffer_size>;
+  using TestParsedDatagram = Transport::ParsedDatagram<buffer_size>;
+  using TestDatagramHeaderProps = Transport::DatagramHeaderProps;
 
-  PF::Util::ByteVector<buffer_size> output_buffer;
+  ByteVector<buffer_size> output_buffer;
   GIVEN("A datagram constructed with an non-empty payload buffer and a non-zero sequence number") {
     TestDatagramProps::PayloadBuffer input_payload;
     auto body = std::string("\x61\x6a\x1a\x6a\x29\xcf\x01\x81\xbe\x9d", 10);
-    PF::Util::convert_string_to_byte_vector(body, input_payload);
+    convert_string_to_byte_vector(body, input_payload);
     TestConstructedDatagram datagram(input_payload, 1);
 
     TestDatagramProps::PayloadBuffer parsed_payload;
-    PF::Util::ByteVector<buffer_size> expected_buffer;
+    ByteVector<buffer_size> expected_buffer;
     TestParsedDatagram parsed_datagram(parsed_payload);
 
     WHEN(
         "A body with seq, length and payload is generated, parsed into a new ParsedDatagram "
         "object, and generated again with a ConstructedDatagram object") {
-      PF::Util::ByteVector<buffer_size> first_body_output;
+      ByteVector<buffer_size> first_body_output;
       auto write_status = datagram.write(first_body_output);
 
       THEN("The first write method reports ok status") {
@@ -815,8 +819,8 @@ SCENARIO(
           "The body's payload section correctly stores the paylaod as '0x61 0x6a 0x1a 0x6a 0x29 "
           "0xcf 0x01 0x81 0xbe 0x9d'") {
         for (size_t i = 2; i < 10; ++i) {
-          auto data = PF::Util::make_array<uint8_t>(
-              0x61, 0x6a, 0x1a, 0x6a, 0x29, 0xcf, 0x01, 0x81, 0xbe, 0x9d);
+          auto data =
+              make_array<uint8_t>(0x61, 0x6a, 0x1a, 0x6a, 0x29, 0xcf, 0x01, 0x81, 0xbe, 0x9d);
           REQUIRE(first_body_output.operator[](i) == data[i - 2]);
         }
       }
@@ -855,7 +859,7 @@ SCENARIO(
       // Write
       TestConstructedDatagram write_datagram(parsed_datagram.payload(), 1);
 
-      PF::Util::ByteVector<buffer_size> second_body_output;
+      ByteVector<buffer_size> second_body_output;
       auto final_status = write_datagram.write(second_body_output);
       THEN("The second write method reports ok status") {
         REQUIRE(final_status == PF::IndexStatus::ok);
@@ -889,8 +893,8 @@ SCENARIO(
           "The body's payload section correctly stores the paylaod as '0x56 0xd6 0x42 0xc5 0xe1 "
           "0xf0 0x30 0xe5 0xc8 0x4d'") {
         for (size_t i = 2; i < 10; ++i) {
-          auto data = PF::Util::make_array<uint8_t>(
-              0x61, 0x6a, 0x1a, 0x6a, 0x29, 0xcf, 0x01, 0x81, 0xbe, 0x9d);
+          auto data =
+              make_array<uint8_t>(0x61, 0x6a, 0x1a, 0x6a, 0x29, 0xcf, 0x01, 0x81, 0xbe, 0x9d);
           REQUIRE(second_body_output.operator[](i) == data[i - 2]);
         }
       }
@@ -908,14 +912,14 @@ SCENARIO(
     "checking on them",
     "[DatagramReceiver]") {
   constexpr size_t buffer_size = 254UL;
-  using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
-  using TestDatagram = PF::Protocols::Datagram<TestDatagramProps::PayloadBuffer>;
-  using TestDatagramReceiver = PF::Protocols::DatagramReceiver<buffer_size>;
-  using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
+  using TestDatagramProps = Transport::DatagramProps<buffer_size>;
+  using TestDatagram = Transport::Datagram<TestDatagramProps::PayloadBuffer>;
+  using TestDatagramReceiver = Transport::DatagramReceiver<buffer_size>;
+  using TestDatagramHeaderProps = Transport::DatagramHeaderProps;
 
   TestDatagramProps::PayloadBuffer payload;
   TestDatagramReceiver datagram_receiver{};
-  PF::Util::ByteVector<buffer_size> input_buffer;
+  ByteVector<buffer_size> input_buffer;
 
   GIVEN(
       "A Datagram receiver of buffer size 254 bytes and expected sequence number equal to 0, with "
@@ -1009,7 +1013,7 @@ SCENARIO(
         "transform is called on a body with a complete 2-byte header, and a non-empty paylaod "
         "buffer inconsistent with the length field of the header") {
       auto expected_payload = std::string("\xaa\xd1\x64\xa8\x85\xf4", 6);
-      PF::Util::convert_string_to_byte_vector(expected_payload, expected_buffer);
+      convert_string_to_byte_vector(expected_payload, expected_buffer);
       input_buffer.push_back(0x00);
       input_buffer.push_back(0x05);
       input_buffer.copy_from(
@@ -1062,7 +1066,7 @@ SCENARIO(
         "header where the sequence field of the header does not match sequence given in "
         "output_datagram's constructor") {
       auto body = std::string("\x5f\xee\x40\xeb\x41\x6e", 6);
-      PF::Util::convert_string_to_byte_vector(body, expected_buffer);
+      convert_string_to_byte_vector(body, expected_buffer);
       input_buffer.push_back(0x04);
       input_buffer.push_back(0x06);
 
@@ -1111,8 +1115,8 @@ SCENARIO(
         "length field of the header is given to the receiver") {
       auto body = std::string("\xec\x1f\xa9\x9a\x75", 5);
 
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, expected_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, expected_buffer);
       input_buffer.push_back(0x00);
       input_buffer.push_back(0x05);
       input_buffer.copy_from(
@@ -1160,7 +1164,7 @@ SCENARIO(
       "A Datagram receiver of buffer size 254 bytes and expected sequence number equal to 0, with "
       "output_datagram constructed with a non-empty payload buffer") {
     auto body = std::string("\x51\xb0\x6e\xf7\x86\x71\xcd\x00", 8);
-    PF::Util::convert_string_to_byte_vector(body, payload);
+    convert_string_to_byte_vector(body, payload);
     TestDatagramProps::PayloadBuffer expected_buffer;
     expected_buffer.copy_from(payload.buffer(), payload.size(), 0);
 
@@ -1209,7 +1213,7 @@ SCENARIO(
         "A body with a complete 2-byte header, and a non-empty paylaod buffer inconsistent with "
         "the length field of the header") {
       auto body = std::string("\x00\x05\xaa\xd1\x64\xa8\x85\xf4", 8);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
       auto transform_status = datagram_receiver.transform(input_buffer, datagram);
 
       THEN("The transform method reports invalid length status") {
@@ -1239,7 +1243,7 @@ SCENARIO(
         "output_datagram's constructor") {
       expected_buffer.clear();
       auto expected_payload = std::string("\x5f\xee\x40\xeb\x41\x6e", 6);
-      PF::Util::convert_string_to_byte_vector(expected_payload, expected_buffer);
+      convert_string_to_byte_vector(expected_payload, expected_buffer);
       input_buffer.push_back(0x04);
       input_buffer.push_back(0x06);
       input_buffer.copy_from(
@@ -1287,7 +1291,7 @@ SCENARIO(
         "length field of the header is given to the receiver") {
       expected_buffer.clear();
       auto body = std::string("\x23\xce\xb3\x32\xca\x33\xa0\x97\x17\x2a\x2b\x85", 12);
-      PF::Util::convert_string_to_byte_vector(body, expected_buffer);
+      convert_string_to_byte_vector(body, expected_buffer);
 
       input_buffer.push_back(0x00);
       input_buffer.push_back(0x0c);
@@ -1338,12 +1342,12 @@ SCENARIO(
     "expected sequence number",
     "[DatagramReceiver]") {
   constexpr size_t buffer_size = 254UL;
-  using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
-  using TestDatagram = PF::Protocols::Datagram<TestDatagramProps::PayloadBuffer>;
-  using TestDatagramReceiver = PF::Protocols::DatagramReceiver<buffer_size>;
+  using TestDatagramProps = Transport::DatagramProps<buffer_size>;
+  using TestDatagram = Transport::Datagram<TestDatagramProps::PayloadBuffer>;
+  using TestDatagramReceiver = Transport::DatagramReceiver<buffer_size>;
   TestDatagramProps::PayloadBuffer payload;
   TestDatagramReceiver datagram_receiver{};
-  PF::Util::ByteVector<buffer_size> input_buffer;
+  ByteVector<buffer_size> input_buffer;
 
   GIVEN("A Datagram receiver of buffer size 254 bytes and expected sequence number equal to 0") {
     TestDatagram datagram{payload};
@@ -1353,8 +1357,7 @@ SCENARIO(
         "sequence numbers incrementing from 0 to 255") {
       int sequence = 0;
       do {
-        auto data =
-            PF::Util::make_array<uint8_t>(sequence, 0x07, 0xaf, 0xa2, 0xf5, 0xc4, 0x55, 0xb4, 0x68);
+        auto data = make_array<uint8_t>(sequence, 0x07, 0xaf, 0xa2, 0xf5, 0xc4, 0x55, 0xb4, 0x68);
         for (size_t i = 0; i < 9; ++i) {
           input_buffer.push_back(data[i]);
         }
@@ -1389,7 +1392,7 @@ SCENARIO(
     TestDatagram datagram{payload};
 
     auto body = std::string("\x00\x07\x48\x17\xb8\x67\x1c\x45\x28", 9);
-    PF::Util::convert_string_to_byte_vector(body, input_buffer);
+    convert_string_to_byte_vector(body, input_buffer);
 
     auto expected_payload = std::string("\x48\x17\xb8\x67\x1c\x45\x28", 7);
 
@@ -1402,8 +1405,8 @@ SCENARIO(
     WHEN("2 input buffers with a value of sequence in their headers as 1 and 2 respectively") {
       auto body = std::string("\x01\x04\xc8\x8d\xdf\x84", 6);
 
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto transform_status = datagram_receiver.transform(input_buffer, datagram);
 
@@ -1423,8 +1426,8 @@ SCENARIO(
       }
 
       auto data = std::string("\x02\x05\x82\x93\xc8\x5f\x60", 7);
-      PF::Util::ByteVector<buffer_size> buffer;
-      PF::Util::convert_string_to_byte_vector(data, buffer);
+      ByteVector<buffer_size> buffer;
+      convert_string_to_byte_vector(data, buffer);
 
       auto final_transform = datagram_receiver.transform(buffer, datagram);
       THEN("The second transform method reports ok status") {
@@ -1449,8 +1452,8 @@ SCENARIO(
         "sequence numbers as 2 & 3 respectively") {
       auto body = std::string("\x02\x06\xdc\x53\x54\xeb\x12\xbd", 8);
 
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto transform_status = datagram_receiver.transform(input_buffer, datagram);
 
@@ -1470,8 +1473,8 @@ SCENARIO(
       }
 
       auto data = std::string("\x03\x07\x76\x36\xd3\x7b\xb4\x59\x20", 9);
-      PF::Util::ByteVector<buffer_size> buffer;
-      PF::Util::convert_string_to_byte_vector(data, buffer);
+      ByteVector<buffer_size> buffer;
+      convert_string_to_byte_vector(data, buffer);
 
       auto final_status = datagram_receiver.transform(buffer, datagram);
       THEN("The second transform method reports ok status") {
@@ -1496,8 +1499,8 @@ SCENARIO(
         "sequence numbers as 0xff & 0 respectively") {
       auto body = std::string("\xff\x0a\x30\xbe\xbd\x5c\x64\xa9\xdc\xd2\xde\x4b", 12);
 
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto transform_status = datagram_receiver.transform(input_buffer, datagram);
 
@@ -1517,8 +1520,8 @@ SCENARIO(
       }
 
       auto data = std::string("\x00\x09\xfc\x60\x67\x98\xa6\xf6\xac\xd3\x8e", 11);
-      PF::Util::ByteVector<buffer_size> buffer;
-      PF::Util::convert_string_to_byte_vector(data, buffer);
+      ByteVector<buffer_size> buffer;
+      convert_string_to_byte_vector(data, buffer);
 
       auto final_status = datagram_receiver.transform(buffer, datagram);
       THEN("The second transform method reports ok status") {
@@ -1543,8 +1546,8 @@ SCENARIO(
         "have sequence numbers as 1, 10 & 11 respectively") {
       auto body = std::string("\x01\x05\xf8\xa4\xdd\x84\x62", 7);
 
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto first_transform = datagram_receiver.transform(input_buffer, datagram);
 
@@ -1564,8 +1567,8 @@ SCENARIO(
       }
 
       auto data = std::string("\x0a\x05\xb5\xfb\xca\x82\xf2", 7);
-      PF::Util::ByteVector<buffer_size> buffer;
-      PF::Util::convert_string_to_byte_vector(data, buffer);
+      ByteVector<buffer_size> buffer;
+      convert_string_to_byte_vector(data, buffer);
 
       auto second_transform = datagram_receiver.transform(buffer, datagram);
       THEN("The second transform method reports invalid_sequence status") {
@@ -1585,8 +1588,8 @@ SCENARIO(
       }
 
       auto input_data = std::string("\x0b\x05\x8b\xf2\x59\x90\x48", 7);
-      PF::Util::ByteVector<buffer_size> final_buffer;
-      PF::Util::convert_string_to_byte_vector(input_data, final_buffer);
+      ByteVector<buffer_size> final_buffer;
+      convert_string_to_byte_vector(input_data, final_buffer);
 
       auto final_transform = datagram_receiver.transform(final_buffer, datagram);
       THEN("The third transform method reports ok status") {
@@ -1607,11 +1610,11 @@ SCENARIO(
   }
 
   GIVEN("A Datagram receiver of buffer size 254 bytes and expected sequence number equal to 0xff") {
-    using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
+    using TestDatagramHeaderProps = Transport::DatagramHeaderProps;
     TestDatagram datagram{payload};
     auto expected_payload = std::string("\xcd\x6a\xc2\x7f\xa1\x5b", 6);
     TestDatagramProps::PayloadBuffer expected_buffer;
-    PF::Util::convert_string_to_byte_vector(expected_payload, expected_buffer);
+    convert_string_to_byte_vector(expected_payload, expected_buffer);
     input_buffer.push_back(0xfe);
     input_buffer.push_back(0x06);
     input_buffer.copy_from(
@@ -1628,8 +1631,8 @@ SCENARIO(
         "as 0xff & 0 respectively") {
       auto body = std::string("\xff\x06\xfa\x5b\x28\x1a\x4b\x9d", 8);
 
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto transform_status = datagram_receiver.transform(input_buffer, datagram);
 
@@ -1649,8 +1652,8 @@ SCENARIO(
       }
 
       auto input_data = std::string("\x00\x06\xab\xda\x26\x64\x47\x9f", 8);
-      PF::Util::ByteVector<buffer_size> final_buffer;
-      PF::Util::convert_string_to_byte_vector(input_data, final_buffer);
+      ByteVector<buffer_size> final_buffer;
+      convert_string_to_byte_vector(input_data, final_buffer);
 
       auto final_transform = datagram_receiver.transform(final_buffer, datagram);
       THEN("The second transform method reports ok status") {
@@ -1675,8 +1678,8 @@ SCENARIO(
         "as 0xff & 1 respectively") {
       auto body = std::string("\xff\x06\xdc\x48\x24\x93\xab\xbc", 8);
 
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto transform_status = datagram_receiver.transform(input_buffer, datagram);
 
@@ -1696,8 +1699,8 @@ SCENARIO(
       }
 
       auto input_data = std::string("\x01\x06\x43\xb9\x66\x28\xdf\x3d", 8);
-      PF::Util::ByteVector<buffer_size> final_buffer;
-      PF::Util::convert_string_to_byte_vector(input_data, final_buffer);
+      ByteVector<buffer_size> final_buffer;
+      convert_string_to_byte_vector(input_data, final_buffer);
 
       auto final_transform = datagram_receiver.transform(final_buffer, datagram);
       THEN("The second transform method reports invalid_sequence status") {
@@ -1723,21 +1726,21 @@ SCENARIO(
     "Protocols::Datagram Sender correctly generates datagram bodies from payloads",
     "[DatagramSender]") {
   constexpr size_t buffer_size = 254UL;
-  using TestDatagramSender = PF::Protocols::DatagramSender<buffer_size>;
-  using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
+  using TestDatagramSender = Transport::DatagramSender<buffer_size>;
+  using TestDatagramHeaderProps = Transport::DatagramHeaderProps;
   TestDatagramSender datagram_sender{};
 
   GIVEN("A Datagram sender of buffer size 254 bytes with next sequence equal to 0") {
     WHEN("A non empty payload buffer is given to the datagram sender") {
-      using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
+      using TestDatagramProps = Transport::DatagramProps<buffer_size>;
       TestDatagramProps::PayloadBuffer payload;
-      PF::Util::ByteVector<buffer_size> expected_buffer;
+      ByteVector<buffer_size> expected_buffer;
 
       auto data = std::string("\xf9\x23\x4a\xd4\xe0", 5);
 
-      PF::Util::convert_string_to_byte_vector(data, payload);
+      convert_string_to_byte_vector(data, payload);
 
-      PF::Util::ByteVector<buffer_size> output_datagram;
+      ByteVector<buffer_size> output_datagram;
       auto transform_status = datagram_sender.transform(payload, output_datagram);
 
       THEN("The transform method reports ok") {
@@ -1752,7 +1755,7 @@ SCENARIO(
       THEN(
           "The body's payload section correctly stores the paylaod as '0xf9 0x23 0x4a 0xd4 0xe0'") {
         for (size_t i = 2; i < 7; ++i) {
-          auto data = PF::Util::make_array<uint8_t>(0xf9, 0x23, 0x4a, 0xd4, 0xe0);
+          auto data = make_array<uint8_t>(0xf9, 0x23, 0x4a, 0xd4, 0xe0);
           REQUIRE(output_datagram.operator[](i) == data[i - 2]);
         }
       }
@@ -1766,21 +1769,21 @@ SCENARIO(
     }
 
     WHEN("The input payload to the transform method is '0x00 0x00'") {
-      using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
+      using TestDatagramProps = Transport::DatagramProps<buffer_size>;
 
       auto data = std::string("\x00\x00", 2);
 
       TestDatagramProps::PayloadBuffer payload;
-      PF::Util::convert_string_to_byte_vector(data, payload);
+      convert_string_to_byte_vector(data, payload);
 
-      PF::Util::ByteVector<buffer_size> output_datagram;
+      ByteVector<buffer_size> output_datagram;
 
       auto transform_status = datagram_sender.transform(payload, output_datagram);
       THEN("The transform method reports ok status") {
         REQUIRE(transform_status == TestDatagramSender::Status::ok);
       }
       THEN("The output datagram is as expected '0x00 0x02 0x00 0x00' ") {
-        PF::Util::ByteVector<buffer_size> expected;
+        ByteVector<buffer_size> expected;
         expected.push_back(0x00);
         expected.push_back(0x02);
         expected.copy_from(
@@ -1796,17 +1799,17 @@ SCENARIO(
     "number",
     "[DatagramSender]") {
   constexpr size_t buffer_size = 254UL;
-  using TestDatagramProps = PF::Protocols::DatagramProps<buffer_size>;
-  using TestDatagramSender = PF::Protocols::DatagramSender<buffer_size>;
-  using TestDatagramHeaderProps = PF::Protocols::DatagramHeaderProps;
+  using TestDatagramProps = Transport::DatagramProps<buffer_size>;
+  using TestDatagramSender = Transport::DatagramSender<buffer_size>;
+  using TestDatagramHeaderProps = Transport::DatagramHeaderProps;
   TestDatagramSender datagram_sender{};
 
   GIVEN("A Datagram sender of buffer size 254 bytes with next sequence equal to 1") {
     auto data = std::string("\x88\xf3\x52\xec\x5c\x31", 6);
     TestDatagramProps::PayloadBuffer payload;
-    PF::Util::convert_string_to_byte_vector(data, payload);
+    convert_string_to_byte_vector(data, payload);
 
-    PF::Util::ByteVector<buffer_size> output_datagram;
+    ByteVector<buffer_size> output_datagram;
     auto transform_status = datagram_sender.transform(payload, output_datagram);
     REQUIRE(transform_status == TestDatagramSender::Status::ok);
 
@@ -1826,12 +1829,12 @@ SCENARIO(
           "The body's payload section correctly stores the paylaod as '0x88 0xf3 0x52 0xec 0x5c "
           "0x31'") {
         for (size_t i = 2; i < 8; ++i) {
-          auto data = PF::Util::make_array<uint8_t>(0x88, 0xf3, 0x52, 0xec, 0x5c, 0x31);
+          auto data = make_array<uint8_t>(0x88, 0xf3, 0x52, 0xec, 0x5c, 0x31);
           REQUIRE(output_datagram.operator[](i) == data[i - 2]);
         }
       }
       THEN("The output datagram is as expected '0x01 0x06 0x88 0xf3 0x52 0xec 0x5c 0x31 ' ") {
-        PF::Util::ByteVector<buffer_size> expected;
+        ByteVector<buffer_size> expected;
         expected.push_back(0x01);
         expected.push_back(0x06);
         expected.copy_from(
@@ -1842,7 +1845,7 @@ SCENARIO(
       auto input_data = std::string("\x1d\xf5\x2a\xbc\x97\x2c", 6);
 
       TestDatagramProps::PayloadBuffer input_payload;
-      PF::Util::convert_string_to_byte_vector(input_data, input_payload);
+      convert_string_to_byte_vector(input_data, input_payload);
 
       auto final_status = datagram_sender.transform(input_payload, output_datagram);
       THEN("The transform method reports ok status") {
@@ -1858,12 +1861,12 @@ SCENARIO(
           "The body's payload section correctly stores the paylaod as '0x1d 0xf5 0x2a 0xbc 0x97 "
           "0x2c'") {
         for (size_t i = 2; i < 8; ++i) {
-          auto data = PF::Util::make_array<uint8_t>(0x1d, 0xf5, 0x2a, 0xbc, 0x97, 0x2c);
+          auto data = make_array<uint8_t>(0x1d, 0xf5, 0x2a, 0xbc, 0x97, 0x2c);
           REQUIRE(output_datagram.operator[](i) == data[i - 2]);
         }
       }
       THEN("The output datagram is as expected '0x02 0x06 0x1d 0xf5 0x2a 0xbc 0x97 0x2c' ") {
-        PF::Util::ByteVector<buffer_size> expected;
+        ByteVector<buffer_size> expected;
         expected.push_back(0x02);
         expected.push_back(0x06);
         expected.copy_from(
@@ -1878,9 +1881,9 @@ SCENARIO(
       auto data = std::string("\xc0\x18\x65\xd1\x03\x5c", 6);
 
       TestDatagramProps::PayloadBuffer payload;
-      PF::Util::convert_string_to_byte_vector(data, payload);
+      convert_string_to_byte_vector(data, payload);
 
-      PF::Util::ByteVector<buffer_size> output_datagram;
+      ByteVector<buffer_size> output_datagram;
 
       auto transform_status = datagram_sender.transform(payload, output_datagram);
       THEN("The transform method reports ok status") {
@@ -1896,12 +1899,12 @@ SCENARIO(
           "The body's payload section correctly stores the paylaod as '0xc0 0x18 0x65 0xd1 0x03 "
           "0x5c'") {
         for (size_t i = 2; i < 8; ++i) {
-          auto data = PF::Util::make_array<uint8_t>(0xc0, 0x18, 0x65, 0xd1, 0x03, 0x5c);
+          auto data = make_array<uint8_t>(0xc0, 0x18, 0x65, 0xd1, 0x03, 0x5c);
           REQUIRE(output_datagram.operator[](i) == data[i - 2]);
         }
       }
       THEN("The output datagram is as expected '0x00 0x06 0xc0 0x18 0x65 0xd1 0x03 0x5c' ") {
-        PF::Util::ByteVector<buffer_size> expected;
+        ByteVector<buffer_size> expected;
         expected.push_back(0x00);
         expected.push_back(0x06);
         expected.copy_from(
@@ -1912,7 +1915,7 @@ SCENARIO(
       auto input_data = std::string("\x6b\x05\xb9\xf3\xe5\xb6", 6);
 
       TestDatagramProps::PayloadBuffer input_payload;
-      PF::Util::convert_string_to_byte_vector(input_data, input_payload);
+      convert_string_to_byte_vector(input_data, input_payload);
 
       auto final_status = datagram_sender.transform(input_payload, output_datagram);
       THEN("The transform method reports ok status") {
@@ -1928,12 +1931,12 @@ SCENARIO(
           "The body's payload section correctly stores the paylaod as '0x6b 0x05 0xb9 0xf3 0xe5 "
           "0xb6'") {
         for (size_t i = 2; i < 8; ++i) {
-          auto data = PF::Util::make_array<uint8_t>(0x6b, 0x05, 0xb9, 0xf3, 0xe5, 0xb6);
+          auto data = make_array<uint8_t>(0x6b, 0x05, 0xb9, 0xf3, 0xe5, 0xb6);
           REQUIRE(output_datagram.operator[](i) == data[i - 2]);
         }
       }
       THEN("The output datagram is as expected '0x01 0x06 0x6b 0x05 0xb9 0xf3 0xe5 0xb6' ") {
-        PF::Util::ByteVector<buffer_size> expected;
+        ByteVector<buffer_size> expected;
         expected.push_back(0x01);
         expected.push_back(0x06);
         expected.copy_from(
@@ -1946,9 +1949,9 @@ SCENARIO(
   GIVEN("A Datagram sender of buffer size 254 bytes with next sequence equal to 0xff") {
     auto data = std::string("\xa0\x47\x65\x6b\x20\xe9", 6);
     TestDatagramProps::PayloadBuffer payload;
-    PF::Util::convert_string_to_byte_vector(data, payload);
+    convert_string_to_byte_vector(data, payload);
 
-    PF::Util::ByteVector<buffer_size> output_datagram;
+    ByteVector<buffer_size> output_datagram;
     int i = 0;
     do {
       auto transform_status = datagram_sender.transform(payload, output_datagram);
@@ -1972,12 +1975,12 @@ SCENARIO(
           "The body's payload section correctly stores the paylaod as '0xa0 0x47 0x65 0x6b 0x20 "
           "0xe9'") {
         for (size_t i = 2; i < 8; ++i) {
-          auto data = PF::Util::make_array<uint8_t>(0xa0, 0x47, 0x65, 0x6b, 0x20, 0xe9);
+          auto data = make_array<uint8_t>(0xa0, 0x47, 0x65, 0x6b, 0x20, 0xe9);
           REQUIRE(output_datagram.operator[](i) == data[i - 2]);
         }
       }
       THEN("The output datagram is as expected '0xff 0x06 0xa0 0x47 0x65 0x6b 0x20 0xe9' ") {
-        PF::Util::ByteVector<buffer_size> expected;
+        ByteVector<buffer_size> expected;
         expected.push_back(0xff);
         expected.push_back(0x06);
         expected.copy_from(
@@ -1988,7 +1991,7 @@ SCENARIO(
       auto input_data = std::string("\x51\xb5\x55\x69\x8f\x67", 6);
 
       TestDatagramProps::PayloadBuffer input_payload;
-      PF::Util::convert_string_to_byte_vector(input_data, input_payload);
+      convert_string_to_byte_vector(input_data, input_payload);
 
       auto final_status = datagram_sender.transform(input_payload, output_datagram);
       THEN("The transform method reports ok status") {
@@ -2004,12 +2007,12 @@ SCENARIO(
           "The body's payload section correctly stores the paylaod as '0x51 0xb5 0x55 0x69 0x8f "
           "0x67'") {
         for (size_t i = 2; i < 8; ++i) {
-          auto data = PF::Util::make_array<uint8_t>(0x51, 0xb5, 0x55, 0x69, 0x8f, 0x67);
+          auto data = make_array<uint8_t>(0x51, 0xb5, 0x55, 0x69, 0x8f, 0x67);
           REQUIRE(output_datagram.operator[](i) == data[i - 2]);
         }
       }
       THEN("The output datagram is as expected '0x00 0x06 0x51 0xb5 0x55 0x69 0x8f 0x67' ") {
-        PF::Util::ByteVector<buffer_size> expected;
+        ByteVector<buffer_size> expected;
         expected.push_back(0x00);
         expected.push_back(0x06);
         expected.copy_from(

@@ -34,7 +34,7 @@ class Debouncer {
 
  private:
   const uint8_t max_integrator_samples = 100;
-  const uint32_t sampling_interval = 10;        // ms
+  const uint32_t sampling_interval = 10;          // ms
   const uint32_t allowed_bounce_duration = 2000;  // ms
 
   uint8_t integrator_ = 0;

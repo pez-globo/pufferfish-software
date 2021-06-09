@@ -10,28 +10,33 @@
  *
  */
 
-#include "Pufferfish/Protocols/CRCElements.h"
+#include "Pufferfish/Protocols/Transport/CRCElements.h"
 
 #include "Pufferfish/HAL/CRCChecker.h"
 #include "Pufferfish/Test/Util.h"
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 #include "Pufferfish/Util/Endian.h"
 #include "catch2/catch.hpp"
+
 namespace PF = Pufferfish;
+namespace Transport = PF::Protocols::Transport;
+using PF::Util::Containers::ByteVector;
+using PF::Util::Containers::convert_string_to_byte_vector;
+using PF::Util::Containers::make_array;
 
 SCENARIO(
     "Protocols::CRCElement: The compute_body_crc method correctly computes the CRC of a payload "
     "from a CRCElement body given as input",
     "[CRCElement]") {
   constexpr size_t buffer_size = 254UL;
-  using TestCRCElementProps = PF::Protocols::CRCElementProps<buffer_size>;
-  using TestCRCElement = PF::Protocols::CRCElement<TestCRCElementProps::PayloadBuffer>;
-  using TestCRCElementHeaderProps = PF::Protocols::CRCElementHeaderProps;
+  using TestCRCElementProps = Transport::CRCElementProps<buffer_size>;
+  using TestCRCElement = Transport::CRCElement<TestCRCElementProps::PayloadBuffer>;
+  using TestCRCElementHeaderProps = Transport::CRCElementHeaderProps;
 
   PF::HAL::SoftCRC32 crc32c{PF::HAL::crc32c_params};
   GIVEN("The CRCElement::compute_body_crc static method") {
     WHEN("The compute_body_crc is called on an input_buffer body with an empty payload") {
-      PF::Util::ByteVector<buffer_size> buffer;
+      ByteVector<buffer_size> buffer;
       TestCRCElementProps::PayloadBuffer input_payload;
 
       buffer.copy_from(
@@ -53,7 +58,7 @@ SCENARIO(
         input_payload.push_back(ch);
       }
 
-      PF::Util::ByteVector<buffer_size> buffer;
+      ByteVector<buffer_size> buffer;
       buffer.resize(TestCRCElementHeaderProps::header_size + input_payload.size());
       buffer.copy_from(
           input_payload.buffer(), input_payload.size(), TestCRCElementHeaderProps::payload_offset);
@@ -71,7 +76,7 @@ SCENARIO(
       TestCRCElementProps::PayloadBuffer input_payload;
       input_payload.push_back(0x00);
 
-      PF::Util::ByteVector<buffer_size> buffer;
+      ByteVector<buffer_size> buffer;
       buffer.resize(TestCRCElementHeaderProps::header_size + input_payload.size());
       buffer.copy_from(
           input_payload.buffer(), input_payload.size(), TestCRCElementHeaderProps::payload_offset);
@@ -89,7 +94,7 @@ SCENARIO(
       TestCRCElementProps::PayloadBuffer input_payload;
       input_payload.push_back(0x01);
 
-      PF::Util::ByteVector<buffer_size> buffer;
+      ByteVector<buffer_size> buffer;
 
       buffer.resize(TestCRCElementHeaderProps::header_size + input_payload.size());
       buffer.copy_from(
@@ -111,21 +116,21 @@ SCENARIO(
     "payload given in the constructor",
     "[CRCElement]") {
   constexpr size_t buffer_size = 254UL;
-  using TestCRCElementProps = PF::Protocols::CRCElementProps<buffer_size>;
-  using TestConstructedCRCElement = PF::Protocols::ConstructedCRCElement<buffer_size>;
-  using TestCRCElementHeaderProps = PF::Protocols::CRCElementHeaderProps;
+  using TestCRCElementProps = Transport::CRCElementProps<buffer_size>;
+  using TestConstructedCRCElement = Transport::ConstructedCRCElement<buffer_size>;
+  using TestCRCElementHeaderProps = Transport::CRCElementHeaderProps;
 
   PF::HAL::SoftCRC32 crc32c{PF::HAL::crc32c_params};
   GIVEN("A crc element constructed with payload=[0x01, 0x02, 0x05]") {
     TestCRCElementProps::PayloadBuffer input_payload;
-    auto data = PF::Util::make_array<uint8_t>(0x01, 0x02, 0x05);
+    auto data = make_array<uint8_t>(0x01, 0x02, 0x05);
     for (auto& bytes : data) {
       input_payload.push_back(bytes);
     }
 
     TestConstructedCRCElement crc_element{input_payload};
     WHEN("The crc and payload are written to the output buffer") {
-      PF::Util::ByteVector<buffer_size> output_buffer;
+      ByteVector<buffer_size> output_buffer;
 
       THEN("the crc accessor method returns 0 before the write method is called") {
         REQUIRE(crc_element.crc() == 0x00000000);
@@ -163,7 +168,7 @@ SCENARIO(
     TestCRCElementProps::PayloadBuffer input_payload;
     TestConstructedCRCElement crc_element{input_payload};
     WHEN("The crc and payload are written to the output buffer") {
-      PF::Util::ByteVector<buffer_size> output_buffer;
+      ByteVector<buffer_size> output_buffer;
       THEN("the crc accessor method returns 0 before the write method is called") {
         uint32_t expected = 0x00000000;
         REQUIRE(crc_element.crc() == expected);
@@ -183,7 +188,7 @@ SCENARIO(
       }
       THEN("The body's payload section is empty") {
         constexpr size_t payload_size = 250UL;
-        PF::Util::ByteVector<payload_size> expected;
+        ByteVector<payload_size> expected;
         REQUIRE(crc_element.payload() == expected);
       }
       THEN("The output buffer is as expected") {
@@ -199,8 +204,8 @@ SCENARIO(
     "constructor's payload buffer from the input buffer",
     "[CRCElement]") {
   constexpr size_t buffer_size = 254UL;
-  using TestCRCElementProps = PF::Protocols::CRCElementProps<buffer_size>;
-  using TestCRCElement = PF::Protocols::CRCElement<TestCRCElementProps::PayloadBuffer>;
+  using TestCRCElementProps = Transport::CRCElementProps<buffer_size>;
+  using TestCRCElement = Transport::CRCElement<TestCRCElementProps::PayloadBuffer>;
   PF::HAL::SoftCRC32 crc32c{PF::HAL::crc32c_params};
 
   GIVEN("A CRCElement constructed with an empty payload buffer with a capacity of 254 bytes") {
@@ -215,8 +220,8 @@ SCENARIO(
     WHEN("A body without a complete 4-byte header is parsed") {
       auto body = std::string("\x98\xdb\xe3", 3);
 
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto parse_status = crc_element.parse(input_buffer);
 
@@ -238,8 +243,8 @@ SCENARIO(
         "header, is parsed") {
       auto body = std::string("\x98\xdb\xe3\x55\x01\x05\x01\x02\x03\x04\x05", 11);
 
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto parse_status = crc_element.parse(input_buffer);
 
@@ -280,8 +285,8 @@ SCENARIO(
         "the header, is parsed") {
       auto body = std::string("\x12\x34\x56\x78\x03\x04\x00\xed\x30\x00", 10);
 
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto parse_status = crc_element.parse(input_buffer);
 
@@ -325,7 +330,7 @@ SCENARIO(
   GIVEN("A CRCElement constructed with a non-empty payload buffer of capacity 254 bytes") {
     TestCRCElementProps::PayloadBuffer payload;
     auto data = std::string("\x12\x13\x14\x15\x16", 5);
-    PF::Util::convert_string_to_byte_vector(data, payload);
+    convert_string_to_byte_vector(data, payload);
 
     TestCRCElement crc_element{payload};
 
@@ -335,8 +340,8 @@ SCENARIO(
     WHEN("A body without a complete 4-byte header is parsed") {
       auto body = std::string("\x98\xdb\xe3", 3);
 
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto parse_status = crc_element.parse(input_buffer);
 
@@ -368,8 +373,8 @@ SCENARIO(
         "header, is parsed") {
       auto body = std::string("\x2B\x01\xD0\x2C\x01\x06\x11\x22\x33\x44\x55\x66", 12);
 
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto parse_status = crc_element.parse(input_buffer);
 
@@ -411,11 +416,11 @@ SCENARIO(
       "non-zero crc member") {
     TestCRCElementProps::PayloadBuffer payload;
     auto data = std::string("\x0d\xf0\x07\xc3\xac", 5);
-    PF::Util::convert_string_to_byte_vector(data, payload);
+    convert_string_to_byte_vector(data, payload);
 
     TestCRCElement crc_element{payload};
 
-    PF::Util::ByteVector<buffer_size> output_buffer;
+    ByteVector<buffer_size> output_buffer;
     crc_element.write(output_buffer, crc32c);
 
     uint32_t expected_crc = 0x34CD15AD;
@@ -424,8 +429,8 @@ SCENARIO(
     WHEN("A body without a complete 4-byte header is parsed") {
       auto body = std::string("\x16\xbb\x77", 3);
 
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto parse_status = crc_element.parse(input_buffer);
 
@@ -449,8 +454,8 @@ SCENARIO(
         "header, is parsed") {
       auto body = std::string("\x1D\x83\x2D\x11\x40\xbe\x37\xcb\xac\x15\x4b\xd5", 12);
 
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto parse_status = crc_element.parse(input_buffer);
       THEN("the parse method reports ok status") { REQUIRE(parse_status == PF::IndexStatus::ok); }
@@ -491,13 +496,13 @@ SCENARIO(
 SCENARIO("Protocols::CRCElement: correctly preserves data in roundtrip writing and parsing") {
   GIVEN("A CRC Element constructed with a non empty payload buffer with a capacity of 254 bytes") {
     constexpr size_t buffer_size = 254UL;
-    using TestCRCElementProps = PF::Protocols::CRCElementProps<buffer_size>;
-    using TestCRCElement = PF::Protocols::CRCElement<TestCRCElementProps::PayloadBuffer>;
-    using TestParsedCRCElement = PF::Protocols::ParsedCRCElement<buffer_size>;
-    using TestConstructedCRCElement = PF::Protocols::ConstructedCRCElement<buffer_size>;
+    using TestCRCElementProps = Transport::CRCElementProps<buffer_size>;
+    using TestCRCElement = Transport::CRCElement<TestCRCElementProps::PayloadBuffer>;
+    using TestParsedCRCElement = Transport::ParsedCRCElement<buffer_size>;
+    using TestConstructedCRCElement = Transport::ConstructedCRCElement<buffer_size>;
     PF::HAL::SoftCRC32 crc32c{PF::HAL::crc32c_params};
 
-    auto data = PF::Util::make_array<uint8_t>(0x01, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05);
+    auto data = make_array<uint8_t>(0x01, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05);
 
     TestCRCElementProps::PayloadBuffer payload;
     for (auto& bytes : data) {
@@ -510,7 +515,7 @@ SCENARIO("Protocols::CRCElement: correctly preserves data in roundtrip writing a
         "A body with CRC and payload is generated, parsed into a new ParsedCRCElement object, and "
         "generated again with a new ConstructedCRCElement object") {
       // Write
-      PF::Util::ByteVector<buffer_size> output_buffer;
+      ByteVector<buffer_size> output_buffer;
 
       THEN("the crc accessor method returns 0 before the first write method is called") {
         REQUIRE(crc_element.crc() == 0x00000000);
@@ -578,11 +583,11 @@ SCENARIO("Protocols::CRCElement: correctly preserves data in roundtrip writing a
       // Write
       auto final_payload = std::string("\x01\x05\x01\x02\x03\x04\x05", 7);
       TestCRCElementProps::PayloadBuffer const_payload;
-      PF::Util::convert_string_to_byte_vector(final_payload, const_payload);
+      convert_string_to_byte_vector(final_payload, const_payload);
 
       TestConstructedCRCElement constructed_crc_element{const_payload};
 
-      PF::Util::ByteVector<buffer_size> final_buffer;
+      ByteVector<buffer_size> final_buffer;
 
       auto write = constructed_crc_element.write(final_buffer, crc32c);
 
@@ -623,13 +628,13 @@ SCENARIO(
       "A CRC element receiver of capacity 254 bytes and output_crcelement constructed with an "
       "empty payload buffer") {
     constexpr size_t buffer_size = 254UL;
-    using TestCRCElementProps = PF::Protocols::CRCElementProps<buffer_size>;
-    using TestCRCElement = PF::Protocols::CRCElement<TestCRCElementProps::PayloadBuffer>;
-    using TestCRCElementReceiver = PF::Protocols::CRCElementReceiver<buffer_size>;
-    PF::Util::ByteVector<buffer_size> input_buffer;
+    using TestCRCElementProps = Transport::CRCElementProps<buffer_size>;
+    using TestCRCElement = Transport::CRCElement<TestCRCElementProps::PayloadBuffer>;
+    using TestCRCElementReceiver = Transport::CRCElementReceiver<buffer_size>;
+    ByteVector<buffer_size> input_buffer;
 
     PF::HAL::SoftCRC32 crc32c{PF::HAL::crc32c_params};
-    PF::Protocols::CRCElementReceiver<buffer_size> crc_element_receiver{crc32c};
+    Transport::CRCElementReceiver<buffer_size> crc_element_receiver{crc32c};
 
     TestCRCElementProps::PayloadBuffer input_payload;
     TestCRCElement crc_element{input_payload};
@@ -639,7 +644,7 @@ SCENARIO(
     REQUIRE(buffer.empty() == true);
 
     WHEN("An empty input_buffer is given to the crc element receiver") {
-      PF::Util::ByteVector<buffer_size> input_buffer;
+      ByteVector<buffer_size> input_buffer;
 
       auto transform_status = crc_element_receiver.transform(input_buffer, crc_element);
 
@@ -671,10 +676,10 @@ SCENARIO(
     }
 
     WHEN("body with less than 4 bytes is given to the crc element receiver") {
-      PF::Util::ByteVector<buffer_size> input_buffer;
+      ByteVector<buffer_size> input_buffer;
 
       // body of length 1 byte
-      auto input = PF::Util::make_array<uint8_t>(0x00);
+      auto input = make_array<uint8_t>(0x00);
 
       for (auto& bytes : input) {
         input_buffer.push_back(bytes);
@@ -782,8 +787,8 @@ SCENARIO(
         "A body with a complete 4-byte header, and a payload consistent with the CRC field of the "
         "header, is given to the receiver") {
       auto body = std::string("\x44\xeb\x77\x5f\x01\x07\x07\x12\x36\x57\x66\x77\x18", 13);
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto transform_status = crc_element_receiver.transform(input_buffer, crc_element);
 
@@ -817,8 +822,8 @@ SCENARIO(
         "A body with a complete 4-byte header, and a payload inconsistent with the CRC field of "
         "the header, is given to the receiver") {
       auto body = std::string("\x12\x34\x56\x78\x01\x05\x01\x02\x03\x04\x05", 11);
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       uint32_t expected_crc = 0x12345678;
 
@@ -855,24 +860,24 @@ SCENARIO(
       "A CRC element receiver of capacity 254 bytes and output_crcelement constructed with an "
       "non-empty payload buffer") {
     constexpr size_t buffer_size = 254UL;
-    using TestCRCElementProps = PF::Protocols::CRCElementProps<buffer_size>;
-    using TestCRCElement = PF::Protocols::CRCElement<TestCRCElementProps::PayloadBuffer>;
-    using TestCRCElementReceiver = PF::Protocols::CRCElementReceiver<buffer_size>;
-    PF::Util::ByteVector<buffer_size> input_buffer;
+    using TestCRCElementProps = Transport::CRCElementProps<buffer_size>;
+    using TestCRCElement = Transport::CRCElement<TestCRCElementProps::PayloadBuffer>;
+    using TestCRCElementReceiver = Transport::CRCElementReceiver<buffer_size>;
+    ByteVector<buffer_size> input_buffer;
 
     PF::HAL::SoftCRC32 crc32c{PF::HAL::crc32c_params};
-    PF::Protocols::CRCElementReceiver<buffer_size> crc_element_receiver{crc32c};
+    Transport::CRCElementReceiver<buffer_size> crc_element_receiver{crc32c};
 
     TestCRCElementProps::PayloadBuffer input_payload;
     auto body = std::string("\x01\x05\x12\x13\x14\x15\x16", 7);
-    PF::Util::convert_string_to_byte_vector(body, input_payload);
+    convert_string_to_byte_vector(body, input_payload);
     TestCRCElement crc_element{input_payload};
 
     REQUIRE(crc_element.crc() == 0);
     REQUIRE(crc_element.payload() == body);
 
     WHEN("An empty input_buffer is given to the crc element receiver") {
-      PF::Util::ByteVector<buffer_size> input_buffer;
+      ByteVector<buffer_size> input_buffer;
 
       auto transform_status = crc_element_receiver.transform(input_buffer, crc_element);
 
@@ -903,8 +908,8 @@ SCENARIO(
         "A body with crc more than 4 bytes and equal to the crc of the payload is given to the "
         "crc_element receiver") {
       auto body = std::string("\x44\xeb\x77\x5f\x01\x07\x07\x12\x36\x57\x66\x77\x18", 13);
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      ByteVector<buffer_size> input_buffer;
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto transform_status = crc_element_receiver.transform(input_buffer, crc_element);
 
@@ -939,20 +944,20 @@ SCENARIO(
       "A CRC element receiver of capacity 254 bytes, and output_crcelement constructed with an "
       "non-empty payload buffer and non-zero crc member") {
     constexpr size_t buffer_size = 254UL;
-    using TestCRCElementProps = PF::Protocols::CRCElementProps<buffer_size>;
-    using TestCRCElement = PF::Protocols::CRCElement<TestCRCElementProps::PayloadBuffer>;
-    using TestCRCElementReceiver = PF::Protocols::CRCElementReceiver<buffer_size>;
-    PF::Util::ByteVector<buffer_size> input_buffer;
+    using TestCRCElementProps = Transport::CRCElementProps<buffer_size>;
+    using TestCRCElement = Transport::CRCElement<TestCRCElementProps::PayloadBuffer>;
+    using TestCRCElementReceiver = Transport::CRCElementReceiver<buffer_size>;
+    ByteVector<buffer_size> input_buffer;
 
     PF::HAL::SoftCRC32 crc32c{PF::HAL::crc32c_params};
-    PF::Protocols::CRCElementReceiver<buffer_size> crc_element_receiver{crc32c};
+    Transport::CRCElementReceiver<buffer_size> crc_element_receiver{crc32c};
 
     TestCRCElementProps::PayloadBuffer input_payload;
     auto body = std::string("\x23\x84\xf5\x6a\xac\xae", 6);
-    PF::Util::convert_string_to_byte_vector(body, input_payload);
+    convert_string_to_byte_vector(body, input_payload);
     TestCRCElement crc_element{input_payload};
 
-    PF::Util::ByteVector<buffer_size> output_buffer;
+    ByteVector<buffer_size> output_buffer;
     auto write_status = crc_element.write(output_buffer, crc32c);
     REQUIRE(write_status == PF::IndexStatus::ok);
     REQUIRE(crc_element.crc() == 0x15fc40f);
@@ -1007,8 +1012,8 @@ SCENARIO(
     "[CRCElementSender]") {
   GIVEN("A CRC element sender of capacity 254 bytes") {
     constexpr size_t buffer_size = 254UL;
-    using TestCRCElementProps = PF::Protocols::CRCElementProps<buffer_size>;
-    using TestCRCElementSender = PF::Protocols::CRCElementSender<buffer_size>;
+    using TestCRCElementProps = Transport::CRCElementProps<buffer_size>;
+    using TestCRCElementSender = Transport::CRCElementSender<buffer_size>;
 
     PF::HAL::SoftCRC32 crc32c{PF::HAL::crc32c_params};
     TestCRCElementSender crc_element_sender{crc32c};
@@ -1017,9 +1022,9 @@ SCENARIO(
       auto body = std::string("\x13\x03\x05\x06\x23", 5);
 
       TestCRCElementProps::PayloadBuffer input_payload;
-      PF::Util::convert_string_to_byte_vector(body, input_payload);
+      convert_string_to_byte_vector(body, input_payload);
 
-      PF::Util::ByteVector<buffer_size> output_buffer;
+      ByteVector<buffer_size> output_buffer;
 
       auto transform_status = crc_element_sender.transform(input_payload, output_buffer);
 
