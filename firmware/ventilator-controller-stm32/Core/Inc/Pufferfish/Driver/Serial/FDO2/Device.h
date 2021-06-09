@@ -61,7 +61,7 @@ class Device {
 
   static const uint16_t broadcast_interval = 100;  // ms
 
-  explicit Device(volatile HAL::BufferedUART &uart) : uart_(uart) {}
+  explicit Device(volatile HAL::Interfaces::BufferedUART &uart) : uart_(uart) {}
 
   /**
    * Starts broadcast
@@ -89,7 +89,7 @@ class Device {
   Status request_version();
 
  private:
-  volatile HAL::BufferedUART &uart_;
+  volatile HAL::Interfaces::BufferedUART &uart_;
   ResponseReceiver responses_;
   RequestSender requests_;
 

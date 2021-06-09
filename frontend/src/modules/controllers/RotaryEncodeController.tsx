@@ -3,8 +3,12 @@
  *
  */
 import React, { useCallback, useEffect, useRef } from 'react';
-import { useSelector, shallowEqual } from 'react-redux';
-import { getRotaryEncoder } from '../../store/controller/selectors';
+import { useSelector } from 'react-redux';
+import {
+  // getRotaryEncoderButtonPressed,
+  getRotaryEncoderStep,
+  getRotaryEncoderStepDiff,
+} from '../../store/controller/selectors';
 
 /**
  * @typedef Props
@@ -41,32 +45,36 @@ export const RotaryEncodeController = ({
   max = 100,
   isActive,
 }: Props): JSX.Element => {
-  const rotaryEncoder = useSelector(getRotaryEncoder, shallowEqual);
+  const step = useSelector(getRotaryEncoderStep);
+  const stepDiff = useSelector(getRotaryEncoderStepDiff);
+  // const buttonPressed = useSelector(getRotaryEncoderButtonPressed);
+  const [prevStep, setPrevStep] = React.useState(step);
   const isInitialMount = useRef(true);
 
-  const updateRotaryData = useCallback(
-    () => {
-      if (isInitialMount.current) {
-        isInitialMount.current = false;
-      } else if (!Number.isNaN(rotaryEncoder?.stepDiff)) {
-        const stepDiff = rotaryEncoder?.stepDiff || 0;
-        const valueClone = value >= min ? value : min;
-        const newValue = valueClone + stepDiff;
-        if (newValue < min) {
-          onClick(min);
-        } else if (newValue > max) {
-          onClick(max);
-        } else {
-          onClick(newValue);
-        }
-        // if (rotaryEncoder.buttonPressed) {
-        //   handleConfirm();
-        // }
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rotaryEncoder?.step, rotaryEncoder?.buttonPressed, min, max, value],
-  );
+  const updateRotaryData = useCallback(() => {
+    if (!isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    if (Number.isNaN(stepDiff)) {
+      return;
+    }
+    if (step === prevStep) {
+      return;
+    }
+    setPrevStep(step);
+    const newValue = value + stepDiff;
+    if (newValue < min) {
+      onClick(min);
+    } else if (newValue > max) {
+      onClick(max);
+    } else {
+      onClick(newValue);
+    }
+    // if (buttonPressed) {
+    //   handleConfirm();
+    // }
+  }, [step, stepDiff, min, max, value, prevStep, onClick]);
 
   useEffect(() => {
     if (isActive) {

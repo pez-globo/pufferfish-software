@@ -19,7 +19,7 @@ namespace Pufferfish::Protocols {
 template <typename PayloadBuffer>
 template <size_t output_size>
 IndexStatus CRCElement<PayloadBuffer>::write(
-    Util::ByteVector<output_size> &output_buffer, HAL::CRC32 &crc32c) {
+    Util::ByteVector<output_size> &output_buffer, HAL::Interfaces::CRC32 &crc32c) {
   static_assert(
       Util::ByteVector<output_size>::max_size() >=
           (PayloadBuffer::max_size() + CRCElementHeaderProps::header_size),
@@ -77,7 +77,7 @@ IndexStatus CRCElement<PayloadBuffer>::parse(const Util::ByteVector<input_size> 
 template <typename PayloadBuffer>
 template <size_t buffer_size>
 uint32_t CRCElement<PayloadBuffer>::compute_body_crc(
-    const Util::ByteVector<buffer_size> &buffer, HAL::CRC32 &crc32c) {
+    const Util::ByteVector<buffer_size> &buffer, HAL::Interfaces::CRC32 &crc32c) {
   return crc32c.compute(
       buffer.buffer() + CRCElementHeaderProps::payload_offset,  // exclude the CRC field
       buffer.size() - sizeof(uint32_t)                          // exclude the size of the CRC field

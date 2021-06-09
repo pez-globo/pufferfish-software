@@ -39,7 +39,7 @@ static constexpr CRC32Parameters crc32c_params = {0x1edc6f41, 0xffffffff, true, 
  * @return an 8-bits CRC of the given data
  */
 template <typename Checksum>
-class SoftCRC : public CRCChecker<Checksum> {
+class SoftCRC : public Interfaces::CRCChecker<Checksum> {
  public:
   SoftCRC(Checksum polynomial, Checksum init, bool ref_in, bool ref_out, Checksum xor_out);
   explicit SoftCRC(const CRCParameters<Checksum> &parameters);

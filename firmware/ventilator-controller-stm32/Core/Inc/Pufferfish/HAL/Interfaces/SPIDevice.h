@@ -27,6 +27,7 @@
 
 namespace Pufferfish {
 namespace HAL {
+namespace Interfaces {
 
 /**
  * An abstract class which represents an SPI device with read/write interface
@@ -65,5 +66,6 @@ class SPIDevice {
   virtual void chip_select(bool input) = 0;
 };
 
+}  // namespace Interfaces
 }  // namespace HAL
 }  // namespace Pufferfish

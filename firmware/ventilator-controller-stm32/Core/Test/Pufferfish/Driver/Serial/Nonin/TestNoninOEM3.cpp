@@ -21,7 +21,7 @@
 #include <array>
 
 #include "Pufferfish/Driver/Serial/Nonin/Device.h"
-#include "Pufferfish/HAL/Mock/MockBufferedUART.h"
+#include "Pufferfish/HAL/Mock/BufferedUART.h"
 #include "Pufferfish/Util/Array.h"
 #include "catch2/catch.hpp"
 
@@ -40,7 +40,7 @@ PF::Driver::Serial::Nonin::Device::PacketStatus framing_error_status =
     PF::Driver::Serial::Nonin::Device::PacketStatus::framing_error;
 
 SCENARIO("No input data received from BufferedUART", "[NoninOEM3]") {
-  PF::HAL::MockReadOnlyBufferedUART mock_uart;
+  PF::HAL::Mock::ReadOnlyBufferedUART mock_uart;
   PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
   PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
   PF::Driver::Serial::Nonin::Device::PacketStatus return_status;
@@ -56,7 +56,7 @@ SCENARIO("No input data received from BufferedUART", "[NoninOEM3]") {
 }
 
 SCENARIO("Complete packet is not available", "[NoninOEM3]") {
-  PF::HAL::MockReadOnlyBufferedUART mock_uart;
+  PF::HAL::Mock::ReadOnlyBufferedUART mock_uart;
   PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
   PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
   PF::Driver::Serial::Nonin::Device::PacketStatus return_status;
@@ -210,7 +210,7 @@ SCENARIO("Complete packet is not available", "[NoninOEM3]") {
 }
 
 SCENARIO("Validate the Nonin OEM III with invalid data received from BufferedUART") {
-  PF::HAL::MockReadOnlyBufferedUART mock_uart;
+  PF::HAL::Mock::ReadOnlyBufferedUART mock_uart;
   PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
   PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
   PF::Driver::Serial::Nonin::Device::PacketStatus return_status;
@@ -495,7 +495,7 @@ SCENARIO("Validate NoninOEM3 for valid packet data", "[NoninOEM3]") {
         0x00,
         0x82  /// reserved
     );
-    PF::HAL::MockReadOnlyBufferedUART mock_uart;
+    PF::HAL::Mock::ReadOnlyBufferedUART mock_uart;
     uint8_t index = 0;
     for (index = 0; index < 125; index++) {
       mock_uart.set_read(uart_data[index]);
