@@ -21,8 +21,8 @@
 
 namespace Pufferfish::Util::Containers {
 
-// Key must be an enum backed by an unsigned integer, or else it must support static_cast'ing to a size_t.
-// The Map is able to store keys which get casted to integers from 0 to max_key, inclusive.
+// Key must be an enum backed by an unsigned integer, or else it must support static_cast'ing to a
+// size_t. The Map is able to store keys which get casted to integers from 0 to max_key, inclusive.
 template <typename Key, typename Value, size_t max_key>
 class EnumMap {
  public:
@@ -39,9 +39,9 @@ class EnumMap {
   void clear();  // O(n)
   // Note: this makes a copy of value!
   IndexStatus insert(const Key &key, const Value &value);  // O(1)
-  IndexStatus erase(const Key &key);  // O(1)
-  bool has(const Key &key) const; // O(1)
-  IndexStatus find(const Key &key, Value &value) const;  // O(1)
+  IndexStatus erase(const Key &key);                       // O(1)
+  [[nodiscard]] bool has(const Key &key) const;            // O(1)
+  IndexStatus find(const Key &key, Value &value) const;    // O(1)
 
   // Note: these don't check whether the key exists or is in-bounds!
   const Value &operator[](const Key &key) const noexcept;

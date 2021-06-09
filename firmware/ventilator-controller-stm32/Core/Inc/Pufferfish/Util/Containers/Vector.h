@@ -14,8 +14,8 @@
 #pragma once
 
 #include <array>
-#include <initializer_list>
 #include <cstddef>
+#include <initializer_list>
 
 #include "Pufferfish/Statuses.h"
 

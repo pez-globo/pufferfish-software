@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include "EnumMap.h"
-
 #include <utility>
+
+#include "EnumMap.h"
 
 namespace Pufferfish::Util::Containers {
 
@@ -50,7 +50,7 @@ void EnumMap<Key, Value, max_key>::clear() {
 
 template <typename Key, typename Value, size_t max_key>
 IndexStatus EnumMap<Key, Value, max_key>::insert(const Key &key, const Value &value) {
-  size_t index = static_cast<size_t>(key);
+  auto index = static_cast<size_t>(key);
   if (index >= max_size()) {
     return IndexStatus::out_of_bounds;
   }
@@ -69,7 +69,7 @@ IndexStatus EnumMap<Key, Value, max_key>::erase(const Key &key) {
     return IndexStatus::out_of_bounds;
   }
 
-  size_t index = static_cast<size_t>(key);
+  auto index = static_cast<size_t>(key);
   if (buffer_[index].first) {
     --size_;
     buffer_[index].first = false;
@@ -79,7 +79,7 @@ IndexStatus EnumMap<Key, Value, max_key>::erase(const Key &key) {
 
 template <typename Key, typename Value, size_t max_key>
 bool EnumMap<Key, Value, max_key>::has(const Key &key) const {
-  size_t index = static_cast<size_t>(key);
+  auto index = static_cast<size_t>(key);
   if (index >= max_size()) {
     return false;
   }
@@ -98,12 +98,12 @@ IndexStatus EnumMap<Key, Value, max_key>::find(const Key &key, Value &value) con
 }
 
 template <typename Key, typename Value, size_t max_key>
-const Value &EnumMap<Key, Value, max_key>::operator[](const Key &key) const {
+const Value &EnumMap<Key, Value, max_key>::operator[](const Key &key) const noexcept {
   return buffer_[static_cast<size_t>(key)].second;
 }
 
 template <typename Key, typename Value, size_t max_key>
-Value &EnumMap<Key, Value, max_key>::operator[](const Key &key) {
+Value &EnumMap<Key, Value, max_key>::operator[](const Key &key) noexcept {
   return buffer_[static_cast<size_t>(key)].second;
 }
 

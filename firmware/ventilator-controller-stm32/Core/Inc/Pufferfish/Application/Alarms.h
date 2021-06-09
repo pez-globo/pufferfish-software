@@ -28,18 +28,18 @@ class AlarmsManager {
 
  private:
   Util::Containers::EnumMap<
-    LogEventCode,
-    Protocols::Application::Debouncer,
-    LogEventCode::LogEventCode_hr_too_high> debouncers_{
-      {LogEventCode::LogEventCode_fio2_too_low, Protocols::Application::Debouncer()},
-      {LogEventCode::LogEventCode_fio2_too_high, Protocols::Application::Debouncer()},
-      {LogEventCode::LogEventCode_flow_too_low, Protocols::Application::Debouncer()},
-      {LogEventCode::LogEventCode_flow_too_high, Protocols::Application::Debouncer()},
-      {LogEventCode::LogEventCode_spo2_too_low, Protocols::Application::Debouncer()},
-      {LogEventCode::LogEventCode_spo2_too_high, Protocols::Application::Debouncer()},
-      {LogEventCode::LogEventCode_hr_too_low, Protocols::Application::Debouncer()},
-      {LogEventCode::LogEventCode_hr_too_high, Protocols::Application::Debouncer()}
-  };
+      LogEventCode,
+      Protocols::Application::Debouncer,
+      LogEventCode::LogEventCode_hr_too_high>
+      debouncers_{
+          {LogEventCode::LogEventCode_fio2_too_low, Protocols::Application::Debouncer()},
+          {LogEventCode::LogEventCode_fio2_too_high, Protocols::Application::Debouncer()},
+          {LogEventCode::LogEventCode_flow_too_low, Protocols::Application::Debouncer()},
+          {LogEventCode::LogEventCode_flow_too_high, Protocols::Application::Debouncer()},
+          {LogEventCode::LogEventCode_spo2_too_low, Protocols::Application::Debouncer()},
+          {LogEventCode::LogEventCode_spo2_too_high, Protocols::Application::Debouncer()},
+          {LogEventCode::LogEventCode_hr_too_low, Protocols::Application::Debouncer()},
+          {LogEventCode::LogEventCode_hr_too_high, Protocols::Application::Debouncer()}};
   uint32_t current_time_ = 0;
   Application::LogEventsManager &log_manager_;
   Util::Containers::OrderedMap<LogEventCode, uint32_t, Application::active_log_events_max_elems>

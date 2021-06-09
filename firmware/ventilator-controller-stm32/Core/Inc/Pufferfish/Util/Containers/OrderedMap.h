@@ -36,12 +36,12 @@ class OrderedMap {
   [[nodiscard]] bool full() const;
   [[nodiscard]] size_t available() const;
 
-  void clear(); // O(1)
+  void clear();  // O(1)
   // Note: this makes a copy of value!
-  IndexStatus insert(const Key &key, const Value &value); // O(m)
-  IndexStatus erase(const Key &key); // O(m)
-  bool has(const Key &key) const; // O(m)
-  IndexStatus find(const Key &key, size_t &index) const; // O(m)
+  IndexStatus insert(const Key &key, const Value &value);  // O(m)
+  IndexStatus erase(const Key &key);                       // O(m)
+  [[nodiscard]] bool has(const Key &key) const;            // O(m)
+  IndexStatus find(const Key &key, size_t &index) const;   // O(m)
 
   [[nodiscard]] constexpr const Vector<Pair, max_pairs> &items() const { return buffer_; }
   constexpr Vector<Pair, max_pairs> &items() { return buffer_; }
