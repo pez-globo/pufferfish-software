@@ -17,6 +17,7 @@ import {
   getPopupEventLog,
   getAlarmMuteRemaining,
   getAlarmMuteRequestRemaining,
+  getParametersIsVentilating,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
@@ -203,11 +204,13 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    */
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
+  const activeLogString = JSON.stringify(activeLog);
   const alarmMuteActive = useSelector(getAlarmMuteActive);
   const alarmMuteRemaining = useSelector(getAlarmMuteRemaining);
   const backendConnected = useSelector(getBackendConnected);
   const alarmMuteRequestRemaining = useSelector(getAlarmMuteRequestRemaining);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive);
+  const ventilating = useSelector(getParametersIsVentilating);
   /**
    * Stores the state which toggles AlarmMute/AlarmMuteRequest Status
    */
@@ -232,13 +235,14 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         setAlertCount(activeLog.length);
         setAlert({ label: eventType.label });
       }
-    } else if (alarmMuteRemaining > 0) {
+    } else if (alarmMuteActive && ventilating) {
+      setAlertCount(1);
       setAlert({ label: 'No Active Alarms' });
     } else {
+      setAlert({ label: '' });
       setAlertCount(0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [popupEventLog, JSON.stringify(activeLog)]);
+  }, [popupEventLog, alarmMuteActive, activeLogString, activeLog.length, ventilating]);
 
   /**
    * Triggers whenever AlarmMute status is updated in redux store
