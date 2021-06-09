@@ -72,6 +72,7 @@ INITIAL_VALUES = {
         theme=frontend_pb.ThemeVariant.dark,
         unit=frontend_pb.Unit.metric,
     )
+    # TODO: initial value for FrontendDisplayRequest, which isn't defined yet
 }
 
 

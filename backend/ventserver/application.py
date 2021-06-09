@@ -3,6 +3,9 @@
 import logging
 import functools
 import time
+from typing import Mapping, Type
+
+import betterproto
 
 import trio
 
@@ -13,6 +16,27 @@ from ventserver.io.trio import (
 from ventserver.io.subprocess import frozen_frontend
 from ventserver.protocols import exceptions
 from ventserver.protocols.backend import server, states
+from ventserver.protocols.protobuf import frontend_pb, mcu_pb
+
+
+FALLBACK_VALUES: Mapping[Type[betterproto.Message], betterproto.Message] = {
+    mcu_pb.ParametersRequest: mcu_pb.ParametersRequest(
+        mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
+        fio2=80, flow=30
+    ),
+    mcu_pb.AlarmLimitsRequest: mcu_pb.AlarmLimitsRequest(
+        fio2=mcu_pb.Range(lower=78, upper=82),
+        flow=mcu_pb.Range(lower=28, upper=32),
+        spo2=mcu_pb.Range(lower=90, upper=100),
+        hr=mcu_pb.Range(lower=60, upper=100),
+    ),
+    mcu_pb.AlarmMuteRequest: mcu_pb.AlarmMuteRequest(
+        active=False, remaining=120
+    ),
+    frontend_pb.SystemSettingRequest:
+        frontend_pb.SystemSettingRequest(brightness=100, date=int(time.time()))
+    # TODO: add fallback for FrontendDisplayRequest, which isn't defined yet
+}
 
 
 async def initialize_states_from_file(
@@ -22,7 +46,9 @@ async def initialize_states_from_file(
 
     # Load state from file
     load_states = list(states.FILE_INPUT_TYPES.keys())
-    await _trio.load_file_states(load_states, protocol, filehandler)
+    await _trio.load_file_states(
+        load_states, protocol, filehandler, FALLBACK_VALUES
+    )
 
     # Turn off ventilation
     parameters_request = store[states.StateSegment.PARAMETERS_REQUEST]
