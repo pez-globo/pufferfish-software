@@ -232,6 +232,8 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         setAlertCount(activeLog.length);
         setAlert({ label: eventType.label });
       }
+    } else if (alarmMuteRemaining > 0) {
+      setAlert({ label: 'No Active Alarms' });
     } else {
       setAlertCount(0);
     }
