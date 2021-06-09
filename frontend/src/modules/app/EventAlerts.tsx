@@ -259,9 +259,6 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         setRemaining(remaining - 1);
         if (remaining <= 0) {
           clearTimeout(timer);
-          dispatch(
-            commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { active: false }),
-          );
         }
       }, 1000);
     }
@@ -282,12 +279,12 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    * Dispatch unmute request after 2 min countdown
    */
   useEffect(() => {
-    if (alarmMuteRemaining === 0 || alarmMuteRequestRemaining === 0) {
+    if (alarmMuteRemaining === 0 || remaining === 0) {
       dispatch(
         commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { active: false }),
       );
     }
-  }, [dispatch, alarmMuteRemaining, alarmMuteRequestRemaining]);
+  }, [dispatch, alarmMuteRemaining, remaining]);
 
   /**
    * Opens LogsPage popup listing event log details
