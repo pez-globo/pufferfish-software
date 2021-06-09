@@ -1,60 +1,84 @@
+
 Scenario: The function in Util Vectors works correctly
-  GIVEN("The util resize function")
-  WHEN("the util resize function is called on 252UL buffer size")
-    THEN("Result is as expected ")
+  GIVEN('Vector with empty internal buffer with 256 buffer size')
+  WHEN('A vector of 256UL is passed as input and output is 5UL vector')
+    THEN('Resize retuns okay ')
+    THEN('Returns correct avaliable size = 5')
+    THEN('Returns correct size of vector = 5')
+    THEN('Returns false when full function is used on vector[0x06]')
+    THEN('Returns ok for erase function , when used on index 0')
+    THEN('Returns out of bounds for erase function , when used on index 5)
 
-  WHEN("Util function empty is used on vector")
-    THEN("Result is as expected")  
+  WHEN('A vector of 256UL is passed as inpput ')
+    THEN('vector resize for 400UL fails, out of bounds')  
 
-  WHEN("Util function avaliable is used on vector")
-    THEN("Result is as expected")  
-
-  GIVEN("Util full function")   
-  WHEN("Util function full is used on vector")
-    THEN("Result is as expected")
+  WHEN('A vector of 2UL size is passed as input')  
+    THEN('Resize returns ok')
+    THEN('Returns correct avaliable size 4')
+    THEN('Returns correct size 4')
+    THEN('Returns false for full function')
+    THEN('Returned vector has correct data in every index[0xe3,0x03,0x08,0x0f]')
+    THEN('Returns ok for erase function for index 1')
+    THEN('Returns out of bound for erase function for index 5')
+  
 
     
-Scenario: The function in Util push_back works correctly
-  GIVEN("the Util push_back function")
-  WHEN("the util push_back is called in bounds")
-     THEN("Result is as expected")
+Scenario: The function in Vector push_back works correctly
+  GIVEN('Vector with an empty internal buffer with capacity 8 ')
+  WHEN('vector of capacity 8 is passed as input and output is called')
+     THEN('Returns expected vector [0,1,2,3,4,5,6]')
+     THEN('Returns expected size 8')
+     THEN('Returns expected avaliable buffer 0')
+     THEN('Returns expected true for full function')
+     THEN('Returns ok for erase function used on index 5 ')
+     THEN('Returns out of bounds for empty function used on index 10')
 
 
-  GIVEN("the Util push_back function")
-  WHEN("the util push_back is called on out of bound vector")
-     THEN("Vector is out of bound, push_back fails")
+Scenario: The function in Vector: copy_from works correctly
+  GIVEN('Vector with completely filled buffer with 4UL capacity')
+  WHEN('Vector of 4UL is passed as input and output is called')
+     THEN('Result is as expected [0x08,0x00,0x04,0x89]')
+
+  WHEN('Vector of 4UL is passed as input and output is called for dest index 3')
+    THEN('Returns vector as expected [0,0,0,0x08]')
+    THEN('Returns currect size of vector')  
+    THEN('Returns correct avaliable size 3 of vector')
+    THEN('Returns ok for erase on 3rd index') 
+    THEN('Rrturns out of bounds if index is out of bounds 5') 
+
+  WHEN('Vector of 4UL is passed as input for dest_start_index 5')  
+    THEN('Returns out of bound, vector copy fails')
+
+  WHEN('Vector of 4UL is passed as input, output is expected on 2UL vector')
+    THEN('First two bytes are copied to vector_copy correctly (0x08,0x00), index out of bounds, returns 0')
+  
+
+  GIVEN('Vector with completely filled buffer with 4UL capacity')
+  WHEN('An array of 2UL size is passed as input')
+     THEN('Result is as expected (0x0f,0x36)')
+     THEN('Returns correct size 2')
+     THEN('Returns correct avaliable buffers 2')
+     THEN('Returns false for full')
+     THEN('Retuns ok for erase at index 2')   
+     THEN('retuns out of bounds for erase used on out of bound index')
+  
+  WHEN('An array of 2UL size is passed as input for dest index 6')
+     THEN('retuns out of bounds for copy_from used on out of bound index ')
+
+  GIVEN('Vector with completely filled buffer with 4UL capacity')   
+  WHEN('Vector of 2UL is passed as input')
+    THEN('Result is as expected ,[0x08,0x0a]')
+    THEN('Size of vector is as expected 2')
+    THEN(''Returns false for full function)
+    THEN('Retuns avaliable buffer 0')
+    THEN('Erase returns ok, index in in bounds')
+    THEN('Erase returns out of bounds , index is out of bounds')
 
 
-  GIVEN("the Util push_back function ")
-  WHEN("the util push_back is called on string")
-     THEN("Result is as expceted")
+Scenario: The function in Vector:Element *buffer() works correctly
+   GIVEN('Vector with partially filled with buffer size 100UL')
+   WHEN('Vector of 100UL is passed as input, output is 4UL vector')
+      THEN('Returned vector is as expected at every index (0x08,0x0a,0x83,0x02)')
 
-
-Scenario: The function in Util copy_from works correctly
-  GIVEN("the Util copy_from function")
-  WHEN("the util copy_from is called on both 4UL buffer vector")
-     THEN("Result is as expected")
-
-  WHEN("the util copy_from is called on vector of buffer 2UL and 4UL")
-    THEN("Result is as expected")
-
-  WHEN("the util copy_from is called on both same sized buffer vector")  
-    THEN("Result is as expected")
-
-
-  GIVEN("the Util copy_from function")  
-  WHEN("the Util copy_from function on array")
-     THEN("Result is as expected");
-
-  GIVEN("the Util copy_from function")
-  WHEN("the Util copy_from function on vector")
-     THEN("Result is as expected")   
-
-Scenario:  Data is erased from particular index   
-   GIVEN("the Util erase function ")
-   WHEN("the util erase function is called on vector")
-     THEN("Result is as expected")
-
-
-   WHEN("the util erase function is called on vector for out of bound index") 
-     THEN("Result is as expected")
+   WHEN('Vector of 100UL is passed as input, output is 2UL vector ')   
+     THEN('Return vector has expected data (0x08,0x0a)')

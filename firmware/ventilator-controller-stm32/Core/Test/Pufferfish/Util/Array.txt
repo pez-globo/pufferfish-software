@@ -1,21 +1,29 @@
-Scenario: The Util array function creates array correctly.
-  GIVEN("The Util make_array function")
-   WHEN("an array is created from 'n' uint8_t")
-      THEN("the array is as expected")
-      THEN("Size of an array is as expected")
+Scenario: Array: make_array function creates array correctly.
+  GIVEN('The make_array function')
+   WHEN('an array is created from 8 uint8_t values as input')
+      THEN('the value at every index in an array is as expected (0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02)')
+      THEN('Size of an array is as expected 8')
 
 
-  GIVEN("The Util make_array function ")
-   WHEN("an array is created from 'n' string")
-     THEN("the array is as expected")
-     THEN("Size of an array is as expected")
+  GIVEN('The make_array function')
+   WHEN('an array is created from 3 strings as input parameter')
+     THEN('the value of an array at every index  is as expected ("ab", "bc", "cd")')
+     THEN('Size of an array is as expected 3')
 
-  GIVEN("The Util make_array function") 
-  WHEN("an array is created from const references")
-    THEN("the array is as expected")
-   
+  GIVEN('The make_array function') 
+  WHEN('an array is created from const references of values, 0x02 and 0x0f')
+    THEN('the array is as expected at every index [0x02,0x0f]')
+
+
+  WHEN('an array is created from const references of values ,0x00 and 0x0c')
+    THEN('the array is as expected at every index [0x00,0x0c]')
+
+
+  WHEN('an array is created from non- const references of values ,0x00 and 0x0c')
+    THEN('the array is as expected at every index [0x00,0x0c]')
+
 
 Scenario: Empty an array
-  GIVEN("The Util make_array function ")
-  WHEN("Array is emptied")
-     THEN("The array is as expected")
+  GIVEN('The make_array function')
+  WHEN('function empty is used on array (0x02, 0x03, 0x0a) ')
+     THEN('Result is as expected, array is empty')

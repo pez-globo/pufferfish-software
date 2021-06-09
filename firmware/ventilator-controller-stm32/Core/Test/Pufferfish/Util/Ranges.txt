@@ -1,31 +1,33 @@
-Scenario: The Util Ranges  within function works correctly
-  GIVEN("The Util within function")
-  WHEN("floor is '\x01' and ceiling is '\0ff' , value is within range")
-     THEN("Returns true , as value is in range")
+Scenario: The  Ranges:  within function works correctly
+  GIVEN('The within function')
+  WHEN('floor is '0x01 and ceiling is 0xff , value 0x83 is within range')
+     THEN('Returns true ,  value 0x83 is in range')
 
 
-Scenario:The Util Ranges  clamp function works correctly
-  GIVEN("The Util clamp function'")
-   WHEN("Value is equal to ceiling")
-      THEN("Returns correct value '\x83'")
+Scenario:The Ranges:  clamp function works correctly
+  GIVEN('The clamp function')
+   WHEN('the function is called with a floor of 0x01, a ceiling of 0xff, and a test value of 0x83')
+      THEN('Returns correct value 0x83')
+      THEN('Returns true ,  value 0x83 is in range')
 
-   WHEN("Value is greater than ceiling")
-     THEN("Returns expected value ceiling ")
+   WHEN('The function is called with a floor of 0x01, a ceiling of 0x0a, and a test value of 0x83')
+     THEN('Returns expected value 0x0a')
+     THEN('Returns true ,  value 0x0a is in range')
   
-  GIVEN("The Util clamp function ")
-  WHEN("Value is less than floor")
-    THEN("Returns expected floor value 0x0a")
+  GIVEN('The clamp function')
+  WHEN('The function is called with a floor of 0x0a, a ceiling of 0x83, and a test value of 0x08')
+    THEN('Returns expected floor value 0x0a')
 
-  WHEN("Value is equal to floor")
-    THEN("Returns expected  input value 0x08 ")  
+  WHEN('The function is called with a floor of 0x08, a ceiling of 0x83, and a test value of 0x08')
+    THEN('Returns expected  input value 0x08')  
 
-  GIVEN("The Util clamp function")  
-  WHEN("Value is in the range")
-    THEN("Returns expected  input value 0x53 ")
+  GIVEN('The clamp function')  
+  WHEN('The function is called with a floor of 0x08, a ceiling of 0xff, and a test value of 0x53')
+    THEN('Returns expected  input value 0x53')
 
 
-  WHEN("floor is equal to ceiling")
-     THEN("Returns expected value ") 
+  WHEN('The function is called with a floor of 0x08, a ceiling of 0x08, and a test value of 0x08')
+     THEN('Returns expected value 0x08') 
 
-  WHEN("floor is greater than ceiling") 
-    THEN("Result is as expected ")   
+  WHEN('The function is called with a floor of 0x0f, a ceiling of 0x08, and a test value of 0x53') 
+    THEN('Result is as expected 0x08')   

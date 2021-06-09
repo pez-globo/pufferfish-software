@@ -9,17 +9,18 @@
  * Unit tests to confirm behavior of Array
  *  
  */
+#include <iostream>
 #include "Pufferfish/Util/Array.h"
 
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
 
-SCENARIO("Create an array", "[array]") {
-    GIVEN("A set of int values") {
-        WHEN("An array of given int size is created properly") {
+SCENARIO("The Util array function creates array correctly") {
+    GIVEN("The Util make_array function") {
+        WHEN("an array is created from 8 uint8_t values as input") {
             auto data = PF::Util::make_array<uint8_t>(0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02);
-            THEN("Value at every index in array is as expected") { 
+            THEN("the value at every index in an array is as expected") { 
                 uint8_t expected[8] = {0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02};
               for(int i = 0;i<8;i++) {
                   REQUIRE(data[i] == expected[i]);
@@ -33,10 +34,10 @@ SCENARIO("Create an array", "[array]") {
     }
 
     
-    GIVEN("A set of string") {
+    GIVEN("The Util Array function") {
         auto data = PF::Util::make_array<std::string>("ab", "bc", "cd");
-        WHEN("An array is created with given set of string correctly") {        
-            THEN("Value at every index in array is as expected") {
+        WHEN("an array is created from 3 strings as input parameter") {        
+            THEN("the value of an array at every index  is as expected") {
                 REQUIRE(data[0] == "ab");
                 REQUIRE(data[1] == "bc");
                 REQUIRE(data[2] == "cd");
@@ -49,30 +50,56 @@ SCENARIO("Create an array", "[array]") {
     }
 
 
-    GIVEN("Two variables ") {
-        uint8_t expected = '3'; 
-        uint8_t array = '6'; 
-        WHEN("Make an array with const references"){
+    GIVEN("The Util Array function ") {
+        uint8_t expected = 0x02; 
+        uint8_t array = 0x0f; 
+
+        WHEN("an array is created from const references of values, 0x02 and 0x0f"){
            uint8_t &ri = expected;
            uint8_t &pi = array;
            auto data = PF::Util::make_array<uint8_t>(ri,pi);
-           THEN("value at index 0 and 1 is as expected"){
-               REQUIRE(data[0]== '3' );
-               REQUIRE(data[1]== '6');
+           THEN("the array is as expected at every index [0x02,0x0f]"){
+               REQUIRE(data[0]== 0x02 );
+               REQUIRE(data[1]== 0x0f);
            }
         }
 
+        WHEN("an array is created from const references of values ,0x00 and 0x0c"){
+            uint8_t expected = 0x00;
+            uint8_t array = 0x0c;
+            uint8_t &ri = expected;
+            uint8_t &pi = array;
+            auto data = PF::Util::make_array<uint8_t>(ri,pi);
+            THEN("the array is as expected at every index [0x00,0x0c]"){
+                REQUIRE(data[0] == 0x00);
+                REQUIRE(data[1] == 0x0c);
+            }
+
+            
+        }
+
+    
+
+        WHEN("Util function make_array is used on non-const references"){
+           uint8_t expected = 0x00;
+           uint8_t array = 0x0c;
+           auto data = PF::Util::make_array<uint8_t>(expected, array);
+            THEN("returned array is as expected at every index"){
+                REQUIRE(data[0] == 0x00);
+                REQUIRE(data[1] == 0x0c);
+            }
+        }
     }
 
 }
    
 SCENARIO("Empty an array") {
 
-    GIVEN("An array is given"){
+    GIVEN("Util function Array"){
         auto data = PF::Util::make_array<uint8_t>(0x02, 0x03, 0x0a);
-        WHEN("Given array is emptied"){
-            THEN("The results are as expected"){
-                auto empty = data.empty();
+        WHEN("function empty is used on array"){
+            auto empty = data.empty();
+            THEN("Result is as expected, array is empty"){
                 REQUIRE(empty == 0);
             }
         }
