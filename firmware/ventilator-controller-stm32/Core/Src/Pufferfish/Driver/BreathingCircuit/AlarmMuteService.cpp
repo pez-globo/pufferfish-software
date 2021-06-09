@@ -7,8 +7,6 @@
 
 #include "Pufferfish/Driver/BreathingCircuit/AlarmMuteService.h"
 
-#include "Pufferfish/Util/Timeouts.h"
-
 // AlarmMuteService
 
 namespace Pufferfish::Driver::BreathingCircuit {
@@ -29,20 +27,20 @@ void AlarmMuteService::transform(
     continue_countdown(alarm_mute);
   } else {
     mute_start_time_ = current_time;
-    alarm_mute.remaining = mute_max_duration;
+    alarm_mute.remaining = mute_max_duration / clock_scale;
   }
 }
 
-void AlarmMuteService::continue_countdown(AlarmMute &alarm_mute) {
-  alarm_mute.remaining = (mute_max_duration - mute_duration_) / 1000;
+void AlarmMuteService::continue_countdown(AlarmMute &alarm_mute) const {
+  alarm_mute.remaining = (mute_max_duration - mute_duration_) / clock_scale;
 }
 
 void make_state_initializers(Application::StateSegment &request_segment, AlarmMute &response) {
-  response.remaining = mute_max_duration;
+  response.remaining = countdown_time;
 
   AlarmMuteRequest request{};
   request.active = false;
-  request.remaining = mute_max_duration;
+  request.remaining = countdown_time;
   request_segment.set(request);
 }
 }  // namespace Pufferfish::Driver::BreathingCircuit

@@ -9,12 +9,11 @@
 
 #pragma once
 
-#include "Pufferfish/Application/LogEvents.h"
-#include "Pufferfish/Util/OrderedMap.h"
+#include "Pufferfish/Application/States.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
-static const uint32_t mute_max_duration = 120000;  // ms
+static const uint64_t countdown_time = 120;  // s
 
 class AlarmMuteService {
  public:
@@ -22,7 +21,9 @@ class AlarmMuteService {
       uint32_t current_time, const AlarmMuteRequest &alarm_mute_request, AlarmMute &alarm_mute);
 
  private:
-  void continue_countdown(AlarmMute &alarm_mute);
+  void continue_countdown(AlarmMute &alarm_mute) const;
+  static const uint32_t mute_max_duration = 120000;  // ms
+  static const uint32_t clock_scale = 1000;          // ms to s
 
   uint32_t mute_duration_ = 0;    // ms
   uint32_t mute_start_time_ = 0;  // ms
