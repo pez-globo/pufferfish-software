@@ -14,13 +14,10 @@
 namespace Pufferfish::Driver::BreathingCircuit {
 
 void AlarmMuteService::input_clock(uint32_t current_time) {
-  if (initial_time_ == 0) {
-    initial_time_ = current_time;
+  if (mute_start_time_ == 0) {
+    mute_start_time_ = current_time;
   }
-  if (update_needed()) {
-    previous_time_ = current_time_;
-  }
-  current_time_ = current_time - initial_time_;
+  mute_duration_ = current_time - mute_start_time_;
 }
 
 void AlarmMuteService::transform(
@@ -31,28 +28,21 @@ void AlarmMuteService::transform(
   if (alarm_mute.active) {
     continue_countdown(alarm_mute);
   } else {
-    initial_time_ = 0;
-    alarm_mute.remaining = countdown_time;
+    mute_start_time_ = current_time;
+    alarm_mute.remaining = mute_max_duration;
   }
 }
 
 void AlarmMuteService::continue_countdown(AlarmMute &alarm_mute) {
-  if (!update_needed()) {
-    return;
-  }
-  alarm_mute.remaining = countdown_time - current_time_;
-}
-
-bool AlarmMuteService::update_needed() const {
-  return !Util::within_timeout(previous_time_, sensor_update_interval, current_time_);
+  alarm_mute.remaining = (mute_max_duration - mute_duration_) / 1000;
 }
 
 void make_state_initializers(Application::StateSegment &request_segment, AlarmMute &response) {
-  response.remaining = countdown_time;
+  response.remaining = mute_max_duration;
 
   AlarmMuteRequest request{};
   request.active = false;
-  request.remaining = countdown_time;
+  request.remaining = mute_max_duration;
   request_segment.set(request);
 }
 }  // namespace Pufferfish::Driver::BreathingCircuit

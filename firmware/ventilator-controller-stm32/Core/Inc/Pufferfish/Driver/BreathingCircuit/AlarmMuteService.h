@@ -14,7 +14,7 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
-static const uint64_t countdown_time = 120;
+static const uint32_t mute_max_duration = 120000;  // ms
 
 class AlarmMuteService {
  public:
@@ -23,14 +23,11 @@ class AlarmMuteService {
 
  private:
   void continue_countdown(AlarmMute &alarm_mute);
-  static const uint32_t sensor_update_interval = 1000;  // ms
 
-  uint32_t current_time_ = 0;   // ms
-  uint32_t previous_time_ = 0;  // ms
-  uint32_t initial_time_ = 0;   // ms
+  uint32_t mute_duration_ = 0;    // ms
+  uint32_t mute_start_time_ = 0;  // ms
 
   void input_clock(uint32_t current_time);
-  [[nodiscard]] bool update_needed() const;
 };
 
 void make_state_initializers(Application::StateSegment &request_segment, AlarmMute &response);
