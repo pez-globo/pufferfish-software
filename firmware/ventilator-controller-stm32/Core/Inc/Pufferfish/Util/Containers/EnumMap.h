@@ -26,14 +26,17 @@ namespace Pufferfish::Util::Containers {
 template <typename Key, typename Value, size_t max_key>
 class EnumMap {
  public:
-  static const size_t max_key_value = max_key;
-
   EnumMap() = default;
   // Construct the EnumMap with an initial set of key-value pairs, given as an
   // initializer list (e.g. EnumMap map{{k1, v1}, {k2, v2}, {k3, v3}};)
   // Note: you must ensure that keys are unique; the value for the last copy of a duplicated key
-  // will overwrite all previous values. Note: this makes copies of the values!
+  // will overwrite all previous values. Note: this constructor makes copies of the values!
+  // cppcheck has a false positive in wanting this constructor to be explicit:
+  // clang-tidy says we can't use explicit for a constructor with an initializer list!
+  // cppcheck-suppress noExplicitConstructor
   EnumMap(std::initializer_list<std::pair<Key, Value>> init);
+
+  [[nodiscard]] static constexpr size_t max_key_value() noexcept { return max_key; }
 
   [[nodiscard]] size_t size() const;
   [[nodiscard]] static constexpr size_t max_size() noexcept { return max_key + 1; }

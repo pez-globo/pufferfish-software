@@ -1294,11 +1294,11 @@ SCENARIO(
     constexpr size_t buffer_size = 252UL;
     ByteVector<buffer_size> buffer;
 
-    Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value> receiver{
+    Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value()> receiver{
         BE::message_descriptors};
 
     WHEN("An empty input buffer body is parsed") {
-      Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value> receiver{
+      Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value()> receiver{
           BE::message_descriptors};
       ByteVector<buffer_size> input_buffer;
 
@@ -1324,7 +1324,7 @@ SCENARIO(
         "A body with an empty payload and 1-byte header whose value is not included in "
         "MessageTypes enum") {
       constexpr size_t buffer_size = 253UL;
-      Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value> receiver{
+      Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value()> receiver{
           BE::message_descriptors};
 
       ByteVector<buffer_size> input_buffer;
@@ -1359,7 +1359,7 @@ SCENARIO(
           {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()},
           {MessageTypes::cycle_measurements, get_protobuf_desc<CycleMeasurements>()}};
 
-      Transport::MessageReceiver<TestMessage, message_descriptors.max_key_value> receiver{
+      Transport::MessageReceiver<TestMessage, message_descriptors.max_key_value()> receiver{
           message_descriptors};
 
       ByteVector<buffer_size> input_buffer;
@@ -1473,7 +1473,8 @@ SCENARIO(
           {MessageTypes::sensor_measurements, get_protobuf_desc<AlarmLimits>()},
           {MessageTypes::cycle_measurements, get_protobuf_desc<AlarmLimitsRequest>()},
           {MessageTypes::parameters, get_protobuf_desc<Parameters>()}};
-      Transport::MessageReceiver<TestMessage, message_descriptors.max_key_value> receiver{message_descriptors};
+      Transport::MessageReceiver<TestMessage, message_descriptors.max_key_value()> receiver{
+          message_descriptors};
 
       ByteVector<buffer_size> input_buffer;
       convert_string_to_byte_vector(exp_parameters, input_buffer);
@@ -1608,7 +1609,7 @@ SCENARIO(
     constexpr size_t buffer_size = 252UL;
     ByteVector<buffer_size> buffer;
 
-    Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value> receiver{
+    Transport::MessageReceiver<TestMessage, BE::message_descriptors.max_key_value()> receiver{
         BE::message_descriptors};
 
     // sensor measurements
@@ -1822,7 +1823,7 @@ SCENARIO(
     Transport::MessageSender<
         TestMessage,
         PF::Application::StateSegment,
-        BE::message_descriptors.max_key_value>
+        BE::message_descriptors.max_key_value()>
         sender{BE::message_descriptors};
 
     WHEN(
@@ -1836,7 +1837,7 @@ SCENARIO(
       Transport::MessageSender<
           TestMessage,
           PF::Application::StateSegment,
-          message_descriptors.max_key_value>
+          message_descriptors.max_key_value()>
           sender{message_descriptors};
 
       tagged_union.tag = MessageTypes::cycle_measurements;
@@ -1862,7 +1863,7 @@ SCENARIO(
       Transport::MessageSender<
           TestMessage,
           PF::Application::StateSegment,
-          message_descriptors.max_key_value>
+          message_descriptors.max_key_value()>
           sender{message_descriptors};
 
       tagged_union.tag = MessageTypes::parameters;
@@ -1905,7 +1906,7 @@ SCENARIO(
       Transport::MessageSender<
           TestMessage,
           PF::Application::StateSegment,
-          BE::message_descriptors.max_key_value>
+          BE::message_descriptors.max_key_value()>
           sender{BE::message_descriptors};
 
       SensorMeasurements sensor_measurements;
