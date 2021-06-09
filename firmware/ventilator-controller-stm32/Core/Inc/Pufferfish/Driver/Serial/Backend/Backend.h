@@ -18,14 +18,14 @@
 #include "Pufferfish/Protocols/Transport/CRCElements.h"
 #include "Pufferfish/Protocols/Transport/Datagrams.h"
 #include "Pufferfish/Protocols/Transport/Messages.h"
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 #include "Pufferfish/Util/Enums.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
 // States
 
-static const auto message_descriptors = Util::make_array<Util::ProtobufDescriptor>(
+static const auto message_descriptors = Util::Containers::make_array<Util::ProtobufDescriptor>(
     // array index should match the type code value
     Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 0
     Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 1
@@ -47,21 +47,22 @@ static const auto message_descriptors = Util::make_array<Util::ProtobufDescripto
 using StateOutputScheduleEntry =
     Protocols::Application::StateOutputScheduleEntry<Application::MessageTypes>;
 
-static const auto state_sync_schedule = Util::make_array<const StateOutputScheduleEntry>(
-    StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-    StateOutputScheduleEntry{10, Application::MessageTypes::parameters},
-    StateOutputScheduleEntry{10, Application::MessageTypes::parameters_request},
-    StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-    StateOutputScheduleEntry{10, Application::MessageTypes::alarm_limits},
-    StateOutputScheduleEntry{10, Application::MessageTypes::alarm_limits_request},
-    StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-    StateOutputScheduleEntry{10, Application::MessageTypes::next_log_events},
-    StateOutputScheduleEntry{10, Application::MessageTypes::active_log_events},
-    StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-    StateOutputScheduleEntry{10, Application::MessageTypes::alarm_mute},
-    StateOutputScheduleEntry{10, Application::MessageTypes::alarm_mute_request},
-    StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-    StateOutputScheduleEntry{10, Application::MessageTypes::cycle_measurements});
+static const auto state_sync_schedule =
+    Util::Containers::make_array<const StateOutputScheduleEntry>(
+        StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, Application::MessageTypes::parameters},
+        StateOutputScheduleEntry{10, Application::MessageTypes::parameters_request},
+        StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, Application::MessageTypes::alarm_limits},
+        StateOutputScheduleEntry{10, Application::MessageTypes::alarm_limits_request},
+        StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, Application::MessageTypes::next_log_events},
+        StateOutputScheduleEntry{10, Application::MessageTypes::active_log_events},
+        StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, Application::MessageTypes::alarm_mute},
+        StateOutputScheduleEntry{10, Application::MessageTypes::alarm_mute_request},
+        StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, Application::MessageTypes::cycle_measurements});
 
 // Backend
 using CRCElementProps =

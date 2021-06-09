@@ -18,7 +18,7 @@
 
 #include "Pufferfish/Statuses.h"
 
-namespace Pufferfish::Util {
+namespace Pufferfish::Util::Containers {
 
 template <typename Element, size_t array_size>
 class Vector {
@@ -60,6 +60,6 @@ class Vector {
 template <size_t array_size>
 using ByteVector = Vector<uint8_t, array_size>;
 
-}  // namespace Pufferfish::Util
+}  // namespace Pufferfish::Util::Containers
 
 #include "Vector.tpp"

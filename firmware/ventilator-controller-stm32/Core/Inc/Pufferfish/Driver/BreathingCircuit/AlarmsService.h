@@ -13,13 +13,13 @@
 
 #include "Pufferfish/Application/Alarms.h"
 #include "Pufferfish/Statuses.h"
-#include "Pufferfish/Util/Array.h"
-#include "Pufferfish/Util/OrderedMap.h"
+#include "Pufferfish/Util/Containers/Array.h"
+#include "Pufferfish/Util/Containers/OrderedMap.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
 // All alarm codes for BreathingCircuit need to be registered in the following array:
-static constexpr auto alarm_codes = Util::make_array<LogEventCode>(
+static constexpr auto alarm_codes = Util::Containers::make_array<LogEventCode>(
     LogEventCode::LogEventCode_spo2_too_low,
     LogEventCode::LogEventCode_spo2_too_high,
     LogEventCode::LogEventCode_hr_too_low,

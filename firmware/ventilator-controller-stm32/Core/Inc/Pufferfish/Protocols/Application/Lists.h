@@ -10,7 +10,7 @@
 #include <limits>
 
 #include "Pufferfish/Statuses.h"
-#include "Pufferfish/Util/RingBuffer.h"
+#include "Pufferfish/Util/Containers/RingBuffer.h"
 
 namespace Pufferfish::Protocols::Application {
 
@@ -34,7 +34,7 @@ class ListSender {
   void output(ListSegment &segment);
 
  private:
-  Util::RingBuffer<max_buffer_len, ListElement> elements_;
+  Util::Containers::RingBuffer<max_buffer_len, ListElement> elements_;
   uint32_t next_expected_ = 0;
   uint32_t total_elements_ = 0;
   uint32_t session_id_ = 0;

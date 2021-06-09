@@ -18,9 +18,10 @@ namespace Pufferfish::Protocols::Transport {
 
 template <typename PayloadBuffer>
 template <size_t output_size>
-IndexStatus Datagram<PayloadBuffer>::write(Util::ByteVector<output_size> &output_buffer) {
+IndexStatus Datagram<PayloadBuffer>::write(
+    Util::Containers::ByteVector<output_size> &output_buffer) {
   static_assert(
-      Util::ByteVector<output_size>::max_size() >=
+      Util::Containers::ByteVector<output_size>::max_size() >=
           (PayloadBuffer::max_size() + DatagramHeaderProps::header_size),
       "Write method unavailable as the size of the output buffer is too small");
   if (output_buffer.resize(DatagramHeaderProps::header_size + payload_.size()) != IndexStatus::ok) {
@@ -40,12 +41,13 @@ IndexStatus Datagram<PayloadBuffer>::write(Util::ByteVector<output_size> &output
 
 template <typename PayloadBuffer>
 template <size_t input_size>
-IndexStatus Datagram<PayloadBuffer>::parse(const Util::ByteVector<input_size> &input_buffer) {
+IndexStatus Datagram<PayloadBuffer>::parse(
+    const Util::Containers::ByteVector<input_size> &input_buffer) {
   static_assert(
       !std::is_const<PayloadBuffer>::value,
       "Parse method unavailable for Datagrams with const PayloadBuffer type");
   static_assert(
-      Util::ByteVector<input_size>::max_size() <=
+      Util::Containers::ByteVector<input_size>::max_size() <=
           (PayloadBuffer::max_size() + DatagramHeaderProps::header_size),
       "Parse method unavailable as the input buffer size is too large");
 
@@ -67,7 +69,7 @@ IndexStatus Datagram<PayloadBuffer>::parse(const Util::ByteVector<input_size> &i
 template <size_t body_max_size>
 template <size_t input_size>
 typename DatagramReceiver<body_max_size>::Status DatagramReceiver<body_max_size>::transform(
-    const Util::ByteVector<input_size> &input_buffer,
+    const Util::Containers::ByteVector<input_size> &input_buffer,
     ParsedDatagram<body_max_size> &output_datagram) {
   if (output_datagram.parse(input_buffer) != IndexStatus::ok) {
     return Status::invalid_parse;
@@ -92,7 +94,7 @@ template <size_t body_max_size>
 template <size_t output_size>
 typename DatagramSender<body_max_size>::Status DatagramSender<body_max_size>::transform(
     const typename Props::PayloadBuffer &input_payload,
-    Util::ByteVector<output_size> &output_buffer) {
+    Util::Containers::ByteVector<output_size> &output_buffer) {
   ConstructedDatagram<body_max_size> datagram(input_payload, next_seq_);
   if (datagram.write(output_buffer) != IndexStatus::ok) {
     return Status::invalid_length;

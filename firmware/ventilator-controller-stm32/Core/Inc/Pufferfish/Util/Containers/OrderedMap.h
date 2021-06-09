@@ -19,7 +19,7 @@
 #include "Pufferfish/Statuses.h"
 #include "Vector.h"
 
-namespace Pufferfish::Util {
+namespace Pufferfish::Util::Containers {
 
 template <typename Key, typename Value, size_t max_pairs>
 class OrderedMap {
@@ -46,6 +46,6 @@ class OrderedMap {
   Vector<Pair, max_pairs> buffer_{};
 };
 
-}  // namespace Pufferfish::Util
+}  // namespace Pufferfish::Util::Containers
 
 #include "OrderedMap.tpp"

@@ -50,7 +50,7 @@
 
 #include "RingBuffer.h"
 
-namespace Pufferfish::Util {
+namespace Pufferfish::Util::Containers {
 
 template <HAL::AtomicSize buffer_size, typename ElementType>
 RingBuffer<buffer_size, ElementType>::RingBuffer() = default;
@@ -143,4 +143,4 @@ size_t RingBuffer<buffer_size, ElementType>::size() const {
   return (newest_index_ - oldest_index_) % buffer_size;
 }
 
-}  // namespace Pufferfish::Util
+}  // namespace Pufferfish::Util::Containers

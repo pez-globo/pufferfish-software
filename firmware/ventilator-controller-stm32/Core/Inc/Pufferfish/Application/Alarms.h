@@ -9,8 +9,7 @@
 
 #include "Pufferfish/Application/LogEvents.h"
 #include "Pufferfish/Protocols/Application/Debouncing.h"
-#include "Pufferfish/Util/Array.h"
-#include "Pufferfish/Util/OrderedMap.h"
+#include "Pufferfish/Util/Containers/OrderedMap.h"
 
 namespace Pufferfish::Application {
 
@@ -27,7 +26,8 @@ class AlarmsManager {
  private:
   unsigned long current_time_ = 0;
   Application::LogEventsManager &log_manager_;
-  Util::OrderedMap<LogEventCode, uint32_t, Application::active_log_events_max_elems> active_alarms_;
+  Util::Containers::OrderedMap<LogEventCode, uint32_t, Application::active_log_events_max_elems>
+      active_alarms_;
   // TODO: allow for elements in debouncers_ to be empty, i.e. no debouncer for an alarm code.
   // This will need a TaggedUnion or an Optional (maybe we should make a special IntMap class
   // with size_t keys backed by an array); we could also use it for pb_message_descriptors

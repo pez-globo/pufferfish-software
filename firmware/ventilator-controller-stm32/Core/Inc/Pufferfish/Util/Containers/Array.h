@@ -11,11 +11,11 @@
 
 #include <array>
 
-namespace Pufferfish::Util {
+namespace Pufferfish::Util::Containers {
 
 template <typename ElementType, typename... Arg>
 constexpr auto make_array(Arg&&... arg) noexcept {
   return std::array<ElementType, sizeof...(Arg)>{{std::forward<ElementType>(arg)...}};
 }
 
-}  // namespace Pufferfish::Util
+}  // namespace Pufferfish::Util::Containers

@@ -9,7 +9,7 @@
 
 #include "OrderedMap.h"
 
-namespace Pufferfish::Util {
+namespace Pufferfish::Util::Containers {
 
 template <typename Key, typename Value, size_t max_pairs>
 size_t OrderedMap<Key, Value, max_pairs>::size() const {
@@ -69,4 +69,4 @@ IndexStatus OrderedMap<Key, Value, max_pairs>::find(const Key &key, size_t &inde
   return IndexStatus::out_of_bounds;
 }
 
-}  // namespace Pufferfish::Util
+}  // namespace Pufferfish::Util::Containers

@@ -11,7 +11,7 @@
 #include <cstdint>
 
 #include "Pufferfish/HAL/Interfaces/CRCChecker.h"
-#include "Pufferfish/Util/Vector.h"
+#include "Pufferfish/Util/Containers/Vector.h"
 
 namespace Pufferfish::Protocols::Transport {
 
@@ -27,7 +27,7 @@ struct CRCElementProps {
   // false positive?
   // NOLINTNEXTLINE(bugprone-dynamic-static-initializers)
   static const size_t payload_max_size = body_max_size - CRCElementHeaderProps::header_size;
-  using PayloadBuffer = Util::ByteVector<payload_max_size>;
+  using PayloadBuffer = Util::Containers::ByteVector<payload_max_size>;
 };
 
 template <typename PayloadBuffer>
@@ -40,23 +40,23 @@ class CRCElement {
 
   template <size_t output_size>
   IndexStatus write(
-      Util::ByteVector<output_size> &output_buffer,
+      Util::Containers::ByteVector<output_size> &output_buffer,
       HAL::Interfaces::CRC32 &crc32c);  // updates length and crc fields
 
   template <size_t input_size>
-  IndexStatus parse(
-      const Util::ByteVector<input_size> &input_buffer);  // updates all fields, including payload
+  IndexStatus parse(const Util::Containers::ByteVector<input_size>
+                        &input_buffer);  // updates all fields, including payload
 
   template <size_t buffer_size>
   static uint32_t compute_body_crc(
-      const Util::ByteVector<buffer_size> &buffer, HAL::Interfaces::CRC32 &crc32c);
+      const Util::Containers::ByteVector<buffer_size> &buffer, HAL::Interfaces::CRC32 &crc32c);
 
  private:
   uint32_t crc_ = 0;
   PayloadBuffer &payload_;
 
   template <size_t output_size>
-  IndexStatus write_protected(Util::ByteVector<output_size> &output_buffer) const;
+  IndexStatus write_protected(Util::Containers::ByteVector<output_size> &output_buffer) const;
 };
 
 // In this CRCElement, the payload can be modified through the parse method, so
@@ -82,7 +82,7 @@ class CRCElementReceiver {
 
   template <size_t input_size>
   Status transform(
-      const Util::ByteVector<input_size> &input_buffer,
+      const Util::Containers::ByteVector<input_size> &input_buffer,
       ParsedCRCElement<body_max_size> &output_crcelement);
 
  private:
@@ -101,7 +101,7 @@ class CRCElementSender {
   template <size_t output_size>
   Status transform(
       const typename Props::PayloadBuffer &input_payload,
-      Util::ByteVector<output_size> &output_buffer);
+      Util::Containers::ByteVector<output_size> &output_buffer);
 
  private:
   HAL::Interfaces::CRC32 &crc32c_;

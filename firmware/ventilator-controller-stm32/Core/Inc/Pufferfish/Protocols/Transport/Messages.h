@@ -9,8 +9,8 @@
 
 #include <cstdint>
 
+#include "Pufferfish/Util/Containers/Vector.h"
 #include "Pufferfish/Util/Protobuf.h"
-#include "Pufferfish/Util/Vector.h"
 #include "nanopb/pb_common.h"
 
 namespace Pufferfish::Protocols::Transport {
@@ -40,12 +40,12 @@ class Message {
 
   template <size_t output_size, size_t num_descriptors>
   MessageStatus write(
-      Util::ByteVector<output_size> &output_buffer,
+      Util::Containers::ByteVector<output_size> &output_buffer,
       const Util::ProtobufDescriptors<num_descriptors> &pb_protobuf_descriptors);
 
   template <size_t input_size, size_t num_descriptors>
   MessageStatus parse(
-      const Util::ByteVector<input_size> &input_buffer,
+      const Util::Containers::ByteVector<input_size> &input_buffer,
       const Util::ProtobufDescriptors<num_descriptors>
           &pb_protobuf_descriptors);  // updates type and payload fields
 };
@@ -58,7 +58,7 @@ class MessageReceiver {
 
   template <size_t input_size>
   MessageStatus transform(
-      const Util::ByteVector<input_size> &input_buffer, Message &output_message) const;
+      const Util::Containers::ByteVector<input_size> &input_buffer, Message &output_message) const;
 
  private:
   const Util::ProtobufDescriptors<num_descriptors> &descriptors_;
@@ -72,7 +72,7 @@ class MessageSender {
 
   template <size_t output_size>
   MessageStatus transform(
-      const TaggedUnion &payload, Util::ByteVector<output_size> &output_buffer) const;
+      const TaggedUnion &payload, Util::Containers::ByteVector<output_size> &output_buffer) const;
 
  private:
   const Util::ProtobufDescriptors<num_descriptors> &descriptors_;

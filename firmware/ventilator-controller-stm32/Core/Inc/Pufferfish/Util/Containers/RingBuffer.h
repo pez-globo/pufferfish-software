@@ -51,7 +51,7 @@
 #include "Pufferfish/HAL/Types.h"
 #include "Pufferfish/Statuses.h"
 
-namespace Pufferfish::Util {
+namespace Pufferfish::Util::Containers {
 
 /**
  * Byte stream with non-blocking queue interface and static allocation.
@@ -148,6 +148,6 @@ class RingBuffer {
   HAL::AtomicSize oldest_index_ = 0;
 };
 
-}  // namespace Pufferfish::Util
+}  // namespace Pufferfish::Util::Containers
 
 #include "RingBuffer.tpp"

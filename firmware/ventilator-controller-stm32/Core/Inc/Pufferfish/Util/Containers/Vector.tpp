@@ -11,7 +11,7 @@
 
 #include "Vector.h"
 
-namespace Pufferfish::Util {
+namespace Pufferfish::Util::Containers {
 
 template <typename Element, size_t array_size>
 size_t Vector<Element, array_size>::size() const {
@@ -108,4 +108,4 @@ IndexStatus Vector<Element, array_size>::copy_from(
   return IndexStatus::ok;
 }
 
-}  // namespace Pufferfish::Util
+}  // namespace Pufferfish::Util::Containers

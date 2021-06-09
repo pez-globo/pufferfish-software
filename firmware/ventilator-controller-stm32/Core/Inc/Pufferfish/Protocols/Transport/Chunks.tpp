@@ -39,7 +39,7 @@ ChunkInputStatus ChunkSplitter<buffer_size, Byte>::input(
 
 template <size_t buffer_size, typename Byte>
 ChunkOutputStatus ChunkSplitter<buffer_size, Byte>::output(
-    Util::Vector<Byte, buffer_size> &output_buffer) {
+    Util::Containers::Vector<Byte, buffer_size> &output_buffer) {
   if (input_status_ == ChunkInputStatus::ok) {
     return ChunkOutputStatus::waiting;
   }
@@ -60,7 +60,7 @@ ChunkOutputStatus ChunkSplitter<buffer_size, Byte>::output(
 
 template <size_t buffer_size, typename Byte>
 ChunkOutputStatus ChunkMerger::transform(
-    Util::Vector<Byte, buffer_size> &input_output_buffer) const {
+    Util::Containers::Vector<Byte, buffer_size> &input_output_buffer) const {
   if (input_output_buffer.push_back(delimiter) == IndexStatus::ok) {
     return ChunkOutputStatus::ok;
   }

@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "Pufferfish/Util/Vector.h"
+#include "Pufferfish/Util/Containers/Vector.h"
 
 namespace Pufferfish::Protocols::Transport {
 
@@ -28,7 +28,7 @@ struct DatagramProps {
   // false positive?
   // NOLINTNEXTLINE(bugprone-dynamic-static-initializers)
   static const size_t payload_max_size = body_max_size - DatagramHeaderProps::header_size;
-  using PayloadBuffer = Util::ByteVector<payload_max_size>;
+  using PayloadBuffer = Util::Containers::ByteVector<payload_max_size>;
 };
 
 template <typename PayloadBuffer>
@@ -44,11 +44,12 @@ class Datagram {
   [[nodiscard]] const PayloadBuffer &payload() const { return payload_; }
 
   template <size_t output_size>
-  IndexStatus write(Util::ByteVector<output_size> &output_buffer);  // updates length crc field
+  IndexStatus write(
+      Util::Containers::ByteVector<output_size> &output_buffer);  // updates length crc field
 
   template <size_t input_size>
-  IndexStatus parse(
-      const Util::ByteVector<input_size> &input_buffer);  // updates all fields, including payload
+  IndexStatus parse(const Util::Containers::ByteVector<input_size>
+                        &input_buffer);  // updates all fields, including payload
 
  private:
   uint8_t seq_ = 0;
@@ -78,7 +79,7 @@ class DatagramReceiver {
 
   template <size_t input_size>
   Status transform(
-      const Util::ByteVector<input_size> &input_buffer,
+      const Util::Containers::ByteVector<input_size> &input_buffer,
       ParsedDatagram<body_max_size> &output_datagram);
 
  private:
@@ -97,7 +98,7 @@ class DatagramSender {
   template <size_t output_size>
   Status transform(
       const typename Props::PayloadBuffer &input_payload,
-      Util::ByteVector<output_size> &output_buffer);
+      Util::Containers::ByteVector<output_size> &output_buffer);
 
  private:
   uint8_t next_seq_ = 0;

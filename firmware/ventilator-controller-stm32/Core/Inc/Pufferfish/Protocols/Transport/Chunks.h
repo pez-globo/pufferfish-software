@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "Pufferfish/Util/Vector.h"
+#include "Pufferfish/Util/Containers/Vector.h"
 
 namespace Pufferfish::Protocols::Transport {
 
@@ -26,10 +26,10 @@ class ChunkSplitter {
 
   // Call this until it returns available, then call output
   ChunkInputStatus input(uint8_t new_byte, bool &input_overwritten);
-  ChunkOutputStatus output(Util::Vector<Byte, buffer_size> &output_buffer);
+  ChunkOutputStatus output(Util::Containers::Vector<Byte, buffer_size> &output_buffer);
 
  private:
-  Util::Vector<Byte, buffer_size> buffer_;
+  Util::Containers::Vector<Byte, buffer_size> buffer_;
   const uint8_t delimiter;
   const bool include_delimiter;
   ChunkInputStatus input_status_ = ChunkInputStatus::ok;
@@ -41,7 +41,8 @@ class ChunkMerger {
   explicit ChunkMerger(uint8_t delimiter = 0x00) : delimiter(delimiter) {}
 
   template <size_t buffer_size, typename Byte = uint8_t>
-  ChunkOutputStatus transform(Util::Vector<Byte, buffer_size> &input_output_buffer) const;
+  ChunkOutputStatus transform(
+      Util::Containers::Vector<Byte, buffer_size> &input_output_buffer) const;
 
  private:
   const uint8_t delimiter = 0x00;
