@@ -61,7 +61,7 @@ class FrameReceiver {
 
  private:
   FrameChunkSplitter chunk_splitter_;
-  const COBSDecoder cobs_decoder;
+  const COBSDecoder cobs_decoder = COBSDecoder();
 };
 
 class FrameSender {
@@ -72,7 +72,7 @@ class FrameSender {
       const FrameProps::PayloadBuffer &input_buffer, FrameProps::ChunkBuffer &output_buffer) const;
 
  private:
-  const COBSEncoder cobs_encoder;
+  const COBSEncoder cobs_encoder = COBSEncoder();
   const Protocols::Transport::ChunkMerger chunk_merger;
 };
 
