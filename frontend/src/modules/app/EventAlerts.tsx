@@ -268,7 +268,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         }
       }, 1000);
     }
-  }, [alarmMuteActive, remaining, dispatch, backendConnected, alarmMuteRequestActive]);
+  }, [alarmMuteActive, remaining, backendConnected, alarmMuteRequestActive]);
 
   /**
    * Update mute AlarmStatus in redux store
