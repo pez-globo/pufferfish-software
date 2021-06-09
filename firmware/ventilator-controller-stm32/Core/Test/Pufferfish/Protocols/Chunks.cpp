@@ -12,8 +12,6 @@
 
 #include "Pufferfish/Protocols/Chunks.h"
 
-#include <iostream>
-
 #include "Pufferfish/Test/Util.h"
 #include "Pufferfish/Util/Array.h"
 #include "Pufferfish/Util/Vector.h"
@@ -29,7 +27,7 @@ SCENARIO(
     "[chunks]") {
   constexpr size_t buffer_size = 256;
   PF::Protocols::ChunkSplitter<buffer_size, uint8_t> chunks;
-  PF::Protocols::ChunkInputStatus status;
+  PF::Protocols::ChunkInputStatus input_status;
   PF::Protocols::ChunkOutputStatus output_status;
   PF::Util::ByteVector<buffer_size> output_buffer;
   bool input_overwritten = false;
@@ -42,8 +40,6 @@ SCENARIO(
         "102 non-delimiter bytes are passed as input, and 103rd byte is passed as a delimiter, and "
         "output is called between each input") {
       uint8_t val = 128;
-      bool input_overwritten = false;
-      PF::Protocols::ChunkInputStatus input_status;
 
       for (size_t i = 0; i < buffer_size; ++i) {
         input_status = chunks.input(val, input_overwritten);
@@ -71,7 +67,6 @@ SCENARIO(
 
   GIVEN("A uint8_t chunksplitter with an empty internal buffer of capacity 256 bytes") {
     PF::Protocols::ChunkInputStatus status;
-    bool input_overwritten = false;
     PF::Util::ByteVector<buffer_size> output_buffer;
     REQUIRE(output_buffer.empty() == true);
 
@@ -688,7 +683,6 @@ SCENARIO(
       "of capacity 256 bytes") {
     constexpr size_t buffer_size = 256;
     PF::Protocols::ChunkSplitter<buffer_size, uint8_t> chunks{};
-    uint8_t val = 128;
     PF::Protocols::ChunkInputStatus input_status;
     PF::Protocols::ChunkOutputStatus output_status;
     PF::Util::ByteVector<buffer_size> output_buffer;
@@ -912,7 +906,6 @@ SCENARIO(
     constexpr size_t buffer_size = 256;
     bool include_delimiter = true;
     PF::Protocols::ChunkSplitter<buffer_size, uint8_t> chunks{0x00, include_delimiter};
-    uint8_t val = 128;
     PF::Protocols::ChunkInputStatus input_status;
     PF::Protocols::ChunkOutputStatus output_status;
     PF::Util::ByteVector<buffer_size> output_buffer;
@@ -1022,12 +1015,10 @@ SCENARIO("Protocols::ChunkMerger behaves correctly", "[chunks]") {
     constexpr size_t buffer_size = 30;
     PF::Protocols::ChunkMerger chunk_merger{};
     PF::Protocols::ChunkOutputStatus output_status;
-    bool input_overwritten = false;
 
     WHEN("A partially full buffer of size 10 bytes is passed as input to transform method") {
       constexpr size_t size = 10;
       PF::Util::ByteVector<size> buffer;
-      PF::IndexStatus index_status;
 
       for (size_t i = 0; i < size - 1; ++i) {
         uint8_t val = 10;
@@ -1065,7 +1056,6 @@ SCENARIO("Protocols::ChunkMerger behaves correctly", "[chunks]") {
     WHEN("An input data with it's last byte equal to the delimiter is passed to transform") {
       constexpr size_t size = 10;
       PF::Util::ByteVector<size> buffer;
-      PF::IndexStatus index_status;
 
       for (size_t i = 0; i < size - 2; ++i) {
         uint8_t val = 10;
@@ -1088,7 +1078,6 @@ SCENARIO("Protocols::ChunkMerger behaves correctly", "[chunks]") {
     WHEN("An input data with it's first byte equal to the delimiter is passed to transform") {
       constexpr size_t size = 10;
       PF::Util::ByteVector<size> buffer;
-      PF::IndexStatus index_status;
 
       buffer.push_back(0x00);
 
@@ -1111,7 +1100,6 @@ SCENARIO("Protocols::ChunkMerger behaves correctly", "[chunks]") {
     WHEN("An input data with multiple delimited chunks is passed as input to transform") {
       constexpr size_t size = 10;
       PF::Util::ByteVector<size> buffer;
-      PF::IndexStatus index_status;
 
       auto data =
           PF::Util::make_array<uint8_t>(0x01, 0x02, 0x00, 0x03, 0x00, 0x04, 0x05, 0x00, 0x07);
@@ -1136,12 +1124,10 @@ SCENARIO("Protocols::ChunkMerger behaves correctly", "[chunks]") {
     constexpr size_t buffer_size = 30;
     PF::Protocols::ChunkMerger chunk_merger{0x01};
     PF::Protocols::ChunkOutputStatus output_status;
-    bool input_overwritten = false;
 
     WHEN("A partially full buffer of size 10 bytes is passed as input to transform method") {
       constexpr size_t size = 10;
       PF::Util::ByteVector<size> buffer;
-      PF::IndexStatus index_status;
 
       for (size_t i = 0; i < size - 1; ++i) {
         uint8_t val = 10;

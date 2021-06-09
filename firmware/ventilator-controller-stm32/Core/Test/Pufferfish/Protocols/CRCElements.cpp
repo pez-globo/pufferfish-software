@@ -27,7 +27,6 @@ SCENARIO(
   using TestCRCElementProps = PF::Protocols::CRCElementProps<buffer_size>;
   using TestCRCElement = PF::Protocols::CRCElement<TestCRCElementProps::PayloadBuffer>;
   using TestCRCElementHeaderProps = PF::Protocols::CRCElementHeaderProps;
-  using TestParsedCRCElement = PF::Protocols::ParsedCRCElement<buffer_size>;
 
   PF::HAL::SoftCRC32 crc32c{PF::HAL::crc32c_params};
   GIVEN("The CRCElement::compute_body_crc static method") {

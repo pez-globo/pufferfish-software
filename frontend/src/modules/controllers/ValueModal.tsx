@@ -8,6 +8,7 @@ import { shallowEqual, useSelector } from 'react-redux';
 import ValueClicker from './ValueClicker';
 import ModalPopup from './ModalPopup';
 import { getRotaryEncoder } from '../../store/controller/selectors';
+import { RotaryEncodeController } from './RotaryEncodeController';
 
 const useStyles = makeStyles((theme: Theme) => ({
   contentContainer: {
@@ -176,41 +177,6 @@ export const ValueModal = ({
   };
 
   /**
-   * Updates the value using Rotary encoder.
-   */
-  const updateRotaryData = useCallback(
-    () => {
-      if (rotaryEncoder === null) {
-        return;
-      }
-
-      if (!open) {
-        return;
-      }
-
-      const stepDiff = rotaryEncoder.stepDiff || 0;
-      const valueClone = value >= min ? value : min;
-      const newValue = valueClone + stepDiff;
-      if (newValue < min) {
-        setValue(min);
-      } else if (newValue > max) {
-        setValue(max);
-      } else {
-        setValue(newValue);
-      }
-      if (rotaryEncoder.buttonPressed) {
-        handleConfirm();
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rotaryEncoder, min, max],
-  );
-
-  useEffect(() => {
-    updateRotaryData();
-  }, [updateRotaryData]);
-
-  /**
    * Function for handling label changed for PIP.
    *
    * @param {string} label - Value label
@@ -264,6 +230,17 @@ export const ValueModal = ({
           </Button>
         )}
       </Grid>
+      {rotaryEncoder !== null ? (
+        <RotaryEncodeController
+          isActive={true}
+          value={value}
+          onClick={(num: number) => {
+            setValue(num);
+          }}
+          min={min}
+          max={max}
+        />
+      ) : null}
       <ModalPopup
         withAction={true}
         label="Set New"
@@ -308,6 +285,11 @@ export const SetValueContent = ({
    */
   const [value, setValue] = React.useState(committedSetting);
   /**
+   * State to manage rotary encoder acitvity
+   */
+  const [isRotaryActive, setIsRotaryActive] = React.useState(false);
+
+  /**
    * Triggers whenever openModal status updates
    */
   useEffect(() => {
@@ -340,42 +322,10 @@ export const SetValueContent = ({
     requestCommitSetting(value);
   }, [requestCommitSetting, value]);
 
-  /**
-   * Function for handling the request commit setting.
-   */
-  const handleConfirm = () => {
-    requestCommitSetting(value);
-  };
-  /**
-   * Updates the value using Rotary encoder.
-   */
-  const updateRotaryData = useCallback(
-    () => {
-      if (rotaryEncoder === null) {
-        return;
-      }
+  // const handleConfirm = () => {
+  //   requestCommitSetting(value);
+  // };
 
-      if (!open || Number.isNaN(rotaryEncoder.stepDiff)) {
-        return;
-      }
-
-      const stepDiff = rotaryEncoder.stepDiff || 0;
-      const valueClone = value >= min ? value : min;
-      const newValue = valueClone + stepDiff;
-      if (newValue < min) {
-        setValue(min);
-      } else if (newValue > max) {
-        setValue(max);
-      } else {
-        setValue(newValue);
-      }
-      if (rotaryEncoder.buttonPressed) {
-        handleConfirm();
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rotaryEncoder, min, max],
-  );
   /**
    * Triggers whenever rotaryEncoder value in redux store is updated.
    */
@@ -384,9 +334,9 @@ export const SetValueContent = ({
     if (isInitialMount.current) {
       isInitialMount.current = false;
     } else {
-      updateRotaryData();
+      setIsRotaryActive(true);
     }
-  }, [updateRotaryData, rotaryEncoder]);
+  }, [rotaryEncoder]);
 
   /**
    * Function for handling label changed for PIP.
@@ -430,7 +380,20 @@ export const SetValueContent = ({
 
   return (
     <Grid container direction="column" alignItems="center" justify="center">
-      {modalContent}
+      {rotaryEncoder !== null ? (
+        <RotaryEncodeController
+          isActive={isRotaryActive}
+          value={value}
+          onClick={(num: number) => {
+            setValue(num);
+          }}
+          min={min}
+          max={max}
+        />
+      ) : null}
+      <Grid container direction="column" alignItems="center" justify="center">
+        {modalContent}
+      </Grid>
     </Grid>
   );
 };

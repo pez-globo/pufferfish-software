@@ -34,7 +34,10 @@ class Button {
  public:
   using Status = Application::Debouncer::Status;
 
-  Button(HAL::DigitalInput &buttoninput, Application::Debouncer &debounce, HAL::Time &time)
+  Button(
+      HAL::Interfaces::DigitalInput &buttoninput,
+      Application::Debouncer &debounce,
+      HAL::Interfaces::Time &time)
       : button_input_(buttoninput), debounce_(debounce), time_(time) {}
 
   /**
@@ -46,9 +49,9 @@ class Button {
   Status read_state(bool &debounced_output, Application::EdgeDetector::State &switch_state_changed);
 
  private:
-  HAL::DigitalInput &button_input_;
+  HAL::Interfaces::DigitalInput &button_input_;
   Application::Debouncer &debounce_;
-  HAL::Time &time_;
+  HAL::Interfaces::Time &time_;
   Application::EdgeDetector edge_detect_;
 };
 

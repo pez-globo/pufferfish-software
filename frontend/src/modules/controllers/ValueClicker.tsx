@@ -53,6 +53,8 @@ interface Props {
   direction?: Direction;
   step?: number;
   referenceKey: string;
+  disableMax?: boolean;
+  disableMin?: boolean;
 }
 enum Type {
   INCREMENT,
@@ -75,6 +77,8 @@ export const ValueClicker = ({
   direction = 'column',
   step = 1,
   referenceKey,
+  disableMax = false,
+  disableMin = false,
 }: Props): JSX.Element => {
   const classes = useStyles();
   const [disabledInterval] = useState(100);
@@ -101,9 +105,9 @@ export const ValueClicker = ({
    * Validating & disabling button when reached min/max value
    */
   useEffect(() => {
-    setDisableIncrement(value >= max);
-    setDisableDecrement(value <= min);
-  }, [min, max, value]);
+    setDisableIncrement(value >= max || disableMin);
+    setDisableDecrement(value <= min || disableMax);
+  }, [min, max, value, disableMin, disableMax]);
 
   /**
    * Click handler for Increment button

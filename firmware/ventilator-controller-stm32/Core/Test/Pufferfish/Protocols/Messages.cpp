@@ -131,7 +131,6 @@ SCENARIO(
         REQUIRE(test_message.payload.tag == PF::Application::MessageTypes::unknown);
       }
       THEN("The payload.values field data remains unchanged") {
-        ParametersRequest parameters_request;
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters_request.flow == 0);
       }
@@ -1392,7 +1391,6 @@ SCENARIO(
     WHEN(
         "A body with an empty payload and 1 byte header of value equal to the message descriptor "
         "array size is parsed") {
-      constexpr size_t num_descriptors = 4;
       constexpr auto message_descriptors = PF::Util::make_array<PF::Util::ProtobufDescriptor>(
           // array index should match the type code value
           PF::Util::get_protobuf_descriptor<PF::Util::UnrecognizedMessage>(),  // 0
@@ -1819,7 +1817,6 @@ SCENARIO(
     const auto exp_alarm_limits = std::string("\x06\x12\x04\x08\x15\x10\x64"s);
     const auto exp_alarm_limits_request = std::string("\x07\x12\x04\x08\x32\x10\x5C"s);
 
-    using TestTaggedUnion = PF::Application::StateSegment;
     constexpr size_t payload_max_size = 252UL;
     using TestMessage = PF::Protocols::Message<
         PF::Application::StateSegment,

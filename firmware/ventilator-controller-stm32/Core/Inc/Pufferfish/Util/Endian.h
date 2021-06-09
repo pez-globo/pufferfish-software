@@ -10,7 +10,7 @@
 #pragma once
 
 #include "Bytes.h"
-#include "Pufferfish/HAL/STM32/Endian.h"
+#include "Pufferfish/HAL/Endian.h"
 
 namespace Pufferfish::Util {
 

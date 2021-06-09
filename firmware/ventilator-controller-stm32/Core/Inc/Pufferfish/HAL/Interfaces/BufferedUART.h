@@ -25,6 +25,7 @@
 
 namespace Pufferfish {
 namespace HAL {
+namespace Interfaces {
 
 class BufferedUART {
  public:
@@ -73,7 +74,10 @@ class BufferedUART {
       AtomicSize write_size,
       uint32_t timeout,
       HAL::AtomicSize &written_size) volatile = 0;
+
+  void setup_irq() volatile;
 };
 
+}  // namespace Interfaces
 }  // namespace HAL
 }  // namespace Pufferfish

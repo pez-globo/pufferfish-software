@@ -32,12 +32,13 @@
 #include <functional>
 
 #include "Pufferfish/AlarmsManager.h"
+#include "Pufferfish/Application/Alarms.h"
 #include "Pufferfish/Application/LogEvents.h"
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/Application/mcu_pb.h"  // Only used for debugging
 #include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/AlarmMuteService.h"
-#include "Pufferfish/Driver/BreathingCircuit/Alarms.h"
+#include "Pufferfish/Driver/BreathingCircuit/AlarmsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
 #include "Pufferfish/Driver/BreathingCircuit/SignalSmoothing.h"
@@ -56,10 +57,11 @@
 #include "Pufferfish/Driver/Serial/FDO2/Sensor.h"
 #include "Pufferfish/Driver/Serial/Nonin/Sensor.h"
 #include "Pufferfish/Driver/ShiftedOutput.h"
-#include "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/Endian.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
 #include "Pufferfish/Statuses.h"
 #include "Pufferfish/Util/Timeouts.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -121,47 +123,46 @@ PF::Driver::BreathingCircuit::AlarmLimitsServices alarm_limits_service;
 PF::Driver::BreathingCircuit::Simulators simulator;
 
 // HAL Utilities
-PF::HAL::HALCRC32 crc32c(hcrc);
+PF::HAL::STM32::CRC32 crc32c(hcrc);
 PF::HAL::STM32::Random rng(hrng);
-
 // HAL Time
-PF::HAL::HALTime time;
+PF::HAL::STM32::Time time;
 
 // Buffered UARTs
-volatile Pufferfish::HAL::LargeBufferedUART backend_uart(huart3, time);
-volatile Pufferfish::HAL::LargeBufferedUART fdo2_uart(huart7, time);
-volatile Pufferfish::HAL::ReadOnlyBufferedUART nonin_oem_uart(huart4, time);
+volatile Pufferfish::HAL::STM32::LargeBufferedUART backend_uart(huart3, time);
+volatile Pufferfish::HAL::STM32::LargeBufferedUART fdo2_uart(huart7, time);
+volatile Pufferfish::HAL::STM32::ReadOnlyBufferedUART nonin_oem_uart(huart4, time);
 
 // UART Serial Communication
 PF::Driver::Serial::Backend::UARTBackend backend(backend_uart, crc32c, store, log_events_sender);
 
 // Create an object for ADC3 of AnalogInput Class
 static const uint32_t adc_poll_timeout = 10;
-PF::HAL::HALAnalogInput adc3_input(hadc3, adc_poll_timeout);
+PF::HAL::STM32::AnalogInput adc3_input(hadc3, adc_poll_timeout);
 
 // The following lines suppress Eclipse CDT's warning about C-style casts;
 // those come from STM32CubeMX-generated #define constants, which we have no
 // control over
 
 // Interface Board
-PF::HAL::HALDigitalOutput ser_clock(
+PF::HAL::STM32::DigitalOutput ser_clock(
     *SER_CLK_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     SER_CLK_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
-PF::HAL::HALDigitalOutput ser_clear(
+PF::HAL::STM32::DigitalOutput ser_clear(
     *SER_CLR_N_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     SER_CLR_N_Pin,  // @suppress("C-Style cast instead of C++ cast")
     false);
-PF::HAL::HALDigitalOutput ser_r_clock(
+PF::HAL::STM32::DigitalOutput ser_r_clock(
     *SER_RCLK_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     SER_RCLK_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
-PF::HAL::HALDigitalOutput ser_input(
+PF::HAL::STM32::DigitalOutput ser_input(
     *SER_IN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     SER_IN_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
 
-PF::HAL::HALDigitalOutput board_led1(
+PF::HAL::STM32::DigitalOutput board_led1(
     *LD1_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     LD1_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 static const uint32_t flash_period = 50;
@@ -182,16 +183,16 @@ PF::Driver::ShiftedOutput led_manual_breath(leds_reg, 5);
 // NOLINTNEXTLINE(readability-magic-numbers)
 PF::Driver::ShiftedOutput led_lock(leds_reg, 6);
 
-PF::HAL::HALDigitalOutput alarm_reg_high(
+PF::HAL::STM32::DigitalOutput alarm_reg_high(
     *ALARM1_HIGH_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     ALARM1_HIGH_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-PF::HAL::HALDigitalOutput alarm_reg_med(
+PF::HAL::STM32::DigitalOutput alarm_reg_med(
     *ALARM1_MED_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     ALARM1_MED_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-PF::HAL::HALDigitalOutput alarm_reg_low(
+PF::HAL::STM32::DigitalOutput alarm_reg_low(
     *ALARM1_LOW_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     ALARM1_LOW_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
-PF::HAL::HALDigitalOutput alarm_buzzer(
+PF::HAL::STM32::DigitalOutput alarm_buzzer(
     *BUZZ1_EN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     BUZZ1_EN_Pin);  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
 
@@ -200,23 +201,23 @@ PF::Driver::Indicators::AuditoryAlarm alarm_dev_sound(
     alarm_reg_high, alarm_reg_med, alarm_reg_low, alarm_buzzer);
 // PF::AlarmsManager h_alarms(alarm_dev_led, alarm_dev_sound);
 
-PF::HAL::HALDigitalInput button_alarm_en(
+PF::HAL::STM32::DigitalInput button_alarm_en(
     *SET_ALARM_EN_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     SET_ALARM_EN_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
-PF::HAL::HALDigitalInput button_full_o2(
+PF::HAL::STM32::DigitalInput button_full_o2(
     *SET_100_O2_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     SET_100_O2_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
-PF::HAL::HALDigitalInput button_manual_breath(
+PF::HAL::STM32::DigitalInput button_manual_breath(
     *SET_MANUAL_BREATH_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     SET_MANUAL_BREATH_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
-PF::HAL::HALDigitalInput button_lock(
+PF::HAL::STM32::DigitalInput button_lock(
     *SET_LOCK_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     SET_LOCK_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
-PF::HAL::HALDigitalInput button_power(
+PF::HAL::STM32::DigitalInput button_power(
     *SET_PWR_ON_OFF_GPIO_Port,  // @suppress("C-Style cast instead of C++ cast") // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
     SET_PWR_ON_OFF_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
@@ -225,20 +226,20 @@ PF::Application::Debouncer switch_debounce;
 PF::Driver::Button::Button button_membrane(button_alarm_en, switch_debounce, time);
 
 // Solenoid Valves
-PF::HAL::HALPWM drive1_ch1(htim2, TIM_CHANNEL_4);
-PF::HAL::HALPWM drive1_ch2(htim2, TIM_CHANNEL_2);
-PF::HAL::HALPWM drive1_ch3(htim3, TIM_CHANNEL_4);
-PF::HAL::HALPWM drive1_ch4(htim3, TIM_CHANNEL_1);
-PF::HAL::HALPWM drive1_ch5(htim3, TIM_CHANNEL_2);
-PF::HAL::HALPWM drive1_ch6(htim3, TIM_CHANNEL_3);
-PF::HAL::HALPWM drive1_ch7(htim4, TIM_CHANNEL_2);
-PF::HAL::HALPWM drive2_ch1(htim4, TIM_CHANNEL_3);
-PF::HAL::HALPWM drive2_ch2(htim4, TIM_CHANNEL_4);
-PF::HAL::HALPWM drive2_ch3(htim5, TIM_CHANNEL_1);
-PF::HAL::HALPWM drive2_ch4(htim8, TIM_CHANNEL_1);
-PF::HAL::HALPWM drive2_ch5(htim8, TIM_CHANNEL_2);
-PF::HAL::HALPWM drive2_ch6(htim8, TIM_CHANNEL_4);
-PF::HAL::HALPWM drive2_ch7(htim12, TIM_CHANNEL_2);
+PF::HAL::STM32::PWM drive1_ch1(htim2, TIM_CHANNEL_4);
+PF::HAL::STM32::PWM drive1_ch2(htim2, TIM_CHANNEL_2);
+PF::HAL::STM32::PWM drive1_ch3(htim3, TIM_CHANNEL_4);
+PF::HAL::STM32::PWM drive1_ch4(htim3, TIM_CHANNEL_1);
+PF::HAL::STM32::PWM drive1_ch5(htim3, TIM_CHANNEL_2);
+PF::HAL::STM32::PWM drive1_ch6(htim3, TIM_CHANNEL_3);
+PF::HAL::STM32::PWM drive1_ch7(htim4, TIM_CHANNEL_2);
+PF::HAL::STM32::PWM drive2_ch1(htim4, TIM_CHANNEL_3);
+PF::HAL::STM32::PWM drive2_ch2(htim4, TIM_CHANNEL_4);
+PF::HAL::STM32::PWM drive2_ch3(htim5, TIM_CHANNEL_1);
+PF::HAL::STM32::PWM drive2_ch4(htim8, TIM_CHANNEL_1);
+PF::HAL::STM32::PWM drive2_ch5(htim8, TIM_CHANNEL_2);
+PF::HAL::STM32::PWM drive2_ch6(htim8, TIM_CHANNEL_4);
+PF::HAL::STM32::PWM drive2_ch7(htim12, TIM_CHANNEL_2);
 
 // Base I2C Devices
 // Note: I2C1 is marked I2C2 in the control board v1.0 schematic, and vice versa
@@ -258,10 +259,10 @@ PF::HAL::HALI2CDevice i2c_hal_press16(hi2c2, PF::Driver::I2C::SFM3000::default_i
 PF::HAL::HALI2CDevice i2c_hal_press17(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
 PF::HAL::HALI2CDevice i2c_hal_press18(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);*/
 
-PF::HAL::HALI2CDevice i2c2_hal_global(hi2c2, 0x00);
-PF::HAL::HALI2CDevice i2c4_hal_global(hi2c4, 0x00);
-PF::HAL::HALI2CDevice i2c_hal_sfm3019_air(hi2c2, PF::Driver::I2C::SFM3019::default_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_sfm3019_o2(hi2c4, PF::Driver::I2C::SFM3019::default_i2c_addr);
+PF::HAL::STM32::I2CDevice i2c2_hal_global(hi2c2, 0x00);
+PF::HAL::STM32::I2CDevice i2c4_hal_global(hi2c4, 0x00);
+PF::HAL::STM32::I2CDevice i2c_hal_sfm3019_air(hi2c2, PF::Driver::I2C::SFM3019::default_i2c_addr);
+PF::HAL::STM32::I2CDevice i2c_hal_sfm3019_o2(hi2c4, PF::Driver::I2C::SFM3019::default_i2c_addr);
 /*
 // I2C Mux
 PF::Driver::I2C::TCA9548A i2c_mux1(i2c_hal_mux1);
@@ -349,7 +350,7 @@ int interface_test_state = 0;
 int interface_test_millis = 0;
 
 // Alarms
-PF::Driver::BreathingCircuit::AlarmsManager alarms_manager(log_events_manager);
+PF::Application::AlarmsManager alarms_manager(log_events_manager);
 PF::Driver::BreathingCircuit::AlarmsServices breathing_circuit_alarms;
 
 // Breathing Circuit Control
@@ -507,7 +508,7 @@ int main(void)
   MX_RNG_Init();
   /* USER CODE BEGIN 2 */
   // Time
-  PF::HAL::HALTime::micros_delay_init();
+  PF::HAL::STM32::Time::micros_delay_init();
 
   /*
   interface_test_millis = time.millis();
