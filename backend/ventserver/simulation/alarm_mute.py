@@ -15,9 +15,9 @@ from ventserver.protocols.protobuf import mcu_pb
 class AlarmMuteService:
     """Implement Alarm Mute Service"""
 
-    current_time: float = attr.ib(default=0)  # ms after initial_time
-    initial_time: float = attr.ib(default=time.time() * 1000)  # ms, Unix time
-    deadline: int = 120000 # ms
+    mute_duration: float = attr.ib(default=0)  # ms after mute_start_time
+    mute_start_time: float = attr.ib(default=time.time() * 1000)  # ms, Unix time
+    mute_max_duration: int = 120000 # ms
 
     def transform(
             self, current_time: float,
@@ -36,7 +36,7 @@ class AlarmMuteService:
         )
         self.update_clock(current_time, alarm_mute)
         self.transform_mute(
-            alarm_mute_request, alarm_mute
+            current_time, alarm_mute_request, alarm_mute
         )
 
     def update_clock(
@@ -46,17 +46,18 @@ class AlarmMuteService:
         """Update the internal state for timing."""
         if not response.active:
             return
-        self.current_time = current_time * 1000 - self.initial_time
+        self.mute_duration = current_time * 1000 - self.mute_start_time
 
     def transform_mute(
-        self, request: mcu_pb.AlarmMuteRequest,
+        self, current_time: float,
+        request: mcu_pb.AlarmMuteRequest,
         response: mcu_pb.AlarmMute
     ) -> None:
         """Implement alarm muting."""
         if response.active:
             self.continue_countdown(response)
         else:
-            self.initial_time = time.time() * 1000
+            self.mute_start_time = current_time * 1000
             response.remaining = 120
 
         response.active = request.active
@@ -65,5 +66,5 @@ class AlarmMuteService:
         self, response: mcu_pb.AlarmMute
     ) -> None:
         """countdown for two minutes."""
-        response.remaining = int((self.deadline - self.current_time) / 1000)
-        max(0, min(response.remaining, 120))
+        response.remaining = int((self.mute_max_duration - self.mute_duration) / 1000)
+        response.remaining = max(0, min(response.remaining, 120))
