@@ -320,8 +320,8 @@ PF::Driver::Serial::Nonin::Device nonin_oem_dev(nonin_oem_uart);
 PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 
 // Initializables
-
 auto initializables = PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem);
+PF::Driver::BreathingCircuit::SensorStates breathing_circuit_sensor_states;
 
 /*
 // Test list
@@ -577,6 +577,14 @@ int main(void)
   }
   board_led1.write(false);
 
+  // Configure the simulators
+  uint32_t discard_i = 0;
+  float discard_f = 0;
+  breathing_circuit_sensor_states.sfm3019_air = sfm3019_air.output(discard_f) == PF::InitializableState::ok;
+  breathing_circuit_sensor_states.sfm3019_o2 = sfm3019_o2.output(discard_f) == PF::InitializableState::ok;
+  breathing_circuit_sensor_states.fdo2 = fdo2.output(discard_i) == PF::InitializableState::ok;
+  breathing_circuit_sensor_states.nonin_oem = nonin_oem.output(discard_f, discard_f) == PF::InitializableState::ok;
+
   // Normal loop
   while (true) {
     uint32_t current_time = time.millis();
@@ -604,6 +612,10 @@ int main(void)
         store.alarm_limits(),
         log_events_manager);
 
+    // Independent Sensors
+    fdo2.output(hfnc.sensor_vars().po2);
+    nonin_oem.output(store.sensor_measurements_raw().spo2, store.sensor_measurements_raw().hr);
+
     // Breathing Circuit Sensor Simulator
     // TODO(lietk12): only simulate SpO2 & HR when Nonin OEM is not producing any data
     // TODO(lietk12): ensure that the simulator simulates flow only when the SFM sensors are down
@@ -611,12 +623,9 @@ int main(void)
         current_time,
         store.parameters(),
         hfnc.sensor_vars(),
+        breathing_circuit_sensor_states,
         store.sensor_measurements_raw(),
         store.cycle_measurements());
-
-    // Independent Sensors
-    fdo2.output(hfnc.sensor_vars().po2);
-    nonin_oem.output(store.sensor_measurements_raw().spo2, store.sensor_measurements_raw().hr);
 
     // Breathing Circuit Control Loop
     hfnc.update(current_time);

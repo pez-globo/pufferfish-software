@@ -49,6 +49,7 @@ bool Simulator::update_needed() const {
 void PCACSimulator::transform(
     const Parameters &parameters,
     const SensorVars & /*sensor_vars*/,
+    const SensorStates & /*sensor_states*/,
     SensorMeasurements &sensor_measurements,
     CycleMeasurements &cycle_measurements) {
   if (!update_needed()) {
@@ -118,6 +119,7 @@ void PCACSimulator::transform_airway_expiratory(
 void HFNCSimulator::transform(
     const Parameters &parameters,
     const SensorVars &sensor_vars,
+    const SensorStates &sensor_states,
     SensorMeasurements &sensor_measurements,
     // cycle_measurements is part of the Simulator interface
     // NOLINTNEXTLINE(misc-unused-parameters)
@@ -132,12 +134,15 @@ void HFNCSimulator::transform(
 
   // Timing
   sensor_measurements.time = current_time();
-  transform_flow(parameters.flow, sensor_measurements.flow);
-  if (sensor_vars.po2 != 0) {
-    // simulate FiO2 from pO2 if pO2 is available
+  if (!sensor_states.sfm3019_air || !sensor_states.sfm3019_o2) {
+    transform_flow(parameters.flow, sensor_measurements.flow);
+  }
+  // If sensor_states.fdo2 && sensor_states.abp, FiO2 should be calculated in ControlLoop
+  if (sensor_states.fdo2) {
+    // simulate FiO2 from pO2
     sensor_measurements.fio2 = sensor_vars.po2 * po2_fio2_conversion;
   } else if (std::abs(sensor_vars.flow_air + sensor_vars.flow_o2) >= 1) {
-    // simulate FiO2 from relative flow rates if flow rates are available
+    // simulate FiO2 from relative flow rates
     float flow_o2_ratio = sensor_vars.flow_o2 / (sensor_vars.flow_air + sensor_vars.flow_o2);
     float inferred_fio2 =
         allowed_fio2.lower * (1 - flow_o2_ratio) + allowed_fio2.upper * flow_o2_ratio;
@@ -146,8 +151,10 @@ void HFNCSimulator::transform(
     // simulate FiO2 from params
     transform_fio2(parameters.fio2, sensor_measurements.fio2);
   }
-  transform_spo2(sensor_measurements.fio2, sensor_measurements.spo2);
-  transform_hr(sensor_measurements.fio2, sensor_measurements.hr);
+  if (!sensor_states.nonin_oem) {
+    transform_spo2(sensor_measurements.fio2, sensor_measurements.spo2);
+    transform_hr(sensor_measurements.fio2, sensor_measurements.hr);
+  }
 }
 
 void HFNCSimulator::init_cycle() {
@@ -189,6 +196,7 @@ void Simulators::transform(
     uint32_t current_time,
     const Parameters &parameters,
     const SensorVars &sensor_vars,
+    const SensorStates &sensor_states,
     SensorMeasurements &sensor_measurements,
     CycleMeasurements &cycle_measurements) {
   switch (parameters.mode) {
@@ -205,7 +213,8 @@ void Simulators::transform(
 
   input_clock(current_time);
 
-  active_simulator_->transform(parameters, sensor_vars, sensor_measurements, cycle_measurements);
+  active_simulator_->transform(
+      parameters, sensor_vars, sensor_states, sensor_measurements, cycle_measurements);
 }
 
 void Simulators::input_clock(uint32_t current_time) {

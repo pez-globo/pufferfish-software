@@ -17,12 +17,20 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+struct SensorStates {
+  bool sfm3019_air;
+  bool sfm3019_o2;
+  bool fdo2;
+  bool nonin_oem;
+};
+
 class Simulator {
  public:
   void input_clock(uint32_t current_time);
   virtual void transform(
       const Parameters &parameters,
       const SensorVars &sensor_vars,
+      const SensorStates &sensor_states,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements) = 0;
 
@@ -56,6 +64,7 @@ class PCACSimulator : public Simulator {
   void transform(
       const Parameters &parameters,
       const SensorVars &sensor_vars,
+      const SensorStates &sensor_states,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements) override;
 
@@ -92,6 +101,7 @@ class HFNCSimulator : public Simulator {
   void transform(
       const Parameters &parameters,
       const SensorVars &sensor_vars,
+      const SensorStates &sensor_states,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements & /*cycle_measurements*/) override;
 
@@ -123,6 +133,7 @@ class Simulators {
       uint32_t current_time,
       const Parameters &parameters,
       const SensorVars &sensor_vars,
+      const SensorStates &sensor_states,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements);
 
