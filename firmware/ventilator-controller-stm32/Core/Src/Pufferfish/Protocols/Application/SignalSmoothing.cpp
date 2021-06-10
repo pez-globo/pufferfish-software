@@ -9,8 +9,6 @@
 
 #include <cmath>
 
-#include "Pufferfish/Util/Timeouts.h"
-
 namespace Pufferfish::Protocols::Application {
 
 // EWMA
@@ -43,13 +41,11 @@ void ConvergenceSmoother::transform(uint32_t current_time, float raw, float &fil
     started_changing_ = false;  // stop the "changing" timer
     if (!started_converging_) {
       // Need to initialize the "converging" timer
-      convergence_start_ = current_time;
+      convergence_timer_.reset(current_time);
       started_converging_ = true;
     }
-    const bool converged =
-        !Util::within_timeout(convergence_start_, convergence_min_duration, current_time);
-    const bool prev_converged =
-        !Util::within_timeout(convergence_start_, convergence_min_duration, prev_time_);
+    const bool converged = !convergence_timer_.within_timeout(current_time);
+    const bool prev_converged = !convergence_timer_.within_timeout(prev_time_);
     if (converged && !prev_converged) {
       // Value has just converged
       converged_ = raw;
@@ -60,10 +56,10 @@ void ConvergenceSmoother::transform(uint32_t current_time, float raw, float &fil
     started_converging_ = false;  // stop the "converging" timer
     if (!started_changing_) {
       // Need to initialize the "changing" timer
-      change_start_ = current_time;
+      change_timer_.reset(current_time);
       started_changing_ = true;
     }
-    if (!Util::within_timeout(change_start_, change_min_duration, current_time)) {
+    if (!change_timer_.within_timeout(current_time)) {
       // Value is transitioning to a different level
       filtered_ = raw;
       converged_ = float_nan;
@@ -78,11 +74,11 @@ void ConvergenceSmoother::transform(uint32_t current_time, float raw, float &fil
 
 DisplaySmoother::Status DisplaySmoother::transform(
     uint32_t current_time, float raw, float &filtered) {
-  if (Util::within_timeout(prev_sample_time_, sampling_interval, current_time)) {
+  if (sampling_timer_.within_timeout(current_time)) {
     return Status::waiting;
   }
 
-  prev_sample_time_ = current_time;
+  sampling_timer_.reset(current_time);
   float ewma_result = float_nan;
   ewma_.transform(raw, ewma_result);
   convergence_.transform(current_time, ewma_result, filtered);

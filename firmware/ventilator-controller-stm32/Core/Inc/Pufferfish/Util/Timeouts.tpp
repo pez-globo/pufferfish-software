@@ -32,4 +32,23 @@ inline bool within_timeout(T start_time, T timeout, T test_time) {
   return duration < timeout;
 }
 
+// Timer
+
+template <typename T>
+Timer<T> &Timer<T>::operator=(const Timer<T> &other) {
+  timeout_ = other.timeout_;
+  start_time_ = other.start_time_;
+  return *this;
+}
+
+template <typename T>
+void Timer<T>::reset(T current_time) {
+  start_time_ = current_time;
+}
+
+template <typename T>
+bool Timer<T>::within_timeout(T current_time) const {
+  return Util::within_timeout(start_time_, timeout_, current_time);
+}
+
 }  // namespace Pufferfish::Util

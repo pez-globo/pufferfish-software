@@ -35,6 +35,29 @@ namespace Util {
 template <typename T>
 inline bool within_timeout(T start_time, T timeout, T test_time);
 
+template <typename T>
+class Timer {
+ public:
+  T timeout_ = 0;
+  T start_time_ = 0;
+
+  Timer(T timeout = 0, T start_time = 0) noexcept : timeout_(timeout), start_time_(start_time) {}
+
+  ~Timer() = default;
+  Timer(const Timer &other) : timeout_(other.timeout_), start_time_(other.start_time_) {}
+  Timer(Timer &&other) = delete;
+
+  Timer &operator=(const Timer &other);
+  Timer &operator=(Timer &&other) = delete;
+
+  inline void reset(T current_time);
+  inline bool within_timeout(T current_time) const;
+  constexpr T duration(T current_time) const { return current_time - start_time_; }
+};
+
+using MsTimer = Timer<uint32_t>;
+using UsTimer = Timer<uint32_t>;
+
 }  // namespace Util
 }  // namespace Pufferfish
 

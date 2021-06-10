@@ -10,8 +10,6 @@
 #include <cmath>
 #include <random>
 
-#include "Pufferfish/Util/Timeouts.h"
-
 namespace Pufferfish::Driver::BreathingCircuit {
 
 // We're using PRNG only to simulate values, so security isn't a problem
@@ -28,7 +26,7 @@ void Simulator::input_clock(uint32_t current_time) {
     initial_time_ = current_time;
   }
   if (update_needed()) {
-    previous_time_ = current_time_;
+    step_timer_.reset(current_time_);
   }
   current_time_ = current_time - initial_time_;
 }
@@ -43,7 +41,7 @@ void Simulator::transform_fio2(float params_fio2, float &sensor_meas_fio2) {
 }
 
 bool Simulator::update_needed() const {
-  return !Util::within_timeout(previous_time_, sensor_update_interval, current_time_);
+  return !step_timer_.within_timeout(current_time_);
 }
 
 // PC-AC Simulator
@@ -64,11 +62,11 @@ void PCACSimulator::transform(
   // Timing
   sensor_measurements.time = current_time();
   uint32_t cycle_period = minute_duration / parameters.rr;
-  if (!Util::within_timeout(cycle_start_time_, cycle_period, current_time())) {
+  if (!cycle_timer_.within_timeout(current_time())) {
     init_cycle(cycle_period, parameters, sensor_measurements);
     transform_cycle_measurements(parameters, cycle_measurements);
   }
-  if (Util::within_timeout(cycle_start_time_, insp_period_, current_time())) {
+  if (insp_timer_.within_timeout(current_time())) {
     transform_airway_inspiratory(parameters, sensor_measurements);
   } else {
     transform_airway_expiratory(parameters, sensor_measurements);
@@ -78,10 +76,11 @@ void PCACSimulator::transform(
 
 void PCACSimulator::init_cycle(
     uint32_t cycle_period, const Parameters &parameters, SensorMeasurements &sensor_measurements) {
-  cycle_start_time_ = current_time();
+  cycle_timer_.reset(current_time());
+  insp_timer_.reset(current_time());
   sensor_measurements.flow = insp_init_flow_rate;
   sensor_measurements.volume = 0;
-  insp_period_ = cycle_period / (1 + 1.0 / parameters.ie);
+  insp_timer_.timeout_ = cycle_period / (1 + 1.0 / parameters.ie);
   sensor_measurements.cycle += 1;
 }
 

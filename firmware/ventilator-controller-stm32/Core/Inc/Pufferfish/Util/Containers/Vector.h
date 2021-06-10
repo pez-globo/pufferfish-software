@@ -24,11 +24,19 @@ namespace Pufferfish::Util::Containers {
 template <typename Element, size_t array_size>
 class Vector {
  public:
+  using Array = typename std::array<Element, array_size>;
+  using Iterator = typename Array::iterator;
+  using ConstIterator = typename Array::const_iterator;
+
   Vector() = default;
   // Construct the Vector with an initial list of elements, given as an
-  // initializer list (e.g. Vector vect{v1, v2, v3};)
+  // initializer list (e.g. Vector<uint8_t, 5> vec{1, 2, 3})
   // Note: this makes copies of the values!
-  Vector(std::initializer_list<Element> init) : buffer_(init), size_(init.size()) {}
+  Vector(std::initializer_list<Element> init) : size_(init.size()) {
+    for (const Element &elem : init) {
+      push_back(elem);
+    }
+  }
 
   [[nodiscard]] size_t size() const;
   [[nodiscard]] static constexpr size_t max_size() noexcept { return array_size; }
@@ -54,11 +62,20 @@ class Vector {
   IndexStatus copy_from(
       const Element *source_bytes, size_t source_size, size_t dest_start_index = 0);
 
+  // TODO: remove these methods!
   [[nodiscard]] constexpr const Element *buffer() const noexcept { return buffer_.data(); }
   constexpr Element *buffer() noexcept { return buffer_.data(); }
 
+  // Note: these are std::array iterators, so their iterators can throw exceptions for bounds
+  // errors! These methods are only provided to support range-based for loops, and they should not
+  // be called directly by other code.
+  [[nodiscard]] Iterator begin() noexcept;
+  [[nodiscard]] ConstIterator cbegin() const noexcept;
+  [[nodiscard]] Iterator end() noexcept;
+  [[nodiscard]] ConstIterator cend() const noexcept;
+
  private:
-  std::array<Element, array_size> buffer_{};
+  Array buffer_{};
   size_t size_ = 0;
 };
 

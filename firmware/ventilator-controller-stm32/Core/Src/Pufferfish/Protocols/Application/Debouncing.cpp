@@ -23,50 +23,56 @@
 
 #include "Pufferfish/Protocols/Application/Debouncing.h"
 
-#include "Pufferfish/Util/Timeouts.h"
-
 namespace Pufferfish::Protocols::Application {
 
 // Debouncer
 
 Debouncer &Debouncer::operator=(const Debouncer &other) {
+  max_integrator_samples_ = other.max_integrator_samples_;
   integrator_ = other.integrator_;
   output_ = other.output_;
-  prev_sample_time_ = other.prev_sample_time_;
-  prev_stable_time_ = other.prev_stable_time_;
+  sampling_timer_ = other.sampling_timer_;
+  bouncing_timer_ = other.bouncing_timer_;
   return *this;
 }
 
 Debouncer::Status Debouncer::transform(bool input, uint32_t current_time, bool &output) {
-  if (Util::within_timeout(prev_sample_time_, sampling_interval, current_time)) {
+  if (sampling_timer_.within_timeout(current_time)) {
     output = output_;
     return Status::waiting;
   }
 
-  prev_sample_time_ = current_time;
+  sampling_timer_.reset(current_time);
 
   // Update the integrator based on the input signal
   if (!input && integrator_ > 0) {
     --integrator_;
-  } else if (input && integrator_ < max_integrator_samples) {
+  } else if (input && integrator_ < max_integrator_samples_) {
     ++integrator_;
   }
   // Update the output based on the integrator
   if (integrator_ == 0) {
     output_ = false;
-    prev_stable_time_ = current_time;
-  } else if (integrator_ >= max_integrator_samples) {
+    bouncing_timer_.reset(current_time);
+  } else if (integrator_ >= max_integrator_samples_) {
     output_ = true;
-    prev_stable_time_ = current_time;
-    integrator_ = max_integrator_samples;  // defensive code if integrator got corrupted
+    bouncing_timer_.reset(current_time);
+    integrator_ = max_integrator_samples_;  // defensive code if integrator got corrupted
   }
   output = output_;
   // Report fault if the input has been bouncing for too long
-  if (!Util::within_timeout(prev_stable_time_, allowed_bounce_duration, current_time)) {
+  if (!bouncing_timer_.within_timeout(current_time)) {
     return Status::unstable;
   }
 
   return Status::ok;
+}
+
+void Debouncer::transform() {
+  integrator_ = 0;
+  output_ = false;
+  sampling_timer_.reset(0);
+  bouncing_timer_.reset(0);
 }
 
 // EdgeDetector

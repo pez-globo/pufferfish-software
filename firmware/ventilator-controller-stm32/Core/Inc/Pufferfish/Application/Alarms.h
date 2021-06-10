@@ -13,42 +13,52 @@
 #include "Pufferfish/Protocols/Application/Debouncing.h"
 #include "Pufferfish/Util/Containers/EnumMap.h"
 #include "Pufferfish/Util/Containers/OrderedMap.h"
+#include "Pufferfish/Util/Timeouts.h"
 
 namespace Pufferfish::Application {
 
+using DebouncersInit =
+    std::initializer_list<std::pair<LogEventCode, Protocols::Application::Debouncer>>;
+using InitWaitersInit = std::initializer_list<std::pair<LogEventCode, Util::MsTimer>>;
+
 class AlarmsManager {
  public:
-  explicit AlarmsManager(Application::LogEventsManager &log_manager) : log_manager_(log_manager) {}
+  explicit AlarmsManager(
+      Application::LogEventsManager &log_manager,
+      const DebouncersInit &debouncers,
+      const InitWaitersInit &init_waiters)
+      : log_manager_(log_manager), debouncers_{debouncers}, init_waiters_{init_waiters} {}
 
   void update_time(uint32_t current_time);
+
   void activate_alarm(LogEventCode alarm_code, LogEventType alarm_type);
   void activate_alarm(LogEventCode alarm_code, LogEventType alarm_type, const Range &alarm_limits);
   void deactivate_alarm(LogEventCode alarm_code);
+
+  void reset_debouncer(LogEventCode alarm_code);
+  void reset_debouncers(const DebouncersInit &debouncers);
+  void reset_init_waiter(LogEventCode alarm_code);
+  void reset_init_waiters(const InitWaitersInit &init_waiters);
+
   IndexStatus transform(ActiveLogEvents &active_log_events) const;
 
  private:
-  Util::Containers::EnumMap<
-      LogEventCode,
-      Protocols::Application::Debouncer,
-      LogEventCode::LogEventCode_hr_too_high>
-      debouncers_{
-          {LogEventCode::LogEventCode_fio2_too_low, Protocols::Application::Debouncer()},
-          {LogEventCode::LogEventCode_fio2_too_high, Protocols::Application::Debouncer()},
-          {LogEventCode::LogEventCode_flow_too_low, Protocols::Application::Debouncer()},
-          {LogEventCode::LogEventCode_flow_too_high, Protocols::Application::Debouncer()},
-          {LogEventCode::LogEventCode_spo2_too_low, Protocols::Application::Debouncer()},
-          {LogEventCode::LogEventCode_spo2_too_high, Protocols::Application::Debouncer()},
-          {LogEventCode::LogEventCode_hr_too_low, Protocols::Application::Debouncer()},
-          {LogEventCode::LogEventCode_hr_too_high, Protocols::Application::Debouncer()}};
+  using Debouncers =
+      Util::Containers::EnumMap<LogEventCode, Protocols::Application::Debouncer, _LogEventCode_MAX>;
+  using InitWaiters = Util::Containers::EnumMap<LogEventCode, Util::MsTimer, _LogEventCode_MAX>;
+
   uint32_t current_time_ = 0;
   Application::LogEventsManager &log_manager_;
+  Debouncers debouncers_;
+  InitWaiters init_waiters_;
   Util::Containers::OrderedMap<LogEventCode, uint32_t, Application::active_log_events_max_elems>
       active_alarms_;
 
   [[nodiscard]] bool is_active(LogEventCode alarm_code) const;
-  [[nodiscard]] bool has_debouncer(LogEventCode alarm_code) const;
   // Returns the output value from the debouncer:
-  bool debounce(LogEventCode alarm_code, bool input_value);
+  bool debounced_output(LogEventCode alarm_code, bool input_value);
+  // Returns whether the init waiter has completed:
+  bool waiting_init(LogEventCode alarm_code);
 };
 
 }  // namespace Pufferfish::Application

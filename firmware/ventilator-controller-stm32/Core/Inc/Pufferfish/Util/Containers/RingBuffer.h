@@ -1,5 +1,5 @@
 /// \file
-/// \brief An interrupt-safe stream backed by a circular buffer.
+/// \brief An interrupt-safe stream backed by a statically-allocated array.
 
 // Copyright (c) 2020 Pez-Globo and the Pufferfish project contributors
 // SPDX-License-Identifier: Apache-2.0

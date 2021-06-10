@@ -22,6 +22,8 @@
 
 #include <cstdint>
 
+#include "Pufferfish/Util/Timeouts.h"
+
 namespace Pufferfish::Protocols::Application {
 
 // Debouncing
@@ -30,29 +32,43 @@ class Debouncer {
  public:
   enum class Status { ok = 0, waiting, unstable };
 
+  static const uint32_t default_sampling_interval = 10;   // ms
+  static const uint32_t default_bouncing_timeout = 2000;  // ms
+
   Debouncer() = default;
+  Debouncer(uint8_t max_integrator_samples, uint32_t sampling_interval)
+      : max_integrator_samples_(max_integrator_samples),
+        sampling_timer_{sampling_interval},
+        bouncing_timer_{default_bouncing_timeout} {}
+  Debouncer(
+      uint8_t max_integrator_samples, uint32_t sampling_interval, uint32_t allowed_bounce_duration)
+      : max_integrator_samples_(max_integrator_samples),
+        sampling_timer_{sampling_interval},
+        bouncing_timer_{allowed_bounce_duration} {}
   ~Debouncer() = default;
   Debouncer(const Debouncer &other)
-      : integrator_(other.integrator_),
+      : max_integrator_samples_(other.max_integrator_samples_),
+        integrator_(other.integrator_),
         output_(other.output_),
-        prev_sample_time_(other.prev_sample_time_),
-        prev_stable_time_(other.prev_stable_time_) {}
+        sampling_timer_(other.sampling_timer_),
+        bouncing_timer_(other.bouncing_timer_) {}
   Debouncer(Debouncer &&other) = delete;
 
   Debouncer &operator=(const Debouncer &other);
   Debouncer &operator=(Debouncer &&other) = delete;
 
   Status transform(bool input, uint32_t current_time, bool &output);
+  // This resets the debouncer
+  void transform();
 
  private:
-  const uint8_t max_integrator_samples = 100;
-  const uint32_t sampling_interval = 10;          // ms
-  const uint32_t allowed_bounce_duration = 2000;  // ms
+  // Normally these would be const, but we need to change them for the assignment operator
+  uint8_t max_integrator_samples_ = 100;
 
   uint8_t integrator_ = 0;
   bool output_ = false;
-  uint32_t prev_sample_time_ = 0;  // ms
-  uint32_t prev_stable_time_ = 0;  // ms
+  Util::MsTimer sampling_timer_;
+  Util::MsTimer bouncing_timer_;
 };
 
 // Edge detection

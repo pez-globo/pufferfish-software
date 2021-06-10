@@ -9,6 +9,8 @@
 #include <cstdint>
 #include <limits>
 
+#include "Pufferfish/Util/Timeouts.h"
+
 namespace Pufferfish::Protocols::Application {
 
 static constexpr float float_nan = std::numeric_limits<float>::quiet_NaN();
@@ -57,20 +59,18 @@ class ConvergenceSmoother {
       uint32_t convergence_min_duration,
       uint32_t change_min_duration)
       : change_min_magnitude(change_min_magnitude),
-        convergence_min_duration(convergence_min_duration),
-        change_min_duration(change_min_duration) {}
+        convergence_timer_(convergence_min_duration),
+        change_timer_(change_min_duration) {}
 
   void transform(uint32_t current_time, float raw, float &filtered);
 
  private:
   const float change_min_magnitude;
-  const uint32_t convergence_min_duration;  // ms
-  const uint32_t change_min_duration;       // ms
 
-  bool started_changing_ = false;
-  uint32_t change_start_ = 0;  // ms
   bool started_converging_ = false;
-  uint32_t convergence_start_ = 0;  // ms
+  Util::MsTimer convergence_timer_;
+  bool started_changing_ = false;
+  Util::MsTimer change_timer_;
   float converged_ = float_nan;
   float filtered_ = float_nan;
 
@@ -96,9 +96,9 @@ class DisplaySmoother {
       float change_min_magnitude,
       float convergence_min_duration,
       float change_min_duration)
-      : sampling_interval(sampling_interval),
-        ewma_(ewma_responsiveness),
-        convergence_(change_min_magnitude, convergence_min_duration, change_min_duration) {}
+      : ewma_(ewma_responsiveness),
+        convergence_(change_min_magnitude, convergence_min_duration, change_min_duration),
+        sampling_timer_{sampling_interval, 0} {}
   DisplaySmoother(uint32_t sampling_interval, SmoothingParameters params)
       : DisplaySmoother(
             sampling_interval,
@@ -110,12 +110,9 @@ class DisplaySmoother {
   Status transform(uint32_t current_time, float raw, float &filtered);
 
  private:
-  const uint32_t sampling_interval;  // ms
-
   EWMA ewma_;
   ConvergenceSmoother convergence_;
-
-  uint32_t prev_sample_time_ = 0;  // ms
+  Util::MsTimer sampling_timer_;
 };
 
 }  // namespace Pufferfish::Protocols::Application

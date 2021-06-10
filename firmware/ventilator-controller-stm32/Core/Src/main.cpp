@@ -38,6 +38,7 @@
 #include "Pufferfish/Application/mcu_pb.h"  // Only used for debugging
 #include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/AlarmMuteService.h"
+#include "Pufferfish/Driver/BreathingCircuit/Alarms.h"
 #include "Pufferfish/Driver/BreathingCircuit/AlarmsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
@@ -351,7 +352,10 @@ int interface_test_state = 0;
 int interface_test_millis = 0;
 
 // Alarms
-PF::Application::AlarmsManager alarms_manager(log_events_manager);
+PF::Application::AlarmsManager alarms_manager(
+    log_events_manager,
+    PF::Driver::BreathingCircuit::debouncers,
+    PF::Driver::BreathingCircuit::init_waiters);
 PF::Driver::BreathingCircuit::AlarmsServices breathing_circuit_alarms;
 
 // Breathing Circuit Control
@@ -551,8 +555,10 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   // Setup
   static const uint32_t setup_indicator_duration = 2000;
+  PF::Util::MsTimer setup_indicator_timer(setup_indicator_duration);
 
   board_led1.write(true);
+  // TODO: encapsulate initializables-related logic into a class in Driver
   while (true) {
     // Run setup on all initializables
     for (size_t i = 0; i < initializables.size(); ++i) {
@@ -564,9 +570,9 @@ int main(void)
             initialization_states.cbegin(),
             initialization_states.cend(),
             PF::InitializableState::failed) != initialization_states.cend()) {
-      const uint32_t flash_start_time = time.millis();
+      setup_indicator_timer.reset(time.millis());
       // Flash the LED rapidly to indicate failure
-      while (PF::Util::within_timeout(flash_start_time, setup_indicator_duration, time.millis())) {
+      while (setup_indicator_timer.within_timeout(time.millis())) {
         flasher.input(time.millis());
         board_led1.write(flasher.output());
       }
@@ -582,8 +588,8 @@ int main(void)
   }
 
   // Blink the LED somewhat slowly to indicate success
-  const uint32_t setup_completion_time = time.millis();
-  while (PF::Util::within_timeout(setup_completion_time, setup_indicator_duration, time.millis())) {
+  setup_indicator_timer.reset(time.millis());
+  while (setup_indicator_timer.within_timeout(time.millis())) {
     blinker.input(time.millis());
     board_led1.write(blinker.output());
   }
@@ -605,17 +611,20 @@ int main(void)
     // Request/response services update
     parameters_service.transform(
         store.parameters_request(),
+        store.has_parameters_request(),
         store.parameters(),
         log_events_manager,
-        store.has_parameters_request());
+        alarms_manager);
     alarm_limits_service.transform(
         store.parameters(),
         store.alarm_limits_request(),
+        store.has_parameters_request() && store.has_alarm_limits_request(),
         store.alarm_limits(),
-        log_events_manager,
-        store.has_parameters_request() && store.has_alarm_limits_request());
+        log_events_manager);
 
     // Breathing Circuit Sensor Simulator
+    // TODO: only simulate SpO2 & HR when Nonin OEM is not producing any data
+    // TODO: ensure that the simulator simulates flow only when the SFM sensors are down
     simulator.transform(
         current_time,
         store.parameters(),
