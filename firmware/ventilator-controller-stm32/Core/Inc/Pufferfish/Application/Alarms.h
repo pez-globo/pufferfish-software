@@ -23,6 +23,7 @@ using InitWaitersInit = std::initializer_list<std::pair<LogEventCode, Util::MsTi
 
 class AlarmsManager {
  public:
+  // TODO(lietk12): provide a way to provide multiple init lists for debouncers and init_waiters?
   explicit AlarmsManager(
       Application::LogEventsManager &log_manager,
       const DebouncersInit &debouncers,

@@ -321,8 +321,7 @@ PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 
 // Initializables
 
-auto initializables =
-    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem);
+auto initializables = PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem);
 
 /*
 // Test list
