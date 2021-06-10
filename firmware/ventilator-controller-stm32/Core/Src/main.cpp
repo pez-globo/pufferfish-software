@@ -602,6 +602,9 @@ int main(void)
   }
   board_led1.write(false);
 
+  bool ltc4015_status =
+      ltc4015_sensor.output(store.mcu_power_status()) == PF::InitializableState::ok;
+
   // Normal loop
   while (true) {
     uint32_t current_time = time.millis();
@@ -659,7 +662,7 @@ int main(void)
         store.alarm_mute(), store.alarm_mute_request());
 
     // LTC4015 battery charging
-    if (ltc4015_sensor.setup() == PF::InitializableState::failed) {
+    if (!ltc4015_status) {
       power_simulator.transform(current_time, store.mcu_power_status());
     } else {
       ltc4015_sensor.output(store.mcu_power_status());
