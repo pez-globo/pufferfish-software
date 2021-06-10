@@ -558,7 +558,7 @@ int main(void)
   PF::Util::MsTimer setup_indicator_timer(setup_indicator_duration);
 
   board_led1.write(true);
-  // TODO: encapsulate initializables-related logic into a class in Driver
+  // TODO(lietk12): encapsulate initializables-related logic into a class in Driver
   while (true) {
     // Run setup on all initializables
     for (size_t i = 0; i < initializables.size(); ++i) {
@@ -623,8 +623,8 @@ int main(void)
         log_events_manager);
 
     // Breathing Circuit Sensor Simulator
-    // TODO: only simulate SpO2 & HR when Nonin OEM is not producing any data
-    // TODO: ensure that the simulator simulates flow only when the SFM sensors are down
+    // TODO(lietk12): only simulate SpO2 & HR when Nonin OEM is not producing any data
+    // TODO(lietk12): ensure that the simulator simulates flow only when the SFM sensors are down
     simulator.transform(
         current_time,
         store.parameters(),

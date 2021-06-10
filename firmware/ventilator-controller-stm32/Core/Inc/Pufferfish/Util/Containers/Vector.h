@@ -62,7 +62,7 @@ class Vector {
   IndexStatus copy_from(
       const Element *source_bytes, size_t source_size, size_t dest_start_index = 0);
 
-  // TODO: remove these methods!
+  // TODO(lietk12): remove these methods!
   [[nodiscard]] constexpr const Element *buffer() const noexcept { return buffer_.data(); }
   constexpr Element *buffer() noexcept { return buffer_.data(); }
 

@@ -80,7 +80,7 @@ void PCACSimulator::init_cycle(
   insp_timer_.reset(current_time());
   sensor_measurements.flow = insp_init_flow_rate;
   sensor_measurements.volume = 0;
-  insp_timer_.timeout_ = cycle_period / (1 + 1.0 / parameters.ie);
+  insp_timer_.set_timeout(cycle_period / (1 + 1.0 / parameters.ie));
   sensor_measurements.cycle += 1;
 }
 

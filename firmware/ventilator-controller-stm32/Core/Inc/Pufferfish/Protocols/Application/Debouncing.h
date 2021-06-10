@@ -32,6 +32,7 @@ class Debouncer {
  public:
   enum class Status { ok = 0, waiting, unstable };
 
+  static const uint8_t default_max_integrator_samples = 100;
   static const uint32_t default_sampling_interval = 10;   // ms
   static const uint32_t default_bouncing_timeout = 2000;  // ms
 
@@ -46,12 +47,7 @@ class Debouncer {
         sampling_timer_{sampling_interval},
         bouncing_timer_{allowed_bounce_duration} {}
   ~Debouncer() = default;
-  Debouncer(const Debouncer &other)
-      : max_integrator_samples_(other.max_integrator_samples_),
-        integrator_(other.integrator_),
-        output_(other.output_),
-        sampling_timer_(other.sampling_timer_),
-        bouncing_timer_(other.bouncing_timer_) {}
+  Debouncer(const Debouncer &other) = default;
   Debouncer(Debouncer &&other) = delete;
 
   Debouncer &operator=(const Debouncer &other);
@@ -63,7 +59,7 @@ class Debouncer {
 
  private:
   // Normally these would be const, but we need to change them for the assignment operator
-  uint8_t max_integrator_samples_ = 100;
+  uint8_t max_integrator_samples_ = default_max_integrator_samples;
 
   uint8_t integrator_ = 0;
   bool output_ = false;

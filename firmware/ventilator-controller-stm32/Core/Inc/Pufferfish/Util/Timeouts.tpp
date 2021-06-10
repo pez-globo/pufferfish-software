@@ -42,6 +42,11 @@ Timer<T> &Timer<T>::operator=(const Timer<T> &other) {
 }
 
 template <typename T>
+void Timer<T>::set_timeout(T timeout) {
+  timeout_ = timeout;
+}
+
+template <typename T>
 void Timer<T>::reset(T current_time) {
   start_time_ = current_time;
 }

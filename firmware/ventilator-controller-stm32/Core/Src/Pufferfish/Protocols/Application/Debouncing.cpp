@@ -27,14 +27,7 @@ namespace Pufferfish::Protocols::Application {
 
 // Debouncer
 
-Debouncer &Debouncer::operator=(const Debouncer &other) {
-  max_integrator_samples_ = other.max_integrator_samples_;
-  integrator_ = other.integrator_;
-  output_ = other.output_;
-  sampling_timer_ = other.sampling_timer_;
-  bouncing_timer_ = other.bouncing_timer_;
-  return *this;
-}
+Debouncer &Debouncer::operator=(const Debouncer &other) = default;
 
 Debouncer::Status Debouncer::transform(bool input, uint32_t current_time, bool &output) {
   if (sampling_timer_.within_timeout(current_time)) {
