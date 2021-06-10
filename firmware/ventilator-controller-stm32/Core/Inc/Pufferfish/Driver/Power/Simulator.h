@@ -21,9 +21,8 @@ class Simulator {
   void transform_charge(PowerManagement &power_management);
   void transform_discharge(PowerManagement &power_management);
 
-  const float power_responsiveness = 0.5;
   static const int max_charge = 100;
-  static const uint32_t sensor_update_interval = 5;  // ms
+  static const uint32_t sensor_update_interval = 1000;  // ms
   bool charging_ = true;
 
   uint32_t current_time_ = 0;   // ms
@@ -32,6 +31,7 @@ class Simulator {
 
   void input_clock(uint32_t current_time);
   [[nodiscard]] bool update_needed() const;
+  [[nodiscard]] bool update_discharge() const;
 };
 
 }  // namespace Pufferfish::Driver::Power

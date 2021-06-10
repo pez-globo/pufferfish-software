@@ -328,7 +328,7 @@ PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 
 // LTC4015
 PF::Driver::I2C::LTC4015::Device ltc4015_dev(i2c_hal_ltc4015);
-PF::Driver::I2C::LTC4015::Sensor ltc4015_sensor(ltc4015_dev, time);
+PF::Driver::I2C::LTC4015::Sensor ltc4015_sensor(ltc4015_dev);
 
 // Power
 PF::Driver::Power::Simulator power_simulator;
@@ -659,7 +659,6 @@ int main(void)
         store.alarm_mute(), store.alarm_mute_request());
 
     // LTC4015 battery charging
-    // TODO: we need to do this similarly for other sfm drivers
     if (ltc4015_sensor.setup() == PF::InitializableState::failed) {
       power_simulator.transform(current_time, store.power_management());
     } else {
