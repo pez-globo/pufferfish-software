@@ -50,8 +50,7 @@ void Simulator::transform_discharge(PowerManagement &power_management) {
   }
   power_management.charging = false;
   power_management.power_left -= 1;
-  if (power_management.power_left <= 0) {
-    power_management.power_left = 0;
+  if (power_management.power_left == 0) {
     charging_ = true;
   }
 }

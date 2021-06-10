@@ -31,7 +31,6 @@ class Simulator {
 
   void input_clock(uint32_t current_time);
   [[nodiscard]] bool update_needed() const;
-  [[nodiscard]] bool update_discharge() const;
 };
 
 }  // namespace Pufferfish::Driver::Power
