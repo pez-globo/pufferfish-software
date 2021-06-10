@@ -23,7 +23,7 @@ class StateMachine {
   // More actions will be added later
   enum class Action { initialize, measure };
 
-  [[nodiscard]] Action update(uint32_t current_time_us);
+  [[nodiscard]] Action update();
 
  private:
   Action next_action_ = Action::initialize;
@@ -34,7 +34,7 @@ class StateMachine {
  */
 class Sensor : public Initializable {
  public:
-  Sensor(Device &device, HAL::Interfaces::Time &time) : device_(device), time_(time) {}
+  explicit Sensor(Device &device) : device_(device) {}
 
   InitializableState setup() override;
   // updates the battery power charging field
@@ -50,10 +50,8 @@ class Sensor : public Initializable {
   Action next_action_ = Action::initialize;
   size_t retry_count_ = 0;
 
-  HAL::Interfaces::Time &time_;
-
-  InitializableState initialize(uint32_t current_time);
-  InitializableState measure(uint32_t current_time_us, PowerManagement &power_management);
+  InitializableState initialize();
+  InitializableState measure(PowerManagement &power_management);
 };
 
 }  // namespace Pufferfish::Driver::I2C::LTC4015

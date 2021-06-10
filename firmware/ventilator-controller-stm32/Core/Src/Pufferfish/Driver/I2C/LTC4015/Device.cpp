@@ -40,8 +40,9 @@ I2CDeviceStatus Device::read_battery_voltage(uint16_t &v_bat) {
   Util::read_bigend(buffer.data(), vbat_value);
   v_bat =
       vbat_value *
-      batt_voltage_conversion;  // https://www.analog.com/media/en/technical-documentation/data-sheets/4015fb.pdf
-                                // #69
+      static_cast<uint16_t>(
+          batt_voltage_conversion);  // https://www.analog.com/media/en/technical-documentation/data-sheets/4015fb.pdf
+                                     // #69
   return I2CDeviceStatus::ok;
 }
 
@@ -56,8 +57,9 @@ I2CDeviceStatus Device::read_input_voltage(uint16_t &v_in) {
   Util::read_bigend(buffer.data(), vin_value);
   v_in =
       vin_value *
-      voltage_conversion;  // https://www.analog.com/media/en/technical-documentation/data-sheets/4015fb.pdf
-                           // #69
+      static_cast<uint16_t>(
+          voltage_conversion);  // https://www.analog.com/media/en/technical-documentation/data-sheets/4015fb.pdf
+                                // #69
   return I2CDeviceStatus::ok;
 }
 
@@ -72,8 +74,9 @@ I2CDeviceStatus Device::read_system_voltage(uint16_t &v_sys) {
   Util::read_bigend(buffer.data(), vsys_value);
   v_sys =
       vsys_value *
-      voltage_conversion;  // https://www.analog.com/media/en/technical-documentation/data-sheets/4015fb.pdf
-                           // #69
+      static_cast<uint16_t>(
+          voltage_conversion);  // https://www.analog.com/media/en/technical-documentation/data-sheets/4015fb.pdf
+                                // #69
   return I2CDeviceStatus::ok;
 }
 
@@ -88,8 +91,9 @@ I2CDeviceStatus Device::read_battery_current(uint16_t &i_bat) {
   Util::read_bigend(buffer.data(), i_bat_value);
   i_bat =
       i_bat_value *
-      current_conversion;  // https://www.analog.com/media/en/technical-documentation/data-sheets/4015fb.pdf
-                           // #69
+      static_cast<uint16_t>(
+          current_conversion);  // https://www.analog.com/media/en/technical-documentation/data-sheets/4015fb.pdf
+                                // #69
   return I2CDeviceStatus::ok;
 }
 
@@ -104,8 +108,9 @@ I2CDeviceStatus Device::read_input_current(uint16_t &i_in) {
   Util::read_bigend(buffer.data(), i_in_value);
   i_in =
       i_in_value *
-      current_conversion;  // https://www.analog.com/media/en/technical-documentation/data-sheets/4015fb.pdf
-                           // #70
+      static_cast<uint16_t>(
+          current_conversion);  // https://www.analog.com/media/en/technical-documentation/data-sheets/4015fb.pdf
+                                // #70
   return I2CDeviceStatus::ok;
 }
 

@@ -13,7 +13,7 @@ namespace Pufferfish::Driver::I2C::LTC4015 {
 
 // StateMachine
 
-StateMachine::Action StateMachine::update(uint32_t current_time_us) {
+StateMachine::Action StateMachine::update() {
   switch (next_action_) {
     case Action::initialize:
       next_action_ = Action::measure;
@@ -29,7 +29,7 @@ StateMachine::Action StateMachine::update(uint32_t current_time_us) {
 InitializableState Sensor::setup() {
   switch (next_action_) {
     case Action::initialize:
-      return initialize(time_.micros());
+      return initialize();
     case Action::measure:
       return InitializableState::ok;
   }
@@ -39,14 +39,14 @@ InitializableState Sensor::setup() {
 InitializableState Sensor::output(PowerManagement &power_management) {
   switch (next_action_) {
     case Action::measure:
-      return measure(time_.micros(), power_management);
+      return measure(power_management);
     default:
       break;
   }
   return InitializableState::failed;
 }
 
-InitializableState Sensor::initialize(uint32_t current_time_us) {
+InitializableState Sensor::initialize() {
   if (retry_count_ > max_retries_setup) {
     return InitializableState::failed;
   }
@@ -61,18 +61,18 @@ InitializableState Sensor::initialize(uint32_t current_time_us) {
     }
   }
 
-  next_action_ = fsm_.update(current_time_us);
+  next_action_ = fsm_.update();
   retry_count_ = 0;  // reset retries to 0 for measuring
   return InitializableState::setup;
 }
 
-InitializableState Sensor::measure(uint32_t current_time_us, PowerManagement &power_management) {
+InitializableState Sensor::measure(PowerManagement &power_management) {
   // check if charger is connected
   bool charging_status = false;
   if (device_.read_charging_status(charging_status) == I2CDeviceStatus::ok) {
     retry_count_ = 0;  // reset retries to 0 for next measurement
     power_management.charging = charging_status;
-    next_action_ = fsm_.update(current_time_us);
+    next_action_ = fsm_.update();
     return InitializableState::ok;
   }
 
