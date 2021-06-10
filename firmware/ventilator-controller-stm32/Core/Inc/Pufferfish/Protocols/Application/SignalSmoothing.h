@@ -86,18 +86,21 @@ class DisplaySmoother {
   struct SmoothingParameters {
     float ewma_responsiveness;
     float change_min_magnitude;
-    float convergence_min_duration;
-    float change_min_duration;
+    uint32_t convergence_min_duration;
+    uint32_t change_min_duration;
   };
 
+  // Cppcheck has a false positive where it thinks ewma_ and convergence_ aren't being initialized
+  // by the constructor - but they clearly are here:
+  // cppcheck-suppress uninitMemberVar
   DisplaySmoother(
       uint32_t sampling_interval,
       float ewma_responsiveness,
       float change_min_magnitude,
-      float convergence_min_duration,
-      float change_min_duration)
-      : ewma_(ewma_responsiveness),
-        convergence_(change_min_magnitude, convergence_min_duration, change_min_duration),
+      uint32_t convergence_min_duration,
+      uint32_t change_min_duration)
+      : ewma_{ewma_responsiveness},
+        convergence_{change_min_magnitude, convergence_min_duration, change_min_duration},
         sampling_timer_{sampling_interval, 0} {}
   DisplaySmoother(uint32_t sampling_interval, SmoothingParameters params)
       : DisplaySmoother(
