@@ -27,8 +27,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <algorithm>
-#include <array>
 #include <functional>
 
 #include "Pufferfish/AlarmsManager.h"
@@ -324,9 +322,7 @@ PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 // Initializables
 
 auto initializables =
-    PF::Util::Containers::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
-        sfm3019_air, sfm3019_o2, fdo2, nonin_oem);
-std::array<PF::InitializableState, initializables.size()> initialization_states;
+    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem);
 
 /*
 // Test list
@@ -558,29 +554,16 @@ int main(void)
   PF::Util::MsTimer setup_indicator_timer(setup_indicator_duration);
 
   board_led1.write(true);
-  // TODO(lietk12): encapsulate initializables-related logic into a class in Driver
   while (true) {
-    // Run setup on all initializables
-    for (size_t i = 0; i < initializables.size(); ++i) {
-      initialization_states[i] = initializables[i].get().setup();
-    }
-
-    // Check initializables' states
-    if (std::find(  // At least one has failed
-            initialization_states.cbegin(),
-            initialization_states.cend(),
-            PF::InitializableState::failed) != initialization_states.cend()) {
+    initializables.setup();
+    if (initializables.setup_failed()) {
       setup_indicator_timer.reset(time.millis());
       // Flash the LED rapidly to indicate failure
       while (setup_indicator_timer.within_timeout(time.millis())) {
         flasher.input(time.millis());
         board_led1.write(flasher.output());
       }
-    } else if (  // At least one is still in setup
-        std::find(
-            initialization_states.cbegin(),
-            initialization_states.cend(),
-            PF::InitializableState::setup) != initialization_states.cend()) {
+    } else if (initializables.setup_in_progress()) {
       board_led1.write(true);
     } else {  // All are done with setup and ok
       break;
