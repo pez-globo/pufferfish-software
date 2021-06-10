@@ -273,6 +273,8 @@ const getLogEventCode = (logEventCode: number) =>
 
 export const getBackendDown = getLogEventCode(LogEventCode.backend_connection_down);
 export const getFirmwareDown = getLogEventCode(LogEventCode.mcu_connection_down);
+// TODO: this selector returns "true" in a scenario where mcu is disconnected and plugged back in,
+// replace the implementation with a "firmwareConnection" protobuf message once available
 export const getFirmwareDisconnected = createSelector(
   getFirmwareDown,
   (event: LogEvent | undefined): boolean => event !== undefined,
