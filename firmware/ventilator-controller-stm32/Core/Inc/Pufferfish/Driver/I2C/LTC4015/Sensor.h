@@ -27,7 +27,6 @@ class StateMachine {
 
  private:
   Action next_action_ = Action::initialize;
-  uint32_t current_time_us_ = 0;
 };
 
 /**

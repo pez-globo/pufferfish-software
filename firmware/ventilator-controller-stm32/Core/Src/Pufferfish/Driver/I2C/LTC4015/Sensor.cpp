@@ -14,7 +14,6 @@ namespace Pufferfish::Driver::I2C::LTC4015 {
 // StateMachine
 
 StateMachine::Action StateMachine::update(uint32_t current_time_us) {
-  current_time_us_ = current_time_us;
   switch (next_action_) {
     case Action::initialize:
       next_action_ = Action::measure;
@@ -39,9 +38,9 @@ InitializableState Sensor::setup() {
 
 InitializableState Sensor::output(PowerManagement &power_management) {
   switch (next_action_) {
-    default:
     case Action::measure:
       return measure(time_.micros(), power_management);
+    default:
       break;
   }
   return InitializableState::failed;
