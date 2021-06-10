@@ -660,12 +660,12 @@ int main(void)
 
     // LTC4015 battery charging
     if (ltc4015_sensor.setup() == PF::InitializableState::failed) {
-      power_simulator.transform(current_time, store.power_management());
+      power_simulator.transform(current_time, store.mcu_power_status());
     } else {
-      ltc4015_sensor.output(store.power_management());
+      ltc4015_sensor.output(store.mcu_power_status());
     }
 
-    power_alarms.transform(store.power_management(), store.active_log_events(), alarms_manager);
+    power_alarms.transform(store.mcu_power_status(), store.active_log_events(), alarms_manager);
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;

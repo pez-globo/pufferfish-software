@@ -97,6 +97,11 @@ typedef struct _ExpectedLogEvent {
     uint32_t session_id; /* used when the sender's log is ephemeral */
 } ExpectedLogEvent;
 
+typedef struct _MCUPowerStatus {
+    uint32_t power_left;
+    bool charging;
+} MCUPowerStatus;
+
 typedef struct _Parameters {
     uint64_t time;
     bool ventilating;
@@ -127,11 +132,6 @@ typedef struct _Ping {
     uint64_t time;
     uint32_t id;
 } Ping;
-
-typedef struct _PowerManagement {
-    uint32_t power_left;
-    bool charging;
-} PowerManagement;
 
 typedef struct _Range {
     int32_t lower;
@@ -280,7 +280,7 @@ extern "C" {
 #define ExpectedLogEvent_init_default            {0, 0}
 #define NextLogEvents_init_default               {0, 0, 0, 0, 0, {LogEvent_init_default, LogEvent_init_default}}
 #define ActiveLogEvents_init_default             {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
-#define PowerManagement_init_default             {0, 0}
+#define MCUPowerStatus_init_default              {0, 0}
 #define ScreenStatus_init_default                {0}
 #define AlarmMute_init_default                   {0, 0}
 #define AlarmMuteRequest_init_default            {0, 0}
@@ -297,7 +297,7 @@ extern "C" {
 #define ExpectedLogEvent_init_zero               {0, 0}
 #define NextLogEvents_init_zero                  {0, 0, 0, 0, 0, {LogEvent_init_zero, LogEvent_init_zero}}
 #define ActiveLogEvents_init_zero                {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
-#define PowerManagement_init_zero                {0, 0}
+#define MCUPowerStatus_init_zero                 {0, 0}
 #define ScreenStatus_init_zero                   {0}
 #define AlarmMute_init_zero                      {0, 0}
 #define AlarmMuteRequest_init_zero               {0, 0}
@@ -319,6 +319,8 @@ extern "C" {
 #define CycleMeasurements_ve_tag                 7
 #define ExpectedLogEvent_id_tag                  1
 #define ExpectedLogEvent_session_id_tag          2
+#define MCUPowerStatus_power_left_tag            1
+#define MCUPowerStatus_charging_tag              2
 #define Parameters_time_tag                      1
 #define Parameters_ventilating_tag               2
 #define Parameters_mode_tag                      3
@@ -341,8 +343,6 @@ extern "C" {
 #define ParametersRequest_ie_tag                 10
 #define Ping_time_tag                            1
 #define Ping_id_tag                              2
-#define PowerManagement_power_left_tag           1
-#define PowerManagement_charging_tag             2
 #define Range_lower_tag                          1
 #define Range_upper_tag                          2
 #define ScreenStatus_lock_tag                    1
@@ -584,11 +584,11 @@ X(a, STATIC,   REPEATED, UINT32,   id,                1)
 #define ActiveLogEvents_CALLBACK NULL
 #define ActiveLogEvents_DEFAULT NULL
 
-#define PowerManagement_FIELDLIST(X, a) \
+#define MCUPowerStatus_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   power_left,        1) \
 X(a, STATIC,   SINGULAR, BOOL,     charging,          2)
-#define PowerManagement_CALLBACK NULL
-#define PowerManagement_DEFAULT NULL
+#define MCUPowerStatus_CALLBACK NULL
+#define MCUPowerStatus_DEFAULT NULL
 
 #define ScreenStatus_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     lock,              1)
@@ -620,7 +620,7 @@ extern const pb_msgdesc_t LogEvent_msg;
 extern const pb_msgdesc_t ExpectedLogEvent_msg;
 extern const pb_msgdesc_t NextLogEvents_msg;
 extern const pb_msgdesc_t ActiveLogEvents_msg;
-extern const pb_msgdesc_t PowerManagement_msg;
+extern const pb_msgdesc_t MCUPowerStatus_msg;
 extern const pb_msgdesc_t ScreenStatus_msg;
 extern const pb_msgdesc_t AlarmMute_msg;
 extern const pb_msgdesc_t AlarmMuteRequest_msg;
@@ -639,7 +639,7 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define ExpectedLogEvent_fields &ExpectedLogEvent_msg
 #define NextLogEvents_fields &NextLogEvents_msg
 #define ActiveLogEvents_fields &ActiveLogEvents_msg
-#define PowerManagement_fields &PowerManagement_msg
+#define MCUPowerStatus_fields &MCUPowerStatus_msg
 #define ScreenStatus_fields &ScreenStatus_msg
 #define AlarmMute_fields &AlarmMute_msg
 #define AlarmMuteRequest_fields &AlarmMuteRequest_msg
@@ -654,11 +654,11 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define CycleMeasurements_size                   41
 #define ExpectedLogEvent_size                    12
 #define LogEvent_size                            124
+#define MCUPowerStatus_size                      8
 #define NextLogEvents_size                       276
 #define ParametersRequest_size                   50
 #define Parameters_size                          50
 #define Ping_size                                17
-#define PowerManagement_size                     8
 #define Range_size                               22
 #define ScreenStatus_size                        2
 #define SensorMeasurements_size                  47
@@ -762,10 +762,10 @@ struct MessageDescriptor<ActiveLogEvents> {
     }
 };
 template <>
-struct MessageDescriptor<PowerManagement> {
+struct MessageDescriptor<MCUPowerStatus> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
-        return &PowerManagement_msg;
+        return &MCUPowerStatus_msg;
     }
 };
 template <>

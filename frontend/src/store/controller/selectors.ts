@@ -15,9 +15,9 @@ import {
   ParametersRequest,
   SensorMeasurements,
   VentilationMode,
-  PowerManagement,
   ScreenStatus,
   Range,
+  MCUPowerStatus,
 } from './proto/mcu_pb';
 import {
   Measurements,
@@ -298,19 +298,19 @@ export const getAlarmMuteRequestActive = createSelector(
 
 // Battery power
 
-export const getPowerManagement = createSelector(
+export const getMcuPowerStatus = createSelector(
   getController,
-  (states: ControllerStates): PowerManagement | null => states.powerManagement,
+  (states: ControllerStates): MCUPowerStatus | null => states.mcuPowerStatus,
 );
 export const getBatteryPowerLeft = createSelector(
-  getPowerManagement,
-  (powerManagement: PowerManagement | null): number =>
-    powerManagement === null ? 0 : powerManagement.powerLeft,
+  getMcuPowerStatus,
+  (mcuPowerStatus: MCUPowerStatus | null): number =>
+    mcuPowerStatus === null ? 0 : mcuPowerStatus.powerLeft,
 );
 export const getChargingStatus = createSelector(
-  getPowerManagement,
-  (powerManagement: PowerManagement | null): boolean =>
-    powerManagement === null ? false : powerManagement.charging,
+  getMcuPowerStatus,
+  (mcuPowerStatus: MCUPowerStatus | null): boolean =>
+    mcuPowerStatus === null ? false : mcuPowerStatus.charging,
 );
 
 // MESSAGE STATES FROM frontend_pb

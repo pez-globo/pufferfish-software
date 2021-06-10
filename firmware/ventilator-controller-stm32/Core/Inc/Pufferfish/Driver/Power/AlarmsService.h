@@ -18,7 +18,7 @@ static constexpr auto alarm_codes =
 class AlarmsService {
  public:
   virtual void transform(
-      PowerManagement &power_management,
+      MCUPowerStatus &mcu_power_status,
       ActiveLogEvents &active_log_events,
       Application::AlarmsManager &alarms_manager);
 };

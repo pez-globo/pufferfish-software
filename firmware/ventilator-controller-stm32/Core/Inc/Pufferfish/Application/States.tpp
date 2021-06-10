@@ -23,7 +23,7 @@ union StateSegmentUnion {
   ActiveLogEvents active_log_events;
   AlarmMute alarm_mute;
   AlarmMuteRequest alarm_mute_request;
-  PowerManagement power_management;
+  MCUPowerStatus mcu_power_status;
 };
 
 }  // namespace Pufferfish::Application

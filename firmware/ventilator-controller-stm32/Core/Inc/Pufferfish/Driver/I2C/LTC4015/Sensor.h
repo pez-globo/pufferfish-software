@@ -38,7 +38,7 @@ class Sensor : public Initializable {
 
   InitializableState setup() override;
   // updates the battery power charging field
-  InitializableState output(PowerManagement &power_management);
+  InitializableState output(MCUPowerStatus &mcu_power_status);
 
  private:
   static const size_t max_retries_setup = 8;    // max retries for setup
@@ -51,7 +51,7 @@ class Sensor : public Initializable {
   size_t retry_count_ = 0;
 
   InitializableState initialize();
-  InitializableState measure(PowerManagement &power_management);
+  InitializableState measure(MCUPowerStatus &mcu_power_status);
 };
 
 }  // namespace Pufferfish::Driver::I2C::LTC4015

@@ -24,8 +24,8 @@ class Service:
     ) -> None:
         """Update the parameters for power management service"""
         power_management = typing.cast(
-         mcu_pb.PowerManagement,
-         store[states.StateSegment.POWER_MANAGEMENT]
+         mcu_pb.MCUPowerStatus,
+         store[states.StateSegment.MCU_POWER_STATUS]
         )
 
         if power_management.charging:
@@ -34,7 +34,7 @@ class Service:
             self._transform_discharge(power_management, events_log)
 
     def _transform_charge(
-        self, power_management: mcu_pb.PowerManagement,
+        self, power_management: mcu_pb.MCUPowerStatus,
         events_log: alarms.Manager
     ) -> None:
         """Simulate battery charging."""
@@ -53,7 +53,7 @@ class Service:
             power_management.charging = False
 
     def _transform_discharge(
-        self, power_management: mcu_pb.PowerManagement,
+        self, power_management: mcu_pb.MCUPowerStatus,
         events_log: alarms.Manager
     ) -> None:
         """Simulate battery discharging."""

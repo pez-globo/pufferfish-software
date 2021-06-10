@@ -36,10 +36,10 @@ InitializableState Sensor::setup() {
   return InitializableState::failed;
 }
 
-InitializableState Sensor::output(PowerManagement &power_management) {
+InitializableState Sensor::output(MCUPowerStatus &mcu_power_status) {
   switch (next_action_) {
     case Action::measure:
-      return measure(power_management);
+      return measure(mcu_power_status);
     default:
       break;
   }
@@ -66,12 +66,12 @@ InitializableState Sensor::initialize() {
   return InitializableState::setup;
 }
 
-InitializableState Sensor::measure(PowerManagement &power_management) {
+InitializableState Sensor::measure(MCUPowerStatus &mcu_power_status) {
   // check if charger is connected
   bool charging_status = false;
   if (device_.read_charging_status(charging_status) == I2CDeviceStatus::ok) {
     retry_count_ = 0;  // reset retries to 0 for next measurement
-    power_management.charging = charging_status;
+    mcu_power_status.charging = charging_status;
     next_action_ = fsm_.update();
     return InitializableState::ok;
   }

@@ -34,7 +34,7 @@ class StateSegment(enum.Enum):
     ACTIVE_LOG_EVENTS_BE = enum.auto()
     ALARM_MUTE = enum.auto()
     ALARM_MUTE_REQUEST = enum.auto()
-    POWER_MANAGEMENT = enum.auto()
+    MCU_POWER_STATUS = enum.auto()
     SCREEN_STATUS = enum.auto()
     # frontend_pb
     ROTARY_ENCODER = enum.auto()
@@ -55,7 +55,7 @@ MCU_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.NextLogEvents: StateSegment.NEXT_LOG_EVENTS_MCU,
     mcu_pb.ActiveLogEvents: StateSegment.ACTIVE_LOG_EVENTS_MCU,
     mcu_pb.AlarmMute: StateSegment.ALARM_MUTE,
-    mcu_pb.PowerManagement: StateSegment.POWER_MANAGEMENT,
+    mcu_pb.MCUPowerStatus: StateSegment.MCU_POWER_STATUS,
     mcu_pb.ScreenStatus: StateSegment.SCREEN_STATUS,
 }
 MCU_OUTPUT_SCHEDULE = collections.deque([
@@ -90,7 +90,7 @@ FRONTEND_OUTPUT_SCHEDULE = collections.deque([
     states.ScheduleEntry(time=0.01, type=StateSegment.ALARM_MUTE),
     states.ScheduleEntry(time=0.01, type=StateSegment.ALARM_MUTE_REQUEST),
     states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.POWER_MANAGEMENT),
+    states.ScheduleEntry(time=0.01, type=StateSegment.MCU_POWER_STATUS),
     states.ScheduleEntry(time=0.01, type=StateSegment.SCREEN_STATUS),
     states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
     states.ScheduleEntry(time=0.01, type=StateSegment.CYCLE_MEASUREMENTS),

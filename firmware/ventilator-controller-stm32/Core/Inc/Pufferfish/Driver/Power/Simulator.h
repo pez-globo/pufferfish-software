@@ -15,11 +15,11 @@ namespace Pufferfish::Driver::Power {
 
 class Simulator {
  public:
-  void transform(uint32_t current_time, PowerManagement &power_management);
+  void transform(uint32_t current_time, MCUPowerStatus &mcu_power_status);
 
  private:
-  void transform_charge(PowerManagement &power_management);
-  void transform_discharge(PowerManagement &power_management);
+  void transform_charge(MCUPowerStatus &mcu_power_status);
+  void transform_discharge(MCUPowerStatus &mcu_power_status);
 
   static const int max_charge = 100;
   static const uint32_t sensor_update_interval = 1000;  // ms

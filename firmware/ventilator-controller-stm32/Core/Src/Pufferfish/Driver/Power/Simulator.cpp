@@ -23,34 +23,34 @@ void Simulator::input_clock(uint32_t current_time) {
   current_time_ = current_time - initial_time_;
 }
 
-void Simulator::transform(uint32_t current_time, PowerManagement &power_management) {
+void Simulator::transform(uint32_t current_time, MCUPowerStatus &mcu_power_status) {
   input_clock(current_time);
   if (charging_) {
-    transform_charge(power_management);
+    transform_charge(mcu_power_status);
   } else {
-    transform_discharge(power_management);
+    transform_discharge(mcu_power_status);
   }
 }
 
-void Simulator::transform_charge(PowerManagement &power_management) {
+void Simulator::transform_charge(MCUPowerStatus &mcu_power_status) {
   if (!update_needed()) {
     return;
   }
-  power_management.charging = true;
-  power_management.power_left += 1;
-  if (power_management.power_left >= max_charge) {
-    power_management.power_left = max_charge;
+  mcu_power_status.charging = true;
+  mcu_power_status.power_left += 1;
+  if (mcu_power_status.power_left >= max_charge) {
+    mcu_power_status.power_left = max_charge;
     charging_ = false;
   }
 }
 
-void Simulator::transform_discharge(PowerManagement &power_management) {
+void Simulator::transform_discharge(MCUPowerStatus &mcu_power_status) {
   if (!update_needed()) {
     return;
   }
-  power_management.charging = false;
-  power_management.power_left -= 1;
-  if (power_management.power_left == 0) {
+  mcu_power_status.charging = false;
+  mcu_power_status.power_left -= 1;
+  if (mcu_power_status.power_left == 0) {
     charging_ = true;
   }
 }

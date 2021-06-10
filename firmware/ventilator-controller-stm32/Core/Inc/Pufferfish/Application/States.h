@@ -41,7 +41,7 @@ enum class MessageTypes : uint8_t {
   active_log_events = 10,
   alarm_mute = 11,
   alarm_mute_request = 12,
-  power_management = 20,
+  mcu_power_status = 20,
 };
 
 // MessageTypeValues should include all defined values of MessageTypes
@@ -59,7 +59,7 @@ using MessageTypeValues = Util::EnumValues<
     MessageTypes::active_log_events,
     MessageTypes::alarm_mute,
     MessageTypes::alarm_mute_request,
-    MessageTypes::power_management>;
+    MessageTypes::mcu_power_status>;
 
 // Since nanopb is running dynamically, we cannot have extensive compile-time type-checking.
 // It's not clear how we might use variants to replace this union, since the nanopb functions
@@ -83,7 +83,7 @@ struct StateSegments {
   ActiveLogEvents active_log_events;
   AlarmMute alarm_mute;
   AlarmMuteRequest alarm_mute_request;
-  PowerManagement power_management;
+  MCUPowerStatus mcu_power_status;
 
   // Internal States
   SensorMeasurements sensor_measurements_raw;
@@ -109,7 +109,7 @@ class Store {
   ActiveLogEvents &active_log_events();
   AlarmMute &alarm_mute();
   AlarmMuteRequest &alarm_mute_request();
-  PowerManagement &power_management();
+  MCUPowerStatus &mcu_power_status();
 
   // Internal States
   SensorMeasurements &sensor_measurements_raw();

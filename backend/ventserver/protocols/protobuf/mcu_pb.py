@@ -205,7 +205,7 @@ class ActiveLogEvents(betterproto.Message):
 
 
 @dataclass
-class PowerManagement(betterproto.Message):
+class MCUPowerStatus(betterproto.Message):
     power_left: int = betterproto.uint32_field(1)
     charging: bool = betterproto.bool_field(2)
 

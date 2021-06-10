@@ -47,7 +47,7 @@ static const auto message_descriptors = Util::make_array<Util::ProtobufDescripto
     Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 17
     Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 18
     Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 19
-    Util::get_protobuf_descriptor<PowerManagement>()             // 20
+    Util::get_protobuf_descriptor<MCUPowerStatus>()              // 20
 );
 
 // State Synchronization
@@ -69,7 +69,7 @@ static const auto state_sync_schedule = Util::make_array<const StateOutputSchedu
     StateOutputScheduleEntry{10, Application::MessageTypes::alarm_mute_request},
     StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
     StateOutputScheduleEntry{10, Application::MessageTypes::cycle_measurements},
-    StateOutputScheduleEntry{10, Application::MessageTypes::power_management});
+    StateOutputScheduleEntry{10, Application::MessageTypes::mcu_power_status});
 
 // Backend
 using CRCElementProps =

@@ -420,7 +420,7 @@ export interface ActiveLogEvents {
   id: number[];
 }
 
-export interface PowerManagement {
+export interface MCUPowerStatus {
   powerLeft: number;
   charging: boolean;
 }
@@ -2703,11 +2703,11 @@ export const ActiveLogEvents = {
   },
 };
 
-const basePowerManagement: object = { powerLeft: 0, charging: false };
+const baseMCUPowerStatus: object = { powerLeft: 0, charging: false };
 
-export const PowerManagement = {
+export const MCUPowerStatus = {
   encode(
-    message: PowerManagement,
+    message: MCUPowerStatus,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
     if (message.powerLeft !== 0) {
@@ -2719,10 +2719,10 @@ export const PowerManagement = {
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): PowerManagement {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MCUPowerStatus {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...basePowerManagement } as PowerManagement;
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2740,8 +2740,8 @@ export const PowerManagement = {
     return message;
   },
 
-  fromJSON(object: any): PowerManagement {
-    const message = { ...basePowerManagement } as PowerManagement;
+  fromJSON(object: any): MCUPowerStatus {
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
     if (object.powerLeft !== undefined && object.powerLeft !== null) {
       message.powerLeft = Number(object.powerLeft);
     } else {
@@ -2755,15 +2755,15 @@ export const PowerManagement = {
     return message;
   },
 
-  toJSON(message: PowerManagement): unknown {
+  toJSON(message: MCUPowerStatus): unknown {
     const obj: any = {};
     message.powerLeft !== undefined && (obj.powerLeft = message.powerLeft);
     message.charging !== undefined && (obj.charging = message.charging);
     return obj;
   },
 
-  fromPartial(object: DeepPartial<PowerManagement>): PowerManagement {
-    const message = { ...basePowerManagement } as PowerManagement;
+  fromPartial(object: DeepPartial<MCUPowerStatus>): MCUPowerStatus {
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
     if (object.powerLeft !== undefined && object.powerLeft !== null) {
       message.powerLeft = object.powerLeft;
     } else {

@@ -185,9 +185,9 @@ message ActiveLogEvents {
   repeated uint32 id = 1;
 }
 
-// Power Management
+// MCU power
 
-message PowerManagement {
+message MCUPowerStatus {
   uint32 power_left = 1;
   bool charging = 2;
 }
