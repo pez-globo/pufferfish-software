@@ -620,8 +620,6 @@ int main(void)
     nonin_oem.output(store.sensor_measurements_raw().spo2, store.sensor_measurements_raw().hr);
 
     // Breathing Circuit Sensor Simulator
-    // TODO(lietk12): only simulate SpO2 & HR when Nonin OEM is not producing any data
-    // TODO(lietk12): ensure that the simulator simulates flow only when the SFM sensors are down
     simulator.transform(
         current_time,
         store.parameters(),

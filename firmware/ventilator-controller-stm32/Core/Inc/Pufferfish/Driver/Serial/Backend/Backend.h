@@ -57,20 +57,20 @@ using StateOutputScheduleEntry =
 
 static const auto state_sync_schedule =
     Util::Containers::make_array<const StateOutputScheduleEntry>(
-        StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-        StateOutputScheduleEntry{10, Application::MessageTypes::parameters},
-        StateOutputScheduleEntry{10, Application::MessageTypes::parameters_request},
-        StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-        StateOutputScheduleEntry{10, Application::MessageTypes::alarm_limits},
-        StateOutputScheduleEntry{10, Application::MessageTypes::alarm_limits_request},
-        StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-        StateOutputScheduleEntry{10, Application::MessageTypes::next_log_events},
-        StateOutputScheduleEntry{10, Application::MessageTypes::active_log_events},
-        StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-        StateOutputScheduleEntry{10, Application::MessageTypes::alarm_mute},
-        StateOutputScheduleEntry{10, Application::MessageTypes::alarm_mute_request},
-        StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-        StateOutputScheduleEntry{10, Application::MessageTypes::cycle_measurements});
+        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, MessageTypes::parameters},
+        StateOutputScheduleEntry{10, MessageTypes::parameters_request},
+        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, MessageTypes::alarm_limits},
+        StateOutputScheduleEntry{10, MessageTypes::alarm_limits_request},
+        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, MessageTypes::next_log_events},
+        StateOutputScheduleEntry{10, MessageTypes::active_log_events},
+        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, MessageTypes::alarm_mute},
+        StateOutputScheduleEntry{10, MessageTypes::alarm_mute_request},
+        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, MessageTypes::cycle_measurements});
 
 // Backend
 using CRCElementProps =
@@ -82,11 +82,11 @@ using Message = Protocols::Transport::Message<
     DatagramProps::payload_max_size>;
 
 using InputStates = Util::EnumValues<
-    Application::MessageTypes,
-    Application::MessageTypes::parameters_request,
-    Application::MessageTypes::alarm_limits_request,
-    Application::MessageTypes::alarm_mute_request,
-    Application::MessageTypes::expected_log_event>;
+    MessageTypes,
+    MessageTypes::parameters_request,
+    MessageTypes::alarm_limits_request,
+    MessageTypes::alarm_mute_request,
+    MessageTypes::expected_log_event>;
 
 class Receiver {
  public:
