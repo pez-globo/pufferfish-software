@@ -45,6 +45,7 @@ class I2CDevice {
 
   /**
    * Reads data from the device
+   * This method should be used when data from a specific memory address needs to be read
    * @param address of the specific register
    * @param buf[out]    output of the data
    * @param count   the number of bytes to be read

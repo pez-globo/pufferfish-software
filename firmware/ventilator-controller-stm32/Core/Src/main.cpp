@@ -659,7 +659,7 @@ int main(void)
         store.alarm_mute(), store.alarm_mute_request());
 
     // LTC4015 battery charging
-    // we need to do this similarly for other sfm drivers
+    // TODO: we need to do this similarly for other sfm drivers
     if (ltc4015_sensor.setup() == PF::InitializableState::failed) {
       power_simulator.transform(current_time, store.power_management());
     } else {

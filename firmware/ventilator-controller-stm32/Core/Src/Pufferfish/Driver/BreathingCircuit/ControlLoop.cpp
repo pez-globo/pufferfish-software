@@ -49,6 +49,7 @@ void HFNCControlLoop::update(uint32_t current_time) {
   }
 
   // Update sensors
+  // TODO(lietk12): investigate the waiting period
   InitializableState air_status = sfm3019_air_.output(sensor_vars_.flow_air);
   InitializableState o2_status = sfm3019_o2_.output(sensor_vars_.flow_o2);
   if (air_status == InitializableState::ok && o2_status == InitializableState::ok) {

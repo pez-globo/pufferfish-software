@@ -65,6 +65,10 @@ class Device {
 
  private:
   I2CDevice i2cdevice_;
+
+  static const float batt_voltage_conversion = 128.176;  // µV
+  static const float voltage_conversion = 1.648;         // mV
+  static const float current_conversion = 1.46487;       // µV/RSNSB
 };
 
 }  // namespace Pufferfish::Driver::I2C::LTC4015
