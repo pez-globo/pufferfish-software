@@ -580,10 +580,13 @@ int main(void)
   // Configure the simulators
   uint32_t discard_i = 0;
   float discard_f = 0;
-  breathing_circuit_sensor_states.sfm3019_air = sfm3019_air.output(discard_f) == PF::InitializableState::ok;
-  breathing_circuit_sensor_states.sfm3019_o2 = sfm3019_o2.output(discard_f) == PF::InitializableState::ok;
+  breathing_circuit_sensor_states.sfm3019_air =
+      sfm3019_air.output(discard_f) == PF::InitializableState::ok;
+  breathing_circuit_sensor_states.sfm3019_o2 =
+      sfm3019_o2.output(discard_f) == PF::InitializableState::ok;
   breathing_circuit_sensor_states.fdo2 = fdo2.output(discard_i) == PF::InitializableState::ok;
-  breathing_circuit_sensor_states.nonin_oem = nonin_oem.output(discard_f, discard_f) == PF::InitializableState::ok;
+  breathing_circuit_sensor_states.nonin_oem =
+      nonin_oem.output(discard_f, discard_f) == PF::InitializableState::ok;
 
   // Normal loop
   while (true) {

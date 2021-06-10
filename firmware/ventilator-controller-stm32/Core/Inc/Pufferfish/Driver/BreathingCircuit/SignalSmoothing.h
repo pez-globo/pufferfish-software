@@ -18,7 +18,7 @@ class SensorMeasurementsSmoothers {
   static constexpr SmoothingParameters fio2_params{1, 0.5, 100, 100};
   static constexpr SmoothingParameters flow_params{1, 0.5, 100, 100};
   static constexpr SmoothingParameters spo2_params{1, 0.5, 100, 1000};
-  static constexpr SmoothingParameters hr_params{1, 1.0, 100, 2000};
+  static constexpr SmoothingParameters hr_params{1, 0.5, 100, 1000};
 
   static const uint32_t sampling_interval = 5;  // ms
 
