@@ -3,7 +3,7 @@
 import functools
 import logging
 import time
-from typing import Callable, Optional, TypeVar, Tuple, List, Type
+from typing import Callable, Optional, Mapping, TypeVar, Tuple, List, Type
 
 import trio
 import betterproto
@@ -349,7 +349,8 @@ async def process_all(
 async def load_file_states(
         states: List[Type[betterproto.Message]],
         protocol: server.Protocol,
-        filehandler: fileio.Handler
+        filehandler: fileio.Handler,
+        fallback_states: Mapping[Type[betterproto.Message], betterproto.Message]
 ) -> None:
     """Initialize state values from state store or default values."""
     for state in states:
@@ -358,18 +359,18 @@ async def load_file_states(
             await filehandler.open()
             async with filehandler:
                 message = await filehandler.receive()
-                logger.info("State initialized from file: %s", state.__name__)
+                logger.info("Initializing from file: %s", state.__name__)
                 protocol.receive.input(
-                    server.ReceiveDataEvent(
-                        file_receive=file.StateData(
-                            state_type=state.__name__, data=message
-                        )
-                    )
+                    server.ReceiveDataEvent(file_receive=file.StateData(
+                        state_type=state.__name__, data=message
+                    ))
                 )
-        except OSError as err:
+        except (OSError, exceptions.ProtocolDataError) as err:
             logger.error(err)
-        except exceptions.ProtocolDataError as err:
-            logger.error(err)
+            logger.warning("Initializing from default: %s", state.__name__)
+            protocol.receive.input(
+                server.ReceiveDataEvent(file_receive=fallback_states[state])
+            )
 
     while True:
         output = protocol.receive.output()
