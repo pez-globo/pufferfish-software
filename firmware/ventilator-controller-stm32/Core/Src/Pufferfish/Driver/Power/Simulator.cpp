@@ -38,7 +38,7 @@ void Simulator::transform(uint32_t current_time, PowerManagement &power_manageme
   if (charging_) {
     transform_charge(power_management);
   } else {
-    initial_time_ = current_time;
+    initial_time_ = 0;
     transform_discharge(power_management);
   }
 }
