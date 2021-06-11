@@ -30,6 +30,8 @@ class I2CDevice : public Interfaces::I2CDevice {
 
   I2CDeviceStatus read(uint8_t *buf, size_t count) override;
 
+  I2CDeviceStatus read(uint16_t address, uint8_t *buf, size_t count) override;
+
   /**
    * Note: there *could* be a race condition that modifies buf
    *    when this is being used with DMA and IT HAL_I2C

@@ -47,6 +47,7 @@ STATESEGMENT_TAGGED_SETTER(NextLogEvents, next_log_events)
 STATESEGMENT_TAGGED_SETTER(ActiveLogEvents, active_log_events)
 STATESEGMENT_TAGGED_SETTER(AlarmMute, alarm_mute)
 STATESEGMENT_TAGGED_SETTER(AlarmMuteRequest, alarm_mute_request)
+STATESEGMENT_TAGGED_SETTER(MCUPowerStatus, mcu_power_status)
 
 }  // namespace Pufferfish::Util
 
@@ -106,6 +107,10 @@ AlarmMuteRequest &Store::alarm_mute_request() {
   return state_segments_.alarm_mute_request;
 }
 
+MCUPowerStatus &Store::mcu_power_status() {
+  return state_segments_.mcu_power_status;
+}
+
 SensorMeasurements &Store::sensor_measurements_raw() {
   return state_segments_.sensor_measurements_raw;
 }
@@ -130,6 +135,7 @@ Store::InputStatus Store::input(const StateSegment &input, bool default_initiali
     case MessageTypes::alarm_limits:
       STATESEGMENT_GET_TAGGED(alarm_limits, input);
       return InputStatus::ok;
+
     case MessageTypes::alarm_limits_request:
       STATESEGMENT_GET_TAGGED(alarm_limits_request, input);
       if (!default_initialization) {
@@ -150,6 +156,9 @@ Store::InputStatus Store::input(const StateSegment &input, bool default_initiali
       return InputStatus::ok;
     case MessageTypes::alarm_mute_request:
       STATESEGMENT_GET_TAGGED(alarm_mute_request, input);
+      return InputStatus::ok;
+    case MessageTypes::mcu_power_status:
+      STATESEGMENT_GET_TAGGED(mcu_power_status, input);
       return InputStatus::ok;
     default:
       return InputStatus::invalid_type;
@@ -190,6 +199,9 @@ Store::OutputStatus Store::output(MessageTypes type, StateSegment &output) const
       return OutputStatus::ok;
     case MessageTypes::alarm_mute_request:
       output.set(state_segments_.alarm_mute_request);
+      return OutputStatus::ok;
+    case MessageTypes::mcu_power_status:
+      output.set(state_segments_.mcu_power_status);
       return OutputStatus::ok;
     default:
       return OutputStatus::invalid_type;

@@ -48,7 +48,8 @@ static const MessageDescriptors message_descriptors{
     {MessageTypes::next_log_events, Util::get_protobuf_desc<NextLogEvents>()},
     {MessageTypes::active_log_events, Util::get_protobuf_desc<ActiveLogEvents>()},
     {MessageTypes::alarm_mute, Util::get_protobuf_desc<AlarmMute>()},
-    {MessageTypes::alarm_mute_request, Util::get_protobuf_desc<AlarmMuteRequest>()}};
+    {MessageTypes::alarm_mute_request, Util::get_protobuf_desc<AlarmMuteRequest>()},
+    {MessageTypes::mcu_power_status, Util::get_protobuf_desc<MCUPowerStatus>()}};
 
 // State Synchronization
 
@@ -70,7 +71,8 @@ static const auto state_sync_schedule =
         StateOutputScheduleEntry{10, MessageTypes::alarm_mute},
         StateOutputScheduleEntry{10, MessageTypes::alarm_mute_request},
         StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
-        StateOutputScheduleEntry{10, MessageTypes::cycle_measurements});
+        StateOutputScheduleEntry{10, MessageTypes::cycle_measurements},
+        StateOutputScheduleEntry{10, MessageTypes::mcu_power_status});
 
 // Backend
 using CRCElementProps =

@@ -45,7 +45,7 @@ PB_BIND(NextLogEvents, NextLogEvents, AUTO)
 PB_BIND(ActiveLogEvents, ActiveLogEvents, AUTO)
 
 
-PB_BIND(BatteryPower, BatteryPower, AUTO)
+PB_BIND(MCUPowerStatus, MCUPowerStatus, AUTO)
 
 
 PB_BIND(ScreenStatus, ScreenStatus, AUTO)

@@ -48,6 +48,7 @@ class LogEventCode(betterproto.Enum):
     backend_connection_up = 134
     frontend_connection_up = 135
     battery_low = 136
+    charger_disconnected = 137
 
 
 class LogEventType(betterproto.Enum):
@@ -204,9 +205,9 @@ class ActiveLogEvents(betterproto.Message):
 
 
 @dataclass
-class BatteryPower(betterproto.Message):
-    power_left: int = betterproto.uint32_field(1)
-    charging_status: bool = betterproto.bool_field(2)
+class MCUPowerStatus(betterproto.Message):
+    power_left: float = betterproto.float_field(1)
+    charging: bool = betterproto.bool_field(2)
 
 
 @dataclass
