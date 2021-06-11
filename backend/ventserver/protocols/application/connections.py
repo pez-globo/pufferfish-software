@@ -97,8 +97,8 @@ class ActionStatus(events.Event):
 
 
 @attr.s
-class ActionDebouncer(protocols.Filter[ActionStatus, bool]):
-    """Filter for debouncing actions responding to connection timeouts.
+class ActionTrigger(protocols.Filter[ActionStatus, bool]):
+    """Filter for triggering one-shot or repeated actions.
 
     If the interval is 0, the action will not be debounced - it will always be
     specified as ready to run. If the interval is None, the action will not be

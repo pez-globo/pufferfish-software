@@ -7,8 +7,6 @@
 
 #include "Pufferfish/Driver/Serial/FDO2/Sensor.h"
 
-#include "Pufferfish/Util/Timeouts.h"
-
 // This macro is used to add a checker for the value of a specified request type with an associated
 // union field and enum value. We use a macro because it makes the code more maintainable here,
 // while allowing us to ensure union tagging.
@@ -27,41 +25,32 @@ namespace Pufferfish::Driver::Serial::FDO2 {
 // StateMachine
 
 StateMachine::Action StateMachine::update(uint32_t current_time, bool passed_check) {
-  current_time_ = current_time;
   switch (next_action_) {
     case Action::request_version:
-      start_request();
+      response_timer_.reset(current_time);
       next_action_ = Action::check_version;
       break;
     case Action::check_version:
       if (passed_check) {
         next_action_ = Action::start_broadcast;
-      } else if (timed_out()) {
+      } else if (!response_timer_.within_timeout(current_time)) {
         next_action_ = Action::request_version;
       }
       break;
     case Action::start_broadcast:
-      start_request();
+      response_timer_.reset(current_time);
       next_action_ = Action::check_broadcast;
       break;
     case Action::check_broadcast:
       if (passed_check) {
         next_action_ = Action::wait_measurement;
-      } else if (timed_out()) {
+      } else if (!response_timer_.within_timeout(current_time)) {
         next_action_ = Action::start_broadcast;
       }
     case Action::wait_measurement:
       break;
   }
   return next_action_;
-}
-
-void StateMachine::start_request() {
-  request_time_ = current_time_;
-}
-
-bool StateMachine::timed_out() const {
-  return !Util::within_timeout(request_time_, response_timeout, current_time_);
 }
 
 RESPONSE_TAGGED_COMPARISON(Responses::Vers, vers)

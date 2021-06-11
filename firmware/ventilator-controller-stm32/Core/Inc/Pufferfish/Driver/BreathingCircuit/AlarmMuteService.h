@@ -9,8 +9,7 @@
 
 #pragma once
 
-#include "Pufferfish/Application/LogEvents.h"
-#include "Pufferfish/Util/OrderedMap.h"
+#include "Pufferfish/Application/States.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
 

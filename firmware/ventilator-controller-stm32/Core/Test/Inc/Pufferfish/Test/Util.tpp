@@ -8,10 +8,10 @@
  */
 #include "Util.h"
 
-namespace Pufferfish::Util {
+namespace Pufferfish::Util::Containers {
 
 template <size_t payload_size>
-bool operator==(const Pufferfish::Util::ByteVector<payload_size>& lhs, const std::string& rhs) {
+bool operator==(const ByteVector<payload_size>& lhs, const std::string& rhs) {
   if (lhs.size() != rhs.size()) {
     return false;
   }
@@ -24,14 +24,12 @@ bool operator==(const Pufferfish::Util::ByteVector<payload_size>& lhs, const std
 }
 
 template <size_t payload_size>
-bool operator!=(const Pufferfish::Util::ByteVector<payload_size>& lhs, const std::string& rhs) {
+bool operator!=(const ByteVector<payload_size>& lhs, const std::string& rhs) {
   return !(lhs == rhs);
 }
 
 template <size_t payload_size>
-bool operator==(
-    const Pufferfish::Util::ByteVector<payload_size>& lhs,
-    const Pufferfish::Util::ByteVector<payload_size>& rhs) {
+bool operator==(const ByteVector<payload_size>& lhs, const ByteVector<payload_size>& rhs) {
   if (lhs.size() != rhs.size()) {
     return false;
   }
@@ -44,15 +42,13 @@ bool operator==(
 }
 
 template <size_t payload_size>
-bool operator!=(
-    const Pufferfish::Util::ByteVector<payload_size>& lhs,
-    const Pufferfish::Util::ByteVector<payload_size>& rhs) {
+bool operator!=(const ByteVector<payload_size>& lhs, const ByteVector<payload_size>& rhs) {
   return !(lhs == rhs);
 }
 
 template <size_t payload_size>
 bool convert_string_to_byte_vector(
-    const std::string& input_string, Pufferfish::Util::ByteVector<payload_size>& output_buffer) {
+    const std::string& input_string, ByteVector<payload_size>& output_buffer) {
   if (input_string.size() >= payload_size) {
     return false;
   }
@@ -63,8 +59,7 @@ bool convert_string_to_byte_vector(
 }
 
 template <size_t payload_size>
-std::string convert_byte_vector_to_hex_string(
-    const Pufferfish::Util::ByteVector<payload_size>& input_buffer) {
+std::string convert_byte_vector_to_hex_string(const ByteVector<payload_size>& input_buffer) {
   std::string output_string;
   for (size_t i = 0; i < input_buffer.size(); ++i) {
     auto& ch = input_buffer[i];
@@ -90,4 +85,4 @@ std::string convert_byte_vector_to_hex_string(
   return output_string;
 }
 
-}  // namespace Pufferfish::Util
+}  // namespace Pufferfish::Util::Containers
