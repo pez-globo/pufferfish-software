@@ -188,7 +188,7 @@ message ActiveLogEvents {
 // MCU power
 
 message MCUPowerStatus {
-  uint32 power_left = 1;
+  float power_left = 1;
   bool charging = 2;
 }
 

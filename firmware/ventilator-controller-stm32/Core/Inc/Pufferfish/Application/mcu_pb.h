@@ -98,7 +98,7 @@ typedef struct _ExpectedLogEvent {
 } ExpectedLogEvent;
 
 typedef struct _MCUPowerStatus {
-    uint32_t power_left;
+    float power_left;
     bool charging;
 } MCUPowerStatus;
 
@@ -585,7 +585,7 @@ X(a, STATIC,   REPEATED, UINT32,   id,                1)
 #define ActiveLogEvents_DEFAULT NULL
 
 #define MCUPowerStatus_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   power_left,        1) \
+X(a, STATIC,   SINGULAR, FLOAT,    power_left,        1) \
 X(a, STATIC,   SINGULAR, BOOL,     charging,          2)
 #define MCUPowerStatus_CALLBACK NULL
 #define MCUPowerStatus_DEFAULT NULL
@@ -654,7 +654,7 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define CycleMeasurements_size                   41
 #define ExpectedLogEvent_size                    12
 #define LogEvent_size                            124
-#define MCUPowerStatus_size                      8
+#define MCUPowerStatus_size                      7
 #define NextLogEvents_size                       276
 #define ParametersRequest_size                   50
 #define Parameters_size                          50

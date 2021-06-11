@@ -50,7 +50,8 @@ void Simulator::transform_discharge(MCUPowerStatus &mcu_power_status) {
   }
   mcu_power_status.charging = false;
   mcu_power_status.power_left -= 1;
-  if (mcu_power_status.power_left == 0) {
+  if (mcu_power_status.power_left <= 0) {
+    mcu_power_status.power_left = 0;
     charging_ = true;
   }
 }

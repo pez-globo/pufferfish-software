@@ -2711,7 +2711,7 @@ export const MCUPowerStatus = {
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
     if (message.powerLeft !== 0) {
-      writer.uint32(8).uint32(message.powerLeft);
+      writer.uint32(13).float(message.powerLeft);
     }
     if (message.charging === true) {
       writer.uint32(16).bool(message.charging);
@@ -2727,7 +2727,7 @@ export const MCUPowerStatus = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.powerLeft = reader.uint32();
+          message.powerLeft = reader.float();
           break;
         case 2:
           message.charging = reader.bool();
