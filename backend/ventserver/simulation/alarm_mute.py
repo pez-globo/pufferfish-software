@@ -12,13 +12,13 @@ from ventserver.protocols.backend import states
 from ventserver.protocols.protobuf import mcu_pb
 
 @attr.s
-class AlarmMuteService:
+class Service:
     """Implement Alarm Mute Service"""
 
     mute_duration: float = attr.ib(default=0)  # ms after mute_start_time
     mute_start_time: float = \
         attr.ib(default=time.time() * 1000)  # ms, Unix time
-    mute_max_duration: int = 120000 # ms
+    mute_max_duration: float = 120000 # ms
 
     def transform(
             self, current_time: float,
