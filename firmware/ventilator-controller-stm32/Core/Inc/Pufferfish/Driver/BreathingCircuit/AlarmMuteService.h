@@ -13,7 +13,8 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
-static const uint64_t countdown_time = 120;  // s
+static const uint32_t mute_max_duration = 120000;  // ms
+static const uint32_t clock_scale = 1000;          // ms to s
 
 class AlarmMuteService {
  public:
@@ -21,9 +22,6 @@ class AlarmMuteService {
       uint32_t current_time, const AlarmMuteRequest &alarm_mute_request, AlarmMute &alarm_mute);
 
  private:
-  static const uint32_t mute_max_duration = 120000;  // ms
-  static const uint32_t clock_scale = 1000;          // ms to s
-
   uint32_t mute_duration_ = 0;    // ms
   uint32_t mute_start_time_ = 0;  // ms
 

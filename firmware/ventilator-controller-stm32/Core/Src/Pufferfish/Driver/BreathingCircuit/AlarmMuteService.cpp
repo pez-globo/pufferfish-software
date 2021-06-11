@@ -7,6 +7,8 @@
 
 #include "Pufferfish/Driver/BreathingCircuit/AlarmMuteService.h"
 
+#include "Pufferfish/Util/Ranges.h"
+
 // AlarmMuteService
 
 namespace Pufferfish::Driver::BreathingCircuit {
@@ -24,7 +26,10 @@ void AlarmMuteService::transform(
   input_clock(current_time);
 
   if (alarm_mute.active) {
-    alarm_mute.remaining = (mute_max_duration - mute_duration_) / clock_scale;
+    alarm_mute.remaining =
+        (static_cast<int64_t>(mute_max_duration) - static_cast<int64_t>(mute_duration_)) /
+        clock_scale;
+    alarm_mute.remaining = Util::clamp(alarm_mute.remaining, 0, mute_max_duration / clock_scale);
   } else {
     mute_start_time_ = current_time;
     alarm_mute.remaining = mute_max_duration / clock_scale;
@@ -32,11 +37,11 @@ void AlarmMuteService::transform(
 }
 
 void make_state_initializers(Application::StateSegment &request_segment, AlarmMute &response) {
-  response.remaining = countdown_time;
+  response.remaining = mute_max_duration / clock_scale;
 
   AlarmMuteRequest request{};
   request.active = false;
-  request.remaining = countdown_time;
+  request.remaining = mute_max_duration / clock_scale;
   request_segment.set(request);
 }
 }  // namespace Pufferfish::Driver::BreathingCircuit
