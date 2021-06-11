@@ -365,6 +365,7 @@ PF::Application::AlarmsManager alarms_manager(
     PF::Driver::BreathingCircuit::init_waiters);
 PF::Driver::BreathingCircuit::AlarmsServices breathing_circuit_alarms;
 PF::Driver::Power::AlarmsService power_alarms;
+PF::Driver::BreathingCircuit::AlarmMuteService alarm_mute_service;
 
 // Breathing Circuit Control
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
@@ -659,8 +660,7 @@ int main(void)
         alarms_manager);
 
     // Alarm Mute Service
-    PF::Driver::BreathingCircuit::AlarmMuteService::transform(
-        store.alarm_mute(), store.alarm_mute_request());
+    alarm_mute_service.transform(current_time, store.alarm_mute_request(), store.alarm_mute());
 
     // LTC4015 battery charging
     if (!ltc4015_status) {

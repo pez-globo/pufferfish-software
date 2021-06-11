@@ -68,12 +68,12 @@ typedef struct _ActiveLogEvents {
 
 typedef struct _AlarmMute {
     bool active;
-    float remaining;
+    uint64_t remaining;
 } AlarmMute;
 
 typedef struct _AlarmMuteRequest {
     bool active;
-    float remaining;
+    uint64_t remaining;
 } AlarmMuteRequest;
 
 typedef PB_BYTES_ARRAY_T(64) Announcement_announcement_t;
@@ -597,13 +597,13 @@ X(a, STATIC,   SINGULAR, BOOL,     lock,              1)
 
 #define AlarmMute_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     active,            1) \
-X(a, STATIC,   SINGULAR, FLOAT,    remaining,         2)
+X(a, STATIC,   SINGULAR, UINT64,   remaining,         2)
 #define AlarmMute_CALLBACK NULL
 #define AlarmMute_DEFAULT NULL
 
 #define AlarmMuteRequest_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     active,            1) \
-X(a, STATIC,   SINGULAR, FLOAT,    remaining,         2)
+X(a, STATIC,   SINGULAR, UINT64,   remaining,         2)
 #define AlarmMuteRequest_CALLBACK NULL
 #define AlarmMuteRequest_DEFAULT NULL
 
@@ -648,8 +648,8 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define ActiveLogEvents_size                     192
 #define AlarmLimitsRequest_size                  347
 #define AlarmLimits_size                         347
-#define AlarmMuteRequest_size                    7
-#define AlarmMute_size                           7
+#define AlarmMuteRequest_size                    13
+#define AlarmMute_size                           13
 #define Announcement_size                        77
 #define CycleMeasurements_size                   41
 #define ExpectedLogEvent_size                    12

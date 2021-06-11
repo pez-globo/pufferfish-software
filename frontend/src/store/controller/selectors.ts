@@ -18,6 +18,7 @@ import {
   ScreenStatus,
   Range,
   MCUPowerStatus,
+  LogEventCode,
 } from './proto/mcu_pb';
 import {
   Measurements,
@@ -153,6 +154,7 @@ export const getParametersRequest = createSelector(
   getParameters,
   (parameters: ParametersRequestResponse): ParametersRequest | null => parameters.request,
 );
+export const getParametersRequestVentilating = isVentilatingSelector(getParametersRequest);
 export const getParametersRequestMode = ventilationModeSelector(getParametersRequest);
 // Draft
 export const getParametersRequestDraft = createSelector(
@@ -263,7 +265,20 @@ export const getPopupEventLog = createSelector(getController, (states: Controlle
   const maxId = Math.max(...states.eventLog.activeLogEvents.id);
   return states.eventLog.nextLogEvents.elements.find((el: LogEvent) => el.id === maxId);
 });
+// Event log code selector
+const getLogEventCode = (logEventCode: number) =>
+  createSelector(getNextLogEvents, (events: LogEvent[]): LogEvent | undefined =>
+    events.find((el: LogEvent) => (el.code as number) === logEventCode),
+  );
 
+export const getBackendDown = getLogEventCode(LogEventCode.backend_connection_down);
+export const getFirmwareDown = getLogEventCode(LogEventCode.mcu_connection_down);
+// TODO: this selector returns "true" in a scenario where mcu is disconnected and plugged back in,
+// replace the implementation with a "firmwareConnection" protobuf message once available
+export const getFirmwareDisconnected = createSelector(
+  getFirmwareDown,
+  (event: LogEvent | undefined): boolean => event !== undefined,
+);
 // Backend Initialized
 export const getBackendInitialized = createSelector(
   getParametersRequest,
@@ -274,6 +289,14 @@ export const getBackendInitialized = createSelector(
     alarmLimitsRequest: AlarmLimitsRequest | null,
     backendConnected: boolean,
   ): boolean => parametersRequest !== null && alarmLimitsRequest !== null && backendConnected,
+);
+
+// Changing Ventilating Status
+export const getVentilatingStatusChanging = createSelector(
+  getParametersIsVentilating,
+  getParametersRequestVentilating,
+  (parameters: boolean | null, parametersRequest: boolean | null) =>
+    parameters !== parametersRequest,
 );
 
 // Alarm muting
@@ -289,6 +312,15 @@ export const getAlarmMuteStatus = createSelector(
 export const getAlarmMuteActive = createSelector(
   getAlarmMuteStatus,
   (alarmMute: AlarmMute | null): boolean => (alarmMute === null ? false : alarmMute.active),
+);
+export const getAlarmMuteRemaining = createSelector(
+  getAlarmMuteStatus,
+  (alarmMute: AlarmMute | null) => (alarmMute === null ? 0 : alarmMute.remaining),
+);
+export const getAlarmMuteRequestRemaining = createSelector(
+  getAlarmMuteRequest,
+  (alarmMuteRequest: AlarmMute | null) =>
+    alarmMuteRequest === null ? 0 : alarmMuteRequest.remaining,
 );
 export const getAlarmMuteRequestActive = createSelector(
   getAlarmMuteRequest,

@@ -123,7 +123,7 @@ async def simulate_states(
     """Simulate evolution of all states."""
     simulation_services = simulators.Services()
     alarms_services = sim_alarms.Services()
-    alarm_mute_service = alarm_mute.AlarmMuteService()
+    alarm_mute_service = alarm_mute.Service()
     power_service = power_management.Service()
     active_log_events = typing.cast(
         mcu_pb.ActiveLogEvents,
@@ -134,7 +134,7 @@ async def simulate_states(
         simulated_log.input(log.LocalLogInputEvent(current_time=time.time()))
         simulation_services.transform(time.time(), store)
         alarms_services.transform(store, simulated_log)
-        alarm_mute_service.transform(store)
+        alarm_mute_service.transform(time.time(), store)
         power_service.transform(store, simulated_log)
         service_event_log(
             simulated_log, active_log_events, simulated_log_receiver
