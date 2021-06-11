@@ -23,7 +23,7 @@ class AlarmMuteService {
 
  private:
   int64_t remaining_min_ = 0;
-  int64_t remaining_max_ = 120;
+  int64_t remaining_max_ = mute_max_duration / clock_scale;
   uint32_t mute_duration_ = 0;    // ms
   uint32_t mute_start_time_ = 0;  // ms
 
