@@ -24,7 +24,7 @@
 #include "Pufferfish/HAL/Interfaces/BufferedUART.h"
 #include "Pufferfish/HAL/Types.h"
 #include "Pufferfish/Statuses.h"
-#include "Pufferfish/Util/RingBuffer.h"
+#include "Pufferfish/Util/Containers/RingBuffer.h"
 
 namespace Pufferfish::HAL::Mock {
 
@@ -116,8 +116,8 @@ class BufferedUART : public Interfaces::BufferedUART {
       HAL::AtomicSize &written_size) volatile override;
 
  private:
-  volatile Util::RingBuffer<rx_buffer_size, uint8_t> rx_buffer_;
-  volatile Util::RingBuffer<tx_buffer_size, uint8_t> tx_buffer_;
+  volatile Util::Containers::RingBuffer<rx_buffer_size, uint8_t> rx_buffer_;
+  volatile Util::Containers::RingBuffer<tx_buffer_size, uint8_t> tx_buffer_;
 };
 
 static const size_t mock_large_uart_buffer_size = 4096;

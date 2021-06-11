@@ -19,7 +19,7 @@ from ventserver.integration import _trio
 from ventserver.io.trio import channels, fileio, rotaryencoder, websocket
 from ventserver.io.subprocess import frozen_frontend
 from ventserver.protocols import exceptions
-from ventserver.protocols.application import lists
+from ventserver.protocols.application import debouncing, lists
 from ventserver.protocols.backend import alarms, log, server, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.simulation import (
@@ -194,7 +194,16 @@ async def main() -> None:
     )
 
     # Initialize events log manager
-    simulated_log = alarms.Manager()
+    simulated_log = alarms.Manager(debouncers={
+        mcu_pb.LogEventCode.fio2_too_low: debouncing.Debouncer(),
+        mcu_pb.LogEventCode.fio2_too_high: debouncing.Debouncer(),
+        mcu_pb.LogEventCode.flow_too_low: debouncing.Debouncer(),
+        mcu_pb.LogEventCode.flow_too_high: debouncing.Debouncer(),
+        mcu_pb.LogEventCode.spo2_too_low: debouncing.Debouncer(),
+        mcu_pb.LogEventCode.spo2_too_high: debouncing.Debouncer(),
+        mcu_pb.LogEventCode.hr_too_low: debouncing.Debouncer(),
+        mcu_pb.LogEventCode.hr_too_high: debouncing.Debouncer(),
+    })
     simulated_log_receiver = (
         protocol.receive.backend.  # pylint: disable=protected-access
         _event_log_receiver.  # pylint: disable=protected-access

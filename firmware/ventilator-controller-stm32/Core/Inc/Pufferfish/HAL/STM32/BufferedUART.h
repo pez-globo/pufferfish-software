@@ -13,7 +13,7 @@
 #include "Pufferfish/HAL/STM32/Time.h"
 #include "Pufferfish/Statuses.h"
 #include "Pufferfish/Types.h"
-#include "Pufferfish/Util/RingBuffer.h"
+#include "Pufferfish/Util/Containers/RingBuffer.h"
 #include "stm32h7xx_hal.h"
 
 namespace Pufferfish::HAL::STM32 {
@@ -138,8 +138,8 @@ class BufferedUART : public Interfaces::BufferedUART {
   UART_HandleTypeDef &huart_;
   Interfaces::Time &time_;
 
-  volatile Util::RingBuffer<rx_buffer_size, uint8_t> rx_buffer_;
-  volatile Util::RingBuffer<tx_buffer_size, uint8_t> tx_buffer_;
+  volatile Util::Containers::RingBuffer<rx_buffer_size, uint8_t> rx_buffer_;
+  volatile Util::Containers::RingBuffer<tx_buffer_size, uint8_t> tx_buffer_;
 
   void handle_irq_rx() volatile;
   void handle_irq_tx() volatile;

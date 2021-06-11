@@ -10,8 +10,8 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "Pufferfish/Protocols/Chunks.h"
-#include "Pufferfish/Util/Vector.h"
+#include "Pufferfish/Protocols/Transport/Chunks.h"
+#include "Pufferfish/Util/Containers/Vector.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
@@ -19,15 +19,15 @@ struct FrameProps {
   static const size_t payload_max_size = 254;
   static const size_t chunk_max_size = payload_max_size + 2;    // including delimiter
   static const size_t encoded_max_size = payload_max_size + 1;  // including cobs
-  using ChunkBuffer = Util::ByteVector<chunk_max_size>;
-  using EncodedBuffer = Util::ByteVector<encoded_max_size>;
-  using PayloadBuffer = Util::ByteVector<payload_max_size>;
+  using ChunkBuffer = Util::Containers::ByteVector<chunk_max_size>;
+  using EncodedBuffer = Util::Containers::ByteVector<encoded_max_size>;
+  using PayloadBuffer = Util::Containers::ByteVector<payload_max_size>;
 
   enum class InputStatus { ok = 0, output_ready, invalid_length, input_overwritten };
   enum class OutputStatus { ok = 0, waiting, invalid_length, invalid_cobs };
 };
 
-using FrameChunkSplitter = Protocols::ChunkSplitter<FrameProps::encoded_max_size>;
+using FrameChunkSplitter = Protocols::Transport::ChunkSplitter<FrameProps::encoded_max_size>;
 
 // Decodes frames (length up to 255 bytes, excluding frame delimiter) with COBS
 class COBSDecoder {
@@ -36,8 +36,8 @@ class COBSDecoder {
 
   template <size_t input_size, size_t output_size>
   IndexStatus transform(
-      const Util::ByteVector<input_size> &input_buffer,
-      Util::ByteVector<output_size> &output_buffer) const;
+      const Util::Containers::ByteVector<input_size> &input_buffer,
+      Util::Containers::ByteVector<output_size> &output_buffer) const;
 };
 
 // Encodes payloads (length up to 254 bytes) with COBS; does not add the frame delimiter
@@ -47,8 +47,8 @@ class COBSEncoder {
 
   template <size_t input_size, size_t output_size>
   IndexStatus transform(
-      const Util::ByteVector<input_size> &input_buffer,
-      Util::ByteVector<output_size> &output_buffer) const;
+      const Util::Containers::ByteVector<input_size> &input_buffer,
+      Util::Containers::ByteVector<output_size> &output_buffer) const;
 };
 
 class FrameReceiver {
@@ -73,7 +73,7 @@ class FrameSender {
 
  private:
   const COBSEncoder cobs_encoder = COBSEncoder();
-  const Protocols::ChunkMerger chunk_merger = Protocols::ChunkMerger();
+  const Protocols::Transport::ChunkMerger chunk_merger;
 };
 
 }  // namespace Pufferfish::Driver::Serial::Backend

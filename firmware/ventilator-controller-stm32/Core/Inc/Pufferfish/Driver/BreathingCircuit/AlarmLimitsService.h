@@ -20,11 +20,11 @@ namespace Pufferfish::Driver::BreathingCircuit {
 Range transform_limits_range(int32_t floor, int32_t ceiling, Range request);
 void service_limits_range(
     Range request,
-    Range &response,
-    const Range &allowed,
+    Range allowed,
     LogEventCode code,
-    Application::LogEventsManager &log_manager,
-    bool log_changes);
+    bool log_changes,
+    Range &response,
+    Application::LogEventsManager &log_manager);
 
 class AlarmLimitsService {
  public:
@@ -36,26 +36,26 @@ class AlarmLimitsService {
   virtual void transform(
       const Parameters &parameters,
       const AlarmLimitsRequest &alarm_limits_request,
+      bool log_changes,
       AlarmLimits &alarm_limits,
-      Application::LogEventsManager &log_manager,
-      bool log_changes);
+      Application::LogEventsManager &log_manager);
 
  private:
   static void service_fio2(
       const Parameters &parameters,
+      bool log_changes,
       AlarmLimits &response,
-      Application::LogEventsManager &log_manager,
-      bool log_changes);
+      Application::LogEventsManager &log_manager);
   static void service_spo2(
       const AlarmLimitsRequest &request,
+      bool log_changes,
       AlarmLimits &response,
-      Application::LogEventsManager &log_manager,
-      bool log_changes);
+      Application::LogEventsManager &log_manager);
   static void service_hr(
       const AlarmLimitsRequest &request,
+      bool log_changes,
       AlarmLimits &response,
-      Application::LogEventsManager &log_manager,
-      bool log_changes);
+      Application::LogEventsManager &log_manager);
 };
 
 class PCACAlarmLimits : public AlarmLimitsService {};
@@ -68,16 +68,16 @@ class HFNCAlarmLimits : public AlarmLimitsService {
   void transform(
       const Parameters &parameters,
       const AlarmLimitsRequest &alarm_limits_request,
+      bool log_changes,
       AlarmLimits &alarm_limits,
-      Application::LogEventsManager &log_manager,
-      bool log_changes) override;
+      Application::LogEventsManager &log_manager) override;
 
  private:
   static void service_flow(
       const Parameters &parameters,
+      bool log_changes,
       AlarmLimits &response,
-      Application::LogEventsManager &log_manager,
-      bool log_changes);
+      Application::LogEventsManager &log_manager);
 };
 
 class AlarmLimitsServices {
@@ -85,9 +85,9 @@ class AlarmLimitsServices {
   void transform(
       const Parameters &parameters,
       const AlarmLimitsRequest &alarm_limits_request,
+      bool request_initialized,
       AlarmLimits &alarm_limits,
-      Application::LogEventsManager &log_manager,
-      bool request_initialized);
+      Application::LogEventsManager &log_manager);
 
  private:
   AlarmLimitsService *active_service_ = nullptr;

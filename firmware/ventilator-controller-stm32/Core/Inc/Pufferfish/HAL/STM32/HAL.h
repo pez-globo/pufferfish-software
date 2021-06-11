@@ -19,3 +19,4 @@
 #include "Random.h"
 #include "SPIDevice.h"
 #include "Time.h"
+#include "Types.h"

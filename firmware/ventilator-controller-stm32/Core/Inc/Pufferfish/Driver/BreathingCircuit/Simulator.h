@@ -13,8 +13,16 @@
 
 #include "Controller.h"
 #include "Pufferfish/Application/States.h"
+#include "Pufferfish/Util/Timeouts.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
+
+struct SensorStates {
+  bool sfm3019_air;
+  bool sfm3019_o2;
+  bool fdo2;
+  bool nonin_oem;
+};
 
 class Simulator {
  public:
@@ -22,6 +30,7 @@ class Simulator {
   virtual void transform(
       const Parameters &parameters,
       const SensorVars &sensor_vars,
+      const SensorStates &sensor_states,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements) = 0;
 
@@ -37,7 +46,7 @@ class Simulator {
   static constexpr float fio2_noise = 0.005;          // % FiO2
 
   [[nodiscard]] constexpr uint32_t time_step() const noexcept {
-    return current_time_ - previous_time_;
+    return step_timer_.duration(current_time_);
   }
   [[nodiscard]] bool update_needed() const;
 
@@ -45,9 +54,9 @@ class Simulator {
   static void transform_fio2(float params_fio2, float &sensor_meas_fio2);
 
  private:
-  uint32_t current_time_ = 0;   // ms
-  uint32_t previous_time_ = 0;  // ms
-  uint32_t initial_time_ = 0;   // ms
+  uint32_t current_time_ = 0;  // ms
+  uint32_t initial_time_ = 0;  // ms
+  Util::MsTimer step_timer_{sensor_update_interval, 0};
 };
 
 class PCACSimulator : public Simulator {
@@ -55,6 +64,7 @@ class PCACSimulator : public Simulator {
   void transform(
       const Parameters &parameters,
       const SensorVars &sensor_vars,
+      const SensorStates &sensor_states,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements) override;
 
@@ -64,8 +74,8 @@ class PCACSimulator : public Simulator {
   static const uint32_t minute_duration = 60000;      // ms
   static constexpr float min_per_s = 60;              // s
 
-  uint32_t cycle_start_time_ = 0;  // ms
-  uint32_t insp_period_ = default_insp_period;
+  Util::MsTimer cycle_timer_{default_cycle_period, 0};
+  Util::MsTimer insp_timer_{default_insp_period, 0};
   const float insp_responsiveness = 0.05;       // ms
   const float exp_responsiveness = 0.05;        // ms
   const float insp_init_flow_rate = 120;        // L / min
@@ -91,6 +101,7 @@ class HFNCSimulator : public Simulator {
   void transform(
       const Parameters &parameters,
       const SensorVars &sensor_vars,
+      const SensorStates &sensor_states,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements & /*cycle_measurements*/) override;
 
@@ -122,6 +133,7 @@ class Simulators {
       uint32_t current_time,
       const Parameters &parameters,
       const SensorVars &sensor_vars,
+      const SensorStates &sensor_states,
       SensorMeasurements &sensor_measurements,
       CycleMeasurements &cycle_measurements);
 

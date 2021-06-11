@@ -27,8 +27,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <algorithm>
-#include <array>
 #include <functional>
 
 #include "Pufferfish/AlarmsManager.h"
@@ -38,6 +36,7 @@
 #include "Pufferfish/Application/mcu_pb.h"  // Only used for debugging
 #include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/AlarmMuteService.h"
+#include "Pufferfish/Driver/BreathingCircuit/Alarms.h"
 #include "Pufferfish/Driver/BreathingCircuit/AlarmsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
@@ -222,8 +221,7 @@ PF::HAL::STM32::DigitalInput button_power(
     SET_PWR_ON_OFF_Pin,  // @suppress("C-Style cast instead of C++ cast")
     true);
 
-PF::Driver::Button::Debouncer switch_debounce;
-PF::Driver::Button::EdgeDetector switch_transition;
+PF::Protocols::Application::Debouncer switch_debounce;
 PF::Driver::Button::Button button_membrane(button_alarm_en, switch_debounce, time);
 
 // Solenoid Valves
@@ -322,10 +320,8 @@ PF::Driver::Serial::Nonin::Device nonin_oem_dev(nonin_oem_uart);
 PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 
 // Initializables
-
-auto initializables = PF::Util::make_array<std::reference_wrapper<PF::Driver::Initializable>>(
-    sfm3019_air, sfm3019_o2, fdo2, nonin_oem);
-std::array<PF::InitializableState, initializables.size()> initialization_states;
+auto initializables = PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem);
+PF::Driver::BreathingCircuit::SensorStates breathing_circuit_sensor_states;
 
 /*
 // Test list
@@ -351,7 +347,10 @@ int interface_test_state = 0;
 int interface_test_millis = 0;
 
 // Alarms
-PF::Application::AlarmsManager alarms_manager(log_events_manager);
+PF::Application::AlarmsManager alarms_manager(
+    log_events_manager,
+    PF::Driver::BreathingCircuit::debouncers,
+    PF::Driver::BreathingCircuit::init_waiters);
 PF::Driver::BreathingCircuit::AlarmsServices breathing_circuit_alarms;
 
 // Breathing Circuit Control
@@ -551,30 +550,19 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   // Setup
   static const uint32_t setup_indicator_duration = 2000;
+  PF::Util::MsTimer setup_indicator_timer(setup_indicator_duration);
 
   board_led1.write(true);
   while (true) {
-    // Run setup on all initializables
-    for (size_t i = 0; i < initializables.size(); ++i) {
-      initialization_states[i] = initializables[i].get().setup();
-    }
-
-    // Check initializables' states
-    if (std::find(  // At least one has failed
-            initialization_states.cbegin(),
-            initialization_states.cend(),
-            PF::InitializableState::failed) != initialization_states.cend()) {
-      const uint32_t flash_start_time = time.millis();
+    initializables.setup();
+    if (initializables.setup_failed()) {
+      setup_indicator_timer.reset(time.millis());
       // Flash the LED rapidly to indicate failure
-      while (PF::Util::within_timeout(flash_start_time, setup_indicator_duration, time.millis())) {
+      while (setup_indicator_timer.within_timeout(time.millis())) {
         flasher.input(time.millis());
         board_led1.write(flasher.output());
       }
-    } else if (  // At least one is still in setup
-        std::find(
-            initialization_states.cbegin(),
-            initialization_states.cend(),
-            PF::InitializableState::setup) != initialization_states.cend()) {
+    } else if (initializables.setup_in_progress()) {
       board_led1.write(true);
     } else {  // All are done with setup and ok
       break;
@@ -582,12 +570,23 @@ int main(void)
   }
 
   // Blink the LED somewhat slowly to indicate success
-  const uint32_t setup_completion_time = time.millis();
-  while (PF::Util::within_timeout(setup_completion_time, setup_indicator_duration, time.millis())) {
+  setup_indicator_timer.reset(time.millis());
+  while (setup_indicator_timer.within_timeout(time.millis())) {
     blinker.input(time.millis());
     board_led1.write(blinker.output());
   }
   board_led1.write(false);
+
+  // Configure the simulators
+  uint32_t discard_i = 0;
+  float discard_f = 0;
+  breathing_circuit_sensor_states.sfm3019_air =
+      sfm3019_air.output(discard_f) == PF::InitializableState::ok;
+  breathing_circuit_sensor_states.sfm3019_o2 =
+      sfm3019_o2.output(discard_f) == PF::InitializableState::ok;
+  breathing_circuit_sensor_states.fdo2 = fdo2.output(discard_i) == PF::InitializableState::ok;
+  breathing_circuit_sensor_states.nonin_oem =
+      nonin_oem.output(discard_f, discard_f) == PF::InitializableState::ok;
 
   // Normal loop
   while (true) {
@@ -600,31 +599,34 @@ int main(void)
 
     // Clock updates
     log_events_manager.update_time(current_time);
+    alarms_manager.update_time(current_time);
 
     // Request/response services update
     parameters_service.transform(
         store.parameters_request(),
+        store.has_parameters_request(),
         store.parameters(),
         log_events_manager,
-        store.has_parameters_request());
+        alarms_manager);
     alarm_limits_service.transform(
         store.parameters(),
         store.alarm_limits_request(),
+        store.has_parameters_request() && store.has_alarm_limits_request(),
         store.alarm_limits(),
-        log_events_manager,
-        store.has_parameters_request() && store.has_alarm_limits_request());
+        log_events_manager);
+
+    // Independent Sensors
+    fdo2.output(hfnc.sensor_vars().po2);
+    nonin_oem.output(store.sensor_measurements_raw().spo2, store.sensor_measurements_raw().hr);
 
     // Breathing Circuit Sensor Simulator
     simulator.transform(
         current_time,
         store.parameters(),
         hfnc.sensor_vars(),
+        breathing_circuit_sensor_states,
         store.sensor_measurements_raw(),
         store.cycle_measurements());
-
-    // Independent Sensors
-    fdo2.output(hfnc.sensor_vars().po2);
-    nonin_oem.output(store.sensor_measurements_raw().spo2, store.sensor_measurements_raw().hr);
 
     // Breathing Circuit Control Loop
     hfnc.update(current_time);

@@ -59,12 +59,12 @@ class TimeoutHandler(protocols.Filter[UpdateEvent, ActionsEvent]):
     current_time: float = attr.ib(default=0)
 
     _mcu_status: connections.TimeoutDetector = attr.ib()
-    _mcu_alarm_debouncer: connections.ActionDebouncer = \
-        attr.ib(factory=connections.ActionDebouncer)
+    _mcu_alarm_trigger: connections.ActionTrigger = \
+        attr.ib(factory=connections.ActionTrigger)
     _frontend_status: connections.TimeoutDetector = attr.ib()
-    _frontend_kill_debouncer: connections.ActionDebouncer = attr.ib()
-    _frontend_alarm_debouncer: connections.ActionDebouncer = \
-        attr.ib(factory=connections.ActionDebouncer)
+    _frontend_kill_trigger: connections.ActionTrigger = attr.ib()
+    _frontend_alarm_trigger: connections.ActionTrigger = \
+        attr.ib(factory=connections.ActionTrigger)
 
     @_mcu_status.default
     def init_mcu_status(self) -> \
@@ -78,11 +78,11 @@ class TimeoutHandler(protocols.Filter[UpdateEvent, ActionsEvent]):
         """Initialize the frontend connection status tracker."""
         return connections.TimeoutDetector(event_timeout=2)
 
-    @_frontend_kill_debouncer.default
-    def init_frontend_kill_debouncer(self) -> \
-            connections.ActionDebouncer:  # pylint: disable=no-self-use
-        """Initialize the frontend kill debouncer."""
-        return connections.ActionDebouncer(repeat_interval=5)
+    @_frontend_kill_trigger.default
+    def init_frontend_kill_trigger(self) -> \
+            connections.ActionTrigger:  # pylint: disable=no-self-use
+        """Initialize the frontend kill trigger."""
+        return connections.ActionTrigger(repeat_interval=5)
 
     def input(self, event: Optional[UpdateEvent]) -> None:
         """Handle input events."""
@@ -122,25 +122,25 @@ class TimeoutHandler(protocols.Filter[UpdateEvent, ActionsEvent]):
         )
         self._mcu_status.input(status_clock_update)
         self._frontend_status.input(status_clock_update)
-        debouncer_clock_update = connections.ActionStatus(
+        trigger_clock_update = connections.ActionStatus(
             current_time=self.current_time
         )
-        self._mcu_alarm_debouncer.input(debouncer_clock_update)
-        self._frontend_alarm_debouncer.input(debouncer_clock_update)
-        self._frontend_kill_debouncer.input(debouncer_clock_update)
+        self._mcu_alarm_trigger.input(trigger_clock_update)
+        self._frontend_alarm_trigger.input(trigger_clock_update)
+        self._frontend_kill_trigger.input(trigger_clock_update)
 
     def _process_mcu(self) -> bool:
         """Decide if the MCU connection is unresponsive and what to do."""
         mcu_status = self._mcu_status.output()
-        # Update action debouncer
+        # Update action trigger
         if mcu_status is not None:
-            self._mcu_alarm_debouncer.input(connections.ActionStatus(
+            self._mcu_alarm_trigger.input(connections.ActionStatus(
                 current_time=self.current_time, trigger=mcu_status.timed_out
             ))
         # Decide whether to run action
-        alarm_mcu = self._mcu_alarm_debouncer.output()
+        alarm_mcu = self._mcu_alarm_trigger.output()
         if alarm_mcu:
-            self._mcu_alarm_debouncer.input(connections.ActionStatus(
+            self._mcu_alarm_trigger.input(connections.ActionStatus(
                 current_time=self.current_time, execute=True
             ))
         return alarm_mcu
@@ -148,26 +148,26 @@ class TimeoutHandler(protocols.Filter[UpdateEvent, ActionsEvent]):
     def _process_frontend(self) -> Tuple[bool, bool]:
         """Decide if the frontend connection is unresponsive and what to do."""
         frontend_status = self._frontend_status.output()
-        # Update action debouncers
+        # Update action triggers
         if frontend_status is not None:
-            self._frontend_alarm_debouncer.input(connections.ActionStatus(
+            self._frontend_alarm_trigger.input(connections.ActionStatus(
                 current_time=self.current_time,
                 trigger=frontend_status.timed_out
             ))
-            self._frontend_kill_debouncer.input(connections.ActionStatus(
+            self._frontend_kill_trigger.input(connections.ActionStatus(
                 current_time=self.current_time, trigger=(
                     frontend_status.timed_out and frontend_status.uptime > 2
                 )
             ))
         # Decide whether to run actions
-        alarm_frontend = self._frontend_alarm_debouncer.output()
+        alarm_frontend = self._frontend_alarm_trigger.output()
         if alarm_frontend:
-            self._frontend_alarm_debouncer.input(connections.ActionStatus(
+            self._frontend_alarm_trigger.input(connections.ActionStatus(
                 current_time=self.current_time, execute=True
             ))
-        kill_frontend = self._frontend_kill_debouncer.output()
+        kill_frontend = self._frontend_kill_trigger.output()
         if kill_frontend:
-            self._frontend_kill_debouncer.input(connections.ActionStatus(
+            self._frontend_kill_trigger.input(connections.ActionStatus(
                 current_time=self.current_time, execute=True
             ))
         return (alarm_frontend, kill_frontend)
@@ -188,7 +188,7 @@ class TimeoutHandler(protocols.Filter[UpdateEvent, ActionsEvent]):
             self._logger.debug('Received connection to the frontend.')
             # Stop repeatedly trying to kill the frontend, to give the frontend
             # connection some time to start producing events
-            self._frontend_kill_debouncer.input(connections.ActionStatus(
+            self._frontend_kill_trigger.input(connections.ActionStatus(
                 current_time=self.current_time, trigger=False
             ))
         else:

@@ -18,12 +18,13 @@ FrameProps::InputStatus FrameReceiver::input(uint8_t new_byte) {
     return FrameProps::InputStatus::input_overwritten;
   }
 
+  using ChunkInputStatus = Protocols::Transport::ChunkInputStatus;
   switch (status) {
-    case Protocols::ChunkInputStatus::output_ready:
+    case ChunkInputStatus::output_ready:
       return FrameProps::InputStatus::output_ready;
-    case Protocols::ChunkInputStatus::invalid_length:
+    case ChunkInputStatus::invalid_length:
       return FrameProps::InputStatus::invalid_length;
-    case Protocols::ChunkInputStatus::ok:
+    case ChunkInputStatus::ok:
       break;
   }
 
@@ -34,13 +35,14 @@ FrameProps::OutputStatus FrameReceiver::output(FrameProps::PayloadBuffer &output
   FrameProps::EncodedBuffer temp_buffer;
 
   // Chunk
+  using ChunkOutputStatus = Protocols::Transport::ChunkOutputStatus;
   auto status = chunk_splitter_.output(temp_buffer);
   switch (status) {
-    case Protocols::ChunkOutputStatus::invalid_length:
+    case ChunkOutputStatus::invalid_length:
       return FrameProps::OutputStatus::invalid_length;
-    case Protocols::ChunkOutputStatus::waiting:
+    case ChunkOutputStatus::waiting:
       return FrameProps::OutputStatus::waiting;
-    case Protocols::ChunkOutputStatus::ok:
+    case ChunkOutputStatus::ok:
       break;
   }
 
@@ -63,14 +65,15 @@ FrameProps::OutputStatus FrameSender::transform(
   }
 
   // Chunk
+  using ChunkOutputStatus = Protocols::Transport::ChunkOutputStatus;
   auto status = chunk_merger.transform(output_buffer);
   switch (status) {
-    case Protocols::ChunkOutputStatus::invalid_length:
+    case ChunkOutputStatus::invalid_length:
       return FrameProps::OutputStatus::invalid_length;
     // does not return waiting status
-    case Protocols::ChunkOutputStatus::waiting:
+    case ChunkOutputStatus::waiting:
       return FrameProps::OutputStatus::waiting;
-    case Protocols::ChunkOutputStatus::ok:
+    case ChunkOutputStatus::ok:
       break;
   }
 

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "Pufferfish/Protocols/Lists.h"
+#include "Pufferfish/Protocols/Application/Lists.h"
 #include "States.h"
 
 namespace Pufferfish::Application {
@@ -33,7 +33,7 @@ class IncrementalEventsSender {
 };
 
 static const size_t log_events_list_buffer_len = 128;
-using LogEventsSender = Protocols::
+using LogEventsSender = Protocols::Application::
     ListSender<NextLogEvents, LogEvent, log_events_list_buffer_len, next_log_events_max_elems>;
 using LogEventsManager = IncrementalEventsSender<LogEventsSender>;
 

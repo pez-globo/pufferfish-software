@@ -5,6 +5,7 @@ from typing import Collection, Dict, List, Optional, Union
 import attr
 
 from ventserver.protocols import events
+from ventserver.protocols.application import debouncing
 from ventserver.protocols.backend import log
 from ventserver.protocols.protobuf import mcu_pb
 from ventserver.sansio import protocols
@@ -54,6 +55,8 @@ class Manager(protocols.Filter[InputEvent, log.ReceiveInputEvent]):
 
     SOURCE = log.EventSource.BACKEND
 
+    debouncers: Dict[mcu_pb.LogEventCode, debouncing.Debouncer] = \
+        attr.ib(factory=dict)
     current_time: float = attr.ib(default=0)  # s
     _event_log: log.LocalLogSource = attr.ib(factory=log.LocalLogSource)
     _new_events: List[mcu_pb.LogEvent] = attr.ib(factory=list)
@@ -72,23 +75,47 @@ class Manager(protocols.Filter[InputEvent, log.ReceiveInputEvent]):
         if isinstance(event, log.LocalLogInputEvent):
             self._event_log.input(event)
         elif isinstance(event, AlarmActivationEvent):
-            if event.code not in self._active_alarm_ids:
-                self._event_log.input(log.LocalLogInputEvent(
-                    current_time=self.current_time, active=True,
-                    new_event=mcu_pb.LogEvent(
-                        code=event.code, type=event.event_type,
-                        alarm_limits=mcu_pb.Range(
-                            lower=event.lower_limit, upper=event.upper_limit
-                        )
-                    )
-                ))
+            self.handle_alarm_activation(event)
         elif isinstance(event, AlarmDeactivationEvent):
-            for code in event.codes:
-                self._active_alarm_ids.pop(code, None)
+            self.handle_alarm_deactivation(event)
         new_events = self._event_log.output()
         self._new_events.extend(new_events.new_events)
         for (event_code, event_id) in new_events.new_active_events.items():
             self._active_alarm_ids[event_code] = event_id
+
+    def handle_alarm_activation(self, event: AlarmActivationEvent) -> None:
+        """Process an alarm activation event input."""
+        if event.code in self.debouncers:
+            self.debouncers[event.code].input(debouncing.Input(
+                current_time=self.current_time, signal=True
+            ))
+            if not self.debouncers[event.code].output():
+                return
+
+        if event.code in self._active_alarm_ids:
+            return
+
+        self._event_log.input(log.LocalLogInputEvent(
+            current_time=self.current_time, active=True,
+            new_event=mcu_pb.LogEvent(
+                code=event.code, type=event.event_type,
+                alarm_limits=mcu_pb.Range(
+                    lower=event.lower_limit, upper=event.upper_limit
+                )
+            )
+        ))
+
+    def handle_alarm_deactivation(self, event: AlarmDeactivationEvent) -> None:
+        """Process an alarm deactivation event input."""
+        for code in event.codes:
+            if code in self.debouncers:
+                self.debouncers[code].input(debouncing.Input(
+                    current_time=self.current_time, signal=False
+                ))
+                if not self.debouncers[code].output():
+                    self._active_alarm_ids.pop(code, None)
+            else:
+                self._active_alarm_ids.pop(code, None)
 
     def output(self) -> Optional[log.ReceiveInputEvent]:
         """Emit the next output event."""
