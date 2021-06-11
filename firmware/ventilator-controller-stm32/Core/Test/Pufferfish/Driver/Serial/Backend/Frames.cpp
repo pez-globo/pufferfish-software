@@ -13,10 +13,14 @@
 
 #include "Pufferfish/HAL/CRCChecker.h"
 #include "Pufferfish/Test/Util.h"
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
+#include "Pufferfish/Util/Containers/Vector.h"
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
+using PF::Util::Containers::ByteVector;
+using PF::Util::Containers::convert_string_to_byte_vector;
+using PF::Util::Containers::make_array;
 using namespace std::string_literals;
 
 SCENARIO(
@@ -24,8 +28,8 @@ SCENARIO(
   GIVEN("A CobsDecoder object constructed with default parameters") {
     constexpr size_t buffer_size = 254UL;
     PF::Driver::Serial::Backend::COBSDecoder cobs_decoder{};
-    PF::Util::ByteVector<buffer_size> input_buffer;
-    PF::Util::ByteVector<buffer_size> output_buffer;
+    ByteVector<buffer_size> input_buffer;
+    ByteVector<buffer_size> output_buffer;
     PF::IndexStatus push_status;
 
     REQUIRE(output_buffer.empty() == true);
@@ -49,7 +53,7 @@ SCENARIO(
         "transform is called on a buffer that contains these bytes '0x05 0x02 "
         "0xff' ") {
       auto body = std::string("\x05\x02\xff"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
@@ -64,7 +68,7 @@ SCENARIO(
         "transform is called on a buffer that contains these bytes '0x02 0x02 "
         "0xff' ") {
       auto body = std::string("\x02\x02\xff"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
@@ -76,7 +80,7 @@ SCENARIO(
 
     WHEN("transform is called on an input buffer that contains these bytes '0x00 0x00'") {
       auto body = std::string("\x01\x01"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
@@ -90,7 +94,7 @@ SCENARIO(
 
     WHEN("transform is called on an input buffer that contains these bytes '\x01\x01\x01'") {
       auto body = std::string("\x01\x01\x01"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
       THEN("The transform method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
@@ -104,7 +108,7 @@ SCENARIO(
     WHEN(
         "transform is called on an input buffer that contains these bytes '\x03\x11\x22\x02\x33'") {
       auto body = std::string("\x03\x11\x22\x02\x33"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
@@ -119,7 +123,7 @@ SCENARIO(
     WHEN(
         "transform is called on an input buffer that contains these bytes '\x05\x11\x22\x33\x44'") {
       auto body = std::string("\x05\x11\x22\x33\x44"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
@@ -133,7 +137,7 @@ SCENARIO(
 
     WHEN("transform is called on an input buffer that contains these bytes '\x02x'") {
       auto body = std::string("\x02\x78"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
@@ -147,7 +151,7 @@ SCENARIO(
 
     WHEN("transform is called on an input buffer that contains these bytes '\x03xy'") {
       auto body = std::string("\x03\x78\x79"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
@@ -161,7 +165,7 @@ SCENARIO(
 
     WHEN("transform is called on an input buffer containing the bytestring '\x0cHello World'") {
       auto body = std::string("\x0cHello World"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
@@ -179,7 +183,7 @@ SCENARIO(
       auto body =
           std::string("\x03\x02\x25\x01\x04\xF0\x41\x35\x01\x04\xAA\x42\x3D\x01\x03\x90\x42"s);
 
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_decoder.transform(input_buffer, output_buffer);
 
@@ -196,7 +200,7 @@ SCENARIO(
         "transform is called on a 255-byte buffer filled with the manual encoding "
         "of a 254 non-null-byte payload") {
       constexpr size_t buffer_size = 255UL;
-      PF::Util::ByteVector<buffer_size> input_buffer;
+      ByteVector<buffer_size> input_buffer;
       push_status = input_buffer.push_back(0xff);
       REQUIRE(push_status == PF::IndexStatus::ok);
       for (size_t i = 0; i < 254; i++) {
@@ -224,8 +228,8 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
     constexpr size_t buffer_size = 254UL;
     constexpr size_t encoded_buffer_size = 255UL;
     PF::Driver::Serial::Backend::COBSEncoder cobs_encoder{};
-    PF::Util::ByteVector<buffer_size> input_buffer;
-    PF::Util::ByteVector<encoded_buffer_size> output_buffer;
+    ByteVector<buffer_size> input_buffer;
+    ByteVector<encoded_buffer_size> output_buffer;
     PF::IndexStatus push_status;
     const PF::IndexStatus push_ok = PF::IndexStatus::ok;
 
@@ -250,7 +254,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
 
     WHEN("transform is called on an input buffer that contains these bytes '0x00 0x00'") {
       auto body = std::string("\x00\x00"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
@@ -264,7 +268,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
 
     WHEN("transform is called on an input buffer that contains these bytes '0x11 0x22 0x00 0x33'") {
       auto body = std::string("\x11\x22\x00\x33"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
@@ -278,7 +282,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
 
     WHEN("transform is called on an input buffer that contains these bytes '\x11\x22\x33\x44'") {
       auto body = std::string("\x11\x22\x33\x44"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
@@ -292,7 +296,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
 
     WHEN("transform is called on an input buffer that contains the char 'x'") {
       auto body = std::string("x"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
@@ -306,7 +310,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
 
     WHEN("transform is called on an input buffer that contains the char 'xy'") {
       auto body = std::string("xy"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
@@ -320,7 +324,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
 
     WHEN("transform is called on an input buffer containing the string 'Hello world'") {
       auto body = std::string("Hello World"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
@@ -337,7 +341,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
         "message payload") {
       auto body = std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
 
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
 
@@ -358,7 +362,7 @@ SCENARIO("Serial::The CobsEncoder class correctly encodes payloads with COBS", "
       input_buffer.push_back(0x00);
       REQUIRE(push_status == PF::IndexStatus::ok);
 
-      PF::Util::ByteVector<buffer_size> expected;
+      ByteVector<buffer_size> expected;
       expected.copy_from(input_buffer.buffer(), input_buffer.size());
 
       auto status = cobs_encoder.transform(input_buffer, output_buffer);
@@ -380,7 +384,7 @@ SCENARIO(
     "[framereceiver]") {
   GIVEN("A FrameReceiver object constructed with default parameters") {
     constexpr size_t buffer_size = 255UL;
-    PF::Util::ByteVector<buffer_size> input_buffer;
+    ByteVector<buffer_size> input_buffer;
     using TestFrameProps = PF::Driver::Serial::Backend::FrameProps;
     TestFrameProps::PayloadBuffer output_buffer;
 
@@ -514,8 +518,7 @@ SCENARIO(
         "A 10-byte frame body with improper encoding followed by a delimiter is passed as input "
         "and output is called after that") {
       PF::Driver::Serial::Backend::FrameProps::InputStatus input_status;
-      auto data =
-          PF::Util::make_array<uint8_t>(0x0c, 0x25, 0x39, 0xbb, 0x30, 0xf1, 0x6b, 0x62, 0x95, 0xfd);
+      auto data = make_array<uint8_t>(0x0c, 0x25, 0x39, 0xbb, 0x30, 0xf1, 0x6b, 0x62, 0x95, 0xfd);
       for (auto& bytes : data) {
         input_status = frame_receiver.input(bytes);
         THEN("The input method reports ok status for all the non-delimiter bytes") {

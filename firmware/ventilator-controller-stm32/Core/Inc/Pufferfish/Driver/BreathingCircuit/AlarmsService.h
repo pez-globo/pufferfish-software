@@ -13,21 +13,10 @@
 
 #include "Pufferfish/Application/Alarms.h"
 #include "Pufferfish/Statuses.h"
-#include "Pufferfish/Util/Array.h"
-#include "Pufferfish/Util/OrderedMap.h"
+#include "Pufferfish/Util/Containers/Array.h"
+#include "Pufferfish/Util/Containers/OrderedMap.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
-
-// All alarm codes for BreathingCircuit need to be registered in the following array:
-static constexpr auto alarm_codes = Util::make_array<LogEventCode>(
-    LogEventCode::LogEventCode_spo2_too_low,
-    LogEventCode::LogEventCode_spo2_too_high,
-    LogEventCode::LogEventCode_hr_too_low,
-    LogEventCode::LogEventCode_hr_too_high,
-    LogEventCode::LogEventCode_fio2_too_low,
-    LogEventCode::LogEventCode_fio2_too_high,
-    LogEventCode::LogEventCode_flow_too_low,
-    LogEventCode::LogEventCode_flow_too_high);
 
 class AlarmsService {
  public:
@@ -44,9 +33,6 @@ class AlarmsService {
       const SensorMeasurements &sensor_measurements,
       ActiveLogEvents &active_log_events,
       Application::AlarmsManager &alarms_manager);
-
-  static void deactivate_alarms(
-      ActiveLogEvents &active_log_events, Application::AlarmsManager &alarms_manager);
 };
 
 class PCACAlarms : public AlarmsService {};

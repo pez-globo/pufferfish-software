@@ -69,14 +69,15 @@ Receiver::OutputStatus Receiver::output(Message &output_message) {
   }
 
   // Message
+  using MessageStatus = Protocols::Transport::MessageStatus;
   switch (message_.transform(temp_buffer3, output_message)) {
-    case Protocols::MessageStatus::invalid_length:
+    case MessageStatus::invalid_length:
       return OutputStatus::invalid_message_length;
-    case Protocols::MessageStatus::invalid_type:
+    case MessageStatus::invalid_type:
       return OutputStatus::invalid_message_type;
-    case Protocols::MessageStatus::invalid_encoding:
+    case MessageStatus::invalid_encoding:
       return OutputStatus::invalid_message_encoding;
-    case Protocols::MessageStatus::ok:
+    case MessageStatus::ok:
       break;
   }
   return OutputStatus::available;
@@ -91,14 +92,15 @@ Sender::Status Sender::transform(
   FrameProps::PayloadBuffer temp_buffer3;
 
   // Message
+  using MessageStatus = Protocols::Transport::MessageStatus;
   switch (message_.transform(state_segment, temp_buffer1)) {
-    case Protocols::MessageStatus::invalid_length:
+    case MessageStatus::invalid_length:
       return Status::invalid_message_length;
-    case Protocols::MessageStatus::invalid_type:
+    case MessageStatus::invalid_type:
       return Status::invalid_message_type;
-    case Protocols::MessageStatus::invalid_encoding:
+    case MessageStatus::invalid_encoding:
       return Status::invalid_message_encoding;
-    case Protocols::MessageStatus::ok:
+    case MessageStatus::ok:
       break;
   }
 
@@ -194,7 +196,8 @@ void Backend::update_clock(uint32_t current_time) {
 
 void Backend::update_list_senders() {
   const ExpectedLogEvent &event = store_.expected_log_event();
-  if (log_events_sender_.input(event.id, event.session_id) != Protocols::ListInputStatus::ok) {
+  if (log_events_sender_.input(event.id, event.session_id) !=
+      Protocols::Application::ListInputStatus::ok) {
     // TODO(lietk12): handle warning case
   }
   log_events_sender_.output(store_.next_log_events());

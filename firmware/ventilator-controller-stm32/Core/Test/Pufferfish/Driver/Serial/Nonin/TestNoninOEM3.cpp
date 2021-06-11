@@ -18,14 +18,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <array>
-
 #include "Pufferfish/Driver/Serial/Nonin/Device.h"
 #include "Pufferfish/HAL/Mock/BufferedUART.h"
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
+using PF::Util::Containers::make_array;
 
 PF::Driver::Serial::Nonin::Device::PacketStatus waiting_status =
     PF::Driver::Serial::Nonin::Device::PacketStatus::waiting;
@@ -62,7 +61,7 @@ SCENARIO("Complete packet is not available", "[NoninOEM3]") {
   PF::Driver::Serial::Nonin::Device::PacketStatus return_status;
 
   GIVEN("4 bytes of BufferedUART data") {
-    auto uart_data = PF::Util::make_array<uint8_t>(0x01, 0x81, 0x00, 0x00);
+    auto uart_data = make_array<uint8_t>(0x01, 0x81, 0x00, 0x00);
     uint8_t index = 0;
     for (index = 0; index < 4; index++) {
       mock_uart.set_read(uart_data[index]);
@@ -79,7 +78,7 @@ SCENARIO("Complete packet is not available", "[NoninOEM3]") {
 
   GIVEN("2 valid frames of data from BufferedUART data") {
     auto uart_data =
-        PF::Util::make_array<uint8_t>(0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x80, 0x01, 0x48, 0xCA);
+        make_array<uint8_t>(0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x80, 0x01, 0x48, 0xCA);
     uint8_t index = 0;
     for (index = 0; index < 10; index++) {
       mock_uart.set_read(uart_data[index]);
@@ -116,7 +115,7 @@ SCENARIO("Complete packet is not available", "[NoninOEM3]") {
 
   GIVEN("2 frames of data from BufferedUART data with checksum error in 2nd frame") {
     auto uart_data =
-        PF::Util::make_array<uint8_t>(0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x80, 0x01, 0x48, 0xCB);
+        make_array<uint8_t>(0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x80, 0x01, 0x48, 0xCB);
     uint8_t index = 0;
     for (index = 0; index < 10; index++) {
       mock_uart.set_read(uart_data[index]);
@@ -163,7 +162,7 @@ SCENARIO("Complete packet is not available", "[NoninOEM3]") {
 
   GIVEN("BufferedUART data with status byte error (Bit-7 is low) in 2nd frame") {
     auto uart_data =
-        PF::Util::make_array<uint8_t>(0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x7F, 0x01, 0x48, 0xCA);
+        make_array<uint8_t>(0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x7F, 0x01, 0x48, 0xCA);
     uint8_t index = 0;
     for (index = 0; index < 10; index++) {
       mock_uart.set_read(uart_data[index]);
@@ -215,7 +214,7 @@ SCENARIO("Validate the Nonin OEM III with invalid data received from BufferedUAR
   PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
   PF::Driver::Serial::Nonin::Device::PacketStatus return_status;
   GIVEN("Valid 24 frames with 23 Frames of first packet and 1 frame of second packet ") {
-    auto uart_data = PF::Util::make_array<uint8_t>(
+    auto uart_data = make_array<uint8_t>(
         0x01,
         0x81,
         0x01,
@@ -368,7 +367,7 @@ SCENARIO("Validate the Nonin OEM III with invalid data received from BufferedUAR
 
 SCENARIO("Validate NoninOEM3 for valid packet data", "[NoninOEM3]") {
   GIVEN("125 bytes of BufferedUART data") {
-    auto uart_data = PF::Util::make_array<uint8_t>(
+    auto uart_data = make_array<uint8_t>(
         0x01,
         0x81,
         0x01,

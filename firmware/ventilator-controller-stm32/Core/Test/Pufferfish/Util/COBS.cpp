@@ -13,24 +13,28 @@
 #include "Pufferfish/Util/COBS.h"
 
 #include "Pufferfish/Test/Util.h"
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 #include "catch2/catch.hpp"
+
 namespace PF = Pufferfish;
+using PF::Util::Containers::ByteVector;
+using PF::Util::Containers::convert_string_to_byte_vector;
+using PF::Util::Containers::make_array;
 using namespace std::string_literals;
 
 SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
   GIVEN("The Util COBS::encode function") {
     constexpr size_t buffer_size = 256UL;
     constexpr size_t encoded_buffer_size = 257UL;
-    PF::Util::ByteVector<buffer_size> input_buffer;
-    PF::Util::ByteVector<encoded_buffer_size> encoded_buffer;
+    ByteVector<buffer_size> input_buffer;
+    ByteVector<encoded_buffer_size> encoded_buffer;
     PF::IndexStatus push_status;
 
     WHEN("The encoded byte vector is too small to hold the encoded data") {
       constexpr size_t encoded_buffer_size = 4UL;
-      PF::Util::ByteVector<encoded_buffer_size> encoded_buffer;
+      ByteVector<encoded_buffer_size> encoded_buffer;
       auto body = std::string("\x48\x0e\x79\x1a"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
 
@@ -82,7 +86,7 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
         "The cobs::encode function is called on a buffer that contains these bytes '0x11 0x22 0x00 "
         "0x33'") {
       auto body = std::string("\x11\x22\x00\x33"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
 
@@ -97,7 +101,7 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
         "The cobs::encode function is called on a buffer that contains these bytes '0x11 0x22 0x00 "
         "0x33' and a output_buffer paritally filled with 2-bytes is passed") {
       auto body = std::string("\x11\x22\x00\x33"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
       push_status = encoded_buffer.push_back(0x01);
       REQUIRE(push_status == PF::IndexStatus::ok);
       push_status = encoded_buffer.push_back(0x02);
@@ -116,9 +120,9 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
         "The cobs::encode function is called on a buffer that contains these bytes "
         "'\x74\x27\xab\xfb' and a output_buffer partially filled with 10-bytes is passed") {
       auto body = std::string("\x74\x27\xab\xfb"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
       auto data = std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA"s);
-      PF::Util::convert_string_to_byte_vector(data, encoded_buffer);
+      convert_string_to_byte_vector(data, encoded_buffer);
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
 
@@ -133,7 +137,7 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
         "The cobs::encode function is called on a buffer that contains these bytes "
         "'\x11\x22\x33\x44'") {
       auto body = std::string("\x11\x22\x33\x44"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
 
@@ -146,7 +150,7 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
 
     WHEN("The cobs::encode function is called on the char 'x'") {
       auto body = std::string("x"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
 
@@ -159,7 +163,7 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
 
     WHEN("The cobs::encode function is called on the char 'xy'") {
       auto body = std::string("xy"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
 
@@ -172,7 +176,7 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
 
     WHEN("The cobs::encode function is called on the string 'Hello world'") {
       auto body = std::string("Hello World"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
 
@@ -186,7 +190,7 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
     WHEN("The cobs::encode function is called on a sensor measurements message payload") {
       auto body = std::string("\x02\x25\x00\x00\xF0\x41\x35\x00\x00\xAA\x42\x3D\x00\x00\x90\x42"s);
 
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::encode_cobs(input_buffer, encoded_buffer);
 
@@ -202,7 +206,7 @@ SCENARIO("The Util encode_cobs function correctly encodes buffers", "[COBS]") {
         "The cobs::encode function is called on a buffer that contains these bytes '0x6e 0xd7 0xf1 "
         "0x00 "
         "0xf7 0xab' ") {
-      auto data = PF::Util::make_array<uint8_t>(0x6e, 0xd7, 0xf1, 0x00, 0xf7, 0xab);
+      auto data = make_array<uint8_t>(0x6e, 0xd7, 0xf1, 0x00, 0xf7, 0xab);
       for (auto& bytes : data) {
         push_status = input_buffer.push_back(bytes);
         REQUIRE(push_status == PF::IndexStatus::ok);
@@ -223,8 +227,8 @@ SCENARIO(
   GIVEN("The Util COBS::encode function") {
     constexpr size_t buffer_size = 256UL;
     constexpr size_t encoded_buffer_size = 257UL;
-    PF::Util::ByteVector<buffer_size> input_buffer;
-    PF::Util::ByteVector<encoded_buffer_size> encoded_buffer;
+    ByteVector<buffer_size> input_buffer;
+    ByteVector<encoded_buffer_size> encoded_buffer;
     PF::IndexStatus push_status;
 
     WHEN("The cobs::encode function is called on a 253 byte buffer") {
@@ -368,8 +372,8 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
   GIVEN("The Util COBS::decode function") {
     constexpr size_t buffer_size = 255UL;
     constexpr size_t decoded_buffer_size = 254UL;
-    PF::Util::ByteVector<buffer_size> input_buffer;
-    PF::Util::ByteVector<decoded_buffer_size> decoded_buffer;
+    ByteVector<buffer_size> input_buffer;
+    ByteVector<decoded_buffer_size> decoded_buffer;
     PF::IndexStatus push_status;
 
     WHEN("The COBS::decode function is called on a buffer containing '0x01' as the only byte") {
@@ -395,7 +399,7 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
     WHEN(
         "The COBS::decode function is called on a buffer that contains these bytes '0x05 0x02 "
         "0x03' ") {
-      auto data = PF::Util::make_array<uint8_t>(0x05, 0x02, 0x03);
+      auto data = make_array<uint8_t>(0x05, 0x02, 0x03);
       for (auto& bytes : data) {
         push_status = input_buffer.push_back(bytes);
         REQUIRE(push_status == PF::IndexStatus::ok);
@@ -412,7 +416,7 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
     WHEN(
         "The COBS::decode function is called on a buffer that contains these bytes '0x05 0x02 "
         "0xff' ") {
-      auto data = PF::Util::make_array<uint8_t>(0x05, 0x02, 0xff);
+      auto data = make_array<uint8_t>(0x05, 0x02, 0xff);
       for (auto& bytes : data) {
         push_status = input_buffer.push_back(bytes);
         REQUIRE(push_status == PF::IndexStatus::ok);
@@ -429,7 +433,7 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
     WHEN(
         "The COBS::decode function is called on a buffer that contains these bytes '0x02 0x02 "
         "0xff' ") {
-      auto data = PF::Util::make_array<uint8_t>(0x02, 0x02, 0xff);
+      auto data = make_array<uint8_t>(0x02, 0x02, 0xff);
       for (auto& bytes : data) {
         push_status = input_buffer.push_back(bytes);
         REQUIRE(push_status == PF::IndexStatus::ok);
@@ -444,9 +448,9 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
 
     WHEN("The decoded buffer is too small to hold the decoded data") {
       constexpr size_t buffer_size = 5UL;
-      PF::Util::ByteVector<buffer_size> decoded_buffer;
+      ByteVector<buffer_size> decoded_buffer;
       auto body = std::string("\xd2\xf4\xa0\x11\xa9\x42\x64\x5e\x8a\xe8"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
@@ -461,8 +465,8 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
         "of a 255 non-null-byte payload with a bad null header byte") {
       constexpr size_t buffer_size = 257UL;
       constexpr size_t decoded_buffer_size = 255UL;
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::ByteVector<decoded_buffer_size> decoded_buffer;
+      ByteVector<buffer_size> input_buffer;
+      ByteVector<decoded_buffer_size> decoded_buffer;
       uint8_t val = 10;
       push_status = input_buffer.push_back(0xff);
       REQUIRE(push_status == PF::IndexStatus::ok);
@@ -495,7 +499,7 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
 
     WHEN("The COBS::decode function is called on a buffer containing these bytes '\x01\x01'") {
       auto body = std::string("\x01\x01"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
@@ -508,7 +512,7 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
 
     WHEN("The COBS::decode function is called on a buffer containing these bytes '\x01\x01\x01'") {
       auto body = std::string("\x01\x01\x01"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
       THEN("The decode_cobs function reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
@@ -522,7 +526,7 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
         "The COBS::decode function is called on a buffer containing these bytes "
         "'\x03\x11\x22\x02\x33'") {
       auto body = std::string("\x03\x11\x22\x02\x33"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
@@ -538,9 +542,9 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
         "'\x03\x9f\x8c\x01\x03\x21\xe8' and a decoded buffer partially filled with 3-bytes is "
         "passed") {
       auto body = std::string("\x03\x9f\x8c\x01\x03\x21\xe8"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
       auto data = std::string("\x01\x02\x03"s);
-      PF::Util::convert_string_to_byte_vector(data, decoded_buffer);
+      convert_string_to_byte_vector(data, decoded_buffer);
 
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
@@ -555,7 +559,7 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
         "The COBS::decode function is called on a buffer containing these bytes "
         "'\x05\x11\x22\x33\x44'") {
       auto body = std::string("\x05\x11\x22\x33\x44"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
@@ -568,7 +572,7 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
 
     WHEN("The COBS::decode function is called on a buffer containing these bytes '\x02x'") {
       auto body = std::string("\x02\x78"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
@@ -581,7 +585,7 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
 
     WHEN("The COBS::decode function is called on a buffer containing these bytes '\x03xy'") {
       auto body = std::string("\x03\x78\x79"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
@@ -596,7 +600,7 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
         "The COBS::decode function is called on a buffer containing the bytestring '\x0cHello "
         "World'") {
       auto body = std::string("\x0cHello World"s);
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
@@ -613,7 +617,7 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
       auto body =
           std::string("\x03\x02\x25\x01\x04\xF0\x41\x35\x01\x04\xAA\x42\x3D\x01\x03\x90\x42"s);
 
-      PF::Util::convert_string_to_byte_vector(body, input_buffer);
+      convert_string_to_byte_vector(body, input_buffer);
 
       auto status = PF::Util::decode_cobs(input_buffer, decoded_buffer);
 
@@ -628,7 +632,7 @@ SCENARIO("The Util decode_cobs function correctly decodes encoded buffers", "[CO
     WHEN(
         "The COBS::decode function is called on a buffer that contains these bytes '0x03, 0x9c, "
         "0xb8, 0x03, 0xbe, 0xce'") {
-      auto data = PF::Util::make_array<uint8_t>(0x03, 0x9c, 0xb8, 0x03, 0xbe, 0xce);
+      auto data = make_array<uint8_t>(0x03, 0x9c, 0xb8, 0x03, 0xbe, 0xce);
       for (auto& bytes : data) {
         push_status = input_buffer.push_back(bytes);
         REQUIRE(push_status == PF::IndexStatus::ok);
@@ -650,8 +654,8 @@ SCENARIO(
   GIVEN("The Util COBS::decode function") {
     constexpr size_t buffer_size = 255UL;
     constexpr size_t decoded_buffer_size = 254UL;
-    PF::Util::ByteVector<buffer_size> input_buffer;
-    PF::Util::ByteVector<decoded_buffer_size> decoded_buffer;
+    ByteVector<buffer_size> input_buffer;
+    ByteVector<decoded_buffer_size> decoded_buffer;
     PF::IndexStatus push_status;
     WHEN(
         "The COBS::decode function is called on a 254-byte buffer filled with the manual encoding "
@@ -679,8 +683,8 @@ SCENARIO(
         "of a 254 byte payload with null byte at the end") {
       constexpr size_t buffer_size = 256UL;
       constexpr size_t decoded_buffer_size = 254UL;
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::ByteVector<decoded_buffer_size> decoded_buffer;
+      ByteVector<buffer_size> input_buffer;
+      ByteVector<decoded_buffer_size> decoded_buffer;
       push_status = input_buffer.push_back(0xff);
       REQUIRE(push_status == PF::IndexStatus::ok);
       for (size_t i = 0; i < 253; i++) {
@@ -707,8 +711,8 @@ SCENARIO(
         "of a 255 non-null-byte payload") {
       constexpr size_t buffer_size = 257UL;
       constexpr size_t decoded_buffer_size = 255UL;
-      PF::Util::ByteVector<buffer_size> input_buffer;
-      PF::Util::ByteVector<decoded_buffer_size> decoded_buffer;
+      ByteVector<buffer_size> input_buffer;
+      ByteVector<decoded_buffer_size> decoded_buffer;
       uint8_t val = 10;
       push_status = input_buffer.push_back(0xff);
       REQUIRE(push_status == PF::IndexStatus::ok);

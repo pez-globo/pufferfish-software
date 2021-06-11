@@ -10,44 +10,34 @@
 #include <cmath>
 
 #include "Pufferfish/HAL/Interfaces/Time.h"
-#include "Pufferfish/Util/Timeouts.h"
 
 namespace Pufferfish::Driver::I2C::SFM3019 {
 
 // StateMachine
 
 StateMachine::Action StateMachine::update(uint32_t current_time_us) {
-  current_time_us_ = current_time_us;
   switch (next_action_) {
     case Action::initialize:
       next_action_ = Action::wait_warmup;
-      start_waiting();
+      warmup_timer_.reset(current_time_us);
       break;
     case Action::wait_warmup:
-      if (finished_waiting(warming_up_duration_us)) {
+      if (!warmup_timer_.within_timeout(current_time_us)) {
         next_action_ = Action::check_range;
       }
       break;
     case Action::check_range:
     case Action::measure:
       next_action_ = Action::wait_measurement;
-      start_waiting();
+      measuring_timer_.reset(current_time_us);
       break;
     case Action::wait_measurement:
-      if (finished_waiting(measuring_duration_us)) {
+      if (!measuring_timer_.within_timeout(current_time_us)) {
         next_action_ = Action::measure;
       }
       break;
   }
   return next_action_;
-}
-
-void StateMachine::start_waiting() {
-  wait_start_time_us_ = current_time_us_;
-}
-
-bool StateMachine::finished_waiting(uint32_t timeout_us) const {
-  return !Util::within_timeout(wait_start_time_us_, timeout_us, current_time_us_);
 }
 
 // Sensor

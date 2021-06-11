@@ -7,6 +7,9 @@
 
 #include "Pufferfish/Driver/BreathingCircuit/AlarmsService.h"
 
+#include <cmath>
+
+#include "Pufferfish/Driver/BreathingCircuit/Alarms.h"
 #include "Pufferfish/Util/Ranges.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
@@ -19,12 +22,12 @@ void AlarmsService::check_parameter(
     LogEventCode too_low_code,
     LogEventCode too_high_code,
     Application::AlarmsManager &alarms_manager) {
-  if (measured_value < alarm_limits.lower) {
+  if (std::lround(measured_value) < alarm_limits.lower) {
     alarms_manager.activate_alarm(too_low_code, LogEventType::LogEventType_patient, alarm_limits);
   } else {
     alarms_manager.deactivate_alarm(too_low_code);
   }
-  if (measured_value > alarm_limits.upper) {
+  if (std::lround(measured_value) > alarm_limits.upper) {
     alarms_manager.activate_alarm(too_high_code, LogEventType::LogEventType_patient, alarm_limits);
   } else {
     alarms_manager.deactivate_alarm(too_high_code);
@@ -38,7 +41,9 @@ void AlarmsService::transform(
     ActiveLogEvents &active_log_events,
     Application::AlarmsManager &alarms_manager) {
   if (!parameters.ventilating) {
-    deactivate_alarms(active_log_events, alarms_manager);
+    // ParametersService already reset the alarms in AlarmsManager, so AlarmsService just needs to
+    // update active_log_events
+    alarms_manager.transform(active_log_events);
     return;
   }
 
@@ -61,14 +66,6 @@ void AlarmsService::transform(
       LogEventCode::LogEventCode_fio2_too_high,
       alarms_manager);
 
-  alarms_manager.transform(active_log_events);
-}
-
-void AlarmsService::deactivate_alarms(
-    ActiveLogEvents &active_log_events, Application::AlarmsManager &alarms_manager) {
-  for (size_t i = 0; i < alarm_codes.max_size(); ++i) {
-    alarms_manager.deactivate_alarm(alarm_codes[i]);
-  }
   alarms_manager.transform(active_log_events);
 }
 

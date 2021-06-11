@@ -44,12 +44,13 @@ ResponseReceiver::InputStatus ResponseReceiver::input(uint8_t new_byte) {
     return InputStatus::input_overwritten;
   }
 
+  using ChunkInputStatus = Protocols::Transport::ChunkInputStatus;
   switch (status) {
-    case Protocols::ChunkInputStatus::output_ready:
+    case ChunkInputStatus::output_ready:
       return InputStatus::output_ready;
-    case Protocols::ChunkInputStatus::invalid_length:
+    case ChunkInputStatus::invalid_length:
       return InputStatus::invalid_frame_length;
-    case Protocols::ChunkInputStatus::ok:
+    case ChunkInputStatus::ok:
       break;
   }
 
@@ -60,12 +61,13 @@ ResponseReceiver::OutputStatus ResponseReceiver::output(Response &output_respons
   Responses::ChunkBuffer temp_buffer;
 
   // Chunk
+  using ChunkOutputStatus = Protocols::Transport::ChunkOutputStatus;
   switch (chunks_.output(temp_buffer)) {
-    case Protocols::ChunkOutputStatus::waiting:
+    case ChunkOutputStatus::waiting:
       return OutputStatus::waiting;
-    case Protocols::ChunkOutputStatus::invalid_length:
+    case ChunkOutputStatus::invalid_length:
       return OutputStatus::invalid_frame_length;
-    case Protocols::ChunkOutputStatus::ok:
+    case ChunkOutputStatus::ok:
       break;
   }
 
@@ -94,7 +96,7 @@ RequestSender::Status RequestSender::transform(
   }
 
   // Chunk
-  if (chunks.transform(output_buffer) != Protocols::ChunkOutputStatus::ok) {
+  if (chunks.transform(output_buffer) != Protocols::Transport::ChunkOutputStatus::ok) {
     return Status::invalid_length;
   }
   /*if (output_buffer.push_back(0x0a) != IndexStatus::ok) {

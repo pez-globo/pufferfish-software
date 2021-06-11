@@ -9,7 +9,10 @@
 
 #pragma once
 
+#include <algorithm>
 #include <array>
+#include <limits>
+#include <type_traits>
 
 namespace Pufferfish::Util {
 
@@ -22,19 +25,32 @@ class EnumValues;
 template <typename Enum>
 class EnumValues<Enum> {
  public:
-  template <typename Underlying>
-  static bool constexpr includes(Underlying /*test_value*/) {
-    return false;
-  }
+  using EnumType = Enum;
+  using UnderlyingType = typename std::underlying_type<Enum>::type;
+
+  static bool constexpr includes(UnderlyingType /*test_value*/) { return false; }
+  static bool constexpr includes(EnumType /*test_value*/) { return false; }
+
+  static UnderlyingType constexpr max() { return std::numeric_limits<UnderlyingType>::min(); }
 };
 
 template <typename Enum, Enum first_value, Enum... remaining_values>
 class EnumValues<Enum, first_value, remaining_values...> {
  public:
-  template <typename Underlying>
-  static bool constexpr includes(Underlying test_value) {
-    return test_value == static_cast<Underlying>(first_value) ||
+  using EnumType = Enum;
+  using UnderlyingType = typename std::underlying_type<Enum>::type;
+
+  static bool constexpr includes(UnderlyingType test_value) {
+    return test_value == static_cast<UnderlyingType>(first_value) ||
            EnumValues<Enum, remaining_values...>::includes(test_value);
+  }
+  static bool constexpr includes(EnumType test_value) {
+    return test_value == first_value || EnumValues<Enum, remaining_values...>::includes(test_value);
+  }
+
+  static UnderlyingType constexpr max() {
+    return std::max(
+        static_cast<UnderlyingType>(first_value), EnumValues<Enum, remaining_values...>::max());
   }
 };
 
