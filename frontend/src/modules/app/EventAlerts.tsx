@@ -16,7 +16,6 @@ import {
   getAlarmMuteRequestActive,
   getPopupEventLog,
   getAlarmMuteRemaining,
-  getAlarmMuteRequestRemaining,
   getParametersIsVentilating,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
@@ -208,7 +207,6 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const alarmMuteActive = useSelector(getAlarmMuteActive);
   const alarmMuteRemaining = useSelector(getAlarmMuteRemaining);
   const backendConnected = useSelector(getBackendConnected);
-  const alarmMuteRequestRemaining = useSelector(getAlarmMuteRequestRemaining);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive);
   const ventilating = useSelector(getParametersIsVentilating);
   /**
@@ -219,7 +217,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    * Local state to update the AlarmMuteRequest remaining time
    * when backend is disconnected
    */
-  const [remaining, setRemaining] = useState(alarmMuteRequestRemaining);
+  const [remaining, setRemaining] = useState(alarmMuteRemaining);
   /**
    * Local variable that decides which timer to display depending on the
    * backend connection
@@ -254,12 +252,13 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    */
   useEffect(() => {
     setIsMuted(!alarmMuteActive);
+    if (remaining !== alarmMuteRemaining && backendConnected) {
+      setRemaining(alarmMuteRemaining);
+    }
 
     if (!backendConnected) {
       // Update local state that controls the mute button
       setIsMuted(!alarmMuteRequestActive);
-      // Reset the timer
-      if (!alarmMuteRequestActive) setRemaining(120);
       // Start the timer
       const timer = setTimeout(() => {
         setRemaining(remaining - 1);
@@ -267,8 +266,13 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           clearTimeout(timer);
         }
       }, 1000);
+      // Reset the timer
+      if (!alarmMuteRequestActive) {
+        clearTimeout(timer);
+        setRemaining(120);
+      }
     }
-  }, [alarmMuteActive, remaining, backendConnected, alarmMuteRequestActive]);
+  }, [alarmMuteActive, alarmMuteRemaining, remaining, backendConnected, alarmMuteRequestActive]);
 
   /**
    * Update mute AlarmStatus in redux store
