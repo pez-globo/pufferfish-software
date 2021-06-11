@@ -8,12 +8,13 @@
 #pragma once
 
 #include "Pufferfish/Application/Alarms.h"
+#include "Pufferfish/Util/Containers/Array.h"
 
 namespace Pufferfish::Driver::Power {
 
 // All alarm codes for power management need to be registered in the following array:
 static constexpr auto alarm_codes =
-    Util::make_array<LogEventCode>(LogEventCode::LogEventCode_charger_disconnected);
+    Util::Containers::make_array<LogEventCode>(LogEventCode::LogEventCode_charger_disconnected);
 
 class AlarmsService {
  public:
