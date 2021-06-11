@@ -326,15 +326,14 @@ PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 
 // LTC4015
 PF::Driver::I2C::LTC4015::Device ltc4015_dev(i2c_hal_ltc4015);
-PF::Driver::I2C::LTC4015::Sensor ltc4015_sensor(ltc4015_dev);
+PF::Driver::I2C::LTC4015::Sensor ltc4015(ltc4015_dev);
 
 // Power
 PF::Driver::Power::Simulator power_simulator;
 
 // Initializables
 auto initializables =
-    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015_sensor);
-PF::Driver::BreathingCircuit::SensorStates breathing_circuit_sensor_states;
+    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015);
 
 /*
 // Test list
@@ -592,6 +591,7 @@ int main(void)
   board_led1.write(false);
 
   // Configure the simulators
+  PF::Driver::BreathingCircuit::SensorStates breathing_circuit_sensor_states;
   uint32_t discard_i = 0;
   float discard_f = 0;
   breathing_circuit_sensor_states.sfm3019_air =
@@ -602,7 +602,7 @@ int main(void)
   breathing_circuit_sensor_states.nonin_oem =
       nonin_oem.output(discard_f, discard_f) == PF::InitializableState::ok;
   bool ltc4015_status =
-      ltc4015_sensor.output(store.mcu_power_status()) == PF::InitializableState::ok;
+      ltc4015.output(store.mcu_power_status()) == PF::InitializableState::ok;
 
   // Normal loop
   while (true) {
@@ -667,7 +667,7 @@ int main(void)
     if (!ltc4015_status) {
       power_simulator.transform(current_time, store.mcu_power_status());
     } else {
-      ltc4015_sensor.output(store.mcu_power_status());
+      ltc4015.output(store.mcu_power_status());
     }
 
     power_alarms.transform(store.mcu_power_status(), store.active_log_events(), alarms_manager);
