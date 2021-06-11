@@ -9,8 +9,6 @@
 
 #include "Pufferfish/Driver/Power/Simulator.h"
 
-#include "Pufferfish/Util/Timeouts.h"
-
 namespace Pufferfish::Driver::Power {
 
 void Simulator::input_clock(uint32_t current_time) {
@@ -18,7 +16,7 @@ void Simulator::input_clock(uint32_t current_time) {
     initial_time_ = current_time;
   }
   if (update_needed()) {
-    previous_time_ = current_time_;
+    step_timer_.reset(current_time_);
   }
   current_time_ = current_time - initial_time_;
 }
@@ -57,7 +55,7 @@ void Simulator::transform_discharge(MCUPowerStatus &mcu_power_status) {
 }
 
 bool Simulator::update_needed() const {
-  return !Util::within_timeout(previous_time_, sensor_update_interval, current_time_);
+  return !step_timer_.within_timeout(current_time_);
 }
 
 }  // namespace Pufferfish::Driver::Power

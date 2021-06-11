@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Pufferfish/Application/States.h"
+#include "Pufferfish/Util/Timeouts.h"
 
 namespace Pufferfish::Driver::Power {
 
@@ -25,12 +26,12 @@ class Simulator {
   static const uint32_t sensor_update_interval = 1000;  // ms
   bool charging_ = true;
 
-  uint32_t current_time_ = 0;   // ms
-  uint32_t previous_time_ = 0;  // ms
-  uint32_t initial_time_ = 0;   // ms
+  uint32_t current_time_ = 0;  // ms
+  uint32_t initial_time_ = 0;  // ms
 
   void input_clock(uint32_t current_time);
   [[nodiscard]] bool update_needed() const;
+  Util::MsTimer step_timer_{sensor_update_interval, 0};
 };
 
 }  // namespace Pufferfish::Driver::Power
