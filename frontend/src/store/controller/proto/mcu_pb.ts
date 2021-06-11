@@ -96,6 +96,7 @@ export enum LogEventCode {
   backend_connection_up = 134,
   frontend_connection_up = 135,
   battery_low = 136,
+  charger_disconnected = 137,
   UNRECOGNIZED = -1,
 }
 
@@ -173,6 +174,9 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case 136:
     case "battery_low":
       return LogEventCode.battery_low;
+    case 137:
+    case "charger_disconnected":
+      return LogEventCode.charger_disconnected;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -230,6 +234,8 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "frontend_connection_up";
     case LogEventCode.battery_low:
       return "battery_low";
+    case LogEventCode.charger_disconnected:
+      return "charger_disconnected";
     default:
       return "UNKNOWN";
   }
@@ -414,9 +420,9 @@ export interface ActiveLogEvents {
   id: number[];
 }
 
-export interface BatteryPower {
+export interface MCUPowerStatus {
   powerLeft: number;
-  chargingStatus: boolean;
+  charging: boolean;
 }
 
 export interface ScreenStatus {
@@ -2697,34 +2703,34 @@ export const ActiveLogEvents = {
   },
 };
 
-const baseBatteryPower: object = { powerLeft: 0, chargingStatus: false };
+const baseMCUPowerStatus: object = { powerLeft: 0, charging: false };
 
-export const BatteryPower = {
+export const MCUPowerStatus = {
   encode(
-    message: BatteryPower,
+    message: MCUPowerStatus,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
     if (message.powerLeft !== 0) {
-      writer.uint32(8).uint32(message.powerLeft);
+      writer.uint32(13).float(message.powerLeft);
     }
-    if (message.chargingStatus === true) {
-      writer.uint32(16).bool(message.chargingStatus);
+    if (message.charging === true) {
+      writer.uint32(16).bool(message.charging);
     }
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): BatteryPower {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MCUPowerStatus {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseBatteryPower } as BatteryPower;
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.powerLeft = reader.uint32();
+          message.powerLeft = reader.float();
           break;
         case 2:
-          message.chargingStatus = reader.bool();
+          message.charging = reader.bool();
           break;
         default:
           reader.skipType(tag & 7);
@@ -2734,40 +2740,39 @@ export const BatteryPower = {
     return message;
   },
 
-  fromJSON(object: any): BatteryPower {
-    const message = { ...baseBatteryPower } as BatteryPower;
+  fromJSON(object: any): MCUPowerStatus {
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
     if (object.powerLeft !== undefined && object.powerLeft !== null) {
       message.powerLeft = Number(object.powerLeft);
     } else {
       message.powerLeft = 0;
     }
-    if (object.chargingStatus !== undefined && object.chargingStatus !== null) {
-      message.chargingStatus = Boolean(object.chargingStatus);
+    if (object.charging !== undefined && object.charging !== null) {
+      message.charging = Boolean(object.charging);
     } else {
-      message.chargingStatus = false;
+      message.charging = false;
     }
     return message;
   },
 
-  toJSON(message: BatteryPower): unknown {
+  toJSON(message: MCUPowerStatus): unknown {
     const obj: any = {};
     message.powerLeft !== undefined && (obj.powerLeft = message.powerLeft);
-    message.chargingStatus !== undefined &&
-      (obj.chargingStatus = message.chargingStatus);
+    message.charging !== undefined && (obj.charging = message.charging);
     return obj;
   },
 
-  fromPartial(object: DeepPartial<BatteryPower>): BatteryPower {
-    const message = { ...baseBatteryPower } as BatteryPower;
+  fromPartial(object: DeepPartial<MCUPowerStatus>): MCUPowerStatus {
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
     if (object.powerLeft !== undefined && object.powerLeft !== null) {
       message.powerLeft = object.powerLeft;
     } else {
       message.powerLeft = 0;
     }
-    if (object.chargingStatus !== undefined && object.chargingStatus !== null) {
-      message.chargingStatus = object.chargingStatus;
+    if (object.charging !== undefined && object.charging !== null) {
+      message.charging = object.charging;
     } else {
-      message.chargingStatus = false;
+      message.charging = false;
     }
     return message;
   },

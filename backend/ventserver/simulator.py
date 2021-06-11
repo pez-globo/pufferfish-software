@@ -23,7 +23,8 @@ from ventserver.protocols.application import debouncing, lists
 from ventserver.protocols.backend import alarms, log, server, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.simulation import (
-    alarm_limits, alarm_mute, alarms as sim_alarms, parameters, simulators
+    alarm_limits, alarm_mute, alarms as sim_alarms,
+    parameters, power_management, simulators
 )
 from ventserver import application
 
@@ -62,8 +63,8 @@ INITIAL_VALUES = {
     states.StateSegment.ALARM_MUTE_REQUEST: mcu_pb.AlarmMuteRequest(
         active=False, remaining=120
     ),
-    states.StateSegment.BATTERY_POWER: mcu_pb.BatteryPower(
-        power_left=0, charging_status=False
+    states.StateSegment.MCU_POWER_STATUS: mcu_pb.MCUPowerStatus(
+        power_left=0, charging=True
     ),
     states.StateSegment.SCREEN_STATUS: mcu_pb.ScreenStatus(lock=False),
     states.StateSegment.SYSTEM_SETTING_REQUEST:
@@ -123,6 +124,7 @@ async def simulate_states(
     simulation_services = simulators.Services()
     alarms_services = sim_alarms.Services()
     alarm_mute_service = alarm_mute.AlarmMuteService()
+    power_service = power_management.Service()
     active_log_events = typing.cast(
         mcu_pb.ActiveLogEvents,
         store[states.StateSegment.ACTIVE_LOG_EVENTS_MCU]
@@ -133,6 +135,7 @@ async def simulate_states(
         simulation_services.transform(time.time(), store)
         alarms_services.transform(store, simulated_log)
         alarm_mute_service.transform(store)
+        power_service.transform(store, simulated_log)
         service_event_log(
             simulated_log, active_log_events, simulated_log_receiver
         )

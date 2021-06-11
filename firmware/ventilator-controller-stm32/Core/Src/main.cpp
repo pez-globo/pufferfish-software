@@ -45,6 +45,7 @@
 #include "Pufferfish/Driver/Button/Button.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
 #include "Pufferfish/Driver/I2C/HoneywellABP.h"
+#include "Pufferfish/Driver/I2C/LTC4015/Sensor.h"
 #include "Pufferfish/Driver/I2C/SDP.h"
 #include "Pufferfish/Driver/I2C/SFM3000.h"
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
@@ -52,6 +53,8 @@
 #include "Pufferfish/Driver/Indicators/AuditoryAlarm.h"
 #include "Pufferfish/Driver/Indicators/LEDAlarm.h"
 #include "Pufferfish/Driver/Indicators/PulseGenerator.h"
+#include "Pufferfish/Driver/Power/AlarmsService.h"
+#include "Pufferfish/Driver/Power/Simulator.h"
 #include "Pufferfish/Driver/Serial/Backend/UART.h"
 #include "Pufferfish/Driver/Serial/FDO2/Sensor.h"
 #include "Pufferfish/Driver/Serial/Nonin/Sensor.h"
@@ -242,24 +245,26 @@ PF::HAL::STM32::PWM drive2_ch7(htim12, TIM_CHANNEL_2);
 
 // Base I2C Devices
 // Note: I2C1 is marked I2C2 in the control board v1.0 schematic, and vice versa
-/*PF::HAL::HALI2CDevice i2c_hal_mux1(hi2c2, PF::Driver::I2C::TCA9548A::default_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_mux2(hi2c1, PF::Driver::I2C::TCA9548A::default_i2c_addr);
+/*PF::HAL::STM32::I2CDevice i2c_hal_mux1(hi2c2, PF::Driver::I2C::TCA9548A::default_i2c_addr);
+PF::HAL::STM32::I2CDevice i2c_hal_mux2(hi2c1, PF::Driver::I2C::TCA9548A::default_i2c_addr);
 
-PF::HAL::HALI2CDevice i2c_hal_press1(hi2c1, PF::Driver::I2C::abpxxxx001pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press2(hi2c1, PF::Driver::I2C::abpxxxx001pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press3(hi2c1, PF::Driver::I2C::abpxxxx001pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press7(hi2c1, PF::Driver::I2C::abpxxxx030pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press8(hi2c1, PF::Driver::I2C::abpxxxx030pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press9(hi2c1, PF::Driver::I2C::abpxxxx001pg2a3.i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press13(hi2c2, PF::Driver::I2C::SDPSensor::sdp8xx_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press14(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press15(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press16(hi2c2, PF::Driver::I2C::SFM3000::default_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press17(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
-PF::HAL::HALI2CDevice i2c_hal_press18(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);*/
+PF::HAL::STM32::I2CDevice i2c_hal_press1(hi2c1, PF::Driver::I2C::abpxxxx001pg2a3.i2c_addr);
+PF::HAL::STM32::I2CDevice i2c_hal_press2(hi2c1, PF::Driver::I2C::abpxxxx001pg2a3.i2c_addr);
+PF::HAL::STM32::I2CDevice i2c_hal_press3(hi2c1, PF::Driver::I2C::abpxxxx001pg2a3.i2c_addr);
+PF::HAL::STM32::I2CDevice i2c_hal_press7(hi2c1, PF::Driver::I2C::abpxxxx030pg2a3.i2c_addr);
+PF::HAL::STM32::I2CDevice i2c_hal_press8(hi2c1, PF::Driver::I2C::abpxxxx030pg2a3.i2c_addr);
+PF::HAL::STM32::I2CDevice i2c_hal_press9(hi2c1, PF::Driver::I2C::abpxxxx001pg2a3.i2c_addr);
+PF::HAL::STM32::I2CDevice i2c_hal_press13(hi2c2, PF::Driver::I2C::SDPSensor::sdp8xx_i2c_addr);
+PF::HAL::STM32::I2CDevice i2c_hal_press14(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
+PF::HAL::STM32::I2CDevice i2c_hal_press15(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
+PF::HAL::STM32::I2CDevice i2c_hal_press16(hi2c2, PF::Driver::I2C::SFM3000::default_i2c_addr);
+PF::HAL::STM32::I2CDevice i2c_hal_press17(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);
+PF::HAL::STM32::I2CDevice i2c_hal_press18(hi2c2, PF::Driver::I2C::SDPSensor::sdp3x_i2c_addr);*/
 
+PF::HAL::STM32::I2CDevice i2c1_hal_global(hi2c1, 0x00);
 PF::HAL::STM32::I2CDevice i2c2_hal_global(hi2c2, 0x00);
 PF::HAL::STM32::I2CDevice i2c4_hal_global(hi2c4, 0x00);
+PF::HAL::STM32::I2CDevice i2c_hal_ltc4015(hi2c1, PF::Driver::I2C::LTC4015::device_addr);
 PF::HAL::STM32::I2CDevice i2c_hal_sfm3019_air(hi2c2, PF::Driver::I2C::SFM3019::default_i2c_addr);
 PF::HAL::STM32::I2CDevice i2c_hal_sfm3019_o2(hi2c4, PF::Driver::I2C::SFM3019::default_i2c_addr);
 /*
@@ -319,9 +324,16 @@ PF::Driver::Serial::FDO2::Sensor fdo2(fdo2_dev, time);
 PF::Driver::Serial::Nonin::Device nonin_oem_dev(nonin_oem_uart);
 PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 
+// LTC4015
+PF::Driver::I2C::LTC4015::Device ltc4015_dev(i2c_hal_ltc4015);
+PF::Driver::I2C::LTC4015::Sensor ltc4015(ltc4015_dev);
+
+// Power
+PF::Driver::Power::Simulator power_simulator;
+
 // Initializables
-auto initializables = PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem);
-PF::Driver::BreathingCircuit::SensorStates breathing_circuit_sensor_states;
+auto initializables =
+    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015);
 
 /*
 // Test list
@@ -352,6 +364,7 @@ PF::Application::AlarmsManager alarms_manager(
     PF::Driver::BreathingCircuit::debouncers,
     PF::Driver::BreathingCircuit::init_waiters);
 PF::Driver::BreathingCircuit::AlarmsServices breathing_circuit_alarms;
+PF::Driver::Power::AlarmsService power_alarms;
 
 // Breathing Circuit Control
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
@@ -578,6 +591,7 @@ int main(void)
   board_led1.write(false);
 
   // Configure the simulators
+  PF::Driver::BreathingCircuit::SensorStates breathing_circuit_sensor_states{};
   uint32_t discard_i = 0;
   float discard_f = 0;
   breathing_circuit_sensor_states.sfm3019_air =
@@ -587,6 +601,7 @@ int main(void)
   breathing_circuit_sensor_states.fdo2 = fdo2.output(discard_i) == PF::InitializableState::ok;
   breathing_circuit_sensor_states.nonin_oem =
       nonin_oem.output(discard_f, discard_f) == PF::InitializableState::ok;
+  bool ltc4015_status = ltc4015.output(store.mcu_power_status()) == PF::InitializableState::ok;
 
   // Normal loop
   while (true) {
@@ -646,6 +661,15 @@ int main(void)
     // Alarm Mute Service
     PF::Driver::BreathingCircuit::AlarmMuteService::transform(
         store.alarm_mute(), store.alarm_mute_request());
+
+    // LTC4015 battery charging
+    if (!ltc4015_status) {
+      power_simulator.transform(current_time, store.mcu_power_status());
+    } else {
+      ltc4015.output(store.mcu_power_status());
+    }
+
+    power_alarms.transform(store.mcu_power_status(), store.active_log_events(), alarms_manager);
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;
