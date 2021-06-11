@@ -24,15 +24,11 @@ void AlarmMuteService::transform(
   input_clock(current_time);
 
   if (alarm_mute.active) {
-    continue_countdown(alarm_mute);
+    alarm_mute.remaining = (mute_max_duration - mute_duration_) / clock_scale;
   } else {
     mute_start_time_ = current_time;
     alarm_mute.remaining = mute_max_duration / clock_scale;
   }
-}
-
-void AlarmMuteService::continue_countdown(AlarmMute &alarm_mute) const {
-  alarm_mute.remaining = (mute_max_duration - mute_duration_) / clock_scale;
 }
 
 void make_state_initializers(Application::StateSegment &request_segment, AlarmMute &response) {

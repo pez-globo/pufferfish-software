@@ -21,7 +21,6 @@ class AlarmMuteService {
       uint32_t current_time, const AlarmMuteRequest &alarm_mute_request, AlarmMute &alarm_mute);
 
  private:
-  void continue_countdown(AlarmMute &alarm_mute) const;
   static const uint32_t mute_max_duration = 120000;  // ms
   static const uint32_t clock_scale = 1000;          // ms to s
 
