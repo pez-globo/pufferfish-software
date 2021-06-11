@@ -648,8 +648,8 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define ActiveLogEvents_size                     192
 #define AlarmLimitsRequest_size                  347
 #define AlarmLimits_size                         347
-#define AlarmMuteRequest_size                    7
-#define AlarmMute_size                           7
+#define AlarmMuteRequest_size                    13
+#define AlarmMute_size                           13
 #define Announcement_size                        77
 #define CycleMeasurements_size                   41
 #define ExpectedLogEvent_size                    12
