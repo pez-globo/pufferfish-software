@@ -591,7 +591,7 @@ int main(void)
   board_led1.write(false);
 
   // Configure the simulators
-  PF::Driver::BreathingCircuit::SensorStates breathing_circuit_sensor_states;
+  PF::Driver::BreathingCircuit::SensorStates breathing_circuit_sensor_states{};
   uint32_t discard_i = 0;
   float discard_f = 0;
   breathing_circuit_sensor_states.sfm3019_air =
