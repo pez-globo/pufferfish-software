@@ -29,7 +29,7 @@ void AlarmMuteService::transform(
     int64_t remaining =
         (static_cast<int64_t>(mute_max_duration) - static_cast<int64_t>(mute_duration_)) /
         clock_scale;
-    alarm_mute.remaining = Util::clamp<int64_t>(remaining, remaining_min, remaining_max);
+    alarm_mute.remaining = Util::clamp<int64_t>(remaining, remaining_min_, remaining_max_);
   } else {
     mute_start_time_ = current_time;
     alarm_mute.remaining = mute_max_duration / clock_scale;

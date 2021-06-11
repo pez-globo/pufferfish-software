@@ -22,8 +22,8 @@ class AlarmMuteService {
       uint32_t current_time, const AlarmMuteRequest &alarm_mute_request, AlarmMute &alarm_mute);
 
  private:
-  int64_t remaining_min = 0;
-  int64_t remaining_max = 120;
+  int64_t remaining_min_ = 0;
+  int64_t remaining_max_ = 120;
   uint32_t mute_duration_ = 0;    // ms
   uint32_t mute_start_time_ = 0;  // ms
 
