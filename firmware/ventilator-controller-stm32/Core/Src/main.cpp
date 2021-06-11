@@ -332,7 +332,8 @@ PF::Driver::I2C::LTC4015::Sensor ltc4015_sensor(ltc4015_dev);
 PF::Driver::Power::Simulator power_simulator;
 
 // Initializables
-auto initializables = PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem,ltc4015_sensor);
+auto initializables =
+    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015_sensor);
 PF::Driver::BreathingCircuit::SensorStates breathing_circuit_sensor_states;
 
 /*
