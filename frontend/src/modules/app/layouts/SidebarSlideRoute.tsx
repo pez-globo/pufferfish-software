@@ -3,16 +3,27 @@
  *
  */
 import React, { PropsWithChildren, useEffect } from 'react';
-import { Route, RouteProps } from 'react-router-dom';
+import { Route, RouteProps, useLocation } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import { Button, Drawer, Grid } from '@material-ui/core';
-import { useSelector } from 'react-redux';
+import { Button, Drawer, Grid, Typography } from '@material-ui/core';
+import { useDispatch, useSelector } from 'react-redux';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
-import { SCREENSAVER_ROUTE } from '../../navigation/constants';
+import { ALARMS_ROUTE, SCREENSAVER_ROUTE } from '../../navigation/constants';
 import SidebarClickable from '../SidebarClickable';
 import OverlayScreen from '../OverlayScreen';
 import { getAlarmNotifyStatus } from '../../../store/app/selectors';
+import { AlarmConfiguration, alarmConfiguration } from '../../alarms/AlarmsPage';
+import { VentilationMode, Range, AlarmLimitsRequest } from '../../../store/controller/proto/mcu_pb';
+import {
+  getAlarmLimitsRequest,
+  getAlarmLimitsRequestDraft,
+  getAlarmLimitsRequestUnsaved,
+  getAlarmLimitsUnsavedKeys,
+} from '../../../store/controller/selectors';
+import { ModalPopup } from '../../controllers/ModalPopup';
+import { MessageType } from '../../../store/controller/types';
+import { commitDraftRequest } from '../../../store/controller/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -56,6 +67,16 @@ const useStyles = makeStyles((theme: Theme) => ({
   fullList: {
     width: 'auto',
   },
+  marginContent: {
+    textAlign: 'center',
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(3),
+  },
+  marginHeader: {
+    textAlign: 'center',
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(1),
+  },
   screensaverButton: {
     minWidth: 0,
     borderRadius: 5,
@@ -82,6 +103,29 @@ const useStyles = makeStyles((theme: Theme) => ({
 const FullWidthToolBar = (): JSX.Element => {
   const classes = useStyles();
   const [toggle, setToggle] = React.useState<boolean>(false);
+  const [openModal, setOpenModal] = React.useState<boolean>(false);
+  const alarmConfig = alarmConfiguration(VentilationMode.hfnc);
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const alarmLimitsRequestDraftSelect = useSelector(getAlarmLimitsRequestDraft);
+  const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
+  const alarmLimitsUnsavedKeys = useSelector(getAlarmLimitsUnsavedKeys);
+  const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
+  const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
+  const alarmLimitsRequestDraft = (alarmLimitsRequestDraftSelect as unknown) as Record<
+    string,
+    Range
+  >;
+  const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
+    dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
+  };
+  const handleDiscardClose = () => {
+    setOpenModal(false);
+  };
+  const handleDiscardConfirm = () => {
+    setAlarmLimitsRequestDraft(alarmLimitsRequest);
+    setOpenModal(false);
+  };
 
   /**
    * Toggles the slider sidebar UI drawer
@@ -89,7 +133,11 @@ const FullWidthToolBar = (): JSX.Element => {
    * @param {boolean} value - show/hide value
    */
   const toggleDrawer = (value: boolean) => () => {
-    setToggle(value);
+    if (location.pathname === ALARMS_ROUTE.path && alarmLimitsRequestUnsaved) {
+      setOpenModal(true);
+    } else {
+      setToggle(value);
+    }
   };
 
   return (
@@ -112,6 +160,38 @@ const FullWidthToolBar = (): JSX.Element => {
           </Drawer>
         </React.Fragment>
       </Grid>
+      <ModalPopup
+        withAction={true}
+        label="Set Alarms"
+        open={openModal}
+        onClose={handleDiscardClose}
+        onConfirm={handleDiscardConfirm}
+      >
+        <Grid container alignItems="center">
+          <Grid container alignItems="center" justify="center">
+            <Grid container alignItems="center" className={classes.marginHeader}>
+              <Grid item xs>
+                <Typography variant="h4">Keep Previous Values?</Typography>
+              </Grid>
+            </Grid>
+            <Grid item className={classes.marginContent}>
+              {alarmConfig.map((param: AlarmConfiguration) => {
+                if (alarmLimitsRequest !== null && alarmLimitsRequestDraft !== null) {
+                  if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
+                    return (
+                      <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${
+                        alarmLimitsRequest[param.stateKey].lower
+                      } -
+                                ${alarmLimitsRequest[param.stateKey].upper}?`}</Typography>
+                    );
+                  }
+                }
+                return <React.Fragment />;
+              })}
+            </Grid>
+          </Grid>
+        </Grid>
+      </ModalPopup>
     </ToolBar>
   );
 };
