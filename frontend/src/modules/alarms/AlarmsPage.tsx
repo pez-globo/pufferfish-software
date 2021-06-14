@@ -218,6 +218,8 @@ const Alarm = ({
    */
   const [disableDecrement, setDisableDecrement] = useState(false);
   const [disableIncrement, setDisableIncrement] = useState(false);
+  const [rotaryMin, setRotaryMin] = React.useState(min);
+  const [rotaryMax, setRotaryMax] = React.useState(max);
 
   /**
    * This is a changeListener that sets disableDecrement, disableIncrement on change in RangeValues which
@@ -226,7 +228,9 @@ const Alarm = ({
   useEffect(() => {
     setDisableDecrement(rangeValues[1] <= rangeValues[0]);
     setDisableIncrement(rangeValues[0] >= rangeValues[1]);
-  }, [rangeValues]);
+    if (disableIncrement) setRotaryMin(rangeValues[0]);
+    if (disableDecrement) setRotaryMax(rangeValues[1]);
+  }, [rangeValues, disableIncrement, disableDecrement]);
 
   /**
    * Calls on initalization of the component
@@ -276,7 +280,7 @@ const Alarm = ({
                 value={rangeValues[0]}
                 onClick={(value: number) => onClick(value, SliderType.LOWER)}
                 min={min}
-                max={max}
+                max={disableIncrement ? rotaryMax : max}
                 disableMin={disableIncrement}
                 direction="column"
               />
@@ -308,7 +312,7 @@ const Alarm = ({
                 referenceKey={`${stateKey}_HIGHER`}
                 value={rangeValues[1]}
                 onClick={(value: number) => onClick(value, SliderType.UPPER)}
-                min={min}
+                min={disableDecrement ? rotaryMin : min}
                 max={max}
                 disableMax={disableDecrement}
                 direction="column"

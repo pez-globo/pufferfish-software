@@ -139,6 +139,11 @@ export const AlarmModal = ({
    * State to initalize Upper Set value
    */
   const [max] = React.useState(committedMax);
+  /**
+   * State to pass as min/max to RotaryEncoderController
+   */
+  const [rotaryMin, setRotaryMin] = React.useState(min);
+  const [rotaryMax, setRotaryMax] = React.useState(max);
   const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual);
   const range =
     alarmLimits === null
@@ -184,7 +189,9 @@ export const AlarmModal = ({
   useEffect(() => {
     setDisableDecrement(rangeValue[1] <= rangeValue[0]);
     setDisableIncrement(rangeValue[0] >= rangeValue[1]);
-  }, [rangeValue]);
+    if (disableIncrement) setRotaryMin(rangeValue[0]);
+    if (disableDecrement) setRotaryMax(rangeValue[1]);
+  }, [rangeValue, disableIncrement, disableDecrement]);
 
   useEffect(() => {
     initRefListener(refs);
@@ -297,7 +304,7 @@ export const AlarmModal = ({
                 value={rangeValue[0]}
                 step={step}
                 min={committedMin}
-                max={committedMax}
+                max={disableIncrement ? rotaryMax : committedMax}
                 disableMin={disableIncrement}
                 onClick={setLowerLimit}
                 direction="column"
@@ -335,7 +342,7 @@ export const AlarmModal = ({
                 referenceKey={`${stateKey}_HIGHER`}
                 value={rangeValue[1]}
                 step={step}
-                min={committedMin}
+                min={disableDecrement ? rotaryMin : committedMin}
                 max={committedMax}
                 disableMax={disableDecrement}
                 onClick={setUpperLimit}
