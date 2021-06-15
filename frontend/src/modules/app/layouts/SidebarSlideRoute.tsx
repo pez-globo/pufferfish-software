@@ -125,6 +125,7 @@ const FullWidthToolBar = (): JSX.Element => {
   const handleDiscardConfirm = () => {
     setAlarmLimitsRequestDraft(alarmLimitsRequest);
     setOpenModal(false);
+    setToggle(true);
   };
 
   /**
