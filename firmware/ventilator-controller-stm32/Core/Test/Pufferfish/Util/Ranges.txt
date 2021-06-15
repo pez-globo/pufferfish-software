@@ -1,33 +1,57 @@
 Scenario: The  Ranges:  within function works correctly
   GIVEN('The within function')
-  WHEN('floor is '0x01 and ceiling is 0xff , value 0x83 is within range')
-     THEN('Returns true ,  value 0x83 is in range')
+  //floor>value>ceiling
+  WHEN('floor is '1 and ceiling is 255 , value 131 is within range')
+     THEN('Returns true ,  value 131 is in range')
 
 
-Scenario:The Ranges:  clamp function works correctly
-  GIVEN('The clamp function')
-   WHEN('the function is called with a floor of 0x01, a ceiling of 0xff, and a test value of 0x83')
-      THEN('Returns correct value 0x83')
-      THEN('Returns true ,  value 0x83 is in range')
+Scenario:The Ranges:  clamp and within function works correctly
+  GIVEN('The clamp and within function')
+  //floor>value>ceiling
+   WHEN('the function clamp is called with a floor of 1, a ceiling of 255, and a test value of 131')
+      THEN('Returns correct value 131') 
 
-   WHEN('The function is called with a floor of 0x01, a ceiling of 0x0a, and a test value of 0x83')
-     THEN('Returns expected value 0x0a')
-     THEN('Returns true ,  value 0x0a is in range')
-  
-  GIVEN('The clamp function')
-  WHEN('The function is called with a floor of 0x0a, a ceiling of 0x83, and a test value of 0x08')
-    THEN('Returns expected floor value 0x0a')
+//value >ceiling> floor 
+   WHEN('The function clamp is called with a floor of 1, a ceiling of 10, and a test value of 131')
+     THEN('Returns expected value 10')
 
-  WHEN('The function is called with a floor of 0x08, a ceiling of 0x83, and a test value of 0x08')
-    THEN('Returns expected  input value 0x08')  
-
-  GIVEN('The clamp function')  
-  WHEN('The function is called with a floor of 0x08, a ceiling of 0xff, and a test value of 0x53')
-    THEN('Returns expected  input value 0x53')
+   WHEN('The function within is called with a floor of 1, a ceiling of 10, and a test value of 131')  
+      THEN('Returns false, value is not in range')
 
 
-  WHEN('The function is called with a floor of 0x08, a ceiling of 0x08, and a test value of 0x08')
-     THEN('Returns expected value 0x08') 
+//value > floor > ceiling
+  GIVEN('The clamp and within function')
+  WHEN('The function clamp is called with a floor of 10, a ceiling of 131, and a test value of 8')
+    THEN('Returns expected floor value 10')
 
-  WHEN('The function is called with a floor of 0x0f, a ceiling of 0x08, and a test value of 0x53') 
-    THEN('Result is as expected 0x08')   
+  WHEN('The function clamp is called with a floor of 10, a ceiling of 131, and a test value of 8')  
+     THEN('Returns false, value is not in range')
+
+//floor = value > ceiling
+  WHEN('The function clamp is called with a floor of 8, a ceiling of 131, and a test value of 8')
+    THEN('Returns expected  input value 8') 
+
+  WHEN('The function clamp is called with a floor of 8, a ceiling of 131, and a test value of 8')   
+     THEN('Returns true, value is in range')
+
+//floor > ceiling > value 
+  GIVEN('The clamp and within function')  
+  WHEN('The function clamp is called with a floor of 8, a ceiling of 15, and a test value of 83')
+    THEN('Returns expected  input value 83')
+
+  WHEN('The function within is called with a floor of 8, a ceiling of 255, and a test value of 83')  
+    THEN('Returns true, value is in range')
+
+//floor = ceiling = value
+  WHEN('The function clamp is called with a floor of 8, a ceiling of 8, and a test value of 8')
+     THEN('Returns expected value 8') 
+
+  WHEN('The function within is called with a floor of 8, a ceiling of 8, and a test value of 8')   
+    THEN('Returns true, value is  in range')
+
+value >floor > ceiling
+  WHEN('The function clamp is called with a floor of 15, a ceiling of 8, and a test value of 83') 
+    THEN('Result is as expected 8')   
+
+  WHEN('The function within is called with a floor of 15, a ceiling of 8, and a test value of 83') 
+    THEN('Returns false, value is not in range') 

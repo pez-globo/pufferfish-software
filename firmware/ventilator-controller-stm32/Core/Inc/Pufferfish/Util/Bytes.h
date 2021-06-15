@@ -10,7 +10,9 @@
 #pragma once
 
 #include <climits>
+#include <cstddef>
 #include <cstdint>
+#
 
 namespace Pufferfish::Util {
 

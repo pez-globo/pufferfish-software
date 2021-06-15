@@ -23,6 +23,8 @@ Scenario: Array: make_array function creates array correctly.
     THEN('the array is as expected at every index [0x00,0x0c]')
 
 
+  WHEN('an array is created from non- const references of values ,0x02 and 0x86')
+    THEN('the array is as expected at every index [0x02,0x86]')
 Scenario: Empty an array
   GIVEN('The make_array function')
   WHEN('function empty is used on array (0x02, 0x03, 0x0a) ')
