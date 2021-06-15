@@ -98,7 +98,13 @@ export const ValueClicker = ({
     const change = value + step;
     setDisableIncrement(change >= max);
     setDisableDecrement(change <= min);
-    return onClick(change);
+    if (change >= max) {
+      return onClick(max);
+    } else if (change <= min) {
+      return onClick(min);
+    } else {
+      return onClick(change);
+    }
   };
 
   /**
