@@ -139,9 +139,6 @@ export const AlarmModal = ({
    * State to initalize Upper Set value
    */
   const [max] = React.useState(committedMax);
-  /**
-   * State to pass as min/max to RotaryEncoderController
-   */
   const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual);
   const range =
     alarmLimits === null
