@@ -133,14 +133,30 @@ enum LogEventCode {
   hr_alarm_limits_changed = 83;
   // System settings & alarms
   screen_locked = 129;
-  mcu_connection_down = 130;
-  backend_connection_down = 131;
-  frontend_connection_down = 132;
-  mcu_connection_up = 133;
-  backend_connection_up = 134;
-  frontend_connection_up = 135;
-  battery_low = 136;
-  charger_disconnected = 137;
+  mcu_backend_connection_down = 130;  // mcu lost backend
+  backend_mcu_connection_down = 131;  // backend lost mcu
+  backend_frontend_connection_down = 132;  // backend lost frontend
+  frontend_backend_connection_down = 133;  // frontend lost backend
+  mcu_backend_connection_up = 134;  // mcu detected backend
+  // The following code isn't actually used, but we reserve space for it.
+  // We don't use it because if the backend received an mcu_backend_connection_up
+  // event from the MCU, then we know that the backend received a connection from
+  // the MCU. We only care for technical troubleshooting (of the UART wires) about
+  // the case where the backend receives a connection from the MCU but the MCU
+  // hasn't received a connection from the backend; it would be good to log it,
+  // but we don't need to show it in the frontend, and right now the frontend has
+  // no way to filter out events from its display.
+  // backend_mcu_connection_up = 135;  // backend detected mcu
+  backend_frontend_connection_up = 136;  // backend detected frontend
+  // The following code isn't actually used, but we reserve space for it.
+  // We don't use it because the frontend can't generate LogEvents with IDs.
+  // frontend_backend_connection_up = 137;
+  battery_low = 138;
+  charger_disconnected = 139;
+  mcu_started = 140;
+  backend_started = 141;
+  mcu_shutdown = 142;
+  backend_shutdown = 143;
 }
 
 enum LogEventType {

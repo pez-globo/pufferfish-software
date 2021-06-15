@@ -89,14 +89,39 @@ export enum LogEventCode {
   hr_alarm_limits_changed = 83,
   /** screen_locked - System settings & alarms */
   screen_locked = 129,
-  mcu_connection_down = 130,
-  backend_connection_down = 131,
-  frontend_connection_down = 132,
-  mcu_connection_up = 133,
-  backend_connection_up = 134,
-  frontend_connection_up = 135,
-  battery_low = 136,
-  charger_disconnected = 137,
+  /** mcu_backend_connection_down - mcu lost backend */
+  mcu_backend_connection_down = 130,
+  /** backend_mcu_connection_down - backend lost mcu */
+  backend_mcu_connection_down = 131,
+  /** backend_frontend_connection_down - backend lost frontend */
+  backend_frontend_connection_down = 132,
+  /** frontend_backend_connection_down - frontend lost backend */
+  frontend_backend_connection_down = 133,
+  /** mcu_backend_connection_up - mcu detected backend */
+  mcu_backend_connection_up = 134,
+  /**
+   * backend_frontend_connection_up - The following code isn't actually used, but we reserve space for it.
+   * We don't use it because if the backend received an mcu_backend_connection_up
+   * event from the MCU, then we know that the backend received a connection from
+   * the MCU. We only care for technical troubleshooting (of the UART wires) about
+   * the case where the backend receives a connection from the MCU but the MCU
+   * hasn't received a connection from the backend; it would be good to log it,
+   * but we don't need to show it in the frontend, and right now the frontend has
+   * no way to filter out events from its display.
+   * backend_mcu_connection_up = 135;  // backend detected mcu
+   */
+  backend_frontend_connection_up = 136,
+  /**
+   * battery_low - The following code isn't actually used, but we reserve space for it.
+   * We don't use it because the frontend can't generate LogEvents with IDs.
+   * frontend_backend_connection_up = 137;
+   */
+  battery_low = 138,
+  charger_disconnected = 139,
+  mcu_started = 140,
+  backend_started = 141,
+  mcu_shutdown = 142,
+  backend_shutdown = 143,
   UNRECOGNIZED = -1,
 }
 
@@ -154,29 +179,41 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case "screen_locked":
       return LogEventCode.screen_locked;
     case 130:
-    case "mcu_connection_down":
-      return LogEventCode.mcu_connection_down;
+    case "mcu_backend_connection_down":
+      return LogEventCode.mcu_backend_connection_down;
     case 131:
-    case "backend_connection_down":
-      return LogEventCode.backend_connection_down;
+    case "backend_mcu_connection_down":
+      return LogEventCode.backend_mcu_connection_down;
     case 132:
-    case "frontend_connection_down":
-      return LogEventCode.frontend_connection_down;
+    case "backend_frontend_connection_down":
+      return LogEventCode.backend_frontend_connection_down;
     case 133:
-    case "mcu_connection_up":
-      return LogEventCode.mcu_connection_up;
+    case "frontend_backend_connection_down":
+      return LogEventCode.frontend_backend_connection_down;
     case 134:
-    case "backend_connection_up":
-      return LogEventCode.backend_connection_up;
-    case 135:
-    case "frontend_connection_up":
-      return LogEventCode.frontend_connection_up;
+    case "mcu_backend_connection_up":
+      return LogEventCode.mcu_backend_connection_up;
     case 136:
+    case "backend_frontend_connection_up":
+      return LogEventCode.backend_frontend_connection_up;
+    case 138:
     case "battery_low":
       return LogEventCode.battery_low;
-    case 137:
+    case 139:
     case "charger_disconnected":
       return LogEventCode.charger_disconnected;
+    case 140:
+    case "mcu_started":
+      return LogEventCode.mcu_started;
+    case 141:
+    case "backend_started":
+      return LogEventCode.backend_started;
+    case 142:
+    case "mcu_shutdown":
+      return LogEventCode.mcu_shutdown;
+    case 143:
+    case "backend_shutdown":
+      return LogEventCode.backend_shutdown;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -220,22 +257,30 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "hr_alarm_limits_changed";
     case LogEventCode.screen_locked:
       return "screen_locked";
-    case LogEventCode.mcu_connection_down:
-      return "mcu_connection_down";
-    case LogEventCode.backend_connection_down:
-      return "backend_connection_down";
-    case LogEventCode.frontend_connection_down:
-      return "frontend_connection_down";
-    case LogEventCode.mcu_connection_up:
-      return "mcu_connection_up";
-    case LogEventCode.backend_connection_up:
-      return "backend_connection_up";
-    case LogEventCode.frontend_connection_up:
-      return "frontend_connection_up";
+    case LogEventCode.mcu_backend_connection_down:
+      return "mcu_backend_connection_down";
+    case LogEventCode.backend_mcu_connection_down:
+      return "backend_mcu_connection_down";
+    case LogEventCode.backend_frontend_connection_down:
+      return "backend_frontend_connection_down";
+    case LogEventCode.frontend_backend_connection_down:
+      return "frontend_backend_connection_down";
+    case LogEventCode.mcu_backend_connection_up:
+      return "mcu_backend_connection_up";
+    case LogEventCode.backend_frontend_connection_up:
+      return "backend_frontend_connection_up";
     case LogEventCode.battery_low:
       return "battery_low";
     case LogEventCode.charger_disconnected:
       return "charger_disconnected";
+    case LogEventCode.mcu_started:
+      return "mcu_started";
+    case LogEventCode.backend_started:
+      return "backend_started";
+    case LogEventCode.mcu_shutdown:
+      return "mcu_shutdown";
+    case LogEventCode.backend_shutdown:
+      return "backend_shutdown";
     default:
       return "UNKNOWN";
   }

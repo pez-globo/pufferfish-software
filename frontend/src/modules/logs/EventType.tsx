@@ -63,23 +63,23 @@ export const getEventDetails = (event: LogEvent, eventType: EventType): string =
     }
     return '';
   } else if (event.type === LogEventType.system) {
-    if (event.code === LogEventCode.mcu_connection_down) {
-      return 'Lost connection to hardware controller';
+    if (event.code === LogEventCode.mcu_backend_connection_down) {
+      return 'Hardware controller lost connection';
     }
-    if (event.code === LogEventCode.backend_connection_down) {
-      return 'Lost connection to backend server';
+    if (event.code === LogEventCode.backend_mcu_connection_down) {
+      return 'Backend server lost connection from hardware controller';
     }
-    if (event.code === LogEventCode.frontend_connection_down) {
-      return 'Lost connection to user interface';
+    if (event.code === LogEventCode.backend_frontend_connection_down) {
+      return 'User interface lost connection';
     }
-    if (event.code === LogEventCode.mcu_connection_up) {
-      return 'Connected to hardware controller';
+    if (event.code === LogEventCode.frontend_backend_connection_down) {
+      return 'User interface lost connection';
     }
-    if (event.code === LogEventCode.backend_connection_up) {
-      return 'Connected to backend server';
+    if (event.code === LogEventCode.mcu_backend_connection_up) {
+      return 'Hardware controller connected';
     }
-    if (event.code === LogEventCode.frontend_connection_up) {
-      return 'Connected to user interface';
+    if (event.code === LogEventCode.backend_frontend_connection_up) {
+      return 'User interface connected';
     }
     if (event.code === LogEventCode.charger_disconnected) {
       return 'Battery charger is disconnected';
@@ -223,37 +223,37 @@ export const getEventType = (code: LogEventCode): EventType => {
         label: 'Screen is locked',
         unit: '',
       };
-    case LogEventCode.mcu_connection_down:
+    case LogEventCode.mcu_backend_connection_down:
       return {
         type: LogEventType.system,
         label: 'Software connectivity lost',
         unit: '',
       };
-    case LogEventCode.backend_connection_down:
+    case LogEventCode.backend_mcu_connection_down:
       return {
         type: LogEventType.system,
         label: 'Software connectivity lost',
         unit: '',
       };
-    case LogEventCode.frontend_connection_down:
+    case LogEventCode.backend_frontend_connection_down:
       return {
         type: LogEventType.system,
         label: 'Software connectivity lost',
         unit: '',
       };
-    case LogEventCode.mcu_connection_up:
+    case LogEventCode.frontend_backend_connection_down:
+      return {
+        type: LogEventType.system,
+        label: 'Software connectivity lost',
+        unit: '',
+      };
+    case LogEventCode.mcu_backend_connection_up:
       return {
         type: LogEventType.system,
         label: 'Software connected',
         unit: '',
       };
-    case LogEventCode.backend_connection_up:
-      return {
-        type: LogEventType.system,
-        label: 'Software connected',
-        unit: '',
-      };
-    case LogEventCode.frontend_connection_up:
+    case LogEventCode.backend_frontend_connection_up:
       return {
         type: LogEventType.system,
         label: 'Software connected',

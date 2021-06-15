@@ -70,7 +70,7 @@ export const HeartbeatBackendListener = (): JSX.Element => {
           type: BACKEND_CONNECTION_DOWN,
           clock: new Date(),
           update: {
-            code: LogEventCode.backend_connection_down,
+            code: LogEventCode.frontend_backend_connection_down,
             type: LogEventType.system,
             time: new Date().getTime(),
           },

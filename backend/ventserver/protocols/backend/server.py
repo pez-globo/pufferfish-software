@@ -227,11 +227,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         if not self._mcu_connected:
             self._backend.input(backend.ExternalLogEvent(
                 time=self.current_time, active=False,
-                code=mcu_pb.LogEventCode.mcu_connection_down
-            ))
-            self._backend.input(backend.ExternalLogEvent(
-                time=self.current_time,
-                code=mcu_pb.LogEventCode.mcu_connection_up
+                code=mcu_pb.LogEventCode.backend_mcu_connection_down
             ))
             self._mcu_connected = True
         return True
@@ -252,11 +248,11 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         if not self._frontend_connected:
             self._backend.input(backend.ExternalLogEvent(
                 time=self.current_time, active=False,
-                code=mcu_pb.LogEventCode.frontend_connection_down
+                code=mcu_pb.LogEventCode.backend_frontend_connection_down
             ))
             self._backend.input(backend.ExternalLogEvent(
                 time=self.current_time,
-                code=mcu_pb.LogEventCode.frontend_connection_up
+                code=mcu_pb.LogEventCode.backend_frontend_connection_up
             ))
             self._frontend_connected = True
         return True
@@ -304,13 +300,13 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         if actions.alarm_mcu:
             self._backend.input(backend.ExternalLogEvent(
                 time=self.current_time, active=True,
-                code=mcu_pb.LogEventCode.mcu_connection_down
+                code=mcu_pb.LogEventCode.backend_mcu_connection_down
             ))
             self._mcu_connected = False
         if actions.alarm_frontend:
             self._backend.input(backend.ExternalLogEvent(
                 time=self.current_time, active=True,
-                code=mcu_pb.LogEventCode.frontend_connection_down
+                code=mcu_pb.LogEventCode.backend_frontend_connection_down
             ))
             self._frontend_connected = False
         return actions.kill_frontend
