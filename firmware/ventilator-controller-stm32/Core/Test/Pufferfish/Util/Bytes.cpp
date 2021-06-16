@@ -75,7 +75,6 @@ SCENARIO("The get_byte function in Bytes correctly gets bytes from the given pos
       int value3 = PF::Util::get_byte<3>(number);
       THEN("Result is as expected at 3rd index is 134") { REQUIRE(value3 == 134); }
     }
-
   }
 }
 

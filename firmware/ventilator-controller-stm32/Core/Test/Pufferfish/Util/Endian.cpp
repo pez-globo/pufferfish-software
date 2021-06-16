@@ -46,7 +46,8 @@ SCENARIO("read endian data") {
   }
 
   GIVEN("Endian: function read_bigend") {
-    auto data = PF::Util::Containers::make_array<uint8_t>(0x02, 0x08, 0x00, 0x0d, 0x0e, 0x03, 0x0c, 0x00);
+    auto data =
+        PF::Util::Containers::make_array<uint8_t>(0x02, 0x08, 0x00, 0x0d, 0x0e, 0x03, 0x0c, 0x00);
     uint64_t re = 0;
     uint64_t &result = re;
     WHEN("read buffer ") {
@@ -60,9 +61,9 @@ SCENARIO("Write host endian to network endian value") {
   GIVEN("A buffer") {
     uint16_t data = 0x0803;
     WHEN("Host endian is converted in network endian") {
-      Pufferfish::Util::Containers::ByteVector<2>vector;
+      Pufferfish::Util::Containers::ByteVector<2> vector;
       PF::Util::write_hton(data, vector.buffer());
-      THEN("Result is as  expected") { 
+      THEN("Result is as  expected") {
         REQUIRE(vector[0] == 0x08);
         REQUIRE(vector[1] == 0x03);
       }
@@ -71,14 +72,13 @@ SCENARIO("Write host endian to network endian value") {
   GIVEN("Util function write_hton") {
     uint32_t data = 0x03020703;
     WHEN("Util function write_hton on uint32_t") {
-      Pufferfish::Util::Containers::ByteVector<4>vector;
+      Pufferfish::Util::Containers::ByteVector<4> vector;
       PF::Util::write_hton(data, vector.buffer());
-      THEN("Result is as  expected") { 
+      THEN("Result is as  expected") {
         REQUIRE(vector[0] == 0x03);
         REQUIRE(vector[1] == 0x02);
         REQUIRE(vector[2] == 0x07);
         REQUIRE(vector[3] == 0x03);
-
       }
     }
   }

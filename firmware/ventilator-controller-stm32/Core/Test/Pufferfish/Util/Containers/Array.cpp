@@ -20,9 +20,10 @@ namespace PF = Pufferfish;
 SCENARIO("The Util array function creates array correctly") {
   GIVEN("The Util make_array function") {
     WHEN("an array is created from 8 uint8_t values as input") {
-      auto data = PF::Util::Containers::make_array<uint8_t>(0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02);
+      auto data =
+          PF::Util::Containers::make_array<uint8_t>(0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02);
       THEN("the value at every index in an array is as expected") {
-        std::array<uint8_t,8>expected = {0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02};
+        std::array<uint8_t, 8> expected = {0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02};
         for (int i = 0; i < 8; i++) {
           REQUIRE(data[i] == expected[i]);
         }

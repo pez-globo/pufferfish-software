@@ -274,7 +274,6 @@ SCENARIO("The function in Vector: copy_from works correctly on vector") {
       THEN("Returns out of bound, vector copy fails") {
         REQUIRE(vector_copy == PF::IndexStatus::out_of_bounds);
       }
-//      THEN("Returns 4 for size function") { REQUIRE(vector1.size() == 0); }
       THEN("Returns false for full function") { REQUIRE(vector1.full() == false); }
       THEN("Returns 4 for avaliable function") { REQUIRE(vector1.available() == 4); }
       THEN("Returns true for empty function") { REQUIRE(vector1.empty() == true); }
@@ -352,7 +351,7 @@ SCENARIO("Copy_from function for array works correctly") {
       THEN("Result is out of bounds for index 6") {
         REQUIRE(copy == PF::IndexStatus::out_of_bounds);
       }
-//      THEN("Returns 2 for size function") { REQUIRE(vector2.size() == 0); }
+      //      THEN("Returns 2 for size function") { REQUIRE(vector2.size() == 0); }
       THEN("Returns false for full function") { REQUIRE(vector2.full() == false); }
       THEN("Returns 1 for avaliable function") { REQUIRE(vector2.available() == 4); }
       THEN("Returns true for empty function") { REQUIRE(vector2.empty() == true); }
@@ -378,7 +377,7 @@ SCENARIO("The function in Vector: copy_from works correctly") {
     constexpr size_t buffer_size = 2UL;
     constexpr size_t size = 2UL;
     PF::Util::Containers::Vector<uint8_t, size> vector1;
-    PF::Util::Containers::Vector<uint8_t ,buffer_size> input_buffer;
+    PF::Util::Containers::Vector<uint8_t, buffer_size> input_buffer;
     uint8_t* re = input_buffer.buffer();
     auto data = std::string("\x08\x0a");
     for (auto& ch : data) {
@@ -406,7 +405,7 @@ SCENARIO("The function in Vector: copy_from works correctly") {
     WHEN("Vector of 10UL is passed as input for copy_from function for dest index 2") {
       constexpr size_t size = 5UL;
       PF::Util::Containers::Vector<uint8_t, size> vector;
-//      uint8_t* re = input_buffer.buffer();
+      //      uint8_t* re = input_buffer.buffer();
       auto copy = vector.copy_from(re, buffer_size, 3);
       THEN("Returns ok for copy_from function at 3 dest index") {
         REQUIRE(copy == PF::IndexStatus::ok);
@@ -433,7 +432,7 @@ SCENARIO("The function in Vector: copy_from works correctly") {
       THEN("Returns out of bounds for copy_from function for index 3") {
         REQUIRE(copy == PF::IndexStatus::out_of_bounds);
       }
-//      THEN("Returns 2 for size function") { REQUIRE(vector1.size() == 0); }
+      //      THEN("Returns 2 for size function") { REQUIRE(vector1.size() == 0); }
       THEN("Returns 2 for avaliable function") { REQUIRE(vector1.available() == 2); }
       THEN("Returns true for full function") { REQUIRE(vector1.full() == false); }
       THEN("Returns true for empty function") { REQUIRE(vector1.empty() == true); }
@@ -466,7 +465,7 @@ SCENARIO("The function in Vector:Element *buffer() works correctly") {
     }
     WHEN("Elent *buffer() function is used on vector") {
       vector1.resize(4);
-      auto *buffer = vector1.buffer();
+      auto* buffer = vector1.buffer();
       THEN("Returned vector is as expected at every index (0x08,0x0a,0x83,0x02)") {
         REQUIRE(buffer[0] == 0x08);
         REQUIRE(buffer[1] == 0x0a);
@@ -482,7 +481,7 @@ SCENARIO("The function in Vector:Element *buffer() works correctly") {
     WHEN("Vector is resized to 2, Element *buffer() gives correct values") {
       vector1.resize(2);
       auto size = vector1.size();
-      auto *buffer = vector1.buffer();
+      auto* buffer = vector1.buffer();
       THEN("Return vector size is 2 as expected") { REQUIRE(size == 2); }
       THEN("Return vector has expected data (0x08,0x0a)") {
         REQUIRE(buffer[0] == 0x08);
@@ -536,7 +535,7 @@ SCENARIO("The function in vector: erase works correctly") {
       THEN("Returns out of bounds for index 1") {
         REQUIRE(erase1 == PF::IndexStatus::out_of_bounds);
       }
-//      THEN("Returns size 1 as expected for size function") { REQUIRE(vector1.size() == 0); }
+      //      THEN("Returns size 1 as expected for size function") { REQUIRE(vector1.size() == 0); }
       THEN("Returns correcte avaliable vector for function avaliable") {
         REQUIRE(vector1.available() == 1);
       }
@@ -553,7 +552,7 @@ SCENARIO("The function in vector: erase works correctly") {
       THEN("Returns out of bounds for index 0") {
         REQUIRE(erase == PF::IndexStatus::out_of_bounds);
       }
-//      THEN("Returns size 1 as expected for size function") { REQUIRE(vector1.size() == 0); }
+      //      THEN("Returns size 1 as expected for size function") { REQUIRE(vector1.size() == 0); }
       THEN("Returns correcte avaliable vector for function avaliable") {
         REQUIRE(vector1.available() == 5);
       }
