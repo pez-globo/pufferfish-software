@@ -96,7 +96,8 @@ export const ValueClicker = ({
     setDisableDecrement(change <= min);
     if (change >= max) {
       return onClick(max);
-    } else if (change <= min) {
+    }
+    if (change <= min) {
       return onClick(min);
     }
     return onClick(change);
