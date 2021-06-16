@@ -200,11 +200,6 @@ const Alarm = ({
     setActiveRotaryReference(
       type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
     );
-    if (type === SliderType.LOWER) {
-      setDisableIncrement(value >= rangeValues[1]);
-    } else {
-      setDisableDecrement(value <= rangeValues[0]);
-    }
     setAlarmLimits({
       [stateKey]: {
         lower: type === SliderType.LOWER ? value : rangeValues[0],
@@ -212,21 +207,6 @@ const Alarm = ({
       },
     });
   };
-
-  /**
-   * Local state to pass to ValueClicker to disable increment/decrement buttons
-   */
-  const [disableDecrement, setDisableDecrement] = useState(false);
-  const [disableIncrement, setDisableIncrement] = useState(false);
-
-  /**
-   * This is a changeListener that sets disableDecrement, disableIncrement on change in RangeValues which
-   * are the current AlarmLimits
-   */
-  useEffect(() => {
-    setDisableDecrement(rangeValues[1] <= rangeValues[0]);
-    setDisableIncrement(rangeValues[0] >= rangeValues[1]);
-  }, [rangeValues]);
 
   /**
    * Calls on initalization of the component
@@ -277,7 +257,6 @@ const Alarm = ({
                 onClick={(value: number) => onClick(value, SliderType.LOWER)}
                 min={min}
                 max={rangeValues[1]}
-                disableMin={disableIncrement}
                 direction="column"
               />
             </Grid>
@@ -310,7 +289,6 @@ const Alarm = ({
                 onClick={(value: number) => onClick(value, SliderType.UPPER)}
                 min={rangeValues[0]}
                 max={max}
-                disableMax={disableDecrement}
                 direction="column"
               />
             </Grid>
