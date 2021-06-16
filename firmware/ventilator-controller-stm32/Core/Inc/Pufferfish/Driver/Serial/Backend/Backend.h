@@ -18,7 +18,7 @@
 #include "Pufferfish/Protocols/Lists.h"
 #include "Pufferfish/Protocols/Messages.h"
 #include "Pufferfish/Protocols/States.h"
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 #include "Pufferfish/Util/Enums.h"
 
 namespace Pufferfish::Driver::Serial::Backend {

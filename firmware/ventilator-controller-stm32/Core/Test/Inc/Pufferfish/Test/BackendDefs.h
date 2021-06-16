@@ -4,7 +4,7 @@
 #include "Pufferfish/Application/mcu_pb.h"
 #include "Pufferfish/Protocols/Messages.h"
 #include "Pufferfish/Protocols/States.h"
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 

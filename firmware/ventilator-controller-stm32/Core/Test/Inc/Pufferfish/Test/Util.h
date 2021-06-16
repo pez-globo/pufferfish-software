@@ -11,7 +11,7 @@
 
 #include <string>
 
-#include "Pufferfish/Util/Vector.h"
+#include "Pufferfish/Util/Containers/Vector.h"
 
 namespace Pufferfish::Util {
 

@@ -30,7 +30,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "Pufferfish/Util/Vector.h"
+#include "Pufferfish/Util/Containers/Vector.h"
 namespace Pufferfish::Util {
 
 /// \brief A Consistent Overhead Byte Stuffing (COBS) Encoder.

@@ -11,7 +11,7 @@
 #include <cstdint>
 
 #include "Pufferfish/Protocols/Chunks.h"
-#include "Pufferfish/Util/Vector.h"
+#include "Pufferfish/Util/Containers/Vector.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 

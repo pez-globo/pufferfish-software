@@ -13,8 +13,8 @@
 #include <array>
 #include <cstdint>
 
+#include "Pufferfish/Util/Containers/Vector.h"
 #include "Pufferfish/Util/TaggedUnion.h"
-#include "Pufferfish/Util/Vector.h"
 
 namespace Pufferfish::Driver::Serial::FDO2 {
 

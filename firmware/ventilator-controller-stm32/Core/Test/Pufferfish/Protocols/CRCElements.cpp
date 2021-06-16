@@ -14,7 +14,7 @@
 
 #include "Pufferfish/HAL/CRCChecker.h"
 #include "Pufferfish/Test/Util.h"
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 #include "Pufferfish/Util/Endian.h"
 #include "catch2/catch.hpp"
 namespace PF = Pufferfish;

@@ -13,7 +13,7 @@
 
 #include <cstddef>
 
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
@@ -76,10 +76,6 @@ SCENARIO("The get_byte function in Bytes correctly gets bytes from the given pos
       THEN("Result is as expected at 3rd index is 134") { REQUIRE(value3 == 134); }
     }
 
-    WHEN("the get_byte function is called for 4th index on 0x86010f0a") {
-      int value4 = PF::Util::get_byte<4>(number);
-      THEN("Result is as expected at 4th index 10  ") { REQUIRE(value4 == 10); }
-    }
   }
 }
 
@@ -119,42 +115,42 @@ SCENARIO("The  set_byte function correctly sets bytes to the given position") {
       THEN("Result is as expected 2197815296") { REQUIRE(value == 2197815296); }
     }
 
-    WHEN("the set_byte function is called on uint32_t data-type 0x83 for 4th index") {
-      auto value = PF::Util::set_byte<4, uint32_t>(number);
-      THEN("Result is as expected 131 ") { REQUIRE(value == 131); }
-    }
+    // WHEN("the set_byte function is called on uint32_t data-type 0x83 for 4th index") {
+    //   auto value = PF::Util::set_byte<4, uint32_t>(number);
+    //   THEN("Result is as expected 131 ") { REQUIRE(value == 131); }
+    // }
   }
 
-  GIVEN("The  set_byte function") {
-    const uint16_t byte = 0x860a;
-    WHEN("the set_byte function is called on uint16_t data-type 0x860a for 0th index") {
-      auto value = PF::Util::set_byte<uint16_t>(byte, 0);
-      THEN("Result is as expected 10") { REQUIRE(value == 10); }
-    }
+  // GIVEN("The  set_byte function") {
+  //   const uint16_t byte = 0x860a;
+  //   WHEN("the set_byte function is called on uint16_t data-type 0x860a for 0th index") {
+  //     auto value = PF::Util::set_byte<uint16_t>(byte, 0);
+  //     THEN("Result is as expected 10") { REQUIRE(value == 10); }
+  //   }
 
-    WHEN("the set_byte function is called on uint16_t data-type  0x860a for 1st index") {
-      auto value = PF::Util::set_byte<uint16_t>(byte, 1);
-      THEN("Result is as expected 2560") { REQUIRE(value == 2560); }
-    }
+  //   WHEN("the set_byte function is called on uint16_t data-type  0x860a for 1st index") {
+  //     auto value = PF::Util::set_byte<uint16_t>(byte, 1);
+  //     THEN("Result is as expected 2560") { REQUIRE(value == 2560); }
+  //   }
 
-    WHEN("the set_byte function is called on uint16_t data-type 0x860a for 2nd index") {
-      auto value = PF::Util::set_byte<uint16_t>(byte, 2);
-      THEN("Result is as expected 0") { REQUIRE(value == 0); }
-    }
+  //   WHEN("the set_byte function is called on uint16_t data-type 0x860a for 2nd index") {
+  //     auto value = PF::Util::set_byte<uint16_t>(byte, 2);
+  //     THEN("Result is as expected 0") { REQUIRE(value == 0); }
+  //   }
 
-    WHEN("the set_byte function is called on uint32_t data-type 0x860a for 2nd index") {
-      auto setbyte = PF::Util::set_byte<uint32_t>(byte, 2);
-      THEN("Result is as expected 655360") { REQUIRE(setbyte == 655360); }
-    }
+  //   WHEN("the set_byte function is called on uint32_t data-type 0x860a for 2nd index") {
+  //     auto setbyte = PF::Util::set_byte<uint32_t>(byte, 2);
+  //     THEN("Result is as expected 655360") { REQUIRE(setbyte == 655360); }
+  //   }
 
-    WHEN("the set_byte function is called on uint32_t data-type 0x860a for 3rd index") {
-      auto setbyte = PF::Util::set_byte<uint32_t>(byte, 3);
-      THEN("Result is as expected") { REQUIRE(setbyte == 167772160); }
-    }
+  //   WHEN("the set_byte function is called on uint32_t data-type 0x860a for 3rd index") {
+  //     auto setbyte = PF::Util::set_byte<uint32_t>(byte, 3);
+  //     THEN("Result is as expected") { REQUIRE(setbyte == 167772160); }
+  //   }
 
-    WHEN("the set_byte function is called on uint32_t data-type 0x860a for 4th index") {
-      auto setbyte = PF::Util::set_byte<uint32_t>(byte, 4);
-      THEN("Result is as expected") { REQUIRE(setbyte == 10); }
-    }
-  }
+  //   WHEN("the set_byte function is called on uint32_t data-type 0x860a for 4th index") {
+  //     auto setbyte = PF::Util::set_byte<uint32_t>(byte, 4);
+  //     THEN("Result is as expected") { REQUIRE(setbyte == 10); }
+  //   }
+  // }
 }

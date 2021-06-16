@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "Pufferfish/Util/Vector.h"
+#include "Pufferfish/Util/Containers/Vector.h"
 
 namespace Pufferfish::Protocols {
 

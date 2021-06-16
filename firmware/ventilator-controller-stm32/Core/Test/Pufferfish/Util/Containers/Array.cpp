@@ -9,7 +9,7 @@
  * Unit tests to confirm behavior of Array
  *
  */
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 
 #include <iostream>
 
@@ -22,7 +22,7 @@ SCENARIO("The Util array function creates array correctly") {
     WHEN("an array is created from 8 uint8_t values as input") {
       auto data = PF::Util::make_array<uint8_t>(0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02);
       THEN("the value at every index in an array is as expected") {
-        uint8_t expected[8] = {0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02};
+        std::array<uint8_t,8>expected = {0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02};
         for (int i = 0; i < 8; i++) {
           REQUIRE(data[i] == expected[i]);
         }

@@ -17,7 +17,7 @@
 #include "Pufferfish/HAL/Mock/MockTime.h"
 #include "Pufferfish/Protocols/Chunks.h"
 #include "Pufferfish/Test/BackendDefs.h"
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;

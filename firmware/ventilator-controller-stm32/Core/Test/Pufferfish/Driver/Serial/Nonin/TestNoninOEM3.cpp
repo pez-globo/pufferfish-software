@@ -22,7 +22,7 @@
 
 #include "Pufferfish/Driver/Serial/Nonin/Device.h"
 #include "Pufferfish/HAL/Mock/MockBufferedUART.h"
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;

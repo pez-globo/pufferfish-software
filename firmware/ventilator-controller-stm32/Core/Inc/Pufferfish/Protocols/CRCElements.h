@@ -11,7 +11,7 @@
 #include <cstdint>
 
 #include "Pufferfish/HAL/Interfaces/CRCChecker.h"
-#include "Pufferfish/Util/Vector.h"
+#include "Pufferfish/Util/Containers/Vector.h"
 
 namespace Pufferfish::Protocols {
 

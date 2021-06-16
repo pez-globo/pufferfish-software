@@ -13,7 +13,7 @@
 
 #include "Pufferfish/Application/LogEvents.h"
 #include "Pufferfish/Statuses.h"
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 #include "Pufferfish/Util/OrderedMap.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {

@@ -16,8 +16,8 @@
 #include "Pufferfish/Application/mcu_pb.h"
 #include "Pufferfish/Driver/Serial/Backend/Backend.h"
 #include "Pufferfish/Test/Util.h"
-#include "Pufferfish/Util/Array.h"
-#include "Pufferfish/Util/Vector.h"
+#include "Pufferfish/Util/Containers/Array.h"
+#include "Pufferfish/Util/Containers/Vector.h"
 #include "catch2/catch.hpp"
 #include "nanopb/pb.h"
 

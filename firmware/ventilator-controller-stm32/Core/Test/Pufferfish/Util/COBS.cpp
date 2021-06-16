@@ -13,7 +13,7 @@
 #include "Pufferfish/Util/COBS.h"
 
 #include "Pufferfish/Test/Util.h"
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 #include "catch2/catch.hpp"
 namespace PF = Pufferfish;
 using namespace std::string_literals;
