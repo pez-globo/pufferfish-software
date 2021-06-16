@@ -31,6 +31,7 @@ export const getAlarmNotifyStatus = createSelector(
   getApp,
   (app: AppState): boolean => app.notifyAlarm,
 );
+// TODO: the "B" in "getBackendHeartBeat" should not be capitalized
 export const getBackendHeartBeat = createSelector(
   getApp,
   (app: AppState): Date => app.backendHeartbeat,
