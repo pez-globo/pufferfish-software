@@ -157,34 +157,18 @@ export const AlarmModal = ({
     [`${stateKey}_LOWER`]: useRef(null),
     [`${stateKey}_HIGHER`]: useRef(null),
   });
-  /**
-   * Local state to pass to ValueClicker to disable increment/decrement buttons
-   */
-  const [disableDecrement, setDisableDecrement] = React.useState(false);
-  const [disableIncrement, setDisableIncrement] = React.useState(false);
 
   const setUpperLimit = (value: number) => {
     setRangeValue(Object.assign([], rangeValue, { 1: value }));
-    setDisableDecrement(value <= rangeValue[0]);
   };
 
   const setLowerLimit = (value: number) => {
     setRangeValue(Object.assign([], rangeValue, { 0: value }));
-    setDisableIncrement(value >= rangeValue[1]);
   };
 
   const initSetValue = useCallback(() => {
     setOpen(openModal);
   }, [openModal]);
-
-  /**
-   * This is a changeListener that sets disableDecrement, disableIncrement on change in RangeValues which
-   * are the current AlarmLimits
-   */
-  useEffect(() => {
-    setDisableDecrement(rangeValue[1] <= rangeValue[0]);
-    setDisableIncrement(rangeValue[0] >= rangeValue[1]);
-  }, [rangeValue]);
 
   useEffect(() => {
     initRefListener(refs);
@@ -297,8 +281,7 @@ export const AlarmModal = ({
                 value={rangeValue[0]}
                 step={step}
                 min={committedMin}
-                max={committedMax}
-                disableMin={disableIncrement}
+                max={rangeValue[1]}
                 onClick={setLowerLimit}
                 direction="column"
               />
@@ -335,9 +318,8 @@ export const AlarmModal = ({
                 referenceKey={`${stateKey}_HIGHER`}
                 value={rangeValue[1]}
                 step={step}
-                min={committedMin}
+                min={rangeValue[0]}
                 max={committedMax}
-                disableMax={disableDecrement}
                 onClick={setUpperLimit}
                 direction="column"
               />
