@@ -45,10 +45,10 @@ message SensorMeasurements {
   uint64 time = 1;
   uint32 cycle = 2;
   float fio2 = 3;
-  float spo2 = 4;
-  float hr = 5;
-  float paw = 6;
-  float flow = 7;
+  float flow = 4;
+  float spo2 = 5;
+  float hr = 6;
+  float paw = 7;
   float volume = 8;
 }
 
@@ -140,6 +140,7 @@ enum LogEventCode {
   backend_connection_up = 134;
   frontend_connection_up = 135;
   battery_low = 136;
+  charger_disconnected = 137;
 }
 
 enum LogEventType {
@@ -184,11 +185,11 @@ message ActiveLogEvents {
   repeated uint32 id = 1;
 }
 
-// Power Management
+// MCU power
 
-message BatteryPower {
-  uint32 power_left = 1;
-  bool charging_status = 2;
+message MCUPowerStatus {
+  float power_left = 1;
+  bool charging = 2;
 }
 
 // Hardware Buttons
@@ -199,10 +200,10 @@ message ScreenStatus {
 
 message AlarmMute {
   bool active = 1;
-  float remaining = 2;
+  uint64 remaining = 2;
 }
 
 message AlarmMuteRequest {
   bool active = 1;
-  float remaining = 2;
+  uint64 remaining = 2;
 }

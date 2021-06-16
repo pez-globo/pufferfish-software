@@ -1,18 +1,22 @@
+/**
+ * @summary Component handling Multi step Modal popup
+ *
+ * @file Modal popup has steps to update Set Value & Alarm Range values
+ */
 import React, { useEffect } from 'react';
 import { Subscription } from 'rxjs';
 import { useDispatch } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
 import ReplyIcon from '@material-ui/icons/Reply';
 // import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
-import { useLocation } from 'react-router-dom';
 import ModalPopup from '../controllers/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
-  getParametersFiO2,
-  getParametersFlow,
   getSmoothedSpO2,
   getSmoothedHR,
   roundValue,
+  getParametersRequestDraftFiO2,
+  getParametersRequestDraftFlow,
 } from '../../store/controller/selectors';
 import { SetValueContent } from '../controllers/ValueModal';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
@@ -23,8 +27,27 @@ import { ParametersRequest, AlarmLimitsRequest } from '../../store/controller/pr
 import { MessageType } from '../../store/controller/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import store from '../../store';
-import { DASHBOARD_ROUTE } from '../navigation/constants';
 
+/**
+ * @typedef Data
+ *
+ * Interface for Data
+ *
+ * @prop {string} stateKey Unique identifier for the value
+ * @prop {string} label Label for the value
+ * @prop {string} units Unit measurement of the value
+ * @prop {boolean} isAlarmEnabled Config to set if value is Alarm type
+ * @prop {boolean} isSetvalEnabled Config to set if value is Set type
+ * @prop {number | null} committedSetting Current value
+ * @prop {number[]} alarmValues Alarm range values
+ * @prop {number} setValue Set Value
+ * @prop {number | null} minValue Minimum under which value cannot decrement
+ * @prop {number | null} maxValue Maximum above which value cannot increment
+ * @prop {number | null} alarmLimitMin Alarm limit Minimum Range value
+ * @prop {number | null} alarmLimitMax Alarm limit Maximum Range value
+ * @prop {number[]} alarmValuesActual Actual Alarm Value when Component was initalized
+ * @prop {number} setValueActual Actual Set Value when Component was initalized
+ */
 interface Data {
   stateKey: string;
   label: string;
@@ -40,6 +63,13 @@ interface Data {
   alarmLimitMax?: number | null;
   alarmValuesActual: number[];
   setValueActual: number;
+}
+
+interface HFNCProps {
+  alarmValuesSpO2: number[];
+  alarmValuesHR: number[];
+  alarmValuesFiO2: number[];
+  alarmValuesFlow: number[];
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -105,7 +135,19 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const HFNCControls = (): JSX.Element => {
+/**
+ * HFNCControls
+ *
+ * @component A container for displaying the HFNC controls.
+ *
+ * @returns {JSX.Element}
+ */
+const HFNCControls = ({
+  alarmValuesSpO2,
+  alarmValuesHR,
+  alarmValuesFiO2,
+  alarmValuesFlow,
+}: HFNCProps): JSX.Element => {
   return (
     <React.Fragment>
       <Grid
@@ -122,6 +164,7 @@ const HFNCControls = (): JSX.Element => {
             label: 'SpO2',
             stateKey: 'spo2',
             units: PERCENT,
+            alarmLimits: alarmValuesSpO2,
           }}
         />
         <ValueInfo
@@ -130,24 +173,27 @@ const HFNCControls = (): JSX.Element => {
             label: 'HR',
             stateKey: 'hr',
             units: BPM,
+            alarmLimits: alarmValuesHR,
           }}
         />
       </Grid>
       <Grid container item justify="center" alignItems="stretch" direction="column">
         <ValueInfo
           mainContainer={{
-            selector: getParametersFiO2,
+            selector: getParametersRequestDraftFiO2,
             label: 'FiO2',
             stateKey: 'fio2',
             units: PERCENT,
+            alarmLimits: alarmValuesFiO2,
           }}
         />
         <ValueInfo
           mainContainer={{
-            selector: getParametersFlow,
+            selector: getParametersRequestDraftFlow,
             label: 'Flow',
             stateKey: 'flow',
             units: LMIN,
+            alarmLimits: alarmValuesFlow,
           }}
         />
       </Grid>
@@ -155,6 +201,23 @@ const HFNCControls = (): JSX.Element => {
   );
 };
 
+/**
+ * Function to return object with configured values
+ *
+ * @param {string} stateKey Unique identifier for the value
+ * @param {string} label Label for the value
+ * @param {string} units Unit measurement of the value
+ * @param {boolean} isAlarmEnabled Config to set if value is Alarm type
+ * @param {boolean} isSetvalEnabled Config to set if value is Set type
+ * @param {number[]} alarmValuesActual - Current Alarm values from redux store
+ * @param {number | null} committedSetting - Actual Alarm Value when Component was initalized
+ * @param {number | null} minValue Minimum under which value cannot decrement
+ * @param {number | null} maxValue Maximum above which value cannot increment
+ * @param {number | null} alarmLimitMin Alarm limit Minimum Range value
+ * @param {number | null} alarmLimitMax Alarm limit Maximum Range value
+ *
+ * @returns {Data} - returns the `Data` value
+ */
 const createData = (
   label: string,
   stateKey: string,
@@ -186,9 +249,18 @@ const createData = (
   };
 };
 
+/**
+ * Function to get value from redux store for parameters
+ *
+ * @param {string} stateKey - Unique identifier for the value
+ *
+ * @returns {number | null} - Value from redux store
+ */
 const getStoreValueData = (stateKey: string): number | null => {
   // TODO: is there a reason this function directly accesses the store, rather than
   // using the getParametersFiO2 and getParametersFlow2 selectors?
+  // Yes, since its non React function, it does not have access to Hooks
+  // So it directly accesses from the store
   const storeData = store.getState();
   if (storeData.controller.parameters.current === null) {
     return null;
@@ -204,9 +276,18 @@ const getStoreValueData = (stateKey: string): number | null => {
   }
 };
 
+/**
+ * Function to get value from redux store for Alarms
+ *
+ * @param {string} stateKey - Unique identifier for the value
+ *
+ * @returns {number | null} - Value from redux store
+ */
 const getStoreAlarmData = (stateKey: string): number[] | null => {
   // TODO: is there a reason this function directly access the store, rather than
   // using the getAlarmLimitsRequest selector?
+  // Yes, since its non React function, it does not have access to Hooks
+  // So it directly accesses from the store
   const storeData = store.getState();
   const alarmLimits = storeData.controller.alarmLimits.request;
   if (alarmLimits === null) {
@@ -218,12 +299,24 @@ const getStoreAlarmData = (stateKey: string): number[] | null => {
       return [alarmLimits.spo2?.lower as number, alarmLimits.spo2?.upper as number];
     case 'hr':
       return [alarmLimits.hr?.lower as number, alarmLimits.hr?.upper as number];
+    case 'fio2':
+      return [alarmLimits.fio2?.lower as number, alarmLimits.fio2?.upper as number];
+    case 'flow':
+      return [alarmLimits.flow?.lower as number, alarmLimits.flow?.upper as number];
     default:
       return null;
   }
 };
 
-// TODO: Make a constant file for stateKey Constants
+/**
+ * Function to frame `Data` object based on `stateKey` provided
+ *
+ * TODO: Make a constant file for stateKey Constants
+ *
+ * @param {string} stateKey - Unique identifier for the value
+ *
+ * @returns {Data | undefined} - `Data` object containing configurations
+ */
 const determineInput = (stateKey: string): Data | undefined => {
   switch (stateKey) {
     case 'spo2':
@@ -279,24 +372,72 @@ const determineInput = (stateKey: string): Data | undefined => {
   return undefined;
 };
 
+/**
+ * MultiStepWizard
+ *
+ * @component A container for displaying the multi-step wizard.
+ *
+ * @returns {JSX.Element}
+ */
 const MultiStepWizard = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const location = useLocation();
+  /**
+   * State to manage Multi step Modal `open` status
+   */
   const [open, setOpen] = React.useState(false);
+  /**
+   * State to manage Confirmation Modal `open` status
+   */
   const [confirmOpen, setConfirmOpen] = React.useState(false);
+  /**
+   * State to manage Cancellation Modal `open` status
+   */
   const [cancelOpen, setCancelOpen] = React.useState(false);
+  /**
+   * State to manage dynamic label displayed on each step
+   */
   const [label, setLabel] = React.useState('Ventilation Controls');
+  /**
+   * State to manage current `stateKey`
+   */
   const [stateKey, setStateKey] = React.useState('');
+  /**
+   * State to manage Tab index
+   */
   const [tabIndex, setTabIndex] = React.useState(0);
+  /**
+   * State to manage Parameter `Data`
+   */
   const [parameter, setParameter] = React.useState<Data>();
+  /**
+   * State to manage all Parameter `Data`
+   */
   const [multiParams, setMultiParams] = React.useState<Data[]>([]);
+  /**
+   * State to manage if button submitted is disabled
+   */
   const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);
 
+  /**
+   * Trigger on Tab index change event
+   *
+   * @param {React.ChangeEvent<Record<string, unknown>>} event - Default Change event object
+   * @param {number} newValue - Tab index value to update current tab
+   *
+   */
   const handleChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setTabIndex(newValue);
   };
 
+  /**
+   * Triggers on Component Initalization
+   * Listens to 2 events `isMultiPopupOpen` & `currentStateKey`
+   * On `isMultiPopupOpen` open event, multistep popup is displayed in UI
+   * Current stateKey decides which Tab to be shown once open
+   * For example if user click on `FiO2` Set Value container in Dashboard,
+   * Then current stateKey would be `FiO2` and multistep popup will show Set Value modal
+   */
   useEffect(() => {
     const popupEventSubscription: Subscription = getMultiPopupOpenState().subscribe(
       (state: boolean) => {
@@ -321,6 +462,10 @@ const MultiStepWizard = (): JSX.Element => {
     };
   }, []);
 
+  /**
+   * Triggers on TabIndex or Parameter change
+   * Updates the label based on Parameter type configured
+   */
   useEffect(() => {
     if (parameter) {
       if (tabIndex > 0) {
@@ -333,6 +478,12 @@ const MultiStepWizard = (): JSX.Element => {
     }
   }, [tabIndex, parameter]);
 
+  /**
+   * Triggers on parameter or multiParams change
+   * Initally multiParams has only 1 parameter which is set in Component Initalization
+   * As user moves around the tabs and clicks on various Set/Alarm container
+   * Then those are added into multiParams array
+   */
   useEffect(() => {
     if (parameter) {
       setTabIndex(1);
@@ -348,11 +499,22 @@ const MultiStepWizard = (): JSX.Element => {
     }
   }, [parameter, multiParams]);
 
+  /**
+   * Callback on whenever Set Value of parameter changes
+   *
+   * @param {number} setting - Updated value of parameter
+   *
+   * Updates the new Set value into multiParams `Data` object
+   */
   const doSetValue = (setting: number) => {
     if (parameter) {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.setValue = setting;
       parameter.setValue = setting;
+      if (open) {
+        const update = { [stateKey]: setting };
+        dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+      }
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
       } else {
@@ -361,23 +523,19 @@ const MultiStepWizard = (): JSX.Element => {
     }
   };
 
+  /**
+   * Callback on whenever Alarm range value of parameter changes
+   *
+   * @param {number} min - Updated lower limit for the alarm value
+   * @param {number} max - Updated upper limit for the alarm value
+   *
+   * Updates the new alarm range values into multiParams `Data` object
+   */
   const doSetAlarmValues = (min: number, max: number) => {
     if (parameter) {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.alarmValues = [min, max];
       parameter.alarmValues = [min, max];
-      // we want to dispatch commitDraftRequest to AlarmLimitsRequest to show the unsaved alarm limit changes
-      // in the HFNC control (value info right corner), but doing so when in set alarms page will discard the unsaved changes
-      // which is unwanted, thus only do this when we are on dashboard.
-      if (location.pathname === DASHBOARD_ROUTE.path) {
-        const update = {
-          [parameter.stateKey]: {
-            lower: min,
-            upper: max,
-          },
-        };
-        dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
-      }
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
       } else {
@@ -386,6 +544,14 @@ const MultiStepWizard = (): JSX.Element => {
     }
   };
 
+  /**
+   * Function to get Alarm values from Parameter `Data` object
+   *
+   * @param {string} stateKey - stateKey identifier for which parameter `Data` corresponds to
+   *
+   * @return {Array} - Current alarm range values
+   *
+   */
   const getAlarmValues = (stateKey: string) => {
     const param = multiParams.find((param: Data) => param.stateKey === stateKey);
     if (param) {
@@ -394,6 +560,14 @@ const MultiStepWizard = (): JSX.Element => {
     return [];
   };
 
+  /**
+   * Function to get Set values from Parameter `Data` object
+   *
+   * @param {string} stateKey - stateKey identifier for which parameter `Data` corresponds to
+   *
+   * @return {number} - Current Set Value
+   *
+   */
   const getSetValues = (stateKey: string) => {
     const param = multiParams.find((param: Data) => param.stateKey === stateKey);
     if (param && param.setValue) {
@@ -403,6 +577,12 @@ const MultiStepWizard = (): JSX.Element => {
     return 0;
   };
 
+  /**
+   * Checks if there are any changes user has made
+   *
+   * @return {boolean} - true if change is there; false if there are no changes
+   *
+   */
   const isAnyChanges = () => {
     let anyChange = false;
     multiParams.forEach((param: Data) => {
@@ -421,6 +601,10 @@ const MultiStepWizard = (): JSX.Element => {
     return anyChange;
   };
 
+  /**
+   * Callback on clicking of cancel button
+   * Opens Cancel popup
+   */
   const onCancel = () => {
     if (isAnyChanges()) {
       setCancelOpen(true);
@@ -429,6 +613,10 @@ const MultiStepWizard = (): JSX.Element => {
     }
   };
 
+  /**
+   * Callback on clicking of confirm button
+   * Opens Confirmation popup
+   */
   const onConfirm = () => {
     if (isAnyChanges()) {
       setConfirmOpen(true);
@@ -437,6 +625,11 @@ const MultiStepWizard = (): JSX.Element => {
     }
   };
 
+  /**
+   * Callback on clicking Confirm button on Confirmation popup
+   * Updates multiParams data into redux store
+   * Closes all te popup
+   */
   const handleConfirm = () => {
     multiParams.forEach((parameter: Data) => {
       if (parameter.isSetvalEnabled) {
@@ -460,6 +653,10 @@ const MultiStepWizard = (): JSX.Element => {
     setMultiPopupOpen(false);
   };
 
+  /**
+   * Callback on clicking Confirm button on Cancel popup
+   * Undo all the user made changes
+   */
   const handleCancelConfirm = () => {
     if (parameter) {
       parameter.setValue = parameter.setValueActual;
@@ -476,11 +673,19 @@ const MultiStepWizard = (): JSX.Element => {
     setMultiPopupOpen(false);
   };
 
+  /**
+   * Callback on clicking Cancel button on Confirmation popup
+   * Navigates back to MultiStep popup
+   */
   const handleCancelOnConfirmPopup = () => {
     setConfirmOpen(false);
     // setMultiPopupOpen(true, stateKey);
   };
 
+  /**
+   * Callback on clicking Cancel button on Cancel popup
+   * Navigates back to MultiStep popup
+   */
   const handleCancelOnCancelPopup = () => {
     setCancelOpen(false);
     // setMultiPopupOpen(true, stateKey);s
@@ -539,7 +744,12 @@ const MultiStepWizard = (): JSX.Element => {
           </Grid>
           <Grid container className={classes.tabAligning}>
             <TabPanel value={tabIndex} index={0}>
-              <HFNCControls />
+              <HFNCControls
+                alarmValuesSpO2={getAlarmValues('spo2')}
+                alarmValuesHR={getAlarmValues('hr')}
+                alarmValuesFiO2={getAlarmValues('fio2')}
+                alarmValuesFlow={getAlarmValues('flow')}
+              />
             </TabPanel>
             <TabPanel value={tabIndex} index={1}>
               {parameter && parameter.isSetvalEnabled ? (

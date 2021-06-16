@@ -19,11 +19,12 @@ from ventserver.integration import _trio
 from ventserver.io.trio import channels, fileio, rotaryencoder, websocket
 from ventserver.io.subprocess import frozen_frontend
 from ventserver.protocols import exceptions
-from ventserver.protocols.application import lists
+from ventserver.protocols.application import debouncing, lists
 from ventserver.protocols.backend import alarms, log, server, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.simulation import (
-    alarm_limits, alarms as sim_alarms, parameters, simulators
+    alarm_limits, alarm_mute, alarms as sim_alarms,
+    parameters, power_management, simulators
 )
 from ventserver import application
 
@@ -59,11 +60,11 @@ INITIAL_VALUES = {
     states.StateSegment.ALARM_MUTE: mcu_pb.AlarmMute(
         active=False, remaining=120
     ),
-    states.StateSegment.ALARM_MUTE_REQUEST: mcu_pb.AlarmMute(
+    states.StateSegment.ALARM_MUTE_REQUEST: mcu_pb.AlarmMuteRequest(
         active=False, remaining=120
     ),
-    states.StateSegment.BATTERY_POWER: mcu_pb.BatteryPower(
-        power_left=0, charging_status=False
+    states.StateSegment.MCU_POWER_STATUS: mcu_pb.MCUPowerStatus(
+        power_left=0, charging=True
     ),
     states.StateSegment.SCREEN_STATUS: mcu_pb.ScreenStatus(lock=False),
     states.StateSegment.SYSTEM_SETTING_REQUEST:
@@ -72,6 +73,7 @@ INITIAL_VALUES = {
         theme=frontend_pb.ThemeVariant.dark,
         unit=frontend_pb.Unit.metric,
     )
+    # TODO: initial value for FrontendDisplayRequest, which isn't defined yet
 }
 
 
@@ -121,6 +123,8 @@ async def simulate_states(
     """Simulate evolution of all states."""
     simulation_services = simulators.Services()
     alarms_services = sim_alarms.Services()
+    alarm_mute_service = alarm_mute.Service()
+    power_service = power_management.Service()
     active_log_events = typing.cast(
         mcu_pb.ActiveLogEvents,
         store[states.StateSegment.ACTIVE_LOG_EVENTS_MCU]
@@ -130,6 +134,8 @@ async def simulate_states(
         simulated_log.input(log.LocalLogInputEvent(current_time=time.time()))
         simulation_services.transform(time.time(), store)
         alarms_services.transform(store, simulated_log)
+        alarm_mute_service.transform(time.time(), store)
+        power_service.transform(store, simulated_log)
         service_event_log(
             simulated_log, active_log_events, simulated_log_receiver
         )
@@ -191,7 +197,16 @@ async def main() -> None:
     )
 
     # Initialize events log manager
-    simulated_log = alarms.Manager()
+    simulated_log = alarms.Manager(debouncers={
+        mcu_pb.LogEventCode.fio2_too_low: debouncing.Debouncer(),
+        mcu_pb.LogEventCode.fio2_too_high: debouncing.Debouncer(),
+        mcu_pb.LogEventCode.flow_too_low: debouncing.Debouncer(),
+        mcu_pb.LogEventCode.flow_too_high: debouncing.Debouncer(),
+        mcu_pb.LogEventCode.spo2_too_low: debouncing.Debouncer(),
+        mcu_pb.LogEventCode.spo2_too_high: debouncing.Debouncer(),
+        mcu_pb.LogEventCode.hr_too_low: debouncing.Debouncer(),
+        mcu_pb.LogEventCode.hr_too_high: debouncing.Debouncer(),
+    })
     simulated_log_receiver = (
         protocol.receive.backend.  # pylint: disable=protected-access
         _event_log_receiver.  # pylint: disable=protected-access

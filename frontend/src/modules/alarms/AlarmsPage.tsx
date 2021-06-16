@@ -1,7 +1,13 @@
+/**
+ * @summary Page where range of all alarms in system can be configured
+ *
+ * @file Alarms page has capablity to paginate if lot more Alarms
+ * Alarms listed are based on current Ventialtion Mode selected
+ */
 import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
-import React, { RefObject, useEffect, useRef, useState } from 'react';
+import React, { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
@@ -100,6 +106,19 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 // NOTE: Temporary Alarm until the UI team address interface concerns.
+/**
+ * @typedef AlarmProps
+ *
+ * Configurable properties passed to initialize an Alarm container
+ *
+ * @prop {string} label Alarm label to display in UI
+ * @prop {number} min Minimum Range of an Alarm (Default to 0)
+ * @prop {number} max Minimum Range of an Alarm (Default to 100)
+ * @prop {string} stateKey Unique identifier of alarm (eg spo2, fio2...)
+ * @prop {number} step Alarm step difference between Range (Defaults to 1)
+ * @prop {Record<string, Range>} alarmLimits Object to store Alarm Lower/Higher limits
+ * @prop {function} setAlarmLimits Callback triggers to save updated Alarm limits
+ */
 interface AlarmProps {
   label: string;
   min: number;
@@ -115,6 +134,15 @@ enum SliderType {
   UPPER,
 }
 
+/**
+ * UI visual container displaying Alarm Slider & Increment/Decrement value clicker
+ *
+ * @component Component for displaying individual Alarm
+ *
+ * Uses the [[AlarmProps]] interface
+ *
+ * @returns {JSX.Element}
+ */
 const Alarm = ({
   label,
   min,
@@ -137,21 +165,46 @@ const Alarm = ({
     alarmLimits === null
       ? undefined
       : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
-  const rangeValues: number[] = [
-    range === undefined ? NaN : range.lower,
-    range === undefined ? NaN : range.upper,
-  ];
+  const rangeValues: number[] = useMemo(
+    () => [range === undefined ? NaN : range.lower, range === undefined ? NaN : range.upper],
+    [range],
+  );
+  /**
+   * State to manage Wrapper HTML reference of Alarm's lower & higher Controls(ValueSlider & ValueClicker)
+   * This wrapper's HTML border is added or removed based on user's interaction with Alarm Controls
+   * It is used for UI identification of which alarm value is changing via rotary encoder
+   */
   const [refs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
     [`${stateKey}_LOWER`]: useRef(null),
     [`${stateKey}_HIGHER`]: useRef(null),
   });
+
+  /**
+   * Updates Alarm limit value on Slider change event
+   *
+   * @param {number[]} range - Alarm range values
+   *
+   */
   const setRangevalue = (range: number[]) => {
     setAlarmLimits({ [stateKey]: { lower: range[0], upper: range[1] } });
   };
+
+  /**
+   * Updates Alarm limit value on value clicker click event
+   *
+   * @param {number} value - Updated value of Alarm range
+   * @param {SliderType} type - Upper or Lower Range
+   *
+   */
   const onClick = (value: number, type: SliderType) => {
     setActiveRotaryReference(
       type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
     );
+    if (type === SliderType.LOWER) {
+      setDisableIncrement(value >= rangeValues[1]);
+    } else {
+      setDisableDecrement(value <= rangeValues[0]);
+    }
     setAlarmLimits({
       [stateKey]: {
         lower: type === SliderType.LOWER ? value : rangeValues[0],
@@ -160,6 +213,26 @@ const Alarm = ({
     });
   };
 
+  /**
+   * Local state to pass to ValueClicker to disable increment/decrement buttons
+   */
+  const [disableDecrement, setDisableDecrement] = useState(false);
+  const [disableIncrement, setDisableIncrement] = useState(false);
+
+  /**
+   * This is a changeListener that sets disableDecrement, disableIncrement on change in RangeValues which
+   * are the current AlarmLimits
+   */
+  useEffect(() => {
+    setDisableDecrement(rangeValues[1] <= rangeValues[0]);
+    setDisableIncrement(rangeValues[0] >= rangeValues[1]);
+  }, [rangeValues]);
+
+  /**
+   * Calls on initalization of the component
+   * This is an event listener which listens to user input on Alarm Controls(ValueSlider & ValueClicker)
+   * Based on this event Border around Alarm's HTML wrapper is added/removed
+   */
   useEffect(() => {
     initRefListener(refs);
   }, [initRefListener, refs]);
@@ -204,6 +277,7 @@ const Alarm = ({
                 onClick={(value: number) => onClick(value, SliderType.LOWER)}
                 min={min}
                 max={max}
+                disableMin={disableIncrement}
                 direction="column"
               />
             </Grid>
@@ -236,6 +310,7 @@ const Alarm = ({
                 onClick={(value: number) => onClick(value, SliderType.UPPER)}
                 min={min}
                 max={max}
+                disableMax={disableDecrement}
                 direction="column"
               />
             </Grid>
@@ -256,7 +331,18 @@ const Alarm = ({
   );
 };
 
-interface AlarmConfiguration {
+/**
+ * @typedef AlarmConfiguration
+ *
+ * Interface for the alarm configuration
+ *
+ * @prop {string} label Alarm label to display in UI
+ * @prop {number} min Minimum Range of an Alarm (Default to 0)
+ * @prop {number} max Minimum Range of an Alarm (Default to 100)
+ * @prop {string} stateKey Unique identifier of alarm (eg spo2, fio2...)
+ * @prop {number} step Alarm step difference between Range (Defaults to 1)
+ */
+export interface AlarmConfiguration {
   label: string;
   min?: number;
   max?: number;
@@ -264,7 +350,15 @@ interface AlarmConfiguration {
   step?: number;
 }
 
-const alarmConfiguration = (ventilationMode: VentilationMode | null): Array<AlarmConfiguration> => {
+/**
+ * @param {VentilationMode | null} ventilationMode - List of Alarms displayed in UI based on selected ventilation mode
+ *
+ * @returns {AlarmConfiguration[]} List of alarms
+ *
+ */
+export const alarmConfiguration = (
+  ventilationMode: VentilationMode | null,
+): Array<AlarmConfiguration> => {
   switch (ventilationMode) {
     case VentilationMode.hfnc:
       return [
@@ -282,15 +376,24 @@ const alarmConfiguration = (ventilationMode: VentilationMode | null): Array<Alar
 };
 
 /**
- * AlarmsPage
+ * Main container of Alarms page
  *
- * A container for housing all alarm configurations.
+ * @component A container for housing all alarm configurations.
+ *
+ * @returns {JSX.Element}
  */
 export const AlarmsPage = (): JSX.Element => {
   const classes = useStyles();
   const itemsPerPage = 5;
   const [page, setPage] = React.useState(1);
   const [pageCount, setPageCount] = React.useState(1);
+
+  /**
+   * Trigger on Pagination click event
+   *
+   * @param {React.ChangeEvent<unknown>} event - Default Change event object
+   * @param {number} value - Page number value to update current page
+   */
   const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
@@ -307,9 +410,18 @@ export const AlarmsPage = (): JSX.Element => {
     string,
     Range
   >;
+  /**
+   * Function for updating alarm limits
+   *
+   * @param {Partial<AlarmLimitsRequest>} data - Alarm ranges which to be updated
+   */
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
+
+  /**
+   * Updating the alarm limit request to redux
+   */
   const applyChanges = () => {
     if (alarmLimitsRequestDraft === null) {
       return;
@@ -323,6 +435,9 @@ export const AlarmsPage = (): JSX.Element => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
 
+  /**
+   * Closes modal popup
+   */
   const handleClose = () => {
     setConfirmOpen(false);
   };
@@ -331,6 +446,9 @@ export const AlarmsPage = (): JSX.Element => {
     setDiscardOpen(false);
   };
 
+  /**
+   * Closes modal popup & updates the changes
+   */
   const handleConfirm = () => {
     setConfirmOpen(false);
     applyChanges();
@@ -349,10 +467,20 @@ export const AlarmsPage = (): JSX.Element => {
     setDiscardOpen(true);
   };
 
+  /**
+   * Calls everytime when `alarmConfig` variable changes
+   * Updates the page count
+   */
   useEffect(() => {
     setPageCount(Math.ceil(alarmConfig.length / itemsPerPage));
   }, [alarmConfig]);
 
+  /**
+   * Triggers an event to reset active UI wrapper of Alarm Controls
+   * Resets highlighting border around alarm container when clicked across the page
+   * Border is usually added on `ValueClicker` button click
+   * This allows to reset rotary reference border when user clic
+   */
   const OnClickPage = () => {
     setActiveRotaryReference(null);
   };
@@ -362,6 +490,7 @@ export const AlarmsPage = (): JSX.Element => {
       <Grid container item xs direction="column" className={classes.panel}>
         <Grid container item xs direction="row">
           <Grid container spacing={3} style={{ margin: '-10px -12px' }}>
+            {/* Splits Alarms based on page number & itemsPerPage count to show in the page */}
             {alarmConfig.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((alarm) => {
               const key = `alarm-config-${alarm.stateKey}`;
               return (

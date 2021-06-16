@@ -48,6 +48,7 @@ class LogEventCode(betterproto.Enum):
     backend_connection_up = 134
     frontend_connection_up = 135
     battery_low = 136
+    charger_disconnected = 137
 
 
 class LogEventType(betterproto.Enum):
@@ -106,10 +107,10 @@ class SensorMeasurements(betterproto.Message):
     time: int = betterproto.uint64_field(1)
     cycle: int = betterproto.uint32_field(2)
     fio2: float = betterproto.float_field(3)
-    spo2: float = betterproto.float_field(4)
-    hr: float = betterproto.float_field(5)
-    paw: float = betterproto.float_field(6)
-    flow: float = betterproto.float_field(7)
+    flow: float = betterproto.float_field(4)
+    spo2: float = betterproto.float_field(5)
+    hr: float = betterproto.float_field(6)
+    paw: float = betterproto.float_field(7)
     volume: float = betterproto.float_field(8)
 
 
@@ -204,9 +205,9 @@ class ActiveLogEvents(betterproto.Message):
 
 
 @dataclass
-class BatteryPower(betterproto.Message):
-    power_left: int = betterproto.uint32_field(1)
-    charging_status: bool = betterproto.bool_field(2)
+class MCUPowerStatus(betterproto.Message):
+    power_left: float = betterproto.float_field(1)
+    charging: bool = betterproto.bool_field(2)
 
 
 @dataclass
@@ -217,10 +218,10 @@ class ScreenStatus(betterproto.Message):
 @dataclass
 class AlarmMute(betterproto.Message):
     active: bool = betterproto.bool_field(1)
-    remaining: float = betterproto.float_field(2)
+    remaining: int = betterproto.uint64_field(2)
 
 
 @dataclass
 class AlarmMuteRequest(betterproto.Message):
     active: bool = betterproto.bool_field(1)
-    remaining: float = betterproto.float_field(2)
+    remaining: int = betterproto.uint64_field(2)

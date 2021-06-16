@@ -33,7 +33,8 @@ static const size_t max_block_size = 254;
 
 template <size_t input_size, size_t output_size>
 IndexStatus encode_cobs(
-    const Util::ByteVector<input_size> &buffer, Util::ByteVector<output_size> &encoded_buffer) {
+    const Util::Containers::ByteVector<input_size> &buffer,
+    Util::Containers::ByteVector<output_size> &encoded_buffer) {
   size_t read_index = 0;
   size_t write_index = 1;
   size_t code_index = 0;
@@ -68,8 +69,8 @@ IndexStatus encode_cobs(
 
 template <size_t input_size, size_t output_size>
 IndexStatus decode_cobs(
-    const Util::ByteVector<input_size> &encoded_buffer,
-    Util::ByteVector<output_size> &decoded_buffer) {
+    const Util::Containers::ByteVector<input_size> &encoded_buffer,
+    Util::Containers::ByteVector<output_size> &decoded_buffer) {
   if (encoded_buffer.empty()) {
     return IndexStatus::out_of_bounds;
   }
@@ -101,7 +102,7 @@ IndexStatus decode_cobs(
 
 template <size_t input_size>
 constexpr size_t get_encoded_cobs_buffer_size(
-    const Util::ByteVector<input_size> &unencoded_buffer) {
+    const Util::Containers::ByteVector<input_size> &unencoded_buffer) {
   size_t read_index = 0;
   size_t write_index = 1;
   uint8_t code = 1;

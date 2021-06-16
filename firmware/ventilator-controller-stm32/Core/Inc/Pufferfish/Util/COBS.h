@@ -56,7 +56,8 @@ namespace Pufferfish::Util {
 /// \returns IndexStatus as ok/out_of_bounds
 template <size_t input_size, size_t output_size>
 IndexStatus encode_cobs(
-    const Util::ByteVector<input_size> &buffer, Util::ByteVector<output_size> &encoded_buffer);
+    const Util::Containers::ByteVector<input_size> &buffer,
+    Util::Containers::ByteVector<output_size> &encoded_buffer);
 
 /// \brief Decode a COBS-encoded buffer.
 /// \param encodedBuffer A ByteVector to the \p encodedBuffer to decode.
@@ -65,14 +66,15 @@ IndexStatus encode_cobs(
 /// \returns IndexStatus as ok/out_of_bounds
 template <size_t input_size, size_t output_size>
 IndexStatus decode_cobs(
-    const Util::ByteVector<input_size> &encoded_buffer,
-    Util::ByteVector<output_size> &decoded_buffer);
+    const Util::Containers::ByteVector<input_size> &encoded_buffer,
+    Util::Containers::ByteVector<output_size> &decoded_buffer);
 
 template <size_t input_size>
 /// \brief Get the actual encoded buffer size for an unencoded buffer size.
 /// \param unencodedBuffer The unencoded ByteVector.
 /// \returns IndexStatus as ok/out_of_bounds
-constexpr size_t get_encoded_cobs_buffer_size(const Util::ByteVector<input_size> &unencoded_buffer);
+constexpr size_t get_encoded_cobs_buffer_size(
+    const Util::Containers::ByteVector<input_size> &unencoded_buffer);
 
 }  // namespace Pufferfish::Util
 

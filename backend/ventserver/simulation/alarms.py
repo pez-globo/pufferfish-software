@@ -20,7 +20,7 @@ def transform_parameter_alarms(
         events_log: alarms.Manager
 ) -> None:
     """Update the alarms for a particular parameter."""
-    if value < lower_limit:
+    if round(value) < lower_limit:
         events_log.input(alarms.AlarmActivationEvent(
             code=too_low_code, event_type=mcu_pb.LogEventType.patient,
             lower_limit=lower_limit, upper_limit=upper_limit
@@ -28,7 +28,7 @@ def transform_parameter_alarms(
     else:
         events_log.input(alarms.AlarmDeactivationEvent(codes=[too_low_code]))
 
-    if value > upper_limit:
+    if round(value) > upper_limit:
         events_log.input(alarms.AlarmActivationEvent(
             code=too_high_code, event_type=mcu_pb.LogEventType.patient,
             lower_limit=lower_limit, upper_limit=upper_limit

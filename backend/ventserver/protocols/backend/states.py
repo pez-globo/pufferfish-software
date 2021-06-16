@@ -34,7 +34,7 @@ class StateSegment(enum.Enum):
     ACTIVE_LOG_EVENTS_BE = enum.auto()
     ALARM_MUTE = enum.auto()
     ALARM_MUTE_REQUEST = enum.auto()
-    BATTERY_POWER = enum.auto()
+    MCU_POWER_STATUS = enum.auto()
     SCREEN_STATUS = enum.auto()
     # frontend_pb
     ROTARY_ENCODER = enum.auto()
@@ -55,7 +55,7 @@ MCU_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.NextLogEvents: StateSegment.NEXT_LOG_EVENTS_MCU,
     mcu_pb.ActiveLogEvents: StateSegment.ACTIVE_LOG_EVENTS_MCU,
     mcu_pb.AlarmMute: StateSegment.ALARM_MUTE,
-    mcu_pb.BatteryPower: StateSegment.BATTERY_POWER,
+    mcu_pb.MCUPowerStatus: StateSegment.MCU_POWER_STATUS,
     mcu_pb.ScreenStatus: StateSegment.SCREEN_STATUS,
 }
 MCU_OUTPUT_SCHEDULE = collections.deque([
@@ -90,7 +90,7 @@ FRONTEND_OUTPUT_SCHEDULE = collections.deque([
     states.ScheduleEntry(time=0.01, type=StateSegment.ALARM_MUTE),
     states.ScheduleEntry(time=0.01, type=StateSegment.ALARM_MUTE_REQUEST),
     states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.BATTERY_POWER),
+    states.ScheduleEntry(time=0.01, type=StateSegment.MCU_POWER_STATUS),
     states.ScheduleEntry(time=0.01, type=StateSegment.SCREEN_STATUS),
     states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
     states.ScheduleEntry(time=0.01, type=StateSegment.CYCLE_MEASUREMENTS),
@@ -104,16 +104,20 @@ FRONTEND_OUTPUT_SCHEDULE = collections.deque([
 ])
 
 FILE_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
-    mcu_pb.Parameters: StateSegment.PARAMETERS,
     mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
-    mcu_pb.AlarmLimits: StateSegment.ALARM_LIMITS,
     mcu_pb.AlarmLimitsRequest: StateSegment.ALARM_LIMITS_REQUEST,
+    mcu_pb.AlarmMuteRequest: StateSegment.ALARM_MUTE_REQUEST,
+    frontend_pb.SystemSettingRequest: StateSegment.SYSTEM_SETTING_REQUEST,
+    # Frontend protobuf message isn't defined yet:
+    # frontend_pb.FrontendDisplay: StateSegment.FRONTEND_DISPLAY_REQUEST,
 }
 FILE_OUTPUT_SCHEDULE = collections.deque([
-    states.ScheduleEntry(time=0.3, type=StateSegment.PARAMETERS),
-    states.ScheduleEntry(time=0.3, type=StateSegment.PARAMETERS_REQUEST),
-    states.ScheduleEntry(time=0.3, type=StateSegment.ALARM_LIMITS),
-    states.ScheduleEntry(time=0.3, type=StateSegment.ALARM_LIMITS_REQUEST),
+    states.ScheduleEntry(time=0.5, type=StateSegment.PARAMETERS_REQUEST),
+    states.ScheduleEntry(time=0.5, type=StateSegment.ALARM_LIMITS_REQUEST),
+    states.ScheduleEntry(time=0.5, type=StateSegment.ALARM_MUTE_REQUEST),
+    states.ScheduleEntry(time=0.5, type=StateSegment.SYSTEM_SETTING_REQUEST),
+    # Frontend protobuf message isn't defined yet:
+    # states.ScheduleEntry(time=0.5, type=StateSegment.FRONTEND_DISPLAY_REQUEST)
 ])
 
 

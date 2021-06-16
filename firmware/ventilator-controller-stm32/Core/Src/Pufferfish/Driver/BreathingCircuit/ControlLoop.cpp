@@ -7,23 +7,9 @@
 
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 
-#include "Pufferfish/Util/Timeouts.h"
-
 namespace Pufferfish::Driver::BreathingCircuit {
 
 // ControlLoop
-
-void ControlLoop::advance_step_time(uint32_t current_time) {
-  previous_step_time_ = current_time;
-}
-
-uint32_t ControlLoop::step_duration(uint32_t current_time) const {
-  return current_time - previous_step_time_;
-}
-
-bool ControlLoop::update_needed(uint32_t current_time) const {
-  return !Util::within_timeout(previous_step_time_, update_interval, current_time);
-}
 
 // HFNC ControlLoop
 
@@ -40,7 +26,7 @@ const ActuatorVars &HFNCControlLoop::actuator_vars() const {
 }
 
 void HFNCControlLoop::update(uint32_t current_time) {
-  if (!update_needed(current_time)) {
+  if (step_timer().within_timeout(current_time)) {
     return;
   }
 
@@ -49,10 +35,13 @@ void HFNCControlLoop::update(uint32_t current_time) {
   }
 
   // Update sensors
-  // TODO(lietk12): handle errors from sensors
-  sfm3019_air_.output(sensor_vars_.flow_air);
-  sfm3019_o2_.output(sensor_vars_.flow_o2);
-  sensor_measurements_.flow = sensor_vars_.flow_air + sensor_vars_.flow_o2;
+  InitializableState air_status = sfm3019_air_.output(sensor_vars_.flow_air);
+  InitializableState o2_status = sfm3019_o2_.output(sensor_vars_.flow_o2);
+  if (air_status == InitializableState::ok && o2_status == InitializableState::ok) {
+    sensor_measurements_.flow = sensor_vars_.flow_air + sensor_vars_.flow_o2;
+  }
+  // TODO(lietk12): we should probably set flow to NaN otherwise, but for now we do nothing
+  // so that we don't overwrite the simulated values if the sensors aren't available
 
   // Update controller
   controller_.transform(
@@ -67,7 +56,7 @@ void HFNCControlLoop::update(uint32_t current_time) {
   valve_air_.set_duty_cycle(actuator_vars_.valve_air_opening);
   valve_o2_.set_duty_cycle(actuator_vars_.valve_o2_opening);
 
-  advance_step_time(current_time);
+  step_timer().reset(current_time);
 }
 
 }  // namespace Pufferfish::Driver::BreathingCircuit

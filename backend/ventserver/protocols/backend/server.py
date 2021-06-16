@@ -45,7 +45,7 @@ class ReceiveDataEvent(events.Event):
     serial_receive: Optional[bytes] = attr.ib(default=None)
     websocket_receive: Optional[bytes] = attr.ib(default=None)
     rotary_encoder_receive: Tuple[int, bool] = attr.ib(default=None)
-    file_receive: Optional[file.StateData] = attr.ib(default=None)
+    file_receive: Optional[file.LowerReceiveEvent] = attr.ib(default=None)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""

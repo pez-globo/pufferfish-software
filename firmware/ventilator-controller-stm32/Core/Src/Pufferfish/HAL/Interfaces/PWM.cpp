@@ -20,7 +20,7 @@
 
 #include "Pufferfish/HAL/Interfaces/PWM.h"
 
-namespace Pufferfish::HAL {
+namespace Pufferfish::HAL::Interfaces {
 
 PWMStatus PWM::set_duty_cycle(float duty) {
   if (duty < 0.0 || 1.0 < duty) {
@@ -31,4 +31,4 @@ PWMStatus PWM::set_duty_cycle(float duty) {
   return PWMStatus::ok;
 }
 
-}  // namespace Pufferfish::HAL
+}  // namespace Pufferfish::HAL::Interfaces

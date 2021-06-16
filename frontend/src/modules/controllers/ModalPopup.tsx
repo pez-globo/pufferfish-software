@@ -1,3 +1,8 @@
+/**
+ * @summary Modal Popup Wrapper
+ *
+ * @file Reusable component to create Modal Popup
+ */
 import React, { PropsWithChildren, ReactNode } from 'react';
 import {
   Button,
@@ -87,6 +92,20 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * @typedef Props
+ *
+ * Props interface for ModalPopup component
+ *
+ * @prop {boolean} open Toggle to open/close Modal
+ * @prop {string | ReactNode} label Modal header Label
+ * @prop {boolean} withAction Toggle to show/hide confirm/cancel buttons
+ * @prop {boolean} fullWidth Toggle to full width modal popup size
+ * @prop {boolean} showCloseIcon Toggle to show/hide close Icon
+ * @prop {function} onClose Callback on Closing modal
+ * @prop {function} onConfirm Callback on Confirming modal
+ * @prop {DialogProps['maxWidth']} maxWidth Size of modal popup
+ */
 interface Props {
   open: boolean;
   label: string | ReactNode;
@@ -98,11 +117,28 @@ interface Props {
   maxWidth?: DialogProps['maxWidth'];
 }
 
+/**
+ * @typedef ActionProps
+ *
+ * Interface for Action Props
+ *
+ * @prop {function} onClose Callback on Closing modal by clicking on `cancel` button
+ * @prop {function} onConfirm Callback on Confirming modal
+ */
 interface ActionProps {
   onClose?(): void;
   onConfirm?(): void;
 }
 
+/**
+ * ModalAction
+ *
+ * Confirm/Cancel options for Modal
+ *
+ * Uses the [[ActionProps]] interface
+ *
+ * @returns JSX.Element
+ */
 const ModalAction = ({ onClose, onConfirm }: ActionProps): JSX.Element => {
   const classes = useStyles();
   return (
@@ -127,6 +163,15 @@ const ModalAction = ({ onClose, onConfirm }: ActionProps): JSX.Element => {
   );
 };
 
+/**
+ * ModalPopup
+ *
+ * @component A re-usable "Modal" component for displaying popup.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns JSX.Element
+ */
 export const ModalPopup = (props: PropsWithChildren<Props>): JSX.Element => {
   const classes = useStyles();
   const {

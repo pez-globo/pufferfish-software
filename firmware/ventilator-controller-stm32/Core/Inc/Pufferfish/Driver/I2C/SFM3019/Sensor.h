@@ -15,6 +15,7 @@
 #include "Pufferfish/Driver/Initializable.h"
 #include "Pufferfish/HAL/Interfaces/Time.h"
 #include "Pufferfish/Types.h"
+#include "Pufferfish/Util/Timeouts.h"
 
 namespace Pufferfish::Driver::I2C::SFM3019 {
 
@@ -34,11 +35,8 @@ class StateMachine {
   static const uint32_t measuring_duration_us = 500;     // us
 
   Action next_action_ = Action::initialize;
-  uint32_t wait_start_time_us_ = 0;
-  uint32_t current_time_us_ = 0;
-
-  void start_waiting();
-  [[nodiscard]] bool finished_waiting(uint32_t timeout_us) const;
+  Util::UsTimer warmup_timer_{warming_up_duration_us, 0};
+  Util::UsTimer measuring_timer_{measuring_duration_us, 0};
 };
 
 /**
@@ -46,7 +44,7 @@ class StateMachine {
  */
 class Sensor : public Initializable {
  public:
-  Sensor(Device &device, bool resetter, HAL::Time &time)
+  Sensor(Device &device, bool resetter, HAL::Interfaces::Time &time)
       : resetter(resetter), device_(device), time_(time) {}
 
   InitializableState setup() override;
@@ -79,7 +77,7 @@ class Sensor : public Initializable {
   ConversionFactors conversion_{};
   Sample sample_{};
 
-  HAL::Time &time_;
+  HAL::Interfaces::Time &time_;
 
   InitializableState initialize(uint32_t current_time);
   InitializableState check_range(uint32_t current_time_us);

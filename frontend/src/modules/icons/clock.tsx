@@ -1,6 +1,21 @@
+/**
+ * @deprecated
+ * @summary A short one-line description for the file
+ *
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 
+/**
+ * @deprecated
+ * Clock
+ *
+ * @component Component for displaying "Bell" icon
+ *
+ * @param {SvgIconProps} props - SVG props to override
+ *
+ * @returns {JSX.Element} - "Clock" icon
+ */
 const Clock = (props: SvgIconProps): JSX.Element => {
   return (
     <SvgIcon {...props} width="87" height="24" viewBox="0 0 87 24">

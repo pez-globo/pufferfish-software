@@ -7,9 +7,17 @@
 
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 
-#include "Pufferfish/Util/Timeouts.h"
+#include <cmath>
+#include <random>
 
 namespace Pufferfish::Driver::BreathingCircuit {
+
+// We're using PRNG only to simulate values, so security isn't a problem
+// NOLINTNEXTLINE(cert-msc51-cpp)
+std::ranlux24_base prng;  // we use a fixed seed for pseudo-random number generation
+static constexpr float uniform_width = 1;
+std::uniform_real_distribution<float> uniform(0, uniform_width);
+std::uniform_real_distribution<float> uniform_centered(-uniform_width / 2, uniform_width / 2);
 
 // Simulator
 
@@ -18,7 +26,7 @@ void Simulator::input_clock(uint32_t current_time) {
     initial_time_ = current_time;
   }
   if (update_needed()) {
-    previous_time_ = current_time_;
+    step_timer_.reset(current_time_);
   }
   current_time_ = current_time - initial_time_;
 }
@@ -29,10 +37,11 @@ uint32_t Simulator::current_time() const {
 void Simulator::transform_fio2(float params_fio2, float &sensor_meas_fio2) {
   sensor_meas_fio2 +=
       (params_fio2 - sensor_meas_fio2) * fio2_responsiveness / sensor_update_interval;
+  sensor_meas_fio2 += fio2_noise * uniform(prng);
 }
 
 bool Simulator::update_needed() const {
-  return !Util::within_timeout(previous_time_, sensor_update_interval, current_time_);
+  return !step_timer_.within_timeout(current_time_);
 }
 
 // PC-AC Simulator
@@ -40,6 +49,7 @@ bool Simulator::update_needed() const {
 void PCACSimulator::transform(
     const Parameters &parameters,
     const SensorVars & /*sensor_vars*/,
+    const SensorStates & /*sensor_states*/,
     SensorMeasurements &sensor_measurements,
     CycleMeasurements &cycle_measurements) {
   if (!update_needed()) {
@@ -53,11 +63,11 @@ void PCACSimulator::transform(
   // Timing
   sensor_measurements.time = current_time();
   uint32_t cycle_period = minute_duration / parameters.rr;
-  if (!Util::within_timeout(cycle_start_time_, cycle_period, current_time())) {
+  if (!cycle_timer_.within_timeout(current_time())) {
     init_cycle(cycle_period, parameters, sensor_measurements);
     transform_cycle_measurements(parameters, cycle_measurements);
   }
-  if (Util::within_timeout(cycle_start_time_, insp_period_, current_time())) {
+  if (insp_timer_.within_timeout(current_time())) {
     transform_airway_inspiratory(parameters, sensor_measurements);
   } else {
     transform_airway_expiratory(parameters, sensor_measurements);
@@ -67,19 +77,20 @@ void PCACSimulator::transform(
 
 void PCACSimulator::init_cycle(
     uint32_t cycle_period, const Parameters &parameters, SensorMeasurements &sensor_measurements) {
-  cycle_start_time_ = current_time();
+  cycle_timer_.reset(current_time());
+  insp_timer_.reset(current_time());
   sensor_measurements.flow = insp_init_flow_rate;
   sensor_measurements.volume = 0;
-  insp_period_ = cycle_period / (1 + 1.0 / parameters.ie);
+  insp_timer_.set_timeout(cycle_period / (1 + 1.0 / parameters.ie));
   sensor_measurements.cycle += 1;
 }
 
 void PCACSimulator::transform_cycle_measurements(
     const Parameters &parameters, CycleMeasurements &cycle_measurements) {
   cycle_measurements.time = current_time();
-  cycle_measurements.rr = parameters.rr;
-  cycle_measurements.peep = parameters.peep;
-  cycle_measurements.pip = parameters.pip;
+  cycle_measurements.rr = parameters.rr + rr_noise * uniform_centered(prng);
+  cycle_measurements.peep = parameters.peep + peep_noise * uniform_centered(prng);
+  cycle_measurements.pip = parameters.pip + pip_noise * uniform_centered(prng);
 }
 
 void PCACSimulator::transform_airway_inspiratory(
@@ -108,6 +119,7 @@ void PCACSimulator::transform_airway_expiratory(
 void HFNCSimulator::transform(
     const Parameters &parameters,
     const SensorVars &sensor_vars,
+    const SensorStates &sensor_states,
     SensorMeasurements &sensor_measurements,
     // cycle_measurements is part of the Simulator interface
     // NOLINTNEXTLINE(misc-unused-parameters)
@@ -122,12 +134,15 @@ void HFNCSimulator::transform(
 
   // Timing
   sensor_measurements.time = current_time();
-  transform_flow(parameters.flow, sensor_measurements.flow);
-  if (sensor_vars.po2 != 0) {
-    // simulate FiO2 from pO2 if pO2 is available
+  if (!sensor_states.sfm3019_air || !sensor_states.sfm3019_o2) {
+    transform_flow(parameters.flow, sensor_measurements.flow);
+  }
+  // If sensor_states.fdo2 && sensor_states.abp, FiO2 should be calculated in ControlLoop
+  if (sensor_states.fdo2) {
+    // simulate FiO2 from pO2
     sensor_measurements.fio2 = sensor_vars.po2 * po2_fio2_conversion;
   } else if (std::abs(sensor_vars.flow_air + sensor_vars.flow_o2) >= 1) {
-    // simulate FiO2 from relative flow rates if flow rates are available
+    // simulate FiO2 from relative flow rates
     float flow_o2_ratio = sensor_vars.flow_o2 / (sensor_vars.flow_air + sensor_vars.flow_o2);
     float inferred_fio2 =
         allowed_fio2.lower * (1 - flow_o2_ratio) + allowed_fio2.upper * flow_o2_ratio;
@@ -136,8 +151,10 @@ void HFNCSimulator::transform(
     // simulate FiO2 from params
     transform_fio2(parameters.fio2, sensor_measurements.fio2);
   }
-  transform_spo2(sensor_measurements.fio2, sensor_measurements.spo2);
-  transform_hr(sensor_measurements.fio2, sensor_measurements.hr);
+  if (!sensor_states.nonin_oem) {
+    transform_spo2(sensor_measurements.fio2, sensor_measurements.spo2);
+    transform_hr(sensor_measurements.fio2, sensor_measurements.hr);
+  }
 }
 
 void HFNCSimulator::init_cycle() {
@@ -146,10 +163,12 @@ void HFNCSimulator::init_cycle() {
 
 void HFNCSimulator::transform_flow(float params_flow, float &sens_meas_flow) {
   sens_meas_flow += (params_flow - sens_meas_flow) * flow_responsiveness / time_step();
+  sens_meas_flow += flow_noise * uniform_centered(prng);
 }
 
 void HFNCSimulator::transform_spo2(float fio2, float &spo2) {
   spo2 += (spo2_fio2_scale * fio2 - spo2) * spo2_responsiveness / time_step();
+  spo2 += spo2_noise * uniform_centered(prng);
   // We don't use clamp because we want to preserve NaNs
   if (spo2 < spo2_min) {
     spo2 = spo2_min;
@@ -161,6 +180,7 @@ void HFNCSimulator::transform_spo2(float fio2, float &spo2) {
 
 void HFNCSimulator::transform_hr(float fio2, float &hr) {
   hr += (hr_fio2_scale * fio2 - hr) * hr_responsiveness / time_step();
+  hr += hr_noise * uniform_centered(prng);
   // We don't use clamp because we want to preserve NaNs
   if (hr < hr_min) {
     hr = hr_min;
@@ -176,6 +196,7 @@ void Simulators::transform(
     uint32_t current_time,
     const Parameters &parameters,
     const SensorVars &sensor_vars,
+    const SensorStates &sensor_states,
     SensorMeasurements &sensor_measurements,
     CycleMeasurements &cycle_measurements) {
   switch (parameters.mode) {
@@ -192,7 +213,8 @@ void Simulators::transform(
 
   input_clock(current_time);
 
-  active_simulator_->transform(parameters, sensor_vars, sensor_measurements, cycle_measurements);
+  active_simulator_->transform(
+      parameters, sensor_vars, sensor_states, sensor_measurements, cycle_measurements);
 }
 
 void Simulators::input_clock(uint32_t current_time) {

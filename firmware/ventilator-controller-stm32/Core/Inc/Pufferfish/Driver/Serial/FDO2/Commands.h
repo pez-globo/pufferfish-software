@@ -51,7 +51,7 @@ enum class ParseStatus { ok = 0, missing_arg, unexpected_arg, invalid_arg_delimi
 static const size_t mraw_num_fields = 8;
 // Note: this is optimized for MOXY, RDUM and WRUM may not fit as they require up to ~778 bytes
 static const size_t max_len = max_frame_len(mraw_num_fields);
-using ChunkBuffer = Util::Vector<char, max_len>;
+using ChunkBuffer = Util::Containers::Vector<char, max_len>;
 
 struct Vers {
   uint8_t device_id;
@@ -104,7 +104,7 @@ namespace Requests {
 static const size_t max_num_fields = 2;
 // Note: this excludes WRUM, which would require up to ~778 bytes
 static const size_t max_len = max_frame_len(max_num_fields);
-using ChunkBuffer = Util::Vector<char, max_len>;
+using ChunkBuffer = Util::Containers::Vector<char, max_len>;
 
 struct Vers {};
 struct Logo {};

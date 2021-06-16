@@ -1,3 +1,7 @@
+/**
+ * @summary Main Wrapper component for Dashboard
+ *
+ */
 import { Grid, makeStyles } from '@material-ui/core';
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
@@ -20,6 +24,16 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+/**
+ * renderModeLayout
+ *
+ * @component Component for loading dashboard wrapper based on ventilation mode.
+ *
+ * @param {VentilationMode | null} mode Ventilatiom mode
+ *
+ * @returns {JSX.Element}
+ *
+ */
 const renderModeLayout = (mode: VentilationMode | null): JSX.Element => {
   switch (mode) {
     case VentilationMode.hfnc:
@@ -38,15 +52,21 @@ const renderModeLayout = (mode: VentilationMode | null): JSX.Element => {
 /**
  * DashboardPage
  *
- * TODO: Hook into the redux store to get the current dashboard `view` from the
- * `ViewDropdown`
+ * @component Main Wrapper component for Dashboard
+ *
+ * TODO: Hook into the redux store to get the current dashboard `view` from the `ViewDropdown`
+ *
+ * @returns {JSX.Element}
+ *
  */
 export const DashboardPage = (): JSX.Element => {
   const classes = useStyles();
   const history = useHistory();
   const ventilating = useSelector(getParametersIsVentilating);
   const currentMode = useSelector(getParametersRequestMode);
-
+  /**
+   * Triggers whenever vetilation status in redux store changes
+   */
   useEffect(() => {
     if (!ventilating) {
       history.push(QUICKSTART_ROUTE.path);

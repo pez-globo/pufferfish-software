@@ -1,3 +1,10 @@
+/**
+ * @summary Sidebar Drawer Component
+ *
+ * @file Its shown when frontend is 'ventilating' & toggled by clicking the home icon
+ * Its referenced in `SiderbarSlideRoute` layout file
+ *
+ */
 import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import React from 'react';
@@ -62,7 +69,11 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * SidebarClickable
  *
- * The main FullPageNavigation panel of the application.
+ * @component The main FullPageNavigation panel of the application.
+ *
+ * @param {function} toggleStatus - Callback with toggleStatus to show/hide Sidebar drawer status
+ *
+ * @returns {JSX.Element}
  */
 const SidebarClickable = ({
   toggleStatus,
@@ -72,6 +83,9 @@ const SidebarClickable = ({
   const classes = useStyles();
   const dispatch = useDispatch();
 
+  /**
+   * Function to set lock on screen.
+   */
   const lockScreen = () => {
     toggleStatus(false);
     dispatch(updateState(MessageType.ScreenStatus, { lock: true }));

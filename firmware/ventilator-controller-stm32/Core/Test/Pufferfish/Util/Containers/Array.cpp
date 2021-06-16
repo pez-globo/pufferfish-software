@@ -20,7 +20,7 @@ namespace PF = Pufferfish;
 SCENARIO("The Util array function creates array correctly") {
   GIVEN("The Util make_array function") {
     WHEN("an array is created from 8 uint8_t values as input") {
-      auto data = PF::Util::make_array<uint8_t>(0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02);
+      auto data = PF::Util::Containers::make_array<uint8_t>(0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02);
       THEN("the value at every index in an array is as expected") {
         std::array<uint8_t,8>expected = {0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02};
         for (int i = 0; i < 8; i++) {
@@ -32,7 +32,7 @@ SCENARIO("The Util array function creates array correctly") {
   }
 
   GIVEN("The Util Array function") {
-    auto data = PF::Util::make_array<std::string>("ab", "bc", "cd");
+    auto data = PF::Util::Containers::make_array<std::string>("ab", "bc", "cd");
     WHEN("an array is created from 3 strings as input parameter") {
       THEN("the value of an array at every index  is as expected") {
         REQUIRE(data[0] == "ab");
@@ -50,7 +50,7 @@ SCENARIO("The Util array function creates array correctly") {
     WHEN("an array is created from const references of values, 0x02 and 0x0f") {
       uint8_t &ri = expected;
       uint8_t &pi = array;
-      auto data = PF::Util::make_array<uint8_t>(ri, pi);
+      auto data = PF::Util::Containers::make_array<uint8_t>(ri, pi);
       THEN("the array is as expected at every index [0x02,0x0f]") {
         REQUIRE(data[0] == 0x02);
         REQUIRE(data[1] == 0x0f);
@@ -62,7 +62,7 @@ SCENARIO("The Util array function creates array correctly") {
       uint8_t array = 0x0c;
       uint8_t &ri = expected;
       uint8_t &pi = array;
-      auto data = PF::Util::make_array<uint8_t>(ri, pi);
+      auto data = PF::Util::Containers::make_array<uint8_t>(ri, pi);
       THEN("the array is as expected at every index [0x00,0x0c]") {
         REQUIRE(data[0] == 0x00);
         REQUIRE(data[1] == 0x0c);
@@ -72,7 +72,7 @@ SCENARIO("The Util array function creates array correctly") {
     WHEN("Array function make_array is used on non-const references") {
       uint8_t expected = 0x00;
       uint8_t array = 0x0c;
-      auto data = PF::Util::make_array<uint8_t>(expected, array);
+      auto data = PF::Util::Containers::make_array<uint8_t>(expected, array);
       THEN("returned array is as expected at every index") {
         REQUIRE(data[0] == 0x00);
         REQUIRE(data[1] == 0x0c);
@@ -82,7 +82,7 @@ SCENARIO("The Util array function creates array correctly") {
     WHEN("Array function make_array is used on non-const references") {
       uint8_t expcted = 0x02;
       uint8_t array = 0x86;
-      auto data = PF::Util::make_array<uint8_t>(expected, array);
+      auto data = PF::Util::Containers::make_array<uint8_t>(expected, array);
       THEN("returned array is as expected at every index") {
         REQUIRE(data[0] == 0x02);
         REQUIRE(data[1] == 0x86);
@@ -93,7 +93,7 @@ SCENARIO("The Util array function creates array correctly") {
 
 SCENARIO("Empty an array") {
   GIVEN("Util function Array") {
-    auto data = PF::Util::make_array<uint8_t>(0x02, 0x03, 0x0a);
+    auto data = PF::Util::Containers::make_array<uint8_t>(0x02, 0x03, 0x0a);
     WHEN("function empty is used on array") {
       auto empty = data.empty();
       THEN("Result is as expected, array is empty") { REQUIRE(empty == 0); }

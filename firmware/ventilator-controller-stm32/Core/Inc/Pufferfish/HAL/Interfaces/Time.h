@@ -24,6 +24,7 @@
 
 namespace Pufferfish {
 namespace HAL {
+namespace Interfaces {
 
 /**
  * An abstract class for time
@@ -60,5 +61,6 @@ class Time {
   virtual void delay_micros(uint32_t microseconds) = 0;
 };
 
+} /* namespace Interfaces */
 } /* namespace HAL */
 } /* namespace Pufferfish */

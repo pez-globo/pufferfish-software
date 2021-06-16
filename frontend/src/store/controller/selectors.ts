@@ -15,16 +15,16 @@ import {
   ParametersRequest,
   SensorMeasurements,
   VentilationMode,
-  BatteryPower,
   ScreenStatus,
   Range,
+  MCUPowerStatus,
+  LogEventCode,
 } from './proto/mcu_pb';
 import {
   Measurements,
   ParametersRequestResponse,
   AlarmLimitsRequestResponse,
   RotaryEncoderParameter,
-  SmoothedMeasurements,
   Plots,
   WaveformHistories,
   WaveformHistory,
@@ -53,6 +53,8 @@ export const getMeasurements = createSelector(
 );
 
 // SensorMeasurements
+// Note: these are currently smoothed measurements if the firmware is running, as the
+// firmware does smoothing. However, the simulator backend does not perform smoothing.
 export const getSensorMeasurements = createSelector(
   getMeasurements,
   (measurements: Measurements): SensorMeasurements | null => measurements.sensor,
@@ -152,6 +154,7 @@ export const getParametersRequest = createSelector(
   getParameters,
   (parameters: ParametersRequestResponse): ParametersRequest | null => parameters.request,
 );
+export const getParametersRequestVentilating = isVentilatingSelector(getParametersRequest);
 export const getParametersRequestMode = ventilationModeSelector(getParametersRequest);
 // Draft
 export const getParametersRequestDraft = createSelector(
@@ -262,7 +265,20 @@ export const getPopupEventLog = createSelector(getController, (states: Controlle
   const maxId = Math.max(...states.eventLog.activeLogEvents.id);
   return states.eventLog.nextLogEvents.elements.find((el: LogEvent) => el.id === maxId);
 });
+// Event log code selector
+const getLogEventCode = (logEventCode: number) =>
+  createSelector(getNextLogEvents, (events: LogEvent[]): LogEvent | undefined =>
+    events.find((el: LogEvent) => (el.code as number) === logEventCode),
+  );
 
+export const getBackendDown = getLogEventCode(LogEventCode.backend_connection_down);
+export const getFirmwareDown = getLogEventCode(LogEventCode.mcu_connection_down);
+// TODO: this selector returns "true" in a scenario where mcu is disconnected and plugged back in,
+// replace the implementation with a "firmwareConnection" protobuf message once available
+export const getFirmwareDisconnected = createSelector(
+  getFirmwareDown,
+  (event: LogEvent | undefined): boolean => event !== undefined,
+);
 // Backend Initialized
 export const getBackendInitialized = createSelector(
   getParametersRequest,
@@ -275,33 +291,58 @@ export const getBackendInitialized = createSelector(
   ): boolean => parametersRequest !== null && alarmLimitsRequest !== null && backendConnected,
 );
 
+// Changing Ventilating Status
+export const getVentilatingStatusChanging = createSelector(
+  getParametersIsVentilating,
+  getParametersRequestVentilating,
+  (parameters: boolean | null, parametersRequest: boolean | null) =>
+    parameters !== parametersRequest,
+);
+
 // Alarm muting
 
 export const getAlarmMuteRequest = createSelector(
   getController,
-  (states: ControllerStates): AlarmMuteRequest | null => states.alarmMuteRequest,
+  (states: ControllerStates): AlarmMuteRequest | null => states.alarmMute.request,
 );
-// TODO: Need to change state from 'alarmMuteRequest' to 'alarmMute'
 export const getAlarmMuteStatus = createSelector(
   getController,
-  (states: ControllerStates): AlarmMute | null => states.alarmMuteRequest,
+  (states: ControllerStates): AlarmMute | null => states.alarmMute.current,
+);
+export const getAlarmMuteActive = createSelector(
+  getAlarmMuteStatus,
+  (alarmMute: AlarmMute | null): boolean => (alarmMute === null ? false : alarmMute.active),
+);
+export const getAlarmMuteRemaining = createSelector(
+  getAlarmMuteStatus,
+  (alarmMute: AlarmMute | null) => (alarmMute === null ? 0 : alarmMute.remaining),
+);
+export const getAlarmMuteRequestRemaining = createSelector(
+  getAlarmMuteRequest,
+  (alarmMuteRequest: AlarmMute | null) =>
+    alarmMuteRequest === null ? 0 : alarmMuteRequest.remaining,
+);
+export const getAlarmMuteRequestActive = createSelector(
+  getAlarmMuteRequest,
+  (alarmMuteRequest: AlarmMuteRequest | null) =>
+    alarmMuteRequest === null ? false : alarmMuteRequest.active,
 );
 
 // Battery power
 
-export const getBatteryPower = createSelector(
+export const getMcuPowerStatus = createSelector(
   getController,
-  (states: ControllerStates): BatteryPower | null => states.batteryPower,
+  (states: ControllerStates): MCUPowerStatus | null => states.mcuPowerStatus,
 );
 export const getBatteryPowerLeft = createSelector(
-  getBatteryPower,
-  (batteryPower: BatteryPower | null): number =>
-    batteryPower === null ? 0 : batteryPower.powerLeft,
+  getMcuPowerStatus,
+  (mcuPowerStatus: MCUPowerStatus | null): number =>
+    mcuPowerStatus === null ? 0 : mcuPowerStatus.powerLeft,
 );
 export const getChargingStatus = createSelector(
-  getBatteryPower,
-  (batteryPower: BatteryPower | null): boolean =>
-    batteryPower === null ? false : batteryPower.chargingStatus,
+  getMcuPowerStatus,
+  (mcuPowerStatus: MCUPowerStatus | null): boolean =>
+    mcuPowerStatus === null ? false : mcuPowerStatus.charging,
 );
 
 // MESSAGE STATES FROM frontend_pb
@@ -325,6 +366,21 @@ export const getRotaryEncoder = createSelector(
   getController,
   (states: ControllerStates): RotaryEncoderParameter | null => states.rotaryEncoder,
 );
+export const getRotaryEncoderStep = createSelector(
+  getRotaryEncoder,
+  (rotaryEncoder: RotaryEncoderParameter | null) =>
+    rotaryEncoder === null ? 0 : rotaryEncoder?.step,
+);
+export const getRotaryEncoderStepDiff = createSelector(
+  getRotaryEncoder,
+  (rotaryEncoder: RotaryEncoderParameter | null) =>
+    rotaryEncoder === null ? 0 : rotaryEncoder?.stepDiff,
+);
+export const getRotaryEncoderButtonPressed = createSelector(
+  getRotaryEncoder,
+  (rotaryEncoder: RotaryEncoderParameter | null) =>
+    rotaryEncoder === null ? false : rotaryEncoder?.buttonPressed,
+);
 
 // System Settings
 
@@ -345,20 +401,8 @@ export const getFrontendDisplaySetting = createSelector(
 
 // Smoothed measurements
 
-export const getSmoothedMeasurements = createSelector(
-  getController,
-  (states: ControllerStates): SmoothedMeasurements => states.smoothedMeasurements,
-);
-// TODO: we could unify this code with a generic selector, but it's only worth it
-// if we need selectors for any more fields besides "smoothed".
-export const getSmoothedFlow = createSelector(
-  getSmoothedMeasurements,
-  (smoothed: SmoothedMeasurements): number => roundValue(smoothed.flow.smoothed),
-);
-export const getSmoothedFiO2 = createSelector(
-  getSmoothedMeasurements,
-  (smoothed: SmoothedMeasurements): number => roundValue(smoothed.fio2.smoothed),
-);
+export const getSmoothedFlow = getSensorMeasurementsFlow;
+export const getSmoothedFiO2 = getSensorMeasurementsFiO2;
 export const getSmoothedFiO2Value = createSelector(
   getSmoothedFiO2,
   getParametersFlow,
@@ -366,14 +410,8 @@ export const getSmoothedFiO2Value = createSelector(
     return getParametersFlow > 0 ? roundValue(fio2) : NaN;
   },
 );
-export const getSmoothedSpO2 = createSelector(
-  getSmoothedMeasurements,
-  (smoothed: SmoothedMeasurements): number => roundValue(smoothed.spo2.smoothed),
-);
-export const getSmoothedHR = createSelector(
-  getSmoothedMeasurements,
-  (smoothed: SmoothedMeasurements): number => roundValue(smoothed.hr.smoothed),
-);
+export const getSmoothedSpO2 = getSensorMeasurementsSpO2;
+export const getSmoothedHR = getSensorMeasurementsHR;
 
 // Plots
 

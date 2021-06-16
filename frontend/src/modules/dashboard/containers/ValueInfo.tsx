@@ -1,10 +1,16 @@
+/**
+ * @deprecated
+ * @summary Re-usable UI wrapper for displaying Value Info
+ *
+ * @file ValueInfo is a configurable component on Layout level
+ * Each Value Info must have 1 main Container & optional 2 subContainer
+ * This matches with Dashboard  Display Value Layout design
+ *
+ */
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
-import {
-  getAlarmLimitsCurrent,
-  getAlarmLimitsRequestDraft,
-} from '../../../store/controller/selectors';
+import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
 import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../controllers';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
@@ -122,16 +128,43 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ *
+ * @typedef ValueInfoProps
+ *
+ * Props interface for the showing value information.
+ *
+ * @prop {Props} mainContainer Main Container placed on Left side in layout with more space
+ * @prop {Props} subContainer1 Sub Container placed on Right side, with half the Main container height
+ * @prop {Props} subContainer2 Sub Container placed on Right side, with other half
+ *
+ */
 export interface ValueInfoProps {
   mainContainer: Props;
   subContainer1?: Props;
   subContainer2?: Props;
 }
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the showing information.
+ *
+ * @prop {SelectorType} selector Redux Selector
+ * @prop {string} label Value label
+ * @prop {string} stateKey Unique identifier
+ * @prop {string} units Unit measurement to display
+ * @prop {boolean} isLive Config to show isLive in UI
+ * @prop {boolean} isMain Config to know if its main or sub container
+ * @prop {boolean} showLimits Config to show Alarm limts in container (on top left - small size)
+ * @prop {number} decimal Number of Decimals on the value
+ *
+ */
 export interface Props {
   selector: SelectorType;
   label: string;
   stateKey: string;
+  alarmLimits?: number[];
   units?: string;
   isLive?: boolean;
   isMain?: boolean;
@@ -139,6 +172,16 @@ export interface Props {
   decimal?: number;
 }
 
+/**
+ * ClickHandler
+ *
+ * @component Component for manually dispatching Click & Double Click event based on timeout
+ *
+ * @prop {function} singleClickAction Callback on Single click
+ * @prop {function} doubleClickAction Callback on Double click
+ *
+ * @returns {function}
+ */
 export const ClickHandler = (
   singleClickAction: () => void,
   doubleClickAction: () => void,
@@ -162,8 +205,19 @@ export const ClickHandler = (
   };
 };
 
+/**
+ * ControlValuesDisplay
+ *
+ * @component Component for handling value display.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns {JSX.Element}
+ *
+ */
 const ControlValuesDisplay = ({
   selector,
+  alarmLimits,
   label,
   stateKey,
   units = '',
@@ -172,22 +226,46 @@ const ControlValuesDisplay = ({
   decimal,
 }: Props): JSX.Element => {
   const classes = useStyles();
+  /**
+   * State to toggle opening Alarm popup
+   */
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsRequestDraft, shallowEqual);
+  const alarmLimitsRequest = useSelector(getAlarmLimitsRequest, shallowEqual);
   const range =
-    alarmLimits === null
+    alarmLimitsRequest === null
       ? undefined
-      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
-  const { lower, upper } = range === undefined ? { lower: '--', upper: '--' } : range;
+      : ((alarmLimitsRequest as unknown) as Record<string, Range>)[stateKey];
+  const rangeValues = range === undefined ? { lower: '--', upper: '--' } : range;
+  const alarmTemp = alarmLimits === undefined ? { lower: '--', upper: '--' } : alarmLimits;
+  const alarmLimitsRange = alarmTemp as number[];
+  const { lower, upper } =
+    alarmLimitsRange?.length === 0
+      ? rangeValues
+      : { lower: alarmLimitsRange[0], upper: alarmLimitsRange[1] };
+
+  /**
+   * Opens Multistep Popup on Clicking over component
+   */
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
       setMultiPopupOpen(true, stateKey);
     }
   };
+
+  /**
+   * Disable double click events over component & dispatch onClick manually
+   */
   const handleClick = ClickHandler(onClick, () => {
     return false;
   });
+
+  /**
+   * Function for updating modal status.
+   *
+   * @param {boolean} status desc for status
+   *
+   */
   const updateModalStatus = (status: boolean) => {
     setOpen(status);
   };
@@ -265,30 +343,65 @@ const ControlValuesDisplay = ({
   );
 };
 
+/**
+ * GridControlValuesDisplay
+ *
+ * @component Component for showing grid control value information.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns {JSX.Element}
+ *
+ */
 const GridControlValuesDisplay = ({
   selector,
+  alarmLimits,
   label,
   stateKey,
   units = '',
   decimal,
 }: Props): JSX.Element => {
   const classes = useStyles();
+  /**
+   * State to toggle opening Alarm popup
+   */
   const [open, setOpen] = useState(false);
-  const alarmLimits = useSelector(getAlarmLimitsCurrent, shallowEqual);
+  const alarmLimitsRequest = useSelector(getAlarmLimitsRequest);
   const range =
-    alarmLimits === null
+    alarmLimitsRequest === null
       ? undefined
-      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
-  const { lower, upper } = range === undefined ? { lower: '--', upper: '--' } : range;
+      : ((alarmLimitsRequest as unknown) as Record<string, Range>)[stateKey];
+  const rangeValues = range === undefined ? { lower: '--', upper: '--' } : range;
+  const alarmTemp = alarmLimits === undefined ? { lower: '--', upper: '--' } : alarmLimits;
+  const alarmLimitsRange = alarmTemp as number[];
+  const { lower, upper } =
+    alarmLimitsRange?.length === 0
+      ? rangeValues
+      : { lower: alarmLimitsRange[0], upper: alarmLimitsRange[1] };
+
+  /**
+   * Opens Multistep Popup on Clicking over component
+   */
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
       setMultiPopupOpen(true, stateKey);
     }
   };
+
+  /**
+   * Disable click events over component
+   */
   const handleClick = ClickHandler(onClick, () => {
     return false;
   });
+
+  /**
+   * Function for updating modal status.
+   *
+   * @param {boolean} status desc for status
+   *
+   */
   const updateModalStatus = (status: boolean) => {
     setOpen(status);
   };
@@ -352,10 +465,15 @@ const GridControlValuesDisplay = ({
     </div>
   );
 };
+
 /**
- * Value Info
+ * ValueInfo
  *
- * Component for showing information.
+ * @component Component for showing information based on layout configured.
+ *
+ * Uses the [[ValueInfoProps]] interface
+ *
+ * @returns {JSX.Element}
  *
  */
 // TODO: we should delete this component if it's not being used in any current code;
@@ -376,6 +494,7 @@ const ValueInfo = (props: {
             <ControlValuesDisplay
               isMain={true}
               stateKey={mainContainer.stateKey}
+              alarmLimits={mainContainer.alarmLimits}
               selector={mainContainer.selector}
               label={mainContainer.label}
               units={mainContainer.units}
@@ -392,6 +511,7 @@ const ValueInfo = (props: {
           <ControlValuesDisplay
             stateKey={mainContainer.stateKey}
             selector={mainContainer.selector}
+            alarmLimits={mainContainer.alarmLimits}
             label={mainContainer.label}
             units={mainContainer.units}
             decimal={mainContainer.decimal || 0}

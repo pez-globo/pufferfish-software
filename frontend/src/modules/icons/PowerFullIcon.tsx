@@ -1,3 +1,7 @@
+/**
+ * @summary SVG based component for "Power Full" icon
+ *
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 import { makeStyles, Theme } from '@material-ui/core/styles';
@@ -8,6 +12,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * PowerFullIcon
+ *
+ * @component Component for displaying "Power Full" icon
+ *
+ * @param {SvgIconProps} props - SVG props to override
+ *
+ * @returns {JSX.Element} - "Power Full" icon
+ */
 const PowerFullIcon = (props: SvgIconProps): JSX.Element => {
   const classes = useStyles();
   return (

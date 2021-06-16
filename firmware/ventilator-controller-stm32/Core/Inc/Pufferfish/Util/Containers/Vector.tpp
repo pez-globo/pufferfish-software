@@ -11,7 +11,7 @@
 
 #include "Vector.h"
 
-namespace Pufferfish::Util {
+namespace Pufferfish::Util::Containers {
 
 template <typename Element, size_t array_size>
 size_t Vector<Element, array_size>::size() const {
@@ -108,4 +108,26 @@ IndexStatus Vector<Element, array_size>::copy_from(
   return IndexStatus::ok;
 }
 
-}  // namespace Pufferfish::Util
+template <typename Element, size_t array_size>
+typename Vector<Element, array_size>::Iterator Vector<Element, array_size>::begin() noexcept {
+  return buffer_.begin();
+}
+
+template <typename Element, size_t array_size>
+typename Vector<Element, array_size>::ConstIterator Vector<Element, array_size>::cbegin()
+    const noexcept {
+  return buffer_.cbegin();
+}
+
+template <typename Element, size_t array_size>
+typename Vector<Element, array_size>::Iterator Vector<Element, array_size>::end() noexcept {
+  return buffer_.begin() + size_;
+}
+
+template <typename Element, size_t array_size>
+typename Vector<Element, array_size>::ConstIterator Vector<Element, array_size>::cend()
+    const noexcept {
+  return buffer_.cbegin() + size_;
+}
+
+}  // namespace Pufferfish::Util::Containers

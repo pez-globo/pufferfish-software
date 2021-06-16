@@ -96,6 +96,7 @@ export enum LogEventCode {
   backend_connection_up = 134,
   frontend_connection_up = 135,
   battery_low = 136,
+  charger_disconnected = 137,
   UNRECOGNIZED = -1,
 }
 
@@ -173,6 +174,9 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case 136:
     case "battery_low":
       return LogEventCode.battery_low;
+    case 137:
+    case "charger_disconnected":
+      return LogEventCode.charger_disconnected;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -230,6 +234,8 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "frontend_connection_up";
     case LogEventCode.battery_low:
       return "battery_low";
+    case LogEventCode.charger_disconnected:
+      return "charger_disconnected";
     default:
       return "UNKNOWN";
   }
@@ -324,10 +330,10 @@ export interface SensorMeasurements {
   time: number;
   cycle: number;
   fio2: number;
+  flow: number;
   spo2: number;
   hr: number;
   paw: number;
-  flow: number;
   volume: number;
 }
 
@@ -414,9 +420,9 @@ export interface ActiveLogEvents {
   id: number[];
 }
 
-export interface BatteryPower {
+export interface MCUPowerStatus {
   powerLeft: number;
-  chargingStatus: boolean;
+  charging: boolean;
 }
 
 export interface ScreenStatus {
@@ -1137,10 +1143,10 @@ const baseSensorMeasurements: object = {
   time: 0,
   cycle: 0,
   fio2: 0,
+  flow: 0,
   spo2: 0,
   hr: 0,
   paw: 0,
-  flow: 0,
   volume: 0,
 };
 
@@ -1158,17 +1164,17 @@ export const SensorMeasurements = {
     if (message.fio2 !== 0) {
       writer.uint32(29).float(message.fio2);
     }
+    if (message.flow !== 0) {
+      writer.uint32(37).float(message.flow);
+    }
     if (message.spo2 !== 0) {
-      writer.uint32(37).float(message.spo2);
+      writer.uint32(45).float(message.spo2);
     }
     if (message.hr !== 0) {
-      writer.uint32(45).float(message.hr);
+      writer.uint32(53).float(message.hr);
     }
     if (message.paw !== 0) {
-      writer.uint32(53).float(message.paw);
-    }
-    if (message.flow !== 0) {
-      writer.uint32(61).float(message.flow);
+      writer.uint32(61).float(message.paw);
     }
     if (message.volume !== 0) {
       writer.uint32(69).float(message.volume);
@@ -1193,16 +1199,16 @@ export const SensorMeasurements = {
           message.fio2 = reader.float();
           break;
         case 4:
-          message.spo2 = reader.float();
+          message.flow = reader.float();
           break;
         case 5:
-          message.hr = reader.float();
+          message.spo2 = reader.float();
           break;
         case 6:
-          message.paw = reader.float();
+          message.hr = reader.float();
           break;
         case 7:
-          message.flow = reader.float();
+          message.paw = reader.float();
           break;
         case 8:
           message.volume = reader.float();
@@ -1232,6 +1238,11 @@ export const SensorMeasurements = {
     } else {
       message.fio2 = 0;
     }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Number(object.flow);
+    } else {
+      message.flow = 0;
+    }
     if (object.spo2 !== undefined && object.spo2 !== null) {
       message.spo2 = Number(object.spo2);
     } else {
@@ -1247,11 +1258,6 @@ export const SensorMeasurements = {
     } else {
       message.paw = 0;
     }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = Number(object.flow);
-    } else {
-      message.flow = 0;
-    }
     if (object.volume !== undefined && object.volume !== null) {
       message.volume = Number(object.volume);
     } else {
@@ -1265,10 +1271,10 @@ export const SensorMeasurements = {
     message.time !== undefined && (obj.time = message.time);
     message.cycle !== undefined && (obj.cycle = message.cycle);
     message.fio2 !== undefined && (obj.fio2 = message.fio2);
+    message.flow !== undefined && (obj.flow = message.flow);
     message.spo2 !== undefined && (obj.spo2 = message.spo2);
     message.hr !== undefined && (obj.hr = message.hr);
     message.paw !== undefined && (obj.paw = message.paw);
-    message.flow !== undefined && (obj.flow = message.flow);
     message.volume !== undefined && (obj.volume = message.volume);
     return obj;
   },
@@ -1290,6 +1296,11 @@ export const SensorMeasurements = {
     } else {
       message.fio2 = 0;
     }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = object.flow;
+    } else {
+      message.flow = 0;
+    }
     if (object.spo2 !== undefined && object.spo2 !== null) {
       message.spo2 = object.spo2;
     } else {
@@ -1304,11 +1315,6 @@ export const SensorMeasurements = {
       message.paw = object.paw;
     } else {
       message.paw = 0;
-    }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = object.flow;
-    } else {
-      message.flow = 0;
     }
     if (object.volume !== undefined && object.volume !== null) {
       message.volume = object.volume;
@@ -2697,34 +2703,34 @@ export const ActiveLogEvents = {
   },
 };
 
-const baseBatteryPower: object = { powerLeft: 0, chargingStatus: false };
+const baseMCUPowerStatus: object = { powerLeft: 0, charging: false };
 
-export const BatteryPower = {
+export const MCUPowerStatus = {
   encode(
-    message: BatteryPower,
+    message: MCUPowerStatus,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
     if (message.powerLeft !== 0) {
-      writer.uint32(8).uint32(message.powerLeft);
+      writer.uint32(13).float(message.powerLeft);
     }
-    if (message.chargingStatus === true) {
-      writer.uint32(16).bool(message.chargingStatus);
+    if (message.charging === true) {
+      writer.uint32(16).bool(message.charging);
     }
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): BatteryPower {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MCUPowerStatus {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseBatteryPower } as BatteryPower;
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.powerLeft = reader.uint32();
+          message.powerLeft = reader.float();
           break;
         case 2:
-          message.chargingStatus = reader.bool();
+          message.charging = reader.bool();
           break;
         default:
           reader.skipType(tag & 7);
@@ -2734,40 +2740,39 @@ export const BatteryPower = {
     return message;
   },
 
-  fromJSON(object: any): BatteryPower {
-    const message = { ...baseBatteryPower } as BatteryPower;
+  fromJSON(object: any): MCUPowerStatus {
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
     if (object.powerLeft !== undefined && object.powerLeft !== null) {
       message.powerLeft = Number(object.powerLeft);
     } else {
       message.powerLeft = 0;
     }
-    if (object.chargingStatus !== undefined && object.chargingStatus !== null) {
-      message.chargingStatus = Boolean(object.chargingStatus);
+    if (object.charging !== undefined && object.charging !== null) {
+      message.charging = Boolean(object.charging);
     } else {
-      message.chargingStatus = false;
+      message.charging = false;
     }
     return message;
   },
 
-  toJSON(message: BatteryPower): unknown {
+  toJSON(message: MCUPowerStatus): unknown {
     const obj: any = {};
     message.powerLeft !== undefined && (obj.powerLeft = message.powerLeft);
-    message.chargingStatus !== undefined &&
-      (obj.chargingStatus = message.chargingStatus);
+    message.charging !== undefined && (obj.charging = message.charging);
     return obj;
   },
 
-  fromPartial(object: DeepPartial<BatteryPower>): BatteryPower {
-    const message = { ...baseBatteryPower } as BatteryPower;
+  fromPartial(object: DeepPartial<MCUPowerStatus>): MCUPowerStatus {
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
     if (object.powerLeft !== undefined && object.powerLeft !== null) {
       message.powerLeft = object.powerLeft;
     } else {
       message.powerLeft = 0;
     }
-    if (object.chargingStatus !== undefined && object.chargingStatus !== null) {
-      message.chargingStatus = object.chargingStatus;
+    if (object.charging !== undefined && object.charging !== null) {
+      message.charging = object.charging;
     } else {
-      message.chargingStatus = false;
+      message.charging = false;
     }
     return message;
   },
@@ -2842,7 +2847,7 @@ export const AlarmMute = {
       writer.uint32(8).bool(message.active);
     }
     if (message.remaining !== 0) {
-      writer.uint32(21).float(message.remaining);
+      writer.uint32(16).uint64(message.remaining);
     }
     return writer;
   },
@@ -2858,7 +2863,7 @@ export const AlarmMute = {
           message.active = reader.bool();
           break;
         case 2:
-          message.remaining = reader.float();
+          message.remaining = longToNumber(reader.uint64() as Long);
           break;
         default:
           reader.skipType(tag & 7);
@@ -2917,7 +2922,7 @@ export const AlarmMuteRequest = {
       writer.uint32(8).bool(message.active);
     }
     if (message.remaining !== 0) {
-      writer.uint32(21).float(message.remaining);
+      writer.uint32(16).uint64(message.remaining);
     }
     return writer;
   },
@@ -2933,7 +2938,7 @@ export const AlarmMuteRequest = {
           message.active = reader.bool();
           break;
         case 2:
-          message.remaining = reader.float();
+          message.remaining = longToNumber(reader.uint64() as Long);
           break;
         default:
           reader.skipType(tag & 7);

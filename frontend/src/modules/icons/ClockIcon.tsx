@@ -1,3 +1,7 @@
+/**
+ * @summary SVG based component for "Clock" icon
+ *
+ */
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 import { makeStyles, Theme } from '@material-ui/core/styles';
@@ -8,6 +12,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * ClockIcon
+ *
+ * @component Component for displaying "Clock" icon
+ *
+ * @param {SvgIconProps} props - SVG props to override
+ *
+ * @returns {JSX.Element} - "Clock" icon used in Toolbar to show time
+ */
 const ClockIcon = (props: SvgIconProps): JSX.Element => {
   const classes = useStyles();
   return (

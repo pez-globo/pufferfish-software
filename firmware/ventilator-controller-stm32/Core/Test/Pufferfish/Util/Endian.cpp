@@ -23,7 +23,7 @@ namespace PF = Pufferfish;
 
 SCENARIO("read endian data") {
   GIVEN("Endian: function read_bigend") {
-    auto data = PF::Util::make_array<uint8_t>(0x01, 0x0f);
+    auto data = PF::Util::Containers::make_array<uint8_t>(0x01, 0x0f);
     uint16_t re = 0;
     uint16_t &result = re;
 
@@ -34,7 +34,7 @@ SCENARIO("read endian data") {
   }
 
   GIVEN("Endian: function read_bigend") {
-    auto data = PF::Util::make_array<uint8_t>(0x00, 0x05, 0x0f, 0x07);
+    auto data = PF::Util::Containers::make_array<uint8_t>(0x00, 0x05, 0x0f, 0x07);
     uint32_t re = 0;
     uint32_t &result = re;
 
@@ -45,7 +45,7 @@ SCENARIO("read endian data") {
   }
 
   GIVEN("Endian: function read_bigend") {
-    auto data = PF::Util::make_array<uint8_t>(0x02, 0x08, 0x00, 0x0d, 0x0e, 0x03, 0x0c, 0x00);
+    auto data = PF::Util::Containers::make_array<uint8_t>(0x02, 0x08, 0x00, 0x0d, 0x0e, 0x03, 0x0c, 0x00);
     uint64_t re = 0;
     uint64_t &result = re;
     WHEN("read buffer ") {
@@ -60,7 +60,7 @@ SCENARIO("Write host endian to network endian value") {
     uint16_t data = 0x0803;
     WHEN("Host endian is converted in network endian") {
       uint16_t re = 0;
-      uint8_t *network_endian = reinterpret_cast<uint8_t *>(&re);
+      uint8_t *network_endian = (uint8_t*)&re;
       PF::Util::write_hton(data, network_endian);
       THEN("Result is as  expected") { REQUIRE(re == 0x0308); }
     }
@@ -70,7 +70,7 @@ SCENARIO("Write host endian to network endian value") {
     uint32_t data = 0x03020703;
     WHEN("Util function write_hton on uint32_t") {
       uint32_t re = 0;
-      uint8_t *network_endian = reinterpret_cast<uint8_t *>(&re);
+      uint8_t *network_endian = (uint8_t*)&re;
       PF::Util::write_hton(data, network_endian);
       THEN("Result is as expected") { REQUIRE(re == 0x03070203); }
     }

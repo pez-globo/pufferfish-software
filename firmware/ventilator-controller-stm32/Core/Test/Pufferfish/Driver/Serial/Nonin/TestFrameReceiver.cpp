@@ -18,13 +18,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <array>
-
 #include "Pufferfish/Driver/Serial/Nonin/FrameReceiver.h"
 #include "Pufferfish/Util/Containers/Array.h"
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
+using PF::Util::Containers::make_array;
 
 const PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus input_framing_error =
     PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus::framing_error;
@@ -47,7 +46,7 @@ SCENARIO("FrameReceiver Input for 20 bytes of data.", "[NoninOEM3]") {
     PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus frame_input_status;
     PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus frame_output_status;
     Frame frame_output;
-    auto input_data = PF::Util::make_array<uint8_t>(
+    auto input_data = make_array<uint8_t>(
         0x01,
         0x81,
         0x01,
@@ -186,7 +185,7 @@ SCENARIO("FrameReceiver for first frames of data received ", "[NoninOEM3]") {
     PF::Driver::Serial::Nonin::FrameReceiver frame_receiver;
     PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus frame_input_status;
     // PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus frame_output_status;
-    auto input_data = PF::Util::make_array<uint8_t>(0x01, 0x81, 0x01, 0x00);
+    auto input_data = make_array<uint8_t>(0x01, 0x81, 0x01, 0x00);
 
     WHEN("On input of 4 bytes of INPUT_DATA to FrameReceiver ") {
       THEN("On FrameReceiver.input() for 4 Byte data shall return not available") {
@@ -203,7 +202,7 @@ SCENARIO("FrameReceiver for first frames of data received ", "[NoninOEM3]") {
     PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus frame_input_status;
     PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus frame_output_status;
     Frame frame_output;
-    auto input_data = PF::Util::make_array<uint8_t>(0x01, 0x81, 0x01, 0x81, 0x01, 0x00, 0x83);
+    auto input_data = make_array<uint8_t>(0x01, 0x81, 0x01, 0x81, 0x01, 0x00, 0x83);
     WHEN("On input of 6 bytes of INPUT_DATA to FrameReceiver ") {
       THEN("OFrameReceiver.input()' for 6 Byte data from INPUT_DATA shall return waiting") {
         for (uint8_t index = 0; index < 6; index++) {
@@ -246,7 +245,7 @@ SCENARIO("FrameReceiver for first frames of data received ", "[NoninOEM3]") {
     PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus frame_input_status;
     PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus frame_output_status;
     Frame frame_output;
-    auto input_data = PF::Util::make_array<uint8_t>(0x01, 0x81, 0x01, 0x81, 0x01, 0x00, 0x83);
+    auto input_data = make_array<uint8_t>(0x01, 0x81, 0x01, 0x81, 0x01, 0x00, 0x83);
     WHEN("On input of 6 bytes of INPUT_DATA to FrameReceiver ") {
       THEN("FrameReceiver.input() for 6 Byte data from INPUT_DATA shall return waiting") {
         for (uint8_t index = 0; index < 6; index++) {

@@ -10,7 +10,7 @@ import {
   ActiveLogEvents,
   AlarmMute,
   AlarmMuteRequest,
-  BatteryPower,
+  MCUPowerStatus,
   ScreenStatus,
 } from './proto/mcu_pb';
 import { RotaryEncoder, SystemSettingRequest, FrontendDisplaySetting } from './proto/frontend_pb';
@@ -30,7 +30,7 @@ export type PBMessage =
   | ActiveLogEvents
   | AlarmMute
   | AlarmMuteRequest
-  | BatteryPower
+  | MCUPowerStatus
   | ScreenStatus
   // frontend_pb
   | RotaryEncoder
@@ -50,7 +50,7 @@ export type PBMessageType =
   | typeof ActiveLogEvents
   | typeof AlarmMute
   | typeof AlarmMuteRequest
-  | typeof BatteryPower
+  | typeof MCUPowerStatus
   | typeof ScreenStatus
   // frontend_pb
   | typeof RotaryEncoder
@@ -70,7 +70,7 @@ export enum MessageType {
   ActiveLogEvents = 10,
   AlarmMute = 11,
   AlarmMuteRequest = 12,
-  BatteryPower = 64,
+  MCUPowerStatus = 20,
   ScreenStatus = 65,
   // frontend_pb
   RotaryEncoder = 128,
@@ -93,7 +93,7 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.ActiveLogEvents, ActiveLogEvents],
   [MessageType.AlarmMute, AlarmMute],
   [MessageType.AlarmMuteRequest, AlarmMuteRequest],
-  [MessageType.BatteryPower, BatteryPower],
+  [MessageType.MCUPowerStatus, MCUPowerStatus],
   [MessageType.ScreenStatus, ScreenStatus],
   // frontend_pb
   [MessageType.SystemSettingRequest, SystemSettingRequest],
@@ -114,7 +114,7 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
   [ActiveLogEvents, MessageType.ActiveLogEvents],
   [AlarmMute, MessageType.AlarmMute],
   [AlarmMuteRequest, MessageType.AlarmMuteRequest],
-  [BatteryPower, MessageType.BatteryPower],
+  [MCUPowerStatus, MessageType.MCUPowerStatus],
   [ScreenStatus, MessageType.ScreenStatus],
   // frontend_pb
   [SystemSettingRequest, MessageType.SystemSettingRequest],
@@ -144,6 +144,10 @@ export interface AlarmLimitsRequestResponse {
   // of all fields to AlarmLimitsRequest to send to the backend
   draft: AlarmLimitsRequest | null;
 }
+export interface AlarmMuteRequestResponse {
+  current: AlarmMute | null;
+  request: AlarmMuteRequest | null;
+}
 export interface EventLog {
   expectedLogEvent: ExpectedLogEvent;
   nextLogEvents: NextLogEvents;
@@ -160,24 +164,6 @@ export interface RotaryEncoderParameter {
   lastButtonDown: number;
   lastButtonUp: number;
   stepDiff: number; // this is a derived value not in RotaryEncoder
-}
-
-// Smoothed measurements
-
-export interface SmoothingData {
-  raw: number;
-  average: number;
-  converged: number;
-  smoothed: number;
-  time?: number;
-  convergenceStartTime?: number;
-  changeStartTime?: number;
-}
-export interface SmoothedMeasurements {
-  fio2: SmoothingData;
-  flow: SmoothingData;
-  spo2: SmoothingData;
-  hr: SmoothingData;
 }
 
 // Plots
@@ -227,11 +213,10 @@ export interface ControllerStates {
   parameters: ParametersRequestResponse;
   alarmLimits: AlarmLimitsRequestResponse;
   eventLog: EventLog;
-  alarmMuteRequest: AlarmMuteRequest | null;
-  alarmMute: AlarmMute | null;
+  alarmMute: AlarmMuteRequestResponse;
   systemSettingRequest: SystemSettingRequest | null;
   frontendDisplaySetting: FrontendDisplaySetting | null;
-  batteryPower: BatteryPower | null;
+  mcuPowerStatus: MCUPowerStatus | null;
   screenStatus: ScreenStatus | null;
   heartbeatBackend: { time: Date };
 
@@ -239,7 +224,6 @@ export interface ControllerStates {
   rotaryEncoder: RotaryEncoderParameter | null;
 
   // Derived states
-  smoothedMeasurements: SmoothedMeasurements;
   plots: Plots;
 }
 

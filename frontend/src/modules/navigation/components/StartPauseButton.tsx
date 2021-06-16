@@ -1,3 +1,8 @@
+/**
+ * @deprecated
+ * @summary Component to Handle Start/Pause of Ventilation
+ *
+ */
 import { Button } from '@material-ui/core';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -6,9 +11,12 @@ import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../constants';
 /**
  * StartPauseButton
  *
- * A button component for handling the starting & pausing of the ventilator.
+ * @component A button component for handling the starting & pausing of the ventilator.
  *
  * TODO: The `isVentilatorOn` state should be hooked into redux.
+ *
+ * @returns {JSX.Element}
+ *
  */
 export const StartPauseButton = (): JSX.Element => {
   const [isVentilatorOn, setIsVentilatorOn] = React.useState(false);

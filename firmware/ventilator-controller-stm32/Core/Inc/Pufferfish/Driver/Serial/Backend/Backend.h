@@ -13,64 +13,82 @@
 #include "Pufferfish/Application/LogEvents.h"
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/HAL/Interfaces/CRCChecker.h"
-#include "Pufferfish/Protocols/CRCElements.h"
-#include "Pufferfish/Protocols/Datagrams.h"
-#include "Pufferfish/Protocols/Lists.h"
-#include "Pufferfish/Protocols/Messages.h"
-#include "Pufferfish/Protocols/States.h"
+#include "Pufferfish/Protocols/Application/Lists.h"
+#include "Pufferfish/Protocols/Application/States.h"
+#include "Pufferfish/Protocols/Transport/CRCElements.h"
+#include "Pufferfish/Protocols/Transport/Datagrams.h"
+#include "Pufferfish/Protocols/Transport/Messages.h"
 #include "Pufferfish/Util/Containers/Array.h"
+#include "Pufferfish/Util/Containers/EnumMap.h"
 #include "Pufferfish/Util/Enums.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
 // States
 
-static const auto message_descriptors = Util::make_array<Util::ProtobufDescriptor>(
-    // array index should match the type code value
-    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 0
-    Util::get_protobuf_descriptor<Util::UnrecognizedMessage>(),  // 1
-    Util::get_protobuf_descriptor<SensorMeasurements>(),         // 2
-    Util::get_protobuf_descriptor<CycleMeasurements>(),          // 3
-    Util::get_protobuf_descriptor<Parameters>(),                 // 4
-    Util::get_protobuf_descriptor<ParametersRequest>(),          // 5
-    Util::get_protobuf_descriptor<AlarmLimits>(),                // 6
-    Util::get_protobuf_descriptor<AlarmLimitsRequest>(),         // 7
-    Util::get_protobuf_descriptor<ExpectedLogEvent>(),           // 8
-    Util::get_protobuf_descriptor<NextLogEvents>(),              // 9
-    Util::get_protobuf_descriptor<ActiveLogEvents>()             // 10
-);
+using Application::MessageTypes;
+using MessageDescriptors = Protocols::Transport::
+    ProtobufDescriptors<Application::MessageTypes, Application::MessageTypeValues::max()>;
+
+// This relies on a EnumMap constructor which performs dynamic initialization, so it's not safe to
+// use in multithreaded contexts. We don't use it in multithreaded contexts, so we can ignore the
+// first clang-tidy complaint. As for the second complaint, std::pair is not marked noexcept but
+// in practice it won't throw exceptions in this initializer list here.
+// NOLINTNEXTLINE(bugprone-dynamic-static-initializers,cert-err58-cpp)
+static const MessageDescriptors message_descriptors{
+    {MessageTypes::unknown, Util::get_protobuf_desc<Util::UnrecognizedMessage>()},
+    {MessageTypes::reserved, Util::get_protobuf_desc<Util::UnrecognizedMessage>()},
+    {MessageTypes::sensor_measurements, Util::get_protobuf_desc<SensorMeasurements>()},
+    {MessageTypes::cycle_measurements, Util::get_protobuf_desc<CycleMeasurements>()},
+    {MessageTypes::parameters, Util::get_protobuf_desc<Parameters>()},
+    {MessageTypes::parameters_request, Util::get_protobuf_desc<ParametersRequest>()},
+    {MessageTypes::alarm_limits, Util::get_protobuf_desc<AlarmLimits>()},
+    {MessageTypes::alarm_limits_request, Util::get_protobuf_desc<AlarmLimitsRequest>()},
+    {MessageTypes::expected_log_event, Util::get_protobuf_desc<ExpectedLogEvent>()},
+    {MessageTypes::next_log_events, Util::get_protobuf_desc<NextLogEvents>()},
+    {MessageTypes::active_log_events, Util::get_protobuf_desc<ActiveLogEvents>()},
+    {MessageTypes::alarm_mute, Util::get_protobuf_desc<AlarmMute>()},
+    {MessageTypes::alarm_mute_request, Util::get_protobuf_desc<AlarmMuteRequest>()},
+    {MessageTypes::mcu_power_status, Util::get_protobuf_desc<MCUPowerStatus>()}};
 
 // State Synchronization
 
-using StateOutputScheduleEntry = Protocols::StateOutputScheduleEntry<Application::MessageTypes>;
+using StateOutputScheduleEntry =
+    Protocols::Application::StateOutputScheduleEntry<Application::MessageTypes>;
 
-static const auto state_sync_schedule = Util::make_array<const StateOutputScheduleEntry>(
-    StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-    StateOutputScheduleEntry{10, Application::MessageTypes::parameters},
-    StateOutputScheduleEntry{10, Application::MessageTypes::parameters_request},
-    StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-    StateOutputScheduleEntry{10, Application::MessageTypes::alarm_limits},
-    StateOutputScheduleEntry{10, Application::MessageTypes::alarm_limits_request},
-    StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-    StateOutputScheduleEntry{10, Application::MessageTypes::next_log_events},
-    StateOutputScheduleEntry{10, Application::MessageTypes::active_log_events},
-    StateOutputScheduleEntry{10, Application::MessageTypes::sensor_measurements},
-    StateOutputScheduleEntry{10, Application::MessageTypes::cycle_measurements});
+static const auto state_sync_schedule =
+    Util::Containers::make_array<const StateOutputScheduleEntry>(
+        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, MessageTypes::parameters},
+        StateOutputScheduleEntry{10, MessageTypes::parameters_request},
+        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, MessageTypes::alarm_limits},
+        StateOutputScheduleEntry{10, MessageTypes::alarm_limits_request},
+        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, MessageTypes::next_log_events},
+        StateOutputScheduleEntry{10, MessageTypes::active_log_events},
+        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, MessageTypes::alarm_mute},
+        StateOutputScheduleEntry{10, MessageTypes::alarm_mute_request},
+        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
+        StateOutputScheduleEntry{10, MessageTypes::cycle_measurements},
+        StateOutputScheduleEntry{10, MessageTypes::mcu_power_status});
 
 // Backend
 using CRCElementProps =
-    Protocols::CRCElementProps<Driver::Serial::Backend::FrameProps::payload_max_size>;
-using DatagramProps = Protocols::DatagramProps<CRCElementProps::payload_max_size>;
-using Message = Protocols::Message<
+    Protocols::Transport::CRCElementProps<Driver::Serial::Backend::FrameProps::payload_max_size>;
+using DatagramProps = Protocols::Transport::DatagramProps<CRCElementProps::payload_max_size>;
+using Message = Protocols::Transport::Message<
     Application::StateSegment,
     Application::MessageTypeValues,
     DatagramProps::payload_max_size>;
 
 using InputStates = Util::EnumValues<
-    Application::MessageTypes,
-    Application::MessageTypes::parameters_request,
-    Application::MessageTypes::alarm_limits_request,
-    Application::MessageTypes::expected_log_event>;
+    MessageTypes,
+    MessageTypes::parameters_request,
+    MessageTypes::alarm_limits_request,
+    MessageTypes::alarm_mute_request,
+    MessageTypes::expected_log_event>;
 
 class Receiver {
  public:
@@ -90,18 +108,20 @@ class Receiver {
     invalid_message_encoding
   };
 
-  explicit Receiver(HAL::CRC32 &crc32c) : crc_(crc32c), message_(message_descriptors) {}
+  explicit Receiver(HAL::Interfaces::CRC32 &crc32c) : crc_(crc32c), message_(message_descriptors) {}
 
   // Call this until it returns outputReady, then call output
   InputStatus input(uint8_t new_byte);
   OutputStatus output(Message &output_message);
 
  private:
-  using CRCReceiver = Protocols::CRCElementReceiver<FrameProps::payload_max_size>;
-  using ParsedCRC = Protocols::ParsedCRCElement<FrameProps::payload_max_size>;
-  using DatagramReceiver = Protocols::DatagramReceiver<CRCReceiver::Props::payload_max_size>;
-  using ParsedDatagram = Protocols::ParsedDatagram<CRCReceiver::Props::payload_max_size>;
-  using MessageReceiver = Protocols::MessageReceiver<Message, message_descriptors.size()>;
+  using CRCReceiver = Protocols::Transport::CRCElementReceiver<FrameProps::payload_max_size>;
+  using ParsedCRC = Protocols::Transport::ParsedCRCElement<FrameProps::payload_max_size>;
+  using DatagramReceiver =
+      Protocols::Transport::DatagramReceiver<CRCReceiver::Props::payload_max_size>;
+  using ParsedDatagram = Protocols::Transport::ParsedDatagram<CRCReceiver::Props::payload_max_size>;
+  using MessageReceiver =
+      Protocols::Transport::MessageReceiver<Message, Application::MessageTypeValues::max()>;
 
   FrameReceiver frame_;
   CRCReceiver crc_;
@@ -123,16 +143,16 @@ class Sender {
     invalid_return_code
   };
 
-  explicit Sender(HAL::CRC32 &crc32c) : message_(message_descriptors), crc_(crc32c) {}
+  explicit Sender(HAL::Interfaces::CRC32 &crc32c) : message_(message_descriptors), crc_(crc32c) {}
 
   Status transform(
       const Application::StateSegment &state_segment, FrameProps::ChunkBuffer &output_buffer);
 
  private:
-  using CRCSender = Protocols::CRCElementSender<FrameProps::payload_max_size>;
-  using DatagramSender = Protocols::DatagramSender<CRCSender::Props::payload_max_size>;
-  using MessageSender =
-      Protocols::MessageSender<Message, Application::StateSegment, message_descriptors.size()>;
+  using CRCSender = Protocols::Transport::CRCElementSender<FrameProps::payload_max_size>;
+  using DatagramSender = Protocols::Transport::DatagramSender<CRCSender::Props::payload_max_size>;
+  using MessageSender = Protocols::Transport::
+      MessageSender<Message, Application::StateSegment, Application::MessageTypeValues::max()>;
 
   MessageSender message_;
   DatagramSender datagram_;
@@ -144,7 +164,10 @@ class Backend {
  public:
   enum class Status { ok = 0, waiting, invalid };
 
-  Backend(HAL::CRC32 &crc32c, Application::Store &store, Application::LogEventsSender &sender)
+  Backend(
+      HAL::Interfaces::CRC32 &crc32c,
+      Application::Store &store,
+      Application::LogEventsSender &sender)
       : receiver_(crc32c),
         sender_(crc32c),
         store_(store),
@@ -158,7 +181,7 @@ class Backend {
   Status output(FrameProps::ChunkBuffer &output_buffer);
 
  private:
-  using StateSynchronizer = Protocols::StateSynchronizer<
+  using StateSynchronizer = Protocols::Application::StateSynchronizer<
       Application::Store,
       Application::StateSegment,
       Application::MessageTypes,

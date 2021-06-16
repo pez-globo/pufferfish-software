@@ -1,9 +1,14 @@
+/**
+ * @summary Re-usable wrapper components to display & control value
+ *
+ */
 import React, { useCallback, useEffect, useRef } from 'react';
 import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core';
 import { shallowEqual, useSelector } from 'react-redux';
 import ValueClicker from './ValueClicker';
 import ModalPopup from './ModalPopup';
 import { getRotaryEncoder } from '../../store/controller/selectors';
+import { RotaryEncodeController } from './RotaryEncodeController';
 
 const useStyles = makeStyles((theme: Theme) => ({
   contentContainer: {
@@ -30,10 +35,35 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * @deprecated
+ * @typedef SettingAdjustProps
+ *
+ * Interface for the adjusting props settings
+ *
+ * @prop {number} committedSetting updated value
+ */
 export interface SettingAdjustProps {
   committedSetting: number;
 }
 
+/**
+ * @deprecated
+ * @typedef Props
+ *
+ * Props interface for the value model
+ *
+ * @prop {string} label desc for label
+ * @prop {string} units desc for units
+ * @prop {number} committedSetting current value
+ * @prop {boolean} disableSetNewButton Configuration to show/hide `Set New` outside modal
+ * @prop {function} requestCommitSetting Callback when value changes
+ * @prop {function} updateModalStatus Callback when modal status changes
+ * @prop {boolean} openModal Configure Modal open/close status
+ * @prop {number} min Minimum under which value cannot decrement
+ * @prop {number} max Maximum above which value cannot increment
+ *
+ */
 interface Props {
   label: string;
   units?: string;
@@ -46,6 +76,22 @@ interface Props {
   max?: number;
 }
 
+/**
+ * @typedef ContentProps
+ *
+ * Props interface for the setting value
+ *
+ * @prop {string} label Label for the value
+ * @prop {string} units Unit measurement of the value
+ * @prop {number} committedSetting current value
+ * @prop {boolean} disableSetNewButton Configuration to show/hide `Set New` outside modal
+ * @prop {function} requestCommitSetting Callback when value changes
+ * @prop {function} updateModalStatus Callback when modal status changes
+ * @prop {boolean} openModal Configure Modal open/close status
+ * @prop {number} min Minimum under which value cannot decrement
+ * @prop {number} max Maximum above which value cannot increment
+ *
+ */
 interface ContentProps {
   label: string;
   units?: string;
@@ -57,6 +103,16 @@ interface ContentProps {
   max?: number;
 }
 
+/**
+ * @deprecated
+ * ValueModal
+ *
+ * @component A container for displaying value modal settings.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns JSX.Element
+ */
 export const ValueModal = ({
   label,
   units,
@@ -70,9 +126,17 @@ export const ValueModal = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const rotaryEncoder = useSelector(getRotaryEncoder, shallowEqual);
+  /**
+   * State to manage modal status
+   */
   const [open, setOpen] = React.useState(false);
+  /**
+   * State to manage value
+   */
   const [value, setValue] = React.useState(committedSetting);
-
+  /**
+   * Initalization to set default value & modal status
+   */
   const initSetValue = useCallback(() => {
     setValue(committedSetting >= min ? committedSetting : min);
     setOpen(openModal);
@@ -82,6 +146,9 @@ export const ValueModal = ({
     initSetValue();
   }, [initSetValue]);
 
+  /**
+   * Triggers callback when modal status changes
+   */
   useEffect(() => {
     if (updateModalStatus) {
       updateModalStatus(open);
@@ -89,51 +156,33 @@ export const ValueModal = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  /**
+   * Function for handling opening of the model.
+   */
   const handleOpen = () => {
     setOpen(true);
   };
-
+  /**
+   * Function for handling closing of the model.
+   */
   const handleClose = () => {
     setOpen(false);
   };
-
+  /**
+   * Function for handling confirmation of the model.
+   */
   const handleConfirm = () => {
     requestCommitSetting(value);
     setOpen(false);
   };
 
-  const updateRotaryData = useCallback(
-    () => {
-      if (rotaryEncoder === null) {
-        return;
-      }
-
-      if (!open) {
-        return;
-      }
-
-      const stepDiff = rotaryEncoder.stepDiff || 0;
-      const valueClone = value >= min ? value : min;
-      const newValue = valueClone + stepDiff;
-      if (newValue < min) {
-        setValue(min);
-      } else if (newValue > max) {
-        setValue(max);
-      } else {
-        setValue(newValue);
-      }
-      if (rotaryEncoder.buttonPressed) {
-        handleConfirm();
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rotaryEncoder, min, max],
-  );
-
-  useEffect(() => {
-    updateRotaryData();
-  }, [updateRotaryData]);
-
+  /**
+   * Function for handling label changed for PIP.
+   *
+   * @param {string} label - Value label
+   *
+   * @returns string
+   */
   function pipClarify(label: string) {
     if (label === 'PIP') return '*not PEEP compensated';
     return '';
@@ -181,6 +230,17 @@ export const ValueModal = ({
           </Button>
         )}
       </Grid>
+      {rotaryEncoder !== null ? (
+        <RotaryEncodeController
+          isActive={true}
+          value={value}
+          onClick={(num: number) => {
+            setValue(num);
+          }}
+          min={min}
+          max={max}
+        />
+      ) : null}
       <ModalPopup
         withAction={true}
         label="Set New"
@@ -193,6 +253,15 @@ export const ValueModal = ({
     </Grid>
   );
 };
+
+/**
+ * SetValueContent
+ *
+ * @component A container for setting the value of modal settings in multistep popup.
+ *
+ * Uses the [[ContentProps]] interface
+ * @returns JSX.Element
+ */
 
 export const SetValueContent = ({
   label,
@@ -207,16 +276,31 @@ export const SetValueContent = ({
   const classes = useStyles();
   const isInitialMount = useRef(true);
   const rotaryEncoder = useSelector(getRotaryEncoder, shallowEqual);
+  /**
+   * State to manage modal status
+   */
   const [open, setOpen] = React.useState(openModal);
+  /**
+   * Initalization to set default value & modal status
+   */
   const [value, setValue] = React.useState(committedSetting);
+  /**
+   * State to manage rotary encoder acitvity
+   */
+  const [isRotaryActive, setIsRotaryActive] = React.useState(false);
 
+  /**
+   * Triggers whenever openModal status updates
+   */
   useEffect(() => {
     setOpen(openModal);
     return () => {
       setOpen(false);
     };
   }, [openModal]);
-
+  /**
+   * Initalization to set default value & modal status
+   */
   const initSetValue = useCallback(() => {
     setValue(committedSetting >= min ? committedSetting : min);
   }, [committedSetting, min]);
@@ -224,7 +308,9 @@ export const SetValueContent = ({
   useEffect(() => {
     initSetValue();
   }, [initSetValue]);
-
+  /**
+   * Triggers callback when modal status changes
+   */
   useEffect(() => {
     if (updateModalStatus) {
       updateModalStatus(open);
@@ -236,47 +322,29 @@ export const SetValueContent = ({
     requestCommitSetting(value);
   }, [requestCommitSetting, value]);
 
-  const handleConfirm = () => {
-    requestCommitSetting(value);
-  };
+  // const handleConfirm = () => {
+  //   requestCommitSetting(value);
+  // };
 
-  const updateRotaryData = useCallback(
-    () => {
-      if (rotaryEncoder === null) {
-        return;
-      }
-
-      if (!open || Number.isNaN(rotaryEncoder.stepDiff)) {
-        return;
-      }
-
-      const stepDiff = rotaryEncoder.stepDiff || 0;
-      const valueClone = value >= min ? value : min;
-      const newValue = valueClone + stepDiff;
-      if (newValue < min) {
-        setValue(min);
-      } else if (newValue > max) {
-        setValue(max);
-      } else {
-        setValue(newValue);
-      }
-      if (rotaryEncoder.buttonPressed) {
-        handleConfirm();
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rotaryEncoder, min, max],
-  );
-
+  /**
+   * Triggers whenever rotaryEncoder value in redux store is updated.
+   */
   useEffect(() => {
     // Disable on initial mount since multi step dialog will run everytime when dialog opens
     if (isInitialMount.current) {
       isInitialMount.current = false;
     } else {
-      updateRotaryData();
+      setIsRotaryActive(true);
     }
-  }, [updateRotaryData, rotaryEncoder]);
+  }, [rotaryEncoder]);
 
+  /**
+   * Function for handling label changed for PIP.
+   *
+   * @param {string} label - desc for label
+   *
+   * @returns empty string
+   */
   function pipClarify(label: string) {
     if (label === 'PIP') return '*not PEEP compensated';
     return '';
@@ -312,7 +380,20 @@ export const SetValueContent = ({
 
   return (
     <Grid container direction="column" alignItems="center" justify="center">
-      {modalContent}
+      {rotaryEncoder !== null ? (
+        <RotaryEncodeController
+          isActive={isRotaryActive}
+          value={value}
+          onClick={(num: number) => {
+            setValue(num);
+          }}
+          min={min}
+          max={max}
+        />
+      ) : null}
+      <Grid container direction="column" alignItems="center" justify="center">
+        {modalContent}
+      </Grid>
     </Grid>
   );
 };
