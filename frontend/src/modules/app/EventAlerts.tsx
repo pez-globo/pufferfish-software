@@ -291,7 +291,10 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   useEffect(() => {
     if (alarmMuteRemaining === 0 || remaining === 0) {
       dispatch(
-        commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { active: false }),
+        commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, {
+          active: false,
+          remaining: 120,
+        }),
       );
     }
   }, [dispatch, alarmMuteRemaining, remaining]);
