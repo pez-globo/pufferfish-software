@@ -17,7 +17,7 @@ import {
   BackendConnections,
   RotaryEncoder,
   SystemSettingRequest,
-  FrontendDisplaySetting
+  FrontendDisplaySetting,
 } from './proto/frontend_pb';
 
 // MESSAGES

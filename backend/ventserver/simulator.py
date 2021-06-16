@@ -20,9 +20,7 @@ from ventserver.io.trio import channels, fileio, rotaryencoder, websocket
 from ventserver.io.subprocess import frozen_frontend
 from ventserver.protocols import exceptions
 from ventserver.protocols.application import debouncing, lists
-from ventserver.protocols.backend import (
-    alarms, connections, log, server, states
-)
+from ventserver.protocols.backend import alarms, log, server, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.simulation import (
     alarm_limits, alarm_mute, alarms as sim_alarms,
