@@ -17,6 +17,7 @@
 
 #include "Pufferfish/Util/Bytes.h"
 #include "Pufferfish/Util/Containers/Array.h"
+#include "Pufferfish/Util/Containers/Vector.h"
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
@@ -59,20 +60,26 @@ SCENARIO("Write host endian to network endian value") {
   GIVEN("A buffer") {
     uint16_t data = 0x0803;
     WHEN("Host endian is converted in network endian") {
-      uint16_t re = 0;
-      uint8_t *network_endian = (uint8_t*)&re;
-      PF::Util::write_hton(data, network_endian);
-      THEN("Result is as  expected") { REQUIRE(re == 0x0308); }
+      Pufferfish::Util::Containers::ByteVector<2>vector;
+      PF::Util::write_hton(data, vector.buffer());
+      THEN("Result is as  expected") { 
+        REQUIRE(vector[0] == 0x08);
+        REQUIRE(vector[1] == 0x03);
+      }
     }
   }
-
   GIVEN("Util function write_hton") {
     uint32_t data = 0x03020703;
     WHEN("Util function write_hton on uint32_t") {
-      uint32_t re = 0;
-      uint8_t *network_endian = (uint8_t*)&re;
-      PF::Util::write_hton(data, network_endian);
-      THEN("Result is as expected") { REQUIRE(re == 0x03070203); }
+      Pufferfish::Util::Containers::ByteVector<4>vector;
+      PF::Util::write_hton(data, vector.buffer());
+      THEN("Result is as  expected") { 
+        REQUIRE(vector[0] == 0x03);
+        REQUIRE(vector[1] == 0x02);
+        REQUIRE(vector[2] == 0x07);
+        REQUIRE(vector[3] == 0x03);
+
+      }
     }
   }
 }
