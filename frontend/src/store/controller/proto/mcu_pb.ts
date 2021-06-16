@@ -66,7 +66,6 @@ export function ventilationModeToJSON(object: VentilationMode): string {
   }
 }
 
-/** Log Events */
 export enum LogEventCode {
   /** fio2_too_low - Patient alarms */
   fio2_too_low = 0,

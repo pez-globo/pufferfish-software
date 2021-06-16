@@ -20,7 +20,9 @@ from ventserver.io.trio import channels, fileio, rotaryencoder, websocket
 from ventserver.io.subprocess import frozen_frontend
 from ventserver.protocols import exceptions
 from ventserver.protocols.application import debouncing, lists
-from ventserver.protocols.backend import alarms, log, server, states
+from ventserver.protocols.backend import (
+    alarms, connections, log, server, states
+)
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.simulation import (
     alarm_limits, alarm_mute, alarms as sim_alarms,
@@ -212,6 +214,9 @@ async def main() -> None:
         _event_log_receiver.  # pylint: disable=protected-access
         _log_events_receiver
     )
+
+    # Make server protocol think the MCU is connnected
+    protocol.receive._connection_states.has_mcu = True
 
     try:
         async with channel.push_endpoint:

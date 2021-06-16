@@ -111,6 +111,7 @@ message Announcement {
 }
 
 // Log Events
+
 enum LogEventCode {
   // Patient alarms
   fio2_too_low = 0;

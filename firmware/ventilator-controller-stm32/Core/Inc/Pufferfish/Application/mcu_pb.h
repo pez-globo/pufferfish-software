@@ -20,7 +20,6 @@ typedef enum _VentilationMode {
     VentilationMode_prvc = 6 
 } VentilationMode;
 
-/* Log Events */
 typedef enum _LogEventCode { 
     /* Patient alarms */
     LogEventCode_fio2_too_low = 0, 

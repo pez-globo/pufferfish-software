@@ -18,8 +18,6 @@ class VentilationMode(betterproto.Enum):
 
 
 class LogEventCode(betterproto.Enum):
-    """Log Events"""
-
     # Patient alarms
     fio2_too_low = 0
     fio2_too_high = 1

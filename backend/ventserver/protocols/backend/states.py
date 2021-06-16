@@ -37,6 +37,7 @@ class StateSegment(enum.Enum):
     MCU_POWER_STATUS = enum.auto()
     SCREEN_STATUS = enum.auto()
     # frontend_pb
+    BACKEND_CONNECTIONS = enum.auto()
     ROTARY_ENCODER = enum.auto()
     SYSTEM_SETTING = enum.auto()
     SYSTEM_SETTING_REQUEST = enum.auto()
@@ -94,6 +95,9 @@ FRONTEND_OUTPUT_SCHEDULE = collections.deque([
     states.ScheduleEntry(time=0.01, type=StateSegment.SCREEN_STATUS),
     states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
     states.ScheduleEntry(time=0.01, type=StateSegment.CYCLE_MEASUREMENTS),
+    # TODO: add another state segment here
+    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
+    states.ScheduleEntry(time=0.01, type=StateSegment.BACKEND_CONNECTIONS),
     states.ScheduleEntry(time=0.01, type=StateSegment.ROTARY_ENCODER),
     states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
     states.ScheduleEntry(time=0.01, type=StateSegment.SYSTEM_SETTING),
@@ -120,6 +124,10 @@ FILE_OUTPUT_SCHEDULE = collections.deque([
     # states.ScheduleEntry(time=0.5, type=StateSegment.FRONTEND_DISPLAY_REQUEST)
 ])
 
+SERVER_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
+    frontend_pb.BackendConnections: StateSegment.BACKEND_CONNECTIONS
+}
+
 
 # Events
 
@@ -132,6 +140,7 @@ class ReceiveEvent(events.Event):
     mcu_receive: Optional[mcu.UpperEvent] = attr.ib(default=None)
     frontend_receive: Optional[frontend.UpperEvent] = attr.ib(default=None)
     file_receive: Optional[mcu.UpperEvent] = attr.ib(default=None)
+    server_receive: Optional[mcu.UpperEvent] = attr.ib(default=None)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
@@ -139,6 +148,7 @@ class ReceiveEvent(events.Event):
             self.time is not None
             or self.mcu_receive is not None
             or self.frontend_receive is not None
+            or self.server_receive is not None
         )
 
 
@@ -224,6 +234,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         self._handle_inbound_state(event.mcu_receive, MCU_INPUT_TYPES)
         self._handle_inbound_state(event.file_receive, FILE_INPUT_TYPES)
         self._handle_inbound_state(event.frontend_receive, FRONTEND_INPUT_TYPES)
+        self._handle_inbound_state(event.server_receive, SERVER_INPUT_TYPES)
 
     def output(self) -> Optional[SendEvent]:
         """Emit the next output event."""
