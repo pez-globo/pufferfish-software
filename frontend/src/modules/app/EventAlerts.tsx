@@ -27,6 +27,7 @@ import { AlarmMuteRequest } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
 import { getEventType } from '../logs/EventType';
 import { getBackendConnected } from '../../store/app/selectors';
+import { DEFAULT_TIMEOUT, MUTE_MAX_DURATION } from './AppConstants';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -258,7 +259,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       setRemaining(alarmMuteRemaining);
     }
 
-    if (!backendConnected && !firmwareConnected) {
+    if (!backendConnected || !firmwareConnected) {
       // Update local state that controls the mute button
       setIsMuted(!alarmMuteRequestActive);
       // Start the timer
@@ -267,14 +268,21 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         if (remaining <= 0) {
           clearTimeout(timer);
         }
-      }, 1000);
+      }, DEFAULT_TIMEOUT);
       // Reset the timer
       if (!alarmMuteRequestActive) {
         clearTimeout(timer);
-        setRemaining(120);
+        setRemaining(MUTE_MAX_DURATION);
       }
     }
-  }, [alarmMuteActive, alarmMuteRemaining, remaining, backendConnected, alarmMuteRequestActive]);
+  }, [
+    alarmMuteActive,
+    alarmMuteRemaining,
+    firmwareConnected,
+    remaining,
+    backendConnected,
+    alarmMuteRequestActive,
+  ]);
 
   /**
    * Update mute AlarmStatus in redux store
@@ -297,7 +305,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       dispatch(
         commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, {
           active: false,
-          remaining: 120,
+          remaining: MUTE_MAX_DURATION,
         }),
       );
     }
