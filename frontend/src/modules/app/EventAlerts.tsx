@@ -225,7 +225,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    * Local variable that decides which timer to display depending on the
    * backend connection
    */
-  const countdownTimer = backendConnected ? alarmMuteRemaining : remaining;
+  const countdownTimer = backendConnected && firmwareConnected ? alarmMuteRemaining : remaining;
   /**
    * Triggers whenever Active or Event log is updated in redux
    */
@@ -255,7 +255,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    */
   useEffect(() => {
     setIsMuted(!alarmMuteActive);
-    if (remaining !== alarmMuteRemaining && backendConnected) {
+    if (remaining !== alarmMuteRemaining && backendConnected && firmwareConnected) {
       setRemaining(alarmMuteRemaining);
     }
 

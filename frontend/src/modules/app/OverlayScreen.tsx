@@ -13,6 +13,7 @@ import {
   getAlarmMuteActive,
   getAlarmMuteRequestActive,
   getBackendDownEvent,
+  getFirmwareConnected,
   getHasActiveAlarms,
   getScreenStatusLock,
 } from '../../store/controller/selectors';
@@ -99,8 +100,9 @@ export const HeartbeatBackendListener = (): JSX.Element => {
 const AudioAlarm = (): JSX.Element => {
   const dispatch = useDispatch();
   const activeAlarms = useSelector(getHasActiveAlarms, shallowEqual);
-  const alarmMuteActive = useSelector(getAlarmMuteActive, shallowEqual);
-  const backendConnected = useSelector(getBackendConnected, shallowEqual);
+  const alarmMuteActive = useSelector(getAlarmMuteActive);
+  const backendConnected = useSelector(getBackendConnected);
+  const firmwareConnected = useSelector(getFirmwareConnected);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
@@ -119,7 +121,7 @@ const AudioAlarm = (): JSX.Element => {
         } else {
           audio.play();
         }
-      } else if (!backendConnected) {
+      } else if (!backendConnected || !firmwareConnected) {
         if (alarmMuteRequestActive) {
           audio.pause();
         } else {
@@ -130,18 +132,25 @@ const AudioAlarm = (): JSX.Element => {
     return () => {
       audio.pause();
     };
-  }, [activeAlarms, alarmMuteActive, audio, backendConnected, alarmMuteRequestActive]);
+  }, [
+    activeAlarms,
+    alarmMuteActive,
+    audio,
+    backendConnected,
+    firmwareConnected,
+    alarmMuteRequestActive,
+  ]);
 
   /**
    * On activeAlarms redux store changes, update RED_BORDER & Audio Play state
    */
   useEffect(() => {
-    if (activeAlarms || !backendConnected) {
+    if (activeAlarms || !backendConnected || !firmwareConnected) {
       dispatch({ type: RED_BORDER, status: true });
     } else {
       dispatch({ type: RED_BORDER, status: false });
     }
-  }, [activeAlarms, backendConnected, dispatch]);
+  }, [activeAlarms, backendConnected, dispatch, firmwareConnected]);
 
   /**
    * On alarmMuteStatus redux store changes, update RED_BORDER & Audio Play state
@@ -150,10 +159,17 @@ const AudioAlarm = (): JSX.Element => {
     if (activeAlarms) {
       dispatch({ type: RED_BORDER, status: !alarmMuteActive });
     }
-    if (!backendConnected) {
+    if (!backendConnected || !firmwareConnected) {
       dispatch({ type: RED_BORDER, status: !alarmMuteRequestActive });
     }
-  }, [alarmMuteActive, activeAlarms, dispatch, alarmMuteRequestActive, backendConnected]);
+  }, [
+    alarmMuteActive,
+    activeAlarms,
+    dispatch,
+    firmwareConnected,
+    alarmMuteRequestActive,
+    backendConnected,
+  ]);
   return <React.Fragment />;
 };
 
