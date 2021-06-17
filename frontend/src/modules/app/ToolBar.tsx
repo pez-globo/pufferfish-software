@@ -28,6 +28,7 @@ import {
   getAlarmLimitsRequestUnsaved,
   getAlarmLimitsRequest,
   getVentilatingStatusChanging,
+  getFirmwareConnected,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { ModalPopup } from '../controllers/ModalPopup';
@@ -74,10 +75,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid red'
   },
 }));
-
-interface ButtonProps {
-  onToggle: (value: boolean) => Partial<ParametersRequest>;
-}
 
 /**
  * HeaderClock
@@ -171,6 +168,7 @@ export const ToolBar = ({
     Range
   >;
   const ventilatingStatus = useSelector(getVentilatingStatusChanging);
+  const firmwareConnected = useSelector(getFirmwareConnected);
   /**
    * State to manage ventilation label
    * Label is Dynamic based on ventilation state
@@ -261,6 +259,19 @@ export const ToolBar = ({
     }
     setVentilation(ventilating);
   }, [ventilating, history]);
+
+  /**
+   * Restart ventilation on firmware disconnection
+   */
+  useEffect(() => {
+    if (!staticStart && !firmwareConnected) {
+      dispatch(
+        commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
+          ventilating: !ventilation,
+        }),
+      );
+    }
+  }, [firmwareConnected, ventilation, dispatch, staticStart]);
 
   const StartVentilation = (
     <Button
@@ -377,7 +388,7 @@ export const ToolBar = ({
         discardContent={true}
         onClose={handleDiscardClose}
         onConfirm={handleDiscardConfirm}
-      ></ModalPopup>
+      />
     </AppBar>
   );
 };
