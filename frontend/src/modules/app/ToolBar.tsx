@@ -273,7 +273,7 @@ export const ToolBar = ({
     }
   }, [firmwareConnected, ventilation, dispatch, staticStart]);
 
-  const StartVentilation = (
+  const StartPauseVentilation = (
     <Button
       onClick={updateVentilationStatus}
       variant="contained"
@@ -284,14 +284,14 @@ export const ToolBar = ({
     </Button>
   );
 
-  const StartPauseButton = (
+  const StartButton = (
     <Button
       onClick={() => history.push(QUICKSTART_ROUTE.path)}
       variant="contained"
       color="secondary"
       disabled={isDisabled}
     >
-      {storeReady ? 'Start' : 'Loading...'}
+      {storeReady ? 'Start' : label}
     </Button>
   );
 
@@ -378,7 +378,7 @@ export const ToolBar = ({
             <HeaderClock />
             <ClockIcon style={{ fontSize: '2.5rem' }} />
           </Grid>
-          <Grid item>{staticStart ? StartPauseButton : StartVentilation}</Grid>
+          <Grid item>{staticStart ? StartButton : StartPauseVentilation}</Grid>
         </Grid>
       </Grid>
       <ModalPopup
