@@ -567,7 +567,7 @@ export const AlarmsPage = (): JSX.Element => {
                 discardContent={true}
                 onClose={handleDiscardClose}
                 onConfirm={handleDiscardConfirm}
-              ></ModalPopup>
+              />
             </Grid>
           </Grid>
         </Grid>

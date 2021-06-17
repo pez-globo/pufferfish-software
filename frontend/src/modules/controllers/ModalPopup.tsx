@@ -274,7 +274,7 @@ export const ModalPopup = (props: PropsWithChildren<Props>): JSX.Element => {
           </DialogTitle>
           <Grid container alignItems="center" className={classes.containerClass}>
             <DialogContent>
-              {discardContent ? <AlarmDiscardContent></AlarmDiscardContent> : children}
+              {discardContent ? <AlarmDiscardContent /> : children}
               <DialogActions style={{ width: '100%' }} className={classes.dialogActions}>
                 {withAction && <ModalAction onClose={onClose} onConfirm={onConfirm} />}
               </DialogActions>

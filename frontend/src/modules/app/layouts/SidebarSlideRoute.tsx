@@ -158,7 +158,7 @@ const FullWidthToolBar = (): JSX.Element => {
         discardContent={true}
         onClose={handleDiscardClose}
         onConfirm={handleDiscardConfirm}
-      ></ModalPopup>
+      />
     </ToolBar>
   );
 };
