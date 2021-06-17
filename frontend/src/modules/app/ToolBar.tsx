@@ -24,7 +24,7 @@ import {
   getParametersRequestMode,
   getParametersRequestDraft,
   getAlarmLimitsRequestDraft,
-  getBackendInitialized,
+  getStoreReady,
   getAlarmLimitsRequestUnsaved,
   getAlarmLimitsUnsavedKeys,
   getAlarmLimitsRequest,
@@ -157,7 +157,7 @@ export const ToolBar = ({
   const dispatch = useDispatch();
   const history = useHistory();
   const currentMode = useSelector(getParametersRequestMode);
-  const backendInitialized = useSelector(getBackendInitialized);
+  const storeReady = useSelector(getStoreReady);
   const parameterRequestDraft = useSelector(getParametersRequestDraft, shallowEqual);
   const ventilating = useSelector(getParametersIsVentilating);
   const alarmLimitsRequestDraftSelect = useSelector(getAlarmLimitsRequestDraft);
@@ -261,7 +261,7 @@ export const ToolBar = ({
    * Disabled Start/Pause Ventilation button when backend connection is lost
    */
   useEffect(() => {
-    if (backendInitialized) {
+    if (storeReady) {
       setLandingLabel('Start');
       setIsDisabled(false);
       setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
@@ -273,7 +273,7 @@ export const ToolBar = ({
       setIsDisabled(true);
       setLabel('Loading...');
     }
-  }, [backendInitialized, ventilatingStatus, ventilating]);
+  }, [storeReady, ventilatingStatus, ventilating]);
 
   useEffect(() => {
     if (ventilating) {

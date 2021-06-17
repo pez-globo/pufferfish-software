@@ -8,7 +8,7 @@ import attr
 from ventserver.protocols import events, exceptions
 from ventserver.protocols.backend import backend, connections
 from ventserver.protocols.devices import file, frontend, mcu, rotary_encoder
-from ventserver.protocols.protobuf import mcu_pb
+from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.sansio import channels, protocols
 
 
@@ -123,23 +123,25 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     """Filter which transforms receive bytes into high-level events."""
     _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
 
+    # TODO: can we remove _buffer?
     _buffer: channels.DequeChannel[ReceiveEvent] =\
         attr.ib(factory=channels.DequeChannel)
 
     current_time: float = attr.ib(default=0)
+    _backend: backend.ReceiveFilter = attr.ib(factory=backend.ReceiveFilter)
 
+    # Devices
     _mcu: mcu.ReceiveFilter = attr.ib(factory=mcu.ReceiveFilter)
     _frontend: frontend.ReceiveFilter = attr.ib(factory=frontend.ReceiveFilter)
     _file: file.ReceiveFilter = attr.ib(factory=file.ReceiveFilter)
     _rotary_encoder: rotary_encoder.ReceiveFilter = attr.ib(
         factory=rotary_encoder.ReceiveFilter
     )
-    _backend: backend.ReceiveFilter = attr.ib(factory=backend.ReceiveFilter)
 
     _connections: connections.TimeoutHandler = \
         attr.ib(factory=connections.TimeoutHandler)
-    _mcu_connected: bool = attr.ib(default=False)
-    _frontend_connected: bool = attr.ib(default=False)
+    _connection_states: frontend_pb.BackendConnections = \
+        attr.ib(factory=frontend_pb.BackendConnections)
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
         """Handle input events."""
@@ -224,16 +226,15 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         self._connections.input(connections.UpdateEvent(
             current_time=self.current_time, type=connections.Update.MCU_RECEIVED
         ))
-        if not self._mcu_connected:
+        if not self._connection_states.has_mcu:
             self._backend.input(backend.ExternalLogEvent(
                 time=self.current_time, active=False,
-                code=mcu_pb.LogEventCode.mcu_connection_down
+                code=mcu_pb.LogEventCode.backend_mcu_connection_down
             ))
-            self._backend.input(backend.ExternalLogEvent(
-                time=self.current_time,
-                code=mcu_pb.LogEventCode.mcu_connection_up
+            self._connection_states.has_mcu = True
+            self._backend.input(backend.ReceiveDataEvent(
+                time=self.current_time, server_receive=self._connection_states
             ))
-            self._mcu_connected = True
         return True
 
     def _process_frontend(self) -> bool:
@@ -249,16 +250,19 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             current_time=self.current_time,
             type=connections.Update.FRONTEND_RECEIVED
         ))
-        if not self._frontend_connected:
+        if not self._connection_states.has_frontend:
             self._backend.input(backend.ExternalLogEvent(
                 time=self.current_time, active=False,
-                code=mcu_pb.LogEventCode.frontend_connection_down
+                code=mcu_pb.LogEventCode.backend_frontend_connection_down
             ))
             self._backend.input(backend.ExternalLogEvent(
                 time=self.current_time,
-                code=mcu_pb.LogEventCode.frontend_connection_up
+                code=mcu_pb.LogEventCode.backend_frontend_connection_up
             ))
-            self._frontend_connected = True
+            self._connection_states.has_frontend = True
+            self._backend.input(backend.ReceiveDataEvent(
+                time=self.current_time, server_receive=self._connection_states
+            ))
         return True
 
     def _process_rotary_encoder(self) -> bool:
@@ -304,15 +308,21 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         if actions.alarm_mcu:
             self._backend.input(backend.ExternalLogEvent(
                 time=self.current_time, active=True,
-                code=mcu_pb.LogEventCode.mcu_connection_down
+                code=mcu_pb.LogEventCode.backend_mcu_connection_down
             ))
-            self._mcu_connected = False
+            self._connection_states.has_mcu = False
+            self._backend.input(backend.ReceiveDataEvent(
+                time=self.current_time, server_receive=self._connection_states
+            ))
         if actions.alarm_frontend:
             self._backend.input(backend.ExternalLogEvent(
                 time=self.current_time, active=True,
-                code=mcu_pb.LogEventCode.frontend_connection_down
+                code=mcu_pb.LogEventCode.backend_frontend_connection_down
             ))
-            self._frontend_connected = False
+            self._connection_states.has_frontend = False
+            self._backend.input(backend.ReceiveDataEvent(
+                time=self.current_time, server_receive=self._connection_states
+            ))
         return actions.kill_frontend
 
     def input_serial(self, serial_receive: bytes) -> None:
@@ -346,10 +356,14 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
 class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
     """Filter which transforms high-level events into send bytes."""
 
+    # TODO: can we remove _buffer?
     _buffer: channels.DequeChannel[SendEvent] = attr.ib(
         factory=channels.DequeChannel
     )
+
     _backend: backend.SendFilter = attr.ib(factory=backend.SendFilter)
+
+    # Devices
     _mcu: mcu.SendFilter = attr.ib(factory=mcu.SendFilter)
     _frontend: frontend.SendFilter = attr.ib(factory=frontend.SendFilter)
     _file: file.SendFilter = attr.ib(factory=file.SendFilter)

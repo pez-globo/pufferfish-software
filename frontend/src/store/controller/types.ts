@@ -13,7 +13,12 @@ import {
   MCUPowerStatus,
   ScreenStatus,
 } from './proto/mcu_pb';
-import { RotaryEncoder, SystemSettingRequest, FrontendDisplaySetting } from './proto/frontend_pb';
+import {
+  BackendConnections,
+  RotaryEncoder,
+  SystemSettingRequest,
+  FrontendDisplaySetting,
+} from './proto/frontend_pb';
 
 // MESSAGES
 
@@ -33,6 +38,7 @@ export type PBMessage =
   | MCUPowerStatus
   | ScreenStatus
   // frontend_pb
+  | BackendConnections
   | RotaryEncoder
   | SystemSettingRequest
   | FrontendDisplaySetting;
@@ -53,6 +59,7 @@ export type PBMessageType =
   | typeof MCUPowerStatus
   | typeof ScreenStatus
   // frontend_pb
+  | typeof BackendConnections
   | typeof RotaryEncoder
   | typeof SystemSettingRequest
   | typeof FrontendDisplaySetting;
@@ -73,7 +80,8 @@ export enum MessageType {
   MCUPowerStatus = 20,
   ScreenStatus = 65,
   // frontend_pb
-  RotaryEncoder = 128,
+  BackendConnections = 128,
+  RotaryEncoder = 129,
   SystemSetting = 130,
   SystemSettingRequest = 131,
   FrontendDisplaySetting = 132,
@@ -96,11 +104,13 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.MCUPowerStatus, MCUPowerStatus],
   [MessageType.ScreenStatus, ScreenStatus],
   // frontend_pb
+  [MessageType.BackendConnections, BackendConnections],
+  [MessageType.RotaryEncoder, RotaryEncoder],
   [MessageType.SystemSettingRequest, SystemSettingRequest],
   [MessageType.FrontendDisplaySetting, FrontendDisplaySetting],
-  [MessageType.RotaryEncoder, RotaryEncoder],
 ]);
 
+// TODO: can we auto-generate this from MessageClass?
 export const MessageTypes = new Map<PBMessageType, MessageType>([
   // mcu_pb
   [SensorMeasurements, MessageType.SensorMeasurements],
@@ -117,9 +127,10 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
   [MCUPowerStatus, MessageType.MCUPowerStatus],
   [ScreenStatus, MessageType.ScreenStatus],
   // frontend_pb
+  [BackendConnections, MessageType.BackendConnections],
+  [RotaryEncoder, MessageType.RotaryEncoder],
   [SystemSettingRequest, MessageType.SystemSettingRequest],
   [FrontendDisplaySetting, MessageType.FrontendDisplaySetting],
-  [RotaryEncoder, MessageType.RotaryEncoder],
 ]);
 
 // STATES
@@ -221,6 +232,7 @@ export interface ControllerStates {
   heartbeatBackend: { time: Date };
 
   // Message states from frontend_pb
+  backendConnections: BackendConnections | null;
   rotaryEncoder: RotaryEncoderParameter | null;
 
   // Derived states
