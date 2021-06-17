@@ -118,9 +118,9 @@ const useStyles = makeStyles((theme: Theme) => ({
  * @prop {boolean} open Toggle to open/close Modal
  * @prop {string | ReactNode} label Modal header Label
  * @prop {boolean} withAction Toggle to show/hide confirm/cancel buttons
- * @prop {boolean} fullWidth Toggle to full width modal popup size
+ * @prop {boolean} fullWidth Toggle to full width modal popup size, if false size is "maxWidth"
  * @prop {boolean} showCloseIcon Toggle to show/hide close Icon
- * @prop {function} onClose Callback on Closing modal
+ * @prop {function} onClose Callback when the modal is closed (not from the close icon)
  * @prop {function} onConfirm Callback on Confirming modal
  * @prop {DialogProps['maxWidth']} maxWidth Size of modal popup
  */
@@ -139,7 +139,7 @@ interface Props {
 /**
  * @typedef ActionProps
  *
- * Interface for Action Props
+ * Interface for Action(confirm/cancel) Props
  *
  * @prop {function} onClose Callback on Closing modal by clicking on `cancel` button
  * @prop {function} onConfirm Callback on Confirming modal

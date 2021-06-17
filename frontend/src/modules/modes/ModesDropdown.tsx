@@ -118,7 +118,7 @@ export const ModesDropdown = (): JSX.Element => {
     );
 
   /**
-   * Function to open dropdown selection
+   * Function for handling click to open the dropdown menu
    *
    * @param {React.MouseEvent<HTMLElement} event Mouse Event
    *
@@ -128,7 +128,7 @@ export const ModesDropdown = (): JSX.Element => {
   };
 
   /**
-   * Function for handling dropdown item event.
+   * Function for handling click for a dropdown item event.
    *
    * @param {React.MouseEvent<HTMLElement} event Mouse Event
    * @param {number} index index of dropdown
@@ -151,6 +151,7 @@ export const ModesDropdown = (): JSX.Element => {
 
   /**
    * Function for adding border using css property
+   * adds border to each dropdown item
    *
    * @param {number} view Index of Dropdown value
    *

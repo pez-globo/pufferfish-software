@@ -19,7 +19,7 @@ import { ClickHandler } from './ValueInfo';
  *
  * Props interface for the ControlInfo component.
  *
- * @prop {SelectorType} selector Redux store data Selector
+ * @prop {SelectorType: number} selector Redux store data Selector
  * @prop {SelectorType} committedSettingSelector Selector Wrapper to update value in redux store
  * @prop {string} label Label for the control value
  * @prop {string} stateKey Unique identifier of value
@@ -43,7 +43,7 @@ interface Props {
  *
  * Props interface for the ValueControl component.
  *
- * @prop {SelectorType} selector Redux Selector
+ * @prop {SelectorType: number} selector Redux Selector
  * @prop {string} label Label for the control value
  * @prop {string} units Unit measurement of the value
  *
@@ -200,6 +200,7 @@ const ControlInfo = (props: Props): JSX.Element => {
 
   /**
    * Function for updating the modal status.
+   * TODO: replace with setOpen
    *
    * @param {boolean} status desc ofr status
    */

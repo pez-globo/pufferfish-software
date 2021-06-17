@@ -24,8 +24,8 @@ const useStyles = makeStyles((theme: Theme) => ({
  * @prop {number} value Paramater value displayed in UI
  * @prop {string} label Label to associate to which value belongs to
  * @prop {function} onClick Callback with value on button click or Rotary encoder
- * @prop {number} min Minimum Range of an Alarm (Default to 0)
- * @prop {number} max Minimum Range of an Alarm (Default to 100)
+ * @prop {number} min Minimum (Default to 0)
+ * @prop {number} max Maximum (Default to 100)
  * @prop {string} units Paramater unit measurement to display
  * @prop {RefObject<HTMLDivElement>} reference HTML element reference to highlight element for rotary encoder
  * @prop {string} referenceKey Unique identifier of alarm range for Rotary encoder

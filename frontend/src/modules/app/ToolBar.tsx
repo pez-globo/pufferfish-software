@@ -80,6 +80,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  * HeaderClock
  *
  * @component A container for displaying header clock of the page.
+ * shows the current time in toolbar
  *
  * @returns {JSX.Element} current time
  */
@@ -92,7 +93,7 @@ export const HeaderClock = (): JSX.Element => {
 /**
  * PowerIndicator
  *
- * @component  A container for displaying battery indicator of the page.
+ * @component  A container for displaying the battery and power management status of the ventilator.
  *
  * @returns {JSX.Element} battery percentage remain
  */
@@ -137,7 +138,7 @@ export const PowerIndicator = (): JSX.Element => {
  * @component A container for displaying buttons that handle system changes based on
  * various states and conditions such as ventilator state and current page route.
  *
- * @param {React.ReactNode} children Adds dynamic items as children for SidebarSlideRoute
+ * @param {React.ReactNode} children Adds dynamic items as children for SidebarSlideRoute (eg: Pufferfish Icon & Drawer icon)
  * @param {boolean} staticStart staticStart is used as a config for reusing Start/Pause Ventilation button for LandingPage Layout
  *
  * @returns {JSX.Element}

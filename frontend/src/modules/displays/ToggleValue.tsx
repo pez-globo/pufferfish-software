@@ -1,5 +1,6 @@
 /**
  * @summary Re-usable UI component for Toggle based Input Field
+ * currently used in Settings > Display > Theme color & Unit field
  *
  */
 import { Grid, makeStyles, Theme, withStyles } from '@material-ui/core';
@@ -55,7 +56,7 @@ const StyledToggleButton = withStyles(({ palette }) => ({
  * Props Interface for the ToggleValue component
  *
  * @prop {string} toggleBetween.label Toggle Input label
- * @prop {number} toggleBetween.value Toggle Input value
+ * @prop {number} toggleBetween.value Toggle Input value (positive & !null)
  * @prop {number} selected Selected toggle value
  * @prop {function} onToggle Callback on Toggling between values
  */

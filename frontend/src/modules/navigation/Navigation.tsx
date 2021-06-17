@@ -95,11 +95,14 @@ export const Navigation = ({
   const routePath = routes.find((route) => location.pathname.startsWith(route.path));
   /**
    * State to manage Route path
+   * RoutePath is an object with 'key(string)' which is a unique identifier for each route
+   * The routes on the sidebar are highlighted based on the active routePath key
    */
   const [route, setRoute] = React.useState(routePath ? routePath.key : 0);
 
   /**
    * Triggers once to update current route in State
+   * On Initialization, current route is selected and highlighted on the sidebar
    */
   useEffect(() => {
     const routePath = routes.find((route) => location.pathname.startsWith(route.path));
@@ -109,6 +112,7 @@ export const Navigation = ({
 
   /**
    * Function for handling route changes
+   * updates the current route on change, and highlights the navigated route icon
    *
    * @param {React.ChangeEvent<Record<string, unknown>>} event DOM Change Event
    * @param {number} newRoute Route path to be navigated

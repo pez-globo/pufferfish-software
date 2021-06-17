@@ -254,6 +254,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
 
   /**
    * function for handling month change.
+   * callback from ValueController whenever month is changed
    *
    * @param {number} change - min 1 and max 12
    *

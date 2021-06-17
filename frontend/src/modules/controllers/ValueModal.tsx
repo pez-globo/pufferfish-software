@@ -1,5 +1,6 @@
 /**
  * @summary Re-usable wrapper components to display & control value
+ * Currently unused, setValueContent is used in MultiStepPopup
  *
  */
 import React, { useCallback, useEffect, useRef } from 'react';
@@ -56,6 +57,7 @@ export interface SettingAdjustProps {
  * @prop {string} label desc for label
  * @prop {string} units desc for units
  * @prop {number} committedSetting current value
+ * TODO: disableSetNewButton can be removed as it's unused.
  * @prop {boolean} disableSetNewButton Configuration to show/hide `Set New` outside modal
  * @prop {function} requestCommitSetting Callback when value changes
  * @prop {function} updateModalStatus Callback when modal status changes
@@ -258,6 +260,7 @@ export const ValueModal = ({
  * SetValueContent
  *
  * @component A container for setting the value of modal settings in multistep popup.
+ * This is a modified version of ValueModal
  *
  * Uses the [[ContentProps]] interface
  * @returns JSX.Element
