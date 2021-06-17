@@ -6,7 +6,7 @@
  */
 import { AppBar, Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 import { getClockTime } from '../../store/app/selectors';
@@ -76,6 +76,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid red'
   },
 }));
+
+interface ButtonProps {
+  onToggle: (value: boolean) => Partial<ParametersRequest>;
+}
 
 /**
  * HeaderClock
@@ -171,14 +175,6 @@ export const ToolBar = ({
   >;
   const ventilatingStatus = useSelector(getVentilatingStatusChanging);
   /**
-   * State to manage toggling ventilationState
-   */
-  const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
-  /**
-   * State to manage label for Landing page
-   */
-  const [landingLabel, setLandingLabel] = useState('Loading...');
-  /**
    * State to manage ventilation label
    * Label is Dynamic based on ventilation state
    */
@@ -186,51 +182,42 @@ export const ToolBar = ({
   /**
    * State to toggle if Ventilating isDisabled
    */
+  const [ventilation, setVentilation] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
   const alarmConfig = alarmConfiguration(currentMode);
-  // const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
-
+  const dispatchParameterRequest = (update: Partial<ParametersRequest>) => {
+    dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+  };
   /**
    * Updates Ventilation status on clicking Start/Pause ventilation
    */
   const updateVentilationStatus = () => {
-    if (!staticStart) {
-      dispatch(
-        commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
-          ventilating: !isVentilatorOn,
-        }),
-      );
-      setIsVentilatorOn(!isVentilatorOn);
-    }
-    if (isVentilatorOn || staticStart) {
-      history.push(QUICKSTART_ROUTE.path);
-    }
+    dispatchParameterRequest({ ventilating: !ventilation });
+    initParameterUpdate();
   };
 
   /**
    * Update Paramters to redux store when ventilation starts
    */
-  const initParameterUpdate = useCallback(() => {
+  const initParameterUpdate = () => {
     if (parameterRequestDraft === null || alarmLimitsRequestDraft === null) {
       return;
     }
 
-    if (!isVentilatorOn) {
+    if (ventilating) {
       return;
     }
 
     switch (currentMode) {
       case VentilationMode.hfnc:
-        dispatch(
-          commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
-            fio2: parameterRequestDraft.fio2,
-            flow: parameterRequestDraft.flow,
-          }),
-        );
+        dispatchParameterRequest({
+          fio2: parameterRequestDraft.fio2,
+          flow: parameterRequestDraft.flow,
+        });
         dispatch(
           commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, {
             spo2: alarmLimitsRequestDraft.spo2,
@@ -243,45 +230,31 @@ export const ToolBar = ({
       case VentilationMode.niv_pc:
       case VentilationMode.niv_ps:
       case VentilationMode.psv:
-        dispatch(
-          commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
-            peep: parameterRequestDraft.peep,
-            vt: parameterRequestDraft.vt,
-            rr: parameterRequestDraft.rr,
-            fio2: parameterRequestDraft.fio2,
-          }),
-        );
+        dispatchParameterRequest({
+          peep: parameterRequestDraft.peep,
+          vt: parameterRequestDraft.vt,
+          rr: parameterRequestDraft.rr,
+          fio2: parameterRequestDraft.fio2,
+        });
         break;
       default:
         break;
     }
-  }, [isVentilatorOn, parameterRequestDraft, alarmLimitsRequestDraft, currentMode, dispatch]);
+  };
 
   /**
    * Disabled Start/Pause Ventilation button when backend connection is lost
    */
   useEffect(() => {
+    setIsDisabled(!storeReady);
     if (storeReady) {
-      setLandingLabel('Start');
-      setIsDisabled(false);
       setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
     } else if (ventilatingStatus) {
-      setIsDisabled(true);
       setLabel('Connecting...');
     } else {
-      setLandingLabel('Loading...');
-      setIsDisabled(true);
       setLabel('Loading...');
     }
   }, [storeReady, ventilatingStatus, ventilating]);
-
-  useEffect(() => {
-    if (ventilating) {
-      return;
-    }
-
-    initParameterUpdate();
-  }, [ventilating, initParameterUpdate]);
 
   /**
    * Update Label on Button based on ventilation status
@@ -290,17 +263,28 @@ export const ToolBar = ({
     if (ventilating) {
       history.push(DASHBOARD_ROUTE.path);
     }
-    setIsVentilatorOn(ventilating);
+    setVentilation(ventilating);
   }, [ventilating, history]);
 
-  const StartPauseButton = (
+  const StartVentilation = (
     <Button
       onClick={updateVentilationStatus}
       variant="contained"
       color="secondary"
       disabled={isDisabled}
     >
-      {staticStart ? landingLabel : label}
+      {label}
+    </Button>
+  );
+
+  const StartPauseButton = (
+    <Button
+      onClick={() => history.push(QUICKSTART_ROUTE.path)}
+      variant="contained"
+      color="secondary"
+      disabled={isDisabled}
+    >
+      {storeReady ? 'Start' : 'Loading...'}
     </Button>
   );
 
@@ -322,7 +306,7 @@ export const ToolBar = ({
     //     Last Patient Settings
     //   </Button>,
     // );
-  } else if (isVentilatorOn && location.pathname !== SCREENSAVER_ROUTE.path) {
+  } else if (ventilating && location.pathname !== SCREENSAVER_ROUTE.path) {
     tools.push(
       <Button onClick={handleOnClick} variant="contained" color="primary">
         <BackIcon style={{ paddingRight: 8 }} />
@@ -387,7 +371,7 @@ export const ToolBar = ({
             <HeaderClock />
             <ClockIcon style={{ fontSize: '2.5rem' }} />
           </Grid>
-          <Grid item>{StartPauseButton}</Grid>
+          <Grid item>{staticStart ? StartPauseButton : StartVentilation}</Grid>
         </Grid>
       </Grid>
       <ModalPopup

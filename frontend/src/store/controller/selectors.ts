@@ -128,8 +128,8 @@ type ParametersSelector = OutputSelector<
   (res: ParametersRequestResponse) => OptionalParametersLike
 >;
 const isVentilatingSelector = (parametersSelector: ParametersSelector) =>
-  createSelector(parametersSelector, (parameters: OptionalParametersLike): boolean | null =>
-    parameters === null ? null : parameters.ventilating,
+  createSelector(parametersSelector, (parameters: OptionalParametersLike): boolean =>
+    parameters === null ? false : parameters.ventilating,
   );
 const ventilationModeSelector = (parametersSelector: ParametersSelector) =>
   createSelector(parametersSelector, (parameters: OptionalParametersLike): VentilationMode | null =>
