@@ -564,35 +564,10 @@ export const AlarmsPage = (): JSX.Element => {
                 withAction={true}
                 label="Set Alarms"
                 open={discardOpen}
+                discardContent={true}
                 onClose={handleDiscardClose}
                 onConfirm={handleDiscardConfirm}
-              >
-                <Grid container alignItems="center">
-                  <Grid container alignItems="center" justify="center">
-                    <Grid container alignItems="center" className={classes.marginHeader}>
-                      <Grid item xs>
-                        <Typography variant="h4">Keep Previous Values?</Typography>
-                      </Grid>
-                    </Grid>
-                    <Grid item className={classes.marginContent}>
-                      {alarmConfig.map((param) => {
-                        if (alarmLimitsRequest !== null) {
-                          if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
-                            return (
-                              <Typography variant="subtitle1">{`Keep ${
-                                param.label
-                              } alarm range to ${alarmLimitsRequest[param.stateKey].lower} -
-                                ${alarmLimitsRequest[param.stateKey].upper}?`}</Typography>
-                            );
-                          }
-                        }
-                        return <React.Fragment />;
-                      })}
-                    </Grid>
-                    <Grid item className={classes.marginContent} />
-                  </Grid>
-                </Grid>
-              </ModalPopup>
+              ></ModalPopup>
             </Grid>
           </Grid>
         </Grid>

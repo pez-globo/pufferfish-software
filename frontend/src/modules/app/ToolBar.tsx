@@ -4,7 +4,7 @@
  * @file Header toolbar with dynamic sub components
  *
  */
-import { AppBar, Button, Grid, Typography } from '@material-ui/core';
+import { AppBar, Button, Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
@@ -26,12 +26,10 @@ import {
   getAlarmLimitsRequestDraft,
   getStoreReady,
   getAlarmLimitsRequestUnsaved,
-  getAlarmLimitsUnsavedKeys,
   getAlarmLimitsRequest,
   getVentilatingStatusChanging,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
-import { AlarmConfiguration, alarmConfiguration } from '../alarms/AlarmsPage';
 import { ModalPopup } from '../controllers/ModalPopup';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
 import { BackIcon } from '../icons';
@@ -167,7 +165,6 @@ export const ToolBar = ({
   const alarmLimitsRequestDraftSelect = useSelector(getAlarmLimitsRequestDraft);
   const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
   const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
-  const alarmLimitsUnsavedKeys = useSelector(getAlarmLimitsUnsavedKeys);
   const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
   const alarmLimitsRequestDraft = (alarmLimitsRequestDraftSelect as unknown) as Record<
     string,
@@ -188,7 +185,6 @@ export const ToolBar = ({
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
-  const alarmConfig = alarmConfiguration(currentMode);
   const dispatchParameterRequest = (update: Partial<ParametersRequest>) => {
     dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
   };
@@ -378,34 +374,10 @@ export const ToolBar = ({
         withAction={true}
         label="Set Alarms"
         open={discardOpen}
+        discardContent={true}
         onClose={handleDiscardClose}
         onConfirm={handleDiscardConfirm}
-      >
-        <Grid container alignItems="center">
-          <Grid container alignItems="center" justify="center">
-            <Grid container alignItems="center" className={classes.marginHeader}>
-              <Grid item xs>
-                <Typography variant="h4">Keep Previous Values?</Typography>
-              </Grid>
-            </Grid>
-            <Grid item className={classes.marginContent}>
-              {alarmConfig.map((param: AlarmConfiguration) => {
-                if (alarmLimitsRequest !== null && alarmLimitsRequestDraft !== null) {
-                  if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
-                    return (
-                      <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${
-                        alarmLimitsRequest[param.stateKey].lower
-                      } -
-                                ${alarmLimitsRequest[param.stateKey].upper}?`}</Typography>
-                    );
-                  }
-                }
-                return <React.Fragment />;
-              })}
-            </Grid>
-          </Grid>
-        </Grid>
-      </ModalPopup>
+      ></ModalPopup>
     </AppBar>
   );
 };
