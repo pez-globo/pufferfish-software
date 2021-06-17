@@ -17,6 +17,7 @@ import {
   getPopupEventLog,
   getAlarmMuteRemaining,
   getParametersIsVentilating,
+  getFirmwareConnected,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
@@ -207,6 +208,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const alarmMuteActive = useSelector(getAlarmMuteActive);
   const alarmMuteRemaining = useSelector(getAlarmMuteRemaining);
   const backendConnected = useSelector(getBackendConnected);
+  const firmwareConnected = useSelector(getFirmwareConnected);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive);
   const ventilating = useSelector(getParametersIsVentilating);
   /**
@@ -256,7 +258,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       setRemaining(alarmMuteRemaining);
     }
 
-    if (!backendConnected) {
+    if (!backendConnected && !firmwareConnected) {
       // Update local state that controls the mute button
       setIsMuted(!alarmMuteRequestActive);
       // Start the timer
