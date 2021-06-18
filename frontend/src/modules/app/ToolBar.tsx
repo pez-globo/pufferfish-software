@@ -182,6 +182,7 @@ export const ToolBar = ({
   const [ventilation, setVentilation] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
+  const [startDiscardOpen, setStartDiscardOpen] = useState(false);
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
@@ -192,9 +193,12 @@ export const ToolBar = ({
    * Updates Ventilation status on clicking Start/Pause ventilation
    */
   const updateVentilationStatus = () => {
-    if (alarmLimitsRequestUnsaved) setDiscardOpen(true);
-    initParameterUpdate();
-    dispatchParameterRequest({ ventilating: !ventilation });
+    if (alarmLimitsRequestUnsaved) {
+      setStartDiscardOpen(true);
+    } else {
+      initParameterUpdate();
+      dispatchParameterRequest({ ventilating: !ventilation });
+    }
   };
 
   /**
@@ -253,11 +257,11 @@ export const ToolBar = ({
    * Update Label on Button based on ventilation status
    */
   useEffect(() => {
-    if (ventilating) {
+    if (storeReady && ventilating) {
       history.push(DASHBOARD_ROUTE.path);
     }
     setVentilation(ventilating !== null && ventilating);
-  }, [ventilating, history]);
+  }, [ventilating, history, storeReady]);
 
   const StartPauseVentilationButton = (
     <Button
@@ -282,11 +286,9 @@ export const ToolBar = ({
   );
 
   const handleOnClick = () => {
+    setDiscardOpen(alarmLimitsRequestUnsaved);
     if (!alarmLimitsRequestUnsaved) {
-      setDiscardOpen(false);
       history.push(DASHBOARD_ROUTE.path);
-    } else {
-      setDiscardOpen(true);
     }
   };
 
@@ -313,12 +315,19 @@ export const ToolBar = ({
 
   const handleDiscardClose = () => {
     setDiscardOpen(false);
+    setStartDiscardOpen(false);
   };
 
   const handleDiscardConfirm = () => {
     setAlarmLimitsRequestDraft(alarmLimitsRequest);
     history.push(DASHBOARD_ROUTE.path);
     setDiscardOpen(false);
+  };
+
+  const handleStartDiscardConfirm = () => {
+    setAlarmLimitsRequestDraft(alarmLimitsRequest);
+    dispatchParameterRequest({ ventilating: !ventilation });
+    setStartDiscardOpen(false);
   };
 
   return (
@@ -373,6 +382,15 @@ export const ToolBar = ({
         open={discardOpen}
         onClose={handleDiscardClose}
         onConfirm={handleDiscardConfirm}
+      >
+        <ModalContent />
+      </ModalPopup>
+      <ModalPopup
+        withAction={true}
+        label="Set Alarms"
+        open={startDiscardOpen}
+        onClose={handleDiscardClose}
+        onConfirm={handleStartDiscardConfirm}
       >
         <ModalContent />
       </ModalPopup>
