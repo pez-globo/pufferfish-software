@@ -352,17 +352,20 @@ export const getStoreReady = createSelector(
   getParametersRequest,
   getAlarmLimitsRequest,
   getAlarmMuteRequest,
+  getBackendConnected,
+  getFirmwareConnected,
   (
     parametersRequest: ParametersRequest | null,
     alarmLimitsRequest: AlarmLimitsRequest | null,
     alarmMuteRequest: AlarmMuteRequest | null,
+    backendConnected: boolean,
+    firmwareConnected: boolean,
   ): boolean =>
-    parametersRequest !== null && alarmLimitsRequest !== null && alarmMuteRequest !== null,
-);
-export const getAllConnections = createSelector(
-  getBackendConnected,
-  getFirmwareConnected,
-  (backendConnected: boolean, firmwareConnected: boolean) => backendConnected && firmwareConnected,
+    parametersRequest !== null &&
+    alarmLimitsRequest !== null &&
+    alarmMuteRequest !== null &&
+    backendConnected &&
+    firmwareConnected,
 );
 
 // Screen Status

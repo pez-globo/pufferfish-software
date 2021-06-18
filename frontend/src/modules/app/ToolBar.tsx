@@ -28,7 +28,6 @@ import {
   getAlarmLimitsRequestUnsaved,
   getAlarmLimitsRequest,
   getVentilatingStatusChanging,
-  getAllConnections,
   getFirmwareConnected,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
@@ -155,7 +154,6 @@ export const ToolBar = ({
   const alarmLimitsRequestDraftSelect = useSelector(getAlarmLimitsRequestDraft);
   const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
   const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
-  const allConnections = useSelector(getAllConnections);
   const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
   const alarmLimitsRequestDraft = (alarmLimitsRequestDraftSelect as unknown) as Record<
     string,
@@ -242,16 +240,14 @@ export const ToolBar = ({
    * Disable StartPause and LandingPage buttons and set their labels
    */
   useEffect(() => {
-    setIsStartDisabled(!storeReady && !allConnections);
-    setIsDisabled(!storeReady || ventilatingStatus);
-    if (!storeReady) {
-      setLabel('Loading...');
-    } else if (ventilatingStatus) {
+    setIsStartDisabled(!storeReady);
+    setIsDisabled(ventilatingStatus);
+    if (ventilatingStatus) {
       setLabel('Connecting...');
     } else {
       setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
     }
-  }, [allConnections, storeReady, ventilatingStatus, ventilating]);
+  }, [storeReady, ventilatingStatus, ventilating]);
 
   /**
    * Switch to dashboard page if ventilating
@@ -280,7 +276,7 @@ export const ToolBar = ({
       color="secondary"
       disabled={isStartDisabled}
     >
-      {allConnections && storeReady ? 'Start' : label}
+      {storeReady ? 'Start' : 'Loading...'}
     </Button>
   );
 
