@@ -28,9 +28,10 @@ import {
   getAlarmLimitsRequestUnsaved,
   getAlarmLimitsRequest,
   getVentilatingStatusChanging,
-  getFirmwareConnected,
+  // getFirmwareConnected,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
+import { ModalContent } from '../controllers';
 import { ModalPopup } from '../controllers/ModalPopup';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
 import { BackIcon } from '../icons';
@@ -169,7 +170,7 @@ export const ToolBar = ({
     Range
   >;
   const ventilatingStatus = useSelector(getVentilatingStatusChanging);
-  const firmwareConnected = useSelector(getFirmwareConnected);
+  // const firmwareConnected = useSelector(getFirmwareConnected);
   /**
    * State to manage ventilation label
    * Label is Dynamic based on ventilation state
@@ -191,9 +192,9 @@ export const ToolBar = ({
    * Updates Ventilation status on clicking Start/Pause ventilation
    */
   const updateVentilationStatus = () => {
+    if (alarmLimitsRequestUnsaved) setDiscardOpen(true);
     initParameterUpdate();
     dispatchParameterRequest({ ventilating: !ventilation });
-    if (alarmLimitsRequestUnsaved) setDiscardOpen(true);
   };
 
   /**
@@ -258,20 +259,7 @@ export const ToolBar = ({
     setVentilation(ventilating !== null && ventilating);
   }, [ventilating, history]);
 
-  /**
-   * Restart ventilation on firmware disconnection
-   */
-  useEffect(() => {
-    if (!staticStart && !firmwareConnected) {
-      dispatch(
-        commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
-          ventilating: !ventilation,
-        }),
-      );
-    }
-  }, [firmwareConnected, ventilation, dispatch, staticStart]);
-
-  const StartPauseVentilation = (
+  const StartPauseVentilationButton = (
     <Button
       onClick={updateVentilationStatus}
       variant="contained"
@@ -282,7 +270,7 @@ export const ToolBar = ({
     </Button>
   );
 
-  const StartButton = (
+  const LandingPageStartButton = (
     <Button
       onClick={() => history.push(QUICKSTART_ROUTE.path)}
       variant="contained"
@@ -376,17 +364,18 @@ export const ToolBar = ({
             <HeaderClock />
             <ClockIcon style={{ fontSize: '2.5rem' }} />
           </Grid>
-          <Grid item>{staticStart ? StartButton : StartPauseVentilation}</Grid>
+          <Grid item>{staticStart ? LandingPageStartButton : StartPauseVentilationButton}</Grid>
         </Grid>
       </Grid>
       <ModalPopup
         withAction={true}
         label="Set Alarms"
         open={discardOpen}
-        discardContent={true}
         onClose={handleDiscardClose}
         onConfirm={handleDiscardConfirm}
-      />
+      >
+        <ModalContent />
+      </ModalPopup>
     </AppBar>
   );
 };
