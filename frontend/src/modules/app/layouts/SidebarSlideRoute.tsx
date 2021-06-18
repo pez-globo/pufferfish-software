@@ -65,16 +65,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   fullList: {
     width: 'auto',
   },
-  marginContent: {
-    textAlign: 'center',
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(3),
-  },
-  marginHeader: {
-    textAlign: 'center',
-    marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(1),
-  },
   screensaverButton: {
     minWidth: 0,
     borderRadius: 5,

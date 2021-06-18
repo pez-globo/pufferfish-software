@@ -28,6 +28,7 @@ import {
   getAlarmLimitsRequestUnsaved,
   getAlarmLimitsRequest,
   getVentilatingStatusChanging,
+  getAllConnections,
   // getFirmwareConnected,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
@@ -54,16 +55,6 @@ import EventAlerts from './EventAlerts';
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     // border: '1px solid red',
-  },
-  marginContent: {
-    textAlign: 'center',
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(3),
-  },
-  marginHeader: {
-    textAlign: 'center',
-    marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(1),
   },
   marginRight: {
     marginRight: theme.spacing(0.5),
@@ -164,6 +155,7 @@ export const ToolBar = ({
   const alarmLimitsRequestDraftSelect = useSelector(getAlarmLimitsRequestDraft);
   const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
   const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
+  const allConnections = useSelector(getAllConnections);
   const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
   const alarmLimitsRequestDraft = (alarmLimitsRequestDraftSelect as unknown) as Record<
     string,
@@ -180,6 +172,7 @@ export const ToolBar = ({
    * State to toggle if Ventilating isDisabled
    */
   const [isDisabled, setIsDisabled] = useState(false);
+  const [isStartDisabled, setIsStartDisabled] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const [startDiscardOpen, setStartDiscardOpen] = useState(false);
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
@@ -242,15 +235,16 @@ export const ToolBar = ({
    * Disabled Start/Pause Ventilation button when backend connection is lost
    */
   useEffect(() => {
-    setIsDisabled(!storeReady);
-    if (storeReady) {
-      setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
+    setIsStartDisabled(!storeReady && !allConnections);
+    setIsDisabled(!storeReady || ventilatingStatus);
+    if (!storeReady) {
+      setLabel('Loading...');
     } else if (ventilatingStatus) {
       setLabel('Connecting...');
     } else {
-      setLabel('Loading...');
+      setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
     }
-  }, [storeReady, ventilatingStatus, ventilating]);
+  }, [allConnections, storeReady, ventilatingStatus, ventilating]);
 
   /**
    * Update Label on Button based on ventilation status
@@ -277,7 +271,7 @@ export const ToolBar = ({
       onClick={() => history.push(QUICKSTART_ROUTE.path)}
       variant="contained"
       color="secondary"
-      disabled={isDisabled}
+      disabled={isStartDisabled}
     >
       {storeReady ? 'Start' : label}
     </Button>
