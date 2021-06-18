@@ -388,6 +388,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           onClick={() => muteAlarmState(isMuted)}
           variant="contained"
           color="primary"
+          disabled={!firmwareConnected}
           className={classes.alertColor}
         >
           {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
