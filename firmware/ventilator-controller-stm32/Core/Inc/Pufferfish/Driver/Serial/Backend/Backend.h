@@ -58,22 +58,23 @@ using StateOutputScheduleEntry =
     Protocols::Application::StateOutputScheduleEntry<Application::MessageTypes>;
 
 static const auto state_sync_schedule =
-    Util::Containers::make_array<const StateOutputScheduleEntry>(
-        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
-        StateOutputScheduleEntry{10, MessageTypes::parameters},
-        StateOutputScheduleEntry{10, MessageTypes::parameters_request},
-        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
-        StateOutputScheduleEntry{10, MessageTypes::alarm_limits},
-        StateOutputScheduleEntry{10, MessageTypes::alarm_limits_request},
-        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
-        StateOutputScheduleEntry{10, MessageTypes::next_log_events},
-        StateOutputScheduleEntry{10, MessageTypes::active_log_events},
-        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
-        StateOutputScheduleEntry{10, MessageTypes::alarm_mute},
-        StateOutputScheduleEntry{10, MessageTypes::alarm_mute_request},
-        StateOutputScheduleEntry{10, MessageTypes::sensor_measurements},
-        StateOutputScheduleEntry{10, MessageTypes::cycle_measurements},
-        StateOutputScheduleEntry{10, MessageTypes::mcu_power_status});
+    Protocols::Application::make_state_output_schedule<Application::MessageTypes>(
+      10,
+      MessageTypes::sensor_measurements,
+      MessageTypes::parameters,
+      MessageTypes::parameters_request,
+      MessageTypes::sensor_measurements,
+      MessageTypes::alarm_limits,
+      MessageTypes::alarm_limits_request,
+      MessageTypes::sensor_measurements,
+      MessageTypes::next_log_events,
+      MessageTypes::active_log_events,
+      MessageTypes::sensor_measurements,
+      MessageTypes::alarm_mute,
+      MessageTypes::alarm_mute_request,
+      MessageTypes::sensor_measurements,
+      MessageTypes::cycle_measurements,
+      MessageTypes::mcu_power_status);
 
 // Backend
 

@@ -7,9 +7,10 @@
 
 #pragma once
 
-#include <array>
 #include <cstddef>
 #include <cstdint>
+
+#include "Pufferfish/Util/Containers/Array.h"
 
 namespace Pufferfish::Protocols::Application {
 
@@ -45,6 +46,12 @@ class StateSynchronizer {
 
   [[nodiscard]] bool should_output() const;
 };
+
+// Makes a state output schedule with a fixed interval between outputs
+template <typename MessageTypes, typename... Arg>
+constexpr auto make_state_output_schedule(uint32_t interval, Arg&&... arg) noexcept {
+  return Util::Containers::make_array<const StateOutputScheduleEntry<MessageTypes>>(StateOutputScheduleEntry<MessageTypes>{interval, arg}...);
+}
 
 }  // namespace Pufferfish::Protocols::Application
 
