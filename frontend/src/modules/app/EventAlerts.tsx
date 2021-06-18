@@ -17,7 +17,6 @@ import {
   getPopupEventLog,
   getAlarmMuteRemaining,
   getParametersIsVentilating,
-  getFirmwareConnected,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
@@ -27,7 +26,6 @@ import { AlarmMuteRequest } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
 import { getEventType } from '../logs/EventType';
 import { getBackendConnected } from '../../store/app/selectors';
-import { DEFAULT_TIMEOUT, MUTE_MAX_DURATION } from './AppConstants';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -209,9 +207,10 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const alarmMuteActive = useSelector(getAlarmMuteActive);
   const alarmMuteRemaining = useSelector(getAlarmMuteRemaining);
   const backendConnected = useSelector(getBackendConnected);
-  const firmwareConnected = useSelector(getFirmwareConnected);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive);
   const ventilating = useSelector(getParametersIsVentilating);
+  const MUTE_MAX_DURATION = 120;
+  const DEFAULT_TIMEOUT = 1000;
   /**
    * Stores the state which toggles AlarmMute/AlarmMuteRequest Status
    */
@@ -225,7 +224,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    * Local variable that decides which timer to display depending on the
    * backend connection
    */
-  const countdownTimer = backendConnected && firmwareConnected ? alarmMuteRemaining : remaining;
+  const countdownTimer = backendConnected ? alarmMuteRemaining : remaining;
   /**
    * Triggers whenever Active or Event log is updated in redux
    */
@@ -255,11 +254,11 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    */
   useEffect(() => {
     setIsMuted(!alarmMuteActive);
-    if (remaining !== alarmMuteRemaining && backendConnected && firmwareConnected) {
+    if (remaining !== alarmMuteRemaining && backendConnected) {
       setRemaining(alarmMuteRemaining);
     }
 
-    if (!backendConnected || !firmwareConnected) {
+    if (!backendConnected) {
       // Update local state that controls the mute button
       setIsMuted(!alarmMuteRequestActive);
       // Start the timer
@@ -275,14 +274,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         setRemaining(MUTE_MAX_DURATION);
       }
     }
-  }, [
-    alarmMuteActive,
-    alarmMuteRemaining,
-    firmwareConnected,
-    remaining,
-    backendConnected,
-    alarmMuteRequestActive,
-  ]);
+  }, [alarmMuteActive, alarmMuteRemaining, remaining, backendConnected, alarmMuteRequestActive]);
 
   /**
    * Update mute AlarmStatus in redux store
