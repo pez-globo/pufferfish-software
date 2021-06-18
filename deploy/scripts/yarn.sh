@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Installs yarn and front-end dependencies
-# Creates a build release for front-end with static files
 
 # Importing logging colours, absolute paths and exit function
 script_dir=$(dirname $(realpath $0))
@@ -19,6 +18,5 @@ fi
 
 cd $frontend_dir
 yarn install || exit_script "Could not install yarn packages"
-yarn build || exit_script "Could not create a release build"
 
 echo -e "\n${SUCCESS}Yarn setup complete\n${NC}"
