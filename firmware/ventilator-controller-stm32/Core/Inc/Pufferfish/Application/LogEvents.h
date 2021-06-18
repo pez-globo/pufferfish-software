@@ -25,6 +25,7 @@ class IncrementalEventsSender {
   // the provided event is not modified.
   void add_event(Element event, uint32_t &id);
   void add_event(const Element &event);
+  void add_event(LogEventCode code, LogEventType type);
 
  private:
   LogEventsSender &sender_;

@@ -31,7 +31,6 @@ class AlarmsService {
       const Parameters &parameters,
       const AlarmLimits &alarm_limits,
       const SensorMeasurements &sensor_measurements,
-      ActiveLogEvents &active_log_events,
       Application::AlarmsManager &alarms_manager);
 };
 
@@ -43,7 +42,6 @@ class HFNCAlarms : public AlarmsService {
       const Parameters &parameters,
       const AlarmLimits &alarm_limits,
       const SensorMeasurements &sensor_measurements,
-      ActiveLogEvents &active_log_events,
       Application::AlarmsManager &alarms_manager) override;
 };
 
@@ -53,7 +51,6 @@ class AlarmsServices {
       const Parameters &parameters,
       const AlarmLimits &alarm_limits,
       const SensorMeasurements &sensor_measurements,
-      ActiveLogEvents &active_log_events,
       Application::AlarmsManager &alarms_manager);
 
  private:

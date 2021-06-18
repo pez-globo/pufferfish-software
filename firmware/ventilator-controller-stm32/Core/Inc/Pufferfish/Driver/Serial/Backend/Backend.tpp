@@ -178,6 +178,7 @@ Backend::Status Backend::input(uint8_t new_byte) {
     return Status::invalid;
   }
 
+  connection_timer_.reset(current_time_);
   // Input into state synchronization
   switch (store_.input(message.payload)) {
     case Application::Store::InputStatus::ok:
@@ -192,6 +193,7 @@ Backend::Status Backend::input(uint8_t new_byte) {
 
 void Backend::update_clock(uint32_t current_time) {
   synchronizer_.input(current_time);
+  current_time_ = current_time;
 }
 
 void Backend::update_list_senders() {
@@ -231,6 +233,10 @@ Backend::Status Backend::output(FrameProps::ChunkBuffer &output_buffer) {
   }
 
   return Status::ok;
+}
+
+bool Backend::connected() const {
+  return connection_timer_.within_timeout(current_time_);
 }
 
 }  // namespace Pufferfish::Driver::Serial::Backend

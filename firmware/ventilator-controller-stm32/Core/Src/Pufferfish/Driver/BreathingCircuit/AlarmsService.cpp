@@ -38,12 +38,8 @@ void AlarmsService::transform(
     const Parameters &parameters,
     const AlarmLimits &alarm_limits,
     const SensorMeasurements &sensor_measurements,
-    ActiveLogEvents &active_log_events,
     Application::AlarmsManager &alarms_manager) {
   if (!parameters.ventilating) {
-    // ParametersService already reset the alarms in AlarmsManager, so AlarmsService just needs to
-    // update active_log_events
-    alarms_manager.transform(active_log_events);
     return;
   }
 
@@ -65,8 +61,6 @@ void AlarmsService::transform(
       LogEventCode::LogEventCode_fio2_too_low,
       LogEventCode::LogEventCode_fio2_too_high,
       alarms_manager);
-
-  alarms_manager.transform(active_log_events);
 }
 
 // HFNCAlarms
@@ -75,10 +69,8 @@ void HFNCAlarms::transform(
     const Parameters &parameters,
     const AlarmLimits &alarm_limits,
     const SensorMeasurements &sensor_measurements,
-    ActiveLogEvents &active_log_events,
     Application::AlarmsManager &alarms_manager) {
-  AlarmsService::transform(
-      parameters, alarm_limits, sensor_measurements, active_log_events, alarms_manager);
+  AlarmsService::transform(parameters, alarm_limits, sensor_measurements, alarms_manager);
   if (!parameters.ventilating) {
     return;
   }
@@ -89,8 +81,6 @@ void HFNCAlarms::transform(
       LogEventCode::LogEventCode_flow_too_low,
       LogEventCode::LogEventCode_flow_too_high,
       alarms_manager);
-
-  alarms_manager.transform(active_log_events);
 }
 
 // AlarmsServices
@@ -99,7 +89,6 @@ void AlarmsServices::transform(
     const Parameters &parameters,
     const AlarmLimits &alarm_limits,
     const SensorMeasurements &sensor_measurements,
-    ActiveLogEvents &active_log_events,
     Application::AlarmsManager &alarms_manager) {
   switch (parameters.mode) {
     case VentilationMode_pc_ac:
@@ -116,8 +105,7 @@ void AlarmsServices::transform(
     return;
   }
 
-  active_service_->transform(
-      parameters, alarm_limits, sensor_measurements, active_log_events, alarms_manager);
+  active_service_->transform(parameters, alarm_limits, sensor_measurements, alarms_manager);
 }
 
 }  // namespace Pufferfish::Driver::BreathingCircuit

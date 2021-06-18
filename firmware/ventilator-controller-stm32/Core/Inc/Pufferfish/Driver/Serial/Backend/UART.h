@@ -28,6 +28,7 @@ class UARTBackend {
   void setup_irq();
   void receive();
   void update_clock(uint32_t current_time);
+  [[nodiscard]] bool connected() const;
   void send();
 
  private:
