@@ -21,7 +21,7 @@ import {
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { setActiveRotaryReference } from '../app/Service';
-import { ValueClicker } from '../controllers';
+import { ModalContent, ValueClicker } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';
 import ValueSlider from '../controllers/ValueSlider';
 import ModeBanner from '../displays/ModeBanner';
@@ -564,10 +564,11 @@ export const AlarmsPage = (): JSX.Element => {
                 withAction={true}
                 label="Set Alarms"
                 open={discardOpen}
-                discardContent={true}
                 onClose={handleDiscardClose}
                 onConfirm={handleDiscardConfirm}
-              />
+              >
+                <ModalContent />
+              </ModalPopup>
             </Grid>
           </Grid>
         </Grid>

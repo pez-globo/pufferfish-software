@@ -21,6 +21,7 @@ import {
 import { ModalPopup } from '../../controllers/ModalPopup';
 import { MessageType } from '../../../store/controller/types';
 import { commitDraftRequest } from '../../../store/controller/actions';
+import { ModalContent } from '../../controllers';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -155,10 +156,11 @@ const FullWidthToolBar = (): JSX.Element => {
         withAction={true}
         label="Set Alarms"
         open={openModal}
-        discardContent={true}
         onClose={handleDiscardClose}
         onConfirm={handleDiscardConfirm}
-      />
+      >
+        <ModalContent />
+      </ModalPopup>
     </ToolBar>
   );
 };
