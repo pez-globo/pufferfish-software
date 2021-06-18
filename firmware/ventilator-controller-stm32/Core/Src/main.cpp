@@ -666,7 +666,7 @@ int main(void)
       ltc4015.output(store.mcu_power_status());
     }
 
-    power_alarms.transform(store.mcu_power_status(), alarms_manager);
+    PF::Driver::Power::AlarmsService::transform(store.mcu_power_status(), alarms_manager);
 
     // Indicators for debugging
     /*static constexpr float valve_opening_indicator_threshold = 0.00001;
