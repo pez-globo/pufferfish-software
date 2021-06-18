@@ -29,7 +29,7 @@ import {
   getAlarmLimitsRequest,
   getVentilatingStatusChanging,
   getAllConnections,
-  // getFirmwareConnected,
+  getFirmwareConnected,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { ModalContent } from '../controllers';
@@ -162,7 +162,7 @@ export const ToolBar = ({
     Range
   >;
   const ventilatingStatus = useSelector(getVentilatingStatusChanging);
-  // const firmwareConnected = useSelector(getFirmwareConnected);
+  const firmwareConnected = useSelector(getFirmwareConnected);
   /**
    * State to manage ventilation label
    * Label is Dynamic based on ventilation state
@@ -185,12 +185,19 @@ export const ToolBar = ({
    * Updates Ventilation status on clicking Start/Pause ventilation
    */
   const updateVentilationStatus = () => {
-    if (ventilating && alarmLimitsRequestUnsaved) {
-      setStartDiscardOpen(true);
+    if (ventilating) {
+      // if ventilating and there are unsaved alarm limit changes then open modal popup
+      if (alarmLimitsRequestUnsaved) {
+        setStartDiscardOpen(true);
+      }
     } else {
+      // if not ventilating and the firmware is disconnected then return early
+      if (!firmwareConnected) {
+        return;
+      }
       initParameterUpdate();
-      dispatchParameterRequest({ ventilating: !ventilating });
     }
+    dispatchParameterRequest({ ventilating: !ventilating });
   };
 
   /**
@@ -232,7 +239,7 @@ export const ToolBar = ({
   };
 
   /**
-   * Disabled Start/Pause Ventilation button when backend connection is lost
+   * Disable StartPause and LandingPage buttons and set their labels
    */
   useEffect(() => {
     setIsStartDisabled(!storeReady && !allConnections);
@@ -247,7 +254,7 @@ export const ToolBar = ({
   }, [allConnections, storeReady, ventilatingStatus, ventilating]);
 
   /**
-   * Update Label on Button based on ventilation status
+   * Switch to dashboard page if ventilating
    */
   useEffect(() => {
     if (storeReady && ventilating) {
@@ -277,6 +284,9 @@ export const ToolBar = ({
     </Button>
   );
 
+  /**
+   * OnClick handler for dashboard button
+   */
   const handleOnClick = () => {
     setDiscardOpen(alarmLimitsRequestUnsaved);
     if (!alarmLimitsRequestUnsaved) {
@@ -284,6 +294,9 @@ export const ToolBar = ({
     }
   };
 
+  /**
+   * Display buttons dynamically on the toolbar
+   */
   const tools = [<ModesDropdown />];
   if (location.pathname === DASHBOARD_ROUTE.path) {
     tools.push(<ViewDropdown />);
@@ -305,17 +318,26 @@ export const ToolBar = ({
     tools.push(<EventAlerts label={LOGS_ROUTE.label} />);
   }
 
+  /**
+   * onClickHandler for Dashboard ModalPopup 'Cancel' button
+   */
   const handleDiscardClose = () => {
     setDiscardOpen(false);
     setStartDiscardOpen(false);
   };
 
+  /**
+   * onClickHandler for Dashboard ModalPopup 'Confirm' button
+   */
   const handleDiscardConfirm = () => {
     setAlarmLimitsRequestDraft(alarmLimitsRequest);
     history.push(DASHBOARD_ROUTE.path);
     setDiscardOpen(false);
   };
 
+  /**
+   * onClickHandler for Start ModalPopup 'Confirm' button
+   */
   const handleStartDiscardConfirm = () => {
     setAlarmLimitsRequestDraft(alarmLimitsRequest);
     dispatchParameterRequest({ ventilating: !ventilating });
