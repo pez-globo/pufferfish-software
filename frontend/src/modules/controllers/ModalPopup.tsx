@@ -114,7 +114,6 @@ interface Props {
   showCloseIcon?: boolean;
   onClose?(): void;
   onConfirm?(): void;
-  discardContent?: boolean;
   maxWidth?: DialogProps['maxWidth'];
 }
 
