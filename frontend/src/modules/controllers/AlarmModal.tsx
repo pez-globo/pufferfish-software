@@ -354,7 +354,7 @@ export const AlarmModal = ({
   ) : (
     <Grid container direction="column" alignItems="center" justify="center">
       <Grid container item xs>
-        // TODO: deprecated, can be commented out or removed
+        {/* TODO: deprecated, can be commented out or removed */}
         {!disableAlarmButton && (
           <Button
             onClick={handleOpen}

@@ -191,8 +191,9 @@ export const ToolBar = ({
    * Updates Ventilation status on clicking Start/Pause ventilation
    */
   const updateVentilationStatus = () => {
-    dispatchParameterRequest({ ventilating: !ventilation });
     initParameterUpdate();
+    dispatchParameterRequest({ ventilating: !ventilation });
+    if (alarmLimitsRequestUnsaved) setDiscardOpen(true);
   };
 
   /**
@@ -200,10 +201,6 @@ export const ToolBar = ({
    */
   const initParameterUpdate = () => {
     if (parameterRequestDraft === null || alarmLimitsRequestDraft === null) {
-      return;
-    }
-
-    if (ventilating) {
       return;
     }
 
@@ -258,7 +255,7 @@ export const ToolBar = ({
     if (ventilating) {
       history.push(DASHBOARD_ROUTE.path);
     }
-    setVentilation(ventilating);
+    setVentilation(ventilating !== null && ventilating);
   }, [ventilating, history]);
 
   /**
