@@ -11,8 +11,7 @@ namespace Pufferfish::Driver::Power {
 
 // AlarmsService
 void AlarmsService::transform(
-    const MCUPowerStatus &mcu_power_status,
-    Application::AlarmsManager &alarms_manager) {
+    const MCUPowerStatus &mcu_power_status, Application::AlarmsManager &alarms_manager) {
   if (!mcu_power_status.charging) {
     alarms_manager.activate_alarm(
         LogEventCode_charger_disconnected, LogEventType::LogEventType_system);

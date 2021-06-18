@@ -13,10 +13,9 @@
 namespace Pufferfish::Driver::Serial::Backend {
 
 // All alarm codes for power management need to be registered in the following array:
-static constexpr auto alarm_codes =
-    Util::Containers::make_array<LogEventCode>(
-        LogEventCode::LogEventCode_mcu_backend_connection_up,
-        LogEventCode::LogEventCode_mcu_backend_connection_down);
+static constexpr auto alarm_codes = Util::Containers::make_array<LogEventCode>(
+    LogEventCode::LogEventCode_mcu_backend_connection_up,
+    LogEventCode::LogEventCode_mcu_backend_connection_down);
 
 class AlarmsService {
  public:
