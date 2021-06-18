@@ -13,7 +13,10 @@ function exit_script {
   exit 1
 }
 
-# Setup Nginx web server for serving frontend
+# Create static build of frontend
+$script_path/scripts/build_frontend.sh || exit_script "Frontend build failed"
+
+# Setup Nginx web server for serving static build of frontend
 $script_path/scripts/nginx_setup.sh || exit_script "Nginx webserver setup failed"
 
 # Setup OS Boot Screen
