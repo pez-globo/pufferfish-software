@@ -13,7 +13,6 @@ import {
   getAlarmMuteActive,
   getAlarmMuteRequestActive,
   getBackendDownEvent,
-  getFirmwareConnected,
   getHasActiveAlarms,
   getScreenStatusLock,
 } from '../../store/controller/selectors';
@@ -102,7 +101,6 @@ const AudioAlarm = (): JSX.Element => {
   const activeAlarms = useSelector(getHasActiveAlarms, shallowEqual);
   const alarmMuteActive = useSelector(getAlarmMuteActive);
   const backendConnected = useSelector(getBackendConnected);
-  const firmwareConnected = useSelector(getFirmwareConnected);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;
@@ -121,7 +119,7 @@ const AudioAlarm = (): JSX.Element => {
         } else {
           audio.play();
         }
-      } else if (!backendConnected || !firmwareConnected) {
+      } else if (!backendConnected) {
         if (alarmMuteRequestActive) {
           audio.pause();
         } else {
@@ -132,25 +130,18 @@ const AudioAlarm = (): JSX.Element => {
     return () => {
       audio.pause();
     };
-  }, [
-    activeAlarms,
-    alarmMuteActive,
-    audio,
-    backendConnected,
-    firmwareConnected,
-    alarmMuteRequestActive,
-  ]);
+  }, [activeAlarms, alarmMuteActive, audio, backendConnected, alarmMuteRequestActive]);
 
   /**
    * On activeAlarms redux store changes, update RED_BORDER & Audio Play state
    */
   useEffect(() => {
-    if (activeAlarms || !backendConnected || !firmwareConnected) {
+    if (activeAlarms || !backendConnected) {
       dispatch({ type: RED_BORDER, status: true });
     } else {
       dispatch({ type: RED_BORDER, status: false });
     }
-  }, [activeAlarms, backendConnected, dispatch, firmwareConnected]);
+  }, [activeAlarms, backendConnected, dispatch]);
 
   /**
    * On alarmMuteStatus redux store changes, update RED_BORDER & Audio Play state
@@ -159,17 +150,10 @@ const AudioAlarm = (): JSX.Element => {
     if (activeAlarms) {
       dispatch({ type: RED_BORDER, status: !alarmMuteActive });
     }
-    if (!backendConnected || !firmwareConnected) {
+    if (!backendConnected) {
       dispatch({ type: RED_BORDER, status: !alarmMuteRequestActive });
     }
-  }, [
-    alarmMuteActive,
-    activeAlarms,
-    dispatch,
-    firmwareConnected,
-    alarmMuteRequestActive,
-    backendConnected,
-  ]);
+  }, [alarmMuteActive, activeAlarms, dispatch, alarmMuteRequestActive, backendConnected]);
   return <React.Fragment />;
 };
 
