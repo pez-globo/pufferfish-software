@@ -17,6 +17,7 @@ import {
   getPopupEventLog,
   getAlarmMuteRemaining,
   getParametersIsVentilating,
+  getFirmwareConnected,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
@@ -209,6 +210,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const backendConnected = useSelector(getBackendConnected);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive);
   const ventilating = useSelector(getParametersIsVentilating);
+  const firmwareConnected = useSelector(getFirmwareConnected);
   const MUTE_MAX_DURATION = 120;
   const DEFAULT_TIMEOUT = 1000;
   /**
@@ -357,6 +359,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
                 onClick={() => muteAlarmState(isMuted)}
                 variant="contained"
                 color="primary"
+                disabled={!firmwareConnected}
                 className={classes.alertColor}
               >
                 {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
