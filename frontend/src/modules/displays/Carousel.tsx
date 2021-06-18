@@ -222,7 +222,7 @@ const CarouselIndicator = ({
 /**
  * CarouselSlide
  *
- * @component A container for displaying a single side of the carousel.
+ * @component A container for displaying a single slide of the carousel.
  *
  * @param {ReactElement} slide - Content inside slide
  * @param {number} activeIndex - Active index of Carousel
