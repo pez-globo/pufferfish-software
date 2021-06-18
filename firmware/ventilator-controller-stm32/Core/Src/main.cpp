@@ -670,11 +670,11 @@ int main(void)
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;
-    if (hfnc.actuator_vars().valve_air_opening > valve_opening_indicator_threshold) {
+    /*if (hfnc.actuator_vars().valve_air_opening > valve_opening_indicator_threshold) {
       board_led1.write(dimmer.output());
     } else {
       board_led1.write(false);
-    }
+    }*/
     /*if (hfnc.sensor_vars().flow_o2 > 1 || hfnc.sensor_vars().flow_air > 1) {
       board_led1.write(true);
     } else if (hfnc.sensor_vars().flow_o2 < -1 || hfnc.sensor_vars().flow_air < -1) {
@@ -685,6 +685,12 @@ int main(void)
 
     // Alarms
     alarms_manager.transform(store.active_log_events());
+    if (store.active_log_events().id_count > 0) {
+      board_led1.write(true);
+    } else {
+      blinker.input(current_time);
+      board_led1.write(blinker.output());
+    }
 
     // Backend Communication Protocol
     backend.receive();
