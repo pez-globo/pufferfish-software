@@ -13,6 +13,9 @@ function exit_script {
   exit 1
 }
 
+# Set up hardware RTC
+$script_path/scripts/rtc_setup.sh || exit_script "RTC setup failed"
+
 # Create static build of frontend
 $script_path/scripts/build_frontend.sh || exit_script "Frontend build failed"
 
