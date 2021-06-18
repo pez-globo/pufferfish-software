@@ -669,8 +669,8 @@ int main(void)
     power_alarms.transform(store.mcu_power_status(), alarms_manager);
 
     // Indicators for debugging
-    static constexpr float valve_opening_indicator_threshold = 0.00001;
-    /*if (hfnc.actuator_vars().valve_air_opening > valve_opening_indicator_threshold) {
+    /*static constexpr float valve_opening_indicator_threshold = 0.00001;
+    if (hfnc.actuator_vars().valve_air_opening > valve_opening_indicator_threshold) {
       board_led1.write(dimmer.output());
     } else {
       board_led1.write(false);

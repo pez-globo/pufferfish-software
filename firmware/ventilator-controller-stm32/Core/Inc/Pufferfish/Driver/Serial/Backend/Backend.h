@@ -184,7 +184,7 @@ class Backend {
   void update_list_senders();
   Status output(FrameProps::ChunkBuffer &output_buffer);
 
-  bool connected() const;
+  [[nodiscard]] bool connected() const;
 
  private:
   using StateSynchronizer = Protocols::Application::StateSynchronizer<
@@ -199,7 +199,7 @@ class Backend {
   StateSynchronizer synchronizer_;
   Application::LogEventsSender &log_events_sender_;
 
-  uint32_t current_time_;
+  uint32_t current_time_{};
   Util::MsTimer connection_timer_{connection_timeout};
 };
 
