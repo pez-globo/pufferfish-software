@@ -179,7 +179,6 @@ export const ToolBar = ({
   /**
    * State to toggle if Ventilating isDisabled
    */
-  const [ventilation, setVentilation] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const [startDiscardOpen, setStartDiscardOpen] = useState(false);
@@ -193,11 +192,11 @@ export const ToolBar = ({
    * Updates Ventilation status on clicking Start/Pause ventilation
    */
   const updateVentilationStatus = () => {
-    if (alarmLimitsRequestUnsaved) {
+    if (ventilating && alarmLimitsRequestUnsaved) {
       setStartDiscardOpen(true);
     } else {
       initParameterUpdate();
-      dispatchParameterRequest({ ventilating: !ventilation });
+      dispatchParameterRequest({ ventilating: !ventilating });
     }
   };
 
@@ -260,7 +259,6 @@ export const ToolBar = ({
     if (storeReady && ventilating) {
       history.push(DASHBOARD_ROUTE.path);
     }
-    setVentilation(ventilating !== null && ventilating);
   }, [ventilating, history, storeReady]);
 
   const StartPauseVentilationButton = (
@@ -326,7 +324,7 @@ export const ToolBar = ({
 
   const handleStartDiscardConfirm = () => {
     setAlarmLimitsRequestDraft(alarmLimitsRequest);
-    dispatchParameterRequest({ ventilating: !ventilation });
+    dispatchParameterRequest({ ventilating: !ventilating });
     setStartDiscardOpen(false);
   };
 
