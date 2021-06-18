@@ -280,7 +280,7 @@ export const ToolBar = ({
       color="secondary"
       disabled={isStartDisabled}
     >
-      {storeReady ? 'Start' : label}
+      {allConnections && storeReady ? 'Start' : label}
     </Button>
   );
 
