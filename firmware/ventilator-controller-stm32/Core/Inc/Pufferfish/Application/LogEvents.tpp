@@ -34,4 +34,12 @@ void IncrementalEventsSender<ListSender>::add_event(const Element &event) {
   add_event(event, id_discard);
 }
 
+template <typename ListSender>
+void IncrementalEventsSender<ListSender>::add_event(LogEventCode code, LogEventType type) {
+  Element event;
+  event.code = code;
+  event.type = type;
+  add_event(event);
+}
+
 }  // namespace Pufferfish::Application

@@ -88,6 +88,7 @@ struct StateSegments {
 
   // Internal States
   SensorMeasurements sensor_measurements_raw;
+  bool backend_connected;
 };
 
 class Store {
@@ -114,6 +115,7 @@ class Store {
 
   // Internal States
   SensorMeasurements &sensor_measurements_raw();
+  bool &backend_connected();
 
   InputStatus input(const StateSegment &input, bool default_initialization = false);
   OutputStatus output(MessageTypes type, StateSegment &output) const;

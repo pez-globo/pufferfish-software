@@ -46,6 +46,10 @@ void UARTBackend::update_clock(uint32_t current_time) {
   backend_.update_clock(current_time);
 }
 
+bool UARTBackend::connected() const {
+  return backend_.connected();
+}
+
 void UARTBackend::send() {
   // Create a new output to write if needed
   if (sent_ >= send_output_.size()) {

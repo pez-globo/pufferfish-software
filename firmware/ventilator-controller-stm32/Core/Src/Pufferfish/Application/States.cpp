@@ -115,6 +115,10 @@ SensorMeasurements &Store::sensor_measurements_raw() {
   return state_segments_.sensor_measurements_raw;
 }
 
+bool &Store::backend_connected() {
+  return state_segments_.backend_connected;
+}
+
 Store::InputStatus Store::input(const StateSegment &input, bool default_initialization) {
   switch (input.tag) {
     case MessageTypes::sensor_measurements:

@@ -55,6 +55,7 @@
 #include "Pufferfish/Driver/Indicators/PulseGenerator.h"
 #include "Pufferfish/Driver/Power/AlarmsService.h"
 #include "Pufferfish/Driver/Power/Simulator.h"
+#include "Pufferfish/Driver/Serial/Backend/AlarmsService.h"
 #include "Pufferfish/Driver/Serial/Backend/UART.h"
 #include "Pufferfish/Driver/Serial/FDO2/Sensor.h"
 #include "Pufferfish/Driver/Serial/Nonin/Sensor.h"
@@ -137,6 +138,7 @@ volatile Pufferfish::HAL::STM32::ReadOnlyBufferedUART nonin_oem_uart(huart4, tim
 
 // UART Serial Communication
 PF::Driver::Serial::Backend::UARTBackend backend(backend_uart, crc32c, store, log_events_sender);
+PF::Driver::Serial::Backend::AlarmsService backend_alarms;
 
 // Create an object for ADC3 of AnalogInput Class
 static const uint32_t adc_poll_timeout = 10;
@@ -646,30 +648,25 @@ int main(void)
 
     // Breathing Circuit Control Loop
     hfnc.update(current_time);
-
-    // Signal Processing
     sensor_smoothers.transform(
         current_time, store.sensor_measurements_raw(), store.sensor_measurements_filtered());
-
-    // Alarms
     breathing_circuit_alarms.transform(
         store.parameters(),
         store.alarm_limits(),
         store.sensor_measurements_filtered(),
-        store.active_log_events(),
         alarms_manager);
 
     // Alarm Mute Service
     alarm_mute_service.transform(current_time, store.alarm_mute_request(), store.alarm_mute());
 
-    // LTC4015 battery charging
+    // Power management
     if (!ltc4015_status) {
       power_simulator.transform(current_time, store.mcu_power_status());
     } else {
       ltc4015.output(store.mcu_power_status());
     }
 
-    power_alarms.transform(store.mcu_power_status(), store.active_log_events(), alarms_manager);
+    power_alarms.transform(store.mcu_power_status(), alarms_manager);
 
     // Indicators for debugging
     static constexpr float valve_opening_indicator_threshold = 0.00001;
@@ -686,10 +683,15 @@ int main(void)
       board_led1.write(false);
     }*/
 
+    // Alarms
+    alarms_manager.transform(store.active_log_events());
+
     // Backend Communication Protocol
     backend.receive();
     backend.update_clock(current_time);
     backend.send();
+    store.backend_connected() = backend.connected();
+    backend_alarms.transform(store.backend_connected(), alarms_manager, log_events_manager);
 
     /*
     PF::AlarmManagerStatus stat = h_alarms.update(time.millis());
@@ -702,25 +704,6 @@ int main(void)
     board_led1.write(true);
     //interface_test_loop();
     //leds_reg.update();
-
-    for (PF::Driver::Testable *t : i2c_test_list) {
-      if (t->test() != PF::I2CDeviceStatus::ok) {
-        board_led1.write(false);
-      }
-    }
-    time.delay(loop_delay);
-
-
-    // FIXME: Added for testing
-    // Read the Analog data of ADC3 and validate the return value
-    if (adc3_input.read(adc3_data) != PF::ADCStatus::ok) {
-    } else {
-    }
-    button_membrane.read_state(mem_buttonstate, state);
-    if (state != PF::Driver::Button::EdgeState::rising_edge) {
-      board_led1.write(true);
-      time.delay(5);
-    }
     */
 
     /* USER CODE END WHILE */

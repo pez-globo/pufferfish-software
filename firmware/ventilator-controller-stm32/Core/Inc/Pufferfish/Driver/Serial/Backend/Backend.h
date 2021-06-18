@@ -21,6 +21,7 @@
 #include "Pufferfish/Util/Containers/Array.h"
 #include "Pufferfish/Util/Containers/EnumMap.h"
 #include "Pufferfish/Util/Enums.h"
+#include "Pufferfish/Util/Timeouts.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
 
@@ -75,6 +76,7 @@ static const auto state_sync_schedule =
         StateOutputScheduleEntry{10, MessageTypes::mcu_power_status});
 
 // Backend
+
 using CRCElementProps =
     Protocols::Transport::CRCElementProps<Driver::Serial::Backend::FrameProps::payload_max_size>;
 using DatagramProps = Protocols::Transport::DatagramProps<CRCElementProps::payload_max_size>;
@@ -160,6 +162,8 @@ class Sender {
   FrameSender frame_;
 };
 
+static const uint32_t connection_timeout = 500;
+
 class Backend {
  public:
   enum class Status { ok = 0, waiting, invalid };
@@ -180,6 +184,8 @@ class Backend {
   void update_list_senders();
   Status output(FrameProps::ChunkBuffer &output_buffer);
 
+  bool connected() const;
+
  private:
   using StateSynchronizer = Protocols::Application::StateSynchronizer<
       Application::Store,
@@ -192,6 +198,9 @@ class Backend {
   Application::Store &store_;
   StateSynchronizer synchronizer_;
   Application::LogEventsSender &log_events_sender_;
+
+  uint32_t current_time_;
+  Util::MsTimer connection_timer_{connection_timeout};
 };
 
 }  // namespace Pufferfish::Driver::Serial::Backend
