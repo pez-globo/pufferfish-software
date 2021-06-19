@@ -48,13 +48,14 @@ class EnumMap {
   [[nodiscard]] bool full() const;
   [[nodiscard]] size_t available() const;
 
-  void clear();  // O(n)
   // Note: this makes a copy of value!
-  IndexStatus insert(const Key &key, const Value &value) noexcept;  // O(1)
-  IndexStatus erase(const Key &key) noexcept;                       // O(1)
-  [[nodiscard]] bool has(const Key &key) const;                     // O(1)
+  IndexStatus input(const Key &key, const Value &value) noexcept;  // O(1)
   // Note: this copies the value in the map to the value output parameter!
-  IndexStatus find(const Key &key, Value &value) const;  // O(1)
+  IndexStatus output(const Key &key, Value &value) const;  // O(1)
+  void clear();                                            // O(n)
+  // Note: this makes a copy of value!
+  IndexStatus erase(const Key &key) noexcept;    // O(1)
+  [[nodiscard]] bool has(const Key &key) const;  // O(1)
 
   // Note: these don't check whether the key exists or is in-bounds!
   const Value &operator[](const Key &key) const noexcept;

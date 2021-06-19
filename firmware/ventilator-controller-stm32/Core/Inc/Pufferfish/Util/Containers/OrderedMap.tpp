@@ -32,12 +32,7 @@ size_t OrderedMap<Key, Value, max_pairs>::available() const {
 }
 
 template <typename Key, typename Value, size_t max_pairs>
-void OrderedMap<Key, Value, max_pairs>::clear() {
-  buffer_.clear();
-}
-
-template <typename Key, typename Value, size_t max_pairs>
-IndexStatus OrderedMap<Key, Value, max_pairs>::insert(const Key &key, const Value &value) {
+IndexStatus OrderedMap<Key, Value, max_pairs>::input(const Key &key, const Value &value) {
   size_t index = 0;
   if (find(key, index) == IndexStatus::ok) {
     buffer_[index].second = value;
@@ -46,6 +41,23 @@ IndexStatus OrderedMap<Key, Value, max_pairs>::insert(const Key &key, const Valu
 
   Pair pair{key, value};
   return buffer_.push_back(pair);
+}
+
+template <typename Key, typename Value, size_t max_pairs>
+IndexStatus OrderedMap<Key, Value, max_pairs>::output(const Key &key, Value &value) const {
+  size_t index;
+  IndexStatus status = find(key, index);
+  if (status != IndexStatus::ok) {
+    return status;
+  }
+
+  value = buffer_[index].second;
+  return IndexStatus::ok;
+}
+
+template <typename Key, typename Value, size_t max_pairs>
+void OrderedMap<Key, Value, max_pairs>::clear() {
+  buffer_.clear();
 }
 
 template <typename Key, typename Value, size_t max_pairs>
@@ -60,13 +72,8 @@ IndexStatus OrderedMap<Key, Value, max_pairs>::erase(const Key &key) {
 
 template <typename Key, typename Value, size_t max_pairs>
 bool OrderedMap<Key, Value, max_pairs>::has(const Key &key) const {
-  for (size_t index = 0; index < size(); ++index) {
-    if (buffer_[index].first == key) {
-      return true;
-    }
-  }
-
-  return false;
+  size_t index = 0;
+  return find(key, index) == IndexStatus::ok;
 }
 
 template <typename Key, typename Value, size_t max_pairs>

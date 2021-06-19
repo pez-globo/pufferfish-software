@@ -16,7 +16,7 @@ namespace Pufferfish::Util::Containers {
 template <typename Key, typename Value, size_t capacity>
 EnumMap<Key, Value, capacity>::EnumMap(std::initializer_list<std::pair<Key, Value>> init) noexcept {
   for (const auto &p : init) {
-    insert(p.first, p.second);
+    input(p.first, p.second);
   }
 }
 
@@ -41,15 +41,7 @@ size_t EnumMap<Key, Value, capacity>::available() const {
 }
 
 template <typename Key, typename Value, size_t capacity>
-void EnumMap<Key, Value, capacity>::clear() {
-  for (size_t i = 0; i < max_size(); ++i) {
-    occupancies_[i] = false;
-  }
-  size_ = 0;
-}
-
-template <typename Key, typename Value, size_t capacity>
-IndexStatus EnumMap<Key, Value, capacity>::insert(const Key &key, const Value &value) noexcept {
+IndexStatus EnumMap<Key, Value, capacity>::input(const Key &key, const Value &value) noexcept {
   auto index = static_cast<size_t>(key);
   if (index >= max_size()) {
     return IndexStatus::out_of_bounds;
@@ -61,6 +53,24 @@ IndexStatus EnumMap<Key, Value, capacity>::insert(const Key &key, const Value &v
   }
   values_[index] = value;
   return IndexStatus::ok;
+}
+
+template <typename Key, typename Value, size_t capacity>
+IndexStatus EnumMap<Key, Value, capacity>::output(const Key &key, Value &value) const {
+  if (!has(key)) {
+    return IndexStatus::out_of_bounds;
+  }
+
+  value = values_[static_cast<size_t>(key)];
+  return IndexStatus::ok;
+}
+
+template <typename Key, typename Value, size_t capacity>
+void EnumMap<Key, Value, capacity>::clear() {
+  for (size_t i = 0; i < max_size(); ++i) {
+    occupancies_[i] = false;
+  }
+  size_ = 0;
 }
 
 template <typename Key, typename Value, size_t capacity>
@@ -85,16 +95,6 @@ bool EnumMap<Key, Value, capacity>::has(const Key &key) const {
   }
 
   return occupancies_[index];
-}
-
-template <typename Key, typename Value, size_t capacity>
-IndexStatus EnumMap<Key, Value, capacity>::find(const Key &key, Value &value) const {
-  if (!has(key)) {
-    return IndexStatus::out_of_bounds;
-  }
-
-  value = values_[static_cast<size_t>(key)];
-  return IndexStatus::ok;
 }
 
 template <typename Key, typename Value, size_t capacity>
