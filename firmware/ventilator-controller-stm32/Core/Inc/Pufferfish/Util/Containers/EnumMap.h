@@ -22,10 +22,13 @@
 namespace Pufferfish::Util::Containers {
 
 // Key must be an enum backed by an unsigned integer, or else it must support static_cast'ing to a
-// size_t. The Map is able to store keys which get casted to integers from 0 to max_key, inclusive.
-template <typename Key, typename Value, size_t max_key>
+// size_t. The Map is able to store keys which get casted to integers from 0 to capacity - 1,
+// inclusive.
+template <typename Key, typename Value, size_t capacity>
 class EnumMap {
  public:
+  using InitializerList = std::initializer_list<std::pair<Key, Value>>;
+
   EnumMap() = default;
   // Construct the EnumMap with an initial set of key-value pairs, given as an
   // initializer list (e.g. EnumMap map{{k1, v1}, {k2, v2}, {k3, v3}};)
@@ -34,12 +37,13 @@ class EnumMap {
   // cppcheck has a false positive in wanting this constructor to be explicit:
   // clang-tidy says we can't use explicit for a constructor with an initializer list!
   // cppcheck-suppress noExplicitConstructor
-  EnumMap(std::initializer_list<std::pair<Key, Value>> init) noexcept;
+  EnumMap(InitializerList init) noexcept;
 
-  [[nodiscard]] static constexpr size_t max_key_value() noexcept { return max_key; }
+  // Note: when capacity is 0, this returns the max value of size_t
+  [[nodiscard]] static constexpr size_t max_key_value() noexcept { return capacity - 1; }
 
   [[nodiscard]] size_t size() const;
-  [[nodiscard]] static constexpr size_t max_size() noexcept { return max_key + 1; }
+  [[nodiscard]] static constexpr size_t max_size() noexcept { return capacity; }
   [[nodiscard]] bool empty() const;
   [[nodiscard]] bool full() const;
   [[nodiscard]] size_t available() const;
@@ -57,8 +61,8 @@ class EnumMap {
   Value &operator[](const Key &key) noexcept;
 
  private:
-  std::array<bool, max_key + 1> occupancies_{};
-  std::array<Value, max_key + 1> values_{};
+  std::array<bool, capacity> occupancies_{};
+  std::array<Value, capacity> values_{};
   size_t size_ = 0;
 };
 

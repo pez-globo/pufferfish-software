@@ -25,11 +25,12 @@
 
 namespace Pufferfish::Driver::Serial::Backend {
 
-// States
-
 using Application::MessageTypes;
+
+// Device Protocols
+
 using MessageDescriptors = Protocols::Transport::
-    ProtobufDescriptors<Application::MessageTypes, Application::MessageTypeValues::max()>;
+    ProtobufDescriptors<MessageTypes, Application::MessageTypeValues::max() + 1>;
 
 // This relies on a EnumMap constructor which performs dynamic initialization, so it's not safe to
 // use in multithreaded contexts. We don't use it in multithreaded contexts, so we can ignore the
@@ -124,7 +125,7 @@ class Receiver {
       Protocols::Transport::DatagramReceiver<CRCReceiver::Props::payload_max_size>;
   using ParsedDatagram = Protocols::Transport::ParsedDatagram<CRCReceiver::Props::payload_max_size>;
   using MessageReceiver =
-      Protocols::Transport::MessageReceiver<Message, Application::MessageTypeValues::max()>;
+      Protocols::Transport::MessageReceiver<Message, Application::MessageTypeValues::max() + 1>;
 
   FrameReceiver frame_;
   CRCReceiver crc_;
@@ -155,7 +156,7 @@ class Sender {
   using CRCSender = Protocols::Transport::CRCElementSender<FrameProps::payload_max_size>;
   using DatagramSender = Protocols::Transport::DatagramSender<CRCSender::Props::payload_max_size>;
   using MessageSender = Protocols::Transport::
-      MessageSender<Message, Application::StateSegment, Application::MessageTypeValues::max()>;
+      MessageSender<Message, Application::StateSegment, Application::MessageTypeValues::max() + 1>;
 
   MessageSender message_;
   DatagramSender datagram_;
