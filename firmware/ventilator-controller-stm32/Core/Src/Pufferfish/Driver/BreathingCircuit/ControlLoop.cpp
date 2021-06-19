@@ -25,7 +25,7 @@ const ActuatorVars &HFNCControlLoop::actuator_vars() const {
   return actuator_vars_;
 }
 
-void HFNCControlLoop::update(uint32_t current_time) {
+void HFNCControlLoop::update(uint32_t current_time, Application::AlarmsManager &alarms_manager) {
   if (step_timer().within_timeout(current_time)) {
     return;
   }
@@ -42,6 +42,20 @@ void HFNCControlLoop::update(uint32_t current_time) {
   }
   // TODO(lietk12): we should probably set flow to NaN otherwise, but for now we do nothing
   // so that we don't overwrite the simulated values if the sensors aren't available
+
+  if (air_status == InitializableState::failed) {
+    alarms_manager.activate_alarm(
+        LogEventCode_sfm3019_air_disconnected, LogEventType::LogEventType_system);
+  } else {
+    alarms_manager.deactivate_alarm(LogEventCode_sfm3019_air_disconnected);
+  }
+
+  if (o2_status == InitializableState::failed) {
+    alarms_manager.activate_alarm(
+        LogEventCode_sfm3019_o2_disconnected, LogEventType::LogEventType_system);
+  } else {
+    alarms_manager.deactivate_alarm(LogEventCode_sfm3019_o2_disconnected);
+  }
 
   // Update controller
   controller_.transform(

@@ -19,9 +19,13 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+static constexpr auto alarm_codes = Util::Containers::make_array<LogEventCode>(
+    LogEventCode::LogEventCode_sfm3019_air_disconnected,
+    LogEventCode::LogEventCode_sfm3019_o2_disconnected);
+
 class ControlLoop {
  public:
-  virtual void update(uint32_t current_time) = 0;
+  virtual void update(uint32_t current_time, Application::AlarmsManager &alarms_manager) = 0;
 
  protected:
   Util::MsTimer &step_timer() { return step_timer_; }
@@ -47,7 +51,7 @@ class HFNCControlLoop : public ControlLoop {
         valve_air_(valve_air),
         valve_o2_(valve_o2) {}
 
-  void update(uint32_t current_time) override;
+  void update(uint32_t current_time, Application::AlarmsManager &alarms_manager) override;
 
   [[nodiscard]] SensorVars &sensor_vars();
   [[nodiscard]] const SensorVars &sensor_vars() const;

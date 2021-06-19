@@ -271,6 +271,24 @@ export const getEventType = (code: LogEventCode): EventType => {
         label: 'Charger is disconnected',
         unit: '',
       };
+    case LogEventCode.sfm3019_air_disconnected:
+      return {
+        type: LogEventType.system,
+        label: 'Air sensor connectivity lost',
+        unit: '',
+      };
+    case LogEventCode.sfm3019_o2_disconnected:
+      return {
+        type: LogEventType.system,
+        label: 'O2 sensor connectivity lost',
+        unit: '',
+      };
+    case LogEventCode.fdo2_disconnected:
+      return {
+        type: LogEventType.system,
+        label: 'FIO2 sensor connectivity lost',
+        unit: '',
+      };
     default:
       return { type: LogEventType.system, label: '', unit: '' };
   }

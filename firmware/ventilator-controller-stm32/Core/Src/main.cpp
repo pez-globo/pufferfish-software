@@ -647,7 +647,7 @@ int main(void)
         store.cycle_measurements());
 
     // Breathing Circuit Control Loop
-    hfnc.update(current_time);
+    hfnc.update(current_time, alarms_manager);
     sensor_smoothers.transform(
         current_time, store.sensor_measurements_raw(), store.sensor_measurements_filtered());
     breathing_circuit_alarms.transform(

@@ -121,6 +121,9 @@ export enum LogEventCode {
   backend_started = 141,
   mcu_shutdown = 142,
   backend_shutdown = 143,
+  sfm3019_air_disconnected = 144,
+  sfm3019_o2_disconnected = 145,
+  fdo2_disconnected = 146,
   UNRECOGNIZED = -1,
 }
 
@@ -213,6 +216,15 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case 143:
     case "backend_shutdown":
       return LogEventCode.backend_shutdown;
+    case 144:
+    case "sfm3019_air_disconnected":
+      return LogEventCode.sfm3019_air_disconnected;
+    case 145:
+    case "sfm3019_o2_disconnected":
+      return LogEventCode.sfm3019_o2_disconnected;
+    case 146:
+    case "fdo2_disconnected":
+      return LogEventCode.fdo2_disconnected;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -280,6 +292,12 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "mcu_shutdown";
     case LogEventCode.backend_shutdown:
       return "backend_shutdown";
+    case LogEventCode.sfm3019_air_disconnected:
+      return "sfm3019_air_disconnected";
+    case LogEventCode.sfm3019_o2_disconnected:
+      return "sfm3019_o2_disconnected";
+    case LogEventCode.fdo2_disconnected:
+      return "fdo2_disconnected";
     default:
       return "UNKNOWN";
   }
