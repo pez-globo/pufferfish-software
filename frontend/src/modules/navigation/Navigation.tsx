@@ -4,7 +4,7 @@
  */
 import { Tab, Tabs, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import React, { PropsWithChildren, useEffect } from 'react';
+import React, { PropsWithChildren, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ALARMS_ROUTE, SETTINGS_ROUTE } from './constants';
 
@@ -84,13 +84,16 @@ export const Navigation = ({
   const classes = useStyles();
   const location = useLocation();
 
-  const routes = [
-    // QUICKSTART_ROUTE, // TODO: Hide QuickStart tab when ventilator is on. Need to tap into redux store.
-    // MODES_ROUTE,
-    ALARMS_ROUTE,
-    // VALUES_ROUTE,
-    SETTINGS_ROUTE,
-  ];
+  const routes = useMemo(
+    () => [
+      // QUICKSTART_ROUTE, // TODO: Hide QuickStart tab when ventilator is on. Need to tap into redux store.
+      // MODES_ROUTE,
+      ALARMS_ROUTE,
+      // VALUES_ROUTE,
+      SETTINGS_ROUTE,
+    ],
+    [],
+  );
 
   const routePath = routes.find((route) => location.pathname.startsWith(route.path));
   /**
@@ -107,8 +110,7 @@ export const Navigation = ({
   useEffect(() => {
     const routePath = routes.find((route) => location.pathname.startsWith(route.path));
     setRoute(routePath ? routePath.key : 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location]);
+  }, [location, routes]);
 
   /**
    * Function for handling route changes

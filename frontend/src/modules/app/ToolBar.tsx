@@ -191,6 +191,7 @@ export const ToolBar = ({
       // if ventilating and there are unsaved alarm limit changes then open modal popup
       if (alarmLimitsRequestUnsaved) {
         setStartDiscardOpen(true);
+        return;
       }
     } else {
       // if not ventilating and the firmware/backend is disconnected then return early

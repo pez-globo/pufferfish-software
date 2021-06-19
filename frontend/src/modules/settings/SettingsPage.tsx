@@ -6,7 +6,7 @@
  */
 import { Button, Grid, Tab, Tabs } from '@material-ui/core/';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { commitRequest } from '../../store/controller/actions';
 import {
@@ -100,20 +100,23 @@ export const SettingsPage = (): JSX.Element => {
    * @param {Record<string, unknown>} settings System & Display Settings object
    *
    */
-  const onSettingChange = (settings: Record<string, unknown>) => {
-    setDisplaySetting(
-      FrontendDisplaySetting.fromJSON({
-        theme: settings.theme,
-        unit: settings.unit,
-      }),
-    );
-    setSystemSetting(
-      SystemSettingRequest.fromJSON({
-        brightness: settings.brightness,
-        date: settings.date,
-      }),
-    );
-  };
+  const onSettingChange = useCallback(
+    (settings: Record<string, unknown>) => {
+      setDisplaySetting(
+        FrontendDisplaySetting.fromJSON({
+          theme: settings.theme,
+          unit: settings.unit,
+        }),
+      );
+      setSystemSetting(
+        SystemSettingRequest.fromJSON({
+          brightness: settings.brightness,
+          date: settings.date,
+        }),
+      );
+    },
+    [setDisplaySetting, setSystemSetting],
+  );
 
   /**
    * Function for update System & Display settings to redux store

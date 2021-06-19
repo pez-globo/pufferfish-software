@@ -155,8 +155,7 @@ export const ValueModal = ({
     if (updateModalStatus) {
       updateModalStatus(open);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  });
 
   /**
    * Function for handling opening of the model.
@@ -318,8 +317,7 @@ export const SetValueContent = ({
     if (updateModalStatus) {
       updateModalStatus(open);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  });
 
   useEffect(() => {
     requestCommitSetting(value);

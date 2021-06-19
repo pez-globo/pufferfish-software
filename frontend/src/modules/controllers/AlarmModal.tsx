@@ -160,6 +160,7 @@ export const AlarmModal = ({
     [`${stateKey}_LOWER`]: useRef(null),
     [`${stateKey}_HIGHER`]: useRef(null),
   });
+  // const rangeValueString = JSON.stringify(rangeValue);
 
   const setUpperLimit = (value: number) => {
     setRangeValue(Object.assign([], rangeValue, { 1: value }));
@@ -191,8 +192,7 @@ export const AlarmModal = ({
     if (updateModalStatus) {
       updateModalStatus(open);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  });
 
   /**
    * Function for handling the opening of the modal.
@@ -226,13 +226,13 @@ export const AlarmModal = ({
     requestCommitRange(rangeValue[0], rangeValue[1]);
     handleClose();
   };
+
   /**
    * Triggers whenever rangeValue is updated in redux
    */
   useEffect(() => {
     requestCommitRange(rangeValue[0], rangeValue[1]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [requestCommitRange, JSON.stringify(rangeValue)]);
+  }, [requestCommitRange, rangeValue]);
 
   /**
    * Resets highlighting border around alarm container when clicked across the page
