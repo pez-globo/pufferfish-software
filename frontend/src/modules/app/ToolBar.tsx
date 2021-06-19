@@ -9,7 +9,7 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
-import { getClockTime } from '../../store/app/selectors';
+import { getBackendConnected, getClockTime } from '../../store/app/selectors';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import {
   ParametersRequest,
@@ -161,24 +161,28 @@ export const ToolBar = ({
   >;
   const ventilatingStatus = useSelector(getVentilatingStatusChanging);
   const firmwareConnected = useSelector(getFirmwareConnected);
+  const backendConnected = useSelector(getBackendConnected);
   /**
    * State to manage ventilation label
    * Label is Dynamic based on ventilation state
    */
   const [label, setLabel] = useState('Start Ventilation');
   /**
-   * State to toggle if Ventilating isDisabled
+   * State to open Modal Popup for Dashboard
    */
-  const [isDisabled, setIsDisabled] = useState(false);
-  const [isStartDisabled, setIsStartDisabled] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
+  /**
+   * State to open Modal Popup for Start/Pause button
+   */
   const [startDiscardOpen, setStartDiscardOpen] = useState(false);
+
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
   const dispatchParameterRequest = (update: Partial<ParametersRequest>) => {
     dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
   };
+
   /**
    * Updates Ventilation status on clicking Start/Pause ventilation
    */
@@ -189,8 +193,8 @@ export const ToolBar = ({
         setStartDiscardOpen(true);
       }
     } else {
-      // if not ventilating and the firmware is disconnected then return early
-      if (!firmwareConnected) {
+      // if not ventilating and the firmware/backend is disconnected then return early
+      if (!backendConnected || !firmwareConnected) {
         return;
       }
       initParameterUpdate();
@@ -237,11 +241,9 @@ export const ToolBar = ({
   };
 
   /**
-   * Disable StartPause and LandingPage buttons and set their labels
+   * Set Label for Start/Pause Ventilation button
    */
   useEffect(() => {
-    setIsStartDisabled(!storeReady);
-    setIsDisabled(ventilatingStatus);
     if (ventilatingStatus) {
       setLabel('Connecting...');
     } else {
@@ -263,7 +265,7 @@ export const ToolBar = ({
       onClick={updateVentilationStatus}
       variant="contained"
       color="secondary"
-      disabled={isDisabled}
+      disabled={ventilatingStatus}
     >
       {label}
     </Button>
@@ -274,7 +276,7 @@ export const ToolBar = ({
       onClick={() => history.push(QUICKSTART_ROUTE.path)}
       variant="contained"
       color="secondary"
-      disabled={isStartDisabled}
+      disabled={!storeReady}
     >
       {storeReady ? 'Start' : 'Loading...'}
     </Button>
