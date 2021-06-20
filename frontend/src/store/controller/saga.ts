@@ -15,7 +15,7 @@ import { PBMessageType } from './types';
 import { updateState } from './actions';
 import { deserializeMessage } from './protocols/messages';
 import { advanceSchedule } from './protocols/states';
-import { getStateProcessor, initialSendSchedule } from './protocols/backend';
+import { getStateProcessor, initialSendSchedule, sendInterval } from './protocols/backend';
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
 import updateClock from './io/clock';
 
@@ -53,9 +53,9 @@ function* sendState(sock: WebSocket, pbMessageType: PBMessageType) {
 function* sendAll(sock: WebSocket) {
   const schedule = Array.from(initialSendSchedule);
   while (sock.readyState === WebSocket.OPEN) {
-    const { time, pbMessageType } = advanceSchedule(schedule);
+    const pbMessageType = advanceSchedule(schedule);
     yield sendState(sock, pbMessageType);
-    yield delay(time);
+    yield delay(sendInterval);
   }
 }
 

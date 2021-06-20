@@ -15,11 +15,13 @@ import {
 } from '../proto/mcu_pb';
 
 export const initialSendSchedule: Schedule = [
-  { time: 50, pbMessageType: ParametersRequest },
-  { time: 50, pbMessageType: AlarmLimitsRequest },
-  { time: 50, pbMessageType: ExpectedLogEvent },
-  { time: 50, pbMessageType: AlarmMuteRequest },
+  ParametersRequest,
+  AlarmLimitsRequest,
+  ExpectedLogEvent,
+  AlarmMuteRequest,
 ];
+
+export const sendInterval = 50; // ms
 
 export const MessageSerializers = new Map<PBMessageType, MessageSerializer>([
   [AlarmLimitsRequest, serializeMessage<AlarmLimitsRequest>(AlarmLimitsRequest)],
