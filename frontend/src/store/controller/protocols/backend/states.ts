@@ -1,4 +1,6 @@
-import { PBMessageType } from '../../types';
+import { OutputSelector } from 'reselect';
+import { PBMessage, PBMessageType } from '../../types';
+import { StoreState } from '../../../types';
 import {
   getParametersRequest,
   getAlarmLimitsRequest,
@@ -48,22 +50,24 @@ export function* sequentialStateSender(): Generator<PBMessageType, PBMessageType
 
 // Store
 
-// The OutputSelector type is templated and so complicated that it's not clear
-// whether we can specify its type in a Map, but for now we'll just delegate the
-// responsibility of using types correctly to the calling code.
-// eslint-disable @typescript-eslint/no-explicit-any
-// eslint-disable-next-line
-export const MessageSelectors = new Map<PBMessageType, any>([
+type StateSelector = OutputSelector<
+  StoreState,
+  PBMessage | null,
+  // We have no way of specifying the input argument type for the selectors,
+  // so we have to use any here.
+  // eslint-disable @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line
+  (arg: any) => PBMessage | null
+>;
+
+export const MessageSelectors = new Map<PBMessageType, StateSelector>([
   [AlarmLimitsRequest, getAlarmLimitsRequest],
   [ParametersRequest, getParametersRequest],
   [ExpectedLogEvent, getFullExpectedLogEvent],
   [AlarmMuteRequest, getAlarmMuteRequest],
 ]);
 
-// This "any" is needed because MessageSelectors has a value type of "any".
-// eslint-disable @typescript-eslint/no-explicit-any
-// eslint-disable-next-line
-export const getSelector = (pbMessageType: PBMessageType): any => {
+export const getSelector = (pbMessageType: PBMessageType): StateSelector => {
   const selector = MessageSelectors.get(pbMessageType);
   if (selector === undefined) {
     throw new Error(`Backend: missing selector for ${pbMessageType}`);

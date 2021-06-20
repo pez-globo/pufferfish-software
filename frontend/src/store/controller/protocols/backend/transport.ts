@@ -13,9 +13,8 @@ import {
 
 // Serialization
 
-type Serializer = MessageSerializer<PBMessage>;
 const makeSerializer = makeMessageSerializer<MessageType, PBMessage>(MessageTypes);
-const Serializers = new Map<PBMessageType, Serializer>([
+const Serializers = new Map<PBMessageType, MessageSerializer<PBMessage>>([
   [AlarmLimitsRequest, makeSerializer<AlarmLimitsRequest>(AlarmLimitsRequest)],
   [ParametersRequest, makeSerializer<ParametersRequest>(ParametersRequest)],
   [ExpectedLogEvent, makeSerializer<ExpectedLogEvent>(ExpectedLogEvent)],
