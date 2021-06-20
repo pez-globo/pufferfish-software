@@ -14,7 +14,7 @@ import { INITIALIZED, BACKEND_HEARTBEAT } from '../app/types';
 import { PBMessageType } from './types';
 import { updateState } from './actions';
 import { serialize, deserialize } from './protocols/backend/transport';
-import { sequentialStateSender, getSelector, sendInterval } from './protocols/backend/states';
+import { backendSender, getSelector, sendInterval } from './protocols/backend/states';
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
 import updateClock from './io/clock';
 
@@ -27,6 +27,7 @@ function* receive(response: ChannelTakeEffect<Response>) {
   try {
     const results = yield deserializeResponse(yield response);
     yield put(updateState(results.messageType, results.pbMessage));
+    // TODO: make an action generator for BACKEND_HEARTBEAT and use it here
     yield put({ type: BACKEND_HEARTBEAT });
   } catch (err) {
     console.error(err);
@@ -50,9 +51,9 @@ function* sendState(sock: WebSocket, pbMessageType: PBMessageType) {
 }
 
 function* sendAll(sock: WebSocket) {
-  const sender = sequentialStateSender();
+  const schedule = backendSender();
   while (sock.readyState === WebSocket.OPEN) {
-    const pbMessageType = sender.next().value;
+    const pbMessageType = schedule.next().value;
     yield sendState(sock, pbMessageType);
     yield delay(sendInterval);
   }

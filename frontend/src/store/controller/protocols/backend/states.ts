@@ -7,46 +7,18 @@ import {
   getFullExpectedLogEvent,
   getAlarmMuteRequest,
 } from '../../selectors';
-import advanceSchedule from '../application/states';
+import {
+  Sender,
+  passthroughSender,
+  makeMappedSenders,
+  sequentialSender,
+} from '../application/states';
 import {
   ParametersRequest,
   AlarmLimitsRequest,
   ExpectedLogEvent,
   AlarmMuteRequest,
 } from '../../proto/mcu_pb';
-
-// State Sending
-
-export enum Sender {
-  fastSchedule = 0,
-  slowSchedule = 1,
-}
-export const sendRootSchedule = [Sender.fastSchedule, Sender.slowSchedule];
-export const sendFastSchedule = [ExpectedLogEvent];
-export const sendSlowSchedule = [ParametersRequest, AlarmLimitsRequest, AlarmMuteRequest];
-
-export const sendInterval = 50; // ms
-
-// This generator is tagged as returning PBMessageType to make typescript eslinting
-// behave nicely, but it actually never returns (it only yields).
-export function* sequentialStateSender(): Generator<PBMessageType, PBMessageType, unknown> {
-  const rootSchedule = Array.from(sendRootSchedule);
-  const fastSchedule = Array.from(sendFastSchedule);
-  const slowSchedule = Array.from(sendSlowSchedule);
-  const schedules = new Map<Sender, Array<PBMessageType>>([
-    [Sender.fastSchedule, fastSchedule],
-    [Sender.slowSchedule, slowSchedule],
-  ]);
-  while (true) {
-    const sender = advanceSchedule(rootSchedule);
-    const schedule = schedules.get(sender);
-    if (schedule === undefined) {
-      console.error('Invalid sender type', sender);
-    } else {
-      yield advanceSchedule(schedule);
-    }
-  }
-}
 
 // Store
 
@@ -75,3 +47,36 @@ export const getSelector = (pbMessageType: PBMessageType): StateSelector => {
 
   return selector;
 };
+
+// State Sending
+
+enum SenderType {
+  fastSchedule = 0,
+  slowSchedule = 1,
+}
+const sendRootSchedule = [SenderType.fastSchedule, SenderType.slowSchedule];
+const sendFastSchedule = [ExpectedLogEvent];
+const sendSlowSchedule = [ParametersRequest, AlarmLimitsRequest, AlarmMuteRequest];
+
+export const sendInterval = 50; // ms
+
+// This generator is tagged as returning PBMessageType to make typescript eslinting
+// behave nicely, but it actually never returns (it only yields).
+export function* backendSender(): Generator<PBMessageType, PBMessageType, unknown> {
+  const fastSender = sequentialSender<PBMessageType, PBMessageType>(
+    sendFastSchedule,
+    passthroughSender,
+  );
+  const slowSender = sequentialSender<PBMessageType, PBMessageType>(
+    sendSlowSchedule,
+    passthroughSender,
+  );
+  const childSenders = new Map<SenderType, Sender<PBMessageType>>([
+    [SenderType.fastSchedule, fastSender],
+    [SenderType.slowSchedule, slowSender],
+  ]);
+  const rootSender = sequentialSender(sendRootSchedule, makeMappedSenders(childSenders));
+  while (true) {
+    yield rootSender.next().value;
+  }
+}
