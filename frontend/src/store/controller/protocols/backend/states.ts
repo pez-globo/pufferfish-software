@@ -1,18 +1,18 @@
-import { PBMessageType } from '../types';
+import { PBMessageType } from '../../types';
 import {
   getParametersRequest,
   getAlarmLimitsRequest,
   getFullExpectedLogEvent,
   getAlarmMuteRequest,
-} from '../selectors';
-import { MessageSerializer, serializeMessage } from './messages';
-import advanceSchedule from './states';
+} from '../../selectors';
+import { Serializer, Serializers } from './transport';
+import advanceSchedule from '../application/states';
 import {
   ParametersRequest,
   AlarmLimitsRequest,
   ExpectedLogEvent,
   AlarmMuteRequest,
-} from '../proto/mcu_pb';
+} from '../../proto/mcu_pb';
 
 // State Sending
 
@@ -47,15 +47,6 @@ export function* sequentialStateSender(): Generator<PBMessageType, PBMessageType
   }
 }
 
-// Transport
-
-export const MessageSerializers = new Map<PBMessageType, MessageSerializer>([
-  [AlarmLimitsRequest, serializeMessage<AlarmLimitsRequest>(AlarmLimitsRequest)],
-  [ParametersRequest, serializeMessage<ParametersRequest>(ParametersRequest)],
-  [ExpectedLogEvent, serializeMessage<ExpectedLogEvent>(ExpectedLogEvent)],
-  [AlarmMuteRequest, serializeMessage<AlarmMuteRequest>(AlarmMuteRequest)],
-]);
-
 // Store
 
 // The OutputSelector type is templated and so complicated that it's not clear
@@ -70,12 +61,13 @@ export const MessageSelectors = new Map<PBMessageType, any>([
   [AlarmMuteRequest, getAlarmMuteRequest],
 ]);
 
+// TODO: split up processing into stuff in states.ts and stuf in transport.ts
 export interface StateProcessor {
   // This "any" is needed because MessageSelectors has a value type of "any".
   // eslint-disable @typescript-eslint/no-explicit-any
   // eslint-disable-next-line
   selector: any;
-  serializer: MessageSerializer;
+  serializer: Serializer;
 }
 
 export const getStateProcessor = (pbMessageType: PBMessageType): StateProcessor => {
@@ -84,7 +76,7 @@ export const getStateProcessor = (pbMessageType: PBMessageType): StateProcessor 
     throw new Error(`Backend: missing selector for ${pbMessageType}`);
   }
 
-  const serializer = MessageSerializers.get(pbMessageType);
+  const serializer = Serializers.get(pbMessageType);
   if (serializer === undefined) {
     throw new Error(`Backend: missing message serializer for ${pbMessageType}`);
   }

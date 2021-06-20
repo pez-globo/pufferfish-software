@@ -13,14 +13,14 @@ import {
 import { INITIALIZED, BACKEND_HEARTBEAT } from '../app/types';
 import { PBMessageType } from './types';
 import { updateState } from './actions';
-import { deserializeMessage } from './protocols/messages';
-import { sequentialStateSender, getStateProcessor, sendInterval } from './protocols/backend';
+import { deserialize } from './protocols/backend/transport';
+import { sequentialStateSender, getStateProcessor, sendInterval } from './protocols/backend/states';
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
 import updateClock from './io/clock';
 
 function* deserializeResponse(response: Response) {
   const buffer = yield receiveBuffer(response);
-  return deserializeMessage(buffer);
+  return deserialize(buffer);
 }
 
 function* receive(response: ChannelTakeEffect<Response>) {
