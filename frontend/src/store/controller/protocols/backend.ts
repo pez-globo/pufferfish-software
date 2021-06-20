@@ -6,7 +6,6 @@ import {
   getAlarmMuteRequest,
 } from '../selectors';
 import { MessageSerializer, serializeMessage } from './messages';
-import { Schedule } from './states';
 import {
   ParametersRequest,
   AlarmLimitsRequest,
@@ -14,12 +13,13 @@ import {
   AlarmMuteRequest,
 } from '../proto/mcu_pb';
 
-export const initialSendSchedule: Schedule = [
-  ParametersRequest,
-  AlarmLimitsRequest,
-  ExpectedLogEvent,
-  AlarmMuteRequest,
-];
+export enum Sender {
+  fastSchedule = 0,
+  slowSchedule = 1,
+}
+export const sendRootSchedule = [Sender.fastSchedule, Sender.slowSchedule];
+export const sendFastSchedule = [ExpectedLogEvent];
+export const sendSlowSchedule = [ParametersRequest, AlarmLimitsRequest, AlarmMuteRequest];
 
 export const sendInterval = 50; // ms
 

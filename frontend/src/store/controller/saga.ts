@@ -14,8 +14,15 @@ import { INITIALIZED, BACKEND_HEARTBEAT } from '../app/types';
 import { PBMessageType } from './types';
 import { updateState } from './actions';
 import { deserializeMessage } from './protocols/messages';
-import { advanceSchedule } from './protocols/states';
-import { getStateProcessor, initialSendSchedule, sendInterval } from './protocols/backend';
+import advanceSchedule from './protocols/states';
+import {
+  Sender,
+  getStateProcessor,
+  sendRootSchedule,
+  sendFastSchedule,
+  sendSlowSchedule,
+  sendInterval,
+} from './protocols/backend';
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
 import updateClock from './io/clock';
 
@@ -51,10 +58,22 @@ function* sendState(sock: WebSocket, pbMessageType: PBMessageType) {
 }
 
 function* sendAll(sock: WebSocket) {
-  const schedule = Array.from(initialSendSchedule);
+  const rootSchedule = Array.from(sendRootSchedule);
+  const fastSchedule = Array.from(sendFastSchedule);
+  const slowSchedule = Array.from(sendSlowSchedule);
+  const schedules = new Map<Sender, Array<PBMessageType>>([
+    [Sender.fastSchedule, fastSchedule],
+    [Sender.slowSchedule, slowSchedule],
+  ]);
   while (sock.readyState === WebSocket.OPEN) {
-    const pbMessageType = advanceSchedule(schedule);
-    yield sendState(sock, pbMessageType);
+    const sender = advanceSchedule(rootSchedule);
+    const schedule = schedules.get(sender);
+    if (schedule === undefined) {
+      console.error('Invalid sender type', sender);
+    } else {
+      const pbMessageType = advanceSchedule(schedule);
+      yield sendState(sock, pbMessageType);
+    }
     yield delay(sendInterval);
   }
 }

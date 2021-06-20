@@ -1,11 +1,7 @@
-import { PBMessageType } from '../types';
-
 // Send state update scheduling
 
-export type Schedule = Array<PBMessageType>;
-
 // Note: this function mutates the input array
-export const advanceSchedule = (schedule: Schedule): PBMessageType => {
+const advanceSchedule = <T>(schedule: Array<T>): T => {
   const entry = schedule.shift();
   if (entry === undefined) {
     throw new Error('State Synchronization: invalid schedule');
@@ -13,3 +9,5 @@ export const advanceSchedule = (schedule: Schedule): PBMessageType => {
   schedule.push(entry);
   return entry;
 };
+
+export default advanceSchedule;
