@@ -1,6 +1,5 @@
 """Sans-I/O backend service state synchronization protocol."""
 
-import collections
 import enum
 import logging
 from typing import Dict, Mapping, Optional, Type
@@ -48,6 +47,21 @@ class StateSegment(enum.Enum):
 Store = Dict[StateSegment, Optional[betterproto.Message]]
 
 
+@enum.unique
+class Sender(enum.Enum):
+    """Enum for combining different state senders."""
+    FAST_SCHEDULE = enum.auto()
+    SLOW_SCHEDULE = enum.auto()
+
+
+# Used for MCU and Frontend send schedules
+ROOT_OUTPUT_SCHEDULE = [
+    Sender.FAST_SCHEDULE,
+    Sender.SLOW_SCHEDULE,
+    Sender.SLOW_SCHEDULE,
+]
+
+
 MCU_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.SensorMeasurements: StateSegment.SENSOR_MEASUREMENTS,
     mcu_pb.CycleMeasurements: StateSegment.CYCLE_MEASUREMENTS,
@@ -59,11 +73,12 @@ MCU_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.MCUPowerStatus: StateSegment.MCU_POWER_STATUS,
     mcu_pb.ScreenStatus: StateSegment.SCREEN_STATUS,
 }
-MCU_OUTPUT_SCHEDULE = [
+MCU_OUTPUT_FAST_SCHEDULE = [
+    StateSegment.EXPECTED_LOG_EVENT_MCU,
+]
+MCU_OUTPUT_SLOW_SCHEDULE = [
     StateSegment.PARAMETERS_REQUEST,
-    StateSegment.EXPECTED_LOG_EVENT_MCU,
     StateSegment.ALARM_LIMITS_REQUEST,
-    StateSegment.EXPECTED_LOG_EVENT_MCU,
     StateSegment.ALARM_MUTE_REQUEST,
 ]
 MCU_OUTPUT_INTERVAL = 0.02  # s
@@ -78,32 +93,25 @@ FRONTEND_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     # Frontend protobuf message isn't defined yet:
     # frontend_pb.FrontendDisplay: StateSegment.FRONTEND_DISPLAY_REQUEST,
 }
-FRONTEND_OUTPUT_SCHEDULE = [
+FRONTEND_OUTPUT_FAST_SCHEDULE = [
     StateSegment.SENSOR_MEASUREMENTS,
+]
+FRONTEND_OUTPUT_SLOW_SCHEDULE = [
     StateSegment.PARAMETERS,
     StateSegment.PARAMETERS_REQUEST,
-    StateSegment.SENSOR_MEASUREMENTS,
     StateSegment.ALARM_LIMITS,
     StateSegment.ALARM_LIMITS_REQUEST,
-    StateSegment.SENSOR_MEASUREMENTS,
     StateSegment.NEXT_LOG_EVENTS_BE,
     StateSegment.ACTIVE_LOG_EVENTS_BE,
-    StateSegment.SENSOR_MEASUREMENTS,
     StateSegment.ALARM_MUTE,
     StateSegment.ALARM_MUTE_REQUEST,
-    StateSegment.SENSOR_MEASUREMENTS,
     StateSegment.MCU_POWER_STATUS,
     StateSegment.SCREEN_STATUS,
-    StateSegment.SENSOR_MEASUREMENTS,
     StateSegment.CYCLE_MEASUREMENTS,
-    # TODO: add another state segment here
-    StateSegment.SENSOR_MEASUREMENTS,
     StateSegment.BACKEND_CONNECTIONS,
     StateSegment.ROTARY_ENCODER,
-    StateSegment.SENSOR_MEASUREMENTS,
     StateSegment.SYSTEM_SETTING,
     StateSegment.SYSTEM_SETTING_REQUEST,
-    StateSegment.SENSOR_MEASUREMENTS,
     StateSegment.FRONTEND_DISPLAY,
     StateSegment.FRONTEND_DISPLAY_REQUEST,
 ]
@@ -187,26 +195,46 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
     store: Store = attr.ib()
 
     # State sending synchronizers
-    _mcu: states.TimedSequentialSender[StateSegment] = attr.ib()
-    _frontend: states.TimedSequentialSender[StateSegment] = attr.ib()
+    _mcu: states.TimedSequentialSender[Sender] = attr.ib()
+    _frontend: states.TimedSequentialSender[Sender] = attr.ib()
     _file: states.TimedSequentialSender[StateSegment] = attr.ib()
 
     @_mcu.default
     def init_mcu(self) -> \
-            states.TimedSequentialSender[StateSegment]:
+            states.TimedSequentialSender[Sender]:
         """Initialize the mcu state sender."""
         return states.TimedSequentialSender(
-            output_schedule=collections.deque(MCU_OUTPUT_SCHEDULE),
-            indexed_sender=self.store, output_interval=MCU_OUTPUT_INTERVAL
+            output_schedule=ROOT_OUTPUT_SCHEDULE,
+            indexed_sender=states.MappedSenders(senders={
+                Sender.FAST_SCHEDULE: states.SequentialSender(
+                    output_schedule=MCU_OUTPUT_FAST_SCHEDULE,
+                    indexed_sender=self.store
+                ),
+                Sender.SLOW_SCHEDULE: states.SequentialSender(
+                    output_schedule=MCU_OUTPUT_SLOW_SCHEDULE,
+                    indexed_sender=self.store
+                ),
+            }),
+            output_interval=MCU_OUTPUT_INTERVAL
         )
 
     @_frontend.default
     def init_frontend(self) -> \
-            states.TimedSequentialSender[StateSegment]:
+            states.TimedSequentialSender[Sender]:
         """Initialize the frontend state sender."""
         return states.TimedSequentialSender(
-            output_schedule=collections.deque(FRONTEND_OUTPUT_SCHEDULE),
-            indexed_sender=self.store, output_interval=FRONTEND_OUTPUT_INTERVAL
+            output_schedule=ROOT_OUTPUT_SCHEDULE,
+            indexed_sender=states.MappedSenders(senders={
+                Sender.FAST_SCHEDULE: states.SequentialSender(
+                    output_schedule=FRONTEND_OUTPUT_FAST_SCHEDULE,
+                    indexed_sender=self.store
+                ),
+                Sender.SLOW_SCHEDULE: states.SequentialSender(
+                    output_schedule=FRONTEND_OUTPUT_SLOW_SCHEDULE,
+                    indexed_sender=self.store
+                ),
+            }),
+            output_interval=FRONTEND_OUTPUT_INTERVAL
         )
 
     @_file.default
@@ -214,8 +242,8 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             states.TimedSequentialSender[StateSegment]:
         """Initialize the file state sender."""
         return states.TimedSequentialSender(
-            output_schedule=collections.deque(FILE_OUTPUT_SCHEDULE),
-            indexed_sender=self.store, output_interval=FILE_OUTPUT_INTERVAL
+            output_schedule=FILE_OUTPUT_SCHEDULE, indexed_sender=self.store,
+            output_interval=FILE_OUTPUT_INTERVAL
         )
 
     def input(self, event: Optional[ReceiveEvent]) -> None:

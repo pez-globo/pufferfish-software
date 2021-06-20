@@ -1,8 +1,11 @@
 """Appication sub-layer for state synchronization."""
 
+import collections
 import enum
 import logging
-from typing import Deque, Generic, Mapping, Optional, TypeVar
+from typing import (
+    Deque, Generic, Iterable, Iterator, Mapping, Optional, TypeVar
+)
 
 import attr
 
@@ -23,6 +26,25 @@ IndexedSender = Mapping[_Index, Optional[betterproto.Message]]
 
 
 @attr.s
+class MappedSenders(IndexedSender[_Index]):
+    """A collection of Sender filters which can be indexed into."""
+
+    senders: Mapping[_Index, Sender] = attr.ib()
+
+    def __getitem__(self, key: _Index) -> Optional[betterproto.Message]:
+        """Return the next output from the specified sender."""
+        return self.senders[key].output()
+
+    def __len__(self) -> int:
+        """Return the number of senders."""
+        return len(self.senders)
+
+    def __iter__(self) -> Iterator[_Index]:
+        """Iterate over all indices."""
+        return self.senders.__iter__()
+
+
+@attr.s
 class SequentialSender(Sender, Generic[_Index]):
     """State sending filter on a fixed sequence.
 
@@ -35,15 +57,21 @@ class SequentialSender(Sender, Generic[_Index]):
 
     _logger = logging.getLogger('.'.join((__name__, 'SequentialSender')))
 
-    output_schedule: Deque[_Index] = attr.ib()
+    output_schedule: Iterable[_Index] = attr.ib()
     indexed_sender: IndexedSender[_Index] = attr.ib()
+    _schedule: Deque[_Index] = attr.ib()
+
+    @_schedule.default
+    def init_sender(self) -> Deque[_Index]:
+        """Initialize the internal output schedule."""
+        return collections.deque(self.output_schedule)
 
     def input(self, event: None) -> None:
         """Handle input events."""
 
     def output(self) -> Optional[betterproto.Message]:
         """Emit the next output event."""
-        output_type = self.output_schedule[0]
+        output_type = self._schedule[0]
         try:
             output_event = self.indexed_sender[output_type]
         except KeyError as exc:
@@ -52,7 +80,7 @@ class SequentialSender(Sender, Generic[_Index]):
                 .format(output_type)
             ) from exc
 
-        self.output_schedule.rotate(-1)
+        self._schedule.rotate(-1)
         if output_event is None:
             return None
 
@@ -75,7 +103,7 @@ class TimedSequentialSender(
 
     _logger = logging.getLogger('.'.join((__name__, 'TimedSequentialSender')))
 
-    output_schedule: Deque[_Index] = attr.ib()
+    output_schedule: Iterable[_Index] = attr.ib()
     indexed_sender: IndexedSender[_Index] = attr.ib()
     output_interval: float = attr.ib(default=0)
     _sender: SequentialSender[_Index] = attr.ib()
