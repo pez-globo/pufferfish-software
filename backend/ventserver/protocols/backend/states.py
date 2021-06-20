@@ -196,9 +196,8 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             states.Synchronizer[StateSegment]:  # pylint: disable=no-self-use
         """Initialize the mcu state synchronizer."""
         return states.Synchronizer(
-            output_interval=MCU_OUTPUT_INTERVAL,
-            segment_types=StateSegment, all_states=self.store,
-            output_schedule=collections.deque(MCU_OUTPUT_SCHEDULE)
+            output_schedule=collections.deque(MCU_OUTPUT_SCHEDULE),
+            all_states=self.store, output_interval=MCU_OUTPUT_INTERVAL
         )
 
     @_frontend.default
@@ -206,9 +205,8 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             states.Synchronizer[StateSegment]:
         """Initialize the frontend state synchronizer."""
         return states.Synchronizer(
-            output_interval=FRONTEND_OUTPUT_INTERVAL,
-            segment_types=StateSegment, all_states=self.store,
-            output_schedule=collections.deque(FRONTEND_OUTPUT_SCHEDULE)
+            output_schedule=collections.deque(FRONTEND_OUTPUT_SCHEDULE),
+            all_states=self.store, output_interval=FRONTEND_OUTPUT_INTERVAL
         )
 
     @_file.default
@@ -216,9 +214,8 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             states.Synchronizer[StateSegment]:  # pylint: disable=no-self-use
         """Initialize the file state synchronizer."""
         return states.Synchronizer(
-            output_interval=FILE_OUTPUT_INTERVAL,
-            segment_types=StateSegment, all_states=self.store,
-            output_schedule=collections.deque(FILE_OUTPUT_SCHEDULE)
+            output_schedule=collections.deque(FILE_OUTPUT_SCHEDULE),
+            all_states=self.store, output_interval=FILE_OUTPUT_INTERVAL
         )
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
@@ -227,11 +224,9 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             return
 
         # Update synchronizer clocks
-        clock_update_event: states.UpdateEvent[StateSegment] = \
-            states.UpdateEvent(time=event.time)
-        self._mcu.input(clock_update_event)
-        self._frontend.input(clock_update_event)
-        self._file.input(clock_update_event)
+        self._mcu.input(event.time)
+        self._frontend.input(event.time)
+        self._file.input(event.time)
 
         # Handle inbound state segments
         # We directly input states into store, instead of passing them in
