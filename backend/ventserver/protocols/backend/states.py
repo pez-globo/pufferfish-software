@@ -187,33 +187,33 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
     store: Store = attr.ib()
 
     # State sending synchronizers
-    _mcu: states.Synchronizer[StateSegment] = attr.ib()
-    _frontend: states.Synchronizer[StateSegment] = attr.ib()
-    _file: states.Synchronizer[StateSegment] = attr.ib()
+    _mcu: states.TimedSequentialSender[StateSegment] = attr.ib()
+    _frontend: states.TimedSequentialSender[StateSegment] = attr.ib()
+    _file: states.TimedSequentialSender[StateSegment] = attr.ib()
 
     @_mcu.default
     def init_mcu(self) -> \
-            states.Synchronizer[StateSegment]:  # pylint: disable=no-self-use
-        """Initialize the mcu state synchronizer."""
-        return states.Synchronizer(
+            states.TimedSequentialSender[StateSegment]:
+        """Initialize the mcu state sender."""
+        return states.TimedSequentialSender(
             output_schedule=collections.deque(MCU_OUTPUT_SCHEDULE),
             all_states=self.store, output_interval=MCU_OUTPUT_INTERVAL
         )
 
     @_frontend.default
     def init_frontend(self) -> \
-            states.Synchronizer[StateSegment]:
-        """Initialize the frontend state synchronizer."""
-        return states.Synchronizer(
+            states.TimedSequentialSender[StateSegment]:
+        """Initialize the frontend state sender."""
+        return states.TimedSequentialSender(
             output_schedule=collections.deque(FRONTEND_OUTPUT_SCHEDULE),
             all_states=self.store, output_interval=FRONTEND_OUTPUT_INTERVAL
         )
 
     @_file.default
     def init_file(self) -> \
-            states.Synchronizer[StateSegment]:  # pylint: disable=no-self-use
-        """Initialize the file state synchronizer."""
-        return states.Synchronizer(
+            states.TimedSequentialSender[StateSegment]:
+        """Initialize the file state sender."""
+        return states.TimedSequentialSender(
             output_schedule=collections.deque(FILE_OUTPUT_SCHEDULE),
             all_states=self.store, output_interval=FILE_OUTPUT_INTERVAL
         )
@@ -223,7 +223,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         if event is None or not event.has_data():
             return
 
-        # Update synchronizer clocks
+        # Update sender clocks
         self._mcu.input(event.time)
         self._frontend.input(event.time)
         self._file.input(event.time)
@@ -243,15 +243,15 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         try:
             output_event.mcu_send = self._mcu.output()
         except exceptions.ProtocolDataError:
-            self._logger.exception('MCU State Synchronizer:')
+            self._logger.exception('MCU State Sender:')
         try:
             output_event.frontend_send = self._frontend.output()
         except exceptions.ProtocolDataError:
-            self._logger.exception('Frontend State Synchronizer:')
+            self._logger.exception('Frontend State Sender:')
         try:
             output_event.file_send = self._file.output()
         except exceptions.ProtocolDataError:
-            self._logger.exception('File State Synchronizer:')
+            self._logger.exception('File State Sender:')
         return output_event
 
     def _handle_inbound_state(
