@@ -32,7 +32,7 @@ type StateSelector = OutputSelector<
   (arg: any) => PBMessage | null
 >;
 
-export const MessageSelectors = new Map<PBMessageType, StateSelector>([
+const MessageSelectors = new Map<PBMessageType, StateSelector>([
   [AlarmLimitsRequest, getAlarmLimitsRequest],
   [ParametersRequest, getParametersRequest],
   [ExpectedLogEvent, getFullExpectedLogEvent],
