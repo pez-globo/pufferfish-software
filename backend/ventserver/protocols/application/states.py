@@ -31,14 +31,6 @@ class UpdateEvent(events.Event, Generic[_StateSegment]):
 
 
 @attr.s
-class ScheduleEntry(Generic[_StateSegment]):
-    """Output schedule entry."""
-
-    time: float = attr.ib()
-    type: _StateSegment = attr.ib()
-
-
-@attr.s
 class Synchronizer(
         protocols.Filter[UpdateEvent[_StateSegment], betterproto.Message]
 ):
@@ -56,10 +48,11 @@ class Synchronizer(
 
     _logger = logging.getLogger('.'.join((__name__, 'Synchronizer')))
 
+    output_interval: float = attr.ib()
     segment_types: Type[_StateSegment] = attr.ib()
     current_time: float = attr.ib(default=0)
     all_states: Dict[_StateSegment, Optional[betterproto.Message]] = attr.ib()
-    output_schedule: Deque[ScheduleEntry[_StateSegment]] = attr.ib()
+    output_schedule: Deque[_StateSegment] = attr.ib()
     output_deadline: Optional[float] = attr.ib(default=None)
 
     @all_states.default
@@ -74,9 +67,7 @@ class Synchronizer(
         return {type: None for type in self.segment_types}
 
     @output_schedule.default
-    def init_output_schedule(self) -> Deque[
-            ScheduleEntry[_StateSegment]
-    ]:  # pylint: disable=no-self-use
+    def init_output_schedule(self) -> Deque[_StateSegment]:  # pylint: disable=no-self-use
         """Initialize the output schedule.
 
         Each pair consists of the type class to specify the message to output
@@ -95,7 +86,7 @@ class Synchronizer(
             self.current_time = event.time
             if self.output_deadline is None:
                 self.output_deadline = (
-                    self.current_time + self.output_schedule[0].time
+                    self.current_time + self.output_interval
                 )
         if event.pb_message is None:
             return
@@ -123,7 +114,7 @@ class Synchronizer(
         if self.current_time < self.output_deadline:
             return None
 
-        output_type = self.output_schedule[0].type
+        output_type = self.output_schedule[0]
         try:
             output_event = self.all_states[output_type]
         except KeyError as exc:
@@ -134,7 +125,7 @@ class Synchronizer(
 
         self.output_schedule.rotate(-1)
         self.output_deadline = (
-            self.current_time + self.output_schedule[0].time
+            self.current_time + self.output_interval
         )
         if output_event is None:
             return None
