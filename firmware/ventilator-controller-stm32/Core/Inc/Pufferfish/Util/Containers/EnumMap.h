@@ -23,7 +23,8 @@ namespace Pufferfish::Util::Containers {
 
 // Key must be an enum backed by an unsigned integer, or else it must support static_cast'ing to a
 // size_t. The Map is able to store keys which get casted to integers from 0 to capacity - 1,
-// inclusive.
+// inclusive. Right now the Map cannot store std::reference_wrappers as values; instead, you'll
+// need to store pointers as values.
 template <typename Key, typename Value, size_t capacity>
 class EnumMap {
  public:

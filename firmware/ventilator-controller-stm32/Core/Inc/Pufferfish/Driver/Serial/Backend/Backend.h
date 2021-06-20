@@ -55,27 +55,32 @@ static const MessageDescriptors message_descriptors{
 
 // State Synchronization
 
-using StateOutputScheduleEntry =
-    Protocols::Application::StateOutputScheduleEntry<Application::MessageTypes>;
+using ReceivableStates = Util::EnumValues<
+    MessageTypes,
+    MessageTypes::parameters_request,
+    MessageTypes::alarm_limits_request,
+    MessageTypes::expected_log_event,
+    MessageTypes::alarm_mute_request>;
 
-static const auto state_sync_schedule =
-    Protocols::Application::make_state_output_schedule<Application::MessageTypes>(
-      10,
-      MessageTypes::sensor_measurements,
-      MessageTypes::parameters,
-      MessageTypes::parameters_request,
-      MessageTypes::sensor_measurements,
-      MessageTypes::alarm_limits,
-      MessageTypes::alarm_limits_request,
-      MessageTypes::sensor_measurements,
-      MessageTypes::next_log_events,
-      MessageTypes::active_log_events,
-      MessageTypes::sensor_measurements,
-      MessageTypes::alarm_mute,
-      MessageTypes::alarm_mute_request,
-      MessageTypes::sensor_measurements,
-      MessageTypes::cycle_measurements,
-      MessageTypes::mcu_power_status);
+enum class StateSendEntryTypes : uint8_t { fast_sched = 0, slow_sched };
+static const StateSendEntryTypes last_state_send_entry_type = StateSendEntryTypes::slow_sched;
+
+static const auto state_send_root_sched = Util::Containers::make_array<StateSendEntryTypes>(
+    StateSendEntryTypes::fast_sched,
+    StateSendEntryTypes::slow_sched,
+    StateSendEntryTypes::slow_sched);
+static const auto state_send_fast_sched =
+    Util::Containers::make_array<MessageTypes>(MessageTypes::sensor_measurements);
+static const auto state_send_slow_sched = Util::Containers::make_array<MessageTypes>(
+    MessageTypes::cycle_measurements,
+    MessageTypes::parameters,
+    MessageTypes::alarm_limits,
+    MessageTypes::next_log_events,
+    MessageTypes::active_log_events,
+    MessageTypes::alarm_mute,
+    MessageTypes::mcu_power_status);
+
+static const uint32_t state_send_root_interval = 10;  // ms
 
 // Backend
 
@@ -86,13 +91,6 @@ using Message = Protocols::Transport::Message<
     Application::StateSegment,
     Application::MessageTypeValues,
     DatagramProps::payload_max_size>;
-
-using InputStates = Util::EnumValues<
-    MessageTypes,
-    MessageTypes::parameters_request,
-    MessageTypes::alarm_limits_request,
-    MessageTypes::alarm_mute_request,
-    MessageTypes::expected_log_event>;
 
 class Receiver {
  public:
@@ -166,6 +164,7 @@ class Sender {
 
 static const uint32_t connection_timeout = 500;
 
+// TODO: move application-level logic to Application class
 class Backend {
  public:
   enum class Status { ok = 0, waiting, invalid };
@@ -177,10 +176,12 @@ class Backend {
       : receiver_(crc32c),
         sender_(crc32c),
         store_(store),
-        synchronizer_(store, state_sync_schedule),
+        state_sender_slow_(state_send_slow_sched, store),
+        state_sender_fast_(state_send_fast_sched, store),
+        state_sender_root_(state_send_root_sched, child_state_senders_),
         log_events_sender_(sender) {}
 
-  static constexpr bool accept_message(Application::MessageTypes type) noexcept;
+  static constexpr bool accept_message(MessageTypes type) noexcept;
   Status input(uint8_t new_byte);
   void update_clock(uint32_t current_time);
   void update_list_senders();
@@ -189,20 +190,37 @@ class Backend {
   [[nodiscard]] bool connected() const;
 
  private:
-  using StateSynchronizer = Protocols::Application::StateSynchronizer<
-      Application::Store,
+  template <size_t sched_size>
+  using SequentialMessageSender = Protocols::Application::
+      SequentialStateSender<MessageTypes, Application::StateSegment, sched_size>;
+  using ChildStateSenders = Protocols::Application::MappedStateSenders<
+      StateSendEntryTypes,
       Application::StateSegment,
-      Application::MessageTypes,
-      state_sync_schedule.size()>;
+      static_cast<size_t>(last_state_send_entry_type) + 1>;
+  using RootStateSender = Protocols::Application::SequentialStateSender<
+      StateSendEntryTypes,
+      Application::StateSegment,
+      state_send_root_sched.size()>;
 
   Receiver receiver_;
   Sender sender_;
+
+  // State Synchronization (to be moved out to Application class)
   Application::Store &store_;
-  StateSynchronizer synchronizer_;
+  SequentialMessageSender<state_send_slow_sched.size()> state_sender_slow_;
+  SequentialMessageSender<state_send_fast_sched.size()> state_sender_fast_;
+  ChildStateSenders child_state_senders_{
+      {StateSendEntryTypes::fast_sched, &state_sender_fast_},
+      {StateSendEntryTypes::slow_sched, &state_sender_slow_}};
+  RootStateSender state_sender_root_;
+
+  // List Synchronization (to be moved out to Application class)
   Application::LogEventsSender &log_events_sender_;
 
+  // Timing (to be moved out to Application class)
   uint32_t current_time_{};
   Util::MsTimer connection_timer_{connection_timeout};
+  Util::MsTimer state_send_timer_{state_send_root_interval};
 };
 
 }  // namespace Pufferfish::Driver::Serial::Backend

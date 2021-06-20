@@ -1,57 +1,79 @@
 /*
  * Application.h
  *
+ * Senders for state synchronization.
+ *
  *  Created on: May 26, 2020
  *      Author: Ethan Li
  */
 
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 
-#include "Pufferfish/Util/Containers/Array.h"
+#include "Pufferfish/Util/Containers/EnumMap.h"
 
 namespace Pufferfish::Protocols::Application {
 
-// State Synchronization
+enum class StateOutputStatus { ok = 0, none, invalid_type };
 
-template <typename MessageTypes>
-struct StateOutputScheduleEntry {
-  uint32_t delay;
-  MessageTypes type;
+// State Sending
+
+template <typename StateSegment>
+class StateSender {
+ public:
+  virtual StateOutputStatus output(StateSegment &output) = 0;
 };
 
-template <typename MessageTypes, size_t size>
-using StateOutputSchedule = std::array<const StateOutputScheduleEntry<MessageTypes>, size>;
+// Indexed State Sending
 
-template <typename States, typename StateSegment, typename MessageTypes, size_t schedule_size>
-class StateSynchronizer {
+template <typename Index, typename StateSegment>
+class IndexedStateSender {
  public:
-  enum class OutputStatus { ok = 0, waiting, invalid_type };
+  virtual StateOutputStatus output(Index index, StateSegment &output) const = 0;
+};
 
-  StateSynchronizer(
-      States &all_states, const StateOutputSchedule<MessageTypes, schedule_size> &schedule)
-      : all_states_(all_states), output_schedule_(schedule) {}
+template <typename Index, typename StateSegment, size_t senders_capacity>
+class MappedStateSenders : public IndexedStateSender<Index, StateSegment> {
+ public:
+  // We use raw pointers instead of std::reference_wrapper because std::reference_wrapper
+  // lacks a default constructor or default initialization, which we need in order to
+  // construct the EnumMap.
+  using SendersMap =
+      Util::Containers::EnumMap<Index, StateSender<StateSegment> *, senders_capacity>;
 
-  void input(uint32_t time);
-  OutputStatus output(StateSegment &output);
+  // Note: the lifetimes of the senders pointed to from the initializer list must be
+  // externally managed!
+  MappedStateSenders(typename SendersMap::InitializerList init) : senders_(init) {}
+
+  StateOutputStatus output(Index index, StateSegment &output) const override;
 
  private:
-  States &all_states_;
-  const StateOutputSchedule<MessageTypes, schedule_size> &output_schedule_;
-  uint32_t current_time_ = 0;
-  size_t current_schedule_entry_ = 0;
-  uint32_t current_schedule_entry_start_time_ = 0;
-
-  [[nodiscard]] bool should_output() const;
+  SendersMap senders_;
 };
 
-// Makes a state output schedule with a fixed interval between outputs
-template <typename MessageTypes, typename... Arg>
-constexpr auto make_state_output_schedule(uint32_t interval, Arg&&... arg) noexcept {
-  return Util::Containers::make_array<const StateOutputScheduleEntry<MessageTypes>>(StateOutputScheduleEntry<MessageTypes>{interval, arg}...);
-}
+// Scheduled State Sending
+
+// Generates outputs from an IndexedStateSender by rotating through a schedule
+// consisting of a fixed sequence of indices.
+template <typename Index, typename StateSegment, size_t sched_size>
+class SequentialStateSender : public StateSender<StateSegment> {
+ public:
+  using IndexSequence = std::array<Index, sched_size>;
+  using IndexedSender = IndexedStateSender<Index, StateSegment>;
+
+  SequentialStateSender(const IndexSequence &index_sequence, IndexedSender &indexed_sender)
+      : index_sequence_(index_sequence), indexed_sender_(indexed_sender) {}
+
+  StateOutputStatus output(StateSegment &output) override;
+
+ private:
+  const IndexSequence &index_sequence_;
+  IndexedSender &indexed_sender_;
+  size_t sequence_cursor_ = 0;
+};
 
 }  // namespace Pufferfish::Protocols::Application
 

@@ -137,7 +137,7 @@ Sender::Status Sender::transform(
 // Backend
 
 constexpr bool Backend::accept_message(Application::MessageTypes type) noexcept {
-  return InputStates::includes(type);
+  return ReceivableStates::includes(type);
 }
 
 Backend::Status Backend::input(uint8_t new_byte) {
@@ -181,9 +181,9 @@ Backend::Status Backend::input(uint8_t new_byte) {
   connection_timer_.reset(current_time_);
   // Input into state synchronization
   switch (store_.input(message.payload)) {
-    case Application::Store::InputStatus::ok:
+    case Application::Store::Status::ok:
       break;
-    case Application::Store::InputStatus::invalid_type:
+    default:
       // TODO(lietk12): handle error case
       return Status::invalid;
   }
@@ -192,7 +192,6 @@ Backend::Status Backend::input(uint8_t new_byte) {
 }
 
 void Backend::update_clock(uint32_t current_time) {
-  synchronizer_.input(current_time);
   current_time_ = current_time;
 }
 
@@ -206,15 +205,20 @@ void Backend::update_list_senders() {
 }
 
 Backend::Status Backend::output(FrameProps::ChunkBuffer &output_buffer) {
+  if (state_send_timer_.within_timeout(current_time_)) {
+    return Status::waiting;
+  }
+
+  state_send_timer_.reset(current_time_);
   // Output from state synchronization
   Application::StateSegment state_segment;
-  switch (synchronizer_.output(state_segment)) {
-    case StateSynchronizer::OutputStatus::ok:
+  switch (state_sender_root_.output(state_segment)) {
+    case Protocols::Application::StateOutputStatus::ok:
       break;
-    case StateSynchronizer::OutputStatus::invalid_type:
-      return Status::invalid;
-    case StateSynchronizer::OutputStatus::waiting:
+    case Protocols::Application::StateOutputStatus::none:
       return Status::waiting;
+    default:
+      return Status::invalid;
   }
 
   switch (sender_.transform(state_segment, output_buffer)) {
