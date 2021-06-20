@@ -13,8 +13,8 @@ import {
 import { INITIALIZED, BACKEND_HEARTBEAT } from '../app/types';
 import { PBMessageType } from './types';
 import { updateState } from './actions';
-import { deserialize } from './protocols/backend/transport';
-import { sequentialStateSender, getStateProcessor, sendInterval } from './protocols/backend/states';
+import { serialize, deserialize } from './protocols/backend/transport';
+import { sequentialStateSender, getSelector, sendInterval } from './protocols/backend/states';
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
 import updateClock from './io/clock';
 
@@ -41,10 +41,10 @@ function* receiveAll(channel: EventChannel<Response>) {
 }
 
 function* sendState(sock: WebSocket, pbMessageType: PBMessageType) {
-  const processor = getStateProcessor(pbMessageType);
-  const pbMessage = yield select(processor.selector);
+  const selector = getSelector(pbMessageType);
+  const pbMessage = yield select(selector);
   if (pbMessage !== null) {
-    const body = processor.serializer(pbMessage);
+    const body = serialize(pbMessageType, pbMessage);
     yield sendBuffer(sock, body);
   }
 }

@@ -1,6 +1,5 @@
 import { PBMessageType, MessageType, PBMessage, MessageClass, MessageTypes } from '../../types';
 import {
-  MessageDeserializer,
   MessageSerializer,
   makeMessageSerializer,
   makeMessageDeserializer,
@@ -14,16 +13,23 @@ import {
 
 // Serialization
 
-export type Serializer = MessageSerializer<PBMessage>;
+type Serializer = MessageSerializer<PBMessage>;
 const makeSerializer = makeMessageSerializer<MessageType, PBMessage>(MessageTypes);
-export const Serializers = new Map<PBMessageType, Serializer>([
+const Serializers = new Map<PBMessageType, Serializer>([
   [AlarmLimitsRequest, makeSerializer<AlarmLimitsRequest>(AlarmLimitsRequest)],
   [ParametersRequest, makeSerializer<ParametersRequest>(ParametersRequest)],
   [ExpectedLogEvent, makeSerializer<ExpectedLogEvent>(ExpectedLogEvent)],
   [AlarmMuteRequest, makeSerializer<AlarmMuteRequest>(AlarmMuteRequest)],
 ]);
+export const serialize = (pbMessageType: PBMessageType, pbMessage: PBMessage): Uint8Array => {
+  const serializer = Serializers.get(pbMessageType);
+  if (serializer === undefined) {
+    throw new Error(`Backend: missing message serializer for ${pbMessageType}`);
+  }
+
+  return serializer(pbMessage);
+};
 
 // Deserialization
 
-export type Deserializer = MessageDeserializer<PBMessage>;
 export const deserialize = makeMessageDeserializer<MessageType, PBMessage>(MessageClass);

@@ -35,12 +35,9 @@ export const makeMessageSerializer = <MessageType extends number, PBMessage>(
 
 // Deserialization
 
-export interface MessageParseResults<PBMessage> {
+interface MessageParseResults<PBMessage> {
   messageType: number;
   pbMessage: PBMessage;
-}
-export interface MessageDeserializer<PBMessage> {
-  (body: Uint8Array): MessageParseResults<PBMessage>;
 }
 
 export const makeMessageDeserializer = <MessageType extends number, PBMessage>(

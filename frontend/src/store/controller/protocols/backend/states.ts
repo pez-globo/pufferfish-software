@@ -5,7 +5,6 @@ import {
   getFullExpectedLogEvent,
   getAlarmMuteRequest,
 } from '../../selectors';
-import { Serializer, Serializers } from './transport';
 import advanceSchedule from '../application/states';
 import {
   ParametersRequest,
@@ -61,25 +60,14 @@ export const MessageSelectors = new Map<PBMessageType, any>([
   [AlarmMuteRequest, getAlarmMuteRequest],
 ]);
 
-// TODO: split up processing into stuff in states.ts and stuf in transport.ts
-export interface StateProcessor {
-  // This "any" is needed because MessageSelectors has a value type of "any".
-  // eslint-disable @typescript-eslint/no-explicit-any
-  // eslint-disable-next-line
-  selector: any;
-  serializer: Serializer;
-}
-
-export const getStateProcessor = (pbMessageType: PBMessageType): StateProcessor => {
+// This "any" is needed because MessageSelectors has a value type of "any".
+// eslint-disable @typescript-eslint/no-explicit-any
+// eslint-disable-next-line
+export const getSelector = (pbMessageType: PBMessageType): any => {
   const selector = MessageSelectors.get(pbMessageType);
   if (selector === undefined) {
     throw new Error(`Backend: missing selector for ${pbMessageType}`);
   }
 
-  const serializer = Serializers.get(pbMessageType);
-  if (serializer === undefined) {
-    throw new Error(`Backend: missing message serializer for ${pbMessageType}`);
-  }
-
-  return { selector, serializer };
+  return selector;
 };
