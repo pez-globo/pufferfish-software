@@ -2,7 +2,7 @@
 
 import enum
 import logging
-from typing import Deque, Dict, Generic, Optional, TypeVar
+from typing import Deque, Generic, Mapping, Optional, TypeVar
 
 import attr
 
@@ -12,26 +12,31 @@ from ventserver.protocols import exceptions
 from ventserver.sansio import protocols
 
 
-_StateSegment = TypeVar('_StateSegment', bound=enum.Enum)
+_Index = TypeVar('_Index', bound=enum.Enum)
+
+
+class Sender(protocols.Filter[None, betterproto.Message]):
+    """Interface class for state senders."""
+
+
+IndexedSender = Mapping[_Index, Optional[betterproto.Message]]
 
 
 @attr.s
-class SequentialSender(
-        protocols.Filter[None, betterproto.Message], Generic[_StateSegment]
-):
+class SequentialSender(Sender, Generic[_Index]):
     """State sending filter on a fixed sequence.
 
     Does not take inputs. Outputs are state updates for the peer.
 
-    Warning: if all_states is modified by other code, this filter is only safe
-    to use in synchronous environments, such as part of another Filter which
-    completely owns all_states.
+    Warning: if indexed_sender is mutated by other code, this filter is only
+    safe to use in synchronous environments, such as part of another Filter
+    which completely owns indexed_sender.
     """
 
     _logger = logging.getLogger('.'.join((__name__, 'SequentialSender')))
 
-    output_schedule: Deque[_StateSegment] = attr.ib()
-    all_states: Dict[_StateSegment, Optional[betterproto.Message]] = attr.ib()
+    output_schedule: Deque[_Index] = attr.ib()
+    indexed_sender: IndexedSender[_Index] = attr.ib()
 
     def input(self, event: None) -> None:
         """Handle input events."""
@@ -40,7 +45,7 @@ class SequentialSender(
         """Emit the next output event."""
         output_type = self.output_schedule[0]
         try:
-            output_event = self.all_states[output_type]
+            output_event = self.indexed_sender[output_type]
         except KeyError as exc:
             raise exceptions.ProtocolDataError(
                 'Scheduled message type is not a sendable state: {}'
@@ -57,31 +62,32 @@ class SequentialSender(
 
 @attr.s
 class TimedSequentialSender(
-        protocols.Filter[float, betterproto.Message], Generic[_StateSegment]
+        protocols.Filter[float, betterproto.Message], Generic[_Index]
 ):
     """State sending filter on a fixed sequence at a fixed time interval.
 
     Inputs are clock updates. Outputs are state updates for the peer.
 
-    Warning: if all_states is modified by other code, this filter is only safe
-    to use in synchronous environments, such as part of another Filter which
-    completely owns all_states.
+    Warning: if indexed_sender is mutated by other code, this filter is only
+    safe to use in synchronous environments, such as part of another Filter
+    which completely owns indexed_sender.
     """
 
     _logger = logging.getLogger('.'.join((__name__, 'TimedSequentialSender')))
 
-    output_schedule: Deque[_StateSegment] = attr.ib()
-    all_states: Dict[_StateSegment, Optional[betterproto.Message]] = attr.ib()
+    output_schedule: Deque[_Index] = attr.ib()
+    indexed_sender: IndexedSender[_Index] = attr.ib()
     output_interval: float = attr.ib(default=0)
-    _sender: SequentialSender[_StateSegment] = attr.ib()
+    _sender: SequentialSender[_Index] = attr.ib()
     _current_time: Optional[float] = attr.ib(default=None)
     _last_output_time: Optional[float] = attr.ib(default=None)
 
     @_sender.default
-    def init_sender(self) -> SequentialSender[_StateSegment]:
+    def init_sender(self) -> SequentialSender[_Index]:
         """Initialize the sequential sender."""
         return SequentialSender(
-            output_schedule=self.output_schedule, all_states=self.all_states
+            output_schedule=self.output_schedule,
+            indexed_sender=self.indexed_sender
         )
 
     def input(self, event: Optional[float]) -> None:

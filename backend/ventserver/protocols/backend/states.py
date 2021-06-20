@@ -197,7 +197,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         """Initialize the mcu state sender."""
         return states.TimedSequentialSender(
             output_schedule=collections.deque(MCU_OUTPUT_SCHEDULE),
-            all_states=self.store, output_interval=MCU_OUTPUT_INTERVAL
+            indexed_sender=self.store, output_interval=MCU_OUTPUT_INTERVAL
         )
 
     @_frontend.default
@@ -206,7 +206,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         """Initialize the frontend state sender."""
         return states.TimedSequentialSender(
             output_schedule=collections.deque(FRONTEND_OUTPUT_SCHEDULE),
-            all_states=self.store, output_interval=FRONTEND_OUTPUT_INTERVAL
+            indexed_sender=self.store, output_interval=FRONTEND_OUTPUT_INTERVAL
         )
 
     @_file.default
@@ -215,7 +215,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         """Initialize the file state sender."""
         return states.TimedSequentialSender(
             output_schedule=collections.deque(FILE_OUTPUT_SCHEDULE),
-            all_states=self.store, output_interval=FILE_OUTPUT_INTERVAL
+            indexed_sender=self.store, output_interval=FILE_OUTPUT_INTERVAL
         )
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
