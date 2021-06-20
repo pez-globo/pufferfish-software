@@ -56,8 +56,6 @@ void UARTBackend::send() {
     // TODO(lietk12): when the synchronizer says it's time to send the next message,
     // if another write is in progress we shouldn't wait for it to complete;
     // instead, we should just start sending the next message immediately
-    // TODO(lietk12): move update_list_senders out of UARTBackend
-    backend_.update_list_senders();
     switch (backend_.output(send_output_)) {
       case Backend::Status::ok:  // ready to write to UART
         sent_ = 0;
