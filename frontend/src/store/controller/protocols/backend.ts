@@ -6,12 +6,15 @@ import {
   getAlarmMuteRequest,
 } from '../selectors';
 import { MessageSerializer, serializeMessage } from './messages';
+import advanceSchedule from './states';
 import {
   ParametersRequest,
   AlarmLimitsRequest,
   ExpectedLogEvent,
   AlarmMuteRequest,
 } from '../proto/mcu_pb';
+
+// State Sending
 
 export enum Sender {
   fastSchedule = 0,
@@ -23,12 +26,37 @@ export const sendSlowSchedule = [ParametersRequest, AlarmLimitsRequest, AlarmMut
 
 export const sendInterval = 50; // ms
 
+// This generator is tagged as returning PBMessageType to make typescript eslinting
+// behave nicely, but it actually never returns (it only yields).
+export function* sequentialStateSender(): Generator<PBMessageType, PBMessageType, unknown> {
+  const rootSchedule = Array.from(sendRootSchedule);
+  const fastSchedule = Array.from(sendFastSchedule);
+  const slowSchedule = Array.from(sendSlowSchedule);
+  const schedules = new Map<Sender, Array<PBMessageType>>([
+    [Sender.fastSchedule, fastSchedule],
+    [Sender.slowSchedule, slowSchedule],
+  ]);
+  while (true) {
+    const sender = advanceSchedule(rootSchedule);
+    const schedule = schedules.get(sender);
+    if (schedule === undefined) {
+      console.error('Invalid sender type', sender);
+    } else {
+      yield advanceSchedule(schedule);
+    }
+  }
+}
+
+// Transport
+
 export const MessageSerializers = new Map<PBMessageType, MessageSerializer>([
   [AlarmLimitsRequest, serializeMessage<AlarmLimitsRequest>(AlarmLimitsRequest)],
   [ParametersRequest, serializeMessage<ParametersRequest>(ParametersRequest)],
   [ExpectedLogEvent, serializeMessage<ExpectedLogEvent>(ExpectedLogEvent)],
   [AlarmMuteRequest, serializeMessage<AlarmMuteRequest>(AlarmMuteRequest)],
 ]);
+
+// Store
 
 // The OutputSelector type is templated and so complicated that it's not clear
 // whether we can specify its type in a Map, but for now we'll just delegate the
