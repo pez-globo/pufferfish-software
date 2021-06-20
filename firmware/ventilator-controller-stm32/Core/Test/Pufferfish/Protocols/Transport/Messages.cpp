@@ -51,7 +51,7 @@ SCENARIO(
     WHEN(
         "Write method is called on a message object whose payload.tag value is equal to the size "
         "of the descriptor array") {
-      const Transport::ProtobufDescriptors<MessageTypes, 1> message_descriptors{
+      const Transport::ProtobufDescriptors<MessageTypes, 2> message_descriptors{
           {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()}};
 
@@ -83,7 +83,7 @@ SCENARIO(
     WHEN(
         "Write method is called on a message object whose payload.tag value is greater than the "
         "size of the descriptor array") {
-      const Transport::ProtobufDescriptors<MessageTypes, 3> message_descriptors{
+      const Transport::ProtobufDescriptors<MessageTypes, 4> message_descriptors{
           {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()},
@@ -719,7 +719,7 @@ SCENARIO(
         "A body with an empty payload and 1 byte header of value (0x04) equal to the message "
         "descriptor "
         "array size is parsed") {
-      const Transport::ProtobufDescriptors<MessageTypes, 3> message_descriptors{
+      const Transport::ProtobufDescriptors<MessageTypes, 4> message_descriptors{
           {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()},
@@ -748,7 +748,7 @@ SCENARIO(
         "A body with an empty payload and 1 byte header of value (0x05) equal to the message "
         "descriptor "
         "array size is parsed") {
-      const Transport::ProtobufDescriptors<MessageTypes, 3> message_descriptors{
+      const Transport::ProtobufDescriptors<MessageTypes, 4> message_descriptors{
           {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()},
@@ -1295,13 +1295,13 @@ SCENARIO(
 
     Transport::MessageReceiver<
         TestMessage,
-        Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_key_value()>
+        Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_size()>
         receiver{BE::message_descriptors};
 
     WHEN("An empty input buffer body is parsed") {
       Transport::MessageReceiver<
           TestMessage,
-          Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_key_value()>
+          Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_size()>
           receiver{BE::message_descriptors};
       ByteVector<buffer_size> input_buffer;
 
@@ -1329,7 +1329,7 @@ SCENARIO(
       constexpr size_t buffer_size = 253UL;
       Transport::MessageReceiver<
           TestMessage,
-          Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_key_value()>
+          Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_size()>
           receiver{BE::message_descriptors};
 
       ByteVector<buffer_size> input_buffer;
@@ -1358,16 +1358,15 @@ SCENARIO(
     WHEN(
         "A body with an empty payload and 1 byte header of value equal to the message descriptor "
         "array size is parsed") {
-      const Transport::ProtobufDescriptors<MessageTypes, 3> message_descriptors{
+      const Transport::ProtobufDescriptors<MessageTypes, 4> message_descriptors{
           {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()},
           {MessageTypes::cycle_measurements, get_protobuf_desc<CycleMeasurements>()}};
 
-      Transport::MessageReceiver<
-          TestMessage,
-          Transport::ProtobufDescriptors<MessageTypes, 3>::max_key_value()>
-          receiver{message_descriptors};
+      Transport::
+          MessageReceiver<TestMessage, Transport::ProtobufDescriptors<MessageTypes, 4>::max_size()>
+              receiver{message_descriptors};
 
       ByteVector<buffer_size> input_buffer;
       auto push_status = input_buffer.push_back(0x04);
@@ -1395,7 +1394,7 @@ SCENARIO(
     WHEN(
         "A body with an empty payload and 1 byte header of value equal to the message descriptor "
         "array size is parsed") {
-      const Transport::ProtobufDescriptors<MessageTypes, 3> message_descriptors{
+      const Transport::ProtobufDescriptors<MessageTypes, 4> message_descriptors{
           {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()},
@@ -1474,16 +1473,15 @@ SCENARIO(
     }
 
     WHEN("A MessageReceiver object is initialised with a smaller descriptors array") {
-      const Transport::ProtobufDescriptors<MessageTypes, 4> message_descriptors{
+      const Transport::ProtobufDescriptors<MessageTypes, 5> message_descriptors{
           {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::reserved, get_protobuf_desc<ParametersRequest>()},
           {MessageTypes::sensor_measurements, get_protobuf_desc<AlarmLimits>()},
           {MessageTypes::cycle_measurements, get_protobuf_desc<AlarmLimitsRequest>()},
           {MessageTypes::parameters, get_protobuf_desc<Parameters>()}};
-      Transport::MessageReceiver<
-          TestMessage,
-          Transport::ProtobufDescriptors<MessageTypes, 4>::max_key_value()>
-          receiver{message_descriptors};
+      Transport::
+          MessageReceiver<TestMessage, Transport::ProtobufDescriptors<MessageTypes, 5>::max_size()>
+              receiver{message_descriptors};
 
       ByteVector<buffer_size> input_buffer;
       convert_string_to_byte_vector(exp_parameters, input_buffer);
@@ -1620,7 +1618,7 @@ SCENARIO(
 
     Transport::MessageReceiver<
         TestMessage,
-        Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_key_value()>
+        Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_size()>
         receiver{BE::message_descriptors};
 
     // sensor measurements
@@ -1834,13 +1832,13 @@ SCENARIO(
     Transport::MessageSender<
         TestMessage,
         PF::Application::StateSegment,
-        Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_key_value()>
+        Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_size()>
         sender{BE::message_descriptors};
 
     WHEN(
         "transform is called on a payload whose tag value is equal to the size of descriptor "
         "array") {
-      const Transport::ProtobufDescriptors<MessageTypes, 2> message_descriptors{
+      const Transport::ProtobufDescriptors<MessageTypes, 3> message_descriptors{
           {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()}};
@@ -1848,7 +1846,7 @@ SCENARIO(
       Transport::MessageSender<
           TestMessage,
           PF::Application::StateSegment,
-          Transport::ProtobufDescriptors<MessageTypes, 2>::max_key_value()>
+          Transport::ProtobufDescriptors<MessageTypes, 3>::max_size()>
           sender{message_descriptors};
 
       tagged_union.tag = MessageTypes::cycle_measurements;
@@ -1866,7 +1864,7 @@ SCENARIO(
     WHEN(
         "transform is called on a payload whose tag value is greater than the size of descriptor "
         "array") {
-      const Transport::ProtobufDescriptors<MessageTypes, 2> message_descriptors{
+      const Transport::ProtobufDescriptors<MessageTypes, 3> message_descriptors{
           {MessageTypes::unknown, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::reserved, get_protobuf_desc<UnrecognizedMessage>()},
           {MessageTypes::sensor_measurements, get_protobuf_desc<SensorMeasurements>()}};
@@ -1874,7 +1872,7 @@ SCENARIO(
       Transport::MessageSender<
           TestMessage,
           PF::Application::StateSegment,
-          Transport::ProtobufDescriptors<MessageTypes, 2>::max_key_value()>
+          Transport::ProtobufDescriptors<MessageTypes, 3>::max_size()>
           sender{message_descriptors};
 
       tagged_union.tag = MessageTypes::parameters;
@@ -1917,7 +1915,7 @@ SCENARIO(
       Transport::MessageSender<
           TestMessage,
           PF::Application::StateSegment,
-          Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_key_value()>
+          Pufferfish::Driver::Serial::Backend::MessageDescriptors::max_size()>
           sender{BE::message_descriptors};
 
       SensorMeasurements sensor_measurements;

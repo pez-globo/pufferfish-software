@@ -20,14 +20,14 @@ enum class MessageStatus { ok = 0, invalid_length, invalid_type, invalid_encodin
 
 // Messages
 
-template <typename EnumKey, size_t max_key>
-using ProtobufDescriptors = Util::Containers::EnumMap<EnumKey, Util::ProtobufDescriptor, max_key>;
+template <typename EnumKey, size_t capacity>
+using ProtobufDescriptors = Util::Containers::EnumMap<EnumKey, Util::ProtobufDescriptor, capacity>;
 
 template <typename TaggedUnion, typename MessageTypes, size_t max_size>
 class Message {
  public:
-  template <size_t max_key>
-  using ProtobufDescriptors = ProtobufDescriptors<typename MessageTypes::EnumType, max_key>;
+  template <size_t capacity>
+  using ProtobufDescriptors = ProtobufDescriptors<typename MessageTypes::EnumType, capacity>;
 
   static const size_t type_offset = 0;
   // This clearly is static initialization of a static const - probably clang-tidy
@@ -45,23 +45,23 @@ class Message {
   uint8_t type = 0;
   TaggedUnion payload{};
 
-  template <size_t output_size, size_t max_key>
+  template <size_t output_size, size_t descriptors_capacity>
   MessageStatus write(
       Util::Containers::ByteVector<output_size> &output_buffer,
-      const ProtobufDescriptors<max_key> &pb_protobuf_descriptors);
+      const ProtobufDescriptors<descriptors_capacity> &pb_protobuf_descriptors);
 
-  template <size_t input_size, size_t max_key>
+  template <size_t input_size, size_t descriptors_capacity>
   MessageStatus parse(
       const Util::Containers::ByteVector<input_size> &input_buffer,
-      const ProtobufDescriptors<max_key>
+      const ProtobufDescriptors<descriptors_capacity>
           &pb_protobuf_descriptors);  // updates type and payload fields
 };
 
 // Parses messages into payloads, with data integrity checking
-template <typename Message, size_t max_key>
+template <typename Message, size_t descriptors_capacity>
 class MessageReceiver {
  public:
-  using ProtobufDescriptors = typename Message::template ProtobufDescriptors<max_key>;
+  using ProtobufDescriptors = typename Message::template ProtobufDescriptors<descriptors_capacity>;
 
   explicit MessageReceiver(const ProtobufDescriptors &descriptors) : descriptors_(descriptors) {}
 
@@ -74,10 +74,10 @@ class MessageReceiver {
 };
 
 // Generates messages from payloads
-template <typename Message, typename TaggedUnion, size_t max_key>
+template <typename Message, typename TaggedUnion, size_t descriptors_capacity>
 class MessageSender {
  public:
-  using ProtobufDescriptors = typename Message::template ProtobufDescriptors<max_key>;
+  using ProtobufDescriptors = typename Message::template ProtobufDescriptors<descriptors_capacity>;
 
   explicit MessageSender(const ProtobufDescriptors &descriptors) : descriptors_(descriptors) {}
 

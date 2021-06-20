@@ -34,7 +34,7 @@ void AlarmsManager::activate_alarm(LogEventCode alarm_code, LogEventType alarm_t
   event.type = alarm_type;
   // Time is written by log_manager_, so we don't write it here.
   log_manager_.add_event(event, event_id);
-  active_alarms_.insert(alarm_code, event_id);
+  active_alarms_.input(alarm_code, event_id);
 }
 
 void AlarmsManager::activate_alarm(
@@ -59,7 +59,7 @@ void AlarmsManager::activate_alarm(
   event.alarm_limits = alarm_limits;
   event.has_alarm_limits = true;
   log_manager_.add_event(event, event_id);
-  active_alarms_.insert(alarm_code, event_id);
+  active_alarms_.input(alarm_code, event_id);
 }
 
 void AlarmsManager::deactivate_alarm(LogEventCode alarm_code) {
@@ -113,8 +113,7 @@ IndexStatus AlarmsManager::transform(ActiveLogEvents &active_log_events) const {
 }
 
 bool AlarmsManager::is_active(LogEventCode alarm_code) const {
-  size_t index_discard = 0;
-  return active_alarms_.find(alarm_code, index_discard) == IndexStatus::ok;
+  return active_alarms_.has(alarm_code);
 }
 
 bool AlarmsManager::debounced_output(LogEventCode alarm_code, bool input_value) {

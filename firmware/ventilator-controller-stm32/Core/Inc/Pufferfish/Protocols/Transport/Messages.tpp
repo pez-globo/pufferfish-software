@@ -16,10 +16,10 @@ namespace Pufferfish::Protocols::Transport {
 // Message
 
 template <typename TaggedUnion, typename MessageTypes, size_t max_size>
-template <size_t output_size, size_t max_key>
+template <size_t output_size, size_t descriptors_capacity>
 MessageStatus Message<TaggedUnion, MessageTypes, max_size>::write(
     Util::Containers::ByteVector<output_size> &output_buffer,
-    const ProtobufDescriptors<max_key> &pb_protobuf_descriptors) {
+    const ProtobufDescriptors<descriptors_capacity> &pb_protobuf_descriptors) {
   static_assert(
       Util::Containers::ByteVector<output_size>::max_size() >= max_size,
       "Write method unavailable as output buffer is too small");
@@ -53,10 +53,10 @@ MessageStatus Message<TaggedUnion, MessageTypes, max_size>::write(
 }
 
 template <typename TaggedUnion, typename MessageTypes, size_t max_size>
-template <size_t input_size, size_t max_key>
+template <size_t input_size, size_t descriptors_capacity>
 MessageStatus Message<TaggedUnion, MessageTypes, max_size>::parse(
     const Util::Containers::ByteVector<input_size> &input_buffer,
-    const ProtobufDescriptors<max_key> &pb_protobuf_descriptors) {
+    const ProtobufDescriptors<descriptors_capacity> &pb_protobuf_descriptors) {
   static_assert(
       Util::Containers::ByteVector<input_size>::max_size() <= max_size,
       "Parse method unavailable as input buffer size is too large");
@@ -90,18 +90,18 @@ MessageStatus Message<TaggedUnion, MessageTypes, max_size>::parse(
 
 // MessageReceiver
 
-template <typename Message, size_t max_key>
+template <typename Message, size_t descriptors_capacity>
 template <size_t input_size>
-MessageStatus MessageReceiver<Message, max_key>::transform(
+MessageStatus MessageReceiver<Message, descriptors_capacity>::transform(
     const Util::Containers::ByteVector<input_size> &input_buffer, Message &output_message) const {
   return output_message.parse(input_buffer, descriptors_);
 }
 
 // MessageSender
 
-template <typename Message, typename TaggedUnion, size_t max_key>
+template <typename Message, typename TaggedUnion, size_t descriptors_capacity>
 template <size_t output_size>
-MessageStatus MessageSender<Message, TaggedUnion, max_key>::transform(
+MessageStatus MessageSender<Message, TaggedUnion, descriptors_capacity>::transform(
     const TaggedUnion &input_payload,
     Util::Containers::ByteVector<output_size> &output_buffer) const {
   Message input_message;

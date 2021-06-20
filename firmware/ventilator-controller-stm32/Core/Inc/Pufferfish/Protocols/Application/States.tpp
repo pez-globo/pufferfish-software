@@ -12,35 +12,30 @@
 
 namespace Pufferfish::Protocols::Application {
 
-// StateSynchronizer
+// State Sending
 
-template <typename States, typename StateSegment, typename MessageTypes, size_t schedule_size>
-void StateSynchronizer<States, StateSegment, MessageTypes, schedule_size>::input(uint32_t time) {
-  current_time_ = time;
-}
-
-template <typename States, typename StateSegment, typename MessageTypes, size_t schedule_size>
-typename StateSynchronizer<States, StateSegment, MessageTypes, schedule_size>::OutputStatus
-StateSynchronizer<States, StateSegment, MessageTypes, schedule_size>::output(StateSegment &output) {
-  if (!should_output()) {
-    return OutputStatus::waiting;
+template <typename Index, typename StateSegment, size_t senders_capacity>
+StateOutputStatus MappedStateSenders<Index, StateSegment, senders_capacity>::output(
+    Index index, StateSegment &output) const {
+  if (!senders_.has(index) || senders_[index] == nullptr) {
+    return StateOutputStatus::invalid_type;
   }
 
-  if (all_states_.output(output_schedule_[current_schedule_entry_].type, output) !=
-      States::OutputStatus::ok) {
-    return OutputStatus::invalid_type;
-  }
-  current_schedule_entry_ = (current_schedule_entry_ + 1) % output_schedule_.size();
-  current_schedule_entry_start_time_ = current_time_;
-  return OutputStatus::ok;
+  return senders_[index]->output(output);
 }
 
-template <typename States, typename StateSegment, typename MessageTypes, size_t schedule_size>
-bool StateSynchronizer<States, StateSegment, MessageTypes, schedule_size>::should_output() const {
-  return !Util::within_timeout(
-      current_schedule_entry_start_time_,
-      output_schedule_[current_schedule_entry_].delay,
-      current_time_);
+// Scheduled State Sending
+
+template <typename Index, typename StateSegment, size_t sched_size>
+StateOutputStatus SequentialStateSender<Index, StateSegment, sched_size>::output(
+    StateSegment &output) {
+  StateOutputStatus status = indexed_sender_.output(index_sequence_[sequence_cursor_], output);
+  if (status != StateOutputStatus::ok) {
+    return status;
+  }
+
+  sequence_cursor_ = (sequence_cursor_ + 1) % index_sequence_.size();
+  return StateOutputStatus::ok;
 }
 
 }  // namespace Pufferfish::Protocols::Application
