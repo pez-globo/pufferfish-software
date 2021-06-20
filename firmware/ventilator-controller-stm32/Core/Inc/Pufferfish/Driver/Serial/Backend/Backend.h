@@ -164,7 +164,7 @@ class Sender {
 
 static const uint32_t connection_timeout = 500;
 
-// TODO: move application-level logic to Application class
+// TODO(lietk12): move application-level logic to Application class
 class Backend {
  public:
   enum class Status { ok = 0, waiting, invalid };

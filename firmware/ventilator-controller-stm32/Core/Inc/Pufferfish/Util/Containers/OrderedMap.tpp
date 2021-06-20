@@ -45,7 +45,7 @@ IndexStatus OrderedMap<Key, Value, max_pairs>::input(const Key &key, const Value
 
 template <typename Key, typename Value, size_t max_pairs>
 IndexStatus OrderedMap<Key, Value, max_pairs>::output(const Key &key, Value &value) const {
-  size_t index;
+  size_t index = 0;
   IndexStatus status = find(key, index);
   if (status != IndexStatus::ok) {
     return status;

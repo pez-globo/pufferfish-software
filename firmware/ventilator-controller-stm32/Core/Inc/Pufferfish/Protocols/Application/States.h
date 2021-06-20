@@ -46,7 +46,7 @@ class MappedStateSenders : public IndexedStateSender<Index, StateSegment> {
 
   // Note: the lifetimes of the senders pointed to from the initializer list must be
   // externally managed!
-  MappedStateSenders(typename SendersMap::InitializerList init) : senders_(init) {}
+  explicit MappedStateSenders(typename SendersMap::InitializerList init) : senders_(init) {}
 
   StateOutputStatus output(Index index, StateSegment &output) const override;
 
