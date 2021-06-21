@@ -88,6 +88,7 @@ export enum MessageType {
   FrontendDisplaySettingRequest = 133,
 }
 
+// TODO: should we rename this to MessageClasses?
 export const MessageClass = new Map<MessageType, PBMessageType>([
   // mcu_pb
   [MessageType.SensorMeasurements, SensorMeasurements],
