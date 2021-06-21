@@ -16,18 +16,16 @@ namespace Pufferfish::Driver::Power {
 static constexpr auto alarm_codes = Util::Containers::make_array<LogEventCode>(
     LogEventCode::LogEventCode_charger_disconnected,
     LogEventCode::LogEventCode_battery_low,
-    LogEventCode::LogEventCode_critical_battery);
+    LogEventCode::LogEventCode_battery_critical);
 
 class AlarmsService {
  public:
+  enum class BatteryLevel { critical, low, normal };
   void transform(
-      const MCUPowerStatus &mcu_power_status, Application::AlarmsManager &alarms_manager) const;
-  static void generate_alarm(
-      const LogEventCode &alarm_code,
-      bool alarm_active,
-      Application::AlarmsManager &alarms_manager);
+      const MCUPowerStatus &mcu_power_status, Application::AlarmsManager &alarms_manager);
 
  private:
+  BatteryLevel battery_level_ = BatteryLevel::normal;
   static constexpr float battery_low_power = 30;
   static constexpr float critical_battery_power = 5;
 };

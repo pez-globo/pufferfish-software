@@ -9,34 +9,40 @@
 
 namespace Pufferfish::Driver::Power {
 
-void AlarmsService::generate_alarm(
-    const LogEventCode &alarm_code, bool alarm_active, Application::AlarmsManager &alarms_manager) {
-  if (alarm_active) {
-    alarms_manager.activate_alarm(alarm_code, LogEventType::LogEventType_system);
-  } else {
-    alarms_manager.deactivate_alarm(alarm_code);
-  }
-}
-
 // AlarmsService
 void AlarmsService::transform(
-    const MCUPowerStatus &mcu_power_status, Application::AlarmsManager &alarms_manager) const {
-  bool charger_disconnected = false;
+    const MCUPowerStatus &mcu_power_status, Application::AlarmsManager &alarms_manager) {
   if (!mcu_power_status.charging) {
-    charger_disconnected = true;
-  }
-  bool battery_low = false;
-  if (mcu_power_status.power_left <= battery_low_power) {
-    battery_low = true;
-  }
-  bool critical_battery = false;
-  if (mcu_power_status.power_left <= critical_battery_power) {
-    critical_battery = true;
+    alarms_manager.activate_alarm(
+        LogEventCode_charger_disconnected, LogEventType::LogEventType_system);
+  } else {
+    alarms_manager.deactivate_alarm(LogEventCode_charger_disconnected);
   }
 
-  generate_alarm(LogEventCode_charger_disconnected, charger_disconnected, alarms_manager);
-  generate_alarm(LogEventCode_battery_low, battery_low, alarms_manager);
-  generate_alarm(LogEventCode_critical_battery, critical_battery, alarms_manager);
+  if (mcu_power_status.power_left <= critical_battery_power) {
+    battery_level_ = BatteryLevel::critical;
+  } else if (mcu_power_status.power_left <= battery_low_power) {
+    battery_level_ = BatteryLevel::low;
+  } else {
+    battery_level_ = BatteryLevel::normal;
+  }
+
+  switch (battery_level_) {
+    case BatteryLevel::critical:
+      alarms_manager.activate_alarm(
+          LogEventCode_battery_critical, LogEventType::LogEventType_system);
+      alarms_manager.deactivate_alarm(LogEventCode_battery_low);
+      break;
+    case BatteryLevel::low:
+      alarms_manager.activate_alarm(LogEventCode_battery_low, LogEventType::LogEventType_system);
+      alarms_manager.deactivate_alarm(LogEventCode_battery_critical);
+      break;
+    case BatteryLevel::normal:
+      alarms_manager.deactivate_alarm(LogEventCode_battery_low);
+      alarms_manager.deactivate_alarm(LogEventCode_battery_critical);
+    default:
+      break;
+  }
 }
 
 }  // namespace Pufferfish::Driver::Power
