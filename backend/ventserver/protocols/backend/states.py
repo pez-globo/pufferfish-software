@@ -1,6 +1,5 @@
 """Sans-I/O backend service state synchronization protocol."""
 
-import collections
 import enum
 import logging
 from typing import Dict, Mapping, Optional, Type
@@ -37,6 +36,7 @@ class StateSegment(enum.Enum):
     MCU_POWER_STATUS = enum.auto()
     SCREEN_STATUS = enum.auto()
     # frontend_pb
+    BACKEND_CONNECTIONS = enum.auto()
     ROTARY_ENCODER = enum.auto()
     SYSTEM_SETTING = enum.auto()
     SYSTEM_SETTING_REQUEST = enum.auto()
@@ -45,6 +45,21 @@ class StateSegment(enum.Enum):
 
 
 Store = Dict[StateSegment, Optional[betterproto.Message]]
+
+
+@enum.unique
+class Sender(enum.Enum):
+    """Enum for combining different state senders."""
+    FAST_SCHEDULE = enum.auto()
+    SLOW_SCHEDULE = enum.auto()
+
+
+# Used for MCU and Frontend send schedules
+ROOT_OUTPUT_SCHEDULE = [
+    Sender.FAST_SCHEDULE,
+    Sender.SLOW_SCHEDULE,
+    Sender.SLOW_SCHEDULE,
+]
 
 
 MCU_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
@@ -58,13 +73,15 @@ MCU_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.MCUPowerStatus: StateSegment.MCU_POWER_STATUS,
     mcu_pb.ScreenStatus: StateSegment.SCREEN_STATUS,
 }
-MCU_OUTPUT_SCHEDULE = collections.deque([
-    states.ScheduleEntry(time=0.02, type=StateSegment.PARAMETERS_REQUEST),
-    states.ScheduleEntry(time=0.02, type=StateSegment.EXPECTED_LOG_EVENT_MCU),
-    states.ScheduleEntry(time=0.02, type=StateSegment.ALARM_LIMITS_REQUEST),
-    states.ScheduleEntry(time=0.02, type=StateSegment.EXPECTED_LOG_EVENT_MCU),
-    states.ScheduleEntry(time=0.02, type=StateSegment.ALARM_MUTE_REQUEST),
-])
+MCU_OUTPUT_FAST_SCHEDULE = [
+    StateSegment.EXPECTED_LOG_EVENT_MCU,
+]
+MCU_OUTPUT_SLOW_SCHEDULE = [
+    StateSegment.PARAMETERS_REQUEST,
+    StateSegment.ALARM_LIMITS_REQUEST,
+    StateSegment.ALARM_MUTE_REQUEST,
+]
+MCU_OUTPUT_INTERVAL = 0.02  # s
 
 FRONTEND_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
@@ -76,32 +93,29 @@ FRONTEND_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     # Frontend protobuf message isn't defined yet:
     # frontend_pb.FrontendDisplay: StateSegment.FRONTEND_DISPLAY_REQUEST,
 }
-FRONTEND_OUTPUT_SCHEDULE = collections.deque([
-    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.PARAMETERS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.PARAMETERS_REQUEST),
-    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.ALARM_LIMITS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.ALARM_LIMITS_REQUEST),
-    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.NEXT_LOG_EVENTS_BE),
-    states.ScheduleEntry(time=0.01, type=StateSegment.ACTIVE_LOG_EVENTS_BE),
-    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.ALARM_MUTE),
-    states.ScheduleEntry(time=0.01, type=StateSegment.ALARM_MUTE_REQUEST),
-    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.MCU_POWER_STATUS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.SCREEN_STATUS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.CYCLE_MEASUREMENTS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.ROTARY_ENCODER),
-    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.SYSTEM_SETTING),
-    states.ScheduleEntry(time=0.01, type=StateSegment.SYSTEM_SETTING_REQUEST),
-    states.ScheduleEntry(time=0.01, type=StateSegment.SENSOR_MEASUREMENTS),
-    states.ScheduleEntry(time=0.01, type=StateSegment.FRONTEND_DISPLAY),
-    states.ScheduleEntry(time=0.01, type=StateSegment.FRONTEND_DISPLAY_REQUEST),
-])
+FRONTEND_OUTPUT_FAST_SCHEDULE = [
+    StateSegment.SENSOR_MEASUREMENTS,
+]
+FRONTEND_OUTPUT_SLOW_SCHEDULE = [
+    StateSegment.CYCLE_MEASUREMENTS,
+    StateSegment.PARAMETERS,
+    StateSegment.PARAMETERS_REQUEST,
+    StateSegment.ALARM_LIMITS,
+    StateSegment.ALARM_LIMITS_REQUEST,
+    StateSegment.NEXT_LOG_EVENTS_BE,
+    StateSegment.ACTIVE_LOG_EVENTS_BE,
+    StateSegment.ALARM_MUTE,
+    StateSegment.ALARM_MUTE_REQUEST,
+    StateSegment.MCU_POWER_STATUS,
+    StateSegment.SCREEN_STATUS,
+    StateSegment.BACKEND_CONNECTIONS,
+    StateSegment.ROTARY_ENCODER,
+    StateSegment.SYSTEM_SETTING,
+    StateSegment.SYSTEM_SETTING_REQUEST,
+    StateSegment.FRONTEND_DISPLAY,
+    StateSegment.FRONTEND_DISPLAY_REQUEST,
+]
+FRONTEND_OUTPUT_INTERVAL = 0.01  # s
 
 FILE_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
@@ -111,14 +125,19 @@ FILE_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     # Frontend protobuf message isn't defined yet:
     # frontend_pb.FrontendDisplay: StateSegment.FRONTEND_DISPLAY_REQUEST,
 }
-FILE_OUTPUT_SCHEDULE = collections.deque([
-    states.ScheduleEntry(time=0.5, type=StateSegment.PARAMETERS_REQUEST),
-    states.ScheduleEntry(time=0.5, type=StateSegment.ALARM_LIMITS_REQUEST),
-    states.ScheduleEntry(time=0.5, type=StateSegment.ALARM_MUTE_REQUEST),
-    states.ScheduleEntry(time=0.5, type=StateSegment.SYSTEM_SETTING_REQUEST),
+FILE_OUTPUT_SCHEDULE = [
+    StateSegment.PARAMETERS_REQUEST,
+    StateSegment.ALARM_LIMITS_REQUEST,
+    StateSegment.ALARM_MUTE_REQUEST,
+    StateSegment.SYSTEM_SETTING_REQUEST,
     # Frontend protobuf message isn't defined yet:
-    # states.ScheduleEntry(time=0.5, type=StateSegment.FRONTEND_DISPLAY_REQUEST)
-])
+    # StateSegment.FRONTEND_DISPLAY_REQUEST,
+]
+FILE_OUTPUT_INTERVAL = 0.5  # s
+
+SERVER_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
+    frontend_pb.BackendConnections: StateSegment.BACKEND_CONNECTIONS
+}
 
 
 # Events
@@ -132,6 +151,7 @@ class ReceiveEvent(events.Event):
     mcu_receive: Optional[mcu.UpperEvent] = attr.ib(default=None)
     frontend_receive: Optional[frontend.UpperEvent] = attr.ib(default=None)
     file_receive: Optional[mcu.UpperEvent] = attr.ib(default=None)
+    server_receive: Optional[mcu.UpperEvent] = attr.ib(default=None)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
@@ -139,6 +159,7 @@ class ReceiveEvent(events.Event):
             self.time is not None
             or self.mcu_receive is not None
             or self.frontend_receive is not None
+            or self.server_receive is not None
         )
 
 
@@ -174,35 +195,55 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
     store: Store = attr.ib()
 
     # State sending synchronizers
-    _mcu: states.Synchronizer[StateSegment] = attr.ib()
-    _frontend: states.Synchronizer[StateSegment] = attr.ib()
-    _file: states.Synchronizer[StateSegment] = attr.ib()
+    _mcu: states.TimedSequentialSender[Sender] = attr.ib()
+    _frontend: states.TimedSequentialSender[Sender] = attr.ib()
+    _file: states.TimedSequentialSender[StateSegment] = attr.ib()
 
     @_mcu.default
     def init_mcu(self) -> \
-            states.Synchronizer[StateSegment]:  # pylint: disable=no-self-use
-        """Initialize the mcu state synchronizer."""
-        return states.Synchronizer(
-            segment_types=StateSegment, all_states=self.store,
-            output_schedule=MCU_OUTPUT_SCHEDULE
+            states.TimedSequentialSender[Sender]:
+        """Initialize the mcu state sender."""
+        return states.TimedSequentialSender(
+            output_schedule=ROOT_OUTPUT_SCHEDULE,
+            indexed_sender=states.MappedSenders(senders={
+                Sender.FAST_SCHEDULE: states.SequentialSender(
+                    output_schedule=MCU_OUTPUT_FAST_SCHEDULE,
+                    indexed_sender=self.store
+                ),
+                Sender.SLOW_SCHEDULE: states.SequentialSender(
+                    output_schedule=MCU_OUTPUT_SLOW_SCHEDULE,
+                    indexed_sender=self.store
+                ),
+            }),
+            output_interval=MCU_OUTPUT_INTERVAL
         )
 
     @_frontend.default
     def init_frontend(self) -> \
-            states.Synchronizer[StateSegment]:
-        """Initialize the frontend state synchronizer."""
-        return states.Synchronizer(
-            segment_types=StateSegment, all_states=self.store,
-            output_schedule=FRONTEND_OUTPUT_SCHEDULE
+            states.TimedSequentialSender[Sender]:
+        """Initialize the frontend state sender."""
+        return states.TimedSequentialSender(
+            output_schedule=ROOT_OUTPUT_SCHEDULE,
+            indexed_sender=states.MappedSenders(senders={
+                Sender.FAST_SCHEDULE: states.SequentialSender(
+                    output_schedule=FRONTEND_OUTPUT_FAST_SCHEDULE,
+                    indexed_sender=self.store
+                ),
+                Sender.SLOW_SCHEDULE: states.SequentialSender(
+                    output_schedule=FRONTEND_OUTPUT_SLOW_SCHEDULE,
+                    indexed_sender=self.store
+                ),
+            }),
+            output_interval=FRONTEND_OUTPUT_INTERVAL
         )
 
     @_file.default
     def init_file(self) -> \
-            states.Synchronizer[StateSegment]:  # pylint: disable=no-self-use
-        """Initialize the file state synchronizer."""
-        return states.Synchronizer(
-            segment_types=StateSegment, all_states=self.store,
-            output_schedule=FILE_OUTPUT_SCHEDULE
+            states.TimedSequentialSender[StateSegment]:
+        """Initialize the file state sender."""
+        return states.TimedSequentialSender(
+            output_schedule=FILE_OUTPUT_SCHEDULE, indexed_sender=self.store,
+            output_interval=FILE_OUTPUT_INTERVAL
         )
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
@@ -210,12 +251,10 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         if event is None or not event.has_data():
             return
 
-        # Update synchronizer clocks
-        clock_update_event: states.UpdateEvent[StateSegment] = \
-            states.UpdateEvent(time=event.time)
-        self._mcu.input(clock_update_event)
-        self._frontend.input(clock_update_event)
-        self._file.input(clock_update_event)
+        # Update sender clocks
+        self._mcu.input(event.time)
+        self._frontend.input(event.time)
+        self._file.input(event.time)
 
         # Handle inbound state segments
         # We directly input states into store, instead of passing them in
@@ -224,6 +263,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         self._handle_inbound_state(event.mcu_receive, MCU_INPUT_TYPES)
         self._handle_inbound_state(event.file_receive, FILE_INPUT_TYPES)
         self._handle_inbound_state(event.frontend_receive, FRONTEND_INPUT_TYPES)
+        self._handle_inbound_state(event.server_receive, SERVER_INPUT_TYPES)
 
     def output(self) -> Optional[SendEvent]:
         """Emit the next output event."""
@@ -231,15 +271,15 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         try:
             output_event.mcu_send = self._mcu.output()
         except exceptions.ProtocolDataError:
-            self._logger.exception('MCU State Synchronizer:')
+            self._logger.exception('MCU State Sender:')
         try:
             output_event.frontend_send = self._frontend.output()
         except exceptions.ProtocolDataError:
-            self._logger.exception('Frontend State Synchronizer:')
+            self._logger.exception('Frontend State Sender:')
         try:
             output_event.file_send = self._file.output()
         except exceptions.ProtocolDataError:
-            self._logger.exception('File State Synchronizer:')
+            self._logger.exception('File State Sender:')
         return output_event
 
     def _handle_inbound_state(

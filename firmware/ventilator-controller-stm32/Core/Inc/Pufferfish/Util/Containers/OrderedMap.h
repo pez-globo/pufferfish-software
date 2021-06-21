@@ -40,18 +40,22 @@ class OrderedMap {
   [[nodiscard]] bool full() const;
   [[nodiscard]] size_t available() const;
 
-  void clear();  // O(1)
   // Note: this makes a copy of value!
-  IndexStatus insert(const Key &key, const Value &value);  // O(m)
-  IndexStatus erase(const Key &key);                       // O(m)
-  [[nodiscard]] bool has(const Key &key) const;            // O(m)
-  IndexStatus find(const Key &key, size_t &index) const;   // O(m)
+  IndexStatus input(const Key &key, const Value &value);  // O(m)
+  // Note: this copies the value in the map to the value output parameter!
+  IndexStatus output(const Key &key, Value &value) const;  // O(m)
+  void clear();                                            // O(1)
+  // Note: this makes a copy of value!
+  IndexStatus erase(const Key &key);             // O(m)
+  [[nodiscard]] bool has(const Key &key) const;  // O(m)
 
   [[nodiscard]] constexpr const Vector<Pair, max_pairs> &items() const { return buffer_; }
   constexpr Vector<Pair, max_pairs> &items() { return buffer_; }
 
  private:
   Vector<Pair, max_pairs> buffer_{};
+
+  IndexStatus find(const Key &key, size_t &index) const;  // O(m)
 };
 
 }  // namespace Pufferfish::Util::Containers

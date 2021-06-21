@@ -233,3 +233,13 @@ jobs:
       with:
         name: coverage-report
         path: firmware/ventilator-controller-stm32/cmake-build-testcoverage/TestCoverage_coverage/*
+
+  bad-stm32-include:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Run grep
+      run: |
+        ! grep -R --exclude-dir=STM32 --exclude={Platform.h,main.cpp,stm32h7xx_it.cpp} '#include "Pufferfish/HAL/STM32/'
