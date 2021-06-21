@@ -66,11 +66,14 @@ MCU_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.MCUPowerStatus: StateSegment.MCU_POWER_STATUS,
     mcu_pb.ScreenStatus: StateSegment.SCREEN_STATUS,
 }
-MCU_OUTPUT_INTERVAL = 0.02  # s
-MCU_OUTPUT_ROOT_SCHEDULE = [
-    Sender.EVENT_SCHEDULE,
-    Sender.MAIN_SCHEDULE,
-]
+MCU_OUTPUT_INTERVAL = 0.01  # s
+MCU_OUTPUT_MIN_INTERVAL = 0.01  # s
+MCU_OUTPUT_MAX_INTERVAL = 0.05  # s
+MCU_OUTPUT_ROOT_SCHEDULE = (
+    [Sender.MAIN_SCHEDULE] + [Sender.EVENT_SCHEDULE] * int(
+        MCU_OUTPUT_MAX_INTERVAL / MCU_OUTPUT_MIN_INTERVAL - 1
+    )
+)
 MCU_OUTPUT_SCHEDULE = [
     StateSegment.EXPECTED_LOG_EVENT_MCU,
     StateSegment.PARAMETERS_REQUEST,
@@ -88,7 +91,7 @@ FRONTEND_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     # Frontend protobuf message isn't defined yet:
     # frontend_pb.FrontendDisplay: StateSegment.FRONTEND_DISPLAY_REQUEST,
 }
-FRONTEND_OUTPUT_INTERVAL = 0.01  # s
+FRONTEND_OUTPUT_MIN_INTERVAL = 0.01  # s
 FRONTEND_OUTPUT_ROOT_SCHEDULE = [
     Sender.REALTIME_SCHEDULE,
     Sender.EVENT_SCHEDULE,
@@ -201,71 +204,74 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
     store: Store = attr.ib()
 
     # State sending synchronizers
-    _mcu: states.TimedSequentialSender[Sender] = attr.ib()
-    _frontend: states.TimedSequentialSender[Sender] = attr.ib()
-    _file: states.TimedSequentialSender[Sender] = attr.ib()
+    _mcu: states.TimedSender[Sender] = attr.ib()
+    _frontend: states.TimedSender[Sender] = attr.ib()
+    _file: states.TimedSender[Sender] = attr.ib()
 
     # _current_time: Optional[float] = attr.ib(default=None)
 
     @_mcu.default
-    def init_mcu(self) -> \
-            states.TimedSequentialSender[Sender]:
+    def init_mcu(self) -> states.TimedSender[Sender]:
         """Initialize the mcu state sender."""
-        return states.TimedSequentialSender(
-            output_schedule=MCU_OUTPUT_ROOT_SCHEDULE,
-            indexed_sender=states.MappedSenders(senders={
-                Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
-                    output_schedule=MCU_OUTPUT_SCHEDULE,
-                    all_states=self.store
-                ),
-                Sender.MAIN_SCHEDULE: states.SequentialSender(
-                    output_schedule=MCU_OUTPUT_SCHEDULE,
-                    indexed_sender=self.store
-                ),
-            }),
-            output_interval=MCU_OUTPUT_INTERVAL
+        return states.TimedSender(
+            output_interval=MCU_OUTPUT_MIN_INTERVAL,
+            sender=states.SequentialSender(
+                output_schedule=MCU_OUTPUT_ROOT_SCHEDULE,
+                indexed_sender=states.MappedSenders(senders={
+                    Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
+                        output_schedule=MCU_OUTPUT_SCHEDULE,
+                        all_states=self.store
+                    ),
+                    Sender.MAIN_SCHEDULE: states.SequentialSender(
+                        output_schedule=MCU_OUTPUT_SCHEDULE,
+                        indexed_sender=self.store
+                    ),
+                }),
+            )
         )
 
     @_frontend.default
-    def init_frontend(self) -> \
-            states.TimedSequentialSender[Sender]:
+    def init_frontend(self) -> states.TimedSender[Sender]:
         """Initialize the frontend state sender."""
-        return states.TimedSequentialSender(
-            output_schedule=FRONTEND_OUTPUT_ROOT_SCHEDULE,
-            indexed_sender=states.MappedSenders(senders={
-                Sender.REALTIME_SCHEDULE: states.SequentialSender(
-                    output_schedule=FRONTEND_OUTPUT_REALTIME_SCHEDULE,
-                    indexed_sender=self.store
-                ),
-                Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
-                    output_schedule=FRONTEND_OUTPUT_SCHEDULE,
-                    all_states=self.store, output_idle=False
-                ),
-                Sender.MAIN_SCHEDULE: states.SequentialSender(
-                    output_schedule=FRONTEND_OUTPUT_SCHEDULE,
-                    indexed_sender=self.store
-                ),
-            }),
-            output_interval=FRONTEND_OUTPUT_INTERVAL
+        return states.TimedSender(
+            output_interval=FRONTEND_OUTPUT_MIN_INTERVAL,
+            sender=states.SequentialSender(
+                output_schedule=FRONTEND_OUTPUT_ROOT_SCHEDULE,
+                indexed_sender=states.MappedSenders(senders={
+                    Sender.REALTIME_SCHEDULE: states.SequentialSender(
+                        output_schedule=FRONTEND_OUTPUT_REALTIME_SCHEDULE,
+                        indexed_sender=self.store
+                    ),
+                    Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
+                        output_schedule=FRONTEND_OUTPUT_SCHEDULE,
+                        all_states=self.store, output_idle=False
+                    ),
+                    Sender.MAIN_SCHEDULE: states.SequentialSender(
+                        output_schedule=FRONTEND_OUTPUT_SCHEDULE,
+                        indexed_sender=self.store
+                    ),
+                }),
+            )
         )
 
     @_file.default
-    def init_file(self) -> \
-            states.TimedSequentialSender[Sender]:
+    def init_file(self) -> states.TimedSender[Sender]:
         """Initialize the file state sender."""
-        return states.TimedSequentialSender(
-            output_schedule=FILE_OUTPUT_ROOT_SCHEDULE,
-            indexed_sender=states.MappedSenders(senders={
-                Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
-                    output_schedule=FILE_OUTPUT_SCHEDULE,
-                    all_states=self.store, output_idle=False
-                ),
-                Sender.MAIN_SCHEDULE: states.SequentialSender(
-                    output_schedule=FILE_OUTPUT_SCHEDULE,
-                    indexed_sender=self.store
-                ),
-            }),
-            output_interval=FILE_OUTPUT_MIN_INTERVAL
+        return states.TimedSender(
+            output_interval=FILE_OUTPUT_MIN_INTERVAL,
+            sender=states.SequentialSender(
+                output_schedule=FILE_OUTPUT_ROOT_SCHEDULE,
+                indexed_sender=states.MappedSenders(senders={
+                    Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
+                        output_schedule=FILE_OUTPUT_SCHEDULE,
+                        all_states=self.store, output_idle=False
+                    ),
+                    Sender.MAIN_SCHEDULE: states.SequentialSender(
+                        output_schedule=FILE_OUTPUT_SCHEDULE,
+                        indexed_sender=self.store
+                    ),
+                }),
+            )
         )
 
     def input(self, event: Optional[ReceiveEvent]) -> None:

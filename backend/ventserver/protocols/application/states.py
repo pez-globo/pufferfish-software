@@ -117,15 +117,10 @@ class SequentialSender(Sender, Generic[_Index]):
 
 
 @attr.s
-class TimedSequentialSender(Sender, Generic[_Index]):
-    """State sending filter on a fixed sequence at a fixed time interval.
+class TimedSender(Sender, Generic[_Index]):
+    """State sending filter on a fixed time interval.
 
     Inputs are clock updates. Outputs are state updates for the peer.
-    If skip_unavailable is set to True, when an index is reached which
-    causes indexed_sender to return None, the sequential sender will keep
-    advancing the output schedule until it reaches an index for which
-    indexed_sender doesn't return None, until it has gone through the entire
-    schedule.
 
     Warning: if indexed_sender is mutated by other code, this filter is only
     safe to use in synchronous environments, such as part of another Filter
@@ -134,22 +129,10 @@ class TimedSequentialSender(Sender, Generic[_Index]):
 
     _logger = logging.getLogger('.'.join((__name__, 'TimedSequentialSender')))
 
-    output_schedule: Iterable[_Index] = attr.ib()
-    indexed_sender: IndexedSender[_Index] = attr.ib()
+    sender: SequentialSender[_Index] = attr.ib()
     output_interval: float = attr.ib(default=0)
-    skip_unavailable: bool = attr.ib(default=False)
-    _sender: SequentialSender[_Index] = attr.ib()
     _current_time: Optional[float] = attr.ib(default=None)
     _last_output_time: Optional[float] = attr.ib(default=None)
-
-    @_sender.default
-    def init_sender(self) -> SequentialSender[_Index]:
-        """Initialize the sequential sender."""
-        return SequentialSender(
-            output_schedule=self.output_schedule,
-            indexed_sender=self.indexed_sender,
-            skip_unavailable=self.skip_unavailable
-        )
 
     def input(self, event: Optional[float]) -> None:
         """Handle input events."""
@@ -171,6 +154,6 @@ class TimedSequentialSender(Sender, Generic[_Index]):
             ):
                 return None
 
-        output = self._sender.output()
+        output = self.sender.output()
         self._last_output_time = self._current_time
         return output
