@@ -1,6 +1,32 @@
+SCENARIO: The Util::Vector resize method correctly updates the internal size of the vector to the new size
 
-SCENARIO:The function resize in  Vectors work correctly
-  GIVEN('Vector with empty internal buffer with 256 buffer size') 
+  GIVEN("A uint8_t vector(ByteVector) constructed with array size of 256 bytes")
+
+    WHEN("10 bytes are pushed after which resize method is called with a new size of 260")
+      THEN("Before the resize method is called, The size method reports size as 10")
+      THEN("The avaliable method reports that 246 bytes are avaliable")
+      THEN("The empty method reports that the vector is non-empty")
+      THEN("The full method reports that the vector is not completely filled")
+      THEN("The resize method reports out_of_bounds status")
+      THEN("After the resize method is called, the size method reports size as 10")
+      THEN("The avaliable method reports that 246 bytes are avaliable")
+      THEN("The empty method reports that the vector is non-empty")
+      THEN("The full method reports that the vector is not completely filled")
+      THEN("The vector has an expected sequence of 10 bytes")
+
+    WHEN("20 bytes are pushed after which resize method is called with a new size of 256 bytes")
+      THEN("Before the resize method is called, The size method reports size as 20")
+      THEN("The avaliable method reports that 236 bytes are avaliable")
+      THEN("The empty method reports that the vector is non-empty")
+      THEN("The full method reports that the vector is not completely filled")
+      THEN("The resize method reports ok status")
+      THEN("After the resize method is called, the size method reports size as 256")
+      THEN("The avaliable method reports that 0 bytes are avaliable")
+      THEN("The empty method reports that the vector is non-empty")
+      THEN("The full method reports that the vector is completely filled")
+      THEN("The vector has an expected sequence of 20 bytes initially pushed, and 236 null bytes") {
+
+  GIVEN('Vector with empty internal buffer with 256 buffer size')
   WHEN('Partially filled vector is resized to smaller buffer size')
     THEN('Vector is resized correctly to 5 ')
     THEN('Returns correct data for every indices [0xe3,0x03,0x08,0x0f,0x0a]')
@@ -21,8 +47,8 @@ SCENARIO:The function resize in  Vectors work correctly
     THEN('Returns out of bounds, for index 22')
     THEN('Returns false for empty function')
 
-  WHEN('Partially filled vector is passed as input for resize function longer than original size')    
-   THEN('Resize returns ok ') 
+  WHEN('Partially filled vector is passed as input for resize function longer than original size')
+   THEN('Resize returns ok ')
    THEN('Returns correct avaliable size 75 for avaliable function')
    THEN('Returns 25 s for size function')
    THEN('Returns false for full function')
@@ -43,7 +69,7 @@ SCENARIO: The function in Vector, push_back works correctly
     THEN('Returns out of bounds for erase function used on index 10')
     THEN('Returns false for empty function')
 
-  GIVEN('Partially filled vector with capacity 5')  
+  GIVEN('Partially filled vector with capacity 5')
   WHEN('partially filled vector with buffer size 5 is passed as input for adding data at index 5 and 7')
     THEN('Returns ok for push_back function at index 5')
     THEN('Returns out of bounds for push_back function at index 7')
@@ -68,7 +94,7 @@ SCENARIO: The function in Vector, push_back works correctly
 
 
 SCENARIO: The function in Vector: copy_from works correctly
-  GIVEN('Vector with completely filled buffer with 4UL capacity')   
+  GIVEN('Vector with completely filled buffer with 4UL capacity')
   WHEN('Vector of 4UL is passed as input and output is called')
     THEN('Returns ok for copy_from function')
     THEN('Returns correct values at every index [0x08, 0x01, 0x04, 0x02]')
@@ -108,7 +134,7 @@ SCENARIO: The function in Vector: copy_from works correctly
     THEN('Returns 1 as size function')
     THEN('Returns 1 for avaliable function')
     THEN('Returns false for full function')
-    THEN('Returns false for empty function')    
+    THEN('Returns false for empty function')
 
 SCENARIO: Copy_from function for array works correctly
   GIVEN('Vector with completely filled buffer with 4UL capacity')
@@ -121,7 +147,7 @@ SCENARIO: Copy_from function for array works correctly
     THEN('Retuns ok for erase at index 2')
     THEN('retuns out of bounds for erase used on out of bound index')
 
-  WHEN('An array of 2UL size is passed as input to copy_from function for dest index 1')  
+  WHEN('An array of 2UL size is passed as input to copy_from function for dest index 1')
     THEN('Returns ok for copy_from function')
     THEN('Returns correct value for every index [0, 0x0f]')
     THEN('Returns 2 for size function')
@@ -130,7 +156,7 @@ SCENARIO: Copy_from function for array works correctly
     THEN('Returns false for empty function')
 
    WHEN('An array of 2UL size is passed as input to copy_from function for dest index 6')
-     THEN('Result is out of bounds for coy_from function at index 6')  
+     THEN('Result is out of bounds for coy_from function at index 6')
      THEN('Returns 2 for size function')
      THEN('Returns false for full function')
      THEN('Returns 1 for avaliable function')
@@ -138,7 +164,7 @@ SCENARIO: Copy_from function for array works correctly
 
    WHEN('Vector of uint16 is passed as input for copy_from function')
      THEN('Returns ok for copy_from function')
-     THEN('Returns correct value [0x0f02]')  
+     THEN('Returns correct value [0x0f02]')
      THEN('Returns 1 for size function')
      THEN('Returns 3 for avaliable function')
      THEN('Returns false for full function')
@@ -146,7 +172,7 @@ SCENARIO: Copy_from function for array works correctly
 
 
 SCENARIO: The function in Vector: copy_from works correctly
-  GIVEN('Vector with completely filled buffer with 4UL capacity') 
+  GIVEN('Vector with completely filled buffer with 4UL capacity')
   WHEN('Vector of 2UL is passed as input for copy_from function')
     THEN('Returns ok for copy_from function')
     THEN('Returns correct data for every index [0x08, 0x0a]')
@@ -170,7 +196,7 @@ SCENARIO: The function in Vector: copy_from works correctly
 
   WHEN('Vector of 2UL is passed as input and output is called for dest index 3')
      THEN('Returns out of bounds for copy_from function for index 3')
-     THEN('Returns 2 for size function') 
+     THEN('Returns 2 for size function')
      THEN('Returns 2 for avaliable function')
      THEN('Returns true for full function')
      THEN('Returns true for empty function')
@@ -178,7 +204,7 @@ SCENARIO: The function in Vector: copy_from works correctly
 
 
 SCENARIO: The function in Vector:Element *buffer() works correctly
-  GIVEN('Vector with partially filled with buffer size 100UL')   
+  GIVEN('Vector with partially filled with buffer size 100UL')
   WHEN('Element *buffer() function is used on vector')
     THEN('Returned vector is as expected at every index (0x08,0x0a,0x83,0x02)')
     THEN('Returns 4 for size function')
@@ -202,7 +228,7 @@ SCENARIO: The function in vector: erase works correctly
     THEN('Returns ok for erase function at index 0')
     THEN('Returns ok for erase function at index 1')
     THEN('Returns out of bounds for erase function at index 3')
-    THEN('Returns correct size for size function') 
+    THEN('Returns correct size for size function')
     THEN('Returns 2  for avaliable function')
     THEN('Returns true for full function')
     THEN('Returns false for empty function')
@@ -228,7 +254,7 @@ SCENARIO: A vector function operator works correctly
   GIVEN('A vector partially filled with 20UL size')
   WHEN('Function operator is used on 20UL size vector')
     THEN('Returns correct values for operator function for 0-10th index[0x0a, 0x05, 0x0f, 0x0c, 0x0d, 0x03, 0xff, 0x09, 0x01]')
-    THEN('Returns 0 for 15th and 20th index for operator function')  
+    THEN('Returns 0 for 15th and 20th index for operator function')
 
 
 

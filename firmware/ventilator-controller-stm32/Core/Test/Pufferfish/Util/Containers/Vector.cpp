@@ -11,14 +11,97 @@
 #include "Pufferfish/Util/Containers/Vector.h"
 
 #include <cstring>
+#include <iostream>
 
 #include "Pufferfish/Util/Containers/Array.h"
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
 
-// constexpr size_t buffer_size = 252UL;
 SCENARIO(" The function resize in  Vectors work correctly") {
+  GIVEN("A uint8_t vector(ByteVector) constructed with array size of 256 bytes") {
+    constexpr size_t buffer_size = 256UL;
+    PF::Util::Containers::ByteVector<buffer_size> vector;
+
+    WHEN("10 bytes are pushed after which resize method is called with a new size of 260") {
+      for (size_t i = 0; i < 10; i++) {
+        vector.push_back(i);
+      }
+      THEN("Before the resize method is called, The size method reports size as 10") {
+        REQUIRE(vector.size() == 10);
+      }
+      THEN("The avaliable method reports that 246 bytes are avaliable") {
+        REQUIRE(vector.available() == 246);
+      }
+      THEN("The empty method reports that the vector is non-empty") {
+        REQUIRE(vector.empty() == false);
+      }
+      THEN("The full method reports that the vector is not completely filled") {
+        REQUIRE(vector.full() == false);
+      }
+      auto status = vector.resize(260);
+      THEN("The resize method reports out_of_bounds status") {
+        REQUIRE(status == PF::IndexStatus::out_of_bounds);
+      }
+      THEN("After the resize method is called, the size method reports size as 10") {
+        REQUIRE(vector.size() == 10);
+      }
+      THEN("The avaliable method reports that 246 bytes are avaliable") {
+        REQUIRE(vector.available() == 246);
+      }
+      THEN("The empty method reports that the vector is non-empty") {
+        REQUIRE(vector.empty() == false);
+      }
+      THEN("The full method reports that the vector is not completely filled") {
+        REQUIRE(vector.full() == false);
+      }
+      THEN("The vector has an expected sequence of 10 bytes") {
+        for (size_t i = 0; i < 10; i++) {
+          REQUIRE(vector.operator[](i) == i);
+        }
+      }
+    }
+    WHEN("20 bytes are pushed after which resize method is called with a new size of 256 bytes") {
+      for (size_t i = 0; i < 20; i++) {
+        vector.push_back(i);
+      }
+      THEN("Before the resize method is called, The size method reports size as 10") {
+        REQUIRE(vector.size() == 20);
+      }
+      THEN("The avaliable method reports that 236 bytes are avaliable") {
+        REQUIRE(vector.available() == 236);
+      }
+      THEN("The empty method reports that the vector is non-empty") {
+        REQUIRE(vector.empty() == false);
+      }
+      THEN("The full method reports that the vector is not completely filled") {
+        REQUIRE(vector.full() == false);
+      }
+      auto status = vector.resize(256);
+      THEN("The resize method reports ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("After the resize method is called, the size method reports size as 256") {
+        REQUIRE(vector.size() == 256);
+      }
+      THEN("The avaliable method reports that 0 bytes are avaliable") {
+        REQUIRE(vector.available() == 0);
+      }
+      THEN("The empty method reports that the vector is non-empty") {
+        REQUIRE(vector.empty() == false);
+      }
+      THEN("The full method reports that the vector is completely filled") {
+        REQUIRE(vector.full() == true);
+      }
+      THEN("The vector has an expected sequence of 20 bytes initially pushed, and 236 null bytes") {
+        for (size_t i = 0; i < 20; i++) {
+          REQUIRE(vector.operator[](i) == i);
+        }
+        for (size_t i = 20; i < 256; i++) {
+          REQUIRE(vector.operator[](i) == 0);
+        }
+      }
+    }
+  }
+
   GIVEN("Vector with empty internal buffer with 256 buffer size") {
     constexpr size_t buffer_size = 100UL;
     PF::Util::Containers::Vector<uint8_t, buffer_size> vector1;
