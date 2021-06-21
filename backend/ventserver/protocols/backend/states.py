@@ -216,7 +216,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             indexed_sender=states.MappedSenders(senders={
                 Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
                     output_schedule=MCU_OUTPUT_SCHEDULE,
-                    indexed_sender=self.store
+                    all_states=self.store
                 ),
                 Sender.MAIN_SCHEDULE: states.SequentialSender(
                     output_schedule=MCU_OUTPUT_SCHEDULE,
@@ -239,8 +239,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
                 ),
                 Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
                     output_schedule=FRONTEND_OUTPUT_SCHEDULE,
-                    indexed_sender=self.store,
-                    output_idle=False
+                    all_states=self.store, output_idle=False
                 ),
                 Sender.MAIN_SCHEDULE: states.SequentialSender(
                     output_schedule=FRONTEND_OUTPUT_SCHEDULE,
@@ -259,8 +258,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             indexed_sender=states.MappedSenders(senders={
                 Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
                     output_schedule=FILE_OUTPUT_SCHEDULE,
-                    indexed_sender=self.store,
-                    output_idle=False
+                    all_states=self.store, output_idle=False
                 ),
                 Sender.MAIN_SCHEDULE: states.SequentialSender(
                     output_schedule=FILE_OUTPUT_SCHEDULE,

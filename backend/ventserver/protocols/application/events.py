@@ -58,18 +58,18 @@ class NotificationSender(states.Sender, Generic[_Index]):
     output_schedule: Iterable[_Index] = attr.ib()
     indexed_sender: states.IndexedSender[_Index] = attr.ib()
     output_idle: bool = attr.ib(default=False)
-    _allowed_indices: Set[_Index] = attr.ib(factory=set)
-    _sequential_sender: states.SequentialSender[_Index] = attr.ib()
+    _sendable_indices: Set[_Index] = attr.ib(factory=set)
+    _sendable_sender: states.SequentialSender[_Index] = attr.ib()
     _idle_sender: states.SequentialSender[_Index] = attr.ib()
 
-    @_sequential_sender.default
+    @_sendable_sender.default
     def init_sequential_sender(self) -> states.SequentialSender[_Index]:
         """Initialize the sequential sender."""
         return states.SequentialSender(
             output_schedule=self.output_schedule,
             indexed_sender=FilteredSender(
                 sender=self.indexed_sender,
-                allowed_indices=self._allowed_indices
+                allowed_indices=self._sendable_indices
             ),
             skip_unavailable=True
         )
@@ -88,24 +88,24 @@ class NotificationSender(states.Sender, Generic[_Index]):
         if event is None:
             return
 
-        self._allowed_indices.add(event)
+        self._sendable_indices.add(event)
 
     def output(self) -> Optional[betterproto.Message]:
         """Emit the next output event."""
-        if not self._allowed_indices:
+        if not self._sendable_indices:
             return self._get_next_idle_output() if self.output_idle else None
 
-        output = self._get_next_output()
+        output = self._get_next_sendable_output()
         if output is None and self.output_idle:
             output = self._get_next_idle_output()
         return output
 
-    def _get_next_output(self) -> Optional[betterproto.Message]:
+    def _get_next_sendable_output(self) -> Optional[betterproto.Message]:
         """Produce the next state from the sequential sender."""
-        output = self._sequential_sender.output()
-        index = self._sequential_sender.last_index
+        output = self._sendable_sender.output()
+        index = self._sendable_sender.last_index
         if output is not None and index is not None:
-            self._allowed_indices.discard(index)
+            self._sendable_indices.discard(index)
             self._logger.debug('Sending notification: %s', index)
         return output
 
@@ -114,7 +114,7 @@ class NotificationSender(states.Sender, Generic[_Index]):
         output = self._idle_sender.output()
         index = self._idle_sender.last_index
         if output is not None and index is not None:
-            self._allowed_indices.discard(index)
+            self._sendable_indices.discard(index)
         return output
 
 
@@ -123,22 +123,22 @@ class ChangedStateSender(states.Sender, Generic[_Index]):
     """Changed state event notification sending filter.
 
     Does not take inputs. Outputs are state updates for the peer.
-    Outputs are available only when the outputs from indexed_sender change.
+    Outputs are available only when the outputs from all_states change.
 
     If output_idle is set, when no states have sendable changes, the sender will
     continue outputting all states as if they all had sendable changes. Sendable
-    changes are detected by getting outputs from all indices in indexed_sender;
-    so indexed_sender's __getitem__ should be an idempotent operation. In other
-    words, indexed_sender should be a dict of indices and states, or a store
+    changes are detected by getting outputs from all indices in all_states;
+    so all_states's __getitem__ should be an idempotent operation. In other
+    words, all_states should be a dict of indices and states, or a store
     object with the same semantics; it should not be a MappedSenders object.
 
-    Warning: because it relies on an indexed_sender mutated by other code, this
+    Warning: because it relies on an all_states mutated by other code, this
     filter is only safe to use in synchronous environments, such as part of
-    another Filter which completely owns indexed_sender.
+    another Filter which completely owns all_states.
     """
 
     output_schedule: Iterable[_Index] = attr.ib()
-    indexed_sender: states.IndexedSender[_Index] = attr.ib()
+    all_states: states.IndexedSender[_Index] = attr.ib()
     output_idle: bool = attr.ib(default=True)
     _notification_sender: NotificationSender[_Index] = attr.ib()
     _trackable_states: Set[_Index] = attr.ib()
@@ -149,7 +149,7 @@ class ChangedStateSender(states.Sender, Generic[_Index]):
         """Initialize the notification sender."""
         return NotificationSender(
             output_schedule=self.output_schedule,
-            indexed_sender=self.indexed_sender, output_idle=self.output_idle
+            indexed_sender=self.all_states, output_idle=self.output_idle
         )
 
     @_trackable_states.default
@@ -162,8 +162,8 @@ class ChangedStateSender(states.Sender, Generic[_Index]):
 
     def output(self) -> Optional[betterproto.Message]:
         """Emit the next output event."""
-        for index in self.output_schedule:
-            new_state = self.indexed_sender[index]
+        for index in self._trackable_states:
+            new_state = self.all_states[index]
             if (new_state is not None and (
                     index not in self._prev_states or
                     new_state != self._prev_states[index]
