@@ -9,7 +9,7 @@ import attr
 import betterproto
 
 from ventserver.protocols import events, exceptions
-from ventserver.protocols.application import states
+from ventserver.protocols.application import events as eventsync, states
 from ventserver.protocols.devices import frontend, mcu
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.sansio import protocols
@@ -50,16 +50,9 @@ Store = Dict[StateSegment, Optional[betterproto.Message]]
 @enum.unique
 class Sender(enum.Enum):
     """Enum for combining different state senders."""
-    FAST_SCHEDULE = enum.auto()
-    SLOW_SCHEDULE = enum.auto()
-
-
-# Used for MCU and Frontend send schedules
-ROOT_OUTPUT_SCHEDULE = [
-    Sender.FAST_SCHEDULE,
-    Sender.SLOW_SCHEDULE,
-    Sender.SLOW_SCHEDULE,
-]
+    REALTIME_SCHEDULE = enum.auto()
+    EVENT_SCHEDULE = enum.auto()
+    MAIN_SCHEDULE = enum.auto()
 
 
 MCU_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
@@ -73,15 +66,17 @@ MCU_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.MCUPowerStatus: StateSegment.MCU_POWER_STATUS,
     mcu_pb.ScreenStatus: StateSegment.SCREEN_STATUS,
 }
-MCU_OUTPUT_FAST_SCHEDULE = [
-    StateSegment.EXPECTED_LOG_EVENT_MCU,
+MCU_OUTPUT_INTERVAL = 0.02  # s
+MCU_OUTPUT_ROOT_SCHEDULE = [
+    Sender.EVENT_SCHEDULE,
+    Sender.MAIN_SCHEDULE,
 ]
-MCU_OUTPUT_SLOW_SCHEDULE = [
+MCU_OUTPUT_SCHEDULE = [
+    StateSegment.EXPECTED_LOG_EVENT_MCU,
     StateSegment.PARAMETERS_REQUEST,
     StateSegment.ALARM_LIMITS_REQUEST,
     StateSegment.ALARM_MUTE_REQUEST,
 ]
-MCU_OUTPUT_INTERVAL = 0.02  # s
 
 FRONTEND_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
@@ -93,10 +88,16 @@ FRONTEND_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     # Frontend protobuf message isn't defined yet:
     # frontend_pb.FrontendDisplay: StateSegment.FRONTEND_DISPLAY_REQUEST,
 }
-FRONTEND_OUTPUT_FAST_SCHEDULE = [
+FRONTEND_OUTPUT_INTERVAL = 0.01  # s
+FRONTEND_OUTPUT_ROOT_SCHEDULE = [
+    Sender.REALTIME_SCHEDULE,
+    Sender.EVENT_SCHEDULE,
+    Sender.MAIN_SCHEDULE,
+]
+FRONTEND_OUTPUT_REALTIME_SCHEDULE = [
     StateSegment.SENSOR_MEASUREMENTS,
 ]
-FRONTEND_OUTPUT_SLOW_SCHEDULE = [
+FRONTEND_OUTPUT_SCHEDULE = [
     StateSegment.CYCLE_MEASUREMENTS,
     StateSegment.PARAMETERS,
     StateSegment.PARAMETERS_REQUEST,
@@ -115,7 +116,6 @@ FRONTEND_OUTPUT_SLOW_SCHEDULE = [
     StateSegment.FRONTEND_DISPLAY,
     StateSegment.FRONTEND_DISPLAY_REQUEST,
 ]
-FRONTEND_OUTPUT_INTERVAL = 0.01  # s
 
 FILE_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
@@ -125,6 +125,13 @@ FILE_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     # Frontend protobuf message isn't defined yet:
     # frontend_pb.FrontendDisplay: StateSegment.FRONTEND_DISPLAY_REQUEST,
 }
+FILE_OUTPUT_MIN_INTERVAL = 0.1  # s
+FILE_OUTPUT_MAX_INTERVAL = 2.0  # s
+FILE_OUTPUT_ROOT_SCHEDULE = (
+    [Sender.MAIN_SCHEDULE] + [Sender.EVENT_SCHEDULE] * int(
+        FILE_OUTPUT_MAX_INTERVAL / FILE_OUTPUT_MIN_INTERVAL - 1
+    )
+)
 FILE_OUTPUT_SCHEDULE = [
     StateSegment.PARAMETERS_REQUEST,
     StateSegment.ALARM_LIMITS_REQUEST,
@@ -133,7 +140,6 @@ FILE_OUTPUT_SCHEDULE = [
     # Frontend protobuf message isn't defined yet:
     # StateSegment.FRONTEND_DISPLAY_REQUEST,
 ]
-FILE_OUTPUT_INTERVAL = 0.5  # s
 
 SERVER_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     frontend_pb.BackendConnections: StateSegment.BACKEND_CONNECTIONS
@@ -197,21 +203,23 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
     # State sending synchronizers
     _mcu: states.TimedSequentialSender[Sender] = attr.ib()
     _frontend: states.TimedSequentialSender[Sender] = attr.ib()
-    _file: states.TimedSequentialSender[StateSegment] = attr.ib()
+    _file: states.TimedSequentialSender[Sender] = attr.ib()
+
+    # _current_time: Optional[float] = attr.ib(default=None)
 
     @_mcu.default
     def init_mcu(self) -> \
             states.TimedSequentialSender[Sender]:
         """Initialize the mcu state sender."""
         return states.TimedSequentialSender(
-            output_schedule=ROOT_OUTPUT_SCHEDULE,
+            output_schedule=MCU_OUTPUT_ROOT_SCHEDULE,
             indexed_sender=states.MappedSenders(senders={
-                Sender.FAST_SCHEDULE: states.SequentialSender(
-                    output_schedule=MCU_OUTPUT_FAST_SCHEDULE,
+                Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
+                    output_schedule=MCU_OUTPUT_SCHEDULE,
                     indexed_sender=self.store
                 ),
-                Sender.SLOW_SCHEDULE: states.SequentialSender(
-                    output_schedule=MCU_OUTPUT_SLOW_SCHEDULE,
+                Sender.MAIN_SCHEDULE: states.SequentialSender(
+                    output_schedule=MCU_OUTPUT_SCHEDULE,
                     indexed_sender=self.store
                 ),
             }),
@@ -223,14 +231,19 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             states.TimedSequentialSender[Sender]:
         """Initialize the frontend state sender."""
         return states.TimedSequentialSender(
-            output_schedule=ROOT_OUTPUT_SCHEDULE,
+            output_schedule=FRONTEND_OUTPUT_ROOT_SCHEDULE,
             indexed_sender=states.MappedSenders(senders={
-                Sender.FAST_SCHEDULE: states.SequentialSender(
-                    output_schedule=FRONTEND_OUTPUT_FAST_SCHEDULE,
+                Sender.REALTIME_SCHEDULE: states.SequentialSender(
+                    output_schedule=FRONTEND_OUTPUT_REALTIME_SCHEDULE,
                     indexed_sender=self.store
                 ),
-                Sender.SLOW_SCHEDULE: states.SequentialSender(
-                    output_schedule=FRONTEND_OUTPUT_SLOW_SCHEDULE,
+                Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
+                    output_schedule=FRONTEND_OUTPUT_SCHEDULE,
+                    indexed_sender=self.store,
+                    output_idle=False
+                ),
+                Sender.MAIN_SCHEDULE: states.SequentialSender(
+                    output_schedule=FRONTEND_OUTPUT_SCHEDULE,
                     indexed_sender=self.store
                 ),
             }),
@@ -239,11 +252,22 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
 
     @_file.default
     def init_file(self) -> \
-            states.TimedSequentialSender[StateSegment]:
+            states.TimedSequentialSender[Sender]:
         """Initialize the file state sender."""
         return states.TimedSequentialSender(
-            output_schedule=FILE_OUTPUT_SCHEDULE, indexed_sender=self.store,
-            output_interval=FILE_OUTPUT_INTERVAL
+            output_schedule=FILE_OUTPUT_ROOT_SCHEDULE,
+            indexed_sender=states.MappedSenders(senders={
+                Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
+                    output_schedule=FILE_OUTPUT_SCHEDULE,
+                    indexed_sender=self.store,
+                    output_idle=False
+                ),
+                Sender.MAIN_SCHEDULE: states.SequentialSender(
+                    output_schedule=FILE_OUTPUT_SCHEDULE,
+                    indexed_sender=self.store
+                ),
+            }),
+            output_interval=FILE_OUTPUT_MIN_INTERVAL
         )
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
@@ -252,6 +276,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             return
 
         # Update sender clocks
+        # self._current_time = event.time
         self._mcu.input(event.time)
         self._frontend.input(event.time)
         self._file.input(event.time)
@@ -274,6 +299,15 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             self._logger.exception('MCU State Sender:')
         try:
             output_event.frontend_send = self._frontend.output()
+            # if (
+            #         output_event.frontend_send is not None and
+            #         self._current_time is not None
+            # ):
+            #     fractional_time = \
+            #         int((self._current_time - int(self._current_time))
+            #     print('{:3d}\t{}'.format(
+            #         fractional_time * 1000), type(output_event.frontend_send)
+            #     ))
         except exceptions.ProtocolDataError:
             self._logger.exception('Frontend State Sender:')
         try:
