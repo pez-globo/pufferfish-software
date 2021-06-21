@@ -70,6 +70,7 @@ class SequentialSender(Sender, Generic[_Index]):
     indexed_sender: IndexedSender[_Index] = attr.ib()
     skip_unavailable: bool = attr.ib(default=False)
     _schedule: Deque[_Index] = attr.ib()
+    _last_index: Optional[_Index] = attr.ib(default=None)
 
     @_schedule.default
     def init_schedule(self) -> Deque[_Index]:
@@ -90,16 +91,15 @@ class SequentialSender(Sender, Generic[_Index]):
     def _get_next_output(self) -> Optional[betterproto.Message]:
         """Produce the next state in the schedule."""
         try:
-            output_type = self._schedule[0]
+            index = self._schedule[0]
         except IndexError:
             return None
 
         try:
-            output_event = self.indexed_sender[output_type]
+            output_event = self.indexed_sender[index]
         except KeyError as exc:
             raise exceptions.ProtocolDataError(
-                'Scheduled message type is not a sendable state: {}'
-                .format(output_type)
+                'Scheduled index is not valid: {}'.format(index)
             ) from exc
 
         self._schedule.rotate(-1)
@@ -107,7 +107,13 @@ class SequentialSender(Sender, Generic[_Index]):
             return None
 
         self._logger.debug('Sending: %s', output_event)
+        self._last_index = index
         return output_event
+
+    @property
+    def last_index(self) -> Optional[_Index]:
+        """Return the index associated with the last produced output."""
+        return self._last_index
 
 
 @attr.s
