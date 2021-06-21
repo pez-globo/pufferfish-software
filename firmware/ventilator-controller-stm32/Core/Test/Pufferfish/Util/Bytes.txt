@@ -1,83 +1,59 @@
 Scenario:The get_byte function in Bytes correctly gets bytes from the given position
    GIVEN('get_byte function')
-       WHEN('the get_byte function is called for 0th index on 0x86 ')
-          THEN('The value at the 0th index  is 134')
+       WHEN('the function is called with byte index 0 and input type uint8_t as the template parameters and with 0x86 as the input value ')
+          THEN('The value at the 0th index  is 0x86')
 
-       WHEN('the get_byte function is called for 1st index on 0x86')
-          THEN('The value at the 1st index  is 0')
+       WHEN('the function is called with byte index 1 and input type uint8_t as the template parameters and with 0x86 as the input value')
+          THEN('The value at the 1st index  is 0x00')
 
 
 
    GIVEN('The get_byte function' )
-       WHEN('the get_byte function is called for 0th index on 0x860a')  
-          THEN('The value at 0th index is 10')
+       WHEN('the function is called with byte index 0 and input type uint16_t as the template parameters and with 0x860a as the input value')  
+          THEN('The value at 0th index is 0x0a')
 
-       WHEN('the get_byte function is called for 1st index on 0x860a')  
-          THEN('The value at 1st index is 134')
+       WHEN('the function is called with byte index 1 and input type uint16_t as the template parameters and with 0x860a as the input value')  
+          THEN('The value at 1st index is 0x86')
        
-       WHEN('the get_byte function is called for 2nd index on 0x860a')  
-          THEN('The value at 2nd index is 0')
+       WHEN('the function is called with byte index 2 and input type uint16_t as the template parameters and with 0x860a as the input value')  
+          THEN('The value at 2nd index is 0x00')
 
 
    GIVEN('The get_byte function')
-       WHEN('the get_byte function is called for 0th index on 0x86010f0a')
-       THEN('Result is as expected, output at 0th index is 10')
+       WHEN('the function is called with byte index 0 and input type uint32_t as the template parameters and with 0x86010f0a as the input value')
+       THEN('Result is as expected, output at 0th index is 0x0a')
 
-       WHEN('the get_byte function is called for 1st index on 0x86010f0a')
-          THEN('Result is as expected, output at 1st index is 15')
+       WHEN('the function is called with byte index 1 and input type uint32_t as the template parameters and with 0x86010f0a as the input value')
+          THEN('Result is as expected, output at 1st index is 0x0f')
 
-      WHEN('the get_byte function is called for 2nd index on 0x86010f0a')
-         THEN('Result is as expected, value at 2nd index is 1')
+      WHEN('the function is called with byte index 2 and input type uint32_t as the template parameters and with 0x86010f0a as the input value')
+         THEN('Result is as expected, value at 2nd index is 0x01')
 
-      WHEN('the get_byte function is called for 3rd index on 0x86010f0a')
-         THEN('Result is as expected, value at 3rd index is 134')
+      WHEN('the function is called with byte index 3 and input type uint32_t as the template parameters and with 0x86010f0a as the input value')
+         THEN('Result is as expected, value at 3rd index is 0x86')
 
-      WHEN('the get_byte function is called for 4th index on 0x86010f0a')
-         THEN('Result is as expected, value at 4th index is 10')
 
 
 
 
 Scenario: The  set_byte function correctly sets bytes to the given position
   GIVEN('The set_byte function')
-  WHEN('the set_byte function is called on 0x86 for 0th index')
-     THEN('Value is as expected 134')
+  WHEN('the function is called with byte index 0 and input type uint8_t as the template parameters and with 0x83 as the input value')
+     THEN('Value is as expected 0x86')
 
-  WHEN('the set_byte function is called on 0x86 for 1st index')
-     THEN('Value is as expected 0 ')
+  WHEN('the function is called with byte index 1 and input type uint8_t as the template parameters and with 0x83 as the input value')
+     THEN('Value is as expected 0x00 ')
 
   GIVEN('The set_byte function ')
-  WHEN('the set_byte function is called on uint16_t data-type  0x83 for 0th index')
-     THEN('Value is as expected 131')
+  WHEN('the function is called with byte index 0 and on type uint16_t as the template parameters and with 0x83 as the input value')
+     THEN('Value is as expected 0x83')
   
-  WHEN('the set_byte function is called on uint16_t data-type 0x83 for 1st index')
-     THEN('Value is as expected 33536')
+  WHEN('the function is called with byte index 1 and on type uint16_t as the template parameters and with 0x83 as the input value')
+     THEN('Value is as expected 0x8300')
      
-  WHEN('the set_byte function is called on uint32_t data-type 0x83 for 2nd index')
-     THEN('Value is as expected 8585216')
+  WHEN('the function is called with byte index 2 and on type uint32_t as the template parameters and with 0x83 as the input value')
+     THEN('Value is as expected 0x830000')
 
-  WHEN('the set_byte function is called on uint32_t data-type 0x83 for 3rd index')
-     THEN('Value is as expected  2197815296')
+  WHEN('the function is called with byte index 3 and on type uint32_t as the template parameters and with 0x83 as the input value')
+     THEN('Value is as expected  0x83000000')
 
-  WHEN('the set_byte function is called on uint32_t data-type 0x83 for 4th index')
-     THEN('Value is as expected  131')
-
-  GIVEN('The  set_byte function')
-  WHEN('the set_byte function is called on uint16_t data-type 0x860a for 0th index')
-     THEN('Value is as expected 10')
-
-  WHEN('the set_byte function is called on uint16_t data-type  0x860a for 1st index')
-     THEN('Value is as expected 2560')
-
-  WHEN('the set_byte function is called on uint16_t data-type 0x860a for 2nd index')
-     THEN('Value is as expected 0')
-
-
-  WHEN('the set_byte function is called on uint32_t data-type 0x860a for 2nd index')
-     THEN('Value is as expected  655360')
-
-  WHEN('the set_byte function is called on uint32_t data-type 0x860a for 3rd index')
-     THEN('Value is as expected 167772160')
-
-  WHEN('the set_byte function is called on uint32_t data-type 0x860a for 4th index')
-     THEN('Value is as expected 10')

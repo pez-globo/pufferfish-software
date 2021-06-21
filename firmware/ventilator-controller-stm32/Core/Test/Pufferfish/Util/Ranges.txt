@@ -1,15 +1,12 @@
-Scenario: The  Ranges:  within function works correctly
-  GIVEN('The within function')
-  //floor>value>ceiling
-  WHEN('floor is '1 and ceiling is 255 , value 131 is within range')
-     THEN('Returns true ,  value 131 is in range')
-
-
 Scenario:The Ranges:  clamp and within function works correctly
   GIVEN('The clamp and within function')
-  //floor>value>ceiling
-   WHEN('the function clamp is called with a floor of 1, a ceiling of 255, and a test value of 131')
-      THEN('Returns correct value 131') 
+//floor>value>ceiling
+  WHEN('the function clamp is called with a floor of 1, a ceiling of 255, and a test value of 131')
+    THEN('Returns correct value 131') 
+
+  WHEN('floor is '1 and ceiling is 255 , value 131 is within range')
+    THEN('Returns true ,  value 131 is in range')
+
 
 //value >ceiling> floor 
    WHEN('The function clamp is called with a floor of 1, a ceiling of 10, and a test value of 131')
@@ -36,22 +33,68 @@ Scenario:The Ranges:  clamp and within function works correctly
 
 //floor > ceiling > value 
   GIVEN('The clamp and within function')  
-  WHEN('The function clamp is called with a floor of 8, a ceiling of 15, and a test value of 83')
+  WHEN('The function clamp is called with a floor of 8, a ceiling of 255, and a test value of 83')
     THEN('Returns expected  input value 83')
 
   WHEN('The function within is called with a floor of 8, a ceiling of 255, and a test value of 83')  
     THEN('Returns true, value is in range')
 
 //floor = ceiling = value
-  WHEN('The function clamp is called with a floor of 8, a ceiling of 8, and a test value of 8')
+  WHEN('The function clamp is called with a floor of 8, a ceiling of 8, and a test value of 83')
      THEN('Returns expected value 8') 
 
-  WHEN('The function within is called with a floor of 8, a ceiling of 8, and a test value of 8')   
+  WHEN('The function within is called with a floor of 8, a ceiling of 8, and a test value of 83')   
     THEN('Returns true, value is  in range')
 
-value >floor > ceiling
+//value >floor > ceiling
   WHEN('The function clamp is called with a floor of 15, a ceiling of 8, and a test value of 83') 
     THEN('Result is as expected 8')   
 
   WHEN('The function within is called with a floor of 15, a ceiling of 8, and a test value of 83') 
     THEN('Returns false, value is not in range') 
+
+//value<ceiling<floor
+  WHEN('The function clamp is called with floor of 15, ceiling of 8, and test value of 4') 
+    THEN('Returns 8 , value is not in range') 
+
+  WHEN('The function within is called with floor of 15, ceiling of 8, and test value of 4')
+    THEN('Returns false, test value not in range')
+
+//ceiling<floor=value 
+ WHEN('The function clamp is called with floor of 15, ceiling of 8, and test value of 15 ')
+    THEN('Returns 15, test value in range')
+
+
+ WHEN('The function within is called with floor of 15, ceiling of 8, and test value of 15 ')
+   THEN('Returns true, value is in range') 
+
+//floor>ceiling=value
+WHEN('The function clamp is called with floor 15, ceiling of 8, and test value of 8')
+  THEN('Returns 8, test value is in range')
+
+WHEN('The function within is called with floor 15, ceiling of 8, and test value of 8')
+  THEN('Returns true, value in range') 
+
+
+GIVEN('Clamp and within function')
+//floor<ceiling = value
+WHEN('The function clamp is called with floor of 20, ceiling of 10, and test value of 20 ')
+  THEN('Returns expected value as 10')
+
+WHEN('The function within is called with floor of 20, ceiling of 10, and test value of 20 ')
+  THEN('Returns true, test value in range')
+
+GIVEN('Clamp and within function')
+//value<ceiling=floor
+WHEN('The function clamp is called with floor 120, ceiling 120, test value as 20 ')
+  THEN('Returns 120, test value is out of range') 
+
+WHEN('The function within is called with floor 120, ceiling 120, test value as 20 ')
+  THEN('Returns false, test value out of range')
+
+//value>ceiling=floor
+WHEN('The function clamp is called with floor 120, ceiling 120, and test value 200')
+  THEN('Returns 120 value, test value is out of range')
+
+WHEN('The function within is called with floor 120, ceiling 120, and test value 200')
+   THEN('Returns false, test value out of range')   
