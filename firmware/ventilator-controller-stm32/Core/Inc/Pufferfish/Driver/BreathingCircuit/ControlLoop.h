@@ -16,16 +16,13 @@
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 #include "Pufferfish/HAL/Interfaces/PWM.h"
 #include "Pufferfish/Util/Timeouts.h"
+#include "SensorAlarmsService.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
-static constexpr auto alarm_codes = Util::Containers::make_array<LogEventCode>(
-    LogEventCode::LogEventCode_sfm3019_air_disconnected,
-    LogEventCode::LogEventCode_sfm3019_o2_disconnected);
-
 class ControlLoop {
  public:
-  virtual void update(uint32_t current_time, Application::AlarmsManager &alarms_manager) = 0;
+  virtual void update(uint32_t current_time) = 0;
 
  protected:
   Util::MsTimer &step_timer() { return step_timer_; }
@@ -51,12 +48,13 @@ class HFNCControlLoop : public ControlLoop {
         valve_air_(valve_air),
         valve_o2_(valve_o2) {}
 
-  void update(uint32_t current_time, Application::AlarmsManager &alarms_manager) override;
+  void update(uint32_t current_time) override;
 
   [[nodiscard]] SensorVars &sensor_vars();
   [[nodiscard]] const SensorVars &sensor_vars() const;
   [[nodiscard]] const ActuatorSetpoints &actuator_setpoints() const;
   [[nodiscard]] const ActuatorVars &actuator_vars() const;
+  [[nodiscard]] const SensorConnections &sensor_connections() const;
 
  private:
   const Parameters &parameters_;
@@ -76,6 +74,9 @@ class HFNCControlLoop : public ControlLoop {
   ActuatorVars actuator_vars_{};
   HAL::Interfaces::PWM &valve_air_;
   HAL::Interfaces::PWM &valve_o2_;
+
+  // Sensor Connections
+  SensorConnections sensor_connections_{};
 };
 
 }  // namespace Pufferfish::Driver::BreathingCircuit

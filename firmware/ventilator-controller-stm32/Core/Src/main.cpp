@@ -647,7 +647,7 @@ int main(void)
         store.cycle_measurements());
 
     // Breathing Circuit Control Loop
-    hfnc.update(current_time, alarms_manager);
+    hfnc.update(current_time);
     sensor_smoothers.transform(
         current_time, store.sensor_measurements_raw(), store.sensor_measurements_filtered());
     breathing_circuit_alarms.transform(
@@ -655,6 +655,10 @@ int main(void)
         store.alarm_limits(),
         store.sensor_measurements_filtered(),
         alarms_manager);
+
+    // Breathing Circuit Sensor Alarms
+    PF::Driver::BreathingCircuit::SensorAlarmsService::transform(
+        hfnc.sensor_connections(), alarms_manager);
 
     // Alarm Mute Service
     alarm_mute_service.transform(current_time, store.alarm_mute_request(), store.alarm_mute());
