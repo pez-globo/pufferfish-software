@@ -119,96 +119,96 @@ bool &Store::backend_connected() {
   return state_segments_.backend_connected;
 }
 
-Store::InputStatus Store::input(const StateSegment &input, bool default_initialization) {
+Store::Status Store::input(const StateSegment &input, bool default_initialization) {
   switch (input.tag) {
     case MessageTypes::sensor_measurements:
       STATESEGMENT_GET_TAGGED(sensor_measurements, input);
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::cycle_measurements:
       STATESEGMENT_GET_TAGGED(cycle_measurements, input);
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::parameters:
       STATESEGMENT_GET_TAGGED(parameters, input);
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::parameters_request:
       STATESEGMENT_GET_TAGGED(parameters_request, input);
       if (!default_initialization) {
         has_parameters_request_ = true;
       }
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::alarm_limits:
       STATESEGMENT_GET_TAGGED(alarm_limits, input);
-      return InputStatus::ok;
+      return Status::ok;
 
     case MessageTypes::alarm_limits_request:
       STATESEGMENT_GET_TAGGED(alarm_limits_request, input);
       if (!default_initialization) {
         has_alarm_limits_request_ = true;
       }
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::expected_log_event:
       STATESEGMENT_GET_TAGGED(expected_log_event, input);
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::next_log_events:
       STATESEGMENT_GET_TAGGED(next_log_events, input);
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::active_log_events:
       STATESEGMENT_GET_TAGGED(active_log_events, input);
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::alarm_mute:
       STATESEGMENT_GET_TAGGED(alarm_mute, input);
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::alarm_mute_request:
       STATESEGMENT_GET_TAGGED(alarm_mute_request, input);
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::mcu_power_status:
       STATESEGMENT_GET_TAGGED(mcu_power_status, input);
-      return InputStatus::ok;
+      return Status::ok;
     default:
-      return InputStatus::invalid_type;
+      return Status::invalid_type;
   }
 }
 
-Store::OutputStatus Store::output(MessageTypes type, StateSegment &output) const {
+Store::Status Store::output(MessageTypes type, StateSegment &output) const {
   switch (type) {
     case MessageTypes::sensor_measurements:
       output.set(state_segments_.sensor_measurements);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::cycle_measurements:
       output.set(state_segments_.cycle_measurements);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::parameters:
       output.set(state_segments_.parameters);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::parameters_request:
       output.set(state_segments_.parameters_request);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::alarm_limits:
       output.set(state_segments_.alarm_limits);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::alarm_limits_request:
       output.set(state_segments_.alarm_limits_request);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::expected_log_event:
       output.set(state_segments_.expected_log_event);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::next_log_events:
       output.set(state_segments_.next_log_events);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::active_log_events:
       output.set(state_segments_.active_log_events);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::alarm_mute:
       output.set(state_segments_.alarm_mute);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::alarm_mute_request:
       output.set(state_segments_.alarm_mute_request);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::mcu_power_status:
       output.set(state_segments_.mcu_power_status);
-      return OutputStatus::ok;
+      return Status::ok;
     default:
-      return OutputStatus::invalid_type;
+      return Status::invalid_type;
   }
 }
 
