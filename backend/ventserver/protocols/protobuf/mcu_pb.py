@@ -66,6 +66,7 @@ class LogEventCode(betterproto.Enum):
     sfm3019_air_disconnected = 144
     sfm3019_o2_disconnected = 145
     fdo2_disconnected = 146
+    critical_battery = 147
 
 
 class LogEventType(betterproto.Enum):

@@ -44,6 +44,17 @@ class Service:
                     codes=[mcu_pb.LogEventCode.battery_low]
             ))
 
+        if power_management.power_left <= 5:
+            events_log.input(alarms.AlarmActivationEvent(
+                code=mcu_pb.LogEventCode.critical_battery,
+                event_type=mcu_pb.LogEventType.system
+            ))
+        else:
+            events_log.input(
+                alarms.AlarmDeactivationEvent(
+                    codes=[mcu_pb.LogEventCode.critical_battery]
+            ))
+
     def _transform_charge(
         self, power_management: mcu_pb.MCUPowerStatus,
         events_log: alarms.Manager

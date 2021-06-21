@@ -67,9 +67,10 @@ export const getEventDetails = (event: LogEvent, eventType: EventType): string =
       [LogEventCode.backend_frontend_connection_up]: 'User interface connected',
       [LogEventCode.charger_disconnected]: 'Battery charger is disconnected',
       [LogEventCode.battery_low]: `Less than 30${unit} battery remaining`,
+      [LogEventCode.critical_battery]: `Less than 5${unit} battery remaining`,
     };
     const eventDetail = eventDetailsMap[event.code];
-    return eventDetail ? eventDetail : '';
+    return eventDetail || '';
   }
   return '';
 };
@@ -230,9 +231,14 @@ export const getEventType = (code: LogEventCode): EventType => {
       type: LogEventType.system,
       label: 'FIO2 sensor connectivity lost',
     },
+    [LogEventCode.critical_battery]: {
+      type: LogEventType.system,
+      label: 'Battery power critically low',
+      unit: PERCENT,
+    },
   };
   const eventType = EventTypeMap[code];
-  return eventType ? eventType : { type: LogEventType.system, label: '' };
+  return eventType || { type: LogEventType.system, label: '' };
 };
 
 export default getEventType;

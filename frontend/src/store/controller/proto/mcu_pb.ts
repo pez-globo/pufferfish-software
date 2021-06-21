@@ -124,6 +124,7 @@ export enum LogEventCode {
   sfm3019_air_disconnected = 144,
   sfm3019_o2_disconnected = 145,
   fdo2_disconnected = 146,
+  critical_battery = 147,
   UNRECOGNIZED = -1,
 }
 
@@ -225,6 +226,9 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case 146:
     case "fdo2_disconnected":
       return LogEventCode.fdo2_disconnected;
+    case 147:
+    case "critical_battery":
+      return LogEventCode.critical_battery;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -298,6 +302,8 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "sfm3019_o2_disconnected";
     case LogEventCode.fdo2_disconnected:
       return "fdo2_disconnected";
+    case LogEventCode.critical_battery:
+      return "critical_battery";
     default:
       return "UNKNOWN";
   }
