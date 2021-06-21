@@ -61,15 +61,15 @@ typedef enum _LogEventCode {
  We don't use it because the frontend can't generate LogEvents with IDs.
  frontend_backend_connection_up = 137; */
     LogEventCode_battery_low = 138,
-    LogEventCode_charger_disconnected = 139,
-    LogEventCode_mcu_started = 140,
-    LogEventCode_backend_started = 141,
-    LogEventCode_mcu_shutdown = 142,
-    LogEventCode_backend_shutdown = 143,
-    LogEventCode_sfm3019_air_disconnected = 144,
-    LogEventCode_sfm3019_o2_disconnected = 145,
-    LogEventCode_fdo2_disconnected = 146,
-    LogEventCode_critical_battery = 147
+    LogEventCode_battery_critical = 139,
+    LogEventCode_charger_disconnected = 140,
+    LogEventCode_mcu_started = 141,
+    LogEventCode_backend_started = 142,
+    LogEventCode_mcu_shutdown = 143,
+    LogEventCode_backend_shutdown = 144,
+    LogEventCode_sfm3019_air_disconnected = 145,
+    LogEventCode_sfm3019_o2_disconnected = 146,
+    LogEventCode_fdo2_disconnected = 147
 } LogEventCode;
 
 typedef enum _LogEventType {
@@ -273,8 +273,8 @@ typedef struct _NextLogEvents {
 #define _VentilationMode_ARRAYSIZE ((VentilationMode)(VentilationMode_prvc+1))
 
 #define _LogEventCode_MIN LogEventCode_fio2_too_low
-#define _LogEventCode_MAX LogEventCode_critical_battery
-#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_critical_battery+1))
+#define _LogEventCode_MAX LogEventCode_fdo2_disconnected
+#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_fdo2_disconnected+1))
 
 #define _LogEventType_MIN LogEventType_patient
 #define _LogEventType_MAX LogEventType_system

@@ -58,15 +58,15 @@ class LogEventCode(betterproto.Enum):
     # don't use it because the frontend can't generate LogEvents with IDs.
     # frontend_backend_connection_up = 137;
     battery_low = 138
-    charger_disconnected = 139
-    mcu_started = 140
-    backend_started = 141
-    mcu_shutdown = 142
-    backend_shutdown = 143
-    sfm3019_air_disconnected = 144
-    sfm3019_o2_disconnected = 145
-    fdo2_disconnected = 146
-    critical_battery = 147
+    battery_critical = 139
+    charger_disconnected = 140
+    mcu_started = 141
+    backend_started = 142
+    mcu_shutdown = 143
+    backend_shutdown = 144
+    sfm3019_air_disconnected = 145
+    sfm3019_o2_disconnected = 146
+    fdo2_disconnected = 147
 
 
 class LogEventType(betterproto.Enum):

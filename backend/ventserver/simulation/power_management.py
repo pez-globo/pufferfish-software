@@ -33,7 +33,7 @@ class Service:
         else:
             self._transform_discharge(power_management, events_log)
 
-        if power_management.power_left < 30:
+        if power_management.power_left <= 30:
             events_log.input(alarms.AlarmActivationEvent(
                 code=mcu_pb.LogEventCode.battery_low,
                 event_type=mcu_pb.LogEventType.system
@@ -45,14 +45,18 @@ class Service:
             ))
 
         if power_management.power_left <= 5:
+            events_log.input(
+                alarms.AlarmDeactivationEvent(
+                    codes=[mcu_pb.LogEventCode.battery_low]
+            ))
             events_log.input(alarms.AlarmActivationEvent(
-                code=mcu_pb.LogEventCode.critical_battery,
+                code=mcu_pb.LogEventCode.battery_critical,
                 event_type=mcu_pb.LogEventType.system
             ))
         else:
             events_log.input(
                 alarms.AlarmDeactivationEvent(
-                    codes=[mcu_pb.LogEventCode.critical_battery]
+                    codes=[mcu_pb.LogEventCode.battery_critical]
             ))
 
     def _transform_charge(

@@ -26,7 +26,7 @@ void AlarmsService::transform(
     charger_disconnected = true;
   }
   bool battery_low = false;
-  if (mcu_power_status.power_left < battery_low_power) {
+  if (mcu_power_status.power_left <= battery_low_power) {
     battery_low = true;
   }
   bool critical_battery = false;

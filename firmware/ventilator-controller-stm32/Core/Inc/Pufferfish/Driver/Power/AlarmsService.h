@@ -28,8 +28,8 @@ class AlarmsService {
       Application::AlarmsManager &alarms_manager);
 
  private:
-  const float battery_low_power = 30;
-  const float critical_battery_power = 5;
+  static constexpr float battery_low_power = 30;
+  static constexpr float critical_battery_power = 5;
 };
 
 }  // namespace Pufferfish::Driver::Power

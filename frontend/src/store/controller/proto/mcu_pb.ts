@@ -116,15 +116,15 @@ export enum LogEventCode {
    * frontend_backend_connection_up = 137;
    */
   battery_low = 138,
-  charger_disconnected = 139,
-  mcu_started = 140,
-  backend_started = 141,
-  mcu_shutdown = 142,
-  backend_shutdown = 143,
-  sfm3019_air_disconnected = 144,
-  sfm3019_o2_disconnected = 145,
-  fdo2_disconnected = 146,
-  critical_battery = 147,
+  battery_critical = 139,
+  charger_disconnected = 140,
+  mcu_started = 141,
+  backend_started = 142,
+  mcu_shutdown = 143,
+  backend_shutdown = 144,
+  sfm3019_air_disconnected = 145,
+  sfm3019_o2_disconnected = 146,
+  fdo2_disconnected = 147,
   UNRECOGNIZED = -1,
 }
 
@@ -203,32 +203,32 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case "battery_low":
       return LogEventCode.battery_low;
     case 139:
+    case "battery_critical":
+      return LogEventCode.battery_critical;
+    case 140:
     case "charger_disconnected":
       return LogEventCode.charger_disconnected;
-    case 140:
+    case 141:
     case "mcu_started":
       return LogEventCode.mcu_started;
-    case 141:
+    case 142:
     case "backend_started":
       return LogEventCode.backend_started;
-    case 142:
+    case 143:
     case "mcu_shutdown":
       return LogEventCode.mcu_shutdown;
-    case 143:
+    case 144:
     case "backend_shutdown":
       return LogEventCode.backend_shutdown;
-    case 144:
+    case 145:
     case "sfm3019_air_disconnected":
       return LogEventCode.sfm3019_air_disconnected;
-    case 145:
+    case 146:
     case "sfm3019_o2_disconnected":
       return LogEventCode.sfm3019_o2_disconnected;
-    case 146:
+    case 147:
     case "fdo2_disconnected":
       return LogEventCode.fdo2_disconnected;
-    case 147:
-    case "critical_battery":
-      return LogEventCode.critical_battery;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -286,6 +286,8 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "backend_frontend_connection_up";
     case LogEventCode.battery_low:
       return "battery_low";
+    case LogEventCode.battery_critical:
+      return "battery_critical";
     case LogEventCode.charger_disconnected:
       return "charger_disconnected";
     case LogEventCode.mcu_started:
@@ -302,8 +304,6 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "sfm3019_o2_disconnected";
     case LogEventCode.fdo2_disconnected:
       return "fdo2_disconnected";
-    case LogEventCode.critical_battery:
-      return "critical_battery";
     default:
       return "UNKNOWN";
   }
