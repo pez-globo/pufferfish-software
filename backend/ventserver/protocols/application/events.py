@@ -23,7 +23,11 @@ class FilteredSender(states.IndexedSender[_Index]):
     allowed_indices: Set[_Index] = attr.ib()
 
     def __getitem__(self, key: _Index) -> Optional[betterproto.Message]:
-        """Return the next output from the specified sender."""
+        """Return the next output from the specified sender.
+
+        Warning: this will not raise a KeyError if the index isn't in
+        allowed_indices.
+        """
         if key not in self.allowed_indices:
             return None
 
@@ -31,11 +35,11 @@ class FilteredSender(states.IndexedSender[_Index]):
 
     def __len__(self) -> int:
         """Return the number of senders."""
-        return len(self.sender)
+        return len(self.allowed_indices)
 
     def __iter__(self) -> Iterator[_Index]:
         """Iterate over all indices."""
-        return self.sender.__iter__()
+        return self.allowed_indices.__iter__()
 
 
 @attr.s
