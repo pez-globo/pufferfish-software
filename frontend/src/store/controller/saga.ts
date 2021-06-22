@@ -68,10 +68,13 @@ function* serviceConnection() {
   receiveChannel.close();
 }
 
+const retryConnectInterval = 10; // ms
+
 export function* serviceConnectionPersistently(): IterableIterator<unknown> {
   while (true) {
     yield serviceConnection();
     console.warn('Reestablishing WebSocket connection...');
+    yield delay(retryConnectInterval);
   }
 }
 
