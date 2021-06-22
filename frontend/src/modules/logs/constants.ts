@@ -17,8 +17,8 @@ export const eventDetailsMap = new Map<LogEventCode, string>([
   [LogEventCode.mcu_backend_connection_up, 'Hardware controller connected'],
   [LogEventCode.backend_frontend_connection_up, 'User interface connected'],
   [LogEventCode.charger_disconnected, 'Battery charger is disconnected'],
-  [LogEventCode.battery_low, `Less than 30${unit} battery remaining`],
-  [LogEventCode.battery_critical, `Less than 5${unit} battery remaining`],
+  [LogEventCode.battery_low, `Less than 30${PERCENT} battery remaining`],
+  [LogEventCode.battery_critical, `Less than 5${PERCENT} battery remaining`],
 ]);
 
 export const EventTypeMap = new Map<LogEventCode, EventType>([

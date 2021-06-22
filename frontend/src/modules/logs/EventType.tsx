@@ -3,7 +3,7 @@
  *
  */
 import { LogEvent, LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
-import { PERCENT, BPM, LMIN } from '../info/units';
+import { PERCENT } from '../info/units';
 import { eventDetailsMap, EventTypeMap } from './constants';
 
 /**
