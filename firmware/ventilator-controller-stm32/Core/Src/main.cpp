@@ -40,6 +40,7 @@
 #include "Pufferfish/Driver/BreathingCircuit/AlarmsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
+#include "Pufferfish/Driver/BreathingCircuit/SensorAlarmsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/SignalSmoothing.h"
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 #include "Pufferfish/Driver/Button/Button.h"

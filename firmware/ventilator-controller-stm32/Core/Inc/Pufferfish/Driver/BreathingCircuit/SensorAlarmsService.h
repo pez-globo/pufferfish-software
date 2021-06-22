@@ -12,13 +12,9 @@
 #include "Pufferfish/Application/Alarms.h"
 #include "Pufferfish/Application/LogEvents.h"
 #include "Pufferfish/Util/Containers/Array.h"
+#include "Sensors.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
-
-struct SensorConnections {
-  bool sfm3019_air_connected;
-  bool sfm3019_o2_connected;
-};
 
 static constexpr auto alarm_codes = Util::Containers::make_array<LogEventCode>(
     LogEventCode::LogEventCode_sfm3019_air_disconnected,

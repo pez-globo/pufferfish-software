@@ -16,7 +16,7 @@
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 #include "Pufferfish/HAL/Interfaces/PWM.h"
 #include "Pufferfish/Util/Timeouts.h"
-#include "SensorAlarmsService.h"
+#include "Sensors.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
 

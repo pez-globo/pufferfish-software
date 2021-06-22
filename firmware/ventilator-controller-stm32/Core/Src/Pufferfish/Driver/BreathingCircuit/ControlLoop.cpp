@@ -47,17 +47,8 @@ void HFNCControlLoop::update(uint32_t current_time) {
   // TODO(lietk12): we should probably set flow to NaN otherwise, but for now we do nothing
   // so that we don't overwrite the simulated values if the sensors aren't available
 
-  if (air_status == InitializableState::ok) {
-    sensor_connections_.sfm3019_air_connected = true;
-  } else if (air_status == InitializableState::failed) {
-    sensor_connections_.sfm3019_air_connected = false;
-  }
-
-  if (o2_status == InitializableState::ok) {
-    sensor_connections_.sfm3019_o2_connected = true;
-  } else if (o2_status == InitializableState::failed) {
-    sensor_connections_.sfm3019_o2_connected = false;
-  }
+  sensor_connections_.sfm3019_air_connected = air_status == InitializableState::ok;
+  sensor_connections_.sfm3019_o2_connected = o2_status == InitializableState::ok;
 
   // Update controller
   controller_.transform(

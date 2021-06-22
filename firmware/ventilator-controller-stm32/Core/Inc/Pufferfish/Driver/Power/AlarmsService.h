@@ -20,11 +20,12 @@ static constexpr auto alarm_codes = Util::Containers::make_array<LogEventCode>(
 
 class AlarmsService {
  public:
-  enum class BatteryLevel { critical, low, normal };
   void transform(
       const MCUPowerStatus &mcu_power_status, Application::AlarmsManager &alarms_manager);
 
  private:
+  enum class BatteryLevel { critical, low, normal };
+
   BatteryLevel battery_level_ = BatteryLevel::normal;
   static constexpr float battery_low_power = 30;
   static constexpr float critical_battery_power = 5;
