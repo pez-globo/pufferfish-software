@@ -159,7 +159,7 @@ export const ToolBar = ({
     string,
     Range
   >;
-  const ventilatingStatus = useSelector(getVentilatingStatusChanging);
+  const ventilatingStatusChanging = useSelector(getVentilatingStatusChanging);
   const firmwareConnected = useSelector(getFirmwareConnected);
   const backendConnected = useSelector(getBackendConnected);
   /**
@@ -167,6 +167,10 @@ export const ToolBar = ({
    * Label is Dynamic based on ventilation state
    */
   const [label, setLabel] = useState('Start Ventilation');
+  /**
+   * State to toggle if Ventilating isDisabled
+   */
+  const [isDisabled, setIsDisabled] = useState(false);
   /**
    * State to open Modal Popup for Dashboard
    */
@@ -193,11 +197,8 @@ export const ToolBar = ({
         setStartDiscardOpen(true);
         return;
       }
+      if (firmwareConnected) history.push(QUICKSTART_ROUTE.path);
     } else {
-      // if not ventilating and the firmware/backend is disconnected then return early
-      if (!backendConnected || !firmwareConnected) {
-        return;
-      }
       initParameterUpdate();
     }
     dispatchParameterRequest({ ventilating: !ventilating });
@@ -242,15 +243,25 @@ export const ToolBar = ({
   };
 
   /**
-   * Set Label for Start/Pause Ventilation button
+   * Enable/Disable and set label for Start/Pause Ventilation button
    */
   useEffect(() => {
-    if (ventilatingStatus) {
-      setLabel('Connecting...');
+    if (!ventilating) {
+      setIsDisabled(ventilatingStatusChanging || !firmwareConnected || !backendConnected);
+      if (!firmwareConnected || !backendConnected) {
+        setLabel(ventilatingStatusChanging ? 'Starting...' : 'Connecting...');
+        return;
+      }
+      setLabel(ventilatingStatusChanging ? 'Starting...' : 'Start Ventilation');
     } else {
-      setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
+      setIsDisabled(ventilatingStatusChanging);
+      if (!firmwareConnected) {
+        setLabel(ventilatingStatusChanging ? 'Pausing...' : 'Connecting...');
+        return;
+      }
+      setLabel(ventilatingStatusChanging ? 'Pausing..' : 'Pause Ventilation');
     }
-  }, [storeReady, ventilatingStatus, ventilating]);
+  }, [ventilatingStatusChanging, backendConnected, firmwareConnected, ventilating]);
 
   /**
    * Switch to dashboard page if ventilating
@@ -266,7 +277,7 @@ export const ToolBar = ({
       onClick={updateVentilationStatus}
       variant="contained"
       color="secondary"
-      disabled={ventilatingStatus}
+      disabled={isDisabled}
     >
       {label}
     </Button>
@@ -341,6 +352,7 @@ export const ToolBar = ({
     setAlarmLimitsRequestDraft(alarmLimitsRequest);
     dispatchParameterRequest({ ventilating: !ventilating });
     setStartDiscardOpen(false);
+    history.push(QUICKSTART_ROUTE.path);
   };
 
   return (
