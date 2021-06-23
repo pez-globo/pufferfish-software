@@ -204,7 +204,7 @@ SCENARIO("The function in Vector push_back works correctly") {
   }
 }
 
-SCENARIO(" The function resize in  Vectors work correctly") {
+SCENARIO(" The util vector resize function works correctly") {
   GIVEN("Partially filled Vector  with 256 buffer size") {
     constexpr size_t buffer_size = 100UL;
     PF::Util::Containers::Vector<uint8_t, buffer_size> vector1;
