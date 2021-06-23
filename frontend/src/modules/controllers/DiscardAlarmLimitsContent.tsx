@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export const ModalContent = (): JSX.Element => {
+export const DiscardAlarmLimitsContent = (): JSX.Element => {
   const classes = useStyles();
   const alarmLimitsRequestDraftSelect = useSelector(getAlarmLimitsRequestDraft);
   const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
@@ -67,4 +67,4 @@ export const ModalContent = (): JSX.Element => {
   );
 };
 
-export default ModalContent;
+export default DiscardAlarmLimitsContent;

@@ -31,7 +31,7 @@ import {
   getFirmwareConnected,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
-import { ModalContent } from '../controllers';
+import { DiscardAlarmLimitsContent } from '../controllers';
 import { ModalPopup } from '../controllers/ModalPopup';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
 import { BackIcon } from '../icons';
@@ -396,7 +396,7 @@ export const ToolBar = ({
         onClose={handleDiscardClose}
         onConfirm={handleDiscardConfirm}
       >
-        <ModalContent />
+        <DiscardAlarmLimitsContent />
       </ModalPopup>
       <ModalPopup
         withAction={true}
@@ -405,7 +405,7 @@ export const ToolBar = ({
         onClose={handleDiscardClose}
         onConfirm={handleStartDiscardConfirm}
       >
-        <ModalContent />
+        <DiscardAlarmLimitsContent />
       </ModalPopup>
     </AppBar>
   );

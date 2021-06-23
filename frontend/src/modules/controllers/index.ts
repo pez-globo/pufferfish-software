@@ -20,5 +20,5 @@ export { default as ValueController } from './ValueClicker';
 export { default as AlarmModal } from './AlarmModal';
 export { default as ValueClicker } from './ValueClicker';
 export { default as ModalPopup } from './ModalPopup';
-export { default as ModalContent } from './ModalContent';
+export { default as DiscardAlarmLimitsContent } from './DiscardAlarmLimitsContent';
 export { default as SimpleTable } from './SimpleTable';

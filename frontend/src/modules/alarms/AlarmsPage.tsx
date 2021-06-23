@@ -21,7 +21,7 @@ import {
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { setActiveRotaryReference } from '../app/Service';
-import { ModalContent, ValueClicker } from '../controllers';
+import { DiscardAlarmLimitsContent, ValueClicker } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';
 import ValueSlider from '../controllers/ValueSlider';
 import ModeBanner from '../displays/ModeBanner';
@@ -567,7 +567,7 @@ export const AlarmsPage = (): JSX.Element => {
                 onClose={handleDiscardClose}
                 onConfirm={handleDiscardConfirm}
               >
-                <ModalContent />
+                <DiscardAlarmLimitsContent />
               </ModalPopup>
             </Grid>
           </Grid>

@@ -21,7 +21,7 @@ import {
 import { ModalPopup } from '../../controllers/ModalPopup';
 import { MessageType } from '../../../store/controller/types';
 import { commitDraftRequest } from '../../../store/controller/actions';
-import { ModalContent } from '../../controllers';
+import { DiscardAlarmLimitsContent } from '../../controllers';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -149,7 +149,7 @@ const FullWidthToolBar = (): JSX.Element => {
         onClose={handleDiscardClose}
         onConfirm={handleDiscardConfirm}
       >
-        <ModalContent />
+        <DiscardAlarmLimitsContent />
       </ModalPopup>
     </ToolBar>
   );
