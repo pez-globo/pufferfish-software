@@ -197,7 +197,7 @@ export const ToolBar = ({
         setStartDiscardOpen(true);
         return;
       }
-      if (firmwareConnected) history.push(QUICKSTART_ROUTE.path);
+      if (firmwareConnected && backendConnected) history.push(QUICKSTART_ROUTE.path);
     } else {
       initParameterUpdate();
     }
@@ -256,7 +256,7 @@ export const ToolBar = ({
     } else {
       setIsDisabled(ventilatingStatusChanging);
       if (!firmwareConnected) {
-        setLabel(ventilatingStatusChanging ? 'Pausing...' : 'Connecting...');
+        setLabel(ventilatingStatusChanging ? 'Pausing...' : 'Pause Ventilation');
         return;
       }
       setLabel(ventilatingStatusChanging ? 'Pausing..' : 'Pause Ventilation');
