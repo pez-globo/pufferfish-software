@@ -213,6 +213,9 @@ async def main() -> None:
         _log_events_receiver
     )
 
+    # Make server protocol think the MCU is connnected
+    protocol.receive._connection_states.has_mcu = True
+
     try:
         async with channel.push_endpoint:
             async with trio.open_nursery() as nursery:

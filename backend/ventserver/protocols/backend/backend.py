@@ -37,6 +37,16 @@ OutputEvent = states.SendEvent
 SendEvent = states.SendEvent
 
 
+LOG_EVENT_TYPES = {
+    mcu_pb.LogEventCode.backend_mcu_connection_down:
+        mcu_pb.LogEventType.system,
+    mcu_pb.LogEventCode.backend_frontend_connection_down:
+        mcu_pb.LogEventType.system,
+    mcu_pb.LogEventCode.backend_frontend_connection_up:
+        mcu_pb.LogEventType.system
+}
+
+
 # Filters
 
 
@@ -117,15 +127,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
 
         This includes active log events (active alarms).
         """
-        if event.code == mcu_pb.LogEventCode.mcu_connection_down:
-            event_type = mcu_pb.LogEventType.system
-        elif event.code == mcu_pb.LogEventCode.frontend_connection_down:
-            event_type = mcu_pb.LogEventType.system
-        elif event.code == mcu_pb.LogEventCode.mcu_connection_up:
-            event_type = mcu_pb.LogEventType.system
-        elif event.code == mcu_pb.LogEventCode.frontend_connection_up:
-            event_type = mcu_pb.LogEventType.system
-        else:
+        try:
+            event_type = LOG_EVENT_TYPES[event.code]
+        except KeyError:
             self._logger.error('Unrecognized local event type %s', event.code)
             return
 

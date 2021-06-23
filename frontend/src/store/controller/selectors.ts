@@ -2,7 +2,6 @@ import { createSelector, OutputSelector } from 'reselect';
 import DECIMAL_RADIX from '../../modules/app/AppConstants';
 import { getBackendConnected } from '../app/selectors';
 import { StoreState } from '../types';
-import { FrontendDisplaySetting, SystemSettingRequest } from './proto/frontend_pb';
 import {
   AlarmLimits,
   AlarmLimitsRequest,
@@ -20,6 +19,11 @@ import {
   MCUPowerStatus,
   LogEventCode,
 } from './proto/mcu_pb';
+import {
+  BackendConnections,
+  FrontendDisplaySetting,
+  SystemSettingRequest,
+} from './proto/frontend_pb';
 import {
   Measurements,
   ParametersRequestResponse,
@@ -270,26 +274,10 @@ const getLogEventCode = (logEventCode: number) =>
   createSelector(getNextLogEvents, (events: LogEvent[]): LogEvent | undefined =>
     events.find((el: LogEvent) => (el.code as number) === logEventCode),
   );
-
-export const getBackendDown = getLogEventCode(LogEventCode.backend_connection_down);
-export const getFirmwareDown = getLogEventCode(LogEventCode.mcu_connection_down);
-// TODO: this selector returns "true" in a scenario where mcu is disconnected and plugged back in,
-// replace the implementation with a "firmwareConnection" protobuf message once available
-export const getFirmwareDisconnected = createSelector(
-  getFirmwareDown,
-  (event: LogEvent | undefined): boolean => event !== undefined,
-);
-// Backend Initialized
-export const getBackendInitialized = createSelector(
-  getParametersRequest,
-  getAlarmLimitsRequest,
-  getBackendConnected,
-  (
-    parametersRequest: ParametersRequest | null,
-    alarmLimitsRequest: AlarmLimitsRequest | null,
-    backendConnected: boolean,
-  ): boolean => parametersRequest !== null && alarmLimitsRequest !== null && backendConnected,
-);
+// Note: this selector should only be used to check whether the frontend's event log
+// has a temporary event indicating that the backend is down. The proper selector to
+// check whether the backend is connected is store/app/selector.ts's getBackendConnected
+export const getBackendDownEvent = getLogEventCode(LogEventCode.frontend_backend_connection_down);
 
 // Changing Ventilating Status
 export const getVentilatingStatusChanging = createSelector(
@@ -347,6 +335,38 @@ export const getChargingStatus = createSelector(
 
 // MESSAGE STATES FROM frontend_pb
 // TODO: split this section off into a new file
+
+// Connection Statuses
+export const getBackendConnections = createSelector(
+  getController,
+  (states: ControllerStates): BackendConnections | null => states.backendConnections,
+);
+
+// getBackendConnected is a selector defined in store/app/selectors.ts
+export const getFirmwareConnected = createSelector(
+  getBackendConnections,
+  (backendConnections: BackendConnections | null): boolean =>
+    backendConnections === null ? false : backendConnections.hasMcu,
+);
+export const getStoreReady = createSelector(
+  getParametersRequest,
+  getAlarmLimitsRequest,
+  getAlarmMuteRequest,
+  getBackendConnected,
+  getFirmwareConnected,
+  (
+    parametersRequest: ParametersRequest | null,
+    alarmLimitsRequest: AlarmLimitsRequest | null,
+    alarmMuteRequest: AlarmMuteRequest | null,
+    backendConnected: boolean,
+    firmwareConnected: boolean,
+  ): boolean =>
+    parametersRequest !== null &&
+    alarmLimitsRequest !== null &&
+    alarmMuteRequest !== null &&
+    backendConnected &&
+    firmwareConnected,
+);
 
 // Screen Status
 

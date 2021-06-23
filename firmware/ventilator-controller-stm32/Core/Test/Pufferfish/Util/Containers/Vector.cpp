@@ -11,6 +11,7 @@
 #include "Pufferfish/Util/Containers/Vector.h"
 
 #include <cstring>
+#include <iostream>
 
 #include "Pufferfish/Util/Containers/Array.h"
 #include "catch2/catch.hpp"

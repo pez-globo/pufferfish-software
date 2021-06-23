@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "Pufferfish/Protocols/Application/States.h"
 #include "Pufferfish/Util/Enums.h"
 #include "Pufferfish/Util/TaggedUnion.h"
 #include "mcu_pb.h"
@@ -88,13 +89,14 @@ struct StateSegments {
 
   // Internal States
   SensorMeasurements sensor_measurements_raw;
+  bool backend_connected;
 };
 
-class Store {
+class Store : public Protocols::Application::IndexedStateSender<MessageTypes, StateSegment> {
  public:
+  using Status = Protocols::Application::StateOutputStatus;
+
   Store() = default;
-  enum class InputStatus { ok = 0, invalid_type };
-  enum class OutputStatus { ok = 0, invalid_type };
 
   // Backend States
   SensorMeasurements &sensor_measurements_filtered();
@@ -114,9 +116,10 @@ class Store {
 
   // Internal States
   SensorMeasurements &sensor_measurements_raw();
+  bool &backend_connected();
 
-  InputStatus input(const StateSegment &input, bool default_initialization = false);
-  OutputStatus output(MessageTypes type, StateSegment &output) const;
+  Status input(const StateSegment &input, bool default_initialization = false);
+  Status output(MessageTypes type, StateSegment &output) const override;
 
  private:
   StateSegments state_segments_{};

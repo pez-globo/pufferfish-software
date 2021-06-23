@@ -44,9 +44,9 @@ class AlarmsManager {
   IndexStatus transform(ActiveLogEvents &active_log_events) const;
 
  private:
-  using Debouncers =
-      Util::Containers::EnumMap<LogEventCode, Protocols::Application::Debouncer, _LogEventCode_MAX>;
-  using InitWaiters = Util::Containers::EnumMap<LogEventCode, Util::MsTimer, _LogEventCode_MAX>;
+  using Debouncers = Util::Containers::
+      EnumMap<LogEventCode, Protocols::Application::Debouncer, _LogEventCode_MAX + 1>;
+  using InitWaiters = Util::Containers::EnumMap<LogEventCode, Util::MsTimer, _LogEventCode_MAX + 1>;
 
   uint32_t current_time_ = 0;
   Application::LogEventsManager &log_manager_;

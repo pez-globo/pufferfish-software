@@ -18,10 +18,8 @@ static constexpr auto alarm_codes =
 
 class AlarmsService {
  public:
-  virtual void transform(
-      const MCUPowerStatus &mcu_power_status,
-      ActiveLogEvents &active_log_events,
-      Application::AlarmsManager &alarms_manager);
+  static void transform(
+      const MCUPowerStatus &mcu_power_status, Application::AlarmsManager &alarms_manager);
 };
 
 }  // namespace Pufferfish::Driver::Power
