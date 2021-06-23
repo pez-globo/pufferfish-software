@@ -2,32 +2,25 @@ Scenario: Array: make_array function creates array correctly.
   GIVEN('The make_array function')
    WHEN('an array is created from 8 uint8_t values as input')
       THEN('the value at every index in an array is as expected (0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02)')
-      THEN('Size of an array is as expected 8')
+      THEN('After the make_array method is called, The max_size method reports size as 8')
 
-
-  GIVEN('The make_array function')
    WHEN('an array is created from 3 strings as input parameter')
      THEN('the value of an array at every index  is as expected ("ab", "bc", "cd")')
-     THEN('Size of an array is as expected 3')
+     THEN('After the make_array method is called, The max_size method reports size as 3')
 
-  GIVEN('The make_array function') 
   WHEN('an array is created from const references of values, 0x02 and 0x0f')
     THEN('the array is as expected at every index [0x02,0x0f]')
 
 
-  WHEN('an array is created from const references, value of reference variable is changed to -0x0c and 0x0a')
-    THEN('the array is as expected at every index [0x0c,0x0a]')
-    THEN('Returns correct changed values for reference variables [0x0c, 0x0a]')
 
-  WHEN('an array is created from non- const references of values ,0x00 and 0x0c')
+  WHEN('an array is created from non- const references and later value of non-const variable is changed')
     THEN('the array is as expected at every index [0x00,0x0c]')
 
 
-  WHEN('an array is created from non- const references, values of referenced variables changed to ,0x02 and 0x86')
-    THEN('the array is as expected at every index [0x02,0x86]')
-    THEN('Returns correct changed values for reference variables [0x02, 0x86]')
+  WHEN('Array values are modified, reference variables change accordingly')
+    THEN('After modifying array, values of non-reference variable does not change')
     
-Scenario: Empty an array
-  GIVEN('The make_array function')
+Scenario: Empty function on array returns expected results
+  GIVEN('empty function')
   WHEN('function empty is used on array (0x02, 0x03, 0x0a) ')
      THEN('Returns false, array is not empty')

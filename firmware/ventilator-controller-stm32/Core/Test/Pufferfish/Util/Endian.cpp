@@ -33,7 +33,7 @@ SCENARIO("read endian data") {
       THEN("reads correct value") { REQUIRE(result == 0x010f); }
     }
   }
-
+// int16t test case
   GIVEN("Endian: function read_bigend") {
     auto data = PF::Util::Containers::make_array<uint8_t>(0x00, 0x05, 0x0f, 0x07);
     uint32_t re = 0;
@@ -47,7 +47,7 @@ SCENARIO("read endian data") {
 
   GIVEN("Endian: function read_bigend") {
     auto data =
-        PF::Util::Containers::make_array<uint8_t>(0x02, 0x08, 0x00, 0x0d, 0x0e, 0x03, 0x0c, 0x00);
+    PF::Util::Containers::make_array<uint8_t>(0x02, 0x08, 0x00, 0x0d, 0x0e, 0x03, 0x0c, 0x00);
     uint64_t re = 0;
     uint64_t &result = re;
     WHEN("read buffer ") {
