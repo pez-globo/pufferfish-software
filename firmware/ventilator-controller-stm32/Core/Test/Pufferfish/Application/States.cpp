@@ -286,16 +286,21 @@ SCENARIO(
       THEN("the operator returns false") { REQUIRE(!equal); }
     }
     WHEN(
-        "the == operator is used to compare two instances which differ only in the zeroth element of the elements array, and whose elements_count fields are both 1") {
+        "the == operator is used to compare two instances which differ only in the zeroth element "
+        "of the elements array, and whose elements_count fields are both 1") {
       auto [first, second] = make_next_log_events_test_pair();
       first.elements[0].alarm_limits.lower = second.elements[0].alarm_limits.lower + 100;
       bool equal = (first == second);
 
       THEN("the operator returns false") { REQUIRE(!equal); }
     }
-    // Note: the following is intuitive behavior if we think about equality of protobufs rather than equality of C++ structs. This is because we can't rely on the Boost PFR library to provide the equality operator, so we must implement our own equality operator, where we do account for elements_count
+    // Note: the following is intuitive behavior if we think about equality of protobufs rather than
+    // equality of C++ structs. This is because we can't rely on the Boost PFR library to provide
+    // the equality operator, so we must implement our own equality operator, where we do account
+    // for elements_count
     WHEN(
-        "the == operator is used to compare two instances which differ only in the first element of the elements array, and whose elements_count fields are both 1") {
+        "the == operator is used to compare two instances which differ only in the first element "
+        "of the elements array, and whose elements_count fields are both 1") {
       auto [first, second] = make_next_log_events_test_pair();
       first.elements[1].alarm_limits.lower = second.elements[1].alarm_limits.lower + 100;
       bool equal = (first == second);
