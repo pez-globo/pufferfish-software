@@ -7,6 +7,9 @@
 
 #include "Pufferfish/Application/States.h"
 
+#include <algorithm>
+#include <iterator>
+
 // This macro is used to add a setter for a specified protobuf type with an associated
 // union field and enum value. The use of a macro here complements the use of nanopb for
 // generating types and code. We use a macro because it makes the code more maintainable here,
@@ -30,6 +33,36 @@
 #define STATESEGMENT_GET_TAGGED(field, segment) \
   state_segments_.field = (segment).value.field; // NOLINT(cppcoreguidelines-pro-type-union-access)
 // clang-format on
+
+// Equality operators
+
+template <>
+bool operator==<NextLogEvents>(const NextLogEvents &first, const NextLogEvents &second) {
+  if (first.next_expected != second.next_expected || first.total != second.total ||
+      first.remaining != second.remaining || first.session_id != second.session_id) {
+    return false;
+  }
+
+  // Check the elements array for equality
+  if (first.elements_count != second.elements_count) {
+    return false;
+  }
+
+  return std::equal(
+      std::begin(first.elements),
+      std::begin(first.elements) + first.elements_count,
+      std::begin(second.elements));
+}
+
+template <>
+bool operator==<ActiveLogEvents>(const ActiveLogEvents &first, const ActiveLogEvents &second) {
+  if (first.id_count != second.id_count) {
+    return false;
+  }
+
+  return std::equal(
+      std::begin(first.id), std::begin(first.id) + first.id_count, std::begin(second.id));
+}
 
 namespace Pufferfish::Util {
 
