@@ -19,6 +19,8 @@ export const eventDetailsMap = new Map<LogEventCode, string>([
   [LogEventCode.charger_disconnected, 'Battery charger is disconnected'],
   [LogEventCode.battery_low, `Less than 30${PERCENT} battery remaining`],
   [LogEventCode.battery_critical, `Less than 5${PERCENT} battery remaining`],
+  [LogEventCode.sfm3019_air_disconnected, 'Air sensor connection lost'],
+  [LogEventCode.sfm3019_o2_disconnected, 'O2 sensor connection lost'],
 ]);
 
 export const EventTypeMap = new Map<LogEventCode, EventType>([
@@ -234,21 +236,21 @@ export const EventTypeMap = new Map<LogEventCode, EventType>([
     LogEventCode.sfm3019_air_disconnected,
     {
       type: LogEventType.system,
-      label: 'Air sensor connectivity lost',
+      label: 'Internal sensor failed',
     },
   ],
   [
     LogEventCode.sfm3019_o2_disconnected,
     {
       type: LogEventType.system,
-      label: 'O2 sensor connectivity lost',
+      label: 'Internal sensor failed',
     },
   ],
   [
     LogEventCode.fdo2_disconnected,
     {
       type: LogEventType.system,
-      label: 'FIO2 sensor connectivity lost',
+      label: 'Internal sensor failed',
     },
   ],
   [
