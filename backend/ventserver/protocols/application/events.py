@@ -10,6 +10,8 @@ import attr
 import betterproto
 
 from ventserver.protocols.application import states
+from ventserver.protocols import events
+from ventserver.sansio import protocols
 
 
 _Index = TypeVar('_Index', bound=enum.Enum)
@@ -43,11 +45,13 @@ class FilteredSender(states.IndexedSender[_Index]):
 
 
 @attr.s
-class NotificationSender(states.Sender, Generic[_Index]):
+class NotificationSender(
+        states.Sender, protocols.Filter[_Index, betterproto.Message]
+):
     """Event notification sending filter.
 
-    Inputs are lists of indices to mark as sendable. Outputs are state updates
-    for the peer.
+    Inputs are indices to mark as sendable. Outputs are state updates for the
+    peer.
 
     If output_idle is set, when no states are sendable the sender will continue
     generating states as if all states are sendable.
@@ -123,11 +127,24 @@ class NotificationSender(states.Sender, Generic[_Index]):
 
 
 @attr.s
-class ChangedStateSender(states.Sender, Generic[_Index]):
+class ResetEvent(events.Event):
+    """Sender reset event."""
+
+    def has_data(self) -> bool:
+        """Return whether the event has data."""
+        return True
+
+
+@attr.s
+class ChangedStateSender(
+        states.Sender, protocols.Filter[ResetEvent, betterproto.Message],
+        Generic[_Index]
+):
     """Changed state event notification sending filter.
 
-    Does not take inputs. Outputs are state updates for the peer.
-    Outputs are available only when the outputs from all_states change.
+    Inputs are events to treat all events as having changed (so that all events
+    will be sent). Outputs are state updates for the peer. Outputs are available
+    only when the outputs from all_states change.
 
     If output_idle is set, when no states have sendable changes, the sender will
     continue outputting all states as if they all had sendable changes. Sendable
@@ -161,8 +178,13 @@ class ChangedStateSender(states.Sender, Generic[_Index]):
         """Initialize the set of trackable states."""
         return set(self.output_schedule)
 
-    def input(self, event: None) -> None:
+    def input(self, event: Optional[ResetEvent]) -> None:
         """Handle input events."""
+        if event is None:
+            return
+
+        for index in self._trackable_states:
+            self._notification_sender.input(index)
 
     def output(self) -> Optional[betterproto.Message]:
         """Emit the next output event."""

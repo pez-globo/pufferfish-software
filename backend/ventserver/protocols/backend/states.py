@@ -1,8 +1,10 @@
 """Sans-I/O backend service state synchronization protocol."""
 
+import dataclasses
 import enum
 import logging
 from typing import Dict, Mapping, Optional, Type
+import typing
 
 import attr
 
@@ -203,25 +205,57 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
 
     store: Store = attr.ib()
 
-    # State sending synchronizers
-    _mcu: states.TimedSender[Sender] = attr.ib()
-    _frontend: states.TimedSender[Sender] = attr.ib()
-    _file: states.TimedSender[Sender] = attr.ib()
+    _prev_connection_states: frontend_pb.BackendConnections = \
+        attr.ib(factory=frontend_pb.BackendConnections)
+
+    # Event synchronization senders
+    _mcu_event_sender: eventsync.ChangedStateSender[StateSegment] = attr.ib()
+    _frontend_event_sender: eventsync.ChangedStateSender[StateSegment] = \
+        attr.ib()
+    _file_event_sender: eventsync.ChangedStateSender[StateSegment] = attr.ib()
+
+    # State synchronization senders
+    _mcu_state_sender: states.TimedSender[Sender] = attr.ib()
+    _frontend_state_sender: states.TimedSender[Sender] = attr.ib()
+    _file_state_sender: states.TimedSender[Sender] = attr.ib()
 
     # _current_time: Optional[float] = attr.ib(default=None)
 
-    @_mcu.default
-    def init_mcu(self) -> states.TimedSender[Sender]:
+    @_mcu_event_sender.default
+    def init_mcu_event_sender(self) ->\
+            eventsync.ChangedStateSender[StateSegment]:
+        """Initialize the mcu event sender."""
+        return eventsync.ChangedStateSender(
+            output_schedule=MCU_OUTPUT_SCHEDULE, all_states=self.store
+        )
+
+    @_frontend_event_sender.default
+    def init_frontend_event_sender(self) ->\
+            eventsync.ChangedStateSender[StateSegment]:
+        """Initialize the frontend event sender."""
+        return eventsync.ChangedStateSender(
+            output_schedule=FRONTEND_OUTPUT_SCHEDULE, all_states=self.store,
+            output_idle=False
+        )
+
+    @_file_event_sender.default
+    def init_file_event_sender(self) ->\
+            eventsync.ChangedStateSender[StateSegment]:
+        """Initialize the file event sender."""
+        return eventsync.ChangedStateSender(
+            output_schedule=FILE_OUTPUT_SCHEDULE, all_states=self.store,
+            output_idle=False
+        )
+
+    @_mcu_state_sender.default
+    def init_mcu_state_sender(self) -> states.TimedSender[Sender]:
         """Initialize the mcu state sender."""
         return states.TimedSender(
             output_interval=MCU_OUTPUT_MIN_INTERVAL,
             sender=states.SequentialSender(
                 output_schedule=MCU_OUTPUT_ROOT_SCHEDULE,
                 indexed_sender=states.MappedSenders(senders={
-                    Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
-                        output_schedule=MCU_OUTPUT_SCHEDULE,
-                        all_states=self.store
-                    ),
+                    Sender.EVENT_SCHEDULE: self._mcu_event_sender,
                     Sender.MAIN_SCHEDULE: states.SequentialSender(
                         output_schedule=MCU_OUTPUT_SCHEDULE,
                         indexed_sender=self.store
@@ -230,8 +264,8 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             )
         )
 
-    @_frontend.default
-    def init_frontend(self) -> states.TimedSender[Sender]:
+    @_frontend_state_sender.default
+    def init_frontend_state_sender(self) -> states.TimedSender[Sender]:
         """Initialize the frontend state sender."""
         return states.TimedSender(
             output_interval=FRONTEND_OUTPUT_MIN_INTERVAL,
@@ -242,10 +276,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
                         output_schedule=FRONTEND_OUTPUT_REALTIME_SCHEDULE,
                         indexed_sender=self.store
                     ),
-                    Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
-                        output_schedule=FRONTEND_OUTPUT_SCHEDULE,
-                        all_states=self.store, output_idle=False
-                    ),
+                    Sender.EVENT_SCHEDULE: self._frontend_event_sender,
                     Sender.MAIN_SCHEDULE: states.SequentialSender(
                         output_schedule=FRONTEND_OUTPUT_SCHEDULE,
                         indexed_sender=self.store
@@ -254,18 +285,15 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             )
         )
 
-    @_file.default
-    def init_file(self) -> states.TimedSender[Sender]:
+    @_file_state_sender.default
+    def init_file_state_sender(self) -> states.TimedSender[Sender]:
         """Initialize the file state sender."""
         return states.TimedSender(
             output_interval=FILE_OUTPUT_MIN_INTERVAL,
             sender=states.SequentialSender(
                 output_schedule=FILE_OUTPUT_ROOT_SCHEDULE,
                 indexed_sender=states.MappedSenders(senders={
-                    Sender.EVENT_SCHEDULE: eventsync.ChangedStateSender(
-                        output_schedule=FILE_OUTPUT_SCHEDULE,
-                        all_states=self.store, output_idle=False
-                    ),
+                    Sender.EVENT_SCHEDULE: self._file_event_sender,
                     Sender.MAIN_SCHEDULE: states.SequentialSender(
                         output_schedule=FILE_OUTPUT_SCHEDULE,
                         indexed_sender=self.store
@@ -281,9 +309,9 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
 
         # Update sender clocks
         # self._current_time = event.time
-        self._mcu.input(event.time)
-        self._frontend.input(event.time)
-        self._file.input(event.time)
+        self._mcu_state_sender.input(event.time)
+        self._frontend_state_sender.input(event.time)
+        self._file_state_sender.input(event.time)
 
         # Handle inbound state segments
         # We directly input states into store, instead of passing them in
@@ -294,28 +322,30 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         self._handle_inbound_state(event.frontend_receive, FRONTEND_INPUT_TYPES)
         self._handle_inbound_state(event.server_receive, SERVER_INPUT_TYPES)
 
+        self._handle_new_connections()
+
     def output(self) -> Optional[SendEvent]:
         """Emit the next output event."""
         output_event = SendEvent()
         try:
-            output_event.mcu_send = self._mcu.output()
+            output_event.mcu_send = self._mcu_state_sender.output()
         except exceptions.ProtocolDataError:
             self._logger.exception('MCU State Sender:')
         try:
-            output_event.frontend_send = self._frontend.output()
+            output_event.frontend_send = self._frontend_state_sender.output()
             # if (
             #         output_event.frontend_send is not None and
             #         self._current_time is not None
             # ):
             #     fractional_time = \
-            #         int((self._current_time - int(self._current_time))
+            #         int((self._current_time - int(self._current_time)) * 1000)
             #     print('{:3d}\t{}'.format(
-            #         fractional_time * 1000), type(output_event.frontend_send)
+            #         fractional_time, type(output_event.frontend_send)
             #     ))
         except exceptions.ProtocolDataError:
             self._logger.exception('Frontend State Sender:')
         try:
-            output_event.file_send = self._file.output()
+            output_event.file_send = self._file_state_sender.output()
         except exceptions.ProtocolDataError:
             self._logger.exception('File State Sender:')
         return output_event
@@ -340,3 +370,30 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
                 'Received state segment type is not a valid state: %s',
                 segment_type
             )
+
+    def _handle_new_connections(self) -> None:
+        """Reset event synchronization senders based on connection changes."""
+        current_states = self.store[StateSegment.BACKEND_CONNECTIONS]
+        if current_states is None:
+            return
+
+        current_states = typing.cast(
+            frontend_pb.BackendConnections, current_states
+        )
+        # Handle MCU
+        if current_states.has_mcu and not self._prev_connection_states.has_mcu:
+            self._logger.info(
+                'Resetting event synchronization sender for the MCU'
+            )
+            self._mcu_event_sender.input(eventsync.ResetEvent())
+        # Handle frontend
+        if (
+                current_states.has_frontend and
+                not self._prev_connection_states.has_frontend
+        ):
+            self._logger.info(
+                'Resetting event synchronization sender for the frontend'
+            )
+            self._frontend_event_sender.input(eventsync.ResetEvent())
+        # Wrap up
+        self._prev_connection_states = dataclasses.replace(current_states)
