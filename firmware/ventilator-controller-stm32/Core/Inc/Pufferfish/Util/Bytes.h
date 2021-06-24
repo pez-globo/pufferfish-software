@@ -26,6 +26,7 @@ namespace Pufferfish::Util {
  */
 template <size_t byte_index, typename T>
 constexpr uint8_t get_byte(T number) noexcept {
+  static_assert(byte_index <= sizeof(T), "the byte index is greater than size of the type");  
   return number >> static_cast<size_t>(byte_index * CHAR_BIT);
 }
 
@@ -39,19 +40,10 @@ constexpr uint8_t get_byte(T number) noexcept {
  */
 template <size_t byte_index, typename T>
 constexpr T set_byte(uint8_t byte) noexcept {
+  static_assert(byte_index <= sizeof(T), "the byte index is greater than size of the type");  
   return static_cast<T>(byte) << static_cast<size_t>(byte_index * CHAR_BIT);
 }
 
-/**
- * Left-shift a byte by some number of byte positions
- * @param byte the byte to shift
- * @param byte_index the shift index of the byte, where 0 leaves it unshifted (in the least
- * significant byte position)
- * @tparam T the type of the number to return
- * @return A number of the specified type with the given byte shifted into the given location
- */
-template <typename T>
-T set_byte(uint8_t byte, size_t byte_index);
 
 }  // namespace Pufferfish::Util
 

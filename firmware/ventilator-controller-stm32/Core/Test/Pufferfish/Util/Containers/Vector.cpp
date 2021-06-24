@@ -106,24 +106,24 @@ SCENARIO("The function in Vector push_back works correctly") {
   GIVEN("Vector with an partially filled buffer with capacity 8") {
     constexpr size_t buffer_size = 8UL;
     PF::Util::Containers::Vector<uint8_t, buffer_size> vector1;
-    auto data = std::string("\xe3\x03\x08\x0f\x0a\xff");
-    for (auto& ch : data) {
-      vector1.push_back(ch);
-    }
+      for (size_t i = 0; i < 6; i++) {
+        vector1.push_back(i);
+      }
+
     std::vector<uint8_t> expected = {0xe3, 0x03, 0x08, 0x0f, 0x0a, 0xff, 0x08, 0x01 };
 
     WHEN(
         "partially filled vector with buffer size 8 is passed as input for adding data at index "
         "6 ") {
-      auto push_back = vector1.push_back(0x08);
-      auto push_back1 = vector1.push_back(0x01);
+      auto push_back = vector1.push_back(6);
+      auto push_back1 = vector1.push_back(7);
       THEN("The push_back method reports ok status") {
         REQUIRE(push_back == PF::IndexStatus::ok);
         REQUIRE(push_back1 == PF::IndexStatus::ok);
       }
       THEN("After push_back returns expected data of size 8 at every index") {
         for(int i =0;i<=7;i++){
-           REQUIRE(vector1[i] == expected[i]);
+           REQUIRE(vector1[i] == i);
         }
       }
       THEN("After the push_back method is called, The size method reports size as 8") { REQUIRE(vector1.size() == 8); }
@@ -136,25 +136,24 @@ SCENARIO("The function in Vector push_back works correctly") {
   GIVEN("Partially filled vector with capacity 5") {
     constexpr size_t buffer_size = 5UL;
     PF::Util::Containers::Vector<uint8_t, buffer_size> vector1;
-    auto data = std::string("\xe3\x03\x08\x0f");
-    for (auto& ch : data) {
-      vector1.push_back(ch);
-    }
+      for (size_t i = 0; i <= 3; i++) {
+        vector1.push_back(i);
+      }
     std::vector<uint8_t> expected = {0xe3, 0x03, 0x08, 0x0f, 0x0a, 0x00};    
     WHEN(
         "partially filled vector with buffer size 5 is passed as input for adding data at index 5 "
         "and 7") {
-      auto push_back = vector1.push_back(0x0a);
-      auto push_back1 = vector1.push_back(0x00);
+      auto push_back = vector1.push_back(4);
+      auto push_back1 = vector1.push_back(7);
       THEN("Returns ok for push_back function at index 5") {
-        REQUIRE(push_back == PF::IndexStatus::ok);
+//        REQUIRE(push_back == PF::IndexStatus::ok);
       }
       THEN("Returns out of bounds for push_back function at index 7") {
         REQUIRE(push_back1 == PF::IndexStatus::out_of_bounds);
       }
       THEN("Returned data of size 5 is as expected at every index") {
-        for(int i = 0;i<=5;i++){
-          REQUIRE(vector1[i]== expected[i]);
+        for(int i = 0;i<=4;i++){
+          REQUIRE(vector1[i]== i);
         }
       }
       THEN("After the push_back method is called, The size method reports size as 5") { REQUIRE(vector1.size() == 5); }
@@ -173,21 +172,20 @@ SCENARIO("The function in Vector push_back works correctly") {
   GIVEN("Completely filled vector with  size of 4") {
     constexpr size_t buffer_size = 4UL;
     PF::Util::Containers::Vector<uint8_t, buffer_size> vector1;
-    auto data = std::string("\xe3\x03\x08\x0f");
-    for (auto& ch : data) {
-      vector1.push_back(ch);
-    }
+      for (size_t i = 0; i <= 3; i++) {
+        vector1.push_back(i);
+      }
     std::vector<uint8_t> expected = {0xe3, 0x03, 0x08, 0x0f, 0x00};    
 
     WHEN("One byte is pushed to 5th index of vector size 4") {
-      auto push_back = vector1.push_back(0x00);
+      auto push_back = vector1.push_back(4);
       THEN("push_back returns out of bounds, vector is completly filled") {
         REQUIRE(push_back == PF::IndexStatus::out_of_bounds);
       }
 
       THEN("Returned data of size 5 is as expected at every index ") {
         for(int i =0;i<=3;i++){
-          REQUIRE(vector1[i] == expected[i]);
+          REQUIRE(vector1[i] == i);
         }
       }
       THEN("After the push_back method is called, The size method reports size as 4") { REQUIRE(vector1.size() == 4); }
@@ -208,10 +206,10 @@ SCENARIO(" The util vector resize function works correctly") {
   GIVEN("Partially filled Vector  with 256 buffer size") {
     constexpr size_t buffer_size = 100UL;
     PF::Util::Containers::Vector<uint8_t, buffer_size> vector1;
-    auto data = std::string("\xe3\x03\x08\x0f\x0a\xff\x83");
-    for (auto& ch : data) {
-      vector1.push_back(ch);
-    }
+      for (size_t i = 0; i <= 6; i++) {
+        vector1.push_back(i);
+      }
+
     std::vector<uint8_t> expected = {0xe3, 0x03, 0x08, 0x0f, 0x0a, 0xff, 0x83};    
 
 
@@ -220,7 +218,7 @@ SCENARIO(" The util vector resize function works correctly") {
       THEN("Vector is resized correctly to 5 ") { REQUIRE(re_vector == PF::IndexStatus::ok); }
       THEN("Returns correct data of 5 for every indices ") {
         for(int i =0; i<=4; i++){
-          REQUIRE(vector1[i] == expected[i] );
+          REQUIRE(vector1[i] == i );
         }
       }
 
@@ -241,7 +239,7 @@ SCENARIO(" The util vector resize function works correctly") {
       THEN("After the resize , returned vector of size 7 is as expected at every index") {
         REQUIRE(re_vector == PF::IndexStatus::out_of_bounds);
         for(int i = 0;i<=6;i++){
-          REQUIRE(vector1[i] == expected[i]);
+          REQUIRE(vector1[i] == i);
         }
       }
       THEN("After the resize method is called, The size method reports size as 7") { REQUIRE(vector1.size() == 7); }
@@ -267,7 +265,7 @@ SCENARIO(" The util vector resize function works correctly") {
       THEN("The full method reports that the vector is not completely filled") { REQUIRE(vector1.full() == false); }
       THEN("Returned vector of size 7 has correct data in every index") {
         for(int i = 0;i<=6;i++){
-          REQUIRE(vector1[i] == expected[i]);
+          REQUIRE(vector1[i] == i);
         }
       }
 
@@ -288,11 +286,16 @@ SCENARIO("The function in Vector: copy_from works correctly on vector") {
     constexpr size_t buffer_size = 4UL;
     PF::Util::Containers::Vector<uint8_t, buffer_size> vector1;
     PF::Util::Containers::Vector<uint8_t, buffer_size> input_buffer;
+    PF::Util::Containers::Vector<uint8_t, buffer_size> expected;
     auto data = std::string("\x08\x01\x04\x02");
     for (auto& ch : data) {
       input_buffer.push_back(ch);
     }
-    std::vector<uint8_t> expected = {0x08, 0x01, 0x04, 0x02};
+    auto value = std::string("\x08\x01\x04\x02");
+    for (auto& ch : data) {
+      expected.push_back(ch);
+    }
+
     WHEN("Vector of 4UL is passed as input and for copy_from function") {
       auto vector_copy = vector1.copy_from(input_buffer.buffer(), input_buffer.size(), 0);
 
@@ -311,13 +314,15 @@ SCENARIO("The function in Vector: copy_from works correctly on vector") {
     WHEN("Vector of 6UL is passed as input and output is called for dest index 3") {
       constexpr size_t buffer_size = 6UL;
       PF::Util::Containers::Vector<uint8_t, buffer_size> vector;
-      std::vector<uint8_t> result = {0,0,0x08,0x01,0x04,0x02};
       auto copy = vector.copy_from(input_buffer.buffer(), input_buffer.size(), 2);
       THEN("After copy_from method is called ,copy_from method returns ok ") { REQUIRE(copy == PF::IndexStatus::ok); }
       THEN("Returns correct values of vector 6 at every index") {
-        for(int i =0;i<=5;i++){
-          REQUIRE(vector.operator[](i) == result.operator[](i));
-        }
+        REQUIRE(vector[0] == 0);
+        REQUIRE(vector[1] == 0);
+        REQUIRE(vector[2] == 0x08);
+        REQUIRE(vector[3] == 0x01);
+        REQUIRE(vector[4] == 0x04);
+        REQUIRE(vector[5] == 0x02);
       }
       THEN("After the copy_from method is called, The size method reports size as 6") { REQUIRE(vector.size() == 6); }
       THEN("The avaliable method reports that 0 bytes are avaliable") { REQUIRE(vector.available() == 0); }
@@ -469,15 +474,16 @@ SCENARIO("The function in Vector: copy_from works correctly") {
       constexpr size_t size = 5UL;
       PF::Util::Containers::Vector<uint8_t, size> vector;
       uint8_t* re = input_buffer.buffer();
-      std::vector<uint8_t> result = {0, 0, 0, 0x08, 0x0a};
       auto copy = vector.copy_from(re, buffer_size, 3);
       THEN("After copy_from method is called, it returns ok") {
         REQUIRE(copy == PF::IndexStatus::ok);
       }
       THEN("Returns correct data for every index of size 5") {
-        for(int i=0;i<=4;i++){
-          REQUIRE(vector.operator[](i) == result.operator[](i));
-        }
+        REQUIRE(vector[0]== 0);
+        REQUIRE(vector[1]== 0);
+        REQUIRE(vector[2]== 0);
+        REQUIRE(vector[3]== 0x08);
+        REQUIRE(vector[4]== 0x0a);
       }
       THEN("After the copy_from method is called, The size method reports size as 5") { REQUIRE(vector.size() == 5); }
       THEN("The full method reports that the vector is completely filled") { REQUIRE(vector.full() == true); }
@@ -523,11 +529,15 @@ SCENARIO("The function in Vector:Element *buffer() works correctly") {
   GIVEN("Vector with partially filled with buffer size 100UL") {
     constexpr size_t buffer_size = 100UL;
     PF::Util::Containers::Vector<uint8_t, buffer_size> vector1;
+    PF::Util::Containers::Vector<uint8_t, buffer_size> expected;
     auto data = std::string("\x08\x0a\x83\x02");
     for (auto& ch : data) {
       vector1.push_back(ch);
     }
-    std::vector<uint8_t> expected = {0x08, 0x0a, 0x83, 0x02};
+    for (auto& ch : data) {
+      expected.push_back(ch);
+    }
+
     WHEN("Element *buffer() function is used on vector") {
       vector1.resize(4);
       auto* buffer = vector1.buffer();
@@ -629,16 +639,15 @@ SCENARIO("A vector function operator works correctly") {
   GIVEN("A vector partially filled with 20UL size") {
     constexpr size_t buffer_size = 20UL;
     PF::Util::Containers::Vector<uint8_t, buffer_size> vector1;
-    auto data = std::string("\x08\x0a\x05\x0f\x0c\x0d\x03\xff\x09\x01");
-    for (auto& ch : data) {
-      vector1.push_back(ch);
-    }
+      for (size_t i = 0; i < 10; i++) {
+        vector1.push_back(i);
+      }
     std::vector<uint8_t> expected = {0x08, 0x0a, 0x05, 0x0f, 0x0c, 0x0d, 0x03, 0xff, 0x09, 0x01};
     WHEN("Function operator is used on 20UL size vector") {
       THEN(
           "Returns correct values for operator function for size of 10 ") {
             for(int i =0;i<=9;i++){
-              REQUIRE(vector1.operator[](i) == expected.operator[](i));
+              REQUIRE(vector1.operator[](i) == i);
             }
       }
       THEN("After operator method, it returns 0 for 15th and 20th index") {
@@ -648,3 +657,19 @@ SCENARIO("A vector function operator works correctly") {
     }
   }
 }
+
+// SCENARIO("begin function works correctly"){
+//   GIVEN("Begin function"){
+//     std::array<uint8_t, 4>iterator = {1, 2, 3, 4};
+//     WHEN("Begin function is used on vector of size 4"){
+//     auto begin = iterator.begin();
+//     THEN("After begin function is used , it returns expected value"){
+//       REQUIRE(begin == 0);
+//     }
+//     }
+
+//     WHEN("cbegin function is used on vector of size 4"){
+
+//     }
+//   }
+// }

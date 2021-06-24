@@ -50,6 +50,9 @@ constexpr bool within(Numeric value, Numeric floor, Numeric ceiling) {
  */
 template <typename Numeric>
 constexpr Numeric clamp(Numeric value, Numeric floor, Numeric ceiling) {
+  if(floor > ceiling){
+    floor = ceiling;
+  }
   return std::min(ceiling, std::max(floor, value));
 }
 
