@@ -10,6 +10,7 @@ import { getActiveRotaryReference } from '../app/Service';
 
 /**
  * function for handling rotary reference.
+ * Highlights the current active ValueClicker in the component
  *
  * @param {Theme} theme Material's Theme Object
  *

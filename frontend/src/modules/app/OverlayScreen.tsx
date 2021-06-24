@@ -99,8 +99,8 @@ export const HeartbeatBackendListener = (): JSX.Element => {
 const AudioAlarm = (): JSX.Element => {
   const dispatch = useDispatch();
   const activeAlarms = useSelector(getHasActiveAlarms, shallowEqual);
-  const alarmMuteActive = useSelector(getAlarmMuteActive, shallowEqual);
-  const backendConnected = useSelector(getBackendConnected, shallowEqual);
+  const alarmMuteActive = useSelector(getAlarmMuteActive);
+  const backendConnected = useSelector(getBackendConnected);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive, shallowEqual);
   const [audio] = useState(new Audio(`${process.env.PUBLIC_URL}/alarm.mp3`));
   audio.loop = true;

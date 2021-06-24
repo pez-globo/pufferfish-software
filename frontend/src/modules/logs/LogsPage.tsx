@@ -168,7 +168,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   };
 
   /**
-   * State to manage row data in table
+   * State to manage row data(array of all rows) in table
    */
   const [rows, setRows] = React.useState<Data[]>([]);
   /**
@@ -181,6 +181,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const [orderBy, setOrderBy] = React.useState<keyof Data>('id');
   /**
    * State to manage row selection
+   * TODO: decide whether to keep or remove
    */
   const [selected, setSelected] = React.useState<string[]>([]);
   /**
@@ -201,6 +202,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const [alarmOpen, setAlarmOpen] = React.useState(false);
   /**
    * State to manage current selected row
+   * To open "Settings"/Alarm Modal for that selection
    */
   const [currentRow, setCurrentRow] = React.useState<Data>();
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);

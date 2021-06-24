@@ -62,7 +62,7 @@ export interface SelectorProps {
 /**
  * ControlJumbotron
  *
- * @component A component for displaying values in a large way.
+ * @component A component for displaying a single value with large font size.
  *
  * Uses the [[SelectorProps]] interface
  *

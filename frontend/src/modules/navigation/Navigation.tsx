@@ -4,7 +4,7 @@
  */
 import { Tab, Tabs, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import React, { PropsWithChildren, useEffect } from 'react';
+import React, { PropsWithChildren, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ALARMS_ROUTE, SETTINGS_ROUTE } from './constants';
 
@@ -84,31 +84,37 @@ export const Navigation = ({
   const classes = useStyles();
   const location = useLocation();
 
-  const routes = [
-    // QUICKSTART_ROUTE, // TODO: Hide QuickStart tab when ventilator is on. Need to tap into redux store.
-    // MODES_ROUTE,
-    ALARMS_ROUTE,
-    // VALUES_ROUTE,
-    SETTINGS_ROUTE,
-  ];
+  const routes = useMemo(
+    () => [
+      // QUICKSTART_ROUTE, // TODO: Hide QuickStart tab when ventilator is on. Need to tap into redux store.
+      // MODES_ROUTE,
+      ALARMS_ROUTE,
+      // VALUES_ROUTE,
+      SETTINGS_ROUTE,
+    ],
+    [],
+  );
 
   const routePath = routes.find((route) => location.pathname.startsWith(route.path));
   /**
    * State to manage Route path
+   * RoutePath is an object with 'key(string)' which is a unique identifier for each route
+   * The routes on the sidebar are highlighted based on the active routePath key
    */
   const [route, setRoute] = React.useState(routePath ? routePath.key : 0);
 
   /**
    * Triggers once to update current route in State
+   * On Initialization, current route is selected and highlighted on the sidebar
    */
   useEffect(() => {
     const routePath = routes.find((route) => location.pathname.startsWith(route.path));
     setRoute(routePath ? routePath.key : 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location]);
+  }, [location, routes]);
 
   /**
    * Function for handling route changes
+   * updates the current route on change, and highlights the navigated route icon
    *
    * @param {React.ChangeEvent<Record<string, unknown>>} event DOM Change Event
    * @param {number} newRoute Route path to be navigated

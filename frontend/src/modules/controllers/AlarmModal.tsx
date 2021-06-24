@@ -70,16 +70,19 @@ export interface AlarmAdjustProps {
  * @prop {string} units Alarm paramater unit measurement to display
  * @prop {number} committedMin Lower Set Alarm Range Value
  * @prop {number} committedMax Upper Set Alarm Range Value
+ * TODO: it was used in ValueModa in values page, can be removed
  * @prop {boolean} disableAlarmButton Toggle to show/hide alarm button
  * @prop {function} updateModalStatus Callback to send current modal open/close status
  * @prop {function} onModalClose Callback after Modal close
+ * TODO: rename to 'getCommittedRange' as it just returns the committed values.
  * @prop {function} requestCommitRange Callback on updating the Alarm range values
  * @prop {string} stateKey Unique identifier of alarm (eg spo2, fio2...)
  * @prop {number} step Alarm step difference between Range (Defaults to 1)
  * @prop {boolean} openModal Default value to toggle Open/Close Alarm Modal
- * @prop {boolean} contentOnly Switch to display only Alarm Modal content vs Alarm Modal
+ * @prop {boolean} contentOnly AlarmModal by itself is wrapped in a ModalPopup, contentOnly will provide
+ * Alarm features but not inside a Modal.
  * @prop {boolean} labelHeading Switch to show/hide Alarm Label inside Alarm Modal content
- * @prop {number[]} alarmRangeValues Alarm Range Values
+ * @prop {number[]} alarmRangeValues Alarm Range Values, if not initialized, committedMin and committedMax are displayed.
  */
 interface Props {
   label: string;
@@ -157,6 +160,7 @@ export const AlarmModal = ({
     [`${stateKey}_LOWER`]: useRef(null),
     [`${stateKey}_HIGHER`]: useRef(null),
   });
+  // const rangeValueString = JSON.stringify(rangeValue);
 
   const setUpperLimit = (value: number) => {
     setRangeValue(Object.assign([], rangeValue, { 1: value }));
@@ -166,6 +170,9 @@ export const AlarmModal = ({
     setRangeValue(Object.assign([], rangeValue, { 0: value }));
   };
 
+  /**
+   * This callback updates the value of the current model status(open/close) to parent component
+   */
   const initSetValue = useCallback(() => {
     setOpen(openModal);
   }, [openModal]);
@@ -174,6 +181,9 @@ export const AlarmModal = ({
     initRefListener(refs);
   }, [initRefListener, refs]);
 
+  /**
+   * Sets openModal props value to update current modal status(open/close) value received from parent component
+   */
   useEffect(() => {
     initSetValue();
   }, [initSetValue]);
@@ -182,8 +192,7 @@ export const AlarmModal = ({
     if (updateModalStatus) {
       updateModalStatus(open);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  });
 
   /**
    * Function for handling the opening of the modal.
@@ -217,13 +226,13 @@ export const AlarmModal = ({
     requestCommitRange(rangeValue[0], rangeValue[1]);
     handleClose();
   };
+
   /**
    * Triggers whenever rangeValue is updated in redux
    */
   useEffect(() => {
     requestCommitRange(rangeValue[0], rangeValue[1]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [requestCommitRange, JSON.stringify(rangeValue)]);
+  }, [requestCommitRange, rangeValue]);
 
   /**
    * Resets highlighting border around alarm container when clicked across the page
@@ -345,6 +354,7 @@ export const AlarmModal = ({
   ) : (
     <Grid container direction="column" alignItems="center" justify="center">
       <Grid container item xs>
+        {/* TODO: deprecated, can be commented out or removed */}
         {!disableAlarmButton && (
           <Button
             onClick={handleOpen}

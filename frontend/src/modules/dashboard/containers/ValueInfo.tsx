@@ -150,12 +150,13 @@ export interface ValueInfoProps {
  *
  * Props interface for the showing information.
  *
- * @prop {SelectorType} selector Redux Selector
+ * @prop {SelectorType: number} selector Redux Selector
  * @prop {string} label Value label
  * @prop {string} stateKey Unique identifier
  * @prop {string} units Unit measurement to display
+ * TODO: isLive is deprecated (used earlier in FiO2info.tsx)
  * @prop {boolean} isLive Config to show isLive in UI
- * @prop {boolean} isMain Config to know if its main or sub container
+ * @prop {boolean} isMain Config to know if its main or sub container (if true occupies the entire space)
  * @prop {boolean} showLimits Config to show Alarm limts in container (on top left - small size)
  * @prop {number} decimal Number of Decimals on the value
  *
@@ -347,6 +348,7 @@ const ControlValuesDisplay = ({
  * GridControlValuesDisplay
  *
  * @component Component for showing grid control value information.
+ * similar to ControlValuesDisplay, A horizontal SubContainer used on the dashboard
  *
  * Uses the [[Props]] interface
  *

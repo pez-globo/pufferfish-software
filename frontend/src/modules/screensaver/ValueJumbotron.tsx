@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * ValueJumbotron
  *
- * @component A component for displaying values in a large way.
+ * @component A component for displays a single value with a large font size.
  *
  * Uses the [[SelectorProps]] interface
  *

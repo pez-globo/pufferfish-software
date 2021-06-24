@@ -1,5 +1,6 @@
 /**
  * @summary Layout for screensaver page
+ * see Routes.tsx where the main content is supplied through the "component" prop
  *
  */
 import { AppBar, Grid, makeStyles, Theme } from '@material-ui/core';

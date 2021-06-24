@@ -1,5 +1,6 @@
 /**
  * @summary Layout file for landing page
+ * see Routes.tsx where the main content is supplied through the "component" prop
  *
  */
 import { Grid } from '@material-ui/core';

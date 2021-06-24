@@ -1,5 +1,6 @@
 /**
- * @summary Re-usable Component to display value
+ * @summary Re-usable Component to display value, label and unit
+ * currently used in settings > Display tab
  *
  */
 import React from 'react';
