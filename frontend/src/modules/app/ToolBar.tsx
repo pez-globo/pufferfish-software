@@ -197,6 +197,9 @@ export const ToolBar = ({
         setStartDiscardOpen(true);
         return;
       }
+      // if both firmware and backend are connected, and response.ventilating is true
+      // then on pressing 'Pause Ventilation' we go back to QuickStart page
+      // instead of the page we are on in ventilating mode (eg: settings, alarms screen)
       if (firmwareConnected && backendConnected) history.push(QUICKSTART_ROUTE.path);
     } else {
       initParameterUpdate();
@@ -246,21 +249,17 @@ export const ToolBar = ({
    * Enable/Disable and set label for Start/Pause Ventilation button
    */
   useEffect(() => {
-    if (!ventilating) {
-      setIsDisabled(ventilatingStatusChanging || !firmwareConnected || !backendConnected);
-      if (!firmwareConnected || !backendConnected) {
-        setLabel(ventilatingStatusChanging ? 'Starting...' : 'Connecting...');
-        return;
-      }
-      setLabel(ventilatingStatusChanging ? 'Starting...' : 'Start Ventilation');
-    } else {
+    if (ventilating) {
       setIsDisabled(ventilatingStatusChanging);
-      if (!firmwareConnected) {
-        setLabel(ventilatingStatusChanging ? 'Pausing...' : 'Pause Ventilation');
-        return;
-      }
-      setLabel(ventilatingStatusChanging ? 'Pausing..' : 'Pause Ventilation');
+      setLabel(ventilatingStatusChanging ? 'Pausing...' : 'Pause Ventilation');
+      return;
     }
+    setIsDisabled(ventilatingStatusChanging || !firmwareConnected || !backendConnected);
+    if (ventilatingStatusChanging) {
+      setLabel('Starting...');
+      return;
+    }
+    setLabel(!firmwareConnected || !backendConnected ? 'Connecting...' : 'Start Ventilation');
   }, [ventilatingStatusChanging, backendConnected, firmwareConnected, ventilating]);
 
   /**
