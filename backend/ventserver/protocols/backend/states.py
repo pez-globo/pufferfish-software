@@ -226,7 +226,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             eventsync.ChangedStateSender[StateSegment]:
         """Initialize the mcu event sender."""
         return eventsync.ChangedStateSender(
-            output_schedule=MCU_OUTPUT_SCHEDULE, all_states=self.store
+            index_sequence=MCU_OUTPUT_SCHEDULE, all_states=self.store
         )
 
     @_frontend_event_sender.default
@@ -234,7 +234,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             eventsync.ChangedStateSender[StateSegment]:
         """Initialize the frontend event sender."""
         return eventsync.ChangedStateSender(
-            output_schedule=FRONTEND_OUTPUT_SCHEDULE, all_states=self.store,
+            index_sequence=FRONTEND_OUTPUT_SCHEDULE, all_states=self.store,
             output_idle=False
         )
 
@@ -243,7 +243,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             eventsync.ChangedStateSender[StateSegment]:
         """Initialize the file event sender."""
         return eventsync.ChangedStateSender(
-            output_schedule=FILE_OUTPUT_SCHEDULE, all_states=self.store,
+            index_sequence=FILE_OUTPUT_SCHEDULE, all_states=self.store,
             output_idle=False
         )
 
@@ -253,11 +253,11 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         return states.TimedSender(
             output_interval=MCU_OUTPUT_MIN_INTERVAL,
             sender=states.SequentialSender(
-                output_schedule=MCU_OUTPUT_ROOT_SCHEDULE,
+                index_sequence=MCU_OUTPUT_ROOT_SCHEDULE,
                 indexed_sender=states.MappedSenders(senders={
                     Sender.EVENT_SCHEDULE: self._mcu_event_sender,
                     Sender.MAIN_SCHEDULE: states.SequentialSender(
-                        output_schedule=MCU_OUTPUT_SCHEDULE,
+                        index_sequence=MCU_OUTPUT_SCHEDULE,
                         indexed_sender=self.store
                     ),
                 }),
@@ -270,15 +270,15 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         return states.TimedSender(
             output_interval=FRONTEND_OUTPUT_MIN_INTERVAL,
             sender=states.SequentialSender(
-                output_schedule=FRONTEND_OUTPUT_ROOT_SCHEDULE,
+                index_sequence=FRONTEND_OUTPUT_ROOT_SCHEDULE,
                 indexed_sender=states.MappedSenders(senders={
                     Sender.REALTIME_SCHEDULE: states.SequentialSender(
-                        output_schedule=FRONTEND_OUTPUT_REALTIME_SCHEDULE,
+                        index_sequence=FRONTEND_OUTPUT_REALTIME_SCHEDULE,
                         indexed_sender=self.store
                     ),
                     Sender.EVENT_SCHEDULE: self._frontend_event_sender,
                     Sender.MAIN_SCHEDULE: states.SequentialSender(
-                        output_schedule=FRONTEND_OUTPUT_SCHEDULE,
+                        index_sequence=FRONTEND_OUTPUT_SCHEDULE,
                         indexed_sender=self.store
                     ),
                 }),
@@ -291,11 +291,11 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         return states.TimedSender(
             output_interval=FILE_OUTPUT_MIN_INTERVAL,
             sender=states.SequentialSender(
-                output_schedule=FILE_OUTPUT_ROOT_SCHEDULE,
+                index_sequence=FILE_OUTPUT_ROOT_SCHEDULE,
                 indexed_sender=states.MappedSenders(senders={
                     Sender.EVENT_SCHEDULE: self._file_event_sender,
                     Sender.MAIN_SCHEDULE: states.SequentialSender(
-                        output_schedule=FILE_OUTPUT_SCHEDULE,
+                        index_sequence=FILE_OUTPUT_SCHEDULE,
                         indexed_sender=self.store
                     ),
                 }),

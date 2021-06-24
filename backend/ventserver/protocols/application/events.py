@@ -63,7 +63,7 @@ class NotificationSender(
 
     _logger = logging.getLogger('.'.join((__name__, 'TimedSequentialSender')))
 
-    output_schedule: Iterable[_Index] = attr.ib()
+    index_sequence: Iterable[_Index] = attr.ib()
     indexed_sender: states.IndexedSender[_Index] = attr.ib()
     output_idle: bool = attr.ib(default=False)
     _sendable_indices: Set[_Index] = attr.ib(factory=set)
@@ -74,7 +74,7 @@ class NotificationSender(
     def init_sequential_sender(self) -> states.SequentialSender[_Index]:
         """Initialize the sequential sender."""
         return states.SequentialSender(
-            output_schedule=self.output_schedule,
+            index_sequence=self.index_sequence,
             indexed_sender=FilteredSender(
                 sender=self.indexed_sender,
                 allowed_indices=self._sendable_indices
@@ -86,7 +86,7 @@ class NotificationSender(
     def init_idle_sender(self) -> states.SequentialSender[_Index]:
         """Initialize the idle sender."""
         return states.SequentialSender(
-            output_schedule=self.output_schedule,
+            index_sequence=self.index_sequence,
             indexed_sender=self.indexed_sender,
             skip_unavailable=True
         )
@@ -158,7 +158,7 @@ class ChangedStateSender(
     another Filter which completely owns all_states.
     """
 
-    output_schedule: Iterable[_Index] = attr.ib()
+    index_sequence: Iterable[_Index] = attr.ib()
     all_states: states.IndexedSender[_Index] = attr.ib()
     output_idle: bool = attr.ib(default=True)
     _notification_sender: NotificationSender[_Index] = attr.ib()
@@ -169,14 +169,14 @@ class ChangedStateSender(
     def init_notification_sender(self) -> NotificationSender[_Index]:
         """Initialize the notification sender."""
         return NotificationSender(
-            output_schedule=self.output_schedule,
+            index_sequence=self.index_sequence,
             indexed_sender=self.all_states, output_idle=self.output_idle
         )
 
     @_trackable_states.default
     def init_trackable_states(self) -> Set[_Index]:
         """Initialize the set of trackable states."""
-        return set(self.output_schedule)
+        return set(self.index_sequence)
 
     def input(self, event: Optional[ResetEvent]) -> None:
         """Handle input events."""

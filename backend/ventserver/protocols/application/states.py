@@ -66,7 +66,7 @@ class SequentialSender(Sender, Generic[_Index]):
 
     _logger = logging.getLogger('.'.join((__name__, 'SequentialSender')))
 
-    output_schedule: Iterable[_Index] = attr.ib()
+    index_sequence: Iterable[_Index] = attr.ib()
     indexed_sender: IndexedSender[_Index] = attr.ib()
     skip_unavailable: bool = attr.ib(default=False)
     _schedule: Deque[_Index] = attr.ib()
@@ -75,7 +75,7 @@ class SequentialSender(Sender, Generic[_Index]):
     @_schedule.default
     def init_schedule(self) -> Deque[_Index]:
         """Initialize the internal output schedule."""
-        return collections.deque(self.output_schedule)
+        return collections.deque(self.index_sequence)
 
     def input(self, event: None) -> None:
         """Handle input events."""
