@@ -1,5 +1,6 @@
 /**
  * @summary UI wrapper for Tabs
+ * wrapper with minimal configuration, to be used instead of Material UI's TabPanel
  *
  */
 import Grid from '@material-ui/core/Grid';

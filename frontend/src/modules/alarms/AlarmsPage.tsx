@@ -21,7 +21,7 @@ import {
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { setActiveRotaryReference } from '../app/Service';
-import { ValueClicker } from '../controllers';
+import { DiscardAlarmLimitsContent, ValueClicker } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';
 import ValueSlider from '../controllers/ValueSlider';
 import ModeBanner from '../displays/ModeBanner';
@@ -567,31 +567,7 @@ export const AlarmsPage = (): JSX.Element => {
                 onClose={handleDiscardClose}
                 onConfirm={handleDiscardConfirm}
               >
-                <Grid container alignItems="center">
-                  <Grid container alignItems="center" justify="center">
-                    <Grid container alignItems="center" className={classes.marginHeader}>
-                      <Grid item xs>
-                        <Typography variant="h4">Keep Previous Values?</Typography>
-                      </Grid>
-                    </Grid>
-                    <Grid item className={classes.marginContent}>
-                      {alarmConfig.map((param) => {
-                        if (alarmLimitsRequest !== null) {
-                          if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
-                            return (
-                              <Typography variant="subtitle1">{`Keep ${
-                                param.label
-                              } alarm range to ${alarmLimitsRequest[param.stateKey].lower} -
-                                ${alarmLimitsRequest[param.stateKey].upper}?`}</Typography>
-                            );
-                          }
-                        }
-                        return <React.Fragment />;
-                      })}
-                    </Grid>
-                    <Grid item className={classes.marginContent} />
-                  </Grid>
-                </Grid>
+                <DiscardAlarmLimitsContent />
               </ModalPopup>
             </Grid>
           </Grid>

@@ -40,6 +40,7 @@
 #include "Pufferfish/Driver/BreathingCircuit/AlarmsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
 #include "Pufferfish/Driver/BreathingCircuit/ParametersService.h"
+#include "Pufferfish/Driver/BreathingCircuit/SensorAlarmsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/SignalSmoothing.h"
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 #include "Pufferfish/Driver/Button/Button.h"
@@ -656,6 +657,10 @@ int main(void)
         store.sensor_measurements_filtered(),
         alarms_manager);
 
+    // Breathing Circuit Sensor Alarms
+    PF::Driver::BreathingCircuit::SensorAlarmsService::transform(
+        hfnc.sensor_connections(), alarms_manager);
+
     // Alarm Mute Service
     alarm_mute_service.transform(current_time, store.alarm_mute_request(), store.alarm_mute());
 
@@ -666,7 +671,7 @@ int main(void)
       ltc4015.output(store.mcu_power_status());
     }
 
-    PF::Driver::Power::AlarmsService::transform(store.mcu_power_status(), alarms_manager);
+    power_alarms.transform(store.mcu_power_status(), alarms_manager);
 
     // Indicators for debugging
     /*static constexpr float valve_opening_indicator_threshold = 0.00001;

@@ -1,5 +1,6 @@
 /**
  * @summary Layout with Sidebar based pages
+ * SideBar route is used when not ventilating
  *
  */
 import { Grid } from '@material-ui/core';

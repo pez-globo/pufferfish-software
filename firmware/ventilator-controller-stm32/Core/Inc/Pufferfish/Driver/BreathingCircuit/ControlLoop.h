@@ -16,6 +16,7 @@
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 #include "Pufferfish/HAL/Interfaces/PWM.h"
 #include "Pufferfish/Util/Timeouts.h"
+#include "Sensors.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
@@ -53,6 +54,7 @@ class HFNCControlLoop : public ControlLoop {
   [[nodiscard]] const SensorVars &sensor_vars() const;
   [[nodiscard]] const ActuatorSetpoints &actuator_setpoints() const;
   [[nodiscard]] const ActuatorVars &actuator_vars() const;
+  [[nodiscard]] const SensorConnections &sensor_connections() const;
 
  private:
   const Parameters &parameters_;
@@ -72,6 +74,9 @@ class HFNCControlLoop : public ControlLoop {
   ActuatorVars actuator_vars_{};
   HAL::Interfaces::PWM &valve_air_;
   HAL::Interfaces::PWM &valve_o2_;
+
+  // Sensor Connections
+  SensorConnections sensor_connections_{};
 };
 
 }  // namespace Pufferfish::Driver::BreathingCircuit

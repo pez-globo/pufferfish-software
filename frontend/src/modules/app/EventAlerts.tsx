@@ -17,6 +17,7 @@ import {
   getPopupEventLog,
   getAlarmMuteRemaining,
   getParametersIsVentilating,
+  getFirmwareConnected,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
@@ -209,6 +210,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const backendConnected = useSelector(getBackendConnected);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive);
   const ventilating = useSelector(getParametersIsVentilating);
+  const firmwareConnected = useSelector(getFirmwareConnected);
+  const MUTE_MAX_DURATION = 120;
+  const DEFAULT_TIMEOUT = 1000;
   /**
    * Stores the state which toggles AlarmMute/AlarmMuteRequest Status
    */
@@ -265,11 +269,11 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         if (remaining <= 0) {
           clearTimeout(timer);
         }
-      }, 1000);
+      }, DEFAULT_TIMEOUT);
       // Reset the timer
       if (!alarmMuteRequestActive) {
         clearTimeout(timer);
-        setRemaining(120);
+        setRemaining(MUTE_MAX_DURATION);
       }
     }
   }, [alarmMuteActive, alarmMuteRemaining, remaining, backendConnected, alarmMuteRequestActive]);
@@ -295,7 +299,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       dispatch(
         commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, {
           active: false,
-          remaining: 120,
+          remaining: MUTE_MAX_DURATION,
         }),
       );
     }
@@ -355,6 +359,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
                 onClick={() => muteAlarmState(isMuted)}
                 variant="contained"
                 color="primary"
+                disabled={!firmwareConnected}
                 className={classes.alertColor}
               >
                 {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
@@ -383,6 +388,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           onClick={() => muteAlarmState(isMuted)}
           variant="contained"
           color="primary"
+          disabled={!firmwareConnected}
           className={classes.alertColor}
         >
           {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}

@@ -249,11 +249,11 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
       unit,
       date: parseInt((dateChange.getTime() / 1000).toFixed(0), DECIMAL_RADIX),
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date, period, minute, hour, day, month, year, unit, theme, brightness]);
+  }, [date, period, minute, hour, day, month, year, unit, theme, brightness, onSettingChange]);
 
   /**
    * function for handling month change.
+   * callback from ValueController whenever month is changed
    *
    * @param {number} change - min 1 and max 12
    *

@@ -1,5 +1,6 @@
 /**
  * @summary Tracks User Activity
+ * events : ['load', 'mousemove', 'mousedown', 'click', 'scroll', 'keypress']
  *
  * @file Component to track User Activity based on user idle time
  *

@@ -4,12 +4,12 @@
  * @file Header toolbar with dynamic sub components
  *
  */
-import { AppBar, Button, Grid, Typography } from '@material-ui/core';
+import { AppBar, Button, Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
-import { getClockTime } from '../../store/app/selectors';
+import { getBackendConnected, getClockTime } from '../../store/app/selectors';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import {
   ParametersRequest,
@@ -26,12 +26,12 @@ import {
   getAlarmLimitsRequestDraft,
   getStoreReady,
   getAlarmLimitsRequestUnsaved,
-  getAlarmLimitsUnsavedKeys,
   getAlarmLimitsRequest,
   getVentilatingStatusChanging,
+  getFirmwareConnected,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
-import { AlarmConfiguration, alarmConfiguration } from '../alarms/AlarmsPage';
+import { DiscardAlarmLimitsContent } from '../controllers';
 import { ModalPopup } from '../controllers/ModalPopup';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
 import { BackIcon } from '../icons';
@@ -55,16 +55,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {
     // border: '1px solid red',
   },
-  marginContent: {
-    textAlign: 'center',
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(3),
-  },
-  marginHeader: {
-    textAlign: 'center',
-    marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(1),
-  },
   marginRight: {
     marginRight: theme.spacing(0.5),
   },
@@ -81,6 +71,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  * HeaderClock
  *
  * @component A container for displaying header clock of the page.
+ * shows the current time in toolbar
  *
  * @returns {JSX.Element} current time
  */
@@ -93,7 +84,7 @@ export const HeaderClock = (): JSX.Element => {
 /**
  * PowerIndicator
  *
- * @component  A container for displaying battery indicator of the page.
+ * @component  A container for displaying the battery and power management status of the ventilator.
  *
  * @returns {JSX.Element} battery percentage remain
  */
@@ -138,7 +129,7 @@ export const PowerIndicator = (): JSX.Element => {
  * @component A container for displaying buttons that handle system changes based on
  * various states and conditions such as ventilator state and current page route.
  *
- * @param {React.ReactNode} children Adds dynamic items as children for SidebarSlideRoute
+ * @param {React.ReactNode} children Adds dynamic items as children for SidebarSlideRoute (eg: Pufferfish Icon & Drawer icon)
  * @param {boolean} staticStart staticStart is used as a config for reusing Start/Pause Ventilation button for LandingPage Layout
  *
  * @returns {JSX.Element}
@@ -163,21 +154,14 @@ export const ToolBar = ({
   const alarmLimitsRequestDraftSelect = useSelector(getAlarmLimitsRequestDraft);
   const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
   const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
-  const alarmLimitsUnsavedKeys = useSelector(getAlarmLimitsUnsavedKeys);
   const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
   const alarmLimitsRequestDraft = (alarmLimitsRequestDraftSelect as unknown) as Record<
     string,
     Range
   >;
-  const ventilatingStatus = useSelector(getVentilatingStatusChanging);
-  /**
-   * State to manage toggling ventilationState
-   */
-  const [isVentilatorOn, setIsVentilatorOn] = React.useState(ventilating);
-  /**
-   * State to manage label for Landing page
-   */
-  const [landingLabel, setLandingLabel] = useState('Loading...');
+  const ventilatingStatusChanging = useSelector(getVentilatingStatusChanging);
+  const firmwareConnected = useSelector(getFirmwareConnected);
+  const backendConnected = useSelector(getBackendConnected);
   /**
    * State to manage ventilation label
    * Label is Dynamic based on ventilation state
@@ -187,50 +171,56 @@ export const ToolBar = ({
    * State to toggle if Ventilating isDisabled
    */
   const [isDisabled, setIsDisabled] = useState(false);
+  /**
+   * State to open Modal Popup for Dashboard
+   */
   const [discardOpen, setDiscardOpen] = useState(false);
+  /**
+   * State to open Modal Popup for Start/Pause button
+   */
+  const [startDiscardOpen, setStartDiscardOpen] = useState(false);
+
   const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
     dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
-  const alarmConfig = alarmConfiguration(currentMode);
-  // const isDisabled = !isVentilatorOn && location.pathname !== QUICKSTART_ROUTE.path;
+  const dispatchParameterRequest = (update: Partial<ParametersRequest>) => {
+    dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+  };
 
   /**
    * Updates Ventilation status on clicking Start/Pause ventilation
    */
   const updateVentilationStatus = () => {
-    if (!staticStart) {
-      dispatch(
-        commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
-          ventilating: !isVentilatorOn,
-        }),
-      );
-      setIsVentilatorOn(!isVentilatorOn);
+    if (ventilating) {
+      // if ventilating and there are unsaved alarm limit changes then open modal popup
+      if (alarmLimitsRequestUnsaved) {
+        setStartDiscardOpen(true);
+        return;
+      }
+      // if both firmware and backend are connected, and response.ventilating is true
+      // then on pressing 'Pause Ventilation' we go back to QuickStart page
+      // instead of the page we are on in ventilating mode (eg: settings, alarms screen)
+      if (firmwareConnected && backendConnected) history.push(QUICKSTART_ROUTE.path);
+    } else {
+      initParameterUpdate();
     }
-    if (isVentilatorOn || staticStart) {
-      history.push(QUICKSTART_ROUTE.path);
-    }
+    dispatchParameterRequest({ ventilating: !ventilating });
   };
 
   /**
    * Update Paramters to redux store when ventilation starts
    */
-  const initParameterUpdate = useCallback(() => {
+  const initParameterUpdate = () => {
     if (parameterRequestDraft === null || alarmLimitsRequestDraft === null) {
-      return;
-    }
-
-    if (!isVentilatorOn) {
       return;
     }
 
     switch (currentMode) {
       case VentilationMode.hfnc:
-        dispatch(
-          commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
-            fio2: parameterRequestDraft.fio2,
-            flow: parameterRequestDraft.flow,
-          }),
-        );
+        dispatchParameterRequest({
+          fio2: parameterRequestDraft.fio2,
+          flow: parameterRequestDraft.flow,
+        });
         dispatch(
           commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, {
             spo2: alarmLimitsRequestDraft.spo2,
@@ -243,76 +233,79 @@ export const ToolBar = ({
       case VentilationMode.niv_pc:
       case VentilationMode.niv_ps:
       case VentilationMode.psv:
-        dispatch(
-          commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
-            peep: parameterRequestDraft.peep,
-            vt: parameterRequestDraft.vt,
-            rr: parameterRequestDraft.rr,
-            fio2: parameterRequestDraft.fio2,
-          }),
-        );
+        dispatchParameterRequest({
+          peep: parameterRequestDraft.peep,
+          vt: parameterRequestDraft.vt,
+          rr: parameterRequestDraft.rr,
+          fio2: parameterRequestDraft.fio2,
+        });
         break;
       default:
         break;
     }
-  }, [isVentilatorOn, parameterRequestDraft, alarmLimitsRequestDraft, currentMode, dispatch]);
+  };
 
   /**
-   * Disabled Start/Pause Ventilation button when backend connection is lost
+   * Enable/Disable and set label for Start/Pause Ventilation button
    */
   useEffect(() => {
-    if (storeReady) {
-      setLandingLabel('Start');
-      setIsDisabled(false);
-      setLabel(ventilating ? 'Pause Ventilation' : 'Start Ventilation');
-    } else if (ventilatingStatus) {
-      setIsDisabled(true);
-      setLabel('Connecting...');
-    } else {
-      setLandingLabel('Loading...');
-      setIsDisabled(true);
-      setLabel('Loading...');
-    }
-  }, [storeReady, ventilatingStatus, ventilating]);
-
-  useEffect(() => {
     if (ventilating) {
+      setIsDisabled(ventilatingStatusChanging);
+      setLabel(ventilatingStatusChanging ? 'Pausing...' : 'Pause Ventilation');
       return;
     }
-
-    initParameterUpdate();
-  }, [ventilating, initParameterUpdate]);
+    setIsDisabled(ventilatingStatusChanging || !firmwareConnected || !backendConnected);
+    if (ventilatingStatusChanging) {
+      setLabel('Starting...');
+      return;
+    }
+    setLabel(!firmwareConnected || !backendConnected ? 'Connecting...' : 'Start Ventilation');
+  }, [ventilatingStatusChanging, backendConnected, firmwareConnected, ventilating]);
 
   /**
-   * Update Label on Button based on ventilation status
+   * Switch to dashboard page if ventilating
    */
   useEffect(() => {
-    if (ventilating) {
+    if (storeReady && ventilating) {
       history.push(DASHBOARD_ROUTE.path);
     }
-    setIsVentilatorOn(ventilating);
-  }, [ventilating, history]);
+  }, [ventilating, history, storeReady]);
 
-  const StartPauseButton = (
+  const StartPauseVentilationButton = (
     <Button
       onClick={updateVentilationStatus}
       variant="contained"
       color="secondary"
       disabled={isDisabled}
     >
-      {staticStart ? landingLabel : label}
+      {label}
     </Button>
   );
 
+  const LandingPageStartButton = (
+    <Button
+      onClick={() => history.push(QUICKSTART_ROUTE.path)}
+      variant="contained"
+      color="secondary"
+      disabled={!storeReady}
+    >
+      {storeReady ? 'Start' : 'Loading...'}
+    </Button>
+  );
+
+  /**
+   * OnClick handler for dashboard button
+   */
   const handleOnClick = () => {
+    setDiscardOpen(alarmLimitsRequestUnsaved);
     if (!alarmLimitsRequestUnsaved) {
-      setDiscardOpen(false);
       history.push(DASHBOARD_ROUTE.path);
-    } else {
-      setDiscardOpen(true);
     }
   };
 
+  /**
+   * Display buttons dynamically on the toolbar
+   */
   const tools = [<ModesDropdown />];
   if (location.pathname === DASHBOARD_ROUTE.path) {
     tools.push(<ViewDropdown />);
@@ -322,7 +315,7 @@ export const ToolBar = ({
     //     Last Patient Settings
     //   </Button>,
     // );
-  } else if (isVentilatorOn && location.pathname !== SCREENSAVER_ROUTE.path) {
+  } else if (ventilating && location.pathname !== SCREENSAVER_ROUTE.path) {
     tools.push(
       <Button onClick={handleOnClick} variant="contained" color="primary">
         <BackIcon style={{ paddingRight: 8 }} />
@@ -334,14 +327,31 @@ export const ToolBar = ({
     tools.push(<EventAlerts label={LOGS_ROUTE.label} />);
   }
 
+  /**
+   * onClickHandler for Dashboard ModalPopup 'Cancel' button
+   */
   const handleDiscardClose = () => {
     setDiscardOpen(false);
+    setStartDiscardOpen(false);
   };
 
+  /**
+   * onClickHandler for Dashboard ModalPopup 'Confirm' button
+   */
   const handleDiscardConfirm = () => {
     setAlarmLimitsRequestDraft(alarmLimitsRequest);
     history.push(DASHBOARD_ROUTE.path);
     setDiscardOpen(false);
+  };
+
+  /**
+   * onClickHandler for Start ModalPopup 'Confirm' button
+   */
+  const handleStartDiscardConfirm = () => {
+    setAlarmLimitsRequestDraft(alarmLimitsRequest);
+    dispatchParameterRequest({ ventilating: !ventilating });
+    setStartDiscardOpen(false);
+    history.push(QUICKSTART_ROUTE.path);
   };
 
   return (
@@ -387,7 +397,7 @@ export const ToolBar = ({
             <HeaderClock />
             <ClockIcon style={{ fontSize: '2.5rem' }} />
           </Grid>
-          <Grid item>{StartPauseButton}</Grid>
+          <Grid item>{staticStart ? LandingPageStartButton : StartPauseVentilationButton}</Grid>
         </Grid>
       </Grid>
       <ModalPopup
@@ -397,30 +407,16 @@ export const ToolBar = ({
         onClose={handleDiscardClose}
         onConfirm={handleDiscardConfirm}
       >
-        <Grid container alignItems="center">
-          <Grid container alignItems="center" justify="center">
-            <Grid container alignItems="center" className={classes.marginHeader}>
-              <Grid item xs>
-                <Typography variant="h4">Keep Previous Values?</Typography>
-              </Grid>
-            </Grid>
-            <Grid item className={classes.marginContent}>
-              {alarmConfig.map((param: AlarmConfiguration) => {
-                if (alarmLimitsRequest !== null && alarmLimitsRequestDraft !== null) {
-                  if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
-                    return (
-                      <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${
-                        alarmLimitsRequest[param.stateKey].lower
-                      } -
-                                ${alarmLimitsRequest[param.stateKey].upper}?`}</Typography>
-                    );
-                  }
-                }
-                return <React.Fragment />;
-              })}
-            </Grid>
-          </Grid>
-        </Grid>
+        <DiscardAlarmLimitsContent />
+      </ModalPopup>
+      <ModalPopup
+        withAction={true}
+        label="Set Alarms"
+        open={startDiscardOpen}
+        onClose={handleDiscardClose}
+        onConfirm={handleStartDiscardConfirm}
+      >
+        <DiscardAlarmLimitsContent />
       </ModalPopup>
     </AppBar>
   );
