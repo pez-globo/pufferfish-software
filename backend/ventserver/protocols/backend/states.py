@@ -226,7 +226,8 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             eventsync.ChangedStateSender[StateSegment]:
         """Initialize the mcu event sender."""
         return eventsync.ChangedStateSender(
-            index_sequence=MCU_OUTPUT_SCHEDULE, all_states=self.store
+            index_sequence=MCU_OUTPUT_SCHEDULE, all_states=self.store,
+            output_idle=True
         )
 
     @_frontend_event_sender.default
@@ -317,6 +318,15 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         # We directly input states into store, instead of passing them in
         # through the StateSynchronizer objects; we're only using those to
         # generate outputs.
+        # if (
+        #         event.mcu_receive is not None and
+        #         self._current_time is not None
+        # ):
+        #     fractional_time = \
+        #         int((self._current_time - int(self._current_time)) * 1000)
+        #     print('{:3d}\t{}'.format(
+        #         fractional_time, MCU_INPUT_TYPES[type(event.mcu_receive)]
+        #     ))
         self._handle_inbound_state(event.mcu_receive, MCU_INPUT_TYPES)
         self._handle_inbound_state(event.file_receive, FILE_INPUT_TYPES)
         self._handle_inbound_state(event.frontend_receive, FRONTEND_INPUT_TYPES)

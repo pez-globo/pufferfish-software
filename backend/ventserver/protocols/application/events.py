@@ -160,7 +160,7 @@ class ChangedStateSender(
 
     index_sequence: Iterable[_Index] = attr.ib()
     all_states: states.IndexedSender[_Index] = attr.ib()
-    output_idle: bool = attr.ib(default=True)
+    output_idle: bool = attr.ib(default=False)
     _notification_sender: NotificationSender[_Index] = attr.ib()
     _trackable_states: Set[_Index] = attr.ib()
     _prev_states: Dict[_Index, betterproto.Message] = attr.ib(factory=dict)
