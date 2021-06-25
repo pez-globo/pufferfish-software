@@ -36,7 +36,7 @@ StateOutputStatus SequentialStateSender<Index, StateSegment, sched_size>::output
       case StateOutputStatus::ok:
         return status;
       case StateOutputStatus::none: {
-        if (!skip_unavailable_) {
+        if (!skip_unavailable) {
           return status;
         }
       }
@@ -53,7 +53,7 @@ Index SequentialStateSender<Index, StateSegment, sched_size>::last_index() const
 template <typename Index, typename StateSegment, size_t sched_size>
 StateOutputStatus SequentialStateSender<Index, StateSegment, sched_size>::get_next_output(
     StateSegment &output) {
-  if (index_sequence_.size() == 0) {
+  if (index_sequence_.empty()) {
     return StateOutputStatus::none;
   }
 

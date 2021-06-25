@@ -25,7 +25,7 @@ namespace Pufferfish::Driver::Serial::Backend {
 static const uint32_t connection_timeout = 500;       // ms
 static const uint32_t state_send_root_interval = 10;  // ms
 
-// TODO: move this into States.h
+// TODO(lietk12): move this into States.h
 class Synchronizers {
  public:
   enum class Status { ok = 0, waiting, invalid };

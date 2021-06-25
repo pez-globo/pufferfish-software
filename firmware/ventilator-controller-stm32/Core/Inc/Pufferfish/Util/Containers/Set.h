@@ -16,7 +16,7 @@ namespace Pufferfish::Util::Containers {
 template <typename Key>
 class Set {
  public:
-  virtual bool has(const Key &key) const = 0;
+  [[nodiscard]] virtual bool has(const Key &key) const = 0;
 };
 
 }  // namespace Pufferfish::Util::Containers

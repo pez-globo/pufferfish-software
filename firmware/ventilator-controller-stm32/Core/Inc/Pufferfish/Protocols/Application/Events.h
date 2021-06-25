@@ -42,7 +42,7 @@ class EventNotificationSender : public StateSender<StateSegment> {
 
   explicit EventNotificationSender(
       const IndexSequence &index_sequence, IndexedSender &indexed_sender, bool output_idle = false)
-      : output_idle_(output_idle),
+      : output_idle(output_idle),
         sendable_indices_{},
         filtered_sender_(indexed_sender, sendable_indices_),
         sendable_sender_(index_sequence, filtered_sender_, true),
@@ -56,7 +56,7 @@ class EventNotificationSender : public StateSender<StateSegment> {
   using FilteredSender = FilteredStateSender<Index, StateSegment>;
   using SequentialSender = SequentialStateSender<Index, StateSegment, sched_size>;
 
-  const bool output_idle_;
+  const bool output_idle;
   AllowedIndices sendable_indices_;
   FilteredSender filtered_sender_;
   SequentialSender sendable_sender_;
@@ -79,7 +79,7 @@ class StateChangeEventSender : public StateSender<StateSegment> {
   // useful if the sender needs to send all states when a new connection is established, to
   // (re)initialize the other peer.
   void input();
-  StateOutputStatus output(StateSegment &output);
+  StateOutputStatus output(StateSegment &output) override;
 
  private:
   using NotificationSender =

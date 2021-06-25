@@ -36,14 +36,14 @@ StateOutputStatus
 EventNotificationSender<Index, StateSegment, sched_size, allowed_indices_capacity>::output(
     StateSegment &output) {
   if (sendable_indices_.empty()) {
-    if (!output_idle_) {
+    if (!output_idle) {
       return StateOutputStatus::none;
     }
     return get_next_idle_output(output);
   }
 
   StateOutputStatus status = get_next_sendable_output(output);
-  if (status == StateOutputStatus::none && output_idle_) {
+  if (status == StateOutputStatus::none && output_idle) {
     status = get_next_idle_output(output);
   }
   return status;
@@ -101,7 +101,7 @@ StateOutputStatus
 StateChangeEventSender<Index, StateSegment, sched_size, allowed_indices_capacity>::output(
     StateSegment &output) {
   for (Index index : trackable_states_) {
-    StateSegment new_state;
+    StateSegment new_state{};
     StateOutputStatus status = all_states_.output(index, new_state);
     if (status == StateOutputStatus::invalid_type) {
       return status;
@@ -112,7 +112,7 @@ StateChangeEventSender<Index, StateSegment, sched_size, allowed_indices_capacity
         notification_sender_.input(index);
         prev_states_.input(index, new_state);
       } else {
-        StateSegment prev_state;
+        StateSegment prev_state{};
         // prev_states_ has index, so output will return IndexStatus::ok
         prev_states_.output(index, prev_state);
         if (new_state != prev_state) {
