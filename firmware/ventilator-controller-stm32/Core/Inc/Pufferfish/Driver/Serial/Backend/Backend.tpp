@@ -42,6 +42,7 @@ Synchronizers::Status Synchronizers::output(Application::StateSegment &state_seg
   }
 
   state_send_timer_.reset(current_time_);
+  handle_new_connections(connected());
   update_list_senders();
   // Output from state synchronization
   switch (state_sender_root_.output(state_segment)) {
@@ -67,6 +68,13 @@ void Synchronizers::update_list_senders() {
     // TODO(lietk12): handle warning case
   }
   log_events_sender_.output(store_.next_log_events());
+}
+
+void Synchronizers::handle_new_connections(bool backend_connected) {
+  if (backend_connected && !prev_backend_connected_) {
+    event_sender_.input();
+  }
+  prev_backend_connected_ = backend_connected;
 }
 
 // Backend

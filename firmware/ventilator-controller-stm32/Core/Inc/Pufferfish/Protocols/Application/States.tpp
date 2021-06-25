@@ -29,12 +29,50 @@ StateOutputStatus MappedStateSenders<Index, StateSegment, senders_capacity>::out
 template <typename Index, typename StateSegment, size_t sched_size>
 StateOutputStatus SequentialStateSender<Index, StateSegment, sched_size>::output(
     StateSegment &output) {
-  StateOutputStatus status = indexed_sender_.output(index_sequence_[sequence_cursor_], output);
+  for (size_t i = 0; i < index_sequence_.size(); ++i) {
+    StateOutputStatus status = get_next_output(output);
+    switch (status) {
+      case StateOutputStatus::invalid_type:
+      case StateOutputStatus::ok:
+        return status;
+      case StateOutputStatus::none: {
+        if (!skip_unavailable_) {
+          return status;
+        }
+      }
+    }
+  }
+  return StateOutputStatus::none;
+}
+
+template <typename Index, typename StateSegment, size_t sched_size>
+Index SequentialStateSender<Index, StateSegment, sched_size>::last_index() const {
+  return last_index_;
+}
+
+template <typename Index, typename StateSegment, size_t sched_size>
+StateOutputStatus SequentialStateSender<Index, StateSegment, sched_size>::get_next_output(
+    StateSegment &output) {
+  if (index_sequence_.size() == 0) {
+    return StateOutputStatus::none;
+  }
+
+  Index index = index_sequence_[sequence_cursor_];
+  StateOutputStatus status = indexed_sender_.output(index, output);
+  switch (status) {
+    case StateOutputStatus::ok:
+    case StateOutputStatus::none:
+      break;
+    case StateOutputStatus::invalid_type:
+      return status;
+  }
+
+  sequence_cursor_ = (sequence_cursor_ + 1) % index_sequence_.size();
   if (status != StateOutputStatus::ok) {
     return status;
   }
 
-  sequence_cursor_ = (sequence_cursor_ + 1) % index_sequence_.size();
+  last_index_ = index;
   return StateOutputStatus::ok;
 }
 

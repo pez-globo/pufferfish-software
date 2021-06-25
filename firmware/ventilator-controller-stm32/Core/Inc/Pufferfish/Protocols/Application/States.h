@@ -64,15 +64,25 @@ class SequentialStateSender : public StateSender<StateSegment> {
   using IndexSequence = std::array<Index, sched_size>;
   using IndexedSender = IndexedStateSender<Index, StateSegment>;
 
-  SequentialStateSender(const IndexSequence &index_sequence, IndexedSender &indexed_sender)
-      : index_sequence_(index_sequence), indexed_sender_(indexed_sender) {}
+  SequentialStateSender(
+      const IndexSequence &index_sequence,
+      IndexedSender &indexed_sender,
+      bool skip_unavailable = false)
+      : skip_unavailable_(skip_unavailable),
+        index_sequence_(index_sequence),
+        indexed_sender_(indexed_sender) {}
 
   StateOutputStatus output(StateSegment &output) override;
+  Index last_index() const;
 
  private:
+  const bool skip_unavailable_;
   const IndexSequence &index_sequence_;
   IndexedSender &indexed_sender_;
   size_t sequence_cursor_ = 0;
+  Index last_index_;
+
+  StateOutputStatus get_next_output(StateSegment &output);
 };
 
 }  // namespace Pufferfish::Protocols::Application

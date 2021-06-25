@@ -24,16 +24,16 @@ using ReceivableStates = Util::EnumValues<
     MessageTypes::expected_log_event,
     MessageTypes::alarm_mute_request>;
 
-enum class StateSendEntryTypes : uint8_t { fast_sched = 0, slow_sched };
-static const StateSendEntryTypes last_state_send_entry_type = StateSendEntryTypes::slow_sched;
+enum class StateSendEntryTypes : uint8_t { realtime_sched = 0, event_sched, main_sched };
+static const StateSendEntryTypes last_state_send_entry_type = StateSendEntryTypes::main_sched;
 
 static const auto state_send_root_sched = Util::Containers::make_array<StateSendEntryTypes>(
-    StateSendEntryTypes::fast_sched,
-    StateSendEntryTypes::slow_sched,
-    StateSendEntryTypes::slow_sched);
-static const auto state_send_fast_sched =
+    StateSendEntryTypes::realtime_sched,
+    StateSendEntryTypes::event_sched,
+    StateSendEntryTypes::main_sched);
+static const auto state_send_realtime_sched =
     Util::Containers::make_array<MessageTypes>(MessageTypes::sensor_measurements);
-static const auto state_send_slow_sched = Util::Containers::make_array<MessageTypes>(
+static const auto state_send_main_sched = Util::Containers::make_array<MessageTypes>(
     MessageTypes::cycle_measurements,
     MessageTypes::parameters,
     MessageTypes::alarm_limits,
