@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace Pufferfish {
 namespace Util {
 
@@ -34,6 +36,34 @@ namespace Util {
  */
 template <typename T>
 inline bool within_timeout(T start_time, T timeout, T test_time);
+
+template <typename T>
+class Timer {
+ public:
+  // Normally we would make this constructor explicit, but we need it to be implicit
+  // so that we can use it in curly braces in initializer lists for collections of Timers.
+  // NOLINTNEXTLINE(google-explicit-constructor)
+  Timer(T timeout = 0, T start_time = 0) noexcept : timeout_(timeout), start_time_(start_time) {}
+
+  ~Timer() = default;
+  Timer(const Timer &other) = default;
+  Timer(Timer &&other) = delete;
+
+  Timer &operator=(const Timer &other);
+  Timer &operator=(Timer &&other) = delete;
+
+  inline void set_timeout(T timeout);
+  inline void reset(T current_time);
+  [[nodiscard]] inline bool within_timeout(T current_time) const;
+  [[nodiscard]] constexpr T duration(T current_time) const { return current_time - start_time_; }
+
+ private:
+  T timeout_ = 0;
+  T start_time_ = 0;
+};
+
+using MsTimer = Timer<uint32_t>;
+using UsTimer = Timer<uint32_t>;
 
 }  // namespace Util
 }  // namespace Pufferfish

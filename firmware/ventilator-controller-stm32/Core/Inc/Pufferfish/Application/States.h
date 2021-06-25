@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "Pufferfish/Protocols/Application/States.h"
 #include "Pufferfish/Util/Enums.h"
 #include "Pufferfish/Util/TaggedUnion.h"
 #include "mcu_pb.h"
@@ -30,6 +31,7 @@ static const size_t active_log_events_max_elems = 32;
 // output, add it to Driver::Serial::Backend::state_sync_schedule.
 enum class MessageTypes : uint8_t {
   unknown = 0,
+  reserved = 1,
   sensor_measurements = 2,
   cycle_measurements = 3,
   parameters = 4,
@@ -39,6 +41,9 @@ enum class MessageTypes : uint8_t {
   expected_log_event = 8,
   next_log_events = 9,
   active_log_events = 10,
+  alarm_mute = 11,
+  alarm_mute_request = 12,
+  mcu_power_status = 20
 };
 
 // MessageTypeValues should include all defined values of MessageTypes
@@ -53,7 +58,10 @@ using MessageTypeValues = Util::EnumValues<
     MessageTypes::alarm_limits_request,
     MessageTypes::expected_log_event,
     MessageTypes::next_log_events,
-    MessageTypes::active_log_events>;
+    MessageTypes::active_log_events,
+    MessageTypes::alarm_mute,
+    MessageTypes::alarm_mute_request,
+    MessageTypes::mcu_power_status>;
 
 // Since nanopb is running dynamically, we cannot have extensive compile-time type-checking.
 // It's not clear how we might use variants to replace this union, since the nanopb functions
@@ -66,7 +74,7 @@ using StateSegment = Util::TaggedUnion<StateSegmentUnion, MessageTypes>;
 
 struct StateSegments {
   // Backend States
-  SensorMeasurements sensor_measurements;
+  SensorMeasurements sensor_measurements;  // noise-filtered
   CycleMeasurements cycle_measurements;
   Parameters parameters;
   ParametersRequest parameters_request;
@@ -75,29 +83,48 @@ struct StateSegments {
   ExpectedLogEvent expected_log_event;
   NextLogEvents next_log_events;
   ActiveLogEvents active_log_events;
+  AlarmMute alarm_mute;
+  AlarmMuteRequest alarm_mute_request;
+  MCUPowerStatus mcu_power_status;
+
+  // Internal States
+  SensorMeasurements sensor_measurements_raw;
+  bool backend_connected;
 };
 
-class States {
+class Store : public Protocols::Application::IndexedStateSender<MessageTypes, StateSegment> {
  public:
-  States() = default;
-  enum class InputStatus { ok = 0, invalid_type };
-  enum class OutputStatus { ok = 0, invalid_type };
+  using Status = Protocols::Application::StateOutputStatus;
 
-  [[nodiscard]] const ParametersRequest &parameters_request() const;
-  Parameters &parameters();
-  [[nodiscard]] const AlarmLimitsRequest &alarm_limits_request() const;
-  AlarmLimits &alarm_limits();
-  SensorMeasurements &sensor_measurements();
+  Store() = default;
+
+  // Backend States
+  SensorMeasurements &sensor_measurements_filtered();
   CycleMeasurements &cycle_measurements();
+  Parameters &parameters();
+  [[nodiscard]] bool has_parameters_request() const;
+  [[nodiscard]] const ParametersRequest &parameters_request() const;
+  AlarmLimits &alarm_limits();
+  [[nodiscard]] bool has_alarm_limits_request() const;
+  [[nodiscard]] const AlarmLimitsRequest &alarm_limits_request() const;
   [[nodiscard]] const ExpectedLogEvent &expected_log_event() const;
   NextLogEvents &next_log_events();
   ActiveLogEvents &active_log_events();
+  AlarmMute &alarm_mute();
+  AlarmMuteRequest &alarm_mute_request();
+  MCUPowerStatus &mcu_power_status();
 
-  InputStatus input(const StateSegment &input);
-  OutputStatus output(MessageTypes type, StateSegment &output) const;
+  // Internal States
+  SensorMeasurements &sensor_measurements_raw();
+  bool &backend_connected();
+
+  Status input(const StateSegment &input, bool default_initialization = false);
+  Status output(MessageTypes type, StateSegment &output) const override;
 
  private:
-  StateSegments state_segments_;
+  StateSegments state_segments_{};
+  bool has_parameters_request_ = false;
+  bool has_alarm_limits_request_ = false;
 };
 
 }  // namespace Pufferfish::Application

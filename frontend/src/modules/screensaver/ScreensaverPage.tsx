@@ -1,3 +1,7 @@
+/**
+ * @summary Component for Screensaver page
+ *
+ */
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
@@ -44,6 +48,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * HFNCValueGrid
+ *
+ * @component A component for displaying HFNC value grid.
+ *
+ * @returns {JSX.Element}
+ */
 const HFNCValueGrid = (): JSX.Element => {
   const classes = useStyles();
 
@@ -62,6 +73,13 @@ const HFNCValueGrid = (): JSX.Element => {
   );
 };
 
+/**
+ * HFNCControlGrid
+ *
+ * @component A component for displaying HFNC control grid.
+ *
+ * @returns {JSX.Element}
+ */
 const HFNCControlGrid = (): JSX.Element => {
   const classes = useStyles();
 
@@ -79,9 +97,19 @@ const HFNCControlGrid = (): JSX.Element => {
   );
 };
 
-const ConfigureControlMode = ({ mode }: { mode: VentilationMode }): JSX.Element => {
+/**
+ * ConfigureControlMode
+ *
+ * @component A component for configuring value control wrapper based on ventilation mode.
+ *
+ * @param {VentilationMode | null} mode - some desc for mode
+ *
+ * @returns {JSX.Element}
+ */
+const ConfigureControlMode = ({ mode }: { mode: VentilationMode | null }): JSX.Element => {
   switch (mode) {
     case VentilationMode.hfnc:
+      return <HFNCControlGrid />;
     case VentilationMode.pc_ac:
     case VentilationMode.vc_ac:
     case VentilationMode.niv_pc:
@@ -92,9 +120,19 @@ const ConfigureControlMode = ({ mode }: { mode: VentilationMode }): JSX.Element 
   }
 };
 
-const ConfigureValueMode = ({ mode }: { mode: VentilationMode }): JSX.Element => {
+/**
+ * ConfigureValueMode
+ *
+ * @component A component for configuring value grid wrapper based on ventilation mode.
+ *
+ * @param {VentilationMode | null} mode - Ventilation mode
+ *
+ * @returns {JSX.Element}
+ */
+const ConfigureValueMode = ({ mode }: { mode: VentilationMode | null }): JSX.Element => {
   switch (mode) {
     case VentilationMode.hfnc:
+      return <HFNCValueGrid />;
     case VentilationMode.pc_ac:
     case VentilationMode.vc_ac:
     case VentilationMode.niv_pc:
@@ -108,7 +146,9 @@ const ConfigureValueMode = ({ mode }: { mode: VentilationMode }): JSX.Element =>
 /**
  * ScreensaverPage
  *
- * A farview screensaver page.
+ * @component A farview screensaver page.
+ *
+ * @returns {JSX.Element}
  */
 export const ScreensaverPage = (): JSX.Element => {
   const classes = useStyles();

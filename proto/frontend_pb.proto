@@ -8,6 +8,16 @@ message RotaryEncoder {
   float last_button_up = 5;
 }
 
+// Connection statuses
+
+message BackendConnections {
+  bool has_mcu = 1;
+  bool has_frontend = 2;
+}
+
+// Display Settings
+
+// TODO: should metric be 0? (i.e. the default)
 enum Unit {
   imperial = 0;
   metric = 1;
@@ -18,11 +28,15 @@ enum ThemeVariant {
   light = 1;
 }
 
+// TODO: we also need a request version of this message, FrontendDisplaySettingsRequest
 message FrontendDisplaySetting {
   ThemeVariant theme = 1;
   Unit unit = 2;
 }
 
+// System Settings
+
+// TODO: we also need a response version of this message, SystemSettings
 message SystemSettingRequest {
   uint32 brightness = 1;
   uint32 date = 2;

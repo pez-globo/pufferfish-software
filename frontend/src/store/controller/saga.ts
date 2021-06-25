@@ -10,25 +10,25 @@ import {
   ChannelTakeEffect,
   all,
 } from 'redux-saga/effects';
-import { INITIALIZED } from '../app/types';
-import { HEARTBEAT_BACKEND, PBMessageType } from './types';
+import { INITIALIZED, BACKEND_HEARTBEAT } from '../app/types';
+import { PBMessageType } from './types';
 import { updateState } from './actions';
-import { deserializeMessage } from './protocols/messages';
-import { advanceSchedule } from './protocols/states';
-import { getStateProcessor, initialSendSchedule } from './protocols/backend';
+import { serialize, deserialize } from './protocols/backend/transport';
+import { backendSender, getSelector, sendInterval } from './protocols/backend/states';
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
 import updateClock from './io/clock';
 
 function* deserializeResponse(response: Response) {
   const buffer = yield receiveBuffer(response);
-  return deserializeMessage(buffer);
+  return deserialize(buffer);
 }
 
 function* receive(response: ChannelTakeEffect<Response>) {
   try {
     const results = yield deserializeResponse(yield response);
     yield put(updateState(results.messageType, results.pbMessage));
-    yield put({ type: HEARTBEAT_BACKEND });
+    // TODO: make an action generator for BACKEND_HEARTBEAT and use it here
+    yield put({ type: BACKEND_HEARTBEAT });
   } catch (err) {
     console.error(err);
   }
@@ -42,18 +42,20 @@ function* receiveAll(channel: EventChannel<Response>) {
 }
 
 function* sendState(sock: WebSocket, pbMessageType: PBMessageType) {
-  const processor = getStateProcessor(pbMessageType);
-  const pbMessage = yield select(processor.selector);
-  const body = processor.serializer(pbMessage);
-  yield sendBuffer(sock, body);
+  const selector = getSelector(pbMessageType);
+  const pbMessage = yield select(selector);
+  if (pbMessage !== null) {
+    const body = serialize(pbMessageType, pbMessage);
+    yield sendBuffer(sock, body);
+  }
 }
 
 function* sendAll(sock: WebSocket) {
-  const schedule = Array.from(initialSendSchedule);
+  const schedule = backendSender();
   while (sock.readyState === WebSocket.OPEN) {
-    const { time, pbMessageType } = advanceSchedule(schedule);
+    const pbMessageType = schedule.next().value;
     yield sendState(sock, pbMessageType);
-    yield delay(time);
+    yield delay(sendInterval);
   }
 }
 

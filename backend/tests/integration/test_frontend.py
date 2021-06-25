@@ -7,7 +7,7 @@ import betterproto
 import hypothesis as hp
 import hypothesis.strategies as st
 
-from ventserver.protocols import frontend
+from ventserver.protocols.devices import frontend
 from ventserver.protocols.protobuf import mcu_pb as pb
 
 

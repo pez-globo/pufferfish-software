@@ -1,3 +1,9 @@
+/**
+ * @summary UI component to display Event highlight in toolbar
+ *
+ * @file More Specifically shows Active Event count, Event title & Alarm mute status
+ *
+ */
 import React, { useState, useEffect } from 'react';
 import { Alert } from '@material-ui/lab';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
@@ -6,15 +12,21 @@ import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import {
   getActiveLogEventIds,
-  getAlarmMuteStatus,
+  getAlarmMuteActive,
+  getAlarmMuteRequestActive,
   getPopupEventLog,
+  getAlarmMuteRemaining,
+  getParametersIsVentilating,
+  getFirmwareConnected,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
-import { updateCommittedState } from '../../store/controller/actions';
-import { ALARM_MUTE } from '../../store/controller/types';
+import { commitRequest } from '../../store/controller/actions';
+import { AlarmMuteRequest } from '../../store/controller/proto/mcu_pb';
+import { MessageType } from '../../store/controller/types';
 import { getEventType } from '../logs/EventType';
+import { getBackendConnected } from '../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -97,10 +109,30 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * @typedef Props
+ *
+ * Props for Event Alerts
+ *
+ * @prop {string} label active event label
+ *
+ */
 interface Props {
   label: string;
 }
 
+/**
+ * @deprecated
+ *
+ * AlertToast
+ *
+ * @component Alert Toaster showing on active event log
+ *
+ * @prop {function} onClose - Event on closing Alert Toaster
+ * @prop {string} label - Label to show content inside Toaster
+ *
+ * @returns {JSX.Element}
+ */
 export const AlertToast = ({
   onClose,
   label,
@@ -138,17 +170,66 @@ export const AlertToast = ({
   );
 };
 
+/**
+ * EventAlerts
+ *
+ * @component Component to display Event log details
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns {JSX.Element}
+ */
 export const EventAlerts = ({ label }: Props): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  /**
+   * State to show active event's label
+   * Defaults to empty as no active event while initalization
+   */
   const [alert, setAlert] = useState({ label: '' });
+  /**
+   * State to toggle opening logsPage popup
+   */
   const [open, setOpen] = useState<boolean>(false);
+  /**
+   * Stores whether Active events filter is applied on LogsPage listing
+   */
   const [activeFilter, setActiveFilter] = useState<boolean>(false);
+  /**
+   * Stores the number of active alert count
+   */
   const [alertCount, setAlertCount] = useState<number>(0);
+  /**
+   * Selectors to get all Events, Active Event Ids & Alarm mute Status
+   */
   const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
-  const alarmMuteStatus = useSelector(getAlarmMuteStatus, shallowEqual);
-  const [isMuted, setIsMuted] = useState<boolean>(!alarmMuteStatus.active);
+  const activeLogString = JSON.stringify(activeLog);
+  const alarmMuteActive = useSelector(getAlarmMuteActive);
+  const alarmMuteRemaining = useSelector(getAlarmMuteRemaining);
+  const backendConnected = useSelector(getBackendConnected);
+  const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive);
+  const ventilating = useSelector(getParametersIsVentilating);
+  const firmwareConnected = useSelector(getFirmwareConnected);
+  const MUTE_MAX_DURATION = 120;
+  const DEFAULT_TIMEOUT = 1000;
+  /**
+   * Stores the state which toggles AlarmMute/AlarmMuteRequest Status
+   */
+  const [isMuted, setIsMuted] = useState(alarmMuteActive);
+  /**
+   * Local state to update the AlarmMuteRequest remaining time
+   * when backend is disconnected
+   */
+  const [remaining, setRemaining] = useState(alarmMuteRemaining);
+  /**
+   * Local variable that decides which timer to display depending on the
+   * backend connection
+   */
+  const countdownTimer = backendConnected ? alarmMuteRemaining : remaining;
+  /**
+   * Triggers whenever Active or Event log is updated in redux
+   */
   useEffect(() => {
     if (popupEventLog) {
       const eventType = getEventType(popupEventLog.code);
@@ -156,29 +237,94 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         setAlertCount(activeLog.length);
         setAlert({ label: eventType.label });
       }
+    } else if (alarmMuteActive && ventilating) {
+      setAlertCount(1);
+      setAlert({ label: 'No Active Alarms' });
     } else {
+      setAlert({ label: '' });
       setAlertCount(0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [popupEventLog, JSON.stringify(activeLog)]);
+  }, [popupEventLog, alarmMuteActive, activeLogString, activeLog.length, ventilating]);
 
+  /**
+   * Triggers whenever AlarmMute status is updated in redux store
+   *
+   * Triggers when AlarmMuteRequest is updated in redux store
+   * when backend is disconnected
+   *
+   * starts timer when backend is disconnected
+   */
   useEffect(() => {
-    setIsMuted(!alarmMuteStatus.active);
-  }, [alarmMuteStatus.active]);
+    setIsMuted(!alarmMuteActive);
+    if (remaining !== alarmMuteRemaining && backendConnected) {
+      setRemaining(alarmMuteRemaining);
+    }
 
+    if (!backendConnected) {
+      // Update local state that controls the mute button
+      setIsMuted(!alarmMuteRequestActive);
+      // Start the timer
+      const timer = setTimeout(() => {
+        setRemaining(remaining - 1);
+        if (remaining <= 0) {
+          clearTimeout(timer);
+        }
+      }, DEFAULT_TIMEOUT);
+      // Reset the timer
+      if (!alarmMuteRequestActive) {
+        clearTimeout(timer);
+        setRemaining(MUTE_MAX_DURATION);
+      }
+    }
+  }, [alarmMuteActive, alarmMuteRemaining, remaining, backendConnected, alarmMuteRequestActive]);
+
+  /**
+   * Update mute AlarmStatus in redux store
+   *
+   * @param {boolean} state desc for state
+   */
   const muteAlarmState = (state: boolean) => {
-    dispatch(updateCommittedState(ALARM_MUTE, { active: state }));
+    dispatch(
+      commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { active: state }),
+    );
   };
 
+  /**
+   * Dispatch unmute request after 2 min countdown
+   */
+  useEffect(() => {
+    if (alarmMuteRemaining === 0 || remaining === 0) {
+      // we need to dispatch 'remaining' field as well to properly initialize AlarmMuteRequest,
+      // or else there could be a race condition where the backend kills the frontend.
+      dispatch(
+        commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, {
+          active: false,
+          remaining: MUTE_MAX_DURATION,
+        }),
+      );
+    }
+  }, [dispatch, alarmMuteRemaining, remaining]);
+
+  /**
+   * Opens LogsPage popup listing event log details
+   *
+   * @param {boolean} filter Shows only active events if set true
+   */
   const openEventLogPopup = (filter: boolean) => {
     setOpen(true);
     setActiveFilter(filter);
   };
 
+  /**
+   * Opens LogsPage popup listing event log details
+   */
   const openPopup = () => {
     openEventLogPopup(false);
   };
 
+  /**
+   * Opens LogsPage popup listing event log details on toggling Active from LogsPage popup header
+   */
   const onActiveAlarmClick = () => {
     openEventLogPopup(true);
   };
@@ -203,9 +349,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               </Typography>
             </Grid>
             <Grid container item xs justify="flex-end" alignItems="center">
-              {!isMuted && (
+              {!isMuted && countdownTimer !== undefined && (
                 <div className={classes.timerText}>
-                  {new Date(alarmMuteStatus.remaining * 1000).toISOString().substr(14, 5)}
+                  {new Date(countdownTimer * 1000).toISOString().substr(14, 5)}
                 </div>
               )}
               <Button
@@ -213,6 +359,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
                 onClick={() => muteAlarmState(isMuted)}
                 variant="contained"
                 color="primary"
+                disabled={!firmwareConnected}
                 className={classes.alertColor}
               >
                 {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
@@ -241,6 +388,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           onClick={() => muteAlarmState(isMuted)}
           variant="contained"
           color="primary"
+          disabled={!firmwareConnected}
           className={classes.alertColor}
         >
           {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
@@ -263,9 +411,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               {alertCount}
             </div>
           )}
-          {!isMuted && (
+          {!isMuted && countdownTimer !== undefined && (
             <div className={classes.timer}>
-              {new Date(alarmMuteStatus.remaining * 1000).toISOString().substr(14, 5)}
+              {new Date(countdownTimer * 1000).toISOString().substr(14, 5)}
             </div>
           )}
         </Button>

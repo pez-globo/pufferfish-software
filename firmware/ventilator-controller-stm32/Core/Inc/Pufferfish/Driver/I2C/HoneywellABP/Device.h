@@ -10,8 +10,7 @@
 #pragma once
 
 #include "Pufferfish/Driver/Testable.h"
-#include "Pufferfish/HAL/HAL.h"
-#include "Types.h"
+#include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -23,7 +22,7 @@ namespace HoneywellABP {
  */
 class Device : public Testable {
  public:
-  Device(HAL::I2CDevice &dev, const ABPConfig &cfg)
+  Device(HAL::Interfaces::I2CDevice &dev, const ABPConfig &cfg)
       : dev_(dev), pmin(cfg.pmin), pmax(cfg.pmax), unit(cfg.unit) {}
 
   [[nodiscard]] float raw_to_pressure(uint16_t output) const;
@@ -39,7 +38,7 @@ class Device : public Testable {
   I2CDeviceStatus reset() override;
 
  private:
-  Pufferfish::HAL::I2CDevice &dev_;
+  Pufferfish::HAL::Interfaces::I2CDevice &dev_;
 
   // pressure range (refer to datasheet)
   const float pmin;  // minimum pressure

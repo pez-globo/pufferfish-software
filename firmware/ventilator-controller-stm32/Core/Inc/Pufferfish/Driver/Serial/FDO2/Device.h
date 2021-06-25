@@ -12,7 +12,7 @@
 
 #include "Commands.h"
 #include "Pufferfish/HAL/Interfaces/BufferedUART.h"
-#include "Pufferfish/Protocols/Chunks.h"
+#include "Pufferfish/Protocols/Transport/Chunks.h"
 
 namespace Pufferfish::Driver::Serial::FDO2 {
 
@@ -35,17 +35,19 @@ class ResponseReceiver {
   OutputStatus output(Response &output_response);
 
  private:
-  Protocols::ChunkSplitter<Responses::max_len, char> chunks_;
+  Protocols::Transport::ChunkSplitter<Responses::max_len, char> chunks_;
 };
 
 class RequestSender {
  public:
   enum class Status { ok = 0, invalid_command, invalid_length };
 
+  RequestSender() : chunks(frame_end) {}
+
   Status transform(const Request &input_request, Requests::ChunkBuffer &output_buffer) const;
 
  private:
-  const Protocols::ChunkMerger chunks = Protocols::ChunkMerger(frame_end);
+  const Protocols::Transport::ChunkMerger chunks;
 };
 
 /**
@@ -61,7 +63,7 @@ class Device {
 
   static const uint16_t broadcast_interval = 100;  // ms
 
-  explicit Device(volatile HAL::BufferedUART &uart) : uart_(uart) {}
+  explicit Device(volatile HAL::Interfaces::BufferedUART &uart) : uart_(uart) {}
 
   /**
    * Starts broadcast
@@ -89,7 +91,7 @@ class Device {
   Status request_version();
 
  private:
-  volatile HAL::BufferedUART &uart_;
+  volatile HAL::Interfaces::BufferedUART &uart_;
   ResponseReceiver responses_;
   RequestSender requests_;
 

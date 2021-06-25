@@ -30,6 +30,7 @@ class Sensor : public Initializable {
 
  private:
   Device &device_;
+  bool setup_ = false;
 
   PacketMeasurements measurements_{};
 };

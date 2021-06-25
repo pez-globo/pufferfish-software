@@ -24,14 +24,19 @@ Range transform_limits_range(int32_t floor, int32_t ceiling, Range request) {
 
 void service_limits_range(
     Range request,
-    Range &response,
-    const Range &allowed,
+    Range allowed,
     LogEventCode code,
+    bool log_changes,
+    Range &response,
     Application::LogEventsManager &log_manager) {
   Range old_response;
   old_response = response;
   response = transform_limits_range(allowed.lower, allowed.upper, request);
   if (old_response.lower == response.lower && old_response.upper == response.upper) {
+    return;
+  }
+
+  if (!log_changes) {
     return;
   }
 
@@ -50,15 +55,17 @@ void service_limits_range(
 void AlarmLimitsService::transform(
     const Parameters &parameters,
     const AlarmLimitsRequest &alarm_limits_request,
+    bool log_changes,
     AlarmLimits &alarm_limits,
     Application::LogEventsManager &log_manager) {
-  service_fio2(parameters, alarm_limits, log_manager);
-  service_spo2(alarm_limits_request, alarm_limits, log_manager);
-  service_hr(alarm_limits_request, alarm_limits, log_manager);
+  service_fio2(parameters, log_changes, alarm_limits, log_manager);
+  service_spo2(alarm_limits_request, log_changes, alarm_limits, log_manager);
+  service_hr(alarm_limits_request, log_changes, alarm_limits, log_manager);
 }
 
 void AlarmLimitsService::service_fio2(
     const Parameters &parameters,
+    bool log_changes,
     AlarmLimits &response,
     Application::LogEventsManager &log_manager) {
   Range fio2_range{};
@@ -66,35 +73,40 @@ void AlarmLimitsService::service_fio2(
   fio2_range.upper = parameters.fio2 + fio2_tolerance;
   service_limits_range(
       fio2_range,
-      response.fio2,
       allowed_fio2,
       LogEventCode::LogEventCode_fio2_alarm_limits_changed,
+      log_changes,
+      response.fio2,
       log_manager);
   response.has_fio2 = true;
 }
 
 void AlarmLimitsService::service_spo2(
     const AlarmLimitsRequest &request,
+    bool log_changes,
     AlarmLimits &response,
     Application::LogEventsManager &log_manager) {
   service_limits_range(
       request.spo2,
-      response.spo2,
       allowed_spo2,
       LogEventCode::LogEventCode_spo2_alarm_limits_changed,
+      log_changes,
+      response.spo2,
       log_manager);
   response.has_spo2 = true;
 }
 
 void AlarmLimitsService::service_hr(
     const AlarmLimitsRequest &request,
+    bool log_changes,
     AlarmLimits &response,
     Application::LogEventsManager &log_manager) {
   service_limits_range(
       request.hr,
-      response.hr,
       allowed_hr,
       LogEventCode::LogEventCode_hr_alarm_limits_changed,
+      log_changes,
+      response.hr,
       log_manager);
   response.has_hr = true;
 }
@@ -104,14 +116,17 @@ void AlarmLimitsService::service_hr(
 void HFNCAlarmLimits::transform(
     const Parameters &parameters,
     const AlarmLimitsRequest &alarm_limits_request,
+    bool log_changes,
     AlarmLimits &alarm_limits,
     Application::LogEventsManager &log_manager) {
-  AlarmLimitsService::transform(parameters, alarm_limits_request, alarm_limits, log_manager);
-  service_flow(parameters, alarm_limits, log_manager);
+  AlarmLimitsService::transform(
+      parameters, alarm_limits_request, log_changes, alarm_limits, log_manager);
+  service_flow(parameters, log_changes, alarm_limits, log_manager);
 }
 
 void HFNCAlarmLimits::service_flow(
     const Parameters &parameters,
+    bool log_changes,
     AlarmLimits &response,
     Application::LogEventsManager &log_manager) {
   Range flow_range{};
@@ -119,9 +134,10 @@ void HFNCAlarmLimits::service_flow(
   flow_range.upper = parameters.flow + flow_tolerance;
   service_limits_range(
       flow_range,
-      response.flow,
       allowed_flow,
       LogEventCode::LogEventCode_flow_alarm_limits_changed,
+      log_changes,
+      response.flow,
       log_manager);
   response.has_flow = true;
 }
@@ -131,6 +147,7 @@ void HFNCAlarmLimits::service_flow(
 void AlarmLimitsServices::transform(
     const Parameters &parameters,
     const AlarmLimitsRequest &alarm_limits_request,
+    bool request_initialized,
     AlarmLimits &alarm_limits,
     Application::LogEventsManager &log_manager) {
   switch (parameters.mode) {
@@ -148,7 +165,10 @@ void AlarmLimitsServices::transform(
     return;
   }
 
-  active_service_->transform(parameters, alarm_limits_request, alarm_limits, log_manager);
+  active_service_->transform(
+      parameters, alarm_limits_request, request_initialized_, alarm_limits, log_manager);
+  // Changes are logged only after the initialization request is processed
+  request_initialized_ |= request_initialized;
 }
 
 // Initializers

@@ -68,6 +68,7 @@ This will setup required components for pufferfish-vent-software in the given or
 - Node
 - Roboto fonts
 - Yarn
+- HTML build of frontend
 - Nginx web-server
 - Custom Pufferfish boot screen
 - Python backend systemd service

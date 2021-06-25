@@ -1,30 +1,35 @@
-import { ParametersRequest } from './proto/mcu_pb';
 import {
   MessageType,
-  StateUpdateAction,
   PBMessage,
+  StateUpdateAction,
   STATE_UPDATED,
-  PARAMETER_COMMITTED,
-  commitAction,
+  CommitAction,
+  REQUEST_COMMITTED,
+  DRAFT_REQUEST_COMMITTED,
 } from './types';
 
-export function updateState(messageType: MessageType, state: PBMessage): StateUpdateAction {
-  return { type: STATE_UPDATED, messageType, state };
-}
+// TODO: rename this to receiveMessage, and make SidebarClickable.tsx and OverlayScreen not use it.
+// Instead, they should commit values to requests.
+export const updateState = (messageType: MessageType, state: PBMessage): StateUpdateAction => ({
+  type: STATE_UPDATED,
+  messageType,
+  state,
+});
 
-export function updateCommittedParameter(updates: Partial<ParametersRequest>): commitAction {
-  return {
-    type: PARAMETER_COMMITTED,
-    update: updates,
-  };
-}
+export const commitRequest = <T extends PBMessage>(
+  requestMessageType: MessageType,
+  updates: Partial<T>,
+): CommitAction => ({
+  type: REQUEST_COMMITTED,
+  messageType: requestMessageType,
+  update: updates,
+});
 
-export function updateCommittedState(
-  prefix: string,
-  updates: Record<string, unknown>,
-): commitAction {
-  return {
-    type: `@controller/${prefix}_COMMITTED`,
-    update: updates,
-  };
-}
+export const commitDraftRequest = <T extends PBMessage>(
+  requestMessageType: MessageType,
+  updates: Partial<T>,
+): CommitAction => ({
+  type: DRAFT_REQUEST_COMMITTED,
+  messageType: requestMessageType,
+  update: updates,
+});

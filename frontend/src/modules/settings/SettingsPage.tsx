@@ -1,13 +1,19 @@
+/**
+ * @summary Component to manage System Info, Settings and Test & Calibaratin
+ *
+ * @file It is displayed it different tabs for each
+ *
+ */
 import { Button, Grid, Tab, Tabs } from '@material-ui/core/';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { updateCommittedState } from '../../store/controller/actions';
+import { commitRequest } from '../../store/controller/actions';
 import {
   FrontendDisplaySetting,
   SystemSettingRequest,
 } from '../../store/controller/proto/frontend_pb';
-import { FRONTEND_DISPLAY_SETTINGS, SYSTEM_SETTINGS } from '../../store/controller/types';
+import { MessageType } from '../../store/controller/types';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import { DisplayTab, InfoTab, TestCalibrationTab } from './containers';
 
@@ -48,46 +54,86 @@ enum TabType {
   TEST_CALIBRATION_TAB,
   DISPLAY_TAB,
 }
+
 /**
  * SettingsPage
  *
- * A container storing various setting panels.
+ * @component A container storing various setting panels.
+ *
+ * @returns {JSX.Element}
+ *
  */
 export const SettingsPage = (): JSX.Element => {
   const classes = useStyles();
+  /**
+   * State to manage active Tab
+   */
   const [value, setValue] = React.useState(0);
   const dispatch = useDispatch();
+  /**
+   * State to manage theme setting
+   */
   const [displaySetting, setDisplaySetting] = React.useState<
     FrontendDisplaySetting | Record<string, unknown>
   >();
+  /**
+   * State to manage System Brightness & time setting
+   */
   const [systemSetting, setSystemSetting] = React.useState<
     SystemSettingRequest | Record<string, unknown>
   >();
 
+  /**
+   * function for handling tab change.
+   *
+   * @param {React.ChangeEvent<Record<string, unknown>>} event DOM Change Event
+   * @param {number} newValue New tab index value
+   *
+   */
   const handleChange = (event: React.ChangeEvent<Record<string, unknown>>, newValue: number) => {
     setValue(newValue);
   };
 
-  const onSettingChange = (settings: Record<string, unknown>) => {
-    setDisplaySetting(
-      FrontendDisplaySetting.fromJSON({
-        theme: settings.theme,
-        unit: settings.unit,
-      }),
-    );
-    setSystemSetting(
-      SystemSettingRequest.fromJSON({
-        brightness: settings.brightness,
-        date: settings.date,
-      }),
-    );
-  };
+  /**
+   * Function for updating System & Display Settings
+   *
+   * @param {Record<string, unknown>} settings System & Display Settings object
+   *
+   */
+  const onSettingChange = useCallback(
+    (settings: Record<string, unknown>) => {
+      setDisplaySetting(
+        FrontendDisplaySetting.fromJSON({
+          theme: settings.theme,
+          unit: settings.unit,
+        }),
+      );
+      setSystemSetting(
+        SystemSettingRequest.fromJSON({
+          brightness: settings.brightness,
+          date: settings.date,
+        }),
+      );
+    },
+    [setDisplaySetting, setSystemSetting],
+  );
 
+  /**
+   * Function for update System & Display settings to redux store
+   */
   const handleSubmit = () => {
     dispatch(
-      updateCommittedState(FRONTEND_DISPLAY_SETTINGS, displaySetting as Record<string, unknown>),
+      commitRequest<FrontendDisplaySetting>(
+        MessageType.FrontendDisplaySetting,
+        displaySetting as Record<string, unknown>,
+      ),
     );
-    dispatch(updateCommittedState(SYSTEM_SETTINGS, systemSetting as Record<string, unknown>));
+    dispatch(
+      commitRequest<SystemSettingRequest>(
+        MessageType.SystemSettingRequest,
+        systemSetting as Record<string, unknown>,
+      ),
+    );
   };
 
   return (

@@ -1,7 +1,7 @@
 """Appication protocol for clock synchronization."""
 
 import logging
-from typing import Optional
+from typing import Optional, Union
 
 import attr
 
@@ -23,7 +23,19 @@ class UpdateEvent(events.Event):
 
 
 @attr.s
-class ClockSynchronizer(protocols.Filter[UpdateEvent, int]):
+class ResetEvent(events.Event):
+    """State reset event."""
+
+    def has_data(self) -> bool:
+        """Return whether the event has data."""
+        return True
+
+
+ReceiveEvent = Union[UpdateEvent, ResetEvent]
+
+
+@attr.s
+class ClockSynchronizer(protocols.Filter[ReceiveEvent, int]):
     """Clock synchronization filter for clocks on different reference points.
 
     This is specifically designed for synchronizing between a remote clock on a
@@ -44,27 +56,30 @@ class ClockSynchronizer(protocols.Filter[UpdateEvent, int]):
     _remote_sync_time: Optional[int] = attr.ib(default=None)  # ms
     _local_sync_time: Optional[float] = attr.ib(default=None)  # sec
 
-    def input(self, event: Optional[UpdateEvent]) -> None:
+    def input(self, event: Optional[ReceiveEvent]) -> None:
         """Handle input events."""
         if event is None:
             return
 
-        event.current_time = event.current_time
-        if self._remote_sync_time is None:
-            self._logger.info(
-                'Synchronized remote time %d with local time %f',
-                event.remote_time, event.current_time
-            )
-        elif event.remote_time < self._remote_sync_time:
-            self._logger.warning(
-                'Resynchronized remote time %d with local time %f',
-                event.remote_time, event.current_time
-            )
-        else:
-            return
+        if isinstance(event, ResetEvent) and self._remote_sync_time is not None:
+            self._logger.warning('Reset clock synchronization')
+            self._remote_sync_time = None
+        elif isinstance(event, UpdateEvent):
+            if self._remote_sync_time is None:
+                self._logger.info(
+                    'Synchronized remote time %d with local time %f',
+                    event.remote_time, event.current_time
+                )
+            elif event.remote_time < self._remote_sync_time:
+                self._logger.warning(
+                    'Resynchronized remote time %d with local time %f',
+                    event.remote_time, event.current_time
+                )
+            else:
+                return
 
-        self._remote_sync_time = event.remote_time
-        self._local_sync_time = event.current_time
+            self._remote_sync_time = event.remote_time
+            self._local_sync_time = event.current_time
 
     def output(self) -> int:
         """Emit the next output event."""

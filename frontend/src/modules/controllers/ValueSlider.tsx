@@ -1,3 +1,7 @@
+/**
+ * @summary Re-usable component to control value using Slider
+ *
+ */
 import React from 'react';
 import { Grid, Typography, Slider, withStyles, makeStyles } from '@material-ui/core';
 
@@ -69,6 +73,20 @@ const StyledSlider = withStyles({
   },
 })(Slider);
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the slider adjustments
+ *
+ * @prop {number} min Minimum Range of Alarm
+ * @prop {number} max Minimum Range of the Slider
+ * @prop {function} onChange Callback on slider value change
+ * @prop {number[]} rangeValues Slider [minValue,maxValue] range value
+ * @prop {number} step Step difference between Range
+ * @prop {boolean} disabled Configuration to disable slider
+ *
+ */
+
 interface Props {
   min: number;
   max: number;
@@ -77,6 +95,16 @@ interface Props {
   step?: number;
   disabled?: boolean;
 }
+
+/**
+ * ValueSlider
+ *
+ * @component A container for displaying slider range values.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns JSX.Element
+ */
 
 export const ValueSlider = ({
   min,
@@ -87,10 +115,19 @@ export const ValueSlider = ({
   disabled = false,
 }: Props): JSX.Element => {
   const classes = useStyles();
+  /**
+   * State to manage Slider Range value
+   */
   const [value, setValue] = React.useState<number[]>([min, max]);
   if (rangeValues) {
     setValue(rangeValues);
   }
+
+  /**
+   * Function for handling the slider value change.
+   * @param {React.ChangeEvent<Record<string, unknown>>} event DOM event
+   * @param {number | number[]} newValue Updated Range value
+   */
 
   const handleChange = (
     event: React.ChangeEvent<Record<string, unknown>>,

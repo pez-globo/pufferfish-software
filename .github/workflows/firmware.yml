@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       name: Checkout repository
 
     - name: Install dependencies
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -52,14 +52,11 @@ jobs:
         mkdir application-cppcheck-build-dir
         cppcheck --project=application.cppcheck --inline-suppr --enable=all --error-exitcode=1
 
-  build-firmware:
+  build-firmware-debug:
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        build-type: [Debug, Release]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -67,11 +64,11 @@ jobs:
 
     - name: Run CMake
       run: |
-        ./cmake.sh ${{ matrix.build-type }}
+        ./cmake.sh Debug
 
     - name: Run make
       run: |
-        cd cmake-build-`echo ${{ matrix.build-type }} | awk '{print tolower($0)}'`
+        cd cmake-build-debug
         make -j2
 
     - name: Archive binary
@@ -80,6 +77,31 @@ jobs:
         name: firmware-binary
         path: firmware/ventilator-controller-stm32/cmake-build-debug/*
 
+  build-firmware-release:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install gcc-arm-none-eabi cmake
+
+    - name: Run CMake
+      run: |
+        ./cmake.sh Release
+
+    - name: Run make
+      run: |
+        cd cmake-build-release
+        make -j2
+
+    - name: Archive binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: firmware-binary
+        path: firmware/ventilator-controller-stm32/cmake-build-release/*
+
   scan-build:
     runs-on: ubuntu-20.04
     strategy:
@@ -87,7 +109,7 @@ jobs:
         build-type: [Debug, Release, TestCatch2]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -112,7 +134,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -135,7 +157,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -160,7 +182,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -185,7 +207,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -211,3 +233,13 @@ jobs:
       with:
         name: coverage-report
         path: firmware/ventilator-controller-stm32/cmake-build-testcoverage/TestCoverage_coverage/*
+
+  bad-stm32-include:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Run grep
+      run: |
+        ! grep -R --exclude-dir=STM32 --exclude={Platform.h,main.cpp,stm32h7xx_it.cpp} '#include "Pufferfish/HAL/STM32/'

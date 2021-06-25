@@ -1,14 +1,23 @@
+/**
+ * @summary Component for Quick Start page
+ *
+ *
+ */
 import { Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
-import React, { RefObject, useCallback, useEffect, useRef } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { updateCommittedState } from '../../store/controller/actions';
-import { VentilationMode } from '../../store/controller/proto/mcu_pb';
+import React, { RefObject, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { commitDraftRequest } from '../../store/controller/actions';
+import { VentilationMode, ParametersRequest } from '../../store/controller/proto/mcu_pb';
 import {
   getParametersRequestMode,
-  getParametersRequestStandby,
+  getParametersRequestDraftFiO2,
+  getParametersRequestDraftFlow,
+  getParametersRequestDraftPEEP,
+  getParametersRequestDraftRR,
+  getParametersRequestDraftVT,
 } from '../../store/controller/selectors';
-import { PARAMETER_STANDBY } from '../../store/controller/types';
+import { MessageType } from '../../store/controller/types';
 import { setActiveRotaryReference } from '../app/Service';
 import ValueClicker from '../controllers/ValueController';
 import ModeBanner from '../displays/ModeBanner';
@@ -80,8 +89,22 @@ const useStyles = makeStyles((theme: Theme) => ({
 //   PEDIATRIC,
 // }
 
+/**
+ * SettableParameters
+ *
+ * @component for setting quick start parameters
+ *
+ * @returns {JSX.Element}
+ *
+ */
 const SettableParameters = (): JSX.Element => {
   const classes = useStyles();
+
+  /**
+   * State to manage Wrapper HTML reference of parameter `ValueClicker`
+   * This wrapper's HTML border is added or removed based on user's interaction with Controls
+   * It is used for UI identification of which control value is changing via rotary encoder
+   */
   const [elRefs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
     [PEEP_REFERENCE_KEY]: useRef(null),
     [RR_REFERENCE_KEY]: useRef(null),
@@ -89,36 +112,45 @@ const SettableParameters = (): JSX.Element => {
     [TV_REFERENCE_KEY]: useRef(null),
     [FLOW_REFERENCE_KEY]: useRef(null),
   });
-  const parameterStandby = useSelector(getParametersRequestStandby, shallowEqual);
 
-  const [PEEP, setPEEP] = React.useState(parameterStandby.peep);
-  const [Flow, setFlow] = React.useState(parameterStandby.flow);
-  const [RR, setRR] = React.useState(parameterStandby.rr);
-  const [TV, setTV] = React.useState(parameterStandby.vt);
-  const [FiO2, setFiO2] = React.useState(parameterStandby.fio2);
+  const fio2 = useSelector(getParametersRequestDraftFiO2);
+  const flow = useSelector(getParametersRequestDraftFlow);
+  const peep = useSelector(getParametersRequestDraftPEEP);
+  const rr = useSelector(getParametersRequestDraftRR);
+  const vt = useSelector(getParametersRequestDraftVT);
+
   const dispatch = useDispatch();
   const theme = useTheme();
   const { initRefListener } = useRotaryReference(theme);
 
-  const initParameterUpdate = useCallback(() => {
-    dispatch(
-      updateCommittedState(PARAMETER_STANDBY, {
-        peep: PEEP,
-        vt: TV,
-        rr: RR,
-        fio2: FiO2,
-        flow: Flow,
-      }),
-    );
-  }, [PEEP, Flow, RR, TV, FiO2, dispatch]);
+  /**
+   * Updates the Parameter Request value to the Redux store
+   *
+   */
+  const setValue = (key: string) => (value: number) => {
+    const update = { [key]: value } as Partial<ParametersRequest>;
+    // TODO: for some reason, every time the ValueClicker hears a click, it calls
+    // setValue twice. This doesn't cause problems, but is a symptom of some sort
+    // of deeper bug. Maybe it's related to the buggy behavior that ValueClicker
+    // has with the rotary encoder?
+    // It could be an issue with Rotary encoder event conflicts
+    // Need to check if this issue is consistent across other components using Rotary encoder
+    // console.log('setValue', key, value);
+    dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+  };
 
+  /**
+   * Calls on initalization of the component
+   * This is an event listener which listens to user input on `ValueClicker` buttons click
+   * Based on this event Border around Alarm's HTML wrapper is added/removed
+   */
   useEffect(() => {
-    initParameterUpdate();
     initRefListener(elRefs);
-  }, [initParameterUpdate, initRefListener, elRefs]);
+  }, [initRefListener, elRefs]);
 
   const ventilationMode = useSelector(getParametersRequestMode);
   switch (ventilationMode) {
+    case null:
     case VentilationMode.hfnc:
       return (
         <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
@@ -129,8 +161,8 @@ const SettableParameters = (): JSX.Element => {
                 referenceKey={FIO2_REFERENCE_KEY}
                 label="FiO2"
                 units={PERCENT}
-                value={FiO2}
-                onClick={setFiO2}
+                value={fio2}
+                onClick={setValue('fio2')}
               />
             </Grid>
             <Grid item xs>
@@ -139,8 +171,8 @@ const SettableParameters = (): JSX.Element => {
                 referenceKey={FLOW_REFERENCE_KEY}
                 label="Flow"
                 units={LMIN}
-                value={Flow}
-                onClick={setFlow}
+                value={flow}
+                onClick={setValue('flow')}
               />
             </Grid>
           </Grid>
@@ -165,8 +197,8 @@ const SettableParameters = (): JSX.Element => {
                 referenceKey={PEEP_REFERENCE_KEY}
                 label="PEEP"
                 units="cm H2O"
-                value={PEEP}
-                onClick={setPEEP}
+                value={peep}
+                onClick={setValue('peep')}
               />
             </Grid>
             <Grid item xs>
@@ -175,8 +207,8 @@ const SettableParameters = (): JSX.Element => {
                 referenceKey={RR_REFERENCE_KEY}
                 label="RR"
                 units="cm H2O"
-                value={RR}
-                onClick={setRR}
+                value={rr}
+                onClick={setValue('rr')}
               />
             </Grid>
           </Grid>
@@ -187,8 +219,8 @@ const SettableParameters = (): JSX.Element => {
                 referenceKey={FIO2_REFERENCE_KEY}
                 label="FiO2"
                 units="%"
-                value={FiO2}
-                onClick={setFiO2}
+                value={fio2}
+                onClick={setValue('fio2')}
               />
             </Grid>
             <Grid item xs>
@@ -197,9 +229,9 @@ const SettableParameters = (): JSX.Element => {
                 referenceKey={TV_REFERENCE_KEY}
                 label="TV"
                 units="mL"
-                value={TV}
+                value={vt}
                 max={500}
-                onClick={setTV}
+                onClick={setValue('vt')}
               />
             </Grid>
           </Grid>
@@ -208,6 +240,14 @@ const SettableParameters = (): JSX.Element => {
   }
 };
 
+/**
+ * QuickStartPage
+ *
+ * @component for displaying quick start page
+ *
+ * @returns {JSX.Element}
+ *
+ */
 export const QuickStartPage = (): JSX.Element => {
   const classes = useStyles();
   // const [patientSex, setPatientSex] = React.useState(PatientSex.MALE);
@@ -216,6 +256,10 @@ export const QuickStartPage = (): JSX.Element => {
   // const [patientCircuitTestDate] = React.useState(new Date());
   // const [preUseCheckDate] = React.useState(new Date());
 
+  /**
+   * Resets highlighting border around container when clicked across the page
+   * Border is usually added on `ValueClicker` button click
+   */
   const OnClickPage = () => {
     setActiveRotaryReference(null);
   };

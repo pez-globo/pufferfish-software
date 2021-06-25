@@ -1,12 +1,15 @@
+/**
+ * @summary Layout file for landing page
+ * see Routes.tsx where the main content is supplied through the "component" prop
+ *
+ */
 import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import React, { PropsWithChildren, useEffect } from 'react';
+import React, { PropsWithChildren } from 'react';
 import { Route, RouteProps } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import Sidebar from '../Sidebar';
+import { HeartbeatBackendListener } from '../OverlayScreen';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
-import { getAlarmNotifyStatus } from '../../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -15,14 +18,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexWrap: 'nowrap',
     display: 'grid',
     gridTemplateAreas: `
-                    'content vent'`,
+                      'vent vent'`,
     gridTemplateColumns: '90px 1fr',
   },
-  sidebarGrid: {
-    gridArea: 'content',
-    height: '100vh',
-  },
-
   main: {
     gridGap: '15px',
     display: 'grid',
@@ -53,6 +51,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * SidebarLayout
+ *
+ * @component Component for displaying sidebar
+ *
+ * @returns {JSX.Element}
+ */
 const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
 
@@ -66,20 +71,18 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
   );
 };
 
+/**
+ * ContentComponent
+ *
+ * @component Component for displaying the main content
+ *
+ * @returns {JSX.Element}
+ */
 const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
-  const notifyAlarm = useSelector(getAlarmNotifyStatus);
-  const [showBorder, setShowBorder] = React.useState(false);
-
-  useEffect(() => {
-    setShowBorder(notifyAlarm);
-  }, [notifyAlarm]);
 
   return (
     <React.Fragment>
-      <Grid item className={`${showBorder && classes.LandingborderOverlay} ${classes.sidebarGrid}`}>
-        <Sidebar />
-      </Grid>
       <Grid container item direction="column" className={classes.main}>
         <Grid container item alignItems="center">
           <ToolBar staticStart={true} />
@@ -88,10 +91,18 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
           {children}
         </Grid>
       </Grid>
+      <HeartbeatBackendListener />
     </React.Fragment>
   );
 });
 
+/**
+ * ContentComponent
+ *
+ * @component Component for displaying the landing page layout
+ *
+ * @returns {JSX.Element | null}
+ */
 const LandingPageRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
   if (!Component) return null;
   return (

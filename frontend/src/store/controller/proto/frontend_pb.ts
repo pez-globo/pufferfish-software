@@ -4,6 +4,7 @@ import _m0 from "protobufjs/minimal";
 
 export const protobufPackage = "";
 
+/** TODO: should metric be 0? (i.e. the default) */
 export enum Unit {
   imperial = 0,
   metric = 1,
@@ -76,11 +77,18 @@ export interface RotaryEncoder {
   lastButtonUp: number;
 }
 
+export interface BackendConnections {
+  hasMcu: boolean;
+  hasFrontend: boolean;
+}
+
+/** TODO: we also need a request version of this message, FrontendDisplaySettingsRequest */
 export interface FrontendDisplaySetting {
   theme: ThemeVariant;
   unit: Unit;
 }
 
+/** TODO: we also need a response version of this message, SystemSettings */
 export interface SystemSettingRequest {
   brightness: number;
   date: number;
@@ -217,6 +225,82 @@ export const RotaryEncoder = {
       message.lastButtonUp = object.lastButtonUp;
     } else {
       message.lastButtonUp = 0;
+    }
+    return message;
+  },
+};
+
+const baseBackendConnections: object = { hasMcu: false, hasFrontend: false };
+
+export const BackendConnections = {
+  encode(
+    message: BackendConnections,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.hasMcu === true) {
+      writer.uint32(8).bool(message.hasMcu);
+    }
+    if (message.hasFrontend === true) {
+      writer.uint32(16).bool(message.hasFrontend);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): BackendConnections {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseBackendConnections } as BackendConnections;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.hasMcu = reader.bool();
+          break;
+        case 2:
+          message.hasFrontend = reader.bool();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BackendConnections {
+    const message = { ...baseBackendConnections } as BackendConnections;
+    if (object.hasMcu !== undefined && object.hasMcu !== null) {
+      message.hasMcu = Boolean(object.hasMcu);
+    } else {
+      message.hasMcu = false;
+    }
+    if (object.hasFrontend !== undefined && object.hasFrontend !== null) {
+      message.hasFrontend = Boolean(object.hasFrontend);
+    } else {
+      message.hasFrontend = false;
+    }
+    return message;
+  },
+
+  toJSON(message: BackendConnections): unknown {
+    const obj: any = {};
+    message.hasMcu !== undefined && (obj.hasMcu = message.hasMcu);
+    message.hasFrontend !== undefined &&
+      (obj.hasFrontend = message.hasFrontend);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<BackendConnections>): BackendConnections {
+    const message = { ...baseBackendConnections } as BackendConnections;
+    if (object.hasMcu !== undefined && object.hasMcu !== null) {
+      message.hasMcu = object.hasMcu;
+    } else {
+      message.hasMcu = false;
+    }
+    if (object.hasFrontend !== undefined && object.hasFrontend !== null) {
+      message.hasFrontend = object.hasFrontend;
+    } else {
+      message.hasFrontend = false;
     }
     return message;
   },

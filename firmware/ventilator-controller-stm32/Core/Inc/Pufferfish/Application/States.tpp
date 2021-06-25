@@ -21,6 +21,9 @@ union StateSegmentUnion {
   ExpectedLogEvent expected_log_event;
   NextLogEvents next_log_events;
   ActiveLogEvents active_log_events;
+  AlarmMute alarm_mute;
+  AlarmMuteRequest alarm_mute_request;
+  MCUPowerStatus mcu_power_status;
 };
 
 }  // namespace Pufferfish::Application

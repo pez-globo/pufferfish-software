@@ -45,114 +45,170 @@ STATESEGMENT_TAGGED_SETTER(AlarmLimitsRequest, alarm_limits_request)
 STATESEGMENT_TAGGED_SETTER(ExpectedLogEvent, expected_log_event)
 STATESEGMENT_TAGGED_SETTER(NextLogEvents, next_log_events)
 STATESEGMENT_TAGGED_SETTER(ActiveLogEvents, active_log_events)
+STATESEGMENT_TAGGED_SETTER(AlarmMute, alarm_mute)
+STATESEGMENT_TAGGED_SETTER(AlarmMuteRequest, alarm_mute_request)
+STATESEGMENT_TAGGED_SETTER(MCUPowerStatus, mcu_power_status)
 
 }  // namespace Pufferfish::Util
 
 namespace Pufferfish::Application {
 
-// States
+// Store
 
-const ParametersRequest &States::parameters_request() const {
-  return state_segments_.parameters_request;
-}
-
-Parameters &States::parameters() {
-  return state_segments_.parameters;
-}
-
-const AlarmLimitsRequest &States::alarm_limits_request() const {
-  return state_segments_.alarm_limits_request;
-}
-
-AlarmLimits &States::alarm_limits() {
-  return state_segments_.alarm_limits;
-}
-
-SensorMeasurements &States::sensor_measurements() {
+SensorMeasurements &Store::sensor_measurements_filtered() {
   return state_segments_.sensor_measurements;
 }
 
-CycleMeasurements &States::cycle_measurements() {
+CycleMeasurements &Store::cycle_measurements() {
   return state_segments_.cycle_measurements;
 }
 
-const ExpectedLogEvent &States::expected_log_event() const {
+Parameters &Store::parameters() {
+  return state_segments_.parameters;
+}
+
+bool Store::has_parameters_request() const {
+  return has_parameters_request_;
+}
+
+const ParametersRequest &Store::parameters_request() const {
+  return state_segments_.parameters_request;
+}
+
+AlarmLimits &Store::alarm_limits() {
+  return state_segments_.alarm_limits;
+}
+
+bool Store::has_alarm_limits_request() const {
+  return has_alarm_limits_request_;
+}
+
+const AlarmLimitsRequest &Store::alarm_limits_request() const {
+  return state_segments_.alarm_limits_request;
+}
+
+const ExpectedLogEvent &Store::expected_log_event() const {
   return state_segments_.expected_log_event;
 }
 
-NextLogEvents &States::next_log_events() {
+NextLogEvents &Store::next_log_events() {
   return state_segments_.next_log_events;
 }
 
-ActiveLogEvents &States::active_log_events() {
+ActiveLogEvents &Store::active_log_events() {
   return state_segments_.active_log_events;
 }
 
-States::InputStatus States::input(const StateSegment &input) {
+AlarmMute &Store::alarm_mute() {
+  return state_segments_.alarm_mute;
+}
+
+AlarmMuteRequest &Store::alarm_mute_request() {
+  return state_segments_.alarm_mute_request;
+}
+
+MCUPowerStatus &Store::mcu_power_status() {
+  return state_segments_.mcu_power_status;
+}
+
+SensorMeasurements &Store::sensor_measurements_raw() {
+  return state_segments_.sensor_measurements_raw;
+}
+
+bool &Store::backend_connected() {
+  return state_segments_.backend_connected;
+}
+
+Store::Status Store::input(const StateSegment &input, bool default_initialization) {
   switch (input.tag) {
     case MessageTypes::sensor_measurements:
       STATESEGMENT_GET_TAGGED(sensor_measurements, input);
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::cycle_measurements:
       STATESEGMENT_GET_TAGGED(cycle_measurements, input);
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::parameters:
       STATESEGMENT_GET_TAGGED(parameters, input);
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::parameters_request:
       STATESEGMENT_GET_TAGGED(parameters_request, input);
-      return InputStatus::ok;
+      if (!default_initialization) {
+        has_parameters_request_ = true;
+      }
+      return Status::ok;
     case MessageTypes::alarm_limits:
       STATESEGMENT_GET_TAGGED(alarm_limits, input);
-      return InputStatus::ok;
+      return Status::ok;
+
     case MessageTypes::alarm_limits_request:
       STATESEGMENT_GET_TAGGED(alarm_limits_request, input);
-      return InputStatus::ok;
+      if (!default_initialization) {
+        has_alarm_limits_request_ = true;
+      }
+      return Status::ok;
     case MessageTypes::expected_log_event:
       STATESEGMENT_GET_TAGGED(expected_log_event, input);
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::next_log_events:
       STATESEGMENT_GET_TAGGED(next_log_events, input);
-      return InputStatus::ok;
+      return Status::ok;
     case MessageTypes::active_log_events:
       STATESEGMENT_GET_TAGGED(active_log_events, input);
-      return InputStatus::ok;
+      return Status::ok;
+    case MessageTypes::alarm_mute:
+      STATESEGMENT_GET_TAGGED(alarm_mute, input);
+      return Status::ok;
+    case MessageTypes::alarm_mute_request:
+      STATESEGMENT_GET_TAGGED(alarm_mute_request, input);
+      return Status::ok;
+    case MessageTypes::mcu_power_status:
+      STATESEGMENT_GET_TAGGED(mcu_power_status, input);
+      return Status::ok;
     default:
-      return InputStatus::invalid_type;
+      return Status::invalid_type;
   }
 }
 
-States::OutputStatus States::output(MessageTypes type, StateSegment &output) const {
+Store::Status Store::output(MessageTypes type, StateSegment &output) const {
   switch (type) {
     case MessageTypes::sensor_measurements:
       output.set(state_segments_.sensor_measurements);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::cycle_measurements:
       output.set(state_segments_.cycle_measurements);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::parameters:
       output.set(state_segments_.parameters);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::parameters_request:
       output.set(state_segments_.parameters_request);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::alarm_limits:
       output.set(state_segments_.alarm_limits);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::alarm_limits_request:
       output.set(state_segments_.alarm_limits_request);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::expected_log_event:
       output.set(state_segments_.expected_log_event);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::next_log_events:
       output.set(state_segments_.next_log_events);
-      return OutputStatus::ok;
+      return Status::ok;
     case MessageTypes::active_log_events:
       output.set(state_segments_.active_log_events);
-      return OutputStatus::ok;
+      return Status::ok;
+    case MessageTypes::alarm_mute:
+      output.set(state_segments_.alarm_mute);
+      return Status::ok;
+    case MessageTypes::alarm_mute_request:
+      output.set(state_segments_.alarm_mute_request);
+      return Status::ok;
+    case MessageTypes::mcu_power_status:
+      output.set(state_segments_.mcu_power_status);
+      return Status::ok;
     default:
-      return OutputStatus::invalid_type;
+      return Status::invalid_type;
   }
 }
 

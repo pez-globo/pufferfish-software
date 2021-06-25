@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * @summary Component to display Value, Set Value Modal & Alarm Modal for MVeInfo parameter
+ *
+ * Set Value & Alarm Modal is optional
+ *
+ */
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -17,11 +24,13 @@ const stateKey = 'mve';
 const units = LMIN;
 
 /**
- * MVe
+ * MVeInfo
  *
- * A `Knob`-based component for handling IP Above PEEP information.
+ * @component A `Knob`-based component for handling MVe information.
  *
  * TODO: Hook this component into the redux store with correct selectors.
+ *
+ * @returns {JSX.Element}
  */
 const MVeInfo = (): JSX.Element => (
   <Knob

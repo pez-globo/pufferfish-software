@@ -15,6 +15,7 @@
 #include "Device.h"
 #include "Pufferfish/Driver/Initializable.h"
 #include "Pufferfish/HAL/Interfaces/Time.h"
+#include "Pufferfish/Util/Timeouts.h"
 
 namespace Pufferfish::Driver::Serial::FDO2 {
 
@@ -34,11 +35,7 @@ class StateMachine {
   static const uint32_t response_timeout = 50;  // ms
 
   Action next_action_ = Action::request_version;
-  uint32_t request_time_ = 0;
-  uint32_t current_time_ = 0;
-
-  void start_request();
-  [[nodiscard]] bool timed_out() const;
+  Util::MsTimer response_timer_{response_timeout, 0};
 };
 
 /**
@@ -46,7 +43,7 @@ class StateMachine {
  */
 class Sensor : public Initializable {
  public:
-  explicit Sensor(Device &device, HAL::Time &time) : device_(device), time_(time) {}
+  explicit Sensor(Device &device, HAL::Interfaces::Time &time) : device_(device), time_(time) {}
 
   InitializableState setup() override;
   InitializableState output(uint32_t &po2);
@@ -60,7 +57,7 @@ class Sensor : public Initializable {
 
   Device &device_;
   StateMachine fsm_;
-  HAL::Time &time_;
+  HAL::Interfaces::Time &time_;
   Action next_action_ = Action::request_version;
   size_t retry_count_ = 0;
 

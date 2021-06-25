@@ -66,9 +66,8 @@ export function ventilationModeToJSON(object: VentilationMode): string {
   }
 }
 
-/** Log Events */
 export enum LogEventCode {
-  /** fio2_too_low - Patient */
+  /** fio2_too_low - Patient alarms */
   fio2_too_low = 0,
   fio2_too_high = 1,
   flow_too_low = 2,
@@ -77,19 +76,55 @@ export enum LogEventCode {
   spo2_too_high = 5,
   hr_too_low = 6,
   hr_too_high = 7,
-  /** battery_low - System */
-  battery_low = 8,
-  screen_locked = 9,
-  /** ventilation_operation_changed - Control */
-  ventilation_operation_changed = 10,
-  ventilation_mode_changed = 11,
-  fio2_setting_changed = 12,
-  flow_setting_changed = 13,
-  /** fio2_alarm_limits_changed - Alarm Limits */
-  fio2_alarm_limits_changed = 14,
-  flow_alarm_limits_changed = 15,
-  spo2_alarm_limits_changed = 16,
-  hr_alarm_limits_changed = 17,
+  /** ventilation_operation_changed - Control settings */
+  ventilation_operation_changed = 64,
+  ventilation_mode_changed = 65,
+  fio2_setting_changed = 66,
+  flow_setting_changed = 67,
+  /** fio2_alarm_limits_changed - Alarm limits settings */
+  fio2_alarm_limits_changed = 80,
+  flow_alarm_limits_changed = 81,
+  spo2_alarm_limits_changed = 82,
+  hr_alarm_limits_changed = 83,
+  /** screen_locked - System settings & alarms */
+  screen_locked = 129,
+  /** mcu_backend_connection_down - mcu lost backend */
+  mcu_backend_connection_down = 130,
+  /** backend_mcu_connection_down - backend lost mcu */
+  backend_mcu_connection_down = 131,
+  /** backend_frontend_connection_down - backend lost frontend */
+  backend_frontend_connection_down = 132,
+  /** frontend_backend_connection_down - frontend lost backend */
+  frontend_backend_connection_down = 133,
+  /** mcu_backend_connection_up - mcu detected backend */
+  mcu_backend_connection_up = 134,
+  /**
+   * backend_frontend_connection_up - The following code isn't actually used, but we reserve space for it.
+   * We don't use it because if the backend received an mcu_backend_connection_up
+   * event from the MCU, then we know that the backend received a connection from
+   * the MCU. We only care for technical troubleshooting (of the UART wires) about
+   * the case where the backend receives a connection from the MCU but the MCU
+   * hasn't received a connection from the backend; it would be good to log it,
+   * but we don't need to show it in the frontend, and right now the frontend has
+   * no way to filter out events from its display.
+   * backend_mcu_connection_up = 135;  // backend detected mcu
+   */
+  backend_frontend_connection_up = 136,
+  /**
+   * battery_low - The following code isn't actually used, but we reserve space for it.
+   * We don't use it because the frontend can't generate LogEvents with IDs.
+   * frontend_backend_connection_up = 137;
+   */
+  battery_low = 138,
+  battery_critical = 139,
+  charger_disconnected = 140,
+  mcu_started = 141,
+  backend_started = 142,
+  mcu_shutdown = 143,
+  backend_shutdown = 144,
+  sfm3019_air_disconnected = 145,
+  sfm3019_o2_disconnected = 146,
+  fdo2_disconnected = 147,
   UNRECOGNIZED = -1,
 }
 
@@ -119,36 +154,81 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case 7:
     case "hr_too_high":
       return LogEventCode.hr_too_high;
-    case 8:
-    case "battery_low":
-      return LogEventCode.battery_low;
-    case 9:
-    case "screen_locked":
-      return LogEventCode.screen_locked;
-    case 10:
+    case 64:
     case "ventilation_operation_changed":
       return LogEventCode.ventilation_operation_changed;
-    case 11:
+    case 65:
     case "ventilation_mode_changed":
       return LogEventCode.ventilation_mode_changed;
-    case 12:
+    case 66:
     case "fio2_setting_changed":
       return LogEventCode.fio2_setting_changed;
-    case 13:
+    case 67:
     case "flow_setting_changed":
       return LogEventCode.flow_setting_changed;
-    case 14:
+    case 80:
     case "fio2_alarm_limits_changed":
       return LogEventCode.fio2_alarm_limits_changed;
-    case 15:
+    case 81:
     case "flow_alarm_limits_changed":
       return LogEventCode.flow_alarm_limits_changed;
-    case 16:
+    case 82:
     case "spo2_alarm_limits_changed":
       return LogEventCode.spo2_alarm_limits_changed;
-    case 17:
+    case 83:
     case "hr_alarm_limits_changed":
       return LogEventCode.hr_alarm_limits_changed;
+    case 129:
+    case "screen_locked":
+      return LogEventCode.screen_locked;
+    case 130:
+    case "mcu_backend_connection_down":
+      return LogEventCode.mcu_backend_connection_down;
+    case 131:
+    case "backend_mcu_connection_down":
+      return LogEventCode.backend_mcu_connection_down;
+    case 132:
+    case "backend_frontend_connection_down":
+      return LogEventCode.backend_frontend_connection_down;
+    case 133:
+    case "frontend_backend_connection_down":
+      return LogEventCode.frontend_backend_connection_down;
+    case 134:
+    case "mcu_backend_connection_up":
+      return LogEventCode.mcu_backend_connection_up;
+    case 136:
+    case "backend_frontend_connection_up":
+      return LogEventCode.backend_frontend_connection_up;
+    case 138:
+    case "battery_low":
+      return LogEventCode.battery_low;
+    case 139:
+    case "battery_critical":
+      return LogEventCode.battery_critical;
+    case 140:
+    case "charger_disconnected":
+      return LogEventCode.charger_disconnected;
+    case 141:
+    case "mcu_started":
+      return LogEventCode.mcu_started;
+    case 142:
+    case "backend_started":
+      return LogEventCode.backend_started;
+    case 143:
+    case "mcu_shutdown":
+      return LogEventCode.mcu_shutdown;
+    case 144:
+    case "backend_shutdown":
+      return LogEventCode.backend_shutdown;
+    case 145:
+    case "sfm3019_air_disconnected":
+      return LogEventCode.sfm3019_air_disconnected;
+    case 146:
+    case "sfm3019_o2_disconnected":
+      return LogEventCode.sfm3019_o2_disconnected;
+    case 147:
+    case "fdo2_disconnected":
+      return LogEventCode.fdo2_disconnected;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -174,10 +254,6 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "hr_too_low";
     case LogEventCode.hr_too_high:
       return "hr_too_high";
-    case LogEventCode.battery_low:
-      return "battery_low";
-    case LogEventCode.screen_locked:
-      return "screen_locked";
     case LogEventCode.ventilation_operation_changed:
       return "ventilation_operation_changed";
     case LogEventCode.ventilation_mode_changed:
@@ -194,6 +270,40 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "spo2_alarm_limits_changed";
     case LogEventCode.hr_alarm_limits_changed:
       return "hr_alarm_limits_changed";
+    case LogEventCode.screen_locked:
+      return "screen_locked";
+    case LogEventCode.mcu_backend_connection_down:
+      return "mcu_backend_connection_down";
+    case LogEventCode.backend_mcu_connection_down:
+      return "backend_mcu_connection_down";
+    case LogEventCode.backend_frontend_connection_down:
+      return "backend_frontend_connection_down";
+    case LogEventCode.frontend_backend_connection_down:
+      return "frontend_backend_connection_down";
+    case LogEventCode.mcu_backend_connection_up:
+      return "mcu_backend_connection_up";
+    case LogEventCode.backend_frontend_connection_up:
+      return "backend_frontend_connection_up";
+    case LogEventCode.battery_low:
+      return "battery_low";
+    case LogEventCode.battery_critical:
+      return "battery_critical";
+    case LogEventCode.charger_disconnected:
+      return "charger_disconnected";
+    case LogEventCode.mcu_started:
+      return "mcu_started";
+    case LogEventCode.backend_started:
+      return "backend_started";
+    case LogEventCode.mcu_shutdown:
+      return "mcu_shutdown";
+    case LogEventCode.backend_shutdown:
+      return "backend_shutdown";
+    case LogEventCode.sfm3019_air_disconnected:
+      return "sfm3019_air_disconnected";
+    case LogEventCode.sfm3019_o2_disconnected:
+      return "sfm3019_o2_disconnected";
+    case LogEventCode.fdo2_disconnected:
+      return "fdo2_disconnected";
     default:
       return "UNKNOWN";
   }
@@ -201,9 +311,9 @@ export function logEventCodeToJSON(object: LogEventCode): string {
 
 export enum LogEventType {
   patient = 0,
-  system = 1,
-  control = 2,
-  alarm_limits = 3,
+  control = 1,
+  alarm_limits = 2,
+  system = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -213,14 +323,14 @@ export function logEventTypeFromJSON(object: any): LogEventType {
     case "patient":
       return LogEventType.patient;
     case 1:
-    case "system":
-      return LogEventType.system;
-    case 2:
     case "control":
       return LogEventType.control;
-    case 3:
+    case 2:
     case "alarm_limits":
       return LogEventType.alarm_limits;
+    case 3:
+    case "system":
+      return LogEventType.system;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -232,12 +342,12 @@ export function logEventTypeToJSON(object: LogEventType): string {
   switch (object) {
     case LogEventType.patient:
       return "patient";
-    case LogEventType.system:
-      return "system";
     case LogEventType.control:
       return "control";
     case LogEventType.alarm_limits:
       return "alarm_limits";
+    case LogEventType.system:
+      return "system";
     default:
       return "UNKNOWN";
   }
@@ -288,10 +398,10 @@ export interface SensorMeasurements {
   time: number;
   cycle: number;
   fio2: number;
+  flow: number;
   spo2: number;
   hr: number;
   paw: number;
-  flow: number;
   volume: number;
 }
 
@@ -361,12 +471,16 @@ export interface LogEvent {
 
 export interface ExpectedLogEvent {
   id: number;
+  /** used when the sender's log is ephemeral */
+  sessionId: number;
 }
 
 export interface NextLogEvents {
   nextExpected: number;
   total: number;
   remaining: number;
+  /** used when the sender's log is ephemeral */
+  sessionId: number;
   elements: LogEvent[];
 }
 
@@ -374,9 +488,9 @@ export interface ActiveLogEvents {
   id: number[];
 }
 
-export interface BatteryPower {
+export interface MCUPowerStatus {
   powerLeft: number;
-  chargingStatus: boolean;
+  charging: boolean;
 }
 
 export interface ScreenStatus {
@@ -1097,10 +1211,10 @@ const baseSensorMeasurements: object = {
   time: 0,
   cycle: 0,
   fio2: 0,
+  flow: 0,
   spo2: 0,
   hr: 0,
   paw: 0,
-  flow: 0,
   volume: 0,
 };
 
@@ -1118,17 +1232,17 @@ export const SensorMeasurements = {
     if (message.fio2 !== 0) {
       writer.uint32(29).float(message.fio2);
     }
+    if (message.flow !== 0) {
+      writer.uint32(37).float(message.flow);
+    }
     if (message.spo2 !== 0) {
-      writer.uint32(37).float(message.spo2);
+      writer.uint32(45).float(message.spo2);
     }
     if (message.hr !== 0) {
-      writer.uint32(45).float(message.hr);
+      writer.uint32(53).float(message.hr);
     }
     if (message.paw !== 0) {
-      writer.uint32(53).float(message.paw);
-    }
-    if (message.flow !== 0) {
-      writer.uint32(61).float(message.flow);
+      writer.uint32(61).float(message.paw);
     }
     if (message.volume !== 0) {
       writer.uint32(69).float(message.volume);
@@ -1153,16 +1267,16 @@ export const SensorMeasurements = {
           message.fio2 = reader.float();
           break;
         case 4:
-          message.spo2 = reader.float();
+          message.flow = reader.float();
           break;
         case 5:
-          message.hr = reader.float();
+          message.spo2 = reader.float();
           break;
         case 6:
-          message.paw = reader.float();
+          message.hr = reader.float();
           break;
         case 7:
-          message.flow = reader.float();
+          message.paw = reader.float();
           break;
         case 8:
           message.volume = reader.float();
@@ -1192,6 +1306,11 @@ export const SensorMeasurements = {
     } else {
       message.fio2 = 0;
     }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Number(object.flow);
+    } else {
+      message.flow = 0;
+    }
     if (object.spo2 !== undefined && object.spo2 !== null) {
       message.spo2 = Number(object.spo2);
     } else {
@@ -1207,11 +1326,6 @@ export const SensorMeasurements = {
     } else {
       message.paw = 0;
     }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = Number(object.flow);
-    } else {
-      message.flow = 0;
-    }
     if (object.volume !== undefined && object.volume !== null) {
       message.volume = Number(object.volume);
     } else {
@@ -1225,10 +1339,10 @@ export const SensorMeasurements = {
     message.time !== undefined && (obj.time = message.time);
     message.cycle !== undefined && (obj.cycle = message.cycle);
     message.fio2 !== undefined && (obj.fio2 = message.fio2);
+    message.flow !== undefined && (obj.flow = message.flow);
     message.spo2 !== undefined && (obj.spo2 = message.spo2);
     message.hr !== undefined && (obj.hr = message.hr);
     message.paw !== undefined && (obj.paw = message.paw);
-    message.flow !== undefined && (obj.flow = message.flow);
     message.volume !== undefined && (obj.volume = message.volume);
     return obj;
   },
@@ -1250,6 +1364,11 @@ export const SensorMeasurements = {
     } else {
       message.fio2 = 0;
     }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = object.flow;
+    } else {
+      message.flow = 0;
+    }
     if (object.spo2 !== undefined && object.spo2 !== null) {
       message.spo2 = object.spo2;
     } else {
@@ -1264,11 +1383,6 @@ export const SensorMeasurements = {
       message.paw = object.paw;
     } else {
       message.paw = 0;
-    }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = object.flow;
-    } else {
-      message.flow = 0;
     }
     if (object.volume !== undefined && object.volume !== null) {
       message.volume = object.volume;
@@ -2367,7 +2481,7 @@ export const LogEvent = {
   },
 };
 
-const baseExpectedLogEvent: object = { id: 0 };
+const baseExpectedLogEvent: object = { id: 0, sessionId: 0 };
 
 export const ExpectedLogEvent = {
   encode(
@@ -2376,6 +2490,9 @@ export const ExpectedLogEvent = {
   ): _m0.Writer {
     if (message.id !== 0) {
       writer.uint32(8).uint32(message.id);
+    }
+    if (message.sessionId !== 0) {
+      writer.uint32(16).uint32(message.sessionId);
     }
     return writer;
   },
@@ -2389,6 +2506,9 @@ export const ExpectedLogEvent = {
       switch (tag >>> 3) {
         case 1:
           message.id = reader.uint32();
+          break;
+        case 2:
+          message.sessionId = reader.uint32();
           break;
         default:
           reader.skipType(tag & 7);
@@ -2405,12 +2525,18 @@ export const ExpectedLogEvent = {
     } else {
       message.id = 0;
     }
+    if (object.sessionId !== undefined && object.sessionId !== null) {
+      message.sessionId = Number(object.sessionId);
+    } else {
+      message.sessionId = 0;
+    }
     return message;
   },
 
   toJSON(message: ExpectedLogEvent): unknown {
     const obj: any = {};
     message.id !== undefined && (obj.id = message.id);
+    message.sessionId !== undefined && (obj.sessionId = message.sessionId);
     return obj;
   },
 
@@ -2421,11 +2547,21 @@ export const ExpectedLogEvent = {
     } else {
       message.id = 0;
     }
+    if (object.sessionId !== undefined && object.sessionId !== null) {
+      message.sessionId = object.sessionId;
+    } else {
+      message.sessionId = 0;
+    }
     return message;
   },
 };
 
-const baseNextLogEvents: object = { nextExpected: 0, total: 0, remaining: 0 };
+const baseNextLogEvents: object = {
+  nextExpected: 0,
+  total: 0,
+  remaining: 0,
+  sessionId: 0,
+};
 
 export const NextLogEvents = {
   encode(
@@ -2441,8 +2577,11 @@ export const NextLogEvents = {
     if (message.remaining !== 0) {
       writer.uint32(24).uint32(message.remaining);
     }
+    if (message.sessionId !== 0) {
+      writer.uint32(32).uint32(message.sessionId);
+    }
     for (const v of message.elements) {
-      LogEvent.encode(v!, writer.uint32(34).fork()).ldelim();
+      LogEvent.encode(v!, writer.uint32(42).fork()).ldelim();
     }
     return writer;
   },
@@ -2465,6 +2604,9 @@ export const NextLogEvents = {
           message.remaining = reader.uint32();
           break;
         case 4:
+          message.sessionId = reader.uint32();
+          break;
+        case 5:
           message.elements.push(LogEvent.decode(reader, reader.uint32()));
           break;
         default:
@@ -2493,6 +2635,11 @@ export const NextLogEvents = {
     } else {
       message.remaining = 0;
     }
+    if (object.sessionId !== undefined && object.sessionId !== null) {
+      message.sessionId = Number(object.sessionId);
+    } else {
+      message.sessionId = 0;
+    }
     if (object.elements !== undefined && object.elements !== null) {
       for (const e of object.elements) {
         message.elements.push(LogEvent.fromJSON(e));
@@ -2507,6 +2654,7 @@ export const NextLogEvents = {
       (obj.nextExpected = message.nextExpected);
     message.total !== undefined && (obj.total = message.total);
     message.remaining !== undefined && (obj.remaining = message.remaining);
+    message.sessionId !== undefined && (obj.sessionId = message.sessionId);
     if (message.elements) {
       obj.elements = message.elements.map((e) =>
         e ? LogEvent.toJSON(e) : undefined
@@ -2534,6 +2682,11 @@ export const NextLogEvents = {
       message.remaining = object.remaining;
     } else {
       message.remaining = 0;
+    }
+    if (object.sessionId !== undefined && object.sessionId !== null) {
+      message.sessionId = object.sessionId;
+    } else {
+      message.sessionId = 0;
     }
     if (object.elements !== undefined && object.elements !== null) {
       for (const e of object.elements) {
@@ -2618,34 +2771,34 @@ export const ActiveLogEvents = {
   },
 };
 
-const baseBatteryPower: object = { powerLeft: 0, chargingStatus: false };
+const baseMCUPowerStatus: object = { powerLeft: 0, charging: false };
 
-export const BatteryPower = {
+export const MCUPowerStatus = {
   encode(
-    message: BatteryPower,
+    message: MCUPowerStatus,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
     if (message.powerLeft !== 0) {
-      writer.uint32(8).uint32(message.powerLeft);
+      writer.uint32(13).float(message.powerLeft);
     }
-    if (message.chargingStatus === true) {
-      writer.uint32(16).bool(message.chargingStatus);
+    if (message.charging === true) {
+      writer.uint32(16).bool(message.charging);
     }
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): BatteryPower {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MCUPowerStatus {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseBatteryPower } as BatteryPower;
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.powerLeft = reader.uint32();
+          message.powerLeft = reader.float();
           break;
         case 2:
-          message.chargingStatus = reader.bool();
+          message.charging = reader.bool();
           break;
         default:
           reader.skipType(tag & 7);
@@ -2655,40 +2808,39 @@ export const BatteryPower = {
     return message;
   },
 
-  fromJSON(object: any): BatteryPower {
-    const message = { ...baseBatteryPower } as BatteryPower;
+  fromJSON(object: any): MCUPowerStatus {
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
     if (object.powerLeft !== undefined && object.powerLeft !== null) {
       message.powerLeft = Number(object.powerLeft);
     } else {
       message.powerLeft = 0;
     }
-    if (object.chargingStatus !== undefined && object.chargingStatus !== null) {
-      message.chargingStatus = Boolean(object.chargingStatus);
+    if (object.charging !== undefined && object.charging !== null) {
+      message.charging = Boolean(object.charging);
     } else {
-      message.chargingStatus = false;
+      message.charging = false;
     }
     return message;
   },
 
-  toJSON(message: BatteryPower): unknown {
+  toJSON(message: MCUPowerStatus): unknown {
     const obj: any = {};
     message.powerLeft !== undefined && (obj.powerLeft = message.powerLeft);
-    message.chargingStatus !== undefined &&
-      (obj.chargingStatus = message.chargingStatus);
+    message.charging !== undefined && (obj.charging = message.charging);
     return obj;
   },
 
-  fromPartial(object: DeepPartial<BatteryPower>): BatteryPower {
-    const message = { ...baseBatteryPower } as BatteryPower;
+  fromPartial(object: DeepPartial<MCUPowerStatus>): MCUPowerStatus {
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
     if (object.powerLeft !== undefined && object.powerLeft !== null) {
       message.powerLeft = object.powerLeft;
     } else {
       message.powerLeft = 0;
     }
-    if (object.chargingStatus !== undefined && object.chargingStatus !== null) {
-      message.chargingStatus = object.chargingStatus;
+    if (object.charging !== undefined && object.charging !== null) {
+      message.charging = object.charging;
     } else {
-      message.chargingStatus = false;
+      message.charging = false;
     }
     return message;
   },
@@ -2763,7 +2915,7 @@ export const AlarmMute = {
       writer.uint32(8).bool(message.active);
     }
     if (message.remaining !== 0) {
-      writer.uint32(21).float(message.remaining);
+      writer.uint32(16).uint64(message.remaining);
     }
     return writer;
   },
@@ -2779,7 +2931,7 @@ export const AlarmMute = {
           message.active = reader.bool();
           break;
         case 2:
-          message.remaining = reader.float();
+          message.remaining = longToNumber(reader.uint64() as Long);
           break;
         default:
           reader.skipType(tag & 7);
@@ -2838,7 +2990,7 @@ export const AlarmMuteRequest = {
       writer.uint32(8).bool(message.active);
     }
     if (message.remaining !== 0) {
-      writer.uint32(21).float(message.remaining);
+      writer.uint32(16).uint64(message.remaining);
     }
     return writer;
   },
@@ -2854,7 +3006,7 @@ export const AlarmMuteRequest = {
           message.active = reader.bool();
           break;
         case 2:
-          message.remaining = reader.float();
+          message.remaining = longToNumber(reader.uint64() as Long);
           break;
         default:
           reader.skipType(tag & 7);

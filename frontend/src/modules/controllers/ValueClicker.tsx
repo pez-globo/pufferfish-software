@@ -1,3 +1,7 @@
+/**
+ * @summary Re-usable component for Increment/Decrement Click button pair
+ *
+ */
 import React, { useEffect, useState } from 'react';
 import { Grid, Button, makeStyles, Theme } from '@material-ui/core';
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
@@ -26,6 +30,20 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 type Direction = 'column' | 'column-reverse' | 'row' | 'row-reverse' | undefined;
 
+/**
+ * @typedef Props
+ *
+ * Props interface for the value clicker
+ *
+ * @prop {number} value Paramater value displayed in UI
+ * @prop {function} onClick Callback with value on button click or Rotary encoder
+ * @prop {number} min Allowed minimum range value
+ * @prop {number} max Allowed maximum range value
+ * @prop {Direction} direction Decides styling of `ValueClicker` placed Vertically or Horizontally
+ * @prop {number} step Alarm step difference between Range (Defaults to 1)
+ * @prop {string} referenceKey Unique identifier of alarm lower/upper range
+ *
+ */
 interface Props {
   value: number;
   onClick: (value: number) => void;
@@ -40,10 +58,14 @@ enum Type {
   INCREMENT,
   DECREMENT,
 }
+
 /**
  * ValueClicker
  *
- * A re-usable component for simple increment and decrement value adjustments.
+ * @component A re-usable component for simple increment and decrement value adjustments.
+ *
+ * Uses the [[Props]] interface
+ * @returns JSX.Element
  */
 export const ValueClicker = ({
   value,
@@ -61,18 +83,40 @@ export const ValueClicker = ({
   const [isRotaryActive, setIsRotaryActive] = React.useState(false);
   const [activeRef, setActiveRef] = React.useState<string | null>();
 
+  /**
+   * Triggers callback with updated value
+   *
+   * @param {number} step - Alarm step difference
+   *
+   * @returns callback function
+   */
   const update = (step: number) => {
     const change = value + step;
     setDisableIncrement(change >= max);
     setDisableDecrement(change <= min);
+    if (change >= max) {
+      return onClick(max);
+    }
+    if (change <= min) {
+      return onClick(min);
+    }
     return onClick(change);
   };
 
+  /**
+   * Validating & disabling button when reached min/max value
+   */
   useEffect(() => {
     setDisableIncrement(value >= max);
     setDisableDecrement(value <= min);
   }, [min, max, value]);
 
+  /**
+   * Click handler for Increment button
+   *
+   * @param {number} step - Alarm step difference
+   *
+   */
   const clickHandlerIncrement = (step: number) => {
     setDisableIncrement(true);
     setTimeout(() => {
@@ -81,6 +125,12 @@ export const ValueClicker = ({
     }, disabledInterval);
   };
 
+  /**
+   * Click handler for Decrement button
+   *
+   * @param {number} step - Alarm step difference
+   *
+   */
   const clickHandlerDecrement = (step: number) => {
     setDisableDecrement(true);
     setTimeout(() => {
@@ -89,6 +139,13 @@ export const ValueClicker = ({
     }, disabledInterval);
   };
 
+  /**
+   * Button Click Wrapper
+   *
+   * @param {number} value - current value
+   * @param {Type} type - Clicker type increment/decrement
+   *
+   */
   const internalClick = (value: number, type: Type) => {
     if (type === Type.INCREMENT) {
       clickHandlerIncrement(value);
@@ -100,6 +157,10 @@ export const ValueClicker = ({
     }
   };
 
+  /**
+   * Triggered whenever reference key is updated
+   * Updates Rotary Encoder reference to active
+   */
   useEffect(() => {
     const refSubscription: Subscription = getActiveRotaryReference().subscribe(
       (refString: string | null) => {

@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * Values page was previously used to control all values for the Paramters
+ * Its deprecated as we have removed its references from the UI sidebar navigation
+ * @summary Component to handle ValuePage
+ *
+ */
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
@@ -55,6 +62,11 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 /**
  * ValuesPage
+ *
+ * @component Values Page to display all Set & Control Values in single page
+ *
+ * @returns {JSX.Element}
+ *
  */
 export const ValuesPage = (): JSX.Element => {
   const classes = useStyles();

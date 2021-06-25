@@ -1,15 +1,40 @@
+/**
+ * @summary Components for Event Type & Event Alarm Details
+ *
+ */
 import { LogEvent, LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
-import { BACKEND_CONNECTION_LOST_CODE } from '../../store/controller/types';
-import { PERCENT, BPM, LMIN } from '../info/units';
+import { PERCENT } from '../info/units';
+import { eventDetailsMap, EventTypeMap } from './constants';
 
+/**
+ * @typedef EventType
+ *
+ * Interface to get data about event.
+ *
+ * @prop {LogEventType} type  Event log type
+ * @prop {string} label Event Alarm Label
+ * @prop {string} unit Unit measurement
+ * @prop {string} head Header text
+ * @prop {string} stateKey unit of stateKey
+ *
+ */
 export interface EventType {
   type: LogEventType;
   label: string;
-  unit: string;
+  unit?: string;
   head?: string;
   stateKey?: string;
 }
 
+/**
+ * function to get event details
+ *
+ * @param {LogEvent} event Event log object
+ * @param {EventType} eventType Event log Type
+ *
+ * @returns {string} Event log details
+ *
+ */
 export const getEventDetails = (event: LogEvent, eventType: EventType): string => {
   const unit = eventType.unit === PERCENT ? eventType.unit : ` ${eventType.unit}`;
   if (event.type === LogEventType.patient) {
@@ -21,13 +46,7 @@ export const getEventDetails = (event: LogEvent, eventType: EventType): string =
     }
   } else if (event.type === LogEventType.control) {
     if (event.code === LogEventCode.ventilation_operation_changed) {
-      if (event.newBool === true) {
-        return 'Ventilation started';
-      }
-      if (event.newBool === false) {
-        return 'Ventilation stopped';
-      }
-      return '';
+      return event.newBool ? 'Ventilation started' : 'Ventilation stopped';
     }
     if (event.oldFloat != null && event.newFloat != null) {
       return `${eventType.stateKey}: ${event.oldFloat}${unit} \u2794 ${event.newFloat}${unit}`;
@@ -38,151 +57,31 @@ export const getEventDetails = (event: LogEvent, eventType: EventType): string =
       return `${eventType.stateKey}: [${event.oldRange.lower}${unit} - ${event.oldRange.upper}${unit}] \u2794 [${event.newRange.lower}${unit} - ${event.newRange.upper}${unit}]`;
     }
     return '';
+  } else if (event.type === LogEventType.system) {
+    const eventDetails = eventDetailsMap.get(event.code);
+    if (eventDetails === undefined) {
+      return '';
+    }
+    return eventDetails;
   }
   return '';
 };
 
+/**
+ * function to get event type data
+ *
+ * @param {LogEventCode} code Event log code
+ *
+ * @returns {EventType}
+ *
+ */
+
 export const getEventType = (code: LogEventCode): EventType => {
-  switch (code) {
-    // Patient
-    case LogEventCode.fio2_too_low:
-      return {
-        type: LogEventType.patient,
-        label: 'FiO2 is too low',
-        head: 'FiO2',
-        stateKey: 'fio2',
-        unit: PERCENT,
-      };
-    case LogEventCode.fio2_too_high:
-      return {
-        type: LogEventType.patient,
-        label: 'FiO2 is too high',
-        head: 'FiO2',
-        stateKey: 'fio2',
-        unit: PERCENT,
-      };
-    case LogEventCode.spo2_too_low:
-      return {
-        type: LogEventType.patient,
-        label: 'SpO2 is too low',
-        stateKey: 'spo2',
-        unit: PERCENT,
-      };
-    case LogEventCode.spo2_too_high:
-      return {
-        type: LogEventType.patient,
-        label: 'SpO2 is too high',
-        stateKey: 'spo2',
-        unit: PERCENT,
-      };
-    case LogEventCode.hr_too_low:
-      return {
-        type: LogEventType.patient,
-        label: 'Heart Rate is too low',
-        stateKey: 'hr',
-        unit: BPM,
-      };
-    case LogEventCode.hr_too_high:
-      return {
-        type: LogEventType.patient,
-        label: 'Heart Rate is too high',
-        stateKey: 'hr',
-        unit: BPM,
-      };
-    case LogEventCode.flow_too_low:
-      return {
-        type: LogEventType.patient,
-        label: 'Flow Rate is too low',
-        stateKey: 'flow',
-        unit: LMIN,
-      };
-    case LogEventCode.flow_too_high:
-      return {
-        type: LogEventType.patient,
-        label: 'Flow Rate is too high',
-        stateKey: 'flow',
-        unit: LMIN,
-      };
-    // System
-    case BACKEND_CONNECTION_LOST_CODE:
-      return {
-        type: LogEventType.system,
-        label: 'Software connectivity lost',
-        unit: '',
-      };
-    case LogEventCode.battery_low:
-      return {
-        type: LogEventType.system,
-        label: 'Battery power is low',
-        unit: PERCENT,
-      };
-    case LogEventCode.screen_locked:
-      return {
-        type: LogEventType.system,
-        label: 'Screen is locked',
-        unit: '',
-      };
-    // Control
-    case LogEventCode.ventilation_operation_changed:
-      return {
-        type: LogEventType.control,
-        label: 'Ventilation',
-        stateKey: 'ventilating',
-        unit: '',
-      };
-    case LogEventCode.ventilation_mode_changed:
-      return {
-        type: LogEventType.control,
-        label: 'Ventilation mode changed',
-        stateKey: 'mode',
-        unit: '',
-      };
-    case LogEventCode.fio2_setting_changed:
-      return {
-        type: LogEventType.control,
-        label: 'FiO2 changed',
-        stateKey: 'FiO2',
-        unit: PERCENT,
-      };
-    case LogEventCode.flow_setting_changed:
-      return {
-        type: LogEventType.control,
-        label: 'Flow Rate changed',
-        stateKey: 'Flow',
-        unit: LMIN,
-      };
-    // Alarm Limits
-    case LogEventCode.fio2_alarm_limits_changed:
-      return {
-        type: LogEventType.alarm_limits,
-        label: 'FiO2 limits changed',
-        stateKey: 'FiO2',
-        unit: PERCENT,
-      };
-    case LogEventCode.flow_alarm_limits_changed:
-      return {
-        type: LogEventType.alarm_limits,
-        label: 'Flow limits changed',
-        stateKey: 'Flow',
-        unit: PERCENT,
-      };
-    case LogEventCode.spo2_alarm_limits_changed:
-      return {
-        type: LogEventType.alarm_limits,
-        label: 'SpO2 limits changed',
-        stateKey: 'SpO2',
-        unit: PERCENT,
-      };
-    case LogEventCode.hr_alarm_limits_changed:
-      return {
-        type: LogEventType.alarm_limits,
-        label: 'Heart Rate limits changed',
-        stateKey: 'HR',
-        unit: BPM,
-      };
-    default:
-      return { type: LogEventType.system, label: '', unit: '' };
+  const eventType = EventTypeMap.get(code);
+  if (eventType === undefined) {
+    return { type: LogEventType.system, label: '' };
   }
+  return eventType;
 };
 
 export default getEventType;

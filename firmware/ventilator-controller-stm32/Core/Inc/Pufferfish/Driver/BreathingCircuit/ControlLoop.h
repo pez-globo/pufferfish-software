@@ -15,6 +15,8 @@
 #include "ParametersService.h"
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 #include "Pufferfish/HAL/Interfaces/PWM.h"
+#include "Pufferfish/Util/Timeouts.h"
+#include "Sensors.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
@@ -23,14 +25,11 @@ class ControlLoop {
   virtual void update(uint32_t current_time) = 0;
 
  protected:
-  static const uint32_t update_interval = 2;  // ms
-
-  void advance_step_time(uint32_t current_time);
-  [[nodiscard]] uint32_t step_duration(uint32_t current_time) const;
-  [[nodiscard]] bool update_needed(uint32_t current_time) const;
+  Util::MsTimer &step_timer() { return step_timer_; }
 
  private:
-  uint32_t previous_step_time_ = 0;  // ms
+  static const uint32_t update_interval = 2;  // ms
+  Util::MsTimer step_timer_{update_interval, 0};
 };
 
 class HFNCControlLoop : public ControlLoop {
@@ -40,8 +39,8 @@ class HFNCControlLoop : public ControlLoop {
       SensorMeasurements &sensor_measurements,
       Driver::I2C::SFM3019::Sensor &sfm3019_air,
       Driver::I2C::SFM3019::Sensor &sfm3019_o2,
-      HAL::PWM &valve_air,
-      HAL::PWM &valve_o2)
+      HAL::Interfaces::PWM &valve_air,
+      HAL::Interfaces::PWM &valve_o2)
       : parameters_(parameters),
         sensor_measurements_(sensor_measurements),
         sfm3019_air_(sfm3019_air),
@@ -55,6 +54,7 @@ class HFNCControlLoop : public ControlLoop {
   [[nodiscard]] const SensorVars &sensor_vars() const;
   [[nodiscard]] const ActuatorSetpoints &actuator_setpoints() const;
   [[nodiscard]] const ActuatorVars &actuator_vars() const;
+  [[nodiscard]] const SensorConnections &sensor_connections() const;
 
  private:
   const Parameters &parameters_;
@@ -72,8 +72,11 @@ class HFNCControlLoop : public ControlLoop {
 
   // ActuatorVars
   ActuatorVars actuator_vars_{};
-  HAL::PWM &valve_air_;
-  HAL::PWM &valve_o2_;
+  HAL::Interfaces::PWM &valve_air_;
+  HAL::Interfaces::PWM &valve_o2_;
+
+  // Sensor Connections
+  SensorConnections sensor_connections_{};
 };
 
 }  // namespace Pufferfish::Driver::BreathingCircuit

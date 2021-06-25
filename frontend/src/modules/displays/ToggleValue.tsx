@@ -1,3 +1,8 @@
+/**
+ * @summary Re-usable UI component for Toggle based Input Field
+ * currently used in Settings > Display > Theme color & Unit field
+ *
+ */
 import { Grid, makeStyles, Theme, withStyles } from '@material-ui/core';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
@@ -45,7 +50,17 @@ const StyledToggleButton = withStyles(({ palette }) => ({
   },
 }))(ToggleButton);
 
-export interface Props {
+/**
+ * @typedef Props
+ *
+ * Props Interface for the ToggleValue component
+ *
+ * @prop {string} toggleBetween.label Toggle Input label
+ * @prop {number} toggleBetween.value Toggle Input value (positive & !null)
+ * @prop {number} selected Selected toggle value
+ * @prop {function} onToggle Callback on Toggling between values
+ */
+interface Props {
   toggleBetween: { label: string; value: number }[];
   selected: number;
   onToggle(value: number): void;
@@ -54,12 +69,22 @@ export interface Props {
 /**
  * ToggleValue
  *
- * A re-usable component for toggling between values.
+ * @component A re-usable component for toggling between values.
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns {JSX.Element}
  */
 export const ToggleValue = ({ toggleBetween, selected, onToggle }: Props): JSX.Element => {
   const classes = useStyles();
   const [toggleValue, setToggleValue] = React.useState(selected);
 
+  /**
+   * Function for handling the alignment
+   *
+   * @param {React.MouseEvent<HTMLElement>} event - DOM Mouse event
+   * @param {React.SetStateAction<number>} newToggleValue - New toggle value to update
+   */
   const handleAlignment = (
     event: React.MouseEvent<HTMLElement>,
     newToggleValue: React.SetStateAction<number>,

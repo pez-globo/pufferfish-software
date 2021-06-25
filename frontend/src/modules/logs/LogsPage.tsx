@@ -1,3 +1,8 @@
+/**
+ * @summary Events logs listing page popup
+ *
+ *
+ */
 import { Button, Grid, TableCell, TableRow, Typography } from '@material-ui/core';
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
@@ -19,15 +24,26 @@ import EventlogDetails from './container/EventlogDetails';
 import { getEventDetails, getEventType } from './EventType';
 
 /**
- * LogsPage
+ * @typedef Data
  *
- * TODO: Abstract this into components!
+ * Interface to create log data.
+ *
+ * @prop {LogEventType} type  Event Alarm type
+ * @prop {string} alarm Event Alarm Label
+ * @prop {number} time Event Alarm timestamp
+ * @prop {number} status Active status of the alarm
+ * @prop {number} id unique identifier of row
+ * @prop {number} details Event Alarm details
+ * @prop {string} stateKey Event log parameter measurements identifier
+ * @prop {string} head Label passed to `AlarmModal` Label prop
+ * @prop {string} unit Unit measurement of `stateKey`
+ *
  */
 
 interface Data {
   type: LogEventType;
   alarm: string;
-  time: number; // Note: Make this a date object?
+  time: number; // Note: Make this a date object? (yes could be Date object, its in timestamp right now)
   status: number;
   id: number;
   details: string;
@@ -36,7 +52,7 @@ interface Data {
   unit: string;
 }
 
-//
+// Table Header Configuration
 
 const headCells: HeadCell[] = [
   { id: 'type', numeric: false, disablePadding: true, label: 'Type', enableSort: false },
@@ -83,11 +99,28 @@ const useStyles = makeStyles(() =>
 
 /**
  * LogsPage
+ *
+ * @component LogsPage
+ *
+ * TODO: Abstract this into components!
+ *
+ * @param {boolean} filter Filters Active event alarms
+ *
+ * @returns {JSX.Element}
+ *
  */
 export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
 
+  /**
+   * function to get event type label
+   *
+   * @param {LogEventType} type Event Log type
+   *
+   * @returns {string}
+   *
+   */
   const getEventTypeLabel = (type: LogEventType): string => {
     switch (type) {
       case LogEventType.patient:
@@ -103,6 +136,23 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     }
   };
 
+  /**
+   *  Formulates Row data format
+   *
+   * @param {LogEventType} type  Event Alarm type
+   * @param {string} alarm Event Alarm Label
+   * @param {number} time Event Alarm timestamp
+   * @param {number} status Active status of the alarm
+   * @param {number} id unique identifier of row
+   * @param {number} details Event Alarm details
+   * @param {string} stateKey Event log parameter measurements identifier
+   * @param {string} head Label passed to `AlarmModal` Label prop
+   * @param {string} unit Unit of `stateKey`
+   *
+   * @returns {Data} Row Data
+   *
+   */
+
   const createData = (
     type: LogEventType,
     alarm: string,
@@ -117,22 +167,56 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     return { type, alarm, time, status, id, details, stateKey, head, unit };
   };
 
+  /**
+   * State to manage row data(array of all rows) in table
+   */
   const [rows, setRows] = React.useState<Data[]>([]);
+  /**
+   * State to manage order type
+   */
   const [order, setOrder] = React.useState<Order>('desc');
-  const [orderBy, setOrderBy] = React.useState<keyof Data>('time');
+  /**
+   * State to manage order by column
+   */
+  const [orderBy, setOrderBy] = React.useState<keyof Data>('id');
+  /**
+   * State to manage row selection
+   * TODO: decide whether to keep or remove
+   */
   const [selected, setSelected] = React.useState<string[]>([]);
+  /**
+   * State to manage pagination
+   */
   const [page, setPage] = React.useState(0);
+  /**
+   * State to manage rows per page
+   */
   const [rowsPerPage, setRowsPerPage] = React.useState(9);
+  /**
+   * State to manage opening of LogsPage modal
+   */
   const [open, setOpen] = React.useState(false);
+  /**
+   * State to manage Alarm Modal open status
+   */
   const [alarmOpen, setAlarmOpen] = React.useState(false);
+  /**
+   * State to manage current selected row
+   * To open "Settings"/Alarm Modal for that selection
+   */
   const [currentRow, setCurrentRow] = React.useState<Data>();
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   const loggedEvents = useSelector(getNextLogEvents, shallowEqual);
   const activeLogEventIds = useSelector(getActiveLogEventIds, shallowEqual);
+  /**
+   * List to determine which paramter is allowed to show Settings button
+   */
   const settingsAllowed = ['fio2', 'flow', 'hr', 'spo2'];
 
   const getDetails = useCallback(getEventDetails, []);
-
+  /**
+   * Initialized & Updates Row data
+   */
   useEffect(() => {
     const eventIds: number[] = [];
     const data: Data[] = [];
@@ -177,14 +261,28 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     setRows(data.length ? data : []);
   }, [loggedEvents, activeLogEventIds, filter, getDetails]);
 
+  /**
+   * Function for handling the close popup.
+   */
   const handleClose = () => {
     setOpen(false);
   };
 
+  /**
+   * Function for handling  confirmation popup.
+   */
   const handleConfirm = () => {
     handleClose();
   };
 
+  /**
+   * Function returning background color based on Alarm log type.
+   *
+   * @param {LogEventType | undefined} type desc for type
+   *
+   * @returns {object} some description
+   *
+   */
   const typeColor = (type: LogEventType | undefined) => {
     switch (type) {
       case LogEventType.patient:
@@ -199,6 +297,13 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     }
   };
 
+  /**
+   * Trigger row slection on click at row
+   *
+   * @param {React.MouseEvent<unknown>} event Mouse Event
+   * @param {string} name Column name
+   *
+   */
   const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
     const selectedIndex = selected.indexOf(name);
     let newSelected: string[] = [];
@@ -218,6 +323,12 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     setSelected(newSelected);
   };
 
+  /**
+   * Function for opening multistep popup with current row `stateKey`
+   *
+   * @param {Data} row Row data
+   *
+   */
   const onSettings = (row: Data) => {
     if (row.stateKey) {
       setMultiPopupOpen(true, row.stateKey);

@@ -1,3 +1,9 @@
+/**
+ * @summary UI container for displaying HFNC mode ValueControl
+ *
+ * @file UI container with only `LargeValueInfo` containers
+ *
+ */
 import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
@@ -43,6 +49,11 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 /**
  * HFNCMainView
+ *
+ * @component HFNCMainView container
+ *
+ * @returns {JSX.Element}
+ *
  */
 const HFNCMainView = (): JSX.Element => {
   const classes = useStyles();

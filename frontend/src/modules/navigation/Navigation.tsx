@@ -1,6 +1,10 @@
+/**
+ * @summary Component to display Navigation Routes with Icon
+ *
+ */
 import { Tab, Tabs, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import React, { PropsWithChildren, useEffect } from 'react';
+import React, { PropsWithChildren, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ALARMS_ROUTE, SETTINGS_ROUTE } from './constants';
 
@@ -58,10 +62,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
   },
 }));
+
 /**
  * Navigation
  *
- * The main interface for router/page-based navigation.
+ * @component The main interface for router/page-based navigation.
+ *
+ * @param {boolean} fullPage Takes full width of the page if true
+ * @param {function} toggleStatus Defines the status of Sidebar drawer Open/Close
+ *
+ * @returns {JSX.Element}
+ *
  */
 export const Navigation = ({
   fullPage,
@@ -73,23 +84,42 @@ export const Navigation = ({
   const classes = useStyles();
   const location = useLocation();
 
-  const routes = [
-    // QUICKSTART_ROUTE, // TODO: Hide QuickStart tab when ventilator is on. Need to tap into redux store.
-    // MODES_ROUTE,
-    ALARMS_ROUTE,
-    // VALUES_ROUTE,
-    SETTINGS_ROUTE,
-  ];
+  const routes = useMemo(
+    () => [
+      // QUICKSTART_ROUTE, // TODO: Hide QuickStart tab when ventilator is on. Need to tap into redux store.
+      // MODES_ROUTE,
+      ALARMS_ROUTE,
+      // VALUES_ROUTE,
+      SETTINGS_ROUTE,
+    ],
+    [],
+  );
 
   const routePath = routes.find((route) => location.pathname.startsWith(route.path));
+  /**
+   * State to manage Route path
+   * RoutePath is an object with 'key(string)' which is a unique identifier for each route
+   * The routes on the sidebar are highlighted based on the active routePath key
+   */
   const [route, setRoute] = React.useState(routePath ? routePath.key : 0);
 
+  /**
+   * Triggers once to update current route in State
+   * On Initialization, current route is selected and highlighted on the sidebar
+   */
   useEffect(() => {
     const routePath = routes.find((route) => location.pathname.startsWith(route.path));
     setRoute(routePath ? routePath.key : 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location]);
+  }, [location, routes]);
 
+  /**
+   * Function for handling route changes
+   * updates the current route on change, and highlights the navigated route icon
+   *
+   * @param {React.ChangeEvent<Record<string, unknown>>} event DOM Change Event
+   * @param {number} newRoute Route path to be navigated
+   *
+   */
   const handleRouteChange = (
     event: React.ChangeEvent<Record<string, unknown>>,
     newRoute: number,
@@ -100,6 +130,14 @@ export const Navigation = ({
     setRoute(newRoute);
   };
 
+  /**
+   * RouteLabel
+   *
+   * @component Handles route labels
+   *
+   * @returns {JSX.Element}
+   *
+   */
   const RouteLabel = (
     props: PropsWithChildren<{ fullPage?: boolean; label: string }>,
   ): JSX.Element => {

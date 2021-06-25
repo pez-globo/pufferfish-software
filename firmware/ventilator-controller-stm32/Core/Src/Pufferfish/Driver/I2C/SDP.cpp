@@ -36,8 +36,8 @@
 #include "Pufferfish/Driver/I2C/SDP.h"
 // FIXME: After HAL/Interfaces/Endian.h is created, change to
 // "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/Interfaces/Endian.h"
 #include "Pufferfish/HAL/Interfaces/Time.h"
-#include "Pufferfish/HAL/STM32/Endian.h"
 #include "Pufferfish/Util/Bytes.h"
 #include "Pufferfish/Util/Endian.h"
 
@@ -68,11 +68,11 @@ I2CDeviceStatus SDPSensor::serial_number(uint32_t &pn, uint64_t &sn) {
   }
 
   // read 32 bits product number
-  Util::read_ntoh(data.data(), pn);
+  Util::read_bigend(data.data(), pn);
 
   // read 64 bits serial number
   static const size_t sn_offset = 4;
-  Util::read_ntoh(&data[sn_offset], sn);
+  Util::read_bigend(&data[sn_offset], sn);
 
   return I2CDeviceStatus::ok;
 }

@@ -17,13 +17,13 @@ namespace Pufferfish::Driver::Serial::Backend {
 
 template <size_t input_size, size_t output_size>
 IndexStatus COBSDecoder::transform(
-    const Util::ByteVector<input_size> &input_buffer,
-    Util::ByteVector<output_size> &output_buffer) const {
+    const Util::Containers::ByteVector<input_size> &input_buffer,
+    Util::Containers::ByteVector<output_size> &output_buffer) const {
   static_assert(
-      Util::ByteVector<input_size>::max_size() <= FrameProps::encoded_max_size,
+      Util::Containers::ByteVector<input_size>::max_size() <= FrameProps::encoded_max_size,
       "COBSDecoder unavailable as the input buffer size is too large");
   static_assert(
-      Util::ByteVector<output_size>::max_size() >= FrameProps::payload_max_size,
+      Util::Containers::ByteVector<output_size>::max_size() >= FrameProps::payload_max_size,
       "COBSDecoder unavailable as the output buffer size is too small");
 
   return Util::decode_cobs(input_buffer, output_buffer);
@@ -33,13 +33,13 @@ IndexStatus COBSDecoder::transform(
 
 template <size_t input_size, size_t output_size>
 IndexStatus COBSEncoder::transform(
-    const Util::ByteVector<input_size> &input_buffer,
-    Util::ByteVector<output_size> &output_buffer) const {
+    const Util::Containers::ByteVector<input_size> &input_buffer,
+    Util::Containers::ByteVector<output_size> &output_buffer) const {
   static_assert(
-      Util::ByteVector<input_size>::max_size() <= FrameProps::payload_max_size,
+      Util::Containers::ByteVector<input_size>::max_size() <= FrameProps::payload_max_size,
       "COBSEncoder unavailable as the input buffer size is too large");
   static_assert(
-      Util::ByteVector<output_size>::max_size() >= FrameProps::encoded_max_size,
+      Util::Containers::ByteVector<output_size>::max_size() >= FrameProps::encoded_max_size,
       "COBSEncoder unavailable as the output buffer size is too small");
 
   return Util::encode_cobs(input_buffer, output_buffer);

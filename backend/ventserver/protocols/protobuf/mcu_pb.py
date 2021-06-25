@@ -18,9 +18,7 @@ class VentilationMode(betterproto.Enum):
 
 
 class LogEventCode(betterproto.Enum):
-    """Log Events"""
-
-    # Patient
+    # Patient alarms
     fio2_too_low = 0
     fio2_too_high = 1
     flow_too_low = 2
@@ -29,26 +27,53 @@ class LogEventCode(betterproto.Enum):
     spo2_too_high = 5
     hr_too_low = 6
     hr_too_high = 7
-    # System
-    battery_low = 8
-    screen_locked = 9
-    # Control
-    ventilation_operation_changed = 10
-    ventilation_mode_changed = 11
-    fio2_setting_changed = 12
-    flow_setting_changed = 13
-    # Alarm Limits
-    fio2_alarm_limits_changed = 14
-    flow_alarm_limits_changed = 15
-    spo2_alarm_limits_changed = 16
-    hr_alarm_limits_changed = 17
+    # Control settings
+    ventilation_operation_changed = 64
+    ventilation_mode_changed = 65
+    fio2_setting_changed = 66
+    flow_setting_changed = 67
+    # Alarm limits settings
+    fio2_alarm_limits_changed = 80
+    flow_alarm_limits_changed = 81
+    spo2_alarm_limits_changed = 82
+    hr_alarm_limits_changed = 83
+    # System settings & alarms
+    screen_locked = 129
+    mcu_backend_connection_down = 130
+    backend_mcu_connection_down = 131
+    backend_frontend_connection_down = 132
+    frontend_backend_connection_down = 133
+    mcu_backend_connection_up = 134
+    # The following code isn't actually used, but we reserve space for it. We
+    # don't use it because if the backend received an mcu_backend_connection_up
+    # event from the MCU, then we know that the backend received a connection
+    # from the MCU. We only care for technical troubleshooting (of the UART
+    # wires) about the case where the backend receives a connection from the MCU
+    # but the MCU hasn't received a connection from the backend; it would be good
+    # to log it, but we don't need to show it in the frontend, and right now the
+    # frontend has no way to filter out events from its display.
+    # backend_mcu_connection_up = 135;  // backend detected mcu
+    backend_frontend_connection_up = 136
+    # The following code isn't actually used, but we reserve space for it. We
+    # don't use it because the frontend can't generate LogEvents with IDs.
+    # frontend_backend_connection_up = 137;
+    battery_low = 138
+    battery_critical = 139
+    charger_disconnected = 140
+    mcu_started = 141
+    backend_started = 142
+    mcu_shutdown = 143
+    backend_shutdown = 144
+    sfm3019_air_disconnected = 145
+    sfm3019_o2_disconnected = 146
+    fdo2_disconnected = 147
 
 
 class LogEventType(betterproto.Enum):
     patient = 0
-    system = 1
-    control = 2
-    alarm_limits = 3
+    control = 1
+    alarm_limits = 2
+    system = 3
 
 
 @dataclass
@@ -100,10 +125,10 @@ class SensorMeasurements(betterproto.Message):
     time: int = betterproto.uint64_field(1)
     cycle: int = betterproto.uint32_field(2)
     fio2: float = betterproto.float_field(3)
-    spo2: float = betterproto.float_field(4)
-    hr: float = betterproto.float_field(5)
-    paw: float = betterproto.float_field(6)
-    flow: float = betterproto.float_field(7)
+    flow: float = betterproto.float_field(4)
+    spo2: float = betterproto.float_field(5)
+    hr: float = betterproto.float_field(6)
+    paw: float = betterproto.float_field(7)
     volume: float = betterproto.float_field(8)
 
 
@@ -180,6 +205,7 @@ class LogEvent(betterproto.Message):
 @dataclass
 class ExpectedLogEvent(betterproto.Message):
     id: int = betterproto.uint32_field(1)
+    session_id: int = betterproto.uint32_field(2)
 
 
 @dataclass
@@ -187,7 +213,8 @@ class NextLogEvents(betterproto.Message):
     next_expected: int = betterproto.uint32_field(1)
     total: int = betterproto.uint32_field(2)
     remaining: int = betterproto.uint32_field(3)
-    elements: List["LogEvent"] = betterproto.message_field(4)
+    session_id: int = betterproto.uint32_field(4)
+    elements: List["LogEvent"] = betterproto.message_field(5)
 
 
 @dataclass
@@ -196,9 +223,9 @@ class ActiveLogEvents(betterproto.Message):
 
 
 @dataclass
-class BatteryPower(betterproto.Message):
-    power_left: int = betterproto.uint32_field(1)
-    charging_status: bool = betterproto.bool_field(2)
+class MCUPowerStatus(betterproto.Message):
+    power_left: float = betterproto.float_field(1)
+    charging: bool = betterproto.bool_field(2)
 
 
 @dataclass
@@ -209,10 +236,10 @@ class ScreenStatus(betterproto.Message):
 @dataclass
 class AlarmMute(betterproto.Message):
     active: bool = betterproto.bool_field(1)
-    remaining: float = betterproto.float_field(2)
+    remaining: int = betterproto.uint64_field(2)
 
 
 @dataclass
 class AlarmMuteRequest(betterproto.Message):
     active: bool = betterproto.bool_field(1)
-    remaining: float = betterproto.float_field(2)
+    remaining: int = betterproto.uint64_field(2)

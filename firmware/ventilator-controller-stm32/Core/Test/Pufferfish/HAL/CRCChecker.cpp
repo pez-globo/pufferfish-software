@@ -12,10 +12,11 @@
 
 #include "Pufferfish/HAL/CRCChecker.h"
 
-#include "Pufferfish/Util/Array.h"
+#include "Pufferfish/Util/Containers/Array.h"
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
+using PF::Util::Containers::make_array;
 
 SCENARIO("reflect should correctly reflect inputs", "[crc]") {
   GIVEN("uint8_t inputs") {
@@ -162,7 +163,7 @@ SCENARIO("CRC8 should obtain correct checksums on test inputs", "[crc]") {
     }
 
     WHEN("the standard test sequence is input") {
-      auto input = PF::Util::make_array<uint8_t>(
+      auto input = make_array<uint8_t>(
           static_cast<uint8_t>('1'),
           static_cast<uint8_t>('2'),
           static_cast<uint8_t>('3'),
@@ -213,7 +214,7 @@ SCENARIO("CRC32C should obtain correct checksums on test inputs", "[crc]") {
     }
 
     WHEN("the standard test sequence is input") {
-      auto input = PF::Util::make_array<uint8_t>(
+      auto input = make_array<uint8_t>(
           static_cast<uint8_t>('1'),
           static_cast<uint8_t>('2'),
           static_cast<uint8_t>('3'),

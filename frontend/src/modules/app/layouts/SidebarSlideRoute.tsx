@@ -1,14 +1,27 @@
+/**
+ * @summary Layout with Slider styled Sidebar based pages (Dashboard page)
+ *
+ */
 import React, { PropsWithChildren, useEffect } from 'react';
-import { Route, RouteProps } from 'react-router-dom';
+import { Route, RouteProps, useLocation } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Drawer, Grid } from '@material-ui/core';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
-import { SCREENSAVER_ROUTE } from '../../navigation/constants';
+import { ALARMS_ROUTE, SCREENSAVER_ROUTE } from '../../navigation/constants';
 import SidebarClickable from '../SidebarClickable';
 import OverlayScreen from '../OverlayScreen';
 import { getAlarmNotifyStatus } from '../../../store/app/selectors';
+import { Range, AlarmLimitsRequest } from '../../../store/controller/proto/mcu_pb';
+import {
+  getAlarmLimitsRequest,
+  getAlarmLimitsRequestUnsaved,
+} from '../../../store/controller/selectors';
+import { ModalPopup } from '../../controllers/ModalPopup';
+import { MessageType } from '../../../store/controller/types';
+import { commitDraftRequest } from '../../../store/controller/actions';
+import { DiscardAlarmLimitsContent } from '../../controllers';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -68,12 +81,45 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * Toolbar extending full width of the page
+ *
+ * @component Component for Toolbar
+ *
+ * @returns {JSX.Element}
+ */
 const FullWidthToolBar = (): JSX.Element => {
   const classes = useStyles();
   const [toggle, setToggle] = React.useState<boolean>(false);
+  const [openModal, setOpenModal] = React.useState<boolean>(false);
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
+  const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
+  const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
+  const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
+    dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
+  };
+  const handleDiscardClose = () => {
+    setOpenModal(false);
+  };
+  const handleDiscardConfirm = () => {
+    setAlarmLimitsRequestDraft(alarmLimitsRequest);
+    setOpenModal(false);
+    setToggle(true);
+  };
 
+  /**
+   * Toggles the slider sidebar UI drawer
+   *
+   * @param {boolean} value - show/hide value
+   */
   const toggleDrawer = (value: boolean) => () => {
-    setToggle(value);
+    if (location.pathname === ALARMS_ROUTE.path && alarmLimitsRequestUnsaved) {
+      setOpenModal(true);
+    } else {
+      setToggle(value);
+    }
   };
 
   return (
@@ -96,10 +142,26 @@ const FullWidthToolBar = (): JSX.Element => {
           </Drawer>
         </React.Fragment>
       </Grid>
+      <ModalPopup
+        withAction={true}
+        label="Set Alarms"
+        open={openModal}
+        onClose={handleDiscardClose}
+        onConfirm={handleDiscardConfirm}
+      >
+        <DiscardAlarmLimitsContent />
+      </ModalPopup>
     </ToolBar>
   );
 };
 
+/**
+ * SidebarLayout
+ *
+ * @component Component for displaying the sidebar
+ *
+ * @returns {JSX.Element}
+ */
 const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   const classes = useStyles();
   return (
@@ -113,11 +175,23 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
   );
 };
 
+/**
+ * ContentComponent
+ *
+ * @component Component for displaying the main content
+ *
+ * @returns {JSX.Element}
+ */
 const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
   const notifyAlarm = useSelector(getAlarmNotifyStatus);
   const [showBorder, setShowBorder] = React.useState(false);
 
+  /**
+   * Triggers when Alarm event is active (Referenced in `OverlayScreen` )
+   * RED_BORDER reduxs store is dispatched when alarm is active
+   * It adds a red border around the page
+   */
   useEffect(() => {
     setShowBorder(notifyAlarm);
   }, [notifyAlarm]);
@@ -141,6 +215,13 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
   );
 });
 
+/**
+ * DashboardRoute
+ *
+ * @component Component for displaying the Dashboard page layout
+ *
+ * @returns {JSX.Element | null}
+ */
 const DashboardRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
   if (!Component) return null;
   return (

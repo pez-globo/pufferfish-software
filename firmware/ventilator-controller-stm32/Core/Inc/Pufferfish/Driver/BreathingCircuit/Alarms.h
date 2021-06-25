@@ -9,83 +9,48 @@
 
 #pragma once
 
-#include <cstdint>
-
-#include "Pufferfish/Application/LogEvents.h"
-#include "Pufferfish/Statuses.h"
-#include "Pufferfish/Util/Array.h"
-#include "Pufferfish/Util/OrderedMap.h"
+#include "Pufferfish/Application/Alarms.h"
+#include "Pufferfish/Application/mcu_pb.h"
+#include "Pufferfish/Util/Containers/Array.h"
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
-// All alarm codes need to be registered in the following array:
-static constexpr auto alarm_codes = Util::make_array<LogEventCode>(
-    LogEventCode::LogEventCode_spo2_too_low,
-    LogEventCode::LogEventCode_spo2_too_high,
-    LogEventCode::LogEventCode_hr_too_low,
-    LogEventCode::LogEventCode_hr_too_high,
-    LogEventCode::LogEventCode_fio2_too_low,
-    LogEventCode::LogEventCode_fio2_too_high,
-    LogEventCode::LogEventCode_flow_too_low,
-    LogEventCode::LogEventCode_flow_too_high);
+// These are all the alarms which the BreathingCircuit driver is responsible for.
+// The driver resets their debouncers when ventilation is started/stopped or the mode is changed.
+// The driver deactivates them when ventilation is stopped.
+static const uint8_t debounce_max = 100;
+static const uint32_t debounce_interval = 10;  // ms
+// This relies on a EnumMap constructor which performs dynamic initialization, so it's not safe to
+// use in multithreaded contexts. We don't use it in multithreaded contexts, so we can ignore the
+// first clang-tidy complaint. As for the second complaint, std::pair is not marked noexcept but
+// in practice it won't throw exceptions in this initializer list here.
+// NOLINTNEXTLINE(bugprone-dynamic-static-initializers,cert-err58-cpp)
+static const Application::DebouncersInit debouncers = {
+    {LogEventCode::LogEventCode_fio2_too_low, {debounce_max, debounce_interval}},
+    {LogEventCode::LogEventCode_fio2_too_high, {debounce_max, debounce_interval}},
+    {LogEventCode::LogEventCode_flow_too_low, {debounce_max, debounce_interval}},
+    {LogEventCode::LogEventCode_flow_too_high, {debounce_max, debounce_interval}},
+    {LogEventCode::LogEventCode_spo2_too_low, {debounce_max, debounce_interval}},
+    {LogEventCode::LogEventCode_spo2_too_high, {debounce_max, debounce_interval}},
+    {LogEventCode::LogEventCode_hr_too_low, {debounce_max, debounce_interval}},
+    {LogEventCode::LogEventCode_hr_too_high, {debounce_max, debounce_interval}}};
 
-class AlarmsManager {
- public:
-  explicit AlarmsManager(Application::LogEventsManager &log_manager) : log_manager_(log_manager) {}
+// These are all the alarms which the BreathingCircuit driver has initialization wait timers for.
+// The driver resets their initialization wait timers when ventilation is started/stopped or the
+// mode is changed
+static const uint32_t fio2_init_wait = 5000;  // ms
+static const uint32_t flow_init_wait = 2000;  // ms
+// This relies on a EnumMap constructor which performs dynamic initialization, so it's not safe to
+// use in multithreaded contexts. We don't use it in multithreaded contexts, so we can ignore the
+// first clang-tidy complaint. As for the second complaint, std::pair is not marked noexcept but
+// in practice it won't throw exceptions in this initializer list here.
+// NOLINTNEXTLINE(bugprone-dynamic-static-initializers,cert-err58-cpp)
+static const Application::InitWaitersInit init_waiters = {
+    {LogEventCode::LogEventCode_fio2_too_low, {fio2_init_wait}},
+    {LogEventCode::LogEventCode_fio2_too_high, {fio2_init_wait}},
+    {LogEventCode::LogEventCode_flow_too_low, {flow_init_wait}},
+    {LogEventCode::LogEventCode_flow_too_high, {flow_init_wait}}};
 
-  void activate_alarm(LogEventCode alarm_code, LogEventType alarm_type, const Range &alarm_limits);
-  void deactivate_alarm(LogEventCode alarm_code);
-  IndexStatus transform(ActiveLogEvents &active_log_events) const;
-
- private:
-  Application::LogEventsManager &log_manager_;
-  Util::OrderedMap<LogEventCode, uint32_t, Application::active_log_events_max_elems> active_alarms_;
-};
-
-class AlarmsService {
- public:
-  static void check_parameter(
-      const Range &alarm_limits,
-      float measured_value,
-      LogEventCode too_low_code,
-      LogEventCode too_high_code,
-      AlarmsManager &alarms_manager);
-
-  virtual void transform(
-      const Parameters &parameters,
-      const AlarmLimits &alarm_limits,
-      const SensorMeasurements &sensor_measurements,
-      ActiveLogEvents &active_log_events,
-      AlarmsManager &alarms_manager);
-
-  static void deactivate_alarms(ActiveLogEvents &active_log_events, AlarmsManager &alarms_manager);
-};
-
-class PCACAlarms : public AlarmsService {};
-
-class HFNCAlarms : public AlarmsService {
- public:
-  void transform(
-      const Parameters &parameters,
-      const AlarmLimits &alarm_limits,
-      const SensorMeasurements &sensor_measurements,
-      ActiveLogEvents &active_log_events,
-      AlarmsManager &alarms_manager) override;
-};
-
-class AlarmsServices {
- public:
-  void transform(
-      const Parameters &parameters,
-      const AlarmLimits &alarm_limits,
-      const SensorMeasurements &sensor_measurements,
-      ActiveLogEvents &active_log_events,
-      AlarmsManager &alarms_manager);
-
- private:
-  AlarmsService *active_service_ = nullptr;
-  PCACAlarms pc_ac_;
-  HFNCAlarms hfnc_;
-};
+void reset_alarms(Application::AlarmsManager &alarms_manager);
 
 }  // namespace Pufferfish::Driver::BreathingCircuit

@@ -9,7 +9,7 @@
 #include <cstdint>
 
 #include "I2CMux.h"
-#include "Pufferfish/HAL/HAL.h"
+#include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 
 namespace Pufferfish {
 namespace Driver {
@@ -18,7 +18,7 @@ namespace I2C {
 /**
  * An abstraction of an I2C device behind I2C multiplexer(s)
  */
-class ExtendedI2CDevice : public HAL::I2CDevice {
+class ExtendedI2CDevice : public HAL::Interfaces::I2CDevice {
  public:
   /**
    * Construct a new extended I2C device
