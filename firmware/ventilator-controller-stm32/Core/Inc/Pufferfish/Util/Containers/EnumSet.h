@@ -38,7 +38,9 @@ class EnumSet : public Set<Key> {
   // cppcheck-suppress noExplicitConstructor
   EnumSet(InitializerList init) noexcept;
 
-  [[nodiscard]] static constexpr size_t index_of(const Key &key) { return static_cast<size_t>(key); }
+  [[nodiscard]] static constexpr size_t index_of(const Key &key) {
+    return static_cast<size_t>(key);
+  }
   // Note: when capacity is 0, this returns the max value of size_t
   [[nodiscard]] static constexpr size_t max_key_value() noexcept { return capacity - 1; }
 

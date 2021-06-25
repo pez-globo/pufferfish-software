@@ -95,6 +95,7 @@ using MessageTypeValues = Util::EnumValues<
 union StateSegmentUnion;
 
 using StateSegment = Util::TaggedUnion<StateSegmentUnion, MessageTypes>;
+bool operator==(const StateSegment &first, const StateSegment &second);
 
 struct StateSegments {
   // Backend States

@@ -34,6 +34,15 @@
   state_segments_.field = (segment).value.field; // NOLINT(cppcoreguidelines-pro-type-union-access)
 // clang-format on
 
+// This macro is used to access a specified protobuf type from a union field and
+// compare it. We use a macro because it makes the code more maintainable here, while allowing us to
+// ensure union tagging.
+// clang-format off
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define STATESEGMENT_EQ_TAGGED(field, first_segment, second_segment) \
+  (first_segment).value.field == (second_segment).value.field; // NOLINT(cppcoreguidelines-pro-type-union-access)
+// clang-format on
+
 // Equality operators
 
 template <>
@@ -85,6 +94,41 @@ STATESEGMENT_TAGGED_SETTER(MCUPowerStatus, mcu_power_status)
 }  // namespace Pufferfish::Util
 
 namespace Pufferfish::Application {
+
+bool operator==(const StateSegment &first, const StateSegment &second) {
+  if (first.tag != second.tag) {
+    return false;
+  }
+
+  switch (first.tag) {
+    case MessageTypes::sensor_measurements:
+      return STATESEGMENT_EQ_TAGGED(sensor_measurements, first, second);
+    case MessageTypes::cycle_measurements:
+      return STATESEGMENT_EQ_TAGGED(cycle_measurements, first, second);
+    case MessageTypes::parameters:
+      return STATESEGMENT_EQ_TAGGED(parameters, first, second);
+    case MessageTypes::parameters_request:
+      return STATESEGMENT_EQ_TAGGED(parameters_request, first, second);
+    case MessageTypes::alarm_limits:
+      return STATESEGMENT_EQ_TAGGED(alarm_limits, first, second);
+    case MessageTypes::alarm_limits_request:
+      return STATESEGMENT_EQ_TAGGED(alarm_limits_request, first, second);
+    case MessageTypes::expected_log_event:
+      return STATESEGMENT_EQ_TAGGED(expected_log_event, first, second);
+    case MessageTypes::next_log_events:
+      return STATESEGMENT_EQ_TAGGED(next_log_events, first, second);
+    case MessageTypes::active_log_events:
+      return STATESEGMENT_EQ_TAGGED(active_log_events, first, second);
+    case MessageTypes::alarm_mute:
+      return STATESEGMENT_EQ_TAGGED(alarm_mute, first, second);
+    case MessageTypes::alarm_mute_request:
+      return STATESEGMENT_EQ_TAGGED(alarm_mute_request, first, second);
+    case MessageTypes::mcu_power_status:
+      return STATESEGMENT_EQ_TAGGED(mcu_power_status, first, second);
+    default:
+      return false;
+  }
+}
 
 // Store
 
@@ -172,7 +216,6 @@ Store::Status Store::input(const StateSegment &input, bool default_initializatio
     case MessageTypes::alarm_limits:
       STATESEGMENT_GET_TAGGED(alarm_limits, input);
       return Status::ok;
-
     case MessageTypes::alarm_limits_request:
       STATESEGMENT_GET_TAGGED(alarm_limits_request, input);
       if (!default_initialization) {
