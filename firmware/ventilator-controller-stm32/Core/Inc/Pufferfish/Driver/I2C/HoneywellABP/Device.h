@@ -49,6 +49,9 @@ class Device : public Testable {
   const uint16_t output_min = 0x0666;  // 10% of 2^14
   const uint16_t output_max = 0x399A;  // 90% of 2^14
   const PressureUnit unit;
+  static const uint8_t status_shift = 6;
+  static const size_t bridge_high = 0;
+  static const size_t bridge_low = 0;
 };
 
 }  // namespace HoneywellABP

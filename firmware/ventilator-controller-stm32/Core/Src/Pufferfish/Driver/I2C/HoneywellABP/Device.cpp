@@ -12,6 +12,9 @@
 
 #include "Pufferfish/Driver/I2C/HoneywellABP/Device.h"
 
+#include "Pufferfish/Util/Endian.h"
+#include "Pufferfish/Util/Ranges.h"
+
 #include <array>
 #include <climits>
 
@@ -24,12 +27,9 @@ I2CDeviceStatus Device::read_sample(ABPSample &sample) {
     return ret;
   }
 
-  static const uint8_t status_shift = 6;
-  static const size_t bridge_high = 0;
-  static const size_t bridge_low = 0;
   static const uint16_t bridge_mask = 0x3FFF;
   sample.status = ABPStatus(data[0] >> status_shift);
-  sample.bridge_data = (data[bridge_high] << static_cast<uint8_t>(CHAR_BIT)) + data[bridge_low];
+  Util::read_bigend(data.data(), sample.bridge_data);
   sample.bridge_data &= bridge_mask;
   sample.pressure = raw_to_pressure(sample.bridge_data);
   sample.unit = unit;
@@ -38,11 +38,7 @@ I2CDeviceStatus Device::read_sample(ABPSample &sample) {
 }
 
 float Device::raw_to_pressure(uint16_t output) const {
-  if (output < output_min) {
-    output = output_min;
-  } else if (output > output_max) {
-    output = output_max;
-  }
+  Util::clamp<uint16_t>(output, output_min, output_max);
 
   // Since these variables are uint16_t, we promote them to int32_t for signed
   // integer subtraction
