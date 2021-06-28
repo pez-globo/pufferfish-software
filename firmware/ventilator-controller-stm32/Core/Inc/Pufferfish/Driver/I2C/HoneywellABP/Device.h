@@ -42,8 +42,8 @@ class Device : public Testable {
   Pufferfish::HAL::Interfaces::I2CDevice &dev_;
 
   // pressure range (refer to datasheet)
-  static constexpr float pmin;  // minimum pressure
-  static constexpr float pmax;  // maximum pressure
+  const float pmin;  // minimum pressure
+  const float pmax;  // maximum pressure
 
   // sensor 14-bit output range
   const uint16_t output_min = 0x0666;  // 10% of 2^14
