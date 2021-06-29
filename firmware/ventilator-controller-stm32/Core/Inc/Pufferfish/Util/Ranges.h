@@ -36,6 +36,9 @@ namespace Util {
  */
 template <typename Numeric>
 constexpr bool within(Numeric value, Numeric floor, Numeric ceiling) {
+  if (floor > ceiling) {
+    std::swap(floor, ceiling);
+  }
   return value >= floor && value <= ceiling;
 }
 
@@ -50,8 +53,8 @@ constexpr bool within(Numeric value, Numeric floor, Numeric ceiling) {
  */
 template <typename Numeric>
 constexpr Numeric clamp(Numeric value, Numeric floor, Numeric ceiling) {
-  if(floor > ceiling){
-    floor = ceiling;
+  if (floor > ceiling) {
+    std::swap(floor, ceiling);
   }
   return std::min(ceiling, std::max(floor, value));
 }

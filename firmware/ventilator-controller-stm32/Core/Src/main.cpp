@@ -322,7 +322,7 @@ PF::Driver::I2C::SFM3019::Sensor sfm3019_o2(sfm3019_dev_o2, true, time);
 PF::Driver::Serial::FDO2::Device fdo2_dev(fdo2_uart);
 PF::Driver::Serial::FDO2::Sensor fdo2(fdo2_dev, time);
 
-// Nonin OEM III`
+// Nonin OEM III
 PF::Driver::Serial::Nonin::Device nonin_oem_dev(nonin_oem_uart);
 PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
 

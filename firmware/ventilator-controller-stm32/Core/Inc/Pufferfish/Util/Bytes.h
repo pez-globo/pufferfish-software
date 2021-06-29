@@ -12,7 +12,6 @@
 #include <climits>
 #include <cstddef>
 #include <cstdint>
-#
 
 namespace Pufferfish::Util {
 
@@ -26,7 +25,9 @@ namespace Pufferfish::Util {
  */
 template <size_t byte_index, typename T>
 constexpr uint8_t get_byte(T number) noexcept {
-  static_assert(byte_index <= sizeof(T), "the byte index is greater than size of the type");  
+  static_assert(
+      byte_index < static_cast<size_t>(sizeof(T)),
+      "the byte index is greater than size of the type");
   return number >> static_cast<size_t>(byte_index * CHAR_BIT);
 }
 
@@ -40,10 +41,11 @@ constexpr uint8_t get_byte(T number) noexcept {
  */
 template <size_t byte_index, typename T>
 constexpr T set_byte(uint8_t byte) noexcept {
-  static_assert(byte_index <= sizeof(T), "the byte index is greater than size of the type");  
+  static_assert(
+      byte_index < static_cast<size_t>(sizeof(T)),
+      "the byte index is greater than size of the type");
   return static_cast<T>(byte) << static_cast<size_t>(byte_index * CHAR_BIT);
 }
-
 
 }  // namespace Pufferfish::Util
 
