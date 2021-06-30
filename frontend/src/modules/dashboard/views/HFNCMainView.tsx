@@ -16,7 +16,7 @@ import {
   getSmoothedHR,
 } from '../../../store/controller/selectors';
 import { BPM, LMIN, PERCENT } from '../../info/units';
-import LargeValueInfo from '../containers/LargeValueInfo';
+import ValueInfo from '../containers/ValueInfo';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -70,23 +70,23 @@ const HFNCMainView = (): JSX.Element => {
           className={classes.panelColumn}
         >
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
-            <LargeValueInfo
+            <ValueInfo
               selector={getSmoothedSpO2}
               label="SpO2"
               stateKey="spo2"
               units={PERCENT}
-              showLimits
               isLarge
+              showLimits
             />
           </Grid>
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
-            <LargeValueInfo
+            <ValueInfo
               selector={getSmoothedHR}
               label="HR"
               stateKey="hr"
               units={BPM}
-              showLimits
               isLarge
+              showLimits
             />
           </Grid>
         </Grid>
@@ -99,7 +99,7 @@ const HFNCMainView = (): JSX.Element => {
           className={classes.panelColumn}
         >
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
-            <LargeValueInfo
+            <ValueInfo
               selector={getSmoothedFiO2Value}
               label="FiO2"
               stateKey="fio2"
@@ -109,7 +109,7 @@ const HFNCMainView = (): JSX.Element => {
             />
           </Grid>
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
-            <LargeValueInfo
+            <ValueInfo
               selector={getSmoothedFlow}
               label="Flow"
               stateKey="flow"
@@ -130,7 +130,7 @@ const HFNCMainView = (): JSX.Element => {
           className={classes.panelColumn}
         >
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
-            <LargeValueInfo
+            <ValueInfo
               selector={getParametersFiO2}
               label="FiO2 Setting"
               stateKey="fio2"
@@ -139,7 +139,7 @@ const HFNCMainView = (): JSX.Element => {
             />
           </Grid>
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
-            <LargeValueInfo
+            <ValueInfo
               selector={getParametersFlow}
               label="Flow Setting"
               stateKey="flow"

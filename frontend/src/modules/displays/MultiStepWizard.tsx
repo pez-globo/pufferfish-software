@@ -159,42 +159,38 @@ const HFNCControls = ({
         style={{ borderRight: '2px solid #030e17' }}
       >
         <ValueInfo
-          mainContainer={{
-            selector: getSmoothedSpO2,
-            label: 'SpO2',
-            stateKey: 'spo2',
-            units: PERCENT,
-            alarmLimits: alarmValuesSpO2,
-          }}
+          selector={getSmoothedSpO2}
+          label={'SpO2'}
+          stateKey={'spo2'}
+          units={PERCENT}
+          alarmLimits={alarmValuesSpO2}
+          showLimits
         />
         <ValueInfo
-          mainContainer={{
-            selector: getSmoothedHR,
-            label: 'HR',
-            stateKey: 'hr',
-            units: BPM,
-            alarmLimits: alarmValuesHR,
-          }}
+          selector={getSmoothedHR}
+          label={'HR'}
+          stateKey={'hr'}
+          units={BPM}
+          alarmLimits={alarmValuesHR}
+          showLimits
         />
       </Grid>
       <Grid container item justify="center" alignItems="stretch" direction="column">
         <ValueInfo
-          mainContainer={{
-            selector: getParametersRequestDraftFiO2,
-            label: 'FiO2',
-            stateKey: 'fio2',
-            units: PERCENT,
-            alarmLimits: alarmValuesFiO2,
-          }}
+          selector={getParametersRequestDraftFiO2}
+          label={'FiO2'}
+          stateKey={'fio2'}
+          units={PERCENT}
+          alarmLimits={alarmValuesFiO2}
+          showLimits
         />
         <ValueInfo
-          mainContainer={{
-            selector: getParametersRequestDraftFlow,
-            label: 'Flow',
-            stateKey: 'flow',
-            units: LMIN,
-            alarmLimits: alarmValuesFlow,
-          }}
+          selector={getParametersRequestDraftFlow}
+          label={'Flow'}
+          stateKey={'flow'}
+          units={LMIN}
+          alarmLimits={alarmValuesFlow}
+          showLimits
         />
       </Grid>
     </React.Fragment>

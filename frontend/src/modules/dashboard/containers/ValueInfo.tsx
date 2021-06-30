@@ -59,19 +59,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid yellow',
   },
   valueLabel: {
-    fontSize: '3.5rem',
     lineHeight: '1',
     // border: '1px solid red',
-  },
-  valueLabelLarge: {
-    fontSize: '5rem',
-    lineHeight: '1',
-    // border: '1px solid red',
-  },
-  unitsLabelLarge: {
-    fontSize: '1.5rem',
-    opacity: 0.8,
-    // border: '1px solid red'
   },
   unitsLabel: {
     opacity: 0.8,
@@ -137,7 +126,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 /**
- *
+ * Commented-out for now! we are not using subcontainers currently
  * @typedef ValueInfoProps
  *
  * Props interface for the showing value information.
@@ -147,11 +136,11 @@ const useStyles = makeStyles((theme: Theme) => ({
  * @prop {Props} subContainer2 Sub Container placed on Right side, with other half
  *
  */
-export interface ValueInfoProps {
-  mainContainer: Props;
-  subContainer1?: Props;
-  subContainer2?: Props;
-}
+// export interface ValueInfoProps {
+//   mainContainer: Props;
+//   subContainer1?: Props;
+//   subContainer2?: Props;
+// }
 
 /**
  * @typedef Props
@@ -313,20 +302,18 @@ const ControlValuesDisplay = ({
               </Grid>
               {showLimits && stateKey && (
                 <Grid container item xs={3} className={classes.liveContainer}>
-                  {isLarge ? (
-                    <Typography className={classes.whiteFont} style={{ fontSize: '1.25rem' }}>
-                      {lower}
-                    </Typography>
-                  ) : (
-                    <Typography className={classes.whiteFont}>{lower}</Typography>
-                  )}
-                  {isLarge ? (
-                    <Typography className={classes.whiteFont} style={{ fontSize: '1.25rem' }}>
-                      {upper}
-                    </Typography>
-                  ) : (
-                    <Typography className={classes.whiteFont}>{upper}</Typography>
-                  )}
+                  <Typography
+                    className={classes.whiteFont}
+                    style={isLarge ? { fontSize: '1.25rem' } : {}}
+                  >
+                    {lower}
+                  </Typography>
+                  <Typography
+                    className={classes.whiteFont}
+                    style={isLarge ? { fontSize: '1.25rem' } : {}}
+                  >
+                    {upper}
+                  </Typography>
                 </Grid>
               )}
             </Grid>
@@ -344,139 +331,12 @@ const ControlValuesDisplay = ({
                     align="center"
                     variant="body1"
                     className={`${classes.unitsLabel} ${classes.whiteFont}`}
+                    style={isLarge ? { fontSize: '1.5rem' } : {}}
                   >
                     {units}
                   </Typography>
                 )}
               </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-        {stateKey && (
-          <AlarmModal
-            updateModalStatus={updateModalStatus}
-            openModal={open}
-            disableAlarmButton={true}
-            label={label}
-            units={units}
-            stateKey={stateKey}
-            requestCommitRange={() => null}
-          />
-        )}
-      </Grid>
-    </div>
-  );
-};
-
-/**
- * GridControlValuesDisplay
- *
- * @component Component for showing grid control value information.
- * similar to ControlValuesDisplay, A horizontal SubContainer used on the dashboard
- *
- * Uses the [[Props]] interface
- *
- * @returns {JSX.Element}
- *
- */
-const GridControlValuesDisplay = ({
-  selector,
-  alarmLimits,
-  label,
-  stateKey,
-  units = '',
-  decimal,
-}: Props): JSX.Element => {
-  const classes = useStyles();
-  /**
-   * State to toggle opening Alarm popup
-   */
-  const [open, setOpen] = useState(false);
-  const alarmLimitsRequest = useSelector(getAlarmLimitsRequest);
-  const range =
-    alarmLimitsRequest === null
-      ? undefined
-      : ((alarmLimitsRequest as unknown) as Record<string, Range>)[stateKey];
-  const rangeValues = range === undefined ? { lower: '--', upper: '--' } : range;
-  const alarmTemp = alarmLimits === undefined ? { lower: '--', upper: '--' } : alarmLimits;
-  const alarmLimitsRange = alarmTemp as number[];
-  const { lower, upper } =
-    alarmLimitsRange?.length === 0
-      ? rangeValues
-      : { lower: alarmLimitsRange[0], upper: alarmLimitsRange[1] };
-
-  /**
-   * Opens Multistep Popup on Clicking over component
-   */
-  const onClick = () => {
-    // setOpen(true);
-    if (stateKey) {
-      setMultiPopupOpen(true, stateKey);
-    }
-  };
-
-  /**
-   * Disable click events over component
-   */
-  const handleClick = ClickHandler(onClick, () => {
-    return false;
-  });
-
-  /**
-   * Function for updating modal status.
-   *
-   * @param {boolean} status desc for status
-   *
-   */
-  const updateModalStatus = (status: boolean) => {
-    setOpen(status);
-  };
-  return (
-    <div
-      style={{ outline: 'none', height: '100%' }}
-      role="button"
-      onKeyDown={() => null}
-      onClick={handleClick}
-      tabIndex={0}
-    >
-      <Grid container direction="column" className={classes.rootParent}>
-        <Grid item xs style={{ width: '100%', height: '100%' }}>
-          <Grid container direction="column" className={classes.gridRoot}>
-            <Grid container item style={{ height: '100%' }}>
-              <Grid item xs>
-                <Typography className={classes.whiteFont}>{label}</Typography>
-              </Grid>
-
-              <Grid container item xs justify="flex-start" alignItems="center" wrap="nowrap">
-                <Grid className={classes.displayContainer}>
-                  <Typography
-                    align="center"
-                    variant="h5"
-                    className={`${classes.gridValueLabel} ${classes.whiteFont}`}
-                  >
-                    <ValueSelectorDisplay decimal={decimal} selector={selector} />
-                  </Typography>
-                  {units !== '' && (
-                    <Typography
-                      align="center"
-                      variant="body1"
-                      className={`${classes.gridUnitsLabel} ${classes.whiteFont}`}
-                    >
-                      {units}
-                    </Typography>
-                  )}
-                </Grid>
-              </Grid>
-              {stateKey && (
-                <Grid item xs className={classes.gridLiveContainer}>
-                  <Typography className={classes.whiteFont} style={{ fontSize: '1.25rem' }}>
-                    {lower}
-                  </Typography>
-                  <Typography className={classes.whiteFont} style={{ fontSize: '1.25rem' }}>
-                    {upper}
-                  </Typography>
-                </Grid>
-              )}
             </Grid>
           </Grid>
         </Grid>
@@ -508,71 +368,34 @@ const GridControlValuesDisplay = ({
  */
 // TODO: we should delete this component if it's not being used in any current code;
 // its structure is weird and its proptypes doesn't pass the linter
-/* eslint-disable react/prop-types */
-const ValueInfo = (props: {
-  mainContainer: Props;
-  subContainer1?: Props;
-  subContainer2?: Props;
-}): JSX.Element => {
-  const { mainContainer, subContainer1, subContainer2 } = props;
+const ValueInfo = ({
+  selector,
+  label,
+  stateKey,
+  units = '',
+  showLimits = false,
+  decimal,
+  isLarge = false,
+  alarmLimits,
+}: Props): JSX.Element => {
   const classes = useStyles();
-  const Render = () => {
-    if (mainContainer && !subContainer1 && !subContainer2) {
-      return (
-        <Grid item xs container className={`${classes.valuesPanel} ${classes.mainContainer}`}>
-          <Grid item xs className={classes.gridAreavalues1}>
-            <ControlValuesDisplay
-              isMain={true}
-              stateKey={mainContainer.stateKey}
-              alarmLimits={mainContainer.alarmLimits}
-              selector={mainContainer.selector}
-              label={mainContainer.label}
-              units={mainContainer.units}
-              showLimits={mainContainer.showLimits}
-              decimal={mainContainer.decimal || 0}
-            />
-          </Grid>
-        </Grid>
-      );
-    }
-    return (
-      <Grid item xs container className={`${classes.valuesPanel} ${classes.mainWithSubcontainer}`}>
-        <Grid item xs className={classes.gridAreavalues1}>
-          <ControlValuesDisplay
-            stateKey={mainContainer.stateKey}
-            selector={mainContainer.selector}
-            alarmLimits={mainContainer.alarmLimits}
-            label={mainContainer.label}
-            units={mainContainer.units}
-            decimal={mainContainer.decimal || 0}
-          />
-        </Grid>
-        <Grid item xs className={classes.gridAreavalues2}>
-          {subContainer1 && (
-            <GridControlValuesDisplay
-              stateKey={subContainer1.stateKey}
-              selector={subContainer1.selector}
-              label={subContainer1.label}
-              units={subContainer1.units}
-              decimal={subContainer1.decimal || 0}
-            />
-          )}
-        </Grid>
-        <Grid item xs className={classes.gridAreavalues3}>
-          {subContainer2 && (
-            <GridControlValuesDisplay
-              stateKey={subContainer2.stateKey}
-              selector={subContainer2.selector}
-              label={subContainer2.label}
-              units={subContainer2.units}
-              decimal={subContainer2.decimal || 0}
-            />
-          )}
-        </Grid>
+  return (
+    <Grid item xs container className={`${classes.valuesPanel} ${classes.mainContainer}`}>
+      <Grid item xs className={classes.gridAreavalues1}>
+        <ControlValuesDisplay
+          isMain={true}
+          stateKey={stateKey}
+          selector={selector}
+          label={label}
+          units={units}
+          alarmLimits={alarmLimits}
+          showLimits={showLimits}
+          decimal={decimal || 0}
+          isLarge={isLarge}
+        />
       </Grid>
-    );
-  };
-  return <Render />;
+    </Grid>
+  );
 };
 
 export default ValueInfo;

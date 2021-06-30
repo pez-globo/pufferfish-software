@@ -160,33 +160,17 @@ const HFNCMainView = (): JSX.Element => {
         <Grid item xs={4} alignItems="stretch" className={classes.topLeftPanel}>
           <Grid container item justify="center" alignItems="stretch">
             <ValueInfo
-              mainContainer={{
-                selector: getSmoothedSpO2,
-                label: 'SpO2',
-                stateKey: 'spo2',
-                units: PERCENT,
-              }}
+              selector={getSmoothedSpO2}
+              label={'SpO2'}
+              stateKey={'spo2'}
+              units={PERCENT}
             />
           </Grid>
           <Grid container item justify="center" alignItems="stretch">
-            <ValueInfo
-              mainContainer={{
-                selector: getSmoothedHR,
-                label: 'HR',
-                stateKey: 'hr',
-                units: BPM,
-              }}
-            />
+            <ValueInfo selector={getSmoothedHR} label={'HR'} stateKey={'hr'} units={BPM} />
           </Grid>
           <Grid container item justify="center" alignItems="stretch">
-            <ValueInfo
-              mainContainer={{
-                selector: getROXIndex,
-                label: 'ROX Index',
-                stateKey: '',
-                decimal: 2,
-              }}
-            />
+            <ValueInfo selector={getROXIndex} label={'ROX Index'} stateKey={''} decimal={2} />
           </Grid>
         </Grid>
         <Grid container item xs direction="column" className={classes.graphMainPanel} wrap="nowrap">
