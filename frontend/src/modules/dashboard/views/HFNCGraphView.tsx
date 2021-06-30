@@ -19,8 +19,8 @@ import {
 import { a11yProps, TabPanel } from '../../controllers/TabPanel';
 import { BPM, LMIN, PERCENT } from '../../info/units';
 import { FlowGraphInfo, PawGraphInfo, VolumeGraphInfo } from '../containers';
-import ControlInfo from '../containers/ControlInfo';
-import ValueInfo from '../containers/ValueInfo';
+import ControlInfo from '../components/ControlInfo';
+import ValueInfo from '../components/ValueInfo';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

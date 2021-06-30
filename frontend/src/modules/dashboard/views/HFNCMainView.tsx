@@ -16,7 +16,7 @@ import {
   getSmoothedHR,
 } from '../../../store/controller/selectors';
 import { BPM, LMIN, PERCENT } from '../../info/units';
-import ValueInfo from '../containers/ValueInfo';
+import ValueInfo from '../components/ValueInfo';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

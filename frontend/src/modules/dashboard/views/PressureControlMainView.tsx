@@ -9,7 +9,7 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Tabs, Tab, Typography, Button } from '@material-ui/core';
 import { PawGraphInfo, FlowGraphInfo, VolumeGraphInfo } from '../containers';
 import { TabPanel, a11yProps } from '../../controllers/TabPanel';
-import ControlInfo from '../containers/ControlInfo';
+import ControlInfo from '../components/ControlInfo';
 import {
   getCycleMeasurementsPEEP,
   getCycleMeasurementsPIP,
@@ -21,7 +21,7 @@ import {
   getSensorMeasurementsFiO2,
 } from '../../../store/controller/selectors';
 import { BMIN, CMH20, PERCENT } from '../../info/units';
-import ValueInfo from '../containers/ValueInfo';
+import ValueInfo from '../components/ValueInfo';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

@@ -20,7 +20,7 @@ import {
 } from '../../store/controller/selectors';
 import { SetValueContent } from '../controllers/ValueModal';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
-import ValueInfo from '../dashboard/containers/ValueInfo';
+import ValueInfo from '../dashboard/components/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../info/units';
 import { AlarmModal } from '../controllers';
 import { ParametersRequest, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
