@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid red'
     backgroundColor: '#010010',
     borderRadius: '8px',
-    padding: '10px',
+    padding: '2rem',
     height: '100%',
   },
   displayContainer: {
@@ -63,9 +63,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     lineHeight: '1',
     // border: '1px solid red',
   },
+  valueLabelLarge: {
+    fontSize: '5rem',
+    lineHeight: '1',
+    // border: '1px solid red',
+  },
+  unitsLabelLarge: {
+    fontSize: '1.5rem',
+    opacity: 0.8,
+    // border: '1px solid red'
+  },
   unitsLabel: {
-    // paddingLeft: theme.spacing(1),
-    // paddingTop: theme.spacing(4),
     opacity: 0.8,
     // border: '1px solid red'
   },
@@ -167,7 +175,7 @@ export interface Props {
   stateKey: string;
   alarmLimits?: number[];
   units?: string;
-  isLive?: boolean;
+  isLarge?: boolean;
   isMain?: boolean;
   showLimits?: boolean;
   decimal?: number;
@@ -223,7 +231,8 @@ const ControlValuesDisplay = ({
   stateKey,
   units = '',
   isMain = false,
-  showLimits = true,
+  isLarge = false,
+  showLimits = false,
   decimal,
 }: Props): JSX.Element => {
   const classes = useStyles();
@@ -295,14 +304,29 @@ const ControlValuesDisplay = ({
               wrap="nowrap"
             >
               <Grid item xs style={{ width: '100%' }}>
-                <Typography className={classes.whiteFont} style={{ fontSize: '16px' }}>
+                <Typography
+                  className={classes.whiteFont}
+                  style={isLarge ? { fontSize: '2rem' } : { fontSize: '16px' }}
+                >
                   {label}
                 </Typography>
               </Grid>
               {showLimits && stateKey && (
                 <Grid container item xs={3} className={classes.liveContainer}>
-                  <Typography className={classes.whiteFont}>{lower}</Typography>
-                  <Typography className={classes.whiteFont}>{upper}</Typography>
+                  {isLarge ? (
+                    <Typography className={classes.whiteFont} style={{ fontSize: '1.25rem' }}>
+                      {lower}
+                    </Typography>
+                  ) : (
+                    <Typography className={classes.whiteFont}>{lower}</Typography>
+                  )}
+                  {isLarge ? (
+                    <Typography className={classes.whiteFont} style={{ fontSize: '1.25rem' }}>
+                      {upper}
+                    </Typography>
+                  ) : (
+                    <Typography className={classes.whiteFont}>{upper}</Typography>
+                  )}
                 </Grid>
               )}
             </Grid>
@@ -445,8 +469,12 @@ const GridControlValuesDisplay = ({
               </Grid>
               {stateKey && (
                 <Grid item xs className={classes.gridLiveContainer}>
-                  <Typography className={classes.whiteFont}>{lower}</Typography>
-                  <Typography className={classes.whiteFont}>{upper}</Typography>
+                  <Typography className={classes.whiteFont} style={{ fontSize: '1.25rem' }}>
+                    {lower}
+                  </Typography>
+                  <Typography className={classes.whiteFont} style={{ fontSize: '1.25rem' }}>
+                    {upper}
+                  </Typography>
                 </Grid>
               )}
             </Grid>

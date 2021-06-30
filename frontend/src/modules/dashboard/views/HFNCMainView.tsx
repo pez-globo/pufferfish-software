@@ -76,6 +76,7 @@ const HFNCMainView = (): JSX.Element => {
               stateKey="spo2"
               units={PERCENT}
               showLimits
+              isLarge
             />
           </Grid>
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
@@ -85,6 +86,7 @@ const HFNCMainView = (): JSX.Element => {
               stateKey="hr"
               units={BPM}
               showLimits
+              isLarge
             />
           </Grid>
         </Grid>
@@ -103,6 +105,7 @@ const HFNCMainView = (): JSX.Element => {
               stateKey="fio2"
               units={PERCENT}
               showLimits
+              isLarge
             />
           </Grid>
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
@@ -112,6 +115,7 @@ const HFNCMainView = (): JSX.Element => {
               stateKey="flow"
               units={LMIN}
               showLimits
+              isLarge
             />
           </Grid>
         </Grid>
@@ -131,6 +135,7 @@ const HFNCMainView = (): JSX.Element => {
               label="FiO2 Setting"
               stateKey="fio2"
               units={PERCENT}
+              isLarge
             />
           </Grid>
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
@@ -139,6 +144,7 @@ const HFNCMainView = (): JSX.Element => {
               label="Flow Setting"
               stateKey="flow"
               units={LMIN}
+              isLarge
             />
           </Grid>
         </Grid>
