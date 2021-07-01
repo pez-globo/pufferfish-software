@@ -78,8 +78,8 @@ const HFNCMainView = (): JSX.Element => {
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
             <ValueInfo
               selector={getSmoothedSpO2}
-              label={'SpO2'}
-              stateKey={'spo2'}
+              label="SpO2"
+              stateKey="spo2"
               units={PERCENT}
               alarmLimits={spo2AlarmLimits}
               showLimits

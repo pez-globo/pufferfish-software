@@ -160,16 +160,16 @@ const HFNCControls = ({
       >
         <ValueInfo
           selector={getSmoothedSpO2}
-          label={'SpO2'}
-          stateKey={'spo2'}
+          label="SpO2"
+          stateKey="spo2"
           units={PERCENT}
           alarmLimits={alarmValuesSpO2}
           showLimits
         />
         <ValueInfo
           selector={getSmoothedHR}
-          label={'HR'}
-          stateKey={'hr'}
+          label="HR"
+          stateKey="hr"
           units={BPM}
           alarmLimits={alarmValuesHR}
           showLimits
@@ -178,16 +178,16 @@ const HFNCControls = ({
       <Grid container item justify="center" alignItems="stretch" direction="column">
         <ValueInfo
           selector={getParametersRequestDraftFiO2}
-          label={'FiO2'}
-          stateKey={'fio2'}
+          label="FiO2"
+          stateKey="fio2"
           units={PERCENT}
           alarmLimits={alarmValuesFiO2}
           showLimits
         />
         <ValueInfo
           selector={getParametersRequestDraftFlow}
-          label={'Flow'}
-          stateKey={'flow'}
+          label="Flow"
+          stateKey="flow"
           units={LMIN}
           alarmLimits={alarmValuesFlow}
           showLimits

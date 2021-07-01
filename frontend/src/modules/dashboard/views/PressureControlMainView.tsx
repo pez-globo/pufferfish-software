@@ -159,8 +159,8 @@ const PressureControlMainView = (): JSX.Element => {
           <Grid container item justify="center" alignItems="stretch">
             <ValueInfo
               selector={getCycleMeasurementsPIP}
-              label={'PIP'}
-              stateKey={'pip'}
+              label="PIP"
+              stateKey="pip"
               units={CMH20}
               // subContainer1={{
               //   selector: getCycleMeasurementsPEEP,
@@ -177,8 +177,8 @@ const PressureControlMainView = (): JSX.Element => {
             />
             <ValueInfo
               selector={getCycleMeasurementsRR}
-              label={'RR'}
-              stateKey={'rr'}
+              label="RR"
+              stateKey="rr"
               units={BMIN}
               // subContainer1={{
               //   selector: getCycleMeasurementsVT,

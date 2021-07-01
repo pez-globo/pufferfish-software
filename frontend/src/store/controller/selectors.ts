@@ -318,7 +318,7 @@ export const getAlarmMuteRequestActive = createSelector(
 
 // Alarm Limits
 // return a number[] of alarmLimits for ValueInfo based on the stateKey
-export const alarmLimitsCurrentSelector = (stateKey: string) =>
+const alarmLimitsCurrentSelector = (stateKey: string) =>
   createSelector(getAlarmLimitsCurrent, (alarmLimits: AlarmLimits | null) => {
     const range =
       alarmLimits === null
