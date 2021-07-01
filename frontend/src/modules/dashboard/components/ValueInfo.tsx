@@ -126,7 +126,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 /**
- * Commented-out for now! we are not using subcontainers currently
+ * @deprecated
  * @typedef ValueInfoProps
  *
  * Props interface for the showing value information.
@@ -136,11 +136,11 @@ const useStyles = makeStyles((theme: Theme) => ({
  * @prop {Props} subContainer2 Sub Container placed on Right side, with other half
  *
  */
-// export interface ValueInfoProps {
-//   mainContainer: Props;
-//   subContainer1?: Props;
-//   subContainer2?: Props;
-// }
+export interface ValueInfoProps {
+  mainContainer: Props;
+  subContainer1?: Props;
+  subContainer2?: Props;
+}
 
 /**
  * @typedef Props
@@ -151,8 +151,6 @@ const useStyles = makeStyles((theme: Theme) => ({
  * @prop {string} label Value label
  * @prop {string} stateKey Unique identifier
  * @prop {string} units Unit measurement to display
- * TODO: isLive is deprecated (used earlier in FiO2info.tsx)
- * @prop {boolean} isLive Config to show isLive in UI
  * @prop {boolean} isMain Config to know if its main or sub container (if true occupies the entire space)
  * @prop {boolean} showLimits Config to show Alarm limts in container (on top left - small size)
  * @prop {number} decimal Number of Decimals on the value
@@ -259,15 +257,6 @@ const ControlValuesDisplay = ({
     return false;
   });
 
-  /**
-   * Function for updating modal status.
-   *
-   * @param {boolean} status desc for status
-   *
-   */
-  const updateModalStatus = (status: boolean) => {
-    setOpen(status);
-  };
   return (
     <div
       style={{ outline: 'none', height: '100%' }}
@@ -342,7 +331,7 @@ const ControlValuesDisplay = ({
         </Grid>
         {stateKey && (
           <AlarmModal
-            updateModalStatus={updateModalStatus}
+            updateModalStatus={(status: boolean) => setOpen(status)}
             openModal={open}
             disableAlarmButton={true}
             label={label}
