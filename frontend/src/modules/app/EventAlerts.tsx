@@ -99,6 +99,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
   },
   alertButtonSpan: {
+    minWidth: 200,
     borderRadius: 5,
     lineHeight: 'normal',
     marginRight: '10px',
