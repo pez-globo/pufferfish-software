@@ -7,13 +7,17 @@
 import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
+import { shallowEqual, useSelector } from 'react-redux';
 import {
+  getHRAlarmLimitsCurrent,
+  // getAlarmLimitsCurrent,
   getParametersFiO2,
   getParametersFlow,
   getSmoothedFiO2Value,
   getSmoothedFlow,
-  getSmoothedSpO2,
   getSmoothedHR,
+  getSmoothedSpO2,
+  getSpO2AlarmLimitsCurrent,
 } from '../../../store/controller/selectors';
 import { BPM, LMIN, PERCENT } from '../../info/units';
 import ValueInfo from '../components/ValueInfo';
@@ -57,6 +61,8 @@ const useStyles = makeStyles((theme: Theme) => ({
  */
 const HFNCMainView = (): JSX.Element => {
   const classes = useStyles();
+  const spo2AlarmLimits = useSelector(getSpO2AlarmLimitsCurrent, shallowEqual);
+  const hrAlarmLimits = useSelector(getHRAlarmLimitsCurrent, shallowEqual);
 
   return (
     <Grid container direction="row" className={classes.root}>
@@ -72,11 +78,12 @@ const HFNCMainView = (): JSX.Element => {
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
             <ValueInfo
               selector={getSmoothedSpO2}
-              label="SpO2"
-              stateKey="spo2"
+              label={'SpO2'}
+              stateKey={'spo2'}
               units={PERCENT}
-              isLarge
+              alarmLimits={spo2AlarmLimits}
               showLimits
+              isLarge
             />
           </Grid>
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
@@ -85,8 +92,9 @@ const HFNCMainView = (): JSX.Element => {
               label="HR"
               stateKey="hr"
               units={BPM}
-              isLarge
+              alarmLimits={hrAlarmLimits}
               showLimits
+              isLarge
             />
           </Grid>
         </Grid>
@@ -104,7 +112,6 @@ const HFNCMainView = (): JSX.Element => {
               label="FiO2"
               stateKey="fio2"
               units={PERCENT}
-              showLimits
               isLarge
             />
           </Grid>
@@ -114,7 +121,6 @@ const HFNCMainView = (): JSX.Element => {
               label="Flow"
               stateKey="flow"
               units={LMIN}
-              showLimits
               isLarge
             />
           </Grid>
