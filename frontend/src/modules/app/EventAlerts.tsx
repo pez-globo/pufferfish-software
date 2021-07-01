@@ -46,8 +46,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     alignItems: 'center',
   },
   alertMargin: {
-    marginLeft: theme.spacing(3.7),
-    marginRight: theme.spacing(3.7),
+    marginLeft: theme.spacing(0.5),
+    marginRight: theme.spacing(0.5),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   marginRight: {
     marginRight: theme.spacing(1),
@@ -84,12 +86,35 @@ const useStyles = makeStyles((theme: Theme) => ({
       // boxShadow: 'none',
     },
   },
-  alertColor: {
+  alertButton: {
+    minWidth: 0,
+    borderRadius: 5,
+    lineHeight: 'normal',
+    marginRight: '10px',
+    padding: '6px 10px',
     backgroundColor: '#FF0000',
     color: '#fff',
     '&:hover': {
       backgroundColor: '#FF0000',
     },
+  },
+  alertButtonSpan: {
+    borderRadius: 5,
+    lineHeight: 'normal',
+    marginRight: '10px',
+    padding: '6px 10px',
+    backgroundColor: '#FF0000',
+    color: '#fff',
+    '&:hover': {
+      backgroundColor: '#FF0000',
+    },
+  },
+  eventLogButton: {
+    minWidth: 0,
+    borderRadius: 5,
+    lineHeight: 'normal',
+    marginRight: '16px',
+    padding: '6px 10px',
   },
   timer: { padding: '6px 16px', backgroundColor: '#88211b', borderRadius: '0px 4px 4px 0px' },
   alertTimer: {
@@ -360,7 +385,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
                 variant="contained"
                 color="primary"
                 disabled={!firmwareConnected}
-                className={classes.alertColor}
+                className={classes.alertButton}
               >
                 {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
               </Button>
@@ -389,15 +414,14 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           variant="contained"
           color="primary"
           disabled={!firmwareConnected}
-          className={classes.alertColor}
+          className={classes.alertButton}
         >
           {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
         </Button>
         <Button
-          style={{ margin: '0px 10px', padding: 0 }}
           variant="contained"
           color="primary"
-          className={classes.alertColor}
+          className={classes.alertButtonSpan}
           onClick={onActiveAlarmClick}
         >
           <span className={isMuted ? `${classes.alertMargin}` : ''} style={{ padding: '6px 16px' }}>
@@ -419,7 +443,12 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         </Button>
       </Grid>
       <Grid hidden={alertCount > 0}>
-        <Button variant="contained" color="primary" className={classes.alertTimer}>
+        <Button
+          style={{ marginLeft: 5 }}
+          variant="contained"
+          color="primary"
+          className={classes.alertButton}
+        >
           <VolumeUpIcon />
         </Button>
         <Button
@@ -432,7 +461,13 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         </Button>
       </Grid>
       <Grid>
-        <Button style={{ marginRight: 12 }} variant="contained" color="primary" onClick={openPopup}>
+        <Button
+          style={{ marginRight: 12 }}
+          variant="contained"
+          color="primary"
+          onClick={openPopup}
+          className={classes.eventLogButton}
+        >
           <BellIcon />
         </Button>
         {label}
