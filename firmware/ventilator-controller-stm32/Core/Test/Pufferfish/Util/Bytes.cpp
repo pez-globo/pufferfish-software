@@ -38,6 +38,18 @@ SCENARIO("The get_byte function in Bytes correctly gets bytes from the given pos
     //    }
     //  }
     // value = 0x860a
+
+    // value = 0x860a
+    //  this test case fails, the byte index is greater than size of the type
+    //  WHEN("the get_byte function  is called with byte index 2 and input type uint8_t as the
+    //  template parameters and with 0x860a as the input value"){
+    //    uint16_t number = 0x860a;
+    //    auto value = PF::Util::get_byte<2, uint8_t>(number);
+    //    THEN("the function returns the value at index 2, which is 0x00"){
+    //      REQUIRE(value == 0x00);
+    //    }
+    //  }
+
     WHEN(
         "the get_byte function  is called with byte index 0 and input type uint16_t as the "
         "template "
@@ -62,16 +74,6 @@ SCENARIO("The get_byte function in Bytes correctly gets bytes from the given pos
     //    uint16_t number = 0x860a;
     //    auto value = PF::Util::get_byte<2, uint16_t>(number);
     //    THEN("the function returns the value at index 2, which is 0x00") { REQUIRE(value == 0x00);
-    //    }
-    //  }
-    // value = 0x860a
-    //  this test case fails, the byte index is greater than size of the type
-    //  WHEN("the get_byte function  is called with byte index 2 and input type uint8_t as the
-    //  template parameters and with 0x860a as the input value"){
-    //    uint16_t number = 0x860a;
-    //    auto value = PF::Util::get_byte<2, uint8_t>(number);
-    //    THEN("the function returns the value at index 2, which is 0x00"){
-    //      REQUIRE(value == 0x00);
     //    }
     //  }
 
@@ -122,7 +124,7 @@ SCENARIO("The  set_byte function correctly sets bytes to the given position") {
         "parameters and with 0x83 as the input value ") {
       const uint8_t number = 0x83;
       auto value = PF::Util::set_byte<0, uint8_t>(number);
-      THEN("the function returns the value shifted left by index 0, which is 0x86") {
+      THEN("the function returns the value shifted left by 0th position, which is 0x86") {
         REQUIRE(value == 0x83);
       }
     }
@@ -133,7 +135,7 @@ SCENARIO("The  set_byte function correctly sets bytes to the given position") {
     //      template " "parameters and with 0x83 as the input value") {
     //    const uint8_t number = 0x83;
     //    auto value = PF::Util::set_byte<1, uint8_t>(number);
-    //    THEN("the function returns the value shifted left by index 1, which is 0x00") {
+    //    THEN("the function returns the value shifted left by 1st position, which is 0x00") {
     //    REQUIRE(value == 0x00);
     //    }
     //  }
@@ -144,7 +146,7 @@ SCENARIO("The  set_byte function correctly sets bytes to the given position") {
         "and with 0x86 as the input value") {
       const uint8_t number = 0x86;
       auto value = PF::Util::set_byte<0, uint16_t>(number);
-      THEN("the function returns the value shifted left by index 0, which is 0x86") {
+      THEN("the function returns the value shifted left by 0th position, which is 0x86") {
         REQUIRE(value == 0x86);
       }
     }
@@ -155,7 +157,7 @@ SCENARIO("The  set_byte function correctly sets bytes to the given position") {
         "and with 0x86 as the input value") {
       const uint8_t number = 0x86;
       auto value = PF::Util::set_byte<1, uint16_t>(number);
-      THEN("the function returns the value shifted left by index 1, which is 0x8600") {
+      THEN("the function returns the value shifted left by 1st position, which is 0x8600") {
         REQUIRE(value == 0x8600);
       }
     }
@@ -166,7 +168,7 @@ SCENARIO("The  set_byte function correctly sets bytes to the given position") {
         "and with 0x59 as the input value") {
       const uint8_t number = 0x59;
       auto value = PF::Util::set_byte<0, uint32_t>(number);
-      THEN("the function returns the value shifted left by index 0, which is 0x59") {
+      THEN("the function returns the value shifted left by 0th position, which is 0x59") {
         REQUIRE(value == 0x59);
       }
     }
@@ -177,7 +179,7 @@ SCENARIO("The  set_byte function correctly sets bytes to the given position") {
         "and with 0x59 as the input value") {
       const uint8_t number = 0x59;
       auto value = PF::Util::set_byte<1, uint32_t>(number);
-      THEN("the function returns the value shifted left by index 1, which is 0x5900") {
+      THEN("the function returns the value shifted left by 1 position, which is 0x5900") {
         REQUIRE(value == 0x5900);
       }
     }
@@ -188,7 +190,7 @@ SCENARIO("The  set_byte function correctly sets bytes to the given position") {
         "and with 0x59 as the input value") {
       const uint8_t number = 0x59;
       auto value = PF::Util::set_byte<2, uint32_t>(number);
-      THEN("the function returns the value shifted left by index 2, which is 0x590000") {
+      THEN("the function returns the value shifted left by 2nd position, which is 0x590000") {
         REQUIRE(value == 0x590000);
       }
     }
@@ -199,7 +201,7 @@ SCENARIO("The  set_byte function correctly sets bytes to the given position") {
         "and with 0x59 as the input value") {
       const uint8_t number = 0x59;
       auto value = PF::Util::set_byte<3, uint32_t>(number);
-      THEN("the function returns the value at index 3, which is 0x59000000") {
+      THEN("the function returns the value shifted left by 3rd position , which is 0x59000000") {
         REQUIRE(value == 0x59000000);
       }
     }
@@ -210,7 +212,7 @@ SCENARIO("The  set_byte function correctly sets bytes to the given position") {
     //      parameters " "and with 0x59 as the input value") {
     //    const uint8_t number = 0x59;
     //    auto value = PF::Util::set_byte<5, uint32_t>(number);
-    //    THEN("the function returns the value at index 5, which is 0x59000000") { REQUIRE(value ==
+    //    THEN("Compilation error") { REQUIRE(value ==
     //    0x59000000); }
     //  }
   }
