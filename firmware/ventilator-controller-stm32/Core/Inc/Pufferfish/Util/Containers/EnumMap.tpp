@@ -22,36 +22,32 @@ EnumMap<Key, Value, capacity>::EnumMap(std::initializer_list<std::pair<Key, Valu
 
 template <typename Key, typename Value, size_t capacity>
 size_t EnumMap<Key, Value, capacity>::size() const {
-  return size_;
+  return keys_.size();
 }
 
 template <typename Key, typename Value, size_t capacity>
 bool EnumMap<Key, Value, capacity>::empty() const {
-  return size_ == 0;
+  return keys_.empty();
 }
 
 template <typename Key, typename Value, size_t capacity>
 bool EnumMap<Key, Value, capacity>::full() const {
-  return size_ == max_size();
+  return keys_.full();
 }
 
 template <typename Key, typename Value, size_t capacity>
 size_t EnumMap<Key, Value, capacity>::available() const {
-  return max_size() - size_;
+  return keys_.available();
 }
 
 template <typename Key, typename Value, size_t capacity>
 IndexStatus EnumMap<Key, Value, capacity>::input(const Key &key, const Value &value) noexcept {
-  auto index = static_cast<size_t>(key);
-  if (index >= max_size()) {
-    return IndexStatus::out_of_bounds;
+  IndexStatus status = keys_.input(key);
+  if (status != IndexStatus::ok) {
+    return status;
   }
 
-  if (!occupancies_[index]) {
-    ++size_;
-    occupancies_[index] = true;
-  }
-  values_[index] = value;
+  values_[keys_.index_of(key)] = value;
   return IndexStatus::ok;
 }
 
@@ -61,40 +57,23 @@ IndexStatus EnumMap<Key, Value, capacity>::output(const Key &key, Value &value) 
     return IndexStatus::out_of_bounds;
   }
 
-  value = values_[static_cast<size_t>(key)];
+  value = values_[keys_.index_of(key)];
   return IndexStatus::ok;
 }
 
 template <typename Key, typename Value, size_t capacity>
 void EnumMap<Key, Value, capacity>::clear() {
-  for (size_t i = 0; i < max_size(); ++i) {
-    occupancies_[i] = false;
-  }
-  size_ = 0;
+  keys_.clear();
 }
 
 template <typename Key, typename Value, size_t capacity>
 IndexStatus EnumMap<Key, Value, capacity>::erase(const Key &key) noexcept {
-  if (!has(key)) {
-    return IndexStatus::out_of_bounds;
-  }
-
-  auto index = static_cast<size_t>(key);
-  if (occupancies_[index]) {
-    --size_;
-    occupancies_[index] = false;
-  }
-  return IndexStatus::ok;
+  return keys_.erase(key);
 }
 
 template <typename Key, typename Value, size_t capacity>
 bool EnumMap<Key, Value, capacity>::has(const Key &key) const {
-  auto index = static_cast<size_t>(key);
-  if (index >= max_size()) {
-    return false;
-  }
-
-  return occupancies_[index];
+  return keys_.has(key);
 }
 
 template <typename Key, typename Value, size_t capacity>

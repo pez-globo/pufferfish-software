@@ -194,6 +194,8 @@ message ExpectedLogEvent {
   uint32 session_id = 2;  // used when the sender's log is ephemeral
 }
 
+// Note: NextLogEvents has a custom equality operator in the firmware which must
+// be updated if you add/remove/modify the fields of the protobuf definition!
 message NextLogEvents {
   uint32 next_expected = 1;
   uint32 total = 2;
@@ -202,6 +204,8 @@ message NextLogEvents {
   repeated LogEvent elements = 5;
 }
 
+// Note: NextLogEvents has a custom equality operator in the firmware which must
+// be updated if you add/remove/modify the fields of the protobuf definition!
 message ActiveLogEvents {
   repeated uint32 id = 1;
 }

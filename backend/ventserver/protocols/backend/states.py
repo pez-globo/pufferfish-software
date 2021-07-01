@@ -226,7 +226,8 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             eventsync.ChangedStateSender[StateSegment]:
         """Initialize the mcu event sender."""
         return eventsync.ChangedStateSender(
-            output_schedule=MCU_OUTPUT_SCHEDULE, all_states=self.store
+            index_sequence=MCU_OUTPUT_SCHEDULE, all_states=self.store,
+            output_idle=True
         )
 
     @_frontend_event_sender.default
@@ -234,7 +235,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             eventsync.ChangedStateSender[StateSegment]:
         """Initialize the frontend event sender."""
         return eventsync.ChangedStateSender(
-            output_schedule=FRONTEND_OUTPUT_SCHEDULE, all_states=self.store,
+            index_sequence=FRONTEND_OUTPUT_SCHEDULE, all_states=self.store,
             output_idle=False
         )
 
@@ -243,7 +244,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             eventsync.ChangedStateSender[StateSegment]:
         """Initialize the file event sender."""
         return eventsync.ChangedStateSender(
-            output_schedule=FILE_OUTPUT_SCHEDULE, all_states=self.store,
+            index_sequence=FILE_OUTPUT_SCHEDULE, all_states=self.store,
             output_idle=False
         )
 
@@ -253,11 +254,11 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         return states.TimedSender(
             output_interval=MCU_OUTPUT_MIN_INTERVAL,
             sender=states.SequentialSender(
-                output_schedule=MCU_OUTPUT_ROOT_SCHEDULE,
+                index_sequence=MCU_OUTPUT_ROOT_SCHEDULE,
                 indexed_sender=states.MappedSenders(senders={
                     Sender.EVENT_SCHEDULE: self._mcu_event_sender,
                     Sender.MAIN_SCHEDULE: states.SequentialSender(
-                        output_schedule=MCU_OUTPUT_SCHEDULE,
+                        index_sequence=MCU_OUTPUT_SCHEDULE,
                         indexed_sender=self.store
                     ),
                 }),
@@ -270,15 +271,15 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         return states.TimedSender(
             output_interval=FRONTEND_OUTPUT_MIN_INTERVAL,
             sender=states.SequentialSender(
-                output_schedule=FRONTEND_OUTPUT_ROOT_SCHEDULE,
+                index_sequence=FRONTEND_OUTPUT_ROOT_SCHEDULE,
                 indexed_sender=states.MappedSenders(senders={
                     Sender.REALTIME_SCHEDULE: states.SequentialSender(
-                        output_schedule=FRONTEND_OUTPUT_REALTIME_SCHEDULE,
+                        index_sequence=FRONTEND_OUTPUT_REALTIME_SCHEDULE,
                         indexed_sender=self.store
                     ),
                     Sender.EVENT_SCHEDULE: self._frontend_event_sender,
                     Sender.MAIN_SCHEDULE: states.SequentialSender(
-                        output_schedule=FRONTEND_OUTPUT_SCHEDULE,
+                        index_sequence=FRONTEND_OUTPUT_SCHEDULE,
                         indexed_sender=self.store
                     ),
                 }),
@@ -291,11 +292,11 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         return states.TimedSender(
             output_interval=FILE_OUTPUT_MIN_INTERVAL,
             sender=states.SequentialSender(
-                output_schedule=FILE_OUTPUT_ROOT_SCHEDULE,
+                index_sequence=FILE_OUTPUT_ROOT_SCHEDULE,
                 indexed_sender=states.MappedSenders(senders={
                     Sender.EVENT_SCHEDULE: self._file_event_sender,
                     Sender.MAIN_SCHEDULE: states.SequentialSender(
-                        output_schedule=FILE_OUTPUT_SCHEDULE,
+                        index_sequence=FILE_OUTPUT_SCHEDULE,
                         indexed_sender=self.store
                     ),
                 }),
@@ -317,6 +318,15 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         # We directly input states into store, instead of passing them in
         # through the StateSynchronizer objects; we're only using those to
         # generate outputs.
+        # if (
+        #         event.mcu_receive is not None and
+        #         self._current_time is not None
+        # ):
+        #     fractional_time = \
+        #         int((self._current_time - int(self._current_time)) * 1000)
+        #     print('{:3d}\t{}'.format(
+        #         fractional_time, MCU_INPUT_TYPES[type(event.mcu_receive)]
+        #     ))
         self._handle_inbound_state(event.mcu_receive, MCU_INPUT_TYPES)
         self._handle_inbound_state(event.file_receive, FILE_INPUT_TYPES)
         self._handle_inbound_state(event.frontend_receive, FRONTEND_INPUT_TYPES)
