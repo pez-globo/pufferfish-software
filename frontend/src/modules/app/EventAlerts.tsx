@@ -48,8 +48,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   alertMargin: {
     marginLeft: theme.spacing(0.5),
     marginRight: theme.spacing(0.5),
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   marginRight: {
     marginRight: theme.spacing(1),
@@ -90,7 +88,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     minWidth: 0,
     borderRadius: 5,
     lineHeight: 'normal',
-    marginRight: '10px',
     padding: '6px 10px',
     backgroundColor: '#FF0000',
     color: '#fff',
@@ -99,11 +96,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
   },
   alertButtonSpan: {
-    minWidth: 200,
+    minWidth: 150,
     borderRadius: 5,
-    lineHeight: 'normal',
     marginRight: '10px',
-    padding: '6px 10px',
     backgroundColor: '#FF0000',
     color: '#fff',
     '&:hover': {
@@ -410,7 +405,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       </ModalPopup>
       <Grid hidden={alertCount <= 0}>
         <Button
-          style={{ marginLeft: 5 }}
+          style={{ marginLeft: 10, marginRight: 10 }}
           onClick={() => muteAlarmState(isMuted)}
           variant="contained"
           color="primary"
@@ -420,6 +415,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
         </Button>
         <Button
+          style={{ marginLeft: 10, marginRight: 10, margin: '0px 10px', padding: 0 }}
           variant="contained"
           color="primary"
           className={classes.alertButtonSpan}
@@ -463,7 +459,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       </Grid>
       <Grid>
         <Button
-          style={{ marginRight: 12 }}
+          style={{ marginLeft: 10, marginRight: 12 }}
           variant="contained"
           color="primary"
           onClick={openPopup}
