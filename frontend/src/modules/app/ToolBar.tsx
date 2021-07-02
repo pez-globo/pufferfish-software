@@ -52,6 +52,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   marginRight: {
     marginRight: theme.spacing(0.5),
   },
+  clockPadding: {
+    paddingRight: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
+  },
   paddingRight: {
     paddingRight: theme.spacing(1),
   },
@@ -72,7 +76,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 export const HeaderClock = (): JSX.Element => {
   const classes = useStyles();
   const clockTime = useSelector(getClockTime);
-  return <span className={classes.paddingRight}>{clockTime}</span>;
+  return <span className={classes.clockPadding}>{clockTime}</span>;
 };
 
 /**
@@ -263,6 +267,7 @@ export const ToolBar = ({
 
   const StartPauseVentilationButton = (
     <Button
+      style={{ marginRight: 10, marginLeft: 10 }}
       onClick={updateVentilationStatus}
       variant="contained"
       color="secondary"
