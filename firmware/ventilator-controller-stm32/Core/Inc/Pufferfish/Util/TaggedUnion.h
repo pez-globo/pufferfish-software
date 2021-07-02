@@ -37,4 +37,12 @@ class TaggedUnion {
   Union value;
 };
 
+// Note: you'll have to supply your own operator== implementation to access
+// the corresponding fields of the union based on tag for equality checking.
+template <typename Union, typename TagValue>
+static constexpr bool operator!=(
+    const TaggedUnion<Union, TagValue>& first, const TaggedUnion<Union, TagValue>& second) {
+  return !(first == second);
+}
+
 }  // namespace Pufferfish::Util

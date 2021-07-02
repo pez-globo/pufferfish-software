@@ -4,7 +4,7 @@ import collections
 import enum
 import logging
 from typing import (
-    Deque, Generic, Iterable, Iterator, Mapping, Optional, TypeVar
+    Any, Deque, Generic, Iterable, Iterator, Mapping, Optional, TypeVar
 )
 
 import attr
@@ -18,8 +18,12 @@ from ventserver.sansio import protocols
 _Index = TypeVar('_Index', bound=enum.Enum)
 
 
-class Sender(protocols.Filter[None, betterproto.Message]):
-    """Interface class for state senders."""
+class Sender(protocols.Filter[Any, betterproto.Message]):
+    """Interface class for state senders.
+
+    Classes which implement this interface may either take a narrower input type
+    or take no inputs.
+    """
 
 
 IndexedSender = Mapping[_Index, Optional[betterproto.Message]]
@@ -49,6 +53,11 @@ class SequentialSender(Sender, Generic[_Index]):
     """State sending filter on a fixed sequence.
 
     Does not take inputs. Outputs are state updates for the peer.
+    If skip_unavailable is set to True, when an index is reached which
+    causes indexed_sender to return None, the sequential sender will keep
+    advancing the output schedule until it reaches an index for which
+    indexed_sender doesn't return None, until it has gone through the entire
+    schedule.
 
     Warning: if indexed_sender is mutated by other code, this filter is only
     safe to use in synchronous environments, such as part of another Filter
@@ -57,27 +66,40 @@ class SequentialSender(Sender, Generic[_Index]):
 
     _logger = logging.getLogger('.'.join((__name__, 'SequentialSender')))
 
-    output_schedule: Iterable[_Index] = attr.ib()
+    index_sequence: Iterable[_Index] = attr.ib()
     indexed_sender: IndexedSender[_Index] = attr.ib()
+    skip_unavailable: bool = attr.ib(default=False)
     _schedule: Deque[_Index] = attr.ib()
+    _last_index: Optional[_Index] = attr.ib(default=None)
 
     @_schedule.default
-    def init_sender(self) -> Deque[_Index]:
+    def init_schedule(self) -> Deque[_Index]:
         """Initialize the internal output schedule."""
-        return collections.deque(self.output_schedule)
+        return collections.deque(self.index_sequence)
 
     def input(self, event: None) -> None:
         """Handle input events."""
 
     def output(self) -> Optional[betterproto.Message]:
         """Emit the next output event."""
-        output_type = self._schedule[0]
+        for _ in range(len(self._schedule)):
+            output = self._get_next_output()
+            if output is not None or not self.skip_unavailable:
+                return output
+        return None
+
+    def _get_next_output(self) -> Optional[betterproto.Message]:
+        """Produce the next state in the schedule."""
         try:
-            output_event = self.indexed_sender[output_type]
+            index = self._schedule[0]
+        except IndexError:
+            return None
+
+        try:
+            output_event = self.indexed_sender[index]
         except KeyError as exc:
             raise exceptions.ProtocolDataError(
-                'Scheduled message type is not a sendable state: {}'
-                .format(output_type)
+                'Scheduled index is not valid: {}'.format(index)
             ) from exc
 
         self._schedule.rotate(-1)
@@ -85,14 +107,18 @@ class SequentialSender(Sender, Generic[_Index]):
             return None
 
         self._logger.debug('Sending: %s', output_event)
+        self._last_index = index
         return output_event
+
+    @property
+    def last_index(self) -> Optional[_Index]:
+        """Return the index associated with the last produced output."""
+        return self._last_index
 
 
 @attr.s
-class TimedSequentialSender(
-        protocols.Filter[float, betterproto.Message], Generic[_Index]
-):
-    """State sending filter on a fixed sequence at a fixed time interval.
+class TimedSender(Sender, Generic[_Index]):
+    """State sending filter on a fixed time interval.
 
     Inputs are clock updates. Outputs are state updates for the peer.
 
@@ -103,20 +129,10 @@ class TimedSequentialSender(
 
     _logger = logging.getLogger('.'.join((__name__, 'TimedSequentialSender')))
 
-    output_schedule: Iterable[_Index] = attr.ib()
-    indexed_sender: IndexedSender[_Index] = attr.ib()
+    sender: SequentialSender[_Index] = attr.ib()
     output_interval: float = attr.ib(default=0)
-    _sender: SequentialSender[_Index] = attr.ib()
     _current_time: Optional[float] = attr.ib(default=None)
     _last_output_time: Optional[float] = attr.ib(default=None)
-
-    @_sender.default
-    def init_sender(self) -> SequentialSender[_Index]:
-        """Initialize the sequential sender."""
-        return SequentialSender(
-            output_schedule=self.output_schedule,
-            indexed_sender=self.indexed_sender
-        )
 
     def input(self, event: Optional[float]) -> None:
         """Handle input events."""
@@ -138,6 +154,6 @@ class TimedSequentialSender(
             ):
                 return None
 
-        output = self._sender.output()
+        output = self.sender.output()
         self._last_output_time = self._current_time
         return output
