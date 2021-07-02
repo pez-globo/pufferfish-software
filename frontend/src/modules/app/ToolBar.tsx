@@ -160,7 +160,7 @@ export const ToolBar = ({
    * State to manage ventilation label
    * Label is Dynamic based on ventilation state
    */
-  const [label, setLabel] = useState('Start Ventilation');
+  const [label, setLabel] = useState('Start');
   /**
    * State to toggle if Ventilating isDisabled
    */
