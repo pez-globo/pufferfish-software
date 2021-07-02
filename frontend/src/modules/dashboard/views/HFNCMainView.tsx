@@ -76,6 +76,8 @@ const HFNCMainView = (): JSX.Element => {
           className={classes.panelColumn}
         >
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
+            {/* TODO: we should be consistent in either passing the selector or number array (for value
+            and alarmLimits) */}
             <ValueInfo
               selector={getSmoothedSpO2}
               label="SpO2"

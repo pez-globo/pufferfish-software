@@ -740,6 +740,7 @@ const MultiStepWizard = (): JSX.Element => {
           </Grid>
           <Grid container className={classes.tabAligning}>
             <TabPanel value={tabIndex} index={0}>
+              {/* TODO: use selectors instead of local state */}
               <HFNCControls
                 alarmValuesSpO2={getAlarmValues('spo2')}
                 alarmValuesHR={getAlarmValues('hr')}
