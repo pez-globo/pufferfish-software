@@ -26,6 +26,14 @@ const useStyles = makeStyles((theme: Theme) => ({
     // border: '1px solid red'
     backgroundColor: '#010010',
     borderRadius: '8px',
+    padding: '10px',
+    height: '100%',
+  },
+  rootLarge: {
+    width: '100%',
+    // border: '1px solid red'
+    backgroundColor: '#010010',
+    borderRadius: '8px',
     padding: '2rem',
     height: '100%',
   },
@@ -270,7 +278,7 @@ const ControlValuesDisplay = ({
           <Grid
             container
             direction="column"
-            className={classes.root}
+            className={isLarge ? classes.rootLarge : classes.root}
             style={isMain ? { width: '80%', margin: '0 auto' } : {}}
           >
             <Grid
@@ -355,8 +363,6 @@ const ControlValuesDisplay = ({
  * @returns {JSX.Element}
  *
  */
-// TODO: we should delete this component if it's not being used in any current code;
-// its structure is weird and its proptypes doesn't pass the linter
 const ValueInfo = ({
   selector,
   label,
