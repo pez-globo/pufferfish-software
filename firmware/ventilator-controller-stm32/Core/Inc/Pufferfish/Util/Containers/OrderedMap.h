@@ -8,7 +8,7 @@
  *  Backed by a Vector. Methods use early returns of status codes instead
  *  of exceptions for error handling, for bounds-checking.
  *  This Map is best suited for uses which don't need frequent lookups,
- *  as lookups are on average O(n).
+ *  as lookups are on average O(m).
  */
 
 #pragma once
@@ -45,9 +45,8 @@ class OrderedMap {
   // Note: this copies the value in the map to the value output parameter!
   IndexStatus output(const Key &key, Value &value) const;  // O(m)
   void clear();                                            // O(1)
-  // Note: this makes a copy of value!
-  IndexStatus erase(const Key &key);             // O(m)
-  [[nodiscard]] bool has(const Key &key) const;  // O(m)
+  IndexStatus erase(const Key &key);                       // O(m)
+  [[nodiscard]] bool has(const Key &key) const;            // O(m)
 
   [[nodiscard]] constexpr const Vector<Pair, max_pairs> &items() const { return buffer_; }
   constexpr Vector<Pair, max_pairs> &items() { return buffer_; }

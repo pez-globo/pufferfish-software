@@ -5,8 +5,9 @@
  *      Author: Ethan Li
  *
  *  A statically-allocated map for a finite, pre-determined set of keys.
- *  Backed by an array of pairs. Methods use early returns of status codes instead
- *  of exceptions for error handling, for bounds-checking.
+ *  Backed by an array of keys and an array of values. Methods use early
+ *  returns of status codes instead of exceptions for error handling, for
+ *  bounds-checking.
  *  This Map is designed for frequent lookups but doesn't support traversal.
  */
 
@@ -17,6 +18,7 @@
 #include <initializer_list>
 #include <utility>
 
+#include "EnumSet.h"
 #include "Pufferfish/Statuses.h"
 
 namespace Pufferfish::Util::Containers {
@@ -54,18 +56,16 @@ class EnumMap {
   // Note: this copies the value in the map to the value output parameter!
   IndexStatus output(const Key &key, Value &value) const;  // O(1)
   void clear();                                            // O(n)
-  // Note: this makes a copy of value!
-  IndexStatus erase(const Key &key) noexcept;    // O(1)
-  [[nodiscard]] bool has(const Key &key) const;  // O(1)
+  IndexStatus erase(const Key &key) noexcept;              // O(1)
+  [[nodiscard]] bool has(const Key &key) const;            // O(1)
 
   // Note: these don't check whether the key exists or is in-bounds!
   const Value &operator[](const Key &key) const noexcept;
   Value &operator[](const Key &key) noexcept;
 
  private:
-  std::array<bool, capacity> occupancies_{};
+  EnumSet<Key, capacity> keys_{};
   std::array<Value, capacity> values_{};
-  size_t size_ = 0;
 };
 
 }  // namespace Pufferfish::Util::Containers
