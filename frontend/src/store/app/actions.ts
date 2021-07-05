@@ -2,6 +2,7 @@ import {
   INITIALIZED,
   SET_LOCALE,
   AppAction,
+  BACKEND_HEARTBEAT,
   BACKEND_CONNECTION_UP,
   BACKEND_CONNECTION_DOWN,
 } from './types';
@@ -20,4 +21,8 @@ export function lostBackendConnection(clock: Date): AppAction {
 
 export function establishedBackendConnection(clock: Date): AppAction {
   return { type: BACKEND_CONNECTION_UP, clock };
+}
+
+export function receivedBackendHeartbeat(): AppAction {
+  return { type: BACKEND_HEARTBEAT };
 }

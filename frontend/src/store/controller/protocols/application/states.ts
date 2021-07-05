@@ -3,7 +3,7 @@
 // from the store, rather than producing PBMessage objects which are the actual contents
 // of StateSegments.
 
-export type Sender<StateSegment> = Generator<StateSegment, StateSegment, unknown>;
+export type Sender<StateSegment> = Generator<StateSegment, StateSegment, void>;
 
 // Indexed sending
 
@@ -29,7 +29,7 @@ export const makeMappedSenders = <Index, StateSegment>(
 
 // Sequential send scheduling
 
-function* sequentialScheduler<T>(sequence: Array<T>): Generator<T, T, unknown> {
+function* sequentialScheduler<T>(sequence: Array<T>): Generator<T, T, void> {
   while (true) {
     yield* sequence;
   }

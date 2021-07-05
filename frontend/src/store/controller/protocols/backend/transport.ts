@@ -10,6 +10,7 @@ import {
   ExpectedLogEvent,
   AlarmMuteRequest,
 } from '../../proto/mcu_pb';
+import { FrontendDisplaySetting } from '../../proto/frontend_pb';
 
 // Serialization
 
@@ -19,6 +20,7 @@ const Serializers = new Map<PBMessageType, MessageSerializer<PBMessage>>([
   [ParametersRequest, makeSerializer<ParametersRequest>(ParametersRequest)],
   [ExpectedLogEvent, makeSerializer<ExpectedLogEvent>(ExpectedLogEvent)],
   [AlarmMuteRequest, makeSerializer<AlarmMuteRequest>(AlarmMuteRequest)],
+  [FrontendDisplaySetting, makeSerializer<FrontendDisplaySetting>(FrontendDisplaySetting)],
 ]);
 export const serialize = (pbMessageType: PBMessageType, pbMessage: PBMessage): Uint8Array => {
   const serializer = Serializers.get(pbMessageType);

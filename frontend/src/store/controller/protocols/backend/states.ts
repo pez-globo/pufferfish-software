@@ -6,6 +6,7 @@ import {
   getAlarmLimitsRequest,
   getFullExpectedLogEvent,
   getAlarmMuteRequest,
+  getFrontendDisplaySetting,
 } from '../../selectors';
 import {
   Sender,
@@ -19,6 +20,7 @@ import {
   ExpectedLogEvent,
   AlarmMuteRequest,
 } from '../../proto/mcu_pb';
+import { FrontendDisplaySetting } from '../../proto/frontend_pb';
 
 // Store
 
@@ -37,6 +39,7 @@ const MessageSelectors = new Map<PBMessageType, StateSelector>([
   [ParametersRequest, getParametersRequest],
   [ExpectedLogEvent, getFullExpectedLogEvent],
   [AlarmMuteRequest, getAlarmMuteRequest],
+  [FrontendDisplaySetting, getFrontendDisplaySetting],
 ]);
 
 export const getSelector = (pbMessageType: PBMessageType): StateSelector => {
@@ -56,13 +59,18 @@ enum SenderType {
 }
 const sendRootSchedule = [SenderType.fastSchedule, SenderType.slowSchedule];
 const sendFastSchedule = [ExpectedLogEvent];
-const sendSlowSchedule = [ParametersRequest, AlarmLimitsRequest, AlarmMuteRequest];
+const sendSlowSchedule = [
+  ParametersRequest,
+  AlarmLimitsRequest,
+  AlarmMuteRequest,
+  FrontendDisplaySetting,
+];
 
 export const sendInterval = 50; // ms
 
 // This generator is tagged as returning PBMessageType to make typescript eslinting
 // behave nicely, but it actually never returns (it only yields).
-export function* backendSender(): Generator<PBMessageType, PBMessageType, unknown> {
+export function* backendStateSender(): Generator<PBMessageType, PBMessageType, void> {
   const fastSender = sequentialSender<PBMessageType, PBMessageType>(
     sendFastSchedule,
     passthroughSender,
