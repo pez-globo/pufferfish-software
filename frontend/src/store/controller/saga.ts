@@ -1,8 +1,12 @@
 import { EventChannel } from 'redux-saga';
 import { take, takeEvery, fork, delay, takeLatest, all } from 'redux-saga/effects';
 import { INITIALIZED } from '../app/types';
-import { receiveState, sendState } from './protocols/backend/backend';
-import { backendStateSender, sendInterval } from './protocols/backend/states';
+import {
+  receiveState,
+  stateSender,
+  GeneratorYieldType,
+  SenderYield,
+} from './protocols/backend/backend';
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
 import updateClock from './io/clock';
 
@@ -15,13 +19,25 @@ function* receiveAll(channel: EventChannel<Response>) {
 }
 
 function* sendAll(sock: WebSocket) {
-  const schedule = backendStateSender();
+  const sender = stateSender();
+  let effectResult = null;
   while (sock.readyState === WebSocket.OPEN) {
-    const pbMessageType = schedule.next().value;
-    const body = yield sendState(pbMessageType);
-    if (body !== null) {
-      yield sendBuffer(sock, body);
-      yield delay(sendInterval);
+    const yieldValue: SenderYield = sender.next(effectResult).value;
+    switch (yieldValue.type) {
+      case GeneratorYieldType.Effect: {
+        effectResult = yield yieldValue.value;
+        break;
+      }
+      case GeneratorYieldType.Result: {
+        const body = yieldValue.value as Uint8Array | null;
+        if (body !== null) {
+          yield sendBuffer(sock, body);
+        }
+        effectResult = null;
+        break;
+      }
+      default:
+        break;
     }
   }
 }
