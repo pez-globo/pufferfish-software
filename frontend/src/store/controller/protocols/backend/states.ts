@@ -1,6 +1,4 @@
-import { OutputSelector } from 'reselect';
 import { PBMessage, PBMessageType } from '../../types';
-import { StoreState } from '../../../types';
 import {
   getParametersRequest,
   getAlarmLimitsRequest,
@@ -9,8 +7,10 @@ import {
   getFrontendDisplaySetting,
 } from '../../selectors';
 import {
+  SenderYield,
   Sender,
-  passthroughSender,
+  TaggedStateSegment,
+  selectorSender,
   makeMappedSenders,
   sequentialSender,
 } from '../application/states';
@@ -21,35 +21,19 @@ import {
   AlarmMuteRequest,
 } from '../../proto/mcu_pb';
 import { FrontendDisplaySetting } from '../../proto/frontend_pb';
+import { GeneratorYieldType } from '../sagas';
 
 // Store
 
-type StateSelector = OutputSelector<
-  StoreState,
-  PBMessage | null,
-  // We have no way of specifying the input argument type for the selectors,
-  // so we have to use any here.
-  // eslint-disable @typescript-eslint/no-explicit-any
-  // eslint-disable-next-line
-  (arg: any) => PBMessage | null
->;
+export type TaggedPBMessage = TaggedStateSegment<PBMessageType, PBMessage>;
 
-const MessageSelectors = new Map<PBMessageType, StateSelector>([
-  [AlarmLimitsRequest, getAlarmLimitsRequest],
-  [ParametersRequest, getParametersRequest],
-  [ExpectedLogEvent, getFullExpectedLogEvent],
-  [AlarmMuteRequest, getAlarmMuteRequest],
-  [FrontendDisplaySetting, getFrontendDisplaySetting],
+const SelectorSenders = new Map<PBMessageType, Sender<TaggedPBMessage>>([
+  [AlarmLimitsRequest, selectorSender(AlarmLimitsRequest, getAlarmLimitsRequest)],
+  [ParametersRequest, selectorSender(ParametersRequest, getParametersRequest)],
+  [ExpectedLogEvent, selectorSender(ExpectedLogEvent, getFullExpectedLogEvent)],
+  [AlarmMuteRequest, selectorSender(AlarmMuteRequest, getAlarmMuteRequest)],
+  [FrontendDisplaySetting, selectorSender(FrontendDisplaySetting, getFrontendDisplaySetting)],
 ]);
-
-export const getSelector = (pbMessageType: PBMessageType): StateSelector => {
-  const selector = MessageSelectors.get(pbMessageType);
-  if (selector === undefined) {
-    throw new Error(`Backend: missing selector for ${pbMessageType}`);
-  }
-
-  return selector;
-};
 
 // State Sending
 
@@ -68,23 +52,34 @@ const sendSlowSchedule = [
 
 export const sendInterval = 50; // ms
 
-// This generator is tagged as returning PBMessageType to make typescript eslinting
-// behave nicely, but it actually never returns (it only yields).
-export function* backendStateSender(): Generator<PBMessageType, PBMessageType, void> {
-  const fastSender = sequentialSender<PBMessageType, PBMessageType>(
+// The backend state sender yields tagged unions of PBMessageType and PBMessage
+// as well as redux-saga effects (for selecting PBMessages from the store).
+export function* backendStateSender(): Sender<TaggedPBMessage> {
+  const selectorSenders = makeMappedSenders(SelectorSenders);
+  const fastSender = sequentialSender<PBMessageType, TaggedPBMessage>(
     sendFastSchedule,
-    passthroughSender,
+    selectorSenders,
   );
-  const slowSender = sequentialSender<PBMessageType, PBMessageType>(
+  const slowSender = sequentialSender<PBMessageType, TaggedPBMessage>(
     sendSlowSchedule,
-    passthroughSender,
+    selectorSenders,
   );
-  const childSenders = new Map<SenderType, Sender<PBMessageType>>([
+  const childSenders = new Map<SenderType, Sender<TaggedPBMessage>>([
     [SenderType.fastSchedule, fastSender],
     [SenderType.slowSchedule, slowSender],
   ]);
   const rootSender = sequentialSender(sendRootSchedule, makeMappedSenders(childSenders));
+  let nextInput = null;
   while (true) {
-    yield rootSender.next().value;
+      const yieldValue: SenderYield<TaggedPBMessage> = rootSender.next(nextInput).value;
+      switch (yieldValue.type) {
+        case GeneratorYieldType.Result:
+          nextInput = null;
+          yield yieldValue;
+          break;
+        case GeneratorYieldType.Effect:
+          nextInput = yield yieldValue;
+          break;
+      }
   }
 }

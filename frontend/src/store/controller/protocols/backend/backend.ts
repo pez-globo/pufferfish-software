@@ -1,13 +1,17 @@
-import { SelectEffect, PutEffect, CallEffect, select, put, delay } from 'redux-saga/effects';
+import { SelectEffect, PutEffect, CallEffect, put, delay } from 'redux-saga/effects';
 import { AppAction } from '../../../app/types';
 import { receivedBackendHeartbeat } from '../../../app/actions';
 import { updateState } from '../../actions';
-import { PBMessage, StateUpdateAction } from '../../types';
-import { GeneratorYield, makeYieldEffect, makeYieldResult } from '../sagas';
+import { StateUpdateAction } from '../../types';
+import { GeneratorYieldType, GeneratorYield, makeYieldResult, makeYieldEffect } from '../sagas';
+import {
+  SenderYield as StateSenderYield,
+  SenderYieldEffect as StateSenderYieldEffect,
+} from '../application/states';
 import { serialize, deserialize } from './transport';
-import { getSelector, backendStateSender, sendInterval } from './states';
+import { TaggedPBMessage, backendStateSender, sendInterval } from './states';
 
-export function* receiveState(
+export function* receive(
   body: Uint8Array,
 ): Generator<PutEffect<StateUpdateAction | AppAction>, void, void> {
   try {
@@ -19,8 +23,8 @@ export function* receiveState(
   }
 }
 
-type SenderYieldResult = Uint8Array | null;
-type SenderYieldEffect = SelectEffect | CallEffect;
+export type SenderYieldResult = Uint8Array;
+export type SenderYieldEffect = SelectEffect | CallEffect;
 export type SenderYield = GeneratorYield<SenderYieldResult, SenderYieldEffect>;
 const makeSenderYieldResult = (result: SenderYieldResult) =>
   makeYieldResult<SenderYieldResult, SenderYieldEffect>(result);
@@ -30,19 +34,27 @@ const makeSenderYieldEffect = (effect: SenderYieldEffect) =>
 // This generator is tagged as returning SenderYield to make typescript eslinting
 // behave nicely, but it actually never returns (it only yields).
 // It yields either redux-saga effects (which require an input into the generator's
-// subsequent next() method call) or optional byte buffers to send.
-export function* stateSender(
-  skipUnavailable = false,
-): Generator<SenderYield, SenderYield, PBMessage> {
-  const schedule = backendStateSender();
+// subsequent next() method call) or byte buffers to send.
+export function* sender(): Generator<SenderYield, SenderYield, TaggedPBMessage> {
+  const sender = backendStateSender();
+  let nextInput = null;
   while (true) {
-    const pbMessageType = schedule.next().value;
-    const selector = getSelector(pbMessageType);
-    const pbMessage = yield makeSenderYieldEffect(select(selector));
-    const body = pbMessage === null ? null : serialize(pbMessageType, pbMessage as PBMessage);
-    yield makeSenderYieldResult(body);
-    if (pbMessage !== null || !skipUnavailable) {
-      yield makeSenderYieldEffect(delay(sendInterval));
+    const yieldValue: StateSenderYield<TaggedPBMessage> = sender.next(nextInput).value;
+    switch (yieldValue.type) {
+      case GeneratorYieldType.Result:
+        nextInput = null;
+        if (yieldValue.value !== null) {
+          const { type: pbMessageType, value: pbMessage } = yieldValue.value as TaggedPBMessage;
+          yield makeSenderYieldResult(serialize(pbMessageType, pbMessage));
+        }
+        yield makeSenderYieldEffect(delay(sendInterval));
+        break;
+      case GeneratorYieldType.Effect:
+        nextInput = yield {
+          type: yieldValue.type,
+          value: yieldValue.value as StateSenderYieldEffect,
+        };
+        break;
     }
   }
 }
