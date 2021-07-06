@@ -8,9 +8,9 @@ export type SenderYield<StateSegment> = GeneratorYield<
   SenderYieldResult<StateSegment>,
   SenderYieldEffect
 >;
-const makeSenderYieldResult = <StateSegment>(result: SenderYieldResult<StateSegment>) =>
+export const makeSenderYieldResult = <StateSegment>(result: SenderYieldResult<StateSegment>) =>
   makeYieldResult<SenderYieldResult<StateSegment>, SenderYieldEffect>(result);
-const makeSenderYieldEffect = <StateSegment>(effect: SenderYieldEffect) =>
+export const makeSenderYieldEffect = <StateSegment>(effect: SenderYieldEffect) =>
   makeYieldEffect<SenderYieldResult<StateSegment>, SenderYieldEffect>(effect);
 
 // A sender should yield a sequence of optional StateSegments and/or redux-saga effects.
@@ -44,13 +44,11 @@ export function* selectorSender<StoreState, StateSegmentType, StateSegment>(
   selector: StateSelector<StoreState, StateSegment>,
 ): Sender<TaggedStateSegment<StateSegmentType, StateSegment>> {
   while (true) {
-    const stateSegment = yield makeSenderYieldEffect<
-      TaggedStateSegment<StateSegmentType, StateSegment>
-    >(select(selector));
+    const stateSegment = yield makeSenderYieldEffect(select(selector));
     if (stateSegment === null) {
-      yield makeSenderYieldResult<TaggedStateSegment<StateSegmentType, StateSegment>>(null);
+      yield makeSenderYieldResult(null);
     } else {
-      yield makeSenderYieldResult<TaggedStateSegment<StateSegmentType, StateSegment>>({
+      yield makeSenderYieldResult({
         type: stateSegmentType,
         value: stateSegment as StateSegment,
       });
@@ -77,6 +75,7 @@ export const makeMappedSenders = <Index, StateSegment>(senders: Map<Index, Sende
 
     let nextInput = null;
     while (true) {
+      // Service results and effects yielded by the sender
       const yieldValue: SenderYield<StateSegment> = sender.next(nextInput).value;
       switch (yieldValue.type) {
         case GeneratorYieldType.Result:
@@ -100,22 +99,23 @@ function* sequentialScheduler<T>(sequence: Array<T>): Generator<T, T, void> {
 // A sequential sender uses a sequence of Indices to yield outputs from an IndexedSender,
 // as well as any redux-saga effects yielded from the IndexedSender.
 export function* sequentialSender<Index, StateSegment>(
-  sequence: Array<Index>,
+  indexSequence: Array<Index>,
   indexedSender: IndexedSender<Index, StateSegment>,
   skipUnavailable = false
 ): Sender<StateSegment> {
-  const schedule = sequentialScheduler<Index>(sequence);
+  const schedule = sequentialScheduler(indexSequence);
   while (true) {
     const index = schedule.next().value;
     const sender = indexedSender(index);
     let nextInput = null;
     let skipped = 0;
     while (true) {
+      // Service results and effects yielded by the indexed sender
       const nextYield = sender.next(nextInput);
       switch (nextYield.value.type) {
         case GeneratorYieldType.Result:
           nextInput = null;
-          if (nextYield.value.value !== null || !skipUnavailable || skipped >= sequence.length) {
+          if (nextYield.value.value !== null || !skipUnavailable || skipped >= indexSequence.length) {
             skipped = 0;
             yield nextYield.value;
           } else {
@@ -127,6 +127,8 @@ export function* sequentialSender<Index, StateSegment>(
           break;
       }
       if (nextYield.done) {
+        // The indexed sender has finished working and returned its result,
+        // so it no longer has any results or effects to service.
         break;
       }
     }

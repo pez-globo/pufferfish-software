@@ -56,21 +56,16 @@ export const sendInterval = 50; // ms
 // as well as redux-saga effects (for selecting PBMessages from the store).
 export function* backendStateSender(): Sender<TaggedPBMessage> {
   const selectorSenders = makeMappedSenders(SelectorSenders);
-  const fastSender = sequentialSender<PBMessageType, TaggedPBMessage>(
-    sendFastSchedule,
-    selectorSenders,
-  );
-  const slowSender = sequentialSender<PBMessageType, TaggedPBMessage>(
-    sendSlowSchedule,
-    selectorSenders,
-  );
+  const fastSender = sequentialSender(sendFastSchedule, selectorSenders);
+  const slowSender = sequentialSender(sendSlowSchedule, selectorSenders);
   const childSenders = new Map<SenderType, Sender<TaggedPBMessage>>([
     [SenderType.fastSchedule, fastSender],
     [SenderType.slowSchedule, slowSender],
   ]);
-  const rootSender = sequentialSender(sendRootSchedule, makeMappedSenders(childSenders));
+  const rootSender = sequentialSender(sendRootSchedule, makeMappedSenders(childSenders), true);
   let nextInput = null;
   while (true) {
+      // Service results and effects yielded by the root sender
       const yieldValue: SenderYield<TaggedPBMessage> = rootSender.next(nextInput).value;
       switch (yieldValue.type) {
         case GeneratorYieldType.Result:

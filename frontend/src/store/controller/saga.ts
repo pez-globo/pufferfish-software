@@ -23,6 +23,7 @@ function* sendAll(sock: WebSocket) {
   const sender = backendSender();
   let nextInput = null;
   while (sock.readyState === WebSocket.OPEN) {
+    // Service results and effects yielded by the backend sender
     const yieldValue: SenderYield = sender.next(nextInput).value;
     switch (yieldValue.type) {
       case GeneratorYieldType.Result: {
