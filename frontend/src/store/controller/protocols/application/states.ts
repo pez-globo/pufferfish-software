@@ -102,18 +102,25 @@ function* sequentialScheduler<T>(sequence: Array<T>): Generator<T, T, void> {
 export function* sequentialSender<Index, StateSegment>(
   sequence: Array<Index>,
   indexedSender: IndexedSender<Index, StateSegment>,
+  skipUnavailable = false
 ): Sender<StateSegment> {
   const schedule = sequentialScheduler<Index>(sequence);
   while (true) {
     const index = schedule.next().value;
     const sender = indexedSender(index);
     let nextInput = null;
+    let skipped = 0;
     while (true) {
       const nextYield = sender.next(nextInput);
       switch (nextYield.value.type) {
         case GeneratorYieldType.Result:
           nextInput = null;
-          yield nextYield.value;
+          if (nextYield.value.value !== null || !skipUnavailable || skipped >= sequence.length) {
+            skipped = 0;
+            yield nextYield.value;
+          } else {
+            skipped += 1;
+          }
           break;
         case GeneratorYieldType.Effect:
           nextInput = yield nextYield.value;
