@@ -127,6 +127,7 @@ const FullWidthToolBar = (): JSX.Element => {
       <Grid>
         <React.Fragment key="left">
           <Button
+            style={{ marginRight: 15 }}
             onClick={toggleDrawer(true)}
             variant="contained"
             color="primary"

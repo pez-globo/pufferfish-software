@@ -17,7 +17,7 @@ import { getModeText } from '../displays/ModeBanner';
 
 const useStyles = makeStyles(() => ({
   button: {
-    minWidth: 245,
+    minWidth: 200,
   },
   text: {
     marginRight: -25,

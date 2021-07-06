@@ -34,7 +34,6 @@ import { MessageType } from '../../store/controller/types';
 import { DiscardAlarmLimitsContent } from '../controllers';
 import { ModalPopup } from '../controllers/ModalPopup';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
-import { BackIcon } from '../icons';
 import ClockIcon from '../icons/ClockIcon';
 import Power25Icon from '../icons/Power25Icon';
 import Power50Icon from '../icons/Power50Icon';
@@ -43,12 +42,7 @@ import PowerChargingIcon from '../icons/PowerChargingIcon';
 import PowerFullIcon from '../icons/PowerFullIcon';
 import { PERCENT } from '../info/units';
 import ModesDropdown from '../modes/ModesDropdown';
-import {
-  DASHBOARD_ROUTE,
-  LOGS_ROUTE,
-  QUICKSTART_ROUTE,
-  SCREENSAVER_ROUTE,
-} from '../navigation/constants';
+import { DASHBOARD_ROUTE, LOGS_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
 import EventAlerts from './EventAlerts';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -57,6 +51,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   marginRight: {
     marginRight: theme.spacing(0.5),
+  },
+  clockPadding: {
+    paddingRight: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
   },
   paddingRight: {
     paddingRight: theme.spacing(1),
@@ -78,7 +76,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 export const HeaderClock = (): JSX.Element => {
   const classes = useStyles();
   const clockTime = useSelector(getClockTime);
-  return <span className={classes.paddingRight}>{clockTime}</span>;
+  return <span className={classes.clockPadding}>{clockTime}</span>;
 };
 
 /**
@@ -166,15 +164,11 @@ export const ToolBar = ({
    * State to manage ventilation label
    * Label is Dynamic based on ventilation state
    */
-  const [label, setLabel] = useState('Start Ventilation');
+  const [label, setLabel] = useState('Start');
   /**
    * State to toggle if Ventilating isDisabled
    */
   const [isDisabled, setIsDisabled] = useState(false);
-  /**
-   * State to open Modal Popup for Dashboard
-   */
-  const [discardOpen, setDiscardOpen] = useState(false);
   /**
    * State to open Modal Popup for Start/Pause button
    */
@@ -251,7 +245,7 @@ export const ToolBar = ({
   useEffect(() => {
     if (ventilating) {
       setIsDisabled(ventilatingStatusChanging);
-      setLabel(ventilatingStatusChanging ? 'Pausing...' : 'Pause Ventilation');
+      setLabel(ventilatingStatusChanging ? 'Pausing...' : 'Pause');
       return;
     }
     setIsDisabled(ventilatingStatusChanging || !firmwareConnected || !backendConnected);
@@ -259,7 +253,7 @@ export const ToolBar = ({
       setLabel('Starting...');
       return;
     }
-    setLabel(!firmwareConnected || !backendConnected ? 'Connecting...' : 'Start Ventilation');
+    setLabel(!firmwareConnected || !backendConnected ? 'Connecting...' : 'Start');
   }, [ventilatingStatusChanging, backendConnected, firmwareConnected, ventilating]);
 
   /**
@@ -273,6 +267,7 @@ export const ToolBar = ({
 
   const StartPauseVentilationButton = (
     <Button
+      style={{ marginRight: 10, marginLeft: 10 }}
       onClick={updateVentilationStatus}
       variant="contained"
       color="secondary"
@@ -294,16 +289,6 @@ export const ToolBar = ({
   );
 
   /**
-   * OnClick handler for dashboard button
-   */
-  const handleOnClick = () => {
-    setDiscardOpen(alarmLimitsRequestUnsaved);
-    if (!alarmLimitsRequestUnsaved) {
-      history.push(DASHBOARD_ROUTE.path);
-    }
-  };
-
-  /**
    * Display buttons dynamically on the toolbar
    */
   const tools = [<ModesDropdown />];
@@ -315,13 +300,6 @@ export const ToolBar = ({
     //     Last Patient Settings
     //   </Button>,
     // );
-  } else if (ventilating && location.pathname !== SCREENSAVER_ROUTE.path) {
-    tools.push(
-      <Button onClick={handleOnClick} variant="contained" color="primary">
-        <BackIcon style={{ paddingRight: 8 }} />
-        {DASHBOARD_ROUTE.label}
-      </Button>,
-    );
   }
   if (location.pathname !== '/') {
     tools.push(<EventAlerts label={LOGS_ROUTE.label} />);
@@ -331,17 +309,7 @@ export const ToolBar = ({
    * onClickHandler for Dashboard ModalPopup 'Cancel' button
    */
   const handleDiscardClose = () => {
-    setDiscardOpen(false);
     setStartDiscardOpen(false);
-  };
-
-  /**
-   * onClickHandler for Dashboard ModalPopup 'Confirm' button
-   */
-  const handleDiscardConfirm = () => {
-    setAlarmLimitsRequestDraft(alarmLimitsRequest);
-    history.push(DASHBOARD_ROUTE.path);
-    setDiscardOpen(false);
   };
 
   /**
@@ -400,15 +368,6 @@ export const ToolBar = ({
           <Grid item>{staticStart ? LandingPageStartButton : StartPauseVentilationButton}</Grid>
         </Grid>
       </Grid>
-      <ModalPopup
-        withAction={true}
-        label="Set Alarms"
-        open={discardOpen}
-        onClose={handleDiscardClose}
-        onConfirm={handleDiscardConfirm}
-      >
-        <DiscardAlarmLimitsContent />
-      </ModalPopup>
       <ModalPopup
         withAction={true}
         label="Set Alarms"
