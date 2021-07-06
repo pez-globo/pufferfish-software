@@ -3,6 +3,7 @@ import { AppAction } from '../../../app/types';
 import { receivedBackendHeartbeat } from '../../../app/actions';
 import { updateState } from '../../actions';
 import { PBMessage, StateUpdateAction } from '../../types';
+import { GeneratorYield, makeYieldEffect, makeYieldResult } from '../sagas';
 import { serialize, deserialize } from './transport';
 import { getSelector, backendStateSender, sendInterval } from './states';
 
@@ -18,25 +19,13 @@ export function* receiveState(
   }
 }
 
-export enum GeneratorYieldType {
-  Effect,
-  Result,
-}
 type SenderYieldResult = Uint8Array | null;
 type SenderYieldEffect = SelectEffect | CallEffect;
-export interface SenderYield {
-  type: GeneratorYieldType;
-  value: SenderYieldResult | SenderYieldEffect;
-}
-
-const makeYieldEffect = (effect: SenderYieldEffect): SenderYield => ({
-  type: GeneratorYieldType.Effect,
-  value: effect,
-});
-const makeYieldResult = (result: SenderYieldResult): SenderYield => ({
-  type: GeneratorYieldType.Result,
-  value: result,
-});
+export type SenderYield = GeneratorYield<SenderYieldResult, SenderYieldEffect>;
+const makeSenderYieldResult = (result: SenderYieldResult) =>
+  makeYieldResult<SenderYieldResult, SenderYieldEffect>(result);
+const makeSenderYieldEffect = (effect: SenderYieldEffect) =>
+  makeYieldEffect<SenderYieldResult, SenderYieldEffect>(effect);
 
 // This generator is tagged as returning SenderYield to make typescript eslinting
 // behave nicely, but it actually never returns (it only yields).
@@ -49,11 +38,11 @@ export function* stateSender(
   while (true) {
     const pbMessageType = schedule.next().value;
     const selector = getSelector(pbMessageType);
-    const pbMessage = yield makeYieldEffect(select(selector));
+    const pbMessage = yield makeSenderYieldEffect(select(selector));
     const body = pbMessage === null ? null : serialize(pbMessageType, pbMessage as PBMessage);
-    yield makeYieldResult(body);
+    yield makeSenderYieldResult(body);
     if (pbMessage !== null || !skipUnavailable) {
-      yield makeYieldEffect(delay(sendInterval));
+      yield makeSenderYieldEffect(delay(sendInterval));
     }
   }
 }
