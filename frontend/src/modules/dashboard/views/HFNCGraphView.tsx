@@ -19,8 +19,8 @@ import {
 import { a11yProps, TabPanel } from '../../controllers/TabPanel';
 import { BPM, LMIN, PERCENT } from '../../info/units';
 import { FlowGraphInfo, PawGraphInfo, VolumeGraphInfo } from '../containers';
-import ControlInfo from '../containers/ControlInfo';
-import ValueInfo from '../containers/ValueInfo';
+import ControlInfo from '../components/ControlInfo';
+import ValueInfo from '../components/ValueInfo';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -159,34 +159,13 @@ const HFNCMainView = (): JSX.Element => {
       <Grid container item xs={12} alignItems="stretch" className={classes.topPanel}>
         <Grid item xs={4} alignItems="stretch" className={classes.topLeftPanel}>
           <Grid container item justify="center" alignItems="stretch">
-            <ValueInfo
-              mainContainer={{
-                selector: getSmoothedSpO2,
-                label: 'SpO2',
-                stateKey: 'spo2',
-                units: PERCENT,
-              }}
-            />
+            <ValueInfo selector={getSmoothedSpO2} label="SpO2" stateKey="spo2" units={PERCENT} />
           </Grid>
           <Grid container item justify="center" alignItems="stretch">
-            <ValueInfo
-              mainContainer={{
-                selector: getSmoothedHR,
-                label: 'HR',
-                stateKey: 'hr',
-                units: BPM,
-              }}
-            />
+            <ValueInfo selector={getSmoothedHR} label="HR" stateKey="hr" units={BPM} />
           </Grid>
           <Grid container item justify="center" alignItems="stretch">
-            <ValueInfo
-              mainContainer={{
-                selector: getROXIndex,
-                label: 'ROX Index',
-                stateKey: '',
-                decimal: 2,
-              }}
-            />
+            <ValueInfo selector={getROXIndex} label="ROX Index" stateKey="" decimal={2} />
           </Grid>
         </Grid>
         <Grid container item xs direction="column" className={classes.graphMainPanel} wrap="nowrap">
