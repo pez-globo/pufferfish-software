@@ -32,6 +32,9 @@ export const makeFilteredSender = <Index, StateSegment>(
         case GeneratorYieldType.Effect:
           nextInput = yield yieldValue;
           break;
+        default:
+          throw new Error('Unhandled generator yield type!');
+          break;
       }
     }
   };
@@ -60,9 +63,7 @@ export function* notificationSender<Index, StateSegment>(
     // as well as inputs specifying any indices to mark as sendable
     if (sendableIndices.size === 0) {
       const newlySendableIndices = (yield makeSenderYieldResult(null)) as Set<Index>;
-      for (const index of newlySendableIndices) {
-        sendableIndices.add(index);
-      }
+      newlySendableIndices.forEach(sendableIndices.add, sendableIndices);
     } else {
       const yieldValue: SenderYield<TaggedStateSegment<Index, StateSegment>> = sendableSender.next(
         nextInput,
@@ -76,13 +77,14 @@ export function* notificationSender<Index, StateSegment>(
             // console.log(`Event: Sending notification for ${index}`);
           }
           const newlySendableIndices = (yield yieldValue) as Set<Index>;
-          for (const index of newlySendableIndices) {
-            sendableIndices.add(index);
-          }
+          newlySendableIndices.forEach(sendableIndices.add, sendableIndices);
           break;
         }
         case GeneratorYieldType.Effect:
           nextInput = yield yieldValue;
+          break;
+        default:
+          throw new Error('Unhandled generator yield type!');
           break;
       }
     }
@@ -107,7 +109,7 @@ export function* changedStateSender<Index, StateSegment>(
   const prevStates = new Map<Index, StateSegment>();
   const prevConnectionStatus = { ...connectionStatus };
 
-  let nextSenderInput: any = new Set<Index>();
+  let nextSenderInput = null;
   while (true) {
     // Service results and effects yielded by the sender, as well as any reset events
     const senderYieldValue: SenderYield<TaggedStateSegment<Index, StateSegment>> = sender.next(
@@ -125,6 +127,10 @@ export function* changedStateSender<Index, StateSegment>(
         }
         prevConnectionStatus.lastConnectionTime = connectionStatus.lastConnectionTime;
         // Prepare to tell the sender to mark changed states as sendable
+        // We cannot use forEach because we need to yield inside the loop, so we
+        // have to use an iterator here:
+        // eslint-disable no-restricted-syntax
+        // eslint-disable-next-line
         for (const index of trackableStates) {
           const stateGetter = allStates(index);
           let nextGetterInput = null;
@@ -148,6 +154,9 @@ export function* changedStateSender<Index, StateSegment>(
               case GeneratorYieldType.Effect:
                 nextGetterInput = yield nextGetterYield.value;
                 break;
+              default:
+                throw new Error('Unhandled generator yield type!');
+                break;
             }
             if (nextGetterYield.done) {
               // The allStates getter has finished working and returned its result,
@@ -167,6 +176,9 @@ export function* changedStateSender<Index, StateSegment>(
       }
       case GeneratorYieldType.Effect:
         nextSenderInput = yield senderYieldValue;
+        break;
+      default:
+        throw new Error('Unhandled generator yield type!');
         break;
     }
   }

@@ -92,6 +92,9 @@ export function* backendStateSender(): Sender<TaggedPBMessage> {
       case GeneratorYieldType.Effect:
         nextInput = yield yieldValue;
         break;
+      default:
+        throw new Error('Unhandled generator yield type!');
+        break;
     }
   }
 }

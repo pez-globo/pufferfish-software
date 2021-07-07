@@ -55,6 +55,9 @@ export function* sender(): Generator<SenderYield, SenderYield, TaggedPBMessage> 
           value: yieldValue.value as StateSenderYieldEffect,
         };
         break;
+      default:
+        throw new Error('Unhandled generator yield type!');
+        break;
     }
   }
 }

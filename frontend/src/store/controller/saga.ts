@@ -36,6 +36,9 @@ function* sendAll(sock: WebSocket) {
         nextInput = yield yieldValue.value;
         break;
       }
+      default:
+        throw new Error('Unhandled generator yield type!');
+        break;
     }
   }
 }

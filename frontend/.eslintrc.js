@@ -35,7 +35,7 @@ module.exports = {
             }
         ],
         "import/no-unresolved": 0,
-        "func-names": ["error", "always", { "generators": "as-needed" }],
+        "func-names": ["error", "always", { "generators": "never" }],
         'react/jsx-props-no-spreading': 0,
         'react/jsx-fragments': 0,
         "react/require-default-props": 0,

@@ -8,9 +8,13 @@ export type SenderYield<StateSegment> = GeneratorYield<
   SenderYieldResult<StateSegment>,
   SenderYieldEffect
 >;
-export const makeSenderYieldResult = <StateSegment>(result: SenderYieldResult<StateSegment>) =>
+export const makeSenderYieldResult = <StateSegment>(
+  result: SenderYieldResult<StateSegment>,
+): SenderYield<StateSegment> =>
   makeYieldResult<SenderYieldResult<StateSegment>, SenderYieldEffect>(result);
-export const makeSenderYieldEffect = <StateSegment>(effect: SenderYieldEffect) =>
+export const makeSenderYieldEffect = <StateSegment>(
+  effect: SenderYieldEffect,
+): SenderYield<StateSegment> =>
   makeYieldEffect<SenderYieldResult<StateSegment>, SenderYieldEffect>(effect);
 
 // A sender should yield a sequence of optional StateSegments and/or redux-saga effects.
@@ -84,6 +88,9 @@ export const makeMappedSenders = <Index, StateSegment>(senders: Map<Index, Sende
         case GeneratorYieldType.Effect:
           nextInput = yield yieldValue;
           break;
+        default:
+          throw new Error('Unhandled generator yield type!');
+          break;
       }
     }
   };
@@ -128,6 +135,9 @@ export function* sequentialSender<Index, StateSegment>(
           break;
         case GeneratorYieldType.Effect:
           nextInput = yield nextYield.value;
+          break;
+        default:
+          throw new Error('Unhandled generator yield type!');
           break;
       }
       if (nextYield.done) {
