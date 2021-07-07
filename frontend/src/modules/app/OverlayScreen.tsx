@@ -67,8 +67,12 @@ export const HeartbeatBackendListener = (): JSX.Element => {
   // for a lost backend connection. Everywhere else, we should use the selector
   // from store/app/selectors.ts for getBackendConnected.
   const lostConnectionAlarm = useSelector(getBackendDownEvent);
+  const backendConnected = useSelector(getBackendConnected);
 
   useEffect(() => {
+    if (backendConnected) {
+      return;
+    }
     if (diff > BACKEND_CONNECTION_TIMEOUT) {
       if (!lostConnectionAlarm) {
         dispatch({
@@ -84,7 +88,7 @@ export const HeartbeatBackendListener = (): JSX.Element => {
     } else {
       dispatch(establishedBackendConnection(new Date()));
     }
-  }, [clock, diff, lostConnectionAlarm, dispatch, heartbeat]);
+  }, [backendConnected, clock, diff, lostConnectionAlarm, dispatch, heartbeat]);
 
   return <React.Fragment />;
 };
