@@ -9,7 +9,7 @@ import {
   SenderYieldEffect as StateSenderYieldEffect,
 } from '../application/states';
 import { serialize, deserialize } from './transport';
-import { TaggedPBMessage, backendStateSender, sendInterval } from './states';
+import { TaggedPBMessage, backendStateSender, sendMinInterval } from './states';
 
 export function* receive(
   body: Uint8Array,
@@ -44,10 +44,10 @@ export function* sender(): Generator<SenderYield, SenderYield, TaggedPBMessage> 
       case GeneratorYieldType.Result:
         nextInput = null;
         if (yieldValue.value !== null) {
-          const { type: pbMessageType, value: pbMessage } = yieldValue.value as TaggedPBMessage;
-          yield makeSenderYieldResult(serialize(pbMessageType, pbMessage));
+          const { type: messageType, value: pbMessage } = yieldValue.value as TaggedPBMessage;
+          yield makeSenderYieldResult(serialize(messageType, pbMessage));
         }
-        yield makeSenderYieldEffect(delay(sendInterval));
+        yield makeSenderYieldEffect(delay(sendMinInterval));
         break;
       case GeneratorYieldType.Effect:
         nextInput = yield {

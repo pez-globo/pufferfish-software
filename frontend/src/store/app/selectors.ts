@@ -40,6 +40,10 @@ export const getBackendConnected = createSelector(
   getApp,
   (app: AppState): boolean => app.backendConnection,
 );
+export const getLastBackendConnectionTime = createSelector(
+  getApp,
+  (app: AppState): Date | null => app.lastBackendConnectionTime,
+);
 export const getClockTime = createSelector(getApp, (states: AppState): string =>
   states.clock.toLocaleTimeString([], {
     hour: '2-digit',

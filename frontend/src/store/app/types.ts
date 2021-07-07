@@ -6,6 +6,7 @@ export interface AppState {
   notifyAlarm: boolean;
   backendHeartbeat: Date;
   backendConnection: boolean;
+  lastBackendConnectionTime: Date | null;
 }
 
 // ACTIONS

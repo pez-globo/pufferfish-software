@@ -90,7 +90,7 @@ export const makeMappedSenders = <Index, StateSegment>(senders: Map<Index, Sende
 
 // Sequential send scheduling
 
-function* sequentialScheduler<T>(sequence: Array<T>): Generator<T, T, void> {
+function* sequentialScheduler<T>(sequence: Array<T>): Generator<T, T, undefined> {
   while (true) {
     yield* sequence;
   }
