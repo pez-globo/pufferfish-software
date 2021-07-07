@@ -2,27 +2,27 @@
 SCENARIO: The Util::Ranges within and clamp function gives the expected result') 
 
   // value < floor < ceiling
-  GIVEN('A floor of 10 , a ceiling of 10 and test value of 8 as the function inputs') 
-    WHEN('The within function is called with the input function') 
+  GIVEN('A floor of 10 , a ceiling of 13 and test value of 8 as the function inputs') 
+    WHEN('The within function is called with the function inputs') 
       THEN('The Within function returns false') 
   
-    WHEN('The clamp function is called with the function input ') 
+    WHEN('The clamp function is called with the function inputs ') 
       THEN('The clamp function returns the floor (10)') 
 
     // floor == value < ceiling
   GIVEN('A floor of 8 , a ceiling of 10 and test value of 8 as the function inputs') 
-    WHEN('The within function is called with the input function') 
+    WHEN('The within function is called with the function inputs') 
       THEN('The Within function returns true')
     
-    WHEN('The clamp function is called with the function input') 
+    WHEN('The clamp function is called with the function inputs') 
       THEN('The clamp function returns the floor (8)') 
 
     // floor < value < ceiling
   GIVEN('A floor of 5 , a ceiling of 255 and test value of 8 as the function inputs') 
-    WHEN('The within function is called with the input function') 
+    WHEN('The within function is called with the function inputs') 
       THEN('The Within function returns true') 
 
-    WHEN('The clamp function is called with the function input') 
+    WHEN('The clamp function is called with the function inputs') 
       THEN('The clamp function returns the test value (8)') 
 
     // floor > value == ceiling 
@@ -30,92 +30,83 @@ SCENARIO: The Util::Ranges within and clamp function gives the expected result')
     WHEN('The within function is called with the function input') 
       THEN('The Within function returns true') 
 
-    WHEN('The clamp function is called with the function input') 
+    WHEN('The clamp function is called with the function inputs') 
       THEN('The clamp function returns the test value (8)') 
   
     // value > ceiling > floor
   GIVEN('A floor of 12 , a ceiling of 120 and test value of 200 as the function inputs') 
-    WHEN('The within function is called with the function input') 
+    WHEN('The within function is called with the function inputs') 
       THEN('The Within function returns false') 
 
-    WHEN('The clamp function is called with the function input') 
+    WHEN('The clamp function is called with the function inputs') 
       THEN('The clamp function returns the ceiling (120)') 
 
 Scenario:The Util::Ranges within and clamp function gives the expected result for floor = ceiling  
     // value < floor == ceiling 
   GIVEN('A floor of 120 , a ceiling of 120 and test value of 20 as the function inputs') 
-    WHEN('The within function is called with the function input ') 
+    WHEN('The within function is called with the function inputs ') 
       THEN('The Within function returns false') 
 
-    WHEN('The clamp function is called with the function input ') 
+    WHEN('The clamp function is called with the function inputs ') 
       THEN('The clamp function returns the floor (120)') 
-
-
-    // value < floor == ceiling
-  GIVEN('A floor of 20 , a ceiling of 20 and test value of 10 as the function inputs') 
-    WHEN('The within function is called with the function input ') 
-      THEN('The Within function returns false') 
-
-    WHEN('The clamp function is called with the function input ') 
-      THEN('The clamp function returns floor(20)') 
 
     // floor == value == ceiling
   GIVEN('A floor of 20 , a ceiling of 20 and test value of 20 as the function inputs') 
-    WHEN('The within function is called with the function input') 
+    WHEN('The within function is called with the function inputs') 
       THEN('The Within function returns true') 
 
-    WHEN('The clamp function is called with the function input') 
+    WHEN('The clamp function is called with the function inputs') 
       THEN('The clamp function returns the floor (20)') 
 
     // value > floor == ceiling
   GIVEN('A floor of 10 , a ceiling of 10 and test value of 20 as the function inputs') 
-    WHEN('The within function is called with the function input') 
+    WHEN('The within function is called with the function inputs') 
       THEN('The Within function returns false') 
 
-    WHEN('The clamp function is called with the function input') 
+    WHEN('The clamp function is called with the function inputs') 
       THEN('The clamp function returns the floor (10)') 
 
 Scenario:The Util::Ranges within and clamp function gives the expected result for floor > ceiling
 // floor > ceiling > value
   GIVEN('A floor of 15 , a ceiling of 8 and test value of 4 as the function inputs') 
-    WHEN('The within function is called with the function input') 
+    WHEN('The within function is called with the function inputs') 
       THEN('The Within function returns false') 
 
-    WHEN('The clamp function is called with the function input') 
+    WHEN('The clamp function is called with the function inputs') 
       THEN('The clamp function returns the floor (8)')
 
     // ceiling < floor == value
   GIVEN('A floor of 15 , a ceiling of 8 and test value of 15 as the function inputs') 
-    WHEN('The within function is called with the function input ') 
+    WHEN('The within function is called with the function inputs ') 
       THEN('The Within function returns false') 
 
-    WHEN('The clamp function is called with the function input ') 
+    WHEN('The clamp function is called with the function inputs ') 
       THEN('The clamp function returns the floor (15)') 
     
 
     // floor > ceiling == value
   GIVEN('A floor of 15 , a ceiling of 8 and test value of 8 as the function inputs') 
-    WHEN('The within function is called with the function input ') 
+    WHEN('The within function is called with the function inputs ') 
       THEN('The Within function returns true') 
 
-    WHEN('The clamp function is called with the function input ') 
+    WHEN('The clamp function is called with the function inputs ') 
       THEN('The clamp function returns the floor (15)') 
 
 
     // value > floor > ceiling
   GIVEN('A floor of 15 , a ceiling of 8 and test value of 30 as the function inputs') 
-    WHEN('The within function is called with the function input ') 
+    WHEN('The within function is called with the function inputs ') 
       THEN('The Within function returns false') 
 
-    WHEN('The clamp function is called with the function input ') 
+    WHEN('The clamp function is called with the function inputs ') 
       THEN('The clamp function returns the floor (15)')
 
 //    floor > value > ceiling
   GIVEN('A floor of 50 , a ceiling of 20 and test value of 30 as the function inputs') 
-    WHEN('The within function is called with the function input ') 
+    WHEN('The within function is called with the function inputs ') 
       THEN('The Within function returns true') 
 
-    WHEN('The clamp function is called with the function input ') 
+    WHEN('The clamp function is called with the function inputs ') 
       THEN('The clamp function returns the test value (30)') 
 
 

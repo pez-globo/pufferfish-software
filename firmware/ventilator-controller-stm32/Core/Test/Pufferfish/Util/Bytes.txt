@@ -4,17 +4,28 @@ Scenario:The Util:Bytes get_byte function correctly returns bytes from the given
           THEN('the function returns the value at index 0, which is 0x86')
 
 //this test case does not compile, the byte index is greater than size of the type
-//      WHEN('the get_byte function  is called with byte index 1 and input type uint8_t as the template parameters and with 0x86 as the input value ')
-
-//this test case does not compile, the byte index is greater than size of the type
-//      WHEN('the get_byte function  is called with byte index 2 and input type uint8_t as the template parameters and with 0x86010f0a as the input value ')
-
+//     WHEN('the get_byte function  is called with byte index 1 and input type uint8_t as the template parameters and with 0x86 as the input value ')
 
        WHEN('the get_byte function is called with byte index 0 and input type uint16_t as the template parameters and with 0x860a as the input value')  
           THEN('the function returns the value at index 0, which is 0x0a')
 
        WHEN('the get_byte function  is called with byte index 1 and input type uint16_t as the template parameters and with 0x860a as the input value')  
           THEN('the function returns the value at index 1, which is 0x86')
+
+      WHEN("the get_byte function  is called with byte index 0 and input type uint8_t as the template parameters and with 0x86010f0a as the input value") {
+      THEN("the function returns the value at index 0, which is 0x0a ") 
+
+//this test case does not compile, the byte index is greater than size of the type
+  //  WHEN("the get_byte function  is called with byte index 1 and input type uint8_t as the template parameters and with 0x86010f0a as the input value") {
+
+      WHEN("the get_byte function  is called with byte index 0 and input type uint16_t as the template parameters and with 0x86010f0a as the input value") {
+      THEN("the function returns the value at index 0, which is 0x0a ") 
+   
+      WHEN("the get_byte function  is called with byte index 1 and input type uint16_t as the template parameters and with 0x86010f0a as the input value") {
+      THEN("the function returns the value at index 1, which is 0x0f ") 
+
+//this test case does not compile, the byte index is greater than size of the type
+    //  WHEN("the get_byte function  is called with byte index 2 and input type uint16_t as the template parameters and with 0x86010f0a as the input value") {
 
 
        WHEN('the get_byte function  is called with byte index 0 and input type uint32_t as the template parameters and with 0x86010f0a as the input value')
@@ -30,7 +41,7 @@ Scenario:The Util:Bytes get_byte function correctly returns bytes from the given
          THEN('the function returns the value at index 3, which is 0x86')
 
 //this test case does not compile, the byte index is greater than size of the type
-//      WHEN('the get_byte function  is called with byte index 3 and input type uint16_t as the template parameters and with 0x86010f0a as the input value ')  
+//      WHEN('the get_byte function  is called with byte index 4 and input type uint32_t as the template parameters and with 0x86010f0a as the input value ')  
 
 
 
@@ -42,7 +53,7 @@ Scenario: The Util:Bytes set_byte function correctly returns bytes from the give
      THEN('the function returns the value shifted left into 0th position, which is 0x83')
 
   WHEN('the set_byte function  is called with byte index 0 and output type uint16_t as the template parameters and with 0x83 as the input value')
-     THEN('the function returns the value shifted left by into position, which is 0x86')
+     THEN('the function returns the value shifted left into 0th position, which is 0x86')
 
   WHEN('the set_byte function   is called with byte index 1 and output type uint16_t as the template parameters and with 0x83 as the input value')
      THEN('the function returns the value shifted left into 1st position, which is 0x8600')

@@ -35,22 +35,23 @@ SCENARIO(
     }
 
     WHEN(
-         "An array is created from input type uint8_t as the template parameters and with 2 uint16 as the input values") {
-       auto data = PF::Util::Containers::make_array<uint8_t>(0xf7de, 0x5ab6);
-       THEN("The array has the expected values of  uint8_t at every index") {
-         REQUIRE(data[0] == 0xde);
-         REQUIRE(data[1] == 0xb6);
-       }
-     }
+        "An array is created from input type uint8_t as the template parameters and with 2 uint16 "
+        "as the input values") {
+      auto data = PF::Util::Containers::make_array<uint8_t>(0xf7de, 0x5ab6);
+      THEN("The array has the expected values of  uint8_t at every index") {
+        REQUIRE(data[0] == 0xde);
+        REQUIRE(data[1] == 0xb6);
+      }
+    }
     WHEN(
-         "An array is created from input type uint8_t as the template parameters and with 2 uint16 as the input values") {
-       auto data = PF::Util::Containers::make_array<uint16_t>(0x76b5f627 , 0x5ab627);
-       THEN("The array has the expected values of uint16_t at every index") {
-         REQUIRE(data[0] == 0xf627);
-         REQUIRE(data[1] == 0xb627);
-       }
-     }
-
+        "An array is created from input type uint16_t as the template parameters and with 2 uint32 "
+        "as the input values") {
+      auto data = PF::Util::Containers::make_array<uint16_t>(0x76b5f627, 0x5ab627);
+      THEN("The array has the expected values of uint16_t at every index") {
+        REQUIRE(data[0] == 0xf627);
+        REQUIRE(data[1] == 0xb627);
+      }
+    }
 
     WHEN(
         "An array is created from input type uint16_t as the template parameters and with 2 uint16 "
@@ -109,7 +110,7 @@ SCENARIO(
 }
 SCENARIO("Util:Array make_array function works properly for const and non-const references") {
   GIVEN("Util:Array make_array function") {
-    WHEN("an array is created from two elements of structure  with values 0x02 and 0x0f") {
+    WHEN("an array is created from two elements of structure with values 0x02 and 0x0f") {
       struct Test {
         uint8_t val;
       };
@@ -124,7 +125,7 @@ SCENARIO("Util:Array make_array function works properly for const and non-const 
       }
 
       THEN(
-          "Values of const references are changed to 0x03 and 0xde, values of array at index 0 "
+          "Element values of structure are changed to 0x03 and 0xde, values of array at index 0 "
           "and at index 1 changes to 0x03 and 0xde") {
         val1.val = 0x03;
         val2.val = 0xde;
@@ -132,17 +133,15 @@ SCENARIO("Util:Array make_array function works properly for const and non-const 
         REQUIRE(data[1].get().val == 0xde);
       }
 
-      THEN("changing the value of the 0th index of an array to 0x01 and 1st index to 0x86 does not change "
-          "values of const-referenced variable"){
+      THEN("Values of an array can't be changed as elements in array are const reference") {
         // data[0].get().val = 0x01;
         // data[1].get().val = 0x86;
         REQUIRE(val1.val == 0x02);
         REQUIRE(val2.val == 0x0f);
- 
-          }
+      }
     }
 
-    WHEN("An array is created of non-const references to two variables with values 0x67 and 0x3e") {
+    WHEN("an array is created from two non const elements of structure with values 0x67 and 0x3e") {
       struct Test {
         uint8_t val;
       };
@@ -150,12 +149,13 @@ SCENARIO("Util:Array make_array function works properly for const and non-const 
       Test val1{0x67};
       Test val2{0x3e};
       auto result = PF::Util::Containers::make_array<std::reference_wrapper<Test>>(val1, val2);
-      THEN("The array has the expected values, 0x02 and 0x01") {
+      THEN("The array has the expected values, 0x67 and 0x3e") {
         REQUIRE(result[0].get().val == 0x67);
         REQUIRE(result[1].get().val == 0x3e);
       }
       THEN(
-          "Values of non-const references are changed to 0xa3 and 0xee, values of array at index 0 "
+          "Values of non-const reference elements from structure are changed to 0xa3 and 0xee, "
+          "values of array at index 0 "
           "and at index 1 changes to 0xa3 and 0xee") {
         val1.val = 0xa3;
         val2.val = 0xee;
@@ -164,7 +164,7 @@ SCENARIO("Util:Array make_array function works properly for const and non-const 
       }
       THEN(
           "changing the value of the 0th index of an array to 0x01 and 1st index to 0x86 changes "
-          "value of referenced variable to 0x01 and 0x86 ") {
+          "value of elements from structure to 0x01 and 0x86 ") {
         result[0].get().val = 0x01;
         result[1].get().val = 0x86;
         REQUIRE(val1.val == 0x01);

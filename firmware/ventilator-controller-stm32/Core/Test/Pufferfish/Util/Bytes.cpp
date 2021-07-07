@@ -79,6 +79,50 @@ SCENARIO("The get_byte function in Bytes correctly gets bytes from the given pos
 
     // value = 0x86010f0a
     WHEN(
+        "the get_byte function  is called with byte index 0 and input type uint8_t as the "
+        "template "
+        "parameters and with 0x86010f0a as the input value") {
+      uint32_t number = 0x86010f0a;
+      auto value = PF::Util::get_byte<0, uint8_t>(number);
+      THEN("the function returns the value at index 0, which is 0x0a ") { REQUIRE(value == 0x0a); }
+    }
+    //  WHEN(
+    //       "the get_byte function  is called with byte index 1 and input type uint8_t as the "
+    //       "template "
+    //       "parameters and with 0x86010f0a as the input value") {
+    //     uint32_t number = 0x86010f0a;
+    //     auto value = PF::Util::get_byte<2, uint8_t>(number);
+    //     THEN("the function returns the value at index 0, which is 0x0a ") { REQUIRE(value ==
+    //     0x0a); }
+    //   }
+    WHEN(
+        "the get_byte function  is called with byte index 0 and input type uint16_t as the "
+        "template "
+        "parameters and with 0x86010f0a as the input value") {
+      uint32_t number = 0x86010f0a;
+      auto value = PF::Util::get_byte<0, uint16_t>(number);
+      THEN("the function returns the value at index 0, which is 0x0a ") { REQUIRE(value == 0x0a); }
+    }
+
+    WHEN(
+        "the get_byte function  is called with byte index 1 and input type uint16_t as the "
+        "template "
+        "parameters and with 0x86010f0a as the input value") {
+      uint32_t number = 0x86010f0a;
+      auto value = PF::Util::get_byte<1, uint16_t>(number);
+      THEN("the function returns the value at index 0, which is 0x0a ") { REQUIRE(value == 0x0f); }
+    }
+    //  WHEN(
+    //     "the get_byte function  is called with byte index 2 and input type uint16_t as the "
+    //     "template "
+    //     "parameters and with 0x86010f0a as the input value") {
+    //   uint32_t number = 0x86010f0a;
+    //   auto value = PF::Util::get_byte<2, uint16_t>(number);
+    //   THEN("the function returns the value at index 0, which is 0x0a ") { REQUIRE(value == 0x0f);
+    //   }
+    // }
+
+    WHEN(
         "the get_byte function  is called with byte index 0 and input type uint32_t as the "
         "template "
         "parameters and with 0x86010f0a as the input value") {

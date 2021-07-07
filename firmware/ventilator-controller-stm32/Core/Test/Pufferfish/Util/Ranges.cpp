@@ -81,14 +81,14 @@ SCENARIO("The Util::Ranges within and clamp function gives the expected result")
 
     // floor > value == ceiling
     WHEN("The function within is called with floor 15, ceiling of 8, and test value of 8") {
-      uint8_t floor = 5;
+      uint8_t floor = 15;
       uint8_t ceiling = 8;
       uint8_t value = 8;
       bool within_range = PF::Util::within(value, floor, ceiling);
       THEN("The Within method returns true") { REQUIRE(within_range); }
     }
     WHEN("The function within is called with floor 15, ceiling of 8, and test value of 8") {
-      uint8_t floor = 5;
+      uint8_t floor = 15;
       uint8_t ceiling = 8;
       uint8_t value = 8;
       auto result = PF::Util::clamp(value, floor, ceiling);
@@ -131,26 +131,6 @@ SCENARIO(
       uint8_t value = 20;
       auto result = PF::Util::clamp(value, floor, ceiling);
       THEN("The clamp function returns the floor (120)") { REQUIRE(result == 120); }
-    }
-
-    // value < floor == ceiling
-    WHEN(
-        "The function within is called with a floor of 20, ceiling of 20, and a test value of "
-        "10 ") {
-      uint8_t floor = 20;
-      uint8_t ceiling = 20;
-      uint8_t value = 10;
-      bool within_range = PF::Util::within(value, floor, ceiling);
-      THEN("The Within method returns false") { REQUIRE(!within_range); }
-    }
-    WHEN(
-        "The function within is called with a floor of 20, ceiling of 20, and a test value of "
-        "10 ") {
-      uint8_t floor = 20;
-      uint8_t ceiling = 20;
-      uint8_t value = 10;
-      auto result = PF::Util::clamp(value, floor, ceiling);
-      THEN("The clamp function returns floor(20)") { REQUIRE(result == 20); }
     }
 
     // floor == value == ceiling
