@@ -37,7 +37,7 @@ const TVInfo = (): JSX.Element => (
     valueDisplay={<TVDisplay label={label} units={units} isLive={true} />}
     valueModal={null}
     alarmModal={
-      <AlarmModal label={label} units={units} stateKey={stateKey} requestCommitRange={() => null} />
+      <AlarmModal label={label} units={units} stateKey={stateKey} getCommittedRange={() => null} />
     }
   />
 );

@@ -18,7 +18,6 @@ import {
   getParametersRequestDraftFiO2,
   getParametersRequestDraftFlow,
 } from '../../store/controller/selectors';
-import { SetValueContent } from '../controllers/ValueModal';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import ValueInfo from '../dashboard/components/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../info/units';
@@ -27,6 +26,7 @@ import { ParametersRequest, AlarmLimitsRequest } from '../../store/controller/pr
 import { MessageType } from '../../store/controller/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import store from '../../store';
+import SetValueContent from '../controllers/SetValueContent';
 
 /**
  * @typedef Data
@@ -767,7 +767,7 @@ const MultiStepWizard = (): JSX.Element => {
                     label={parameter.label}
                     units={parameter.units}
                     stateKey={parameter.stateKey}
-                    requestCommitRange={doSetAlarmValues}
+                    getCommittedRange={doSetAlarmValues}
                     contentOnly={true}
                     labelHeading={true}
                     alarmRangeValues={getAlarmValues(parameter.stateKey)}

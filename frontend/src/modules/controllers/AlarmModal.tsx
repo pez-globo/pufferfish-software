@@ -2,7 +2,7 @@
  * @summary Alarm Modal controller to set alarm range
  *
  */
-import { Button, Grid, makeStyles, Theme, Typography, useTheme } from '@material-ui/core';
+import { Grid, makeStyles, Theme, Typography, useTheme } from '@material-ui/core';
 import React, { RefObject, useCallback, useEffect, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
@@ -70,12 +70,9 @@ export interface AlarmAdjustProps {
  * @prop {string} units Alarm paramater unit measurement to display
  * @prop {number} committedMin Lower Set Alarm Range Value
  * @prop {number} committedMax Upper Set Alarm Range Value
- * TODO: it was used in ValueModa in values page, can be removed
- * @prop {boolean} disableAlarmButton Toggle to show/hide alarm button
  * @prop {function} updateModalStatus Callback to send current modal open/close status
  * @prop {function} onModalClose Callback after Modal close
- * TODO: rename to 'getCommittedRange' as it just returns the committed values.
- * @prop {function} requestCommitRange Callback on updating the Alarm range values
+ * @prop {function} getCommittedRange Callback on updating the Alarm range values
  * @prop {string} stateKey Unique identifier of alarm (eg spo2, fio2...)
  * @prop {number} step Alarm step difference between Range (Defaults to 1)
  * @prop {boolean} openModal Default value to toggle Open/Close Alarm Modal
@@ -89,10 +86,9 @@ interface Props {
   units?: string;
   committedMin?: number;
   committedMax?: number;
-  disableAlarmButton?: boolean;
   updateModalStatus?(status: boolean): void;
   onModalClose?(status: boolean): void;
-  requestCommitRange(min: number, max: number): void;
+  getCommittedRange(min: number, max: number): void;
   stateKey: string;
   step?: number;
   openModal?: boolean;
@@ -114,12 +110,10 @@ export const AlarmModal = ({
   label,
   committedMin = 0,
   committedMax = 100,
-  disableAlarmButton = false,
   updateModalStatus,
-  requestCommitRange,
+  getCommittedRange,
   onModalClose,
   openModal = false,
-  units = '',
   stateKey,
   step,
   contentOnly = false,
@@ -195,13 +189,6 @@ export const AlarmModal = ({
   });
 
   /**
-   * Function for handling the opening of the modal.
-   */
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  /**
    * Function for handling the closing of the modal.
    */
   const handleClose = () => {
@@ -223,7 +210,7 @@ export const AlarmModal = ({
     };
     dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
     dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
-    requestCommitRange(rangeValue[0], rangeValue[1]);
+    getCommittedRange(rangeValue[0], rangeValue[1]);
     handleClose();
   };
 
@@ -231,8 +218,8 @@ export const AlarmModal = ({
    * Triggers whenever rangeValue is updated in redux
    */
   useEffect(() => {
-    requestCommitRange(rangeValue[0], rangeValue[1]);
-  }, [requestCommitRange, rangeValue]);
+    getCommittedRange(rangeValue[0], rangeValue[1]);
+  }, [getCommittedRange, rangeValue]);
 
   /**
    * Resets highlighting border around alarm container when clicked across the page
@@ -353,11 +340,10 @@ export const AlarmModal = ({
     modalContent
   ) : (
     <Grid container direction="column" alignItems="center" justify="center">
-      <Grid container item xs>
-        {/* TODO: deprecated, can be commented out or removed */}
+      {/* <Grid container item xs>
         {!disableAlarmButton && (
           <Button
-            onClick={handleOpen}
+            onClick={() => setOpen(true)}
             color="primary"
             variant="contained"
             className={classes.openButton}
@@ -366,7 +352,7 @@ export const AlarmModal = ({
           </Button>
         )}
         <span hidden={true}>{units}</span>
-      </Grid>
+      </Grid> */}
       <ModalPopup
         withAction={true}
         label={`${label} - Alarm`}

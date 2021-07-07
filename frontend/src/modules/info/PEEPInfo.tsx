@@ -66,7 +66,7 @@ const PEEPInfo = (): JSX.Element => {
           label={label}
           units={units}
           stateKey={stateKey}
-          requestCommitRange={() => null}
+          getCommittedRange={() => null}
         />
       }
     />

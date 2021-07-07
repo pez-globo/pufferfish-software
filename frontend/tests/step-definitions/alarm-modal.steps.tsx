@@ -32,7 +32,7 @@ defineFeature(feature, (test) => {
             units=""
             committedMin={0}
             committedMax={100}
-            requestCommitRange={commitChange}
+            getCommittedRange={commitChange}
             stateKey="rr"
           />
         </MuiThemeProvider>

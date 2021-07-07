@@ -69,7 +69,7 @@ const FiO2Info = (): JSX.Element => {
           label={label}
           units={units}
           stateKey={stateKey}
-          requestCommitRange={() => null}
+          getCommittedRange={() => null}
         />
       }
     />

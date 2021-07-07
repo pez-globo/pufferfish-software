@@ -73,7 +73,7 @@ const RRInfo = ({ disableSetValue = false }: { disableSetValue?: boolean }): JSX
           label={label}
           units={units}
           stateKey={stateKey}
-          requestCommitRange={() => null}
+          getCommittedRange={() => null}
         />
       }
     />

@@ -44,7 +44,7 @@ const IPAbovePEEPInfo = (): JSX.Element => (
       />
     }
     alarmModal={
-      <AlarmModal label={label} units={units} stateKey={stateKey} requestCommitRange={() => null} />
+      <AlarmModal label={label} units={units} stateKey={stateKey} getCommittedRange={() => null} />
     }
   />
 );

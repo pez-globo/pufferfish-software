@@ -341,11 +341,10 @@ const ControlValuesDisplay = ({
           <AlarmModal
             updateModalStatus={(status: boolean) => setOpen(status)}
             openModal={open}
-            disableAlarmButton={true}
             label={label}
             units={units}
             stateKey={stateKey}
-            requestCommitRange={() => null}
+            getCommittedRange={() => null}
           />
         )}
       </Grid>

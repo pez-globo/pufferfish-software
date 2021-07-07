@@ -50,7 +50,7 @@ const InspTimeInfo = (): JSX.Element => (
         units={units}
         stateKey={stateKey}
         step={sliderStepValue}
-        requestCommitRange={() => null}
+        getCommittedRange={() => null}
       />
     }
   />
