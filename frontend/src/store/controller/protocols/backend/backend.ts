@@ -4,12 +4,15 @@ import { receivedBackendHeartbeat } from '../../../app/actions';
 import { updateState } from '../../actions';
 import { StateUpdateAction } from '../../types';
 import { GeneratorYieldType, GeneratorYield, makeYieldResult, makeYieldEffect } from '../sagas';
+import { serialize, deserialize } from './transport';
 import {
+  TaggedPBMessage,
   SenderYield as StateSenderYield,
   SenderYieldEffect as StateSenderYieldEffect,
-} from '../application/states';
-import { serialize, deserialize } from './transport';
-import { TaggedPBMessage, backendStateSender, sendMinInterval } from './states';
+  SenderInputs as StateSenderInputs,
+  backendStateSender,
+  sendMinInterval,
+} from './states';
 
 export function* receive(
   body: Uint8Array,
@@ -26,28 +29,26 @@ export function* receive(
 export type SenderYieldResult = Uint8Array;
 export type SenderYieldEffect = SelectEffect | CallEffect;
 export type SenderYield = GeneratorYield<SenderYieldResult, SenderYieldEffect>;
-const makeSenderYieldResult = (result: SenderYieldResult) =>
-  makeYieldResult<SenderYieldResult, SenderYieldEffect>(result);
-const makeSenderYieldEffect = (effect: SenderYieldEffect) =>
-  makeYieldEffect<SenderYieldResult, SenderYieldEffect>(effect);
+export type SenderInputs = StateSenderInputs;
+type SagaSender = Generator<SenderYield, SenderYield, SenderInputs>;
 
 // This generator is tagged as returning SenderYield to make typescript eslinting
 // behave nicely, but it actually never returns (it only yields).
 // It yields either redux-saga effects (which require an input into the generator's
 // subsequent next() method call) or byte buffers to send.
-export function* sender(): Generator<SenderYield, SenderYield, TaggedPBMessage> {
+export function* sender(): SagaSender {
   const sender = backendStateSender();
   let nextInput = null;
   while (true) {
-    const yieldValue: StateSenderYield<TaggedPBMessage> = sender.next(nextInput).value;
+    const yieldValue: StateSenderYield = sender.next(nextInput).value;
     switch (yieldValue.type) {
       case GeneratorYieldType.Result:
         nextInput = null;
         if (yieldValue.value !== null) {
           const { type: messageType, value: pbMessage } = yieldValue.value as TaggedPBMessage;
-          yield makeSenderYieldResult(serialize(messageType, pbMessage));
+          yield makeYieldResult(serialize(messageType, pbMessage));
         }
-        yield makeSenderYieldEffect(delay(sendMinInterval));
+        yield makeYieldEffect(delay(sendMinInterval));
         break;
       case GeneratorYieldType.Effect:
         nextInput = yield {
@@ -57,7 +58,6 @@ export function* sender(): Generator<SenderYield, SenderYield, TaggedPBMessage> 
         break;
       default:
         throw new Error('Unhandled generator yield type!');
-        break;
     }
   }
 }

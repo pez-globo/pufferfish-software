@@ -38,7 +38,6 @@ function* sendAll(sock: WebSocket) {
       }
       default:
         throw new Error('Unhandled generator yield type!');
-        break;
     }
   }
 }
@@ -52,7 +51,7 @@ function* serviceConnection() {
   receiveChannel.close();
 }
 
-const retryConnectInterval = 10; // ms
+const retryConnectInterval = 100; // ms
 
 export function* serviceConnectionPersistently(): IterableIterator<unknown> {
   while (true) {
