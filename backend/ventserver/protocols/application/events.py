@@ -184,7 +184,8 @@ class ChangedStateSender(
             return
 
         for index in self._trackable_states:
-            self._notification_sender.input(index)
+            if self.all_states[index] is not None:
+                self._notification_sender.input(index)
 
     def output(self) -> Optional[betterproto.Message]:
         """Emit the next output event."""
