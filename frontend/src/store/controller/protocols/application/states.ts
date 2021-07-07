@@ -13,7 +13,8 @@ export interface TaggedStateSegment<StateSegmentType, StateSegment> {
   value: StateSegment;
 }
 
-// Use makeStateMapSender to make an IndexedSender from a Map of Indices to StateSegments.
+// Use makeStateMapSender to make an IndexedSender of TaggedStateSegments from a
+// Map of Indices to StateSegments.
 export const makeStateMapSender = <Index, StateSegment>(
   states: Map<Index, StateSegment | null>,
 ) => (index: Index): TaggedStateSegment<Index, StateSegment> | null => {

@@ -14,6 +14,8 @@ import {
   sendMinInterval,
 } from './states';
 
+// Buffer Receiving
+
 export function* receive(
   body: Uint8Array,
 ): Generator<PutEffect<StateUpdateAction | AppAction>, void, void> {
@@ -26,16 +28,18 @@ export function* receive(
   }
 }
 
+// Buffer Sending
+
 export type SenderYieldResult = Uint8Array;
 export type SenderYieldEffect = SelectEffect | CallEffect;
 export type SenderYield = GeneratorYield<SenderYieldResult, SenderYieldEffect>;
 export type SenderInputs = StateSenderInputs;
+// SagaSender is tagged as returning SenderYield to make typescript eslinting
+// behave nicely, but it actually never returns (it only yields).
 type SagaSender = Generator<SenderYield, SenderYield, SenderInputs>;
 
-// This generator is tagged as returning SenderYield to make typescript eslinting
-// behave nicely, but it actually never returns (it only yields).
-// It yields either redux-saga effects (which require an input into the generator's
-// subsequent next() method call) or byte buffers to send.
+// This generator yields byte buffers to send, as well as redux-saga effects (which
+// require an input into the generator's subsequent next() method call).
 export function* sender(): SagaSender {
   const sender = backendStateSender();
   let nextInput = null;

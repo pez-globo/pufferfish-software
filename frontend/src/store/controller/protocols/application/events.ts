@@ -11,8 +11,8 @@ export const makeFilteredSender = <Index, StateSegment>(
 
 // A notification sender uses a sequence of Indices to yield outputs from an IndexedSender
 // based on indices provided as input to the next() method.
-// After a yield, the next call to the next() method should contain a (possibly empty) array
-// of indices to mark as sendable.
+// After a yield, the subbsequent call to the next() method should contain a (possibly empty)
+// array of indices to mark as sendable.
 export function* notificationSender<Index, StateSegment>(
   indexSequence: Array<Index>,
   indexedSender: IndexedSender<Index, TaggedStateSegment<Index, StateSegment>>,

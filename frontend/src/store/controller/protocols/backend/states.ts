@@ -19,9 +19,7 @@ import {
 import { ConnectionStatus, changedStateSender } from '../application/events';
 import { GeneratorYield, makeYieldResult, makeYieldEffect } from '../sagas';
 
-// Store
-
-export type TaggedPBMessage = TaggedStateSegment<MessageType, PBMessage>;
+// Store Access
 
 type StateSelector = OutputSelector<
   StoreState,
@@ -31,7 +29,6 @@ type StateSelector = OutputSelector<
   // eslint-disable-next-line
   (arg: any) => PBMessage | null
 >;
-
 const selectors = new Map<MessageType, StateSelector>([
   [MessageType.AlarmLimitsRequest, getAlarmLimitsRequest],
   [MessageType.ParametersRequest, getParametersRequest],
@@ -59,14 +56,18 @@ const sendSchedule = [
   MessageType.FrontendDisplaySetting,
 ];
 
+export type TaggedPBMessage = TaggedStateSegment<MessageType, PBMessage>;
 export type SenderYieldResult = TaggedPBMessage | null;
 export type SenderYieldEffect = SelectEffect;
 export type SenderYield = GeneratorYield<SenderYieldResult, SenderYieldEffect>;
 export type SenderInputs = PBMessage | Date | null;
+// SagaSender is tagged as returning SenderYield to make typescript eslinting
+// behave nicely, but it actually never returns (it only yields).
 type SagaSender = Generator<SenderYield, SenderYield, SenderInputs>;
 
-// The backend state sender yields tagged unions of MessageType and PBMessage
-// as well as redux-saga effects (for selecting PBMessages from the store).
+// This generator yields tagged unions of MessageType and PBMessage,
+// as well as redux-saga effects (for selecting PBMessages from the store, and
+// which require an input into the generator's subsequent next() method call).
 export function* backendStateSender(): SagaSender {
   const states = new Map<MessageType, PBMessage | null>();
   const stateMapSender = makeStateMapSender(states);
