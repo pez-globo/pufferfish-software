@@ -56,44 +56,42 @@ export function* notificationSender<Index, StateSegment>(
 
   let nextInput = null;
   while (true) {
-      // Service results and effects yielded by the sendable sender,
-      // as well as inputs specifying any indices to mark as sendable
-      if (sendableIndices.size === 0) {
-        const newlySendableIndices = (yield makeSenderYieldResult(null)) as Set<Index>;
-        for (let index of newlySendableIndices) {
-          sendableIndices.add(index);
-        }
-      } else {
-        const yieldValue: SenderYield<
-          TaggedStateSegment<Index, StateSegment>
-        > = sendableSender.next(nextInput).value;
-        switch (yieldValue.type) {
-          case GeneratorYieldType.Result: {
-            nextInput = null;
-            if (yieldValue.value !== null) {
-              const {
-                type: index,
-              } = yieldValue.value as TaggedStateSegment<Index, StateSegment>;
-              sendableIndices.delete(index);
-              // console.log(`Event: Sending notification for ${index}`);
-            }
-            const newlySendableIndices = (yield yieldValue) as Set<Index>;
-            for (let index of newlySendableIndices) {
-              sendableIndices.add(index);
-            }
-            break;
-          }
-          case GeneratorYieldType.Effect:
-            nextInput = yield yieldValue;
-            break;
-        }
+    // Service results and effects yielded by the sendable sender,
+    // as well as inputs specifying any indices to mark as sendable
+    if (sendableIndices.size === 0) {
+      const newlySendableIndices = (yield makeSenderYieldResult(null)) as Set<Index>;
+      for (const index of newlySendableIndices) {
+        sendableIndices.add(index);
       }
+    } else {
+      const yieldValue: SenderYield<TaggedStateSegment<Index, StateSegment>> = sendableSender.next(
+        nextInput,
+      ).value;
+      switch (yieldValue.type) {
+        case GeneratorYieldType.Result: {
+          nextInput = null;
+          if (yieldValue.value !== null) {
+            const { type: index } = yieldValue.value as TaggedStateSegment<Index, StateSegment>;
+            sendableIndices.delete(index);
+            // console.log(`Event: Sending notification for ${index}`);
+          }
+          const newlySendableIndices = (yield yieldValue) as Set<Index>;
+          for (const index of newlySendableIndices) {
+            sendableIndices.add(index);
+          }
+          break;
+        }
+        case GeneratorYieldType.Effect:
+          nextInput = yield yieldValue;
+          break;
+      }
+    }
   }
 }
 
 export interface ConnectionStatus {
   lastConnectionTime: Date | null;
-};
+}
 
 // An event sender uses a sequence of Indices to yield outputs from an IndexedSender,
 // as well as any redux-saga effects yielded from the IndexedSender.
@@ -111,63 +109,65 @@ export function* changedStateSender<Index, StateSegment>(
 
   let nextSenderInput: any = new Set<Index>();
   while (true) {
-      // Service results and effects yielded by the sender, as well as any reset events
-      const senderYieldValue: SenderYield<
-        TaggedStateSegment<Index, StateSegment>
-      > = sender.next(nextSenderInput).value;
-      switch (senderYieldValue.type) {
-        case GeneratorYieldType.Result: {
-          nextSenderInput = new Set<Index>();
-          // Prepare to handle connection changes
-          const newConnection = connectionStatus.lastConnectionTime !== prevConnectionStatus.lastConnectionTime;
-          if (newConnection) {
-            // We just connected, so prepare to tell the sender to mark all states as sendable
-            // console.log('Event: responding to a new connection!');
-          }
-          prevConnectionStatus.lastConnectionTime = connectionStatus.lastConnectionTime;
-          // Prepare to tell the sender to mark changed states as sendable
-          for (let index of trackableStates) {
-            const stateGetter = allStates(index);
-            let nextGetterInput = null;
-            let newState = null;
-            // Get the new value of the state
-            while (true) {
-              // Service results and effects yielded by the allStates getter
-              const nextGetterYield = stateGetter.next(nextGetterInput);
-              switch (nextGetterYield.value.type) {
-                case GeneratorYieldType.Result: {
-                  nextGetterInput = null;
-                  const getterYieldResult = (
-                    nextGetterYield.value.value as TaggedStateSegment<Index, StateSegment> | null
-                  );
-                  if (getterYieldResult !== null) {
-                    newState = getterYieldResult.value;
-                  }
-                  break;
+    // Service results and effects yielded by the sender, as well as any reset events
+    const senderYieldValue: SenderYield<TaggedStateSegment<Index, StateSegment>> = sender.next(
+      nextSenderInput,
+    ).value;
+    switch (senderYieldValue.type) {
+      case GeneratorYieldType.Result: {
+        nextSenderInput = new Set<Index>();
+        // Prepare to handle connection changes
+        const newConnection =
+          connectionStatus.lastConnectionTime !== prevConnectionStatus.lastConnectionTime;
+        if (newConnection) {
+          // We just connected, so prepare to tell the sender to mark all states as sendable
+          // console.log('Event: responding to a new connection!');
+        }
+        prevConnectionStatus.lastConnectionTime = connectionStatus.lastConnectionTime;
+        // Prepare to tell the sender to mark changed states as sendable
+        for (const index of trackableStates) {
+          const stateGetter = allStates(index);
+          let nextGetterInput = null;
+          let newState = null;
+          // Get the new value of the state
+          while (true) {
+            // Service results and effects yielded by the allStates getter
+            const nextGetterYield = stateGetter.next(nextGetterInput);
+            switch (nextGetterYield.value.type) {
+              case GeneratorYieldType.Result: {
+                nextGetterInput = null;
+                const getterYieldResult = nextGetterYield.value.value as TaggedStateSegment<
+                  Index,
+                  StateSegment
+                > | null;
+                if (getterYieldResult !== null) {
+                  newState = getterYieldResult.value;
                 }
-                case GeneratorYieldType.Effect:
-                  nextGetterInput = yield nextGetterYield.value;
-                  break;
-              }
-              if (nextGetterYield.done) {
-                // The allStates getter has finished working and returned its result,
-                // so it no longer has any results or effects to service
                 break;
               }
+              case GeneratorYieldType.Effect:
+                nextGetterInput = yield nextGetterYield.value;
+                break;
             }
-            // Prepare to tell the sender to mark the state as sendable, if it changed
-            if (newState !== null && (newConnection || !_.isEqual(newState, prevStates.get(index)))) {
-              // console.log(`Event: State ${index} changed!`)
-              nextSenderInput.add(index);
-              prevStates.set(index, newState);
+            if (nextGetterYield.done) {
+              // The allStates getter has finished working and returned its result,
+              // so it no longer has any results or effects to service
+              break;
             }
           }
-          yield senderYieldValue;
-          break;
+          // Prepare to tell the sender to mark the state as sendable, if it changed
+          if (newState !== null && (newConnection || !_.isEqual(newState, prevStates.get(index)))) {
+            // console.log(`Event: State ${index} changed!`)
+            nextSenderInput.add(index);
+            prevStates.set(index, newState);
+          }
         }
-        case GeneratorYieldType.Effect:
-          nextSenderInput = yield senderYieldValue;
-          break;
+        yield senderYieldValue;
+        break;
       }
+      case GeneratorYieldType.Effect:
+        nextSenderInput = yield senderYieldValue;
+        break;
+    }
   }
 }

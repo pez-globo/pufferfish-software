@@ -42,7 +42,9 @@ export function appReducer(state = initialState, action: AppAction): AppState {
         ...state,
         clock: new Date(),
         backendConnection: true,
-        lastBackendConnectionTime: state.backendConnection ? state.lastBackendConnectionTime : new Date(),
+        lastBackendConnectionTime: state.backendConnection
+          ? state.lastBackendConnectionTime
+          : new Date(),
       };
     default:
       return state;
