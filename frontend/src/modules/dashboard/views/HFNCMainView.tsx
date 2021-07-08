@@ -7,6 +7,7 @@
 import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
+import { shallowEqual, useSelector } from 'react-redux';
 import {
   getHRAlarmLimitsCurrent,
   getParametersFiO2,
@@ -59,6 +60,8 @@ const useStyles = makeStyles((theme: Theme) => ({
  */
 const HFNCMainView = (): JSX.Element => {
   const classes = useStyles();
+  const spo2AlarmLimits = useSelector(getSpO2AlarmLimitsCurrent, shallowEqual);
+  const hrAlarmLimits = useSelector(getHRAlarmLimitsCurrent, shallowEqual);
 
   return (
     <Grid container direction="row" className={classes.root}>
@@ -79,7 +82,7 @@ const HFNCMainView = (): JSX.Element => {
               label="SpO2"
               stateKey="spo2"
               units={PERCENT}
-              alarmLimits={getSpO2AlarmLimitsCurrent}
+              alarmLimits={spo2AlarmLimits}
               showLimits
               isLarge
             />
@@ -90,7 +93,7 @@ const HFNCMainView = (): JSX.Element => {
               label="HR"
               stateKey="hr"
               units={BPM}
-              alarmLimits={getHRAlarmLimitsCurrent}
+              alarmLimits={hrAlarmLimits}
               showLimits
               isLarge
             />

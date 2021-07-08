@@ -18,8 +18,6 @@ import {
   getParametersRequestDraftFlow,
   getSpO2AlarmLimitsRequest,
   getHRAlarmLimitsRequest,
-  getFiO2AlarmLimitsRequest,
-  getFlowAlarmLimitsRequest,
   getParametersFlow,
   getParametersFiO2,
 } from '../../store/controller/selectors';
@@ -67,6 +65,13 @@ interface Data {
   alarmLimitMax?: number | null;
   alarmValuesActual: Range;
   setValueActual: number;
+}
+
+interface HFNCProps {
+  alarmValuesSpO2: Range;
+  alarmValuesHR: Range;
+  alarmValuesFiO2: Range;
+  alarmValuesFlow: Range;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -139,7 +144,12 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * @returns {JSX.Element}
  */
-const HFNCControls = (): JSX.Element => {
+const HFNCControls = ({
+  alarmValuesSpO2,
+  alarmValuesHR,
+  alarmValuesFiO2,
+  alarmValuesFlow,
+}: HFNCProps): JSX.Element => {
   return (
     <React.Fragment>
       <Grid
@@ -155,7 +165,7 @@ const HFNCControls = (): JSX.Element => {
           label="SpO2"
           stateKey="spo2"
           units={PERCENT}
-          alarmLimits={getSpO2AlarmLimitsRequest}
+          alarmLimits={alarmValuesSpO2}
           showLimits
         />
         <ValueInfo
@@ -163,7 +173,7 @@ const HFNCControls = (): JSX.Element => {
           label="HR"
           stateKey="hr"
           units={BPM}
-          alarmLimits={getHRAlarmLimitsRequest}
+          alarmLimits={alarmValuesHR}
           showLimits
         />
       </Grid>
@@ -173,7 +183,7 @@ const HFNCControls = (): JSX.Element => {
           label="FiO2"
           stateKey="fio2"
           units={PERCENT}
-          alarmLimits={getFiO2AlarmLimitsRequest}
+          alarmLimits={alarmValuesFiO2}
           showLimits
         />
         <ValueInfo
@@ -181,7 +191,7 @@ const HFNCControls = (): JSX.Element => {
           label="Flow"
           stateKey="flow"
           units={LMIN}
-          alarmLimits={getFlowAlarmLimitsRequest}
+          alarmLimits={alarmValuesFlow}
           showLimits
         />
       </Grid>
@@ -657,8 +667,12 @@ const MultiStepWizard = (): JSX.Element => {
           </Grid>
           <Grid container className={classes.tabAligning}>
             <TabPanel value={tabIndex} index={0}>
-              {/* TODO: use selectors instead of local state */}
-              <HFNCControls />
+              <HFNCControls
+                alarmValuesSpO2={getAlarmValues('spo2')}
+                alarmValuesHR={getAlarmValues('hr')}
+                alarmValuesFiO2={getAlarmValues('fio2')}
+                alarmValuesFlow={getAlarmValues('flow')}
+              />
             </TabPanel>
             <TabPanel value={tabIndex} index={1}>
               {parameter && parameter.isSetvalEnabled ? (
