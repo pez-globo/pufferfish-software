@@ -96,7 +96,18 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
   },
   alertButtonSpan: {
-    minWidth: 150,
+    width: '250px',
+    borderRadius: 5,
+    marginRight: '10px',
+    backgroundColor: '#FF0000',
+    color: '#fff',
+    '&:hover': {
+      backgroundColor: '#FF0000',
+    },
+  },
+  alertButtonSpanMuted: {
+    justifyContent: 'flex-end',
+    width: '250px',
     borderRadius: 5,
     marginRight: '10px',
     backgroundColor: '#FF0000',
@@ -112,7 +123,11 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginRight: '16px',
     padding: '6px 10px',
   },
-  timer: { padding: '6px 16px', backgroundColor: '#88211b', borderRadius: '0px 4px 4px 0px' },
+  timer: {
+    padding: '6px 16px',
+    backgroundColor: '#88211b',
+    borderRadius: '0px 4px 4px 0px',
+  },
   alertTimer: {
     margin: '0px 12px',
     backgroundColor: '#0053b336',
@@ -418,7 +433,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           style={{ marginLeft: 10, marginRight: 10, margin: '0px 10px', padding: 0 }}
           variant="contained"
           color="primary"
-          className={classes.alertButtonSpan}
+          className={isMuted ? classes.alertButtonSpan : classes.alertButtonSpanMuted}
           onClick={onActiveAlarmClick}
         >
           <span className={isMuted ? `${classes.alertMargin}` : ''} style={{ padding: '6px 16px' }}>
@@ -433,7 +448,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
             </div>
           )}
           {!isMuted && countdownTimer !== undefined && (
-            <div className={classes.timer}>
+            <div className={classes.timer} style={{ marginLeft: 10 }}>
               {new Date(countdownTimer * 1000).toISOString().substr(14, 5)}
             </div>
           )}
