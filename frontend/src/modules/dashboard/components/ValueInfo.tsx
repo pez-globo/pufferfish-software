@@ -168,7 +168,7 @@ export interface Props {
   selector: SelectorType;
   label: string;
   stateKey: string;
-  alarmLimits?: number[];
+  alarmLimits?: SelectorType;
   units?: string;
   isLarge?: boolean;
   isMain?: boolean;
@@ -235,18 +235,9 @@ const ControlValuesDisplay = ({
    * State to toggle opening Alarm popup
    */
   const [open, setOpen] = useState(false);
-  const alarmLimitsRequest = useSelector(getAlarmLimitsRequest, shallowEqual);
-  const range =
-    alarmLimitsRequest === null
-      ? undefined
-      : ((alarmLimitsRequest as unknown) as Record<string, Range>)[stateKey];
-  const rangeValues = range === undefined ? { lower: '--', upper: '--' } : range;
-  const alarmTemp = alarmLimits === undefined ? { lower: '--', upper: '--' } : alarmLimits;
-  const alarmLimitsRange = alarmTemp as number[];
-  const { lower, upper } =
-    alarmLimitsRange?.length === 0
-      ? rangeValues
-      : { lower: alarmLimitsRange[0], upper: alarmLimitsRange[1] };
+  const alarmsTemp = alarmLimits === undefined ? getAlarmLimitsRequest : alarmLimits;
+  const rangeValues: Range = useSelector(alarmsTemp, shallowEqual);
+  const { lower, upper } = { lower: rangeValues.lower, upper: rangeValues.upper };
 
   /**
    * Opens Multistep Popup on Clicking over component

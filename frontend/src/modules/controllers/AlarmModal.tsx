@@ -98,7 +98,7 @@ interface Props {
   openModal?: boolean;
   contentOnly?: boolean;
   labelHeading?: boolean;
-  alarmRangeValues?: number[];
+  alarmRangeValues?: Range;
 }
 
 /**
@@ -124,7 +124,7 @@ export const AlarmModal = ({
   step,
   contentOnly = false,
   labelHeading = false,
-  alarmRangeValues = [],
+  alarmRangeValues = { lower: 0, upper: 0 },
 }: Props): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -149,8 +149,8 @@ export const AlarmModal = ({
       : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
   const { lower, upper } = range === undefined ? Range.fromJSON({ lower: NaN, upper: NaN }) : range;
   const [rangeValue, setRangeValue] = React.useState<number[]>([
-    alarmRangeValues.length ? alarmRangeValues[0] : lower,
-    alarmRangeValues.length ? alarmRangeValues[1] : upper,
+    alarmRangeValues.lower !== 0 ? alarmRangeValues.lower : lower,
+    alarmRangeValues.upper !== 0 ? alarmRangeValues.upper : upper,
   ]);
   /**
    * State to provide reference HTML element for Lower/Upper Wrapper

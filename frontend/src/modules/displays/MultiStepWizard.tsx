@@ -5,7 +5,7 @@
  */
 import React, { useEffect } from 'react';
 import { Subscription } from 'rxjs';
-import { useDispatch } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
 import ReplyIcon from '@material-ui/icons/Reply';
 // import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
@@ -14,19 +14,23 @@ import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '.
 import {
   getSmoothedSpO2,
   getSmoothedHR,
-  roundValue,
   getParametersRequestDraftFiO2,
   getParametersRequestDraftFlow,
+  getSpO2AlarmLimitsRequest,
+  getHRAlarmLimitsRequest,
+  getFiO2AlarmLimitsRequest,
+  getFlowAlarmLimitsRequest,
+  getParametersFlow,
+  getParametersFiO2,
 } from '../../store/controller/selectors';
 import { SetValueContent } from '../controllers/ValueModal';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import ValueInfo from '../dashboard/components/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../info/units';
 import { AlarmModal } from '../controllers';
-import { ParametersRequest, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
+import { ParametersRequest, AlarmLimitsRequest, Range } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
-import store from '../../store';
 
 /**
  * @typedef Data
@@ -55,21 +59,14 @@ interface Data {
   isAlarmEnabled: boolean;
   isSetvalEnabled: boolean;
   committedSetting?: number | null;
-  alarmValues: number[];
+  alarmValues: Range;
   setValue: number;
   minValue?: number | null;
   maxValue?: number | null;
   alarmLimitMin?: number | null;
   alarmLimitMax?: number | null;
-  alarmValuesActual: number[];
+  alarmValuesActual: Range;
   setValueActual: number;
-}
-
-interface HFNCProps {
-  alarmValuesSpO2: number[];
-  alarmValuesHR: number[];
-  alarmValuesFiO2: number[];
-  alarmValuesFlow: number[];
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -142,12 +139,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  * @returns {JSX.Element}
  */
-const HFNCControls = ({
-  alarmValuesSpO2,
-  alarmValuesHR,
-  alarmValuesFiO2,
-  alarmValuesFlow,
-}: HFNCProps): JSX.Element => {
+const HFNCControls = (): JSX.Element => {
   return (
     <React.Fragment>
       <Grid
@@ -163,7 +155,7 @@ const HFNCControls = ({
           label="SpO2"
           stateKey="spo2"
           units={PERCENT}
-          alarmLimits={alarmValuesSpO2}
+          alarmLimits={getSpO2AlarmLimitsRequest}
           showLimits
         />
         <ValueInfo
@@ -171,7 +163,7 @@ const HFNCControls = ({
           label="HR"
           stateKey="hr"
           units={BPM}
-          alarmLimits={alarmValuesHR}
+          alarmLimits={getHRAlarmLimitsRequest}
           showLimits
         />
       </Grid>
@@ -181,7 +173,7 @@ const HFNCControls = ({
           label="FiO2"
           stateKey="fio2"
           units={PERCENT}
-          alarmLimits={alarmValuesFiO2}
+          alarmLimits={getFiO2AlarmLimitsRequest}
           showLimits
         />
         <ValueInfo
@@ -189,7 +181,7 @@ const HFNCControls = ({
           label="Flow"
           stateKey="flow"
           units={LMIN}
-          alarmLimits={alarmValuesFlow}
+          alarmLimits={getFlowAlarmLimitsRequest}
           showLimits
         />
       </Grid>
@@ -220,7 +212,7 @@ const createData = (
   units: string,
   isSetvalEnabled: boolean,
   isAlarmEnabled: boolean,
-  alarmValuesActual: number[],
+  alarmValuesActual: Range,
   committedSetting?: number | null,
   minValue?: number | null,
   maxValue?: number | null,
@@ -246,65 +238,6 @@ const createData = (
 };
 
 /**
- * Function to get value from redux store for parameters
- *
- * @param {string} stateKey - Unique identifier for the value
- *
- * @returns {number | null} - Value from redux store
- */
-const getStoreValueData = (stateKey: string): number | null => {
-  // TODO: is there a reason this function directly accesses the store, rather than
-  // using the getParametersFiO2 and getParametersFlow2 selectors?
-  // Yes, since its non React function, it does not have access to Hooks
-  // So it directly accesses from the store
-  const storeData = store.getState();
-  if (storeData.controller.parameters.current === null) {
-    return null;
-  }
-
-  switch (stateKey) {
-    case 'fio2':
-      return roundValue(storeData.controller.parameters.current.fio2);
-    case 'flow':
-      return roundValue(storeData.controller.parameters.current.flow);
-    default:
-      return null;
-  }
-};
-
-/**
- * Function to get value from redux store for Alarms
- *
- * @param {string} stateKey - Unique identifier for the value
- *
- * @returns {number | null} - Value from redux store
- */
-const getStoreAlarmData = (stateKey: string): number[] | null => {
-  // TODO: is there a reason this function directly access the store, rather than
-  // using the getAlarmLimitsRequest selector?
-  // Yes, since its non React function, it does not have access to Hooks
-  // So it directly accesses from the store
-  const storeData = store.getState();
-  const alarmLimits = storeData.controller.alarmLimits.request;
-  if (alarmLimits === null) {
-    return null;
-  }
-
-  switch (stateKey) {
-    case 'spo2':
-      return [alarmLimits.spo2?.lower as number, alarmLimits.spo2?.upper as number];
-    case 'hr':
-      return [alarmLimits.hr?.lower as number, alarmLimits.hr?.upper as number];
-    case 'fio2':
-      return [alarmLimits.fio2?.lower as number, alarmLimits.fio2?.upper as number];
-    case 'flow':
-      return [alarmLimits.flow?.lower as number, alarmLimits.flow?.upper as number];
-    default:
-      return null;
-  }
-};
-
-/**
  * Function to frame `Data` object based on `stateKey` provided
  *
  * TODO: Make a constant file for stateKey Constants
@@ -313,60 +246,6 @@ const getStoreAlarmData = (stateKey: string): number[] | null => {
  *
  * @returns {Data | undefined} - `Data` object containing configurations
  */
-const determineInput = (stateKey: string): Data | undefined => {
-  switch (stateKey) {
-    case 'spo2':
-      return createData(
-        'SpO2',
-        stateKey,
-        PERCENT,
-        false,
-        true,
-        getStoreAlarmData(stateKey) as number[],
-        -1,
-      );
-    case 'hr':
-      return createData(
-        'HR',
-        stateKey,
-        BPM,
-        false,
-        true,
-        getStoreAlarmData(stateKey) as number[],
-        -1,
-        null,
-        null,
-        0,
-        200,
-      );
-    case 'fio2':
-      return createData(
-        'FiO2',
-        stateKey,
-        PERCENT,
-        true,
-        false,
-        [],
-        getStoreValueData(stateKey) as number,
-        21,
-        null,
-      );
-    case 'flow':
-      return createData(
-        'Flow Rate',
-        stateKey,
-        LMIN,
-        true,
-        false,
-        [],
-        getStoreValueData(stateKey) as number,
-        null,
-        80,
-      );
-    default:
-  }
-  return undefined;
-};
 
 /**
  * MultiStepWizard
@@ -414,6 +293,45 @@ const MultiStepWizard = (): JSX.Element => {
    * State to manage if button submitted is disabled
    */
   const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);
+  const alarmValuesSpO2 = useSelector(getSpO2AlarmLimitsRequest, shallowEqual);
+  const alarmValuesHR = useSelector(getHRAlarmLimitsRequest, shallowEqual);
+  const parametersFiO2 = useSelector(getParametersFiO2);
+  const parametersFlow = useSelector(getParametersFlow);
+
+  const determineInput = (stateKey: string): Data | undefined => {
+    switch (stateKey) {
+      case 'spo2':
+        return createData('SpO2', 'spo2', PERCENT, false, true, alarmValuesSpO2, -1);
+      case 'hr':
+        return createData('HR', 'hr', BPM, false, true, alarmValuesHR, -1, null, null, 0, 200);
+      case 'fio2':
+        return createData(
+          'FiO2',
+          'fio2',
+          PERCENT,
+          true,
+          false,
+          { lower: 0, upper: 0 },
+          parametersFiO2,
+          21,
+          null,
+        );
+      case 'flow':
+        return createData(
+          'Flow Rate',
+          'flow',
+          LMIN,
+          true,
+          false,
+          { lower: 0, upper: 0 },
+          parametersFlow,
+          null,
+          80,
+        );
+      default:
+    }
+    return undefined;
+  };
 
   /**
    * Trigger on Tab index change event
@@ -456,7 +374,7 @@ const MultiStepWizard = (): JSX.Element => {
       setConfirmOpen(false);
       setCancelOpen(false);
     };
-  }, []);
+  });
 
   /**
    * Triggers on TabIndex or Parameter change
@@ -530,8 +448,8 @@ const MultiStepWizard = (): JSX.Element => {
   const doSetAlarmValues = (min: number, max: number) => {
     if (parameter) {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
-      if (param) param.alarmValues = [min, max];
-      parameter.alarmValues = [min, max];
+      if (param) param.alarmValues = { lower: min, upper: max };
+      parameter.alarmValues = { lower: min, upper: max };
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
       } else {
@@ -551,9 +469,9 @@ const MultiStepWizard = (): JSX.Element => {
   const getAlarmValues = (stateKey: string) => {
     const param = multiParams.find((param: Data) => param.stateKey === stateKey);
     if (param) {
-      if (param.alarmValues.length) return param.alarmValues;
+      if (param.alarmValues) return param.alarmValues;
     }
-    return [];
+    return { lower: 0, upper: 0 };
   };
 
   /**
@@ -587,9 +505,8 @@ const MultiStepWizard = (): JSX.Element => {
           anyChange = true;
         }
       } else if (
-        param.alarmValues.length &&
-        (param.alarmValues[0] !== param.alarmValuesActual[0] ||
-          param.alarmValues[1] !== param.alarmValuesActual[1])
+        param.alarmValues.lower !== param.alarmValuesActual.lower ||
+        param.alarmValues.upper !== param.alarmValuesActual.upper
       ) {
         anyChange = true;
       }
@@ -633,12 +550,9 @@ const MultiStepWizard = (): JSX.Element => {
         dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
         dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
       }
-      if (parameter.isAlarmEnabled && parameter.alarmValues.length) {
+      if (parameter.isAlarmEnabled && parameter.alarmValues) {
         const update = {
-          [parameter.stateKey]: {
-            lower: parameter.alarmValues[0],
-            upper: parameter.alarmValues[1],
-          },
+          [parameter.stateKey]: parameter.alarmValues,
         };
         dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
         dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
@@ -741,12 +655,7 @@ const MultiStepWizard = (): JSX.Element => {
           <Grid container className={classes.tabAligning}>
             <TabPanel value={tabIndex} index={0}>
               {/* TODO: use selectors instead of local state */}
-              <HFNCControls
-                alarmValuesSpO2={getAlarmValues('spo2')}
-                alarmValuesHR={getAlarmValues('hr')}
-                alarmValuesFiO2={getAlarmValues('fio2')}
-                alarmValuesFlow={getAlarmValues('flow')}
-              />
+              <HFNCControls />
             </TabPanel>
             <TabPanel value={tabIndex} index={1}>
               {parameter && parameter.isSetvalEnabled ? (
@@ -835,12 +744,11 @@ const MultiStepWizard = (): JSX.Element => {
                     );
                   }
                 } else if (
-                  param.alarmValues.length &&
-                  (param.alarmValues[0] !== param.alarmValuesActual[0] ||
-                    param.alarmValues[1] !== param.alarmValuesActual[1])
+                  param.alarmValues.lower !== param.alarmValuesActual.lower ||
+                  param.alarmValues.upper !== param.alarmValuesActual.upper
                 ) {
                   return (
-                    <Typography variant="subtitle1">{`Change ${param.label} alarm range to ${param.alarmValues[0]} - ${param.alarmValues[1]}?`}</Typography>
+                    <Typography variant="subtitle1">{`Change ${param.label} alarm range to ${param.alarmValues.lower} - ${param.alarmValues.upper}?`}</Typography>
                   );
                 }
                 return <React.Fragment />;
@@ -873,12 +781,11 @@ const MultiStepWizard = (): JSX.Element => {
                     );
                   }
                 } else if (
-                  param.alarmValues.length &&
-                  (param.alarmValues[0] !== param.alarmValuesActual[0] ||
-                    param.alarmValues[1] !== param.alarmValuesActual[1])
+                  param.alarmValues.lower !== param.alarmValuesActual.lower ||
+                  param.alarmValues.upper !== param.alarmValuesActual.upper
                 ) {
                   return (
-                    <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${param.alarmValuesActual[0]} - ${param.alarmValuesActual[1]}?`}</Typography>
+                    <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${param.alarmValuesActual.lower} - ${param.alarmValuesActual.upper}?`}</Typography>
                   );
                 }
                 return <React.Fragment />;
