@@ -50,7 +50,7 @@ import { commitRequest, commitDraftRequest } from '../../store/controller/action
  * @prop {number[]} alarmValuesActual Actual Alarm Value when Component was initalized
  * @prop {number} setValueActual Actual Set Value when Component was initalized
  */
-interface Data {
+interface ParameterData {
   stateKey: string;
   label: string;
   units: string;
@@ -216,7 +216,7 @@ const HFNCControls = ({
  *
  * @returns {Data} - returns the `Data` value
  */
-const createData = (
+const createParameterData = (
   label: string,
   stateKey: string,
   units: string,
@@ -228,7 +228,7 @@ const createData = (
   maxValue?: number | null,
   alarmLimitMin?: number | null,
   alarmLimitMax?: number | null,
-): Data => {
+): ParameterData => {
   return {
     label,
     stateKey,
@@ -294,11 +294,11 @@ const MultiStepWizard = (): JSX.Element => {
   /**
    * State to manage Parameter `Data`
    */
-  const [parameter, setParameter] = React.useState<Data>();
+  const [parameter, setParameter] = React.useState<ParameterData>();
   /**
    * State to manage all Parameter `Data`
    */
-  const [multiParams, setMultiParams] = React.useState<Data[]>([]);
+  const [multiParams, setMultiParams] = React.useState<ParameterData[]>([]);
   /**
    * State to manage if button submitted is disabled
    */
@@ -309,14 +309,26 @@ const MultiStepWizard = (): JSX.Element => {
   const parametersFlow = useSelector(getParametersFlow);
 
   const determineInput = useCallback(
-    (stateKey: string): Data | undefined => {
+    (stateKey: string): ParameterData | undefined => {
       switch (stateKey) {
         case 'spo2':
-          return createData('SpO2', 'spo2', PERCENT, false, true, alarmValuesSpO2, -1);
+          return createParameterData('SpO2', 'spo2', PERCENT, false, true, alarmValuesSpO2, -1);
         case 'hr':
-          return createData('HR', 'hr', BPM, false, true, alarmValuesHR, -1, null, null, 0, 200);
+          return createParameterData(
+            'HR',
+            'hr',
+            BPM,
+            false,
+            true,
+            alarmValuesHR,
+            -1,
+            null,
+            null,
+            0,
+            200,
+          );
         case 'fio2':
-          return createData(
+          return createParameterData(
             'FiO2',
             'fio2',
             PERCENT,
@@ -328,7 +340,7 @@ const MultiStepWizard = (): JSX.Element => {
             null,
           );
         case 'flow':
-          return createData(
+          return createParameterData(
             'Flow Rate',
             'flow',
             LMIN,
@@ -415,9 +427,11 @@ const MultiStepWizard = (): JSX.Element => {
     if (parameter) {
       setTabIndex(1);
       if (!multiParams.length) {
-        setMultiParams([parameter as Data]);
+        setMultiParams([parameter as ParameterData]);
       } else {
-        const identifier = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
+        const identifier = multiParams.find(
+          (param: ParameterData) => param.stateKey === parameter.stateKey,
+        );
         if (!identifier) {
           multiParams.push(parameter);
           setMultiParams(multiParams);
@@ -435,7 +449,9 @@ const MultiStepWizard = (): JSX.Element => {
    */
   const doSetValue = (setting: number) => {
     if (parameter) {
-      const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
+      const param = multiParams.find(
+        (param: ParameterData) => param.stateKey === parameter.stateKey,
+      );
       if (param) param.setValue = setting;
       parameter.setValue = setting;
       if (open) {
@@ -460,7 +476,9 @@ const MultiStepWizard = (): JSX.Element => {
    */
   const doSetAlarmValues = (min: number, max: number) => {
     if (parameter) {
-      const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
+      const param = multiParams.find(
+        (param: ParameterData) => param.stateKey === parameter.stateKey,
+      );
       if (param) param.alarmValues = { lower: min, upper: max };
       parameter.alarmValues = { lower: min, upper: max };
       if (isAnyChanges()) {
@@ -480,7 +498,7 @@ const MultiStepWizard = (): JSX.Element => {
    *
    */
   const getAlarmValues = (stateKey: string) => {
-    const param = multiParams.find((param: Data) => param.stateKey === stateKey);
+    const param = multiParams.find((param: ParameterData) => param.stateKey === stateKey);
     if (param) {
       if (param.alarmValues) return param.alarmValues;
     }
@@ -496,7 +514,7 @@ const MultiStepWizard = (): JSX.Element => {
    *
    */
   const getSetValues = (stateKey: string) => {
-    const param = multiParams.find((param: Data) => param.stateKey === stateKey);
+    const param = multiParams.find((param: ParameterData) => param.stateKey === stateKey);
     if (param && param.setValue) {
       return param.setValue as number;
     }
@@ -512,7 +530,7 @@ const MultiStepWizard = (): JSX.Element => {
    */
   const isAnyChanges = () => {
     let anyChange = false;
-    multiParams.forEach((param: Data) => {
+    multiParams.forEach((param: ParameterData) => {
       if (param.isSetvalEnabled) {
         if (param.setValue !== param.setValueActual) {
           anyChange = true;
@@ -557,7 +575,7 @@ const MultiStepWizard = (): JSX.Element => {
    * Closes all te popup
    */
   const handleConfirm = () => {
-    multiParams.forEach((parameter: Data) => {
+    multiParams.forEach((parameter: ParameterData) => {
       if (parameter.isSetvalEnabled) {
         const update = { [parameter.stateKey]: parameter.setValue };
         dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
@@ -585,7 +603,7 @@ const MultiStepWizard = (): JSX.Element => {
       parameter.setValue = parameter.setValueActual;
       parameter.alarmValues = parameter.alarmValuesActual;
     }
-    multiParams.map((parameter: Data) => {
+    multiParams.map((parameter: ParameterData) => {
       const param = parameter;
       param.setValue = param.setValueActual;
       param.alarmValues = param.alarmValuesActual;
@@ -753,7 +771,7 @@ const MultiStepWizard = (): JSX.Element => {
               </Grid>
             </Grid>
             <Grid item className={classes.marginContent}>
-              {multiParams.map((param: Data) => {
+              {multiParams.map((param: ParameterData) => {
                 if (param.isSetvalEnabled) {
                   if (param.setValue !== param.setValueActual) {
                     return (
@@ -790,7 +808,7 @@ const MultiStepWizard = (): JSX.Element => {
               </Grid>
             </Grid>
             <Grid item className={classes.marginContent}>
-              {multiParams.map((param: Data) => {
+              {multiParams.map((param: ParameterData) => {
                 if (param.isSetvalEnabled) {
                   if (param.setValue !== param.setValueActual) {
                     return (
