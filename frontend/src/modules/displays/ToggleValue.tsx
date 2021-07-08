@@ -50,6 +50,11 @@ const StyledToggleButton = withStyles(({ palette }) => ({
   },
 }))(ToggleButton);
 
+interface ToggleSetting {
+  label: string;
+  value: number;
+}
+
 /**
  * @typedef Props
  *
@@ -61,7 +66,7 @@ const StyledToggleButton = withStyles(({ palette }) => ({
  * @prop {function} onToggle Callback on Toggling between values
  */
 interface Props {
-  toggleBetween: { label: string; value: number }[];
+  toggleBetween: ToggleSetting[];
   selected: number;
   onToggle(value: number): void;
 }
