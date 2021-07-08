@@ -24,7 +24,7 @@ import { setActiveRotaryReference } from '../app/Service';
 import { DiscardAlarmLimitsContent, ValueClicker } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';
 import ValueSlider from '../controllers/ValueSlider';
-import ModeBanner from '../displays/ModeBanner';
+import ModeBanner, { BannerType } from '../displays/ModeBanner';
 import useRotaryReference from '../utils/useRotaryReference';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -574,7 +574,7 @@ export const AlarmsPage = (): JSX.Element => {
         </Grid>
         {/* Right Container for Storing Alarm Slides */}
         <Grid item xs>
-          <ModeBanner bannerType="normal" />
+          <ModeBanner bannerType={BannerType.NORMAL} />
         </Grid>
       </Grid>
       {/* Title */}

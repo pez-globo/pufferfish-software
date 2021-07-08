@@ -6,7 +6,7 @@ import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
 import { useSelector } from 'react-redux';
-import ModeBanner from '../displays/ModeBanner';
+import ModeBanner, { BannerType } from '../displays/ModeBanner';
 import ValueJumbotron from './ValueJumbotron';
 import ControlJumbotron from './ControlJumbotron';
 import { PERCENT, BMIN, LMIN } from '../info/units';
@@ -181,7 +181,7 @@ export const ScreensaverPage = (): JSX.Element => {
         <ConfigureControlMode mode={currentMode} />
       </Grid>
       <Grid item>
-        <ModeBanner bannerType="screenSaver" />
+        <ModeBanner bannerType={BannerType.SCREENSAVER} />
       </Grid>
     </Grid>
   );

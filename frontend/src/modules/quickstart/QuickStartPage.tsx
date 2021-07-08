@@ -20,7 +20,7 @@ import {
 import { MessageType } from '../../store/controller/types';
 import { setActiveRotaryReference } from '../app/Service';
 import ValueClicker from '../controllers/ValueController';
-import ModeBanner from '../displays/ModeBanner';
+import ModeBanner, { BannerType } from '../displays/ModeBanner';
 import { LMIN, PERCENT } from '../info/units';
 import {
   FIO2_REFERENCE_KEY,
@@ -324,7 +324,7 @@ export const QuickStartPage = (): JSX.Element => {
         <SettableParameters />
       </Grid>
       <Grid>
-        <ModeBanner bannerType="normal" />
+        <ModeBanner bannerType={BannerType.NORMAL} />
       </Grid>
     </Grid>
   );
