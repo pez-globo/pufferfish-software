@@ -3,7 +3,7 @@
  *
  * @file Modal popup has steps to update Set Value & Alarm Range values
  */
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Subscription } from 'rxjs';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
@@ -298,40 +298,43 @@ const MultiStepWizard = (): JSX.Element => {
   const parametersFiO2 = useSelector(getParametersFiO2);
   const parametersFlow = useSelector(getParametersFlow);
 
-  const determineInput = (stateKey: string): Data | undefined => {
-    switch (stateKey) {
-      case 'spo2':
-        return createData('SpO2', 'spo2', PERCENT, false, true, alarmValuesSpO2, -1);
-      case 'hr':
-        return createData('HR', 'hr', BPM, false, true, alarmValuesHR, -1, null, null, 0, 200);
-      case 'fio2':
-        return createData(
-          'FiO2',
-          'fio2',
-          PERCENT,
-          true,
-          false,
-          { lower: 0, upper: 0 },
-          parametersFiO2,
-          21,
-          null,
-        );
-      case 'flow':
-        return createData(
-          'Flow Rate',
-          'flow',
-          LMIN,
-          true,
-          false,
-          { lower: 0, upper: 0 },
-          parametersFlow,
-          null,
-          80,
-        );
-      default:
-    }
-    return undefined;
-  };
+  const determineInput = useCallback(
+    (stateKey: string): Data | undefined => {
+      switch (stateKey) {
+        case 'spo2':
+          return createData('SpO2', 'spo2', PERCENT, false, true, alarmValuesSpO2, -1);
+        case 'hr':
+          return createData('HR', 'hr', BPM, false, true, alarmValuesHR, -1, null, null, 0, 200);
+        case 'fio2':
+          return createData(
+            'FiO2',
+            'fio2',
+            PERCENT,
+            true,
+            false,
+            { lower: 0, upper: 0 },
+            parametersFiO2,
+            21,
+            null,
+          );
+        case 'flow':
+          return createData(
+            'Flow Rate',
+            'flow',
+            LMIN,
+            true,
+            false,
+            { lower: 0, upper: 0 },
+            parametersFlow,
+            null,
+            80,
+          );
+        default:
+      }
+      return undefined;
+    },
+    [alarmValuesSpO2, alarmValuesHR, parametersFiO2, parametersFlow],
+  );
 
   /**
    * Trigger on Tab index change event
@@ -374,7 +377,7 @@ const MultiStepWizard = (): JSX.Element => {
       setConfirmOpen(false);
       setCancelOpen(false);
     };
-  });
+  }, [determineInput]);
 
   /**
    * Triggers on TabIndex or Parameter change
