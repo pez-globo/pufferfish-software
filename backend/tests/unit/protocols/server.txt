@@ -1,0 +1,75 @@
+Scenario: The server's Frontendconnection event correctly reports whether it has data
+Given: A Frontendconnection event object is constructed with default parameters
+When: The object is not modified
+Then: has_data function returns false
+And_When: A new value is set for the time field of the object
+Then: has_data function returns true
+
+Scenario: The server receives various input events properly and reports whether event has data
+Given: A ReceiveEvent object is constructed with default parameters
+When: A new value is set for the time field of the object
+Then: has_data function returns true
+
+Scenario: The server receives output event and reports correctly whether event has data
+Given: A ReceiveOutputEvent object is constructed with default parameters
+When: The object is not modified
+Then: has_data function returns false
+And_When: The server receives output event with data
+Then: has_data function returns true
+
+Scenario: The server sends output event properly and reports whether event has data
+Given: A SendOutputEvent object is constructed with default parameters
+When: The data in the form of bytes for the serial_send parameter is passed to the function
+Then: has_data function returns true
+
+Scenario: The server sends output event properly and reports whether event has data
+Given: A SendOutputEvent object is constructed with default parameters
+When: The data in the form of bytes for the websocket_send parameter is passed to the function
+Then: has_data function returns true
+
+Scenario: The server sends output event properly and reports whether event has data
+Given: A SendOutputEvent object is constructed with default parameters
+When: A tuple of (string, bytes) for the file_send parameter is passed to the function
+Then: has_data function returns true
+
+Scenario: The make_serial_receive function creates a ReceiveEvent object correctly
+Given: The make_serial_receive function
+When: The data in the form of bytes is passed to the function
+Then: A event of type ReceiveEvent is obtained with data received from serial
+
+Scenario: The make_websocket_receive function creates a ReceiveEvent object correctly
+Given: The make_websocket_receive function
+When: The data in the form of bytes is passed to the function
+Then: A event of type ReceiveEvent is obtained with data received from websocket
+
+Scenario: The make_rotary_encoder_receive function creates a ReceiveEvent object correctly
+Given: The make_rotary_encoder_receive function
+When: The data passed to the function is a tuple of 2 elements (int, bool)
+Then: A event of type ReceiveEvent is obtained with data received from rotary encoder
+
+# Filters
+
+Scenario: The receive filter properly transforms input data into an OutputEvent with data
+Given: A ReceiveFilter object is constructed with default parameters
+When: A ReceiveEvent object constructed with new values for serial_receive parameter is given as input to the ReceiveFilter object
+Then: The output of the filter is a event of type ReceiveOutputEvent with data
+
+Scenario: The receive filter properly transforms input data into an OutputEvent with data
+Given: A ReceiveFilter object is constructed with default parameters
+When: A ReceiveEvent object constructed with new values for websocket_receive parameter is given as input to the ReceiveFilter object
+Then: The output of the filter is a event of type ReceiveOutputEvent with data
+
+Scenario: The receive filter properly transforms input data into an OutputEvent with data
+Given: A ReceiveFilter object is constructed with default parameters
+When: A ReceiveEvent object constructed with new values for rotary_encoder_receive parameter is given as input to the ReceiveFilter object
+Then: The output of the filter is a event of type ReceiveOutputEvent with data
+
+Scenario: The receive filter properly transforms input data into an OutputEvent with data
+Given: A ReceiveFilter object is constructed with default parameters
+When: A ReceiveEvent object constructed with new values for file_receive parameter is given as input to the ReceiveFilter object
+Then: The output of the filter is a event of type ReceiveOutputEvent with data
+
+Scenario: The send filter properly transforms input data into an OutputEvent with data
+Given: A SendFilter object is constructed with default parameters
+When: A backend OutputEvent object constructed with data in the form of bytes is given as input to the SendFilter object
+Then: The output of the filter is a event of type SendOutputEvent with data
