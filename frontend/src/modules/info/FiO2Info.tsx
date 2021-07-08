@@ -15,7 +15,7 @@ import { getParametersFiO2, getSensorMeasurementsFiO2 } from '../../store/contro
 import { StoreState } from '../../store/types';
 import { AlarmModal, Knob } from '../controllers';
 import { SettingAdjustProps, ValueModal } from '../controllers/ValueModal';
-import { ValueDisplay, ValueProps } from '../displays/ValueDisplay';
+import { ValueDisplay, ValueProps } from '../displays/ParameterInfo';
 import { PERCENT } from './units';
 
 const displaySelector = createStructuredSelector<StoreState, ValueProps>({

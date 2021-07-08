@@ -8,7 +8,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
-import { ValueDisplay, ValueProps } from '../displays/ValueDisplay';
+import { ValueDisplay, ValueProps } from '../displays/ParameterInfo';
 import { AlarmModal, Knob } from '../controllers';
 import { StoreState } from '../../store/types';
 import { getCycleMeasurementsVT } from '../../store/controller/selectors';

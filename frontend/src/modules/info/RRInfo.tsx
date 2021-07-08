@@ -15,7 +15,7 @@ import { getCycleMeasurementsRR, getParametersRR } from '../../store/controller/
 import { StoreState } from '../../store/types';
 import { AlarmModal, Knob } from '../controllers';
 import { SettingAdjustProps, ValueModal } from '../controllers/ValueModal';
-import { ValueDisplay, ValueProps } from '../displays/ValueDisplay';
+import { ValueDisplay, ValueProps } from '../displays/ParameterInfo';
 import { BMIN } from './units';
 
 const displaySelector = createStructuredSelector<StoreState, ValueProps>({
