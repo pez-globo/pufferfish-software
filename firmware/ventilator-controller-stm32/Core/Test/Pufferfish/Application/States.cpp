@@ -12,6 +12,8 @@
 
 #include "catch2/catch.hpp"
 
+using namespace Pufferfish::Application;
+
 SCENARIO(
     "The equality operator works correctly for simple POD structs from nanopb",
     "[Application::States]") {

@@ -30,6 +30,7 @@ using PF::Util::UnrecognizedMessage;
 using PF::Util::Containers::ByteVector;
 using PF::Util::Containers::convert_string_to_byte_vector;
 using namespace std::string_literals;
+using namespace PF::Application;
 
 SCENARIO(
     "Protocols::The message correctly writes to the output buffer and also updates type",
