@@ -15,7 +15,7 @@ extern "C" {
 /* Structure for defining custom input streams. You will need to provide
  * a callback function to read the bytes from your storage, which can be
  * for example a file or a network socket.
- *
+ * 
  * The callback must conform to these rules:
  *
  * 1) Return false on IO errors. This will cause decoding to abort.
@@ -39,7 +39,7 @@ struct pb_istream_s
 
     void *state; /* Free field for use by callback implementation */
     size_t bytes_left;
-
+    
 #ifndef PB_NO_ERRMSG
     const char *errmsg;
 #endif
@@ -54,7 +54,7 @@ struct pb_istream_s
 /***************************
  * Main decoding functions *
  ***************************/
-
+ 
 /* Decode a single protocol buffers message from input stream into a C structure.
  * Returns true on success, false on any failure.
  * The actual struct pointed to by dest must match the description in fields.
@@ -65,7 +65,7 @@ struct pb_istream_s
  *    MyMessage msg = {};
  *    uint8_t buffer[64];
  *    pb_istream_t stream;
- *
+ *    
  *    // ... read some data into buffer ...
  *
  *    stream = pb_istream_from_buffer(buffer, count);
@@ -113,6 +113,9 @@ bool pb_decode_ex(pb_istream_t *stream, const pb_msgdesc_t *fields, void *dest_s
  * pb_decode() returns with an error, the message is already released.
  */
 void pb_release(const pb_msgdesc_t *fields, void *dest_struct);
+#else
+/* Allocation is not supported, so release is no-op */
+#define pb_release(fields, dest_struct) PB_UNUSED(fields); PB_UNUSED(dest_struct);
 #endif
 
 
@@ -122,10 +125,13 @@ void pb_release(const pb_msgdesc_t *fields, void *dest_struct);
 
 /* Create an input stream for reading from a memory buffer.
  *
+ * msglen should be the actual length of the message, not the full size of
+ * allocated buffer.
+ *
  * Alternatively, you can use a custom stream that reads directly from e.g.
  * a file or a network socket.
  */
-pb_istream_t pb_istream_from_buffer(const pb_byte_t *buf, size_t bufsize);
+pb_istream_t pb_istream_from_buffer(const pb_byte_t *buf, size_t msglen);
 
 /* Function to read from a pb_istream_t. You can use this if you need to
  * read some custom header data, or to read data in field callbacks.
