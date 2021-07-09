@@ -16,6 +16,10 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+using Application::Parameters;
+using Application::Range;
+using Application::SensorMeasurements;
+
 struct SensorVars {
   float flow_air;  // L/min
   float flow_o2;   // L/min
