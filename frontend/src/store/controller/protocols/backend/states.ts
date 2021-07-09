@@ -43,8 +43,8 @@ enum SenderType {
   eventSchedule = 0,
   mainSchedule = 1,
 }
-export const sendMinInterval = 20; // ms
-export const sendMaxInterval = 500; // ms
+export const sendMinInterval = 50; // ms
+export const sendMaxInterval = 100; // ms
 const sendRootSchedule = [SenderType.mainSchedule].concat(
   Array(sendMaxInterval / sendMinInterval - 1).fill(SenderType.eventSchedule),
 );
