@@ -92,17 +92,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
   },
   alertButtonSpan: {
-    width: '270px',
-    borderRadius: 5,
-    marginRight: '10px',
-    backgroundColor: '#FF0000',
-    color: '#fff',
-    '&:hover': {
-      backgroundColor: '#FF0000',
-    },
-  },
-  alertButtonSpanMuted: {
-    width: '270px',
+    width: '300px',
     borderRadius: 5,
     marginRight: '10px',
     backgroundColor: '#FF0000',
@@ -125,7 +115,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     borderRadius: '0px 4px 4px 0px',
   },
   alertTimer: {
-    width: '270px',
+    width: '300px',
     margin: '0px 12px',
     backgroundColor: '#0053b336',
     '&:hover': {
@@ -430,10 +420,10 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           style={{ marginLeft: 10, marginRight: 10, margin: '0px 10px', padding: 0 }}
           variant="contained"
           color="primary"
-          className={isMuted ? classes.alertButtonSpan : classes.alertButtonSpanMuted}
+          className={classes.alertButtonSpan}
           onClick={onActiveAlarmClick}
         >
-          <span style={{ padding: '6px 16px', width: 200 }}>{alert.label}</span>
+          <span style={{ padding: '6px 16px', width: 250 }}>{alert.label}</span>
           {alertCount > 1 && (
             <div
               className={classes.iconBadge}
@@ -451,7 +441,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       </Grid>
       <Grid hidden={alertCount > 0}>
         <Button
-          style={{ marginLeft: 5 }}
+          style={{ marginLeft: 10, marginRight: 10 }}
           variant="contained"
           color="primary"
           className={classes.alertButton}
@@ -459,7 +449,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
           <VolumeUpIcon />
         </Button>
         <Button
-          style={{ padding: 0 }}
+          style={{ marginLeft: 10, marginRight: 10, margin: '0px 10px', padding: 0 }}
           variant="contained"
           color="primary"
           className={classes.alertTimer}

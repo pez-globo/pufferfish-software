@@ -57,27 +57,24 @@ export const BACKEND_CONNECTION_TIMEOUT = 3000;
  * @returns {JSX.Element}
  */
 export const HeartbeatBackendListener = (): JSX.Element => {
-  const clock = useSelector(getClock);
   const dispatch = useDispatch();
+  const clock = useSelector(getClock);
   const heartbeat = useSelector(getBackendHeartBeat);
+  const backendConnected = useSelector(getBackendConnected);
   const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
+  const timeout = diff > BACKEND_CONNECTION_TIMEOUT;
   // Because the backend connection lost event is generated in the frontend and
   // not sent to or persisted by the backend, we can use getBackendDownEvent as
-  // a reliable indicator of whether there is currently already an alarm displayed
+  // a reliable indicator of whether there is   currently already an alarm displayed
   // for a lost backend connection. Everywhere else, we should use the selector
   // from store/app/selectors.ts for getBackendConnected.
   const lostConnectionAlarm = useSelector(getBackendDownEvent);
-  const backendConnected = useSelector(getBackendConnected);
 
   useEffect(() => {
-    if (backendConnected) {
-      return;
-    }
-    if (diff > BACKEND_CONNECTION_TIMEOUT) {
+    if (timeout) {
       if (!lostConnectionAlarm) {
         dispatch({
           type: BACKEND_CONNECTION_DOWN,
-          clock: new Date(),
           update: {
             code: LogEventCode.frontend_backend_connection_down,
             type: LogEventType.system,
@@ -86,9 +83,10 @@ export const HeartbeatBackendListener = (): JSX.Element => {
         });
       }
     } else {
-      dispatch(establishedBackendConnection(new Date()));
+      if (backendConnected) return;
+      dispatch(establishedBackendConnection());
     }
-  }, [backendConnected, clock, diff, lostConnectionAlarm, dispatch, heartbeat]);
+  }, [backendConnected, clock, timeout, lostConnectionAlarm, dispatch]);
 
   return <React.Fragment />;
 };
