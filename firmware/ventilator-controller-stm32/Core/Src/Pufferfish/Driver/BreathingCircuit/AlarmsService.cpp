@@ -14,6 +14,8 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+using Application::LogEventType;
+
 // AlarmsService
 
 void AlarmsService::check_parameter(
@@ -91,10 +93,10 @@ void AlarmsServices::transform(
     const SensorMeasurements &sensor_measurements,
     Application::AlarmsManager &alarms_manager) {
   switch (parameters.mode) {
-    case VentilationMode_pc_ac:
+    case Application::VentilationMode_pc_ac:
       active_service_ = &pc_ac_;
       break;
-    case VentilationMode_hfnc:
+    case Application::VentilationMode_hfnc:
       active_service_ = &hfnc_;
       break;
     default:

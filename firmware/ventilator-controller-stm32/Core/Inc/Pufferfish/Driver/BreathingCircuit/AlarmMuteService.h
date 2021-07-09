@@ -13,6 +13,9 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+using Application::AlarmMute;
+using Application::AlarmMuteRequest;
+
 static const uint32_t mute_max_duration = 120000;  // ms
 static const uint32_t clock_scale = 1000;          // ms to s
 

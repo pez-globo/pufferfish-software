@@ -43,6 +43,28 @@
   (first_segment).value.field == (second_segment).value.field; // NOLINT(cppcoreguidelines-pro-type-union-access)
 // clang-format on
 
+namespace Pufferfish::Util {
+
+// StateSegment
+// Refer to States.h for justification of why we are using unions this way
+
+STATESEGMENT_TAGGED_SETTER(Application::SensorMeasurements, sensor_measurements)
+STATESEGMENT_TAGGED_SETTER(Application::CycleMeasurements, cycle_measurements)
+STATESEGMENT_TAGGED_SETTER(Application::Parameters, parameters)
+STATESEGMENT_TAGGED_SETTER(Application::ParametersRequest, parameters_request)
+STATESEGMENT_TAGGED_SETTER(Application::AlarmLimits, alarm_limits)
+STATESEGMENT_TAGGED_SETTER(Application::AlarmLimitsRequest, alarm_limits_request)
+STATESEGMENT_TAGGED_SETTER(Application::ExpectedLogEvent, expected_log_event)
+STATESEGMENT_TAGGED_SETTER(Application::NextLogEvents, next_log_events)
+STATESEGMENT_TAGGED_SETTER(Application::ActiveLogEvents, active_log_events)
+STATESEGMENT_TAGGED_SETTER(Application::AlarmMute, alarm_mute)
+STATESEGMENT_TAGGED_SETTER(Application::AlarmMuteRequest, alarm_mute_request)
+STATESEGMENT_TAGGED_SETTER(Application::MCUPowerStatus, mcu_power_status)
+
+}  // namespace Pufferfish::Util
+
+namespace Pufferfish::Application {
+
 // Equality operators
 
 template <>
@@ -72,28 +94,6 @@ bool operator==<ActiveLogEvents>(const ActiveLogEvents &first, const ActiveLogEv
   return std::equal(
       std::begin(first.id), std::begin(first.id) + first.id_count, std::begin(second.id));
 }
-
-namespace Pufferfish::Util {
-
-// StateSegment
-// Refer to States.h for justification of why we are using unions this way
-
-STATESEGMENT_TAGGED_SETTER(SensorMeasurements, sensor_measurements)
-STATESEGMENT_TAGGED_SETTER(CycleMeasurements, cycle_measurements)
-STATESEGMENT_TAGGED_SETTER(Parameters, parameters)
-STATESEGMENT_TAGGED_SETTER(ParametersRequest, parameters_request)
-STATESEGMENT_TAGGED_SETTER(AlarmLimits, alarm_limits)
-STATESEGMENT_TAGGED_SETTER(AlarmLimitsRequest, alarm_limits_request)
-STATESEGMENT_TAGGED_SETTER(ExpectedLogEvent, expected_log_event)
-STATESEGMENT_TAGGED_SETTER(NextLogEvents, next_log_events)
-STATESEGMENT_TAGGED_SETTER(ActiveLogEvents, active_log_events)
-STATESEGMENT_TAGGED_SETTER(AlarmMute, alarm_mute)
-STATESEGMENT_TAGGED_SETTER(AlarmMuteRequest, alarm_mute_request)
-STATESEGMENT_TAGGED_SETTER(MCUPowerStatus, mcu_power_status)
-
-}  // namespace Pufferfish::Util
-
-namespace Pufferfish::Application {
 
 bool operator==(const StateSegment &first, const StateSegment &second) {
   if (first.tag != second.tag) {

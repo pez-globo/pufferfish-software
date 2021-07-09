@@ -14,6 +14,9 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+using Application::LogEvent;
+using Application::LogEventType;
+
 // Update functions
 
 float transform_parameter(float floor, float ceiling, float request, float current) {
@@ -151,7 +154,7 @@ void PCACParameters::transform(
 }
 
 bool PCACParameters::mode_active(const Parameters &parameters) const {
-  return parameters.mode == VentilationMode_pc_ac;
+  return parameters.mode == Application::VentilationMode_pc_ac;
 }
 
 // HFNC Parameters
@@ -198,7 +201,7 @@ void HFNCParameters::transform(
 }
 
 bool HFNCParameters::mode_active(const Parameters &parameters) const {
-  return parameters.mode == VentilationMode_hfnc;
+  return parameters.mode == Application::VentilationMode_hfnc;
 }
 
 // ParametersServices
@@ -210,10 +213,10 @@ void ParametersServices::transform(
     Application::LogEventsManager &log_manager,
     Application::AlarmsManager &alarms_manager) {
   switch (parameters_request.mode) {
-    case VentilationMode_pc_ac:
+    case Application::VentilationMode_pc_ac:
       active_service_ = &pc_ac_;
       break;
-    case VentilationMode_hfnc:
+    case Application::VentilationMode_hfnc:
       active_service_ = &hfnc_;
       break;
     default:

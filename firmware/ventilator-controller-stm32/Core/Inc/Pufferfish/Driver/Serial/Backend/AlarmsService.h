@@ -7,10 +7,13 @@
 
 #include "Pufferfish/Application/Alarms.h"
 #include "Pufferfish/Application/LogEvents.h"
+#include "Pufferfish/Application/States.h"
 #include "Pufferfish/Protocols/Application/Debouncing.h"
 #include "Pufferfish/Util/Containers/Array.h"
 
 namespace Pufferfish::Driver::Serial::Backend {
+
+using Application::LogEventCode;
 
 // All alarm codes for power management need to be registered in the following array:
 static constexpr auto alarm_codes = Util::Containers::make_array<LogEventCode>(

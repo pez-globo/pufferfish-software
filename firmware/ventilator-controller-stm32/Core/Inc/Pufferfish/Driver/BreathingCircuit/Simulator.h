@@ -17,6 +17,8 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+using Application::CycleMeasurements;
+
 struct SensorStates {
   bool sfm3019_air;
   bool sfm3019_o2;
