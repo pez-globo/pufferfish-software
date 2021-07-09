@@ -52,10 +52,10 @@ Scenario: The Util:Bytes set_byte function correctly returns bytes from the give
   WHEN('the set_byte function  is called with byte index 0 and output type uint8_t as the template parameters and with 0x83 as the input value')
      THEN('the function returns the value shifted left into 0th position, which is 0x83')
 
-  WHEN('the set_byte function  is called with byte index 0 and output type uint16_t as the template parameters and with 0x83 as the input value')
+  WHEN('the set_byte function  is called with byte index 0 and output type uint16_t as the template parameters and with 0x86 as the input value')
      THEN('the function returns the value shifted left into 0th position, which is 0x86')
 
-  WHEN('the set_byte function   is called with byte index 1 and output type uint16_t as the template parameters and with 0x83 as the input value')
+  WHEN('the set_byte function   is called with byte index 1 and output type uint16_t as the template parameters and with 0x86 as the input value')
      THEN('the function returns the value shifted left into 1st position, which is 0x8600')
 
    WHEN('the set_byte function  is called with byte index 0 and output type uint32_t as the template parameters and with 0x59 as the input value') 

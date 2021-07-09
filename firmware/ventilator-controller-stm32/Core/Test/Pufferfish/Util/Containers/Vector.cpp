@@ -16,7 +16,9 @@
 namespace PF = Pufferfish;
 using PF::Util::Containers::ByteVector;
 SCENARIO("The function in Vector: push_back works correctly") {
-  GIVEN("Partially filled Vector with 252 bytes of data and 254 capacity") {
+  GIVEN(
+      "A uint8_t vector constructed with capacity 254, is partially filled with 252 bytes of "
+      "data") {
     constexpr size_t buffer_size = 254UL;
     ByteVector<buffer_size> vector1;
     for (size_t i = 0; i < 252; i++) {
@@ -26,12 +28,8 @@ SCENARIO("The function in Vector: push_back works correctly") {
     WHEN("The push_back method is called twice on given vector") {
       auto status = vector1.push_back(252);
       auto status1 = vector1.push_back(253);
-      THEN("The push_back method returns ok status 1st time") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The push_back method returns ok status for 2nd time") {
-        REQUIRE(status1 == PF::IndexStatus::ok);
-      }
+      THEN("First push_back method returns ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("Second push_back method returns ok status") { REQUIRE(status1 == PF::IndexStatus::ok); }
       THEN("After the push_back, The size method reports size as 254") {
         REQUIRE(vector1.size() == 254);
       }
@@ -44,8 +42,14 @@ SCENARIO("The function in Vector: push_back works correctly") {
       THEN("The empty method reports that the vector is non-empty") {
         REQUIRE(vector1.empty() == false);
       }
+      THEN("The erase method reports ok status on input of 253 index ") {
+        REQUIRE(vector1.erase(253) == PF::IndexStatus::ok);
+      }
+      THEN("The erase method reports ok status on input of 254th index") {
+        REQUIRE(vector1.erase(254) == PF::IndexStatus::out_of_bounds);
+      }
       THEN(
-          "The vector has an expected sequence of 252 bytes initially pushed, and after push-back "
+          "The vector has an expected sequence of 254 bytes initially pushed, after push-back "
           "method ,two more bytes are added at "
           "the end") {
         for (int i = 0; i <= 253; i++) {
@@ -58,13 +62,9 @@ SCENARIO("The function in Vector: push_back works correctly") {
       auto status = vector1.push_back(252);
       auto status1 = vector1.push_back(253);
       auto status2 = vector1.push_back(254);
-      THEN("The push_back method returns ok status for 1st time") {
-        REQUIRE(status == PF::IndexStatus::ok);
-      }
-      THEN("The push_back method returns ok status for 2nd time") {
-        REQUIRE(status1 == PF::IndexStatus::ok);
-      }
-      THEN("The push_back method returns out of bounds status for 3rd time") {
+      THEN("First push_back method returns ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("Second push_back method returns ok status") { REQUIRE(status1 == PF::IndexStatus::ok); }
+      THEN("Third push_back method returns out of bounds status") {
         REQUIRE(status2 == PF::IndexStatus::out_of_bounds);
       }
       THEN("After the push_back method is called, The size method reports size as 254") {
@@ -76,11 +76,11 @@ SCENARIO("The function in Vector: push_back works correctly") {
       THEN("The full method reports that the vector is completely filled") {
         REQUIRE(vector1.full() == true);
       }
-      THEN("The erase method reports ok status on input of 0th index ") {
-        REQUIRE(vector1.erase(0) == PF::IndexStatus::ok);
-      }
-      THEN("The erase method reports ok status on input of 252nd index") {
+      THEN("The erase method reports ok status on input of 252nd index ") {
         REQUIRE(vector1.erase(252) == PF::IndexStatus::ok);
+      }
+      THEN("The erase method reports ok status on input of 253rd index") {
+        REQUIRE(vector1.erase(253) == PF::IndexStatus::ok);
       }
       THEN("The erase method reports out of bounds status for input of 254th index") {
         REQUIRE(vector1.erase(254) == PF::IndexStatus::out_of_bounds);
@@ -100,7 +100,9 @@ SCENARIO("The function in Vector: push_back works correctly") {
     }
   }
 
-  GIVEN("Completely filled vector with capacity 254") {
+  GIVEN(
+      "A uint8_t vector constructed with capacity 254, is completely filled with 254 bytes of "
+      "data") {
     constexpr size_t buffer_size = 254UL;
     ByteVector<buffer_size> vector1;
     for (size_t i = 0; i <= 253; i++) {
@@ -122,8 +124,8 @@ SCENARIO("The function in Vector: push_back works correctly") {
       THEN("The full method reports that the vector is completely filled") {
         REQUIRE(vector1.full() == true);
       }
-      THEN("The erase method reports ok status on input of 2nd index ") {
-        REQUIRE(vector1.erase(2) == PF::IndexStatus::ok);
+      THEN("The erase method reports ok status on input of 253rd index ") {
+        REQUIRE(vector1.erase(253) == PF::IndexStatus::ok);
       }
       THEN("The erase method reports out of bounds status on input of 254 index ") {
         REQUIRE(vector1.erase(254) == PF::IndexStatus::out_of_bounds);
@@ -140,7 +142,7 @@ SCENARIO("The function in Vector: push_back works correctly") {
       }
     }
   }
-  GIVEN("Empty vector with capacity 254") {
+  GIVEN("An empty uint8_t vector is constructed with capacity 254 ") {
     constexpr size_t buffer_size = 254UL;
     ByteVector<buffer_size> vector1;
     WHEN("The push back method is used on empty vector for 202 times") {
@@ -160,11 +162,11 @@ SCENARIO("The function in Vector: push_back works correctly") {
       THEN("The full method reports that the vector is not-completely filled") {
         REQUIRE(vector1.full() == false);
       }
-      THEN("The erase method reports ok status on input of 2nd index") {
-        REQUIRE(vector1.erase(2) == PF::IndexStatus::ok);
+      THEN("The erase method reports ok status on input of 201 index") {
+        REQUIRE(vector1.erase(201) == PF::IndexStatus::ok);
       }
-      THEN("The erase method reports out of bound status on input of 258 index ") {
-        REQUIRE(vector1.erase(258) == PF::IndexStatus::out_of_bounds);
+      THEN("The erase method reports out of bound status on input of 202 index ") {
+        REQUIRE(vector1.erase(202) == PF::IndexStatus::out_of_bounds);
       }
       THEN("The empty method reports that the vector is non-empty") {
         REQUIRE(vector1.empty() == false);
@@ -204,11 +206,11 @@ SCENARIO(" The method in Vector: resize works correctly") {
       THEN("The full method reports that the vector is not completely filled") {
         REQUIRE(input_buffer.full() == false);
       }
-      THEN("The erase method reports ok status on input of 2nd index") {
-        REQUIRE(input_buffer.erase(2) == PF::IndexStatus::ok);
+      THEN("The erase method reports ok status on input of 9 index") {
+        REQUIRE(input_buffer.erase(9) == PF::IndexStatus::ok);
       }
-      THEN("The erase method reports out of bounds status on input of 256th index") {
-        REQUIRE(input_buffer.erase(256) == PF::IndexStatus::out_of_bounds);
+      THEN("The erase method reports out of bounds status on input of 10 index") {
+        REQUIRE(input_buffer.erase(10) == PF::IndexStatus::out_of_bounds);
       }
       THEN(
           "After resize method is called ,the vector has an expected sequence of 10 bytes "
@@ -233,11 +235,11 @@ SCENARIO(" The method in Vector: resize works correctly") {
       THEN("The full method reports that the vector is completely filled") {
         REQUIRE(input_buffer.full() == false);
       }
-      THEN("The erase method reports ok status on input of 2nd index") {
-        REQUIRE(input_buffer.erase(2) == PF::IndexStatus::ok);
+      THEN("The erase method reports ok status on input of 49 index") {
+        REQUIRE(input_buffer.erase(49) == PF::IndexStatus::ok);
       }
-      THEN("The erase method reports out of bounds status on input of 256th index") {
-        REQUIRE(input_buffer.erase(256) == PF::IndexStatus::out_of_bounds);
+      THEN("The erase method reports out of bounds status on input of 50 index") {
+        REQUIRE(input_buffer.erase(50) == PF::IndexStatus::out_of_bounds);
       }
 
       THEN(
@@ -277,11 +279,11 @@ SCENARIO(" The method in Vector: resize works correctly") {
       THEN("The empty method reports that the vector is non-empty") {
         REQUIRE(vector1.empty() == false);
       }
-      THEN("The erase method reports ok status on input of 2nd index") {
-        REQUIRE(vector1.erase(2) == PF::IndexStatus::ok);
+      THEN("The erase method reports ok status on input of 49 index") {
+        REQUIRE(vector1.erase(49) == PF::IndexStatus::ok);
       }
-      THEN("The erase method reports out of bounds status on input of 101th index") {
-        REQUIRE(vector1.erase(101) == PF::IndexStatus::out_of_bounds);
+      THEN("The erase method reports out of bounds status on input of 50 index") {
+        REQUIRE(vector1.erase(50) == PF::IndexStatus::out_of_bounds);
       }
 
       THEN(
@@ -311,10 +313,10 @@ SCENARIO(" The method in Vector: resize works correctly") {
         REQUIRE(vector1.empty() == false);
       }
       THEN("The erase method reports ok status on input of 2nd index") {
-        REQUIRE(vector1.erase(2) == PF::IndexStatus::ok);
+        REQUIRE(vector1.erase(9) == PF::IndexStatus::ok);
       }
       THEN("The erase method reports out of bounds status on input of 101th index") {
-        REQUIRE(vector1.erase(101) == PF::IndexStatus::out_of_bounds);
+        REQUIRE(vector1.erase(10) == PF::IndexStatus::out_of_bounds);
       }
 
       THEN(
@@ -329,7 +331,7 @@ SCENARIO(" The method in Vector: resize works correctly") {
 }
 
 SCENARIO("The method in Vector: copy_from where source is a vector works correctly ") {
-  GIVEN("Empty vector with capacity 256") {
+  GIVEN("An empty uint8_t vector constructed with a capacity of 256 bytes") {
     constexpr size_t buffer_size = 256UL;
     ByteVector<buffer_size> vector1;
     ByteVector<buffer_size> input_buffer;
@@ -390,8 +392,8 @@ SCENARIO("The method in Vector: copy_from where source is a vector works correct
       THEN("The avaliable method reports that 2 bytes are avaliable") {
         REQUIRE(vector1.available() == 2);
       }
-      THEN("Erase method returns ok status for the input of index 0") {
-        REQUIRE(vector1.erase(0) == PF::IndexStatus::ok);
+      THEN("Erase method returns ok status for the input of index 253") {
+        REQUIRE(vector1.erase(253) == PF::IndexStatus::ok);
       }
       THEN("Erase method returns out of bounds status for the input of index 254") {
         REQUIRE(vector1.erase(254) == PF::IndexStatus::out_of_bounds);
@@ -491,8 +493,8 @@ SCENARIO(
       THEN("Erase method returns ok status for the input of index 0") {
         REQUIRE(vector.erase(0) == PF::IndexStatus::ok);
       }
-      THEN("Erase method returns ok status for  the input of index 90") {
-        REQUIRE(vector.erase(90) == PF::IndexStatus::ok);
+      THEN("Erase method returns ok status for  the input of index 251") {
+        REQUIRE(vector.erase(251) == PF::IndexStatus::ok);
       }
       THEN("Erase method returns out of bound status for the input of index 252") {
         REQUIRE(vector.erase(252) == PF::IndexStatus::out_of_bounds);
@@ -527,8 +529,8 @@ SCENARIO(
       THEN("Erase method returns ok status for the input of index 99") {
         REQUIRE(vector.erase(99) == PF::IndexStatus::ok);
       }
-      THEN("Erase method returns out of bounds status for the input of index 252") {
-        REQUIRE(vector.erase(252) == PF::IndexStatus::out_of_bounds);
+      THEN("Erase method returns out of bounds status for the input of index 100") {
+        REQUIRE(vector.erase(100) == PF::IndexStatus::out_of_bounds);
       }
       THEN("The empty method reports that the vector is not empty") {
         REQUIRE(vector.empty() == false);
@@ -554,11 +556,11 @@ SCENARIO(
       THEN("The avaliable method reports that 147 bytes are avaliable") {
         REQUIRE(vector.available() == 147);
       }
-      THEN("Erase method returns ok status for the input of index 0") {
-        REQUIRE(vector.erase(0) == PF::IndexStatus::ok);
+      THEN("Erase method returns ok status for the input of index 104") {
+        REQUIRE(vector.erase(104) == PF::IndexStatus::ok);
       }
-      THEN("Erase method returns out of bounds status for with the input of index 150") {
-        REQUIRE(vector.erase(150) == PF::IndexStatus::out_of_bounds);
+      THEN("Erase method returns out of bounds status for with the input of index 105") {
+        REQUIRE(vector.erase(105) == PF::IndexStatus::out_of_bounds);
       }
       THEN("The empty method reports that the vector is not empty") {
         REQUIRE(vector.empty() == false);
@@ -592,10 +594,10 @@ SCENARIO(
       THEN("The avaliable method reports that 8 bytes are avaliable") {
         REQUIRE(vector.available() == 8);
       }
-      THEN("Erase method returns ok status for the input of index 0") {
-        REQUIRE(vector.erase(0) == PF::IndexStatus::ok);
+      THEN("Erase method returns ok status for the input of index 243") {
+        REQUIRE(vector.erase(243) == PF::IndexStatus::ok);
       }
-      THEN("Erase method returns ok status for with the input of index 90") {
+      THEN("Erase method returns ok status for with the input of index 150") {
         REQUIRE(vector.erase(150) == PF::IndexStatus::ok);
       }
       THEN("Erase method returns out of bounds status for with the input of index 244") {
@@ -620,7 +622,7 @@ SCENARIO(
     }
   }
 
-  GIVEN("uint16_t empty vector of capacity 2UL ") {
+  GIVEN("A uint16_t vector constructed with capacity  2 is empty") {
     constexpr size_t buffer_size = 2UL;
     PF::Util::Containers::Vector<uint16_t, buffer_size> vector1;
     PF::Util::Containers::Vector<uint16_t, buffer_size> input_buffer;
@@ -643,11 +645,11 @@ SCENARIO(
       THEN("The empty method reports that the vector is non-empty") {
         REQUIRE(vector1.empty() == false);
       }
-      THEN("Erase method returns ok status for the input of index 0") {
-        REQUIRE(vector1.erase(0) == PF::IndexStatus::ok);
+      THEN("Erase method returns ok status for the input of index 1") {
+        REQUIRE(vector1.erase(1) == PF::IndexStatus::ok);
       }
-      THEN("Erase method returns out of bounds status for the input of index 4") {
-        REQUIRE(vector1.erase(4) == PF::IndexStatus::out_of_bounds);
+      THEN("Erase method returns out of bounds status for the input of index 3") {
+        REQUIRE(vector1.erase(3) == PF::IndexStatus::out_of_bounds);
       }
       THEN("The vector has an expected sequence of 2 bytes") {
         REQUIRE(vector1[0] == 0xe4aa);
@@ -680,9 +682,85 @@ SCENARIO(
     }
   }
 }
+SCENARIO("The method in Vector: copy_from where source is a vector gives correct results") {
+  GIVEN("A uint8_t vector constructed with capacity 252, is completely filled") {
+    constexpr size_t buffer_size = 252UL;
+    ByteVector<buffer_size> vector1;
+    for (size_t i = 0; i < 252; i++) {
+      auto status = vector1.push_back(i);
+      REQUIRE(status == PF::IndexStatus::ok);
+    }
+    ByteVector<buffer_size> input_buffer;
+    for (size_t i = 0; i < 100; i++) {
+      input_buffer.push_back(i);
+    }
+    WHEN(
+        "The copy_from method is called on given vector, where source vector has 100 bytes and "
+        "dest index is 0") {
+      auto status = vector1.copy_from(input_buffer.buffer(), input_buffer.size(), 0);
+      THEN("The copy_from method returns ok") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The empty method reports that the vector is not empty") {
+        REQUIRE(vector1.empty() == false);
+      }
+      THEN("The avaliable method reports that 152 bytes are avaliable") {
+        REQUIRE(vector1.available() == 152);
+      }
+      THEN("The full method reports that the vector is  not completely filled") {
+        REQUIRE(vector1.full() == false);
+      }
+      THEN("Erase method returns ok status for the input of index 99") {
+        REQUIRE(vector1.erase(99) == PF::IndexStatus::ok);
+      }
+      THEN("Erase method returns out of bounds status for  the input of index 100") {
+        REQUIRE(vector1.erase(100) == PF::IndexStatus::out_of_bounds);
+      }
+      THEN(
+          "Vector has expected sequence , 252 bytes of data in destination vector are overwritten "
+          "by source vector") {
+        for (size_t i = 0; i < 100; i++) {
+          REQUIRE(vector1.operator[](i) == i);
+        }
+      }
+    }
+  }
+  GIVEN("An empty uint8_t vector constructed with capacity 252") {
+    constexpr size_t buffer_size = 252UL;
+    ByteVector<buffer_size> vector1;
+    ByteVector<1000> input_buffer;
+    for (size_t i = 0; i < 10; i++) {
+      input_buffer.push_back(i);
+    }
+    WHEN(
+        "The copy_from method is called on given vector, where source vector of capacity 1000 has "
+        "10 bytes and dest index is 0") {
+      auto status = vector1.copy_from(input_buffer.buffer(), input_buffer.size(), 0);
+      THEN("The copy_from method returns ok") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The empty method reports that the vector is not empty") {
+        REQUIRE(vector1.empty() == false);
+      }
+      THEN("The avaliable method reports that 242 bytes are avaliable") {
+        REQUIRE(vector1.available() == 242);
+      }
+      THEN("The full method reports that the vector is  not completely filled") {
+        REQUIRE(vector1.full() == false);
+      }
+      THEN("Erase method returns ok status for the input of index 9") {
+        REQUIRE(vector1.erase(9) == PF::IndexStatus::ok);
+      }
+      THEN("Erase method returns out of bounds status for  the input of index 10") {
+        REQUIRE(vector1.erase(10) == PF::IndexStatus::out_of_bounds);
+      }
+      THEN("Vector has expected sequence of 10 bytes initially given ") {
+        for (size_t i = 0; i < 10; i++) {
+          REQUIRE(vector1.operator[](i) == i);
+        }
+      }
+    }
+  }
+}
 
-SCENARIO("The method in Vector: copy_from, where source is an array works correctly") {
-  GIVEN("Empty vector with  capacity 4") {
+SCENARIO("The method in Vector: copy_from, where source is an std:array works correctly") {
+  GIVEN("An empty uint8_t vector constructed with capacity 4") {
     auto data = PF::Util::Containers::make_array<uint8_t>(0x0f, 0x36);
     constexpr size_t data_size = 4UL;
     ByteVector<data_size> vector2;
@@ -705,7 +783,7 @@ SCENARIO("The method in Vector: copy_from, where source is an array works correc
         REQUIRE(vector2.erase(1) == PF::IndexStatus::ok);
       }
       THEN("Erase method returns out of bounds status with the input of index 4") {
-        REQUIRE(vector2.erase(4) == PF::IndexStatus::out_of_bounds);
+        REQUIRE(vector2.erase(2) == PF::IndexStatus::out_of_bounds);
       }
       THEN("The vector has an expected sequence of 2 bytes") {
         REQUIRE(vector2[0] == 0x0f);
@@ -733,8 +811,8 @@ SCENARIO("The method in Vector: copy_from, where source is an array works correc
       THEN("Erase method returns ok status with the input of index 1") {
         REQUIRE(vector2.erase(1) == PF::IndexStatus::ok);
       }
-      THEN("Erase method returns out of bounds status with the input of index 4") {
-        REQUIRE(vector2.erase(4) == PF::IndexStatus::out_of_bounds);
+      THEN("Erase method returns out of bounds status with the input of index 3") {
+        REQUIRE(vector2.erase(3) == PF::IndexStatus::out_of_bounds);
       }
       THEN("The vector has an expected sequence of 2 bytes") {
         REQUIRE(vector2.operator[](1) == 0x0f);
@@ -757,6 +835,9 @@ SCENARIO("The method in Vector: copy_from, where source is an array works correc
       }
       THEN("The avaliable method reports that 4 bytes are avaliable") {
         REQUIRE(vector2.available() == 4);
+      }
+      THEN("Erase method returns out of bounds status with the input of index 0") {
+        REQUIRE(vector2.erase(0) == PF::IndexStatus::out_of_bounds);
       }
     }
   }
@@ -788,7 +869,7 @@ SCENARIO("The method in Vector: copy_from, where source is an array works correc
   }
 }
 SCENARIO("The method in Vector: copy_from where source is a uint16_t array works correctly") {
-  GIVEN("Empty uint16_t vector of capacity 4") {
+  GIVEN("An empty uint16_t vector constructed with capacity 4") {
     auto data = PF::Util::Containers::make_array<uint16_t>(0x2b94, 0xbd20);
     constexpr size_t data_size = 4UL;
     PF::Util::Containers::Vector<uint16_t, data_size> vector2;
@@ -840,7 +921,8 @@ SCENARIO("The method in Vector: copy_from where source is a uint16_t array works
     }
   }
 
-  GIVEN("Partially filled vector of 100 bytes with capacity 252") {
+  GIVEN(
+      "A uint8_t vector constructed with capacity 252 is partially filled with 100 bytes of data") {
     constexpr size_t buffer_size = 252UL;
     ByteVector<buffer_size> vector;
     for (size_t i = 0; i < 100; i++) {
@@ -860,11 +942,11 @@ SCENARIO("The method in Vector: copy_from where source is a uint16_t array works
       THEN("The avaliable method reports that 244 bytes are avaliable") {
         REQUIRE(vector.available() == 244);
       }
-      THEN("Erase method returns ok status for the input of index 0") {
-        REQUIRE(vector.erase(0) == PF::IndexStatus::ok);
+      THEN("Erase method returns ok status for the input of index 7") {
+        REQUIRE(vector.erase(7) == PF::IndexStatus::ok);
       }
-      THEN("Erase method returns out of bounds status for  the input of index 90") {
-        REQUIRE(vector.erase(90) == PF::IndexStatus::out_of_bounds);
+      THEN("Erase method returns out of bounds status for  the input of index 8") {
+        REQUIRE(vector.erase(8) == PF::IndexStatus::out_of_bounds);
       }
       THEN("The empty method reports that the vector is not empty") {
         REQUIRE(vector.empty() == false);
@@ -892,11 +974,11 @@ SCENARIO("The method in Vector: copy_from where source is a uint16_t array works
       THEN("Erase method returns ok status for the input of index 0") {
         REQUIRE(vector.erase(0) == PF::IndexStatus::ok);
       }
-      THEN("Erase method returns ok status for  the input of index 90") {
+      THEN("Erase method returns ok status for  the input of index 99") {
         REQUIRE(vector.erase(99) == PF::IndexStatus::ok);
       }
-      THEN("Erase method returns out of bounds status for  the input of index 150") {
-        REQUIRE(vector.erase(150) == PF::IndexStatus::out_of_bounds);
+      THEN("Erase method returns out of bounds status for  the input of index 100") {
+        REQUIRE(vector.erase(100) == PF::IndexStatus::out_of_bounds);
       }
       THEN("The empty method reports that the vector is not empty") {
         REQUIRE(vector.empty() == false);
@@ -908,10 +990,73 @@ SCENARIO("The method in Vector: copy_from where source is a uint16_t array works
       }
     }
   }
+  GIVEN("A uint8_t vector constructed with capacity 252, is completely filled") {
+    constexpr size_t buffer_size = 252UL;
+    ByteVector<buffer_size> vector1;
+    for (size_t i = 0; i < 252; i++) {
+      auto status = vector1.push_back(i);
+      REQUIRE(status == PF::IndexStatus::ok);
+    }
+    std::array<uint8_t, 10> input_array = {
+        0x0f, 0x36, 0x08, 0xff, 0x89, 0x01, 0x80, 0x02, 0x83, 0x59};
+    WHEN(
+        "The copy_from method is called on given vector, where source array has 10 bytes and dest "
+        "index is 0") {
+      auto status = vector1.copy_from(input_array.data(), input_array.size(), 0);
+      THEN("The copy_from method returns ok") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The empty method reports that the vector is not empty") {
+        REQUIRE(vector1.empty() == false);
+      }
+      THEN("The avaliable method reports that 242 bytes are avaliable") {
+        REQUIRE(vector1.available() == 242);
+      }
+      THEN("The full method reports that the vector is  not completely filled") {
+        REQUIRE(vector1.full() == false);
+      }
+      THEN("Erase method returns ok status for the input of index 0") {
+        REQUIRE(vector1.erase(9) == PF::IndexStatus::ok);
+      }
+      THEN("Erase method returns out of bounds status for  the input of index 10") {
+        REQUIRE(vector1.erase(10) == PF::IndexStatus::out_of_bounds);
+      }
+      THEN(
+          "Vector has expected sequence , 252 bytes of data in destination vector are overwritten "
+          "by source vector") {
+        for (size_t i = 0; i < 10; i++) {
+          REQUIRE(vector1.operator[](i) == input_array[i]);
+        }
+      }
+    }
+  }
+  GIVEN("An empty uint8_t vector constructed with capacity 252") {
+    constexpr size_t buffer_size = 252UL;
+    ByteVector<buffer_size> vector1;
+    std::array<uint8_t, 1000> input_array = {1, 2, 3};
+    WHEN(
+        "The copy_from method is called on given vector, where source vector of capacity 1000 has "
+        "10 bytes and dest index is 0") {
+      auto status = vector1.copy_from(input_array.data(), input_array.size(), 0);
+      THEN("The copy_from method returns out of bounds") {
+        REQUIRE(status == PF::IndexStatus::out_of_bounds);
+      }
+      THEN("The empty method reports that the vector is empty") {
+        REQUIRE(vector1.empty() == true);
+      }
+      THEN("The avaliable method reports that 252 bytes are avaliable") {
+        REQUIRE(vector1.available() == 252);
+      }
+      THEN("The full method reports that the vector is  not completely filled") {
+        REQUIRE(vector1.full() == false);
+      }
+      THEN("Erase method returns out of bounds status for the input of index 0") {
+        REQUIRE(vector1.erase(0) == PF::IndexStatus::out_of_bounds);
+      }
+    }
+  }
 }
 
-SCENARIO("The copy_from method for vector works correctly for source bytes") {
-  GIVEN("Empty vector of capacity 252") {
+SCENARIO("The method in Vector: copy_from, where source is an c-string array works correctly") {
+  GIVEN("An empty uint8_t vector constructed with capacity 252 bytes") {
     constexpr size_t buffer_size = 252UL;
     ByteVector<buffer_size> vector1;
     ByteVector<buffer_size> input_buffer;
@@ -972,6 +1117,9 @@ SCENARIO("The copy_from method for vector works correctly for source bytes") {
       THEN("The avaliable method reports that 252 bytes are avaliable") {
         REQUIRE(vector1.available() == 252);
       }
+      THEN("Erase method returns out of bounds status for the input of index 0") {
+        REQUIRE(vector1.erase(0) == PF::IndexStatus::out_of_bounds);
+      }
     }
 
     WHEN(
@@ -1005,11 +1153,11 @@ SCENARIO("The copy_from method for vector works correctly for source bytes") {
       THEN("The empty method reports that the vector is not empty") {
         REQUIRE(vector1.empty() == false);
       }
-      THEN("Erase method returns ok status with the input of index 100") {
-        REQUIRE(vector1.erase(100) == PF::IndexStatus::ok);
+      THEN("Erase method returns ok status with the input of index 101") {
+        REQUIRE(vector1.erase(101) == PF::IndexStatus::ok);
       }
-      THEN("Erase method returns out of bounds status with the input of index 251") {
-        REQUIRE(vector1.erase(251) == PF::IndexStatus::out_of_bounds);
+      THEN("Erase method returns out of bounds status with the input of index 102") {
+        REQUIRE(vector1.erase(102) == PF::IndexStatus::out_of_bounds);
       }
       THEN("The vector has an expected sequence of 102 bytes ") {
         for (int i = 0; i < 102; i++) {
@@ -1049,7 +1197,7 @@ SCENARIO("The copy_from method for vector works correctly for source bytes") {
     }
   }
 
-  GIVEN("Empty uint_16 vector of capacity 2") {
+  GIVEN("A uint16_t vector constructed with capacity 2 bytes is empty") {
     WHEN(
         "The copy_from method is called on given vector, where source uint16_t vector has 2 bytes "
         "and dest index is "
@@ -1114,7 +1262,8 @@ SCENARIO("The copy_from method for vector works correctly for source bytes") {
 SCENARIO(
     "The method in Vector: copy_from where source is a vector works correctly for partially filled "
     "vector for source bytes") {
-  GIVEN("Partially filled vector of 100 bytes with capacity 252") {
+  GIVEN(
+      "A uint8_t vector constructed with capacity 252 is partially filled with 100 bytes of data") {
     constexpr size_t buffer_size = 252UL;
     ByteVector<buffer_size> vector;
     for (size_t i = 0; i < 100; i++) {
@@ -1141,7 +1290,7 @@ SCENARIO(
         REQUIRE(vector.available() == 0);
       }
       THEN("Erase method returns ok status for the input of index 0") {
-        REQUIRE(vector.erase(0) == PF::IndexStatus::ok);
+        REQUIRE(vector.erase(251) == PF::IndexStatus::ok);
       }
       THEN("Erase method returns out of bounds status for the input of index 252") {
         REQUIRE(vector.erase(252) == PF::IndexStatus::out_of_bounds);
@@ -1201,11 +1350,11 @@ SCENARIO(
       THEN("The avaliable method reports that 147 bytes are avaliable") {
         REQUIRE(vector.available() == 147);
       }
-      THEN("Erase method returns ok status for the input of index 0") {
-        REQUIRE(vector.erase(0) == PF::IndexStatus::ok);
+      THEN("Erase method returns ok status for the input of index 104") {
+        REQUIRE(vector.erase(104) == PF::IndexStatus::ok);
       }
-      THEN("Erase method returns out of bounds status for with the input of index 150") {
-        REQUIRE(vector.erase(150) == PF::IndexStatus::out_of_bounds);
+      THEN("Erase method returns out of bounds status for with the input of index 105") {
+        REQUIRE(vector.erase(105) == PF::IndexStatus::out_of_bounds);
       }
       THEN("The empty method reports that the vector is not empty") {
         REQUIRE(vector.empty() == false);
@@ -1240,11 +1389,14 @@ SCENARIO(
       THEN("The avaliable method reports that 8 bytes are avaliable") {
         REQUIRE(vector.available() == 8);
       }
-      THEN("Erase method returns ok status for the input of index 0") {
-        REQUIRE(vector.erase(0) == PF::IndexStatus::ok);
-      }
-      THEN("Erase method returns ok status for with the input of index 150") {
+      THEN("Erase method returns ok status for the input of index 150") {
         REQUIRE(vector.erase(150) == PF::IndexStatus::ok);
+      }
+      THEN("Erase method returns ok status for with the input of index 243") {
+        REQUIRE(vector.erase(243) == PF::IndexStatus::ok);
+      }
+      THEN("Erase method returns ok status for with the input of index 244") {
+        REQUIRE(vector.erase(244) == PF::IndexStatus::out_of_bounds);
       }
       THEN("The empty method reports that the vector is not empty") {
         REQUIRE(vector.empty() == false);
@@ -1264,10 +1416,87 @@ SCENARIO(
       }
     }
   }
+  GIVEN("A uint8_t vector constructed with capacity 252, is completely filled") {
+    constexpr size_t buffer_size = 252UL;
+    ByteVector<buffer_size> vector1;
+    for (size_t i = 0; i < 252; i++) {
+      auto status = vector1.push_back(i);
+      REQUIRE(status == PF::IndexStatus::ok);
+    }
+    ByteVector<buffer_size> input_buffer;
+    for (size_t i = 0; i < 100; i++) {
+      input_buffer.push_back(i);
+    }
+    uint8_t* re = input_buffer.buffer();
+    WHEN(
+        "The copy_from method is called on given vector, where source vector has 100 bytes and "
+        "dest index is 0") {
+      auto status = vector1.copy_from(re, input_buffer.size(), 0);
+      THEN("The copy_from method returns ok") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The empty method reports that the vector is not empty") {
+        REQUIRE(vector1.empty() == false);
+      }
+      THEN("The avaliable method reports that 152 bytes are avaliable") {
+        REQUIRE(vector1.available() == 152);
+      }
+      THEN("The full method reports that the vector is  not completely filled") {
+        REQUIRE(vector1.full() == false);
+      }
+      THEN("Erase method returns ok status for the input of index 99") {
+        REQUIRE(vector1.erase(99) == PF::IndexStatus::ok);
+      }
+      THEN("Erase method returns out of index status for the input of index 100") {
+        REQUIRE(vector1.erase(100) == PF::IndexStatus::out_of_bounds);
+      }
+      THEN(
+          "Vector has expected sequence , 252 bytes of data in destination vector are overwritten "
+          "by source vector") {
+        for (size_t i = 0; i < 100; i++) {
+          REQUIRE(vector1.operator[](i) == i);
+        }
+      }
+    }
+  }
+  GIVEN("An empty uint8_t vector constructed with capacity 252") {
+    constexpr size_t buffer_size = 252UL;
+    ByteVector<buffer_size> vector1;
+    ByteVector<1000> input_buffer;
+    for (size_t i = 0; i < 10; i++) {
+      input_buffer.push_back(i);
+    }
+    uint8_t* re = input_buffer.buffer();
+
+    WHEN(
+        "The copy_from method is called on given vector, where source vector of capacity 1000 has "
+        "10 bytes and dest index is 0") {
+      auto status = vector1.copy_from(re, input_buffer.size(), 0);
+      THEN("The copy_from method returns ok") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("The empty method reports that the vector is not empty") {
+        REQUIRE(vector1.empty() == false);
+      }
+      THEN("The avaliable method reports that 242 bytes are avaliable") {
+        REQUIRE(vector1.available() == 242);
+      }
+      THEN("The full method reports that the vector is  not completely filled") {
+        REQUIRE(vector1.full() == false);
+      }
+      THEN("Erase method returns ok status for the input of index 0") {
+        REQUIRE(vector1.erase(9) == PF::IndexStatus::ok);
+      }
+      THEN("Erase method returns out of bounds status for  the input of index 10") {
+        REQUIRE(vector1.erase(10) == PF::IndexStatus::out_of_bounds);
+      }
+      THEN("Vector has expected sequence of 10 bytes initially given ") {
+        for (size_t i = 0; i < 10; i++) {
+          REQUIRE(vector1.operator[](i) == i);
+        }
+      }
+    }
+  }
 }
 
 SCENARIO("The method in vector: erase works correctly") {
-  GIVEN("Completely filled vector of 252UL buffer size") {
+  GIVEN("A uint8_t vector constructed with capacity 252 bytes is completely filled") {
     constexpr size_t buffer_size = 252UL;
     ByteVector<buffer_size> vector1;
     for (size_t i = 0; i < 252; i++) {
@@ -1337,7 +1566,8 @@ SCENARIO("The method in vector: erase works correctly") {
     }
   }
 
-  GIVEN("Partially filled vector of 252 bytes with capacity 256") {
+  GIVEN(
+      "A uint8_t vector constructed with capacity 256 is partially filled with 252 bytes of data") {
     constexpr size_t buffer_size = 256UL;
     ByteVector<buffer_size> vector1;
     for (size_t i = 0; i < 252; i++) {
@@ -1371,7 +1601,7 @@ SCENARIO("The method in vector: erase works correctly") {
     }
   }
 
-  GIVEN("Empty vector of buffer size 252UL") {
+  GIVEN("An empty uint8_t vector constructed with capacity 252") {
     constexpr size_t buffer_size = 252UL;
     ByteVector<buffer_size> vector1;
     WHEN("The erase method is called on given vector for 0th index") {
@@ -1390,7 +1620,7 @@ SCENARIO("The method in vector: erase works correctly") {
       }
     }
   }
-  GIVEN("Vector has 1 byte with capacity 252") {
+  GIVEN("A uint8_t vector constructed with capacity 252 is filled with 1 bytes of data") {
     constexpr size_t buffer_size = 252UL;
     ByteVector<buffer_size> vector1;
     vector1.push_back(1);
@@ -1417,7 +1647,9 @@ SCENARIO("The method in vector: erase works correctly") {
 }
 
 SCENARIO("The method in Vector:Element *buffer() works correctly") {
-  GIVEN("Completely  filled vector with capacity 100UL") {
+  GIVEN(
+      "A uint8_t vector constructed with capacity 100 is completely filled with 100 bytes of "
+      "data") {
     constexpr size_t buffer_size = 100UL;
     ByteVector<buffer_size> vector1;
     for (size_t i = 0; i < 100; i++) {

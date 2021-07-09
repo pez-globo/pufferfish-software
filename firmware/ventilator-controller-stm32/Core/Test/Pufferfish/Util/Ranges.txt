@@ -1,5 +1,5 @@
 
-SCENARIO: The Util::Ranges within and clamp function gives the expected result') 
+SCENARIO: The Util::Ranges within and clamp functions give the expected result for floor < ceiling
 
   // value < floor < ceiling
   GIVEN('A floor of 10 , a ceiling of 13 and test value of 8 as the function inputs') 
@@ -25,8 +25,8 @@ SCENARIO: The Util::Ranges within and clamp function gives the expected result')
     WHEN('The clamp function is called with the function inputs') 
       THEN('The clamp function returns the test value (8)') 
 
-    // floor > value == ceiling 
-  GIVEN('A floor of 15 , a ceiling of 8 and test value of 8 as the function inputs') 
+    // floor < value == ceiling 
+  GIVEN('A floor of 5 , a ceiling of 8 and test value of 8 as the function inputs') 
     WHEN('The within function is called with the function input') 
       THEN('The Within function returns true') 
 
@@ -73,7 +73,7 @@ Scenario:The Util::Ranges within and clamp function gives the expected result fo
       THEN('The Within function returns false') 
 
     WHEN('The clamp function is called with the function inputs') 
-      THEN('The clamp function returns the floor (8)')
+      THEN('The clamp function returns the ceiling (8)')
 
     // ceiling < floor == value
   GIVEN('A floor of 15 , a ceiling of 8 and test value of 15 as the function inputs') 
@@ -90,7 +90,7 @@ Scenario:The Util::Ranges within and clamp function gives the expected result fo
       THEN('The Within function returns true') 
 
     WHEN('The clamp function is called with the function inputs ') 
-      THEN('The clamp function returns the floor (15)') 
+      THEN('The clamp function returns the ceiling (15)') 
 
 
     // value > floor > ceiling

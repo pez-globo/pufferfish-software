@@ -18,7 +18,7 @@
 namespace PF = Pufferfish;
 
 SCENARIO(
-    "Util:Array make_array function works correctly for uint8, uint16,uint32, and int16 "
+    "Util:Array make_array function works correctly for uint8, uint16,uint32, int16 and structure "
     "types") {
   GIVEN("Util:Array make_array function") {
     WHEN(
@@ -104,6 +104,25 @@ SCENARIO(
         for (int i = 0; i < 1; i++) {
           REQUIRE(data[i] == expected[i]);
         }
+      }
+    }
+    WHEN(
+        "An array is created from two struct instances with internal values of 0xb9, 0xe2, 0xa7 "
+        "and  0x31 ") {
+      struct Test {
+        uint8_t val;
+      };
+
+      Test val1{0xb9};
+      Test val2{0xe2};
+      Test val3{0xa7};
+      Test val4{0x31};
+      auto data = PF::Util::Containers::make_array<Test>(val1, val2, val3, val4);
+      THEN(" the array has the expected values, 0xb9, 0xe2, 0xa7 and 0x31") {
+        REQUIRE(data[0].val == 0xb9);
+        REQUIRE(data[1].val == 0xe2);
+        REQUIRE(data[2].val == 0xa7);
+        REQUIRE(data[3].val == 0x31);
       }
     }
   }
