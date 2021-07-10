@@ -172,18 +172,33 @@ SCENARIO("Util:Array make_array function works properly for const and non-const 
         REQUIRE(result[0].get().val == 0x67);
         REQUIRE(result[1].get().val == 0x3e);
       }
-      THEN(
-          "Values of non-const reference elements from structure are changed to 0xa3 and 0xee, "
-          "values of array at index 0 "
-          "and at index 1 changes to 0xa3 and 0xee") {
+    }
+    WHEN("Values of non-const reference elements from structure are changed to 0xa3 and 0xee") {
+      struct Test {
+        uint8_t val;
+      };
+
+      Test val1{0x67};
+      Test val2{0x3e};
+      auto result = PF::Util::Containers::make_array<std::reference_wrapper<Test>>(val1, val2);
+      THEN("values of array at index 0 and at index 1 changes to 0xa3 and 0xee") {
         val1.val = 0xa3;
         val2.val = 0xee;
         REQUIRE(result[0].get().val == 0xa3);
         REQUIRE(result[1].get().val == 0xee);
       }
-      THEN(
-          "changing the value of the 0th index of an array to 0x01 and 1st index to 0x86 changes "
-          "value of elements from structure to 0x01 and 0x86 ") {
+    }
+    WHEN(
+        "Value of the 0th index of an array is changed to 0x01 and value of 1st index is changed "
+        "to 0x86") {
+      struct Test {
+        uint8_t val;
+      };
+
+      Test val1{0x67};
+      Test val2{0x3e};
+      auto result = PF::Util::Containers::make_array<std::reference_wrapper<Test>>(val1, val2);
+      THEN("Values of two struct instances also change to 0x01 and 0x86") {
         result[0].get().val = 0x01;
         result[1].get().val = 0x86;
         REQUIRE(val1.val == 0x01);
