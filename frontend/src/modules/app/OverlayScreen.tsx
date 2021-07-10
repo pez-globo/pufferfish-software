@@ -85,8 +85,7 @@ export const HeartbeatBackendListener = (): JSX.Element => {
           },
         });
       }
-    } else {
-      if (backendConnected) return;
+    } else if (!backendConnected) {
       dispatch(establishedBackendConnection());
     }
   }, [backendConnected, clock, timeoutDiff, lostConnectionAlarm, dispatch]);
