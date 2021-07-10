@@ -52,12 +52,10 @@ interface UpdateBackendHeartbeat {
 
 interface BackendConnectionDown {
   type: typeof BACKEND_CONNECTION_DOWN;
-  clock: Date;
 }
 
 interface BackendConnectionUp {
   type: typeof BACKEND_CONNECTION_UP;
-  clock: Date;
 }
 
 export type AppAction =
