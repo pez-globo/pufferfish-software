@@ -35,9 +35,9 @@ export function appReducer(state = initialState, action: AppAction): AppState {
       // it should come from the code which creates the action to dispatch.
       return { ...state, backendHeartbeat: new Date() };
     case BACKEND_CONNECTION_DOWN:
-      return { ...state, clock: new Date(), backendConnection: false };
+      return { ...state, backendConnection: false };
     case BACKEND_CONNECTION_UP:
-      return { ...state, clock: new Date(), backendConnection: true };
+      return { ...state, backendConnection: true };
     default:
       return state;
   }
