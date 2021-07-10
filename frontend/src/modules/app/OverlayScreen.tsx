@@ -23,7 +23,7 @@ import MultiStepWizard from '../displays/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { updateState } from '../../store/controller/actions';
 import { LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
-import { getBackendConnected, getBackendHeartBeat } from '../../store/app/selectors';
+import { getBackendConnected, getBackendHeartBeat, getClock } from '../../store/app/selectors';
 import { establishedBackendConnection } from '../../store/app/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -57,8 +57,11 @@ export const BACKEND_CONNECTION_TIMEOUT = 3000;
  * @returns {JSX.Element}
  */
 export const HeartbeatBackendListener = (): JSX.Element => {
+  // getClock is used as a dependency for useEffect so that it executes everytime clock changes,
+  // this allows us to see if diff > BACKEND_CONNECTION_TIMEOUT which means that the backend is disconnected
+  // and accordingly we can dispatch the action to the store.
+  const clock = useSelector(getClock);
   const dispatch = useDispatch();
-  const [backendtimeout, setBackendTimeout] = useState(0);
   const heartbeat = useSelector(getBackendHeartBeat);
   const backendConnected = useSelector(getBackendConnected);
   const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
@@ -69,10 +72,6 @@ export const HeartbeatBackendListener = (): JSX.Element => {
   // for a lost backend connection. Everywhere else, we should use the selector
   // from store/app/selectors.ts for getBackendConnected.
   const lostConnectionAlarm = useSelector(getBackendDownEvent);
-
-  setTimeout(() => {
-    setBackendTimeout(() => backendtimeout + 1);
-  }, 2000);
 
   useEffect(() => {
     if (timeoutDiff) {
@@ -90,7 +89,7 @@ export const HeartbeatBackendListener = (): JSX.Element => {
       if (backendConnected) return;
       dispatch(establishedBackendConnection());
     }
-  }, [backendConnected, timeoutDiff, backendtimeout, lostConnectionAlarm, dispatch]);
+  }, [backendConnected, clock, timeoutDiff, lostConnectionAlarm, dispatch]);
 
   return <React.Fragment />;
 };
