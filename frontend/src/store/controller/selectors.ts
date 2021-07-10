@@ -316,6 +316,21 @@ export const getAlarmMuteRequestActive = createSelector(
     alarmMuteRequest === null ? false : alarmMuteRequest.active,
 );
 
+// Alarm Limits
+// return a number[] of alarmLimits for ValueInfo based on the stateKey
+const alarmLimitsCurrentSelector = (stateKey: string) =>
+  createSelector(getAlarmLimitsCurrent, (alarmLimits: AlarmLimits | null) => {
+    const range =
+      alarmLimits === null
+        ? undefined
+        : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
+    const { lower, upper } = range === undefined ? { lower: 0, upper: 0 } : range;
+    return [lower, upper];
+  });
+
+export const getSpO2AlarmLimitsCurrent = alarmLimitsCurrentSelector('spo2');
+export const getHRAlarmLimitsCurrent = alarmLimitsCurrentSelector('hr');
+
 // Battery power
 
 export const getMcuPowerStatus = createSelector(

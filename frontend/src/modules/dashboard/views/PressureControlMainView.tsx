@@ -9,20 +9,19 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Tabs, Tab, Typography, Button } from '@material-ui/core';
 import { PawGraphInfo, FlowGraphInfo, VolumeGraphInfo } from '../containers';
 import { TabPanel, a11yProps } from '../../controllers/TabPanel';
-import ControlInfo from '../containers/ControlInfo';
+import ControlInfo from '../components/ControlInfo';
 import {
   getCycleMeasurementsPEEP,
   getCycleMeasurementsPIP,
   getCycleMeasurementsRR,
-  getCycleMeasurementsVT,
   getParametersFiO2,
   getParametersPEEP,
   getParametersPIP,
   getParametersRR,
   getSensorMeasurementsFiO2,
 } from '../../../store/controller/selectors';
-import { BMIN, CMH20, LMIN, PERCENT } from '../../info/units';
-import ValueInfo from '../containers/ValueInfo';
+import { BMIN, CMH20, PERCENT } from '../../info/units';
+import ValueInfo from '../components/ValueInfo';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -159,44 +158,40 @@ const PressureControlMainView = (): JSX.Element => {
         <Grid item xs={4} justify="center" alignItems="stretch" className={classes.topLeftPanel}>
           <Grid container item justify="center" alignItems="stretch">
             <ValueInfo
-              mainContainer={{
-                selector: getCycleMeasurementsPIP,
-                label: 'PIP',
-                stateKey: 'pip',
-                units: CMH20,
-              }}
-              subContainer1={{
-                selector: getCycleMeasurementsPEEP,
-                label: 'PEEP',
-                stateKey: 'peep',
-                units: CMH20,
-              }}
-              subContainer2={{
-                selector: getSensorMeasurementsFiO2,
-                label: 'FiO2',
-                stateKey: 'fio2',
-                units: PERCENT,
-              }}
+              selector={getCycleMeasurementsPIP}
+              label="PIP"
+              stateKey="pip"
+              units={CMH20}
+              // subContainer1={{
+              //   selector: getCycleMeasurementsPEEP,
+              //   label: 'PEEP',
+              //   stateKey: 'peep',
+              //   units: CMH20,
+              // }}
+              // subContainer2={{
+              //   selector: getSensorMeasurementsFiO2,
+              //   label: 'FiO2',
+              //   stateKey: 'fio2',
+              //   units: PERCENT,
+              // }}
             />
             <ValueInfo
-              mainContainer={{
-                selector: getCycleMeasurementsRR,
-                label: 'RR',
-                stateKey: 'rr',
-                units: BMIN,
-              }}
-              subContainer1={{
-                selector: getCycleMeasurementsVT,
-                label: 'TV',
-                stateKey: 'tv',
-                units: LMIN,
-              }}
-              subContainer2={{
-                selector: getCycleMeasurementsVT, // Need to replace it wit I:E selector value
-                label: 'I:E Ratio',
-                units: '',
-                stateKey: '',
-              }}
+              selector={getCycleMeasurementsRR}
+              label="RR"
+              stateKey="rr"
+              units={BMIN}
+              // subContainer1={{
+              //   selector: getCycleMeasurementsVT,
+              //   label: 'TV',
+              //   stateKey: 'tv',
+              //   units: LMIN,
+              // }}
+              // subContainer2={{
+              //   selector: getCycleMeasurementsVT, // Need to replace it wit I:E selector value
+              //   label: 'I:E Ratio',
+              //   units: '',
+              //   stateKey: '',
+              // }}
             />
           </Grid>
           <Grid item xs={12} className={classes.moreValues}>

@@ -221,7 +221,7 @@ export const EventTypeMap = new Map<LogEventCode, EventType>([
     LogEventCode.battery_low,
     {
       type: LogEventType.system,
-      label: 'Battery power is low',
+      label: 'Low battery',
       unit: PERCENT,
     },
   ],
@@ -229,7 +229,7 @@ export const EventTypeMap = new Map<LogEventCode, EventType>([
     LogEventCode.charger_disconnected,
     {
       type: LogEventType.system,
-      label: 'Charger is disconnected',
+      label: 'Wall Power lost',
     },
   ],
   [
@@ -257,7 +257,7 @@ export const EventTypeMap = new Map<LogEventCode, EventType>([
     LogEventCode.battery_critical,
     {
       type: LogEventType.system,
-      label: 'Battery power critically low',
+      label: 'Critical battery',
       unit: PERCENT,
     },
   ],

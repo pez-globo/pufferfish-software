@@ -14,6 +14,8 @@
 
 namespace Pufferfish::Driver::Power {
 
+using Application::MCUPowerStatus;
+
 class Simulator {
  public:
   void transform(uint32_t current_time, MCUPowerStatus &mcu_power_status);

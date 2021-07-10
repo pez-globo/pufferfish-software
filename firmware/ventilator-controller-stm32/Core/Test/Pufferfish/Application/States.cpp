@@ -12,6 +12,11 @@
 
 #include "catch2/catch.hpp"
 
+using Pufferfish::Application::ActiveLogEvents;
+using Pufferfish::Application::AlarmLimits;
+using Pufferfish::Application::NextLogEvents;
+using Pufferfish::Application::Range;
+
 SCENARIO(
     "The equality operator works correctly for simple POD structs from nanopb",
     "[Application::States]") {

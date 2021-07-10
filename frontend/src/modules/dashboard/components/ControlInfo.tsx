@@ -198,16 +198,6 @@ const ControlInfo = (props: Props): JSX.Element => {
     return false;
   });
 
-  /**
-   * Function for updating the modal status.
-   * TODO: replace with setOpen
-   *
-   * @param {boolean} status desc ofr status
-   */
-  const updateModalStatus = (status: boolean) => {
-    setOpen(status);
-  };
-
   return (
     <div
       style={{ outline: 'none' }}
@@ -218,7 +208,7 @@ const ControlInfo = (props: Props): JSX.Element => {
     >
       <ValueControl selector={selector} label={label} units={units || ''} />
       <ValueModal
-        updateModalStatus={updateModalStatus}
+        updateModalStatus={(status: boolean) => setOpen(status)}
         openModal={open}
         disableSetNewButton={true}
         committedSetting={committedSetting}
