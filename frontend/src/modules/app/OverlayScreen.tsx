@@ -18,8 +18,8 @@ import {
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 
-import ModalPopup from '../controllers/ModalPopup';
-import MultiStepWizard from '../displays/MultiStepWizard';
+import ModalPopup from '../modals/ModalPopup';
+import MultiStepWizard from '../modals/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { updateState } from '../../store/controller/actions';
 import { LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';

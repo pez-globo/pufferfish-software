@@ -21,11 +21,12 @@ import {
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/controller/types';
 import { setActiveRotaryReference } from '../app/Service';
-import { DiscardAlarmLimitsContent, ValueClicker } from '../controllers';
-import ModalPopup from '../controllers/ModalPopup';
+import { ValueClicker } from '../controllers';
+import ModalPopup from '../modals/ModalPopup';
 import ValueSlider from '../controllers/ValueSlider';
 import ModeBanner, { BannerType } from '../displays/ModeBanner';
 import useRotaryReference from '../utils/useRotaryReference';
+import { DiscardAlarmLimitsContent } from '../modals';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

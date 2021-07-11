@@ -19,7 +19,7 @@ import {
   getParametersIsVentilating,
   getFirmwareConnected,
 } from '../../store/controller/selectors';
-import ModalPopup from '../controllers/ModalPopup';
+import ModalPopup from '../modals/ModalPopup';
 import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
 import { commitRequest } from '../../store/controller/actions';

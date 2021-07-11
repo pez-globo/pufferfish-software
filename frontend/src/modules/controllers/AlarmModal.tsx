@@ -9,7 +9,7 @@ import { commitRequest, commitDraftRequest } from '../../store/controller/action
 import { getAlarmLimitsRequest } from '../../store/controller/selectors';
 import { Range, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
-import ModalPopup from './ModalPopup';
+import ModalPopup from '../modals/ModalPopup';
 import ValueClicker from './ValueClicker';
 import ValueSlider from './ValueSlider';
 import useRotaryReference from '../utils/useRotaryReference';
