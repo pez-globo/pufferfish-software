@@ -71,8 +71,8 @@ class NotificationSender(
     _idle_sender: states.SequentialSender[_Index] = attr.ib()
 
     @_sendable_sender.default
-    def init_sequential_sender(self) -> states.SequentialSender[_Index]:
-        """Initialize the sequential sender."""
+    def init_sendable_sender(self) -> states.SequentialSender[_Index]:
+        """Initialize the sendable sender."""
         return states.SequentialSender(
             index_sequence=self.index_sequence,
             indexed_sender=FilteredSender(
@@ -184,7 +184,8 @@ class ChangedStateSender(
             return
 
         for index in self._trackable_states:
-            self._notification_sender.input(index)
+            if self.all_states[index] is not None:
+                self._notification_sender.input(index)
 
     def output(self) -> Optional[betterproto.Message]:
         """Emit the next output event."""

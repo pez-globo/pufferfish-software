@@ -90,8 +90,10 @@ FRONTEND_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.AlarmMuteRequest: StateSegment.ALARM_MUTE_REQUEST,
     frontend_pb.RotaryEncoder: StateSegment.ROTARY_ENCODER,
     frontend_pb.SystemSettingRequest: StateSegment.SYSTEM_SETTING_REQUEST,
-    # Frontend protobuf message isn't defined yet:
-    # frontend_pb.FrontendDisplay: StateSegment.FRONTEND_DISPLAY_REQUEST,
+    # Frontend display request protobuf message isn't defined yet:
+    # frontend_pb.FrontendDisplayRequest: StateSegment.FRONTEND_DISPLAY_REQUEST,
+    # Temporarily, we'll accept FrontendDisplaySetting in its place:
+    frontend_pb.FrontendDisplaySetting: StateSegment.FRONTEND_DISPLAY_REQUEST,
 }
 FRONTEND_OUTPUT_MIN_INTERVAL = 0.01  # s
 FRONTEND_OUTPUT_ROOT_SCHEDULE = [

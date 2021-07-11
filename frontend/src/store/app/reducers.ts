@@ -16,6 +16,7 @@ const initialState: AppState = {
   notifyAlarm: false,
   backendHeartbeat: new Date(),
   backendConnection: false,
+  lastBackendConnectionTime: null,
 };
 
 export function appReducer(state = initialState, action: AppAction): AppState {
@@ -37,7 +38,13 @@ export function appReducer(state = initialState, action: AppAction): AppState {
     case BACKEND_CONNECTION_DOWN:
       return { ...state, backendConnection: false };
     case BACKEND_CONNECTION_UP:
-      return { ...state, backendConnection: true };
+      return {
+        ...state,
+        backendConnection: true,
+        lastBackendConnectionTime: state.backendConnection
+          ? state.lastBackendConnectionTime
+          : new Date(),
+      };
     default:
       return state;
   }

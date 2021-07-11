@@ -47,6 +47,10 @@ class Message:
         body_header = buffer[:self.HEADER_SIZE]
         try:
             results = self._HEADER_PARSER.unpack(body_header)
+        except TypeError as exc:
+            raise exceptions.ProtocolDataError(
+                'Buffer is of wrong type: {}'.format(type(buffer))
+            ) from exc
         except struct.error as exc:
             raise exceptions.ProtocolDataError(
                 'Unparseable header: {!r}'.format(body_header)
