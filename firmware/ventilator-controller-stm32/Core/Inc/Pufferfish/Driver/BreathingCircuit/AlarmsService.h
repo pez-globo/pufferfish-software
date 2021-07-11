@@ -18,6 +18,12 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+using Application::AlarmLimits;
+using Application::LogEventCode;
+using Application::Parameters;
+using Application::Range;
+using Application::SensorMeasurements;
+
 class AlarmsService {
  public:
   static void check_parameter(

@@ -24,7 +24,14 @@
 namespace PF = Pufferfish;
 namespace BE = PF::Driver::Serial::Backend;
 namespace Transport = PF::Protocols::Transport;
+using PF::Application::AlarmLimits;
+using PF::Application::AlarmLimitsRequest;
+using PF::Application::CycleMeasurements;
 using PF::Application::MessageTypes;
+using PF::Application::Parameters;
+using PF::Application::ParametersRequest;
+using PF::Application::Range;
+using PF::Application::SensorMeasurements;
 using PF::Util::get_protobuf_desc;
 using PF::Util::UnrecognizedMessage;
 using PF::Util::Containers::ByteVector;
@@ -258,7 +265,7 @@ SCENARIO(
       Parameters parameters;
       memset(&parameters, 0, sizeof(parameters));
       parameters.fio2 = 60;
-      parameters.mode = VentilationMode_hfnc;
+      parameters.mode = PF::Application::VentilationMode_hfnc;
       parameters.ventilating = true;
       test_message.payload.set(parameters);
 
@@ -279,7 +286,8 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.fio2 == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters.mode == VentilationMode_hfnc);
+        REQUIRE(
+            test_message.payload.value.parameters.mode == PF::Application::VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.ventilating == true);
       }
@@ -298,7 +306,7 @@ SCENARIO(
       ParametersRequest parameters_request;
       memset(&parameters_request, 0, sizeof(parameters_request));
       parameters_request.fio2 = 80;
-      parameters_request.mode = VentilationMode_hfnc;
+      parameters_request.mode = PF::Application::VentilationMode_hfnc;
       parameters_request.ventilating = true;
 
       test_message.payload.set(parameters_request);
@@ -320,7 +328,9 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters_request.fio2 == 80);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters_request.mode == VentilationMode_hfnc);
+        REQUIRE(
+            test_message.payload.value.parameters_request.mode ==
+            PF::Application::VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters_request.ventilating == true);
       }
@@ -623,7 +633,7 @@ SCENARIO(
       Parameters parameters;
       memset(&parameters, 0, sizeof(parameters));
       parameters.fio2 = 60;
-      parameters.mode = VentilationMode_hfnc;
+      parameters.mode = PF::Application::VentilationMode_hfnc;
       parameters.ventilating = true;
       test_message.payload.set(parameters);
 
@@ -946,7 +956,8 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.fio2 == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters.mode == VentilationMode_hfnc);
+        REQUIRE(
+            test_message.payload.value.parameters.mode == PF::Application::VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.ventilating == true);
       }
@@ -975,7 +986,9 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters_request.fio2 == 80);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters_request.mode == VentilationMode_hfnc);
+        REQUIRE(
+            test_message.payload.value.parameters_request.mode ==
+            PF::Application::VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters_request.ventilating == true);
       }
@@ -1074,7 +1087,7 @@ SCENARIO(
     ParametersRequest parameters_request;
     memset(&parameters_request, 0, sizeof(parameters_request));
     parameters_request.fio2 = 80;
-    parameters_request.mode = VentilationMode_hfnc;
+    parameters_request.mode = PF::Application::VentilationMode_hfnc;
     parameters_request.ventilating = true;
 
     test_message.payload.set(parameters_request);
@@ -1100,7 +1113,9 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters_request.fio2 == 80);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters_request.mode == VentilationMode_hfnc);
+        REQUIRE(
+            test_message.payload.value.parameters_request.mode ==
+            PF::Application::VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters_request.ventilating == true);
       }
@@ -1177,7 +1192,7 @@ SCENARIO(
       ParametersRequest parameters_request;
       memset(&parameters_request, 0, sizeof(parameters_request));
       parameters_request.fio2 = 40;
-      parameters_request.mode = VentilationMode_hfnc;
+      parameters_request.mode = PF::Application::VentilationMode_hfnc;
       parameters_request.flow = 60;
       test_message.payload.set(parameters_request);
 
@@ -1201,7 +1216,9 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters_request.flow == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters_request.mode == VentilationMode_hfnc);
+        REQUIRE(
+            test_message.payload.value.parameters_request.mode ==
+            PF::Application::VentilationMode_hfnc);
       }
       THEN("The output buffer has an expected sequence of 11 bytes") {
         auto expected = std::string("\x05\x25\x00\x00\x20\x42\x2D\x00\x00\x70\x42"s);
@@ -1228,7 +1245,9 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(parse_message.payload.value.parameters_request.flow == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(parse_message.payload.value.parameters_request.mode == VentilationMode_hfnc);
+        REQUIRE(
+            parse_message.payload.value.parameters_request.mode ==
+            PF::Application::VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
       }
       THEN("The input buffer is unchanged after parse") {
@@ -1258,7 +1277,9 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(parse_message.payload.value.parameters_request.flow == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(parse_message.payload.value.parameters_request.mode == VentilationMode_hfnc);
+        REQUIRE(
+            parse_message.payload.value.parameters_request.mode ==
+            PF::Application::VentilationMode_hfnc);
       }
       THEN(
           "The type field of the body's header correctly stores the value of message type obtained "
@@ -1503,7 +1524,8 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.fio2 == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters.mode == VentilationMode_hfnc);
+        REQUIRE(
+            test_message.payload.value.parameters.mode == PF::Application::VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.ventilating == true);
       }
@@ -1537,7 +1559,8 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.fio2 == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters.mode == VentilationMode_hfnc);
+        REQUIRE(
+            test_message.payload.value.parameters.mode == PF::Application::VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.ventilating == true);
       }
@@ -1567,7 +1590,8 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.fio2 == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters.mode == VentilationMode_hfnc);
+        REQUIRE(
+            test_message.payload.value.parameters.mode == PF::Application::VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.ventilating == true);
       }
@@ -1585,7 +1609,8 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.fio2 == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters.mode == VentilationMode_hfnc);
+        REQUIRE(
+            test_message.payload.value.parameters.mode == PF::Application::VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.ventilating == true);
       }
@@ -1703,7 +1728,8 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.fio2 == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters.mode == VentilationMode_hfnc);
+        REQUIRE(
+            test_message.payload.value.parameters.mode == PF::Application::VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters.ventilating == true);
       }
@@ -1734,7 +1760,9 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters_request.fio2 == 80);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(test_message.payload.value.parameters_request.mode == VentilationMode_hfnc);
+        REQUIRE(
+            test_message.payload.value.parameters_request.mode ==
+            PF::Application::VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(test_message.payload.value.parameters_request.ventilating == true);
       }
@@ -2023,7 +2051,7 @@ SCENARIO(
       Parameters parameters;
       memset(&parameters, 0, sizeof(parameters));
       parameters.fio2 = 60;
-      parameters.mode = VentilationMode_hfnc;
+      parameters.mode = PF::Application::VentilationMode_hfnc;
       parameters.ventilating = true;
       tagged_union.set(parameters);
 
@@ -2039,7 +2067,7 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(tagged_union.value.parameters.fio2 == 60);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(tagged_union.value.parameters.mode == VentilationMode_hfnc);
+        REQUIRE(tagged_union.value.parameters.mode == PF::Application::VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(tagged_union.value.parameters.ventilating == true);
       }
@@ -2058,7 +2086,7 @@ SCENARIO(
       ParametersRequest parameters_request;
       memset(&parameters_request, 0, sizeof(parameters_request));
       parameters_request.fio2 = 80;
-      parameters_request.mode = VentilationMode_hfnc;
+      parameters_request.mode = PF::Application::VentilationMode_hfnc;
       parameters_request.ventilating = true;
 
       tagged_union.set(parameters_request);
@@ -2075,7 +2103,8 @@ SCENARIO(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(tagged_union.value.parameters_request.fio2 == 80);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
-        REQUIRE(tagged_union.value.parameters_request.mode == VentilationMode_hfnc);
+        REQUIRE(
+            tagged_union.value.parameters_request.mode == PF::Application::VentilationMode_hfnc);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access);
         REQUIRE(tagged_union.value.parameters_request.ventilating == true);
       }

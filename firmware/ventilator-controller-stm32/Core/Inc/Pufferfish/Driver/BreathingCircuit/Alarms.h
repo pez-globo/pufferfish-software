@@ -15,6 +15,8 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+using Application::LogEventCode;
+
 // These are all the alarms which the BreathingCircuit driver is responsible for.
 // The driver resets their debouncers when ventilation is started/stopped or the mode is changed.
 // The driver deactivates them when ventilation is stopped.

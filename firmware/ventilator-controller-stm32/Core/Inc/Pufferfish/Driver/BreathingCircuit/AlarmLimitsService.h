@@ -17,6 +17,12 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+using Application::AlarmLimits;
+using Application::AlarmLimitsRequest;
+using Application::LogEventCode;
+using Application::Parameters;
+using Application::Range;
+
 Range transform_limits_range(int32_t floor, int32_t ceiling, Range request);
 void service_limits_range(
     Range request,

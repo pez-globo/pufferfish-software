@@ -56,7 +56,7 @@ void PCACSimulator::transform(
     return;
   }
 
-  if (!parameters.ventilating || parameters.mode != VentilationMode_pc_ac) {
+  if (!parameters.ventilating || parameters.mode != Application::VentilationMode_pc_ac) {
     return;
   }
 
@@ -128,7 +128,7 @@ void HFNCSimulator::transform(
     return;
   }
 
-  if (!parameters.ventilating || parameters.mode != VentilationMode_hfnc) {
+  if (!parameters.ventilating || parameters.mode != Application::VentilationMode_hfnc) {
     return;
   }
 
@@ -200,10 +200,10 @@ void Simulators::transform(
     SensorMeasurements &sensor_measurements,
     CycleMeasurements &cycle_measurements) {
   switch (parameters.mode) {
-    case VentilationMode_pc_ac:
+    case Application::VentilationMode_pc_ac:
       active_simulator_ = &pc_ac_;
       break;
-    case VentilationMode_hfnc:
+    case Application::VentilationMode_hfnc:
       active_simulator_ = &hfnc_;
       break;
     default:

@@ -19,6 +19,10 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+using Application::LogEventCode;
+using Application::ParametersRequest;
+using Application::VentilationMode;
+
 float transform_parameter(float floor, float ceiling, float request, float current);
 // Return value indicates whether the request caused a change in the response:
 bool service_parameter(

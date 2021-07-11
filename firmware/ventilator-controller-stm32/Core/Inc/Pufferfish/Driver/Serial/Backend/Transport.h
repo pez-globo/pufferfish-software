@@ -31,18 +31,19 @@ using MessageDescriptors = Protocols::Transport::
 static const MessageDescriptors message_descriptors{
     {MessageTypes::unknown, Util::get_protobuf_desc<Util::UnrecognizedMessage>()},
     {MessageTypes::reserved, Util::get_protobuf_desc<Util::UnrecognizedMessage>()},
-    {MessageTypes::sensor_measurements, Util::get_protobuf_desc<SensorMeasurements>()},
-    {MessageTypes::cycle_measurements, Util::get_protobuf_desc<CycleMeasurements>()},
-    {MessageTypes::parameters, Util::get_protobuf_desc<Parameters>()},
-    {MessageTypes::parameters_request, Util::get_protobuf_desc<ParametersRequest>()},
-    {MessageTypes::alarm_limits, Util::get_protobuf_desc<AlarmLimits>()},
-    {MessageTypes::alarm_limits_request, Util::get_protobuf_desc<AlarmLimitsRequest>()},
-    {MessageTypes::expected_log_event, Util::get_protobuf_desc<ExpectedLogEvent>()},
-    {MessageTypes::next_log_events, Util::get_protobuf_desc<NextLogEvents>()},
-    {MessageTypes::active_log_events, Util::get_protobuf_desc<ActiveLogEvents>()},
-    {MessageTypes::alarm_mute, Util::get_protobuf_desc<AlarmMute>()},
-    {MessageTypes::alarm_mute_request, Util::get_protobuf_desc<AlarmMuteRequest>()},
-    {MessageTypes::mcu_power_status, Util::get_protobuf_desc<MCUPowerStatus>()}};
+    {MessageTypes::sensor_measurements, Util::get_protobuf_desc<Application::SensorMeasurements>()},
+    {MessageTypes::cycle_measurements, Util::get_protobuf_desc<Application::CycleMeasurements>()},
+    {MessageTypes::parameters, Util::get_protobuf_desc<Application::Parameters>()},
+    {MessageTypes::parameters_request, Util::get_protobuf_desc<Application::ParametersRequest>()},
+    {MessageTypes::alarm_limits, Util::get_protobuf_desc<Application::AlarmLimits>()},
+    {MessageTypes::alarm_limits_request,
+     Util::get_protobuf_desc<Application::AlarmLimitsRequest>()},
+    {MessageTypes::expected_log_event, Util::get_protobuf_desc<Application::ExpectedLogEvent>()},
+    {MessageTypes::next_log_events, Util::get_protobuf_desc<Application::NextLogEvents>()},
+    {MessageTypes::active_log_events, Util::get_protobuf_desc<Application::ActiveLogEvents>()},
+    {MessageTypes::alarm_mute, Util::get_protobuf_desc<Application::AlarmMute>()},
+    {MessageTypes::alarm_mute_request, Util::get_protobuf_desc<Application::AlarmMuteRequest>()},
+    {MessageTypes::mcu_power_status, Util::get_protobuf_desc<Application::MCUPowerStatus>()}};
 
 using CRCElementProps =
     Protocols::Transport::CRCElementProps<Driver::Serial::Backend::FrameProps::payload_max_size>;

@@ -475,6 +475,10 @@ export interface ExpectedLogEvent {
   sessionId: number;
 }
 
+/**
+ * Note: NextLogEvents has a custom equality operator in the firmware which must
+ * be updated if you add/remove/modify the fields of the protobuf definition!
+ */
 export interface NextLogEvents {
   nextExpected: number;
   total: number;
@@ -484,6 +488,10 @@ export interface NextLogEvents {
   elements: LogEvent[];
 }
 
+/**
+ * Note: NextLogEvents has a custom equality operator in the firmware which must
+ * be updated if you add/remove/modify the fields of the protobuf definition!
+ */
 export interface ActiveLogEvents {
   id: number[];
 }

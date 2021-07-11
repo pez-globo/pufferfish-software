@@ -37,6 +37,7 @@ message FrontendDisplaySetting {
 // System Settings
 
 // TODO: we also need a response version of this message, SystemSettings
+// TODO: we should name this SystemSettingsRequest, not SystemSettingRequest
 message SystemSettingRequest {
   uint32 brightness = 1;
   uint32 date = 2;

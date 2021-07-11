@@ -34,7 +34,7 @@ void HFNCControlLoop::update(uint32_t current_time) {
     return;
   }
 
-  if (parameters_.mode != VentilationMode_hfnc) {
+  if (parameters_.mode != Application::VentilationMode_hfnc) {
     return;
   }
 

@@ -9,11 +9,12 @@
 
 #include <functional>
 
-#include "Pufferfish/Application/LogEvents.h"
+#include "LogEvents.h"
 #include "Pufferfish/Protocols/Application/Debouncing.h"
 #include "Pufferfish/Util/Containers/EnumMap.h"
 #include "Pufferfish/Util/Containers/OrderedMap.h"
 #include "Pufferfish/Util/Timeouts.h"
+#include "States.h"
 
 namespace Pufferfish::Application {
 
