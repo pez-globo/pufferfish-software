@@ -23,7 +23,7 @@ import {
 } from '../../../store/controller/selectors';
 import { DECIMAL_RADIX } from '../../app/AppConstants';
 import ValueController from '../../controllers/ValueController';
-import { ToggleValue } from '../../displays/ToggleValue';
+import { ToggleValue } from '../../controllers/ToggleValue';
 import {
   BRIGHTNESS_REFERENCE_KEY,
   HOUR_REFERENCE_KEY,

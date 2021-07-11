@@ -12,6 +12,5 @@
  */
 export * from './Carousel';
 export * from './ModeBanner';
-export * from './ToggleValue';
 export * from './ValueDisplay';
 export * from './ValueSelectorDisplay';
