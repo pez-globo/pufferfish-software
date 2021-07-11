@@ -15,7 +15,7 @@ import { getCycleMeasurementsPEEP, getParametersPEEP } from '../../store/control
 import { StoreState } from '../../store/types';
 import { AlarmModal, Knob } from '../controllers';
 import { SettingAdjustProps, ValueModal } from '../controllers/ValueModal';
-import { ValueDisplay, ValueProps } from '../displays/ParameterInfo';
+import { ValueDisplay, ValueProps } from '../displays/ValueDisplay';
 import { CMH20 } from './units';
 
 const displaySelector = createStructuredSelector<StoreState, ValueProps>({

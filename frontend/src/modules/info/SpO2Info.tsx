@@ -11,7 +11,7 @@ import { createStructuredSelector } from 'reselect';
 import { getSensorMeasurementsSpO2 } from '../../store/controller/selectors';
 import { StoreState } from '../../store/types';
 import { AlarmModal, Knob } from '../controllers';
-import { ValueDisplay, ValueProps } from '../displays/ParameterInfo';
+import { ValueDisplay, ValueProps } from '../displays/ValueDisplay';
 import { PERCENT } from './units';
 
 const displaySelector = createStructuredSelector<StoreState, ValueProps>({

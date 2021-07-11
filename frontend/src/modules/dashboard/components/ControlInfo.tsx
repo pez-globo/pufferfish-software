@@ -11,7 +11,7 @@ import { MessageType } from '../../../store/controller/types';
 import { commitRequest, commitDraftRequest } from '../../../store/controller/actions';
 import { setMultiPopupOpen } from '../../app/Service';
 import { ValueModal } from '../../controllers';
-import { SelectorType, ValueSelectorDisplay } from '../../displays/ParameterValueDisplay';
+import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
 import { ClickHandler } from './ValueInfo';
 
 /**

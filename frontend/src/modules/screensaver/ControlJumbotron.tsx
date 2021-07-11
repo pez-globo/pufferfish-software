@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
-import { SelectorType, ValueSelectorDisplay } from '../displays/ParameterValueDisplay';
+import { SelectorType, ValueSelectorDisplay } from '../displays/ValueSelectorDisplay';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

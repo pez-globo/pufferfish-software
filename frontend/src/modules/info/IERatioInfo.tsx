@@ -6,7 +6,7 @@
  *
  */
 import React from 'react';
-import { ValueDisplay } from '../displays/ParameterInfo';
+import { ValueDisplay } from '../displays/ValueDisplay';
 import { Knob } from '../controllers';
 
 /**

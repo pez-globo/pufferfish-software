@@ -5,7 +5,7 @@
 import React, { RefObject } from 'react';
 import { Grid, makeStyles, Theme } from '@material-ui/core';
 import { ValueClicker } from '.';
-import ParameterInfo from '../displays/ParameterInfo';
+import ParameterInfo from '../displays/ValueDisplay';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
