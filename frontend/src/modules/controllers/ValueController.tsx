@@ -5,7 +5,7 @@
 import React, { RefObject } from 'react';
 import { Grid, makeStyles, Theme } from '@material-ui/core';
 import { ValueClicker } from '.';
-import ParameterInfo from '../displays/ValueDisplay';
+import ValueDisplay from '../displays/ValueDisplay';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -67,7 +67,7 @@ const ValueController = ({
   return (
     <Grid ref={reference} container className={classes.root}>
       <Grid item xs>
-        <ParameterInfo value={value} label={label} units={units} />
+        <ValueDisplay value={value} label={label} units={units} />
       </Grid>
       <Grid item>
         <ValueClicker
