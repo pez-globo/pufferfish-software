@@ -1,6 +1,5 @@
 import { SelectEffect, PutEffect, CallEffect, put, delay } from 'redux-saga/effects';
 import { AppAction } from '../../../app/types';
-import { establishedBackendConnection } from '../../../app/actions';
 import { updateState } from '../../actions';
 import { StateUpdateAction } from '../../types';
 import { GeneratorYieldType, GeneratorYield, makeYieldResult, makeYieldEffect } from '../sagas';
@@ -22,7 +21,6 @@ export function* receive(
   try {
     const results = deserialize(body);
     yield put(updateState(results.messageType, results.pbMessage));
-    yield put(establishedBackendConnection());
   } catch (err) {
     console.error(err);
   }
