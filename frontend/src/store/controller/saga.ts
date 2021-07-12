@@ -9,7 +9,7 @@ import {
   SenderYield,
 } from './protocols/backend/backend';
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
-import { establishedBackendConnection, lostBackendConnection } from '../app/actions';
+import { establishedBackendConnection } from '../app/actions';
 import { getBackendConnected } from '../app/selectors';
 import { LogEventCode, LogEventType } from './proto/mcu_pb';
 
