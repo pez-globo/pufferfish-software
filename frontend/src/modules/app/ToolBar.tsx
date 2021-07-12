@@ -9,7 +9,7 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
-import { getBackendConnected, getClockTime } from '../../store/app/selectors';
+import { getBackendConnected } from '../../store/app/selectors';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import {
   ParametersRequest,
@@ -75,7 +75,34 @@ const useStyles = makeStyles((theme: Theme) => ({
  */
 export const HeaderClock = (): JSX.Element => {
   const classes = useStyles();
-  const clockTime = useSelector(getClockTime);
+  // we can initialize with something more specific like wall clock time
+  const [clockTime, setClockTime] = useState(
+    new Date().toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    }),
+  );
+
+  /**
+   * UseEffect to run the clock every second
+   */
+  useEffect(() => {
+    const clockTimer = setInterval(() => {
+      setClockTime(
+        new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true,
+        }),
+      );
+    }, 1000);
+    return () => {
+      clearInterval(clockTimer);
+    };
+  }, []);
   return <span className={classes.clockPadding}>{clockTime}</span>;
 };
 

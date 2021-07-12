@@ -1,5 +1,5 @@
 import { EventChannel } from 'redux-saga';
-import { take, takeEvery, fork, delay, takeLatest, all } from 'redux-saga/effects';
+import { take, takeEvery, fork, delay, all } from 'redux-saga/effects';
 import { INITIALIZED } from '../app/types';
 import { GeneratorYieldType } from './protocols/sagas';
 import {
@@ -9,7 +9,6 @@ import {
   SenderYield,
 } from './protocols/backend/backend';
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
-import updateClock from './io/clock';
 
 function* receiveAll(channel: EventChannel<Response>) {
   while (true) {
@@ -62,10 +61,7 @@ export function* serviceConnectionPersistently(): IterableIterator<unknown> {
 }
 
 export function* controllerSaga(): IterableIterator<unknown> {
-  yield all([
-    yield takeEvery(INITIALIZED, serviceConnectionPersistently),
-    yield takeLatest(INITIALIZED, updateClock),
-  ]);
+  yield all([yield takeEvery(INITIALIZED, serviceConnectionPersistently)]);
 }
 
 export default controllerSaga;

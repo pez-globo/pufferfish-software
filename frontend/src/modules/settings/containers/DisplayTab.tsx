@@ -15,7 +15,6 @@ import {
 } from '@material-ui/core';
 import React, { RefObject, useEffect, useRef } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
-import { getClock } from '../../../store/app/selectors';
 import { ThemeVariant, Unit } from '../../../store/controller/proto/frontend_pb';
 import {
   getFrontendDisplaySetting,
@@ -159,22 +158,22 @@ interface Props {
  */
 const DateTimeDisplay = () => {
   const classes = useStyles();
-  const clock = useSelector(getClock);
+  const clock = new Date().toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  });
 
   return (
     <React.Fragment>
       <Box className={classes.date}>
         <Typography variant="h5">Date:</Typography>
-        <Typography className={classes.dateTime}>
-          {clock
-            .toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' })
-            .replace('/', ' - ')
-            .replace('/', ' - ')}
-        </Typography>
+        <Typography className={classes.dateTime}>{clock}</Typography>
       </Box>
       <Box>
         <Typography variant="h5">Time:</Typography>
-        <Typography className={classes.dateTime}>{clock.toLocaleTimeString()}</Typography>
+        <Typography className={classes.dateTime}>{new Date().toLocaleTimeString()}</Typography>
       </Box>
     </React.Fragment>
   );

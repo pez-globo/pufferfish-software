@@ -26,15 +26,9 @@ export const getApp = (store: StoreState): AppState => store.app;
 
 // Clock
 
-export const getClock = createSelector(getApp, (app: AppState): Date => app.clock);
 export const getAlarmNotifyStatus = createSelector(
   getApp,
   (app: AppState): boolean => app.notifyAlarm,
-);
-// TODO: the "B" in "getBackendHeartBeat" should not be capitalized
-export const getBackendHeartBeat = createSelector(
-  getApp,
-  (app: AppState): Date => app.backendHeartbeat,
 );
 export const getBackendConnected = createSelector(
   getApp,
@@ -43,12 +37,4 @@ export const getBackendConnected = createSelector(
 export const getLastBackendConnectionTime = createSelector(
   getApp,
   (app: AppState): Date | null => app.lastBackendConnectionTime,
-);
-export const getClockTime = createSelector(getApp, (states: AppState): string =>
-  states.clock.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true,
-  }),
 );
