@@ -21,12 +21,11 @@ import {
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import ValueInfo from '../dashboard/components/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../info/units';
-import { AlarmModal } from '../controllers';
+import { AlarmModal, ValueModal } from '../controllers';
 import { ParametersRequest, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import store from '../../store';
-import SetValueContent from '../controllers/SetValueContent';
 
 /**
  * @typedef Data
@@ -750,7 +749,7 @@ const MultiStepWizard = (): JSX.Element => {
             </TabPanel>
             <TabPanel value={tabIndex} index={1}>
               {parameter && parameter.isSetvalEnabled ? (
-                <SetValueContent
+                <ValueModal
                   openModal={open && parameter.stateKey === stateKey}
                   key={parameter.stateKey}
                   committedSetting={getSetValues(parameter.stateKey)}
