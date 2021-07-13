@@ -1,6 +1,6 @@
 import { createSelector, OutputSelector } from 'reselect';
 import DECIMAL_RADIX from '../../modules/app/AppConstants';
-import { getBackendConnected } from '../app/selectors';
+import { getBackendConnected } from '../connection/selectors';
 import { StoreState } from '../types';
 import {
   AlarmLimits,

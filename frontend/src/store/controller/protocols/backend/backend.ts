@@ -12,15 +12,18 @@ import {
   backendStateSender,
   sendMinInterval,
 } from './states';
+import { receivedBackendHeartbeat } from '../../../connection/actions';
+import { ConnectionAction } from '../../../connection/types';
 
 // Buffer Receiving
 
 export function* receive(
   body: Uint8Array,
-): Generator<PutEffect<StateUpdateAction | AppAction>, void, void> {
+): Generator<PutEffect<StateUpdateAction | AppAction | ConnectionAction>, void, void> {
   try {
     const results = deserialize(body);
     yield put(updateState(results.messageType, results.pbMessage));
+    yield put(receivedBackendHeartbeat());
   } catch (err) {
     console.error(err);
   }

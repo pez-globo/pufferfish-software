@@ -24,17 +24,7 @@ export const getMessages = createSelector(
 
 export const getApp = (store: StoreState): AppState => store.app;
 
-// Clock
-
 export const getAlarmNotifyStatus = createSelector(
   getApp,
   (app: AppState): boolean => app.notifyAlarm,
-);
-export const getBackendConnected = createSelector(
-  getApp,
-  (app: AppState): boolean => app.backendConnection,
-);
-export const getLastBackendConnectionTime = createSelector(
-  getApp,
-  (app: AppState): Date | null => app.lastBackendConnectionTime,
 );

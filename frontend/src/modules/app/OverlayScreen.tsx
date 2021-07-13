@@ -21,7 +21,7 @@ import ModalPopup from '../controllers/ModalPopup';
 import MultiStepWizard from '../displays/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { updateState } from '../../store/controller/actions';
-import { getBackendConnected } from '../../store/app/selectors';
+import { getBackendConnected } from '../../store/connection/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   overlay: {

@@ -1,7 +1,7 @@
 import { OutputSelector } from 'reselect';
 import { SelectEffect, select } from 'redux-saga/effects';
 import { StoreState } from '../../../types';
-import { getLastBackendConnectionTime } from '../../../app/selectors';
+import { getLastBackendConnectionTime } from '../../../connection/selectors';
 import { PBMessage, MessageType } from '../../types';
 import {
   getParametersRequest,

@@ -3,8 +3,6 @@
 export interface AppState {
   locale: string;
   notifyAlarm: boolean;
-  backendConnection: boolean;
-  lastBackendConnectionTime: Date | null;
 }
 
 // ACTIONS
@@ -16,10 +14,6 @@ export const LOCALE_EN_US = 'en-us';
 export const LOCALE_DEFAULT = LOCALE_EN_US;
 
 export const INITIALIZED = '@app/INITIALIZED';
-
-// TODO: move BACKEND actions, reducers, and saga stuff into a separate domain, '@connection'
-export const BACKEND_CONNECTION_DOWN = '@app/BACKEND_CONNECTION_DOWN';
-export const BACKEND_CONNECTION_UP = '@app/BACKEND_CONNECTION_UP';
 
 export const RED_BORDER = '@app/RED_BORDER';
 
@@ -39,17 +33,4 @@ interface SetRedBorder {
   status: boolean;
 }
 
-interface BackendConnectionDown {
-  type: typeof BACKEND_CONNECTION_DOWN;
-}
-
-interface BackendConnectionUp {
-  type: typeof BACKEND_CONNECTION_UP;
-}
-
-export type AppAction =
-  | InitializedAction
-  | SetLocaleAction
-  | SetRedBorder
-  | BackendConnectionDown
-  | BackendConnectionUp;
+export type AppAction = InitializedAction | SetLocaleAction | SetRedBorder;

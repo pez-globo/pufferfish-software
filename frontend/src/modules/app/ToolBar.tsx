@@ -9,7 +9,7 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
-import { getBackendConnected } from '../../store/app/selectors';
+import { getBackendConnected } from '../../store/connection/selectors';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import {
   ParametersRequest,

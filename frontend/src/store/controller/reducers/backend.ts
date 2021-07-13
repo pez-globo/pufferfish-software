@@ -16,7 +16,7 @@ import {
   STATE_UPDATED,
   CommitAction,
 } from '../types';
-import { BACKEND_CONNECTION_DOWN } from '../../app/types';
+import { BACKEND_CONNECTION_DOWN } from '../../connection/types';
 
 // GENERIC REDUCERS
 

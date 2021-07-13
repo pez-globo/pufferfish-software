@@ -5,10 +5,12 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import { appReducer } from './app/reducers';
 import { controllerReducer } from './controller/reducers';
 import { controllerSaga } from './controller/saga';
+import { connectionReducer } from './connection/reducers';
 
 const reducers = combineReducers({
   app: appReducer,
   controller: controllerReducer,
+  connection: connectionReducer,
 });
 
 const sagaMiddleware = createSagaMiddleware();

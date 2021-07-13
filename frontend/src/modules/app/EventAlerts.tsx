@@ -26,7 +26,7 @@ import { commitRequest } from '../../store/controller/actions';
 import { AlarmMuteRequest } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
 import { getEventType } from '../logs/EventType';
-import { getBackendConnected } from '../../store/app/selectors';
+import { getBackendConnected } from '../../store/connection/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
