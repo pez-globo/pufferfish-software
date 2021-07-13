@@ -98,7 +98,7 @@ export const HeaderClock = (): JSX.Element => {
           hour12: true,
         }),
       );
-    }, 1000);
+    }, 100);
     return () => {
       clearInterval(clockTimer);
     };
