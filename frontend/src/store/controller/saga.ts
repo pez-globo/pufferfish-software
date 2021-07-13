@@ -1,6 +1,6 @@
 import { EventChannel } from 'redux-saga';
 import { take, takeEvery, fork, delay, all, put, select } from 'redux-saga/effects';
-import { BACKEND_CONNECTION_DOWN, INITIALIZED } from '../app/types';
+import { INITIALIZED } from '../app/types';
 import { GeneratorYieldType } from './protocols/sagas';
 import {
   receive as backendReceive,
@@ -11,7 +11,6 @@ import {
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
 import { establishedBackendConnection, lostBackendConnection } from '../app/actions';
 import { getBackendConnected } from '../app/selectors';
-import { LogEventCode, LogEventType } from './proto/mcu_pb';
 
 function* receiveAll(channel: EventChannel<Response>) {
   while (true) {

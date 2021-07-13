@@ -1,4 +1,11 @@
-import { LogEvent, NextLogEvents, ExpectedLogEvent, ActiveLogEvents } from '../proto/mcu_pb';
+import {
+  LogEvent,
+  NextLogEvents,
+  ExpectedLogEvent,
+  ActiveLogEvents,
+  LogEventCode,
+  LogEventType,
+} from '../proto/mcu_pb';
 import { RotaryEncoder } from '../proto/frontend_pb';
 import {
   MessageType,
@@ -128,7 +135,12 @@ export const eventLogReducer = (
     }
     case BACKEND_CONNECTION_DOWN: {
       // Make an ephemeral frontend-only event
-      const logEvent = (action.update as unknown) as LogEvent;
+      const update = {
+        code: LogEventCode.frontend_backend_connection_down,
+        type: LogEventType.system,
+        time: new Date().getTime(),
+      };
+      const logEvent = (update as unknown) as LogEvent;
       const eventID = state.expectedLogEvent.id;
       return {
         ...state,
