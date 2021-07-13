@@ -41,7 +41,6 @@ interface SetRedBorder {
 
 interface BackendConnectionDown {
   type: typeof BACKEND_CONNECTION_DOWN;
-  update: Record<string, unknown>;
 }
 
 interface BackendConnectionUp {

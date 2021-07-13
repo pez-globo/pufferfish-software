@@ -1,4 +1,3 @@
-import { PBMessage } from '../controller/types';
 import {
   INITIALIZED,
   SET_LOCALE,
@@ -15,8 +14,8 @@ export function setLocale(locale: string): AppAction {
   return { type: SET_LOCALE, locale };
 }
 
-export function lostBackendConnection<T extends PBMessage>(updates: Partial<T>): AppAction {
-  return { type: BACKEND_CONNECTION_DOWN, update: updates };
+export function lostBackendConnection(): AppAction {
+  return { type: BACKEND_CONNECTION_DOWN };
 }
 
 export function establishedBackendConnection(): AppAction {

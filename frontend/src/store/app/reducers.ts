@@ -24,7 +24,10 @@ export function appReducer(state = initialState, action: AppAction): AppState {
     case RED_BORDER:
       return { ...state, notifyAlarm: action.status };
     case BACKEND_CONNECTION_DOWN:
-      return { ...state, backendConnection: false };
+      return {
+        ...state,
+        backendConnection: false,
+      };
     case BACKEND_CONNECTION_UP:
       return {
         ...state,

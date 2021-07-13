@@ -9,7 +9,7 @@ import {
   SenderYield,
 } from './protocols/backend/backend';
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
-import { establishedBackendConnection } from '../app/actions';
+import { establishedBackendConnection, lostBackendConnection } from '../app/actions';
 import { getBackendConnected } from '../app/selectors';
 import { LogEventCode, LogEventType } from './proto/mcu_pb';
 
@@ -57,14 +57,7 @@ function* serviceConnection() {
   receiveChannel.close();
   const backendConnected = yield select(getBackendConnected);
   if (backendConnected) {
-    yield put({
-      type: BACKEND_CONNECTION_DOWN,
-      update: {
-        code: LogEventCode.frontend_backend_connection_down,
-        type: LogEventType.system,
-        time: new Date().getTime(),
-      },
-    });
+    yield put(lostBackendConnection());
   }
 }
 
