@@ -42,7 +42,7 @@ import PowerFullIcon from '../icons/PowerFullIcon';
 import { PERCENT } from '../info/units';
 import ModesDropdown from '../modes/ModesDropdown';
 import { DASHBOARD_ROUTE, LOGS_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
-import EventAlerts from './EventAlerts';
+import EventAlerts from '../modals/EventAlerts';
 import { DiscardAlarmLimitsContent } from '../modals';
 
 const useStyles = makeStyles((theme: Theme) => ({
