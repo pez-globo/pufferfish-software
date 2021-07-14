@@ -18,7 +18,7 @@ void HFNCController::transform(
     const SensorMeasurements & /*sensor_measurements*/,
     ActuatorSetpoints &actuator_setpoints,
     ActuatorVars &actuator_vars) {
-  if (parameters.mode != VentilationMode_hfnc) {
+  if (parameters.mode != Application::VentilationMode_hfnc) {
     return;
   }
 

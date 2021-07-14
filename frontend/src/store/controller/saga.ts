@@ -1,61 +1,44 @@
 import { EventChannel } from 'redux-saga';
+import { take, takeEvery, fork, delay, takeLatest, all } from 'redux-saga/effects';
+import { INITIALIZED } from '../app/types';
+import { GeneratorYieldType } from './protocols/sagas';
 import {
-  put,
-  take,
-  takeEvery,
-  fork,
-  delay,
-  select,
-  takeLatest,
-  ChannelTakeEffect,
-  all,
-} from 'redux-saga/effects';
-import { INITIALIZED, BACKEND_HEARTBEAT } from '../app/types';
-import { PBMessageType } from './types';
-import { updateState } from './actions';
-import { serialize, deserialize } from './protocols/backend/transport';
-import { backendSender, getSelector, sendInterval } from './protocols/backend/states';
+  receive as backendReceive,
+  sender as backendSender,
+  SenderYieldResult,
+  SenderYield,
+} from './protocols/backend/backend';
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
 import updateClock from './io/clock';
-
-function* deserializeResponse(response: Response) {
-  const buffer = yield receiveBuffer(response);
-  return deserialize(buffer);
-}
-
-function* receive(response: ChannelTakeEffect<Response>) {
-  try {
-    const results = yield deserializeResponse(yield response);
-    yield put(updateState(results.messageType, results.pbMessage));
-    // TODO: make an action generator for BACKEND_HEARTBEAT and use it here
-    yield put({ type: BACKEND_HEARTBEAT });
-  } catch (err) {
-    console.error(err);
-  }
-}
 
 function* receiveAll(channel: EventChannel<Response>) {
   while (true) {
     const response = yield take(channel);
-    yield receive(response);
-  }
-}
-
-function* sendState(sock: WebSocket, pbMessageType: PBMessageType) {
-  const selector = getSelector(pbMessageType);
-  const pbMessage = yield select(selector);
-  if (pbMessage !== null) {
-    const body = serialize(pbMessageType, pbMessage);
-    yield sendBuffer(sock, body);
+    const body = yield receiveBuffer(yield response);
+    yield backendReceive(body);
   }
 }
 
 function* sendAll(sock: WebSocket) {
-  const schedule = backendSender();
+  const sender = backendSender();
+  let nextInput = null;
   while (sock.readyState === WebSocket.OPEN) {
-    const pbMessageType = schedule.next().value;
-    yield sendState(sock, pbMessageType);
-    yield delay(sendInterval);
+    // Service results and effects yielded by the backend sender
+    const yieldValue: SenderYield = sender.next(nextInput).value;
+    switch (yieldValue.type) {
+      case GeneratorYieldType.Result: {
+        nextInput = null;
+        const body = yieldValue.value as SenderYieldResult;
+        yield sendBuffer(sock, body);
+        break;
+      }
+      case GeneratorYieldType.Effect: {
+        nextInput = yield yieldValue.value;
+        break;
+      }
+      default:
+        throw new Error('Unhandled generator yield type!');
+    }
   }
 }
 
@@ -68,10 +51,13 @@ function* serviceConnection() {
   receiveChannel.close();
 }
 
+const retryConnectInterval = 100; // ms
+
 export function* serviceConnectionPersistently(): IterableIterator<unknown> {
   while (true) {
     yield serviceConnection();
     console.warn('Reestablishing WebSocket connection...');
+    yield delay(retryConnectInterval);
   }
 }
 

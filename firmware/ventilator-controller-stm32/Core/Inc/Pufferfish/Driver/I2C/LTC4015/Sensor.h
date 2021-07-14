@@ -8,10 +8,13 @@
 
 #include "Device.h"
 #include "Pufferfish/Application/Alarms.h"
+#include "Pufferfish/Application/States.h"
 #include "Pufferfish/Driver/Initializable.h"
 #include "Pufferfish/HAL/Interfaces/Time.h"
 
 namespace Pufferfish::Driver::I2C::LTC4015 {
+
+using Application::MCUPowerStatus;
 
 /**
  * State management for LTC4015, without I/O.

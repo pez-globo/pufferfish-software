@@ -7,16 +7,20 @@
 import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
+import { shallowEqual, useSelector } from 'react-redux';
 import {
+  getHRAlarmLimitsCurrent,
+  // getAlarmLimitsCurrent,
   getParametersFiO2,
   getParametersFlow,
   getSmoothedFiO2Value,
   getSmoothedFlow,
-  getSmoothedSpO2,
   getSmoothedHR,
+  getSmoothedSpO2,
+  getSpO2AlarmLimitsCurrent,
 } from '../../../store/controller/selectors';
 import { BPM, LMIN, PERCENT } from '../../info/units';
-import LargeValueInfo from '../containers/LargeValueInfo';
+import ValueInfo from '../components/ValueInfo';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -57,6 +61,8 @@ const useStyles = makeStyles((theme: Theme) => ({
  */
 const HFNCMainView = (): JSX.Element => {
   const classes = useStyles();
+  const spo2AlarmLimits = useSelector(getSpO2AlarmLimitsCurrent, shallowEqual);
+  const hrAlarmLimits = useSelector(getHRAlarmLimitsCurrent, shallowEqual);
 
   return (
     <Grid container direction="row" className={classes.root}>
@@ -70,21 +76,27 @@ const HFNCMainView = (): JSX.Element => {
           className={classes.panelColumn}
         >
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
-            <LargeValueInfo
+            {/* TODO: we should be consistent in either passing the selector or number array (for value
+            and alarmLimits) */}
+            <ValueInfo
               selector={getSmoothedSpO2}
               label="SpO2"
               stateKey="spo2"
               units={PERCENT}
+              alarmLimits={spo2AlarmLimits}
               showLimits
+              isLarge
             />
           </Grid>
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
-            <LargeValueInfo
+            <ValueInfo
               selector={getSmoothedHR}
               label="HR"
               stateKey="hr"
               units={BPM}
+              alarmLimits={hrAlarmLimits}
               showLimits
+              isLarge
             />
           </Grid>
         </Grid>
@@ -97,21 +109,21 @@ const HFNCMainView = (): JSX.Element => {
           className={classes.panelColumn}
         >
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
-            <LargeValueInfo
+            <ValueInfo
               selector={getSmoothedFiO2Value}
               label="FiO2"
               stateKey="fio2"
               units={PERCENT}
-              showLimits
+              isLarge
             />
           </Grid>
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
-            <LargeValueInfo
+            <ValueInfo
               selector={getSmoothedFlow}
               label="Flow"
               stateKey="flow"
               units={LMIN}
-              showLimits
+              isLarge
             />
           </Grid>
         </Grid>
@@ -126,19 +138,21 @@ const HFNCMainView = (): JSX.Element => {
           className={classes.panelColumn}
         >
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
-            <LargeValueInfo
+            <ValueInfo
               selector={getParametersFiO2}
               label="FiO2 Setting"
               stateKey="fio2"
               units={PERCENT}
+              isLarge
             />
           </Grid>
           <Grid container item justify="center" alignItems="stretch" className={classes.panelValue}>
-            <LargeValueInfo
+            <ValueInfo
               selector={getParametersFlow}
               label="Flow Setting"
               stateKey="flow"
               units={LMIN}
+              isLarge
             />
           </Grid>
         </Grid>

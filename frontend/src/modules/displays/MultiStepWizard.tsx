@@ -20,7 +20,7 @@ import {
 } from '../../store/controller/selectors';
 import { SetValueContent } from '../controllers/ValueModal';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
-import ValueInfo from '../dashboard/containers/ValueInfo';
+import ValueInfo from '../dashboard/components/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../info/units';
 import { AlarmModal } from '../controllers';
 import { ParametersRequest, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
@@ -159,42 +159,38 @@ const HFNCControls = ({
         style={{ borderRight: '2px solid #030e17' }}
       >
         <ValueInfo
-          mainContainer={{
-            selector: getSmoothedSpO2,
-            label: 'SpO2',
-            stateKey: 'spo2',
-            units: PERCENT,
-            alarmLimits: alarmValuesSpO2,
-          }}
+          selector={getSmoothedSpO2}
+          label="SpO2"
+          stateKey="spo2"
+          units={PERCENT}
+          alarmLimits={alarmValuesSpO2}
+          showLimits
         />
         <ValueInfo
-          mainContainer={{
-            selector: getSmoothedHR,
-            label: 'HR',
-            stateKey: 'hr',
-            units: BPM,
-            alarmLimits: alarmValuesHR,
-          }}
+          selector={getSmoothedHR}
+          label="HR"
+          stateKey="hr"
+          units={BPM}
+          alarmLimits={alarmValuesHR}
+          showLimits
         />
       </Grid>
       <Grid container item justify="center" alignItems="stretch" direction="column">
         <ValueInfo
-          mainContainer={{
-            selector: getParametersRequestDraftFiO2,
-            label: 'FiO2',
-            stateKey: 'fio2',
-            units: PERCENT,
-            alarmLimits: alarmValuesFiO2,
-          }}
+          selector={getParametersRequestDraftFiO2}
+          label="FiO2"
+          stateKey="fio2"
+          units={PERCENT}
+          alarmLimits={alarmValuesFiO2}
+          showLimits
         />
         <ValueInfo
-          mainContainer={{
-            selector: getParametersRequestDraftFlow,
-            label: 'Flow',
-            stateKey: 'flow',
-            units: LMIN,
-            alarmLimits: alarmValuesFlow,
-          }}
+          selector={getParametersRequestDraftFlow}
+          label="Flow"
+          stateKey="flow"
+          units={LMIN}
+          alarmLimits={alarmValuesFlow}
+          showLimits
         />
       </Grid>
     </React.Fragment>
@@ -744,6 +740,7 @@ const MultiStepWizard = (): JSX.Element => {
           </Grid>
           <Grid container className={classes.tabAligning}>
             <TabPanel value={tabIndex} index={0}>
+              {/* TODO: use selectors instead of local state */}
               <HFNCControls
                 alarmValuesSpO2={getAlarmValues('spo2')}
                 alarmValuesHR={getAlarmValues('hr')}

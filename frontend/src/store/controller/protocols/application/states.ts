@@ -1,27 +1,45 @@
-// Due to the way redux-saga's select works for getting StateSegments from the store,
-// these senders are used to produce PBMessageTypes specifying StateSegments to select
-// from the store, rather than producing PBMessage objects which are the actual contents
-// of StateSegments.
-
-export type Sender<StateSegment> = Generator<StateSegment, StateSegment, unknown>;
+// A sender should yield a sequence of optional StateSegments.
+export type Sender<StateSegment> = Generator<StateSegment | null, StateSegment | null, unknown>;
 
 // Indexed sending
 
+// An IndexedSender should return an optional StateSegment produced for the given index.
 export interface IndexedSender<Index, StateSegment> {
-  (index: Index): StateSegment | undefined;
+  (index: Index): StateSegment | null;
 }
 
-export const passthroughSender = <Index extends StateSegment, StateSegment>(
-  index: Index,
-): StateSegment => index;
+export interface TaggedStateSegment<StateSegmentType, StateSegment> {
+  type: StateSegmentType;
+  value: StateSegment;
+}
 
+// Use makeStateMapSender to make an IndexedSender of TaggedStateSegments from a
+// Map of Indices to StateSegments.
+export const makeStateMapSender = <Index, StateSegment>(
+  states: Map<Index, StateSegment | null>,
+) => (index: Index): TaggedStateSegment<Index, StateSegment> | null => {
+  const state = states.get(index);
+  if (state === undefined) {
+    throw new Error(`Backend: invalid state index`);
+  }
+
+  if (state === null) {
+    return null;
+  }
+
+  return {
+    type: index,
+    value: state,
+  };
+};
+
+// Use makeMappedSenders to make an IndexedSender from a Map of Indices to Senders.
 export const makeMappedSenders = <Index, StateSegment>(
   senders: Map<Index, Sender<StateSegment>>,
-): IndexedSender<Index, StateSegment> => (index: Index): StateSegment | undefined => {
+) => (index: Index): StateSegment | null => {
   const sender = senders.get(index);
   if (sender === undefined) {
-    console.error('Invalid sender type', sender);
-    return undefined;
+    throw new Error(`Backend: invalid sender index`);
   }
 
   return sender.next().value;
@@ -29,24 +47,29 @@ export const makeMappedSenders = <Index, StateSegment>(
 
 // Sequential send scheduling
 
-function* sequentialScheduler<T>(sequence: Array<T>): Generator<T, T, unknown> {
+function* sequentialScheduler<T>(sequence: Array<T>): Generator<T, T, undefined> {
   while (true) {
     yield* sequence;
   }
 }
 
-// This generator is tagged as returning StateSegment to make typescript eslinting
-// behave nicely, but it actually never returns (it only yields).
+// A sequential sender uses a sequence of Indices to yield outputs from an IndexedSender.
 export function* sequentialSender<Index, StateSegment>(
-  sequence: Array<Index>,
+  indexSequence: Array<Index>,
   indexedSender: IndexedSender<Index, StateSegment>,
+  skipUnavailable = false,
 ): Sender<StateSegment> {
-  const schedule = sequentialScheduler<Index>(sequence);
+  const schedule = sequentialScheduler(indexSequence);
+
+  let skipped = 0;
   while (true) {
     const index = schedule.next().value;
-    const stateSegment = indexedSender(index);
-    if (stateSegment !== undefined) {
-      yield stateSegment;
+    const state = indexedSender(index);
+    if (state !== null || !skipUnavailable || skipped >= indexSequence.length) {
+      skipped = 0;
+      yield state;
+    } else {
+      skipped += 1;
     }
   }
 }

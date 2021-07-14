@@ -57,23 +57,27 @@ export const BACKEND_CONNECTION_TIMEOUT = 3000;
  * @returns {JSX.Element}
  */
 export const HeartbeatBackendListener = (): JSX.Element => {
+  // getClock is used as a dependency for useEffect so that it executes everytime clock changes,
+  // this allows us to see if diff > BACKEND_CONNECTION_TIMEOUT which means that the backend is disconnected
+  // and accordingly we can dispatch the action to the store.
   const clock = useSelector(getClock);
   const dispatch = useDispatch();
   const heartbeat = useSelector(getBackendHeartBeat);
+  const backendConnected = useSelector(getBackendConnected);
   const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
+  const timeoutDiff = diff > BACKEND_CONNECTION_TIMEOUT;
   // Because the backend connection lost event is generated in the frontend and
   // not sent to or persisted by the backend, we can use getBackendDownEvent as
-  // a reliable indicator of whether there is currently already an alarm displayed
+  // a reliable indicator of whether there is   currently already an alarm displayed
   // for a lost backend connection. Everywhere else, we should use the selector
   // from store/app/selectors.ts for getBackendConnected.
   const lostConnectionAlarm = useSelector(getBackendDownEvent);
 
   useEffect(() => {
-    if (diff > BACKEND_CONNECTION_TIMEOUT) {
+    if (timeoutDiff) {
       if (!lostConnectionAlarm) {
         dispatch({
           type: BACKEND_CONNECTION_DOWN,
-          clock: new Date(),
           update: {
             code: LogEventCode.frontend_backend_connection_down,
             type: LogEventType.system,
@@ -81,10 +85,10 @@ export const HeartbeatBackendListener = (): JSX.Element => {
           },
         });
       }
-    } else {
-      dispatch(establishedBackendConnection(new Date()));
+    } else if (!backendConnected) {
+      dispatch(establishedBackendConnection());
     }
-  }, [clock, diff, lostConnectionAlarm, dispatch, heartbeat]);
+  }, [backendConnected, clock, timeoutDiff, lostConnectionAlarm, dispatch]);
 
   return <React.Fragment />;
 };

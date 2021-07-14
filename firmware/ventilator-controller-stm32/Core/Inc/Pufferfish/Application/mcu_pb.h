@@ -5,43 +5,47 @@
 #define PB_MCU_PB_H_INCLUDED
 #include "nanopb/pb.h"
 
+#ifdef __cplusplus
+namespace Pufferfish::Application {
+#endif
+
 #if PB_PROTO_HEADER_VERSION != 40
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
 /* Enum definitions */
-typedef enum _VentilationMode {
-    VentilationMode_hfnc = 0,
-    VentilationMode_pc_ac = 1,
-    VentilationMode_vc_ac = 2,
-    VentilationMode_niv_pc = 3,
-    VentilationMode_niv_ps = 4,
-    VentilationMode_psv = 5,
-    VentilationMode_prvc = 6
+typedef enum _VentilationMode { 
+    VentilationMode_hfnc = 0, 
+    VentilationMode_pc_ac = 1, 
+    VentilationMode_vc_ac = 2, 
+    VentilationMode_niv_pc = 3, 
+    VentilationMode_niv_ps = 4, 
+    VentilationMode_psv = 5, 
+    VentilationMode_prvc = 6 
 } VentilationMode;
 
-typedef enum _LogEventCode {
+typedef enum _LogEventCode { 
     /* Patient alarms */
-    LogEventCode_fio2_too_low = 0,
-    LogEventCode_fio2_too_high = 1,
-    LogEventCode_flow_too_low = 2,
-    LogEventCode_flow_too_high = 3,
-    LogEventCode_spo2_too_low = 4,
-    LogEventCode_spo2_too_high = 5,
-    LogEventCode_hr_too_low = 6,
-    LogEventCode_hr_too_high = 7,
+    LogEventCode_fio2_too_low = 0, 
+    LogEventCode_fio2_too_high = 1, 
+    LogEventCode_flow_too_low = 2, 
+    LogEventCode_flow_too_high = 3, 
+    LogEventCode_spo2_too_low = 4, 
+    LogEventCode_spo2_too_high = 5, 
+    LogEventCode_hr_too_low = 6, 
+    LogEventCode_hr_too_high = 7, 
     /* Control settings */
-    LogEventCode_ventilation_operation_changed = 64,
-    LogEventCode_ventilation_mode_changed = 65,
-    LogEventCode_fio2_setting_changed = 66,
-    LogEventCode_flow_setting_changed = 67,
+    LogEventCode_ventilation_operation_changed = 64, 
+    LogEventCode_ventilation_mode_changed = 65, 
+    LogEventCode_fio2_setting_changed = 66, 
+    LogEventCode_flow_setting_changed = 67, 
     /* Alarm limits settings */
-    LogEventCode_fio2_alarm_limits_changed = 80,
-    LogEventCode_flow_alarm_limits_changed = 81,
-    LogEventCode_spo2_alarm_limits_changed = 82,
-    LogEventCode_hr_alarm_limits_changed = 83,
+    LogEventCode_fio2_alarm_limits_changed = 80, 
+    LogEventCode_flow_alarm_limits_changed = 81, 
+    LogEventCode_spo2_alarm_limits_changed = 82, 
+    LogEventCode_hr_alarm_limits_changed = 83, 
     /* System settings & alarms */
-    LogEventCode_screen_locked = 129,
+    LogEventCode_screen_locked = 129, 
     LogEventCode_mcu_backend_connection_down = 130, /* mcu lost backend */
     LogEventCode_backend_mcu_connection_down = 131, /* backend lost mcu */
     LogEventCode_backend_frontend_connection_down = 132, /* backend lost frontend */
@@ -60,210 +64,214 @@ typedef enum _LogEventCode {
     /* The following code isn't actually used, but we reserve space for it.
  We don't use it because the frontend can't generate LogEvents with IDs.
  frontend_backend_connection_up = 137; */
-    LogEventCode_battery_low = 138,
-    LogEventCode_battery_critical = 139,
-    LogEventCode_charger_disconnected = 140,
-    LogEventCode_mcu_started = 141,
-    LogEventCode_backend_started = 142,
-    LogEventCode_mcu_shutdown = 143,
-    LogEventCode_backend_shutdown = 144,
-    LogEventCode_sfm3019_air_disconnected = 145,
-    LogEventCode_sfm3019_o2_disconnected = 146,
-    LogEventCode_fdo2_disconnected = 147
+    LogEventCode_battery_low = 138, 
+    LogEventCode_battery_critical = 139, 
+    LogEventCode_charger_disconnected = 140, 
+    LogEventCode_mcu_started = 141, 
+    LogEventCode_backend_started = 142, 
+    LogEventCode_mcu_shutdown = 143, 
+    LogEventCode_backend_shutdown = 144, 
+    LogEventCode_sfm3019_air_disconnected = 145, 
+    LogEventCode_sfm3019_o2_disconnected = 146, 
+    LogEventCode_fdo2_disconnected = 147 
 } LogEventCode;
 
-typedef enum _LogEventType {
-    LogEventType_patient = 0,
-    LogEventType_control = 1,
-    LogEventType_alarm_limits = 2,
-    LogEventType_system = 3
+typedef enum _LogEventType { 
+    LogEventType_patient = 0, 
+    LogEventType_control = 1, 
+    LogEventType_alarm_limits = 2, 
+    LogEventType_system = 3 
 } LogEventType;
 
 /* Struct definitions */
-typedef struct _ActiveLogEvents {
+/* Note: NextLogEvents has a custom equality operator in the firmware which must
+ be updated if you add/remove/modify the fields of the protobuf definition! */
+typedef struct _ActiveLogEvents { 
     pb_size_t id_count;
-    uint32_t id[32];
+    uint32_t id[32]; 
 } ActiveLogEvents;
 
-typedef struct _AlarmMute {
-    bool active;
-    uint64_t remaining;
+typedef struct _AlarmMute { 
+    bool active; 
+    uint64_t remaining; 
 } AlarmMute;
 
-typedef struct _AlarmMuteRequest {
-    bool active;
-    uint64_t remaining;
+typedef struct _AlarmMuteRequest { 
+    bool active; 
+    uint64_t remaining; 
 } AlarmMuteRequest;
 
 typedef PB_BYTES_ARRAY_T(64) Announcement_announcement_t;
-typedef struct _Announcement {
-    uint64_t time;
-    Announcement_announcement_t announcement;
+typedef struct _Announcement { 
+    uint64_t time; 
+    Announcement_announcement_t announcement; 
 } Announcement;
 
-typedef struct _CycleMeasurements {
-    uint64_t time;
-    float vt;
-    float rr;
-    float peep;
-    float pip;
-    float ip;
-    float ve;
+typedef struct _CycleMeasurements { 
+    uint64_t time; 
+    float vt; 
+    float rr; 
+    float peep; 
+    float pip; 
+    float ip; 
+    float ve; 
 } CycleMeasurements;
 
-typedef struct _ExpectedLogEvent {
-    uint32_t id;
+typedef struct _ExpectedLogEvent { 
+    uint32_t id; 
     uint32_t session_id; /* used when the sender's log is ephemeral */
 } ExpectedLogEvent;
 
-typedef struct _MCUPowerStatus {
-    float power_left;
-    bool charging;
+typedef struct _MCUPowerStatus { 
+    float power_left; 
+    bool charging; 
 } MCUPowerStatus;
 
-typedef struct _Parameters {
-    uint64_t time;
-    bool ventilating;
-    VentilationMode mode;
-    float fio2;
-    float flow;
-    float pip;
-    float peep;
-    float vt;
-    float rr;
-    float ie;
+typedef struct _Parameters { 
+    uint64_t time; 
+    bool ventilating; 
+    VentilationMode mode; 
+    float fio2; 
+    float flow; 
+    float pip; 
+    float peep; 
+    float vt; 
+    float rr; 
+    float ie; 
 } Parameters;
 
-typedef struct _ParametersRequest {
-    uint64_t time;
-    bool ventilating;
-    VentilationMode mode;
-    float fio2;
-    float flow;
-    float pip;
-    float peep;
-    float vt;
-    float rr;
-    float ie;
+typedef struct _ParametersRequest { 
+    uint64_t time; 
+    bool ventilating; 
+    VentilationMode mode; 
+    float fio2; 
+    float flow; 
+    float pip; 
+    float peep; 
+    float vt; 
+    float rr; 
+    float ie; 
 } ParametersRequest;
 
-typedef struct _Ping {
-    uint64_t time;
-    uint32_t id;
+typedef struct _Ping { 
+    uint64_t time; 
+    uint32_t id; 
 } Ping;
 
-typedef struct _Range {
-    int32_t lower;
-    int32_t upper;
+typedef struct _Range { 
+    int32_t lower; 
+    int32_t upper; 
 } Range;
 
-typedef struct _ScreenStatus {
-    bool lock;
+typedef struct _ScreenStatus { 
+    bool lock; 
 } ScreenStatus;
 
-typedef struct _SensorMeasurements {
-    uint64_t time;
-    uint32_t cycle;
-    float fio2;
-    float flow;
-    float spo2;
-    float hr;
-    float paw;
-    float volume;
+typedef struct _SensorMeasurements { 
+    uint64_t time; 
+    uint32_t cycle; 
+    float fio2; 
+    float flow; 
+    float spo2; 
+    float hr; 
+    float paw; 
+    float volume; 
 } SensorMeasurements;
 
-typedef struct _AlarmLimits {
-    uint64_t time;
+typedef struct _AlarmLimits { 
+    uint64_t time; 
     bool has_fio2;
-    Range fio2;
+    Range fio2; 
     bool has_flow;
-    Range flow;
+    Range flow; 
     bool has_spo2;
-    Range spo2;
+    Range spo2; 
     bool has_hr;
-    Range hr;
+    Range hr; 
     bool has_rr;
-    Range rr;
+    Range rr; 
     bool has_pip;
-    Range pip;
+    Range pip; 
     bool has_peep;
-    Range peep;
+    Range peep; 
     bool has_ip_above_peep;
-    Range ip_above_peep;
+    Range ip_above_peep; 
     bool has_insp_time;
-    Range insp_time;
+    Range insp_time; 
     bool has_paw;
-    Range paw;
+    Range paw; 
     bool has_mve;
-    Range mve;
+    Range mve; 
     bool has_tv;
-    Range tv;
+    Range tv; 
     bool has_etco2;
-    Range etco2;
+    Range etco2; 
     bool has_apnea;
-    Range apnea;
+    Range apnea; 
 } AlarmLimits;
 
-typedef struct _AlarmLimitsRequest {
-    uint64_t time;
+typedef struct _AlarmLimitsRequest { 
+    uint64_t time; 
     bool has_fio2;
-    Range fio2;
+    Range fio2; 
     bool has_flow;
-    Range flow;
+    Range flow; 
     bool has_spo2;
-    Range spo2;
+    Range spo2; 
     bool has_hr;
-    Range hr;
+    Range hr; 
     bool has_rr;
-    Range rr;
+    Range rr; 
     bool has_pip;
-    Range pip;
+    Range pip; 
     bool has_peep;
-    Range peep;
+    Range peep; 
     bool has_ip_above_peep;
-    Range ip_above_peep;
+    Range ip_above_peep; 
     bool has_insp_time;
-    Range insp_time;
+    Range insp_time; 
     bool has_paw;
-    Range paw;
+    Range paw; 
     bool has_mve;
-    Range mve;
+    Range mve; 
     bool has_tv;
-    Range tv;
+    Range tv; 
     bool has_etco2;
-    Range etco2;
+    Range etco2; 
     bool has_apnea;
-    Range apnea;
+    Range apnea; 
 } AlarmLimitsRequest;
 
-typedef struct _LogEvent {
-    uint32_t id;
-    uint64_t time;
-    LogEventCode code;
-    LogEventType type;
+typedef struct _LogEvent { 
+    uint32_t id; 
+    uint64_t time; 
+    LogEventCode code; 
+    LogEventType type; 
     bool has_alarm_limits;
-    Range alarm_limits;
-    float old_float;
-    float new_float;
-    uint32_t old_uint32;
-    uint32_t new_uint32;
-    bool old_bool;
-    bool new_bool;
+    Range alarm_limits; 
+    float old_float; 
+    float new_float; 
+    uint32_t old_uint32; 
+    uint32_t new_uint32; 
+    bool old_bool; 
+    bool new_bool; 
     bool has_old_range;
-    Range old_range;
+    Range old_range; 
     bool has_new_range;
-    Range new_range;
-    VentilationMode old_mode;
-    VentilationMode new_mode;
+    Range new_range; 
+    VentilationMode old_mode; 
+    VentilationMode new_mode; 
 } LogEvent;
 
-typedef struct _NextLogEvents {
-    uint32_t next_expected;
-    uint32_t total;
-    uint32_t remaining;
+/* Note: NextLogEvents has a custom equality operator in the firmware which must
+ be updated if you add/remove/modify the fields of the protobuf definition! */
+typedef struct _NextLogEvents { 
+    uint32_t next_expected; 
+    uint32_t total; 
+    uint32_t remaining; 
     uint32_t session_id; /* used when the sender's log is ephemeral */
     pb_size_t elements_count;
-    LogEvent elements[2];
+    LogEvent elements[2]; 
 } NextLogEvents;
 
 
@@ -687,8 +695,14 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #endif
 
 #ifdef __cplusplus
+}  // namespace Pufferfish::Application
+
 /* Message descriptors for nanopb */
 namespace nanopb {
+
+// using namespace is the simplest way to make the message declarations available in this section
+using namespace Pufferfish::Application;
+
 template <>
 struct MessageDescriptor<Range> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;

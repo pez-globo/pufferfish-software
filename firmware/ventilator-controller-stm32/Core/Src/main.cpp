@@ -130,12 +130,14 @@ PF::Driver::BreathingCircuit::Simulators simulator;
 PF::HAL::STM32::CRC32 crc32c(hcrc);
 PF::HAL::STM32::Random rng(hrng);
 // HAL Time
-PF::HAL::STM32::Time time;
+// Normally we'd call this variable "time", but it conflicts with a declaration from <ctime>,
+// which is required by the Boost PFR library
+PF::HAL::STM32::Time hal_time;
 
 // Buffered UARTs
-volatile Pufferfish::HAL::STM32::LargeBufferedUART backend_uart(huart3, time);
-volatile Pufferfish::HAL::STM32::LargeBufferedUART fdo2_uart(huart7, time);
-volatile Pufferfish::HAL::STM32::ReadOnlyBufferedUART nonin_oem_uart(huart4, time);
+volatile Pufferfish::HAL::STM32::LargeBufferedUART backend_uart(huart3, hal_time);
+volatile Pufferfish::HAL::STM32::LargeBufferedUART fdo2_uart(huart7, hal_time);
+volatile Pufferfish::HAL::STM32::ReadOnlyBufferedUART nonin_oem_uart(huart4, hal_time);
 
 // UART Serial Communication
 PF::Driver::Serial::Backend::UARTBackend backend(backend_uart, crc32c, store, log_events_sender);
@@ -176,7 +178,7 @@ static const uint32_t dim_period = 8;
 PF::Driver::Indicators::PWMGenerator flasher(flash_period, 1);
 PF::Driver::Indicators::PWMGenerator blinker(blink_period, 1);
 PF::Driver::Indicators::PWMGenerator dimmer(dim_period, 1);
-PF::Driver::ShiftRegister leds_reg(ser_input, ser_clock, ser_r_clock, ser_clear, time);
+PF::Driver::ShiftRegister leds_reg(ser_input, ser_clock, ser_r_clock, ser_clear, hal_time);
 
 PF::Driver::ShiftedOutput alarm_led_r(leds_reg, 0);
 PF::Driver::ShiftedOutput alarm_led_g(leds_reg, 1);
@@ -228,7 +230,7 @@ PF::HAL::STM32::DigitalInput button_power(
     true);
 
 PF::Protocols::Application::Debouncer switch_debounce;
-PF::Driver::Button::Button button_membrane(button_alarm_en, switch_debounce, time);
+PF::Driver::Button::Button button_membrane(button_alarm_en, switch_debounce, hal_time);
 
 // Solenoid Valves
 PF::HAL::STM32::PWM drive1_ch1(htim2, TIM_CHANNEL_4);
@@ -314,14 +316,14 @@ PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 
 PF::Driver::I2C::SFM3019::Device sfm3019_dev_air(
     i2c_hal_sfm3019_air, i2c2_hal_global, PF::Driver::I2C::SFM3019::GasType::air);
-PF::Driver::I2C::SFM3019::Sensor sfm3019_air(sfm3019_dev_air, true, time);
+PF::Driver::I2C::SFM3019::Sensor sfm3019_air(sfm3019_dev_air, true, hal_time);
 PF::Driver::I2C::SFM3019::Device sfm3019_dev_o2(
     i2c_hal_sfm3019_o2, i2c4_hal_global, PF::Driver::I2C::SFM3019::GasType::o2);
-PF::Driver::I2C::SFM3019::Sensor sfm3019_o2(sfm3019_dev_o2, true, time);
+PF::Driver::I2C::SFM3019::Sensor sfm3019_o2(sfm3019_dev_o2, true, hal_time);
 
 // FDO2
 PF::Driver::Serial::FDO2::Device fdo2_dev(fdo2_uart);
-PF::Driver::Serial::FDO2::Sensor fdo2(fdo2_dev, time);
+PF::Driver::Serial::FDO2::Sensor fdo2(fdo2_dev, hal_time);
 
 // Nonin OEM III
 PF::Driver::Serial::Nonin::Device nonin_oem_dev(nonin_oem_uart);
@@ -413,21 +415,21 @@ static void MX_RNG_Init(void);
 /* USER CODE BEGIN 0 */
 void initialize_states() {
   // Parameters
-  Parameters parameters;
+  PF::Application::Parameters parameters;
   PF::Application::StateSegment parameters_request;
   PF::Driver::BreathingCircuit::make_state_initializers(parameters_request, parameters);
   store.parameters() = parameters;
   store.input(parameters_request, true);
 
   // Alarm Limits
-  AlarmLimits alarm_limits;
+  PF::Application::AlarmLimits alarm_limits;
   PF::Application::StateSegment alarm_limits_request;
   PF::Driver::BreathingCircuit::make_state_initializers(alarm_limits_request, alarm_limits);
   store.alarm_limits() = alarm_limits;
   store.input(alarm_limits_request, true);
 
   // Alarm Mute
-  AlarmMute alarm_mute;
+  PF::Application::AlarmMute alarm_mute;
   PF::Application::StateSegment alarm_mute_request;
   PF::Driver::BreathingCircuit::make_state_initializers(alarm_mute_request, alarm_mute);
   store.alarm_mute() = alarm_mute;
@@ -451,9 +453,9 @@ void interface_test_loop() {
   // cycle though alarms
   //  if (!l_power) {
   //    hAlarms.clearAll();
-  //  } else if (time.millis() - interface_test_millis > 100) {
+  //  } else if (hal_time.millis() - interface_test_millis > 100) {
   //    hAlarms.add(PF::AlarmStatus::highPriority);
-  //    interface_test_millis = time.millis();
+  //    interface_test_millis = hal_time.millis();
   //    if (interface_test_state) {
   //      interface_test_state--;
   //      hAlarms.add(static_cast<PF::AlarmStatus>(interface_test_state));
@@ -528,7 +530,7 @@ int main(void)
   PF::HAL::STM32::Time::micros_delay_init();
 
   /*
-  interface_test_millis = time.millis();
+  interface_test_millis = hal_time.millis();
 
   // ADCs
   adc3_input.start();
@@ -549,9 +551,9 @@ int main(void)
   drive1_ch2.set_duty_cycle_raw(0);
 
   // Software PWMs
-  blinker.start(time.millis());
-  flasher.start(time.millis());
-  dimmer.start(time.millis());
+  blinker.start(hal_time.millis());
+  flasher.start(hal_time.millis());
+  dimmer.start(hal_time.millis());
 
   // Request/response states
   initialize_states();
@@ -573,10 +575,10 @@ int main(void)
   while (true) {
     initializables.setup();
     if (initializables.setup_failed()) {
-      setup_indicator_timer.reset(time.millis());
+      setup_indicator_timer.reset(hal_time.millis());
       // Flash the LED rapidly to indicate failure
-      while (setup_indicator_timer.within_timeout(time.millis())) {
-        flasher.input(time.millis());
+      while (setup_indicator_timer.within_timeout(hal_time.millis())) {
+        flasher.input(hal_time.millis());
         board_led1.write(flasher.output());
       }
     } else if (initializables.setup_in_progress()) {
@@ -587,9 +589,9 @@ int main(void)
   }
 
   // Blink the LED somewhat slowly to indicate success
-  setup_indicator_timer.reset(time.millis());
-  while (setup_indicator_timer.within_timeout(time.millis())) {
-    blinker.input(time.millis());
+  setup_indicator_timer.reset(hal_time.millis());
+  while (setup_indicator_timer.within_timeout(hal_time.millis())) {
+    blinker.input(hal_time.millis());
     board_led1.write(blinker.output());
   }
   board_led1.write(false);
@@ -609,12 +611,12 @@ int main(void)
 
   // Normal loop
   while (true) {
-    uint32_t current_time = time.millis();
+    uint32_t current_time = hal_time.millis();
 
     // Software PWM signals
-    flasher.input(time.millis());
-    blinker.input(time.millis());
-    dimmer.input(time.millis());
+    flasher.input(hal_time.millis());
+    blinker.input(hal_time.millis());
+    dimmer.input(hal_time.millis());
 
     // Clock updates
     log_events_manager.update_time(current_time);
@@ -705,13 +707,13 @@ int main(void)
     backend_alarms.transform(store.backend_connected(), alarms_manager, log_events_manager);
 
     /*
-    PF::AlarmManagerStatus stat = h_alarms.update(time.millis());
+    PF::AlarmManagerStatus stat = h_alarms.update(hal_time.millis());
     if (stat != PF::AlarmManagerStatus::ok) {
       Error_Handler();
     }
 
     board_led1.write(false);
-    time.delay(blink_low_delay);
+    hal_time.delay(blink_low_delay);
     board_led1.write(true);
     //interface_test_loop();
     //leds_reg.update();
