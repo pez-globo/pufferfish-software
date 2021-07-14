@@ -12,11 +12,11 @@
 
 #include "Pufferfish/Driver/I2C/HoneywellABP/Device.h"
 
-#include "Pufferfish/Util/Endian.h"
-#include "Pufferfish/Util/Ranges.h"
-
 #include <array>
 #include <climits>
+
+#include "Pufferfish/Util/Endian.h"
+#include "Pufferfish/Util/Ranges.h"
 
 namespace Pufferfish::Driver::I2C::HoneywellABP {
 
