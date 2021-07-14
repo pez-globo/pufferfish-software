@@ -269,6 +269,8 @@ PF::HAL::STM32::I2CDevice i2c_hal_press18(hi2c2, PF::Driver::I2C::SDPSensor::sdp
 PF::HAL::STM32::I2CDevice i2c1_hal_global(hi2c1, 0x00);
 PF::HAL::STM32::I2CDevice i2c2_hal_global(hi2c2, 0x00);
 PF::HAL::STM32::I2CDevice i2c4_hal_global(hi2c4, 0x00);
+PF::HAL::STM32::I2CDevice i2c_hal_abp(
+    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3.i2c_addr);
 PF::HAL::STM32::I2CDevice i2c_hal_ltc4015(hi2c1, PF::Driver::I2C::LTC4015::device_addr);
 PF::HAL::STM32::I2CDevice i2c_hal_sfm3019_air(hi2c2, PF::Driver::I2C::SFM3019::default_i2c_addr);
 PF::HAL::STM32::I2CDevice i2c_hal_sfm3019_o2(hi2c4, PF::Driver::I2C::SFM3019::default_i2c_addr);
@@ -311,6 +313,10 @@ PF::Driver::I2C::SFM3000 i2c_press16(i2c_ext_press16);
 PF::Driver::I2C::SDPSensor i2c_press17(i2c_ext_press17);
 PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 */
+
+// HoneyWell ABP
+PF::Driver::I2C::HoneywellABP::Device abp_dev(
+    i2c_hal_abp, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3);
 
 // SFM3019
 
