@@ -8,10 +8,6 @@ export const getConnection = (store: StoreState): ConnectionState => store.conne
 
 // Backend
 
-export const getbackendHeartBeat = createSelector(
-  getConnection,
-  (connection: ConnectionState): Date => connection.backendHeartbeat,
-);
 export const getBackendConnected = createSelector(
   getConnection,
   (connection: ConnectionState): boolean => connection.backendConnection,

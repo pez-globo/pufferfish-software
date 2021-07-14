@@ -1,5 +1,5 @@
 import { EventChannel } from 'redux-saga';
-import { take, takeEvery, fork, delay, all, put, select } from 'redux-saga/effects';
+import { take, takeEvery, fork, delay, all, takeLatest } from 'redux-saga/effects';
 import { INITIALIZED } from '../app/types';
 import { GeneratorYieldType } from './protocols/sagas';
 import {
@@ -9,18 +9,14 @@ import {
   SenderYield,
 } from './protocols/backend/backend';
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
-import { establishedBackendConnection, lostBackendConnection } from '../connection/actions';
-import { getBackendConnected } from '../connection/selectors';
+import { watchBackendConnection, watchBackendHeartbeat } from './connection/backend';
+import { STATE_UPDATED } from './types';
 
 function* receiveAll(channel: EventChannel<Response>) {
   while (true) {
     const response = yield take(channel);
     const body = yield receiveBuffer(yield response);
     yield backendReceive(body);
-    const backendConnected = yield select(getBackendConnected);
-    if (!backendConnected) {
-      yield put(establishedBackendConnection());
-    }
   }
 }
 
@@ -54,10 +50,6 @@ function* serviceConnection() {
   yield fork(sendAll, sock);
   yield take(connectionChannel);
   receiveChannel.close();
-  const backendConnected = yield select(getBackendConnected);
-  if (backendConnected) {
-    yield put(lostBackendConnection());
-  }
 }
 
 const retryConnectInterval = 100; // ms
@@ -71,7 +63,11 @@ export function* serviceConnectionPersistently(): IterableIterator<unknown> {
 }
 
 export function* controllerSaga(): IterableIterator<unknown> {
-  yield all([yield takeEvery(INITIALIZED, serviceConnectionPersistently)]);
+  yield all([
+    yield takeEvery(INITIALIZED, serviceConnectionPersistently),
+    yield takeLatest(STATE_UPDATED, watchBackendConnection),
+    yield takeLatest(STATE_UPDATED, watchBackendHeartbeat),
+  ]);
 }
 
 export default controllerSaga;

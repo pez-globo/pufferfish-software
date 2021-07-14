@@ -12,7 +12,6 @@ import {
   backendStateSender,
   sendMinInterval,
 } from './states';
-import { receivedBackendHeartbeat } from '../../../connection/actions';
 import { ConnectionAction } from '../../../connection/types';
 
 // Buffer Receiving
@@ -23,7 +22,6 @@ export function* receive(
   try {
     const results = deserialize(body);
     yield put(updateState(results.messageType, results.pbMessage));
-    yield put(receivedBackendHeartbeat());
   } catch (err) {
     console.error(err);
   }
