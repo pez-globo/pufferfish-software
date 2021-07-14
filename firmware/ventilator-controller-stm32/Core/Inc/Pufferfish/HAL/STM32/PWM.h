@@ -31,13 +31,10 @@ class PWM : public Interfaces::PWM {
   PWM(TIM_HandleTypeDef &htim, uint32_t channel) : htim_(htim), channel(channel) {}
 
   /**
-   * Set a duty cycle of PWM, can be done when PWM is active
-   * this function does NOT start the PWM output.
-   * This is faster than setDutyCycle() as no floating point calculation is done
-   * @param duty    an integer between 0 and getMaxDutyCycle() (inclusive) for
-   * the desired duty cycle
+   * Returns the maximum duty cycle that can be set with setDutyCycleRaw()
+   * @return the maximum duty cycle
    */
-  void set_duty_cycle_raw(uint32_t duty) override;
+  uint32_t get_max_duty_cycle() override;
 
   /**
    * Start the PWM output
@@ -51,11 +48,15 @@ class PWM : public Interfaces::PWM {
    */
   PWMStatus stop() override;
 
+ protected:
   /**
-   * Returns the maximum duty cycle that can be set with setDutyCycleRaw()
-   * @return the maximum duty cycle
+   * Set a duty cycle of PWM, can be done when PWM is active
+   * this function does NOT start the PWM output.
+   * This is faster than setDutyCycle() as no floating point calculation is done
+   * @param duty    an integer between 0 and getMaxDutyCycle() (inclusive) for
+   * the desired duty cycle
    */
-  uint32_t get_max_duty_cycle() override;
+  void set_duty_cycle_raw(uint32_t duty) override;
 
  private:
   TIM_HandleTypeDef &htim_;
