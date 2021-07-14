@@ -15,14 +15,10 @@ export function connectionReducer(state = initialState, action: ConnectionAction
     case BACKEND_CONNECTION_DOWN:
       return { ...state, backendConnection: false };
     case BACKEND_CONNECTION_UP:
-      // TODO: Redux recommends **against** using new date inside reducers; instead
-      // it should come from the code which creates the action to dispatch.
       return {
         ...state,
         backendConnection: true,
-        lastBackendConnectionTime: state.backendConnection
-          ? state.lastBackendConnectionTime
-          : new Date(),
+        lastBackendConnectionTime: state.lastBackendConnectionTime,
       };
     default:
       return state;

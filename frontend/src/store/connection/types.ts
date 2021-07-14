@@ -20,6 +20,7 @@ interface BackendConnectionDown {
 
 interface BackendConnectionUp {
   type: typeof BACKEND_CONNECTION_UP;
+  lastBackendConnectionTime: Date;
 }
 
 export type ConnectionAction = BackendConnectionDown | BackendConnectionUp;

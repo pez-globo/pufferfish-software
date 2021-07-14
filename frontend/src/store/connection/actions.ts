@@ -5,5 +5,5 @@ export function lostBackendConnection(): ConnectionAction {
 }
 
 export function establishedBackendConnection(): ConnectionAction {
-  return { type: BACKEND_CONNECTION_UP };
+  return { type: BACKEND_CONNECTION_UP, lastBackendConnectionTime: new Date() };
 }
