@@ -74,7 +74,7 @@ InitializableState Sensor::initialize() {
 InitializableState Sensor::measure(float &output) {
   if (device_.read_sample(sample_) == I2CDeviceStatus::ok) {
     retry_count_ = 0;  // reset retries to 0 for next measurement
-    sample_.pressure = output;
+    output = sample_.pressure;
     next_action_ = fsm_.update();
     return InitializableState::ok;
   }
