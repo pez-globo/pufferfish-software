@@ -23,6 +23,7 @@
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
+using PF::Driver::Serial::Nonin::Frame;
 using PF::Util::Containers::make_array;
 
 const PF::Driver::Serial::Nonin::FrameInputStatus input_framing_error =

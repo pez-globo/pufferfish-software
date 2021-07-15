@@ -24,6 +24,7 @@
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
+using PF::Driver::Serial::Nonin::Frame;
 
 const PF::Driver::Serial::Nonin::PacketOutputStatus output_status_waiting =
     PF::Driver::Serial::Nonin::PacketOutputStatus::waiting;
