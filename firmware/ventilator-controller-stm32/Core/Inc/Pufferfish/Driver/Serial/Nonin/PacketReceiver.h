@@ -25,74 +25,16 @@
 
 #include "FrameBuffer.h"
 #include "FrameReceiver.h"
+#include "Types.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace Serial {
-namespace Nonin {
-
-/* Enum class for amplitude representation of signal quality  */
-enum class SignalAmplitude {
-  no_perfusion = 0,  /// No loss in signal quality
-  red_perfusion,     /// Red Perfusion – Amplitude representation of low signal
-                     /// quality
-  yellow_perfusion,  /// YPRF: Yellow Perfusion – Amplitude representation of
-                     /// medium signal quality
-  green_perfusion    /// Green Perfusion – Amplitude representation of high signal
-                     /// quality
-};
-
-/* Structure defines the sensor data in packet for measurements */
-struct StatusByteStruct {
-  bool bit7;
-  bool sensor_disconnect;
-  bool artifact;
-  bool out_of_track;
-  bool sensor_alarm;
-  SignalAmplitude signal_perfusion;
-};
-
-/* Packet of 25 frames */
-static const size_t packet_size = 25;
-using Packet = std::array<Frame, packet_size>;
-/* Status Byte error of 25 frames */
-using StatusByteError = std::array<StatusByteStruct, packet_size>;
-/* PLETH for 25 frames */
-using Pleth = std::array<uint8_t, packet_size>;
-
-/* Structure defines the sensor data in packet for measurements */
-struct PacketMeasurements {
-  /* Heart Rate and SpO2 measurements */
-  uint16_t heart_rate;
-  uint8_t spo2;
-  uint8_t spo2_d;
-  uint8_t spo2_d_fast;
-  uint8_t spo2_d_beat;
-  uint16_t e_heart_rate;
-  uint8_t e_spo2;
-  uint8_t e_spo2_d;
-  uint16_t heart_rate_d;
-  uint16_t e_heart_rate_d;
-  uint8_t nonin_oem_revision;
-  /* PLETH measurements */
-  Pleth packet_pleth;
-  /* StatusByteErrors measurements */
-  std::array<bool, packet_size> bit7;
-  std::array<bool, packet_size> sensor_disconnect;
-  std::array<bool, packet_size> artifact;
-  std::array<bool, packet_size> out_of_track;
-  std::array<bool, packet_size> sensor_alarm;
-  std::array<SignalAmplitude, packet_size> signal_perfusion;
-};
-
-static const uint8_t mask_6bit = 0x7F;
+namespace Pufferfish::Driver::Serial::Nonin {
 
 /**
  * @brief  Inline function to get the SpO2 data
  * @param  ByteData - Byte of SpO2 Data received from packet
  * @return Masked value of SpO2 from input Spo2Data
  */
-inline uint16_t get_6bit_data(uint8_t byte_data) {
+inline uint16_t get_spo2_data(uint8_t byte_data) {
   /* Mask Bit0 to Bit6 for SpO2 data  */
   return byte_data & mask_6bit;
 }
@@ -103,7 +45,7 @@ inline uint16_t get_6bit_data(uint8_t byte_data) {
  * @param  lsbByte - MSB to extract 5 bits
  * @return Calculated 9 bit data from MSB and LSB
  */
-inline uint16_t get_9bit_data(uint8_t msb_byte, uint8_t lsb_byte) {
+inline uint16_t get_hr_data(uint8_t msb_byte, uint8_t lsb_byte) {
   /* Pack 2 bits of MSB and 6 bits of LSB for 9 bits of heart rate data  */
   static const uint16_t msb_shift = 7;
   static const uint16_t mask_msb = 0x18;
@@ -119,19 +61,6 @@ inline uint16_t get_9bit_data(uint8_t msb_byte, uint8_t lsb_byte) {
  */
 class PacketReceiver {
  public:
-  /* PacketReceiver Input status */
-  enum class PacketInputStatus {
-    available = 0,  /// Input is available to read output
-    waiting,        /// Input is wait to read more bytes
-    missed_data     /// missed one or more frames in previous received packet
-  };
-
-  /* PacketReceiver Output status */
-  enum class PacketOutputStatus {
-    available = 0,  /// Output measurements are available
-    waiting         /// Output is waiting to receive more byte for measurements
-  };
-
   /**
    * @brief  Constructor for PacketReceiver
    * @param  None
@@ -167,7 +96,5 @@ class PacketReceiver {
 
 extern void read_status_byte(
     PacketMeasurements &sensor_measurements, const size_t &frame_index, const uint8_t &byte_value);
-}  // namespace Nonin
-}  // namespace Serial
-}  // namespace Driver
-}  // namespace Pufferfish
+
+}  // namespace Pufferfish::Driver::Serial::Nonin

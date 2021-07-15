@@ -24,11 +24,9 @@
 #include "Pufferfish/Driver/Serial/Nonin/FrameReceiver.h"
 #include "Pufferfish/Driver/Serial/Nonin/PacketReceiver.h"
 #include "Pufferfish/HAL/Interfaces/BufferedUART.h"
+#include "Types.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace Serial {
-namespace Nonin {
+namespace Pufferfish::Driver::Serial::Nonin {
 
 /**
  * Device class to receive a byte from Nonin OEM III using UART and calculates
@@ -36,15 +34,6 @@ namespace Nonin {
  */
 class Device {
  public:
-  /* PacketReceiver Input status */
-  enum class PacketStatus {
-    available = 0,  /// Packet/measurements is available
-    waiting,        /// Packet/measurements is waiting to receive more bytes of data
-    not_available,  /// Packet/measurements are not available
-    framing_error,  /// Error in checksum or status byte or in byte 1 of a frame
-    missed_data     /// Missed a packet due loss of frames
-  };
-
   /**
    * Constructor for Device
    * @param  noninOEMUART BufferedUART with 512 bytes reception buffer
@@ -73,7 +62,4 @@ class Device {
   // Frame frameBuffer;
 };
 
-}  // namespace Nonin
-}  // namespace Serial
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::Serial::Nonin

@@ -26,23 +26,23 @@
 namespace PF = Pufferfish;
 using PF::Util::Containers::make_array;
 
-PF::Driver::Serial::Nonin::Device::PacketStatus waiting_status =
-    PF::Driver::Serial::Nonin::Device::PacketStatus::waiting;
+PF::Driver::Serial::Nonin::PacketStatus waiting_status =
+    PF::Driver::Serial::Nonin::PacketStatus::waiting;
 
-PF::Driver::Serial::Nonin::Device::PacketStatus available_status =
-    PF::Driver::Serial::Nonin::Device::PacketStatus::available;
+PF::Driver::Serial::Nonin::PacketStatus available_status =
+    PF::Driver::Serial::Nonin::PacketStatus::available;
 
-PF::Driver::Serial::Nonin::Device::PacketStatus missed_data_status =
-    PF::Driver::Serial::Nonin::Device::PacketStatus::missed_data;
+PF::Driver::Serial::Nonin::PacketStatus missed_data_status =
+    PF::Driver::Serial::Nonin::PacketStatus::missed_data;
 
-PF::Driver::Serial::Nonin::Device::PacketStatus framing_error_status =
-    PF::Driver::Serial::Nonin::Device::PacketStatus::framing_error;
+PF::Driver::Serial::Nonin::PacketStatus framing_error_status =
+    PF::Driver::Serial::Nonin::PacketStatus::framing_error;
 
 SCENARIO("No input data received from BufferedUART", "[NoninOEM3]") {
   PF::HAL::Mock::ReadOnlyBufferedUART mock_uart;
   PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
   PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
-  PF::Driver::Serial::Nonin::Device::PacketStatus return_status;
+  PF::Driver::Serial::Nonin::PacketStatus return_status;
 
   GIVEN("Input data received from BufferedUART is empty") {
     WHEN("Device::output is invoked") {
@@ -58,7 +58,7 @@ SCENARIO("Complete packet is not available", "[NoninOEM3]") {
   PF::HAL::Mock::ReadOnlyBufferedUART mock_uart;
   PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
   PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
-  PF::Driver::Serial::Nonin::Device::PacketStatus return_status;
+  PF::Driver::Serial::Nonin::PacketStatus return_status;
 
   GIVEN("4 bytes of BufferedUART data") {
     auto uart_data = make_array<uint8_t>(0x01, 0x81, 0x00, 0x00);
@@ -212,7 +212,7 @@ SCENARIO("Validate the Nonin OEM III with invalid data received from BufferedUAR
   PF::HAL::Mock::ReadOnlyBufferedUART mock_uart;
   PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
   PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
-  PF::Driver::Serial::Nonin::Device::PacketStatus return_status;
+  PF::Driver::Serial::Nonin::PacketStatus return_status;
   GIVEN("Valid 24 frames with 23 Frames of first packet and 1 frame of second packet ") {
     auto uart_data = make_array<uint8_t>(
         0x01,
@@ -501,7 +501,7 @@ SCENARIO("Validate NoninOEM3 for valid packet data", "[NoninOEM3]") {
     }
     PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
     PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
-    PF::Driver::Serial::Nonin::Device::PacketStatus return_status;
+    PF::Driver::Serial::Nonin::PacketStatus return_status;
 
     WHEN("Device::output is invoked for 124 bytes valid bytes read") {
       THEN("Device::output shall return waiting status") {

@@ -27,15 +27,9 @@
 
 #include "Pufferfish/HAL/Types.h"
 #include "Pufferfish/Statuses.h"
+#include "Types.h"
 
-/* Frame */
-const uint8_t frame_max_size = 5;
-using Frame = std::array<uint8_t, frame_max_size>;
-
-namespace Pufferfish {
-namespace Driver {
-namespace Serial {
-namespace Nonin {
+namespace Pufferfish::Driver::Serial::Nonin {
 
 /**
  * FrameBuffer class to update buffer
@@ -80,7 +74,4 @@ class FrameBuffer {
   uint8_t received_length_ = 0;
 };
 
-}  // namespace Nonin
-}  // namespace Serial
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::Serial::Nonin

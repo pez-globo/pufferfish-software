@@ -46,7 +46,7 @@ bool validate_start_of_frame(const Frame &new_frame) {
  * validateFrame function is called to validated the every frame for Status byte
  * and Checksum.
  */
-FrameReceiver::FrameInputStatus validate_frame(const Frame &new_frame) {
+FrameInputStatus validate_frame(const Frame &new_frame) {
   static const uint8_t mask_start_of_frame = 0x80;
   /* Check for the byte 1 is 01 and 1st bit of byte 2 is 0x80 for status byte */
   if (new_frame[0] == 0x01 && (new_frame[1] & mask_start_of_frame) == mask_start_of_frame) {
@@ -54,15 +54,15 @@ FrameReceiver::FrameInputStatus validate_frame(const Frame &new_frame) {
     if (((new_frame[0] + new_frame[1] + new_frame[2] + new_frame[3]) % (UINT8_MAX + 1)) ==
         new_frame[4]) {
       /* Return the start of packet status as available */
-      return FrameReceiver::FrameInputStatus::available;
+      return FrameInputStatus::available;
     }
   }
 
   /* return the frame status as not available */
-  return FrameReceiver::FrameInputStatus::framing_error;
+  return FrameInputStatus::framing_error;
 }
 
-FrameReceiver::FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
+FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
   Frame frame_buffer;
 
   /* Input the new byte received and check for frame availability */
@@ -103,7 +103,7 @@ FrameReceiver::FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_b
   return input_status_;
 }
 
-FrameReceiver::FrameInputStatus FrameReceiver::input(const uint8_t new_byte) {
+FrameInputStatus FrameReceiver::input(const uint8_t new_byte) {
   /* Update the frame buffer with new byte received */
   input_status_ = this->update_frame_buffer(new_byte);
 
@@ -111,7 +111,7 @@ FrameReceiver::FrameInputStatus FrameReceiver::input(const uint8_t new_byte) {
   return input_status_;
 }
 
-FrameReceiver::FrameOutputStatus FrameReceiver::output(Frame &frame) {
+FrameOutputStatus FrameReceiver::output(Frame &frame) {
   /* Check for the frame availability in the buffer */
   if (input_status_ != FrameInputStatus::available) {
     return FrameOutputStatus::waiting;

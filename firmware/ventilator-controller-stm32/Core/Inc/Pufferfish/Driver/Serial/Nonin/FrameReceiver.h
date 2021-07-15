@@ -22,11 +22,9 @@
 #pragma once
 
 #include "Pufferfish/Driver/Serial/Nonin/FrameBuffer.h"
+#include "Types.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace Serial {
-namespace Nonin {
+namespace Pufferfish::Driver::Serial::Nonin {
 
 /*
  * FrameSplitter reads input data from sensor and Output the frame on available
@@ -34,19 +32,6 @@ namespace Nonin {
  */
 class FrameReceiver {
  public:
-  /* FrameReceiver input status return values */
-  enum class FrameInputStatus {
-    waiting = 0,    /// Input is ready to receive new bytes of sensor data
-    framing_error,  /// Error in checksum or status byte or in byte 1 of a frame
-    available       /// frame is available
-  };
-
-  /* FrameReceiver output status return values */
-  enum class FrameOutputStatus {
-    available = 0,  /// frame output is available for packet fill
-    waiting         /// frame output is waiting for complete frame
-  };
-
   /**
    * Constructor for FrameReceiver
    */
@@ -89,9 +74,6 @@ class FrameReceiver {
 
 extern bool validate_start_of_frame(const Frame &new_frame);
 
-extern FrameReceiver::FrameInputStatus validate_frame(const Frame &new_frame);
+extern FrameInputStatus validate_frame(const Frame &new_frame);
 
-}  // namespace Nonin
-}  // namespace Serial
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::Serial::Nonin

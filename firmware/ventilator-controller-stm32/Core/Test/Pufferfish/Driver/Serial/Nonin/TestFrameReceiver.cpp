@@ -25,26 +25,26 @@
 namespace PF = Pufferfish;
 using PF::Util::Containers::make_array;
 
-const PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus input_framing_error =
-    PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus::framing_error;
+const PF::Driver::Serial::Nonin::FrameInputStatus input_framing_error =
+    PF::Driver::Serial::Nonin::FrameInputStatus::framing_error;
 
-const PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus input_available =
-    PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus::available;
+const PF::Driver::Serial::Nonin::FrameInputStatus input_available =
+    PF::Driver::Serial::Nonin::FrameInputStatus::available;
 
-const PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus input_waiting =
-    PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus::waiting;
+const PF::Driver::Serial::Nonin::FrameInputStatus input_waiting =
+    PF::Driver::Serial::Nonin::FrameInputStatus::waiting;
 
-const PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus output_waiting =
-    PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus::waiting;
+const PF::Driver::Serial::Nonin::FrameOutputStatus output_waiting =
+    PF::Driver::Serial::Nonin::FrameOutputStatus::waiting;
 
-const PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus output_available =
-    PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus::available;
+const PF::Driver::Serial::Nonin::FrameOutputStatus output_available =
+    PF::Driver::Serial::Nonin::FrameOutputStatus::available;
 
 SCENARIO("FrameReceiver Input for 20 bytes of data.", "[NoninOEM3]") {
   GIVEN("20 bytes of valid data") {
     PF::Driver::Serial::Nonin::FrameReceiver frame_receiver;
-    PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus frame_input_status;
-    PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus frame_output_status;
+    PF::Driver::Serial::Nonin::FrameInputStatus frame_input_status;
+    PF::Driver::Serial::Nonin::FrameOutputStatus frame_output_status;
     Frame frame_output;
     auto input_data = make_array<uint8_t>(
         0x01,
@@ -183,8 +183,8 @@ SCENARIO("FrameReceiver Input for 20 bytes of data.", "[NoninOEM3]") {
 SCENARIO("FrameReceiver for first frames of data received ", "[NoninOEM3]") {
   GIVEN("A 4 bytes of valid data INPUT_DATA : 0x01 0x81 0x01 0x00 ") {
     PF::Driver::Serial::Nonin::FrameReceiver frame_receiver;
-    PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus frame_input_status;
-    // PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus frame_output_status;
+    PF::Driver::Serial::Nonin::FrameInputStatus frame_input_status;
+    // PF::Driver::Serial::Nonin::FrameOutputStatus frame_output_status;
     auto input_data = make_array<uint8_t>(0x01, 0x81, 0x01, 0x00);
 
     WHEN("On input of 4 bytes of INPUT_DATA to FrameReceiver ") {
@@ -199,8 +199,8 @@ SCENARIO("FrameReceiver for first frames of data received ", "[NoninOEM3]") {
 
   GIVEN("A 7 bytes data INPUT_DATA : 0x01 0x81 0x01 0x81 0x01 0x00 0x83 ") {
     PF::Driver::Serial::Nonin::FrameReceiver frame_receiver;
-    PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus frame_input_status;
-    PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus frame_output_status;
+    PF::Driver::Serial::Nonin::FrameInputStatus frame_input_status;
+    PF::Driver::Serial::Nonin::FrameOutputStatus frame_output_status;
     Frame frame_output;
     auto input_data = make_array<uint8_t>(0x01, 0x81, 0x01, 0x81, 0x01, 0x00, 0x83);
     WHEN("On input of 6 bytes of INPUT_DATA to FrameReceiver ") {
@@ -242,8 +242,8 @@ SCENARIO("FrameReceiver for first frames of data received ", "[NoninOEM3]") {
 
   GIVEN("A 6 bytes INPUT_DATA 0x01 0x81 0x01 0x81 0x01 0x00") {
     PF::Driver::Serial::Nonin::FrameReceiver frame_receiver;
-    PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus frame_input_status;
-    PF::Driver::Serial::Nonin::FrameReceiver::FrameOutputStatus frame_output_status;
+    PF::Driver::Serial::Nonin::FrameInputStatus frame_input_status;
+    PF::Driver::Serial::Nonin::FrameOutputStatus frame_output_status;
     Frame frame_output;
     auto input_data = make_array<uint8_t>(0x01, 0x81, 0x01, 0x81, 0x01, 0x00, 0x83);
     WHEN("On input of 6 bytes of INPUT_DATA to FrameReceiver ") {
@@ -319,7 +319,7 @@ SCENARIO("Validate function 'validate_start_of_frame' ", "[NoninOEM3]") {
 
 SCENARIO("Validate function 'validate_frame' ", "[NoninOEM3]") {
   Frame frame_buffer{};
-  PF::Driver::Serial::Nonin::FrameReceiver::FrameInputStatus frame_input_status;
+  PF::Driver::Serial::Nonin::FrameInputStatus frame_input_status;
   uint8_t checksum = 0;
   GIVEN("A valid first frame") {
     frame_buffer = {0x01, 0x81, 0x02, 0x00, 0x84};

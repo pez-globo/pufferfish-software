@@ -23,7 +23,7 @@
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
-Device::PacketStatus Device::output(PacketMeasurements &sensor_measurements) {
+PacketStatus Device::output(PacketMeasurements &sensor_measurements) {
   uint8_t read_byte = 0;
   Frame frame_buffer;
 
@@ -37,20 +37,20 @@ Device::PacketStatus Device::output(PacketMeasurements &sensor_measurements) {
   /* Input byte to frame receiver and validate the frame available */
   switch (frame_receiver_.input(read_byte)) {
     /* Return sensor status is waiting to receive more bytes of data */
-    case FrameReceiver::FrameInputStatus::framing_error:
+    case FrameInputStatus::framing_error:
       return PacketStatus::framing_error;
 
     /* Return sensor status is waiting to receive more bytes of data */
-    case FrameReceiver::FrameInputStatus::waiting:
+    case FrameInputStatus::waiting:
       return PacketStatus::waiting;
 
     /* On PacketInputStatus available continue */
-    case FrameReceiver::FrameInputStatus::available:
+    case FrameInputStatus::available:
       break;
   }
 
   /* On frame input available invoke output method to receive frame */
-  if (frame_receiver_.output(frame_buffer) == FrameReceiver::FrameOutputStatus::waiting) {
+  if (frame_receiver_.output(frame_buffer) == FrameOutputStatus::waiting) {
     /* Return sensor status is waiting to receive more bytes of data */
     return PacketStatus::waiting;
   }
@@ -59,23 +59,22 @@ Device::PacketStatus Device::output(PacketMeasurements &sensor_measurements) {
   /* Input frame to packet and validate the frame available */
   switch (packet_receiver_.input(frame_buffer)) {
     /* Return sensor status is waiting to receive more frames of data */
-    case PacketReceiver::PacketInputStatus::waiting:
+    case PacketInputStatus::waiting:
       return PacketStatus::waiting;
 
     /* Discard the packet due to status byte error, wait for the new packet to
      * receive */
-    case PacketReceiver::PacketInputStatus::missed_data:
+    case PacketInputStatus::missed_data:
       return PacketStatus::missed_data;
 
     /* On PacketInputStatus available continue */
-    case PacketReceiver::PacketInputStatus::available:
+    case PacketInputStatus::available:
       break;
   }
 
   /* On packet input available invoke output method to read sensor measurements
    */
-  if (packet_receiver_.output(sensor_measurements) !=
-      PacketReceiver::PacketOutputStatus::available) {
+  if (packet_receiver_.output(sensor_measurements) != PacketOutputStatus::available) {
     /* Return sensor status is waiting to receive more bytes of data */
     return PacketStatus::waiting;
   }
