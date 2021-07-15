@@ -17,7 +17,7 @@ export { default as TabPanel } from './TabPanel';
 export { default as TestTool } from './TestTool';
 export { default as ValueModal } from './ValueModal';
 export { default as ValueController } from './ValueClicker';
-export { default as AlarmModal } from './AlarmModal';
+export { AlarmModal, AlarmModalContent } from './AlarmModal';
 export { default as ValueClicker } from './ValueClicker';
 export { default as ModalPopup } from './ModalPopup';
 export { default as DiscardAlarmLimitsContent } from './DiscardAlarmLimitsContent';

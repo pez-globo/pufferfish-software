@@ -21,7 +21,7 @@ import {
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import ValueInfo from '../dashboard/components/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../info/units';
-import { AlarmModal, ValueModal } from '../controllers';
+import { AlarmModalContent, ValueModal } from '../controllers';
 import { ParametersRequest, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
@@ -761,13 +761,11 @@ const MultiStepWizard = (): JSX.Element => {
                 />
               ) : (
                 parameter && (
-                  <AlarmModal
-                    openModal={open && parameter.stateKey === stateKey}
+                  <AlarmModalContent
                     label={parameter.label}
                     units={parameter.units}
                     stateKey={parameter.stateKey}
                     getCommittedRange={doSetAlarmValues}
-                    contentOnly={true}
                     labelHeading={true}
                     alarmRangeValues={getAlarmValues(parameter.stateKey)}
                     {...(parameter.alarmLimitMin && { committedMin: parameter.alarmLimitMin })}
