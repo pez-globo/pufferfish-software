@@ -221,7 +221,10 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
     _frontend_state_sender: states.TimedSender[Sender] = attr.ib()
     _file_state_sender: states.TimedSender[Sender] = attr.ib()
 
-    # _current_time: Optional[float] = attr.ib(default=None)
+    _current_time: Optional[float] = attr.ib(default=None)
+    # _period_start_time: Optional[float] = attr.ib(default=None)
+    # _sending_frontend: bool = attr.ib(default=False)
+    # SEND_PERIOD = 10.0  # s
 
     @_mcu_event_sender.default
     def init_mcu_event_sender(self) ->\
@@ -311,7 +314,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             return
 
         # Update sender clocks
-        # self._current_time = event.time
+        self._current_time = event.time
         self._mcu_state_sender.input(event.time)
         self._frontend_state_sender.input(event.time)
         self._file_state_sender.input(event.time)
@@ -345,6 +348,32 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             self._logger.exception('MCU State Sender:')
         try:
             output_event.frontend_send = self._frontend_state_sender.output()
+
+            # Only send events to frontend for part of the time, for testing
+            # if (
+            #         self._period_start_time is None and
+            #         self._current_time is not None and
+            #         self._current_time > 0
+            # ):
+            #     self._period_start_time = self._current_time
+            #     self._sending_frontend = not self._sending_frontend
+            #     self._logger.warning(
+            #         '%sending events to frontend for %s s!',
+            #         'S' if self._sending_frontend else 'Not s',
+            #         self.SEND_PERIOD
+            #     )
+            # if (
+            #         self._current_time is not None and
+            #         self._period_start_time is not None and
+            #         self._current_time > (
+            #             self._period_start_time + self.SEND_PERIOD
+            #         )
+            # ):
+            #     self._period_start_time = None
+            # if not self._sending_frontend:
+            #     output_event.frontend_send = None
+
+            # Print output, for debugging
             # if (
             #         output_event.frontend_send is not None and
             #         self._current_time is not None

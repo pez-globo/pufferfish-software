@@ -1,4 +1,4 @@
-import { SelectEffect, PutEffect, CallEffect, put, delay } from 'redux-saga/effects';
+import { SelectEffect, PutEffect, CallEffect, put, delay, select } from 'redux-saga/effects';
 import { AppAction } from '../../../app/types';
 import { updateState } from '../../actions';
 import { StateUpdateAction } from '../../types';
@@ -13,14 +13,39 @@ import {
   sendMinInterval,
 } from './states';
 import { ConnectionAction } from '../../../connection/types';
+import { establishedBackendConnection, lostBackendConnection } from '../../../connection/actions';
+import { getBackendConnected } from '../../../connection/selectors';
 
 // Buffer Receiving
 
+const connectionTimeout = 2000; // ms
+
+export function* handleConnectionTimeout(): Generator<
+  PutEffect<ConnectionAction> | SelectEffect | CallEffect,
+  void,
+  void | boolean
+> {
+  yield delay(connectionTimeout);
+  const backendConnected = yield select(getBackendConnected);
+  if (backendConnected) {
+    console.warn('Connection timed out!');
+    yield put(lostBackendConnection());
+  }
+}
+
 export function* receive(
   body: Uint8Array,
-): Generator<PutEffect<StateUpdateAction | AppAction | ConnectionAction>, void, void> {
+): Generator<
+  PutEffect<StateUpdateAction | AppAction | ConnectionAction> | SelectEffect,
+  void,
+  void | boolean
+> {
   try {
     const results = deserialize(body);
+    const backendConnected = yield select(getBackendConnected);
+    if (!backendConnected) {
+      yield put(establishedBackendConnection());
+    }
     yield put(updateState(results.messageType, results.pbMessage));
   } catch (err) {
     console.error(err);
