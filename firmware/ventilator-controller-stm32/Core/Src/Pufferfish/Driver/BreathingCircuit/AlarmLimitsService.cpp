@@ -11,6 +11,9 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+using Application::LogEvent;
+using Application::LogEventType;
+
 // Update functions
 
 Range transform_limits_range(int32_t floor, int32_t ceiling, Range request) {
@@ -151,10 +154,10 @@ void AlarmLimitsServices::transform(
     AlarmLimits &alarm_limits,
     Application::LogEventsManager &log_manager) {
   switch (parameters.mode) {
-    case VentilationMode_pc_ac:
+    case Application::VentilationMode_pc_ac:
       active_service_ = &pc_ac_;
       break;
-    case VentilationMode_hfnc:
+    case Application::VentilationMode_hfnc:
       active_service_ = &hfnc_;
       break;
     default:

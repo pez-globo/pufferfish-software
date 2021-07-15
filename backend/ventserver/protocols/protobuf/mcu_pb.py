@@ -210,6 +210,12 @@ class ExpectedLogEvent(betterproto.Message):
 
 @dataclass
 class NextLogEvents(betterproto.Message):
+    """
+    Note: NextLogEvents has a custom equality operator in the firmware which
+    must be updated if you add/remove/modify the fields of the protobuf
+    definition!
+    """
+
     next_expected: int = betterproto.uint32_field(1)
     total: int = betterproto.uint32_field(2)
     remaining: int = betterproto.uint32_field(3)
@@ -219,6 +225,12 @@ class NextLogEvents(betterproto.Message):
 
 @dataclass
 class ActiveLogEvents(betterproto.Message):
+    """
+    Note: NextLogEvents has a custom equality operator in the firmware which
+    must be updated if you add/remove/modify the fields of the protobuf
+    definition!
+    """
+
     id: List[int] = betterproto.uint32_field(1)
 
 

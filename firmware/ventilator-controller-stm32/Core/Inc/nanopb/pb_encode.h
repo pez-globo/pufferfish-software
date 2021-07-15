@@ -40,7 +40,7 @@ struct pb_ostream_s
     void *state;          /* Free field for use by callback implementation. */
     size_t max_size;      /* Limit number of output bytes written (or use SIZE_MAX). */
     size_t bytes_written; /* Number of bytes written so far. */
-
+    
 #ifndef PB_NO_ERRMSG
     const char *errmsg;
 #endif
@@ -105,7 +105,7 @@ pb_ostream_t pb_ostream_from_buffer(pb_byte_t *buf, size_t bufsize);
 
 /* Pseudo-stream for measuring the size of a message without actually storing
  * the encoded data.
- *
+ * 
  * Example usage:
  *    MyMessage msg = {};
  *    pb_ostream_t stream = PB_OSTREAM_SIZING;
@@ -132,7 +132,7 @@ bool pb_write(pb_ostream_t *stream, const pb_byte_t *buf, size_t count);
  * structure. Call this from the callback before writing out field contents. */
 bool pb_encode_tag_for_field(pb_ostream_t *stream, const pb_field_iter_t *field);
 
-/* Encode field header by manually specifing wire type. You need to use this
+/* Encode field header by manually specifying wire type. You need to use this
  * if you want to write out packed arrays from a callback field. */
 bool pb_encode_tag(pb_ostream_t *stream, pb_wire_type_t wiretype, uint32_t field_number);
 

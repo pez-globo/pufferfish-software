@@ -62,7 +62,7 @@ bool Synchronizers::connected() const {
 }
 
 void Synchronizers::update_list_senders() {
-  const ExpectedLogEvent &event = store_.expected_log_event();
+  const Application::ExpectedLogEvent &event = store_.expected_log_event();
   if (log_events_sender_.input(event.id, event.session_id) !=
       Protocols::Application::ListInputStatus::ok) {
     // TODO(lietk12): handle warning case

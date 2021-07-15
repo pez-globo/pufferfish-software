@@ -11,6 +11,8 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+using Application::SensorMeasurements;
+
 class SensorMeasurementsSmoothers {
  public:
   using SmoothingParameters = Protocols::Application::DisplaySmoother::SmoothingParameters;

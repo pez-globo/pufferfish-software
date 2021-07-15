@@ -16,6 +16,8 @@
 
 namespace Pufferfish::Driver::BreathingCircuit {
 
+using Application::LogEventCode;
+
 static constexpr auto alarm_codes = Util::Containers::make_array<LogEventCode>(
     LogEventCode::LogEventCode_sfm3019_air_disconnected,
     LogEventCode::LogEventCode_sfm3019_o2_disconnected);

@@ -1,0 +1,20 @@
+Scenario: Endian function read_bigend works correctly
+  GIVEN('Endian: function read_bigend')
+  WHEN('The function is called with the buffer [0x01, 0x0f] as input data and a uint16_t result as the output parameter')
+     THEN('The function sets the result output parameter to 0x010f")
+
+  GIVEN('Endian: function read_bigend')
+  WHEN('The function is called with the buffer [0x00, 0x05, 0x0f, 0x07] as input data and a uint32_t result as the output parameter')
+     THEN("The function sets the result output parameter to 0x50f07")
+
+  GIVEN('Endian: function read_bigend')
+  WHEN('The function is called with the buffer [0x02, 0x08, 0x00 , 0x0d, 0x0e, 0x03 , 0x0c, 0x00] as input data and a uint64_t result as the output parameter') 
+     THEN('The function sets the result output parameter to 0x208000d0e030c00')
+
+
+Scenario: Endian function write_hton works correctly
+  WHEN('the function is called with the buffer 0x080 as an input data and uint16_t as output') 
+    THEN('The function sets the result output parameter to 0x0308')   
+
+   WHEN('the function is called with the buffer 0x03020703 as an input data and uint16_t as output')  
+     THEN('The function sets the result output parameter to 0x03070203')
