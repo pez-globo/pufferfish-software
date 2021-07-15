@@ -46,6 +46,7 @@
 #include "Pufferfish/Driver/Button/Button.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
 #include "Pufferfish/Driver/I2C/HoneywellABP/Device.h"
+#include "Pufferfish/Driver/I2C/HoneywellABP/Sensor.h"
 #include "Pufferfish/Driver/I2C/LTC4015/Sensor.h"
 #include "Pufferfish/Driver/I2C/SDP.h"
 #include "Pufferfish/Driver/I2C/SFM3000.h"
@@ -317,6 +318,7 @@ PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 // HoneyWell ABP
 PF::Driver::I2C::HoneywellABP::Device abp_dev(
     i2c_hal_abp, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3);
+PF::Driver::I2C::HoneywellABP::Sensor abp(abp_dev);
 
 // SFM3019
 
@@ -344,7 +346,7 @@ PF::Driver::Power::Simulator power_simulator;
 
 // Initializables
 auto initializables =
-    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015);
+    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015, abp);
 
 /*
 // Test list
@@ -618,6 +620,7 @@ int main(void)
   // Normal loop
   while (true) {
     uint32_t current_time = hal_time.millis();
+    float abp_pressure = 0;
 
     // Software PWM signals
     flasher.input(hal_time.millis());
@@ -645,6 +648,8 @@ int main(void)
     // Independent Sensors
     fdo2.output(hfnc.sensor_vars().po2);
     nonin_oem.output(store.sensor_measurements_raw().spo2, store.sensor_measurements_raw().hr);
+    // *temporary* should be used in the breathing circuit
+    abp.output(abp_pressure);
 
     // Breathing Circuit Sensor Simulator
     simulator.transform(

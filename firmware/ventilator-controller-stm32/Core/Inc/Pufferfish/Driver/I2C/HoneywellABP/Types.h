@@ -7,10 +7,7 @@
 
 #include <cstdint>
 
-namespace Pufferfish {
-namespace Driver {
-namespace I2C {
-namespace HoneywellABP {
+namespace Pufferfish::Driver::I2C::HoneywellABP {
 
 /**
  * A unit of pressure read from sensors
@@ -52,7 +49,4 @@ static const ABPConfig abpxxxx001pg2a3 = {0x28, 0.0, 1.0, PressureUnit::psi};
 static const ABPConfig abpxxxx005pg2a3 = {0x28, 0.0, 5.0, PressureUnit::psi};
 static const ABPConfig abpxxxx030pg2a3 = {0x28, 0.0, 30.0, PressureUnit::psi};
 
-}  // namespace HoneywellABP
-}  // namespace I2C
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::I2C::HoneywellABP

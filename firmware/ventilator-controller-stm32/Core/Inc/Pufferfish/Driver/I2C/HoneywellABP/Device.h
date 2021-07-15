@@ -13,10 +13,7 @@
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 #include "Types.h"
 
-namespace Pufferfish {
-namespace Driver {
-namespace I2C {
-namespace HoneywellABP {
+namespace Pufferfish::Driver::I2C::HoneywellABP {
 
 /**
  * Driver for Honeywell ABP pressure sensor
@@ -54,7 +51,4 @@ class Device : public Testable {
   static const size_t bridge_low = 0;
 };
 
-}  // namespace HoneywellABP
-}  // namespace I2C
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::I2C::HoneywellABP
