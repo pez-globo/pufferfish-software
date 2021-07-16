@@ -7,7 +7,7 @@ import React, { RefObject, useCallback, useEffect, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { getAlarmLimitsRequest } from '../../store/controller/selectors';
-import { Range, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
+import { Range, AlarmLimitsRequest } from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
 import ModalPopup from './ModalPopup';
 import ValueClicker from './ValueClicker';

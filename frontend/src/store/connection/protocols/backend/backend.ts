@@ -1,7 +1,9 @@
 import { SelectEffect, PutEffect, CallEffect, put, delay, select } from 'redux-saga/effects';
-import { AppAction } from '../../../app/types';
-import { updateState } from '../../actions';
-import { StateUpdateAction } from '../../types';
+import { updateState } from '../../../controller/actions';
+import { StateUpdateAction } from '../../../controller/types';
+import { ConnectionAction } from '../../types';
+import { establishedBackendConnection, lostBackendConnection } from '../../actions';
+import { getBackendConnected } from '../../selectors';
 import { GeneratorYieldType, GeneratorYield, makeYieldResult, makeYieldEffect } from '../sagas';
 import { serialize, deserialize } from './transport';
 import {
@@ -12,9 +14,6 @@ import {
   backendStateSender,
   sendMinInterval,
 } from './states';
-import { ConnectionAction } from '../../../connection/types';
-import { establishedBackendConnection, lostBackendConnection } from '../../../connection/actions';
-import { getBackendConnected } from '../../../connection/selectors';
 
 // Buffer Receiving
 
@@ -35,11 +34,7 @@ export function* handleConnectionTimeout(): Generator<
 
 export function* receive(
   body: Uint8Array,
-): Generator<
-  PutEffect<StateUpdateAction | AppAction | ConnectionAction> | SelectEffect,
-  void,
-  void | boolean
-> {
+): Generator<PutEffect<StateUpdateAction | ConnectionAction> | SelectEffect, void, void | boolean> {
   try {
     const results = deserialize(body);
     const backendConnected = yield select(getBackendConnected);

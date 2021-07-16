@@ -1,7 +1,6 @@
 import { createSelector, OutputSelector } from 'reselect';
 import DECIMAL_RADIX from '../../modules/app/AppConstants';
 import { getBackendConnected } from '../connection/selectors';
-import { StoreState } from '../types';
 import {
   AlarmLimits,
   AlarmLimitsRequest,
@@ -18,12 +17,13 @@ import {
   Range,
   MCUPowerStatus,
   LogEventCode,
-} from './proto/mcu_pb';
+} from '../proto/mcu_pb';
 import {
   BackendConnections,
   FrontendDisplaySetting,
   SystemSettingRequest,
-} from './proto/frontend_pb';
+} from '../proto/frontend_pb';
+import { StoreState } from '../types';
 import {
   Measurements,
   ParametersRequestResponse,

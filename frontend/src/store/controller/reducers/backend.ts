@@ -5,8 +5,8 @@ import {
   ActiveLogEvents,
   LogEventCode,
   LogEventType,
-} from '../proto/mcu_pb';
-import { RotaryEncoder } from '../proto/frontend_pb';
+} from '../../proto/mcu_pb';
+import { RotaryEncoder } from '../../proto/frontend_pb';
 import {
   MessageType,
   PBMessage,

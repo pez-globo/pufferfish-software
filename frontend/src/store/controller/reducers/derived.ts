@@ -1,4 +1,4 @@
-import { SensorMeasurements } from '../proto/mcu_pb';
+import { SensorMeasurements } from '../../proto/mcu_pb';
 import {
   MessageType,
   PBMessage,

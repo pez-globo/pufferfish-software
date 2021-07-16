@@ -9,8 +9,8 @@ import {
   SenderYieldResult,
   SenderYield,
 } from './protocols/backend/backend';
-import { establishedBackendConnection, lostBackendConnection } from '../connection/actions';
-import { getBackendConnected } from '../connection/selectors';
+import { establishedBackendConnection, lostBackendConnection } from './actions';
+import { getBackendConnected } from './selectors';
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
 
 function* receiveAll(channel: EventChannel<Response>) {
@@ -68,7 +68,7 @@ function* serviceConnection() {
 
 const retryConnectInterval = 100; // ms
 
-export function* serviceConnectionPersistently(): IterableIterator<unknown> {
+function* serviceConnectionPersistently(): IterableIterator<unknown> {
   while (true) {
     yield serviceConnection();
     console.warn('Reestablishing WebSocket connection...');
@@ -76,8 +76,8 @@ export function* serviceConnectionPersistently(): IterableIterator<unknown> {
   }
 }
 
-export function* controllerSaga(): IterableIterator<unknown> {
+function* connectionSaga(): IterableIterator<unknown> {
   yield all([yield takeEvery(INITIALIZED, serviceConnectionPersistently)]);
 }
 
-export default controllerSaga;
+export default connectionSaga;

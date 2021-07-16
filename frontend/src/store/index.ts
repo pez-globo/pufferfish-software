@@ -3,9 +3,9 @@ import createSagaMiddleware from 'redux-saga';
 import { composeWithDevTools } from 'redux-devtools-extension';
 
 import { appReducer } from './app/reducers';
-import { controllerReducer } from './controller/reducers';
-import { controllerSaga } from './controller/saga';
+import connectionSaga from './connection/saga';
 import { connectionReducer } from './connection/reducers';
+import { controllerReducer } from './controller/reducers';
 
 const reducers = combineReducers({
   app: appReducer,
@@ -16,6 +16,6 @@ const reducers = combineReducers({
 const sagaMiddleware = createSagaMiddleware();
 const store = createStore(reducers, composeWithDevTools(applyMiddleware(sagaMiddleware)));
 
-sagaMiddleware.run(controllerSaga);
+sagaMiddleware.run(connectionSaga);
 
 export default store;

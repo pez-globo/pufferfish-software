@@ -8,7 +8,7 @@
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
-import { ParametersRequest } from '../../store/controller/proto/mcu_pb';
+import { ParametersRequest } from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { getCycleMeasurementsPIP, getParametersPIP } from '../../store/controller/selectors';

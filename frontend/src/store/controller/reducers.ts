@@ -10,12 +10,12 @@ import {
   AlarmMuteRequest,
   MCUPowerStatus,
   ScreenStatus,
-} from './proto/mcu_pb';
+} from '../proto/mcu_pb';
 import {
   BackendConnections,
   SystemSettingRequest,
   FrontendDisplaySetting,
-} from './proto/frontend_pb';
+} from '../proto/frontend_pb';
 import {
   messageReducer,
   requestReducer,

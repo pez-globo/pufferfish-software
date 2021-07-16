@@ -6,7 +6,7 @@ import { Grid, makeStyles } from '@material-ui/core';
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { VentilationMode } from '../../store/controller/proto/mcu_pb';
+import { VentilationMode } from '../../store/proto/mcu_pb';
 import {
   getParametersIsVentilating,
   getParametersRequestMode,

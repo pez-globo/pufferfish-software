@@ -13,7 +13,7 @@ import { ALARMS_ROUTE, SCREENSAVER_ROUTE } from '../../navigation/constants';
 import SidebarClickable from '../SidebarClickable';
 import OverlayScreen from '../OverlayScreen';
 import { getAlarmNotifyStatus } from '../../../store/app/selectors';
-import { Range, AlarmLimitsRequest } from '../../../store/controller/proto/mcu_pb';
+import { Range, AlarmLimitsRequest } from '../../../store/proto/mcu_pb';
 import {
   getAlarmLimitsRequest,
   getAlarmLimitsRequestUnsaved,

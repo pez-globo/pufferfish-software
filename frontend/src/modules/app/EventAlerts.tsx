@@ -23,7 +23,7 @@ import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
 import { commitRequest } from '../../store/controller/actions';
-import { AlarmMuteRequest } from '../../store/controller/proto/mcu_pb';
+import { AlarmMuteRequest } from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
 import { getEventType } from '../logs/EventType';
 import { getBackendConnected } from '../../store/connection/selectors';

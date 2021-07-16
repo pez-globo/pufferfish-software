@@ -16,7 +16,7 @@ import {
   VentilationMode,
   AlarmLimitsRequest,
   Range,
-} from '../../store/controller/proto/mcu_pb';
+} from '../../store/proto/mcu_pb';
 import {
   getBatteryPowerLeft,
   getChargingStatus,

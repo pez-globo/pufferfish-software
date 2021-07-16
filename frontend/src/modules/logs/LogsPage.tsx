@@ -7,7 +7,7 @@ import { Button, Grid, TableCell, TableRow, Typography } from '@material-ui/core
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
-import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
+import { LogEvent, LogEventType } from '../../store/proto/mcu_pb';
 import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
 import { setMultiPopupOpen } from '../app/Service';
 import { AlarmModal } from '../controllers';

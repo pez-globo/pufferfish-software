@@ -2,7 +2,7 @@
  * @summary Components for Event Type & Event Alarm Details
  *
  */
-import { LogEvent, LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
+import { LogEvent, LogEventCode, LogEventType } from '../../store/proto/mcu_pb';
 import { PERCENT } from '../info/units';
 import { eventDetailsMap, EventTypeMap } from './constants';
 

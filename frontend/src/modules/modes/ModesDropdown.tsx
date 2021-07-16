@@ -9,7 +9,7 @@ import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import FiberManualRecord from '@material-ui/icons/FiberManualRecord';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { VentilationMode, ParametersRequest } from '../../store/controller/proto/mcu_pb';
+import { VentilationMode, ParametersRequest } from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
 import { commitRequest } from '../../store/controller/actions';
 import { getParametersRequestMode } from '../../store/controller/selectors';

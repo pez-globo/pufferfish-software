@@ -10,7 +10,7 @@ import Pagination from '@material-ui/lab/Pagination';
 import React, { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
-import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
+import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/proto/mcu_pb';
 import {
   getAlarmLimitsRequest,
   getAlarmLimitsRequestDraft,
