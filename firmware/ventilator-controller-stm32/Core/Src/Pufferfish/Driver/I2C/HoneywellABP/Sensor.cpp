@@ -58,6 +58,12 @@ InitializableState Sensor::initialize() {
     if (retry_count_ > max_retries_setup) {
       return InitializableState::failed;
     }
+    if (sample_.status != ABPStatus::no_error && sample_.status != ABPStatus::stale_data) {
+      return InitializableState::failed;
+    }
+    if (Util::within(sample_.pressure, p_min, p_max)) {
+      return InitializableState::failed;
+    }
   }
 
   next_action_ = fsm_.update();
@@ -73,7 +79,7 @@ InitializableState Sensor::measure(float &output) {
     if (sample_.status != ABPStatus::no_error && sample_.status != ABPStatus::stale_data) {
       return InitializableState::failed;
     }
-    if (Util::within(sample_.pressure, pmin, pmax)) {
+    if (Util::within(sample_.pressure, p_min, p_max)) {
       return InitializableState::failed;
     }
     return InitializableState::ok;

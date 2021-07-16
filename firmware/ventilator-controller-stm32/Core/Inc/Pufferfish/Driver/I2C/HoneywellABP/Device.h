@@ -35,15 +35,13 @@ class Device {
   Pufferfish::HAL::Interfaces::I2CDevice &dev_;
 
   static const uint8_t status_shift = 6;
-  static const size_t bridge_high = 0;
-  static const size_t bridge_low = 0;
+  // sensor 14-bit output range
+  static const uint16_t output_min = 0x0666;  // 10% of 2^14
+  static const uint16_t output_max = 0x399A;  // 90% of 2^14
 
   // pressure range (refer to datasheet)
   const float pmin;  // minimum pressure
   const float pmax;  // maximum pressure
-  // sensor 14-bit output range
-  const uint16_t output_min = 0x0666;  // 10% of 2^14
-  const uint16_t output_max = 0x399A;  // 90% of 2^14
   const PressureUnit unit;
 };
 

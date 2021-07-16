@@ -42,8 +42,8 @@ class Sensor : public Initializable {
   static const size_t max_retries_setup = 8;    // max retries for setup
   static const size_t max_retries_measure = 8;  // max retries for measuring
 
-  const float pmin = 0.0;  // minimum pressure for abpxxxx001pg2a3
-  const float pmax = 1.0;  // maximum pressure for abpxxxx001pg2a3
+  const float p_min = 0.0;  // psi; minimum pressure for abpxxxx001pg2a3
+  const float p_max = 1.0;  // psi; maximum pressure for abpxxxx001pg2a3
 
   size_t retry_count_ = 0;
   Device device_;
