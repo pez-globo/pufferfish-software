@@ -484,13 +484,13 @@ const MultiStepWizard = (): JSX.Element => {
    *
    * Updates the new alarm range values into internalState `Data` object
    */
-  const handleAlarmLimitsRequest = (range: Range) => {
+  const handleAlarmLimitsRequest = (min: number, max: number) => {
     if (parameter) {
       const param = internalState.find(
         (param: InternalState) => param.stateKey === parameter.stateKey,
       );
-      if (param) param.alarmLimitsDraft = range;
-      parameter.alarmLimitsDraft = range;
+      if (param) param.alarmLimitsDraft = { lower: min, upper: max };
+      parameter.alarmLimitsDraft = { lower: min, upper: max };
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
       } else {
@@ -523,7 +523,7 @@ const MultiStepWizard = (): JSX.Element => {
    * @return {number} - Draft Parameter value
    *
    */
-  const getParamDraft = (stateKey: string) => {
+  const getParamDraft = (stateKey: string): number => {
     const param = internalState.find((param: InternalState) => param.stateKey === stateKey);
     if (param && param.paramDraft) {
       return param.paramDraft as number;
@@ -538,7 +538,7 @@ const MultiStepWizard = (): JSX.Element => {
    * @return {boolean} - true if change is there; false if there are no changes
    *
    */
-  const isAnyChanges = () => {
+  const isAnyChanges = (): boolean => {
     let anyChange = false;
     internalState.forEach((param: InternalState) => {
       if (param.isParamEnabled) {

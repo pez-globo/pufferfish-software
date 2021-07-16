@@ -4,8 +4,9 @@
  */
 import { Button, Grid, makeStyles, Theme, Typography, useTheme } from '@material-ui/core';
 import React, { RefObject, useCallback, useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
+import { getAlarmLimitsRequest } from '../../store/controller/selectors';
 import { Range, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
 import { MessageType } from '../../store/controller/types';
 import ModalPopup from '../modals/ModalPopup';
@@ -91,7 +92,7 @@ interface Props {
   disableAlarmButton?: boolean;
   updateModalStatus?(status: boolean): void;
   onModalClose?(status: boolean): void;
-  requestCommitRange(range: Range | null): void;
+  requestCommitRange(min: number, max: number): void;
   stateKey: string;
   step?: number;
   openModal?: boolean;
@@ -141,11 +142,16 @@ export const AlarmModal = ({
    * State to initalize Upper Set value
    */
   const [max] = React.useState(committedMax);
-  const { lower, upper } =
-    alarmRangeValues === null
-      ? Range.fromJSON({ lower: NaN, upper: NaN })
-      : { lower: alarmRangeValues.lower, upper: alarmRangeValues.upper };
-  const [rangeValue, setRangeValue] = React.useState<number[]>([lower, upper]);
+  const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual);
+  const range =
+    alarmLimits === null
+      ? undefined
+      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
+  const { lower, upper } = range === undefined ? Range.fromJSON({ lower: NaN, upper: NaN }) : range;
+  const [rangeValue, setRangeValue] = React.useState<number[]>([
+    alarmRangeValues && alarmRangeValues.lower !== 0 ? alarmRangeValues.lower : lower,
+    alarmRangeValues && alarmRangeValues.upper !== 0 ? alarmRangeValues.upper : upper,
+  ]);
   /**
    * State to provide reference HTML element for Lower/Upper Wrapper
    * Its used in highlighting the HTML Element while using rotary encoder
@@ -210,11 +216,14 @@ export const AlarmModal = ({
    */
   const handleConfirm = () => {
     const update = {
-      [stateKey]: rangeValue,
+      [stateKey]: {
+        lower: rangeValue[0],
+        upper: rangeValue[1],
+      },
     };
     dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
     dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
-    requestCommitRange({ lower: rangeValue[0], upper: rangeValue[1] });
+    requestCommitRange(rangeValue[0], rangeValue[1]);
     handleClose();
   };
 
@@ -222,7 +231,7 @@ export const AlarmModal = ({
    * Triggers whenever rangeValue is updated in redux
    */
   useEffect(() => {
-    requestCommitRange({ lower: rangeValue[0], upper: rangeValue[1] });
+    requestCommitRange(rangeValue[0], rangeValue[1]);
   }, [requestCommitRange, rangeValue]);
 
   /**

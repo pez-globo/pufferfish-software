@@ -168,7 +168,7 @@ export interface Props {
   selector: SelectorType;
   label: string;
   stateKey: string;
-  alarmLimits?: Range | null;
+  alarmLimits?: Range;
   units?: string;
   isLarge?: boolean;
   isMain?: boolean;
@@ -240,11 +240,8 @@ const ControlValuesDisplay = ({
     alarmLimitsRequest === null
       ? undefined
       : ((alarmLimitsRequest as unknown) as Record<string, Range>)[stateKey];
-  const rangeValues = range === undefined ? { lower: '--', upper: '--' } : range;
-  const { lower, upper } =
-    alarmLimits && alarmLimits?.upper === 0
-      ? rangeValues
-      : { lower: alarmLimits?.lower, upper: alarmLimits?.upper };
+  const rangeValues = range === undefined ? Range.fromJSON({ lower: '--', upper: '--' }) : range;
+  const { lower, upper } = alarmLimits === undefined ? rangeValues : alarmLimits;
 
   /**
    * Opens Multistep Popup on Clicking over component
