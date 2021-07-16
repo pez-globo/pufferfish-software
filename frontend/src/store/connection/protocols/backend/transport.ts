@@ -5,7 +5,7 @@ import {
   AlarmMuteRequest,
 } from '../../../proto/mcu_pb';
 import { FrontendDisplaySetting } from '../../../proto/frontend_pb';
-import { MessageType, PBMessage, MessageClass, MessageTypes } from '../../../controller/types';
+import { MessageType, PBMessage, MessageClass, MessageTypes } from '../../../proto/types';
 import {
   MessageSerializer,
   makeMessageSerializer,

@@ -17,7 +17,7 @@ import {
   getParametersRequestDraftRR,
   getParametersRequestDraftVT,
 } from '../../store/controller/selectors';
-import { MessageType } from '../../store/controller/types';
+import { MessageType } from '../../store/proto/types';
 import { setActiveRotaryReference } from '../app/Service';
 import ValueClicker from '../controllers/ValueController';
 import ModeBanner from '../displays/ModeBanner';

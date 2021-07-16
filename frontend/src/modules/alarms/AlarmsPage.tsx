@@ -19,7 +19,7 @@ import {
   getParametersIsVentilating,
   getParametersRequestMode,
 } from '../../store/controller/selectors';
-import { MessageType } from '../../store/controller/types';
+import { MessageType } from '../../store/proto/types';
 import { setActiveRotaryReference } from '../app/Service';
 import { DiscardAlarmLimitsContent, ValueClicker } from '../controllers';
 import ModalPopup from '../controllers/ModalPopup';

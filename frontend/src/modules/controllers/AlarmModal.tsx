@@ -8,7 +8,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { getAlarmLimitsRequest } from '../../store/controller/selectors';
 import { Range, AlarmLimitsRequest } from '../../store/proto/mcu_pb';
-import { MessageType } from '../../store/controller/types';
+import { MessageType } from '../../store/proto/types';
 import ModalPopup from './ModalPopup';
 import ValueClicker from './ValueClicker';
 import ValueSlider from './ValueSlider';

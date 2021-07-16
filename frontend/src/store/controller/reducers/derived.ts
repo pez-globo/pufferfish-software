@@ -1,12 +1,8 @@
 import { SensorMeasurements } from '../../proto/mcu_pb';
-import {
-  MessageType,
-  PBMessage,
-  StateUpdateAction,
-  STATE_UPDATED,
-  WaveformHistory,
-  PVHistory,
-} from '../types';
+import { MessageType, PBMessage } from '../../proto/types';
+import { StateUpdateAction, STATE_UPDATED, WaveformHistory, PVHistory } from '../types';
+
+// TODO: move these reducers into store/plots/reducers.ts
 
 export const waveformHistoryReducer = <T extends PBMessage>(
   messageType: MessageType,

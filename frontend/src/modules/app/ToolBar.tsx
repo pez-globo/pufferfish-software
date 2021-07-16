@@ -30,7 +30,7 @@ import {
   getVentilatingStatusChanging,
   getFirmwareConnected,
 } from '../../store/controller/selectors';
-import { MessageType } from '../../store/controller/types';
+import { MessageType } from '../../store/proto/types';
 import { DiscardAlarmLimitsContent } from '../controllers';
 import { ModalPopup } from '../controllers/ModalPopup';
 import ViewDropdown from '../dashboard/views/ViewDropdown';

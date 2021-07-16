@@ -1,6 +1,5 @@
+import { MessageType, PBMessage } from '../proto/types';
 import {
-  MessageType,
-  PBMessage,
   StateUpdateAction,
   STATE_UPDATED,
   CommitAction,
@@ -10,6 +9,8 @@ import {
 
 // TODO: rename this to receiveMessage, and make SidebarClickable.tsx and OverlayScreen not use it.
 // Instead, they should commit values to requests.
+// TODO: updateState action creator should be located in store/connection, since that should be the
+// only thing to dispatch it
 export const updateState = (messageType: MessageType, state: PBMessage): StateUpdateAction => ({
   type: STATE_UPDATED,
   messageType,

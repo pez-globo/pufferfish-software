@@ -16,6 +16,7 @@ import {
   SystemSettingRequest,
   FrontendDisplaySetting,
 } from '../proto/frontend_pb';
+import { MessageType } from '../proto/types';
 import {
   messageReducer,
   requestReducer,
@@ -23,7 +24,7 @@ import {
   rotaryEncoderReducer,
 } from './reducers/backend';
 import { waveformHistoryReducer, pvHistoryReducer } from './reducers/derived';
-import { MessageType, REQUEST_COMMITTED, DRAFT_REQUEST_COMMITTED } from './types';
+import { REQUEST_COMMITTED, DRAFT_REQUEST_COMMITTED } from './types';
 
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb
@@ -68,6 +69,7 @@ export const controllerReducer = combineReducers({
   ),
 
   // Derived states
+  // TODO: move plots into a separate top-level slice of the store
   plots: combineReducers({
     waveforms: combineReducers({
       paw: waveformHistoryReducer<SensorMeasurements>(

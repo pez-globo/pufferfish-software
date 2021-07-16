@@ -24,7 +24,7 @@ import ValueInfo from '../dashboard/components/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../info/units';
 import { AlarmModal } from '../controllers';
 import { ParametersRequest, AlarmLimitsRequest } from '../../store/proto/mcu_pb';
-import { MessageType } from '../../store/controller/types';
+import { MessageType } from '../../store/proto/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import store from '../../store';
 

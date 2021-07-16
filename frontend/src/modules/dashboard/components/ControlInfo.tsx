@@ -7,7 +7,7 @@ import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ParametersRequest } from '../../../store/proto/mcu_pb';
-import { MessageType } from '../../../store/controller/types';
+import { MessageType } from '../../../store/proto/types';
 import { commitRequest, commitDraftRequest } from '../../../store/controller/actions';
 import { setMultiPopupOpen } from '../../app/Service';
 import { ValueModal } from '../../controllers';

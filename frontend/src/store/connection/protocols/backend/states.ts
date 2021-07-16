@@ -1,7 +1,7 @@
 import { OutputSelector } from 'reselect';
 import { SelectEffect, select } from 'redux-saga/effects';
 import { StoreState } from '../../../types';
-import { PBMessage, MessageType } from '../../../controller/types';
+import { PBMessage, MessageType } from '../../../proto/types';
 import {
   getParametersRequest,
   getAlarmLimitsRequest,

@@ -19,7 +19,7 @@ import {
   getAlarmLimitsRequestUnsaved,
 } from '../../../store/controller/selectors';
 import { ModalPopup } from '../../controllers/ModalPopup';
-import { MessageType } from '../../../store/controller/types';
+import { MessageType } from '../../../store/proto/types';
 import { commitDraftRequest } from '../../../store/controller/actions';
 import { DiscardAlarmLimitsContent } from '../../controllers';
 
