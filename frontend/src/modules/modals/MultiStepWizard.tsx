@@ -68,16 +68,16 @@ interface InternalState {
 }
 
 /**
- * @typedef HFNCProps
+ * @typedef HFNCControlProps
  *
  * Interface for HFNCProps
  *
- * @prop {alarmLimitsDraftSpO2} Unsaved(draft) alarm Limits for SpO2
- * @prop {alarmLimitsDraftHR} Unsaved(draft) alarm Limits for SpO2
- * @prop {alarmLimitsDraftFiO2} Unsaved(draft) alarm Limits for SpO2
- * @prop {alarmLimitsDraftFlow} Unsaved(draft) alarm Limits for SpO2
+ * @prop {alarmLimitsDraftSpO2} Draft alarm Limits for SpO2
+ * @prop {alarmLimitsDraftHR}   Draft alarm Limits for HR
+ * @prop {alarmLimitsDraftFiO2} Draft alarm Limits for FiO2
+ * @prop {alarmLimitsDraftFlow} Draft alarm Limits for Flow
  */
-interface HFNCProps {
+interface HFNCControlProps {
   alarmLimitsDraftSpO2: Range;
   alarmLimitsDraftHR: Range;
   alarmLimitsDraftFiO2: Range;
@@ -159,7 +159,7 @@ const HFNCControls = ({
   alarmLimitsDraftHR,
   alarmLimitsDraftFiO2,
   alarmLimitsDraftFlow,
-}: HFNCProps): JSX.Element => {
+}: HFNCControlProps): JSX.Element => {
   return (
     <React.Fragment>
       <Grid
@@ -224,7 +224,7 @@ const HFNCControls = ({
  * @param {number | null} alarmLimitMin Alarm limit Minimum Range value
  * @param {number | null} alarmLimitMax Alarm limit Maximum Range value
  *
- * @returns {Data} - returns the `Data` value
+ * @returns {InternalState} - returns the `InternalState` value
  */
 const createInternalState = (
   label: string,
@@ -256,16 +256,6 @@ const createInternalState = (
     paramCurrent: committedSetting as number,
   };
 };
-
-/**
- * Function to frame `Data` object based on `stateKey` provided
- *
- * TODO: Make a constant file for stateKey Constants
- *
- * @param {string} stateKey - Unique identifier for the value
- *
- * @returns {Data | undefined} - `Data` object containing configurations
- */
 
 /**
  * MultiStepWizard
@@ -314,18 +304,42 @@ const MultiStepWizard = (): JSX.Element => {
    */
   const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);
 
-  const alarmLimitsSpO2 = useSelector(getSpO2AlarmLimitsRequest, shallowEqual);
-  const alarmLimitsHR = useSelector(getHRAlarmLimitsRequest, shallowEqual);
+  const alarmLimitsRequestSpO2 = useSelector(getSpO2AlarmLimitsRequest, shallowEqual);
+  const alarmLimitsRequestHR = useSelector(getHRAlarmLimitsRequest, shallowEqual);
   const parametersFiO2 = useSelector(getParametersFiO2);
   const parametersFlow = useSelector(getParametersFlow);
 
+  /**
+   * Function to frame `InternalState` object based on `stateKey` provided
+   *
+   * TODO: Make a constant file for stateKey Constants
+   *
+   * @param {string} stateKey - Unique identifier for the value
+   *
+   * @returns {InternalState | undefined} - `InternalState` object containing configurations
+   */
   const determineInput = useCallback(
     (state: string) => {
       const stateMap = new Map<string, InternalState>([
-        ['spo2', createInternalState('SpO2', 'spo2', PERCENT, false, true, alarmLimitsSpO2, -1)],
+        [
+          'spo2',
+          createInternalState('SpO2', 'spo2', PERCENT, false, true, alarmLimitsRequestSpO2, -1),
+        ],
         [
           'hr',
-          createInternalState('HR', 'hr', BPM, false, true, alarmLimitsHR, -1, null, null, 0, 200),
+          createInternalState(
+            'HR',
+            'hr',
+            BPM,
+            false,
+            true,
+            alarmLimitsRequestHR,
+            -1,
+            null,
+            null,
+            0,
+            200,
+          ),
         ],
         [
           'fio2',
@@ -352,7 +366,7 @@ const MultiStepWizard = (): JSX.Element => {
       }
       return stateInput;
     },
-    [alarmLimitsHR, alarmLimitsSpO2, parametersFiO2, parametersFlow],
+    [alarmLimitsRequestHR, alarmLimitsRequestSpO2, parametersFiO2, parametersFlow],
   );
 
   /**
@@ -438,11 +452,11 @@ const MultiStepWizard = (): JSX.Element => {
   }, [parameter, internalState]);
 
   /**
-   * Callback on whenever Set Value of parameter changes
+   * Callback on whenever Draft Value of parameter changes
    *
-   * @param {number} setting - Updated value of parameter
+   * @param {number} setting - Updated Draft value of parameter
    *
-   * Updates the new Set value into internalState `Data` object
+   * Updates the new Draft value into internalState `InternalState` object
    */
   const handleParamDraftRequest = (setting: number) => {
     if (parameter) {
@@ -464,10 +478,9 @@ const MultiStepWizard = (): JSX.Element => {
   };
 
   /**
-   * Callback on whenever Alarm range value of parameter changes
+   * Callback on whenever Alarm Limits of parameter changes
    *
-   * @param {number} min - Updated lower limit for the alarm value
-   * @param {number} max - Updated upper limit for the alarm value
+   * @param {Range} range- Updated alarm limits range
    *
    * Updates the new alarm range values into internalState `Data` object
    */
@@ -487,11 +500,11 @@ const MultiStepWizard = (): JSX.Element => {
   };
 
   /**
-   * Function to get Alarm values from Parameter `Data` object
+   * Function to get Alarm Limits Draft from Parameter `InternalState` object
    *
-   * @param {string} stateKey - stateKey identifier for which parameter `Data` corresponds to
+   * @param {string} stateKey - stateKey identifier for which parameter `InternalState` corresponds to
    *
-   * @return {Array} - Current alarm range values
+   * @return {Range | null} - Current alarm Limits
    *
    */
   const getAlarmLimitsDraft = (stateKey: string): Range | null => {
@@ -503,11 +516,11 @@ const MultiStepWizard = (): JSX.Element => {
   };
 
   /**
-   * Function to get Set values from Parameter `Data` object
+   * Function to get Draft Parameter Values from `InternalState` object
    *
-   * @param {string} stateKey - stateKey identifier for which parameter `Data` corresponds to
+   * @param {string} stateKey - stateKey identifier for which parameter `InternalState` corresponds to
    *
-   * @return {number} - Current Set Value
+   * @return {number} - Draft Parameter value
    *
    */
   const getParamDraft = (stateKey: string) => {
@@ -685,8 +698,8 @@ const MultiStepWizard = (): JSX.Element => {
           <Grid container className={classes.tabAligning}>
             <TabPanel value={tabIndex} index={0}>
               <HFNCControls
-                alarmLimitsDraftSpO2={getAlarmLimitsDraft('spo2') || alarmLimitsSpO2}
-                alarmLimitsDraftHR={getAlarmLimitsDraft('hr') || alarmLimitsHR}
+                alarmLimitsDraftSpO2={getAlarmLimitsDraft('spo2') || alarmLimitsRequestSpO2}
+                alarmLimitsDraftHR={getAlarmLimitsDraft('hr') || alarmLimitsRequestHR}
                 alarmLimitsDraftFiO2={
                   getAlarmLimitsDraft('fio2') || Range.fromJSON({ lower: 0, upper: 100 })
                 }
