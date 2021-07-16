@@ -7,6 +7,8 @@
 
 #include "Pufferfish/Driver/I2C/HoneywellABP/Sensor.h"
 
+#include "Pufferfish/Util/Ranges.h"
+
 namespace Pufferfish::Driver::I2C::HoneywellABP {
 
 // StateMachine
@@ -50,14 +52,6 @@ InitializableState Sensor::initialize() {
   }
 
   retry_count_ = 0;
-  // Test
-  while (device_.test() != I2CDeviceStatus::ok) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
-      return InitializableState::failed;
-    }
-  }
-
   // measure
   while (device_.read_sample(sample_) != I2CDeviceStatus::ok) {
     ++retry_count_;
@@ -76,6 +70,12 @@ InitializableState Sensor::measure(float &output) {
     retry_count_ = 0;  // reset retries to 0 for next measurement
     output = sample_.pressure;
     next_action_ = fsm_.update();
+    if (sample_.status != ABPStatus::no_error && sample_.status != ABPStatus::stale_data) {
+      return InitializableState::failed;
+    }
+    if (Util::within(sample_.pressure, pmin, pmax)) {
+      return InitializableState::failed;
+    }
     return InitializableState::ok;
   }
 

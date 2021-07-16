@@ -44,7 +44,8 @@ float Device::raw_to_pressure(uint16_t output) const {
   // integer subtraction
   static const int32_t output_width =
       static_cast<int32_t>(output_max) - static_cast<int32_t>(output_min);
-  const int32_t relative_output = static_cast<int32_t>(output_pressure) - static_cast<int32_t>(output_min);
+  const int32_t relative_output =
+      static_cast<int32_t>(output_pressure) - static_cast<int32_t>(output_min);
 
   return static_cast<float>(relative_output) * (pmax - pmin) / static_cast<float>(output_width) +
          pmin;

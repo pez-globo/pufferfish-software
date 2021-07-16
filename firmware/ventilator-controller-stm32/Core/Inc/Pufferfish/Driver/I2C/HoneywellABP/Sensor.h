@@ -37,15 +37,19 @@ class Sensor : public Initializable {
   InitializableState output(float &output);
 
  private:
+  using Action = StateMachine::Action;
+
   static const size_t max_retries_setup = 8;    // max retries for setup
   static const size_t max_retries_measure = 8;  // max retries for measuring
 
+  const float pmin = 0.0;  // minimum pressure for abpxxxx001pg2a3
+  const float pmax = 1.0;  // maximum pressure for abpxxxx001pg2a3
+
+  size_t retry_count_ = 0;
   Device device_;
   ABPSample sample_{};
-  using Action = StateMachine::Action;
   StateMachine fsm_;
   Action next_action_ = Action::initialize;
-  size_t retry_count_ = 0;
 
   InitializableState initialize();
   InitializableState measure(float &output);
