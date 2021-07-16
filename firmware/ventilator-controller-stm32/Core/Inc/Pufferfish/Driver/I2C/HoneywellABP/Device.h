@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include "Pufferfish/Driver/Testable.h"
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 #include "Types.h"
 
@@ -18,7 +17,7 @@ namespace Pufferfish::Driver::I2C::HoneywellABP {
 /**
  * Driver for Honeywell ABP pressure sensor
  */
-class Device : public Testable {
+class Device {
  public:
   Device(HAL::Interfaces::I2CDevice &dev, const ABPConfig &cfg)
       : dev_(dev), pmin(cfg.pmin), pmax(cfg.pmax), unit(cfg.unit) {}
@@ -32,23 +31,22 @@ class Device : public Testable {
    */
   I2CDeviceStatus read_sample(ABPSample &sample);
 
-  I2CDeviceStatus test() override;
   I2CDeviceStatus reset() override;
 
  private:
   Pufferfish::HAL::Interfaces::I2CDevice &dev_;
 
+  static const uint8_t status_shift = 6;
+  static const size_t bridge_high = 0;
+  static const size_t bridge_low = 0;
+
   // pressure range (refer to datasheet)
   const float pmin;  // minimum pressure
   const float pmax;  // maximum pressure
-
   // sensor 14-bit output range
   const uint16_t output_min = 0x0666;  // 10% of 2^14
   const uint16_t output_max = 0x399A;  // 90% of 2^14
   const PressureUnit unit;
-  static const uint8_t status_shift = 6;
-  static const size_t bridge_high = 0;
-  static const size_t bridge_low = 0;
 };
 
 }  // namespace Pufferfish::Driver::I2C::HoneywellABP

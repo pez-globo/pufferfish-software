@@ -38,37 +38,16 @@ I2CDeviceStatus Device::read_sample(ABPSample &sample) {
 }
 
 float Device::raw_to_pressure(uint16_t output) const {
-  Util::clamp<uint16_t>(output, output_min, output_max);
+  uint16_t output_pressure = Util::clamp<uint16_t>(output, output_min, output_max);
 
   // Since these variables are uint16_t, we promote them to int32_t for signed
   // integer subtraction
   static const int32_t output_width =
       static_cast<int32_t>(output_max) - static_cast<int32_t>(output_min);
-  const int32_t relative_output = static_cast<int32_t>(output) - static_cast<int32_t>(output_min);
+  const int32_t relative_output = static_cast<int32_t>(output_pressure) - static_cast<int32_t>(output_min);
 
   return static_cast<float>(relative_output) * (pmax - pmin) / static_cast<float>(output_width) +
          pmin;
-}
-
-I2CDeviceStatus Device::test() {
-  I2CDeviceStatus status;
-
-  ABPSample sample{};
-
-  status = this->read_sample(sample);
-  if (status != I2CDeviceStatus::ok) {
-    return status;
-  }
-
-  if (sample.status != ABPStatus::no_error && sample.status != ABPStatus::stale_data) {
-    return I2CDeviceStatus::test_failed;
-  }
-
-  if (sample.pressure < pmin || sample.pressure > pmax) {
-    return I2CDeviceStatus::test_failed;
-  }
-
-  return I2CDeviceStatus::ok;
 }
 
 I2CDeviceStatus Device::reset() {
