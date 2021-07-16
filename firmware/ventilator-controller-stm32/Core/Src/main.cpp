@@ -346,7 +346,7 @@ PF::Driver::Power::Simulator power_simulator;
 
 // Initializables
 auto initializables =
-    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015, abp);
+    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, abp, fdo2, nonin_oem, ltc4015);
 
 /*
 // Test list
@@ -620,7 +620,6 @@ int main(void)
   // Normal loop
   while (true) {
     uint32_t current_time = hal_time.millis();
-    float abp_pressure = 0;
 
     // Software PWM signals
     flasher.input(hal_time.millis());
@@ -649,7 +648,7 @@ int main(void)
     fdo2.output(hfnc.sensor_vars().po2);
     nonin_oem.output(store.sensor_measurements_raw().spo2, store.sensor_measurements_raw().hr);
     // *temporary* should be used in the breathing circuit
-    abp.output(abp_pressure);
+    abp.output(hfnc.sensor_vars().p_out);
 
     // Breathing Circuit Sensor Simulator
     simulator.transform(
