@@ -31,47 +31,57 @@ import { MessageType } from '../../store/controller/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 
 /**
- * @typedef Data
+ * @typedef InternalState
  *
- * Interface for Data
+ * Interface for InternalState
  *
  * @prop {string} stateKey Unique identifier for the value
  * @prop {string} label Label for the value
  * @prop {string} units Unit measurement of the value
- * @prop {boolean} isAlarmEnabled Config to set if value is Alarm type
- * @prop {boolean} isSetvalEnabled Config to set if value is Set type
+ * @prop {boolean} isAlarmLimitsEnabled Config to set if value is Alarm type
+ * @prop {boolean} isParamEnabled Config to set if value is Set type
  * @prop {number | null} committedSetting Current value
- * @prop {number[]} alarmValues Alarm range values
- * @prop {number} ValueDraft Set Value
+ * @prop {Range | null} alarmLimitsDraft Alarm range values
+ * @prop {number} paramDraft Set Value
  * @prop {number | null} minValue Minimum under which value cannot decrement
  * @prop {number | null} maxValue Maximum above which value cannot increment
  * @prop {number | null} alarmLimitMin Alarm limit Minimum Range value
  * @prop {number | null} alarmLimitMax Alarm limit Maximum Range value
- * @prop {number[]} alarmValuesActual Actual Alarm Value when Component was initalized
- * @prop {number} ValueCurrent Actual Set Value when Component was initalized
+ * @prop {Range | null} alarmLimitsCurrent Actual Alarm Value when Component was initalized
+ * @prop {number} paramCurrent Actual Set Value when Component was initalized
  */
 interface InternalState {
   stateKey: string;
   label: string;
   units: string;
-  isAlarmEnabled: boolean;
-  isSetvalEnabled: boolean;
+  isAlarmLimitsEnabled: boolean;
+  isParamEnabled: boolean;
   committedSetting?: number | null;
-  alarmValues: Range;
-  ValueDraft: number;
+  alarmLimitsDraft: Range | null;
+  paramDraft: number;
   minValue?: number | null;
   maxValue?: number | null;
   alarmLimitMin?: number | null;
   alarmLimitMax?: number | null;
-  alarmValuesActual: Range;
-  ValueCurrent: number;
+  alarmLimitsCurrent: Range | null;
+  paramCurrent: number;
 }
 
+/**
+ * @typedef HFNCProps
+ *
+ * Interface for HFNCProps
+ *
+ * @prop {alarmLimitsDraftSpO2} Unsaved(draft) alarm Limits for SpO2
+ * @prop {alarmLimitsDraftHR} Unsaved(draft) alarm Limits for SpO2
+ * @prop {alarmLimitsDraftFiO2} Unsaved(draft) alarm Limits for SpO2
+ * @prop {alarmLimitsDraftFlow} Unsaved(draft) alarm Limits for SpO2
+ */
 interface HFNCProps {
-  alarmValuesSpO2: Range;
-  alarmValuesHR: Range;
-  alarmValuesFiO2: Range;
-  alarmValuesFlow: Range;
+  alarmLimitsDraftSpO2: Range;
+  alarmLimitsDraftHR: Range;
+  alarmLimitsDraftFiO2: Range;
+  alarmLimitsDraftFlow: Range;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -145,10 +155,10 @@ const useStyles = makeStyles((theme: Theme) => ({
  * @returns {JSX.Element}
  */
 const HFNCControls = ({
-  alarmValuesSpO2,
-  alarmValuesHR,
-  alarmValuesFiO2,
-  alarmValuesFlow,
+  alarmLimitsDraftSpO2,
+  alarmLimitsDraftHR,
+  alarmLimitsDraftFiO2,
+  alarmLimitsDraftFlow,
 }: HFNCProps): JSX.Element => {
   return (
     <React.Fragment>
@@ -165,7 +175,7 @@ const HFNCControls = ({
           label="SpO2"
           stateKey="spo2"
           units={PERCENT}
-          alarmLimits={alarmValuesSpO2}
+          alarmLimits={alarmLimitsDraftSpO2}
           showLimits
         />
         <ValueInfo
@@ -173,7 +183,7 @@ const HFNCControls = ({
           label="HR"
           stateKey="hr"
           units={BPM}
-          alarmLimits={alarmValuesHR}
+          alarmLimits={alarmLimitsDraftHR}
           showLimits
         />
       </Grid>
@@ -183,7 +193,7 @@ const HFNCControls = ({
           label="FiO2"
           stateKey="fio2"
           units={PERCENT}
-          alarmLimits={alarmValuesFiO2}
+          alarmLimits={alarmLimitsDraftFiO2}
           showLimits
         />
         <ValueInfo
@@ -191,7 +201,7 @@ const HFNCControls = ({
           label="Flow"
           stateKey="flow"
           units={LMIN}
-          alarmLimits={alarmValuesFlow}
+          alarmLimits={alarmLimitsDraftFlow}
           showLimits
         />
       </Grid>
@@ -205,9 +215,9 @@ const HFNCControls = ({
  * @param {string} stateKey Unique identifier for the value
  * @param {string} label Label for the value
  * @param {string} units Unit measurement of the value
- * @param {boolean} isAlarmEnabled Config to set if value is Alarm type
- * @param {boolean} isSetvalEnabled Config to set if value is Set type
- * @param {number[]} alarmValuesActual - Current Alarm values from redux store
+ * @param {boolean} isAlarmLimitsEnabled Config to set if value is Alarm type
+ * @param {boolean} isParamEnabled Config to set if value is Set type
+ * @param {Range} alarmLimitsCurrent - Current Alarm values from redux store
  * @param {number | null} committedSetting - Actual Alarm Value when Component was initalized
  * @param {number | null} minValue Minimum under which value cannot decrement
  * @param {number | null} maxValue Maximum above which value cannot increment
@@ -220,9 +230,9 @@ const createInternalState = (
   label: string,
   stateKey: string,
   units: string,
-  isSetvalEnabled: boolean,
-  isAlarmEnabled: boolean,
-  alarmValuesActual: Range,
+  isParamEnabled: boolean,
+  isAlarmLimitsEnabled: boolean,
+  alarmLimitsCurrent: Range | null,
   committedSetting?: number | null,
   minValue?: number | null,
   maxValue?: number | null,
@@ -233,17 +243,17 @@ const createInternalState = (
     label,
     stateKey,
     units,
-    isSetvalEnabled,
-    isAlarmEnabled,
+    isParamEnabled,
+    isAlarmLimitsEnabled,
     committedSetting,
     minValue,
     maxValue,
     alarmLimitMin,
     alarmLimitMax,
-    alarmValues: alarmValuesActual,
-    alarmValuesActual,
-    ValueDraft: committedSetting as number,
-    ValueCurrent: committedSetting as number,
+    alarmLimitsDraft: alarmLimitsCurrent,
+    alarmLimitsCurrent,
+    paramDraft: committedSetting as number,
+    paramCurrent: committedSetting as number,
   };
 };
 
@@ -298,38 +308,28 @@ const MultiStepWizard = (): JSX.Element => {
   /**
    * State to manage all Parameter `Data`
    */
-  const [multiParams, setMultiParams] = React.useState<InternalState[]>([]);
+  const [internalState, setInternalState] = React.useState<InternalState[]>([]);
   /**
    * State to manage if button submitted is disabled
    */
   const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);
 
-  const alarmValuesSpO2 = useSelector(getSpO2AlarmLimitsRequest, shallowEqual);
-  const alarmValuesHR = useSelector(getHRAlarmLimitsRequest, shallowEqual);
+  const alarmLimitsSpO2 = useSelector(getSpO2AlarmLimitsRequest, shallowEqual);
+  const alarmLimitsHR = useSelector(getHRAlarmLimitsRequest, shallowEqual);
   const parametersFiO2 = useSelector(getParametersFiO2);
   const parametersFlow = useSelector(getParametersFlow);
 
   const determineInput = useCallback(
     (state: string) => {
       const stateMap = new Map<string, InternalState>([
-        ['spo2', createInternalState('SpO2', 'spo2', PERCENT, false, true, alarmValuesSpO2, -1)],
+        ['spo2', createInternalState('SpO2', 'spo2', PERCENT, false, true, alarmLimitsSpO2, -1)],
         [
           'hr',
-          createInternalState('HR', 'hr', BPM, false, true, alarmValuesHR, -1, null, null, 0, 200),
+          createInternalState('HR', 'hr', BPM, false, true, alarmLimitsHR, -1, null, null, 0, 200),
         ],
         [
           'fio2',
-          createInternalState(
-            'FiO2',
-            'fio2',
-            PERCENT,
-            true,
-            false,
-            { lower: 0, upper: 0 },
-            parametersFiO2,
-            21,
-            null,
-          ),
+          createInternalState('FiO2', 'fio2', PERCENT, true, false, null, parametersFiO2, 21, null),
         ],
         [
           'flow',
@@ -339,7 +339,7 @@ const MultiStepWizard = (): JSX.Element => {
             LMIN,
             true,
             false,
-            { lower: 0, upper: 0 },
+            null,
             parametersFlow,
             null,
             80,
@@ -352,7 +352,7 @@ const MultiStepWizard = (): JSX.Element => {
       }
       return stateInput;
     },
-    [alarmValuesHR, alarmValuesSpO2, parametersFiO2, parametersFlow],
+    [alarmLimitsHR, alarmLimitsSpO2, parametersFiO2, parametersFlow],
   );
 
   /**
@@ -406,7 +406,7 @@ const MultiStepWizard = (): JSX.Element => {
     if (parameter) {
       if (tabIndex > 0) {
         setLabel(
-          parameter.isSetvalEnabled ? `${parameter.label} Settings` : `${parameter.label} Alarms`,
+          parameter.isParamEnabled ? `${parameter.label} Settings` : `${parameter.label} Alarms`,
         );
       } else {
         setLabel('Ventilation Controls');
@@ -415,42 +415,42 @@ const MultiStepWizard = (): JSX.Element => {
   }, [tabIndex, parameter]);
 
   /**
-   * Triggers on parameter or multiParams change
-   * Initally multiParams has only 1 parameter which is set in Component Initalization
+   * Triggers on parameter or internalState change
+   * Initally internalState has only 1 parameter which is set in Component Initalization
    * As user moves around the tabs and clicks on various Set/Alarm container
-   * Then those are added into multiParams array
+   * Then those are added into internalState array
    */
   useEffect(() => {
     if (parameter) {
       setTabIndex(1);
-      if (!multiParams.length) {
-        setMultiParams([parameter as InternalState]);
+      if (!internalState.length) {
+        setInternalState([parameter as InternalState]);
       } else {
-        const identifier = multiParams.find(
+        const identifier = internalState.find(
           (param: InternalState) => param.stateKey === parameter.stateKey,
         );
         if (!identifier) {
-          multiParams.push(parameter);
-          setMultiParams(multiParams);
+          internalState.push(parameter);
+          setInternalState(internalState);
         }
       }
     }
-  }, [parameter, multiParams]);
+  }, [parameter, internalState]);
 
   /**
    * Callback on whenever Set Value of parameter changes
    *
    * @param {number} setting - Updated value of parameter
    *
-   * Updates the new Set value into multiParams `Data` object
+   * Updates the new Set value into internalState `Data` object
    */
-  const doValueDraft = (setting: number) => {
+  const handleParamDraftRequest = (setting: number) => {
     if (parameter) {
-      const param = multiParams.find(
+      const param = internalState.find(
         (param: InternalState) => param.stateKey === parameter.stateKey,
       );
-      if (param) param.ValueDraft = setting;
-      parameter.ValueDraft = setting;
+      if (param) param.paramDraft = setting;
+      parameter.paramDraft = setting;
       if (open) {
         const update = { [stateKey]: setting };
         dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
@@ -469,15 +469,15 @@ const MultiStepWizard = (): JSX.Element => {
    * @param {number} min - Updated lower limit for the alarm value
    * @param {number} max - Updated upper limit for the alarm value
    *
-   * Updates the new alarm range values into multiParams `Data` object
+   * Updates the new alarm range values into internalState `Data` object
    */
-  const doSetAlarmValues = (min: number, max: number) => {
+  const handleAlarmLimitsRequest = (range: Range) => {
     if (parameter) {
-      const param = multiParams.find(
+      const param = internalState.find(
         (param: InternalState) => param.stateKey === parameter.stateKey,
       );
-      if (param) param.alarmValues = { lower: min, upper: max };
-      parameter.alarmValues = { lower: min, upper: max };
+      if (param) param.alarmLimitsDraft = range;
+      parameter.alarmLimitsDraft = range;
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
       } else {
@@ -494,12 +494,12 @@ const MultiStepWizard = (): JSX.Element => {
    * @return {Array} - Current alarm range values
    *
    */
-  const getAlarmValues = (stateKey: string) => {
-    const param = multiParams.find((param: InternalState) => param.stateKey === stateKey);
+  const getAlarmLimitsDraft = (stateKey: string): Range | null => {
+    const param = internalState.find((param: InternalState) => param.stateKey === stateKey);
     if (param) {
-      if (param.alarmValues) return param.alarmValues;
+      if (param.alarmLimitsDraft) return param.alarmLimitsDraft;
     }
-    return { lower: 0, upper: 0 };
+    return null;
   };
 
   /**
@@ -510,10 +510,10 @@ const MultiStepWizard = (): JSX.Element => {
    * @return {number} - Current Set Value
    *
    */
-  const getValueDrafts = (stateKey: string) => {
-    const param = multiParams.find((param: InternalState) => param.stateKey === stateKey);
-    if (param && param.ValueDraft) {
-      return param.ValueDraft as number;
+  const getParamDraft = (stateKey: string) => {
+    const param = internalState.find((param: InternalState) => param.stateKey === stateKey);
+    if (param && param.paramDraft) {
+      return param.paramDraft as number;
     }
     if (parameter) return parameter.committedSetting as number;
     return 0;
@@ -527,14 +527,16 @@ const MultiStepWizard = (): JSX.Element => {
    */
   const isAnyChanges = () => {
     let anyChange = false;
-    multiParams.forEach((param: InternalState) => {
-      if (param.isSetvalEnabled) {
-        if (param.ValueDraft !== param.ValueCurrent) {
+    internalState.forEach((param: InternalState) => {
+      if (param.isParamEnabled) {
+        if (param.paramDraft !== param.paramCurrent) {
           anyChange = true;
         }
       } else if (
-        param.alarmValues.lower !== param.alarmValuesActual.lower ||
-        param.alarmValues.upper !== param.alarmValuesActual.upper
+        param.alarmLimitsDraft &&
+        param.alarmLimitsCurrent &&
+        (param.alarmLimitsDraft.lower !== param.alarmLimitsCurrent.lower ||
+          param.alarmLimitsDraft.upper !== param.alarmLimitsCurrent.upper)
       ) {
         anyChange = true;
       }
@@ -568,25 +570,25 @@ const MultiStepWizard = (): JSX.Element => {
 
   /**
    * Callback on clicking Confirm button on Confirmation popup
-   * Updates multiParams data into redux store
+   * Updates internalState data into redux store
    * Closes all te popup
    */
   const handleConfirm = () => {
-    multiParams.forEach((parameter: InternalState) => {
-      if (parameter.isSetvalEnabled) {
-        const update = { [parameter.stateKey]: parameter.ValueDraft };
+    internalState.forEach((parameter: InternalState) => {
+      if (parameter.isParamEnabled) {
+        const update = { [parameter.stateKey]: parameter.paramDraft };
         dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
         dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
       }
-      if (parameter.isAlarmEnabled && parameter.alarmValues) {
+      if (parameter.isAlarmLimitsEnabled && parameter.alarmLimitsDraft) {
         const update = {
-          [parameter.stateKey]: parameter.alarmValues,
+          [parameter.stateKey]: parameter.alarmLimitsDraft,
         };
         dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
         dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
       }
     });
-    setMultiParams([]);
+    setInternalState([]);
     setConfirmOpen(false);
     setMultiPopupOpen(false);
   };
@@ -597,16 +599,16 @@ const MultiStepWizard = (): JSX.Element => {
    */
   const handleCancelConfirm = () => {
     if (parameter) {
-      parameter.ValueDraft = parameter.ValueCurrent;
-      parameter.alarmValues = parameter.alarmValuesActual;
+      parameter.paramDraft = parameter.paramCurrent;
+      parameter.alarmLimitsDraft = parameter.alarmLimitsCurrent;
     }
-    multiParams.map((parameter: InternalState) => {
+    internalState.map((parameter: InternalState) => {
       const param = parameter;
-      param.ValueDraft = param.ValueCurrent;
-      param.alarmValues = param.alarmValuesActual;
+      param.paramDraft = param.paramCurrent;
+      param.alarmLimitsDraft = param.alarmLimitsCurrent;
       return param;
     });
-    setMultiParams([]);
+    setInternalState([]);
     setCancelOpen(false);
     setMultiPopupOpen(false);
   };
@@ -670,7 +672,7 @@ const MultiStepWizard = (): JSX.Element => {
               <Tab
                 style={{ visibility: tabIndex === 0 ? 'hidden' : 'visible' }}
                 label={
-                  parameter?.isSetvalEnabled
+                  parameter?.isParamEnabled
                     ? `${parameter.label} Settings`
                     : `${parameter?.label} Alarms`
                 }
@@ -683,21 +685,25 @@ const MultiStepWizard = (): JSX.Element => {
           <Grid container className={classes.tabAligning}>
             <TabPanel value={tabIndex} index={0}>
               <HFNCControls
-                alarmValuesSpO2={getAlarmValues('spo2')}
-                alarmValuesHR={getAlarmValues('hr')}
-                alarmValuesFiO2={getAlarmValues('fio2')}
-                alarmValuesFlow={getAlarmValues('flow')}
+                alarmLimitsDraftSpO2={getAlarmLimitsDraft('spo2') || alarmLimitsSpO2}
+                alarmLimitsDraftHR={getAlarmLimitsDraft('hr') || alarmLimitsHR}
+                alarmLimitsDraftFiO2={
+                  getAlarmLimitsDraft('fio2') || Range.fromJSON({ lower: 0, upper: 100 })
+                }
+                alarmLimitsDraftFlow={
+                  getAlarmLimitsDraft('flow') || Range.fromJSON({ lower: 0, upper: 100 })
+                }
               />
             </TabPanel>
             <TabPanel value={tabIndex} index={1}>
-              {parameter && parameter.isSetvalEnabled ? (
+              {parameter && parameter.isParamEnabled ? (
                 <SetValueContent
                   openModal={open && parameter.stateKey === stateKey}
                   key={parameter.stateKey}
-                  committedSetting={getValueDrafts(parameter.stateKey)}
+                  committedSetting={getParamDraft(parameter.stateKey)}
                   label={parameter.label}
                   units={parameter.units}
-                  requestCommitSetting={doValueDraft}
+                  requestCommitSetting={handleParamDraftRequest}
                   {...(parameter.minValue && { min: parameter.minValue })}
                   {...(parameter.maxValue && { max: parameter.maxValue })}
                 />
@@ -708,10 +714,10 @@ const MultiStepWizard = (): JSX.Element => {
                     label={parameter.label}
                     units={parameter.units}
                     stateKey={parameter.stateKey}
-                    requestCommitRange={doSetAlarmValues}
+                    requestCommitRange={handleAlarmLimitsRequest}
                     contentOnly={true}
                     labelHeading={true}
-                    alarmRangeValues={getAlarmValues(parameter.stateKey)}
+                    alarmRangeValues={getAlarmLimitsDraft(parameter.stateKey)}
                     {...(parameter.alarmLimitMin && { committedMin: parameter.alarmLimitMin })}
                     {...(parameter.alarmLimitMax && { committedMax: parameter.alarmLimitMax })}
                   />
@@ -768,19 +774,21 @@ const MultiStepWizard = (): JSX.Element => {
               </Grid>
             </Grid>
             <Grid item className={classes.marginContent}>
-              {multiParams.map((param: InternalState) => {
-                if (param.isSetvalEnabled) {
-                  if (param.ValueDraft !== param.ValueCurrent) {
+              {internalState.map((param: InternalState) => {
+                if (param.isParamEnabled) {
+                  if (param.paramDraft !== param.paramCurrent) {
                     return (
-                      <Typography variant="subtitle1">{`Change ${param.label} to ${param.ValueDraft} ${param.units}?`}</Typography>
+                      <Typography variant="subtitle1">{`Change ${param.label} from ${param.paramCurrent} ${param.units} to ${param.paramDraft} ${param.units}?`}</Typography>
                     );
                   }
                 } else if (
-                  param.alarmValues.lower !== param.alarmValuesActual.lower ||
-                  param.alarmValues.upper !== param.alarmValuesActual.upper
+                  param.alarmLimitsDraft &&
+                  param.alarmLimitsCurrent &&
+                  (param.alarmLimitsDraft.lower !== param.alarmLimitsCurrent.lower ||
+                    param.alarmLimitsDraft.upper !== param.alarmLimitsCurrent.upper)
                 ) {
                   return (
-                    <Typography variant="subtitle1">{`Change ${param.label} alarm range to ${param.alarmValues.lower} - ${param.alarmValues.upper}?`}</Typography>
+                    <Typography variant="subtitle1">{`Change ${param.label} alarm limits from [${param.alarmLimitsCurrent.lower} ${param.units} - ${param.alarmLimitsCurrent.upper} ${param.units}] to [${param.alarmLimitsDraft.lower} ${param.units} - ${param.alarmLimitsDraft.upper} ${param.units}]?`}</Typography>
                   );
                 }
                 return <React.Fragment />;
@@ -805,19 +813,21 @@ const MultiStepWizard = (): JSX.Element => {
               </Grid>
             </Grid>
             <Grid item className={classes.marginContent}>
-              {multiParams.map((param: InternalState) => {
-                if (param.isSetvalEnabled) {
-                  if (param.ValueDraft !== param.ValueCurrent) {
+              {internalState.map((param: InternalState) => {
+                if (param.isParamEnabled) {
+                  if (param.paramDraft !== param.paramCurrent) {
                     return (
-                      <Typography variant="subtitle1">{`Keep ${param.label} to ${param.ValueCurrent} ${param.units}?`}</Typography>
+                      <Typography variant="subtitle1">{`Keep ${param.label} at ${param.paramCurrent} ${param.units} instead of changing to ${param.paramDraft} ${param.units}?`}</Typography>
                     );
                   }
                 } else if (
-                  param.alarmValues.lower !== param.alarmValuesActual.lower ||
-                  param.alarmValues.upper !== param.alarmValuesActual.upper
+                  param.alarmLimitsDraft &&
+                  param.alarmLimitsCurrent &&
+                  (param.alarmLimitsDraft.lower !== param.alarmLimitsCurrent.lower ||
+                    param.alarmLimitsDraft.upper !== param.alarmLimitsCurrent.upper)
                 ) {
                   return (
-                    <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${param.alarmValuesActual.lower} - ${param.alarmValuesActual.upper}?`}</Typography>
+                    <Typography variant="subtitle1">{`Keep ${param.label} alarm limits at [${param.alarmLimitsCurrent.lower} ${param.units} - ${param.alarmLimitsCurrent.upper} ${param.units}] instead of changing to [${param.alarmLimitsDraft.lower} ${param.units} - ${param.alarmLimitsDraft.upper} ${param.units}]?`}</Typography>
                   );
                 }
                 return <React.Fragment />;

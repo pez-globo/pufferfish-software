@@ -168,7 +168,7 @@ export interface Props {
   selector: SelectorType;
   label: string;
   stateKey: string;
-  alarmLimits?: Range;
+  alarmLimits?: Range | null;
   units?: string;
   isLarge?: boolean;
   isMain?: boolean;
