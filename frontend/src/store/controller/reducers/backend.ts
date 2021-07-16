@@ -137,12 +137,11 @@ export const eventLogReducer = (
       //  Make an ephemeral frontend-only event
       //  Note: this reducer will create multiple ephemeral log events when multiple BACKEND_CONNECTION_DOWN actions are dispatched when connection goes down
       //  TODO: check if frontend_backend_connection_down event is already there in state.ephemeralLogEvents before  creating a new one
-      const update = {
+      const logEvent = LogEvent.fromJSON({
         code: LogEventCode.frontend_backend_connection_down,
         type: LogEventType.system,
         time: new Date().getTime(),
-      };
-      const logEvent = update as LogEvent;
+      });
       const eventID = state.expectedLogEvent.id;
       return {
         ...state,
