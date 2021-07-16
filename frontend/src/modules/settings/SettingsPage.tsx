@@ -9,11 +9,8 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { commitRequest } from '../../store/controller/actions';
-import {
-  FrontendDisplaySetting,
-  SystemSettingRequest,
-} from '../../store/controller/proto/frontend_pb';
-import { MessageType } from '../../store/controller/types';
+import { FrontendDisplaySetting, SystemSettingRequest } from '../../store/proto/frontend_pb';
+import { MessageType } from '../../store/proto/types';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import { DisplayTab, InfoTab, TestCalibrationTab } from './containers';
 

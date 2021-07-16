@@ -1,21 +1,28 @@
 import { EventChannel } from 'redux-saga';
-import { take, takeEvery, fork, delay, takeLatest, all } from 'redux-saga/effects';
+import { take, takeEvery, fork, delay, all, put, select, call, race } from 'redux-saga/effects';
 import { INITIALIZED } from '../app/types';
 import { GeneratorYieldType } from './protocols/sagas';
 import {
+  handleConnectionTimeout,
   receive as backendReceive,
   sender as backendSender,
   SenderYieldResult,
   SenderYield,
 } from './protocols/backend/backend';
+import { establishedBackendConnection, lostBackendConnection } from './actions';
+import { getBackendConnected } from './selectors';
 import { createReceiveChannel, receiveBuffer, sendBuffer, setupConnection } from './io/websocket';
-import updateClock from './io/clock';
 
 function* receiveAll(channel: EventChannel<Response>) {
   while (true) {
-    const response = yield take(channel);
-    const body = yield receiveBuffer(yield response);
-    yield backendReceive(body);
+    const { response } = yield race({
+      response: take(channel),
+      timeout: call(handleConnectionTimeout),
+    });
+    if (response) {
+      const body = yield receiveBuffer(yield response);
+      yield backendReceive(body);
+    }
   }
 }
 
@@ -44,11 +51,19 @@ function* sendAll(sock: WebSocket) {
 
 function* serviceConnection() {
   const { sock, connectionChannel } = yield setupConnection();
+  let backendConnected = yield select(getBackendConnected);
+  if (!backendConnected) {
+    yield put(establishedBackendConnection());
+  }
   const receiveChannel = createReceiveChannel(sock);
   yield fork(receiveAll, receiveChannel);
   yield fork(sendAll, sock);
   yield take(connectionChannel);
   receiveChannel.close();
+  backendConnected = yield select(getBackendConnected);
+  if (backendConnected) {
+    yield put(lostBackendConnection());
+  }
 }
 
 const retryConnectInterval = 100; // ms
@@ -61,11 +76,6 @@ export function* serviceConnectionPersistently(): IterableIterator<unknown> {
   }
 }
 
-export function* controllerSaga(): IterableIterator<unknown> {
-  yield all([
-    yield takeEvery(INITIALIZED, serviceConnectionPersistently),
-    yield takeLatest(INITIALIZED, updateClock),
-  ]);
+export function* connectionSaga(): IterableIterator<unknown> {
+  yield all([yield takeEvery(INITIALIZED, serviceConnectionPersistently)]);
 }
-
-export default controllerSaga;
