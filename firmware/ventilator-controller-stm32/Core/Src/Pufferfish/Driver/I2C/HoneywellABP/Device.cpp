@@ -38,7 +38,7 @@ I2CDeviceStatus Device::read_sample(ABPSample &sample) {
 }
 
 float Device::raw_to_pressure(uint16_t output) const {
-  uint16_t output_pressure = Util::clamp<uint16_t>(output, output_min, output_max);
+  auto output_pressure = Util::clamp<uint16_t>(output, output_min, output_max);
 
   // Since these variables are uint16_t, we promote them to int32_t for signed
   // integer subtraction
@@ -49,10 +49,6 @@ float Device::raw_to_pressure(uint16_t output) const {
 
   return static_cast<float>(relative_output) * (pmax - pmin) / static_cast<float>(output_width) +
          pmin;
-}
-
-I2CDeviceStatus Device::reset() {
-  return I2CDeviceStatus::not_supported;
 }
 
 }  // namespace Pufferfish::Driver::I2C::HoneywellABP

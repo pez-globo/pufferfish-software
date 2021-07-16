@@ -31,8 +31,6 @@ class Device {
    */
   I2CDeviceStatus read_sample(ABPSample &sample);
 
-  I2CDeviceStatus reset() override;
-
  private:
   Pufferfish::HAL::Interfaces::I2CDevice &dev_;
 
