@@ -1,6 +1,6 @@
 import { loadFeature, defineFeature } from 'jest-cucumber';
 import { takeEvery } from 'redux-saga/effects';
-import controllerSaga, { serviceConnectionPersistently } from '../../src/store/controller/saga';
+import { connectionSaga, serviceConnectionPersistently } from '../../src/store/connection/saga';
 import { INITIALIZED } from '../../src/store/app/types';
 
 const feature = loadFeature('tests/features/saga.feature');
@@ -10,11 +10,11 @@ defineFeature(feature, (test) => {
     let genObject: IterableIterator<unknown>;
 
     given(/^Saga worker is initialized$/, async () => {
-      genObject = controllerSaga();
+      genObject = connectionSaga();
     });
 
     when(/^Saga workers are defined$/, async () => {
-      expect(controllerSaga).toBeDefined();
+      expect(connectionSaga).toBeDefined();
       expect(serviceConnectionPersistently).toBeDefined();
     });
 

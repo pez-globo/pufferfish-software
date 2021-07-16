@@ -3,7 +3,7 @@ import createSagaMiddleware from 'redux-saga';
 import { composeWithDevTools } from 'redux-devtools-extension';
 
 import { appReducer } from './app/reducers';
-import connectionSaga from './connection/saga';
+import { connectionSaga } from './connection/saga';
 import { connectionReducer } from './connection/reducers';
 import { controllerReducer } from './controller/reducers';
 

@@ -68,7 +68,7 @@ function* serviceConnection() {
 
 const retryConnectInterval = 100; // ms
 
-function* serviceConnectionPersistently(): IterableIterator<unknown> {
+export function* serviceConnectionPersistently(): IterableIterator<unknown> {
   while (true) {
     yield serviceConnection();
     console.warn('Reestablishing WebSocket connection...');
@@ -76,8 +76,6 @@ function* serviceConnectionPersistently(): IterableIterator<unknown> {
   }
 }
 
-function* connectionSaga(): IterableIterator<unknown> {
+export function* connectionSaga(): IterableIterator<unknown> {
   yield all([yield takeEvery(INITIALIZED, serviceConnectionPersistently)]);
 }
-
-export default connectionSaga;

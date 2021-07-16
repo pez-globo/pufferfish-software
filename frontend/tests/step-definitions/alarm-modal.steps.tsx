@@ -7,7 +7,7 @@ import { Provider } from 'react-redux';
 import { AlarmModal } from '../../src/modules/controllers';
 import { darkTheme } from '../../src/styles/customTheme';
 import { commitRequest } from '../../src/store/controller/actions';
-import { AlarmLimitsRequest } from '../../src/store/controller/proto/mcu_pb';
+import { AlarmLimitsRequest } from '../../src/store/proto/mcu_pb';
 import { MessageType, CommitAction } from '../../src/store/controller/types';
 
 const feature = loadFeature('tests/features/alarm-modal.feature');
