@@ -191,6 +191,9 @@ message LogEvent {
 
 message ExpectedLogEvent {
   uint32 id = 1;
+  // session_id is checked by the NextLogEvents sender if the sender's log is
+  // ephemeral; the sender will ignore any ExpectedLogEvent whose session_id
+  // doesn't match the sender's session_id, which is announced in NextLogEvents.
   uint32 session_id = 2;  // used when the sender's log is ephemeral
 }
 
@@ -225,11 +228,16 @@ message ScreenStatus {
 
 message AlarmMute {
   bool active = 1;
-  uint64 remaining = 2;
-  // TODO: add a session_id or idempotency_key
+  // seq_num is a logical clock and advances in the firmware after each local action
+  // in the firmware (such as a button-press) or the servicing of each external request.
+  uint32 seq_num = 2;
+  uint64 remaining = 3;
 }
 
 message AlarmMuteRequest {
   bool active = 1;
-  uint64 remaining = 2;
+  // seq_num is a logical clock which also acts as an idempotency key for requests:
+  // the firmware only services an AlarmMuteRequest if the request's seq_num is one
+  // greater than the seq_num in the firmware's copy of AlarmMute.
+  uint32 seq_num = 2;
 }

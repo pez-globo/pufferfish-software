@@ -205,6 +205,9 @@ class LogEvent(betterproto.Message):
 @dataclass
 class ExpectedLogEvent(betterproto.Message):
     id: int = betterproto.uint32_field(1)
+    # session_id is checked by the NextLogEvents sender if the sender's log is
+    # ephemeral; the sender will ignore any ExpectedLogEvent whose session_id
+    # doesn't match the sender's session_id, which is announced in NextLogEvents.
     session_id: int = betterproto.uint32_field(2)
 
 
@@ -248,10 +251,18 @@ class ScreenStatus(betterproto.Message):
 @dataclass
 class AlarmMute(betterproto.Message):
     active: bool = betterproto.bool_field(1)
-    remaining: int = betterproto.uint64_field(2)
+    # seq_num is a logical clock and advances in the firmware after each local
+    # action in the firmware (such as a button-press) or the servicing of each
+    # external request.
+    seq_num: int = betterproto.uint32_field(2)
+    remaining: int = betterproto.uint64_field(3)
 
 
 @dataclass
 class AlarmMuteRequest(betterproto.Message):
     active: bool = betterproto.bool_field(1)
-    remaining: int = betterproto.uint64_field(2)
+    # seq_num is a logical clock which also acts as an idempotency key for
+    # requests: the firmware only services an AlarmMuteRequest if the request's
+    # seq_num is one greater than the seq_num in the firmware's copy of
+    # AlarmMute.
+    seq_num: int = betterproto.uint32_field(2)

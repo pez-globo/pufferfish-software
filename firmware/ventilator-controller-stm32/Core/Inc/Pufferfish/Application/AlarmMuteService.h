@@ -9,9 +9,9 @@
 
 #pragma once
 
-#include "Pufferfish/Application/States.h"
+#include "States.h"
 
-namespace Pufferfish::Driver::BreathingCircuit {
+namespace Pufferfish::Application {
 
 using Application::AlarmMute;
 using Application::AlarmMuteRequest;
@@ -35,4 +35,4 @@ class AlarmMuteService {
 
 void make_state_initializers(Application::StateSegment &request_segment, AlarmMute &response);
 
-}  // namespace Pufferfish::Driver::BreathingCircuit
+}  // namespace Pufferfish::Application

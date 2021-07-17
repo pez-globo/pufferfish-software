@@ -88,7 +88,10 @@ export interface FrontendDisplaySetting {
   unit: Unit;
 }
 
-/** TODO: we also need a response version of this message, SystemSettings */
+/**
+ * TODO: we also need a response version of this message, SystemSettings
+ * TODO: we should name this SystemSettingsRequest, not SystemSettingRequest
+ */
 export interface SystemSettingRequest {
   brightness: number;
   date: number;

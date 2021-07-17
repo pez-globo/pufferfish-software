@@ -5,13 +5,13 @@
  *      Author: Ethan Li
  */
 
-#include "Pufferfish/Driver/BreathingCircuit/AlarmMuteService.h"
+#include "Pufferfish/Application/AlarmMuteService.h"
 
 #include "Pufferfish/Util/Ranges.h"
 
-// AlarmMuteService
+namespace Pufferfish::Application {
 
-namespace Pufferfish::Driver::BreathingCircuit {
+// AlarmMuteService
 
 void AlarmMuteService::input_clock(uint32_t current_time) {
   if (mute_start_time_ == 0) {
@@ -41,7 +41,6 @@ void make_state_initializers(Application::StateSegment &request_segment, AlarmMu
 
   AlarmMuteRequest request{};
   request.active = false;
-  request.remaining = mute_max_duration / clock_scale;
   request_segment.set(request);
 }
-}  // namespace Pufferfish::Driver::BreathingCircuit
+}  // namespace Pufferfish::Application

@@ -471,7 +471,11 @@ export interface LogEvent {
 
 export interface ExpectedLogEvent {
   id: number;
-  /** used when the sender's log is ephemeral */
+  /**
+   * session_id is checked by the NextLogEvents sender if the sender's log is
+   * ephemeral; the sender will ignore any ExpectedLogEvent whose session_id
+   * doesn't match the sender's session_id, which is announced in NextLogEvents.
+   */
   sessionId: number;
 }
 
@@ -507,12 +511,22 @@ export interface ScreenStatus {
 
 export interface AlarmMute {
   active: boolean;
+  /**
+   * seq_num is a logical clock and advances in the firmware after each local action
+   * in the firmware (such as a button-press) or the servicing of each external request.
+   */
+  seqNum: number;
   remaining: number;
 }
 
 export interface AlarmMuteRequest {
   active: boolean;
-  remaining: number;
+  /**
+   * seq_num is a logical clock which also acts as an idempotency key for requests:
+   * the firmware only services an AlarmMuteRequest if the request's seq_num is one
+   * greater than the seq_num in the firmware's copy of AlarmMute.
+   */
+  seqNum: number;
 }
 
 const baseRange: object = { lower: 0, upper: 0 };
@@ -2912,7 +2926,7 @@ export const ScreenStatus = {
   },
 };
 
-const baseAlarmMute: object = { active: false, remaining: 0 };
+const baseAlarmMute: object = { active: false, seqNum: 0, remaining: 0 };
 
 export const AlarmMute = {
   encode(
@@ -2922,8 +2936,11 @@ export const AlarmMute = {
     if (message.active === true) {
       writer.uint32(8).bool(message.active);
     }
+    if (message.seqNum !== 0) {
+      writer.uint32(16).uint32(message.seqNum);
+    }
     if (message.remaining !== 0) {
-      writer.uint32(16).uint64(message.remaining);
+      writer.uint32(24).uint64(message.remaining);
     }
     return writer;
   },
@@ -2939,6 +2956,9 @@ export const AlarmMute = {
           message.active = reader.bool();
           break;
         case 2:
+          message.seqNum = reader.uint32();
+          break;
+        case 3:
           message.remaining = longToNumber(reader.uint64() as Long);
           break;
         default:
@@ -2956,6 +2976,11 @@ export const AlarmMute = {
     } else {
       message.active = false;
     }
+    if (object.seqNum !== undefined && object.seqNum !== null) {
+      message.seqNum = Number(object.seqNum);
+    } else {
+      message.seqNum = 0;
+    }
     if (object.remaining !== undefined && object.remaining !== null) {
       message.remaining = Number(object.remaining);
     } else {
@@ -2967,6 +2992,7 @@ export const AlarmMute = {
   toJSON(message: AlarmMute): unknown {
     const obj: any = {};
     message.active !== undefined && (obj.active = message.active);
+    message.seqNum !== undefined && (obj.seqNum = message.seqNum);
     message.remaining !== undefined && (obj.remaining = message.remaining);
     return obj;
   },
@@ -2978,6 +3004,11 @@ export const AlarmMute = {
     } else {
       message.active = false;
     }
+    if (object.seqNum !== undefined && object.seqNum !== null) {
+      message.seqNum = object.seqNum;
+    } else {
+      message.seqNum = 0;
+    }
     if (object.remaining !== undefined && object.remaining !== null) {
       message.remaining = object.remaining;
     } else {
@@ -2987,7 +3018,7 @@ export const AlarmMute = {
   },
 };
 
-const baseAlarmMuteRequest: object = { active: false, remaining: 0 };
+const baseAlarmMuteRequest: object = { active: false, seqNum: 0 };
 
 export const AlarmMuteRequest = {
   encode(
@@ -2997,8 +3028,8 @@ export const AlarmMuteRequest = {
     if (message.active === true) {
       writer.uint32(8).bool(message.active);
     }
-    if (message.remaining !== 0) {
-      writer.uint32(16).uint64(message.remaining);
+    if (message.seqNum !== 0) {
+      writer.uint32(16).uint32(message.seqNum);
     }
     return writer;
   },
@@ -3014,7 +3045,7 @@ export const AlarmMuteRequest = {
           message.active = reader.bool();
           break;
         case 2:
-          message.remaining = longToNumber(reader.uint64() as Long);
+          message.seqNum = reader.uint32();
           break;
         default:
           reader.skipType(tag & 7);
@@ -3031,10 +3062,10 @@ export const AlarmMuteRequest = {
     } else {
       message.active = false;
     }
-    if (object.remaining !== undefined && object.remaining !== null) {
-      message.remaining = Number(object.remaining);
+    if (object.seqNum !== undefined && object.seqNum !== null) {
+      message.seqNum = Number(object.seqNum);
     } else {
-      message.remaining = 0;
+      message.seqNum = 0;
     }
     return message;
   },
@@ -3042,7 +3073,7 @@ export const AlarmMuteRequest = {
   toJSON(message: AlarmMuteRequest): unknown {
     const obj: any = {};
     message.active !== undefined && (obj.active = message.active);
-    message.remaining !== undefined && (obj.remaining = message.remaining);
+    message.seqNum !== undefined && (obj.seqNum = message.seqNum);
     return obj;
   },
 
@@ -3053,10 +3084,10 @@ export const AlarmMuteRequest = {
     } else {
       message.active = false;
     }
-    if (object.remaining !== undefined && object.remaining !== null) {
-      message.remaining = object.remaining;
+    if (object.seqNum !== undefined && object.seqNum !== null) {
+      message.seqNum = object.seqNum;
     } else {
-      message.remaining = 0;
+      message.seqNum = 0;
     }
     return message;
   },

@@ -30,12 +30,12 @@
 #include <functional>
 
 #include "Pufferfish/AlarmsManager.h"
+#include "Pufferfish/Application/AlarmMuteService.h"
 #include "Pufferfish/Application/Alarms.h"
 #include "Pufferfish/Application/LogEvents.h"
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/Application/mcu_pb.h"  // Only used for debugging
 #include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
-#include "Pufferfish/Driver/BreathingCircuit/AlarmMuteService.h"
 #include "Pufferfish/Driver/BreathingCircuit/Alarms.h"
 #include "Pufferfish/Driver/BreathingCircuit/AlarmsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
@@ -368,9 +368,9 @@ PF::Application::AlarmsManager alarms_manager(
     log_events_manager,
     PF::Driver::BreathingCircuit::debouncers,
     PF::Driver::BreathingCircuit::init_waiters);
+PF::Application::AlarmMuteService alarm_mute;
 PF::Driver::BreathingCircuit::AlarmsServices breathing_circuit_alarms;
 PF::Driver::Power::AlarmsService power_alarms;
-PF::Driver::BreathingCircuit::AlarmMuteService alarm_mute_service;
 
 // Breathing Circuit Control
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
@@ -431,7 +431,7 @@ void initialize_states() {
   // Alarm Mute
   PF::Application::AlarmMute alarm_mute;
   PF::Application::StateSegment alarm_mute_request;
-  PF::Driver::BreathingCircuit::make_state_initializers(alarm_mute_request, alarm_mute);
+  PF::Application::make_state_initializers(alarm_mute_request, alarm_mute);
   store.alarm_mute() = alarm_mute;
   store.input(alarm_mute_request, true);
 }
@@ -663,9 +663,6 @@ int main(void)
     PF::Driver::BreathingCircuit::SensorAlarmsService::transform(
         hfnc.sensor_connections(), alarms_manager);
 
-    // Alarm Mute Service
-    alarm_mute_service.transform(current_time, store.alarm_mute_request(), store.alarm_mute());
-
     // Power management
     if (!ltc4015_status) {
       power_simulator.transform(current_time, store.mcu_power_status());
@@ -692,7 +689,8 @@ int main(void)
 
     // Alarms
     alarms_manager.transform(store.active_log_events());
-    if (store.active_log_events().id_count > 0) {
+    alarm_mute.transform(current_time, store.alarm_mute_request(), store.alarm_mute());
+    if (store.active_log_events().id_count > 0 && !store.alarm_mute().active) {
       board_led1.write(true);
     } else {
       blinker.input(current_time);

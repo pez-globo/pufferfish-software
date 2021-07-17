@@ -317,13 +317,8 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    */
   useEffect(() => {
     if (alarmMuteRemaining === 0 || remaining === 0) {
-      // we need to dispatch 'remaining' field as well to properly initialize AlarmMuteRequest,
-      // or else there could be a race condition where the backend kills the frontend.
       dispatch(
-        commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, {
-          active: false,
-          remaining: MUTE_MAX_DURATION,
-        }),
+        commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { active: false }),
       );
     }
   }, [dispatch, alarmMuteRemaining, remaining]);

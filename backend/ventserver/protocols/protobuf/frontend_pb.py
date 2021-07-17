@@ -47,7 +47,8 @@ class FrontendDisplaySetting(betterproto.Message):
 @dataclass
 class SystemSettingRequest(betterproto.Message):
     """
-    TODO: we also need a response version of this message, SystemSettings
+    TODO: we also need a response version of this message, SystemSettings TODO:
+    we should name this SystemSettingsRequest, not SystemSettingRequest
     """
 
     brightness: int = betterproto.uint32_field(1)
