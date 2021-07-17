@@ -7,7 +7,7 @@
 import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
-import React, { RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import React, { RefObject, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/proto/mcu_pb';
@@ -129,11 +129,6 @@ interface AlarmProps {
   setAlarmLimits(alarmLimits: Partial<AlarmLimitsRequest>): void;
 }
 
-enum SliderType {
-  LOWER,
-  UPPER,
-}
-
 /**
  * UI visual container displaying Alarm Slider & Increment/Decrement value clicker
  *
@@ -155,20 +150,14 @@ const Alarm = ({
   const classes = useStyles();
   const theme = useTheme();
   const { initRefListener } = useRotaryReference(theme);
-  // TODO: when the software is in ventilating mode, the user must be able to
-  // discard changes (which means that any alarm limits being persisted in
-  // AlarmLimitsRequestStandby would need to be reset using the values from
-  // AlarmLimitsRequest, when the user wants to discard values). This could
-  // be done with by dispatching a commitDraftRequest action with the
-  // alarmLimitsRequest selector as the update field.
   const range =
     alarmLimits === null
       ? undefined
       : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
-  const rangeValues: number[] = useMemo(
-    () => [range === undefined ? NaN : range.lower, range === undefined ? NaN : range.upper],
-    [range],
-  );
+  const [rangeValues, setRangeValue] = React.useState<number[]>([
+    range === undefined ? NaN : range.lower,
+    range === undefined ? NaN : range.upper,
+  ]);
   /**
    * State to manage Wrapper HTML reference of Alarm's lower & higher Controls(ValueSlider & ValueClicker)
    * This wrapper's HTML border is added or removed based on user's interaction with Alarm Controls
@@ -185,27 +174,8 @@ const Alarm = ({
    * @param {number[]} range - Alarm range values
    *
    */
-  const setRangevalue = (range: number[]) => {
+  const setSliderRange = (range: number[]) => {
     setAlarmLimits({ [stateKey]: { lower: range[0], upper: range[1] } });
-  };
-
-  /**
-   * Updates Alarm limit value on value clicker click event
-   *
-   * @param {number} value - Updated value of Alarm range
-   * @param {SliderType} type - Upper or Lower Range
-   *
-   */
-  const onClick = (value: number, type: SliderType) => {
-    setActiveRotaryReference(
-      type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
-    );
-    setAlarmLimits({
-      [stateKey]: {
-        lower: type === SliderType.LOWER ? value : rangeValues[0],
-        upper: type === SliderType.UPPER ? value : rangeValues[1],
-      },
-    });
   };
 
   /**
@@ -245,16 +215,14 @@ const Alarm = ({
           >
             <Grid item className={classes.alarmValue}>
               <Typography align="center" variant="h4">
-                {rangeValues[0] === undefined || Number.isNaN(rangeValues[0])
-                  ? '--'
-                  : Number(rangeValues[0])}
+                {Number.isNaN(rangeValues[0]) ? '--' : Number(rangeValues[0])}
               </Typography>
             </Grid>
             <Grid item>
               <ValueClicker
                 referenceKey={`${stateKey}_LOWER`}
                 value={rangeValues[0]}
-                onClick={(value: number) => onClick(value, SliderType.LOWER)}
+                onClick={(value) => setRangeValue(Object.assign([], rangeValues, { 0: value }))}
                 min={min}
                 max={rangeValues[1]}
                 direction="column"
@@ -277,16 +245,14 @@ const Alarm = ({
           >
             <Grid item className={classes.alarmValue}>
               <Typography align="center" variant="h4">
-                {rangeValues[1] === undefined || Number.isNaN(rangeValues[1])
-                  ? '--'
-                  : Number(rangeValues[1])}
+                {Number.isNaN(rangeValues[1]) ? '--' : Number(rangeValues[1])}
               </Typography>
             </Grid>
             <Grid item>
               <ValueClicker
                 referenceKey={`${stateKey}_HIGHER`}
                 value={rangeValues[1]}
-                onClick={(value: number) => onClick(value, SliderType.UPPER)}
+                onClick={(value) => setRangeValue(Object.assign([], rangeValues, { 1: value }))}
                 min={rangeValues[0]}
                 max={max}
                 direction="column"
@@ -300,7 +266,7 @@ const Alarm = ({
             min={min}
             max={max}
             step={step}
-            onChange={setRangevalue}
+            onChange={setSliderRange}
             rangeValues={rangeValues}
           />
         </Grid>
