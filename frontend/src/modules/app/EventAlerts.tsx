@@ -13,6 +13,7 @@ import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import {
   getActiveLogEventIds,
   getAlarmMuteActive,
+  getAlarmMuteSeqNum,
   getAlarmMuteRequestActive,
   getPopupEventLog,
   getAlarmMuteRemaining,
@@ -229,6 +230,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
   const activeLogString = JSON.stringify(activeLog);
   const alarmMuteActive = useSelector(getAlarmMuteActive);
+  const alarmMuteSeqNum = useSelector(getAlarmMuteSeqNum);
   const alarmMuteRemaining = useSelector(getAlarmMuteRemaining);
   const backendConnected = useSelector(getBackendConnected);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive);
@@ -238,6 +240,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
   const DEFAULT_TIMEOUT = 1000;
   /**
    * Stores the state which toggles AlarmMute/AlarmMuteRequest Status
+   * TODO: can we get rid of this local state? Right now its values seem incorrect!
    */
   const [isMuted, setIsMuted] = useState(alarmMuteActive);
   /**
@@ -307,21 +310,17 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    * @param {boolean} state desc for state
    */
   const muteAlarmState = (state: boolean) => {
+    if (alarmMuteSeqNum === null) {
+      console.error('Alarm mute/unmute button reached illegal state!');
+      return;
+    }
+
     dispatch(
-      commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { active: state }),
+      commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, {
+        active: state, seqNum: alarmMuteSeqNum + 1
+      }),
     );
   };
-
-  /**
-   * Dispatch unmute request after 2 min countdown
-   */
-  useEffect(() => {
-    if (alarmMuteRemaining === 0 || remaining === 0) {
-      dispatch(
-        commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, { active: false }),
-      );
-    }
-  }, [dispatch, alarmMuteRemaining, remaining]);
 
   /**
    * Opens LogsPage popup listing event log details
@@ -377,7 +376,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
                 onClick={() => muteAlarmState(isMuted)}
                 variant="contained"
                 color="primary"
-                disabled={!firmwareConnected}
+                disabled={!firmwareConnected || getAlarmMuteSeqNum === null}
                 className={classes.alertButton}
               >
                 {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
@@ -400,17 +399,17 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       >
         <LogsPage filter={activeFilter} />
       </ModalPopup>
+      <Button
+        style={{ marginLeft: 10, marginRight: 10 }}
+        onClick={() => muteAlarmState(isMuted)}
+        variant="contained"
+        color="primary"
+        disabled={!firmwareConnected || getAlarmMuteSeqNum === null}
+        className={classes.alertButton}
+      >
+        {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
+      </Button>
       <Grid hidden={alertCount <= 0}>
-        <Button
-          style={{ marginLeft: 10, marginRight: 10 }}
-          onClick={() => muteAlarmState(isMuted)}
-          variant="contained"
-          color="primary"
-          disabled={!firmwareConnected}
-          className={classes.alertButton}
-        >
-          {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
-        </Button>
         <Button
           style={{ marginLeft: 10, marginRight: 10, margin: '0px 10px', padding: 0 }}
           variant="contained"
@@ -436,20 +435,17 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       </Grid>
       <Grid hidden={alertCount > 0}>
         <Button
-          style={{ marginLeft: 10, marginRight: 10 }}
-          variant="contained"
-          color="primary"
-          className={classes.alertButton}
-        >
-          <VolumeUpIcon />
-        </Button>
-        <Button
           style={{ marginLeft: 10, marginRight: 10, margin: '0px 10px', padding: 0 }}
           variant="contained"
           color="primary"
           className={classes.alertTimer}
         >
-          <span style={{ padding: '6px 30px', visibility: 'hidden' }}>{label}</span>
+          <span style={{ padding: '6px 16px', width: 250, visibility: !isMuted ? 'visible' : 'hidden' }}>Alarms will be muted</span>
+          {!isMuted && countdownTimer !== undefined && (
+            <div className={classes.timer} style={{ right: 'auto' }}>
+              {new Date(countdownTimer * 1000).toISOString().substr(14, 5)}
+            </div>
+          )}
         </Button>
       </Grid>
       <Grid>
