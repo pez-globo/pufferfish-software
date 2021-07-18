@@ -4,8 +4,7 @@
  */
 import React from 'react';
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
-import { useSelector } from 'react-redux';
-import { SelectorType } from '../dashboard/components/constants';
+import { SelectorType, ValueSelectorDisplay } from '../displays/ValueSelectorDisplay';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -71,7 +70,6 @@ export interface SelectorProps {
  */
 export const ControlJumbotron = ({ selector, label, units = '' }: SelectorProps): JSX.Element => {
   const classes = useStyles();
-  const value: number | undefined = useSelector(selector);
 
   return (
     <Grid container className={classes.root}>
@@ -89,11 +87,7 @@ export const ControlJumbotron = ({ selector, label, units = '' }: SelectorProps)
         wrap="nowrap"
       >
         <Typography variant="h1" className={classes.ControlLabel}>
-          <React.Fragment>
-            {value !== undefined && !Number.isNaN(value)
-              ? value.toFixed(0).replace(/^-0$/, '0')
-              : '--'}
-          </React.Fragment>
+          <ValueSelectorDisplay selector={selector} />
         </Typography>
       </Grid>
       <Grid item style={{ width: '100%' }}>

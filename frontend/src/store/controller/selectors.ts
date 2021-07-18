@@ -37,7 +37,7 @@ import {
   PVPoint,
   ControllerStates,
 } from './types';
-import { SelectorType } from '../../modules/dashboard/components/constants';
+import { SelectorType } from '../../modules/displays/ValueSelectorDisplay';
 
 export const roundValue = (value: number): number => {
   return value !== undefined && !Number.isNaN(value)
