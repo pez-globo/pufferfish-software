@@ -562,6 +562,8 @@ int main(void)
   uint32_t session_id = 0;
   rng.generate(session_id);
   log_events_sender.setup(session_id);
+  rng.generate(session_id);
+  alarm_mute.setup(session_id);
 
   /* USER CODE END 2 */
 

@@ -222,8 +222,11 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
     _file_state_sender: states.TimedSender[Sender] = attr.ib()
 
     _current_time: Optional[float] = attr.ib(default=None)
+
+    # Periodic state sending, for testing
     # _period_start_time: Optional[float] = attr.ib(default=None)
     # _sending_frontend: bool = attr.ib(default=False)
+    # _sending_mcu: bool = attr.ib(default=False)
     # SEND_PERIOD = 10.0  # s
 
     @_mcu_event_sender.default
@@ -344,6 +347,30 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         output_event = SendEvent()
         try:
             output_event.mcu_send = self._mcu_state_sender.output()
+
+            # Only send events to mcu for part of the time, for testing
+            # if (
+            #         self._period_start_time is None and
+            #         self._current_time is not None and
+            #         self._current_time > 0
+            # ):
+            #     self._period_start_time = self._current_time
+            #     self._sending_mcu = not self._sending_mcu
+            #     self._logger.warning(
+            #         '%sending events to mcu for %s s!',
+            #         'S' if self._sending_mcu else 'Not s',
+            #         self.SEND_PERIOD
+            #     )
+            # if (
+            #         self._current_time is not None and
+            #         self._period_start_time is not None and
+            #         self._current_time > (
+            #             self._period_start_time + self.SEND_PERIOD
+            #         )
+            # ):
+            #     self._period_start_time = None
+            # if not self._sending_mcu:
+            #     output_event.mcu_send = None
         except exceptions.ProtocolDataError:
             self._logger.exception('MCU State Sender:')
         try:
