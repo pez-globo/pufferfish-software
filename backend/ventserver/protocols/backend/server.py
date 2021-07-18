@@ -314,6 +314,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             self._backend.input(backend.ReceiveDataEvent(
                 time=self.current_time, server_receive=self._connection_states
             ))
+            self._backend.input(backend.AlarmMuteCancellationEvent(
+                time=self.current_time, request=False
+            ))
         if actions.alarm_frontend:
             self._backend.input(backend.ExternalLogEvent(
                 time=self.current_time, active=True,
@@ -322,6 +325,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             self._connection_states.has_frontend = False
             self._backend.input(backend.ReceiveDataEvent(
                 time=self.current_time, server_receive=self._connection_states
+            ))
+            self._backend.input(backend.AlarmMuteCancellationEvent(
+                time=self.current_time, request=True
             ))
         return actions.kill_frontend
 

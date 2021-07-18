@@ -31,8 +31,27 @@ class ExternalLogEvent(events.Event):
         return True
 
 
+@attr.s
+class AlarmMuteCancellationEvent(events.Event):
+    """External alarm mute cancellation event.
+
+    The request flag should be set to true to request a cancellation from the
+    firmware, while it should be set to false to temporarily cancel any mute
+    in the absence of the firmware.
+    """
+
+    time: float = attr.ib()
+    request: bool = attr.ib()
+
+    def has_data(self) -> bool:
+        """Return whether the event has data."""
+        return True
+
+
 ReceiveDataEvent = states.ReceiveEvent
-ReceiveEvent = Union[ExternalLogEvent, states.ReceiveEvent]
+ReceiveEvent = Union[
+    states.ReceiveEvent, ExternalLogEvent, AlarmMuteCancellationEvent
+]
 OutputEvent = states.SendEvent
 SendEvent = states.SendEvent
 
@@ -106,6 +125,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             self._state_synchronizers.input(event)
         elif isinstance(event, ExternalLogEvent):
             self._handle_local_log_event(event)
+        elif isinstance(event, AlarmMuteCancellationEvent):
+            self._handle_alarm_mute_cancellation(event)
 
         # Maintain internal data connections
         self._handle_mcu_log_events()
@@ -214,6 +235,39 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
                 return
 
             self.store[states.StateSegment.NEXT_LOG_EVENTS_BE] = next_log_events
+
+    def _handle_alarm_mute_cancellation(
+            self, event: AlarmMuteCancellationEvent
+    ) -> None:
+        """Handle any externally-generated alarm mute cancellation event."""
+        alarm_mute = typing.cast(
+            Optional[mcu_pb.AlarmMute],
+            self.store[states.StateSegment.ALARM_MUTE]
+        )
+        if alarm_mute is None:
+            self._logger.error('AlarmMute was not initialized in the store!')
+            return
+
+        if not event.request:
+            if alarm_mute.active:
+                alarm_mute.active = False
+                # TODO: generate log event
+            return
+
+        alarm_mute_request = typing.cast(
+            Optional[mcu_pb.AlarmMuteRequest],
+            self.store[states.StateSegment.ALARM_MUTE_REQUEST]
+        )
+        if alarm_mute_request is None:
+            self._logger.error(
+                'AlarmMuteRequest was not initialized in the store!'
+            )
+            return
+
+        if alarm_mute_request.active:
+            alarm_mute_request.active = False
+            alarm_mute_request.seq_num = alarm_mute.seq_num + 1
+            # TODO: generate log event
 
 
 @attr.s
