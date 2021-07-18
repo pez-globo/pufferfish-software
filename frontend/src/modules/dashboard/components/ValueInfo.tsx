@@ -13,8 +13,8 @@ import { shallowEqual, useSelector } from 'react-redux';
 import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
 import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../controllers';
-import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
 import { Range } from '../../../store/controller/proto/mcu_pb';
+import { SelectorType } from './constants';
 
 const useStyles = makeStyles((theme: Theme) => ({
   rootParent: {
@@ -242,6 +242,7 @@ const ControlValuesDisplay = ({
       : ((alarmLimitsRequest as unknown) as Record<string, Range>)[stateKey];
   const rangeValues = range === undefined ? Range.fromJSON({ lower: '--', upper: '--' }) : range;
   const { lower, upper } = alarmLimits === undefined ? rangeValues : alarmLimits;
+  const value: number | undefined = useSelector(selector);
 
   /**
    * Opens Multistep Popup on Clicking over component
@@ -316,7 +317,11 @@ const ControlValuesDisplay = ({
                   variant="h2"
                   className={`${classes.valueLabel} ${classes.whiteFont}`}
                 >
-                  <ValueSelectorDisplay decimal={decimal} selector={selector} />
+                  <React.Fragment>
+                    {value !== undefined && !Number.isNaN(value)
+                      ? value.toFixed(decimal).replace(/^-0$/, '0')
+                      : '--'}
+                  </React.Fragment>
                 </Typography>
                 {units !== '' && (
                   <Typography

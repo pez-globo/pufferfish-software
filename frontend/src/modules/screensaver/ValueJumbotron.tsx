@@ -4,7 +4,7 @@
  */
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React from 'react';
-import { ValueSelectorDisplay } from '../displays/ValueSelectorDisplay';
+import { useSelector } from 'react-redux';
 import { SelectorProps } from './ControlJumbotron';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -59,6 +59,7 @@ export const ValueJumbotron = ({
   decimal = 0,
 }: SelectorProps): JSX.Element => {
   const classes = useStyles();
+  const value: number | undefined = useSelector(selector);
 
   return (
     <Grid container className={classes.root}>
@@ -76,7 +77,11 @@ export const ValueJumbotron = ({
         wrap="nowrap"
       >
         <Typography align="left" variant="h1" className={classes.valueLabel}>
-          <ValueSelectorDisplay decimal={decimal} selector={selector} />
+          <React.Fragment>
+            {value !== undefined && !Number.isNaN(value)
+              ? value.toFixed(decimal).replace(/^-0$/, '0')
+              : '--'}
+          </React.Fragment>
         </Typography>
       </Grid>
       <Grid item style={{ width: '100%' }}>

@@ -11,8 +11,8 @@ import { MessageType } from '../../../store/controller/types';
 import { commitRequest, commitDraftRequest } from '../../../store/controller/actions';
 import { setMultiPopupOpen } from '../../app/Service';
 import { ValueModal } from '../../controllers';
-import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
 import { ClickHandler } from './ValueInfo';
+import { SelectorType } from './constants';
 
 /**
  * @typedef Props
@@ -119,6 +119,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  */
 export const ValueControl = ({ selector, label, units }: ValueProps): JSX.Element => {
   const classes = useStyles();
+  const value: number | undefined = useSelector(selector);
   return (
     <Grid container direction="column" className={classes.rootParent}>
       <Grid item xs style={{ width: '100%' }}>
@@ -139,7 +140,11 @@ export const ValueControl = ({ selector, label, units }: ValueProps): JSX.Elemen
           </Grid>
           <Grid item xs alignItems="center" className={classes.displayContainer}>
             <Typography align="center" variant="h2" className={classes.valueLabel}>
-              <ValueSelectorDisplay selector={selector} />
+              <React.Fragment>
+                {value !== undefined && !Number.isNaN(value)
+                  ? value.toFixed(0).replace(/^-0$/, '0')
+                  : '--'}
+              </React.Fragment>
             </Typography>
             {units !== '' && (
               <Typography align="center" variant="body1" className={classes.unitsLabel}>
