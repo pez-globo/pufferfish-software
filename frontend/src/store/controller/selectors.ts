@@ -301,6 +301,9 @@ export const getAlarmMuteActive = createSelector(
   getAlarmMuteStatus,
   (alarmMute: AlarmMute | null): boolean => (alarmMute === null ? false : alarmMute.active),
 );
+export const getAlarmMuteSeqNum = createSelector(getAlarmMuteStatus, (alarmMute: AlarmMute | null):
+  | number
+  | null => (alarmMute === null ? null : alarmMute.seqNum));
 export const getAlarmMuteRemaining = createSelector(
   getAlarmMuteStatus,
   (alarmMute: AlarmMute | null) => (alarmMute === null ? 0 : alarmMute.remaining),
@@ -361,18 +364,21 @@ export const getFirmwareConnected = createSelector(
 export const getStoreReady = createSelector(
   getParametersRequest,
   getAlarmLimitsRequest,
+  getAlarmMuteStatus,
   getAlarmMuteRequest,
   getBackendConnected,
   getFirmwareConnected,
   (
     parametersRequest: ParametersRequest | null,
     alarmLimitsRequest: AlarmLimitsRequest | null,
+    alarmMute: AlarmMute | null,
     alarmMuteRequest: AlarmMuteRequest | null,
     backendConnected: boolean,
     firmwareConnected: boolean,
   ): boolean =>
     parametersRequest !== null &&
     alarmLimitsRequest !== null &&
+    alarmMute !== null &&
     alarmMuteRequest !== null &&
     backendConnected &&
     firmwareConnected,

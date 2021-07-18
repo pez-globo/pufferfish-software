@@ -118,24 +118,38 @@ async def simulate_states(
         store: Mapping[
             states.StateSegment, Optional[betterproto.Message]
         ], simulated_log: alarms.Manager,
-        simulated_log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
+        simulated_log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent],
+        logger: logging.Logger
 ) -> None:
     """Simulate evolution of all states."""
     simulation_services = simulators.Services()
+    power_service = power_management.Service()
     alarms_services = sim_alarms.Services()
     alarm_mute_service = alarm_mute.Service()
-    power_service = power_management.Service()
     active_log_events = typing.cast(
         mcu_pb.ActiveLogEvents,
         store[states.StateSegment.ACTIVE_LOG_EVENTS_MCU]
     )
+    alarm_mute_ = typing.cast(
+        mcu_pb.AlarmMute,
+        store[states.StateSegment.ALARM_MUTE]
+    )
+    prev_audible_alarms = False
 
     while True:
         simulated_log.input(log.LocalLogInputEvent(current_time=time.time()))
         simulation_services.transform(time.time(), store)
+        power_service.transform(store, simulated_log)
         alarms_services.transform(store, simulated_log)
         alarm_mute_service.transform(time.time(), store)
-        power_service.transform(store, simulated_log)
+        audible_alarms = (
+            len(active_log_events.id) > 0 and not alarm_mute_.active
+        )
+        if audible_alarms and not prev_audible_alarms:
+            logger.info('There are now audible alarms!')
+        elif prev_audible_alarms and not audible_alarms:
+            logger.info('There are no longer audible alarms!')
+        prev_audible_alarms = audible_alarms
         service_event_log(
             simulated_log, active_log_events, simulated_log_receiver
         )
@@ -232,7 +246,7 @@ async def main() -> None:
                 )
                 nursery.start_soon(
                     simulate_states, store,
-                    simulated_log, simulated_log_receiver
+                    simulated_log, simulated_log_receiver, logger
                 )
 
                 while True:
