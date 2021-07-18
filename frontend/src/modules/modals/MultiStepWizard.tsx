@@ -26,8 +26,8 @@ import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import ValueInfo from '../dashboard/components/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../info/units';
 import { AlarmModal } from '../controllers';
-import { ParametersRequest, AlarmLimitsRequest, Range } from '../../store/controller/proto/mcu_pb';
-import { MessageType } from '../../store/controller/types';
+import { ParametersRequest, AlarmLimitsRequest, Range } from '../../store/proto/mcu_pb';
+import { MessageType } from '../../store/proto/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 
 /**

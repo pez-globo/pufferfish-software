@@ -8,7 +8,7 @@ import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import React, { RefObject, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { commitDraftRequest } from '../../store/controller/actions';
-import { VentilationMode, ParametersRequest } from '../../store/controller/proto/mcu_pb';
+import { VentilationMode, ParametersRequest } from '../../store/proto/mcu_pb';
 import {
   getParametersRequestMode,
   getParametersRequestDraftFiO2,
@@ -17,7 +17,7 @@ import {
   getParametersRequestDraftRR,
   getParametersRequestDraftVT,
 } from '../../store/controller/selectors';
-import { MessageType } from '../../store/controller/types';
+import { MessageType } from '../../store/proto/types';
 import { setActiveRotaryReference } from '../app/Service';
 import ValueController from '../controllers/ValueController';
 import ModeBanner, { BannerType } from '../displays/ModeBanner';

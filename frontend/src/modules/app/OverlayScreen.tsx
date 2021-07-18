@@ -8,23 +8,20 @@ import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Subscription } from 'rxjs';
-import { BACKEND_CONNECTION_DOWN, RED_BORDER } from '../../store/app/types';
+import { RED_BORDER } from '../../store/app/types';
 import {
   getAlarmMuteActive,
   getAlarmMuteRequestActive,
-  getBackendDownEvent,
   getHasActiveAlarms,
   getScreenStatusLock,
 } from '../../store/controller/selectors';
-import { MessageType } from '../../store/controller/types';
+import { MessageType } from '../../store/proto/types';
 
 import ModalPopup from '../modals/ModalPopup';
 import MultiStepWizard from '../modals/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { updateState } from '../../store/controller/actions';
-import { LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
-import { getBackendConnected, getBackendHeartBeat, getClock } from '../../store/app/selectors';
-import { establishedBackendConnection } from '../../store/app/actions';
+import { getBackendConnected } from '../../store/connection/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   overlay: {
@@ -43,55 +40,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginBottom: theme.spacing(1),
   },
 }));
-
-/**
- * variable to define backend connection timeout
- */
-export const BACKEND_CONNECTION_TIMEOUT = 3000;
-
-/**
- * HeartbeatBackendListener
- *
- * @component Dispatches BACKEND_CONNECTION_DOWN event if no backendHeartbeat updates before timeout
- *
- * @returns {JSX.Element}
- */
-export const HeartbeatBackendListener = (): JSX.Element => {
-  // getClock is used as a dependency for useEffect so that it executes everytime clock changes,
-  // this allows us to see if diff > BACKEND_CONNECTION_TIMEOUT which means that the backend is disconnected
-  // and accordingly we can dispatch the action to the store.
-  const clock = useSelector(getClock);
-  const dispatch = useDispatch();
-  const heartbeat = useSelector(getBackendHeartBeat);
-  const backendConnected = useSelector(getBackendConnected);
-  const diff = Math.abs(new Date().valueOf() - new Date(heartbeat).valueOf());
-  const timeoutDiff = diff > BACKEND_CONNECTION_TIMEOUT;
-  // Because the backend connection lost event is generated in the frontend and
-  // not sent to or persisted by the backend, we can use getBackendDownEvent as
-  // a reliable indicator of whether there is   currently already an alarm displayed
-  // for a lost backend connection. Everywhere else, we should use the selector
-  // from store/app/selectors.ts for getBackendConnected.
-  const lostConnectionAlarm = useSelector(getBackendDownEvent);
-
-  useEffect(() => {
-    if (timeoutDiff) {
-      if (!lostConnectionAlarm) {
-        dispatch({
-          type: BACKEND_CONNECTION_DOWN,
-          update: {
-            code: LogEventCode.frontend_backend_connection_down,
-            type: LogEventType.system,
-            time: new Date().getTime(),
-          },
-        });
-      }
-    } else if (!backendConnected) {
-      dispatch(establishedBackendConnection());
-    }
-  }, [backendConnected, clock, timeoutDiff, lostConnectionAlarm, dispatch]);
-
-  return <React.Fragment />;
-};
 
 /**
  * Dispatches RED_BORDER event & toggles Audio Alarm
@@ -276,7 +224,6 @@ export const OverlayScreen = (): JSX.Element => {
           />
         </React.Fragment>
       )}
-      <HeartbeatBackendListener />
       <AudioAlarm />
       <MultiStepWizard />
     </React.Fragment>

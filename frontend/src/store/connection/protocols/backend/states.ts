@@ -1,15 +1,15 @@
 import { OutputSelector } from 'reselect';
 import { SelectEffect, select } from 'redux-saga/effects';
 import { StoreState } from '../../../types';
-import { getLastBackendConnectionTime } from '../../../app/selectors';
-import { PBMessage, MessageType } from '../../types';
+import { PBMessage, MessageType } from '../../../proto/types';
 import {
   getParametersRequest,
   getAlarmLimitsRequest,
   getFullExpectedLogEvent,
   getAlarmMuteRequest,
   getFrontendDisplaySetting,
-} from '../../selectors';
+} from '../../../controller/selectors';
+import { getLastBackendConnectionTime } from '../../selectors';
 import {
   TaggedStateSegment,
   makeStateMapSender,

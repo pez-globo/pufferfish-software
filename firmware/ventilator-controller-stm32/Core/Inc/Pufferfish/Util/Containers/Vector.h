@@ -15,6 +15,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <initializer_list>
 
 #include "Pufferfish/Statuses.h"
@@ -56,11 +57,9 @@ class Vector {
   // Note: these perform shallow copies!
   template <size_t source_size>
   IndexStatus copy_from(
-      const std::array<Element, source_size> &source_bytes, size_t dest_start_index = 0);
-  IndexStatus copy_from(
-      const Vector<Element, array_size> &source_bytes, size_t dest_start_index = 0);
-  IndexStatus copy_from(
-      const Element *source_bytes, size_t source_size, size_t dest_start_index = 0);
+      const std::array<Element, source_size> &source, size_t dest_start_index = 0);
+  IndexStatus copy_from(const Vector<Element, array_size> &source, size_t dest_start_index = 0);
+  IndexStatus copy_from(const Element *source, size_t source_size, size_t dest_start_index = 0);
 
   // TODO(lietk12): remove these methods!
   [[nodiscard]] constexpr const Element *buffer() const noexcept { return buffer_.data(); }

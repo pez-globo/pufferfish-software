@@ -2,7 +2,7 @@
  * @summary Constants for LogEvents
  */
 
-import { LogEventCode, LogEventType } from '../../store/controller/proto/mcu_pb';
+import { LogEventCode, LogEventType } from '../../store/proto/mcu_pb';
 import { PERCENT, LMIN, BPM } from '../info/units';
 import { EventType } from './EventType';
 

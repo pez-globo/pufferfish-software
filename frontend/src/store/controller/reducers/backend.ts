@@ -1,15 +1,21 @@
-import { LogEvent, NextLogEvents, ExpectedLogEvent, ActiveLogEvents } from '../proto/mcu_pb';
-import { RotaryEncoder } from '../proto/frontend_pb';
 import {
-  MessageType,
-  PBMessage,
+  LogEvent,
+  NextLogEvents,
+  ExpectedLogEvent,
+  ActiveLogEvents,
+  LogEventCode,
+  LogEventType,
+} from '../../proto/mcu_pb';
+import { RotaryEncoder } from '../../proto/frontend_pb';
+import { MessageType, PBMessage } from '../../proto/types';
+import {
   StateUpdateAction,
   EventLog,
   RotaryEncoderParameter,
   STATE_UPDATED,
   CommitAction,
 } from '../types';
-import { BACKEND_CONNECTION_DOWN } from '../../app/types';
+import { BACKEND_CONNECTION_DOWN } from '../../connection/types';
 
 // GENERIC REDUCERS
 
@@ -127,8 +133,14 @@ export const eventLogReducer = (
       }
     }
     case BACKEND_CONNECTION_DOWN: {
-      // Make an ephemeral frontend-only event
-      const logEvent = (action.update as unknown) as LogEvent;
+      //  Make an ephemeral frontend-only event
+      //  Note: this reducer will create multiple ephemeral log events when multiple BACKEND_CONNECTION_DOWN actions are dispatched when connection goes down
+      //  TODO: check if frontend_backend_connection_down event is already there in state.ephemeralLogEvents before  creating a new one
+      const logEvent = LogEvent.fromJSON({
+        code: LogEventCode.frontend_backend_connection_down,
+        type: LogEventType.system,
+        time: new Date().getTime(),
+      });
       const eventID = state.expectedLogEvent.id;
       return {
         ...state,

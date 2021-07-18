@@ -7,7 +7,7 @@ import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { alarmConfiguration, AlarmConfiguration } from '../alarms/AlarmsPage';
-import { VentilationMode, Range } from '../../store/controller/proto/mcu_pb';
+import { VentilationMode, Range } from '../../store/proto/mcu_pb';
 import {
   getAlarmLimitsRequestDraft,
   getAlarmLimitsRequest,

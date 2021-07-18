@@ -22,14 +22,6 @@
 
 namespace Pufferfish::HAL::Mock {
 
-void PWM::set_duty_cycle_raw(uint32_t duty) {
-  last_raw_duty_ = duty;
-}
-
-float PWM::get_duty_cycle_raw() const {
-  return last_raw_duty_;
-}
-
 PWMStatus PWM::start() {
   if (return_status_ != PWMStatus::ok) {
     return PWMStatus::hal_error;
@@ -38,15 +30,16 @@ PWMStatus PWM::start() {
   return PWMStatus::ok;
 }
 
-bool PWM::get_pwm_state() const {
-  return state_;
-}
 PWMStatus PWM::stop() {
   if (return_status_ != PWMStatus::ok) {
     return PWMStatus::hal_error;
   }
   state_ = false;
   return PWMStatus::ok;
+}
+
+bool PWM::get_pwm_state() const {
+  return state_;
 }
 
 uint32_t PWM::get_max_duty_cycle() {
@@ -59,6 +52,14 @@ void PWM::set_max_duty_cycle(uint32_t duty) {
 
 void PWM::set_return_status(PWMStatus input) {
   return_status_ = input;
+}
+
+float PWM::get_duty_cycle_raw() const {
+  return last_raw_duty_;
+}
+
+void PWM::set_duty_cycle_raw(uint32_t duty) {
+  last_raw_duty_ = duty;
 }
 
 }  // namespace Pufferfish::HAL::Mock

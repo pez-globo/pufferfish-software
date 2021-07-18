@@ -13,7 +13,7 @@ import { shallowEqual, useSelector } from 'react-redux';
 import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
 import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../controllers';
-import { Range } from '../../../store/controller/proto/mcu_pb';
+import { Range } from '../../../store/proto/mcu_pb';
 import { SelectorType } from './constants';
 
 const useStyles = makeStyles((theme: Theme) => ({

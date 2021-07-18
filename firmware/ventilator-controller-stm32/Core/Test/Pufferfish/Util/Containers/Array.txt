@@ -1,0 +1,44 @@
+
+Scenario: Util:Array make_array function works correctly for uint8, uint16, uint32, int16 and structure types
+  GIVEN('Util:Array make_array function')
+    WHEN('An array is created from input type uint8_t as the template parameters and with 8 uint8_t as  input values') 
+      THEN('The array has the expected values of uint8_t at every index') 
+
+    WHEN('An array is created from input type uint8_t as the template parameters and with 2 uint16_t as the input values') 
+       THEN('The array has the expected values of  uint8_t at every index') 
+       
+    WHEN('An array is created from input type uint16_t as the template parameters and with 2 uint16 as the input values') 
+      THEN('The array has expected values of uint16_t at every index ') 
+
+    WHEN('An array is created from input type uint16_t as the template parameters and with 2 uint32_t as the input values') 
+       THEN('The array has the expected values of uint16_t at every index') 
+
+    WHEN('An array is created from input type uint32_t as the template parameters and with 2 uint8_t input values') 
+      THEN('The array has expected values of  uint8_t at every index') 
+
+    WHEN('An array is created from input type uint32_t as the template parameters and with 2 uint16_t input values') 
+      THEN('The array has expected values of  uint16_t at every index') 
+
+    WHEN('An array is created from input type uint32_t as the template parameters and with 2 uint32 input values ') 
+      THEN('The array has the expected values of  uint32_t at every index') 
+
+    WHEN('An array is created from input type int16_t as the template parameters and with 2 int16  input values') 
+      THEN('The array has the expected values of  int16_t at every index') 
+
+    WHEN('An array is created from four struct instances with internal values of 0xb9, 0xe2, 0xa7 and  0x31')
+      THEN('the array has the expected values, 0xb9, 0xe2, 0xa7 and 0x31') 
+
+
+Scenario: Util:Array make_array function works properly for const and non-const references
+  GIVEN('Util:Array make_array function') 
+    WHEN('an array of const references is created from two struct instances with internal values of 0x02 and 0x0f')     
+      THEN(' the array has the expected values, 0x02 and 0x0f') 
+      THEN('Changing the values in the structure to 0x03 and 0xde also changes values of array accessible at indices 0 and 1 to 0x03 and 0xde')     
+// values of an array can't be changed, as values are cont references
+    
+    WHEN('an array of non-const references is created from two struct instances with internal values of 0x67 and 0x3e')       
+      THEN('The array has the expected values, 0x67 and 0x3e') 
+    WHEN('Values of non-const reference elements from structure are changed to 0xa3 and 0xee')  
+      THEN(' Values of array at index 0 and at index 1 changes to 0xa3 and 0xee') 
+    WHEN('Value of the 0th index of an array is changed to 0x01 and value of 1st index is changed to 0x86')
+      THEN('Values of two struct instances also change to 0x01 and 0x86') 
