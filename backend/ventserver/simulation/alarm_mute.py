@@ -41,9 +41,22 @@ class Service:
         alarm_mute = typing.cast(
             mcu_pb.AlarmMute, store[states.StateSegment.ALARM_MUTE]
         )
+        backend_connections = typing.cast(
+            mcu_pb.BackendConnections,
+            store[states.StateSegment.BACKEND_CONNECTIONS]
+        )
         self.transform_mute(
             current_time, alarm_mute_request, alarm_mute, events_log
         )
+        if (
+                backend_connections is not None and
+                not backend_connections.has_frontend
+        ):
+            self.transform_mute_internal(
+                current_time, False,
+                mcu_pb.AlarmMuteSource.backend_frontend_loss,
+                alarm_mute, events_log
+            )
 
     def transform_mute(
             self, current_time: float,
@@ -55,6 +68,15 @@ class Service:
             self._update_internal_state(
                 request.active, current_time, request.source, events_log
             )
+        self._update_response(current_time, response, events_log)
+
+    def transform_mute_internal(
+            self, current_time: float, mute: bool,
+            source: mcu_pb.AlarmMuteSource,
+            response: mcu_pb.AlarmMute, events_log: alarms.Manager
+    ) -> None:
+        """Implement alarm muting."""
+        self._update_internal_state(mute, current_time, source, events_log)
         self._update_response(current_time, response, events_log)
 
     def _update_internal_state(
@@ -88,9 +110,15 @@ class Service:
             elif source == mcu_pb.AlarmMuteSource.timeout:
                 log_event_code = \
                     mcu_pb.LogEventCode.alarms_unmuted_timeout
+            elif source == mcu_pb.AlarmMuteSource.backend_frontend_loss:
+                log_event_code = \
+                    mcu_pb.LogEventCode.alarms_unmuted_backend_frontend_loss
+            elif source == mcu_pb.AlarmMuteSource.frontend_backend_loss:
+                log_event_code = \
+                    mcu_pb.LogEventCode.alarms_unmuted_frontend_backend_loss
             else:
                 self._logger.error(
-                    'Unexpected alarm mute activation source %s', source
+                    'Unexpected alarm mute cancellation source %s', source
                 )
                 log_event_code = mcu_pb.LogEventCode.alarms_unmuted_unknown
         events_log.input(log.LocalLogInputEvent(new_event=mcu_pb.LogEvent(
