@@ -1,5 +1,68 @@
 syntax = "proto3";
 
+// Measurements
+
+message SensorMeasurements {
+  uint64 time = 1;
+  uint32 cycle = 2;
+  float fio2 = 3;
+  float flow = 4;
+  float spo2 = 5;
+  float hr = 6;
+  float paw = 7;
+  float volume = 8;
+}
+
+message CycleMeasurements {
+  uint64 time = 1;
+  float vt = 2;
+  float rr = 3;
+  float peep = 4;
+  float pip = 5;
+  float ip = 6;
+  float ve = 7;
+}
+
+// Parameters
+
+enum VentilationMode {
+  hfnc = 0;
+  pc_ac = 1;
+  vc_ac = 2;
+  niv_pc = 3;
+  niv_ps = 4;
+  psv = 5;
+  prvc = 6;
+}
+
+message Parameters {
+  uint64 time = 1;
+  bool ventilating = 2;
+  VentilationMode mode = 3;
+  float fio2 = 4;
+  float flow = 5;
+  float pip = 6;
+  float peep = 7;
+  float vt = 8;
+  float rr = 9;
+  float ie = 10;
+}
+
+message ParametersRequest {
+  uint64 time = 1;
+  bool ventilating = 2;
+  VentilationMode mode = 3;
+  float fio2 = 4;
+  float flow = 5;
+  float pip = 6;
+  float peep = 7;
+  float vt = 8;
+  float rr = 9;
+  float ie = 10;
+}
+
+// Alarm Limits
+
 message Range {
   int32 lower = 1;
   int32 upper = 2;
@@ -39,75 +102,6 @@ message AlarmLimitsRequest {
   Range tv = 13;
   Range etco2 = 14;
   Range apnea = 15;
-}
-
-message SensorMeasurements {
-  uint64 time = 1;
-  uint32 cycle = 2;
-  float fio2 = 3;
-  float flow = 4;
-  float spo2 = 5;
-  float hr = 6;
-  float paw = 7;
-  float volume = 8;
-}
-
-message CycleMeasurements {
-  uint64 time = 1;
-  float vt = 2;
-  float rr = 3;
-  float peep = 4;
-  float pip = 5;
-  float ip = 6;
-  float ve = 7;
-}
-
-enum VentilationMode {
-  hfnc = 0;
-  pc_ac = 1;
-  vc_ac = 2;
-  niv_pc = 3;
-  niv_ps = 4;
-  psv = 5;
-  prvc = 6;
-}
-
-message Parameters {
-  uint64 time = 1;
-  bool ventilating = 2;
-  VentilationMode mode = 3;
-  float fio2 = 4;
-  float flow = 5;
-  float pip = 6;
-  float peep = 7;
-  float vt = 8;
-  float rr = 9;
-  float ie = 10;
-}
-
-message ParametersRequest {
-  uint64 time = 1;
-  bool ventilating = 2;
-  VentilationMode mode = 3;
-  float fio2 = 4;
-  float flow = 5;
-  float pip = 6;
-  float peep = 7;
-  float vt = 8;
-  float rr = 9;
-  float ie = 10;
-}
-
-// Testing messages
-
-message Ping {
-  uint64 time = 1;
-  uint32 id = 2;
-}
-
-message Announcement {
-  uint64 time = 1;
-  bytes announcement = 2;
 }
 
 // Log Events
@@ -227,18 +221,7 @@ message ActiveLogEvents {
   repeated uint32 id = 1;
 }
 
-// MCU power
-
-message MCUPowerStatus {
-  float power_left = 1;
-  bool charging = 2;
-}
-
-// Hardware Buttons
-
-message ScreenStatus {
-  bool lock = 1;
-}
+// Alarm Muting
 
 enum AlarmMuteSource {
   initialization = 0;  // Alarm muting was set on initialization
@@ -267,4 +250,32 @@ message AlarmMuteRequest {
   // greater than the seq_num in the firmware's copy of AlarmMute.
   uint32 seq_num = 2;
   AlarmMuteSource source = 3;
+}
+
+// Miscellaneous System
+
+message MCUPowerStatus {
+  float power_left = 1;
+  bool charging = 2;
+}
+
+message BackendConnections {
+  bool has_mcu = 1;
+  bool has_frontend = 2;
+}
+
+message ScreenStatus {
+  bool lock = 1;
+}
+
+// Testing Messages
+
+message Ping {
+  uint64 time = 1;
+  uint32 id = 2;
+}
+
+message Announcement {
+  uint64 time = 1;
+  bytes announcement = 2;
 }

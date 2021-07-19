@@ -1,23 +1,26 @@
 import {
+  // Measurements
   SensorMeasurements,
   CycleMeasurements,
+  // Parameters
   Parameters,
   ParametersRequest,
+  // Alarm Limits
   AlarmLimits,
   AlarmLimitsRequest,
+  // Log Events
   ExpectedLogEvent,
   NextLogEvents,
   ActiveLogEvents,
+  // Alarm Muting
   AlarmMute,
   AlarmMuteRequest,
+  // System Miscellaneous
   MCUPowerStatus,
+  BackendConnections,
   ScreenStatus,
 } from '../proto/mcu_pb';
-import {
-  BackendConnections,
-  SystemSettingRequest,
-  FrontendDisplaySetting,
-} from '../proto/frontend_pb';
+import { SystemSettingRequest, FrontendDisplaySetting } from '../proto/frontend_pb';
 import { PBMessage, MessageType } from '../proto/types';
 
 // STATES
@@ -42,10 +45,6 @@ export interface AlarmLimitsRequestResponse {
   // of all fields to AlarmLimitsRequest to send to the backend
   draft: AlarmLimitsRequest | null;
 }
-export interface AlarmMuteRequestResponse {
-  current: AlarmMute | null;
-  request: AlarmMuteRequest | null;
-}
 export interface EventLog {
   expectedLogEvent: ExpectedLogEvent;
   nextLogEvents: NextLogEvents;
@@ -53,6 +52,10 @@ export interface EventLog {
   ephemeralLogEvents: {
     id: number[];
   };
+}
+export interface AlarmMuteRequestResponse {
+  current: AlarmMute | null;
+  request: AlarmMuteRequest | null;
 }
 
 export interface RotaryEncoderParameter {
@@ -113,15 +116,14 @@ export interface ControllerStates {
   alarmLimits: AlarmLimitsRequestResponse;
   eventLog: EventLog;
   alarmMute: AlarmMuteRequestResponse;
-  systemSettingRequest: SystemSettingRequest | null;
-  frontendDisplaySetting: FrontendDisplaySetting | null;
   mcuPowerStatus: MCUPowerStatus | null;
+  backendConnections: BackendConnections | null;
   screenStatus: ScreenStatus | null;
-  heartbeatBackend: { time: Date };
 
   // Message states from frontend_pb
-  backendConnections: BackendConnections | null;
   rotaryEncoder: RotaryEncoderParameter | null;
+  systemSettingRequest: SystemSettingRequest | null;
+  frontendDisplaySetting: FrontendDisplaySetting | null;
 
   // Derived states
   plots: Plots;

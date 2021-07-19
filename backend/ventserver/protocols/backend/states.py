@@ -21,24 +21,31 @@ from ventserver.sansio import protocols
 class StateSegment(enum.Enum):
     """Enum for addressing state segments in the state store."""
     # mcu_pb
+    # Measurements
     SENSOR_MEASUREMENTS = enum.auto()
     CYCLE_MEASUREMENTS = enum.auto()
+    # Parameters
     PARAMETERS = enum.auto()
     PARAMETERS_REQUEST = enum.auto()
+    # Alarm Limits
     ALARM_LIMITS = enum.auto()
     ALARM_LIMITS_REQUEST = enum.auto()
+    # Log Events
     EXPECTED_LOG_EVENT_MCU = enum.auto()
     NEXT_LOG_EVENTS_MCU = enum.auto()
     ACTIVE_LOG_EVENTS_MCU = enum.auto()
     EXPECTED_LOG_EVENT_BE = enum.auto()
     NEXT_LOG_EVENTS_BE = enum.auto()
     ACTIVE_LOG_EVENTS_BE = enum.auto()
+    # Alarm Muting
     ALARM_MUTE = enum.auto()
     ALARM_MUTE_REQUEST = enum.auto()
+    # System Miscellaneous
     MCU_POWER_STATUS = enum.auto()
-    SCREEN_STATUS = enum.auto()
-    # frontend_pb
     BACKEND_CONNECTIONS = enum.auto()
+    SCREEN_STATUS = enum.auto()
+
+    # frontend_pb
     ROTARY_ENCODER = enum.auto()
     SYSTEM_SETTING = enum.auto()
     SYSTEM_SETTING_REQUEST = enum.auto()
@@ -81,6 +88,7 @@ MCU_OUTPUT_SCHEDULE = [
     StateSegment.PARAMETERS_REQUEST,
     StateSegment.ALARM_LIMITS_REQUEST,
     StateSegment.ALARM_MUTE_REQUEST,
+    StateSegment.BACKEND_CONNECTIONS,
 ]
 
 FRONTEND_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
@@ -149,7 +157,7 @@ FILE_OUTPUT_SCHEDULE = [
 ]
 
 SERVER_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
-    frontend_pb.BackendConnections: StateSegment.BACKEND_CONNECTIONS
+    mcu_pb.BackendConnections: StateSegment.BACKEND_CONNECTIONS
 }
 
 
@@ -207,8 +215,8 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
 
     store: Store = attr.ib()
 
-    _prev_connection_states: frontend_pb.BackendConnections = \
-        attr.ib(factory=frontend_pb.BackendConnections)
+    _prev_connection_states: mcu_pb.BackendConnections = \
+        attr.ib(factory=mcu_pb.BackendConnections)
 
     # Event synchronization senders
     _mcu_event_sender: eventsync.ChangedStateSender[StateSegment] = attr.ib()
@@ -446,7 +454,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             return
 
         current_states = typing.cast(
-            frontend_pb.BackendConnections, current_states
+            mcu_pb.BackendConnections, current_states
         )
         # Handle MCU
         if current_states.has_mcu and not self._prev_connection_states.has_mcu:

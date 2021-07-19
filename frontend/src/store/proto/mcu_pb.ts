@@ -505,47 +505,6 @@ export function alarmMuteSourceToJSON(object: AlarmMuteSource): string {
   }
 }
 
-export interface Range {
-  lower: number;
-  upper: number;
-}
-
-export interface AlarmLimits {
-  time: number;
-  fio2: Range | undefined;
-  flow: Range | undefined;
-  spo2: Range | undefined;
-  hr: Range | undefined;
-  rr: Range | undefined;
-  pip: Range | undefined;
-  peep: Range | undefined;
-  ipAbovePeep: Range | undefined;
-  inspTime: Range | undefined;
-  paw: Range | undefined;
-  mve: Range | undefined;
-  tv: Range | undefined;
-  etco2: Range | undefined;
-  apnea: Range | undefined;
-}
-
-export interface AlarmLimitsRequest {
-  time: number;
-  fio2: Range | undefined;
-  flow: Range | undefined;
-  spo2: Range | undefined;
-  hr: Range | undefined;
-  rr: Range | undefined;
-  pip: Range | undefined;
-  peep: Range | undefined;
-  ipAbovePeep: Range | undefined;
-  inspTime: Range | undefined;
-  paw: Range | undefined;
-  mve: Range | undefined;
-  tv: Range | undefined;
-  etco2: Range | undefined;
-  apnea: Range | undefined;
-}
-
 export interface SensorMeasurements {
   time: number;
   cycle: number;
@@ -593,14 +552,45 @@ export interface ParametersRequest {
   ie: number;
 }
 
-export interface Ping {
-  time: number;
-  id: number;
+export interface Range {
+  lower: number;
+  upper: number;
 }
 
-export interface Announcement {
+export interface AlarmLimits {
   time: number;
-  announcement: Uint8Array;
+  fio2: Range | undefined;
+  flow: Range | undefined;
+  spo2: Range | undefined;
+  hr: Range | undefined;
+  rr: Range | undefined;
+  pip: Range | undefined;
+  peep: Range | undefined;
+  ipAbovePeep: Range | undefined;
+  inspTime: Range | undefined;
+  paw: Range | undefined;
+  mve: Range | undefined;
+  tv: Range | undefined;
+  etco2: Range | undefined;
+  apnea: Range | undefined;
+}
+
+export interface AlarmLimitsRequest {
+  time: number;
+  fio2: Range | undefined;
+  flow: Range | undefined;
+  spo2: Range | undefined;
+  hr: Range | undefined;
+  rr: Range | undefined;
+  pip: Range | undefined;
+  peep: Range | undefined;
+  ipAbovePeep: Range | undefined;
+  inspTime: Range | undefined;
+  paw: Range | undefined;
+  mve: Range | undefined;
+  tv: Range | undefined;
+  etco2: Range | undefined;
+  apnea: Range | undefined;
 }
 
 export interface LogEvent {
@@ -652,15 +642,6 @@ export interface ActiveLogEvents {
   id: number[];
 }
 
-export interface MCUPowerStatus {
-  powerLeft: number;
-  charging: boolean;
-}
-
-export interface ScreenStatus {
-  lock: boolean;
-}
-
 export interface AlarmMute {
   active: boolean;
   /**
@@ -683,705 +664,29 @@ export interface AlarmMuteRequest {
   source: AlarmMuteSource;
 }
 
-const baseRange: object = { lower: 0, upper: 0 };
+export interface MCUPowerStatus {
+  powerLeft: number;
+  charging: boolean;
+}
 
-export const Range = {
-  encode(message: Range, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.lower !== 0) {
-      writer.uint32(8).int32(message.lower);
-    }
-    if (message.upper !== 0) {
-      writer.uint32(16).int32(message.upper);
-    }
-    return writer;
-  },
+export interface BackendConnections {
+  hasMcu: boolean;
+  hasFrontend: boolean;
+}
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): Range {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRange } as Range;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.lower = reader.int32();
-          break;
-        case 2:
-          message.upper = reader.int32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
+export interface ScreenStatus {
+  lock: boolean;
+}
 
-  fromJSON(object: any): Range {
-    const message = { ...baseRange } as Range;
-    if (object.lower !== undefined && object.lower !== null) {
-      message.lower = Number(object.lower);
-    } else {
-      message.lower = 0;
-    }
-    if (object.upper !== undefined && object.upper !== null) {
-      message.upper = Number(object.upper);
-    } else {
-      message.upper = 0;
-    }
-    return message;
-  },
+export interface Ping {
+  time: number;
+  id: number;
+}
 
-  toJSON(message: Range): unknown {
-    const obj: any = {};
-    message.lower !== undefined && (obj.lower = message.lower);
-    message.upper !== undefined && (obj.upper = message.upper);
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<Range>): Range {
-    const message = { ...baseRange } as Range;
-    if (object.lower !== undefined && object.lower !== null) {
-      message.lower = object.lower;
-    } else {
-      message.lower = 0;
-    }
-    if (object.upper !== undefined && object.upper !== null) {
-      message.upper = object.upper;
-    } else {
-      message.upper = 0;
-    }
-    return message;
-  },
-};
-
-const baseAlarmLimits: object = { time: 0 };
-
-export const AlarmLimits = {
-  encode(
-    message: AlarmLimits,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.time !== 0) {
-      writer.uint32(8).uint64(message.time);
-    }
-    if (message.fio2 !== undefined) {
-      Range.encode(message.fio2, writer.uint32(18).fork()).ldelim();
-    }
-    if (message.flow !== undefined) {
-      Range.encode(message.flow, writer.uint32(26).fork()).ldelim();
-    }
-    if (message.spo2 !== undefined) {
-      Range.encode(message.spo2, writer.uint32(34).fork()).ldelim();
-    }
-    if (message.hr !== undefined) {
-      Range.encode(message.hr, writer.uint32(42).fork()).ldelim();
-    }
-    if (message.rr !== undefined) {
-      Range.encode(message.rr, writer.uint32(50).fork()).ldelim();
-    }
-    if (message.pip !== undefined) {
-      Range.encode(message.pip, writer.uint32(58).fork()).ldelim();
-    }
-    if (message.peep !== undefined) {
-      Range.encode(message.peep, writer.uint32(66).fork()).ldelim();
-    }
-    if (message.ipAbovePeep !== undefined) {
-      Range.encode(message.ipAbovePeep, writer.uint32(74).fork()).ldelim();
-    }
-    if (message.inspTime !== undefined) {
-      Range.encode(message.inspTime, writer.uint32(82).fork()).ldelim();
-    }
-    if (message.paw !== undefined) {
-      Range.encode(message.paw, writer.uint32(90).fork()).ldelim();
-    }
-    if (message.mve !== undefined) {
-      Range.encode(message.mve, writer.uint32(98).fork()).ldelim();
-    }
-    if (message.tv !== undefined) {
-      Range.encode(message.tv, writer.uint32(106).fork()).ldelim();
-    }
-    if (message.etco2 !== undefined) {
-      Range.encode(message.etco2, writer.uint32(114).fork()).ldelim();
-    }
-    if (message.apnea !== undefined) {
-      Range.encode(message.apnea, writer.uint32(122).fork()).ldelim();
-    }
-    return writer;
-  },
-
-  decode(input: _m0.Reader | Uint8Array, length?: number): AlarmLimits {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseAlarmLimits } as AlarmLimits;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.time = longToNumber(reader.uint64() as Long);
-          break;
-        case 2:
-          message.fio2 = Range.decode(reader, reader.uint32());
-          break;
-        case 3:
-          message.flow = Range.decode(reader, reader.uint32());
-          break;
-        case 4:
-          message.spo2 = Range.decode(reader, reader.uint32());
-          break;
-        case 5:
-          message.hr = Range.decode(reader, reader.uint32());
-          break;
-        case 6:
-          message.rr = Range.decode(reader, reader.uint32());
-          break;
-        case 7:
-          message.pip = Range.decode(reader, reader.uint32());
-          break;
-        case 8:
-          message.peep = Range.decode(reader, reader.uint32());
-          break;
-        case 9:
-          message.ipAbovePeep = Range.decode(reader, reader.uint32());
-          break;
-        case 10:
-          message.inspTime = Range.decode(reader, reader.uint32());
-          break;
-        case 11:
-          message.paw = Range.decode(reader, reader.uint32());
-          break;
-        case 12:
-          message.mve = Range.decode(reader, reader.uint32());
-          break;
-        case 13:
-          message.tv = Range.decode(reader, reader.uint32());
-          break;
-        case 14:
-          message.etco2 = Range.decode(reader, reader.uint32());
-          break;
-        case 15:
-          message.apnea = Range.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): AlarmLimits {
-    const message = { ...baseAlarmLimits } as AlarmLimits;
-    if (object.time !== undefined && object.time !== null) {
-      message.time = Number(object.time);
-    } else {
-      message.time = 0;
-    }
-    if (object.fio2 !== undefined && object.fio2 !== null) {
-      message.fio2 = Range.fromJSON(object.fio2);
-    } else {
-      message.fio2 = undefined;
-    }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = Range.fromJSON(object.flow);
-    } else {
-      message.flow = undefined;
-    }
-    if (object.spo2 !== undefined && object.spo2 !== null) {
-      message.spo2 = Range.fromJSON(object.spo2);
-    } else {
-      message.spo2 = undefined;
-    }
-    if (object.hr !== undefined && object.hr !== null) {
-      message.hr = Range.fromJSON(object.hr);
-    } else {
-      message.hr = undefined;
-    }
-    if (object.rr !== undefined && object.rr !== null) {
-      message.rr = Range.fromJSON(object.rr);
-    } else {
-      message.rr = undefined;
-    }
-    if (object.pip !== undefined && object.pip !== null) {
-      message.pip = Range.fromJSON(object.pip);
-    } else {
-      message.pip = undefined;
-    }
-    if (object.peep !== undefined && object.peep !== null) {
-      message.peep = Range.fromJSON(object.peep);
-    } else {
-      message.peep = undefined;
-    }
-    if (object.ipAbovePeep !== undefined && object.ipAbovePeep !== null) {
-      message.ipAbovePeep = Range.fromJSON(object.ipAbovePeep);
-    } else {
-      message.ipAbovePeep = undefined;
-    }
-    if (object.inspTime !== undefined && object.inspTime !== null) {
-      message.inspTime = Range.fromJSON(object.inspTime);
-    } else {
-      message.inspTime = undefined;
-    }
-    if (object.paw !== undefined && object.paw !== null) {
-      message.paw = Range.fromJSON(object.paw);
-    } else {
-      message.paw = undefined;
-    }
-    if (object.mve !== undefined && object.mve !== null) {
-      message.mve = Range.fromJSON(object.mve);
-    } else {
-      message.mve = undefined;
-    }
-    if (object.tv !== undefined && object.tv !== null) {
-      message.tv = Range.fromJSON(object.tv);
-    } else {
-      message.tv = undefined;
-    }
-    if (object.etco2 !== undefined && object.etco2 !== null) {
-      message.etco2 = Range.fromJSON(object.etco2);
-    } else {
-      message.etco2 = undefined;
-    }
-    if (object.apnea !== undefined && object.apnea !== null) {
-      message.apnea = Range.fromJSON(object.apnea);
-    } else {
-      message.apnea = undefined;
-    }
-    return message;
-  },
-
-  toJSON(message: AlarmLimits): unknown {
-    const obj: any = {};
-    message.time !== undefined && (obj.time = message.time);
-    message.fio2 !== undefined &&
-      (obj.fio2 = message.fio2 ? Range.toJSON(message.fio2) : undefined);
-    message.flow !== undefined &&
-      (obj.flow = message.flow ? Range.toJSON(message.flow) : undefined);
-    message.spo2 !== undefined &&
-      (obj.spo2 = message.spo2 ? Range.toJSON(message.spo2) : undefined);
-    message.hr !== undefined &&
-      (obj.hr = message.hr ? Range.toJSON(message.hr) : undefined);
-    message.rr !== undefined &&
-      (obj.rr = message.rr ? Range.toJSON(message.rr) : undefined);
-    message.pip !== undefined &&
-      (obj.pip = message.pip ? Range.toJSON(message.pip) : undefined);
-    message.peep !== undefined &&
-      (obj.peep = message.peep ? Range.toJSON(message.peep) : undefined);
-    message.ipAbovePeep !== undefined &&
-      (obj.ipAbovePeep = message.ipAbovePeep
-        ? Range.toJSON(message.ipAbovePeep)
-        : undefined);
-    message.inspTime !== undefined &&
-      (obj.inspTime = message.inspTime
-        ? Range.toJSON(message.inspTime)
-        : undefined);
-    message.paw !== undefined &&
-      (obj.paw = message.paw ? Range.toJSON(message.paw) : undefined);
-    message.mve !== undefined &&
-      (obj.mve = message.mve ? Range.toJSON(message.mve) : undefined);
-    message.tv !== undefined &&
-      (obj.tv = message.tv ? Range.toJSON(message.tv) : undefined);
-    message.etco2 !== undefined &&
-      (obj.etco2 = message.etco2 ? Range.toJSON(message.etco2) : undefined);
-    message.apnea !== undefined &&
-      (obj.apnea = message.apnea ? Range.toJSON(message.apnea) : undefined);
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<AlarmLimits>): AlarmLimits {
-    const message = { ...baseAlarmLimits } as AlarmLimits;
-    if (object.time !== undefined && object.time !== null) {
-      message.time = object.time;
-    } else {
-      message.time = 0;
-    }
-    if (object.fio2 !== undefined && object.fio2 !== null) {
-      message.fio2 = Range.fromPartial(object.fio2);
-    } else {
-      message.fio2 = undefined;
-    }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = Range.fromPartial(object.flow);
-    } else {
-      message.flow = undefined;
-    }
-    if (object.spo2 !== undefined && object.spo2 !== null) {
-      message.spo2 = Range.fromPartial(object.spo2);
-    } else {
-      message.spo2 = undefined;
-    }
-    if (object.hr !== undefined && object.hr !== null) {
-      message.hr = Range.fromPartial(object.hr);
-    } else {
-      message.hr = undefined;
-    }
-    if (object.rr !== undefined && object.rr !== null) {
-      message.rr = Range.fromPartial(object.rr);
-    } else {
-      message.rr = undefined;
-    }
-    if (object.pip !== undefined && object.pip !== null) {
-      message.pip = Range.fromPartial(object.pip);
-    } else {
-      message.pip = undefined;
-    }
-    if (object.peep !== undefined && object.peep !== null) {
-      message.peep = Range.fromPartial(object.peep);
-    } else {
-      message.peep = undefined;
-    }
-    if (object.ipAbovePeep !== undefined && object.ipAbovePeep !== null) {
-      message.ipAbovePeep = Range.fromPartial(object.ipAbovePeep);
-    } else {
-      message.ipAbovePeep = undefined;
-    }
-    if (object.inspTime !== undefined && object.inspTime !== null) {
-      message.inspTime = Range.fromPartial(object.inspTime);
-    } else {
-      message.inspTime = undefined;
-    }
-    if (object.paw !== undefined && object.paw !== null) {
-      message.paw = Range.fromPartial(object.paw);
-    } else {
-      message.paw = undefined;
-    }
-    if (object.mve !== undefined && object.mve !== null) {
-      message.mve = Range.fromPartial(object.mve);
-    } else {
-      message.mve = undefined;
-    }
-    if (object.tv !== undefined && object.tv !== null) {
-      message.tv = Range.fromPartial(object.tv);
-    } else {
-      message.tv = undefined;
-    }
-    if (object.etco2 !== undefined && object.etco2 !== null) {
-      message.etco2 = Range.fromPartial(object.etco2);
-    } else {
-      message.etco2 = undefined;
-    }
-    if (object.apnea !== undefined && object.apnea !== null) {
-      message.apnea = Range.fromPartial(object.apnea);
-    } else {
-      message.apnea = undefined;
-    }
-    return message;
-  },
-};
-
-const baseAlarmLimitsRequest: object = { time: 0 };
-
-export const AlarmLimitsRequest = {
-  encode(
-    message: AlarmLimitsRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.time !== 0) {
-      writer.uint32(8).uint64(message.time);
-    }
-    if (message.fio2 !== undefined) {
-      Range.encode(message.fio2, writer.uint32(18).fork()).ldelim();
-    }
-    if (message.flow !== undefined) {
-      Range.encode(message.flow, writer.uint32(26).fork()).ldelim();
-    }
-    if (message.spo2 !== undefined) {
-      Range.encode(message.spo2, writer.uint32(34).fork()).ldelim();
-    }
-    if (message.hr !== undefined) {
-      Range.encode(message.hr, writer.uint32(42).fork()).ldelim();
-    }
-    if (message.rr !== undefined) {
-      Range.encode(message.rr, writer.uint32(50).fork()).ldelim();
-    }
-    if (message.pip !== undefined) {
-      Range.encode(message.pip, writer.uint32(58).fork()).ldelim();
-    }
-    if (message.peep !== undefined) {
-      Range.encode(message.peep, writer.uint32(66).fork()).ldelim();
-    }
-    if (message.ipAbovePeep !== undefined) {
-      Range.encode(message.ipAbovePeep, writer.uint32(74).fork()).ldelim();
-    }
-    if (message.inspTime !== undefined) {
-      Range.encode(message.inspTime, writer.uint32(82).fork()).ldelim();
-    }
-    if (message.paw !== undefined) {
-      Range.encode(message.paw, writer.uint32(90).fork()).ldelim();
-    }
-    if (message.mve !== undefined) {
-      Range.encode(message.mve, writer.uint32(98).fork()).ldelim();
-    }
-    if (message.tv !== undefined) {
-      Range.encode(message.tv, writer.uint32(106).fork()).ldelim();
-    }
-    if (message.etco2 !== undefined) {
-      Range.encode(message.etco2, writer.uint32(114).fork()).ldelim();
-    }
-    if (message.apnea !== undefined) {
-      Range.encode(message.apnea, writer.uint32(122).fork()).ldelim();
-    }
-    return writer;
-  },
-
-  decode(input: _m0.Reader | Uint8Array, length?: number): AlarmLimitsRequest {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseAlarmLimitsRequest } as AlarmLimitsRequest;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.time = longToNumber(reader.uint64() as Long);
-          break;
-        case 2:
-          message.fio2 = Range.decode(reader, reader.uint32());
-          break;
-        case 3:
-          message.flow = Range.decode(reader, reader.uint32());
-          break;
-        case 4:
-          message.spo2 = Range.decode(reader, reader.uint32());
-          break;
-        case 5:
-          message.hr = Range.decode(reader, reader.uint32());
-          break;
-        case 6:
-          message.rr = Range.decode(reader, reader.uint32());
-          break;
-        case 7:
-          message.pip = Range.decode(reader, reader.uint32());
-          break;
-        case 8:
-          message.peep = Range.decode(reader, reader.uint32());
-          break;
-        case 9:
-          message.ipAbovePeep = Range.decode(reader, reader.uint32());
-          break;
-        case 10:
-          message.inspTime = Range.decode(reader, reader.uint32());
-          break;
-        case 11:
-          message.paw = Range.decode(reader, reader.uint32());
-          break;
-        case 12:
-          message.mve = Range.decode(reader, reader.uint32());
-          break;
-        case 13:
-          message.tv = Range.decode(reader, reader.uint32());
-          break;
-        case 14:
-          message.etco2 = Range.decode(reader, reader.uint32());
-          break;
-        case 15:
-          message.apnea = Range.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): AlarmLimitsRequest {
-    const message = { ...baseAlarmLimitsRequest } as AlarmLimitsRequest;
-    if (object.time !== undefined && object.time !== null) {
-      message.time = Number(object.time);
-    } else {
-      message.time = 0;
-    }
-    if (object.fio2 !== undefined && object.fio2 !== null) {
-      message.fio2 = Range.fromJSON(object.fio2);
-    } else {
-      message.fio2 = undefined;
-    }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = Range.fromJSON(object.flow);
-    } else {
-      message.flow = undefined;
-    }
-    if (object.spo2 !== undefined && object.spo2 !== null) {
-      message.spo2 = Range.fromJSON(object.spo2);
-    } else {
-      message.spo2 = undefined;
-    }
-    if (object.hr !== undefined && object.hr !== null) {
-      message.hr = Range.fromJSON(object.hr);
-    } else {
-      message.hr = undefined;
-    }
-    if (object.rr !== undefined && object.rr !== null) {
-      message.rr = Range.fromJSON(object.rr);
-    } else {
-      message.rr = undefined;
-    }
-    if (object.pip !== undefined && object.pip !== null) {
-      message.pip = Range.fromJSON(object.pip);
-    } else {
-      message.pip = undefined;
-    }
-    if (object.peep !== undefined && object.peep !== null) {
-      message.peep = Range.fromJSON(object.peep);
-    } else {
-      message.peep = undefined;
-    }
-    if (object.ipAbovePeep !== undefined && object.ipAbovePeep !== null) {
-      message.ipAbovePeep = Range.fromJSON(object.ipAbovePeep);
-    } else {
-      message.ipAbovePeep = undefined;
-    }
-    if (object.inspTime !== undefined && object.inspTime !== null) {
-      message.inspTime = Range.fromJSON(object.inspTime);
-    } else {
-      message.inspTime = undefined;
-    }
-    if (object.paw !== undefined && object.paw !== null) {
-      message.paw = Range.fromJSON(object.paw);
-    } else {
-      message.paw = undefined;
-    }
-    if (object.mve !== undefined && object.mve !== null) {
-      message.mve = Range.fromJSON(object.mve);
-    } else {
-      message.mve = undefined;
-    }
-    if (object.tv !== undefined && object.tv !== null) {
-      message.tv = Range.fromJSON(object.tv);
-    } else {
-      message.tv = undefined;
-    }
-    if (object.etco2 !== undefined && object.etco2 !== null) {
-      message.etco2 = Range.fromJSON(object.etco2);
-    } else {
-      message.etco2 = undefined;
-    }
-    if (object.apnea !== undefined && object.apnea !== null) {
-      message.apnea = Range.fromJSON(object.apnea);
-    } else {
-      message.apnea = undefined;
-    }
-    return message;
-  },
-
-  toJSON(message: AlarmLimitsRequest): unknown {
-    const obj: any = {};
-    message.time !== undefined && (obj.time = message.time);
-    message.fio2 !== undefined &&
-      (obj.fio2 = message.fio2 ? Range.toJSON(message.fio2) : undefined);
-    message.flow !== undefined &&
-      (obj.flow = message.flow ? Range.toJSON(message.flow) : undefined);
-    message.spo2 !== undefined &&
-      (obj.spo2 = message.spo2 ? Range.toJSON(message.spo2) : undefined);
-    message.hr !== undefined &&
-      (obj.hr = message.hr ? Range.toJSON(message.hr) : undefined);
-    message.rr !== undefined &&
-      (obj.rr = message.rr ? Range.toJSON(message.rr) : undefined);
-    message.pip !== undefined &&
-      (obj.pip = message.pip ? Range.toJSON(message.pip) : undefined);
-    message.peep !== undefined &&
-      (obj.peep = message.peep ? Range.toJSON(message.peep) : undefined);
-    message.ipAbovePeep !== undefined &&
-      (obj.ipAbovePeep = message.ipAbovePeep
-        ? Range.toJSON(message.ipAbovePeep)
-        : undefined);
-    message.inspTime !== undefined &&
-      (obj.inspTime = message.inspTime
-        ? Range.toJSON(message.inspTime)
-        : undefined);
-    message.paw !== undefined &&
-      (obj.paw = message.paw ? Range.toJSON(message.paw) : undefined);
-    message.mve !== undefined &&
-      (obj.mve = message.mve ? Range.toJSON(message.mve) : undefined);
-    message.tv !== undefined &&
-      (obj.tv = message.tv ? Range.toJSON(message.tv) : undefined);
-    message.etco2 !== undefined &&
-      (obj.etco2 = message.etco2 ? Range.toJSON(message.etco2) : undefined);
-    message.apnea !== undefined &&
-      (obj.apnea = message.apnea ? Range.toJSON(message.apnea) : undefined);
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<AlarmLimitsRequest>): AlarmLimitsRequest {
-    const message = { ...baseAlarmLimitsRequest } as AlarmLimitsRequest;
-    if (object.time !== undefined && object.time !== null) {
-      message.time = object.time;
-    } else {
-      message.time = 0;
-    }
-    if (object.fio2 !== undefined && object.fio2 !== null) {
-      message.fio2 = Range.fromPartial(object.fio2);
-    } else {
-      message.fio2 = undefined;
-    }
-    if (object.flow !== undefined && object.flow !== null) {
-      message.flow = Range.fromPartial(object.flow);
-    } else {
-      message.flow = undefined;
-    }
-    if (object.spo2 !== undefined && object.spo2 !== null) {
-      message.spo2 = Range.fromPartial(object.spo2);
-    } else {
-      message.spo2 = undefined;
-    }
-    if (object.hr !== undefined && object.hr !== null) {
-      message.hr = Range.fromPartial(object.hr);
-    } else {
-      message.hr = undefined;
-    }
-    if (object.rr !== undefined && object.rr !== null) {
-      message.rr = Range.fromPartial(object.rr);
-    } else {
-      message.rr = undefined;
-    }
-    if (object.pip !== undefined && object.pip !== null) {
-      message.pip = Range.fromPartial(object.pip);
-    } else {
-      message.pip = undefined;
-    }
-    if (object.peep !== undefined && object.peep !== null) {
-      message.peep = Range.fromPartial(object.peep);
-    } else {
-      message.peep = undefined;
-    }
-    if (object.ipAbovePeep !== undefined && object.ipAbovePeep !== null) {
-      message.ipAbovePeep = Range.fromPartial(object.ipAbovePeep);
-    } else {
-      message.ipAbovePeep = undefined;
-    }
-    if (object.inspTime !== undefined && object.inspTime !== null) {
-      message.inspTime = Range.fromPartial(object.inspTime);
-    } else {
-      message.inspTime = undefined;
-    }
-    if (object.paw !== undefined && object.paw !== null) {
-      message.paw = Range.fromPartial(object.paw);
-    } else {
-      message.paw = undefined;
-    }
-    if (object.mve !== undefined && object.mve !== null) {
-      message.mve = Range.fromPartial(object.mve);
-    } else {
-      message.mve = undefined;
-    }
-    if (object.tv !== undefined && object.tv !== null) {
-      message.tv = Range.fromPartial(object.tv);
-    } else {
-      message.tv = undefined;
-    }
-    if (object.etco2 !== undefined && object.etco2 !== null) {
-      message.etco2 = Range.fromPartial(object.etco2);
-    } else {
-      message.etco2 = undefined;
-    }
-    if (object.apnea !== undefined && object.apnea !== null) {
-      message.apnea = Range.fromPartial(object.apnea);
-    } else {
-      message.apnea = undefined;
-    }
-    return message;
-  },
-};
+export interface Announcement {
+  time: number;
+  announcement: Uint8Array;
+}
 
 const baseSensorMeasurements: object = {
   time: 0,
@@ -2185,31 +1490,31 @@ export const ParametersRequest = {
   },
 };
 
-const basePing: object = { time: 0, id: 0 };
+const baseRange: object = { lower: 0, upper: 0 };
 
-export const Ping = {
-  encode(message: Ping, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.time !== 0) {
-      writer.uint32(8).uint64(message.time);
+export const Range = {
+  encode(message: Range, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.lower !== 0) {
+      writer.uint32(8).int32(message.lower);
     }
-    if (message.id !== 0) {
-      writer.uint32(16).uint32(message.id);
+    if (message.upper !== 0) {
+      writer.uint32(16).int32(message.upper);
     }
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): Ping {
+  decode(input: _m0.Reader | Uint8Array, length?: number): Range {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...basePing } as Ping;
+    const message = { ...baseRange } as Range;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.time = longToNumber(reader.uint64() as Long);
+          message.lower = reader.int32();
           break;
         case 2:
-          message.id = reader.uint32();
+          message.upper = reader.int32();
           break;
         default:
           reader.skipType(tag & 7);
@@ -2219,65 +1524,103 @@ export const Ping = {
     return message;
   },
 
-  fromJSON(object: any): Ping {
-    const message = { ...basePing } as Ping;
-    if (object.time !== undefined && object.time !== null) {
-      message.time = Number(object.time);
+  fromJSON(object: any): Range {
+    const message = { ...baseRange } as Range;
+    if (object.lower !== undefined && object.lower !== null) {
+      message.lower = Number(object.lower);
     } else {
-      message.time = 0;
+      message.lower = 0;
     }
-    if (object.id !== undefined && object.id !== null) {
-      message.id = Number(object.id);
+    if (object.upper !== undefined && object.upper !== null) {
+      message.upper = Number(object.upper);
     } else {
-      message.id = 0;
+      message.upper = 0;
     }
     return message;
   },
 
-  toJSON(message: Ping): unknown {
+  toJSON(message: Range): unknown {
     const obj: any = {};
-    message.time !== undefined && (obj.time = message.time);
-    message.id !== undefined && (obj.id = message.id);
+    message.lower !== undefined && (obj.lower = message.lower);
+    message.upper !== undefined && (obj.upper = message.upper);
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Ping>): Ping {
-    const message = { ...basePing } as Ping;
-    if (object.time !== undefined && object.time !== null) {
-      message.time = object.time;
+  fromPartial(object: DeepPartial<Range>): Range {
+    const message = { ...baseRange } as Range;
+    if (object.lower !== undefined && object.lower !== null) {
+      message.lower = object.lower;
     } else {
-      message.time = 0;
+      message.lower = 0;
     }
-    if (object.id !== undefined && object.id !== null) {
-      message.id = object.id;
+    if (object.upper !== undefined && object.upper !== null) {
+      message.upper = object.upper;
     } else {
-      message.id = 0;
+      message.upper = 0;
     }
     return message;
   },
 };
 
-const baseAnnouncement: object = { time: 0 };
+const baseAlarmLimits: object = { time: 0 };
 
-export const Announcement = {
+export const AlarmLimits = {
   encode(
-    message: Announcement,
+    message: AlarmLimits,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
     if (message.time !== 0) {
       writer.uint32(8).uint64(message.time);
     }
-    if (message.announcement.length !== 0) {
-      writer.uint32(18).bytes(message.announcement);
+    if (message.fio2 !== undefined) {
+      Range.encode(message.fio2, writer.uint32(18).fork()).ldelim();
+    }
+    if (message.flow !== undefined) {
+      Range.encode(message.flow, writer.uint32(26).fork()).ldelim();
+    }
+    if (message.spo2 !== undefined) {
+      Range.encode(message.spo2, writer.uint32(34).fork()).ldelim();
+    }
+    if (message.hr !== undefined) {
+      Range.encode(message.hr, writer.uint32(42).fork()).ldelim();
+    }
+    if (message.rr !== undefined) {
+      Range.encode(message.rr, writer.uint32(50).fork()).ldelim();
+    }
+    if (message.pip !== undefined) {
+      Range.encode(message.pip, writer.uint32(58).fork()).ldelim();
+    }
+    if (message.peep !== undefined) {
+      Range.encode(message.peep, writer.uint32(66).fork()).ldelim();
+    }
+    if (message.ipAbovePeep !== undefined) {
+      Range.encode(message.ipAbovePeep, writer.uint32(74).fork()).ldelim();
+    }
+    if (message.inspTime !== undefined) {
+      Range.encode(message.inspTime, writer.uint32(82).fork()).ldelim();
+    }
+    if (message.paw !== undefined) {
+      Range.encode(message.paw, writer.uint32(90).fork()).ldelim();
+    }
+    if (message.mve !== undefined) {
+      Range.encode(message.mve, writer.uint32(98).fork()).ldelim();
+    }
+    if (message.tv !== undefined) {
+      Range.encode(message.tv, writer.uint32(106).fork()).ldelim();
+    }
+    if (message.etco2 !== undefined) {
+      Range.encode(message.etco2, writer.uint32(114).fork()).ldelim();
+    }
+    if (message.apnea !== undefined) {
+      Range.encode(message.apnea, writer.uint32(122).fork()).ldelim();
     }
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): Announcement {
+  decode(input: _m0.Reader | Uint8Array, length?: number): AlarmLimits {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseAnnouncement } as Announcement;
-    message.announcement = new Uint8Array();
+    const message = { ...baseAlarmLimits } as AlarmLimits;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2285,7 +1628,46 @@ export const Announcement = {
           message.time = longToNumber(reader.uint64() as Long);
           break;
         case 2:
-          message.announcement = reader.bytes();
+          message.fio2 = Range.decode(reader, reader.uint32());
+          break;
+        case 3:
+          message.flow = Range.decode(reader, reader.uint32());
+          break;
+        case 4:
+          message.spo2 = Range.decode(reader, reader.uint32());
+          break;
+        case 5:
+          message.hr = Range.decode(reader, reader.uint32());
+          break;
+        case 6:
+          message.rr = Range.decode(reader, reader.uint32());
+          break;
+        case 7:
+          message.pip = Range.decode(reader, reader.uint32());
+          break;
+        case 8:
+          message.peep = Range.decode(reader, reader.uint32());
+          break;
+        case 9:
+          message.ipAbovePeep = Range.decode(reader, reader.uint32());
+          break;
+        case 10:
+          message.inspTime = Range.decode(reader, reader.uint32());
+          break;
+        case 11:
+          message.paw = Range.decode(reader, reader.uint32());
+          break;
+        case 12:
+          message.mve = Range.decode(reader, reader.uint32());
+          break;
+        case 13:
+          message.tv = Range.decode(reader, reader.uint32());
+          break;
+        case 14:
+          message.etco2 = Range.decode(reader, reader.uint32());
+          break;
+        case 15:
+          message.apnea = Range.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -2295,43 +1677,514 @@ export const Announcement = {
     return message;
   },
 
-  fromJSON(object: any): Announcement {
-    const message = { ...baseAnnouncement } as Announcement;
-    message.announcement = new Uint8Array();
+  fromJSON(object: any): AlarmLimits {
+    const message = { ...baseAlarmLimits } as AlarmLimits;
     if (object.time !== undefined && object.time !== null) {
       message.time = Number(object.time);
     } else {
       message.time = 0;
     }
-    if (object.announcement !== undefined && object.announcement !== null) {
-      message.announcement = bytesFromBase64(object.announcement);
+    if (object.fio2 !== undefined && object.fio2 !== null) {
+      message.fio2 = Range.fromJSON(object.fio2);
+    } else {
+      message.fio2 = undefined;
+    }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Range.fromJSON(object.flow);
+    } else {
+      message.flow = undefined;
+    }
+    if (object.spo2 !== undefined && object.spo2 !== null) {
+      message.spo2 = Range.fromJSON(object.spo2);
+    } else {
+      message.spo2 = undefined;
+    }
+    if (object.hr !== undefined && object.hr !== null) {
+      message.hr = Range.fromJSON(object.hr);
+    } else {
+      message.hr = undefined;
+    }
+    if (object.rr !== undefined && object.rr !== null) {
+      message.rr = Range.fromJSON(object.rr);
+    } else {
+      message.rr = undefined;
+    }
+    if (object.pip !== undefined && object.pip !== null) {
+      message.pip = Range.fromJSON(object.pip);
+    } else {
+      message.pip = undefined;
+    }
+    if (object.peep !== undefined && object.peep !== null) {
+      message.peep = Range.fromJSON(object.peep);
+    } else {
+      message.peep = undefined;
+    }
+    if (object.ipAbovePeep !== undefined && object.ipAbovePeep !== null) {
+      message.ipAbovePeep = Range.fromJSON(object.ipAbovePeep);
+    } else {
+      message.ipAbovePeep = undefined;
+    }
+    if (object.inspTime !== undefined && object.inspTime !== null) {
+      message.inspTime = Range.fromJSON(object.inspTime);
+    } else {
+      message.inspTime = undefined;
+    }
+    if (object.paw !== undefined && object.paw !== null) {
+      message.paw = Range.fromJSON(object.paw);
+    } else {
+      message.paw = undefined;
+    }
+    if (object.mve !== undefined && object.mve !== null) {
+      message.mve = Range.fromJSON(object.mve);
+    } else {
+      message.mve = undefined;
+    }
+    if (object.tv !== undefined && object.tv !== null) {
+      message.tv = Range.fromJSON(object.tv);
+    } else {
+      message.tv = undefined;
+    }
+    if (object.etco2 !== undefined && object.etco2 !== null) {
+      message.etco2 = Range.fromJSON(object.etco2);
+    } else {
+      message.etco2 = undefined;
+    }
+    if (object.apnea !== undefined && object.apnea !== null) {
+      message.apnea = Range.fromJSON(object.apnea);
+    } else {
+      message.apnea = undefined;
     }
     return message;
   },
 
-  toJSON(message: Announcement): unknown {
+  toJSON(message: AlarmLimits): unknown {
     const obj: any = {};
     message.time !== undefined && (obj.time = message.time);
-    message.announcement !== undefined &&
-      (obj.announcement = base64FromBytes(
-        message.announcement !== undefined
-          ? message.announcement
-          : new Uint8Array()
-      ));
+    message.fio2 !== undefined &&
+      (obj.fio2 = message.fio2 ? Range.toJSON(message.fio2) : undefined);
+    message.flow !== undefined &&
+      (obj.flow = message.flow ? Range.toJSON(message.flow) : undefined);
+    message.spo2 !== undefined &&
+      (obj.spo2 = message.spo2 ? Range.toJSON(message.spo2) : undefined);
+    message.hr !== undefined &&
+      (obj.hr = message.hr ? Range.toJSON(message.hr) : undefined);
+    message.rr !== undefined &&
+      (obj.rr = message.rr ? Range.toJSON(message.rr) : undefined);
+    message.pip !== undefined &&
+      (obj.pip = message.pip ? Range.toJSON(message.pip) : undefined);
+    message.peep !== undefined &&
+      (obj.peep = message.peep ? Range.toJSON(message.peep) : undefined);
+    message.ipAbovePeep !== undefined &&
+      (obj.ipAbovePeep = message.ipAbovePeep
+        ? Range.toJSON(message.ipAbovePeep)
+        : undefined);
+    message.inspTime !== undefined &&
+      (obj.inspTime = message.inspTime
+        ? Range.toJSON(message.inspTime)
+        : undefined);
+    message.paw !== undefined &&
+      (obj.paw = message.paw ? Range.toJSON(message.paw) : undefined);
+    message.mve !== undefined &&
+      (obj.mve = message.mve ? Range.toJSON(message.mve) : undefined);
+    message.tv !== undefined &&
+      (obj.tv = message.tv ? Range.toJSON(message.tv) : undefined);
+    message.etco2 !== undefined &&
+      (obj.etco2 = message.etco2 ? Range.toJSON(message.etco2) : undefined);
+    message.apnea !== undefined &&
+      (obj.apnea = message.apnea ? Range.toJSON(message.apnea) : undefined);
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Announcement>): Announcement {
-    const message = { ...baseAnnouncement } as Announcement;
+  fromPartial(object: DeepPartial<AlarmLimits>): AlarmLimits {
+    const message = { ...baseAlarmLimits } as AlarmLimits;
     if (object.time !== undefined && object.time !== null) {
       message.time = object.time;
     } else {
       message.time = 0;
     }
-    if (object.announcement !== undefined && object.announcement !== null) {
-      message.announcement = object.announcement;
+    if (object.fio2 !== undefined && object.fio2 !== null) {
+      message.fio2 = Range.fromPartial(object.fio2);
     } else {
-      message.announcement = new Uint8Array();
+      message.fio2 = undefined;
+    }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Range.fromPartial(object.flow);
+    } else {
+      message.flow = undefined;
+    }
+    if (object.spo2 !== undefined && object.spo2 !== null) {
+      message.spo2 = Range.fromPartial(object.spo2);
+    } else {
+      message.spo2 = undefined;
+    }
+    if (object.hr !== undefined && object.hr !== null) {
+      message.hr = Range.fromPartial(object.hr);
+    } else {
+      message.hr = undefined;
+    }
+    if (object.rr !== undefined && object.rr !== null) {
+      message.rr = Range.fromPartial(object.rr);
+    } else {
+      message.rr = undefined;
+    }
+    if (object.pip !== undefined && object.pip !== null) {
+      message.pip = Range.fromPartial(object.pip);
+    } else {
+      message.pip = undefined;
+    }
+    if (object.peep !== undefined && object.peep !== null) {
+      message.peep = Range.fromPartial(object.peep);
+    } else {
+      message.peep = undefined;
+    }
+    if (object.ipAbovePeep !== undefined && object.ipAbovePeep !== null) {
+      message.ipAbovePeep = Range.fromPartial(object.ipAbovePeep);
+    } else {
+      message.ipAbovePeep = undefined;
+    }
+    if (object.inspTime !== undefined && object.inspTime !== null) {
+      message.inspTime = Range.fromPartial(object.inspTime);
+    } else {
+      message.inspTime = undefined;
+    }
+    if (object.paw !== undefined && object.paw !== null) {
+      message.paw = Range.fromPartial(object.paw);
+    } else {
+      message.paw = undefined;
+    }
+    if (object.mve !== undefined && object.mve !== null) {
+      message.mve = Range.fromPartial(object.mve);
+    } else {
+      message.mve = undefined;
+    }
+    if (object.tv !== undefined && object.tv !== null) {
+      message.tv = Range.fromPartial(object.tv);
+    } else {
+      message.tv = undefined;
+    }
+    if (object.etco2 !== undefined && object.etco2 !== null) {
+      message.etco2 = Range.fromPartial(object.etco2);
+    } else {
+      message.etco2 = undefined;
+    }
+    if (object.apnea !== undefined && object.apnea !== null) {
+      message.apnea = Range.fromPartial(object.apnea);
+    } else {
+      message.apnea = undefined;
+    }
+    return message;
+  },
+};
+
+const baseAlarmLimitsRequest: object = { time: 0 };
+
+export const AlarmLimitsRequest = {
+  encode(
+    message: AlarmLimitsRequest,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.time !== 0) {
+      writer.uint32(8).uint64(message.time);
+    }
+    if (message.fio2 !== undefined) {
+      Range.encode(message.fio2, writer.uint32(18).fork()).ldelim();
+    }
+    if (message.flow !== undefined) {
+      Range.encode(message.flow, writer.uint32(26).fork()).ldelim();
+    }
+    if (message.spo2 !== undefined) {
+      Range.encode(message.spo2, writer.uint32(34).fork()).ldelim();
+    }
+    if (message.hr !== undefined) {
+      Range.encode(message.hr, writer.uint32(42).fork()).ldelim();
+    }
+    if (message.rr !== undefined) {
+      Range.encode(message.rr, writer.uint32(50).fork()).ldelim();
+    }
+    if (message.pip !== undefined) {
+      Range.encode(message.pip, writer.uint32(58).fork()).ldelim();
+    }
+    if (message.peep !== undefined) {
+      Range.encode(message.peep, writer.uint32(66).fork()).ldelim();
+    }
+    if (message.ipAbovePeep !== undefined) {
+      Range.encode(message.ipAbovePeep, writer.uint32(74).fork()).ldelim();
+    }
+    if (message.inspTime !== undefined) {
+      Range.encode(message.inspTime, writer.uint32(82).fork()).ldelim();
+    }
+    if (message.paw !== undefined) {
+      Range.encode(message.paw, writer.uint32(90).fork()).ldelim();
+    }
+    if (message.mve !== undefined) {
+      Range.encode(message.mve, writer.uint32(98).fork()).ldelim();
+    }
+    if (message.tv !== undefined) {
+      Range.encode(message.tv, writer.uint32(106).fork()).ldelim();
+    }
+    if (message.etco2 !== undefined) {
+      Range.encode(message.etco2, writer.uint32(114).fork()).ldelim();
+    }
+    if (message.apnea !== undefined) {
+      Range.encode(message.apnea, writer.uint32(122).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): AlarmLimitsRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseAlarmLimitsRequest } as AlarmLimitsRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.time = longToNumber(reader.uint64() as Long);
+          break;
+        case 2:
+          message.fio2 = Range.decode(reader, reader.uint32());
+          break;
+        case 3:
+          message.flow = Range.decode(reader, reader.uint32());
+          break;
+        case 4:
+          message.spo2 = Range.decode(reader, reader.uint32());
+          break;
+        case 5:
+          message.hr = Range.decode(reader, reader.uint32());
+          break;
+        case 6:
+          message.rr = Range.decode(reader, reader.uint32());
+          break;
+        case 7:
+          message.pip = Range.decode(reader, reader.uint32());
+          break;
+        case 8:
+          message.peep = Range.decode(reader, reader.uint32());
+          break;
+        case 9:
+          message.ipAbovePeep = Range.decode(reader, reader.uint32());
+          break;
+        case 10:
+          message.inspTime = Range.decode(reader, reader.uint32());
+          break;
+        case 11:
+          message.paw = Range.decode(reader, reader.uint32());
+          break;
+        case 12:
+          message.mve = Range.decode(reader, reader.uint32());
+          break;
+        case 13:
+          message.tv = Range.decode(reader, reader.uint32());
+          break;
+        case 14:
+          message.etco2 = Range.decode(reader, reader.uint32());
+          break;
+        case 15:
+          message.apnea = Range.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AlarmLimitsRequest {
+    const message = { ...baseAlarmLimitsRequest } as AlarmLimitsRequest;
+    if (object.time !== undefined && object.time !== null) {
+      message.time = Number(object.time);
+    } else {
+      message.time = 0;
+    }
+    if (object.fio2 !== undefined && object.fio2 !== null) {
+      message.fio2 = Range.fromJSON(object.fio2);
+    } else {
+      message.fio2 = undefined;
+    }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Range.fromJSON(object.flow);
+    } else {
+      message.flow = undefined;
+    }
+    if (object.spo2 !== undefined && object.spo2 !== null) {
+      message.spo2 = Range.fromJSON(object.spo2);
+    } else {
+      message.spo2 = undefined;
+    }
+    if (object.hr !== undefined && object.hr !== null) {
+      message.hr = Range.fromJSON(object.hr);
+    } else {
+      message.hr = undefined;
+    }
+    if (object.rr !== undefined && object.rr !== null) {
+      message.rr = Range.fromJSON(object.rr);
+    } else {
+      message.rr = undefined;
+    }
+    if (object.pip !== undefined && object.pip !== null) {
+      message.pip = Range.fromJSON(object.pip);
+    } else {
+      message.pip = undefined;
+    }
+    if (object.peep !== undefined && object.peep !== null) {
+      message.peep = Range.fromJSON(object.peep);
+    } else {
+      message.peep = undefined;
+    }
+    if (object.ipAbovePeep !== undefined && object.ipAbovePeep !== null) {
+      message.ipAbovePeep = Range.fromJSON(object.ipAbovePeep);
+    } else {
+      message.ipAbovePeep = undefined;
+    }
+    if (object.inspTime !== undefined && object.inspTime !== null) {
+      message.inspTime = Range.fromJSON(object.inspTime);
+    } else {
+      message.inspTime = undefined;
+    }
+    if (object.paw !== undefined && object.paw !== null) {
+      message.paw = Range.fromJSON(object.paw);
+    } else {
+      message.paw = undefined;
+    }
+    if (object.mve !== undefined && object.mve !== null) {
+      message.mve = Range.fromJSON(object.mve);
+    } else {
+      message.mve = undefined;
+    }
+    if (object.tv !== undefined && object.tv !== null) {
+      message.tv = Range.fromJSON(object.tv);
+    } else {
+      message.tv = undefined;
+    }
+    if (object.etco2 !== undefined && object.etco2 !== null) {
+      message.etco2 = Range.fromJSON(object.etco2);
+    } else {
+      message.etco2 = undefined;
+    }
+    if (object.apnea !== undefined && object.apnea !== null) {
+      message.apnea = Range.fromJSON(object.apnea);
+    } else {
+      message.apnea = undefined;
+    }
+    return message;
+  },
+
+  toJSON(message: AlarmLimitsRequest): unknown {
+    const obj: any = {};
+    message.time !== undefined && (obj.time = message.time);
+    message.fio2 !== undefined &&
+      (obj.fio2 = message.fio2 ? Range.toJSON(message.fio2) : undefined);
+    message.flow !== undefined &&
+      (obj.flow = message.flow ? Range.toJSON(message.flow) : undefined);
+    message.spo2 !== undefined &&
+      (obj.spo2 = message.spo2 ? Range.toJSON(message.spo2) : undefined);
+    message.hr !== undefined &&
+      (obj.hr = message.hr ? Range.toJSON(message.hr) : undefined);
+    message.rr !== undefined &&
+      (obj.rr = message.rr ? Range.toJSON(message.rr) : undefined);
+    message.pip !== undefined &&
+      (obj.pip = message.pip ? Range.toJSON(message.pip) : undefined);
+    message.peep !== undefined &&
+      (obj.peep = message.peep ? Range.toJSON(message.peep) : undefined);
+    message.ipAbovePeep !== undefined &&
+      (obj.ipAbovePeep = message.ipAbovePeep
+        ? Range.toJSON(message.ipAbovePeep)
+        : undefined);
+    message.inspTime !== undefined &&
+      (obj.inspTime = message.inspTime
+        ? Range.toJSON(message.inspTime)
+        : undefined);
+    message.paw !== undefined &&
+      (obj.paw = message.paw ? Range.toJSON(message.paw) : undefined);
+    message.mve !== undefined &&
+      (obj.mve = message.mve ? Range.toJSON(message.mve) : undefined);
+    message.tv !== undefined &&
+      (obj.tv = message.tv ? Range.toJSON(message.tv) : undefined);
+    message.etco2 !== undefined &&
+      (obj.etco2 = message.etco2 ? Range.toJSON(message.etco2) : undefined);
+    message.apnea !== undefined &&
+      (obj.apnea = message.apnea ? Range.toJSON(message.apnea) : undefined);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<AlarmLimitsRequest>): AlarmLimitsRequest {
+    const message = { ...baseAlarmLimitsRequest } as AlarmLimitsRequest;
+    if (object.time !== undefined && object.time !== null) {
+      message.time = object.time;
+    } else {
+      message.time = 0;
+    }
+    if (object.fio2 !== undefined && object.fio2 !== null) {
+      message.fio2 = Range.fromPartial(object.fio2);
+    } else {
+      message.fio2 = undefined;
+    }
+    if (object.flow !== undefined && object.flow !== null) {
+      message.flow = Range.fromPartial(object.flow);
+    } else {
+      message.flow = undefined;
+    }
+    if (object.spo2 !== undefined && object.spo2 !== null) {
+      message.spo2 = Range.fromPartial(object.spo2);
+    } else {
+      message.spo2 = undefined;
+    }
+    if (object.hr !== undefined && object.hr !== null) {
+      message.hr = Range.fromPartial(object.hr);
+    } else {
+      message.hr = undefined;
+    }
+    if (object.rr !== undefined && object.rr !== null) {
+      message.rr = Range.fromPartial(object.rr);
+    } else {
+      message.rr = undefined;
+    }
+    if (object.pip !== undefined && object.pip !== null) {
+      message.pip = Range.fromPartial(object.pip);
+    } else {
+      message.pip = undefined;
+    }
+    if (object.peep !== undefined && object.peep !== null) {
+      message.peep = Range.fromPartial(object.peep);
+    } else {
+      message.peep = undefined;
+    }
+    if (object.ipAbovePeep !== undefined && object.ipAbovePeep !== null) {
+      message.ipAbovePeep = Range.fromPartial(object.ipAbovePeep);
+    } else {
+      message.ipAbovePeep = undefined;
+    }
+    if (object.inspTime !== undefined && object.inspTime !== null) {
+      message.inspTime = Range.fromPartial(object.inspTime);
+    } else {
+      message.inspTime = undefined;
+    }
+    if (object.paw !== undefined && object.paw !== null) {
+      message.paw = Range.fromPartial(object.paw);
+    } else {
+      message.paw = undefined;
+    }
+    if (object.mve !== undefined && object.mve !== null) {
+      message.mve = Range.fromPartial(object.mve);
+    } else {
+      message.mve = undefined;
+    }
+    if (object.tv !== undefined && object.tv !== null) {
+      message.tv = Range.fromPartial(object.tv);
+    } else {
+      message.tv = undefined;
+    }
+    if (object.etco2 !== undefined && object.etco2 !== null) {
+      message.etco2 = Range.fromPartial(object.etco2);
+    } else {
+      message.etco2 = undefined;
+    }
+    if (object.apnea !== undefined && object.apnea !== null) {
+      message.apnea = Range.fromPartial(object.apnea);
+    } else {
+      message.apnea = undefined;
     }
     return message;
   },
@@ -2947,139 +2800,6 @@ export const ActiveLogEvents = {
   },
 };
 
-const baseMCUPowerStatus: object = { powerLeft: 0, charging: false };
-
-export const MCUPowerStatus = {
-  encode(
-    message: MCUPowerStatus,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.powerLeft !== 0) {
-      writer.uint32(13).float(message.powerLeft);
-    }
-    if (message.charging === true) {
-      writer.uint32(16).bool(message.charging);
-    }
-    return writer;
-  },
-
-  decode(input: _m0.Reader | Uint8Array, length?: number): MCUPowerStatus {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.powerLeft = reader.float();
-          break;
-        case 2:
-          message.charging = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): MCUPowerStatus {
-    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
-    if (object.powerLeft !== undefined && object.powerLeft !== null) {
-      message.powerLeft = Number(object.powerLeft);
-    } else {
-      message.powerLeft = 0;
-    }
-    if (object.charging !== undefined && object.charging !== null) {
-      message.charging = Boolean(object.charging);
-    } else {
-      message.charging = false;
-    }
-    return message;
-  },
-
-  toJSON(message: MCUPowerStatus): unknown {
-    const obj: any = {};
-    message.powerLeft !== undefined && (obj.powerLeft = message.powerLeft);
-    message.charging !== undefined && (obj.charging = message.charging);
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<MCUPowerStatus>): MCUPowerStatus {
-    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
-    if (object.powerLeft !== undefined && object.powerLeft !== null) {
-      message.powerLeft = object.powerLeft;
-    } else {
-      message.powerLeft = 0;
-    }
-    if (object.charging !== undefined && object.charging !== null) {
-      message.charging = object.charging;
-    } else {
-      message.charging = false;
-    }
-    return message;
-  },
-};
-
-const baseScreenStatus: object = { lock: false };
-
-export const ScreenStatus = {
-  encode(
-    message: ScreenStatus,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
-    if (message.lock === true) {
-      writer.uint32(8).bool(message.lock);
-    }
-    return writer;
-  },
-
-  decode(input: _m0.Reader | Uint8Array, length?: number): ScreenStatus {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseScreenStatus } as ScreenStatus;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.lock = reader.bool();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): ScreenStatus {
-    const message = { ...baseScreenStatus } as ScreenStatus;
-    if (object.lock !== undefined && object.lock !== null) {
-      message.lock = Boolean(object.lock);
-    } else {
-      message.lock = false;
-    }
-    return message;
-  },
-
-  toJSON(message: ScreenStatus): unknown {
-    const obj: any = {};
-    message.lock !== undefined && (obj.lock = message.lock);
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<ScreenStatus>): ScreenStatus {
-    const message = { ...baseScreenStatus } as ScreenStatus;
-    if (object.lock !== undefined && object.lock !== null) {
-      message.lock = object.lock;
-    } else {
-      message.lock = false;
-    }
-    return message;
-  },
-};
-
 const baseAlarmMute: object = {
   active: false,
   seqNum: 0,
@@ -3283,6 +3003,367 @@ export const AlarmMuteRequest = {
       message.source = object.source;
     } else {
       message.source = 0;
+    }
+    return message;
+  },
+};
+
+const baseMCUPowerStatus: object = { powerLeft: 0, charging: false };
+
+export const MCUPowerStatus = {
+  encode(
+    message: MCUPowerStatus,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.powerLeft !== 0) {
+      writer.uint32(13).float(message.powerLeft);
+    }
+    if (message.charging === true) {
+      writer.uint32(16).bool(message.charging);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): MCUPowerStatus {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.powerLeft = reader.float();
+          break;
+        case 2:
+          message.charging = reader.bool();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MCUPowerStatus {
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
+    if (object.powerLeft !== undefined && object.powerLeft !== null) {
+      message.powerLeft = Number(object.powerLeft);
+    } else {
+      message.powerLeft = 0;
+    }
+    if (object.charging !== undefined && object.charging !== null) {
+      message.charging = Boolean(object.charging);
+    } else {
+      message.charging = false;
+    }
+    return message;
+  },
+
+  toJSON(message: MCUPowerStatus): unknown {
+    const obj: any = {};
+    message.powerLeft !== undefined && (obj.powerLeft = message.powerLeft);
+    message.charging !== undefined && (obj.charging = message.charging);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<MCUPowerStatus>): MCUPowerStatus {
+    const message = { ...baseMCUPowerStatus } as MCUPowerStatus;
+    if (object.powerLeft !== undefined && object.powerLeft !== null) {
+      message.powerLeft = object.powerLeft;
+    } else {
+      message.powerLeft = 0;
+    }
+    if (object.charging !== undefined && object.charging !== null) {
+      message.charging = object.charging;
+    } else {
+      message.charging = false;
+    }
+    return message;
+  },
+};
+
+const baseBackendConnections: object = { hasMcu: false, hasFrontend: false };
+
+export const BackendConnections = {
+  encode(
+    message: BackendConnections,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.hasMcu === true) {
+      writer.uint32(8).bool(message.hasMcu);
+    }
+    if (message.hasFrontend === true) {
+      writer.uint32(16).bool(message.hasFrontend);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): BackendConnections {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseBackendConnections } as BackendConnections;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.hasMcu = reader.bool();
+          break;
+        case 2:
+          message.hasFrontend = reader.bool();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BackendConnections {
+    const message = { ...baseBackendConnections } as BackendConnections;
+    if (object.hasMcu !== undefined && object.hasMcu !== null) {
+      message.hasMcu = Boolean(object.hasMcu);
+    } else {
+      message.hasMcu = false;
+    }
+    if (object.hasFrontend !== undefined && object.hasFrontend !== null) {
+      message.hasFrontend = Boolean(object.hasFrontend);
+    } else {
+      message.hasFrontend = false;
+    }
+    return message;
+  },
+
+  toJSON(message: BackendConnections): unknown {
+    const obj: any = {};
+    message.hasMcu !== undefined && (obj.hasMcu = message.hasMcu);
+    message.hasFrontend !== undefined &&
+      (obj.hasFrontend = message.hasFrontend);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<BackendConnections>): BackendConnections {
+    const message = { ...baseBackendConnections } as BackendConnections;
+    if (object.hasMcu !== undefined && object.hasMcu !== null) {
+      message.hasMcu = object.hasMcu;
+    } else {
+      message.hasMcu = false;
+    }
+    if (object.hasFrontend !== undefined && object.hasFrontend !== null) {
+      message.hasFrontend = object.hasFrontend;
+    } else {
+      message.hasFrontend = false;
+    }
+    return message;
+  },
+};
+
+const baseScreenStatus: object = { lock: false };
+
+export const ScreenStatus = {
+  encode(
+    message: ScreenStatus,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.lock === true) {
+      writer.uint32(8).bool(message.lock);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): ScreenStatus {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseScreenStatus } as ScreenStatus;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.lock = reader.bool();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ScreenStatus {
+    const message = { ...baseScreenStatus } as ScreenStatus;
+    if (object.lock !== undefined && object.lock !== null) {
+      message.lock = Boolean(object.lock);
+    } else {
+      message.lock = false;
+    }
+    return message;
+  },
+
+  toJSON(message: ScreenStatus): unknown {
+    const obj: any = {};
+    message.lock !== undefined && (obj.lock = message.lock);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<ScreenStatus>): ScreenStatus {
+    const message = { ...baseScreenStatus } as ScreenStatus;
+    if (object.lock !== undefined && object.lock !== null) {
+      message.lock = object.lock;
+    } else {
+      message.lock = false;
+    }
+    return message;
+  },
+};
+
+const basePing: object = { time: 0, id: 0 };
+
+export const Ping = {
+  encode(message: Ping, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.time !== 0) {
+      writer.uint32(8).uint64(message.time);
+    }
+    if (message.id !== 0) {
+      writer.uint32(16).uint32(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): Ping {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...basePing } as Ping;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.time = longToNumber(reader.uint64() as Long);
+          break;
+        case 2:
+          message.id = reader.uint32();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Ping {
+    const message = { ...basePing } as Ping;
+    if (object.time !== undefined && object.time !== null) {
+      message.time = Number(object.time);
+    } else {
+      message.time = 0;
+    }
+    if (object.id !== undefined && object.id !== null) {
+      message.id = Number(object.id);
+    } else {
+      message.id = 0;
+    }
+    return message;
+  },
+
+  toJSON(message: Ping): unknown {
+    const obj: any = {};
+    message.time !== undefined && (obj.time = message.time);
+    message.id !== undefined && (obj.id = message.id);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<Ping>): Ping {
+    const message = { ...basePing } as Ping;
+    if (object.time !== undefined && object.time !== null) {
+      message.time = object.time;
+    } else {
+      message.time = 0;
+    }
+    if (object.id !== undefined && object.id !== null) {
+      message.id = object.id;
+    } else {
+      message.id = 0;
+    }
+    return message;
+  },
+};
+
+const baseAnnouncement: object = { time: 0 };
+
+export const Announcement = {
+  encode(
+    message: Announcement,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.time !== 0) {
+      writer.uint32(8).uint64(message.time);
+    }
+    if (message.announcement.length !== 0) {
+      writer.uint32(18).bytes(message.announcement);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): Announcement {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseAnnouncement } as Announcement;
+    message.announcement = new Uint8Array();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.time = longToNumber(reader.uint64() as Long);
+          break;
+        case 2:
+          message.announcement = reader.bytes();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Announcement {
+    const message = { ...baseAnnouncement } as Announcement;
+    message.announcement = new Uint8Array();
+    if (object.time !== undefined && object.time !== null) {
+      message.time = Number(object.time);
+    } else {
+      message.time = 0;
+    }
+    if (object.announcement !== undefined && object.announcement !== null) {
+      message.announcement = bytesFromBase64(object.announcement);
+    }
+    return message;
+  },
+
+  toJSON(message: Announcement): unknown {
+    const obj: any = {};
+    message.time !== undefined && (obj.time = message.time);
+    message.announcement !== undefined &&
+      (obj.announcement = base64FromBytes(
+        message.announcement !== undefined
+          ? message.announcement
+          : new Uint8Array()
+      ));
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<Announcement>): Announcement {
+    const message = { ...baseAnnouncement } as Announcement;
+    if (object.time !== undefined && object.time !== null) {
+      message.time = object.time;
+    } else {
+      message.time = 0;
+    }
+    if (object.announcement !== undefined && object.announcement !== null) {
+      message.announcement = object.announcement;
+    } else {
+      message.announcement = new Uint8Array();
     }
     return message;
   },

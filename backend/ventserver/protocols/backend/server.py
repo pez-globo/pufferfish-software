@@ -8,7 +8,7 @@ import attr
 from ventserver.protocols import events, exceptions
 from ventserver.protocols.backend import backend, connections
 from ventserver.protocols.devices import file, frontend, mcu, rotary_encoder
-from ventserver.protocols.protobuf import frontend_pb, mcu_pb
+from ventserver.protocols.protobuf import mcu_pb
 from ventserver.sansio import channels, protocols
 
 
@@ -140,8 +140,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
 
     _connections: connections.TimeoutHandler = \
         attr.ib(factory=connections.TimeoutHandler)
-    _connection_states: frontend_pb.BackendConnections = \
-        attr.ib(factory=frontend_pb.BackendConnections)
+    _connection_states: mcu_pb.BackendConnections = \
+        attr.ib(factory=mcu_pb.BackendConnections)
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
         """Handle input events."""

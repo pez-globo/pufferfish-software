@@ -102,50 +102,6 @@ class AlarmMuteSource(betterproto.Enum):
 
 
 @dataclass
-class Range(betterproto.Message):
-    lower: int = betterproto.int32_field(1)
-    upper: int = betterproto.int32_field(2)
-
-
-@dataclass
-class AlarmLimits(betterproto.Message):
-    time: int = betterproto.uint64_field(1)
-    fio2: "Range" = betterproto.message_field(2)
-    flow: "Range" = betterproto.message_field(3)
-    spo2: "Range" = betterproto.message_field(4)
-    hr: "Range" = betterproto.message_field(5)
-    rr: "Range" = betterproto.message_field(6)
-    pip: "Range" = betterproto.message_field(7)
-    peep: "Range" = betterproto.message_field(8)
-    ip_above_peep: "Range" = betterproto.message_field(9)
-    insp_time: "Range" = betterproto.message_field(10)
-    paw: "Range" = betterproto.message_field(11)
-    mve: "Range" = betterproto.message_field(12)
-    tv: "Range" = betterproto.message_field(13)
-    etco2: "Range" = betterproto.message_field(14)
-    apnea: "Range" = betterproto.message_field(15)
-
-
-@dataclass
-class AlarmLimitsRequest(betterproto.Message):
-    time: int = betterproto.uint64_field(1)
-    fio2: "Range" = betterproto.message_field(2)
-    flow: "Range" = betterproto.message_field(3)
-    spo2: "Range" = betterproto.message_field(4)
-    hr: "Range" = betterproto.message_field(5)
-    rr: "Range" = betterproto.message_field(6)
-    pip: "Range" = betterproto.message_field(7)
-    peep: "Range" = betterproto.message_field(8)
-    ip_above_peep: "Range" = betterproto.message_field(9)
-    insp_time: "Range" = betterproto.message_field(10)
-    paw: "Range" = betterproto.message_field(11)
-    mve: "Range" = betterproto.message_field(12)
-    tv: "Range" = betterproto.message_field(13)
-    etco2: "Range" = betterproto.message_field(14)
-    apnea: "Range" = betterproto.message_field(15)
-
-
-@dataclass
 class SensorMeasurements(betterproto.Message):
     time: int = betterproto.uint64_field(1)
     cycle: int = betterproto.uint32_field(2)
@@ -197,15 +153,47 @@ class ParametersRequest(betterproto.Message):
 
 
 @dataclass
-class Ping(betterproto.Message):
-    time: int = betterproto.uint64_field(1)
-    id: int = betterproto.uint32_field(2)
+class Range(betterproto.Message):
+    lower: int = betterproto.int32_field(1)
+    upper: int = betterproto.int32_field(2)
 
 
 @dataclass
-class Announcement(betterproto.Message):
+class AlarmLimits(betterproto.Message):
     time: int = betterproto.uint64_field(1)
-    announcement: bytes = betterproto.bytes_field(2)
+    fio2: "Range" = betterproto.message_field(2)
+    flow: "Range" = betterproto.message_field(3)
+    spo2: "Range" = betterproto.message_field(4)
+    hr: "Range" = betterproto.message_field(5)
+    rr: "Range" = betterproto.message_field(6)
+    pip: "Range" = betterproto.message_field(7)
+    peep: "Range" = betterproto.message_field(8)
+    ip_above_peep: "Range" = betterproto.message_field(9)
+    insp_time: "Range" = betterproto.message_field(10)
+    paw: "Range" = betterproto.message_field(11)
+    mve: "Range" = betterproto.message_field(12)
+    tv: "Range" = betterproto.message_field(13)
+    etco2: "Range" = betterproto.message_field(14)
+    apnea: "Range" = betterproto.message_field(15)
+
+
+@dataclass
+class AlarmLimitsRequest(betterproto.Message):
+    time: int = betterproto.uint64_field(1)
+    fio2: "Range" = betterproto.message_field(2)
+    flow: "Range" = betterproto.message_field(3)
+    spo2: "Range" = betterproto.message_field(4)
+    hr: "Range" = betterproto.message_field(5)
+    rr: "Range" = betterproto.message_field(6)
+    pip: "Range" = betterproto.message_field(7)
+    peep: "Range" = betterproto.message_field(8)
+    ip_above_peep: "Range" = betterproto.message_field(9)
+    insp_time: "Range" = betterproto.message_field(10)
+    paw: "Range" = betterproto.message_field(11)
+    mve: "Range" = betterproto.message_field(12)
+    tv: "Range" = betterproto.message_field(13)
+    etco2: "Range" = betterproto.message_field(14)
+    apnea: "Range" = betterproto.message_field(15)
 
 
 @dataclass
@@ -263,17 +251,6 @@ class ActiveLogEvents(betterproto.Message):
 
 
 @dataclass
-class MCUPowerStatus(betterproto.Message):
-    power_left: float = betterproto.float_field(1)
-    charging: bool = betterproto.bool_field(2)
-
-
-@dataclass
-class ScreenStatus(betterproto.Message):
-    lock: bool = betterproto.bool_field(1)
-
-
-@dataclass
 class AlarmMute(betterproto.Message):
     active: bool = betterproto.bool_field(1)
     # seq_num is a logical clock and advances in the firmware after each local
@@ -293,3 +270,32 @@ class AlarmMuteRequest(betterproto.Message):
     # AlarmMute.
     seq_num: int = betterproto.uint32_field(2)
     source: "AlarmMuteSource" = betterproto.enum_field(3)
+
+
+@dataclass
+class MCUPowerStatus(betterproto.Message):
+    power_left: float = betterproto.float_field(1)
+    charging: bool = betterproto.bool_field(2)
+
+
+@dataclass
+class BackendConnections(betterproto.Message):
+    has_mcu: bool = betterproto.bool_field(1)
+    has_frontend: bool = betterproto.bool_field(2)
+
+
+@dataclass
+class ScreenStatus(betterproto.Message):
+    lock: bool = betterproto.bool_field(1)
+
+
+@dataclass
+class Ping(betterproto.Message):
+    time: int = betterproto.uint64_field(1)
+    id: int = betterproto.uint32_field(2)
+
+
+@dataclass
+class Announcement(betterproto.Message):
+    time: int = betterproto.uint64_field(1)
+    announcement: bytes = betterproto.bytes_field(2)

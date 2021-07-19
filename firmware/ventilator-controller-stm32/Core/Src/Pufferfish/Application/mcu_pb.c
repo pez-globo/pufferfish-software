@@ -6,15 +6,6 @@
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
-PB_BIND(Range, Range, AUTO)
-
-
-PB_BIND(AlarmLimits, AlarmLimits, AUTO)
-
-
-PB_BIND(AlarmLimitsRequest, AlarmLimitsRequest, AUTO)
-
-
 PB_BIND(SensorMeasurements, SensorMeasurements, AUTO)
 
 
@@ -27,10 +18,13 @@ PB_BIND(Parameters, Parameters, AUTO)
 PB_BIND(ParametersRequest, ParametersRequest, AUTO)
 
 
-PB_BIND(Ping, Ping, AUTO)
+PB_BIND(Range, Range, AUTO)
 
 
-PB_BIND(Announcement, Announcement, AUTO)
+PB_BIND(AlarmLimits, AlarmLimits, AUTO)
+
+
+PB_BIND(AlarmLimitsRequest, AlarmLimitsRequest, AUTO)
 
 
 PB_BIND(LogEvent, LogEvent, AUTO)
@@ -45,16 +39,25 @@ PB_BIND(NextLogEvents, NextLogEvents, AUTO)
 PB_BIND(ActiveLogEvents, ActiveLogEvents, AUTO)
 
 
+PB_BIND(AlarmMute, AlarmMute, AUTO)
+
+
+PB_BIND(AlarmMuteRequest, AlarmMuteRequest, AUTO)
+
+
 PB_BIND(MCUPowerStatus, MCUPowerStatus, AUTO)
+
+
+PB_BIND(BackendConnections, BackendConnections, AUTO)
 
 
 PB_BIND(ScreenStatus, ScreenStatus, AUTO)
 
 
-PB_BIND(AlarmMute, AlarmMute, AUTO)
+PB_BIND(Ping, Ping, AUTO)
 
 
-PB_BIND(AlarmMuteRequest, AlarmMuteRequest, AUTO)
+PB_BIND(Announcement, Announcement, AUTO)
 
 
 

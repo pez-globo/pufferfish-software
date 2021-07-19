@@ -2,27 +2,30 @@ import { createSelector, OutputSelector } from 'reselect';
 import DECIMAL_RADIX from '../../modules/app/AppConstants';
 import { getBackendConnected } from '../connection/selectors';
 import {
-  AlarmLimits,
-  AlarmLimitsRequest,
-  AlarmMute,
-  AlarmMuteRequest,
+  // Measurements
+  SensorMeasurements,
   CycleMeasurements,
-  LogEvent,
-  ExpectedLogEvent,
+  // Parameters
+  VentilationMode,
   Parameters,
   ParametersRequest,
-  SensorMeasurements,
-  VentilationMode,
-  ScreenStatus,
+  // Alarm Limits
   Range,
-  MCUPowerStatus,
+  AlarmLimits,
+  AlarmLimitsRequest,
+  // Log Events
   LogEventCode,
-} from '../proto/mcu_pb';
-import {
+  LogEvent,
+  ExpectedLogEvent,
+  // Alarm Muting
+  AlarmMute,
+  AlarmMuteRequest,
+  // System Miscellaneous
+  MCUPowerStatus,
   BackendConnections,
-  FrontendDisplaySetting,
-  SystemSettingRequest,
-} from '../proto/frontend_pb';
+  ScreenStatus,
+} from '../proto/mcu_pb';
+import { FrontendDisplaySetting, SystemSettingRequest } from '../proto/frontend_pb';
 import { StoreState } from '../types';
 import {
   Measurements,
