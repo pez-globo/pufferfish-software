@@ -127,7 +127,7 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
         <AppBar color="transparent" elevation={0} position="static" style={{ display: 'contents' }}>
           <Grid item style={{ margin: '0 auto' }} />
           <Grid item xs className={classes.marginRight} style={{ margin: '0 auto' }}>
-            <EventAlerts label={LOGS_ROUTE.label} />
+            <EventAlerts routeLabel={LOGS_ROUTE.label} />
           </Grid>
           <Grid container item xs justify="flex-end" alignItems="center">
             <PowerIndicator />

@@ -329,7 +329,7 @@ export const ToolBar = ({
     // );
   }
   if (location.pathname !== '/') {
-    tools.push(<EventAlerts label={LOGS_ROUTE.label} />);
+    tools.push(<EventAlerts routeLabel={LOGS_ROUTE.label} />);
   }
 
   /**

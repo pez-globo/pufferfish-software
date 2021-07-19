@@ -5,8 +5,9 @@
  *
  */
 import React, { useState, useEffect } from 'react';
+import { createSelector } from 'reselect';
 import { Alert } from '@material-ui/lab';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
@@ -17,14 +18,13 @@ import {
   getAlarmMuteRequestActive,
   getPopupEventLog,
   getAlarmMuteRemaining,
-  getParametersIsVentilating,
   getFirmwareConnected,
 } from '../../store/controller/selectors';
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
 import { commitRequest } from '../../store/controller/actions';
-import { AlarmMuteRequest, AlarmMuteSource } from '../../store/proto/mcu_pb';
+import { LogEvent, AlarmMuteRequest, AlarmMuteSource } from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/proto/types';
 import { getEventType } from '../logs/EventType';
 import { getBackendConnected } from '../../store/connection/selectors';
@@ -142,7 +142,7 @@ const useStyles = makeStyles((theme: Theme) => ({
  *
  */
 interface Props {
-  label: string;
+  routeLabel: string;
 }
 
 /**
@@ -194,6 +194,34 @@ export const AlertToast = ({
   );
 };
 
+// Selector to generate the alarm message text to show in the topbar
+const getAlertLabel = createSelector(
+  getPopupEventLog,
+  getAlarmMuteActive,
+  (popupEventLog: LogEvent | undefined, alarmMuteActive: boolean): string => {
+    if (popupEventLog !== undefined) {
+      const eventType = getEventType(popupEventLog.code);
+      return eventType.label;
+    }
+
+    if (alarmMuteActive) {
+      return 'New alarms will be muted';
+    }
+
+    // Currently this isn't used because the giant component return block
+    // in EventAlerts does a check on eventCount, which will be zero exactly
+    // when popupEventLog is undefined; when eventCount is zero, getAlertLabel
+    // isn't used.
+    return '';
+  },
+);
+
+// Selector to determine the number of active alerts
+const getAlertCount = createSelector(
+  getActiveLogEventIds,
+  (activeLogEventIds: number[]): number => activeLogEventIds.length,
+);
+
 /**
  * EventAlerts
  *
@@ -203,14 +231,9 @@ export const AlertToast = ({
  *
  * @returns {JSX.Element}
  */
-export const EventAlerts = ({ label }: Props): JSX.Element => {
+export const EventAlerts = ({ routeLabel }: Props): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  /**
-   * State to show active event's label
-   * Defaults to empty as no active event while initalization
-   */
-  const [alert, setAlert] = useState({ label: '' });
   /**
    * State to toggle opening logsPage popup
    */
@@ -220,22 +243,16 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    */
   const [activeFilter, setActiveFilter] = useState<boolean>(false);
   /**
-   * Stores the number of active alert count
-   */
-  const [alertCount, setAlertCount] = useState<number>(0);
-  /**
    * Selectors to get all Events, Active Event Ids & Alarm mute Status
    */
-  const popupEventLog = useSelector(getPopupEventLog, shallowEqual);
-  const activeLog = useSelector(getActiveLogEventIds, shallowEqual);
-  const activeLogString = JSON.stringify(activeLog);
   const alarmMuteActive = useSelector(getAlarmMuteActive);
   const alarmMuteSeqNum = useSelector(getAlarmMuteSeqNum);
   const alarmMuteRemaining = useSelector(getAlarmMuteRemaining);
   const backendConnected = useSelector(getBackendConnected);
   const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive);
-  const ventilating = useSelector(getParametersIsVentilating);
   const firmwareConnected = useSelector(getFirmwareConnected);
+  const alertLabel = useSelector(getAlertLabel);
+  const alertCount = useSelector(getAlertCount);
   const MUTE_MAX_DURATION = 120;
   const DEFAULT_TIMEOUT = 1000;
   /**
@@ -253,25 +270,6 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    * backend connection
    */
   const countdownTimer = backendConnected ? alarmMuteRemaining : remaining;
-  /**
-   * Triggers whenever Active or Event log is updated in redux
-   */
-  useEffect(() => {
-    if (popupEventLog) {
-      const eventType = getEventType(popupEventLog.code);
-      if (eventType.label) {
-        setAlertCount(activeLog.length);
-        setAlert({ label: eventType.label });
-      }
-    } else if (alarmMuteActive && ventilating) {
-      setAlertCount(1);
-      setAlert({ label: 'No Active Alarms' });
-    } else {
-      setAlert({ label: '' });
-      setAlertCount(0);
-    }
-  }, [popupEventLog, alarmMuteActive, activeLogString, activeLog.length, ventilating]);
-
   /**
    * Triggers whenever AlarmMute status is updated in redux store
    *
@@ -411,45 +409,28 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       >
         {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
       </Button>
-      <Grid hidden={alertCount <= 0}>
-        <Button
-          style={{ marginLeft: 10, marginRight: 10, margin: '0px 10px', padding: 0 }}
-          variant="contained"
-          color="primary"
-          className={classes.alertButtonSpan}
-          onClick={onActiveAlarmClick}
-        >
-          <span style={{ padding: '6px 16px', width: 250 }}>{alert.label}</span>
-          {alertCount > 1 && (
-            <div
-              className={classes.iconBadge}
-              style={{ left: -6, right: 'auto', backgroundColor: '#FFF', color: '#ff0000' }}
-            >
-              {alertCount}
-            </div>
-          )}
-          {!isMuted && countdownTimer !== undefined && (
-            <div className={classes.timer} style={{ right: 'auto' }}>
-              {new Date(countdownTimer * 1000).toISOString().substr(14, 5)}
-            </div>
-          )}
-        </Button>
-      </Grid>
-      <Grid hidden={alertCount > 0}>
-        <Button
-          style={{ marginLeft: 10, marginRight: 10, margin: '0px 10px', padding: 0 }}
-          variant="contained"
-          color="primary"
-          className={classes.alertTimer}
-        >
-          <span style={{ padding: '6px 16px', width: 250, visibility: !isMuted ? 'visible' : 'hidden' }}>Alarms will be muted</span>
-          {!isMuted && countdownTimer !== undefined && (
-            <div className={classes.timer} style={{ right: 'auto' }}>
-              {new Date(countdownTimer * 1000).toISOString().substr(14, 5)}
-            </div>
-          )}
-        </Button>
-      </Grid>
+      <Button
+        style={{ marginLeft: 10, marginRight: 10, margin: '0px 10px', padding: 0 }}
+        variant="contained"
+        color="primary"
+        className={alertCount > 0 ? classes.alertButtonSpan : classes.alertTimer}
+        onClick={alertCount > 0 ? onActiveAlarmClick : undefined}
+      >
+        <span style={{ padding: '6px 16px', width: 250 }}>{alertLabel}</span>
+        {alertCount > 1 && (
+          <div
+            className={classes.iconBadge}
+            style={{ left: -6, right: 'auto', backgroundColor: '#FFF', color: '#ff0000' }}
+          >
+            {alertCount}
+          </div>
+        )}
+        {!isMuted && countdownTimer !== undefined && (
+          <div className={classes.timer} style={{ right: 'auto' }}>
+            {new Date(countdownTimer * 1000).toISOString().substr(14, 5)}
+          </div>
+        )}
+      </Button>
       <Grid>
         <Button
           style={{ marginLeft: 10, marginRight: 12 }}
@@ -460,7 +441,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
         >
           <BellIcon />
         </Button>
-        {label}
+        {routeLabel}
       </Grid>
     </div>
   );
