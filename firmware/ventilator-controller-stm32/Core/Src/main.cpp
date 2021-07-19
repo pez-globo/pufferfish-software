@@ -338,7 +338,7 @@ PF::Driver::Power::Simulator power_simulator;
 
 // Initializables
 auto initializables =
-    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015);
+    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, /*fdo2, */ nonin_oem /*, ltc4015*/);
 
 /*
 // Test list
@@ -701,6 +701,15 @@ int main(void)
           current_time,
           false,
           PF::Application::AlarmMuteSource_mcu_backend_loss,
+          store.alarm_mute(),
+          log_events_manager);
+    } else if (!store.backend_connections().has_mcu) {
+      // The MCU isn't able to send any data to the backend but the backend is able to send
+      // data to the MCU, so the MCU should also cancel any active alarm mute
+      alarm_mute.transform(
+          current_time,
+          false,
+          PF::Application::AlarmMuteSource_backend_mcu_loss,
           store.alarm_mute(),
           log_events_manager);
     } else if (!store.backend_connections().has_frontend) {
