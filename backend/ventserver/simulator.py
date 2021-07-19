@@ -141,7 +141,7 @@ async def simulate_states(
         simulation_services.transform(time.time(), store)
         power_service.transform(store, simulated_log)
         alarms_services.transform(store, simulated_log)
-        alarm_mute_service.transform(time.time(), store)
+        alarm_mute_service.transform(time.time(), store, simulated_log)
         audible_alarms = (
             len(active_log_events.id) > 0 and not alarm_mute_.active
         )

@@ -122,9 +122,25 @@ export enum LogEventCode {
   backend_started = 142,
   mcu_shutdown = 143,
   backend_shutdown = 144,
-  sfm3019_air_disconnected = 145,
-  sfm3019_o2_disconnected = 146,
-  fdo2_disconnected = 147,
+  /** alarms_muted_user_software - Alarm muting/unmuting */
+  alarms_muted_user_software = 145,
+  alarms_muted_user_hardware = 146,
+  /** alarms_muted_unknown - Indicates a software bug; should never occur */
+  alarms_muted_unknown = 147,
+  alarms_unmuted_user_software = 148,
+  alarms_unmuted_user_hardware = 149,
+  alarms_unmuted_initialization = 150,
+  alarms_unmuted_timeout = 151,
+  alarms_unmuted_mcu_backend_loss = 152,
+  alarms_unmuted_backend_mcu_loss = 153,
+  alarms_unmuted_backend_frontend_loss = 154,
+  alarms_unmuted_frontend_backend_loss = 155,
+  /** alarms_unmuted_unknown - Indicates a software bug; should never occur */
+  alarms_unmuted_unknown = 156,
+  /** sfm3019_air_disconnected - Sensor loss */
+  sfm3019_air_disconnected = 160,
+  sfm3019_o2_disconnected = 161,
+  fdo2_disconnected = 162,
   UNRECOGNIZED = -1,
 }
 
@@ -221,12 +237,48 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case "backend_shutdown":
       return LogEventCode.backend_shutdown;
     case 145:
+    case "alarms_muted_user_software":
+      return LogEventCode.alarms_muted_user_software;
+    case 146:
+    case "alarms_muted_user_hardware":
+      return LogEventCode.alarms_muted_user_hardware;
+    case 147:
+    case "alarms_muted_unknown":
+      return LogEventCode.alarms_muted_unknown;
+    case 148:
+    case "alarms_unmuted_user_software":
+      return LogEventCode.alarms_unmuted_user_software;
+    case 149:
+    case "alarms_unmuted_user_hardware":
+      return LogEventCode.alarms_unmuted_user_hardware;
+    case 150:
+    case "alarms_unmuted_initialization":
+      return LogEventCode.alarms_unmuted_initialization;
+    case 151:
+    case "alarms_unmuted_timeout":
+      return LogEventCode.alarms_unmuted_timeout;
+    case 152:
+    case "alarms_unmuted_mcu_backend_loss":
+      return LogEventCode.alarms_unmuted_mcu_backend_loss;
+    case 153:
+    case "alarms_unmuted_backend_mcu_loss":
+      return LogEventCode.alarms_unmuted_backend_mcu_loss;
+    case 154:
+    case "alarms_unmuted_backend_frontend_loss":
+      return LogEventCode.alarms_unmuted_backend_frontend_loss;
+    case 155:
+    case "alarms_unmuted_frontend_backend_loss":
+      return LogEventCode.alarms_unmuted_frontend_backend_loss;
+    case 156:
+    case "alarms_unmuted_unknown":
+      return LogEventCode.alarms_unmuted_unknown;
+    case 160:
     case "sfm3019_air_disconnected":
       return LogEventCode.sfm3019_air_disconnected;
-    case 146:
+    case 161:
     case "sfm3019_o2_disconnected":
       return LogEventCode.sfm3019_o2_disconnected;
-    case 147:
+    case 162:
     case "fdo2_disconnected":
       return LogEventCode.fdo2_disconnected;
     case -1:
@@ -298,6 +350,30 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "mcu_shutdown";
     case LogEventCode.backend_shutdown:
       return "backend_shutdown";
+    case LogEventCode.alarms_muted_user_software:
+      return "alarms_muted_user_software";
+    case LogEventCode.alarms_muted_user_hardware:
+      return "alarms_muted_user_hardware";
+    case LogEventCode.alarms_muted_unknown:
+      return "alarms_muted_unknown";
+    case LogEventCode.alarms_unmuted_user_software:
+      return "alarms_unmuted_user_software";
+    case LogEventCode.alarms_unmuted_user_hardware:
+      return "alarms_unmuted_user_hardware";
+    case LogEventCode.alarms_unmuted_initialization:
+      return "alarms_unmuted_initialization";
+    case LogEventCode.alarms_unmuted_timeout:
+      return "alarms_unmuted_timeout";
+    case LogEventCode.alarms_unmuted_mcu_backend_loss:
+      return "alarms_unmuted_mcu_backend_loss";
+    case LogEventCode.alarms_unmuted_backend_mcu_loss:
+      return "alarms_unmuted_backend_mcu_loss";
+    case LogEventCode.alarms_unmuted_backend_frontend_loss:
+      return "alarms_unmuted_backend_frontend_loss";
+    case LogEventCode.alarms_unmuted_frontend_backend_loss:
+      return "alarms_unmuted_frontend_backend_loss";
+    case LogEventCode.alarms_unmuted_unknown:
+      return "alarms_unmuted_unknown";
     case LogEventCode.sfm3019_air_disconnected:
       return "sfm3019_air_disconnected";
     case LogEventCode.sfm3019_o2_disconnected:
@@ -348,6 +424,82 @@ export function logEventTypeToJSON(object: LogEventType): string {
       return "alarm_limits";
     case LogEventType.system:
       return "system";
+    default:
+      return "UNKNOWN";
+  }
+}
+
+export enum AlarmMuteSource {
+  /** initialization - Alarm muting was set on initialization */
+  initialization = 0,
+  /** user_software - User took a software action to change alarm muting */
+  user_software = 1,
+  /** user_hardware - User took a hardware action to change alarm muting */
+  user_hardware = 2,
+  /** timeout - Alarm mute automatically timed out */
+  timeout = 3,
+  /** mcu_backend_loss - Alarm mute was cancelled by mcu due to connection loss */
+  mcu_backend_loss = 4,
+  /** backend_mcu_loss - Alarm mute was cancelled by backend due to connection loss */
+  backend_mcu_loss = 5,
+  /** backend_frontend_loss - Alarm mute was cancelled by backend due to connection loss */
+  backend_frontend_loss = 6,
+  /** frontend_backend_loss - Alarm mute was cancelled by frontend due to connection loss */
+  frontend_backend_loss = 7,
+  UNRECOGNIZED = -1,
+}
+
+export function alarmMuteSourceFromJSON(object: any): AlarmMuteSource {
+  switch (object) {
+    case 0:
+    case "initialization":
+      return AlarmMuteSource.initialization;
+    case 1:
+    case "user_software":
+      return AlarmMuteSource.user_software;
+    case 2:
+    case "user_hardware":
+      return AlarmMuteSource.user_hardware;
+    case 3:
+    case "timeout":
+      return AlarmMuteSource.timeout;
+    case 4:
+    case "mcu_backend_loss":
+      return AlarmMuteSource.mcu_backend_loss;
+    case 5:
+    case "backend_mcu_loss":
+      return AlarmMuteSource.backend_mcu_loss;
+    case 6:
+    case "backend_frontend_loss":
+      return AlarmMuteSource.backend_frontend_loss;
+    case 7:
+    case "frontend_backend_loss":
+      return AlarmMuteSource.frontend_backend_loss;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return AlarmMuteSource.UNRECOGNIZED;
+  }
+}
+
+export function alarmMuteSourceToJSON(object: AlarmMuteSource): string {
+  switch (object) {
+    case AlarmMuteSource.initialization:
+      return "initialization";
+    case AlarmMuteSource.user_software:
+      return "user_software";
+    case AlarmMuteSource.user_hardware:
+      return "user_hardware";
+    case AlarmMuteSource.timeout:
+      return "timeout";
+    case AlarmMuteSource.mcu_backend_loss:
+      return "mcu_backend_loss";
+    case AlarmMuteSource.backend_mcu_loss:
+      return "backend_mcu_loss";
+    case AlarmMuteSource.backend_frontend_loss:
+      return "backend_frontend_loss";
+    case AlarmMuteSource.frontend_backend_loss:
+      return "frontend_backend_loss";
     default:
       return "UNKNOWN";
   }
@@ -516,6 +668,7 @@ export interface AlarmMute {
    * in the firmware (such as a button-press) or the servicing of each external request.
    */
   seqNum: number;
+  source: AlarmMuteSource;
   remaining: number;
 }
 
@@ -527,6 +680,7 @@ export interface AlarmMuteRequest {
    * greater than the seq_num in the firmware's copy of AlarmMute.
    */
   seqNum: number;
+  source: AlarmMuteSource;
 }
 
 const baseRange: object = { lower: 0, upper: 0 };
@@ -2926,7 +3080,12 @@ export const ScreenStatus = {
   },
 };
 
-const baseAlarmMute: object = { active: false, seqNum: 0, remaining: 0 };
+const baseAlarmMute: object = {
+  active: false,
+  seqNum: 0,
+  source: 0,
+  remaining: 0,
+};
 
 export const AlarmMute = {
   encode(
@@ -2939,8 +3098,11 @@ export const AlarmMute = {
     if (message.seqNum !== 0) {
       writer.uint32(16).uint32(message.seqNum);
     }
+    if (message.source !== 0) {
+      writer.uint32(24).int32(message.source);
+    }
     if (message.remaining !== 0) {
-      writer.uint32(24).uint64(message.remaining);
+      writer.uint32(32).uint64(message.remaining);
     }
     return writer;
   },
@@ -2959,6 +3121,9 @@ export const AlarmMute = {
           message.seqNum = reader.uint32();
           break;
         case 3:
+          message.source = reader.int32() as any;
+          break;
+        case 4:
           message.remaining = longToNumber(reader.uint64() as Long);
           break;
         default:
@@ -2981,6 +3146,11 @@ export const AlarmMute = {
     } else {
       message.seqNum = 0;
     }
+    if (object.source !== undefined && object.source !== null) {
+      message.source = alarmMuteSourceFromJSON(object.source);
+    } else {
+      message.source = 0;
+    }
     if (object.remaining !== undefined && object.remaining !== null) {
       message.remaining = Number(object.remaining);
     } else {
@@ -2993,6 +3163,8 @@ export const AlarmMute = {
     const obj: any = {};
     message.active !== undefined && (obj.active = message.active);
     message.seqNum !== undefined && (obj.seqNum = message.seqNum);
+    message.source !== undefined &&
+      (obj.source = alarmMuteSourceToJSON(message.source));
     message.remaining !== undefined && (obj.remaining = message.remaining);
     return obj;
   },
@@ -3009,6 +3181,11 @@ export const AlarmMute = {
     } else {
       message.seqNum = 0;
     }
+    if (object.source !== undefined && object.source !== null) {
+      message.source = object.source;
+    } else {
+      message.source = 0;
+    }
     if (object.remaining !== undefined && object.remaining !== null) {
       message.remaining = object.remaining;
     } else {
@@ -3018,7 +3195,7 @@ export const AlarmMute = {
   },
 };
 
-const baseAlarmMuteRequest: object = { active: false, seqNum: 0 };
+const baseAlarmMuteRequest: object = { active: false, seqNum: 0, source: 0 };
 
 export const AlarmMuteRequest = {
   encode(
@@ -3030,6 +3207,9 @@ export const AlarmMuteRequest = {
     }
     if (message.seqNum !== 0) {
       writer.uint32(16).uint32(message.seqNum);
+    }
+    if (message.source !== 0) {
+      writer.uint32(24).int32(message.source);
     }
     return writer;
   },
@@ -3046,6 +3226,9 @@ export const AlarmMuteRequest = {
           break;
         case 2:
           message.seqNum = reader.uint32();
+          break;
+        case 3:
+          message.source = reader.int32() as any;
           break;
         default:
           reader.skipType(tag & 7);
@@ -3067,6 +3250,11 @@ export const AlarmMuteRequest = {
     } else {
       message.seqNum = 0;
     }
+    if (object.source !== undefined && object.source !== null) {
+      message.source = alarmMuteSourceFromJSON(object.source);
+    } else {
+      message.source = 0;
+    }
     return message;
   },
 
@@ -3074,6 +3262,8 @@ export const AlarmMuteRequest = {
     const obj: any = {};
     message.active !== undefined && (obj.active = message.active);
     message.seqNum !== undefined && (obj.seqNum = message.seqNum);
+    message.source !== undefined &&
+      (obj.source = alarmMuteSourceToJSON(message.source));
     return obj;
   },
 
@@ -3088,6 +3278,11 @@ export const AlarmMuteRequest = {
       message.seqNum = object.seqNum;
     } else {
       message.seqNum = 0;
+    }
+    if (object.source !== undefined && object.source !== null) {
+      message.source = object.source;
+    } else {
+      message.source = 0;
     }
     return message;
   },

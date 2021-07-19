@@ -159,9 +159,23 @@ enum LogEventCode {
   backend_started = 142;
   mcu_shutdown = 143;
   backend_shutdown = 144;
-  sfm3019_air_disconnected = 145;
-  sfm3019_o2_disconnected = 146;
-  fdo2_disconnected = 147;
+  // Alarm muting/unmuting
+  alarms_muted_user_software = 145;
+  alarms_muted_user_hardware = 146;
+  alarms_muted_unknown = 147;  // Indicates a software bug; should never occur
+  alarms_unmuted_user_software = 148;
+  alarms_unmuted_user_hardware = 149;
+  alarms_unmuted_initialization = 150;
+  alarms_unmuted_timeout = 151;
+  alarms_unmuted_mcu_backend_loss = 152;
+  alarms_unmuted_backend_mcu_loss = 153;
+  alarms_unmuted_backend_frontend_loss = 154;
+  alarms_unmuted_frontend_backend_loss = 155;
+  alarms_unmuted_unknown = 156;  // Indicates a software bug; should never occur
+  // Sensor loss
+  sfm3019_air_disconnected = 160;
+  sfm3019_o2_disconnected = 161;
+  fdo2_disconnected = 162;
 }
 
 enum LogEventType {
@@ -226,12 +240,24 @@ message ScreenStatus {
   bool lock = 1;
 }
 
+enum AlarmMuteSource {
+  initialization = 0;  // Alarm muting was set on initialization
+  user_software = 1;  // User took a software action to change alarm muting
+  user_hardware = 2;  // User took a hardware action to change alarm muting
+  timeout = 3;  // Alarm mute automatically timed out
+  mcu_backend_loss = 4; // Alarm mute was cancelled by mcu due to connection loss
+  backend_mcu_loss = 5; // Alarm mute was cancelled by backend due to connection loss
+  backend_frontend_loss = 6; // Alarm mute was cancelled by backend due to connection loss
+  frontend_backend_loss = 7; // Alarm mute was cancelled by frontend due to connection loss
+}
+
 message AlarmMute {
   bool active = 1;
   // seq_num is a logical clock and advances in the firmware after each local action
   // in the firmware (such as a button-press) or the servicing of each external request.
   uint32 seq_num = 2;
-  uint64 remaining = 3;
+  AlarmMuteSource source = 3;
+  uint64 remaining = 4;
 }
 
 message AlarmMuteRequest {
@@ -240,4 +266,5 @@ message AlarmMuteRequest {
   // the firmware only services an AlarmMuteRequest if the request's seq_num is one
   // greater than the seq_num in the firmware's copy of AlarmMute.
   uint32 seq_num = 2;
+  AlarmMuteSource source = 3;
 }

@@ -24,7 +24,7 @@ import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
 import { commitRequest } from '../../store/controller/actions';
-import { AlarmMuteRequest } from '../../store/proto/mcu_pb';
+import { AlarmMuteRequest, AlarmMuteSource } from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/proto/types';
 import { getEventType } from '../logs/EventType';
 import { getBackendConnected } from '../../store/connection/selectors';
@@ -309,7 +309,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
    *
    * @param {boolean} state desc for state
    */
-  const muteAlarmState = (state: boolean) => {
+  const muteAlarmState = (state: boolean, source: AlarmMuteSource) => {
     if (alarmMuteSeqNum === null) {
       console.error('Alarm mute/unmute button reached illegal state!');
       return;
@@ -317,7 +317,9 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
 
     dispatch(
       commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, {
-        active: state, seqNum: alarmMuteSeqNum + 1
+        active: state,
+        seqNum: alarmMuteSeqNum + 1,
+        source,
       }),
     );
   };
@@ -373,7 +375,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
               )}
               <Button
                 style={{ marginLeft: 12, marginRight: 12 }}
-                onClick={() => muteAlarmState(isMuted)}
+                onClick={() => muteAlarmState(isMuted, AlarmMuteSource.user_software)}
                 variant="contained"
                 color="primary"
                 disabled={!firmwareConnected || getAlarmMuteSeqNum === null}
@@ -401,7 +403,7 @@ export const EventAlerts = ({ label }: Props): JSX.Element => {
       </ModalPopup>
       <Button
         style={{ marginLeft: 10, marginRight: 10 }}
-        onClick={() => muteAlarmState(isMuted)}
+        onClick={() => muteAlarmState(isMuted, AlarmMuteSource.user_software)}
         variant="contained"
         color="primary"
         disabled={!firmwareConnected || getAlarmMuteSeqNum === null}

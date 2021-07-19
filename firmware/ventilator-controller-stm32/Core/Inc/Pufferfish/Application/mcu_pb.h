@@ -71,9 +71,23 @@ typedef enum _LogEventCode {
     LogEventCode_backend_started = 142, 
     LogEventCode_mcu_shutdown = 143, 
     LogEventCode_backend_shutdown = 144, 
-    LogEventCode_sfm3019_air_disconnected = 145, 
-    LogEventCode_sfm3019_o2_disconnected = 146, 
-    LogEventCode_fdo2_disconnected = 147 
+    /* Alarm muting/unmuting */
+    LogEventCode_alarms_muted_user_software = 145, 
+    LogEventCode_alarms_muted_user_hardware = 146, 
+    LogEventCode_alarms_muted_unknown = 147, /* Indicates a software bug; should never occur */
+    LogEventCode_alarms_unmuted_user_software = 148, 
+    LogEventCode_alarms_unmuted_user_hardware = 149, 
+    LogEventCode_alarms_unmuted_initialization = 150, 
+    LogEventCode_alarms_unmuted_timeout = 151, 
+    LogEventCode_alarms_unmuted_mcu_backend_loss = 152, 
+    LogEventCode_alarms_unmuted_backend_mcu_loss = 153, 
+    LogEventCode_alarms_unmuted_backend_frontend_loss = 154, 
+    LogEventCode_alarms_unmuted_frontend_backend_loss = 155, 
+    LogEventCode_alarms_unmuted_unknown = 156, /* Indicates a software bug; should never occur */
+    /* Sensor loss */
+    LogEventCode_sfm3019_air_disconnected = 160, 
+    LogEventCode_sfm3019_o2_disconnected = 161, 
+    LogEventCode_fdo2_disconnected = 162 
 } LogEventCode;
 
 typedef enum _LogEventType { 
@@ -82,6 +96,17 @@ typedef enum _LogEventType {
     LogEventType_alarm_limits = 2, 
     LogEventType_system = 3 
 } LogEventType;
+
+typedef enum _AlarmMuteSource { 
+    AlarmMuteSource_initialization = 0, /* Alarm muting was set on initialization */
+    AlarmMuteSource_user_software = 1, /* User took a software action to change alarm muting */
+    AlarmMuteSource_user_hardware = 2, /* User took a hardware action to change alarm muting */
+    AlarmMuteSource_timeout = 3, /* Alarm mute automatically timed out */
+    AlarmMuteSource_mcu_backend_loss = 4, /* Alarm mute was cancelled by mcu due to connection loss */
+    AlarmMuteSource_backend_mcu_loss = 5, /* Alarm mute was cancelled by backend due to connection loss */
+    AlarmMuteSource_backend_frontend_loss = 6, /* Alarm mute was cancelled by backend due to connection loss */
+    AlarmMuteSource_frontend_backend_loss = 7 /* Alarm mute was cancelled by frontend due to connection loss */
+} AlarmMuteSource;
 
 /* Struct definitions */
 /* Note: NextLogEvents has a custom equality operator in the firmware which must
@@ -96,6 +121,7 @@ typedef struct _AlarmMute {
     /* seq_num is a logical clock and advances in the firmware after each local action
  in the firmware (such as a button-press) or the servicing of each external request. */
     uint32_t seq_num; 
+    AlarmMuteSource source; 
     uint64_t remaining; 
 } AlarmMute;
 
@@ -105,6 +131,7 @@ typedef struct _AlarmMuteRequest {
  the firmware only services an AlarmMuteRequest if the request's seq_num is one
  greater than the seq_num in the firmware's copy of AlarmMute. */
     uint32_t seq_num; 
+    AlarmMuteSource source; 
 } AlarmMuteRequest;
 
 typedef PB_BYTES_ARRAY_T(64) Announcement_announcement_t;
@@ -297,6 +324,10 @@ typedef struct _NextLogEvents {
 #define _LogEventType_MAX LogEventType_system
 #define _LogEventType_ARRAYSIZE ((LogEventType)(LogEventType_system+1))
 
+#define _AlarmMuteSource_MIN AlarmMuteSource_initialization
+#define _AlarmMuteSource_MAX AlarmMuteSource_frontend_backend_loss
+#define _AlarmMuteSource_ARRAYSIZE ((AlarmMuteSource)(AlarmMuteSource_frontend_backend_loss+1))
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -318,8 +349,8 @@ extern "C" {
 #define ActiveLogEvents_init_default             {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define MCUPowerStatus_init_default              {0, 0}
 #define ScreenStatus_init_default                {0}
-#define AlarmMute_init_default                   {0, 0, 0}
-#define AlarmMuteRequest_init_default            {0, 0}
+#define AlarmMute_init_default                   {0, 0, _AlarmMuteSource_MIN, 0}
+#define AlarmMuteRequest_init_default            {0, 0, _AlarmMuteSource_MIN}
 #define Range_init_zero                          {0, 0}
 #define AlarmLimits_init_zero                    {0, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero}
 #define AlarmLimitsRequest_init_zero             {0, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero}
@@ -335,16 +366,18 @@ extern "C" {
 #define ActiveLogEvents_init_zero                {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define MCUPowerStatus_init_zero                 {0, 0}
 #define ScreenStatus_init_zero                   {0}
-#define AlarmMute_init_zero                      {0, 0, 0}
-#define AlarmMuteRequest_init_zero               {0, 0}
+#define AlarmMute_init_zero                      {0, 0, _AlarmMuteSource_MIN, 0}
+#define AlarmMuteRequest_init_zero               {0, 0, _AlarmMuteSource_MIN}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define ActiveLogEvents_id_tag                   1
 #define AlarmMute_active_tag                     1
 #define AlarmMute_seq_num_tag                    2
-#define AlarmMute_remaining_tag                  3
+#define AlarmMute_source_tag                     3
+#define AlarmMute_remaining_tag                  4
 #define AlarmMuteRequest_active_tag              1
 #define AlarmMuteRequest_seq_num_tag             2
+#define AlarmMuteRequest_source_tag              3
 #define Announcement_time_tag                    1
 #define Announcement_announcement_tag            2
 #define CycleMeasurements_time_tag               1
@@ -635,13 +668,15 @@ X(a, STATIC,   SINGULAR, BOOL,     lock,              1)
 #define AlarmMute_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     active,            1) \
 X(a, STATIC,   SINGULAR, UINT32,   seq_num,           2) \
-X(a, STATIC,   SINGULAR, UINT64,   remaining,         3)
+X(a, STATIC,   SINGULAR, UENUM,    source,            3) \
+X(a, STATIC,   SINGULAR, UINT64,   remaining,         4)
 #define AlarmMute_CALLBACK NULL
 #define AlarmMute_DEFAULT NULL
 
 #define AlarmMuteRequest_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     active,            1) \
-X(a, STATIC,   SINGULAR, UINT32,   seq_num,           2)
+X(a, STATIC,   SINGULAR, UINT32,   seq_num,           2) \
+X(a, STATIC,   SINGULAR, UENUM,    source,            3)
 #define AlarmMuteRequest_CALLBACK NULL
 #define AlarmMuteRequest_DEFAULT NULL
 
@@ -686,8 +721,8 @@ extern const pb_msgdesc_t AlarmMuteRequest_msg;
 #define ActiveLogEvents_size                     192
 #define AlarmLimitsRequest_size                  347
 #define AlarmLimits_size                         347
-#define AlarmMuteRequest_size                    8
-#define AlarmMute_size                           19
+#define AlarmMuteRequest_size                    10
+#define AlarmMute_size                           21
 #define Announcement_size                        77
 #define CycleMeasurements_size                   41
 #define ExpectedLogEvent_size                    12
@@ -821,14 +856,14 @@ struct MessageDescriptor<ScreenStatus> {
 };
 template <>
 struct MessageDescriptor<AlarmMute> {
-    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 3;
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 4;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &AlarmMute_msg;
     }
 };
 template <>
 struct MessageDescriptor<AlarmMuteRequest> {
-    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 3;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &AlarmMuteRequest_msg;
     }

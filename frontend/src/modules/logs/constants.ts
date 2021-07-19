@@ -7,6 +7,7 @@ import { PERCENT, LMIN, BPM } from '../info/units';
 import { EventType } from './EventType';
 
 export const eventDetailsMap = new Map<LogEventCode, string>([
+  // System settings & alarms
   [LogEventCode.mcu_backend_connection_down, 'Hardware controller lost connection'],
   [
     LogEventCode.backend_mcu_connection_down,
@@ -16,14 +17,30 @@ export const eventDetailsMap = new Map<LogEventCode, string>([
   [LogEventCode.frontend_backend_connection_down, 'User interface lost connection'],
   [LogEventCode.mcu_backend_connection_up, 'Hardware controller connected'],
   [LogEventCode.backend_frontend_connection_up, 'User interface connected'],
-  [LogEventCode.charger_disconnected, 'Battery charger is disconnected'],
   [LogEventCode.battery_low, `Less than 30${PERCENT} battery remaining`],
   [LogEventCode.battery_critical, `Less than 5${PERCENT} battery remaining`],
-  [LogEventCode.sfm3019_air_disconnected, 'Air sensor connection lost'],
-  [LogEventCode.sfm3019_o2_disconnected, 'O2 sensor connection lost'],
+  [LogEventCode.charger_disconnected, 'Battery charger is disconnected'],
+  // Alarm muting/unmuting
+  [LogEventCode.alarms_muted_user_software, 'Because of display mute toggle button'],
+  [LogEventCode.alarms_muted_user_hardware, 'Because of hardware mute toggle button'],
+  [LogEventCode.alarms_unmuted_user_software, 'Because of display mute toggle button'],
+  [LogEventCode.alarms_unmuted_user_hardware, 'Because of hardware mute toggle button'],
+  [LogEventCode.alarms_unmuted_timeout, 'Because of automatic timeout'],
+  [LogEventCode.alarms_unmuted_mcu_backend_loss, 'Because hardware controller lost connection'],
+  [
+    LogEventCode.alarms_unmuted_backend_mcu_loss,
+    'Because backend server lost connection from hardware controller',
+  ],
+  [LogEventCode.alarms_unmuted_backend_frontend_loss, 'Because user interface lost connection'],
+  [LogEventCode.alarms_unmuted_frontend_backend_loss, 'Because user interface lost connection'],
+  // Sensor loss
+  [LogEventCode.sfm3019_air_disconnected, 'Air flow sensor connection lost'],
+  [LogEventCode.sfm3019_o2_disconnected, 'O2 flow sensor connection lost'],
+  [LogEventCode.fdo2_disconnected, 'O2 concentration sensor connection lost'],
 ]);
 
 export const EventTypeMap = new Map<LogEventCode, EventType>([
+  // Patient alarms
   [
     LogEventCode.fio2_too_low,
     {
@@ -98,6 +115,7 @@ export const EventTypeMap = new Map<LogEventCode, EventType>([
       unit: BPM,
     },
   ],
+  // Control settings
   [
     LogEventCode.ventilation_operation_changed,
     {
@@ -132,6 +150,7 @@ export const EventTypeMap = new Map<LogEventCode, EventType>([
       unit: LMIN,
     },
   ],
+  // Alarm limits settings
   [
     LogEventCode.fio2_alarm_limits_changed,
     {
@@ -168,6 +187,7 @@ export const EventTypeMap = new Map<LogEventCode, EventType>([
       unit: BPM,
     },
   ],
+  // System settings & alarms
   [
     LogEventCode.screen_locked,
     {
@@ -226,12 +246,134 @@ export const EventTypeMap = new Map<LogEventCode, EventType>([
     },
   ],
   [
+    LogEventCode.battery_critical,
+    {
+      type: LogEventType.system,
+      label: 'Critical battery',
+      unit: PERCENT,
+    },
+  ],
+  [
     LogEventCode.charger_disconnected,
     {
       type: LogEventType.system,
       label: 'Wall Power lost',
     },
   ],
+  [
+    LogEventCode.mcu_started,
+    {
+      type: LogEventType.system,
+      label: 'Software started',
+    },
+  ],
+  [
+    LogEventCode.backend_started,
+    {
+      type: LogEventType.system,
+      label: 'Software started',
+    },
+  ],
+  [
+    LogEventCode.mcu_shutdown,
+    {
+      type: LogEventType.system,
+      label: 'Software shutting down',
+    },
+  ],
+  [
+    LogEventCode.backend_shutdown,
+    {
+      type: LogEventType.system,
+      label: 'Software shutting down',
+    },
+  ],
+  // Alarm muting/unmuting
+  [
+    LogEventCode.alarms_muted_user_software,
+    {
+      type: LogEventType.system,
+      label: 'Temporarily muting alarms',
+    },
+  ],
+  [
+    LogEventCode.alarms_muted_user_hardware,
+    {
+      type: LogEventType.system,
+      label: 'Temporarily muting alarms',
+    },
+  ],
+  [
+    LogEventCode.alarms_muted_unknown,
+    {
+      type: LogEventType.system,
+      label: 'Temporarily muting alarms',
+    },
+  ],
+  [
+    LogEventCode.alarms_unmuted_user_software,
+    {
+      type: LogEventType.system,
+      label: 'Unmuted alarms',
+    },
+  ],
+  [
+    LogEventCode.alarms_unmuted_user_hardware,
+    {
+      type: LogEventType.system,
+      label: 'Unmuted alarms',
+    },
+  ],
+  [
+    LogEventCode.alarms_unmuted_initialization,
+    {
+      type: LogEventType.system,
+      label: 'Unmuted alarms',
+    },
+  ],
+  [
+    LogEventCode.alarms_unmuted_timeout,
+    {
+      type: LogEventType.system,
+      label: 'Unmuted alarms',
+    },
+  ],
+  [
+    LogEventCode.alarms_unmuted_mcu_backend_loss,
+    {
+      type: LogEventType.system,
+      label: 'Unmuted alarms',
+    },
+  ],
+  [
+    LogEventCode.alarms_unmuted_backend_mcu_loss,
+    {
+      type: LogEventType.system,
+      label: 'Unmuted alarms',
+    },
+  ],
+  [
+    LogEventCode.alarms_unmuted_backend_frontend_loss,
+    {
+      type: LogEventType.system,
+      label: 'Unmuted alarms',
+    },
+  ],
+  [
+    LogEventCode.alarms_unmuted_frontend_backend_loss,
+    {
+      type: LogEventType.system,
+      label: 'Unmuted alarms',
+    },
+  ],
+  [
+    LogEventCode.alarms_unmuted_unknown,
+    {
+      type: LogEventType.system,
+      label: 'Unmuted alarms',
+    },
+  ],
+  // Sensor loss
   [
     LogEventCode.sfm3019_air_disconnected,
     {
@@ -251,14 +393,6 @@ export const EventTypeMap = new Map<LogEventCode, EventType>([
     {
       type: LogEventType.system,
       label: 'Internal sensor failed',
-    },
-  ],
-  [
-    LogEventCode.battery_critical,
-    {
-      type: LogEventType.system,
-      label: 'Critical battery',
-      unit: PERCENT,
     },
   ],
 ]);

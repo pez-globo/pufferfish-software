@@ -691,9 +691,15 @@ int main(void)
 
     // Alarms
     alarms_manager.transform(store.active_log_events());
-    alarm_mute.transform(current_time, store.alarm_mute_request(), store.alarm_mute());
+    alarm_mute.transform(
+        current_time, store.alarm_mute_request(), store.alarm_mute(), log_events_manager);
     if (!store.backend_connected()) {
-      alarm_mute.transform(current_time, false, store.alarm_mute());
+      alarm_mute.transform(
+          current_time,
+          false,
+          PF::Application::AlarmMuteSource_mcu_backend_loss,
+          store.alarm_mute(),
+          log_events_manager);
     }
     if (store.active_log_events().id_count > 0 && !store.alarm_mute().active) {
       board_led1.write(true);

@@ -41,6 +41,7 @@ class AlarmMuteCancellationEvent(events.Event):
     """
 
     time: float = attr.ib()
+    source: mcu_pb.AlarmMuteSource = attr.ib()
     request: bool = attr.ib()
 
     def has_data(self) -> bool:
@@ -160,16 +161,15 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
                     code=event.code, type=event_type
                 )
             ))
+        elif event.active:
+            self._local_alarms.input(alarms.AlarmActivationEvent(
+                current_time=self.current_time,
+                code=event.code, event_type=event_type
+            ))
         else:
-            if event.active:
-                self._local_alarms.input(alarms.AlarmActivationEvent(
-                    current_time=self.current_time,
-                    code=event.code, event_type=event_type
-                ))
-            else:
-                self._local_alarms.input(alarms.AlarmDeactivationEvent(
-                    current_time=self.current_time, codes=[event.code]
-                ))
+            self._local_alarms.input(alarms.AlarmDeactivationEvent(
+                current_time=self.current_time, codes=[event.code]
+            ))
         self._event_log_receiver.input(self._local_alarms.output())
 
     def _handle_mcu_log_events(self) -> None:
@@ -248,10 +248,27 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             self._logger.error('AlarmMute was not initialized in the store!')
             return
 
+        if event.source == mcu_pb.AlarmMuteSource.backend_mcu_loss:
+            log_event_code = mcu_pb.LogEventCode.alarms_unmuted_backend_mcu_loss
+        elif event.source == mcu_pb.AlarmMuteSource.backend_frontend_loss:
+            log_event_code = \
+                mcu_pb.LogEventCode.alarms_unmuted_backend_frontend_loss
+        else:
+            self._logger.error(
+                'Unexpected alarm mute cancellation source %s!', event.source
+            )
+
         if not event.request:
             if alarm_mute.active:
                 alarm_mute.active = False
-                # TODO: generate log event
+                alarm_mute.source = event.source
+                self._local_alarms.input(log.LocalLogInputEvent(
+                    current_time=self.current_time, new_event=mcu_pb.LogEvent(
+                        code=log_event_code,
+                        type=mcu_pb.LogEventType.system
+                    )
+                ))
+                self._event_log_receiver.input(self._local_alarms.output())
             return
 
         alarm_mute_request = typing.cast(
@@ -267,7 +284,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         if alarm_mute_request.active:
             alarm_mute_request.active = False
             alarm_mute_request.seq_num = alarm_mute.seq_num + 1
-            # TODO: generate log event
+            alarm_mute_request.source = event.source
+            # The backend doesn't need to generate a log event because the
+            # firmware will generate a log event when servicing the request.
 
 
 @attr.s

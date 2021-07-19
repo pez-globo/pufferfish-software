@@ -315,7 +315,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
                 time=self.current_time, server_receive=self._connection_states
             ))
             self._backend.input(backend.AlarmMuteCancellationEvent(
-                time=self.current_time, request=False
+                time=self.current_time,
+                source=mcu_pb.AlarmMuteSource.backend_mcu_loss, request=False
             ))
         if actions.alarm_frontend:
             self._backend.input(backend.ExternalLogEvent(
@@ -327,7 +328,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
                 time=self.current_time, server_receive=self._connection_states
             ))
             self._backend.input(backend.AlarmMuteCancellationEvent(
-                time=self.current_time, request=True
+                time=self.current_time,
+                source=mcu_pb.AlarmMuteSource.backend_frontend_loss,
+                request=True
             ))
         return actions.kill_frontend
 

@@ -64,9 +64,23 @@ class LogEventCode(betterproto.Enum):
     backend_started = 142
     mcu_shutdown = 143
     backend_shutdown = 144
-    sfm3019_air_disconnected = 145
-    sfm3019_o2_disconnected = 146
-    fdo2_disconnected = 147
+    # Alarm muting/unmuting
+    alarms_muted_user_software = 145
+    alarms_muted_user_hardware = 146
+    alarms_muted_unknown = 147
+    alarms_unmuted_user_software = 148
+    alarms_unmuted_user_hardware = 149
+    alarms_unmuted_initialization = 150
+    alarms_unmuted_timeout = 151
+    alarms_unmuted_mcu_backend_loss = 152
+    alarms_unmuted_backend_mcu_loss = 153
+    alarms_unmuted_backend_frontend_loss = 154
+    alarms_unmuted_frontend_backend_loss = 155
+    alarms_unmuted_unknown = 156
+    # Sensor loss
+    sfm3019_air_disconnected = 160
+    sfm3019_o2_disconnected = 161
+    fdo2_disconnected = 162
 
 
 class LogEventType(betterproto.Enum):
@@ -74,6 +88,17 @@ class LogEventType(betterproto.Enum):
     control = 1
     alarm_limits = 2
     system = 3
+
+
+class AlarmMuteSource(betterproto.Enum):
+    initialization = 0
+    user_software = 1
+    user_hardware = 2
+    timeout = 3
+    mcu_backend_loss = 4
+    backend_mcu_loss = 5
+    backend_frontend_loss = 6
+    frontend_backend_loss = 7
 
 
 @dataclass
@@ -255,7 +280,8 @@ class AlarmMute(betterproto.Message):
     # action in the firmware (such as a button-press) or the servicing of each
     # external request.
     seq_num: int = betterproto.uint32_field(2)
-    remaining: int = betterproto.uint64_field(3)
+    source: "AlarmMuteSource" = betterproto.enum_field(3)
+    remaining: int = betterproto.uint64_field(4)
 
 
 @dataclass
@@ -266,3 +292,4 @@ class AlarmMuteRequest(betterproto.Message):
     # seq_num is one greater than the seq_num in the firmware's copy of
     # AlarmMute.
     seq_num: int = betterproto.uint32_field(2)
+    source: "AlarmMuteSource" = betterproto.enum_field(3)
