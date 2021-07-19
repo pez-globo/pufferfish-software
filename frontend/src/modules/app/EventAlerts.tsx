@@ -363,7 +363,7 @@ export const EventAlerts = ({ routeLabel }: Props): JSX.Element => {
                 onClick={() => muteAlarmState(!alarmMuteActive, AlarmMuteSource.user_software)}
                 variant="contained"
                 color="primary"
-                disabled={!firmwareConnected || getAlarmMuteSeqNum === null}
+                disabled={!backendConnected || !firmwareConnected || getAlarmMuteSeqNum === null}
                 className={classes.alertButton}
               >
                 {!alarmMuteActive ? <VolumeOffIcon /> : <VolumeUpIcon />}
@@ -391,7 +391,7 @@ export const EventAlerts = ({ routeLabel }: Props): JSX.Element => {
         onClick={() => muteAlarmState(!alarmMuteActive, AlarmMuteSource.user_software)}
         variant="contained"
         color="primary"
-        disabled={!firmwareConnected || getAlarmMuteSeqNum === null}
+        disabled={!backendConnected || !firmwareConnected || getAlarmMuteSeqNum === null}
         className={classes.alertButton}
       >
         {!alarmMuteActive ? <VolumeOffIcon /> : <VolumeUpIcon />}
