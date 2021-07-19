@@ -40,7 +40,7 @@ import { commitRequest, commitDraftRequest } from '../../store/controller/action
  * @prop {string} units Unit measurement of the value
  * @prop {boolean} isAlarmLimitsEnabled Config to set if value is Alarm type
  * @prop {boolean} isParamEnabled Config to set if value is Set type
- * @prop {number | null} committedSetting Current value
+ * @prop {number | null} committedParam Current value
  * @prop {Range | null} alarmLimitsDraft Alarm range values
  * @prop {number} paramDraft Set Value
  * @prop {number | null} minValue Minimum under which value cannot decrement
@@ -56,7 +56,7 @@ interface InternalState {
   units: string;
   isAlarmLimitsEnabled: boolean;
   isParamEnabled: boolean;
-  committedSetting?: number | null;
+  committedParam?: number | null;
   alarmLimitsDraft: Range | null;
   paramDraft: number;
   minValue?: number | null;
@@ -218,7 +218,7 @@ const HFNCControls = ({
  * @param {boolean} isAlarmLimitsEnabled Config to set if value is Alarm type
  * @param {boolean} isParamEnabled Config to set if value is Set type
  * @param {Range} alarmLimitsCurrent - Current Alarm values from redux store
- * @param {number | null} committedSetting - Actual Alarm Value when Component was initalized
+ * @param {number | null} committedParam - Actual Alarm Value when Component was initalized
  * @param {number | null} minValue Minimum under which value cannot decrement
  * @param {number | null} maxValue Maximum above which value cannot increment
  * @param {number | null} alarmLimitMin Alarm limit Minimum Range value
@@ -233,7 +233,7 @@ const createInternalState = (
   isParamEnabled: boolean,
   isAlarmLimitsEnabled: boolean,
   alarmLimitsCurrent: Range | null,
-  committedSetting?: number | null,
+  committedParam?: number | null,
   minValue?: number | null,
   maxValue?: number | null,
   alarmLimitMin?: number | null,
@@ -245,15 +245,15 @@ const createInternalState = (
     units,
     isParamEnabled,
     isAlarmLimitsEnabled,
-    committedSetting,
+    committedParam,
     minValue,
     maxValue,
     alarmLimitMin,
     alarmLimitMax,
     alarmLimitsDraft: alarmLimitsCurrent,
     alarmLimitsCurrent,
-    paramDraft: committedSetting as number,
-    paramCurrent: committedSetting as number,
+    paramDraft: committedParam as number,
+    paramCurrent: committedParam as number,
   };
 };
 
@@ -528,7 +528,7 @@ const MultiStepWizard = (): JSX.Element => {
     if (param && param.paramDraft) {
       return param.paramDraft as number;
     }
-    if (parameter) return parameter.committedSetting as number;
+    if (parameter) return parameter.committedParam as number;
     return 0;
   };
 

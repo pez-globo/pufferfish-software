@@ -240,7 +240,7 @@ const ControlValuesDisplay = ({
     alarmLimitsRequest === null
       ? undefined
       : ((alarmLimitsRequest as unknown) as Record<string, Range>)[stateKey];
-  const rangeValues = range === undefined ? Range.fromJSON({ lower: '--', upper: '--' }) : range;
+  const rangeValues = range === undefined ? Range.fromJSON({ lower: 0, upper: 0 }) : range;
   const { lower, upper } = alarmLimits === undefined ? rangeValues : alarmLimits;
 
   /**
