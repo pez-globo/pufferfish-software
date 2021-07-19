@@ -691,6 +691,9 @@ int main(void)
 
     // Alarms
     alarms_manager.transform(store.active_log_events());
+    // TODO: allow toggling alarm mute state with the hardware button, but only when
+    // both the backend and frontend are connected. This should use the
+    // alarm_mute.transform(current_time, bool, ...) method.
     alarm_mute.transform(
         current_time, store.alarm_mute_request(), store.alarm_mute(), log_events_manager);
     if (!store.backend_connected()) {
@@ -698,6 +701,13 @@ int main(void)
           current_time,
           false,
           PF::Application::AlarmMuteSource_mcu_backend_loss,
+          store.alarm_mute(),
+          log_events_manager);
+    } else if (!store.backend_connections().has_frontend) {
+      alarm_mute.transform(
+          current_time,
+          false,
+          PF::Application::AlarmMuteSource_backend_frontend_loss,
           store.alarm_mute(),
           log_events_manager);
     }
