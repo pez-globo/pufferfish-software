@@ -507,10 +507,6 @@ const MultiStepWizard = (): JSX.Element => {
       const param = multiParams.find((param: Data) => param.stateKey === parameter.stateKey);
       if (param) param.setValue = setting;
       parameter.setValue = setting;
-      if (open) {
-        const update = { [stateKey]: setting };
-        dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
-      }
       if (isAnyChanges()) {
         setIsSubmitDisabled(false);
       } else {
@@ -687,6 +683,20 @@ const MultiStepWizard = (): JSX.Element => {
     // setMultiPopupOpen(true, stateKey);s
   };
 
+  const updateDraftParams = () => {
+    let update = {};
+    multiParams.map((param: Data) => {
+      update = { [param.stateKey]: param.setValue };
+      return update;
+    });
+    dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+  };
+
+  const handleTabChange = () => {
+    setTabIndex(tabIndex - 1);
+    updateDraftParams();
+  };
+
   return (
     <React.Fragment>
       <ModalPopup
@@ -700,7 +710,7 @@ const MultiStepWizard = (): JSX.Element => {
           <Grid container item className={classes.tabAligning}>
             <Grid style={{ minHeight: 38, minWidth: 38 }}>
               <Button
-                onClick={() => setTabIndex(tabIndex - 1)}
+                onClick={handleTabChange}
                 variant="contained"
                 color="primary"
                 disabled={!(tabIndex > 0)}
@@ -718,6 +728,7 @@ const MultiStepWizard = (): JSX.Element => {
                 label="HFNC Control"
                 {...a11yProps(0)}
                 className={classes.tab}
+                onClick={() => updateDraftParams()}
                 classes={{ selected: classes.selectedTab }}
               />
               {/* <Tab
