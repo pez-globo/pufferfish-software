@@ -9,8 +9,9 @@
 //#pragma once
 
 #include "Pufferfish/Util/Containers/Vector.h"
-
+#include <iostream>
 #include "Pufferfish/Util/Containers/Array.h"
+#include <initializer_list>
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
@@ -1503,16 +1504,21 @@ SCENARIO("The method in vector: erase works correctly") {
       vector1.push_back(i);
     }
     WHEN("The erase method is called six times") {
-      auto status = vector1.erase(2);
-      auto status1 = vector1.erase(50);
-      auto status2 = vector1.erase(248);
+      auto status = vector1.erase(245);
+      auto status1 = vector1.erase(246);
+      auto status2 = vector1.erase(247);
       auto status3 = vector1.erase(249);
       auto status4 = vector1.erase(251);
       auto status5 = vector1.erase(252);
-      THEN("The erase method returns ok status for index 2") {
+      ByteVector<252> expected;
+      for (size_t i = 0; i < 245; i++) {
+        expected.push_back(i);
+      }
+
+      THEN("The erase method returns ok status for index 50") {
         REQUIRE(status == PF::IndexStatus::ok);
       }
-      THEN("The erase method returns ok status for index 52") {
+      THEN("The erase method returns ok status for index 150") {
         REQUIRE(status1 == PF::IndexStatus::ok);
       }
       THEN("The erase method returns ok status for index 248") {
@@ -1539,11 +1545,25 @@ SCENARIO("The method in vector: erase works correctly") {
       THEN("The empty method reports that the vector is non-empty") {
         REQUIRE(vector1.empty() == false);
       }
+      THEN("Vector has expected sequence of 249 bytes initially given ") {
+        for (size_t i = 0; i < 245; i++) {
+          REQUIRE(vector1[i] == expected[i]);
+        }
+        REQUIRE(vector1[245] == 246);
+        REQUIRE(vector1[246] == 248);
+        REQUIRE(vector1[249] == 251);
+
+      }
+
     }
     WHEN("the erase method is called on vector thrice ") {
-      auto status = vector1.erase(5);
-      auto status1 = vector1.erase(10);
-      auto status2 = vector1.erase(250);
+      auto status = vector1.erase(248);
+      auto status1 = vector1.erase(249);
+      auto status2 = vector1.erase(251);
+      ByteVector<3> expected;
+      expected.push_back(249);
+      expected.push_back(251);
+
       THEN("The erase method reports ok status.") { REQUIRE(status == PF::IndexStatus::ok); }
       THEN("The erase method reports ok status with the input of index 10") {
         REQUIRE(status1 == PF::IndexStatus::ok);
@@ -1563,6 +1583,15 @@ SCENARIO("The method in vector: erase works correctly") {
       THEN("The empty method reports that the vector is non-empty") {
         REQUIRE(vector1.empty() == false);
       }
+      THEN("Vector has expected sequence of 250 bytes initially given ") {
+        for (size_t i = 0; i < 248; i++) {
+          REQUIRE(vector1.operator[](i) == i);
+        }
+        REQUIRE(vector1[248] == expected[0]);
+         REQUIRE(vector1[249] == expected[1]);
+
+      }
+
     }
   }
 
@@ -1598,6 +1627,12 @@ SCENARIO("The method in vector: erase works correctly") {
       THEN("The empty method reports that the vector is not empty") {
         REQUIRE(vector1.empty() == false);
       }
+      THEN("Vector has expected sequence of 251 bytes initially given ") {
+        for (size_t i = 0; i < 251; i++) {
+          REQUIRE(vector1.operator[](i) == i);
+        }
+      }
+
     }
   }
 
@@ -1618,6 +1653,7 @@ SCENARIO("The method in vector: erase works correctly") {
       THEN("The full method reports that the vector is not-completely filled") {
         REQUIRE(vector1.full() == false);
       }
+      
     }
   }
   GIVEN("A uint8_t vector constructed with capacity 252 is filled with 1 bytes of data") {
@@ -1682,3 +1718,43 @@ SCENARIO("The method in Vector:Element *buffer() works correctly") {
     }
   }
 }
+
+// SCENARIO("The method in vector : iterators works correctly"){
+//   GIVEN("A uint8_t vector constructed with capacity 10 is completely filled with 10 bytes of data"){
+//     ByteVector<10> vector1;
+//     for (size_t i = 0; i < 10; i++) {
+//       vector1.push_back(i);
+//     }
+  
+//     WHEN("begin and end method is called on vector"){
+//       auto buffer = vector1.cbegin();
+//       THEN("Values are as expected"){
+//         REQUIRE(buffer[0] == 0);
+//         REQUIRE(buffer[1] == 1);
+//         REQUIRE(buffer[2] == 2);
+//         REQUIRE(buffer[3] == 3);
+//         REQUIRE(buffer[4] == 4);
+//         REQUIRE(buffer[5] == 5);
+//         REQUIRE(buffer[6] == 6);
+//         REQUIRE(buffer[7] == 7);
+//         REQUIRE(buffer[8] == 8);
+//         REQUIRE(buffer[9] == 9);
+        
+//       }
+//     }
+//     WHEN("Vector"){
+//       PF::Util::Containers::Vector<uint8_t, 5> vec{1, 2, 3, 4, 5};
+//       THEN("returns expected"){
+//         REQUIRE(vec[0] == 1);
+//         REQUIRE(vec[1] == 2);
+//         REQUIRE(vec[2] == 3);
+//         REQUIRE(vec[3] == 4);
+//         REQUIRE(vec[4] == 5);
+
+//       }
+//     }
+//   }
+// }
+
+
+
