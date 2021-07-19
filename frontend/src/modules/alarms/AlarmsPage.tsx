@@ -7,7 +7,7 @@
 import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
-import React, { RefObject, useEffect, useRef, useState } from 'react';
+import React, { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/proto/mcu_pb';
@@ -125,8 +125,13 @@ interface AlarmProps {
   max: number;
   stateKey: string;
   step?: number;
-  alarmLimits: AlarmLimitsRequest | null;
+  alarmLimits: AlarmLimitsRequest | Partial<AlarmLimitsRequest> | null;
   setAlarmLimits(alarmLimits: Partial<AlarmLimitsRequest>): void;
+}
+
+enum SliderType {
+  LOWER,
+  UPPER,
 }
 
 /**
@@ -154,10 +159,10 @@ const Alarm = ({
     alarmLimits === null
       ? undefined
       : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
-  const [rangeValues, setRangeValue] = React.useState<number[]>([
-    range === undefined ? NaN : range.lower,
-    range === undefined ? NaN : range.upper,
-  ]);
+  const rangeValues: number[] = useMemo(
+    () => [range === undefined ? NaN : range.lower, range === undefined ? NaN : range.upper],
+    [range],
+  );
   /**
    * State to manage Wrapper HTML reference of Alarm's lower & higher Controls(ValueSlider & ValueClicker)
    * This wrapper's HTML border is added or removed based on user's interaction with Alarm Controls
@@ -174,8 +179,27 @@ const Alarm = ({
    * @param {number[]} range - Alarm range values
    *
    */
-  const setSliderRange = (range: number[]) => {
+  const setRangevalue = (range: number[]) => {
     setAlarmLimits({ [stateKey]: { lower: range[0], upper: range[1] } });
+  };
+
+  /**
+   * Updates Alarm limit value on value clicker click event
+   *
+   * @param {number} value - Updated value of Alarm range
+   * @param {SliderType} type - Upper or Lower Range
+   *
+   */
+  const onClick = (value: number, type: SliderType) => {
+    setActiveRotaryReference(
+      type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
+    );
+    setAlarmLimits({
+      [stateKey]: {
+        lower: type === SliderType.LOWER ? value : rangeValues[0],
+        upper: type === SliderType.UPPER ? value : rangeValues[1],
+      },
+    });
   };
 
   /**
@@ -215,14 +239,16 @@ const Alarm = ({
           >
             <Grid item className={classes.alarmValue}>
               <Typography align="center" variant="h4">
-                {Number.isNaN(rangeValues[0]) ? '--' : Number(rangeValues[0])}
+                {rangeValues[0] === undefined || Number.isNaN(rangeValues[0])
+                  ? '--'
+                  : Number(rangeValues[0])}
               </Typography>
             </Grid>
             <Grid item>
               <ValueClicker
                 referenceKey={`${stateKey}_LOWER`}
                 value={rangeValues[0]}
-                onClick={(value) => setRangeValue(Object.assign([], rangeValues, { 0: value }))}
+                onClick={(value: number) => onClick(value, SliderType.LOWER)}
                 min={min}
                 max={rangeValues[1]}
                 direction="column"
@@ -245,14 +271,16 @@ const Alarm = ({
           >
             <Grid item className={classes.alarmValue}>
               <Typography align="center" variant="h4">
-                {Number.isNaN(rangeValues[1]) ? '--' : Number(rangeValues[1])}
+                {rangeValues[1] === undefined || Number.isNaN(rangeValues[1])
+                  ? '--'
+                  : Number(rangeValues[1])}
               </Typography>
             </Grid>
             <Grid item>
               <ValueClicker
                 referenceKey={`${stateKey}_HIGHER`}
                 value={rangeValues[1]}
-                onClick={(value) => setRangeValue(Object.assign([], rangeValues, { 1: value }))}
+                onClick={(value: number) => onClick(value, SliderType.UPPER)}
                 min={rangeValues[0]}
                 max={max}
                 direction="column"
@@ -266,7 +294,7 @@ const Alarm = ({
             min={min}
             max={max}
             step={step}
-            onChange={setSliderRange}
+            onChange={setRangevalue}
             rangeValues={rangeValues}
           />
         </Grid>
@@ -363,21 +391,12 @@ export const AlarmsPage = (): JSX.Element => {
     dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
 
-  /**
-   * Updating the alarm limit request to redux
-   */
-  const applyChanges = () => {
-    if (alarmLimitsRequestDraft === null) {
-      return;
-    }
-
-    dispatch(
-      commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, alarmLimitsRequestDraft),
-    );
-  };
   const alarmConfig = alarmConfiguration(currentMode);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
+  const [rangeValues, setRangeValues] = useState<Partial<AlarmLimitsRequest>>(
+    alarmLimitsRequestDraft,
+  );
 
   /**
    * Closes modal popup
@@ -395,7 +414,10 @@ export const AlarmsPage = (): JSX.Element => {
    */
   const handleConfirm = () => {
     setConfirmOpen(false);
-    applyChanges();
+    if (rangeValues === undefined) {
+      return;
+    }
+    dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, rangeValues));
   };
 
   const handleDiscardConfirm = () => {
@@ -429,27 +451,51 @@ export const AlarmsPage = (): JSX.Element => {
     setActiveRotaryReference(null);
   };
 
+  const alarmContent = alarmConfig
+    .slice((page - 1) * itemsPerPage, page * itemsPerPage)
+    .map((alarm) => {
+      const key = `alarm-config-${alarm.stateKey}`;
+      return (
+        <Alarm
+          key={key}
+          label={alarm.label}
+          min={alarm.min || 0}
+          max={alarm.max || 100}
+          stateKey={alarm.stateKey}
+          step={alarm.step || 1}
+          alarmLimits={alarmLimitsRequestDraftSelect}
+          setAlarmLimits={setAlarmLimitsRequestDraft}
+        />
+      );
+    });
+
+  const alarmContentVentilating = alarmConfig
+    .slice((page - 1) * itemsPerPage, page * itemsPerPage)
+    .map((alarm) => {
+      const key = `alarm-config-${alarm.stateKey}`;
+      return (
+        rangeValues && (
+          <Alarm
+            key={key}
+            label={alarm.label}
+            min={alarm.min || 0}
+            max={alarm.max || 100}
+            stateKey={alarm.stateKey}
+            step={alarm.step || 1}
+            alarmLimits={rangeValues[alarm.stateKey]}
+            setAlarmLimits={setRangeValues}
+          />
+        )
+      );
+    });
+
   return (
     <Grid container direction="column" className={classes.root} onClick={OnClickPage}>
       <Grid container item xs direction="column" className={classes.panel}>
         <Grid container item xs direction="row">
           <Grid container spacing={3} style={{ margin: '-10px -12px' }}>
             {/* Splits Alarms based on page number & itemsPerPage count to show in the page */}
-            {alarmConfig.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((alarm) => {
-              const key = `alarm-config-${alarm.stateKey}`;
-              return (
-                <Alarm
-                  key={key}
-                  label={alarm.label}
-                  min={alarm.min || 0}
-                  max={alarm.max || 100}
-                  stateKey={alarm.stateKey}
-                  step={alarm.step || 1}
-                  alarmLimits={alarmLimitsRequestDraftSelect}
-                  setAlarmLimits={setAlarmLimitsRequestDraft}
-                />
-              );
-            })}
+            {ventilating ? alarmContentVentilating : alarmContent}
           </Grid>
         </Grid>
         <Grid container item xs>
@@ -488,7 +534,6 @@ export const AlarmsPage = (): JSX.Element => {
                   color="secondary"
                   variant="contained"
                   className={classes.applyButton}
-                  disabled={!alarmLimitsRequestUnsaved}
                 >
                   Submit
                 </Button>
