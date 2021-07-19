@@ -2,7 +2,7 @@
 
 import random
 import typing
-from typing import  Mapping, Optional
+from typing import Mapping, Optional
 
 import attr
 
@@ -10,6 +10,7 @@ import betterproto
 
 from ventserver.protocols.backend import alarms, states
 from ventserver.protocols.protobuf import mcu_pb
+
 
 @attr.s
 class Service:
@@ -34,42 +35,36 @@ class Service:
             self._transform_discharge(power_management, events_log)
 
         if power_management.power_left <= 5:
-            events_log.input(
-                alarms.AlarmDeactivationEvent(
-                    codes=[mcu_pb.LogEventCode.battery_low]
+            events_log.input(alarms.AlarmDeactivationEvent(
+                codes=[mcu_pb.LogEventCode.battery_low]
             ))
             events_log.input(alarms.AlarmActivationEvent(
                 code=mcu_pb.LogEventCode.battery_critical,
                 event_type=mcu_pb.LogEventType.system
             ))
         elif 5 < power_management.power_left <= 30:
-            events_log.input(
-                alarms.AlarmDeactivationEvent(
-                    codes=[mcu_pb.LogEventCode.battery_critical]
+            events_log.input(alarms.AlarmDeactivationEvent(
+                codes=[mcu_pb.LogEventCode.battery_critical]
             ))
             events_log.input(alarms.AlarmActivationEvent(
                 code=mcu_pb.LogEventCode.battery_low,
                 event_type=mcu_pb.LogEventType.system
             ))
         else:
-            events_log.input(
-                alarms.AlarmDeactivationEvent(
-                    codes=[mcu_pb.LogEventCode.battery_critical]
+            events_log.input(alarms.AlarmDeactivationEvent(
+                codes=[mcu_pb.LogEventCode.battery_critical]
             ))
-            events_log.input(
-                alarms.AlarmDeactivationEvent(
-                    codes=[mcu_pb.LogEventCode.battery_low]
+            events_log.input(alarms.AlarmDeactivationEvent(
+                codes=[mcu_pb.LogEventCode.battery_low]
             ))
-
 
     def _transform_charge(
         self, power_management: mcu_pb.MCUPowerStatus,
         events_log: alarms.Manager
     ) -> None:
         """Simulate battery charging."""
-        events_log.input(
-            alarms.AlarmDeactivationEvent(
-                codes=[mcu_pb.LogEventCode.charger_disconnected]
+        events_log.input(alarms.AlarmDeactivationEvent(
+            codes=[mcu_pb.LogEventCode.charger_disconnected]
         ))
         power_management.power_left += int((
             1 + self.power_noise * (random.random())

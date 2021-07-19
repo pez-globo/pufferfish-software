@@ -13,9 +13,9 @@ import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import {
   getActiveLogEventIds,
+  getAlarmMuteStatus,
   getAlarmMuteActive,
   getAlarmMuteSeqNum,
-  getAlarmMuteRequestActive,
   getPopupEventLog,
   getAlarmMuteRemaining,
   getFirmwareConnected,
@@ -23,7 +23,7 @@ import {
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
-import { commitRequest } from '../../store/controller/actions';
+import { updateState, commitRequest } from '../../store/controller/actions';
 import { LogEvent, AlarmMuteRequest, AlarmMuteSource } from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/proto/types';
 import { getEventType } from '../logs/EventType';
@@ -245,62 +245,14 @@ export const EventAlerts = ({ routeLabel }: Props): JSX.Element => {
   /**
    * Selectors to get all Events, Active Event Ids & Alarm mute Status
    */
+  const alarmMuteStatus = useSelector(getAlarmMuteStatus);
   const alarmMuteActive = useSelector(getAlarmMuteActive);
   const alarmMuteSeqNum = useSelector(getAlarmMuteSeqNum);
   const alarmMuteRemaining = useSelector(getAlarmMuteRemaining);
   const backendConnected = useSelector(getBackendConnected);
-  const alarmMuteRequestActive = useSelector(getAlarmMuteRequestActive);
   const firmwareConnected = useSelector(getFirmwareConnected);
   const alertLabel = useSelector(getAlertLabel);
   const alertCount = useSelector(getAlertCount);
-  const MUTE_MAX_DURATION = 120;
-  const DEFAULT_TIMEOUT = 1000;
-  /**
-   * Stores the state which toggles AlarmMute/AlarmMuteRequest Status
-   * TODO: can we get rid of this local state? Right now its values seem incorrect!
-   */
-  const [isMuted, setIsMuted] = useState(alarmMuteActive);
-  /**
-   * Local state to update the AlarmMuteRequest remaining time
-   * when backend is disconnected
-   */
-  const [remaining, setRemaining] = useState(alarmMuteRemaining);
-  /**
-   * Local variable that decides which timer to display depending on the
-   * backend connection
-   */
-  const countdownTimer = backendConnected ? alarmMuteRemaining : remaining;
-  /**
-   * Triggers whenever AlarmMute status is updated in redux store
-   *
-   * Triggers when AlarmMuteRequest is updated in redux store
-   * when backend is disconnected
-   *
-   * starts timer when backend is disconnected
-   */
-  useEffect(() => {
-    setIsMuted(!alarmMuteActive);
-    if (remaining !== alarmMuteRemaining && backendConnected) {
-      setRemaining(alarmMuteRemaining);
-    }
-
-    if (!backendConnected) {
-      // Update local state that controls the mute button
-      setIsMuted(!alarmMuteRequestActive);
-      // Start the timer
-      const timer = setTimeout(() => {
-        setRemaining(() => remaining - 1);
-        if (remaining <= 0) {
-          clearTimeout(timer);
-        }
-      }, DEFAULT_TIMEOUT);
-      // Reset the timer
-      if (!alarmMuteRequestActive) {
-        clearTimeout(timer);
-        setRemaining(MUTE_MAX_DURATION);
-      }
-    }
-  }, [alarmMuteActive, alarmMuteRemaining, remaining, backendConnected, alarmMuteRequestActive]);
 
   /**
    * Update mute AlarmStatus in redux store
@@ -321,6 +273,41 @@ export const EventAlerts = ({ routeLabel }: Props): JSX.Element => {
       }),
     );
   };
+
+  /**
+   * Cancel alarm mute whenever backend disconnects.
+   */
+  useEffect(() => {
+    if (backendConnected || alarmMuteStatus === null || !alarmMuteActive) {
+      return;
+    }
+
+    // The backend will override this temporary cancellation when it reconnects.
+    // Note that the backend and firmware will also cancel any alarm mute when
+    // they detect a disconnection, and an alarm mute cannot be initiated during
+    // a disconnection, so the entire system will always end up in a consistent
+    // state where any alarm mute is cancelled
+    dispatch(updateState(MessageType.AlarmMute, { ...alarmMuteStatus, active: false }));
+    // TODO: dispatch an ephemeral log event about alarm mute cancellation.
+    // It will be overwritten by a persistent log event from the firmware about
+    // alarm mute cancellation due to loss of the backend.
+    if (alarmMuteStatus.seqNum === null) {
+      console.error('Alarm mute/unmute button reached illegal state!');
+      return;
+    }
+
+    // Also request the backend to cancel the mute. This is needed because if the
+    // backend is able to receive data from the frontend but unable to send data
+    // to the frontend, then only the frontend will be aware of a connection problem,
+    // and thus only the frontend can make the backend cancel the alarm mute.
+    dispatch(
+      commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, {
+        active: false,
+        seqNum: alarmMuteStatus.seqNum + 1,
+        source: AlarmMuteSource.frontend_backend_loss,
+      }),
+    );
+  }, [dispatch, backendConnected, alarmMuteActive, alarmMuteStatus]);
 
   /**
    * Opens LogsPage popup listing event log details
@@ -366,20 +353,20 @@ export const EventAlerts = ({ routeLabel }: Props): JSX.Element => {
               </Typography>
             </Grid>
             <Grid container item xs justify="flex-end" alignItems="center">
-              {!isMuted && countdownTimer !== undefined && (
+              {alarmMuteActive && (alarmMuteRemaining > 0) && (
                 <div className={classes.timerText}>
-                  {new Date(countdownTimer * 1000).toISOString().substr(14, 5)}
+                  {new Date(alarmMuteRemaining * 1000).toISOString().substr(14, 5)}
                 </div>
               )}
               <Button
                 style={{ marginLeft: 12, marginRight: 12 }}
-                onClick={() => muteAlarmState(isMuted, AlarmMuteSource.user_software)}
+                onClick={() => muteAlarmState(!alarmMuteActive, AlarmMuteSource.user_software)}
                 variant="contained"
                 color="primary"
                 disabled={!firmwareConnected || getAlarmMuteSeqNum === null}
                 className={classes.alertButton}
               >
-                {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
+                {!alarmMuteActive ? <VolumeOffIcon /> : <VolumeUpIcon />}
               </Button>
               <Button
                 onClick={() => setActiveFilter(!activeFilter)}
@@ -401,13 +388,13 @@ export const EventAlerts = ({ routeLabel }: Props): JSX.Element => {
       </ModalPopup>
       <Button
         style={{ marginLeft: 10, marginRight: 10 }}
-        onClick={() => muteAlarmState(isMuted, AlarmMuteSource.user_software)}
+        onClick={() => muteAlarmState(!alarmMuteActive, AlarmMuteSource.user_software)}
         variant="contained"
         color="primary"
         disabled={!firmwareConnected || getAlarmMuteSeqNum === null}
         className={classes.alertButton}
       >
-        {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
+        {!alarmMuteActive ? <VolumeOffIcon /> : <VolumeUpIcon />}
       </Button>
       <Button
         style={{ marginLeft: 10, marginRight: 10, margin: '0px 10px', padding: 0 }}
@@ -425,9 +412,9 @@ export const EventAlerts = ({ routeLabel }: Props): JSX.Element => {
             {alertCount}
           </div>
         )}
-        {!isMuted && countdownTimer !== undefined && (
+        {alarmMuteActive && alarmMuteRemaining !== undefined && (
           <div className={classes.timer} style={{ right: 'auto' }}>
-            {new Date(countdownTimer * 1000).toISOString().substr(14, 5)}
+            {new Date(alarmMuteRemaining * 1000).toISOString().substr(14, 5)}
           </div>
         )}
       </Button>
