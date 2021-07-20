@@ -485,7 +485,7 @@ export const AlarmsPage = (): JSX.Element => {
             max={alarm.max || 100}
             stateKey={alarm.stateKey}
             step={alarm.step || 1}
-            alarmLimits={rangeValues[alarm.stateKey]}
+            alarmLimits={rangeValues}
             setAlarmLimits={setRangeValues}
           />
         )
