@@ -127,7 +127,7 @@ interface AlarmProps {
   max: number;
   stateKey: string;
   step?: number;
-  alarmLimits: AlarmLimitsRequest | Partial<AlarmLimitsRequest> | null;
+  alarmLimits: AlarmLimitsRequest | null;
   setAlarmLimits(alarmLimits: Partial<AlarmLimitsRequest>): void;
 }
 
@@ -157,6 +157,12 @@ const Alarm = ({
   const classes = useStyles();
   const theme = useTheme();
   const { initRefListener } = useRotaryReference(theme);
+  // TODO: when the software is in ventilating mode, the user must be able to
+  // discard changes (which means that any alarm limits being persisted in
+  // AlarmLimitsRequestStandby would need to be reset using the values from
+  // AlarmLimitsRequest, when the user wants to discard values). This could
+  // be done with by dispatching a commitDraftRequest action with the
+  // alarmLimitsRequest selector as the update field.
   const range =
     alarmLimits === null
       ? undefined
@@ -394,12 +400,21 @@ export const AlarmsPage = (): JSX.Element => {
     dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
   };
 
+  /**
+   * Updating the alarm limit request to redux
+   */
+  const applyChanges = () => {
+    if (alarmLimitsRequestDraft === null) {
+      return;
+    }
+
+    dispatch(
+      commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, alarmLimitsRequestDraft),
+    );
+  };
   const alarmConfig = alarmConfiguration(currentMode);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
-  const [rangeValues, setRangeValues] = useState<Partial<AlarmLimitsRequest>>(
-    alarmLimitsRequestDraft,
-  );
 
   /**
    * Closes modal popup
@@ -417,10 +432,7 @@ export const AlarmsPage = (): JSX.Element => {
    */
   const handleConfirm = () => {
     setConfirmOpen(false);
-    if (rangeValues === undefined) {
-      return;
-    }
-    dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, rangeValues));
+    applyChanges();
   };
 
   const handleDiscardConfirm = () => {
@@ -454,51 +466,27 @@ export const AlarmsPage = (): JSX.Element => {
     setActiveRotaryReference(null);
   };
 
-  const alarmContent = alarmConfig
-    .slice((page - 1) * itemsPerPage, page * itemsPerPage)
-    .map((alarm) => {
-      const key = `alarm-config-${alarm.stateKey}`;
-      return (
-        <Alarm
-          key={key}
-          label={alarm.label}
-          min={alarm.min || 0}
-          max={alarm.max || 100}
-          stateKey={alarm.stateKey}
-          step={alarm.step || 1}
-          alarmLimits={alarmLimitsRequestDraftSelect}
-          setAlarmLimits={setAlarmLimitsRequestDraft}
-        />
-      );
-    });
-
-  const alarmContentVentilating = alarmConfig
-    .slice((page - 1) * itemsPerPage, page * itemsPerPage)
-    .map((alarm) => {
-      const key = `alarm-config-${alarm.stateKey}`;
-      return (
-        rangeValues && (
-          <Alarm
-            key={key}
-            label={alarm.label}
-            min={alarm.min || 0}
-            max={alarm.max || 100}
-            stateKey={alarm.stateKey}
-            step={alarm.step || 1}
-            alarmLimits={rangeValues}
-            setAlarmLimits={setRangeValues}
-          />
-        )
-      );
-    });
-
   return (
     <Grid container direction="column" className={classes.root} onClick={OnClickPage}>
       <Grid container item xs direction="column" className={classes.panel}>
         <Grid container item xs direction="row">
           <Grid container spacing={3} style={{ margin: '-10px -12px' }}>
             {/* Splits Alarms based on page number & itemsPerPage count to show in the page */}
-            {ventilating ? alarmContentVentilating : alarmContent}
+            {alarmConfig.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((alarm) => {
+              const key = `alarm-config-${alarm.stateKey}`;
+              return (
+                <Alarm
+                  key={key}
+                  label={alarm.label}
+                  min={alarm.min || 0}
+                  max={alarm.max || 100}
+                  stateKey={alarm.stateKey}
+                  step={alarm.step || 1}
+                  alarmLimits={alarmLimitsRequestDraftSelect}
+                  setAlarmLimits={setAlarmLimitsRequestDraft}
+                />
+              );
+            })}
           </Grid>
         </Grid>
         <Grid container item xs>
@@ -537,6 +525,7 @@ export const AlarmsPage = (): JSX.Element => {
                   color="secondary"
                   variant="contained"
                   className={classes.applyButton}
+                  disabled={!alarmLimitsRequestUnsaved}
                 >
                   Submit
                 </Button>
