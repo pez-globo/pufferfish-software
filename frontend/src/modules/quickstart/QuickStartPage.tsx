@@ -19,8 +19,8 @@ import {
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/proto/types';
 import { setActiveRotaryReference } from '../app/Service';
-import ValueClicker from '../controllers/ValueController';
-import ModeBanner from '../displays/ModeBanner';
+import ValueSpinner from '../controllers/ValueSpinner';
+import ModeBanner, { BannerType } from '../displays/ModeBanner';
 import { LMIN, PERCENT } from '../info/units';
 import {
   FIO2_REFERENCE_KEY,
@@ -90,18 +90,18 @@ const useStyles = makeStyles((theme: Theme) => ({
 // }
 
 /**
- * SettableParameters
+ * SetParameters
  *
  * @component for setting quick start parameters
  *
  * @returns {JSX.Element}
  *
  */
-const SettableParameters = (): JSX.Element => {
+const SetParameters = (): JSX.Element => {
   const classes = useStyles();
 
   /**
-   * State to manage Wrapper HTML reference of parameter `ValueClicker`
+   * State to manage Wrapper HTML reference of parameter `ValueSpinner`
    * This wrapper's HTML border is added or removed based on user's interaction with Controls
    * It is used for UI identification of which control value is changing via rotary encoder
    */
@@ -129,9 +129,9 @@ const SettableParameters = (): JSX.Element => {
    */
   const setValue = (key: string) => (value: number) => {
     const update = { [key]: value } as Partial<ParametersRequest>;
-    // TODO: for some reason, every time the ValueClicker hears a click, it calls
+    // TODO: for some reason, every time the ValueSpinner hears a click, it calls
     // setValue twice. This doesn't cause problems, but is a symptom of some sort
-    // of deeper bug. Maybe it's related to the buggy behavior that ValueClicker
+    // of deeper bug. Maybe it's related to the buggy behavior that ValueSpinner
     // has with the rotary encoder?
     // It could be an issue with Rotary encoder event conflicts
     // Need to check if this issue is consistent across other components using Rotary encoder
@@ -141,103 +141,109 @@ const SettableParameters = (): JSX.Element => {
 
   /**
    * Calls on initalization of the component
-   * This is an event listener which listens to user input on `ValueClicker` buttons click
+   * This is an event listener which listens to user input on `ValueSpinner` buttons click
    * Based on this event Border around Alarm's HTML wrapper is added/removed
    */
   useEffect(() => {
     initRefListener(elRefs);
   }, [initRefListener, elRefs]);
 
+  const hfncModeContent = (
+    <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
+      <Grid container item xs direction="row" className={classes.bottomBorder}>
+        <Grid item xs className={classes.rightBorder}>
+          <ValueSpinner
+            reference={elRefs[FIO2_REFERENCE_KEY]}
+            referenceKey={FIO2_REFERENCE_KEY}
+            label="FiO2"
+            units={PERCENT}
+            value={fio2}
+            onClick={setValue('fio2')}
+          />
+        </Grid>
+        <Grid item xs>
+          <ValueSpinner
+            reference={elRefs[FLOW_REFERENCE_KEY]}
+            referenceKey={FLOW_REFERENCE_KEY}
+            label="Flow"
+            units={LMIN}
+            value={flow}
+            onClick={setValue('flow')}
+          />
+        </Grid>
+      </Grid>
+      <Grid container item xs direction="row">
+        <Grid item xs className={classes.rightBorder} />
+        <Grid item xs />
+      </Grid>
+    </Grid>
+  );
+
+  // Currently un-used (HFNC ONLY MODE)
+  // so the OnClick Callback is null
+  // TODO: fix defaultContent onClick callback when we have other modes
+  const defaultContent = (
+    <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
+      <Grid container item xs direction="row" className={classes.bottomBorder}>
+        <Grid item xs className={classes.rightBorder}>
+          <ValueSpinner
+            reference={elRefs[PEEP_REFERENCE_KEY]}
+            referenceKey={PEEP_REFERENCE_KEY}
+            label="PEEP"
+            units="cm H2O"
+            value={peep}
+            onClick={() => null}
+          />
+        </Grid>
+        <Grid item xs>
+          <ValueSpinner
+            reference={elRefs[RR_REFERENCE_KEY]}
+            referenceKey={RR_REFERENCE_KEY}
+            label="RR"
+            units="cm H2O"
+            value={rr}
+            onClick={() => null}
+          />
+        </Grid>
+      </Grid>
+      <Grid container item xs direction="row">
+        <Grid item xs className={classes.rightBorder}>
+          <ValueSpinner
+            reference={elRefs[FIO2_REFERENCE_KEY]}
+            referenceKey={FIO2_REFERENCE_KEY}
+            label="FiO2"
+            units="%"
+            value={fio2}
+            onClick={() => null}
+          />
+        </Grid>
+        <Grid item xs>
+          <ValueSpinner
+            reference={elRefs[TV_REFERENCE_KEY]}
+            referenceKey={TV_REFERENCE_KEY}
+            label="TV"
+            units="mL"
+            value={vt}
+            max={500}
+            onClick={() => null}
+          />
+        </Grid>
+      </Grid>
+    </Grid>
+  );
+
   const ventilationMode = useSelector(getParametersRequestMode);
-  switch (ventilationMode) {
-    case null:
-    case VentilationMode.hfnc:
-      return (
-        <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
-          <Grid container item xs direction="row" className={classes.bottomBorder}>
-            <Grid item xs className={classes.rightBorder}>
-              <ValueClicker
-                reference={elRefs[FIO2_REFERENCE_KEY]}
-                referenceKey={FIO2_REFERENCE_KEY}
-                label="FiO2"
-                units={PERCENT}
-                value={fio2}
-                onClick={setValue('fio2')}
-              />
-            </Grid>
-            <Grid item xs>
-              <ValueClicker
-                reference={elRefs[FLOW_REFERENCE_KEY]}
-                referenceKey={FLOW_REFERENCE_KEY}
-                label="Flow"
-                units={LMIN}
-                value={flow}
-                onClick={setValue('flow')}
-              />
-            </Grid>
-          </Grid>
-          <Grid container item xs direction="row">
-            <Grid item xs className={classes.rightBorder} />
-            <Grid item xs />
-          </Grid>
-        </Grid>
-      );
-    case VentilationMode.pc_ac:
-    case VentilationMode.vc_ac:
-    case VentilationMode.niv_pc:
-    case VentilationMode.niv_ps:
-    case VentilationMode.psv:
-    default:
-      return (
-        <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
-          <Grid container item xs direction="row" className={classes.bottomBorder}>
-            <Grid item xs className={classes.rightBorder}>
-              <ValueClicker
-                reference={elRefs[PEEP_REFERENCE_KEY]}
-                referenceKey={PEEP_REFERENCE_KEY}
-                label="PEEP"
-                units="cm H2O"
-                value={peep}
-                onClick={setValue('peep')}
-              />
-            </Grid>
-            <Grid item xs>
-              <ValueClicker
-                reference={elRefs[RR_REFERENCE_KEY]}
-                referenceKey={RR_REFERENCE_KEY}
-                label="RR"
-                units="cm H2O"
-                value={rr}
-                onClick={setValue('rr')}
-              />
-            </Grid>
-          </Grid>
-          <Grid container item xs direction="row">
-            <Grid item xs className={classes.rightBorder}>
-              <ValueClicker
-                reference={elRefs[FIO2_REFERENCE_KEY]}
-                referenceKey={FIO2_REFERENCE_KEY}
-                label="FiO2"
-                units="%"
-                value={fio2}
-                onClick={setValue('fio2')}
-              />
-            </Grid>
-            <Grid item xs>
-              <ValueClicker
-                reference={elRefs[TV_REFERENCE_KEY]}
-                referenceKey={TV_REFERENCE_KEY}
-                label="TV"
-                units="mL"
-                value={vt}
-                max={500}
-                onClick={setValue('vt')}
-              />
-            </Grid>
-          </Grid>
-        </Grid>
-      );
+  if (ventilationMode === null) {
+    return defaultContent;
   }
+  const contentMap = new Map<VentilationMode, JSX.Element>([
+    [VentilationMode.hfnc, hfncModeContent],
+  ]);
+  const modeContent = contentMap.get(ventilationMode);
+  if (modeContent === undefined) {
+    return defaultContent;
+  }
+  return modeContent;
 };
 
 /**
@@ -258,7 +264,7 @@ export const QuickStartPage = (): JSX.Element => {
 
   /**
    * Resets highlighting border around container when clicked across the page
-   * Border is usually added on `ValueClicker` button click
+   * Border is usually added on `ValueSpinner` button click
    */
   const OnClickPage = () => {
     setActiveRotaryReference(null);
@@ -298,7 +304,7 @@ export const QuickStartPage = (): JSX.Element => {
           </Grid> */}
         </Grid>
         <Grid item xs={3}>
-          {/* <ValueClicker
+          {/* <ValueSpinner
             label="Height"
             units="i"
             onClick={setPatientHeight}
@@ -321,10 +327,10 @@ export const QuickStartPage = (): JSX.Element => {
             /> */}
           </Grid>
         </Grid>
-        <SettableParameters />
+        <SetParameters />
       </Grid>
       <Grid>
-        <ModeBanner bannerType="normal" />
+        <ModeBanner bannerType={BannerType.NORMAL} />
       </Grid>
     </Grid>
   );

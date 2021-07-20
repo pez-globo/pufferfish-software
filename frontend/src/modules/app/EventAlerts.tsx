@@ -34,7 +34,7 @@ import {
   createEphemeralLogEvent,
 } from '../../store/controller/actions';
 import { getBackendConnected } from '../../store/connection/selectors';
-import ModalPopup from '../controllers/ModalPopup';
+import ModalPopup from '../modals/ModalPopup';
 import { getEventType } from '../logs/EventType';
 import LogsPage from '../logs/LogsPage';
 import { LOGS_ROUTE } from '../navigation/constants';

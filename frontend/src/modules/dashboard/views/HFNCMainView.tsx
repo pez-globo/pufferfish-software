@@ -10,7 +10,6 @@ import React from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import {
   getHRAlarmLimitsCurrent,
-  // getAlarmLimitsCurrent,
   getParametersFiO2,
   getParametersFlow,
   getSmoothedFiO2Value,
