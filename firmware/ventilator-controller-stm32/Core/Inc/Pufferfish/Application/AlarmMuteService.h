@@ -52,7 +52,7 @@ class AlarmMuteService {
       Application::LogEventsManager &log_manager);
   void update_response(
       uint32_t current_time, AlarmMute &alarm_mute, Application::LogEventsManager &log_manager);
-  void update_remaining(uint32_t current_time, AlarmMute &alarm_mute);
+  void update_remaining(uint32_t current_time, AlarmMute &alarm_mute) const;
 };
 
 void make_state_initializers(Application::StateSegment &request_segment, AlarmMute &response);

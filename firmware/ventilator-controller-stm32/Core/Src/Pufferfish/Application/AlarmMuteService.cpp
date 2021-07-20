@@ -51,7 +51,7 @@ void AlarmMuteService::update_internal_state(
   ++seq_num_;
   active_ = active;
   source_ = source;
-  LogEventCode log_event_code;
+  LogEventCode log_event_code{};
   if (active) {
     mute_start_time_ = current_time;
     switch (source_) {
@@ -67,8 +67,6 @@ void AlarmMuteService::update_internal_state(
     }
   } else {
     mute_start_time_ = 0;
-    // TODO: make log event for ending mute, including reason for ending (automatic timeout,
-    // hardware unmute, software unmute)
     switch (source_) {
       case Application::AlarmMuteSource_initialization:
         log_event_code = Application::LogEventCode_alarms_unmuted_initialization;
@@ -120,7 +118,7 @@ void AlarmMuteService::update_response(
   update_remaining(current_time, alarm_mute);
 }
 
-void AlarmMuteService::update_remaining(uint32_t current_time, AlarmMute &alarm_mute) {
+void AlarmMuteService::update_remaining(uint32_t current_time, AlarmMute &alarm_mute) const {
   if (!active_) {
     alarm_mute.remaining = mute_max_duration / clock_scale;
     return;

@@ -196,7 +196,7 @@ AlarmMuteRequest &Store::alarm_mute_request() {
 MCUPowerStatus &Store::mcu_power_status() {
   return state_segments_.mcu_power_status;
 }
-const BackendConnections &Store::backend_connections() {
+const BackendConnections &Store::backend_connections() const {
   return state_segments_.backend_connections;
 }
 

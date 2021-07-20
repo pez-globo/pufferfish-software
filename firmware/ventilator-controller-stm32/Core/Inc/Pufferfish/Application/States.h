@@ -187,7 +187,7 @@ class Store : public Protocols::Application::IndexedStateSender<MessageTypes, St
   AlarmMuteRequest &alarm_mute_request();
   // System Miscellaneous
   MCUPowerStatus &mcu_power_status();
-  [[nodiscard]] const BackendConnections &backend_connections();
+  [[nodiscard]] const BackendConnections &backend_connections() const;
 
   // Internal States
   SensorMeasurements &sensor_measurements_raw();

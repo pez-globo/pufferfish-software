@@ -338,7 +338,7 @@ PF::Driver::Power::Simulator power_simulator;
 
 // Initializables
 auto initializables =
-    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, /*fdo2, */ nonin_oem /*, ltc4015*/);
+    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015);
 
 /*
 // Test list
@@ -691,7 +691,7 @@ int main(void)
 
     // Alarms
     alarms_manager.transform(store.active_log_events());
-    // TODO: allow toggling alarm mute state with the hardware button, but only when
+    // TODO(lietk12): allow toggling alarm mute state with the hardware button, but only when
     // both the backend and frontend are connected. This should use the
     // alarm_mute.transform(current_time, bool, ...) method.
     alarm_mute.transform(
