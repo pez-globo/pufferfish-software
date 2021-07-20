@@ -23,8 +23,18 @@ import {
 import ModalPopup from '../controllers/ModalPopup';
 import LogsPage from '../logs/LogsPage';
 import { BellIcon } from '../icons';
-import { updateState, commitRequest } from '../../store/controller/actions';
-import { LogEvent, AlarmMuteRequest, AlarmMuteSource } from '../../store/proto/mcu_pb';
+import {
+  updateState,
+  commitRequest,
+  createEphemeralLogEvent,
+} from '../../store/controller/actions';
+import {
+  LogEventCode,
+  LogEventType,
+  LogEvent,
+  AlarmMuteRequest,
+  AlarmMuteSource,
+} from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/proto/types';
 import { getEventType } from '../logs/EventType';
 import { getBackendConnected } from '../../store/connection/selectors';
@@ -288,7 +298,12 @@ export const EventAlerts = ({ routeLabel }: Props): JSX.Element => {
     // a disconnection, so the entire system will always end up in a consistent
     // state where any alarm mute is cancelled
     dispatch(updateState(MessageType.AlarmMute, { ...alarmMuteStatus, active: false }));
-    // TODO: dispatch an ephemeral log event about alarm mute cancellation.
+    dispatch(
+      createEphemeralLogEvent(
+        LogEventCode.alarms_unmuted_frontend_backend_loss,
+        LogEventType.system,
+      ),
+    );
     // It will be overwritten by a persistent log event from the firmware about
     // alarm mute cancellation due to loss of the backend.
     if (alarmMuteStatus.seqNum === null) {
@@ -353,7 +368,7 @@ export const EventAlerts = ({ routeLabel }: Props): JSX.Element => {
               </Typography>
             </Grid>
             <Grid container item xs justify="flex-end" alignItems="center">
-              {alarmMuteActive && (alarmMuteRemaining > 0) && (
+              {alarmMuteActive && alarmMuteRemaining > 0 && (
                 <div className={classes.timerText}>
                   {new Date(alarmMuteRemaining * 1000).toISOString().substr(14, 5)}
                 </div>

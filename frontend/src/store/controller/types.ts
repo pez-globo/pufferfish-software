@@ -9,8 +9,10 @@ import {
   AlarmLimits,
   AlarmLimitsRequest,
   // Log Events
-  ExpectedLogEvent,
+  LogEventCode,
+  LogEventType,
   NextLogEvents,
+  ExpectedLogEvent,
   ActiveLogEvents,
   // Alarm Muting
   AlarmMute,
@@ -137,8 +139,7 @@ export interface ControllerStates {
 export const STATE_UPDATED = '@controller/STATE_UPDATED';
 export const REQUEST_COMMITTED = '@controller/REQUEST_COMMITTED';
 export const DRAFT_REQUEST_COMMITTED = '@controller/DRAFT_COMMITTED';
-
-// State Update Action
+export const EPHEMERAL_LOG_EVENT_CREATED = '@controller/EPHEMERAL_LOG_EVENT_CREATED';
 
 // TODO: rename to StateMessageReceived
 interface StateUpdatedAction {
@@ -147,13 +148,18 @@ interface StateUpdatedAction {
   state: PBMessage;
 }
 
+// TODO: get rid of this type alias
 export type StateUpdateAction = StateUpdatedAction;
-
-// State Commit Actions
 
 // TODO: rename to SettingCommitted
 export interface CommitAction {
   type: string;
   messageType: MessageType;
   update: Record<string, unknown>;
+}
+
+export interface EphemeralLogEventAction {
+  type: typeof EPHEMERAL_LOG_EVENT_CREATED;
+  code: LogEventCode;
+  eventType: LogEventType;
 }

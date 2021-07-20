@@ -8,15 +8,26 @@ import { EventType } from './EventType';
 
 export const eventDetailsMap = new Map<LogEventCode, string>([
   // System settings & alarms
-  [LogEventCode.mcu_backend_connection_down, 'Hardware controller lost connection'],
+  [
+    LogEventCode.mcu_backend_connection_down,
+    'Hardware controller lost connection from backend server',
+  ],
   [
     LogEventCode.backend_mcu_connection_down,
     'Backend server lost connection from hardware controller',
   ],
-  [LogEventCode.backend_frontend_connection_down, 'User interface lost connection'],
-  [LogEventCode.frontend_backend_connection_down, 'User interface lost connection'],
-  [LogEventCode.mcu_backend_connection_up, 'Hardware controller connected'],
-  [LogEventCode.backend_frontend_connection_up, 'User interface connected'],
+  [
+    LogEventCode.backend_frontend_connection_down,
+    'Backend server lost lost connection from user interface',
+  ],
+  [
+    LogEventCode.frontend_backend_connection_down,
+    'User interface lost connection from backend server',
+  ],
+  [LogEventCode.mcu_backend_connection_up, 'Hardware controller connected to backend server'],
+  [LogEventCode.backend_mcu_connection_up, 'Backend server connected to hardware controller'],
+  [LogEventCode.backend_frontend_connection_up, 'Backend server connected to backend server'],
+  [LogEventCode.frontend_backend_connection_up, 'User interface connected to backend server'],
   [LogEventCode.battery_low, `Less than 30${PERCENT} battery remaining`],
   [LogEventCode.battery_critical, `Less than 5${PERCENT} battery remaining`],
   [LogEventCode.charger_disconnected, 'Battery charger is disconnected'],
@@ -199,42 +210,49 @@ export const EventTypeMap = new Map<LogEventCode, EventType>([
     LogEventCode.mcu_backend_connection_down,
     {
       type: LogEventType.system,
-      label: 'Software connectivity lost',
+      label: 'Software connection lost',
     },
   ],
   [
     LogEventCode.backend_mcu_connection_down,
     {
       type: LogEventType.system,
-      label: 'Software connectivity lost',
+      label: 'Software connection lost',
     },
   ],
   [
     LogEventCode.backend_frontend_connection_down,
     {
       type: LogEventType.system,
-      label: 'Software connectivity lost',
+      label: 'Software connection lost',
     },
   ],
   [
     LogEventCode.frontend_backend_connection_down,
     {
       type: LogEventType.system,
-      label: 'Software connectivity lost',
+      label: 'Software connection lost',
     },
   ],
   [
     LogEventCode.mcu_backend_connection_up,
     {
       type: LogEventType.system,
-      label: 'Software connected',
+      label: 'Software connection established',
     },
   ],
   [
     LogEventCode.backend_frontend_connection_up,
     {
       type: LogEventType.system,
-      label: 'Software connected',
+      label: 'Software connection established',
+    },
+  ],
+  [
+    LogEventCode.frontend_backend_connection_up,
+    {
+      type: LogEventType.system,
+      label: 'Software connection established',
     },
   ],
   [

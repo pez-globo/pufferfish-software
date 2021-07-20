@@ -94,27 +94,34 @@ export enum LogEventCode {
   backend_mcu_connection_down = 131,
   /** backend_frontend_connection_down - backend lost frontend */
   backend_frontend_connection_down = 132,
-  /** frontend_backend_connection_down - frontend lost backend */
+  /**
+   * frontend_backend_connection_down - TODO: if the backend can't send data to the frontend but the frontend can send
+   * data to the backend, we should make the backend generate a frontend_backend_down
+   * log event so that there's some record in the event log of a connection problem.
+   * We can achieve this using a FrontendConnections message type which the frontend sends
+   * to the backend.
+   */
   frontend_backend_connection_down = 133,
   /** mcu_backend_connection_up - mcu detected backend */
   mcu_backend_connection_up = 134,
   /**
-   * backend_frontend_connection_up - The following code isn't actually used, but we reserve space for it.
-   * We don't use it because if the backend received an mcu_backend_connection_up
-   * event from the MCU, then we know that the backend received a connection from
-   * the MCU. We only care for technical troubleshooting (of the UART wires) about
-   * the case where the backend receives a connection from the MCU but the MCU
-   * hasn't received a connection from the backend; it would be good to log it,
-   * but we don't need to show it in the frontend, and right now the frontend has
-   * no way to filter out events from its display.
-   * backend_mcu_connection_up = 135;  // backend detected mcu
+   * backend_mcu_connection_up - TODO: if the mcu can't send data to the backend but the backend can send
+   * data to the mcu, we should make the backend generate a backend_mcu_up
+   * log event once the mcu becomes able to send data again so that the event log
+   * has a connection_up event to match the connection_down event.
    */
+  backend_mcu_connection_up = 135,
+  /** backend_frontend_connection_up - backend detected frontend */
   backend_frontend_connection_up = 136,
   /**
-   * battery_low - The following code isn't actually used, but we reserve space for it.
-   * We don't use it because the frontend can't generate LogEvents with IDs.
-   * frontend_backend_connection_up = 137;
+   * frontend_backend_connection_up - TODO: if the backend can't send data to the frontend but the frontend can send
+   * data to the backend, we should make the backend generate a frontend_backend_up
+   * log event once the frontend detects that the backend is able to send data again,
+   * so that the event log has a connection_up event to match the connection_down event.
+   * We can achieve this using a FrontendConnections message type which the frontend sends
+   * to the backend.
    */
+  frontend_backend_connection_up = 137,
   battery_low = 138,
   battery_critical = 139,
   charger_disconnected = 140,
@@ -212,9 +219,15 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case 134:
     case "mcu_backend_connection_up":
       return LogEventCode.mcu_backend_connection_up;
+    case 135:
+    case "backend_mcu_connection_up":
+      return LogEventCode.backend_mcu_connection_up;
     case 136:
     case "backend_frontend_connection_up":
       return LogEventCode.backend_frontend_connection_up;
+    case 137:
+    case "frontend_backend_connection_up":
+      return LogEventCode.frontend_backend_connection_up;
     case 138:
     case "battery_low":
       return LogEventCode.battery_low;
@@ -334,8 +347,12 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "frontend_backend_connection_down";
     case LogEventCode.mcu_backend_connection_up:
       return "mcu_backend_connection_up";
+    case LogEventCode.backend_mcu_connection_up:
+      return "backend_mcu_connection_up";
     case LogEventCode.backend_frontend_connection_up:
       return "backend_frontend_connection_up";
+    case LogEventCode.frontend_backend_connection_up:
+      return "frontend_backend_connection_up";
     case LogEventCode.battery_low:
       return "battery_low";
     case LogEventCode.battery_critical:
