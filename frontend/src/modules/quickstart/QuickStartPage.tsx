@@ -21,7 +21,7 @@ import { MessageType } from '../../store/proto/types';
 import { setActiveRotaryReference } from '../app/Service';
 import ValueSpinner from '../controllers/ValueSpinner';
 import ModeBanner, { BannerType } from '../displays/ModeBanner';
-import { LMIN, PERCENT } from '../info/units';
+import { BPM, LMIN, PERCENT } from '../info/units';
 import {
   FIO2_REFERENCE_KEY,
   PEEP_REFERENCE_KEY,
@@ -30,6 +30,7 @@ import {
   FLOW_REFERENCE_KEY,
 } from '../settings/containers/constants';
 import { useRotaryReference } from '../utils/useRotaryReference';
+import { SelectorType } from '../displays/ValueSelectorDisplay';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -89,16 +90,25 @@ const useStyles = makeStyles((theme: Theme) => ({
 //   PEDIATRIC,
 // }
 
-/**
- * SetParameters
- *
- * @component for setting quick start parameters
- *
- * @returns {JSX.Element}
- *
- */
-const SetParameters = (): JSX.Element => {
-  const classes = useStyles();
+interface ValueProps {
+  selector: SelectorType;
+  reference: string;
+  label: string;
+  stateKey: string;
+  units: string;
+}
+
+const ParamValueClicker = ({
+  selector,
+  reference,
+  label,
+  stateKey,
+  units,
+}: ValueProps): JSX.Element => {
+  const dispatch = useDispatch();
+  const theme = useTheme();
+  const value = useSelector(selector);
+  const { initRefListener } = useRotaryReference(theme);
 
   /**
    * State to manage Wrapper HTML reference of parameter `ValueSpinner`
@@ -113,32 +123,6 @@ const SetParameters = (): JSX.Element => {
     [FLOW_REFERENCE_KEY]: useRef(null),
   });
 
-  const fio2 = useSelector(getParametersRequestDraftFiO2);
-  const flow = useSelector(getParametersRequestDraftFlow);
-  const peep = useSelector(getParametersRequestDraftPEEP);
-  const rr = useSelector(getParametersRequestDraftRR);
-  const vt = useSelector(getParametersRequestDraftVT);
-
-  const dispatch = useDispatch();
-  const theme = useTheme();
-  const { initRefListener } = useRotaryReference(theme);
-
-  /**
-   * Updates the Parameter Request value to the Redux store
-   *
-   */
-  const setValue = (key: string) => (value: number) => {
-    const update = { [key]: value } as Partial<ParametersRequest>;
-    // TODO: for some reason, every time the ValueSpinner hears a click, it calls
-    // setValue twice. This doesn't cause problems, but is a symptom of some sort
-    // of deeper bug. Maybe it's related to the buggy behavior that ValueSpinner
-    // has with the rotary encoder?
-    // It could be an issue with Rotary encoder event conflicts
-    // Need to check if this issue is consistent across other components using Rotary encoder
-    // console.log('setValue', key, value);
-    dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
-  };
-
   /**
    * Calls on initalization of the component
    * This is an event listener which listens to user input on `ValueSpinner` buttons click
@@ -148,27 +132,58 @@ const SetParameters = (): JSX.Element => {
     initRefListener(elRefs);
   }, [initRefListener, elRefs]);
 
+  const updateParam = (key: string, value: number) => {
+    dispatch(
+      commitDraftRequest<ParametersRequest>(
+        MessageType.ParametersRequest,
+        ParametersRequest.fromJSON({ [key]: value }),
+      ),
+    );
+  };
+
+  return (
+    <ValueSpinner
+      reference={elRefs[reference]}
+      referenceKey={reference}
+      label={label}
+      units={units}
+      value={value}
+      onClick={(value: number) => updateParam(stateKey, value)}
+    />
+  );
+};
+
+/**
+ * SetParameters
+ *
+ * @component for setting quick start parameters
+
+ *
+ * @returns {JSX.Element}
+ *
+ */
+const SetParameters = (): JSX.Element => {
+  const classes = useStyles();
+
   const hfncModeContent = (
     <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
       <Grid container item xs direction="row" className={classes.bottomBorder}>
         <Grid item xs className={classes.rightBorder}>
-          <ValueSpinner
-            reference={elRefs[FIO2_REFERENCE_KEY]}
-            referenceKey={FIO2_REFERENCE_KEY}
+          <ParamValueClicker
+            reference={FIO2_REFERENCE_KEY}
             label="FiO2"
+            stateKey="fio2"
             units={PERCENT}
-            value={fio2}
-            onClick={setValue('fio2')}
+            selector={getParametersRequestDraftFiO2}
           />
         </Grid>
         <Grid item xs>
-          <ValueSpinner
-            reference={elRefs[FLOW_REFERENCE_KEY]}
-            referenceKey={FLOW_REFERENCE_KEY}
+          <ParamValueClicker
+            reference={FLOW_REFERENCE_KEY}
             label="Flow"
             units={LMIN}
-            value={flow}
-            onClick={setValue('flow')}
+            stateKey="flow"
+            selector={getParametersRequestDraftFlow}
           />
         </Grid>
       </Grid>
@@ -186,46 +201,41 @@ const SetParameters = (): JSX.Element => {
     <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
       <Grid container item xs direction="row" className={classes.bottomBorder}>
         <Grid item xs className={classes.rightBorder}>
-          <ValueSpinner
-            reference={elRefs[PEEP_REFERENCE_KEY]}
-            referenceKey={PEEP_REFERENCE_KEY}
+          <ParamValueClicker
+            reference={PEEP_REFERENCE_KEY}
             label="PEEP"
+            stateKey="peep"
             units="cm H2O"
-            value={peep}
-            onClick={() => null}
+            selector={getParametersRequestDraftPEEP}
           />
         </Grid>
         <Grid item xs>
-          <ValueSpinner
-            reference={elRefs[RR_REFERENCE_KEY]}
-            referenceKey={RR_REFERENCE_KEY}
+          <ParamValueClicker
+            reference={RR_REFERENCE_KEY}
             label="RR"
-            units="cm H2O"
-            value={rr}
-            onClick={() => null}
+            stateKey="rr"
+            units={BPM}
+            selector={getParametersRequestDraftRR}
           />
         </Grid>
       </Grid>
       <Grid container item xs direction="row">
         <Grid item xs className={classes.rightBorder}>
-          <ValueSpinner
-            reference={elRefs[FIO2_REFERENCE_KEY]}
-            referenceKey={FIO2_REFERENCE_KEY}
+          <ParamValueClicker
+            reference={FIO2_REFERENCE_KEY}
             label="FiO2"
-            units="%"
-            value={fio2}
-            onClick={() => null}
+            stateKey="fio2"
+            units={PERCENT}
+            selector={getParametersRequestDraftFiO2}
           />
         </Grid>
         <Grid item xs>
-          <ValueSpinner
-            reference={elRefs[TV_REFERENCE_KEY]}
-            referenceKey={TV_REFERENCE_KEY}
+          <ParamValueClicker
+            reference={TV_REFERENCE_KEY}
             label="TV"
+            stateKey="tv"
             units="mL"
-            value={vt}
-            max={500}
-            onClick={() => null}
+            selector={getParametersRequestDraftVT}
           />
         </Grid>
       </Grid>
