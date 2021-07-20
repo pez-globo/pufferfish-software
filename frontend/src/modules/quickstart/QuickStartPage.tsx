@@ -19,7 +19,7 @@ import {
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/proto/types';
 import { setActiveRotaryReference } from '../app/Service';
-import ValueController from '../controllers/ValueController';
+import ValueSpinner from '../controllers/ValueSpinner';
 import ModeBanner, { BannerType } from '../displays/ModeBanner';
 import { LMIN, PERCENT } from '../info/units';
 import {
@@ -101,7 +101,7 @@ const SetParameters = (): JSX.Element => {
   const classes = useStyles();
 
   /**
-   * State to manage Wrapper HTML reference of parameter `ValueController`
+   * State to manage Wrapper HTML reference of parameter `ValueSpinner`
    * This wrapper's HTML border is added or removed based on user's interaction with Controls
    * It is used for UI identification of which control value is changing via rotary encoder
    */
@@ -129,9 +129,9 @@ const SetParameters = (): JSX.Element => {
    */
   const setValue = (key: string) => (value: number) => {
     const update = { [key]: value } as Partial<ParametersRequest>;
-    // TODO: for some reason, every time the ValueController hears a click, it calls
+    // TODO: for some reason, every time the ValueSpinner hears a click, it calls
     // setValue twice. This doesn't cause problems, but is a symptom of some sort
-    // of deeper bug. Maybe it's related to the buggy behavior that ValueController
+    // of deeper bug. Maybe it's related to the buggy behavior that ValueSpinner
     // has with the rotary encoder?
     // It could be an issue with Rotary encoder event conflicts
     // Need to check if this issue is consistent across other components using Rotary encoder
@@ -141,7 +141,7 @@ const SetParameters = (): JSX.Element => {
 
   /**
    * Calls on initalization of the component
-   * This is an event listener which listens to user input on `ValueController` buttons click
+   * This is an event listener which listens to user input on `ValueSpinner` buttons click
    * Based on this event Border around Alarm's HTML wrapper is added/removed
    */
   useEffect(() => {
@@ -152,7 +152,7 @@ const SetParameters = (): JSX.Element => {
     <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
       <Grid container item xs direction="row" className={classes.bottomBorder}>
         <Grid item xs className={classes.rightBorder}>
-          <ValueController
+          <ValueSpinner
             reference={elRefs[FIO2_REFERENCE_KEY]}
             referenceKey={FIO2_REFERENCE_KEY}
             label="FiO2"
@@ -162,7 +162,7 @@ const SetParameters = (): JSX.Element => {
           />
         </Grid>
         <Grid item xs>
-          <ValueController
+          <ValueSpinner
             reference={elRefs[FLOW_REFERENCE_KEY]}
             referenceKey={FLOW_REFERENCE_KEY}
             label="Flow"
@@ -186,7 +186,7 @@ const SetParameters = (): JSX.Element => {
     <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
       <Grid container item xs direction="row" className={classes.bottomBorder}>
         <Grid item xs className={classes.rightBorder}>
-          <ValueController
+          <ValueSpinner
             reference={elRefs[PEEP_REFERENCE_KEY]}
             referenceKey={PEEP_REFERENCE_KEY}
             label="PEEP"
@@ -196,7 +196,7 @@ const SetParameters = (): JSX.Element => {
           />
         </Grid>
         <Grid item xs>
-          <ValueController
+          <ValueSpinner
             reference={elRefs[RR_REFERENCE_KEY]}
             referenceKey={RR_REFERENCE_KEY}
             label="RR"
@@ -208,7 +208,7 @@ const SetParameters = (): JSX.Element => {
       </Grid>
       <Grid container item xs direction="row">
         <Grid item xs className={classes.rightBorder}>
-          <ValueController
+          <ValueSpinner
             reference={elRefs[FIO2_REFERENCE_KEY]}
             referenceKey={FIO2_REFERENCE_KEY}
             label="FiO2"
@@ -218,7 +218,7 @@ const SetParameters = (): JSX.Element => {
           />
         </Grid>
         <Grid item xs>
-          <ValueController
+          <ValueSpinner
             reference={elRefs[TV_REFERENCE_KEY]}
             referenceKey={TV_REFERENCE_KEY}
             label="TV"
@@ -264,7 +264,7 @@ export const QuickStartPage = (): JSX.Element => {
 
   /**
    * Resets highlighting border around container when clicked across the page
-   * Border is usually added on `ValueController` button click
+   * Border is usually added on `ValueSpinner` button click
    */
   const OnClickPage = () => {
     setActiveRotaryReference(null);
@@ -304,7 +304,7 @@ export const QuickStartPage = (): JSX.Element => {
           </Grid> */}
         </Grid>
         <Grid item xs={3}>
-          {/* <ValueController
+          {/* <ValueSpinner
             label="Height"
             units="i"
             onClick={setPatientHeight}

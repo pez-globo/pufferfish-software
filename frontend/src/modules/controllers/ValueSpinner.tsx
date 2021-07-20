@@ -44,15 +44,16 @@ interface Props {
 }
 
 /**
- * ValueController
+ * ValueSpinner
  *
  * @component A re-usable component for adjusting some value with a clicker.
+ * Use ValueSpinner when the visual aspect of the 'Value' is similar to what we have in ValueDisplay
  *
  * Uses the [[Props]] interface
  *
  * @returns JSX.Element
  */
-const ValueController = ({
+const ValueSpinner = ({
   label,
   value,
   min = 0,
@@ -82,4 +83,4 @@ const ValueController = ({
   );
 };
 
-export default ValueController;
+export default ValueSpinner;

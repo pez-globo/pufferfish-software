@@ -20,6 +20,8 @@ import {
   getHRAlarmLimitsRequest,
   getParametersFlow,
   getParametersFiO2,
+  getFiO2AlarmLimitsRequest,
+  getFlowAlarmLimitsRequest,
 } from '../../store/controller/selectors';
 import { SetValueContent } from '../controllers/ValueModal';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
@@ -306,6 +308,8 @@ const MultiStepWizard = (): JSX.Element => {
 
   const alarmLimitsRequestSpO2 = useSelector(getSpO2AlarmLimitsRequest, shallowEqual);
   const alarmLimitsRequestHR = useSelector(getHRAlarmLimitsRequest, shallowEqual);
+  const alarmLimitsRequestFiO2 = useSelector(getFiO2AlarmLimitsRequest, shallowEqual);
+  const alarmLimitsRequestFlow = useSelector(getFlowAlarmLimitsRequest, shallowEqual);
   const parametersFiO2 = useSelector(getParametersFiO2);
   const parametersFlow = useSelector(getParametersFlow);
 
@@ -700,12 +704,8 @@ const MultiStepWizard = (): JSX.Element => {
               <HFNCControls
                 alarmLimitsDraftSpO2={getAlarmLimitsDraft('spo2') || alarmLimitsRequestSpO2}
                 alarmLimitsDraftHR={getAlarmLimitsDraft('hr') || alarmLimitsRequestHR}
-                alarmLimitsDraftFiO2={
-                  getAlarmLimitsDraft('fio2') || Range.fromJSON({ lower: 0, upper: 100 })
-                }
-                alarmLimitsDraftFlow={
-                  getAlarmLimitsDraft('flow') || Range.fromJSON({ lower: 0, upper: 100 })
-                }
+                alarmLimitsDraftFiO2={alarmLimitsRequestFiO2}
+                alarmLimitsDraftFlow={alarmLimitsRequestFlow}
               />
             </TabPanel>
             <TabPanel value={tabIndex} index={1}>
