@@ -10,7 +10,7 @@ import { Route, RouteProps, useHistory } from 'react-router-dom';
 import { getParametersIsVentilating } from '../../../store/controller/selectors';
 import ClockIcon from '../../icons/ClockIcon';
 import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../../navigation/constants';
-import EventAlerts from '../EventAlerts';
+import Alarms from '../../alarms/Alarms';
 import UserActivity from '../UserActivity';
 import { HeaderClock, PowerIndicator } from '../ToolBar';
 import OverlayScreen from '../OverlayScreen';
@@ -127,7 +127,7 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
         <AppBar color="transparent" elevation={0} position="static" style={{ display: 'contents' }}>
           <Grid item style={{ margin: '0 auto' }} />
           <Grid item xs className={classes.marginRight} style={{ margin: '0 auto' }}>
-            <EventAlerts />
+            <Alarms />
           </Grid>
           <Grid container item xs justify="flex-end" alignItems="center">
             <PowerIndicator />

@@ -3,6 +3,8 @@
  *
  * @file Alarms page has capablity to paginate if lot more Alarms
  * Alarms listed are based on current Ventialtion Mode selected
+ * TODO: move this into modules/alarms/limits and rename this file, to reflect
+ * that this page is only for alarm limits, not for alarms!
  */
 import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';

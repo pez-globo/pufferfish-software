@@ -42,7 +42,7 @@ import PowerFullIcon from '../icons/PowerFullIcon';
 import { PERCENT } from '../info/units';
 import ModesDropdown from '../modes/ModesDropdown';
 import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
-import EventAlerts from './EventAlerts';
+import Alarms from '../alarms/Alarms';
 import { DiscardAlarmLimitsContent } from '../modals';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -329,7 +329,7 @@ export const ToolBar = ({
     // );
   }
   if (location.pathname !== '/') {
-    tools.push(<EventAlerts />);
+    tools.push(<Alarms />);
   }
 
   /**
