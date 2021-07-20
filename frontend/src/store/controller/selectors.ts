@@ -333,8 +333,8 @@ export const getSpO2AlarmLimitsCurrent = alarmLimitsSelector(getAlarmLimitsCurre
 export const getHRAlarmLimitsCurrent = alarmLimitsSelector(getAlarmLimitsCurrent, 'hr');
 export const getSpO2AlarmLimitsRequest = alarmLimitsSelector(getAlarmLimitsRequest, 'spo2');
 export const getHRAlarmLimitsRequest = alarmLimitsSelector(getAlarmLimitsRequest, 'hr');
-export const getFiO2AlarmLimitsRequest = alarmLimitsSelector(getAlarmLimitsRequest, 'fio2');
-export const getFlowAlarmLimitsRequest = alarmLimitsSelector(getAlarmLimitsRequest, 'flow');
+export const getFiO2AlarmLimitsCurrent = alarmLimitsSelector(getAlarmLimitsCurrent, 'fio2');
+export const getFlowAlarmLimitsCurrent = alarmLimitsSelector(getAlarmLimitsCurrent, 'flow');
 
 // Battery power
 
