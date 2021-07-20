@@ -3,7 +3,7 @@ syntax = "proto3";
 // Measurements
 
 message SensorMeasurements {
-  uint64 time = 1;
+  uint64 time = 1;  // ms
   uint32 cycle = 2;
   float fio2 = 3;
   float flow = 4;
@@ -14,7 +14,7 @@ message SensorMeasurements {
 }
 
 message CycleMeasurements {
-  uint64 time = 1;
+  uint64 time = 1;  // ms
   float vt = 2;
   float rr = 3;
   float peep = 4;
@@ -36,7 +36,7 @@ enum VentilationMode {
 }
 
 message Parameters {
-  uint64 time = 1;
+  uint64 time = 1;  // ms
   bool ventilating = 2;
   VentilationMode mode = 3;
   float fio2 = 4;
@@ -49,7 +49,7 @@ message Parameters {
 }
 
 message ParametersRequest {
-  uint64 time = 1;
+  uint64 time = 1;  // ms
   bool ventilating = 2;
   VentilationMode mode = 3;
   float fio2 = 4;
@@ -69,7 +69,7 @@ message Range {
 }
 
 message AlarmLimits {
-  uint64 time = 1;
+  uint64 time = 1;  // ms
   Range fio2 = 2;
   Range flow = 3;
   Range spo2 = 4;
@@ -87,7 +87,7 @@ message AlarmLimits {
 }
 
 message AlarmLimitsRequest {
-  uint64 time = 1;
+  uint64 time = 1;  // ms
   Range fio2 = 2;
   Range flow = 3;
   Range spo2 = 4;
@@ -186,7 +186,7 @@ enum LogEventType {
 
 message LogEvent {
   uint32 id = 1;
-  uint64 time = 2;
+  uint64 time = 2;  // ms
   LogEventCode code = 3;
   LogEventType type = 4;
   Range alarm_limits = 5;
@@ -245,7 +245,7 @@ message AlarmMute {
   // in the firmware (such as a button-press) or the servicing of each external request.
   uint32 seq_num = 2;
   AlarmMuteSource source = 3;
-  uint64 remaining = 4;
+  uint64 remaining = 4;  // ms
 }
 
 message AlarmMuteRequest {
@@ -276,11 +276,11 @@ message ScreenStatus {
 // Testing Messages
 
 message Ping {
-  uint64 time = 1;
+  uint64 time = 1;  // ms
   uint32 id = 2;
 }
 
 message Announcement {
-  uint64 time = 1;
+  uint64 time = 1;  // ms
   bytes announcement = 2;
 }

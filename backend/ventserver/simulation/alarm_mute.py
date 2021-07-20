@@ -150,13 +150,11 @@ class Service:
     ) -> None:
         """Update remaining field of response based on internal state."""
         if not self.active:
-            response.remaining = int(self.MUTE_MAX_DURATION / 1000)
+            response.remaining = self.MUTE_MAX_DURATION
             return
 
         if self.mute_start_time is None:
             self.mute_start_time = current_time * 1000
         mute_duration = current_time * 1000 - self.mute_start_time
-        remaining = int((self.MUTE_MAX_DURATION - mute_duration) / 1000)
-        response.remaining = max(
-            0, min(remaining, int(self.MUTE_MAX_DURATION / 1000))
-        )
+        remaining = self.MUTE_MAX_DURATION - int(mute_duration)
+        response.remaining = max(0, min(remaining, self.MUTE_MAX_DURATION))

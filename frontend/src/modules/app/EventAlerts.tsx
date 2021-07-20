@@ -288,7 +288,7 @@ const AlarmMuteCountdown = ({ className }: AlarmMuteCountdownProps): JSX.Element
 
   return (
     <div className={className} style={{ right: 'auto' }}>
-      {new Date(alarmMuteRemaining * 1000).toISOString().substr(14, 5)}
+      {new Date(alarmMuteRemaining).toISOString().substr(14, 5)}
     </div>
   );
 };

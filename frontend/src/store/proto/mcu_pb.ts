@@ -523,6 +523,7 @@ export function alarmMuteSourceToJSON(object: AlarmMuteSource): string {
 }
 
 export interface SensorMeasurements {
+  /** ms */
   time: number;
   cycle: number;
   fio2: number;
@@ -534,6 +535,7 @@ export interface SensorMeasurements {
 }
 
 export interface CycleMeasurements {
+  /** ms */
   time: number;
   vt: number;
   rr: number;
@@ -544,6 +546,7 @@ export interface CycleMeasurements {
 }
 
 export interface Parameters {
+  /** ms */
   time: number;
   ventilating: boolean;
   mode: VentilationMode;
@@ -557,6 +560,7 @@ export interface Parameters {
 }
 
 export interface ParametersRequest {
+  /** ms */
   time: number;
   ventilating: boolean;
   mode: VentilationMode;
@@ -575,6 +579,7 @@ export interface Range {
 }
 
 export interface AlarmLimits {
+  /** ms */
   time: number;
   fio2: Range | undefined;
   flow: Range | undefined;
@@ -593,6 +598,7 @@ export interface AlarmLimits {
 }
 
 export interface AlarmLimitsRequest {
+  /** ms */
   time: number;
   fio2: Range | undefined;
   flow: Range | undefined;
@@ -612,6 +618,7 @@ export interface AlarmLimitsRequest {
 
 export interface LogEvent {
   id: number;
+  /** ms */
   time: number;
   code: LogEventCode;
   type: LogEventType;
@@ -667,6 +674,7 @@ export interface AlarmMute {
    */
   seqNum: number;
   source: AlarmMuteSource;
+  /** ms */
   remaining: number;
 }
 
@@ -696,11 +704,13 @@ export interface ScreenStatus {
 }
 
 export interface Ping {
+  /** ms */
   time: number;
   id: number;
 }
 
 export interface Announcement {
+  /** ms */
   time: number;
   announcement: Uint8Array;
 }

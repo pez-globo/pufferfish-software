@@ -127,7 +127,7 @@ typedef struct _AlarmMute {
  in the firmware (such as a button-press) or the servicing of each external request. */
     uint32_t seq_num; 
     AlarmMuteSource source; 
-    uint64_t remaining; 
+    uint64_t remaining; /* ms */
 } AlarmMute;
 
 typedef struct _AlarmMuteRequest { 
@@ -141,7 +141,7 @@ typedef struct _AlarmMuteRequest {
 
 typedef PB_BYTES_ARRAY_T(64) Announcement_announcement_t;
 typedef struct _Announcement { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     Announcement_announcement_t announcement; 
 } Announcement;
 
@@ -151,7 +151,7 @@ typedef struct _BackendConnections {
 } BackendConnections;
 
 typedef struct _CycleMeasurements { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     float vt; 
     float rr; 
     float peep; 
@@ -174,7 +174,7 @@ typedef struct _MCUPowerStatus {
 } MCUPowerStatus;
 
 typedef struct _Parameters { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     bool ventilating; 
     VentilationMode mode; 
     float fio2; 
@@ -187,7 +187,7 @@ typedef struct _Parameters {
 } Parameters;
 
 typedef struct _ParametersRequest { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     bool ventilating; 
     VentilationMode mode; 
     float fio2; 
@@ -200,7 +200,7 @@ typedef struct _ParametersRequest {
 } ParametersRequest;
 
 typedef struct _Ping { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     uint32_t id; 
 } Ping;
 
@@ -214,7 +214,7 @@ typedef struct _ScreenStatus {
 } ScreenStatus;
 
 typedef struct _SensorMeasurements { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     uint32_t cycle; 
     float fio2; 
     float flow; 
@@ -225,7 +225,7 @@ typedef struct _SensorMeasurements {
 } SensorMeasurements;
 
 typedef struct _AlarmLimits { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     bool has_fio2;
     Range fio2; 
     bool has_flow;
@@ -257,7 +257,7 @@ typedef struct _AlarmLimits {
 } AlarmLimits;
 
 typedef struct _AlarmLimitsRequest { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     bool has_fio2;
     Range fio2; 
     bool has_flow;
@@ -290,7 +290,7 @@ typedef struct _AlarmLimitsRequest {
 
 typedef struct _LogEvent { 
     uint32_t id; 
-    uint64_t time; 
+    uint64_t time; /* ms */
     LogEventCode code; 
     LogEventType type; 
     bool has_alarm_limits;

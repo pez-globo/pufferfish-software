@@ -120,18 +120,18 @@ void AlarmMuteService::update_response(
 
 void AlarmMuteService::update_remaining(uint32_t current_time, AlarmMute &alarm_mute) const {
   if (!active_) {
-    alarm_mute.remaining = mute_max_duration / clock_scale;
+    alarm_mute.remaining = mute_max_duration;
     return;
   }
 
   uint32_t mute_duration = current_time - mute_start_time_;
   int64_t remaining =
-      (static_cast<int64_t>(mute_max_duration) - static_cast<int64_t>(mute_duration)) / clock_scale;
-  alarm_mute.remaining = Util::clamp<int64_t>(remaining, 0, mute_max_duration / clock_scale);
+      (static_cast<int64_t>(mute_max_duration) - static_cast<int64_t>(mute_duration));
+  alarm_mute.remaining = Util::clamp<int64_t>(remaining, 0, mute_max_duration);
 }
 
 void make_state_initializers(Application::StateSegment &request_segment, AlarmMute &response) {
-  response.remaining = mute_max_duration / clock_scale;
+  response.remaining = mute_max_duration;
   response.source = Application::AlarmMuteSource_initialization;
 
   AlarmMuteRequest request{};
