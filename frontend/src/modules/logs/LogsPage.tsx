@@ -11,7 +11,7 @@ import { LogEvent, LogEventType } from '../../store/proto/mcu_pb';
 import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
 import { setMultiPopupOpen } from '../app/Service';
 import { AlarmModal } from '../controllers';
-import ModalPopup from '../controllers/ModalPopup';
+import ModalPopup from '../modals/ModalPopup';
 
 import SimpleTable, {
   getComparator,

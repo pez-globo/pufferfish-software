@@ -21,11 +21,13 @@ import {
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/proto/types';
 import { setActiveRotaryReference } from '../app/Service';
-import { DiscardAlarmLimitsContent, ValueClicker } from '../controllers';
-import ModalPopup from '../controllers/ModalPopup';
+import { ValueClicker } from '../controllers';
+import ModalPopup from '../modals/ModalPopup';
 import ValueSlider from '../controllers/ValueSlider';
-import ModeBanner from '../displays/ModeBanner';
+import ModeBanner, { BannerType } from '../displays/ModeBanner';
 import useRotaryReference from '../utils/useRotaryReference';
+import { DiscardAlarmLimitsContent } from '../modals';
+import { BPM, PERCENT } from '../info/units';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -324,6 +326,7 @@ export interface AlarmConfiguration {
   label: string;
   min?: number;
   max?: number;
+  units: string;
   stateKey: string;
   step?: number;
 }
@@ -340,8 +343,8 @@ export const alarmConfiguration = (
   switch (ventilationMode) {
     case VentilationMode.hfnc:
       return [
-        { label: 'SpO2', stateKey: 'spo2' },
-        { label: 'HR', stateKey: 'hr', max: 200 },
+        { label: 'SpO2', stateKey: 'spo2', units: PERCENT },
+        { label: 'HR', stateKey: 'hr', max: 200, units: BPM },
       ];
     case VentilationMode.pc_ac:
     case VentilationMode.vc_ac:
@@ -548,8 +551,15 @@ export const AlarmsPage = (): JSX.Element => {
                             return (
                               <Typography variant="subtitle1">{`Change ${
                                 param.label
-                              } alarm range to ${alarmLimitsRequestDraft[param.stateKey].lower} -
-                                  ${alarmLimitsRequestDraft[param.stateKey].upper}?`}</Typography>
+                              } alarm limits from [${alarmLimitsRequest[param.stateKey].lower} ${
+                                param.units
+                              } -
+                              ${alarmLimitsRequest[param.stateKey].upper} ${param.units}] to [${
+                                alarmLimitsRequestDraft[param.stateKey].lower
+                              } ${param.units} -
+                                  ${alarmLimitsRequestDraft[param.stateKey].upper} ${
+                                param.units
+                              }] ?`}</Typography>
                             );
                           }
                         }
@@ -574,7 +584,7 @@ export const AlarmsPage = (): JSX.Element => {
         </Grid>
         {/* Right Container for Storing Alarm Slides */}
         <Grid item xs>
-          <ModeBanner bannerType="normal" />
+          <ModeBanner bannerType={BannerType.NORMAL} />
         </Grid>
       </Grid>
       {/* Title */}

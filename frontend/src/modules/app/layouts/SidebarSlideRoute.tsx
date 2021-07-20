@@ -18,10 +18,10 @@ import {
   getAlarmLimitsRequest,
   getAlarmLimitsRequestUnsaved,
 } from '../../../store/controller/selectors';
-import { ModalPopup } from '../../controllers/ModalPopup';
+import { ModalPopup } from '../../modals/ModalPopup';
 import { MessageType } from '../../../store/proto/types';
 import { commitDraftRequest } from '../../../store/controller/actions';
-import { DiscardAlarmLimitsContent } from '../../controllers';
+import { DiscardAlarmLimitsContent } from '../../modals';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

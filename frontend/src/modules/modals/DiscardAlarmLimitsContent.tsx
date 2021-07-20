@@ -52,10 +52,16 @@ export const DiscardAlarmLimitsContent = (): JSX.Element => {
             if (alarmLimitsRequest !== null && alarmLimitsRequestDraft !== null) {
               if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
                 return (
-                  <Typography variant="subtitle1">{`Keep ${param.label} alarm range to ${
+                  <Typography variant="subtitle1">{`Keep ${param.label} alarm limits at [${
                     alarmLimitsRequest[param.stateKey].lower
+                  } ${param.units} - ${alarmLimitsRequest[param.stateKey].upper} ${
+                    param.units
+                  }] instead of changing to [${alarmLimitsRequestDraft[param.stateKey].lower} ${
+                    param.units
                   } -
-                         ${alarmLimitsRequest[param.stateKey].upper}?`}</Typography>
+                         ${alarmLimitsRequestDraft[param.stateKey].upper} ${
+                    param.units
+                  }]?`}</Typography>
                 );
               }
             }

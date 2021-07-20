@@ -37,6 +37,7 @@ import {
   PVPoint,
   ControllerStates,
 } from './types';
+import { SelectorType } from '../../modules/displays/ValueSelectorDisplay';
 
 export const roundValue = (value: number): number => {
   return value !== undefined && !Number.isNaN(value)
@@ -317,19 +318,23 @@ export const getAlarmMuteRequestActive = createSelector(
 );
 
 // Alarm Limits
-// return a number[] of alarmLimits for ValueInfo based on the stateKey
-const alarmLimitsCurrentSelector = (stateKey: string) =>
-  createSelector(getAlarmLimitsCurrent, (alarmLimits: AlarmLimits | null) => {
+// return a Range of alarmLimits for ValueInfo based on the stateKey
+const alarmLimitsSelector = (selector: SelectorType, stateKey: string) =>
+  createSelector(selector, (alarmLimits: AlarmLimits | null) => {
     const range =
       alarmLimits === null
         ? undefined
         : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
     const { lower, upper } = range === undefined ? { lower: 0, upper: 0 } : range;
-    return [lower, upper];
+    return { lower, upper };
   });
 
-export const getSpO2AlarmLimitsCurrent = alarmLimitsCurrentSelector('spo2');
-export const getHRAlarmLimitsCurrent = alarmLimitsCurrentSelector('hr');
+export const getSpO2AlarmLimitsCurrent = alarmLimitsSelector(getAlarmLimitsCurrent, 'spo2');
+export const getHRAlarmLimitsCurrent = alarmLimitsSelector(getAlarmLimitsCurrent, 'hr');
+export const getSpO2AlarmLimitsRequest = alarmLimitsSelector(getAlarmLimitsRequest, 'spo2');
+export const getHRAlarmLimitsRequest = alarmLimitsSelector(getAlarmLimitsRequest, 'hr');
+export const getFiO2AlarmLimitsCurrent = alarmLimitsSelector(getAlarmLimitsCurrent, 'fio2');
+export const getFlowAlarmLimitsCurrent = alarmLimitsSelector(getAlarmLimitsCurrent, 'flow');
 
 // Battery power
 
