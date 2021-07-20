@@ -48,6 +48,8 @@ interface Props {
  *
  * @component A re-usable component for adjusting some value with a clicker.
  * Use ValueSpinner when the visual aspect of the 'Value' is similar to what we have in ValueDisplay
+ * if a different look is required then it's recommended to only use ValueClicker.
+ * more info: https://github.com/pez-globo/pufferfish-software/pull/413#issuecomment-882515233
  *
  * Uses the [[Props]] interface
  *

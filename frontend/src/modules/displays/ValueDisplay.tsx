@@ -78,8 +78,7 @@ interface Props {
  *
  * @component A re-usable component for displaying numeric values.
  * ValueDisplay is used along with ValueClicker to increment/decrement the displayed value.
- * This component gives a standard markup for how value should be displayed, if a different look is
- * required then it's recommended to only use ValueClicker.
+ * This component gives a standard markup for how value should be displayed.
  *
  * Uses the [[Props]] interface
  *
