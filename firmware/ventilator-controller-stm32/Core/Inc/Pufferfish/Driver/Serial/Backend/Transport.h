@@ -41,7 +41,7 @@ static const MessageDescriptors message_descriptors{
     {MessageTypes::alarm_limits, Util::get_protobuf_desc<Application::AlarmLimits>()},
     {MessageTypes::alarm_limits_request,
      Util::get_protobuf_desc<Application::AlarmLimitsRequest>()},
-     // Log Events
+    // Log Events
     {MessageTypes::expected_log_event, Util::get_protobuf_desc<Application::ExpectedLogEvent>()},
     {MessageTypes::next_log_events, Util::get_protobuf_desc<Application::NextLogEvents>()},
     {MessageTypes::active_log_events, Util::get_protobuf_desc<Application::ActiveLogEvents>()},
@@ -50,7 +50,8 @@ static const MessageDescriptors message_descriptors{
     {MessageTypes::alarm_mute_request, Util::get_protobuf_desc<Application::AlarmMuteRequest>()},
     // System Miscellaneous
     {MessageTypes::mcu_power_status, Util::get_protobuf_desc<Application::MCUPowerStatus>()},
-    {MessageTypes::backend_connections, Util::get_protobuf_desc<Application::BackendConnections>()}};
+    {MessageTypes::backend_connections,
+     Util::get_protobuf_desc<Application::BackendConnections>()}};
 
 using CRCElementProps =
     Protocols::Transport::CRCElementProps<Driver::Serial::Backend::FrameProps::payload_max_size>;
