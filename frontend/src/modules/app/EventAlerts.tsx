@@ -137,10 +137,6 @@ const EventLogModal = ({
 }: EventLogModalProps): JSX.Element => {
   const classes = useStyles();
 
-  // Selectors
-  const alarmMuteActive = useSelector(getAlarmMuteActive);
-  const alarmMuteRemaining = useSelector(getAlarmMuteRemaining);
-
   return (
     <>
       <ModalPopup
@@ -161,11 +157,7 @@ const EventLogModal = ({
               </Typography>
             </Grid>
             <Grid container item xs justify="flex-end" alignItems="center">
-              {alarmMuteActive && alarmMuteRemaining > 0 && (
-                <div className={classes.alarmMuteCountdownText}>
-                  {new Date(alarmMuteRemaining * 1000).toISOString().substr(14, 5)}
-                </div>
-              )}
+              <AlarmMuteCountdown className={classes.alarmMuteCountdownText} />
               <AlarmMuteToggleButton />
               <Button
                 onClick={() => setActiveFilter(!activeFilter)}
@@ -268,15 +260,25 @@ const AlarmCountBadge = (): JSX.Element => {
 };
 
 /**
+ * @typedef AlarmMuteCountdownProps
+ *
+ * Props for Alarm Mute Countdown
+ *
+ * @prop {string} className style class name for styling the countdown container
+ *
+ */
+interface AlarmMuteCountdownProps {
+  className: string;
+}
+
+/**
  * AlarmMuteCountdown
  *
  * @component Button  overlay to display alarm mute countdown
  *
  * @returns {JSX.Element}
  */
-const AlarmMuteCountdown = (): JSX.Element => {
-  const classes = useStyles();
-
+const AlarmMuteCountdown = ({ className }: AlarmMuteCountdownProps): JSX.Element => {
   const alarmMuteActive = useSelector(getAlarmMuteActive);
   const alarmMuteRemaining = useSelector(getAlarmMuteRemaining);
 
@@ -285,7 +287,7 @@ const AlarmMuteCountdown = (): JSX.Element => {
   }
 
   return (
-    <div className={classes.alarmMuteCountdown} style={{ right: 'auto' }}>
+    <div className={className} style={{ right: 'auto' }}>
       {new Date(alarmMuteRemaining * 1000).toISOString().substr(14, 5)}
     </div>
   );
@@ -358,7 +360,7 @@ const AlarmButton = ({ setOpen, setActiveFilter }: AlarmButtonProps): JSX.Elemen
     >
       <span style={{ padding: '6px 16px', width: 250 }}>{alarmButtonLabel}</span>
       <AlarmCountBadge />
-      <AlarmMuteCountdown />
+      <AlarmMuteCountdown className={classes.alarmMuteCountdown} />
     </Button>
   );
 };
