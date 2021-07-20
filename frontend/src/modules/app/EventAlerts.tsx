@@ -1,33 +1,15 @@
 /**
- * @summary UI component to display Event highlight in toolbar
+ * @summary UI components for alarms and alarm muting in the topbar
  *
- * @file More Specifically shows Active Event count, Event title & Alarm mute status
+ * @file Shows the number of alarms, message of the most recent alarm, and alarm mute status. Also allows toggling alarm muting and showing the event log modal.
  *
  */
 import React, { useState, useEffect } from 'react';
 import { createSelector } from 'reselect';
-import { Alert } from '@material-ui/lab';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
-import {
-  getActiveLogEventIds,
-  getAlarmMuteStatus,
-  getAlarmMuteActive,
-  getAlarmMuteSeqNum,
-  getPopupEventLog,
-  getAlarmMuteRemaining,
-  getFirmwareConnected,
-} from '../../store/controller/selectors';
-import ModalPopup from '../controllers/ModalPopup';
-import LogsPage from '../logs/LogsPage';
-import { BellIcon } from '../icons';
-import {
-  updateState,
-  commitRequest,
-  createEphemeralLogEvent,
-} from '../../store/controller/actions';
 import {
   LogEventCode,
   LogEventType,
@@ -36,34 +18,38 @@ import {
   AlarmMuteSource,
 } from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/proto/types';
-import { getEventType } from '../logs/EventType';
+import {
+  getNumActiveAlarms,
+  getHasActiveAlarms,
+  getAlarmMuteStatus,
+  getAlarmMuteActive,
+  getAlarmMuteSeqNum,
+  getMostRecentEvent,
+  getAlarmMuteRemaining,
+  getFirmwareConnected,
+} from '../../store/controller/selectors';
+import {
+  updateState,
+  commitRequest,
+  createEphemeralLogEvent,
+} from '../../store/controller/actions';
 import { getBackendConnected } from '../../store/connection/selectors';
+import ModalPopup from '../controllers/ModalPopup';
+import { getEventType } from '../logs/EventType';
+import LogsPage from '../logs/LogsPage';
+import { LOGS_ROUTE } from '../navigation/constants';
+import { BellIcon } from '../icons';
 
 const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    height: '100%',
-  },
-  alertStyles: {
-    '& .MuiAlert-message': {
-      width: '100%',
-    },
-    '& .MuiAlert-action': {
-      position: 'absolute',
-      right: '15px',
-    },
-  },
-  controlPanel: {
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  marginRight: {
-    marginRight: theme.spacing(1),
-  },
-  marginTop: {
-    marginTop: theme.spacing(1),
-    '& .MuiPopover-paper': {
-      width: '300px',
-      borderRadius: '10px',
+  alarmMuteToggleButton: {
+    minWidth: 0,
+    borderRadius: 5,
+    lineHeight: 'normal',
+    padding: '6px 10px',
+    backgroundColor: '#FF0000',
+    color: '#fff',
+    '&:hover': {
+      backgroundColor: '#FF0000',
     },
   },
   iconBadge: {
@@ -78,31 +64,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     fontSize: '11px',
     backgroundColor: '#FF0000',
   },
-  openButton: {
-    width: '100%',
-    // border: `1px solid ${theme.palette.common.black}`,
-    backgroundColor: '#e0e0e052',
-    color: 'white',
-    boxShadow: 'none',
-    fontSize: '12px',
-
-    '&:hover': {
-      backgroundColor: '#e0e0e052',
-      // boxShadow: 'none',
-    },
-  },
-  alertButton: {
-    minWidth: 0,
-    borderRadius: 5,
-    lineHeight: 'normal',
-    padding: '6px 10px',
-    backgroundColor: '#FF0000',
-    color: '#fff',
-    '&:hover': {
-      backgroundColor: '#FF0000',
-    },
-  },
-  alertButtonSpan: {
+  activeAlarmButton: {
     width: '300px',
     borderRadius: 5,
     marginRight: '10px',
@@ -111,6 +73,25 @@ const useStyles = makeStyles((theme: Theme) => ({
     '&:hover': {
       backgroundColor: '#FF0000',
     },
+  },
+  inactiveAlarmButton: {
+    width: '300px',
+    margin: '0px 12px',
+    backgroundColor: '#0053b336',
+    '&:hover': {
+      backgroundColor: '#0053b336',
+    },
+  },
+  alarmMuteCountdown: {
+    justifyContent: 'flex-end',
+    padding: '6px 20px',
+    backgroundColor: '#88211b',
+    borderRadius: '0px 4px 4px 0px',
+  },
+  alarmMuteCountdownText: {
+    fontSize: '0.8rem',
+    fontWeight: 'bold',
+    marginRight: '10px',
   },
   eventLogButton: {
     minWidth: 0,
@@ -119,157 +100,119 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginRight: '16px',
     padding: '6px 10px',
   },
-  timer: {
-    justifyContent: 'flex-end',
-    padding: '6px 20px',
-    backgroundColor: '#88211b',
-    borderRadius: '0px 4px 4px 0px',
-  },
-  alertTimer: {
-    width: '300px',
-    margin: '0px 12px',
-    backgroundColor: '#0053b336',
-    '&:hover': {
-      backgroundColor: '#0053b336',
-    },
-  },
-  alertTextcolor: {
-    color: '#ff0000',
-    marginRight: '10px',
-  },
-  timerText: {
-    fontSize: '.8rem',
-    marginRight: '10px',
-  },
 }));
 
 /**
- * @typedef Props
+ * @typedef EventLogModalProps
  *
- * Props for Event Alerts
+ * Props for Event Log Modal
  *
- * @prop {string} label active event label
+ * @prop {boolean} open whether to show the modal
+ * @prop {function} setOpen callback to set whether to show the modal
+ * @prop {boolean} activeFilter whether to filter for active alarms
+ * @prop {function} setActiveFilter callback to set whether to filter for active alarms
  *
  */
-interface Props {
-  routeLabel: string;
+interface EventLogModalProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  activeFilter: boolean;
+  setActiveFilter: (activeFilter: boolean) => void;
 }
 
 /**
- * @deprecated
+ * EventLogModal
  *
- * AlertToast
+ * @component Modal to show the event log
  *
- * @component Alert Toaster showing on active event log
- *
- * @prop {function} onClose - Event on closing Alert Toaster
- * @prop {string} label - Label to show content inside Toaster
+ * Uses the [[EventLogModalProps]] interface
  *
  * @returns {JSX.Element}
  */
-export const AlertToast = ({
-  onClose,
-  label,
-}: {
-  onClose(close: React.SyntheticEvent): void;
-  label: string;
-}): JSX.Element => {
+const EventLogModal = ({
+  open,
+  setOpen,
+  activeFilter,
+  setActiveFilter,
+}: EventLogModalProps): JSX.Element => {
   const classes = useStyles();
+
+  // Selectors
+  const alarmMuteActive = useSelector(getAlarmMuteActive);
+  const alarmMuteRemaining = useSelector(getAlarmMuteRemaining);
+
   return (
-    <Alert
-      className={classes.alertStyles}
-      icon={false}
-      onClose={onClose}
-      variant="filled"
-      severity="error"
-    >
-      <Grid container direction="column" className={classes.root}>
-        <Grid item xs style={{ width: '100%', paddingBottom: '15px' }}>
-          <Typography variant="h5">{label}</Typography>
-        </Grid>
-        <Grid container item direction="row" className={classes.controlPanel} wrap="nowrap">
-          <Grid item xs={6} className={classes.marginRight}>
-            <Button variant="contained" className={classes.openButton}>
-              Reset Alarm
-            </Button>
+    <>
+      <ModalPopup
+        withAction={false}
+        label={
+          <Grid
+            container
+            item
+            xs
+            justify="flex-start"
+            alignItems="center"
+            wrap="nowrap"
+            style={{ paddingRight: '15px' }}
+          >
+            <Grid item xs={6}>
+              <Typography variant="h4" style={{ fontWeight: 'normal' }}>
+                {!activeFilter ? 'Events Log' : 'Active Alarms'}
+              </Typography>
+            </Grid>
+            <Grid container item xs justify="flex-end" alignItems="center">
+              {alarmMuteActive && alarmMuteRemaining > 0 && (
+                <div className={classes.alarmMuteCountdownText}>
+                  {new Date(alarmMuteRemaining * 1000).toISOString().substr(14, 5)}
+                </div>
+              )}
+              <AlarmMuteToggleButton />
+              <Button
+                onClick={() => setActiveFilter(!activeFilter)}
+                variant="contained"
+                color="primary"
+                style={{ width: '10rem' }}
+              >
+                {activeFilter ? 'Events Log' : 'Active Alarms'}
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item xs={6}>
-            <Button variant="contained" className={classes.openButton}>
-              Silence for 2 min
-            </Button>
-          </Grid>
-        </Grid>
-      </Grid>
-    </Alert>
+        }
+        open={open}
+        fullWidth={true}
+        onClose={() => setOpen(false)}
+        showCloseIcon={true}
+      >
+        <LogsPage filter={activeFilter} />
+      </ModalPopup>
+    </>
   );
 };
 
-// Selector to generate the alarm message text to show in the topbar
-const getAlertLabel = createSelector(
-  getPopupEventLog,
-  getAlarmMuteActive,
-  (popupEventLog: LogEvent | undefined, alarmMuteActive: boolean): string => {
-    if (popupEventLog !== undefined) {
-      const eventType = getEventType(popupEventLog.code);
-      return eventType.label;
-    }
-
-    if (alarmMuteActive) {
-      return 'New alarms will be muted';
-    }
-
-    // Currently this isn't used because the giant component return block
-    // in EventAlerts does a check on eventCount, which will be zero exactly
-    // when popupEventLog is undefined; when eventCount is zero, getAlertLabel
-    // isn't used.
-    return '';
-  },
-);
-
-// Selector to determine the number of active alerts
-const getAlertCount = createSelector(
-  getActiveLogEventIds,
-  (activeLogEventIds: number[]): number => activeLogEventIds.length,
-);
-
 /**
- * EventAlerts
+ * AlarmMuteToggleButton
  *
- * @component Component to display Event log details
- *
- * Uses the [[Props]] interface
+ * @component Button to toggle alarm muting
  *
  * @returns {JSX.Element}
  */
-export const EventAlerts = ({ routeLabel }: Props): JSX.Element => {
+const AlarmMuteToggleButton = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  /**
-   * State to toggle opening logsPage popup
-   */
-  const [open, setOpen] = useState<boolean>(false);
-  /**
-   * Stores whether Active events filter is applied on LogsPage listing
-   */
-  const [activeFilter, setActiveFilter] = useState<boolean>(false);
-  /**
-   * Selectors to get all Events, Active Event Ids & Alarm mute Status
-   */
-  const alarmMuteStatus = useSelector(getAlarmMuteStatus);
+
+  // Selectors
   const alarmMuteActive = useSelector(getAlarmMuteActive);
   const alarmMuteSeqNum = useSelector(getAlarmMuteSeqNum);
-  const alarmMuteRemaining = useSelector(getAlarmMuteRemaining);
   const backendConnected = useSelector(getBackendConnected);
   const firmwareConnected = useSelector(getFirmwareConnected);
-  const alertLabel = useSelector(getAlertLabel);
-  const alertCount = useSelector(getAlertCount);
 
   /**
-   * Update mute AlarmStatus in redux store
+   * Callback to change alarm mute activation in the redux store
    *
-   * @param {boolean} state desc for state
+   * @param {boolean} mute Whether the alarm mute should be active
+   * @param {AlarmMuteSource} source The reason for changing alarm mute activation
    */
-  const muteAlarmState = (state: boolean, source: AlarmMuteSource) => {
+  const setAlarmMute = (mute: boolean, source: AlarmMuteSource) => {
     if (alarmMuteSeqNum === null) {
       console.error('Alarm mute/unmute button reached illegal state!');
       return;
@@ -277,16 +220,166 @@ export const EventAlerts = ({ routeLabel }: Props): JSX.Element => {
 
     dispatch(
       commitRequest<AlarmMuteRequest>(MessageType.AlarmMuteRequest, {
-        active: state,
+        active: mute,
         seqNum: alarmMuteSeqNum + 1,
         source,
       }),
     );
   };
 
-  /**
-   * Cancel alarm mute whenever backend disconnects.
-   */
+  return (
+    <Button
+      style={{ marginLeft: 12, marginRight: 12 }}
+      onClick={() => setAlarmMute(!alarmMuteActive, AlarmMuteSource.user_software)}
+      variant="contained"
+      color="primary"
+      disabled={!backendConnected || !firmwareConnected || getAlarmMuteSeqNum === null}
+      className={classes.alarmMuteToggleButton}
+    >
+      {!alarmMuteActive ? <VolumeOffIcon /> : <VolumeUpIcon />}
+    </Button>
+  );
+};
+
+/**
+ * AlarmCountBadge
+ *
+ * @component Button to display alarm message and open event log modal
+ *
+ * @returns {JSX.Element}
+ */
+const AlarmCountBadge = (): JSX.Element => {
+  const classes = useStyles();
+
+  const numActiveAlarms = useSelector(getNumActiveAlarms);
+
+  if (numActiveAlarms <= 1) {
+    return <></>;
+  }
+
+  return (
+    <div
+      className={classes.iconBadge}
+      style={{ left: -6, right: 'auto', backgroundColor: '#FFF', color: '#ff0000' }}
+    >
+      {numActiveAlarms}
+    </div>
+  );
+};
+
+/**
+ * AlarmMuteCountdown
+ *
+ * @component Button  overlay to display alarm mute countdown
+ *
+ * @returns {JSX.Element}
+ */
+const AlarmMuteCountdown = (): JSX.Element => {
+  const classes = useStyles();
+
+  const alarmMuteActive = useSelector(getAlarmMuteActive);
+  const alarmMuteRemaining = useSelector(getAlarmMuteRemaining);
+
+  if (!alarmMuteActive) {
+    return <></>;
+  }
+
+  return (
+    <div className={classes.alarmMuteCountdown} style={{ right: 'auto' }}>
+      {new Date(alarmMuteRemaining * 1000).toISOString().substr(14, 5)}
+    </div>
+  );
+};
+
+// Selector to generate the alarm message text to show in the topbar
+const getAlarmButtonLabel = createSelector(
+  getMostRecentEvent,
+  getAlarmMuteActive,
+  (mostRecentEvent: LogEvent | undefined, alarmMuteActive: boolean): string => {
+    if (mostRecentEvent !== undefined) {
+      const eventType = getEventType(mostRecentEvent.code);
+      return eventType.label;
+    }
+
+    if (alarmMuteActive) {
+      return 'New alarms will be muted';
+    }
+
+    return '';
+  },
+);
+
+/**
+ * @typedef AlarmButtonProps
+ *
+ * Props for Event Log Modal
+ *
+ * @prop {function} setOpen callback to set whether to show the events log modal
+ * @prop {function} setActiveFilter callback to set whether to filter for active alarms
+ *
+ */
+interface AlarmButtonProps {
+  setOpen: (open: boolean) => void;
+  setActiveFilter: (activeFilter: boolean) => void;
+}
+
+/**
+ * AlarmButton
+ *
+ * @component Button to display alarm message and open event log modal
+ *
+ * Uses the [[AlarmButtonProps]] interface
+ *
+ * @returns {JSX.Element}
+ */
+const AlarmButton = ({ setOpen, setActiveFilter }: AlarmButtonProps): JSX.Element => {
+  const classes = useStyles();
+
+  const hasActiveAlarms = useSelector(getHasActiveAlarms);
+  const alarmButtonLabel = useSelector(getAlarmButtonLabel);
+
+  // Opens event log modal and sets it to show active alarms
+  const openActiveAlarmsModal = () => {
+    if (!hasActiveAlarms) {
+      return;
+    }
+
+    setOpen(true);
+    setActiveFilter(true);
+  };
+
+  return (
+    <Button
+      style={{ marginLeft: 10, marginRight: 10, margin: '0px 10px', padding: 0 }}
+      variant="contained"
+      color="primary"
+      className={hasActiveAlarms ? classes.activeAlarmButton : classes.inactiveAlarmButton}
+      onClick={openActiveAlarmsModal}
+    >
+      <span style={{ padding: '6px 16px', width: 250 }}>{alarmButtonLabel}</span>
+      <AlarmCountBadge />
+      <AlarmMuteCountdown />
+    </Button>
+  );
+};
+
+/**
+ * AlarmMuteCanceller
+ *
+ * @component Component to cancel alarm mute upon connection loss
+ *
+ * @returns {JSX.Element}
+ */
+const AlarmMuteCanceller = (): JSX.Element => {
+  const dispatch = useDispatch();
+
+  // Selectors
+  const alarmMuteStatus = useSelector(getAlarmMuteStatus);
+  const alarmMuteActive = useSelector(getAlarmMuteActive);
+  const backendConnected = useSelector(getBackendConnected);
+
+  // We use a separate component with only this useEffect so that we don't need to
+  // redraw anything else when this useEffect runs.
   useEffect(() => {
     if (backendConnected || alarmMuteStatus === null || !alarmMuteActive) {
       return;
@@ -324,127 +417,62 @@ export const EventAlerts = ({ routeLabel }: Props): JSX.Element => {
     );
   }, [dispatch, backendConnected, alarmMuteActive, alarmMuteStatus]);
 
+  return <></>;
+};
+
+/**
+ * EventAlerts
+ *
+ * @component Component for alarms and event log functionality in the topbar
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns {JSX.Element}
+ */
+export const EventAlerts = (): JSX.Element => {
+  const classes = useStyles();
+
+  // Local State
+  // State to toggle opening the events log modal
+  const [open, setOpen] = useState<boolean>(false);
+  // State to toggle filtering only for active alarms on the events log modal
+  const [activeFilter, setActiveFilter] = useState<boolean>(false);
+
   /**
    * Opens LogsPage popup listing event log details
    *
    * @param {boolean} filter Shows only active events if set true
    */
-  const openEventLogPopup = (filter: boolean) => {
+  const openEventLogModal = (filter: boolean) => {
     setOpen(true);
     setActiveFilter(filter);
   };
 
-  /**
-   * Opens LogsPage popup listing event log details
-   */
-  const openPopup = () => {
-    openEventLogPopup(false);
-  };
-
-  /**
-   * Opens LogsPage popup listing event log details on toggling Active from LogsPage popup header
-   */
-  const onActiveAlarmClick = () => {
-    openEventLogPopup(true);
-  };
-
   return (
     <div style={{ display: 'flex' }}>
-      <ModalPopup
-        withAction={false}
-        label={
-          <Grid
-            container
-            item
-            xs
-            justify="flex-start"
-            alignItems="center"
-            wrap="nowrap"
-            style={{ paddingRight: '15px' }}
-          >
-            <Grid item xs={6}>
-              <Typography variant="h4" style={{ fontWeight: 'normal' }}>
-                {!activeFilter ? 'Events Log' : 'Active Alarms'}
-              </Typography>
-            </Grid>
-            <Grid container item xs justify="flex-end" alignItems="center">
-              {alarmMuteActive && alarmMuteRemaining > 0 && (
-                <div className={classes.timerText}>
-                  {new Date(alarmMuteRemaining * 1000).toISOString().substr(14, 5)}
-                </div>
-              )}
-              <Button
-                style={{ marginLeft: 12, marginRight: 12 }}
-                onClick={() => muteAlarmState(!alarmMuteActive, AlarmMuteSource.user_software)}
-                variant="contained"
-                color="primary"
-                disabled={!backendConnected || !firmwareConnected || getAlarmMuteSeqNum === null}
-                className={classes.alertButton}
-              >
-                {!alarmMuteActive ? <VolumeOffIcon /> : <VolumeUpIcon />}
-              </Button>
-              <Button
-                onClick={() => setActiveFilter(!activeFilter)}
-                variant="contained"
-                color="primary"
-                style={{ width: '10rem' }}
-              >
-                {activeFilter ? 'Events Log' : 'Active Alarms'}
-              </Button>
-            </Grid>
-          </Grid>
-        }
+      <EventLogModal
         open={open}
-        fullWidth={true}
-        onClose={() => setOpen(false)}
-        showCloseIcon={true}
-      >
-        <LogsPage filter={activeFilter} />
-      </ModalPopup>
-      <Button
-        style={{ marginLeft: 10, marginRight: 10 }}
-        onClick={() => muteAlarmState(!alarmMuteActive, AlarmMuteSource.user_software)}
-        variant="contained"
-        color="primary"
-        disabled={!backendConnected || !firmwareConnected || getAlarmMuteSeqNum === null}
-        className={classes.alertButton}
-      >
-        {!alarmMuteActive ? <VolumeOffIcon /> : <VolumeUpIcon />}
-      </Button>
-      <Button
-        style={{ marginLeft: 10, marginRight: 10, margin: '0px 10px', padding: 0 }}
-        variant="contained"
-        color="primary"
-        className={alertCount > 0 ? classes.alertButtonSpan : classes.alertTimer}
-        onClick={alertCount > 0 ? onActiveAlarmClick : undefined}
-      >
-        <span style={{ padding: '6px 16px', width: 250 }}>{alertLabel}</span>
-        {alertCount > 1 && (
-          <div
-            className={classes.iconBadge}
-            style={{ left: -6, right: 'auto', backgroundColor: '#FFF', color: '#ff0000' }}
-          >
-            {alertCount}
-          </div>
-        )}
-        {alarmMuteActive && alarmMuteRemaining !== undefined && (
-          <div className={classes.timer} style={{ right: 'auto' }}>
-            {new Date(alarmMuteRemaining * 1000).toISOString().substr(14, 5)}
-          </div>
-        )}
-      </Button>
+        setOpen={setOpen}
+        activeFilter={activeFilter}
+        setActiveFilter={setActiveFilter}
+      />
+      <AlarmMuteToggleButton />
+      <AlarmButton setOpen={setOpen} setActiveFilter={setActiveFilter} />
       <Grid>
         <Button
           style={{ marginLeft: 10, marginRight: 12 }}
           variant="contained"
           color="primary"
-          onClick={openPopup}
+          onClick={() => {
+            openEventLogModal(false);
+          }}
           className={classes.eventLogButton}
         >
           <BellIcon />
         </Button>
-        {routeLabel}
+        {LOGS_ROUTE.label}
       </Grid>
+      <AlarmMuteCanceller />
     </div>
   );
 };

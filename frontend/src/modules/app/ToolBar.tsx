@@ -42,7 +42,7 @@ import PowerChargingIcon from '../icons/PowerChargingIcon';
 import PowerFullIcon from '../icons/PowerFullIcon';
 import { PERCENT } from '../info/units';
 import ModesDropdown from '../modes/ModesDropdown';
-import { DASHBOARD_ROUTE, LOGS_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
+import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
 import EventAlerts from './EventAlerts';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -329,7 +329,7 @@ export const ToolBar = ({
     // );
   }
   if (location.pathname !== '/') {
-    tools.push(<EventAlerts routeLabel={LOGS_ROUTE.label} />);
+    tools.push(<EventAlerts />);
   }
 
   /**
