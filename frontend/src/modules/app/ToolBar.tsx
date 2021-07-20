@@ -31,8 +31,7 @@ import {
   getFirmwareConnected,
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/proto/types';
-import { DiscardAlarmLimitsContent } from '../controllers';
-import { ModalPopup } from '../controllers/ModalPopup';
+import { ModalPopup } from '../modals/ModalPopup';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
 import ClockIcon from '../icons/ClockIcon';
 import Power25Icon from '../icons/Power25Icon';
@@ -43,7 +42,8 @@ import PowerFullIcon from '../icons/PowerFullIcon';
 import { PERCENT } from '../info/units';
 import ModesDropdown from '../modes/ModesDropdown';
 import { DASHBOARD_ROUTE, LOGS_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
-import EventAlerts from './EventAlerts';
+import EventAlerts from '../modals/EventAlerts';
+import { DiscardAlarmLimitsContent } from '../modals';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

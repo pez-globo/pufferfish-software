@@ -10,7 +10,7 @@ import { Route, RouteProps, useHistory } from 'react-router-dom';
 import { getParametersIsVentilating } from '../../../store/controller/selectors';
 import ClockIcon from '../../icons/ClockIcon';
 import { DASHBOARD_ROUTE, LOGS_ROUTE, QUICKSTART_ROUTE } from '../../navigation/constants';
-import EventAlerts from '../EventAlerts';
+import EventAlerts from '../../modals/EventAlerts';
 import UserActivity from '../UserActivity';
 import { HeaderClock, PowerIndicator } from '../ToolBar';
 import OverlayScreen from '../OverlayScreen';

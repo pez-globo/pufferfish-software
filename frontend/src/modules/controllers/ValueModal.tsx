@@ -7,7 +7,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core';
 import { shallowEqual, useSelector } from 'react-redux';
 import ValueClicker from './ValueClicker';
-import ModalPopup from './ModalPopup';
+import ModalPopup from '../modals/ModalPopup';
 import { getRotaryEncoder } from '../../store/controller/selectors';
 import { RotaryEncodeController } from './RotaryEncodeController';
 
