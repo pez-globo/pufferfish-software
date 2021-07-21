@@ -16,20 +16,21 @@ import {
   getSmoothedHR,
   getParametersRequestDraftFiO2,
   getParametersRequestDraftFlow,
-  getSpO2AlarmLimitsRequest,
-  getHRAlarmLimitsRequest,
   getParametersFlow,
   getParametersFiO2,
+  getSpO2AlarmLimitsRequest,
+  getHRAlarmLimitsRequest,
   getFiO2AlarmLimitsCurrent,
   getFlowAlarmLimitsCurrent,
 } from '../../store/controller/selectors';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import ValueInfo from '../dashboard/components/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../info/units';
-import { AlarmModal } from '../controllers';
 import { ParametersRequest, AlarmLimitsRequest, Range } from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/proto/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
+import ValueModalContent from '../controllers/ValueModal';
+import { AlarmModalContent } from '../controllers/AlarmModal';
 
 /**
  * @typedef InternalState

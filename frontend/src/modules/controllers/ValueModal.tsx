@@ -8,7 +8,7 @@
  * @returns JSX.Element
  */
 import React, { useCallback, useEffect, useRef } from 'react';
-import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core';
+import { makeStyles, Theme, Grid, Typography } from '@material-ui/core';
 import { shallowEqual, useSelector } from 'react-redux';
 import { getRotaryEncoder } from '../../store/controller/selectors';
 import RotaryEncodeController from './RotaryEncodeController';
@@ -66,7 +66,7 @@ interface ContentProps {
   max?: number;
 }
 
-const ValueModal = ({
+const ValueModalContent = ({
   label,
   units,
   committedSetting,
@@ -200,4 +200,4 @@ const ValueModal = ({
   );
 };
 
-export default ValueModal;
+export default ValueModalContent;

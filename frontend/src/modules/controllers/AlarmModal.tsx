@@ -292,7 +292,7 @@ export const AlarmModal = ({
   stateKey,
   step,
   labelHeading = false,
-  alarmRangeValues = [],
+  alarmRangeValues = null,
 }: Props): JSX.Element => {
   const dispatch = useDispatch();
   /**
@@ -316,8 +316,8 @@ export const AlarmModal = ({
       : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
   const { lower, upper } = range === undefined ? Range.fromJSON({ lower: NaN, upper: NaN }) : range;
   const [rangeValue] = React.useState<number[]>([
-    alarmRangeValues.length ? alarmRangeValues[0] : lower,
-    alarmRangeValues.length ? alarmRangeValues[1] : upper,
+    alarmRangeValues && alarmRangeValues.lower !== 0 ? alarmRangeValues.lower : lower,
+    alarmRangeValues && alarmRangeValues.upper !== 0 ? alarmRangeValues.upper : upper,
   ]);
 
   /**
