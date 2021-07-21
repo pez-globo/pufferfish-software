@@ -27,59 +27,36 @@ PacketStatus Device::output(PacketMeasurements &sensor_measurements) {
   uint8_t read_byte = 0;
   Frame frame_buffer;
 
-  /* Read a byte from BufferedUART */
   if (nonin_uart_.read(read_byte) == BufferStatus::empty) {
-    /* Return waiting to receive new bytes of data from sensor */
     return PacketStatus::waiting;
   }
 
-  /* FrameReceiver */
-  /* Input byte to frame receiver and validate the frame available */
   switch (frame_receiver_.input(read_byte)) {
-    /* Return sensor status is waiting to receive more bytes of data */
     case FrameInputStatus::checksum_failed:
       return PacketStatus::checksum_failed;
-
-    /* Return sensor status is waiting to receive more bytes of data */
     case FrameInputStatus::waiting:
       return PacketStatus::waiting;
-
-    /* On PacketInputStatus available continue */
     case FrameInputStatus::available:
       break;
   }
 
-  /* On frame input available invoke output method to receive frame */
   if (frame_receiver_.output(frame_buffer) == FrameOutputStatus::waiting) {
-    /* Return sensor status is waiting to receive more bytes of data */
     return PacketStatus::waiting;
   }
 
-  /* PaketParser */
-  /* Input frame to packet and validate the frame available */
   switch (packet_receiver_.input(frame_buffer)) {
-    /* Return sensor status is waiting to receive more frames of data */
     case PacketInputStatus::waiting:
       return PacketStatus::waiting;
-
-    /* Discard the packet due to status byte error, wait for the new packet to
-     * receive */
     case PacketInputStatus::frame_loss:
       return PacketStatus::frame_loss;
-
-    /* On PacketInputStatus available continue */
     case PacketInputStatus::available:
       break;
   }
 
-  /* On packet input available invoke output method to read sensor measurements
-   */
   if (packet_receiver_.output(sensor_measurements) != PacketOutputStatus::available) {
-    /* Return sensor status is waiting to receive more bytes of data */
     return PacketStatus::waiting;
   }
 
-  /* Return available on measurements are available */
   return PacketStatus::available;
 }
 
