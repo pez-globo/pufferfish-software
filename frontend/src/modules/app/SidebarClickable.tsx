@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { updateState } from '../../store/controller/actions';
 import { getParametersIsVentilating } from '../../store/controller/selectors';
-import { MessageType } from '../../store/controller/types';
+import { MessageType } from '../../store/proto/types';
 import { HomeIcon } from '../icons';
 import ShutdownIcon from '../icons/ShutdownIcon';
 import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';

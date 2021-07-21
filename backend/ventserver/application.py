@@ -30,9 +30,7 @@ FALLBACK_VALUES: Mapping[Type[betterproto.Message], betterproto.Message] = {
         spo2=mcu_pb.Range(lower=90, upper=100),
         hr=mcu_pb.Range(lower=60, upper=100),
     ),
-    mcu_pb.AlarmMuteRequest: mcu_pb.AlarmMuteRequest(
-        active=False, remaining=120
-    ),
+    mcu_pb.AlarmMuteRequest: mcu_pb.AlarmMuteRequest(active=False),
     frontend_pb.SystemSettingRequest:
         frontend_pb.SystemSettingRequest(brightness=100, date=int(time.time()))
     # TODO: add fallback for FrontendDisplayRequest, which isn't defined yet

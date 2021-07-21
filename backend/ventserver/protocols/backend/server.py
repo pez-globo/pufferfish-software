@@ -8,7 +8,7 @@ import attr
 from ventserver.protocols import events, exceptions
 from ventserver.protocols.backend import backend, connections
 from ventserver.protocols.devices import file, frontend, mcu, rotary_encoder
-from ventserver.protocols.protobuf import frontend_pb, mcu_pb
+from ventserver.protocols.protobuf import mcu_pb
 from ventserver.sansio import channels, protocols
 
 
@@ -140,8 +140,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
 
     _connections: connections.TimeoutHandler = \
         attr.ib(factory=connections.TimeoutHandler)
-    _connection_states: frontend_pb.BackendConnections = \
-        attr.ib(factory=frontend_pb.BackendConnections)
+    _connection_states: mcu_pb.BackendConnections = \
+        attr.ib(factory=mcu_pb.BackendConnections)
 
     def input(self, event: Optional[ReceiveEvent]) -> None:
         """Handle input events."""
@@ -314,6 +314,19 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             self._backend.input(backend.ReceiveDataEvent(
                 time=self.current_time, server_receive=self._connection_states
             ))
+            # The backend should temporarily override any active alarm mute by
+            # cancelling it in case local alarm sounds need to be audible in the
+            # backend, e.g. for loss of the MCU. It will also propagate this
+            # override to the frontend, if the frontend is connected; the
+            # frontend will also independently cancel the alarm mute, so when
+            # the backend overrides the frontend (or vice versa) the alarm mute
+            # is still cancelled. AlarmMute will be overridden again by the MCU
+            # when it reconnects, but the MCU will also cancel any active alarm
+            # mute in the MCU, so the alarm mute is still cancelled.
+            self._backend.input(backend.AlarmMuteCancellationEvent(
+                time=self.current_time,
+                source=mcu_pb.AlarmMuteSource.backend_mcu_loss
+            ))
         if actions.alarm_frontend:
             self._backend.input(backend.ExternalLogEvent(
                 time=self.current_time, active=True,
@@ -323,6 +336,10 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             self._backend.input(backend.ReceiveDataEvent(
                 time=self.current_time, server_receive=self._connection_states
             ))
+            # We don't need to request an alarm mute cancellation from the
+            # MCU, because the MCU already cancels the alarm mute when the
+            # backend tells it that the frontend has been lost. If the MCU is
+            # also lost, that will be handled in the previous `if` statement.
         return actions.kill_frontend
 
     def input_serial(self, serial_receive: bytes) -> None:

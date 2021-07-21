@@ -1,12 +1,75 @@
 syntax = "proto3";
 
+// Measurements
+
+message SensorMeasurements {
+  uint64 time = 1;  // ms
+  uint32 cycle = 2;
+  float fio2 = 3;
+  float flow = 4;
+  float spo2 = 5;
+  float hr = 6;
+  float paw = 7;
+  float volume = 8;
+}
+
+message CycleMeasurements {
+  uint64 time = 1;  // ms
+  float vt = 2;
+  float rr = 3;
+  float peep = 4;
+  float pip = 5;
+  float ip = 6;
+  float ve = 7;
+}
+
+// Parameters
+
+enum VentilationMode {
+  hfnc = 0;
+  pc_ac = 1;
+  vc_ac = 2;
+  niv_pc = 3;
+  niv_ps = 4;
+  psv = 5;
+  prvc = 6;
+}
+
+message Parameters {
+  uint64 time = 1;  // ms
+  bool ventilating = 2;
+  VentilationMode mode = 3;
+  float fio2 = 4;
+  float flow = 5;
+  float pip = 6;
+  float peep = 7;
+  float vt = 8;
+  float rr = 9;
+  float ie = 10;
+}
+
+message ParametersRequest {
+  uint64 time = 1;  // ms
+  bool ventilating = 2;
+  VentilationMode mode = 3;
+  float fio2 = 4;
+  float flow = 5;
+  float pip = 6;
+  float peep = 7;
+  float vt = 8;
+  float rr = 9;
+  float ie = 10;
+}
+
+// Alarm Limits
+
 message Range {
   int32 lower = 1;
   int32 upper = 2;
 }
 
 message AlarmLimits {
-  uint64 time = 1;
+  uint64 time = 1;  // ms
   Range fio2 = 2;
   Range flow = 3;
   Range spo2 = 4;
@@ -24,7 +87,7 @@ message AlarmLimits {
 }
 
 message AlarmLimitsRequest {
-  uint64 time = 1;
+  uint64 time = 1;  // ms
   Range fio2 = 2;
   Range flow = 3;
   Range spo2 = 4;
@@ -39,75 +102,6 @@ message AlarmLimitsRequest {
   Range tv = 13;
   Range etco2 = 14;
   Range apnea = 15;
-}
-
-message SensorMeasurements {
-  uint64 time = 1;
-  uint32 cycle = 2;
-  float fio2 = 3;
-  float flow = 4;
-  float spo2 = 5;
-  float hr = 6;
-  float paw = 7;
-  float volume = 8;
-}
-
-message CycleMeasurements {
-  uint64 time = 1;
-  float vt = 2;
-  float rr = 3;
-  float peep = 4;
-  float pip = 5;
-  float ip = 6;
-  float ve = 7;
-}
-
-enum VentilationMode {
-  hfnc = 0;
-  pc_ac = 1;
-  vc_ac = 2;
-  niv_pc = 3;
-  niv_ps = 4;
-  psv = 5;
-  prvc = 6;
-}
-
-message Parameters {
-  uint64 time = 1;
-  bool ventilating = 2;
-  VentilationMode mode = 3;
-  float fio2 = 4;
-  float flow = 5;
-  float pip = 6;
-  float peep = 7;
-  float vt = 8;
-  float rr = 9;
-  float ie = 10;
-}
-
-message ParametersRequest {
-  uint64 time = 1;
-  bool ventilating = 2;
-  VentilationMode mode = 3;
-  float fio2 = 4;
-  float flow = 5;
-  float pip = 6;
-  float peep = 7;
-  float vt = 8;
-  float rr = 9;
-  float ie = 10;
-}
-
-// Testing messages
-
-message Ping {
-  uint64 time = 1;
-  uint32 id = 2;
-}
-
-message Announcement {
-  uint64 time = 1;
-  bytes announcement = 2;
 }
 
 // Log Events
@@ -137,21 +131,26 @@ enum LogEventCode {
   mcu_backend_connection_down = 130;  // mcu lost backend
   backend_mcu_connection_down = 131;  // backend lost mcu
   backend_frontend_connection_down = 132;  // backend lost frontend
+  // TODO: if the backend can't send data to the frontend but the frontend can send
+  // data to the backend, we should make the backend generate a frontend_backend_down
+  // log event so that there's some record in the event log of a connection problem.
+  // We can achieve this using a FrontendConnections message type which the frontend sends
+  // to the backend.
   frontend_backend_connection_down = 133;  // frontend lost backend
   mcu_backend_connection_up = 134;  // mcu detected backend
-  // The following code isn't actually used, but we reserve space for it.
-  // We don't use it because if the backend received an mcu_backend_connection_up
-  // event from the MCU, then we know that the backend received a connection from
-  // the MCU. We only care for technical troubleshooting (of the UART wires) about
-  // the case where the backend receives a connection from the MCU but the MCU
-  // hasn't received a connection from the backend; it would be good to log it,
-  // but we don't need to show it in the frontend, and right now the frontend has
-  // no way to filter out events from its display.
-  // backend_mcu_connection_up = 135;  // backend detected mcu
+  // TODO: if the mcu can't send data to the backend but the backend can send
+  // data to the mcu, we should make the backend generate a backend_mcu_up
+  // log event once the mcu becomes able to send data again so that the event log
+  // has a connection_up event to match the connection_down event.
+  backend_mcu_connection_up = 135;  // backend detected mcu
   backend_frontend_connection_up = 136;  // backend detected frontend
-  // The following code isn't actually used, but we reserve space for it.
-  // We don't use it because the frontend can't generate LogEvents with IDs.
-  // frontend_backend_connection_up = 137;
+  // TODO: if the backend can't send data to the frontend but the frontend can send
+  // data to the backend, we should make the backend generate a frontend_backend_up
+  // log event once the frontend detects that the backend is able to send data again,
+  // so that the event log has a connection_up event to match the connection_down event.
+  // We can achieve this using a FrontendConnections message type which the frontend sends
+  // to the backend.
+  frontend_backend_connection_up = 137;  // frontend detected backend
   battery_low = 138;
   battery_critical = 139;
   charger_disconnected = 140;
@@ -159,9 +158,23 @@ enum LogEventCode {
   backend_started = 142;
   mcu_shutdown = 143;
   backend_shutdown = 144;
-  sfm3019_air_disconnected = 145;
-  sfm3019_o2_disconnected = 146;
-  fdo2_disconnected = 147;
+  // Alarm muting/unmuting
+  alarms_muted_user_software = 145;
+  alarms_muted_user_hardware = 146;
+  alarms_muted_unknown = 147;  // Indicates a software bug; should never occur
+  alarms_unmuted_user_software = 148;
+  alarms_unmuted_user_hardware = 149;
+  alarms_unmuted_initialization = 150;
+  alarms_unmuted_timeout = 151;
+  alarms_unmuted_mcu_backend_loss = 152;
+  alarms_unmuted_backend_mcu_loss = 153;
+  alarms_unmuted_backend_frontend_loss = 154;
+  alarms_unmuted_frontend_backend_loss = 155;
+  alarms_unmuted_unknown = 156;  // Indicates a software bug; should never occur
+  // Sensor loss
+  sfm3019_air_disconnected = 160;
+  sfm3019_o2_disconnected = 161;
+  fdo2_disconnected = 162;
 }
 
 enum LogEventType {
@@ -173,7 +186,7 @@ enum LogEventType {
 
 message LogEvent {
   uint32 id = 1;
-  uint64 time = 2;
+  uint64 time = 2;  // ms
   LogEventCode code = 3;
   LogEventType type = 4;
   Range alarm_limits = 5;
@@ -191,6 +204,9 @@ message LogEvent {
 
 message ExpectedLogEvent {
   uint32 id = 1;
+  // session_id is checked by the NextLogEvents sender if the sender's log is
+  // ephemeral; the sender will ignore any ExpectedLogEvent whose session_id
+  // doesn't match the sender's session_id, which is announced in NextLogEvents.
   uint32 session_id = 2;  // used when the sender's log is ephemeral
 }
 
@@ -210,26 +226,61 @@ message ActiveLogEvents {
   repeated uint32 id = 1;
 }
 
-// MCU power
+// Alarm Muting
+
+enum AlarmMuteSource {
+  initialization = 0;  // Alarm muting was set on initialization
+  user_software = 1;  // User took a software action to change alarm muting
+  user_hardware = 2;  // User took a hardware action to change alarm muting
+  timeout = 3;  // Alarm mute automatically timed out
+  mcu_backend_loss = 4; // Alarm mute was cancelled by mcu due to connection loss
+  backend_mcu_loss = 5; // Alarm mute was cancelled by backend due to connection loss
+  backend_frontend_loss = 6; // Alarm mute was cancelled by backend due to connection loss
+  frontend_backend_loss = 7; // Alarm mute was cancelled by frontend due to connection loss
+}
+
+message AlarmMute {
+  bool active = 1;
+  // seq_num is a logical clock and advances in the firmware after each local action
+  // in the firmware (such as a button-press) or the servicing of each external request.
+  uint32 seq_num = 2;
+  AlarmMuteSource source = 3;
+  uint64 remaining = 4;  // ms
+}
+
+message AlarmMuteRequest {
+  bool active = 1;
+  // seq_num is a logical clock which also acts as an idempotency key for requests:
+  // the firmware only services an AlarmMuteRequest if the request's seq_num is one
+  // greater than the seq_num in the firmware's copy of AlarmMute.
+  uint32 seq_num = 2;
+  AlarmMuteSource source = 3;
+}
+
+// Miscellaneous System
 
 message MCUPowerStatus {
   float power_left = 1;
   bool charging = 2;
 }
 
-// Hardware Buttons
+message BackendConnections {
+  bool has_mcu = 1;
+  bool has_frontend = 2;
+}
 
 message ScreenStatus {
   bool lock = 1;
 }
 
-message AlarmMute {
-  bool active = 1;
-  uint64 remaining = 2;
-  // TODO: add a session_id or idempotency_key
+// Testing Messages
+
+message Ping {
+  uint64 time = 1;  // ms
+  uint32 id = 2;
 }
 
-message AlarmMuteRequest {
-  bool active = 1;
-  uint64 remaining = 2;
+message Announcement {
+  uint64 time = 1;  // ms
+  bytes announcement = 2;
 }

@@ -10,5 +10,5 @@ $PROTOC -I=. --python_betterproto_out=../backend/ventserver/protocols/protobuf f
 
 echo
 echo "Regenerating for frontend..."
-$PROTOC -I=. --ts_proto_out=../frontend/src/store/controller/proto --plugin="../frontend/node_modules/ts-proto/protoc-gen-ts_proto" --ts_proto_opt=esModuleInterop=true mcu_pb.proto
-$PROTOC -I=. --ts_proto_out=../frontend/src/store/controller/proto --plugin="../frontend/node_modules/ts-proto/protoc-gen-ts_proto" --ts_proto_opt=esModuleInterop=true frontend_pb.proto
+$PROTOC -I=. --ts_proto_out=../frontend/src/store/proto --plugin="../frontend/node_modules/ts-proto/protoc-gen-ts_proto" --ts_proto_opt=esModuleInterop=true mcu_pb.proto
+$PROTOC -I=. --ts_proto_out=../frontend/src/store/proto --plugin="../frontend/node_modules/ts-proto/protoc-gen-ts_proto" --ts_proto_opt=esModuleInterop=true frontend_pb.proto

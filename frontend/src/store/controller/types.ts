@@ -1,138 +1,29 @@
 import {
+  // Measurements
   SensorMeasurements,
   CycleMeasurements,
+  // Parameters
   Parameters,
   ParametersRequest,
+  // Alarm Limits
   AlarmLimits,
   AlarmLimitsRequest,
-  ExpectedLogEvent,
+  // Log Events
+  LogEventCode,
+  LogEventType,
   NextLogEvents,
+  ExpectedLogEvent,
   ActiveLogEvents,
+  // Alarm Muting
   AlarmMute,
   AlarmMuteRequest,
+  // System Miscellaneous
   MCUPowerStatus,
-  ScreenStatus,
-} from './proto/mcu_pb';
-import {
   BackendConnections,
-  RotaryEncoder,
-  SystemSettingRequest,
-  FrontendDisplaySetting,
-} from './proto/frontend_pb';
-
-// MESSAGES
-
-export type PBMessage =
-  // mcu_pb
-  | SensorMeasurements
-  | CycleMeasurements
-  | Parameters
-  | ParametersRequest
-  | AlarmLimits
-  | AlarmLimitsRequest
-  | ExpectedLogEvent
-  | NextLogEvents
-  | ActiveLogEvents
-  | AlarmMute
-  | AlarmMuteRequest
-  | MCUPowerStatus
-  | ScreenStatus
-  // frontend_pb
-  | BackendConnections
-  | RotaryEncoder
-  | SystemSettingRequest
-  | FrontendDisplaySetting;
-
-export type PBMessageType =
-  // mcu_pb
-  | typeof SensorMeasurements
-  | typeof CycleMeasurements
-  | typeof Parameters
-  | typeof ParametersRequest
-  | typeof AlarmLimits
-  | typeof AlarmLimitsRequest
-  | typeof ExpectedLogEvent
-  | typeof NextLogEvents
-  | typeof ActiveLogEvents
-  | typeof AlarmMute
-  | typeof AlarmMuteRequest
-  | typeof MCUPowerStatus
-  | typeof ScreenStatus
-  // frontend_pb
-  | typeof BackendConnections
-  | typeof RotaryEncoder
-  | typeof SystemSettingRequest
-  | typeof FrontendDisplaySetting;
-
-export enum MessageType {
-  // mcu_pb
-  SensorMeasurements = 2,
-  CycleMeasurements = 3,
-  Parameters = 4,
-  ParametersRequest = 5,
-  AlarmLimits = 6,
-  AlarmLimitsRequest = 7,
-  ExpectedLogEvent = 8,
-  NextLogEvents = 9,
-  ActiveLogEvents = 10,
-  AlarmMute = 11,
-  AlarmMuteRequest = 12,
-  MCUPowerStatus = 20,
-  ScreenStatus = 65,
-  // frontend_pb
-  BackendConnections = 128,
-  RotaryEncoder = 129,
-  SystemSetting = 130,
-  SystemSettingRequest = 131,
-  FrontendDisplaySetting = 132,
-  FrontendDisplaySettingRequest = 133,
-}
-
-// TODO: should we rename this to MessageClasses?
-export const MessageClass = new Map<MessageType, PBMessageType>([
-  // mcu_pb
-  [MessageType.SensorMeasurements, SensorMeasurements],
-  [MessageType.CycleMeasurements, CycleMeasurements],
-  [MessageType.Parameters, Parameters],
-  [MessageType.ParametersRequest, ParametersRequest],
-  [MessageType.AlarmLimits, AlarmLimits],
-  [MessageType.AlarmLimitsRequest, AlarmLimitsRequest],
-  [MessageType.ExpectedLogEvent, ExpectedLogEvent],
-  [MessageType.NextLogEvents, NextLogEvents],
-  [MessageType.ActiveLogEvents, ActiveLogEvents],
-  [MessageType.AlarmMute, AlarmMute],
-  [MessageType.AlarmMuteRequest, AlarmMuteRequest],
-  [MessageType.MCUPowerStatus, MCUPowerStatus],
-  [MessageType.ScreenStatus, ScreenStatus],
-  // frontend_pb
-  [MessageType.BackendConnections, BackendConnections],
-  [MessageType.RotaryEncoder, RotaryEncoder],
-  [MessageType.SystemSettingRequest, SystemSettingRequest],
-  [MessageType.FrontendDisplaySetting, FrontendDisplaySetting],
-]);
-
-// TODO: can we auto-generate this from MessageClass?
-export const MessageTypes = new Map<PBMessageType, MessageType>([
-  // mcu_pb
-  [SensorMeasurements, MessageType.SensorMeasurements],
-  [CycleMeasurements, MessageType.CycleMeasurements],
-  [Parameters, MessageType.Parameters],
-  [ParametersRequest, MessageType.ParametersRequest],
-  [AlarmLimits, MessageType.AlarmLimits],
-  [AlarmLimitsRequest, MessageType.AlarmLimitsRequest],
-  [ExpectedLogEvent, MessageType.ExpectedLogEvent],
-  [NextLogEvents, MessageType.NextLogEvents],
-  [ActiveLogEvents, MessageType.ActiveLogEvents],
-  [AlarmMute, MessageType.AlarmMute],
-  [AlarmMuteRequest, MessageType.AlarmMuteRequest],
-  [MCUPowerStatus, MessageType.MCUPowerStatus],
-  [ScreenStatus, MessageType.ScreenStatus],
-  // frontend_pb
-  [BackendConnections, MessageType.BackendConnections],
-  [RotaryEncoder, MessageType.RotaryEncoder],
-  [SystemSettingRequest, MessageType.SystemSettingRequest],
-  [FrontendDisplaySetting, MessageType.FrontendDisplaySetting],
-]);
+  ScreenStatus,
+} from '../proto/mcu_pb';
+import { SystemSettingRequest, FrontendDisplaySetting } from '../proto/frontend_pb';
+import { PBMessage, MessageType } from '../proto/types';
 
 // STATES
 
@@ -156,10 +47,6 @@ export interface AlarmLimitsRequestResponse {
   // of all fields to AlarmLimitsRequest to send to the backend
   draft: AlarmLimitsRequest | null;
 }
-export interface AlarmMuteRequestResponse {
-  current: AlarmMute | null;
-  request: AlarmMuteRequest | null;
-}
 export interface EventLog {
   expectedLogEvent: ExpectedLogEvent;
   nextLogEvents: NextLogEvents;
@@ -167,6 +54,10 @@ export interface EventLog {
   ephemeralLogEvents: {
     id: number[];
   };
+}
+export interface AlarmMuteRequestResponse {
+  current: AlarmMute | null;
+  request: AlarmMuteRequest | null;
 }
 
 export interface RotaryEncoderParameter {
@@ -179,6 +70,7 @@ export interface RotaryEncoderParameter {
 }
 
 // Plots
+// TODO: move plots into a separate folder under store
 
 // Waveform histories
 export interface WaveformPoint {
@@ -226,15 +118,14 @@ export interface ControllerStates {
   alarmLimits: AlarmLimitsRequestResponse;
   eventLog: EventLog;
   alarmMute: AlarmMuteRequestResponse;
-  systemSettingRequest: SystemSettingRequest | null;
-  frontendDisplaySetting: FrontendDisplaySetting | null;
   mcuPowerStatus: MCUPowerStatus | null;
+  backendConnections: BackendConnections | null;
   screenStatus: ScreenStatus | null;
-  heartbeatBackend: { time: Date };
 
   // Message states from frontend_pb
-  backendConnections: BackendConnections | null;
   rotaryEncoder: RotaryEncoderParameter | null;
+  systemSettingRequest: SystemSettingRequest | null;
+  frontendDisplaySetting: FrontendDisplaySetting | null;
 
   // Derived states
   plots: Plots;
@@ -248,8 +139,7 @@ export interface ControllerStates {
 export const STATE_UPDATED = '@controller/STATE_UPDATED';
 export const REQUEST_COMMITTED = '@controller/REQUEST_COMMITTED';
 export const DRAFT_REQUEST_COMMITTED = '@controller/DRAFT_COMMITTED';
-
-// State Update Action
+export const EPHEMERAL_LOG_EVENT_CREATED = '@controller/EPHEMERAL_LOG_EVENT_CREATED';
 
 // TODO: rename to StateMessageReceived
 interface StateUpdatedAction {
@@ -258,13 +148,18 @@ interface StateUpdatedAction {
   state: PBMessage;
 }
 
+// TODO: get rid of this type alias
 export type StateUpdateAction = StateUpdatedAction;
-
-// State Commit Actions
 
 // TODO: rename to SettingCommitted
 export interface CommitAction {
   type: string;
   messageType: MessageType;
   update: Record<string, unknown>;
+}
+
+export interface EphemeralLogEventAction {
+  type: typeof EPHEMERAL_LOG_EVENT_CREATED;
+  code: LogEventCode;
+  eventType: LogEventType;
 }

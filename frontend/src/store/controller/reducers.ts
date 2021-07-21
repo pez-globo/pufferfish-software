@@ -1,21 +1,25 @@
 import { combineReducers } from 'redux';
 import {
+  // Measurements
   SensorMeasurements,
   CycleMeasurements,
+  // Parameters
   Parameters,
   ParametersRequest,
+  // Alarm Limits
   AlarmLimits,
   AlarmLimitsRequest,
+  // Log Events
+  // Alarm Muting
   AlarmMute,
   AlarmMuteRequest,
+  // System Miscellaneous
   MCUPowerStatus,
-  ScreenStatus,
-} from './proto/mcu_pb';
-import {
   BackendConnections,
-  SystemSettingRequest,
-  FrontendDisplaySetting,
-} from './proto/frontend_pb';
+  ScreenStatus,
+} from '../proto/mcu_pb';
+import { SystemSettingRequest, FrontendDisplaySetting } from '../proto/frontend_pb';
+import { MessageType } from '../proto/types';
 import {
   messageReducer,
   requestReducer,
@@ -23,7 +27,7 @@ import {
   rotaryEncoderReducer,
 } from './reducers/backend';
 import { waveformHistoryReducer, pvHistoryReducer } from './reducers/derived';
-import { MessageType, REQUEST_COMMITTED, DRAFT_REQUEST_COMMITTED } from './types';
+import { REQUEST_COMMITTED, DRAFT_REQUEST_COMMITTED } from './types';
 
 export const controllerReducer = combineReducers({
   // Message states from mcu_pb
@@ -53,10 +57,10 @@ export const controllerReducer = combineReducers({
     request: requestReducer<AlarmMuteRequest>(MessageType.AlarmMuteRequest, REQUEST_COMMITTED),
   }),
   mcuPowerStatus: messageReducer<MCUPowerStatus>(MessageType.MCUPowerStatus),
-
-  // Message states from frontend_pb
   backendConnections: messageReducer<BackendConnections>(MessageType.BackendConnections),
   screenStatus: messageReducer<ScreenStatus>(MessageType.ScreenStatus),
+
+  // Message states from frontend_pb
   rotaryEncoder: rotaryEncoderReducer,
   systemSettingRequest: requestReducer<SystemSettingRequest>(
     MessageType.SystemSettingRequest,
@@ -68,6 +72,7 @@ export const controllerReducer = combineReducers({
   ),
 
   // Derived states
+  // TODO: move plots into a separate top-level slice of the store
   plots: combineReducers({
     waveforms: combineReducers({
       paw: waveformHistoryReducer<SensorMeasurements>(
