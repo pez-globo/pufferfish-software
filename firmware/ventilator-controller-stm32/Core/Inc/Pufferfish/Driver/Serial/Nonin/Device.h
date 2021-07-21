@@ -42,10 +42,6 @@ enum class PacketStatus {
  */
 class Device {
  public:
-  /**
-   * Constructor for Device
-   * @param  noninOEMUART BufferedUART with 512 bytes reception buffer
-   */
   explicit Device(volatile HAL::Interfaces::BufferedUART &uart) : nonin_uart_(uart) {}
 
   /**
@@ -57,17 +53,9 @@ class Device {
   PacketStatus output(PacketMeasurements &sensor_measurements);
 
  private:
-  /* Create an object bufferredUART with 512 bytes of reception buffer */
   volatile HAL::Interfaces::BufferedUART &nonin_uart_;
-
-  /* Create an object of FrameReceiver */
   FrameReceiver frame_receiver_;
-
-  /* Create an object of PacketReceiver */
   PacketReceiver packet_receiver_;
-
-  /* Frame Buffer stores bytes of data received from PacketReceiver input */
-  // Frame frameBuffer;
 };
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

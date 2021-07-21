@@ -29,18 +29,12 @@
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
-/* PacketReceiver Input status */
 enum class PacketInputStatus {
   available = 0,  /// Input is available to read output
   waiting,        /// Input is wait to read more bytes
   missed_data     /// missed one or more frames in previous received packet
 };
-
-/* PacketReceiver Output status */
-enum class PacketOutputStatus {
-  available = 0,  /// Output measurements are available
-  waiting         /// Output is waiting to receive more byte for measurements
-};
+using PacketOutputStatus = Pufferfish::Driver::Serial::Nonin::FrameOutputStatus;
 
 /**
  * @brief  Inline function to get the SpO2 data
@@ -49,7 +43,7 @@ enum class PacketOutputStatus {
  */
 inline uint16_t get_spo2_data(uint8_t byte_data) {
   /* Mask Bit0 to Bit6 for SpO2 data  */
-  return byte_data & mask_6bit;
+  return byte_data & Mask::6bit;
 }
 
 /**
@@ -65,7 +59,7 @@ inline uint16_t get_hr_data(uint8_t msb_byte, uint8_t lsb_byte) {
   static const uint16_t mask_9bit = 0x01FF;
   const uint16_t msb =
       static_cast<uint16_t>(static_cast<uint16_t>(msb_byte) << msb_shift) & mask_msb;
-  const uint16_t lsb = static_cast<uint16_t>(lsb_byte) & mask_6bit;
+  const uint16_t lsb = static_cast<uint16_t>(lsb_byte) & Mask::6bit;
   return static_cast<uint16_t>(msb | lsb) & mask_9bit;
 }
 
@@ -74,10 +68,6 @@ inline uint16_t get_hr_data(uint8_t msb_byte, uint8_t lsb_byte) {
  */
 class PacketReceiver {
  public:
-  /**
-   * @brief  Constructor for PacketReceiver
-   * @param  None
-   */
   PacketReceiver() = default;
 
   /**
@@ -97,13 +87,8 @@ class PacketReceiver {
   PacketOutputStatus output(PacketMeasurements &sensor_measurements);
 
  private:
-  /* Packet data received */
   Packet packet_data_{};
-
-  /* Packet frame received length from PacketReceiver input */
   size_t received_length_ = packet_size;
-
-  /* Input status for a packet */
   PacketInputStatus input_status_ = PacketInputStatus::waiting;
 };
 
