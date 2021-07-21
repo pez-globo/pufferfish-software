@@ -20,7 +20,11 @@ import { getEventType } from '../logs/EventType';
 import { LOGS_ROUTE } from '../navigation/constants';
 import { BellIcon } from '../icons';
 import EventLogModal from '../logs/EventLog';
-import { AlarmMuteCountdown, AlarmMuteToggleButton, AlarmMuteCanceller } from './muting/AlarmMuting';
+import {
+  AlarmMuteCountdown,
+  AlarmMuteToggleButton,
+  AlarmMuteCanceller,
+} from './muting/AlarmMuting';
 
 const useStyles = makeStyles(() => ({
   iconBadge: {
