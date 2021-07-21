@@ -15,15 +15,14 @@ import {
 } from '@material-ui/core';
 import React, { RefObject, useEffect, useRef } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
-import { getClock } from '../../../store/app/selectors';
-import { ThemeVariant, Unit } from '../../../store/controller/proto/frontend_pb';
+import { ThemeVariant, Unit } from '../../../store/proto/frontend_pb';
 import {
   getFrontendDisplaySetting,
   getSystemSettingRequest,
 } from '../../../store/controller/selectors';
 import { DECIMAL_RADIX } from '../../app/AppConstants';
-import ValueController from '../../controllers/ValueController';
-import { ToggleValue } from '../../displays/ToggleValue';
+import ValueSpinner from '../../controllers/ValueSpinner';
+import { ToggleValue } from '../../controllers/ToggleValue';
 import {
   BRIGHTNESS_REFERENCE_KEY,
   HOUR_REFERENCE_KEY,
@@ -159,22 +158,22 @@ interface Props {
  */
 const DateTimeDisplay = () => {
   const classes = useStyles();
-  const clock = useSelector(getClock);
+  const clock = new Date().toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  });
 
   return (
     <React.Fragment>
       <Box className={classes.date}>
         <Typography variant="h5">Date:</Typography>
-        <Typography className={classes.dateTime}>
-          {clock
-            .toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' })
-            .replace('/', ' - ')
-            .replace('/', ' - ')}
-        </Typography>
+        <Typography className={classes.dateTime}>{clock}</Typography>
       </Box>
       <Box>
         <Typography variant="h5">Time:</Typography>
-        <Typography className={classes.dateTime}>{clock.toLocaleTimeString()}</Typography>
+        <Typography className={classes.dateTime}>{new Date().toLocaleTimeString()}</Typography>
       </Box>
     </React.Fragment>
   );
@@ -253,7 +252,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
 
   /**
    * function for handling month change.
-   * callback from ValueController whenever month is changed
+   * callback from ValueSpinner whenever month is changed
    *
    * @param {number} change - min 1 and max 12
    *
@@ -293,7 +292,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
         <Grid container item direction="column" className={classes.leftPanel}>
           {/* Brightness */}
           <Grid container item xs direction="row">
-            <ValueController
+            <ValueSpinner
               reference={elRefs[BRIGHTNESS_REFERENCE_KEY]}
               referenceKey={BRIGHTNESS_REFERENCE_KEY}
               value={brightness}
@@ -365,7 +364,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
         <Grid container item xs direction="column" className={classes.rightPanel}>
           <Grid container item xs alignItems="stretch" className={classes.borderBottom}>
             <Grid item xs className={classes.rightBorder}>
-              <ValueController
+              <ValueSpinner
                 reference={elRefs[HOUR_REFERENCE_KEY]}
                 referenceKey={HOUR_REFERENCE_KEY}
                 value={hour}
@@ -376,7 +375,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
               />
             </Grid>
             <Grid item xs>
-              <ValueController
+              <ValueSpinner
                 reference={elRefs[MINUTE_REFERENCE_KEY]}
                 referenceKey={MINUTE_REFERENCE_KEY}
                 value={minute}
@@ -411,7 +410,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
           </Grid>
           <Grid container item xs direction="row" className={classes.borderBottom}>
             <Grid item xs className={classes.rightBorder}>
-              <ValueController
+              <ValueSpinner
                 reference={elRefs[MONTH_REFERENCE_KEY]}
                 referenceKey={MONTH_REFERENCE_KEY}
                 value={month}
@@ -422,7 +421,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
               />
             </Grid>
             <Grid item xs>
-              <ValueController
+              <ValueSpinner
                 reference={elRefs[DAY_REFERENCE_KEY]}
                 referenceKey={DAY_REFERENCE_KEY}
                 value={day}
@@ -436,7 +435,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
           </Grid>
           <Grid container item xs direction="row" className={classes.borderBottom}>
             <Grid item xs className={classes.rightBorder}>
-              <ValueController
+              <ValueSpinner
                 reference={elRefs[YEAR_REFERENCE_KEY]}
                 referenceKey={YEAR_REFERENCE_KEY}
                 value={year}

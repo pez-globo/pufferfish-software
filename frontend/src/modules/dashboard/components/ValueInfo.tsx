@@ -13,8 +13,8 @@ import { shallowEqual, useSelector } from 'react-redux';
 import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
 import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../controllers';
+import { Range } from '../../../store/proto/mcu_pb';
 import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
-import { Range } from '../../../store/controller/proto/mcu_pb';
 
 const useStyles = makeStyles((theme: Theme) => ({
   rootParent: {
@@ -168,7 +168,7 @@ export interface Props {
   selector: SelectorType;
   label: string;
   stateKey: string;
-  alarmLimits?: number[];
+  alarmLimits?: Range;
   units?: string;
   isLarge?: boolean;
   isMain?: boolean;
@@ -240,13 +240,8 @@ const ControlValuesDisplay = ({
     alarmLimitsRequest === null
       ? undefined
       : ((alarmLimitsRequest as unknown) as Record<string, Range>)[stateKey];
-  const rangeValues = range === undefined ? { lower: '--', upper: '--' } : range;
-  const alarmTemp = alarmLimits === undefined ? { lower: '--', upper: '--' } : alarmLimits;
-  const alarmLimitsRange = alarmTemp as number[];
-  const { lower, upper } =
-    alarmLimitsRange?.length === 0
-      ? rangeValues
-      : { lower: alarmLimitsRange[0], upper: alarmLimitsRange[1] };
+  const rangeValues = range === undefined ? Range.fromJSON({ lower: NaN, upper: NaN }) : range;
+  const { lower, upper } = alarmLimits === undefined ? rangeValues : alarmLimits;
 
   /**
    * Opens Multistep Popup on Clicking over component

@@ -13,15 +13,15 @@ import { ALARMS_ROUTE, SCREENSAVER_ROUTE } from '../../navigation/constants';
 import SidebarClickable from '../SidebarClickable';
 import OverlayScreen from '../OverlayScreen';
 import { getAlarmNotifyStatus } from '../../../store/app/selectors';
-import { Range, AlarmLimitsRequest } from '../../../store/controller/proto/mcu_pb';
+import { Range, AlarmLimitsRequest } from '../../../store/proto/mcu_pb';
 import {
   getAlarmLimitsRequest,
   getAlarmLimitsRequestUnsaved,
 } from '../../../store/controller/selectors';
-import { ModalPopup } from '../../controllers/ModalPopup';
-import { MessageType } from '../../../store/controller/types';
+import { ModalPopup } from '../../modals/ModalPopup';
+import { MessageType } from '../../../store/proto/types';
 import { commitDraftRequest } from '../../../store/controller/actions';
-import { DiscardAlarmLimitsContent } from '../../controllers';
+import { DiscardAlarmLimitsContent } from '../../modals';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

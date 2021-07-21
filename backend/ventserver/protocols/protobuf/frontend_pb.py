@@ -28,12 +28,6 @@ class RotaryEncoder(betterproto.Message):
 
 
 @dataclass
-class BackendConnections(betterproto.Message):
-    has_mcu: bool = betterproto.bool_field(1)
-    has_frontend: bool = betterproto.bool_field(2)
-
-
-@dataclass
 class FrontendDisplaySetting(betterproto.Message):
     """
     TODO: we also need a request version of this message,
@@ -47,7 +41,8 @@ class FrontendDisplaySetting(betterproto.Message):
 @dataclass
 class SystemSettingRequest(betterproto.Message):
     """
-    TODO: we also need a response version of this message, SystemSettings
+    TODO: we also need a response version of this message, SystemSettings TODO:
+    we should name this SystemSettingsRequest, not SystemSettingRequest
     """
 
     brightness: int = betterproto.uint32_field(1)

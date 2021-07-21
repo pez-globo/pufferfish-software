@@ -1,8 +1,9 @@
 import { loadFeature, defineFeature } from 'jest-cucumber';
 import configureStore, { MockStore } from 'redux-mock-store';
 import { commitRequest } from '../../src/store/controller/actions';
-import { AlarmLimitsRequest } from '../../src/store/controller/proto/mcu_pb';
-import { MessageType, CommitAction } from '../../src/store/controller/types';
+import { AlarmLimitsRequest } from '../../src/store/proto/mcu_pb';
+import { MessageType } from '../../src/store/proto/types';
+import { CommitAction } from '../../src/store/controller/types';
 
 const feature = loadFeature('tests/features/alarm-modal.feature');
 

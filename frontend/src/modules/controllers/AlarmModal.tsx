@@ -7,9 +7,9 @@ import React, { RefObject, useCallback, useEffect, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { getAlarmLimitsRequest } from '../../store/controller/selectors';
-import { Range, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
-import { MessageType } from '../../store/controller/types';
-import ModalPopup from './ModalPopup';
+import { Range, AlarmLimitsRequest } from '../../store/proto/mcu_pb';
+import { MessageType } from '../../store/proto/types';
+import ModalPopup from '../modals/ModalPopup';
 import ValueClicker from './ValueClicker';
 import ValueSlider from './ValueSlider';
 import useRotaryReference from '../utils/useRotaryReference';
@@ -93,7 +93,7 @@ interface Props {
   step?: number;
   openModal?: boolean;
   labelHeading?: boolean;
-  alarmRangeValues?: number[];
+  alarmRangeValues?: Range | null;
 }
 
 /**
@@ -113,7 +113,7 @@ export const AlarmModalContent = ({
   stateKey,
   step,
   labelHeading = false,
-  alarmRangeValues = [],
+  alarmRangeValues = null,
 }: Props): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
@@ -133,8 +133,8 @@ export const AlarmModalContent = ({
       : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
   const { lower, upper } = range === undefined ? Range.fromJSON({ lower: NaN, upper: NaN }) : range;
   const [rangeValue, setRangeValue] = React.useState<number[]>([
-    alarmRangeValues.length ? alarmRangeValues[0] : lower,
-    alarmRangeValues.length ? alarmRangeValues[1] : upper,
+    alarmRangeValues && alarmRangeValues.lower !== 0 ? alarmRangeValues.lower : lower,
+    alarmRangeValues && alarmRangeValues.upper !== 0 ? alarmRangeValues.upper : upper,
   ]);
   /**
    * State to provide reference HTML element for Lower/Upper Wrapper

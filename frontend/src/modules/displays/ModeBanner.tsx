@@ -6,7 +6,7 @@ import React from 'react';
 import { Grid, Typography, makeStyles, Theme } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { getParametersRequestMode } from '../../store/controller/selectors';
-import { VentilationMode } from '../../store/controller/proto/mcu_pb';
+import { VentilationMode } from '../../store/proto/mcu_pb';
 
 const useStyles = makeStyles((theme: Theme) => ({
   normal: {
@@ -43,6 +43,11 @@ export const getModeText = (mode: VentilationMode | null): string => {
   }
 };
 
+export enum BannerType {
+  NORMAL,
+  SCREENSAVER,
+}
+
 /**
  * @typedef Props
  *
@@ -51,7 +56,7 @@ export const getModeText = (mode: VentilationMode | null): string => {
  * @prop {string} bannerType banner type for deciding font color
  */
 export interface Props {
-  bannerType: string;
+  bannerType: BannerType;
 }
 
 /**
@@ -78,8 +83,8 @@ export const ModeBanner = ({ bannerType }: Props): JSX.Element => {
    *
    * @returns CSS class
    */
-  function color(bannerType: string) {
-    if (bannerType === 'screenSaver') return classes.screenSaver;
+  function color(bannerType: BannerType) {
+    if (bannerType === BannerType.SCREENSAVER) return classes.screenSaver;
     return classes.normal;
   }
   return (

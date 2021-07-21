@@ -8,8 +8,8 @@ import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Typography, Button } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
-import { ParametersRequest, VentilationMode } from '../../store/controller/proto/mcu_pb';
-import { MessageType } from '../../store/controller/types';
+import { ParametersRequest, VentilationMode } from '../../store/proto/mcu_pb';
+import { MessageType } from '../../store/proto/types';
 import { commitRequest } from '../../store/controller/actions';
 import { getParametersRequestMode } from '../../store/controller/selectors';
 

@@ -7,10 +7,9 @@
  * Uses the [[ContentProps]] interface
  * @returns JSX.Element
  */
-
-import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
-import React, { useRef, useEffect, useCallback } from 'react';
-import { useSelector, shallowEqual } from 'react-redux';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core';
+import { shallowEqual, useSelector } from 'react-redux';
 import { getRotaryEncoder } from '../../store/controller/selectors';
 import RotaryEncodeController from './RotaryEncodeController';
 import ValueClicker from './ValueClicker';
