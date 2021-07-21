@@ -21,41 +21,6 @@
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
-/* PacketReceiver Input status */
-enum class PacketStatus {
-  available = 0,  /// Packet/measurements is available
-  waiting,        /// Packet/measurements is waiting to receive more bytes of data
-  not_available,  /// Packet/measurements are not available
-  framing_error,  /// Error in checksum or status byte or in byte 1 of a frame
-  missed_data     /// Missed a packet due loss of frames
-};
-
-/* FrameReceiver input status return values */
-enum class FrameInputStatus {
-  waiting = 0,    /// Input is ready to receive new bytes of sensor data
-  framing_error,  /// Error in checksum or status byte or in byte 1 of a frame
-  available       /// frame is available
-};
-
-/* FrameReceiver output status return values */
-enum class FrameOutputStatus {
-  available = 0,  /// frame output is available for packet fill
-  waiting         /// frame output is waiting for complete frame
-};
-
-/* PacketReceiver Input status */
-enum class PacketInputStatus {
-  available = 0,  /// Input is available to read output
-  waiting,        /// Input is wait to read more bytes
-  missed_data     /// missed one or more frames in previous received packet
-};
-
-/* PacketReceiver Output status */
-enum class PacketOutputStatus {
-  available = 0,  /// Output measurements are available
-  waiting         /// Output is waiting to receive more byte for measurements
-};
-
 /* Enum class for amplitude representation of signal quality  */
 enum class SignalAmplitude {
   no_perfusion = 0,  /// No loss in signal quality
@@ -88,6 +53,7 @@ using Packet = std::array<Frame, packet_size>;
 using StatusByteError = std::array<StatusByteStruct, packet_size>;
 /* PLETH for 25 frames */
 using Pleth = std::array<uint8_t, packet_size>;
+using Flags = std::array<bool, packet_size>;
 
 /* Structure defines the sensor data in packet for measurements */
 struct PacketMeasurements {
@@ -106,37 +72,40 @@ struct PacketMeasurements {
   /* PLETH measurements */
   Pleth packet_pleth;
   /* StatusByteErrors measurements */
-  std::array<bool, packet_size> bit7;
-  std::array<bool, packet_size> sensor_disconnect;
-  std::array<bool, packet_size> artifact;
-  std::array<bool, packet_size> out_of_track;
-  std::array<bool, packet_size> sensor_alarm;
+  Flags bit7;
+  Flags sensor_disconnect;
+  Flags artifact;
+  Flags out_of_track;
+  Flags sensor_alarm;
   std::array<SignalAmplitude, packet_size> signal_perfusion;
 };
 
-static const uint8_t mask_6bit = 0x7F;
-
 // Status Mask
-static const uint8_t mask_start_of_frame = 0x80;
-static const uint8_t mask_snsd = 0x40;
-static const uint8_t mask_artf = 0x20;
-static const uint8_t mask_oot = 0x10;
-static const uint8_t mask_snsa = 0x08;
-static const uint8_t mask_yprf = 0x06;
-static const uint8_t mask_rprf = 0x04;
-static const uint8_t mask_gprf = 0x02;
+enum class Mask : static const uint8_t {
+  mask_6bit = 0x7F,
+  start_of_frame = 0x80,
+  snsd = 0x40,
+  artf = 0x20,
+  oot = 0x10,
+  snsa = 0x08,
+  yprf = 0x06,
+  rprf = 0x04,
+  gprf = 0x02,
+};
 
 // Byte Index
-static const size_t heart_rate_index = 0;
-static const size_t spo2_index = 2;
-static const size_t nonin_oem_revision_index = 3;
-static const size_t spo2_d_index = 8;
-static const size_t spo2_d_fast_index = 9;
-static const size_t spo2_d_beat_index = 10;
-static const size_t e_heart_rate_index = 13;
-static const size_t e_spo2_index = 15;
-static const size_t e_spo2_d_index = 16;
-static const size_t heart_rate_d_index = 19;
-static const size_t e_heart_rate_d_index = 21;
+enum class ByteIndex : static const size_t {
+  heart_rate_index = 0,
+  spo2_index = 2,
+  nonin_oem_revision_index = 3,
+  spo2_d_index = 8,
+  spo2_d_fast_index = 9,
+  spo2_d_beat_index = 10,
+  e_heart_rate_index = 13,
+  e_spo2_index = 15,
+  e_spo2_d_index = 16,
+  heart_rate_d_index = 19,
+  e_heart_rate_d_index = 21,
+};
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

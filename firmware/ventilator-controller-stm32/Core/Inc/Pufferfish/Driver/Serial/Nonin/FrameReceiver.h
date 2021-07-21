@@ -26,6 +26,19 @@
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
+/* FrameReceiver input status return values */
+enum class FrameInputStatus {
+  waiting = 0,    /// Input is ready to receive new bytes of sensor data
+  framing_error,  /// Error in checksum or status byte or in byte 1 of a frame
+  available       /// frame is available
+};
+
+/* FrameReceiver output status return values */
+enum class FrameOutputStatus {
+  available = 0,  /// frame output is available for packet fill
+  waiting         /// frame output is waiting for complete frame
+};
+
 /*
  * FrameSplitter reads input data from sensor and Output the frame on available
  * on error throw error on output frame.

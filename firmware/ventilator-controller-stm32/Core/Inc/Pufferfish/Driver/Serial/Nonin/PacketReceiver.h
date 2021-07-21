@@ -29,6 +29,19 @@
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
+/* PacketReceiver Input status */
+enum class PacketInputStatus {
+  available = 0,  /// Input is available to read output
+  waiting,        /// Input is wait to read more bytes
+  missed_data     /// missed one or more frames in previous received packet
+};
+
+/* PacketReceiver Output status */
+enum class PacketOutputStatus {
+  available = 0,  /// Output measurements are available
+  waiting         /// Output is waiting to receive more byte for measurements
+};
+
 /**
  * @brief  Inline function to get the SpO2 data
  * @param  ByteData - Byte of SpO2 Data received from packet

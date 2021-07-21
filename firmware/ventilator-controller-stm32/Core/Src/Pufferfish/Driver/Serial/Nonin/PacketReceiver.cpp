@@ -35,18 +35,18 @@ namespace Pufferfish::Driver::Serial::Nonin {
 void read_status_byte(
     PacketMeasurements &sensor_measurements, const size_t &frame_index, const uint8_t &byte_value) {
   /* BIT7: Always high */
-  sensor_measurements.bit7[frame_index] = (byte_value & mask_start_of_frame) == 0x00;
+  sensor_measurements.bit7[frame_index] = (byte_value & Mask::start_of_frame) == 0x00;
   /* BIT6: SNSD: Sensor Disconnect – Sensor is not connected to oximeter or
    * sensor is inoperable */
-  sensor_measurements.sensor_disconnect[frame_index] = (byte_value & mask_snsd) != 0x00;
+  sensor_measurements.sensor_disconnect[frame_index] = (byte_value & Mask::snsd) != 0x00;
   /* BIT5: ARTF: Artifact – A detected pulse beat didn’t match the current pulse
    * interval */
-  sensor_measurements.artifact[frame_index] = (byte_value & mask_artf) != 0x00;
+  sensor_measurements.artifact[frame_index] = (byte_value & Mask::artf) != 0x00;
   /* BIT4: OOT: Out Of Track – An absence of consecutive good pulse signals */
-  sensor_measurements.out_of_track[frame_index] = (byte_value & mask_oot) != 0x00;
+  sensor_measurements.out_of_track[frame_index] = (byte_value & Mask::oot) != 0x00;
   /* BIT3: SNSA: Sensor Alarm – Sensor is providing unusable data for analysis
    */
-  sensor_measurements.sensor_alarm[frame_index] = (byte_value & mask_snsa) != 0x00;
+  sensor_measurements.sensor_alarm[frame_index] = (byte_value & Mask::snsa) != 0x00;
 
   /**
    * BIT2 and BIT1: YPRF: Yellow Perfusion – Amplitude representation of medium
@@ -56,11 +56,11 @@ void read_status_byte(
    * BIT1: GPRF: Green Perfusion – Amplitude representation of
    * high signal quality.
    */
-  if ((byte_value & mask_yprf) == mask_yprf) {
+  if ((byte_value & Mask::yprf) == Mask::yprf) {
     sensor_measurements.signal_perfusion[frame_index] = SignalAmplitude::yellow_perfusion;
-  } else if ((byte_value & mask_rprf) == mask_rprf) {
+  } else if ((byte_value & Mask::rprf) == Mask::rprf) {
     sensor_measurements.signal_perfusion[frame_index] = SignalAmplitude::red_perfusion;
-  } else if ((byte_value & mask_gprf) == mask_gprf) {
+  } else if ((byte_value & Mask::gprf) == Mask::gprf) {
     sensor_measurements.signal_perfusion[frame_index] = SignalAmplitude::green_perfusion;
   } else {
     sensor_measurements.signal_perfusion[frame_index] = SignalAmplitude::no_perfusion;
