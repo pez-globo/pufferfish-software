@@ -726,7 +726,7 @@ const MultiStepWizard = (): JSX.Element => {
                     label={parameter.label}
                     units={parameter.units}
                     stateKey={parameter.stateKey}
-                    getCommittedRange={handleAlarmLimitsRequest}
+                    handleCommittedRange={handleAlarmLimitsRequest}
                     labelHeading={true}
                     alarmRangeValues={getAlarmLimitsDraft(parameter.stateKey)}
                     {...(parameter.alarmLimitMin && { committedMin: parameter.alarmLimitMin })}

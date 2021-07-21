@@ -72,7 +72,7 @@ export interface AlarmAdjustProps {
  * @prop {number} committedMax Upper Set Alarm Range Value
  * @prop {function} updateModalStatus Callback to send current modal open/close status
  * @prop {function} onModalClose Callback after Modal close
- * @prop {function} getCommittedRange Callback on updating the Alarm range values
+ * @prop {function} handleCommittedRange Callback on updating the Alarm range values
  * @prop {string} stateKey Unique identifier of alarm (eg spo2, fio2...)
  * @prop {number} step Alarm step difference between Range (Defaults to 1)
  * @prop {boolean} openModal Default value to toggle Open/Close Alarm Modal
@@ -88,7 +88,7 @@ interface Props {
   committedMax?: number;
   updateModalStatus?(status: boolean): void;
   onModalClose?(status: boolean): void;
-  getCommittedRange(min: number, max: number): void;
+  handleCommittedRange(min: number, max: number): void;
   stateKey: string;
   step?: number;
   openModal?: boolean;
@@ -109,7 +109,7 @@ export const AlarmModalContent = ({
   label,
   committedMin = 0,
   committedMax = 100,
-  getCommittedRange,
+  handleCommittedRange,
   stateKey,
   step,
   labelHeading = false,
@@ -162,8 +162,8 @@ export const AlarmModalContent = ({
    * Triggers whenever rangeValue is updated in redux
    */
   useEffect(() => {
-    getCommittedRange(rangeValue[0], rangeValue[1]);
-  }, [getCommittedRange, rangeValue]);
+    handleCommittedRange(rangeValue[0], rangeValue[1]);
+  }, [handleCommittedRange, rangeValue]);
 
   /**
    * Resets highlighting border around alarm container when clicked across the page
@@ -286,7 +286,7 @@ export const AlarmModal = ({
   committedMin = 0,
   committedMax = 100,
   updateModalStatus,
-  getCommittedRange,
+  handleCommittedRange,
   onModalClose,
   openModal = false,
   stateKey,
@@ -352,7 +352,7 @@ export const AlarmModal = ({
     };
     dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
     dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
-    getCommittedRange(rangeValue[0], rangeValue[1]);
+    handleCommittedRange(rangeValue[0], rangeValue[1]);
     handleClose();
   };
 
@@ -369,7 +369,7 @@ export const AlarmModal = ({
           label={label}
           committedMin={committedMin}
           committedMax={committedMax}
-          getCommittedRange={getCommittedRange}
+          handleCommittedRange={handleCommittedRange}
           stateKey={stateKey}
           step={step}
           labelHeading={labelHeading}

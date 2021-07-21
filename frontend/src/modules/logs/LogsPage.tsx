@@ -460,7 +460,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
           label={currentRow.head}
           units={currentRow.unit}
           stateKey={currentRow.stateKey}
-          getCommittedRange={() => null}
+          handleCommittedRange={() => null}
         />
       )}
     </Grid>

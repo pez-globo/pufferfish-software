@@ -339,7 +339,7 @@ const ControlValuesDisplay = ({
             label={label}
             units={units}
             stateKey={stateKey}
-            getCommittedRange={() => null}
+            handleCommittedRange={() => null}
           />
         )}
       </Grid>
