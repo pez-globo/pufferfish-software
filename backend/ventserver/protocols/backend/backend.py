@@ -31,8 +31,26 @@ class ExternalLogEvent(events.Event):
         return True
 
 
+@attr.s
+class AlarmMuteCancellationEvent(events.Event):
+    """External alarm mute cancellation event.
+
+    This should only be used to temporarily cancel any mute in the absence of
+    the firmware, until the firmware reconnects.
+    """
+
+    time: float = attr.ib()
+    source: mcu_pb.AlarmMuteSource = attr.ib()
+
+    def has_data(self) -> bool:
+        """Return whether the event has data."""
+        return True
+
+
 ReceiveDataEvent = states.ReceiveEvent
-ReceiveEvent = Union[ExternalLogEvent, states.ReceiveEvent]
+ReceiveEvent = Union[
+    states.ReceiveEvent, ExternalLogEvent, AlarmMuteCancellationEvent
+]
 OutputEvent = states.SendEvent
 SendEvent = states.SendEvent
 
@@ -106,6 +124,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             self._state_synchronizers.input(event)
         elif isinstance(event, ExternalLogEvent):
             self._handle_local_log_event(event)
+        elif isinstance(event, AlarmMuteCancellationEvent):
+            self._handle_alarm_mute_cancellation(event)
 
         # Maintain internal data connections
         self._handle_mcu_log_events()
@@ -139,16 +159,15 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
                     code=event.code, type=event_type
                 )
             ))
+        elif event.active:
+            self._local_alarms.input(alarms.AlarmActivationEvent(
+                current_time=self.current_time,
+                code=event.code, event_type=event_type
+            ))
         else:
-            if event.active:
-                self._local_alarms.input(alarms.AlarmActivationEvent(
-                    current_time=self.current_time,
-                    code=event.code, event_type=event_type
-                ))
-            else:
-                self._local_alarms.input(alarms.AlarmDeactivationEvent(
-                    current_time=self.current_time, codes=[event.code]
-                ))
+            self._local_alarms.input(alarms.AlarmDeactivationEvent(
+                current_time=self.current_time, codes=[event.code]
+            ))
         self._event_log_receiver.input(self._local_alarms.output())
 
     def _handle_mcu_log_events(self) -> None:
@@ -214,6 +233,37 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
                 return
 
             self.store[states.StateSegment.NEXT_LOG_EVENTS_BE] = next_log_events
+
+    def _handle_alarm_mute_cancellation(
+            self, event: AlarmMuteCancellationEvent
+    ) -> None:
+        """Handle any externally-generated alarm mute cancellation event."""
+        alarm_mute = typing.cast(
+            Optional[mcu_pb.AlarmMute],
+            self.store[states.StateSegment.ALARM_MUTE]
+        )
+        if alarm_mute is None:
+            self._logger.error('AlarmMute was not initialized in the store!')
+            return
+
+        if event.source == mcu_pb.AlarmMuteSource.backend_mcu_loss:
+            log_event_code = mcu_pb.LogEventCode.alarms_unmuted_backend_mcu_loss
+        else:
+            self._logger.error(
+                'Unexpected alarm mute cancellation source %s!', event.source
+            )
+
+        if alarm_mute.active:
+            alarm_mute.active = False
+            alarm_mute.source = event.source
+            self._local_alarms.input(log.LocalLogInputEvent(
+                current_time=self.current_time, new_event=mcu_pb.LogEvent(
+                    code=log_event_code,
+                    type=mcu_pb.LogEventType.system
+                )
+            ))
+            self._event_log_receiver.input(self._local_alarms.output())
+        return
 
 
 @attr.s

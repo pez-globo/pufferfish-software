@@ -1,23 +1,28 @@
 import {
+  // Measurements
   SensorMeasurements,
   CycleMeasurements,
+  // Parameters
   Parameters,
   ParametersRequest,
+  // Alarm Limits
   AlarmLimits,
   AlarmLimitsRequest,
-  ExpectedLogEvent,
+  // Log Events
+  LogEventCode,
+  LogEventType,
   NextLogEvents,
+  ExpectedLogEvent,
   ActiveLogEvents,
+  // Alarm Muting
   AlarmMute,
   AlarmMuteRequest,
+  // System Miscellaneous
   MCUPowerStatus,
+  BackendConnections,
   ScreenStatus,
 } from '../proto/mcu_pb';
-import {
-  BackendConnections,
-  SystemSettingRequest,
-  FrontendDisplaySetting,
-} from '../proto/frontend_pb';
+import { SystemSettingRequest, FrontendDisplaySetting } from '../proto/frontend_pb';
 import { PBMessage, MessageType } from '../proto/types';
 
 // STATES
@@ -42,10 +47,6 @@ export interface AlarmLimitsRequestResponse {
   // of all fields to AlarmLimitsRequest to send to the backend
   draft: AlarmLimitsRequest | null;
 }
-export interface AlarmMuteRequestResponse {
-  current: AlarmMute | null;
-  request: AlarmMuteRequest | null;
-}
 export interface EventLog {
   expectedLogEvent: ExpectedLogEvent;
   nextLogEvents: NextLogEvents;
@@ -53,6 +54,10 @@ export interface EventLog {
   ephemeralLogEvents: {
     id: number[];
   };
+}
+export interface AlarmMuteRequestResponse {
+  current: AlarmMute | null;
+  request: AlarmMuteRequest | null;
 }
 
 export interface RotaryEncoderParameter {
@@ -113,15 +118,14 @@ export interface ControllerStates {
   alarmLimits: AlarmLimitsRequestResponse;
   eventLog: EventLog;
   alarmMute: AlarmMuteRequestResponse;
-  systemSettingRequest: SystemSettingRequest | null;
-  frontendDisplaySetting: FrontendDisplaySetting | null;
   mcuPowerStatus: MCUPowerStatus | null;
+  backendConnections: BackendConnections | null;
   screenStatus: ScreenStatus | null;
-  heartbeatBackend: { time: Date };
 
   // Message states from frontend_pb
-  backendConnections: BackendConnections | null;
   rotaryEncoder: RotaryEncoderParameter | null;
+  systemSettingRequest: SystemSettingRequest | null;
+  frontendDisplaySetting: FrontendDisplaySetting | null;
 
   // Derived states
   plots: Plots;
@@ -135,8 +139,7 @@ export interface ControllerStates {
 export const STATE_UPDATED = '@controller/STATE_UPDATED';
 export const REQUEST_COMMITTED = '@controller/REQUEST_COMMITTED';
 export const DRAFT_REQUEST_COMMITTED = '@controller/DRAFT_COMMITTED';
-
-// State Update Action
+export const EPHEMERAL_LOG_EVENT_CREATED = '@controller/EPHEMERAL_LOG_EVENT_CREATED';
 
 // TODO: rename to StateMessageReceived
 interface StateUpdatedAction {
@@ -145,13 +148,18 @@ interface StateUpdatedAction {
   state: PBMessage;
 }
 
+// TODO: get rid of this type alias
 export type StateUpdateAction = StateUpdatedAction;
-
-// State Commit Actions
 
 // TODO: rename to SettingCommitted
 export interface CommitAction {
   type: string;
   messageType: MessageType;
   update: Record<string, unknown>;
+}
+
+export interface EphemeralLogEventAction {
+  type: typeof EPHEMERAL_LOG_EVENT_CREATED;
+  code: LogEventCode;
+  eventType: LogEventType;
 }

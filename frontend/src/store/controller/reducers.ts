@@ -1,21 +1,24 @@
 import { combineReducers } from 'redux';
 import {
+  // Measurements
   SensorMeasurements,
   CycleMeasurements,
+  // Parameters
   Parameters,
   ParametersRequest,
+  // Alarm Limits
   AlarmLimits,
   AlarmLimitsRequest,
+  // Log Events
+  // Alarm Muting
   AlarmMute,
   AlarmMuteRequest,
+  // System Miscellaneous
   MCUPowerStatus,
+  BackendConnections,
   ScreenStatus,
 } from '../proto/mcu_pb';
-import {
-  BackendConnections,
-  SystemSettingRequest,
-  FrontendDisplaySetting,
-} from '../proto/frontend_pb';
+import { SystemSettingRequest, FrontendDisplaySetting } from '../proto/frontend_pb';
 import { MessageType } from '../proto/types';
 import {
   messageReducer,
@@ -54,10 +57,10 @@ export const controllerReducer = combineReducers({
     request: requestReducer<AlarmMuteRequest>(MessageType.AlarmMuteRequest, REQUEST_COMMITTED),
   }),
   mcuPowerStatus: messageReducer<MCUPowerStatus>(MessageType.MCUPowerStatus),
-
-  // Message states from frontend_pb
   backendConnections: messageReducer<BackendConnections>(MessageType.BackendConnections),
   screenStatus: messageReducer<ScreenStatus>(MessageType.ScreenStatus),
+
+  // Message states from frontend_pb
   rotaryEncoder: rotaryEncoderReducer,
   systemSettingRequest: requestReducer<SystemSettingRequest>(
     MessageType.SystemSettingRequest,

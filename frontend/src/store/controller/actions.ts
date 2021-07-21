@@ -1,3 +1,4 @@
+import { LogEventCode, LogEventType } from '../proto/mcu_pb';
 import { MessageType, PBMessage } from '../proto/types';
 import {
   StateUpdateAction,
@@ -5,6 +6,8 @@ import {
   CommitAction,
   REQUEST_COMMITTED,
   DRAFT_REQUEST_COMMITTED,
+  EphemeralLogEventAction,
+  EPHEMERAL_LOG_EVENT_CREATED,
 } from './types';
 
 // TODO: rename this to receiveMessage, and make SidebarClickable.tsx and OverlayScreen not use it.
@@ -34,3 +37,14 @@ export const commitDraftRequest = <T extends PBMessage>(
   messageType: requestMessageType,
   update: updates,
 });
+
+export function createEphemeralLogEvent(
+  code: LogEventCode,
+  type: LogEventType,
+): EphemeralLogEventAction {
+  return {
+    type: EPHEMERAL_LOG_EVENT_CREATED,
+    code,
+    eventType: type,
+  };
+}

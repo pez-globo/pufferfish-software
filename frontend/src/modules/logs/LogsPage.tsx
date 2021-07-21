@@ -405,6 +405,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                                         ${new Date(row.time).toLocaleTimeString([], {
                                           hour: '2-digit',
                                           minute: '2-digit',
+                                          second: '2-digit',
                                         })}
                                     `}
                 </TableCell>

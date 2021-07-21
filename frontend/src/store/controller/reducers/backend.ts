@@ -14,8 +14,10 @@ import {
   RotaryEncoderParameter,
   STATE_UPDATED,
   CommitAction,
+  EphemeralLogEventAction,
+  EPHEMERAL_LOG_EVENT_CREATED,
 } from '../types';
-import { BACKEND_CONNECTION_DOWN } from '../../connection/types';
+import { ConnectionAction, BACKEND_CONNECTION_DOWN } from '../../connection/types';
 
 // GENERIC REDUCERS
 
@@ -72,6 +74,20 @@ export const requestReducer = <T extends PBMessage>(
 
 // MESSAGE STATES FROM mcu_pb
 
+const addEphemeralEvent = (state: EventLog, logEvent: LogEvent): EventLog => {
+  //  TODO: check if event is already there in state.ephemeralLogEvents before creating a new one
+  const eventID = state.expectedLogEvent.id;
+  return {
+    ...state,
+    nextLogEvents: {
+      ...state.nextLogEvents,
+      elements: [...state.nextLogEvents.elements, { ...logEvent, id: eventID }],
+    },
+    activeLogEvents: { id: [...state.activeLogEvents.id, eventID] },
+    ephemeralLogEvents: { id: [...state.ephemeralLogEvents.id, eventID] },
+  };
+};
+
 export const eventLogReducer = (
   state: EventLog = {
     nextLogEvents: NextLogEvents.fromJSON({}),
@@ -79,7 +95,7 @@ export const eventLogReducer = (
     activeLogEvents: ActiveLogEvents.fromJSON({}),
     ephemeralLogEvents: { id: [] },
   },
-  action: CommitAction | StateUpdateAction,
+  action: CommitAction | StateUpdateAction | ConnectionAction | EphemeralLogEventAction,
 ): EventLog => {
   switch (action.type) {
     case STATE_UPDATED: {
@@ -133,24 +149,33 @@ export const eventLogReducer = (
       }
     }
     case BACKEND_CONNECTION_DOWN: {
-      //  Make an ephemeral frontend-only event
-      //  Note: this reducer will create multiple ephemeral log events when multiple BACKEND_CONNECTION_DOWN actions are dispatched when connection goes down
-      //  TODO: check if frontend_backend_connection_down event is already there in state.ephemeralLogEvents before  creating a new one
-      const logEvent = LogEvent.fromJSON({
-        code: LogEventCode.frontend_backend_connection_down,
-        type: LogEventType.system,
-        time: new Date().getTime(),
-      });
-      const eventID = state.expectedLogEvent.id;
-      return {
-        ...state,
-        nextLogEvents: {
-          ...state.nextLogEvents,
-          elements: [...state.nextLogEvents.elements, { ...logEvent, id: eventID }],
-        },
-        activeLogEvents: { id: [...state.activeLogEvents.id, eventID] },
-        ephemeralLogEvents: { id: [...state.ephemeralLogEvents.id, eventID] },
-      };
+      // Make an ephemeral frontend-only event
+      // This is handled separately from EPHEMERAL_LOG_EVENT_CREATED because
+      // store/connection can dispatch the event, and it shouldn't be aware of
+      // the existence of ephemeral log events or any event log.
+      // Note: this reducer will create multiple ephemeral log events when multiple
+      // BACKEND_CONNECTION_DOWN actions are dispatched when connection goes down.
+      // Refer to the TODO comment in addEphemeralEvent.
+      return addEphemeralEvent(
+        state,
+        LogEvent.fromJSON({
+          code: LogEventCode.frontend_backend_connection_down,
+          type: LogEventType.system,
+          time: new Date().getTime(),
+        }),
+      );
+    }
+    case EPHEMERAL_LOG_EVENT_CREATED: {
+      // Make an ephemeral frontend-only event
+      const updateAction = action as EphemeralLogEventAction;
+      return addEphemeralEvent(
+        state,
+        LogEvent.fromJSON({
+          code: updateAction.code,
+          type: updateAction.eventType,
+          time: new Date().getTime(),
+        }),
+      );
     }
     default:
       return state;
