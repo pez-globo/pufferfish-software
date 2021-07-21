@@ -1,0 +1,11 @@
+Scenario: The input method in EnumpMap adds key and value correctly
+          1. input method on already existing key as input parameter
+          2. input method , input parameter - new key and value
+          3. adding key beyond Map's capacity - edge cases for same
+Scenario: The output method in EnumpMap updates the value for given key correctly
+          1.Output method , input parameter , key within EnumMap
+          2. Output method , input parameter , key beyond EnumMap's capacity
+Scenario: The erase method in EnumpMap erases both key  correctly from EnumSet
+          1. Erase key within capacity
+          2. Erase method , input parameter key doesnt exist in EnumMap
+          3. Using output method, where input parameter has recently deleted key

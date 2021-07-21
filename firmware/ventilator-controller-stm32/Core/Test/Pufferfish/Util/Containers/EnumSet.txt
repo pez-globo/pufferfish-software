@@ -1,0 +1,13 @@
+Scenario: The method input in EnumSet adds key correctly to EnumpSet
+          1. input method, input parameter key is within capacity
+          2. input method , input parameter key is beyond capacity
+          3. input method , input parameter key already exists in EnumpSet
+Scenario: The method has in EnumSet correctly checks if the key is present in EnumpSet
+          1. has method , input parameter key already exists in EnumpSet
+          2. has method , input parameter key does not exists in EnumpSet
+Scenario: The method clear in EnumpSet correctly erases key 
+          1. clear method , input parameter key already exists in EnumpSet
+          2. clear method , input parameter key does not exists in EnumpSet
+Scenario: The method erase in EnumSet correctly deletes key from EnumpSet
+          1. erase method , input parameter key already exists in EnumpSet
+          2. erase method, input parameter key does not exists in EnumpSet

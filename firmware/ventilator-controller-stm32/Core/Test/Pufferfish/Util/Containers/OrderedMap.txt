@@ -1,0 +1,17 @@
+Scenario: The method input in OrderedMap adds key and value correctly
+          1. input method , input parameter already existing key
+          2. input method , input parameter, new pair 
+          3. input method , input parameter , beyond  OrderedMap capacity
+Scenario: The method output in OrderedMap add value correctly
+          1. output method , input parameter , already existing key
+          2. output method , input parameter ,  new pair 
+          3. output method , input parameter , beyond  OrderedMap capacity
+Scenario: The method 'has' in OrderedMap correctly checks if the key is present in EnumpSet
+          1. Key is present in OrderedMap
+          2. Key is not present in OrderedMap
+Scenario: The method clear in OrderedMap correctly erases key 
+          1. clear method , input parameter, Key is present in OrderedMap 
+          2. clear method, Key is not present in OrderedMap 
+Scenario: The method erase in OrderedMap correctly deletes key from EnumpSet
+          1. Erase method, input parameter, Key is present in OrderedMap
+          2. Erase method, input parameter, Key is not present in OrderedMap
