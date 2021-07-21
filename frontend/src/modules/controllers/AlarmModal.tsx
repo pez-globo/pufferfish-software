@@ -64,7 +64,7 @@ export interface AlarmAdjustProps {
 /**
  * @typedef Props
  *
- * Props interface for the AlarmModal component
+ * Props interface for the AlarmModal/AlarmModalContent component
  *
  * @prop {string} label Alarm label to display in UI
  * @prop {string} units Alarm paramater unit measurement to display
@@ -76,8 +76,6 @@ export interface AlarmAdjustProps {
  * @prop {string} stateKey Unique identifier of alarm (eg spo2, fio2...)
  * @prop {number} step Alarm step difference between Range (Defaults to 1)
  * @prop {boolean} openModal Default value to toggle Open/Close Alarm Modal
- * @prop {boolean} contentOnly AlarmModal by itself is wrapped in a ModalPopup, contentOnly will provide
- * Alarm features but not inside a Modal.
  * @prop {boolean} labelHeading Switch to show/hide Alarm Label inside Alarm Modal content
  * @prop {number[]} alarmRangeValues Alarm Range Values, if not initialized, committedMin and committedMax are displayed.
  */
@@ -97,9 +95,14 @@ interface Props {
 }
 
 /**
- * AlarmModal
+ * AlarmModalContent
  *
  * @component A container for displaying alarm modal.
+ * This Component returns JSX which displays Value for lower/upper limits and ValueClickers to control them,
+ * AlarmLimits for only a single Parameter can be controlled (eg: Alarm Limits for SpO2), thus needs to be selected
+ * with stateKey.
+ * It's currently re-used in AlarmModal as content inside the ModalPopup, and used exclusively
+ * in MultiStepWizard for Alarm Modal content as that's already an ModalPopup and content is populated using this component.
  *
  * Uses the [[Props]] interface
  *
@@ -281,6 +284,17 @@ export const AlarmModalContent = ({
   );
 };
 
+/**
+ * AlarmModal
+ *
+ * @component A container for displaying AlarmModalContent Component wrapped in a ModalPopup.
+ * This component opens a modal popup with ability to set alarm limits for a single parameter (eg: SpO2)
+ * It's currently used inside ValueInfo and LogsPage (on pressing the `settings` button)
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns JSX.Element
+ */
 export const AlarmModal = ({
   label,
   committedMin = 0,
