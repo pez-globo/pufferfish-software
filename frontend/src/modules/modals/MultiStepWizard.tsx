@@ -20,8 +20,8 @@ import {
   getParametersFiO2,
   getSpO2AlarmLimitsRequest,
   getHRAlarmLimitsRequest,
-  getFiO2AlarmLimitsCurrent,
-  getFlowAlarmLimitsCurrent,
+  getFiO2AlarmLimitsDraft,
+  getFlowAlarmLimitsDraft,
 } from '../../store/controller/selectors';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import ValueInfo from '../dashboard/components/ValueInfo';
@@ -308,8 +308,8 @@ const MultiStepWizard = (): JSX.Element => {
 
   const alarmLimitsRequestSpO2 = useSelector(getSpO2AlarmLimitsRequest, shallowEqual);
   const alarmLimitsRequestHR = useSelector(getHRAlarmLimitsRequest, shallowEqual);
-  const alarmLimitsCurrentFiO2 = useSelector(getFiO2AlarmLimitsCurrent, shallowEqual);
-  const alarmLimitsCurrentFlow = useSelector(getFlowAlarmLimitsCurrent, shallowEqual);
+  const alarmLimitsCurrentFiO2 = useSelector(getFiO2AlarmLimitsDraft, shallowEqual);
+  const alarmLimitsCurrentFlow = useSelector(getFlowAlarmLimitsDraft, shallowEqual);
   const parametersFiO2 = useSelector(getParametersFiO2);
   const parametersFlow = useSelector(getParametersFlow);
 
