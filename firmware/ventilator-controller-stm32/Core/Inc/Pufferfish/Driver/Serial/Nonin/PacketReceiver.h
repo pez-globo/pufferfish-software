@@ -32,7 +32,7 @@ namespace Pufferfish::Driver::Serial::Nonin {
 enum class PacketInputStatus {
   available = 0,  /// Input is available to read output
   waiting,        /// Input is wait to read more bytes
-  frame_loss     /// missed one or more frames in previous received packet
+  frame_loss      /// missed one or more frames in previous received packet
 };
 using PacketOutputStatus = Pufferfish::Driver::Serial::Nonin::FrameOutputStatus;
 

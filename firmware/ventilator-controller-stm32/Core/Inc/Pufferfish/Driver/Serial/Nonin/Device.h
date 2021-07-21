@@ -32,7 +32,7 @@ enum class PacketStatus {
   available = 0,    /// Packet/measurements is available
   waiting,          /// Packet/measurements is waiting to receive more bytes of data
   checksum_failed,  /// Error in checksum or status byte or in byte 1 of a frame
-  frame_loss       /// Missed a packet due loss of frames
+  frame_loss        /// Missed a packet due loss of frames
 };
 
 /**

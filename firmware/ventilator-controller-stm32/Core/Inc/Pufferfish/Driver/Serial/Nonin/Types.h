@@ -80,15 +80,15 @@ struct PacketMeasurements {
 
 // Status Mask
 enum class Mask : static const uint8_t {
-  mask_6bit = 0x7F,
-  start_of_frame = 0x80,
-  snsd = 0x40,
-  artf = 0x20,
-  oot = 0x10,
-  snsa = 0x08,
-  yprf = 0x06,
-  rprf = 0x04,
-  gprf = 0x02,
+  mask_6bit = 0b1111'111,
+  start_of_frame = 0b1000'0000,
+  snsd = 0b0100'0000,
+  artf = 0b0010'0000,
+  oot = 0b0001'0000,
+  snsa = 0b1000,
+  yprf = 0b0110,
+  rprf = 0b0100,
+  gprf = 0b0010,
 };
 
 // Byte Index
