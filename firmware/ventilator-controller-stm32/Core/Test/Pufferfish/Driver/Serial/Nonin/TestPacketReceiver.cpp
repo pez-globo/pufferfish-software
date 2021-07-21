@@ -174,10 +174,10 @@ SCENARIO("Validate the valid first Packet", "[NoninOem3]") {
       packet_output_status = packet_receiver.output(sensor_measurements);
       REQUIRE(packet_output_status == output_status_available);
       THEN("Validate the Heart Rate and SpO2") {
-        REQUIRE(sensor_measurements.heart_rate == 72);
-        REQUIRE(sensor_measurements.heart_rate_d == 72);
-        REQUIRE(sensor_measurements.e_heart_rate == 72);
-        REQUIRE(sensor_measurements.e_heart_rate_d == 72);
+        REQUIRE(sensor_measurements.hr == 72);
+        REQUIRE(sensor_measurements.hr_d == 72);
+        REQUIRE(sensor_measurements.e_hr == 72);
+        REQUIRE(sensor_measurements.e_hr_d == 72);
         REQUIRE(sensor_measurements.spo2 == 97);
         REQUIRE(sensor_measurements.spo2_d == 97);
         REQUIRE(sensor_measurements.e_spo2 == 97);
@@ -349,10 +349,10 @@ SCENARIO("Validate the packets data with invalid data") {
       packet_output_status = packet_receiver.output(sensor_measurements);
       REQUIRE(packet_output_status == output_status_available);
       THEN("Validate the Heart Rate and SpO2") {
-        REQUIRE(sensor_measurements.heart_rate == 72);
-        REQUIRE(sensor_measurements.heart_rate_d == 72);
-        REQUIRE(sensor_measurements.e_heart_rate == 72);
-        REQUIRE(sensor_measurements.e_heart_rate_d == 72);
+        REQUIRE(sensor_measurements.hr == 72);
+        REQUIRE(sensor_measurements.hr_d == 72);
+        REQUIRE(sensor_measurements.e_hr == 72);
+        REQUIRE(sensor_measurements.e_hr_d == 72);
         REQUIRE(sensor_measurements.spo2 == 97);
         REQUIRE(sensor_measurements.spo2_d == 97);
         REQUIRE(sensor_measurements.e_spo2 == 97);
@@ -502,10 +502,10 @@ SCENARIO("Validate the packets data with invalid data") {
       packet_output_status = packet_receiver.output(sensor_measurements);
       REQUIRE(packet_output_status == output_status_available);
       THEN("Validate the Heart Rate and SpO2") {
-        REQUIRE(sensor_measurements.heart_rate == 72);
-        REQUIRE(sensor_measurements.heart_rate_d == 72);
-        REQUIRE(sensor_measurements.e_heart_rate == 72);
-        REQUIRE(sensor_measurements.e_heart_rate_d == 72);
+        REQUIRE(sensor_measurements.hr == 72);
+        REQUIRE(sensor_measurements.hr_d == 72);
+        REQUIRE(sensor_measurements.e_hr == 72);
+        REQUIRE(sensor_measurements.e_hr_d == 72);
         REQUIRE(sensor_measurements.spo2 == 97);
         REQUIRE(sensor_measurements.spo2_d == 97);
         REQUIRE(sensor_measurements.e_spo2 == 97);

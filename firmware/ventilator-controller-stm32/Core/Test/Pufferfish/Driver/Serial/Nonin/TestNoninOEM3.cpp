@@ -520,10 +520,10 @@ SCENARIO("Validate NoninOEM3 for valid packet data", "[NoninOEM3]") {
       THEN("invoke the nonin_uart to read 125th byte data") {
         return_status = nonin_uart.output(sensor_measurements);
         REQUIRE(return_status == available_status);
-        REQUIRE(sensor_measurements.heart_rate == 72);
-        REQUIRE(sensor_measurements.heart_rate_d == 72);
-        REQUIRE(sensor_measurements.e_heart_rate == 72);
-        REQUIRE(sensor_measurements.e_heart_rate_d == 72);
+        REQUIRE(sensor_measurements.hr == 72);
+        REQUIRE(sensor_measurements.hr_d == 72);
+        REQUIRE(sensor_measurements.e_hr == 72);
+        REQUIRE(sensor_measurements.e_hr_d == 72);
         REQUIRE(sensor_measurements.spo2 == 97);
         REQUIRE(sensor_measurements.spo2_d == 97);
         REQUIRE(sensor_measurements.e_spo2 == 97);

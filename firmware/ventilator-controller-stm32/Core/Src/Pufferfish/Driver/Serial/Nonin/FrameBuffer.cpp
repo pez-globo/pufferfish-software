@@ -28,8 +28,8 @@ BufferStatus FrameBuffer::input(const uint8_t byte) {
     return BufferStatus::full;
   }
 
-  frame_buffer_[received_length_] = byte;
-  received_length_++;
+  frame_[received_length_] = byte;
+  ++received_length_;
 
   if (received_length_ == frame_max_size) {
     return BufferStatus::ok;
@@ -42,7 +42,7 @@ BufferStatus FrameBuffer::output(Frame &frame) {
   if (received_length_ != frame_max_size) {
     return BufferStatus::partial;
   }
-  frame = frame_buffer_;
+  frame = frame_;
 
   return BufferStatus::ok;
 }
@@ -52,12 +52,14 @@ void FrameBuffer::reset() {
 }
 
 void FrameBuffer::shift_left() {
-  if (received_length_ > 0) {
-    for (size_t index = 0; index < static_cast<size_t>(received_length_ - 1); index++) {
-      frame_buffer_[index] = frame_buffer_[index + 1];
-    }
-    received_length_--;
+  if (received_length_ == 0) {
+    return;
   }
+
+  for (size_t index = 0; index < (received_length_ - 1); ++index) {
+    frame_[index] = frame_[index + 1];
+  }
+  --received_length_;
 }
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

@@ -36,10 +36,10 @@ InitializableState Sensor::output(float &spo2, float &hr) {
     } else {
       spo2 = measurements_.e_spo2_d;
     }
-    if (measurements_.e_heart_rate_d == value_unavailable) {
+    if (measurements_.e_hr_d == value_unavailable) {
       hr = NAN;
     } else {
-      hr = measurements_.e_heart_rate_d;
+      hr = measurements_.e_hr_d;
     }
   }
   return InitializableState::ok;

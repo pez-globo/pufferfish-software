@@ -68,10 +68,10 @@ class FrameBuffer {
 
  private:
   /* Frame buffer */
-  Frame frame_buffer_{};
+  Frame frame_{};
 
   /* Length of frame received  */
-  uint8_t received_length_ = 0;
+  size_t received_length_ = 0;
 };
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

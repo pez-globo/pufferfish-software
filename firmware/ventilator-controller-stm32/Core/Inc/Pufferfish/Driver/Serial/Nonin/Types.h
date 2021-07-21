@@ -79,31 +79,28 @@ struct PacketMeasurements {
 };
 
 // Status Mask
-enum class Mask : static const uint8_t {
-  mask_6bit = 0b1111'111,
-  start_of_frame = 0b1000'0000,
-  snsd = 0b0100'0000,
-  artf = 0b0010'0000,
-  oot = 0b0001'0000,
-  snsa = 0b1000,
-  yprf = 0b0110,
-  rprf = 0b0100,
-  gprf = 0b0010,
+enum class Mask : const uint8_t {
+  start_of_frame = 0x80,
+  snsd = 0x40,
+  artf = 0x20,
+  oot = 0x10,
+  snsa = 0x08,
+  yprf = 0x06,
+  rprf = 0x04,
+  gprf = 0x02,
 };
 
 // Byte Index
-enum class ByteIndex : static const size_t {
-  hr_index = 0,
-  spo2_index = 2,
-  firmware_revision_index = 3,
-  spo2_d_index = 8,
-  spo2_fast_index = 9,
-  spo2_b_b_index = 10,
-  e_hr_index = 13,
-  e_spo2_index = 15,
-  e_spo2_d_index = 16,
-  hr_d_index = 19,
-  e_hr_d_index = 21,
-};
+static const size_t hr_index = 0;
+static const size_t spo2_index = 2;
+static const size_t firmware_revision_index = 3;
+static const size_t spo2_d_index = 8;
+static const size_t spo2_fast_index = 9;
+static const size_t spo2_b_b_index = 10;
+static const size_t e_hr_index = 13;
+static const size_t e_spo2_index = 15;
+static const size_t e_spo2_d_index = 16;
+static const size_t hr_d_index = 19;
+static const size_t e_hr_d_index = 21;
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

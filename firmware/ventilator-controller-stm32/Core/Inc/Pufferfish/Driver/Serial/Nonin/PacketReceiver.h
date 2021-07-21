@@ -35,6 +35,7 @@ enum class PacketInputStatus {
   frame_loss      /// missed one or more frames in previous received packet
 };
 using PacketOutputStatus = Pufferfish::Driver::Serial::Nonin::FrameOutputStatus;
+static const uint8_t mask_6bit = 0x7F;
 
 /**
  * @brief  Inline function to get the SpO2 data
@@ -43,7 +44,7 @@ using PacketOutputStatus = Pufferfish::Driver::Serial::Nonin::FrameOutputStatus;
  */
 inline uint16_t get_spo2_data(uint8_t byte_data) {
   /* Mask Bit0 to Bit6 for SpO2 data  */
-  return byte_data & Mask::6bit;
+  return byte_data & mask_6bit;
 }
 
 /**
@@ -59,7 +60,7 @@ inline uint16_t get_hr_data(uint8_t msb_byte, uint8_t lsb_byte) {
   static const uint16_t mask_9bit = 0x01FF;
   const uint16_t msb =
       static_cast<uint16_t>(static_cast<uint16_t>(msb_byte) << msb_shift) & mask_msb;
-  const uint16_t lsb = static_cast<uint16_t>(lsb_byte) & Mask::6bit;
+  const uint16_t lsb = static_cast<uint16_t>(lsb_byte) & mask_6bit;
   return static_cast<uint16_t>(msb | lsb) & mask_9bit;
 }
 

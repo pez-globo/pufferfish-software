@@ -34,17 +34,22 @@ namespace Pufferfish::Driver::Serial::Nonin {
  */
 void read_status_byte(
     PacketMeasurements &sensor_measurements, const size_t &frame_index, const uint8_t &byte_value) {
-  sensor_measurements.bit7[frame_index] = (byte_value & Mask::start_of_frame) == 0x00;
-  sensor_measurements.sensor_disconnect[frame_index] = (byte_value & Mask::snsd) != 0x00;
-  sensor_measurements.artifact[frame_index] = (byte_value & Mask::artf) != 0x00;
-  sensor_measurements.out_of_track[frame_index] = (byte_value & Mask::oot) != 0x00;
-  sensor_measurements.sensor_alarm[frame_index] = (byte_value & Mask::snsa) != 0x00;
+  sensor_measurements.bit7[frame_index] =
+      (byte_value & static_cast<uint8_t>(Mask::start_of_frame)) == 0x00;
+  sensor_measurements.sensor_disconnect[frame_index] =
+      (byte_value & static_cast<uint8_t>(Mask::snsd)) != 0x00;
+  sensor_measurements.artifact[frame_index] =
+      (byte_value & static_cast<uint8_t>(Mask::artf)) != 0x00;
+  sensor_measurements.out_of_track[frame_index] =
+      (byte_value & static_cast<uint8_t>(Mask::oot)) != 0x00;
+  sensor_measurements.sensor_alarm[frame_index] =
+      (byte_value & static_cast<uint8_t>(Mask::snsa)) != 0x00;
 
-  if ((byte_value & Mask::yprf) == Mask::yprf) {
+  if ((byte_value & static_cast<uint8_t>(Mask::yprf)) == static_cast<uint8_t>(Mask::yprf)) {
     sensor_measurements.signal_perfusion[frame_index] = SignalQuality::yellow_perfusion;
-  } else if ((byte_value & Mask::rprf) == Mask::rprf) {
+  } else if ((byte_value & static_cast<uint8_t>(Mask::rprf)) == static_cast<uint8_t>(Mask::rprf)) {
     sensor_measurements.signal_perfusion[frame_index] = SignalQuality::red_perfusion;
-  } else if ((byte_value & Mask::gprf) == Mask::gprf) {
+  } else if ((byte_value & static_cast<uint8_t>(Mask::gprf)) == static_cast<uint8_t>(Mask::gprf)) {
     sensor_measurements.signal_perfusion[frame_index] = SignalQuality::green_perfusion;
   } else {
     sensor_measurements.signal_perfusion[frame_index] = SignalQuality::no_perfusion;
@@ -58,22 +63,22 @@ void read_packet_measurements(PacketMeasurements &sensor_measurements, const Pac
   size_t frame_index = 0;
 
   sensor_measurements.hr =
-      get_hr_data(packet_data[hr_index][byte3], packet_data[ByteIndex::hr_index + 1][byte3]);
-  sensor_measurements.spo2 = get_spo2_data(packet_data[ByteIndex::spo2_index][byte3]);
-  sensor_measurements.firmware_revision = packet_data[ByteIndex::firmware_revision_index][byte3];
-  sensor_measurements.spo2_d = get_spo2_data(packet_data[ByteIndex::spo2_d_index][byte3]);
-  sensor_measurements.spo2_fast = get_spo2_data(packet_data[ByteIndex::spo2_fast_index][byte3]);
-  sensor_measurements.spo2_b_b = get_spo2_data(packet_data[ByteIndex::spo2_b_b_index][byte3]);
+      get_hr_data(packet_data[hr_index][byte3], packet_data[hr_index + 1][byte3]);
+  sensor_measurements.spo2 = get_spo2_data(packet_data[spo2_index][byte3]);
+  sensor_measurements.firmware_revision = packet_data[firmware_revision_index][byte3];
+  sensor_measurements.spo2_d = get_spo2_data(packet_data[spo2_d_index][byte3]);
+  sensor_measurements.spo2_fast = get_spo2_data(packet_data[spo2_fast_index][byte3]);
+  sensor_measurements.spo2_b_b = get_spo2_data(packet_data[spo2_b_b_index][byte3]);
   sensor_measurements.e_hr =
-      get_hr_data(packet_data[e_hr_index][byte3], packet_data[ByteIndex::e_hr_index + 1][byte3]);
-  sensor_measurements.e_spo2 = get_spo2_data(packet_data[ByteIndex::e_spo2_index][byte3]);
-  sensor_measurements.e_spo2_d = get_spo2_data(packet_data[ByteIndex::e_spo2_d_index][byte3]);
+      get_hr_data(packet_data[e_hr_index][byte3], packet_data[e_hr_index + 1][byte3]);
+  sensor_measurements.e_spo2 = get_spo2_data(packet_data[e_spo2_index][byte3]);
+  sensor_measurements.e_spo2_d = get_spo2_data(packet_data[e_spo2_d_index][byte3]);
   sensor_measurements.hr_d =
-      get_hr_data(packet_data[hr_d_index][byte3], packet_data[ByteIndex::hr_d_index + 1][byte3]);
-  sensor_measurements.e_hr_d = get_hr_data(
-      packet_data[e_hr_d_index][byte3], packet_data[ByteIndex::e_hr_d_index + 1][byte3]);
+      get_hr_data(packet_data[hr_d_index][byte3], packet_data[hr_d_index + 1][byte3]);
+  sensor_measurements.e_hr_d =
+      get_hr_data(packet_data[e_hr_d_index][byte3], packet_data[e_hr_d_index + 1][byte3]);
 
-  for (frame_index = 0; frame_index < packet_size; frame_index++) {
+  for (frame_index = 0; frame_index < packet_size; ++frame_index) {
     sensor_measurements.packet_pleth[frame_index] = packet_data[frame_index][byte2];
     read_status_byte(sensor_measurements, frame_index, packet_data[frame_index][byte1]);
   }
@@ -84,7 +89,7 @@ PacketInputStatus PacketReceiver::input(const Frame &frame) {
     if (received_length_ != packet_size) {
       received_length_ = 0;
       packet_data_[received_length_] = frame;
-      received_length_ = received_length_ + 1;
+      received_length_ += 1;
       input_status_ = PacketInputStatus::frame_loss;
 
       return input_status_;
@@ -99,7 +104,7 @@ PacketInputStatus PacketReceiver::input(const Frame &frame) {
   }
 
   packet_data_[received_length_] = frame;
-  received_length_ = received_length_ + 1;
+  received_length_ += 1;
 
   if (received_length_ != packet_size) {
     input_status_ = PacketInputStatus::waiting;
