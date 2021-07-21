@@ -1,11 +1,5 @@
 /**
- * ValueModal
- *
- * @component A container for setting the value of modal settings in multistep popup.
- * This is a modified version of ValueModal
- *
- * Uses the [[ContentProps]] interface
- * @returns JSX.Element
+ * @summary A Re-usable component for Setting Parameter Value in a Modal popup
  */
 import React, { useCallback, useEffect, useRef } from 'react';
 import { makeStyles, Theme, Grid, Typography } from '@material-ui/core';
@@ -66,6 +60,18 @@ interface ContentProps {
   max?: number;
 }
 
+/**
+ * ValueModal
+ *
+ * @component A container that displays the values of Parameters like FiO2/Flow
+ * and provides ValueClickers to adjust them.
+ * This component is not wrapped in a Modal Popup and is currently used inside
+ * the multistep modal popup(MultiStepWizard).
+ * It does not provide capability to adjust the alarm limits for these Parameters, which is provided by AlarmModal.
+ *
+ * Uses the [[ContentProps]] interface
+ * @returns JSX.Element
+ */
 const ValueModalContent = ({
   label,
   units,
