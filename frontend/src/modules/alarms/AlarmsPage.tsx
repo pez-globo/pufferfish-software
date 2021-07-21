@@ -7,7 +7,7 @@
 import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
-import React, { RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import React, { RefObject, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { AlarmLimitsRequest, VentilationMode, Range } from '../../store/proto/mcu_pb';
@@ -127,8 +127,8 @@ interface AlarmProps {
   max: number;
   stateKey: string;
   step?: number;
-  alarmLimits: AlarmLimitsRequest | null;
-  setAlarmLimits(alarmLimits: Partial<AlarmLimitsRequest>): void;
+  alarmLimits: Range | null;
+  requestCommitRange(range: Range): void;
 }
 
 enum SliderType {
@@ -152,25 +152,16 @@ const Alarm = ({
   stateKey,
   step,
   alarmLimits,
-  setAlarmLimits,
+  requestCommitRange,
 }: AlarmProps): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
   const { initRefListener } = useRotaryReference(theme);
-  // TODO: when the software is in ventilating mode, the user must be able to
-  // discard changes (which means that any alarm limits being persisted in
-  // AlarmLimitsRequestStandby would need to be reset using the values from
-  // AlarmLimitsRequest, when the user wants to discard values). This could
-  // be done with by dispatching a commitDraftRequest action with the
-  // alarmLimitsRequest selector as the update field.
-  const range =
-    alarmLimits === null
-      ? undefined
-      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
-  const rangeValues: number[] = useMemo(
-    () => [range === undefined ? NaN : range.lower, range === undefined ? NaN : range.upper],
-    [range],
-  );
+  const range = alarmLimits === null ? undefined : alarmLimits;
+  const [rangeValues, setAlarmLimits] = useState(() => [
+    range === undefined ? NaN : range.lower,
+    range === undefined ? NaN : range.upper,
+  ]);
   /**
    * State to manage Wrapper HTML reference of Alarm's lower & higher Controls(ValueSlider & ValueClicker)
    * This wrapper's HTML border is added or removed based on user's interaction with Alarm Controls
@@ -188,8 +179,15 @@ const Alarm = ({
    *
    */
   const setRangevalue = (range: number[]) => {
-    setAlarmLimits({ [stateKey]: { lower: range[0], upper: range[1] } });
+    setAlarmLimits(range);
   };
+
+  /**
+   * Triggers whenever rangeValue is updated in redux
+   */
+  useEffect(() => {
+    requestCommitRange(Range.fromJSON({ lower: rangeValues[0], upper: rangeValues[1] }));
+  }, [requestCommitRange, rangeValues]);
 
   /**
    * Updates Alarm limit value on value clicker click event
@@ -202,12 +200,11 @@ const Alarm = ({
     setActiveRotaryReference(
       type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
     );
-    setAlarmLimits({
-      [stateKey]: {
-        lower: type === SliderType.LOWER ? value : rangeValues[0],
-        upper: type === SliderType.UPPER ? value : rangeValues[1],
-      },
-    });
+    setAlarmLimits([
+      type === SliderType.LOWER ? value : rangeValues[0],
+      type === SliderType.UPPER ? value : rangeValues[1],
+    ]);
+    requestCommitRange({ lower: rangeValues[0], upper: rangeValues[1] });
   };
 
   /**
@@ -368,6 +365,8 @@ export const AlarmsPage = (): JSX.Element => {
   const itemsPerPage = 5;
   const [page, setPage] = React.useState(1);
   const [pageCount, setPageCount] = React.useState(1);
+  const [parameter] = React.useState<AlarmProps>();
+  const [key] = React.useState('');
 
   /**
    * Trigger on Pagination click event
@@ -404,13 +403,14 @@ export const AlarmsPage = (): JSX.Element => {
    * Updating the alarm limit request to redux
    */
   const applyChanges = () => {
-    if (alarmLimitsRequestDraft === null) {
+    if (parameter === undefined) {
       return;
     }
+    const update = {
+      [key]: parameter?.alarmLimits,
+    };
 
-    dispatch(
-      commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, alarmLimitsRequestDraft),
-    );
+    dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
   };
   const alarmConfig = alarmConfiguration(currentMode);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -448,6 +448,13 @@ export const AlarmsPage = (): JSX.Element => {
     setDiscardOpen(true);
   };
 
+  const handleAlarmLimitsRange = (range: Range) => {
+    if (parameter) {
+      const state = alarmConfig.find((alarm: AlarmConfiguration) => alarm.stateKey === key);
+      if (state) parameter.alarmLimits = range;
+    }
+  };
+
   /**
    * Calls everytime when `alarmConfig` variable changes
    * Updates the page count
@@ -473,7 +480,8 @@ export const AlarmsPage = (): JSX.Element => {
           <Grid container spacing={3} style={{ margin: '-10px -12px' }}>
             {/* Splits Alarms based on page number & itemsPerPage count to show in the page */}
             {alarmConfig.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((alarm) => {
-              const key = `alarm-config-${alarm.stateKey}`;
+              const key = `${alarm.stateKey}`;
+              // setKey(key);
               return (
                 <Alarm
                   key={key}
@@ -482,8 +490,11 @@ export const AlarmsPage = (): JSX.Element => {
                   max={alarm.max || 100}
                   stateKey={alarm.stateKey}
                   step={alarm.step || 1}
-                  alarmLimits={alarmLimitsRequestDraftSelect}
-                  setAlarmLimits={setAlarmLimitsRequestDraft}
+                  alarmLimits={Range.fromJSON({
+                    lower: alarmLimitsRequestDraft[alarm.stateKey].lower,
+                    upper: alarmLimitsRequestDraft[alarm.stateKey].upper,
+                  })}
+                  requestCommitRange={handleAlarmLimitsRange}
                 />
               );
             })}
@@ -519,17 +530,14 @@ export const AlarmsPage = (): JSX.Element => {
                   Cancel
                 </Button>
               ) : null}
-              {ventilating ? (
-                <Button
-                  onClick={handleConfirmOpen}
-                  color="secondary"
-                  variant="contained"
-                  className={classes.applyButton}
-                  disabled={!alarmLimitsRequestUnsaved}
-                >
-                  Submit
-                </Button>
-              ) : null}
+              <Button
+                onClick={handleConfirmOpen}
+                color="secondary"
+                variant="contained"
+                className={classes.applyButton}
+              >
+                {ventilating ? 'Submit' : 'Apply Changes'}
+              </Button>
               <ModalPopup
                 withAction={true}
                 label="Set Alarms"
