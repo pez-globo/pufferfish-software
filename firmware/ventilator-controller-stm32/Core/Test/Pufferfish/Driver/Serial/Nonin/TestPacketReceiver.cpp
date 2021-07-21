@@ -38,8 +38,8 @@ const PF::Driver::Serial::Nonin::PacketInputStatus input_status_waiting =
 const PF::Driver::Serial::Nonin::PacketInputStatus input_status_available =
     PF::Driver::Serial::Nonin::PacketInputStatus::available;
 
-const PF::Driver::Serial::Nonin::PacketInputStatus input_status_missed_data =
-    PF::Driver::Serial::Nonin::PacketInputStatus::missed_data;
+const PF::Driver::Serial::Nonin::PacketInputStatus input_status_frame_loss =
+    PF::Driver::Serial::Nonin::PacketInputStatus::frame_loss;
 
 const PF::Driver::Serial::Nonin::SignalAmplitude green_perfusion =
     PF::Driver::Serial::Nonin::SignalAmplitude::green_perfusion;
@@ -184,7 +184,7 @@ SCENARIO("Validate the valid first Packet", "[NoninOem3]") {
         REQUIRE(sensor_measurements.e_spo2_d == 97);
         REQUIRE(sensor_measurements.spo2_d_beat == 97);
         REQUIRE(sensor_measurements.spo2_d_fast == 97);
-        REQUIRE(sensor_measurements.nonin_oem_revision == 48);
+        REQUIRE(sensor_measurements.firmware_revision == 48);
       }
     }
   }
@@ -359,7 +359,7 @@ SCENARIO("Validate the packets data with invalid data") {
         REQUIRE(sensor_measurements.e_spo2_d == 97);
         REQUIRE(sensor_measurements.spo2_d_beat == 97);
         REQUIRE(sensor_measurements.spo2_d_fast == 97);
-        REQUIRE(sensor_measurements.nonin_oem_revision == 48);
+        REQUIRE(sensor_measurements.firmware_revision == 48);
       }
     }
     AND_WHEN("Packet input status is available on input of 25 frames") {
@@ -367,18 +367,18 @@ SCENARIO("Validate the packets data with invalid data") {
         packet_input_status = packet_receiver.input(test_frames[index]);
       }
       REQUIRE(packet_input_status == input_status_available);
-      THEN("Input of 26th and 27th noise frame shall return missed_data") {
+      THEN("Input of 26th and 27th noise frame shall return frame_loss") {
         for (index = 25; index < 27; index++) {
           packet_input_status = packet_receiver.input(test_frames[index]);
-          REQUIRE(packet_input_status == input_status_missed_data);
+          REQUIRE(packet_input_status == input_status_frame_loss);
         }
       }
     }
-    AND_WHEN("Packet input status missed_data on input of 27 frames") {
+    AND_WHEN("Packet input status frame_loss on input of 27 frames") {
       for (index = 0; index < 27; index++) {
         packet_input_status = packet_receiver.input(test_frames[index]);
       }
-      REQUIRE(packet_input_status == input_status_missed_data);
+      REQUIRE(packet_input_status == input_status_frame_loss);
       THEN("Input of 28th frame (first frame of next packet) shall return waiting") {
         packet_input_status = packet_receiver.input(test_frames[27]);
         REQUIRE(packet_input_status == input_status_waiting);
@@ -466,18 +466,18 @@ SCENARIO("Validate the packets data with invalid data") {
         packet_input_status = packet_receiver.input(test_frames[index]);
         REQUIRE(packet_input_status == input_status_waiting);
       }
-      THEN("packet Input Status shall be missed_data") {
+      THEN("packet Input Status shall be frame_loss") {
         packet_input_status = packet_receiver.input(test_frames[23]);
         REQUIRE((test_frames[index][1] & 0x01U) == 0x01);
         REQUIRE(23 != PF::Driver::Serial::Nonin::packet_size);
-        REQUIRE(packet_input_status == input_status_missed_data);
+        REQUIRE(packet_input_status == input_status_frame_loss);
       }
     }
     AND_WHEN("25th to 47 frames packet Input Status shall be waiting") {
       for (index = 0; index < 24; index++) {
         packet_input_status = packet_receiver.input(test_frames[index]);
       }
-      THEN("on 24th frame packet Input Status shall be missed_data")
+      THEN("on 24th frame packet Input Status shall be frame_loss")
       for (index = 24; index < 47; index++) {
         packet_input_status = packet_receiver.input(test_frames[index]);
         REQUIRE((test_frames[index][1] & 0x01U) != 0x01);
@@ -512,7 +512,7 @@ SCENARIO("Validate the packets data with invalid data") {
         REQUIRE(sensor_measurements.e_spo2_d == 97);
         REQUIRE(sensor_measurements.spo2_d_beat == 97);
         REQUIRE(sensor_measurements.spo2_d_fast == 97);
-        REQUIRE(sensor_measurements.nonin_oem_revision == 48);
+        REQUIRE(sensor_measurements.firmware_revision == 48);
       }
     }
   }

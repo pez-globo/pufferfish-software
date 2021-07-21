@@ -28,9 +28,9 @@ namespace Pufferfish::Driver::Serial::Nonin {
 
 /* FrameReceiver input status return values */
 enum class FrameInputStatus {
-  waiting = 0,    /// Input is ready to receive new bytes of sensor data
-  framing_error,  /// Error in checksum or status byte or in byte 1 of a frame
-  available       /// frame is available
+  waiting = 0,   /// Input is ready to receive new bytes of sensor data
+  check_failed,  /// Error in checksum or status byte or in byte 1 of a frame
+  available      /// frame is available
 };
 
 /* FrameReceiver output status return values */

@@ -26,8 +26,8 @@ namespace PF = Pufferfish;
 using PF::Driver::Serial::Nonin::Frame;
 using PF::Util::Containers::make_array;
 
-const PF::Driver::Serial::Nonin::FrameInputStatus input_framing_error =
-    PF::Driver::Serial::Nonin::FrameInputStatus::framing_error;
+const PF::Driver::Serial::Nonin::FrameInputStatus input_checksum_failed =
+    PF::Driver::Serial::Nonin::FrameInputStatus::checksum_failed;
 
 const PF::Driver::Serial::Nonin::FrameInputStatus input_available =
     PF::Driver::Serial::Nonin::FrameInputStatus::available;
@@ -298,7 +298,7 @@ SCENARIO("Validate function 'validate_start_of_frame' ", "[NoninOEM3]") {
   GIVEN("A Frame having invalid checksum") {
     frame_buffer = {0x01, 0x81, 0x02, 0x00, 0x00};
     WHEN("FRAME DATA : 0x01  0x81 0x02  0x00  0x00") {
-      THEN("validate_frame() shall return framing_error") {
+      THEN("validate_frame() shall return checksum_failed") {
         REQUIRE(((frame_buffer[0] == 0x01) && ((frame_buffer[1] & 0x81U) == 0x81)));
         checksum = (frame_buffer[0] + frame_buffer[1] + frame_buffer[2] + frame_buffer[3]) % 256;
         REQUIRE(frame_buffer[4] != checksum);
@@ -310,7 +310,7 @@ SCENARIO("Validate function 'validate_start_of_frame' ", "[NoninOEM3]") {
   GIVEN("A Frame having invalid status Byte") {
     frame_buffer = {0x01, 0x7F, 0x02, 0x00, 0x82};
     WHEN("FRAME DATA : 0x01  0x7F 0x02  0x00  0x82") {
-      THEN("validate_frame()' shall return framing_error") {
+      THEN("validate_frame()' shall return checksum_failed") {
         REQUIRE(((frame_buffer[0] == 0x01) && ((frame_buffer[1] & 0x81U) != 0x81)));
         REQUIRE(PF::Driver::Serial::Nonin::validate_start_of_frame(frame_buffer) == false);
       }
@@ -351,12 +351,12 @@ SCENARIO("Validate function 'validate_frame' ", "[NoninOEM3]") {
   GIVEN("A Frame having invalid checksum") {
     frame_buffer = {0x01, 0x80, 0x02, 0x00, 0x00};
     WHEN("FRAME DATA : 0x01  0x80 0x02  0x00  0x00") {
-      THEN("On 'validate_frame()' shall return framing_error") {
+      THEN("On 'validate_frame()' shall return checksum_failed") {
         REQUIRE(((frame_buffer[0] == 0x01) && ((frame_buffer[1] & 0x80U) == 0x80)));
         checksum = (frame_buffer[0] + frame_buffer[1] + frame_buffer[2] + frame_buffer[3]) % 256;
         REQUIRE(frame_buffer[4] != checksum);
         frame_input_status = PF::Driver::Serial::Nonin::validate_frame(frame_buffer);
-        REQUIRE(frame_input_status == input_framing_error);
+        REQUIRE(frame_input_status == input_checksum_failed);
       }
     }
   }
@@ -364,10 +364,10 @@ SCENARIO("Validate function 'validate_frame' ", "[NoninOEM3]") {
   GIVEN("A Frame having invalid status Byte") {
     frame_buffer = {0x01, 0x7F, 0x02, 0x00, 0x82};
     WHEN("FRAME DATA : 0x01  0x7F 0x02  0x00  0x82") {
-      THEN("On validate_frame() shall return framing_error") {
+      THEN("On validate_frame() shall return checksum_failed") {
         REQUIRE(((frame_buffer[0] == 0x01) && ((frame_buffer[1] & 0x80U) != 0x80)));
         frame_input_status = PF::Driver::Serial::Nonin::validate_frame(frame_buffer);
-        REQUIRE(frame_input_status == input_framing_error);
+        REQUIRE(frame_input_status == input_checksum_failed);
       }
     }
   }

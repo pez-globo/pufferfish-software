@@ -37,8 +37,8 @@ PacketStatus Device::output(PacketMeasurements &sensor_measurements) {
   /* Input byte to frame receiver and validate the frame available */
   switch (frame_receiver_.input(read_byte)) {
     /* Return sensor status is waiting to receive more bytes of data */
-    case FrameInputStatus::framing_error:
-      return PacketStatus::framing_error;
+    case FrameInputStatus::checksum_failed:
+      return PacketStatus::checksum_failed;
 
     /* Return sensor status is waiting to receive more bytes of data */
     case FrameInputStatus::waiting:
@@ -64,8 +64,8 @@ PacketStatus Device::output(PacketMeasurements &sensor_measurements) {
 
     /* Discard the packet due to status byte error, wait for the new packet to
      * receive */
-    case PacketInputStatus::missed_data:
-      return PacketStatus::missed_data;
+    case PacketInputStatus::frame_loss:
+      return PacketStatus::frame_loss;
 
     /* On PacketInputStatus available continue */
     case PacketInputStatus::available:

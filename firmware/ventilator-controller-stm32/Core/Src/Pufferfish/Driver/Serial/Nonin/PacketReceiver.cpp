@@ -94,7 +94,7 @@ void read_packet_measurements(PacketMeasurements &sensor_measurements, const Pac
    * Nonin Oximeter Firmware Revision Level
    * sensorData 4th frame of packet contains Firmware Revision Level
    */
-  sensor_measurements.nonin_oem_revision = packet_data[nonin_oem_revision_index][byte3];
+  sensor_measurements.firmware_revision = packet_data[firmware_revision_index][byte3];
 
   /**
    * spo2-D: 4-beat average displayed values in display mode
@@ -178,7 +178,7 @@ PacketInputStatus PacketReceiver::input(const Frame &frame) {
 
       /* Update input status to missedData to report few frames of data are
        * missed in previous packet */
-      input_status_ = PacketInputStatus::missed_data;
+      input_status_ = PacketInputStatus::frame_loss;
       return input_status_;
     }
     /* Update the frame index to 0 */
@@ -188,7 +188,7 @@ PacketInputStatus PacketReceiver::input(const Frame &frame) {
   /* Check for received_length_ is invalid */
   if (received_length_ >= packet_size) {
     /* missed in previous packet */
-    input_status_ = PacketInputStatus::missed_data;
+    input_status_ = PacketInputStatus::frame_loss;
     return input_status_;
   }
 

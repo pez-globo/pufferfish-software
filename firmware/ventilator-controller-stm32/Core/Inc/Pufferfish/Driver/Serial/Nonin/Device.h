@@ -29,11 +29,10 @@
 namespace Pufferfish::Driver::Serial::Nonin {
 
 enum class PacketStatus {
-  available = 0,  /// Packet/measurements is available
-  waiting,        /// Packet/measurements is waiting to receive more bytes of data
-  not_available,  /// Packet/measurements are not available
-  framing_error,  /// Error in checksum or status byte or in byte 1 of a frame
-  missed_data     /// Missed a packet due loss of frames
+  available = 0,    /// Packet/measurements is available
+  waiting,          /// Packet/measurements is waiting to receive more bytes of data
+  checksum_failed,  /// Error in checksum or status byte or in byte 1 of a frame
+  frame_loss       /// Missed a packet due loss of frames
 };
 
 /**

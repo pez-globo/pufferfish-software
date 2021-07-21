@@ -59,7 +59,7 @@ FrameInputStatus validate_frame(const Frame &new_frame) {
   }
 
   /* return the frame status as not available */
-  return FrameInputStatus::framing_error;
+  return FrameInputStatus::checksum_failed;
 }
 
 FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
@@ -96,7 +96,7 @@ FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
 
   /* Validate the frame received and return the status */
   input_status_ = validate_frame(frame_buffer);
-  if (input_status_ == FrameInputStatus::framing_error) {
+  if (input_status_ == FrameInputStatus::checksum_failed) {
     /* On checksum error update the start frame status as false */
     start_of_frame_status_ = false;
   }
