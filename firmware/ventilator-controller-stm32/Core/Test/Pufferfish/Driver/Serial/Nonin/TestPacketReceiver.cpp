@@ -41,14 +41,14 @@ const PF::Driver::Serial::Nonin::PacketInputStatus input_status_output_ready =
 const PF::Driver::Serial::Nonin::PacketInputStatus input_status_frame_loss =
     PF::Driver::Serial::Nonin::PacketInputStatus::frame_loss;
 
-const PF::Driver::Serial::Nonin::SignalAmplitude green_perfusion =
-    PF::Driver::Serial::Nonin::SignalAmplitude::green_perfusion;
-const PF::Driver::Serial::Nonin::SignalAmplitude red_perfusion =
-    PF::Driver::Serial::Nonin::SignalAmplitude::red_perfusion;
-const PF::Driver::Serial::Nonin::SignalAmplitude yellow_perfusion =
-    PF::Driver::Serial::Nonin::SignalAmplitude::yellow_perfusion;
-const PF::Driver::Serial::Nonin::SignalAmplitude no_perfusion =
-    PF::Driver::Serial::Nonin::SignalAmplitude::no_perfusion;
+const PF::Driver::Serial::Nonin::SignalQuality green_perfusion =
+    PF::Driver::Serial::Nonin::SignalQuality::green_perfusion;
+const PF::Driver::Serial::Nonin::SignalQuality red_perfusion =
+    PF::Driver::Serial::Nonin::SignalQuality::red_perfusion;
+const PF::Driver::Serial::Nonin::SignalQuality yellow_perfusion =
+    PF::Driver::Serial::Nonin::SignalQuality::yellow_perfusion;
+const PF::Driver::Serial::Nonin::SignalQuality no_perfusion =
+    PF::Driver::Serial::Nonin::SignalQuality::no_perfusion;
 
 SCENARIO("validate the read_status_byte function") {
   PF::Driver::Serial::Nonin::Sample sensor_measurements{};
@@ -182,8 +182,8 @@ SCENARIO("Validate the valid first Packet", "[NoninOem3]") {
         REQUIRE(sensor_measurements.spo2_d == 97);
         REQUIRE(sensor_measurements.e_spo2 == 97);
         REQUIRE(sensor_measurements.e_spo2_d == 97);
-        REQUIRE(sensor_measurements.spo2_d_beat == 97);
-        REQUIRE(sensor_measurements.spo2_d_fast == 97);
+        REQUIRE(sensor_measurements.spo2_b_b == 97);
+        REQUIRE(sensor_measurements.spo2_fast == 97);
         REQUIRE(sensor_measurements.firmware_revision == 48);
       }
     }
@@ -357,8 +357,8 @@ SCENARIO("Validate the packets data with invalid data") {
         REQUIRE(sensor_measurements.spo2_d == 97);
         REQUIRE(sensor_measurements.e_spo2 == 97);
         REQUIRE(sensor_measurements.e_spo2_d == 97);
-        REQUIRE(sensor_measurements.spo2_d_beat == 97);
-        REQUIRE(sensor_measurements.spo2_d_fast == 97);
+        REQUIRE(sensor_measurements.spo2_b_b == 97);
+        REQUIRE(sensor_measurements.spo2_fast == 97);
         REQUIRE(sensor_measurements.firmware_revision == 48);
       }
     }
@@ -510,8 +510,8 @@ SCENARIO("Validate the packets data with invalid data") {
         REQUIRE(sensor_measurements.spo2_d == 97);
         REQUIRE(sensor_measurements.e_spo2 == 97);
         REQUIRE(sensor_measurements.e_spo2_d == 97);
-        REQUIRE(sensor_measurements.spo2_d_beat == 97);
-        REQUIRE(sensor_measurements.spo2_d_fast == 97);
+        REQUIRE(sensor_measurements.spo2_b_b == 97);
+        REQUIRE(sensor_measurements.spo2_fast == 97);
         REQUIRE(sensor_measurements.firmware_revision == 48);
       }
     }

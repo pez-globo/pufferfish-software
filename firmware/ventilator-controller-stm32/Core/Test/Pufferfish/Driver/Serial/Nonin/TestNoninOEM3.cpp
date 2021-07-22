@@ -527,8 +527,8 @@ SCENARIO("Validate NoninOEM3 for valid packet data", "[NoninOEM3]") {
         REQUIRE(sensor_measurements.spo2_d == 97);
         REQUIRE(sensor_measurements.e_spo2 == 97);
         REQUIRE(sensor_measurements.e_spo2_d == 97);
-        REQUIRE(sensor_measurements.spo2_d_beat == 97);
-        REQUIRE(sensor_measurements.spo2_d_fast == 97);
+        REQUIRE(sensor_measurements.spo2_b_b == 97);
+        REQUIRE(sensor_measurements.spo2_fast == 97);
         REQUIRE(sensor_measurements.firmware_revision == 48);
       }
     }
