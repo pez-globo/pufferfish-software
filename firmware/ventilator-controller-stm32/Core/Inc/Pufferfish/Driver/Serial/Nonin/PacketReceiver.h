@@ -60,7 +60,7 @@ inline uint16_t get_hr_data(uint8_t msb_byte, uint8_t lsb_byte) {
   static const uint16_t hr_missing_data = 0x01FF;
   const uint16_t msb =
       static_cast<uint16_t>(static_cast<uint16_t>(msb_byte) << msb_shift) & mask_msb;
-  const uint16_t lsb = static_cast<uint16_t>(lsb_byte) & mask_6bit;
+  const uint16_t lsb = static_cast<uint16_t>(lsb_byte) & spo2_missing_data;
   return static_cast<uint16_t>(msb | lsb) & hr_missing_data;
 }
 
