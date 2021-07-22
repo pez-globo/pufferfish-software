@@ -267,7 +267,18 @@ export const getSpO2AlarmLimitsRequest = alarmLimitsSelector(getAlarmLimitsReque
 export const getHRAlarmLimitsRequest = alarmLimitsSelector(getAlarmLimitsRequest, 'hr');
 export const getFiO2AlarmLimitsCurrent = alarmLimitsSelector(getAlarmLimitsCurrent, 'fio2');
 export const getFlowAlarmLimitsCurrent = alarmLimitsSelector(getAlarmLimitsCurrent, 'flow');
-
+const automaticAlarmLimitsRangeSelector = (selector: SelectorType, value: number) =>
+  createSelector(selector, (param: number) => {
+    return { lower: param - value, upper: param + value };
+  });
+export const getFiO2AlarmLimitsDraft = automaticAlarmLimitsRangeSelector(
+  getParametersRequestDraftFiO2,
+  2,
+);
+export const getFlowAlarmLimitsDraft = automaticAlarmLimitsRangeSelector(
+  getParametersRequestDraftFlow,
+  2,
+);
 // Event log
 
 export const getEventLog = createSelector(

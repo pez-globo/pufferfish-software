@@ -457,11 +457,10 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
         <AlarmModal
           onModalClose={() => setAlarmOpen(false)}
           openModal={alarmOpen}
-          disableAlarmButton={true}
           label={currentRow.head}
           units={currentRow.unit}
           stateKey={currentRow.stateKey}
-          requestCommitRange={() => null}
+          handleCommittedRange={() => null}
         />
       )}
     </Grid>
