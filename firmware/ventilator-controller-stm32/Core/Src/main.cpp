@@ -318,7 +318,7 @@ PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 // HoneyWell ABP
 PF::Driver::I2C::HoneywellABP::Device abp_dev(
     i2c_hal_abp, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3);
-PF::Driver::I2C::HoneywellABP::Sensor abp(abp_dev);
+PF::Driver::I2C::HoneywellABP::Sensor abp(abp_dev, hal_time);
 
 // SFM3019
 
