@@ -49,7 +49,7 @@ class Device {
    * @param  sensorMeasurements is updated on available of packet/measurements
    * @return returns the status of Nonin OEM III packet measurements
    */
-  PacketStatus output(PacketMeasurements &sensor_measurements);
+  PacketStatus output(Sample &sensor_measurements);
 
  private:
   volatile HAL::Interfaces::BufferedUART &nonin_uart_;

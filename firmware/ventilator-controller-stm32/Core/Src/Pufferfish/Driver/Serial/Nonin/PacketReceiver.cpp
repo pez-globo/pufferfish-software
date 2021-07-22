@@ -33,7 +33,7 @@ namespace Pufferfish::Driver::Serial::Nonin {
  * @return None
  */
 void read_status_byte(
-    PacketMeasurements &sensor_measurements, const size_t &frame_index, const uint8_t &byte_value) {
+    Sample &sensor_measurements, const size_t &frame_index, const uint8_t &byte_value) {
   sensor_measurements.sensor_disconnect[frame_index] = (byte_value & snsd) != 0x00;
   sensor_measurements.artifact[frame_index] = (byte_value & artf) != 0x00;
   sensor_measurements.out_of_track[frame_index] = (byte_value & oot) != 0x00;
@@ -51,7 +51,7 @@ void read_status_byte(
   }
 }
 
-void read_packet_measurements(PacketMeasurements &sensor_measurements, const Packet &packet_data) {
+void read_packet_measurements(Sample &sensor_measurements, const Packet &packet_data) {
   const uint8_t byte1 = 1;
   const uint8_t byte2 = 2;
   const uint8_t byte3 = 3;
@@ -108,7 +108,7 @@ PacketInputStatus PacketReceiver::input(const Frame &frame) {
   return PacketInputStatus::available;
 }
 
-PacketOutputStatus PacketReceiver::output(PacketMeasurements &sensor_measurements) {
+PacketOutputStatus PacketReceiver::output(Sample &sensor_measurements) {
   if (input_status_ != PacketInputStatus::available) {
     return PacketOutputStatus::waiting;
   }

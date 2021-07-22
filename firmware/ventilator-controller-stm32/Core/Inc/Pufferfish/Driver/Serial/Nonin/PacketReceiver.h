@@ -85,7 +85,7 @@ class PacketReceiver {
    * @param  sensorMeasurements is updated on available of measurements
    * @return Packet Output status on available of measurements
    */
-  PacketOutputStatus output(PacketMeasurements &sensor_measurements);
+  PacketOutputStatus output(Sample &sensor_measurements);
 
  private:
   Packet packet_data_{};
@@ -93,6 +93,6 @@ class PacketReceiver {
 };
 
 extern void read_status_byte(
-    PacketMeasurements &sensor_measurements, const size_t &frame_index, const uint8_t &byte_value);
+    Sample &sensor_measurements, const size_t &frame_index, const uint8_t &byte_value);
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

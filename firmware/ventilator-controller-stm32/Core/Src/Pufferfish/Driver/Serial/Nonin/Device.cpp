@@ -23,7 +23,7 @@
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
-PacketStatus Device::output(PacketMeasurements &sensor_measurements) {
+PacketStatus Device::output(Sample &sensor_measurements) {
   uint8_t read_byte = 0;
   Frame frame_buffer;
 

@@ -51,28 +51,28 @@ const PF::Driver::Serial::Nonin::SignalAmplitude no_perfusion =
     PF::Driver::Serial::Nonin::SignalAmplitude::no_perfusion;
 
 SCENARIO("validate the read_status_byte function") {
-  PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+  PF::Driver::Serial::Nonin::Sample sensor_measurements{};
   uint8_t byte_value = 0;
   const uint8_t frame_index = 1;
   GIVEN("A Status Byte ") {
     byte_value = 0x82;
     WHEN("Status Byte value is 0x82") {
       PF::Driver::Serial::Nonin::read_status_byte(sensor_measurements, frame_index, byte_value);
-      THEN("Signal perfusion in PacketMeasurements shall be green perfusion") {
+      THEN("Signal perfusion in Sample shall be green perfusion") {
         REQUIRE(sensor_measurements.signal_perfusion[1] == green_perfusion);
       }
     }
     byte_value = 0x84;
     WHEN("Status Byte value is 0x84") {
       PF::Driver::Serial::Nonin::read_status_byte(sensor_measurements, frame_index, byte_value);
-      THEN("Signal perfusion in PacketMeasurements shall be red perfusion") {
+      THEN("Signal perfusion in Sample shall be red perfusion") {
         REQUIRE(sensor_measurements.signal_perfusion[1] == red_perfusion);
       }
     }
     byte_value = 0x86;
     WHEN("Status Byte value is 0x86") {
       PF::Driver::Serial::Nonin::read_status_byte(sensor_measurements, frame_index, byte_value);
-      THEN("Signal perfusion in PacketMeasurements shall be yellow perfusion") {
+      THEN("Signal perfusion in Sample shall be yellow perfusion") {
         REQUIRE(sensor_measurements.signal_perfusion[1] == yellow_perfusion);
       }
     }
@@ -136,7 +136,7 @@ SCENARIO("Validate the valid first Packet", "[NoninOem3]") {
     PF::Driver::Serial::Nonin::PacketReceiver packet_receiver;
     PF::Driver::Serial::Nonin::PacketInputStatus packet_input_status;
     PF::Driver::Serial::Nonin::PacketOutputStatus packet_output_status;
-    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+    PF::Driver::Serial::Nonin::Sample sensor_measurements{};
     WHEN("Receiving first frame of data from FrameReceiver") {
       packet_input_status = packet_receiver.input(test_packet[0]);
       REQUIRE(0x01 == ((test_packet[0][1]) & 0x01U));
@@ -221,7 +221,7 @@ SCENARIO("Validate the valid first Packet", "[NoninOem3]") {
     PF::Driver::Serial::Nonin::PacketReceiver packet_receiver;
     PF::Driver::Serial::Nonin::PacketInputStatus packet_input_status;
     PF::Driver::Serial::Nonin::PacketOutputStatus packet_output_status;
-    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+    PF::Driver::Serial::Nonin::Sample sensor_measurements{};
     WHEN("Receiving first frame of data from FrameReceiver") {
       packet_input_status = packet_receiver.input(test_packet[0]);
       REQUIRE(0x01 == ((test_packet[0][1]) & 0x01U));
@@ -313,7 +313,7 @@ SCENARIO("Validate the packets data with invalid data") {
     PF::Driver::Serial::Nonin::PacketReceiver packet_receiver;
     PF::Driver::Serial::Nonin::PacketInputStatus packet_input_status;
     PF::Driver::Serial::Nonin::PacketOutputStatus packet_output_status;
-    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+    PF::Driver::Serial::Nonin::Sample sensor_measurements{};
 
     WHEN("Receiving first frame of data from FrameReceiver") {
       packet_input_status = packet_receiver.input(test_frames[0]);
@@ -442,7 +442,7 @@ SCENARIO("Validate the packets data with invalid data") {
     PF::Driver::Serial::Nonin::PacketReceiver packet_receiver;
     PF::Driver::Serial::Nonin::PacketInputStatus packet_input_status;
     PF::Driver::Serial::Nonin::PacketOutputStatus packet_output_status;
-    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+    PF::Driver::Serial::Nonin::Sample sensor_measurements{};
 
     WHEN("Receiving first frame of data from FrameReceiver") {
       packet_input_status = packet_receiver.input(test_frames[0]);
@@ -529,7 +529,7 @@ SCENARIO("Validate the packets data with invalid data") {
     PF::Driver::Serial::Nonin::PacketReceiver packet_receiver;
     PF::Driver::Serial::Nonin::PacketInputStatus packet_input_status;
     PF::Driver::Serial::Nonin::PacketOutputStatus packet_output_status;
-    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+    PF::Driver::Serial::Nonin::Sample sensor_measurements{};
 
     WHEN("Receiving first frame of data from FrameReceiver") {
       packet_input_status = packet_receiver.input(test_frames[0]);

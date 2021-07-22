@@ -41,7 +41,7 @@ PF::Driver::Serial::Nonin::PacketStatus checksum_failed_status =
 SCENARIO("No input data received from BufferedUART", "[NoninOEM3]") {
   PF::HAL::Mock::ReadOnlyBufferedUART mock_uart;
   PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
-  PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+  PF::Driver::Serial::Nonin::Sample sensor_measurements{};
   PF::Driver::Serial::Nonin::PacketStatus return_status;
 
   GIVEN("Input data received from BufferedUART is empty") {
@@ -57,7 +57,7 @@ SCENARIO("No input data received from BufferedUART", "[NoninOEM3]") {
 SCENARIO("Complete packet is not available", "[NoninOEM3]") {
   PF::HAL::Mock::ReadOnlyBufferedUART mock_uart;
   PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
-  PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+  PF::Driver::Serial::Nonin::Sample sensor_measurements{};
   PF::Driver::Serial::Nonin::PacketStatus return_status;
 
   GIVEN("4 bytes of BufferedUART data") {
@@ -211,7 +211,7 @@ SCENARIO("Complete packet is not available", "[NoninOEM3]") {
 SCENARIO("Validate the Nonin OEM III with invalid data received from BufferedUART") {
   PF::HAL::Mock::ReadOnlyBufferedUART mock_uart;
   PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
-  PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+  PF::Driver::Serial::Nonin::Sample sensor_measurements{};
   PF::Driver::Serial::Nonin::PacketStatus return_status;
   GIVEN("Valid 24 frames with 23 Frames of first packet and 1 frame of second packet ") {
     auto uart_data = make_array<uint8_t>(
@@ -500,7 +500,7 @@ SCENARIO("Validate NoninOEM3 for valid packet data", "[NoninOEM3]") {
       mock_uart.set_read(uart_data[index]);
     }
     PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
-    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+    PF::Driver::Serial::Nonin::Sample sensor_measurements{};
     PF::Driver::Serial::Nonin::PacketStatus return_status;
 
     WHEN("Device::output is invoked for 124 bytes valid bytes read") {

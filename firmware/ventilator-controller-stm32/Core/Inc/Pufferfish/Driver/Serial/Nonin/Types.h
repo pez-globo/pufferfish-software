@@ -54,7 +54,7 @@ using PlethPulseAmplitudes = std::array<uint8_t, packet_size>;
 using Flags = std::array<bool, packet_size>;
 
 /* Structure defines the sensor data in packet for measurements */
-struct PacketMeasurements {
+struct Sample {
   /* Heart Rate and SpO2 measurements */
   uint16_t hr;
   uint8_t spo2;

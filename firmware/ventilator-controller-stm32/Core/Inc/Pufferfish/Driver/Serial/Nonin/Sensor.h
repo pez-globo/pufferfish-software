@@ -32,7 +32,7 @@ class Sensor : public Initializable {
   Device &device_;
   bool setup_ = false;
 
-  PacketMeasurements measurements_{};
+  Sample measurements_{};
 };
 
 }  // namespace Pufferfish::Driver::Serial::Nonin
