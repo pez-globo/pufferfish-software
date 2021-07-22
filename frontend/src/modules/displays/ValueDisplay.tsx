@@ -66,25 +66,25 @@ export interface ValueProps {
  * @prop {number} value value to be displayed
  * @prop {string} label Label of the value
  * @prop {string} units unit measurement of the value
- * @prop {boolean} isLive Config to show/hide `Live` text
  */
 interface Props {
   value: number;
   label: string;
   units?: string;
-  isLive?: boolean;
 }
 
 /**
  * ValueDisplay
  *
  * @component A re-usable component for displaying numeric values.
+ * ValueDisplay is used along with ValueClicker to increment/decrement the displayed value.
+ * This component gives a standard markup for how value should be displayed.
  *
  * Uses the [[Props]] interface
  *
  * @returns {JSX.Element}
  */
-export const ValueDisplay = ({ value, label, units = '', isLive = false }: Props): JSX.Element => {
+export const ValueDisplay = ({ value, label, units = '' }: Props): JSX.Element => {
   const classes = useStyles();
 
   return (
@@ -100,11 +100,6 @@ export const ValueDisplay = ({ value, label, units = '', isLive = false }: Props
         <Grid item xs style={{ width: '100%' }}>
           <Typography variant="h5">{label}</Typography>
         </Grid>
-        {isLive && (
-          <Grid container item xs={3} className={classes.liveContainer}>
-            <Typography className={classes.liveBox}>Live</Typography>
-          </Grid>
-        )}
       </Grid>
       <Grid
         container

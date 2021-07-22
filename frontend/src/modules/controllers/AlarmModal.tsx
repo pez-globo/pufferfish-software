@@ -2,14 +2,14 @@
  * @summary Alarm Modal controller to set alarm range
  *
  */
-import { Button, Grid, makeStyles, Theme, Typography, useTheme } from '@material-ui/core';
+import { Grid, makeStyles, Theme, Typography, useTheme } from '@material-ui/core';
 import React, { RefObject, useCallback, useEffect, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import { getAlarmLimitsRequest } from '../../store/controller/selectors';
-import { Range, AlarmLimitsRequest } from '../../store/controller/proto/mcu_pb';
-import { MessageType } from '../../store/controller/types';
-import ModalPopup from './ModalPopup';
+import { Range, AlarmLimitsRequest } from '../../store/proto/mcu_pb';
+import { MessageType } from '../../store/proto/types';
+import ModalPopup from '../modals/ModalPopup';
 import ValueClicker from './ValueClicker';
 import ValueSlider from './ValueSlider';
 import useRotaryReference from '../utils/useRotaryReference';
@@ -64,23 +64,18 @@ export interface AlarmAdjustProps {
 /**
  * @typedef Props
  *
- * Props interface for the AlarmModal component
+ * Props interface for the AlarmModal/AlarmModalContent component
  *
  * @prop {string} label Alarm label to display in UI
  * @prop {string} units Alarm paramater unit measurement to display
  * @prop {number} committedMin Lower Set Alarm Range Value
  * @prop {number} committedMax Upper Set Alarm Range Value
- * TODO: it was used in ValueModa in values page, can be removed
- * @prop {boolean} disableAlarmButton Toggle to show/hide alarm button
  * @prop {function} updateModalStatus Callback to send current modal open/close status
  * @prop {function} onModalClose Callback after Modal close
- * TODO: rename to 'getCommittedRange' as it just returns the committed values.
- * @prop {function} requestCommitRange Callback on updating the Alarm range values
+ * @prop {function} handleCommittedRange Callback on updating the Alarm range values
  * @prop {string} stateKey Unique identifier of alarm (eg spo2, fio2...)
  * @prop {number} step Alarm step difference between Range (Defaults to 1)
  * @prop {boolean} openModal Default value to toggle Open/Close Alarm Modal
- * @prop {boolean} contentOnly AlarmModal by itself is wrapped in a ModalPopup, contentOnly will provide
- * Alarm features but not inside a Modal.
  * @prop {boolean} labelHeading Switch to show/hide Alarm Label inside Alarm Modal content
  * @prop {number[]} alarmRangeValues Alarm Range Values, if not initialized, committedMin and committedMax are displayed.
  */
@@ -89,51 +84,43 @@ interface Props {
   units?: string;
   committedMin?: number;
   committedMax?: number;
-  disableAlarmButton?: boolean;
   updateModalStatus?(status: boolean): void;
   onModalClose?(status: boolean): void;
-  requestCommitRange(min: number, max: number): void;
+  handleCommittedRange(min: number, max: number): void;
   stateKey: string;
   step?: number;
   openModal?: boolean;
-  contentOnly?: boolean;
   labelHeading?: boolean;
-  alarmRangeValues?: number[];
+  alarmRangeValues?: Range | null;
 }
 
 /**
- * AlarmModal
+ * AlarmModalContent
  *
  * @component A container for displaying alarm modal.
+ * This Component returns JSX which displays Value for lower/upper limits and ValueClickers to control them,
+ * AlarmLimits for only a single Parameter can be controlled (eg: Alarm Limits for SpO2), thus needs to be selected
+ * with stateKey.
+ * It's currently re-used in AlarmModal as content inside the ModalPopup, and used exclusively
+ * in MultiStepWizard for Alarm Modal content as that's already an ModalPopup and content is populated using this component.
  *
  * Uses the [[Props]] interface
  *
  * @returns JSX.Element
  */
-export const AlarmModal = ({
+export const AlarmModalContent = ({
   label,
   committedMin = 0,
   committedMax = 100,
-  disableAlarmButton = false,
-  updateModalStatus,
-  requestCommitRange,
-  onModalClose,
-  openModal = false,
-  units = '',
+  handleCommittedRange,
   stateKey,
   step,
-  contentOnly = false,
   labelHeading = false,
-  alarmRangeValues = [],
+  alarmRangeValues = null,
 }: Props): JSX.Element => {
   const classes = useStyles();
-  const dispatch = useDispatch();
   const theme = useTheme();
   const { initRefListener } = useRotaryReference(theme);
-  /**
-   * State to toggle opening Alarm popup
-   */
-  const [open, setOpen] = React.useState(false);
   /**
    * State to initalize Lower Set value
    */
@@ -149,8 +136,8 @@ export const AlarmModal = ({
       : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
   const { lower, upper } = range === undefined ? Range.fromJSON({ lower: NaN, upper: NaN }) : range;
   const [rangeValue, setRangeValue] = React.useState<number[]>([
-    alarmRangeValues.length ? alarmRangeValues[0] : lower,
-    alarmRangeValues.length ? alarmRangeValues[1] : upper,
+    alarmRangeValues && alarmRangeValues.lower !== 0 ? alarmRangeValues.lower : lower,
+    alarmRangeValues && alarmRangeValues.upper !== 0 ? alarmRangeValues.upper : upper,
   ]);
   /**
    * State to provide reference HTML element for Lower/Upper Wrapper
@@ -170,69 +157,16 @@ export const AlarmModal = ({
     setRangeValue(Object.assign([], rangeValue, { 0: value }));
   };
 
-  /**
-   * This callback updates the value of the current model status(open/close) to parent component
-   */
-  const initSetValue = useCallback(() => {
-    setOpen(openModal);
-  }, [openModal]);
-
   useEffect(() => {
     initRefListener(refs);
   }, [initRefListener, refs]);
 
   /**
-   * Sets openModal props value to update current modal status(open/close) value received from parent component
-   */
-  useEffect(() => {
-    initSetValue();
-  }, [initSetValue]);
-
-  useEffect(() => {
-    if (updateModalStatus) {
-      updateModalStatus(open);
-    }
-  });
-
-  /**
-   * Function for handling the opening of the modal.
-   */
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  /**
-   * Function for handling the closing of the modal.
-   */
-  const handleClose = () => {
-    setOpen(false);
-    if (onModalClose) {
-      onModalClose(false);
-    }
-  };
-
-  /**
-   * Function for opening a modal to confirm the changes.
-   */
-  const handleConfirm = () => {
-    const update = {
-      [stateKey]: {
-        lower: rangeValue[0],
-        upper: rangeValue[1],
-      },
-    };
-    dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
-    dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
-    requestCommitRange(rangeValue[0], rangeValue[1]);
-    handleClose();
-  };
-
-  /**
    * Triggers whenever rangeValue is updated in redux
    */
   useEffect(() => {
-    requestCommitRange(rangeValue[0], rangeValue[1]);
-  }, [requestCommitRange, rangeValue]);
+    handleCommittedRange(rangeValue[0], rangeValue[1]);
+  }, [handleCommittedRange, rangeValue]);
 
   /**
    * Resets highlighting border around alarm container when clicked across the page
@@ -242,7 +176,7 @@ export const AlarmModal = ({
     setActiveRotaryReference(null);
   };
 
-  const modalContent = (
+  return (
     <Grid
       container
       direction="column"
@@ -348,25 +282,96 @@ export const AlarmModal = ({
       </Grid>
     </Grid>
   );
+};
 
-  return contentOnly ? (
-    modalContent
-  ) : (
+/**
+ * AlarmModal
+ *
+ * @component A container for displaying AlarmModalContent Component wrapped in a ModalPopup.
+ * This component opens a modal popup with ability to set alarm limits for a single parameter (eg: SpO2)
+ * It's currently used inside ValueInfo and LogsPage (on pressing the `settings` button)
+ *
+ * Uses the [[Props]] interface
+ *
+ * @returns JSX.Element
+ */
+export const AlarmModal = ({
+  label,
+  committedMin = 0,
+  committedMax = 100,
+  updateModalStatus,
+  handleCommittedRange,
+  onModalClose,
+  openModal = false,
+  stateKey,
+  step,
+  labelHeading = false,
+  alarmRangeValues = null,
+}: Props): JSX.Element => {
+  const dispatch = useDispatch();
+  /**
+   * State to toggle opening Alarm popup
+   */
+  const [open, setOpen] = React.useState(false);
+  /**
+   * Function for handling the closing of the modal.
+   */
+  const handleClose = () => {
+    setOpen(false);
+    if (onModalClose) {
+      onModalClose(false);
+    }
+  };
+
+  const alarmLimits = useSelector(getAlarmLimitsRequest, shallowEqual);
+  const range =
+    alarmLimits === null
+      ? undefined
+      : ((alarmLimits as unknown) as Record<string, Range>)[stateKey];
+  const { lower, upper } = range === undefined ? Range.fromJSON({ lower: NaN, upper: NaN }) : range;
+  const [rangeValue] = React.useState<number[]>([
+    alarmRangeValues && alarmRangeValues.lower !== 0 ? alarmRangeValues.lower : lower,
+    alarmRangeValues && alarmRangeValues.upper !== 0 ? alarmRangeValues.upper : upper,
+  ]);
+
+  /**
+   * This callback updates the value of the current model status(open/close) to parent component
+   */
+  const initSetValue = useCallback(() => {
+    setOpen(openModal);
+  }, [openModal]);
+
+  /**
+   * Sets openModal props value to update current modal status(open/close) value received from parent component
+   */
+  useEffect(() => {
+    initSetValue();
+  }, [initSetValue]);
+
+  useEffect(() => {
+    if (updateModalStatus) {
+      updateModalStatus(open);
+    }
+  });
+
+  /**
+   * Function for opening a modal to confirm the changes.
+   */
+  const handleConfirm = () => {
+    const update = {
+      [stateKey]: {
+        lower: rangeValue[0],
+        upper: rangeValue[1],
+      },
+    };
+    dispatch(commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
+    dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, update));
+    handleCommittedRange(rangeValue[0], rangeValue[1]);
+    handleClose();
+  };
+
+  return (
     <Grid container direction="column" alignItems="center" justify="center">
-      <Grid container item xs>
-        {/* TODO: deprecated, can be commented out or removed */}
-        {!disableAlarmButton && (
-          <Button
-            onClick={handleOpen}
-            color="primary"
-            variant="contained"
-            className={classes.openButton}
-          >
-            Alarm
-          </Button>
-        )}
-        <span hidden={true}>{units}</span>
-      </Grid>
       <ModalPopup
         withAction={true}
         label={`${label} - Alarm`}
@@ -374,10 +379,17 @@ export const AlarmModal = ({
         onClose={handleClose}
         onConfirm={handleConfirm}
       >
-        {modalContent}
+        <AlarmModalContent
+          label={label}
+          committedMin={committedMin}
+          committedMax={committedMax}
+          handleCommittedRange={handleCommittedRange}
+          stateKey={stateKey}
+          step={step}
+          labelHeading={labelHeading}
+          alarmRangeValues={alarmRangeValues}
+        />
       </ModalPopup>
     </Grid>
   );
 };
-
-export default AlarmModal;

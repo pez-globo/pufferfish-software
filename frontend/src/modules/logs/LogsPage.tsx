@@ -7,11 +7,11 @@ import { Button, Grid, TableCell, TableRow, Typography } from '@material-ui/core
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
-import { LogEvent, LogEventType } from '../../store/controller/proto/mcu_pb';
+import { LogEvent, LogEventType } from '../../store/proto/mcu_pb';
 import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
 import { setMultiPopupOpen } from '../app/Service';
 import { AlarmModal } from '../controllers';
-import ModalPopup from '../controllers/ModalPopup';
+import ModalPopup from '../modals/ModalPopup';
 
 import SimpleTable, {
   getComparator,
@@ -405,6 +405,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                                         ${new Date(row.time).toLocaleTimeString([], {
                                           hour: '2-digit',
                                           minute: '2-digit',
+                                          second: '2-digit',
                                         })}
                                     `}
                 </TableCell>
@@ -456,11 +457,10 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
         <AlarmModal
           onModalClose={() => setAlarmOpen(false)}
           openModal={alarmOpen}
-          disableAlarmButton={true}
           label={currentRow.head}
           units={currentRow.unit}
           stateKey={currentRow.stateKey}
-          requestCommitRange={() => null}
+          handleCommittedRange={() => null}
         />
       )}
     </Grid>

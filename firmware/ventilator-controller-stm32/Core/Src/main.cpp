@@ -30,12 +30,12 @@
 #include <functional>
 
 #include "Pufferfish/AlarmsManager.h"
+#include "Pufferfish/Application/AlarmMuteService.h"
 #include "Pufferfish/Application/Alarms.h"
 #include "Pufferfish/Application/LogEvents.h"
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/Application/mcu_pb.h"  // Only used for debugging
 #include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
-#include "Pufferfish/Driver/BreathingCircuit/AlarmMuteService.h"
 #include "Pufferfish/Driver/BreathingCircuit/Alarms.h"
 #include "Pufferfish/Driver/BreathingCircuit/AlarmsService.h"
 #include "Pufferfish/Driver/BreathingCircuit/ControlLoop.h"
@@ -376,9 +376,9 @@ PF::Application::AlarmsManager alarms_manager(
     log_events_manager,
     PF::Driver::BreathingCircuit::debouncers,
     PF::Driver::BreathingCircuit::init_waiters);
+PF::Application::AlarmMuteService alarm_mute;
 PF::Driver::BreathingCircuit::AlarmsServices breathing_circuit_alarms;
 PF::Driver::Power::AlarmsService power_alarms;
-PF::Driver::BreathingCircuit::AlarmMuteService alarm_mute_service;
 
 // Breathing Circuit Control
 PF::Driver::BreathingCircuit::HFNCControlLoop hfnc(
@@ -439,7 +439,7 @@ void initialize_states() {
   // Alarm Mute
   PF::Application::AlarmMute alarm_mute;
   PF::Application::StateSegment alarm_mute_request;
-  PF::Driver::BreathingCircuit::make_state_initializers(alarm_mute_request, alarm_mute);
+  PF::Application::make_state_initializers(alarm_mute_request, alarm_mute);
   store.alarm_mute() = alarm_mute;
   store.input(alarm_mute_request, true);
 }
@@ -554,9 +554,9 @@ int main(void)
 
   // Hardware PWMs
   drive1_ch1.start();
-  drive1_ch1.set_duty_cycle_raw(0);
+  drive1_ch1.set_duty_cycle(0);
   drive1_ch2.start();
-  drive1_ch2.set_duty_cycle_raw(0);
+  drive1_ch2.set_duty_cycle(0);
 
   // Software PWMs
   blinker.start(hal_time.millis());
@@ -570,6 +570,8 @@ int main(void)
   uint32_t session_id = 0;
   rng.generate(session_id);
   log_events_sender.setup(session_id);
+  rng.generate(session_id);
+  alarm_mute.setup(session_id);
 
   /* USER CODE END 2 */
 
@@ -673,9 +675,6 @@ int main(void)
     PF::Driver::BreathingCircuit::SensorAlarmsService::transform(
         hfnc.sensor_connections(), alarms_manager);
 
-    // Alarm Mute Service
-    alarm_mute_service.transform(current_time, store.alarm_mute_request(), store.alarm_mute());
-
     // Power management
     if (!ltc4015_status) {
       power_simulator.transform(current_time, store.mcu_power_status());
@@ -702,7 +701,36 @@ int main(void)
 
     // Alarms
     alarms_manager.transform(store.active_log_events());
-    if (store.active_log_events().id_count > 0) {
+    // TODO(lietk12): allow toggling alarm mute state with the hardware button, but only when
+    // both the backend and frontend are connected. This should use the
+    // alarm_mute.transform(current_time, bool, ...) method.
+    alarm_mute.transform(
+        current_time, store.alarm_mute_request(), store.alarm_mute(), log_events_manager);
+    if (!store.backend_connected()) {
+      alarm_mute.transform(
+          current_time,
+          false,
+          PF::Application::AlarmMuteSource_mcu_backend_loss,
+          store.alarm_mute(),
+          log_events_manager);
+    } else if (!store.backend_connections().has_mcu) {
+      // The MCU isn't able to send any data to the backend but the backend is able to send
+      // data to the MCU, so the MCU should also cancel any active alarm mute
+      alarm_mute.transform(
+          current_time,
+          false,
+          PF::Application::AlarmMuteSource_backend_mcu_loss,
+          store.alarm_mute(),
+          log_events_manager);
+    } else if (!store.backend_connections().has_frontend) {
+      alarm_mute.transform(
+          current_time,
+          false,
+          PF::Application::AlarmMuteSource_backend_frontend_loss,
+          store.alarm_mute(),
+          log_events_manager);
+    }
+    if (store.active_log_events().id_count > 0 && !store.alarm_mute().active) {
       board_led1.write(true);
     } else {
       blinker.input(current_time);

@@ -9,14 +9,14 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
-import { getBackendConnected, getClockTime } from '../../store/app/selectors';
+import { getBackendConnected } from '../../store/connection/selectors';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import {
   ParametersRequest,
   VentilationMode,
   AlarmLimitsRequest,
   Range,
-} from '../../store/controller/proto/mcu_pb';
+} from '../../store/proto/mcu_pb';
 import {
   getBatteryPowerLeft,
   getChargingStatus,
@@ -30,9 +30,8 @@ import {
   getVentilatingStatusChanging,
   getFirmwareConnected,
 } from '../../store/controller/selectors';
-import { MessageType } from '../../store/controller/types';
-import { DiscardAlarmLimitsContent } from '../controllers';
-import { ModalPopup } from '../controllers/ModalPopup';
+import { MessageType } from '../../store/proto/types';
+import { ModalPopup } from '../modals/ModalPopup';
 import ViewDropdown from '../dashboard/views/ViewDropdown';
 import ClockIcon from '../icons/ClockIcon';
 import Power25Icon from '../icons/Power25Icon';
@@ -42,8 +41,9 @@ import PowerChargingIcon from '../icons/PowerChargingIcon';
 import PowerFullIcon from '../icons/PowerFullIcon';
 import { PERCENT } from '../info/units';
 import ModesDropdown from '../modes/ModesDropdown';
-import { DASHBOARD_ROUTE, LOGS_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
-import EventAlerts from './EventAlerts';
+import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
+import Alarms from '../alarms/Alarms';
+import { DiscardAlarmLimitsContent } from '../modals';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -75,7 +75,34 @@ const useStyles = makeStyles((theme: Theme) => ({
  */
 export const HeaderClock = (): JSX.Element => {
   const classes = useStyles();
-  const clockTime = useSelector(getClockTime);
+  // we can initialize with something more specific like wall clock time
+  const [clockTime, setClockTime] = useState(
+    new Date().toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    }),
+  );
+
+  /**
+   * UseEffect to run the clock every second
+   */
+  useEffect(() => {
+    const clockTimer = setInterval(() => {
+      setClockTime(
+        new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true,
+        }),
+      );
+    }, 100);
+    return () => {
+      clearInterval(clockTimer);
+    };
+  }, []);
   return <span className={classes.clockPadding}>{clockTime}</span>;
 };
 
@@ -291,7 +318,7 @@ export const ToolBar = ({
   /**
    * Display buttons dynamically on the toolbar
    */
-  const tools = [<ModesDropdown />];
+  const tools: JSX.Element[] = [];
   if (location.pathname === DASHBOARD_ROUTE.path) {
     tools.push(<ViewDropdown />);
   } else if (location.pathname === QUICKSTART_ROUTE.path) {
@@ -302,7 +329,7 @@ export const ToolBar = ({
     // );
   }
   if (location.pathname !== '/') {
-    tools.push(<EventAlerts label={LOGS_ROUTE.label} />);
+    tools.push(<ModesDropdown />, <Alarms />);
   }
 
   /**

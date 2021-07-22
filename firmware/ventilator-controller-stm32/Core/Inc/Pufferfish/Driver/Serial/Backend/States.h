@@ -24,7 +24,8 @@ using ReceivableStates = Util::EnumValues<
     MessageTypes::parameters_request,
     MessageTypes::alarm_limits_request,
     MessageTypes::expected_log_event,
-    MessageTypes::alarm_mute_request>;
+    MessageTypes::alarm_mute_request,
+    MessageTypes::backend_connections>;
 
 enum class StateSendEntryTypes : uint8_t { realtime_sched = 0, event_sched, main_sched };
 static const StateSendEntryTypes last_state_send_entry_type = StateSendEntryTypes::main_sched;

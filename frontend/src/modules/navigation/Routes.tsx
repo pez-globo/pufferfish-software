@@ -27,7 +27,6 @@ import ModesPage from '../modes/ModesPage';
 import QuickStartPage from '../quickstart/QuickStartPage';
 import ScreensaverPage from '../screensaver/ScreensaverPage';
 import SettingsPage from '../settings/SettingsPage';
-import ValuesPage from '../values/ValuesPage';
 import {
   ALARMS_ROUTE,
   DASHBOARD_ROUTE,
@@ -36,7 +35,6 @@ import {
   QUICKSTART_ROUTE,
   SCREENSAVER_ROUTE,
   SETTINGS_ROUTE,
-  VALUES_ROUTE,
 } from './constants';
 
 /**
@@ -57,7 +55,6 @@ const Routes = (): JSX.Element => {
       <RouteLayout path={QUICKSTART_ROUTE.path} component={QuickStartPage} />
       <RouteLayout path={MODES_ROUTE.path} component={ModesPage} />
       <RouteLayout path={ALARMS_ROUTE.path} component={AlarmsPage} />
-      <RouteLayout path={VALUES_ROUTE.path} component={ValuesPage} />
       <RouteLayout path={SETTINGS_ROUTE.path} component={SettingsPage} />
       <RouteLayout path={LOGS_ROUTE.path} component={LogsPage} />
       <ScreensaverRoute path={SCREENSAVER_ROUTE.path} component={ScreensaverPage} />

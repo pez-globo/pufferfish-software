@@ -21,24 +21,31 @@ from ventserver.sansio import protocols
 class StateSegment(enum.Enum):
     """Enum for addressing state segments in the state store."""
     # mcu_pb
+    # Measurements
     SENSOR_MEASUREMENTS = enum.auto()
     CYCLE_MEASUREMENTS = enum.auto()
+    # Parameters
     PARAMETERS = enum.auto()
     PARAMETERS_REQUEST = enum.auto()
+    # Alarm Limits
     ALARM_LIMITS = enum.auto()
     ALARM_LIMITS_REQUEST = enum.auto()
+    # Log Events
     EXPECTED_LOG_EVENT_MCU = enum.auto()
     NEXT_LOG_EVENTS_MCU = enum.auto()
     ACTIVE_LOG_EVENTS_MCU = enum.auto()
     EXPECTED_LOG_EVENT_BE = enum.auto()
     NEXT_LOG_EVENTS_BE = enum.auto()
     ACTIVE_LOG_EVENTS_BE = enum.auto()
+    # Alarm Muting
     ALARM_MUTE = enum.auto()
     ALARM_MUTE_REQUEST = enum.auto()
+    # System Miscellaneous
     MCU_POWER_STATUS = enum.auto()
-    SCREEN_STATUS = enum.auto()
-    # frontend_pb
     BACKEND_CONNECTIONS = enum.auto()
+    SCREEN_STATUS = enum.auto()
+
+    # frontend_pb
     ROTARY_ENCODER = enum.auto()
     SYSTEM_SETTING = enum.auto()
     SYSTEM_SETTING_REQUEST = enum.auto()
@@ -81,6 +88,7 @@ MCU_OUTPUT_SCHEDULE = [
     StateSegment.PARAMETERS_REQUEST,
     StateSegment.ALARM_LIMITS_REQUEST,
     StateSegment.ALARM_MUTE_REQUEST,
+    StateSegment.BACKEND_CONNECTIONS,
 ]
 
 FRONTEND_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
@@ -149,7 +157,7 @@ FILE_OUTPUT_SCHEDULE = [
 ]
 
 SERVER_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
-    frontend_pb.BackendConnections: StateSegment.BACKEND_CONNECTIONS
+    mcu_pb.BackendConnections: StateSegment.BACKEND_CONNECTIONS
 }
 
 
@@ -207,8 +215,8 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
 
     store: Store = attr.ib()
 
-    _prev_connection_states: frontend_pb.BackendConnections = \
-        attr.ib(factory=frontend_pb.BackendConnections)
+    _prev_connection_states: mcu_pb.BackendConnections = \
+        attr.ib(factory=mcu_pb.BackendConnections)
 
     # Event synchronization senders
     _mcu_event_sender: eventsync.ChangedStateSender[StateSegment] = attr.ib()
@@ -221,7 +229,13 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
     _frontend_state_sender: states.TimedSender[Sender] = attr.ib()
     _file_state_sender: states.TimedSender[Sender] = attr.ib()
 
-    # _current_time: Optional[float] = attr.ib(default=None)
+    _current_time: Optional[float] = attr.ib(default=None)
+
+    # Periodic state sending, for testing
+    # _period_start_time: Optional[float] = attr.ib(default=None)
+    # _sending_frontend: bool = attr.ib(default=False)
+    # _sending_mcu: bool = attr.ib(default=False)
+    # SEND_PERIOD = 10.0  # s
 
     @_mcu_event_sender.default
     def init_mcu_event_sender(self) ->\
@@ -311,7 +325,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             return
 
         # Update sender clocks
-        # self._current_time = event.time
+        self._current_time = event.time
         self._mcu_state_sender.input(event.time)
         self._frontend_state_sender.input(event.time)
         self._file_state_sender.input(event.time)
@@ -341,10 +355,60 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         output_event = SendEvent()
         try:
             output_event.mcu_send = self._mcu_state_sender.output()
+
+            # Only send events to mcu for part of the time, for testing
+            # if (
+            #         self._period_start_time is None and
+            #         self._current_time is not None and
+            #         self._current_time > 0
+            # ):
+            #     self._period_start_time = self._current_time
+            #     self._sending_mcu = not self._sending_mcu
+            #     self._logger.warning(
+            #         '%sending events to mcu for %s s!',
+            #         'S' if self._sending_mcu else 'Not s',
+            #         self.SEND_PERIOD
+            #     )
+            # if (
+            #         self._current_time is not None and
+            #         self._period_start_time is not None and
+            #         self._current_time > (
+            #             self._period_start_time + self.SEND_PERIOD
+            #         )
+            # ):
+            #     self._period_start_time = None
+            # if not self._sending_mcu:
+            #     output_event.mcu_send = None
         except exceptions.ProtocolDataError:
             self._logger.exception('MCU State Sender:')
         try:
             output_event.frontend_send = self._frontend_state_sender.output()
+
+            # Only send events to frontend for part of the time, for testing
+            # if (
+            #         self._period_start_time is None and
+            #         self._current_time is not None and
+            #         self._current_time > 0
+            # ):
+            #     self._period_start_time = self._current_time
+            #     self._sending_frontend = not self._sending_frontend
+            #     self._logger.warning(
+            #         '%sending events to frontend for %s s!',
+            #         'S' if self._sending_frontend else 'Not s',
+            #         self.SEND_PERIOD
+            #     )
+            # if (
+            #         self._current_time is not None and
+            #         self._period_start_time is not None and
+            #         self._current_time > (
+            #             self._period_start_time + self.SEND_PERIOD
+            #         )
+            # ):
+            #     self._period_start_time = None
+            # if not self._sending_frontend:
+            #     output_event.frontend_send = None
+
+            # Print output, for debugging
             # if (
             #         output_event.frontend_send is not None and
             #         self._current_time is not None
@@ -390,7 +454,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             return
 
         current_states = typing.cast(
-            frontend_pb.BackendConnections, current_states
+            mcu_pb.BackendConnections, current_states
         )
         # Handle MCU
         if current_states.has_mcu and not self._prev_connection_states.has_mcu:

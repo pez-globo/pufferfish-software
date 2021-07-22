@@ -38,18 +38,17 @@ class PWM : public Interfaces::PWM {
   PWM() = default;
 
   /**
-   * Set a duty cycle of PWM, updates the private variable mLastRawDuty
-   * @param duty    a number between 0.0 and 1.0 (inclusive) for the desired
-   * duty cycle
+   * @brief  sets the max duty cycle
+   * @param  duty    Provides the max duty cycle
+   * @return None
    */
-  void set_duty_cycle_raw(uint32_t duty) override;
+  void set_max_duty_cycle(uint32_t duty);
 
   /**
-   * @brief  Get a duty cycle of PWM updated in setDutyCycleRaw
-   * @param  None
-   * @return returns the duty cycle
+   * Returns the maximum duty cycle updated in setMaxDutyCycle
+   * @return the maximum duty cycle
    */
-  [[nodiscard]] float get_duty_cycle_raw() const;
+  uint32_t get_max_duty_cycle() override;
 
   /**
    * Start the PWM output
@@ -64,19 +63,6 @@ class PWM : public Interfaces::PWM {
   PWMStatus stop() override;
 
   /**
-   * Returns the maximum duty cycle updated in setMaxDutyCycle
-   * @return the maximum duty cycle
-   */
-  uint32_t get_max_duty_cycle() override;
-
-  /**
-   * @brief  sets the max duty cycle
-   * @param  duty    Provides the max duty cycle
-   * @return None
-   */
-  void set_max_duty_cycle(uint32_t duty);
-
-  /**
    * @brief  Provides the state of PWM
    * @param  None
    * @return State of PWM START(true)/STOP(false)
@@ -89,6 +75,21 @@ class PWM : public Interfaces::PWM {
    * @return None
    */
   void set_return_status(PWMStatus input);
+
+  /**
+   * @brief  Get a duty cycle of PWM updated in setDutyCycleRaw
+   * @param  None
+   * @return returns the duty cycle
+   */
+  [[nodiscard]] float get_duty_cycle_raw() const;
+
+ protected:
+  /**
+   * Set a duty cycle of PWM, updates the private variable mLastRawDuty
+   * @param duty    a number between 0.0 and 1.0 (inclusive) for the desired
+   * duty cycle
+   */
+  void set_duty_cycle_raw(uint32_t duty) override;
 
  private:
   /* Return status */

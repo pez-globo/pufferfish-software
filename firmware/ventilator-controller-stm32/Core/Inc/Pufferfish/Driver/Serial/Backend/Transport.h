@@ -31,19 +31,27 @@ using MessageDescriptors = Protocols::Transport::
 static const MessageDescriptors message_descriptors{
     {MessageTypes::unknown, Util::get_protobuf_desc<Util::UnrecognizedMessage>()},
     {MessageTypes::reserved, Util::get_protobuf_desc<Util::UnrecognizedMessage>()},
+    // Measurements
     {MessageTypes::sensor_measurements, Util::get_protobuf_desc<Application::SensorMeasurements>()},
     {MessageTypes::cycle_measurements, Util::get_protobuf_desc<Application::CycleMeasurements>()},
+    // Parameters
     {MessageTypes::parameters, Util::get_protobuf_desc<Application::Parameters>()},
     {MessageTypes::parameters_request, Util::get_protobuf_desc<Application::ParametersRequest>()},
+    // Alarm Limits
     {MessageTypes::alarm_limits, Util::get_protobuf_desc<Application::AlarmLimits>()},
     {MessageTypes::alarm_limits_request,
      Util::get_protobuf_desc<Application::AlarmLimitsRequest>()},
+    // Log Events
     {MessageTypes::expected_log_event, Util::get_protobuf_desc<Application::ExpectedLogEvent>()},
     {MessageTypes::next_log_events, Util::get_protobuf_desc<Application::NextLogEvents>()},
     {MessageTypes::active_log_events, Util::get_protobuf_desc<Application::ActiveLogEvents>()},
+    // Alarm Muting
     {MessageTypes::alarm_mute, Util::get_protobuf_desc<Application::AlarmMute>()},
     {MessageTypes::alarm_mute_request, Util::get_protobuf_desc<Application::AlarmMuteRequest>()},
-    {MessageTypes::mcu_power_status, Util::get_protobuf_desc<Application::MCUPowerStatus>()}};
+    // System Miscellaneous
+    {MessageTypes::mcu_power_status, Util::get_protobuf_desc<Application::MCUPowerStatus>()},
+    {MessageTypes::backend_connections,
+     Util::get_protobuf_desc<Application::BackendConnections>()}};
 
 using CRCElementProps =
     Protocols::Transport::CRCElementProps<Driver::Serial::Backend::FrameProps::payload_max_size>;

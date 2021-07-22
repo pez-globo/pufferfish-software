@@ -7,7 +7,6 @@ import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { PropsWithChildren } from 'react';
 import { Route, RouteProps } from 'react-router-dom';
-import { HeartbeatBackendListener } from '../OverlayScreen';
 import ToolBar from '../ToolBar';
 import UserActivity from '../UserActivity';
 
@@ -91,7 +90,6 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
           {children}
         </Grid>
       </Grid>
-      <HeartbeatBackendListener />
     </React.Fragment>
   );
 });

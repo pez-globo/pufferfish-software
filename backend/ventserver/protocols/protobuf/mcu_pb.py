@@ -42,21 +42,26 @@ class LogEventCode(betterproto.Enum):
     mcu_backend_connection_down = 130
     backend_mcu_connection_down = 131
     backend_frontend_connection_down = 132
+    # TODO: if the backend can't send data to the frontend but the frontend can
+    # send data to the backend, we should make the backend generate a
+    # frontend_backend_down log event so that there's some record in the event
+    # log of a connection problem. We can achieve this using a
+    # FrontendConnections message type which the frontend sends to the backend.
     frontend_backend_connection_down = 133
     mcu_backend_connection_up = 134
-    # The following code isn't actually used, but we reserve space for it. We
-    # don't use it because if the backend received an mcu_backend_connection_up
-    # event from the MCU, then we know that the backend received a connection
-    # from the MCU. We only care for technical troubleshooting (of the UART
-    # wires) about the case where the backend receives a connection from the MCU
-    # but the MCU hasn't received a connection from the backend; it would be good
-    # to log it, but we don't need to show it in the frontend, and right now the
-    # frontend has no way to filter out events from its display.
-    # backend_mcu_connection_up = 135;  // backend detected mcu
+    # TODO: if the mcu can't send data to the backend but the backend can send
+    # data to the mcu, we should make the backend generate a backend_mcu_up log
+    # event once the mcu becomes able to send data again so that the event log
+    # has a connection_up event to match the connection_down event.
+    backend_mcu_connection_up = 135
     backend_frontend_connection_up = 136
-    # The following code isn't actually used, but we reserve space for it. We
-    # don't use it because the frontend can't generate LogEvents with IDs.
-    # frontend_backend_connection_up = 137;
+    # TODO: if the backend can't send data to the frontend but the frontend can
+    # send data to the backend, we should make the backend generate a
+    # frontend_backend_up log event once the frontend detects that the backend is
+    # able to send data again, so that the event log has a connection_up event to
+    # match the connection_down event. We can achieve this using a
+    # FrontendConnections message type which the frontend sends to the backend.
+    frontend_backend_connection_up = 137
     battery_low = 138
     battery_critical = 139
     charger_disconnected = 140
@@ -64,9 +69,23 @@ class LogEventCode(betterproto.Enum):
     backend_started = 142
     mcu_shutdown = 143
     backend_shutdown = 144
-    sfm3019_air_disconnected = 145
-    sfm3019_o2_disconnected = 146
-    fdo2_disconnected = 147
+    # Alarm muting/unmuting
+    alarms_muted_user_software = 145
+    alarms_muted_user_hardware = 146
+    alarms_muted_unknown = 147
+    alarms_unmuted_user_software = 148
+    alarms_unmuted_user_hardware = 149
+    alarms_unmuted_initialization = 150
+    alarms_unmuted_timeout = 151
+    alarms_unmuted_mcu_backend_loss = 152
+    alarms_unmuted_backend_mcu_loss = 153
+    alarms_unmuted_backend_frontend_loss = 154
+    alarms_unmuted_frontend_backend_loss = 155
+    alarms_unmuted_unknown = 156
+    # Sensor loss
+    sfm3019_air_disconnected = 160
+    sfm3019_o2_disconnected = 161
+    fdo2_disconnected = 162
 
 
 class LogEventType(betterproto.Enum):
@@ -76,48 +95,15 @@ class LogEventType(betterproto.Enum):
     system = 3
 
 
-@dataclass
-class Range(betterproto.Message):
-    lower: int = betterproto.int32_field(1)
-    upper: int = betterproto.int32_field(2)
-
-
-@dataclass
-class AlarmLimits(betterproto.Message):
-    time: int = betterproto.uint64_field(1)
-    fio2: "Range" = betterproto.message_field(2)
-    flow: "Range" = betterproto.message_field(3)
-    spo2: "Range" = betterproto.message_field(4)
-    hr: "Range" = betterproto.message_field(5)
-    rr: "Range" = betterproto.message_field(6)
-    pip: "Range" = betterproto.message_field(7)
-    peep: "Range" = betterproto.message_field(8)
-    ip_above_peep: "Range" = betterproto.message_field(9)
-    insp_time: "Range" = betterproto.message_field(10)
-    paw: "Range" = betterproto.message_field(11)
-    mve: "Range" = betterproto.message_field(12)
-    tv: "Range" = betterproto.message_field(13)
-    etco2: "Range" = betterproto.message_field(14)
-    apnea: "Range" = betterproto.message_field(15)
-
-
-@dataclass
-class AlarmLimitsRequest(betterproto.Message):
-    time: int = betterproto.uint64_field(1)
-    fio2: "Range" = betterproto.message_field(2)
-    flow: "Range" = betterproto.message_field(3)
-    spo2: "Range" = betterproto.message_field(4)
-    hr: "Range" = betterproto.message_field(5)
-    rr: "Range" = betterproto.message_field(6)
-    pip: "Range" = betterproto.message_field(7)
-    peep: "Range" = betterproto.message_field(8)
-    ip_above_peep: "Range" = betterproto.message_field(9)
-    insp_time: "Range" = betterproto.message_field(10)
-    paw: "Range" = betterproto.message_field(11)
-    mve: "Range" = betterproto.message_field(12)
-    tv: "Range" = betterproto.message_field(13)
-    etco2: "Range" = betterproto.message_field(14)
-    apnea: "Range" = betterproto.message_field(15)
+class AlarmMuteSource(betterproto.Enum):
+    initialization = 0
+    user_software = 1
+    user_hardware = 2
+    timeout = 3
+    mcu_backend_loss = 4
+    backend_mcu_loss = 5
+    backend_frontend_loss = 6
+    frontend_backend_loss = 7
 
 
 @dataclass
@@ -172,15 +158,47 @@ class ParametersRequest(betterproto.Message):
 
 
 @dataclass
-class Ping(betterproto.Message):
-    time: int = betterproto.uint64_field(1)
-    id: int = betterproto.uint32_field(2)
+class Range(betterproto.Message):
+    lower: int = betterproto.int32_field(1)
+    upper: int = betterproto.int32_field(2)
 
 
 @dataclass
-class Announcement(betterproto.Message):
+class AlarmLimits(betterproto.Message):
     time: int = betterproto.uint64_field(1)
-    announcement: bytes = betterproto.bytes_field(2)
+    fio2: "Range" = betterproto.message_field(2)
+    flow: "Range" = betterproto.message_field(3)
+    spo2: "Range" = betterproto.message_field(4)
+    hr: "Range" = betterproto.message_field(5)
+    rr: "Range" = betterproto.message_field(6)
+    pip: "Range" = betterproto.message_field(7)
+    peep: "Range" = betterproto.message_field(8)
+    ip_above_peep: "Range" = betterproto.message_field(9)
+    insp_time: "Range" = betterproto.message_field(10)
+    paw: "Range" = betterproto.message_field(11)
+    mve: "Range" = betterproto.message_field(12)
+    tv: "Range" = betterproto.message_field(13)
+    etco2: "Range" = betterproto.message_field(14)
+    apnea: "Range" = betterproto.message_field(15)
+
+
+@dataclass
+class AlarmLimitsRequest(betterproto.Message):
+    time: int = betterproto.uint64_field(1)
+    fio2: "Range" = betterproto.message_field(2)
+    flow: "Range" = betterproto.message_field(3)
+    spo2: "Range" = betterproto.message_field(4)
+    hr: "Range" = betterproto.message_field(5)
+    rr: "Range" = betterproto.message_field(6)
+    pip: "Range" = betterproto.message_field(7)
+    peep: "Range" = betterproto.message_field(8)
+    ip_above_peep: "Range" = betterproto.message_field(9)
+    insp_time: "Range" = betterproto.message_field(10)
+    paw: "Range" = betterproto.message_field(11)
+    mve: "Range" = betterproto.message_field(12)
+    tv: "Range" = betterproto.message_field(13)
+    etco2: "Range" = betterproto.message_field(14)
+    apnea: "Range" = betterproto.message_field(15)
 
 
 @dataclass
@@ -205,6 +223,9 @@ class LogEvent(betterproto.Message):
 @dataclass
 class ExpectedLogEvent(betterproto.Message):
     id: int = betterproto.uint32_field(1)
+    # session_id is checked by the NextLogEvents sender if the sender's log is
+    # ephemeral; the sender will ignore any ExpectedLogEvent whose session_id
+    # doesn't match the sender's session_id, which is announced in NextLogEvents.
     session_id: int = betterproto.uint32_field(2)
 
 
@@ -235,9 +256,37 @@ class ActiveLogEvents(betterproto.Message):
 
 
 @dataclass
+class AlarmMute(betterproto.Message):
+    active: bool = betterproto.bool_field(1)
+    # seq_num is a logical clock and advances in the firmware after each local
+    # action in the firmware (such as a button-press) or the servicing of each
+    # external request.
+    seq_num: int = betterproto.uint32_field(2)
+    source: "AlarmMuteSource" = betterproto.enum_field(3)
+    remaining: int = betterproto.uint64_field(4)
+
+
+@dataclass
+class AlarmMuteRequest(betterproto.Message):
+    active: bool = betterproto.bool_field(1)
+    # seq_num is a logical clock which also acts as an idempotency key for
+    # requests: the firmware only services an AlarmMuteRequest if the request's
+    # seq_num is one greater than the seq_num in the firmware's copy of
+    # AlarmMute.
+    seq_num: int = betterproto.uint32_field(2)
+    source: "AlarmMuteSource" = betterproto.enum_field(3)
+
+
+@dataclass
 class MCUPowerStatus(betterproto.Message):
     power_left: float = betterproto.float_field(1)
     charging: bool = betterproto.bool_field(2)
+
+
+@dataclass
+class BackendConnections(betterproto.Message):
+    has_mcu: bool = betterproto.bool_field(1)
+    has_frontend: bool = betterproto.bool_field(2)
 
 
 @dataclass
@@ -246,12 +295,12 @@ class ScreenStatus(betterproto.Message):
 
 
 @dataclass
-class AlarmMute(betterproto.Message):
-    active: bool = betterproto.bool_field(1)
-    remaining: int = betterproto.uint64_field(2)
+class Ping(betterproto.Message):
+    time: int = betterproto.uint64_field(1)
+    id: int = betterproto.uint32_field(2)
 
 
 @dataclass
-class AlarmMuteRequest(betterproto.Message):
-    active: bool = betterproto.bool_field(1)
-    remaining: int = betterproto.uint64_field(2)
+class Announcement(betterproto.Message):
+    time: int = betterproto.uint64_field(1)
+    announcement: bytes = betterproto.bytes_field(2)

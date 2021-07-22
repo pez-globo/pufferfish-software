@@ -13,7 +13,6 @@
  */
 export * from './layouts';
 export * from './App';
-export * from './EventAlerts';
 export * from './OverlayScreen';
 export * from './Service';
 export * from './Sidebar';
