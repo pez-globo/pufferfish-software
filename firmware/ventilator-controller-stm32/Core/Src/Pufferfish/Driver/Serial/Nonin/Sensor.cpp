@@ -30,7 +30,7 @@ InitializableState Sensor::output(float &spo2, float &hr) {
     return InitializableState::failed;
   }
 
-  if (device_.output(measurements_) == PacketStatus::available) {
+  if (device_.output(measurements_) == PacketStatus::ok) {
     if (measurements_.e_spo2_d == value_unavailable) {
       spo2 = NAN;
     } else {

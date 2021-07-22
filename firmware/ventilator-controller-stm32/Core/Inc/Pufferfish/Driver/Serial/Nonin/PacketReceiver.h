@@ -30,9 +30,9 @@
 namespace Pufferfish::Driver::Serial::Nonin {
 
 enum class PacketInputStatus {
-  available = 0,  /// Input is available to read output
-  waiting,        /// Input is wait to read more bytes
-  frame_loss      /// missed one or more frames in previous received packet
+  output_ready = 0,  /// Input is available to read output
+  waiting,           /// Input is wait to read more bytes
+  frame_loss         /// missed one or more frames in previous received packet
 };
 using PacketOutputStatus = Pufferfish::Driver::Serial::Nonin::FrameOutputStatus;
 static const uint8_t mask_6bit = 0x7F;
@@ -90,6 +90,7 @@ class PacketReceiver {
  private:
   Packet packet_data_{};
   size_t received_length_ = packet_size;
+  PacketInputStatus input_status_ = PacketInputStatus::waiting;
 };
 
 extern void read_status_byte(

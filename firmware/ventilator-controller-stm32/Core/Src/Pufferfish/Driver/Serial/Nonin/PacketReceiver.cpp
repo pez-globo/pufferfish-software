@@ -88,34 +88,38 @@ PacketInputStatus PacketReceiver::input(const Frame &frame) {
       packet_data_[received_length_] = frame;
       received_length_ += 1;
 
-      return PacketInputStatus::frame_loss;
+      input_status_ = PacketInputStatus::frame_loss;
+      return input_status_;
     }
 
     received_length_ = 0;
   }
 
   if (received_length_ >= packet_size) {
-    return PacketInputStatus::frame_loss;
+    input_status_ = PacketInputStatus::frame_loss;
+    return input_status_;
   }
 
   packet_data_[received_length_] = frame;
   received_length_ += 1;
 
   if (received_length_ != packet_size) {
-    return PacketInputStatus::waiting;
+    input_status_ = PacketInputStatus::waiting;
+    return input_status_;
   }
 
-  return PacketInputStatus::available;
+  input_status_ = PacketInputStatus::output_ready;
+  return input_status_;
 }
 
 PacketOutputStatus PacketReceiver::output(Sample &sensor_measurements) {
-  if (input_status_ != PacketInputStatus::available) {
+  if (input_status_ != PacketInputStatus::output_ready) {
     return PacketOutputStatus::waiting;
   }
 
   read_packet_measurements(sensor_measurements, packet_data_);
 
-  return PacketOutputStatus::available;
+  return PacketOutputStatus::ok;
 }
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

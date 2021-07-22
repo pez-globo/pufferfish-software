@@ -29,8 +29,7 @@ using PF::Util::Containers::make_array;
 PF::Driver::Serial::Nonin::PacketStatus waiting_status =
     PF::Driver::Serial::Nonin::PacketStatus::waiting;
 
-PF::Driver::Serial::Nonin::PacketStatus available_status =
-    PF::Driver::Serial::Nonin::PacketStatus::available;
+PF::Driver::Serial::Nonin::PacketStatus ok_status = PF::Driver::Serial::Nonin::PacketStatus::ok;
 
 PF::Driver::Serial::Nonin::PacketStatus frame_loss_status =
     PF::Driver::Serial::Nonin::PacketStatus::frame_loss;
@@ -510,7 +509,7 @@ SCENARIO("Validate NoninOEM3 for valid packet data", "[NoninOEM3]") {
           REQUIRE(return_status == waiting_status);
         }
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == available_status);
+        REQUIRE(return_status == ok_status);
       }
     }
     AND_WHEN("return_status for valid 124 bytes data is waiting") {
@@ -519,7 +518,7 @@ SCENARIO("Validate NoninOEM3 for valid packet data", "[NoninOEM3]") {
       }
       THEN("invoke the nonin_uart to read 125th byte data") {
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == available_status);
+        REQUIRE(return_status == ok_status);
         REQUIRE(sensor_measurements.hr == 72);
         REQUIRE(sensor_measurements.hr_d == 72);
         REQUIRE(sensor_measurements.e_hr == 72);

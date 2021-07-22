@@ -48,7 +48,7 @@ FrameInputStatus validate_frame(const Frame &new_frame) {
   if (new_frame[0] == 0x01 && (new_frame[1] & mask_start_of_frame) == mask_start_of_frame) {
     if (((new_frame[0] + new_frame[1] + new_frame[2] + new_frame[3]) % (UINT8_MAX + 1)) ==
         new_frame[4]) {
-      return FrameInputStatus::available;
+      return FrameInputStatus::output_ready;
     }
   }
 
@@ -60,12 +60,6 @@ FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte, bool &inpu
 
   if (frame_buf_.input(new_byte) == BufferStatus::partial) {
     return FrameInputStatus::ok;
-  }
-
-  if (input_status_ == FrameInputStatus::output_ready) {
-    frame_buf_.reset();
-    input_overwritten = true;
-    input_status_ = FrameInputStatus::ok;
   }
 
   if (frame_buf_.output(frame_buffer) != BufferStatus::ok) {
@@ -82,6 +76,12 @@ FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte, bool &inpu
   }
 
   input_status_ = validate_frame(frame_buffer);
+  if (input_status_ == FrameInputStatus::output_ready) {
+    frame_buf_.reset();
+    input_overwritten = true;
+    input_status_ = FrameInputStatus::ok;
+  }
+
   if (input_status_ == FrameInputStatus::checksum_failed) {
     start_of_frame_status_ = false;
   }
@@ -90,7 +90,8 @@ FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte, bool &inpu
 }
 
 FrameInputStatus FrameReceiver::input(const uint8_t new_byte) {
-  input_status_ = this->update_frame_buffer(new_byte);
+  bool input_overwritten = false;
+  input_status_ = this->update_frame_buffer(new_byte, input_overwritten);
 
   return input_status_;
 }

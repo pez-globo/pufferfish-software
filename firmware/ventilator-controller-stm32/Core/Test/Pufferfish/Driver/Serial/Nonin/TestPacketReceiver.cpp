@@ -29,14 +29,14 @@ using PF::Driver::Serial::Nonin::Frame;
 const PF::Driver::Serial::Nonin::PacketOutputStatus output_status_waiting =
     PF::Driver::Serial::Nonin::PacketOutputStatus::waiting;
 
-const PF::Driver::Serial::Nonin::PacketOutputStatus output_status_available =
-    PF::Driver::Serial::Nonin::PacketOutputStatus::available;
+const PF::Driver::Serial::Nonin::PacketOutputStatus output_status_ok =
+    PF::Driver::Serial::Nonin::PacketOutputStatus::ok;
 
 const PF::Driver::Serial::Nonin::PacketInputStatus input_status_waiting =
     PF::Driver::Serial::Nonin::PacketInputStatus::waiting;
 
-const PF::Driver::Serial::Nonin::PacketInputStatus input_status_available =
-    PF::Driver::Serial::Nonin::PacketInputStatus::available;
+const PF::Driver::Serial::Nonin::PacketInputStatus input_status_output_ready =
+    PF::Driver::Serial::Nonin::PacketInputStatus::output_ready;
 
 const PF::Driver::Serial::Nonin::PacketInputStatus input_status_frame_loss =
     PF::Driver::Serial::Nonin::PacketInputStatus::frame_loss;
@@ -163,16 +163,16 @@ SCENARIO("Validate the valid first Packet", "[NoninOem3]") {
       THEN("For the 25th frame Packet Input status shall return available status") {
         packet_input_status = packet_receiver.input(test_packet[24]);
         REQUIRE((test_packet[index][1] & 0x01U) == 0x00);
-        REQUIRE(packet_input_status == input_status_available);
+        REQUIRE(packet_input_status == input_status_output_ready);
       }
     }
     AND_WHEN("packet_input_status is available, PacketReceiver output to get the measurements") {
       for (index = 0; index < PF::Driver::Serial::Nonin::packet_size; index++) {
         packet_input_status = packet_receiver.input(test_packet[index]);
       }
-      REQUIRE(packet_input_status == input_status_available);
+      REQUIRE(packet_input_status == input_status_output_ready);
       packet_output_status = packet_receiver.output(sensor_measurements);
-      REQUIRE(packet_output_status == output_status_available);
+      REQUIRE(packet_output_status == output_status_ok);
       THEN("Validate the Heart Rate and SpO2") {
         REQUIRE(sensor_measurements.hr == 72);
         REQUIRE(sensor_measurements.hr_d == 72);
@@ -248,16 +248,16 @@ SCENARIO("Validate the valid first Packet", "[NoninOem3]") {
       THEN("For the 25th frame Packet Input status shall return available status") {
         packet_input_status = packet_receiver.input(test_packet[24]);
         REQUIRE((test_packet[index][1] & 0x01U) != 0x01);
-        REQUIRE(packet_input_status == input_status_available);
+        REQUIRE(packet_input_status == input_status_output_ready);
       }
     }
     AND_WHEN("packet input status is available, PacketReceiver output to get the measurements") {
       for (index = 0; index < PF::Driver::Serial::Nonin::packet_size; index++) {
         packet_input_status = packet_receiver.input(test_packet[index]);
       }
-      REQUIRE(packet_input_status == input_status_available);
+      REQUIRE(packet_input_status == input_status_output_ready);
       packet_output_status = packet_receiver.output(sensor_measurements);
-      REQUIRE(packet_output_status == output_status_available);
+      REQUIRE(packet_output_status == output_status_ok);
       THEN("Status Byte errors set") {
         REQUIRE(sensor_measurements.signal_perfusion[0] == no_perfusion);
         REQUIRE(sensor_measurements.signal_perfusion[1] == green_perfusion);
@@ -338,16 +338,16 @@ SCENARIO("Validate the packets data with invalid data") {
       }
       packet_input_status = packet_receiver.input(test_frames[index]);
       THEN("packet_input_status shall return available") {
-        REQUIRE(packet_input_status == input_status_available);
+        REQUIRE(packet_input_status == input_status_output_ready);
       }
     }
     AND_WHEN("packet_input_status is available, PacketReceiver::output to get the measurements") {
       for (index = 0; index < PF::Driver::Serial::Nonin::packet_size; index++) {
         packet_input_status = packet_receiver.input(test_frames[index]);
       }
-      REQUIRE(packet_input_status == input_status_available);
+      REQUIRE(packet_input_status == input_status_output_ready);
       packet_output_status = packet_receiver.output(sensor_measurements);
-      REQUIRE(packet_output_status == output_status_available);
+      REQUIRE(packet_output_status == output_status_ok);
       THEN("Validate the Heart Rate and SpO2") {
         REQUIRE(sensor_measurements.hr == 72);
         REQUIRE(sensor_measurements.hr_d == 72);
@@ -366,7 +366,7 @@ SCENARIO("Validate the packets data with invalid data") {
       for (index = 0; index < 25; index++) {
         packet_input_status = packet_receiver.input(test_frames[index]);
       }
-      REQUIRE(packet_input_status == input_status_available);
+      REQUIRE(packet_input_status == input_status_output_ready);
       THEN("Input of 26th and 27th noise frame shall return frame_loss") {
         for (index = 25; index < 27; index++) {
           packet_input_status = packet_receiver.input(test_frames[index]);
@@ -491,16 +491,16 @@ SCENARIO("Validate the packets data with invalid data") {
       THEN("On 48th frame packet Input Status shall be available") {
         packet_input_status = packet_receiver.input(test_frames[index]);
         REQUIRE((test_frames[index][1] & 0x01U) != 0x01);
-        REQUIRE(packet_input_status == input_status_available);
+        REQUIRE(packet_input_status == input_status_output_ready);
       }
     }
     AND_WHEN("packet_input_status is available, PacketReceiver output to get the measurements") {
       for (index = 0; index < 48; index++) {
         packet_input_status = packet_receiver.input(test_frames[index]);
       }
-      REQUIRE(packet_input_status == input_status_available);
+      REQUIRE(packet_input_status == input_status_output_ready);
       packet_output_status = packet_receiver.output(sensor_measurements);
-      REQUIRE(packet_output_status == output_status_available);
+      REQUIRE(packet_output_status == output_status_ok);
       THEN("Validate the Heart Rate and SpO2") {
         REQUIRE(sensor_measurements.hr == 72);
         REQUIRE(sensor_measurements.hr_d == 72);

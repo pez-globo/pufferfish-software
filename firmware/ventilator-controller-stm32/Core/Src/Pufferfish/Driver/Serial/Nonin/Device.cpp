@@ -34,9 +34,9 @@ PacketStatus Device::output(Sample &sensor_measurements) {
   switch (frame_receiver_.input(read_byte)) {
     case FrameInputStatus::checksum_failed:
       return PacketStatus::checksum_failed;
-    case FrameInputStatus::waiting:
+    case FrameInputStatus::ok:
       return PacketStatus::waiting;
-    case FrameInputStatus::available:
+    case FrameInputStatus::output_ready:
       break;
   }
 
@@ -49,15 +49,15 @@ PacketStatus Device::output(Sample &sensor_measurements) {
       return PacketStatus::waiting;
     case PacketInputStatus::frame_loss:
       return PacketStatus::frame_loss;
-    case PacketInputStatus::available:
+    case PacketInputStatus::output_ready:
       break;
   }
 
-  if (packet_receiver_.output(sensor_measurements) != PacketOutputStatus::available) {
+  if (packet_receiver_.output(sensor_measurements) != PacketOutputStatus::ok) {
     return PacketStatus::waiting;
   }
 
-  return PacketStatus::available;
+  return PacketStatus::ok;
 }
 
 }  // namespace Pufferfish::Driver::Serial::Nonin
