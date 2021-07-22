@@ -79,16 +79,14 @@ struct PacketMeasurements {
 };
 
 // Status Mask
-enum class Mask : const uint8_t {
-  start_of_frame = 0x80,
-  snsd = 0x40,
-  artf = 0x20,
-  oot = 0x10,
-  snsa = 0x08,
-  yprf = 0x06,
-  rprf = 0x04,
-  gprf = 0x02,
-};
+static const uint8_t start_of_frame = 0b1000'0000;
+static const uint8_t snsd = 0b0100'0000;
+static const uint8_t artf = 0b0010'0000;
+static const uint8_t oot = 0b0001'0000;
+static const uint8_t snsa = 0b1000;
+static const uint8_t yprf = 0b0110;
+static const uint8_t rprf = 0b0100;
+static const uint8_t gprf = 0b0010;
 
 // Byte Index
 static const size_t hr_index = 0;

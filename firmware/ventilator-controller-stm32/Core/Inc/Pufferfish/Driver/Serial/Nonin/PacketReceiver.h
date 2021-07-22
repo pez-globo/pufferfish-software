@@ -90,7 +90,6 @@ class PacketReceiver {
  private:
   Packet packet_data_{};
   size_t received_length_ = packet_size;
-  PacketInputStatus input_status_ = PacketInputStatus::waiting;
 };
 
 extern void read_status_byte(

@@ -55,24 +55,30 @@ FrameInputStatus validate_frame(const Frame &new_frame) {
   return FrameInputStatus::checksum_failed;
 }
 
-FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
+FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte, bool &input_overwritten) {
   Frame frame_buffer;
 
   if (frame_buf_.input(new_byte) == BufferStatus::partial) {
-    return FrameInputStatus::waiting;
+    return FrameInputStatus::ok;
+  }
+
+  if (input_status_ == FrameInputStatus::output_ready) {
+    frame_buf_.reset();
+    input_overwritten = true;
+    input_status_ = FrameInputStatus::ok;
   }
 
   if (frame_buf_.output(frame_buffer) != BufferStatus::ok) {
-    return FrameInputStatus::waiting;
+    return FrameInputStatus::ok;
   }
 
   if (!start_of_frame_status_) {
     if (validate_start_of_frame(frame_buffer)) {
       start_of_frame_status_ = true;
-      return FrameInputStatus::available;
+      return FrameInputStatus::output_ready;
     }
     frame_buf_.shift_left();
-    return FrameInputStatus::waiting;
+    return FrameInputStatus::ok;
   }
 
   input_status_ = validate_frame(frame_buffer);
@@ -90,7 +96,7 @@ FrameInputStatus FrameReceiver::input(const uint8_t new_byte) {
 }
 
 FrameOutputStatus FrameReceiver::output(Frame &frame) {
-  if (input_status_ != FrameInputStatus::available) {
+  if (input_status_ == FrameInputStatus::ok) {
     return FrameOutputStatus::waiting;
   }
 
@@ -100,7 +106,7 @@ FrameOutputStatus FrameReceiver::output(Frame &frame) {
 
   frame_buf_.reset();
 
-  return FrameOutputStatus::available;
+  return FrameOutputStatus::ok;
 }
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

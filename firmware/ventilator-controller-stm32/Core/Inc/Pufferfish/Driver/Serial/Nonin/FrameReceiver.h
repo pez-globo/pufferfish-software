@@ -28,15 +28,15 @@ namespace Pufferfish::Driver::Serial::Nonin {
 
 /* FrameReceiver input status return values */
 enum class FrameInputStatus {
-  waiting = 0,      /// Input is ready to receive new bytes of sensor data
+  ok = 0,           /// Input is ready to receive new bytes of sensor data
   checksum_failed,  /// Error in checksum or status byte or in byte 1 of a frame
-  available         /// frame is available
+  output_ready      /// frame is available
 };
 
 /* FrameReceiver output status return values */
 enum class FrameOutputStatus {
-  available = 0,  /// frame output is available for packet fill
-  waiting         /// frame output is waiting for complete frame
+  ok = 0,  /// frame output is available for packet fill
+  waiting  /// frame output is waiting for complete frame
 };
 
 /*
@@ -67,7 +67,7 @@ class FrameReceiver {
 
  private:
   FrameInputStatus update_frame_buffer(uint8_t new_byte);
-  FrameInputStatus input_status_ = FrameInputStatus::waiting;
+  FrameInputStatus input_status_ = FrameInputStatus::ok;
   FrameBuffer frame_buf_;
 
   /* Variable that validates the start of frame
