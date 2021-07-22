@@ -392,7 +392,19 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                     ''
                   )} */}
                 </TableCell>
-                <TableCell align="left" component="th" id={labelId} scope="row">
+                <TableCell
+                  align="left"
+                  component="th"
+                  id={labelId}
+                  scope="row"
+                  style={
+                    (row.type === LogEventType.patient &&
+                      settingsAllowed.indexOf(row.stateKey) > -1) ||
+                    row.details.toLowerCase().includes('battery')
+                      ? { border: '2px solid red' }
+                      : {}
+                  }
+                >
                   {row.alarm}
                 </TableCell>
                 <TableCell align="left">
