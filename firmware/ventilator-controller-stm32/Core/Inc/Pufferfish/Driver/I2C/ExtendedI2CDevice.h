@@ -6,9 +6,10 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "I2CMux.h"
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
-#include "Pufferfish/Types.h"
 
 namespace Pufferfish {
 namespace Driver {

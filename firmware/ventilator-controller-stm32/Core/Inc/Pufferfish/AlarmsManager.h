@@ -10,10 +10,10 @@
 #pragma once
 
 #include <array>
+#include <cstdint>
 
 #include "Pufferfish/Driver/Indicators/AlarmDevice.h"
 #include "Pufferfish/Statuses.h"
-#include "Pufferfish/Types.h"
 
 namespace Pufferfish {
 
