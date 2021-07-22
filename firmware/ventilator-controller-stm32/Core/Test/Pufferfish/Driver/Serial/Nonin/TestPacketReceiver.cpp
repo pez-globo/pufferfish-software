@@ -24,54 +24,55 @@
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
+using PF::Driver::Serial::Nonin::Frame;
 
-const PF::Driver::Serial::Nonin::PacketReceiver::PacketOutputStatus output_status_waiting =
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketOutputStatus::waiting;
+const PF::Driver::Serial::Nonin::PacketOutputStatus output_status_waiting =
+    PF::Driver::Serial::Nonin::PacketOutputStatus::waiting;
 
-const PF::Driver::Serial::Nonin::PacketReceiver::PacketOutputStatus output_status_available =
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketOutputStatus::available;
+const PF::Driver::Serial::Nonin::PacketOutputStatus output_status_ok =
+    PF::Driver::Serial::Nonin::PacketOutputStatus::ok;
 
-const PF::Driver::Serial::Nonin::PacketReceiver::PacketInputStatus input_status_waiting =
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketInputStatus::waiting;
+const PF::Driver::Serial::Nonin::PacketInputStatus input_status_waiting =
+    PF::Driver::Serial::Nonin::PacketInputStatus::waiting;
 
-const PF::Driver::Serial::Nonin::PacketReceiver::PacketInputStatus input_status_available =
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketInputStatus::available;
+const PF::Driver::Serial::Nonin::PacketInputStatus input_status_output_ready =
+    PF::Driver::Serial::Nonin::PacketInputStatus::output_ready;
 
-const PF::Driver::Serial::Nonin::PacketReceiver::PacketInputStatus input_status_missed_data =
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketInputStatus::missed_data;
+const PF::Driver::Serial::Nonin::PacketInputStatus input_status_frame_loss =
+    PF::Driver::Serial::Nonin::PacketInputStatus::frame_loss;
 
-const PF::Driver::Serial::Nonin::SignalAmplitude green_perfusion =
-    PF::Driver::Serial::Nonin::SignalAmplitude::green_perfusion;
-const PF::Driver::Serial::Nonin::SignalAmplitude red_perfusion =
-    PF::Driver::Serial::Nonin::SignalAmplitude::red_perfusion;
-const PF::Driver::Serial::Nonin::SignalAmplitude yellow_perfusion =
-    PF::Driver::Serial::Nonin::SignalAmplitude::yellow_perfusion;
-const PF::Driver::Serial::Nonin::SignalAmplitude no_perfusion =
-    PF::Driver::Serial::Nonin::SignalAmplitude::no_perfusion;
+const PF::Driver::Serial::Nonin::SignalQuality green_perfusion =
+    PF::Driver::Serial::Nonin::SignalQuality::green_perfusion;
+const PF::Driver::Serial::Nonin::SignalQuality red_perfusion =
+    PF::Driver::Serial::Nonin::SignalQuality::red_perfusion;
+const PF::Driver::Serial::Nonin::SignalQuality yellow_perfusion =
+    PF::Driver::Serial::Nonin::SignalQuality::yellow_perfusion;
+const PF::Driver::Serial::Nonin::SignalQuality no_perfusion =
+    PF::Driver::Serial::Nonin::SignalQuality::no_perfusion;
 
 SCENARIO("validate the read_status_byte function") {
-  PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+  PF::Driver::Serial::Nonin::Sample sensor_measurements{};
   uint8_t byte_value = 0;
   const uint8_t frame_index = 1;
   GIVEN("A Status Byte ") {
     byte_value = 0x82;
     WHEN("Status Byte value is 0x82") {
       PF::Driver::Serial::Nonin::read_status_byte(sensor_measurements, frame_index, byte_value);
-      THEN("Signal perfusion in PacketMeasurements shall be green perfusion") {
+      THEN("Signal perfusion in Sample shall be green perfusion") {
         REQUIRE(sensor_measurements.signal_perfusion[1] == green_perfusion);
       }
     }
     byte_value = 0x84;
     WHEN("Status Byte value is 0x84") {
       PF::Driver::Serial::Nonin::read_status_byte(sensor_measurements, frame_index, byte_value);
-      THEN("Signal perfusion in PacketMeasurements shall be red perfusion") {
+      THEN("Signal perfusion in Sample shall be red perfusion") {
         REQUIRE(sensor_measurements.signal_perfusion[1] == red_perfusion);
       }
     }
     byte_value = 0x86;
     WHEN("Status Byte value is 0x86") {
       PF::Driver::Serial::Nonin::read_status_byte(sensor_measurements, frame_index, byte_value);
-      THEN("Signal perfusion in PacketMeasurements shall be yellow perfusion") {
+      THEN("Signal perfusion in Sample shall be yellow perfusion") {
         REQUIRE(sensor_measurements.signal_perfusion[1] == yellow_perfusion);
       }
     }
@@ -133,9 +134,9 @@ SCENARIO("Validate the valid first Packet", "[NoninOem3]") {
     uint8_t index = 0;
 
     PF::Driver::Serial::Nonin::PacketReceiver packet_receiver;
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketInputStatus packet_input_status;
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketOutputStatus packet_output_status;
-    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+    PF::Driver::Serial::Nonin::PacketInputStatus packet_input_status;
+    PF::Driver::Serial::Nonin::PacketOutputStatus packet_output_status;
+    PF::Driver::Serial::Nonin::Sample sensor_measurements{};
     WHEN("Receiving first frame of data from FrameReceiver") {
       packet_input_status = packet_receiver.input(test_packet[0]);
       REQUIRE(0x01 == ((test_packet[0][1]) & 0x01U));
@@ -162,28 +163,28 @@ SCENARIO("Validate the valid first Packet", "[NoninOem3]") {
       THEN("For the 25th frame Packet Input status shall return available status") {
         packet_input_status = packet_receiver.input(test_packet[24]);
         REQUIRE((test_packet[index][1] & 0x01U) == 0x00);
-        REQUIRE(packet_input_status == input_status_available);
+        REQUIRE(packet_input_status == input_status_output_ready);
       }
     }
     AND_WHEN("packet_input_status is available, PacketReceiver output to get the measurements") {
       for (index = 0; index < PF::Driver::Serial::Nonin::packet_size; index++) {
         packet_input_status = packet_receiver.input(test_packet[index]);
       }
-      REQUIRE(packet_input_status == input_status_available);
+      REQUIRE(packet_input_status == input_status_output_ready);
       packet_output_status = packet_receiver.output(sensor_measurements);
-      REQUIRE(packet_output_status == output_status_available);
+      REQUIRE(packet_output_status == output_status_ok);
       THEN("Validate the Heart Rate and SpO2") {
-        REQUIRE(sensor_measurements.heart_rate == 72);
-        REQUIRE(sensor_measurements.heart_rate_d == 72);
-        REQUIRE(sensor_measurements.e_heart_rate == 72);
-        REQUIRE(sensor_measurements.e_heart_rate_d == 72);
+        REQUIRE(sensor_measurements.hr == 72);
+        REQUIRE(sensor_measurements.hr_d == 72);
+        REQUIRE(sensor_measurements.e_hr == 72);
+        REQUIRE(sensor_measurements.e_hr_d == 72);
         REQUIRE(sensor_measurements.spo2 == 97);
         REQUIRE(sensor_measurements.spo2_d == 97);
         REQUIRE(sensor_measurements.e_spo2 == 97);
         REQUIRE(sensor_measurements.e_spo2_d == 97);
-        REQUIRE(sensor_measurements.spo2_d_beat == 97);
-        REQUIRE(sensor_measurements.spo2_d_fast == 97);
-        REQUIRE(sensor_measurements.nonin_oem_revision == 48);
+        REQUIRE(sensor_measurements.spo2_b_b == 97);
+        REQUIRE(sensor_measurements.spo2_fast == 97);
+        REQUIRE(sensor_measurements.firmware_revision == 48);
       }
     }
   }
@@ -218,9 +219,9 @@ SCENARIO("Validate the valid first Packet", "[NoninOem3]") {
     uint8_t index = 0;
 
     PF::Driver::Serial::Nonin::PacketReceiver packet_receiver;
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketInputStatus packet_input_status;
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketOutputStatus packet_output_status;
-    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+    PF::Driver::Serial::Nonin::PacketInputStatus packet_input_status;
+    PF::Driver::Serial::Nonin::PacketOutputStatus packet_output_status;
+    PF::Driver::Serial::Nonin::Sample sensor_measurements{};
     WHEN("Receiving first frame of data from FrameReceiver") {
       packet_input_status = packet_receiver.input(test_packet[0]);
       REQUIRE(0x01 == ((test_packet[0][1]) & 0x01U));
@@ -247,16 +248,16 @@ SCENARIO("Validate the valid first Packet", "[NoninOem3]") {
       THEN("For the 25th frame Packet Input status shall return available status") {
         packet_input_status = packet_receiver.input(test_packet[24]);
         REQUIRE((test_packet[index][1] & 0x01U) != 0x01);
-        REQUIRE(packet_input_status == input_status_available);
+        REQUIRE(packet_input_status == input_status_output_ready);
       }
     }
     AND_WHEN("packet input status is available, PacketReceiver output to get the measurements") {
       for (index = 0; index < PF::Driver::Serial::Nonin::packet_size; index++) {
         packet_input_status = packet_receiver.input(test_packet[index]);
       }
-      REQUIRE(packet_input_status == input_status_available);
+      REQUIRE(packet_input_status == input_status_output_ready);
       packet_output_status = packet_receiver.output(sensor_measurements);
-      REQUIRE(packet_output_status == output_status_available);
+      REQUIRE(packet_output_status == output_status_ok);
       THEN("Status Byte errors set") {
         REQUIRE(sensor_measurements.signal_perfusion[0] == no_perfusion);
         REQUIRE(sensor_measurements.signal_perfusion[1] == green_perfusion);
@@ -310,9 +311,9 @@ SCENARIO("Validate the packets data with invalid data") {
     uint8_t index = 0;
 
     PF::Driver::Serial::Nonin::PacketReceiver packet_receiver;
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketInputStatus packet_input_status;
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketOutputStatus packet_output_status;
-    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+    PF::Driver::Serial::Nonin::PacketInputStatus packet_input_status;
+    PF::Driver::Serial::Nonin::PacketOutputStatus packet_output_status;
+    PF::Driver::Serial::Nonin::Sample sensor_measurements{};
 
     WHEN("Receiving first frame of data from FrameReceiver") {
       packet_input_status = packet_receiver.input(test_frames[0]);
@@ -337,47 +338,47 @@ SCENARIO("Validate the packets data with invalid data") {
       }
       packet_input_status = packet_receiver.input(test_frames[index]);
       THEN("packet_input_status shall return available") {
-        REQUIRE(packet_input_status == input_status_available);
+        REQUIRE(packet_input_status == input_status_output_ready);
       }
     }
     AND_WHEN("packet_input_status is available, PacketReceiver::output to get the measurements") {
       for (index = 0; index < PF::Driver::Serial::Nonin::packet_size; index++) {
         packet_input_status = packet_receiver.input(test_frames[index]);
       }
-      REQUIRE(packet_input_status == input_status_available);
+      REQUIRE(packet_input_status == input_status_output_ready);
       packet_output_status = packet_receiver.output(sensor_measurements);
-      REQUIRE(packet_output_status == output_status_available);
+      REQUIRE(packet_output_status == output_status_ok);
       THEN("Validate the Heart Rate and SpO2") {
-        REQUIRE(sensor_measurements.heart_rate == 72);
-        REQUIRE(sensor_measurements.heart_rate_d == 72);
-        REQUIRE(sensor_measurements.e_heart_rate == 72);
-        REQUIRE(sensor_measurements.e_heart_rate_d == 72);
+        REQUIRE(sensor_measurements.hr == 72);
+        REQUIRE(sensor_measurements.hr_d == 72);
+        REQUIRE(sensor_measurements.e_hr == 72);
+        REQUIRE(sensor_measurements.e_hr_d == 72);
         REQUIRE(sensor_measurements.spo2 == 97);
         REQUIRE(sensor_measurements.spo2_d == 97);
         REQUIRE(sensor_measurements.e_spo2 == 97);
         REQUIRE(sensor_measurements.e_spo2_d == 97);
-        REQUIRE(sensor_measurements.spo2_d_beat == 97);
-        REQUIRE(sensor_measurements.spo2_d_fast == 97);
-        REQUIRE(sensor_measurements.nonin_oem_revision == 48);
+        REQUIRE(sensor_measurements.spo2_b_b == 97);
+        REQUIRE(sensor_measurements.spo2_fast == 97);
+        REQUIRE(sensor_measurements.firmware_revision == 48);
       }
     }
     AND_WHEN("Packet input status is available on input of 25 frames") {
       for (index = 0; index < 25; index++) {
         packet_input_status = packet_receiver.input(test_frames[index]);
       }
-      REQUIRE(packet_input_status == input_status_available);
-      THEN("Input of 26th and 27th noise frame shall return missed_data") {
+      REQUIRE(packet_input_status == input_status_output_ready);
+      THEN("Input of 26th and 27th noise frame shall return frame_loss") {
         for (index = 25; index < 27; index++) {
           packet_input_status = packet_receiver.input(test_frames[index]);
-          REQUIRE(packet_input_status == input_status_missed_data);
+          REQUIRE(packet_input_status == input_status_frame_loss);
         }
       }
     }
-    AND_WHEN("Packet input status missed_data on input of 27 frames") {
+    AND_WHEN("Packet input status frame_loss on input of 27 frames") {
       for (index = 0; index < 27; index++) {
         packet_input_status = packet_receiver.input(test_frames[index]);
       }
-      REQUIRE(packet_input_status == input_status_missed_data);
+      REQUIRE(packet_input_status == input_status_frame_loss);
       THEN("Input of 28th frame (first frame of next packet) shall return waiting") {
         packet_input_status = packet_receiver.input(test_frames[27]);
         REQUIRE(packet_input_status == input_status_waiting);
@@ -439,9 +440,9 @@ SCENARIO("Validate the packets data with invalid data") {
     uint8_t index = 0;
 
     PF::Driver::Serial::Nonin::PacketReceiver packet_receiver;
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketInputStatus packet_input_status;
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketOutputStatus packet_output_status;
-    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+    PF::Driver::Serial::Nonin::PacketInputStatus packet_input_status;
+    PF::Driver::Serial::Nonin::PacketOutputStatus packet_output_status;
+    PF::Driver::Serial::Nonin::Sample sensor_measurements{};
 
     WHEN("Receiving first frame of data from FrameReceiver") {
       packet_input_status = packet_receiver.input(test_frames[0]);
@@ -465,18 +466,18 @@ SCENARIO("Validate the packets data with invalid data") {
         packet_input_status = packet_receiver.input(test_frames[index]);
         REQUIRE(packet_input_status == input_status_waiting);
       }
-      THEN("packet Input Status shall be missed_data") {
+      THEN("packet Input Status shall be frame_loss") {
         packet_input_status = packet_receiver.input(test_frames[23]);
         REQUIRE((test_frames[index][1] & 0x01U) == 0x01);
         REQUIRE(23 != PF::Driver::Serial::Nonin::packet_size);
-        REQUIRE(packet_input_status == input_status_missed_data);
+        REQUIRE(packet_input_status == input_status_frame_loss);
       }
     }
     AND_WHEN("25th to 47 frames packet Input Status shall be waiting") {
       for (index = 0; index < 24; index++) {
         packet_input_status = packet_receiver.input(test_frames[index]);
       }
-      THEN("on 24th frame packet Input Status shall be missed_data")
+      THEN("on 24th frame packet Input Status shall be frame_loss")
       for (index = 24; index < 47; index++) {
         packet_input_status = packet_receiver.input(test_frames[index]);
         REQUIRE((test_frames[index][1] & 0x01U) != 0x01);
@@ -490,28 +491,28 @@ SCENARIO("Validate the packets data with invalid data") {
       THEN("On 48th frame packet Input Status shall be available") {
         packet_input_status = packet_receiver.input(test_frames[index]);
         REQUIRE((test_frames[index][1] & 0x01U) != 0x01);
-        REQUIRE(packet_input_status == input_status_available);
+        REQUIRE(packet_input_status == input_status_output_ready);
       }
     }
     AND_WHEN("packet_input_status is available, PacketReceiver output to get the measurements") {
       for (index = 0; index < 48; index++) {
         packet_input_status = packet_receiver.input(test_frames[index]);
       }
-      REQUIRE(packet_input_status == input_status_available);
+      REQUIRE(packet_input_status == input_status_output_ready);
       packet_output_status = packet_receiver.output(sensor_measurements);
-      REQUIRE(packet_output_status == output_status_available);
+      REQUIRE(packet_output_status == output_status_ok);
       THEN("Validate the Heart Rate and SpO2") {
-        REQUIRE(sensor_measurements.heart_rate == 72);
-        REQUIRE(sensor_measurements.heart_rate_d == 72);
-        REQUIRE(sensor_measurements.e_heart_rate == 72);
-        REQUIRE(sensor_measurements.e_heart_rate_d == 72);
+        REQUIRE(sensor_measurements.hr == 72);
+        REQUIRE(sensor_measurements.hr_d == 72);
+        REQUIRE(sensor_measurements.e_hr == 72);
+        REQUIRE(sensor_measurements.e_hr_d == 72);
         REQUIRE(sensor_measurements.spo2 == 97);
         REQUIRE(sensor_measurements.spo2_d == 97);
         REQUIRE(sensor_measurements.e_spo2 == 97);
         REQUIRE(sensor_measurements.e_spo2_d == 97);
-        REQUIRE(sensor_measurements.spo2_d_beat == 97);
-        REQUIRE(sensor_measurements.spo2_d_fast == 97);
-        REQUIRE(sensor_measurements.nonin_oem_revision == 48);
+        REQUIRE(sensor_measurements.spo2_b_b == 97);
+        REQUIRE(sensor_measurements.spo2_fast == 97);
+        REQUIRE(sensor_measurements.firmware_revision == 48);
       }
     }
   }
@@ -526,9 +527,9 @@ SCENARIO("Validate the packets data with invalid data") {
          {0x01, 0x80, 0x01, 0x00, 0x82}}};
 
     PF::Driver::Serial::Nonin::PacketReceiver packet_receiver;
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketInputStatus packet_input_status;
-    PF::Driver::Serial::Nonin::PacketReceiver::PacketOutputStatus packet_output_status;
-    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
+    PF::Driver::Serial::Nonin::PacketInputStatus packet_input_status;
+    PF::Driver::Serial::Nonin::PacketOutputStatus packet_output_status;
+    PF::Driver::Serial::Nonin::Sample sensor_measurements{};
 
     WHEN("Receiving first frame of data from FrameReceiver") {
       packet_input_status = packet_receiver.input(test_frames[0]);

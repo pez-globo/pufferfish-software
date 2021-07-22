@@ -23,6 +23,7 @@
 #include "catch2/catch.hpp"
 
 namespace PF = Pufferfish;
+using PF::Driver::Serial::Nonin::Frame;
 using PF::Util::Containers::make_array;
 
 SCENARIO("5 bytes of valid data.", "[NoninOEM3]") {
