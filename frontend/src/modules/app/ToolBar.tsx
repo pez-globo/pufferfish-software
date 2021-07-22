@@ -318,7 +318,7 @@ export const ToolBar = ({
   /**
    * Display buttons dynamically on the toolbar
    */
-  const tools = [<ModesDropdown />];
+  const tools: JSX.Element[] = [];
   if (location.pathname === DASHBOARD_ROUTE.path) {
     tools.push(<ViewDropdown />);
   } else if (location.pathname === QUICKSTART_ROUTE.path) {
@@ -329,7 +329,7 @@ export const ToolBar = ({
     // );
   }
   if (location.pathname !== '/') {
-    tools.push(<Alarms />);
+    tools.push(<ModesDropdown />, <Alarms />);
   }
 
   /**
