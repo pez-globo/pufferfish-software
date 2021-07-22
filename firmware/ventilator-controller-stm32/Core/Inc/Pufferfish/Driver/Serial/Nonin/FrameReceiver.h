@@ -66,7 +66,7 @@ class FrameReceiver {
   FrameOutputStatus output(Frame &frame);
 
  private:
-  FrameInputStatus update_frame_buffer(uint8_t new_byte, bool &input_overwritten);
+  FrameInputStatus update_frame_buffer(uint8_t new_byte);
   FrameInputStatus input_status_ = FrameInputStatus::ok;
   FrameBuffer frame_buf_;
 
