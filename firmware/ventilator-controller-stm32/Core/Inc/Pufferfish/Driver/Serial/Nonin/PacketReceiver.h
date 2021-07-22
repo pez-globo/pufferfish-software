@@ -35,7 +35,7 @@ enum class PacketInputStatus {
   frame_loss         /// missed one or more frames in previous received packet
 };
 using PacketOutputStatus = Pufferfish::Driver::Serial::Nonin::FrameOutputStatus;
-static const uint8_t mask_6bit = 0x7F;
+static const uint8_t spo2_missing_data = 0x7F;
 
 /**
  * @brief  Inline function to get the SpO2 data
@@ -44,7 +44,7 @@ static const uint8_t mask_6bit = 0x7F;
  */
 inline uint16_t get_spo2_data(uint8_t byte_data) {
   /* Mask Bit0 to Bit6 for SpO2 data  */
-  return byte_data & mask_6bit;
+  return byte_data & spo2_missing_data;
 }
 
 /**
@@ -57,11 +57,11 @@ inline uint16_t get_hr_data(uint8_t msb_byte, uint8_t lsb_byte) {
   /* Pack 2 bits of MSB and 6 bits of LSB for 9 bits of heart rate data  */
   static const uint16_t msb_shift = 7;
   static const uint16_t mask_msb = 0x18;
-  static const uint16_t mask_9bit = 0x01FF;
+  static const uint16_t hr_missing_data = 0x01FF;
   const uint16_t msb =
       static_cast<uint16_t>(static_cast<uint16_t>(msb_byte) << msb_shift) & mask_msb;
   const uint16_t lsb = static_cast<uint16_t>(lsb_byte) & mask_6bit;
-  return static_cast<uint16_t>(msb | lsb) & mask_9bit;
+  return static_cast<uint16_t>(msb | lsb) & hr_missing_data;
 }
 
 /*
