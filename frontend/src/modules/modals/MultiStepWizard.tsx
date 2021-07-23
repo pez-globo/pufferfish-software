@@ -16,21 +16,21 @@ import {
   getSmoothedHR,
   getParametersRequestDraftFiO2,
   getParametersRequestDraftFlow,
-  getSpO2AlarmLimitsRequest,
-  getHRAlarmLimitsRequest,
   getParametersFlow,
   getParametersFiO2,
-  getFiO2AlarmLimitsCurrent,
-  getFlowAlarmLimitsCurrent,
+  getSpO2AlarmLimitsRequest,
+  getHRAlarmLimitsRequest,
+  getFiO2AlarmLimitsDraft,
+  getFlowAlarmLimitsDraft,
 } from '../../store/controller/selectors';
-import { SetValueContent } from '../controllers/ValueModal';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import ValueInfo from '../dashboard/components/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../info/units';
-import { AlarmModal } from '../controllers';
 import { ParametersRequest, AlarmLimitsRequest, Range } from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/proto/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
+import ValueModalContent from '../controllers/ValueModal';
+import { AlarmModalContent } from '../controllers/AlarmModal';
 
 /**
  * @typedef InternalState
@@ -308,8 +308,8 @@ const MultiStepWizard = (): JSX.Element => {
 
   const alarmLimitsRequestSpO2 = useSelector(getSpO2AlarmLimitsRequest, shallowEqual);
   const alarmLimitsRequestHR = useSelector(getHRAlarmLimitsRequest, shallowEqual);
-  const alarmLimitsCurrentFiO2 = useSelector(getFiO2AlarmLimitsCurrent, shallowEqual);
-  const alarmLimitsCurrentFlow = useSelector(getFlowAlarmLimitsCurrent, shallowEqual);
+  const alarmLimitsCurrentFiO2 = useSelector(getFiO2AlarmLimitsDraft, shallowEqual);
+  const alarmLimitsCurrentFlow = useSelector(getFlowAlarmLimitsDraft, shallowEqual);
   const parametersFiO2 = useSelector(getParametersFiO2);
   const parametersFlow = useSelector(getParametersFlow);
 
@@ -721,7 +721,7 @@ const MultiStepWizard = (): JSX.Element => {
             </TabPanel>
             <TabPanel value={tabIndex} index={1}>
               {parameter && parameter.isParamEnabled ? (
-                <SetValueContent
+                <ValueModalContent
                   openModal={open && parameter.stateKey === stateKey}
                   key={parameter.stateKey}
                   committedSetting={getParamDraft(parameter.stateKey)}
@@ -733,13 +733,11 @@ const MultiStepWizard = (): JSX.Element => {
                 />
               ) : (
                 parameter && (
-                  <AlarmModal
-                    openModal={open && parameter.stateKey === stateKey}
+                  <AlarmModalContent
                     label={parameter.label}
                     units={parameter.units}
                     stateKey={parameter.stateKey}
-                    requestCommitRange={handleAlarmLimitsRequest}
-                    contentOnly={true}
+                    handleCommittedRange={handleAlarmLimitsRequest}
                     labelHeading={true}
                     alarmRangeValues={getAlarmLimitsDraft(parameter.stateKey)}
                     {...(parameter.alarmLimitMin && { committedMin: parameter.alarmLimitMin })}

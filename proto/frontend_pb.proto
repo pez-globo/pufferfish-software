@@ -8,13 +8,6 @@ message RotaryEncoder {
   float last_button_up = 5;
 }
 
-// Connection statuses
-
-message BackendConnections {
-  bool has_mcu = 1;
-  bool has_frontend = 2;
-}
-
 // Display Settings
 
 // TODO: should metric be 0? (i.e. the default)

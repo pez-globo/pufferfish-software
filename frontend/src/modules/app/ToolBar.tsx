@@ -41,8 +41,8 @@ import PowerChargingIcon from '../icons/PowerChargingIcon';
 import PowerFullIcon from '../icons/PowerFullIcon';
 import { PERCENT } from '../info/units';
 import ModesDropdown from '../modes/ModesDropdown';
-import { DASHBOARD_ROUTE, LOGS_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
-import EventAlerts from '../modals/EventAlerts';
+import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
+import Alarms from '../alarms/Alarms';
 import { DiscardAlarmLimitsContent } from '../modals';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -318,7 +318,7 @@ export const ToolBar = ({
   /**
    * Display buttons dynamically on the toolbar
    */
-  const tools = [<ModesDropdown />];
+  const tools: JSX.Element[] = [];
   if (location.pathname === DASHBOARD_ROUTE.path) {
     tools.push(<ViewDropdown />);
   } else if (location.pathname === QUICKSTART_ROUTE.path) {
@@ -329,7 +329,7 @@ export const ToolBar = ({
     // );
   }
   if (location.pathname !== '/') {
-    tools.push(<EventAlerts label={LOGS_ROUTE.label} />);
+    tools.push(<ModesDropdown />, <Alarms />);
   }
 
   /**

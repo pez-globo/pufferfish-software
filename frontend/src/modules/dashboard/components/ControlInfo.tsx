@@ -210,7 +210,7 @@ const ControlInfo = (props: Props): JSX.Element => {
       <ValueModal
         updateModalStatus={(status: boolean) => setOpen(status)}
         openModal={open}
-        disableSetNewButton={true}
+        // disableSetNewButton={true}
         committedSetting={committedSetting}
         label={label}
         units={units}

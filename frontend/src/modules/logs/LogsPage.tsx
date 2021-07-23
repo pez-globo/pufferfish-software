@@ -405,6 +405,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                                         ${new Date(row.time).toLocaleTimeString([], {
                                           hour: '2-digit',
                                           minute: '2-digit',
+                                          second: '2-digit',
                                         })}
                                     `}
                 </TableCell>
@@ -456,11 +457,10 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
         <AlarmModal
           onModalClose={() => setAlarmOpen(false)}
           openModal={alarmOpen}
-          disableAlarmButton={true}
           label={currentRow.head}
           units={currentRow.unit}
           stateKey={currentRow.stateKey}
-          requestCommitRange={() => null}
+          handleCommittedRange={() => null}
         />
       )}
     </Grid>

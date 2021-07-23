@@ -49,21 +49,26 @@ typedef enum _LogEventCode {
     LogEventCode_mcu_backend_connection_down = 130, /* mcu lost backend */
     LogEventCode_backend_mcu_connection_down = 131, /* backend lost mcu */
     LogEventCode_backend_frontend_connection_down = 132, /* backend lost frontend */
+    /* TODO: if the backend can't send data to the frontend but the frontend can send
+ data to the backend, we should make the backend generate a frontend_backend_down
+ log event so that there's some record in the event log of a connection problem.
+ We can achieve this using a FrontendConnections message type which the frontend sends
+ to the backend. */
     LogEventCode_frontend_backend_connection_down = 133, /* frontend lost backend */
     LogEventCode_mcu_backend_connection_up = 134, /* mcu detected backend */
-    /* The following code isn't actually used, but we reserve space for it.
- We don't use it because if the backend received an mcu_backend_connection_up
- event from the MCU, then we know that the backend received a connection from
- the MCU. We only care for technical troubleshooting (of the UART wires) about
- the case where the backend receives a connection from the MCU but the MCU
- hasn't received a connection from the backend; it would be good to log it,
- but we don't need to show it in the frontend, and right now the frontend has
- no way to filter out events from its display.
- backend_mcu_connection_up = 135;  // backend detected mcu */
+    /* TODO: if the mcu can't send data to the backend but the backend can send
+ data to the mcu, we should make the backend generate a backend_mcu_up
+ log event once the mcu becomes able to send data again so that the event log
+ has a connection_up event to match the connection_down event. */
+    LogEventCode_backend_mcu_connection_up = 135, /* backend detected mcu */
     LogEventCode_backend_frontend_connection_up = 136, /* backend detected frontend */
-    /* The following code isn't actually used, but we reserve space for it.
- We don't use it because the frontend can't generate LogEvents with IDs.
- frontend_backend_connection_up = 137; */
+    /* TODO: if the backend can't send data to the frontend but the frontend can send
+ data to the backend, we should make the backend generate a frontend_backend_up
+ log event once the frontend detects that the backend is able to send data again,
+ so that the event log has a connection_up event to match the connection_down event.
+ We can achieve this using a FrontendConnections message type which the frontend sends
+ to the backend. */
+    LogEventCode_frontend_backend_connection_up = 137, /* frontend detected backend */
     LogEventCode_battery_low = 138, 
     LogEventCode_battery_critical = 139, 
     LogEventCode_charger_disconnected = 140, 
@@ -71,9 +76,23 @@ typedef enum _LogEventCode {
     LogEventCode_backend_started = 142, 
     LogEventCode_mcu_shutdown = 143, 
     LogEventCode_backend_shutdown = 144, 
-    LogEventCode_sfm3019_air_disconnected = 145, 
-    LogEventCode_sfm3019_o2_disconnected = 146, 
-    LogEventCode_fdo2_disconnected = 147 
+    /* Alarm muting/unmuting */
+    LogEventCode_alarms_muted_user_software = 145, 
+    LogEventCode_alarms_muted_user_hardware = 146, 
+    LogEventCode_alarms_muted_unknown = 147, /* Indicates a software bug; should never occur */
+    LogEventCode_alarms_unmuted_user_software = 148, 
+    LogEventCode_alarms_unmuted_user_hardware = 149, 
+    LogEventCode_alarms_unmuted_initialization = 150, 
+    LogEventCode_alarms_unmuted_timeout = 151, 
+    LogEventCode_alarms_unmuted_mcu_backend_loss = 152, 
+    LogEventCode_alarms_unmuted_backend_mcu_loss = 153, 
+    LogEventCode_alarms_unmuted_backend_frontend_loss = 154, 
+    LogEventCode_alarms_unmuted_frontend_backend_loss = 155, 
+    LogEventCode_alarms_unmuted_unknown = 156, /* Indicates a software bug; should never occur */
+    /* Sensor loss */
+    LogEventCode_sfm3019_air_disconnected = 160, 
+    LogEventCode_sfm3019_o2_disconnected = 161, 
+    LogEventCode_fdo2_disconnected = 162 
 } LogEventCode;
 
 typedef enum _LogEventType { 
@@ -82,6 +101,17 @@ typedef enum _LogEventType {
     LogEventType_alarm_limits = 2, 
     LogEventType_system = 3 
 } LogEventType;
+
+typedef enum _AlarmMuteSource { 
+    AlarmMuteSource_initialization = 0, /* Alarm muting was set on initialization */
+    AlarmMuteSource_user_software = 1, /* User took a software action to change alarm muting */
+    AlarmMuteSource_user_hardware = 2, /* User took a hardware action to change alarm muting */
+    AlarmMuteSource_timeout = 3, /* Alarm mute automatically timed out */
+    AlarmMuteSource_mcu_backend_loss = 4, /* Alarm mute was cancelled by mcu due to connection loss */
+    AlarmMuteSource_backend_mcu_loss = 5, /* Alarm mute was cancelled by backend due to connection loss */
+    AlarmMuteSource_backend_frontend_loss = 6, /* Alarm mute was cancelled by backend due to connection loss */
+    AlarmMuteSource_frontend_backend_loss = 7 /* Alarm mute was cancelled by frontend due to connection loss */
+} AlarmMuteSource;
 
 /* Struct definitions */
 /* Note: NextLogEvents has a custom equality operator in the firmware which must
@@ -93,22 +123,35 @@ typedef struct _ActiveLogEvents {
 
 typedef struct _AlarmMute { 
     bool active; 
-    uint64_t remaining; 
+    /* seq_num is a logical clock and advances in the firmware after each local action
+ in the firmware (such as a button-press) or the servicing of each external request. */
+    uint32_t seq_num; 
+    AlarmMuteSource source; 
+    uint64_t remaining; /* ms */
 } AlarmMute;
 
 typedef struct _AlarmMuteRequest { 
     bool active; 
-    uint64_t remaining; 
+    /* seq_num is a logical clock which also acts as an idempotency key for requests:
+ the firmware only services an AlarmMuteRequest if the request's seq_num is one
+ greater than the seq_num in the firmware's copy of AlarmMute. */
+    uint32_t seq_num; 
+    AlarmMuteSource source; 
 } AlarmMuteRequest;
 
 typedef PB_BYTES_ARRAY_T(64) Announcement_announcement_t;
 typedef struct _Announcement { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     Announcement_announcement_t announcement; 
 } Announcement;
 
+typedef struct _BackendConnections { 
+    bool has_mcu; 
+    bool has_frontend; 
+} BackendConnections;
+
 typedef struct _CycleMeasurements { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     float vt; 
     float rr; 
     float peep; 
@@ -119,6 +162,9 @@ typedef struct _CycleMeasurements {
 
 typedef struct _ExpectedLogEvent { 
     uint32_t id; 
+    /* session_id is checked by the NextLogEvents sender if the sender's log is
+ ephemeral; the sender will ignore any ExpectedLogEvent whose session_id
+ doesn't match the sender's session_id, which is announced in NextLogEvents. */
     uint32_t session_id; /* used when the sender's log is ephemeral */
 } ExpectedLogEvent;
 
@@ -128,7 +174,7 @@ typedef struct _MCUPowerStatus {
 } MCUPowerStatus;
 
 typedef struct _Parameters { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     bool ventilating; 
     VentilationMode mode; 
     float fio2; 
@@ -141,7 +187,7 @@ typedef struct _Parameters {
 } Parameters;
 
 typedef struct _ParametersRequest { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     bool ventilating; 
     VentilationMode mode; 
     float fio2; 
@@ -154,7 +200,7 @@ typedef struct _ParametersRequest {
 } ParametersRequest;
 
 typedef struct _Ping { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     uint32_t id; 
 } Ping;
 
@@ -168,7 +214,7 @@ typedef struct _ScreenStatus {
 } ScreenStatus;
 
 typedef struct _SensorMeasurements { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     uint32_t cycle; 
     float fio2; 
     float flow; 
@@ -179,7 +225,7 @@ typedef struct _SensorMeasurements {
 } SensorMeasurements;
 
 typedef struct _AlarmLimits { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     bool has_fio2;
     Range fio2; 
     bool has_flow;
@@ -211,7 +257,7 @@ typedef struct _AlarmLimits {
 } AlarmLimits;
 
 typedef struct _AlarmLimitsRequest { 
-    uint64_t time; 
+    uint64_t time; /* ms */
     bool has_fio2;
     Range fio2; 
     bool has_flow;
@@ -244,7 +290,7 @@ typedef struct _AlarmLimitsRequest {
 
 typedef struct _LogEvent { 
     uint32_t id; 
-    uint64_t time; 
+    uint64_t time; /* ms */
     LogEventCode code; 
     LogEventType type; 
     bool has_alarm_limits;
@@ -288,55 +334,66 @@ typedef struct _NextLogEvents {
 #define _LogEventType_MAX LogEventType_system
 #define _LogEventType_ARRAYSIZE ((LogEventType)(LogEventType_system+1))
 
+#define _AlarmMuteSource_MIN AlarmMuteSource_initialization
+#define _AlarmMuteSource_MAX AlarmMuteSource_frontend_backend_loss
+#define _AlarmMuteSource_ARRAYSIZE ((AlarmMuteSource)(AlarmMuteSource_frontend_backend_loss+1))
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Initializer values for message structs */
-#define Range_init_default                       {0, 0}
-#define AlarmLimits_init_default                 {0, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default}
-#define AlarmLimitsRequest_init_default          {0, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default}
 #define SensorMeasurements_init_default          {0, 0, 0, 0, 0, 0, 0, 0}
 #define CycleMeasurements_init_default           {0, 0, 0, 0, 0, 0, 0}
 #define Parameters_init_default                  {0, 0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0}
 #define ParametersRequest_init_default           {0, 0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0}
-#define Ping_init_default                        {0, 0}
-#define Announcement_init_default                {0, {0, {0}}}
+#define Range_init_default                       {0, 0}
+#define AlarmLimits_init_default                 {0, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default}
+#define AlarmLimitsRequest_init_default          {0, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default, false, Range_init_default}
 #define LogEvent_init_default                    {0, 0, _LogEventCode_MIN, _LogEventType_MIN, false, Range_init_default, 0, 0, 0, 0, 0, 0, false, Range_init_default, false, Range_init_default, _VentilationMode_MIN, _VentilationMode_MIN}
 #define ExpectedLogEvent_init_default            {0, 0}
 #define NextLogEvents_init_default               {0, 0, 0, 0, 0, {LogEvent_init_default, LogEvent_init_default}}
 #define ActiveLogEvents_init_default             {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
+#define AlarmMute_init_default                   {0, 0, _AlarmMuteSource_MIN, 0}
+#define AlarmMuteRequest_init_default            {0, 0, _AlarmMuteSource_MIN}
 #define MCUPowerStatus_init_default              {0, 0}
+#define BackendConnections_init_default          {0, 0}
 #define ScreenStatus_init_default                {0}
-#define AlarmMute_init_default                   {0, 0}
-#define AlarmMuteRequest_init_default            {0, 0}
-#define Range_init_zero                          {0, 0}
-#define AlarmLimits_init_zero                    {0, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero}
-#define AlarmLimitsRequest_init_zero             {0, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero}
+#define Ping_init_default                        {0, 0}
+#define Announcement_init_default                {0, {0, {0}}}
 #define SensorMeasurements_init_zero             {0, 0, 0, 0, 0, 0, 0, 0}
 #define CycleMeasurements_init_zero              {0, 0, 0, 0, 0, 0, 0}
 #define Parameters_init_zero                     {0, 0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0}
 #define ParametersRequest_init_zero              {0, 0, _VentilationMode_MIN, 0, 0, 0, 0, 0, 0, 0}
-#define Ping_init_zero                           {0, 0}
-#define Announcement_init_zero                   {0, {0, {0}}}
+#define Range_init_zero                          {0, 0}
+#define AlarmLimits_init_zero                    {0, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero}
+#define AlarmLimitsRequest_init_zero             {0, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero, false, Range_init_zero}
 #define LogEvent_init_zero                       {0, 0, _LogEventCode_MIN, _LogEventType_MIN, false, Range_init_zero, 0, 0, 0, 0, 0, 0, false, Range_init_zero, false, Range_init_zero, _VentilationMode_MIN, _VentilationMode_MIN}
 #define ExpectedLogEvent_init_zero               {0, 0}
 #define NextLogEvents_init_zero                  {0, 0, 0, 0, 0, {LogEvent_init_zero, LogEvent_init_zero}}
 #define ActiveLogEvents_init_zero                {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
+#define AlarmMute_init_zero                      {0, 0, _AlarmMuteSource_MIN, 0}
+#define AlarmMuteRequest_init_zero               {0, 0, _AlarmMuteSource_MIN}
 #define MCUPowerStatus_init_zero                 {0, 0}
+#define BackendConnections_init_zero             {0, 0}
 #define ScreenStatus_init_zero                   {0}
-#define AlarmMute_init_zero                      {0, 0}
-#define AlarmMuteRequest_init_zero               {0, 0}
+#define Ping_init_zero                           {0, 0}
+#define Announcement_init_zero                   {0, {0, {0}}}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define ActiveLogEvents_id_tag                   1
 #define AlarmMute_active_tag                     1
-#define AlarmMute_remaining_tag                  2
+#define AlarmMute_seq_num_tag                    2
+#define AlarmMute_source_tag                     3
+#define AlarmMute_remaining_tag                  4
 #define AlarmMuteRequest_active_tag              1
-#define AlarmMuteRequest_remaining_tag           2
+#define AlarmMuteRequest_seq_num_tag             2
+#define AlarmMuteRequest_source_tag              3
 #define Announcement_time_tag                    1
 #define Announcement_announcement_tag            2
+#define BackendConnections_has_mcu_tag           1
+#define BackendConnections_has_frontend_tag      2
 #define CycleMeasurements_time_tag               1
 #define CycleMeasurements_vt_tag                 2
 #define CycleMeasurements_rr_tag                 3
@@ -433,6 +490,57 @@ extern "C" {
 #define NextLogEvents_elements_tag               5
 
 /* Struct field encoding specification for nanopb */
+#define SensorMeasurements_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
+X(a, STATIC,   SINGULAR, UINT32,   cycle,             2) \
+X(a, STATIC,   SINGULAR, FLOAT,    fio2,              3) \
+X(a, STATIC,   SINGULAR, FLOAT,    flow,              4) \
+X(a, STATIC,   SINGULAR, FLOAT,    spo2,              5) \
+X(a, STATIC,   SINGULAR, FLOAT,    hr,                6) \
+X(a, STATIC,   SINGULAR, FLOAT,    paw,               7) \
+X(a, STATIC,   SINGULAR, FLOAT,    volume,            8)
+#define SensorMeasurements_CALLBACK NULL
+#define SensorMeasurements_DEFAULT NULL
+
+#define CycleMeasurements_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
+X(a, STATIC,   SINGULAR, FLOAT,    vt,                2) \
+X(a, STATIC,   SINGULAR, FLOAT,    rr,                3) \
+X(a, STATIC,   SINGULAR, FLOAT,    peep,              4) \
+X(a, STATIC,   SINGULAR, FLOAT,    pip,               5) \
+X(a, STATIC,   SINGULAR, FLOAT,    ip,                6) \
+X(a, STATIC,   SINGULAR, FLOAT,    ve,                7)
+#define CycleMeasurements_CALLBACK NULL
+#define CycleMeasurements_DEFAULT NULL
+
+#define Parameters_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
+X(a, STATIC,   SINGULAR, BOOL,     ventilating,       2) \
+X(a, STATIC,   SINGULAR, UENUM,    mode,              3) \
+X(a, STATIC,   SINGULAR, FLOAT,    fio2,              4) \
+X(a, STATIC,   SINGULAR, FLOAT,    flow,              5) \
+X(a, STATIC,   SINGULAR, FLOAT,    pip,               6) \
+X(a, STATIC,   SINGULAR, FLOAT,    peep,              7) \
+X(a, STATIC,   SINGULAR, FLOAT,    vt,                8) \
+X(a, STATIC,   SINGULAR, FLOAT,    rr,                9) \
+X(a, STATIC,   SINGULAR, FLOAT,    ie,               10)
+#define Parameters_CALLBACK NULL
+#define Parameters_DEFAULT NULL
+
+#define ParametersRequest_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
+X(a, STATIC,   SINGULAR, BOOL,     ventilating,       2) \
+X(a, STATIC,   SINGULAR, UENUM,    mode,              3) \
+X(a, STATIC,   SINGULAR, FLOAT,    fio2,              4) \
+X(a, STATIC,   SINGULAR, FLOAT,    flow,              5) \
+X(a, STATIC,   SINGULAR, FLOAT,    pip,               6) \
+X(a, STATIC,   SINGULAR, FLOAT,    peep,              7) \
+X(a, STATIC,   SINGULAR, FLOAT,    vt,                8) \
+X(a, STATIC,   SINGULAR, FLOAT,    rr,                9) \
+X(a, STATIC,   SINGULAR, FLOAT,    ie,               10)
+#define ParametersRequest_CALLBACK NULL
+#define ParametersRequest_DEFAULT NULL
+
 #define Range_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    lower,             1) \
 X(a, STATIC,   SINGULAR, INT32,    upper,             2)
@@ -505,69 +613,6 @@ X(a, STATIC,   OPTIONAL, MESSAGE,  apnea,            15)
 #define AlarmLimitsRequest_etco2_MSGTYPE Range
 #define AlarmLimitsRequest_apnea_MSGTYPE Range
 
-#define SensorMeasurements_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
-X(a, STATIC,   SINGULAR, UINT32,   cycle,             2) \
-X(a, STATIC,   SINGULAR, FLOAT,    fio2,              3) \
-X(a, STATIC,   SINGULAR, FLOAT,    flow,              4) \
-X(a, STATIC,   SINGULAR, FLOAT,    spo2,              5) \
-X(a, STATIC,   SINGULAR, FLOAT,    hr,                6) \
-X(a, STATIC,   SINGULAR, FLOAT,    paw,               7) \
-X(a, STATIC,   SINGULAR, FLOAT,    volume,            8)
-#define SensorMeasurements_CALLBACK NULL
-#define SensorMeasurements_DEFAULT NULL
-
-#define CycleMeasurements_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
-X(a, STATIC,   SINGULAR, FLOAT,    vt,                2) \
-X(a, STATIC,   SINGULAR, FLOAT,    rr,                3) \
-X(a, STATIC,   SINGULAR, FLOAT,    peep,              4) \
-X(a, STATIC,   SINGULAR, FLOAT,    pip,               5) \
-X(a, STATIC,   SINGULAR, FLOAT,    ip,                6) \
-X(a, STATIC,   SINGULAR, FLOAT,    ve,                7)
-#define CycleMeasurements_CALLBACK NULL
-#define CycleMeasurements_DEFAULT NULL
-
-#define Parameters_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
-X(a, STATIC,   SINGULAR, BOOL,     ventilating,       2) \
-X(a, STATIC,   SINGULAR, UENUM,    mode,              3) \
-X(a, STATIC,   SINGULAR, FLOAT,    fio2,              4) \
-X(a, STATIC,   SINGULAR, FLOAT,    flow,              5) \
-X(a, STATIC,   SINGULAR, FLOAT,    pip,               6) \
-X(a, STATIC,   SINGULAR, FLOAT,    peep,              7) \
-X(a, STATIC,   SINGULAR, FLOAT,    vt,                8) \
-X(a, STATIC,   SINGULAR, FLOAT,    rr,                9) \
-X(a, STATIC,   SINGULAR, FLOAT,    ie,               10)
-#define Parameters_CALLBACK NULL
-#define Parameters_DEFAULT NULL
-
-#define ParametersRequest_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
-X(a, STATIC,   SINGULAR, BOOL,     ventilating,       2) \
-X(a, STATIC,   SINGULAR, UENUM,    mode,              3) \
-X(a, STATIC,   SINGULAR, FLOAT,    fio2,              4) \
-X(a, STATIC,   SINGULAR, FLOAT,    flow,              5) \
-X(a, STATIC,   SINGULAR, FLOAT,    pip,               6) \
-X(a, STATIC,   SINGULAR, FLOAT,    peep,              7) \
-X(a, STATIC,   SINGULAR, FLOAT,    vt,                8) \
-X(a, STATIC,   SINGULAR, FLOAT,    rr,                9) \
-X(a, STATIC,   SINGULAR, FLOAT,    ie,               10)
-#define ParametersRequest_CALLBACK NULL
-#define ParametersRequest_DEFAULT NULL
-
-#define Ping_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
-X(a, STATIC,   SINGULAR, UINT32,   id,                2)
-#define Ping_CALLBACK NULL
-#define Ping_DEFAULT NULL
-
-#define Announcement_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
-X(a, STATIC,   SINGULAR, BYTES,    announcement,      2)
-#define Announcement_CALLBACK NULL
-#define Announcement_DEFAULT NULL
-
 #define LogEvent_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   id,                1) \
 X(a, STATIC,   SINGULAR, UINT64,   time,              2) \
@@ -611,73 +656,97 @@ X(a, STATIC,   REPEATED, UINT32,   id,                1)
 #define ActiveLogEvents_CALLBACK NULL
 #define ActiveLogEvents_DEFAULT NULL
 
+#define AlarmMute_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, BOOL,     active,            1) \
+X(a, STATIC,   SINGULAR, UINT32,   seq_num,           2) \
+X(a, STATIC,   SINGULAR, UENUM,    source,            3) \
+X(a, STATIC,   SINGULAR, UINT64,   remaining,         4)
+#define AlarmMute_CALLBACK NULL
+#define AlarmMute_DEFAULT NULL
+
+#define AlarmMuteRequest_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, BOOL,     active,            1) \
+X(a, STATIC,   SINGULAR, UINT32,   seq_num,           2) \
+X(a, STATIC,   SINGULAR, UENUM,    source,            3)
+#define AlarmMuteRequest_CALLBACK NULL
+#define AlarmMuteRequest_DEFAULT NULL
+
 #define MCUPowerStatus_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, FLOAT,    power_left,        1) \
 X(a, STATIC,   SINGULAR, BOOL,     charging,          2)
 #define MCUPowerStatus_CALLBACK NULL
 #define MCUPowerStatus_DEFAULT NULL
 
+#define BackendConnections_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, BOOL,     has_mcu,           1) \
+X(a, STATIC,   SINGULAR, BOOL,     has_frontend,      2)
+#define BackendConnections_CALLBACK NULL
+#define BackendConnections_DEFAULT NULL
+
 #define ScreenStatus_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     lock,              1)
 #define ScreenStatus_CALLBACK NULL
 #define ScreenStatus_DEFAULT NULL
 
-#define AlarmMute_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, BOOL,     active,            1) \
-X(a, STATIC,   SINGULAR, UINT64,   remaining,         2)
-#define AlarmMute_CALLBACK NULL
-#define AlarmMute_DEFAULT NULL
+#define Ping_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
+X(a, STATIC,   SINGULAR, UINT32,   id,                2)
+#define Ping_CALLBACK NULL
+#define Ping_DEFAULT NULL
 
-#define AlarmMuteRequest_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, BOOL,     active,            1) \
-X(a, STATIC,   SINGULAR, UINT64,   remaining,         2)
-#define AlarmMuteRequest_CALLBACK NULL
-#define AlarmMuteRequest_DEFAULT NULL
+#define Announcement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT64,   time,              1) \
+X(a, STATIC,   SINGULAR, BYTES,    announcement,      2)
+#define Announcement_CALLBACK NULL
+#define Announcement_DEFAULT NULL
 
-extern const pb_msgdesc_t Range_msg;
-extern const pb_msgdesc_t AlarmLimits_msg;
-extern const pb_msgdesc_t AlarmLimitsRequest_msg;
 extern const pb_msgdesc_t SensorMeasurements_msg;
 extern const pb_msgdesc_t CycleMeasurements_msg;
 extern const pb_msgdesc_t Parameters_msg;
 extern const pb_msgdesc_t ParametersRequest_msg;
-extern const pb_msgdesc_t Ping_msg;
-extern const pb_msgdesc_t Announcement_msg;
+extern const pb_msgdesc_t Range_msg;
+extern const pb_msgdesc_t AlarmLimits_msg;
+extern const pb_msgdesc_t AlarmLimitsRequest_msg;
 extern const pb_msgdesc_t LogEvent_msg;
 extern const pb_msgdesc_t ExpectedLogEvent_msg;
 extern const pb_msgdesc_t NextLogEvents_msg;
 extern const pb_msgdesc_t ActiveLogEvents_msg;
-extern const pb_msgdesc_t MCUPowerStatus_msg;
-extern const pb_msgdesc_t ScreenStatus_msg;
 extern const pb_msgdesc_t AlarmMute_msg;
 extern const pb_msgdesc_t AlarmMuteRequest_msg;
+extern const pb_msgdesc_t MCUPowerStatus_msg;
+extern const pb_msgdesc_t BackendConnections_msg;
+extern const pb_msgdesc_t ScreenStatus_msg;
+extern const pb_msgdesc_t Ping_msg;
+extern const pb_msgdesc_t Announcement_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
-#define Range_fields &Range_msg
-#define AlarmLimits_fields &AlarmLimits_msg
-#define AlarmLimitsRequest_fields &AlarmLimitsRequest_msg
 #define SensorMeasurements_fields &SensorMeasurements_msg
 #define CycleMeasurements_fields &CycleMeasurements_msg
 #define Parameters_fields &Parameters_msg
 #define ParametersRequest_fields &ParametersRequest_msg
-#define Ping_fields &Ping_msg
-#define Announcement_fields &Announcement_msg
+#define Range_fields &Range_msg
+#define AlarmLimits_fields &AlarmLimits_msg
+#define AlarmLimitsRequest_fields &AlarmLimitsRequest_msg
 #define LogEvent_fields &LogEvent_msg
 #define ExpectedLogEvent_fields &ExpectedLogEvent_msg
 #define NextLogEvents_fields &NextLogEvents_msg
 #define ActiveLogEvents_fields &ActiveLogEvents_msg
-#define MCUPowerStatus_fields &MCUPowerStatus_msg
-#define ScreenStatus_fields &ScreenStatus_msg
 #define AlarmMute_fields &AlarmMute_msg
 #define AlarmMuteRequest_fields &AlarmMuteRequest_msg
+#define MCUPowerStatus_fields &MCUPowerStatus_msg
+#define BackendConnections_fields &BackendConnections_msg
+#define ScreenStatus_fields &ScreenStatus_msg
+#define Ping_fields &Ping_msg
+#define Announcement_fields &Announcement_msg
 
 /* Maximum encoded size of messages (where known) */
 #define ActiveLogEvents_size                     192
 #define AlarmLimitsRequest_size                  347
 #define AlarmLimits_size                         347
-#define AlarmMuteRequest_size                    13
-#define AlarmMute_size                           13
+#define AlarmMuteRequest_size                    10
+#define AlarmMute_size                           21
 #define Announcement_size                        77
+#define BackendConnections_size                  4
 #define CycleMeasurements_size                   41
 #define ExpectedLogEvent_size                    12
 #define LogEvent_size                            124
@@ -703,27 +772,6 @@ namespace nanopb {
 // using namespace is the simplest way to make the message declarations available in this section
 using namespace Pufferfish::Application;
 
-template <>
-struct MessageDescriptor<Range> {
-    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
-    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
-        return &Range_msg;
-    }
-};
-template <>
-struct MessageDescriptor<AlarmLimits> {
-    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 15;
-    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
-        return &AlarmLimits_msg;
-    }
-};
-template <>
-struct MessageDescriptor<AlarmLimitsRequest> {
-    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 15;
-    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
-        return &AlarmLimitsRequest_msg;
-    }
-};
 template <>
 struct MessageDescriptor<SensorMeasurements> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 8;
@@ -753,17 +801,24 @@ struct MessageDescriptor<ParametersRequest> {
     }
 };
 template <>
-struct MessageDescriptor<Ping> {
+struct MessageDescriptor<Range> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
-        return &Ping_msg;
+        return &Range_msg;
     }
 };
 template <>
-struct MessageDescriptor<Announcement> {
-    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
+struct MessageDescriptor<AlarmLimits> {
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 15;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
-        return &Announcement_msg;
+        return &AlarmLimits_msg;
+    }
+};
+template <>
+struct MessageDescriptor<AlarmLimitsRequest> {
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 15;
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
+        return &AlarmLimitsRequest_msg;
     }
 };
 template <>
@@ -795,10 +850,31 @@ struct MessageDescriptor<ActiveLogEvents> {
     }
 };
 template <>
+struct MessageDescriptor<AlarmMute> {
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 4;
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
+        return &AlarmMute_msg;
+    }
+};
+template <>
+struct MessageDescriptor<AlarmMuteRequest> {
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 3;
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
+        return &AlarmMuteRequest_msg;
+    }
+};
+template <>
 struct MessageDescriptor<MCUPowerStatus> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
         return &MCUPowerStatus_msg;
+    }
+};
+template <>
+struct MessageDescriptor<BackendConnections> {
+    static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
+    static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
+        return &BackendConnections_msg;
     }
 };
 template <>
@@ -809,17 +885,17 @@ struct MessageDescriptor<ScreenStatus> {
     }
 };
 template <>
-struct MessageDescriptor<AlarmMute> {
+struct MessageDescriptor<Ping> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
-        return &AlarmMute_msg;
+        return &Ping_msg;
     }
 };
 template <>
-struct MessageDescriptor<AlarmMuteRequest> {
+struct MessageDescriptor<Announcement> {
     static PB_INLINE_CONSTEXPR const pb_size_t fields_array_length = 2;
     static PB_INLINE_CONSTEXPR const pb_msgdesc_t* fields() {
-        return &AlarmMuteRequest_msg;
+        return &Announcement_msg;
     }
 };
 }  // namespace nanopb

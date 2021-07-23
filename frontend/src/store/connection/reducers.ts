@@ -18,7 +18,7 @@ export function connectionReducer(state = initialState, action: ConnectionAction
       return {
         ...state,
         backendConnection: true,
-        lastBackendConnectionTime: state.lastBackendConnectionTime,
+        lastBackendConnectionTime: action.lastBackendConnectionTime,
       };
     default:
       return state;

@@ -26,19 +26,27 @@ UpperEvent = betterproto.Message
 
 
 MESSAGE_CLASSES: Mapping[int, Type[betterproto.Message]] = {
+    # Measurements
     2: mcu_pb.SensorMeasurements,
     3: mcu_pb.CycleMeasurements,
+    # Parameters
     4: mcu_pb.Parameters,
     5: mcu_pb.ParametersRequest,
+    # Alarm Limits
     6: mcu_pb.AlarmLimits,
     7: mcu_pb.AlarmLimitsRequest,
+    # Log Events
     8: mcu_pb.ExpectedLogEvent,
     9: mcu_pb.NextLogEvents,
     10: mcu_pb.ActiveLogEvents,
+    # Alarm Muting
     11: mcu_pb.AlarmMute,
     12: mcu_pb.AlarmMuteRequest,
+    # Miscellaneous System
     20: mcu_pb.MCUPowerStatus,
-    65: mcu_pb.ScreenStatus,
+    21: mcu_pb.BackendConnections,
+    22: mcu_pb.ScreenStatus,
+    # Testing Messages
     254: mcu_pb.Ping,
     255: mcu_pb.Announcement
 }

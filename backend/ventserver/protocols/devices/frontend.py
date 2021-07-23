@@ -26,7 +26,6 @@ UpperEvent = betterproto.Message
 
 MESSAGE_CLASSES: Mapping[int, Type[betterproto.Message]] = {
     **mcu.MESSAGE_CLASSES,
-    128: frontend_pb.BackendConnections,
     129: frontend_pb.RotaryEncoder,
     # 130: frontend_pb.SystemSetting,
     131: frontend_pb.SystemSettingRequest,

@@ -40,48 +40,64 @@ static const size_t active_log_events_max_elems = 32;
 
 // Type tags
 
-// To add a new message type, add it to MessageTypes, MessageTypeValues,
-// and Driver::Serial::Backend::message_descriptors in this file.
-// Then update StateSegmentUnion in States.tpp. Then add a setter to
-// States.cpp using the STATESEGMENT_TAGGED_SETTER macro, add setters and
-// getters to the States class as needed, and add switch cases to the
-// States::input and States::output methods.
+// To add a new message type, add it to MessageTypes, MessageTypeValues, StateSegmentUnion, and
+// StateSegments in this file. Then add setter and getter methods to the States class as needed.
+// Then add a setter to States.cpp using the STATESEGMENT_TAGGED_SETTER macro, and add switch
+// cases to the operator== function using the STATESEGMENT_EQ_TAGGED macro in States.cpp.
+// Then add switch cases to the States::input method using the STATESEGMENT_GET_TAGGED macro
+// and to the States::output method in States.cpp.
+// Then add it to Driver::Serial::Backend::message_descriptors in Transport.h.
 // To make the Backend recognize it as an input, add it to
-// Driver::Serial::Backend::InputStates. To make Backend send it as an
-// output, add it to Driver::Serial::Backend::state_sync_schedule.
+// Driver::Serial::Backend::ReceivableStates in States.h.
+// To make Backend send it as an event, add it to Driver::Serial::Backend::state_sync_main_sched
+// in States.h.
 enum class MessageTypes : uint8_t {
   unknown = 0,
   reserved = 1,
+  // Measurements
   sensor_measurements = 2,
   cycle_measurements = 3,
+  // Parameters
   parameters = 4,
   parameters_request = 5,
+  // Alarm Limits
   alarm_limits = 6,
   alarm_limits_request = 7,
+  // Log Events
   expected_log_event = 8,
   next_log_events = 9,
   active_log_events = 10,
+  // Alarm Muting
   alarm_mute = 11,
   alarm_mute_request = 12,
-  mcu_power_status = 20
+  // System Miscellaneous
+  mcu_power_status = 20,
+  backend_connections = 21
 };
 
 // MessageTypeValues should include all defined values of MessageTypes
 using MessageTypeValues = Util::EnumValues<
     MessageTypes,
     MessageTypes::unknown,
+    // Measurements
     MessageTypes::sensor_measurements,
     MessageTypes::cycle_measurements,
+    // Parameters
     MessageTypes::parameters,
     MessageTypes::parameters_request,
+    // Alarm Limits
     MessageTypes::alarm_limits,
     MessageTypes::alarm_limits_request,
+    // Log Events
     MessageTypes::expected_log_event,
     MessageTypes::next_log_events,
     MessageTypes::active_log_events,
+    // Alarm Muting
     MessageTypes::alarm_mute,
     MessageTypes::alarm_mute_request,
-    MessageTypes::mcu_power_status>;
+    // System Miscellaneous
+    MessageTypes::mcu_power_status,
+    MessageTypes::backend_connections>;
 
 // StateSegments
 
@@ -89,26 +105,53 @@ using MessageTypeValues = Util::EnumValues<
 // It's not clear how we might use variants to replace this union, since the nanopb functions
 // would need access to the underlying memory in the variant, which is not publicly accessible.
 // For now the State Segment class is a simple tagged union, though we don't have any compiler
-// type-checking with the tags - it's enforced with the templated functions.
-union StateSegmentUnion;
+// type-checking with the tags.
+union StateSegmentUnion {
+  // Measurements
+  SensorMeasurements sensor_measurements;
+  CycleMeasurements cycle_measurements;
+  // Parameters
+  Parameters parameters;
+  ParametersRequest parameters_request;
+  // Alarm Limits
+  AlarmLimits alarm_limits;
+  AlarmLimitsRequest alarm_limits_request;
+  // Log Events
+  ExpectedLogEvent expected_log_event;
+  NextLogEvents next_log_events;
+  ActiveLogEvents active_log_events;
+  // Alarm Muting
+  AlarmMute alarm_mute;
+  AlarmMuteRequest alarm_mute_request;
+  // System Miscellaneous
+  MCUPowerStatus mcu_power_status;
+  BackendConnections backend_connections;
+};
 
 using StateSegment = Util::TaggedUnion<StateSegmentUnion, MessageTypes>;
 bool operator==(const StateSegment &first, const StateSegment &second);
 
 struct StateSegments {
   // Backend States
+  // Measurements
   SensorMeasurements sensor_measurements;  // noise-filtered
   CycleMeasurements cycle_measurements;
+  // Parameters
   Parameters parameters;
   ParametersRequest parameters_request;
+  // Alarm Limits
   AlarmLimits alarm_limits;
   AlarmLimitsRequest alarm_limits_request;
+  // Log Events
   ExpectedLogEvent expected_log_event;
   NextLogEvents next_log_events;
   ActiveLogEvents active_log_events;
+  // Alarm Muting
   AlarmMute alarm_mute;
   AlarmMuteRequest alarm_mute_request;
+  // System Miscellaneous
   MCUPowerStatus mcu_power_status;
+  BackendConnections backend_connections;
 
   // Internal States
   SensorMeasurements sensor_measurements_raw;
@@ -124,20 +167,27 @@ class Store : public Protocols::Application::IndexedStateSender<MessageTypes, St
   Store() = default;
 
   // Backend States
+  // Measurements
   SensorMeasurements &sensor_measurements_filtered();
   CycleMeasurements &cycle_measurements();
+  // Parameters
   Parameters &parameters();
   [[nodiscard]] bool has_parameters_request() const;
   [[nodiscard]] const ParametersRequest &parameters_request() const;
+  // Alarm Limits
   AlarmLimits &alarm_limits();
   [[nodiscard]] bool has_alarm_limits_request() const;
   [[nodiscard]] const AlarmLimitsRequest &alarm_limits_request() const;
+  // Log Events
   [[nodiscard]] const ExpectedLogEvent &expected_log_event() const;
   NextLogEvents &next_log_events();
   ActiveLogEvents &active_log_events();
+  // Alarm Muting
   AlarmMute &alarm_mute();
   AlarmMuteRequest &alarm_mute_request();
+  // System Miscellaneous
   MCUPowerStatus &mcu_power_status();
+  [[nodiscard]] const BackendConnections &backend_connections() const;
 
   // Internal States
   SensorMeasurements &sensor_measurements_raw();
@@ -153,5 +203,3 @@ class Store : public Protocols::Application::IndexedStateSender<MessageTypes, St
 };
 
 }  // namespace Pufferfish::Application
-
-#include "States.tpp"

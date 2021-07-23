@@ -1,15 +1,12 @@
 /**
- * @summary Re-usable wrapper components to display & control value
- * Currently unused, setValueContent is used in MultiStepPopup
- *
+ * @summary A Re-usable component for Setting Parameter Value in a Modal popup
  */
 import React, { useCallback, useEffect, useRef } from 'react';
-import { makeStyles, Theme, Grid, Button, Typography } from '@material-ui/core';
+import { makeStyles, Theme, Grid, Typography } from '@material-ui/core';
 import { shallowEqual, useSelector } from 'react-redux';
-import ValueClicker from './ValueClicker';
-import ModalPopup from '../modals/ModalPopup';
 import { getRotaryEncoder } from '../../store/controller/selectors';
-import { RotaryEncodeController } from './RotaryEncodeController';
+import RotaryEncodeController from './RotaryEncodeController';
+import ValueClicker from './ValueClicker';
 
 const useStyles = makeStyles((theme: Theme) => ({
   contentContainer: {
@@ -35,48 +32,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     opacity: 0.8,
   },
 }));
-
-/**
- * @deprecated
- * @typedef SettingAdjustProps
- *
- * Interface for the adjusting props settings
- *
- * @prop {number} committedSetting updated value
- */
-export interface SettingAdjustProps {
-  committedSetting: number;
-}
-
-/**
- * @deprecated
- * @typedef Props
- *
- * Props interface for the value model
- *
- * @prop {string} label desc for label
- * @prop {string} units desc for units
- * @prop {number} committedSetting current value
- * TODO: disableSetNewButton can be removed as it's unused.
- * @prop {boolean} disableSetNewButton Configuration to show/hide `Set New` outside modal
- * @prop {function} requestCommitSetting Callback when value changes
- * @prop {function} updateModalStatus Callback when modal status changes
- * @prop {boolean} openModal Configure Modal open/close status
- * @prop {number} min Minimum under which value cannot decrement
- * @prop {number} max Maximum above which value cannot increment
- *
- */
-interface Props {
-  label: string;
-  units?: string;
-  committedSetting: number;
-  disableSetNewButton?: boolean;
-  requestCommitSetting(setting: number): void;
-  updateModalStatus?(status: boolean): void;
-  openModal?: boolean;
-  min?: number;
-  max?: number;
-}
 
 /**
  * @typedef ContentProps
@@ -106,166 +61,18 @@ interface ContentProps {
 }
 
 /**
- * @deprecated
  * ValueModal
  *
- * @component A container for displaying value modal settings.
- *
- * Uses the [[Props]] interface
- *
- * @returns JSX.Element
- */
-export const ValueModal = ({
-  label,
-  units,
-  committedSetting,
-  disableSetNewButton = false,
-  openModal = false,
-  updateModalStatus,
-  requestCommitSetting,
-  min = 0,
-  max = 100,
-}: Props): JSX.Element => {
-  const classes = useStyles();
-  const rotaryEncoder = useSelector(getRotaryEncoder, shallowEqual);
-  /**
-   * State to manage modal status
-   */
-  const [open, setOpen] = React.useState(false);
-  /**
-   * State to manage value
-   */
-  const [value, setValue] = React.useState(committedSetting);
-  /**
-   * Initalization to set default value & modal status
-   */
-  const initSetValue = useCallback(() => {
-    setValue(committedSetting >= min ? committedSetting : min);
-    setOpen(openModal);
-  }, [committedSetting, openModal, min]);
-
-  useEffect(() => {
-    initSetValue();
-  }, [initSetValue]);
-
-  /**
-   * Triggers callback when modal status changes
-   */
-  useEffect(() => {
-    if (updateModalStatus) {
-      updateModalStatus(open);
-    }
-  });
-
-  /**
-   * Function for handling opening of the model.
-   */
-  const handleOpen = () => {
-    setOpen(true);
-  };
-  /**
-   * Function for handling closing of the model.
-   */
-  const handleClose = () => {
-    setOpen(false);
-  };
-  /**
-   * Function for handling confirmation of the model.
-   */
-  const handleConfirm = () => {
-    requestCommitSetting(value);
-    setOpen(false);
-  };
-
-  /**
-   * Function for handling label changed for PIP.
-   *
-   * @param {string} label - Value label
-   *
-   * @returns string
-   */
-  function pipClarify(label: string) {
-    if (label === 'PIP') return '*not PEEP compensated';
-    return '';
-  }
-
-  const modalContent = (
-    <Grid container direction="row">
-      <Grid container item xs direction="column" className={classes.contentContainer}>
-        <Grid item>
-          <Typography variant="h4">
-            {label}
-            <Typography variant="h6" style={{ opacity: 0.8 }}>
-              {pipClarify(label)}
-            </Typography>
-          </Typography>
-        </Grid>
-        <Grid container item xs wrap="nowrap">
-          <Grid container item alignItems="baseline">
-            <Typography align="left" style={{ fontSize: '9.5rem' }}>
-              {value.toFixed(0)}
-            </Typography>
-            <Typography align="center" variant="h5" className={classes.unitsLabel}>
-              {units}
-            </Typography>
-          </Grid>
-        </Grid>
-      </Grid>
-      <Grid item>
-        <ValueClicker referenceKey="" value={value} min={min} max={max} onClick={setValue} />
-      </Grid>
-    </Grid>
-  );
-
-  return (
-    <Grid container direction="column" alignItems="center" justify="center">
-      <Grid container item xs>
-        {!disableSetNewButton && (
-          <Button
-            onClick={handleOpen}
-            color="primary"
-            variant="contained"
-            className={classes.openButton}
-          >
-            Set New
-          </Button>
-        )}
-      </Grid>
-      {rotaryEncoder !== null ? (
-        <RotaryEncodeController
-          isActive={true}
-          value={value}
-          onClick={(num: number) => {
-            setValue(num);
-          }}
-          min={min}
-          max={max}
-        />
-      ) : null}
-      <ModalPopup
-        withAction={true}
-        label="Set New"
-        open={open}
-        onClose={handleClose}
-        onConfirm={handleConfirm}
-      >
-        {modalContent}
-      </ModalPopup>
-    </Grid>
-  );
-};
-
-/**
- * SetValueContent
- *
- * @component A container for setting the value of modal settings in multistep popup.
- * This is a modified version of ValueModal
+ * @component A container that displays the values of Parameters like FiO2/Flow
+ * and provides ValueClickers to adjust them.
+ * This component is not wrapped in a Modal Popup and is currently used inside
+ * the multistep modal popup(MultiStepWizard).
+ * It does not provide capability to adjust the alarm limits for these Parameters, which is provided by AlarmModal.
  *
  * Uses the [[ContentProps]] interface
  * @returns JSX.Element
  */
-
-export const SetValueContent = ({
+const ValueModalContent = ({
   label,
   units,
   committedSetting,
@@ -399,4 +206,4 @@ export const SetValueContent = ({
   );
 };
 
-export default ValueModal;
+export default ValueModalContent;
