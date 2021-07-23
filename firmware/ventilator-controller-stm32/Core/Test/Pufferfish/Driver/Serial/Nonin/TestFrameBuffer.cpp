@@ -31,14 +31,14 @@ SCENARIO("5 bytes of valid data.", "[NoninOEM3]") {
     uint8_t index = 0;
     auto input_data = make_array<uint8_t>(0x01, 0x83, 0x01, 0x80, 0x00);
     PF::Driver::Serial::Nonin::FrameBuffer frame_buffer;
-    PF::BufferStatus buffer_status;
+    PF::Driver::Serial::Nonin::FrameBufferStatus buffer_status;
     Frame frame_data;
 
     WHEN("FrameBuffer::input of 4 bytes of data") {
-      THEN("Frame buffer status shall be partial") {
+      THEN("Frame buffer status shall be waiting") {
         for (index = 0; index < 4; index++) {
           buffer_status = frame_buffer.input(input_data[index]);
-          REQUIRE(buffer_status == PF::BufferStatus::partial);
+          REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::waiting);
         }
       }
     }
@@ -48,17 +48,17 @@ SCENARIO("5 bytes of valid data.", "[NoninOEM3]") {
       }
       THEN("Frame buffer input status shall be ok") {
         buffer_status = frame_buffer.input(input_data[4]);
-        REQUIRE(buffer_status == PF::BufferStatus::ok);
+        REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
       }
     }
     AND_WHEN("FrameBuffer::input status is ok") {
       for (index = 0; index < 5; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
-      REQUIRE(buffer_status == PF::BufferStatus::ok);
+      REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
       THEN("Invoke FrameBuffer::Output shall return status ok") {
         buffer_status = frame_buffer.output(frame_data);
-        REQUIRE(buffer_status == PF::BufferStatus::ok);
+        REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
         for (index = 0; index < 5; index++) {
           REQUIRE(frame_data[index] == input_data[index]);
         }
@@ -73,24 +73,24 @@ SCENARIO("10 bytes of data for shift_left and reset.", "[NoninOEM3]") {
     auto input_data =
         make_array<uint8_t>(0x01, 0x81, 0x01, 0x00, 0x83, 0x01, 0x80, 0x01, 0x00, 0x82);
     PF::Driver::Serial::Nonin::FrameBuffer frame_buffer;
-    PF::BufferStatus buffer_status;
+    PF::Driver::Serial::Nonin::FrameBufferStatus buffer_status;
     Frame frame_data;
 
     WHEN("FrameBuffer::input of 4 bytes of data") {
-      THEN("Frame buffer status shall be partial") {
+      THEN("Frame buffer status shall be waiting") {
         for (index = 0; index < 4; index++) {
           buffer_status = frame_buffer.input(input_data[index]);
-          REQUIRE(buffer_status == PF::BufferStatus::partial);
+          REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::waiting);
         }
       }
     }
-    AND_WHEN("FrameBuffer::output invoked on buffer input status is partial") {
+    AND_WHEN("FrameBuffer::output invoked on buffer input status is waiting") {
       for (index = 0; index < 4; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
-      THEN("FrameBuffer::output status shall be partial") {
+      THEN("FrameBuffer::output status shall be waiting") {
         buffer_status = frame_buffer.output(frame_data);
-        REQUIRE(buffer_status == PF::BufferStatus::partial);
+        REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::waiting);
       }
     }
     WHEN("FrameBuffer::input of 5th byte of data") {
@@ -99,17 +99,17 @@ SCENARIO("10 bytes of data for shift_left and reset.", "[NoninOEM3]") {
       }
       THEN("Frame buffer input status shall be ok") {
         buffer_status = frame_buffer.input(input_data[index]);
-        REQUIRE(buffer_status == PF::BufferStatus::ok);
+        REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
       }
     }
     AND_WHEN("FrameBuffer::input status is ok") {
       for (index = 0; index < 5; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
-      REQUIRE(buffer_status == PF::BufferStatus::ok);
+      REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
       THEN("Invoke FrameBuffer Output shall return status ok") {
         buffer_status = frame_buffer.output(frame_data);
-        REQUIRE(buffer_status == PF::BufferStatus::ok);
+        REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
         for (index = 0; index < 5; index++) {
           REQUIRE(frame_data[index] == input_data[index]);
         }
@@ -120,10 +120,10 @@ SCENARIO("10 bytes of data for shift_left and reset.", "[NoninOEM3]") {
         frame_buffer.input(input_data[index]);
       }
       buffer_status = frame_buffer.output(frame_data);
-      REQUIRE(buffer_status == PF::BufferStatus::ok);
+      REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
       THEN("Invoke FrameBuffer input shall return buffer input status is full") {
         buffer_status = frame_buffer.input(input_data[5]);
-        REQUIRE(buffer_status == PF::BufferStatus::full);
+        REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::full);
       }
     }
     AND_WHEN("FrameBuffer output status is ok") {
@@ -131,11 +131,11 @@ SCENARIO("10 bytes of data for shift_left and reset.", "[NoninOEM3]") {
         frame_buffer.input(input_data[index]);
       }
       buffer_status = frame_buffer.output(frame_data);
-      REQUIRE(buffer_status == PF::BufferStatus::ok);
+      REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
       THEN("Invoke FrameBuffer shift_left and on invocation of FrameBuffer input shall return ok") {
         frame_buffer.shift_left();
         buffer_status = frame_buffer.input(input_data[5]);
-        REQUIRE(buffer_status == PF::BufferStatus::ok);
+        REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
       }
     }
     AND_WHEN("FrameBuffer input status is ok after FrameBuffer::left_shift") {
@@ -144,10 +144,10 @@ SCENARIO("10 bytes of data for shift_left and reset.", "[NoninOEM3]") {
       }
       frame_buffer.shift_left();
       buffer_status = frame_buffer.input(input_data[5]);
-      REQUIRE(buffer_status == PF::BufferStatus::ok);
+      REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
       THEN("Invoke FrameBuffer::output shall return ok and data shall be shifted by 1 byte") {
         buffer_status = frame_buffer.output(frame_data);
-        REQUIRE(buffer_status == PF::BufferStatus::ok);
+        REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
         for (index = 0; index < 5; index++) {
           REQUIRE(frame_data[index] == input_data[index + 1]);
         }
@@ -158,12 +158,12 @@ SCENARIO("10 bytes of data for shift_left and reset.", "[NoninOEM3]") {
         frame_buffer.input(input_data[index]);
       }
       buffer_status = frame_buffer.output(frame_data);
-      REQUIRE(buffer_status == PF::BufferStatus::ok);
-      THEN("FrameBuffer reset and FrameBuffer input for 4 bytes shall return partial") {
+      REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
+      THEN("FrameBuffer reset and FrameBuffer input for 4 bytes shall return waiting") {
         frame_buffer.reset();
         for (index = 5; index < 9; index++) {
           buffer_status = frame_buffer.input(input_data[index]);
-          REQUIRE(buffer_status == PF::BufferStatus::partial);
+          REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::waiting);
         }
       }
     }
@@ -172,13 +172,13 @@ SCENARIO("10 bytes of data for shift_left and reset.", "[NoninOEM3]") {
         frame_buffer.input(input_data[index]);
       }
       buffer_status = frame_buffer.output(frame_data);
-      REQUIRE(buffer_status == PF::BufferStatus::ok);
+      REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
       THEN("FrameBuffer reset and FrameBuffer input for 5 bytes shall return ok") {
         frame_buffer.reset();
         for (index = 5; index < 10; index++) {
           buffer_status = frame_buffer.input(input_data[index]);
         }
-        REQUIRE(buffer_status == PF::BufferStatus::ok);
+        REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
       }
     }
     AND_WHEN("FrameBuffer input status is ok") {
@@ -189,10 +189,10 @@ SCENARIO("10 bytes of data for shift_left and reset.", "[NoninOEM3]") {
       for (index = 5; index < 10; index++) {
         buffer_status = frame_buffer.input(input_data[index]);
       }
-      REQUIRE(buffer_status == PF::BufferStatus::ok);
+      REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
       THEN("FrameBuffer output shall return ok") {
         buffer_status = frame_buffer.output(frame_data);
-        REQUIRE(buffer_status == PF::BufferStatus::ok);
+        REQUIRE(buffer_status == PF::Driver::Serial::Nonin::FrameBufferStatus::ok);
         for (index = 0; index < 5; index++) {
           REQUIRE(frame_data[index] == input_data[index + 5]);
         }

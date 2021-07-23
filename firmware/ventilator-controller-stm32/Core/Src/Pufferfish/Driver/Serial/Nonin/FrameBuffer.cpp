@@ -23,28 +23,28 @@
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
-BufferStatus FrameBuffer::input(const uint8_t byte) {
+FrameBufferStatus FrameBuffer::input(const uint8_t byte) {
   if (received_length_ == frame_max_size) {
-    return BufferStatus::full;
+    return FrameBufferStatus::full;
   }
 
   frame_[received_length_] = byte;
   ++received_length_;
 
   if (received_length_ == frame_max_size) {
-    return BufferStatus::ok;
+    return FrameBufferStatus::ok;
   }
 
-  return BufferStatus::partial;
+  return FrameBufferStatus::waiting;
 }
 
-BufferStatus FrameBuffer::output(Frame &frame) {
+FrameBufferStatus FrameBuffer::output(Frame &frame) {
   if (received_length_ != frame_max_size) {
-    return BufferStatus::partial;
+    return FrameBufferStatus::waiting;
   }
   frame = frame_;
 
-  return BufferStatus::ok;
+  return FrameBufferStatus::ok;
 }
 
 void FrameBuffer::reset() {

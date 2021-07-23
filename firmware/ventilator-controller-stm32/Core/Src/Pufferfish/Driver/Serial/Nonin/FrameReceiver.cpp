@@ -58,11 +58,11 @@ FrameInputStatus validate_frame(const Frame &new_frame) {
 FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
   Frame frame_buffer;
 
-  if (frame_buf_.input(new_byte) == BufferStatus::partial) {
+  if (frame_buf_.input(new_byte) == FrameBufferStatus::waiting) {
     return FrameInputStatus::ok;
   }
 
-  if (frame_buf_.output(frame_buffer) != BufferStatus::ok) {
+  if (frame_buf_.output(frame_buffer) != FrameBufferStatus::ok) {
     return FrameInputStatus::ok;
   }
 
@@ -94,7 +94,7 @@ FrameOutputStatus FrameReceiver::output(Frame &frame) {
     return FrameOutputStatus::waiting;
   }
 
-  if (frame_buf_.output(frame) != BufferStatus::ok) {
+  if (frame_buf_.output(frame) != FrameBufferStatus::ok) {
     return FrameOutputStatus::waiting;
   }
 
