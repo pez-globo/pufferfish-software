@@ -148,45 +148,57 @@ export const PowerIndicator = (): JSX.Element => {
   );
 };
 
-/**
- * ToolBar
- *
- * @component A container for displaying buttons that handle system changes based on
- * various states and conditions such as ventilator state and current page route.
- *
- * @param {React.ReactNode} children Adds dynamic items as children for SidebarSlideRoute (eg: Pufferfish Icon & Drawer icon)
- * @param {boolean} staticStart staticStart is used as a config for reusing Start/Pause Ventilation button for LandingPage Layout
- *
- * @returns {JSX.Element}
- */
-export const ToolBar = ({
-  children,
-  staticStart = false,
-}: {
-  children?: React.ReactNode;
-  staticStart?: boolean;
-}): JSX.Element => {
+const Tools = (): JSX.Element => {
   const classes = useStyles();
-  // Store the route location so we can change button/breadcrumb displays
-  // depending on the current route.
   const location = useLocation();
+  /**
+   * Display buttons dynamically on the toolbar
+   */
+  const tools: JSX.Element[] = [];
+  if (location.pathname === DASHBOARD_ROUTE.path) {
+    tools.push(<ViewDropdown />);
+  } else if (location.pathname === QUICKSTART_ROUTE.path) {
+    // tools.push(
+    //   <Button variant="contained" color="primary" disabled>
+    //     Last Patient Settings
+    //   </Button>,
+    // );
+  }
+  if (location.pathname !== '/') {
+    tools.push(<ModesDropdown />, <Alarms />);
+  }
+  return (
+    <>
+      {tools.map((tool) => (
+        <Grid item className={classes.marginRight}>
+          {tool}
+        </Grid>
+      ))}
+    </>
+  );
+};
+
+const StartButton = ({ staticStart }: { staticStart?: boolean }): JSX.Element => {
   const dispatch = useDispatch();
-  const history = useHistory();
-  const currentMode = useSelector(getParametersRequestMode);
   const storeReady = useSelector(getStoreReady);
-  const parameterRequestDraft = useSelector(getParametersRequestDraft, shallowEqual);
   const ventilating = useSelector(getParametersIsVentilating);
+  const ventilatingStatusChanging = useSelector(getVentilatingStatusChanging);
+
+  const firmwareConnected = useSelector(getFirmwareConnected);
+  const backendConnected = useSelector(getBackendConnected);
+  const currentMode = useSelector(getParametersRequestMode);
   const alarmLimitsRequestDraftSelect = useSelector(getAlarmLimitsRequestDraft);
-  const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
-  const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
-  const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
   const alarmLimitsRequestDraft = (alarmLimitsRequestDraftSelect as unknown) as Record<
     string,
     Range
   >;
-  const ventilatingStatusChanging = useSelector(getVentilatingStatusChanging);
-  const firmwareConnected = useSelector(getFirmwareConnected);
-  const backendConnected = useSelector(getBackendConnected);
+  const parameterRequestDraft = useSelector(getParametersRequestDraft, shallowEqual);
+  const history = useHistory();
+
+  const dispatchParameterRequest = (update: Partial<ParametersRequest>) => {
+    dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+  };
+
   /**
    * State to manage ventilation label
    * Label is Dynamic based on ventilation state
@@ -196,17 +208,6 @@ export const ToolBar = ({
    * State to toggle if Ventilating isDisabled
    */
   const [isDisabled, setIsDisabled] = useState(false);
-  /**
-   * State to open Modal Popup for Start/Pause button
-   */
-  const [startDiscardOpen, setStartDiscardOpen] = useState(false);
-
-  const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
-    dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
-  };
-  const dispatchParameterRequest = (update: Partial<ParametersRequest>) => {
-    dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
-  };
 
   /**
    * Updates Ventilation status on clicking Start/Pause ventilation
@@ -214,10 +215,7 @@ export const ToolBar = ({
   const updateVentilationStatus = () => {
     if (ventilating) {
       // if ventilating and there are unsaved alarm limit changes then open modal popup
-      if (alarmLimitsRequestUnsaved) {
-        setStartDiscardOpen(true);
-        return;
-      }
+
       // if both firmware and backend are connected, and response.ventilating is true
       // then on pressing 'Pause Ventilation' we go back to QuickStart page
       // instead of the page we are on in ventilating mode (eg: settings, alarms screen)
@@ -315,22 +313,37 @@ export const ToolBar = ({
     </Button>
   );
 
+  return <Grid item>{staticStart ? LandingPageStartButton : StartPauseVentilationButton}</Grid>;
+};
+
+const StartButtonModalPopup = (): JSX.Element => {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const ventilating = useSelector(getParametersIsVentilating);
+  const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
+  const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
+  const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
+
+  const setAlarmLimitsRequestDraft = (data: Partial<AlarmLimitsRequest>) => {
+    dispatch(commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, data));
+  };
+  const dispatchParameterRequest = (update: Partial<ParametersRequest>) => {
+    dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+  };
+
   /**
-   * Display buttons dynamically on the toolbar
+   * State to open Modal Popup for Start/Pause button
    */
-  const tools: JSX.Element[] = [];
-  if (location.pathname === DASHBOARD_ROUTE.path) {
-    tools.push(<ViewDropdown />);
-  } else if (location.pathname === QUICKSTART_ROUTE.path) {
-    // tools.push(
-    //   <Button variant="contained" color="primary" disabled>
-    //     Last Patient Settings
-    //   </Button>,
-    // );
-  }
-  if (location.pathname !== '/') {
-    tools.push(<ModesDropdown />, <Alarms />);
-  }
+  const [startDiscardOpen, setStartDiscardOpen] = useState(false);
+
+  useEffect(() => {
+    if (ventilating) {
+      if (alarmLimitsRequestUnsaved) {
+        setStartDiscardOpen(true);
+        return;
+      }
+    }
+  }, [alarmLimitsRequestUnsaved, ventilating]);
 
   /**
    * onClickHandler for Dashboard ModalPopup 'Cancel' button
@@ -348,6 +361,39 @@ export const ToolBar = ({
     setStartDiscardOpen(false);
     history.push(QUICKSTART_ROUTE.path);
   };
+
+  return (
+    <ModalPopup
+      withAction={true}
+      label="Set Alarms"
+      open={startDiscardOpen}
+      onClose={handleDiscardClose}
+      onConfirm={handleStartDiscardConfirm}
+    >
+      <DiscardAlarmLimitsContent />
+    </ModalPopup>
+  );
+};
+
+/**
+ * ToolBar
+ *
+ * @component A container for displaying buttons that handle system changes based on
+ * various states and conditions such as ventilator state and current page route.
+ *
+ * @param {React.ReactNode} children Adds dynamic items as children for SidebarSlideRoute (eg: Pufferfish Icon & Drawer icon)
+ * @param {boolean} staticStart staticStart is used as a config for reusing Start/Pause Ventilation button for LandingPage Layout
+ *
+ * @returns {JSX.Element}
+ */
+export const ToolBar = ({
+  children,
+  staticStart = false,
+}: {
+  children?: React.ReactNode;
+  staticStart?: boolean;
+}): JSX.Element => {
+  const classes = useStyles();
 
   return (
     <AppBar color="transparent" elevation={0} position="static">
@@ -371,11 +417,7 @@ export const ToolBar = ({
           zeroMinWidth
           className={classes.toolContainer}
         >
-          {tools.map((tool) => (
-            <Grid item className={classes.marginRight}>
-              {tool}
-            </Grid>
-          ))}
+          <Tools />
         </Grid>
         <Grid
           container
@@ -392,18 +434,10 @@ export const ToolBar = ({
             <HeaderClock />
             <ClockIcon style={{ fontSize: '2.5rem' }} />
           </Grid>
-          <Grid item>{staticStart ? LandingPageStartButton : StartPauseVentilationButton}</Grid>
+          <StartButton staticStart={staticStart} />
         </Grid>
       </Grid>
-      <ModalPopup
-        withAction={true}
-        label="Set Alarms"
-        open={startDiscardOpen}
-        onClose={handleDiscardClose}
-        onConfirm={handleStartDiscardConfirm}
-      >
-        <DiscardAlarmLimitsContent />
-      </ModalPopup>
+      <StartButtonModalPopup />
     </AppBar>
   );
 };
