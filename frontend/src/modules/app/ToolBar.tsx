@@ -44,6 +44,8 @@ import ModesDropdown from '../modes/ModesDropdown';
 import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
 import Alarms from '../alarms/Alarms';
 import { DiscardAlarmLimitsContent } from '../modals';
+import { getModalPopupOpenState, setModalPopupOpen } from './Service';
+import { Subscription } from 'rxjs';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -183,7 +185,7 @@ const StartButton = ({ staticStart }: { staticStart?: boolean }): JSX.Element =>
   const storeReady = useSelector(getStoreReady);
   const ventilating = useSelector(getParametersIsVentilating);
   const ventilatingStatusChanging = useSelector(getVentilatingStatusChanging);
-
+  const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
   const firmwareConnected = useSelector(getFirmwareConnected);
   const backendConnected = useSelector(getBackendConnected);
   const currentMode = useSelector(getParametersRequestMode);
@@ -215,7 +217,10 @@ const StartButton = ({ staticStart }: { staticStart?: boolean }): JSX.Element =>
   const updateVentilationStatus = () => {
     if (ventilating) {
       // if ventilating and there are unsaved alarm limit changes then open modal popup
-
+      if (alarmLimitsRequestUnsaved) {
+        setModalPopupOpen(true);
+        return;
+      }
       // if both firmware and backend are connected, and response.ventilating is true
       // then on pressing 'Pause Ventilation' we go back to QuickStart page
       // instead of the page we are on in ventilating mode (eg: settings, alarms screen)
@@ -313,14 +318,18 @@ const StartButton = ({ staticStart }: { staticStart?: boolean }): JSX.Element =>
     </Button>
   );
 
-  return <Grid item>{staticStart ? LandingPageStartButton : StartPauseVentilationButton}</Grid>;
+  return (
+    <>
+      <Grid item>{staticStart ? LandingPageStartButton : StartPauseVentilationButton}</Grid>
+      <StartButtonModalPopup />
+    </>
+  );
 };
 
 const StartButtonModalPopup = (): JSX.Element => {
   const dispatch = useDispatch();
   const history = useHistory();
   const ventilating = useSelector(getParametersIsVentilating);
-  const alarmLimitsRequestUnsaved = useSelector(getAlarmLimitsRequestUnsaved);
   const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
   const alarmLimitsRequest = (alarmLimitsRequestSelect as unknown) as Record<string, Range>;
 
@@ -331,26 +340,20 @@ const StartButtonModalPopup = (): JSX.Element => {
     dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
   };
 
-  /**
-   * State to open Modal Popup for Start/Pause button
-   */
-  const [startDiscardOpen, setStartDiscardOpen] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
 
   useEffect(() => {
-    if (ventilating) {
-      if (alarmLimitsRequestUnsaved) {
-        setStartDiscardOpen(true);
-        return;
+    const popupEventSubscription: Subscription = getModalPopupOpenState().subscribe(
+      (state: boolean) => {
+        setDiscardOpen(state);
+      },
+    );
+    return () => {
+      if (popupEventSubscription) {
+        popupEventSubscription.unsubscribe();
       }
-    }
-  }, [alarmLimitsRequestUnsaved, ventilating]);
-
-  /**
-   * onClickHandler for Dashboard ModalPopup 'Cancel' button
-   */
-  const handleDiscardClose = () => {
-    setStartDiscardOpen(false);
-  };
+    };
+  }, []);
 
   /**
    * onClickHandler for Start ModalPopup 'Confirm' button
@@ -358,7 +361,7 @@ const StartButtonModalPopup = (): JSX.Element => {
   const handleStartDiscardConfirm = () => {
     setAlarmLimitsRequestDraft(alarmLimitsRequest);
     dispatchParameterRequest({ ventilating: !ventilating });
-    setStartDiscardOpen(false);
+    setModalPopupOpen(false);
     history.push(QUICKSTART_ROUTE.path);
   };
 
@@ -366,8 +369,8 @@ const StartButtonModalPopup = (): JSX.Element => {
     <ModalPopup
       withAction={true}
       label="Set Alarms"
-      open={startDiscardOpen}
-      onClose={handleDiscardClose}
+      open={discardOpen}
+      onClose={() => setModalPopupOpen(false)}
       onConfirm={handleStartDiscardConfirm}
     >
       <DiscardAlarmLimitsContent />
@@ -437,7 +440,6 @@ export const ToolBar = ({
           <StartButton staticStart={staticStart} />
         </Grid>
       </Grid>
-      <StartButtonModalPopup />
     </AppBar>
   );
 };

@@ -10,6 +10,7 @@ import { BehaviorSubject, Subject, Observable } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 
 const isMultiPopupOpen = new BehaviorSubject<boolean>(false);
+const isModalPopupOpen = new BehaviorSubject<boolean>(false);
 const currentStateKey = new Subject<string>();
 const isScreenLockPopupOpen = new Subject<boolean>();
 const activeRotaryReference = new Subject<string | null>();
@@ -36,6 +37,14 @@ export function setMultiPopupOpen(state: boolean, stateKey?: string): void {
  */
 export function getMultiPopupOpenState(): Observable<boolean> {
   return isMultiPopupOpen.asObservable().pipe(distinctUntilChanged());
+}
+
+export function setModalPopupOpen(state: boolean): void {
+  isModalPopupOpen.next(state);
+}
+
+export function getModalPopupOpenState(): Observable<boolean> {
+  return isModalPopupOpen.asObservable().pipe(distinctUntilChanged());
 }
 
 /**
