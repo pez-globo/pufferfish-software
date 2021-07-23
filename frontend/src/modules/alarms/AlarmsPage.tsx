@@ -158,6 +158,7 @@ const Alarm = ({
 }: AlarmProps): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
+  const dispatch = useDispatch();
   const { initRefListener } = useRotaryReference(theme);
   // TODO: when the software is in ventilating mode, the user must be able to
   // discard changes (which means that any alarm limits being persisted in
@@ -204,12 +205,14 @@ const Alarm = ({
     setActiveRotaryReference(
       type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
     );
-    setAlarmLimits({
-      [stateKey]: {
-        lower: type === SliderType.LOWER ? value : rangeValues[0],
-        upper: type === SliderType.UPPER ? value : rangeValues[1],
-      },
-    });
+    dispatch(
+      commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, {
+        [stateKey]: {
+          lower: type === SliderType.LOWER ? value : rangeValues[0],
+          upper: type === SliderType.UPPER ? value : rangeValues[1],
+        },
+      }),
+    );
   };
 
   /**
@@ -358,31 +361,9 @@ export const alarmConfiguration = (
   }
 };
 
-/**
- * Main container of Alarms page
- *
- * @component A container for housing all alarm configurations.
- *
- * @returns {JSX.Element}
- */
-export const AlarmsPage = (): JSX.Element => {
+const AlarmsPageModals = (): JSX.Element => {
   const classes = useStyles();
-  const itemsPerPage = 5;
-  const [page, setPage] = React.useState(1);
-  const [pageCount, setPageCount] = React.useState(1);
-
-  /**
-   * Trigger on Pagination click event
-   *
-   * @param {React.ChangeEvent<unknown>} event - Default Change event object
-   * @param {number} value - Page number value to update current page
-   */
-  const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
-    setPage(value);
-  };
-
   const dispatch = useDispatch();
-  const currentMode = useSelector(getParametersRequestMode);
   const ventilating = useSelector(getParametersIsVentilating);
   const alarmLimitsRequestDraftSelect = useSelector(getAlarmLimitsRequestDraft);
   const alarmLimitsRequestSelect = useSelector(getAlarmLimitsRequest);
@@ -393,6 +374,30 @@ export const AlarmsPage = (): JSX.Element => {
     string,
     Range
   >;
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
+  const currentMode = useSelector(getParametersRequestMode);
+  const alarmConfig = alarmConfiguration(currentMode);
+
+  const handleConfirmOpen = () => {
+    setConfirmOpen(true);
+  };
+
+  const handleDiscardOpen = () => {
+    setDiscardOpen(true);
+  };
+
+  /**
+   * Closes modal popup
+   */
+  const handleClose = () => {
+    setConfirmOpen(false);
+  };
+
+  const handleDiscardClose = () => {
+    setDiscardOpen(false);
+  };
+
   /**
    * Function for updating alarm limits
    *
@@ -414,20 +419,6 @@ export const AlarmsPage = (): JSX.Element => {
       commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, alarmLimitsRequestDraft),
     );
   };
-  const alarmConfig = alarmConfiguration(currentMode);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [discardOpen, setDiscardOpen] = useState(false);
-
-  /**
-   * Closes modal popup
-   */
-  const handleClose = () => {
-    setConfirmOpen(false);
-  };
-
-  const handleDiscardClose = () => {
-    setDiscardOpen(false);
-  };
 
   /**
    * Closes modal popup & updates the changes
@@ -441,13 +432,136 @@ export const AlarmsPage = (): JSX.Element => {
     setDiscardOpen(false);
     if (alarmLimitsRequest !== null) setAlarmLimitsRequestDraft(alarmLimitsRequest);
   };
+  return (
+    <>
+      {ventilating ? (
+        <Button
+          onClick={handleDiscardOpen}
+          color="primary"
+          variant="contained"
+          className={classes.applyButton}
+          disabled={!alarmLimitsRequestUnsaved}
+        >
+          Cancel
+        </Button>
+      ) : null}
+      {ventilating ? (
+        <Button
+          onClick={handleConfirmOpen}
+          color="secondary"
+          variant="contained"
+          className={classes.applyButton}
+          disabled={!alarmLimitsRequestUnsaved}
+        >
+          Submit
+        </Button>
+      ) : null}
+      <ModalPopup
+        withAction={true}
+        label="Set Alarms"
+        open={confirmOpen}
+        onClose={handleClose}
+        onConfirm={handleConfirm}
+      >
+        <Grid container alignItems="center">
+          <Grid container alignItems="center" justify="center">
+            <Grid container alignItems="center" className={classes.marginHeader}>
+              <Grid item xs>
+                <Typography variant="h4">Confirm New Changes?</Typography>
+              </Grid>
+            </Grid>
+            <Grid item className={classes.marginContent}>
+              {alarmConfig.map((param) => {
+                if (alarmLimitsRequestDraft !== null) {
+                  if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
+                    return (
+                      <Typography variant="subtitle1">{`Change ${param.label} alarm limits from [${
+                        alarmLimitsRequest[param.stateKey].lower
+                      } ${param.units} -
+                              ${alarmLimitsRequest[param.stateKey].upper} ${param.units}] to [${
+                        alarmLimitsRequestDraft[param.stateKey].lower
+                      } ${param.units} -
+                                  ${alarmLimitsRequestDraft[param.stateKey].upper} ${
+                        param.units
+                      }] ?`}</Typography>
+                    );
+                  }
+                }
+                return <React.Fragment />;
+              })}
+            </Grid>
+            <Grid item className={classes.marginContent} />
+          </Grid>
+        </Grid>
+      </ModalPopup>
+      <ModalPopup
+        withAction={true}
+        label="Set Alarms"
+        open={discardOpen}
+        onClose={handleDiscardClose}
+        onConfirm={handleDiscardConfirm}
+      >
+        <DiscardAlarmLimitsContent />
+      </ModalPopup>
+    </>
+  );
+};
 
-  const handleConfirmOpen = () => {
-    setConfirmOpen(true);
-  };
+const Alarms = ({
+  alarmConfig,
+  itemsPerPage,
+  page,
+}: {
+  alarmConfig: AlarmConfiguration[];
+  itemsPerPage: number;
+  page: number;
+}): JSX.Element => {
+  const alarmLimitsRequestDraftSelect = useSelector(getAlarmLimitsRequestDraft);
+  return (
+    <>
+      {alarmConfig.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((alarm) => {
+        const key = `alarm-config-${alarm.stateKey}`;
+        return (
+          <Alarm
+            key={key}
+            label={alarm.label}
+            min={alarm.min || 0}
+            max={alarm.max || 100}
+            stateKey={alarm.stateKey}
+            step={alarm.step || 1}
+            alarmLimits={alarmLimitsRequestDraftSelect}
+            setAlarmLimits={() => null}
+          />
+        );
+      })}
+    </>
+  );
+};
 
-  const handleDiscardOpen = () => {
-    setDiscardOpen(true);
+/**
+ * Main container of Alarms page
+ *
+ * @component A container for housing all alarm configurations.
+ *
+ * @returns {JSX.Element}
+ */
+export const AlarmsPage = (): JSX.Element => {
+  const classes = useStyles();
+
+  const currentMode = useSelector(getParametersRequestMode);
+  const alarmConfig = alarmConfiguration(currentMode);
+  const itemsPerPage = 5;
+  const [page, setPage] = React.useState(1);
+  const [pageCount, setPageCount] = React.useState(1);
+
+  /**
+   * Trigger on Pagination click event
+   *
+   * @param {React.ChangeEvent<unknown>} event - Default Change event object
+   * @param {number} value - Page number value to update current page
+   */
+  const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
   };
 
   /**
@@ -474,21 +588,7 @@ export const AlarmsPage = (): JSX.Element => {
         <Grid container item xs direction="row">
           <Grid container spacing={3} style={{ margin: '-10px -12px' }}>
             {/* Splits Alarms based on page number & itemsPerPage count to show in the page */}
-            {alarmConfig.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((alarm) => {
-              const key = `alarm-config-${alarm.stateKey}`;
-              return (
-                <Alarm
-                  key={key}
-                  label={alarm.label}
-                  min={alarm.min || 0}
-                  max={alarm.max || 100}
-                  stateKey={alarm.stateKey}
-                  step={alarm.step || 1}
-                  alarmLimits={alarmLimitsRequestDraftSelect}
-                  setAlarmLimits={setAlarmLimitsRequestDraft}
-                />
-              );
-            })}
+            <Alarms alarmConfig={alarmConfig} itemsPerPage={itemsPerPage} page={page} />
           </Grid>
         </Grid>
         <Grid container item xs>
@@ -510,77 +610,7 @@ export const AlarmsPage = (): JSX.Element => {
               </Grid>
             )}
             <Grid item style={{ textAlign: 'right' }}>
-              {ventilating ? (
-                <Button
-                  onClick={handleDiscardOpen}
-                  color="primary"
-                  variant="contained"
-                  className={classes.applyButton}
-                  disabled={!alarmLimitsRequestUnsaved}
-                >
-                  Cancel
-                </Button>
-              ) : null}
-              {ventilating ? (
-                <Button
-                  onClick={handleConfirmOpen}
-                  color="secondary"
-                  variant="contained"
-                  className={classes.applyButton}
-                  disabled={!alarmLimitsRequestUnsaved}
-                >
-                  Submit
-                </Button>
-              ) : null}
-              <ModalPopup
-                withAction={true}
-                label="Set Alarms"
-                open={confirmOpen}
-                onClose={handleClose}
-                onConfirm={handleConfirm}
-              >
-                <Grid container alignItems="center">
-                  <Grid container alignItems="center" justify="center">
-                    <Grid container alignItems="center" className={classes.marginHeader}>
-                      <Grid item xs>
-                        <Typography variant="h4">Confirm New Changes?</Typography>
-                      </Grid>
-                    </Grid>
-                    <Grid item className={classes.marginContent}>
-                      {alarmConfig.map((param) => {
-                        if (alarmLimitsRequestDraft !== null) {
-                          if (alarmLimitsUnsavedKeys.includes(param.stateKey)) {
-                            return (
-                              <Typography variant="subtitle1">{`Change ${
-                                param.label
-                              } alarm limits from [${alarmLimitsRequest[param.stateKey].lower} ${
-                                param.units
-                              } -
-                              ${alarmLimitsRequest[param.stateKey].upper} ${param.units}] to [${
-                                alarmLimitsRequestDraft[param.stateKey].lower
-                              } ${param.units} -
-                                  ${alarmLimitsRequestDraft[param.stateKey].upper} ${
-                                param.units
-                              }] ?`}</Typography>
-                            );
-                          }
-                        }
-                        return <React.Fragment />;
-                      })}
-                    </Grid>
-                    <Grid item className={classes.marginContent} />
-                  </Grid>
-                </Grid>
-              </ModalPopup>
-              <ModalPopup
-                withAction={true}
-                label="Set Alarms"
-                open={discardOpen}
-                onClose={handleDiscardClose}
-                onConfirm={handleDiscardConfirm}
-              >
-                <DiscardAlarmLimitsContent />
-              </ModalPopup>
+              <AlarmsPageModals />
             </Grid>
           </Grid>
         </Grid>
