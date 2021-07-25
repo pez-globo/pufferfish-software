@@ -7,7 +7,7 @@
 import { AppBar, Button, Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 import { getBackendConnected } from '../../store/connection/selectors';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
@@ -241,16 +241,20 @@ const StartButton = ({ staticStart }: { staticStart?: boolean }): JSX.Element =>
 
     switch (currentMode) {
       case VentilationMode.hfnc:
-        dispatchParameterRequest({
-          fio2: parameterRequestDraft.fio2,
-          flow: parameterRequestDraft.flow,
+        batch(() => {
+          dispatch(
+            commitRequest<ParametersRequest>(MessageType.ParametersRequest, {
+              fio2: parameterRequestDraft.fio2,
+              flow: parameterRequestDraft.flow,
+            }),
+          );
+          dispatch(
+            commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, {
+              spo2: alarmLimitsRequestDraft.spo2,
+              hr: alarmLimitsRequestDraft.hr,
+            }),
+          );
         });
-        dispatch(
-          commitRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, {
-            spo2: alarmLimitsRequestDraft.spo2,
-            hr: alarmLimitsRequestDraft.hr,
-          }),
-        );
         break;
       case VentilationMode.pc_ac:
       case VentilationMode.vc_ac:
