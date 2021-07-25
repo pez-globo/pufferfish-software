@@ -25,7 +25,7 @@ import {
 import { MessageType } from '../../store/proto/types';
 import { ModalPopup, DiscardAlarmLimitsContent } from '../modals';
 import { QUICKSTART_ROUTE, DASHBOARD_ROUTE } from '../navigation/constants';
-import { getModalPopupOpenState, setModalPopupOpen } from './Service';
+import { getAlarmLimitsModalPopup, setAlarmLimitsModalPopup } from './Service';
 
 const StartPauseButton = ({ staticStart }: { staticStart?: boolean }): JSX.Element => {
   const dispatch = useDispatch();
@@ -65,7 +65,7 @@ const StartPauseButton = ({ staticStart }: { staticStart?: boolean }): JSX.Eleme
     if (ventilating) {
       // if ventilating and there are unsaved alarm limit changes then open modal popup
       if (alarmLimitsRequestUnsaved) {
-        setModalPopupOpen(true);
+        setAlarmLimitsModalPopup(true);
         return;
       }
       // if both firmware and backend are connected, and response.ventilating is true
@@ -193,14 +193,14 @@ export const StartButtonModalPopup = (): JSX.Element => {
   const [discardOpen, setDiscardOpen] = useState(false);
 
   useEffect(() => {
-    const popupEventSubscription: Subscription = getModalPopupOpenState().subscribe(
+    const modalPopupSubscription: Subscription = getAlarmLimitsModalPopup().subscribe(
       (state: boolean) => {
         setDiscardOpen(state);
       },
     );
     return () => {
-      if (popupEventSubscription) {
-        popupEventSubscription.unsubscribe();
+      if (modalPopupSubscription) {
+        modalPopupSubscription.unsubscribe();
       }
     };
   }, []);
@@ -211,7 +211,7 @@ export const StartButtonModalPopup = (): JSX.Element => {
   const handleStartDiscardConfirm = () => {
     setAlarmLimitsRequestDraft(alarmLimitsRequest);
     dispatchParameterRequest({ ventilating: !ventilating });
-    setModalPopupOpen(false);
+    setAlarmLimitsModalPopup(false);
     history.push(QUICKSTART_ROUTE.path);
   };
 
@@ -220,7 +220,7 @@ export const StartButtonModalPopup = (): JSX.Element => {
       withAction={true}
       label="Set Alarms"
       open={discardOpen}
-      onClose={() => setModalPopupOpen(false)}
+      onClose={() => setAlarmLimitsModalPopup(false)}
       onConfirm={handleStartDiscardConfirm}
     >
       <DiscardAlarmLimitsContent />
