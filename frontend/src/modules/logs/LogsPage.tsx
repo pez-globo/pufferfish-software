@@ -90,6 +90,7 @@ const useStyles = makeStyles(() =>
     eventType: {
       width: '10rem',
       boxShadow: 'none !important',
+      borderRadius: 8,
       padding: '2px 2rem !important',
       border: 'none',
       color: '#fff',
@@ -283,17 +284,27 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
    * @returns {object} some description
    *
    */
-  const typeColor = (type: LogEventType | undefined) => {
+  const typeColor = (type: LogEventType | undefined, status: number | undefined) => {
     switch (type) {
       case LogEventType.patient:
-        return { backgroundColor: '#FF3B30' };
+        return status
+          ? { backgroundColor: '#FF3B30' }
+          : {
+              backgroundColor: 'transparent',
+              border: `2px solid #FF3B30`,
+            };
       case LogEventType.system:
-        return { backgroundColor: '#E68619' };
+        return status
+          ? { backgroundColor: '#E68619' }
+          : { backgroundColor: 'transparent', border: `2px solid #E68619` };
       case LogEventType.control:
       case LogEventType.alarm_limits:
-        return { backgroundColor: theme.palette.primary.main };
+        return {
+          backgroundColor: 'transparent',
+          border: `2px solid ${theme.palette.primary.main}`,
+        };
       default:
-        return { backgroundColor: '#E68619' };
+        return { backgroundColor: 'transparent', border: `2px solid #E68619` };
     }
   };
 
@@ -376,7 +387,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                   <Button
                     variant="contained"
                     className={classes.eventType}
-                    style={typeColor(row.type)}
+                    style={typeColor(row.type, row.status)}
                   >
                     {getEventTypeLabel(row.type)}
                   </Button>
@@ -437,7 +448,11 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
         showCloseIcon={true}
         label={
           <Grid container direction="row" justify="space-around" alignItems="center">
-            <Grid xs={2} className={classes.typeWrapper2} style={typeColor(currentRow?.type)}>
+            <Grid
+              xs={2}
+              className={classes.typeWrapper2}
+              style={typeColor(currentRow?.type, currentRow?.status)}
+            >
               {getEventTypeLabel(currentRow?.type as LogEventType)}
             </Grid>
             <Grid xs={9}>
