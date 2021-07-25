@@ -291,20 +291,20 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
           ? { backgroundColor: '#FF3B30' }
           : {
               backgroundColor: 'transparent',
-              border: `2px solid #FF3B30`,
+              border: `4px solid #FF3B30`,
             };
       case LogEventType.system:
         return status
           ? { backgroundColor: '#E68619' }
-          : { backgroundColor: 'transparent', border: `2px solid #E68619` };
+          : { backgroundColor: 'transparent', border: `4px solid #E68619` };
       case LogEventType.control:
       case LogEventType.alarm_limits:
         return {
           backgroundColor: 'transparent',
-          border: `2px solid ${theme.palette.primary.main}`,
+          border: `4px solid ${theme.palette.primary.main}`,
         };
       default:
-        return { backgroundColor: 'transparent', border: `2px solid #E68619` };
+        return { backgroundColor: 'transparent', border: `4px solid #E68619` };
     }
   };
 
