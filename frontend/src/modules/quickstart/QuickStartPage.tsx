@@ -4,11 +4,10 @@
  *
  */
 import { Grid, Typography } from '@material-ui/core';
-import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
-import React, { RefObject, useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { commitDraftRequest } from '../../store/controller/actions';
-import { VentilationMode, ParametersRequest } from '../../store/proto/mcu_pb';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { VentilationMode } from '../../store/proto/mcu_pb';
 import {
   getParametersRequestMode,
   getParametersRequestDraftFiO2,
@@ -17,9 +16,7 @@ import {
   getParametersRequestDraftRR,
   getParametersRequestDraftVT,
 } from '../../store/controller/selectors';
-import { MessageType } from '../../store/proto/types';
 import { setActiveRotaryReference } from '../app/Service';
-import ValueSpinner from '../controllers/ValueSpinner';
 import ModeBanner, { BannerType } from '../displays/ModeBanner';
 import { BPM, LMIN, PERCENT } from '../info/units';
 import {
@@ -29,8 +26,7 @@ import {
   TV_REFERENCE_KEY,
   FLOW_REFERENCE_KEY,
 } from '../settings/containers/constants';
-import { useRotaryReference } from '../utils/useRotaryReference';
-import { SelectorType } from '../displays/ValueSelectorDisplay';
+import ParamValueSpinner from './ParamValueSpinner';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -90,65 +86,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 //   PEDIATRIC,
 // }
 
-interface ValueProps {
-  selector: SelectorType;
-  reference: string;
-  label: string;
-  stateKey: string;
-  units: string;
-}
-
-const ParamValueClicker = ({
-  selector,
-  reference,
-  label,
-  stateKey,
-  units,
-}: ValueProps): JSX.Element => {
-  const dispatch = useDispatch();
-  const theme = useTheme();
-  const value = useSelector(selector);
-  const { initRefListener } = useRotaryReference(theme);
-
-  /**
-   * State to manage Wrapper HTML reference of parameter `ValueSpinner`
-   * This wrapper's HTML border is added or removed based on user's interaction with Controls
-   * It is used for UI identification of which control value is changing via rotary encoder
-   */
-  const [elRefs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
-    [PEEP_REFERENCE_KEY]: useRef(null),
-    [RR_REFERENCE_KEY]: useRef(null),
-    [FIO2_REFERENCE_KEY]: useRef(null),
-    [TV_REFERENCE_KEY]: useRef(null),
-    [FLOW_REFERENCE_KEY]: useRef(null),
-  });
-
-  /**
-   * Calls on initalization of the component
-   * This is an event listener which listens to user input on `ValueSpinner` buttons click
-   * Based on this event Border around Alarm's HTML wrapper is added/removed
-   */
-  useEffect(() => {
-    initRefListener(elRefs);
-  }, [initRefListener, elRefs]);
-
-  const updateParam = (key: string, value: number) => {
-    const update = { [key]: value } as Partial<ParametersRequest>;
-    dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
-  };
-
-  return (
-    <ValueSpinner
-      reference={elRefs[reference]}
-      referenceKey={reference}
-      label={label}
-      units={units}
-      value={value}
-      onClick={(value: number) => updateParam(stateKey, value)}
-    />
-  );
-};
-
 /**
  * SetParameters
  *
@@ -165,21 +102,21 @@ const SetParameters = (): JSX.Element => {
     <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
       <Grid container item xs direction="row" className={classes.bottomBorder}>
         <Grid item xs className={classes.rightBorder}>
-          <ParamValueClicker
-            reference={FIO2_REFERENCE_KEY}
+          <ParamValueSpinner
             label="FiO2"
+            reference={FIO2_REFERENCE_KEY}
+            selector={getParametersRequestDraftFiO2}
             stateKey="fio2"
             units={PERCENT}
-            selector={getParametersRequestDraftFiO2}
           />
         </Grid>
         <Grid item xs>
-          <ParamValueClicker
-            reference={FLOW_REFERENCE_KEY}
+          <ParamValueSpinner
             label="Flow"
-            units={LMIN}
-            stateKey="flow"
+            reference={FLOW_REFERENCE_KEY}
             selector={getParametersRequestDraftFlow}
+            stateKey="flow"
+            units={LMIN}
           />
         </Grid>
       </Grid>
@@ -197,41 +134,41 @@ const SetParameters = (): JSX.Element => {
     <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
       <Grid container item xs direction="row" className={classes.bottomBorder}>
         <Grid item xs className={classes.rightBorder}>
-          <ParamValueClicker
-            reference={PEEP_REFERENCE_KEY}
+          <ParamValueSpinner
             label="PEEP"
+            reference={PEEP_REFERENCE_KEY}
+            selector={getParametersRequestDraftPEEP}
             stateKey="peep"
             units="cm H2O"
-            selector={getParametersRequestDraftPEEP}
           />
         </Grid>
         <Grid item xs>
-          <ParamValueClicker
-            reference={RR_REFERENCE_KEY}
+          <ParamValueSpinner
             label="RR"
+            reference={RR_REFERENCE_KEY}
+            selector={getParametersRequestDraftRR}
             stateKey="rr"
             units={BPM}
-            selector={getParametersRequestDraftRR}
           />
         </Grid>
       </Grid>
       <Grid container item xs direction="row">
         <Grid item xs className={classes.rightBorder}>
-          <ParamValueClicker
-            reference={FIO2_REFERENCE_KEY}
+          <ParamValueSpinner
             label="FiO2"
+            reference={FIO2_REFERENCE_KEY}
+            selector={getParametersRequestDraftFiO2}
             stateKey="fio2"
             units={PERCENT}
-            selector={getParametersRequestDraftFiO2}
           />
         </Grid>
         <Grid item xs>
-          <ParamValueClicker
-            reference={TV_REFERENCE_KEY}
+          <ParamValueSpinner
             label="TV"
+            reference={TV_REFERENCE_KEY}
+            selector={getParametersRequestDraftVT}
             stateKey="tv"
             units="mL"
-            selector={getParametersRequestDraftVT}
           />
         </Grid>
       </Grid>
