@@ -133,12 +133,8 @@ const ParamValueClicker = ({
   }, [initRefListener, elRefs]);
 
   const updateParam = (key: string, value: number) => {
-    dispatch(
-      commitDraftRequest<ParametersRequest>(
-        MessageType.ParametersRequest,
-        ParametersRequest.fromJSON({ [key]: value }),
-      ),
-    );
+    const update = { [key]: value } as Partial<ParametersRequest>;
+    dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
   };
 
   return (
