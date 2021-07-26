@@ -13,12 +13,19 @@ namespace Pufferfish::Driver::I2C::HoneywellABP {
 
 // StateMachine
 
-StateMachine::Action StateMachine::update() {
+StateMachine::Action StateMachine::update(uint32_t current_time) {
   switch (next_action_) {
     case Action::initialize:
       next_action_ = Action::measure;
       break;
     case Action::measure:
+      next_action_ = Action::wait_measurement;
+      measuring_timer_.reset(current_time);
+      break;
+    case Action::wait_measurement:
+      if (!measuring_timer_.within_timeout(current_time)) {
+        next_action_ = Action::measure;
+      }
       break;
   }
   return next_action_;
@@ -29,8 +36,9 @@ StateMachine::Action StateMachine::update() {
 InitializableState Sensor::setup() {
   switch (next_action_) {
     case Action::initialize:
-      return initialize();
+      return initialize(time_.millis());
     case Action::measure:
+    case Action::wait_measurement:
       return InitializableState::ok;
   }
   return InitializableState::failed;
@@ -39,14 +47,17 @@ InitializableState Sensor::setup() {
 InitializableState Sensor::output(float &output) {
   switch (next_action_) {
     case Action::measure:
-      return measure(output);
+      return measure(time_.millis(), output);
+    case Action::wait_measurement:
+      next_action_ = fsm_.update(time_.millis());
+      return InitializableState::ok;
     default:
       break;
   }
   return InitializableState::failed;
 }
 
-InitializableState Sensor::initialize() {
+InitializableState Sensor::initialize(uint32_t current_time) {
   if (retry_count_ > max_retries_setup) {
     return InitializableState::failed;
   }
@@ -70,16 +81,16 @@ InitializableState Sensor::initialize() {
     }
   }
 
-  next_action_ = fsm_.update();
+  next_action_ = fsm_.update(current_time);
   retry_count_ = 0;  // reset retries to 0 for measuring
   return InitializableState::setup;
 }
 
-InitializableState Sensor::measure(float &output) {
+InitializableState Sensor::measure(uint32_t current_time, float &output) {
   if (device_.read_sample(sample_) == I2CDeviceStatus::ok) {
     retry_count_ = 0;  // reset retries to 0 for next measurement
     output = sample_.pressure;
-    next_action_ = fsm_.update();
+    next_action_ = fsm_.update(current_time);
     if (sample_.status != ABPStatus::no_error && sample_.status != ABPStatus::stale_data) {
       return InitializableState::failed;
     }

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Device.h"
+#include "Pufferfish/Application/States.h"
 #include "Pufferfish/Driver/Initializable.h"
 #include "Pufferfish/HAL/Interfaces/Time.h"
 
@@ -19,12 +20,15 @@ namespace Pufferfish::Driver::I2C::HoneywellABP {
  */
 class StateMachine {
  public:
-  enum class Action { initialize, measure };
+  enum class Action { initialize, measure, wait_measurement };
 
-  [[nodiscard]] Action update();
+  [[nodiscard]] Action update(uint32_t current_time);
 
  private:
+  static const uint32_t measuring_duration = 1;  // ms
+
   Action next_action_ = Action::initialize;
+  Util::MsTimer measuring_timer_{measuring_duration, 0};
 };
 
 /**
@@ -55,8 +59,8 @@ class Sensor : public Initializable {
 
   HAL::Interfaces::Time &time_;
 
-  InitializableState initialize();
-  InitializableState measure(float &output);
+  InitializableState initialize(uint32_t current_time);
+  InitializableState measure(uint32_t current_time, float &output);
 };
 
 }  // namespace Pufferfish::Driver::I2C::HoneywellABP
