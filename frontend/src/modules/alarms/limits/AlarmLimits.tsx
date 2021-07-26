@@ -1,5 +1,7 @@
-// NOTE: Temporary Alarm until the UI team address interface concerns.
-
+/**
+ * @summary A re-usable container displaying value and valueclicker to control various alarms
+ *
+ */
 import { Grid, makeStyles, Theme, Typography, useTheme } from '@material-ui/core';
 import React, { useMemo, RefObject, useRef, useEffect } from 'react';
 import { useDispatch } from 'react-redux';

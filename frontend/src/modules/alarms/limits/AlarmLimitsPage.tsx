@@ -1,7 +1,7 @@
 /**
  * @summary Page where range of all alarms in system can be configured
  *
- * @file Alarms page has capablity to paginate if lot more Alarms
+ * @file Alarms page has capablity to paginate if there are many alarms
  * Alarms listed are based on current Ventialtion Mode selected
  * TODO: move this into modules/alarms/limits and rename this file, to reflect
  * that this page is only for alarm limits, not for alarms!
@@ -17,7 +17,7 @@ import { setActiveRotaryReference } from '../../app/Service';
 import ModeBanner, { BannerType } from '../../displays/ModeBanner';
 import { BPM, PERCENT } from '../../info/units';
 import AlarmLimitsModalPopup from './AlarmLimitsModalPopup';
-import ParamAlarms from './Alarms';
+import ParamAlarms from './ParamAlarms';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

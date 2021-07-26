@@ -1,3 +1,6 @@
+/**
+ * @summary A re-usable component for submit and cancel buttons and their modal popups
+ */
 import { Button, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -31,6 +34,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+/**
+ * AlarmLimitsModalPopup
+ *
+ * @component A container that houses the `Submit` and `Cancel` buttons and their respective Modal Popups
+ *
+ * @returns {JSX.Element}
+ */
 const AlarmLimitsModalPopup = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
