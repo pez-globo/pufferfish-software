@@ -1,0 +1,380 @@
+/*
+ * EnumSet.h
+ *
+ *  Created on:
+ *      Author: Raavi Lagoo
+ *
+ *  A statically-allocated set for a finite, pre-determined set of keys.
+ *  Backed by an array of pairs. Methods use early returns of status codes instead
+ *  of exceptions for error handling, for bounds-checking.
+ *  This Set is designed for frequent lookups but doesn't support traversal.
+ */
+
+#pragma once
+
+#include "Pufferfish/Util/Containers/EnumSet.h"
+
+#include <array>
+#include <cstddef>
+#include <initializer_list>
+#include <iostream>
+#include <utility>
+
+#include "Pufferfish/Statuses.h"
+#include "catch2/catch.hpp"
+
+namespace PF = Pufferfish;
+// SCENARIO("The method initializer list in Enumset works corretly"){
+//     GIVEN("Enumset"){
+//         typedef enum _test {
+//           test1 = 1,
+//           test2 = 2,
+//           test3 = 3,
+//         }test;
+//         using result = std::initializer_list<std::pair<test, uint32_t>>;
+//         PF::Util::Containers::Enumset(result);
+//         WHEN("output method is used on given set"){
+//             THEN("Returns correct data"){
+
+//             }
+//         }
+//     }
+// }
+
+SCENARIO("The input method in Enumset works correctly") {
+  GIVEN(" An empty EnumSet with capacity 12") {
+    typedef enum _test {
+      test1,
+      test2,
+      test3,
+      test4,
+      test5,
+      test6,
+      test7,
+      test8,
+      test9,
+      test10,
+      test11,
+      test12,
+      test13,
+      test14,
+    } test;
+    PF::Util::Containers::EnumSet<test, 12> set;
+    WHEN("The input method is called on given Enumset") {
+      for (size_t i = 1; i < 12; i++) {
+        auto in_status = set.input(test(i));
+        REQUIRE(in_status == PF::IndexStatus::ok);
+
+        THEN("The input method returns ok status for 11 key") {
+          REQUIRE(in_status == PF::IndexStatus::ok);
+        }
+      }
+      THEN("The max_size method reports, Enumset has capacity 12") {
+        REQUIRE(set.max_size() == 12);
+      }
+      THEN("After the input method, the size method reports size as 11 ") {
+        REQUIRE(set.size() == 11);
+      }
+      THEN("The avaliable method reports that 1 key is avaliable") {
+        REQUIRE(set.available() == 1);
+      }
+      THEN("The full method reports that the Enumset is not completely filled") {
+        REQUIRE(set.full() == false);
+      }
+      THEN("The empty method reports that the Enumset is non-empty") {
+        REQUIRE(set.empty() == false);
+      }
+      THEN("The erase method reports ok status for 11th key ") {
+        REQUIRE(set.erase(test11) == PF::IndexStatus::ok);
+      }
+      THEN("The has method returns true for 11 keys") {
+        for (size_t i = 1; i < 12; i++) {
+          REQUIRE(set.has(test(i)) == true);
+        }
+      }
+      THEN("The has method returns false for 13th and 14th keys ") {
+        REQUIRE(set.has(test13) == false);
+        REQUIRE(set.has(test14) == false);
+      }
+    }
+    WHEN("The input method is used on 13th and 14th Key") {
+      for (size_t i = 1; i < 12; i++) {
+        auto in_status = set.input(test(i));
+        REQUIRE(in_status == PF::IndexStatus::ok);
+      }
+      auto in_status = set.input(test13);
+      auto in_status1 = set.input(test14);
+      THEN("The input method returns out of bounds status for 13th key") {
+        REQUIRE(in_status == PF::IndexStatus::out_of_bounds);
+      }
+      THEN("The input method returns out of bounds status for 14th key") {
+        REQUIRE(in_status1 == PF::IndexStatus::out_of_bounds);
+      }
+      THEN("The max_size method reports, Enumset has capacity 12") {
+        REQUIRE(set.max_size() == 12);
+      }
+      THEN("After the input method, the size method reports size as 11 ") {
+        REQUIRE(set.size() == 11);
+      }
+      THEN("The avaliable method reports that 1 key are avaliable") {
+        REQUIRE(set.available() == 1);
+      }
+      THEN("The full method reports that the Enumset is not completely filled") {
+        REQUIRE(set.full() == false);
+      }
+      THEN("The empty method reports that the Enumset is non-empty") {
+        REQUIRE(set.empty() == false);
+      }
+      THEN("The erase method reports ok status for 11th key ") {
+        REQUIRE(set.erase(test11) == PF::IndexStatus::ok);
+      }
+      THEN("The has method returns true for 11 keys") {
+        for (size_t i = 1; i < 12; i++) {
+          REQUIRE(set.has(test(i)) == true);
+        }
+      }
+      THEN("The has method returns false for 13th and 14th key") {
+        REQUIRE(set.has(test13) == false);
+        REQUIRE(set.has(test14) == false);
+      }
+    }
+    WHEN("The input method is called on erased key ") {
+      for (size_t i = 1; i <= 8; i++) {
+        auto in_status = set.input(test(i));
+        REQUIRE(in_status == PF::IndexStatus::ok);
+      }
+
+      auto erase_status = set.erase(test7);
+      auto erase_status1 = set.erase(test8);
+      auto in_status = set.input(test7);
+      auto in_status1 = set.input(test8);
+      THEN("The input method returns ok status for 7th key") {
+        REQUIRE(erase_status == PF::IndexStatus::ok);
+        REQUIRE(in_status == PF::IndexStatus::ok);
+      }
+      THEN("The input method returns ok status for 8th key") {
+        REQUIRE(erase_status1 == PF::IndexStatus::ok);
+        REQUIRE(in_status1 == PF::IndexStatus::ok);
+      }
+      THEN("The max_size method reports, Enumset has 12 capacity") {
+        REQUIRE(set.max_size() == 12);
+      }
+      THEN("After the input method, the size method reports size as 8 ") {
+        REQUIRE(set.size() == 8);
+      }
+      THEN("The avaliable method reports that 4 key are avaliable") {
+        REQUIRE(set.available() == 4);
+      }
+      THEN("The full method reports that the Enumset is not completely filled") {
+        REQUIRE(set.full() == false);
+      }
+      THEN("The empty method reports that the Enumset is non-empty") {
+        REQUIRE(set.empty() == false);
+      }
+      THEN("The has method returns true for 8 keys") {
+        for (size_t i = 1; i <= 8; i++) {
+          REQUIRE(set.has(test(i)) == true);
+        }
+      }
+    }
+    WHEN("The input method is called on already existing key in EnumSet") {
+      for (size_t i = 1; i < 12; i++) {
+        auto in_status0 = set.input(test(i));
+        REQUIRE(in_status0 == PF::IndexStatus::ok);
+      }
+      auto in_status = set.input(test10);
+      auto in_status1 = set.input(test11);
+      THEN("The input method returns out of bounds status for 10th and 11th key") {
+        REQUIRE(in_status == PF::IndexStatus::ok);
+        REQUIRE(in_status1 == PF::IndexStatus::ok);
+      }
+      THEN("The max_size method reports, Enumset has 12 capacity") {
+        REQUIRE(set.max_size() == 12);
+      }
+      THEN("After the input method, the size method reports size as 11 ") {
+        REQUIRE(set.size() == 11);
+      }
+      THEN("The avaliable method reports that 1 key is avaliable") {
+        REQUIRE(set.available() == 1);
+      }
+      THEN("The full method reports that the Enumset is not completely filled") {
+        REQUIRE(set.full() == false);
+      }
+      THEN("The empty method reports that the Enumset is non-empty") {
+        REQUIRE(set.empty() == false);
+      }
+      THEN("The has method returns true for 11 keys") {
+        for (size_t i = 1; i < 12; i++) {
+          REQUIRE(set.has(test(i)) == true);
+        }
+      }
+    }
+  }
+}
+
+SCENARIO("The method erase in Enumset works corretly") {
+  GIVEN("EnumSet with capacity 12, and it has 11 keys") {
+    typedef enum _test {
+      test1,
+      test2,
+      test3,
+      test4,
+      test5,
+      test6,
+      test7,
+      test8,
+      test9,
+      test10,
+      test11,
+      test12,
+      test13,
+      test14,
+    } test;
+
+    PF::Util::Containers::EnumSet<test, 12> set;
+    for (size_t i = 1; i < 12; i++) {
+      auto in_status = set.input(test(i));
+      REQUIRE(in_status == PF::IndexStatus::ok);
+    }
+
+    WHEN("The method erase is called on given Enumset") {
+      for (size_t i = 1; i < 5; i++) {
+        auto erase_status = set.erase(test(i));
+        THEN("The erase method returns ok status for 5 keys") {
+          REQUIRE(erase_status == PF::IndexStatus::ok);
+        }
+      }
+      THEN("The max_size method reports, Enumset has 12 capacity") {
+        REQUIRE(set.max_size() == 12);
+      }
+      THEN("After the erase method, the size method reports size as 7 ") {
+        REQUIRE(set.size() == 7);
+      }
+      THEN("The avaliable method reports that 5 key are avaliable") {
+        REQUIRE(set.available() == 5);
+      }
+      THEN("The full method reports that the Enumset is not completely filled") {
+        REQUIRE(set.full() == false);
+      }
+      THEN("The empty method reports that the Enumset is non-empty") {
+        REQUIRE(set.empty() == false);
+      }
+      THEN("The has method returns true for 6 keys") {
+        for (size_t i = 5; i < 12; i++) {
+          REQUIRE(set.has(test(i)) == true);
+        }
+      }
+    }
+    WHEN("The erase method is called on 13th and 14th key") {
+      auto erase_status = set.erase(test13);
+      auto erase_status1 = set.erase(test14);
+      THEN("The erase method returns out of bounds status for 13th key") {
+        REQUIRE(erase_status == PF::IndexStatus::out_of_bounds);
+      }
+      THEN("The erase method returns out of bounds status for 14th key") {
+        REQUIRE(erase_status1 == PF::IndexStatus::out_of_bounds);
+      }
+      THEN("The max_size method reports, Enumset has 12 capacity") {
+        REQUIRE(set.max_size() == 12);
+      }
+      THEN("After the erase method, the size method reports size as 11 ") {
+        REQUIRE(set.size() == 11);
+      }
+      THEN("The avaliable method reports that 1 key is avaliable") {
+        REQUIRE(set.available() == 1);
+      }
+      THEN("The full method reports that the Enumset is not completely filled") {
+        REQUIRE(set.full() == false);
+      }
+      THEN("The empty method reports that the Enumset is non-empty") {
+        REQUIRE(set.empty() == false);
+      }
+      THEN("The has method returns true for 11 keys") {
+        for (size_t i = 1; i < 12; i++) {
+          REQUIRE(set.has(test(i)) == true);
+        }
+      }
+    }
+    WHEN("The erase method is used thrice on given Enumset") {
+      auto erase_status = set.erase(test11);
+      auto erase_status1 = set.erase(test12);
+      auto erase_status2 = set.erase(test13);
+      THEN("The first erase method returns ok status") {
+        REQUIRE(erase_status == PF::IndexStatus::ok);
+      }
+      THEN("The second erase method returns ok status") {
+        REQUIRE(erase_status1 == PF::IndexStatus::ok);
+      }
+      THEN("The third erase method returns out of bounds status") {
+        REQUIRE(erase_status2 == PF::IndexStatus::out_of_bounds);
+      }
+      THEN("The max_size method reports, Enumset has capacity 12") {
+        REQUIRE(set.max_size() == 12);
+      }
+      THEN("After the erase method, the size method reports size as 9 ") {
+        REQUIRE(set.size() == 9);
+      }
+      THEN("The avaliable method reports that 3 keys are avaliable") {
+        REQUIRE(set.available() == 3);
+      }
+      THEN("The full method reports that the Enumset is not completely filled") {
+        REQUIRE(set.full() == false);
+      }
+      THEN("The empty method reports that the Enumset is non-empty") {
+        REQUIRE(set.empty() == false);
+      }
+      THEN("The has method returns true for 9 keys") {
+        for (size_t i = 1; i < 10; i++) {
+          REQUIRE(set.has(test(i)) == true);
+        }
+      }
+    }
+  }
+}
+
+SCENARIO("The method clear in Enumset works corretly") {
+  GIVEN("Enumset with capacity 12, and it has 11 keys") {
+    typedef enum _test {
+      test1 = 1,
+      test2 = 2,
+      test3 = 3,
+      test4 = 4,
+      test5 = 5,
+      test6 = 6,
+      test7 = 7,
+      test8 = 8,
+      test9 = 9,
+      test10 = 10,
+      test11 = 11,
+      test12 = 12,
+    } test;
+
+    PF::Util::Containers::EnumSet<test, 12> set;
+    for (size_t i = 1; i < 12; i++) {
+      auto in_status = set.input(test(i));
+      REQUIRE(in_status == PF::IndexStatus::ok);
+    }
+
+    WHEN("The clear method is used on Enumset") {
+      set.clear();
+      THEN("The has method returns false for 11 keys") {
+        for (size_t i = 0; i < 13; i++) {
+          REQUIRE(set.has(test(i)) == false);
+        }
+      }
+      THEN("The max_size method reports, Enumset has 12 capacity") {
+        REQUIRE(set.max_size() == 12);
+      }
+      THEN("After the clear method, the size method reports size as 0 ") {
+        REQUIRE(set.size() == 0);
+      }
+      THEN("The avaliable method reports that 12 keys are avaliable") {
+        REQUIRE(set.available() == 12);
+      }
+      THEN("The full method reports that the Enumset is not completely filled") {
+        REQUIRE(set.full() == false);
+      }
+      THEN("The empty method reports that the Enumset is empty") { REQUIRE(set.empty() == true); }
+    }
+  }
+}

@@ -1,13 +1,87 @@
-Scenario: The method input in EnumSet adds key correctly to EnumpSet
-          1. input method, input parameter key is within capacity
-          2. input method , input parameter key is beyond capacity
-          3. input method , input parameter key already exists in EnumpSet
-Scenario: The method has in EnumSet correctly checks if the key is present in EnumpSet
-          1. has method , input parameter key already exists in EnumpSet
-          2. has method , input parameter key does not exists in EnumpSet
-Scenario: The method clear in EnumpSet correctly erases key 
-          1. clear method , input parameter key already exists in EnumpSet
-          2. clear method , input parameter key does not exists in EnumpSet
-Scenario: The method erase in EnumSet correctly deletes key from EnumpSet
-          1. erase method , input parameter key already exists in EnumpSet
-          2. erase method, input parameter key does not exists in EnumpSet
+
+Scenario : The input method in Enumset works correctly
+    GIVEN(' An empty EnumSet with capacity 12')
+        WHEN('The input method is called on given Enumset')
+            THEN('The input method returns ok status for 11 key')
+            THEN('The max_size method reports, Enumset has capacity 12')
+            THEN('After the input method, the size method reports size as 11 ')
+            THEN('The avaliable method reports that 1 key is avaliable')
+            THEN('The full method reports that the Enumset is not completely filled')
+            THEN('The empty method reports that the Enumset is non-empty')
+            THEN('The erase method reports ok status for 11th key ')
+            THEN('The has method returns true for 11 keys')
+            THEN('The has method returns false for 13th and 14th keys ')
+
+        WHEN('The input method is used on 13th and 14th Key')
+            THEN('The input method returns out of bounds status for 13th key')
+            THEN('The input method returns out of bounds status for 14th key')   
+            THEN('The max_size method reports, Enumset has capacity 12')
+            THEN('After the input method, the size method reports size as 11 ')
+            THEN('The avaliable method reports that 1 key are avaliable')
+            THEN('The full method reports that the Enumset is not completely filled')
+            THEN('The empty method reports that the Enumset is non-empty')
+            THEN('The erase method reports ok status for 11th key ')
+            THEN('The has method returns true for 11 keys')
+            THEN('The has method returns false for 13th and 14th key')
+
+        WHEN('The input method is called on erased key ') 
+            THEN('The input method returns ok status for 7th key')
+            THEN('The input method returns ok status for 8th key')
+            THEN('The max_size method reports, Enumset has 12 capacity')
+            THEN('After the input method, the size method reports size as 8 ')
+            THEN('The avaliable method reports that 4 key are avaliable')
+            THEN('The full method reports that the Enumset is not completely filled')
+            THEN('The empty method reports that the Enumset is non-empty')
+            THEN('The has method returns true for 8 keys')
+
+        WHEN('The input method is called on already existing key in EnumSet')
+            THEN('The input method returns out of bounds status for 10th and 11th key')
+            THEN('The max_size method reports, Enumset has 12 capacity')
+            THEN('After the input method, the size method reports size as 11 ')
+            THEN('The avaliable method reports that 1 key is avaliable')
+            THEN('The full method reports that the Enumset is not completely filled')
+            THEN('The empty method reports that the Enumset is non-empty')
+            THEN('The has method returns true for 11 keys')
+
+Scenario: The method erase in Enumset works corretly
+    GIVEN('EnumSet with capacity 12, and it has 11 keys')
+        WHEN('The method erase is called on given Enumset')
+            THEN('The erase method returns ok status for 5 keys')
+            THEN('The max_size method reports, Enumset has 12 capacity')
+            THEN('After the erase method, the size method reports size as 7 ')
+            THEN('The avaliable method reports that 5 key are avaliable')
+            THEN('The full method reports that the Enumset is not completely filled')
+            THEN('The empty method reports that the Enumset is non-empty')
+            THEN('The has method returns true for 6 keys')
+
+        WHEN('The erase method is called on 13th and 14th key')
+            THEN('The erase method returns out of bounds status for 13th key')
+            THEN('The erase method returns out of bounds status for 14th key')
+            THEN('The max_size method reports, Enumset has 12 capacity')
+            THEN('After the erase method, the size method reports size as 11 ')
+            THEN('The avaliable method reports that 1 key is avaliable')
+            THEN('The full method reports that the Enumset is not completely filled')
+            THEN('The empty method reports that the Enumset is non-empty')
+            THEN('The has method returns true for 11 keys')
+
+        WHEN('The erase method is used thrice on given Enumset')
+            THEN('The first erase method returns ok status')
+            THEN('The second erase method returns ok status')
+            THEN('The third erase method returns out of bounds status')
+            THEN('The max_size method reports, Enumset has capacity 12')
+            THEN('After the erase method, the size method reports size as 9 ')
+            THEN('The avaliable method reports that 3 keys are avaliable')
+            THEN('The full method reports that the Enumset is not completely filled')
+            THEN('The empty method reports that the Enumset is non-empty')
+            THEN('The has method returns true for 9 keys')
+
+
+Scenario: The method clear in Enumset works corretly
+    GIVEN('Enumset with capacity 12, and it has 11 keys')
+        WHEN('The clear method is used on Enumset')
+            THEN('The has method returns false for 11 keys')
+            THEN('The max_size method reports, Enumset has 12 capacity')
+            THEN('After the clear method, the size method reports size as 0 ')
+            THEN('The avaliable method reports that 12 keys are avaliable')
+            THEN('The full method reports that the Enumset is not completely filled')
+            THEN('The empty method reports that the Enumset is empty')
