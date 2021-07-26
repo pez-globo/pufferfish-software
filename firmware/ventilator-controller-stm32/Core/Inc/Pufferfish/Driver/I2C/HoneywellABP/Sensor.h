@@ -9,7 +9,6 @@
 #include "Device.h"
 #include "Pufferfish/Driver/Initializable.h"
 #include "Pufferfish/HAL/Interfaces/Time.h"
-#include "Pufferfish/Util/Timeouts.h"
 
 namespace Pufferfish::Driver::I2C::HoneywellABP {
 
@@ -20,15 +19,12 @@ namespace Pufferfish::Driver::I2C::HoneywellABP {
  */
 class StateMachine {
  public:
-  enum class Action { initialize, wait_warmup, measure };
+  enum class Action { initialize, measure };
 
-  [[nodiscard]] Action update(uint32_t current_time);
+  [[nodiscard]] Action update();
 
  private:
-  static const uint32_t warming_up_duration_ms = 3;  // ms
-
   Action next_action_ = Action::initialize;
-  Util::MsTimer warmup_timer_{warming_up_duration_ms, 0};
 };
 
 /**
@@ -59,8 +55,8 @@ class Sensor : public Initializable {
 
   HAL::Interfaces::Time &time_;
 
-  InitializableState initialize(uint32_t current_time);
-  InitializableState measure(uint32_t current_time, float &output);
+  InitializableState initialize();
+  InitializableState measure(float &output);
 };
 
 }  // namespace Pufferfish::Driver::I2C::HoneywellABP
