@@ -133,7 +133,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginBottom: 'auto',
       left: 0,
       padding: '20px 24px 8px',
-      height: 'wrap',
+      height: '100%',
       display: 'flex',
     },
   }),
