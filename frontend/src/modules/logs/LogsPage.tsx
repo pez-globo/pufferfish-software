@@ -192,7 +192,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   /**
    * State to manage rows per page
    */
-  const [rowsPerPage, setRowsPerPage] = React.useState(9);
+  const [rowsPerPage, setRowsPerPage] = React.useState(8);
   /**
    * State to manage opening of LogsPage modal
    */
@@ -288,23 +288,23 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
     switch (type) {
       case LogEventType.patient:
         return status
-          ? { backgroundColor: '#FF3B30' }
+          ? { border: `4px solid #FF3B30`, backgroundColor: '#FF3B30' }
           : {
-              backgroundColor: 'transparent',
               border: `4px solid #FF3B30`,
+              backgroundColor: 'transparent',
             };
       case LogEventType.system:
         return status
-          ? { backgroundColor: '#E68619' }
-          : { backgroundColor: 'transparent', border: `4px solid #E68619` };
+          ? { border: `4px solid #E68619`, backgroundColor: '#E68619' }
+          : { border: `4px solid #E68619`, backgroundColor: 'transparent' };
       case LogEventType.control:
       case LogEventType.alarm_limits:
         return {
-          backgroundColor: 'transparent',
           border: `4px solid ${theme.palette.primary.main}`,
+          backgroundColor: 'transparent',
         };
       default:
-        return { backgroundColor: 'transparent', border: `4px solid #E68619` };
+        return { border: `4px solid #E68619`, backgroundColor: 'transparent' };
     }
   };
 
