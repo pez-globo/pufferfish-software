@@ -53,8 +53,11 @@ PacketStatus Device::output(Sample &sensor_measurements) {
       break;
   }
 
-  if (packet_receiver_.output(sensor_measurements) != PacketOutputStatus::ok) {
-    return PacketStatus::waiting;
+  switch (packet_receiver_.output(sensor_measurements)) {
+    case PacketOutputStatus::waiting:
+      return PacketStatus::waiting;
+    case PacketOutputStatus::ok:
+      break;
   }
 
   return PacketStatus::ok;

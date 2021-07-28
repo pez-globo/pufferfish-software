@@ -32,7 +32,12 @@ enum class SignalQuality {
                      /// quality
 };
 
-/* Frame */
+/**
+ * Frame
+ *
+ * We are using  the Serial Data Format #2
+ * https://upverter.com/datasheet/b7745aca802c392558dd63669771a93cafb3ee90.pdf pg6
+ */
 const uint8_t frame_max_size = 5;
 using Frame = std::array<uint8_t, frame_max_size>;
 
@@ -78,7 +83,7 @@ struct Sample {
   Flags bit7;
 };
 
-// Status Mask
+namespace StatusMasks {
 static const uint8_t start_of_frame = 0b1000'0000;
 static const uint8_t snsd = 0b0100'0000;
 static const uint8_t artf = 0b0010'0000;
@@ -87,18 +92,26 @@ static const uint8_t snsa = 0b1000;
 static const uint8_t yprf = 0b0110;
 static const uint8_t rprf = 0b0100;
 static const uint8_t gprf = 0b0010;
+}  // namespace StatusMasks
 
-// Byte Index
-static const size_t hr_index = 0;
-static const size_t spo2_index = 2;
-static const size_t firmware_revision_index = 3;
-static const size_t spo2_d_index = 8;
-static const size_t spo2_fast_index = 9;
-static const size_t spo2_b_b_index = 10;
-static const size_t e_hr_index = 13;
-static const size_t e_spo2_index = 15;
-static const size_t e_spo2_d_index = 16;
-static const size_t hr_d_index = 19;
-static const size_t e_hr_d_index = 21;
+namespace ByteIndex {
+static const size_t hr = 0;
+static const size_t spo2 = 2;
+static const size_t firmware_revision = 3;
+static const size_t spo2_d = 8;
+static const size_t spo2_fast = 9;
+static const size_t spo2_b_b = 10;
+static const size_t e_hr = 13;
+static const size_t e_spo2 = 15;
+static const size_t e_spo2_d = 16;
+static const size_t hr_d = 19;
+static const size_t e_hr_d = 21;
+
+}  // namespace ByteIndex
+
+namespace ErrorConstants {
+static const uint8_t spo2_missing = 127;
+static const uint16_t hr_missing = 511;
+}  // namespace ErrorConstants
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

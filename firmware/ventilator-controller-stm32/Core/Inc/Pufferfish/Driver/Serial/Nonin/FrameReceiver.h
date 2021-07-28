@@ -26,6 +26,9 @@
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
+/* Frame */
+using Frame = std::array<uint8_t, frame_max_size>;
+
 /* FrameReceiver input status return values */
 enum class FrameInputStatus {
   ok = 0,           /// Input is ready to receive new bytes of sensor data
