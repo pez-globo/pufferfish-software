@@ -39,7 +39,6 @@ enum class SignalQuality {
  * https://upverter.com/datasheet/b7745aca802c392558dd63669771a93cafb3ee90.pdf pg6
  */
 const uint8_t frame_max_size = 5;
-using Frame = std::array<uint8_t, frame_max_size>;
 
 /* Structure defines the sensor data in packet for measurements */
 struct Status {
@@ -53,7 +52,6 @@ struct Status {
 
 /* Packet of 25 frames */
 static const size_t packet_size = 25;
-using Packet = std::array<Frame, packet_size>;
 /* PLETH for 25 frames */
 using PlethPulseAmplitudes = std::array<uint8_t, packet_size>;
 using Flags = std::array<bool, packet_size>;

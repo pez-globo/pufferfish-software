@@ -31,6 +31,9 @@
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
+/* Frame */
+using Frame = std::array<uint8_t, frame_max_size>;
+
 enum class FrameBufferStatus {
   ok = 0,
   waiting,
