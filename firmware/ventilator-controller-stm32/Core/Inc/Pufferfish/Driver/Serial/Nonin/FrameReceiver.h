@@ -67,8 +67,6 @@ class FrameReceiver {
   FrameOutputStatus output(Frame &frame);
 
  private:
-  static const uint8_t mask_start_of_packet = 0x81;
-
   FrameInputStatus update_frame_buffer(uint8_t new_byte);
   FrameInputStatus input_status_ = FrameInputStatus::ok;
   FrameBuffer frame_buf_;

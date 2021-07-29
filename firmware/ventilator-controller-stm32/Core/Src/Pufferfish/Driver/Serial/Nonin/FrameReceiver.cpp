@@ -55,6 +55,7 @@ FrameInputStatus validate_frame(const Frame &new_frame) {
 }
 
 FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
+  static const uint8_t mask_start_of_packet = 0x81;
   Frame frame_buffer;
 
   if (frame_buf_.input(new_byte) == FrameBufferStatus::waiting) {
