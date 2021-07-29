@@ -34,10 +34,15 @@ namespace Pufferfish::Driver::Serial::Nonin {
 /* Frame */
 using Frame = std::array<uint8_t, frame_max_size>;
 
-enum class FrameBufferStatus {
+enum class BufferInputStatus {
+  ok = 0,
+  output_ready,
+  full,
+};
+
+enum class BufferOutputStatus {
   ok = 0,
   waiting,
-  full,
 };
 
 /**
@@ -52,14 +57,14 @@ class FrameBuffer {
    * @param  readByte byte data input
    * @return Frame buffer input status
    */
-  FrameBufferStatus input(uint8_t read_byte);
+  BufferInputStatus input(uint8_t read_byte);
 
   /**
    * @brief  Output method to invoked on frame available
    * @param  frame data output
    * @return Frame buffer output status
    */
-  FrameBufferStatus output(Frame &frame);
+  BufferOutputStatus output(Frame &frame);
 
   /**
    * @brief  reset the frame

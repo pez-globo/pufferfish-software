@@ -85,8 +85,13 @@ void read_packet_measurements(Sample &sensor_measurements, const Packet &packet_
   }
 }
 
+// Check if the sync bit is present at the start of each packet
+bool check_packet_sync(const Frame &frame) {
+  return (frame[FrameBytes::status] & StatusMasks::sync) == StatusMasks::sync;
+}
+
 PacketInputStatus PacketReceiver::input(const Frame &frame) {
-  if ((frame[FrameBytes::status] & StatusMasks::sync) == StatusMasks::sync) {
+  if (check_packet_sync(frame)) {
     if (received_length_ != packet_size) {
       received_length_ = 0;
       packet_data_[received_length_] = frame;

@@ -96,4 +96,6 @@ class PacketReceiver {
 extern void read_status_byte(
     Sample &sensor_measurements, const size_t &frame_index, const uint8_t &byte_value);
 
+extern bool check_packet_sync(const Frame &frame);
+
 }  // namespace Pufferfish::Driver::Serial::Nonin

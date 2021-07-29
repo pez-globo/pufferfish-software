@@ -58,11 +58,11 @@ FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
   static const uint8_t mask_start_of_packet = 0x81;
   Frame frame_buffer;
 
-  if (frame_buf_.input(new_byte) == FrameBufferStatus::waiting) {
+  if (frame_buf_.input(new_byte) == BufferInputStatus::ok) {
     return FrameInputStatus::ok;
   }
 
-  if (frame_buf_.output(frame_buffer) != FrameBufferStatus::ok) {
+  if (frame_buf_.output(frame_buffer) != BufferOutputStatus::ok) {
     return FrameInputStatus::ok;
   }
 
@@ -96,7 +96,7 @@ FrameOutputStatus FrameReceiver::output(Frame &frame) {
     return FrameOutputStatus::waiting;
   }
 
-  if (frame_buf_.output(frame) != FrameBufferStatus::ok) {
+  if (frame_buf_.output(frame) != BufferOutputStatus::ok) {
     return FrameOutputStatus::waiting;
   }
 
