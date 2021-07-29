@@ -34,8 +34,10 @@ PF::Driver::Serial::Nonin::PacketStatus ok_status = PF::Driver::Serial::Nonin::P
 PF::Driver::Serial::Nonin::PacketStatus frame_loss_status =
     PF::Driver::Serial::Nonin::PacketStatus::frame_loss;
 
-PF::Driver::Serial::Nonin::PacketStatus checksum_failed_status =
-    PF::Driver::Serial::Nonin::PacketStatus::checksum_failed;
+PF::Driver::Serial::Nonin::PacketStatus invalid_checksum_status =
+    PF::Driver::Serial::Nonin::PacketStatus::invalid_checksum;
+PF::Driver::Serial::Nonin::PacketStatus invalid_header_status =
+    PF::Driver::Serial::Nonin::PacketStatus::invalid_header;
 
 SCENARIO("No input data received from BufferedUART", "[NoninOEM3]") {
   PF::HAL::Mock::ReadOnlyBufferedUART mock_uart;
@@ -154,7 +156,7 @@ SCENARIO("Complete packet is not available", "[NoninOEM3]") {
       }
       THEN("return_status of Device::output shall be checksum_failed on checksum error") {
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == checksum_failed_status);
+        REQUIRE(return_status == invalid_checksum_status);
       }
     }
   }
@@ -201,7 +203,7 @@ SCENARIO("Complete packet is not available", "[NoninOEM3]") {
       }
       THEN("return_status of Device::output shall be checksum_failed on status byte error") {
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == checksum_failed_status);
+        REQUIRE(return_status == invalid_header_status);
       }
     }
   }

@@ -26,17 +26,16 @@ namespace Pufferfish::Driver::Serial::Nonin {
 /**
  * validateStartOfFrame function is called on beginning to get the first frame
  * and on there is a loss of bytes or noise in the bytes of frame received.
- * Called based on start_of_frame_status_ private variable
+ * Called based on start_of_packet_status_ private variable
  */
-bool validate_start_of_frame(const Frame &new_frame) {
-  static const uint8_t mask_start_of_packet = 0x81;
-  if (new_frame[0] == 0x01 && (new_frame[1] & mask_start_of_packet) == mask_start_of_packet) {
-    if (((new_frame[0] + new_frame[1] + new_frame[2] + new_frame[3]) % (UINT8_MAX + 1)) ==
-        new_frame[4]) {
-      return true;
-    }
-  }
-  return false;
+bool validate_frame_header(const Frame &new_frame, const uint8_t &mask) {
+  return (new_frame[0] == 0x01 && (new_frame[1] & mask) == mask);
+}
+
+bool validate_frame_checksum(const Frame &new_frame) {
+  return (
+      (new_frame[0] + new_frame[1] + new_frame[2] + new_frame[3]) % (UINT8_MAX + 1) ==
+      new_frame[4]);
 }
 
 /**
@@ -45,14 +44,14 @@ bool validate_start_of_frame(const Frame &new_frame) {
  */
 FrameInputStatus validate_frame(const Frame &new_frame) {
   static const uint8_t mask_start_of_frame = 0x80;
-  if (new_frame[0] == 0x01 && (new_frame[1] & mask_start_of_frame) == mask_start_of_frame) {
-    if (((new_frame[0] + new_frame[1] + new_frame[2] + new_frame[3]) % (UINT8_MAX + 1)) ==
-        new_frame[4]) {
-      return FrameInputStatus::output_ready;
-    }
+  if (!validate_frame_header(new_frame, mask_start_of_frame)) {
+    return FrameInputStatus::invalid_header;
   }
 
-  return FrameInputStatus::checksum_failed;
+  if (!validate_frame_checksum(new_frame)) {
+    return FrameInputStatus::invalid_checksum;
+  }
+  return FrameInputStatus::output_ready;
 }
 
 FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
@@ -66,9 +65,10 @@ FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
     return FrameInputStatus::ok;
   }
 
-  if (!start_of_frame_status_) {
-    if (validate_start_of_frame(frame_buffer)) {
-      start_of_frame_status_ = true;
+  if (!start_of_packet_status_) {
+    if (validate_frame_header(frame_buffer, mask_start_of_packet) &&
+        validate_frame_checksum(frame_buffer)) {
+      start_of_packet_status_ = true;
       return FrameInputStatus::output_ready;
     }
     frame_buf_.shift_left();
@@ -76,15 +76,16 @@ FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
   }
 
   input_status_ = validate_frame(frame_buffer);
-  if (input_status_ == FrameInputStatus::checksum_failed) {
-    start_of_frame_status_ = false;
+  if (input_status_ == FrameInputStatus::invalid_header ||
+      input_status_ == FrameInputStatus::invalid_checksum) {
+    start_of_packet_status_ = false;
   }
 
   return input_status_;
 }
 
 FrameInputStatus FrameReceiver::input(const uint8_t new_byte) {
-  input_status_ = this->update_frame_buffer(new_byte);
+  input_status_ = update_frame_buffer(new_byte);
 
   return input_status_;
 }

@@ -32,8 +32,10 @@ PacketStatus Device::output(Sample &sensor_measurements) {
   }
 
   switch (frame_receiver_.input(read_byte)) {
-    case FrameInputStatus::checksum_failed:
-      return PacketStatus::checksum_failed;
+    case FrameInputStatus::invalid_header:
+      return PacketStatus::invalid_header;
+    case FrameInputStatus::invalid_checksum:
+      return PacketStatus::invalid_checksum;
     case FrameInputStatus::ok:
       return PacketStatus::waiting;
     case FrameInputStatus::output_ready:
