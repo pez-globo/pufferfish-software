@@ -26,7 +26,7 @@ namespace Pufferfish::Driver::Serial::Nonin {
 /**
  * validateStartOfFrame function is called on beginning to get the first frame
  * and on there is a loss of bytes or noise in the bytes of frame received.
- * Called based on start_of_packet_status_ private variable
+ * Called based on at_start_of_frame_ private variable
  */
 bool validate_frame_header(const Frame &new_frame, const uint8_t &mask) {
   return (new_frame[0] == 0x01 && (new_frame[1] & mask) == mask);
@@ -66,10 +66,10 @@ FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
     return FrameInputStatus::ok;
   }
 
-  if (!start_of_packet_status_) {
+  if (!at_start_of_frame_) {
     if (validate_frame_header(frame_buffer, mask_start_of_packet) &&
         validate_frame_checksum(frame_buffer)) {
-      start_of_packet_status_ = true;
+      at_start_of_frame_ = true;
       return FrameInputStatus::output_ready;
     }
     frame_buf_.shift_left();
@@ -79,7 +79,7 @@ FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
   input_status_ = validate_frame(frame_buffer);
   if (input_status_ == FrameInputStatus::invalid_header ||
       input_status_ == FrameInputStatus::invalid_checksum) {
-    start_of_packet_status_ = false;
+    at_start_of_frame_ = false;
   }
 
   return input_status_;
