@@ -1547,7 +1547,7 @@ SCENARIO("The method in vector: erase works correctly") {
       THEN("The empty method reports that the vector is non-empty") {
         REQUIRE(vector1.empty() == false);
       }
-      THEN("Vector has expected sequence of 249 bytes initially given ") {
+      THEN("After erase method, Vector has expected sequence of 249 bytes initially given ") {
         for (size_t i = 0; i < 245; i++) {
           REQUIRE(vector1[i] == expected[i]);
         }
@@ -1583,7 +1583,7 @@ SCENARIO("The method in vector: erase works correctly") {
       THEN("The empty method reports that the vector is non-empty") {
         REQUIRE(vector1.empty() == false);
       }
-      THEN("Vector has expected sequence of 250 bytes initially given ") {
+      THEN("After the erase method, Vector has expected sequence of 250 bytes initially given ") {
         for (size_t i = 0; i < 248; i++) {
           REQUIRE(vector1.operator[](i) == i);
         }
@@ -1625,7 +1625,7 @@ SCENARIO("The method in vector: erase works correctly") {
       THEN("The empty method reports that the vector is not empty") {
         REQUIRE(vector1.empty() == false);
       }
-      THEN("Vector has expected sequence of 251 bytes initially given ") {
+      THEN("After the erase method, Vector has expected sequence of 251 bytes initially given ") {
         for (size_t i = 0; i < 251; i++) {
           REQUIRE(vector1.operator[](i) == i);
         }
@@ -1716,43 +1716,106 @@ SCENARIO("The method in Vector:Element *buffer() works correctly") {
   }
 }
 
-// SCENARIO("The method in vector : iterators works correctly"){
-//   GIVEN("A uint8_t vector constructed with capacity 10 is completely filled with 10 bytes of
-//   data"){
-//     ByteVector<10> vector1;
-//     for (size_t i = 0; i < 10; i++) {
-//       vector1.push_back(i);
-//     }
+SCENARIO("The initializer list in vector works correctly") {
+  GIVEN("A uint8_t vector constructed with capacity 5 is partially filled with 4 bytes of data") {
+    PF::Util::Containers::Vector<uint8_t, 5> vector{0, 1, 2, 3};
+    WHEN("The push_back method is called on initializer list of vector") {
+      auto status = vector.push_back(4);
+      THEN("The push_back method returns ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("After the push_back method is called, The size method reports size as 5") {
+        REQUIRE(vector.size() == 5);
+      }
+      THEN("The avaliable method reports that 0 bytes are avaliable") {
+        REQUIRE(vector.available() == 0);
+      }
+      THEN("The full method reports that the vector is completely filled") {
+        REQUIRE(vector.full() == true);
+      }
+      THEN("The empty method reports that the vector is not empty") {
+        REQUIRE(vector.empty() == false);
+      }
+      THEN("Vector has expected sequence of 5 bytes") {
+        auto buffer = vector.cbegin();
+        for (size_t i = 0; i < 5; ++i) {
+          REQUIRE(buffer[i] == i);
+        }
+      }
+    }
+    WHEN("The erase method is called twice on initializer list") {
+      auto status = vector.erase(3);
+      auto status1 = vector.erase(4);
+      THEN("The erase method for 3rd index returns ok status") {
+        REQUIRE(status == PF::IndexStatus::ok);
+      }
+      THEN("The erase method returns out of bounds status for 4th index") {
+        REQUIRE(status1 == PF::IndexStatus::out_of_bounds);
+      }
+      THEN("After the erase method is called, The size method reports size as 3") {
+        REQUIRE(vector.size() == 3);
+      }
+      THEN("The avaliable method reports that 2 bytes are avaliable") {
+        REQUIRE(vector.available() == 2);
+      }
+      THEN("The full method reports that the vector is not completely filled") {
+        REQUIRE(vector.full() == false);
+      }
+      THEN("The empty method reports that the vector is not empty") {
+        REQUIRE(vector.empty() == false);
+      }
+      THEN("Vector has expected sequence of 3 bytes") {
+        auto buffer = vector.cbegin();
+        for (size_t i = 0; i < 3; ++i) {
+          REQUIRE(buffer[i] == i);
+        }
+      }
+    }
+    WHEN("The resize method is called on initializer list") {
+      auto status = vector.resize(2);
+      THEN("The resize method returns ok status") { REQUIRE(status == PF::IndexStatus::ok); }
+      THEN("After the resize method is called, The size method reports size as 2") {
+        REQUIRE(vector.size() == 2);
+      }
+      THEN("The avaliable method reports that 3 bytes are avaliable") {
+        REQUIRE(vector.available() == 3);
+      }
+      THEN("The full method reports that the vector is not completely filled") {
+        REQUIRE(vector.full() == false);
+      }
+      THEN("The empty method reports that the vector is not empty") {
+        REQUIRE(vector.empty() == false);
+      }
+      THEN("Vector has expected sequence of 2 bytes") {
+        auto buffer = vector.cbegin();
+        for (size_t i = 0; i < 2; ++i) {
+          REQUIRE(buffer[i] == i);
+        }
+      }
+    }
+    WHEN("The copy_from  method is called on an empty vector with capacity 8") {
+      ByteVector<8> vector1;
+      auto copy_status = vector1.copy_from(vector.buffer(), vector.size(), 0);
 
-// WHEN("begin and end method is called on vector"){
-//   auto buffer = vector1.cbegin();
-//   THEN("Values are as expected"){
-//     REQUIRE(buffer[0] == 0);
-//     REQUIRE(buffer[1] == 1);
-//     REQUIRE(buffer[2] == 2);
-//     REQUIRE(buffer[3] == 3);
-//     REQUIRE(buffer[4] == 4);
-//     REQUIRE(buffer[5] == 5);
-//     REQUIRE(buffer[6] == 6);
-//     REQUIRE(buffer[7] == 7);
-//     REQUIRE(buffer[8] == 8);
-//     REQUIRE(buffer[9] == 9);
-
-//   }
-// }
-//     WHEN("Vector"){
-//       PF::Util::Containers::Vector<uint8_t, 4> vector{10, 20, 30};
-//       for(size_t i =0;i<4;i++){
-//       std::cout<< "value" << vector[i] << std::endl;
-//       }
-
-//       THEN("returns expected"){
-
-//         REQUIRE(vector.operator[](0)== 10);
-//         REQUIRE(vector.operator[](1)== 20);
-//         REQUIRE(vector.operator[](2)== 30);
-
-//       }
-//     }
-//   }
-// }
+      THEN("The copy_from method returns ok status") {
+        REQUIRE(copy_status == PF::IndexStatus::ok);
+      }
+      THEN("After the copy_from method is called, The size method reports size as 4") {
+        REQUIRE(vector1.size() == 4);
+      }
+      THEN("The avaliable method reports that 4 bytes are avaliable") {
+        REQUIRE(vector1.available() == 4);
+      }
+      THEN("The full method reports that the vector is not completely filled") {
+        REQUIRE(vector1.full() == false);
+      }
+      THEN("The empty method reports that the vector is not empty") {
+        REQUIRE(vector1.empty() == false);
+      }
+      THEN("After copy_from method, Vector has expected sequence of 4 bytes") {
+        auto buffer = vector1.cbegin();
+        for (size_t i = 0; i < 4; ++i) {
+          REQUIRE(buffer[i] == i);
+        }
+      }
+    }
+  }
+}

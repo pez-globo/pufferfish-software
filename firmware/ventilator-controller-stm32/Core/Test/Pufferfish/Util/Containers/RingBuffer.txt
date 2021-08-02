@@ -1,11 +1,417 @@
-Scenario: The function pop in RingBuffer works correctly
-          1. input parameter read_element is within range
-          2. input parameter read_element is not in range
-Scenario: The function peak in RingBuffer works correctly
-          1. input parameter peek_element is within range
-          2. input parameter peek_element is not in range
-          
-Scenario: The function push in RingBuffer works correctly
-          1. input parameter write_element is within range
-          2. input parameter write_element is not in range
-     
+// newest: ^
+//oldest: *
+
+Scenario: Volatile RingBuffer works correctly
+    GIVEN('A RingBuffer with capacity 6 to which two bytes of data were pushed') 
+    //internal state should look like [0*] [1^] [] [] []
+       WHEN('1 bytes of data is pushed in RingBuffer') 
+          THEN('The push method returns ok status')
+          THEN('After push method ,the peek method returns expected data ') 
+          ////internal state should look like [0*] [1] [2^] [] []
+
+        WHEN('1 bytes of data is poped from RingBuffer') 
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data')
+                //internal state should look like [] [1*^] [] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which three bytes of data were pushed and 1 byte were poped')  
+        //internal state should look like [] [1*] [2^] [] []
+        WHEN('2 bytes of data are pushed in RingBuffer')
+            THEN('The push method returns ok status')
+            THEN('After push method, the peek method returns expected data ') 
+            //internal state should look like [] [1*] [2] [3] [4^]
+
+        WHEN('2 bytes of data are poped from RingBuffer')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data')
+                //internal state should look like [] [] [] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which three bytes of data were pushed and 2 byte were poped and one byte was pushed') 
+    //internal state should look like [] [] [2*] [3^] []
+        WHEN('The push method is called on ringbuffer once')
+            THEN('The push method returns ok status')            
+            THEN('After push method, peek method returns expected data')
+            //internal state should look like [] [] [2*] [3] [4^]    
+        WHEN('The pop method is called on ringbuffer once')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [3*^] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 5 bytes of data were pushed and 3 byte were poped') 
+        //internal state should look like [] [] [] [3*] [4^]
+        WHEN('The push method is used on ringbuffer thrice ')
+            THEN('The push method returns full status')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [0] [1] [2^] [3*] [4]
+
+        WHEN('The pop method is used once')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [] [4*^]
+
+    GIVEN('A RingBuffer with capacity 6 to which 5 bytes of data were pushed and 4 byte were poped and 1 byte was pushed') 
+        //internal state should look like [0^] [] [] [] [4*]
+        WHEN('The push method is called on RingBuffer thrice')
+            THEN('The push method returns ok status')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [0] [1] [2^] [] [4*]
+
+        WHEN('The pop method is called thrice')
+            THEN('The pop method returns ok status for 1st time')
+            THEN('The pop method returns ok status for 2nd time')
+            THEN('The pop method returns empty status for 3rd time')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 3 bytes of data were pushed ') 
+        //internal state should look like [0*] [1] [2^] [] []
+        WHEN('The push method is called on RingBuffer twice')
+            THEN('The push method returns ok status')
+            THEN('The push method returns full status for 6th byte')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [0*] [1] [2] [3] [4^]
+        WHEN('The pop method is called once')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [1*] [2^] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 4 bytes of data were pushed and 1 byte was poped') 
+        //internal state should look like [] [1*] [2] [3^] []
+        WHEN('The push method is called on RingBuffer once')
+            THEN('The push method returns ok status')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [] [1*] [2] [3^] [4]
+
+        WHEN('The pop method is called twice')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [3*^] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 5 bytes of data were pushed and 2 byte was poped') 
+        //internal state should look like [] [] [2*] [3] [4^]
+        WHEN('The push method is called on RingBuffer twice')
+            THEN('The push method returns ok status')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [0] [1^] [2*] [3] [4]
+
+        WHEN('The pop method is called once')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [3*] [4^]
+
+    GIVEN('A RingBuffer with capacity 6 to which 5 bytes of data were pushed and 4 byte were poped and 2 bytes were pushed') 
+        //internal state should look like [0] [1^] [] [] [4*]
+        WHEN('The push method is called on RingBuffer once')
+            THEN('The push method returns ok status')
+            THEN('After the push method, peek method returns expected data')
+            //internal state should look like [0] [1] [2^] [] [4*]    
+
+        WHEN('The pop method is used thrice')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 2 bytes of data were pushed and 1 byte was poped and 1 bytes were pushed') 
+        //internal state should look like [0^] [1*] [] [] []
+        WHEN('The push method is called on RingBuffer twice')
+            THEN('The push method returns ok status')
+            THEN('After push method, peek method returns expected data')
+
+        WHEN('The pop method is called once')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns the data in RingBuffer')
+                //internal state should look like [0*^] [] [] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 3 bytes of data were pushed and 2 byte was poped and 2 bytes were pushed') 
+        //internal state should look like [0] [1^] [2*] [] []
+        WHEN('The push method is called on RingBuffer once')
+            THEN('The push method returns ok status')
+            THEN('After push method, peek method returns expected data')
+                //internal state should look like [0] [1] [2*] [3^] []
+
+        WHEN('The pop method is called once')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [0*] [1^] [] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 4 bytes of data were pushed and 3 byte was poped and 3 bytes were pushed') 
+        //internal state should look like [0] [1] [2^] [3*] []
+        WHEN('The push method is called on RingBuffer twice')
+            THEN('The push method returns ok status')
+            THEN('The push method returns ok status')            
+            THEN('After push method, peek method returns expected data')
+                //internal state should look like [0] [1] [2] [3*] [4^]
+
+        WHEN('The pop method is called thrice')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [2*^] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 5 bytes of data were pushed and 4 byte was poped and 4 bytes were pushed') 
+        //internal state should look like [0] [1] [2] [3^] [4*]
+        WHEN('The push method is called on RingBuffer once')
+            THEN('The push method returns full status')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [0] [1] [2] [3^] [4*]
+
+        WHEN('The pop method is used five times')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 5 bytes of data were pushed') 
+        //internal state should look like [0*] [1] [2] [3] [4^]
+        WHEN('The push method is called on RingBuffer once')
+            THEN('The push method returns full status')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [0*] [1] [2] [3] [4^]
+
+        WHEN('The pop method is used four times')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [] [4*^]
+
+    GIVEN('A RingBuffer with capacity 6 to which 4 bytes of data were pushed ') 
+        //internal state should look like [0*] [1] [2] [3^] []
+        WHEN('The push method is called on RingBuffer once')
+            THEN('The push method returns ok status')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [0*] [1] [2] [3] [4^]
+
+        WHEN('The pop method is used thrice')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns the data in RingBuffer')
+                //internal state should look like [] [] [] [3*] [4^]
+
+    GIVEN('A RingBuffer with capacity 6 to which 2 bytes of data were pushed and 1 byte was poped and 3 bytes were pushed') 
+        //internal state should look like [] [1*] [2] [3] [4^]
+        WHEN('The push method is called on RingBuffer once')
+            THEN('The push method returns ok status')
+            THEN('The peek method, returns expected data')
+                //internal state should look like [0^] [1*] [2] [3] [4]
+
+        WHEN('The pop method is used twice')
+             THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [3*] [4^]
+
+    GIVEN('A RingBuffer with capacity 6 to which 3 bytes of data were pushed and 2 byte was poped and 1 bytes was pushed') 
+        //internal state should look like [0^] [1] [2*] [] []
+        WHEN('The push method is called on RingBuffer twice')
+            THEN('The push method returns ok status')
+            THEN('After the push method, peek method returns expected data')
+                 //internal state should look like [0] [1] [2*] [3] [4^]
+        WHEN('The pop method is called once')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns the data in RingBuffer')
+                //internal state should look like [0^] [1*] [] [] []
+    
+Scenario: Non-volatile RingBuffer works correctly
+    GIVEN('A RingBuffer with capacity 6 to which two bytes of data were pushed') 
+    //internal state should look like [0*] [1^] [] [] []
+       WHEN('1 bytes of data is pushed in RingBuffer') 
+          THEN('The push method returns ok status')
+          THEN('After push method ,the peek method returns expected data ') 
+          ////internal state should look like [0*] [1] [2^] [] []
+
+        WHEN('1 bytes of data is poped from RingBuffer') 
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data')
+                //internal state should look like [] [1*^] [] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which three bytes of data were pushed and 1 byte were poped')  
+        //internal state should look like [] [1*] [2^] [] []
+        WHEN('2 bytes of data are pushed in RingBuffer')
+            THEN('The push method returns ok status')            
+            THEN('After push method, the peek method returns expected data ') 
+            //internal state should look like [] [1*] [2] [3] [4^]
+
+        WHEN('2 bytes of data are poped from RingBuffer')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data')
+                //internal state should look like [] [] [] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which three bytes of data were pushed and 2 byte were poped and one byte was pushed') 
+    //internal state should look like [] [] [2*] [3^] []
+        WHEN('The push method is called on ringbuffer once')
+            THEN('The push method returns ok status')            
+            THEN('After push method, peek method returns expected data')
+            //internal state should look like [] [] [2*] [3] [4^]    
+
+        WHEN('The pop method is called on ringbuffer once')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [3*^] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 5 bytes of data were pushed and 3 byte were poped') 
+        //internal state should look like [] [] [] [3*] [4^]
+        WHEN('The push method is used on ringbuffer thrice ')
+             THEN('The push method returns full status')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [0] [1] [2^] [3*] [4]
+
+        WHEN('The pop method is used once')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [] [4*^]
+
+    GIVEN('A RingBuffer with capacity 6 to which 5 bytes of data were pushed and 4 byte were poped and 1 byte was pushed') 
+        //internal state should look like [0^] [] [] [] [4*]
+        WHEN('The push method is called on RingBuffer thrice')
+            THEN('The push method returns ok status')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [0] [1] [2^] [] [4*]
+
+        WHEN('The pop method is called thrice')
+            THEN('The pop method returns ok status for 1st time')
+            THEN('The pop method returns ok status for 2nd time')
+            THEN('The pop method returns empty status for 3rd time')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 3 bytes of data were pushed ') 
+        //internal state should look like [0*] [1] [2^] [] []
+        WHEN('The push method is called on RingBuffer twice')
+            THEN('The push method returns ok status')
+            THEN('The push method returns full status for 6th byte')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [0*] [1] [2] [3] [4^]
+
+        WHEN('The pop method is called once')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [1*] [2^] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 4 bytes of data were pushed and 1 byte was poped') 
+        //internal state should look like [] [1*] [2] [3^] []
+        WHEN('The push method is called on RingBuffer once')
+            THEN('The push method returns ok status')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [] [1*] [2] [3^] [4]
+
+        WHEN('The pop method is called twice')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [3*^] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 5 bytes of data were pushed and 2 byte was poped') 
+        //internal state should look like [] [] [2*] [3] [4^]
+        WHEN('The push method is called on RingBuffer twice')
+            THEN('The push method returns ok status')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [0] [1^] [2*] [3] [4]
+
+        WHEN('The pop method is called once')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [3*] [4^]
+
+    GIVEN('A RingBuffer with capacity 6 to which 5 bytes of data were pushed and 4 byte were poped and 2 bytes were pushed') 
+        //internal state should look like [0] [1^] [] [] [4*]
+        WHEN('The push method is called on RingBuffer once')
+            THEN('The push method returns ok status')
+            THEN('After the push method, peek method returns expected data')
+            //internal state should look like [0] [1] [2^] [] [4*]    
+
+        WHEN('The pop method is used thrice')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 2 bytes of data were pushed and 1 byte was poped and 1 bytes were pushed') 
+        //internal state should look like [0^] [1*] [] [] []
+        WHEN('The push method is called on RingBuffer twice')
+            THEN('The push method returns ok status')
+            THEN('After push method, peek method returns expected data')
+
+        WHEN('The pop method is called once')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns the data in RingBuffer')
+                //internal state should look like [0*^] [] [] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 3 bytes of data were pushed and 2 byte was poped and 2 bytes were pushed') 
+        //internal state should look like [0] [1^] [2*] [] []
+        WHEN('The push method is called on RingBuffer once')
+            THEN('The push method returns ok status')
+            THEN('After push method, peek method returns expected data')
+                //internal state should look like [0] [1] [2*] [3^] []
+        WHEN('The pop method is called once')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [0*] [1^] [] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 4 bytes of data were pushed and 3 byte was poped and 3 bytes were pushed') 
+        //internal state should look like [0] [1] [2^] [3*] []
+        WHEN('The push method is called on RingBuffer twice')
+            THEN('The push method returns ok status')
+            THEN('The push method returns ok status')
+            THEN('After push method, peek method returns expected data')
+                //internal state should look like [0] [1] [2] [3*] [4^]
+
+        WHEN('The pop method is called thrice')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [2*^] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 5 bytes of data were pushed and 4 byte was poped and 4 bytes were pushed') 
+        //internal state should look like [0] [1] [2] [3^] [4*]
+        WHEN('The push method is called on RingBuffer once')
+            THEN('The push method returns full status')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [0] [1] [2] [3^] [4*]
+        WHEN('The pop method is used five times')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [] []
+
+    GIVEN('A RingBuffer with capacity 6 to which 5 bytes of data were pushed') 
+        //internal state should look like [0*] [1] [2] [3] [4^]
+        WHEN('The push method is called on RingBuffer once')
+            THEN('The push method returns full status')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [0*] [1] [2] [3] [4^]
+        WHEN('The pop method is used four times')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [] [4*^]
+
+    GIVEN('A RingBuffer with capacity 6 to which 4 bytes of data were pushed ') 
+        //internal state should look like [0*] [1] [2] [3^] []
+        WHEN('The push method is called on RingBuffer once')
+            THEN('The push method returns ok status')
+            THEN('After the push method, peek method returns expected data')
+                //internal state should look like [0*] [1] [2] [3] [4^]
+        WHEN('The pop method is used thrice')
+             THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns the data in RingBuffer')
+                //internal state should look like [] [] [] [3*] [4^]
+
+    GIVEN('A RingBuffer with capacity 6 to which 2 bytes of data were pushed and 1 byte was poped and 3 bytes were pushed') 
+        //internal state should look like [] [1*] [2] [3] [4^]
+        WHEN('The push method is called on RingBuffer once')
+            THEN('The push method returns ok status')
+            THEN('The peek method, returns expected data')
+                //internal state should look like [0^] [1*] [2] [3] [4]
+
+        WHEN('The pop method is used twice')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns expected data in RingBuffer')
+                //internal state should look like [] [] [] [3*] [4^]
+
+    GIVEN('A RingBuffer with capacity 6 to which 3 bytes of data were pushed and 2 byte was poped and 1 bytes was pushed') 
+        //internal state should look like [0^] [1] [2*] [] []
+        WHEN('The push method is called on RingBuffer twice')
+            THEN('The push method returns ok status')
+            THEN('After the push method, peek method returns expected data')
+                 //internal state should look like [0] [1] [2*] [3] [4^]
+        WHEN('The pop method is called once')
+            THEN('The pop method returns ok status')
+            THEN('After the pop method,the peek method returns the data in RingBuffer')
+                //internal state should look like [0^] [1*] [] [] []
+
+
+
+
+
+
+
