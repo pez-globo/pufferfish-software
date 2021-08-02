@@ -1735,7 +1735,7 @@ SCENARIO("The initializer list in vector works correctly") {
         REQUIRE(vector.empty() == false);
       }
       THEN("Vector has expected sequence of 5 bytes") {
-        auto* buffer = vector.cbegin();
+        const auto* buffer = vector.cbegin();
         for (size_t i = 0; i < 5; ++i) {
           REQUIRE(buffer[i] == i);
         }
@@ -1763,7 +1763,7 @@ SCENARIO("The initializer list in vector works correctly") {
         REQUIRE(vector.empty() == false);
       }
       THEN("Vector has expected sequence of 3 bytes") {
-        auto* buffer = vector.cbegin();
+        const auto* buffer = vector.cbegin();
         for (size_t i = 0; i < 3; ++i) {
           REQUIRE(buffer[i] == i);
         }
@@ -1785,7 +1785,7 @@ SCENARIO("The initializer list in vector works correctly") {
         REQUIRE(vector.empty() == false);
       }
       THEN("Vector has expected sequence of 2 bytes") {
-        auto* buffer = vector.cbegin();
+        const auto* buffer = vector.cbegin();
         for (size_t i = 0; i < 2; ++i) {
           REQUIRE(buffer[i] == i);
         }
@@ -1811,7 +1811,7 @@ SCENARIO("The initializer list in vector works correctly") {
         REQUIRE(vector1.empty() == false);
       }
       THEN("After copy_from method, Vector has expected sequence of 4 bytes") {
-        auto buffer = vector1.cbegin();
+        const auto* buffer = vector1.cbegin();
         for (size_t i = 0; i < 4; ++i) {
           REQUIRE(buffer[i] == i);
         }

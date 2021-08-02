@@ -134,6 +134,8 @@ SCENARIO("Volatile RingBuffer works correctly") {
       }
     }
   }
+}
+SCENARIO("The pop method in volatile ringbuffer works correctly") {
   GIVEN(
       "A RingBuffer with capacity 6 to which 5 bytes of data were pushed and 3 byte were poped") {  //[][][][3*][4^]
     // internal state should look like [] [] [] [3*] [4^]
@@ -286,6 +288,8 @@ SCENARIO("Volatile RingBuffer works correctly") {
       }
     }
   }
+}
+SCENARIO("The push method in volatile ringbuffer works correctly") {
   GIVEN(
       "A RingBuffer with capacity 6 to which 4 bytes of data were pushed and 1 byte was poped") {  // [][1*][2][3^][]
     // internal state should look like [] [1*] [2] [3^] []
@@ -584,6 +588,8 @@ SCENARIO("Volatile RingBuffer works correctly for differfent combinations") {
       }
     }
   }
+}
+SCENARIO("The pop and push method in volatile ringbuffer works correctly") {
   GIVEN(
       "A RingBuffer with capacity 6 to which 5 bytes of data were pushed and 4 byte was poped and "
       "4 bytes were pushed") {  // [0][1][2][3^][4*]
@@ -677,6 +683,8 @@ SCENARIO("Volatile RingBuffer works correctly for differfent combinations") {
       }
     }
   }
+}
+SCENARIO("volatile RingBuffer works correctly for peek method") {
   GIVEN("A RingBuffer with capacity 6 to which 4 bytes of data were pushed ") {  // [0*][1][2][3^][]
     // internal state should look like [0*] [1] [2] [3^] []
     volatile PF::Util::Containers::RingBuffer<6, uint8_t> test;
@@ -942,6 +950,8 @@ SCENARIO("Non-volatile RingBuffer works correctly") {
       }
     }
   }
+}
+SCENARIO("Non-volatile RingBuffer works correctly for pop method") {
   GIVEN(
       "A RingBuffer with capacity 6 to which 5 bytes of data were pushed and 3 byte were poped") {  //[][][][3*][4^]
     // internal state should look like [] [] [] [3*] [4^]
@@ -1094,6 +1104,8 @@ SCENARIO("Non-volatile RingBuffer works correctly") {
       }
     }
   }
+}
+SCENARIO("Non-volatile RingBuffer works correctly for push method") {
   GIVEN(
       "A RingBuffer with capacity 6 to which 4 bytes of data were pushed and 1 byte was poped") {  // [][1*][2][3^][]
     // internal state should look like [] [1*] [2] [3^] []
@@ -1392,6 +1404,8 @@ SCENARIO("Non-Volatile RingBuffer works correctly for differfent combinations") 
       }
     }
   }
+}
+SCENARIO("Non-volatile RingBuffer works correctly for pop and push method") {
   GIVEN(
       "A RingBuffer with capacity 6 to which 5 bytes of data were pushed and 4 byte was poped and "
       "4 bytes were pushed") {  // [0][1][2][3^][4*]
@@ -1485,6 +1499,8 @@ SCENARIO("Non-Volatile RingBuffer works correctly for differfent combinations") 
       }
     }
   }
+}
+SCENARIO("Non-volatile RingBuffer works correctly for peek method") {
   GIVEN("A RingBuffer with capacity 6 to which 4 bytes of data were pushed ") {  // [0*][1][2][3^][]
     // internal state should look like [0*] [1] [2] [3^] []
     PF::Util::Containers::RingBuffer<6, uint8_t> test;
