@@ -24,16 +24,17 @@
 namespace PF = Pufferfish;
 SCENARIO("The method initializer list in Enumset works corretly") {
   GIVEN("An EnumSet constructed with capacity 11, is partially filled with 3 keys") {
-    typedef enum _Test {
-      Test1,
-      Test2,
-      Test3,
-      Test4,
-      Test5,
-    } Test;
-    PF::Util::Containers::EnumSet<Test, 11> set{Test1, Test2, Test3};
+    enum Test {
+      test1,
+      test2,
+      test3,
+      test4,
+      test5,
+    };
+    using test = enum Test;
+    PF::Util::Containers::EnumSet<test, 11> set{test1, test2, test3};
     WHEN("The input method is called on EnumSet") {
-      auto status = set.input(Test4);
+      auto status = set.input(test4);
       THEN("The input method returns ok status for 4th key") {
         REQUIRE(status == PF::IndexStatus::ok);
       }
@@ -53,19 +54,19 @@ SCENARIO("The method initializer list in Enumset works corretly") {
         REQUIRE(set.empty() == false);
       }
       THEN("The erase method reports ok status for 1st key ") {
-        REQUIRE(set.erase(Test1) == PF::IndexStatus::ok);
+        REQUIRE(set.erase(test1) == PF::IndexStatus::ok);
       }
       THEN("The has method returns true for 4 keys") {
         for (size_t i = 1; i < 4; i++) {
           std::cout << "set" << i << std::endl;
-          REQUIRE(set.has(Test(i)) == true);
+          REQUIRE(set.has(test(i)) == true);
         }
-        REQUIRE(set.has(Test4) == true);
+        REQUIRE(set.has(test4) == true);
       }
     }
     WHEN("The erase method is called on EnumSet") {
-      auto erase_status = set.erase(Test3);
-      auto erase_status1 = set.erase(Test4);
+      auto erase_status = set.erase(test3);
+      auto erase_status1 = set.erase(test4);
       THEN("The erase method returns ok status for 3rd key") {
         REQUIRE(erase_status == PF::IndexStatus::ok);
       }
@@ -88,16 +89,16 @@ SCENARIO("The method initializer list in Enumset works corretly") {
         REQUIRE(set.empty() == false);
       }
       THEN("The has method returns true for first 2 keys") {
-        REQUIRE(set.has(Test1) == true);
-        REQUIRE(set.has(Test2) == true);
+        REQUIRE(set.has(test1) == true);
+        REQUIRE(set.has(test2) == true);
       }
-      THEN("The has method returns false for 3rd key") { REQUIRE(set.has(Test3) == false); }
+      THEN("The has method returns false for 3rd key") { REQUIRE(set.has(test3) == false); }
     }
     WHEN("The clear method is used on Enumset") {
       set.clear();
       THEN("The has method returns false for 11 keys") {
         for (size_t i = 1; i < 11; i++) {
-          REQUIRE(set.has(Test(i)) == false);
+          REQUIRE(set.has(test(i)) == false);
         }
       }
       THEN("The max_size method reports, Enumset has 11 capacity") {
@@ -116,26 +117,27 @@ SCENARIO("The method initializer list in Enumset works corretly") {
 
 SCENARIO("The input method in Enumset works correctly") {
   GIVEN(" An empty EnumSet with capacity 12") {
-    typedef enum _Test {
-      Test1,
-      Test2,
-      Test3,
-      Test4,
-      Test5,
-      Test6,
-      Test7,
-      Test8,
-      Test9,
-      Test10,
-      Test11,
-      Test12,
-      Test13,
-      Test14,
-    } Test;
-    PF::Util::Containers::EnumSet<Test, 12> set;
+    enum Test {
+      test1,
+      test2,
+      test3,
+      test4,
+      test5,
+      test6,
+      test7,
+      test8,
+      test9,
+      test10,
+      test11,
+      test12,
+      test13,
+      test14,
+    };
+    using test = enum Test;
+    PF::Util::Containers::EnumSet<test, 12> set;
     WHEN("The input method is called on given Enumset") {
       for (size_t i = 1; i < 12; i++) {
-        auto in_status = set.input(Test(i));
+        auto in_status = set.input(test(i));
         REQUIRE(in_status == PF::IndexStatus::ok);
 
         THEN("The input method returns ok status for 11 key") {
@@ -158,49 +160,50 @@ SCENARIO("The input method in Enumset works correctly") {
         REQUIRE(set.empty() == false);
       }
       THEN("The erase method reports ok status for 11th key ") {
-        REQUIRE(set.erase(Test11) == PF::IndexStatus::ok);
+        REQUIRE(set.erase(test11) == PF::IndexStatus::ok);
       }
       THEN("The has method returns true for 11 keys") {
         for (size_t i = 1; i < 12; i++) {
-          REQUIRE(set.has(Test(i)) == true);
+          REQUIRE(set.has(test(i)) == true);
         }
       }
       THEN("The has method returns false for 13th and 14th keys ") {
-        REQUIRE(set.has(Test13) == false);
-        REQUIRE(set.has(Test14) == false);
+        REQUIRE(set.has(test13) == false);
+        REQUIRE(set.has(test14) == false);
       }
     }
   }
   GIVEN(" An empty EnumSet with capacity 12") {
-    typedef enum _Test {
-      Test1,
-      Test2,
-      Test3,
-      Test4,
-      Test5,
-      Test6,
-      Test7,
-      Test8,
-      Test9,
-      Test10,
-      Test11,
-      Test12,
-      Test13,
-      Test14,
-    } Test;
-    PF::Util::Containers::EnumSet<Test, 12> set;
+    enum Test {
+      test1,
+      test2,
+      test3,
+      test4,
+      test5,
+      test6,
+      test7,
+      test8,
+      test9,
+      test10,
+      test11,
+      test12,
+      test13,
+      test14,
+    };
+    using test = enum Test;
+    PF::Util::Containers::EnumSet<test, 12> set;
     for (size_t i = 1; i < 12; i++) {
-      auto in_status = set.input(Test(i));
+      auto in_status = set.input(test(i));
       REQUIRE(in_status == PF::IndexStatus::ok);
     }
 
     WHEN("The input method is used on 13th and 14th Key") {
       for (size_t i = 1; i < 12; i++) {
-        auto in_status = set.input(Test(i));
+        auto in_status = set.input(test(i));
         REQUIRE(in_status == PF::IndexStatus::ok);
       }
-      auto in_status = set.input(Test13);
-      auto in_status1 = set.input(Test14);
+      auto in_status = set.input(test13);
+      auto in_status1 = set.input(test14);
       THEN("The input method returns out of bounds status for 13th key") {
         REQUIRE(in_status == PF::IndexStatus::out_of_bounds);
       }
@@ -223,23 +226,23 @@ SCENARIO("The input method in Enumset works correctly") {
         REQUIRE(set.empty() == false);
       }
       THEN("The erase method reports ok status for 11th key ") {
-        REQUIRE(set.erase(Test11) == PF::IndexStatus::ok);
+        REQUIRE(set.erase(test11) == PF::IndexStatus::ok);
       }
       THEN("The has method returns true for 11 keys") {
         for (size_t i = 1; i < 12; i++) {
-          REQUIRE(set.has(Test(i)) == true);
+          REQUIRE(set.has(test(i)) == true);
         }
       }
       THEN("The has method returns false for 13th and 14th key") {
-        REQUIRE(set.has(Test13) == false);
-        REQUIRE(set.has(Test14) == false);
+        REQUIRE(set.has(test13) == false);
+        REQUIRE(set.has(test14) == false);
       }
     }
     WHEN("The input method is called on erased key ") {
-      auto erase_status = set.erase(Test7);
-      auto erase_status1 = set.erase(Test8);
-      auto in_status = set.input(Test7);
-      auto in_status1 = set.input(Test8);
+      auto erase_status = set.erase(test7);
+      auto erase_status1 = set.erase(test8);
+      auto in_status = set.input(test7);
+      auto in_status1 = set.input(test8);
       THEN("The input method returns ok status for 7th key") {
         REQUIRE(erase_status == PF::IndexStatus::ok);
         REQUIRE(in_status == PF::IndexStatus::ok);
@@ -265,13 +268,13 @@ SCENARIO("The input method in Enumset works correctly") {
       }
       THEN("The has method returns true for 11 keys") {
         for (size_t i = 1; i < 12; i++) {
-          REQUIRE(set.has(Test(i)) == true);
+          REQUIRE(set.has(test(i)) == true);
         }
       }
     }
     WHEN("The input method is called on already existing key in EnumSet") {
-      auto in_status = set.input(Test10);
-      auto in_status1 = set.input(Test11);
+      auto in_status = set.input(test10);
+      auto in_status1 = set.input(test11);
       THEN("The input method returns ok status for 10th and 11th key") {
         REQUIRE(in_status == PF::IndexStatus::ok);
         REQUIRE(in_status1 == PF::IndexStatus::ok);
@@ -293,7 +296,7 @@ SCENARIO("The input method in Enumset works correctly") {
       }
       THEN("The has method returns true for 11 keys") {
         for (size_t i = 1; i < 12; i++) {
-          REQUIRE(set.has(Test(i)) == true);
+          REQUIRE(set.has(test(i)) == true);
         }
       }
     }
@@ -302,32 +305,33 @@ SCENARIO("The input method in Enumset works correctly") {
 
 SCENARIO("The method erase in Enumset works corretly") {
   GIVEN("EnumSet with capacity 12, and it has 11 keys") {
-    typedef enum _Test {
-      Test1,
-      Test2,
-      Test3,
-      Test4,
-      Test5,
-      Test6,
-      Test7,
-      Test8,
-      Test9,
-      Test10,
-      Test11,
-      Test12,
-      Test13,
-      Test14,
-    } Test;
+    enum Test {
+      test1,
+      test2,
+      test3,
+      test4,
+      test5,
+      test6,
+      test7,
+      test8,
+      test9,
+      test10,
+      test11,
+      test12,
+      test13,
+      test14,
+    };
+    using test = enum Test;
 
-    PF::Util::Containers::EnumSet<Test, 12> set;
+    PF::Util::Containers::EnumSet<test, 12> set;
     for (size_t i = 1; i < 12; i++) {
-      auto in_status = set.input(Test(i));
+      auto in_status = set.input(test(i));
       REQUIRE(in_status == PF::IndexStatus::ok);
     }
 
     WHEN("The method erase is called on given Enumset") {
       for (size_t i = 1; i < 5; i++) {
-        auto erase_status = set.erase(Test(i));
+        auto erase_status = set.erase(test(i));
         THEN("The erase method returns ok status for 5 keys") {
           REQUIRE(erase_status == PF::IndexStatus::ok);
         }
@@ -349,13 +353,13 @@ SCENARIO("The method erase in Enumset works corretly") {
       }
       THEN("The has method returns true for 6 keys") {
         for (size_t i = 5; i < 12; i++) {
-          REQUIRE(set.has(Test(i)) == true);
+          REQUIRE(set.has(test(i)) == true);
         }
       }
     }
     WHEN("The erase method is called on 13th and 14th key") {
-      auto erase_status = set.erase(Test13);
-      auto erase_status1 = set.erase(Test14);
+      auto erase_status = set.erase(test13);
+      auto erase_status1 = set.erase(test14);
       THEN("The erase method returns out of bounds status for 13th key") {
         REQUIRE(erase_status == PF::IndexStatus::out_of_bounds);
       }
@@ -379,14 +383,14 @@ SCENARIO("The method erase in Enumset works corretly") {
       }
       THEN("The has method returns true for 11 keys") {
         for (size_t i = 1; i < 12; i++) {
-          REQUIRE(set.has(Test(i)) == true);
+          REQUIRE(set.has(test(i)) == true);
         }
       }
     }
     WHEN("The erase method is used thrice on given Enumset") {
-      auto erase_status = set.erase(Test11);
-      auto erase_status1 = set.erase(Test12);
-      auto erase_status2 = set.erase(Test13);
+      auto erase_status = set.erase(test11);
+      auto erase_status1 = set.erase(test12);
+      auto erase_status2 = set.erase(test13);
       THEN("The first erase method returns ok status") {
         REQUIRE(erase_status == PF::IndexStatus::ok);
       }
@@ -413,7 +417,7 @@ SCENARIO("The method erase in Enumset works corretly") {
       }
       THEN("The has method returns true for 9 keys") {
         for (size_t i = 1; i < 10; i++) {
-          REQUIRE(set.has(Test(i)) == true);
+          REQUIRE(set.has(test(i)) == true);
         }
       }
     }
@@ -422,24 +426,25 @@ SCENARIO("The method erase in Enumset works corretly") {
 
 SCENARIO("The method clear in Enumset works corretly") {
   GIVEN("Enumset with capacity 12, and it has 11 keys") {
-    typedef enum _Test {
-      Test1 = 1,
-      Test2 = 2,
-      Test3 = 3,
-      Test4 = 4,
-      Test5 = 5,
-      Test6 = 6,
-      Test7 = 7,
-      Test8 = 8,
-      Test9 = 9,
-      Test10 = 10,
-      Test11 = 11,
-      Test12 = 12,
-    } Test;
+    enum Test {
+      test1 = 1,
+      test2 = 2,
+      test3 = 3,
+      test4 = 4,
+      test5 = 5,
+      test6 = 6,
+      test7 = 7,
+      test8 = 8,
+      test9 = 9,
+      test10 = 10,
+      test11 = 11,
+      test12 = 12,
+    };
+    using test = enum Test;
 
-    PF::Util::Containers::EnumSet<Test, 12> set;
+    PF::Util::Containers::EnumSet<test, 12> set;
     for (size_t i = 1; i < 12; i++) {
-      auto in_status = set.input(Test(i));
+      auto in_status = set.input(test(i));
       REQUIRE(in_status == PF::IndexStatus::ok);
     }
 
@@ -447,7 +452,7 @@ SCENARIO("The method clear in Enumset works corretly") {
       set.clear();
       THEN("The has method returns false for 11 keys") {
         for (size_t i = 0; i < 13; i++) {
-          REQUIRE(set.has(Test(i)) == false);
+          REQUIRE(set.has(test(i)) == false);
         }
       }
       THEN("The max_size method reports, Enumset has 12 capacity") {
