@@ -32,8 +32,7 @@ SCENARIO("The method initializer list in EnumMap works corretly") {
       test4 = 4,
       test5 = 5,
     };
-    using test = enum Test;
-    PF::Util::Containers::EnumMap<test, uint32_t, 11> map{
+    PF::Util::Containers::EnumMap<Test, uint32_t, 11> map{
         {test1, 1}, {test2, 2}, {test3, 3}, {test4, 4}};
     WHEN("The input method is used on EnumMap") {
       auto status = map.input(test5, 5);
@@ -58,12 +57,12 @@ SCENARIO("The method initializer list in EnumMap works corretly") {
       }
       THEN("The has method returns true for 5 keys") {
         for (size_t i = 1; i < 6; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("After input method, operator method returns expected sequence of data") {
         for (size_t i = 1; i < 6; i++) {
-          REQUIRE(map.operator[](test(i)) == i);
+          REQUIRE(map.operator[](Test(i)) == i);
         }
       }
     }
@@ -102,12 +101,12 @@ SCENARIO("The method initializer list in EnumMap works corretly") {
       }
       THEN("The has method returns true for 4 keys") {
         for (size_t i = 1; i < 5; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("After output method, operator method returns expected data") {
         for (size_t i = 1; i < 5; i++) {
-          REQUIRE(map.operator[](test(i)) == i);
+          REQUIRE(map.operator[](Test(i)) == i);
         }
       }
     }
@@ -137,13 +136,13 @@ SCENARIO("The method initializer list in EnumMap works corretly") {
       }
       THEN("The has method returns true for 3 keys") {
         for (size_t i = 1; i < 4; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The has method returns false for 4th key") { REQUIRE(map.has(test4) == false); }
       THEN("After erase method, operator method returns expected data") {
         for (size_t i = 1; i < 4; i++) {
-          REQUIRE(map.operator[](test(i)) == i);
+          REQUIRE(map.operator[](Test(i)) == i);
         }
       }
     }
@@ -151,7 +150,7 @@ SCENARIO("The method initializer list in EnumMap works corretly") {
       map.clear();
       THEN("The has method returns false for 11 keys") {
         for (size_t i = 1; i < 12; i++) {
-          REQUIRE(map.has(test(i)) == false);
+          REQUIRE(map.has(Test(i)) == false);
         }
       }
       THEN("The max_size method reports, EnumMap has capacity 11") {
@@ -184,11 +183,10 @@ SCENARIO("The input method in EnumMap works correctly") {
       test11 = 11,
       test12 = 12,
     };
-    using test = enum Test;
-    PF::Util::Containers::EnumMap<test, uint32_t, 11> map;
+    PF::Util::Containers::EnumMap<Test, uint32_t, 11> map;
     WHEN("The input method is called on given EnumMap for 8 key-value pair") {
       for (size_t i = 1; i <= 8; i++) {
-        auto in_status = map.input(test(i), i);
+        auto in_status = map.input(Test(i), i);
 
         THEN("The input method returns ok status for 8 key-value pairs") {
           REQUIRE(in_status == PF::IndexStatus::ok);
@@ -214,7 +212,7 @@ SCENARIO("The input method in EnumMap works correctly") {
       }
       THEN("The has method returns true for 8 keys") {
         for (size_t i = 1; i < 9; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The has method returns false for 9th and 10th key") {
@@ -223,7 +221,7 @@ SCENARIO("The input method in EnumMap works correctly") {
       }
       THEN("The EnumMap has expected 8 sequence of key-value pair") {
         for (size_t i = 1; i < 9; i++) {
-          REQUIRE(map.operator[](test(i)) == i);
+          REQUIRE(map.operator[](Test(i)) == i);
         }
       }
     }
@@ -243,10 +241,9 @@ SCENARIO("The input method in EnumMap works correctly") {
       test11 = 11,
       test12 = 12,
     };
-    using test = enum Test;
-    PF::Util::Containers::EnumMap<test, uint32_t, 11> map;
+    PF::Util::Containers::EnumMap<Test, uint32_t, 11> map;
     for (size_t i = 1; i <= 8; i++) {
-      auto in_status = map.input(test(i), i);
+      auto in_status = map.input(Test(i), i);
       REQUIRE(in_status == PF::IndexStatus::ok);
     }
     WHEN("The input method is called on 7th and 8th key-value pair") {
@@ -278,7 +275,7 @@ SCENARIO("The input method in EnumMap works correctly") {
       }
       THEN("The has method returns true for 8 keys ") {
         for (size_t i = 1; i < 9; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The has method returns false for 9th and 10th keys") {
@@ -287,7 +284,7 @@ SCENARIO("The input method in EnumMap works correctly") {
       }
       THEN("The EnumMap has expected 8 sequence of key-value pair") {
         for (size_t i = 1; i < 7; i++) {
-          REQUIRE(map.operator[](test(i)) == i);
+          REQUIRE(map.operator[](Test(i)) == i);
         }
         REQUIRE(map.operator[](test7) == 10);
         REQUIRE(map.operator[](test8) == 20);
@@ -295,7 +292,7 @@ SCENARIO("The input method in EnumMap works correctly") {
     }
     WHEN("The input method is used on  11th and 12th Key-value pair") {
       for (size_t i = 1; i < 9; i++) {
-        auto in_status = map.input(test(i), i);
+        auto in_status = map.input(Test(i), i);
         REQUIRE(in_status == PF::IndexStatus::ok);
       }
       auto in_status9 = map.input(test9, 9);
@@ -328,7 +325,7 @@ SCENARIO("The input method in EnumMap works correctly") {
       }
       THEN("The has method returns true for 10 keys") {
         for (size_t i = 1; i <= 10; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The has method returns false for  11th and 12th key") {
@@ -337,7 +334,7 @@ SCENARIO("The input method in EnumMap works correctly") {
       }
       THEN("The EnumMap has expected 10 sequqnce of key-value pair") {
         for (size_t i = 1; i < 11; i++) {
-          REQUIRE(map.operator[](test(i)) == i);
+          REQUIRE(map.operator[](Test(i)) == i);
         }
       }
     }
@@ -369,12 +366,12 @@ SCENARIO("The input method in EnumMap works correctly") {
       }
       THEN("The has method returns true for 8 keys") {
         for (size_t i = 1; i <= 8; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The EnumMap has expected 8 sequqnce of key-value pair") {
         for (size_t i = 3; i < 9; i++) {
-          REQUIRE(map.operator[](test(i)) == i);
+          REQUIRE(map.operator[](Test(i)) == i);
         }
         REQUIRE(map.operator[](test1) == 20);
         REQUIRE(map.operator[](test2) == 100);
@@ -390,8 +387,7 @@ SCENARIO("The input method in EnumMap works correctly for struct, ref and weird 
       test2,
       test3,
     };
-    using test = enum Test;
-    PF::Util::Containers::EnumMap<test, int32_t, 4> map;
+    PF::Util::Containers::EnumMap<Test, int32_t, 4> map;
     WHEN("The input method is called thrice for negative values") {
       auto in_status = map.input(test1, -10);
       auto in_status1 = map.input(test2, -100);
@@ -483,8 +479,7 @@ SCENARIO("The input method in EnumMap works correctly for struct, ref and weird 
       test2,
       test3,
     };
-    using test = enum Test;
-    PF::Util::Containers::EnumMap<test, uint32_t, 4> map;
+    PF::Util::Containers::EnumMap<Test, uint32_t, 4> map;
 
     WHEN("The input method is called thrice ,where value is passed by const reference") {
       uint8_t const& val1 = 12;
@@ -594,8 +589,7 @@ SCENARIO("The input method in EnumMap works correctly for struct and pointers") 
       test2,
       test3,
     };
-    using test = enum Test;
-    PF::Util::Containers::EnumMap<test, Result, 4> map;
+    PF::Util::Containers::EnumMap<Test, Result, 4> map;
 
     WHEN("The input method is called, where values are elemets of struct") {
       auto in_status = map.input(test1, val1);
@@ -653,8 +647,7 @@ SCENARIO("The input method in EnumMap works correctly for struct and pointers") 
       test2,
       test3,
     };
-    using test = enum Test;
-    PF::Util::Containers::EnumMap<test, uint32_t*, 4> map;
+    PF::Util::Containers::EnumMap<Test, uint32_t*, 4> map;
 
     WHEN("The input method is called, where values are pointers") {
       auto in_status = map.input(test1, val1);
@@ -716,10 +709,9 @@ SCENARIO("The method output in EnumMap works corretly") {
       test11 = 11,
       test12 = 12,
     };
-    using test = enum Test;
-    PF::Util::Containers::EnumMap<test, uint32_t, 12> map;
+    PF::Util::Containers::EnumMap<Test, uint32_t, 12> map;
     for (size_t i = 1; i < 10; i++) {
-      auto in_status = map.input(test(i), i);
+      auto in_status = map.input(Test(i), i);
       REQUIRE(in_status == PF::IndexStatus::ok);
     }
     WHEN("The output method is used on 1st and 8th key") {
@@ -756,7 +748,7 @@ SCENARIO("The method output in EnumMap works corretly") {
       }
       THEN("The has method returns true for 8 keys") {
         for (size_t i = 1; i < 10; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The has method returns false for 9th and 10 keys") {
@@ -765,7 +757,7 @@ SCENARIO("The method output in EnumMap works corretly") {
       }
       THEN("The EnumMap has expected 8 sequqnce of key-value pair") {
         for (size_t i = 1; i < 10; i++) {
-          REQUIRE(map.operator[](test(i)) == i);
+          REQUIRE(map.operator[](Test(i)) == i);
         }
       }
     }
@@ -798,7 +790,7 @@ SCENARIO("The method output in EnumMap works corretly") {
       }
       THEN("The has method returns true for 8 keys") {
         for (size_t i = 1; i < 10; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The has method returns false for 11th and 12th keys") {
@@ -807,7 +799,7 @@ SCENARIO("The method output in EnumMap works corretly") {
       }
       THEN("The EnumMap has expected 9 sequence of key-value pair") {
         for (size_t i = 1; i < 10; i++) {
-          REQUIRE(map.operator[](test(i)) == i);
+          REQUIRE(map.operator[](Test(i)) == i);
         }
       }
     }
@@ -846,7 +838,7 @@ SCENARIO("The method output in EnumMap works corretly") {
       }
       THEN("The has method returns true for 8 keys") {
         for (size_t i = 1; i < 8; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The has method returns false for 8th and 9th keys ") {
@@ -855,7 +847,7 @@ SCENARIO("The method output in EnumMap works corretly") {
       }
       THEN("The EnumMap has expected 7 sequence of key-value pair") {
         for (size_t i = 1; i < 8; i++) {
-          REQUIRE(map.operator[](test(i)) == i);
+          REQUIRE(map.operator[](Test(i)) == i);
         }
       }
     }
@@ -868,8 +860,7 @@ SCENARIO("The method output in EnumMap works corretly for ref variables") {
       test2 = 2,
       test3 = 3,
     };
-    using test = enum Test;
-    PF::Util::Containers::EnumMap<test, uint32_t, 4> map;
+    PF::Util::Containers::EnumMap<Test, uint32_t, 4> map;
     auto val1 = 10;
     auto val2 = 20;
     auto val3 = 50;
@@ -936,8 +927,7 @@ SCENARIO("The method output in EnumMap works corretly for ref variables") {
       test2 = 2,
       test3 = 3,
     };
-    using test = enum Test;
-    PF::Util::Containers::EnumMap<test, uint32_t, 4> map;
+    PF::Util::Containers::EnumMap<Test, uint32_t, 4> map;
     WHEN("The output method is called , where values of reference variables are changed") {
       uint32_t re1 = 20;
       uint32_t& val1 = re1;
@@ -1024,18 +1014,17 @@ SCENARIO("The method erase in EnumMap works corretly") {
       test11 = 11,
       test12 = 12,
     };
-    using test = enum Test;
 
-    PF::Util::Containers::EnumMap<test, uint32_t, 12> map;
+    PF::Util::Containers::EnumMap<Test, uint32_t, 12> map;
     for (size_t i = 1; i < 10; i++) {
-      auto in_status = map.input(test(i), i);
+      auto in_status = map.input(Test(i), i);
       REQUIRE(in_status == PF::IndexStatus::ok);
     }
 
     WHEN("The method erase is called on 4 keys") {
       for (size_t i = 1; i < 5; i++) {
         // std::cout<< "value" << i << std::endl;
-        auto erase_status = map.erase(test(i));
+        auto erase_status = map.erase(Test(i));
         THEN("The erase method returns ok status for 4 keys") {
           REQUIRE(erase_status == PF::IndexStatus::ok);
         }
@@ -1055,12 +1044,12 @@ SCENARIO("The method erase in EnumMap works corretly") {
       }
       THEN("The has method returns true for 9 keys") {
         for (size_t i = 5; i < 10; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The EnumMap has expected 5 sequqnce of key-value pair") {
         for (size_t i = 5; i < 10; i++) {
-          REQUIRE(map.operator[](test(i)) == i);
+          REQUIRE(map.operator[](Test(i)) == i);
         }
       }
     }
@@ -1086,12 +1075,12 @@ SCENARIO("The method erase in EnumMap works corretly") {
       }
       THEN("The has method returns 9 keys are present in EnumMap") {
         for (size_t i = 1; i < 10; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The EnumMap has expected 9 sequence of key-value pair") {
         for (size_t i = 1; i < 10; i++) {
-          REQUIRE(map.operator[](test(i)) == i);
+          REQUIRE(map.operator[](Test(i)) == i);
         }
       }
     }
@@ -1124,15 +1113,15 @@ SCENARIO("The method erase in EnumMap works corretly") {
       THEN("The has method returns true for 5 keys ") {
         for (size_t i = 1; i < 6; i++) {
           // std::cout<< "value" << i << std::endl;
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
         for (size_t i = 8; i < 10; i++) {
-          REQUIRE(map.has(test(i)) == false);
+          REQUIRE(map.has(Test(i)) == false);
         }
       }
       THEN("The EnumMap has expected 6 sequence of key-value pair") {
         for (size_t i = 1; i < 7; i++) {
-          REQUIRE(map.operator[](test(i)) == i);
+          REQUIRE(map.operator[](Test(i)) == i);
         }
       }
     }
@@ -1155,11 +1144,10 @@ SCENARIO("The method clear in EnumMap works corretly") {
       test11 = 11,
       test12 = 12,
     };
-    using test = enum Test;
 
-    PF::Util::Containers::EnumMap<test, uint32_t, 12> map;
+    PF::Util::Containers::EnumMap<Test, uint32_t, 12> map;
     for (size_t i = 1; i < 11; i++) {
-      auto in_status = map.input(test(i), i);
+      auto in_status = map.input(Test(i), i);
       REQUIRE(in_status == PF::IndexStatus::ok);
     }
 
@@ -1167,7 +1155,7 @@ SCENARIO("The method clear in EnumMap works corretly") {
       map.clear();
       THEN("The has method returns false for 10 keys") {
         for (size_t i = 0; i < 11; i++) {
-          REQUIRE(map.has(test(i)) == false);
+          REQUIRE(map.has(Test(i)) == false);
         }
       }
       THEN("The max_size method reports, EnumMap has capacity 12") {

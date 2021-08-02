@@ -32,8 +32,7 @@ SCENARIO("The method initializer list in OrderedMap works corretly") {
       test4 = 4,
       test5 = 5,
     };
-    using test = enum Test;
-    PF::Util::Containers::OrderedMap<test, uint32_t, 11> map{
+    PF::Util::Containers::OrderedMap<Test, uint32_t, 11> map{
         {test1, 0}, {test2, 1}, {test3, 2}, {test4, 3}};
     WHEN("The input method is used on OrderedMap") {
       auto status = map.input(test5, 4);
@@ -58,7 +57,7 @@ SCENARIO("The method initializer list in OrderedMap works corretly") {
       }
       THEN("The has method returns true for 5 keys") {
         for (size_t i = 1; i < 6; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("After input method, items method returns expected 5 sequence of data") {
@@ -103,7 +102,7 @@ SCENARIO("The method initializer list in OrderedMap works corretly") {
       }
       THEN("The has method returns true for 4 keys") {
         for (size_t i = 1; i < 5; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("After output method, items method returns expected 4 sequence of data") {
@@ -139,7 +138,7 @@ SCENARIO("The method initializer list in OrderedMap works corretly") {
       }
       THEN("The has method returns true for 3 keys") {
         for (size_t i = 1; i < 4; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The has method returns false for 4th key") { REQUIRE(map.has(test4) == false); }
@@ -154,7 +153,7 @@ SCENARIO("The method initializer list in OrderedMap works corretly") {
       map.clear();
       THEN("The has method returns false for 11 keys") {
         for (size_t i = 1; i < 12; i++) {
-          REQUIRE(map.has(test(i)) == false);
+          REQUIRE(map.has(Test(i)) == false);
         }
       }
       THEN("The max_size method reports, OrderedMap has capacity 11") {
@@ -192,11 +191,10 @@ SCENARIO("The input method in OrderedMap works correctly") {
       test13 = 13,
       test14 = 14,
     };
-    using test = enum Test;
-    PF::Util::Containers::OrderedMap<test, uint32_t, 11> map;
+    PF::Util::Containers::OrderedMap<Test, uint32_t, 11> map;
     WHEN("The input method is called on given OrderedMap for 8 key-value pair") {
       for (size_t i = 0; i < 8; i++) {
-        auto in_status = map.input(test(i), i);
+        auto in_status = map.input(Test(i), i);
 
         THEN("The input method returns ok status for 8 key-value pairs") {
           REQUIRE(in_status == PF::IndexStatus::ok);
@@ -222,7 +220,7 @@ SCENARIO("The input method in OrderedMap works correctly") {
       }
       THEN("The has method returns true for 8 keys") {
         for (size_t i = 0; i < 8; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The has method returns false for 9th and 10th key") {
@@ -255,10 +253,9 @@ SCENARIO("The input method in OrderedMap works correctly") {
       test13 = 13,
       test14 = 14,
     };
-    using test = enum Test;
-    PF::Util::Containers::OrderedMap<test, uint32_t, 11> map;
+    PF::Util::Containers::OrderedMap<Test, uint32_t, 11> map;
     for (size_t i = 0; i < 8; i++) {
-      auto in_status = map.input(test(i), i);
+      auto in_status = map.input(Test(i), i);
       REQUIRE(in_status == PF::IndexStatus::ok);
     }
 
@@ -291,7 +288,7 @@ SCENARIO("The input method in OrderedMap works correctly") {
       }
       THEN("The has method returns true for 8 keys ") {
         for (size_t i = 0; i < 8; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The has method returns false for 9th and 10th keys") {
@@ -336,7 +333,7 @@ SCENARIO("The input method in OrderedMap works correctly") {
       }
       THEN("The has method returns true for capacity-1 keys") {
         for (size_t i = 0; i < 11; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The has method returns false for capacity+3 key") { REQUIRE(map.has(test13) == false); }
@@ -375,7 +372,7 @@ SCENARIO("The input method in OrderedMap works correctly") {
       }
       THEN("The has method returns true for 8 keys") {
         for (size_t i = 0; i < 8; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("After input method, items method returns expected 8 sequence of data") {
@@ -398,8 +395,7 @@ SCENARIO("The input method in OrderedMap works correctly for struct, ref and wei
       test2,
       test3,
     };
-    using test = enum Test;
-    PF::Util::Containers::OrderedMap<test, int32_t, 4> map;
+    PF::Util::Containers::OrderedMap<Test, int32_t, 4> map;
     WHEN("The input method is called thrice for negative values") {
       auto in_status = map.input(test1, -10);
       auto in_status1 = map.input(test2, -100);
@@ -504,8 +500,7 @@ SCENARIO("The input method in OrderedMap works correctly for struct, ref and wei
       test2,
       test3,
     };
-    using test = enum Test;
-    PF::Util::Containers::OrderedMap<test, uint32_t, 4> map;
+    PF::Util::Containers::OrderedMap<Test, uint32_t, 4> map;
 
     WHEN("The input method is called thrice ,where value is passed by const reference") {
       uint8_t const& val1 = 12;
@@ -625,8 +620,7 @@ SCENARIO("The input method in OrderedMap works correctly for struct and pointers
       test2,
       test3,
     };
-    using test = enum Test;
-    PF::Util::Containers::OrderedMap<test, Result, 4> map;
+    PF::Util::Containers::OrderedMap<Test, Result, 4> map;
 
     WHEN("The input method is called, where values are elemets of struct") {
       auto in_status = map.input(test1, val1);
@@ -686,29 +680,28 @@ SCENARIO("The input method in OrderedMap works correctly for struct and pointers
       test2,
       test3,
     };
-    using test = enum Test;
-    PF::Util::Containers::OrderedMap<test, uint32_t*, 4> map;
+    PF::Util::Containers::OrderedMap<Test, uint32_t*, 4> map;
 
     WHEN("The input method is called, where values are pointers") {
       auto in_status = map.input(test1, val1);
       auto in_status1 = map.input(test2, val2);
       auto in_status2 = map.input(test3, val3);
       THEN("The items method returns expected value for first key") {
-        auto result = map.items()[0].second;
+        auto* result = map.items()[0].second;
         REQUIRE(result == val1);
       }
       THEN("The input method returns ok status for first key") {
         REQUIRE(in_status == PF::IndexStatus::ok);
       }
       THEN("The items method returns expected value for second key") {
-        auto result = map.items()[1].second;
+        auto* result = map.items()[1].second;
         REQUIRE(result == val2);
       }
       THEN("The input method returns ok status for second key") {
         REQUIRE(in_status1 == PF::IndexStatus::ok);
       }
       THEN("The items method returns expected value for third key") {
-        auto result = map.items()[2].second;
+        auto* result = map.items()[2].second;
         REQUIRE(result == val3);
       }
       THEN("The input method returns ok status for third key") {
@@ -753,10 +746,9 @@ SCENARIO("The method output in OrderedMap works corretly") {
       test11 = 11,
       test12 = 12,
     };
-    using test = enum Test;
-    PF::Util::Containers::OrderedMap<test, uint32_t, 12> map;
+    PF::Util::Containers::OrderedMap<Test, uint32_t, 12> map;
     for (size_t i = 0; i < 9; i++) {
-      auto in_status = map.input(test(i), i);
+      auto in_status = map.input(Test(i), i);
       REQUIRE(in_status == PF::IndexStatus::ok);
     }
     WHEN("The output method is used on 1st and 8th key") {
@@ -793,7 +785,7 @@ SCENARIO("The method output in OrderedMap works corretly") {
       }
       THEN("The has method returns true for 8 keys") {
         for (size_t i = 0; i < 9; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The has method returns false for capacity+1 and capacity+2 keys") {
@@ -836,7 +828,7 @@ SCENARIO("The method output in OrderedMap works corretly") {
       }
       THEN("The has method returns true for 8 keys") {
         for (size_t i = 0; i < 9; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The has method returns false for capacity and capacity+1 keys") {
@@ -885,7 +877,7 @@ SCENARIO("The method output in OrderedMap works corretly") {
       }
       THEN("The has method returns true for 8 keys") {
         for (size_t i = 0; i < 6; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("The has method returns false for 7th and 8th keys ") {
@@ -908,8 +900,7 @@ SCENARIO("The method output in OrderedMap works corretly for ref variables") {
       test2 = 2,
       test3 = 3,
     };
-    using test = enum Test;
-    PF::Util::Containers::OrderedMap<test, uint32_t, 4> map;
+    PF::Util::Containers::OrderedMap<Test, uint32_t, 4> map;
     auto val1 = 10;
     auto val2 = 20;
     auto val3 = 50;
@@ -978,8 +969,7 @@ SCENARIO("The method output in OrderedMap works corretly for ref variables") {
       test2 = 2,
       test3 = 3,
     };
-    using test = enum Test;
-    PF::Util::Containers::OrderedMap<test, uint32_t, 4> map;
+    PF::Util::Containers::OrderedMap<Test, uint32_t, 4> map;
     WHEN("The output method is called , where values of reference variables are changed") {
       uint32_t re1 = 20;
       uint32_t& val1 = re1;
@@ -1059,17 +1049,16 @@ SCENARIO("The method erase in OrderedMap works corretly") {
       test11 = 11,
       test12 = 12,
     };
-    using test = enum Test;
 
-    PF::Util::Containers::OrderedMap<test, uint32_t, 12> map;
+    PF::Util::Containers::OrderedMap<Test, uint32_t, 12> map;
     for (size_t i = 0; i < 9; i++) {
-      auto in_status = map.input(test(i), i);
+      auto in_status = map.input(Test(i), i);
       REQUIRE(in_status == PF::IndexStatus::ok);
     }
 
     WHEN("The method erase is called on 4 keys") {
       for (size_t i = 0; i < 4; i++) {
-        auto erase_status = map.erase(test(i));
+        auto erase_status = map.erase(Test(i));
         THEN("The erase method returns ok status for 4 keys") {
           REQUIRE(erase_status == PF::IndexStatus::ok);
         }
@@ -1089,7 +1078,7 @@ SCENARIO("The method erase in OrderedMap works corretly") {
       }
       THEN("The has method returns true for 9 keys") {
         for (size_t i = 4; i < 9; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("After the output methos, items method returns expected 5 sequnce of data") {
@@ -1127,7 +1116,7 @@ SCENARIO("The method erase in OrderedMap works corretly") {
       }
       THEN("The has method returns 9 keys are present in OrderedMap") {
         for (size_t i = 0; i < 9; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
       }
       THEN("After the output methos, items method returns expected 9 sequnce of data") {
@@ -1165,10 +1154,10 @@ SCENARIO("The method erase in OrderedMap works corretly") {
       }
       THEN("The has method returns true for 5 keys ") {
         for (size_t i = 0; i < 5; i++) {
-          REQUIRE(map.has(test(i)) == true);
+          REQUIRE(map.has(Test(i)) == true);
         }
         for (size_t i = 7; i < 10; i++) {
-          REQUIRE(map.has(test(i)) == false);
+          REQUIRE(map.has(Test(i)) == false);
         }
       }
       THEN("After the output methos, items method returns expected 7 sequnce of data") {
@@ -1197,11 +1186,10 @@ SCENARIO("The method clear in OrderedMap works corretly") {
       test11 = 11,
       test12 = 12,
     };
-    using test = enum Test;
 
-    PF::Util::Containers::OrderedMap<test, uint32_t, 12> map;
+    PF::Util::Containers::OrderedMap<Test, uint32_t, 12> map;
     for (size_t i = 1; i < 11; i++) {
-      auto in_status = map.input(test(i), i);
+      auto in_status = map.input(Test(i), i);
       REQUIRE(in_status == PF::IndexStatus::ok);
     }
 
@@ -1209,7 +1197,7 @@ SCENARIO("The method clear in OrderedMap works corretly") {
       map.clear();
       THEN("The has method returns false for 10 keys") {
         for (size_t i = 0; i < 11; i++) {
-          REQUIRE(map.has(test(i)) == false);
+          REQUIRE(map.has(Test(i)) == false);
         }
       }
       THEN("The max_size method reports, OrderedMap has capacity 12") {
