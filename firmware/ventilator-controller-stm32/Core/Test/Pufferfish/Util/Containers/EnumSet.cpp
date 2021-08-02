@@ -10,8 +10,6 @@
  *  This Set is designed for frequent lookups but doesn't support traversal.
  */
 
-#pragma once
-
 #include "Pufferfish/Util/Containers/EnumSet.h"
 
 #include <array>
@@ -26,7 +24,7 @@
 namespace PF = Pufferfish;
 SCENARIO("The method initializer list in Enumset works corretly") {
   GIVEN("An EnumSet constructed with capacity 11, is partially filled with 3 keys") {
-    typedef enum _test {
+    typedef enum Test {
       test1,
       test2,
       test3,
@@ -121,7 +119,7 @@ SCENARIO("The method initializer list in Enumset works corretly") {
 
 SCENARIO("The input method in Enumset works correctly") {
   GIVEN(" An empty EnumSet with capacity 12") {
-    typedef enum _test {
+    typedef enum Test {
       test1,
       test2,
       test3,
@@ -177,7 +175,7 @@ SCENARIO("The input method in Enumset works correctly") {
     }
   }
   GIVEN(" An empty EnumSet with capacity 12") {
-    typedef enum _test {
+    typedef enum Test {
       test1,
       test2,
       test3,
@@ -307,7 +305,7 @@ SCENARIO("The input method in Enumset works correctly") {
 
 SCENARIO("The method erase in Enumset works corretly") {
   GIVEN("EnumSet with capacity 12, and it has 11 keys") {
-    typedef enum _test {
+    typedef enum Test {
       test1,
       test2,
       test3,
@@ -427,7 +425,7 @@ SCENARIO("The method erase in Enumset works corretly") {
 
 SCENARIO("The method clear in Enumset works corretly") {
   GIVEN("Enumset with capacity 12, and it has 11 keys") {
-    typedef enum _test {
+    typedef enum Test {
       test1 = 1,
       test2 = 2,
       test3 = 3,
@@ -457,9 +455,6 @@ SCENARIO("The method clear in Enumset works corretly") {
       }
       THEN("The max_size method reports, Enumset has 12 capacity") {
         REQUIRE(set.max_size() == 12);
-      }
-      THEN("After the clear method, the size method reports size as 0 ") {
-        REQUIRE(set.size() == 0);
       }
       THEN("The avaliable method reports that 12 keys are avaliable") {
         REQUIRE(set.available() == 12);

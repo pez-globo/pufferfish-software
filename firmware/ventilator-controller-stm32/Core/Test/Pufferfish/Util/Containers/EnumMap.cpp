@@ -11,8 +11,6 @@
  *  This Map is designed for frequent lookups but doesn't support traversal.
  */
 
-#pragma once
-
 #include "Pufferfish/Util/Containers/EnumMap.h"
 
 #include <array>
@@ -27,7 +25,7 @@
 namespace PF = Pufferfish;
 SCENARIO("The method initializer list in EnumMap works corretly") {
   GIVEN("An EnumMap constructed with capacity 11, is partially filled with 4 bytes of data") {
-    typedef enum _test {
+    typedef enum Test {
       test1 = 1,
       test2 = 2,
       test3 = 3,
@@ -158,9 +156,6 @@ SCENARIO("The method initializer list in EnumMap works corretly") {
       THEN("The max_size method reports, EnumMap has capacity 11") {
         REQUIRE(map.max_size() == 11);
       }
-      THEN("After the clear method, the size method reports size as 0 ") {
-        REQUIRE(map.size() == 0);
-      }
       THEN("The avaliable method reports that 11 key-value pair are avaliable") {
         REQUIRE(map.available() == 11);
       }
@@ -174,7 +169,7 @@ SCENARIO("The method initializer list in EnumMap works corretly") {
 
 SCENARIO("The input method in EnumMap works correctly") {
   GIVEN("An empty EnumMap with capacity 11") {
-    typedef enum _test {
+    typedef enum Test {
       test1 = 1,
       test2 = 2,
       test3 = 3,
@@ -232,7 +227,7 @@ SCENARIO("The input method in EnumMap works correctly") {
     }
   }
   GIVEN("An empty EnumMap with capacity 11 and has 8 keys") {
-    typedef enum _test {
+    typedef enum Test {
       test1 = 1,
       test2 = 2,
       test3 = 3,
@@ -383,8 +378,10 @@ SCENARIO("The input method in EnumMap works correctly") {
       }
     }
   }
+}
+SCENARIO("The input method in EnumMap works correctly for struct, ref and weird values") {
   GIVEN("An empty EnumMap with capacity 4") {
-    typedef enum _test {
+    typedef enum Test {
       test1,
       test2,
       test3,
@@ -476,7 +473,7 @@ SCENARIO("The input method in EnumMap works correctly") {
     }
   }
   GIVEN("An empty EnumMap with capacity 4") {
-    typedef enum _test {
+    typedef enum Test {
       test1,
       test2,
       test3,
@@ -573,23 +570,23 @@ SCENARIO("The input method in EnumMap works correctly") {
     }
   }
   GIVEN("An empty EnumMap with capacity 4") {
-    struct Test {
+    struct Result {
       int val;
     };
 
-    Test val1{121};
-    Test val2{02};
-    Test val3{898};
+    Result val1{121};
+    Result val2{02};
+    Result val3{898};
     // val1.val = 121;
     // val2.val = 2;
     // val3.val = 65;
 
-    typedef enum _test {
+    typedef enum Test {
       test1,
       test2,
       test3,
     } test;
-    PF::Util::Containers::EnumMap<test, Test, 4> map;
+    PF::Util::Containers::EnumMap<test, Result, 4> map;
 
     WHEN("The input method is called, where values are elemets of struct") {
       auto in_status = map.input(test1, val1);
@@ -635,17 +632,17 @@ SCENARIO("The input method in EnumMap works correctly") {
     }
   }
   GIVEN("An empty EnumMap with capacity 4") {
-    uint32_t* val1;
+    uint32_t* val1 = 0;
     uint32_t var1 = 10;
     val1 = &var1;
-    uint32_t* val2;
+    uint32_t* val2 = 0;
     uint32_t var2 = 56;
     val2 = &var2;
-    uint32_t* val3;
+    uint32_t* val3 = 0;
     uint32_t var3 = 28;
     val3 = &var3;
 
-    typedef enum _test {
+    typedef enum Test {
       test1,
       test2,
       test3,
@@ -698,7 +695,7 @@ SCENARIO("The input method in EnumMap works correctly") {
 }
 SCENARIO("The method output in EnumMap works corretly") {
   GIVEN("An empty EnumMap with capacity 12") {
-    typedef enum _test {
+    typedef enum Test {
       test1 = 1,
       test2 = 2,
       test3 = 3,
@@ -856,7 +853,7 @@ SCENARIO("The method output in EnumMap works corretly") {
     }
   }
   GIVEN("An empty EnumMap with capacity 3") {
-    typedef enum _test {
+    typedef enum Test {
       test1 = 1,
       test2 = 2,
       test3 = 3,
@@ -871,8 +868,11 @@ SCENARIO("The method output in EnumMap works corretly") {
 
     WHEN("The output method is called  where value of two keys are changed") {
       val1 = 12;
+      REQUIRE(val1 == 12);
       val2 = 15;
+      REQUIRE(val2 == 15);
       val3 = 100;
+      REQUIRE(val3 == 100);
       uint32_t x = 0;
       uint32_t& ref = x;
       uint32_t y = 0;
@@ -920,7 +920,7 @@ SCENARIO("The method output in EnumMap works corretly") {
     }
   }
   GIVEN("An empty EnumMap with capacity 3") {
-    typedef enum _test {
+    typedef enum Test {
       test1 = 1,
       test2 = 2,
       test3 = 3,
@@ -937,8 +937,11 @@ SCENARIO("The method output in EnumMap works corretly") {
       map.input(test2, val2);
       map.input(test3, val3);
       re1 = 15;
+      REQUIRE(re1 == 15);
       re2 = 25;
+      REQUIRE(re2 == 25);
       re3 = 35;
+      REQUIRE(re3 == 35);
 
       THEN("The output method returns ok status for 1st key") {
         uint32_t x = 0;
@@ -995,7 +998,7 @@ SCENARIO("The method output in EnumMap works corretly") {
 
 SCENARIO("The method erase in EnumMap works corretly") {
   GIVEN("Partially filled EnumMap with capacity 12 and has 9 keys") {
-    typedef enum _test {
+    typedef enum Test {
       test1 = 1,
       test2 = 2,
       test3 = 3,
@@ -1125,7 +1128,7 @@ SCENARIO("The method erase in EnumMap works corretly") {
 
 SCENARIO("The method clear in EnumMap works corretly") {
   GIVEN("An partially filled EnumMap with capacity 12 and 11 keys") {
-    typedef enum _test {
+    typedef enum Test {
       test1 = 1,
       test2 = 2,
       test3 = 3,
@@ -1156,7 +1159,6 @@ SCENARIO("The method clear in EnumMap works corretly") {
       THEN("The max_size method reports, EnumMap has capacity 12") {
         REQUIRE(map.max_size() == 12);
       }
-      THEN("After the input, the size method reports size as 0 ") { REQUIRE(map.size() == 0); }
       THEN("The avaliable method reports that 12 key-value pair are avaliable") {
         REQUIRE(map.available() == 12);
       }

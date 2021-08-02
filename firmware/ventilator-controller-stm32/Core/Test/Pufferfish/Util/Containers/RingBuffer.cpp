@@ -6,8 +6,6 @@
  *
  *
  * */
-#pragma once
-
 #include "Pufferfish/Util/Containers/RingBuffer.h"
 
 #include <cstring>
@@ -433,6 +431,8 @@ SCENARIO("Volatile RingBuffer works correctly") {
       }
     }
   }
+}
+SCENARIO("Volatile RingBuffer works correctly for differfent combinations") {
   GIVEN(
       "A RingBuffer with capacity 6 to which 2 bytes of data were pushed and 1 byte was poped and "
       "1 bytes were pushed") {  // [0^][1*][][][]
@@ -1239,6 +1239,8 @@ SCENARIO("Non-volatile RingBuffer works correctly") {
       }
     }
   }
+}
+SCENARIO("Non-Volatile RingBuffer works correctly for differfent combinations") {
   GIVEN(
       "A RingBuffer with capacity 6 to which 2 bytes of data were pushed and 1 byte was poped and "
       "1 bytes were pushed") {  // [0^][1*][][][]
