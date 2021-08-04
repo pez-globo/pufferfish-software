@@ -53,7 +53,7 @@ class Sensor : public Initializable {
 
   size_t retry_count_ = 0;
   Device device_;
-  ABPSample sample_{};
+  Sample sample_{};
   StateMachine fsm_;
   Action next_action_ = Action::initialize;
 

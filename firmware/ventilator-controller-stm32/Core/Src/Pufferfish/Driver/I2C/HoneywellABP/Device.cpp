@@ -20,7 +20,7 @@
 
 namespace Pufferfish::Driver::I2C::HoneywellABP {
 
-I2CDeviceStatus Device::read_sample(ABPSample &sample) {
+I2CDeviceStatus Device::read_sample(Sample &sample) {
   std::array<uint8_t, 2> data{{0, 0}};
   I2CDeviceStatus ret = dev_.read(data.data(), data.size());
   if (ret != I2CDeviceStatus::ok) {

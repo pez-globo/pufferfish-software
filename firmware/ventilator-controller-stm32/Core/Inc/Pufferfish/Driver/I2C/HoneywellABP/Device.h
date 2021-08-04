@@ -29,7 +29,7 @@ class Device {
    * @param sample[out] the sensor reading; only valid on success
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus read_sample(ABPSample &sample);
+  I2CDeviceStatus read_sample(Sample &sample);
 
  private:
   Pufferfish::HAL::Interfaces::I2CDevice &dev_;

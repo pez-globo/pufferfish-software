@@ -38,7 +38,7 @@ struct ABPConfig {
 /**
  * All data in a reading from the Honeywell ABP pressure sensor.
  */
-struct ABPSample {
+struct Sample {
   ABPStatus status;
   uint16_t bridge_data;
   float pressure;
