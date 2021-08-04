@@ -25,6 +25,8 @@ class StateMachine {
   [[nodiscard]] Action update(uint32_t current_time);
 
  private:
+  // the measuring duration is in correlation with hfnc controlloop duration
+  // this should be changed relative to that.
   static const uint32_t measuring_duration = 1;  // ms
 
   Action next_action_ = Action::initialize;
