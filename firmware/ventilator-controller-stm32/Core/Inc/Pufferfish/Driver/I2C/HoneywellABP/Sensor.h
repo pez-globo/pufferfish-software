@@ -20,7 +20,7 @@ namespace Pufferfish::Driver::I2C::HoneywellABP {
  */
 class StateMachine {
  public:
-  enum class Action { initialize, measure, wait_measurement };
+  enum class Action { initialize, check_range, measure, wait_measurement };
 
   [[nodiscard]] Action update(uint32_t current_time);
 
@@ -60,6 +60,7 @@ class Sensor : public Initializable {
   HAL::Interfaces::Time &time_;
 
   InitializableState initialize(uint32_t current_time);
+  InitializableState check_range(uint32_t current_time);
   InitializableState measure(uint32_t current_time, float &output);
 };
 
