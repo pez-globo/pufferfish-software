@@ -32,8 +32,6 @@ class Device {
   I2CDeviceStatus read_sample(Sample &sample);
 
  private:
-  Pufferfish::HAL::Interfaces::I2CDevice &dev_;
-
   static const uint8_t status_shift = 6;
   // sensor 14-bit output range
   static const uint16_t output_min = 0x0666;  // 10% of 2^14
@@ -43,6 +41,8 @@ class Device {
   const float pmin;  // minimum pressure
   const float pmax;  // maximum pressure
   const PressureUnit unit;
+
+  Pufferfish::HAL::Interfaces::I2CDevice &dev_;
 };
 
 }  // namespace Pufferfish::Driver::I2C::HoneywellABP
