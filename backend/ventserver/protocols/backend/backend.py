@@ -22,7 +22,8 @@ class ExternalLogEvent(events.Event):
     set to None for non-alarm events.
     """
 
-    time: float = attr.ib()
+    wall_time: float = attr.ib()
+    monotonic_time: float = attr.ib()
     code: mcu_pb.LogEventCode = attr.ib()
     active: Optional[bool] = attr.ib(default=None)
 
@@ -39,7 +40,8 @@ class AlarmMuteCancellationEvent(events.Event):
     the firmware, until the firmware reconnects.
     """
 
-    time: float = attr.ib()
+    wall_time: float = attr.ib()
+    monotonic_time: float = attr.ib()
     source: mcu_pb.AlarmMuteSource = attr.ib()
 
     def has_data(self) -> bool:
@@ -77,7 +79,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
     _buffer: channels.DequeChannel[ReceiveEvent] = attr.ib(
         factory=channels.DequeChannel
     )
-    current_time: float = attr.ib(default=0)
+    wall_time: float = attr.ib(default=0)
+    monotonic_time: float = attr.ib(default=0)
     store: states.Store = attr.ib()
 
     # State Synchronizers
@@ -137,10 +140,14 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
 
     def _update_clock(self, event: ReceiveEvent) -> None:
         """Handle any clock update."""
-        if event.time is None:
+        if event.wall_time is None:
             return
 
-        self.current_time = event.time
+        self.wall_time = event.wall_time
+        # The backend receive filter doesn't need to know about the event's
+        # monotonic time - monotonic time is only needed by
+        # self._state_synchronizers, and the backend receive filter forwards
+        # the event to self._state_synchronizers anyways.
 
     def _handle_local_log_event(self, event: ExternalLogEvent) -> None:
         """Handle any locally-generated log events.
@@ -155,18 +162,21 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
 
         if event.active is None:
             self._local_alarms.input(log.LocalLogInputEvent(
-                current_time=self.current_time, new_event=mcu_pb.LogEvent(
+                wall_time=self.wall_time, new_event=mcu_pb.LogEvent(
                     code=event.code, type=event_type
                 )
             ))
         elif event.active:
             self._local_alarms.input(alarms.AlarmActivationEvent(
-                current_time=self.current_time,
+                wall_time=self.wall_time,
+                monotonic_time=self.monotonic_time,
                 code=event.code, event_type=event_type
             ))
         else:
             self._local_alarms.input(alarms.AlarmDeactivationEvent(
-                current_time=self.current_time, codes=[event.code]
+                wall_time=self.wall_time,
+                monotonic_time=self.monotonic_time,
+                codes=[event.code]
             ))
         self._event_log_receiver.input(self._local_alarms.output())
 
@@ -184,7 +194,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             self.store[states.StateSegment.ACTIVE_LOG_EVENTS_MCU]
         )
         self._event_log_receiver.input(log.ReceiveInputEvent(
-            source=log.EventSource.MCU, current_time=self.current_time,
+            source=log.EventSource.MCU, wall_time=self.wall_time,
             next_log_events=next_log_events, active_log_events=active_log_events
         ))
 
@@ -257,7 +267,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             alarm_mute.active = False
             alarm_mute.source = event.source
             self._local_alarms.input(log.LocalLogInputEvent(
-                current_time=self.current_time, new_event=mcu_pb.LogEvent(
+                wall_time=self.wall_time, new_event=mcu_pb.LogEvent(
                     code=log_event_code,
                     type=mcu_pb.LogEventType.system
                 )

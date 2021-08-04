@@ -41,7 +41,15 @@ ConnectionEvent = Union[MCUConnectionEvent, FrontendConnectionEvent]
 class ReceiveDataEvent(events.Event):
     """Server receive input event."""
 
-    time: Optional[float] = attr.ib(default=None)
+    # This is the system's "wall clock" time, which may jump backwards or
+    # forwards when the system time is adjusted. It should only be used for
+    # recording timestamps intended to be read by people.
+    wall_time: Optional[float] = attr.ib(default=None)
+    # This is the system's monotonic time, which always increases at the same
+    # rate regardless of adjustments to system time. Anything which needs to
+    # compute the duration of elapsed time since some instant should use the
+    # monotonic time.
+    monotonic_time: Optional[float] = attr.ib(default=None)
     serial_receive: Optional[bytes] = attr.ib(default=None)
     websocket_receive: Optional[bytes] = attr.ib(default=None)
     rotary_encoder_receive: Tuple[int, bool] = attr.ib(default=None)
@@ -50,7 +58,8 @@ class ReceiveDataEvent(events.Event):
     def has_data(self) -> bool:
         """Return whether the event has data."""
         return (
-            self.time is not None
+            self.wall_time is not None
+            or self.monotonic_time is not None
             or bool(self.serial_receive)
             or self.websocket_receive is not None
             or self.rotary_encoder_receive is not None
@@ -93,26 +102,35 @@ class SendOutputEvent(events.Event):
 
 def make_serial_receive(
         serial_receive: bytes,
-        time: float
+        wall_time: float, monotonic_time: Optional[float],
 ) -> ReceiveDataEvent:
     """Make a ReceiveDataEvent from serial receive data."""
-    return ReceiveDataEvent(serial_receive=serial_receive, time=time)
+    return ReceiveDataEvent(
+        serial_receive=serial_receive,
+        wall_time=wall_time, monotonic_time=monotonic_time
+    )
 
 
 def make_websocket_receive(
         ws_receive: bytes,
-        time: float
+        wall_time: float, monotonic_time: Optional[float]
 ) -> ReceiveDataEvent:
     """Make a ReceiveDataEvent from websocket receive data."""
-    return ReceiveDataEvent(websocket_receive=ws_receive, time=time)
+    return ReceiveDataEvent(
+        websocket_receive=ws_receive,
+        wall_time=wall_time, monotonic_time=monotonic_time
+    )
 
 
 def make_rotary_encoder_receive(
         re_receive: Tuple[int, bool],
-        time: float
+        wall_time: float, monotonic_time: Optional[float]
 ) -> ReceiveDataEvent:
     """Make a ReceiveDataEvent from rotary encoder receive data."""
-    return ReceiveDataEvent(rotary_encoder_receive=re_receive, time=time)
+    return ReceiveDataEvent(
+        rotary_encoder_receive=re_receive,
+        wall_time=wall_time, monotonic_time=monotonic_time
+    )
 
 
 # Filters
@@ -127,7 +145,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     _buffer: channels.DequeChannel[ReceiveEvent] =\
         attr.ib(factory=channels.DequeChannel)
 
-    current_time: float = attr.ib(default=0)
+    wall_time: float = attr.ib(default=0)
+    monotonic_time: float = attr.ib(default=0)
     _backend: backend.ReceiveFilter = attr.ib(factory=backend.ReceiveFilter)
 
     # Devices
@@ -156,7 +175,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         any_updated = self._process_devices()
         if not any_updated:
             self._backend.input(backend.ReceiveDataEvent(
-                time=self.current_time
+                wall_time=self.wall_time, monotonic_time=self.monotonic_time
             ))
         # Process backend output until the backend has data to output or it
         # indicates that it has no more receive data to process.
@@ -187,7 +206,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
                 else connections.Update.MCU_DISCONNECTED
             )
             self._connections.input(connections.UpdateEvent(
-                current_time=self.current_time, type=update_type
+                monotonic_time=self.monotonic_time,
+                type=update_type
             ))
             return
 
@@ -197,19 +217,22 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
                 else connections.Update.FRONTEND_DISCONNECTED
             )
             self._connections.input(connections.UpdateEvent(
-                current_time=self.current_time, type=update_type
+                monotonic_time=self.monotonic_time,
+                type=update_type
             ))
             return
 
-        if event.time is not None:
-            self.current_time = event.time
+        if event.wall_time is not None:
+            self.wall_time = event.wall_time
+        if event.monotonic_time is not None:
+            self.monotonic_time = event.monotonic_time
             self._connections.input(connections.UpdateEvent(
-                current_time=self.current_time
+                monotonic_time=self.monotonic_time
             ))
         self._mcu.input(event.serial_receive)
         self._frontend.input(event.websocket_receive)
         self._rotary_encoder.input(rotary_encoder.ReceiveEvent(
-            time=self.current_time, re_data=event.rotary_encoder_receive
+            wall_time=self.wall_time, re_data=event.rotary_encoder_receive
         ))
         self._file.input(event.file_receive)
 
@@ -220,20 +243,23 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             return False
 
         self._backend.input(backend.ReceiveDataEvent(
-            time=self.current_time, mcu_receive=mcu_output,
-            frontend_receive=None
+            wall_time=self.wall_time, monotonic_time=self.monotonic_time,
+            mcu_receive=mcu_output, frontend_receive=None
         ))
         self._connections.input(connections.UpdateEvent(
-            current_time=self.current_time, type=connections.Update.MCU_RECEIVED
+            monotonic_time=self.monotonic_time,
+            type=connections.Update.MCU_RECEIVED
         ))
         if not self._connection_states.has_mcu:
             self._backend.input(backend.ExternalLogEvent(
-                time=self.current_time, active=False,
+                wall_time=self.wall_time, monotonic_time=self.monotonic_time,
+                active=False,
                 code=mcu_pb.LogEventCode.backend_mcu_connection_down
             ))
             self._connection_states.has_mcu = True
             self._backend.input(backend.ReceiveDataEvent(
-                time=self.current_time, server_receive=self._connection_states
+                wall_time=self.wall_time, monotonic_time=self.monotonic_time,
+                server_receive=self._connection_states
             ))
         return True
 
@@ -244,24 +270,27 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             return False
 
         self._backend.input(backend.ReceiveDataEvent(
-            time=self.current_time, frontend_receive=frontend_output
+            wall_time=self.wall_time, monotonic_time=self.monotonic_time,
+            frontend_receive=frontend_output
         ))
         self._connections.input(connections.UpdateEvent(
-            current_time=self.current_time,
+            monotonic_time=self.monotonic_time,
             type=connections.Update.FRONTEND_RECEIVED
         ))
         if not self._connection_states.has_frontend:
             self._backend.input(backend.ExternalLogEvent(
-                time=self.current_time, active=False,
+                wall_time=self.wall_time, monotonic_time=self.monotonic_time,
+                active=False,
                 code=mcu_pb.LogEventCode.backend_frontend_connection_down
             ))
             self._backend.input(backend.ExternalLogEvent(
-                time=self.current_time,
+                wall_time=self.wall_time, monotonic_time=self.monotonic_time,
                 code=mcu_pb.LogEventCode.backend_frontend_connection_up
             ))
             self._connection_states.has_frontend = True
             self._backend.input(backend.ReceiveDataEvent(
-                time=self.current_time, server_receive=self._connection_states
+                wall_time=self.wall_time, monotonic_time=self.monotonic_time,
+                server_receive=self._connection_states
             ))
         return True
 
@@ -272,7 +301,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             return False
 
         self._backend.input(backend.ReceiveDataEvent(
-            time=self.current_time, frontend_receive=rotary_encoder_output
+            wall_time=self.wall_time, monotonic_time=self.monotonic_time,
+            frontend_receive=rotary_encoder_output
         ))
         return True
 
@@ -283,7 +313,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             return False
 
         self._backend.input(backend.ReceiveDataEvent(
-            time=self.current_time, file_receive=file_output
+            wall_time=self.wall_time, monotonic_time=self.monotonic_time,
+            file_receive=file_output
         ))
         return True
 
@@ -307,12 +338,14 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         actions = self._connections.output()
         if actions.alarm_mcu:
             self._backend.input(backend.ExternalLogEvent(
-                time=self.current_time, active=True,
+                wall_time=self.wall_time, monotonic_time=self.monotonic_time,
+                active=True,
                 code=mcu_pb.LogEventCode.backend_mcu_connection_down
             ))
             self._connection_states.has_mcu = False
             self._backend.input(backend.ReceiveDataEvent(
-                time=self.current_time, server_receive=self._connection_states
+                wall_time=self.wall_time, monotonic_time=self.monotonic_time,
+                server_receive=self._connection_states
             ))
             # The backend should temporarily override any active alarm mute by
             # cancelling it in case local alarm sounds need to be audible in the
@@ -324,17 +357,19 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             # when it reconnects, but the MCU will also cancel any active alarm
             # mute in the MCU, so the alarm mute is still cancelled.
             self._backend.input(backend.AlarmMuteCancellationEvent(
-                time=self.current_time,
+                wall_time=self.wall_time, monotonic_time=self.monotonic_time,
                 source=mcu_pb.AlarmMuteSource.backend_mcu_loss
             ))
         if actions.alarm_frontend:
             self._backend.input(backend.ExternalLogEvent(
-                time=self.current_time, active=True,
+                wall_time=self.wall_time, monotonic_time=self.monotonic_time,
+                active=True,
                 code=mcu_pb.LogEventCode.backend_frontend_connection_down
             ))
             self._connection_states.has_frontend = False
             self._backend.input(backend.ReceiveDataEvent(
-                time=self.current_time, server_receive=self._connection_states
+                wall_time=self.wall_time, monotonic_time=self.monotonic_time,
+                server_receive=self._connection_states
             ))
             # We don't need to request an alarm mute cancellation from the
             # MCU, because the MCU already cancels the alarm mute when the
@@ -348,7 +383,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         This is just a convenience function intended for writing unit tests
         more concisely.
         """
-        self.input(make_serial_receive(serial_receive, self.current_time))
+        self.input(make_serial_receive(
+            serial_receive, self.wall_time, self.monotonic_time
+        ))
 
     def input_websocket(self, websocket: bytes) -> None:
         """Input a ReceiveDataEvent corresponding to websocket data.
@@ -356,7 +393,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         This is just a convenience function intended for writing unit tests
         more concisely.
         """
-        self.input(make_websocket_receive(websocket, self.current_time))
+        self.input(make_websocket_receive(
+            websocket, self.wall_time, self.monotonic_time
+        ))
 
     @property
     def backend(self) -> backend.ReceiveFilter:

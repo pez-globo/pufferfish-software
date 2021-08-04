@@ -105,7 +105,7 @@ async def service_requests(
     )
 
     while True:
-        simulated_log.input(log.LocalLogInputEvent(current_time=time.time()))
+        simulated_log.input(log.LocalLogInputEvent(wall_time=time.time()))
         parameters_services.transform(store, simulated_log)
         alarm_limits_services.transform(store, simulated_log)
         service_event_log(
@@ -137,11 +137,11 @@ async def simulate_states(
     prev_audible_alarms = False
 
     while True:
-        simulated_log.input(log.LocalLogInputEvent(current_time=time.time()))
-        simulation_services.transform(time.time(), store)
+        simulated_log.input(log.LocalLogInputEvent(wall_time=time.time()))
+        simulation_services.transform(time.time(), time.monotonic(), store)
         power_service.transform(store, simulated_log)
         alarms_services.transform(store, simulated_log)
-        alarm_mute_service.transform(time.time(), store, simulated_log)
+        alarm_mute_service.transform(time.monotonic(), store, simulated_log)
         audible_alarms = (
             len(active_log_events.id) > 0 and not alarm_mute_.active
         )

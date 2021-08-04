@@ -22,7 +22,8 @@ class AlarmActivationEvent(events.Event):
     event_type: mcu_pb.LogEventType = attr.ib()
     lower_limit: int = attr.ib(default=0)
     upper_limit: int = attr.ib(default=0)
-    current_time: Optional[float] = attr.ib(default=None)
+    wall_time: Optional[float] = attr.ib(default=None)
+    monotonic_time: Optional[float] = attr.ib(default=None)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
@@ -33,7 +34,8 @@ class AlarmActivationEvent(events.Event):
 class AlarmDeactivationEvent(events.Event):
     """Alarm deactivation event."""
 
-    current_time: Optional[float] = attr.ib(default=None)
+    wall_time: Optional[float] = attr.ib(default=None)
+    monotonic_time: Optional[float] = attr.ib(default=None)
     codes: Collection[mcu_pb.LogEventCode] = attr.ib(factory=list)
 
     def has_data(self) -> bool:
@@ -57,7 +59,8 @@ class Manager(protocols.Filter[InputEvent, log.ReceiveInputEvent]):
 
     debouncers: Dict[mcu_pb.LogEventCode, debouncing.Debouncer] = \
         attr.ib(factory=dict)
-    current_time: float = attr.ib(default=0)  # s
+    wall_time: float = attr.ib(default=0)  # s
+    monotonic_time: float = attr.ib(default=0)  # s
     _event_log: log.LocalLogSource = attr.ib(factory=log.LocalLogSource)
     _new_events: List[mcu_pb.LogEvent] = attr.ib(factory=list)
     _active_alarm_ids: Dict[mcu_pb.LogEventCode, int] = attr.ib(factory=dict)
@@ -67,8 +70,11 @@ class Manager(protocols.Filter[InputEvent, log.ReceiveInputEvent]):
         if event is None:
             return
 
-        if event.current_time is not None:
-            self.current_time = event.current_time
+        if event.wall_time is not None:
+            self.wall_time = event.wall_time
+        monotonic_time = getattr(event, 'monotonic_time', None)
+        if monotonic_time is not None:
+            self.monotonic_time = monotonic_time
         if not event.has_data():
             return
 
@@ -87,7 +93,7 @@ class Manager(protocols.Filter[InputEvent, log.ReceiveInputEvent]):
         """Process an alarm activation event input."""
         if event.code in self.debouncers:
             self.debouncers[event.code].input(debouncing.Input(
-                current_time=self.current_time, signal=True
+                monotonic_time=self.monotonic_time, signal=True
             ))
             if not self.debouncers[event.code].output():
                 return
@@ -96,7 +102,7 @@ class Manager(protocols.Filter[InputEvent, log.ReceiveInputEvent]):
             return
 
         self._event_log.input(log.LocalLogInputEvent(
-            current_time=self.current_time, active=True,
+            wall_time=self.wall_time, active=True,
             new_event=mcu_pb.LogEvent(
                 code=event.code, type=event.event_type,
                 alarm_limits=mcu_pb.Range(
@@ -110,7 +116,7 @@ class Manager(protocols.Filter[InputEvent, log.ReceiveInputEvent]):
         for code in event.codes:
             if code in self.debouncers:
                 self.debouncers[code].input(debouncing.Input(
-                    current_time=self.current_time, signal=False
+                    monotonic_time=self.monotonic_time, signal=False
                 ))
                 if not self.debouncers[code].output():
                     self._active_alarm_ids.pop(code, None)
@@ -120,7 +126,7 @@ class Manager(protocols.Filter[InputEvent, log.ReceiveInputEvent]):
     def output(self) -> Optional[log.ReceiveInputEvent]:
         """Emit the next output event."""
         output = log.ReceiveInputEvent(
-            source=self.SOURCE, current_time=self.current_time,
+            source=self.SOURCE, wall_time=self.wall_time,
             next_log_events=mcu_pb.NextLogEvents(elements=self._new_events),
             active_log_events=mcu_pb.ActiveLogEvents(
                 id=list(self._active_alarm_ids.values())

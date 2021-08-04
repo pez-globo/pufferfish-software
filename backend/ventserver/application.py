@@ -111,7 +111,9 @@ async def main() -> None:
     await initialize_states_from_file(store, protocol, filehandler)
 
     # Initialize time
-    protocol.receive.input(server.ReceiveDataEvent(time=time.time()))
+    protocol.receive.input(server.ReceiveDataEvent(
+        wall_time=time.time(), monotonic_time=time.monotonic()
+    ))
 
     try:
         async with channel.push_endpoint:

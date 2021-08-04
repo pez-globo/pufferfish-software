@@ -168,7 +168,8 @@ SERVER_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
 class ReceiveEvent(events.Event):
     """Store synchronizers receive event."""
 
-    time: Optional[float] = attr.ib(default=None)
+    wall_time: Optional[float] = attr.ib(default=None)
+    monotonic_time: Optional[float] = attr.ib(default=None)
     mcu_receive: Optional[mcu.UpperEvent] = attr.ib(default=None)
     frontend_receive: Optional[frontend.UpperEvent] = attr.ib(default=None)
     file_receive: Optional[mcu.UpperEvent] = attr.ib(default=None)
@@ -177,7 +178,8 @@ class ReceiveEvent(events.Event):
     def has_data(self) -> bool:
         """Return whether the event has data."""
         return (
-            self.time is not None
+            self.wall_time is not None
+            or self.monotonic_time is not None
             or self.mcu_receive is not None
             or self.frontend_receive is not None
             or self.server_receive is not None
@@ -229,7 +231,7 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
     _frontend_state_sender: states.TimedSender[Sender] = attr.ib()
     _file_state_sender: states.TimedSender[Sender] = attr.ib()
 
-    _current_time: Optional[float] = attr.ib(default=None)
+    _wall_time: Optional[float] = attr.ib(default=None)
 
     # Periodic state sending, for testing
     # _period_start_time: Optional[float] = attr.ib(default=None)
@@ -325,10 +327,10 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             return
 
         # Update sender clocks
-        self._current_time = event.time
-        self._mcu_state_sender.input(event.time)
-        self._frontend_state_sender.input(event.time)
-        self._file_state_sender.input(event.time)
+        self._wall_time = event.wall_time
+        self._mcu_state_sender.input(event.monotonic_time)
+        self._frontend_state_sender.input(event.monotonic_time)
+        self._file_state_sender.input(event.monotonic_time)
 
         # Handle inbound state segments
         # We directly input states into store, instead of passing them in
@@ -336,10 +338,10 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
         # generate outputs.
         # if (
         #         event.mcu_receive is not None and
-        #         self._current_time is not None
+        #         self._wall_time is not None
         # ):
         #     fractional_time = \
-        #         int((self._current_time - int(self._current_time)) * 1000)
+        #         int((self._wall_time - int(self._wall_time)) * 1000)
         #     print('{:3d}\t{}'.format(
         #         fractional_time, MCU_INPUT_TYPES[type(event.mcu_receive)]
         #     ))
@@ -359,10 +361,10 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             # Only send events to mcu for part of the time, for testing
             # if (
             #         self._period_start_time is None and
-            #         self._current_time is not None and
-            #         self._current_time > 0
+            #         self._wall_time is not None and
+            #         self._wall_time > 0
             # ):
-            #     self._period_start_time = self._current_time
+            #     self._period_start_time = self._wall_time
             #     self._sending_mcu = not self._sending_mcu
             #     self._logger.warning(
             #         '%sending events to mcu for %s s!',
@@ -370,9 +372,9 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             #         self.SEND_PERIOD
             #     )
             # if (
-            #         self._current_time is not None and
+            #         self._wall_time is not None and
             #         self._period_start_time is not None and
-            #         self._current_time > (
+            #         self._wall_time > (
             #             self._period_start_time + self.SEND_PERIOD
             #         )
             # ):
@@ -387,10 +389,10 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             # Only send events to frontend for part of the time, for testing
             # if (
             #         self._period_start_time is None and
-            #         self._current_time is not None and
-            #         self._current_time > 0
+            #         self._wall_time is not None and
+            #         self._wall_time > 0
             # ):
-            #     self._period_start_time = self._current_time
+            #     self._period_start_time = self._wall_time
             #     self._sending_frontend = not self._sending_frontend
             #     self._logger.warning(
             #         '%sending events to frontend for %s s!',
@@ -398,9 +400,9 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             #         self.SEND_PERIOD
             #     )
             # if (
-            #         self._current_time is not None and
+            #         self._wall_time is not None and
             #         self._period_start_time is not None and
-            #         self._current_time > (
+            #         self._wall_time > (
             #             self._period_start_time + self.SEND_PERIOD
             #         )
             # ):
@@ -411,10 +413,10 @@ class Synchronizers(protocols.Filter[ReceiveEvent, SendEvent]):
             # Print output, for debugging
             # if (
             #         output_event.frontend_send is not None and
-            #         self._current_time is not None
+            #         self._wall_time is not None
             # ):
             #     fractional_time = \
-            #         int((self._current_time - int(self._current_time)) * 1000)
+            #         int((self._wall_time - int(self._wall_time)) * 1000)
             #     print('{:3d}\t{}'.format(
             #         fractional_time, type(output_event.frontend_send)
             #     ))

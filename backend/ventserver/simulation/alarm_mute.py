@@ -29,7 +29,7 @@ class Service:
     # TODO: also allow canceling alarm mute upon loss of connection, maybe with
     # an AlarmMute client (rather than a service)
     def transform(
-            self, current_time: float,
+            self, monotonic_time: float,
             store: Mapping[states.StateSegment, Optional[betterproto.Message]],
             events_log: alarms.Manager
     ) -> None:
@@ -46,41 +46,44 @@ class Service:
             store[states.StateSegment.BACKEND_CONNECTIONS]
         )
         self.transform_mute(
-            current_time, alarm_mute_request, alarm_mute, events_log
+            monotonic_time, alarm_mute_request, alarm_mute, events_log
         )
         if (
                 backend_connections is not None and
                 not backend_connections.has_frontend
         ):
             self.transform_mute_internal(
-                current_time, False,
+                monotonic_time, False,
                 mcu_pb.AlarmMuteSource.backend_frontend_loss,
                 alarm_mute, events_log
             )
 
     def transform_mute(
-            self, current_time: float,
+            self, monotonic_time: float,
             request: mcu_pb.AlarmMuteRequest, response: mcu_pb.AlarmMute,
             events_log: alarms.Manager
     ) -> None:
         """Implement alarm muting."""
         if request.seq_num == self.seq_num + 1:
             self._update_internal_state(
-                request.active, current_time, request.source, events_log
+                request.active, monotonic_time, request.source,
+                events_log
             )
-        self._update_response(current_time, response, events_log)
+        self._update_response(monotonic_time, response, events_log)
 
     def transform_mute_internal(
-            self, current_time: float, mute: bool,
-            source: mcu_pb.AlarmMuteSource,
+            self, monotonic_time: float,
+            mute: bool, source: mcu_pb.AlarmMuteSource,
             response: mcu_pb.AlarmMute, events_log: alarms.Manager
     ) -> None:
         """Implement alarm muting."""
-        self._update_internal_state(mute, current_time, source, events_log)
-        self._update_response(current_time, response, events_log)
+        self._update_internal_state(
+            mute, monotonic_time, source, events_log
+        )
+        self._update_response(monotonic_time, response, events_log)
 
     def _update_internal_state(
-            self, active: bool, current_time: float,
+            self, active: bool, monotonic_time: float,
             source: mcu_pb.AlarmMuteSource, events_log: alarms.Manager
     ) -> None:
         """Update internal state."""
@@ -91,7 +94,7 @@ class Service:
         self.active = active
         self.source = source
         if active:
-            self.mute_start_time = current_time * 1000
+            self.mute_start_time = monotonic_time * 1000
             if source == mcu_pb.AlarmMuteSource.user_software:
                 log_event_code = mcu_pb.LogEventCode.alarms_muted_user_software
             else:
@@ -126,27 +129,27 @@ class Service:
         )))
 
     def _update_response(
-            self, current_time: float, response: mcu_pb.AlarmMute,
+            self, monotonic_time: float, response: mcu_pb.AlarmMute,
             events_log: alarms.Manager
     ) -> None:
         """Update response based on internal state."""
         response.active = self.active
         response.seq_num = self.seq_num
         response.source = self.source
-        self._update_remaining(current_time, response)
+        self._update_remaining(monotonic_time, response)
         if response.remaining > 0:
             return
 
         self._update_internal_state(
-            False, current_time, mcu_pb.AlarmMuteSource.timeout, events_log
+            False, monotonic_time, mcu_pb.AlarmMuteSource.timeout, events_log
         )
         response.active = self.active
         response.seq_num = self.seq_num
         response.source = self.source
-        self._update_remaining(current_time, response)
+        self._update_remaining(monotonic_time, response)
 
     def _update_remaining(
-            self, current_time: float, response: mcu_pb.AlarmMute
+            self, monotonic_time: float, response: mcu_pb.AlarmMute
     ) -> None:
         """Update remaining field of response based on internal state."""
         if not self.active:
@@ -154,7 +157,7 @@ class Service:
             return
 
         if self.mute_start_time is None:
-            self.mute_start_time = current_time * 1000
-        mute_duration = current_time * 1000 - self.mute_start_time
+            self.mute_start_time = monotonic_time * 1000
+        mute_duration = monotonic_time * 1000 - self.mute_start_time
         remaining = self.MUTE_MAX_DURATION - int(mute_duration)
         response.remaining = max(0, min(remaining, self.MUTE_MAX_DURATION))

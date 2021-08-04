@@ -23,7 +23,8 @@ SENSOR_UPDATE_INTERVAL = 2
 class Service:
     """Base class for a breathing circuit simulator."""
 
-    current_time: float = attr.ib(default=0)  # ms after initial_time
+    wall_time: float = attr.ib(default=0)  # ms after initial_time
+    monotonic_time: float = attr.ib(default=0)  # ms after initial_time
     previous_time: float = attr.ib(default=0)  # ms after initial_time
     initial_time: float = attr.ib(default=time.time() * 1000)  # ms, Unix time
 
@@ -47,14 +48,15 @@ class Service:
     @property
     def _time_step(self) -> float:
         """Compute the time step."""
-        return self.current_time - self.previous_time
+        return self.monotonic_time - self.previous_time
 
     # Update methods
 
-    def update_clock(self, current_time: float) -> None:
+    def update_clock(self, wall_time: float, monotonic_time: float) -> None:
         """Update the internal state for timing."""
-        self.previous_time = self.current_time
-        self.current_time = current_time * 1000 - self.initial_time
+        self.wall_time = wall_time
+        self.previous_time = self.monotonic_time
+        self.monotonic_time = monotonic_time * 1000 - self.initial_time
 
     def transform_sensors(
             self, parameters: mcu_pb.Parameters,
@@ -111,13 +113,13 @@ class PCAC(Service):
         if parameters.mode != mcu_pb.VentilationMode.pc_ac:
             return
 
-        sensor_measurements.time = int(self.current_time)
+        sensor_measurements.time = int(self.monotonic_time)
         cycle_period = 60000 / parameters.rr
-        if self.current_time - self.cycle_start_time > cycle_period:
+        if self.monotonic_time - self.cycle_start_time > cycle_period:
             self._init_cycle(cycle_period, parameters, sensor_measurements)
             self._transform_cycle_measurements(parameters, cycle_measurements)
 
-        if self.current_time - self.cycle_start_time < self.insp_period:
+        if self.monotonic_time - self.cycle_start_time < self.insp_period:
             self._transform_airway_inspiratory(parameters, sensor_measurements)
         else:
             self._transform_airway_expiratory(parameters, sensor_measurements)
@@ -128,7 +130,7 @@ class PCAC(Service):
             sensor_measurements: mcu_pb.SensorMeasurements
     ) -> None:
         """Initialize at the start of the cycle."""
-        self.cycle_start_time = self.current_time
+        self.cycle_start_time = self.monotonic_time
         sensor_measurements.flow = self.insp_init_flow_rate
         sensor_measurements.volume = 0
         self.insp_period = cycle_period / (1 + 1 / parameters.ie)
@@ -209,7 +211,7 @@ class HFNC(Service):
         if parameters.mode != mcu_pb.VentilationMode.hfnc:
             return
 
-        sensor_measurements.time = int(self.current_time)
+        sensor_measurements.time = int(self.wall_time)
 
         self._transform_flow(parameters, sensor_measurements)
         self._transform_fio2(parameters, sensor_measurements)
@@ -272,7 +274,7 @@ class HFNC(Service):
 
     def _init_cycle(self) -> None:
         """Initialize at the start of the cycle."""
-        self.cycle_start_time = self.current_time
+        self.cycle_start_time = self.monotonic_time
 
 
 # Aggregation
@@ -289,7 +291,7 @@ class Services:
     }
 
     def transform(
-            self, current_time: float, store: Mapping[
+            self, wall_time: float, monotonic_time: float, store: Mapping[
                 states.StateSegment, Optional[betterproto.Message]
             ],
     ) -> None:
@@ -311,7 +313,7 @@ class Services:
             mcu_pb.CycleMeasurements,
             store[states.StateSegment.CYCLE_MEASUREMENTS]
         )
-        self._active_service.update_clock(current_time)
+        self._active_service.update_clock(wall_time, monotonic_time)
         self._active_service.transform(
             parameters, sensor_measurements, cycle_measurements
         )

@@ -12,7 +12,7 @@ from ventserver.sansio import protocols
 class Input(events.Event):
     """Debouncing input event."""
 
-    current_time: float = attr.ib()
+    monotonic_time: float = attr.ib()
     signal: bool = attr.ib(default=False)
 
     def has_data(self) -> bool:
@@ -42,11 +42,11 @@ class Debouncer(protocols.Filter[Input, bool]):
 
         if (
                 self._last_sample is not None and
-                event.current_time - self._last_sample < self.sample_interval
+                event.monotonic_time - self._last_sample < self.sample_interval
         ):
             return
 
-        self._last_sample = event.current_time
+        self._last_sample = event.monotonic_time
 
         if not event.signal and self._integrator > 0:
             self._integrator -= 1

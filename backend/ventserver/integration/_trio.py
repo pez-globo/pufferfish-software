@@ -200,7 +200,7 @@ async def process_io_receive(
         ],
         protocol: server.Protocol,
         receive_event_maker: Callable[
-            [_ReceiveOutputType, float], server.ReceiveEvent
+            [_ReceiveOutputType, float, float], server.ReceiveEvent
         ],
         channel: triochannels.TrioChannel[server.ReceiveOutputEvent],
         push_endpoint: 'trio.MemorySendChannel[server.ReceiveOutputEvent]'
@@ -220,7 +220,9 @@ async def process_io_receive(
     """
     async with push_endpoint:
         async for receive in io_endpoint.receive_all():
-            protocol.receive.input(receive_event_maker(receive, time.time()))
+            protocol.receive.input(receive_event_maker(
+                receive, time.time(), time.monotonic()
+            ))
             await process_protocol_receive_output(protocol, channel)
 
 
@@ -232,7 +234,7 @@ async def process_io_persistently(
         ],
         protocol: server.Protocol,
         receive_event_maker: Callable[
-            [_ReceiveOutputType, float], server.ReceiveEvent
+            [_ReceiveOutputType, float, float], server.ReceiveEvent
         ],
         nursery: trio.Nursery,
         channel: triochannels.TrioChannel[server.ReceiveOutputEvent],
@@ -284,7 +286,9 @@ async def process_clock(
     """Process all clock updates, forever."""
     async with push_endpoint:
         while True:
-            protocol.receive.input(server.ReceiveDataEvent(time=time.time()))
+            protocol.receive.input(server.ReceiveDataEvent(
+                wall_time=time.time(), monotonic_time=time.monotonic()
+            ))
             await process_protocol_receive_output(protocol, channel)
             await trio.sleep(clock_update_interval)
 
