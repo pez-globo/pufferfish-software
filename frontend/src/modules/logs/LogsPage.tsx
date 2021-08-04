@@ -90,6 +90,7 @@ const useStyles = makeStyles(() =>
     eventType: {
       width: '10rem',
       boxShadow: 'none !important',
+      borderRadius: 8,
       padding: '2px 2rem !important',
       border: 'none',
       color: '#fff',
@@ -191,7 +192,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   /**
    * State to manage rows per page
    */
-  const [rowsPerPage, setRowsPerPage] = React.useState(9);
+  const [rowsPerPage, setRowsPerPage] = React.useState(8);
   /**
    * State to manage opening of LogsPage modal
    */
@@ -283,17 +284,27 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
    * @returns {object} some description
    *
    */
-  const typeColor = (type: LogEventType | undefined) => {
+  const typeColor = (type: LogEventType | undefined, status: number | undefined) => {
     switch (type) {
       case LogEventType.patient:
-        return { backgroundColor: '#FF3B30' };
+        return status
+          ? { border: `4px solid #FF3B30`, backgroundColor: '#FF3B30' }
+          : {
+              border: `4px solid #FF3B30`,
+              backgroundColor: 'transparent',
+            };
       case LogEventType.system:
-        return { backgroundColor: '#E68619' };
+        return status
+          ? { border: `4px solid #E68619`, backgroundColor: '#E68619' }
+          : { border: `4px solid #E68619`, backgroundColor: 'transparent' };
       case LogEventType.control:
       case LogEventType.alarm_limits:
-        return { backgroundColor: theme.palette.primary.main };
+        return {
+          border: `4px solid ${theme.palette.primary.main}`,
+          backgroundColor: 'transparent',
+        };
       default:
-        return { backgroundColor: '#E68619' };
+        return { border: `4px solid #E68619`, backgroundColor: 'transparent' };
     }
   };
 
@@ -376,7 +387,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
                   <Button
                     variant="contained"
                     className={classes.eventType}
-                    style={typeColor(row.type)}
+                    style={typeColor(row.type, row.status)}
                   >
                     {getEventTypeLabel(row.type)}
                   </Button>
@@ -437,7 +448,11 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
         showCloseIcon={true}
         label={
           <Grid container direction="row" justify="space-around" alignItems="center">
-            <Grid xs={2} className={classes.typeWrapper2} style={typeColor(currentRow?.type)}>
+            <Grid
+              xs={2}
+              className={classes.typeWrapper2}
+              style={typeColor(currentRow?.type, currentRow?.status)}
+            >
               {getEventTypeLabel(currentRow?.type as LogEventType)}
             </Grid>
             <Grid xs={9}>

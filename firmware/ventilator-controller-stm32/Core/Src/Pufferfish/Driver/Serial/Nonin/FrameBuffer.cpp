@@ -23,54 +23,43 @@
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
-BufferStatus FrameBuffer::input(const uint8_t byte) {
-  /* Validate the frame buffer is already full */
+FrameBufferStatus FrameBuffer::input(const uint8_t byte) {
   if (received_length_ == frame_max_size) {
-    return BufferStatus::full;
-  }
-  /* Update the frameBuffer with new byte received */
-  frame_buffer_[received_length_] = byte;
-
-  /* Increment the frame buffer index */
-  received_length_++;
-
-  /* On frame index is equal to frame size reture frame status as Ok */
-  if (received_length_ == frame_max_size) {
-    return BufferStatus::ok;
+    return FrameBufferStatus::full;
   }
 
-  /* Return the frame buffer status as partial and frame buffer should be
-   * updated with new bytes */
-  return BufferStatus::partial;
+  frame_[received_length_] = byte;
+  ++received_length_;
+
+  if (received_length_ == frame_max_size) {
+    return FrameBufferStatus::ok;
+  }
+
+  return FrameBufferStatus::waiting;
 }
 
-BufferStatus FrameBuffer::output(Frame &frame) {
-  /* Check for available of frame */
+FrameBufferStatus FrameBuffer::output(Frame &frame) {
   if (received_length_ != frame_max_size) {
-    /* Return frame buffer is partial update */
-    return BufferStatus::partial;
+    return FrameBufferStatus::waiting;
   }
-  /* Update the frame buffer */
-  frame = frame_buffer_;
+  frame = frame_;
 
-  /* Return ok on frame buffer updated */
-  return BufferStatus::ok;
+  return FrameBufferStatus::ok;
 }
 
 void FrameBuffer::reset() {
-  /* Update the index of frame buffer to zero */
   received_length_ = 0;
 }
 
 void FrameBuffer::shift_left() {
-  /* On no frame data available frameBuffer and frameIndex are not updated */
-  if (received_length_ > 0) {
-    /* Update the frame buffer and index to receive new byte data */
-    for (size_t index = 0; index < static_cast<size_t>(received_length_ - 1); index++) {
-      frame_buffer_[index] = frame_buffer_[index + 1];
-    }
-    received_length_--;
+  if (received_length_ == 0) {
+    return;
   }
+
+  for (size_t index = 0; index < (received_length_ - 1); ++index) {
+    frame_[index] = frame_[index + 1];
+  }
+  --received_length_;
 }
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

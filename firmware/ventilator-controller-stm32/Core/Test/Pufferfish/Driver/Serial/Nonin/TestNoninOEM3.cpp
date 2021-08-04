@@ -26,23 +26,22 @@
 namespace PF = Pufferfish;
 using PF::Util::Containers::make_array;
 
-PF::Driver::Serial::Nonin::Device::PacketStatus waiting_status =
-    PF::Driver::Serial::Nonin::Device::PacketStatus::waiting;
+PF::Driver::Serial::Nonin::PacketStatus waiting_status =
+    PF::Driver::Serial::Nonin::PacketStatus::waiting;
 
-PF::Driver::Serial::Nonin::Device::PacketStatus available_status =
-    PF::Driver::Serial::Nonin::Device::PacketStatus::available;
+PF::Driver::Serial::Nonin::PacketStatus ok_status = PF::Driver::Serial::Nonin::PacketStatus::ok;
 
-PF::Driver::Serial::Nonin::Device::PacketStatus missed_data_status =
-    PF::Driver::Serial::Nonin::Device::PacketStatus::missed_data;
+PF::Driver::Serial::Nonin::PacketStatus frame_loss_status =
+    PF::Driver::Serial::Nonin::PacketStatus::frame_loss;
 
-PF::Driver::Serial::Nonin::Device::PacketStatus framing_error_status =
-    PF::Driver::Serial::Nonin::Device::PacketStatus::framing_error;
+PF::Driver::Serial::Nonin::PacketStatus checksum_failed_status =
+    PF::Driver::Serial::Nonin::PacketStatus::checksum_failed;
 
 SCENARIO("No input data received from BufferedUART", "[NoninOEM3]") {
   PF::HAL::Mock::ReadOnlyBufferedUART mock_uart;
   PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
-  PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
-  PF::Driver::Serial::Nonin::Device::PacketStatus return_status;
+  PF::Driver::Serial::Nonin::Sample sensor_measurements{};
+  PF::Driver::Serial::Nonin::PacketStatus return_status;
 
   GIVEN("Input data received from BufferedUART is empty") {
     WHEN("Device::output is invoked") {
@@ -57,8 +56,8 @@ SCENARIO("No input data received from BufferedUART", "[NoninOEM3]") {
 SCENARIO("Complete packet is not available", "[NoninOEM3]") {
   PF::HAL::Mock::ReadOnlyBufferedUART mock_uart;
   PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
-  PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
-  PF::Driver::Serial::Nonin::Device::PacketStatus return_status;
+  PF::Driver::Serial::Nonin::Sample sensor_measurements{};
+  PF::Driver::Serial::Nonin::PacketStatus return_status;
 
   GIVEN("4 bytes of BufferedUART data") {
     auto uart_data = make_array<uint8_t>(0x01, 0x81, 0x00, 0x00);
@@ -153,9 +152,9 @@ SCENARIO("Complete packet is not available", "[NoninOEM3]") {
       for (index = 0; index < 9; index++) {
         nonin_uart.output(sensor_measurements);
       }
-      THEN("return_status of Device::output shall be framing_error on checksum error") {
+      THEN("return_status of Device::output shall be checksum_failed on checksum error") {
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == framing_error_status);
+        REQUIRE(return_status == checksum_failed_status);
       }
     }
   }
@@ -200,9 +199,9 @@ SCENARIO("Complete packet is not available", "[NoninOEM3]") {
       for (index = 0; index < 9; index++) {
         nonin_uart.output(sensor_measurements);
       }
-      THEN("return_status of Device::output shall be framing_error on status byte error") {
+      THEN("return_status of Device::output shall be checksum_failed on status byte error") {
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == framing_error_status);
+        REQUIRE(return_status == checksum_failed_status);
       }
     }
   }
@@ -211,8 +210,8 @@ SCENARIO("Complete packet is not available", "[NoninOEM3]") {
 SCENARIO("Validate the Nonin OEM III with invalid data received from BufferedUART") {
   PF::HAL::Mock::ReadOnlyBufferedUART mock_uart;
   PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
-  PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
-  PF::Driver::Serial::Nonin::Device::PacketStatus return_status;
+  PF::Driver::Serial::Nonin::Sample sensor_measurements{};
+  PF::Driver::Serial::Nonin::PacketStatus return_status;
   GIVEN("Valid 24 frames with 23 Frames of first packet and 1 frame of second packet ") {
     auto uart_data = make_array<uint8_t>(
         0x01,
@@ -358,8 +357,8 @@ SCENARIO("Validate the Nonin OEM III with invalid data received from BufferedUAR
       for (index = 115; index < 120; index++) {
         return_status = nonin_uart.output(sensor_measurements);
       }
-      THEN("shall return missed_data due to loss of 2 frames") {
-        REQUIRE(return_status == missed_data_status);
+      THEN("shall return frame_loss due to loss of 2 frames") {
+        REQUIRE(return_status == frame_loss_status);
       }
     }
   }
@@ -500,8 +499,8 @@ SCENARIO("Validate NoninOEM3 for valid packet data", "[NoninOEM3]") {
       mock_uart.set_read(uart_data[index]);
     }
     PF::Driver::Serial::Nonin::Device nonin_uart(mock_uart);
-    PF::Driver::Serial::Nonin::PacketMeasurements sensor_measurements{};
-    PF::Driver::Serial::Nonin::Device::PacketStatus return_status;
+    PF::Driver::Serial::Nonin::Sample sensor_measurements{};
+    PF::Driver::Serial::Nonin::PacketStatus return_status;
 
     WHEN("Device::output is invoked for 124 bytes valid bytes read") {
       THEN("Device::output shall return waiting status") {
@@ -510,7 +509,7 @@ SCENARIO("Validate NoninOEM3 for valid packet data", "[NoninOEM3]") {
           REQUIRE(return_status == waiting_status);
         }
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == available_status);
+        REQUIRE(return_status == ok_status);
       }
     }
     AND_WHEN("return_status for valid 124 bytes data is waiting") {
@@ -519,18 +518,18 @@ SCENARIO("Validate NoninOEM3 for valid packet data", "[NoninOEM3]") {
       }
       THEN("invoke the nonin_uart to read 125th byte data") {
         return_status = nonin_uart.output(sensor_measurements);
-        REQUIRE(return_status == available_status);
-        REQUIRE(sensor_measurements.heart_rate == 72);
-        REQUIRE(sensor_measurements.heart_rate_d == 72);
-        REQUIRE(sensor_measurements.e_heart_rate == 72);
-        REQUIRE(sensor_measurements.e_heart_rate_d == 72);
+        REQUIRE(return_status == ok_status);
+        REQUIRE(sensor_measurements.hr == 72);
+        REQUIRE(sensor_measurements.hr_d == 72);
+        REQUIRE(sensor_measurements.e_hr == 72);
+        REQUIRE(sensor_measurements.e_hr_d == 72);
         REQUIRE(sensor_measurements.spo2 == 97);
         REQUIRE(sensor_measurements.spo2_d == 97);
         REQUIRE(sensor_measurements.e_spo2 == 97);
         REQUIRE(sensor_measurements.e_spo2_d == 97);
-        REQUIRE(sensor_measurements.spo2_d_beat == 97);
-        REQUIRE(sensor_measurements.spo2_d_fast == 97);
-        REQUIRE(sensor_measurements.nonin_oem_revision == 48);
+        REQUIRE(sensor_measurements.spo2_b_b == 97);
+        REQUIRE(sensor_measurements.spo2_fast == 97);
+        REQUIRE(sensor_measurements.firmware_revision == 48);
       }
     }
   }

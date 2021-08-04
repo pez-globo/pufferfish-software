@@ -23,65 +23,44 @@
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
-Device::PacketStatus Device::output(PacketMeasurements &sensor_measurements) {
+PacketStatus Device::output(Sample &sensor_measurements) {
   uint8_t read_byte = 0;
   Frame frame_buffer;
 
-  /* Read a byte from BufferedUART */
   if (nonin_uart_.read(read_byte) == BufferStatus::empty) {
-    /* Return waiting to receive new bytes of data from sensor */
     return PacketStatus::waiting;
   }
 
-  /* FrameReceiver */
-  /* Input byte to frame receiver and validate the frame available */
   switch (frame_receiver_.input(read_byte)) {
-    /* Return sensor status is waiting to receive more bytes of data */
-    case FrameReceiver::FrameInputStatus::framing_error:
-      return PacketStatus::framing_error;
-
-    /* Return sensor status is waiting to receive more bytes of data */
-    case FrameReceiver::FrameInputStatus::waiting:
+    case FrameInputStatus::checksum_failed:
+      return PacketStatus::checksum_failed;
+    case FrameInputStatus::ok:
       return PacketStatus::waiting;
-
-    /* On PacketInputStatus available continue */
-    case FrameReceiver::FrameInputStatus::available:
+    case FrameInputStatus::output_ready:
       break;
   }
 
-  /* On frame input available invoke output method to receive frame */
-  if (frame_receiver_.output(frame_buffer) == FrameReceiver::FrameOutputStatus::waiting) {
-    /* Return sensor status is waiting to receive more bytes of data */
+  if (frame_receiver_.output(frame_buffer) == FrameOutputStatus::waiting) {
     return PacketStatus::waiting;
   }
 
-  /* PaketParser */
-  /* Input frame to packet and validate the frame available */
   switch (packet_receiver_.input(frame_buffer)) {
-    /* Return sensor status is waiting to receive more frames of data */
-    case PacketReceiver::PacketInputStatus::waiting:
+    case PacketInputStatus::waiting:
       return PacketStatus::waiting;
-
-    /* Discard the packet due to status byte error, wait for the new packet to
-     * receive */
-    case PacketReceiver::PacketInputStatus::missed_data:
-      return PacketStatus::missed_data;
-
-    /* On PacketInputStatus available continue */
-    case PacketReceiver::PacketInputStatus::available:
+    case PacketInputStatus::frame_loss:
+      return PacketStatus::frame_loss;
+    case PacketInputStatus::output_ready:
       break;
   }
 
-  /* On packet input available invoke output method to read sensor measurements
-   */
-  if (packet_receiver_.output(sensor_measurements) !=
-      PacketReceiver::PacketOutputStatus::available) {
-    /* Return sensor status is waiting to receive more bytes of data */
-    return PacketStatus::waiting;
+  switch (packet_receiver_.output(sensor_measurements)) {
+    case PacketOutputStatus::waiting:
+      return PacketStatus::waiting;
+    case PacketOutputStatus::ok:
+      break;
   }
 
-  /* Return available on measurements are available */
-  return PacketStatus::available;
+  return PacketStatus::ok;
 }
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

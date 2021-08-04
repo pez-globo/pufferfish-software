@@ -27,15 +27,18 @@
 
 #include "Pufferfish/HAL/Types.h"
 #include "Pufferfish/Statuses.h"
+#include "Types.h"
+
+namespace Pufferfish::Driver::Serial::Nonin {
 
 /* Frame */
-const uint8_t frame_max_size = 5;
 using Frame = std::array<uint8_t, frame_max_size>;
 
-namespace Pufferfish {
-namespace Driver {
-namespace Serial {
-namespace Nonin {
+enum class FrameBufferStatus {
+  ok = 0,
+  waiting,
+  full,
+};
 
 /**
  * FrameBuffer class to update buffer
@@ -49,14 +52,14 @@ class FrameBuffer {
    * @param  readByte byte data input
    * @return Frame buffer input status
    */
-  BufferStatus input(uint8_t read_byte);
+  FrameBufferStatus input(uint8_t read_byte);
 
   /**
    * @brief  Output method to invoked on frame available
    * @param  frame data output
    * @return Frame buffer output status
    */
-  BufferStatus output(Frame &frame);
+  FrameBufferStatus output(Frame &frame);
 
   /**
    * @brief  reset the frame
@@ -74,13 +77,10 @@ class FrameBuffer {
 
  private:
   /* Frame buffer */
-  Frame frame_buffer_{};
+  Frame frame_{};
 
   /* Length of frame received  */
-  uint8_t received_length_ = 0;
+  size_t received_length_ = 0;
 };
 
-}  // namespace Nonin
-}  // namespace Serial
-}  // namespace Driver
-}  // namespace Pufferfish
+}  // namespace Pufferfish::Driver::Serial::Nonin

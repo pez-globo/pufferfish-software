@@ -15,7 +15,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Switch } from 'react-router-dom';
 import { getParametersIsVentilating } from '../../store/controller/selectors';
-import AlarmsPage from '../alarms/AlarmsPage';
+import AlarmLimitsPage from '../alarms/limits/AlarmLimitsPage';
 import LandingPageRoute from '../app/layouts/LandingPageRoute';
 import ScreensaverRoute from '../app/layouts/ScreensaverRoute';
 import SidebarRoute from '../app/layouts/SidebarRoute';
@@ -54,7 +54,7 @@ const Routes = (): JSX.Element => {
       <SidebarSlideRoute exact path={DASHBOARD_ROUTE.path} component={DashboardPage} />
       <RouteLayout path={QUICKSTART_ROUTE.path} component={QuickStartPage} />
       <RouteLayout path={MODES_ROUTE.path} component={ModesPage} />
-      <RouteLayout path={ALARMS_ROUTE.path} component={AlarmsPage} />
+      <RouteLayout path={ALARMS_ROUTE.path} component={AlarmLimitsPage} />
       <RouteLayout path={SETTINGS_ROUTE.path} component={SettingsPage} />
       <RouteLayout path={LOGS_ROUTE.path} component={LogsPage} />
       <ScreensaverRoute path={SCREENSAVER_ROUTE.path} component={ScreensaverPage} />
