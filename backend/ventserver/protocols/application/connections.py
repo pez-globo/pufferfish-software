@@ -57,7 +57,6 @@ class TimeoutDetector(protocols.Filter[UpdateEvent, StatusEvent]):
             return
 
         self._monotonic_time = event.monotonic_time
-        self._monotonic_time = event.monotonic_time
         if event.event_received is not None:
             self._last_event = self._monotonic_time
         if event.connected is not None:
@@ -119,6 +118,7 @@ class ActionTrigger(protocols.Filter[ActionStatus, bool]):
         if event is None:
             return
 
+        self._monotonic_time = event.monotonic_time
         if event.execute:
             self._last_execution = self._monotonic_time
         if event.trigger is not None:
