@@ -90,7 +90,7 @@ InitializableState Sensor::check_range(uint32_t current_time) {
   if (device_.read_sample(sample_) == I2CDeviceStatus::ok &&
       Util::within(sample_.pressure, p_min, p_max)) {
     next_action_ = fsm_.update(current_time);
-    return InitializableState::ok
+    return InitializableState::ok;
   }
 
   ++retry_count_;

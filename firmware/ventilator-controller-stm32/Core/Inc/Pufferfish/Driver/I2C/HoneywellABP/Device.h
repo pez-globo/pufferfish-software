@@ -37,12 +37,12 @@ class Device {
   static const uint16_t output_min = 0x0666;  // 10% of 2^14
   static const uint16_t output_max = 0x399A;  // 90% of 2^14
 
+  Pufferfish::HAL::Interfaces::I2CDevice &dev_;
+
   // pressure range (refer to datasheet)
   const float pmin;  // minimum pressure
   const float pmax;  // maximum pressure
   const PressureUnit unit;
-
-  Pufferfish::HAL::Interfaces::I2CDevice &dev_;
 };
 
 }  // namespace Pufferfish::Driver::I2C::HoneywellABP
