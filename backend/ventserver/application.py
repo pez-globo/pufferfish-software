@@ -68,14 +68,15 @@ def filter_multierror(exc: trio.MultiError) -> None:
 async def main() -> None:
     """Set up wiring between subsystems and process until completion."""
     # Configure logging
-    logger = logging.getLogger()
+    root_logger = logging.getLogger()
     handler = logging.StreamHandler()
     formatter = logging.Formatter(
-        '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+        '%(asctime)s %(name)-55s %(levelname)-8s %(message)s'
     )
     handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
+    root_logger.addHandler(handler)
+    root_logger.setLevel(logging.INFO)
+    logger = logging.getLogger('ventserver.application')
 
     # Sans-I/O Protocols
     protocol = server.Protocol()

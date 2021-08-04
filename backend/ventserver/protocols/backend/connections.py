@@ -92,8 +92,10 @@ class TimeoutHandler(protocols.Filter[UpdateEvent, ActionsEvent]):
         self.monotonic_time = event.monotonic_time
         self._update_clocks()
         if event.type == Update.MCU_CONNECTED:
+            self._logger.info('Received connection from the MCU')
             self._handle_mcu_connection(True)
         elif event.type == Update.MCU_DISCONNECTED:
+            self._logger.warning('Lost connection from the MCU!')
             self._handle_mcu_connection(False)
         elif event.type == Update.MCU_RECEIVED:
             self._mcu_status.input(connections.UpdateEvent(
@@ -101,8 +103,10 @@ class TimeoutHandler(protocols.Filter[UpdateEvent, ActionsEvent]):
                 event_received=True
             ))
         elif event.type == Update.FRONTEND_CONNECTED:
+            self._logger.info('Received connection from the frontend')
             self._handle_frontend_connection(True)
         elif event.type == Update.FRONTEND_DISCONNECTED:
+            self._logger.warning('Lost connection from the frontend!')
             self._handle_frontend_connection(False)
         elif event.type == Update.FRONTEND_RECEIVED:
             self._frontend_status.input(connections.UpdateEvent(
@@ -142,6 +146,7 @@ class TimeoutHandler(protocols.Filter[UpdateEvent, ActionsEvent]):
         # Decide whether to run action
         alarm_mcu = self._mcu_alarm_trigger.output()
         if alarm_mcu:
+            self._logger.warning('Lost connection from the MCU!')
             self._mcu_alarm_trigger.input(connections.ActionStatus(
                 monotonic_time=self.monotonic_time, execute=True
             ))
@@ -164,6 +169,7 @@ class TimeoutHandler(protocols.Filter[UpdateEvent, ActionsEvent]):
         # Decide whether to run actions
         alarm_frontend = self._frontend_alarm_trigger.output()
         if alarm_frontend:
+            self._logger.warning('Lost connection from the frontend!')
             self._frontend_alarm_trigger.input(connections.ActionStatus(
                 monotonic_time=self.monotonic_time,
                 execute=True
@@ -178,10 +184,6 @@ class TimeoutHandler(protocols.Filter[UpdateEvent, ActionsEvent]):
 
     def _handle_mcu_connection(self, connected: bool) -> None:
         """Handle a connection event for the MCU."""
-        if connected:
-            self._logger.debug('Received connection to the MCU.')
-        else:
-            self._logger.debug('Lost connection to the MCU!')
         self._mcu_status.input(connections.UpdateEvent(
             connected=connected, monotonic_time=self.monotonic_time
         ))
@@ -189,15 +191,12 @@ class TimeoutHandler(protocols.Filter[UpdateEvent, ActionsEvent]):
     def _handle_frontend_connection(self, connected: bool) -> None:
         """Handle a connection event for the Frontend."""
         if connected:
-            self._logger.debug('Received connection to the frontend.')
             # Stop repeatedly trying to kill the frontend, to give the frontend
             # connection some time to start producing events
             self._frontend_kill_trigger.input(connections.ActionStatus(
                 monotonic_time=self.monotonic_time,
                 trigger=False
             ))
-        else:
-            self._logger.debug('Lost connection to the frontend!')
         self._frontend_status.input(connections.UpdateEvent(
             connected=connected, monotonic_time=self.monotonic_time
         ))

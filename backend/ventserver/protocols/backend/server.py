@@ -251,6 +251,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             type=connections.Update.MCU_RECEIVED
         ))
         if not self._connection_states.has_mcu:
+            self._logger.info('Receiving data from the MCU')
             self._backend.input(backend.ExternalLogEvent(
                 wall_time=self.wall_time, monotonic_time=self.monotonic_time,
                 active=False,
@@ -278,6 +279,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             type=connections.Update.FRONTEND_RECEIVED
         ))
         if not self._connection_states.has_frontend:
+            self._logger.info('Receiving data from the frontend')
             self._backend.input(backend.ExternalLogEvent(
                 wall_time=self.wall_time, monotonic_time=self.monotonic_time,
                 active=False,

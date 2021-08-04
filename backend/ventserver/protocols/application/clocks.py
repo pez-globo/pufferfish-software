@@ -35,7 +35,7 @@ ReceiveEvent = Union[UpdateEvent, ResetEvent]
 
 
 @attr.s
-class ClockSynchronizer(protocols.Filter[ReceiveEvent, int]):
+class Synchronizer(protocols.Filter[ReceiveEvent, int]):
     """Clock synchronization filter for clocks on different reference points.
 
     This is specifically designed for synchronizing between a remote clock on a
@@ -51,7 +51,7 @@ class ClockSynchronizer(protocols.Filter[ReceiveEvent, int]):
 
     REMOTE_CLOCK_ROLLOVER = 2 ** 32
 
-    _logger = logging.getLogger('.'.join((__name__, 'ClockSynchronizer')))
+    _logger = logging.getLogger('.'.join((__name__, 'Synchronizer')))
 
     _remote_sync_time: Optional[int] = attr.ib(default=None)  # ms
     _local_sync_time: Optional[float] = attr.ib(default=None)  # sec

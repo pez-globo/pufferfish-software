@@ -124,8 +124,8 @@ class EventLogReceiver(protocols.Filter[ReceiveInputEvent, ReceiveOutputEvent]):
     )
 
     _log_events_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent] = attr.ib()
-    _clock_synchronizer: clocks.ClockSynchronizer = attr.ib(
-        factory=clocks.ClockSynchronizer
+    _clock_synchronizer: clocks.Synchronizer = attr.ib(
+        factory=clocks.Synchronizer
     )
     _next_log_events_prev: Optional[mcu_pb.NextLogEvents] = attr.ib(
         default=None

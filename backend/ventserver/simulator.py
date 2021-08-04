@@ -118,10 +118,11 @@ async def simulate_states(
         store: Mapping[
             states.StateSegment, Optional[betterproto.Message]
         ], simulated_log: alarms.Manager,
-        simulated_log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent],
-        logger: logging.Logger
+        simulated_log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
 ) -> None:
     """Simulate evolution of all states."""
+    logger = logging.getLogger('ventserver.simulator')
+
     simulation_services = simulators.Services()
     power_service = power_management.Service()
     alarms_services = sim_alarms.Services()
@@ -168,14 +169,15 @@ def initialize_states(store: MutableMapping[
 async def main() -> None:
     """Set up wiring between subsystems and process until completion."""
     # Configure logging
-    logger = logging.getLogger()
+    root_logger = logging.getLogger()
     handler = logging.StreamHandler()
     formatter = logging.Formatter(
-        '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+        '%(asctime)s %(name)-55s %(levelname)-8s %(message)s'
     )
     handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
+    root_logger.addHandler(handler)
+    root_logger.setLevel(logging.INFO)
+    logger = logging.getLogger('ventserver.simulator')
 
     # Sans-I/O Protocols
     protocol = server.Protocol()
@@ -187,13 +189,13 @@ async def main() -> None:
     try:
         rotary_encoder = rotaryencoder.Driver()
         await rotary_encoder.open()
-    except exceptions.ProtocolError as err:
-        exception = (
-            "Unable to connect the rotary encoder, please check the "
-            "serial connection. Check if the pigpiod service is running: %s"
-        )
+    except exceptions.ProtocolError:
         rotary_encoder = None
-        logger.error(exception, err)
+        logger.error(
+            'Unable to connect to the pigpiod service for the rotary encoder. '
+            'Is the service running?'
+        )
+        logger.warning('Running without rotary encoder support!')
 
     # I/O File
     filehandler = fileio.Handler()
@@ -246,7 +248,7 @@ async def main() -> None:
                 )
                 nursery.start_soon(
                     simulate_states, store,
-                    simulated_log, simulated_log_receiver, logger
+                    simulated_log, simulated_log_receiver
                 )
 
                 while True:
