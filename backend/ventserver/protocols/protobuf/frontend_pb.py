@@ -41,7 +41,7 @@ class FrontendDisplaySetting(betterproto.Message):
 
 @dataclass
 class SystemSettings(betterproto.Message):
-    time: int = betterproto.uint64_field(1)
+    date: float = betterproto.double_field(1)
     # TODO: move display_brightness into FrontendDisplaySetting
     display_brightness: int = betterproto.uint32_field(2)
     seq_num: int = betterproto.uint32_field(3)
@@ -49,6 +49,6 @@ class SystemSettings(betterproto.Message):
 
 @dataclass
 class SystemSettingsRequest(betterproto.Message):
-    time: int = betterproto.uint64_field(1)
+    date: float = betterproto.double_field(1)
     display_brightness: int = betterproto.uint32_field(2)
     seq_num: int = betterproto.uint32_field(3)

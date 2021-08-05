@@ -20,7 +20,6 @@ import {
   getFrontendDisplaySetting,
   getSystemSettingsRequest,
 } from '../../../store/controller/selectors';
-import { DECIMAL_RADIX } from '../../app/AppConstants';
 import ValueSpinner from '../../controllers/ValueSpinner';
 import { ToggleValue } from '../../controllers/ToggleValue';
 import {
@@ -291,9 +290,21 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
       displayBrightness,
       theme,
       unit,
-      time: parseInt((dateChange.getTime()).toFixed(0), DECIMAL_RADIX),
+      date: dateChange.getTime() / 1000.0,
     });
-  }, [date, period, minute, hour, day, month, year, unit, theme, displayBrightness, onSettingChange]);
+  }, [
+    date,
+    period,
+    minute,
+    hour,
+    day,
+    month,
+    year,
+    unit,
+    theme,
+    displayBrightness,
+    onSettingChange,
+  ]);
 
   /**
    * function for handling month change.

@@ -193,11 +193,11 @@ message LogEvent {
   LogEventCode code = 3;
   LogEventType type = 4;
   Range alarm_limits = 5;
-  float old_float = 6;
-  float new_float = 7;
-  // TODO: rename these to old/new_uint64
-  uint64 old_uint32 = 8;
-  uint64 new_uint32 = 9;
+  // TODO: rename these to old/new_double
+  double old_float = 6;
+  double new_float = 7;
+  uint32 old_uint32 = 8;
+  uint32 new_uint32 = 9;
   bool old_bool = 10;
   bool new_bool = 11;
   Range old_range = 12;

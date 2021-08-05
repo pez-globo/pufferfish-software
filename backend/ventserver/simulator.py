@@ -69,12 +69,11 @@ INITIAL_VALUES = {
     ),
     states.StateSegment.SCREEN_STATUS: mcu_pb.ScreenStatus(lock=False),
     states.StateSegment.SYSTEM_SETTINGS: frontend_pb.SystemSettings(
-        display_brightness=100, time=int(time.time()), seq_num=INITIAL_SEQ_NUM
+        display_brightness=100, date=time.time(), seq_num=INITIAL_SEQ_NUM
     ),
     states.StateSegment.SYSTEM_SETTINGS_REQUEST:
         frontend_pb.SystemSettingsRequest(
-            display_brightness=100, time=int(time.time()),
-            seq_num=INITIAL_SEQ_NUM
+            display_brightness=100, date=time.time(), seq_num=INITIAL_SEQ_NUM
         ),
     states.StateSegment.FRONTEND_DISPLAY: frontend_pb.FrontendDisplaySetting(
         theme=frontend_pb.ThemeVariant.dark,

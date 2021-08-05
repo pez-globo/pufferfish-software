@@ -332,20 +332,21 @@ class Receiver(protocols.Filter[ReceiveEvent, OutputEvent]):
             return None
 
         response.display_brightness = request.display_brightness
-        if int(request.time / 60) != int(self.wall_time * 1000 / 60):
+        if int(request.date) != int(self.wall_time):  # rounds to nearest second
             self._local_alarms.input(log.LocalLogInputEvent(
                 wall_time=self.wall_time, new_event=mcu_pb.LogEvent(
                     code=mcu_pb.LogEventCode.sysclock_changed,
                     type=mcu_pb.LogEventType.system,
-                    old_uint32=int(self.wall_time * 1000),
-                    new_uint32=request.time
+                    old_float=self.wall_time,
+                    new_float=request.date
                 )
             ))
             self._event_log_receiver.input(self._local_alarms.output())
-        response.time = request.time
+            # TODO: reset clock synchronization in the log manager
+        response.date = request.date
         response.seq_num = request.seq_num
 
-        return response.time / 1000
+        return response.date
 
 
 # Protocols

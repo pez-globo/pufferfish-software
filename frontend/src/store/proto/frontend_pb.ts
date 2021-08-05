@@ -87,14 +87,16 @@ export interface FrontendDisplaySetting {
 }
 
 export interface SystemSettings {
-  time: number;
+  /** Unix timestamp in units of sec */
+  date: number;
   /** TODO: move display_brightness into FrontendDisplaySetting */
   displayBrightness: number;
   seqNum: number;
 }
 
 export interface SystemSettingsRequest {
-  time: number;
+  /** Unix timestamp in units of sec */
+  date: number;
   displayBrightness: number;
   seqNum: number;
 }
@@ -316,15 +318,15 @@ export const FrontendDisplaySetting = {
   },
 };
 
-const baseSystemSettings: object = { time: 0, displayBrightness: 0, seqNum: 0 };
+const baseSystemSettings: object = { date: 0, displayBrightness: 0, seqNum: 0 };
 
 export const SystemSettings = {
   encode(
     message: SystemSettings,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.time !== 0) {
-      writer.uint32(8).uint64(message.time);
+    if (message.date !== 0) {
+      writer.uint32(9).double(message.date);
     }
     if (message.displayBrightness !== 0) {
       writer.uint32(16).uint32(message.displayBrightness);
@@ -343,7 +345,7 @@ export const SystemSettings = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.time = longToNumber(reader.uint64() as Long);
+          message.date = reader.double();
           break;
         case 2:
           message.displayBrightness = reader.uint32();
@@ -361,10 +363,10 @@ export const SystemSettings = {
 
   fromJSON(object: any): SystemSettings {
     const message = { ...baseSystemSettings } as SystemSettings;
-    if (object.time !== undefined && object.time !== null) {
-      message.time = Number(object.time);
+    if (object.date !== undefined && object.date !== null) {
+      message.date = Number(object.date);
     } else {
-      message.time = 0;
+      message.date = 0;
     }
     if (
       object.displayBrightness !== undefined &&
@@ -384,7 +386,7 @@ export const SystemSettings = {
 
   toJSON(message: SystemSettings): unknown {
     const obj: any = {};
-    message.time !== undefined && (obj.time = message.time);
+    message.date !== undefined && (obj.date = message.date);
     message.displayBrightness !== undefined &&
       (obj.displayBrightness = message.displayBrightness);
     message.seqNum !== undefined && (obj.seqNum = message.seqNum);
@@ -393,10 +395,10 @@ export const SystemSettings = {
 
   fromPartial(object: DeepPartial<SystemSettings>): SystemSettings {
     const message = { ...baseSystemSettings } as SystemSettings;
-    if (object.time !== undefined && object.time !== null) {
-      message.time = object.time;
+    if (object.date !== undefined && object.date !== null) {
+      message.date = object.date;
     } else {
-      message.time = 0;
+      message.date = 0;
     }
     if (
       object.displayBrightness !== undefined &&
@@ -416,7 +418,7 @@ export const SystemSettings = {
 };
 
 const baseSystemSettingsRequest: object = {
-  time: 0,
+  date: 0,
   displayBrightness: 0,
   seqNum: 0,
 };
@@ -426,8 +428,8 @@ export const SystemSettingsRequest = {
     message: SystemSettingsRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.time !== 0) {
-      writer.uint32(8).uint64(message.time);
+    if (message.date !== 0) {
+      writer.uint32(9).double(message.date);
     }
     if (message.displayBrightness !== 0) {
       writer.uint32(16).uint32(message.displayBrightness);
@@ -449,7 +451,7 @@ export const SystemSettingsRequest = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.time = longToNumber(reader.uint64() as Long);
+          message.date = reader.double();
           break;
         case 2:
           message.displayBrightness = reader.uint32();
@@ -467,10 +469,10 @@ export const SystemSettingsRequest = {
 
   fromJSON(object: any): SystemSettingsRequest {
     const message = { ...baseSystemSettingsRequest } as SystemSettingsRequest;
-    if (object.time !== undefined && object.time !== null) {
-      message.time = Number(object.time);
+    if (object.date !== undefined && object.date !== null) {
+      message.date = Number(object.date);
     } else {
-      message.time = 0;
+      message.date = 0;
     }
     if (
       object.displayBrightness !== undefined &&
@@ -490,7 +492,7 @@ export const SystemSettingsRequest = {
 
   toJSON(message: SystemSettingsRequest): unknown {
     const obj: any = {};
-    message.time !== undefined && (obj.time = message.time);
+    message.date !== undefined && (obj.date = message.date);
     message.displayBrightness !== undefined &&
       (obj.displayBrightness = message.displayBrightness);
     message.seqNum !== undefined && (obj.seqNum = message.seqNum);
@@ -501,10 +503,10 @@ export const SystemSettingsRequest = {
     object: DeepPartial<SystemSettingsRequest>
   ): SystemSettingsRequest {
     const message = { ...baseSystemSettingsRequest } as SystemSettingsRequest;
-    if (object.time !== undefined && object.time !== null) {
-      message.time = object.time;
+    if (object.date !== undefined && object.date !== null) {
+      message.date = object.date;
     } else {
-      message.time = 0;
+      message.date = 0;
     }
     if (
       object.displayBrightness !== undefined &&
@@ -523,16 +525,6 @@ export const SystemSettingsRequest = {
   },
 };
 
-declare var self: any | undefined;
-declare var window: any | undefined;
-var globalThis: any = (() => {
-  if (typeof globalThis !== "undefined") return globalThis;
-  if (typeof self !== "undefined") return self;
-  if (typeof window !== "undefined") return window;
-  if (typeof global !== "undefined") return global;
-  throw "Unable to locate global object";
-})();
-
 type Builtin = Date | Function | Uint8Array | string | number | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
@@ -543,13 +535,6 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
-
-function longToNumber(long: Long): number {
-  if (long.gt(Number.MAX_SAFE_INTEGER)) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
-  }
-  return long.toNumber();
-}
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

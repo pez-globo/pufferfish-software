@@ -631,9 +631,9 @@ export interface LogEvent {
   code: LogEventCode;
   type: LogEventType;
   alarmLimits: Range | undefined;
+  /** TODO: rename these to old/new_double */
   oldFloat: number;
   newFloat: number;
-  /** TODO: rename these to old/new_uint64 */
   oldUint32: number;
   newUint32: number;
   oldBool: boolean;
@@ -2263,16 +2263,16 @@ export const LogEvent = {
       Range.encode(message.alarmLimits, writer.uint32(42).fork()).ldelim();
     }
     if (message.oldFloat !== 0) {
-      writer.uint32(53).float(message.oldFloat);
+      writer.uint32(49).double(message.oldFloat);
     }
     if (message.newFloat !== 0) {
-      writer.uint32(61).float(message.newFloat);
+      writer.uint32(57).double(message.newFloat);
     }
     if (message.oldUint32 !== 0) {
-      writer.uint32(64).uint64(message.oldUint32);
+      writer.uint32(64).uint32(message.oldUint32);
     }
     if (message.newUint32 !== 0) {
-      writer.uint32(72).uint64(message.newUint32);
+      writer.uint32(72).uint32(message.newUint32);
     }
     if (message.oldBool === true) {
       writer.uint32(80).bool(message.oldBool);
@@ -2318,16 +2318,16 @@ export const LogEvent = {
           message.alarmLimits = Range.decode(reader, reader.uint32());
           break;
         case 6:
-          message.oldFloat = reader.float();
+          message.oldFloat = reader.double();
           break;
         case 7:
-          message.newFloat = reader.float();
+          message.newFloat = reader.double();
           break;
         case 8:
-          message.oldUint32 = longToNumber(reader.uint64() as Long);
+          message.oldUint32 = reader.uint32();
           break;
         case 9:
-          message.newUint32 = longToNumber(reader.uint64() as Long);
+          message.newUint32 = reader.uint32();
           break;
         case 10:
           message.oldBool = reader.bool();

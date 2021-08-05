@@ -71,15 +71,11 @@ export const SettingsPage = (): JSX.Element => {
   /**
    * State to manage theme setting
    */
-  const [displaySetting, setDisplaySetting] = React.useState<
-    FrontendDisplaySetting
-  >();
+  const [displaySetting, setDisplaySetting] = React.useState<FrontendDisplaySetting>();
   /**
    * State to manage System Brightness & time setting
    */
-  const [systemSettingsRequest, setSystemSettingsRequest] = React.useState<
-    SystemSettingsRequest
-  >();
+  const [systemSettingsRequest, setSystemSettingsRequest] = React.useState<SystemSettingsRequest>();
 
   const systemSettingsSeqNum = useSelector(getSystemSettingsCurrentSeqNum);
 
@@ -115,8 +111,8 @@ export const SettingsPage = (): JSX.Element => {
       setSystemSettingsRequest(
         SystemSettingsRequest.fromJSON({
           displayBrightness: settings.displayBrightness,
-          time: settings.time,
-          seqNum: (systemSettingsSeqNum + 1) % (2 ** 32),
+          date: settings.date,
+          seqNum: (systemSettingsSeqNum + 1) % 2 ** 32,
         }),
       );
     },
@@ -129,10 +125,7 @@ export const SettingsPage = (): JSX.Element => {
   const handleSubmit = () => {
     if (displaySetting !== undefined) {
       dispatch(
-        commitRequest<FrontendDisplaySetting>(
-          MessageType.FrontendDisplaySetting,
-          displaySetting,
-        ),
+        commitRequest<FrontendDisplaySetting>(MessageType.FrontendDisplaySetting, displaySetting),
       );
     }
     if (systemSettingsRequest !== undefined) {

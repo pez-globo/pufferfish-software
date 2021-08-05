@@ -298,11 +298,11 @@ typedef struct _LogEvent {
     LogEventType type; 
     bool has_alarm_limits;
     Range alarm_limits; 
-    float old_float; 
-    float new_float; 
-    /* TODO: rename these to old/new_uint64 */
-    uint64_t old_uint32; 
-    uint64_t new_uint32; 
+    /* TODO: rename these to old/new_double */
+    double old_float; 
+    double new_float; 
+    uint32_t old_uint32; 
+    uint32_t new_uint32; 
     bool old_bool; 
     bool new_bool; 
     bool has_old_range;
@@ -624,10 +624,10 @@ X(a, STATIC,   SINGULAR, UINT64,   time,              2) \
 X(a, STATIC,   SINGULAR, UENUM,    code,              3) \
 X(a, STATIC,   SINGULAR, UENUM,    type,              4) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  alarm_limits,      5) \
-X(a, STATIC,   SINGULAR, FLOAT,    old_float,         6) \
-X(a, STATIC,   SINGULAR, FLOAT,    new_float,         7) \
-X(a, STATIC,   SINGULAR, UINT64,   old_uint32,        8) \
-X(a, STATIC,   SINGULAR, UINT64,   new_uint32,        9) \
+X(a, STATIC,   SINGULAR, DOUBLE,   old_float,         6) \
+X(a, STATIC,   SINGULAR, DOUBLE,   new_float,         7) \
+X(a, STATIC,   SINGULAR, UINT32,   old_uint32,        8) \
+X(a, STATIC,   SINGULAR, UINT32,   new_uint32,        9) \
 X(a, STATIC,   SINGULAR, BOOL,     old_bool,         10) \
 X(a, STATIC,   SINGULAR, BOOL,     new_bool,         11) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  old_range,        12) \
@@ -754,9 +754,9 @@ extern const pb_msgdesc_t Announcement_msg;
 #define BackendConnections_size                  4
 #define CycleMeasurements_size                   41
 #define ExpectedLogEvent_size                    12
-#define LogEvent_size                            134
+#define LogEvent_size                            132
 #define MCUPowerStatus_size                      7
-#define NextLogEvents_size                       298
+#define NextLogEvents_size                       294
 #define ParametersRequest_size                   50
 #define Parameters_size                          50
 #define Ping_size                                17

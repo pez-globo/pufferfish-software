@@ -221,11 +221,11 @@ class LogEvent(betterproto.Message):
     code: "LogEventCode" = betterproto.enum_field(3)
     type: "LogEventType" = betterproto.enum_field(4)
     alarm_limits: "Range" = betterproto.message_field(5)
-    old_float: float = betterproto.float_field(6)
-    new_float: float = betterproto.float_field(7)
-    # TODO: rename these to old/new_uint64
-    old_uint32: int = betterproto.uint64_field(8)
-    new_uint32: int = betterproto.uint64_field(9)
+    # TODO: rename these to old/new_double
+    old_float: float = betterproto.double_field(6)
+    new_float: float = betterproto.double_field(7)
+    old_uint32: int = betterproto.uint32_field(8)
+    new_uint32: int = betterproto.uint32_field(9)
     old_bool: bool = betterproto.bool_field(10)
     new_bool: bool = betterproto.bool_field(11)
     old_range: "Range" = betterproto.message_field(12)
