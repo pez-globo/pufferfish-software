@@ -48,6 +48,7 @@ export const eventDetailsMap = new Map<LogEventCode, string>([
   [LogEventCode.sfm3019_air_disconnected, 'Air flow sensor connection lost'],
   [LogEventCode.sfm3019_o2_disconnected, 'O2 flow sensor connection lost'],
   [LogEventCode.fdo2_disconnected, 'O2 concentration sensor connection lost'],
+  [LogEventCode.nonin_disconnected, 'SpO2 and HR sensor connection lost'],
 ]);
 
 export const EventTypeMap = new Map<LogEventCode, EventType>([
@@ -408,6 +409,13 @@ export const EventTypeMap = new Map<LogEventCode, EventType>([
   ],
   [
     LogEventCode.fdo2_disconnected,
+    {
+      type: LogEventType.system,
+      label: 'Internal sensor failed',
+    },
+  ],
+  [
+    LogEventCode.nonin_disconnected,
     {
       type: LogEventType.system,
       label: 'Internal sensor failed',
