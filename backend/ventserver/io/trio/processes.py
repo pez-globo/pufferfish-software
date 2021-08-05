@@ -1,7 +1,8 @@
 """Defines function for managing other processes on the system."""
 
-import subprocess
 import logging
+import subprocess
+import time
 
 import trio
 
@@ -40,24 +41,23 @@ async def make_dialog(
         )
 
 
-async def set_system_time(
-    year: int, month: int, day: int, hour: int, minute: int, second: int
-) -> None:
+async def set_system_time(wall_time: float) -> bool:
     """Spawn subprocess to change the system (wall clock) time."""
-    date_time_string = '{:0>4d}-{:0>2d}-{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}'.format(
-        year, month, day, hour, minute, second
-    )
     try:
-        logger.info('Changing system time to: %s', date_time_string)
+        logger.info(
+            'Changing system time from %s to: %s', time.time(), int(wall_time)
+        )
         await trio.run_process([
-            'timedatectl', 'set-time', date_time_string
+            'date', '+%s', '-s', '@{}'.format(int(wall_time))
         ], capture_stderr=True)
-        logger.info('Changed system time to: %s', date_time_string)
+        logger.info('Changed system time to: %s', int(wall_time))
+        return True
     except subprocess.CalledProcessError as err:
         logger.error(
             'Failed change system time to %s: %s',
-            date_time_string, err.stderr.decode('utf-8').rstrip()
+            int(wall_time), err.stderr.decode('utf-8').rstrip()
         )
+        return False
 
 
 async def synchronize_rtc() -> None:
@@ -69,3 +69,12 @@ async def synchronize_rtc() -> None:
             'Failed to update hardware RTC with system time: %s',
             err.stderr.decode('utf-8').rstrip()
         )
+
+
+async def set_system_time_and_rtc(wall_time: float) -> None:
+    """Set the system time and RTC from a unix timestamp in units of sec."""
+    time_adjusted = await set_system_time(wall_time)
+    if not time_adjusted:
+        return
+
+    await synchronize_rtc()

@@ -89,17 +89,14 @@ async def handle_receive_outputs(
     nursery: trio.Nursery
 ) -> None:
     """Handle actions indicated by server protocol receive output events."""
-    logger = logging.getLogger('ventserver.application')
-
     await _trio.process_protocol_send(
         receive_output.states_send, protocol,
         serial_endpoint, websocket_endpoint, fileio_endpoint
     )
 
     if receive_output.sysclock_setting is not None:
-        logger.info(
-            'Changing system clock from %s to %s',
-            time.time(), receive_output.sysclock_setting
+        nursery.start_soon(
+            processes.set_system_time_and_rtc, receive_output.sysclock_setting
         )
 
     if receive_output.kill_frontend:
