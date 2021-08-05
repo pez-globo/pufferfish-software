@@ -88,10 +88,10 @@ LOG_EVENT_TYPES = {
 
 
 @attr.s
-class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
+class Receiver(protocols.Filter[ReceiveEvent, OutputEvent]):
     """Filter which passes input data in an event class."""
 
-    _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
+    _logger = logging.getLogger('.'.join((__name__, 'Receiver')))
 
     _buffer: channels.DequeChannel[ReceiveEvent] = attr.ib(
         factory=channels.DequeChannel

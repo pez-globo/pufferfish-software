@@ -144,7 +144,7 @@ def make_rotary_encoder_receive(
 
 
 @attr.s
-class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
+class Receiver(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     """Filter which transforms receive bytes into high-level events.
 
     Because this filter immediately handles inputs instead of taking inputs
@@ -152,18 +152,18 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
     method, the input method is not thread-safe! It should only be used in
     sequential or async/await code.
     """
-    _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
+    _logger = logging.getLogger('.'.join((__name__, 'Receiver')))
 
     wall_time: float = attr.ib(default=0)
     monotonic_time: float = attr.ib(default=0)
-    _backend: backend.ReceiveFilter = attr.ib(factory=backend.ReceiveFilter)
+    _backend: backend.Receiver = attr.ib(factory=backend.Receiver)
 
     # Devices
-    _mcu: mcu.ReceiveFilter = attr.ib(factory=mcu.ReceiveFilter)
-    _frontend: frontend.ReceiveFilter = attr.ib(factory=frontend.ReceiveFilter)
-    _file: file.ReceiveFilter = attr.ib(factory=file.ReceiveFilter)
-    _rotary_encoder: rotary_encoder.ReceiveFilter = attr.ib(
-        factory=rotary_encoder.ReceiveFilter
+    _mcu: mcu.Receiver = attr.ib(factory=mcu.Receiver)
+    _frontend: frontend.Receiver = attr.ib(factory=frontend.Receiver)
+    _file: file.Receiver = attr.ib(factory=file.Receiver)
+    _rotary_encoder: rotary_encoder.Receiver = attr.ib(
+        factory=rotary_encoder.Receiver
     )
 
     _connections: connections.TimeoutHandler = \
@@ -398,24 +398,24 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         ))
 
     @property
-    def backend(self) -> backend.ReceiveFilter:
+    def backend(self) -> backend.Receiver:
         """Return the backend receiver."""
         return self._backend
 
     @property
-    def file(self) -> file.ReceiveFilter:
+    def file(self) -> file.Receiver:
         """Return the file receiver"""
         return self._file
 
 
 @attr.s
-class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
+class Sender(protocols.Filter[SendEvent, SendOutputEvent]):
     """Filter which transforms high-level events into send bytes."""
 
     # Devices
-    _mcu: mcu.SendFilter = attr.ib(factory=mcu.SendFilter)
-    _frontend: frontend.SendFilter = attr.ib(factory=frontend.SendFilter)
-    _file: file.SendFilter = attr.ib(factory=file.SendFilter)
+    _mcu: mcu.Sender = attr.ib(factory=mcu.Sender)
+    _frontend: frontend.Sender = attr.ib(factory=frontend.Sender)
+    _file: file.Sender = attr.ib(factory=file.Sender)
 
     def input(self, event: Optional[SendEvent]) -> None:
         """Handle input events."""
@@ -436,7 +436,7 @@ class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
         return send_event
 
     @property
-    def file(self) -> file.SendFilter:
+    def file(self) -> file.Sender:
         """Return file sendfilter"""
         return self._file
 
@@ -450,15 +450,15 @@ class Protocol(protocols.Protocol[
 ]):
     """Backend communication protocol."""
 
-    _receive: ReceiveFilter = attr.ib(factory=ReceiveFilter)
-    _send: SendFilter = attr.ib(factory=SendFilter)
+    _receive: Receiver = attr.ib(factory=Receiver)
+    _send: Sender = attr.ib(factory=Sender)
 
     @property
-    def receive(self) -> ReceiveFilter:
+    def receive(self) -> Receiver:
         """Return a Filter interface for receive events."""
         return self._receive
 
     @property
-    def send(self) -> SendFilter:
+    def send(self) -> Sender:
         """Return a Filter interface for send events."""
         return self._send

@@ -42,20 +42,20 @@ MESSAGE_TYPES: Mapping[Type[betterproto.Message], int] = {
 
 
 @attr.s
-class ReceiveFilter(protocols.Filter[bytes, UpperEvent]):
+class Receiver(protocols.Filter[bytes, UpperEvent]):
     """Filter which passes input data in an event class."""
 
-    _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
+    _logger = logging.getLogger('.'.join((__name__, 'Receiver')))
 
     _buffer: channels.DequeChannel[bytes] = attr.ib(
         factory=channels.DequeChannel
     )
-    _message_receiver: messages.MessageReceiver = attr.ib()
+    _message_receiver: messages.Receiver = attr.ib()
 
     @_message_receiver.default
-    def init_message_receiver(self) -> messages.MessageReceiver:  # pylint: disable=no-self-use
+    def init_message_receiver(self) -> messages.Receiver:  # pylint: disable=no-self-use
         """Initialize the frontend message receiver."""
-        return messages.MessageReceiver(message_classes=MESSAGE_CLASSES)
+        return messages.Receiver(message_classes=MESSAGE_CLASSES)
 
     def input(self, event: Optional[bytes]) -> None:
         """Handle input events."""
@@ -78,17 +78,17 @@ class ReceiveFilter(protocols.Filter[bytes, UpperEvent]):
 
 
 @attr.s
-class SendFilter(protocols.Filter[UpperEvent, bytes]):
+class Sender(protocols.Filter[UpperEvent, bytes]):
     """Filter which unwraps output data from an event class."""
 
-    _logger = logging.getLogger('.'.join((__name__, 'SendFilter')))
+    _logger = logging.getLogger('.'.join((__name__, 'Sender')))
 
-    _message_sender: messages.MessageSender = attr.ib()
+    _message_sender: messages.Sender = attr.ib()
 
     @_message_sender.default
-    def init_message_sender(self) -> messages.MessageSender:  # pylint: disable=no-self-use
+    def init_message_sender(self) -> messages.Sender:  # pylint: disable=no-self-use
         """Initialize the message sender."""
-        return messages.MessageSender(message_types=MESSAGE_TYPES)
+        return messages.Sender(message_types=MESSAGE_TYPES)
 
     def input(self, event: Optional[UpperEvent]) -> None:
         """Handle input events."""

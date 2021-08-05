@@ -176,10 +176,10 @@ class CRCElement:
 
 
 @attr.s
-class CRCSender(protocols.Filter[bytes, bytes]):
+class Sender(protocols.Filter[bytes, bytes]):
     """Generates the crc for incoming bytes data and attaches
     the generated crc key to the message and returns it back."""
-    _logger = logging.getLogger(".".join((__name__, "CRCSender")))
+    _logger = logging.getLogger(".".join((__name__, "Sender")))
 
     _buffer: channels.DequeChannel[bytes] = attr.ib(
         factory=channels.DequeChannel
@@ -218,11 +218,11 @@ class CRCSender(protocols.Filter[bytes, bytes]):
 
 
 @attr.s
-class CRCReceiver(protocols.Filter[bytes, bytes]):
+class Receiver(protocols.Filter[bytes, bytes]):
     """Generates the crc for incoming bytes data and attaches
     the generated crc key to the message and returns it back."""
 
-    _logger = logging.getLogger(".".join((__name__, "CRCReceiver")))
+    _logger = logging.getLogger(".".join((__name__, "Receiver")))
 
     _buffer: channels.DequeChannel[bytes] = attr.ib(
         factory=channels.DequeChannel

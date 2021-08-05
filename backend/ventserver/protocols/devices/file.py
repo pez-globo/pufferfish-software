@@ -37,24 +37,20 @@ UpperEvent = betterproto.Message
 
 
 @attr.s
-class ReceiveFilter(protocols.Filter[LowerReceiveEvent, UpperEvent]):
+class Receiver(protocols.Filter[LowerReceiveEvent, UpperEvent]):
     """Filter which wraps raw data from file to message."""
-    _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
+    _logger = logging.getLogger('.'.join((__name__, 'Receiver')))
 
     _buffer: channels.DequeChannel[LowerReceiveEvent] = attr.ib(
         factory=channels.DequeChannel
     )
-    _crc_receiver: crcelements.CRCReceiver = attr.ib(
-        factory=crcelements.CRCReceiver
-    )
-    _message_receiver: messages.MessageReceiver = attr.ib()
+    _crc_receiver: crcelements.Receiver = attr.ib(factory=crcelements.Receiver)
+    _message_receiver: messages.Receiver = attr.ib()
 
     @_message_receiver.default
-    def init_message_receiver(self) -> messages.MessageReceiver:  # pylint: disable=no-self-use
+    def init_message_receiver(self) -> messages.Receiver:  # pylint: disable=no-self-use
         """Initialize the mcu message receiver."""
-        return messages.MessageReceiver(
-            message_classes=frontend.MESSAGE_CLASSES
-        )
+        return messages.Receiver(message_classes=frontend.MESSAGE_CLASSES)
 
     def input(self, event: Optional[LowerReceiveEvent]) -> None:
         """Handle input events."""
@@ -101,23 +97,21 @@ class ReceiveFilter(protocols.Filter[LowerReceiveEvent, UpperEvent]):
 
 
 @attr.s
-class SendFilter(protocols.Filter[UpperEvent, LowerSendEvent]):
+class Sender(protocols.Filter[UpperEvent, LowerSendEvent]):
     """Filter which unwraps output data from message to raw data."""
-    _logger = logging.getLogger('.'.join((__name__, 'SendFilter')))
+    _logger = logging.getLogger('.'.join((__name__, 'Sender')))
 
     _buffer: channels.DequeChannel[UpperEvent] = attr.ib(
         factory=channels.DequeChannel
     )
-    _crc_sender: crcelements.CRCSender = attr.ib(factory=crcelements.CRCSender)
+    _crc_sender: crcelements.Sender = attr.ib(factory=crcelements.Sender)
 
-    _message_sender: messages.MessageSender = attr.ib()
+    _message_sender: messages.Sender = attr.ib()
 
     @_message_sender.default
-    def init_message_sender(self) -> messages.MessageSender:  # pylint: disable=no-self-use
+    def init_message_sender(self) -> messages.Sender:  # pylint: disable=no-self-use
         """Initialize the message sender."""
-        return messages.MessageSender(
-            message_types=frontend.MESSAGE_TYPES
-        )
+        return messages.Sender(message_types=frontend.MESSAGE_TYPES)
 
     def input(self, event: Optional[UpperEvent]) -> None:
         """Handle input events."""

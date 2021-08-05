@@ -30,10 +30,10 @@ UpperEvent = frontend_pb.RotaryEncoder
 
 
 @attr.s
-class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
+class Receiver(protocols.Filter[LowerEvent, UpperEvent]):
     """Filter which passes input data in an event class."""
 
-    _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
+    _logger = logging.getLogger('.'.join((__name__, 'Receiver')))
     _buffer: channels.DequeChannel[LowerEvent] = attr.ib(
         factory=channels.DequeChannel
     )

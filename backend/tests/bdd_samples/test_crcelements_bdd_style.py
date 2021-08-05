@@ -121,7 +121,7 @@ def test_crcelements_rx_invalid_crc(
         processes corrupted message.
     """
     # Given: A CRC message receiver.
-    receiver = crcelements.CRCReceiver()
+    receiver = crcelements.Receiver()
     
     # When: The message bytes are corrupted.
     receiver.input(body)

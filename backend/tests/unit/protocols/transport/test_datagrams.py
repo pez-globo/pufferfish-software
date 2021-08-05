@@ -159,15 +159,15 @@ def test_datagram_roundtrip(
 def test_datagram_rx_indiv(
         __: int, ___: int, payload: bytes, body: bytes
 ) -> None:
-    """Test DatagramReceiver behavior with specific individual examples."""
-    receiver = datagrams.DatagramReceiver()
+    """Test Receiver behavior with specific individual examples."""
+    receiver = datagrams.Receiver()
     assert receiver.output() is None
     receiver.input(body)
     assert receiver.output() == payload
 
 
 def input_body_seq(
-        receiver: datagrams.DatagramReceiver,
+        receiver: datagrams.Receiver,
         datagram_sequence: List[Tuple[int, int, bytes, bytes]]
 ) -> None:
     """Add the sequence of datagram bodies as input to a receiver."""
@@ -176,7 +176,7 @@ def input_body_seq(
 
 
 def output_body_seq(
-        receiver: datagrams.DatagramReceiver,
+        receiver: datagrams.Receiver,
         datagram_sequence: List[Tuple[int, int, bytes, bytes]]
 ) -> None:
     """Get the sequence of datagram payloads as output from a receiver."""
@@ -190,8 +190,8 @@ def output_body_seq(
 def test_datagram_rx_seq(
         datagram_sequence: List[Tuple[int, int, bytes, bytes]]
 ) -> None:
-    """Test DatagramReceiver sequential behavior."""
-    receiver = datagrams.DatagramReceiver()
+    """Test Receiver sequential behavior."""
+    receiver = datagrams.Receiver()
     assert receiver.output() is None
     input_body_seq(receiver, datagram_sequence)
     output_body_seq(receiver, datagram_sequence)
@@ -208,8 +208,8 @@ def test_datagram_rx_seq(
 def test_datagram_rx_invalid_indiv(
         __: int, ___: int, ____: bytes, body: bytes
 ) -> None:
-    """Test DatagramReceiver with individual invalid inputs."""
-    receiver = datagrams.DatagramReceiver()
+    """Test Receiver with individual invalid inputs."""
+    receiver = datagrams.Receiver()
     receiver.input(body)
     with pt.raises(exceptions.ProtocolDataError):
         receiver.output()
@@ -222,8 +222,8 @@ def test_datagram_rx_invalid_indiv(
 def test_datagram_rx_invalid_seq(
         __: int, ___: int, ____: bytes, body: bytes
 ) -> None:
-    """Test DatagramReceiver with specific invalid inputs in valid sequence."""
-    receiver = datagrams.DatagramReceiver()
+    """Test Receiver with specific invalid inputs in valid sequence."""
+    receiver = datagrams.Receiver()
     input_body_seq(receiver, example_datagrams_good)
     receiver.input(body)
     input_body_seq(receiver, example_datagrams_good)
@@ -237,7 +237,7 @@ def test_datagram_rx_invalid_seq(
 
 
 def input_payload_seq(
-        sender: datagrams.DatagramSender,
+        sender: datagrams.Sender,
         datagram_sequence: List[Tuple[int, int, bytes, bytes]]
 ) -> None:
     """Add the sequence of datagram bodies as input to a receiver."""
@@ -246,7 +246,7 @@ def input_payload_seq(
 
 
 def output_payload_seq(
-        sender: datagrams.DatagramSender,
+        sender: datagrams.Sender,
         datagram_sequence: List[Tuple[int, int, bytes, bytes]]
 ) -> None:
     """Get the sequence of datagram payloads as output from a receiver."""
@@ -258,8 +258,8 @@ def output_payload_seq(
 
 
 def test_datagram_tx_seq() -> None:
-    """Test DatagramSender sequential behavior."""
-    sender = datagrams.DatagramSender()
+    """Test Sender sequential behavior."""
+    sender = datagrams.Sender()
     assert sender.output() is None
     counter = 0
     for (__, ___, payload, body) in example_datagrams_good:
@@ -281,8 +281,8 @@ def test_datagram_tx_seq() -> None:
 @hp.given(length=st.integers(min_value=256, max_value=260))
 @hp.example(length=256)
 def test_datagram_tx_invalid_indiv(length: int) -> None:
-    """Test DatagramSender with specific individual invalid inputs."""
-    sender = datagrams.DatagramSender()
+    """Test Sender with specific individual invalid inputs."""
+    sender = datagrams.Sender()
     sender.input(bytes([0x00 for i in range(length)]))
     with pt.raises(exceptions.ProtocolDataError):
         sender.output()
@@ -298,8 +298,8 @@ def test_datagram_tx_invalid_indiv(length: int) -> None:
 def test_datagram_tx_invalid_seq(
         length: int, datagram_sequence: List[Tuple[int, int, bytes, bytes]]
 ) -> None:
-    """Test DatagramSender with specific invalid inputs in a valid sequence."""
-    sender = datagrams.DatagramSender()
+    """Test Sender with specific invalid inputs in a valid sequence."""
+    sender = datagrams.Sender()
     input_payload_seq(sender, datagram_sequence)
     sender.input(bytes([0x00 for i in range(length)]))
     input_payload_seq(sender, datagram_sequence)

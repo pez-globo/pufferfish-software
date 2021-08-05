@@ -54,7 +54,7 @@ class ActionsEvent(events.Event):
 @attr.s
 class TimeoutHandler(protocols.Filter[UpdateEvent, ActionsEvent]):
     """Filter which handles connection timeouts for MCU and frontend."""
-    _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
+    _logger = logging.getLogger('.'.join((__name__, 'TimeoutHandler')))
 
     monotonic_time: float = attr.ib(default=0)
 
