@@ -26,7 +26,11 @@ void SensorAlarmsService::transform(
       ? alarms_manager.activate_alarm(Application::LogEventCode_nonin_disconnected, system)
       : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_disconnected);
 
-  sensor_connections.out_of_track
+  sensor_connections.spo2_out_of_track
+      ? alarms_manager.activate_alarm(Application::LogEventCode_nonin_disconnected, system)
+      : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_disconnected);
+
+  sensor_connections.hr_out_of_track
       ? alarms_manager.activate_alarm(Application::LogEventCode_nonin_disconnected, system)
       : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_disconnected);
 }

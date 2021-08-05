@@ -22,7 +22,8 @@ struct SensorConnections {
   bool nonin_connected;
   bool sensor_disconnected;
   bool sensor_alarm;
-  bool out_of_track;
+  bool spo2_out_of_track;
+  bool hr_out_of_track;
 };
 
 /**

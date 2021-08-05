@@ -33,19 +33,24 @@ InitializableState Sensor::output(float &spo2, float &hr) {
     return InitializableState::failed;
   }
 
-  // measurements status
-  sensor_connections_.sensor_disconnected = find(measurements_.sensor_disconnect, false);
-  sensor_connections_.sensor_alarm = find(measurements_.sensor_alarm, true);
-  sensor_connections_.out_of_track = find(measurements_.out_of_track, true);
-
   if (measure(measurements_) != InitializableState::ok) {
     spo2 = NAN;
     hr = NAN;
     return InitializableState::failed;
   }
 
-  hr = measurements_.e_hr_d;
+  // measurements status
+  sensor_connections_.sensor_disconnected = find(measurements_.sensor_disconnect, false);
+  sensor_connections_.sensor_alarm = find(measurements_.sensor_alarm, true);
+  sensor_connections_.spo2_out_of_track = (measurements_.e_spo2 == ErrorConstants::spo2_missing ||
+                                      measurements_.e_spo2_d == ErrorConstants::spo2_missing) &&
+                                     find(measurements_.out_of_track, true);
+  sensor_connections_.hr_out_of_track = (measurements_.e_hr == ErrorConstants::hr_missing ||
+                                      measurements_.e_spo2_d == ErrorConstants::hr_missing) &&
+                                     find(measurements_.out_of_track, true);
+
   spo2 = measurements_.e_spo2_d;
+  hr = measurements_.e_hr_d;
 
   return InitializableState::ok;
 }
