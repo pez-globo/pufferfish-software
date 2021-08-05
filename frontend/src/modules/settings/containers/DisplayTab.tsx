@@ -13,7 +13,7 @@ import {
   Typography,
   useTheme,
 } from '@material-ui/core';
-import React, { RefObject, useEffect, useRef } from 'react';
+import React, { RefObject, useEffect, useState, useRef } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { ThemeVariant, Unit } from '../../../store/proto/frontend_pb';
 import {
@@ -158,22 +158,60 @@ interface Props {
  */
 const DateTimeDisplay = () => {
   const classes = useStyles();
-  const clock = new Date().toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true,
-  });
+  // TODO: split into a DateDisplay and a TimeDisplay.
+  // TODO: can we consolidate the timestring useEffect or the decomposed
+  // TimeDisplay component with the HeaderClock from ToolBar.tsx?
+  const [clockDate, setClockDate] = useState(
+    new Date().toLocaleDateString([], {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    }),
+  );
+  const [clockTime, setClockTime] = useState(
+    new Date().toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    }),
+  );
+
+  /**
+   * UseEffect to update the clock every second
+   */
+  useEffect(() => {
+    const clockTimer = setInterval(() => {
+      setClockDate(
+        new Date().toLocaleDateString([], {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        }),
+      );
+      setClockTime(
+        new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true,
+        }),
+      );
+    }, 100);
+    return () => {
+      clearInterval(clockTimer);
+    };
+  }, []);
 
   return (
     <React.Fragment>
       <Box className={classes.date}>
         <Typography variant="h5">Date:</Typography>
-        <Typography className={classes.dateTime}>{clock}</Typography>
+        <Typography className={classes.dateTime}>{clockDate}</Typography>
       </Box>
       <Box>
         <Typography variant="h5">Time:</Typography>
-        <Typography className={classes.dateTime}>{new Date().toLocaleTimeString()}</Typography>
+        <Typography className={classes.dateTime}>{clockTime}</Typography>
       </Box>
     </React.Fragment>
   );
