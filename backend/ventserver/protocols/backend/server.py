@@ -9,7 +9,7 @@ from ventserver.protocols import events, exceptions
 from ventserver.protocols.backend import backend, connections
 from ventserver.protocols.devices import file, frontend, mcu, rotary_encoder
 from ventserver.protocols.protobuf import mcu_pb
-from ventserver.sansio import channels, protocols
+from ventserver.sansio import protocols
 
 
 # Events
@@ -71,16 +71,23 @@ class ReceiveDataEvent(events.Event):
 class ReceiveOutputEvent(events.Event):
     """Server receive output/send event."""
 
-    server_send: Optional[backend.OutputEvent] = attr.ib(default=None)
+    states_send: Optional[backend.SendEvent] = attr.ib(default=None)
+    sysclock_setting: Optional[float] = attr.ib(default=None)
     kill_frontend: bool = attr.ib(default=False)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
-        return self.server_send is not None and self.server_send.has_data()
+        if (self.states_send is not None) and self.states_send.has_data():
+            return True
+
+        if (self.sysclock_setting is not None) or self.kill_frontend:
+            return True
+
+        return False
 
 
 ReceiveEvent = Union[ReceiveDataEvent, ConnectionEvent]
-SendEvent = backend.OutputEvent
+SendEvent = backend.SendEvent
 
 
 @attr.s
@@ -138,12 +145,14 @@ def make_rotary_encoder_receive(
 
 @attr.s
 class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
-    """Filter which transforms receive bytes into high-level events."""
-    _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
+    """Filter which transforms receive bytes into high-level events.
 
-    # TODO: can we remove _buffer?
-    _buffer: channels.DequeChannel[ReceiveEvent] =\
-        attr.ib(factory=channels.DequeChannel)
+    Because this filter immediately handles inputs instead of taking inputs
+    through an internal buffer and then processing the buffer in the output()
+    method, the input method is not thread-safe! It should only be used in
+    sequential or async/await code.
+    """
+    _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
 
     wall_time: float = attr.ib(default=0)
     monotonic_time: float = attr.ib(default=0)
@@ -167,47 +176,13 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         if event is None or not event.has_data():
             return
 
-        self._buffer.input(event)
-
-    def output(self) -> Optional[ReceiveOutputEvent]:
-        """Emit the next output event."""
-        self._process_buffer()
-        any_updated = self._process_devices()
-        if not any_updated:
-            self._backend.input(backend.ReceiveDataEvent(
-                wall_time=self.wall_time, monotonic_time=self.monotonic_time
-            ))
-        # Process backend output until the backend has data to output or it
-        # indicates that it has no more receive data to process.
-        output = ReceiveOutputEvent()
-        while True:
-            output.server_send = self._backend.output()
-            if output.server_send is None:
-                break
-            if output.server_send.has_data():
-                break
-        any_updated = any_updated or output.server_send is not None
-        output.kill_frontend = self._process_connection_statuses()
-        any_updated = any_updated or output.kill_frontend
-        if not any_updated:
-            return None
-
-        return output
-
-    def _process_buffer(self) -> None:
-        """Process the next event in the input buffer."""
-        event = self._buffer.output()
-        if event is None:
-            return
-
         if isinstance(event, MCUConnectionEvent):
             update_type = (
                 connections.Update.MCU_CONNECTED if event.connected
                 else connections.Update.MCU_DISCONNECTED
             )
             self._connections.input(connections.UpdateEvent(
-                monotonic_time=self.monotonic_time,
-                type=update_type
+                monotonic_time=self.monotonic_time, type=update_type
             ))
             return
 
@@ -217,8 +192,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
                 else connections.Update.FRONTEND_DISCONNECTED
             )
             self._connections.input(connections.UpdateEvent(
-                monotonic_time=self.monotonic_time,
-                type=update_type
+                monotonic_time=self.monotonic_time, type=update_type
             ))
             return
 
@@ -235,6 +209,30 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             wall_time=self.wall_time, re_data=event.rotary_encoder_receive
         ))
         self._file.input(event.file_receive)
+
+    def output(self) -> Optional[ReceiveOutputEvent]:
+        """Emit the next output event."""
+        devices_processed = self._process_devices()
+        if not devices_processed:
+            self._backend.input(backend.ReceiveDataEvent(
+                wall_time=self.wall_time, monotonic_time=self.monotonic_time
+            ))
+        # Process backend output until the backend has data to output or it
+        # indicates that it has no more receive data to process.
+        output_event = ReceiveOutputEvent()
+        while True:
+            backend_send = self._backend.output()
+            if backend_send is None or backend_send.has_data():
+                break
+        if backend_send is not None:
+            output_event.states_send = backend_send.states_send
+        output_event.kill_frontend = self._process_connection_statuses()
+        if backend_send is not None:
+            output_event.sysclock_setting = backend_send.sysclock_setting
+        if not (devices_processed or output_event.has_data()):
+            return None
+
+        return output_event
 
     def _process_mcu(self) -> bool:
         """Process the next event from the mcu protocol."""
@@ -296,18 +294,6 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
             ))
         return True
 
-    def _process_rotary_encoder(self) -> bool:
-        """Process the next event from the rotary encoder."""
-        rotary_encoder_output = self._rotary_encoder.output()
-        if rotary_encoder_output is None:
-            return False
-
-        self._backend.input(backend.ReceiveDataEvent(
-            wall_time=self.wall_time, monotonic_time=self.monotonic_time,
-            frontend_receive=rotary_encoder_output
-        ))
-        return True
-
     def _process_file(self) -> bool:
         """Process the next event from the file."""
         file_output = self._file.output()  # throws ProtocolDataError
@@ -320,18 +306,30 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
         ))
         return True
 
+    def _process_rotary_encoder(self) -> bool:
+        """Process the next event from the rotary encoder."""
+        rotary_encoder_output = self._rotary_encoder.output()
+        if rotary_encoder_output is None:
+            return False
+
+        self._backend.input(backend.ReceiveDataEvent(
+            wall_time=self.wall_time, monotonic_time=self.monotonic_time,
+            frontend_receive=rotary_encoder_output
+        ))
+        return True
+
     def _process_devices(self) -> bool:
         """Process the next event from every device."""
         any_updated = False
 
         any_updated = self._process_mcu() or any_updated
         any_updated = self._process_frontend() or any_updated
-        any_updated = self._process_rotary_encoder() or any_updated
         # TODO: why do we need an exception handler here?
         try:
             any_updated = self._process_file() or any_updated
         except exceptions.ProtocolDataError as err:
             self._logger.error(err)
+        any_updated = self._process_rotary_encoder() or any_updated
 
         return any_updated
 
@@ -414,13 +412,6 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, ReceiveOutputEvent]):
 class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
     """Filter which transforms high-level events into send bytes."""
 
-    # TODO: can we remove _buffer?
-    _buffer: channels.DequeChannel[SendEvent] = attr.ib(
-        factory=channels.DequeChannel
-    )
-
-    _backend: backend.SendFilter = attr.ib(factory=backend.SendFilter)
-
     # Devices
     _mcu: mcu.SendFilter = attr.ib(factory=mcu.SendFilter)
     _frontend: frontend.SendFilter = attr.ib(factory=frontend.SendFilter)
@@ -428,46 +419,21 @@ class SendFilter(protocols.Filter[SendEvent, SendOutputEvent]):
 
     def input(self, event: Optional[SendEvent]) -> None:
         """Handle input events."""
-        if event is None or not event.has_data():
-            return
-
-        self._buffer.input(event)
+        self._mcu.input(backend.get_mcu_send(event))
+        self._frontend.input(backend.get_frontend_send(event))
+        self._file.input(backend.get_file_send(event))
 
     def output(self) -> Optional[SendOutputEvent]:
         """Emit the next output event."""
-        any_updated = False
-        self._process_buffer()
-        backend_output = self._backend.output()
-        any_updated = (backend_output is not None) or any_updated
-
-        self._mcu.input(backend.get_mcu_send(backend_output))
-        mcu_output = self._mcu.output()
-        any_updated = (mcu_output is not None) or any_updated
-
-        self._frontend.input(backend.get_frontend_send(backend_output))
-        frontend_output = self._frontend.output()
-        any_updated = (frontend_output is not None) or any_updated
-
-        self._file.input(backend.get_file_send(backend_output))
-        file_output = self._file.output()
-        any_updated = (file_output is not None) or any_updated
-
-        if not any_updated:
+        send_event = SendOutputEvent(
+            serial_send=self._mcu.output(),
+            websocket_send=self._frontend.output(),
+            file_send=self._file.output()
+        )
+        if not send_event.has_data():
             return None
 
-        output = SendOutputEvent(
-            serial_send=mcu_output, websocket_send=frontend_output,
-            file_send=file_output
-        )
-        return output
-
-    def _process_buffer(self) -> None:
-        """Process the next event in the input buffer."""
-        try:
-            event = self._buffer.output()
-            self._backend.input(event)
-        except IndexError:
-            pass
+        return send_event
 
     @property
     def file(self) -> file.SendFilter:

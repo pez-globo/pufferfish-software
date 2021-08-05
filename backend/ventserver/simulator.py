@@ -278,9 +278,15 @@ async def main() -> None:
                 while True:
                     receive_output = await channel.output()
                     await _trio.process_protocol_send(
-                        receive_output.server_send, protocol,
+                        receive_output.states_send, protocol,
                         None, websocket_endpoint, filehandler
                     )
+
+                    if receive_output.sysclock_setting is not None:
+                        logger.info(
+                            'Changing system clock from %s to %s',
+                            time.time(), receive_output.sysclock_setting
+                        )
 
                     if receive_output.kill_frontend:
                         nursery.start_soon(

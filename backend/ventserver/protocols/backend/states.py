@@ -150,12 +150,6 @@ FILE_OUTPUT_ROOT_SCHEDULE = (
 )
 FILE_OUTPUT_SCHEDULE = list(FILE_INPUT_TYPES.values())
 
-SYSCLOCK_OUTPUT_SCHEDULE = [
-    StateSegment.SYSTEM_SETTINGS
-    # TODO: add a sysclock I/O endpoint, as well as a sysclock device protocol
-]
-SYSCLOCK_OUTPUT_ROOT_SCHEDULE = [Sender.EVENT_SCHEDULE]
-
 SERVER_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.BackendConnections: StateSegment.BACKEND_CONNECTIONS
 }
@@ -193,7 +187,6 @@ class SendEvent(events.Event):
     mcu_send: Optional[mcu.UpperEvent] = attr.ib(default=None)
     frontend_send: Optional[frontend.UpperEvent] = attr.ib(default=None)
     file_send: Optional[frontend.UpperEvent] = attr.ib(default=None)
-    # sysclock_send: Optional[sysclock.UpperEvent] = attr.ib(default=None)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
@@ -201,7 +194,6 @@ class SendEvent(events.Event):
             self.mcu_send is not None
             or self.frontend_send is not None
             or self.file_send is not None
-            # or self.sysclock_send is not None
         )
 
 

@@ -49,11 +49,28 @@ class AlarmMuteCancellationEvent(events.Event):
         return True
 
 
+@attr.s
+class OutputEvent(events.Event):
+    """Output event."""
+
+    states_send: Optional[states.SendEvent] = attr.ib(default=None)
+    sysclock_setting: Optional[float] = attr.ib(default=None)
+
+    def has_data(self) -> bool:
+        """Return whether the event has data."""
+        if self.sysclock_setting is not None:
+            return True
+
+        if self.states_send is not None:
+            return self.states_send.has_data()
+
+        return False
+
+
 ReceiveDataEvent = states.ReceiveEvent
 ReceiveEvent = Union[
     states.ReceiveEvent, ExternalLogEvent, AlarmMuteCancellationEvent
 ]
-OutputEvent = states.SendEvent
 SendEvent = states.SendEvent
 
 
@@ -121,6 +138,8 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         if event is None:
             return None
 
+        output_event = OutputEvent()
+
         # Process input event
         self._update_clock(event)
         if isinstance(event, states.ReceiveEvent):
@@ -131,7 +150,7 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             self._handle_alarm_mute_cancellation(event)
 
         # Run internal services
-        self._handle_system_settings()
+        output_event.sysclock_setting = self._handle_system_settings()
 
         # Maintain internal data connections
         self._handle_mcu_log_events()
@@ -139,7 +158,16 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         self._handle_log_events_sending()
 
         # Output any scheduled outbound state update
-        return self._state_synchronizers.output()
+        output_event.states_send = self._state_synchronizers.output()
+
+        # Produce output
+        # Note: we only want to return None when there are no inputs to
+        # process; if we processed an input but our output_event does not have
+        # any data inside it, we might still have more inputs to process (in
+        # which case we should not return None, since None signals that there is
+        # no more filter processing to do until the next time an input is
+        # passed into the filter).
+        return output_event
 
     def _update_clock(self, event: ReceiveEvent) -> None:
         """Handle any clock update."""
@@ -277,14 +305,18 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             ))
             self._event_log_receiver.input(self._local_alarms.output())
 
-    def _handle_system_settings(self) -> None:
-        """Run the SystemSettings request/response service."""
+    def _handle_system_settings(self) -> Optional[float]:
+        """Run the SystemSettings request/response service.
+
+        Returns the new system (wall) clock time to set on the system, if it
+        should be changed.
+        """
         request = typing.cast(
             Optional[frontend_pb.SystemSettingsRequest],
             self.store[states.StateSegment.SYSTEM_SETTINGS_REQUEST]
         )
         if request is None:
-            return
+            return None
 
         response = typing.cast(
             Optional[frontend_pb.SystemSettings],
@@ -294,17 +326,13 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             self._logger.error(
                 'SystemSettings was not initialized in the store!'
             )
-            return
+            return None
 
         if request.seq_num != (response.seq_num + 1) % (2 ** 32):
-            return
+            return None
 
         response.display_brightness = request.display_brightness
         if int(request.time / 60) != int(self.wall_time * 1000 / 60):
-            # print(
-            #     'Changing system time from', self.wall_time,
-            #     'to', request.time / 1000
-            # )
             self._local_alarms.input(log.LocalLogInputEvent(
                 wall_time=self.wall_time, new_event=mcu_pb.LogEvent(
                     code=mcu_pb.LogEventCode.sysclock_changed,
@@ -317,68 +345,49 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
         response.time = request.time
         response.seq_num = request.seq_num
 
-
-@attr.s
-class SendFilter(protocols.Filter[SendEvent, OutputEvent]):
-    """Filter which unwraps output data from an event class."""
-
-    _buffer: channels.DequeChannel[SendEvent] = attr.ib(
-        factory=channels.DequeChannel
-    )
-
-    def input(self, event: Optional[SendEvent]) -> None:
-        """Handle input events."""
-        if event is None or not event.has_data():
-            return
-
-        self._buffer.input(event)
-
-    def output(self) -> Optional[OutputEvent]:
-        """Emit the next output event."""
-        event = self._buffer.output()
-        if event is None:
-            return None
-
-        if isinstance(event, OutputEvent):
-            return event
-
-        return None
+        return response.time / 1000
 
 
 # Protocols
 
 
 def get_mcu_send(
-        backend_output: Optional[OutputEvent]
+        backend_output: Optional[SendEvent]
 ) -> Optional[mcu.UpperEvent]:
     """Convert a OutputEvent to an MCUUpperEvent."""
     if backend_output is None:
         return None
-    if backend_output.mcu_send is None:
+
+    mcu_send = backend_output.mcu_send
+    if mcu_send is None:
         return None
 
-    return backend_output.mcu_send
+    return mcu_send
 
 
 def get_frontend_send(
-        backend_output: Optional[OutputEvent]
+        backend_output: Optional[SendEvent]
 ) -> Optional[frontend.UpperEvent]:
     """Convert a OutputEvent to an FrontendUpperEvent."""
     if backend_output is None:
         return None
-    if backend_output.frontend_send is None:
+
+    frontend_send = backend_output.frontend_send
+    if frontend_send is None:
         return None
 
-    return backend_output.frontend_send
+    return frontend_send
 
 
 def get_file_send(
-        backend_output: Optional[OutputEvent]
+        backend_output: Optional[SendEvent]
 ) -> Optional[mcu.UpperEvent]:
     """Convert a OutputEvent to an MCUUpperEvent."""
     if backend_output is None:
         return None
-    if backend_output.file_send is None:
+
+    file_send = backend_output.file_send
+    if file_send is None:
         return None
 
-    return backend_output.file_send
+    return file_send
