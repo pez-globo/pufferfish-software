@@ -136,7 +136,7 @@ FILE_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
     mcu_pb.AlarmLimitsRequest: StateSegment.ALARM_LIMITS_REQUEST,
     mcu_pb.AlarmMuteRequest: StateSegment.ALARM_MUTE_REQUEST,
-    frontend_pb.SystemSettings: StateSegment.SYSTEM_SETTINGS_REQUEST,
+    frontend_pb.SystemSettings: StateSegment.SYSTEM_SETTINGS,
     frontend_pb.SystemSettingsRequest: StateSegment.SYSTEM_SETTINGS_REQUEST,
     # Frontend protobuf message isn't defined yet:
     # frontend_pb.FrontendDisplay: StateSegment.FRONTEND_DISPLAY_REQUEST,
