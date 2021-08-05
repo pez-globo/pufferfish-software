@@ -25,8 +25,8 @@ example_messages = [
 @hp.example(input_bytes=b'')
 @hp.example(input_bytes=bytes([1 for i in range(260)]))
 def test_mcu_receive_random(input_bytes: bytes) -> None:
-    """Test ReceiveFilter behavior with random inputs."""
-    receiver = mcu.ReceiveFilter()
+    """Test Receiver behavior with random inputs."""
+    receiver = mcu.Receiver()
     receiver.input(input_bytes)
     for _ in receiver.output_all():  # no exceptions should be raised
         pass
@@ -36,9 +36,9 @@ def test_mcu_receive_random(input_bytes: bytes) -> None:
     st.sampled_from(example_messages), max_size=300
 ))
 def test_mcu_roundtrip(message_sequence: List[betterproto.Message]) -> None:
-    """Test ReceiveFilter+SendFilter round-tripping."""
-    sender = mcu.SendFilter()
-    receiver = mcu.ReceiveFilter()
+    """Test Receiver+Sender round-tripping."""
+    sender = mcu.Sender()
+    receiver = mcu.Receiver()
     for message in message_sequence:
         sender.input(message)
         receiver.input(sender.output())
