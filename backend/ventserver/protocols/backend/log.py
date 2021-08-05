@@ -88,7 +88,7 @@ class LocalLogInputEvent(events.Event):
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
-        return self.new_event is not None
+        return self.wall_time is not None or self.new_event is not None
 
 
 @attr.s

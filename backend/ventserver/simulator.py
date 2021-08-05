@@ -240,6 +240,12 @@ async def main() -> None:
         _log_events_receiver
     )
 
+    # Initialize time
+    protocol.receive.input(server.ReceiveDataEvent(
+        wall_time=time.time(), monotonic_time=time.monotonic()
+    ))
+    simulated_log.input(log.LocalLogInputEvent(wall_time=time.time()))
+
     # Make server protocol think the MCU is connnected
     protocol.receive._connection_states.has_mcu = True
 
