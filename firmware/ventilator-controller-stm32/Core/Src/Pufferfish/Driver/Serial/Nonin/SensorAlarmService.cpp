@@ -10,15 +10,25 @@
 namespace Pufferfish::Driver::Serial::Nonin {
 
 using Application::LogEventType;
+const LogEventType system = LogEventType::LogEventType_system;
 
 void SensorAlarmsService::transform(
     const SensorConnections &sensor_connections, Application::AlarmsManager &alarms_manager) {
-  if (!sensor_connections.nonin_connected) {
-    alarms_manager.activate_alarm(
-        Application::LogEventCode_nonin_disconnected, LogEventType::LogEventType_system);
-  } else {
-    alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_disconnected);
-  }
+  !sensor_connections.nonin_connected
+      ? alarms_manager.activate_alarm(Application::LogEventCode_nonin_disconnected, system)
+      : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_disconnected);
+
+  sensor_connections.sensor_alarm
+      ? alarms_manager.activate_alarm(Application::LogEventCode_nonin_disconnected, system)
+      : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_disconnected);
+
+  sensor_connections.sensor_disconnected
+      ? alarms_manager.activate_alarm(Application::LogEventCode_nonin_disconnected, system)
+      : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_disconnected);
+
+  sensor_connections.out_of_track
+      ? alarms_manager.activate_alarm(Application::LogEventCode_nonin_disconnected, system)
+      : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_disconnected);
 }
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

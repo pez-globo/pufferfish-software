@@ -60,6 +60,7 @@
 #include "Pufferfish/Driver/Serial/Backend/UART.h"
 #include "Pufferfish/Driver/Serial/FDO2/Sensor.h"
 #include "Pufferfish/Driver/Serial/Nonin/Sensor.h"
+#include "Pufferfish/Driver/Serial/Nonin/SensorAlarmService.h"
 #include "Pufferfish/Driver/ShiftedOutput.h"
 #include "Pufferfish/HAL/Endian.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
@@ -599,6 +600,7 @@ int main(void)
   board_led1.write(false);
 
   // Configure the simulators
+  PF::Driver::Serial::Nonin::SensorConnections sensor_connections{};
   PF::Driver::BreathingCircuit::SensorStates breathing_circuit_sensor_states{};
   uint32_t discard_i = 0;
   float discard_f = 0;
@@ -641,6 +643,7 @@ int main(void)
     // Independent Sensors
     fdo2.output(hfnc.sensor_vars().po2);
     nonin_oem.output(store.sensor_measurements_raw().spo2, store.sensor_measurements_raw().hr);
+    PF::Driver::Serial::Nonin::SensorAlarmsService::transform(sensor_connections, alarms_manager);
 
     // Breathing Circuit Sensor Simulator
     simulator.transform(

@@ -33,6 +33,11 @@ InitializableState Sensor::output(float &spo2, float &hr) {
     return InitializableState::failed;
   }
 
+  // measurements status
+  sensor_connections_.sensor_disconnected = find(measurements_.sensor_disconnect, false);
+  sensor_connections_.sensor_alarm = find(measurements_.sensor_alarm, true);
+  sensor_connections_.out_of_track = find(measurements_.out_of_track, true);
+
   if (measure(measurements_) != InitializableState::ok) {
     spo2 = NAN;
     hr = NAN;
@@ -58,6 +63,11 @@ InitializableState Sensor::measure(Sample measurements) {
   }
 
   return InitializableState::ok;
+}
+
+bool Sensor::find(const Flags &measurement, const bool &expected) {
+  const bool *it = std::find(measurement.begin(), measurement.end(), expected);
+  return it != measurement.end();
 }
 
 }  // namespace Pufferfish::Driver::Serial::Nonin
