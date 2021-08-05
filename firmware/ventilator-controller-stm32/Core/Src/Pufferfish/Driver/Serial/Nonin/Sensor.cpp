@@ -9,39 +9,54 @@
 
 #include <cmath>
 
-#include "Pufferfish/HAL/Interfaces/Time.h"
-#include "Pufferfish/Util/Timeouts.h"
-
 namespace Pufferfish::Driver::Serial::Nonin {
-
-static const uint8_t value_unavailable = 127;
 
 // Sensor
 
 InitializableState Sensor::setup() {
-  setup_ = true;
-  float spo2 = NAN;
-  float hr = NAN;
-  return output(spo2, hr);
+  // sensor is connected when we have measurements available
+  switch (measure(measurements_)) {
+    case InitializableState::failed:
+      return InitializableState::failed;
+    case InitializableState::ok:
+      sensor_connections_.nonin_connected = true;
+      return InitializableState::ok;
+    case InitializableState::setup:
+      break;
+  }
+
+  return InitializableState::setup;
 }
 
 InitializableState Sensor::output(float &spo2, float &hr) {
-  if (!setup_) {
+  if (!sensor_connections_.nonin_connected) {
     return InitializableState::failed;
   }
 
-  if (device_.output(measurements_) == PacketStatus::ok) {
-    if (measurements_.e_spo2_d == value_unavailable) {
-      spo2 = NAN;
-    } else {
-      spo2 = measurements_.e_spo2_d;
-    }
-    if (measurements_.e_hr_d == value_unavailable) {
-      hr = NAN;
-    } else {
-      hr = measurements_.e_hr_d;
-    }
+  if (measure(measurements_) != InitializableState::ok) {
+    spo2 = NAN;
+    hr = NAN;
+    return InitializableState::failed;
   }
+
+  hr = measurements_.e_hr_d;
+  spo2 = measurements_.e_spo2_d;
+
+  return InitializableState::ok;
+}
+
+InitializableState Sensor::measure(Sample measurements) {
+  switch (device_.output(measurements)) {
+    case PacketStatus::invalid_checksum:
+    case PacketStatus::invalid_header:
+      return InitializableState::failed;
+    case PacketStatus::waiting:
+    case PacketStatus::frame_loss:
+      return InitializableState::setup;
+    case PacketStatus::ok:
+      break;
+  }
+
   return InitializableState::ok;
 }
 

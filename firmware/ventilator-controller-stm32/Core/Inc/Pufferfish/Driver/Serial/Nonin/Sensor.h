@@ -18,6 +18,10 @@
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
+struct SensorConnections {
+  bool nonin_connected;
+};
+
 /**
  * High-level (stateful) driver for Nonin OEM III SpO2 sensor
  */
@@ -27,12 +31,13 @@ class Sensor : public Initializable {
 
   InitializableState setup() override;
   InitializableState output(float &spo2, float &hr);
+  InitializableState measure(Sample measurements);
 
  private:
   Device &device_;
-  bool setup_ = false;
 
   Sample measurements_{};
+  SensorConnections sensor_connections_{};
 };
 
 }  // namespace Pufferfish::Driver::Serial::Nonin
