@@ -17,11 +17,7 @@ import betterproto
 import trio
 
 from ventserver.integration import _trio
-from ventserver.io import frontend
-from ventserver.io.trio import (
-    channels, fileio, rotaryencoder, processes, websocket
-)
-from ventserver.protocols import exceptions
+from ventserver.io.trio import channels, fileio, processes, websocket
 from ventserver.protocols.application import debouncing, lists
 from ventserver.protocols.backend import alarms, log, server, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
@@ -194,33 +190,21 @@ async def main() -> None:
     protocol = server.Protocol()
 
     # I/O Endpoints
+    serial_endpoint = None
     websocket_endpoint = websocket.Driver()
-
-    rotary_encoder = None
-    try:
-        rotary_encoder = rotaryencoder.Driver()
-        await rotary_encoder.open()
-    except exceptions.ProtocolError:
-        rotary_encoder = None
-        logger.error(
-            'Unable to connect to the pigpiod service for the rotary encoder. '
-            'Is the service running?'
-        )
-        logger.warning('Running without rotary encoder support!')
-
-    # I/O File
-    filehandler = fileio.Handler()
+    fileio_endpoint = fileio.Handler()
+    rotary_encoder_endpoint = \
+        await application.open_rotary_encoder_endpoint(logger)
 
     # Server Receive Outputs
-    channel: channels.TrioChannel[
-        server.ReceiveOutputEvent
-    ] = channels.TrioChannel()
+    channel: channels.TrioChannel[server.ReceiveOutputEvent] = \
+        channels.TrioChannel()
 
     # Initialize states with defaults
     store = protocol.receive.backend.store
     initialize_states(store)
     await application.initialize_states_from_file(
-        store, protocol, filehandler
+        store, protocol, fileio_endpoint
     )
 
     # Initialize events log manager
@@ -264,7 +248,8 @@ async def main() -> None:
                         _trio.process_all, channel=channel,
                         push_endpoint=channel.push_endpoint
                     ),
-                    protocol, None, websocket_endpoint, rotary_encoder
+                    protocol,
+                    serial_endpoint, websocket_endpoint, rotary_encoder_endpoint
                 )
                 nursery.start_soon(
                     service_requests, store,
@@ -277,22 +262,11 @@ async def main() -> None:
 
                 while True:
                     receive_output = await channel.output()
-                    await _trio.process_protocol_send(
-                        receive_output.states_send, protocol,
-                        None, websocket_endpoint, filehandler
+                    await application.handle_receive_outputs(
+                        receive_output, protocol,
+                        serial_endpoint, websocket_endpoint, fileio_endpoint,
+                        nursery
                     )
-
-                    if receive_output.sysclock_setting is not None:
-                        logger.info(
-                            'Changing system clock from %s to %s',
-                            time.time(), receive_output.sysclock_setting
-                        )
-
-                    if receive_output.kill_frontend:
-                        nursery.start_soon(
-                            processes.kill_process,
-                            frontend.FrontendProps().process_name
-                        )
 
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
