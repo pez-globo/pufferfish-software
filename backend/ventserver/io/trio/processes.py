@@ -19,3 +19,22 @@ async def kill_process(process_name: str) -> None:
         logger.error(
             'Failed to kill process: %s', err.stderr.decode('utf-8').rstrip()
         )
+
+
+async def make_dialog(
+    message: str, level: str = 'error', width: int = 300, height: int = 150
+) -> None:
+    """Spawn subprocess to make a GUI dialog.
+
+    level may be error, warning, info, or question.
+    """
+    try:
+        await trio.run_process([
+            'zenity', '--{}'.format(level), '--text', message,
+            '--width={}'.format(width), '--height={}'.format(height)
+        ], capture_stderr=True)
+    except subprocess.CalledProcessError as err:
+        logger.error(
+            'Failed to make %s-level dialog "%s": %s',
+            level, message, err.stderr.decode('utf-8').rstrip()
+        )

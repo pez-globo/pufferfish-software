@@ -234,6 +234,13 @@ async def main() -> None:
     # Make server protocol think the MCU is connnected
     protocol.receive._connection_states.has_mcu = True
 
+    await processes.make_dialog(
+        'Running simulator backend. If this is running on a real ventilator, '
+        'the software is not configured correctly and will not be able to '
+        'talk to the hardware inside the ventilator!',
+        'warning'
+    )
+
     try:
         async with channel.push_endpoint:
             async with trio.open_nursery() as nursery:
