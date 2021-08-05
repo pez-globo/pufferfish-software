@@ -69,8 +69,15 @@ INITIAL_VALUES = {
         power_left=0, charging=True
     ),
     states.StateSegment.SCREEN_STATUS: mcu_pb.ScreenStatus(lock=False),
-    states.StateSegment.SYSTEM_SETTING_REQUEST:
-        frontend_pb.SystemSettingRequest(brightness=100, date=int(time.time())),
+    states.StateSegment.SYSTEM_SETTINGS: frontend_pb.SystemSettings(
+        # TODO: initialize the sequence number
+        display_brightness=100, time=int(time.time())
+    ),
+    states.StateSegment.SYSTEM_SETTINGS_REQUEST:
+        frontend_pb.SystemSettingsRequest(
+            # TODO: initialize the sequence number
+            display_brightness=100, time=int(time.time())
+        ),
     states.StateSegment.FRONTEND_DISPLAY: frontend_pb.FrontendDisplaySetting(
         theme=frontend_pb.ThemeVariant.dark,
         unit=frontend_pb.Unit.metric,

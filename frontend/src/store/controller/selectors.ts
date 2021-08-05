@@ -25,7 +25,11 @@ import {
   BackendConnections,
   ScreenStatus,
 } from '../proto/mcu_pb';
-import { FrontendDisplaySetting, SystemSettingRequest } from '../proto/frontend_pb';
+import {
+  FrontendDisplaySetting,
+  SystemSettings,
+  SystemSettingsRequest,
+} from '../proto/frontend_pb';
 import { StoreState } from '../types';
 import {
   Measurements,
@@ -33,6 +37,7 @@ import {
   AlarmLimitsRequestResponse,
   EventLog,
   RotaryEncoderParameter,
+  SystemSettingsRequestResponse,
   Plots,
   WaveformHistories,
   WaveformHistory,
@@ -444,9 +449,20 @@ export const getRotaryEncoderButtonPressed = createSelector(
 
 // System Settings
 
-export const getSystemSettingRequest = createSelector(
+export const getSystemSettings = createSelector(
   getController,
-  (states: ControllerStates): SystemSettingRequest | null => states.systemSettingRequest,
+  (states: ControllerStates): SystemSettingsRequestResponse => states.systemSettings,
+);
+
+export const getSystemSettingsCurrent = createSelector(
+  getSystemSettings,
+  (systemSettings: SystemSettingsRequestResponse): SystemSettings | null => systemSettings.current,
+);
+
+export const getSystemSettingsRequest = createSelector(
+  getSystemSettings,
+  (systemSettings: SystemSettingsRequestResponse): SystemSettingsRequest | null =>
+    systemSettings.request,
 );
 
 // Display Settings

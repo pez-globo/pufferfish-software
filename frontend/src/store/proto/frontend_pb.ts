@@ -77,19 +77,26 @@ export interface RotaryEncoder {
   lastButtonUp: number;
 }
 
-/** TODO: we also need a request version of this message, FrontendDisplaySettingsRequest */
+/**
+ * TODO: we also need a request version of this message, FrontendDisplaySettingsRequest
+ * TODO: rename this to FrontendDisplaySettings (with the "s" at the end)
+ */
 export interface FrontendDisplaySetting {
   theme: ThemeVariant;
   unit: Unit;
 }
 
-/**
- * TODO: we also need a response version of this message, SystemSettings
- * TODO: we should name this SystemSettingsRequest, not SystemSettingRequest
- */
-export interface SystemSettingRequest {
-  brightness: number;
-  date: number;
+export interface SystemSettings {
+  time: number;
+  /** TODO: move display_brightness into FrontendDisplaySetting */
+  displayBrightness: number;
+  seqNum: number;
+}
+
+export interface SystemSettingsRequest {
+  time: number;
+  displayBrightness: number;
+  seqNum: number;
 }
 
 const baseRotaryEncoder: object = {
@@ -309,37 +316,40 @@ export const FrontendDisplaySetting = {
   },
 };
 
-const baseSystemSettingRequest: object = { brightness: 0, date: 0 };
+const baseSystemSettings: object = { time: 0, displayBrightness: 0, seqNum: 0 };
 
-export const SystemSettingRequest = {
+export const SystemSettings = {
   encode(
-    message: SystemSettingRequest,
+    message: SystemSettings,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.brightness !== 0) {
-      writer.uint32(8).uint32(message.brightness);
+    if (message.time !== 0) {
+      writer.uint32(8).uint64(message.time);
     }
-    if (message.date !== 0) {
-      writer.uint32(16).uint32(message.date);
+    if (message.displayBrightness !== 0) {
+      writer.uint32(16).uint32(message.displayBrightness);
+    }
+    if (message.seqNum !== 0) {
+      writer.uint32(24).uint32(message.seqNum);
     }
     return writer;
   },
 
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): SystemSettingRequest {
+  decode(input: _m0.Reader | Uint8Array, length?: number): SystemSettings {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseSystemSettingRequest } as SystemSettingRequest;
+    const message = { ...baseSystemSettings } as SystemSettings;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.brightness = reader.uint32();
+          message.time = longToNumber(reader.uint64() as Long);
           break;
         case 2:
-          message.date = reader.uint32();
+          message.displayBrightness = reader.uint32();
+          break;
+        case 3:
+          message.seqNum = reader.uint32();
           break;
         default:
           reader.skipType(tag & 7);
@@ -349,43 +359,179 @@ export const SystemSettingRequest = {
     return message;
   },
 
-  fromJSON(object: any): SystemSettingRequest {
-    const message = { ...baseSystemSettingRequest } as SystemSettingRequest;
-    if (object.brightness !== undefined && object.brightness !== null) {
-      message.brightness = Number(object.brightness);
+  fromJSON(object: any): SystemSettings {
+    const message = { ...baseSystemSettings } as SystemSettings;
+    if (object.time !== undefined && object.time !== null) {
+      message.time = Number(object.time);
     } else {
-      message.brightness = 0;
+      message.time = 0;
     }
-    if (object.date !== undefined && object.date !== null) {
-      message.date = Number(object.date);
+    if (
+      object.displayBrightness !== undefined &&
+      object.displayBrightness !== null
+    ) {
+      message.displayBrightness = Number(object.displayBrightness);
     } else {
-      message.date = 0;
+      message.displayBrightness = 0;
+    }
+    if (object.seqNum !== undefined && object.seqNum !== null) {
+      message.seqNum = Number(object.seqNum);
+    } else {
+      message.seqNum = 0;
     }
     return message;
   },
 
-  toJSON(message: SystemSettingRequest): unknown {
+  toJSON(message: SystemSettings): unknown {
     const obj: any = {};
-    message.brightness !== undefined && (obj.brightness = message.brightness);
-    message.date !== undefined && (obj.date = message.date);
+    message.time !== undefined && (obj.time = message.time);
+    message.displayBrightness !== undefined &&
+      (obj.displayBrightness = message.displayBrightness);
+    message.seqNum !== undefined && (obj.seqNum = message.seqNum);
     return obj;
   },
 
-  fromPartial(object: DeepPartial<SystemSettingRequest>): SystemSettingRequest {
-    const message = { ...baseSystemSettingRequest } as SystemSettingRequest;
-    if (object.brightness !== undefined && object.brightness !== null) {
-      message.brightness = object.brightness;
+  fromPartial(object: DeepPartial<SystemSettings>): SystemSettings {
+    const message = { ...baseSystemSettings } as SystemSettings;
+    if (object.time !== undefined && object.time !== null) {
+      message.time = object.time;
     } else {
-      message.brightness = 0;
+      message.time = 0;
     }
-    if (object.date !== undefined && object.date !== null) {
-      message.date = object.date;
+    if (
+      object.displayBrightness !== undefined &&
+      object.displayBrightness !== null
+    ) {
+      message.displayBrightness = object.displayBrightness;
     } else {
-      message.date = 0;
+      message.displayBrightness = 0;
+    }
+    if (object.seqNum !== undefined && object.seqNum !== null) {
+      message.seqNum = object.seqNum;
+    } else {
+      message.seqNum = 0;
     }
     return message;
   },
 };
+
+const baseSystemSettingsRequest: object = {
+  time: 0,
+  displayBrightness: 0,
+  seqNum: 0,
+};
+
+export const SystemSettingsRequest = {
+  encode(
+    message: SystemSettingsRequest,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.time !== 0) {
+      writer.uint32(8).uint64(message.time);
+    }
+    if (message.displayBrightness !== 0) {
+      writer.uint32(16).uint32(message.displayBrightness);
+    }
+    if (message.seqNum !== 0) {
+      writer.uint32(24).uint32(message.seqNum);
+    }
+    return writer;
+  },
+
+  decode(
+    input: _m0.Reader | Uint8Array,
+    length?: number
+  ): SystemSettingsRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseSystemSettingsRequest } as SystemSettingsRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.time = longToNumber(reader.uint64() as Long);
+          break;
+        case 2:
+          message.displayBrightness = reader.uint32();
+          break;
+        case 3:
+          message.seqNum = reader.uint32();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SystemSettingsRequest {
+    const message = { ...baseSystemSettingsRequest } as SystemSettingsRequest;
+    if (object.time !== undefined && object.time !== null) {
+      message.time = Number(object.time);
+    } else {
+      message.time = 0;
+    }
+    if (
+      object.displayBrightness !== undefined &&
+      object.displayBrightness !== null
+    ) {
+      message.displayBrightness = Number(object.displayBrightness);
+    } else {
+      message.displayBrightness = 0;
+    }
+    if (object.seqNum !== undefined && object.seqNum !== null) {
+      message.seqNum = Number(object.seqNum);
+    } else {
+      message.seqNum = 0;
+    }
+    return message;
+  },
+
+  toJSON(message: SystemSettingsRequest): unknown {
+    const obj: any = {};
+    message.time !== undefined && (obj.time = message.time);
+    message.displayBrightness !== undefined &&
+      (obj.displayBrightness = message.displayBrightness);
+    message.seqNum !== undefined && (obj.seqNum = message.seqNum);
+    return obj;
+  },
+
+  fromPartial(
+    object: DeepPartial<SystemSettingsRequest>
+  ): SystemSettingsRequest {
+    const message = { ...baseSystemSettingsRequest } as SystemSettingsRequest;
+    if (object.time !== undefined && object.time !== null) {
+      message.time = object.time;
+    } else {
+      message.time = 0;
+    }
+    if (
+      object.displayBrightness !== undefined &&
+      object.displayBrightness !== null
+    ) {
+      message.displayBrightness = object.displayBrightness;
+    } else {
+      message.displayBrightness = 0;
+    }
+    if (object.seqNum !== undefined && object.seqNum !== null) {
+      message.seqNum = object.seqNum;
+    } else {
+      message.seqNum = 0;
+    }
+    return message;
+  },
+};
+
+declare var self: any | undefined;
+declare var window: any | undefined;
+var globalThis: any = (() => {
+  if (typeof globalThis !== "undefined") return globalThis;
+  if (typeof self !== "undefined") return self;
+  if (typeof window !== "undefined") return window;
+  if (typeof global !== "undefined") return global;
+  throw "Unable to locate global object";
+})();
 
 type Builtin = Date | Function | Uint8Array | string | number | undefined;
 export type DeepPartial<T> = T extends Builtin
@@ -397,6 +543,13 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+function longToNumber(long: Long): number {
+  if (long.gt(Number.MAX_SAFE_INTEGER)) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  return long.toNumber();
+}
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;

@@ -20,7 +20,12 @@ import {
   BackendConnections,
   ScreenStatus,
 } from './mcu_pb';
-import { RotaryEncoder, SystemSettingRequest, FrontendDisplaySetting } from './frontend_pb';
+import {
+  RotaryEncoder,
+  SystemSettings,
+  SystemSettingsRequest,
+  FrontendDisplaySetting,
+} from './frontend_pb';
 
 // MESSAGES
 
@@ -49,7 +54,8 @@ export type PBMessage =
 
   // frontend_pb
   | RotaryEncoder
-  | SystemSettingRequest
+  | SystemSettings
+  | SystemSettingsRequest
   | FrontendDisplaySetting;
 
 export type PBMessageType =
@@ -77,7 +83,8 @@ export type PBMessageType =
 
   // frontend_pb
   | typeof RotaryEncoder
-  | typeof SystemSettingRequest
+  | typeof SystemSettings
+  | typeof SystemSettingsRequest
   | typeof FrontendDisplaySetting;
 
 export enum MessageType {
@@ -105,8 +112,8 @@ export enum MessageType {
 
   // frontend_pb
   RotaryEncoder = 129,
-  SystemSetting = 130,
-  SystemSettingRequest = 131,
+  SystemSettings = 130,
+  SystemSettingsRequest = 131,
   FrontendDisplaySetting = 132,
   FrontendDisplaySettingRequest = 133,
 }
@@ -137,7 +144,8 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
 
   // frontend_pb
   [MessageType.RotaryEncoder, RotaryEncoder],
-  [MessageType.SystemSettingRequest, SystemSettingRequest],
+  [MessageType.SystemSettings, SystemSettings],
+  [MessageType.SystemSettingsRequest, SystemSettingsRequest],
   [MessageType.FrontendDisplaySetting, FrontendDisplaySetting],
 ]);
 
@@ -167,6 +175,7 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
 
   // frontend_pb
   [RotaryEncoder, MessageType.RotaryEncoder],
-  [SystemSettingRequest, MessageType.SystemSettingRequest],
+  [SystemSettings, MessageType.SystemSettings],
+  [SystemSettingsRequest, MessageType.SystemSettingsRequest],
   [FrontendDisplaySetting, MessageType.FrontendDisplaySetting],
 ]);

@@ -9,7 +9,7 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { commitRequest } from '../../store/controller/actions';
-import { FrontendDisplaySetting, SystemSettingRequest } from '../../store/proto/frontend_pb';
+import { FrontendDisplaySetting, SystemSettingsRequest } from '../../store/proto/frontend_pb';
 import { MessageType } from '../../store/proto/types';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import { DisplayTab, InfoTab, TestCalibrationTab } from './containers';
@@ -77,7 +77,7 @@ export const SettingsPage = (): JSX.Element => {
    * State to manage System Brightness & time setting
    */
   const [systemSetting, setSystemSetting] = React.useState<
-    SystemSettingRequest | Record<string, unknown>
+    SystemSettingsRequest | Record<string, unknown>
   >();
 
   /**
@@ -106,7 +106,7 @@ export const SettingsPage = (): JSX.Element => {
         }),
       );
       setSystemSetting(
-        SystemSettingRequest.fromJSON({
+        SystemSettingsRequest.fromJSON({
           brightness: settings.brightness,
           date: settings.date,
         }),
@@ -126,8 +126,8 @@ export const SettingsPage = (): JSX.Element => {
       ),
     );
     dispatch(
-      commitRequest<SystemSettingRequest>(
-        MessageType.SystemSettingRequest,
+      commitRequest<SystemSettingsRequest>(
+        MessageType.SystemSettingsRequest,
         systemSetting as Record<string, unknown>,
       ),
     );

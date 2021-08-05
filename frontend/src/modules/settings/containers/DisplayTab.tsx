@@ -18,7 +18,7 @@ import { shallowEqual, useSelector } from 'react-redux';
 import { ThemeVariant, Unit } from '../../../store/proto/frontend_pb';
 import {
   getFrontendDisplaySetting,
-  getSystemSettingRequest,
+  getSystemSettingsRequest,
 } from '../../../store/controller/selectors';
 import { DECIMAL_RADIX } from '../../app/AppConstants';
 import ValueSpinner from '../../controllers/ValueSpinner';
@@ -209,10 +209,10 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   });
   const themeObj = useTheme();
   const { initRefListener } = useRotaryReference(themeObj);
-  const systemSettings = useSelector(getSystemSettingRequest, shallowEqual);
+  const systemSettings = useSelector(getSystemSettingsRequest, shallowEqual);
   const displaySettings = useSelector(getFrontendDisplaySetting, shallowEqual);
   const [brightness, setBrightness] = React.useState(
-    systemSettings === null ? 100 : systemSettings.brightness,
+    systemSettings === null ? 100 : systemSettings.displayBrightness,
   );
   const [theme, setTheme] = React.useState(
     displaySettings === null ? ThemeVariant.dark : displaySettings.theme,
@@ -221,7 +221,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
     displaySettings === null ? Unit.imperial : displaySettings.unit,
   );
   const [date] = React.useState<Date>(
-    systemSettings === null ? new Date() : new Date(systemSettings.date * 1000),
+    systemSettings === null ? new Date() : new Date(systemSettings.time * 1000),
   );
   const [period, setPeriod] = React.useState(date.getHours() >= 12 ? Period.PM : Period.AM);
   const [minute, setMinute] = React.useState(date.getMinutes());

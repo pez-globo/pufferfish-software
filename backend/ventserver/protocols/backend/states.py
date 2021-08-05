@@ -47,8 +47,8 @@ class StateSegment(enum.Enum):
 
     # frontend_pb
     ROTARY_ENCODER = enum.auto()
-    SYSTEM_SETTING = enum.auto()
-    SYSTEM_SETTING_REQUEST = enum.auto()
+    SYSTEM_SETTINGS = enum.auto()
+    SYSTEM_SETTINGS_REQUEST = enum.auto()
     FRONTEND_DISPLAY = enum.auto()
     FRONTEND_DISPLAY_REQUEST = enum.auto()
 
@@ -97,7 +97,7 @@ FRONTEND_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.ExpectedLogEvent: StateSegment.EXPECTED_LOG_EVENT_BE,
     mcu_pb.AlarmMuteRequest: StateSegment.ALARM_MUTE_REQUEST,
     frontend_pb.RotaryEncoder: StateSegment.ROTARY_ENCODER,
-    frontend_pb.SystemSettingRequest: StateSegment.SYSTEM_SETTING_REQUEST,
+    frontend_pb.SystemSettingsRequest: StateSegment.SYSTEM_SETTINGS_REQUEST,
     # Frontend display request protobuf message isn't defined yet:
     # frontend_pb.FrontendDisplayRequest: StateSegment.FRONTEND_DISPLAY_REQUEST,
     # Temporarily, we'll accept FrontendDisplaySetting in its place:
@@ -126,8 +126,8 @@ FRONTEND_OUTPUT_SCHEDULE = [
     StateSegment.SCREEN_STATUS,
     StateSegment.BACKEND_CONNECTIONS,
     StateSegment.ROTARY_ENCODER,
-    StateSegment.SYSTEM_SETTING,
-    StateSegment.SYSTEM_SETTING_REQUEST,
+    StateSegment.SYSTEM_SETTINGS,
+    StateSegment.SYSTEM_SETTINGS_REQUEST,
     StateSegment.FRONTEND_DISPLAY,
     StateSegment.FRONTEND_DISPLAY_REQUEST,
 ]
@@ -136,7 +136,8 @@ FILE_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
     mcu_pb.AlarmLimitsRequest: StateSegment.ALARM_LIMITS_REQUEST,
     mcu_pb.AlarmMuteRequest: StateSegment.ALARM_MUTE_REQUEST,
-    frontend_pb.SystemSettingRequest: StateSegment.SYSTEM_SETTING_REQUEST,
+    frontend_pb.SystemSettings: StateSegment.SYSTEM_SETTINGS_REQUEST,
+    frontend_pb.SystemSettingsRequest: StateSegment.SYSTEM_SETTINGS_REQUEST,
     # Frontend protobuf message isn't defined yet:
     # frontend_pb.FrontendDisplay: StateSegment.FRONTEND_DISPLAY_REQUEST,
 }
@@ -147,14 +148,14 @@ FILE_OUTPUT_ROOT_SCHEDULE = (
         FILE_OUTPUT_MAX_INTERVAL / FILE_OUTPUT_MIN_INTERVAL - 1
     )
 )
-FILE_OUTPUT_SCHEDULE = [
-    StateSegment.PARAMETERS_REQUEST,
-    StateSegment.ALARM_LIMITS_REQUEST,
-    StateSegment.ALARM_MUTE_REQUEST,
-    StateSegment.SYSTEM_SETTING_REQUEST,
-    # Frontend protobuf message isn't defined yet:
-    # StateSegment.FRONTEND_DISPLAY_REQUEST,
+FILE_OUTPUT_SCHEDULE = list(FILE_INPUT_TYPES.values())
+
+SYSCLOCK_OUTPUT_SCHEDULE = [
+    StateSegment.SYSTEM_SETTINGS
+    # TODO: add a sysclock I/O endpoint, as well as a sysclock device protocol
+    # TODO: define a sysclock service protocol
 ]
+SYSCLOCK_OUTPUT_ROOT_SCHEDULE = [Sender.EVENT_SCHEDULE]
 
 SERVER_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.BackendConnections: StateSegment.BACKEND_CONNECTIONS
@@ -193,10 +194,16 @@ class SendEvent(events.Event):
     mcu_send: Optional[mcu.UpperEvent] = attr.ib(default=None)
     frontend_send: Optional[frontend.UpperEvent] = attr.ib(default=None)
     file_send: Optional[frontend.UpperEvent] = attr.ib(default=None)
+    # sysclock_send: Optional[sysclock.UpperEvent] = attr.ib(default=None)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
-        return self.mcu_send is not None or self.frontend_send is not None
+        return (
+            self.mcu_send is not None
+            or self.frontend_send is not None
+            or self.file_send is not None
+            # or self.sysclock_send is not None
+        )
 
 
 # Filters

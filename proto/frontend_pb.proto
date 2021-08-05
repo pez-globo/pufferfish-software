@@ -22,6 +22,7 @@ enum ThemeVariant {
 }
 
 // TODO: we also need a request version of this message, FrontendDisplaySettingsRequest
+// TODO: rename this to FrontendDisplaySettings (with the "s" at the end)
 message FrontendDisplaySetting {
   ThemeVariant theme = 1;
   Unit unit = 2;
@@ -29,9 +30,15 @@ message FrontendDisplaySetting {
 
 // System Settings
 
-// TODO: we also need a response version of this message, SystemSettings
-// TODO: we should name this SystemSettingsRequest, not SystemSettingRequest
-message SystemSettingRequest {
-  uint32 brightness = 1;
-  uint32 date = 2;
+message SystemSettings {
+  uint64 time = 1;
+  // TODO: move display_brightness into FrontendDisplaySetting
+  uint32 display_brightness = 2;
+  uint32 seq_num = 3;
+}
+
+message SystemSettingsRequest {
+  uint64 time = 1;
+  uint32 display_brightness = 2;
+  uint32 seq_num = 3;
 }
