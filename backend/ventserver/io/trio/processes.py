@@ -38,3 +38,34 @@ async def make_dialog(
             'Failed to make %s-level dialog "%s": %s',
             level, message, err.stderr.decode('utf-8').rstrip()
         )
+
+
+async def set_system_time(
+    year: int, month: int, day: int, hour: int, minute: int, second: int
+) -> None:
+    """Spawn subprocess to change the system (wall clock) time."""
+    date_time_string = '{:0>4d}-{:0>2d}-{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}'.format(
+        year, month, day, hour, minute, second
+    )
+    try:
+        logger.info('Changing system time to: %s', date_time_string)
+        await trio.run_process([
+            'timedatectl', 'set-time', date_time_string
+        ], capture_stderr=True)
+        logger.info('Changed system time to: %s', date_time_string)
+    except subprocess.CalledProcessError as err:
+        logger.error(
+            'Failed change system time to %s: %s',
+            date_time_string, err.stderr.decode('utf-8').rstrip()
+        )
+
+
+async def synchronize_rtc() -> None:
+    """Spawn subprocess to update the hardware RTC to the system time."""
+    try:
+        await trio.run_process(['hwclock', '-w'], capture_stderr=True)
+    except subprocess.CalledProcessError as err:
+        logger.error(
+            'Failed to update hardware RTC with system time: %s',
+            err.stderr.decode('utf-8').rstrip()
+        )
