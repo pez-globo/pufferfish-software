@@ -6,9 +6,10 @@ program simulates the evolution of those variables. This allows this backend
 server to act as a mock in place of the real backend server.
 """
 
+import functools
 import logging
 import time
-import functools
+import random
 import typing
 from typing import Mapping, MutableMapping, Optional
 
@@ -35,6 +36,8 @@ from ventserver import application
 
 
 REQUEST_SERVICE_INTERVAL = 20
+
+INITIAL_SEQ_NUM = random.getrandbits(32)
 
 INITIAL_VALUES = {
     states.StateSegment.SENSOR_MEASUREMENTS: mcu_pb.SensorMeasurements(),
@@ -70,13 +73,12 @@ INITIAL_VALUES = {
     ),
     states.StateSegment.SCREEN_STATUS: mcu_pb.ScreenStatus(lock=False),
     states.StateSegment.SYSTEM_SETTINGS: frontend_pb.SystemSettings(
-        # TODO: initialize the sequence number
-        display_brightness=100, time=int(time.time())
+        display_brightness=100, time=int(time.time()), seq_num=INITIAL_SEQ_NUM
     ),
     states.StateSegment.SYSTEM_SETTINGS_REQUEST:
         frontend_pb.SystemSettingsRequest(
-            # TODO: initialize the sequence number
-            display_brightness=100, time=int(time.time())
+            display_brightness=100, time=int(time.time()),
+            seq_num=INITIAL_SEQ_NUM
         ),
     states.StateSegment.FRONTEND_DISPLAY: frontend_pb.FrontendDisplaySetting(
         theme=frontend_pb.ThemeVariant.dark,

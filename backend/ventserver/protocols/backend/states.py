@@ -153,7 +153,6 @@ FILE_OUTPUT_SCHEDULE = list(FILE_INPUT_TYPES.values())
 SYSCLOCK_OUTPUT_SCHEDULE = [
     StateSegment.SYSTEM_SETTINGS
     # TODO: add a sysclock I/O endpoint, as well as a sysclock device protocol
-    # TODO: define a sysclock service protocol
 ]
 SYSCLOCK_OUTPUT_ROOT_SCHEDULE = [Sender.EVENT_SCHEDULE]
 

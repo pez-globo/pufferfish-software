@@ -129,21 +129,22 @@ export enum LogEventCode {
   backend_started = 142,
   mcu_shutdown = 143,
   backend_shutdown = 144,
+  sysclock_changed = 145,
   /** alarms_muted_user_software - Alarm muting/unmuting */
-  alarms_muted_user_software = 145,
-  alarms_muted_user_hardware = 146,
+  alarms_muted_user_software = 146,
+  alarms_muted_user_hardware = 147,
   /** alarms_muted_unknown - Indicates a software bug; should never occur */
-  alarms_muted_unknown = 147,
-  alarms_unmuted_user_software = 148,
-  alarms_unmuted_user_hardware = 149,
-  alarms_unmuted_initialization = 150,
-  alarms_unmuted_timeout = 151,
-  alarms_unmuted_mcu_backend_loss = 152,
-  alarms_unmuted_backend_mcu_loss = 153,
-  alarms_unmuted_backend_frontend_loss = 154,
-  alarms_unmuted_frontend_backend_loss = 155,
+  alarms_muted_unknown = 148,
+  alarms_unmuted_user_software = 149,
+  alarms_unmuted_user_hardware = 150,
+  alarms_unmuted_initialization = 151,
+  alarms_unmuted_timeout = 152,
+  alarms_unmuted_mcu_backend_loss = 153,
+  alarms_unmuted_backend_mcu_loss = 154,
+  alarms_unmuted_backend_frontend_loss = 155,
+  alarms_unmuted_frontend_backend_loss = 156,
   /** alarms_unmuted_unknown - Indicates a software bug; should never occur */
-  alarms_unmuted_unknown = 156,
+  alarms_unmuted_unknown = 157,
   /** sfm3019_air_disconnected - Sensor loss */
   sfm3019_air_disconnected = 160,
   sfm3019_o2_disconnected = 161,
@@ -250,39 +251,42 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case "backend_shutdown":
       return LogEventCode.backend_shutdown;
     case 145:
+    case "sysclock_changed":
+      return LogEventCode.sysclock_changed;
+    case 146:
     case "alarms_muted_user_software":
       return LogEventCode.alarms_muted_user_software;
-    case 146:
+    case 147:
     case "alarms_muted_user_hardware":
       return LogEventCode.alarms_muted_user_hardware;
-    case 147:
+    case 148:
     case "alarms_muted_unknown":
       return LogEventCode.alarms_muted_unknown;
-    case 148:
+    case 149:
     case "alarms_unmuted_user_software":
       return LogEventCode.alarms_unmuted_user_software;
-    case 149:
+    case 150:
     case "alarms_unmuted_user_hardware":
       return LogEventCode.alarms_unmuted_user_hardware;
-    case 150:
+    case 151:
     case "alarms_unmuted_initialization":
       return LogEventCode.alarms_unmuted_initialization;
-    case 151:
+    case 152:
     case "alarms_unmuted_timeout":
       return LogEventCode.alarms_unmuted_timeout;
-    case 152:
+    case 153:
     case "alarms_unmuted_mcu_backend_loss":
       return LogEventCode.alarms_unmuted_mcu_backend_loss;
-    case 153:
+    case 154:
     case "alarms_unmuted_backend_mcu_loss":
       return LogEventCode.alarms_unmuted_backend_mcu_loss;
-    case 154:
+    case 155:
     case "alarms_unmuted_backend_frontend_loss":
       return LogEventCode.alarms_unmuted_backend_frontend_loss;
-    case 155:
+    case 156:
     case "alarms_unmuted_frontend_backend_loss":
       return LogEventCode.alarms_unmuted_frontend_backend_loss;
-    case 156:
+    case 157:
     case "alarms_unmuted_unknown":
       return LogEventCode.alarms_unmuted_unknown;
     case 160:
@@ -367,6 +371,8 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "mcu_shutdown";
     case LogEventCode.backend_shutdown:
       return "backend_shutdown";
+    case LogEventCode.sysclock_changed:
+      return "sysclock_changed";
     case LogEventCode.alarms_muted_user_software:
       return "alarms_muted_user_software";
     case LogEventCode.alarms_muted_user_hardware:
@@ -578,6 +584,7 @@ export interface Range {
   upper: number;
 }
 
+/** TODO: AlarmLimits has a max size above 256 bytes, so we need to increase the communication protocol's chunks from a max length of 256 bytes to something more like 512 bytes! */
 export interface AlarmLimits {
   /** ms */
   time: number;
@@ -597,6 +604,7 @@ export interface AlarmLimits {
   apnea: Range | undefined;
 }
 
+/** TODO: AlarmLimitsRequest has a max size above 256 bytes, so we need to increase the communication protocol's chunks from a max length of 256 bytes to something more like 512 bytes! */
 export interface AlarmLimitsRequest {
   /** ms */
   time: number;
@@ -625,6 +633,7 @@ export interface LogEvent {
   alarmLimits: Range | undefined;
   oldFloat: number;
   newFloat: number;
+  /** TODO: rename these to old/new_uint64 */
   oldUint32: number;
   newUint32: number;
   oldBool: boolean;
@@ -648,6 +657,7 @@ export interface ExpectedLogEvent {
 /**
  * Note: NextLogEvents has a custom equality operator in the firmware which must
  * be updated if you add/remove/modify the fields of the protobuf definition!
+ * TODO: NextLogEvents has a max size above 256 bytes, so we need to increase the communication protocol's chunks from a max length of 256 bytes to something more like 512 bytes!
  */
 export interface NextLogEvents {
   nextExpected: number;
@@ -2259,10 +2269,10 @@ export const LogEvent = {
       writer.uint32(61).float(message.newFloat);
     }
     if (message.oldUint32 !== 0) {
-      writer.uint32(64).uint32(message.oldUint32);
+      writer.uint32(64).uint64(message.oldUint32);
     }
     if (message.newUint32 !== 0) {
-      writer.uint32(72).uint32(message.newUint32);
+      writer.uint32(72).uint64(message.newUint32);
     }
     if (message.oldBool === true) {
       writer.uint32(80).bool(message.oldBool);
@@ -2314,10 +2324,10 @@ export const LogEvent = {
           message.newFloat = reader.float();
           break;
         case 8:
-          message.oldUint32 = reader.uint32();
+          message.oldUint32 = longToNumber(reader.uint64() as Long);
           break;
         case 9:
-          message.newUint32 = reader.uint32();
+          message.newUint32 = longToNumber(reader.uint64() as Long);
           break;
         case 10:
           message.oldBool = reader.bool();

@@ -59,7 +59,9 @@ export const getEventDetails = (event: LogEvent, eventType: EventType): string =
     return '';
   } else if (event.type === LogEventType.system) {
     const eventDetails = eventDetailsMap.get(event.code);
-    if (eventDetails === undefined) {
+    if (event.code === LogEventCode.sysclock_changed) {
+      return `${new Date(event.oldUint32).toLocaleString()} \u2794 ${new Date(event.newUint32).toLocaleString()}`;
+    } else if (eventDetails === undefined) {
       return '';
     }
     return eventDetails;

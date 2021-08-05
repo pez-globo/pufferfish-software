@@ -9,7 +9,7 @@ import attr
 from ventserver.protocols import events
 from ventserver.protocols.backend import alarms, log, states
 from ventserver.protocols.devices import frontend, mcu
-from ventserver.protocols.protobuf import mcu_pb
+from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.sansio import channels
 from ventserver.sansio import protocols
 
@@ -129,6 +129,9 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
             self._handle_local_log_event(event)
         elif isinstance(event, AlarmMuteCancellationEvent):
             self._handle_alarm_mute_cancellation(event)
+
+        # Run internal services
+        self._handle_system_settings()
 
         # Maintain internal data connections
         self._handle_mcu_log_events()
@@ -273,7 +276,46 @@ class ReceiveFilter(protocols.Filter[ReceiveEvent, OutputEvent]):
                 )
             ))
             self._event_log_receiver.input(self._local_alarms.output())
-        return
+
+    def _handle_system_settings(self) -> None:
+        """Run the SystemSettings request/response service."""
+        request = typing.cast(
+            Optional[frontend_pb.SystemSettingsRequest],
+            self.store[states.StateSegment.SYSTEM_SETTINGS_REQUEST]
+        )
+        if request is None:
+            return
+
+        response = typing.cast(
+            Optional[frontend_pb.SystemSettings],
+            self.store[states.StateSegment.SYSTEM_SETTINGS]
+        )
+        if response is None:
+            self._logger.error(
+                'SystemSettings was not initialized in the store!'
+            )
+            return
+
+        if request.seq_num != (response.seq_num + 1) % (2 ** 32):
+            return
+
+        response.display_brightness = request.display_brightness
+        if int(request.time / 60) != int(self.wall_time * 1000 / 60):
+            # print(
+            #     'Changing system time from', self.wall_time,
+            #     'to', request.time / 1000
+            # )
+            self._local_alarms.input(log.LocalLogInputEvent(
+                wall_time=self.wall_time, new_event=mcu_pb.LogEvent(
+                    code=mcu_pb.LogEventCode.sysclock_changed,
+                    type=mcu_pb.LogEventType.system,
+                    old_uint32=int(self.wall_time * 1000),
+                    new_uint32=request.time
+                )
+            ))
+            self._event_log_receiver.input(self._local_alarms.output())
+        response.time = request.time
+        response.seq_num = request.seq_num
 
 
 @attr.s

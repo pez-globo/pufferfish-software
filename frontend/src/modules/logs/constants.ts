@@ -306,6 +306,13 @@ export const EventTypeMap = new Map<LogEventCode, EventType>([
       label: 'Software shutting down',
     },
   ],
+  [
+    LogEventCode.sysclock_changed,
+    {
+      type: LogEventType.system,
+      label: 'System clock changed',
+    },
+  ],
   // Alarm muting/unmuting
   [
     LogEventCode.alarms_muted_user_software,

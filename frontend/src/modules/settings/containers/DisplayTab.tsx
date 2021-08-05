@@ -249,7 +249,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   const { initRefListener } = useRotaryReference(themeObj);
   const systemSettings = useSelector(getSystemSettingsRequest, shallowEqual);
   const displaySettings = useSelector(getFrontendDisplaySetting, shallowEqual);
-  const [brightness, setBrightness] = React.useState(
+  const [displayBrightness, setDisplayBrightness] = React.useState(
     systemSettings === null ? 100 : systemSettings.displayBrightness,
   );
   const [theme, setTheme] = React.useState(
@@ -265,6 +265,11 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   // The UI design team may have forgotten that 12-hour format is not internationally standard,
   // and the 24-hour format may be more standard in medical settings.
   // TODO: maybe we should add a way to change the seconds?
+  // TODO: the ValueSpinners should roll over from max to min (and vice versa):
+  // e.g. it should be possible to increase the minute from 59 to 00
+  // TODO: currently if we just want to change brightness, we still have to update the clock,
+  // because pressing "Apply Changes" will cause dispatch of a new SystemSettings request.
+  // We should move adjustment of system time to a separate tab with a separate "Apply Changes" button.
   const [hour, setHour] = React.useState(to12HourClock(date.getHours())); // Note: `date.hours()` is 24-hour formatted.
   const [day, setDay] = React.useState(date.getDate());
   const [month, setMonth] = React.useState(
@@ -283,12 +288,12 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   useEffect(() => {
     const dateChange = new Date(year, month - 1, day, to24HourClock(hour, period), minute);
     onSettingChange({
-      brightness,
+      displayBrightness,
       theme,
       unit,
-      date: parseInt((dateChange.getTime() / 1000).toFixed(0), DECIMAL_RADIX),
+      time: parseInt((dateChange.getTime()).toFixed(0), DECIMAL_RADIX),
     });
-  }, [date, period, minute, hour, day, month, year, unit, theme, brightness, onSettingChange]);
+  }, [date, period, minute, hour, day, month, year, unit, theme, displayBrightness, onSettingChange]);
 
   /**
    * function for handling month change.
@@ -335,10 +340,10 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
             <ValueSpinner
               reference={elRefs[BRIGHTNESS_REFERENCE_KEY]}
               referenceKey={BRIGHTNESS_REFERENCE_KEY}
-              value={brightness}
+              value={displayBrightness}
               label="Brightness"
               units="%"
-              onClick={setBrightness}
+              onClick={setDisplayBrightness}
               min={0}
               max={100}
             />
@@ -481,8 +486,8 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
                 value={year}
                 label="Year"
                 onClick={setYear}
-                min={year}
-                max={year}
+                min={1970}
+                max={3000 /* TODO: we should make it possible to have no max */}
               />
             </Grid>
             {/* Moved Apply button out of the tab */}

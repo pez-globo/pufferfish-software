@@ -2,6 +2,7 @@
 
 import logging
 import functools
+import random
 import time
 from typing import Mapping, Type
 
@@ -19,6 +20,9 @@ from ventserver.protocols.backend import server, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 
 
+INITIAL_SEQ_NUM = random.getrandbits(32)
+
+
 FALLBACK_VALUES: Mapping[Type[betterproto.Message], betterproto.Message] = {
     mcu_pb.ParametersRequest: mcu_pb.ParametersRequest(
         mode=mcu_pb.VentilationMode.hfnc, ventilating=False,
@@ -32,12 +36,11 @@ FALLBACK_VALUES: Mapping[Type[betterproto.Message], betterproto.Message] = {
     ),
     mcu_pb.AlarmMuteRequest: mcu_pb.AlarmMuteRequest(active=False),
     frontend_pb.SystemSettings: frontend_pb.SystemSettings(
-        # TODO: initialize the sequence number
-        display_brightness=100, time=int(time.time())
+        display_brightness=100, time=int(time.time()),
+        seq_num=INITIAL_SEQ_NUM
     ),
     frontend_pb.SystemSettingsRequest: frontend_pb.SystemSettingsRequest(
-        # TODO: initialize the sequence number
-        display_brightness=100, time=int(time.time())
+        display_brightness=100, time=int(time.time()), seq_num=INITIAL_SEQ_NUM
     )
     # TODO: add fallback for FrontendDisplayRequest, which isn't defined yet
 }

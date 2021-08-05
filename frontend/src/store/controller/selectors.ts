@@ -459,6 +459,12 @@ export const getSystemSettingsCurrent = createSelector(
   (systemSettings: SystemSettingsRequestResponse): SystemSettings | null => systemSettings.current,
 );
 
+export const getSystemSettingsCurrentSeqNum = createSelector(
+  getSystemSettingsCurrent,
+  (systemSettings: SystemSettings | null): number | null =>
+    systemSettings === null ? null : systemSettings.seqNum,
+);
+
 export const getSystemSettingsRequest = createSelector(
   getSystemSettings,
   (systemSettings: SystemSettingsRequestResponse): SystemSettingsRequest | null =>
