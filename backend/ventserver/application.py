@@ -10,10 +10,10 @@ import betterproto
 import trio
 
 from ventserver.integration import _trio
+from ventserver.io import frontend
 from ventserver.io.trio import (
-    _serial, channels, fileio, rotaryencoder, websocket
+    _serial, channels, fileio, rotaryencoder, processes, websocket
 )
-from ventserver.io.subprocess import frozen_frontend
 from ventserver.protocols import exceptions
 from ventserver.protocols.backend import server, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
@@ -89,17 +89,13 @@ async def main() -> None:
     rotary_encoder = None
     try:
         rotary_encoder = rotaryencoder.Driver()
-        try:
-            await rotary_encoder.open()
-        except exceptions.ProtocolError as err:
-            exception = (
-                "Unable to connect the rotary encoder, please check the "
-                "serial connection. Check if the pigpiod service is running: %s"
-            )
-            rotary_encoder = None
-            logger.error(exception, err)
-    except NameError:
+        await rotary_encoder.open()
+    except exceptions.ProtocolError:
         rotary_encoder = None
+        logger.error(
+            'Unable to connect to the pigpiod service for the rotary encoder. '
+            'Is the service running?'
+        )
         logger.warning('Running without rotary encoder support!')
 
     # Server Receive Outputs
@@ -137,7 +133,11 @@ async def main() -> None:
                     )
 
                     if receive_output.kill_frontend:
-                        nursery.start_soon(frozen_frontend.kill_frozen_frontend)
+                        nursery.start_soon(
+                            processes.kill_process,
+                            frontend.FrontendProps().process_name
+                        )
+
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
         logger.info('Finished, quitting!')

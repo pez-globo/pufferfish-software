@@ -146,7 +146,7 @@ class TimeoutHandler(protocols.Filter[UpdateEvent, ActionsEvent]):
         # Decide whether to run action
         alarm_mcu = self._mcu_alarm_trigger.output()
         if alarm_mcu:
-            self._logger.warning('Lost connection from the MCU!')
+            self._logger.warning('No longer receiving data from the MCU!')
             self._mcu_alarm_trigger.input(connections.ActionStatus(
                 monotonic_time=self.monotonic_time, execute=True
             ))
@@ -169,7 +169,7 @@ class TimeoutHandler(protocols.Filter[UpdateEvent, ActionsEvent]):
         # Decide whether to run actions
         alarm_frontend = self._frontend_alarm_trigger.output()
         if alarm_frontend:
-            self._logger.warning('Lost connection from the frontend!')
+            self._logger.warning('No longer receiving data from the frontend!')
             self._frontend_alarm_trigger.input(connections.ActionStatus(
                 monotonic_time=self.monotonic_time,
                 execute=True

@@ -16,8 +16,10 @@ import betterproto
 import trio
 
 from ventserver.integration import _trio
-from ventserver.io.trio import channels, fileio, rotaryencoder, websocket
-from ventserver.io.subprocess import frozen_frontend
+from ventserver.io import frontend
+from ventserver.io.trio import (
+    channels, fileio, rotaryencoder, processes, websocket
+)
 from ventserver.protocols import exceptions
 from ventserver.protocols.application import debouncing, lists
 from ventserver.protocols.backend import alarms, log, server, states
@@ -259,7 +261,10 @@ async def main() -> None:
                     )
 
                     if receive_output.kill_frontend:
-                        nursery.start_soon(frozen_frontend.kill_frozen_frontend)
+                        nursery.start_soon(
+                            processes.kill_process,
+                            frontend.FrontendProps().process_name
+                        )
 
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
