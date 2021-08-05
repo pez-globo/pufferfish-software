@@ -52,9 +52,9 @@ def test_re_button_dial_time_change(
 
     receiver = rotary_encoder.ReceiveFilter()
     last_step = 0
-    for message, current_time, pressed, step in message_sequence:
+    for message, wall_time, pressed, step in message_sequence:
         receive_event = rotary_encoder.ReceiveEvent(
-            time=current_time,
+            wall_time=wall_time,
             re_data=(step, pressed)
         )
         receiver.input(receive_event)
