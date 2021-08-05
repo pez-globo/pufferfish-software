@@ -258,11 +258,13 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   const [unit, setUnit] = React.useState(
     displaySettings === null ? Unit.imperial : displaySettings.unit,
   );
-  const [date] = React.useState<Date>(
-    systemSettings === null ? new Date() : new Date(systemSettings.time * 1000),
-  );
+  const [date] = React.useState<Date>(new Date());
   const [period, setPeriod] = React.useState(date.getHours() >= 12 ? Period.PM : Period.AM);
   const [minute, setMinute] = React.useState(date.getMinutes());
+  // TODO: maybe we should use 24-hour formatted time, since that's the international standard?
+  // The UI design team may have forgotten that 12-hour format is not internationally standard,
+  // and the 24-hour format may be more standard in medical settings.
+  // TODO: maybe we should add a way to change the seconds?
   const [hour, setHour] = React.useState(to12HourClock(date.getHours())); // Note: `date.hours()` is 24-hour formatted.
   const [day, setDay] = React.useState(date.getDate());
   const [month, setMonth] = React.useState(
