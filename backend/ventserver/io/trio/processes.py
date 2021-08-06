@@ -49,7 +49,7 @@ async def set_system_time(wall_time: float) -> bool:
         )
         await trio.run_process([
             'date', '+%s', '-s', '@{}'.format(int(wall_time))
-        ], capture_stderr=True)
+        ], capture_stdout=True, capture_stderr=True)
         logger.info('Changed system time to: %s', int(wall_time))
         return True
     except subprocess.CalledProcessError as err:
