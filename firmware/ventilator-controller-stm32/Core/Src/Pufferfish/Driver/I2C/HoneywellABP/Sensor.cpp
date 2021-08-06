@@ -16,7 +16,7 @@ namespace Pufferfish::Driver::I2C::HoneywellABP {
 StateMachine::Action StateMachine::update(uint32_t current_time) {
   switch (next_action_) {
     case Action::initialize:
-      next_action_ = Action::measure;
+      next_action_ = Action::check_range;
       break;
     case Action::check_range:
     case Action::measure:
@@ -70,25 +70,13 @@ InitializableState Sensor::initialize(uint32_t current_time) {
   // Wait for power-up
   time_.delay(power_up_delay);
 
-  // measure
-  while (device_.read_sample(sample_) != I2CDeviceStatus::ok) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
-      return InitializableState::failed;
-    }
-    if (sample_.status == ABPStatus::no_error) {
-      return InitializableState::ok;
-    }
-  }
-
   next_action_ = fsm_.update(current_time);
-  retry_count_ = 0;  // reset retries to 0 for measuring
   return InitializableState::setup;
 }
 
 InitializableState Sensor::check_range(uint32_t current_time) {
   if (device_.read_sample(sample_) == I2CDeviceStatus::ok &&
-      Util::within(sample_.pressure, p_min, p_max)) {
+      Util::within(sample_.pressure, p_min, p_max) && sample_.status == ABPStatus::no_error) {
     next_action_ = fsm_.update(current_time);
     return InitializableState::ok;
   }
@@ -102,14 +90,11 @@ InitializableState Sensor::check_range(uint32_t current_time) {
 }
 
 InitializableState Sensor::measure(uint32_t current_time, float &output) {
-  if (device_.read_sample(sample_) == I2CDeviceStatus::ok) {
+  if (device_.read_sample(sample_) == I2CDeviceStatus::ok &&
+      sample_.status == ABPStatus::no_error) {
     retry_count_ = 0;  // reset retries to 0 for next measurement
     output = sample_.pressure;
     next_action_ = fsm_.update(current_time);
-    if (sample_.status == ABPStatus::no_error) {
-      return InitializableState::ok;
-    }
-
     return InitializableState::ok;
   }
 
