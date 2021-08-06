@@ -6,6 +6,7 @@ import random
 import time
 from typing import Mapping, Optional, Type
 
+import better_exceptions  # type: ignore
 import betterproto
 
 import trio
@@ -184,4 +185,6 @@ async def main() -> None:
 
 
 if __name__ == '__main__':
+    better_exceptions.MAX_LENGTH = 200
+    better_exceptions.hook()
     trio.run(main)
