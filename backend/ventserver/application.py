@@ -4,7 +4,7 @@ import logging
 import functools
 import random
 import time
-from typing import Any, Mapping, Optional, Type
+from typing import Any, Mapping, MutableMapping, Optional, Type
 
 import better_exceptions  # type: ignore
 import betterproto
@@ -22,6 +22,16 @@ from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 
 
 INITIAL_SEQ_NUM = random.getrandbits(32)
+
+
+INITIAL_VALUES = {
+    # AlarmMute isn't actually stored on the filesystem, because any mute
+    # should be cancelled upon any disconnection or shutdown. We provide it here
+    # just to initialize the store on program startup.
+    states.StateSegment.ALARM_MUTE: mcu_pb.AlarmMute(
+        active=False, remaining=120
+    ),
+}
 
 
 FALLBACK_VALUES: Mapping[Type[betterproto.Message], betterproto.Message] = {
@@ -207,6 +217,22 @@ async def open_rotary_encoder_endpoint(
         return None
 
 
+def initialize_hardcoded_states(
+        store: MutableMapping[
+            states.StateSegment, Optional[betterproto.Message]
+        ],
+        initial_values: Mapping[
+            states.StateSegment, Optional[betterproto.Message]
+        ],
+        logger: logging.Logger
+) -> None:
+    """Set initial values for the states."""
+    for segment_type in store:
+        if segment_type in initial_values:
+            logger.info('Initializing hard-coded state: %s', segment_type)
+            store[segment_type] = initial_values[segment_type]
+
+
 async def initialize_states_from_file(
     store: states.Store, protocol: server.Protocol,
     fileio_endpoint: fileio.Handler
@@ -249,8 +275,7 @@ async def handle_receive_outputs(
 
     if receive_output.kill_frontend:
         nursery.start_soon(
-            processes.kill_process,
-            frontend.FrontendProps().process_name
+            processes.kill_process, frontend.FrontendProps().process_name
         )
 
 
@@ -292,6 +317,7 @@ async def main() -> None:
 
     # Initialize states
     store = protocol.receive.backend.store
+    initialize_hardcoded_states(store, INITIAL_VALUES, logger)
     await initialize_states_from_file(store, protocol, fileio_endpoint)
 
     # Initialize time

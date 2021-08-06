@@ -11,7 +11,7 @@ import logging
 import time
 import random
 import typing
-from typing import Mapping, MutableMapping, Optional
+from typing import Mapping, Optional
 
 import better_exceptions  # type: ignore
 import betterproto
@@ -164,15 +164,6 @@ async def simulate_states(
         await trio.sleep(simulators.SENSOR_UPDATE_INTERVAL / 1000)
 
 
-def initialize_states(store: MutableMapping[
-        states.StateSegment, Optional[betterproto.Message]
-]) -> None:
-    """Set initial values for the states."""
-    for segment_type in store:
-        if segment_type in INITIAL_VALUES:
-            store[segment_type] = INITIAL_VALUES[segment_type]
-
-
 async def main() -> None:
     """Set up wiring between subsystems and process until completion."""
     # Set up logging
@@ -195,7 +186,7 @@ async def main() -> None:
 
     # Initialize states with defaults
     store = protocol.receive.backend.store
-    initialize_states(store)
+    application.initialize_hardcoded_states(store, INITIAL_VALUES, logger)
     await application.initialize_states_from_file(
         store, protocol, fileio_endpoint
     )

@@ -97,6 +97,7 @@ FRONTEND_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.ExpectedLogEvent: StateSegment.EXPECTED_LOG_EVENT_BE,
     mcu_pb.AlarmMuteRequest: StateSegment.ALARM_MUTE_REQUEST,
     frontend_pb.RotaryEncoder: StateSegment.ROTARY_ENCODER,
+    frontend_pb.SystemSettings: StateSegment.SYSTEM_SETTINGS,
     frontend_pb.SystemSettingsRequest: StateSegment.SYSTEM_SETTINGS_REQUEST,
     # Frontend display request protobuf message isn't defined yet:
     # frontend_pb.FrontendDisplayRequest: StateSegment.FRONTEND_DISPLAY_REQUEST,
@@ -136,6 +137,9 @@ FILE_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.ParametersRequest: StateSegment.PARAMETERS_REQUEST,
     mcu_pb.AlarmLimitsRequest: StateSegment.ALARM_LIMITS_REQUEST,
     mcu_pb.AlarmMuteRequest: StateSegment.ALARM_MUTE_REQUEST,
+    # TODO: when we move display_brightness out of SystemSettings and rename
+    # SystemSettings to something else (e.g. SystemTime), we should probably
+    # not store SystemTime on the filesystem.
     frontend_pb.SystemSettings: StateSegment.SYSTEM_SETTINGS,
     frontend_pb.SystemSettingsRequest: StateSegment.SYSTEM_SETTINGS_REQUEST,
     # Frontend protobuf message isn't defined yet:
