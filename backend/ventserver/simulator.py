@@ -175,15 +175,8 @@ def initialize_states(store: MutableMapping[
 
 async def main() -> None:
     """Set up wiring between subsystems and process until completion."""
-    # Configure logging
-    root_logger = logging.getLogger()
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        '%(asctime)s %(name)-55s %(levelname)-8s %(message)s'
-    )
-    handler.setFormatter(formatter)
-    root_logger.addHandler(handler)
-    root_logger.setLevel(logging.INFO)
+    # Set up logging
+    application.configure_logging()
     logger = logging.getLogger('ventserver.simulator')
 
     # Sans-I/O Protocols
@@ -279,6 +272,6 @@ async def main() -> None:
 
 
 if __name__ == '__main__':
-    better_exceptions.MAX_LENGTH = 200
+    better_exceptions.MAX_LENGTH = None
     better_exceptions.hook()
     trio.run(main)

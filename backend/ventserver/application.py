@@ -4,7 +4,7 @@ import logging
 import functools
 import random
 import time
-from typing import Mapping, Optional, Type
+from typing import Any, Mapping, Optional, Type
 
 import better_exceptions  # type: ignore
 import betterproto
@@ -46,6 +46,150 @@ FALLBACK_VALUES: Mapping[Type[betterproto.Message], betterproto.Message] = {
 }
 
 
+# Logging
+
+class ConsoleColors():
+    """ASCII color codes for the console."""
+    RESET = "\x1b[0m"
+    GREY = "\x1b[0;37m"
+    GREEN = "\x1b[1;32m"
+    YELLOW = "\x1b[1;33m"
+    RED = "\x1b[1;31m"
+    PURPLE = "\x1b[1;35m"
+    BLUE = "\x1b[1;34m"
+    LIGHT_BLUE = "\x1b[1;36m"
+    BLINK_RED = "\x1b[5m\x1b[1;31m"
+
+
+class CustomLogRecord(logging.LogRecord):
+    """LogRecord with custom attributes."""
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        """Initialize the LogRecord."""
+        super().__init__(*args, **kwargs)
+        self.origin = f'{self.name}:{self.lineno}'
+
+
+class ConsoleLogFormatter(logging.Formatter):
+    """Logging formatter to add colors."""
+
+    ORIGIN_WIDTH = 35
+
+    # Colors
+
+    # Abbreviations
+    ORIGIN_ABBREVIATIONS = {
+        'ventserver': '(vs)',
+        'integration': '(int)',
+        'asynchronous': '(async)',
+        '_serial': '(ser)',
+        'rotaryencoder': '(rot)',
+        'websocket': '(ws)',
+        'processes': '(proc)',
+        'protocols': '(proto)',
+        'application': '(app)',
+        'connections': '(conn)',
+        'backend': '(be)',
+        'devices': '(dev)',
+        'frontend': '(fe)',
+        'rotary_encoder': '(rot)',
+        'protobuf': '(pb)',
+        'transport': '(tp)',
+        'crcelements': '(crc)',
+        'datagrams': '(dg)',
+        'messages': '(msg)',
+        'simulation': '(sim)',
+        'simulator': '(sim)',
+        'SingleConnectionService': '(Conn)',
+        'Synchronizers': '(Sync)',
+        'Synchronizer': '(Sync)',
+        'TimeoutHandler': '(Time)',
+        'Receiver': '(RX)',
+        'Sender': '(TX)',
+    }
+
+    # Format strings
+    FORMAT_PREFIX = (
+        ConsoleColors.PURPLE + '{asctime:<23}' + ConsoleColors.RESET
+        + ' ' + ConsoleColors.BLUE + (
+            '{origin:<' + str(ORIGIN_WIDTH) + '.' + str(ORIGIN_WIDTH) + '}'
+        ) + ConsoleColors.RESET
+        + ' '
+    )
+    FORMAT_SUFFIX = (
+        '[{levelname:<1}] {message}'
+    )
+    FORMATS = {
+        logging.DEBUG: (
+            FORMAT_PREFIX + ConsoleColors.GREEN
+            + FORMAT_SUFFIX + ConsoleColors.RESET
+        ),
+        logging.INFO: (
+            FORMAT_PREFIX + ConsoleColors.GREY
+            + FORMAT_SUFFIX + ConsoleColors.RESET
+        ),
+        logging.WARNING: (
+            FORMAT_PREFIX + ConsoleColors.YELLOW
+            + FORMAT_SUFFIX + ConsoleColors.RESET
+        ),
+        logging.ERROR: (
+            FORMAT_PREFIX + ConsoleColors.RED
+            + FORMAT_SUFFIX + ConsoleColors.RESET
+        ),
+        logging.CRITICAL: (
+            FORMAT_PREFIX + ConsoleColors.BLINK_RED
+            + FORMAT_SUFFIX + ConsoleColors.RESET
+        ),
+    }
+
+    def format(self, record: CustomLogRecord) -> str:  # type: ignore
+        # Color the record
+        log_format = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_format, style='{')
+
+        # Shorten the origin
+        if record.levelno == logging.INFO:
+            record.origin = record.name
+        record.origin = self._abbreviate_origin(record.origin)
+        if len(record.origin) > self.ORIGIN_WIDTH:
+            record.origin = '*' + record.origin[-self.ORIGIN_WIDTH + 1:]
+
+        # Improve the exception traceback
+        if record.exc_info:
+            record.exc_text = \
+                ''.join(better_exceptions.format_exception(*record.exc_info))
+
+        return formatter.format(record)
+
+    def _abbreviate_origin(self, origin: str) -> str:
+        """Abbreviate long words in the origin."""
+        for (key, value) in self.ORIGIN_ABBREVIATIONS.items():
+            origin = origin.replace(key, value)
+        return origin
+
+
+def configure_logging() -> None:
+    """Set up the root logger."""
+    logging.setLogRecordFactory(CustomLogRecord)
+    root_logger = logging.getLogger()
+
+    # Use shorter log level names
+    logging.addLevelName(logging.CRITICAL, 'C')
+    logging.addLevelName(logging.ERROR, 'E')
+    logging.addLevelName(logging.WARNING, 'W')
+    logging.addLevelName(logging.INFO, 'I')
+    logging.addLevelName(logging.DEBUG, 'D')
+
+    # Configure stdout output
+    handler = logging.StreamHandler()
+    handler.setFormatter(ConsoleLogFormatter())
+    root_logger.addHandler(handler)
+    root_logger.setLevel(logging.INFO)
+
+
+# Initialization
+
+
 async def open_rotary_encoder_endpoint(
     logger: logging.Logger
 ) -> Optional[rotaryencoder.Driver]:
@@ -81,6 +225,9 @@ async def initialize_states_from_file(
         parameters_request.ventilating = False
 
 
+# Event handling
+
+
 async def handle_receive_outputs(
     receive_output: server.ReceiveOutputEvent,
     protocol: server.Protocol,
@@ -107,6 +254,9 @@ async def handle_receive_outputs(
         )
 
 
+# Error handling
+
+
 def filter_multierror(exc: trio.MultiError) -> None:
     """Filter out trio.MultiErrors from KeyboardInterrupts."""
     if len(exc.exceptions) != 2:
@@ -118,17 +268,13 @@ def filter_multierror(exc: trio.MultiError) -> None:
         raise exc
 
 
+# Main application
+
+
 async def main() -> None:
     """Set up wiring between subsystems and process until completion."""
-    # Configure logging
-    root_logger = logging.getLogger()
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        '%(asctime)s %(name)-55s %(levelname)-8s %(message)s'
-    )
-    handler.setFormatter(formatter)
-    root_logger.addHandler(handler)
-    root_logger.setLevel(logging.INFO)
+    # Set up logging
+    configure_logging()
     logger = logging.getLogger('ventserver.application')
 
     # Sans-I/O Protocols
@@ -185,6 +331,6 @@ async def main() -> None:
 
 
 if __name__ == '__main__':
-    better_exceptions.MAX_LENGTH = 200
+    better_exceptions.MAX_LENGTH = 150
     better_exceptions.hook()
     trio.run(main)
