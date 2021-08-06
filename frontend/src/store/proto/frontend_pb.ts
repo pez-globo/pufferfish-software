@@ -87,7 +87,14 @@ export interface FrontendDisplaySetting {
 }
 
 export interface SystemSettings {
-  /** Unix timestamp in units of sec */
+  /**
+   * We use a double and units of sec because otherwise we'd use uint64 and
+   * units of ms, but then mcu_pb.LogEvent needs to have oldUint64 and newUint64
+   * instead of oldUint32 and newUint32, and the frontend runs into problems
+   * because it can only have 53 bits of precision in the number type (in which
+   * case the frontend would then need to use BigInt), which prevents the frontend
+   * from working correctly on other things which require LogEvent.oldUint32/newUint32.
+   */
   date: number;
   /** TODO: move display_brightness into FrontendDisplaySetting */
   displayBrightness: number;

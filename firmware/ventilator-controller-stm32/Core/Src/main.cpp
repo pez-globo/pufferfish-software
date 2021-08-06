@@ -415,22 +415,22 @@ static void MX_RNG_Init(void);
 /* USER CODE BEGIN 0 */
 void initialize_states() {
   // Parameters
-  PF::Application::Parameters parameters;
-  PF::Application::StateSegment parameters_request;
+  PF::Application::Parameters parameters{};
+  PF::Application::StateSegment parameters_request{};
   PF::Driver::BreathingCircuit::make_state_initializers(parameters_request, parameters);
   store.parameters() = parameters;
   store.input(parameters_request, true);
 
   // Alarm Limits
-  PF::Application::AlarmLimits alarm_limits;
-  PF::Application::StateSegment alarm_limits_request;
+  PF::Application::AlarmLimits alarm_limits{};
+  PF::Application::StateSegment alarm_limits_request{};
   PF::Driver::BreathingCircuit::make_state_initializers(alarm_limits_request, alarm_limits);
   store.alarm_limits() = alarm_limits;
   store.input(alarm_limits_request, true);
 
   // Alarm Mute
-  PF::Application::AlarmMute alarm_mute;
-  PF::Application::StateSegment alarm_mute_request;
+  PF::Application::AlarmMute alarm_mute{};
+  PF::Application::StateSegment alarm_mute_request{};
   PF::Application::make_state_initializers(alarm_mute_request, alarm_mute);
   store.alarm_mute() = alarm_mute;
   store.input(alarm_mute_request, true);
