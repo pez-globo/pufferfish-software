@@ -57,7 +57,7 @@ async def set_system_time(wall_time: float, timeout: float = 1) -> bool:
         )
         with trio.fail_after(timeout):
             await trio.run_process([
-                'date', '+%s', '-s', '@{}'.format(int(wall_time))
+                'sudo', 'date', '+%s', '-s', '@{}'.format(int(wall_time))
             ], capture_stdout=True, capture_stderr=True)
         logger.info('Changed system time to: %d', int(wall_time))
         return True

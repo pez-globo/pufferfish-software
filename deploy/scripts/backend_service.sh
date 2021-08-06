@@ -29,6 +29,15 @@ else
     exit 1
 fi
 
+# Copy system clock sudoers file to sudoers directory
+if [ 1 -eq $( ls $config_dir | grep -c "pufferfish_sysclock" ) ]
+then
+    sudo cp $config_dir/pufferfish_sysclock /etc/sudoers.d/
+else
+    echo -e "${ERROR} The pufferfish_sysclock sudoers file doesn't exist${NC}"
+    exit 1
+fi
+
 # Enabling service
 sudo systemctl daemon-reload
 sudo systemctl set-default pufferfish.target
