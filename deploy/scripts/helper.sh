@@ -9,6 +9,7 @@ NC='\033[0m'
 # Getting absolute path of config files
 script_dir=$(dirname $(realpath $0))
 config_dir=$(realpath $script_dir/../configs)
+backend_parent_dir=$(realpath $script_dir/../../backend)
 backend_dir=$(realpath $script_dir/../../backend/ventserver)
 backend_file=$(realpath $backend_dir)/application.py
 frontend_dir=$(realpath $script_dir/../../frontend)
