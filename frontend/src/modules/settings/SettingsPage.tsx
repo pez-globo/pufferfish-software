@@ -129,8 +129,6 @@ export const SettingsPage = (): JSX.Element => {
       );
     }
     if (systemSettingsRequest !== undefined) {
-      // TODO: increment seq_num from systemSettings and use the result for
-      // the request
       dispatch(
         commitRequest<SystemSettingsRequest>(
           MessageType.SystemSettingsRequest,
