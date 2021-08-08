@@ -14,7 +14,7 @@ namespace Pufferfish::Driver::Serial::Nonin {
 // Sensor
 
 InitializableState Sensor::setup() {
-  switch (device_.output(measurements)) {
+  switch (device_.output(measurements_)) {
     case PacketStatus::invalid_checksum:
     case PacketStatus::invalid_header:
       return InitializableState::failed;
@@ -25,7 +25,7 @@ InitializableState Sensor::setup() {
       break;
   }
 
-  if (wait_time_exceeded) {
+  if (wait_time_exceeded()) {
     return InitializableState::failed;
   }
 
@@ -33,7 +33,7 @@ InitializableState Sensor::setup() {
 }
 
 InitializableState Sensor::output(float &spo2, float &hr) {
-  switch (device_.output(measurements)) {
+  switch (device_.output(measurements_)) {
     case PacketStatus::invalid_checksum:
     case PacketStatus::invalid_header:
       // handle error cases first
@@ -47,23 +47,27 @@ InitializableState Sensor::output(float &spo2, float &hr) {
       break;
   }
 
-  if (wait_time_exceeded) {
+  if (wait_time_exceeded()) {
     return InitializableState::failed;
   }
 
   // measurements status
-  sensor_connections_.sensor_disconnected = find(measurements_.sensor_disconnect, false);
-  sensor_connections_.sensor_alarm = find(measurements_.sensor_alarm, true);
-  sensor_connections_.spo2_out_of_track =
-      (measurements_.e_spo2 == ErrorConstants::spo2_missing ||
-       measurements_.e_spo2_d == ErrorConstants::spo2_missing) &&
-      find(measurements_.out_of_track, true);
-  sensor_connections_.hr_out_of_track = (measurements_.e_hr == ErrorConstants::hr_missing ||
-                                         measurements_.e_hr_d == ErrorConstants::hr_missing) &&
-                                        find(measurements_.out_of_track, true);
+  sensor_connections_.sensor_disconnected = find(measurements_.sensor_disconnect);
+  sensor_connections_.sensor_alarm = find(measurements_.sensor_alarm);
+  sensor_connections_.out_of_track = find(measurements_.out_of_track);
 
-  spo2 = measurements_.e_spo2_d == ErrorConstants::spo2_missing ? NAN : measurements_.e_spo2_d;
-  hr = measurements_.e_hr_d == ErrorConstants::hr_missing ? NAN : measurements_.e_hr_d;
+  if (measurements_.e_spo2_d == ErrorConstants::spo2_missing) {
+    spo2 = NAN;
+    return InitializableState::failed;
+  }
+
+  if (measurements_.e_hr_d == ErrorConstants::hr_missing) {
+    hr = NAN;
+    return InitializableState::failed;
+  }
+
+  spo2 = measurements_.e_spo2_d;
+  hr = measurements_.e_hr_d;
 
   return InitializableState::ok;
 }
@@ -82,8 +86,8 @@ bool Sensor::wait_time_exceeded() const {
   return !waiting_timer_.within_timeout(current_time_);
 }
 
-bool Sensor::find(const Flags &measurement, const bool &expected) {
-  const bool *it = std::find(measurement.begin(), measurement.end(), expected);
+bool Sensor::find(const Flags &measurement) {
+  const auto *it = std::find(measurement.begin(), measurement.end(), true);
   return it != measurement.end();
 }
 

@@ -22,8 +22,7 @@ namespace Pufferfish::Driver::Serial::Nonin {
 struct SensorConnections {
   bool sensor_disconnected;
   bool sensor_alarm;
-  bool spo2_out_of_track;
-  bool hr_out_of_track;
+  bool out_of_track;
 };
 
 /**
@@ -38,7 +37,7 @@ class Sensor : public Initializable {
 
  private:
   static const uint32_t waiting_duration = 2;  // ms
-  static bool find(const Flags &measurement, const bool &expected);
+  static bool find(const Flags &measurement);
 
   Device &device_;
 

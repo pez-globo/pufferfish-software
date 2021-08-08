@@ -328,7 +328,7 @@ PF::Driver::Serial::FDO2::Sensor fdo2(fdo2_dev, hal_time);
 
 // Nonin OEM III
 PF::Driver::Serial::Nonin::Device nonin_oem_dev(nonin_oem_uart);
-PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
+PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev, hal_time);
 
 // LTC4015
 PF::Driver::I2C::LTC4015::Device ltc4015_dev(i2c_hal_ltc4015);
