@@ -20,17 +20,19 @@ void SensorAlarmsService::transform(
       ? alarms_manager.activate_alarm(Application::LogEventCode_nonin_disconnected, system)
       : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_disconnected);
 
-  sensor_connections.sensor_alarm
-      ? alarms_manager.activate_alarm(Application::LogEventCode_nonin_disconnected, system)
-      : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_disconnected);
-
   sensor_connections.sensor_disconnected
-      ? alarms_manager.activate_alarm(Application::LogEventCode_nonin_disconnected, system)
-      : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_disconnected);
+      ? alarms_manager.activate_alarm(
+            Application::LogEventCode_nonin_finger_sensor_disconnected, system)
+      : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_finger_sensor_disconnected);
+
+  sensor_connections.sensor_alarm
+      ? alarms_manager.activate_alarm(Application::LogEventCode_nonin_sensor_alarm, system)
+      : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_sensor_alarm);
 
   sensor_connections.out_of_track
-      ? alarms_manager.activate_alarm(Application::LogEventCode_nonin_disconnected, system)
-      : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_disconnected);
+      ? alarms_manager.activate_alarm(
+            Application::LogEventCode_nonin_out_of_track_measurements, system)
+      : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_out_of_track_measurements);
 }
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

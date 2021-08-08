@@ -149,6 +149,9 @@ export enum LogEventCode {
   sfm3019_o2_disconnected = 161,
   fdo2_disconnected = 162,
   nonin_disconnected = 163,
+  nonin_finger_sensor_disconnected = 164,
+  nonin_sensor_alarm = 165,
+  nonin_out_of_track_measurements = 166,
   UNRECOGNIZED = -1,
 }
 
@@ -298,6 +301,15 @@ export function logEventCodeFromJSON(object: any): LogEventCode {
     case 163:
     case "nonin_disconnected":
       return LogEventCode.nonin_disconnected;
+    case 164:
+    case "nonin_finger_sensor_disconnected":
+      return LogEventCode.nonin_finger_sensor_disconnected;
+    case 165:
+    case "nonin_sensor_alarm":
+      return LogEventCode.nonin_sensor_alarm;
+    case 166:
+    case "nonin_out_of_track_measurements":
+      return LogEventCode.nonin_out_of_track_measurements;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -403,6 +415,12 @@ export function logEventCodeToJSON(object: LogEventCode): string {
       return "fdo2_disconnected";
     case LogEventCode.nonin_disconnected:
       return "nonin_disconnected";
+    case LogEventCode.nonin_finger_sensor_disconnected:
+      return "nonin_finger_sensor_disconnected";
+    case LogEventCode.nonin_sensor_alarm:
+      return "nonin_sensor_alarm";
+    case LogEventCode.nonin_out_of_track_measurements:
+      return "nonin_out_of_track_measurements";
     default:
       return "UNKNOWN";
   }

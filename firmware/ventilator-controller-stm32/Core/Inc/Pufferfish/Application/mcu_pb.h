@@ -93,7 +93,10 @@ typedef enum _LogEventCode {
     LogEventCode_sfm3019_air_disconnected = 160,
     LogEventCode_sfm3019_o2_disconnected = 161,
     LogEventCode_fdo2_disconnected = 162,
-    LogEventCode_nonin_disconnected = 163
+    LogEventCode_nonin_disconnected = 163,
+    LogEventCode_nonin_finger_sensor_disconnected = 164,
+    LogEventCode_nonin_sensor_alarm = 165,
+    LogEventCode_nonin_out_of_track_measurements = 166
 } LogEventCode;
 
 typedef enum _LogEventType {
@@ -328,8 +331,8 @@ typedef struct _NextLogEvents {
 #define _VentilationMode_ARRAYSIZE ((VentilationMode)(VentilationMode_prvc+1))
 
 #define _LogEventCode_MIN LogEventCode_fio2_too_low
-#define _LogEventCode_MAX LogEventCode_nonin_disconnected
-#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_nonin_disconnected+1))
+#define _LogEventCode_MAX LogEventCode_nonin_out_of_track_measurements
+#define _LogEventCode_ARRAYSIZE ((LogEventCode)(LogEventCode_nonin_out_of_track_measurements+1))
 
 #define _LogEventType_MIN LogEventType_patient
 #define _LogEventType_MAX LogEventType_system
