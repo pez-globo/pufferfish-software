@@ -13,8 +13,10 @@ using Application::LogEventType;
 const LogEventType system = LogEventType::LogEventType_system;
 
 void SensorAlarmsService::transform(
-    const SensorConnections &sensor_connections, Application::AlarmsManager &alarms_manager) {
-  !sensor_connections.nonin_connected
+    InitializableState status,
+    const SensorConnections &sensor_connections,
+    Application::AlarmsManager &alarms_manager) {
+  status == InitializableState::failed
       ? alarms_manager.activate_alarm(Application::LogEventCode_nonin_disconnected, system)
       : alarms_manager.deactivate_alarm(Application::LogEventCode_nonin_disconnected);
 

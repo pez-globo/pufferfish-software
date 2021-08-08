@@ -19,7 +19,6 @@
 namespace Pufferfish::Driver::Serial::Nonin {
 
 struct SensorConnections {
-  bool nonin_connected;
   bool sensor_disconnected;
   bool sensor_alarm;
   bool spo2_out_of_track;

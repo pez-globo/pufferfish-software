@@ -24,7 +24,9 @@ static constexpr auto alarm_codes =
 class SensorAlarmsService {
  public:
   static void transform(
-      const SensorConnections &sensor_connections, Application::AlarmsManager &alarms_manager);
+      InitializableState status,
+      const SensorConnections &sensor_connections,
+      Application::AlarmsManager &alarms_manager);
 };
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

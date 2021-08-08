@@ -642,8 +642,10 @@ int main(void)
 
     // Independent Sensors
     fdo2.output(hfnc.sensor_vars().po2);
-    nonin_oem.output(store.sensor_measurements_raw().spo2, store.sensor_measurements_raw().hr);
-    PF::Driver::Serial::Nonin::SensorAlarmsService::transform(sensor_connections, alarms_manager);
+    auto nonin_status =
+        nonin_oem.output(store.sensor_measurements_raw().spo2, store.sensor_measurements_raw().hr);
+    PF::Driver::Serial::Nonin::SensorAlarmsService::transform(
+        nonin_status, sensor_connections, alarms_manager);
 
     // Breathing Circuit Sensor Simulator
     simulator.transform(
