@@ -1,5 +1,5 @@
 /*
- * StateMachine.cpp
+ * Sensor.cpp
  *
  *  Created on: June 6, 2020
  *      Author: Ethan Li
@@ -14,28 +14,40 @@ namespace Pufferfish::Driver::Serial::Nonin {
 // Sensor
 
 InitializableState Sensor::setup() {
-  // sensor is connected when we have measurements available
-  switch (measure(measurements_)) {
-    case InitializableState::failed:
+  switch (device_.output(measurements)) {
+    case PacketStatus::invalid_checksum:
+    case PacketStatus::invalid_header:
       return InitializableState::failed;
-    case InitializableState::ok:
-      sensor_connections_.nonin_connected = true;
-      return InitializableState::ok;
-    case InitializableState::setup:
+    case PacketStatus::waiting:
+    case PacketStatus::frame_loss:
+    case PacketStatus::ok:
+      input_clock(time_.millis());
       break;
   }
 
-  return InitializableState::setup;
-}
-
-InitializableState Sensor::output(float &spo2, float &hr) {
-  if (!sensor_connections_.nonin_connected) {
+  if (wait_time_exceeded) {
     return InitializableState::failed;
   }
 
-  if (measure(measurements_) != InitializableState::ok) {
-    spo2 = NAN;
-    hr = NAN;
+  return InitializableState::ok;
+}
+
+InitializableState Sensor::output(float &spo2, float &hr) {
+  switch (device_.output(measurements)) {
+    case PacketStatus::invalid_checksum:
+    case PacketStatus::invalid_header:
+      // handle error cases first
+      spo2 = NAN;
+      hr = NAN;
+      return InitializableState::failed;
+    case PacketStatus::waiting:
+    case PacketStatus::frame_loss:
+    case PacketStatus::ok:
+      input_clock(time_.millis());
+      break;
+  }
+
+  if (wait_time_exceeded) {
     return InitializableState::failed;
   }
 
@@ -50,25 +62,24 @@ InitializableState Sensor::output(float &spo2, float &hr) {
                                          measurements_.e_hr_d == ErrorConstants::hr_missing) &&
                                         find(measurements_.out_of_track, true);
 
-  spo2 = measurements_.e_spo2_d;
-  hr = measurements_.e_hr_d;
+  spo2 = measurements_.e_spo2_d == ErrorConstants::spo2_missing ? NAN : measurements_.e_spo2_d;
+  hr = measurements_.e_hr_d == ErrorConstants::hr_missing ? NAN : measurements_.e_hr_d;
 
   return InitializableState::ok;
 }
 
-InitializableState Sensor::measure(Sample measurements) {
-  switch (device_.output(measurements)) {
-    case PacketStatus::invalid_checksum:
-    case PacketStatus::invalid_header:
-      return InitializableState::failed;
-    case PacketStatus::waiting:
-    case PacketStatus::frame_loss:
-      return InitializableState::setup;
-    case PacketStatus::ok:
-      break;
+void Sensor::input_clock(uint32_t current_time) {
+  if (initial_time_ == 0) {
+    initial_time_ = current_time;
   }
+  if (wait_time_exceeded()) {
+    waiting_timer_.reset(current_time_);
+  }
+  current_time_ = current_time - initial_time_;
+}
 
-  return InitializableState::ok;
+bool Sensor::wait_time_exceeded() const {
+  return !waiting_timer_.within_timeout(current_time_);
 }
 
 bool Sensor::find(const Flags &measurement, const bool &expected) {
