@@ -9,10 +9,11 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "Pufferfish/HAL/Interfaces/BufferedUART.h"
 #include "Pufferfish/HAL/STM32/Time.h"
 #include "Pufferfish/Statuses.h"
-#include "Pufferfish/Types.h"
 #include "Pufferfish/Util/Containers/RingBuffer.h"
 #include "stm32h7xx_hal.h"
 

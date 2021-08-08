@@ -10,11 +10,11 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 
 #include "Device.h"
 #include "Pufferfish/Driver/Initializable.h"
 #include "Pufferfish/HAL/Interfaces/Time.h"
-#include "Pufferfish/Types.h"
 #include "Pufferfish/Util/Timeouts.h"
 
 namespace Pufferfish::Driver::Serial::Nonin {

@@ -8,8 +8,9 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "Pufferfish/Statuses.h"
-#include "Pufferfish/Types.h"
 
 namespace Pufferfish {
 namespace Driver {

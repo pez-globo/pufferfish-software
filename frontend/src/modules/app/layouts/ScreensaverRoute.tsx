@@ -12,9 +12,10 @@ import ClockIcon from '../../icons/ClockIcon';
 import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../../navigation/constants';
 import Alarms from '../../alarms/Alarms';
 import UserActivity from '../UserActivity';
-import { HeaderClock, PowerIndicator } from '../ToolBar';
 import OverlayScreen from '../OverlayScreen';
 import { getAlarmNotifyStatus } from '../../../store/app/selectors';
+import PowerIndicator from '../PowerIndicator';
+import HeaderClock from '../HeaderClock';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

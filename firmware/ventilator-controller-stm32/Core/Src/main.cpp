@@ -45,7 +45,8 @@
 #include "Pufferfish/Driver/BreathingCircuit/Simulator.h"
 #include "Pufferfish/Driver/Button/Button.h"
 #include "Pufferfish/Driver/I2C/ExtendedI2CDevice.h"
-#include "Pufferfish/Driver/I2C/HoneywellABP.h"
+#include "Pufferfish/Driver/I2C/HoneywellABP/Device.h"
+#include "Pufferfish/Driver/I2C/HoneywellABP/Sensor.h"
 #include "Pufferfish/Driver/I2C/LTC4015/Sensor.h"
 #include "Pufferfish/Driver/I2C/SDP.h"
 #include "Pufferfish/Driver/I2C/SFM3000.h"
@@ -270,6 +271,8 @@ PF::HAL::STM32::I2CDevice i2c_hal_press18(hi2c2, PF::Driver::I2C::SDPSensor::sdp
 PF::HAL::STM32::I2CDevice i2c1_hal_global(hi2c1, 0x00);
 PF::HAL::STM32::I2CDevice i2c2_hal_global(hi2c2, 0x00);
 PF::HAL::STM32::I2CDevice i2c4_hal_global(hi2c4, 0x00);
+PF::HAL::STM32::I2CDevice i2c_hal_abp(
+    hi2c1, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3.i2c_addr);
 PF::HAL::STM32::I2CDevice i2c_hal_ltc4015(hi2c1, PF::Driver::I2C::LTC4015::device_addr);
 PF::HAL::STM32::I2CDevice i2c_hal_sfm3019_air(hi2c2, PF::Driver::I2C::SFM3019::default_i2c_addr);
 PF::HAL::STM32::I2CDevice i2c_hal_sfm3019_o2(hi2c4, PF::Driver::I2C::SFM3019::default_i2c_addr);
@@ -313,6 +316,11 @@ PF::Driver::I2C::SDPSensor i2c_press17(i2c_ext_press17);
 PF::Driver::I2C::SDPSensor i2c_press18(i2c_ext_press18);
 */
 
+// HoneyWell ABP
+PF::Driver::I2C::HoneywellABP::Device abp_dev(
+    i2c_hal_abp, PF::Driver::I2C::HoneywellABP::abpxxxx001pg2a3);
+PF::Driver::I2C::HoneywellABP::Sensor abp(abp_dev, hal_time);
+
 // SFM3019
 
 PF::Driver::I2C::SFM3019::Device sfm3019_dev_air(
@@ -339,7 +347,7 @@ PF::Driver::Power::Simulator power_simulator;
 
 // Initializables
 auto initializables =
-    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, fdo2, nonin_oem, ltc4015);
+    PF::Driver::make_initializables(sfm3019_air, sfm3019_o2, abp, fdo2, nonin_oem, ltc4015);
 
 /*
 // Test list
@@ -646,6 +654,8 @@ int main(void)
         nonin_oem.output(store.sensor_measurements_raw().spo2, store.sensor_measurements_raw().hr);
     PF::Driver::Serial::Nonin::SensorAlarmsService::transform(
         nonin_status, sensor_connections, alarms_manager);
+    // *temporary* should be used in the breathing circuit
+    abp.output(hfnc.sensor_vars().p_out_above_atm);
 
     // Breathing Circuit Sensor Simulator
     simulator.transform(

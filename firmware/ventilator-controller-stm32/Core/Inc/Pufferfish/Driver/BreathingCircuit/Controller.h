@@ -21,9 +21,10 @@ using Application::Range;
 using Application::SensorMeasurements;
 
 struct SensorVars {
-  float flow_air;  // L/min
-  float flow_o2;   // L/min
-  uint32_t po2;    // dPa
+  float flow_air;         // L/min
+  float flow_o2;          // L/min
+  float p_out_above_atm;  // psi
+  uint32_t po2;           // dPa
 };
 
 struct ActuatorSetpoints {
