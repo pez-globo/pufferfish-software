@@ -18,8 +18,11 @@ namespace Pufferfish::Driver::Serial::Nonin {
 
 using Application::LogEventCode;
 
-static constexpr auto alarm_codes =
-    Util::Containers::make_array<LogEventCode>(LogEventCode::LogEventCode_nonin_disconnected);
+static constexpr auto alarm_codes = Util::Containers::make_array<LogEventCode>(
+    LogEventCode::LogEventCode_nonin_disconnected,
+    LogEventCode::LogEventCode_nonin_finger_sensor_disconnected,
+    LogEventCode::LogEventCode_nonin_sensor_alarm,
+    LogEventCode::LogEventCode_nonin_out_of_track_measurements);
 
 class SensorAlarmsService {
  public:
