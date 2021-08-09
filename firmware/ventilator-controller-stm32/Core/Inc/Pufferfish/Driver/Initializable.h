@@ -44,7 +44,7 @@ class Initializables {
 };
 
 template <typename... Arg>
-constexpr auto make_initializables(Arg &&... arg) noexcept
+constexpr auto make_initializables(Arg &&... arg) noexcept{
   return Initializables<sizeof...(Arg)>(Util::Containers::make_array<InitializableRef>(arg...));
 }
 
