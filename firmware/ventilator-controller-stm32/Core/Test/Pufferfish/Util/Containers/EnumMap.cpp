@@ -766,9 +766,9 @@ SCENARIO("The input method in EnumMap works correctly for struct and pointers") 
     Result val1{121};
     Result val2{02};
     Result val3{898};
-    Result val4;
-    Result val5;
-    Result val6;
+    Result val4{0};
+    Result val5{0};
+    Result val6{0};
 
     enum Test {
       test1,

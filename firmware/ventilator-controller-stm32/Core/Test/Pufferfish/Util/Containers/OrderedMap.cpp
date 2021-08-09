@@ -222,7 +222,7 @@ SCENARIO("The OrderedMap is constructed from initializer list works corretly") {
     }
   }
 }
-SCENARIO("EnumMap construected form initializer list gives expected results") {
+SCENARIO("OrderedMap construected form initializer list gives expected results") {
   GIVEN("An OrderedMap constructed with capacity 11, is completely filled with 6 bytes of data") {
     enum Test {
       test1 = 1,
