@@ -1607,7 +1607,6 @@ SCENARIO(
     Test val2{1};
     Test val3{2};
     Test val4{3};
-    Test* re1{0};
     PF::Util::Containers::Vector<Test, 4> vector1;
     vector1.push_back(val1);
     vector1.push_back(val2);
@@ -1617,7 +1616,7 @@ SCENARIO(
       REQUIRE(vector1.operator[](i).val == i);
     }
     PF::Util::Containers::Vector<Test, 8> vector;
-    re1 = vector1.buffer();
+    Test* re1 = vector1.buffer();
 
     WHEN(
         "The copy_from method is called, where destination vector given vector, and source is "
