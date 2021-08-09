@@ -56,7 +56,7 @@ SCENARIO("Non-Volatile RingBuffer works correctly") {
         // internal state should look like [] [1*] [2] [3^]
         uint8_t re = 0;
         uint8_t& val = re;
-        auto peek_status = test.peek(val, 0);
+        test.peek(val, 0);
         REQUIRE(val == 1);
         uint8_t re1 = 0;
         uint8_t& val1 = re1;
@@ -925,7 +925,7 @@ SCENARIO("Volatile RingBuffer works correctly") {
       for (size_t i = 0; i < 4; i++) {
         uint8_t re = 0;
         uint8_t& val1 = re;
-        auto pop_status = test.pop(val1);
+        test.pop(val1);
         THEN("Aftre pop method, it returns expected data") {
           // internal state should look like [0*] [1] [2] [3^]
           REQUIRE(val1 == i);

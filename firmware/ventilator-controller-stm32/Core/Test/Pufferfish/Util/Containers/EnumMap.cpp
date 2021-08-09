@@ -217,6 +217,8 @@ SCENARIO("The EnumMap is constructed from initializer list works corretly") {
       THEN("The empty method reports that the EnumMap is empty") { REQUIRE(map.empty() == true); }
     }
   }
+}
+SCENARIO("EnumMap construected form initializer list gives expected results") {
   GIVEN("An EnumMap constructed with capacity 6, has {1, 1}{2,2}{3,3}{4,4}{5,5}{6,6} items") {
     enum Test {
       test1 = 1,
@@ -764,9 +766,9 @@ SCENARIO("The input method in EnumMap works correctly for struct and pointers") 
     Result val1{121};
     Result val2{02};
     Result val3{898};
-    Result var1;
-    Result var2;
-    Result var3;
+    Result val4;
+    Result val5;
+    Result val6;
 
     enum Test {
       test1,
@@ -782,22 +784,22 @@ SCENARIO("The input method in EnumMap works correctly for struct and pointers") 
       auto in_status1 = map.input(test2, val2);
       auto in_status2 = map.input(test3, val3);
       THEN("The operator method returns expected value for 1st key") {
-        map.output(test1, var1);
-        REQUIRE(var1.val == 121);
+        map.output(test1, val4);
+        REQUIRE(val4.val == 121);
       }
       THEN("The input method returns ok status for 1st item") {
         REQUIRE(in_status == PF::IndexStatus::ok);
       }
       THEN("The operator method returns expected value for 2nd key") {
-        map.output(test2, var2);
-        REQUIRE(var2.val == 2);
+        map.output(test2, val5);
+        REQUIRE(val5.val == 2);
       }
       THEN("The input method returns ok status for 2nd item") {
         REQUIRE(in_status1 == PF::IndexStatus::ok);
       }
       THEN("The operator method returns expected value for 3rd key") {
-        map.output(test3, var3);
-        REQUIRE(var3.val == 898);
+        map.output(test3, val6);
+        REQUIRE(val6.val == 898);
       }
       THEN("The input method returns ok status for 3rd item") {
         REQUIRE(in_status2 == PF::IndexStatus::ok);
@@ -855,23 +857,20 @@ SCENARIO("The input method in EnumMap works correctly for struct and pointers") 
       auto in_status1 = map.input(test2, val2);
       auto in_status2 = map.input(test3, val3);
       THEN("The operator method returns expected value for 1st key") {
-        auto value = map.operator[](test1);
-        REQUIRE(value == val1);
+        REQUIRE(map.operator[](test1) == val1);
       }
       THEN("The input method returns ok status for 1st item") {
         REQUIRE(in_status == PF::IndexStatus::ok);
       }
       THEN("The operator method returns expected value for 2nd key") {
-        auto value = map.operator[](test2);
-        REQUIRE(value == val2);
-        std::cout << "value1" << val2 << std::endl;
+        REQUIRE(map.operator[](test2) == val2);
+        // std::cout << "value1" << val2 << std::endl;
       }
       THEN("The input method returns ok status for 2nd item") {
         REQUIRE(in_status1 == PF::IndexStatus::ok);
       }
       THEN("The operator method returns expected value for 3rd key") {
-        auto value = map.operator[](test3);
-        REQUIRE(value == val3);
+        REQUIRE(map.operator[](test3) == val3);
       }
       THEN("The input method returns ok status for 3rd item") {
         REQUIRE(in_status2 == PF::IndexStatus::ok);

@@ -1607,7 +1607,7 @@ SCENARIO(
     Test val2{1};
     Test val3{2};
     Test val4{3};
-    Test* re1;
+    Test* re1{0};
     PF::Util::Containers::Vector<Test, 4> vector1;
     vector1.push_back(val1);
     vector1.push_back(val2);
