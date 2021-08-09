@@ -34,6 +34,7 @@ class Vector {
   // initializer list (e.g. Vector<uint8_t, 5> vec{1, 2, 3})
   // Note: this makes copies of the values!
   Vector(std::initializer_list<Element> init) {
+    size_ = 0;
     for (const Element &elem : init) {
       push_back(elem);
     }
