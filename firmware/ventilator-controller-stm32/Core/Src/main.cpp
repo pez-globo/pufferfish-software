@@ -618,7 +618,7 @@ int main(void)
       sfm3019_o2.output(discard_f) == PF::InitializableState::ok;
   breathing_circuit_sensor_states.fdo2 = fdo2.output(discard_i) == PF::InitializableState::ok;
   breathing_circuit_sensor_states.nonin_oem =
-      nonin_oem.output(discard_f, discard_f) == PF::InitializableState::ok;
+      nonin_oem.output(sensor_connections, discard_f, discard_f) == PF::InitializableState::ok;
   bool ltc4015_status = ltc4015.output(store.mcu_power_status()) == PF::InitializableState::ok;
 
   // Normal loop

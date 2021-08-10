@@ -30,17 +30,18 @@ struct SensorConnections {
  */
 class Sensor : public Initializable {
  public:
-  explicit Sensor(Device &device, HAL::Interfaces::Time &time) : device_(device), time_(time) {}
+  Sensor(Device &device, HAL::Interfaces::Time &time) : device_(device), time_(time) {}
 
   InitializableState setup() override;
-  InitializableState output(
-      SensorConnections &sensor_connections, uint32_t current_time, float &spo2, float &hr);
+  InitializableState output(SensorConnections &sensor_connections, float &spo2, float &hr);
 
  private:
   static const uint32_t measurement_timeout = 2000;  // ms
 
   Device &device_;
   HAL::Interfaces::Time &time_;
+
+  InitializableState prev_state_ = InitializableState::setup;
 
   Sample measurements_{};
 

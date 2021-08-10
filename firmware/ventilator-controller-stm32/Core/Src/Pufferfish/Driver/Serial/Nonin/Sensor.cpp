@@ -11,39 +11,60 @@
 
 namespace Pufferfish::Driver::Serial::Nonin {
 
+bool find_any_true(const Flags &measurement) {
+  const auto *it = std::find(measurement.begin(), measurement.end(), true);
+  return it != measurement.end();
+}
+
 // Sensor
 
 InitializableState Sensor::setup() {
+  if (prev_state_ == InitializableState::failed) {
+    return InitializableState::failed;
+  }
+
   switch (device_.output(measurements_)) {
     case PacketStatus::ok:
       waiting_timer_.reset(time_.millis());
-      return InitializableState::ok;
+      prev_state_ = InitializableState::ok;
+      return prev_state_;
     case PacketStatus::invalid_checksum:
     case PacketStatus::invalid_header:
     case PacketStatus::waiting:
     case PacketStatus::frame_loss:
       if (!waiting_timer_.within_timeout(time_.millis())) {
-        return InitializableState::failed;
+        prev_state_ = InitializableState::failed;
+        return prev_state_;
       }
       break;
   }
 
+  prev_state_ = InitializableState::setup;
   return InitializableState::setup;
 }
 
-InitializableState Sensor::output(
-    SensorConnections &sensor_connections, uint32_t current_time, float &spo2, float &hr) {
+InitializableState Sensor::output(SensorConnections &sensor_connections, float &spo2, float &hr) {
+  if (prev_state_ == InitializableState::failed) {
+    return InitializableState::failed;
+  }
+
+  if (prev_state_ == InitializableState::setup) {
+    return InitializableState::setup;
+  }
+
   switch (device_.output(measurements_)) {
     case PacketStatus::invalid_checksum:
     case PacketStatus::invalid_header:
-      // handle error cases first
-      spo2 = NAN;
-      hr = NAN;
-      return InitializableState::failed;
     case PacketStatus::waiting:
     case PacketStatus::frame_loss:
+      if (!waiting_timer_.within_timeout(time_.millis())) {
+        prev_state_ = InitializableState::failed;
+        return prev_state_;
+      }
+      prev_state_ = InitializableState::ok;
+      return prev_state_;
     case PacketStatus::ok:
-      input_clock(time_.millis());
+      waiting_timer_.reset(time_.millis());
       break;
   }
 
@@ -65,11 +86,6 @@ InitializableState Sensor::output(
   }
 
   return InitializableState::ok;
-}
-
-static bool find_any_true(const Flags &measurement) {
-  const auto *it = std::find(measurement.begin(), measurement.end(), true);
-  return it != measurement.end();
 }
 
 }  // namespace Pufferfish::Driver::Serial::Nonin
