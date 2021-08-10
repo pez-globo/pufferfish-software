@@ -862,17 +862,6 @@ SCENARIO("The input method in OrderedMap works correctly for struct and pointers
           REQUIRE(map.has(Test(i)) == false);
         }
       }
-      THEN("Changing the value of struct elements does not change values of key 1,2 and 3") {
-        val1.val = 20;
-        val2.val = 10;
-        val3.val = 120;
-        auto result = map.items()[0].second;
-        REQUIRE(result.val == 121);
-        auto result1 = map.items()[1].second;
-        REQUIRE(result1.val == 02);
-        auto result2 = map.items()[2].second;
-        REQUIRE(result2.val == 898);
-      }
     }
   }
   GIVEN("An empty OrderedMap with capacity 4") {

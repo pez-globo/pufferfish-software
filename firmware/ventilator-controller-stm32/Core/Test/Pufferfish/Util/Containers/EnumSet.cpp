@@ -88,7 +88,7 @@ SCENARIO("The EnumSet constructed from  initializer list works corretly") {
       }
       THEN("The has method returns true for 1-4 keys") {
         for (size_t i = 1; i < 4; i++) {
-          std::cout << "set" << i << std::endl;
+          //          std::cout << "set" << i << std::endl;
           REQUIRE(set.has(Test(i)) == true);
         }
         REQUIRE(set.has(test4) == true);

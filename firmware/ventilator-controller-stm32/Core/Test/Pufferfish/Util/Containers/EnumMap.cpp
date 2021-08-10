@@ -769,6 +769,9 @@ SCENARIO("The input method in EnumMap works correctly for struct and pointers") 
     Result val4{0};
     Result val5{0};
     Result val6{0};
+    Result val7{10};
+    Result val8{20};
+    Result val9{30};
 
     enum Test {
       test1,
@@ -826,14 +829,21 @@ SCENARIO("The input method in EnumMap works correctly for struct and pointers") 
           REQUIRE(map.has(Test(i)) == false);
         }
       }
-      THEN("Changing the value of struct elements does not change values of key 1,2 and 3") {
-        val1.val = 20;
-        val2.val = 10;
-        val3.val = 120;
-        REQUIRE(val1.val == 20);
-        REQUIRE(map[test1].val == 121);
-        REQUIRE(map[test2].val == 02);
-        REQUIRE(map[test3].val == 898);
+      THEN("The map values are correctly set by assignment on the [] operator:") {
+        map[test1] = val7;
+        map[test2] = val8;
+        map[test3] = val9;
+        REQUIRE(map[test1].val == 10);
+        REQUIRE(map[test2].val == 20);
+        REQUIRE(map[test3].val == 30);
+      }
+      THEN("The struct fields are correctly set by direct access using the [] operator:") {
+        map[test1].val = 122;
+        map[test2].val = 3;
+        map[test3].val = 899;
+        REQUIRE(map[test1].val == 122);
+        REQUIRE(map[test2].val == 3);
+        REQUIRE(map[test3].val == 899);
       }
     }
   }
@@ -844,6 +854,12 @@ SCENARIO("The input method in EnumMap works correctly for struct and pointers") 
     uint32_t* val2 = &var2;
     uint32_t var3 = 28;
     uint32_t* val3 = &var3;
+    uint32_t var4 = 120;
+    uint32_t* val4 = &var4;
+    uint32_t var5 = 122;
+    uint32_t* val5 = &var5;
+    uint32_t var6 = 100;
+    uint32_t* val6 = &var6;
 
     enum Test {
       test1,
@@ -896,6 +912,14 @@ SCENARIO("The input method in EnumMap works correctly for struct and pointers") 
         for (size_t i = -1000; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
+      }
+      THEN("The map values are correctly set by assignment on the [] operator:") {
+        map[test1] = val4;
+        map[test2] = val5;
+        map[test3] = val6;
+        REQUIRE(map[test1] == val4);
+        REQUIRE(map[test2] == val5);
+        REQUIRE(map[test3] == val6);
       }
     }
   }
