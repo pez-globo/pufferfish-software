@@ -45,10 +45,10 @@ class Sensor : public Initializable {
   SensorConnections sensor_connections_{};
 
   [[nodiscard]] bool wait_time_exceeded() const;
+  void input_clock(uint32_t current_time);
 
   HAL::Interfaces::Time &time_;
 
-  void input_clock(uint32_t current_time);
   Util::MsTimer waiting_timer_{waiting_duration, 0};
   uint32_t current_time_ = 0;  // ms
   uint32_t initial_time_ = 0;  // ms

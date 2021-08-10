@@ -29,7 +29,7 @@ InitializableState Sensor::setup() {
     return InitializableState::failed;
   }
 
-  return InitializableState::ok;
+  return InitializableState::setup;
 }
 
 InitializableState Sensor::output(float &spo2, float &hr) {
