@@ -42,6 +42,11 @@ async def make_dialog(
             'zenity', '--{}'.format(level), '--text', message,
             '--width={}'.format(width), '--height={}'.format(height)
         ], capture_stderr=True)
+    except FileNotFoundError:
+        logger.error(
+            'Failed to make %s-level dialog "%s"! Did you install zenity?',
+            level, message
+        )
     except subprocess.CalledProcessError as err:
         logger.error(
             'Failed to make %s-level dialog "%s": %s',
