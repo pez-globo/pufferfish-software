@@ -31,7 +31,8 @@ InitializableState Sensor::setup() {
   return InitializableState::setup;
 }
 
-InitializableState Sensor::output(uint32_t current_time, float &spo2, float &hr) {
+InitializableState Sensor::output(
+    SensorConnections &sensor_connections, uint32_t current_time, float &spo2, float &hr) {
   switch (device_.output(measurements_)) {
     case PacketStatus::invalid_checksum:
     case PacketStatus::invalid_header:
@@ -47,9 +48,9 @@ InitializableState Sensor::output(uint32_t current_time, float &spo2, float &hr)
   }
 
   // measurements status
-  sensor_connections_.sensor_disconnected = find_any_true(measurements_.sensor_disconnect);
-  sensor_connections_.sensor_alarm = find_any_true(measurements_.sensor_alarm);
-  sensor_connections_.out_of_track = find_any_true(measurements_.out_of_track);
+  sensor_connections.sensor_disconnected = find_any_true(measurements_.sensor_disconnect);
+  sensor_connections.sensor_alarm = find_any_true(measurements_.sensor_alarm);
+  sensor_connections.out_of_track = find_any_true(measurements_.out_of_track);
 
   if (measurements_.e_spo2_d == ErrorConstants::spo2_missing) {
     spo2 = NAN;

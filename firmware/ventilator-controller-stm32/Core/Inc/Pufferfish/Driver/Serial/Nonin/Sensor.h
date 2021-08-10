@@ -33,7 +33,8 @@ class Sensor : public Initializable {
   explicit Sensor(Device &device, HAL::Interfaces::Time &time) : device_(device), time_(time) {}
 
   InitializableState setup() override;
-  InitializableState output(uint32_t current_time, float &spo2, float &hr);
+  InitializableState output(
+      SensorConnections &sensor_connections, uint32_t current_time, float &spo2, float &hr);
 
  private:
   static const uint32_t measurement_timeout = 2000;  // ms
@@ -42,7 +43,6 @@ class Sensor : public Initializable {
   HAL::Interfaces::Time &time_;
 
   Sample measurements_{};
-  SensorConnections sensor_connections_{};
 
   Util::MsTimer waiting_timer_{measurement_timeout, 0};
 };

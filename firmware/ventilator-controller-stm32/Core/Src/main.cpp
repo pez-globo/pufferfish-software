@@ -650,8 +650,10 @@ int main(void)
 
     // Independent Sensors
     fdo2.output(hfnc.sensor_vars().po2);
-    auto nonin_status =
-        nonin_oem.output(store.sensor_measurements_raw().spo2, store.sensor_measurements_raw().hr);
+    auto nonin_status = nonin_oem.output(
+        sensor_connections,
+        store.sensor_measurements_raw().spo2,
+        store.sensor_measurements_raw().hr);
     PF::Driver::Serial::Nonin::SensorAlarmsService::transform(
         nonin_status, sensor_connections, alarms_manager);
     // *temporary* should be used in the breathing circuit

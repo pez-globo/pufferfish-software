@@ -17,9 +17,12 @@ void SensorAlarmsService::transform(
     InitializableState status,
     const SensorConnections &sensor_connections,
     Application::AlarmsManager &alarms_manager) {
-  status == InitializableState::failed
-      ? alarms_manager.activate_alarm(LogEventCode::LogEventCode_nonin_disconnected, system)
-      : alarms_manager.deactivate_alarm(LogEventCode::LogEventCode_nonin_disconnected);
+  if (status == InitializableState::failed) {
+    alarms_manager.activate_alarm(LogEventCode::LogEventCode_nonin_disconnected, system);
+    return;
+  } else {
+    alarms_manager.deactivate_alarm(LogEventCode::LogEventCode_nonin_disconnected);
+  }
 
   sensor_connections.sensor_disconnected
       ? alarms_manager.activate_alarm(
