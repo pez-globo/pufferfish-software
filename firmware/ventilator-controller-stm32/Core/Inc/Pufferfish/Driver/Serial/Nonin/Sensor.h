@@ -33,25 +33,18 @@ class Sensor : public Initializable {
   explicit Sensor(Device &device, HAL::Interfaces::Time &time) : device_(device), time_(time) {}
 
   InitializableState setup() override;
-  InitializableState output(float &spo2, float &hr);
+  InitializableState output(uint32_t current_time, float &spo2, float &hr);
 
  private:
-  static const uint32_t waiting_duration = 2;  // ms
-  static bool find(const Flags &measurement);
+  static const uint32_t measurement_timeout = 2000;  // ms
 
   Device &device_;
+  HAL::Interfaces::Time &time_;
 
   Sample measurements_{};
   SensorConnections sensor_connections_{};
 
-  [[nodiscard]] bool wait_time_exceeded() const;
-  void input_clock(uint32_t current_time);
-
-  HAL::Interfaces::Time &time_;
-
-  Util::MsTimer waiting_timer_{waiting_duration, 0};
-  uint32_t current_time_ = 0;  // ms
-  uint32_t initial_time_ = 0;  // ms
+  Util::MsTimer waiting_timer_{measurement_timeout, 0};
 };
 
 }  // namespace Pufferfish::Driver::Serial::Nonin
