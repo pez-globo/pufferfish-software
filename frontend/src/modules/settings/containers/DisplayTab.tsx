@@ -13,14 +13,13 @@ import {
   Typography,
   useTheme,
 } from '@material-ui/core';
-import React, { RefObject, useEffect, useRef } from 'react';
+import React, { RefObject, useEffect, useState, useRef } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { ThemeVariant, Unit } from '../../../store/proto/frontend_pb';
 import {
   getFrontendDisplaySetting,
-  getSystemSettingRequest,
+  getSystemSettingsRequest,
 } from '../../../store/controller/selectors';
-import { DECIMAL_RADIX } from '../../app/AppConstants';
 import ValueSpinner from '../../controllers/ValueSpinner';
 import { ToggleValue } from '../../controllers/ToggleValue';
 import {
@@ -158,22 +157,60 @@ interface Props {
  */
 const DateTimeDisplay = () => {
   const classes = useStyles();
-  const clock = new Date().toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true,
-  });
+  // TODO: split into a DateDisplay and a TimeDisplay.
+  // TODO: can we consolidate the timestring useEffect or the decomposed
+  // TimeDisplay component with the HeaderClock from ToolBar.tsx?
+  const [clockDate, setClockDate] = useState(
+    new Date().toLocaleDateString([], {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    }),
+  );
+  const [clockTime, setClockTime] = useState(
+    new Date().toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    }),
+  );
+
+  /**
+   * UseEffect to update the clock every second
+   */
+  useEffect(() => {
+    const clockTimer = setInterval(() => {
+      setClockDate(
+        new Date().toLocaleDateString([], {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        }),
+      );
+      setClockTime(
+        new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true,
+        }),
+      );
+    }, 100);
+    return () => {
+      clearInterval(clockTimer);
+    };
+  }, []);
 
   return (
     <React.Fragment>
       <Box className={classes.date}>
         <Typography variant="h5">Date:</Typography>
-        <Typography className={classes.dateTime}>{clock}</Typography>
+        <Typography className={classes.dateTime}>{clockDate}</Typography>
       </Box>
       <Box>
         <Typography variant="h5">Time:</Typography>
-        <Typography className={classes.dateTime}>{new Date().toLocaleTimeString()}</Typography>
+        <Typography className={classes.dateTime}>{clockTime}</Typography>
       </Box>
     </React.Fragment>
   );
@@ -209,10 +246,10 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   });
   const themeObj = useTheme();
   const { initRefListener } = useRotaryReference(themeObj);
-  const systemSettings = useSelector(getSystemSettingRequest, shallowEqual);
+  const systemSettings = useSelector(getSystemSettingsRequest, shallowEqual);
   const displaySettings = useSelector(getFrontendDisplaySetting, shallowEqual);
-  const [brightness, setBrightness] = React.useState(
-    systemSettings === null ? 100 : systemSettings.brightness,
+  const [displayBrightness, setDisplayBrightness] = React.useState(
+    systemSettings === null ? 100 : systemSettings.displayBrightness,
   );
   const [theme, setTheme] = React.useState(
     displaySettings === null ? ThemeVariant.dark : displaySettings.theme,
@@ -220,11 +257,18 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   const [unit, setUnit] = React.useState(
     displaySettings === null ? Unit.imperial : displaySettings.unit,
   );
-  const [date] = React.useState<Date>(
-    systemSettings === null ? new Date() : new Date(systemSettings.date * 1000),
-  );
+  const [date] = React.useState<Date>(new Date());
   const [period, setPeriod] = React.useState(date.getHours() >= 12 ? Period.PM : Period.AM);
   const [minute, setMinute] = React.useState(date.getMinutes());
+  // TODO: maybe we should use 24-hour formatted time, since that's the international standard?
+  // The UI design team may have forgotten that 12-hour format is not internationally standard,
+  // and the 24-hour format may be more standard in medical settings.
+  // TODO: maybe we should add a way to change the seconds?
+  // TODO: the ValueSpinners should roll over from max to min (and vice versa):
+  // e.g. it should be possible to increase the minute from 59 to 00
+  // TODO: currently if we just want to change brightness, we still have to update the clock,
+  // because pressing "Apply Changes" will cause dispatch of a new SystemSettings request.
+  // We should move adjustment of system time to a separate tab with a separate "Apply Changes" button.
   const [hour, setHour] = React.useState(to12HourClock(date.getHours())); // Note: `date.hours()` is 24-hour formatted.
   const [day, setDay] = React.useState(date.getDate());
   const [month, setMonth] = React.useState(
@@ -243,12 +287,24 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   useEffect(() => {
     const dateChange = new Date(year, month - 1, day, to24HourClock(hour, period), minute);
     onSettingChange({
-      brightness,
+      displayBrightness,
       theme,
       unit,
-      date: parseInt((dateChange.getTime() / 1000).toFixed(0), DECIMAL_RADIX),
+      date: dateChange.getTime() / 1000.0,
     });
-  }, [date, period, minute, hour, day, month, year, unit, theme, brightness, onSettingChange]);
+  }, [
+    date,
+    period,
+    minute,
+    hour,
+    day,
+    month,
+    year,
+    unit,
+    theme,
+    displayBrightness,
+    onSettingChange,
+  ]);
 
   /**
    * function for handling month change.
@@ -295,10 +351,10 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
             <ValueSpinner
               reference={elRefs[BRIGHTNESS_REFERENCE_KEY]}
               referenceKey={BRIGHTNESS_REFERENCE_KEY}
-              value={brightness}
+              value={displayBrightness}
               label="Brightness"
               units="%"
-              onClick={setBrightness}
+              onClick={setDisplayBrightness}
               min={0}
               max={100}
             />
@@ -441,8 +497,8 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
                 value={year}
                 label="Year"
                 onClick={setYear}
-                min={year}
-                max={year}
+                min={1970}
+                max={3000 /* TODO: we should make it possible to have no max */}
               />
             </Grid>
             {/* Moved Apply button out of the tab */}

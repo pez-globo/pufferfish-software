@@ -76,19 +76,20 @@ typedef enum _LogEventCode {
     LogEventCode_backend_started = 142, 
     LogEventCode_mcu_shutdown = 143, 
     LogEventCode_backend_shutdown = 144, 
+    LogEventCode_sysclock_changed = 145, 
     /* Alarm muting/unmuting */
-    LogEventCode_alarms_muted_user_software = 145, 
-    LogEventCode_alarms_muted_user_hardware = 146, 
-    LogEventCode_alarms_muted_unknown = 147, /* Indicates a software bug; should never occur */
-    LogEventCode_alarms_unmuted_user_software = 148, 
-    LogEventCode_alarms_unmuted_user_hardware = 149, 
-    LogEventCode_alarms_unmuted_initialization = 150, 
-    LogEventCode_alarms_unmuted_timeout = 151, 
-    LogEventCode_alarms_unmuted_mcu_backend_loss = 152, 
-    LogEventCode_alarms_unmuted_backend_mcu_loss = 153, 
-    LogEventCode_alarms_unmuted_backend_frontend_loss = 154, 
-    LogEventCode_alarms_unmuted_frontend_backend_loss = 155, 
-    LogEventCode_alarms_unmuted_unknown = 156, /* Indicates a software bug; should never occur */
+    LogEventCode_alarms_muted_user_software = 146, 
+    LogEventCode_alarms_muted_user_hardware = 147, 
+    LogEventCode_alarms_muted_unknown = 148, /* Indicates a software bug; should never occur */
+    LogEventCode_alarms_unmuted_user_software = 149, 
+    LogEventCode_alarms_unmuted_user_hardware = 150, 
+    LogEventCode_alarms_unmuted_initialization = 151, 
+    LogEventCode_alarms_unmuted_timeout = 152, 
+    LogEventCode_alarms_unmuted_mcu_backend_loss = 153, 
+    LogEventCode_alarms_unmuted_backend_mcu_loss = 154, 
+    LogEventCode_alarms_unmuted_backend_frontend_loss = 155, 
+    LogEventCode_alarms_unmuted_frontend_backend_loss = 156, 
+    LogEventCode_alarms_unmuted_unknown = 157, /* Indicates a software bug; should never occur */
     /* Sensor loss */
     LogEventCode_sfm3019_air_disconnected = 160, 
     LogEventCode_sfm3019_o2_disconnected = 161, 
@@ -224,6 +225,7 @@ typedef struct _SensorMeasurements {
     float volume; 
 } SensorMeasurements;
 
+/* TODO: AlarmLimits has a max size above 256 bytes, so we need to increase the communication protocol's chunks from a max length of 256 bytes to something more like 512 bytes! */
 typedef struct _AlarmLimits { 
     uint64_t time; /* ms */
     bool has_fio2;
@@ -256,6 +258,7 @@ typedef struct _AlarmLimits {
     Range apnea; 
 } AlarmLimits;
 
+/* TODO: AlarmLimitsRequest has a max size above 256 bytes, so we need to increase the communication protocol's chunks from a max length of 256 bytes to something more like 512 bytes! */
 typedef struct _AlarmLimitsRequest { 
     uint64_t time; /* ms */
     bool has_fio2;
@@ -295,8 +298,9 @@ typedef struct _LogEvent {
     LogEventType type; 
     bool has_alarm_limits;
     Range alarm_limits; 
-    float old_float; 
-    float new_float; 
+    /* TODO: rename these to old/new_double */
+    double old_float; 
+    double new_float; 
     uint32_t old_uint32; 
     uint32_t new_uint32; 
     bool old_bool; 
@@ -310,7 +314,8 @@ typedef struct _LogEvent {
 } LogEvent;
 
 /* Note: NextLogEvents has a custom equality operator in the firmware which must
- be updated if you add/remove/modify the fields of the protobuf definition! */
+ be updated if you add/remove/modify the fields of the protobuf definition!
+ TODO: NextLogEvents has a max size above 256 bytes, so we need to increase the communication protocol's chunks from a max length of 256 bytes to something more like 512 bytes! */
 typedef struct _NextLogEvents { 
     uint32_t next_expected; 
     uint32_t total; 
@@ -619,8 +624,8 @@ X(a, STATIC,   SINGULAR, UINT64,   time,              2) \
 X(a, STATIC,   SINGULAR, UENUM,    code,              3) \
 X(a, STATIC,   SINGULAR, UENUM,    type,              4) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  alarm_limits,      5) \
-X(a, STATIC,   SINGULAR, FLOAT,    old_float,         6) \
-X(a, STATIC,   SINGULAR, FLOAT,    new_float,         7) \
+X(a, STATIC,   SINGULAR, DOUBLE,   old_float,         6) \
+X(a, STATIC,   SINGULAR, DOUBLE,   new_float,         7) \
 X(a, STATIC,   SINGULAR, UINT32,   old_uint32,        8) \
 X(a, STATIC,   SINGULAR, UINT32,   new_uint32,        9) \
 X(a, STATIC,   SINGULAR, BOOL,     old_bool,         10) \
@@ -749,9 +754,9 @@ extern const pb_msgdesc_t Announcement_msg;
 #define BackendConnections_size                  4
 #define CycleMeasurements_size                   41
 #define ExpectedLogEvent_size                    12
-#define LogEvent_size                            124
+#define LogEvent_size                            132
 #define MCUPowerStatus_size                      7
-#define NextLogEvents_size                       276
+#define NextLogEvents_size                       294
 #define ParametersRequest_size                   50
 #define Parameters_size                          50
 #define Ping_size                                17

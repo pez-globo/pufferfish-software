@@ -30,6 +30,7 @@ example_crc_bad = [
 ]
 example_crc = example_crc_good + example_crc_bad
 
+
 # CRCElement
 
 @hp.given(crc=st.binary(min_size=0x00000000, max_size=0xffffffffff))
@@ -60,6 +61,7 @@ def test_crcelement_compute_crc(
     crc_element = crcelements.CRCElement()
     crc_element.payload = payload
     assert crc_element._compute_crc() == expected   # pylint: disable=protected-access
+
 
 # disabling pylint for longer name
 @pt.mark.parametrize('payload', ['123456789', 123456789, 0x75bcd15])
@@ -129,7 +131,7 @@ def test_crcelement_parse_invariants(
 
 
 @hp.given(body=st.binary(max_size=3))
-def test_crcelement_parse_invalids(body: bytes)-> None:
+def test_crcelement_parse_invalids(body: bytes) -> None:
     """Test CRCElement parse invalids."""
     crc_element = crcelements.CRCElement()
     with pt.raises(exceptions.ProtocolDataError):
@@ -165,22 +167,22 @@ def test_crcelement_roundtrip(
     assert parse_crc_element.get_body() == body
 
 
-# CRCReceiver
+# Receiver
 
 
 @pt.mark.parametrize('_,payload,body', example_crc_good)
 def test_crcelements_rx_indiv(
         _: bytes, payload: bytes, body: bytes
 ) -> None:
-    """Test CRCReceiver with specific individual samples."""
-    receiver = crcelements.CRCReceiver()
+    """Test Receiver with specific individual samples."""
+    receiver = crcelements.Receiver()
     assert receiver.output() is None
     receiver.input(body)
     assert receiver.output() == payload
 
 
 def input_body_seq(
-        receiver: crcelements.CRCReceiver,
+        receiver: crcelements.Receiver,
         crc_sequence: List[Tuple[bytes, bytes, bytes]]
 ) -> None:
     """Add sequence of crc bodies as input to a receiver."""
@@ -189,7 +191,7 @@ def input_body_seq(
 
 
 def output_body_seq(
-        receiver: crcelements.CRCReceiver,
+        receiver: crcelements.Receiver,
         crc_sequence: List[Tuple[bytes, bytes, bytes]]
 ) -> None:
     """Get the sequence of crc payloads from output of receiver."""
@@ -203,8 +205,8 @@ def output_body_seq(
 def test_crcelements_rx_seq(
         crc_sequence: List[Tuple[bytes, bytes, bytes]]
 ) -> None:
-    """Test CRCReceiver sequential behaviour."""
-    receiver = crcelements.CRCReceiver()
+    """Test Receiver sequential behaviour."""
+    receiver = crcelements.Receiver()
     assert receiver.output() is None
     input_body_seq(receiver, crc_sequence)
     output_body_seq(receiver, crc_sequence)
@@ -222,8 +224,8 @@ def test_crcelements_rx_seq(
     b'\x00'
 ])      # pylint: disable=invalid-name
 def test_crcelements_rx_invalid_indiv(body: bytes) -> None:
-    """Test CRCReceiver with individual invalid inputs."""
-    receiver = crcelements.CRCReceiver()
+    """Test Receiver with individual invalid inputs."""
+    receiver = crcelements.Receiver()
     receiver.input(body)
     with pt.raises(exceptions.ProtocolDataError):
         _ = receiver.output()
@@ -233,29 +235,29 @@ def test_crcelements_rx_invalid_indiv(body: bytes) -> None:
 def test_crcelements_rx_invalid_crc(
         _: bytes, __: bytes, body: bytes
 ) -> None:
-    """Test CRCReceiver with invalid crc input."""
-    receiver = crcelements.CRCReceiver()
+    """Test Receiver with invalid crc input."""
+    receiver = crcelements.Receiver()
     receiver.input(body)
     with pt.raises(exceptions.ProtocolDataError):
-        ___ = receiver.output()
+        receiver.output()
 
 
-# CRCSender
+# Sender
 
 
 @pt.mark.parametrize('_,payload,body', example_crc_good)
 def test_crcelements_tx_indiv(
         _: bytes, payload: bytes, body: bytes
 ) -> None:
-    """Test CRCSender with specific individual samples."""
-    sender = crcelements.CRCSender()
+    """Test Sender with specific individual samples."""
+    sender = crcelements.Sender()
     assert sender.output() is None
     sender.input(payload)
     assert sender.output() == body
 
 
 def input_payload_seq(
-        sender: crcelements.CRCSender,
+        sender: crcelements.Sender,
         crc_sequence: List[Tuple[bytes, bytes, bytes]]
 ) -> None:
     """Add sequence of crc payloads as input to a sender."""
@@ -264,7 +266,7 @@ def input_payload_seq(
 
 
 def output_payload_seq(
-        sender: crcelements.CRCSender,
+        sender: crcelements.Sender,
         crc_sequence: List[Tuple[bytes, bytes, bytes]]
 ) -> None:
     """Get the sequence of crc bodies from output of receiver."""
@@ -278,8 +280,8 @@ def output_payload_seq(
 def test_crcelements_tx_seq(
         crc_sequence: List[Tuple[bytes, bytes, bytes]]
 ) -> None:
-    """Test CRCSender sequential behaviour."""
-    sender = crcelements.CRCSender()
+    """Test Sender sequential behaviour."""
+    sender = crcelements.Sender()
     assert sender.output() is None
     input_payload_seq(sender, crc_sequence)
     output_payload_seq(sender, crc_sequence)
@@ -291,8 +293,8 @@ def test_crcelements_tx_seq(
 
 @pt.mark.parametrize('payload', ['123456789', 123456789, 0x75bcd15])
 def test_crcelements_tx_invalid_indiv(payload: bytes) -> None:  # pylint: disable=invalid-name
-    """Test CRCSender with individual invalid inputs."""
-    sender = crcelements.CRCSender()
+    """Test Sender with individual invalid inputs."""
+    sender = crcelements.Sender()
     sender.input(payload)
     with pt.raises(exceptions.ProtocolDataError):
         _ = sender.output()

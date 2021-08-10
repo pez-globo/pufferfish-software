@@ -22,10 +22,20 @@ fi
 if [ 1 -eq $( ls $config_dir | grep -c "pufferfish_backend.service" ) ]
 then
     sudo cp $config_dir/pufferfish_backend.service /etc/systemd/system/
+    sudo sed -i "s|working_directory|$backend_parent_dir|g" /etc/systemd/system/pufferfish_backend.service
     sudo sed -i "s|python_file_absolute_path|$backend_file|g" /etc/systemd/system/pufferfish_backend.service
     sudo chmod 644 /etc/systemd/system/pufferfish_backend.service
 else
     echo -e "${ERROR} The pufferfish_backend.service file doesn't exist${NC}"
+    exit 1
+fi
+
+# Copy system clock sudoers file to sudoers directory
+if [ 1 -eq $( ls $config_dir | grep -c "pufferfish_sysclock" ) ]
+then
+    sudo cp $config_dir/pufferfish_sysclock /etc/sudoers.d/
+else
+    echo -e "${ERROR} The pufferfish_sysclock sudoers file doesn't exist${NC}"
     exit 1
 fi
 

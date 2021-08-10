@@ -60,25 +60,21 @@ MESSAGE_TYPES: Mapping[Type[betterproto.Message], int] = {
 
 
 @attr.s
-class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
+class Receiver(protocols.Filter[LowerEvent, UpperEvent]):
     """Filter which passes input data in an event class."""
 
-    _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
+    _logger = logging.getLogger('.'.join((__name__, 'Receiver')))
 
     _splitter: frames.ChunkSplitter = attr.ib(factory=frames.ChunkSplitter)
     _cobs_decoder: frames.COBSDecoder = attr.ib(factory=frames.COBSDecoder)
-    _crc_receiver: crcelements.CRCReceiver = attr.ib(
-        factory=crcelements.CRCReceiver
-    )
-    _datagram_receiver: datagrams.DatagramReceiver = attr.ib(
-        factory=datagrams.DatagramReceiver
-    )
-    _message_receiver: messages.MessageReceiver = attr.ib()
+    _crc_receiver: crcelements.Receiver = attr.ib(factory=crcelements.Receiver)
+    _datagram_receiver: datagrams.Receiver = attr.ib(factory=datagrams.Receiver)
+    _message_receiver: messages.Receiver = attr.ib()
 
     @_message_receiver.default
-    def init_message_receiver(self) -> messages.MessageReceiver:  # pylint: disable=no-self-use
+    def init_message_receiver(self) -> messages.Receiver:  # pylint: disable=no-self-use
         """Initialize the mcu message receiver."""
-        return messages.MessageReceiver(message_classes=MESSAGE_CLASSES)
+        return messages.Receiver(message_classes=MESSAGE_CLASSES)
 
     def input(self, event: Optional[LowerEvent]) -> None:
         """Handle input events."""
@@ -128,23 +124,21 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
 
 
 @attr.s
-class SendFilter(protocols.Filter[UpperEvent, LowerEvent]):
+class Sender(protocols.Filter[UpperEvent, LowerEvent]):
     """Filter which unwraps output data from an event class."""
 
-    _logger = logging.getLogger('.'.join((__name__, 'SendFilter')))
+    _logger = logging.getLogger('.'.join((__name__, 'Sender')))
 
-    _message_sender: messages.MessageSender = attr.ib()
-    _datagram_sender: datagrams.DatagramSender = attr.ib(
-        factory=datagrams.DatagramSender
-    )
-    _crc_sender: crcelements.CRCSender = attr.ib(factory=crcelements.CRCSender)
+    _message_sender: messages.Sender = attr.ib()
+    _datagram_sender: datagrams.Sender = attr.ib(factory=datagrams.Sender)
+    _crc_sender: crcelements.Sender = attr.ib(factory=crcelements.Sender)
     _cobs_encoder: frames.COBSEncoder = attr.ib(factory=frames.COBSEncoder)
     _merger: frames.ChunkMerger = attr.ib(factory=frames.ChunkMerger)
 
     @_message_sender.default
-    def init_message_sender(self) -> messages.MessageSender:  # pylint: disable=no-self-use
+    def init_message_sender(self) -> messages.Sender:  # pylint: disable=no-self-use
         """Initialize the message sender."""
-        return messages.MessageSender(message_types=MESSAGE_TYPES)
+        return messages.Sender(message_types=MESSAGE_TYPES)
 
     def input(self, event: Optional[UpperEvent]) -> None:
         """Handle input events."""

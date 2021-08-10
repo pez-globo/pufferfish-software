@@ -28,7 +28,7 @@ class ReceiveInputEvent(events.Event):
     """Event log receiver input event."""
 
     source: EventSource = attr.ib()
-    current_time: float = attr.ib()
+    wall_time: float = attr.ib()
     next_log_events: Optional[mcu_pb.NextLogEvents] = attr.ib(default=None)
     active_log_events: Optional[mcu_pb.ActiveLogEvents] = attr.ib(default=None)
 
@@ -37,7 +37,7 @@ class ReceiveInputEvent(events.Event):
         return (
             self.next_log_events is not None
             or self.active_log_events is not None
-            # current_time only matters if next_log_events is not None, so it
+            # wall_time only matters if next_log_events is not None, so it
             # doesn't count for has_data.
         )
 
@@ -82,13 +82,13 @@ class LocalLogInputEvent(events.Event):
     next_log_event's id and time fields are ignored.
     """
 
-    current_time: Optional[float] = attr.ib(default=None)  # s
+    wall_time: Optional[float] = attr.ib(default=None)  # s
     new_event: Optional[mcu_pb.LogEvent] = attr.ib(default=None)
     active: bool = attr.ib(default=False)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
-        return self.new_event is not None
+        return self.wall_time is not None or self.new_event is not None
 
 
 @attr.s
@@ -124,8 +124,8 @@ class EventLogReceiver(protocols.Filter[ReceiveInputEvent, ReceiveOutputEvent]):
     )
 
     _log_events_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent] = attr.ib()
-    _clock_synchronizer: clocks.ClockSynchronizer = attr.ib(
-        factory=clocks.ClockSynchronizer
+    _clock_synchronizer: clocks.Synchronizer = attr.ib(
+        factory=clocks.Synchronizer
     )
     _next_log_events_prev: Optional[mcu_pb.NextLogEvents] = attr.ib(
         default=None
@@ -179,7 +179,7 @@ class EventLogReceiver(protocols.Filter[ReceiveInputEvent, ReceiveOutputEvent]):
         self._remote_session_id = update_event.session_id
 
     def _remap_remote_element(
-            self, element: mcu_pb.LogEvent, current_time: float
+            self, element: mcu_pb.LogEvent, wall_time: float
     ) -> mcu_pb.LogEvent:
         """Remap a remote log event's ID & time into the local reference."""
         new_element = dataclasses.replace(element)
@@ -190,8 +190,7 @@ class EventLogReceiver(protocols.Filter[ReceiveInputEvent, ReceiveOutputEvent]):
         self._remote_id_mapping[element.id] = new_element.id
         # Remap time
         self._clock_synchronizer.input(clocks.UpdateEvent(
-            current_time=current_time,
-            remote_time=new_element.time
+            wall_time=wall_time, remote_time=new_element.time
         ))
         new_element.time += self._clock_synchronizer.output()
         return new_element
@@ -215,7 +214,7 @@ class EventLogReceiver(protocols.Filter[ReceiveInputEvent, ReceiveOutputEvent]):
                 self._handle_remote_session_reset(update_event)
             # Remap remote IDs and times to local ID numbering & clock
             output_event.new_elements = [
-                self._remap_remote_element(element, event.current_time)
+                self._remap_remote_element(element, event.wall_time)
                 for element in update_event.new_elements
             ]
             # Generate the next ExpectedLogEvent
@@ -340,7 +339,7 @@ class LocalLogSource(protocols.Filter[
     a mapping of LogEventCodes to IDs for active log events.
     """
 
-    current_time: float = attr.ib(default=0)  # s
+    wall_time: float = attr.ib(default=0)  # s
     next_log_event_id: int = attr.ib(default=0)
     _new_events: List[mcu_pb.LogEvent] = attr.ib(factory=list)
     _new_active_events: Dict[mcu_pb.LogEventCode, int] = attr.ib(factory=dict)
@@ -350,14 +349,14 @@ class LocalLogSource(protocols.Filter[
         if event is None:
             return
 
-        if event.current_time is not None:
-            self.current_time = event.current_time
+        if event.wall_time is not None:
+            self.wall_time = event.wall_time
         if event.new_event is None:
             return
 
         log_event = dataclasses.replace(event.new_event)
         log_event.id = self.next_log_event_id
-        log_event.time = int(self.current_time * 1000)
+        log_event.time = int(self.wall_time * 1000)
         self._new_events.append(log_event)
         if event.active:
             self._new_active_events[log_event.code] = log_event.id

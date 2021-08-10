@@ -15,7 +15,7 @@ from ventserver.sansio import protocols
 class UpdateEvent(events.Event):
     """Connection update event."""
 
-    current_time: float = attr.ib()
+    monotonic_time: float = attr.ib()
     event_received: Optional[bool] = attr.ib(default=None)
     connected: Optional[bool] = attr.ib(default=None)
 
@@ -47,7 +47,7 @@ class TimeoutDetector(protocols.Filter[UpdateEvent, StatusEvent]):
     """
 
     event_timeout: float = attr.ib()
-    _current_time: Optional[float] = attr.ib(default=None)
+    _monotonic_time: Optional[float] = attr.ib(default=None)
     _last_event: Optional[float] = attr.ib(default=None)
     _last_connection: Optional[float] = attr.ib(default=None)
 
@@ -56,27 +56,28 @@ class TimeoutDetector(protocols.Filter[UpdateEvent, StatusEvent]):
         if event is None:
             return
 
-        self._current_time = event.current_time
+        self._monotonic_time = event.monotonic_time
         if event.event_received is not None:
-            self._last_event = self._current_time
+            self._last_event = self._monotonic_time
         if event.connected is not None:
-            self._last_event = self._current_time
+            self._last_event = self._monotonic_time
             self._last_connection = (
-                self._current_time if event.connected else None
+                self._monotonic_time if event.connected else None
             )
 
     def output(self) -> Optional[StatusEvent]:
         """Emit the next output event."""
-        if self._current_time is None:
+        if self._monotonic_time is None:
             return None
 
         output = StatusEvent()
         if self._last_event is not None:
             output.timed_out = (
-                int(self._current_time - self._last_event) > self.event_timeout
+                int(self._monotonic_time - self._last_event)
+                > self.event_timeout
             )
         if self._last_connection is not None:
-            output.uptime = self._current_time - self._last_connection
+            output.uptime = self._monotonic_time - self._last_connection
         return output
 
 
@@ -87,7 +88,7 @@ class TimeoutDetector(protocols.Filter[UpdateEvent, StatusEvent]):
 class ActionStatus(events.Event):
     """Connection update event."""
 
-    current_time: float = attr.ib()
+    monotonic_time: float = attr.ib()
     trigger: Optional[bool] = attr.ib(default=None)
     execute: bool = attr.ib(default=False)
 
@@ -108,7 +109,7 @@ class ActionTrigger(protocols.Filter[ActionStatus, bool]):
     """
 
     repeat_interval: Optional[float] = attr.ib(default=None)
-    _current_time: Optional[float] = attr.ib(default=None)
+    _monotonic_time: Optional[float] = attr.ib(default=None)
     _triggered: bool = attr.ib(default=False)
     _last_execution: Optional[float] = attr.ib(default=None)
 
@@ -117,9 +118,9 @@ class ActionTrigger(protocols.Filter[ActionStatus, bool]):
         if event is None:
             return
 
-        self._current_time = event.current_time
+        self._monotonic_time = event.monotonic_time
         if event.execute:
-            self._last_execution = self._current_time
+            self._last_execution = self._monotonic_time
         if event.trigger is not None:
             self._triggered = event.trigger
             if not event.trigger:
@@ -127,7 +128,7 @@ class ActionTrigger(protocols.Filter[ActionStatus, bool]):
 
     def output(self) -> bool:
         """Emit the next output event."""
-        if self._current_time is None or not self._triggered:
+        if self._monotonic_time is None or not self._triggered:
             return False
 
         # Action has been triggered; then:
@@ -140,10 +141,10 @@ class ActionTrigger(protocols.Filter[ActionStatus, bool]):
 
         # Action should be repeated; then:
         return (
-            int(self._current_time - self._last_execution) >
+            int(self._monotonic_time - self._last_execution) >
             self.repeat_interval
         )
 
-    def run_action(self, current_time: float) -> None:
+    def run_action(self, monotonic_time: float) -> None:
         """Reset the stopwatch on repeating the action."""
-        self._last_execution = current_time
+        self._last_execution = monotonic_time

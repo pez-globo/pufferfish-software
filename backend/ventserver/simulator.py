@@ -6,19 +6,19 @@ program simulates the evolution of those variables. This allows this backend
 server to act as a mock in place of the real backend server.
 """
 
+import functools
 import logging
 import time
-import functools
+import random
 import typing
-from typing import Mapping, MutableMapping, Optional
+from typing import Mapping, Optional
 
+import better_exceptions  # type: ignore
 import betterproto
 import trio
 
 from ventserver.integration import _trio
-from ventserver.io.trio import channels, fileio, rotaryencoder, websocket
-from ventserver.io.subprocess import frozen_frontend
-from ventserver.protocols import exceptions
+from ventserver.io.trio import channels, fileio, processes, websocket
 from ventserver.protocols.application import debouncing, lists
 from ventserver.protocols.backend import alarms, log, server, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
@@ -33,6 +33,8 @@ from ventserver import application
 
 
 REQUEST_SERVICE_INTERVAL = 20
+
+INITIAL_SEQ_NUM = random.getrandbits(32)
 
 INITIAL_VALUES = {
     states.StateSegment.SENSOR_MEASUREMENTS: mcu_pb.SensorMeasurements(),
@@ -67,8 +69,13 @@ INITIAL_VALUES = {
         power_left=0, charging=True
     ),
     states.StateSegment.SCREEN_STATUS: mcu_pb.ScreenStatus(lock=False),
-    states.StateSegment.SYSTEM_SETTING_REQUEST:
-        frontend_pb.SystemSettingRequest(brightness=100, date=int(time.time())),
+    states.StateSegment.SYSTEM_SETTINGS: frontend_pb.SystemSettings(
+        display_brightness=100, date=time.time(), seq_num=INITIAL_SEQ_NUM
+    ),
+    states.StateSegment.SYSTEM_SETTINGS_REQUEST:
+        frontend_pb.SystemSettingsRequest(
+            display_brightness=100, date=time.time(), seq_num=INITIAL_SEQ_NUM
+        ),
     states.StateSegment.FRONTEND_DISPLAY: frontend_pb.FrontendDisplaySetting(
         theme=frontend_pb.ThemeVariant.dark,
         unit=frontend_pb.Unit.metric,
@@ -105,7 +112,7 @@ async def service_requests(
     )
 
     while True:
-        simulated_log.input(log.LocalLogInputEvent(current_time=time.time()))
+        simulated_log.input(log.LocalLogInputEvent(wall_time=time.time()))
         parameters_services.transform(store, simulated_log)
         alarm_limits_services.transform(store, simulated_log)
         service_event_log(
@@ -118,10 +125,11 @@ async def simulate_states(
         store: Mapping[
             states.StateSegment, Optional[betterproto.Message]
         ], simulated_log: alarms.Manager,
-        simulated_log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent],
-        logger: logging.Logger
+        simulated_log_receiver: lists.ReceiveSynchronizer[mcu_pb.LogEvent]
 ) -> None:
     """Simulate evolution of all states."""
+    logger = logging.getLogger('ventserver.simulator')
+
     simulation_services = simulators.Services()
     power_service = power_management.Service()
     alarms_services = sim_alarms.Services()
@@ -137,11 +145,11 @@ async def simulate_states(
     prev_audible_alarms = False
 
     while True:
-        simulated_log.input(log.LocalLogInputEvent(current_time=time.time()))
-        simulation_services.transform(time.time(), store)
+        simulated_log.input(log.LocalLogInputEvent(wall_time=time.time()))
+        simulation_services.transform(time.time(), time.monotonic(), store)
         power_service.transform(store, simulated_log)
         alarms_services.transform(store, simulated_log)
-        alarm_mute_service.transform(time.time(), store, simulated_log)
+        alarm_mute_service.transform(time.monotonic(), store, simulated_log)
         audible_alarms = (
             len(active_log_events.id) > 0 and not alarm_mute_.active
         )
@@ -156,58 +164,31 @@ async def simulate_states(
         await trio.sleep(simulators.SENSOR_UPDATE_INTERVAL / 1000)
 
 
-def initialize_states(store: MutableMapping[
-        states.StateSegment, Optional[betterproto.Message]
-]) -> None:
-    """Set initial values for the states."""
-    for segment_type in store:
-        if segment_type in INITIAL_VALUES:
-            store[segment_type] = INITIAL_VALUES[segment_type]
-
-
 async def main() -> None:
     """Set up wiring between subsystems and process until completion."""
-    # Configure logging
-    logger = logging.getLogger()
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
-    )
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
+    # Set up logging
+    application.configure_logging()
+    logger = logging.getLogger('ventserver.simulator')
 
     # Sans-I/O Protocols
     protocol = server.Protocol()
 
     # I/O Endpoints
+    serial_endpoint = None
     websocket_endpoint = websocket.Driver()
-
-    rotary_encoder = None
-    try:
-        rotary_encoder = rotaryencoder.Driver()
-        await rotary_encoder.open()
-    except exceptions.ProtocolError as err:
-        exception = (
-            "Unable to connect the rotary encoder, please check the "
-            "serial connection. Check if the pigpiod service is running: %s"
-        )
-        rotary_encoder = None
-        logger.error(exception, err)
-
-    # I/O File
-    filehandler = fileio.Handler()
+    fileio_endpoint = fileio.Handler()
+    rotary_encoder_endpoint = \
+        await application.open_rotary_encoder_endpoint(logger)
 
     # Server Receive Outputs
-    channel: channels.TrioChannel[
-        server.ReceiveOutputEvent
-    ] = channels.TrioChannel()
+    channel: channels.TrioChannel[server.ReceiveOutputEvent] = \
+        channels.TrioChannel()
 
     # Initialize states with defaults
     store = protocol.receive.backend.store
-    initialize_states(store)
+    application.initialize_hardcoded_states(store, INITIAL_VALUES, logger)
     await application.initialize_states_from_file(
-        store, protocol, filehandler
+        store, protocol, fileio_endpoint
     )
 
     # Initialize events log manager
@@ -227,8 +208,21 @@ async def main() -> None:
         _log_events_receiver
     )
 
+    # Initialize time
+    protocol.receive.input(server.ReceiveDataEvent(
+        wall_time=time.time(), monotonic_time=time.monotonic()
+    ))
+    simulated_log.input(log.LocalLogInputEvent(wall_time=time.time()))
+
     # Make server protocol think the MCU is connnected
     protocol.receive._connection_states.has_mcu = True
+
+    await processes.make_dialog(
+        'Running simulator backend. If this is running on a real ventilator, '
+        'the software is not configured correctly and will not be able to '
+        'talk to the hardware inside the ventilator!',
+        'warning'
+    )
 
     try:
         async with channel.push_endpoint:
@@ -238,7 +232,8 @@ async def main() -> None:
                         _trio.process_all, channel=channel,
                         push_endpoint=channel.push_endpoint
                     ),
-                    protocol, None, websocket_endpoint, rotary_encoder
+                    protocol,
+                    serial_endpoint, websocket_endpoint, rotary_encoder_endpoint
                 )
                 nursery.start_soon(
                     service_requests, store,
@@ -246,18 +241,16 @@ async def main() -> None:
                 )
                 nursery.start_soon(
                     simulate_states, store,
-                    simulated_log, simulated_log_receiver, logger
+                    simulated_log, simulated_log_receiver
                 )
 
                 while True:
                     receive_output = await channel.output()
-                    await _trio.process_protocol_send(
-                        receive_output.server_send, protocol,
-                        None, websocket_endpoint, filehandler
+                    await application.handle_receive_outputs(
+                        receive_output, protocol,
+                        serial_endpoint, websocket_endpoint, fileio_endpoint,
+                        nursery
                     )
-
-                    if receive_output.kill_frontend:
-                        nursery.start_soon(frozen_frontend.kill_frozen_frontend)
 
                 nursery.cancel_scope.cancel()
     except trio.EndOfChannel:
@@ -270,4 +263,6 @@ async def main() -> None:
 
 
 if __name__ == '__main__':
+    better_exceptions.MAX_LENGTH = None
+    better_exceptions.hook()
     trio.run(main)

@@ -62,7 +62,7 @@ async def main() -> None:
                         ])
                         last_report_time = time.time()
                     await _trio.process_protocol_send(
-                        receive_output.server_send, protocol,
+                        receive_output.states_send, protocol,
                         serial_endpoint, websocket_endpoint, filehandler
                     )
                 nursery.cancel_scope.cancel()

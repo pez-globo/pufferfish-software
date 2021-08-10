@@ -11,13 +11,13 @@ import time
 async def main() -> None:
     """Test rotary encoder driver sample"""
     driver = rotaryencoder.Driver()
-    protocol = rotary_encoder.ReceiveFilter()
+    protocol = rotary_encoder.Receiver()
     await driver.open()
     # samples = list()
     try:
         async for each in driver.receive_all():
             protocol.input(rotary_encoder.ReceiveEvent(
-                time=time.time(), re_data=each
+                wall_time=time.time(), re_data=each
             ))
             out = protocol.output()
             # samples.append(out)

@@ -5,6 +5,7 @@ from typing import Optional, Tuple
 
 import attr
 import pigpio     # type: ignore
+
 import trio
 
 from ventserver.io import rotaryencoder
@@ -21,6 +22,7 @@ A_GPIO0 = 'c'  # clk_gpio is low
 # State sequences
 SEQUENCE_UP = B_GPIO1 + A_GPIO1 + B_GPIO0 + A_GPIO0
 SEQUENCE_DOWN = A_GPIO1 + B_GPIO1 + A_GPIO0 + B_GPIO0
+
 
 @attr.s
 class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
@@ -40,7 +42,6 @@ class Driver(endpoints.IOEndpoint[bytes, Tuple[int, bool]]):
     debounce_time: int = attr.ib(default=300)   # debounce time in us
     button_debounce_time: int = attr.ib(default=100)    # debounce time in us
     trio_token: trio.lowlevel.TrioToken = attr.ib(default=None, repr=False)
-
 
     def a_quad_rise(self, gpio: int, level: int, tick: int) -> None:
         """Callback for rising A qaudrature pin."""

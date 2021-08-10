@@ -7,6 +7,7 @@ import {
   getAlarmLimitsRequest,
   getFullExpectedLogEvent,
   getAlarmMuteRequest,
+  getSystemSettingsRequest,
   getFrontendDisplaySetting,
 } from '../../../controller/selectors';
 import { getLastBackendConnectionTime } from '../../selectors';
@@ -34,6 +35,7 @@ const selectors = new Map<MessageType, StateSelector>([
   [MessageType.ParametersRequest, getParametersRequest],
   [MessageType.ExpectedLogEvent, getFullExpectedLogEvent],
   [MessageType.AlarmMuteRequest, getAlarmMuteRequest],
+  [MessageType.SystemSettingsRequest, getSystemSettingsRequest],
   [MessageType.FrontendDisplaySetting, getFrontendDisplaySetting],
 ]);
 
@@ -53,6 +55,7 @@ const sendSchedule = [
   MessageType.ParametersRequest,
   MessageType.AlarmLimitsRequest,
   MessageType.AlarmMuteRequest,
+  MessageType.SystemSettingsRequest,
   MessageType.FrontendDisplaySetting,
 ];
 
