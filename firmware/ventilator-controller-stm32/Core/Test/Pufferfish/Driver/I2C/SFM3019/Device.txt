@@ -1,0 +1,41 @@
+Scenario : Start measure works correctly
+WHEN('Command parameter is start_measure_o2')
+THEN('get_write method will confirm command data is overwriten')
+WHEN('Command parameter is start_measure_air')
+THEN('get_write method will confirm command data is overwriten')
+WHEN('Command parameter is start_measure_mixture')
+THEN('get_write method will confirm command data is overwriten')
+
+
+Scenario: Stop measure works correctly
+WHEN('Command parameter stop_measure')
+THEN('get_write method will confirm command data is overwriten')
+
+Scenario: Set averaging works correctly
+WHEN('averaging window set to 0, command set_averaging')
+THEN('get_write method will confirm command data is overwriten')
+WHEN('averaging window set 100 , command set_averaging')
+THEN('get_write method will confirm command data is overwriten')
+WHEN('averaging window expected value? , command set_averaging')
+THEN('get_write method will confirm command data is overwriten')
+
+Scenario: request_conversion_factors works correctly
+WHEN('Command parameter request conversion , 2nd parameter as start_measure_o2')
+THEN('get_write method will confirm command data is overwriten')
+WHEN('Command parameter request conversion , 2nd parameter as start_measure_air')
+THEN('get_write method will confirm command data is overwriten')
+WHEN('Command parameter request conversion , 2nd parameter as start_measure_mixture')
+THEN('get_write method will confirm command data is overwriten')
+
+Scenario: read_conversion_factors works correctly
+
+Scenario: read_product_id works correctly
+WHEN('Command read_product_id')
+THEN('get_write method will confirm command data is overwriten')
+
+Scenario: read_sample works correctly
+
+Scenario: reset
+WHEN('Command parameter reset')
+THEN('get_write method will confirm command data is overwriten')
+
