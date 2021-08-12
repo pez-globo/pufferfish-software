@@ -131,7 +131,7 @@ class TimedSender(Sender, Generic[_Index]):
 
     sender: SequentialSender[_Index] = attr.ib()
     output_interval: float = attr.ib(default=0)
-    _current_time: Optional[float] = attr.ib(default=None)
+    _monotonic_time: Optional[float] = attr.ib(default=None)
     _last_output_time: Optional[float] = attr.ib(default=None)
 
     def input(self, event: Optional[float]) -> None:
@@ -140,20 +140,20 @@ class TimedSender(Sender, Generic[_Index]):
             return
 
         self._logger.debug('Time: %f', event)
-        self._current_time = event
+        self._monotonic_time = event
 
     def output(self) -> Optional[betterproto.Message]:
         """Emit the next output event."""
         if self.output_interval != 0 and self._last_output_time is not None:
-            if self._current_time is None:
+            if self._monotonic_time is None:
                 return None
 
             if (
-                    self._current_time - self._last_output_time <
+                    self._monotonic_time - self._last_output_time <
                     self.output_interval
             ):
                 return None
 
         output = self.sender.output()
-        self._last_output_time = self._current_time
+        self._last_output_time = self._monotonic_time
         return output

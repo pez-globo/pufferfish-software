@@ -2,7 +2,6 @@
 
 import logging
 from typing import Optional, Tuple
-import time
 
 import attr
 
@@ -16,13 +15,13 @@ from ventserver.sansio import channels, protocols
 class ReceiveEvent(events.Event):
     """Rotary encoder input receive event"""
 
-    time: float = attr.ib(default=None)
+    wall_time: float = attr.ib(default=None)
     re_data: Tuple[int, bool] = attr.ib(default=None)
 
     def has_data(self) -> bool:
         """Return whether the event has data."""
         return (
-            self.time is not None and self.re_data is not None
+            self.wall_time is not None and self.re_data is not None
         )
 
 
@@ -31,14 +30,14 @@ UpperEvent = frontend_pb.RotaryEncoder
 
 
 @attr.s
-class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
+class Receiver(protocols.Filter[LowerEvent, UpperEvent]):
     """Filter which passes input data in an event class."""
 
-    _logger = logging.getLogger('.'.join((__name__, 'ReceiveFilter')))
+    _logger = logging.getLogger('.'.join((__name__, 'Receiver')))
     _buffer: channels.DequeChannel[LowerEvent] = attr.ib(
         factory=channels.DequeChannel
     )
-    _current_time: float = attr.ib(default=time.time(), repr=False)
+    _wall_time: Optional[float] = attr.ib(default=None, repr=False)
     _last_button_down: float = attr.ib(default=0, repr=False)
     _last_button_up: float = attr.ib(default=0, repr=False)
     _last_step_change: float = attr.ib(default=0, repr=False)
@@ -59,16 +58,16 @@ class ReceiveFilter(protocols.Filter[LowerEvent, UpperEvent]):
         if not event:
             return None
 
-        self._current_time = event.time
+        self._wall_time = event.wall_time
         if event.re_data[0] != self._last_step:
             self._last_step = event.re_data[0]
-            self._last_step_change = self._current_time
+            self._last_step_change = self._wall_time
 
         if event.re_data[1] != self._button_pressed:
             if event.re_data[1]:
-                self._last_button_down = self._current_time
+                self._last_button_down = self._wall_time
             else:
-                self._last_button_up = self._current_time
+                self._last_button_up = self._wall_time
 
             self._button_pressed = event.re_data[1]
 

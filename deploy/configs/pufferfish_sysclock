@@ -1,0 +1,1 @@
+tasks_user  ALL=NOPASSWD: /usr/bin/date

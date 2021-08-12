@@ -29,8 +29,8 @@ async def main() -> None:
                     '127.0.0.1', 8000, '/', use_ssl=False
             ) as connection:
                 logger.info('Opened connection!')
-                receiver = frontend.ReceiveFilter()
-                sender = frontend.SendFilter()
+                receiver = frontend.Receiver()
+                sender = frontend.Sender()
                 i = 0
                 while True:
                     ping = pb.Ping(id=i)

@@ -192,7 +192,7 @@ class Datagram:
 
 
 @attr.s
-class DatagramReceiver(protocols.Filter[bytes, bytes]):
+class Receiver(protocols.Filter[bytes, bytes]):
     """A Filter to parse and check payloads from datagram bodies.
 
     This filter buffers input datagram bodies, represented as bytestrings,
@@ -209,7 +209,7 @@ class DatagramReceiver(protocols.Filter[bytes, bytes]):
 
     """
 
-    _logger = logging.getLogger('.'.join((__name__, 'DatagramReceiver')))
+    _logger = logging.getLogger('.'.join((__name__, 'Receiver')))
 
     expected_seq: Optional[int] = attr.ib(default=None, init=False)
     _buffer: channels.DequeChannel[bytes] = attr.ib(
@@ -272,7 +272,7 @@ class DatagramReceiver(protocols.Filter[bytes, bytes]):
 
 
 @attr.s
-class DatagramSender(protocols.Filter[bytes, bytes]):
+class Sender(protocols.Filter[bytes, bytes]):
     """A Filter to create datagram bodies from payloads.
 
     This filter buffers input datagram payloads, represented as bytestrings,
@@ -285,7 +285,7 @@ class DatagramSender(protocols.Filter[bytes, bytes]):
 
     """
 
-    _logger = logging.getLogger('.'.join((__name__, 'DatagramSender')))
+    _logger = logging.getLogger('.'.join((__name__, 'Sender')))
 
     _seq = attr.ib(default=0, init=False)
     _buffer: channels.DequeChannel[bytes] = attr.ib(

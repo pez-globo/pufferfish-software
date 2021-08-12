@@ -18,7 +18,11 @@ import {
   BackendConnections,
   ScreenStatus,
 } from '../proto/mcu_pb';
-import { SystemSettingRequest, FrontendDisplaySetting } from '../proto/frontend_pb';
+import {
+  SystemSettings,
+  SystemSettingsRequest,
+  FrontendDisplaySetting,
+} from '../proto/frontend_pb';
 import { MessageType } from '../proto/types';
 import {
   messageReducer,
@@ -62,10 +66,13 @@ export const controllerReducer = combineReducers({
 
   // Message states from frontend_pb
   rotaryEncoder: rotaryEncoderReducer,
-  systemSettingRequest: requestReducer<SystemSettingRequest>(
-    MessageType.SystemSettingRequest,
-    REQUEST_COMMITTED,
-  ),
+  systemSettings: combineReducers({
+    current: messageReducer<SystemSettings>(MessageType.SystemSettings),
+    request: requestReducer<SystemSettingsRequest>(
+      MessageType.SystemSettingsRequest,
+      REQUEST_COMMITTED,
+    ),
+  }),
   frontendDisplaySetting: requestReducer<FrontendDisplaySetting>(
     MessageType.FrontendDisplaySetting,
     REQUEST_COMMITTED,

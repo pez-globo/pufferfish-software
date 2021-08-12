@@ -96,10 +96,10 @@ class Message:
 
 
 @attr.s
-class MessageReceiver(protocols.Filter[bytes, betterproto.Message]):
+class Receiver(protocols.Filter[bytes, betterproto.Message]):
     """Message receiver."""
 
-    _logger = logging.getLogger('.'.join((__name__, 'MessageReceiver')))
+    _logger = logging.getLogger('.'.join((__name__, 'Receiver')))
 
     message_classes: Mapping[int, Type[betterproto.Message]] = attr.ib(
         factory=dict
@@ -125,10 +125,10 @@ class MessageReceiver(protocols.Filter[bytes, betterproto.Message]):
 
 
 @attr.s
-class MessageSender(protocols.Filter[betterproto.Message, bytes]):
+class Sender(protocols.Filter[betterproto.Message, bytes]):
     """Message sender."""
 
-    _logger = logging.getLogger('.'.join((__name__, 'MessageSender')))
+    _logger = logging.getLogger('.'.join((__name__, 'Sender')))
 
     message_types: Mapping[Type[betterproto.Message], int] = attr.ib(
         factory=dict

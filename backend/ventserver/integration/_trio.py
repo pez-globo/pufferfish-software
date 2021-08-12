@@ -200,7 +200,7 @@ async def process_io_receive(
         ],
         protocol: server.Protocol,
         receive_event_maker: Callable[
-            [_ReceiveOutputType, float], server.ReceiveEvent
+            [_ReceiveOutputType, float, float], server.ReceiveEvent
         ],
         channel: triochannels.TrioChannel[server.ReceiveOutputEvent],
         push_endpoint: 'trio.MemorySendChannel[server.ReceiveOutputEvent]'
@@ -220,7 +220,9 @@ async def process_io_receive(
     """
     async with push_endpoint:
         async for receive in io_endpoint.receive_all():
-            protocol.receive.input(receive_event_maker(receive, time.time()))
+            protocol.receive.input(receive_event_maker(
+                receive, time.time(), time.monotonic()
+            ))
             await process_protocol_receive_output(protocol, channel)
 
 
@@ -232,7 +234,7 @@ async def process_io_persistently(
         ],
         protocol: server.Protocol,
         receive_event_maker: Callable[
-            [_ReceiveOutputType, float], server.ReceiveEvent
+            [_ReceiveOutputType, float, float], server.ReceiveEvent
         ],
         nursery: trio.Nursery,
         channel: triochannels.TrioChannel[server.ReceiveOutputEvent],
@@ -284,7 +286,9 @@ async def process_clock(
     """Process all clock updates, forever."""
     async with push_endpoint:
         while True:
-            protocol.receive.input(server.ReceiveDataEvent(time=time.time()))
+            protocol.receive.input(server.ReceiveDataEvent(
+                wall_time=time.time(), monotonic_time=time.monotonic()
+            ))
             await process_protocol_receive_output(protocol, channel)
             await trio.sleep(clock_update_interval)
 
@@ -355,11 +359,11 @@ async def load_file_states(
     """Initialize state values from state store or default values."""
     for state in states:
         try:  # Handle fileio errors
-            filehandler.set_props(state.__name__, "rb")
+            filehandler.set_props(state.__name__, 'rb')
             await filehandler.open()
             async with filehandler:
                 message = await filehandler.receive()
-                logger.info("Initializing from file: %s", state.__name__)
+                logger.info('Initializing state from file: %s', state.__name__)
                 protocol.receive.input(
                     server.ReceiveDataEvent(file_receive=file.StateData(
                         state_type=state.__name__, data=message
@@ -367,7 +371,9 @@ async def load_file_states(
                 )
         except (OSError, exceptions.ProtocolDataError) as err:
             logger.error(err)
-            logger.warning("Initializing from default: %s", state.__name__)
+            logger.warning(
+                'Initializing state from default: %s', state.__name__
+            )
             protocol.receive.input(
                 server.ReceiveDataEvent(file_receive=fallback_states[state])
             )

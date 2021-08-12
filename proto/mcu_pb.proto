@@ -68,6 +68,7 @@ message Range {
   int32 upper = 2;
 }
 
+// TODO: AlarmLimits has a max size above 256 bytes, so we need to increase the communication protocol's chunks from a max length of 256 bytes to something more like 512 bytes!
 message AlarmLimits {
   uint64 time = 1;  // ms
   Range fio2 = 2;
@@ -86,6 +87,7 @@ message AlarmLimits {
   Range apnea = 15;
 }
 
+// TODO: AlarmLimitsRequest has a max size above 256 bytes, so we need to increase the communication protocol's chunks from a max length of 256 bytes to something more like 512 bytes!
 message AlarmLimitsRequest {
   uint64 time = 1;  // ms
   Range fio2 = 2;
@@ -158,19 +160,20 @@ enum LogEventCode {
   backend_started = 142;
   mcu_shutdown = 143;
   backend_shutdown = 144;
+  sysclock_changed = 145;
   // Alarm muting/unmuting
-  alarms_muted_user_software = 145;
-  alarms_muted_user_hardware = 146;
-  alarms_muted_unknown = 147;  // Indicates a software bug; should never occur
-  alarms_unmuted_user_software = 148;
-  alarms_unmuted_user_hardware = 149;
-  alarms_unmuted_initialization = 150;
-  alarms_unmuted_timeout = 151;
-  alarms_unmuted_mcu_backend_loss = 152;
-  alarms_unmuted_backend_mcu_loss = 153;
-  alarms_unmuted_backend_frontend_loss = 154;
-  alarms_unmuted_frontend_backend_loss = 155;
-  alarms_unmuted_unknown = 156;  // Indicates a software bug; should never occur
+  alarms_muted_user_software = 146;
+  alarms_muted_user_hardware = 147;
+  alarms_muted_unknown = 148;  // Indicates a software bug; should never occur
+  alarms_unmuted_user_software = 149;
+  alarms_unmuted_user_hardware = 150;
+  alarms_unmuted_initialization = 151;
+  alarms_unmuted_timeout = 152;
+  alarms_unmuted_mcu_backend_loss = 153;
+  alarms_unmuted_backend_mcu_loss = 154;
+  alarms_unmuted_backend_frontend_loss = 155;
+  alarms_unmuted_frontend_backend_loss = 156;
+  alarms_unmuted_unknown = 157;  // Indicates a software bug; should never occur
   // Sensor loss
   sfm3019_air_disconnected = 160;
   sfm3019_o2_disconnected = 161;
@@ -194,8 +197,9 @@ message LogEvent {
   LogEventCode code = 3;
   LogEventType type = 4;
   Range alarm_limits = 5;
-  float old_float = 6;
-  float new_float = 7;
+  // TODO: rename these to old/new_double
+  double old_float = 6;
+  double new_float = 7;
   uint32 old_uint32 = 8;
   uint32 new_uint32 = 9;
   bool old_bool = 10;
@@ -216,6 +220,7 @@ message ExpectedLogEvent {
 
 // Note: NextLogEvents has a custom equality operator in the firmware which must
 // be updated if you add/remove/modify the fields of the protobuf definition!
+// TODO: NextLogEvents has a max size above 256 bytes, so we need to increase the communication protocol's chunks from a max length of 256 bytes to something more like 512 bytes!
 message NextLogEvents {
   uint32 next_expected = 1;
   uint32 total = 2;

@@ -7,9 +7,10 @@
 import { Button, Grid, Tab, Tabs } from '@material-ui/core/';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { commitRequest } from '../../store/controller/actions';
-import { FrontendDisplaySetting, SystemSettingRequest } from '../../store/proto/frontend_pb';
+import { getSystemSettingsCurrentSeqNum } from '../../store/controller/selectors';
+import { FrontendDisplaySetting, SystemSettingsRequest } from '../../store/proto/frontend_pb';
 import { MessageType } from '../../store/proto/types';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import { DisplayTab, InfoTab, TestCalibrationTab } from './containers';
@@ -70,15 +71,13 @@ export const SettingsPage = (): JSX.Element => {
   /**
    * State to manage theme setting
    */
-  const [displaySetting, setDisplaySetting] = React.useState<
-    FrontendDisplaySetting | Record<string, unknown>
-  >();
+  const [displaySetting, setDisplaySetting] = React.useState<FrontendDisplaySetting>();
   /**
    * State to manage System Brightness & time setting
    */
-  const [systemSetting, setSystemSetting] = React.useState<
-    SystemSettingRequest | Record<string, unknown>
-  >();
+  const [systemSettingsRequest, setSystemSettingsRequest] = React.useState<SystemSettingsRequest>();
+
+  const systemSettingsSeqNum = useSelector(getSystemSettingsCurrentSeqNum);
 
   /**
    * function for handling tab change.
@@ -105,32 +104,38 @@ export const SettingsPage = (): JSX.Element => {
           unit: settings.unit,
         }),
       );
-      setSystemSetting(
-        SystemSettingRequest.fromJSON({
-          brightness: settings.brightness,
+      if (systemSettingsSeqNum === null) {
+        console.error('SystemSettings was not initialized!');
+        return;
+      }
+      setSystemSettingsRequest(
+        SystemSettingsRequest.fromJSON({
+          displayBrightness: settings.displayBrightness,
           date: settings.date,
+          seqNum: (systemSettingsSeqNum + 1) % 2 ** 32,
         }),
       );
     },
-    [setDisplaySetting, setSystemSetting],
+    [setDisplaySetting, setSystemSettingsRequest, systemSettingsSeqNum],
   );
 
   /**
    * Function for update System & Display settings to redux store
    */
   const handleSubmit = () => {
-    dispatch(
-      commitRequest<FrontendDisplaySetting>(
-        MessageType.FrontendDisplaySetting,
-        displaySetting as Record<string, unknown>,
-      ),
-    );
-    dispatch(
-      commitRequest<SystemSettingRequest>(
-        MessageType.SystemSettingRequest,
-        systemSetting as Record<string, unknown>,
-      ),
-    );
+    if (displaySetting !== undefined) {
+      dispatch(
+        commitRequest<FrontendDisplaySetting>(MessageType.FrontendDisplaySetting, displaySetting),
+      );
+    }
+    if (systemSettingsRequest !== undefined) {
+      dispatch(
+        commitRequest<SystemSettingsRequest>(
+          MessageType.SystemSettingsRequest,
+          systemSettingsRequest,
+        ),
+      );
+    }
   };
 
   return (

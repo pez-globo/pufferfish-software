@@ -122,10 +122,8 @@ def test_msg_roundtrip(type_code: int, payload: betterproto.Message) -> None:
 
 @pt.mark.parametrize('type_code,payload', example_messages_good)
 def test_msg_rx(type_code: int, payload: betterproto.Message) -> None:
-    """Test MessageReceiver behavior with specific examples."""
-    receiver = messages.MessageReceiver(
-        message_classes=mcu.MESSAGE_CLASSES
-    )
+    """Test Receiver behavior with specific examples."""
+    receiver = messages.Receiver(message_classes=mcu.MESSAGE_CLASSES)
     assert receiver.output() is None
     receiver.input(bytes([type_code]) + bytes(payload))
     assert receiver.output() == payload
@@ -133,10 +131,8 @@ def test_msg_rx(type_code: int, payload: betterproto.Message) -> None:
 
 @pt.mark.parametrize('_,payload', example_messages_good)
 def test_msg_rx_invalid_types(_: int, payload: betterproto.Message) -> None:
-    """Test MessageReceiver behavior with invalid typecode."""
-    receiver = messages.MessageReceiver(
-        message_classes=mcu.MESSAGE_CLASSES
-    )
+    """Test Receiver behavior with invalid typecode."""
+    receiver = messages.Receiver(message_classes=mcu.MESSAGE_CLASSES)
     assert receiver.output() is None
     receiver.input(bytes([0]) + bytes(payload))
     with pt.raises(exceptions.ProtocolDataError):
@@ -145,10 +141,8 @@ def test_msg_rx_invalid_types(_: int, payload: betterproto.Message) -> None:
 
 @pt.mark.parametrize('body', example_message_bodies_bad)
 def test_msg_rx_invalid_bodies(body: Any) -> None:
-    """Test MessageReceiver behavior with invalid body."""
-    receiver = messages.MessageReceiver(
-        message_classes=mcu.MESSAGE_CLASSES
-    )
+    """Test Receiver behavior with invalid body."""
+    receiver = messages.Receiver(message_classes=mcu.MESSAGE_CLASSES)
     assert receiver.output() is None
     receiver.input(body)
     with pt.raises(exceptions.ProtocolDataError):
@@ -157,8 +151,8 @@ def test_msg_rx_invalid_bodies(body: Any) -> None:
 
 @pt.mark.parametrize('type_code,payload', example_messages_good)
 def test_msg_tx(type_code: int, payload: betterproto.Message) -> None:
-    """Test MessageSender behavior with specific examples."""
-    sender = messages.MessageSender(message_types=mcu.MESSAGE_TYPES)
+    """Test Sender behavior with specific examples."""
+    sender = messages.Sender(message_types=mcu.MESSAGE_TYPES)
     assert sender.output() is None
     sender.input(payload)
     assert sender.output() == bytes([type_code]) + bytes(payload)
@@ -166,8 +160,8 @@ def test_msg_tx(type_code: int, payload: betterproto.Message) -> None:
 
 @pt.mark.parametrize('payload', example_message_payloads_bad)
 def test_msg_tx_invalid(payload: Any) -> None:
-    """Test MessageSender behavior with invalid payload."""
-    sender = messages.MessageSender(message_types=mcu.MESSAGE_TYPES)
+    """Test Sender behavior with invalid payload."""
+    sender = messages.Sender(message_types=mcu.MESSAGE_TYPES)
     sender.input(payload)
     with pt.raises(exceptions.ProtocolDataError):
         sender.output()

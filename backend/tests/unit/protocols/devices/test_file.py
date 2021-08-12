@@ -120,7 +120,7 @@ examples_bad_data = [
 #         state_type: str
 # ) -> None:
 #     """"""
-#     sender = file.SendFilter()
+#     sender = file.Sender()
 #     sender.input(message)
 #     output = sender.output()
 #     assert output is not None
@@ -137,7 +137,7 @@ examples_bad_data = [
 #         state_type: str
 # ) -> None:
 #     """"""
-#     receiver = file.ReceiveFilter()
+#     receiver = file.Receiver()
 #     receiver.input(file.StateData(
 #         data=crc_message,
 #         state_type=state_type
@@ -153,7 +153,7 @@ def test_file_rx_data_invalid(
         state_type: str
 ) -> None:
     """"""
-    receiver = file.ReceiveFilter()
+    receiver = file.Receiver()
     receiver.input(file.StateData(
         data=crc_message,
         state_type=state_type
@@ -169,7 +169,7 @@ def test_file_rx_data_invalid(
 #         state_type: str
 # ) -> None:
 #     """"""
-#     receiver = file.ReceiveFilter()
+#     receiver = file.Receiver()
 #     receiver.input(file.StateData(
 #         data=crc_message,
 #         state_type=state_type
@@ -187,8 +187,8 @@ def test_file_rx_data_invalid(
 #         state_type: str
 # ) -> None:
 #     """"""
-#     sender = file.SendFilter()
-#     receiver = file.ReceiveFilter()
+#     sender = file.Sender()
+#     receiver = file.Receiver()
 #     sender.input(message)
 #     output_sd = sender.output()
 #     assert output_sd is not None

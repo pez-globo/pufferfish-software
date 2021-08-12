@@ -22,6 +22,7 @@ enum ThemeVariant {
 }
 
 // TODO: we also need a request version of this message, FrontendDisplaySettingsRequest
+// TODO: rename this to FrontendDisplaySettings (with the "s" at the end)
 message FrontendDisplaySetting {
   ThemeVariant theme = 1;
   Unit unit = 2;
@@ -29,9 +30,21 @@ message FrontendDisplaySetting {
 
 // System Settings
 
-// TODO: we also need a response version of this message, SystemSettings
-// TODO: we should name this SystemSettingsRequest, not SystemSettingRequest
-message SystemSettingRequest {
-  uint32 brightness = 1;
-  uint32 date = 2;
+message SystemSettings {
+  // We use a double and units of sec because otherwise we'd use uint64 and
+  // units of ms, but then mcu_pb.LogEvent needs to have oldUint64 and newUint64
+  // instead of oldUint32 and newUint32, and the frontend runs into problems
+  // because it can only have 53 bits of precision in the number type (in which
+  // case the frontend would then need to use BigInt), which prevents the frontend
+  // from working correctly on other things which require LogEvent.oldUint32/newUint32.
+  double date = 1;  // Unix timestamp in units of sec
+  // TODO: move display_brightness into FrontendDisplaySetting
+  uint32 display_brightness = 2;
+  uint32 seq_num = 3;
+}
+
+message SystemSettingsRequest {
+  double date = 1;  // Unix timestamp in units of sec
+  uint32 display_brightness = 2;
+  uint32 seq_num = 3;
 }

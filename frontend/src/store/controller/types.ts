@@ -22,7 +22,11 @@ import {
   BackendConnections,
   ScreenStatus,
 } from '../proto/mcu_pb';
-import { SystemSettingRequest, FrontendDisplaySetting } from '../proto/frontend_pb';
+import {
+  SystemSettings,
+  SystemSettingsRequest,
+  FrontendDisplaySetting,
+} from '../proto/frontend_pb';
 import { PBMessage, MessageType } from '../proto/types';
 
 // STATES
@@ -67,6 +71,10 @@ export interface RotaryEncoderParameter {
   lastButtonDown: number;
   lastButtonUp: number;
   stepDiff: number; // this is a derived value not in RotaryEncoder
+}
+export interface SystemSettingsRequestResponse {
+  current: SystemSettings | null;
+  request: SystemSettingsRequest | null;
 }
 
 // Plots
@@ -124,7 +132,7 @@ export interface ControllerStates {
 
   // Message states from frontend_pb
   rotaryEncoder: RotaryEncoderParameter | null;
-  systemSettingRequest: SystemSettingRequest | null;
+  systemSettings: SystemSettingsRequestResponse;
   frontendDisplaySetting: FrontendDisplaySetting | null;
 
   // Derived states

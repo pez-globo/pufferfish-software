@@ -69,19 +69,20 @@ class LogEventCode(betterproto.Enum):
     backend_started = 142
     mcu_shutdown = 143
     backend_shutdown = 144
+    sysclock_changed = 145
     # Alarm muting/unmuting
-    alarms_muted_user_software = 145
-    alarms_muted_user_hardware = 146
-    alarms_muted_unknown = 147
-    alarms_unmuted_user_software = 148
-    alarms_unmuted_user_hardware = 149
-    alarms_unmuted_initialization = 150
-    alarms_unmuted_timeout = 151
-    alarms_unmuted_mcu_backend_loss = 152
-    alarms_unmuted_backend_mcu_loss = 153
-    alarms_unmuted_backend_frontend_loss = 154
-    alarms_unmuted_frontend_backend_loss = 155
-    alarms_unmuted_unknown = 156
+    alarms_muted_user_software = 146
+    alarms_muted_user_hardware = 147
+    alarms_muted_unknown = 148
+    alarms_unmuted_user_software = 149
+    alarms_unmuted_user_hardware = 150
+    alarms_unmuted_initialization = 151
+    alarms_unmuted_timeout = 152
+    alarms_unmuted_mcu_backend_loss = 153
+    alarms_unmuted_backend_mcu_loss = 154
+    alarms_unmuted_backend_frontend_loss = 155
+    alarms_unmuted_frontend_backend_loss = 156
+    alarms_unmuted_unknown = 157
     # Sensor loss
     sfm3019_air_disconnected = 160
     sfm3019_o2_disconnected = 161
@@ -169,6 +170,12 @@ class Range(betterproto.Message):
 
 @dataclass
 class AlarmLimits(betterproto.Message):
+    """
+    TODO: AlarmLimits has a max size above 256 bytes, so we need to increase
+    the communication protocol's chunks from a max length of 256 bytes to
+    something more like 512 bytes!
+    """
+
     time: int = betterproto.uint64_field(1)
     fio2: "Range" = betterproto.message_field(2)
     flow: "Range" = betterproto.message_field(3)
@@ -188,6 +195,12 @@ class AlarmLimits(betterproto.Message):
 
 @dataclass
 class AlarmLimitsRequest(betterproto.Message):
+    """
+    TODO: AlarmLimitsRequest has a max size above 256 bytes, so we need to
+    increase the communication protocol's chunks from a max length of 256 bytes
+    to something more like 512 bytes!
+    """
+
     time: int = betterproto.uint64_field(1)
     fio2: "Range" = betterproto.message_field(2)
     flow: "Range" = betterproto.message_field(3)
@@ -212,8 +225,9 @@ class LogEvent(betterproto.Message):
     code: "LogEventCode" = betterproto.enum_field(3)
     type: "LogEventType" = betterproto.enum_field(4)
     alarm_limits: "Range" = betterproto.message_field(5)
-    old_float: float = betterproto.float_field(6)
-    new_float: float = betterproto.float_field(7)
+    # TODO: rename these to old/new_double
+    old_float: float = betterproto.double_field(6)
+    new_float: float = betterproto.double_field(7)
     old_uint32: int = betterproto.uint32_field(8)
     new_uint32: int = betterproto.uint32_field(9)
     old_bool: bool = betterproto.bool_field(10)
@@ -238,7 +252,9 @@ class NextLogEvents(betterproto.Message):
     """
     Note: NextLogEvents has a custom equality operator in the firmware which
     must be updated if you add/remove/modify the fields of the protobuf
-    definition!
+    definition! TODO: NextLogEvents has a max size above 256 bytes, so we need
+    to increase the communication protocol's chunks from a max length of 256
+    bytes to something more like 512 bytes!
     """
 
     next_expected: int = betterproto.uint32_field(1)
