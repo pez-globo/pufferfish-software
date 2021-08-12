@@ -26,7 +26,7 @@ void SensorAlarmsService::transform(
     alarms_manager.deactivate_alarm(LogEventCode::LogEventCode_nonin_disconnected);
   }
 
-  sensor_connections.sensor_disconnected
+  sensor_connections.finger_sensor_disconnected
       ? alarms_manager.activate_alarm(
             LogEventCode::LogEventCode_nonin_finger_sensor_disconnected, system)
       : alarms_manager.deactivate_alarm(

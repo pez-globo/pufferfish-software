@@ -20,7 +20,7 @@
 namespace Pufferfish::Driver::Serial::Nonin {
 
 struct SensorConnections {
-  bool sensor_disconnected;
+  bool finger_sensor_disconnected;  // sensor_disconnected in datasheet
   bool sensor_alarm;
   bool out_of_track;
 };

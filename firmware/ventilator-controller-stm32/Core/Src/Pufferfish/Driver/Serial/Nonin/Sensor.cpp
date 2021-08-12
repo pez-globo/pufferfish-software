@@ -40,16 +40,16 @@ InitializableState Sensor::setup() {
   }
 
   prev_state_ = InitializableState::setup;
-  return InitializableState::setup;
+  return prev_state_;
 }
 
 InitializableState Sensor::output(SensorConnections &sensor_connections, float &spo2, float &hr) {
-  if (prev_state_ == InitializableState::failed) {
-    return InitializableState::failed;
-  }
-
   if (prev_state_ == InitializableState::setup) {
     return InitializableState::setup;
+  }
+
+  if (prev_state_ == InitializableState::failed) {
+    return InitializableState::failed;
   }
 
   switch (device_.output(measurements_)) {
@@ -69,7 +69,7 @@ InitializableState Sensor::output(SensorConnections &sensor_connections, float &
   }
 
   // measurements status
-  sensor_connections.sensor_disconnected = find_any_true(measurements_.sensor_disconnect);
+  sensor_connections.finger_sensor_disconnected = find_any_true(measurements_.sensor_disconnect);
   sensor_connections.sensor_alarm = find_any_true(measurements_.sensor_alarm);
   sensor_connections.out_of_track = find_any_true(measurements_.out_of_track);
 
