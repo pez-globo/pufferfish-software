@@ -79,9 +79,7 @@ class FrameReceiver {
   bool at_start_of_frame_ = false;
 };
 
-extern bool validate_frame_header(const Frame &new_frame, const uint8_t &mask);
+extern bool validate_frame_header(const Frame &new_frame, uint8_t mask);
 bool validate_frame_checksum(const Frame &new_frame);
-
-extern FrameInputStatus validate_frame(const Frame &new_frame);
 
 }  // namespace Pufferfish::Driver::Serial::Nonin
