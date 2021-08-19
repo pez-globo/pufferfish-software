@@ -80,7 +80,7 @@ class FrameReceiver {
 };
 
 extern bool validate_frame_header(const Frame &new_frame, const uint8_t &mask);
-extern bool validate_frame_checksum(const Frame &new_frame);
+bool validate_frame_checksum(const Frame &new_frame);
 
 extern FrameInputStatus validate_frame(const Frame &new_frame);
 
