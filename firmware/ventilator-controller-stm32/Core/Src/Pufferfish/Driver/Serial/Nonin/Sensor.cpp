@@ -19,7 +19,7 @@ bool find_any_true(const Flags &measurement) {
 // Sensor
 
 InitializableState Sensor::setup() {
-  if (prev_state_ == InitializableState::failed) {
+  if (prev_state_ != InitializableState::ok) {
     return InitializableState::failed;
   }
 
@@ -44,11 +44,7 @@ InitializableState Sensor::setup() {
 }
 
 InitializableState Sensor::output(SensorConnections &sensor_connections, float &spo2, float &hr) {
-  if (prev_state_ == InitializableState::setup) {
-    return InitializableState::setup;
-  }
-
-  if (prev_state_ == InitializableState::failed) {
+  if (prev_state_ != InitializableState::ok) {
     return InitializableState::failed;
   }
 
