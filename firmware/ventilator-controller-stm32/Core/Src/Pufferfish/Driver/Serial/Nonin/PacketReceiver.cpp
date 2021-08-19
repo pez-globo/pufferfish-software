@@ -40,16 +40,16 @@ void read_status_byte(
   sensor_measurements.sensor_alarm[frame_index] = (byte_value & StatusMasks::snsa) != 0x00;
   sensor_measurements.bit7[frame_index] = (byte_value & StatusMasks::start_of_frame) == 0x00;
 
-  SignalQuality &signal_perfusion = sensor_measurements.signal_perfusion[frame_index];
+  SignalQuality signal_perfusion = SignalQuality::no_perfusion;
   if ((byte_value & StatusMasks::yprf) == StatusMasks::yprf) {
     signal_perfusion = SignalQuality::yellow_perfusion;
   } else if ((byte_value & StatusMasks::rprf) == StatusMasks::rprf) {
     signal_perfusion = SignalQuality::red_perfusion;
   } else if ((byte_value & StatusMasks::gprf) == StatusMasks::gprf) {
     signal_perfusion = SignalQuality::green_perfusion;
-  } else {
-    signal_perfusion = SignalQuality::no_perfusion;
   }
+
+  sensor_measurements.signal_perfusion[frame_index] = signal_perfusion;
 }
 
 void read_packet_measurements(Sample &sensor_measurements, const Packet &packet_data) {
