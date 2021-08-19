@@ -26,20 +26,25 @@ void SensorAlarmsService::transform(
     alarms_manager.deactivate_alarm(LogEventCode::LogEventCode_nonin_disconnected);
   }
 
-  sensor_connections.finger_sensor_disconnected
-      ? alarms_manager.activate_alarm(
-            LogEventCode::LogEventCode_nonin_finger_sensor_disconnected, system)
-      : alarms_manager.deactivate_alarm(
-            LogEventCode::LogEventCode_nonin_finger_sensor_disconnected);
+  if (sensor_connections.finger_sensor_disconnected) {
+    alarms_manager.activate_alarm(
+        LogEventCode::LogEventCode_nonin_finger_sensor_disconnected, system);
+  } else {
+    alarms_manager.deactivate_alarm(LogEventCode::LogEventCode_nonin_finger_sensor_disconnected);
+  }
 
-  sensor_connections.sensor_alarm
-      ? alarms_manager.activate_alarm(LogEventCode::LogEventCode_nonin_sensor_alarm, system)
-      : alarms_manager.deactivate_alarm(LogEventCode::LogEventCode_nonin_sensor_alarm);
+  if (sensor_connections.sensor_alarm) {
+    alarms_manager.activate_alarm(LogEventCode::LogEventCode_nonin_sensor_alarm, system);
+  } else {
+    alarms_manager.deactivate_alarm(LogEventCode::LogEventCode_nonin_sensor_alarm);
+  }
 
-  sensor_connections.out_of_track
-      ? alarms_manager.activate_alarm(
-            LogEventCode::LogEventCode_nonin_out_of_track_measurements, system)
-      : alarms_manager.deactivate_alarm(LogEventCode::LogEventCode_nonin_out_of_track_measurements);
+  if (sensor_connections.out_of_track) {
+    alarms_manager.activate_alarm(
+        LogEventCode::LogEventCode_nonin_out_of_track_measurements, system);
+  } else {
+    alarms_manager.deactivate_alarm(LogEventCode::LogEventCode_nonin_out_of_track_measurements);
+  }
 }
 
 }  // namespace Pufferfish::Driver::Serial::Nonin
