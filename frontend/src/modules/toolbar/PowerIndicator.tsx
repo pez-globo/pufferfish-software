@@ -1,7 +1,10 @@
 import { makeStyles, Theme } from '@material-ui/core';
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { getBatteryPowerLeft, getChargingStatus } from '../../store/controller/selectors';
+import { createSelector } from 'reselect';
+import { getController } from '../../store/controller/selectors';
+import { ControllerStates } from '../../store/controller/types';
+import { MCUPowerStatus } from '../../store/proto/mcu_pb';
 import Power25Icon from '../icons/Power25Icon';
 import Power50Icon from '../icons/Power50Icon';
 import Power75Icon from '../icons/Power75Icon';
@@ -14,6 +17,22 @@ const useStyles = makeStyles((theme: Theme) => ({
     paddingRight: theme.spacing(1),
   },
 }));
+
+// selectors to get Battery power
+const getMcuPowerStatus = createSelector(
+  getController,
+  (states: ControllerStates): MCUPowerStatus | null => states.mcuPowerStatus,
+);
+const getBatteryPowerLeft = createSelector(
+  getMcuPowerStatus,
+  (mcuPowerStatus: MCUPowerStatus | null): number =>
+    mcuPowerStatus === null ? 0 : mcuPowerStatus.powerLeft,
+);
+const getChargingStatus = createSelector(
+  getMcuPowerStatus,
+  (mcuPowerStatus: MCUPowerStatus | null): boolean =>
+    mcuPowerStatus === null ? false : mcuPowerStatus.charging,
+);
 
 /**
  * PowerIndicator

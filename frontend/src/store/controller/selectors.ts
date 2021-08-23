@@ -362,21 +362,6 @@ export const getAlarmMuteRequestActive = createSelector(
     alarmMuteRequest === null ? false : alarmMuteRequest.active,
 );
 
-// Battery power
-export const getMcuPowerStatus = createSelector(
-  getController,
-  (states: ControllerStates): MCUPowerStatus | null => states.mcuPowerStatus,
-);
-export const getBatteryPowerLeft = createSelector(
-  getMcuPowerStatus,
-  (mcuPowerStatus: MCUPowerStatus | null): number =>
-    mcuPowerStatus === null ? 0 : mcuPowerStatus.powerLeft,
-);
-export const getChargingStatus = createSelector(
-  getMcuPowerStatus,
-  (mcuPowerStatus: MCUPowerStatus | null): boolean =>
-    mcuPowerStatus === null ? false : mcuPowerStatus.charging,
-);
 // Connection Statuses
 export const getBackendConnections = createSelector(
   getController,
