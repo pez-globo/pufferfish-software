@@ -21,7 +21,6 @@ import {
   AlarmMute,
   AlarmMuteRequest,
   // System Miscellaneous
-  MCUPowerStatus,
   BackendConnections,
   ScreenStatus,
 } from '../proto/mcu_pb';
