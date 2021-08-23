@@ -174,7 +174,7 @@ export const eventLogReducer = (
         LogEvent.fromJSON({
           code: updateAction.code,
           type: updateAction.eventType,
-          time: updateAction.time.getTime(),
+          time: updateAction.time,
         }),
       );
     }

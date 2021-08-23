@@ -170,5 +170,5 @@ export interface EphemeralLogEventAction {
   type: typeof EPHEMERAL_LOG_EVENT_CREATED;
   code: LogEventCode;
   eventType: LogEventType;
-  time: Date;
+  time: number;
 }

@@ -46,6 +46,6 @@ export function createEphemeralLogEvent(
     type: EPHEMERAL_LOG_EVENT_CREATED,
     code,
     eventType: type,
-    time: new Date(),
+    time: new Date().getTime(),
   };
 }
