@@ -9,13 +9,13 @@ import { useSelector } from 'react-redux';
 import { Route, RouteProps, useHistory } from 'react-router-dom';
 import { getParametersIsVentilating } from '../../../store/controller/selectors';
 import ClockIcon from '../../icons/ClockIcon';
-import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../../navigation/constants';
+import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../constants';
 import Alarms from '../../alarms/Alarms';
-import UserActivity from '../UserActivity';
-import OverlayScreen from '../OverlayScreen';
+import UserActivity from '../../app/UserActivity';
+import OverlayScreen from '../../app/OverlayScreen';
 import { getAlarmNotifyStatus } from '../../../store/app/selectors';
-import PowerIndicator from '../PowerIndicator';
-import HeaderClock from '../HeaderClock';
+import PowerIndicator from '../../app/PowerIndicator';
+import HeaderClock from '../../app/HeaderClock';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

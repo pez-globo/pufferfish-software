@@ -1,14 +1,18 @@
 /**
- * @summary Layout file for landing page
- * see Routes.tsx where the main content is supplied through the "component" prop
+ * @summary Layout with Sidebar based pages
+ * SideBar route is used when not ventilating
  *
  */
 import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
 import { Route, RouteProps } from 'react-router-dom';
-import ToolBar from '../ToolBar';
-import UserActivity from '../UserActivity';
+import { useSelector } from 'react-redux';
+import Sidebar from '../../sidebar/Sidebar';
+import ToolBar from '../../app/ToolBar';
+import UserActivity from '../../app/UserActivity';
+import OverlayScreen from '../../app/OverlayScreen';
+import { getAlarmNotifyStatus } from '../../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -17,11 +21,16 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexWrap: 'nowrap',
     display: 'grid',
     gridTemplateAreas: `
-                      'vent vent'`,
+                    'content vent'`,
     gridTemplateColumns: '90px 1fr',
   },
+  sidebarGrid: {
+    gridArea: 'content',
+    height: '100vh',
+  },
+
   main: {
-    gridGap: '15px',
+    gridGap: '10px',
     display: 'grid',
     padding: '15px',
     height: '100vh',
@@ -42,7 +51,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     position: 'absolute',
     zIndex: 9999,
   },
-  LandingborderOverlay: {
+  SidebarbordersOverlay: {
     width: '100%',
     height: '100%',
     position: 'absolute',
@@ -53,7 +62,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 /**
  * SidebarLayout
  *
- * @component Component for displaying sidebar
+ * @component Component for sidebar based layout
  *
  * @returns {JSX.Element}
  */
@@ -62,6 +71,7 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
 
   return (
     <React.Fragment>
+      <OverlayScreen />
       <Grid container justify="center" alignItems="stretch" className={classes.root}>
         <ContentComponent>{children}</ContentComponent>
       </Grid>
@@ -79,12 +89,26 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
  */
 const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
+  const notifyAlarm = useSelector(getAlarmNotifyStatus);
+  const [showBorder, setShowBorder] = React.useState(false);
+
+  /**
+   * Triggers when Alarm event is active (Referenced in `OverlayScreen` )
+   * RED_BORDER reduxs store is dispatched when alarm is active
+   * It adds a red border around the page
+   */
+  useEffect(() => {
+    setShowBorder(notifyAlarm);
+  }, [notifyAlarm]);
 
   return (
     <React.Fragment>
+      <Grid item className={`${showBorder && classes.SidebarbordersOverlay} ${classes.root}`}>
+        <Sidebar />
+      </Grid>
       <Grid container item direction="column" className={classes.main}>
         <Grid container item alignItems="center">
-          <ToolBar staticStart={true} />
+          <ToolBar />
         </Grid>
         <Grid container item className={classes.mainContainer}>
           {children}
@@ -95,13 +119,13 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
 });
 
 /**
- * ContentComponent
+ * SidebarRoute
  *
- * @component Component for displaying the landing page layout
+ * @component Component for displaying the sidebar based layout
  *
  * @returns {JSX.Element | null}
  */
-const LandingPageRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
+const SidebarRoute = ({ component: Component, ...rest }: RouteProps): JSX.Element | null => {
   if (!Component) return null;
   return (
     <Route
@@ -115,4 +139,4 @@ const LandingPageRoute = ({ component: Component, ...rest }: RouteProps): JSX.El
   );
 };
 
-export default LandingPageRoute;
+export default SidebarRoute;

@@ -11,11 +11,9 @@
  *
  * Re-usable layout components.
  */
-export * from './layouts';
+export * from '../navigation/layouts';
 export * from './App';
 export * from './OverlayScreen';
 export * from './Service';
-export * from './Sidebar';
-export * from './SidebarClickable';
 export * from './ToolBar';
 export * from './UserActivity';

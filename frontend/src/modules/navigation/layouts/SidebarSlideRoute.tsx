@@ -7,11 +7,10 @@ import { Route, RouteProps, useLocation } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Drawer, Grid } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
-import ToolBar from '../ToolBar';
-import UserActivity from '../UserActivity';
-import { ALARMS_ROUTE, SCREENSAVER_ROUTE } from '../../navigation/constants';
-import SidebarClickable from '../SidebarClickable';
-import OverlayScreen from '../OverlayScreen';
+import ToolBar from '../../app/ToolBar';
+import UserActivity from '../../app/UserActivity';
+import { ALARMS_ROUTE, SCREENSAVER_ROUTE } from '../constants';
+import OverlayScreen from '../../app/OverlayScreen';
 import { getAlarmNotifyStatus } from '../../../store/app/selectors';
 import { Range, AlarmLimitsRequest } from '../../../store/proto/mcu_pb';
 import {
@@ -22,6 +21,7 @@ import { ModalPopup } from '../../modals/ModalPopup';
 import { MessageType } from '../../../store/proto/types';
 import { commitDraftRequest } from '../../../store/controller/actions';
 import { DiscardAlarmLimitsContent } from '../../modals';
+import SidebarClickable from '../../sidebar/SidebarClickable';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
