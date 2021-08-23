@@ -9,9 +9,9 @@ import React, { PropsWithChildren, useEffect } from 'react';
 import { Route, RouteProps } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Sidebar from '../../sidebar/Sidebar';
-import ToolBar from '../../app/ToolBar';
+import ToolBar from '../../toolbar/ToolBar';
 import UserActivity from '../../app/UserActivity';
-import OverlayScreen from '../../app/OverlayScreen';
+import OverlayScreen from '../../overlay/OverlayScreen';
 import { getAlarmNotifyStatus } from '../../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({

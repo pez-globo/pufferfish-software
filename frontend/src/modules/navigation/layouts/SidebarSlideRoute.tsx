@@ -7,10 +7,10 @@ import { Route, RouteProps, useLocation } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Drawer, Grid } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
-import ToolBar from '../../app/ToolBar';
+import ToolBar from '../../toolbar/ToolBar';
 import UserActivity from '../../app/UserActivity';
 import { ALARMS_ROUTE, SCREENSAVER_ROUTE } from '../constants';
-import OverlayScreen from '../../app/OverlayScreen';
+import OverlayScreen from '../../overlay/OverlayScreen';
 import { getAlarmNotifyStatus } from '../../../store/app/selectors';
 import { Range, AlarmLimitsRequest } from '../../../store/proto/mcu_pb';
 import {

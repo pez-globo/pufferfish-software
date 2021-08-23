@@ -7,7 +7,7 @@ import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { PropsWithChildren } from 'react';
 import { Route, RouteProps } from 'react-router-dom';
-import ToolBar from '../../app/ToolBar';
+import ToolBar from '../../toolbar/ToolBar';
 import UserActivity from '../../app/UserActivity';
 
 const useStyles = makeStyles((theme: Theme) => ({
