@@ -156,12 +156,13 @@ export const eventLogReducer = (
       // Note: this reducer will create multiple ephemeral log events when multiple
       // BACKEND_CONNECTION_DOWN actions are dispatched when connection goes down.
       // Refer to the TODO comment in addEphemeralEvent.
+      const connectionAction = action as ConnectionAction;
       return addEphemeralEvent(
         state,
         LogEvent.fromJSON({
           code: LogEventCode.frontend_backend_connection_down,
           type: LogEventType.system,
-          time: new Date().getTime(),
+          time: connectionAction.lastBackendConnectionTime,
         }),
       );
     }
@@ -173,7 +174,7 @@ export const eventLogReducer = (
         LogEvent.fromJSON({
           code: updateAction.code,
           type: updateAction.eventType,
-          time: new Date().getTime(),
+          time: updateAction.time.getTime(),
         }),
       );
     }
