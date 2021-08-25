@@ -2493,7 +2493,9 @@ SCENARIO("Volatile RingBuffer works correctly for index 4") {
       }
     }
   }
+}
 
+SCENARIO("Volatile RingBuffer works correctly for index 4 for push and pop method") {
   GIVEN(
       "A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 2 "
       "pushed and 1 poped") {

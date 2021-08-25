@@ -35,6 +35,7 @@ class Vector {
   // Note: this makes copies of the values!
   // clang-tidy says - member initializer for 'size_' is redundant
   // NOLINTNEXTLINE(bugprone-dynamic-static-initializers)
+  // NOLINTNEXTLINE(bugprone-dynamic-static-initializers,cert-err58-cpp)
   Vector(std::initializer_list<Element> init) : size_(0) {
     for (const Element &elem : init) {
       push_back(elem);
