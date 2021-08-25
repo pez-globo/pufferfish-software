@@ -126,6 +126,8 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 0") {
       }
     }
   }
+}
+SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 0 for pop method") {
   GIVEN(
       "A RingBuffer with capacity 4 to which 3 bytes of data were pushed and 0 byte were poped") {  //[][][][3*][4^]
     // internal state should look like [0*][1][2][^][]
@@ -237,6 +239,7 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 0") {
     }
   }
 }
+
 SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 1") {
   GIVEN(
       "A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 2 bytes was poped ") {  // [0*][1][2^][][]
@@ -391,6 +394,9 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 1") {
       }
     }
   }
+}
+SCENARIO(
+    "Non-Volatile RingBuffer works correctly when oldest index is 1 and for pop and push method") {
   GIVEN(
       "A RingBuffer with capacity 4 to which 4 bytes of data were pushed and 1 byte was poped") {  // [0][1^][][][4*]
     // internal state should look like [][1*][2][3][^]
@@ -662,6 +668,8 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 2") {
       }
     }
   }
+}
+SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 2 for pop and push method") {
   GIVEN(
       "A RingBuffer with capacity 4 to which 4 bytes of data were pushed 2 bytes were poped and 1 "
       "were pushed") {
@@ -951,6 +959,9 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 3") {
       }
     }
   }
+}
+SCENARIO(
+    "Non-Volatile RingBuffer works correctly when oldest index is 3 and for pop and push method") {
   GIVEN(
       "A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 2 "
       "bytes pushed") {
@@ -1270,7 +1281,8 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 4") {
       }
     }
   }
-
+}
+SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 4 for pop and push method") {
   GIVEN(
       "A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 3 "
       "pushed and 1 poped") {
@@ -1523,6 +1535,8 @@ SCENARIO("Volatile RingBuffer works correctly for index 0") {
       }
     }
   }
+}
+SCENARIO("Volatile RingBuffer works correctly for index 0 for pop and push method") {
   GIVEN(
       "A RingBuffer with capacity 4 to which 3 bytes of data were pushed and 0 byte were poped") {  //[][][][3*][4^]
     // internal state should look like [0*][1][2][^][]
@@ -1768,6 +1782,8 @@ SCENARIO("Volatile RingBuffer works correctly for index 1") {
       }
     }
   }
+}
+SCENARIO("Volatile RingBuffer works correctly for index 1 for pop and push method") {
   GIVEN(
       "A RingBuffer with capacity 4 to which 4 bytes of data were pushed and 1 byte was poped") {  // [0][1^][][][4*]
     // internal state should look like [][1*][2][3][^]
@@ -2027,6 +2043,8 @@ SCENARIO("Volatile RingBuffer works correctly for index 2") {
       }
     }
   }
+}
+SCENARIO("Volatile RingBuffer works correctly for index 2 for pop and push method") {
   GIVEN(
       "A RingBuffer with capacity 4 to which 4 bytes of data were pushed 2 bytes were poped and 1 "
       "was pushed") {
@@ -2276,6 +2294,8 @@ SCENARIO("Volatile RingBuffer works correctly for index 3") {
       }
     }
   }
+}
+SCENARIO("Volatile RingBuffer works correctly for index 3 for pop and push method") {
   GIVEN(
       "A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 2 "
       "bytes pushed") {
