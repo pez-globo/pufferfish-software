@@ -22,9 +22,7 @@ void SensorAlarmsService::transform(
     return;
   }
 
-  if (status != InitializableState::failed) {
-    alarms_manager.deactivate_alarm(LogEventCode::LogEventCode_nonin_disconnected);
-  }
+  alarms_manager.deactivate_alarm(LogEventCode::LogEventCode_nonin_disconnected);
 
   if (sensor_connections.finger_sensor_disconnected) {
     alarms_manager.activate_alarm(
