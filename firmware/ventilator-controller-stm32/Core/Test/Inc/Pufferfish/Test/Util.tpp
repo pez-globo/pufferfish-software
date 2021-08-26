@@ -58,10 +58,39 @@ bool convert_string_to_byte_vector(
   return true;
 }
 
+// template <size_t payload_size>
+// std::string convert_byte_vector_to_hex_string(const ByteVector<payload_size>& input_buffer) {
+//   std::string output_string;
+//   for (size_t i = 0; i < input_buffer.size(); ++i) {
+//     auto& ch = input_buffer[i];
+//     output_string += "\\x";
+//     int c1 = ((ch & 0xf0) >> 4);
+//     if ((c1 >= 0) && (c1 <= 9)) {
+//       output_string += std::to_string(c1);
+//     } else if ((c1 >= 10) && (c1 <= 15)) {
+//       output_string += static_cast<char>(c1 - 10 + 'A');
+//     } else {
+//       output_string += ('?');
+//     }
+
+//     c1 = (ch & 0x0f);
+//     if ((c1 >= 0) && (c1 <= 9)) {
+//       output_string += std::to_string(c1);
+//     } else if ((c1 >= 10) && (c1 <= 15)) {
+//       output_string += static_cast<char>(c1 - 10 + 'A');
+//     } else {
+//       output_string += ('?');
+//     }
+//   }
+//   return output_string;
+// }
+
 template <size_t payload_size>
-std::string convert_byte_vector_to_hex_string(const ByteVector<payload_size>& input_buffer) {
+std::string convert_byte_vector_to_hex_string(
+    const Pufferfish::Util::Containers::ByteVector<payload_size>& input_buffer,
+    const size_t& length) {
   std::string output_string;
-  for (size_t i = 0; i < input_buffer.size(); ++i) {
+  for (size_t i = 0; i < length; ++i) {
     auto& ch = input_buffer[i];
     output_string += "\\x";
     int c1 = ((ch & 0xf0) >> 4);
@@ -83,6 +112,11 @@ std::string convert_byte_vector_to_hex_string(const ByteVector<payload_size>& in
     }
   }
   return output_string;
+}
+template <size_t payload_size>
+std::string convert_byte_vector_to_hex_string(
+    const Pufferfish::Util::Containers::ByteVector<payload_size>& input_buffer) {
+  return convert_byte_vector_to_hex_string(input_buffer, input_buffer.size());
 }
 
 }  // namespace Pufferfish::Util::Containers

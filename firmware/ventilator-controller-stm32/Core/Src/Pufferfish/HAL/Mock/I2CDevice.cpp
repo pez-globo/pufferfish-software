@@ -43,6 +43,9 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
   return I2CDeviceStatus::ok;
 }
 
+I2CDeviceStatus I2CDevice::read(uint16_t address, uint8_t *buf, size_t count){};
+// TODO add method
+
 void I2CDevice::add_read(const uint8_t *buf, size_t count) {
   size_t index = 0;
   size_t minumum = (count < read_buf_size) ? count : read_buf_size;

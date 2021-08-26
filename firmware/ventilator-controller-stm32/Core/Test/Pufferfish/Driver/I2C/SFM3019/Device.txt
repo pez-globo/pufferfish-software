@@ -1,41 +1,78 @@
-Scenario : Start measure works correctly
-WHEN('Command parameter is start_measure_o2')
-THEN('get_write method will confirm command data is overwriten')
-WHEN('Command parameter is start_measure_air')
-THEN('get_write method will confirm command data is overwriten')
-WHEN('Command parameter is start_measure_mixture')
-THEN('get_write method will confirm command data is overwriten')
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when start_measure function is called
+  GIVEN('A SFM3019 device constructed with a mock I2C device global I2C device and gas parameter') 
+    WHEN('GasType O2 is passed as input parameter to device ') 
+      THEN('The start_measure returns ok')
+      THEN('The mock I2C's write buffer consists of start measure O2 command byte '0x3603'') 
 
+    WHEN('GasType gas is passed as input parameter to device') 
+      THEN('The start_measure returns ok')
+      THEN('The mock I2C's write buffer consists of start measure air command byte '0x3608'') 
 
-Scenario: Stop measure works correctly
-WHEN('Command parameter stop_measure')
-THEN('get_write method will confirm command data is overwriten')
+    WHEN('GasType mixture is passed as input parameter to device') 
+      THEN('The start_measure returns ok')
+      THEN('The mock I2C's write buffer consists of start measure mixture command byte '0x3632'') 
 
-Scenario: Set averaging works correctly
-WHEN('averaging window set to 0, command set_averaging')
-THEN('get_write method will confirm command data is overwriten')
-WHEN('averaging window set 100 , command set_averaging')
-THEN('get_write method will confirm command data is overwriten')
-WHEN('averaging window expected value? , command set_averaging')
-THEN('get_write method will confirm command data is overwriten')
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when stop_measure function is called
+  GIVEN('A SFM3019 device constructed with a mock I2C device global I2C device and gas parameter ')
+    WHEN('GasType O2 is passed as input parameter to device')
+      THEN('The stop_measure returns ok')
+      THEN('The mock I2C's write buffer consists of stop measure O2 command byte '0x3FF9'') 
 
-Scenario: request_conversion_factors works correctly
-WHEN('Command parameter request conversion , 2nd parameter as start_measure_o2')
-THEN('get_write method will confirm command data is overwriten')
-WHEN('Command parameter request conversion , 2nd parameter as start_measure_air')
-THEN('get_write method will confirm command data is overwriten')
-WHEN('Command parameter request conversion , 2nd parameter as start_measure_mixture')
-THEN('get_write method will confirm command data is overwriten')
+    WHEN('GasType air is passed as input parameter to device')
+      THEN('The stop_measure returns ok')
+      THEN('The mock I2C's write buffer consists of stop measure air command byte '0x3FF9'') 
 
-Scenario: read_conversion_factors works correctly
+    WHEN('GasType mixture is passed as input parameter to device')
+      THEN('The stop_measure returns ok')
+      THEN('The mock I2C's write buffer consists of stop measure mixture command byte '0x3FF9'') 
 
-Scenario: read_product_id works correctly
-WHEN('Command read_product_id')
-THEN('get_write method will confirm command data is overwriten')
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when set_averaging function is called
+  GIVEN('A SFM3019 device constructed with a mock I2C device global I2c device  and gas parameter')
+    WHEN('GasType O2 and averaging_window 0 is passed as input parameter')
+      THEN('The set_averaging returns ok')
+      THEN('The mock I2C's write buffer consists of set_averaging command byte '0x366A' followed by '0x000081'') 
 
-Scenario: read_sample works correctly
+    WHEN('GasType O2 and averaging_window 128 is passed as input parameter')
+      THEN('The set_averaging returns ok')
+      THEN('The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed by '0x0080FB'') 
 
-Scenario: reset
-WHEN('Command parameter reset')
-THEN('get_write method will confirm command data is overwriten')
+    WHEN('GasType air and averaging_window 0 is passed as input parameter')
+      THEN('The set_averaging returns ok')
+      THEN('The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed by '0x000081'') 
+
+    WHEN('GasType air and averaging_window 128 is passed as input parameter')
+      THEN('The set_averaging returns ok')
+      THEN('The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed by '0x0080FB'') 
+
+    WHEN('GasType mixture and averaging_window 0 is passed as input parameter')
+      THEN('The set_averaging returns ok')
+      THEN('The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed by '0x000081'') 
+
+    WHEN('GasType mixture and averaging_window 128 is passed as input parameter')
+      THEN('The set_averaging returns ok')
+      THEN('The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed by '0x0080FB') 
+
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when request_conversion_factors function is called
+  GIVEN('A SFM3019 device constructed with a mock I2C device , global I2C device and gas parameter')
+    WHEN('GasType O2 is passed as input parameter')
+      THEN('The request_conversion_factors returns ok')
+      THEN('The mock I2C's write buffer consists of request_conversion_factor O2 command byte '0x3661 followed by '0x36033A'') 
+
+    WHEN('GasType air is passed as input parameter')
+      THEN('The request_conversion_factors returns ok')
+      THEN('The mock I2C's write buffer consists of request_conversion_factor air command byte '0x3661 followed by '0x3608D0'') 
+
+    WHEN('GasType mixture is passed as input parameter')
+      THEN('The request_conversion_factors returns ok')
+      THEN('The mock I2C's write buffer consists of request_conversion_factor mixture command byte '0x3661 followed by '0x3632CE'') 
+
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when reset function is called
+  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter')
+    WHEN('GasType O2 is passed as input parameter')
+      THEN('The reset function returns ok')
+
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when read_product_id function is called
+  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter')
+    WHEN('GasType O2 is passed as input parameter')
+      THEN('The mock I2C's write buffer consists of read_product_id command byte '0xE02'') 
 

@@ -49,11 +49,22 @@ class I2CDevice : public Interfaces::I2CDevice {
   I2CDeviceStatus read(uint8_t *buf, size_t count) override;
 
   /**
+   * Reads data from the device
+   * This method should be used when data from a specific memory address needs to be read
+   * @param address of the specific register
+   * @param buf[out]    output of the data
+   * @param count   the number of bytes to be read
+   * @return ok on success, error code otherwise
+   */
+  virtual I2CDeviceStatus read(uint16_t address, uint8_t *buf, size_t count) override;
+
+  /**
    * @brief  Append the input data to the read queue
    * @param  buf the input data to append
    * @param  count size of input data to add to queue
    * @return None
    */
+
   void add_read(const uint8_t *buf, size_t count);
 
   /**
