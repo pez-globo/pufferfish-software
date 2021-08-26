@@ -35,6 +35,8 @@ class Sensor : public Initializable {
   InitializableState setup() override;
   InitializableState output(SensorConnections &sensor_connections, float &spo2, float &hr);
 
+  void post_setup_reset();
+
  private:
   static const uint32_t measurement_timeout = 2000;  // ms
 

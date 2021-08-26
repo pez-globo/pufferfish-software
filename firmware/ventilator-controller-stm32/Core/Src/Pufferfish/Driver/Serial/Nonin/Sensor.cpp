@@ -19,8 +19,8 @@ bool find_any_true(const Flags &measurement) {
 // Sensor
 
 InitializableState Sensor::setup() {
-  if (prev_state_ != InitializableState::ok) {
-    return InitializableState::failed;
+  if (prev_state_ != InitializableState::setup) {
+    return prev_state_;
   }
 
   switch (device_.output(measurements_)) {
@@ -41,6 +41,10 @@ InitializableState Sensor::setup() {
 
   prev_state_ = InitializableState::setup;
   return prev_state_;
+}
+
+void Sensor::post_setup_reset() {
+  waiting_timer_.reset(time_.millis());
 }
 
 InitializableState Sensor::output(SensorConnections &sensor_connections, float &spo2, float &hr) {

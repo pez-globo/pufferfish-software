@@ -621,6 +621,9 @@ int main(void)
       nonin_oem.output(sensor_connections, discard_f, discard_f) == PF::InitializableState::ok;
   bool ltc4015_status = ltc4015.output(store.mcu_power_status()) == PF::InitializableState::ok;
 
+  // Reset nonin timer
+  nonin_oem.post_setup_reset();
+
   // Normal loop
   while (true) {
     uint32_t current_time = hal_time.millis();
