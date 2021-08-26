@@ -45,6 +45,7 @@ FrameInputStatus FrameReceiver::update_frame_buffer(uint8_t new_byte) {
     case BufferInputStatus::ok:
       return FrameInputStatus::ok;
     case BufferInputStatus::output_ready:
+    // We want to check if the frame is valid, thus, it's not discarded here.
     case BufferInputStatus::full:
       break;
   }
