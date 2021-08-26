@@ -10,7 +10,7 @@ import { shallowEqual, useSelector } from 'react-redux';
 import { LogEvent, LogEventType } from '../../store/proto/mcu_pb';
 import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
 import { setMultiPopupOpen } from '../app/Service';
-import { AlarmModal } from '../controllers';
+import { AlarmModal } from '../alarms/modal/AlarmModal';
 import ModalPopup from '../modals/ModalPopup';
 
 import SimpleTable, {

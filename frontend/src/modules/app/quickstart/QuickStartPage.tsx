@@ -7,7 +7,7 @@ import { Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { VentilationMode } from '../../store/proto/mcu_pb';
+import { VentilationMode } from '../../../store/proto/mcu_pb';
 import {
   getParametersRequestMode,
   getParametersRequestDraftFiO2,
@@ -15,18 +15,18 @@ import {
   getParametersRequestDraftPEEP,
   getParametersRequestDraftRR,
   getParametersRequestDraftVT,
-} from '../../store/controller/selectors';
-import { setActiveRotaryReference } from '../app/Service';
-import ModeBanner, { BannerType } from '../displays/ModeBanner';
-import { BPM, LMIN, PERCENT } from '../info/units';
+} from '../../../store/controller/selectors';
+import { setActiveRotaryReference } from '../Service';
+import ModeBanner, { BannerType } from '../../displays/ModeBanner';
+import { BPM, LMIN, PERCENT } from '../../info/units';
 import {
   FIO2_REFERENCE_KEY,
   PEEP_REFERENCE_KEY,
   RR_REFERENCE_KEY,
   TV_REFERENCE_KEY,
   FLOW_REFERENCE_KEY,
-} from '../settings/containers/constants';
-import ParamValueSpinner from './ParamValueSpinner';
+} from '../../settings/containers/constants';
+import ParamValueSpinner from '../../controllers/ParamValueSpinner';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

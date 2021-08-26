@@ -10,13 +10,13 @@ import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { updateState } from '../../store/controller/actions';
-import { getParametersIsVentilating } from '../../store/controller/selectors';
-import { MessageType } from '../../store/proto/types';
-import { HomeIcon } from '../icons';
-import ShutdownIcon from '../icons/ShutdownIcon';
-import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
-import Navigation from '../navigation/Navigation';
+import { updateState } from '../../../store/controller/actions';
+import { getParametersIsVentilating } from '../../../store/controller/selectors';
+import { MessageType } from '../../../store/proto/types';
+import { HomeIcon } from '../../icons';
+import ShutdownIcon from '../../icons/ShutdownIcon';
+import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../../navigation/constants';
+import Navigation from '../../navigation/Navigation';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

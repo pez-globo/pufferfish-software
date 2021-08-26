@@ -12,7 +12,7 @@ import ClockIcon from '../../icons/ClockIcon';
 import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../constants';
 import Alarms from '../../alarms/Alarms';
 import UserActivity from '../../app/UserActivity';
-import OverlayScreen from '../../overlay/OverlayScreen';
+import OverlayScreen from '../../app/OverlayScreen';
 import { getAlarmNotifyStatus } from '../../../store/app/selectors';
 import PowerIndicator from '../../toolbar/PowerIndicator';
 import HeaderClock from '../../toolbar/HeaderClock';

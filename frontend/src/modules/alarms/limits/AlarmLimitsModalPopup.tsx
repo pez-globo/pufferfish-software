@@ -15,7 +15,8 @@ import {
 } from '../../../store/controller/selectors';
 import { AlarmLimitsRequest, Range } from '../../../store/proto/mcu_pb';
 import { MessageType } from '../../../store/proto/types';
-import { ModalPopup, DiscardAlarmLimitsContent } from '../../modals';
+import { ModalPopup } from '../../modals';
+import { DiscardAlarmLimitsContent } from '../modal';
 import { alarmConfiguration } from './AlarmLimitsPage';
 
 const useStyles = makeStyles((theme: Theme) => ({

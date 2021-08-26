@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import ToolBar from '../../toolbar/ToolBar';
 import UserActivity from '../../app/UserActivity';
 import { ALARMS_ROUTE, SCREENSAVER_ROUTE } from '../constants';
-import OverlayScreen from '../../overlay/OverlayScreen';
+import OverlayScreen from '../../app/OverlayScreen';
 import { getAlarmNotifyStatus } from '../../../store/app/selectors';
 import { Range, AlarmLimitsRequest } from '../../../store/proto/mcu_pb';
 import {
@@ -20,8 +20,8 @@ import {
 import { ModalPopup } from '../../modals/ModalPopup';
 import { MessageType } from '../../../store/proto/types';
 import { commitDraftRequest } from '../../../store/controller/actions';
-import { DiscardAlarmLimitsContent } from '../../modals';
-import SidebarClickable from '../../sidebar/SidebarClickable';
+import SidebarClickable from '../../app/sidebar/SidebarClickable';
+import { DiscardAlarmLimitsContent } from '../../alarms/modal';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

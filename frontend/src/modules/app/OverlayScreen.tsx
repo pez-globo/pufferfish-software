@@ -19,7 +19,7 @@ import { MessageType } from '../../store/proto/types';
 
 import ModalPopup from '../modals/ModalPopup';
 import MultiStepWizard from '../modals/MultiStepWizard';
-import { getScreenLockPopup, setScreenLockPopup } from '../app/Service';
+import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { updateState } from '../../store/controller/actions';
 import { getBackendConnected } from '../../store/connection/selectors';
 

@@ -6,10 +6,10 @@ import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
 import { useSelector } from 'react-redux';
-import ModeBanner, { BannerType } from '../displays/ModeBanner';
+import ModeBanner, { BannerType } from '../../displays/ModeBanner';
 import ValueJumbotron from './ValueJumbotron';
 import ControlJumbotron from './ControlJumbotron';
-import { PERCENT, BMIN, LMIN } from '../info/units';
+import { PERCENT, BMIN, LMIN } from '../../info/units';
 import {
   getSensorMeasurementsSpO2,
   getCycleMeasurementsRR,
@@ -17,8 +17,8 @@ import {
   getSensorMeasurementsFiO2,
   getSensorMeasurementsFlow,
   getParametersRequestMode,
-} from '../../store/controller/selectors';
-import { VentilationMode } from '../../store/proto/mcu_pb';
+} from '../../../store/controller/selectors';
+import { VentilationMode } from '../../../store/proto/mcu_pb';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
