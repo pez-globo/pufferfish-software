@@ -56,7 +56,7 @@ class I2CDevice : public Interfaces::I2CDevice {
    * @param count   the number of bytes to be read
    * @return ok on success, error code otherwise
    */
-  virtual I2CDeviceStatus read(uint16_t address, uint8_t *buf, size_t count) override;
+  I2CDeviceStatus read(uint16_t address, uint8_t *buf, size_t count) override;
 
   /**
    * @brief  Append the input data to the read queue
