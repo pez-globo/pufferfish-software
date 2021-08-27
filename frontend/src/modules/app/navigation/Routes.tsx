@@ -21,12 +21,8 @@ import ScreensaverRoute from './layouts/ScreensaverRoute';
 import SidebarRoute from './layouts/SidebarRoute';
 import SidebarSlideRoute from './layouts/SidebarSlideRoute';
 import DashboardPage from '../../dashboard/DashboardPage';
-import LandingPage from '../../app/landing-page/LandingPage';
 import LogsPage from '../../logs/LogsPage';
 import ModesPage from '../../modes/ModesPage';
-import QuickStartPage from '../../app/quickstart/QuickStartPage';
-import ScreensaverPage from '../../app/screensaver/ScreensaverPage';
-import SettingsPage from '../../settings/SettingsPage';
 import {
   ALARMS_ROUTE,
   DASHBOARD_ROUTE,
@@ -36,6 +32,10 @@ import {
   SCREENSAVER_ROUTE,
   SETTINGS_ROUTE,
 } from './constants';
+import SettingsPage from '../../settings/SettingsPage';
+import QuickStartPage from '../quickstart/QuickStartPage';
+import ScreensaverPage from '../screensaver/ScreensaverPage';
+import LandingPage from '../landing-page/LandingPage';
 
 /**
  * Routes

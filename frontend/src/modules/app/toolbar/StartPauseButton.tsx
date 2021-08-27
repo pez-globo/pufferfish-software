@@ -25,8 +25,8 @@ import {
 import { MessageType } from '../../../store/proto/types';
 import { ModalPopup } from '../../modals';
 import { QUICKSTART_ROUTE, DASHBOARD_ROUTE } from '../navigation/constants';
-import { getAlarmLimitsModalPopup, setAlarmLimitsModalPopup } from '../../app/Service';
 import { DiscardAlarmLimitsContent } from '../../alarms/modal';
+import { getAlarmLimitsModalPopup, setAlarmLimitsModalPopup } from '../Service';
 
 const StartPauseButton = ({ staticStart }: { staticStart?: boolean }): JSX.Element => {
   const dispatch = useDispatch();
