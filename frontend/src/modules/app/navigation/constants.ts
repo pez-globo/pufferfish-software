@@ -3,8 +3,8 @@
  *
  *
  */
-import { GearIcon, LungsIcon, BellIcon, ChartIcon, PufferfishIcon, HomeIcon } from '../icons';
-import BellNoneIcon from '../icons/BellNoneIcon';
+import { GearIcon, LungsIcon, BellIcon, ChartIcon, PufferfishIcon, HomeIcon } from '../../icons';
+import BellNoneIcon from '../../icons/BellNoneIcon';
 
 // Constants for storing objects of route paths.
 export const DASHBOARD_ROUTE = { key: 1, label: 'Dashboard', path: '/dashboard', icon: null };

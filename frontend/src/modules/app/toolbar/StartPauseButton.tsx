@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector, shallowEqual, batch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Subscription } from 'rxjs';
-import { getBackendConnected } from '../../store/connection/selectors';
-import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
+import { getBackendConnected } from '../../../store/connection/selectors';
+import { commitRequest, commitDraftRequest } from '../../../store/controller/actions';
 import {
   getStoreReady,
   getParametersIsVentilating,
@@ -15,18 +15,18 @@ import {
   getAlarmLimitsRequestDraft,
   getParametersRequestDraft,
   getAlarmLimitsRequest,
-} from '../../store/controller/selectors';
+} from '../../../store/controller/selectors';
 import {
   ParametersRequest,
   VentilationMode,
   AlarmLimitsRequest,
   Range,
-} from '../../store/proto/mcu_pb';
-import { MessageType } from '../../store/proto/types';
-import { ModalPopup } from '../modals';
+} from '../../../store/proto/mcu_pb';
+import { MessageType } from '../../../store/proto/types';
+import { ModalPopup } from '../../modals';
 import { QUICKSTART_ROUTE, DASHBOARD_ROUTE } from '../navigation/constants';
-import { getAlarmLimitsModalPopup, setAlarmLimitsModalPopup } from '../app/Service';
-import { DiscardAlarmLimitsContent } from '../alarms/modal';
+import { getAlarmLimitsModalPopup, setAlarmLimitsModalPopup } from '../../app/Service';
+import { DiscardAlarmLimitsContent } from '../../alarms/modal';
 
 const StartPauseButton = ({ staticStart }: { staticStart?: boolean }): JSX.Element => {
   const dispatch = useDispatch();

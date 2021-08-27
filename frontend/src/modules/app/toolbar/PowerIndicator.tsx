@@ -2,15 +2,15 @@ import { makeStyles, Theme } from '@material-ui/core';
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { getController } from '../../store/controller/selectors';
-import { ControllerStates } from '../../store/controller/types';
-import { MCUPowerStatus } from '../../store/proto/mcu_pb';
-import Power25Icon from '../icons/Power25Icon';
-import Power50Icon from '../icons/Power50Icon';
-import Power75Icon from '../icons/Power75Icon';
-import PowerChargingIcon from '../icons/PowerChargingIcon';
-import PowerFullIcon from '../icons/PowerFullIcon';
-import { PERCENT } from '../info/units';
+import { getController } from '../../../store/controller/selectors';
+import { ControllerStates } from '../../../store/controller/types';
+import { MCUPowerStatus } from '../../../store/proto/mcu_pb';
+import Power25Icon from '../../icons/Power25Icon';
+import Power50Icon from '../../icons/Power50Icon';
+import Power75Icon from '../../icons/Power75Icon';
+import PowerChargingIcon from '../../icons/PowerChargingIcon';
+import PowerFullIcon from '../../icons/PowerFullIcon';
+import { PERCENT } from '../../info/units';
 
 const useStyles = makeStyles((theme: Theme) => ({
   paddingRight: {

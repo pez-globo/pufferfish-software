@@ -17,7 +17,7 @@ import {
   getMostRecentEvent,
 } from '../../store/controller/selectors';
 import { getEventType } from '../logs/EventType';
-import { LOGS_ROUTE } from '../navigation/constants';
+import { LOGS_ROUTE } from '../app/navigation/constants';
 import { BellIcon } from '../icons';
 import EventLogModal from '../logs/EventLog';
 import {

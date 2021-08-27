@@ -9,8 +9,8 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { getParametersIsVentilating } from '../../../store/controller/selectors';
-import { DASHBOARD_ROUTE, QUICKSTART_ROUTE, SCREENSAVER_ROUTE } from '../../navigation/constants';
-import Navigation from '../../navigation/Navigation';
+import { DASHBOARD_ROUTE, QUICKSTART_ROUTE, SCREENSAVER_ROUTE } from '../navigation/constants';
+import Navigation from '../navigation/Navigation';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

@@ -15,8 +15,8 @@ import { getParametersIsVentilating } from '../../../store/controller/selectors'
 import { MessageType } from '../../../store/proto/types';
 import { HomeIcon } from '../../icons';
 import ShutdownIcon from '../../icons/ShutdownIcon';
-import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../../navigation/constants';
-import Navigation from '../../navigation/Navigation';
+import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
+import Navigation from '../navigation/Navigation';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
