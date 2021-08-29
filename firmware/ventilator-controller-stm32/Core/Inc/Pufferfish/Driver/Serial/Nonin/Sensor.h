@@ -38,7 +38,7 @@ class Sensor : public Initializable {
   void post_setup_reset();
 
  private:
-  static const uint32_t measurement_timeout = 2000;  // ms
+  static const uint32_t measurement_timeout = 5000;  // ms
 
   Device &device_;
   HAL::Interfaces::Time &time_;
