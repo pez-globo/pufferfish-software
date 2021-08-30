@@ -21,24 +21,21 @@
 #include "Pufferfish/HAL/Mock/I2CDevice.h"
 #include "Pufferfish/Test/Util.h"
 #include "Pufferfish/Util/Containers/Array.h"
-#include "Pufferfish/Util/Endian.h"
 #include "catch2/catch.hpp"
 namespace PF = Pufferfish;
 using PF::Util::Containers::convert_byte_vector_to_hex_string;
 SCENARIO(
     "SFM3019 Device:: SFM3019 device behaves correctly when start_measure function is called") {
   GIVEN("A SFM3019 device constructed with a mock I2C device global I2C device and gas parameter") {
-    static constexpr PF::HAL::CRC8Parameters crc_params = {0x31, 0xff, false, false, 0x00};
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
-    PF::HAL::SoftCRC8 crc8c{crc_params};
     WHEN("GasType O2 is passed as input parameter to device ") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::o2};
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.start_measure();
+      auto status = device.start_measure();
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The start_measure returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
@@ -47,13 +44,13 @@ SCENARIO(
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
     }
-    WHEN("GasType gas is passed as input parameter to device") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::air};
+    WHEN("GasType air is passed as input parameter to device") {
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.start_measure();
+      auto status = device.start_measure();
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The start_measure returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
@@ -63,12 +60,12 @@ SCENARIO(
       }
     }
     WHEN("GasType mixture is passed as input parameter to device") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::mixture};
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::mixture;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.start_measure();
+      auto status = device.start_measure();
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The start_measure returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
@@ -85,12 +82,12 @@ SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when stop_measure fu
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     WHEN("GasType O2 is passed as input parameter to device") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::o2};
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.stop_measure();
+      auto status = device.stop_measure();
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The stop_measure returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
@@ -100,12 +97,12 @@ SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when stop_measure fu
       }
     }
     WHEN("GasType air is passed as input parameter to device") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::air};
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.stop_measure();
+      auto status = device.stop_measure();
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The stop_measure returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
@@ -115,12 +112,12 @@ SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when stop_measure fu
       }
     }
     WHEN("GasType mixture is passed as input parameter to device") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::mixture};
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::mixture;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.stop_measure();
+      auto status = device.stop_measure();
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The stop_measure returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
@@ -138,12 +135,12 @@ SCENARIO(
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     WHEN("GasType O2 and averaging_window 0 is passed as input parameter") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::o2};
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.set_averaging(0);
+      auto status = device.set_averaging(0);
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The set_averaging returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
@@ -155,12 +152,12 @@ SCENARIO(
       }
     }
     WHEN("GasType O2 and averaging_window 128 is passed as input parameter") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::o2};
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.set_averaging(128);
+      auto status = device.set_averaging(128);
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The set_averaging returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
@@ -173,12 +170,12 @@ SCENARIO(
     }
 
     WHEN("GasType air and averaging_window 0 is passed as input parameter") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::air};
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.set_averaging(0);
+      auto status = device.set_averaging(0);
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The set_averaging returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
@@ -190,12 +187,12 @@ SCENARIO(
       }
     }
     WHEN("GasType air and averaging_window 128 is passed as input parameter") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::air};
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.set_averaging(128);
+      auto status = device.set_averaging(128);
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The set_averaging returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
@@ -208,12 +205,12 @@ SCENARIO(
     }
 
     WHEN("GasType mixture and averaging_window 0 is passed as input parameter") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::mixture};
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::mixture;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.set_averaging(0);
+      auto status = device.set_averaging(0);
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The set_averaging returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
@@ -225,12 +222,12 @@ SCENARIO(
       }
     }
     WHEN("GasType mixture and averaging_window 128 is passed as input parameter") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::mixture};
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::mixture;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.set_averaging(128);
+      auto status = device.set_averaging(128);
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The set_averaging returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
@@ -251,12 +248,12 @@ SCENARIO(
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     WHEN("GasType O2 is passed as input parameter") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::o2};
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.request_conversion_factors();
+      auto status = device.request_conversion_factors();
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The request_conversion_factors returns ok") {
@@ -270,12 +267,12 @@ SCENARIO(
       }
     }
     WHEN("GasType air is passed as input parameter") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::air};
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.request_conversion_factors();
+      auto status = device.request_conversion_factors();
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The request_conversion_factors returns ok") {
@@ -289,12 +286,12 @@ SCENARIO(
       }
     }
     WHEN("GasType mixture is passed as input parameter") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::mixture};
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::mixture;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.request_conversion_factors();
+      auto status = device.request_conversion_factors();
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The request_conversion_factors returns ok") {
@@ -315,13 +312,13 @@ SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when reset function 
       "A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
     WHEN("GasType O2 is passed as input parameter") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::o2};
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
-      auto status = device_.reset();
+      auto status = device.reset();
       mock_device.get_write(input_buffer.buffer(), count);
       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
       THEN("The reset function returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
@@ -334,103 +331,81 @@ SCENARIO(
       "A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
-    WHEN("GasType O2 is passed as input parameter") {
-      PF::Driver::I2C::SFM3019::Device device_{
-          mock_device, global_device, PF::Driver::I2C::SFM3019::GasType::o2};
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
+    WHEN("Product id 0x04020611 is passed as an input parameter") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
       constexpr size_t buffer_size = 254UL;
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-      size_t count = buffer_size;
-      uint32_t re = 0;
-      uint32_t& product_number = re;
-      device_.read_product_id(product_number);
-      mock_device.get_write(input_buffer.buffer(), count);
-      auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-      THEN("The mock I2C's write buffer consists of read_product_id command byte '0xE02'") {
-        auto expected = std::string("\\xE1\\x02");
-        REQUIRE(read_buffer == expected);  // 254 null bytes instead
+      auto input_data = PF::Util::Containers::make_array<uint8_t>(
+          0x78, 0x33, 0x1B, 0x4c, 0x00, 0xbc, 0x00, 0x00, 0x81);
+      mock_device.add_read(input_data.data(), input_data.size());
+      uint32_t product_id = 0x04020611;
+      auto status = device.read_product_id(product_id);
+      THEN("The read_product_id returns ok status") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
+    }
+  }
+}
+
+SCENARIO(
+    "SFM3019 Device:: SFM3019 device behaves correctly when read_conversion_factors function is "
+    "called") {
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    constexpr size_t buffer_size = 254UL;
+    PF::Driver::I2C::SFM3019::ConversionFactors conversion_factors;
+    conversion_factors.scale_factor = 10;
+    conversion_factors.offset = -5;
+    PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(
+        0x78, 0x33, 0x1B, 0x4c, 0x00, 0xbc, 0x00, 0x00, 0x81);
+    mock_device.add_read(input_data.data(), input_data.size());
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
+    WHEN("scale_factor is 10 and offset is -5 is passed as input parameter") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      PF::Driver::I2C::SFM3019::ConversionFactors conversion;
+      auto status_conversion = device.read_conversion_factors(conversion);
+      THEN("Command data overwrites previous data") {
+        REQUIRE(status_conversion == PF::I2CDeviceStatus::ok);
       }
     }
   }
 }
-// SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when read_conversion_factors function
-// is called"){
-//   GIVEN("A SFM3019 device constructed with a mock I2C device, global I2C device and gas
-//   parameter"){
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     constexpr size_t buffer_size = 254UL;
-//     static constexpr PF::HAL::CRC8Parameters crc_params = {0x31, 0xff, false, false, 0x00};
-//     PF::HAL::SoftCRC8 crc8c{crc_params};
-//     // auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02, 0x03, 0x04, 0x05);
-//     // auto status_write = mock_device.write(input_data.data(), input_data.size());
-//     // REQUIRE(status_write == PF::I2CDeviceStatus::ok);
-//     // auto status_write1 = global_device.write(input_data.data(),input_data.size());
-//     // REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
-//     WHEN("GasType O2 is passed as input parameter"){
-//       PF::Driver::I2C::SFM3019::Device
-//       device_{mock_device,global_device,PF::Driver::I2C::SFM3019::GasType::o2}; constexpr size_t
-//       buffer_size = 254UL; PF::Driver::I2C::SensirionDevice sensirion_device{mock_device, crc8c};
-//       int counter = 0;
-//       uint8_t command = 0x01;
-//       do
-//       {
-//         mock_device.write(&command, buffer_size);
-//         counter++;
-//       } while (counter < 51);
-//       std::array<uint8_t, sizeof(uint16_t)> buffer{};
-//       auto status_read = sensirion_device.read(buffer);
-//       //REQUIRE(status_read == PF::I2CDeviceStatus::ok);
 
-//       PF::Driver::I2C::SFM3019::ConversionFactors conversion;
-//       auto status_conversion = device_.read_conversion_factors(conversion);
-//       THEN("Command data overwrites previous data") {
-//         REQUIRE(status_conversion == PF::I2CDeviceStatus::ok);
-
-//       }
-//     }
-//   }
-// }
-
-// SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when read_sample function is
-// called"){
-//   GIVEN("A SFM3019 device constructed with a mock I2C device, global I2C device and gas
-//   parameter"){
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     constexpr size_t buffer_size = 254UL;
-//     PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//     size_t count = buffer_size;
-//     static constexpr PF::HAL::CRC8Parameters crc_params = {0x31, 0xff, false, false, 0x00};
-//     PF::HAL::SoftCRC8 crc8c{crc_params};
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>();
-//     // mock_device.write(input_data.data(), input_data.size());
-//     // global_device.write(input_data.data(), input_data.size());
-//     PF::Driver::I2C::SensirionDevice sensirion_device{mock_device, crc8c};
-//     std::array<uint8_t, sizeof(uint16_t)> buffer{};
-//     auto second_write =
-//     sensirion_device.write(static_cast<uint16_t>(PF::Driver::I2C::SFM3019::Command::start_measure_o2));
-//     REQUIRE(second_write == PF::I2CDeviceStatus::ok);
-//     auto status = sensirion_device.read(buffer);
-//     WHEN("GasType O2 is passed as input parameter"){
-//       PF::Driver::I2C::SFM3019::Device
-//       device_{mock_device,global_device,PF::Driver::I2C::SFM3019::GasType::o2}; constexpr size_t
-//       buffer_size = 254UL; PF::Driver::I2C::SFM3019::Sample sample;
-//       mock_device.get_write(input_buffer.buffer(), count);
-//       auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-//       auto expected = std::string("\\x36\\x03");
-//      // REQUIRE(read_buffer == expected); // 254 null bytes instead
-// //      sample.raw_flow = 0.12;
-//       int16_t scale_factor = 170;
-//       int16_t offset = -24576;
-//       sample.flow = static_cast<float>(sample.raw_flow - offset) /
-//       static_cast<float>(scale_factor);
-// //       auto status1 = device_.read_sample(sample,scale_factor,offset);
-//        THEN("Command data overwrites previous data") {
-// //         REQUIRE(status1 == PF::I2CDeviceStatus::ok);
-// // //        REQUIRE(sample.raw_flow == 1);
-// //        // REQUIRE(result1 == 0);
-// //        REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//     }
-//   }
-// }
+SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when read_sample function is called") {
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    constexpr size_t buffer_size = 254UL;
+    PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(
+        0x78, 0x33, 0x1B, 0x4c, 0x00, 0xbc, 0x00, 0x00, 0x81);
+    WHEN("Scale factor is 170 and offset is -24576 are passed as an input parameter") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      PF::Driver::I2C::SFM3019::Sample sample;
+      mock_device.add_read(input_data.data(), input_data.size());
+      int16_t scale_factor = 170;
+      int16_t offset = -24576;
+      auto status = device.read_sample(sample, scale_factor, offset);
+      THEN("The read_sample function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN("Flow returns 325.57059f value") { REQUIRE(sample.flow == 325.57059f); }
+    }
+    WHEN("Scale factor is 10 and offset is 5 are passed as an input parameter") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      PF::Driver::I2C::SFM3019::Sample sample;
+      mock_device.add_read(input_data.data(), input_data.size());
+      int16_t scale_factor = 10;
+      int16_t offset = 5;
+      auto status = device.read_sample(sample, scale_factor, offset);
+      THEN("The read_sample function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN("Flow returns 3076.6001f value") { REQUIRE(sample.flow == 3076.6001f); }
+    }
+  }
+}

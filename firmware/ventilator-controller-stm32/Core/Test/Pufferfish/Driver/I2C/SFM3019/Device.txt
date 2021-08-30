@@ -73,6 +73,20 @@ Scenario: SFM3019 Device:: SFM3019 device behaves correctly when reset function 
 
 Scenario: SFM3019 Device:: SFM3019 device behaves correctly when read_product_id function is called
   GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter')
-    WHEN('GasType O2 is passed as input parameter')
-      THEN('The mock I2C's write buffer consists of read_product_id command byte '0xE02'') 
+    WHEN('Product id 0x04020611 is passed as an input parameter')
+      THEN('The read_product_id returns ok status') 
 
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when read_conversion_factors function is called
+  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter')
+    WHEN('scale_factor is 10 and offset is -5 is passed as input parameter')
+      THEN('The read_conversion_factors function returns ok status') 
+
+
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when read_sample function is called
+  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter')
+    WHEN('Scale factor is 170 and offset is -24576 are passed as an input parameter')
+      THEN('The read_sample function returns ok status') 
+      THEN('Flow returns 325.57059f value')  
+    WHEN('Scale factor is 10 and offset is 5 are passed as an input parameter')
+      THEN('The read_sample function returns ok status') 
+      THEN('Flow returns 3076.6001f value')  
