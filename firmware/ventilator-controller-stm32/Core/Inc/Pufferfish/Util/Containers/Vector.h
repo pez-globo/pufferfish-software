@@ -34,8 +34,8 @@ class Vector {
   // initializer list (e.g. Vector<uint8_t, 5> vec{1, 2, 3})
   // Note: this makes copies of the values!
   // clang-tidy says - member initializer for 'size_' is redundant
-  // NOLINTNEXTLINE(modernize-use-default-member-init)
-  Vector(std::initializer_list<Element> init) : size_(0) {
+  // cppcheck-suppress noExplicitConstructor
+  Vector(std::initializer_list<Element> init) {
     for (const Element &elem : init) {
       push_back(elem);
     }
