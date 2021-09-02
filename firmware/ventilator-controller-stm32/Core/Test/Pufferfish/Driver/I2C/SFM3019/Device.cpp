@@ -271,7 +271,7 @@ SCENARIO(
       THEN(
           "The mock I2C's write buffer consists of set_averaging command byte '0x366A' followed by "
           "'0x000081'") {
-        const auto * expected = R"(\x36\x6A\x00\x00\x81)";
+        const auto* expected = R"(\x36\x6A\x00\x00\x81)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
       THEN("The read method returns no new data for mock device") {
@@ -287,7 +287,7 @@ SCENARIO(
           "'0x000081'") {
         global_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-        const auto * expected = R"(\x36\x6A\x00\x00\x81)";
+        const auto* expected = R"(\x36\x6A\x00\x00\x81)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
     }
@@ -306,7 +306,7 @@ SCENARIO(
       THEN(
           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed "
           "by '0x0080FB'") {
-        const auto * expected = R"(\x36\x6A\x00\x80\xFB)";
+        const auto* expected = R"(\x36\x6A\x00\x80\xFB)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
       THEN("The read method returns no new data for mock device") {
@@ -322,7 +322,7 @@ SCENARIO(
           "by '0x0080FB'") {
         global_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-        const auto * expected = R"(\x36\x6A\x00\x80\xFB)";
+        const auto* expected = R"(\x36\x6A\x00\x80\xFB)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
     }
@@ -347,7 +347,7 @@ SCENARIO(
       THEN(
           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed "
           "by '0x000081'") {
-        const auto * expected = R"(\x36\x6A\x00\x00\x81)";
+        const auto* expected = R"(\x36\x6A\x00\x00\x81)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
       THEN("The read method returns no new data for mock device") {
@@ -363,7 +363,7 @@ SCENARIO(
           "by '0x000081'") {
         global_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-        const auto * expected = R"(\x36\x6A\x00\x00\x81)";
+        const auto* expected = R"(\x36\x6A\x00\x00\x81)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
     }
@@ -382,7 +382,7 @@ SCENARIO(
       THEN(
           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed "
           "by '0x0080FB'") {
-        const auto * expected = R"(\x36\x6A\x00\x80\xFB)";
+        const auto* expected = R"(\x36\x6A\x00\x80\xFB)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
       THEN("The read method returns no new data for mock device") {
@@ -398,7 +398,7 @@ SCENARIO(
           "by '0x0080FB'") {
         global_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-        const auto * expected = R"(\x36\x6A\x00\x80\xFB)";
+        const auto* expected = R"(\x36\x6A\x00\x80\xFB)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
     }
@@ -423,7 +423,7 @@ SCENARIO(
       THEN(
           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed "
           "by '0x000081'") {
-        const auto * expected = R"(\x36\x6A\x00\x00\x81)";
+        const auto* expected = R"(\x36\x6A\x00\x00\x81)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
       THEN("The read method returns no new data for mock device") {
@@ -439,7 +439,7 @@ SCENARIO(
           "by '0x000081'") {
         global_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-        const auto * expected = R"(\x36\x6A\x00\x00\x81)";
+        const auto* expected = R"(\x36\x6A\x00\x00\x81)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
     }
@@ -458,7 +458,7 @@ SCENARIO(
       THEN(
           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed "
           "by '0x0080FB") {
-        const auto * expected = R"(\x36\x6A\x00\x80\xFB)";
+        const auto* expected = R"(\x36\x6A\x00\x80\xFB)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
       THEN("The read method returns no new data for mock device") {
@@ -472,7 +472,7 @@ SCENARIO(
       THEN("The global_device I2C's write buffer consists '0x366A' followed by '0x0080FB'") {
         global_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-        const auto * expected = R"(\x36\x6A\x00\x80\xFB)";
+        const auto* expected = R"(\x36\x6A\x00\x80\xFB)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
     }
@@ -503,7 +503,7 @@ SCENARIO(
       THEN(
           "The mock I2C's write buffer consists of request_conversion_factor O2 command byte "
           "'0x3661 followed by '0x36033A'") {
-         const auto * expected = R"(\x36\x61\x36\x03\x3A)";
+        const auto* expected = R"(\x36\x61\x36\x03\x3A)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
       THEN("The read method returns no new data for mock device") {
@@ -517,7 +517,7 @@ SCENARIO(
       THEN("The global_device I2C's write buffer consists'0x3661 followed by '0x36033A'") {
         global_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-        const auto * expected = R"(\x36\x61\x36\x03\x3A)";
+        const auto* expected = R"(\x36\x61\x36\x03\x3A)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
     }
@@ -538,7 +538,7 @@ SCENARIO(
       THEN(
           "The mock I2C's write buffer consists of request_conversion_factor air command byte "
           "'0x3661 followed by '0x3608D0'") {
-        const auto * expected = R"(\x36\x61\x36\x08\xD0)";
+        const auto* expected = R"(\x36\x61\x36\x08\xD0)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
       THEN("The read method returns no new data for mock device") {
@@ -552,7 +552,7 @@ SCENARIO(
       THEN("The global_device I2C's write buffer consists'0x3661 followed by '0x3608D0'") {
         global_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-        const auto * expected = R"(\x36\x61\x36\x08\xD0)";
+        const auto* expected = R"(\x36\x61\x36\x08\xD0)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
     }
@@ -573,7 +573,7 @@ SCENARIO(
       THEN(
           "The mock I2C's write buffer consists of request_conversion_factor mixture command byte "
           "'0x3661 followed by '0x3632CE'") {
-        const auto * expected = R"(\x36\x61\x36\x32\xCE)";
+        const auto* expected = R"(\x36\x61\x36\x32\xCE)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
       THEN("The read method returns no new data for mock device") {
@@ -587,7 +587,7 @@ SCENARIO(
       THEN("The global_device I2C's write buffer consists'x03603'") {
         global_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-        const auto * expected = R"(\x36\x61\x36\x32\xCE)";
+        const auto* expected = R"(\x36\x61\x36\x32\xCE)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
     }
