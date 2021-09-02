@@ -54,13 +54,13 @@ inline uint16_t get_spo2_data(uint8_t byte_data) {
  * @return Calculated 9 bit data from MSB and LSB
  */
 inline uint16_t get_hr_data(uint8_t msb_byte, uint8_t lsb_byte) {
-  /* Pack 2 bits of MSB and 6 bits of LSB for 9 bits of heart rate data  */
-  static const uint16_t msb_shift = 7;
-  static const uint16_t mask_msb = 0x18;
+  /* Pack 2 bits of MSB and 7 bits of LSB for 9 bits of heart rate data  */
+  static const uint8_t lsb_shift = 8;
+  static const uint8_t mask_msb = 0b00000011;
 
-  const uint16_t msb =
-      static_cast<uint16_t>(static_cast<uint16_t>(msb_byte) << msb_shift) & mask_msb;
-  const uint16_t lsb = static_cast<uint16_t>(lsb_byte) & ErrorConstants::spo2_missing;
+  uint8_t msb = msb_byte & mask_msb;
+  uint8_t lsb = get_spo2_data(lsb_byte) << lsb_shift;
+
   return static_cast<uint16_t>(msb | lsb) & ErrorConstants::hr_missing;
 }
 
