@@ -1,92 +1,203 @@
-Scenario: SFM3019 Device:: SFM3019 device behaves correctly when start_measure function is called
-  GIVEN('A SFM3019 device constructed with a mock I2C device global I2C device and gas parameter') 
-    WHEN('GasType O2 is passed as input parameter to device ') 
-      THEN('The start_measure returns ok')
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when start_measure function is called 
+  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device and O2 as gas parameter') 
+    WHEN('The start_measure method called as default mock I2C device') 
+      THEN('The start_measure method returns ok status') 
       THEN('The mock I2C's write buffer consists of start measure O2 command byte '0x3603'') 
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists'x03603'')
 
-    WHEN('GasType gas is passed as input parameter to device') 
-      THEN('The start_measure returns ok')
+  GIVEN('A SFM3019 device constructed with a mock I2C device global I2C device and air as gas parameter') 
+    WHEN('The start_measure method called as default mock I2C device') 
+      THEN('The start_measure method returns ok status') 
       THEN('The mock I2C's write buffer consists of start measure air command byte '0x3608'') 
-
-    WHEN('GasType mixture is passed as input parameter to device') 
-      THEN('The start_measure returns ok')
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists'x03608'')
+      
+  GIVEN('A SFM3019 device constructed with a mock I2C device global I2C device and mixture as gas parameter') 
+    WHEN('The start_measure method called as default mock I2C device') 
+      THEN('The start_measure method returns ok status') 
       THEN('The mock I2C's write buffer consists of start measure mixture command byte '0x3632'') 
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists'0x3632'')
 
-Scenario: SFM3019 Device:: SFM3019 device behaves correctly when stop_measure function is called
-  GIVEN('A SFM3019 device constructed with a mock I2C device global I2C device and gas parameter ')
-    WHEN('GasType O2 is passed as input parameter to device')
-      THEN('The stop_measure returns ok')
+
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when stop_measure function is called 
+  GIVEN('A SFM3019 device constructed with a mock I2C device global I2C device and O2 as gas parameter ') 
+    WHEN('The stop_measure method called as default mock I2C device') 
+      THEN('The stop_measure method returns ok status') 
       THEN('The mock I2C's write buffer consists of stop measure O2 command byte '0x3FF9'') 
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists'0x3FF9'')
 
-    WHEN('GasType air is passed as input parameter to device')
-      THEN('The stop_measure returns ok')
+  GIVEN('A SFM3019 device constructed with a mock I2C device global I2C device and air as gas parameter ') 
+    WHEN('The stop_measure method called as default mock I2C device') 
+      THEN('The stop_measure method returns ok status') 
       THEN('The mock I2C's write buffer consists of stop measure air command byte '0x3FF9'') 
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists'0x03FF9'')
 
-    WHEN('GasType mixture is passed as input parameter to device')
-      THEN('The stop_measure returns ok')
+  GIVEN('A SFM3019 device constructed with a mock I2C device global I2C device and mixture as gas parameter ')   
+    WHEN('The stop_measure method called on default mock I2C device') 
+      THEN('The stop_measure returns ok') 
       THEN('The mock I2C's write buffer consists of stop measure mixture command byte '0x3FF9'') 
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists'0x3FF9'')
 
-Scenario: SFM3019 Device:: SFM3019 device behaves correctly when set_averaging function is called
-  GIVEN('A SFM3019 device constructed with a mock I2C device global I2c device  and gas parameter')
-    WHEN('GasType O2 and averaging_window 0 is passed as input parameter')
-      THEN('The set_averaging returns ok')
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when set_averaging function is called 
+  GIVEN('A SFM3019 device constructed with a mock I2C device global I2c device  and O2 as gas parameter') 
+    WHEN('The averaging_window 0 is passed as input parameter') 
+      THEN('The set_averaging method returns ok status') 
       THEN('The mock I2C's write buffer consists of set_averaging command byte '0x366A' followed by '0x000081'') 
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists '0x366A' followed by '0x000081'')
 
-    WHEN('GasType O2 and averaging_window 128 is passed as input parameter')
-      THEN('The set_averaging returns ok')
+    WHEN('The averaging_window 128 is passed as input parameter') 
+      THEN('The set_averaging method returns ok status') 
       THEN('The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed by '0x0080FB'') 
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists'0x366A' followed by '0x0080FB'')
 
-    WHEN('GasType air and averaging_window 0 is passed as input parameter')
-      THEN('The set_averaging returns ok')
+  GIVEN('A SFM3019 device constructed with a mock I2C device global I2c device  and air as gas parameter') 
+    WHEN('The averaging_window 0 is passed as input parameter') 
+      THEN('The set_averaging method returns ok status')
       THEN('The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed by '0x000081'') 
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists '0x366A' followed by '0x000081'')
 
-    WHEN('GasType air and averaging_window 128 is passed as input parameter')
-      THEN('The set_averaging returns ok')
+    WHEN('The averaging_window 128 is passed as input parameter') 
+      THEN('The set_averaging method returns ok status') 
       THEN('The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed by '0x0080FB'') 
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists '0x366A' followed by '0x0080FB'')
 
-    WHEN('GasType mixture and averaging_window 0 is passed as input parameter')
-      THEN('The set_averaging returns ok')
+    GIVEN('A SFM3019 device constructed with a mock I2C device global I2c device  and mixture as gas parameter') 
+    WHEN('The averaging_window 0 is passed as input parameter') 
+      THEN('The set_averaging method returns ok status') 
       THEN('The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed by '0x000081'') 
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists '0x366A' followed by '0x000081'')
 
-    WHEN('GasType mixture and averaging_window 128 is passed as input parameter')
-      THEN('The set_averaging returns ok')
+    WHEN('The averaging_window 128 is passed as input parameter') 
+      THEN('The set_averaging method returns ok status') 
       THEN('The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed by '0x0080FB') 
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists '0x366A' followed by '0x0080FB'')
 
-Scenario: SFM3019 Device:: SFM3019 device behaves correctly when request_conversion_factors function is called
-  GIVEN('A SFM3019 device constructed with a mock I2C device , global I2C device and gas parameter')
-    WHEN('GasType O2 is passed as input parameter')
-      THEN('The request_conversion_factors returns ok')
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when request_conversion_factors function is called 
+  GIVEN('A SFM3019 device constructed with a mock I2C device , global I2C device and gas parameter') 
+    WHEN('The request_conversion_factors method is called with default mock I2C device and on gas type O2 as input parameter') 
+      THEN('The request_conversion_factors method returns ok status') 
       THEN('The mock I2C's write buffer consists of request_conversion_factor O2 command byte '0x3661 followed by '0x36033A'') 
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists'0x3661 followed by '0x36033A'')
 
-    WHEN('GasType air is passed as input parameter')
-      THEN('The request_conversion_factors returns ok')
+    WHEN('The request_conversion_factors method is called with default mock I2C device and on gas type air as input parameter') 
+      THEN('The request_conversion_factors method returns ok status') 
       THEN('The mock I2C's write buffer consists of request_conversion_factor air command byte '0x3661 followed by '0x3608D0'') 
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists'0x3661 followed by '0x3608D0'')
 
-    WHEN('GasType mixture is passed as input parameter')
-      THEN('The request_conversion_factors returns ok')
+    WHEN('The request_conversion_factors method is called with default mock I2C device and on gas type mixture as input parameter') 
+      THEN('The request_conversion_factors returns ok') 
       THEN('The mock I2C's write buffer consists of request_conversion_factor mixture command byte '0x3661 followed by '0x3632CE'') 
+      THEN('The read method returns no new data for mock device')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists'x03603'')
 
-Scenario: SFM3019 Device:: SFM3019 device behaves correctly when reset function is called
-  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter')
-    WHEN('GasType O2 is passed as input parameter')
-      THEN('The reset function returns ok')
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when read_conversion_factors function is called 
+  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device and air as gas parameter') 
+    WHEN('The read_conversion_factors method with the mock I2C device's read buffer set to 0x78331B4C00bc000081'
+     'corresponding to scale factor 10, offset -5 and a default-initialized ConversionFactors object as the output parameter') 
+      THEN('The read_conversion_factors return ok status') 
+      THEN('The mock_device I2C's write buffer consists expected data')
+      THEN('The read method for global_device returns no new data')
+      THEN('The global_device I2C's write buffer consists expected data')
+
+    WHEN('The read_conversion_factors method with the mock I2C device's read buffer set to 0x78331B4C00bc000081'
+     'corresponding to scale factor 10, offset -5 and a default-initialized ConversionFactors object as the output parameter')
+      THEN('Command data overwrites previous data') 
+      THEN('The mock_device I2C's write buffer consists of expected data')
+      THEN('The read method returns no new data for global_device')
+      THEN('The global_device I2C's write buffer consists expected data')
 
 Scenario: SFM3019 Device:: SFM3019 device behaves correctly when read_product_id function is called
-  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter')
-    WHEN('Product id 0x04020611 is passed as an input parameter')
-      THEN('The read_product_id returns ok status') 
-
-Scenario: SFM3019 Device:: SFM3019 device behaves correctly when read_conversion_factors function is called
-  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter')
-    WHEN('scale_factor is 10 and offset is -5 is passed as input parameter')
-      THEN('The read_conversion_factors function returns ok status') 
+  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter') 
+    WHEN('Product id 0x04020611 is passed as an input parameter') 
+      THEN('The read_product_id method returns ok status') 
+      THEN('The read method returns no new data status for mock device')
+      THEN('The read method returns no new data status for global_device')
+      THEN('The global_device I2C's write buffer consists'x03603'')
 
 
-Scenario: SFM3019 Device:: SFM3019 device behaves correctly when read_sample function is called
-  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter')
-    WHEN('Scale factor is 170 and offset is -24576 are passed as an input parameter')
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when read_sample function is called 
+  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter') 
+    WHEN('The read_sample method with the mock I2C device's read buffer set to 0x78331B4c00bc000081'
+         ' a scale factor of 170 and an offset of  -24576  as input parameters, and a Sample object initialized to default as the output parameter') 
       THEN('The read_sample function returns ok status') 
-      THEN('Flow returns 325.57059f value')  
-    WHEN('Scale factor is 10 and offset is 5 are passed as an input parameter')
+      THEN('sample.flow returns 325.57059f ') 
+      THEN('The mock_device I2C's write buffer consists expected data')
+      THEN('The read method returns no new data status for global_device')
+      THEN('The global_device I2C's write buffer consists expected data')
+
+    WHEN('The read_sample method with the mock I2C device's read buffer set to 0x78331B4c00bc000081'
+         ' a scale factor of 170 and an offset of -14576  as input parameters, and a Sample object initialized to default as the output parameter') 
       THEN('The read_sample function returns ok status') 
-      THEN('Flow returns 3076.6001f value')  
+      THEN('sample.flow returns 266.74707f') 
+      THEN('The mock_device I2C's write buffer consists expected data')
+      THEN('The read method returns no new data status for global_device')
+      THEN('The global_device I2C's write buffer consists expected data')
+
+    WHEN('The read_sample method with the mock I2C device's read buffer set to 0x78331B4c00bc000081'
+         ' a scale factor of 170 and an offset of -100  as input parameters, and a Sample object initialized to default as the output parameter') 
+      THEN('The read_sample function returns ok status') 
+      THEN('sample.flow returns 181.59412f') 
+      THEN('The mock_device I2C's write buffer consists expected data')
+      THEN('The read method returns no new data status for global_device')
+      THEN('The global_device I2C's write buffer consists expected data')
+
+   WHEN('The read_sample method with the mock I2C device's read buffer set to 0x78331B4c00bc000081'
+         ' a scale factor of 100 and an offset of -14576  as input parameters, and a Sample object initialized to default as the output parameter') 
+      THEN('The read_sample function returns ok status') 
+      THEN('sample.flow returns 553.46997f') 
+      THEN('The mock_device I2C's write buffer consists expected data')
+      THEN('The read method returns no new data status for global_device')
+      THEN('The global_device I2C's write buffer consists expected data')
+
+    WHEN('The read_sample method with the mock I2C device's read buffer set to 0x78331B4c00bc000081'
+         ' a scale factor of 50 and an offset of -14576  as input parameters, and a Sample object initialized to default as the output parameter') 
+      THEN('The read_sample function returns ok status') 
+      THEN('sample.flow returns 1106.93994f') 
+      THEN('The mock_device I2C's write buffer consists expected data')
+      THEN('The read method returns no new data status for global_device')
+      THEN('The global_device I2C's write buffer consists expected data')
+
+    WHEN('The read_sample method with the mock I2C device's read buffer set to 0x78331B4c00bc000081'
+         ' a scale factor of 200 and an offset of -14576  as input parameters, and a Sample object initialized to default as the output parameter') 
+      THEN('The read_sample function returns ok status') 
+      THEN('sample.flow returns 276.73499f ') 
+      THEN('The mock_device I2C's write buffer consists expected data')
+      THEN('The read method returns no new data status for global_device')
+      THEN('The global_device I2C's write buffer consists expected data')
+
+Scenario: SFM3019 Device:: SFM3019 device behaves correctly when reset function is called
+  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter') 
+    WHEN('The reset method is called with default I2C mock device and gas type O2 as input parameter') 
+      THEN('The reset function returns ok') 
+      THEN('The read method returns no new data status for mock device')
+      THEN('The read method returns no new data status for global device')
+      THEN('The global_device I2C's write buffer consists'x06'')
+

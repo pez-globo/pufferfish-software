@@ -28,8 +28,8 @@ static const uint16_t default_i2c_addr = 0x2e;
 class Device {
  public:
   explicit Device(
-      HAL::Interfaces::I2CDevice &dev, HAL::Interfaces::I2CDevice &global_dev, GasType gas)
-      : crc8_(crc_params), sensirion_(dev, crc8_), global_(global_dev, crc8_), gas(gas) {}
+      HAL::Interfaces::I2CDevice &sfm_dev, HAL::Interfaces::I2CDevice &global_dev, GasType gas)
+      : crc8_(crc_params), sensirion_(sfm_dev, crc8_), global_(global_dev, crc8_), gas(gas) {}
 
   /**
    * Starts a flow measurement
@@ -75,7 +75,7 @@ class Device {
    * @param sample[out] the sensor reading; only valid on success
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus read_sample(Sample &sample, int16_t scale_factor, int16_t offset);
+  I2CDeviceStatus read_sample(ConversionFactors &conversion, Sample &sample);
 
   /**
    * Causes a global I2C device reset
