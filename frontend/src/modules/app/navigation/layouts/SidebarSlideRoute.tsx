@@ -7,21 +7,21 @@ import { Route, RouteProps, useLocation } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Drawer, Grid } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
-import ToolBar from '../ToolBar';
-import UserActivity from '../UserActivity';
-import { ALARMS_ROUTE, SCREENSAVER_ROUTE } from '../../navigation/constants';
-import SidebarClickable from '../SidebarClickable';
-import OverlayScreen from '../OverlayScreen';
-import { getAlarmNotifyStatus } from '../../../store/app/selectors';
-import { Range, AlarmLimitsRequest } from '../../../store/proto/mcu_pb';
+import ToolBar from '../../toolbar/ToolBar';
+import { ALARMS_ROUTE, SCREENSAVER_ROUTE } from '../constants';
+import { getAlarmNotifyStatus } from '../../../../store/app/selectors';
+import { commitDraftRequest } from '../../../../store/controller/actions';
 import {
   getAlarmLimitsRequest,
   getAlarmLimitsRequestUnsaved,
-} from '../../../store/controller/selectors';
-import { ModalPopup } from '../../modals/ModalPopup';
-import { MessageType } from '../../../store/proto/types';
-import { commitDraftRequest } from '../../../store/controller/actions';
-import { DiscardAlarmLimitsContent } from '../../modals';
+} from '../../../../store/controller/selectors';
+import { AlarmLimitsRequest } from '../../../../store/proto/mcu_pb';
+import { MessageType } from '../../../../store/proto/types';
+import { DiscardAlarmLimitsContent } from '../../../alarms/modal';
+import { ModalPopup } from '../../../modals';
+import OverlayScreen from '../../OverlayScreen';
+import SidebarClickable from '../../sidebar/SidebarClickable';
+import UserActivity from '../../UserActivity';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

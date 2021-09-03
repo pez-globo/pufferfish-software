@@ -18,6 +18,5 @@ export { default as TestTool } from './TestTool';
 export { default as ToogleValue } from './ToggleValue';
 export { default as ValueModal } from './ValueModal';
 export { default as ValueController } from './ValueClicker';
-export { AlarmModal, AlarmModalContent } from './AlarmModal';
 export { default as ValueClicker } from './ValueClicker';
 export { default as SimpleTable } from './SimpleTable';

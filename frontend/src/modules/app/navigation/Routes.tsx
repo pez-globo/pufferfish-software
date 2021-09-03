@@ -14,19 +14,15 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Switch } from 'react-router-dom';
-import { getParametersIsVentilating } from '../../store/controller/selectors';
-import AlarmLimitsPage from '../alarms/limits/AlarmLimitsPage';
-import LandingPageRoute from '../app/layouts/LandingPageRoute';
-import ScreensaverRoute from '../app/layouts/ScreensaverRoute';
-import SidebarRoute from '../app/layouts/SidebarRoute';
-import SidebarSlideRoute from '../app/layouts/SidebarSlideRoute';
-import DashboardPage from '../dashboard/DashboardPage';
-import LandingPage from '../landing-page/LandingPage';
-import LogsPage from '../logs/LogsPage';
-import ModesPage from '../modes/ModesPage';
-import QuickStartPage from '../quickstart/QuickStartPage';
-import ScreensaverPage from '../screensaver/ScreensaverPage';
-import SettingsPage from '../settings/SettingsPage';
+import { getParametersIsVentilating } from '../../../store/controller/selectors';
+import AlarmLimitsPage from '../../alarms/limits/AlarmLimitsPage';
+import LandingPageRoute from './layouts/LandingPageRoute';
+import ScreensaverRoute from './layouts/ScreensaverRoute';
+import SidebarRoute from './layouts/SidebarRoute';
+import SidebarSlideRoute from './layouts/SidebarSlideRoute';
+import DashboardPage from '../../dashboard/DashboardPage';
+import LogsPage from '../../logs/LogsPage';
+import ModesPage from '../../modes/ModesPage';
 import {
   ALARMS_ROUTE,
   DASHBOARD_ROUTE,
@@ -36,6 +32,10 @@ import {
   SCREENSAVER_ROUTE,
   SETTINGS_ROUTE,
 } from './constants';
+import SettingsPage from '../../settings/SettingsPage';
+import QuickStartPage from '../quickstart/QuickStartPage';
+import ScreensaverPage from '../screensaver/ScreensaverPage';
+import LandingPage from '../landing-page/LandingPage';
 
 /**
  * Routes

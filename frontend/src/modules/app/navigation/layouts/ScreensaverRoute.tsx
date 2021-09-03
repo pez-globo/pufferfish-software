@@ -7,15 +7,15 @@ import { AppBar, Grid, makeStyles, Theme } from '@material-ui/core';
 import React, { PropsWithChildren, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Route, RouteProps, useHistory } from 'react-router-dom';
-import { getParametersIsVentilating } from '../../../store/controller/selectors';
-import ClockIcon from '../../icons/ClockIcon';
-import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../../navigation/constants';
-import Alarms from '../../alarms/Alarms';
-import UserActivity from '../UserActivity';
-import OverlayScreen from '../OverlayScreen';
-import { getAlarmNotifyStatus } from '../../../store/app/selectors';
-import PowerIndicator from '../PowerIndicator';
-import HeaderClock from '../HeaderClock';
+import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../constants';
+import PowerIndicator from '../../toolbar/PowerIndicator';
+import HeaderClock from '../../toolbar/HeaderClock';
+import { getAlarmNotifyStatus } from '../../../../store/app/selectors';
+import { getParametersIsVentilating } from '../../../../store/controller/selectors';
+import Alarms from '../../../alarms/Alarms';
+import ClockIcon from '../../../icons/ClockIcon';
+import OverlayScreen from '../../OverlayScreen';
+import UserActivity from '../../UserActivity';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

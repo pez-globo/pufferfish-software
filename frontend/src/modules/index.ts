@@ -6,4 +6,4 @@ export * from './alarms/limits/AlarmLimitsPage';
 export * from './app';
 export * from './controllers';
 export * from './displays';
-export * from './landing-page/LandingPage';
+export * from './app/landing-page/LandingPage';

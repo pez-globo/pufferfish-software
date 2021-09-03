@@ -6,4 +6,3 @@
  */
 export * from './MultiStepWizard';
 export * from './ModalPopup';
-export * from './DiscardAlarmLimitsContent';

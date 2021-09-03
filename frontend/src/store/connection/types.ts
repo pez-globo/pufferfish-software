@@ -16,6 +16,7 @@ export const BACKEND_CONNECTION_UP = '@connection/BACKEND_CONNECTION_UP';
 
 interface BackendConnectionDown {
   type: typeof BACKEND_CONNECTION_DOWN;
+  lastBackendConnectionTime: number;
 }
 
 interface BackendConnectionUp {

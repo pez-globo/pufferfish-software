@@ -8,11 +8,11 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { PropsWithChildren, useEffect } from 'react';
 import { Route, RouteProps } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import Sidebar from '../Sidebar';
-import ToolBar from '../ToolBar';
-import UserActivity from '../UserActivity';
-import OverlayScreen from '../OverlayScreen';
-import { getAlarmNotifyStatus } from '../../../store/app/selectors';
+import Sidebar from '../../sidebar/Sidebar';
+import ToolBar from '../../toolbar/ToolBar';
+import UserActivity from '../../UserActivity';
+import OverlayScreen from '../../OverlayScreen';
+import { getAlarmNotifyStatus } from '../../../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

@@ -5,15 +5,15 @@
 import { Grid, makeStyles, Theme, Typography, useTheme } from '@material-ui/core';
 import React, { RefObject, useCallback, useEffect, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
-import { getAlarmLimitsRequest } from '../../store/controller/selectors';
-import { Range, AlarmLimitsRequest } from '../../store/proto/mcu_pb';
-import { MessageType } from '../../store/proto/types';
-import ModalPopup from '../modals/ModalPopup';
-import ValueClicker from './ValueClicker';
-import ValueSlider from './ValueSlider';
-import useRotaryReference from '../utils/useRotaryReference';
-import { setActiveRotaryReference } from '../app/Service';
+import { commitRequest, commitDraftRequest } from '../../../store/controller/actions';
+import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
+import { Range, AlarmLimitsRequest } from '../../../store/proto/mcu_pb';
+import { MessageType } from '../../../store/proto/types';
+import ModalPopup from '../../modals/ModalPopup';
+import ValueClicker from '../../controllers/ValueClicker';
+import ValueSlider from '../../controllers/ValueSlider';
+import useRotaryReference from '../../utils/useRotaryReference';
+import { setActiveRotaryReference } from '../../app/Service';
 
 const useStyles = makeStyles((theme: Theme) => ({
   contentContainer: {

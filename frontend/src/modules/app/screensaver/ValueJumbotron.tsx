@@ -1,10 +1,11 @@
 /**
- * @summary Component wrapper to display Sensor Measurement's Controls in Screensaver
+ * @summary Component wrapper to display Sensor Measurement's Value in Screensaver
  *
  */
-import React from 'react';
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
-import { SelectorType, ValueSelectorDisplay } from '../displays/ValueSelectorDisplay';
+import React from 'react';
+import { ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
+import { SelectorProps } from './ControlJumbotron';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -22,18 +23,18 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexGrow: 1,
     // border: '1px solid yellow',
   },
-  ControlLabel: {
-    fontSize: '4.5rem',
-    // border: '1px solid red',
-    fontWeight: 'lighter',
-    lineHeight: '.9',
+  valueLabel: {
+    fontSize: '8rem',
     margin: '0 auto',
+    fontWeight: 'initial',
+    // border: '1px solid red',
   },
   unitsLabel: {
     fontWeight: 100,
     paddingLeft: theme.spacing(0),
     // paddingTop: theme.spacing(4),
     color: theme.palette.grey[400],
+    textAlign: 'center',
     // border: '1px solid red'
   },
   labelItems: {
@@ -43,38 +44,26 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 /**
- * @typedef SelectorProps
+ * ValueJumbotron
  *
- * Interface for the Control Jumbotron
- *
- * @prop {SelectorType} selector Redux Selector
- * @prop {number} decimal Number of Decimals on the value
- * @prop {string} label Value label
- * @prop {string} units Unit measurement of value to display
- */
-export interface SelectorProps {
-  selector: SelectorType;
-  decimal?: number;
-  label: string;
-  units?: string;
-}
-
-/**
- * ControlJumbotron
- *
- * @component A component for displaying a single value with large font size.
+ * @component A component for displays a single value with a large font size.
  *
  * Uses the [[SelectorProps]] interface
  *
  * @returns {JSX.Element}
  */
-export const ControlJumbotron = ({ selector, label, units = '' }: SelectorProps): JSX.Element => {
+export const ValueJumbotron = ({
+  selector,
+  label,
+  units = '',
+  decimal = 0,
+}: SelectorProps): JSX.Element => {
   const classes = useStyles();
 
   return (
     <Grid container className={classes.root}>
       <Grid item style={{ width: '100%' }} className={classes.labelItems}>
-        <Typography variant="h3" style={{ fontWeight: 'bold', fontSize: '1.8rem' }}>
+        <Typography variant="h3" style={{ fontWeight: 'bold', fontSize: '4rem' }}>
           {label}
         </Typography>
       </Grid>
@@ -86,12 +75,12 @@ export const ControlJumbotron = ({ selector, label, units = '' }: SelectorProps)
         className={classes.displayContainer}
         wrap="nowrap"
       >
-        <Typography variant="h1" className={classes.ControlLabel}>
-          <ValueSelectorDisplay selector={selector} />
+        <Typography align="left" variant="h1" className={classes.valueLabel}>
+          <ValueSelectorDisplay decimal={decimal} selector={selector} />
         </Typography>
       </Grid>
       <Grid item style={{ width: '100%' }}>
-        <Typography variant="h4" className={classes.unitsLabel} style={{ fontSize: '1.3rem' }}>
+        <Typography align="left" variant="h4" className={classes.unitsLabel}>
           {units}
         </Typography>
       </Grid>
@@ -99,4 +88,4 @@ export const ControlJumbotron = ({ selector, label, units = '' }: SelectorProps)
   );
 };
 
-export default ControlJumbotron;
+export default ValueJumbotron;

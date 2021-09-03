@@ -30,7 +30,7 @@ import { ParametersRequest, AlarmLimitsRequest, Range } from '../../store/proto/
 import { MessageType } from '../../store/proto/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import ValueModalContent from '../controllers/ValueModal';
-import { AlarmModalContent } from '../controllers/AlarmModal';
+import { AlarmModalContent } from '../alarms/modal/AlarmModal';
 
 /**
  * @typedef InternalState
