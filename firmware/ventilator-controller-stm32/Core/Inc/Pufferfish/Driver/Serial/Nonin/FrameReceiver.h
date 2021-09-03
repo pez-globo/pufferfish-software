@@ -28,9 +28,10 @@ namespace Pufferfish::Driver::Serial::Nonin {
 
 /* FrameReceiver input status return values */
 enum class FrameInputStatus {
-  ok = 0,           /// Input is ready to receive new bytes of sensor data
-  checksum_failed,  /// Error in checksum or status byte or in byte 1 of a frame
-  output_ready      /// frame is available
+  ok = 0,            /// Input is ready to receive new bytes of sensor data
+  invalid_header,    /// Error in status byte or in byte 1 of a frame
+  invalid_checksum,  /// Error in frame checksum
+  output_ready       /// frame is available
 };
 
 /* FrameReceiver output status return values */
@@ -70,17 +71,15 @@ class FrameReceiver {
   FrameInputStatus input_status_ = FrameInputStatus::ok;
   FrameBuffer frame_buf_;
 
-  /* Variable that validates the start of frame
-     true : Start of frame packet is available reading the consicutive frame are
-     possible false: Start of frame packet is not available , false is set in
-     the beginning of reading bytes and on there is loss of bytes in a frame or
-     noise occurred in recived frame due to which the validation of start of
-     frame is called */
-  bool start_of_frame_status_ = false;
+  // Variable that validates the start of frame:
+  // if the bytes at the start of a frame are valid, set 'at_start_of_frame_' to 'true',
+  // and therefore we can read the subsequent bytes.
+  // Inititally set 'at_start_of_frame_` to 'false',
+  // so that we can 'validate' if there is noise or loss of bytes in the frame.
+  bool at_start_of_frame_ = false;
 };
 
-extern bool validate_start_of_frame(const Frame &new_frame);
-
-extern FrameInputStatus validate_frame(const Frame &new_frame);
+bool validate_frame_header(const Frame &new_frame, uint8_t mask);
+bool validate_frame_checksum(const Frame &new_frame);
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

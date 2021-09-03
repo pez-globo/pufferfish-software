@@ -90,6 +90,7 @@ static const uint8_t snsa = 0b1000;
 static const uint8_t yprf = 0b0110;
 static const uint8_t rprf = 0b0100;
 static const uint8_t gprf = 0b0010;
+static const uint8_t sync = 0b0001;
 }  // namespace StatusMasks
 
 namespace ByteIndex {
@@ -106,6 +107,23 @@ static const size_t hr_d = 19;
 static const size_t e_hr_d = 21;
 
 }  // namespace ByteIndex
+
+namespace FrameBytes {
+static const uint8_t header = 0;
+static const uint8_t status = 1;
+static const uint8_t pleth = 2;
+static const uint8_t data = 3;
+static const uint8_t checksum = 4;
+
+}  // namespace FrameBytes
+
+namespace Measurements {
+static const uint8_t spo2_mask = 0b0111'1111;
+static const uint8_t hr_mask_lsb = 0b0111'1111;
+static const uint8_t hr_mask_msb = 0b0000'0011;
+static const uint8_t hr_shift_msb = 7;
+static const uint16_t hr_mask = 0b1'1111'1111;
+}  // namespace Measurements
 
 namespace ErrorConstants {
 static const uint8_t spo2_missing = 127;

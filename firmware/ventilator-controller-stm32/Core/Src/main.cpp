@@ -61,6 +61,7 @@
 #include "Pufferfish/Driver/Serial/Backend/UART.h"
 #include "Pufferfish/Driver/Serial/FDO2/Sensor.h"
 #include "Pufferfish/Driver/Serial/Nonin/Sensor.h"
+#include "Pufferfish/Driver/Serial/Nonin/SensorAlarmService.h"
 #include "Pufferfish/Driver/ShiftedOutput.h"
 #include "Pufferfish/HAL/Endian.h"
 #include "Pufferfish/HAL/STM32/HAL.h"
@@ -335,7 +336,7 @@ PF::Driver::Serial::FDO2::Sensor fdo2(fdo2_dev, hal_time);
 
 // Nonin OEM III
 PF::Driver::Serial::Nonin::Device nonin_oem_dev(nonin_oem_uart);
-PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev);
+PF::Driver::Serial::Nonin::Sensor nonin_oem(nonin_oem_dev, hal_time);
 
 // LTC4015
 PF::Driver::I2C::LTC4015::Device ltc4015_dev(i2c_hal_ltc4015);
@@ -607,6 +608,7 @@ int main(void)
   board_led1.write(false);
 
   // Configure the simulators
+  PF::Driver::Serial::Nonin::SensorConnections sensor_connections{};
   PF::Driver::BreathingCircuit::SensorStates breathing_circuit_sensor_states{};
   uint32_t discard_i = 0;
   float discard_f = 0;
@@ -615,9 +617,11 @@ int main(void)
   breathing_circuit_sensor_states.sfm3019_o2 =
       sfm3019_o2.output(discard_f) == PF::InitializableState::ok;
   breathing_circuit_sensor_states.fdo2 = fdo2.output(discard_i) == PF::InitializableState::ok;
-  breathing_circuit_sensor_states.nonin_oem =
-      nonin_oem.output(discard_f, discard_f) == PF::InitializableState::ok;
   bool ltc4015_status = ltc4015.output(store.mcu_power_status()) == PF::InitializableState::ok;
+  // Reset nonin timer
+  nonin_oem.post_setup_reset();
+  breathing_circuit_sensor_states.nonin_oem =
+      nonin_oem.output(sensor_connections, discard_f, discard_f) == PF::InitializableState::ok;
 
   // Normal loop
   while (true) {
@@ -648,7 +652,12 @@ int main(void)
 
     // Independent Sensors
     fdo2.output(hfnc.sensor_vars().po2);
-    nonin_oem.output(store.sensor_measurements_raw().spo2, store.sensor_measurements_raw().hr);
+    auto nonin_status = nonin_oem.output(
+        sensor_connections,
+        store.sensor_measurements_raw().spo2,
+        store.sensor_measurements_raw().hr);
+    PF::Driver::Serial::Nonin::SensorAlarmsService::transform(
+        nonin_status, sensor_connections, alarms_manager);
     // *temporary* should be used in the breathing circuit
     abp.output(hfnc.sensor_vars().p_out_above_atm);
 

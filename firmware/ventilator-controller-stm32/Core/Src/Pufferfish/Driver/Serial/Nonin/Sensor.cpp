@@ -1,5 +1,5 @@
 /*
- * StateMachine.cpp
+ * Sensor.cpp
  *
  *  Created on: June 6, 2020
  *      Author: Ethan Li
@@ -9,39 +9,82 @@
 
 #include <cmath>
 
-#include "Pufferfish/HAL/Interfaces/Time.h"
-#include "Pufferfish/Util/Timeouts.h"
-
 namespace Pufferfish::Driver::Serial::Nonin {
 
-static const uint8_t value_unavailable = 127;
+bool find_any_true(const Flags &measurement) {
+  const auto *it = std::find(measurement.begin(), measurement.end(), true);
+  return it != measurement.end();
+}
 
 // Sensor
 
 InitializableState Sensor::setup() {
-  setup_ = true;
-  float spo2 = NAN;
-  float hr = NAN;
-  return output(spo2, hr);
+  if (prev_state_ != InitializableState::setup) {
+    return prev_state_;
+  }
+
+  switch (device_.output(measurements_)) {
+    case PacketStatus::ok:
+      waiting_timer_.reset(time_.millis());
+      prev_state_ = InitializableState::ok;
+      return prev_state_;
+    case PacketStatus::invalid_checksum:
+    case PacketStatus::invalid_header:
+    case PacketStatus::waiting:
+    case PacketStatus::frame_loss:
+      if (!waiting_timer_.within_timeout(time_.millis())) {
+        prev_state_ = InitializableState::failed;
+        return prev_state_;
+      }
+      break;
+  }
+
+  prev_state_ = InitializableState::setup;
+  return prev_state_;
 }
 
-InitializableState Sensor::output(float &spo2, float &hr) {
-  if (!setup_) {
+void Sensor::post_setup_reset() {
+  waiting_timer_.reset(time_.millis());
+}
+
+InitializableState Sensor::output(SensorConnections &sensor_connections, float &spo2, float &hr) {
+  if (prev_state_ != InitializableState::ok) {
     return InitializableState::failed;
   }
 
-  if (device_.output(measurements_) == PacketStatus::ok) {
-    if (measurements_.e_spo2_d == value_unavailable) {
-      spo2 = NAN;
-    } else {
-      spo2 = measurements_.e_spo2_d;
-    }
-    if (measurements_.e_hr_d == value_unavailable) {
-      hr = NAN;
-    } else {
-      hr = measurements_.e_hr_d;
-    }
+  switch (device_.output(measurements_)) {
+    case PacketStatus::invalid_checksum:
+    case PacketStatus::invalid_header:
+    case PacketStatus::waiting:
+    case PacketStatus::frame_loss:
+      if (!waiting_timer_.within_timeout(time_.millis())) {
+        prev_state_ = InitializableState::failed;
+        return prev_state_;
+      }
+      prev_state_ = InitializableState::ok;
+      return prev_state_;
+    case PacketStatus::ok:
+      waiting_timer_.reset(time_.millis());
+      break;
   }
+
+  // measurements status
+  sensor_connections.finger_sensor_disconnected = find_any_true(measurements_.sensor_disconnect);
+  sensor_connections.sensor_alarm = find_any_true(measurements_.sensor_alarm);
+  sensor_connections.out_of_track = find_any_true(measurements_.out_of_track);
+
+  if (measurements_.e_spo2_d == ErrorConstants::spo2_missing) {
+    spo2 = NAN;
+  } else {
+    spo2 = measurements_.e_spo2_d;
+  }
+
+  if (measurements_.e_hr_d == ErrorConstants::hr_missing) {
+    hr = NAN;
+  } else {
+    hr = measurements_.e_hr_d;
+  }
+
   return InitializableState::ok;
 }
 

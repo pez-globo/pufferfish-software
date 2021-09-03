@@ -43,8 +43,7 @@ using PacketOutputStatus = Pufferfish::Driver::Serial::Nonin::FrameOutputStatus;
  * @return Masked value of SpO2 from input Spo2Data
  */
 inline uint16_t get_spo2_data(uint8_t byte_data) {
-  /* Mask Bit0 to Bit6 for SpO2 data  */
-  return byte_data & ErrorConstants::spo2_missing;
+  return byte_data & Measurements::spo2_mask;
 }
 
 /**
@@ -54,14 +53,12 @@ inline uint16_t get_spo2_data(uint8_t byte_data) {
  * @return Calculated 9 bit data from MSB and LSB
  */
 inline uint16_t get_hr_data(uint8_t msb_byte, uint8_t lsb_byte) {
-  /* Pack 2 bits of MSB and 6 bits of LSB for 9 bits of heart rate data  */
-  static const uint16_t msb_shift = 7;
-  static const uint16_t mask_msb = 0x18;
+  /* Pack 2 bits of MSB and 7 bits of LSB for 9 bits of heart rate data  */
+  uint16_t msb = static_cast<uint16_t>(msb_byte & Measurements::hr_mask_msb)
+                 << Measurements::hr_shift_msb;
+  uint16_t lsb = lsb_byte & Measurements::hr_mask_lsb;
 
-  const uint16_t msb =
-      static_cast<uint16_t>(static_cast<uint16_t>(msb_byte) << msb_shift) & mask_msb;
-  const uint16_t lsb = static_cast<uint16_t>(lsb_byte) & ErrorConstants::spo2_missing;
-  return static_cast<uint16_t>(msb | lsb) & ErrorConstants::hr_missing;
+  return static_cast<uint16_t>(msb | lsb) & Measurements::hr_mask;
 }
 
 /*
@@ -95,5 +92,7 @@ class PacketReceiver {
 
 extern void read_status_byte(
     Sample &sensor_measurements, const size_t &frame_index, const uint8_t &byte_value);
+
+bool check_packet_sync(const Frame &frame);
 
 }  // namespace Pufferfish::Driver::Serial::Nonin

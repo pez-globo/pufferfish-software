@@ -87,6 +87,10 @@ class LogEventCode(betterproto.Enum):
     sfm3019_air_disconnected = 160
     sfm3019_o2_disconnected = 161
     fdo2_disconnected = 162
+    nonin_disconnected = 163
+    nonin_finger_sensor_disconnected = 164
+    nonin_sensor_alarm = 165
+    nonin_out_of_track_measurements = 166
 
 
 class LogEventType(betterproto.Enum):
