@@ -117,6 +117,14 @@ static const uint8_t checksum = 4;
 
 }  // namespace FrameBytes
 
+namespace Measurements {
+static const uint8_t spo2_mask = 0b0111'1111;
+static const uint8_t hr_mask_lsb = 0b0111'1111;
+static const uint8_t hr_mask_msb = 0b0000'0011;
+static const uint8_t hr_shift_msb = 7;
+static const uint16_t hr_mask = 0b1'1111'1111;
+}  // namespace Measurements
+
 namespace ErrorConstants {
 static const uint8_t spo2_missing = 127;
 static const uint16_t hr_missing = 511;

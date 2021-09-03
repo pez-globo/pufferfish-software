@@ -79,7 +79,7 @@ InitializableState Sensor::output(SensorConnections &sensor_connections, float &
     spo2 = measurements_.e_spo2_d;
   }
 
-  if (measurements_.e_hr_d == ErrorConstants::spo2_missing) {
+  if (measurements_.e_hr_d == ErrorConstants::hr_missing) {
     hr = NAN;
   } else {
     hr = measurements_.e_hr_d;

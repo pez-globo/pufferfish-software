@@ -49,6 +49,9 @@ export const eventDetailsMap = new Map<LogEventCode, string>([
   [LogEventCode.sfm3019_o2_disconnected, 'O2 flow sensor connection lost'],
   [LogEventCode.fdo2_disconnected, 'O2 concentration sensor connection lost'],
   [LogEventCode.nonin_disconnected, 'SpO2 and HR sensor connection lost'],
+  [LogEventCode.nonin_finger_sensor_disconnected, 'SpO2 and HR sensor unplugged'],
+  [LogEventCode.nonin_sensor_alarm, 'SpO2 and HR sensor providing unusable data'],
+  [LogEventCode.nonin_out_of_track_measurements, 'SpO2 and HR sensor not detecting finger'],
 ]);
 
 export const EventTypeMap = new Map<LogEventCode, EventType>([
@@ -426,6 +429,27 @@ export const EventTypeMap = new Map<LogEventCode, EventType>([
     {
       type: LogEventType.system,
       label: 'Internal sensor failed',
+    },
+  ],
+  [
+    LogEventCode.nonin_finger_sensor_disconnected,
+    {
+      type: LogEventType.system,
+      label: 'Sensor unplugged',
+    },
+  ],
+  [
+    LogEventCode.nonin_sensor_alarm,
+    {
+      type: LogEventType.system,
+      label: 'External sensor failed',
+    },
+  ],
+  [
+    LogEventCode.nonin_out_of_track_measurements,
+    {
+      type: LogEventType.system,
+      label: 'External sensor disconnected',
     },
   ],
 ]);

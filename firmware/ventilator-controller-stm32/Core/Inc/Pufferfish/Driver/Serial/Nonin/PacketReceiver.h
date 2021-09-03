@@ -43,8 +43,7 @@ using PacketOutputStatus = Pufferfish::Driver::Serial::Nonin::FrameOutputStatus;
  * @return Masked value of SpO2 from input Spo2Data
  */
 inline uint16_t get_spo2_data(uint8_t byte_data) {
-  /* Mask Bit0 to Bit6 for SpO2 data  */
-  return byte_data & ErrorConstants::spo2_missing;
+  return byte_data & Measurements::spo2_mask;
 }
 
 /**
@@ -55,13 +54,11 @@ inline uint16_t get_spo2_data(uint8_t byte_data) {
  */
 inline uint16_t get_hr_data(uint8_t msb_byte, uint8_t lsb_byte) {
   /* Pack 2 bits of MSB and 7 bits of LSB for 9 bits of heart rate data  */
-  static const uint8_t lsb_shift = 8;
-  static const uint8_t mask_msb = 0b00000011;
+  uint16_t msb = static_cast<uint16_t>(msb_byte & Measurements::hr_mask_msb)
+                 << Measurements::hr_shift_msb;
+  uint16_t lsb = lsb_byte & Measurements::hr_mask_lsb;
 
-  uint8_t msb = msb_byte & mask_msb;
-  uint8_t lsb = get_spo2_data(lsb_byte) << lsb_shift;
-
-  return static_cast<uint16_t>(msb | lsb) & ErrorConstants::hr_missing;
+  return static_cast<uint16_t>(msb | lsb) & Measurements::hr_mask;
 }
 
 /*
