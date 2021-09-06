@@ -9,7 +9,6 @@
 #include "Pufferfish/Driver/I2C/SFM3019/Device.h"
 
 #include <array>
-#include <iostream>
 
 #include "Pufferfish/HAL/Interfaces/Endian.h"
 #include "Pufferfish/Util/Endian.h"
@@ -64,7 +63,7 @@ I2CDeviceStatus Device::read_conversion_factors(ConversionFactors &conversion) {
   return I2CDeviceStatus::ok;
 }
 
-I2CDeviceStatus Device::read_sample(ConversionFactors &conversion, Sample &sample) {
+I2CDeviceStatus Device::read_sample(const ConversionFactors &conversion, Sample &sample) {
   // read flow raw
   std::array<uint8_t, sizeof(uint16_t)> buffer{};
   I2CDeviceStatus ret = sensirion_.read(buffer);

@@ -75,7 +75,7 @@ class Device {
    * @param sample[out] the sensor reading; only valid on success
    * @return ok on success, error code otherwise
    */
-  I2CDeviceStatus read_sample(ConversionFactors &conversion, Sample &sample);
+  I2CDeviceStatus read_sample(const ConversionFactors &conversion, Sample &sample);
 
   /**
    * Causes a global I2C device reset
