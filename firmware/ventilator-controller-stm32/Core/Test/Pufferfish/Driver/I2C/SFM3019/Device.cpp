@@ -763,7 +763,7 @@ SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when read_sample fun
     PF::Util::Containers::ByteVector<buffer_size> global_buffer;
     size_t count = buffer_size;
     PF::Driver::I2C::SFM3019::ConversionFactors conversion;
-    PF::Driver::I2C::SFM3019::Sample sample;
+    PF::Driver::I2C::SFM3019::Sample sample{};
     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
     auto input_data = PF::Util::Containers::make_array<uint8_t>(0xae, 0xdc, 0x6a);
     mock_device.add_read(input_data.data(), input_data.size());
@@ -1002,6 +1002,10 @@ SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when read_sample fun
       }
     }
   }
+}
+SCENARIO(
+    "SFM3019 Device:: SFM3019 device behaves correctly when read_sample function is called with "
+    "'x1535a8' buffer") {
   GIVEN(
       "A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter") {
     PF::HAL::Mock::I2CDevice mock_device;
@@ -1011,7 +1015,7 @@ SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when read_sample fun
     PF::Util::Containers::ByteVector<buffer_size> global_buffer;
     size_t count = buffer_size;
     PF::Driver::I2C::SFM3019::ConversionFactors conversion;
-    PF::Driver::I2C::SFM3019::Sample sample;
+    PF::Driver::I2C::SFM3019::Sample sample{};
     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x15, 0x35, 0xa8);
     mock_device.add_read(input_data.data(), input_data.size());
@@ -1055,6 +1059,10 @@ SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when read_sample fun
       }
     }
   }
+}
+SCENARIO(
+    "SFM3019 Device:: SFM3019 device behaves correctly when read_sample function is called with "
+    "different buffer") {
   GIVEN(
       "A SFM3019 device constructed with a mock I2C device, global I2C device and gas parameter") {
     PF::HAL::Mock::I2CDevice mock_device;
@@ -1064,7 +1072,7 @@ SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when read_sample fun
     PF::Util::Containers::ByteVector<buffer_size> global_buffer;
     size_t count = buffer_size;
     PF::Driver::I2C::SFM3019::ConversionFactors conversion;
-    PF::Driver::I2C::SFM3019::Sample sample;
+    PF::Driver::I2C::SFM3019::Sample sample{};
     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x74, 0x6f, 0xac);
     mock_device.add_read(input_data.data(), input_data.size());
