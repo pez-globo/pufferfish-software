@@ -64,6 +64,11 @@ class Device {
   I2CDeviceStatus read_conversion_factors(ConversionFactors &conversion);
 
   /**
+   * Requests the product id
+   * @return ok on success, error code otherwise
+   */
+  I2CDeviceStatus request_product_id();
+  /**
    * Reads out the product id
    * @param sn[out] the unique serial number
    * @return ok on success, error code otherwise

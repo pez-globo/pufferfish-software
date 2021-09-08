@@ -25,12 +25,11 @@ I2CDeviceStatus Device::stop_measure() {
   return sensirion_.write(static_cast<uint16_t>(Command::stop_measure));
 }
 
-I2CDeviceStatus Device::read_product_id(uint32_t &product_number) {
-  I2CDeviceStatus ret = sensirion_.write(static_cast<uint16_t>(Command::read_product_id));
-  if (ret != I2CDeviceStatus::ok) {
-    return ret;
-  }
+I2CDeviceStatus Device::request_product_id() {
+  return sensirion_.write(static_cast<uint16_t>(Command::read_product_id));
+}
 
+I2CDeviceStatus Device::read_product_id(uint32_t &product_number) {
   std::array<uint8_t, sizeof(uint32_t)> buffer{};
   I2CDeviceStatus ret2 = sensirion_.read(buffer);
   if (ret2 != I2CDeviceStatus::ok) {

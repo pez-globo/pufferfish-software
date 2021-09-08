@@ -56,6 +56,7 @@ class I2CDevice : public Interfaces::I2CDevice {
    * @param count   the number of bytes to be read
    * @return ok on success, error code otherwise
    */
+  // TODO(lietk12): Add implementation of this method
   I2CDeviceStatus read(uint16_t address, uint8_t *buf, size_t count) override;
 
   /**
