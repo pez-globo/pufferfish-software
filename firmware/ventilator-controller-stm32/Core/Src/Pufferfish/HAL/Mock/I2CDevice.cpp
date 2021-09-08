@@ -44,6 +44,7 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
 }
 
 // TODO(lietk12): Add implementation of this method
+// NOLINTNEXTLINE(misc-unused-parameters)
 I2CDeviceStatus I2CDevice::read(uint16_t address, uint8_t *buf, size_t count) {
   return I2CDeviceStatus::ok;
 }
