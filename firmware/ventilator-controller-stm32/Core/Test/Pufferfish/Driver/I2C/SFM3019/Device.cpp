@@ -789,7 +789,7 @@ SCENARIO(
       mock_device.add_read(input_data.data(), input_data.size());
       auto read_buffer = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
       mock_device.add_read(read_buffer.data(), read_buffer.size());
-      uint32_t product_id;
+      uint32_t product_id = 0;
       auto status = device.read_product_id(product_id);
       THEN("The read_product_id function returns ok status") {
         REQUIRE(status == PF::I2CDeviceStatus::ok);
