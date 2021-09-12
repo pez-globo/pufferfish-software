@@ -9,7 +9,7 @@ import { commitRequest, commitDraftRequest } from '../../../store/controller/act
 import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
 import { Range, AlarmLimitsRequest } from '../../../store/proto/mcu_pb';
 import { MessageType } from '../../../store/proto/types';
-import ModalPopup from '../../modals/ModalPopup';
+import ModalPopup from '../../shared/ModalPopup';
 import ValueClicker from '../../controllers/ValueClicker';
 import ValueSlider from '../../controllers/ValueSlider';
 import useRotaryReference from '../../shared/useRotaryReference';

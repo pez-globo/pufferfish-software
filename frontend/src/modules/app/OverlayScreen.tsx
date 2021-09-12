@@ -17,7 +17,7 @@ import {
 } from '../../store/controller/selectors';
 import { MessageType } from '../../store/proto/types';
 
-import ModalPopup from '../modals/ModalPopup';
+import ModalPopup from '../shared/ModalPopup';
 import MultiStepWizard from '../modals/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { updateState } from '../../store/controller/actions';

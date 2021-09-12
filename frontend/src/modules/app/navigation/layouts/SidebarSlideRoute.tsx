@@ -18,7 +18,7 @@ import {
 import { AlarmLimitsRequest } from '../../../../store/proto/mcu_pb';
 import { MessageType } from '../../../../store/proto/types';
 import { DiscardAlarmLimitsContent } from '../../../alarms/modal';
-import { ModalPopup } from '../../../modals';
+import { ModalPopup } from '../../../shared';
 import OverlayScreen from '../../OverlayScreen';
 import SidebarClickable from '../../sidebar/SidebarClickable';
 import UserActivity from '../../UserActivity';

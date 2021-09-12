@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { makeStyles, Theme, Grid, Typography } from '@material-ui/core';
 import { shallowEqual, useSelector } from 'react-redux';
 import { getRotaryEncoder } from '../../store/controller/selectors';
-import RotaryEncodeController from './RotaryEncodeController';
+import RotaryEncodeController from '../shared/RotaryEncodeController';
 import ValueClicker from './ValueClicker';
 
 const useStyles = makeStyles((theme: Theme) => ({

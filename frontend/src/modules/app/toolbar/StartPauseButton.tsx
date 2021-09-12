@@ -23,7 +23,7 @@ import {
   Range,
 } from '../../../store/proto/mcu_pb';
 import { MessageType } from '../../../store/proto/types';
-import { ModalPopup } from '../../modals';
+import { ModalPopup } from '../../shared';
 import { QUICKSTART_ROUTE, DASHBOARD_ROUTE } from '../navigation/constants';
 import { DiscardAlarmLimitsContent } from '../../alarms/modal';
 import { getAlarmLimitsModalPopup, setAlarmLimitsModalPopup } from '../Service';
