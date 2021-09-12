@@ -19,3 +19,5 @@ export { default as ValueModal } from './ValueModal';
 export { default as ValueController } from './ValueClicker';
 export { default as ValueClicker } from './ValueClicker';
 export { default as SimpleTable } from './SimpleTable';
+export * from './ValueDisplay';
+export * from './ValueSelectorDisplay';

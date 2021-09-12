@@ -5,7 +5,7 @@ import { commitDraftRequest } from '../../store/controller/actions';
 import { ParametersRequest } from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/proto/types';
 import ValueSpinner from './ValueSpinner';
-import { SelectorType } from '../displays/ValueSelectorDisplay';
+import { SelectorType } from '../controllers/ValueSelectorDisplay';
 import {
   PEEP_REFERENCE_KEY,
   RR_REFERENCE_KEY,
