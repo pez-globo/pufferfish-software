@@ -18,7 +18,7 @@ import {
   getSmoothedSpO2,
   getSpO2AlarmLimitsCurrent,
 } from '../../../store/controller/selectors';
-import { BPM, LMIN, PERCENT } from '../../info/units';
+import { BPM, LMIN, PERCENT } from '../../shared/units';
 import ValueInfo from '../components/ValueInfo';
 
 const useStyles = makeStyles((theme: Theme) => ({

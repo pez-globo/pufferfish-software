@@ -20,7 +20,7 @@ import {
   getParametersRR,
   getSensorMeasurementsFiO2,
 } from '../../../store/controller/selectors';
-import { BMIN, CMH20, PERCENT } from '../../info/units';
+import { BMIN, CMH20, PERCENT } from '../../shared/units';
 import ValueInfo from '../components/ValueInfo';
 
 const useStyles = makeStyles((theme: Theme) => ({

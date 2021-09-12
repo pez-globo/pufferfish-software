@@ -10,7 +10,7 @@ import Power50Icon from '../../icons/Power50Icon';
 import Power75Icon from '../../icons/Power75Icon';
 import PowerChargingIcon from '../../icons/PowerChargingIcon';
 import PowerFullIcon from '../../icons/PowerFullIcon';
-import { PERCENT } from '../../info/units';
+import { PERCENT } from '../../shared/units';
 
 const useStyles = makeStyles((theme: Theme) => ({
   paddingRight: {

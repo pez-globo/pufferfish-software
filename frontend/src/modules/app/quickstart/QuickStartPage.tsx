@@ -18,7 +18,7 @@ import {
 } from '../../../store/controller/selectors';
 import { setActiveRotaryReference } from '../Service';
 import ModeBanner, { BannerType } from '../../modes/ModeBanner';
-import { BPM, LMIN, PERCENT } from '../../info/units';
+import { BPM, LMIN, PERCENT } from '../../shared/units';
 import {
   FIO2_REFERENCE_KEY,
   PEEP_REFERENCE_KEY,
