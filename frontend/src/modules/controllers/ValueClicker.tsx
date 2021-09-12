@@ -8,7 +8,7 @@ import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import { Subscription } from 'rxjs';
 import { setActiveRotaryReference, getActiveRotaryReference } from '../app/Service';
-import RotaryEncodeController from '../shared/RotaryEncodeController';
+import RotaryEncodeController from '../shared/rotary/RotaryEncodeController';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
