@@ -11,6 +11,5 @@
  * selector as input & shows the value fetching from redux store using selector )
  */
 export * from './Carousel';
-export * from './ModeBanner';
 export * from './ValueDisplay';
 export * from './ValueSelectorDisplay';

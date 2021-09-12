@@ -7,7 +7,7 @@
 import React from 'react';
 import { Button, Grid, makeStyles, Typography } from '@material-ui/core';
 import LogsPage from './LogsPage';
-import ModalPopup from '../modals/ModalPopup';
+import ModalPopup from '../shared/ModalPopup';
 import { AlarmMuteCountdown, AlarmMuteToggleButton } from '../alarms/muting/AlarmMuting';
 
 const useStyles = makeStyles(() => ({

@@ -12,7 +12,7 @@ import { MessageType } from '../../../store/proto/types';
 import ModalPopup from '../../modals/ModalPopup';
 import ValueClicker from '../../controllers/ValueClicker';
 import ValueSlider from '../../controllers/ValueSlider';
-import useRotaryReference from '../../utils/useRotaryReference';
+import useRotaryReference from '../../shared/useRotaryReference';
 import { setActiveRotaryReference } from '../../app/Service';
 
 const useStyles = makeStyles((theme: Theme) => ({

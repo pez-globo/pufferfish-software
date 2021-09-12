@@ -13,7 +13,7 @@ import {
   TV_REFERENCE_KEY,
   FLOW_REFERENCE_KEY,
 } from '../settings/containers/constants';
-import useRotaryReference from '../utils/useRotaryReference';
+import useRotaryReference from '../shared/useRotaryReference';
 
 interface ValueProps {
   selector: SelectorType;

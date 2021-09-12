@@ -5,4 +5,3 @@
  *
  */
 export * from './MultiStepWizard';
-export * from './ModalPopup';

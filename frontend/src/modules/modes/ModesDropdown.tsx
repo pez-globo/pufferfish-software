@@ -13,7 +13,7 @@ import { VentilationMode, ParametersRequest } from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/proto/types';
 import { commitRequest } from '../../store/controller/actions';
 import { getParametersRequestMode } from '../../store/controller/selectors';
-import { getModeText } from '../displays/ModeBanner';
+import { getModeText } from './ModeBanner';
 
 const useStyles = makeStyles(() => ({
   button: {

@@ -30,7 +30,7 @@ import {
   DAY_REFERENCE_KEY,
   YEAR_REFERENCE_KEY,
 } from './constants';
-import { useRotaryReference } from '../../utils/useRotaryReference';
+import { useRotaryReference } from '../../shared/useRotaryReference';
 import { setActiveRotaryReference } from '../../app/Service';
 
 const useStyles = makeStyles((theme: Theme) => ({
