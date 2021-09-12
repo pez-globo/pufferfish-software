@@ -19,7 +19,7 @@ import SimpleTable, {
   Order,
   stableSort,
   StyledTableRow,
-} from '../controllers/SimpleTable';
+} from '../shared/SimpleTable';
 import EventlogDetails from './container/EventlogDetails';
 import { getEventDetails, getEventType } from './EventType';
 
