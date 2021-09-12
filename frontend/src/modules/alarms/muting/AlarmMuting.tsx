@@ -2,7 +2,6 @@
  * @summary UI components for alarm muting
  *
  * @file Provides buttons for toggling and showing alarm mute status.
- * TODO: move this file to a better place. Maybe it belongs in a feature slice
  * specifically for alarm muting.
  *
  */
