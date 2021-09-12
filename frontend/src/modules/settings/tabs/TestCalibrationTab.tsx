@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import { Grid, makeStyles, Theme } from '@material-ui/core';
-import TestTool from '../../controllers/TestTool';
+import TestTool from '../../shared/TestTool';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

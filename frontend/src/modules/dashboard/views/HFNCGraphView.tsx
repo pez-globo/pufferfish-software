@@ -16,7 +16,7 @@ import {
   getSmoothedSpO2,
   getSmoothedHR,
 } from '../../../store/controller/selectors';
-import { a11yProps, TabPanel } from '../../controllers/TabPanel';
+import { a11yProps, TabPanel } from '../../shared/TabPanel';
 import { BPM, LMIN, PERCENT } from '../../shared/units';
 import { FlowGraphInfo, PawGraphInfo, VolumeGraphInfo } from '../containers';
 import ControlInfo from '../components/ControlInfo';

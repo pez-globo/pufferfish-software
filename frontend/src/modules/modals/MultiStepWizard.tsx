@@ -23,7 +23,7 @@ import {
   getFiO2AlarmLimitsDraft,
   getFlowAlarmLimitsDraft,
 } from '../../store/controller/selectors';
-import { a11yProps, TabPanel } from '../controllers/TabPanel';
+import { a11yProps, TabPanel } from '../shared/TabPanel';
 import ValueInfo from '../dashboard/components/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../shared/units';
 import { ParametersRequest, AlarmLimitsRequest, Range } from '../../store/proto/mcu_pb';

@@ -8,7 +8,7 @@ import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Tabs, Tab, Typography, Button } from '@material-ui/core';
 import { PawGraphInfo, FlowGraphInfo, VolumeGraphInfo } from '../containers';
-import { TabPanel, a11yProps } from '../../controllers/TabPanel';
+import { TabPanel, a11yProps } from '../../shared/TabPanel';
 import ControlInfo from '../components/ControlInfo';
 import {
   getCycleMeasurementsPEEP,

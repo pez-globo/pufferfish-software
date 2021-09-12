@@ -12,7 +12,7 @@ import { commitRequest } from '../../store/controller/actions';
 import { getSystemSettingsCurrentSeqNum } from '../../store/controller/selectors';
 import { FrontendDisplaySetting, SystemSettingsRequest } from '../../store/proto/frontend_pb';
 import { MessageType } from '../../store/proto/types';
-import { a11yProps, TabPanel } from '../controllers/TabPanel';
+import { a11yProps, TabPanel } from '../shared/TabPanel';
 import { DisplayTab, InfoTab, TestCalibrationTab } from './tabs';
 
 const useStyles = makeStyles((theme: Theme) => ({
