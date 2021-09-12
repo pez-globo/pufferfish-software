@@ -12,7 +12,7 @@ import PowerIndicator from '../../toolbar/PowerIndicator';
 import HeaderClock from '../../toolbar/HeaderClock';
 import { getAlarmNotifyStatus } from '../../../../store/app/selectors';
 import { getParametersIsVentilating } from '../../../../store/controller/selectors';
-import Alarms from '../../../alarms/Alarms';
+import Alarms from '../../toolbar/Alarms';
 import ClockIcon from '../../../icons/ClockIcon';
 import OverlayScreen from '../../OverlayScreen';
 import UserActivity from '../../UserActivity';

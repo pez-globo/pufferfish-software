@@ -12,7 +12,7 @@ import ViewDropdown from '../../dashboard/views/ViewDropdown';
 import ClockIcon from '../../icons/ClockIcon';
 import ModesDropdown from '../../modes/ModesDropdown';
 import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
-import Alarms from '../../alarms/Alarms';
+import Alarms from './Alarms';
 import StartButton, { StartButtonModalPopup } from './StartPauseButton';
 import HeaderClock from './HeaderClock';
 import PowerIndicator from './PowerIndicator';
