@@ -12,7 +12,7 @@ import {
   FIO2_REFERENCE_KEY,
   TV_REFERENCE_KEY,
   FLOW_REFERENCE_KEY,
-} from '../settings/containers/constants';
+} from '../settings/tabs/constants';
 import useRotaryReference from '../shared/useRotaryReference';
 
 interface ValueProps {
