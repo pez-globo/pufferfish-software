@@ -9,6 +9,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
 import ReplyIcon from '@material-ui/icons/Reply';
 // import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
+import { createSelector } from 'reselect';
 import ModalPopup from './ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
@@ -34,7 +35,6 @@ import { commitRequest, commitDraftRequest } from '../../store/controller/action
 import ValueModalContent from '../controllers/ValueModal';
 import { AlarmModalContent } from '../alarms/modal/AlarmModal';
 import { SelectorType } from '../displays';
-import { createSelector } from 'reselect';
 
 /**
  * @typedef InternalState

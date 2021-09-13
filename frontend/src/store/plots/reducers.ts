@@ -157,7 +157,7 @@ const pvHistoryReducer = (
   }
 };
 
-export const plotsReducer = combineReducers({
+const plotsReducer = combineReducers({
   plots: combineReducers({
     waveforms: combineReducers({
       paw: waveformHistoryReducer<SensorMeasurements>(
@@ -185,3 +185,5 @@ export const plotsReducer = combineReducers({
     pvLoop: pvHistoryReducer,
   }),
 });
+
+export default plotsReducer;

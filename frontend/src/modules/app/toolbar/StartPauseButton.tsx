@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector, shallowEqual, batch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Subscription } from 'rxjs';
+import { createSelector } from 'reselect';
 import { getBackendConnected } from '../../../store/connection/selectors';
 import { commitRequest, commitDraftRequest } from '../../../store/controller/actions';
 import {
@@ -33,7 +34,6 @@ import { ModalPopup } from '../../modals';
 import { QUICKSTART_ROUTE, DASHBOARD_ROUTE } from '../navigation/constants';
 import { DiscardAlarmLimitsContent } from '../../alarms/modal';
 import { getAlarmLimitsModalPopup, setAlarmLimitsModalPopup } from '../Service';
-import { createSelector } from 'reselect';
 
 const StartPauseButton = ({ staticStart }: { staticStart?: boolean }): JSX.Element => {
   const dispatch = useDispatch();
