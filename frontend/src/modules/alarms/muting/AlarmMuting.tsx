@@ -26,9 +26,9 @@ import {
   getFirmwareConnected,
 } from '../../../store/controller/selectors';
 import {
-  updateState,
   commitRequest,
   createEphemeralLogEvent,
+  receiveMessage,
 } from '../../../store/controller/actions';
 import { getBackendConnected } from '../../../store/connection/selectors';
 
@@ -159,7 +159,7 @@ export const AlarmMuteCanceller = (): JSX.Element => {
     // they detect a disconnection, and an alarm mute cannot be initiated during
     // a disconnection, so the entire system will always end up in a consistent
     // state where any alarm mute is cancelled
-    dispatch(updateState(MessageType.AlarmMute, { ...alarmMuteStatus, active: false }));
+    dispatch(receiveMessage(MessageType.AlarmMute, { ...alarmMuteStatus, active: false }));
     dispatch(
       createEphemeralLogEvent(
         LogEventCode.alarms_unmuted_frontend_backend_loss,
