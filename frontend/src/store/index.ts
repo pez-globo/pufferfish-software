@@ -6,7 +6,7 @@ import { appReducer } from './app/reducers';
 import { connectionSaga } from './connection/saga';
 import { connectionReducer } from './connection/reducers';
 import { controllerReducer } from './controller/reducers';
-import { plotsReducer } from './plots/reducers';
+import plotsReducer from './plots/reducers';
 
 const reducers = combineReducers({
   app: appReducer,
