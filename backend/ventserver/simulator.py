@@ -69,7 +69,9 @@ INITIAL_VALUES = {
         power_left=0, charging=True
     ),
     states.StateSegment.SCREEN_STATUS: mcu_pb.ScreenStatus(lock=False),
-    states.StateSegment.SCREEN_STATUS_REQUEST: mcu_pb.ScreenStatusRequest(lock=False),
+    states.StateSegment.SCREEN_STATUS_REQUEST: mcu_pb.ScreenStatusRequest(
+        lock=False
+    ),
     states.StateSegment.SYSTEM_SETTINGS: frontend_pb.SystemSettings(
         display_brightness=100, date=time.time(), seq_num=INITIAL_SEQ_NUM
     ),
