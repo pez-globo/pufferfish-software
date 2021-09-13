@@ -19,7 +19,7 @@ import { ThemeVariant, Unit } from '../../../store/proto/frontend_pb';
 import {
   getFrontendDisplaySetting,
   getSystemSettingsRequest,
-} from '../../../store/controller/selectors';
+} from '../../../store/controller/selectors/frontend_pb';
 import ValueSpinner from '../../controllers/ValueSpinner';
 import { ToggleValue } from '../../controllers/ToggleValue';
 import {

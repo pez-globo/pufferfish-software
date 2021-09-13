@@ -14,7 +14,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Switch } from 'react-router-dom';
-import { getParametersIsVentilating } from '../../../store/controller/selectors';
+import { getParametersIsVentilating } from '../../../store/controller/selectors/measurements';
 import AlarmLimitsPage from '../../alarms/limits/AlarmLimitsPage';
 import LandingPageRoute from './layouts/LandingPageRoute';
 import ScreensaverRoute from './layouts/ScreensaverRoute';

@@ -1,10 +1,9 @@
-import { SensorMeasurements } from '../../proto/mcu_pb';
-import { MessageType, PBMessage } from '../../proto/types';
-import { StateUpdateAction, STATE_UPDATED, WaveformHistory, PVHistory } from '../types';
+import { combineReducers } from 'redux';
+import { WaveformHistory, StateUpdateAction, STATE_UPDATED, PVHistory } from '../controller/types';
+import { SensorMeasurements } from '../proto/mcu_pb';
+import { MessageType, PBMessage } from '../proto/types';
 
-// TODO: move these reducers into store/plots/reducers.ts
-
-export const waveformHistoryReducer = <T extends PBMessage>(
+const waveformHistoryReducer = <T extends PBMessage>(
   messageType: MessageType,
   getTime: (values: T) => number,
   getValue: (values: T) => number,
@@ -117,7 +116,7 @@ export const waveformHistoryReducer = <T extends PBMessage>(
   }
 };
 
-export const pvHistoryReducer = (
+const pvHistoryReducer = (
   state: PVHistory = {
     loop: [],
     loopOrigin: {
@@ -157,3 +156,32 @@ export const pvHistoryReducer = (
       return state;
   }
 };
+
+export const plotsReducer = combineReducers({
+  plots: combineReducers({
+    waveforms: combineReducers({
+      paw: waveformHistoryReducer<SensorMeasurements>(
+        MessageType.SensorMeasurements,
+        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
+        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.paw,
+        60,
+        0,
+      ),
+      flow: waveformHistoryReducer<SensorMeasurements>(
+        MessageType.SensorMeasurements,
+        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
+        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.flow,
+        60,
+        20,
+      ),
+      volume: waveformHistoryReducer<SensorMeasurements>(
+        MessageType.SensorMeasurements,
+        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
+        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.volume,
+        60,
+        40,
+      ),
+    }),
+    pvLoop: pvHistoryReducer,
+  }),
+});

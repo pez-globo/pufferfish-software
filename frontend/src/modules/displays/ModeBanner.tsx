@@ -5,7 +5,7 @@
 import React from 'react';
 import { Grid, Typography, makeStyles, Theme } from '@material-ui/core';
 import { useSelector } from 'react-redux';
-import { getParametersRequestMode } from '../../store/controller/selectors';
+import { getParametersRequestMode } from '../../store/controller/selectors/measurements';
 import { VentilationMode } from '../../store/proto/mcu_pb';
 
 const useStyles = makeStyles((theme: Theme) => ({

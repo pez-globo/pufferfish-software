@@ -12,17 +12,19 @@ import ReplyIcon from '@material-ui/icons/Reply';
 import ModalPopup from './ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
-  getSmoothedSpO2,
-  getSmoothedHR,
+  getSpO2AlarmLimitsRequest,
+  getHRAlarmLimitsRequest,
+} from '../../store/controller/selectors';
+import {
   getParametersRequestDraftFiO2,
   getParametersRequestDraftFlow,
   getParametersFlow,
   getParametersFiO2,
-  getSpO2AlarmLimitsRequest,
-  getHRAlarmLimitsRequest,
-  getFiO2AlarmLimitsDraft,
-  getFlowAlarmLimitsDraft,
-} from '../../store/controller/selectors';
+} from '../../store/controller/selectors/measurements';
+import {
+  getSmoothedSpO2,
+  getSmoothedHR,
+} from '../../store/controller/selectors/derived_measurements';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';
 import ValueInfo from '../dashboard/components/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../info/units';
@@ -31,6 +33,8 @@ import { MessageType } from '../../store/proto/types';
 import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
 import ValueModalContent from '../controllers/ValueModal';
 import { AlarmModalContent } from '../alarms/modal/AlarmModal';
+import { SelectorType } from '../displays';
+import { createSelector } from 'reselect';
 
 /**
  * @typedef InternalState
@@ -861,5 +865,12 @@ const MultiStepWizard = (): JSX.Element => {
     </React.Fragment>
   );
 };
+
+const automaticAlarmLimitsRangeSelector = (selector: SelectorType, value: number) =>
+  createSelector(selector, (param: number) => {
+    return { lower: param - value, upper: param + value };
+  });
+const getFiO2AlarmLimitsDraft = automaticAlarmLimitsRangeSelector(getParametersRequestDraftFiO2, 2);
+const getFlowAlarmLimitsDraft = automaticAlarmLimitsRangeSelector(getParametersRequestDraftFlow, 2);
 
 export default MultiStepWizard;

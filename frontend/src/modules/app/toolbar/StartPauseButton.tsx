@@ -6,27 +6,34 @@ import { Subscription } from 'rxjs';
 import { getBackendConnected } from '../../../store/connection/selectors';
 import { commitRequest, commitDraftRequest } from '../../../store/controller/actions';
 import {
-  getStoreReady,
   getParametersIsVentilating,
   getVentilatingStatusChanging,
+  getParametersRequestMode,
+  getParametersRequestDraft,
+  getParametersRequest,
+} from '../../../store/controller/selectors/measurements';
+import {
   getAlarmLimitsRequestUnsaved,
   getFirmwareConnected,
-  getParametersRequestMode,
   getAlarmLimitsRequestDraft,
-  getParametersRequestDraft,
   getAlarmLimitsRequest,
+  getAlarmMuteRequest,
+  getAlarmMuteStatus,
 } from '../../../store/controller/selectors';
 import {
   ParametersRequest,
   VentilationMode,
   AlarmLimitsRequest,
   Range,
+  AlarmMute,
+  AlarmMuteRequest,
 } from '../../../store/proto/mcu_pb';
 import { MessageType } from '../../../store/proto/types';
 import { ModalPopup } from '../../modals';
 import { QUICKSTART_ROUTE, DASHBOARD_ROUTE } from '../navigation/constants';
 import { DiscardAlarmLimitsContent } from '../../alarms/modal';
 import { getAlarmLimitsModalPopup, setAlarmLimitsModalPopup } from '../Service';
+import { createSelector } from 'reselect';
 
 const StartPauseButton = ({ staticStart }: { staticStart?: boolean }): JSX.Element => {
   const dispatch = useDispatch();
@@ -228,5 +235,29 @@ export const StartButtonModalPopup = (): JSX.Element => {
     </ModalPopup>
   );
 };
+
+// Initialization
+const getStoreReady = createSelector(
+  getParametersRequest,
+  getAlarmLimitsRequest,
+  getAlarmMuteStatus,
+  getAlarmMuteRequest,
+  getBackendConnected,
+  getFirmwareConnected,
+  (
+    parametersRequest: ParametersRequest | null,
+    alarmLimitsRequest: AlarmLimitsRequest | null,
+    alarmMute: AlarmMute | null,
+    alarmMuteRequest: AlarmMuteRequest | null,
+    backendConnected: boolean,
+    firmwareConnected: boolean,
+  ): boolean =>
+    parametersRequest !== null &&
+    alarmLimitsRequest !== null &&
+    alarmMute !== null &&
+    alarmMuteRequest !== null &&
+    backendConnected &&
+    firmwareConnected,
+);
 
 export default StartPauseButton;

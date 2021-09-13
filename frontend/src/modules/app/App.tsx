@@ -13,7 +13,7 @@ import { createStructuredSelector } from 'reselect';
 import { initialize } from '../../store/app/actions';
 import { getLocale, getMessages } from '../../store/app/selectors';
 import { FrontendDisplaySetting, ThemeVariant } from '../../store/proto/frontend_pb';
-import { getFrontendDisplaySetting } from '../../store/controller/selectors';
+import { getFrontendDisplaySetting } from '../../store/controller/selectors/frontend_pb';
 import { StoreState } from '../../store/types';
 import { darkTheme, lightTheme } from '../../styles/customTheme';
 import Routes from './navigation/Routes';

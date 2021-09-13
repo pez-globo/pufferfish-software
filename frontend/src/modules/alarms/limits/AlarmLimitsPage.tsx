@@ -12,7 +12,7 @@ import Pagination from '@material-ui/lab/Pagination';
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { VentilationMode } from '../../../store/proto/mcu_pb';
-import { getParametersRequestMode } from '../../../store/controller/selectors';
+import { getParametersRequestMode } from '../../../store/controller/selectors/measurements';
 import { setActiveRotaryReference } from '../../app/Service';
 import ModeBanner, { BannerType } from '../../displays/ModeBanner';
 import { BPM, PERCENT } from '../../info/units';

@@ -8,7 +8,7 @@ import { Button, Grid, makeStyles, Theme } from '@material-ui/core';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { getParametersIsVentilating } from '../../../store/controller/selectors';
+import { getParametersIsVentilating } from '../../../store/controller/selectors/measurements';
 import { DASHBOARD_ROUTE, QUICKSTART_ROUTE, SCREENSAVER_ROUTE } from '../navigation/constants';
 import Navigation from '../navigation/Navigation';
 

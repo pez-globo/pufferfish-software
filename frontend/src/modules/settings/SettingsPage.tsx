@@ -9,7 +9,7 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { commitRequest } from '../../store/controller/actions';
-import { getSystemSettingsCurrentSeqNum } from '../../store/controller/selectors';
+import { getSystemSettingsCurrentSeqNum } from '../../store/controller/selectors/frontend_pb';
 import { FrontendDisplaySetting, SystemSettingsRequest } from '../../store/proto/frontend_pb';
 import { MessageType } from '../../store/proto/types';
 import { a11yProps, TabPanel } from '../controllers/TabPanel';

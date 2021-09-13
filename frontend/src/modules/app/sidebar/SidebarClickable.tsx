@@ -11,7 +11,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { updateState } from '../../../store/controller/actions';
-import { getParametersIsVentilating } from '../../../store/controller/selectors';
+import { getParametersIsVentilating } from '../../../store/controller/selectors/measurements';
 import { MessageType } from '../../../store/proto/types';
 import { HomeIcon } from '../../icons';
 import ShutdownIcon from '../../icons/ShutdownIcon';
