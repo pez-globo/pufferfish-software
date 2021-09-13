@@ -24,7 +24,7 @@ from ventserver.protocols.backend import alarms, log, server, states
 from ventserver.protocols.protobuf import frontend_pb, mcu_pb
 from ventserver.simulation import (
     alarm_limits, alarm_mute, alarms as sim_alarms,
-    parameters, power_management, simulators
+    parameters, power_management, simulators, screen_status
 )
 from ventserver import application
 
@@ -69,6 +69,7 @@ INITIAL_VALUES = {
         power_left=0, charging=True
     ),
     states.StateSegment.SCREEN_STATUS: mcu_pb.ScreenStatus(lock=False),
+    states.StateSegment.SCREEN_STATUS_REQUEST: mcu_pb.ScreenStatusRequest(lock=False),
     states.StateSegment.SYSTEM_SETTINGS: frontend_pb.SystemSettings(
         display_brightness=100, date=time.time(), seq_num=INITIAL_SEQ_NUM
     ),
@@ -134,6 +135,7 @@ async def simulate_states(
     power_service = power_management.Service()
     alarms_services = sim_alarms.Services()
     alarm_mute_service = alarm_mute.Service()
+    screen_status_service = screen_status.Service()
     active_log_events = typing.cast(
         mcu_pb.ActiveLogEvents,
         store[states.StateSegment.ACTIVE_LOG_EVENTS_MCU]
@@ -150,6 +152,7 @@ async def simulate_states(
         power_service.transform(store, simulated_log)
         alarms_services.transform(store, simulated_log)
         alarm_mute_service.transform(time.monotonic(), store, simulated_log)
+        screen_status_service.transform(store)
         audible_alarms = (
             len(active_log_events.id) > 0 and not alarm_mute_.active
         )

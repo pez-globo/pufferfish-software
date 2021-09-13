@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { commitRequest } from '../../../store/controller/actions';
 import { getParametersIsVentilating } from '../../../store/controller/selectors/measurements';
-import { ScreenStatus } from '../../../store/proto/mcu_pb';
+import { ScreenStatusRequest } from '../../../store/proto/mcu_pb';
 import { MessageType } from '../../../store/proto/types';
 import { HomeIcon } from '../../icons';
 import ShutdownIcon from '../../icons/ShutdownIcon';
@@ -90,7 +90,7 @@ const SidebarClickable = ({
   const lockScreen = () => {
     toggleStatus(false);
     dispatch(
-      commitRequest<ScreenStatus>(MessageType.ScreenStatus, { lock: true }),
+      commitRequest<ScreenStatusRequest>(MessageType.ScreenStatusRequest, { lock: true }),
     );
   };
 

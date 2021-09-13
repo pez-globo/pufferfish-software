@@ -278,6 +278,10 @@ message BackendConnections {
   bool has_frontend = 2;
 }
 
+message ScreenStatusRequest {
+  bool lock = 1;
+}
+
 message ScreenStatus {
   bool lock = 1;
 }

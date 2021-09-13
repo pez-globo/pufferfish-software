@@ -44,6 +44,7 @@ class StateSegment(enum.Enum):
     MCU_POWER_STATUS = enum.auto()
     BACKEND_CONNECTIONS = enum.auto()
     SCREEN_STATUS = enum.auto()
+    SCREEN_STATUS_REQUEST = enum.auto()
 
     # frontend_pb
     ROTARY_ENCODER = enum.auto()
@@ -96,6 +97,7 @@ FRONTEND_INPUT_TYPES: Mapping[Type[betterproto.Message], StateSegment] = {
     mcu_pb.AlarmLimitsRequest: StateSegment.ALARM_LIMITS_REQUEST,
     mcu_pb.ExpectedLogEvent: StateSegment.EXPECTED_LOG_EVENT_BE,
     mcu_pb.AlarmMuteRequest: StateSegment.ALARM_MUTE_REQUEST,
+    mcu_pb.ScreenStatusRequest: StateSegment.SCREEN_STATUS_REQUEST,
     frontend_pb.RotaryEncoder: StateSegment.ROTARY_ENCODER,
     frontend_pb.SystemSettings: StateSegment.SYSTEM_SETTINGS,
     frontend_pb.SystemSettingsRequest: StateSegment.SYSTEM_SETTINGS_REQUEST,
@@ -125,6 +127,7 @@ FRONTEND_OUTPUT_SCHEDULE = [
     StateSegment.ALARM_MUTE_REQUEST,
     StateSegment.MCU_POWER_STATUS,
     StateSegment.SCREEN_STATUS,
+    StateSegment.SCREEN_STATUS_REQUEST,
     StateSegment.BACKEND_CONNECTIONS,
     StateSegment.ROTARY_ENCODER,
     StateSegment.SYSTEM_SETTINGS,

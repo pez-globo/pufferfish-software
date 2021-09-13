@@ -733,6 +733,10 @@ export interface BackendConnections {
   hasFrontend: boolean;
 }
 
+export interface ScreenStatusRequest {
+  lock: boolean;
+}
+
 export interface ScreenStatus {
   lock: boolean;
 }
@@ -3215,6 +3219,64 @@ export const BackendConnections = {
       message.hasFrontend = object.hasFrontend;
     } else {
       message.hasFrontend = false;
+    }
+    return message;
+  },
+};
+
+const baseScreenStatusRequest: object = { lock: false };
+
+export const ScreenStatusRequest = {
+  encode(
+    message: ScreenStatusRequest,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.lock === true) {
+      writer.uint32(8).bool(message.lock);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): ScreenStatusRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseScreenStatusRequest } as ScreenStatusRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.lock = reader.bool();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ScreenStatusRequest {
+    const message = { ...baseScreenStatusRequest } as ScreenStatusRequest;
+    if (object.lock !== undefined && object.lock !== null) {
+      message.lock = Boolean(object.lock);
+    } else {
+      message.lock = false;
+    }
+    return message;
+  },
+
+  toJSON(message: ScreenStatusRequest): unknown {
+    const obj: any = {};
+    message.lock !== undefined && (obj.lock = message.lock);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<ScreenStatusRequest>): ScreenStatusRequest {
+    const message = { ...baseScreenStatusRequest } as ScreenStatusRequest;
+    if (object.lock !== undefined && object.lock !== null) {
+      message.lock = object.lock;
+    } else {
+      message.lock = false;
     }
     return message;
   },

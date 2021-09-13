@@ -15,6 +15,7 @@ import {
   // System Miscellaneous
   BackendConnections,
   ScreenStatus,
+  ScreenStatusRequest,
 } from '../proto/mcu_pb';
 import { StoreState } from '../types';
 import { AlarmLimitsRequestResponse, EventLog, ControllerStates } from './types';
@@ -189,7 +190,11 @@ export const getFirmwareConnected = createSelector(
 // Screen Status
 export const getScreenStatus = createSelector(
   getController,
-  (states: ControllerStates): ScreenStatus | null => states.screenStatus,
+  (states: ControllerStates): ScreenStatus | null => states.screenStatus.current,
+);
+export const getScreenStatusRequest = createSelector(
+  getController,
+  (states: ControllerStates): ScreenStatusRequest | null => states.screenStatus.request,
 );
 export const getScreenStatusLock = createSelector(
   getScreenStatus,

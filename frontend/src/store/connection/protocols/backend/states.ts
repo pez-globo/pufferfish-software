@@ -7,6 +7,7 @@ import {
   getAlarmLimitsRequest,
   getFullExpectedLogEvent,
   getAlarmMuteRequest,
+  getScreenStatusRequest,
 } from '../../../controller/selectors';
 import {
   getSystemSettingsRequest,
@@ -37,6 +38,7 @@ const selectors = new Map<MessageType, StateSelector>([
   [MessageType.ParametersRequest, getParametersRequest],
   [MessageType.ExpectedLogEvent, getFullExpectedLogEvent],
   [MessageType.AlarmMuteRequest, getAlarmMuteRequest],
+  [MessageType.ScreenStatusRequest, getScreenStatusRequest],
   [MessageType.SystemSettingsRequest, getSystemSettingsRequest],
   [MessageType.FrontendDisplaySetting, getFrontendDisplaySetting],
 ]);
@@ -57,6 +59,7 @@ const sendSchedule = [
   MessageType.ParametersRequest,
   MessageType.AlarmLimitsRequest,
   MessageType.AlarmMuteRequest,
+  MessageType.ScreenStatusRequest,
   MessageType.SystemSettingsRequest,
   MessageType.FrontendDisplaySetting,
 ];

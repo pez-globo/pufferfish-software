@@ -310,6 +310,11 @@ class BackendConnections(betterproto.Message):
 
 
 @dataclass
+class ScreenStatusRequest(betterproto.Message):
+    lock: bool = betterproto.bool_field(1)
+
+
+@dataclass
 class ScreenStatus(betterproto.Message):
     lock: bool = betterproto.bool_field(1)
 

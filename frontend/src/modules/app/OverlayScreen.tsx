@@ -22,7 +22,7 @@ import MultiStepWizard from '../modals/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { commitRequest } from '../../store/controller/actions';
 import { getBackendConnected } from '../../store/connection/selectors';
-import { ScreenStatus } from '../../store/proto/mcu_pb';
+import { ScreenStatusRequest } from '../../store/proto/mcu_pb';
 
 const useStyles = makeStyles((theme: Theme) => ({
   overlay: {
@@ -153,7 +153,7 @@ export const ScreenLockModal = (): JSX.Element => {
    */
   const onConfirm = () => {
     dispatch(
-      commitRequest<ScreenStatus>(MessageType.ScreenStatus, { lock: false }),
+      commitRequest<ScreenStatusRequest>(MessageType.ScreenStatusRequest, { lock: false }),
     );
     setScreenLockPopup(false);
   };
