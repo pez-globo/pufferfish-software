@@ -95,23 +95,24 @@ Scenario: SFM3019 Device:: SFM3019 device behaves correctly when set_averaging f
       THEN('The global_device I2C's write buffer remains unchanged ') 
 
 Scenario: SFM3019 Device:: SFM3019 device behaves correctly when request_conversion_factors function is called 
-  GIVEN('A SFM3019 device constructed with a mock I2C device , global I2C device has write buffer '0x01' and gas parameter') 
-    WHEN('The request_conversion_factors function is called with gas type O2 as input parameter') 
+  GIVEN("A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer '0x01' and O2 as gas parameter") {
+    WHEN('The request_conversion_factors function is called ') 
       THEN('The request_conversion_factors function returns ok status') 
       THEN('The mock I2C's write buffer consists of request_conversion_factor O2 command bytes '0x3661 followed by '0x36033A'') 
       THEN('The mock I2C's read buffer remains empty') 
       THEN('The global_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's write buffer remains unchanged ') 
 
-    WHEN('The request_conversion_factors function is called with  gas type air as input parameter') 
+  GIVEN("A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer '0x01' and air as gas parameter") 
+    WHEN('The request_conversion_factors function is called ') 
       THEN('The request_conversion_factors function returns ok status') 
       THEN('The mock I2C's write buffer consists of request_conversion_factor air command bytes '0x3661 followed by '0x3608D0'') 
       THEN('The mock I2C's read buffer remains empty') 
       THEN('The global_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
-    WHEN(
-        'The request_conversion_factors function is called with gas type mixture as input parameter') 
+  GIVEN("A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer '0x01' and mixture as gas parameter") {
+    WHEN('The request_conversion_factors function is called ') 
       THEN('The request_conversion_factors returns ok') 
       THEN('The mock I2C's write buffer consists of request_conversion_factor mixture command byte '0x3661 followed by '0x3632CE'') 
       THEN('The mock I2C's read buffer remains empty') 
@@ -119,22 +120,31 @@ Scenario: SFM3019 Device:: SFM3019 device behaves correctly when request_convers
       THEN('The global_device I2C's write buffer remains unchanged') 
 
 Scenario: SFM3019 Device:: SFM3019 device behaves correctly when read_conversion_factors function is called 
-  GIVEN('A SFM3019 device constructed with a mock I2C device having read buffer 0x[ae dc 6a 00 00 81 00 00 81], global I2C device has write buffer '0x01' and air as gas parameter') 
-    WHEN(The read_conversion_factors function is called with a default-initialized ConversionFactors output parameter and with the read buffer of mock I2C device consisting 0x[01 02], corresponding to scale factor 10 and offset of -5') 
+  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device has write buffer '0x01' and air as gas parameter') 
+    WHEN(The read_conversion_factors function is called with read buffer consisting of bytes 0x[ae dc 6a 00 00 81 00 00 81] and [01 02] junk bytes, with default-initialized ConversionFactors output parameter) 
+      THEN('The read_conversion_factors return ok status')  
+      THEN('The output parameter scale factor is 0')
+      THEN('The output parameter offset is 0')
+      THEN('The mock_device I2C's write buffer remains unchanged') 
+      THEN('The mock_device I2C's read buffer only has the junk data x[01 02]) 
+      THEN('The global_device I2C's read buffer remains empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+
+    WHEN(The read_conversion_factors function is called with read buffer consisting of bytes 0x[ae dc 6a 00 00 81 00 00 81] and [01 02] junk bytes, with ConversionFactors output parameter  corresponding to scale factor 10 and offset of -5'  ) 
       THEN('The read_conversion_factors return ok status') 
       THEN('The output parameter scale factor is 10')
       THEN('The output parameter offset is -5')
       THEN('The mock_device I2C's write buffer remains unchanged') 
-      THEN('The mock I2C's read buffer changes to initially pushed 0x[01 02] bytes') 
+      THEN('The mock_device I2C's read buffer only has the junk data x[01 02]) 
       THEN('The global_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
-    WHEN(The read_conversion_factors function is called with a default-initialized ConversionFactors output parameter and with the read buffer of mock I2C device consisting 0x[01 02], corresponding to scale factor 170 and offset of -24576') 
+    WHEN(The read_conversion_factors function is called with read buffer consisting of bytes 0x[ae dc 6a 00 00 81 00 00 81]  and [01 02] junk bytes, with ConversionFactors output parameter  corresponding to scale factor 170 and offset of -24576'') 
       THEN('Command data overwrites previous data') 
       THEN('The output parameter scale factor is 170')
       THEN('The output parameter offset is -24576')
       THEN('The mock_device I2C's write buffer remains unchanged') 
-      THEN('The mock_device I2C's read buffer changes to initially pushed 0x[01 02] bytes') 
+      THEN('The mock_device I2C's read buffer only has the junk data x[01 02]') 
       THEN('The global_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
@@ -142,103 +152,103 @@ Scenario: SFM3019 Device:: SFM3019 device behaves correctly when request_product
   GIVEN('A SFM3019 device constructed with a mock I2C device , global I2C device has write buffer '0x01' and gas parameter') {
     WHEN('The request_product_id function is called') 
       THEN('The request_product_id function returns ok') 
-      THEN('The mock_device I2C's write buffer contains command bytes '0xE102'') 
+      THEN('The mock_device I2C's write buffer contains request_product_id command bytes '0xE102'') 
       THEN('The mock_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
 
 SCENARIO('SFM3019 Device:: SFM3019 device behaves correctly when read_product_id function is called') {
-  GIVEN('A SFM3019 device constructed with a mock I2C device with read buffer 0x[78 33 1B 4c 00 bc 00 00 81], global I2C device has write buffer '0x01' and gas parameter') {
-    WHEN('The mock I2C device's read buffer has 0x[01 02] and product id is passed as an output parameter') {
+  GIVEN('A SFM3019 device constructed with a mock I2C device , global I2C device has write buffer '0x01' and gas parameter') {
+    WHEN('The mock I2C device's read buffer consists 0x[78 33 1B 4c 00 bc 00 00 81] and x[01 02] junk bytes, and product id is passed as an output parameter') {
       THEN('The read_product_id function returns ok status') {
-      THEN('The product id is 0x78334c00'){
-      THEN('The mock_device I2C's write buffer changes to 0x[01 02] ') {
+      THEN('The output parameter product id retuns 0x78334c00'){
+      THEN('The mock_device I2C's read buffer only has the junk data x[01 02]') {
       THEN('The mock_device I2C's read buffer remains empty') {
-      THEN('The global_device I2C's read buffer changes to initially pushed junk data') {
+      THEN('The global_device I2C's read buffer remains empty') {
       THEN('The global_device I2C's write buffer remains unchanged') {
 
 Scenario: SFM3019 Device:: SFM3019 device behaves correctly when read_sample function is called 
-  GIVEN('A SFM3019 device constructed with a mock I2C device withe read buffer 0x[ae, dc, 6a], global I2C device has  write buffer '0x01' and gas parameter') 
+  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device has  write buffer '0x01' and gas parameter') 
     WHEN('The read_sample function is called with  scale factor of 170 and an offset of  -24576  as input parameters, and a Sample object '
-        'initialized to default as the output parameter, where mock I2C's read buffer is set to 0x[01, 02]') 
+        'initialized to default as the output parameter, where mock I2C's read buffer is set to 0x[ae, dc, 6a] and x[01 02] junk bytes' ) 
       THEN('The read_sample function returns ok status') 
       THEN('Output parameter raw_flow returns -20772')
       THEN('Output parameter flow returns 22.37647F ') 
       THEN('The mock_device I2C's write buffer remains unchanged') 
-      THEN('The mock_device I2C's read buffer changes to 0x[01 02]') 
+      THEN('The mock_device I2C's read buffer only has the junk data x[01 02]') 
       THEN('The global_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
     WHEN('The read_sample function is called with  scale factor of 170 and an offset of -14576 as input parameters, and a Sample object '
-        'initialized to default as the output parameter where mock I2C's read buffer is set to 0x[01, 02]') 
+        'initialized to default as the output parameter  where mock I2C's read buffer is set to 0x[ae, dc, 6a] and x[01 02] junk bytes') 
       THEN('The read_sample function returns ok status') 
       THEN('Output parameter raw_flow returns -20772')
       THEN('Output parameter flow returns -36.44706F')
       THEN('The mock_device I2C's write buffer remains unchanged') 
-      THEN('The mock_device I2C's read buffer changes to 0x[01 02]') 
+      THEN('The mock_device I2C's read buffer only has the junk data x[01 02]') 
       THEN('The global_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
     WHEN('The read_sample function is called with  scale factor of 170 and an offset of -100 as input parameters, and a Sample object '
-        'initialized to default as the output parameter where mock I2C's read buffer is set to 0x[01, 02]') 
+        'initialized to default as the output parameter where mock I2C's read buffer is set to 0x[ae, dc, 6a] and x[01 02] junk bytes') 
       THEN('The read_sample function returns ok status') 
       THEN('Output parameter raw_flow returns -20772')
       THEN('Output parameter flow returns -121.6F') 
       THEN('The mock_device I2C's write buffer remains unchanged') 
-      THEN('The mock_device I2C's read buffer changes to 0x[01 02]') 
+      THEN('The mock_device I2C's read buffer only has the junk data x[01 02]') 
       THEN('The global_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
     WHEN('The read_sample function is called with  scale factor of 100 and an offset of -24576  as input parameters, and a Sample object '
-        'initialized to default as the output parameter where mock I2C's read buffer is set to 0x[01, 02]') 
+        'initialized to default as the output parameter  where mock I2C's read buffer is set to 0x[ae, dc, 6a] and x[01 02] junk bytes') 
       THEN('The read_sample function returns ok status') 
       THEN('Output parameter raw_flow returns -20772')
       THEN('Output parameter flow returns 38.04F') 
       THEN('The mock_device I2C's write buffer remains unchanged') 
-      THEN('The mock_device I2C's read buffer changes to 0x[01 02]') 
+      THEN('The mock_device I2C's read buffer only has the junk data x[01 02]') 
       THEN('The global_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
     WHEN('The read_sample function is called with  scale factor of 50 and an offset of  -24576  as input parameters, and a Sample object '
-        'initialized to default as the output parameter where mock I2C's read buffer is set to 0x[01, 02]') 
+        'initialized to default as the output parameter  where mock I2C's read buffer is set to 0x[ae, dc, 6a] and x[01 02] junk bytes') 
       THEN('The read_sample function returns ok status') 
       THEN('Output parameter raw_flow returns -20772')
       THEN('Output parameter flow returns 76.08F') 
       THEN('The mock_device I2C's write buffer remains unchanged') 
-      THEN('The mock_device I2C's read buffer changes to 0x[01 02]') 
+      THEN('The mock_device I2C's read buffer only has the junk data x[01 02]') 
       THEN('The global_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
     WHEN('The read_sample function is called with  scale factor of 200 and an offset of  -24576  as input parameters, and a Sample object '
-        'initialized to default as the output parameter where mock I2C's read buffer is set to 0x[01, 02]') 
+        'initialized to default as the output parameter  where mock I2C's read buffer is set to 0x[ae, dc, 6a] and x[01 02] junk bytes') 
       THEN('The read_sample function returns ok status') 
       THEN('Output parameter raw_flow returns -20772')
       THEN('Output parameter flow returns 19.02F ') 
       THEN('The mock_device I2C's write buffer remains unchanged') 
-      THEN('The mock_device I2C's read buffer changes to 0x[01 02]') 
+      THEN('The mock_device I2C's read buffer only has the junk data x[01 02]') 
       THEN('The global_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
-  GIVEN('A SFM3019 device constructed with a mock I2C device with read buffer 0x[ae dc 6a], global I2C device has write buffer '0x01' and gas parameter') 
+  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device has write buffer '0x01' and gas parameter') 
     WHEN('The read_sample function is called with  scale factor of 170 and an offset of  -24576  as input parameters, and a Sample object '
-        'initialized to default as the output parameter where mock I2C's read buffer is set to 0x[01 02]') 
+        'initialized to default as the output parameter  where mock I2C's read buffer is set to 0x[15, 35, a8] and x[01 02] junk bytes') 
       THEN('The read_sample function returns ok status') 
       THEN('Output parameter raw_flow returns 5429')
       THEN('Output parameter flow returns 176.5F ') 
       THEN('The mock_device I2C's write buffer remains unchanged') 
-      THEN('The mock_device I2C's read buffer changes to 0x[01 02]') 
+      THEN('The mock_device I2C's read buffer only has the junk data x[01 02]') 
       THEN('The global_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
-  GIVEN('A SFM3019 device constructed with a mock I2C device with read buffer 0x[15 35 a8], global I2C device has write buffer '0x01' and gas parameter') 
+  GIVEN('A SFM3019 device constructed with a mock I2C device, global I2C device has write buffer '0x01' and gas parameter') 
     WHEN('The read_sample function is called with  scale factor of 170 and an offset of  -24576  as input parameters, and a Sample object '
-        'initialized to default as the output parameter where mock I2C's read buffer is set to 0x[01 02]') 
+        'initialized to default as the output parameter  where mock I2C's read buffer is set to 0x[74 6f ac] and x[01 02] junk bytes') 
       THEN('The read_sample function returns ok status') 
       THEN('Output parameter raw_flow returns 29807')
       THEN('Output parameter flow returns 319.89999F ') 
       THEN('The mock_device I2C's write buffer remains unchanged') 
-      THEN('The mock_device I2C's read buffer changes to 0x[01 02]') 
+      THEN('The mock_device I2C's read buffer only has the junk data x[01 02]') 
       THEN('The global_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
@@ -250,4 +260,4 @@ Scenario: SFM3019 Device:: SFM3019 device behaves correctly when reset function 
       THEN('The mock_device I2C's write buffer remains unchanged')
       THEN('The mock_device I2C's read buffer remains empty') 
       THEN('The global_device I2C's read buffer remains empty') 
-      THEN('The global_device I2C's write buffer consists command byte'x06'') 
+      THEN('The global_device I2C's write buffer consists reset command byte'x06'') 
