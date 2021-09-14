@@ -48,6 +48,10 @@ static const MessageDescriptors message_descriptors{
     // Alarm Muting
     {MessageTypes::alarm_mute, Util::get_protobuf_desc<Application::AlarmMute>()},
     {MessageTypes::alarm_mute_request, Util::get_protobuf_desc<Application::AlarmMuteRequest>()},
+    // Screen Status
+    {MessageTypes::screen_status, Util::get_protobuf_desc<Application::ScreenStatus>()},
+    {MessageTypes::screen_status_request,
+     Util::get_protobuf_desc<Application::ScreenStatusRequest>()},
     // System Miscellaneous
     {MessageTypes::mcu_power_status, Util::get_protobuf_desc<Application::MCUPowerStatus>()},
     {MessageTypes::backend_connections,
