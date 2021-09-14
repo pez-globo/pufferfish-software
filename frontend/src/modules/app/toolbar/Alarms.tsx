@@ -14,10 +14,10 @@ import {
   getAlarmMuteActive,
   getMostRecentEvent,
 } from '../../../store/controller/selectors';
-import { getEventType } from '../../logs/EventType';
+import { getEventType } from '../../event-logs/EventType';
 import { LOGS_ROUTE } from '../navigation/constants';
 import { BellIcon } from '../../icons';
-import EventLogModal from '../../logs/EventLog';
+import EventLogModal from '../../event-logs/EventLog';
 import {
   AlarmMuteCountdown,
   AlarmMuteToggleButton,

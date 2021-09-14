@@ -9,11 +9,11 @@ import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import FiberManualRecord from '@material-ui/icons/FiberManualRecord';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { VentilationMode, ParametersRequest } from '../../store/proto/mcu_pb';
-import { MessageType } from '../../store/proto/types';
-import { commitRequest } from '../../store/controller/actions';
-import { getParametersRequestMode } from '../../store/controller/selectors';
-import { getModeText } from './ModeBanner';
+import { VentilationMode, ParametersRequest } from '../../../store/proto/mcu_pb';
+import { MessageType } from '../../../store/proto/types';
+import { commitRequest } from '../../../store/controller/actions';
+import { getParametersRequestMode } from '../../../store/controller/selectors';
+import { getModeText } from '../ModeBanner';
 
 const useStyles = makeStyles(() => ({
   button: {

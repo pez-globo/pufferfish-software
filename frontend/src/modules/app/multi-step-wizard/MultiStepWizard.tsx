@@ -9,8 +9,8 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
 import ReplyIcon from '@material-ui/icons/Reply';
 // import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
-import ModalPopup from '../shared/ModalPopup';
-import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
+import ModalPopup from '../../shared/ModalPopup';
+import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../Service';
 import {
   getSmoothedSpO2,
   getSmoothedHR,
@@ -22,15 +22,15 @@ import {
   getHRAlarmLimitsRequest,
   getFiO2AlarmLimitsDraft,
   getFlowAlarmLimitsDraft,
-} from '../../store/controller/selectors';
-import { a11yProps, TabPanel } from '../shared/TabPanel';
-import ValueInfo from '../dashboard/components/ValueInfo';
-import { BPM, LMIN, PERCENT } from '../shared/units';
-import { ParametersRequest, AlarmLimitsRequest, Range } from '../../store/proto/mcu_pb';
-import { MessageType } from '../../store/proto/types';
-import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
-import ValueModalContent from '../controllers/ValueModal';
-import { AlarmModalContent } from '../alarms/modal/AlarmModal';
+} from '../../../store/controller/selectors';
+import { a11yProps, TabPanel } from '../../shared/TabPanel';
+import ValueInfo from '../../dashboard/components/ValueInfo';
+import { BPM, LMIN, PERCENT } from '../../shared/units';
+import { ParametersRequest, AlarmLimitsRequest, Range } from '../../../store/proto/mcu_pb';
+import { MessageType } from '../../../store/proto/types';
+import { commitRequest, commitDraftRequest } from '../../../store/controller/actions';
+import ValueModalContent from '../../controllers/ValueModal';
+import { AlarmModalContent } from '../../alarms/modal/AlarmModal';
 
 /**
  * @typedef InternalState

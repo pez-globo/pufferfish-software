@@ -13,7 +13,7 @@ import { useSelector } from 'react-redux';
 import { VentilationMode } from '../../../store/proto/mcu_pb';
 import { getParametersRequestMode } from '../../../store/controller/selectors';
 import { setActiveRotaryReference } from '../../app/Service';
-import ModeBanner, { BannerType } from '../../modes/ModeBanner';
+import ModeBanner, { BannerType } from '../../app/ModeBanner';
 import { BPM, PERCENT } from '../../shared/units';
 import AlarmLimitsModalPopup from './AlarmLimitsModalPopup';
 import ParamAlarms from './ParamAlarms';

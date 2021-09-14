@@ -17,7 +17,7 @@ import {
   getParametersRequestDraftVT,
 } from '../../../store/controller/selectors';
 import { setActiveRotaryReference } from '../Service';
-import ModeBanner, { BannerType } from '../../modes/ModeBanner';
+import ModeBanner, { BannerType } from '../ModeBanner';
 import { BPM, LMIN, PERCENT } from '../../shared/units';
 import {
   FIO2_REFERENCE_KEY,
