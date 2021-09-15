@@ -89,6 +89,7 @@ MCU_OUTPUT_SCHEDULE = [
     StateSegment.PARAMETERS_REQUEST,
     StateSegment.ALARM_LIMITS_REQUEST,
     StateSegment.ALARM_MUTE_REQUEST,
+    StateSegment.SCREEN_STATUS_REQUEST,
     StateSegment.BACKEND_CONNECTIONS,
 ]
 
