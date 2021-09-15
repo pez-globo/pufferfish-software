@@ -14,7 +14,8 @@ Scenario: The EnumSet constructed from  initializer list works corretly
 
     WHEN('The has method is called')
         THEN('The has method returns true for 1-3 keys')
-        THEN('The has method returns false for [-1000]to[1000] keys')
+        THEN('The has method returns false for [-1000]to[0] keys')
+        THEN('The has method returns false for [4]to[1000] keys')
 
     WHEN('The input method is called on EnumSet') 
       THEN('The input method returns ok status for 4th key') 
@@ -25,7 +26,8 @@ Scenario: The EnumSet constructed from  initializer list works corretly
       THEN('The empty method reports that the Enumset is non-empty') 
       THEN('The erase method reports ok status for 1st key ') 
       THEN('The has method returns true for 1-4 keys') 
-      THEN('The has method returns false for [-1000]to[1000] keys')
+      THEN('The has method returns false for [-1000]to[0] keys')
+      THEN('The has method returns false for [5]to[1000] keys')
 
     WHEN('The erase method is called on 3rd and 4th key') 
       THEN('The erase method returns ok status for 3rd key') 
@@ -37,7 +39,8 @@ Scenario: The EnumSet constructed from  initializer list works corretly
       THEN('The empty method reports that the Enumset is non-empty') 
       THEN('The has method returns true for first 2 keys') 
       THEN('The has method returns false for 3rd key') 
-      THEN('The has method returns false for [-1000]to[1000] keys')
+      THEN('The has method returns false for [-1000]to[0] keys')
+      THEN('The has method returns false for [5]to[1000] keys')
 
     WHEN('The clear method is used on Enumset') 
       THEN('The has method returns false for 11 keys') 
@@ -59,7 +62,8 @@ Scenario: The input method in Enumset works correctly
       THEN('The erase method reports ok status for 11(capacity-1) key ') 
       THEN('The has method returns true for 1-11 keys') 
       THEN('The has method returns false for 13 and 14 keys ') 
-      THEN('The has method returns false for [-1000]to[1000] keys')
+      THEN('The has method returns false for [-1000]to[0] keys')
+      THEN('The has method returns false for [12]to[1000] keys')
 
   GIVEN(' An partially filled  EnumSet with capacity 12, which has 1-11 keys') 
     WHEN('The input method is used on 13th(capacity+1) and 14th(capacity+2) Key') 
@@ -73,7 +77,8 @@ Scenario: The input method in Enumset works correctly
       THEN('The erase method reports ok status for 11th(capacity-1) key ') 
       THEN('The has method returns true for 1-11 keys') 
       THEN('The has method returns false for 13th(capacity+1) and 14th(capacity+2) key') 
-      THEN('The has method returns false for [-1000]to[1000] keys')
+      THEN('The has method returns false for [-1000]to[0] keys')
+      THEN('The has method returns false for [12]to[1000] keys')
 
     WHEN('The input method is called on erased 7th and 8th ') 
       THEN('The erase method returns ok status for 7th key')
@@ -86,7 +91,8 @@ Scenario: The input method in Enumset works correctly
       THEN('The full method reports that the Enumset is not completely filled') 
       THEN('The empty method reports that the Enumset is non-empty') 
       THEN('The has method returns true for 1-11 keys') 
-      THEN('The has method returns false for [-1000]to[1000] keys')
+      THEN('The has method returns false for [-1000]to[0] keys')
+      THEN('The has method returns false for [12]to[1000] keys')
 
     WHEN('The input method is called on already existing key 10th and 11th key in EnumSet') 
       THEN('The input method returns ok status for 10th and 11th key') 
@@ -96,7 +102,8 @@ Scenario: The input method in Enumset works correctly
       THEN('The full method reports that the Enumset is not completely filled') 
       THEN('The empty method reports that the Enumset is non-empty') 
       THEN('The has method returns true for 11 keys') 
-      THEN('The has method returns false for [-1000]to[1000] keys')
+      THEN('The has method returns false for [-1000]to[0] keys')
+      THEN('The has method returns false for [12]to[1000] keys')
 
 Scenario: The method erase in Enumset works corretly 
   GIVEN('EnumSet with capacity 12, and it has 1-11 keys') 
@@ -108,7 +115,8 @@ Scenario: The method erase in Enumset works corretly
       THEN('The full method reports that the Enumset is not completely filled') 
       THEN('The empty method reports that the Enumset is non-empty') 
       THEN('The has method returns true for 5-11 keys') 
-      THEN('The has method returns false for [-1000]to[1000] keys')
+      THEN('The has method returns false for [-1000]to[0] keys')
+      THEN('The has method returns false for [12]to[1000] keys')
 
     WHEN('The erase method is called on 13th(capacity+1) and 14th(capacity+2) key') 
       THEN('The erase method returns out of bounds status for 13th(capacity+1) key') 
@@ -119,7 +127,8 @@ Scenario: The method erase in Enumset works corretly
       THEN('The full method reports that the Enumset is not completely filled') 
       THEN('The empty method reports that the Enumset is non-empty') 
       THEN('The has method returns true for 1-11 keys') 
-      THEN('The has method returns false for [-1000]to[1000] keys')
+      THEN('The has method returns false for [-1000]to[0] keys')
+      THEN('The has method returns false for [12]to[1000] keys')
 
     WHEN('The erase method is called on 11(capacity-1),12(capacity) and 13th(capacity+1) key') 
       THEN('The erase method returns ok status for 11(capacity-1) key') 
@@ -131,7 +140,8 @@ Scenario: The method erase in Enumset works corretly
       THEN('The full method reports that the Enumset is not completely filled') 
       THEN('The empty method reports that the Enumset is non-empty') 
       THEN('The has method returns true for 9 keys') 
-      THEN('The has method returns false for [-1000]to[1000] keys')
+      THEN('The has method returns false for [-1000]to[0] keys')
+      THEN('The has method returns false for [10]to[1000] keys')
 
 Scenario: The method clear in Enumset works corretly 
   GIVEN('Enumset with capacity 12, and it has 1-11 keys') 

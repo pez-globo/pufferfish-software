@@ -1,17 +1,15 @@
-// * indicates the element addressed by oldest_index_
-// ^ indicates the element addressed by newest_index_
 
-SCENARIO('Non-Volatile RingBuffer works correctly when oldest index is 0') 
+SCENARIO('Non-Volatile RingBuffer works correctly') 
   GIVEN('A RingBuffer with capacity 4 to which 0 bytes of data were pushed, 0 bytes were poped') 
     // internal state should look like [*^] [] [] [] []
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After push method ,the peek method returns expected data ') 
         ////internal state should look like [0*] [^] [] [][]
-
     WHEN('1 byte of data is poped ') 
-      THEN('The pop method returns empty status')
-        // internal state should look like [*^] [] [] [][]
+      THEN('The pop method returns empty status') 
+      THEN('The peek method returns empty on all indices')
+      // internal state should look like [*^] [] [] [][]
 
   GIVEN('A RingBuffer with capacity 4 to which 1 bytes of data were pushed and 0 byte was poped') 
     // internal state should look like [0*] [^] [] [][]
@@ -22,8 +20,8 @@ SCENARIO('Non-Volatile RingBuffer works correctly when oldest index is 0')
 
     WHEN('1 byte of data is poped') 
       THEN('The pop method returns ok status') 
-      THEN('After the pop method,the peek method returns expected data') 
-        // internal state should look like [*^][][][][]
+      THEN('After the pop method,the peek method returns empty on every indices') 
+        // internal state should look like [] [*^] [] [][]
 
   GIVEN('A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 0 byte were poped ') 
     // internal state should look like [0*][1][^][][]
@@ -31,103 +29,100 @@ SCENARIO('Non-Volatile RingBuffer works correctly when oldest index is 0')
       THEN('The push method returns ok status') 
       THEN('After push method, peek method returns expected data') 
         // internal state should look like [0*][1][2][^][]
-
     WHEN('1 byte of data is poped ') 
       THEN('The pop method returns ok status') 
       THEN('After the pop method,the peek method returns expected data in RingBuffer') 
         // internal state should look like [] [1*] [^] [][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 3 bytes of data were pushed and 0 byte were poped')   //[][][][3*][4^]
+
+  GIVEN('A RingBuffer with capacity 4 to which 3 bytes of data were pushed and 0 byte were poped')   
     // internal state should look like [0*][1][2][^][]
     WHEN('1 bytes of data are pushed ') 
-      THEN('The push method returns ok status') 
+      THEN('The push method returns ok status')
       THEN('After the push method, peek method returns expected data') 
-        // internal state should look like [1*] [2] [3] [4][^]
-
+        // internal state should look like [0*][1][2][3][^]
     WHEN('2 byte of data is poped ') 
-      THEN('The pop method returns ok status') 
+      THEN('The pop method returns ok status for 2 bytes') 
       THEN('After the pop method,the peek method returns expected data in RingBuffer') 
         // internal state should look like [][][2*][^][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed and 0 byte were poped')   // [0^][][][][4*]
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed and 0 byte were poped')   
     // internal state should look like [0*] [1] [2] [3][^]
     WHEN('1 byte of data is pushed ') 
-      THEN('The push method returns full status') 
+      THEN('The push method returns the full error code ') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [0*] [1] [2] [3][^]
-
     WHEN('4 bytes of data are poped ') 
-      THEN('The pop method returns ok status for 1st time') 
-      THEN('After the pop method,the peek method returns expected data in RingBuffer') 
-        // internal state should look like [*^] [] [] [][]
+      THEN('The pop method returns ok status for 4 bytes') 
+      THEN('After the pop method,the peek method returns empty on all indices') 
+        // internal state should look like [] [] [] [][^]
 
-  GIVEN('A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 2 bytes was poped ')   // [0*][1][2^][][]
+
+  GIVEN('A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 2 bytes was poped ')   
     // internal state should look like [][*^][][][]
     WHEN('2 bytes of data are pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [][0*][1][][]
-
     WHEN('1 byte of data is poped ') 
-      THEN('The pop method returns empty status') 
+      // internal state should look like [][*^][][][]
+      THEN('The pop method returns empty status for 1 byte') 
 
-  GIVEN('A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 1 byte was poped')   // [][1*][2][3^][]
+  GIVEN('A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 1 byte was poped')   
     // internal state should look like [][1*][^][][]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [][1*][2][^]
-
     WHEN('1 bytes of data are poped ') 
       THEN('The pop method returns ok status') 
-      THEN('After the pop method,the peek method returns expected data in RingBuffer') 
-        // internal state should look like [][*^][][][]
+      THEN('After the pop method,the peek method returns empty on all indices') 
+        // internal state should look like [][][*^][][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 3 bytes of data were pushed and 1 byte was poped')   // [][][2*][3][4^]
+  GIVEN('A RingBuffer with capacity 4 to which 3 bytes of data were pushed and 1 byte was poped')   
     // internal state should look like [][1*][2][^][]
     WHEN('2 bytes of data are pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [^][1*][2][3][4]
-
     WHEN('1 byte of data is poped ') 
       THEN('The pop method returns ok status') 
       THEN('After the pop method,the peek method returns expected data in RingBuffer') 
         // internal state should look like [][][2*][^][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed and 1 byte was poped')   // [0][1^][][][4*]
+
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed and 1 byte was poped') 
     // internal state should look like [][1*][2][3][^]
     WHEN('1 bytes of data are pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [^][1*][2][3][4]
-
     WHEN('1 byte of data is poped ') 
       THEN('The pop method returns ok status') 
       THEN('After the pop method,the peek method returns expected data in RingBuffer') 
         // internal state should look like [][][2*][3][^]
 
-  GIVEN('A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 1 byte was poped and 3 bytes were pushed')   // [0^][1*][][][]
+  GIVEN('A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 1 byte was poped and 3 bytes were pushed')   
     // internal state should look like [^][1*][2][3][4]
     WHEN('2 bytes of data are pushed ') 
-      THEN('The push method returns full status') 
+      THEN('The push method returns the full error code status') 
       THEN('After push method, peek method returns expected data') 
         // internal state should look like [^][1*][2][3][4]
-
     WHEN('1 byte of data is poped ') 
       THEN('After the pop method,the peek method returns the data in RingBuffer') 
         // internal state should look like [^][][2*][3][4]
-  
+
+
   GIVEN('A RingBuffer with capacity 4 to which 3 bytes of data were pushed and 3 byte was poped ') 
     // internal state should look like [][][*^][][]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After push method, peek method returns expected data') 
         // internal state should look like [][][1*][^][]
-
     WHEN('1 byte of data is poped ') 
       THEN('The pop method returns empty status') 
-        // internal state should look like [][][*^][][]
+      THEN('The peek method returns empty on every indices')
+// internal state should look like [][][*^][][]        
 
   GIVEN('A RingBuffer with capacity 4 to which 3 bytes of data were pushed and 2 byte was poped') 
     // internal state should look like [][][2*][^][]
@@ -135,165 +130,158 @@ SCENARIO('Non-Volatile RingBuffer works correctly when oldest index is 0')
       THEN('The push method returns ok status') 
       THEN('After push method, peek method returns expected data') 
         // internal state should look like [][][2*][3][^]
-
     WHEN('1 bytes of data are poped ') 
       THEN('The pop method returns ok status') 
-      THEN('After the pop method,the peek method returns expected data in RingBuffer') 
-        // internal state should look like [][][*^][][]
+      THEN('After the pop method,the peek method returns empty on every indices') 
+        // internal state should look like [][][][*^][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed and 2 byte was poped')   //
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed and 2 byte was poped')   
     // internal state should look like [][][2*][3][^]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [^][][2*][3][4]
-
     WHEN('2 bytes of data are poped ') 
-      THEN('The pop method returns ok status') 
-      THEN('After the pop method,the peek method returns expected data in RingBuffer') 
-        // internal state should look like [][][*^][][]
+      THEN('The pop method returns ok status for 2 bytes') 
+      THEN('After the pop method,the peek method returns empty on every indices') 
+        // internal state should look like [][][][][*^]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed 2 bytes were poped and 1 were pushed')   
+
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed 2 bytes were poped and 1 were pushed') 
     // internal state should look like [^][][2*][3][4]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [0][^][2*][3][4]
-
     WHEN('3 bytes of data is poped ') 
-      THEN('The pop method returns ok status') 
-      THEN('After the pop method,the peek method returns expected data in RingBuffer') 
-        // internal state should look like [][5*^][][]
+      THEN('The pop method returns ok status for 3 bytes') 
+      THEN('After the pop method,the peek method returns empty on every indices') 
+        // internal state should look like [*^][][][][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 2 bytes were poped and 2 bytes were pushed ')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 2 bytes were poped and 2 bytes were pushed ') 
     // internal state should look like [5][^][2*][3][4]
     WHEN('1 byte of data is pushed ') 
-      THEN('The push method returns full status') 
+      THEN('The push method returns the full error code status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [5][^][2*][3][4]
-
     WHEN('3 bytes of data is poped ') 
-      THEN('The pop method returns ok status') 
+      THEN('The pop method returns ok status for 3 bytes') 
       THEN('After the pop method,the peek method returns the data in RingBuffer') 
         // internal state should look like [5*][^][][][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 4 bytes were poped')   
+
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 4 bytes were poped') 
     // internal state should look like [][][][*^][]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [][][][3*][^]
-
     WHEN('1 bytes of data is poped ') 
       THEN('The pop method returns empty status') 
-     // internal state should look like [][][][*^][]
+      // internal state should look like [][][][*^][]
+      THEN('The peek method returns empty on every indices')
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped') 
     // internal state should look like [][][][3*][^]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [^][][][3*][4]
-
     WHEN('1 bytes of data is poped ') 
-     THEN('The pop method returns ok status') 
-     // internal state should look like [][][][*^][]
-     THEN('The peek method returns expected data')
+      THEN('The pop method returns ok status') 
+      // internal state should look like [][][][][*^]
+      THEN('The peek method returns empty on every indices') 
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped 1 byte was pushed')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped 1 byte was pushed') 
     // internal state should look like [^][][][3*][4]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [5][^][][3*][4]
-
     WHEN('1 bytes of data is poped ') 
       THEN('The pop method returns ok status') 
-     // internal state should look like [^][][][][4*]
-     THEN('The peek method returns expected data')
+      // internal state should look like [^][][][][4*]
+      THEN('The peek method returns expected data') 
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 2 bytes pushed')   
+ 
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 2 bytes pushed') 
     // internal state should look like [5][^][][3*][4]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [5][6][^][3*][4]
-
     WHEN('1 bytes of data is poped ') 
       THEN('The pop method returns ok status') 
-     // internal state should look like [5][^][][][4*]
-      THEN('The peek method returns expected data')
+      // internal state should look like [5][^][][][4*]
+      THEN('The peek method returns expected data') 
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 3 pushed')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 3 pushed') 
     // internal state should look like [5][6][^][3*][4]
     WHEN('1 byte of data is pushed ') 
-      THEN('The push method returns full status') 
+      THEN('The push method returns the full error code status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [^][][][3*][4]
-
     WHEN('4 bytes of data is poped ') 
-      THEN('The pop method returns ok status') 
-     // internal state should look like [][*^][][][]
-     THEN('The peek method returns expected data')
+      THEN('The pop method returns ok status for 4 bytes')
+      // internal state should look like [][*^][][][]
+      THEN('The peek method returns empty for every indices') 
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 1 pushed and 2 poped')   
+
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 1 pushed and 2 poped') 
     // internal state should look like [][][][][*^]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [^][][][][4*]
-
     WHEN('1 bytes of data is poped ') 
-        // internal state should look like [][][][][*^]
+      // internal state should look like [][][][][*^]
       THEN('The pop method returns empty status') 
+      THEN('The peek method returns empty for every indices')
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 1 pushed and 1 poped')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 1 pushed and 1 poped') 
     // internal state should look like [^][][][][4*]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [5][^][][][4*]
-
-    WHEN('1 bytes of data is poped ') 
+    WHEN('1 byte of data is poped ') 
       THEN('The pop method returns ok status') 
-      THEN('After the push method, peek method returns expected data') 
-      // internal state should look like [^][][][][4*]
+      THEN('After the push method, peek method returns empty at every indices') 
+        // internal state should look like [^*][][][][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 2 pushed and 1 poped')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 2 pushed and 1 poped') 
     // internal state should look like [5][^][][][4*]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [5][6][^][][4*]
-
-    WHEN('1 bytes of data is poped ') 
+    WHEN('1 byte of data is poped ') 
       THEN('The pop method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
-      // internal state should look like [5*][^][][][]
+        // internal state should look like [5*][^][][][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 3 pushed and 1 poped')   
+
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 3 pushed and 1 poped') 
     // internal state should look like [5][6][^][][4*]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [5][6][7][^][4*]
-
     WHEN('2 bytes of data is poped ') 
-      THEN('The pop method returns ok status') 
+      THEN('The pop method returns ok status for 2 bytes') 
       THEN('After the push method, peek method returns expected data') 
-      // internal state should look like [][6*][^][][]
+        // internal state should look like [][6*][^][][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 3 pushed and 1 poped, 1 pushed')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 3 pushed and 1 poped, 1 pushed') 
     // internal state should look like [5][6][7][^][4*]
     WHEN('1 byte of data is pushed ') 
-      THEN('The push method returns full status') 
+      THEN('The push method returns the full error code status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [5][6][7][^][4*]
-
     WHEN('4 bytes of data is poped ') 
-      THEN('The pop method returns ok status') 
-      THEN('After the push method, peek method returns expected data') 
-      // internal state should look like [][][*^][][]
+      THEN('The pop method returns ok status for 4 bytes') 
+      THEN('After the push method, peek method returns empty on every indices') 
+        // internal state should look like [][][*^][][]
 
 ////////////////////////////////////////////////////////////////
 
@@ -304,10 +292,10 @@ SCENARIO('Volatile RingBuffer works correctly for index 0')
       THEN('The push method returns ok status') 
       THEN('After push method ,the peek method returns expected data ') 
         ////internal state should look like [0*] [^] [] [][]
-
     WHEN('1 byte of data is poped ') 
       THEN('The pop method returns empty status') 
-        // internal state should look like [*^] [] [] [][]
+      THEN('The pop method returns empty on every indices')
+      // internal state should look like [*^] [] [] [] []
 
   GIVEN('A RingBuffer with capacity 4 to which 1 bytes of data were pushed and 0 byte was poped') 
     // internal state should look like [0*] [^] [] [][]
@@ -315,11 +303,10 @@ SCENARIO('Volatile RingBuffer works correctly for index 0')
       THEN('The push method returns ok status') 
       THEN('After push method, the peek method returns expected data ') 
         // internal state should look like [0*] [1] [^] [][]
-
     WHEN('1 byte of data is poped') 
       THEN('The pop method returns ok status') 
-      THEN('After the pop method,the peek method returns expected data') 
-        // internal state should look like [*^][][][][]
+      THEN('The pop method returns empty on every indices')
+      // internal state should look like [][*^][][][]
 
   GIVEN('A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 0 byte were poped ') 
     // internal state should look like [0*][1][^][][]
@@ -327,37 +314,35 @@ SCENARIO('Volatile RingBuffer works correctly for index 0')
       THEN('The push method returns ok status') 
       THEN('After push method, peek method returns expected data') 
         // internal state should look like [0*][1][2][^][]
-
     WHEN('1 byte of data is poped ') 
       THEN('The pop method returns ok status') 
       THEN('After the pop method,the peek method returns expected data in RingBuffer') 
-        // internal state should look like [] [1*] [^] [][]
+        // internal state should look like [][1*][^][][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 3 bytes of data were pushed and 0 byte were poped')   //[][][][3*][4^]
+
+  GIVEN('A RingBuffer with capacity 4 to which 3 bytes of data were pushed and 0 byte were poped')   
     // internal state should look like [0*][1][2][^][]
-    WHEN('1 bytes of data are pushed ') 
+    WHEN('1 bytes of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, pop method returns expected data') 
         // internal state should look like [0*] [1] [2] [3][^]
-
     WHEN('2 byte of data is poped ') 
-      THEN('The pop method returns ok status') 
+      THEN('The pop method returns ok status for 2 bytes') 
       THEN('After the pop method,the peek method returns expected data in RingBuffer') 
         // internal state should look like [][][2*][^][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed and 0 byte were poped')   // [0^][][][][4*]
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed and 0 byte were poped')   
     // internal state should look like [0*] [1] [2] [3][^]
     WHEN('1 byte of data is pushed ') 
-      THEN('The push method returns full status') 
+      THEN('The push method returns the full error code status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [0*] [1] [2] [3][^]
-
     WHEN('4 bytes of data are poped ') 
-      THEN('The pop method returns ok status for 1st time') 
-      THEN('After the pop method,the peek method returns expected data in RingBuffer') 
-        // internal state should look like [*^] [] [] [][]
+      THEN('The pop method returns ok status for 4 bytes') 
+      THEN('The pop method returns empty on every indices')
+      // internal state should look like [][][][][*^]
 
-  GIVEN('A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 2 bytes was poped ')   // [0*][1][2^][][]
+  GIVEN('A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 2 bytes was poped ')   
     // internal state should look like [][*^][][][]
     WHEN('2 bytes of data are pushed ') 
       THEN('The push method returns ok status') 
@@ -365,50 +350,48 @@ SCENARIO('Volatile RingBuffer works correctly for index 0')
         // internal state should look like [][0*][1][][]
     WHEN('1 byte of data is poped ') 
       THEN('The pop method returns empty status') 
+      THEN('The pop method returns empty on every indices')
+      // internal state should look like [][*^][][][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 1 byte was poped')   // [][1*][2][3^][]
+  GIVEN('A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 1 byte was poped')   
     // internal state should look like [][1*][^][][]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [][1*][2][^]
-
     WHEN('1 bytes of data are poped ') 
       THEN('The pop method returns ok status') 
-      THEN('After the pop method,the peek method returns expected data in RingBuffer') 
-        // internal state should look like [][*^][][][]
+      THEN('The pop method returns empty on every indices')
+      // internal state should look like [][][*^][][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 3 bytes of data were pushed and 1 byte was poped')   // [][][2*][3][4^]
+  GIVEN('A RingBuffer with capacity 4 to which 3 bytes of data were pushed and 1 byte was poped')   
     // internal state should look like [][1*][2][^][]
     WHEN('2 bytes of data are pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [^][1*][2][3][4]
-
     WHEN('1 byte of data is poped ') 
       THEN('The pop method returns ok status') 
       THEN('After the pop method,the peek method returns expected data in RingBuffer') 
         // internal state should look like [][][2*][^][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed and 1 byte was poped')   // [0][1^][][][4*]
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed and 1 byte was poped')   
     // internal state should look like [][1*][2][3][^]
     WHEN('1 bytes of data are pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [^][1*][2][3][4]
-
     WHEN('1 byte of data is poped ') 
       THEN('The pop method returns ok status') 
       THEN('After the pop method,the peek method returns expected data in RingBuffer') 
         // internal state should look like [][][2*][3][^]
 
-  GIVEN('A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 1 byte was poped and 3 bytes were pushed')   // [0^][1*][][][]
+  GIVEN('A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 1 byte was poped and 3 bytes were pushed')   
     // internal state should look like [^][1*][2][3][4]
     WHEN('2 bytes of data are pushed ') 
-      THEN('The push method returns full status') 
+      THEN('The push method returns the full error code status')
       THEN('After push method, peek method returns expected data') 
         // internal state should look like [^][1*][2][3][4]
-
     WHEN('1 byte of data is poped ') 
       THEN('After the pop method,the pop method returns the data in RingBuffer') 
         // internal state should look like [^][][2*][3][4]
@@ -419,10 +402,10 @@ SCENARIO('Volatile RingBuffer works correctly for index 0')
       THEN('The push method returns ok status') 
       THEN('After push method, peek method returns expected data') 
         // internal state should look like [][][1*][^][]
-
     WHEN('1 byte of data is poped ') 
       THEN('The pop method returns empty status') 
-        // internal state should look like [][][*^][][]
+      THEN('The pop method returns empty on every indices')
+      // internal state should look like [][][*^][][]
 
   GIVEN('A RingBuffer with capacity 4 to which 3 bytes of data were pushed and 2 byte was poped ') 
     // internal state should look like [][][2*][^][]
@@ -430,11 +413,10 @@ SCENARIO('Volatile RingBuffer works correctly for index 0')
       THEN('The push method returns ok status') 
       THEN('After push method, peek method returns expected data') 
         // internal state should look like [][][2*][3][^]
-
     WHEN('1 bytes of data are poped ') 
       THEN('The pop method returns ok status') 
-      THEN('After the pop method,the peek method returns expected data in RingBuffer') 
-        // internal state should look like [][][*^][][]
+      THEN('The pop method returns empty on every indices')
+      // internal state should look like [][][][*^][]
 
   GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed and 2 byte was poped and 2 bytes were pushed')   //
     // internal state should look like [][][2*][3][^]
@@ -442,151 +424,140 @@ SCENARIO('Volatile RingBuffer works correctly for index 0')
       THEN('The push method returns ok status') 
       THEN('After the push method, pop method returns expected data') 
         // internal state should look like [^][][2*][3][4]
-
     WHEN('2 bytes of data are poped ') 
-      THEN('The pop method returns ok status') 
-      THEN('After the pop method,the peek method returns expected data in RingBuffer') 
-        // internal state should look like [][][*^][][]
+      THEN('The pop method returns ok status for 2 bytes') 
+      THEN('The pop method returns empty on every indices')
+      // internal state should look like [][][][][*^]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed 2 bytes were poped and 1 was pushed')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed 2 bytes were poped and 1 was pushed') 
     // internal state should look like [^][][2*][3][4]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, pop method returns expected data') 
         // internal state should look like [5][^][2*][3][4]
-
     WHEN('3 bytes of data is poped ') 
-      THEN('The pop method returns ok status') 
-      THEN('After the pop method,the peek method returns expected data in RingBuffer') 
-        // internal state should look like [][][][][*^]
+      THEN('The pop method returns ok status for 3 bytes') 
+      THEN('The pop method returns empty on every indices')
+      // internal state should look like [^*][][][][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 2 bytes were poped and 2 bytes were pushed ')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 2 bytes were poped and 2 bytes were pushed ') 
     // internal state should look like [5][^][2*][3][4]
     WHEN('1 byte of data is pushed ') 
-      THEN('The push method returns full status') 
+      THEN('The push method returns the full error code status') 
       THEN('After the push method, pop method returns expected data') 
         // internal state should look like [5][^][2*][3][4]
-
     WHEN('3 bytes of data is poped ') 
-      THEN('The pop method returns ok status') 
+      THEN('The pop method returns ok status for 3 bytes') 
       THEN('After the pop method,the peek method returns the data in RingBuffer') 
         // internal state should look like [5*][^][][][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 4 bytes were poped')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 4 bytes were poped') 
     // internal state should look like [][][][*^][]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [][][][3*][^]
-
     WHEN('1 bytes of data is poped ') 
       THEN('The pop method returns empty status') 
-     // internal state should look like [][][][*^][]
+      // internal state should look like [][][][*^][]
+      THEN('The pop method returns empty on every indices')
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped') 
     // internal state should look like [][][][3*][^]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, pop method returns expected data') 
         // internal state should look like [^][][][3*][4]
-
     WHEN('1 bytes of data is poped ') 
       THEN('The pop method returns ok status') 
-     // internal state should look like [][][][*^][]
-     THEN('The peek method returns expected data')
+      // internal state should look like [][][][][*^]
+      THEN('The pop method returns empty on every indices')
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped 1 byte was pushed')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped 1 byte was pushed') 
     // internal state should look like [^][][][3*][4]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, pop method returns expected data') 
         // internal state should look like [5][^][][3*][4]
-
     WHEN('1 bytes of data is poped ') 
       THEN('The pop method returns ok status') 
-     // internal state should look like [^][][][][4*]
-     THEN('The peek method returns expected data')
+      // internal state should look like [^][][][][4*]
+      THEN('The peek method returns expected data') 
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 2 bytes pushed')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 2 bytes pushed') 
     // internal state should look like [5][^][][3*][4]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, pop method returns expected data') 
         // internal state should look like [5][6][^][3*][4]
-
     WHEN('1 bytes of data is poped ') 
       THEN('The pop method returns ok status') 
-     // internal state should look like [5][^][][][4*]
-      THEN('The peek method returns expected data')
+      // internal state should look like [5][^][][][4*]
+      THEN('The peek method returns expected data') 
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 3 pushed')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 3 pushed') 
     // internal state should look like [5][6][^][3*][4]
     WHEN('1 byte of data is pushed ') 
-      THEN('The push method returns full status') 
+      THEN('The push method returns the full error code status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [^][][][3*][4]
-
     WHEN('4 bytes of data is poped ') 
-      THEN('The pop method returns ok status') 
-     // internal state should look like [][*^][][][]
-     THEN('The peek method returns expected data')
+      THEN('The pop method returns ok status for 4 bytes') 
+      // internal state should look like [][][*^][][]
+      THEN('The pop method returns empty on every indices')
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 1 pushed and 2 poped')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 1 pushed and 2 poped') 
     // internal state should look like [][][][][*^]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
         // internal state should look like [^][][][][4*]
-
     WHEN('1 bytes of data is poped ') 
-        // internal state should look like [][][][][*^]
+      // internal state should look like [][][][][*^]
       THEN('The pop method returns empty status') 
+      THEN('The pop method returns empty on every indices')
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 1 pushed and 1 poped')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 1 pushed and 1 poped') 
     // internal state should look like [^][][][][4*]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, pop method returns expected data') 
         // internal state should look like [5][^][][][4*]
-
     WHEN('1 bytes of data is poped ') 
       THEN('The pop method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
-      // internal state should look like [^][][][][4*]
+        // internal state should look like [^][][][][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 2 pushed and 1 poped')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 2 pushed and 1 poped') 
     // internal state should look like [5][^][][][4*]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, pop method returns expected data') 
         // internal state should look like [5][6][^][][4*]
-
     WHEN('1 bytes of data is poped ') 
       THEN('The pop method returns ok status') 
       THEN('After the push method, peek method returns expected data') 
-      // internal state should look like [5*][^][][][]
+        // internal state should look like [5*][^][][][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 3 pushed and 1 poped')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 3 pushed and 1 poped') 
     // internal state should look like [5][6][^][][4*]
     WHEN('1 byte of data is pushed ') 
       THEN('The push method returns ok status') 
       THEN('After the push method, pop method returns expected data') 
         // internal state should look like [5][6][7][^][4*]
-
     WHEN('2 bytes of data is poped ') 
-      THEN('The pop method returns ok status') 
+      THEN('The pop method returns ok status for 2 bytes') 
       THEN('After the push method, peek method returns expected data') 
-      // internal state should look like [][6*][^][][]
+        // internal state should look like [][6*][^][][]
 
-  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 3 pushed and 1 poped, 1 pushed')   
+  GIVEN('A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped and 3 pushed and 1 poped, 1 pushed') 
     // internal state should look like [5][6][7][^][4*]
     WHEN('1 byte of data is pushed ') 
-      THEN('The push method returns full status') 
+      THEN('The push method returns the full error code status') 
       THEN('After the push method, pop method returns expected data') 
         // internal state should look like [5][6][7][^][4*]
-
     WHEN('4 bytes of data is poped ') 
-      THEN('The pop method returns ok status') 
+      THEN('The pop method returns ok status for 4 bytes') 
       THEN('After the push method, peek method returns expected data') 
-      // internal state should look like [][][*^][][]
-
+// internal state should look like [][][][^][]      
+      THEN('The pop method returns empty on every indices')

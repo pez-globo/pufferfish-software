@@ -91,8 +91,13 @@ SCENARIO("The OrderedMap is constructed from initializer list works corretly") {
           REQUIRE(map.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [6]to[1000] keys") {
+        for (size_t i = 6; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -141,8 +146,13 @@ SCENARIO("The OrderedMap is constructed from initializer list works corretly") {
           REQUIRE(map.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [5]to[1000] keys") {
+        for (size_t i = 5; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -182,8 +192,13 @@ SCENARIO("The OrderedMap is constructed from initializer list works corretly") {
           REQUIRE(map.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [4]to[1000] keys") {
+        for (size_t i = 4; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -258,8 +273,13 @@ SCENARIO("OrderedMap construected form initializer list gives expected results")
         bool status = map.has(Test(i));
         THEN("The has method returns true for 1-6 keys") { REQUIRE(status == true); }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [7]to[1000] keys") {
+        for (size_t i = 7; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -312,8 +332,13 @@ SCENARIO("OrderedMap construected form initializer list gives expected results")
           REQUIRE(result == i);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [7]to[1000] keys") {
+        for (size_t i = 7; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -356,8 +381,13 @@ SCENARIO("OrderedMap construected form initializer list gives expected results")
           REQUIRE(map.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [7]to[1000] keys") {
+        for (size_t i = 7; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -400,8 +430,13 @@ SCENARIO("OrderedMap construected form initializer list gives expected results")
           REQUIRE(map.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [4]to[1000] keys") {
+        for (size_t i = 8; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -491,8 +526,13 @@ SCENARIO("The input method in OrderedMap works correctly") {
           REQUIRE(map.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [8]to[1000] keys") {
+        for (size_t i = 8; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -568,8 +608,13 @@ SCENARIO("The input method in OrderedMap works correctly") {
         REQUIRE(map.has(test9) == false);
         REQUIRE(map.has(test10) == false);
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [8]to[1000] keys") {
+        for (size_t i = 9; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -614,8 +659,13 @@ SCENARIO("The input method in OrderedMap works correctly") {
           REQUIRE(map.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [11]to[1000] keys") {
+        for (size_t i = 11; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -658,8 +708,13 @@ SCENARIO("The input method in OrderedMap works correctly") {
           REQUIRE(map.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [8]to[1000] keys") {
+        for (size_t i = 8; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -734,8 +789,13 @@ SCENARIO("The input method in OrderedMap works correctly for large values and ne
         REQUIRE(map.has(test2) == true);
         REQUIRE(map.has(test3) == true);
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [4]to[1000] keys") {
+        for (size_t i = 4; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -789,8 +849,13 @@ SCENARIO("The input method in OrderedMap works correctly for large values and ne
         REQUIRE(map.has(test2) == true);
         REQUIRE(map.has(test3) == true);
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [4]to[1000] keys") {
+        for (size_t i = 4; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -857,8 +922,13 @@ SCENARIO("The input method in OrderedMap works correctly for struct and pointers
         REQUIRE(map.has(test2) == true);
         REQUIRE(map.has(test3) == true);
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [4]to[1000] keys") {
+        for (size_t i = 4; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -922,8 +992,13 @@ SCENARIO("The input method in OrderedMap works correctly for struct and pointers
         REQUIRE(map.has(test2) == true);
         REQUIRE(map.has(test3) == true);
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [4]to[1000] keys") {
+        for (size_t i = 4; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -994,8 +1069,13 @@ SCENARIO("The method output in OrderedMap works corretly") {
         REQUIRE(map.has(test11) == false);
         REQUIRE(map.has(test12) == false);
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [9]to[1000] keys") {
+        for (size_t i = 9; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -1044,8 +1124,13 @@ SCENARIO("The method output in OrderedMap works corretly") {
         REQUIRE(map.has(test11) == false);
         REQUIRE(map.has(test12) == false);
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [9]to[1000] keys") {
+        for (size_t i = 9; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -1098,8 +1183,13 @@ SCENARIO("The method output in OrderedMap works corretly") {
         REQUIRE(map.has(test8) == false);
         REQUIRE(map.has(test7) == false);
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [7]to[1000] keys") {
+        for (size_t i = 7; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -1164,8 +1254,13 @@ SCENARIO("The method erase in OrderedMap works corretly") {
           REQUIRE(map.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [10]to[1000] keys") {
+        for (size_t i = 10; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -1209,8 +1304,13 @@ SCENARIO("The method erase in OrderedMap works corretly") {
           REQUIRE(map.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [9]to[1000] keys") {
+        for (size_t i = 9; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
@@ -1257,8 +1357,13 @@ SCENARIO("The method erase in OrderedMap works corretly") {
           REQUIRE(map.has(Test(i)) == false);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(map.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [11]to[1000] keys") {
+        for (size_t i = 11; i < 1000; i++) {
           REQUIRE(map.has(Test(i)) == false);
         }
       }

@@ -40,6 +40,14 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 0") {
       THEN("The pop method returns empty status") {
         REQUIRE(pop_status == PF::BufferStatus::empty);
       }
+      THEN("The peek method returns empty on all indices") {
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t re = 0;
+          uint8_t& val1 = re;
+          auto peek_status = test.peek(val1, i);
+          REQUIRE(peek_status == PF::BufferStatus::empty);
+        }
+      }
       // internal state should look like [*^] [] [] [][]
     }
   }
@@ -69,8 +77,8 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 0") {
       uint8_t& val1 = re;
       auto pop_status = test.pop(val1);
       THEN("The pop method returns ok status") { REQUIRE(pop_status == PF::BufferStatus::ok); }
-      THEN("After the pop method,the peek method returns expected data") {
-        // internal state should look like [*^][][][][]
+      THEN("After the pop method,the peek method returns empty on every indices") {
+        // internal state should look like [] [*^] [] [][]
         uint8_t re = 0;
         uint8_t& val1 = re;
         auto peek_status = test.peek(val1);
@@ -169,7 +177,9 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 0 for pop
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
+        THEN("The pop method returns ok status for 2 bytes") {
+          REQUIRE(status == PF::BufferStatus::ok);
+        }
       }
       THEN("After the pop method,the peek method returns expected data in RingBuffer") {
         // internal state should look like [][][2*][^][]
@@ -207,7 +217,9 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 0 for pop
     REQUIRE(val4 == 3);
     WHEN("1 byte of data is pushed ") {
       auto status = test.push(5);
-      THEN("The push method returns full status") { REQUIRE(status == PF::BufferStatus::full); }
+      THEN("The push method returns the full error code ") {
+        REQUIRE(status == PF::BufferStatus::full);
+      }
       THEN("After the push method, peek method returns expected data") {
         // internal state should look like [0*] [1] [2] [3][^]
         for (size_t i = 0; i < 4; i++) {
@@ -224,13 +236,13 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 0 for pop
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status for 1st time") {
+        THEN("The pop method returns ok status for 4 bytes") {
           REQUIRE(status == PF::BufferStatus::ok);
         }
       }
 
-      THEN("After the pop method,the peek method returns expected data in RingBuffer") {
-        // internal state should look like [*^] [] [] [][]
+      THEN("After the pop method,the peek method returns empty on all indices") {
+        // internal state should look like [] [] [] [][^]
         uint8_t re = 0;
         uint8_t& val1 = re;
         auto peek_status = test.peek(val1);
@@ -242,7 +254,7 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 0 for pop
 
 SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 1") {
   GIVEN(
-      "A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 2 bytes was poped ") {  // [0*][1][2^][][]
+      "A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 2 bytes was poped ") {
     // internal state should look like [][*^][][][]
     PF::Util::Containers::RingBuffer<5, uint8_t> test;
     for (size_t i = 0; i < 2; i++) {
@@ -278,7 +290,10 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 1") {
       uint8_t re = 0;
       uint8_t& val = re;
       auto status = test.pop(val);
-      THEN("The pop method returns empty status") { REQUIRE(status == PF::BufferStatus::empty); }
+      // internal state should look like [][*^][][][]
+      THEN("The pop method returns empty status for 1 byte") {
+        REQUIRE(status == PF::BufferStatus::empty);
+      }
     }
   }
 
@@ -318,7 +333,7 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 1") {
       uint8_t& val = re;
       auto status = test.pop(val);
       THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
-      THEN("After the pop method,the peek method returns expected data in RingBuffer") {
+      THEN("After the pop method,the peek method returns empty on all indices") {
         // internal state should look like [][*^][][][]
         uint8_t re = 0;
         uint8_t& val1 = re;
@@ -479,7 +494,9 @@ SCENARIO(
 
     WHEN("2 bytes of data are pushed ") {
       auto status = test.push(5);
-      THEN("The push method returns full status") { REQUIRE(status == PF::BufferStatus::full); }
+      THEN("The push method returns the full error code status") {
+        REQUIRE(status == PF::BufferStatus::full);
+      }
       THEN("After push method, peek method returns expected data") {
         // internal state should look like [^][1*][2][3][4]
         uint8_t re = 0;
@@ -560,7 +577,15 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 2") {
       uint8_t& val = re;
       auto status = test.pop(val);
       THEN("The pop method returns empty status") { REQUIRE(status == PF::BufferStatus::empty); }
-      // internal state should look like [][][*^][][]
+      THEN("The peek method returns empty on every indices") {
+        // internal state should look like [][][*^][][]
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t re1 = 0;
+          uint8_t& val1 = re1;
+          auto status = test.peek(val1, i);
+          REQUIRE(status == PF::BufferStatus::empty);
+        }
+      }
     }
   }
 
@@ -601,12 +626,14 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 2") {
       uint8_t& val = re;
       auto status = test.pop(val);
       THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
-      THEN("After the pop method,the peek method returns expected data in RingBuffer") {
+      THEN("After the pop method,the peek method returns empty on every indices") {
         // internal state should look like [][][*^][][]
-        uint8_t re = 0;
-        uint8_t& val1 = re;
-        auto peek_status = test.peek(val1);
-        REQUIRE(peek_status == PF::BufferStatus::empty);
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t re = 0;
+          uint8_t& val1 = re;
+          auto peek_status = test.peek(val1);
+          REQUIRE(peek_status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -657,14 +684,18 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 2") {
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
+        THEN("The pop method returns ok status for 2 bytes") {
+          REQUIRE(status == PF::BufferStatus::ok);
+        }
       }
-      THEN("After the pop method,the peek method returns expected data in RingBuffer") {
+      THEN("After the pop method,the peek method returns empty on every indices") {
         // internal state should look like [][][*^][][]
-        uint8_t re = 0;
-        uint8_t& val1 = re;
-        auto peek_status = test.peek(val1);
-        REQUIRE(peek_status == PF::BufferStatus::empty);
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t re = 0;
+          uint8_t& val1 = re;
+          auto peek_status = test.peek(val1);
+          REQUIRE(peek_status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -728,14 +759,18 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 2 for pop
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
+        THEN("The pop method returns ok status for 3 bytes") {
+          REQUIRE(status == PF::BufferStatus::ok);
+        }
       }
-      THEN("After the pop method,the peek method returns expected data in RingBuffer") {
-        // internal state should look like [][5*^][][]
-        uint8_t re = 0;
-        uint8_t& val1 = re;
-        auto peek_status = test.peek(val1);
-        REQUIRE(peek_status == PF::BufferStatus::empty);
+      THEN("After the pop method,the peek method returns empty on every indices") {
+        // internal state should look like [][][][][]
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t re = 0;
+          uint8_t& val1 = re;
+          auto peek_status = test.peek(val1);
+          REQUIRE(peek_status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -777,7 +812,9 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 2 for pop
 
     WHEN("1 byte of data is pushed ") {
       auto status = test.push(4);
-      THEN("The push method returns full status") { REQUIRE(status == PF::BufferStatus::full); }
+      THEN("The push method returns the full error code status") {
+        REQUIRE(status == PF::BufferStatus::full);
+      }
       THEN("After the push method, peek method returns expected data") {
         // internal state should look like [5][^][2*][3][4]
         uint8_t re1 = 0;
@@ -803,7 +840,9 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 2 for pop
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
+        THEN("The pop method returns ok status for 3 bytes") {
+          REQUIRE(status == PF::BufferStatus::ok);
+        }
       }
 
       THEN("After the pop method,the peek method returns the data in RingBuffer") {
@@ -851,6 +890,14 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 3") {
       auto status = test.pop(val);
       THEN("The pop method returns empty status") { REQUIRE(status == PF::BufferStatus::empty); }
       // internal state should look like [][][][*^][]
+      THEN("The peek method returns empty on every indices") {
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t re1 = 0;
+          uint8_t& val1 = re1;
+          auto status = test.peek(val1, i);
+          REQUIRE(status == PF::BufferStatus::empty);
+        }
+      }
     }
   }
   GIVEN("A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped") {
@@ -892,9 +939,11 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 3") {
       auto status = test.pop(val);
       THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
       // internal state should look like [][][][*^][]
-      THEN("The peek method returns expected data") {
-        auto status = test.peek(val1, 0);
-        REQUIRE(status == PF::BufferStatus::empty);
+      THEN("The peek method returns empty on every indices") {
+        for (size_t i = 0; i < 4; i++) {
+          auto status = test.peek(val1, i);
+          REQUIRE(status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -1079,7 +1128,9 @@ SCENARIO(
 
     WHEN("1 byte of data is pushed ") {
       auto status = test.push(4);
-      THEN("The push method returns full status") { REQUIRE(status == PF::BufferStatus::full); }
+      THEN("The push method returns the full error code status") {
+        REQUIRE(status == PF::BufferStatus::full);
+      }
       THEN("After the push method, peek method returns expected data") {
         // internal state should look like [^][][][3*][4]
         uint8_t re1 = 0;
@@ -1109,13 +1160,17 @@ SCENARIO(
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
+        THEN("The pop method returns ok status for 4 bytes") {
+          REQUIRE(status == PF::BufferStatus::ok);
+        }
       }
 
       // internal state should look like [][*^][][][]
-      THEN("The peek method returns expected data") {
-        auto status = test.peek(val1, 0);
-        REQUIRE(status == PF::BufferStatus::empty);
+      THEN("The peek method returns empty for every indices") {
+        for (size_t i = 0; i < 4; i++) {
+          auto status = test.peek(val1, 0);
+          REQUIRE(status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -1163,6 +1218,12 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 4") {
       auto status = test.pop(val);
       // internal state should look like [][][][][*^]
       THEN("The pop method returns empty status") { REQUIRE(status == PF::BufferStatus::empty); }
+      THEN("The peek method returns empty for every indices") {
+        for (size_t i = 0; i < 4; i++) {
+          auto peek_status = test.peek(val1, i);
+          REQUIRE(peek_status == PF::BufferStatus::empty);
+        }
+      }
     }
   }
   GIVEN(
@@ -1205,15 +1266,17 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 4") {
         REQUIRE(val2 == 5);
       }
     }
-    WHEN("1 bytes of data is poped ") {
+    WHEN("1 byte of data is poped ") {
       uint8_t re = 0;
       uint8_t& val = re;
       auto status = test.pop(val);
       THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
-      THEN("After the push method, peek method returns expected data") {
-        // internal state should look like [^][][][][4*]
-        auto peek_status = test.peek(val1, 0);
-        REQUIRE(peek_status == PF::BufferStatus::empty);
+      THEN("After the push method, peek method returns empty at every indices") {
+        // internal state should look like [^][][][][*]
+        for (size_t i = 0; i < 4; i++) {
+          auto peek_status = test.peek(val1, 0);
+          REQUIRE(peek_status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -1268,7 +1331,7 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 4") {
         REQUIRE(val3 == 6);
       }
     }
-    WHEN("1 bytes of data is poped ") {
+    WHEN("1 byte of data is poped ") {
       uint8_t re = 0;
       uint8_t& val = re;
       auto status = test.pop(val);
@@ -1346,7 +1409,9 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 4 for pop
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
+        THEN("The pop method returns ok status for 2 bytes") {
+          REQUIRE(status == PF::BufferStatus::ok);
+        }
       }
       THEN("After the push method, peek method returns expected data") {
         // internal state should look like [][6*][^][][]
@@ -1402,7 +1467,9 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 4 for pop
 
     WHEN("1 byte of data is pushed ") {
       auto status = test.push(8);
-      THEN("The push method returns full status") { REQUIRE(status == PF::BufferStatus::full); }
+      THEN("The push method returns the full error code status") {
+        REQUIRE(status == PF::BufferStatus::full);
+      }
       THEN("After the push method, peek method returns expected data") {
         // internal state should look like [5][6][7][^][4*]
         auto peek_status = test.peek(val1, 0);
@@ -1424,12 +1491,16 @@ SCENARIO("Non-Volatile RingBuffer works correctly when oldest index is 4 for pop
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
+        THEN("The pop method returns ok status for 4 bytes") {
+          REQUIRE(status == PF::BufferStatus::ok);
+        }
       }
-      THEN("After the push method, peek method returns expected data") {
+      THEN("After the push method, peek method returns empty on every indices") {
         // internal state should look like [][][*^][][]
-        auto peek_status = test.peek(val1, 0);
-        REQUIRE(peek_status == PF::BufferStatus::empty);
+        for (size_t i = 0; i < 4; i++) {
+          auto peek_status = test.peek(val1, 0);
+          REQUIRE(peek_status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -1461,7 +1532,15 @@ SCENARIO("Volatile RingBuffer works correctly for index 0") {
       THEN("The pop method returns empty status") {
         REQUIRE(pop_status == PF::BufferStatus::empty);
       }
-      // internal state should look like [*^] [] [] [][]
+      THEN("The pop method returns empty on every indices") {
+        // internal state should look like [*^] [] [] [] []
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t result = 0;
+          uint8_t& pop = result;
+          auto pop_status = test.pop(pop);
+          REQUIRE(pop_status == PF::BufferStatus::empty);
+        }
+      }
     }
   }
   GIVEN(
@@ -1488,12 +1567,14 @@ SCENARIO("Volatile RingBuffer works correctly for index 0") {
       uint8_t& val1 = re;
       auto pop_status = test.pop(val1);
       THEN("The pop method returns ok status") { REQUIRE(pop_status == PF::BufferStatus::ok); }
-      THEN("After the pop method,the peek method returns expected data") {
-        // internal state should look like [*^][][][][]
-        uint8_t re = 0;
-        uint8_t& val1 = re;
-        auto peek_status = test.peek(val1);
-        REQUIRE(peek_status == PF::BufferStatus::empty);
+      THEN("The pop method returns empty on every indices") {
+        // internal state should look like [*] [^] [] [][]
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t result = 0;
+          uint8_t& pop = result;
+          auto pop_status = test.pop(pop);
+          REQUIRE(pop_status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -1557,7 +1638,7 @@ SCENARIO("Volatile RingBuffer works correctly for index 0 for pop and push metho
     REQUIRE(test.peek(val1) == PF::BufferStatus::ok);
     REQUIRE(val1 == 0);
 
-    WHEN("1 bytes of data are pushed ") {
+    WHEN("1 bytes of data is pushed ") {
       auto status = test.push(3);
       THEN("The push method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
       THEN("After the push method, pop method returns expected data") {
@@ -1580,7 +1661,9 @@ SCENARIO("Volatile RingBuffer works correctly for index 0 for pop and push metho
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
+        THEN("The pop method returns ok status for 2 bytes") {
+          REQUIRE(status == PF::BufferStatus::ok);
+        }
       }
       THEN("After the pop method,the peek method returns expected data in RingBuffer") {
         // internal state should look like [][][2*][^][]
@@ -1602,7 +1685,9 @@ SCENARIO("Volatile RingBuffer works correctly for index 0 for pop and push metho
     }
     WHEN("1 byte of data is pushed ") {
       auto status = test.push(5);
-      THEN("The push method returns full status") { REQUIRE(status == PF::BufferStatus::full); }
+      THEN("The push method returns the full error code status") {
+        REQUIRE(status == PF::BufferStatus::full);
+      }
       THEN("After the push method, peek method returns expected data") {
         // internal state should look like [0*] [1] [2] [3][^]
         for (size_t i = 0; i < 4; i++) {
@@ -1619,17 +1704,18 @@ SCENARIO("Volatile RingBuffer works correctly for index 0 for pop and push metho
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status for 1st time") {
+        THEN("The pop method returns ok status for 4 bytes") {
           REQUIRE(status == PF::BufferStatus::ok);
         }
       }
-
-      THEN("After the pop method,the peek method returns expected data in RingBuffer") {
-        // internal state should look like [*^] [] [] [][]
-        uint8_t re = 0;
-        uint8_t& val1 = re;
-        auto peek_status = test.peek(val1);
-        REQUIRE(peek_status == PF::BufferStatus::empty);
+      THEN("The pop method returns empty on every indices") {
+        // internal state should look like [*][][][][^]
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t result = 0;
+          uint8_t& pop = result;
+          auto pop_status = test.pop(pop);
+          REQUIRE(pop_status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -1671,6 +1757,15 @@ SCENARIO("Volatile RingBuffer works correctly for index 1") {
       uint8_t& val = re;
       auto status = test.pop(val);
       THEN("The pop method returns empty status") { REQUIRE(status == PF::BufferStatus::empty); }
+      THEN("The pop method returns empty on every indices") {
+        // internal state should look like [][*^][][][]
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t result = 0;
+          uint8_t& pop = result;
+          auto pop_status = test.pop(pop);
+          REQUIRE(pop_status == PF::BufferStatus::empty);
+        }
+      }
     }
   }
 
@@ -1710,12 +1805,14 @@ SCENARIO("Volatile RingBuffer works correctly for index 1") {
       uint8_t& val = re;
       auto status = test.pop(val);
       THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
-      THEN("After the pop method,the peek method returns expected data in RingBuffer") {
-        // internal state should look like [][*^][][][]
-        uint8_t re = 0;
-        uint8_t& val1 = re;
-        auto peek_status = test.peek(val1);
-        REQUIRE(peek_status == PF::BufferStatus::empty);
+      THEN("The pop method returns empty on every indices") {
+        // internal state should look like [][*][^][][]
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t result = 0;
+          uint8_t& pop = result;
+          auto pop_status = test.pop(pop);
+          REQUIRE(pop_status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -1845,7 +1942,7 @@ SCENARIO("Volatile RingBuffer works correctly for index 1 for pop and push metho
   }
   GIVEN(
       "A RingBuffer with capacity 4 to which 2 bytes of data were pushed and 1 byte was poped and "
-      "3 bytes were pushed") {  // [0^][1*][][][]
+      "3 bytes were pushed") {
     // internal state should look like [^][1*][2][3][4]
     volatile PF::Util::Containers::RingBuffer<5, uint8_t> test;
     for (size_t i = 0; i < 2; i++) {
@@ -1861,7 +1958,9 @@ SCENARIO("Volatile RingBuffer works correctly for index 1 for pop and push metho
 
     WHEN("2 bytes of data are pushed ") {
       auto status = test.push(5);
-      THEN("The push method returns full status") { REQUIRE(status == PF::BufferStatus::full); }
+      THEN("The push method returns the full error code status") {
+        REQUIRE(status == PF::BufferStatus::full);
+      }
       THEN("After push method, peek method returns expected data") {
         // internal state should look like [^][1*][2][3][4]
         uint8_t re = 0;
@@ -1942,7 +2041,15 @@ SCENARIO("Volatile RingBuffer works correctly for index 2") {
       uint8_t& val = re;
       auto status = test.pop(val);
       THEN("The pop method returns empty status") { REQUIRE(status == PF::BufferStatus::empty); }
-      // internal state should look like [][][*^][][]
+      THEN("The pop method returns empty on every indices") {
+        // internal state should look like [][][*^][][]
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t result = 0;
+          uint8_t& pop = result;
+          auto pop_status = test.pop(pop);
+          REQUIRE(pop_status == PF::BufferStatus::empty);
+        }
+      }
     }
   }
 
@@ -1983,12 +2090,14 @@ SCENARIO("Volatile RingBuffer works correctly for index 2") {
       uint8_t& val = re;
       auto status = test.pop(val);
       THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
-      THEN("After the pop method,the peek method returns expected data in RingBuffer") {
-        // internal state should look like [][][*^][][]
-        uint8_t re = 0;
-        uint8_t& val1 = re;
-        auto peek_status = test.peek(val1);
-        REQUIRE(peek_status == PF::BufferStatus::empty);
+      THEN("The pop method returns empty on every indices") {
+        // internal state should look like [][][*][^][]
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t result = 0;
+          uint8_t& pop = result;
+          auto pop_status = test.pop(pop);
+          REQUIRE(pop_status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -2032,14 +2141,18 @@ SCENARIO("Volatile RingBuffer works correctly for index 2") {
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
+        THEN("The pop method returns ok status for 2 bytes") {
+          REQUIRE(status == PF::BufferStatus::ok);
+        }
       }
-      THEN("After the pop method,the peek method returns expected data in RingBuffer") {
-        // internal state should look like [][][*^][][]
-        uint8_t re = 0;
-        uint8_t& val1 = re;
-        auto peek_status = test.peek(val1);
-        REQUIRE(peek_status == PF::BufferStatus::empty);
+      THEN("The pop method returns empty on every indices") {
+        // internal state should look like [][][*][][^]
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t result = 0;
+          uint8_t& pop = result;
+          auto pop_status = test.pop(pop);
+          REQUIRE(pop_status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -2090,14 +2203,18 @@ SCENARIO("Volatile RingBuffer works correctly for index 2 for pop and push metho
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
+        THEN("The pop method returns ok status for 3 bytes") {
+          REQUIRE(status == PF::BufferStatus::ok);
+        }
       }
-      THEN("After the pop method,the peek method returns expected data in RingBuffer") {
-        // internal state should look like [][][][][*^]
-        uint8_t re = 0;
-        uint8_t& val1 = re;
-        auto peek_status = test.peek(val1);
-        REQUIRE(peek_status == PF::BufferStatus::empty);
+      THEN("The pop method returns empty on every indices") {
+        // internal state should look like [^][][*][][]
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t result = 0;
+          uint8_t& pop = result;
+          auto pop_status = test.pop(pop);
+          REQUIRE(pop_status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -2122,7 +2239,9 @@ SCENARIO("Volatile RingBuffer works correctly for index 2 for pop and push metho
 
     WHEN("1 byte of data is pushed ") {
       auto status = test.push(4);
-      THEN("The push method returns full status") { REQUIRE(status == PF::BufferStatus::full); }
+      THEN("The push method returns the full error code status") {
+        REQUIRE(status == PF::BufferStatus::full);
+      }
       THEN("After the push method, pop method returns expected data") {
         // internal state should look like [5][^][2*][3][4]
         uint8_t re1 = 0;
@@ -2148,7 +2267,9 @@ SCENARIO("Volatile RingBuffer works correctly for index 2 for pop and push metho
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
+        THEN("The pop method returns ok status for 3 bytes") {
+          REQUIRE(status == PF::BufferStatus::ok);
+        }
       }
 
       THEN("After the pop method,the peek method returns the data in RingBuffer") {
@@ -2196,6 +2317,14 @@ SCENARIO("Volatile RingBuffer works correctly for index 3") {
       auto status = test.pop(val);
       THEN("The pop method returns empty status") { REQUIRE(status == PF::BufferStatus::empty); }
       // internal state should look like [][][][*^][]
+      THEN("The pop method returns empty on every indices") {
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t result = 0;
+          uint8_t& pop = result;
+          auto pop_status = test.pop(pop);
+          REQUIRE(pop_status == PF::BufferStatus::empty);
+        }
+      }
     }
   }
   GIVEN("A RingBuffer with capacity 4 to which 4 bytes of data were pushed, 3 bytes were poped") {
@@ -2236,10 +2365,14 @@ SCENARIO("Volatile RingBuffer works correctly for index 3") {
       uint8_t& val = re;
       auto status = test.pop(val);
       THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
-      // internal state should look like [][][][*^][]
-      THEN("The peek method returns expected data") {
-        auto status = test.peek(val1);
-        REQUIRE(status == PF::BufferStatus::empty);
+      // internal state should look like [][][][*][^]
+      THEN("The pop method returns empty on every indices") {
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t result = 0;
+          uint8_t& pop = result;
+          auto pop_status = test.pop(pop);
+          REQUIRE(pop_status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -2378,7 +2511,9 @@ SCENARIO("Volatile RingBuffer works correctly for index 3 for pop and push metho
 
     WHEN("1 byte of data is pushed ") {
       auto status = test.push(4);
-      THEN("The push method returns full status") { REQUIRE(status == PF::BufferStatus::full); }
+      THEN("The push method returns the full error code status") {
+        REQUIRE(status == PF::BufferStatus::full);
+      }
       THEN("After the push method, peek method returns expected data") {
         // internal state should look like [^][][][3*][4]
         uint8_t re1 = 0;
@@ -2408,15 +2543,19 @@ SCENARIO("Volatile RingBuffer works correctly for index 3 for pop and push metho
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
+        THEN("The pop method returns ok status for 4 bytes") {
+          REQUIRE(status == PF::BufferStatus::ok);
+        }
       }
 
-      // internal state should look like [][*^][][][]
-      THEN("The peek method returns expected data") {
-        uint8_t re2 = 0;
-        uint8_t& val2 = re2;
-        auto status = test.peek(val2);
-        REQUIRE(status == PF::BufferStatus::empty);
+      // internal state should look like [][][^][*][]
+      THEN("The pop method returns empty on every indices") {
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t result = 0;
+          uint8_t& pop = result;
+          auto pop_status = test.pop(pop);
+          REQUIRE(pop_status == PF::BufferStatus::empty);
+        }
       }
     }
   }
@@ -2462,6 +2601,14 @@ SCENARIO("Volatile RingBuffer works correctly for index 4") {
       auto status = test.pop(val);
       // internal state should look like [][][][][*^]
       THEN("The pop method returns empty status") { REQUIRE(status == PF::BufferStatus::empty); }
+      THEN("The pop method returns empty on every indices") {
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t result = 0;
+          uint8_t& pop = result;
+          auto pop_status = test.pop(pop);
+          REQUIRE(pop_status == PF::BufferStatus::empty);
+        }
+      }
     }
   }
   GIVEN(
@@ -2627,7 +2774,9 @@ SCENARIO("Volatile RingBuffer works correctly for index 4 for push and pop metho
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
+        THEN("The pop method returns ok status for 2 bytes") {
+          REQUIRE(status == PF::BufferStatus::ok);
+        }
       }
       THEN("After the push method, peek method returns expected data") {
         // internal state should look like [][6*][^][][]
@@ -2671,7 +2820,9 @@ SCENARIO("Volatile RingBuffer works correctly for index 4 for push and pop metho
 
     WHEN("1 byte of data is pushed ") {
       auto status = test.push(8);
-      THEN("The push method returns full status") { REQUIRE(status == PF::BufferStatus::full); }
+      THEN("The push method returns the full error code status") {
+        REQUIRE(status == PF::BufferStatus::full);
+      }
       THEN("After the push method, pop method returns expected data") {
         // internal state should look like [5][6][7][^][4*]
         auto status = test.pop(val1);
@@ -2693,12 +2844,22 @@ SCENARIO("Volatile RingBuffer works correctly for index 4 for push and pop metho
         uint8_t re = 0;
         uint8_t& val = re;
         auto status = test.pop(val);
-        THEN("The pop method returns ok status") { REQUIRE(status == PF::BufferStatus::ok); }
+        THEN("The pop method returns ok status for 4 bytes") {
+          REQUIRE(status == PF::BufferStatus::ok);
+        }
       }
       THEN("After the push method, peek method returns expected data") {
-        // internal state should look like [][][*^][][]
         auto peek_status = test.peek(val1);
         REQUIRE(peek_status == PF::BufferStatus::empty);
+      }
+      // internal state should look like [][][*^][][]
+      THEN("The pop method returns empty on every indices") {
+        for (size_t i = 0; i < 4; i++) {
+          uint8_t result = 0;
+          uint8_t& pop = result;
+          auto pop_status = test.pop(pop);
+          REQUIRE(pop_status == PF::BufferStatus::empty);
+        }
       }
     }
   }

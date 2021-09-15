@@ -55,14 +55,18 @@ SCENARIO("The EnumSet constructed from  initializer list works corretly") {
       for (size_t i = 1; i < 5; i++) {
         bool status = set.has(Test(i));
         THEN("The has method returns true for 1-4 keys") { REQUIRE(status == true); }
-        THEN("The has method returns false for [-1000]to[1000] keys") {
-          for (size_t i = -1000; i < 1000; i++) {
-            REQUIRE(set.has(Test(i)) == false);
-          }
+      }
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(set.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [6]to[1000] keys") {
+        for (size_t i = 6; i < 1000; i++) {
+          REQUIRE(set.has(Test(i)) == false);
         }
       }
     }
-
     WHEN("The input method is called on EnumSet") {
       auto status = set.input(test4);
       THEN("The input method returns ok status for 4th key") {
@@ -88,13 +92,17 @@ SCENARIO("The EnumSet constructed from  initializer list works corretly") {
       }
       THEN("The has method returns true for 1-4 keys") {
         for (size_t i = 1; i < 4; i++) {
-          //          std::cout << "set" << i << std::endl;
           REQUIRE(set.has(Test(i)) == true);
         }
         REQUIRE(set.has(test4) == true);
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(set.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [4]to[1000] keys") {
+        for (size_t i = 4; i < 1000; i++) {
           REQUIRE(set.has(Test(i)) == false);
         }
       }
@@ -128,8 +136,13 @@ SCENARIO("The EnumSet constructed from  initializer list works corretly") {
         REQUIRE(set.has(test2) == true);
       }
       THEN("The has method returns false for 3rd key") { REQUIRE(set.has(test3) == false); }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(set.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [6]to[1000] keys") {
+        for (size_t i = 3; i < 1000; i++) {
           REQUIRE(set.has(Test(i)) == false);
         }
       }
@@ -215,8 +228,13 @@ SCENARIO("The input method in Enumset works correctly") {
         REQUIRE(set.has(test13) == false);
         REQUIRE(set.has(test14) == false);
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(set.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [12]to[1000] keys") {
+        for (size_t i = 12; i < 1000; i++) {
           REQUIRE(set.has(Test(i)) == false);
         }
       }
@@ -286,8 +304,13 @@ SCENARIO("The input method in Enumset works correctly") {
         REQUIRE(set.has(test13) == false);
         REQUIRE(set.has(test14) == false);
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(set.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [12]to[1000] keys") {
+        for (size_t i = 12; i < 1000; i++) {
           REQUIRE(set.has(Test(i)) == false);
         }
       }
@@ -329,8 +352,13 @@ SCENARIO("The input method in Enumset works correctly") {
           REQUIRE(set.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(set.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [12]to[1000] keys") {
+        for (size_t i = 12; i < 1000; i++) {
           REQUIRE(set.has(Test(i)) == false);
         }
       }
@@ -362,8 +390,13 @@ SCENARIO("The input method in Enumset works correctly") {
           REQUIRE(set.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(set.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [12]to[1000] keys") {
+        for (size_t i = 12; i < 1000; i++) {
           REQUIRE(set.has(Test(i)) == false);
         }
       }
@@ -422,8 +455,13 @@ SCENARIO("The method erase in Enumset works corretly") {
           REQUIRE(set.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(set.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [12]to[1000] keys") {
+        for (size_t i = 12; i < 1000; i++) {
           REQUIRE(set.has(Test(i)) == false);
         }
       }
@@ -457,8 +495,13 @@ SCENARIO("The method erase in Enumset works corretly") {
           REQUIRE(set.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(set.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [12]to[1000] keys") {
+        for (size_t i = 12; i < 1000; i++) {
           REQUIRE(set.has(Test(i)) == false);
         }
       }
@@ -496,8 +539,13 @@ SCENARIO("The method erase in Enumset works corretly") {
           REQUIRE(set.has(Test(i)) == true);
         }
       }
-      THEN("The has method returns false for [-1000]to[1000] keys") {
-        for (size_t i = -1000; i < 1000; i++) {
+      THEN("The has method returns false for [-1000]to[0] keys") {
+        for (size_t i = -1000; i < 1; i++) {
+          REQUIRE(set.has(Test(i)) == false);
+        }
+      }
+      THEN("The has method returns false for [10]to[1000] keys") {
+        for (size_t i = 10; i < 1000; i++) {
           REQUIRE(set.has(Test(i)) == false);
         }
       }
