@@ -14,7 +14,7 @@ import {
 // Instead, they should commit values to requests.
 // TODO: updateState action creator should be located in store/connection, since that should be the
 // only thing to dispatch it
-export const updateState = (messageType: MessageType, state: PBMessage): StateUpdateAction => ({
+export const receiveMessage = (messageType: MessageType, state: PBMessage): StateUpdateAction => ({
   type: STATE_UPDATED,
   messageType,
   state,

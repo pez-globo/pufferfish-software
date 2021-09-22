@@ -17,6 +17,7 @@ import {
   MCUPowerStatus,
   BackendConnections,
   ScreenStatus,
+  ScreenStatusRequest,
 } from '../proto/mcu_pb';
 import {
   SystemSettings,
@@ -30,7 +31,6 @@ import {
   eventLogReducer,
   rotaryEncoderReducer,
 } from './reducers/backend';
-import { waveformHistoryReducer, pvHistoryReducer } from './reducers/derived';
 import { REQUEST_COMMITTED, DRAFT_REQUEST_COMMITTED } from './types';
 
 export const controllerReducer = combineReducers({
@@ -62,7 +62,13 @@ export const controllerReducer = combineReducers({
   }),
   mcuPowerStatus: messageReducer<MCUPowerStatus>(MessageType.MCUPowerStatus),
   backendConnections: messageReducer<BackendConnections>(MessageType.BackendConnections),
-  screenStatus: messageReducer<ScreenStatus>(MessageType.ScreenStatus),
+  screenStatus: combineReducers({
+    current: messageReducer<ScreenStatus>(MessageType.ScreenStatus),
+    request: requestReducer<ScreenStatusRequest>(
+      MessageType.ScreenStatusRequest,
+      REQUEST_COMMITTED,
+    ),
+  }),
 
   // Message states from frontend_pb
   rotaryEncoder: rotaryEncoderReducer,
@@ -77,35 +83,6 @@ export const controllerReducer = combineReducers({
     MessageType.FrontendDisplaySetting,
     REQUEST_COMMITTED,
   ),
-
-  // Derived states
-  // TODO: move plots into a separate top-level slice of the store
-  plots: combineReducers({
-    waveforms: combineReducers({
-      paw: waveformHistoryReducer<SensorMeasurements>(
-        MessageType.SensorMeasurements,
-        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
-        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.paw,
-        60,
-        0,
-      ),
-      flow: waveformHistoryReducer<SensorMeasurements>(
-        MessageType.SensorMeasurements,
-        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
-        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.flow,
-        60,
-        20,
-      ),
-      volume: waveformHistoryReducer<SensorMeasurements>(
-        MessageType.SensorMeasurements,
-        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.time,
-        (sensorMeasurements: SensorMeasurements) => sensorMeasurements.volume,
-        60,
-        40,
-      ),
-    }),
-    pvLoop: pvHistoryReducer,
-  }),
 });
 
 export default controllerReducer;

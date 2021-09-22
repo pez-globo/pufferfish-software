@@ -46,6 +46,7 @@ MESSAGE_CLASSES: Mapping[int, Type[betterproto.Message]] = {
     20: mcu_pb.MCUPowerStatus,
     21: mcu_pb.BackendConnections,
     22: mcu_pb.ScreenStatus,
+    23: mcu_pb.ScreenStatusRequest,
     # Testing Messages
     254: mcu_pb.Ping,
     255: mcu_pb.Announcement

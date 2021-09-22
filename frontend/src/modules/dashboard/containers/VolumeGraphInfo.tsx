@@ -11,10 +11,7 @@ import { createStructuredSelector } from 'reselect';
 import { AutoSizer } from 'react-virtualized';
 import { StoreState } from '../../../store/types';
 import { WaveformPoint } from '../../../store/controller/types';
-import {
-  getWaveformVolumeOld,
-  getWaveformVolumeNewSegment,
-} from '../../../store/controller/selectors';
+import { getWaveformVolumeOld, getWaveformVolumeNewSegment } from '../../../store/plots/selectors';
 import { Waveform } from '../components/Waveform';
 import { Axes } from '../components/Axes';
 

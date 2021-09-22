@@ -3,6 +3,7 @@ import {
   AlarmLimitsRequest,
   ExpectedLogEvent,
   AlarmMuteRequest,
+  ScreenStatusRequest,
 } from '../../../proto/mcu_pb';
 import { SystemSettingsRequest, FrontendDisplaySetting } from '../../../proto/frontend_pb';
 import { MessageType, PBMessage, MessageClass, MessageTypes } from '../../../proto/types';
@@ -20,6 +21,7 @@ const Serializers = new Map<MessageType, MessageSerializer<PBMessage>>([
   [MessageType.ParametersRequest, makeSerializer<ParametersRequest>(ParametersRequest)],
   [MessageType.ExpectedLogEvent, makeSerializer<ExpectedLogEvent>(ExpectedLogEvent)],
   [MessageType.AlarmMuteRequest, makeSerializer<AlarmMuteRequest>(AlarmMuteRequest)],
+  [MessageType.ScreenStatusRequest, makeSerializer<ScreenStatusRequest>(ScreenStatusRequest)],
   [MessageType.SystemSettingsRequest, makeSerializer<SystemSettingsRequest>(SystemSettingsRequest)],
   [
     MessageType.FrontendDisplaySetting,

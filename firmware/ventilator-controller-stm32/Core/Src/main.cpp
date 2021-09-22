@@ -33,6 +33,7 @@
 #include "Pufferfish/Application/AlarmMuteService.h"
 #include "Pufferfish/Application/Alarms.h"
 #include "Pufferfish/Application/LogEvents.h"
+#include "Pufferfish/Application/ScreenLock.h"
 #include "Pufferfish/Application/States.h"
 #include "Pufferfish/Application/mcu_pb.h"  // Only used for debugging
 #include "Pufferfish/Driver/BreathingCircuit/AlarmLimitsService.h"
@@ -692,6 +693,9 @@ int main(void)
     }
 
     power_alarms.transform(store.mcu_power_status(), alarms_manager);
+
+    // Screen lock
+    PF::Application::ScreenLock::transform(store.screen_status_request(), store.screen_status());
 
     // Indicators for debugging
     /*static constexpr float valve_opening_indicator_threshold = 0.00001;

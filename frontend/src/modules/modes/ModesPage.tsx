@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ParametersRequest, VentilationMode } from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/proto/types';
 import { commitRequest } from '../../store/controller/actions';
-import { getParametersRequestMode } from '../../store/controller/selectors';
+import { getParametersRequestMode } from '../../store/controller/selectors/measurements';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

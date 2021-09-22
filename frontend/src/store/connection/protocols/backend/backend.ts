@@ -1,5 +1,5 @@
 import { SelectEffect, PutEffect, CallEffect, put, delay, select } from 'redux-saga/effects';
-import { updateState } from '../../../controller/actions';
+import { receiveMessage } from '../../../controller/actions';
 import { StateUpdateAction } from '../../../controller/types';
 import { ConnectionAction } from '../../types';
 import { establishedBackendConnection, lostBackendConnection } from '../../actions';
@@ -41,7 +41,7 @@ export function* receive(
     if (!backendConnected) {
       yield put(establishedBackendConnection());
     }
-    yield put(updateState(results.messageType, results.pbMessage));
+    yield put(receiveMessage(results.messageType, results.pbMessage));
   } catch (err) {
     console.error(err);
   }

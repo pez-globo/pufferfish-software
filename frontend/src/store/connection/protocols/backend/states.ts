@@ -2,14 +2,17 @@ import { OutputSelector } from 'reselect';
 import { SelectEffect, select } from 'redux-saga/effects';
 import { StoreState } from '../../../types';
 import { PBMessage, MessageType } from '../../../proto/types';
+import { getParametersRequest } from '../../../controller/selectors/measurements';
 import {
-  getParametersRequest,
   getAlarmLimitsRequest,
   getFullExpectedLogEvent,
   getAlarmMuteRequest,
+  getScreenStatusRequest,
+} from '../../../controller/selectors';
+import {
   getSystemSettingsRequest,
   getFrontendDisplaySetting,
-} from '../../../controller/selectors';
+} from '../../../controller/selectors/frontend_pb';
 import { getLastBackendConnectionTime } from '../../selectors';
 import {
   TaggedStateSegment,
@@ -35,6 +38,7 @@ const selectors = new Map<MessageType, StateSelector>([
   [MessageType.ParametersRequest, getParametersRequest],
   [MessageType.ExpectedLogEvent, getFullExpectedLogEvent],
   [MessageType.AlarmMuteRequest, getAlarmMuteRequest],
+  [MessageType.ScreenStatusRequest, getScreenStatusRequest],
   [MessageType.SystemSettingsRequest, getSystemSettingsRequest],
   [MessageType.FrontendDisplaySetting, getFrontendDisplaySetting],
 ]);
@@ -55,6 +59,7 @@ const sendSchedule = [
   MessageType.ParametersRequest,
   MessageType.AlarmLimitsRequest,
   MessageType.AlarmMuteRequest,
+  MessageType.ScreenStatusRequest,
   MessageType.SystemSettingsRequest,
   MessageType.FrontendDisplaySetting,
 ];

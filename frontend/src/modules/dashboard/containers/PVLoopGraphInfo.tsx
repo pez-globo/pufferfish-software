@@ -11,7 +11,7 @@ import { createStructuredSelector } from 'reselect';
 import { AutoSizer } from 'react-virtualized';
 import { StoreState } from '../../../store/types';
 import { PVPoint } from '../../../store/controller/types';
-import { getPVLoop } from '../../../store/controller/selectors';
+import { getPVLoop } from '../../../store/plots/selectors';
 import { Loop, Point } from '../components/Loop';
 import { Axes } from '../components/Axes';
 

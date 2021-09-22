@@ -17,7 +17,7 @@ import {
   getSensorMeasurementsFiO2,
   getSensorMeasurementsFlow,
   getParametersRequestMode,
-} from '../../../store/controller/selectors';
+} from '../../../store/controller/selectors/measurements';
 import { VentilationMode } from '../../../store/proto/mcu_pb';
 
 const useStyles = makeStyles((theme: Theme) => ({

@@ -20,8 +20,9 @@ import { MessageType } from '../../store/proto/types';
 import ModalPopup from '../modals/ModalPopup';
 import MultiStepWizard from '../modals/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
-import { updateState } from '../../store/controller/actions';
+import { commitRequest } from '../../store/controller/actions';
 import { getBackendConnected } from '../../store/connection/selectors';
+import { ScreenStatusRequest } from '../../store/proto/mcu_pb';
 
 const useStyles = makeStyles((theme: Theme) => ({
   overlay: {
@@ -151,7 +152,9 @@ export const ScreenLockModal = (): JSX.Element => {
    * On Confirming unlock screen, updates ScreenStatus to redux store
    */
   const onConfirm = () => {
-    dispatch(updateState(MessageType.ScreenStatus, { lock: false }));
+    dispatch(
+      commitRequest<ScreenStatusRequest>(MessageType.ScreenStatusRequest, { lock: false }),
+    );
     setScreenLockPopup(false);
   };
 

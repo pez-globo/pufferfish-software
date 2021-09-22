@@ -19,6 +19,7 @@ import {
   MCUPowerStatus,
   BackendConnections,
   ScreenStatus,
+  ScreenStatusRequest,
 } from './mcu_pb';
 import {
   RotaryEncoder,
@@ -51,6 +52,7 @@ export type PBMessage =
   | MCUPowerStatus
   | BackendConnections
   | ScreenStatus
+  | ScreenStatusRequest
 
   // frontend_pb
   | RotaryEncoder
@@ -80,6 +82,7 @@ export type PBMessageType =
   | typeof MCUPowerStatus
   | typeof BackendConnections
   | typeof ScreenStatus
+  | typeof ScreenStatusRequest
 
   // frontend_pb
   | typeof RotaryEncoder
@@ -109,6 +112,7 @@ export enum MessageType {
   MCUPowerStatus = 20,
   BackendConnections = 21,
   ScreenStatus = 22,
+  ScreenStatusRequest = 23,
 
   // frontend_pb
   RotaryEncoder = 129,
@@ -141,6 +145,7 @@ export const MessageClass = new Map<MessageType, PBMessageType>([
   [MessageType.MCUPowerStatus, MCUPowerStatus],
   [MessageType.BackendConnections, BackendConnections],
   [MessageType.ScreenStatus, ScreenStatus],
+  [MessageType.ScreenStatusRequest, ScreenStatusRequest],
 
   // frontend_pb
   [MessageType.RotaryEncoder, RotaryEncoder],
@@ -172,6 +177,7 @@ export const MessageTypes = new Map<PBMessageType, MessageType>([
   [MCUPowerStatus, MessageType.MCUPowerStatus],
   [BackendConnections, MessageType.BackendConnections],
   [ScreenStatus, MessageType.ScreenStatus],
+  [ScreenStatusRequest, MessageType.ScreenStatusRequest],
 
   // frontend_pb
   [RotaryEncoder, MessageType.RotaryEncoder],

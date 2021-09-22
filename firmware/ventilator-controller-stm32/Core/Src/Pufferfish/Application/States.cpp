@@ -67,6 +67,9 @@ STATESEGMENT_TAGGED_SETTER(AlarmMuteRequest, alarm_mute_request)
 // System Miscellaneous
 STATESEGMENT_TAGGED_SETTER(MCUPowerStatus, mcu_power_status)
 STATESEGMENT_TAGGED_SETTER(BackendConnections, backend_connections)
+// Screen Status
+STATESEGMENT_TAGGED_SETTER(ScreenStatus, screen_status)
+STATESEGMENT_TAGGED_SETTER(ScreenStatusRequest, screen_status_request)
 
 }  // namespace Pufferfish::Util
 
@@ -135,6 +138,11 @@ bool operator==(const StateSegment &first, const StateSegment &second) {
       return STATESEGMENT_EQ_TAGGED(alarm_mute, first, second);
     case MessageTypes::alarm_mute_request:
       return STATESEGMENT_EQ_TAGGED(alarm_mute_request, first, second);
+    // Screen Status
+    case MessageTypes::screen_status:
+      return STATESEGMENT_EQ_TAGGED(screen_status, first, second);
+    case MessageTypes::screen_status_request:
+      return STATESEGMENT_EQ_TAGGED(screen_status_request, first, second);
     // System Miscellaneous
     case MessageTypes::mcu_power_status:
       return STATESEGMENT_EQ_TAGGED(mcu_power_status, first, second);
@@ -191,6 +199,13 @@ AlarmMute &Store::alarm_mute() {
 }
 AlarmMuteRequest &Store::alarm_mute_request() {
   return state_segments_.alarm_mute_request;
+}
+// Screen Status
+ScreenStatus &Store::screen_status() {
+  return state_segments_.screen_status;
+}
+ScreenStatusRequest &Store::screen_status_request() {
+  return state_segments_.screen_status_request;
 }
 // System Miscellaneous
 MCUPowerStatus &Store::mcu_power_status() {
@@ -254,6 +269,13 @@ Store::Status Store::input(const StateSegment &input, bool default_initializatio
     case MessageTypes::alarm_mute_request:
       STATESEGMENT_GET_TAGGED(alarm_mute_request, input);
       return Status::ok;
+    // Screen Status
+    case MessageTypes::screen_status:
+      STATESEGMENT_GET_TAGGED(screen_status, input);
+      return Status::ok;
+    case MessageTypes::screen_status_request:
+      STATESEGMENT_GET_TAGGED(screen_status_request, input);
+      return Status::ok;
     // System Miscellaneous
     case MessageTypes::mcu_power_status:
       STATESEGMENT_GET_TAGGED(mcu_power_status, input);
@@ -305,6 +327,13 @@ Store::Status Store::output(MessageTypes type, StateSegment &output) const {
       return Status::ok;
     case MessageTypes::alarm_mute_request:
       output.set(state_segments_.alarm_mute_request);
+      return Status::ok;
+    // Screen Status
+    case MessageTypes::screen_status:
+      output.set(state_segments_.screen_status);
+      return Status::ok;
+    case MessageTypes::screen_status_request:
+      output.set(state_segments_.screen_status_request);
       return Status::ok;
     // System Miscellaneous
     case MessageTypes::mcu_power_status:
