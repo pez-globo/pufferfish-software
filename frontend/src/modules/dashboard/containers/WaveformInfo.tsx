@@ -15,7 +15,7 @@ import {
   getSensorMeasurementsPaw,
   getSensorMeasurementsFlow,
   getSensorMeasurementsVolume,
-} from '../../../store/controller/selectors';
+} from '../../../store/controller/selectors/measurements';
 
 /**
  * @typedef DataProps

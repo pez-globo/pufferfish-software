@@ -72,7 +72,10 @@ enum class MessageTypes : uint8_t {
   alarm_mute_request = 12,
   // System Miscellaneous
   mcu_power_status = 20,
-  backend_connections = 21
+  backend_connections = 21,
+  // Screen Status
+  screen_status = 22,
+  screen_status_request = 23
 };
 
 // MessageTypeValues should include all defined values of MessageTypes
@@ -97,7 +100,9 @@ using MessageTypeValues = Util::EnumValues<
     MessageTypes::alarm_mute_request,
     // System Miscellaneous
     MessageTypes::mcu_power_status,
-    MessageTypes::backend_connections>;
+    MessageTypes::backend_connections,
+    MessageTypes::screen_status,
+    MessageTypes::screen_status_request>;
 
 // StateSegments
 
@@ -126,6 +131,8 @@ union StateSegmentUnion {
   // System Miscellaneous
   MCUPowerStatus mcu_power_status;
   BackendConnections backend_connections;
+  ScreenStatus screen_status;
+  ScreenStatusRequest screen_status_request;
 };
 
 using StateSegment = Util::TaggedUnion<StateSegmentUnion, MessageTypes>;
@@ -155,6 +162,9 @@ struct StateSegments {
 
   // Internal States
   SensorMeasurements sensor_measurements_raw;
+  // Screen Status
+  ScreenStatus screen_status;
+  ScreenStatusRequest screen_status_request;
   bool backend_connected;
 };
 
@@ -192,6 +202,10 @@ class Store : public Protocols::Application::IndexedStateSender<MessageTypes, St
   // Internal States
   SensorMeasurements &sensor_measurements_raw();
   bool &backend_connected();
+
+  // Screen Status
+  ScreenStatus &screen_status();
+  ScreenStatusRequest &screen_status_request();
 
   Status input(const StateSegment &input, bool default_initialization = false);
   Status output(MessageTypes type, StateSegment &output) const override;

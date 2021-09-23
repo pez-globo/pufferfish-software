@@ -8,7 +8,7 @@ import {
   // getRotaryEncoderButtonPressed,
   getRotaryEncoderStep,
   getRotaryEncoderStepDiff,
-} from '../../../store/controller/selectors';
+} from '../../../store/controller/selectors/frontend_pb';
 
 /**
  * @typedef Props

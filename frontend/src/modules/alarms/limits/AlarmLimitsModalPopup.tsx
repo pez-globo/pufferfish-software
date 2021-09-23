@@ -7,11 +7,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { commitDraftRequest, commitRequest } from '../../../store/controller/actions';
 import {
   getParametersIsVentilating,
+  getParametersRequestMode,
+} from '../../../store/controller/selectors/measurements';
+import {
   getAlarmLimitsRequestDraft,
   getAlarmLimitsRequest,
   getAlarmLimitsRequestUnsaved,
   getAlarmLimitsUnsavedKeys,
-  getParametersRequestMode,
 } from '../../../store/controller/selectors';
 import { AlarmLimitsRequest, Range } from '../../../store/proto/mcu_pb';
 import { MessageType } from '../../../store/proto/types';

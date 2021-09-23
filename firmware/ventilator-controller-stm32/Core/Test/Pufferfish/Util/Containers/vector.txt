@@ -8,8 +8,8 @@ Scenario:The push_back method in vector works correctly
       THEN('The avaliable method reports that 0 bytes are avaliable') 
       THEN('The full method reports that the vector is completely filled') 
       THEN('The empty method reports that the vector is non-empty') 
-      THEN("The erase method reports ok status on input of 253 index ") 
-      THEN("The erase method reports ok status on input of 254th index")    
+      THEN('The erase method reports ok status on input of 253 index ') 
+      THEN('The erase method reports ok status on input of 254th index')    
       THEN('The vector has an expected sequence of 254 bytes, after push-back method ,two more bytes are added at the end') 
 
     WHEN('The push_back method is called thrice on the given vector') 
@@ -83,15 +83,17 @@ Scenario: The resize method in vector gives expected results
       THEN('After resize method is called, the vector has an expected sequence of 20 bytes initially given') 
 //30 bytes has undefined bahaviour
 
-    WHEN('Vector is resized with new size as 10') 
+    WHEN('Vector is resized to new buffer size 10') 
       THEN('The resize method reports ok status ') 
       THEN('The avaliable method reports that 90 bytes are avaliable') 
       THEN('After the resize method is called, The size method reports size as 10') 
       THEN('The full method reports that the vector is not-completely filled') 
       THEN('The empty method reports that the vector is non-empty') 
-      THEN('The erase method reports ok status on input of 9 index') 
-      THEN('The erase method reports out of bounds status on input of 10 index') 
-      THEN('After resize method is called, the vector has an expected sequence of 10 bytes initially given') 
+      THEN('The erase method reports ok status on input of 2nd index') 
+      THEN('The erase method reports out of bounds status on input of 101th index') 
+      THEN('The erase method reports out of bounds status on input of 50th index')
+      THEN('After resize method is called, the vector has an expected sequence of 10 bytes initially pushed') 
+      THEN('The push_back method returns ok status, data gets overwriten')
 
 Scenario: The copy_from method where source is a vector works correctly  
   GIVEN('An empty uint8_t vector constructed with a capacity of 256 bytes) 
@@ -213,6 +215,18 @@ Scenario: The copy_from method where source is a vector works correctly
       THEN('Erase method returns out of bounds status for  the input of index 10') 
       THEN('Vector has expected sequence of 10 bytes') 
 
+  GIVEN('An empty vector with data type as struct and capacity 8 ')
+    WHEN('The copy_from method is called, source vector is completely filled with data type as struct with capacity 4 and dest index is 0')
+      THEN('The copy_from method returns ok status')
+      THEN('After the copy_from method, size method returns size as 4')
+      THEN('The empty method reports that the vector is not empty') 
+      THEN('The avaliable method reports that 4 bytes are avaliable') 
+      THEN('The full method reports that the vector is  not completely filled') 
+      THEN('Erase method returns ok status for the input of index 3') 
+      THEN('Erase method returns out of bounds status for  the input of index 10') 
+      THEN('Vector has expected sequence of 4 bytes data ') 
+
+
 
 Scenario: The copy_from method where source is an std:array works correctly 
   GIVEN('An empty uint8_t vector constructed with capacity 4') 
@@ -287,6 +301,17 @@ Scenario: The copy_from method where source is an std:array works correctly
       THEN('The empty method reports that the vector is not empty') 
       THEN('The vector has an expected sequence of 100 bytes which were initially pushed') 
 
+  GIVEN('An empty vector with data type as struct and capacity 8 ')
+    WHEN('The copy_from method is called, source array with data-type as struct has 4 bytes of data and dest index is 0')
+      THEN('The copy_from method returns ok status')
+      THEN('After the copy_from method, size method returns size as 4')
+      THEN('The empty method reports that the vector is not empty') 
+      THEN('The avaliable method reports that 4 bytes are avaliable') 
+      THEN('The full method reports that the vector is  not completely filled') 
+      THEN('Erase method returns ok status for the input of index 3') 
+      THEN('Erase method returns out of bounds status for  the input of index 10') 
+      THEN('Vector has expected sequence of 4 bytes data ') 
+
 
 
 SCENARIO:The copy_from method where source is a c-style array, works correctly 
@@ -306,7 +331,7 @@ SCENARIO:The copy_from method where source is a c-style array, works correctly
       THEN('The empty method reports that the vector is empty') 
       THEN('The full method reports that the vector is not-completely filled') 
       THEN('The avaliable method reports that 252 bytes are avaliable') 
-      THEN("Erase method returns out of bounds status for the input of index 0")
+      THEN('Erase method returns out of bounds status for the input of index 0')
 
     WHEN('The copy_from method is called on given vector, where source vector has 100 bytes and dest index is 2') 
       THEN('copy_from method returns ok status') 
@@ -414,6 +439,17 @@ GIVEN('A uint16_t vector constructed with capacity 2 bytes is empty ')
       THEN('Erase method returns out of bounds status for the input of index 10') 
       THEN('Vector has expected sequence , 252 bytes of data in destination vector are overwritten by source vector') 
 
+  GIVEN('An empty vector with data type as struct and capacity 8 ')
+    WHEN('The copy_from method is called, where source vector is completely filled with data type as struct with capacity 4')
+      THEN('The copy_from method returns ok status')
+      THEN('After the copy_from method, size method returns size as 4')
+      THEN('The empty method reports that the vector is not empty') 
+      THEN('The avaliable method reports that 4 bytes are avaliable') 
+      THEN('The full method reports that the vector is  not completely filled') 
+      THEN('Erase method returns ok status for the input of index 3') 
+      THEN('Erase method returns out of bounds status for  the input of index 10') 
+      THEN('Vector has expected sequence of 4 bytes data ') 
+
 
 
 Scenario: The erase method in vector works properly 
@@ -429,6 +465,7 @@ Scenario: The erase method in vector works properly
       THEN('The avaliable method reports that 3 bytes are avaliable') 
       THEN('The full method reports that the vector is not-completely filled') 
       THEN('The empty method reports that the vector is non-empty') 
+      THEN('After erase method, Vector has expected sequence of 249 bytes initially given')      
 
     WHEN('the erase method is called on vector thrice ') 
       THEN('The erase method reports ok status with the input of index 5')   
@@ -438,6 +475,7 @@ Scenario: The erase method in vector works properly
       THEN('The avaliable method reports that 2 bytes are avaliable') 
       THEN('The full method reports that the vector is not-completely filled') 
       THEN('The empty method reports that the vector is non-empty') 
+      THEN('After the erase method, Vector has expected sequence of 250 bytes initially given')
 
   GIVEN('A uint8_t vector constructed with capacity 256 is partially filled with 252 bytes of data') 
     WHEN('the erase method is called thrice') 
@@ -448,6 +486,7 @@ Scenario: The erase method in vector works properly
       THEN('The avaliable method reports that 5 bytes are avaliable') 
       THEN('The full method reports that the vector is not-completely filled') 
       THEN('The empty method reports that the vector is not empty') 
+      THEN('After the erase method, Vector has expected sequence of 251 bytes initially given')
 
   GIVEN('An empty uint8_t vector constructed with capacity 252') 
     WHEN('The erase method is called on given vector once') 
@@ -471,3 +510,48 @@ Scenario: The buffer method gives expected results
 
     WHEN('The buffer method is called on vector after 2 bytes are erased from the given vector')
       THEN('After Element *buffer() method is called on the given vector, it gives expected sequence of 198 bytes')  
+
+
+SCENARIO('The vector constructed with initializer list works correctly')
+  GIVEN('A uint8_t vector constructed with capacity 5 is partially filled with 4 bytes of data')
+    WHEN('The push_back method is called on initializer list of vector')
+      THEN('The push_back method returns ok status')
+      THEN('After the push_back method is called, The size method reports size as 5')
+      THEN('The avaliable method reports that 0 bytes are avaliable') 
+      THEN('The full method reports that the vector is completely filled') 
+      THEN('The empty method reports that the vector is not empty') 
+      THEN('Vector has expected sequence of 5 bytes') 
+
+    WHEN('The erase method is called twice ')
+      THEN('The erase method for 3rd index returns ok status')
+      THEN('The erase method returns out of bounds status for 4th index')
+      THEN('After the erase method is called, The size method reports size as 3')
+      THEN('The avaliable method reports that 2 bytes are avaliable') 
+      THEN('The full method reports that the vector is not completely filled') 
+      THEN('The empty method reports that the vector is not empty') 
+      THEN('Vector has expected sequence of 3 bytes') 
+
+    WHEN('The resize method is called')
+      THEN('The resize method returns ok status')
+      THEN('After the resize method is called, The size method reports size as 2')
+      THEN('The avaliable method reports that 3 bytes are avaliable') 
+      THEN('The full method reports that the vector is not completely filled') 
+      THEN('The empty method reports that the vector is not empty') 
+      THEN('Vector has expected sequence of 2 bytes') 
+
+    WHEN('The copy_from  method is called, where source vector is given and destination vector is empty vector with capacity 8 ')
+      THEN('The copy_from method returns ok status')
+      THEN('After the copy_from method is called, The size method reports size as 4')
+      THEN('The avaliable method reports that 4 bytes are avaliable') 
+      THEN('The full method reports that the vector is not completely filled') 
+      THEN('The empty method reports that the vector is not empty') 
+      THEN('After copy_from method, Vector has expected sequence of 4 bytes') 
+
+
+    WHEN('The copy_from method is called, where destination is given vector and source vector is compeletely filled vector with capacity 10 and dest index is 0')
+      THEN('The copy_from method returns out of bounds status')
+      THEN('After the copy_from method is called, The size method reports size as 4') 
+      THEN('The avaliable method reports that 1 byte is avaliable') 
+      THEN('The full method reports that the vector is not completely filled') 
+      THEN('The empty method reports that the vector is not empty') 
+      THEN('After copy_from method, Vector has expected sequence of 4 bytes initially given ') 

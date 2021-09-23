@@ -51,6 +51,9 @@ PB_BIND(MCUPowerStatus, MCUPowerStatus, AUTO)
 PB_BIND(BackendConnections, BackendConnections, AUTO)
 
 
+PB_BIND(ScreenStatusRequest, ScreenStatusRequest, AUTO)
+
+
 PB_BIND(ScreenStatus, ScreenStatus, AUTO)
 
 

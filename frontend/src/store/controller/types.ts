@@ -21,6 +21,7 @@ import {
   MCUPowerStatus,
   BackendConnections,
   ScreenStatus,
+  ScreenStatusRequest,
 } from '../proto/mcu_pb';
 import {
   SystemSettings,
@@ -62,6 +63,10 @@ export interface EventLog {
 export interface AlarmMuteRequestResponse {
   current: AlarmMute | null;
   request: AlarmMuteRequest | null;
+}
+export interface ScreenStatusRequestResponse {
+  current: ScreenStatus | null;
+  request: ScreenStatusRequest | null;
 }
 
 export interface RotaryEncoderParameter {
@@ -128,7 +133,7 @@ export interface ControllerStates {
   alarmMute: AlarmMuteRequestResponse;
   mcuPowerStatus: MCUPowerStatus | null;
   backendConnections: BackendConnections | null;
-  screenStatus: ScreenStatus | null;
+  screenStatus: ScreenStatusRequestResponse;
 
   // Message states from frontend_pb
   rotaryEncoder: RotaryEncoderParameter | null;

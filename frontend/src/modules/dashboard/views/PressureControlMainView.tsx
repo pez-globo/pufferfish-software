@@ -19,7 +19,7 @@ import {
   getParametersPIP,
   getParametersRR,
   getSensorMeasurementsFiO2,
-} from '../../../store/controller/selectors';
+} from '../../../store/controller/selectors/measurements';
 import { BMIN, CMH20, PERCENT } from '../../shared/units';
 import ValueInfo from '../components/ValueInfo';
 

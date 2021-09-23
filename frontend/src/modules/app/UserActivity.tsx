@@ -8,7 +8,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { getParametersIsVentilating } from '../../store/controller/selectors';
+import { getParametersIsVentilating } from '../../store/controller/selectors/measurements';
 import { setMultiPopupOpen } from './Service';
 
 /**

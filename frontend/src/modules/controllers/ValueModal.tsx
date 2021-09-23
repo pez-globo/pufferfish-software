@@ -4,7 +4,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { makeStyles, Theme, Grid, Typography } from '@material-ui/core';
 import { shallowEqual, useSelector } from 'react-redux';
-import { getRotaryEncoder } from '../../store/controller/selectors';
+import { getRotaryEncoder } from '../../store/controller/selectors/frontend_pb';
 import RotaryEncodeController from '../shared/rotary/RotaryEncodeController';
 import ValueClicker from './ValueClicker';
 

@@ -25,6 +25,7 @@ using ReceivableStates = Util::EnumValues<
     MessageTypes::alarm_limits_request,
     MessageTypes::expected_log_event,
     MessageTypes::alarm_mute_request,
+    MessageTypes::screen_status_request,
     MessageTypes::backend_connections>;
 
 enum class StateSendEntryTypes : uint8_t { realtime_sched = 0, event_sched, main_sched };
@@ -43,6 +44,7 @@ static const auto state_send_main_sched = Util::Containers::make_array<MessageTy
     MessageTypes::next_log_events,
     MessageTypes::active_log_events,
     MessageTypes::alarm_mute,
+    MessageTypes::screen_status,
     MessageTypes::mcu_power_status);
 
 static const uint32_t connection_timeout = 500;       // ms

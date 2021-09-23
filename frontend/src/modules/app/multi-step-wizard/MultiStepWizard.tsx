@@ -12,17 +12,19 @@ import ReplyIcon from '@material-ui/icons/Reply';
 import ModalPopup from '../../shared/ModalPopup';
 import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../Service';
 import {
-  getSmoothedSpO2,
-  getSmoothedHR,
+  getSpO2AlarmLimitsRequest,
+  getHRAlarmLimitsRequest,
+} from '../../../store/controller/selectors';
+import {
   getParametersRequestDraftFiO2,
   getParametersRequestDraftFlow,
   getParametersFlow,
   getParametersFiO2,
-  getSpO2AlarmLimitsRequest,
-  getHRAlarmLimitsRequest,
-  getFiO2AlarmLimitsDraft,
-  getFlowAlarmLimitsDraft,
-} from '../../../store/controller/selectors';
+} from '../../../store/controller/selectors/measurements';
+import {
+  getSmoothedSpO2,
+  getSmoothedHR,
+} from '../../../store/controller/selectors/derived_measurements';
 import { a11yProps, TabPanel } from '../../shared/TabPanel';
 import ValueInfo from '../../dashboard/components/ValueInfo';
 import { BPM, LMIN, PERCENT } from '../../shared/units';
@@ -861,5 +863,12 @@ const MultiStepWizard = (): JSX.Element => {
     </React.Fragment>
   );
 };
+
+const automaticAlarmLimitsRangeSelector = (selector: SelectorType, value: number) =>
+  createSelector(selector, (param: number) => {
+    return { lower: param - value, upper: param + value };
+  });
+const getFiO2AlarmLimitsDraft = automaticAlarmLimitsRangeSelector(getParametersRequestDraftFiO2, 2);
+const getFlowAlarmLimitsDraft = automaticAlarmLimitsRangeSelector(getParametersRequestDraftFlow, 2);
 
 export default MultiStepWizard;

@@ -11,7 +11,7 @@ import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../constants';
 import PowerIndicator from '../../toolbar/PowerIndicator';
 import HeaderClock from '../../toolbar/HeaderClock';
 import { getAlarmNotifyStatus } from '../../../../store/app/selectors';
-import { getParametersIsVentilating } from '../../../../store/controller/selectors';
+import { getParametersIsVentilating } from '../../../../store/controller/selectors/measurements';
 import Alarms from '../../toolbar/Alarms';
 import ClockIcon from '../../../icons/ClockIcon';
 import OverlayScreen from '../../OverlayScreen';

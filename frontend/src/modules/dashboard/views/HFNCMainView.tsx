@@ -10,14 +10,18 @@ import React from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import {
   getHRAlarmLimitsCurrent,
+  getSpO2AlarmLimitsCurrent,
+} from '../../../store/controller/selectors';
+import {
   getParametersFiO2,
   getParametersFlow,
+} from '../../../store/controller/selectors/measurements';
+import {
   getSmoothedFiO2Value,
   getSmoothedFlow,
   getSmoothedHR,
   getSmoothedSpO2,
-  getSpO2AlarmLimitsCurrent,
-} from '../../../store/controller/selectors';
+} from '../../../store/controller/selectors/derived_measurements';
 import { BPM, LMIN, PERCENT } from '../../shared/units';
 import ValueInfo from '../components/ValueInfo';
 

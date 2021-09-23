@@ -15,7 +15,7 @@ import {
   getParametersRequestDraftPEEP,
   getParametersRequestDraftRR,
   getParametersRequestDraftVT,
-} from '../../../store/controller/selectors';
+} from '../../../store/controller/selectors/measurements';
 import { setActiveRotaryReference } from '../Service';
 import ModeBanner, { BannerType } from '../ModeBanner';
 import { BPM, LMIN, PERCENT } from '../../shared/units';
