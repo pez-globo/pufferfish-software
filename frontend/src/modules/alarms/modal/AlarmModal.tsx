@@ -10,8 +10,8 @@ import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
 import { Range, AlarmLimitsRequest } from '../../../store/proto/mcu_pb';
 import { MessageType } from '../../../store/proto/types';
 import ModalPopup from '../../shared/ModalPopup';
-import ValueClicker from '../../controllers/ValueClicker';
-import ValueSlider from '../../controllers/ValueSlider';
+import ValueClicker from '../../shared/value/ValueClicker';
+import ValueSlider from '../../shared/value/ValueSlider';
 import useRotaryReference from '../../shared/rotary/useRotaryReference';
 import { setActiveRotaryReference } from '../../app/Service';
 

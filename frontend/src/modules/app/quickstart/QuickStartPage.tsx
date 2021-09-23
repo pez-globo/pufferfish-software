@@ -26,7 +26,7 @@ import {
   TV_REFERENCE_KEY,
   FLOW_REFERENCE_KEY,
 } from '../../settings/tabs/constants';
-import ParamValueSpinner from '../../controllers/ParamValueSpinner';
+import ParamValueSpinner from '../../shared/value/ParamValueSpinner';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

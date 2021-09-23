@@ -32,9 +32,9 @@ import { BPM, LMIN, PERCENT } from '../../shared/units';
 import { ParametersRequest, AlarmLimitsRequest, Range } from '../../../store/proto/mcu_pb';
 import { MessageType } from '../../../store/proto/types';
 import { commitRequest, commitDraftRequest } from '../../../store/controller/actions';
-import ValueModalContent from '../../controllers/ValueModal';
+import ValueModalContent from '../../shared/value/ValueModal';
 import { AlarmModalContent } from '../../alarms/modal/AlarmModal';
-import { SelectorType } from '../../controllers/ValueSelectorDisplay';
+import { SelectorType } from '../../shared/value/ValueSelectorDisplay';
 
 /**
  * @typedef InternalState

@@ -20,8 +20,8 @@ import {
   getFrontendDisplaySetting,
   getSystemSettingsRequest,
 } from '../../../store/controller/selectors/frontend_pb';
-import ValueSpinner from '../../controllers/ValueSpinner';
-import { ToggleValue } from '../../controllers/ToggleValue';
+import ValueSpinner from '../../shared/value/ValueSpinner';
+import { ToggleValue } from '../../shared/value/ToggleValue';
 import {
   BRIGHTNESS_REFERENCE_KEY,
   HOUR_REFERENCE_KEY,
