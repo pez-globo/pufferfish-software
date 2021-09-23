@@ -1,1 +1,1 @@
-export { default as BellIcon } from './BellIcon';
+export * from './BellIcon';
