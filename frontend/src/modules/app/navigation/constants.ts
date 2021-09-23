@@ -5,7 +5,7 @@
  */
 import { GearIcon, LungsIcon, ChartIcon } from '../../shared/icons';
 import { PufferfishIcon, HomeIcon } from '../sidebar';
-import { BellIcon } from '../toolbar/icons';
+import BellIcon from '../toolbar/icons/BellIcon';
 import BellNoneIcon from '../../shared/icons/BellNoneIcon';
 
 // Constants for storing objects of route paths.
