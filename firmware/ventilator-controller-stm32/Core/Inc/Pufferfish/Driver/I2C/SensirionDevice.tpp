@@ -7,13 +7,13 @@
 #pragma once
 
 #include "SensirionDevice.h"
+#include "iostream"
 
 namespace Pufferfish::Driver::I2C {
 
 template <size_t size>
 I2CDeviceStatus SensirionDevice::read(std::array<uint8_t, size> &buf) {
   static_assert(size % 2 == 0, "Read size must be an even number");
-
   std::array<uint8_t, 3 * size / 2> buf_with_crc{};
   I2CDeviceStatus ret = dev_.read(buf_with_crc.data(), buf_with_crc.size());
   if (ret != I2CDeviceStatus::ok) {

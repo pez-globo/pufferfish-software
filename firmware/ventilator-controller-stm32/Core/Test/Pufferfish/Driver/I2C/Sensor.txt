@@ -1,0 +1,10 @@
+Scenario('Setup method works correctly')
+WHEN('Action is initialize')
+WHEN('Action is wait warmup')
+WHEN('Action is check range')
+WHEN('Action is measure')
+WHEN('Action is wait_measure')
+
+Scenario('Output method works correctly')
+WHEN('Action is measure')
+WHEN('Action is wait_measure')

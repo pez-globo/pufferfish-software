@@ -12,6 +12,7 @@
 
 #include "Pufferfish/HAL/Interfaces/Endian.h"
 #include "Pufferfish/Util/Endian.h"
+#include "iostream"
 
 namespace Pufferfish::Driver::I2C::SFM3019 {
 
@@ -67,6 +68,7 @@ I2CDeviceStatus Device::read_sample(const ConversionFactors &conversion, Sample 
   std::array<uint8_t, sizeof(uint16_t)> buffer{};
   I2CDeviceStatus ret = sensirion_.read(buffer);
   if (ret != I2CDeviceStatus::ok) {
+    std::cout << "not ok" << std::endl;
     return ret;
   }
 
