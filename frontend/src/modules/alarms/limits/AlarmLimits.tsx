@@ -11,7 +11,7 @@ import { MessageType } from '../../../store/proto/types';
 import { setActiveRotaryReference } from '../../app/Service';
 import ValueClicker from '../../controllers/ValueClicker';
 import ValueSlider from '../../controllers/ValueSlider';
-import useRotaryReference from '../../utils/useRotaryReference';
+import useRotaryReference from '../../shared/rotary/useRotaryReference';
 
 const useStyles = makeStyles((theme: Theme) => ({
   alarmValue: {

@@ -5,15 +5,15 @@ import { commitDraftRequest } from '../../store/controller/actions';
 import { ParametersRequest } from '../../store/proto/mcu_pb';
 import { MessageType } from '../../store/proto/types';
 import ValueSpinner from './ValueSpinner';
-import { SelectorType } from '../displays/ValueSelectorDisplay';
+import { SelectorType } from './ValueSelectorDisplay';
 import {
   PEEP_REFERENCE_KEY,
   RR_REFERENCE_KEY,
   FIO2_REFERENCE_KEY,
   TV_REFERENCE_KEY,
   FLOW_REFERENCE_KEY,
-} from '../settings/containers/constants';
-import useRotaryReference from '../utils/useRotaryReference';
+} from '../settings/tabs/constants';
+import useRotaryReference from '../shared/rotary/useRotaryReference';
 
 interface ValueProps {
   selector: SelectorType;

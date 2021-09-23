@@ -3,7 +3,6 @@
  *
  * @file Alarms page has capablity to paginate if there are many alarms
  * Alarms listed are based on current Ventialtion Mode selected
- * TODO: move this into modules/alarms/limits and rename this file, to reflect
  * that this page is only for alarm limits, not for alarms!
  */
 import { Grid } from '@material-ui/core';
@@ -14,8 +13,8 @@ import { useSelector } from 'react-redux';
 import { VentilationMode } from '../../../store/proto/mcu_pb';
 import { getParametersRequestMode } from '../../../store/controller/selectors/measurements';
 import { setActiveRotaryReference } from '../../app/Service';
-import ModeBanner, { BannerType } from '../../displays/ModeBanner';
-import { BPM, PERCENT } from '../../info/units';
+import ModeBanner, { BannerType } from '../../app/ModeBanner';
+import { BPM, PERCENT } from '../../shared/units';
 import AlarmLimitsModalPopup from './AlarmLimitsModalPopup';
 import ParamAlarms from './ParamAlarms';
 

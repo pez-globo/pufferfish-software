@@ -13,7 +13,7 @@ import SimpleTable, {
   Order,
   stableSort,
   StyledTableRow,
-} from '../../controllers/SimpleTable';
+} from '../../shared/SimpleTable';
 
 /**
  * @typedef Data

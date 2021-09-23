@@ -3,7 +3,7 @@
  */
 
 import { LogEventCode, LogEventType } from '../../store/proto/mcu_pb';
-import { PERCENT, LMIN, BPM } from '../info/units';
+import { PERCENT, LMIN, BPM } from '../shared/units';
 import { EventType } from './EventType';
 
 export const eventDetailsMap = new Map<LogEventCode, string>([

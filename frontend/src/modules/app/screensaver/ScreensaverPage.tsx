@@ -6,10 +6,10 @@ import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
 import { useSelector } from 'react-redux';
-import ModeBanner, { BannerType } from '../../displays/ModeBanner';
+import ModeBanner, { BannerType } from '../ModeBanner';
 import ValueJumbotron from './ValueJumbotron';
 import ControlJumbotron from './ControlJumbotron';
-import { PERCENT, BMIN, LMIN } from '../../info/units';
+import { PERCENT, BMIN, LMIN } from '../../shared/units';
 import {
   getSensorMeasurementsSpO2,
   getCycleMeasurementsRR,

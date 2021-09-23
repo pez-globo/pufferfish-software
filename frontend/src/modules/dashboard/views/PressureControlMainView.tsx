@@ -8,7 +8,7 @@ import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Tabs, Tab, Typography, Button } from '@material-ui/core';
 import { PawGraphInfo, FlowGraphInfo, VolumeGraphInfo } from '../containers';
-import { TabPanel, a11yProps } from '../../controllers/TabPanel';
+import { TabPanel, a11yProps } from '../../shared/TabPanel';
 import ControlInfo from '../components/ControlInfo';
 import {
   getCycleMeasurementsPEEP,
@@ -20,7 +20,7 @@ import {
   getParametersRR,
   getSensorMeasurementsFiO2,
 } from '../../../store/controller/selectors/measurements';
-import { BMIN, CMH20, PERCENT } from '../../info/units';
+import { BMIN, CMH20, PERCENT } from '../../shared/units';
 import ValueInfo from '../components/ValueInfo';
 
 const useStyles = makeStyles((theme: Theme) => ({

@@ -17,15 +17,15 @@ import {
   getParametersRequestDraftVT,
 } from '../../../store/controller/selectors/measurements';
 import { setActiveRotaryReference } from '../Service';
-import ModeBanner, { BannerType } from '../../displays/ModeBanner';
-import { BPM, LMIN, PERCENT } from '../../info/units';
+import ModeBanner, { BannerType } from '../ModeBanner';
+import { BPM, LMIN, PERCENT } from '../../shared/units';
 import {
   FIO2_REFERENCE_KEY,
   PEEP_REFERENCE_KEY,
   RR_REFERENCE_KEY,
   TV_REFERENCE_KEY,
   FLOW_REFERENCE_KEY,
-} from '../../settings/containers/constants';
+} from '../../settings/tabs/constants';
 import ParamValueSpinner from '../../controllers/ParamValueSpinner';
 
 const useStyles = makeStyles((theme: Theme) => ({

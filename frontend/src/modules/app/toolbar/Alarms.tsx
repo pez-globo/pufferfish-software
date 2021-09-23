@@ -2,29 +2,27 @@
  * @summary UI components for alarms and alarm muting in the topbar
  *
  * @file Shows the number of alarms, message of the most recent alarm, and alarm mute status. Also allows toggling alarm muting and showing the event log modal.
- * TODO: move this file to a more logical place. Maybe the Alarms component should be moved into a file or folder in modules/app just for the topbar, while all the other components should be moved into a feature slice for alarms.
- *
  */
 import React, { useState } from 'react';
 import { createSelector } from 'reselect';
 import { useSelector } from 'react-redux';
 import { Button, Grid, makeStyles } from '@material-ui/core';
-import { LogEvent } from '../../store/proto/mcu_pb';
+import { LogEvent } from '../../../store/proto/mcu_pb';
 import {
   getNumActiveAlarms,
   getHasActiveAlarms,
   getAlarmMuteActive,
   getMostRecentEvent,
-} from '../../store/controller/selectors';
-import { getEventType } from '../logs/EventType';
-import { LOGS_ROUTE } from '../app/navigation/constants';
-import { BellIcon } from '../icons';
-import EventLogModal from '../logs/EventLog';
+} from '../../../store/controller/selectors';
+import { getEventType } from '../../event-logs/EventType';
+import { LOGS_ROUTE } from '../navigation/constants';
+import { BellIcon } from '../../icons';
+import EventLogModal from '../../event-logs/EventLog';
 import {
   AlarmMuteCountdown,
   AlarmMuteToggleButton,
   AlarmMuteCanceller,
-} from './muting/AlarmMuting';
+} from '../../alarms/muting/AlarmMuting';
 
 const useStyles = makeStyles(() => ({
   iconBadge: {

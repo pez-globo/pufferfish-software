@@ -18,8 +18,8 @@ import {
   getSmoothedSpO2,
   getSmoothedHR,
 } from '../../../store/controller/selectors/derived_measurements';
-import { a11yProps, TabPanel } from '../../controllers/TabPanel';
-import { BPM, LMIN, PERCENT } from '../../info/units';
+import { a11yProps, TabPanel } from '../../shared/TabPanel';
+import { BPM, LMIN, PERCENT } from '../../shared/units';
 import { FlowGraphInfo, PawGraphInfo, VolumeGraphInfo } from '../containers';
 import ControlInfo from '../components/ControlInfo';
 import ValueInfo from '../components/ValueInfo';

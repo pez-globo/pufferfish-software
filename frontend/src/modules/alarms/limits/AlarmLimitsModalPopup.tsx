@@ -17,7 +17,7 @@ import {
 } from '../../../store/controller/selectors';
 import { AlarmLimitsRequest, Range } from '../../../store/proto/mcu_pb';
 import { MessageType } from '../../../store/proto/types';
-import { ModalPopup } from '../../modals';
+import { ModalPopup } from '../../shared';
 import { DiscardAlarmLimitsContent } from '../modal';
 import { alarmConfiguration } from './AlarmLimitsPage';
 

@@ -5,5 +5,4 @@
 export * from './alarms/limits/AlarmLimitsPage';
 export * from './app';
 export * from './controllers';
-export * from './displays';
 export * from './app/landing-page/LandingPage';

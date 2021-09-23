@@ -22,7 +22,7 @@ import {
   getSmoothedHR,
   getSmoothedSpO2,
 } from '../../../store/controller/selectors/derived_measurements';
-import { BPM, LMIN, PERCENT } from '../../info/units';
+import { BPM, LMIN, PERCENT } from '../../shared/units';
 import ValueInfo from '../components/ValueInfo';
 
 const useStyles = makeStyles((theme: Theme) => ({

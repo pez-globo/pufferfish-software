@@ -6,7 +6,7 @@
 import { Theme } from '@material-ui/core';
 import { RefObject } from 'react';
 import { Subscription } from 'rxjs';
-import { getActiveRotaryReference } from '../app/Service';
+import { getActiveRotaryReference } from '../../app/Service';
 
 /**
  * function for handling rotary reference.

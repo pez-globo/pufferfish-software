@@ -14,7 +14,7 @@ import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
 import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../alarms/modal/AlarmModal';
 import { Range } from '../../../store/proto/mcu_pb';
-import { SelectorType, ValueSelectorDisplay } from '../../displays/ValueSelectorDisplay';
+import { SelectorType, ValueSelectorDisplay } from '../../controllers/ValueSelectorDisplay';
 
 const useStyles = makeStyles((theme: Theme) => ({
   rootParent: {
