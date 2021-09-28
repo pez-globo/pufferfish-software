@@ -10,31 +10,31 @@ import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@materia
 import ReplyIcon from '@material-ui/icons/Reply';
 // import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import { createSelector } from 'reselect';
-import ModalPopup from '../../shared/ModalPopup';
-import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../Service';
+import ModalPopup from '../shared/ModalPopup';
+import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
   getSpO2AlarmLimitsRequest,
   getHRAlarmLimitsRequest,
-} from '../../../store/controller/selectors';
+} from '../../store/controller/selectors';
 import {
   getParametersRequestDraftFiO2,
   getParametersRequestDraftFlow,
   getParametersFlow,
   getParametersFiO2,
-} from '../../../store/controller/selectors/measurements';
+} from '../../store/controller/selectors/measurements';
 import {
   getSmoothedSpO2,
   getSmoothedHR,
-} from '../../../store/controller/selectors/derived_measurements';
-import { a11yProps, TabPanel } from '../../shared/TabPanel';
-import ValueInfo from '../../dashboard/components/ValueInfo';
-import { BPM, LMIN, PERCENT } from '../../shared/units';
-import { ParametersRequest, AlarmLimitsRequest, Range } from '../../../store/proto/mcu_pb';
-import { MessageType } from '../../../store/proto/types';
-import { commitRequest, commitDraftRequest } from '../../../store/controller/actions';
-import ValueModalContent from '../../shared/value/ValueModal';
-import { AlarmModalContent } from '../../alarms/modal/AlarmModal';
-import { SelectorType } from '../../shared/value/ValueSelectorDisplay';
+} from '../../store/controller/selectors/derived_measurements';
+import { a11yProps, TabPanel } from '../shared/TabPanel';
+import ValueInfo from '../dashboard/components/ValueInfo';
+import { BPM, LMIN, PERCENT } from '../shared/units';
+import { ParametersRequest, AlarmLimitsRequest, Range } from '../../store/proto/mcu_pb';
+import { MessageType } from '../../store/proto/types';
+import { commitRequest, commitDraftRequest } from '../../store/controller/actions';
+import ValueModalContent from '../shared/value/ValueModal';
+import { AlarmModalContent } from '../alarms/modal/AlarmModal';
+import { SelectorType } from '../shared/value/ValueSelectorDisplay';
 
 /**
  * @typedef InternalState
