@@ -21,7 +21,7 @@ import ScreensaverRoute from './layouts/ScreensaverRoute';
 import SidebarRoute from './layouts/SidebarRoute';
 import SidebarSlideRoute from './layouts/SidebarSlideRoute';
 import DashboardPage from '../../dashboard/DashboardPage';
-import LogsPage from '../../event-logs/LogsPage';
+import EventLogs from '../../event-logs/EventLogs';
 import {
   ALARMS_ROUTE,
   DASHBOARD_ROUTE,
@@ -53,7 +53,7 @@ const Routes = (): JSX.Element => {
       <RouteLayout path={QUICKSTART_ROUTE.path} component={QuickStartPage} />
       <RouteLayout path={ALARMS_ROUTE.path} component={AlarmLimitsPage} />
       <RouteLayout path={SETTINGS_ROUTE.path} component={SettingsPage} />
-      <RouteLayout path={LOGS_ROUTE.path} component={LogsPage} />
+      <RouteLayout path={LOGS_ROUTE.path} component={EventLogs} />
       <ScreensaverRoute path={SCREENSAVER_ROUTE.path} component={ScreensaverPage} />
       <LandingPageRoute component={LandingPage} />
     </Switch>

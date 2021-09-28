@@ -6,7 +6,7 @@
  */
 import React from 'react';
 import { Button, Grid, makeStyles, Typography } from '@material-ui/core';
-import LogsPage from './LogsPage';
+import EventLogs from './EventLogs';
 import ModalPopup from '../shared/ModalPopup';
 import { AlarmMuteCountdown, AlarmMuteToggleButton } from '../alarms/muting/AlarmMuting';
 
@@ -91,7 +91,7 @@ export const EventLogModal = ({
         onClose={() => setOpen(false)}
         showCloseIcon={true}
       >
-        <LogsPage filter={activeFilter} />
+        <EventLogs filter={activeFilter} />
       </ModalPopup>
     </>
   );
