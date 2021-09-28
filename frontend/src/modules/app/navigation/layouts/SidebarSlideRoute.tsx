@@ -2,14 +2,13 @@
  * @summary Layout with Slider styled Sidebar based pages (Dashboard page)
  *
  */
-import React, { PropsWithChildren, useEffect } from 'react';
+import React, { PropsWithChildren } from 'react';
 import { Route, RouteProps, useLocation } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Drawer, Grid } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import ToolBar from '../../toolbar/ToolBar';
 import { ALARMS_ROUTE, SCREENSAVER_ROUTE } from '../constants';
-import { getAlarmNotifyStatus } from '../../../../store/app/selectors';
 import { commitDraftRequest } from '../../../../store/controller/actions';
 import {
   getAlarmLimitsRequest,
