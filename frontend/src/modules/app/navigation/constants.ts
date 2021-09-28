@@ -5,8 +5,7 @@
  */
 import { GearIcon, LungsIcon, ChartIcon } from '../../shared/icons';
 import { PufferfishIcon, HomeIcon } from '../sidebar';
-import BellIcon from '../toolbar/icons/BellIcon';
-import BellNoneIcon from '../../shared/icons/BellNoneIcon';
+import { BellIcon, BellNoneIcon } from '../toolbar/icons';
 
 // Constants for storing objects of route paths.
 export const DASHBOARD_ROUTE = { key: 1, label: 'Dashboard', path: '/dashboard', icon: null };
