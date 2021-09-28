@@ -5,8 +5,10 @@
  */
 import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { Route, RouteProps } from 'react-router-dom';
+import { getAlarmNotifyStatus } from '../../../../store/app/selectors';
 import Sidebar from '../../sidebar/Sidebar';
 import ToolBar from '../../toolbar/ToolBar';
 import UserActivity from '../../UserActivity';
@@ -85,10 +87,21 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
  */
 const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
+  const notifyAlarm = useSelector(getAlarmNotifyStatus);
+  const [showBorder, setShowBorder] = React.useState(false);
+
+  /**
+   * Triggers when Alarm event is active (Referenced in `OverlayScreen` )
+   * RED_BORDER reduxs store is dispatched when alarm is active
+   * It adds a red border around the page
+   */
+  useEffect(() => {
+    setShowBorder(notifyAlarm);
+  }, [notifyAlarm]);
 
   return (
     <React.Fragment>
-      <Grid item className={`${classes.SidebarbordersOverlay} ${classes.root}`}>
+      <Grid item className={`${showBorder && classes.SidebarbordersOverlay} ${classes.root}`}>
         <Sidebar />
       </Grid>
       <Grid container item direction="column" className={classes.main}>

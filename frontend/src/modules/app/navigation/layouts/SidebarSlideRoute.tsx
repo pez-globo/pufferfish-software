@@ -2,7 +2,7 @@
  * @summary Layout with Slider styled Sidebar based pages (Dashboard page)
  *
  */
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
 import { Route, RouteProps, useLocation } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Drawer, Grid } from '@material-ui/core';
@@ -20,6 +20,7 @@ import { DiscardAlarmLimitsContent } from '../../../alarms/modal';
 import { ModalPopup } from '../../../shared';
 import SidebarClickable from '../../sidebar/SidebarClickable';
 import UserActivity from '../../UserActivity';
+import { getAlarmNotifyStatus } from '../../../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -182,6 +183,17 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
  */
 const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
+  const notifyAlarm = useSelector(getAlarmNotifyStatus);
+  const [showBorder, setShowBorder] = React.useState(false);
+
+  /**
+   * Triggers when Alarm event is active (Referenced in `OverlayScreen` )
+   * RED_BORDER reduxs store is dispatched when alarm is active
+   * It adds a red border around the page
+   */
+  useEffect(() => {
+    setShowBorder(notifyAlarm);
+  }, [notifyAlarm]);
 
   return (
     <React.Fragment>
@@ -189,7 +201,7 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
         container
         item
         direction="column"
-        className={`${classes.borderOverlay} ${classes.main}`}
+        className={`${showBorder && classes.borderOverlay} ${classes.main}`}
       >
         <Grid container item alignItems="center">
           <FullWidthToolBar />
