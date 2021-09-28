@@ -19,7 +19,6 @@ import { AlarmLimitsRequest } from '../../../../store/proto/mcu_pb';
 import { MessageType } from '../../../../store/proto/types';
 import { DiscardAlarmLimitsContent } from '../../../alarms/modal';
 import { ModalPopup } from '../../../shared';
-import OverlayScreen from '../../OverlayScreen';
 import SidebarClickable from '../../sidebar/SidebarClickable';
 import UserActivity from '../../UserActivity';
 
@@ -167,7 +166,6 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
   const classes = useStyles();
   return (
     <React.Fragment>
-      <OverlayScreen />
       <Grid container justify="center" alignItems="stretch" className={classes.root}>
         <ContentComponent>{children}</ContentComponent>
       </Grid>
@@ -185,17 +183,6 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
  */
 const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) => {
   const classes = useStyles();
-  const notifyAlarm = useSelector(getAlarmNotifyStatus);
-  const [showBorder, setShowBorder] = React.useState(false);
-
-  /**
-   * Triggers when Alarm event is active (Referenced in `OverlayScreen` )
-   * RED_BORDER reduxs store is dispatched when alarm is active
-   * It adds a red border around the page
-   */
-  useEffect(() => {
-    setShowBorder(notifyAlarm);
-  }, [notifyAlarm]);
 
   return (
     <React.Fragment>
@@ -203,7 +190,7 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
         container
         item
         direction="column"
-        className={`${showBorder && classes.borderOverlay} ${classes.main}`}
+        className={`${classes.borderOverlay} ${classes.main}`}
       >
         <Grid container item alignItems="center">
           <FullWidthToolBar />
