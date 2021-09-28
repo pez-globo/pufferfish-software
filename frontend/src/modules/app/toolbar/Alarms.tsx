@@ -17,7 +17,7 @@ import {
 import { getEventType } from '../../event-logs/EventType';
 import { LOGS_ROUTE } from '../navigation/constants';
 import { BellIcon } from '../../icons';
-import EventLogModal from '../../event-logs/EventLog';
+import EventLogsModal from '../../event-logs/EventLogsModal';
 import {
   AlarmMuteCountdown,
   AlarmMuteToggleButton,
@@ -191,14 +191,14 @@ export const Alarms = (): JSX.Element => {
    *
    * @param {boolean} filter Shows only active events if set true
    */
-  const openEventLogModal = (filter: boolean) => {
+  const openEventLogsModal = (filter: boolean) => {
     setOpen(true);
     setActiveFilter(filter);
   };
 
   return (
     <div style={{ display: 'flex' }}>
-      <EventLogModal
+      <EventLogsModal
         open={open}
         setOpen={setOpen}
         activeFilter={activeFilter}
@@ -212,7 +212,7 @@ export const Alarms = (): JSX.Element => {
           variant="contained"
           color="primary"
           onClick={() => {
-            openEventLogModal(false);
+            openEventLogsModal(false);
           }}
           className={classes.eventLogButton}
         >
