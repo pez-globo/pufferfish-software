@@ -56,10 +56,9 @@ SCENARIO("The update method works correctly") {
       uint32_t time = 4000;
       auto status1 = state_machine.update(time);
       REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-      for (size_t i = 0; i < 2; i++) {
-        uint32_t time1 = 250;
-        state_machine.update(time1);
-      }
+      uint32_t time1 = 250;
+      auto status = state_machine.update(time1);
+      REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
       THEN("The update method returns wait_measurement action") {
         uint32_t time1 = 250;
         auto action_status1 = state_machine.update(time1);
