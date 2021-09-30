@@ -29,6 +29,7 @@ class StateMachine {
   enum class Action { initialize, wait_warmup, check_range, measure, wait_measurement };
 
   [[nodiscard]] Action update(uint32_t current_time_us);
+  // Action getState();
 
  private:
   static const uint32_t warming_up_duration_us = 30000;  // us
@@ -50,6 +51,8 @@ class Sensor : public Initializable {
   InitializableState setup() override;
   InitializableState output(float &flow);
 
+  StateMachine::Action get_state();
+
  private:
   using Action = StateMachine::Action;
 
@@ -57,8 +60,8 @@ class Sensor : public Initializable {
   static const uint32_t product_number = 0x04020611;
   ;
   static const uint32_t read_conv_delay_us = 20;  // us
-  static const int16_t scale_factor = 1026;
-  static const int16_t offset = 1553;
+  static const int16_t scale_factor = 170;
+  static const int16_t offset = -20771;
 
   static const uint16_t flow_unit = 0;
   // make_flow_unit(UnitPrefix::none, TimeBase::per_min, Unit::standard_liter_20deg);
@@ -75,9 +78,7 @@ class Sensor : public Initializable {
   Action next_action_ = Action::initialize;
   size_t retry_count_ = 0;
 
-  uint32_t pn_ = 0;
   ConversionFactors conversion_{};
-  Sample sample_{};
 
   HAL::Interfaces::Time &time_;
 

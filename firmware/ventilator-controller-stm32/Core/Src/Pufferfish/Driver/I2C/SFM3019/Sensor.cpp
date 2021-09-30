@@ -10,7 +10,6 @@
 #include <cmath>
 
 #include "Pufferfish/HAL/Interfaces/Time.h"
-#include "iostream"
 
 namespace Pufferfish::Driver::I2C::SFM3019 {
 
@@ -24,7 +23,6 @@ StateMachine::Action StateMachine::update(uint32_t current_time_us) {
       break;
     case Action::wait_warmup:
       if (!warmup_timer_.within_timeout(current_time_us)) {
-        std::cout << "check_range" << std::endl;
         next_action_ = Action::check_range;
       }
       break;
@@ -44,16 +42,30 @@ StateMachine::Action StateMachine::update(uint32_t current_time_us) {
 
 // Sensor
 
+StateMachine::Action Sensor::get_state() {
+  return next_action_;
+}
+
 InitializableState Sensor::setup() {
   switch (next_action_) {
     case Action::initialize:
-      return initialize(time_.micros());
+      if (initialize(time_.micros()) == InitializableState::setup) {
+        next_action_ = fsm_.update(time_.micros());
+        return InitializableState::setup;
+      }
+      return InitializableState::failed;
     case Action::wait_warmup:
       next_action_ = fsm_.update(time_.micros());
-      std::cout << static_cast<std::underlying_type<Action>::type>(next_action_) << std::endl;
       return InitializableState::setup;
     case Action::check_range:
-      return check_range(time_.micros());
+      if (check_range(time_.micros()) == InitializableState::ok) {
+        next_action_ = fsm_.update(time_.micros());
+        return InitializableState::ok;
+      } else if (check_range(time_.micros()) == InitializableState::setup) {
+        return InitializableState::setup;
+      } else {
+        return InitializableState::failed;
+      }
     case Action::measure:
     case Action::wait_measurement:
       return InitializableState::ok;
@@ -62,11 +74,15 @@ InitializableState Sensor::setup() {
 }
 
 InitializableState Sensor::output(float &flow) {
-  std::cout << "output" << std::endl;
   switch (next_action_) {
     case Action::measure:
-      std::cout << "start_measure" << std::endl;
-      return measure(time_.micros(), flow);
+      if (measure(time_.micros(), flow) == InitializableState::ok) {
+        next_action_ = fsm_.update(time_.micros());
+      } else if (measure(time_.micros(), flow) == InitializableState::setup) {
+        return InitializableState::setup;
+      } else {
+        return InitializableState::failed;
+      }
     case Action::wait_measurement:
       next_action_ = fsm_.update(time_.micros());
       return InitializableState::ok;
@@ -103,6 +119,7 @@ InitializableState Sensor::initialize(uint32_t current_time_us) {
   }
 
   // Read product number
+  uint32_t pn_ = 0;
   while (device_.read_product_id(pn_) != I2CDeviceStatus::ok || pn_ != product_number) {
     ++retry_count_;
     if (retry_count_ > max_retries_setup) {
@@ -145,17 +162,14 @@ InitializableState Sensor::initialize(uint32_t current_time_us) {
     }
   }
 
-  next_action_ = fsm_.update(current_time_us);
-  std::cout << static_cast<std::underlying_type<Action>::type>(next_action_) << std::endl;
   retry_count_ = 0;  // reset retries to 0 for measuring
   return InitializableState::setup;
 }
 
+Sample sample_{};
 InitializableState Sensor::check_range(uint32_t current_time_us) {
   if (device_.read_sample(conversion_, sample_) == I2CDeviceStatus::ok &&
       sample_.flow >= flow_min && sample_.flow <= flow_max) {
-    std::cout << "measure" << std::endl;
-    next_action_ = fsm_.update(current_time_us);
     return InitializableState::ok;
   }
 
@@ -168,12 +182,9 @@ InitializableState Sensor::check_range(uint32_t current_time_us) {
 }
 
 InitializableState Sensor::measure(uint32_t current_time_us, float &flow) {
-  std::cout << "measure" << std::endl;
   if (device_.read_sample(conversion_, sample_) == I2CDeviceStatus::ok) {
-    std::cout << "read_sample" << std::endl;
     retry_count_ = 0;  // reset retries to 0 for next measurement
     flow = sample_.flow;
-    next_action_ = fsm_.update(current_time_us);
     return InitializableState::ok;
   }
 

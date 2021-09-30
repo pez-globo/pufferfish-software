@@ -23,6 +23,7 @@
 #pragma once
 
 #include "Timeouts.h"
+#include "iostream"
 
 namespace Pufferfish::Util {
 

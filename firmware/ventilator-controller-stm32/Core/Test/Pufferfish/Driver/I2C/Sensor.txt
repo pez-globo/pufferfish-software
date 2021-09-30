@@ -1,10 +1,60 @@
-Scenario('Setup method works correctly')
-WHEN('Action is initialize')
-WHEN('Action is wait warmup')
-WHEN('Action is check range')
-WHEN('Action is measure')
-WHEN('Action is wait_measure')
 
-Scenario('Output method works correctly')
-WHEN('Action is measure')
-WHEN('Action is wait_measure')
+Scenario: The update method works correctly 
+  GIVEN(' A state machine is constructed')
+    WHEN('The update method is called with 4000us as input parameter')
+      THEN('The update method returns wait_warmup action')
+      THEN('The update  returns wait_warmup')
+
+    WHEN("The update method is called with 100us as input parameter"){
+      THEN("The update method returns check range action"){      
+      THEN("After 5000us is passed as an input parameter, update method  returns wait_measurement action"){
+
+    WHEN('The update method is called three times with input parameter 250us')
+      THEN('The update method returns wait_measurement action')
+
+
+Scenario: The setup mehod works correctly
+  GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer[04 02 60 06 11 a9 00 00 81 00 aa a6 ae dd 5b 00 00 81], reseter is set to false and mock time set to 100us')
+    WHEN('The setup method is called , where mock read buffer contains [97 38 1e 97 38 1e] and mock time is set to 40000us')
+      THEN('The setup method retuns ok status')
+      THEN('The get_state method returns wait_measurement action')
+
+    WHEN('The setup method is called , where mock read buffer contains [97 38 1e 97 38 1e] and mock time is set to 200us')
+      THEN('The get_state method returns wait_warmup action ')
+
+    WHEN('The setup method is called , where mock read buffer contains [15 35 a8 15 35 a8] and mock time is set to 100us')
+      THEN('The get_state method returns wait_warmup action ')
+
+    WHEN('The setup method is called , where mock read buffer contains [15 35 a8 15 35 a8] and mock time is set to 55000us')
+      THEN('The setup method retuns ok status')
+      THEN('The get_state method returns wait_measurement action')
+
+     WHEN('The setup method is called , where mock read buffer contains [d5 64 4d d5 64 4d] and mock time is set to 45000us')
+      THEN('The setup method retuns ok status')
+      THEN('The get_state method returns wait_measurement action')
+
+    WHEN('The setup method is called , where mock read buffer contains [d5 64 4d d5 64 4d] and mock time is set to 4000us')
+      THEN('The get_state method returns wait_warmup action ')
+
+Scenario: The output method works correctly
+    WHEN('The output method is called with mock time set to 1000 and Action is set to wait_measurement')
+      THEN('The output method returns ok status')
+      THEN('The get_state method returns wait_measurement action') 
+      THEN('The output parameter flow returns -35.60588F value')
+
+    WHEN('The output method is called with mock time set to 10 and Action is set to wait_measurement')
+      THEN('The output method returns ok status')
+      THEN('The output parameter flow returns -35.60588F value')
+
+  GIVEN('SFMC3019 sensor is created by mock I2C device with read buffer[04 02 60 06 11 a9 00 00 81 00 aa a6 ae dd 5b 00 00 81 15 35 a8 15 35 a8], reseter is set to false and mock time set to 100us')
+    WHEN('The output method is called with mock time set to 1000, and Action is set to wait_measurement')
+      THEN('The output method returns ok status')
+      THEN('The output parameter flow returns 154.11765f value')
+
+    WHEN('The output method is called with mock time set to 10, and Action is set to wait_measurement')
+      THEN('The output method returns ok status')
+      THEN('The output parameter flow returns 154.11765f value')
+
+  GIVEN('SFMC3019 sensor is created by mock I2C device with read buffer[04 02 60 06 11 a9 00 00 81 00 aa a6 ae dd 5b 00 00 81 d5 64 4d d5 64 4d], reseter is set to false and mock time set to 500us')
+    WHEN('The output method is called , mock time is set to 250 and Action is set to wait_warmup')
+      THEN('The output method returns failed status')
