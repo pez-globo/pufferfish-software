@@ -37,7 +37,8 @@ SCENARIO("The update method works correctly") {
     }
     WHEN("The update method is called with 100us as input parameter") {
       uint32_t time = 4000;
-      state_machine.update(time);
+      auto status1 = state_machine.update(time);
+      REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
       uint32_t time1 = 100;
       auto status = state_machine.update(time1);
       THEN("The update method returns check range action") {
@@ -53,7 +54,8 @@ SCENARIO("The update method works correctly") {
     }
     WHEN("The update method is called three times with input parameter 250us ") {
       uint32_t time = 4000;
-      state_machine.update(time);
+      auto status1 = state_machine.update(time);
+      REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
       for (size_t i = 0; i < 2; i++) {
         uint32_t time1 = 250;
         state_machine.update(time1);
@@ -239,7 +241,7 @@ SCENARIO("The output method works correctly") {
       "100us") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
-    float flow;
+    float flow = 0;
     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
     PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
     PF::HAL::Mock::Time time;
@@ -285,7 +287,7 @@ SCENARIO("The output method works correctly") {
         auto status = sensor.get_state();
         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       }
-      THEN("The output parameter flow returns -35.60588F value") { REQUIRE(flow == -35.60588f); }
+      THEN("The output parameter flow returns -35.60588F value") { REQUIRE(flow == -35.60588F); }
     }
     WHEN(
         "The output method is called with mock time set to 10 and Action is set to "
@@ -301,7 +303,7 @@ SCENARIO("The output method works correctly") {
       }
       auto status = sensor.get_state();
       REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-      THEN("The output parameter flow returns -35.60588F value") { REQUIRE(flow == -35.60588f); }
+      THEN("The output parameter flow returns -35.60588F value") { REQUIRE(flow == -35.60588F); }
     }
   }
   GIVEN(
@@ -310,7 +312,7 @@ SCENARIO("The output method works correctly") {
       "100us") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
-    float flow;
+    float flow = 0;
     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
     PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
     PF::HAL::Mock::Time time;
@@ -354,7 +356,7 @@ SCENARIO("The output method works correctly") {
       }
       auto status = sensor.get_state();
       REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-      THEN("The output parameter flow returns 154.11765f value") { REQUIRE(flow == 154.11765f); }
+      THEN("The output parameter flow returns 154.11765f value") { REQUIRE(flow == 154.11765F); }
     }
     WHEN(
         "The output method is called with mock time set to 10, and Action is set to "
@@ -370,7 +372,7 @@ SCENARIO("The output method works correctly") {
       }
       auto status = sensor.get_state();
       REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-      THEN("The output parameter flow returns 154.11765f value") { REQUIRE(flow == 154.11765f); }
+      THEN("The output parameter flow returns 154.11765f value") { REQUIRE(flow == 154.11765F); }
     }
   }
   GIVEN(
@@ -379,7 +381,7 @@ SCENARIO("The output method works correctly") {
       "500us") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
-    float flow;
+    float flow = 0;
     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
     PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
     PF::HAL::Mock::Time time;

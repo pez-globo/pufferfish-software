@@ -119,8 +119,8 @@ InitializableState Sensor::initialize(uint32_t current_time_us) {
   }
 
   // Read product number
-  uint32_t pn_ = 0;
-  while (device_.read_product_id(pn_) != I2CDeviceStatus::ok || pn_ != product_number) {
+  uint32_t pn = 0;
+  while (device_.read_product_id(pn) != I2CDeviceStatus::ok || pn != product_number) {
     ++retry_count_;
     if (retry_count_ > max_retries_setup) {
       return InitializableState::failed;
@@ -166,10 +166,10 @@ InitializableState Sensor::initialize(uint32_t current_time_us) {
   return InitializableState::setup;
 }
 
-Sample sample_{};
+Sample sample{};
 InitializableState Sensor::check_range(uint32_t current_time_us) {
-  if (device_.read_sample(conversion_, sample_) == I2CDeviceStatus::ok &&
-      sample_.flow >= flow_min && sample_.flow <= flow_max) {
+  if (device_.read_sample(conversion_, sample) == I2CDeviceStatus::ok && sample.flow >= flow_min &&
+      sample.flow <= flow_max) {
     return InitializableState::ok;
   }
 
@@ -182,9 +182,9 @@ InitializableState Sensor::check_range(uint32_t current_time_us) {
 }
 
 InitializableState Sensor::measure(uint32_t current_time_us, float &flow) {
-  if (device_.read_sample(conversion_, sample_) == I2CDeviceStatus::ok) {
+  if (device_.read_sample(conversion_, sample) == I2CDeviceStatus::ok) {
     retry_count_ = 0;  // reset retries to 0 for next measurement
-    flow = sample_.flow;
+    flow = sample.flow;
     return InitializableState::ok;
   }
 
