@@ -21,7 +21,7 @@ import ScreensaverRoute from './layouts/ScreensaverRoute';
 import SidebarRoute from './layouts/SidebarRoute';
 import SidebarSlideRoute from './layouts/SidebarSlideRoute';
 import DashboardPage from '../../dashboard/DashboardPage';
-import EventLogs from '../../event-logs/EventLogs';
+import EventLogs from '../../events-log/EventsLog';
 import {
   ALARMS_ROUTE,
   DASHBOARD_ROUTE,

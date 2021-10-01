@@ -6,7 +6,7 @@
  */
 import React from 'react';
 import { Button, Grid, makeStyles, Typography } from '@material-ui/core';
-import EventLogs from './EventLogs';
+import EventLogs from './EventsLog';
 import ModalPopup from '../shared/ModalPopup';
 import { AlarmMuteCountdown, AlarmMuteToggleButton } from '../alarms/muting/AlarmMuting';
 

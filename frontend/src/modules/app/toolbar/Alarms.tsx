@@ -14,7 +14,7 @@ import {
   getAlarmMuteActive,
   getMostRecentEvent,
 } from '../../../store/controller/selectors';
-import { getEventType } from '../../event-logs/EventType';
+import { getEventType } from '../../events-log/EventType';
 import { LOGS_ROUTE } from '../navigation/constants';
 import BellIcon from './icons/BellIcon';
 import {
@@ -22,7 +22,7 @@ import {
   AlarmMuteToggleButton,
   AlarmMuteCanceller,
 } from '../../alarms/muting/AlarmMuting';
-import EventLogsModal from '../../event-logs/EventLogsModal';
+import EventLogsModal from '../../events-log/EventsLogModal';
 
 const useStyles = makeStyles(() => ({
   iconBadge: {
