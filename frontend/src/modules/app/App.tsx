@@ -18,6 +18,8 @@ import { StoreState } from '../../store/types';
 import { darkTheme, lightTheme } from '../../styles/customTheme';
 import Routes from './navigation/Routes';
 import OverlayScreen from './OverlayScreen';
+import MultiStepWizard from '../ventilation-wizard/MultiStepWizard';
+import AudioAlarm from '../alarms/AudioAlarm';
 
 const RIGHT_CLICK_BUTTON_KEY = 2;
 const TOUCH_SCREEN_BUTTON_KEY = 0;
@@ -80,8 +82,10 @@ class App extends Component<Props> {
     return (
       <IntlProvider key={locale} locale={locale} messages={messages}>
         <MuiThemeProvider theme={theme}>
-          <OverlayScreen />
+          <AudioAlarm />
           <CssBaseline />
+          <MultiStepWizard />
+          <OverlayScreen />
           <Routes />
         </MuiThemeProvider>
       </IntlProvider>

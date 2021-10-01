@@ -11,11 +11,9 @@ import { Subscription } from 'rxjs';
 import { getScreenStatusLock } from '../../store/controller/selectors';
 import { MessageType } from '../../store/proto/types';
 import ModalPopup from '../shared/ModalPopup';
-import MultiStepWizard from '../ventilation-wizard/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { commitRequest } from '../../store/controller/actions';
 import { ScreenStatusRequest } from '../../store/proto/mcu_pb';
-import AudioAlarm from '../alarms/AudioAlarm';
 
 const useStyles = makeStyles((theme: Theme) => ({
   overlay: {
@@ -152,8 +150,6 @@ export const OverlayScreen = (): JSX.Element => {
           />
         </React.Fragment>
       )}
-      <AudioAlarm />
-      <MultiStepWizard />
     </React.Fragment>
   );
 };
