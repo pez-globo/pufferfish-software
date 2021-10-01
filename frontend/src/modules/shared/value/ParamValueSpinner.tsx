@@ -1,9 +1,9 @@
 import { useTheme } from '@material-ui/core';
 import React, { RefObject, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { commitDraftRequest } from '../../store/controller/actions';
-import { ParametersRequest } from '../../store/proto/mcu_pb';
-import { MessageType } from '../../store/proto/types';
+import { commitDraftRequest } from '../../../store/controller/actions';
+import { ParametersRequest } from '../../../store/proto/mcu_pb';
+import { MessageType } from '../../../store/proto/types';
 import ValueSpinner from './ValueSpinner';
 import { SelectorType } from './ValueSelectorDisplay';
 import {
@@ -12,8 +12,8 @@ import {
   FIO2_REFERENCE_KEY,
   TV_REFERENCE_KEY,
   FLOW_REFERENCE_KEY,
-} from '../settings/tabs/constants';
-import useRotaryReference from '../shared/rotary/useRotaryReference';
+} from '../../settings/tabs/constants';
+import useRotaryReference from '../rotary/useRotaryReference';
 
 interface ValueProps {
   selector: SelectorType;

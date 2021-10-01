@@ -16,13 +16,13 @@ import {
 } from '../../../store/controller/selectors';
 import { getEventType } from '../../event-logs/EventType';
 import { LOGS_ROUTE } from '../navigation/constants';
-import { BellIcon } from '../../icons';
-import EventLogsModal from '../../event-logs/EventLogsModal';
+import BellIcon from './icons/BellIcon';
 import {
   AlarmMuteCountdown,
   AlarmMuteToggleButton,
   AlarmMuteCanceller,
 } from '../../alarms/muting/AlarmMuting';
+import EventLogsModal from '../../event-logs/EventLogsModal';
 
 const useStyles = makeStyles(() => ({
   iconBadge: {

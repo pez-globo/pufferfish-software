@@ -4,5 +4,5 @@
  */
 export * from './alarms/limits/AlarmLimitsPage';
 export * from './app';
-export * from './controllers';
+export * from './shared';
 export * from './app/landing-page/LandingPage';

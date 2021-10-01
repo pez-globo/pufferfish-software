@@ -10,8 +10,8 @@ import { ParametersRequest } from '../../../store/proto/mcu_pb';
 import { MessageType } from '../../../store/proto/types';
 import { commitRequest, commitDraftRequest } from '../../../store/controller/actions';
 import { setMultiPopupOpen } from '../../app/Service';
-import { ValueModal } from '../../controllers';
-import { SelectorType, ValueSelectorDisplay } from '../../controllers/ValueSelectorDisplay';
+import { ValueModal } from '../../shared/value';
+import { SelectorType, ValueSelectorDisplay } from '../../shared/value/ValueSelectorDisplay';
 import { ClickHandler } from './ValueInfo';
 
 /**

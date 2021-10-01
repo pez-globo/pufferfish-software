@@ -9,7 +9,7 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import ViewDropdown from '../../dashboard/views/ViewDropdown';
-import ClockIcon from '../../icons/ClockIcon';
+import ClockIcon from './icons/ClockIcon';
 import ModesDropdown from './ModesDropdown';
 import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../navigation/constants';
 import Alarms from './Alarms';

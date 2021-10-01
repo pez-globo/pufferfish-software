@@ -19,7 +19,7 @@ import {
 } from '../proto/mcu_pb';
 import { StoreState } from '../types';
 import { AlarmLimitsRequestResponse, EventLog, ControllerStates } from './types';
-import { SelectorType } from '../../modules/controllers/ValueSelectorDisplay';
+import { SelectorType } from '../../modules/shared/value/ValueSelectorDisplay';
 
 export const roundValue = (value: number): number => {
   return value !== undefined && !Number.isNaN(value)

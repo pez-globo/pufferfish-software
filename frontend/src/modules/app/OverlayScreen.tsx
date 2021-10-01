@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
 import { getScreenStatusLock } from '../../store/controller/selectors';
 import { MessageType } from '../../store/proto/types';
 import ModalPopup from '../shared/ModalPopup';
-import MultiStepWizard from './multi-step-wizard/MultiStepWizard';
+import MultiStepWizard from '../ventilation-wizard/MultiStepWizard';
 import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { commitRequest } from '../../store/controller/actions';
 import { ScreenStatusRequest } from '../../store/proto/mcu_pb';

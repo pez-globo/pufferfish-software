@@ -5,11 +5,11 @@ import { createSelector } from 'reselect';
 import { getController } from '../../../store/controller/selectors';
 import { ControllerStates } from '../../../store/controller/types';
 import { MCUPowerStatus } from '../../../store/proto/mcu_pb';
-import Power25Icon from '../../icons/Power25Icon';
-import Power50Icon from '../../icons/Power50Icon';
-import Power75Icon from '../../icons/Power75Icon';
-import PowerChargingIcon from '../../icons/PowerChargingIcon';
-import PowerFullIcon from '../../icons/PowerFullIcon';
+import Power25Icon from './icons/Power25Icon';
+import Power50Icon from './icons/Power50Icon';
+import Power75Icon from './icons/Power75Icon';
+import PowerChargingIcon from './icons/PowerChargingIcon';
+import PowerFullIcon from './icons/PowerFullIcon';
 import { PERCENT } from '../../shared/units';
 
 const useStyles = makeStyles((theme: Theme) => ({

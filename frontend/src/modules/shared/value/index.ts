@@ -18,4 +18,4 @@ export { default as ToogleValue } from './ToggleValue';
 export { default as ValueModal } from './ValueModal';
 export { default as ValueController } from './ValueClicker';
 export { default as ValueClicker } from './ValueClicker';
-export { default as SimpleTable } from '../shared/SimpleTable';
+export { default as SimpleTable } from '../SimpleTable';

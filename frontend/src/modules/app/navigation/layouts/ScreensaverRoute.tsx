@@ -12,7 +12,7 @@ import PowerIndicator from '../../toolbar/PowerIndicator';
 import HeaderClock from '../../toolbar/HeaderClock';
 import { getParametersIsVentilating } from '../../../../store/controller/selectors/measurements';
 import Alarms from '../../toolbar/Alarms';
-import ClockIcon from '../../../icons/ClockIcon';
+import ClockIcon from '../../toolbar/icons/ClockIcon';
 import UserActivity from '../../UserActivity';
 
 const useStyles = makeStyles((theme: Theme) => ({

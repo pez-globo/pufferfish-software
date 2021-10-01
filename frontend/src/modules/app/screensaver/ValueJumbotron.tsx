@@ -4,7 +4,7 @@
  */
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React from 'react';
-import { ValueSelectorDisplay } from '../../controllers/ValueSelectorDisplay';
+import { ValueSelectorDisplay } from '../../shared/value/ValueSelectorDisplay';
 import { SelectorProps } from './ControlJumbotron';
 
 const useStyles = makeStyles((theme: Theme) => ({
