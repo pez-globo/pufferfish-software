@@ -13,7 +13,7 @@ import HeaderClock from '../../toolbar/HeaderClock';
 import { getAlarmNotifyStatus } from '../../../../store/app/selectors';
 import { getParametersIsVentilating } from '../../../../store/controller/selectors/measurements';
 import Alarms from '../../toolbar/Alarms';
-import ClockIcon from '../../../icons/ClockIcon';
+import ClockIcon from '../../toolbar/icons/ClockIcon';
 import OverlayScreen from '../../OverlayScreen';
 import UserActivity from '../../UserActivity';
 

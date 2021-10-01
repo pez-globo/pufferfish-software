@@ -16,7 +16,7 @@ import {
 } from '../../../store/controller/selectors';
 import { getEventType } from '../../event-logs/EventType';
 import { LOGS_ROUTE } from '../navigation/constants';
-import { BellIcon } from '../../icons';
+import BellIcon from './icons/BellIcon';
 import EventLogModal from '../../event-logs/EventLog';
 import {
   AlarmMuteCountdown,
