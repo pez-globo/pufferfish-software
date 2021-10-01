@@ -17,7 +17,7 @@ import { getFrontendDisplaySetting } from '../../store/controller/selectors/fron
 import { StoreState } from '../../store/types';
 import { darkTheme, lightTheme } from '../../styles/customTheme';
 import Routes from './navigation/Routes';
-import OverlayScreen from './OverlayScreen';
+import OverlayScreen from './ScreenLock';
 import MultiStepWizard from '../ventilation-wizard/MultiStepWizard';
 import AudioAlarm from '../alarms/AudioAlarm';
 
