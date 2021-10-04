@@ -54,6 +54,7 @@ class Sensor : public Initializable {
   InitializableState output(float &flow);
 
   StateMachine::Action get_state();
+
  private:
   // using Action = StateMachine::Action;
 
