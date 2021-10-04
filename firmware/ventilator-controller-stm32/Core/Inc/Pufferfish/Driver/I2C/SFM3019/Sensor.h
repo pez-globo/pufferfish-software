@@ -54,7 +54,7 @@ class Sensor : public Initializable {
   InitializableState output(float &flow);
 
   StateMachine::Action get_state();
-
+ private:
   // using Action = StateMachine::Action;
 
   static const uint32_t power_up_delay = 2;  // ms
