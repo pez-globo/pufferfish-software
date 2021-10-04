@@ -29,7 +29,9 @@ class StateMachine {
   enum class Action { initialize, wait_warmup, check_range, measure, wait_measurement };
 
   [[nodiscard]] Action update(uint32_t current_time_us);
-  // Action getState();
+  Action output();
+
+  using Action = StateMachine::Action;
 
  private:
   static const uint32_t warming_up_duration_us = 30000;  // us
@@ -53,8 +55,7 @@ class Sensor : public Initializable {
 
   StateMachine::Action get_state();
 
- private:
-  using Action = StateMachine::Action;
+  // using Action = StateMachine::Action;
 
   static const uint32_t power_up_delay = 2;  // ms
   static const uint32_t product_number = 0x04020611;
@@ -75,7 +76,7 @@ class Sensor : public Initializable {
 
   Device &device_;
   StateMachine fsm_;
-  Action next_action_ = Action::initialize;
+  StateMachine::Action next_action_ = StateMachine::Action::initialize;
   size_t retry_count_ = 0;
 
   ConversionFactors conversion_{};
