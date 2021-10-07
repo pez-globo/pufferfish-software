@@ -444,6 +444,27 @@ SCENARIO("The Sensor::setup mehod works correctly") {
         REQUIRE(input[2] == 0xa8);
       }
     }
+  }
+}
+SCENARIO("The Sensor::setup mehod works correctly for differnt mock time") {
+  GIVEN(
+      "SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 "
+      "a9 00 00 81] (as a read_product_id response) "
+      "and[00 aa a6 ae dd 5b 00 00 81](as read_conversion_factor response), reseter is set to "
+      "false and mock time set to 100us") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
+    PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+    PF::HAL::Mock::Time time;
+    PF::Driver::I2C::SFM3019::ConversionFactors conversion;
+    auto read_buffer = PF::Util::Containers::make_array<uint8_t>(
+        0x04, 0x02, 0x60, 0x06, 0x11, 0xa9, 0x00, 0x00, 0x81);
+    mock_device.add_read(read_buffer.data(), read_buffer.size());
+    auto read_buffer1 = PF::Util::Containers::make_array<uint8_t>(
+        0x00, 0xaa, 0xa6, 0xae, 0xdd, 0x5b, 0x01, 0x48, 0xf1);
+    mock_device.add_read(read_buffer1.data(), read_buffer1.size());
+
     WHEN(
         "The setup method is called thrice , where mock read buffer  is appended with bytes [15 35 "
         "a8](as read_sample response) and junk bytes [01 02] and mock "
@@ -800,6 +821,10 @@ SCENARIO("The Sensor::output method works correctly") {
       }
     }
   }
+}
+SCENARIO(
+    "The Sensor::output method works correctly for different mcok read buffer and for mock time "
+    "100") {
   GIVEN(
       "SFMC3019 sensor is fully initialised by calling setup method until it returns ok and action "
       "returns wait_measurement with the mock read buffer consisting of [15 35 a8 15 35 a8](as "
@@ -967,6 +992,9 @@ SCENARIO("The Sensor::output method works correctly") {
       }
     }
   }
+}
+SCENARIO(
+    "The Sensor::output method works correctly for different mcok read buffer and 500 mock time") {
   GIVEN(
       "SFMC3019 sensor is partially initialised by calling setup method where it returns setup and "
       "action returns wait_warmup with the mock read buffer consisting of [d5 64 4d](as "
@@ -1028,6 +1056,8 @@ SCENARIO("The Sensor::output method works correctly") {
       }
     }
   }
+}
+SCENARIO("The Sensor::output method works correctly for different mcok read buffer") {
   GIVEN(
       "SFMC3019 sensor is partially initialised by calling setup method where it returns setup and "
       "action returns check_range with the mock read buffer consisting of [d5 64 4d](as "
