@@ -51,53 +51,74 @@ StateMachine::Action Sensor::get_state() {
 }
 
 InitializableState Sensor::setup() {
+  if (prev_state_ == InitializableState::failed) {
+    return InitializableState::failed;
+  }
+
   switch (next_action_) {
     case StateMachine::Action::initialize:
       switch (initialize(time_.micros())) {
         case InitializableState::setup:
           next_action_ = fsm_.update(time_.micros());
+          prev_state_ = InitializableState::setup;
           return InitializableState::setup;
-        case InitializableState::failed:
-          return InitializableState::failed;
+        default:
+          break;
       }
 
     case StateMachine::Action::wait_warmup:
       next_action_ = fsm_.update(time_.micros());
+      prev_state_ = InitializableState::setup;
       return InitializableState::setup;
     case StateMachine::Action::check_range:
       switch (check_range(time_.micros())) {
         case InitializableState::ok:
           next_action_ = fsm_.update(time_.micros());
+          prev_state_ = InitializableState::ok;
           return InitializableState::ok;
         case InitializableState::setup:
+          prev_state_ = InitializableState::setup;
           return InitializableState::setup;
         case InitializableState::failed:
+          prev_state_ = InitializableState::failed;
           return InitializableState::failed;
       }
     case StateMachine::Action::measure:
     case StateMachine::Action::wait_measurement:
+      prev_state_ = InitializableState::ok;
       return InitializableState::ok;
   }
+  prev_state_ = InitializableState::failed;
   return InitializableState::failed;
 }
 
 InitializableState Sensor::output(float &flow) {
+  if (prev_state_ == InitializableState::failed) {
+    return InitializableState::failed;
+  }
+
   switch (next_action_) {
     case StateMachine::Action::measure:
       switch (measure(time_.micros(), flow)) {
         case InitializableState::ok:
           next_action_ = fsm_.update(time_.micros());
+          prev_state_ = InitializableState::ok;
+          return InitializableState::ok;
         case InitializableState::setup:
+          prev_state_ = InitializableState::setup;
           return InitializableState::setup;
         case InitializableState::failed:
+          prev_state_ = InitializableState::failed;
           return InitializableState::failed;
       }
     case StateMachine::Action::wait_measurement:
       next_action_ = fsm_.update(time_.micros());
+      prev_state_ = InitializableState::ok;
       return InitializableState::ok;
     default:
       break;
   }
+  prev_state_ = InitializableState::failed;
   return InitializableState::failed;
 }
 

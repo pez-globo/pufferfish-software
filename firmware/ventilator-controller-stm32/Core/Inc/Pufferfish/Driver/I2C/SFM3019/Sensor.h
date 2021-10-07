@@ -30,7 +30,6 @@ class StateMachine {
 
   [[nodiscard]] Action update(uint32_t current_time_us);
   Action output();
-
   using Action = StateMachine::Action;
 
  private:
@@ -60,13 +59,12 @@ class Sensor : public Initializable {
 
   static const uint32_t power_up_delay = 2;  // ms
   static const uint32_t product_number = 0x04020611;
-  ;
   static const uint32_t read_conv_delay_us = 20;  // us
   static const int16_t scale_factor = 170;
   static const int16_t offset = -20771;
 
-  static const uint16_t flow_unit = 0;
-  // make_flow_unit(UnitPrefix::none, TimeBase::per_min, Unit::standard_liter_20deg);
+  static const uint16_t flow_unit =
+      make_flow_unit(UnitPrefix::none, TimeBase::per_min, Unit::standard_liter_20deg);
   static const uint32_t averaging_window = 0;
   static constexpr float flow_min = -200;       // L/min
   static constexpr float flow_max = 200;        // L/min
@@ -78,6 +76,7 @@ class Sensor : public Initializable {
   Device &device_;
   StateMachine fsm_;
   StateMachine::Action next_action_ = StateMachine::Action::initialize;
+  InitializableState prev_state_ = InitializableState::setup;
   size_t retry_count_ = 0;
 
   ConversionFactors conversion_{};
