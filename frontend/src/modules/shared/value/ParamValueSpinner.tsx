@@ -1,38 +1,35 @@
 import { useTheme } from '@material-ui/core';
-import React, { RefObject, useRef, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { commitDraftRequest } from '../../../store/controller/actions';
-import { ParametersRequest } from '../../../store/proto/mcu_pb';
-import { MessageType } from '../../../store/proto/types';
+import React, { RefObject, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import ValueSpinner from './ValueSpinner';
 import { SelectorType } from './ValueSelectorDisplay';
-import {
-  PEEP_REFERENCE_KEY,
-  RR_REFERENCE_KEY,
-  FIO2_REFERENCE_KEY,
-  TV_REFERENCE_KEY,
-  FLOW_REFERENCE_KEY,
-} from '../../settings/tabs/constants';
 import useRotaryReference from '../rotary/useRotaryReference';
 
 interface ValueProps {
   selector: SelectorType;
+  value?: number;
+  onClick: (value: number) => void;
   reference: string;
   label: string;
-  stateKey: string;
-  units: string;
+  units?: string;
+  elRefsArray: {};
+  min?: number;
+  max?: number;
 }
 
 const ParamValueSpinner = ({
   label,
+  onClick,
   reference,
   selector,
-  stateKey,
   units,
+  value,
+  elRefsArray,
+  min,
+  max,
 }: ValueProps): JSX.Element => {
-  const dispatch = useDispatch();
   const theme = useTheme();
-  const value = useSelector(selector);
+  const selectorValue = useSelector(selector);
   const { initRefListener } = useRotaryReference(theme);
 
   /**
@@ -40,13 +37,7 @@ const ParamValueSpinner = ({
    * This wrapper's HTML border is added or removed based on user's interaction with Controls
    * It is used for UI identification of which control value is changing via rotary encoder
    */
-  const [elRefs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
-    [PEEP_REFERENCE_KEY]: useRef(null),
-    [RR_REFERENCE_KEY]: useRef(null),
-    [FIO2_REFERENCE_KEY]: useRef(null),
-    [TV_REFERENCE_KEY]: useRef(null),
-    [FLOW_REFERENCE_KEY]: useRef(null),
-  });
+  const [elRefs] = React.useState<Record<string, RefObject<HTMLDivElement>>>(elRefsArray);
 
   /**
    * Calls on initalization of the component
@@ -57,19 +48,16 @@ const ParamValueSpinner = ({
     initRefListener(elRefs);
   }, [initRefListener, elRefs]);
 
-  const updateParam = (key: string, value: number) => {
-    const update = { [key]: value } as Partial<ParametersRequest>;
-    dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
-  };
-
   return (
     <ValueSpinner
       reference={elRefs[reference]}
       referenceKey={reference}
       label={label}
       units={units}
-      value={value}
-      onClick={(value: number) => updateParam(stateKey, value)}
+      value={value ?? selectorValue}
+      onClick={onClick}
+      min={min}
+      max={max}
     />
   );
 };
