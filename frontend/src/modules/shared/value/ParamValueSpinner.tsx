@@ -13,7 +13,7 @@ import {
   TV_REFERENCE_KEY,
   FLOW_REFERENCE_KEY,
 } from '../../settings/tabs/constants';
-import useRotaryReference from '../rotary/useRotaryReference';
+import { useRotaryReference } from '../rotary/useRotaryReference';
 
 interface ValueProps {
   selector: SelectorType;

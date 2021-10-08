@@ -6,10 +6,10 @@ import React, { useEffect, useState } from 'react';
 import { Grid, Button, makeStyles, Theme } from '@material-ui/core';
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
-import { Subscription } from 'rxjs';
-import { getActiveRotaryReference } from '../../app/Service';
 import RotaryEncodeController from '../rotary/RotaryEncodeController';
 import { setActiveRotaryReference } from '../../../store/app/actions';
+import { useSelector } from 'react-redux';
+import { getRotaryReference } from '../../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -83,6 +83,7 @@ export const ValueClicker = ({
   const [disableDecrement, setDisableDecrement] = useState(false);
   const [isRotaryActive, setIsRotaryActive] = React.useState(false);
   const [activeRef, setActiveRef] = React.useState<string | null>();
+  const refString = useSelector(getRotaryReference);
 
   /**
    * Triggers callback with updated value
@@ -163,22 +164,13 @@ export const ValueClicker = ({
    * Updates Rotary Encoder reference to active
    */
   useEffect(() => {
-    const refSubscription: Subscription = getActiveRotaryReference().subscribe(
-      (refString: string | null) => {
-        setActiveRef(refString);
-        if (refString && refString === referenceKey) {
-          setIsRotaryActive(true);
-        } else {
-          setIsRotaryActive(false);
-        }
-      },
-    );
-    return () => {
-      if (refSubscription) {
-        refSubscription.unsubscribe();
-      }
-    };
-  }, [referenceKey]);
+    setActiveRef(refString);
+    if (refString && refString === referenceKey) {
+      setIsRotaryActive(true);
+    } else {
+      setIsRotaryActive(false);
+    }
+  }, [referenceKey, refString]);
 
   return (
     <Grid

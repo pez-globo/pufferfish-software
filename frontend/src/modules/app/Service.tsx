@@ -9,11 +9,10 @@
 import { BehaviorSubject, Subject, Observable } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 
+//TODO: USE REDUX INSTEAD OF RXJS FOR MULTISTEPWIZARD, as we intend to remove it
+
 const isMultiPopupOpen = new BehaviorSubject<boolean>(false);
-const alarmLimitsModalPopupOpen = new BehaviorSubject<boolean>(false);
 const currentStateKey = new Subject<string>();
-const isScreenLockPopupOpen = new Subject<boolean>();
-const activeRotaryReference = new Subject<string | null>();
 
 /**
  * Function to set multistep popup open.
@@ -40,63 +39,10 @@ export function getMultiPopupOpenState(): Observable<boolean> {
 }
 
 /**
- * Function to set Modal Popup state
- *
- * @param {boolean} state - boolean to indicate whether Modal Popup should be open or closed
- *
- * @return {Observable<boolean>}
- *
- */
-export function setAlarmLimitsModalPopup(state: boolean): void {
-  alarmLimitsModalPopupOpen.next(state);
-}
-
-/**
- * Function to get Modal Popup state
- *
- * @return {Observable<boolean>}
- *
- */
-export function getAlarmLimitsModalPopup(): Observable<boolean> {
-  return alarmLimitsModalPopupOpen.asObservable().pipe(distinctUntilChanged());
-}
-
-/**
  * Function to get current state key (Unique identifier of parameters (eg spo2, fio2...))
  *
  * @return {Observable<boolean>}
  */
 export function getcurrentStateKey(): Observable<string> {
   return currentStateKey.asObservable();
-}
-
-/**
- * Function to set screen lock popup
- *
- * @param {boolean} state - desc for state
- *
- * @return {void}
- */
-export function setScreenLockPopup(state: boolean): void {
-  isScreenLockPopupOpen.next(state);
-}
-
-/**
- * Function to get screen lock popup
- *
- * @return {Observable<boolean>}
- *
- */
-export function getScreenLockPopup(): Observable<boolean> {
-  return isScreenLockPopupOpen.asObservable();
-}
-
-/**
- * Function to get the active rotary reference
- *
- * @return {Observable<string | null>}
- *
- */
-export function getActiveRotaryReference(): Observable<string | null> {
-  return activeRotaryReference.asObservable();
 }

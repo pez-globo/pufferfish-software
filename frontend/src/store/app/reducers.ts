@@ -7,15 +7,17 @@ import {
   SET_WIZARD,
   DISCARD_LIMITS_POPUP,
   ROTARY_REF,
+  SCREEN_LOCK,
 } from './types';
 
 const initialState: AppState = {
   locale: LOCALE_DEFAULT,
   notifyAlarm: false,
-  open: false,
+  wizardOpen: false,
   stateKey: 'spo2',
   discardPopupOpen: false,
   rotaryReference: null,
+  screenLock: false,
 };
 
 export function appReducer(state = initialState, action: AppAction): AppState {
@@ -27,11 +29,13 @@ export function appReducer(state = initialState, action: AppAction): AppState {
     case RED_BORDER:
       return { ...state, notifyAlarm: action.status };
     case SET_WIZARD:
-      return { ...state, open: action.open, stateKey: action.stateKey };
+      return { ...state, wizardOpen: action.wizardOpen, stateKey: action.stateKey };
     case DISCARD_LIMITS_POPUP:
       return { ...state, discardPopupOpen: action.open };
     case ROTARY_REF:
       return { ...state, rotaryReference: action.reference };
+    case SCREEN_LOCK:
+      return { ...state, screenLock: action.lock };
     default:
       return state;
   }

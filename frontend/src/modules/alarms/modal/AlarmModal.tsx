@@ -12,8 +12,8 @@ import { MessageType } from '../../../store/proto/types';
 import ModalPopup from '../../shared/ModalPopup';
 import ValueClicker from '../../shared/value/ValueClicker';
 import ValueSlider from '../../shared/value/ValueSlider';
-import useRotaryReference from '../../shared/rotary/useRotaryReference';
 import { setActiveRotaryReference } from '../../../store/app/actions';
+import { useRotaryReference } from '../../shared/rotary/useRotaryReference';
 
 const useStyles = makeStyles((theme: Theme) => ({
   contentContainer: {

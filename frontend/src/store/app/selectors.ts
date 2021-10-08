@@ -31,7 +31,7 @@ export const getAlarmNotifyStatus = createSelector(
 
 export const getVentilationWizardOpen = createSelector(
   getApp,
-  (app: AppState): boolean => app.open,
+  (app: AppState): boolean => app.wizardOpen,
 );
 
 export const getCurrentStateKey = createSelector(getApp, (app: AppState): string =>
@@ -47,3 +47,5 @@ export const getRotaryReference = createSelector(
   getApp,
   (app: AppState): string | null => app.rotaryReference,
 );
+
+export const getScreenLock = createSelector(getApp, (app: AppState): boolean => app.screenLock);

@@ -7,13 +7,13 @@
 import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Subscription } from 'rxjs';
 import { getScreenStatusLock } from '../../store/controller/selectors';
 import { MessageType } from '../../store/proto/types';
 import ModalPopup from '../shared/ModalPopup';
-import { getScreenLockPopup, setScreenLockPopup } from './Service';
 import { commitRequest } from '../../store/controller/actions';
 import { ScreenStatusRequest } from '../../store/proto/mcu_pb';
+import { getScreenLock } from '../../store/app/selectors';
+import { setScreenLock } from '../../store/app/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
   overlay: {
@@ -44,6 +44,7 @@ export const ScreenLockModal = (): JSX.Element => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
+  const screenLock = useSelector(getScreenLock);
 
   useEffect(() => {
     const alertPopup = () => {
@@ -58,18 +59,9 @@ export const ScreenLockModal = (): JSX.Element => {
     /**
      * Listens to screenLock status to close screenLock info popup in 'n' seconds (30s)
      */
-    const popupEventSubscription: Subscription = getScreenLockPopup().subscribe(
-      (state: boolean) => {
-        setOpen(state);
-        alertPopup();
-      },
-    );
-    return () => {
-      if (popupEventSubscription) {
-        popupEventSubscription.unsubscribe();
-      }
-    };
-  }, [open]);
+    setOpen(screenLock);
+    alertPopup();
+  }, [open, screenLock]);
 
   /**
    * On Confirming unlock screen, updates ScreenStatus to redux store
@@ -78,7 +70,7 @@ export const ScreenLockModal = (): JSX.Element => {
     dispatch(
       commitRequest<ScreenStatusRequest>(MessageType.ScreenStatusRequest, { lock: false }),
     );
-    setScreenLockPopup(false);
+    setScreenLock(false);
   };
 
   return (
@@ -87,7 +79,7 @@ export const ScreenLockModal = (): JSX.Element => {
       maxWidth="xs"
       label="Screen is locked"
       open={open}
-      onClose={() => setScreenLockPopup(false)}
+      onClose={() => setScreenLock(false)}
       onConfirm={onConfirm}
     >
       <Grid container alignItems="center" className={classes.marginHeader}>
@@ -110,23 +102,13 @@ export const OverlayScreen = (): JSX.Element => {
   const classes = useStyles();
   const screenStatus = useSelector(getScreenStatusLock);
   const [overlay, setOverlay] = useState(screenStatus || false);
+  const screenLock = useSelector(getScreenLock);
   /**
    * Listens to screenLock status changes & update overlay state accordingly
    */
   useEffect(() => {
-    const popupEventSubscription: Subscription = getScreenLockPopup().subscribe(
-      (state: boolean) => {
-        if (screenStatus) {
-          setOverlay(!state);
-        }
-      },
-    );
-    return () => {
-      if (popupEventSubscription) {
-        popupEventSubscription.unsubscribe();
-      }
-    };
-  }, [screenStatus]);
+    setOverlay(!screenLock);
+  }, [screenStatus, screenLock]);
 
   /**
    * On screenStatus redux store changes, update overlay state
@@ -145,7 +127,7 @@ export const OverlayScreen = (): JSX.Element => {
             tabIndex={0}
             aria-label="Screenlock Alert"
             className={classes.overlay}
-            onClick={() => setScreenLockPopup(true)}
+            onClick={() => setScreenLock(true)}
             onKeyDown={() => null}
           />
         </React.Fragment>
