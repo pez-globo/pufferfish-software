@@ -6,6 +6,7 @@
 import { Box, Button, FormControl, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState, useRef } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 import { ThemeVariant, Unit } from '../../../store/proto/frontend_pb';
 import {
   getFrontendDisplaySetting,
@@ -22,7 +23,6 @@ import {
 } from './constants';
 import { setActiveRotaryReference } from '../../app/Service';
 import ParamValueSpinner from '../../shared/value/ParamValueSpinner';
-import { createSelector } from 'reselect';
 import { getController } from '../../../store/controller/selectors';
 import { ControllerStates } from '../../../store/controller/types';
 
@@ -507,6 +507,9 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   );
 };
 
-const getDummyValue = createSelector(getController, (states: ControllerStates): null => null);
+const getDummyValue = createSelector(
+  getController,
+  (states: ControllerStates): null => states.dummy,
+);
 
 export default DisplayTab;
