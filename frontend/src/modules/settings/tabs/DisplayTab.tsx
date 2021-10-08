@@ -3,16 +3,7 @@
  *
  * @file All the Display Settings are configured here
  */
-import {
-  Box,
-  Button,
-  FormControl,
-  Grid,
-  makeStyles,
-  Theme,
-  Typography,
-  useTheme,
-} from '@material-ui/core';
+import { Box, Button, FormControl, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState, useRef } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { ThemeVariant, Unit } from '../../../store/proto/frontend_pb';
@@ -29,7 +20,6 @@ import {
   DAY_REFERENCE_KEY,
   YEAR_REFERENCE_KEY,
 } from './constants';
-import { useRotaryReference } from '../../shared/rotary/useRotaryReference';
 import { setActiveRotaryReference } from '../../app/Service';
 import ParamValueSpinner from '../../shared/value/ParamValueSpinner';
 import { getParametersRequestDraftFiO2 } from '../../../store/controller/selectors/measurements';
@@ -245,8 +235,6 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
     [DAY_REFERENCE_KEY]: useRef(null),
     [YEAR_REFERENCE_KEY]: useRef(null),
   };
-  const themeObj = useTheme();
-  const { initRefListener } = useRotaryReference(themeObj);
   const systemSettings = useSelector(getSystemSettingsRequest, shallowEqual);
   const displaySettings = useSelector(getFrontendDisplaySetting, shallowEqual);
   const [displayBrightness, setDisplayBrightness] = React.useState(
@@ -276,10 +264,6 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
     date.getMonth() + 1,
   ); /* Note: `getMonth()` returns a value in [0, 11] */
   const [year, setYear] = React.useState(date.getFullYear());
-
-  useEffect(() => {
-    initRefListener(elRefs);
-  }, [initRefListener, elRefs]);
 
   /**
    * Listens to state change of date, period, minute, hour, day, month, year, unit, theme, brightness

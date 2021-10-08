@@ -12,7 +12,7 @@ interface ValueProps {
   reference: string;
   label: string;
   units?: string;
-  elRefsArray: {};
+  elRefsArray: Record<string, RefObject<HTMLDivElement>>;
   min?: number;
   max?: number;
 }
