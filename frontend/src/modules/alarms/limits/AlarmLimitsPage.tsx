@@ -12,11 +12,11 @@ import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { VentilationMode } from '../../../store/proto/mcu_pb';
 import { getParametersRequestMode } from '../../../store/controller/selectors/measurements';
-import { setActiveRotaryReference } from '../../app/Service';
 import ModeBanner, { BannerType } from '../../app/ModeBanner';
 import { BPM, PERCENT } from '../../shared/units';
 import AlarmLimitsModalPopup from './AlarmLimitsModalPopup';
 import ParamAlarms from './ParamAlarms';
+import { setActiveRotaryReference } from '../../../store/app/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

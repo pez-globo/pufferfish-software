@@ -16,7 +16,6 @@ import {
   getParametersRequestDraftRR,
   getParametersRequestDraftVT,
 } from '../../../store/controller/selectors/measurements';
-import { setActiveRotaryReference } from '../Service';
 import ModeBanner, { BannerType } from '../ModeBanner';
 import { BPM, LMIN, PERCENT } from '../../shared/units';
 import {
@@ -27,6 +26,7 @@ import {
   FLOW_REFERENCE_KEY,
 } from '../../settings/tabs/constants';
 import ParamValueSpinner from '../../shared/value/ParamValueSpinner';
+import { setActiveRotaryReference } from '../../../store/app/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

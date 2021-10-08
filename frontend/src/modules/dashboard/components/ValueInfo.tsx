@@ -11,10 +11,10 @@ import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { getAlarmLimitsRequest } from '../../../store/controller/selectors';
-import { setMultiPopupOpen } from '../../app/Service';
 import { AlarmModal } from '../../alarms/modal/AlarmModal';
 import { Range } from '../../../store/proto/mcu_pb';
 import { SelectorType, ValueSelectorDisplay } from '../../shared/value/ValueSelectorDisplay';
+import { setVentilationWizard } from '../../../store/app/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
   rootParent: {
@@ -249,7 +249,7 @@ const ControlValuesDisplay = ({
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
-      setMultiPopupOpen(true, stateKey);
+      setVentilationWizard(true, stateKey);
     }
   };
 

@@ -31,7 +31,7 @@ import {
   YEAR_REFERENCE_KEY,
 } from './constants';
 import { useRotaryReference } from '../../shared/rotary/useRotaryReference';
-import { setActiveRotaryReference } from '../../app/Service';
+import { setActiveRotaryReference } from '../../../store/app/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

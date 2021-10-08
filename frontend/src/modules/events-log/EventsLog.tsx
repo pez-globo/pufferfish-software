@@ -9,7 +9,6 @@ import React, { useCallback, useEffect } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { LogEvent, LogEventType } from '../../store/proto/mcu_pb';
 import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
-import { setMultiPopupOpen } from '../app/Service';
 import { AlarmModal } from '../alarms/modal/AlarmModal';
 import ModalPopup from '../shared/ModalPopup';
 
@@ -22,6 +21,7 @@ import SimpleTable, {
 } from '../shared/SimpleTable';
 import EventlogDetails from './container/EventsLogDetails';
 import { getEventDetails, getEventType } from './EventType';
+import { setVentilationWizard } from '../../store/app/actions';
 
 /**
  * @typedef Data
@@ -342,7 +342,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
    */
   const onSettings = (row: Data) => {
     if (row.stateKey) {
-      setMultiPopupOpen(true, row.stateKey);
+      setVentilationWizard(true, row.stateKey);
     }
     setCurrentRow(row);
   };

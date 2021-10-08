@@ -7,8 +7,9 @@ import { Grid, Button, makeStyles, Theme } from '@material-ui/core';
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import { Subscription } from 'rxjs';
-import { setActiveRotaryReference, getActiveRotaryReference } from '../../app/Service';
+import { getActiveRotaryReference } from '../../app/Service';
 import RotaryEncodeController from '../rotary/RotaryEncodeController';
+import { setActiveRotaryReference } from '../../../store/app/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

@@ -92,18 +92,6 @@ export function getScreenLockPopup(): Observable<boolean> {
 }
 
 /**
- * Function to set the active rotary reference
- *
- * @param {string | null} refString - Wrapper HTML reference identifier
- *
- * @return {void}
- *
- */
-export function setActiveRotaryReference(refString: string | null): void {
-  activeRotaryReference.next(refString);
-}
-
-/**
  * Function to get the active rotary reference
  *
  * @return {Observable<string | null>}

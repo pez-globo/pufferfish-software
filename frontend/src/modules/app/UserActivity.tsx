@@ -6,10 +6,10 @@
  *
  */
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import { SET_WIZARD } from '../../store/app/types';
 import { getParametersIsVentilating } from '../../store/controller/selectors/measurements';
-import { setMultiPopupOpen } from './Service';
 
 /**
  * IdleTimer
@@ -85,13 +85,14 @@ export const UserActivity = (): JSX.Element => {
   // const [idleTimeout] = useState(10 * 60 * 1000);
   const history = useHistory();
   const ventilating = useSelector(getParametersIsVentilating);
+  const dispatch = useDispatch();
 
   /**
    * Handle callback once `IdleTimer` is timed out
    */
   const onTimeOut = () => {
     if (ventilating) {
-      setMultiPopupOpen(false);
+      dispatch({ type: SET_WIZARD, open: false });
       history.push('/screensaver');
     }
   };

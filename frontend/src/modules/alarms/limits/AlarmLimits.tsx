@@ -8,10 +8,10 @@ import { useDispatch } from 'react-redux';
 import { commitDraftRequest } from '../../../store/controller/actions';
 import { AlarmLimitsRequest, Range } from '../../../store/proto/mcu_pb';
 import { MessageType } from '../../../store/proto/types';
-import { setActiveRotaryReference } from '../../app/Service';
 import ValueClicker from '../../shared/value/ValueClicker';
 import ValueSlider from '../../shared/value/ValueSlider';
 import useRotaryReference from '../../shared/rotary/useRotaryReference';
+import { setActiveRotaryReference } from '../../../store/app/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
   alarmValue: {

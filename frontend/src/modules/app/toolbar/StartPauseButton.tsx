@@ -2,7 +2,6 @@ import { Button, Grid } from '@material-ui/core';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector, shallowEqual, batch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { Subscription } from 'rxjs';
 import { createSelector } from 'reselect';
 import { getBackendConnected } from '../../../store/connection/selectors';
 import { commitRequest, commitDraftRequest } from '../../../store/controller/actions';
@@ -33,7 +32,8 @@ import { MessageType } from '../../../store/proto/types';
 import { ModalPopup } from '../../shared';
 import { QUICKSTART_ROUTE, DASHBOARD_ROUTE } from '../navigation/constants';
 import { DiscardAlarmLimitsContent } from '../../alarms/modal';
-import { getAlarmLimitsModalPopup, setAlarmLimitsModalPopup } from '../Service';
+import { DISCARD_LIMITS_POPUP } from '../../../store/app/types';
+import { getDiscardAlarmLimitsPopupOpen } from '../../../store/app/selectors';
 
 const StartPauseButton = ({ staticStart }: { staticStart?: boolean }): JSX.Element => {
   const dispatch = useDispatch();
@@ -73,7 +73,7 @@ const StartPauseButton = ({ staticStart }: { staticStart?: boolean }): JSX.Eleme
     if (ventilating) {
       // if ventilating and there are unsaved alarm limit changes then open modal popup
       if (alarmLimitsRequestUnsaved) {
-        setAlarmLimitsModalPopup(true);
+        dispatch({ type: DISCARD_LIMITS_POPUP, open: true });
         return;
       }
       // if both firmware and backend are connected, and response.ventilating is true
@@ -198,20 +198,13 @@ export const StartButtonModalPopup = (): JSX.Element => {
     dispatch(commitRequest<ParametersRequest>(MessageType.ParametersRequest, update));
   };
 
+  const discardAlarmLimitsPopup = useSelector(getDiscardAlarmLimitsPopupOpen);
+
   const [discardOpen, setDiscardOpen] = useState(false);
 
   useEffect(() => {
-    const modalPopupSubscription: Subscription = getAlarmLimitsModalPopup().subscribe(
-      (state: boolean) => {
-        setDiscardOpen(state);
-      },
-    );
-    return () => {
-      if (modalPopupSubscription) {
-        modalPopupSubscription.unsubscribe();
-      }
-    };
-  }, []);
+    setDiscardOpen(discardAlarmLimitsPopup);
+  }, [discardAlarmLimitsPopup]);
 
   /**
    * onClickHandler for Start ModalPopup 'Confirm' button
@@ -219,7 +212,7 @@ export const StartButtonModalPopup = (): JSX.Element => {
   const handleStartDiscardConfirm = () => {
     setAlarmLimitsRequestDraft(alarmLimitsRequest);
     dispatchParameterRequest({ ventilating: !ventilating });
-    setAlarmLimitsModalPopup(false);
+    dispatch({ type: DISCARD_LIMITS_POPUP, open: false });
     history.push(QUICKSTART_ROUTE.path);
   };
 
@@ -228,7 +221,7 @@ export const StartButtonModalPopup = (): JSX.Element => {
       withAction={true}
       label="Set Alarms"
       open={discardOpen}
-      onClose={() => setAlarmLimitsModalPopup(false)}
+      onClose={() => dispatch({ type: DISCARD_LIMITS_POPUP, open: false })}
       onConfirm={handleStartDiscardConfirm}
     >
       <DiscardAlarmLimitsContent />

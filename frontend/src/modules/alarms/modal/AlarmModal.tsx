@@ -13,7 +13,7 @@ import ModalPopup from '../../shared/ModalPopup';
 import ValueClicker from '../../shared/value/ValueClicker';
 import ValueSlider from '../../shared/value/ValueSlider';
 import useRotaryReference from '../../shared/rotary/useRotaryReference';
-import { setActiveRotaryReference } from '../../app/Service';
+import { setActiveRotaryReference } from '../../../store/app/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
   contentContainer: {
