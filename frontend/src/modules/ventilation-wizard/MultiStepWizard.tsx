@@ -3,13 +3,15 @@
  *
  * @file Modal popup has steps to update Set Value & Alarm Range values
  */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
+import { Subscription } from 'rxjs';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { makeStyles, Theme, Grid, Tabs, Tab, Button, Typography } from '@material-ui/core';
 import ReplyIcon from '@material-ui/icons/Reply';
 // import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import { createSelector } from 'reselect';
 import ModalPopup from '../shared/ModalPopup';
+import { getcurrentStateKey, getMultiPopupOpenState, setMultiPopupOpen } from '../app/Service';
 import {
   getSpO2AlarmLimitsRequest,
   getHRAlarmLimitsRequest,
@@ -33,9 +35,6 @@ import { commitRequest, commitDraftRequest } from '../../store/controller/action
 import ValueModalContent from '../shared/value/ValueModal';
 import { AlarmModalContent } from '../alarms/modal/AlarmModal';
 import { SelectorType } from '../shared/value/ValueSelectorDisplay';
-import { setVentilationWizard } from '../../store/app/actions';
-import { SET_WIZARD } from '../../store/app/types';
-import { getCurrentStateKey, getVentilationWizardOpen } from '../../store/app/selectors';
 
 /**
  * @typedef InternalState
@@ -277,8 +276,7 @@ const MultiStepWizard = (): JSX.Element => {
   /**
    * State to manage Multi step Modal `open` status
    */
-  const ventilationWizardOpen = useSelector(getVentilationWizardOpen);
-  const [open, setOpen] = useState(ventilationWizardOpen);
+  const [open, setOpen] = React.useState(false);
   /**
    * State to manage Confirmation Modal `open` status
    */
@@ -294,8 +292,7 @@ const MultiStepWizard = (): JSX.Element => {
   /**
    * State to manage current `stateKey`
    */
-  const currentStateKey = useSelector(getCurrentStateKey);
-  const [stateKey, setStateKey] = useState(currentStateKey);
+  const [stateKey, setStateKey] = React.useState('');
   /**
    * State to manage Tab index
    */
@@ -400,10 +397,28 @@ const MultiStepWizard = (): JSX.Element => {
    * Then current stateKey would be `FiO2` and multistep popup will show Set Value modal
    */
   useEffect(() => {
-    setOpen(ventilationWizardOpen);
-    setStateKey(currentStateKey);
-    setParameter(determineInput(stateKey));
-  }, [determineInput, stateKey, currentStateKey, ventilationWizardOpen]);
+    const popupEventSubscription: Subscription = getMultiPopupOpenState().subscribe(
+      (state: boolean) => {
+        setOpen(state);
+      },
+    );
+    const stateKeyEventSubscription: Subscription = getcurrentStateKey().subscribe(
+      (state: string) => {
+        setStateKey(state);
+        setParameter(determineInput(state));
+      },
+    );
+    return () => {
+      if (popupEventSubscription) {
+        popupEventSubscription.unsubscribe();
+      }
+      if (stateKeyEventSubscription) {
+        stateKeyEventSubscription.unsubscribe();
+      }
+      setConfirmOpen(false);
+      setCancelOpen(false);
+    };
+  }, [determineInput]);
 
   /**
    * Triggers on TabIndex or Parameter change
@@ -554,7 +569,7 @@ const MultiStepWizard = (): JSX.Element => {
     if (isAnyChanges()) {
       setCancelOpen(true);
     } else {
-      setVentilationWizard(false, stateKey);
+      setMultiPopupOpen(false, stateKey);
     }
   };
 
@@ -566,7 +581,7 @@ const MultiStepWizard = (): JSX.Element => {
     if (isAnyChanges()) {
       setConfirmOpen(true);
     } else {
-      setVentilationWizard(false, stateKey);
+      setMultiPopupOpen(false, stateKey);
     }
   };
 
@@ -592,7 +607,7 @@ const MultiStepWizard = (): JSX.Element => {
     });
     setInternalState([]);
     setConfirmOpen(false);
-    dispatch({ type: SET_WIZARD, open: false });
+    setMultiPopupOpen(false);
   };
 
   /**
@@ -612,7 +627,7 @@ const MultiStepWizard = (): JSX.Element => {
     });
     setInternalState([]);
     setCancelOpen(false);
-    setVentilationWizard(false);
+    setMultiPopupOpen(false);
   };
 
   /**
