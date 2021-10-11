@@ -6,7 +6,7 @@
 import { Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { VentilationMode } from '../../../store/proto/mcu_pb';
 import {
   getParametersRequestMode,

@@ -8,7 +8,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { SET_WIZARD } from '../../store/app/types';
+import { setVentilationWizard } from '../../store/app/actions';
 import { getParametersIsVentilating } from '../../store/controller/selectors/measurements';
 
 /**
@@ -92,7 +92,7 @@ export const UserActivity = (): JSX.Element => {
    */
   const onTimeOut = () => {
     if (ventilating) {
-      dispatch({ type: SET_WIZARD, open: false });
+      dispatch(setVentilationWizard(false));
       history.push('/screensaver');
     }
   };

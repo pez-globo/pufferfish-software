@@ -32,8 +32,8 @@ import { MessageType } from '../../../store/proto/types';
 import { ModalPopup } from '../../shared';
 import { QUICKSTART_ROUTE, DASHBOARD_ROUTE } from '../navigation/constants';
 import { DiscardAlarmLimitsContent } from '../../alarms/modal';
-import { DISCARD_LIMITS_POPUP } from '../../../store/app/types';
 import { getDiscardAlarmLimitsPopupOpen } from '../../../store/app/selectors';
+import { setDiscardLimitsPopup } from '../../../store/app/actions';
 
 const StartPauseButton = ({ staticStart }: { staticStart?: boolean }): JSX.Element => {
   const dispatch = useDispatch();
@@ -73,7 +73,7 @@ const StartPauseButton = ({ staticStart }: { staticStart?: boolean }): JSX.Eleme
     if (ventilating) {
       // if ventilating and there are unsaved alarm limit changes then open modal popup
       if (alarmLimitsRequestUnsaved) {
-        dispatch({ type: DISCARD_LIMITS_POPUP, open: true });
+        dispatch(setDiscardLimitsPopup(true));
         return;
       }
       // if both firmware and backend are connected, and response.ventilating is true
@@ -212,7 +212,7 @@ export const StartButtonModalPopup = (): JSX.Element => {
   const handleStartDiscardConfirm = () => {
     setAlarmLimitsRequestDraft(alarmLimitsRequest);
     dispatchParameterRequest({ ventilating: !ventilating });
-    dispatch({ type: DISCARD_LIMITS_POPUP, open: false });
+    dispatch(setDiscardLimitsPopup(false));
     history.push(QUICKSTART_ROUTE.path);
   };
 
@@ -221,7 +221,7 @@ export const StartButtonModalPopup = (): JSX.Element => {
       withAction={true}
       label="Set Alarms"
       open={discardOpen}
-      onClose={() => dispatch({ type: DISCARD_LIMITS_POPUP, open: false })}
+      onClose={() => dispatch(setDiscardLimitsPopup(false))}
       onConfirm={handleStartDiscardConfirm}
     >
       <DiscardAlarmLimitsContent />

@@ -14,7 +14,7 @@ import {
   useTheme,
 } from '@material-ui/core';
 import React, { RefObject, useEffect, useState, useRef } from 'react';
-import { shallowEqual, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { ThemeVariant, Unit } from '../../../store/proto/frontend_pb';
 import {
   getFrontendDisplaySetting,

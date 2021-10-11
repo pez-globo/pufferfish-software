@@ -31,7 +31,7 @@ export function appReducer(state = initialState, action: AppAction): AppState {
     case SET_WIZARD:
       return { ...state, wizardOpen: action.wizardOpen, stateKey: action.stateKey };
     case DISCARD_LIMITS_POPUP:
-      return { ...state, discardPopupOpen: action.open };
+      return { ...state, discardPopupOpen: action.discardPopupOpen };
     case ROTARY_REF:
       return { ...state, rotaryReference: action.reference };
     case SCREEN_LOCK:

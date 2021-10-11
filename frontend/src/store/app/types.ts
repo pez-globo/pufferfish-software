@@ -50,7 +50,7 @@ interface SetVentilationWizard {
 
 interface DiscardAlarmLimitsPopup {
   type: typeof DISCARD_LIMITS_POPUP;
-  open: boolean;
+  discardPopupOpen: boolean;
 }
 
 interface SetRotaryReference {

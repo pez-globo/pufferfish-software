@@ -1,4 +1,12 @@
-import { INITIALIZED, SET_LOCALE, AppAction, SET_WIZARD, ROTARY_REF, SCREEN_LOCK } from './types';
+import {
+  INITIALIZED,
+  SET_LOCALE,
+  AppAction,
+  SET_WIZARD,
+  ROTARY_REF,
+  SCREEN_LOCK,
+  DISCARD_LIMITS_POPUP,
+} from './types';
 
 export function initialize(): AppAction {
   return { type: INITIALIZED };
@@ -18,4 +26,8 @@ export function setActiveRotaryReference(reference: string | null): AppAction {
 
 export function setScreenLock(lock: boolean): AppAction {
   return { type: SCREEN_LOCK, lock };
+}
+
+export function setDiscardLimitsPopup(discardPopupOpen: boolean): AppAction {
+  return { type: DISCARD_LIMITS_POPUP, discardPopupOpen };
 }
