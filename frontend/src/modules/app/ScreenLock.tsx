@@ -70,7 +70,7 @@ export const ScreenLockModal = (): JSX.Element => {
     dispatch(
       commitRequest<ScreenStatusRequest>(MessageType.ScreenStatusRequest, { lock: false }),
     );
-    setScreenLock(false);
+    dispatch(setScreenLock(false));
   };
 
   return (
@@ -79,7 +79,7 @@ export const ScreenLockModal = (): JSX.Element => {
       maxWidth="xs"
       label="Screen is locked"
       open={open}
-      onClose={() => setScreenLock(false)}
+      onClose={() => dispatch(setScreenLock(false))}
       onConfirm={onConfirm}
     >
       <Grid container alignItems="center" className={classes.marginHeader}>
@@ -100,6 +100,7 @@ export const ScreenLockModal = (): JSX.Element => {
  */
 export const OverlayScreen = (): JSX.Element => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const screenStatus = useSelector(getScreenStatusLock);
   const [overlay, setOverlay] = useState(screenStatus || false);
   const screenLock = useSelector(getScreenLock);
@@ -127,7 +128,7 @@ export const OverlayScreen = (): JSX.Element => {
             tabIndex={0}
             aria-label="Screenlock Alert"
             className={classes.overlay}
-            onClick={() => setScreenLock(true)}
+            onClick={() => dispatch(setScreenLock(true))}
             onKeyDown={() => null}
           />
         </React.Fragment>
