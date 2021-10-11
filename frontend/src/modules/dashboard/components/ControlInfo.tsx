@@ -187,7 +187,7 @@ const ControlInfo = (props: Props): JSX.Element => {
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
-      setVentilationWizard(true, stateKey);
+      dispatch(setVentilationWizard(true, stateKey));
     }
   };
 
