@@ -14,7 +14,7 @@ const initialState: AppState = {
   locale: LOCALE_DEFAULT,
   notifyAlarm: false,
   wizardOpen: false,
-  stateKey: 'spo2',
+  stateKey: undefined,
   discardPopupOpen: false,
   rotaryReference: null,
   screenLock: false,

@@ -554,7 +554,7 @@ const MultiStepWizard = (): JSX.Element => {
     if (isAnyChanges()) {
       setCancelOpen(true);
     } else {
-      setVentilationWizard(false, stateKey);
+      dispatch(setVentilationWizard(false, stateKey));
     }
   };
 
@@ -566,7 +566,7 @@ const MultiStepWizard = (): JSX.Element => {
     if (isAnyChanges()) {
       setConfirmOpen(true);
     } else {
-      setVentilationWizard(false, stateKey);
+      dispatch(setVentilationWizard(false, stateKey));
     }
   };
 
@@ -612,7 +612,7 @@ const MultiStepWizard = (): JSX.Element => {
     });
     setInternalState([]);
     setCancelOpen(false);
-    setVentilationWizard(false);
+    dispatch(setVentilationWizard(false));
   };
 
   /**

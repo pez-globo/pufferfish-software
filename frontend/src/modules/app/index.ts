@@ -12,5 +12,4 @@
  * Re-usable layout components.
  */
 export * from './App';
-export * from './Service';
 export * from './UserActivity';
