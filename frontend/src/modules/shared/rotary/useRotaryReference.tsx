@@ -17,7 +17,7 @@ import { getRotaryReference } from '../../../store/app/selectors';
  * @returns {function} Function to Run on Component Initalization
  *
  */
-export function useRotaryReference(
+function useRotaryReference(
   theme: Theme,
 ): { initRefListener(elRefs: Record<string, RefObject<HTMLDivElement>>): void } {
   const refSubscription = useSelector(getRotaryReference);
@@ -31,3 +31,5 @@ export function useRotaryReference(
   };
   return { initRefListener };
 }
+
+export default useRotaryReference;

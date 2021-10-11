@@ -6,9 +6,9 @@ import React, { useEffect, useState } from 'react';
 import { Grid, Button, makeStyles, Theme } from '@material-ui/core';
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
+import { useDispatch, useSelector } from 'react-redux';
 import RotaryEncodeController from '../rotary/RotaryEncodeController';
 import { setActiveRotaryReference } from '../../../store/app/actions';
-import { useDispatch, useSelector } from 'react-redux';
 import { getRotaryReference } from '../../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
