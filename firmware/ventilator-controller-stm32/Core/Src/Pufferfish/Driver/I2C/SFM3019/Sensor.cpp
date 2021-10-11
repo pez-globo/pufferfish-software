@@ -55,7 +55,7 @@ InitializableState Sensor::setup() {
     return InitializableState::failed;
   }
 
-  switch (next_action_) {
+  switch (fsm_.output()) {
     case StateMachine::Action::initialize:
       switch (initialize(time_.micros())) {
         case InitializableState::setup:
@@ -97,7 +97,7 @@ InitializableState Sensor::output(float &flow) {
     return InitializableState::failed;
   }
 
-  switch (next_action_) {
+  switch (fsm_.output()) {
     case StateMachine::Action::measure:
       switch (measure(time_.micros(), flow)) {
         case InitializableState::ok:
@@ -122,6 +122,7 @@ InitializableState Sensor::output(float &flow) {
   return InitializableState::failed;
 }
 
+// NOLINTNEXTLINE(misc-unused-parameters)
 InitializableState Sensor::initialize(uint32_t current_time_us) {
   if (retry_count_ > max_retries_setup) {
     return InitializableState::failed;
@@ -195,7 +196,7 @@ InitializableState Sensor::initialize(uint32_t current_time_us) {
   retry_count_ = 0;  // reset retries to 0 for measuring
   return InitializableState::setup;
 }
-
+// NOLINTNEXTLINE(misc-unused-parameters)
 InitializableState Sensor::check_range(uint32_t current_time_us) {
   Sample sample{};
   if (device_.read_sample(conversion_, sample) == I2CDeviceStatus::ok && sample.flow >= flow_min &&
@@ -211,6 +212,7 @@ InitializableState Sensor::check_range(uint32_t current_time_us) {
   return InitializableState::setup;
 }
 
+// NOLINTNEXTLINE(misc-unused-parameters)
 InitializableState Sensor::measure(uint32_t current_time_us, float &flow) {
   Sample sample{};
   if (device_.read_sample(conversion_, sample) == I2CDeviceStatus::ok) {

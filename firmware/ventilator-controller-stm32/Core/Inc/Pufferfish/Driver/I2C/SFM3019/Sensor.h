@@ -30,7 +30,6 @@ class StateMachine {
 
   [[nodiscard]] Action update(uint32_t current_time_us);
   Action output();
-  using Action = StateMachine::Action;
 
  private:
   static const uint32_t warming_up_duration_us = 30000;  // us
@@ -61,7 +60,7 @@ class Sensor : public Initializable {
   static const uint32_t product_number = 0x04020611;
   static const uint32_t read_conv_delay_us = 20;  // us
   static const int16_t scale_factor = 170;
-  static const int16_t offset = -20771;
+  static const int16_t offset = -24576;
 
   static const uint16_t flow_unit =
       make_flow_unit(UnitPrefix::none, TimeBase::per_min, Unit::standard_liter_20deg);

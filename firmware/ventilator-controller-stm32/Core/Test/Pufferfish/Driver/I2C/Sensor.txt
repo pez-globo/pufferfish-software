@@ -59,8 +59,8 @@ Scenario : The StateMachine::update method works correctly
       THEN('The fourth update method call returns wait_measurement action') 
       THEN('After the fourth update method, output method returns wait_measurement action')
 
-Scenario : The Sensor::setup mehod works correctly 
-  GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 a9 00 00 81] (as a read_product_id response) '
+Scenario : The Sensor::setup method works correctly 
+  GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consisting of[04 02 60 06 11 a9 00 00 81] (as a read_product_id response) '
       'and[00 aa a6 ae dd 5b 00 00 81](as read_conversion_factor response), reseter is set to false and mock time set to 100us') 
     WHEN('The setup method is called thrice , where mock read buffer is appended with bytes [97 38 1e](as read_sample response) and junk bytes [01 02]and mock '
         'time is set to [100, 40000, 50000] before each corresponding setup call') 
@@ -128,7 +128,7 @@ Scenario : The Sensor::setup mehod works correctly
       THEN('The mock_device I2C's read buffer returns bytes [01 02]') 
 
 Scenario : The Sensor::output method works correctly 
-  GIVEN('SFMC3019 sensor is fully initialised by calling setup method until it returns ok and action returns wait_measurement with the mock read buffer consisting of [97 38 1e 97 38 1e](as read_sample response) and junk bytes [01 02] afterwords and with the mock time set to 100us') 
+  GIVEN('SFMC3019 sensor is fully initialised by calling setup method until it returns ok and action returns wait_measurement with the mock read buffer consisting of [97 38 1e 97 38 1e](as read_sample response) and junk bytes [01 02] appended afterwords and with the mock time set to 100us') 
     WHEN('The output method is called thrice with mock time set to [40000,1000, 2000] and output parameter flow is set to 20.5') 
       THEN('The first output method call returns ok state') 
       THEN('After the first output method call, get_state method returns wait_measurement action ') 
@@ -140,7 +140,7 @@ Scenario : The Sensor::output method works correctly
       THEN('The output parameter flow returns -35.60588F value') 
       THEN('The mock_device I2C's write buffer returns command byte [E1 02]') 
       THEN('The mock_device I2C's read buffer returns junk bytes [01 02]') 
-    WHEN('The output method is called thrice with mock time set to [40000, 500, 100] and Action is set to wait_measurement') 
+    WHEN('The output method is called thrice with mock time set to [40000, 500, 100] and output parameter flow is set to 20.5') 
       THEN('The first output method call returns ok state') 
       THEN('After the first output method call, get_state method returns wait_measurement action') 
       THEN('The  second output method call returns ok state') 
@@ -152,8 +152,8 @@ Scenario : The Sensor::output method works correctly
       THEN('The mock_device I2C's write buffer returns command byte [E1 02]') 
       THEN('The mock_device I2C's read buffer returns junk bytes [01 02]') 
 
-  GIVEN('SFMC3019 sensor is fully initialised by calling setup method until it returns ok and action returns wait_measurement with the mock read buffer consisting of [15 35 a8 15 35 a8](as read_sample response) and junk bytes [01 02] afterwords and with the mock time set to 100us') 
-    WHEN('The output method is called thrice with mock time set to [40000, 1000, 100], and output parameter is set to 20.5') 
+  GIVEN('SFMC3019 sensor is fully initialised by calling setup method until it returns ok and action returns wait_measurement with the mock read buffer consisting of [15 35 a8 15 35 a8](as read_sample response) and junk bytes [01 02] appended afterwords and with the mock time set to 100us') 
+    WHEN('The output method is called thrice with mock time set to [40000, 1000, 100], and output parameter flow is set to 20.5') 
       THEN('The first output method call returns ok state') 
       THEN('After the first output method call, get_state method returns wait_measurement action') 
       THEN('The second output method call returns ok state') 
@@ -184,7 +184,7 @@ Scenario : The Sensor::output method works correctly
       THEN('The mock_device I2C's write buffer returns command byte [E1 02]') 
       THEN('The mock_device I2C's read buffer returns [15 35 a8]') 
 
-  GIVEN('SFMC3019 sensor is partially initialised by calling setup method where it returns setup and action returns wait_warmup with the mock read buffer consisting of [d5 64 4d](as read_sample response) afterwords and with the mock time set to 500us') 
+  GIVEN('SFMC3019 sensor is partially initialised by calling setup method where it returns setup state and action returns wait_warmup with the mock read buffer consisting of [d5 64 4d](as read_sample response)  and with the mock time set to 500us') 
     WHEN('The output method is called once, mock time is set to [250]and output parameter flow is set to 20.5') 
       THEN('The output method returns failed state') 
       THEN('After  output method call, get_state method returns wait_warmup action') 
@@ -192,7 +192,7 @@ Scenario : The Sensor::output method works correctly
       THEN('The mock_device I2C's write buffer returns command byte 0xE102') 
       THEN('The mock_device I2C's read buffer returns [d5 64 4d]') 
 
-  GIVEN('SFMC3019 sensor is partially initialised by calling setup method where it returns setup and action returns check_range with the mock read buffer consisting of [d5 64 4d](as read_sample response) afterwords and with the mock time set to 500us') 
+  GIVEN('SFMC3019 sensor is partially initialised by calling setup method where it returns setup and action returns check_range with the mock read buffer consisting of [d5 64 4d](as read_sample response) and with the mock time set to 500us') 
     WHEN('The output method is called once, mock time is set to [250]and output parameter flow is set to 20.5') 
       THEN('The output method call returns failed state') 
       THEN('After output method call, get_state method returns check_range action') 
