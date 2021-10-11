@@ -231,6 +231,7 @@ const DateTimeDisplay = () => {
  */
 export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   /**
    * Calls on initalization of the component
    * This is an event listener which listens to user input on `ValueClicker` buttons click
@@ -339,7 +340,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
    * function for handling page click event
    */
   const OnClickPage = () => {
-    setActiveRotaryReference(null);
+    dispatch(setActiveRotaryReference(null));
   };
 
   return (

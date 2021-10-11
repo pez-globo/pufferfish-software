@@ -199,6 +199,7 @@ const SetParameters = (): JSX.Element => {
  */
 export const QuickStartPage = (): JSX.Element => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   // const [patientSex, setPatientSex] = React.useState(PatientSex.MALE);
   // const [patientAge, setPatientAge] = React.useState(PatientAge.ADULT);
   // const [patientHeight, setPatientHeight] = React.useState(62);
@@ -210,7 +211,7 @@ export const QuickStartPage = (): JSX.Element => {
    * Border is usually added on `ValueSpinner` button click
    */
   const OnClickPage = () => {
-    setActiveRotaryReference(null);
+    dispatch(setActiveRotaryReference(null));
   };
 
   return (

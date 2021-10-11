@@ -123,8 +123,10 @@ const AlarmLimits = ({
    *
    */
   const onClick = (value: number, type: SliderType) => {
-    setActiveRotaryReference(
-      type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
+    dispatch(
+      setActiveRotaryReference(
+        type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
+      ),
     );
     dispatch(
       commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, {

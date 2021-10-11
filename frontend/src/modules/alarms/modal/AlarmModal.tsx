@@ -120,6 +120,7 @@ export const AlarmModalContent = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
+  const dispatch = useDispatch();
   const { initRefListener } = useRotaryReference(theme);
   /**
    * State to initalize Lower Set value
@@ -173,7 +174,7 @@ export const AlarmModalContent = ({
    * Border is usually added on `ValueClicker` button click
    */
   const OnClickPage = () => {
-    setActiveRotaryReference(null);
+    dispatch(setActiveRotaryReference(null));
   };
 
   return (

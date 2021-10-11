@@ -84,6 +84,7 @@ export const ValueClicker = ({
   const [isRotaryActive, setIsRotaryActive] = React.useState(false);
   const [activeRef, setActiveRef] = React.useState<string | null>();
   const refString = useSelector(getRotaryReference);
+  const dispatch = useDispatch();
 
   /**
    * Triggers callback with updated value
@@ -155,7 +156,7 @@ export const ValueClicker = ({
       clickHandlerDecrement(value);
     }
     if (!activeRef || (activeRef && activeRef !== referenceKey)) {
-      setActiveRotaryReference(referenceKey);
+      dispatch(setActiveRotaryReference(referenceKey));
     }
   };
 
