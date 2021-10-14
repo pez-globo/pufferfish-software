@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <iostream>
-
 #include "SensirionDevice.h"
 
 namespace Pufferfish::Driver::I2C {
@@ -23,8 +21,6 @@ I2CDeviceStatus SensirionDevice::read(std::array<uint8_t, size> &buf) {
   for (size_t word_start = 0; word_start < buf_with_crc.size(); word_start += 3) {
     uint8_t expected_crc = crc8_.compute(buf_with_crc.data() + word_start, sizeof(uint16_t));
     uint8_t received_crc = buf_with_crc[word_start + sizeof(uint16_t)];
-    // std::cout << "expected" << +expected_crc << std::endl;
-    // std::cout << "recieved" << +received_crc << std::endl;
 
     if (expected_crc != received_crc) {
       return I2CDeviceStatus::crc_check_failed;

@@ -21,403 +21,396 @@
 namespace PF = Pufferfish;
 using PF::Util::Containers::convert_byte_vector_to_hex_string;
 
-// SCENARIO("The StateMachine::update method works correctly") {
-//   GIVEN(" A state machine is constructed") {
-// //update method is called only once with time 4000us, action state returns wait_warmup
-//     PF::Driver::I2C::SFM3019::StateMachine state_machine;
-//     WHEN("The update method is called once with 4000us as input parameter ") {
-//       uint32_t time = 4000;
-//       auto status1 = state_machine.update(time);
-//       THEN("The update method returns wait_warmup action") {
-//         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the update method output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//     }
+SCENARIO("The StateMachine::update method works correctly") {
+  GIVEN(" A state machine is constructed") {
+    // update method is called only once with time 4000us, action state returns wait_warmup
+    PF::Driver::I2C::SFM3019::StateMachine state_machine;
+    WHEN("The update method is called once with 4000us as input parameter ") {
+      uint32_t time = 4000;
+      auto status1 = state_machine.update(time);
+      THEN("The update method returns wait_warmup action") {
+        REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the update method output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+    }
 
-// // update method is called twice, with 4000us as mock time for both cases, action returns
-// wait_warmup
-//     WHEN("The update method is called twice with 4000us as input parameter for both cases") {
-//       uint32_t time = 4000;
-//       auto action_status1 = state_machine.update(4000);
-//       THEN("The first update method call returns wait_warmup action") {
-//         REQUIRE(action_status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the first update method, output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       auto action_status2 = state_machine.update(time);
-//       THEN("The second update method call returns wait_warmup action") {
-//         REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the second update method, output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//     }
-// // update method called thrice with [4000, 100, 5000]us as input, action returns check_range
-//     WHEN("The update method is called thrice with [4000, 100, 5000]us as input parameter") {
-//       uint32_t time = 4000;
-//       auto status1 = state_machine.update(time);
-//       THEN("The first update method call returns wait_warmup action") {
-//         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the first update method, output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       uint32_t time1 = 100;
-//       auto status = state_machine.update(time1);
-//       THEN("The second update method call, returns check_range action") {
-//         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-//       }
-//       THEN("After the second update method, output method returns check_range action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-//       }
-//       uint32_t time2 = 5000;
-//       auto status2 = state_machine.update(time2);
-//       THEN("The third update method call returns wait_measurement action") {
-//         REQUIRE(status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       THEN("After the third update method, output method returns wait_measurement action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//     }
-// // update method called four times [4000, 250, 500, 100]us as input, after final call action
-// returns wait_measurement
-//     WHEN("The update method is called four times with [4000, 250, 500, 100]us as input parameter
-//     ") {
-//       uint32_t time = 4000;
-//       auto status1 = state_machine.update(time);
-//       THEN("The first update method call returns wait_warmup action") {
-//         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the first update method, output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       uint32_t time1 = 250;
-//       auto status = state_machine.update(time1);
-//       THEN("The second update method call returns check_range action") {
-//         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-//       }
-//       THEN("After the second update method, output method returns check_range action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-//       }
-//       uint32_t time2 = 250;
-//       auto action_status1 = state_machine.update(time2);
-//       THEN("The third update method call returns wait_measurement action") {
-//         REQUIRE(action_status1 ==
-//         PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       THEN("After the third update method, output method returns wait_measurement action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       uint32_t time3 = 100;
-//       auto action_status2 = state_machine.update(time3);
-//       THEN("The fourth update method call returns measure action") {
-//         REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
-//       }
-//       THEN("After the fourth update method output method returns measure action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
-//       }
-//     }
-//  }
-//   GIVEN("The freshly constructed state machine"){
-//     PF::Driver::I2C::SFM3019::StateMachine state_machine;
-//     WHEN(
-//         "The update method is called four times with [4000, 3999, 3500, 3000]us as input "
-//         "parameter ") {
-// //time difference before every consecutive update call is set to 1,500,1000
-//       uint32_t time = 4000;
-//       auto status1 = state_machine.update(time);
-//       THEN("The first update method call returns wait_warmup action") {
-//         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the first update method, output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       uint32_t time1 = 3999;
-//       auto status = state_machine.update(time1);
-//       THEN("The second update method call returns check_range action") {
-//         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-//       }
-//       THEN("After the second update method, output method returns check_range action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-//       }
-//       uint32_t time2 = 3500;
-//       auto action_status1 = state_machine.update(time2);
-//       THEN("The third update method call returns wait_measurement action") {
-//         REQUIRE(action_status1 ==
-//         PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       THEN("After the third update method, output method returns wait_measurement action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       uint32_t time3 = 3000;
-//       auto action_status2 = state_machine.update(time3);
-//       THEN("The fourth update method call returns measure action") {
-//         REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
-//       }
-//       THEN("After the fourth update method, output method returns measure action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
-//       }
-//     }
-//     //Action does not advance from wait_warmup as "warmup_timer_.within_timeout(current_time_us)
-//     returns true" WHEN("The update method is called three times with [4000, 5000, 6000]us as
-//     input parameter ") {
-//       uint32_t time = 4000;
-//       auto status1 = state_machine.update(time);
-//       THEN("The first update method call returns wait_warmup action") {
-//         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the first update method, output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       uint32_t time1 = 5000;
-//       auto status = state_machine.update(time1);
-//       THEN("The second update method call returns wait_warmup action") {
-//         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the second update method, output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       uint32_t time2 = 6000;
-//       auto action_status1 = state_machine.update(time2);
-//       THEN("The third update method call returns wait_warmup action") {
-//         REQUIRE(action_status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the third update method, output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//     }
-//   }
-// }
-// SCENARIO("The uodate method works correctly for when input time is varied"){
-//   GIVEN("The freshly constructed state machine"){
-//     PF::Driver::I2C::SFM3019::StateMachine state_machine;
-// // update method is called five time, for last three calls action returns  wait_measurement -
-// measure - wait_measurement
-//     WHEN(
-//         "The update method is called five times with [500, 250, 5000, 6000, 200]us as input "
-//         "parameter ") {
-//       uint32_t time = 500;
-//       auto status1 = state_machine.update(time);
-//       THEN("The first update method call returns wait_warmup action") {
-//         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the first update method, output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       uint32_t time1 = 250;
-//       auto status = state_machine.update(time1);
-//       THEN("The second update method call returns check_range action") {
-//         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-//       }
-//       THEN("After the second update method, output method returns check_range action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-//       }
-//       uint32_t time2 = 5000;
-//       auto action_status1 = state_machine.update(time2);
-//       THEN("The third update method call returns wait_measurement action") {
-//         REQUIRE(action_status1 ==
-//         PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       THEN("After the third update method, output method returns wait_measurement action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       uint32_t time3 = 6000;
-//       auto action_status2 = state_machine.update(time3);
-//       THEN("The fourth update method call returns measure action") {
-//         REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
-//       }
-//       THEN("After the fourth update method, output method returns measure action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
-//       }
-//       uint32_t time4 = 200;
-//       auto action_status3 = state_machine.update(time4);
-//       THEN("The fourth update method call returns wait_measurement action") {
-//         REQUIRE(action_status3 ==
-//         PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       THEN("After the fourth update method, output method returns wait_measurement action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//     }
-// //when update method is called 7 times, action returns wait_measurement - measure -
-// wait_measurement
-//     WHEN(
-//         "The update method is called seven times with [500, 250, 5000, 6000, 200, 500, 500]us as
-//         input " "parameter ") {
-//       uint32_t time = 500;
-//       auto status1 = state_machine.update(time);
-//       THEN("The first update method call returns wait_warmup action") {
-//         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the first update method, output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       uint32_t time1 = 250;
-//       auto status = state_machine.update(time1);
-//       THEN("The second update method call returns check_range action") {
-//         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-//       }
-//       THEN("After the second update method, output method returns check_range action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-//       }
-//       uint32_t time2 = 5000;
-//       auto action_status1 = state_machine.update(time2);
-//       THEN("The third update method call returns wait_measurement action") {
-//         REQUIRE(action_status1 ==
-//         PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       THEN("After the third update method, output method returns wait_measurement action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       uint32_t time3 = 6000;
-//       auto action_status2 = state_machine.update(time3);
-//       THEN("The fourth update method call returns measure action") {
-//         REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
-//       }
-//       THEN("After the fourth update method, output method returns measure action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
-//       }
-//       uint32_t time4 = 200;
-//       auto action_status3 = state_machine.update(time4);
-//       THEN("The fourth update method call returns wait_measurement action") {
-//         REQUIRE(action_status3 ==
-//         PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       THEN("After the fourth update method, output method returns wait_measurement action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       for(size_t i=0;i<2;i++){
-//         uint32_t time5 = 500;
-//         auto action_status4 = state_machine.update(time5);
-//         THEN("The fifth and sixth update method call returns wait_measurement action") {
-//           REQUIRE(action_status4 ==
-//           PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//         }
-//       }
-//       THEN("After the fifth and sixth update method, output method returns wait_measurement
-//       action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//     }
-// // update method is called four times, action returns wait_measuremet but
-// "warmup_timer_.within_timeout(current_time_us)" true, so even after fourth call, action still
-// returns wait_measurement
-//     WHEN(
-//         "The update method is called four times with [500, 250, 5000]us as input "
-//         "parameter ") {
-//       uint32_t time = 500;
-//       auto status1 = state_machine.update(time);
-//       THEN("The first update method call returns wait_warmup action") {
-//         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the first update method, output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       uint32_t time1 = 250;
-//       auto status = state_machine.update(time1);
-//       THEN("The second update method call returns check_range action") {
-//         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-//       }
-//       THEN("After the second update method, output method returns check_range action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-//       }
-//       uint32_t time2 = 5000;
-//       auto action_status1 = state_machine.update(time2);
-//       THEN("The third update method call returns wait_measurement action") {
-//         REQUIRE(action_status1 ==
-//         PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       THEN("After the third update method, output method returns wait_measurement action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       auto action_status2 = state_machine.update(time2);
-//       THEN("The fourth update method call returns measure action") {
-//         REQUIRE(action_status2 ==
-//         PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//       THEN("After the fourth update method, output method returns measure action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-//       }
-//     }
-//   }
-// }
+    // update method is called twice, with 4000us as mock time for both cases, action return
+    // wait_warmup
+    WHEN("The update method is called twice with 4000us as input parameter for both cases") {
+      uint32_t time = 4000;
+      auto action_status1 = state_machine.update(4000);
+      THEN("The first update method call returns wait_warmup action") {
+        REQUIRE(action_status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the first update method, output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      auto action_status2 = state_machine.update(time);
+      THEN("The second update method call returns wait_warmup action") {
+        REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the second update method, output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+    }
+    // update method called thrice with [4000, 100, 5000]us as input, action returns check_range
+    WHEN("The update method is called thrice with [4000, 100, 5000]us as input parameter") {
+      uint32_t time = 4000;
+      auto status1 = state_machine.update(time);
+      THEN("The first update method call returns wait_warmup action") {
+        REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the first update method, output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      uint32_t time1 = 100;
+      auto status = state_machine.update(time1);
+      THEN("The second update method call, returns check_range action") {
+        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
+      }
+      THEN("After the second update method, output method returns check_range action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
+      }
+      uint32_t time2 = 5000;
+      auto status2 = state_machine.update(time2);
+      THEN("The third update method call returns wait_measurement action") {
+        REQUIRE(status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      THEN("After the third update method, output method returns wait_measurement action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+    }
+    // update method called four times [4000, 250, 500, 100]us as input, after final call action
+    // returns wait_measurement
+    WHEN("The update method is called four times with [4000, 250, 500, 100]us as input parameter") {
+      uint32_t time = 4000;
+      auto status1 = state_machine.update(time);
+      THEN("The first update method call returns wait_warmup action") {
+        REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the first update method, output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      uint32_t time1 = 250;
+      auto status = state_machine.update(time1);
+      THEN("The second update method call returns check_range action") {
+        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
+      }
+      THEN("After the second update method, output method returns check_range action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
+      }
+      uint32_t time2 = 250;
+      auto action_status1 = state_machine.update(time2);
+      THEN("The third update method call returns wait_measurement action") {
+        REQUIRE(action_status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      THEN("After the third update method, output method returns wait_measurement action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      uint32_t time3 = 100;
+      auto action_status2 = state_machine.update(time3);
+      THEN("The fourth update method call returns measure action") {
+        REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+      }
+      THEN("After the fourth update method output method returns measure action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+      }
+    }
+  }
+  GIVEN("The freshly constructed state machine") {
+    PF::Driver::I2C::SFM3019::StateMachine state_machine;
+    WHEN(
+        "The update method is called four times with [4000, 3999, 3500, 3000]us as input "
+        "parameter ") {
+      // time difference before every consecutive update call is set to 1,500,1000
+      uint32_t time = 4000;
+      auto status1 = state_machine.update(time);
+      THEN("The first update method call returns wait_warmup action") {
+        REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the first update method, output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      uint32_t time1 = 3999;
+      auto status = state_machine.update(time1);
+      THEN("The second update method call returns check_range action") {
+        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
+      }
+      THEN("After the second update method, output method returns check_range action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
+      }
+      uint32_t time2 = 3500;
+      auto action_status1 = state_machine.update(time2);
+      THEN("The third update method call returns wait_measurement action") {
+        REQUIRE(action_status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      THEN("After the third update method, output method returns wait_measurement action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      uint32_t time3 = 3000;
+      auto action_status2 = state_machine.update(time3);
+      THEN("The fourth update method call returns measure action") {
+        REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+      }
+      THEN("After the fourth update method, output method returns measure action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+      }
+    }
+    // Action does not advance from wait_warmup as
+    // "warmup_timer_.within_timeout(current_time_us)returns true
+    WHEN("The update method is called three times with [4000, 5000, 6000]us as input parameter ") {
+      uint32_t time = 4000;
+      auto status1 = state_machine.update(time);
+      THEN("The first update method call returns wait_warmup action") {
+        REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the first update method, output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      uint32_t time1 = 5000;
+      auto status = state_machine.update(time1);
+      THEN("The second update method call returns wait_warmup action") {
+        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the second update method, output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      uint32_t time2 = 6000;
+      auto action_status1 = state_machine.update(time2);
+      THEN("The third update method call returns wait_warmup action") {
+        REQUIRE(action_status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the third update method, output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+    }
+  }
+}
+SCENARIO("The uodate method works correctly for when input time is varied") {
+  GIVEN("The freshly constructed state machine") {
+    PF::Driver::I2C::SFM3019::StateMachine state_machine;
+    // update method is called five time, for last three calls action returns  wait_measurement
+    // measure - wait_measurement
+    WHEN(
+        "The update method is called five times with [500, 250, 5000, 6000, 200]us as input "
+        "parameter ") {
+      uint32_t time = 500;
+      auto status1 = state_machine.update(time);
+      THEN("The first update method call returns wait_warmup action") {
+        REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the first update method, output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      uint32_t time1 = 250;
+      auto status = state_machine.update(time1);
+      THEN("The second update method call returns check_range action") {
+        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
+      }
+      THEN("After the second update method, output method returns check_range action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
+      }
+      uint32_t time2 = 5000;
+      auto action_status1 = state_machine.update(time2);
+      THEN("The third update method call returns wait_measurement action") {
+        REQUIRE(action_status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      THEN("After the third update method, output method returns wait_measurement action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      uint32_t time3 = 6000;
+      auto action_status2 = state_machine.update(time3);
+      THEN("The fourth update method call returns measure action") {
+        REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+      }
+      THEN("After the fourth update method, output method returns measure action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+      }
+      uint32_t time4 = 200;
+      auto action_status3 = state_machine.update(time4);
+      THEN("The fourth update method call returns wait_measurement action") {
+        REQUIRE(action_status3 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      THEN("After the fourth update method, output method returns wait_measurement action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+    }
+    // when update method is called 7 times, action returns wait_measurement - measure -
+    // wait_measurement
+    WHEN(
+        "The update method is called seven times with [500, 250, 5000, 6000, 200, 500, 500]us as "
+        "input parameter ") {
+      uint32_t time = 500;
+      auto status1 = state_machine.update(time);
+      THEN("The first update method call returns wait_warmup action") {
+        REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the first update method, output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      uint32_t time1 = 250;
+      auto status = state_machine.update(time1);
+      THEN("The second update method call returns check_range action") {
+        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
+      }
+      THEN("After the second update method, output method returns check_range action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
+      }
+      uint32_t time2 = 5000;
+      auto action_status1 = state_machine.update(time2);
+      THEN("The third update method call returns wait_measurement action") {
+        REQUIRE(action_status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      THEN("After the third update method, output method returns wait_measurement action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      uint32_t time3 = 6000;
+      auto action_status2 = state_machine.update(time3);
+      THEN("The fourth update method call returns measure action") {
+        REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+      }
+      THEN("After the fourth update method, output method returns measure action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+      }
+      uint32_t time4 = 200;
+      auto action_status3 = state_machine.update(time4);
+      THEN("The fourth update method call returns wait_measurement action") {
+        REQUIRE(action_status3 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      THEN("After the fourth update method, output method returns wait_measurement action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      for (size_t i = 0; i < 2; i++) {
+        uint32_t time5 = 500;
+        auto action_status4 = state_machine.update(time5);
+        THEN("The fifth and sixth update method call returns wait_measurement action") {
+          REQUIRE(
+              action_status4 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+        }
+      }
+      THEN(
+          "After the fifth and sixth update method, output method returns wait_measurement "
+          "action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+    }
+    // update method is called four times, action returns wait_measuremet
+    // but"warmup_timer_.within_timeout(current_time_us)" true, so even after fourth call, action
+    // still
+    // returns wait_measurement
+    WHEN(
+        "The update method is called four times with [500, 250, 5000]us as input "
+        "parameter ") {
+      uint32_t time = 500;
+      auto status1 = state_machine.update(time);
+      THEN("The first update method call returns wait_warmup action") {
+        REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the first update method, output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      uint32_t time1 = 250;
+      auto status = state_machine.update(time1);
+      THEN("The second update method call returns check_range action") {
+        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
+      }
+      THEN("After the second update method, output method returns check_range action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
+      }
+      uint32_t time2 = 5000;
+      auto action_status1 = state_machine.update(time2);
+      THEN("The third update method call returns wait_measurement action") {
+        REQUIRE(action_status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      THEN("After the third update method, output method returns wait_measurement action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      auto action_status2 = state_machine.update(time2);
+      THEN("The fourth update method call returns measure action") {
+        REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      THEN("After the fourth update method, output method returns measure action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+    }
+  }
+}
 
-// SCENARIO("The StateMachine::update method works correctly for 1us") {
-//   GIVEN(" A state machine is constructed") {
-//     PF::Driver::I2C::SFM3019::StateMachine state_machine;
-//     WHEN(
-//         "The update method is called five times with [100, 299, 300, 301, 302] as input "
-//         "parameter ") {
-//       uint32_t time = 100;
-//       auto status1 = state_machine.update(time);
-//       THEN("The first update method call returns wait_warmup action") {
-//         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the first update method, output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       uint32_t time1 = 299;
-//       auto status = state_machine.update(time1);
-//       THEN("The second update method call returns wait_warmup action") {
-//         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the second update method, output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       uint32_t time2 = 300;
-//       auto action_status1 = state_machine.update(time2);
-//       THEN("The third update method call returns wait_warmup action") {
-//         REQUIRE(action_status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       THEN("After the third update method, output method returns wait_warmup action") {
-//         auto op_state = state_machine.output();
-//         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//       uint32_t time3 = 301;
-//       auto action_status2 = state_machine.update(time3);
-//       THEN("The fourth update method call returns wait_warmup action") {
-//         REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-//       }
-//      g0
-//   }
-// }
+SCENARIO("The StateMachine::update method works correctly for 1us") {
+  GIVEN(" A state machine is constructed") {
+    PF::Driver::I2C::SFM3019::StateMachine state_machine;
+    WHEN(
+        "The update method is called five times with [100, 299, 300, 301, 302] as input "
+        "parameter ") {
+      uint32_t time = 100;
+      auto status1 = state_machine.update(time);
+      THEN("The first update method call returns wait_warmup action") {
+        REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the first update method, output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      uint32_t time1 = 299;
+      auto status = state_machine.update(time1);
+      THEN("The second update method call returns wait_warmup action") {
+        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the second update method, output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      uint32_t time2 = 300;
+      auto action_status1 = state_machine.update(time2);
+      THEN("The third update method call returns wait_warmup action") {
+        REQUIRE(action_status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      THEN("After the third update method, output method returns wait_warmup action") {
+        auto op_state = state_machine.output();
+        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+      uint32_t time3 = 301;
+      auto action_status2 = state_machine.update(time3);
+      THEN("The fourth update method call returns wait_warmup action") {
+        REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+      }
+    }
+  }
+}
 
 SCENARIO("The Sensor::setup method works correctly") {
   GIVEN(
@@ -751,7 +744,7 @@ SCENARIO("The Sensor::setup method works correctly for different mock read buffe
         PF::Util::Containers::ByteVector<buffer_size> input_buffer;
         mock_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-        auto expected = std::string("\\xE1\\x02\\x00\\x00\\x00");
+        auto expected = R"(\xE1\x02\x00\x00\x00)";
         REQUIRE(read_buffer == expected);
       }
       THEN("The mock_device I2C's read buffer contains no_new_data") {
@@ -1050,7 +1043,7 @@ SCENARIO(
         PF::Util::Containers::ByteVector<buffer_size> input_buffer;
         mock_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-        auto expected = std::string("\\xE1\\x02\\x00\\x00\\x00");
+        auto expected = R"(\xE1\x02\x00\x00\x00)";
         REQUIRE(read_buffer == expected);
       }
       THEN("The mock_device I2C's read buffer contains no_new_data") {

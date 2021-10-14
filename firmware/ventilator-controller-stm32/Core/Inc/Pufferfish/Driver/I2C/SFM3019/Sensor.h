@@ -54,8 +54,6 @@ class Sensor : public Initializable {
   StateMachine::Action get_state();
 
  private:
-  // using Action = StateMachine::Action;
-
   static const uint32_t power_up_delay = 2;  // ms
   static const uint32_t product_number = 0x04020611;
   static const uint32_t read_conv_delay_us = 20;  // us

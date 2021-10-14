@@ -9,7 +9,6 @@
 #include "Pufferfish/Driver/I2C/SFM3019/Device.h"
 
 #include <array>
-#include <iostream>
 
 #include "Pufferfish/HAL/Interfaces/Endian.h"
 #include "Pufferfish/Util/Endian.h"
@@ -56,7 +55,6 @@ I2CDeviceStatus Device::read_conversion_factors(ConversionFactors &conversion) {
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
-
   Util::read_bigend(buffer.data(), conversion.scale_factor);
   Util::read_bigend(buffer.data() + sizeof(uint16_t), conversion.offset);
   Util::read_bigend(buffer.data() + 2 * sizeof(uint16_t), conversion.flow_unit);
@@ -77,7 +75,6 @@ I2CDeviceStatus Device::read_sample(const ConversionFactors &conversion, Sample 
   // convert to actual flow rate
   sample.flow = static_cast<float>(sample.raw_flow - conversion.offset) /
                 static_cast<float>(conversion.scale_factor);
-  // std::cout << "flow" << sample.flow << std::endl;
 
   return I2CDeviceStatus::ok;
 }
