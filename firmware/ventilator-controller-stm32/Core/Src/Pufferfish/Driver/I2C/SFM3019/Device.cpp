@@ -9,6 +9,7 @@
 #include "Pufferfish/Driver/I2C/SFM3019/Device.h"
 
 #include <array>
+#include <iostream>
 
 #include "Pufferfish/HAL/Interfaces/Endian.h"
 #include "Pufferfish/Util/Endian.h"
@@ -76,6 +77,7 @@ I2CDeviceStatus Device::read_sample(const ConversionFactors &conversion, Sample 
   // convert to actual flow rate
   sample.flow = static_cast<float>(sample.raw_flow - conversion.offset) /
                 static_cast<float>(conversion.scale_factor);
+  // std::cout << "flow" << sample.flow << std::endl;
 
   return I2CDeviceStatus::ok;
 }

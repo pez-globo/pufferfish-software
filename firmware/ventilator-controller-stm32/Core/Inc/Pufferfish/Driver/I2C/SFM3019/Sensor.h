@@ -82,9 +82,9 @@ class Sensor : public Initializable {
 
   HAL::Interfaces::Time &time_;
 
-  InitializableState initialize(uint32_t current_time);
-  InitializableState check_range(uint32_t current_time_us);
-  InitializableState measure(uint32_t current_time_us, float &flow);
+  InitializableState initialize();
+  InitializableState check_range();
+  InitializableState measure(float &flow);
 };
 
 }  // namespace Pufferfish::Driver::I2C::SFM3019

@@ -51,17 +51,20 @@ StateMachine::Action Sensor::get_state() {
 }
 
 InitializableState Sensor::setup() {
-  if (prev_state_ == InitializableState::failed) {
-    return InitializableState::failed;
+  if (prev_state_ != InitializableState::setup) {
+    return prev_state_;
   }
 
   switch (fsm_.output()) {
     case StateMachine::Action::initialize:
-      switch (initialize(time_.micros())) {
+      switch (initialize()) {
         case InitializableState::setup:
           next_action_ = fsm_.update(time_.micros());
           prev_state_ = InitializableState::setup;
-          return InitializableState::setup;
+          return prev_state_;
+        case InitializableState::failed:
+          prev_state_ = InitializableState::failed;
+          return prev_state_;
         default:
           break;
       }
@@ -69,61 +72,60 @@ InitializableState Sensor::setup() {
     case StateMachine::Action::wait_warmup:
       next_action_ = fsm_.update(time_.micros());
       prev_state_ = InitializableState::setup;
-      return InitializableState::setup;
+      return prev_state_;
     case StateMachine::Action::check_range:
-      switch (check_range(time_.micros())) {
+      switch (check_range()) {
         case InitializableState::ok:
           next_action_ = fsm_.update(time_.micros());
           prev_state_ = InitializableState::ok;
-          return InitializableState::ok;
+          return prev_state_;
         case InitializableState::setup:
           prev_state_ = InitializableState::setup;
-          return InitializableState::setup;
+          return prev_state_;
         case InitializableState::failed:
           prev_state_ = InitializableState::failed;
-          return InitializableState::failed;
+          return prev_state_;
       }
     case StateMachine::Action::measure:
     case StateMachine::Action::wait_measurement:
       prev_state_ = InitializableState::ok;
-      return InitializableState::ok;
+      return prev_state_;
   }
   prev_state_ = InitializableState::failed;
-  return InitializableState::failed;
+  return prev_state_;
 }
 
 InitializableState Sensor::output(float &flow) {
   if (prev_state_ == InitializableState::failed) {
-    return InitializableState::failed;
+    return prev_state_;
   }
 
   switch (fsm_.output()) {
     case StateMachine::Action::measure:
-      switch (measure(time_.micros(), flow)) {
+      switch (measure(flow)) {
         case InitializableState::ok:
           next_action_ = fsm_.update(time_.micros());
           prev_state_ = InitializableState::ok;
-          return InitializableState::ok;
+          return prev_state_;
         case InitializableState::setup:
           prev_state_ = InitializableState::setup;
-          return InitializableState::setup;
+          return prev_state_;
         case InitializableState::failed:
           prev_state_ = InitializableState::failed;
-          return InitializableState::failed;
+          return prev_state_;
       }
     case StateMachine::Action::wait_measurement:
       next_action_ = fsm_.update(time_.micros());
       prev_state_ = InitializableState::ok;
-      return InitializableState::ok;
+      return prev_state_;
     default:
       break;
   }
   prev_state_ = InitializableState::failed;
-  return InitializableState::failed;
+  return prev_state_;
 }
 
-// NOLINTNEXTLINE(misc-unused-parameters)
-InitializableState Sensor::initialize(uint32_t current_time_us) {
+InitializableState Sensor::initialize() {
   if (retry_count_ > max_retries_setup) {
     return InitializableState::failed;
   }
@@ -196,8 +198,7 @@ InitializableState Sensor::initialize(uint32_t current_time_us) {
   retry_count_ = 0;  // reset retries to 0 for measuring
   return InitializableState::setup;
 }
-// NOLINTNEXTLINE(misc-unused-parameters)
-InitializableState Sensor::check_range(uint32_t current_time_us) {
+InitializableState Sensor::check_range() {
   Sample sample{};
   if (device_.read_sample(conversion_, sample) == I2CDeviceStatus::ok && sample.flow >= flow_min &&
       sample.flow <= flow_max) {
@@ -208,12 +209,11 @@ InitializableState Sensor::check_range(uint32_t current_time_us) {
   if (retry_count_ > max_retries_setup) {
     return InitializableState::failed;
   }
-
+  retry_count_ = 0;
   return InitializableState::setup;
 }
 
-// NOLINTNEXTLINE(misc-unused-parameters)
-InitializableState Sensor::measure(uint32_t current_time_us, float &flow) {
+InitializableState Sensor::measure(float &flow) {
   Sample sample{};
   if (device_.read_sample(conversion_, sample) == I2CDeviceStatus::ok) {
     retry_count_ = 0;  // reset retries to 0 for next measurement
