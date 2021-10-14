@@ -744,7 +744,7 @@ SCENARIO("The Sensor::setup method works correctly for different mock read buffe
         PF::Util::Containers::ByteVector<buffer_size> input_buffer;
         mock_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-        auto expected = R"(\xE1\x02\x00\x00\x00)";
+        auto* expected = R"(\xE1\x02\x00\x00\x00)";
         REQUIRE(read_buffer == expected);
       }
       THEN("The mock_device I2C's read buffer contains no_new_data") {
@@ -1043,7 +1043,7 @@ SCENARIO(
         PF::Util::Containers::ByteVector<buffer_size> input_buffer;
         mock_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
-        auto expected = R"(\xE1\x02\x00\x00\x00)";
+        auto* expected = R"(\xE1\x02\x00\x00\x00)";
         REQUIRE(read_buffer == expected);
       }
       THEN("The mock_device I2C's read buffer contains no_new_data") {
