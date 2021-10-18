@@ -31,7 +31,7 @@ SCENARIO("The StateMachine::update method works correctly") {
       THEN("The update method returns wait_warmup action") {
         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
       }
-      THEN("After the update method output method returns wait_warmup action") {
+      THEN("After the update method, output method returns wait_warmup action") {
         auto op_state = state_machine.output();
         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
       }
@@ -330,7 +330,7 @@ SCENARIO("The uodate method works correctly for when input time is varied") {
     // returns wait_measurement
     WHEN(
         "The update method is called four times with [500, 250, 5000]us as input "
-        "parameter ") {
+        "parameter and for fourth call input parameter remains same as for third call ") {
       uint32_t time = 500;
       auto status1 = state_machine.update(time);
       THEN("The first update method call returns wait_warmup action") {
@@ -370,11 +370,15 @@ SCENARIO("The uodate method works correctly for when input time is varied") {
   }
 }
 
-SCENARIO("The StateMachine::update method works correctly for 1us") {
-  GIVEN(" A state machine is constructed") {
+SCENARIO(
+    "The StateMachine::update method works correctly for relatively small interval of time as "
+    "input") {
+  GIVEN(" A freshly contructed state machine") {
     PF::Driver::I2C::SFM3019::StateMachine state_machine;
+    // input parameter time is varied having small interval, action changes to wait_warmup, and
+    // remains same after 4 calls
     WHEN(
-        "The update method is called five times with [100, 299, 300, 301, 302] as input "
+        "The update method is called five times with [100, 299, 300, 301, 302]us as input "
         "parameter ") {
       uint32_t time = 100;
       auto status1 = state_machine.update(time);
@@ -418,8 +422,9 @@ SCENARIO("The Sensor::setup method works correctly") {
       "11 "
       "a9 00 00 81] (as a read_product_id response) "
       "and[00 aa a6 a0 00 7e 00 00 81](as read_conversion_factor response) and [97 38 "
-      "1e](as read_sample response) and followed by junk bytes [01 02], reseter is set to "
-      "false and mock time set to 100us. global device's mock write buffer is set to [01] byte") {
+      "1e](as read_sample response) followed by junk bytes [01 02], reseter is set to "
+      "false and mock time is set to 100us. global device's mock write buffer is set to [01] "
+      "byte") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
@@ -509,7 +514,7 @@ SCENARIO("The Sensor::setup method works correctly") {
     // setup method called twice and enough time is not elapsed , so action still returns
     // wait_warmup
     WHEN(
-        "The setup method is called twice , mock time is set to [100, 200] before each "
+        "The setup method is called twice , mock time is set to [100, 200]us before each "
         "corresponding setup call") {
       PF::Driver::I2C::SFM3019::StateMachine state_machine;
       PF::Driver::I2C::SFM3019::Sensor sensor{device, false, time};
@@ -571,8 +576,9 @@ SCENARIO("The Sensor::setup method works correctly") {
       "11 "
       "a9 00 00 81] (as a read_product_id response) "
       "and[00 aa a6 a0 00 7e 00 00 81](as read_conversion_factor response) and [15 35 "
-      "a8](as read_sample response) and followed by junk bytes [01 02], reseter is set to "
-      "false and mock time set to 100us, global device's mock write buffer is set to [01] byte") {
+      "a8](as read_sample response) followed by junk bytes [01 02], reseter is set to "
+      "false and mock time is set to 100us, global device's mock write buffer is set to [01] "
+      "byte") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
@@ -593,7 +599,7 @@ SCENARIO("The Sensor::setup method works correctly") {
     mock_device.add_read(input_data1.data(), input_data1.size());
     // setup method called twice, action returns check_range
     WHEN(
-        "The setup method is called twice ,mock time is set to [100, 500] before each "
+        "The setup method is called twice ,mock time is set to [100, 500]us before each "
         "corresponding setup call") {
       PF::Driver::I2C::SFM3019::StateMachine state_machine;
       PF::Driver::I2C::SFM3019::Sensor sensor{device, false, time};
@@ -653,8 +659,9 @@ SCENARIO("The Sensor::setup method works correctly for different mock read buffe
   // Data in mock read buffer contains wrong product id
   GIVEN(
       "SFMC3019 sensor is created with mock I2C device with read buffer consisting of[97 38 1e]  "
-      "(as a read_product_id response) "
-      " reseter is set to false and mock time set to 100us, global device's mock write buffer is "
+      "(as a read_product_id response), "
+      " reseter is set to false and mock time is set to 100us, global device's mock write buffer "
+      "is "
       "set to [01] byte") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
@@ -712,7 +719,8 @@ SCENARIO("The Sensor::setup method works correctly for different mock read buffe
       "SFMC3019 sensor is created with mock I2C device with read buffer consisting of[04 02 60 06 "
       "11 a9 00 00 81] (as a read_product_id response) followed by [97 38 1e](as "
       "read_conversion_factors response) "
-      " reseter is set to false and mock time set to 100us global device's mock write buffer is "
+      " reseter is set to false and mock time is set to 100us, global device's mock write buffer "
+      "is "
       "set to [01] byte") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
@@ -735,15 +743,14 @@ SCENARIO("The Sensor::setup method works correctly for different mock read buffe
       THEN("The first setup method call returns failed state") {
         REQUIRE(status == PF::InitializableState::failed);
       }
-
       THEN("After first setup method call, get_state method returns initialize action") {
         auto state = sensor.get_state();
         REQUIRE(state == PF::Driver::I2C::SFM3019::StateMachine::Action::initialize);
       }
       THEN("The mock_device I2C's write buffer contains command byte [E1 02 00 00 00]") {
-        PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-        mock_device.get_write(input_buffer.buffer(), count);
-        auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
+        PF::Util::Containers::ByteVector<buffer_size> input;
+        mock_device.get_write(input.buffer(), count);
+        auto read_buffer = convert_byte_vector_to_hex_string(input, count);
         const auto* expected = R"(\xE1\x02\x00\x00\x00)";
         REQUIRE(read_buffer == expected);
       }
@@ -774,7 +781,8 @@ SCENARIO("The Sensor::setup method works correctly for different mock read buffe
       "a9 00 00 81] (as a read_product_id response) "
       "and[00 aa a6 a0 00 7e 00 00 81](as read_conversion_factor response) [01 00 "
       "b1](as read_sample response) followed by junk bytes [01 02] , reseter is set to "
-      "false and mock time set to 100us, global device's mock write buffer is set to [01] byte") {
+      "false and mock time is set to 100us, global device's mock write buffer is set to [01] "
+      "byte") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
@@ -792,7 +800,7 @@ SCENARIO("The Sensor::setup method works correctly for different mock read buffe
     mock_device.add_read(input_data.data(), input_data.size());
 
     WHEN(
-        "The setup method is called thrice , mock time is set to [100, 55000, 40000] before each "
+        "The setup method is called thrice , mock time is set to [100, 55000, 40000]us before each "
         "corresponding setup call") {
       PF::Driver::I2C::SFM3019::StateMachine state_machine;
       PF::Driver::I2C::SFM3019::Sensor sensor{device, false, time};
@@ -858,9 +866,9 @@ SCENARIO("The Sensor::setup method works correctly when resetter is set to true"
   GIVEN(
       "SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 "
       "a9 00 00 81] (as a read_product_id response) "
-      "and[00 aa a6 a0 00 7e 00 00 81](as read_conversion_factor response) [15 35 "
+      "and[00 aa a6 a0 00 7e 00 00 81](as read_conversion_factor response), [15 35 "
       "a8](as read_sample response) followed by junk bytes [01 02], reseter is set to "
-      "true and mock time set to 100us, global device's mock write buffer is set to [01] byte") {
+      "true and mock time is set to 100us, global device's mock write buffer is set to [01] byte") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
@@ -881,9 +889,8 @@ SCENARIO("The Sensor::setup method works correctly when resetter is set to true"
     mock_device.add_read(input_data1.data(), input_data1.size());
 
     WHEN(
-        "The setup method is called thrice , where mock read buffer is appended with bytes  and "
-        "mock "
-        "time is set to [100, 55000, 40000] before each corresponding setup call") {
+        "The setup method is called thrice , where mock "
+        "time is set to [100, 55000, 40000]us before each corresponding setup call") {
       PF::Driver::I2C::SFM3019::StateMachine state_machine;
       PF::Driver::I2C::SFM3019::Sensor sensor{device, true, time};
       time.set_micros(100);
@@ -1010,7 +1017,8 @@ SCENARIO(
       "SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 "
       "a9 00 00 81] (as a read_product_id response) "
       "and[04 02 60 06 11 a9 00 00 81](as read_conversion_factor response), reseter is set to "
-      "false and mock time set to 100us, global device's mock write buffer is set to [01] byte") {
+      "false and mock time is set to 100us, global device's mock write buffer is set to [01] "
+      "byte") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
@@ -1105,7 +1113,8 @@ SCENARIO(
     mock_device.add_read(read_buffer5.data(), read_buffer5.size());
 
     WHEN(
-        "The setup method is called thrice , where  mock time is set to [100, 55000, 40000] before "
+        "The setup method is called thrice , where  mock time is set to [100, 55000, 40000]us "
+        "before "
         "each corresponding setup call") {
       PF::Driver::I2C::SFM3019::Sensor sensor{device, false, time};
       auto input_data = PF::Util::Containers::make_array<uint8_t>(0x15, 0x35, 0xa8);
@@ -1178,7 +1187,7 @@ SCENARIO("The Sensor::setup method works correctly for differnt mock time") {
       "a9 00 00 81] (as a read_product_id response) "
       "and[00 aa a6 a0 00 7e 00 00 81](as read_conversion_factor response) and [15 35 "
       "a8](as read_sample response) followed by junk bytes [01 02] , reseter is set to "
-      "false and mock time set to 100us") {
+      "false and mock time set to 100us , global device's mock write buffer is set to [01] byte") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
@@ -1199,7 +1208,8 @@ SCENARIO("The Sensor::setup method works correctly for differnt mock time") {
     mock_device.add_read(input_data1.data(), input_data1.size());
     // Setup method called thrice, action returns wait_measurement
     WHEN(
-        "The setup method is called thrice , where mock time is set to [100, 55000, 40000] before "
+        "The setup method is called thrice , where mock time is set to [100, 55000, 40000]us "
+        "before "
         "each corresponding setup call") {
       PF::Driver::I2C::SFM3019::StateMachine state_machine;
       PF::Driver::I2C::SFM3019::Sensor sensor{device, false, time};
@@ -1327,9 +1337,9 @@ SCENARIO("The Sensor::output method works correctly") {
   GIVEN(
       "SFMC3019 sensor is fully initialised by calling setup method until it returns ok and action "
       "returns wait_measurement with the mock read buffer consisting of [97 38 1e 97 38 1e](as "
-      "read_sample response) and junk bytes [01 02] appended afterwords and with the mock time set "
+      "read_sample response) followed by junk bytes [01 02],  and with the mock time set "
       "to "
-      "100us") {
+      "100us, global device's mock write buffer is set to [01] byte") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     float flow = 20.5;
@@ -1368,8 +1378,8 @@ SCENARIO("The Sensor::output method works correctly") {
     auto state1 = sensor.get_state();
     REQUIRE(state1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
     WHEN(
-        "The output method is called thrice with mock time set to [40000,1000, 2000] and output "
-        "parameter flow is set to 20.5") {
+        "The output method is called thrice with mock time set to [40000,1000, 2000]us and output "
+        "parameter flow is initialized to 20.5") {
       auto output_status = sensor.output(flow);
       THEN("The first output method call returns ok state") {
         REQUIRE(output_status == PF::InitializableState::ok);
@@ -1379,7 +1389,7 @@ SCENARIO("The Sensor::output method works correctly") {
         auto status = sensor.get_state();
         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       }
-      THEN("The output parameter flow returns 20.5") { REQUIRE(flow == 20.5F); }
+      THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
       time.set_micros(1000);
       auto output_status1 = sensor.output(flow);
       THEN("The second output method call returns ok state") {
@@ -1389,6 +1399,7 @@ SCENARIO("The Sensor::output method works correctly") {
         auto status = sensor.get_state();
         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
       }
+      THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
       time.set_micros(2000);
       auto output_status2 = sensor.output(flow);
       THEN("The third output method call returns setup state") {
@@ -1398,7 +1409,7 @@ SCENARIO("The Sensor::output method works correctly") {
         auto state2 = sensor.get_state();
         REQUIRE(state2 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       }
-      THEN("The output parameter flow returns -13.22353F value") { REQUIRE(flow == -13.22353F); }
+      THEN("The output parameter flow is set to -13.22353F value") { REQUIRE(flow == -13.22353F); }
       THEN("The mock_device I2C's write buffer returns command byte [E1 02]") {
         mock_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
@@ -1411,10 +1422,30 @@ SCENARIO("The Sensor::output method works correctly") {
         REQUIRE(input_buffer[0] == 0x01);
         REQUIRE(input_buffer[1] == 0x02);
       }
+      THEN("The global_device I2C's read buffer is empty") {
+        constexpr size_t buffer_size = 254UL;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+        size_t count = buffer_size;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        constexpr size_t buffer_size = 254UL;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+        size_t count = buffer_size;
+        PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+        auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+        global_device.write(input_data.data(), input_data.size());
+        global_device.get_write(global_buffer.buffer(), count);
+        auto read_buffer = convert_byte_vector_to_hex_string(global_buffer, count);
+        auto expected = std::string("\\x01");
+        REQUIRE(read_buffer == expected);  // 254 null bytes instead
+      }
     }
     WHEN(
-        "The output method is called thrice with mock time set to [40000, 500, 100] and output "
-        "parameter flow is set to 20.5") {
+        "The output method is called thrice with mock time set to [40000, 500, 100]us and output "
+        "parameter flow is initialized to 20.5") {
       auto output_status = sensor.output(flow);
       THEN("The first output method call returns ok state") {
         REQUIRE(output_status == PF::InitializableState::ok);
@@ -1423,6 +1454,8 @@ SCENARIO("The Sensor::output method works correctly") {
         auto status = sensor.get_state();
         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       }
+      THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
+
       time.set_micros(500);
       auto output_status1 = sensor.output(flow);
       THEN("The  second output method call returns ok state") {
@@ -1433,8 +1466,7 @@ SCENARIO("The Sensor::output method works correctly") {
         auto status = sensor.get_state();
         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
       }
-
-      THEN("The output parameter flow returns 20.5") { REQUIRE(flow == 20.5F); }
+      THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
 
       time.set_micros(100);
       auto output_status2 = sensor.output(flow);
@@ -1446,7 +1478,7 @@ SCENARIO("The Sensor::output method works correctly") {
         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       }
 
-      THEN("The output parameter flow returns -13.22353F value") { REQUIRE(flow == -13.22353F); }
+      THEN("The output parameter flow is set to -13.22353F value") { REQUIRE(flow == -13.22353F); }
 
       THEN("The mock_device I2C's write buffer returns command byte [E1 02]") {
         mock_device.get_write(input_buffer.buffer(), count);
@@ -1460,18 +1492,38 @@ SCENARIO("The Sensor::output method works correctly") {
         REQUIRE(input_buffer[0] == 0x01);
         REQUIRE(input_buffer[1] == 0x02);
       }
+      THEN("The global_device I2C's read buffer is empty") {
+        constexpr size_t buffer_size = 254UL;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+        size_t count = buffer_size;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        constexpr size_t buffer_size = 254UL;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+        size_t count = buffer_size;
+        PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+        auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+        global_device.write(input_data.data(), input_data.size());
+        global_device.get_write(global_buffer.buffer(), count);
+        auto read_buffer = convert_byte_vector_to_hex_string(global_buffer, count);
+        auto expected = std::string("\\x01");
+        REQUIRE(read_buffer == expected);  // 254 null bytes instead
+      }
     }
   }
 }
 SCENARIO(
-    "The Sensor::output method works correctly for different mcok read buffer and for mock time "
+    "The Sensor::output method works correctly for different mock read buffer and for mock time "
     "100") {
   GIVEN(
       "SFMC3019 sensor is fully initialised by calling setup method until it returns ok and action "
       "returns wait_measurement with the mock read buffer consisting of [15 35 a8 15 35 a8](as "
-      "read_sample response) and junk bytes [01 02] appended afterwords and with the mock time set "
+      "read_sample response) followed by junk bytes [01 02], the mock time is set "
       "to "
-      "100us") {
+      "100us, global device's mock write buffer is set to [01] byte") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     float flow = 20.5;
@@ -1511,8 +1563,8 @@ SCENARIO(
     auto state1 = sensor.get_state();
     REQUIRE(state1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
     WHEN(
-        "The output method is called thrice with mock time set to [40000, 1000, 100], and output "
-        "parameter flow is set to 20.5") {
+        "The output method is called thrice with mock time set to [40000, 1000, 100]us, and output "
+        "parameter flow is initialized to 20.5") {
       auto output_status = sensor.output(flow);
       THEN("The first output method call returns ok state") {
         REQUIRE(output_status == PF::InitializableState::ok);
@@ -1521,6 +1573,7 @@ SCENARIO(
         auto status = sensor.get_state();
         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       }
+      THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
       time.set_micros(1000);
       auto output_status1 = sensor.output(flow);
       THEN("The second output method call returns ok state") {
@@ -1530,7 +1583,7 @@ SCENARIO(
         auto status1 = sensor.get_state();
         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
       }
-      THEN("The output parameter flow returns 20.5") { REQUIRE(flow == 20.5F); }
+      THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
       time.set_micros(100);
       auto output_status2 = sensor.output(flow);
       THEN("The third output method call returns setup state") {
@@ -1540,7 +1593,7 @@ SCENARIO(
         auto status1 = sensor.get_state();
         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       }
-      THEN("The output parameter flow returns 176.5F value") { REQUIRE(flow == 176.5F); }
+      THEN("The output parameter flow is set to 176.5F value") { REQUIRE(flow == 176.5F); }
       THEN("The mock_device I2C's write buffer returns command byte [E1 02]") {
         mock_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
@@ -1553,10 +1606,30 @@ SCENARIO(
         REQUIRE(input_buffer[0] == 0x01);
         REQUIRE(input_buffer[1] == 0x02);
       }
+      THEN("The global_device I2C's read buffer is empty") {
+        constexpr size_t buffer_size = 254UL;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+        size_t count = buffer_size;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        constexpr size_t buffer_size = 254UL;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+        size_t count = buffer_size;
+        PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+        auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+        global_device.write(input_data.data(), input_data.size());
+        global_device.get_write(global_buffer.buffer(), count);
+        auto read_buffer = convert_byte_vector_to_hex_string(global_buffer, count);
+        auto expected = std::string("\\x01");
+        REQUIRE(read_buffer == expected);  // 254 null bytes instead
+      }
     }
     WHEN(
-        "The output method is called thrice with mock time set to [40000, 500, 250] and output "
-        "parameter flow is set to 20.5") {
+        "The output method is called thrice with mock time set to [40000, 500, 250]us and output "
+        "parameter flow is initialized to 20.5") {
       auto output_status = sensor.output(flow);
       THEN("The first output method call returns ok state") {
         REQUIRE(output_status == PF::InitializableState::ok);
@@ -1574,7 +1647,7 @@ SCENARIO(
         auto status1 = sensor.get_state();
         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
       }
-      THEN("The output parameter flow returns 20.5") { REQUIRE(flow == 20.5F); }
+      THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
       time.set_micros(250);
       auto output_status2 = sensor.output(flow);
       THEN("The third output method call returns setup state") {
@@ -1584,7 +1657,7 @@ SCENARIO(
         auto status1 = sensor.get_state();
         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       }
-      THEN("The output parameter flow returns 176.5F value") { REQUIRE(flow == 176.5F); }
+      THEN("The output parameter flow is set to 176.5F value") { REQUIRE(flow == 176.5F); }
       THEN("The mock_device I2C's write buffer returns command byte [E1 02]") {
         mock_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
@@ -1599,8 +1672,8 @@ SCENARIO(
       }
     }
     WHEN(
-        "The output method is called twice with mock time set to [4000] for both calls and output "
-        "parameter flow is set to 20.5") {
+        "The output method is called twice with mock time set to 4000us for both calls and output "
+        "parameter flow is initialized to 20.5") {
       auto output_status = sensor.output(flow);
       THEN("The first output method call returns ok state") {
         REQUIRE(output_status == PF::InitializableState::ok);
@@ -1609,6 +1682,7 @@ SCENARIO(
         auto status = sensor.get_state();
         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       }
+      THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
       auto output_status1 = sensor.output(flow);
       THEN("The second output method call returns ok state") {
         REQUIRE(output_status1 == PF::InitializableState::ok);
@@ -1618,7 +1692,7 @@ SCENARIO(
         auto status1 = sensor.get_state();
         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       }
-      THEN("The output parameter flow returns 20.5") { REQUIRE(flow == 20.5F); }
+      THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
       THEN("The mock_device I2C's write buffer returns command byte [E1 02]") {
         mock_device.get_write(input_buffer.buffer(), count);
         auto read_buffer = convert_byte_vector_to_hex_string(input_buffer, count);
@@ -1632,6 +1706,26 @@ SCENARIO(
         REQUIRE(input_buffer[1] == 0x35);
         REQUIRE(input_buffer[2] == 0xa8);
       }
+      THEN("The global_device I2C's read buffer is empty") {
+        constexpr size_t buffer_size = 254UL;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+        size_t count = buffer_size;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        constexpr size_t buffer_size = 254UL;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+        size_t count = buffer_size;
+        PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+        auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+        global_device.write(input_data.data(), input_data.size());
+        global_device.get_write(global_buffer.buffer(), count);
+        auto read_buffer = convert_byte_vector_to_hex_string(global_buffer, count);
+        auto expected = std::string("\\x01");
+        REQUIRE(read_buffer == expected);  // 254 null bytes instead
+      }
     }
   }
 }
@@ -1640,8 +1734,9 @@ SCENARIO(
   GIVEN(
       "SFMC3019 sensor is partially initialised by calling setup method where it returns setup "
       "state and "
-      "action returns wait_warmup with the mock read buffer consisting of [d5 64 4d](as "
-      "read_sample response) appended afterwords and with the mock time set to 500us") {
+      "action returns wait_warmup, with the mock read buffer consisting of [d5 64 4d](as "
+      "read_sample response) and with the mock time set to 500us, global device's mock write "
+      "buffer is set to [01] byte") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     float flow = 20.5;
@@ -1666,8 +1761,8 @@ SCENARIO(
     auto state = sensor.get_state();
     REQUIRE(state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
     WHEN(
-        "The output method is called once, mock time is set to [250]and output parameter flow is "
-        "set to 20.5") {
+        "The output method is called once, mock time is set to 250us and output parameter flow is "
+        "initialized to 20.5") {
       time.set_micros(250);
       auto output_status = sensor.output(flow);
       THEN("The output method returns failed state") {
@@ -1677,7 +1772,7 @@ SCENARIO(
         auto status1 = sensor.get_state();
         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
       }
-      THEN("The output parameter flow returns 20.5") { REQUIRE(flow == 20.5F); }
+      THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
       THEN("The mock_device I2C's write buffer returns command byte 0xE102") {
         constexpr size_t buffer_size = 254UL;
         PF::Util::Containers::ByteVector<buffer_size> input_buffer;
@@ -1697,6 +1792,26 @@ SCENARIO(
         REQUIRE(input_buffer1[1] == 0x64);
         REQUIRE(input_buffer1[2] == 0x4d);
       }
+      THEN("The global_device I2C's read buffer is empty") {
+        constexpr size_t buffer_size = 254UL;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+        size_t count = buffer_size;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        constexpr size_t buffer_size = 254UL;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+        size_t count = buffer_size;
+        PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+        auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+        global_device.write(input_data.data(), input_data.size());
+        global_device.get_write(global_buffer.buffer(), count);
+        auto read_buffer = convert_byte_vector_to_hex_string(global_buffer, count);
+        auto expected = std::string("\\x01");
+        REQUIRE(read_buffer == expected);  // 254 null bytes instead
+      }
     }
   }
 }
@@ -1704,7 +1819,8 @@ SCENARIO("The Sensor::output method works correctly for different mcok read buff
   GIVEN(
       "SFMC3019 sensor is partially initialised by calling setup method where it returns setup and "
       "action returns check_range with the mock read buffer consisting of [d5 64 4d](as "
-      "read_sample response) and with the mock time set to 500us") {
+      "read_sample response) and with the mock time set to 500us, global device's mock write "
+      "buffer is set to [01] byte") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     float flow = 20.5;
@@ -1732,8 +1848,8 @@ SCENARIO("The Sensor::output method works correctly for different mcok read buff
     auto state1 = sensor.get_state();
     REQUIRE(state1 == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
     WHEN(
-        "The output method is called once, mock time is set to [250]and output parameter flow is "
-        "set to 20.5") {
+        "The output method is called once, mock time is set to 250us and output parameter flow is "
+        "initialized to 20.5") {
       time.set_micros(250);
       auto output_status = sensor.output(flow);
       THEN("The output method call returns failed state") {
@@ -1743,7 +1859,7 @@ SCENARIO("The Sensor::output method works correctly for different mcok read buff
         auto status1 = sensor.get_state();
         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
       }
-      THEN("The output parameter flow returns 20.5") { REQUIRE(flow == 20.5F); }
+      THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
       THEN("The mock_device I2C's write buffer returns command byte 0xE102") {
         constexpr size_t buffer_size = 254UL;
         PF::Util::Containers::ByteVector<buffer_size> input_buffer;
@@ -1762,6 +1878,26 @@ SCENARIO("The Sensor::output method works correctly for different mcok read buff
         REQUIRE(input_buffer1[0] == 0xd5);
         REQUIRE(input_buffer1[1] == 0x64);
         REQUIRE(input_buffer1[2] == 0x4d);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        constexpr size_t buffer_size = 254UL;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+        size_t count = buffer_size;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        constexpr size_t buffer_size = 254UL;
+        PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+        size_t count = buffer_size;
+        PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+        auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+        global_device.write(input_data.data(), input_data.size());
+        global_device.get_write(global_buffer.buffer(), count);
+        auto read_buffer = convert_byte_vector_to_hex_string(global_buffer, count);
+        auto expected = std::string("\\x01");
+        REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
     }
   }
