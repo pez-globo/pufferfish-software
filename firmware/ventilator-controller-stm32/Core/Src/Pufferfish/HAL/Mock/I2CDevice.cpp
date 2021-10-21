@@ -94,6 +94,7 @@ I2CDeviceStatus I2CDevice::get_write(uint8_t *buf, size_t &count) {
   }
 
   write_buf_queue_.pop();
+  return I2CDeviceStatus::ok;
 }
 
 void I2CDevice::set_return_status(I2CDeviceStatus input) {
