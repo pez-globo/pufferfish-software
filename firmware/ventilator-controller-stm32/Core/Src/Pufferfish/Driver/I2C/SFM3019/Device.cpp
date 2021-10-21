@@ -55,10 +55,10 @@ I2CDeviceStatus Device::read_conversion_factors(ConversionFactors &conversion) {
   if (ret != I2CDeviceStatus::ok) {
     return ret;
   }
+
   Util::read_bigend(buffer.data(), conversion.scale_factor);
   Util::read_bigend(buffer.data() + sizeof(uint16_t), conversion.offset);
   Util::read_bigend(buffer.data() + 2 * sizeof(uint16_t), conversion.flow_unit);
-
   return I2CDeviceStatus::ok;
 }
 
