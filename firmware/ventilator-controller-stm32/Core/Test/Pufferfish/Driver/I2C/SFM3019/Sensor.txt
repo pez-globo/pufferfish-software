@@ -1,0 +1,272 @@
+SCENARIO('The Sensor::setup method works correctly when enough time is elapsed between setup calls') 
+  GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consisting of[04 02 60 06 11 a9 00 00 81] (as a read_product_id response) '
+      'and[00 aa a6 a0 00 7e 00 00 81](as read_conversion_factor response) and [97 38 1e](as read_sample response) followed by junk bytes [01 02], reseter is set to '
+      'false and mock time is set to 100us. global device's mock write buffer is set to [01] byte') 
+    // Enough time elapsed, action returns wait_measurement
+    WHEN(
+        'The setup method is called thrice , mock time is set to [100, 40000, 50000]us before each '
+        'corresponding setup call') 
+      THEN('The first setup method call returns setup state') 
+      THEN('After first setup method call, get_state method returns wait_warmup action') 
+      THEN('The second setup method call returns setup state') 
+      THEN('After second setup method call, get_state returns check_range action ') 
+      THEN('The third setup method call retuns ok state') 
+      THEN('After the third setup method call, get_state method returns wait_measurement action') 
+      THEN('The mock_device I2C's write buffer contains command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer contains junk bytes [01 02]') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+
+SCENARIO('The Sensor::setup method works correctly when enough time is not elapsed') 
+  GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 '
+      'a9 00 00 81] (as a read_product_id response) and[00 aa a6 a0 00 7e 00 00 81](as read_conversion_factor response) and [15 35 '
+      'a8](as read_sample response) followed by junk bytes [01 02] , reseter is set to false and mock time set to 100us , global device's mock write buffer is set to [01] byte') 
+    //enough time is not elapsed, action returns wait_warmup
+    WHEN('The setup method is called twice, mock time is set to [100, 5000]us before each corresponding setup call') 
+      THEN('The first setup method returns setup state') 
+      THEN('After the first setup method call, get_state method returns wait_warmup action') 
+      THEN('The second setup method returns setup state') 
+      THEN('After the second setup method call, get_state method returns wait_warmup action ') 
+      THEN('The mock_device I2C's write buffer contains command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer contains bytes [d5 64 4d]') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+    
+    // not enough time is elapsed, 
+    // action still remains  wait_measurement instead of measure
+    WHEN('The setup method is called thrice , where mock time is set to [100, 55000, 40000]us before each corresponding setup call') 
+      THEN('The first setup method call returns setup state') 
+      THEN('After the first setup method call, get_state method returns wait_warmup action') 
+      THEN('The second setup method call returns setup state') 
+      THEN('After the second setup method call, get_state method returns check_range action') 
+      THEN('The third setup method call retuns ok status') 
+      THEN('After the third setup method call, get_state method returns wait_measurement action') 
+      THEN('The third setup method call retuns ok status') 
+      THEN('After the third setup method call, get_state method returns wait_measurement action') 
+      THEN('The mock_device I2C's write buffer contains command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer contains junk bytes [01 02]') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+
+
+SCENARIO('The Sensor::setup method works correctly for different mock read buffer ') 
+  // Data in mock read buffer contains wrong product id
+  GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consisting of[97 38 1e]  '
+      '(as a read_product_id response), reseter is set to false and mock time is set to 100us, global device's mock write buffer is '
+      'set to [01] byte') 
+    WHEN('The setup method is called once ,time is set to 100us before setup call') 
+      THEN('The first setup method call returns failed state') 
+      THEN('After first setup method call, get_state method returns initialize action') 
+      THEN('The mock_device I2C's write buffer contains command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer contains no_new_data') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+  
+  // wrong mock buffer for read_conversion_factors
+  GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consisting of[04 02 60 06 11 a9 00 00 81] (as a read_product_id response) followed by [97 38 1e](as '
+      'read_conversion_factors response) reseter is set to false and mock time is set to 100us, global device's mock write buffer is '
+      'set to [01] byte') 
+    WHEN('The setup method is called once ,time is set to 100us before setup call') 
+      THEN('The first setup method call returns failed state') 
+      THEN('After first setup method call, get_state method returns initialize action') 
+      THEN('The mock_device I2C's write buffer contains command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer contains no_new_data') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+
+SCENARIO('The Sensor::setup method works correctly when flow is greater than the pre-defined limit')
+  GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 a9 00 00 81] (as a read_product_id response) '
+      'and[00 aa a6 a0 00 7e 00 00 81](as read_conversion_factor response) [01 00 b1](as read_sample response) followed by junk bytes [01 02] , reseter is set to '
+      'false and mock time is set to 100us, global device's mock write buffer is set to [01] byte') 
+//Action remains check_range, read_sample condition flow is 218.682 which is greater than flow max
+    WHEN('The setup method is called thrice , mock time is set to [100, 55000, 40000]us before each corresponding setup call') 
+      THEN('The first setup method call returns setup state') 
+      THEN('After the first setup method call, get_state method returns wait_warmup action') 
+      THEN('The second setup method call returns setup state') 
+      THEN('After the second setup method call, get_state method returns check_range action') 
+      THEN('The third setup method call returns setup state') 
+      THEN('After the third setup method call, get_state method returns check_range action') 
+      THEN('The mock_device I2C's write buffer contains command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer contains no_new_data') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+
+SCENARIO('The Sensor::setup method works correctly when resetter is set to true') 
+  GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 a9 00 00 81] (as a read_product_id response) '
+      'and[00 aa a6 a0 00 7e 00 00 81](as read_conversion_factor response), [15 35 a8](as read_sample response) followed by junk bytes [01 02], reseter is set to '
+      'true and mock time is set to 100us, global device's mock write buffer is set to [01] byte') 
+    WHEN('The setup method is called thrice , where mock time is set to [100, 55000, 40000]us before each corresponding setup call') 
+      THEN('The first setup method call returns setup state') 
+      THEN('After the first setup method call, get_state method returns wait_warmup action') 
+      THEN('The second setup method call returns setup state') 
+      THEN('After the second setup method call, get_state method returns check_range action') 
+      THEN('The third setup method call retuns ok status') 
+      THEN('After the third setup method call, get_state method returns wait_measurement action') 
+      THEN('The mock_device I2C's write buffer contains command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer contains junk bytes [01 02]') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer contains [06] byte') 
+
+SCENARIO('The Sensor::setup method works correctly when mock read buffer is different than expected, setup method retries for 8 times') 
+  // wrong data for product id, after 8 tries it fails
+  GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consisting of[00 aa a6 a0 00 7e 01 48 f1]  (as a invalid read_product_id response) '
+      ' reseter is set to false and mock time set to 100us, global device's mock write buffer is set to [01] byte') 
+    WHEN('The setup method is called once ,time is set to 100us before setup call') 
+      THEN('The first setup method call returns failed state') 
+      THEN('After first setup method call, get_state method returns initialize action') 
+      THEN('The mock_device I2C's write buffer contains command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer contains no_new_data') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+
+  //  read_product_id conditions(first 4 retry_count fails), it passes on next
+  // count
+  GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consists of[00 aa a6 a0 00 7e 00 00 81](invalid response) [00 aa a6 a0 00 7e 00 00 81](invalid response) [00 aa a6 a0 00 7e 00 00 81](invalid response) [00 aa a6 a0 00 7e 00 00 81](invalid response) 
+       '[04 02 60 06 11 a9 00 00 81] (as a valid read_product_id response) '
+      'and[00 aa a6 a0 00 7e 00 00 81](as read_conversion_factor response) [15 35 '
+      'a8](as read_sample response) followd by junk bytes [01 02], reseter is set to '
+      'false and mock time set to 100us, global device's mock write buffer is set to [01] byte') 
+    WHEN('The setup method is called thrice , where  mock time is set to [100, 55000, 40000]us before each corresponding setup call') 
+      THEN('The first setup method call returns setup state') 
+      THEN('After the first setup method call, get_state method returns wait_warmup action') 
+      THEN('The second setup method call returns setup state') 
+      THEN('After the second setup method call, get_state method returns check_range action') 
+      THEN('The third setup method call retuns ok status') 
+      THEN('After the third setup method call, get_state method returns wait_measurement action') 
+      THEN('The mock_device I2C's write buffer contains command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer contains junk bytes [01 02]') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+
+  // wrong read buffer for read_product_id conditions(first 7 retry_count fails), it passes on last
+  // count
+  GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consists of[00 aa a6 a0 00 '
+      '7e 00 00 81](invalid response) [00 aa a6 a0 00 7e 00 00 81](invalid response) [00 aa a6 a0 00 7e 00 00 81](invalid response) [00 aa a6 a0 00 7e 00 00 '
+      '81](invalid response)[00 aa a6 a0 00 7e 00 00 81](invalid response)[00 aa a6 a0 00 7e 00 00 81](invalid response)[00 aa a6 a0 00 7e 00 00 81](invalid response) [04 02 60 06 11 '
+      'a9 00 00 81] (as a valid read_product_id response) and[00 aa a6 a0 00 7e 00 00 81](as read_conversion_factor response) [15 35 a8](as read_sample response) followd by junk bytes [01 02], reseter is set to '
+      'false and mock time set to 100us, global device's mock write buffer is set to [01] byte') 
+    WHEN('The setup method is called thrice , where  mock time is set to [100, 55000, 40000]us before each corresponding setup call') 
+      THEN('The first setup method call returns setup state') 
+      THEN('After the first setup method call, get_state method returns wait_warmup action') 
+      THEN('The second setup method call returns setup state') 
+      THEN('After the second setup method call, get_state method returns check_range action') 
+      THEN('The third setup method call retuns ok status') 
+      THEN('After the third setup method call, get_state method returns wait_measurement action') 
+      THEN('The mock_device I2C's write buffer contains command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer contains junk bytes [01 02]') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+
+  // read buffer for read_conversion_factor is wrong, after 8 tries it fails
+  GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 a9 00 00 81] (as a valid read_product_id response) '
+      'and[04 02 60 06 11 a9 00 00 81](as invalid read_conversion_factor response), reseter is set to '
+      'false and mock time is set to 100us, global device's mock write buffer is set to [01] byte') 
+    WHEN('The setup method is called once , where mock time is set to 100us before corresponding setup call') 
+      THEN('The first setup method call returns failed state') 
+      THEN('After the first setup method call, get_state method returns initialize action') 
+      THEN('The mock_device I2C's write buffer contains command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer contains no_new_data') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+
+  //read_conversion_factors conditions(first 7 retry_count fails), it passes on last
+  // count
+  GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 a9 00 00 81] (as a valid read_product_id response) '
+      'and[04 02 60 06 11 a9 00 00 81](as invalid read_conversion_factor response) [04 02 60 06 11 a9 00 00 81](as invalid read_conversion_factor response), reseter is set to '
+      '[04 02 60 06 11 a9 00 00 81](as invalid read_conversion_factor response),[04 02 60 06 11 a9 00 00 81](as invalid read_conversion_factor response), [04 02 60 06 11 a9 00 00 81](as invalid read_conversion_factor response),' 
+       '[04 02 60 06 11 a9 00 00 81](as invalid read_conversion_factor response) and[00 aa a6 a0 00 7e 00 00 81](as valid read_conversion_factor response) [15 35 '
+      'a8](as read_sample response) followd by junk bytes [01 02], reseter is set to '
+      'false and mock time set to 100us, global device's mock write buffer is set to [01] byte') 
+    WHEN('The setup method is called thrice , where  mock time is set to [100, 55000, 40000]us before each corresponding setup call') 
+      THEN('The first setup method call returns setup state') 
+      THEN('After the first setup method call, get_state method returns wait_warmup action') 
+      THEN('The second setup method call returns setup state') 
+      THEN('After the second setup method call, get_state method returns check_range action') 
+      THEN('The third setup method call retuns ok status') 
+      THEN('After the third setup method call, get_state method returns wait_measurement action') 
+      THEN('The mock_device I2C's write buffer contains command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer contains junk bytes [01 02]') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+
+
+SCENARIO('The Sensor::output method works correctly for action cycles from wait_measurement - measure - wait_measurement') 
+  GIVEN('SFMC3019 sensor is fully initialised by calling setup method until it returns ok and action '
+      'returns wait_measurement with the mock read buffer consisting of [97 38 1e 97 38 1e](as read_sample response) followed by junk bytes [01 02],  and with the mock time set '
+      'to 100us, global device's mock write buffer is set to [01] byte') 
+// Normal case, output returns ok state
+// updates flow according to read buffer    
+    WHEN('The output method is called thrice with mock time set to [40000,1000, 2000]us and output parameter flow is initialized to 20.5') 
+      THEN('The first output method call returns ok state') 
+      THEN('After the first output method call, get_state method returns wait_measurement action ') 
+      THEN('The output parameter flow remains 20.5')  
+      THEN('The second output method call returns ok state') 
+      THEN('After the second output method call, get_state method returns measure action') 
+      THEN('The output parameter flow remains 20.5')  
+      THEN('The third output method call returns setup state') 
+      THEN('After the third output method call, get_state method returns wait_measurement method') 
+      THEN('The output parameter flow is set to -13.22353F value')  
+      THEN('The mock_device I2C's write buffer returns command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer returns junk bytes [01 02]') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+
+SCENARIO('The Sensor::output method works correctly for when action cycles between  wait_measurement - measure') 
+  GIVEN('SFMC3019 sensor is fully initialised by calling setup method until it returns ok and action '
+      'returns wait_measurement with the mock read buffer consisting of [15 35 a8 15 35 a8](as '
+      'read_sample response) followed by junk bytes [01 02], the mock time is set '
+      'to 100us, global device's mock write buffer is set to [01] byte') 
+// action remains measure
+// flow does not get updated    
+    WHEN('The output method is called twice with mock time set to [40000, 1000]us, and output parameter flow is initialized to 20.5') 
+      THEN('The first output method call returns ok state') 
+      THEN('After the first output method call, get_state method returns wait_measurement action') 
+      THEN('The output parameter flow remains 20.5')  
+      THEN('The second output method call returns ok state') 
+      THEN('After the second output method call, get_state method returns measure action') 
+      THEN('The output parameter flow remains 20.5')  
+      THEN('The mock_device I2C's write buffer returns command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer returns  junk bytes [01 02]') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+
+// Action remains wait_measurement
+//Flow does not get updated    
+    WHEN('The output method is called twice with mock time set to 4000us for both calls and output parameter flow is initialized to 20.5') 
+      THEN('The first output method call returns ok state') 
+      THEN('After the first output method call, get_state method returns wait_measurement action') 
+      THEN('The output parameter flow remains 20.5') 
+      THEN('The second output method call returns ok state') 
+      THEN('After the second output method call, get_state method returns wait_measurement action') 
+      THEN('The output parameter flow remains 20.5')  
+      THEN('The mock_device I2C's write buffer returns command byte [E1 02]') 
+      THEN('The mock_device I2C's read buffer returns [15 35 a8]') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+
+SCENARIO('The Sensor::output method works correctly, when sensor is partially initialized') 
+  GIVEN('SFMC3019 sensor is partially initialised by calling setup method where it returns setup '
+      'state and action returns wait_warmup, with the mock read buffer consisting of [d5 64 4d](as '
+      'read_sample response) and with the mock time set to 500us, global device's mock write buffer is set to [01] byte') 
+//Action is wait_warmup, output method fails        
+    WHEN('The output method is called once, mock time is set to 250us and output parameter flow is initialized to 20.5') 
+      THEN('The output method returns failed state') 
+      THEN('After  output method call, get_state method returns wait_warmup action') 
+      THEN('The output parameter flow remains 20.5')  
+      THEN('The mock_device I2C's write buffer returns command byte 0xE102') 
+      THEN('The mock_device I2C's read buffer returns [d5 64 4d]') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 
+
+  GIVEN('SFMC3019 sensor is partially initialised by calling setup method where it returns setup and '
+      'action returns check_range with the mock read buffer consisting of [d5 64 4d](as '
+      'read_sample response) and with the mock time set to 500us, global device's mock write buffer is set to [01] byte') 
+// Action is check_range, output method fails        
+    WHEN('The output method is called once, mock time is set to 250us and output parameter flow is initialized to 20.5') 
+      THEN('The output method call returns failed state') 
+      THEN('After output method call, get_state method returns check_range action') 
+      THEN('The output parameter flow remains 20.5')  
+      THEN('The mock_device I2C's write buffer returns command byte 0xE102') 
+      THEN('The mock_device I2C's read buffer returns [d5 64 4d]') 
+      THEN('The global_device I2C's read buffer is empty') 
+      THEN('The global_device I2C's write buffer remains unchanged') 

@@ -8,6 +8,7 @@
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 
 #include <cmath>
+#include <iostream>
 
 #include "Pufferfish/HAL/Interfaces/Time.h"
 
@@ -65,8 +66,9 @@ InitializableState Sensor::setup() {
         case InitializableState::failed:
           prev_state_ = InitializableState::failed;
           return prev_state_;
-        default:
-          break;
+        case InitializableState::ok:
+          prev_state_ = InitializableState::failed;
+          return prev_state_;
       }
 
     case StateMachine::Action::wait_warmup:
@@ -108,8 +110,6 @@ InitializableState Sensor::output(float &flow) {
           prev_state_ = InitializableState::ok;
           return prev_state_;
         case InitializableState::setup:
-          prev_state_ = InitializableState::setup;
-          return prev_state_;
         case InitializableState::failed:
           prev_state_ = InitializableState::failed;
           return prev_state_;

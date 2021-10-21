@@ -63,6 +63,7 @@ void I2CDevice::add_read(const uint8_t *buf, size_t count) {
 
 I2CDeviceStatus I2CDevice::write(uint8_t *buf, size_t count) {
   size_t index = 0;
+  size_t write_count_ = 0;
   if (return_status_ != I2CDeviceStatus::ok) {
     return return_status_;
   }
@@ -78,16 +79,16 @@ I2CDeviceStatus I2CDevice::write(uint8_t *buf, size_t count) {
   return I2CDeviceStatus::ok;
 }
 
-void I2CDevice::get_write(uint8_t *buf, size_t &count) {
+I2CDeviceStatus I2CDevice::get_write(uint8_t *buf, size_t &count) {
   if (write_buf_queue_.empty()) {
-    return;
+    return I2CDeviceStatus::no_new_data;
   }
 
   size_t index = 0;
 
   const auto &write_buf = write_buf_queue_.front();
 
-  count = write_count_;
+  count = write_buf.size();
   for (index = 0; index < count; index++) {
     buf[index] = write_buf[index];
   }
