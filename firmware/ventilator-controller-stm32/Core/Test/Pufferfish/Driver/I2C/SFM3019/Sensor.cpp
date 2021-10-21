@@ -19,7 +19,6 @@
 #include "Pufferfish/Util/Endian.h"
 #include "catch2/catch.hpp"
 namespace PF = Pufferfish;
-using PF::Util::Containers::convert_byte_vector_to_hex_string;
 
 SCENARIO("The StateMachine::update method works correctly when update is called multiple times") {
   GIVEN(" A freshly constructed state machine") {

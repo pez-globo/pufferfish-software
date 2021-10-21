@@ -21,7 +21,6 @@
 #include "Pufferfish/Util/Containers/Array.h"
 #include "catch2/catch.hpp"
 namespace PF = Pufferfish;
-using PF::Util::Containers::convert_byte_vector_to_hex_string;
 SCENARIO(
     "SFM3019 Device:: SFM3019 device behaves correctly when start_measure function is called") {
   GIVEN(

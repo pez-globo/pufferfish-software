@@ -63,10 +63,8 @@ InitializableState Sensor::setup() {
           next_action_ = fsm_.update(time_.micros());
           prev_state_ = InitializableState::setup;
           return prev_state_;
-        case InitializableState::failed:
-          prev_state_ = InitializableState::failed;
-          return prev_state_;
         case InitializableState::ok:
+        case InitializableState::failed:
           prev_state_ = InitializableState::failed;
           return prev_state_;
       }
