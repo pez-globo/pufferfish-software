@@ -1150,6 +1150,11 @@ SCENARIO(
       }
     }
   }
+}
+SCENARIO(
+    "The Sensor::setup method works correctly when mock read buffer for read_product_id is "
+    "different than expected, "
+    "setup method retries for 8 times") {
   // wrong read buffer for read_product_id conditions(first 7 retry_count fails), it passes on last
   // count
   GIVEN(
@@ -1259,6 +1264,11 @@ SCENARIO(
       }
     }
   }
+}
+SCENARIO(
+    "The Sensor::setup method works correctly when mock read buffer for read_conversion_factor  is "
+    "different than expected, "
+    "setup method retries for 8 times") {
   // read buffer for read_conversion_factor is wrong, after 8 tries it fails
   GIVEN(
       "SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 "
@@ -1431,6 +1441,13 @@ SCENARIO(
       }
     }
   }
+}
+SCENARIO(
+    "The Sensor::setup method works correctly when mock read buffer is different than expected , "
+    "setup method retries for 8 times and fails") {
+  // 4 invalid read product id , 1 valid read_product_id, 5 invalid read_conversion_factor and 1
+  // valid one.
+  //  Exceeds max retries, setup returns failed state
   GIVEN(
       "SFMC3019 sensor is created with mock I2C device with read buffer consisting of[00 aa a6 a0 "
       "00 7e 01 48 f1]  ( 4 invalid read_product_id response) and [04 02 60 06 11 a9 00 00 81](as "
