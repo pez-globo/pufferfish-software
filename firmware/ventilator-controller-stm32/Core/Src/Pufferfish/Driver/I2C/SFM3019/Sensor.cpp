@@ -8,7 +8,6 @@
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 
 #include <cmath>
-#include <iostream>
 
 #include "Pufferfish/HAL/Interfaces/Time.h"
 
@@ -60,7 +59,7 @@ InitializableState Sensor::setup() {
     case StateMachine::Action::initialize:
       switch (initialize()) {
         case InitializableState::setup:
-          next_action_ = fsm_.update(time_.micros());
+          fsm_.update(time_.micros());
           prev_state_ = InitializableState::setup;
           return prev_state_;
         case InitializableState::ok:
@@ -70,13 +69,13 @@ InitializableState Sensor::setup() {
       }
 
     case StateMachine::Action::wait_warmup:
-      next_action_ = fsm_.update(time_.micros());
+      fsm_.update(time_.micros());
       prev_state_ = InitializableState::setup;
       return prev_state_;
     case StateMachine::Action::check_range:
       switch (check_range()) {
         case InitializableState::ok:
-          next_action_ = fsm_.update(time_.micros());
+          fsm_.update(time_.micros());
           prev_state_ = InitializableState::ok;
           return prev_state_;
         case InitializableState::setup:
@@ -104,7 +103,8 @@ InitializableState Sensor::output(float &flow) {
     case StateMachine::Action::measure:
       switch (measure(flow)) {
         case InitializableState::ok:
-          next_action_ = fsm_.update(time_.micros());
+          // std::cout << "measure-InitializableState::ok" << std::endl;
+          fsm_.update(time_.micros());
           prev_state_ = InitializableState::ok;
           return prev_state_;
         case InitializableState::setup:
@@ -113,7 +113,7 @@ InitializableState Sensor::output(float &flow) {
           return prev_state_;
       }
     case StateMachine::Action::wait_measurement:
-      next_action_ = fsm_.update(time_.micros());
+      fsm_.update(time_.micros());
       prev_state_ = InitializableState::ok;
       return prev_state_;
     default:
@@ -218,12 +218,10 @@ InitializableState Sensor::measure(float &flow) {
     flow = sample.flow;
     return InitializableState::ok;
   }
-
   ++retry_count_;
   if (retry_count_ > max_retries_measure) {
     return InitializableState::failed;
   }
-
   return InitializableState::ok;
 }
 

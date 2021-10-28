@@ -28,7 +28,7 @@ class StateMachine {
  public:
   enum class Action { initialize, wait_warmup, check_range, measure, wait_measurement };
 
-  [[nodiscard]] Action update(uint32_t current_time_us);
+  Action update(uint32_t current_time_us);
   Action output();
 
  private:
@@ -72,7 +72,6 @@ class Sensor : public Initializable {
 
   Device &device_;
   StateMachine fsm_;
-  StateMachine::Action next_action_ = StateMachine::Action::initialize;
   InitializableState prev_state_ = InitializableState::setup;
   size_t retry_count_ = 0;
 
