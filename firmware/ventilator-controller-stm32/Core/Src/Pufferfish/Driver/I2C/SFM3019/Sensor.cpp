@@ -95,7 +95,7 @@ InitializableState Sensor::setup() {
 }
 
 InitializableState Sensor::output(float &flow) {
-  if (prev_state_ == InitializableState::failed) {
+  if (prev_state_ != InitializableState::ok) {
     return prev_state_;
   }
 
@@ -103,7 +103,6 @@ InitializableState Sensor::output(float &flow) {
     case StateMachine::Action::measure:
       switch (measure(flow)) {
         case InitializableState::ok:
-          // std::cout << "measure-InitializableState::ok" << std::endl;
           fsm_.update(time_.micros());
           prev_state_ = InitializableState::ok;
           return prev_state_;
@@ -218,6 +217,7 @@ InitializableState Sensor::measure(float &flow) {
     flow = sample.flow;
     return InitializableState::ok;
   }
+
   ++retry_count_;
   if (retry_count_ > max_retries_measure) {
     return InitializableState::failed;
