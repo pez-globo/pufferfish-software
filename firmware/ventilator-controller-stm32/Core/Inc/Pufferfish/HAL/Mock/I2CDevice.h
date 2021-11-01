@@ -80,7 +80,7 @@ class I2CDevice : public Interfaces::I2CDevice {
    * @brief  Reads private buffer variable mWriteBuf and updates to buf
    * @param  buf returns the data at the first element of the queue stored in write method
    * @param  count[out] buffer size to return
-   * @return returns I2CDeviceStatus::no_new_data
+   * @return ok on sucess, erro code otherwise
    */
   I2CDeviceStatus get_write(uint8_t *buf, size_t &count);
 
