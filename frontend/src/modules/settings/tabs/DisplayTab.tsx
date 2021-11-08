@@ -22,7 +22,9 @@ import {
 } from './constants';
 import { setActiveRotaryReference } from '../../app/Service';
 import ParamValueSpinner from '../../shared/value/ParamValueSpinner';
-import { getParametersRequestDraftFiO2 } from '../../../store/controller/selectors/measurements';
+import { createSelector } from 'reselect';
+import { getController } from '../../../store/controller/selectors';
+import { ControllerStates } from '../../../store/controller/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -336,7 +338,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
             <ParamValueSpinner
               elRefsArray={elRefs}
               reference={BRIGHTNESS_REFERENCE_KEY}
-              selector={getParametersRequestDraftFiO2}
+              selector={getDummyValue}
               value={displayBrightness}
               label="Brightness"
               units="%"
@@ -409,7 +411,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
               <ParamValueSpinner
                 elRefsArray={elRefs}
                 reference={HOUR_REFERENCE_KEY}
-                selector={getParametersRequestDraftFiO2}
+                selector={getDummyValue}
                 value={hour}
                 label="Hour"
                 onClick={setHour}
@@ -421,7 +423,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
               <ParamValueSpinner
                 elRefsArray={elRefs}
                 reference={MINUTE_REFERENCE_KEY}
-                selector={getParametersRequestDraftFiO2}
+                selector={getDummyValue}
                 value={minute}
                 label="Minute"
                 onClick={setMinute}
@@ -456,7 +458,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
             <Grid item xs className={classes.rightBorder}>
               <ParamValueSpinner
                 elRefsArray={elRefs}
-                selector={getParametersRequestDraftFiO2}
+                selector={getDummyValue}
                 reference={MONTH_REFERENCE_KEY}
                 value={month}
                 label="Month"
@@ -468,7 +470,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
             <Grid item xs>
               <ParamValueSpinner
                 elRefsArray={elRefs}
-                selector={getParametersRequestDraftFiO2}
+                selector={getDummyValue}
                 reference={DAY_REFERENCE_KEY}
                 value={day}
                 label="Day"
@@ -483,7 +485,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
             <Grid item xs className={classes.rightBorder}>
               <ParamValueSpinner
                 elRefsArray={elRefs}
-                selector={getParametersRequestDraftFiO2}
+                selector={getDummyValue}
                 reference={YEAR_REFERENCE_KEY}
                 value={year}
                 label="Year"
@@ -504,5 +506,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
     </Grid>
   );
 };
+
+const getDummyValue = createSelector(getController, (states: ControllerStates): null => null);
 
 export default DisplayTab;
