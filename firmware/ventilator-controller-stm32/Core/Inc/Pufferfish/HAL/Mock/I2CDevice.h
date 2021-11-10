@@ -77,10 +77,10 @@ class I2CDevice : public Interfaces::I2CDevice {
   I2CDeviceStatus write(uint8_t *buf, size_t count) override;
 
   /**
-   * @brief  Reads private buffer variable mWriteBuf and updates to buf
-   * @param  buf returns the data at the first element of the queue stored in write method
+   * @brief  pops the data from write buffer's internal queue
+   * @param  buf returns data from head of internal queue
    * @param  count[out] buffer size to return
-   * @return ok on sucess, erro code otherwise
+   * @return ok on sucess, error code otherwise
    */
   I2CDeviceStatus get_write(uint8_t *buf, size_t &count);
 

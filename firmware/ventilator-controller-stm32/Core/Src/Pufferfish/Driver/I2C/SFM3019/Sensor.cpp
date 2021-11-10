@@ -195,6 +195,7 @@ InitializableState Sensor::initialize() {
   retry_count_ = 0;  // reset retries to 0 for measuring
   return InitializableState::setup;
 }
+
 InitializableState Sensor::check_range() {
   Sample sample{};
   if (device_.read_sample(conversion_, sample) == I2CDeviceStatus::ok && sample.flow >= flow_min &&

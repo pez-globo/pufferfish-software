@@ -1,14 +1,14 @@
-Scenario :The StateMachine::update method works correctly when update is called with normal interval of time for wait_warmup - check range cycle  
+Scenario :The StateMachine::update method works correctly when update method  is called with normal interval of time for wait_warmup - check range cycle  
   GIVEN(' A freshly constructed state machine') 
     WHEN('The update method is called twice with [0, 30000]us as input parameter ') 
-      // Action returns wait_warmup action
+      // Action returns check_range  action
       THEN('The first update method returns wait_warmup action') 
       THEN('After the first update method, output method returns wait_warmup action') 
       THEN('The second update method returns check_range action') 
       THEN('After the second update method, output method returns check_range action') 
 
 Scenario : The StateMachine::update method works correctly when update is called with normal interval of time for wait_measurement-measure cycle 
-  GIVEN(' A state machine is updated till output method returns check range') 
+  GIVEN(' A state machine is updated till output method returns check_range') 
     WHEN('The update method is called three times with [250, 100, 3000]us as input parameter') 
       // Action cycles between  wait_measurement and measure
       THEN('The first update method call returns wait_measurement action') 
@@ -37,9 +37,11 @@ Scenario : The StateMachine::update method works correctly when update is called
       THEN('The first update method call returns wait_measurement action') 
       THEN('After the first update method, output method returns wait_measurement action') 
       THEN('The second update method call returns wait_measurement action') 
-      THEN('After the second update method output method returns wait_measurement action') 
+      THEN('After the second update method, output method returns wait_measurement action') 
     WHEN('The update method is called four times with [30002, 30499, 30500, 30550]us as input parameter') 
       // enough time has elapsed, action returns measure
+      // action remains wait_measurement for time 30499 and 30500 instead of measure
+      //action returns measure when time is 30550
       THEN('The first update method call returns wait_measurement action') 
       THEN('After the first update method, output method returns wait_measurement action') 
       THEN('The second update method call returns wait_measurement action') 
@@ -82,7 +84,7 @@ Scenario : The StateMachine::update method works correctly for relatively small 
 
 Scenario : The StateMachine::update method works correctly for relatively small interval of time as input for wait_measurement - measure cycle 
   GIVEN(' The state machine is updated till output method returns check_range') 
-    WHEN('The update method is called twice  with [30000, 30001]us as input parameter ') 
+    WHEN('The update method is called twice  with [300, 301]us as input parameter ') 
       // action remains  wait_measurement instead of measure
       THEN('The first update method call returns wait_measurement action') 
       THEN('After the first update method, output method returns wait_measurement action') 

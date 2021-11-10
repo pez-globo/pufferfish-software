@@ -354,10 +354,10 @@ SCENARIO(
     REQUIRE(op_state1 == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
 
     WHEN(
-        "The update method is called twice  with [30000, 30001]us as input "
+        "The update method is called twice  with [300, 301]us as input "
         "parameter ") {
       // action remains  wait_measurement instead of measure
-      uint32_t time2 = 30000;
+      uint32_t time2 = 300;
       auto action_status1 = state_machine.update(time2);
       THEN("The first update method call returns wait_measurement action") {
         REQUIRE(action_status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
@@ -366,7 +366,7 @@ SCENARIO(
         auto op_state = state_machine.output();
         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       }
-      uint32_t time3 = 30001;
+      uint32_t time3 = 301;
       auto action_status2 = state_machine.update(time3);
       THEN("The second update method call returns wait_measurement action") {
         REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
@@ -439,36 +439,23 @@ SCENARIO(
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input1;
+      mock_device.get_write(input1.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input2;
+      mock_device.get_write(input2.buffer(), count);
+      THEN(
+          "The mock_device I2C's write buffer contains command byte [E1 02](request_product_id), "
+          "[36 61](read_conversion), [36 6A](set_averaging) and[36 03](O2 gas)") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      auto expected2 = std::string("\\x36\\x6A");
-      THEN("The mock_device I2C's write buffer contains set_averaging  command byte [36 6A]") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input1[0] == 0x36);
         REQUIRE(input1[1] == 0x6A);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      auto status_write3 = mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains GasType command byte [36 03]") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
         REQUIRE(input2[0] == 0x36);
         REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input3;
-      auto status_write4 = mock_device.get_write(input3.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::no_new_data);
       }
       PF::Util::Containers::ByteVector<buffer_size> input_read;
       PF::Util::Containers::ByteVector<buffer_size> input_read1;
@@ -477,13 +464,11 @@ SCENARIO(
       auto read_status1 = mock_device.read(input_read1.buffer(), count);
       auto read_status2 = mock_device.read(input_read2.buffer(), count);
 
-      THEN("The mock_device I2C's read buffer contains bytes [97 38 1e]") {
+      THEN("The mock_device I2C's read buffer contains bytes [97 38 1e] and junk bytes [01 02]") {
         REQUIRE(read_status == PF::I2CDeviceStatus::ok);
         REQUIRE(input_read[0] == 0x97);
         REQUIRE(input_read[1] == 0x38);
         REQUIRE(input_read[2] == 0x1e);
-      }
-      THEN("The mock_device I2C's read buffer contains junk bytes [01 02]") {
         REQUIRE(read_status1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input_read1[0] == 0x01);
         REQUIRE(input_read1[1] == 0x02);
@@ -578,35 +563,23 @@ SCENARIO(
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input1;
+      mock_device.get_write(input1.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input2;
+      mock_device.get_write(input2.buffer(), count);
+      THEN(
+          "The mock_device I2C's write buffer contains command byte [E1 02](request_product_id), "
+          "[36 61](read_conversion), [36 6A](set_averaging) and  [36 03](O2 gas)") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains set_averaging  command byte [36 6A]") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input1[0] == 0x36);
         REQUIRE(input1[1] == 0x6A);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      auto status_write3 = mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains GasType command byte [36 03]") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
         REQUIRE(input2[0] == 0x36);
         REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input3;
-      auto status_write4 = mock_device.get_write(input3.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer only contains junk bytes [01 02]") {
         constexpr size_t buffer_size = 254UL;
@@ -692,47 +665,33 @@ SCENARIO(
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input1;
+      mock_device.get_write(input1.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input2;
+      mock_device.get_write(input2.buffer(), count);
+      THEN(
+          "The mock_device I2C's write buffer contains command byte [E1 02](request_product_id), "
+          "[36 61](read_conversion), [36 6A](set_averaging) and [36 03](O2 gas)") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains set_averaging  command byte [36 6A]") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input1[0] == 0x36);
         REQUIRE(input1[1] == 0x6A);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      auto status_write3 = mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains GasType command byte [36 03]") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
         REQUIRE(input2[0] == 0x36);
         REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input3;
-      auto status_write4 = mock_device.get_write(input3.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::no_new_data);
       }
       PF::Util::Containers::ByteVector<buffer_size> input_read;
       PF::Util::Containers::ByteVector<buffer_size> input_read1;
       auto read_status = mock_device.read(input_read.buffer(), count);
       auto read_status1 = mock_device.read(input_read1.buffer(), count);
-      THEN("The mock_device I2C's read buffer contains bytes [15 35 a8]") {
+      THEN("The mock_device I2C's read buffer contains bytes [15 35 a8] and junk bytes [01 02]") {
         REQUIRE(read_status == PF::I2CDeviceStatus::ok);
         REQUIRE(input_read[0] == 0x15);
         REQUIRE(input_read[1] == 0x35);
         REQUIRE(input_read[2] == 0xa8);
-      }
-      THEN("The mock_device I2C's read buffer contains junk bytes [01 02]") {
         REQUIRE(read_status1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input_read1[0] == 0x01);
         REQUIRE(input_read1[1] == 0x02);
@@ -795,11 +754,6 @@ SCENARIO("The Sensor::setup method works correctly for different mock read buffe
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
       }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::no_new_data);
-      }
       THEN("The mock_device I2C's read buffer is empty") {
         PF::Util::Containers::ByteVector<buffer_size> input;
         auto read_status = mock_device.read(input.buffer(), count);
@@ -858,21 +812,15 @@ SCENARIO("The Sensor::setup method works correctly for different mock read buffe
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      THEN(
+          "The mock_device I2C's write buffer contains command byte [E1 02](request_product_id) "
+          "and [36 61](read_conversion)") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer is empty") {
         PF::Util::Containers::ByteVector<buffer_size> input;
@@ -974,35 +922,23 @@ SCENARIO(
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input1;
+      mock_device.get_write(input1.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input2;
+      mock_device.get_write(input2.buffer(), count);
+      THEN(
+          "The mock_device I2C's write buffer contains command byte [E1 02](request_product_id), "
+          "[36 61](read_conversion), [36 6A](set_averaging) and [36 03](O2 gas)") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains set_averaging  command byte [36 6A]") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input1[0] == 0x36);
         REQUIRE(input1[1] == 0x6A);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      auto status_write3 = mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains GasType command byte [36 03]") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
         REQUIRE(input2[0] == 0x36);
         REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input3;
-      auto status_write4 = mock_device.get_write(input3.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer is empty") {
         PF::Util::Containers::ByteVector<buffer_size> input;
@@ -1090,36 +1026,23 @@ SCENARIO("The Sensor::setup method works correctly when resetter is set to true"
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input1;
+      mock_device.get_write(input1.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input2;
+      mock_device.get_write(input2.buffer(), count);
+      THEN(
+          "The mock_device I2C's write buffer contains command byte [E1 02](request_product_id), "
+          "[36 61](read_conversion), [36 6A](set_averaging) and [36 03](O2 gas)") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      auto expected2 = std::string("\\x36\\x6A");
-      THEN("The mock_device I2C's write buffer contains set_averaging  command byte [36 6A]") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input1[0] == 0x36);
         REQUIRE(input1[1] == 0x6A);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      auto status_write3 = mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains GasType command byte [36 03]") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
         REQUIRE(input2[0] == 0x36);
         REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input3;
-      auto status_write4 = mock_device.get_write(input3.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer only contains junk bytes [01 02]") {
         PF::Util::Containers::ByteVector<buffer_size> input;
@@ -1186,11 +1109,6 @@ SCENARIO(
       THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer is empty") {
         PF::Util::Containers::ByteVector<buffer_size> input;
@@ -1294,35 +1212,23 @@ SCENARIO(
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input1;
+      mock_device.get_write(input1.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input2;
+      mock_device.get_write(input2.buffer(), count);
+      THEN(
+          "The mock_device I2C's write buffer contains command byte [E1 02](request_product_id), "
+          "[36 61](read_conversion), [36 6A](set_averaging) and [36 03](O2 gas)") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains set_averaging  command byte [36 6A]") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input1[0] == 0x36);
         REQUIRE(input1[1] == 0x6A);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      auto status_write3 = mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains GasType command byte [36 03]") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
         REQUIRE(input2[0] == 0x36);
         REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input3;
-      auto status_write4 = mock_device.get_write(input3.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer only contains junk bytes [01 02]") {
         PF::Util::Containers::ByteVector<buffer_size> input;
@@ -1441,35 +1347,23 @@ SCENARIO(
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input1;
+      mock_device.get_write(input1.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input2;
+      mock_device.get_write(input2.buffer(), count);
+      THEN(
+          "The mock_device I2C's write buffer contains command byte [E1 02](request_product_id), "
+          "[36 61](read_conversion), [36 6A](set_averaging) and [36 03](O2 gas)") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains set_averaging  command byte [36 6A]") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input1[0] == 0x36);
         REQUIRE(input1[1] == 0x6A);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      auto status_write3 = mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains GasType command byte [36 03]") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
         REQUIRE(input2[0] == 0x36);
         REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input3;
-      auto status_write4 = mock_device.get_write(input3.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer only contains junk bytes [01 02]") {
         PF::Util::Containers::ByteVector<buffer_size> input;
@@ -1540,21 +1434,15 @@ SCENARIO(
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      THEN(
+          "The mock_device I2C's write buffer contains command byte [E1 02](request_product_id)and "
+          "[36 61](read_conversion)") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer is empty") {
         PF::Util::Containers::ByteVector<buffer_size> input;
@@ -1667,35 +1555,23 @@ SCENARIO(
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input1;
+      mock_device.get_write(input1.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input2;
+      mock_device.get_write(input2.buffer(), count);
+      THEN(
+          "The mock_device I2C's write buffer contains command byte [E1 02](request_product_id), "
+          "[36 61](read_conversion), [36 6A](set_averaging)and [36 03](O2 gas)") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains set_averaging  command byte [36 6A]") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input1[0] == 0x36);
         REQUIRE(input1[1] == 0x6A);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      auto status_write3 = mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains GasType command byte [36 03]") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
         REQUIRE(input2[0] == 0x36);
         REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input3;
-      auto status_write4 = mock_device.get_write(input3.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer only contains junk bytes [01 02]") {
         PF::Util::Containers::ByteVector<buffer_size> input;
@@ -1798,21 +1674,15 @@ SCENARIO(
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      THEN(
+          "The mock_device I2C's write buffer contains command byte [E1 02](request_product_id) "
+          "and [36 61](read_conversion)") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer only contains [00 aa a6 00 7e 01 48 f1]") {
         PF::Util::Containers::ByteVector<buffer_size> input;
@@ -1855,7 +1725,9 @@ SCENARIO(
       "read_sample response) followed by junk bytes [01 02],  and with the mock time set "
       "to "
       "100us, global device's mock write buffer is set to [01] byte and read buffer is set to [01 "
-      "02] bytes") {
+      "02] bytes"
+      "and mock_device I2C's write buffer contains command byte [E1 02](request_product_id), [36 "
+      "61](read_conversion), [36 6A](set_averaging) and [36 03](O2 gas)") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     float flow = 20.5;
@@ -1927,35 +1799,21 @@ SCENARIO(
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input1;
+      mock_device.get_write(input1.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input2;
+      mock_device.get_write(input2.buffer(), count);
+      THEN("The mock_device I2C's write buffer remains unchanged") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains set_averaging  command byte [36 6A]") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input1[0] == 0x36);
         REQUIRE(input1[1] == 0x6A);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      auto status_write3 = mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains GasType command byte [36 03]") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
         REQUIRE(input2[0] == 0x36);
         REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input3;
-      auto status_write4 = mock_device.get_write(input3.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer only contains junk bytes [01 02]") {
         auto read_status = mock_device.read(input_buffer.buffer(), count);
@@ -1996,7 +1854,9 @@ SCENARIO(
       "read_sample response) followed by junk bytes [01 02], the mock time is set "
       "to "
       "100us, global device's mock write buffer is set to [01] byte and read buffer is set to [01 "
-      "02] bytes") {
+      "02] bytes"
+      "and mock_device I2C's write buffer contains command byte [E1 02](request_product_id), [36 "
+      "61](read_conversion), [36 6A](set_averaging) and [36 03](O2 gas)") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     float flow = 20.5;
@@ -2065,48 +1925,32 @@ SCENARIO(
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input1;
+      mock_device.get_write(input1.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input2;
+      mock_device.get_write(input2.buffer(), count);
+      THEN("The mock_device I2C's write buffer remains unchanged") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains set_averaging  command byte [36 6A]") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input1[0] == 0x36);
         REQUIRE(input1[1] == 0x6A);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      auto status_write3 = mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains GasType command byte [36 03]") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
         REQUIRE(input2[0] == 0x36);
         REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input3;
-      auto status_write4 = mock_device.get_write(input3.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::no_new_data);
       }
       PF::Util::Containers::ByteVector<buffer_size> input_read;
       PF::Util::Containers::ByteVector<buffer_size> input_read1;
       auto read_status = mock_device.read(input_read.buffer(), count);
       auto read_status1 = mock_device.read(input_read1.buffer(), count);
 
-      THEN("The mock_device I2C's read buffer contains bytes [15 35 a8]") {
+      THEN("The mock_device I2C's read buffer contains bytes [15 35 a8] and junk bytes [01 02]") {
         REQUIRE(read_status == PF::I2CDeviceStatus::ok);
         REQUIRE(input_read[0] == 0x15);
         REQUIRE(input_read[1] == 0x35);
         REQUIRE(input_read[2] == 0xa8);
-      }
-      THEN("The mock_device I2C's read buffer contains junk bytes [01 02]") {
         REQUIRE(read_status1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input_read1[0] == 0x01);
         REQUIRE(input_read1[1] == 0x02);
@@ -2161,47 +2005,31 @@ SCENARIO(
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input1;
+      mock_device.get_write(input1.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input2;
+      mock_device.get_write(input2.buffer(), count);
+      THEN("The mock_device I2C's write buffer remains unchanged") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains set_averaging  command byte [36 6A]") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input1[0] == 0x36);
         REQUIRE(input1[1] == 0x6A);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      auto status_write3 = mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains GasType command byte [36 03]") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
         REQUIRE(input2[0] == 0x36);
         REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input3;
-      auto status_write4 = mock_device.get_write(input3.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::no_new_data);
       }
       PF::Util::Containers::ByteVector<buffer_size> input_read;
       PF::Util::Containers::ByteVector<buffer_size> input_read1;
       auto read_status = mock_device.read(input_read.buffer(), count);
       auto read_status1 = mock_device.read(input_read1.buffer(), count);
-      THEN("The mock_device I2C's read buffer contains bytes [15 35 a8]") {
+      THEN("The mock_device I2C's read buffer contains bytes [15 35 a8] and junk bytes [01 02]") {
         REQUIRE(read_status == PF::I2CDeviceStatus::ok);
         REQUIRE(input_read[0] == 0x15);
         REQUIRE(input_read[1] == 0x35);
         REQUIRE(input_read[2] == 0xa8);
-      }
-      THEN("The mock_device I2C's read buffer contains junk bytes [01 02]") {
         REQUIRE(read_status1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input_read1[0] == 0x01);
         REQUIRE(input_read1[1] == 0x02);
@@ -2238,7 +2066,9 @@ SCENARIO("The Sensor::output method works correctly, when sensor is partially in
       "state and "
       "get_state returns wait_warmup, with the mock read buffer consisting of [d5 64 4d](as "
       "read_sample response) and with the mock time set to 500us, global device's mock write "
-      "buffer is set to [01] byte and read buffer is set to [01 02] bytes") {
+      "buffer is set to [01] byte and read buffer is set to [01 02] bytes"
+      "and mock_device I2C's write buffer contains command byte [E1 02](request_product_id), [36 "
+      "61](read_conversion), [36 6A](set_averaging) and [36 03](O2 gas)") {
     // Action is wait_warmup, output method fails
     // flow does not get updated
     PF::HAL::Mock::I2CDevice mock_device;
@@ -2284,35 +2114,21 @@ SCENARIO("The Sensor::output method works correctly, when sensor is partially in
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input1;
+      mock_device.get_write(input1.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input2;
+      mock_device.get_write(input2.buffer(), count);
+      THEN("The mock_device I2C's write buffer remains unchanged") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains set_averaging  command byte [36 6A]") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input1[0] == 0x36);
         REQUIRE(input1[1] == 0x6A);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      auto status_write3 = mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains GasType command byte [36 03]") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
         REQUIRE(input2[0] == 0x36);
         REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input3;
-      auto status_write4 = mock_device.get_write(input3.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer remains unchanged") {
         constexpr size_t buffer_size = 254UL;
@@ -2351,7 +2167,9 @@ SCENARIO("The Sensor::output method works correctly, when sensor is partially in
       "returns setup and "
       "get_state returns check_range with the mock read buffer consisting of [d5 64 4d](as "
       "read_sample response) and with the mock time set to 500us, global device's mock write "
-      "buffer is set to [01] byte and read buffer is set to [01 02] bytes") {
+      "buffer is set to [01] byte and read buffer is set to [01 02] bytes"
+      "and mock_device I2C's write buffer contains command byte [E1 02](request_product_id), [36 "
+      "61](read_conversion), [36 6A](set_averaging) and [36 03](O2 gas)") {
     // Action is check_range, output method fails
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
@@ -2398,35 +2216,21 @@ SCENARIO("The Sensor::output method works correctly, when sensor is partially in
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input1;
+      mock_device.get_write(input1.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input2;
+      mock_device.get_write(input2.buffer(), count);
+      THEN("The mock_device I2C's write buffer remains unchanged") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains set_averaging  command byte [36 6A]") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input1[0] == 0x36);
         REQUIRE(input1[1] == 0x6A);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      auto status_write3 = mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains GasType command byte [36 03]") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
         REQUIRE(input2[0] == 0x36);
         REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input3;
-      auto status_write4 = mock_device.get_write(input3.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer remains unchanged") {
         constexpr size_t buffer_size = 254UL;
@@ -2469,7 +2273,9 @@ SCENARIO("The Sensor::output method works correctly when read buffer is not as e
       "4b](as invalid read_sample response) followed by junk bytes [01 02],  and with the mock "
       "time set"
       "to 100us, global device's mock write buffer is set to [01] byte and read buffer is set to "
-      "[01 02]") {
+      "[01 02]"
+      "and mock_device I2C's write buffer contains command byte [E1 02](request_product_id), [36 "
+      "61](read_conversion), [36 6A](set_averaging) and [36 03](O2 gas)") {
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     float flow = 20.5;
@@ -2527,124 +2333,65 @@ SCENARIO("The Sensor::output method works correctly when read buffer is not as e
     WHEN(
         "The output method is called eighteen times with mock time set to [1000, 1500, 2000, 2500, "
         "3000, 3500, 4000, 4500, 5000]us and output parameter flow is initialized to 20.5") {
-      auto output_status = sensor.output(flow);
-      THEN("The first output method call returns ok state") {
-        REQUIRE(output_status == PF::InitializableState::ok);
-      }
-      THEN("After the first output method call, get_state method returns wait_measurement action") {
-        auto status = sensor.get_state();
-        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-      }
-      THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
+      auto output_status0 = sensor.output(flow);
+      REQUIRE(output_status0 == PF::InitializableState::ok);
+      auto status0 = sensor.get_state();
+      REQUIRE(status0 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       time.set_micros(1000);
-      for (size_t i = 0; i < 2; i++) {
-        auto output_status1 = sensor.output(flow);
-        THEN("The second output method call returns ok state") {
-          REQUIRE(output_status1 == PF::InitializableState::ok);
-        }
-      }
-      THEN(
-          "After the second output method call, get_state method returns wait_measurement action") {
-        auto status = sensor.get_state();
-        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-      }
-      time.set_micros(1500);
-      for (size_t i = 0; i < 2; i++) {
-        auto output_status = sensor.output(flow);
-        THEN("The third and fourth output method call returns ok state") {
-          REQUIRE(output_status == PF::InitializableState::ok);
-        }
-      }
-      THEN(
-          "After the fourth output method call, get_state method returns wait_measurement action") {
-        auto status = sensor.get_state();
-        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-      }
-      time.set_micros(2000);
-      for (size_t i = 0; i < 2; i++) {
-        auto output_status = sensor.output(flow);
-        THEN("The fifth and sixth output method call returns ok state") {
-          REQUIRE(output_status == PF::InitializableState::ok);
-        }
-      }
-      THEN("After the sixth output method call, get_state method returns wait_measurement action") {
-        auto status = sensor.get_state();
-        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-      }
-      time.set_micros(2500);
-      for (size_t i = 0; i < 2; i++) {
-        auto output_status = sensor.output(flow);
-        THEN("The senventh and eighth output method call returns ok state") {
-          REQUIRE(output_status == PF::InitializableState::ok);
-        }
-      }
-      THEN(
-          "After the eighth output method call, get_state method returns wait_measurement action") {
-        auto status = sensor.get_state();
-        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-      }
-      time.set_micros(3000);
-      for (size_t i = 0; i < 2; i++) {
-        auto output_status = sensor.output(flow);
-        THEN("The ninth and tenth output method call returns ok state") {
-          REQUIRE(output_status == PF::InitializableState::ok);
-        }
-      }
-      THEN("After the tenth output method call, get_state method returns wait_measurement action") {
-        auto status = sensor.get_state();
-        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-      }
-      time.set_micros(3500);
-      for (size_t i = 0; i < 2; i++) {
-        auto output_status = sensor.output(flow);
-        THEN("The eleventh and twelveth output method call returns ok state") {
-          REQUIRE(output_status == PF::InitializableState::ok);
-        }
-      }
-      THEN(
-          "After the twelveth output method call, get_state method returns wait_measurement "
-          "action") {
-        auto status = sensor.get_state();
-        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-      }
-      time.set_micros(4000);
-      for (size_t i = 0; i < 2; i++) {
-        auto output_status = sensor.output(flow);
-        THEN("The thirteenth and fourteenth output method call returns ok state") {
-          REQUIRE(output_status == PF::InitializableState::ok);
-        }
-      }
-      THEN(
-          "After the fourteenth output method call, get_state method returns wait_measurement "
-          "action") {
-        auto status = sensor.get_state();
-        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-      }
-      time.set_micros(4500);
-      for (size_t i = 0; i < 2; i++) {
-        auto output_status = sensor.output(flow);
-        THEN("The fifteenth and sixteenth output method call returns ok state") {
-          REQUIRE(output_status == PF::InitializableState::ok);
-        }
-      }
-      THEN(
-          "After the sixteenth output method call, get_state method returns wait_measurement "
-          "action") {
-        auto status = sensor.get_state();
-        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-      }
-      time.set_micros(5000);
+      auto output_status = sensor.output(flow);
       auto output_status1 = sensor.output(flow);
-      THEN("The seventeenth output method call returns ok state") {
+      time.set_micros(1500);
+      auto output_status2 = sensor.output(flow);
+      auto output_status3 = sensor.output(flow);
+      time.set_micros(2000);
+      auto output_status4 = sensor.output(flow);
+      auto output_status5 = sensor.output(flow);
+      time.set_micros(2500);
+      auto output_status6 = sensor.output(flow);
+      auto output_status7 = sensor.output(flow);
+      time.set_micros(3000);
+      auto output_status8 = sensor.output(flow);
+      auto output_status9 = sensor.output(flow);
+      time.set_micros(3500);
+      auto output_status10 = sensor.output(flow);
+      auto output_status11 = sensor.output(flow);
+      time.set_micros(4000);
+      auto output_status12 = sensor.output(flow);
+      auto output_status13 = sensor.output(flow);
+      time.set_micros(4500);
+      auto output_status14 = sensor.output(flow);
+      auto output_status15 = sensor.output(flow);
+      time.set_micros(5000);
+      auto output_status16 = sensor.output(flow);
+      THEN("Each of seventeen output method calls return ok state") {
+        REQUIRE(output_status == PF::InitializableState::ok);
         REQUIRE(output_status1 == PF::InitializableState::ok);
+        REQUIRE(output_status2 == PF::InitializableState::ok);
+        REQUIRE(output_status3 == PF::InitializableState::ok);
+        REQUIRE(output_status4 == PF::InitializableState::ok);
+        REQUIRE(output_status5 == PF::InitializableState::ok);
+        REQUIRE(output_status6 == PF::InitializableState::ok);
+        REQUIRE(output_status7 == PF::InitializableState::ok);
+        REQUIRE(output_status8 == PF::InitializableState::ok);
+        REQUIRE(output_status9 == PF::InitializableState::ok);
+        REQUIRE(output_status10 == PF::InitializableState::ok);
+        REQUIRE(output_status11 == PF::InitializableState::ok);
+        REQUIRE(output_status12 == PF::InitializableState::ok);
+        REQUIRE(output_status13 == PF::InitializableState::ok);
+        REQUIRE(output_status14 == PF::InitializableState::ok);
+        REQUIRE(output_status15 == PF::InitializableState::ok);
+        REQUIRE(output_status16 == PF::InitializableState::ok);
       }
-      THEN("After the seventieth output method call, get_state method returns measure action") {
+      THEN("After each of thoese output method calls, get_state method returns measure action") {
         auto status = sensor.get_state();
         REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
       }
-      auto output_status2 = sensor.output(flow);
+      THEN("After each of thoese output method calls, output parameter flow remains 20.5") {
+        REQUIRE(flow == 20.5F);
+      }
+      auto output_status17 = sensor.output(flow);
       THEN("The eighteenth output method call returns failed state") {
-        REQUIRE(output_status2 == PF::InitializableState::failed);
+        REQUIRE(output_status17 == PF::InitializableState::failed);
       }
       THEN("After the eighteenth output method call, get_state method returns measure action") {
         auto status1 = sensor.get_state();
@@ -2655,35 +2402,21 @@ SCENARIO("The Sensor::output method works correctly when read buffer is not as e
       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
       size_t count = buffer_size;
       mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains request_product_id command byte [E1 02]") {
+      PF::Util::Containers::ByteVector<buffer_size> input;
+      mock_device.get_write(input.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input1;
+      mock_device.get_write(input1.buffer(), count);
+      PF::Util::Containers::ByteVector<buffer_size> input2;
+      mock_device.get_write(input2.buffer(), count);
+      THEN("The mock_device I2C's write buffer remains unchanged") {
         REQUIRE(input_buffer[0] == 0xE1);
         REQUIRE(input_buffer[1] == 0x02);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      auto status_write = mock_device.get_write(input.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains read_conversion command byte [36 61]") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
         REQUIRE(input[0] == 0x36);
         REQUIRE(input[1] == 0x61);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      auto status_write1 = mock_device.get_write(input1.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains set_averaging  command byte [36 6A]") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
         REQUIRE(input1[0] == 0x36);
         REQUIRE(input1[1] == 0x6A);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      auto status_write3 = mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer contains GasType command byte [36 03]") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
         REQUIRE(input2[0] == 0x36);
         REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input3;
-      auto status_write4 = mock_device.get_write(input3.buffer(), count);
-      THEN("The mock_device I2C's write buffer is empty") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer is empty") {
         auto read_status = mock_device.read(input_buffer.buffer(), count);
