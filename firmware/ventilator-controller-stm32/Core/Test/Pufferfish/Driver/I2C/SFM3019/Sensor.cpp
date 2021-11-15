@@ -54,19 +54,20 @@ SCENARIO(
     "time for wait_measurement-measure cycle ") {
   GIVEN(" A state machine is updated till Action returns check range") {
     PF::Driver::I2C::SFM3019::StateMachine state_machine;
-    uint32_t time = 4000;
+    uint32_t time = 0;
     auto status1 = state_machine.update(time);
     REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
     auto op_state = state_machine.output();
     REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-    uint32_t time1 = 250;
+    uint32_t time1 = 30000;
     auto status = state_machine.update(time1);
     REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
     auto op_state1 = state_machine.output();
     REQUIRE(op_state1 == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-    WHEN("The update method is called three times with [250, 100, 3000]us as input parameter") {
+    WHEN(
+        "The update method is called three times with [30001, 30502, 30503]us as input parameter") {
       // Action cycles between  wait_measurement and measure
-      uint32_t time2 = 250;
+      uint32_t time2 = 30001;
       auto action_status1 = state_machine.update(time2);
       THEN("The first update method call returns wait_measurement action") {
         REQUIRE(action_status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
@@ -75,7 +76,7 @@ SCENARIO(
         auto op_state = state_machine.output();
         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       }
-      uint32_t time3 = 100;
+      uint32_t time3 = 30502;
       auto action_status2 = state_machine.update(time3);
       THEN("The second update method call returns measure action") {
         REQUIRE(action_status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
@@ -84,7 +85,7 @@ SCENARIO(
         auto op_state = state_machine.output();
         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
       }
-      uint32_t time4 = 3000;
+      uint32_t time4 = 30503;
       auto action_status3 = state_machine.update(time4);
       THEN("The third update method call returns wait_measurement action") {
         REQUIRE(action_status3 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
@@ -152,10 +153,10 @@ SCENARIO(
     REQUIRE(op_state1 == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
 
     WHEN(
-        "The update method is called two times with [30002, 30100]us as input "
+        "The update method is called two times with [30000, 30499]us as input "
         "parameter ") {
       // enough time is not elaspsed, action remains wait_measurement instead of measure
-      uint32_t time4 = 30002;
+      uint32_t time4 = 30000;
       auto action_status3 = state_machine.update(time4);
       THEN("The first update method call returns wait_measurement action") {
         REQUIRE(action_status3 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
@@ -164,7 +165,7 @@ SCENARIO(
         auto op_state = state_machine.output();
         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       }
-      uint32_t time5 = 30100;
+      uint32_t time5 = 30499;
       auto action_status4 = state_machine.update(time5);
       THEN("The second update method call returns wait_measurement action") {
         REQUIRE(action_status4 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
@@ -175,10 +176,10 @@ SCENARIO(
       }
     }
     WHEN(
-        "The update method is called four times with [30002, 30499, 30500, 30550]us as input "
+        "The update method is called four times with [30000, 30499, 30500]us as input "
         "parameter") {
       // enough time has elapsed, action returns measure
-      uint32_t time4 = 30002;
+      uint32_t time4 = 30000;
       auto action_status3 = state_machine.update(time4);
       THEN("The first update method call returns wait_measurement action") {
         REQUIRE(action_status3 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
@@ -198,19 +199,10 @@ SCENARIO(
       }
       uint32_t time6 = 30500;
       auto action_status5 = state_machine.update(time6);
-      THEN("The third update method call returns wait_measurement action") {
-        REQUIRE(action_status5 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      THEN("The third update method call returns measure action") {
+        REQUIRE(action_status5 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
       }
-      THEN("After the third update method output method returns wait_measurement action") {
-        auto op_state = state_machine.output();
-        REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
-      }
-      uint32_t time7 = 30550;
-      auto action_status6 = state_machine.update(time7);
-      THEN("The fourth update method call returns measure action") {
-        REQUIRE(action_status6 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
-      }
-      THEN("After the fourth update method output method returns measure action") {
+      THEN("After the third update method output method returns measure action") {
         auto op_state = state_machine.output();
         REQUIRE(op_state == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
       }
@@ -886,7 +878,7 @@ SCENARIO(
 
     // in check_range method, read_sample condition flow is 218.682 greater than flow max
     WHEN(
-        "The setup method is called thrice , mock time is set to [100, 55000, 65000]us before each "
+        "The setup method is called thrice , mock time is set to [100, 55000, 55001]us before each "
         "corresponding setup call") {
       PF::Driver::I2C::SFM3019::StateMachine state_machine;
       PF::Driver::I2C::SFM3019::Sensor sensor{device, false, time};
@@ -909,7 +901,7 @@ SCENARIO(
         auto state2 = sensor.get_state();
         REQUIRE(state2 == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
       }
-      time.set_micros(65000);
+      time.set_micros(55001);
       auto status2 = sensor.setup();
       THEN("The third setup method call returns setup state") {
         REQUIRE(status2 == PF::InitializableState::setup);
@@ -992,7 +984,7 @@ SCENARIO("The Sensor::setup method works correctly when resetter is set to true"
 
     WHEN(
         "The setup method is called thrice , where mock "
-        "time is set to [100, 55000, 40000]us before each corresponding setup call") {
+        "time is set to [100, 55000, 55001]us before each corresponding setup call") {
       PF::Driver::I2C::SFM3019::StateMachine state_machine;
       PF::Driver::I2C::SFM3019::Sensor sensor{device, true, time};
       time.set_micros(100);
@@ -1013,7 +1005,7 @@ SCENARIO("The Sensor::setup method works correctly when resetter is set to true"
         auto state2 = sensor.get_state();
         REQUIRE(state2 == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
       }
-      time.set_micros(40000);
+      time.set_micros(55001);
       auto status3 = sensor.setup();
       THEN("The third setup method call retuns ok status") {
         REQUIRE(status3 == PF::InitializableState::ok);
@@ -1172,7 +1164,7 @@ SCENARIO(
     global_device.add_read(read_buffer6.data(), read_buffer6.size());
 
     WHEN(
-        "The setup method is called thrice , where  mock time is set to [100, 55000, 40000]us "
+        "The setup method is called thrice , where  mock time is set to [100, 55000, 55100]us "
         "before "
         "each corresponding setup call") {
       PF::Driver::I2C::SFM3019::Sensor sensor{device, false, time};
@@ -1199,7 +1191,7 @@ SCENARIO(
         auto state2 = sensor.get_state();
         REQUIRE(state2 == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
       }
-      time.set_micros(40000);
+      time.set_micros(55100);
       auto status3 = sensor.setup();
       THEN("The third setup method call retuns ok status") {
         REQUIRE(status3 == PF::InitializableState::ok);
@@ -1311,7 +1303,7 @@ SCENARIO(
     global_device.add_read(read_buffer9.data(), read_buffer9.size());
 
     WHEN(
-        "The setup method is called thrice , where  mock time is set to [100, 55000, 40000]us "
+        "The setup method is called thrice , where  mock time is set to [100, 55000, 55200]us "
         "before "
         "each corresponding setup call") {
       PF::Driver::I2C::SFM3019::Sensor sensor{device, false, time};
@@ -1334,7 +1326,7 @@ SCENARIO(
         auto state2 = sensor.get_state();
         REQUIRE(state2 == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
       }
-      time.set_micros(40000);
+      time.set_micros(55200);
       auto status3 = sensor.setup();
       THEN("The third setup method call retuns ok status") {
         REQUIRE(status3 == PF::InitializableState::ok);
@@ -1519,7 +1511,7 @@ SCENARIO(
     global_device.add_read(read_buffer9.data(), read_buffer9.size());
 
     WHEN(
-        "The setup method is called thrice , where  mock time is set to [100, 55000, 40000]us "
+        "The setup method is called thrice , where  mock time is set to [100, 55000, 55200]us "
         "before "
         "each corresponding setup call") {
       PF::Driver::I2C::SFM3019::Sensor sensor{device, false, time};
@@ -1542,7 +1534,7 @@ SCENARIO(
         auto state2 = sensor.get_state();
         REQUIRE(state2 == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
       }
-      time.set_micros(40000);
+      time.set_micros(55200);
       auto status3 = sensor.setup();
       THEN("The third setup method call retuns ok status") {
         REQUIRE(status3 == PF::InitializableState::ok);
@@ -2338,33 +2330,50 @@ SCENARIO("The Sensor::output method works correctly when read buffer is not as e
       auto status0 = sensor.get_state();
       REQUIRE(status0 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
       time.set_micros(1000);
-      auto output_status = sensor.output(flow);
       auto output_status1 = sensor.output(flow);
-      time.set_micros(1500);
+      auto status1 = sensor.get_state();
       auto output_status2 = sensor.output(flow);
+      auto status2 = sensor.get_state();
+      time.set_micros(1500);
       auto output_status3 = sensor.output(flow);
-      time.set_micros(2000);
+      auto status3 = sensor.get_state();
       auto output_status4 = sensor.output(flow);
+      auto status4 = sensor.get_state();
+      time.set_micros(2000);
       auto output_status5 = sensor.output(flow);
-      time.set_micros(2500);
+      auto status5 = sensor.get_state();
       auto output_status6 = sensor.output(flow);
+      auto status6 = sensor.get_state();
+      time.set_micros(2500);
       auto output_status7 = sensor.output(flow);
-      time.set_micros(3000);
+      auto status7 = sensor.get_state();
       auto output_status8 = sensor.output(flow);
+      auto status8 = sensor.get_state();
+      time.set_micros(3000);
       auto output_status9 = sensor.output(flow);
-      time.set_micros(3500);
+      auto status9 = sensor.get_state();
       auto output_status10 = sensor.output(flow);
+      auto status10 = sensor.get_state();
+      time.set_micros(3500);
       auto output_status11 = sensor.output(flow);
-      time.set_micros(4000);
+      auto status11 = sensor.get_state();
       auto output_status12 = sensor.output(flow);
+      auto status12 = sensor.get_state();
+      time.set_micros(4000);
       auto output_status13 = sensor.output(flow);
-      time.set_micros(4500);
+      auto status13 = sensor.get_state();
       auto output_status14 = sensor.output(flow);
+      auto status14 = sensor.get_state();
+      time.set_micros(4500);
       auto output_status15 = sensor.output(flow);
-      time.set_micros(5000);
+      auto status15 = sensor.get_state();
       auto output_status16 = sensor.output(flow);
-      THEN("Each of seventeen output method calls return ok state") {
-        REQUIRE(output_status == PF::InitializableState::ok);
+      auto status16 = sensor.get_state();
+      time.set_micros(5000);
+      auto output_status17 = sensor.output(flow);
+      auto status17 = sensor.get_state();
+      THEN("Each of eighteen output method calls return ok state") {
+        REQUIRE(output_status0 == PF::InitializableState::ok);
         REQUIRE(output_status1 == PF::InitializableState::ok);
         REQUIRE(output_status2 == PF::InitializableState::ok);
         REQUIRE(output_status3 == PF::InitializableState::ok);
@@ -2381,19 +2390,42 @@ SCENARIO("The Sensor::output method works correctly when read buffer is not as e
         REQUIRE(output_status14 == PF::InitializableState::ok);
         REQUIRE(output_status15 == PF::InitializableState::ok);
         REQUIRE(output_status16 == PF::InitializableState::ok);
+        REQUIRE(output_status17 == PF::InitializableState::ok);
       }
-      THEN("After each of thoese output method calls, get_state method returns measure action") {
-        auto status = sensor.get_state();
-        REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+      THEN(
+          "After each eighteen output method calls, 0,2,4...,16 get_state method returns "
+          "wait_measurement action") {
+        REQUIRE(status0 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+        REQUIRE(status2 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+        REQUIRE(status4 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+        REQUIRE(status6 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+        REQUIRE(status8 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+        REQUIRE(status10 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+        REQUIRE(status12 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+        REQUIRE(status14 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+        REQUIRE(status16 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+      }
+      THEN(
+          "After each eighteen output method calls, 1,3,4...,17 get_state method returns measure "
+          "action") {
+        REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+        REQUIRE(status3 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+        REQUIRE(status5 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+        REQUIRE(status7 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+        REQUIRE(status9 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+        REQUIRE(status11 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+        REQUIRE(status13 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+        REQUIRE(status15 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+        REQUIRE(status17 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
       }
       THEN("After each of thoese output method calls, output parameter flow remains 20.5") {
         REQUIRE(flow == 20.5F);
       }
-      auto output_status17 = sensor.output(flow);
-      THEN("The eighteenth output method call returns failed state") {
-        REQUIRE(output_status17 == PF::InitializableState::failed);
+      auto output_status18 = sensor.output(flow);
+      THEN("The 19th output method call returns failed state") {
+        REQUIRE(output_status18 == PF::InitializableState::failed);
       }
-      THEN("After the eighteenth output method call, get_state method returns measure action") {
+      THEN("After the 19th output method call, get_state method returns measure action") {
         auto status1 = sensor.get_state();
         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
       }
