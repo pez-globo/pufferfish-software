@@ -1756,6 +1756,24 @@ SCENARIO(
     REQUIRE(state1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
     auto read_buffer3 = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
     global_device.add_read(read_buffer3.data(), read_buffer3.size());
+    constexpr size_t buffer_size = 50UL;
+    PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+    size_t count = buffer_size;
+    mock_device.get_write(input_buffer.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input;
+    mock_device.get_write(input.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input1;
+    mock_device.get_write(input1.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input2;
+    mock_device.get_write(input2.buffer(), count);
+    REQUIRE(input_buffer[0] == 0xE1);
+    REQUIRE(input_buffer[1] == 0x02);
+    REQUIRE(input[0] == 0x36);
+    REQUIRE(input[1] == 0x61);
+    REQUIRE(input1[0] == 0x36);
+    REQUIRE(input1[1] == 0x6A);
+    REQUIRE(input2[0] == 0x36);
+    REQUIRE(input2[1] == 0x03);
 
     // Normal case, output returns ok state
     // updates flow according to read buffer
@@ -1788,24 +1806,11 @@ SCENARIO(
         REQUIRE(flow == -13.22353F);
       }
       constexpr size_t buffer_size = 50UL;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer3;
       size_t count = buffer_size;
-      mock_device.get_write(input_buffer.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      mock_device.get_write(input.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      mock_device.get_write(input1.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer remains unchanged") {
-        REQUIRE(input_buffer[0] == 0xE1);
-        REQUIRE(input_buffer[1] == 0x02);
-        REQUIRE(input[0] == 0x36);
-        REQUIRE(input[1] == 0x61);
-        REQUIRE(input1[0] == 0x36);
-        REQUIRE(input1[1] == 0x6A);
-        REQUIRE(input2[0] == 0x36);
-        REQUIRE(input2[1] == 0x03);
+      auto status = mock_device.get_write(input_buffer3.buffer(), count);
+      THEN("The mock_device I2C's write buffer remains empty") {
+        REQUIRE(status == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer only contains junk bytes [01 02]") {
         auto read_status = mock_device.read(input_buffer.buffer(), count);
@@ -1852,9 +1857,6 @@ SCENARIO(
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     float flow = 20.5;
-    constexpr size_t buffer_size = 254UL;
-    PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-
     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
     PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
     PF::HAL::Mock::Time time;
@@ -1888,6 +1890,24 @@ SCENARIO(
     REQUIRE(state1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
     auto read_buffer3 = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
     global_device.add_read(read_buffer3.data(), read_buffer3.size());
+    constexpr size_t buffer_size = 50UL;
+    PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+    size_t count = buffer_size;
+    mock_device.get_write(input_buffer.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input;
+    mock_device.get_write(input.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input1;
+    mock_device.get_write(input1.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input2;
+    mock_device.get_write(input2.buffer(), count);
+    REQUIRE(input_buffer[0] == 0xE1);
+    REQUIRE(input_buffer[1] == 0x02);
+    REQUIRE(input[0] == 0x36);
+    REQUIRE(input[1] == 0x61);
+    REQUIRE(input1[0] == 0x36);
+    REQUIRE(input1[1] == 0x6A);
+    REQUIRE(input2[0] == 0x36);
+    REQUIRE(input2[1] == 0x03);
 
     // action remains measure
     // flow does not get updated
@@ -1914,24 +1934,11 @@ SCENARIO(
       }
       THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
       constexpr size_t buffer_size = 50UL;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer3;
       size_t count = buffer_size;
-      mock_device.get_write(input_buffer.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      mock_device.get_write(input.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      mock_device.get_write(input1.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer remains unchanged") {
-        REQUIRE(input_buffer[0] == 0xE1);
-        REQUIRE(input_buffer[1] == 0x02);
-        REQUIRE(input[0] == 0x36);
-        REQUIRE(input[1] == 0x61);
-        REQUIRE(input1[0] == 0x36);
-        REQUIRE(input1[1] == 0x6A);
-        REQUIRE(input2[0] == 0x36);
-        REQUIRE(input2[1] == 0x03);
+      auto status = mock_device.get_write(input_buffer3.buffer(), count);
+      THEN("The mock_device I2C's write buffer remains empty") {
+        REQUIRE(status == PF::I2CDeviceStatus::no_new_data);
       }
       PF::Util::Containers::ByteVector<buffer_size> input_read;
       PF::Util::Containers::ByteVector<buffer_size> input_read1;
@@ -1994,24 +2001,11 @@ SCENARIO(
       }
       THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
       constexpr size_t buffer_size = 50UL;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer3;
       size_t count = buffer_size;
-      mock_device.get_write(input_buffer.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      mock_device.get_write(input.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      mock_device.get_write(input1.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer remains unchanged") {
-        REQUIRE(input_buffer[0] == 0xE1);
-        REQUIRE(input_buffer[1] == 0x02);
-        REQUIRE(input[0] == 0x36);
-        REQUIRE(input[1] == 0x61);
-        REQUIRE(input1[0] == 0x36);
-        REQUIRE(input1[1] == 0x6A);
-        REQUIRE(input2[0] == 0x36);
-        REQUIRE(input2[1] == 0x03);
+      auto status1 = mock_device.get_write(input_buffer3.buffer(), count);
+      THEN("The mock_device I2C's write buffer remains empty") {
+        REQUIRE(status1 == PF::I2CDeviceStatus::no_new_data);
       }
       PF::Util::Containers::ByteVector<buffer_size> input_read;
       PF::Util::Containers::ByteVector<buffer_size> input_read1;
@@ -2088,6 +2082,24 @@ SCENARIO("The Sensor::output method works correctly, when sensor is partially in
     REQUIRE(state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
     auto read_buffer3 = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
     global_device.add_read(read_buffer3.data(), read_buffer3.size());
+    constexpr size_t buffer_size = 50UL;
+    PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+    size_t count = buffer_size;
+    mock_device.get_write(input_buffer.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input;
+    mock_device.get_write(input.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input1;
+    mock_device.get_write(input1.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input2;
+    mock_device.get_write(input2.buffer(), count);
+    REQUIRE(input_buffer[0] == 0xE1);
+    REQUIRE(input_buffer[1] == 0x02);
+    REQUIRE(input[0] == 0x36);
+    REQUIRE(input[1] == 0x61);
+    REQUIRE(input1[0] == 0x36);
+    REQUIRE(input1[1] == 0x6A);
+    REQUIRE(input2[0] == 0x36);
+    REQUIRE(input2[1] == 0x03);
 
     WHEN(
         "The output method is called once, mock time is set to 250us and output parameter flow is "
@@ -2103,24 +2115,11 @@ SCENARIO("The Sensor::output method works correctly, when sensor is partially in
       }
       THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
       constexpr size_t buffer_size = 50UL;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer3;
       size_t count = buffer_size;
-      mock_device.get_write(input_buffer.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      mock_device.get_write(input.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      mock_device.get_write(input1.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer remains unchanged") {
-        REQUIRE(input_buffer[0] == 0xE1);
-        REQUIRE(input_buffer[1] == 0x02);
-        REQUIRE(input[0] == 0x36);
-        REQUIRE(input[1] == 0x61);
-        REQUIRE(input1[0] == 0x36);
-        REQUIRE(input1[1] == 0x6A);
-        REQUIRE(input2[0] == 0x36);
-        REQUIRE(input2[1] == 0x03);
+      auto status = mock_device.get_write(input_buffer3.buffer(), count);
+      THEN("The mock_device I2C's write buffer remains empty") {
+        REQUIRE(status == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer remains unchanged") {
         constexpr size_t buffer_size = 254UL;
@@ -2189,6 +2188,24 @@ SCENARIO("The Sensor::output method works correctly, when sensor is partially in
     sensor.setup();
     auto read_buffer3 = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
     global_device.add_read(read_buffer3.data(), read_buffer3.size());
+    constexpr size_t buffer_size = 50UL;
+    PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+    size_t count = buffer_size;
+    mock_device.get_write(input_buffer.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input;
+    mock_device.get_write(input.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input1;
+    mock_device.get_write(input1.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input2;
+    mock_device.get_write(input2.buffer(), count);
+    REQUIRE(input_buffer[0] == 0xE1);
+    REQUIRE(input_buffer[1] == 0x02);
+    REQUIRE(input[0] == 0x36);
+    REQUIRE(input[1] == 0x61);
+    REQUIRE(input1[0] == 0x36);
+    REQUIRE(input1[1] == 0x6A);
+    REQUIRE(input2[0] == 0x36);
+    REQUIRE(input2[1] == 0x03);
 
     WHEN(
         "The output method is called once, mock time is set to 250us and output parameter flow is "
@@ -2205,24 +2222,11 @@ SCENARIO("The Sensor::output method works correctly, when sensor is partially in
 
       THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
       constexpr size_t buffer_size = 50UL;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer3;
       size_t count = buffer_size;
-      mock_device.get_write(input_buffer.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      mock_device.get_write(input.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      mock_device.get_write(input1.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      mock_device.get_write(input2.buffer(), count);
-      THEN("The mock_device I2C's write buffer remains unchanged") {
-        REQUIRE(input_buffer[0] == 0xE1);
-        REQUIRE(input_buffer[1] == 0x02);
-        REQUIRE(input[0] == 0x36);
-        REQUIRE(input[1] == 0x61);
-        REQUIRE(input1[0] == 0x36);
-        REQUIRE(input1[1] == 0x6A);
-        REQUIRE(input2[0] == 0x36);
-        REQUIRE(input2[1] == 0x03);
+      auto status = mock_device.get_write(input_buffer3.buffer(), count);
+      THEN("The mock_device I2C's write buffer remains empty") {
+        REQUIRE(status == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer remains unchanged") {
         constexpr size_t buffer_size = 254UL;
@@ -2274,8 +2278,6 @@ SCENARIO("The Sensor::output method works correctly when read buffer is not as e
     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
     PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
     PF::HAL::Mock::Time time;
-    constexpr size_t buffer_size = 254UL;
-    PF::Util::Containers::ByteVector<buffer_size> input_buffer;
     time.set_micros(100);
     auto read_buffer = PF::Util::Containers::make_array<uint8_t>(
         0x04, 0x02, 0x60, 0x06, 0x11, 0xa9, 0x00, 0x00, 0x81);
@@ -2319,6 +2321,25 @@ SCENARIO("The Sensor::output method works correctly when read buffer is not as e
     }
     auto state1 = sensor.get_state();
     REQUIRE(state1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
+    constexpr size_t buffer_size = 50UL;
+    PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+    size_t count = buffer_size;
+    mock_device.get_write(input_buffer.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input;
+    mock_device.get_write(input.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input1;
+    mock_device.get_write(input1.buffer(), count);
+    PF::Util::Containers::ByteVector<buffer_size> input2;
+    mock_device.get_write(input2.buffer(), count);
+    REQUIRE(input_buffer[0] == 0xE1);
+    REQUIRE(input_buffer[1] == 0x02);
+    REQUIRE(input[0] == 0x36);
+    REQUIRE(input[1] == 0x61);
+    REQUIRE(input1[0] == 0x36);
+    REQUIRE(input1[1] == 0x6A);
+    REQUIRE(input2[0] == 0x36);
+    REQUIRE(input2[1] == 0x03);
+
     // read buffer for read_sample is wrong, returns failed state
     // flow remains same
     // Action returns measure
@@ -2429,26 +2450,22 @@ SCENARIO("The Sensor::output method works correctly when read buffer is not as e
         auto status1 = sensor.get_state();
         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
       }
+      auto output_status19 = sensor.output(flow);
+      THEN("The 20th output method call returns failed state") {
+        REQUIRE(output_status19 == PF::InitializableState::failed);
+      }
+      THEN("After the 20th output method call, get_state method returns measure action") {
+        auto status1 = sensor.get_state();
+        REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
+      }
+
       THEN("The output parameter flow remains 20.5") { REQUIRE(flow == 20.5F); }
       constexpr size_t buffer_size = 50UL;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer3;
       size_t count = buffer_size;
-      mock_device.get_write(input_buffer.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      mock_device.get_write(input.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      mock_device.get_write(input1.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      mock_device.get_write(input2.buffer(), count);
+      auto status = mock_device.get_write(input_buffer3.buffer(), count);
       THEN("The mock_device I2C's write buffer remains unchanged") {
-        REQUIRE(input_buffer[0] == 0xE1);
-        REQUIRE(input_buffer[1] == 0x02);
-        REQUIRE(input[0] == 0x36);
-        REQUIRE(input[1] == 0x61);
-        REQUIRE(input1[0] == 0x36);
-        REQUIRE(input1[1] == 0x6A);
-        REQUIRE(input2[0] == 0x36);
-        REQUIRE(input2[1] == 0x03);
+        REQUIRE(status == PF::I2CDeviceStatus::no_new_data);
       }
       THEN("The mock_device I2C's read buffer is empty") {
         auto read_status = mock_device.read(input_buffer.buffer(), count);
