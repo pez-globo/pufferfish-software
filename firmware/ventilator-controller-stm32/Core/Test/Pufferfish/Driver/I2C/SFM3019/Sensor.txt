@@ -95,7 +95,8 @@ SCENARIO: The Sensor::setup method works correctly when flow is greater than the
       THEN('The global_device I2C's read buffer remains unchanged') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
-SCENARIO: The Sensor::setup method works correctly when resetter is set to true 
+SCENARIO: The Sensor::setup method works correctly when resetter is set to true
+//reseter is set to true 
   GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 '
       'a9 00 00 81] (as valid read_product_id response) followed by [00 aa a6 a0 00 7e 00 00 81](as valid read_conversion_factor response)and ' 
       [15 35 a8](as valid read_sample response) and junk bytes [01 02], reseter is set to true and mock time is set to 100us,'
@@ -113,7 +114,7 @@ SCENARIO: The Sensor::setup method works correctly when resetter is set to true
       THEN('The global_device I2C's write buffer contains [06] byte') 
 
 SCENARIO: The Sensor::setup method works correctly when mock read buffer is different than expected, setup method retries for maximum allowed times 
-  // wrong data for product id, after 8 tries it fails
+  // wrong data for product id, after 8 fault_counts it fails
   GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consisting of[00 aa a6 a0 00 7e 01 48 f1]  (as  invalid read_product_id response) '
       ' reseter is set to false and mock time is set to 100us,'
       'global device's mock write buffer is set to [01] byte and read buffer is set to [01 02] bytes') 
@@ -125,7 +126,7 @@ SCENARIO: The Sensor::setup method works correctly when mock read buffer is diff
       THEN('The global_device I2C's read buffer remains unchanged') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
-  //first 4 retry_count fails, it passes on next count
+  //first 4 fault_counts fails, it passes on next count
   GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consists of 4 repetition '
       'of[00 aa a6 a0 00 7e 00 00 81](as invalid read_product_id response) followed by [04 02 60 06 11 a9 00 00 81] (as valid '
       'read_product_id response) and[00 aa a6 a0 00 7e 00 00 81](as valid read_conversion_factor response) and [15 35 '
@@ -144,7 +145,7 @@ SCENARIO: The Sensor::setup method works correctly when mock read buffer is diff
       THEN('The global_device I2C's write buffer remains unchanged') 
 
 SCENARIO: The Sensor::setup method works correctly when mock read buffer for read_product_id is different than expected, setup method retries for maximum allowed tries 
-  // wrong read buffer for read_product_id conditions(first 7 retry_count fails), it passes on last count
+  // wrong read buffer for read_product_id conditions(first 7 fault_counts fails), it passes on last count
   GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consists of 7 repetition of[00 aa a6 a0 00 7e 00 00 81] bytes (as invalid response)'
       ' followed by [04 02 60 06 11 a9 00 00 81] (as valid read_product_id response) and[00 aa a6 a0 00 7e 00 00 81](as valid read_conversion_factor response)'
       ' and [15 35 a8](as read_sample response) and junk bytes [01 02], reseter is set to false and mock time set to 100us,'
@@ -162,7 +163,7 @@ SCENARIO: The Sensor::setup method works correctly when mock read buffer for rea
       THEN('The global_device I2C's write buffer remains unchanged') 
 
 SCENARIO: The Sensor::setup method works correctly when mock read buffer for read_conversion_factor is different than expected, setup method retries for maximum allowed times
-  // read buffer for read_conversion_factor is wrong, after 8 tries it fails
+  // read buffer for read_conversion_factor is wrong, after 8 fault_counts it fails
   GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 a9 00 00 81] (as a valid read_product_id response)'
       'followed by [04 02 60 06 11 a9 00 00 81](as invalid read_conversion_factor response), reseter is set '
       'to false and mock time is set to 100us, global device's mock write buffer is set to [01] byte and read buffer is set to [01 02] bytes') 
@@ -174,7 +175,7 @@ SCENARIO: The Sensor::setup method works correctly when mock read buffer for rea
       THEN('The global_device I2C's read buffer remains unchanged') 
       THEN('The global_device I2C's write buffer remains unchanged') 
 
-  // wrong read buffer for read_conversion_factors conditions(first 7 retry_count fails), it passes on last count
+  // wrong read buffer for read_conversion_factors conditions(first 7 fault_counts fails), it passes on last count
   GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 a9 00 00 81] (as a valid read_product_id response) '
       'followed by 7 repetition of [04 02 60 06 11 a9 00 00 81] bytes(invalid read_conversion_factor '
       'response) and [00 aa a6 a0 00 7e 00 00 81](as valid read_conversion_factor response) and[15 35 a8](as read_sample response) '
@@ -194,7 +195,7 @@ SCENARIO: The Sensor::setup method works correctly when mock read buffer for rea
 
 SCENARIO: The Sensor::setup method works correctly when mock read buffer is different than expected , setup method retries for maximum allowed times and fails 
   // 4 repetition invalid read product id buffer , 1 valid read_product_id buffer, 5 repetition of invalid read_conversion_factor buffer  and 1 valid  read_conversion_factor buffer.
-  //  Exceeds max retries, setup returns failed state
+  //  Exceeds max fault_counts, setup returns failed state
   GIVEN('SFMC3019 sensor is created with mock I2C device with read buffer consisting 4 repetition '
       'of[00 aa a6 a0 00 7e 01 48 f1] bytes  (invalid read_product_id response) followed by [04 02 60 06 11 a9 00 00 '
       '81](as valid read_product_id response), and 5 repetition of [04 02 60 06 11 a9 00 00 81]bytes '
@@ -294,22 +295,22 @@ SCENARIO: The Sensor::output method works correctly, when sensor is partially in
 SCENARIO: The Sensor::output method works correctly when read buffer is corrupted 
   GIVEN('SFMC3019 sensor is fully initialised by calling setup method repeatedly until it returns ok and'
       'get_state returns wait_measurement, the mock time is set to 100us, 
-      'global device's mock write buffer is set to [01] byte and read buffer is set to [01 02].'
-      'The mock_device I2C's read buffer consists of 8 repition of[0f 80 4b]bytes (as invalid read_sample response) followed by junk bytes [01 02], and mock_device I2C's write buffer is emptied output') 
-    // Wrong read buffer, 8 repetition of bytes, retry count execeeds its maximum allowed value, output method falis
-    //for 19th output method, retry count reaches 9, and then setup method fails 
-    //Output method fails, hence flow remains same. Action returns measure
-    WHEN('The output method is called nineteen times with mock time set in regular patterns of [1000, 1000, 1500, 1500 2000, 2000 ...., 5000, 5000]us and output parameter flow is initialized to 20.5') 
-      THEN('Each of eighteen output method calls return ok state') 
+      'global device's mock write buffer is set to [01] byte and read buffer is set to [01 02];'
+      'The mock_device I2C's read buffer consists of 9 repition of[0f 80 4b]bytes (as invalid read_sample response) followed by junk bytes [01 02], and mock_device I2C's write buffer is emptied out') 
+    // Wrong 9 repetition of bytes in read buffer, fault_count execeeds its maximum allowed value, output method call fails
+    //for 19th output method, fault_count reaches 9, and then output method call fails 
+    //Output method never changes output parameter flow. get_state method call returns measure action
+    WHEN('The output method is called twenn times with mock time set in a regular patterns of [1000, 1000, 1500, 1500 2000, 2000 ...., 5000, 5000,5500]us and output parameter flow is initialized to 20.5') 
+      THEN('Each of first eighteen output method calls return ok state') 
       THEN('After each of thoese output method calls, output parameter flow remains 20.5') 
-      THEN("After the  0th,2nd,4th...,16th output method calls, get_state methods returns wait_measurement action")
-      THEN("After the 1st,3rd,4th...,17th output methid calles, get_state methods returns measure action")      
+      THEN("After the  0th,2nd,4th...,18th output method calls, get_state methods returns wait_measurement action")
+      THEN("After the 1st,3rd,5th...,17th output methid calles, get_state methods returns measure action")      
       THEN('The nineteenth output method call returns failed state') 
       THEN('After the nineteenth output method call, get_state method returns measure action') 
-      THEN('The 20th output method call returns failed state')
+      THEN('The 20th output method call also returns failed state')
       THEN('After the 20th output method call, get_state method returns measure action')
       THEN('The output parameter flow remains 20.5') 
       THEN('The mock_device I2C's write buffer remains unchanged') 
-      THEN('The mock_device I2C's read buffer becomes empty') 
+      THEN('The mock_device I2C's read buffer only contains junk bytes [01 02]') 
       THEN('The global_device I2C's read buffer reamains unchanged') 
       THEN('The global_device I2C's write buffer remains unchanged') 

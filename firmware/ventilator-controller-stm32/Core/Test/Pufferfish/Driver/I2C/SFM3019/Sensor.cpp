@@ -400,7 +400,7 @@ SCENARIO(
     auto read_buffer3 = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
     global_device.add_read(read_buffer3.data(), read_buffer3.size());
 
-    // normal case, Action goes from wait_warmup-check_range
+    // normal case, get_state goes from wait_warmup-check_range action
 
     WHEN(
         "The setup method is called twice , mock time is set to [100, 31000]us before each "
@@ -516,7 +516,7 @@ SCENARIO(
     auto read_buffer3 = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
     global_device.add_read(read_buffer3.data(), read_buffer3.size());
 
-    // normal case, action goes from check_range to wait_measurement
+    // normal case, get_state goes from check_range to wait_measurement action
     WHEN(
         "The setup method is called thrice , mock time is set to [100, 31000, 31000]us before each "
         "corresponding setup call") {
@@ -629,7 +629,7 @@ SCENARIO(
     global_device.add_read(read_buffer3.data(), read_buffer3.size());
 
     // Enough time is not elapsed between two setup calls, timeout condition is not satisfied
-    //  Action remains wait_warmup instead of check_range
+    //  get_state returns wait_warmup instead of check_range
     WHEN(
         "The setup method is called twice, mock time is set to [100, 5000]us before each "
         "corresponding setup call") {
@@ -1064,7 +1064,7 @@ SCENARIO("The Sensor::setup method works correctly when resetter is set to true"
 SCENARIO(
     "The Sensor::setup method works correctly when mock read buffer is different than expected, "
     "setup method retries for maximum allowed times") {
-  // wrong data for product id, after 8 tries it fails
+  // wrong data for product id, after 8 fault_counts it fails
   GIVEN(
       "SFMC3019 sensor is created with mock I2C device with read buffer consisting of[00 aa a6 a0 "
       "00 7e 01 48 f1]  (as  invalid read_product_id response) "
@@ -1124,7 +1124,7 @@ SCENARIO(
     }
   }
 
-  //   // First 36 bytes fails read_product_id conditions(first 4 retry_count fails), it passes on
+  //   // First 36 bytes fails read_product_id conditions(first 4 fault_counts fails), it passes on
   //   next count
   GIVEN(
       "SFMC3019 sensor is created with mock I2C device with read buffer consists of 4 repetition "
@@ -1251,7 +1251,7 @@ SCENARIO(
     "The Sensor::setup method works correctly when mock read buffer for read_product_id is "
     "different than expected, "
     "setup method retries for maximum allowed tries") {
-  // wrong read buffer for read_product_id conditions(first 7 retry_count fails), it passes on last
+  // wrong read buffer for read_product_id conditions(first 7 fault_counts fails), it passes on last
   // count
   GIVEN(
       "SFMC3019 sensor is created with mock I2C device with read buffer consists of 7 repetition "
@@ -1386,7 +1386,7 @@ SCENARIO(
     "The Sensor::setup method works correctly when mock read buffer for read_conversion_factor  is "
     "different than expected, "
     "setup method retries for maximum allowed times") {
-  // read buffer for read_conversion_factor is wrong, after 8 tries it fails
+  // read buffer for read_conversion_factor is wrong, after 8 fault_counts it fails
   GIVEN(
       "SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 "
       "a9 00 00 81] (as a valid read_product_id response)"
@@ -1458,7 +1458,7 @@ SCENARIO(
     }
   }
 
-  // wrong read buffer for read_conversion_factors conditions(first 7 retry_count fails), it passes
+  // wrong read buffer for read_conversion_factors conditions(first 7 fault_counts fails), it passes
   // on last count
   GIVEN(
       "SFMC3019 sensor is created with mock I2C device with read buffer consists of[04 02 60 06 11 "
@@ -1595,7 +1595,7 @@ SCENARIO(
     "setup method retries for maximum allowed times and fails") {
   // 4 invalid read product id , 1 valid read_product_id, 5 invalid read_conversion_factor and 1
   // valid one.
-  //  Exceeds max retries, setup returns failed state
+  //  Exceeds max fault_counts, setup returns failed state
   GIVEN(
       "SFMC3019 sensor is created with mock I2C device with read buffer consisting 4 repetition "
       "of[00 "
@@ -2055,7 +2055,7 @@ SCENARIO("The Sensor::output method works correctly, when sensor is partially in
       "buffer is set to [01] byte and read buffer is set to [01 02] bytes"
       "and mock_device I2C's write buffer contains command byte [E1 02](request_product_id), [36 "
       "61](read_conversion), [36 6A](set_averaging) and [36 03](O2 gas)") {
-    // Action is wait_warmup, output method fails
+    // Action is wait_warmup, output method remains in setup state
     // flow does not get updated
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
@@ -2161,7 +2161,7 @@ SCENARIO("The Sensor::output method works correctly, when sensor is partially in
       "buffer is set to [01] byte and read buffer is set to [01 02] bytes"
       "and mock_device I2C's write buffer contains command byte [E1 02](request_product_id), [36 "
       "61](read_conversion), [36 6A](set_averaging) and [36 03](O2 gas)") {
-    // Action is check_range, output method fails
+    // Action is check_range, output method remains in setup state
     PF::HAL::Mock::I2CDevice mock_device;
     PF::HAL::Mock::I2CDevice global_device;
     float flow = 20.5;
@@ -2297,12 +2297,16 @@ SCENARIO("The Sensor::output method works correctly when read buffer is not as e
     mock_device.add_read(junk_data3.data(), junk_data3.size());
     auto junk_data4 = PF::Util::Containers::make_array<uint8_t>(0x0f, 0x80, 0x4b);
     mock_device.add_read(junk_data4.data(), junk_data4.size());
-    auto junk_data5 = PF::Util::Containers::make_array<uint8_t>(0x0f, 0x80, 0x4b2);
+    auto junk_data5 = PF::Util::Containers::make_array<uint8_t>(0x0f, 0x80, 0x4b);
     mock_device.add_read(junk_data5.data(), junk_data5.size());
     auto junk_data6 = PF::Util::Containers::make_array<uint8_t>(0x0f, 0x80, 0x4b);
     mock_device.add_read(junk_data6.data(), junk_data6.size());
     auto junk_data7 = PF::Util::Containers::make_array<uint8_t>(0x0f, 0x80, 0x4b);
     mock_device.add_read(junk_data7.data(), junk_data7.size());
+    auto junk_data8 = PF::Util::Containers::make_array<uint8_t>(0x0f, 0x80, 0x4b);
+    mock_device.add_read(junk_data8.data(), junk_data8.size());
+    auto junk_data9 = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
+    mock_device.add_read(junk_data9.data(), junk_data9.size());
     auto read_buffer3 = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
     global_device.add_read(read_buffer3.data(), read_buffer3.size());
 
@@ -2450,6 +2454,7 @@ SCENARIO("The Sensor::output method works correctly when read buffer is not as e
         auto status1 = sensor.get_state();
         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::measure);
       }
+      time.set_micros(5500);
       auto output_status19 = sensor.output(flow);
       THEN("The 20th output method call returns failed state") {
         REQUIRE(output_status19 == PF::InitializableState::failed);
@@ -2469,7 +2474,9 @@ SCENARIO("The Sensor::output method works correctly when read buffer is not as e
       }
       THEN("The mock_device I2C's read buffer is empty") {
         auto read_status = mock_device.read(input_buffer.buffer(), count);
-        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+        REQUIRE(read_status == PF::I2CDeviceStatus::ok);
+        REQUIRE(input_buffer[0] == 0x01);
+        REQUIRE(input_buffer[1] == 0x02);
       }
       THEN("The global_device I2C's read buffer reamains unchanged") {
         constexpr size_t buffer_size = 254UL;

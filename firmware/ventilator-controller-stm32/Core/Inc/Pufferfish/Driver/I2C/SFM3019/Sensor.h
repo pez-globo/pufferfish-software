@@ -63,17 +63,17 @@ class Sensor : public Initializable {
   static const uint16_t flow_unit =
       make_flow_unit(UnitPrefix::none, TimeBase::per_min, Unit::standard_liter_20deg);
   static const uint32_t averaging_window = 0;
-  static constexpr float flow_min = -200;       // L/min
-  static constexpr float flow_max = 200;        // L/min
-  static const size_t max_retries_setup = 8;    // max retries for all setup steps combined
-  static const size_t max_retries_measure = 8;  // max retries between valid outputs
+  static constexpr float flow_min = -200;      // L/min
+  static constexpr float flow_max = 200;       // L/min
+  static const size_t max_faults_setup = 8;    // max retries for all setup steps combined
+  static const size_t max_faults_measure = 8;  // max retries between valid outputs
 
   const bool resetter;
 
   Device &device_;
   StateMachine fsm_;
   InitializableState prev_state_ = InitializableState::setup;
-  size_t retry_count_ = 0;
+  size_t fault_count_ = 0;
 
   ConversionFactors conversion_{};
 

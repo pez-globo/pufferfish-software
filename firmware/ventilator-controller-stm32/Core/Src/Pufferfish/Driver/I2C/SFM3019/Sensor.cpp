@@ -123,16 +123,16 @@ InitializableState Sensor::output(float &flow) {
 }
 
 InitializableState Sensor::initialize() {
-  if (retry_count_ > max_retries_setup) {
+  if (fault_count_ > max_faults_setup) {
     return InitializableState::failed;
   }
 
-  retry_count_ = 0;
+  fault_count_ = 0;
   // Reset the device
   if (resetter) {
     while (device_.reset() != I2CDeviceStatus::ok) {
-      ++retry_count_;
-      if (retry_count_ > max_retries_setup) {
+      ++fault_count_;
+      if (fault_count_ > max_faults_setup) {
         return InitializableState::failed;
       }
     }
@@ -142,8 +142,8 @@ InitializableState Sensor::initialize() {
   time_.delay(power_up_delay);
   // Request product_id
   while (device_.request_product_id() != I2CDeviceStatus::ok) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
+    ++fault_count_;
+    if (fault_count_ > max_faults_setup) {
       return InitializableState::failed;
     }
   }
@@ -151,16 +151,16 @@ InitializableState Sensor::initialize() {
   // Read product number
   uint32_t pn = 0;
   while (device_.read_product_id(pn) != I2CDeviceStatus::ok || pn != product_number) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
+    ++fault_count_;
+    if (fault_count_ > max_faults_setup) {
       return InitializableState::failed;
     }
   }
 
   // Request conversion factors
   while (device_.request_conversion_factors() != I2CDeviceStatus::ok) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
+    ++fault_count_;
+    if (fault_count_ > max_faults_setup) {
       return InitializableState::failed;
     }
   }
@@ -170,29 +170,29 @@ InitializableState Sensor::initialize() {
   while (device_.read_conversion_factors(conversion_) != I2CDeviceStatus::ok ||
          conversion_.scale_factor != scale_factor || conversion_.offset != offset ||
          conversion_.flow_unit != flow_unit) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
+    ++fault_count_;
+    if (fault_count_ > max_faults_setup) {
       return InitializableState::failed;
     }
   }
 
   // Set the averaging window size
   while (device_.set_averaging(averaging_window) != I2CDeviceStatus::ok) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
+    ++fault_count_;
+    if (fault_count_ > max_faults_setup) {
       return InitializableState::failed;
     }
   }
 
   // Start continuous measurement
   while (device_.start_measure() != I2CDeviceStatus::ok) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
+    ++fault_count_;
+    if (fault_count_ > max_faults_setup) {
       return InitializableState::failed;
     }
   }
 
-  retry_count_ = 0;  // reset retries to 0 for measuring
+  fault_count_ = 0;  // reset retries to 0 for measuring
   return InitializableState::setup;
 }
 
@@ -203,24 +203,24 @@ InitializableState Sensor::check_range() {
     return InitializableState::ok;
   }
 
-  ++retry_count_;
-  if (retry_count_ > max_retries_setup) {
+  ++fault_count_;
+  if (fault_count_ > max_faults_setup) {
     return InitializableState::failed;
   }
-  retry_count_ = 0;
+  fault_count_ = 0;
   return InitializableState::setup;
 }
 
 InitializableState Sensor::measure(float &flow) {
   Sample sample{};
   if (device_.read_sample(conversion_, sample) == I2CDeviceStatus::ok) {
-    retry_count_ = 0;  // reset retries to 0 for next measurement
+    fault_count_ = 0;  // reset retries to 0 for next measurement
     flow = sample.flow;
     return InitializableState::ok;
   }
 
-  ++retry_count_;
-  if (retry_count_ > max_retries_measure) {
+  ++fault_count_;
+  if (fault_count_ > max_faults_setup) {
     return InitializableState::failed;
   }
   return InitializableState::ok;
