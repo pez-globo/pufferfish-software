@@ -40,48 +40,99 @@ StateMachine::Action StateMachine::update(uint32_t current_time_us) {
   return next_action_;
 }
 
+StateMachine::Action StateMachine::output() {
+  return next_action_;
+}
+
 // Sensor
 
+StateMachine::Action Sensor::get_state() {
+  return fsm_.output();
+}
+
 InitializableState Sensor::setup() {
-  switch (next_action_) {
-    case Action::initialize:
-      return initialize(time_.micros());
-    case Action::wait_warmup:
-      next_action_ = fsm_.update(time_.micros());
-      return InitializableState::setup;
-    case Action::check_range:
-      return check_range(time_.micros());
-    case Action::measure:
-    case Action::wait_measurement:
-      return InitializableState::ok;
+  if (prev_state_ != InitializableState::setup) {
+    return prev_state_;
   }
-  return InitializableState::failed;
+
+  switch (fsm_.output()) {
+    case StateMachine::Action::initialize:
+      switch (initialize()) {
+        case InitializableState::setup:
+          fsm_.update(time_.micros());
+          prev_state_ = InitializableState::setup;
+          return prev_state_;
+        case InitializableState::ok:
+        case InitializableState::failed:
+          prev_state_ = InitializableState::failed;
+          return prev_state_;
+      }
+
+    case StateMachine::Action::wait_warmup:
+      fsm_.update(time_.micros());
+      prev_state_ = InitializableState::setup;
+      return prev_state_;
+    case StateMachine::Action::check_range:
+      switch (check_range()) {
+        case InitializableState::ok:
+          fsm_.update(time_.micros());
+          prev_state_ = InitializableState::ok;
+          return prev_state_;
+        case InitializableState::setup:
+          prev_state_ = InitializableState::setup;
+          return prev_state_;
+        case InitializableState::failed:
+          prev_state_ = InitializableState::failed;
+          return prev_state_;
+      }
+    case StateMachine::Action::measure:
+    case StateMachine::Action::wait_measurement:
+      prev_state_ = InitializableState::ok;
+      return prev_state_;
+  }
+  prev_state_ = InitializableState::failed;
+  return prev_state_;
 }
 
 InitializableState Sensor::output(float &flow) {
-  switch (next_action_) {
-    case Action::measure:
-      return measure(time_.micros(), flow);
-    case Action::wait_measurement:
-      next_action_ = fsm_.update(time_.micros());
-      return InitializableState::ok;
+  if (prev_state_ != InitializableState::ok) {
+    return prev_state_;
+  }
+
+  switch (fsm_.output()) {
+    case StateMachine::Action::measure:
+      switch (measure(flow)) {
+        case InitializableState::ok:
+          fsm_.update(time_.micros());
+          prev_state_ = InitializableState::ok;
+          return prev_state_;
+        case InitializableState::setup:
+        case InitializableState::failed:
+          prev_state_ = InitializableState::failed;
+          return prev_state_;
+      }
+    case StateMachine::Action::wait_measurement:
+      fsm_.update(time_.micros());
+      prev_state_ = InitializableState::ok;
+      return prev_state_;
     default:
       break;
   }
-  return InitializableState::failed;
+  prev_state_ = InitializableState::failed;
+  return prev_state_;
 }
 
-InitializableState Sensor::initialize(uint32_t current_time_us) {
-  if (retry_count_ > max_retries_setup) {
+InitializableState Sensor::initialize() {
+  if (fault_count_ > max_faults_setup) {
     return InitializableState::failed;
   }
 
-  retry_count_ = 0;
+  fault_count_ = 0;
   // Reset the device
   if (resetter) {
     while (device_.reset() != I2CDeviceStatus::ok) {
-      ++retry_count_;
-      if (retry_count_ > max_retries_setup) {
+      ++fault_count_;
+      if (fault_count_ > max_faults_setup) {
         return InitializableState::failed;
       }
     }
@@ -89,27 +140,27 @@ InitializableState Sensor::initialize(uint32_t current_time_us) {
 
   // Wait for power-up
   time_.delay(power_up_delay);
-
   // Request product_id
   while (device_.request_product_id() != I2CDeviceStatus::ok) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
+    ++fault_count_;
+    if (fault_count_ > max_faults_setup) {
       return InitializableState::failed;
     }
   }
 
   // Read product number
-  while (device_.read_product_id(pn_) != I2CDeviceStatus::ok || pn_ != product_number) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
+  uint32_t pn = 0;
+  while (device_.read_product_id(pn) != I2CDeviceStatus::ok || pn != product_number) {
+    ++fault_count_;
+    if (fault_count_ > max_faults_setup) {
       return InitializableState::failed;
     }
   }
 
   // Request conversion factors
   while (device_.request_conversion_factors() != I2CDeviceStatus::ok) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
+    ++fault_count_;
+    if (fault_count_ > max_faults_setup) {
       return InitializableState::failed;
     }
   }
@@ -119,61 +170,59 @@ InitializableState Sensor::initialize(uint32_t current_time_us) {
   while (device_.read_conversion_factors(conversion_) != I2CDeviceStatus::ok ||
          conversion_.scale_factor != scale_factor || conversion_.offset != offset ||
          conversion_.flow_unit != flow_unit) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
+    ++fault_count_;
+    if (fault_count_ > max_faults_setup) {
       return InitializableState::failed;
     }
   }
 
   // Set the averaging window size
   while (device_.set_averaging(averaging_window) != I2CDeviceStatus::ok) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
+    ++fault_count_;
+    if (fault_count_ > max_faults_setup) {
       return InitializableState::failed;
     }
   }
 
   // Start continuous measurement
   while (device_.start_measure() != I2CDeviceStatus::ok) {
-    ++retry_count_;
-    if (retry_count_ > max_retries_setup) {
+    ++fault_count_;
+    if (fault_count_ > max_faults_setup) {
       return InitializableState::failed;
     }
   }
 
-  next_action_ = fsm_.update(current_time_us);
-  retry_count_ = 0;  // reset retries to 0 for measuring
+  fault_count_ = 0;  // reset retries to 0 for measuring
   return InitializableState::setup;
 }
 
-InitializableState Sensor::check_range(uint32_t current_time_us) {
-  if (device_.read_sample(conversion_, sample_) == I2CDeviceStatus::ok &&
-      sample_.flow >= flow_min && sample_.flow <= flow_max) {
-    next_action_ = fsm_.update(current_time_us);
+InitializableState Sensor::check_range() {
+  Sample sample{};
+  if (device_.read_sample(conversion_, sample) == I2CDeviceStatus::ok && sample.flow >= flow_min &&
+      sample.flow <= flow_max) {
     return InitializableState::ok;
   }
 
-  ++retry_count_;
-  if (retry_count_ > max_retries_setup) {
+  ++fault_count_;
+  if (fault_count_ > max_faults_setup) {
     return InitializableState::failed;
   }
-
+  fault_count_ = 0;
   return InitializableState::setup;
 }
 
-InitializableState Sensor::measure(uint32_t current_time_us, float &flow) {
-  if (device_.read_sample(conversion_, sample_) == I2CDeviceStatus::ok) {
-    retry_count_ = 0;  // reset retries to 0 for next measurement
-    flow = sample_.flow;
-    next_action_ = fsm_.update(current_time_us);
+InitializableState Sensor::measure(float &flow) {
+  Sample sample{};
+  if (device_.read_sample(conversion_, sample) == I2CDeviceStatus::ok) {
+    fault_count_ = 0;  // reset retries to 0 for next measurement
+    flow = sample.flow;
     return InitializableState::ok;
   }
 
-  ++retry_count_;
-  if (retry_count_ > max_retries_measure) {
+  ++fault_count_;
+  if (fault_count_ > max_faults_setup) {
     return InitializableState::failed;
   }
-
   return InitializableState::ok;
 }
 

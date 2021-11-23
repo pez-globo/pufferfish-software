@@ -28,7 +28,8 @@ class StateMachine {
  public:
   enum class Action { initialize, wait_warmup, check_range, measure, wait_measurement };
 
-  [[nodiscard]] Action update(uint32_t current_time_us);
+  Action update(uint32_t current_time_us);
+  Action output();
 
  private:
   static const uint32_t warming_up_duration_us = 30000;  // us
@@ -50,9 +51,9 @@ class Sensor : public Initializable {
   InitializableState setup() override;
   InitializableState output(float &flow);
 
- private:
-  using Action = StateMachine::Action;
+  StateMachine::Action get_state();
 
+ private:
   static const uint32_t power_up_delay = 2;  // ms
   static const uint32_t product_number = 0x04020611;
   static const uint32_t read_conv_delay_us = 20;  // us
@@ -62,27 +63,25 @@ class Sensor : public Initializable {
   static const uint16_t flow_unit =
       make_flow_unit(UnitPrefix::none, TimeBase::per_min, Unit::standard_liter_20deg);
   static const uint32_t averaging_window = 0;
-  static constexpr float flow_min = -200;       // L/min
-  static constexpr float flow_max = 200;        // L/min
-  static const size_t max_retries_setup = 8;    // max retries for all setup steps combined
-  static const size_t max_retries_measure = 8;  // max retries between valid outputs
+  static constexpr float flow_min = -200;      // L/min
+  static constexpr float flow_max = 200;       // L/min
+  static const size_t max_faults_setup = 8;    // max retries for all setup steps combined
+  static const size_t max_faults_measure = 8;  // max retries between valid outputs
 
   const bool resetter;
 
   Device &device_;
   StateMachine fsm_;
-  Action next_action_ = Action::initialize;
-  size_t retry_count_ = 0;
+  InitializableState prev_state_ = InitializableState::setup;
+  size_t fault_count_ = 0;
 
-  uint32_t pn_ = 0;
   ConversionFactors conversion_{};
-  Sample sample_{};
 
   HAL::Interfaces::Time &time_;
 
-  InitializableState initialize(uint32_t current_time);
-  InitializableState check_range(uint32_t current_time_us);
-  InitializableState measure(uint32_t current_time_us, float &flow);
+  InitializableState initialize();
+  InitializableState check_range();
+  InitializableState measure(float &flow);
 };
 
 }  // namespace Pufferfish::Driver::I2C::SFM3019

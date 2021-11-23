@@ -77,12 +77,12 @@ class I2CDevice : public Interfaces::I2CDevice {
   I2CDeviceStatus write(uint8_t *buf, size_t count) override;
 
   /**
-   * @brief  Reads private buffer variable mWriteBuf and updates to buf
-   * @param  buf returns the data stored in write method
-   * @param  count buffer size to return
-   * @return None
+   * @brief  pops the data from write buffer's internal queue
+   * @param  buf returns data from head of internal queue
+   * @param  count[out] buffer size to return
+   * @return ok on sucess, error code otherwise
    */
-  void get_write(uint8_t *buf, size_t &count);
+  I2CDeviceStatus get_write(uint8_t *buf, size_t &count);
 
   /**
    * @brief  sets return_status_ private variable
@@ -102,8 +102,6 @@ class I2CDevice : public Interfaces::I2CDevice {
   std::queue<WriteBuffer> write_buf_queue_;
 
   I2CDeviceStatus return_status_ = I2CDeviceStatus::ok;
-
-  size_t write_count_ = 0;
 };
 
 }  // namespace Mock
