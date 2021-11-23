@@ -2446,6 +2446,7 @@ SCENARIO("The Sensor::output method works correctly when read buffer is not as e
       THEN("After each of thoese output method calls, output parameter flow remains 20.5") {
         REQUIRE(flow == 20.5F);
       }
+      time.set_micros(5500);
       auto output_status18 = sensor.output(flow);
       THEN("The 19th output method call returns failed state") {
         REQUIRE(output_status18 == PF::InitializableState::failed);
