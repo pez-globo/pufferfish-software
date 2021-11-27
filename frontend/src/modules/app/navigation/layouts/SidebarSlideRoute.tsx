@@ -9,7 +9,6 @@ import { Button, Drawer, Grid } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import ToolBar from '../../toolbar/ToolBar';
 import { ALARMS_ROUTE, SCREENSAVER_ROUTE } from '../constants';
-import { getAlarmNotifyStatus } from '../../../../store/app/selectors';
 import { commitDraftRequest } from '../../../../store/controller/actions';
 import {
   getAlarmLimitsRequest,
@@ -19,9 +18,9 @@ import { AlarmLimitsRequest } from '../../../../store/proto/mcu_pb';
 import { MessageType } from '../../../../store/proto/types';
 import { DiscardAlarmLimitsContent } from '../../../alarms/modal';
 import { ModalPopup } from '../../../shared';
-import OverlayScreen from '../../OverlayScreen';
 import SidebarClickable from '../../sidebar/SidebarClickable';
 import UserActivity from '../../UserActivity';
+import { getAlarmNotifyStatus } from '../../../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -167,7 +166,6 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
   const classes = useStyles();
   return (
     <React.Fragment>
-      <OverlayScreen />
       <Grid container justify="center" alignItems="stretch" className={classes.root}>
         <ContentComponent>{children}</ContentComponent>
       </Grid>

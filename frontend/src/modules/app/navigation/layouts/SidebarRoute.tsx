@@ -6,13 +6,12 @@
 import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React, { PropsWithChildren, useEffect } from 'react';
-import { Route, RouteProps } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { Route, RouteProps } from 'react-router-dom';
+import { getAlarmNotifyStatus } from '../../../../store/app/selectors';
 import Sidebar from '../../sidebar/Sidebar';
 import ToolBar from '../../toolbar/ToolBar';
 import UserActivity from '../../UserActivity';
-import OverlayScreen from '../../OverlayScreen';
-import { getAlarmNotifyStatus } from '../../../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -71,7 +70,6 @@ const SidebarLayout = ({ children }: PropsWithChildren<unknown>): JSX.Element =>
 
   return (
     <React.Fragment>
-      <OverlayScreen />
       <Grid container justify="center" alignItems="stretch" className={classes.root}>
         <ContentComponent>{children}</ContentComponent>
       </Grid>

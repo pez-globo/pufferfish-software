@@ -142,6 +142,9 @@ export interface ControllerStates {
 
   // Derived states
   plots: Plots;
+
+  // Dummy Null value
+  dummy: null;
 }
 
 // ACTIONS

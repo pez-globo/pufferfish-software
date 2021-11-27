@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import DECIMAL_RADIX from '../../modules/app/AppConstants';
+import DECIMAL_RADIX from '../../modules/app/constants';
 import {
   // Alarm Limits
   Range,

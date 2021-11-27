@@ -5,9 +5,9 @@
  */
 import { Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { VentilationMode } from '../../../store/proto/mcu_pb';
+import React, { useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { ParametersRequest, VentilationMode } from '../../../store/proto/mcu_pb';
 import {
   getParametersRequestMode,
   getParametersRequestDraftFiO2,
@@ -27,6 +27,8 @@ import {
   FLOW_REFERENCE_KEY,
 } from '../../settings/tabs/constants';
 import ParamValueSpinner from '../../shared/value/ParamValueSpinner';
+import { MessageType } from '../../../store/proto/types';
+import { commitDraftRequest } from '../../../store/controller/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -97,6 +99,20 @@ const useStyles = makeStyles((theme: Theme) => ({
  */
 const SetParameters = (): JSX.Element => {
   const classes = useStyles();
+  const dispatch = useDispatch();
+
+  const elRefsArray = {
+    [PEEP_REFERENCE_KEY]: useRef(null),
+    [RR_REFERENCE_KEY]: useRef(null),
+    [FIO2_REFERENCE_KEY]: useRef(null),
+    [TV_REFERENCE_KEY]: useRef(null),
+    [FLOW_REFERENCE_KEY]: useRef(null),
+  };
+
+  const updateParam = (key: string, value: number) => {
+    const update = { [key]: value } as Partial<ParametersRequest>;
+    dispatch(commitDraftRequest<ParametersRequest>(MessageType.ParametersRequest, update));
+  };
 
   const hfncModeContent = (
     <Grid container item xs={8} direction="column" className={classes.middleRightPanel}>
@@ -104,18 +120,20 @@ const SetParameters = (): JSX.Element => {
         <Grid item xs className={classes.rightBorder}>
           <ParamValueSpinner
             label="FiO2"
+            elRefsArray={elRefsArray}
             reference={FIO2_REFERENCE_KEY}
             selector={getParametersRequestDraftFiO2}
-            stateKey="fio2"
+            onClick={(value: number) => updateParam('fio2', value)}
             units={PERCENT}
           />
         </Grid>
         <Grid item xs>
           <ParamValueSpinner
             label="Flow"
+            elRefsArray={elRefsArray}
             reference={FLOW_REFERENCE_KEY}
             selector={getParametersRequestDraftFlow}
-            stateKey="flow"
+            onClick={(value: number) => updateParam('flow', value)}
             units={LMIN}
           />
         </Grid>
@@ -136,18 +154,20 @@ const SetParameters = (): JSX.Element => {
         <Grid item xs className={classes.rightBorder}>
           <ParamValueSpinner
             label="PEEP"
+            elRefsArray={elRefsArray}
             reference={PEEP_REFERENCE_KEY}
             selector={getParametersRequestDraftPEEP}
-            stateKey="peep"
+            onClick={() => null}
             units="cm H2O"
           />
         </Grid>
         <Grid item xs>
           <ParamValueSpinner
             label="RR"
+            elRefsArray={elRefsArray}
             reference={RR_REFERENCE_KEY}
             selector={getParametersRequestDraftRR}
-            stateKey="rr"
+            onClick={() => null}
             units={BPM}
           />
         </Grid>
@@ -156,18 +176,20 @@ const SetParameters = (): JSX.Element => {
         <Grid item xs className={classes.rightBorder}>
           <ParamValueSpinner
             label="FiO2"
+            elRefsArray={elRefsArray}
             reference={FIO2_REFERENCE_KEY}
             selector={getParametersRequestDraftFiO2}
-            stateKey="fio2"
+            onClick={() => null}
             units={PERCENT}
           />
         </Grid>
         <Grid item xs>
           <ParamValueSpinner
             label="TV"
+            elRefsArray={elRefsArray}
             reference={TV_REFERENCE_KEY}
             selector={getParametersRequestDraftVT}
-            stateKey="tv"
+            onClick={() => null}
             units="mL"
           />
         </Grid>

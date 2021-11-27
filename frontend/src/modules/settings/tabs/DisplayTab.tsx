@@ -3,24 +3,15 @@
  *
  * @file All the Display Settings are configured here
  */
-import {
-  Box,
-  Button,
-  FormControl,
-  Grid,
-  makeStyles,
-  Theme,
-  Typography,
-  useTheme,
-} from '@material-ui/core';
-import React, { RefObject, useEffect, useState, useRef } from 'react';
+import { Box, Button, FormControl, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
+import React, { useEffect, useState, useRef } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 import { ThemeVariant, Unit } from '../../../store/proto/frontend_pb';
 import {
   getFrontendDisplaySetting,
   getSystemSettingsRequest,
 } from '../../../store/controller/selectors/frontend_pb';
-import ValueSpinner from '../../shared/value/ValueSpinner';
 import { ToggleValue } from '../../shared/value/ToggleValue';
 import {
   BRIGHTNESS_REFERENCE_KEY,
@@ -30,8 +21,10 @@ import {
   DAY_REFERENCE_KEY,
   YEAR_REFERENCE_KEY,
 } from './constants';
-import { useRotaryReference } from '../../shared/rotary/useRotaryReference';
 import { setActiveRotaryReference } from '../../app/Service';
+import ParamValueSpinner from '../../shared/value/ParamValueSpinner';
+import { getController } from '../../../store/controller/selectors';
+import { ControllerStates } from '../../../store/controller/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -236,16 +229,14 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
    * This is an event listener which listens to user input on `ValueClicker` buttons click
    * Based on this event Border around Alarm's HTML wrapper is added/removed
    */
-  const [elRefs] = React.useState<Record<string, RefObject<HTMLDivElement>>>({
+  const elRefs = {
     [BRIGHTNESS_REFERENCE_KEY]: useRef(null),
     [HOUR_REFERENCE_KEY]: useRef(null),
     [MINUTE_REFERENCE_KEY]: useRef(null),
     [MONTH_REFERENCE_KEY]: useRef(null),
     [DAY_REFERENCE_KEY]: useRef(null),
     [YEAR_REFERENCE_KEY]: useRef(null),
-  });
-  const themeObj = useTheme();
-  const { initRefListener } = useRotaryReference(themeObj);
+  };
   const systemSettings = useSelector(getSystemSettingsRequest, shallowEqual);
   const displaySettings = useSelector(getFrontendDisplaySetting, shallowEqual);
   const [displayBrightness, setDisplayBrightness] = React.useState(
@@ -264,7 +255,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   // The UI design team may have forgotten that 12-hour format is not internationally standard,
   // and the 24-hour format may be more standard in medical settings.
   // TODO: maybe we should add a way to change the seconds?
-  // TODO: the ValueSpinners should roll over from max to min (and vice versa):
+  // TODO: the ParamValueSpinners should roll over from max to min (and vice versa):
   // e.g. it should be possible to increase the minute from 59 to 00
   // TODO: currently if we just want to change brightness, we still have to update the clock,
   // because pressing "Apply Changes" will cause dispatch of a new SystemSettings request.
@@ -275,10 +266,6 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
     date.getMonth() + 1,
   ); /* Note: `getMonth()` returns a value in [0, 11] */
   const [year, setYear] = React.useState(date.getFullYear());
-
-  useEffect(() => {
-    initRefListener(elRefs);
-  }, [initRefListener, elRefs]);
 
   /**
    * Listens to state change of date, period, minute, hour, day, month, year, unit, theme, brightness
@@ -308,7 +295,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
 
   /**
    * function for handling month change.
-   * callback from ValueSpinner whenever month is changed
+   * callback from ParamValueSpinner whenever month is changed
    *
    * @param {number} change - min 1 and max 12
    *
@@ -348,9 +335,10 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
         <Grid container item direction="column" className={classes.leftPanel}>
           {/* Brightness */}
           <Grid container item xs direction="row">
-            <ValueSpinner
-              reference={elRefs[BRIGHTNESS_REFERENCE_KEY]}
-              referenceKey={BRIGHTNESS_REFERENCE_KEY}
+            <ParamValueSpinner
+              elRefsArray={elRefs}
+              reference={BRIGHTNESS_REFERENCE_KEY}
+              selector={getDummyValue}
               value={displayBrightness}
               label="Brightness"
               units="%"
@@ -420,9 +408,10 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
         <Grid container item xs direction="column" className={classes.rightPanel}>
           <Grid container item xs alignItems="stretch" className={classes.borderBottom}>
             <Grid item xs className={classes.rightBorder}>
-              <ValueSpinner
-                reference={elRefs[HOUR_REFERENCE_KEY]}
-                referenceKey={HOUR_REFERENCE_KEY}
+              <ParamValueSpinner
+                elRefsArray={elRefs}
+                reference={HOUR_REFERENCE_KEY}
+                selector={getDummyValue}
                 value={hour}
                 label="Hour"
                 onClick={setHour}
@@ -431,9 +420,10 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
               />
             </Grid>
             <Grid item xs>
-              <ValueSpinner
-                reference={elRefs[MINUTE_REFERENCE_KEY]}
-                referenceKey={MINUTE_REFERENCE_KEY}
+              <ParamValueSpinner
+                elRefsArray={elRefs}
+                reference={MINUTE_REFERENCE_KEY}
+                selector={getDummyValue}
                 value={minute}
                 label="Minute"
                 onClick={setMinute}
@@ -466,9 +456,10 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
           </Grid>
           <Grid container item xs direction="row" className={classes.borderBottom}>
             <Grid item xs className={classes.rightBorder}>
-              <ValueSpinner
-                reference={elRefs[MONTH_REFERENCE_KEY]}
-                referenceKey={MONTH_REFERENCE_KEY}
+              <ParamValueSpinner
+                elRefsArray={elRefs}
+                selector={getDummyValue}
+                reference={MONTH_REFERENCE_KEY}
                 value={month}
                 label="Month"
                 onClick={handleMonthChange}
@@ -477,9 +468,10 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
               />
             </Grid>
             <Grid item xs>
-              <ValueSpinner
-                reference={elRefs[DAY_REFERENCE_KEY]}
-                referenceKey={DAY_REFERENCE_KEY}
+              <ParamValueSpinner
+                elRefsArray={elRefs}
+                selector={getDummyValue}
+                reference={DAY_REFERENCE_KEY}
                 value={day}
                 label="Day"
                 onClick={setDay}
@@ -491,9 +483,10 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
           </Grid>
           <Grid container item xs direction="row" className={classes.borderBottom}>
             <Grid item xs className={classes.rightBorder}>
-              <ValueSpinner
-                reference={elRefs[YEAR_REFERENCE_KEY]}
-                referenceKey={YEAR_REFERENCE_KEY}
+              <ParamValueSpinner
+                elRefsArray={elRefs}
+                selector={getDummyValue}
+                reference={YEAR_REFERENCE_KEY}
                 value={year}
                 label="Year"
                 onClick={setYear}
@@ -513,5 +506,10 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
     </Grid>
   );
 };
+
+const getDummyValue = createSelector(
+  getController,
+  (states: ControllerStates): null => states.dummy,
+);
 
 export default DisplayTab;

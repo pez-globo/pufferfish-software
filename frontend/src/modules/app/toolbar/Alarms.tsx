@@ -14,15 +14,15 @@ import {
   getAlarmMuteActive,
   getMostRecentEvent,
 } from '../../../store/controller/selectors';
-import { getEventType } from '../../event-logs/EventType';
+import { getEventType } from '../../events-log/EventType';
 import { LOGS_ROUTE } from '../navigation/constants';
 import BellIcon from './icons/BellIcon';
-import EventLogModal from '../../event-logs/EventLog';
 import {
   AlarmMuteCountdown,
   AlarmMuteToggleButton,
   AlarmMuteCanceller,
 } from '../../alarms/muting/AlarmMuting';
+import EventLogsModal from '../../events-log/EventsLogModal';
 
 const useStyles = makeStyles(() => ({
   iconBadge: {
@@ -191,14 +191,14 @@ export const Alarms = (): JSX.Element => {
    *
    * @param {boolean} filter Shows only active events if set true
    */
-  const openEventLogModal = (filter: boolean) => {
+  const openEventLogsModal = (filter: boolean) => {
     setOpen(true);
     setActiveFilter(filter);
   };
 
   return (
     <div style={{ display: 'flex' }}>
-      <EventLogModal
+      <EventLogsModal
         open={open}
         setOpen={setOpen}
         activeFilter={activeFilter}
@@ -212,7 +212,7 @@ export const Alarms = (): JSX.Element => {
           variant="contained"
           color="primary"
           onClick={() => {
-            openEventLogModal(false);
+            openEventLogsModal(false);
           }}
           className={classes.eventLogButton}
         >

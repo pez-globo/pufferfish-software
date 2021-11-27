@@ -20,7 +20,7 @@ import SimpleTable, {
   stableSort,
   StyledTableRow,
 } from '../shared/SimpleTable';
-import EventlogDetails from './container/EventlogDetails';
+import EventlogDetails from './container/EventsLogDetails';
 import { getEventDetails, getEventType } from './EventType';
 
 /**
