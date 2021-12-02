@@ -1,0 +1,5 @@
+Scenarion : setup behaves correctly when I2CDevice status is read_error
+Scenarion : similarly for other I2CDeviceStatus
+Scenarion : setup behaves correctly when I2CDeviceStatus is set to write error
+Scenarion : similarly for other I2CDeviceStatus
+
