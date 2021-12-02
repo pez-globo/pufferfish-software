@@ -23,8 +23,8 @@
 
 namespace Pufferfish::HAL::Mock {
 
+I2CDeviceStatus return_status;
 I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
-  I2CDeviceStatus return_status_;
   if (read_buf_queue_.empty()) {
     return I2CDeviceStatus::no_new_data;
   }
@@ -33,10 +33,10 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
   size_t minumum = (count < read_buf_size) ? count : read_buf_size;
 
   const auto &return_status_buf = read_status_queue_.front();
-  return_status_ = return_status_buf[index];
+  return_status = return_status_buf[index];
 
-  if (return_status_ != I2CDeviceStatus::ok) {
-    return return_status_;
+  if (return_status != I2CDeviceStatus::ok) {
+    return return_status;
   }
 
   const auto &read_buf = read_buf_queue_.front();
@@ -72,7 +72,6 @@ void I2CDevice::add_read(const uint8_t *buf, size_t count, I2CDeviceStatus &stat
   read_status_buf[index] = status;
 }
 
-I2CDeviceStatus return_status_;
 I2CDeviceStatus I2CDevice::write(uint8_t *buf, size_t count) {
   size_t index = 0;
   size_t write_count = 0;
@@ -80,10 +79,10 @@ I2CDeviceStatus I2CDevice::write(uint8_t *buf, size_t count) {
   write_status_queue_.emplace();
   auto &write_status_buf = write_status_queue_.back();
   write_status_buf[index] = get_return_status();
-  return_status_ = write_status_buf[index];
+  return_status = write_status_buf[index];
 
-  if (return_status_ != I2CDeviceStatus::ok) {
-    return return_status_;
+  if (return_status != I2CDeviceStatus::ok) {
+    return return_status;
   }
 
   write_buf_queue_.emplace();
@@ -105,10 +104,10 @@ I2CDeviceStatus I2CDevice::get_write(uint8_t *buf, size_t &count) {
   size_t index = 0;
   const auto &write_buf = write_buf_queue_.front();
   const auto &return_status_buf = write_status_queue_.front();
-  return_status_ = return_status_buf[index];
+  return_status = return_status_buf[index];
 
-  if (return_status_ != I2CDeviceStatus::ok) {
-    return return_status_;
+  if (return_status != I2CDeviceStatus::ok) {
+    return return_status;
   }
 
   count = write_buf.size();
@@ -123,11 +122,11 @@ I2CDeviceStatus I2CDevice::get_write(uint8_t *buf, size_t &count) {
 }
 
 void I2CDevice::set_return_status(I2CDeviceStatus input) {
-  return_status_ = input;
+  return_status = input;
 }
 
 I2CDeviceStatus I2CDevice::get_return_status() {
-  return return_status_;
+  return return_status;
 }
 
 }  // namespace Pufferfish::HAL::Mock
