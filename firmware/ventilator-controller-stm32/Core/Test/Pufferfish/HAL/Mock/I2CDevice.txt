@@ -1,0 +1,11 @@
+Scenarion : Read method works correctly when I2CDevice status is set to ok
+Scenarion : Read method works correctly when I2CDevice status is set to not supported 
+Scenarion : Read method works correctly when I2CDevice status is set to read error
+Scenarion : Read method works correctly when I2CDevice status is set to crc_check
+Scenarion: Read method works correctly when its called multiple times with diffrent I2CDeviceStatus 
+
+Scenarion: Write method works correctly when I2CDeviceStatus is set to ok
+Scenarion: Write method works correctly when I2CDeviceStatus is set to crc_check
+Scenarion: Write method works correctly when I2CDeviceStatus is set to test failed
+Scenarion: Write method works correctly when I2CDeviceStatus is set to write error
+Scenarion: Write method works correctly when  called multiple times with diffrent I2CDeviceStatus

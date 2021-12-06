@@ -66,7 +66,7 @@ class I2CDevice : public Interfaces::I2CDevice {
    * @return None
    */
 
-  void add_read(const uint8_t *buf, size_t count, I2CDeviceStatus &status);
+  void add_read(const uint8_t *buf, size_t count, I2CDeviceStatus status);
 
   /**
    * @brief  Updates the private buffer variable mWriteBuf with the input data
@@ -89,31 +89,19 @@ class I2CDevice : public Interfaces::I2CDevice {
    * @param  input I2CDeviceStatus
    * @return None
    */
-  void set_return_status(I2CDeviceStatus input);
-
-  /**
-   * @brief  gets return_status_ private variable
-   * @param  None
-   * @return I2CDeviceStatus
-   */
-
-  I2CDeviceStatus get_return_status();
+  void add_write_status(I2CDeviceStatus input);
 
  private:
   static const uint8_t read_buf_size = 50;
   static const uint8_t write_buf_size = 50;
-  static const uint8_t read_status_size = 50;
-  static const uint8_t write_status_size = 50;
 
   using ReadBuffer = std::array<uint8_t, read_buf_size>;
   using WriteBuffer = std::array<uint8_t, write_buf_size>;
-  using ReadBuffer1 = std::array<I2CDeviceStatus, read_status_size>;
-  using WriteBuffer1 = std::array<I2CDeviceStatus, write_status_size>;
 
   std::queue<ReadBuffer> read_buf_queue_;
-  std::queue<ReadBuffer1> read_status_queue_;
+  std::queue<I2CDeviceStatus> read_status_queue_;
   std::queue<WriteBuffer> write_buf_queue_;
-  std::queue<WriteBuffer1> write_status_queue_;
+  std::queue<I2CDeviceStatus> write_status_queue_;
 };
 
 }  // namespace Mock

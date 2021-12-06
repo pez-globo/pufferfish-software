@@ -384,133 +384,132 @@ namespace PF = Pufferfish;
 //   }
 // }
 
-SCENARIO(
-    "The Sensor::setup method works correctly for normal cases when action cycles form "
-    "wait_warmup-check_range") {
-  GIVEN(
-      "SFMC3019 sensor is created with mock I2C device with read buffer consisting of[04 02 60 06 "
-      "11 a9 00 00 81] (as a read_product_id response) "
-      "and[00 aa a6 a0 00 7e 00 00 81](as read_conversion_factor response) and [97 38 "
-      "1e](as read_sample response) followed by junk bytes [01 02], reseter is set to "
-      "false and mock time is set to 100us, global device's mock write buffer is set to [01] "
-      "byte and read buffer has [01 02] bytes") {
-    PF::HAL::Mock::I2CDevice mock_device;
-    PF::HAL::Mock::I2CDevice global_device;
-    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
-    PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-    PF::HAL::Mock::Time time;
-    PF::Driver::I2C::SFM3019::ConversionFactors conversion;
-    auto write_status = PF::I2CDeviceStatus::ok;
+// SCENARIO(
+//     "The Sensor::setup method works correctly for normal cases when action cycles form "
+//     "wait_warmup-check_range") {
+//   GIVEN(
+//       "SFMC3019 sensor is created with mock I2C device with read buffer consisting of[04 02 60 06
+//       " "11 a9 00 00 81] (as a read_product_id response) " "and[00 aa a6 a0 00 7e 00 00 81](as
+//       read_conversion_factor response) and [97 38 " "1e](as read_sample response) followed by
+//       junk bytes [01 02], reseter is set to " "false and mock time is set to 100us, global
+//       device's mock write buffer is set to [01] " "byte and read buffer has [01 02] bytes") {
+//     PF::HAL::Mock::I2CDevice mock_device;
+//     PF::HAL::Mock::I2CDevice global_device;
+//     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
+//     PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+//     PF::HAL::Mock::Time time;
+//     PF::Driver::I2C::SFM3019::ConversionFactors conversion;
+//     auto write_status = PF::I2CDeviceStatus::write_error;
 
-    mock_device.set_return_status(write_status);
+//     mock_device.set_return_status(write_status);
 
-    auto read_status = PF::I2CDeviceStatus::ok;
-    auto read_status1 = PF::I2CDeviceStatus::ok;
-    auto read_status2 = PF::I2CDeviceStatus::ok;
-    auto read_status3 = PF::I2CDeviceStatus::crc_check_failed;
-    auto read_status4 = PF::I2CDeviceStatus::ok;
+//     auto read_status = PF::I2CDeviceStatus::ok;
+//     auto read_status1 = PF::I2CDeviceStatus::ok;
+//     auto read_status2 = PF::I2CDeviceStatus::ok;
+//     auto read_status3 = PF::I2CDeviceStatus::crc_check_failed;
+//     auto read_status4 = PF::I2CDeviceStatus::ok;
 
-    auto read_buffer = PF::Util::Containers::make_array<uint8_t>(
-        0x04, 0x02, 0x60, 0x06, 0x11, 0xa9, 0x00, 0x00, 0x81);
-    mock_device.add_read(read_buffer.data(), read_buffer.size(), read_status);
-    auto read_buffer1 = PF::Util::Containers::make_array<uint8_t>(
-        0x00, 0xaa, 0xa6, 0xa0, 0x00, 0x7e, 0x01, 0x48, 0xf1);
-    mock_device.add_read(read_buffer1.data(), read_buffer1.size(), read_status1);
-    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x97, 0x38, 0x1e);
-    mock_device.add_read(input_data.data(), input_data.size(), read_status2);
-    auto input_data1 = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
-    mock_device.add_read(input_data1.data(), input_data1.size(), read_status3);
-    auto read_buffer3 = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
-    global_device.add_read(read_buffer3.data(), read_buffer3.size(), read_status4);
+//     auto read_buffer = PF::Util::Containers::make_array<uint8_t>(
+//         0x04, 0x02, 0x60, 0x06, 0x11, 0xa9, 0x00, 0x00, 0x81);
+//     mock_device.add_read(read_buffer.data(), read_buffer.size(), read_status);
+//     auto read_buffer1 = PF::Util::Containers::make_array<uint8_t>(
+//         0x00, 0xaa, 0xa6, 0xa0, 0x00, 0x7e, 0x01, 0x48, 0xf1);
+//     mock_device.add_read(read_buffer1.data(), read_buffer1.size(), read_status1);
+//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x97, 0x38, 0x1e);
+//     mock_device.add_read(input_data.data(), input_data.size(), read_status2);
+//     auto input_data1 = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
+//     mock_device.add_read(input_data1.data(), input_data1.size(), read_status3);
+//     auto read_buffer3 = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
+//     global_device.add_read(read_buffer3.data(), read_buffer3.size(), read_status4);
 
-    // normal case, get_state goes from wait_warmup-check_range action
+//     // normal case, get_state goes from wait_warmup-check_range action
 
-    WHEN(
-        "The setup method is called twice , mock time is set to [100, 31000]us before each "
-        "corresponding setup call") {
-      PF::Driver::I2C::SFM3019::StateMachine state_machine;
-      PF::Driver::I2C::SFM3019::Sensor sensor{device, false, time};
-      time.set_micros(100);
-      auto status = sensor.setup();
-      THEN("The first setup method call returns setup state") {
-        REQUIRE(status == PF::InitializableState::setup);
-      }
+//     WHEN(
+//         "The setup method is called twice , mock time is set to [100, 31000]us before each "
+//         "corresponding setup call") {
+//       PF::Driver::I2C::SFM3019::StateMachine state_machine;
+//       PF::Driver::I2C::SFM3019::Sensor sensor{device, false, time};
+//       time.set_micros(100);
+//        auto status = sensor.setup();
+// THEN("The first setup method call returns setup state") {
+//   REQUIRE(status == PF::InitializableState::setup);
+// }
 
-      THEN("After first setup method call, get_state method returns wait_warmup action") {
-        auto state = sensor.get_state();
-        REQUIRE(state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
-      }
+// THEN("After first setup method call, get_state method returns wait_warmup action") {
+//   auto state = sensor.get_state();
+//   REQUIRE(state == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_warmup);
+// }
 
-      time.set_micros(31000);
-      auto status1 = sensor.setup();
-      THEN("The second setup method call returns setup state") {
-        REQUIRE(status1 == PF::InitializableState::setup);
-      }
-      THEN("After second setup method call, get_state returns check_range action ") {
-        auto state4 = sensor.get_state();
-        REQUIRE(state4 == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-      }
-      constexpr size_t buffer_size = 50UL;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-      size_t count = buffer_size;
-      auto status_write = mock_device.get_write(input_buffer.buffer(), count);
-      REQUIRE(status_write == PF::I2CDeviceStatus::ok);
-      PF::Util::Containers::ByteVector<buffer_size> input;
-      mock_device.get_write(input.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input1;
-      mock_device.get_write(input1.buffer(), count);
-      PF::Util::Containers::ByteVector<buffer_size> input2;
-      mock_device.get_write(input2.buffer(), count);
-      THEN(
-          "The mock_device I2C's write buffer contains command byte [E1 02](request_product_id), "
-          "[36 61](read_conversion), [36 6A](set_averaging) and[36 03](O2 gas)") {
-        REQUIRE(input_buffer[0] == 0xE1);
-        REQUIRE(input_buffer[1] == 0x02);
-        REQUIRE(input[0] == 0x36);
-        REQUIRE(input[1] == 0x61);
-        REQUIRE(input1[0] == 0x36);
-        REQUIRE(input1[1] == 0x6A);
-        REQUIRE(input2[0] == 0x36);
-        REQUIRE(input2[1] == 0x03);
-      }
-      PF::Util::Containers::ByteVector<buffer_size> input_read;
-      PF::Util::Containers::ByteVector<buffer_size> input_read1;
-      PF::Util::Containers::ByteVector<buffer_size> input_read2;
-      PF::Util::Containers::ByteVector<buffer_size> input_read3;
-      auto read_status = mock_device.read(input_read.buffer(), count);
-      auto read_status1 = mock_device.read(input_read1.buffer(), count);
-      auto read_status2 = mock_device.read(input_read2.buffer(), count);
+// time.set_micros(31000);
+// auto status1 = sensor.setup();
+// THEN("The second setup method call returns setup state") {
+//   REQUIRE(status1 == PF::InitializableState::setup);
+// }
+// THEN("After second setup method call, get_state returns check_range action ") {
+//   auto state4 = sensor.get_state();
+//   REQUIRE(state4 == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
+// }
+// constexpr size_t buffer_size = 50UL;
+// PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+// size_t count = buffer_size;
+// auto status_write = mock_device.get_write(input_buffer.buffer(), count);
+// REQUIRE(status_write == PF::I2CDeviceStatus::ok);
+// PF::Util::Containers::ByteVector<buffer_size> input;
+// mock_device.get_write(input.buffer(), count);
+// PF::Util::Containers::ByteVector<buffer_size> input1;
+// mock_device.get_write(input1.buffer(), count);
+// PF::Util::Containers::ByteVector<buffer_size> input2;
+// mock_device.get_write(input2.buffer(), count);
+// THEN(
+//     "The mock_device I2C's write buffer contains command byte [E1 02](request_product_id), "
+//     "[36 61](read_conversion), [36 6A](set_averaging) and[36 03](O2 gas)") {
+//   REQUIRE(input_buffer[0] == 0xE1);
+//   REQUIRE(input_buffer[1] == 0x02);
+//   REQUIRE(input[0] == 0x36);
+//   REQUIRE(input[1] == 0x61);
+//   REQUIRE(input1[0] == 0x36);
+//   REQUIRE(input1[1] == 0x6A);
+//   REQUIRE(input2[0] == 0x36);
+//   REQUIRE(input2[1] == 0x03);
+// }
+// PF::Util::Containers::ByteVector<buffer_size> input_read;
+// PF::Util::Containers::ByteVector<buffer_size> input_read1;
+// PF::Util::Containers::ByteVector<buffer_size> input_read2;
+// PF::Util::Containers::ByteVector<buffer_size> input_read3;
+// auto read_status = mock_device.read(input_read.buffer(), count);
+// auto read_status1 = mock_device.read(input_read1.buffer(), count);
+// auto read_status2 = mock_device.read(input_read2.buffer(), count);
 
-      THEN("The mock_device I2C's read buffer contains bytes [97 38 1e] and junk bytes [01 02]") {
-        REQUIRE(read_status == PF::I2CDeviceStatus::ok);
-        REQUIRE(input_read[0] == 0x97);
-        REQUIRE(input_read[1] == 0x38);
-        REQUIRE(input_read[2] == 0x1e);
-        REQUIRE(read_status1 == PF::I2CDeviceStatus::ok);
-        REQUIRE(input_read1[0] == 0x01);
-        REQUIRE(input_read1[1] == 0x02);
-      }
-      THEN("The mock_device I2C's read buffer is empty") {
-        REQUIRE(read_status2 == PF::I2CDeviceStatus::no_new_data);
-      }
+// THEN("The mock_device I2C's read buffer contains bytes [97 38 1e] and junk bytes [01 02]") {
+//   REQUIRE(read_status == PF::I2CDeviceStatus::ok);
+//   REQUIRE(input_read[0] == 0x97);
+//   REQUIRE(input_read[1] == 0x38);
+//   REQUIRE(input_read[2] == 0x1e);
+//   REQUIRE(read_status1 == PF::I2CDeviceStatus::ok);
+//   REQUIRE(input_read1[0] == 0x01);
+//   REQUIRE(input_read1[1] == 0x02);
+// }
+// THEN("The mock_device I2C's read buffer is empty") {
+//   REQUIRE(read_status2 == PF::I2CDeviceStatus::no_new_data);
+// }
 
-      THEN("The global_device I2C's read buffer remains unchanged") {
-        PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-        auto read_status = global_device.read(input_buffer.buffer(), count);
-        REQUIRE(read_status == PF::I2CDeviceStatus::ok);
-        REQUIRE(input_buffer[0] == 0x01);
-        REQUIRE(input_buffer[1] == 0x02);
-      }
-      THEN("The global_device I2C's write buffer remains unchanged") {
-        PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-        auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-        global_device.write(input_data.data(), input_data.size());
-        global_device.get_write(global_buffer.buffer(), count);
-        REQUIRE(global_buffer[0] == 0x01);
-      }
-    }
-  }
-}
+// THEN("The global_device I2C's read buffer remains unchanged") {
+//   PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+//   auto read_status = global_device.read(input_buffer.buffer(), count);
+//   REQUIRE(read_status == PF::I2CDeviceStatus::ok);
+//   REQUIRE(input_buffer[0] == 0x01);
+//   REQUIRE(input_buffer[1] == 0x02);
+// }
+//       THEN("The global_device I2C's write buffer remains unchanged") {
+//         PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+//         auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+//         global_device.write(input_data.data(), input_data.size());
+//         global_device.get_write(global_buffer.buffer(), count);
+//         REQUIRE(global_buffer[0] == 0x01);
+//       }
+//     }
+//   }
+// }
 
 // SCENARIO(
 //     "The Sensor::setup method works correctly for normal cases when action cycles form "

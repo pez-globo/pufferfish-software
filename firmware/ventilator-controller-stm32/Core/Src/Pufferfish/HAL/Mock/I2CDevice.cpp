@@ -23,7 +23,6 @@
 
 namespace Pufferfish::HAL::Mock {
 
-I2CDeviceStatus return_status;
 I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
   if (read_buf_queue_.empty()) {
     return I2CDeviceStatus::no_new_data;
@@ -32,8 +31,9 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
   size_t index = 0;
   size_t minumum = (count < read_buf_size) ? count : read_buf_size;
 
-  const auto &return_status_buf = read_status_queue_.front();
-  return_status = return_status_buf[index];
+  auto return_status_buf = read_status_queue_.front();
+  I2CDeviceStatus return_status = return_status_buf;
+  read_status_queue_.pop();
 
   if (return_status != I2CDeviceStatus::ok) {
     return return_status;
@@ -45,7 +45,6 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
   }
 
   read_buf_queue_.pop();
-  read_status_queue_.pop();
 
   return I2CDeviceStatus::ok;
 }
@@ -56,30 +55,25 @@ I2CDeviceStatus I2CDevice::read(uint16_t address, uint8_t *buf, size_t count) {
   return I2CDeviceStatus::ok;
 }
 
-void I2CDevice::add_read(const uint8_t *buf, size_t count, I2CDeviceStatus &status) {
+void I2CDevice::add_read(const uint8_t *buf, size_t count, I2CDeviceStatus status) {
   size_t index = 0;
   size_t minumum = (count < read_buf_size) ? count : read_buf_size;
 
   read_buf_queue_.emplace();
-  read_status_queue_.emplace();
+  read_status_queue_.push(status);
 
   auto &read_buf = read_buf_queue_.back();
-  auto &read_status_buf = read_status_queue_.back();
   for (index = 0; index < minumum; index++) {
     read_buf[index] = buf[index];
   }
-
-  read_status_buf[index] = status;
 }
 
 I2CDeviceStatus I2CDevice::write(uint8_t *buf, size_t count) {
   size_t index = 0;
   size_t write_count = 0;
 
-  write_status_queue_.emplace();
-  auto &write_status_buf = write_status_queue_.back();
-  write_status_buf[index] = get_return_status();
-  return_status = write_status_buf[index];
+  I2CDeviceStatus return_status = write_status_queue_.back();
+  write_status_queue_.pop();
 
   if (return_status != I2CDeviceStatus::ok) {
     return return_status;
@@ -103,12 +97,6 @@ I2CDeviceStatus I2CDevice::get_write(uint8_t *buf, size_t &count) {
 
   size_t index = 0;
   const auto &write_buf = write_buf_queue_.front();
-  const auto &return_status_buf = write_status_queue_.front();
-  return_status = return_status_buf[index];
-
-  if (return_status != I2CDeviceStatus::ok) {
-    return return_status;
-  }
 
   count = write_buf.size();
   for (index = 0; index < count; index++) {
@@ -116,17 +104,12 @@ I2CDeviceStatus I2CDevice::get_write(uint8_t *buf, size_t &count) {
   }
 
   write_buf_queue_.pop();
-  write_status_queue_.pop();
 
   return I2CDeviceStatus::ok;
 }
 
-void I2CDevice::set_return_status(I2CDeviceStatus input) {
-  return_status = input;
-}
-
-I2CDeviceStatus I2CDevice::get_return_status() {
-  return return_status;
+void I2CDevice::add_write_status(I2CDeviceStatus input) {
+  write_status_queue_.push(input);
 }
 
 }  // namespace Pufferfish::HAL::Mock
