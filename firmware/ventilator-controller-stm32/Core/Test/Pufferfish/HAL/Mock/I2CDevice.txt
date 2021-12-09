@@ -1,11 +1,49 @@
-Scenarion : Read method works correctly when I2CDevice status is set to ok
-Scenarion : Read method works correctly when I2CDevice status is set to not supported 
-Scenarion : Read method works correctly when I2CDevice status is set to read error
-Scenarion : Read method works correctly when I2CDevice status is set to crc_check
-Scenarion: Read method works correctly when its called multiple times with diffrent I2CDeviceStatus 
+Scenario: I2C mock device works correctly for read method
+  GIVEN('Freshly constructed mock device')
+    WHEN('The add_read method is called with input parameters, data as [a0 e8 d4 fd 97] and ok I2CDeviceStatus')
+      THEN('The read method returns OK status')
+      THEN('The read method returns [a0 e8 d4 fd 97] data bytes')
 
-Scenarion: Write method works correctly when I2CDeviceStatus is set to ok
-Scenarion: Write method works correctly when I2CDeviceStatus is set to crc_check
-Scenarion: Write method works correctly when I2CDeviceStatus is set to test failed
-Scenarion: Write method works correctly when I2CDeviceStatus is set to write error
-Scenarion: Write method works correctly when  called multiple times with diffrent I2CDeviceStatus
+    WHEN('The add_read method is called with input parameters, data [a0 e8 d4 fd 97] bytes and read_error I2CDeviceStatus  ')
+      THEN('The read method returns read_error status')
+
+    WHEN('The add_read method is called with input parameters, data [a0 e8 d4 fd 97]bytes  and crc_check_failed I2CDeviceStatus')
+      THEN('The read method returns crc_check_failed error')
+
+    WHEN('The add_read method is called with input parameters, data[a0 e8 d4 fd 97]bytes and test_failed I2CDeviceStatus')
+      THEN('The read method returns test_failed error')
+
+Scenario: Mock I2CDevice works correctly for read method when called multiple times
+  GIVEN('Freshly constructed mock device')
+    WHEN('The add_read method is called five times with input parametes,[27 b8] [64 f3] [e1 7c] [d5 55] bytes and [ok][read_error][invalid_arguments][crc_check_failed][no_new_data] I2CDeviceStatus')
+      THEN('The first read method call returns Ok status')
+      THEN('After the first read method call, it returns [27 b8]bytes')
+      THEN('The second read method call returns read_error status')
+      THEN('The third read method call returns invalid_argument status')   
+      THEN('The fourth read method call returns crc_check_failed status')
+      THEN('The fifth read method call returns no_new_data status')
+
+Scenario: Mock I2CDevice works correctly for write method
+  GIVEN('A freshly constructed mock device')
+    WHEN('The write method is called with input parameter, data as[d5 1a 7a bc 24]bytes and Ok I2CDeviceStatus')
+      THEN('The get_write method returns ok status')
+      THEN('The get_write method returns [d5 1a 7a bc 24] bytes')
+
+    WHEN('The write method is called with input parameter data [d5 1a 7a bc 24]bytes and  write_error I2CDeviceStatus')
+      THEN('The get_write method returns write_error status')
+
+    WHEN('The write method is called with input parameter data [d5 1a 7a bc 24]bytes and not_supported I2CDeviceStatus')
+      THEN('The get_write method returns write_error status')
+
+    WHEN('The write method is called with input parameters, data [d5 1a 7a bc 24]bytes and no_new_data I2CDeviceStatus')
+      THEN('The get_write method returns write_error status')
+
+Scenario: Mock device works correctly when write method is called multiple times 
+  GIVEN('Freshly constructed mock-device') 
+    WHEN('The write method is called five times with buffer bytes [db fe] [79 4b] [cd 93] [5a 56] [22 19]and I2CDevice status as [Ok] [write_error] [test_failed] [no_new_data] [invalid_argument] ')
+      THEN('After the first write call, get_write returns ok status')
+      THEN('After the first write call, get_write returns [db fe] bytes')
+      THEN('After the second write call, get_write returns no_new_data status')
+      THEN('After the third write call, get_write returns no_new_data status')
+      THEN('After the fourth write call, get_write returns no_new_data status')
+      THEN('After the fifth write call, get_write returns no_new_data status')

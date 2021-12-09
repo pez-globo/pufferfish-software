@@ -89,7 +89,7 @@ class I2CDevice : public Interfaces::I2CDevice {
    * @param  input I2CDeviceStatus
    * @return None
    */
-  void add_write_status(I2CDeviceStatus input);
+  void add_write_status(I2CDeviceStatus status);
 
  private:
   static const uint8_t read_buf_size = 50;
