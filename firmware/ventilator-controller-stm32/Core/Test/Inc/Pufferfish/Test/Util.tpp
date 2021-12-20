@@ -113,6 +113,7 @@ std::string convert_byte_vector_to_hex_string(
   }
   return output_string;
 }
+
 template <size_t payload_size>
 std::string convert_byte_vector_to_hex_string(
     const Pufferfish::Util::Containers::ByteVector<payload_size>& input_buffer) {
