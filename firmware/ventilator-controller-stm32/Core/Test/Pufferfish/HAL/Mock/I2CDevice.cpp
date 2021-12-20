@@ -372,7 +372,7 @@ SCENARIO(
           "09 9a 4c 13 e3 ce 3f]") {
         auto read_buffer =
             PF::Util::Containers::convert_byte_vector_to_hex_string(input_read, count);
-        auto expected =
+        const auto* expected =
             R"(\x63\x89\x9A\xA9\x27\x54\x0E\x5E\x90\xC2\x15\x21\x45\xE1\xE1\xBB\x99\x55\x73\xA6\xA4\x04\x27\xAE\x2D\x1A\xF0\x43\xD6\x76\xD8\xB6\xCE\x30\xFC\x89\xE6\xF2\xE9\xEB\xE0\x73\xA3\x09\x9A\x4C\x13\xE3\xCE\x3F)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
@@ -464,7 +464,7 @@ SCENARIO(
           "e1 bb 99 55 73 a6 a4 04 27 ae 2d 1a f0 43 d6 76 d8 b6 ce 30 fc 89 e6 f2 e9 eb e0 73 a3 "
           "09 9a 4c 13 e3 ce 3f]") {
         auto buffer = PF::Util::Containers::convert_byte_vector_to_hex_string(input_read, count);
-        auto expected =
+        const auto* expected =
             R"(\x63\x89\x9A\xA9\x27\x54\x0E\x5E\x90\xC2\x15\x21\x45\xE1\xE1\xBB\x99\x55\x73\xA6\xA4\x04\x27\xAE\x2D\x1A\xF0\x43\xD6\x76\xD8\xB6\xCE\x30\xFC\x89\xE6\xF2\xE9\xEB\xE0\x73\xA3\x09\x9A\x4C\x13\xE3\xCE\x3F)";
         REQUIRE(buffer == expected);  // 254 null bytes instead
       }
@@ -505,7 +505,7 @@ SCENARIO(
           "46 46 dd 1a 64 a2 c1 50 04 d3 09 31]") {
         auto read_buffer1 =
             PF::Util::Containers::convert_byte_vector_to_hex_string(input_read1, count);
-        auto expected =
+        const auto* expected =
             R"(\xEB\x65\xA1\x62\x93\x13\x33\x23\xFF\x97\xBA\x63\xF2\x46\x46\xDD\x1A\x64\xA2\xC1\x50\x04\xD3\x09\x31\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00)";
         REQUIRE(read_buffer1 == expected);  // 254 null bytes instead
       }
@@ -769,7 +769,7 @@ SCENARIO("Mock I2CDevice works correctly for write method when unput bytes are 5
   GIVEN("A freshly constructed mock device") {
     PF::HAL::Mock::I2CDevice mock_device;
     constexpr size_t buffer_size = 70;
-    size_t count;
+    size_t count = 0;
     WHEN(
         "The write method is called with input parameter, 54 bytes [63 89 9a a9 27 54 0e 5e 90 c2 "
         "15 21 45 e1 e1 bb 99 55 73 a6 a4 04 27 ae 2d 1a f0 43 d6 76 d8 b6 ce 30 fc 89 e6 f2 e9 eb "
@@ -845,7 +845,7 @@ SCENARIO("Mock I2CDevice works correctly for write method when unput bytes are 5
           "09 9a 4c 13 e3 ce 3f] data bytes") {
         auto read_buffer =
             PF::Util::Containers::convert_byte_vector_to_hex_string(input_buffer, count);
-        auto expected =
+        const auto* expected =
             R"(\x63\x89\x9A\xA9\x27\x54\x0E\x5E\x90\xC2\x15\x21\x45\xE1\xE1\xBB\x99\x55\x73\xA6\xA4\x04\x27\xAE\x2D\x1A\xF0\x43\xD6\x76\xD8\xB6\xCE\x30\xFC\x89\xE6\xF2\xE9\xEB\xE0\x73\xA3\x09\x9A\x4C\x13\xE3\xCE\x3F)";
         REQUIRE(read_buffer == expected);  // 254 null bytes instead
       }
@@ -859,7 +859,7 @@ SCENARIO(
   GIVEN("Freshly constructed mock device") {
     PF::HAL::Mock::I2CDevice mock_device;
     constexpr size_t buffer_size = 100UL;
-    size_t count;
+    size_t count = 0;
     WHEN(
         "The write method is called with input parameters, data as [63 89 9a a9 27 54 0e 5e 90 c2 "
         "15 21 45 e1 e1 bb 99 55 73 a6 a4 04 27 ae 2d 1a f0 43 d6 76 d8 b6 ce 30 fc 89 e6 f2 e9 eb "
@@ -934,7 +934,7 @@ SCENARIO(
           "e1 e1 bb 99 55 73 a6 a4 04 27 ae 2d 1a f0 43 d6 76 d8 b6 ce 30 fc 89 e6 f2 e9 eb e0 73 "
           "a3 09 9a 4c 13 e3 ce 3f]") {
         auto buffer = PF::Util::Containers::convert_byte_vector_to_hex_string(input_write, count);
-        auto expected =
+        const auto* expected =
             R"(\x63\x89\x9A\xA9\x27\x54\x0E\x5E\x90\xC2\x15\x21\x45\xE1\xE1\xBB\x99\x55\x73\xA6\xA4\x04\x27\xAE\x2D\x1A\xF0\x43\xD6\x76\xD8\xB6\xCE\x30\xFC\x89\xE6\xF2\xE9\xEB\xE0\x73\xA3\x09\x9A\x4C\x13\xE3\xCE\x3F)";
         REQUIRE(buffer == expected);  // 254 null bytes instead
       }
@@ -975,7 +975,7 @@ SCENARIO(
           "63 f2 46 46 dd 1a 64 a2 c1 50 04 d3 09 31]") {
         auto read_buffer1 =
             PF::Util::Containers::convert_byte_vector_to_hex_string(input_write1, count);
-        auto expected =
+        const auto* expected =
             R"(\xEB\x65\xA1\x62\x93\x13\x33\x23\xFF\x97\xBA\x63\xF2\x46\x46\xDD\x1A\x64\xA2\xC1\x50\x04\xD3\x09\x31\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00)";
         REQUIRE(read_buffer1 == expected);  // 254 null bytes instead
       }
@@ -987,7 +987,7 @@ SCENARIO("Mock device works correctly when write method is called three times") 
   GIVEN("Freshly constructed mock-device") {
     PF::HAL::Mock::I2CDevice mock_device;
     constexpr size_t buffer_size = 50UL;
-    size_t count;
+    size_t count = 0;
 
     WHEN(
         "The write method is called five times with buffer bytes [db fe] [79 4b] [cd 93] [5a 56] "
@@ -1048,7 +1048,7 @@ SCENARIO("Mock device works correctly when write method is called two times") {
   GIVEN("Freshly constructed mock-device") {
     PF::HAL::Mock::I2CDevice mock_device;
     constexpr size_t buffer_size = 50UL;
-    size_t count;
+    size_t count = 0;
 
     WHEN(
         "The write method is called two times with buffer bytes [db fe] [32 9b f7 4b] "
