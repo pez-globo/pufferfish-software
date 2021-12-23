@@ -92,7 +92,7 @@ class I2CDevice : public Interfaces::I2CDevice {
   void add_write_status(I2CDeviceStatus status);
 
  private:
-  static const uint8_t read_buf_size = 50;
+  static constexpr uint8_t read_buf_size = 50;
   static const uint8_t write_buf_size = 50;
 
   using ReadBuffer = std::array<uint8_t, read_buf_size>;

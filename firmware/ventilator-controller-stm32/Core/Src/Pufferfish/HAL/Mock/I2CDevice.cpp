@@ -30,25 +30,21 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
     return I2CDeviceStatus::no_new_data;
   }
 
-  size_t index = 0;
-  size_t minumum = (count < read_buf_size) ? count : read_buf_size;
-
   I2CDeviceStatus return_status = read_status_queue_.front();
   read_status_queue_.pop();
 
-  if (return_status != I2CDeviceStatus::ok) {
-    return return_status;
-  }
+  size_t read_count = (count < read_buf_size) ? count : read_buf_size;
+  auto &read_buf = read_buf_queue_.front();
 
-  const auto &read_buf = read_buf_queue_.front();
+  // static_assert(sizeof(read_buf) > sizeof(count),"count is greater than buffer size");
 
-  for (index = 0; index < minumum; index++) {
+  for (size_t index = 0; index < read_count; index++) {
     buf[index] = read_buf[index];
   }
 
   read_buf_queue_.pop();
 
-  return I2CDeviceStatus::ok;
+  return return_status;
 }
 
 // TODO(lietk12): Add implementation of this method
@@ -58,38 +54,34 @@ I2CDeviceStatus I2CDevice::read(uint16_t address, uint8_t *buf, size_t count) {
 }
 
 void I2CDevice::add_read(const uint8_t *buf, size_t count, I2CDeviceStatus status) {
-  size_t index = 0;
-  size_t minumum = (count < read_buf_size) ? count : read_buf_size;
-
-  read_buf_queue_.emplace();
   read_status_queue_.push(status);
 
+  size_t read_count = (count < read_buf_size) ? count : read_buf_size;
+
+  read_buf_queue_.emplace();
+
   auto &read_buf = read_buf_queue_.back();
-  for (index = 0; index < minumum; index++) {
+
+  for (size_t index = 0; index < read_count; index++) {
     read_buf[index] = buf[index];
   }
 }
 
 I2CDeviceStatus I2CDevice::write(uint8_t *buf, size_t count) {
-  size_t index = 0;
-  size_t write_count = 0;
-
   I2CDeviceStatus return_status = write_status_queue_.front();
   write_status_queue_.pop();
 
   write_buf_queue_.emplace();
   auto &write_buf = write_buf_queue_.back();
 
-  write_count = (count < write_buf_size) ? count : write_buf_size;
-  for (index = 0; index < write_count; index++) {
+  // static_assert(sizeof(write_buf) > sizeof(count),"count is greater than buffer size");
+
+  size_t write_count = (count < write_buf_size) ? count : write_buf_size;
+  for (size_t index = 0; index < write_count; index++) {
     write_buf[index] = buf[index];
   }
 
-  if (return_status != I2CDeviceStatus::ok) {
-    return return_status;
-  }
-
-  return I2CDeviceStatus::ok;
+  return return_status;
 }
 
 I2CDeviceStatus I2CDevice::get_write(uint8_t *buf, size_t &count) {
@@ -97,11 +89,9 @@ I2CDeviceStatus I2CDevice::get_write(uint8_t *buf, size_t &count) {
     return I2CDeviceStatus::no_new_data;
   }
 
-  size_t index = 0;
   const auto &write_buf = write_buf_queue_.front();
 
-  count = write_buf.size();
-  for (index = 0; index < count; index++) {
+  for (size_t index = 0; index < count; index++) {
     buf[index] = write_buf[index];
   }
 
