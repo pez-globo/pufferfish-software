@@ -34,7 +34,7 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
   read_status_queue_.pop();
 
   size_t read_count = (count < read_buf_size) ? count : read_buf_size;
-  auto &read_buf = read_buf_queue_.front();
+  const auto &read_buf = read_buf_queue_.front();
 
   // static_assert(sizeof(read_buf) > sizeof(count),"count is greater than buffer size");
 
