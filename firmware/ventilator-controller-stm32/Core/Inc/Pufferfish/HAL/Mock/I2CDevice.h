@@ -49,7 +49,7 @@ class I2CDevice : public Interfaces::I2CDevice {
    * @param  count size of data to set
    * @return returns I2CDeviceStatus::ok
    */
-  I2CDeviceStatus read(uint8_t *buf, const size_t count) override;
+  I2CDeviceStatus read(uint8_t *buf, size_t count) override;
 
   /**
    * Reads data from the device

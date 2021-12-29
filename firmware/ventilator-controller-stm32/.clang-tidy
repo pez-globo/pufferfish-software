@@ -242,7 +242,7 @@ CheckOptions:
     value:           ',h,hh,hpp,hxx'
   - key:             misc-definitions-in-headers.UseHeaderFileExtension
     value:           '1'
-  - key:             misc-throw-by-value-catch-by-reference.CheckThrowTemporaries
+  - key:             misc--by-value-catch-by-reference.CheckThrowTemporaries
     value:           '1'
   - key:             misc-unused-parameters.StrictMode
     value:           '0'
