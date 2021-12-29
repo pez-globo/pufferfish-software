@@ -22,12 +22,15 @@
 
 #include <array>
 #include <queue>
+#include <vector>
 
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
+#include "Pufferfish/Util/Containers/Vector.h"
 
 namespace Pufferfish {
 namespace HAL {
 namespace Mock {
+using Pufferfish::Util::Containers::ByteVector;
 
 /**
  * I2CDevice class
@@ -46,7 +49,7 @@ class I2CDevice : public Interfaces::I2CDevice {
    * @param  count size of data to set
    * @return returns I2CDeviceStatus::ok
    */
-  I2CDeviceStatus read(uint8_t *buf, size_t count) override;
+  I2CDeviceStatus read(uint8_t *buf, const size_t count) override;
 
   /**
    * Reads data from the device
@@ -92,11 +95,13 @@ class I2CDevice : public Interfaces::I2CDevice {
   void add_write_status(I2CDeviceStatus status);
 
  private:
-  static constexpr uint8_t read_buf_size = 50;
+  static const uint8_t read_buf_size = 50;
   static const uint8_t write_buf_size = 50;
 
-  using ReadBuffer = std::array<uint8_t, read_buf_size>;
-  using WriteBuffer = std::array<uint8_t, write_buf_size>;
+  // using ReadBuffer = std::array<uint8_t, read_buf_size>;
+  // using WriteBuffer = std::array<uint8_t, write_buf_size>;
+  using ReadBuffer = ByteVector<read_buf_size>;
+  using WriteBuffer = ByteVector<write_buf_size>;
 
   std::queue<ReadBuffer> read_buf_queue_;
   std::queue<I2CDeviceStatus> read_status_queue_;
