@@ -27,8 +27,13 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
   if (read_buf_queue_.empty()) {
     return I2CDeviceStatus::no_new_data;
   }
+
+  try{
   if (read_buf_queue_.size() != read_status_queue_.size()) {
-    throw std::logic_error("Lenght of buf queue and status queue is not equal");
+    //throw std::logic_error("Lenght of buf queue and status queue is not equal");
+  }
+  }catch(std::logic_error e){
+    std::logic_error("Lenght of buf queue and status queue is not equal");
   }
 
   I2CDeviceStatus return_status = read_status_queue_.front();
