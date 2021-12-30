@@ -20,6 +20,7 @@
 // limitations under the License.
 
 #include "Pufferfish/HAL/Mock/I2CDevice.h"
+#include <iostream>
 
 namespace Pufferfish::HAL::Mock {
 
@@ -30,19 +31,24 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
 
   try{
   if (read_buf_queue_.size() != read_status_queue_.size()) {
-    //throw std::logic_error("Lenght of buf queue and status queue is not equal");
+    throw std::logic_error("Lenght of buf queue and status queue is not equal");
   }
-  }catch(std::logic_error e){
-    std::logic_error("Lenght of buf queue and status queue is not equal");
+  }catch(std::logic_error&){
+    std::cout << "logic_error" << std::endl;
+
   }
 
   I2CDeviceStatus return_status = read_status_queue_.front();
   read_status_queue_.pop();
 
   const auto &read_buf = read_buf_queue_.front();
-
+  
+  try{
   if (count != read_buf_size) {
     throw std::invalid_argument("Attempted to read more than possible bytes");
+  }
+  }catch(std::invalid_argument&){
+    std::cout << "invalid_argument" << std::endl;
   }
 
   for (size_t index = 0; index < read_buf_size; index++) {
@@ -81,8 +87,12 @@ I2CDeviceStatus I2CDevice::write(uint8_t *buf, size_t count) {
   write_buf_queue_.emplace();
   auto &write_buf = write_buf_queue_.back();
 
+  try{
   if (count > read_buf_size) {
     throw std::invalid_argument("Attempted to read more than possible bytes");
+  }
+  }catch(std::invalid_argument&){
+    std::cout << "invalid_argument" << std::endl;
   }
 
   size_t write_count = (count < write_buf_size) ? count : write_buf_size;
