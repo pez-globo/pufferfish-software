@@ -94,7 +94,7 @@ I2CDeviceStatus I2CDevice::get_write(uint8_t *buf, size_t &count) {
   }
 
   const auto &write_buf = write_buf_queue_.front();
-  count = write_buf.max_size();
+  count = write_buf_size;
 
   for (size_t index = 0; index < count; index++) {
     buf[index] = write_buf[index];
