@@ -502,352 +502,352 @@ SCENARIO(
   }
 }
 
-SCENARIO("Mock I2CDevice works correctly for write method and get_write method") {
-  GIVEN("A freshly constructed mock device") {
-    PF::HAL::Mock::I2CDevice mock_device;
-    constexpr size_t buffer_size = 50UL;
-    size_t count = 5;
-    WHEN(
-        "The write method is called with input parameter [d5 1a 7a bc 24]bytes and Ok "
-        "I2CDeviceStatus and then get_write method is called") {
-      auto write_status = PF::I2CDeviceStatus::ok;
-      mock_device.add_write_status(write_status);
-      auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xd5, 0x1a, 0x7a, 0xbc, 0x24);
-      mock_device.write(write_buffer.data(), write_buffer.size());
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-      auto status_write = mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The count value returns 50") { REQUIRE(count == 50); }
-      THEN("The get_write method call returns ok status") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the get_write method call, get_write buffer contains [d5 1a 7a bc 24] bytes") {
-        REQUIRE(input_buffer[0] == 0xd5);
-        REQUIRE(input_buffer[1] == 0x1a);
-        REQUIRE(input_buffer[2] == 0x7a);
-        REQUIRE(input_buffer[3] == 0xbc);
-        REQUIRE(input_buffer[4] == 0x24);
-      }
-    }
-    WHEN(
-        "The write method is called with input parameter [d5 1a 7a bc 24]bytes and  "
-        "write_error I2CDeviceStatus and then get_write method is called") {
-      auto write_status = PF::I2CDeviceStatus::write_error;
-      mock_device.add_write_status(write_status);
-      auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xd5, 0x1a, 0x7a, 0xbc, 0x24);
-      mock_device.write(write_buffer.data(), write_buffer.size());
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-      auto status_write = mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The count value returns 50") { REQUIRE(count == 50); }
-      THEN("The get_write method call returns ok status") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the get_write method call, get_write buffer contains [d5 1a 7a bc 24] bytes") {
-        REQUIRE(input_buffer[0] == 0xd5);
-        REQUIRE(input_buffer[1] == 0x1a);
-        REQUIRE(input_buffer[2] == 0x7a);
-        REQUIRE(input_buffer[3] == 0xbc);
-        REQUIRE(input_buffer[4] == 0x24);
-      }
-    }
-    WHEN(
-        "The write method is called with input parameter [d5 1a 7a bc 24]bytes and "
-        "not_supported I2CDeviceStatus and then get_write method is called") {
-      auto write_status = PF::I2CDeviceStatus::not_supported;
-      mock_device.add_write_status(write_status);
-      auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xd5, 0x1a, 0x7a, 0xbc, 0x24);
-      mock_device.write(write_buffer.data(), write_buffer.size());
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-      auto status_write = mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The count value returns 50") { REQUIRE(count == 50); }
-      THEN("The get_write method call returns ok status") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the get_write method call, get_write buffer contains [d5 1a 7a bc 24] bytes") {
-        REQUIRE(input_buffer[0] == 0xd5);
-        REQUIRE(input_buffer[1] == 0x1a);
-        REQUIRE(input_buffer[2] == 0x7a);
-        REQUIRE(input_buffer[3] == 0xbc);
-        REQUIRE(input_buffer[4] == 0x24);
-      }
-    }
+// SCENARIO("Mock I2CDevice works correctly for write method and get_write method") {
+//   GIVEN("A freshly constructed mock device") {
+//     PF::HAL::Mock::I2CDevice mock_device;
+//     constexpr size_t buffer_size = 50UL;
+//     size_t count = 5;
+//     WHEN(
+//         "The write method is called with input parameter [d5 1a 7a bc 24]bytes and Ok "
+//         "I2CDeviceStatus and then get_write method is called") {
+//       auto write_status = PF::I2CDeviceStatus::ok;
+//       mock_device.add_write_status(write_status);
+//       auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xd5, 0x1a, 0x7a, 0xbc, 0x24);
+//       mock_device.write(write_buffer.data(), write_buffer.size());
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+//       auto status_write = mock_device.get_write(input_buffer.buffer(), count);
+//       THEN("The count value returns 50") { REQUIRE(count == 50); }
+//       THEN("The get_write method call returns ok status") {
+//         REQUIRE(status_write == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the get_write method call, get_write buffer contains [d5 1a 7a bc 24] bytes") {
+//         REQUIRE(input_buffer[0] == 0xd5);
+//         REQUIRE(input_buffer[1] == 0x1a);
+//         REQUIRE(input_buffer[2] == 0x7a);
+//         REQUIRE(input_buffer[3] == 0xbc);
+//         REQUIRE(input_buffer[4] == 0x24);
+//       }
+//     }
+//     WHEN(
+//         "The write method is called with input parameter [d5 1a 7a bc 24]bytes and  "
+//         "write_error I2CDeviceStatus and then get_write method is called") {
+//       auto write_status = PF::I2CDeviceStatus::write_error;
+//       mock_device.add_write_status(write_status);
+//       auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xd5, 0x1a, 0x7a, 0xbc, 0x24);
+//       mock_device.write(write_buffer.data(), write_buffer.size());
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+//       auto status_write = mock_device.get_write(input_buffer.buffer(), count);
+//       THEN("The count value returns 50") { REQUIRE(count == 50); }
+//       THEN("The get_write method call returns ok status") {
+//         REQUIRE(status_write == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the get_write method call, get_write buffer contains [d5 1a 7a bc 24] bytes") {
+//         REQUIRE(input_buffer[0] == 0xd5);
+//         REQUIRE(input_buffer[1] == 0x1a);
+//         REQUIRE(input_buffer[2] == 0x7a);
+//         REQUIRE(input_buffer[3] == 0xbc);
+//         REQUIRE(input_buffer[4] == 0x24);
+//       }
+//     }
+//     WHEN(
+//         "The write method is called with input parameter [d5 1a 7a bc 24]bytes and "
+//         "not_supported I2CDeviceStatus and then get_write method is called") {
+//       auto write_status = PF::I2CDeviceStatus::not_supported;
+//       mock_device.add_write_status(write_status);
+//       auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xd5, 0x1a, 0x7a, 0xbc, 0x24);
+//       mock_device.write(write_buffer.data(), write_buffer.size());
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+//       auto status_write = mock_device.get_write(input_buffer.buffer(), count);
+//       THEN("The count value returns 50") { REQUIRE(count == 50); }
+//       THEN("The get_write method call returns ok status") {
+//         REQUIRE(status_write == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the get_write method call, get_write buffer contains [d5 1a 7a bc 24] bytes") {
+//         REQUIRE(input_buffer[0] == 0xd5);
+//         REQUIRE(input_buffer[1] == 0x1a);
+//         REQUIRE(input_buffer[2] == 0x7a);
+//         REQUIRE(input_buffer[3] == 0xbc);
+//         REQUIRE(input_buffer[4] == 0x24);
+//       }
+//     }
 
-    WHEN(
-        "The write method is called with input parameters [d5 1a 7a bc 24]bytes and "
-        "no_new_data I2CDeviceStatus, then get_write method is called") {
-      auto write_status = PF::I2CDeviceStatus::no_new_data;
-      mock_device.add_write_status(write_status);
-      auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xd5, 0x1a, 0x7a, 0xbc, 0x24);
-      mock_device.write(write_buffer.data(), write_buffer.size());
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-      auto status_write = mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The count value returns 50") { REQUIRE(count == 50); }
-      THEN("The get_write method call returns ok status") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the get_write method call, get_write buffer contains [d5 1a 7a bc 24] bytes") {
-        REQUIRE(input_buffer[0] == 0xd5);
-        REQUIRE(input_buffer[1] == 0x1a);
-        REQUIRE(input_buffer[2] == 0x7a);
-        REQUIRE(input_buffer[3] == 0xbc);
-        REQUIRE(input_buffer[4] == 0x24);
-      }
-    }
-  }
-}
+//     WHEN(
+//         "The write method is called with input parameters [d5 1a 7a bc 24]bytes and "
+//         "no_new_data I2CDeviceStatus, then get_write method is called") {
+//       auto write_status = PF::I2CDeviceStatus::no_new_data;
+//       mock_device.add_write_status(write_status);
+//       auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xd5, 0x1a, 0x7a, 0xbc, 0x24);
+//       mock_device.write(write_buffer.data(), write_buffer.size());
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+//       auto status_write = mock_device.get_write(input_buffer.buffer(), count);
+//       THEN("The count value returns 50") { REQUIRE(count == 50); }
+//       THEN("The get_write method call returns ok status") {
+//         REQUIRE(status_write == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the get_write method call, get_write buffer contains [d5 1a 7a bc 24] bytes") {
+//         REQUIRE(input_buffer[0] == 0xd5);
+//         REQUIRE(input_buffer[1] == 0x1a);
+//         REQUIRE(input_buffer[2] == 0x7a);
+//         REQUIRE(input_buffer[3] == 0xbc);
+//         REQUIRE(input_buffer[4] == 0x24);
+//       }
+//     }
+//   }
+// }
 
-SCENARIO(
-    "Mock device works correctly when write method is called multiple time and then get_write "
-    "method is called multiple times") {
-  GIVEN("Freshly constructed mock-device") {
-    PF::HAL::Mock::I2CDevice mock_device;
-    constexpr size_t buffer_size = 50UL;
-    size_t count = 0;
+// SCENARIO(
+//     "Mock device works correctly when write method is called multiple time and then get_write "
+//     "method is called multiple times") {
+//   GIVEN("Freshly constructed mock-device") {
+//     PF::HAL::Mock::I2CDevice mock_device;
+//     constexpr size_t buffer_size = 50UL;
+//     size_t count = 0;
 
-    WHEN(
-        "The write method is called five times with buffer bytes [db fe] [79 4b] [cd 93] [5a 56] "
-        "[22 19]and I2CDevice status as [Ok] [write_error] [test_failed] [no_new_data] "
-        "[invalid_argument] and then get_write method is called five times") {
-      auto write_status = PF::I2CDeviceStatus::ok;
-      mock_device.add_write_status(write_status);
-      auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xdb, 0xfe);
-      mock_device.write(write_buffer.data(), write_buffer.size());
-      auto write_status1 = PF::I2CDeviceStatus::write_error;
-      mock_device.add_write_status(write_status1);
-      auto write_buffer1 = PF::Util::Containers::make_array<uint8_t>(0x79, 0x4b);
-      mock_device.write(write_buffer1.data(), write_buffer1.size());
-      auto write_status2 = PF::I2CDeviceStatus::test_failed;
-      mock_device.add_write_status(write_status2);
-      auto write_buffer2 = PF::Util::Containers::make_array<uint8_t>(0xcd, 0x93);
-      mock_device.write(write_buffer2.data(), write_buffer2.size());
-      auto write_status3 = PF::I2CDeviceStatus::no_new_data;
-      mock_device.add_write_status(write_status3);
-      auto write_buffer3 = PF::Util::Containers::make_array<uint8_t>(0x5a, 0x56);
-      mock_device.write(write_buffer3.data(), write_buffer3.size());
-      auto write_status4 = PF::I2CDeviceStatus::invalid_arguments;
-      mock_device.add_write_status(write_status4);
-      auto write_buffer4 = PF::Util::Containers::make_array<uint8_t>(0x22, 0x19);
-      mock_device.write(write_buffer4.data(), write_buffer4.size());
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer2;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer3;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer4;
-      auto status_write = mock_device.get_write(input_buffer.buffer(), count);
-      auto status_write1 = mock_device.get_write(input_buffer1.buffer(), count);
-      auto status_write2 = mock_device.get_write(input_buffer2.buffer(), count);
-      auto status_write3 = mock_device.get_write(input_buffer3.buffer(), count);
-      auto status_write4 = mock_device.get_write(input_buffer4.buffer(), count);
-      THEN("The count value returns 50") { REQUIRE(count == 50); }
-      THEN("After the first write method call, get_write method returns ok status") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the first write method call, get_write buffer contains [db fe] bytes") {
-        REQUIRE(input_buffer[0] == 0xdb);
-        REQUIRE(input_buffer[1] == 0xfe);
-      }
-      THEN("After the second write method call, get_write method returns ok status") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the second write method call, get_write buffer contains [79 4b] bytes") {
-        REQUIRE(input_buffer1[0] == 0x79);
-        REQUIRE(input_buffer1[1] == 0x4b);
-      }
-      THEN("After the third write method call, get_write method returns ok status") {
-        REQUIRE(status_write2 == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the third write method call, get_write buffer contains [cd 93] bytes") {
-        REQUIRE(input_buffer2[0] == 0xcd);
-        REQUIRE(input_buffer2[1] == 0x93);
-      }
-      THEN("After the fourth write method call, get_write method returns ok status") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the fourth write method call, get_write buffer contains [5a 56] bytes") {
-        REQUIRE(input_buffer3[0] == 0x5a);
-        REQUIRE(input_buffer3[1] == 0x56);
-      }
-      THEN("After the fifth write method call, get_write method returns ok status") {
-        REQUIRE(status_write4 == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the fifth write method call, get_write buffer contains  [22 19] bytes") {
-        REQUIRE(input_buffer4[0] == 0x22);
-        REQUIRE(input_buffer4[1] == 0x19);
-      }
-    }
-    WHEN(
-        "The write method is called four times with buffer bytes [db fe] [79 4b] [cd 93] [22 19] "
-        "and I2CDevice status as [Ok] [write_error] [ok] [ok] and then get_write method is called "
-        "four times ") {
-      auto write_status = PF::I2CDeviceStatus::ok;
-      mock_device.add_write_status(write_status);
-      auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xdb, 0xfe);
-      mock_device.write(write_buffer.data(), write_buffer.size());
-      auto write_status1 = PF::I2CDeviceStatus::write_error;
-      mock_device.add_write_status(write_status1);
-      auto write_buffer1 = PF::Util::Containers::make_array<uint8_t>(0x79, 0x4b);
-      mock_device.write(write_buffer1.data(), write_buffer1.size());
-      auto write_status2 = PF::I2CDeviceStatus::ok;
-      mock_device.add_write_status(write_status2);
-      auto write_buffer2 = PF::Util::Containers::make_array<uint8_t>(0xcd, 0x93);
-      mock_device.write(write_buffer2.data(), write_buffer2.size());
-      auto write_status4 = PF::I2CDeviceStatus::ok;
-      mock_device.add_write_status(write_status4);
-      auto write_buffer4 = PF::Util::Containers::make_array<uint8_t>(0x22, 0x19);
-      mock_device.write(write_buffer4.data(), write_buffer4.size());
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer2;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer3;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer4;
-      auto status_write = mock_device.get_write(input_buffer.buffer(), count);
-      auto status_write1 = mock_device.get_write(input_buffer1.buffer(), count);
-      auto status_write2 = mock_device.get_write(input_buffer2.buffer(), count);
-      auto status_write3 = mock_device.get_write(input_buffer3.buffer(), count);
-      THEN("The count value returns 50") { REQUIRE(count == 50); }
-      THEN("After the first write call, get_write method call returns ok status") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the first write method call, get_write buffer contains [db fe] bytes") {
-        REQUIRE(input_buffer[0] == 0xdb);
-        REQUIRE(input_buffer[1] == 0xfe);
-      }
-      THEN("After the second write method call, get_write method call returns ok status") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the second write method call, get_write buffer contains [79 4b] bytes") {
-        REQUIRE(input_buffer1[0] == 0x79);
-        REQUIRE(input_buffer1[1] == 0x4b);
-      }
-      THEN("After the third write method call, get_write method call returns ok status") {
-        REQUIRE(status_write2 == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the third write method call, get_write buffer contains [cd 93] bytes") {
-        REQUIRE(input_buffer2[0] == 0xcd);
-        REQUIRE(input_buffer2[1] == 0x93);
-      }
-      THEN("After the fifth write method call, get_write method call returns ok status") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the first write methodcall, get_write buffer contains [22 19] bytes") {
-        REQUIRE(input_buffer3[0] == 0x22);
-        REQUIRE(input_buffer3[1] == 0x19);
-      }
-    }
-    WHEN(
-        "The write method is called three times with buffer bytes [db fe] [32 9b f7 4b] [cd 93]  "
-        "and [Ok] [ok] [ok] I2CDevice status, then get_write method is called four times") {
-      auto write_status = PF::I2CDeviceStatus::ok;
-      mock_device.add_write_status(write_status);
-      auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xdb, 0xfe);
-      mock_device.write(write_buffer.data(), write_buffer.size());
-      auto write_status1 = PF::I2CDeviceStatus::ok;
-      mock_device.add_write_status(write_status1);
-      auto write_buffer1 = PF::Util::Containers::make_array<uint8_t>(0x32, 0x9b, 0xf7, 0x4b);
-      mock_device.write(write_buffer1.data(), write_buffer1.size());
-      auto write_status2 = PF::I2CDeviceStatus::ok;
-      mock_device.add_write_status(write_status2);
-      auto write_buffer2 = PF::Util::Containers::make_array<uint8_t>(0xcd, 0x93);
-      mock_device.write(write_buffer2.data(), write_buffer2.size());
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer2;
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer3;
-      auto status_write = mock_device.get_write(input_buffer.buffer(), count);
-      auto status_write1 = mock_device.get_write(input_buffer1.buffer(), count);
-      auto status_write2 = mock_device.get_write(input_buffer2.buffer(), count);
-      auto status_write3 = mock_device.get_write(input_buffer3.buffer(), count);
-      THEN("The count value returns 50") { REQUIRE(count == 50); }
-      THEN("After the first write method call, get_write method call returns ok status") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the first write method call, get_write buffer contains [db fe] bytes") {
-        REQUIRE(input_buffer[0] == 0xdb);
-        REQUIRE(input_buffer[1] == 0xfe);
-      }
-      THEN("After the second write method call, get_write method call returns ok status") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the second write method call, get_write buffer contains [32 9b f7 4b] bytes") {
-        REQUIRE(input_buffer1[0] == 0x32);
-        REQUIRE(input_buffer1[1] == 0x9b);
-        REQUIRE(input_buffer1[2] == 0xf7);
-        REQUIRE(input_buffer1[3] == 0x4b);
-      }
-      THEN("After the third write method call, get_write method call returns ok status") {
-        REQUIRE(status_write2 == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the third write method call, get_write buffer contains [cd 93] bytes") {
-        REQUIRE(input_buffer2[0] == 0xcd);
-        REQUIRE(input_buffer2[1] == 0x93);
-      }
-      THEN("After the fourth write method call, get_write method call returns no_new_data status") {
-        REQUIRE(status_write3 == PF::I2CDeviceStatus::no_new_data);
-      }
-    }
-  }
-}
+//     WHEN(
+//         "The write method is called five times with buffer bytes [db fe] [79 4b] [cd 93] [5a 56] "
+//         "[22 19]and I2CDevice status as [Ok] [write_error] [test_failed] [no_new_data] "
+//         "[invalid_argument] and then get_write method is called five times") {
+//       auto write_status = PF::I2CDeviceStatus::ok;
+//       mock_device.add_write_status(write_status);
+//       auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xdb, 0xfe);
+//       mock_device.write(write_buffer.data(), write_buffer.size());
+//       auto write_status1 = PF::I2CDeviceStatus::write_error;
+//       mock_device.add_write_status(write_status1);
+//       auto write_buffer1 = PF::Util::Containers::make_array<uint8_t>(0x79, 0x4b);
+//       mock_device.write(write_buffer1.data(), write_buffer1.size());
+//       auto write_status2 = PF::I2CDeviceStatus::test_failed;
+//       mock_device.add_write_status(write_status2);
+//       auto write_buffer2 = PF::Util::Containers::make_array<uint8_t>(0xcd, 0x93);
+//       mock_device.write(write_buffer2.data(), write_buffer2.size());
+//       auto write_status3 = PF::I2CDeviceStatus::no_new_data;
+//       mock_device.add_write_status(write_status3);
+//       auto write_buffer3 = PF::Util::Containers::make_array<uint8_t>(0x5a, 0x56);
+//       mock_device.write(write_buffer3.data(), write_buffer3.size());
+//       auto write_status4 = PF::I2CDeviceStatus::invalid_arguments;
+//       mock_device.add_write_status(write_status4);
+//       auto write_buffer4 = PF::Util::Containers::make_array<uint8_t>(0x22, 0x19);
+//       mock_device.write(write_buffer4.data(), write_buffer4.size());
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer2;
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer3;
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer4;
+//       auto status_write = mock_device.get_write(input_buffer.buffer(), count);
+//       auto status_write1 = mock_device.get_write(input_buffer1.buffer(), count);
+//       auto status_write2 = mock_device.get_write(input_buffer2.buffer(), count);
+//       auto status_write3 = mock_device.get_write(input_buffer3.buffer(), count);
+//       auto status_write4 = mock_device.get_write(input_buffer4.buffer(), count);
+//       THEN("The count value returns 50") { REQUIRE(count == 50); }
+//       THEN("After the first write method call, get_write method returns ok status") {
+//         REQUIRE(status_write == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the first write method call, get_write buffer contains [db fe] bytes") {
+//         REQUIRE(input_buffer[0] == 0xdb);
+//         REQUIRE(input_buffer[1] == 0xfe);
+//       }
+//       THEN("After the second write method call, get_write method returns ok status") {
+//         REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the second write method call, get_write buffer contains [79 4b] bytes") {
+//         REQUIRE(input_buffer1[0] == 0x79);
+//         REQUIRE(input_buffer1[1] == 0x4b);
+//       }
+//       THEN("After the third write method call, get_write method returns ok status") {
+//         REQUIRE(status_write2 == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the third write method call, get_write buffer contains [cd 93] bytes") {
+//         REQUIRE(input_buffer2[0] == 0xcd);
+//         REQUIRE(input_buffer2[1] == 0x93);
+//       }
+//       THEN("After the fourth write method call, get_write method returns ok status") {
+//         REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the fourth write method call, get_write buffer contains [5a 56] bytes") {
+//         REQUIRE(input_buffer3[0] == 0x5a);
+//         REQUIRE(input_buffer3[1] == 0x56);
+//       }
+//       THEN("After the fifth write method call, get_write method returns ok status") {
+//         REQUIRE(status_write4 == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the fifth write method call, get_write buffer contains  [22 19] bytes") {
+//         REQUIRE(input_buffer4[0] == 0x22);
+//         REQUIRE(input_buffer4[1] == 0x19);
+//       }
+//     }
+//     WHEN(
+//         "The write method is called four times with buffer bytes [db fe] [79 4b] [cd 93] [22 19] "
+//         "and I2CDevice status as [Ok] [write_error] [ok] [ok] and then get_write method is called "
+//         "four times ") {
+//       auto write_status = PF::I2CDeviceStatus::ok;
+//       mock_device.add_write_status(write_status);
+//       auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xdb, 0xfe);
+//       mock_device.write(write_buffer.data(), write_buffer.size());
+//       auto write_status1 = PF::I2CDeviceStatus::write_error;
+//       mock_device.add_write_status(write_status1);
+//       auto write_buffer1 = PF::Util::Containers::make_array<uint8_t>(0x79, 0x4b);
+//       mock_device.write(write_buffer1.data(), write_buffer1.size());
+//       auto write_status2 = PF::I2CDeviceStatus::ok;
+//       mock_device.add_write_status(write_status2);
+//       auto write_buffer2 = PF::Util::Containers::make_array<uint8_t>(0xcd, 0x93);
+//       mock_device.write(write_buffer2.data(), write_buffer2.size());
+//       auto write_status4 = PF::I2CDeviceStatus::ok;
+//       mock_device.add_write_status(write_status4);
+//       auto write_buffer4 = PF::Util::Containers::make_array<uint8_t>(0x22, 0x19);
+//       mock_device.write(write_buffer4.data(), write_buffer4.size());
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer2;
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer3;
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer4;
+//       auto status_write = mock_device.get_write(input_buffer.buffer(), count);
+//       auto status_write1 = mock_device.get_write(input_buffer1.buffer(), count);
+//       auto status_write2 = mock_device.get_write(input_buffer2.buffer(), count);
+//       auto status_write3 = mock_device.get_write(input_buffer3.buffer(), count);
+//       THEN("The count value returns 50") { REQUIRE(count == 50); }
+//       THEN("After the first write call, get_write method call returns ok status") {
+//         REQUIRE(status_write == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the first write method call, get_write buffer contains [db fe] bytes") {
+//         REQUIRE(input_buffer[0] == 0xdb);
+//         REQUIRE(input_buffer[1] == 0xfe);
+//       }
+//       THEN("After the second write method call, get_write method call returns ok status") {
+//         REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the second write method call, get_write buffer contains [79 4b] bytes") {
+//         REQUIRE(input_buffer1[0] == 0x79);
+//         REQUIRE(input_buffer1[1] == 0x4b);
+//       }
+//       THEN("After the third write method call, get_write method call returns ok status") {
+//         REQUIRE(status_write2 == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the third write method call, get_write buffer contains [cd 93] bytes") {
+//         REQUIRE(input_buffer2[0] == 0xcd);
+//         REQUIRE(input_buffer2[1] == 0x93);
+//       }
+//       THEN("After the fifth write method call, get_write method call returns ok status") {
+//         REQUIRE(status_write3 == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the first write methodcall, get_write buffer contains [22 19] bytes") {
+//         REQUIRE(input_buffer3[0] == 0x22);
+//         REQUIRE(input_buffer3[1] == 0x19);
+//       }
+//     }
+//     WHEN(
+//         "The write method is called three times with buffer bytes [db fe] [32 9b f7 4b] [cd 93]  "
+//         "and [Ok] [ok] [ok] I2CDevice status, then get_write method is called four times") {
+//       auto write_status = PF::I2CDeviceStatus::ok;
+//       mock_device.add_write_status(write_status);
+//       auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xdb, 0xfe);
+//       mock_device.write(write_buffer.data(), write_buffer.size());
+//       auto write_status1 = PF::I2CDeviceStatus::ok;
+//       mock_device.add_write_status(write_status1);
+//       auto write_buffer1 = PF::Util::Containers::make_array<uint8_t>(0x32, 0x9b, 0xf7, 0x4b);
+//       mock_device.write(write_buffer1.data(), write_buffer1.size());
+//       auto write_status2 = PF::I2CDeviceStatus::ok;
+//       mock_device.add_write_status(write_status2);
+//       auto write_buffer2 = PF::Util::Containers::make_array<uint8_t>(0xcd, 0x93);
+//       mock_device.write(write_buffer2.data(), write_buffer2.size());
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer2;
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer3;
+//       auto status_write = mock_device.get_write(input_buffer.buffer(), count);
+//       auto status_write1 = mock_device.get_write(input_buffer1.buffer(), count);
+//       auto status_write2 = mock_device.get_write(input_buffer2.buffer(), count);
+//       auto status_write3 = mock_device.get_write(input_buffer3.buffer(), count);
+//       THEN("The count value returns 50") { REQUIRE(count == 50); }
+//       THEN("After the first write method call, get_write method call returns ok status") {
+//         REQUIRE(status_write == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the first write method call, get_write buffer contains [db fe] bytes") {
+//         REQUIRE(input_buffer[0] == 0xdb);
+//         REQUIRE(input_buffer[1] == 0xfe);
+//       }
+//       THEN("After the second write method call, get_write method call returns ok status") {
+//         REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the second write method call, get_write buffer contains [32 9b f7 4b] bytes") {
+//         REQUIRE(input_buffer1[0] == 0x32);
+//         REQUIRE(input_buffer1[1] == 0x9b);
+//         REQUIRE(input_buffer1[2] == 0xf7);
+//         REQUIRE(input_buffer1[3] == 0x4b);
+//       }
+//       THEN("After the third write method call, get_write method call returns ok status") {
+//         REQUIRE(status_write2 == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the third write method call, get_write buffer contains [cd 93] bytes") {
+//         REQUIRE(input_buffer2[0] == 0xcd);
+//         REQUIRE(input_buffer2[1] == 0x93);
+//       }
+//       THEN("After the fourth write method call, get_write method call returns no_new_data status") {
+//         REQUIRE(status_write3 == PF::I2CDeviceStatus::no_new_data);
+//       }
+//     }
+//   }
+// }
 
-SCENARIO(
-    "Mock device works correctly when write method is called and then get_write method is called "
-    "for 3 times") {
-  GIVEN("Freshly constructed mock-device") {
-    PF::HAL::Mock::I2CDevice mock_device;
-    constexpr size_t buffer_size = 50UL;
-    size_t count = 0;
+// SCENARIO(
+//     "Mock device works correctly when write method is called and then get_write method is called "
+//     "for 3 times") {
+//   GIVEN("Freshly constructed mock-device") {
+//     PF::HAL::Mock::I2CDevice mock_device;
+//     constexpr size_t buffer_size = 50UL;
+//     size_t count = 0;
 
-    WHEN(
-        "The write method is called with input paramter [db fe] and ok I2CDeviceStatus and then "
-        "get_write method is called this pattern is repeated 2 more time with input parameter [32 "
-        "9b f7 4b] [52 f1 9d 1c] "
-        "and I2CDevice status as [write_error] [OK] ") {
-      auto write_status = PF::I2CDeviceStatus::ok;
-      mock_device.add_write_status(write_status);
-      auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xdb, 0xfe);
-      mock_device.write(write_buffer.data(), write_buffer.size());
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-      auto status_write = mock_device.get_write(input_buffer.buffer(), count);
-      THEN("The count value returns 50") { REQUIRE(count == 50); }
-      THEN("After the first write method call, get_write call returns ok status") {
-        REQUIRE(status_write == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the first write method call, get_write buffer contains [db fe] bytes") {
-        REQUIRE(input_buffer[0] == 0xdb);
-        REQUIRE(input_buffer[1] == 0xfe);
-      }
-      auto write_status1 = PF::I2CDeviceStatus::write_error;
-      mock_device.add_write_status(write_status1);
-      auto write_buffer1 = PF::Util::Containers::make_array<uint8_t>(0x32, 0x9b, 0xf7, 0x4b);
-      mock_device.write(write_buffer1.data(), write_buffer1.size());
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
-      auto status_write1 = mock_device.get_write(input_buffer1.buffer(), count);
-      THEN("After the second write method call, get_write method call returns ok status") {
-        REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the second write method call, get_write buffer contains [32 9b f7 4b] bytes") {
-        REQUIRE(input_buffer1[0] == 0x32);
-        REQUIRE(input_buffer1[1] == 0x9b);
-        REQUIRE(input_buffer1[2] == 0xf7);
-        REQUIRE(input_buffer1[3] == 0x4b);
-      }
+//     WHEN(
+//         "The write method is called with input paramter [db fe] and ok I2CDeviceStatus and then "
+//         "get_write method is called this pattern is repeated 2 more time with input parameter [32 "
+//         "9b f7 4b] [52 f1 9d 1c] "
+//         "and I2CDevice status as [write_error] [OK] ") {
+//       auto write_status = PF::I2CDeviceStatus::ok;
+//       mock_device.add_write_status(write_status);
+//       auto write_buffer = PF::Util::Containers::make_array<uint8_t>(0xdb, 0xfe);
+//       mock_device.write(write_buffer.data(), write_buffer.size());
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+//       auto status_write = mock_device.get_write(input_buffer.buffer(), count);
+//       THEN("The count value returns 50") { REQUIRE(count == 50); }
+//       THEN("After the first write method call, get_write call returns ok status") {
+//         REQUIRE(status_write == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the first write method call, get_write buffer contains [db fe] bytes") {
+//         REQUIRE(input_buffer[0] == 0xdb);
+//         REQUIRE(input_buffer[1] == 0xfe);
+//       }
+//       auto write_status1 = PF::I2CDeviceStatus::write_error;
+//       mock_device.add_write_status(write_status1);
+//       auto write_buffer1 = PF::Util::Containers::make_array<uint8_t>(0x32, 0x9b, 0xf7, 0x4b);
+//       mock_device.write(write_buffer1.data(), write_buffer1.size());
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer1;
+//       auto status_write1 = mock_device.get_write(input_buffer1.buffer(), count);
+//       THEN("After the second write method call, get_write method call returns ok status") {
+//         REQUIRE(status_write1 == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the second write method call, get_write buffer contains [32 9b f7 4b] bytes") {
+//         REQUIRE(input_buffer1[0] == 0x32);
+//         REQUIRE(input_buffer1[1] == 0x9b);
+//         REQUIRE(input_buffer1[2] == 0xf7);
+//         REQUIRE(input_buffer1[3] == 0x4b);
+//       }
 
-      auto write_status2 = PF::I2CDeviceStatus::ok;
-      mock_device.add_write_status(write_status2);
-      auto write_buffer2 = PF::Util::Containers::make_array<uint8_t>(0x52, 0xf1, 0x9d, 0x1c);
-      mock_device.write(write_buffer2.data(), write_buffer2.size());
-      PF::Util::Containers::ByteVector<buffer_size> input_buffer2;
-      auto status_write2 = mock_device.get_write(input_buffer2.buffer(), count);
-      THEN("After the third write call, get_write method call returns ok status") {
-        REQUIRE(status_write2 == PF::I2CDeviceStatus::ok);
-      }
-      THEN("After the second write method call, get_write buffer contains [52 f1 9d 1c] bytes") {
-        REQUIRE(input_buffer2[0] == 0x52);
-        REQUIRE(input_buffer2[1] == 0xf1);
-        REQUIRE(input_buffer2[2] == 0x9d);
-        REQUIRE(input_buffer2[3] == 0x1c);
-      }
-    }
-  }
-}
+//       auto write_status2 = PF::I2CDeviceStatus::ok;
+//       mock_device.add_write_status(write_status2);
+//       auto write_buffer2 = PF::Util::Containers::make_array<uint8_t>(0x52, 0xf1, 0x9d, 0x1c);
+//       mock_device.write(write_buffer2.data(), write_buffer2.size());
+//       PF::Util::Containers::ByteVector<buffer_size> input_buffer2;
+//       auto status_write2 = mock_device.get_write(input_buffer2.buffer(), count);
+//       THEN("After the third write call, get_write method call returns ok status") {
+//         REQUIRE(status_write2 == PF::I2CDeviceStatus::ok);
+//       }
+//       THEN("After the second write method call, get_write buffer contains [52 f1 9d 1c] bytes") {
+//         REQUIRE(input_buffer2[0] == 0x52);
+//         REQUIRE(input_buffer2[1] == 0xf1);
+//         REQUIRE(input_buffer2[2] == 0x9d);
+//         REQUIRE(input_buffer2[3] == 0x1c);
+//       }
+//     }
+//   }
+// }
 
 SCENARIO(
     "I2C mock device works correctly for get_write  method when write method has innput parameter "
