@@ -98,8 +98,6 @@ class I2CDevice : public Interfaces::I2CDevice {
   static const uint8_t read_buf_size = 50;
   static const uint8_t write_buf_size = 50;
 
-  // using ReadBuffer = std::array<uint8_t, read_buf_size>;
-  // using WriteBuffer = std::array<uint8_t, write_buf_size>;
   using ReadBuffer = ByteVector<read_buf_size>;
   using WriteBuffer = ByteVector<write_buf_size>;
 
