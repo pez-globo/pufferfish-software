@@ -21,7 +21,7 @@
 
 #include "Pufferfish/HAL/Mock/I2CDevice.h"
 
-#include <assert.h>
+#include <cassert>
 
 namespace Pufferfish::HAL::Mock {
 
