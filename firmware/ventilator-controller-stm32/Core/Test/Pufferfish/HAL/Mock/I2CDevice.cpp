@@ -506,7 +506,7 @@ SCENARIO("Mock I2CDevice works correctly for write method and get_write method")
   GIVEN("A freshly constructed mock device") {
     PF::HAL::Mock::I2CDevice mock_device;
     constexpr size_t buffer_size = 50UL;
-    size_t count = 0;
+    size_t count = 5;
     WHEN(
         "The write method is called with input parameter [d5 1a 7a bc 24]bytes and Ok "
         "I2CDeviceStatus and then get_write method is called") {

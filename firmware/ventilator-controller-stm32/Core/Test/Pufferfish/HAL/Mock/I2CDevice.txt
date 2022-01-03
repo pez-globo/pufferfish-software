@@ -59,15 +59,15 @@ Scenario : Mock I2CDevice works correctly when add_read method is called multipl
       THEN('The third read method call returns ok status') 
       THEN('After the third read method call, read buffer contains [e1 7c]bytes') 
 
-Scenario : Mock I2CDevice works correctly when add_read method and read method is called one after other  
+Scenario : Mock I2CDevice works correctly when add_read method "alternating" and read method is called one after other  
   GIVEN('Freshly constructed mock device') 
     WHEN('The add_read method  with input parametes,[27 b8] and I2CDeviceStatus [ok] is called and then read method is called , this pattern is repeated for 6 more times with input parameter [64 f3] [2f 1c] '
         '[39 25] [f3 9e] [a9 78] [9c 7f] and [ok][ok][ok][ok][ok][ok] I2CDeviceStatus, where count is set to 50 ') 
       THEN('The count value remains 50') 
       THEN('The first read method call returns Ok status') 
-      THEN('After the first read method call, read buffer contains [27 b8]bytes') 
+      THEN('After the first read method call, read buffer contains is exactly [27 b8]bytes') 
       THEN('The second read method call returns ok status') 
-      THEN('After the second read method call, read buffer contains [64 f3]bytes') 
+      THEN('After the second read method call, read "output"buffer contains [64 f3]bytes') 
       THEN('The third read method call returns Ok status') 
       THEN('After the third read method call, read buffer contains [2f 1c]bytes') 
       THEN('The fourth read method call returns Ok status') 
@@ -80,7 +80,7 @@ Scenario : Mock I2CDevice works correctly when add_read method and read method i
       THEN('After the seventh read method call, read buffer contains [9c 7f]bytes') 
 
 Scenario : I2C mock device works correctly for  add_read method when input parameter has 50 bytes and 20 bytes then read method is called 
-  GIVEN('Freshly constructed mock device , where count is set to 50') 
+  GIVEN('Freshly constructed mock device , where count is set to 50')  "with different buffer size" "read called repetedly"
     WHEN('The add_read method is called with input parameters, 50 bytes [63 89 9a a9 27 54 0e 5e 90 c2 15 21 45 e1 e1 bb 99 55 73 a6 a4 04 27 ae 2d 1a f0 43 d6 76 d8 b6 ce 30 fc 89 e6 f2 e9 '
          'eb e0 73 a3 09 9a 4c 13 e3 ce 3f], followed by 25 data bytes [eb 65 a1 62 93 13 33 23 ff 97 ba 63 f2 46 46 dd 1a 64 a2 c1 50 04 d3 09 31] and ok I2CDeviceStatus then read method is called twice') 
       THEN('The count value remains 50') 
