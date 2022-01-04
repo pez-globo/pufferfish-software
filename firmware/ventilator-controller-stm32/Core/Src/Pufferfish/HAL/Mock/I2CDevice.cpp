@@ -23,6 +23,8 @@
 
 #include <cassert>
 
+#include "catch2/catch.hpp"
+
 namespace Pufferfish::HAL::Mock {
 
 I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
@@ -30,13 +32,13 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
     return I2CDeviceStatus::no_new_data;
   }
 
-  assert(read_buf_queue_.size() == read_status_queue_.size());
+  REQUIRE(read_buf_queue_.size() == read_status_queue_.size());
 
   I2CDeviceStatus return_status = read_status_queue_.front();
   read_status_queue_.pop();
 
   const auto &read_buf = read_buf_queue_.front();
-  assert(count > read_buf.size());
+  REQUIRE(count > read_buf.size());
 
   for (size_t index = 0; index < read_buf_size; index++) {
     buf[index] = read_buf[index];
@@ -74,7 +76,7 @@ I2CDeviceStatus I2CDevice::write(uint8_t *buf, size_t count) {
   write_buf_queue_.emplace();
   auto &write_buf = write_buf_queue_.back();
 
-  assert(count > write_buf.size());
+  REQUIRE(count > write_buf.size());
 
   size_t write_count = (count < write_buf_size) ? count : write_buf_size;
   for (size_t index = 0; index < write_count; index++) {
