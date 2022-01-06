@@ -1101,11 +1101,11 @@ SCENARIO(
           0xd3,
           0x09,
           0x31);
-      auto status2 = mock_device.write(read_buffer1.data(), read_buffer1.size());
+      mock_device.write(read_buffer1.data(), read_buffer1.size());
       PF::Util::Containers::ByteVector<buffer_size> input_write1;
       auto write_status1 = mock_device.get_write(input_write1.buffer(), count);
       THEN("The second write method returns ok status") {
-        // REQUIRE(status2 == PF::I2CDeviceStatus::ok);
+        //REQUIRE(status2 == PF::I2CDeviceStatus::ok);
       }
       THEN("The second get_write method returns OK status") {
         REQUIRE(write_status1 == PF::I2CDeviceStatus::ok);
