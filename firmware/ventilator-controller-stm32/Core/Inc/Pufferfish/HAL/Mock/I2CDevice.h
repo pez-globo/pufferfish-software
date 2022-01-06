@@ -20,9 +20,7 @@
 
 #pragma once
 
-#include <array>
 #include <queue>
-#include <vector>
 
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
 #include "Pufferfish/Util/Containers/Vector.h"

@@ -21,11 +21,13 @@
 
 #include "Pufferfish/HAL/Mock/I2CDevice.h"
 
-#include <cassert>
+#include <iostream>
 
+#include "Pufferfish/Util/Containers/Vector.h"
 #include "catch2/catch.hpp"
 
 namespace Pufferfish::HAL::Mock {
+using Pufferfish::Util::Containers::ByteVector;
 
 I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
   if (read_buf_queue_.empty()) {
@@ -38,7 +40,8 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
   read_status_queue_.pop();
 
   const auto &read_buf = read_buf_queue_.front();
-  REQUIRE(count > read_buf.size());
+
+  REQUIRE(count == read_buf.size());
 
   for (size_t index = 0; index < read_buf_size; index++) {
     buf[index] = read_buf[index];
@@ -65,7 +68,7 @@ void I2CDevice::add_read(const uint8_t *buf, size_t count, I2CDeviceStatus statu
   auto &read_buf = read_buf_queue_.back();
 
   for (size_t index = 0; index < read_count; index++) {
-    read_buf[index] = buf[index];
+    read_buf.push_back(buf[index]);
   }
 }
 
@@ -76,12 +79,12 @@ I2CDeviceStatus I2CDevice::write(uint8_t *buf, size_t count) {
   write_buf_queue_.emplace();
   auto &write_buf = write_buf_queue_.back();
 
-  REQUIRE(count > write_buf.size());
-
   size_t write_count = (count < write_buf_size) ? count : write_buf_size;
   for (size_t index = 0; index < write_count; index++) {
-    write_buf[index] = buf[index];
+    write_buf.push_back(buf[index]);
   }
+
+  REQUIRE(count == write_buf.size());
 
   return return_status;
 }
@@ -92,7 +95,7 @@ I2CDeviceStatus I2CDevice::get_write(uint8_t *buf, size_t &count) {
   }
 
   const auto &write_buf = write_buf_queue_.front();
-  count = write_buf_size;
+  count = write_buf.size();
 
   for (size_t index = 0; index < count; index++) {
     buf[index] = write_buf[index];
