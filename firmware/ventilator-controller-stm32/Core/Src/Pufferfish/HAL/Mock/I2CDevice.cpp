@@ -21,8 +21,6 @@
 
 #include "Pufferfish/HAL/Mock/I2CDevice.h"
 
-#include <iostream>
-
 #include "Pufferfish/Util/Containers/Vector.h"
 #include "catch2/catch.hpp"
 
@@ -34,6 +32,8 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
     return I2CDeviceStatus::no_new_data;
   }
 
+  // Length of read_buf queue and staus_buf queue should be same
+  // NOLINTNEXTLINE(preprocessorErrorDirective)
   REQUIRE(read_buf_queue_.size() == read_status_queue_.size());
 
   I2CDeviceStatus return_status = read_status_queue_.front();
@@ -41,6 +41,9 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
 
   const auto &read_buf = read_buf_queue_.front();
 
+  // If count is not equal to read_buf size, data either gets lost or noise gets appended at the end
+  // of read buffer
+  // NOLINTNEXTLINE(preprocessorErrorDirective)
   REQUIRE(count == read_buf.size());
 
   for (size_t index = 0; index < read_buf_size; index++) {
@@ -84,6 +87,8 @@ I2CDeviceStatus I2CDevice::write(uint8_t *buf, size_t count) {
     write_buf.push_back(buf[index]);
   }
 
+  // Count and write_buf size should be equal
+  // NOLINTNEXTLINE(preprocessorErrorDirective)
   REQUIRE(count == write_buf.size());
 
   return return_status;
