@@ -2704,6 +2704,7 @@ namespace Catch {
 #define INTERNAL_CATCH_REACT( handler ) handler.complete();
 
 ///////////////////////////////////////////////////////////////////////////////
+//Cppcheck false positive, gives preprocessorErrorDirective error
 // cppcheck-suppress preprocessorErrorDirective
 #define INTERNAL_CATCH_TEST( macroName, resultDisposition, ... ) \
     do { \

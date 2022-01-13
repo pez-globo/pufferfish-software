@@ -31,8 +31,8 @@ Scenario :I2C mock device works correctly for add_read and read method
 Scenario :Mock I2CDevice works correctly when add_read method is called multiple times and then read method is called multiple times 
   GIVEN('Freshly constructed mock device') 
     WHEN('The add_read method is called five times with input parametes,buffer [27 b8] [64 f3] [e1 7c] [d5 '
-        '55] [2e 87] bytes and [ok read_error invalid_arguments crc_check_failed no_new_data] '
-        'I2CDeviceStatus and count set to length of buffer, then read method is called six times with '
+        '55] [2e 87] bytes and [ok] [read_error] [invalid_arguments] [crc_check_failed] [no_new_data] '
+        'I2CDeviceStatus and count set to length of corresponding buffer, then read method is called six times with '
         'input parameter count 2 ') 
       THEN('The first read method call returns Ok status') 
       THEN('After the first read method call, output buffer contains [27 b8]bytes') 
@@ -47,7 +47,7 @@ Scenario :Mock I2CDevice works correctly when add_read method is called multiple
       THEN('The sixth read method call returns no_new_data status') 
 
     WHEN('The add_read method is called four times with input parametes,[27 b8] [64 f3] [e1 7c] [d5 '
-        '55] bytes and [ok read_error invalid_arguments ok] I2CDeviceStatus and count set to lenght of consecutive buffer, then read method is called five times '
+        '55] bytes and [ok] [read_error] [invalid_arguments [ok] I2CDeviceStatus and count set to lenght of corresponding buffer, then read method is called five times '
         'with input parameter count always with 2') 
       THEN('The first read method call returns Ok status') 
       THEN('After the first read method call, output buffer contains [27 b8]bytes') 
@@ -63,25 +63,26 @@ Scenario :Mock I2CDevice works correctly when add_read method is called multiple
     // WHEN('The add_read method is called three times with input parametes,[27 b8] [64 f3] [e1 7c] '
     //     'bytes and [ok read_error ok] I2CDeviceStatus and count 10, then read method is called three times '
     //     'with input parameter count always with 10') 
+    //Catch2 fails for this condition as count !=buffer size
 
     WHEN('The add_read method is called three times with input parametes,[27 b8] [64 f3 e0 fd 6e 68] [e1 7c 70 5f ee] '
-        'bytes and [ok ok ok] I2CDeviceStatus and count 10, then read method '
+        'bytes and [ok] [ok] [ok] I2CDeviceStatus and count set to corresponding length of buffer, then read method '
         'is called four times with input parameter count set to consecutive buffer length') 
       THEN('The first read method call returns Ok status') 
       THEN('After the first read method call, output buffer contains [27 b8]bytes') 
       THEN('The second read method call returns ok status') 
-      THEN('After the second read method call, output buffer contains [64 f3]bytes') 
+      THEN('After the second read method call, output buffer contains [64 f3 e0 fd 6e 68]bytes') 
       THEN('The third read method call returns ok status') 
-      THEN('After the third read method call, output buffer contains [e1 7c]bytes') 
+      THEN('After the third read method call, output buffer contains [e1 7c 70 5f ee] bytes') 
       THEN('The fourth read method call returns no_new_data status') 
 
 Scenario :Mock I2CDevice works correctly when add_read method and read method is called in alternating order 
   GIVEN('Freshly constructed mock device') 
-    WHEN('The add_read method is called with input parameters,[27 b8]bytes and OK I2CDeviceStatus and count 50, and'
-        'then read method is called with input parameter count 10; and then add_read and read methods are called in alternating order for 6 more '
+    WHEN('The add_read method is called with input parameters,[27 b8]bytes and OK I2CDeviceStatus and count 2, and'
+        'then read method is called with input parameter count 2; and then add_read and read methods are called in alternating order for 6 more '
         'times where add_read method's input parameters are [64 f3 b3] '
-        '[2f 1c 80 78] [39 25 ed] [fe 39] [2f 1c][9c 7f ]and [ok][ok][ok][ok][ok][ok]'
-        'I2CDeviceStatus, and read method's input parameter count is set to consecutive buffer lenght; then read method is called one more time with input parameter count 2 ') 
+        '[2f 1c 80 78] [39 25 ed] [fe 39] [2f 1c][9c 7f af 63 c7 53]and [ok][ok][ok][ok][ok][ok] I2CDeviceStatus and count set to corresponding buffer lengths'
+        ', and read method's input parameter count is set to corresponding buffer lenght; then read method is called one more time with input parameter count 2 ') 
       THEN('The first read method call returns Ok status') 
       THEN('After the first read method call, output buffer contains [27 b8]bytes') 
       THEN('The second read method call returns ok status') 
@@ -116,8 +117,8 @@ Scenario :Mock I2CDevice works correctly for write method and get_write method
     WHEN('The write method is called with input parameter [d5 1a 7a bc 24]bytes and count 5, add_write_status '
         'method is called with input parameter Ok I2CDeviceStatus and then get_write method is called twice') 
       THEN('The write method returns ok status') 
-      THEN('The first get_write method's output parameter count has value 5') 
       THEN('The get_write method call returns ok status') 
+      THEN('The first get_write method's output parameter count has value 5') 
       THEN('After the get_write method call, output buffer contains [d5 1a 7a bc 24] bytes') 
       THEN('The second get_write method call returns no_new_data status') 
 
@@ -125,8 +126,8 @@ Scenario :Mock I2CDevice works correctly for write method and get_write method
         'add_write_status method with input parameter  '
         'write_error I2CDeviceStatus is called, and then get_write method is called twice') 
       THEN('The write method returns ok status') 
-      THEN('The output parameter of get_write method count has value 5') 
       THEN('The first get_write method call returns ok status') 
+      THEN('The output parameter of get_write method count has value 5') 
       THEN('After the get_write method call, output buffer contains [d5 1a 7a bc 24] bytes') 
       THEN('The second get_write method call returns no_new_data status') 
 
@@ -151,10 +152,10 @@ Scenario :Mock I2CDevice works correctly for write method and get_write method
 Scenario :Mock device works correctly when write method is called multiple times and then get_write method is called multiple times 
   GIVEN('Freshly constructed mock-device') 
     WHEN('The write method is called five times with input parameter, buffer bytes [db fe] [79 4b] [cd 93] [5a 56] '
-        '[22 19]and count 2, and add_write_staus method is called five times with input I2CDeviceStatus [Ok, write_error, test_failed, no_new_data, invalid_argument] and then get_write method is called six times') 
+        '[22 19]and count set to corresponding buffer lenght, and add_write_staus method is called five times with input I2CDeviceStatus [Ok] [write_error] [test_failed] [no_new_data] [invalid_argument] and then get_write method is called six times') 
       THEN('The first five write method call returns ok status') 
-      THEN('The get_write output parameter count has value 2') 
       THEN('After the first write method call, get_write method returns ok status') 
+      THEN('The get_write output parameter count has value 2') 
       THEN('After the first get_write method call, output buffer contains [db fe] bytes') 
       THEN('After the second write method call, get_write method returns ok status') 
       THEN('After the second get_write method call, output buffer contains [79 4b] bytes') 
@@ -167,11 +168,11 @@ Scenario :Mock device works correctly when write method is called multiple times
       THEN('The sixth get_write method call returns no_new_data status') 
 
     WHEN('The write method is called four times with input parameter buffer bytes [db fe] [79 4b] [cd 93] [22 19] and count 2 '
-        'and add_write_status method is called four times with input I2CDeviceStatus [Ok, write_error, ok, ok], and then get_write method is called '
+        'and add_write_status method is called four times with input I2CDeviceStatus [Ok] [write_error] [ok] [ok], and then get_write method is called '
         'five times ') 
       THEN('The first four write method calls return ok status') 
-      THEN('The get_write method output parameter count has value 2') 
       THEN('After the first write call, get_write method call returns ok status') 
+      THEN('The get_write method output parameter count has value 2') 
       THEN('After the first get_write method call, output buffer contains [db fe] bytes') 
       THEN('After the second write method call, get_write method call returns ok status') 
       THEN('After the second get_write method call, output buffer contains [79 4b] bytes') 
@@ -181,36 +182,36 @@ Scenario :Mock device works correctly when write method is called multiple times
       THEN('After the fourth get_write method call, output buffer contains [22 19] bytes') 
       THEN('The fifth get_write method call returns no_new_data status') 
 
-Scenario :Mock device works correctly when write method is  get_write method is called in alternating order multiple times 
+Scenario :Mock device works correctly when write method and get_write method is called in alternating order multiple times 
   GIVEN('Freshly constructed mock-device') 
     WHEN('The write method is called with input paramter [db fe] and count 2, and add_write_status method is '
         'called with input OK I2CDeviceStatus and then get_write method is called; write, add_write_status and get_write method is called in alternating order twice, where write method's input parameters are [32 9b f7 4b] [52 f1 9d 1c] and count 4'
-        'and add_write_status's input parameters are [write_error, OK] I2CDeviceStatus') 
+        'and add_write_status's input parameters are [write_error] [OK] I2CDeviceStatus') 
       THEN('The first write method call returns ok status') 
-      THEN('The get_write output parameter count has value 2') 
-      THEN('The get_write method call returns ok status') 
+      THEN('The first get_write method call returns ok status') 
+      THEN('After the first get_write method call, get_write output parameter count has value 2') 
       THEN('After the first get_write method call, output buffer contains [db fe] bytes') 
       THEN('The second write method call returns ok status') 
       THEN('The second get_write method call returns ok status') 
       THEN('After the second get_write method call, output buffer contains [32 9b f7 4b] bytes') 
-      THEN('The get_write output parameter count has value 4') 
+      THEN('After the second get_write method call, get_write output parameter count has value 4') 
       THEN('The third write method call returns ok status') 
       THEN('The third get_write method call returns ok status') 
       THEN('After the third get_write method call, output buffer contains [52 f1 9d 1c] bytes') 
-      THEN('The get_write output parameter count has value 4')      
+      THEN('After the third get_write method call, get_write output parameter count has value 4')      
 
 Scenario :I2C mock device works correctly for get_write method and write method, when write method has input parameter of differnt buffer sizes 
   GIVEN('Freshly constructed mock device') 
-    WHEN('The write method is called twice, first method call with input parameters, buffer of 50 data bytes and count 50 '
-        '[63 ... 09 31] and add_write_status is called with input parameter OK I2CDeviceStatus,'
-         second method call has input parameters buffer of 25 bytes [eb .. 09 31] and count 25'
+    WHEN('The write method is called twice, first method call with input parameters, buffer of 50 data bytes [63 ... 09 31] and count 50 '
+        ' and add_write_status is called with input parameter OK I2CDeviceStatus,'
+         second method call has input parameters, buffer of 25 bytes [eb .. 09 31] and count 25'
         'then add_write_status is called with input parameter Ok I2CDeviceStatus, then get_write method is called three times') 
       THEN('The first write call returns ok status') 
-      THEN('The get_write output parameter count has value 50') 
       THEN('The first get_write method returns OK status') 
+      THEN('After the first get_write method call, get_write output parameter count has value 50') 
       THEN('After the first get_write method call, output buffer contains expected 50 data bytes [63 ..ce 3f]') 
       THEN('The second write method returns ok status') 
       THEN('The second get_write method returns OK status') 
       THEN('After the second get_write method call, output buffer contains  expected 25 data bytes [eb ... 09 31]') 
-      THEN('The get_write output parameter count has value 25') 
+      THEN('After the second get_write method call, get_write output parameter count has value 25') 
       THEN('The third get_write method call returns no_new_data status') 

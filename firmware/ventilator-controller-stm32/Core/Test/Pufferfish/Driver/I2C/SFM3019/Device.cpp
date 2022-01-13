@@ -1,648 +1,642 @@
-// /*
-//  * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
-//  *
-//  * SensirionDevice.cpp
-//  *
-//  *  Created on:
-//  *      Author: Raavi Lagoo
-//  *
-//  * Unit tests to confirm behavior of SFM3019  Device
-//  *
-//  */
-// #include "Pufferfish/Driver/I2C/SFM3019/Device.h"
+/*
+ * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
+ *
+ * SensirionDevice.cpp
+ *
+ *  Created on:
+ *      Author: Raavi Lagoo
+ *
+ * Unit tests to confirm behavior of SFM3019  Device
+ *
+ */
+#include "Pufferfish/Driver/I2C/SFM3019/Device.h"
 
-// #include <string>
+#include <string>
 
-// #include "Pufferfish/Driver/I2C/SFM3019/Types.h"
-// #include "Pufferfish/Driver/I2C/SensirionDevice.h"
-// #include "Pufferfish/HAL/CRCChecker.h"
-// #include "Pufferfish/HAL/Mock/I2CDevice.h"
-// #include "Pufferfish/Test/Util.h"
-// #include "Pufferfish/Util/Containers/Array.h"
-// #include "catch2/catch.hpp"
-// namespace PF = Pufferfish;
-// SCENARIO(
-//     "SFM3019 Device:: SFM3019 device behaves correctly when start_measure function is called") {
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
-//       "'0x01' and O2 as gas parameter") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//     global_device.write(input_data.data(), input_data.size());
-//     WHEN("The start_measure function is called ") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       constexpr size_t buffer_size = 254UL;
-//       PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       size_t count = buffer_size;
-//       auto status = device.start_measure();
-//       THEN("The start_measure function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN("The mock I2C's write buffer consists of start measure O2 command byte '0x3603'") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x36);
-//         REQUIRE(input_buffer[1] == 0x03);
-//       }
-//       THEN("The mock  I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//   }
+#include "Pufferfish/Driver/I2C/SFM3019/Types.h"
+#include "Pufferfish/Driver/I2C/SensirionDevice.h"
+#include "Pufferfish/HAL/CRCChecker.h"
+#include "Pufferfish/HAL/Mock/I2CDevice.h"
+#include "Pufferfish/Test/Util.h"
+#include "Pufferfish/Util/Containers/Array.h"
+#include "catch2/catch.hpp"
+namespace PF = Pufferfish;
+SCENARIO(
+    "SFM3019 Device:: SFM3019 device behaves correctly when start_measure function is called") {
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
+      "'0x01' and O2 as gas parameter") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    auto write_status = PF::I2CDeviceStatus::ok;
+    mock_device.add_write_status(write_status);
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+    global_device.write(input_data.data(), input_data.size());
+    WHEN("The start_measure function is called ") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      constexpr size_t buffer_size = 254UL;
+      PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      size_t count = buffer_size;
+      auto status = device.start_measure();
+      THEN("The start_measure function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN("The mock I2C's write buffer consists of start measure O2 command byte '0x3603'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x36);
+        REQUIRE(input_buffer[1] == 0x03);
+      }
+      THEN("The mock  I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+  }
 
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device ,  global I2C device of write buffer "
-//       "'0x01' and air as gas parameter") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//     global_device.write(input_data.data(), input_data.size());
-//     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
-//     WHEN("The start_measure function is called ") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       constexpr size_t buffer_size = 254UL;
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//       size_t count = buffer_size;
-//       auto status = device.start_measure();
-//       THEN("The start_measure function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN("The mock I2C's write buffer consists of start measure air command byte '0x3608'") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x36);
-//         REQUIRE(input_buffer[1] == 0x08);
-//       }
-//       THEN("The mock I2C's read buffer is empty ") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty ") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//   }
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
-//       "'0x01' and mixture as gas parameter") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::mixture;
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//     global_device.write(input_data.data(), input_data.size());
-//     WHEN("The start_measure function is called ") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       constexpr size_t buffer_size = 254UL;
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//       size_t count = buffer_size;
-//       auto status = device.start_measure();
-//       THEN("The start_measure function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN("The mock I2C's write buffer consists of start measure mixture command byte '0x3632'")
-//       {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x36);
-//         REQUIRE(input_buffer[1] == 0x32);
-//       }
-//       THEN("The mock I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//   }
-// }
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device ,  global I2C device of write buffer "
+      "'0x01' and air as gas parameter") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    auto write_status = PF::I2CDeviceStatus::ok;
+    mock_device.add_write_status(write_status);
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+    global_device.write(input_data.data(), input_data.size());
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
+    WHEN("The start_measure function is called ") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      constexpr size_t buffer_size = 254UL;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+      size_t count = buffer_size;
+      auto status = device.start_measure();
+      THEN("The start_measure function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN("The mock I2C's write buffer consists of start measure air command byte '0x3608'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x36);
+        REQUIRE(input_buffer[1] == 0x08);
+      }
+      THEN("The mock I2C's read buffer is empty ") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty ") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+  }
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
+      "'0x01' and mixture as gas parameter") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    auto write_status = PF::I2CDeviceStatus::ok;
+    mock_device.add_write_status(write_status);
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::mixture;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+    global_device.write(input_data.data(), input_data.size());
+    WHEN("The start_measure function is called ") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      constexpr size_t buffer_size = 254UL;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+      size_t count = buffer_size;
+      auto status = device.start_measure();
+      THEN("The start_measure function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN("The mock I2C's write buffer consists of start measure mixture command byte '0x3632'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x36);
+        REQUIRE(input_buffer[1] == 0x32);
+      }
+      THEN("The mock I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+  }
+}
 
-// SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when stop_measure function is
-// called") {
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
-//       "'0x01' and O2 as gas parameter ") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//     global_device.write(input_data.data(), input_data.size());
-//     WHEN("The stop_measure function is called ") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       constexpr size_t buffer_size = 254UL;
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       size_t count = buffer_size;
-//       PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//       auto status = device.stop_measure();
-//       THEN("The stop_measure function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN("The mock I2C's write buffer consists of stop measure O2 command byte '0x3FF9'") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x3F);
-//         REQUIRE(input_buffer[1] == 0xF9);
-//       }
-//       THEN("The mock I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//   }
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device, global I2C device of write buffer "
-//       "'0x01',and air as gas parameter ") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//     global_device.write(input_data.data(), input_data.size());
-//     WHEN("The stop_measure function is called ") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       constexpr size_t buffer_size = 254UL;
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//       size_t count = buffer_size;
-//       auto status = device.stop_measure();
-//       THEN("The stop_measure function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN("The mock I2C's write buffer consists of stop measure air command byte '0x3FF9'") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x3F);
-//         REQUIRE(input_buffer[1] == 0xF9);
-//       }
-//       THEN("The mock I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//   }
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
-//       "'0x01' and mixture as gas parameter ") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::mixture;
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//     global_device.write(input_data.data(), input_data.size());
-//     WHEN("The stop_measure function is called ") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       constexpr size_t buffer_size = 254UL;
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//       size_t count = buffer_size;
-//       auto status = device.stop_measure();
-//       THEN("The stop_measure returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
-//       THEN("The mock I2C's write buffer consists of stop measure mixture command byte '0x3FF9'")
-//       {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x3F);
-//         REQUIRE(input_buffer[1] == 0xF9);
-//       }
-//       THEN("The mock I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//   }
-// }
-// SCENARIO(
-//     "SFM3019 Device:: SFM3019 device behaves correctly when set_averaging function is called") {
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device, global I2c device  of write buffer "
-//       "'0x01'  and O2 as gas parameter") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     constexpr size_t buffer_size = 254UL;
-//     PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//     global_device.write(input_data.data(), input_data.size());
-//     WHEN("The set_averaging function is called wirh averaging_window 0 as input parameter") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       size_t count = buffer_size;
-//       auto status = device.set_averaging(0);
-//       THEN("The set_averaging function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN(
-//           "The mock I2C's write buffer consists of set_averaging command byte '0x366A' followed
-//           by "
-//           "'0x000081'") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x36);
-//         REQUIRE(input_buffer[1] == 0x6a);
-//         REQUIRE(input_buffer[2] == 0x00);
-//         REQUIRE(input_buffer[3] == 0x00);
-//         REQUIRE(input_buffer[4] == 0x81);
-//       }
-//       THEN("The mock I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//     WHEN("The set_averaging function is called wirh averaging_window 128 as input parameter") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       constexpr size_t buffer_size = 254UL;
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       size_t count = buffer_size;
-//       auto status = device.set_averaging(128);
-//       THEN("The set_averaging function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN(
-//           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
-//           " "by '0x0080FB'") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x36);
-//         REQUIRE(input_buffer[1] == 0x6A);
-//         REQUIRE(input_buffer[2] == 0x00);
-//         REQUIRE(input_buffer[3] == 0x80);
-//         REQUIRE(input_buffer[4] == 0xFB);
-//       }
-//       THEN("The mock I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//   }
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device , global I2c device of write buffer "
-//       "'0x01'  and air as gas parameter") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     constexpr size_t buffer_size = 254UL;
-//     PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//     global_device.write(input_data.data(), input_data.size());
-//     WHEN("The set_averaging function is called wirh averaging_window 0 as input parameter") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       size_t count = buffer_size;
-//       auto status = device.set_averaging(0);
-//       THEN("The set_averaging function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN(
-//           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
-//           " "by '0x000081'") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x36);
-//         REQUIRE(input_buffer[1] == 0x6a);
-//         REQUIRE(input_buffer[2] == 0x00);
-//         REQUIRE(input_buffer[3] == 0x00);
-//         REQUIRE(input_buffer[4] == 0x81);
-//       }
-//       THEN("The mock I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//     WHEN("The set_averaging function is called wirh averaging_window 128 as input parameter") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       constexpr size_t buffer_size = 254UL;
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       size_t count = buffer_size;
-//       auto status = device.set_averaging(128);
-//       THEN("The set_averaging function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN(
-//           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
-//           " "by '0x0080FB'") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x36);
-//         REQUIRE(input_buffer[1] == 0x6a);
-//         REQUIRE(input_buffer[2] == 0x00);
-//         REQUIRE(input_buffer[3] == 0x80);
-//         REQUIRE(input_buffer[4] == 0xFB);
-//       }
-//       THEN("The mock I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//   }
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device , global I2c device of write buffer "
-//       "'0x01'  and mixture as gas parameter") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     constexpr size_t buffer_size = 254UL;
-//     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::mixture;
-//     PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//     global_device.write(input_data.data(), input_data.size());
-//     WHEN("The set_averaging function is called wirh averaging_window 0 as input parameter") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       size_t count = buffer_size;
-//       auto status = device.set_averaging(0);
-//       THEN("The set_averaging function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN(
-//           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
-//           " "by '0x000081'") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x36);
-//         REQUIRE(input_buffer[1] == 0x6a);
-//         REQUIRE(input_buffer[2] == 0x00);
-//         REQUIRE(input_buffer[3] == 0x00);
-//         REQUIRE(input_buffer[4] == 0x81);
-//       }
-//       THEN("The mock I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//     WHEN("The set_averaging function is called wirh averaging_window 128 as input parameter") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       constexpr size_t buffer_size = 254UL;
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       size_t count = buffer_size;
-//       auto status = device.set_averaging(128);
-//       THEN("The set_averaging function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN(
-//           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
-//           " "by '0x0080FB") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x36);
-//         REQUIRE(input_buffer[1] == 0x6a);
-//         REQUIRE(input_buffer[2] == 0x00);
-//         REQUIRE(input_buffer[3] == 0x80);
-//         REQUIRE(input_buffer[4] == 0xFB);
-//       }
-//       THEN("The mock I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged ") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//   }
-// }
+SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when stop_measure function is called") {
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
+      "'0x01' and O2 as gas parameter ") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    auto write_status = PF::I2CDeviceStatus::ok;
+    mock_device.add_write_status(write_status);
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+    global_device.write(input_data.data(), input_data.size());
+    WHEN("The stop_measure function is called ") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      constexpr size_t buffer_size = 254UL;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      size_t count = buffer_size;
+      PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+      auto status = device.stop_measure();
+      THEN("The stop_measure function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN("The mock I2C's write buffer consists of stop measure O2 command byte '0x3FF9'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x3F);
+        REQUIRE(input_buffer[1] == 0xF9);
+      }
+      THEN("The mock I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+  }
 
-// SCENARIO(
-//     "SFM3019 Device:: SFM3019 device behaves correctly when request_conversion_factors function
-//     is " "called") {
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
-//       "'0x01' and O2 as gas parameter") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     constexpr size_t buffer_size = 254UL;
-//     PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//     global_device.write(input_data.data(), input_data.size());
-//     WHEN("The request_conversion_factors function is called") {
-//       PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       size_t count = buffer_size;
-//       auto status = device.request_conversion_factors();
-//       THEN("The request_conversion_factors function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN(
-//           "The mock I2C's write buffer consists of request_conversion_factor O2 command byte "
-//           "'0x3661 followed by '0x36033A'") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x36);
-//         REQUIRE(input_buffer[1] == 0x61);
-//         REQUIRE(input_buffer[2] == 0x36);
-//         REQUIRE(input_buffer[3] == 0x03);
-//         REQUIRE(input_buffer[4] == 0x3A);
-//       }
-//       THEN("The mock I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//   }
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
-//       "'0x01' and air as gas parameter") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     constexpr size_t buffer_size = 254UL;
-//     PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//     global_device.write(input_data.data(), input_data.size());
-//     WHEN("The request_conversion_factors function is called ") {
-//       PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       constexpr size_t buffer_size = 254UL;
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       size_t count = buffer_size;
-//       auto status = device.request_conversion_factors();
-//       THEN("The request_conversion_factors function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN(
-//           "The mock I2C's write buffer consists of request_conversion_factor air command byte "
-//           "'0x3661 followed by '0x3608D0'") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x36);
-//         REQUIRE(input_buffer[1] == 0x61);
-//         REQUIRE(input_buffer[2] == 0x36);
-//         REQUIRE(input_buffer[3] == 0x08);
-//         REQUIRE(input_buffer[4] == 0xD0);
-//       }
-//       THEN("The mock I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//   }
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
-//       "'0x01' and mixture as gas parameter") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     constexpr size_t buffer_size = 254UL;
-//     PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//     global_device.write(input_data.data(), input_data.size());
-//     WHEN("The request_conversion_factors function is called") {
-//       PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::mixture;
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       constexpr size_t buffer_size = 254UL;
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       size_t count = buffer_size;
-//       auto status = device.request_conversion_factors();
-//       THEN("The request_conversion_factors returns ok") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN(
-//           "The mock I2C's write buffer consists of request_conversion_factor mixture command byte
-//           "
-//           "'0x3661 followed by '0x3632CE'") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x36);
-//         REQUIRE(input_buffer[1] == 0x61);
-//         REQUIRE(input_buffer[2] == 0x36);
-//         REQUIRE(input_buffer[3] == 0x32);
-//         REQUIRE(input_buffer[4] == 0xCE);
-//       }
-//       THEN("The mock I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//   }
-// }
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device, global I2C device of write buffer "
+      "'0x01',and air as gas parameter ") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    auto write_status = PF::I2CDeviceStatus::ok;
+    mock_device.add_write_status(write_status);
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+    global_device.write(input_data.data(), input_data.size());
+    WHEN("The stop_measure function is called ") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      constexpr size_t buffer_size = 254UL;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+      size_t count = buffer_size;
+      auto status = device.stop_measure();
+      THEN("The stop_measure function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN("The mock I2C's write buffer consists of stop measure air command byte '0x3FF9'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x3F);
+        REQUIRE(input_buffer[1] == 0xF9);
+      }
+      THEN("The mock I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+  }
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
+      "'0x01' and mixture as gas parameter ") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    auto write_status = PF::I2CDeviceStatus::ok;
+    mock_device.add_write_status(write_status);
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::mixture;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+    global_device.write(input_data.data(), input_data.size());
+    WHEN("The stop_measure function is called ") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      constexpr size_t buffer_size = 254UL;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+      size_t count = buffer_size;
+      auto status = device.stop_measure();
+      THEN("The stop_measure returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
+      THEN("The mock I2C's write buffer consists of stop measure mixture command byte '0x3FF9'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x3F);
+        REQUIRE(input_buffer[1] == 0xF9);
+      }
+      THEN("The mock I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+  }
+}
+SCENARIO(
+    "SFM3019 Device:: SFM3019 device behaves correctly when set_averaging function is called") {
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device, global I2c device  of write buffer "
+      "'0x01'  and O2 as gas parameter") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    auto write_status = PF::I2CDeviceStatus::ok;
+    mock_device.add_write_status(write_status);
+    constexpr size_t buffer_size = 254UL;
+    PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+    global_device.write(input_data.data(), input_data.size());
+    WHEN("The set_averaging function is called wirh averaging_window 0 as input parameter") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      size_t count = buffer_size;
+      auto status = device.set_averaging(0);
+      THEN("The set_averaging function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN(
+          "The mock I2C's write buffer consists of set_averaging command byte '0x366A' followed by "
+          "'0x000081'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x36);
+        REQUIRE(input_buffer[1] == 0x6a);
+        REQUIRE(input_buffer[2] == 0x00);
+        REQUIRE(input_buffer[3] == 0x00);
+        REQUIRE(input_buffer[4] == 0x81);
+      }
+      THEN("The mock I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+    WHEN("The set_averaging function is called wirh averaging_window 128 as input parameter") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      constexpr size_t buffer_size = 254UL;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      size_t count = buffer_size;
+      auto status = device.set_averaging(128);
+      THEN("The set_averaging function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN(
+          "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed "
+          "by '0x0080FB'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x36);
+        REQUIRE(input_buffer[1] == 0x6A);
+        REQUIRE(input_buffer[2] == 0x00);
+        REQUIRE(input_buffer[3] == 0x80);
+        REQUIRE(input_buffer[4] == 0xFB);
+      }
+      THEN("The mock I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+  }
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device , global I2c device of write buffer "
+      "'0x01'  and air as gas parameter") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    auto write_status = PF::I2CDeviceStatus::ok;
+    mock_device.add_write_status(write_status);
+    constexpr size_t buffer_size = 254UL;
+    PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+    global_device.write(input_data.data(), input_data.size());
+    WHEN("The set_averaging function is called wirh averaging_window 0 as input parameter") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      size_t count = buffer_size;
+      auto status = device.set_averaging(0);
+      THEN("The set_averaging function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN(
+          "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed "
+          "by '0x000081'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x36);
+        REQUIRE(input_buffer[1] == 0x6a);
+        REQUIRE(input_buffer[2] == 0x00);
+        REQUIRE(input_buffer[3] == 0x00);
+        REQUIRE(input_buffer[4] == 0x81);
+      }
+      THEN("The mock I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+    WHEN("The set_averaging function is called wirh averaging_window 128 as input parameter") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      constexpr size_t buffer_size = 254UL;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      size_t count = buffer_size;
+      auto status = device.set_averaging(128);
+      THEN("The set_averaging function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN(
+          "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed "
+          "by '0x0080FB'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x36);
+        REQUIRE(input_buffer[1] == 0x6a);
+        REQUIRE(input_buffer[2] == 0x00);
+        REQUIRE(input_buffer[3] == 0x80);
+        REQUIRE(input_buffer[4] == 0xFB);
+      }
+      THEN("The mock I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+  }
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device , global I2c device of write buffer "
+      "'0x01'  and mixture as gas parameter") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    auto write_status = PF::I2CDeviceStatus::ok;
+    mock_device.add_write_status(write_status);
+    constexpr size_t buffer_size = 254UL;
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::mixture;
+    PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+    global_device.write(input_data.data(), input_data.size());
+    WHEN("The set_averaging function is called wirh averaging_window 0 as input parameter") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      size_t count = buffer_size;
+      auto status = device.set_averaging(0);
+      THEN("The set_averaging function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN(
+          "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed "
+          "by '0x000081'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x36);
+        REQUIRE(input_buffer[1] == 0x6a);
+        REQUIRE(input_buffer[2] == 0x00);
+        REQUIRE(input_buffer[3] == 0x00);
+        REQUIRE(input_buffer[4] == 0x81);
+      }
+      THEN("The mock I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+    WHEN("The set_averaging function is called wirh averaging_window 128 as input parameter") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      constexpr size_t buffer_size = 254UL;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      size_t count = buffer_size;
+      auto status = device.set_averaging(128);
+      THEN("The set_averaging function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN(
+          "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed "
+          "by '0x0080FB") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x36);
+        REQUIRE(input_buffer[1] == 0x6a);
+        REQUIRE(input_buffer[2] == 0x00);
+        REQUIRE(input_buffer[3] == 0x80);
+        REQUIRE(input_buffer[4] == 0xFB);
+      }
+      THEN("The mock I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged ") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+  }
+}
 
-// SCENARIO(
-//     "SFM3019 Device:: SFM3019 device behaves correctly when read_conversion_factors function is "
-//     "called") {
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device having read buffer 0x[78 33 1B 4c 00
-//       bc " "00 00 81], global I2C device both having write buffer '0x01' and air as gas
-//       parameter") {
+SCENARIO(
+    "SFM3019 Device:: SFM3019 device behaves correctly when request_conversion_factors function is "
+    "called") {
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
+      "'0x01' and O2 as gas parameter") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    auto write_status = PF::I2CDeviceStatus::ok;
+    mock_device.add_write_status(write_status);
+    constexpr size_t buffer_size = 254UL;
+    PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+    global_device.write(input_data.data(), input_data.size());
+    WHEN("The request_conversion_factors function is called") {
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      size_t count = buffer_size;
+      auto status = device.request_conversion_factors();
+      THEN("The request_conversion_factors function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN(
+          "The mock I2C's write buffer consists of request_conversion_factor O2 command byte "
+          "'0x3661 followed by '0x36033A'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x36);
+        REQUIRE(input_buffer[1] == 0x61);
+        REQUIRE(input_buffer[2] == 0x36);
+        REQUIRE(input_buffer[3] == 0x03);
+        REQUIRE(input_buffer[4] == 0x3A);
+      }
+      THEN("The mock I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+  }
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
+      "'0x01' and air as gas parameter") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    auto write_status = PF::I2CDeviceStatus::ok;
+    mock_device.add_write_status(write_status);
+    constexpr size_t buffer_size = 254UL;
+    PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+    global_device.write(input_data.data(), input_data.size());
+    WHEN("The request_conversion_factors function is called ") {
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      constexpr size_t buffer_size = 254UL;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      size_t count = buffer_size;
+      auto status = device.request_conversion_factors();
+      THEN("The request_conversion_factors function returns ok status") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN(
+          "The mock I2C's write buffer consists of request_conversion_factor air command byte "
+          "'0x3661 followed by '0x3608D0'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x36);
+        REQUIRE(input_buffer[1] == 0x61);
+        REQUIRE(input_buffer[2] == 0x36);
+        REQUIRE(input_buffer[3] == 0x08);
+        REQUIRE(input_buffer[4] == 0xD0);
+      }
+      THEN("The mock I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+  }
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
+      "'0x01' and mixture as gas parameter") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    auto write_status = PF::I2CDeviceStatus::ok;
+    mock_device.add_write_status(write_status);
+    constexpr size_t buffer_size = 254UL;
+    PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+    global_device.write(input_data.data(), input_data.size());
+    WHEN("The request_conversion_factors function is called") {
+      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::mixture;
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      constexpr size_t buffer_size = 254UL;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      size_t count = buffer_size;
+      auto status = device.request_conversion_factors();
+      THEN("The request_conversion_factors returns ok") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN(
+          "The mock I2C's write buffer consists of request_conversion_factor mixture command byte "
+          "'0x3661 followed by '0x3632CE'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x36);
+        REQUIRE(input_buffer[1] == 0x61);
+        REQUIRE(input_buffer[2] == 0x36);
+        REQUIRE(input_buffer[3] == 0x32);
+        REQUIRE(input_buffer[4] == 0xCE);
+      }
+      THEN("The mock I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+  }
+}
+
+// SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when read_conversion_factors function
+// is called") {
+//   GIVEN("A SFM3019 device constructed with a mock I2C device having read buffer 0x[78 33 1B 4c 00
+//   bc 00 00 81],"
+//         "global I2C device both having write buffer '0x01' and air as gas parameter") {
 //     PF::HAL::Mock::I2CDevice mock_device;
 //     PF::HAL::Mock::I2CDevice global_device;
 //     auto write_status = PF::I2CDeviceStatus::ok;
@@ -663,10 +657,9 @@
 //     auto write_data = PF::Util::Containers::make_array<uint8_t>(0x01);
 //     global_device.write(write_data.data(), write_data.size());
 //     mock_device.write(write_data.data(), write_data.size());
-//     WHEN(
-//         "The read_conversion_factors function is called with a default-initialized "
+//     WHEN("The read_conversion_factors function is called with a default-initialized "
 //         "ConversionFactors output parameter and with the read buffer of mock I2C device
-//         consisting " "0x[ae dc 6a 00 00 81 00 00 81]") {
+//         consisting 0x[ae dc 6a 00 00 81 00 00 81]") {
 //       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
 //       PF::Driver::I2C::SFM3019::ConversionFactors conversion;
 //       auto status_conversion = device.read_conversion_factors(conversion);
@@ -695,12 +688,10 @@
 //       }
 //     }
 
-//     WHEN(
-//         "The read_conversion_factors function is called with a default-initialized "
+//     WHEN("The read_conversion_factors function is called with a default-initialized "
 //         "ConversionFactors output parameter and with the read buffer of mock I2C device"
 //         "consisting [ae dc 6a 00 00 81 00 00 81], corresponding to scale factor 10 and offset of
-//         "
-//         "-5") {
+//         -5") {
 //       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
 //       PF::Driver::I2C::SFM3019::ConversionFactors conversion;
 //       conversion_factors.scale_factor = 10;
@@ -734,7 +725,7 @@
 //         "The read_conversion_factors function is called with a default-initialized "
 //         "ConversionFactors output parameter and with the read buffer of mock I2C device"
 //         "consisting 0x[ae dc 6a 00 00 81 00 00 81], corresponding to scale factor 170 and offset
-//         " "of -24576") {
+//         of -24576") {
 //       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
 //       PF::Driver::I2C::SFM3019::ConversionFactors conversion;
 //       conversion_factors.scale_factor = 170;
@@ -766,48 +757,48 @@
 //     }
 //   }
 // }
-// SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when request_product_id called") {
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device of write buffer '0x01',, global I2C "
-//       "device and gas parameter") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     global_device.add_write_status(write_status);
-//     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//     global_device.write(input_data.data(), input_data.size());
-//     WHEN("The request_product_id function is called") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       constexpr size_t buffer_size = 254UL;
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       size_t count = buffer_size;
-//       PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//       auto status = device.request_product_id();
-//       THEN("The request_product_id function returns ok") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN("The mock_device I2C's write buffer contains command byte '0xE102'") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0xE1);
-//         REQUIRE(input_buffer[1] == 0x02);
-//       }
-//       THEN("The mock_device I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//   }
-// }
+SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when request_product_id called") {
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device of write buffer '0x01',, global I2C "
+      "device and gas parameter") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    auto write_status = PF::I2CDeviceStatus::ok;
+    mock_device.add_write_status(write_status);
+    global_device.add_write_status(write_status);
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+    global_device.write(input_data.data(), input_data.size());
+    WHEN("The request_product_id function is called") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      constexpr size_t buffer_size = 254UL;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      size_t count = buffer_size;
+      PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+      auto status = device.request_product_id();
+      THEN("The request_product_id function returns ok") {
+        REQUIRE(status == PF::I2CDeviceStatus::ok);
+      }
+      THEN("The mock_device I2C's write buffer contains command byte '0xE102'") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0xE1);
+        REQUIRE(input_buffer[1] == 0x02);
+      }
+      THEN("The mock_device I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer remains unchanged") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x01);
+      }
+    }
+  }
+}
 
 // SCENARIO(
 //     "SFM3019 Device:: SFM3019 device behaves correctly when read_product_id function is called")
@@ -865,9 +856,9 @@
 
 // SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when read_sample function is called")
 // {
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device with read buffer 0x[ae dc 6a], global
-//       " "I2C device, having write buffer '0x01' and gas parameter") {
+//   GIVEN("A SFM3019 device constructed with a mock I2C device with read buffer 0x[ae dc 6a],
+//   global"
+//       "I2C device, having write buffer '0x01' and gas parameter") {
 //     PF::HAL::Mock::I2CDevice mock_device;
 //     PF::HAL::Mock::I2CDevice global_device;
 //     auto write_status = PF::I2CDeviceStatus::ok;
@@ -884,9 +875,9 @@
 //     mock_device.add_read(input_data.data(), input_data.size(), write_status);
 //     auto read_buffer = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
 //     mock_device.add_read(read_buffer.data(), read_buffer.size(), write_status);
-//     WHEN(
-//         "The read_sample function is called with  scale factor of 170 and an offset of  -24576 as
-//         " "input parameters, and a Sample object initialized to default as the output" "parameter
+//     WHEN("The read_sample function is called with  scale factor of 170 and an offset of  -24576
+//     as"
+//         "input parameters, and a Sample object initialized to default as the output parameter
 //         where mock I2C's read buffer is set to " "0x[ae, dc, 6a]") {
 //       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
 //       conversion.scale_factor = 170;
@@ -920,9 +911,9 @@
 //         REQUIRE(global_buffer[0] == 0x01);
 //       }
 //     }
-//     WHEN(
-//         "The read_sample function is called with  scale factor of 170 and an offset of -14576 as
-//         " "input parameters, and a Sample object initialized to default as the output" "parameter
+//     WHEN("The read_sample function is called with  scale factor of 170 and an offset of -14576
+//     as"
+//         " input parameters, and a Sample object initialized to default as the output parameter
 //         where mock I2C's read buffer is set to [ae, dc, 6a]") {
 //       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
 //       conversion.scale_factor = 170;
@@ -956,10 +947,9 @@
 //         REQUIRE(global_buffer[0] == 0x01);
 //       }
 //     }
-//     WHEN(
-//         "The read_sample function is called with  scale factor of 170 and an offset of -100 as "
-//         "input parameters, and a Sample object "
-//         "initialized to default as the output parameter where mock I2C's read buffer is set to "
+//     WHEN("The read_sample function is called with  scale factor of 170 and an offset of -100 as "
+//         "input parameters, and a Sample object initialized to default as the output parameter
+//         where mock I2C's read buffer is set to "
 //         "[ae, dc, 6a]") {
 //       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
 //       conversion.scale_factor = 170;
@@ -993,10 +983,10 @@
 //         REQUIRE(global_buffer[0] == 0x01);
 //       }
 //     }
-//     WHEN(
-//         "The read_sample function is called with  scale factor of 100 and an offset of -24576  as
-//         " "input parameters, and a Sample object initialized to default as the output" "parameter
-//         where mock I2C's read buffer is set to " "0x[ae, dc, 6a]") {
+//     WHEN("The read_sample function is called with  scale factor of 100 and an offset of -24576
+//     as"
+//         "input parameters, and a Sample object initialized to default as the output parameter"
+//         "where mock I2C's read buffer is set to 0x[ae, dc, 6a]") {
 //       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
 //       conversion.scale_factor = 100;
 //       conversion.offset = -24576;
@@ -1066,10 +1056,10 @@
 //         REQUIRE(global_buffer[0] == 0x01);
 //       }
 //     }
-//     WHEN(
-//         "The read_sample function is called with  scale factor of 200 and an offset of  -24576 as
-//         " "input parameters, and a Sample object initialized to default as the output" "parameter
-//         where mock I2C's read buffer is set to " "0x[ae, dc, 6a]") {
+//     WHEN("The read_sample function is called with  scale factor of 200 and an offset of  -24576
+//     as"
+//         "input parameters, and a Sample object initialized to default as the output parameter"
+//         "where mock I2C's read buffer is set to 0x[ae, dc, 6a]") {
 //       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
 //       conversion.scale_factor = 200;
 //       conversion.offset = -24576;
@@ -1167,9 +1157,8 @@
 // SCENARIO(
 //     "SFM3019 Device:: SFM3019 device behaves correctly when read_sample function is called with "
 //     "different buffer") {
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device with read buffer 0x[74 6f ac], global
-//       " "I2C device and gas parameter") {
+//   GIVEN("A SFM3019 device constructed with a mock I2C device with read buffer 0x[74 6f ac],
+//   global I2C device and gas parameter") {
 //     PF::HAL::Mock::I2CDevice mock_device;
 //     PF::HAL::Mock::I2CDevice global_device;
 //     auto write_status = PF::I2CDeviceStatus::ok;
@@ -1186,10 +1175,10 @@
 //     mock_device.add_read(input_data.data(), input_data.size(), write_status);
 //     auto read_buffer = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
 //     mock_device.add_read(read_buffer.data(), read_buffer.size(), write_status);
-//     WHEN(
-//         "The read_sample function is called with  scale factor of 170 and an offset of  -24576 as
-//         " "input parameters, and a Sample object initialized to default as the output" "parameter
-//         where mock I2C's read buffer is set to " "0x[74, 6f, ac]") {
+//     WHEN("The read_sample function is called with  scale factor of 170 and an offset of  -24576
+//     as"
+//         "input parameters, and a Sample object initialized to default as the output parameter"
+//         "where mock I2C's read buffer is set to " "0x[74, 6f, ac]") {
 //       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
 //       conversion.scale_factor = 170;
 //       conversion.offset = -24576;
@@ -1225,42 +1214,42 @@
 //   }
 // }
 
-// SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when reset function is called") {
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device of write buffer '0x01',, global I2C "
-//       "device and gas parameter") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     global_device.add_write_status(write_status);
-//     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//     mock_device.write(input_data.data(), input_data.size());
-//     WHEN("The reset function is called") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       constexpr size_t buffer_size = 254UL;
-//       PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//       size_t count = buffer_size;
-//       PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//       auto status = device.reset();
-//       THEN("The reset function returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
-//       THEN("The mock_device I2C's write buffer remains unchaned") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x01);
-//       }
-//       THEN("The mock_device I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer consists'x06'") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x06);
-//       }
-//     }
-//   }
-// }
+SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when reset function is called") {
+  GIVEN(
+      "A SFM3019 device constructed with a mock I2C device of write buffer '0x01',, global I2C "
+      "device and gas parameter") {
+    PF::HAL::Mock::I2CDevice mock_device;
+    PF::HAL::Mock::I2CDevice global_device;
+    auto write_status = PF::I2CDeviceStatus::ok;
+    mock_device.add_write_status(write_status);
+    global_device.add_write_status(write_status);
+    PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::o2;
+    auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+    mock_device.write(input_data.data(), input_data.size());
+    WHEN("The reset function is called") {
+      PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+      constexpr size_t buffer_size = 254UL;
+      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+      size_t count = buffer_size;
+      PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+      auto status = device.reset();
+      THEN("The reset function returns ok") { REQUIRE(status == PF::I2CDeviceStatus::ok); }
+      THEN("The mock_device I2C's write buffer remains unchaned") {
+        mock_device.get_write(input_buffer.buffer(), count);
+        REQUIRE(input_buffer[0] == 0x01);
+      }
+      THEN("The mock_device I2C's read buffer is empty") {
+        auto read_status = mock_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's read buffer is empty") {
+        auto read_status = global_device.read(input_buffer.buffer(), count);
+        REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+      }
+      THEN("The global_device I2C's write buffer consists'x06'") {
+        global_device.get_write(global_buffer.buffer(), count);
+        REQUIRE(global_buffer[0] == 0x06);
+      }
+    }
+  }
+}

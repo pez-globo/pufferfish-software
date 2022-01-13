@@ -370,8 +370,8 @@ SCENARIO(
     constexpr size_t buffer_size = 20UL;
     WHEN(
         "The add_read method is called with input parameters,[27 b8]bytes and [ok] I2CDeviceStatus "
-        "and count [50], and"
-        "then read method is called with input parameter count [10]; and then add_read and read "
+        "and count 2, and"
+        "then read method is called with input parameter 2; and then add_read and read "
         "methods are called in alternating order for 6 more "
         "times where add_read method's input parameters are [64 f3 b3] "
         "[2f 1c 80 78] [39 25 ed] [fe 39] [2f 1c][9c 7f ]and [ok][ok][ok][ok][ok][ok]"
@@ -616,7 +616,7 @@ SCENARIO("Mock I2CDevice works correctly for write method and get_write method")
   GIVEN("A freshly constructed mock device") {
     PF::HAL::Mock::I2CDevice mock_device;
     constexpr size_t buffer_size = 50UL;
-    size_t count = 5;
+    size_t count = 0;
     WHEN(
         "The write method is called with input parameter [d5 1a 7a bc 24]bytes and count [5], "
         "add_write_status "
