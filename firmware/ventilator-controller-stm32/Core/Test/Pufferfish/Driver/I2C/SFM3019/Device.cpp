@@ -286,10 +286,8 @@
 //       THEN("The set_averaging function returns ok status") {
 //         REQUIRE(status == PF::I2CDeviceStatus::ok);
 //       }
-//       THEN(
-//           "The mock I2C's write buffer consists of set_averaging command byte '0x366A' followed
-//           by "
-//           "'0x000081'") {
+//       THEN("The mock I2C's write buffer consists of set_averaging command byte '0x366A' followed
+//       by '0x000081'") {
 //         mock_device.get_write(input_buffer.buffer(), count);
 //         REQUIRE(input_buffer[0] == 0x36);
 //         REQUIRE(input_buffer[1] == 0x6a);
@@ -319,9 +317,8 @@
 //       THEN("The set_averaging function returns ok status") {
 //         REQUIRE(status == PF::I2CDeviceStatus::ok);
 //       }
-//       THEN(
-//           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
-//           " "by '0x0080FB'") {
+//       THEN("The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
+//       by '0x0080FB'") {
 //         mock_device.get_write(input_buffer.buffer(), count);
 //         REQUIRE(input_buffer[0] == 0x36);
 //         REQUIRE(input_buffer[1] == 0x6A);
@@ -343,9 +340,8 @@
 //       }
 //     }
 //   }
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device , global I2c device of write buffer "
-//       "'0x01'  and air as gas parameter") {
+//   GIVEN("A SFM3019 device constructed with a mock I2C device , global I2c device of write buffer
+//   '0x01'  and air as gas parameter") {
 //     PF::HAL::Mock::I2CDevice mock_device;
 //     PF::HAL::Mock::I2CDevice global_device;
 //     auto write_status = PF::I2CDeviceStatus::ok;
@@ -363,9 +359,8 @@
 //       THEN("The set_averaging function returns ok status") {
 //         REQUIRE(status == PF::I2CDeviceStatus::ok);
 //       }
-//       THEN(
-//           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
-//           " "by '0x000081'") {
+//       THEN("The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
+//       by '0x000081'") {
 //         mock_device.get_write(input_buffer.buffer(), count);
 //         REQUIRE(input_buffer[0] == 0x36);
 //         REQUIRE(input_buffer[1] == 0x6a);
@@ -395,9 +390,8 @@
 //       THEN("The set_averaging function returns ok status") {
 //         REQUIRE(status == PF::I2CDeviceStatus::ok);
 //       }
-//       THEN(
-//           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
-//           " "by '0x0080FB'") {
+//       THEN("The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
+//       by '0x0080FB'") {
 //         mock_device.get_write(input_buffer.buffer(), count);
 //         REQUIRE(input_buffer[0] == 0x36);
 //         REQUIRE(input_buffer[1] == 0x6a);
@@ -439,9 +433,8 @@
 //       THEN("The set_averaging function returns ok status") {
 //         REQUIRE(status == PF::I2CDeviceStatus::ok);
 //       }
-//       THEN(
-//           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
-//           " "by '0x000081'") {
+//       THEN("The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
+//       by '0x000081'") {
 //         mock_device.get_write(input_buffer.buffer(), count);
 //         REQUIRE(input_buffer[0] == 0x36);
 //         REQUIRE(input_buffer[1] == 0x6a);
@@ -471,9 +464,8 @@
 //       THEN("The set_averaging function returns ok status") {
 //         REQUIRE(status == PF::I2CDeviceStatus::ok);
 //       }
-//       THEN(
-//           "The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
-//           " "by '0x0080FB") {
+//       THEN("The mock I2C's write buffer consists of set_averaging  command byte '0x366A' followed
+//       by '0x0080FB") {
 //         mock_device.get_write(input_buffer.buffer(), count);
 //         REQUIRE(input_buffer[0] == 0x36);
 //         REQUIRE(input_buffer[1] == 0x6a);
@@ -497,9 +489,8 @@
 //   }
 // }
 
-// SCENARIO(
-//     "SFM3019 Device:: SFM3019 device behaves correctly when request_conversion_factors function
-//     is " "called") {
+// SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when request_conversion_factors
+// function is called") {
 //   GIVEN(
 //       "A SFM3019 device constructed with a mock I2C device , global I2C device of write buffer "
 //       "'0x01' and O2 as gas parameter") {
@@ -610,10 +601,8 @@
 //       THEN("The request_conversion_factors returns ok") {
 //         REQUIRE(status == PF::I2CDeviceStatus::ok);
 //       }
-//       THEN(
-//           "The mock I2C's write buffer consists of request_conversion_factor mixture command byte
-//           "
-//           "'0x3661 followed by '0x3632CE'") {
+//       THEN("The mock I2C's write buffer consists of request_conversion_factor mixture command
+//       byte '0x3661 followed by '0x3632CE'") {
 //         mock_device.get_write(input_buffer.buffer(), count);
 //         REQUIRE(input_buffer[0] == 0x36);
 //         REQUIRE(input_buffer[1] == 0x61);
@@ -726,8 +715,7 @@
 //         REQUIRE(global_buffer[0] == 0x01);
 //       }
 //     }
-//     WHEN(
-//         "The read_conversion_factors function is called with a default-initialized "
+//     WHEN("The read_conversion_factors function is called with a default-initialized "
 //         "ConversionFactors output parameter and with the read buffer of mock I2C device"
 //         "consisting 0x[ae dc 6a 00 00 81 00 00 81], corresponding to scale factor 170 and offset
 //         of -24576") {

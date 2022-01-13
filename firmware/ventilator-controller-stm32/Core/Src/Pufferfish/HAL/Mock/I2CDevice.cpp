@@ -21,8 +21,6 @@
 
 #include "Pufferfish/HAL/Mock/I2CDevice.h"
 
-#include <iostream>
-
 #include "Pufferfish/Util/Containers/Vector.h"
 #include "catch2/catch.hpp"
 
