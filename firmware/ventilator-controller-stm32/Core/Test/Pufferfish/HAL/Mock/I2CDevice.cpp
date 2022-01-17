@@ -1,3 +1,14 @@
+/*
+ * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
+ *
+ * I2CDevice.cpp
+ *
+ *  Created on:
+ *      Author: Raavi Lagoo
+ *
+ * Unit tests to confirm behavior of I2CMock  Device
+ *
+ */
 #include "Pufferfish/HAL/Mock/I2CDevice.h"
 
 #include <string>

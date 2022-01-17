@@ -1,14 +1,14 @@
-// /*
-//  * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
-//  *
-//  * Sensor.cpp
-//  *
-//  *  Created on:
-//  *      Author: Raavi Lagoo
-//  *
-//  * Unit tests to confirm behavior of SFM3019  Device
-//  *
-//  */
+/*
+ * Copyright 2020, the Pez Globo team and the Pufferfish project contributors
+ *
+ * Sensor.cpp
+ *
+ *  Created on:
+ *      Author: Raavi Lagoo
+ *
+ * Unit tests to confirm behavior of SFM3019  Device
+ *
+ */
 // #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 
 // #include <string>
@@ -20,9 +20,9 @@
 // #include "catch2/catch.hpp"
 // namespace PF = Pufferfish;
 
-// SCENARIO(
-//     "The StateMachine::update method works correctly when update is called with normal interval
-//     of " "time for wait_warmup - check range cycle ") {
+// SCENARIO("The StateMachine::update method works correctly when update is called with normal
+// interval of "
+//          "time for wait_warmup - check range cycle ") {
 //   GIVEN(" A freshly constructed state machine") {
 //     PF::Driver::I2C::SFM3019::StateMachine state_machine;
 //     WHEN("The update method is called twice with [0, 30000]us as input parameter ") {
@@ -49,9 +49,9 @@
 //   }
 // }
 
-// SCENARIO(
-//     "The StateMachine::update method works correctly when update is called with normal interval
-//     of " "time for wait_measurement-measure cycle ") {
+// SCENARIO("The StateMachine::update method works correctly when update is called with normal
+// interval of "
+//          "time for wait_measurement-measure cycle ") {
 //   GIVEN(" A state machine is updated till Action returns check range") {
 //     PF::Driver::I2C::SFM3019::StateMachine state_machine;
 //     uint32_t time = 0;
@@ -64,9 +64,8 @@
 //     REQUIRE(status == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
 //     auto op_state1 = state_machine.output();
 //     REQUIRE(op_state1 == PF::Driver::I2C::SFM3019::StateMachine::Action::check_range);
-//     WHEN(
-//         "The update method is called three times with [30001, 30502, 30503]us as input
-//         parameter") {
+//     WHEN("The update method is called three times with [30001, 30502, 30503]us as input
+//     parameter") {
 //       // Action cycles between  wait_measurement and measure
 //       uint32_t time2 = 30001;
 //       auto action_status1 = state_machine.update(time2);
@@ -101,9 +100,9 @@
 //   }
 // }
 
-// SCENARIO(
-//     "The StateMachine::update method works correctly when update is called multiple times for
-//     edge " "cases for wait_warmup - check_range cycle") {
+// SCENARIO("The StateMachine::update method works correctly when update is called multiple times
+// for edge "
+//         "cases for wait_warmup - check_range cycle") {
 //   GIVEN("The freshly constructed state machine") {
 //     PF::Driver::I2C::SFM3019::StateMachine state_machine;
 //     WHEN("The update method is called three times with [0, 29999, 30000]us as input parameter ")
@@ -140,9 +139,9 @@
 //     }
 //   }
 // }
-// SCENARIO(
-//     "The StateMachine::update method works correctly when update is called multiple times for
-//     edge " "cases for wait_measurement-measure cycle") {
+
+// SCENARIO("The StateMachine::update method works correctly when update is called multiple times
+// for edge cases for wait_measurement-measure cycle") {
 //   GIVEN("A  state machine is updated till Action returns check range") {
 //     PF::Driver::I2C::SFM3019::StateMachine state_machine;
 //     uint32_t time2 = 0;
@@ -387,9 +386,8 @@
 // SCENARIO(
 //     "The Sensor::setup method works correctly for normal cases when action cycles form "
 //     "wait_warmup-check_range") {
-//   GIVEN(
-//       "SFMC3019 sensor is created with mock I2C device with read buffer consisting of[04 02 60 06
-//       " "11 a9 00 00 81] (as a read_product_id response) and[00 aa a6 a0 00 7e 00 00 81]"
+//   GIVEN("SFMC3019 sensor is created with mock I2C device with read buffer consisting of[04 02 60
+//   06 11 a9 00 00 81] (as a read_product_id response) and[00 aa a6 a0 00 7e 00 00 81]"
 //       "(as read_conversion_factor response) and [97 38 1e](as read_sample response) followed by "
 //       "junk bytes [01 02], reseter is set to false and mock time is set to 100us, global"
 //       "device's mock write buffer is set to [01] byte and read buffer has [01 02] bytes") {
@@ -452,9 +450,8 @@
 //       mock_device.get_write(input1.buffer(), count);
 //       PF::Util::Containers::ByteVector<buffer_size> input2;
 //       mock_device.get_write(input2.buffer(), count);
-//       THEN(
-//           "The mock_device I2C's write buffer contains command byte [E1 02](request_product_id),
-//           "
+//       THEN("The mock_device I2C's write buffer contains command byte [E1
+//       02](request_product_id),"
 //           "[36 61](read_conversion), [36 6A](set_averaging) and[36 03](O2 gas)") {
 //         REQUIRE(input_buffer[0] == 0xE1);
 //         REQUIRE(input_buffer[1] == 0x02);
@@ -507,9 +504,8 @@
 // SCENARIO(
 //     "The Sensor::setup method works correctly for normal cases when action cycles form "
 //     "check_range-wait_measurement") {
-//   GIVEN(
-//       "SFMC3019 sensor is created with mock I2C device with read buffer consisting of[04 02 60 06
-//       " "11 a9 00 00 81] (as a read_product_id response) and[00 aa a6 a0 00 7e 00 00 81]"
+//   GIVEN("SFMC3019 sensor is created with mock I2C device with read buffer consisting of[04 02 60
+//   06 11 a9 00 00 81] (as a read_product_id response) and[00 aa a6 a0 00 7e 00 00 81]"
 //       "(as read_conversion_factor response) and [97 38 1e](as read_sample response) followed by "
 //       "junk bytes [01 02], reseter is set to false and mock time is set to 100us. global"
 //       "device's mock write buffer is set to [01] "
@@ -536,9 +532,9 @@
 //     global_device.add_read(read_buffer3.data(), read_buffer3.size(), write_status);
 
 //     // normal case, get_state goes from check_range to wait_measurement action
-//     WHEN(
-//         "The setup method is called thrice , mock time is set to [100, 31000, 31000]us before
-//         each " "corresponding setup call") {
+//     WHEN("The setup method is called thrice , mock time is set to [100, 31000, 31000]us before
+//     each "
+//          "corresponding setup call") {
 //       PF::Driver::I2C::SFM3019::StateMachine state_machine;
 //       PF::Driver::I2C::SFM3019::Sensor sensor{device, false, time};
 //       time.set_micros(100);
@@ -1902,17 +1898,15 @@
 //   }
 // }
 
-// SCENARIO(
-//     "The Sensor::output method works correctly for when action cycles between  wait_measurement -
-//     " "measure") {
-//   GIVEN(
-//       "SFMC3019 sensor is fully initialised by calling setup method until it returns ok and
-//       action " "returns wait_measurement with the mock read buffer consisting of [15 35 a8 15 35"
+// SCENARIO("The Sensor::output method works correctly for when action cycles between
+// wait_measurement - measure") {
+//   GIVEN("SFMC3019 sensor is fully initialised by calling setup method until it returns ok and
+//   action returns wait_measurement with the mock read buffer consisting of [15 35 a8 15 35"
 //       "a8](as read_sample response) followed by junk bytes [01 02], the mock time is set to"
 //       "100us, global device's mock write buffer is set to [01] byte and read buffer is set to [01
-//       " "02] bytes" "and mock_device I2C's write buffer contains command byte [E1"
-//       "02](request_product_id), [36 "
-//       "61](read_conversion), [36 6A](set_averaging) and [36 03](O2 gas)") {
+//       02] bytes" "and mock_device I2C's write buffer contains command byte [E1"
+//       "02](request_product_id), [36 61](read_conversion), [36 6A](set_averaging) and [36 03](O2
+//       gas)") {
 //     PF::HAL::Mock::I2CDevice mock_device;
 //     PF::HAL::Mock::I2CDevice global_device;
 //     auto write_status = PF::I2CDeviceStatus::ok;
@@ -2042,9 +2036,8 @@
 //     }
 //     // Action remains wait_measurement
 //     // Flow does not get updated
-//     WHEN(
-//         "The output method is called twice with mock time set to 40000us for both calls and
-//         output " "parameter flow is initialized to 20.5") {
+//     WHEN("The output method is called twice with mock time set to 40000us for both calls and
+//     output parameter flow is initialized to 20.5") {
 //       auto output_status = sensor.output(flow);
 //       THEN("The first output method call returns ok state") {
 //         REQUIRE(output_status == PF::InitializableState::ok);
@@ -2059,9 +2052,8 @@
 //       THEN("The second output method call returns ok state") {
 //         REQUIRE(output_status1 == PF::InitializableState::ok);
 //       }
-//       THEN(
-//           "After the second output method call, get_state method returns wait_measurement
-//           action") {
+//       THEN("After the second output method call, get_state method returns wait_measurement
+//       action") {
 //         auto status1 = sensor.get_state();
 //         REQUIRE(status1 == PF::Driver::I2C::SFM3019::StateMachine::Action::wait_measurement);
 //       }

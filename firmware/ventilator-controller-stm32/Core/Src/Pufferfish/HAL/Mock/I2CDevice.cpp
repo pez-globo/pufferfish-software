@@ -34,7 +34,6 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
 
   // Length of read_buf queue and staus_buf queue should always be equal
   REQUIRE(read_buf_queue_.size() == read_status_queue_.size());
-
   I2CDeviceStatus return_status = read_status_queue_.front();
   read_status_queue_.pop();
 
@@ -61,6 +60,8 @@ I2CDeviceStatus I2CDevice::read(uint16_t address, uint8_t *buf, size_t count) {
 
 void I2CDevice::add_read(const uint8_t *buf, size_t count, I2CDeviceStatus status) {
   read_status_queue_.push(status);
+  // count size should not exceedes ReadBuffer max size.
+  REQUIRE(count <= ReadBuffer::max_size());
 
   size_t read_count = (count < read_buf_size) ? count : read_buf_size;
 
@@ -76,6 +77,9 @@ void I2CDevice::add_read(const uint8_t *buf, size_t count, I2CDeviceStatus statu
 I2CDeviceStatus I2CDevice::write(uint8_t *buf, size_t count) {
   I2CDeviceStatus return_status = write_status_queue_.front();
   write_status_queue_.pop();
+
+  // count size should not exceedes ReadBuffer max size.
+  REQUIRE(count <= WriteBuffer::max_size());
 
   write_buf_queue_.emplace();
   auto &write_buf = write_buf_queue_.back();

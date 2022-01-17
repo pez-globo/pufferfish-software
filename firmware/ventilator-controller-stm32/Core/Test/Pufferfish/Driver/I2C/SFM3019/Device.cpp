@@ -625,7 +625,7 @@
 //     }
 //   }
 // }
-
+// giving fatal error {Unknown expression after the reported line}
 // SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when read_conversion_factors function
 // is called") {
 //   GIVEN("A SFM3019 device constructed with a mock I2C device having read buffer 0x[78 33 1B 4c 00
@@ -651,70 +651,70 @@
 //     auto write_data = PF::Util::Containers::make_array<uint8_t>(0x01);
 //     global_device.write(write_data.data(), write_data.size());
 //     mock_device.write(write_data.data(), write_data.size());
-//     WHEN("The read_conversion_factors function is called with a default-initialized "
-//         "ConversionFactors output parameter and with the read buffer of mock I2C device
-//         consisting 0x[ae dc 6a 00 00 81 00 00 81]") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       PF::Driver::I2C::SFM3019::ConversionFactors conversion;
-//       auto status_conversion = device.read_conversion_factors(conversion);
-//       THEN("The read_conversion_factors return ok status") {
-//         REQUIRE(status_conversion == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN("The output scale factor is 0") { REQUIRE(conversion_factors.scale_factor == 0); }
-//       THEN("The output offset is 0") { REQUIRE(conversion_factors.offset == 0); }
-//       THEN("The mock_device I2C's write buffer remains unchanged") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x01);
-//       }
-//       THEN("The mock I2C's read buffer remains unchanged") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::ok);
-//         REQUIRE(input_buffer[0] == 0x01);
-//         REQUIRE(input_buffer[1] == 0x02);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
+// WHEN("The read_conversion_factors function is called with a default-initialized "
+//     "ConversionFactors output parameter and with the read buffer of mock I2C device consisting
+//     0x[ae dc 6a 00 00 81 00 00 81]") {
+//   PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+//   PF::Driver::I2C::SFM3019::ConversionFactors conversion;
+//   auto status_conversion = device.read_conversion_factors(conversion);
+//   THEN("The read_conversion_factors return ok status") {
+//     REQUIRE(status_conversion == PF::I2CDeviceStatus::ok);
+//   }
+//   THEN("The output scale factor is 0") { REQUIRE(conversion_factors.scale_factor == 0); }
+//   THEN("The output offset is 0") { REQUIRE(conversion_factors.offset == 0); }
+//   THEN("The mock_device I2C's write buffer remains unchanged") {
+//     mock_device.get_write(input_buffer.buffer(), count);
+//     REQUIRE(input_buffer[0] == 0x01);
+//   }
+//   THEN("The mock I2C's read buffer remains unchanged") {
+//     auto read_status = mock_device.read(input_buffer.buffer(), count);
+//     REQUIRE(read_status == PF::I2CDeviceStatus::ok);
+//     REQUIRE(input_buffer[0] == 0x01);
+//     REQUIRE(input_buffer[1] == 0x02);
+//   }
+//   THEN("The global_device I2C's read buffer is empty") {
+//     auto read_status = global_device.read(input_buffer.buffer(), count);
+//     REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+//   }
+//   THEN("The global_device I2C's write buffer remains unchanged") {
+//     global_device.get_write(global_buffer.buffer(), count);
+//     REQUIRE(global_buffer[0] == 0x01);
+//   }
+// }
 
-//     WHEN("The read_conversion_factors function is called with a default-initialized "
-//         "ConversionFactors output parameter and with the read buffer of mock I2C device"
-//         "consisting [ae dc 6a 00 00 81 00 00 81], corresponding to scale factor 10 and offset of
-//         -5") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       PF::Driver::I2C::SFM3019::ConversionFactors conversion;
-//       conversion_factors.scale_factor = 10;
-//       conversion_factors.offset = -5;
-//       auto status_conversion = device.read_conversion_factors(conversion);
-//       THEN("The read_conversion_factors return ok status") {
-//         REQUIRE(status_conversion == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN("The output scale factor is 10") { REQUIRE(conversion_factors.scale_factor == 10); }
-//       THEN("The output offset is -5") { REQUIRE(conversion_factors.offset == -5); }
-//       THEN("The mock_device I2C's write buffer remains unchanged") {
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x01);
-//       }
-//       THEN("The mock I2C's read buffer remains unchanged") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::ok);
-//         REQUIRE(input_buffer[0] == 0x01);
-//         REQUIRE(input_buffer[1] == 0x02);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
+// WHEN("The read_conversion_factors function is called with a default-initialized "
+//     "ConversionFactors output parameter and with the read buffer of mock I2C device"
+//     "consisting [ae dc 6a 00 00 81 00 00 81], corresponding to scale factor 10 and offset of -5")
+//     {
+//   PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+//   PF::Driver::I2C::SFM3019::ConversionFactors conversion;
+//   conversion_factors.scale_factor = 10;
+//   conversion_factors.offset = -5;
+//   auto status_conversion = device.read_conversion_factors(conversion);
+//   THEN("The read_conversion_factors return ok status") {
+//     REQUIRE(status_conversion == PF::I2CDeviceStatus::ok);
+//   }
+//   THEN("The output scale factor is 10") { REQUIRE(conversion_factors.scale_factor == 10); }
+//   THEN("The output offset is -5") { REQUIRE(conversion_factors.offset == -5); }
+//   THEN("The mock_device I2C's write buffer remains unchanged") {
+//     mock_device.get_write(input_buffer.buffer(), count);
+//     REQUIRE(input_buffer[0] == 0x01);
+//   }
+//   THEN("The mock I2C's read buffer remains unchanged") {
+//     auto read_status = mock_device.read(input_buffer.buffer(), count);
+//     REQUIRE(read_status == PF::I2CDeviceStatus::ok);
+//     REQUIRE(input_buffer[0] == 0x01);
+//     REQUIRE(input_buffer[1] == 0x02);
+//   }
+//   THEN("The global_device I2C's read buffer is empty") {
+//     auto read_status = global_device.read(input_buffer.buffer(), count);
+//     REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+//   }
+//   THEN("The global_device I2C's write buffer remains unchanged") {
+//     global_device.get_write(global_buffer.buffer(), count);
+//     REQUIRE(global_buffer[0] == 0x01);
+//   }
+// }
 //     WHEN("The read_conversion_factors function is called with a default-initialized "
 //         "ConversionFactors output parameter and with the read buffer of mock I2C device"
 //         "consisting 0x[ae dc 6a 00 00 81 00 00 81], corresponding to scale factor 170 and offset
@@ -830,7 +830,7 @@
 //         REQUIRE(input_buffer[0] == 0x01);
 //       }
 //       THEN("The mock_device I2C's read buffer is empty") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
+//         auto read_status = mock_device.read(input_buffer.buffer(), input_data.size());
 //         REQUIRE(read_status == PF::I2CDeviceStatus::ok);
 //         REQUIRE(input_buffer[0] == 0x01);
 //         REQUIRE(input_buffer[1] == 0x02);
@@ -847,252 +847,256 @@
 //   }
 // }
 
-// SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when read_sample function is called")
-// {
-//   GIVEN("A SFM3019 device constructed with a mock I2C device with read buffer 0x[ae dc 6a],
-//   global"
-//       "I2C device, having write buffer '0x01' and gas parameter") {
-//     PF::HAL::Mock::I2CDevice mock_device;
-//     PF::HAL::Mock::I2CDevice global_device;
-//     auto write_status = PF::I2CDeviceStatus::ok;
-//     mock_device.add_write_status(write_status);
-//     global_device.add_write_status(write_status);
-//     constexpr size_t buffer_size = 254UL;
-//     PF::Util::Containers::ByteVector<buffer_size> input_buffer;
-//     PF::Util::Containers::ByteVector<buffer_size> global_buffer;
-//     size_t count = buffer_size;
-//     PF::Driver::I2C::SFM3019::ConversionFactors conversion;
-//     PF::Driver::I2C::SFM3019::Sample sample{};
-//     PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
-//     auto input_data = PF::Util::Containers::make_array<uint8_t>(0xae, 0xdc, 0x6a);
-//     mock_device.add_read(input_data.data(), input_data.size(), write_status);
-//     auto read_buffer = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
-//     mock_device.add_read(read_buffer.data(), read_buffer.size(), write_status);
-//     WHEN("The read_sample function is called with  scale factor of 170 and an offset of  -24576
-//     as"
-//         "input parameters, and a Sample object initialized to default as the output parameter
-//         where mock I2C's read buffer is set to " "0x[ae, dc, 6a]") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       conversion.scale_factor = 170;
-//       conversion.offset = -24576;
-//       auto status = device.read_sample(conversion, sample);
-//       THEN("The read_sample function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN("Output parameter raw_flow returns -20772") { REQUIRE(sample.raw_flow == -20772); }
-//       THEN("Output parameter flow returns 22.37647F ") { REQUIRE(sample.flow == 22.37647F); }
-//       THEN("The mock_device I2C's write buffer remains unchanged") {
-//         auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//         mock_device.write(input_data.data(), input_data.size());
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x01);
-//       }
-//       THEN("The mock_device I2C's read buffer remains unchanged") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::ok);
-//         REQUIRE(input_buffer[0] == 0x01);
-//         REQUIRE(input_buffer[1] == 0x02);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//         global_device.write(input_data.data(), input_data.size());
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//     WHEN("The read_sample function is called with  scale factor of 170 and an offset of -14576
-//     as"
-//         " input parameters, and a Sample object initialized to default as the output parameter
-//         where mock I2C's read buffer is set to [ae, dc, 6a]") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       conversion.scale_factor = 170;
-//       conversion.offset = -14576;
-//       auto status = device.read_sample(conversion, sample);
-//       THEN("The read_sample function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN("Output parameter raw_flow returns -20772") { REQUIRE(sample.raw_flow == -20772); }
-//       THEN("Output parameter flow returns -36.44706F") { REQUIRE(sample.flow == -36.44706F); }
-//       THEN("The mock_device I2C's write buffer remains unchanged") {
-//         auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//         mock_device.write(input_data.data(), input_data.size());
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x01);
-//       }
-//       THEN("The mock_device I2C's read buffer remains unchanged") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::ok);
-//         REQUIRE(input_buffer[0] == 0x01);
-//         REQUIRE(input_buffer[1] == 0x02);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//         global_device.write(input_data.data(), input_data.size());
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//     WHEN("The read_sample function is called with  scale factor of 170 and an offset of -100 as "
-//         "input parameters, and a Sample object initialized to default as the output parameter
-//         where mock I2C's read buffer is set to "
-//         "[ae, dc, 6a]") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       conversion.scale_factor = 170;
-//       conversion.offset = -100;
-//       auto status = device.read_sample(conversion, sample);
-//       THEN("The read_sample function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN("Output parameter raw_flow returns -20772") { REQUIRE(sample.raw_flow == -20772); }
-//       THEN("Output parameter flow returns -121.6F") { REQUIRE(sample.flow == -121.6F); }
-//       THEN("The mock_device I2C's write buffer remains unchanged") {
-//         auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//         mock_device.write(input_data.data(), input_data.size());
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x01);
-//       }
-//       THEN("The mock_device I2C's read buffer remains unchanged") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::ok);
-//         REQUIRE(input_buffer[0] == 0x01);
-//         REQUIRE(input_buffer[1] == 0x02);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//         global_device.write(input_data.data(), input_data.size());
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//     WHEN("The read_sample function is called with  scale factor of 100 and an offset of -24576
-//     as"
-//         "input parameters, and a Sample object initialized to default as the output parameter"
-//         "where mock I2C's read buffer is set to 0x[ae, dc, 6a]") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       conversion.scale_factor = 100;
-//       conversion.offset = -24576;
-//       auto status = device.read_sample(conversion, sample);
-//       THEN("The read_sample function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN("Output parameter raw_flow returns -20772") { REQUIRE(sample.raw_flow == -20772); }
-//       THEN("Output parameter flow returns 38.04F") { REQUIRE(sample.flow == 38.04F); }
-//       THEN("The mock_device I2C's write buffer remains unchanged") {
-//         auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//         mock_device.write(input_data.data(), input_data.size());
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x01);
-//       }
-//       THEN("The mock_device I2C's read buffer remains unchanged") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::ok);
-//         REQUIRE(input_buffer[0] == 0x01);
-//         REQUIRE(input_buffer[1] == 0x02);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//         global_device.write(input_data.data(), input_data.size());
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//     WHEN(
-//         "The read_sample function is called with  scale factor of 50 and an offset of -24576 as "
-//         "input parameters, and a Sample object initialized to default as the output"
-//         "parameter where mock I2C's read buffer is set to "
-//         "0x[ae, dc, 6a]") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       conversion.scale_factor = 50;
-//       conversion.offset = -24576;
-//       auto status = device.read_sample(conversion, sample);
-//       THEN("The read_sample function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN("Output parameter raw_flow returns -20772") { REQUIRE(sample.raw_flow == -20772); }
-//       THEN("Output parameter flow returns 76.08F") { REQUIRE(sample.flow == 76.08F); }
-//       THEN("The mock_device I2C's write buffer remains unchanged") {
-//         auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//         mock_device.write(input_data.data(), input_data.size());
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x01);
-//       }
-//       THEN("The mock_device I2C's read buffer remains unchanged") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::ok);
-//         REQUIRE(input_buffer[0] == 0x01);
-//         REQUIRE(input_buffer[1] == 0x02);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//         global_device.write(input_data.data(), input_data.size());
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//     WHEN("The read_sample function is called with  scale factor of 200 and an offset of  -24576
-//     as"
-//         "input parameters, and a Sample object initialized to default as the output parameter"
-//         "where mock I2C's read buffer is set to 0x[ae, dc, 6a]") {
-//       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
-//       conversion.scale_factor = 200;
-//       conversion.offset = -24576;
-//       auto status = device.read_sample(conversion, sample);
-//       THEN("The read_sample function returns ok status") {
-//         REQUIRE(status == PF::I2CDeviceStatus::ok);
-//       }
-//       THEN("Output parameter raw_flow returns -20772") { REQUIRE(sample.raw_flow == -20772); }
-//       THEN("Output parameter flow returns 19.02F ") { REQUIRE(sample.flow == 19.02F); }
-//       THEN("The mock_device I2C's write buffer remains unchanged") {
-//         auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//         mock_device.write(input_data.data(), input_data.size());
-//         mock_device.get_write(input_buffer.buffer(), count);
-//         REQUIRE(input_buffer[0] == 0x01);
-//       }
-//       THEN("The mock_device I2C's read buffer remains unchanged") {
-//         auto read_status = mock_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::ok);
-//         REQUIRE(input_buffer[0] == 0x01);
-//         REQUIRE(input_buffer[1] == 0x02);
-//       }
-//       THEN("The global_device I2C's read buffer is empty") {
-//         auto read_status = global_device.read(input_buffer.buffer(), count);
-//         REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
-//       }
-//       THEN("The global_device I2C's write buffer remains unchanged") {
-//         auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
-//         global_device.write(input_data.data(), input_data.size());
-//         global_device.get_write(global_buffer.buffer(), count);
-//         REQUIRE(global_buffer[0] == 0x01);
-//       }
-//     }
-//   }
-// }
+// Fatal error  {Unknown expression after the reported line}
+//  SCENARIO("SFM3019 Device:: SFM3019 device behaves correctly when read_sample function is
+//  called")
+//  {
+//    GIVEN("A SFM3019 device constructed with a mock I2C device with read buffer 0x[ae dc
+//    6a],global"
+//        "I2C device, having write buffer '0x01' and gas parameter") {
+//      PF::HAL::Mock::I2CDevice mock_device;
+//      PF::HAL::Mock::I2CDevice global_device;
+//      auto write_status = PF::I2CDeviceStatus::ok;
+//      mock_device.add_write_status(write_status);
+//      global_device.add_write_status(write_status);
+//      constexpr size_t buffer_size = 254UL;
+//      PF::Util::Containers::ByteVector<buffer_size> input_buffer;
+//      PF::Util::Containers::ByteVector<buffer_size> global_buffer;
+//      size_t count = buffer_size;
+//      PF::Driver::I2C::SFM3019::ConversionFactors conversion;
+//      PF::Driver::I2C::SFM3019::Sample sample{};
+//      PF::Driver::I2C::SFM3019::GasType gas = PF::Driver::I2C::SFM3019::GasType::air;
+//      auto input_data = PF::Util::Containers::make_array<uint8_t>(0xae, 0xdc, 0x6a);
+//      mock_device.add_read(input_data.data(), input_data.size(), write_status);
+//      auto read_buffer = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
+//      mock_device.add_read(read_buffer.data(), read_buffer.size(), write_status);
+//      WHEN("The read_sample function is called with  scale factor of 170 and an offset of  -24576
+//      as"
+//          "input parameters, and a Sample object initialized to default as the output parameter
+//          where mock I2C's read buffer is set to " "0x[ae, dc, 6a]") {
+//        PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+//        conversion.scale_factor = 170;
+//        conversion.offset = -24576;
+//        auto status = device.read_sample(conversion, sample);
+//        THEN("The read_sample function returns ok status") {
+//          REQUIRE(status == PF::I2CDeviceStatus::ok);
+//        }
+//        THEN("Output parameter raw_flow returns -20772") { REQUIRE(sample.raw_flow == -20772); }
+//        THEN("Output parameter flow returns 22.37647F ") { REQUIRE(sample.flow == 22.37647F); }
+//        THEN("The mock_device I2C's write buffer remains unchanged") {
+//          auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+//          mock_device.write(input_data.data(), input_data.size());
+//          mock_device.get_write(input_buffer.buffer(), count);
+//          REQUIRE(input_buffer[0] == 0x01);
+//        }
+//        THEN("The mock_device I2C's read buffer remains unchanged") {
+//          auto read_status = mock_device.read(input_buffer.buffer(), count);
+//          REQUIRE(read_status == PF::I2CDeviceStatus::ok);
+//          REQUIRE(input_buffer[0] == 0x01);
+//          REQUIRE(input_buffer[1] == 0x02);
+//        }
+//        THEN("The global_device I2C's read buffer is empty") {
+//          auto read_status = global_device.read(input_buffer.buffer(), count);
+//          REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+//        }
+//        THEN("The global_device I2C's write buffer remains unchanged") {
+//          auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+//          global_device.write(input_data.data(), input_data.size());
+//          global_device.get_write(global_buffer.buffer(), count);
+//          REQUIRE(global_buffer[0] == 0x01);
+//        }
+//      }
+//      WHEN("The read_sample function is called with  scale factor of 170 and an offset of -14576
+//      as"
+//          " input parameters, and a Sample object initialized to default as the output parameter
+//          where mock I2C's read buffer is set to [ae, dc, 6a]") {
+//        PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+//        conversion.scale_factor = 170;
+//        conversion.offset = -14576;
+//        auto status = device.read_sample(conversion, sample);
+//        THEN("The read_sample function returns ok status") {
+//          REQUIRE(status == PF::I2CDeviceStatus::ok);
+//        }
+//        THEN("Output parameter raw_flow returns -20772") { REQUIRE(sample.raw_flow == -20772); }
+//        THEN("Output parameter flow returns -36.44706F") { REQUIRE(sample.flow == -36.44706F); }
+//        THEN("The mock_device I2C's write buffer remains unchanged") {
+//          auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+//          mock_device.write(input_data.data(), input_data.size());
+//          mock_device.get_write(input_buffer.buffer(), count);
+//          REQUIRE(input_buffer[0] == 0x01);
+//        }
+//        THEN("The mock_device I2C's read buffer remains unchanged") {
+//          auto read_status = mock_device.read(input_buffer.buffer(), count);
+//          REQUIRE(read_status == PF::I2CDeviceStatus::ok);
+//          REQUIRE(input_buffer[0] == 0x01);
+//          REQUIRE(input_buffer[1] == 0x02);
+//        }
+//        THEN("The global_device I2C's read buffer is empty") {
+//          auto read_status = global_device.read(input_buffer.buffer(), count);
+//          REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+//        }
+//        THEN("The global_device I2C's write buffer remains unchanged") {
+//          auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+//          global_device.write(input_data.data(), input_data.size());
+//          global_device.get_write(global_buffer.buffer(), count);
+//          REQUIRE(global_buffer[0] == 0x01);
+//        }
+//      }
+//      WHEN("The read_sample function is called with  scale factor of 170 and an offset of -100 as
+//      "
+//          "input parameters, and a Sample object initialized to default as the output parameter
+//          where mock I2C's read buffer is set to "
+//          "[ae, dc, 6a]") {
+//        PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+//        conversion.scale_factor = 170;
+//        conversion.offset = -100;
+//        auto status = device.read_sample(conversion, sample);
+//        THEN("The read_sample function returns ok status") {
+//          REQUIRE(status == PF::I2CDeviceStatus::ok);
+//        }
+//        THEN("Output parameter raw_flow returns -20772") { REQUIRE(sample.raw_flow == -20772); }
+//        THEN("Output parameter flow returns -121.6F") { REQUIRE(sample.flow == -121.6F); }
+//        THEN("The mock_device I2C's write buffer remains unchanged") {
+//          auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+//          mock_device.write(input_data.data(), input_data.size());
+//          mock_device.get_write(input_buffer.buffer(), count);
+//          REQUIRE(input_buffer[0] == 0x01);
+//        }
+//        THEN("The mock_device I2C's read buffer remains unchanged") {
+//          auto read_status = mock_device.read(input_buffer.buffer(), count);
+//          REQUIRE(read_status == PF::I2CDeviceStatus::ok);
+//          REQUIRE(input_buffer[0] == 0x01);
+//          REQUIRE(input_buffer[1] == 0x02);
+//        }
+//        THEN("The global_device I2C's read buffer is empty") {
+//          auto read_status = global_device.read(input_buffer.buffer(), count);
+//          REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+//        }
+//        THEN("The global_device I2C's write buffer remains unchanged") {
+//          auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+//          global_device.write(input_data.data(), input_data.size());
+//          global_device.get_write(global_buffer.buffer(), count);
+//          REQUIRE(global_buffer[0] == 0x01);
+//        }
+//      }
+//      WHEN("The read_sample function is called with  scale factor of 100 and an offset of -24576
+//      as"
+//          "input parameters, and a Sample object initialized to default as the output parameter"
+//          "where mock I2C's read buffer is set to 0x[ae, dc, 6a]") {
+//        PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+//        conversion.scale_factor = 100;
+//        conversion.offset = -24576;
+//        auto status = device.read_sample(conversion, sample);
+//        THEN("The read_sample function returns ok status") {
+//          REQUIRE(status == PF::I2CDeviceStatus::ok);
+//        }
+//        THEN("Output parameter raw_flow returns -20772") { REQUIRE(sample.raw_flow == -20772); }
+//        THEN("Output parameter flow returns 38.04F") { REQUIRE(sample.flow == 38.04F); }
+//        THEN("The mock_device I2C's write buffer remains unchanged") {
+//          auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+//          mock_device.write(input_data.data(), input_data.size());
+//          mock_device.get_write(input_buffer.buffer(), count);
+//          REQUIRE(input_buffer[0] == 0x01);
+//        }
+//        THEN("The mock_device I2C's read buffer remains unchanged") {
+//          auto read_status = mock_device.read(input_buffer.buffer(), count);
+//          REQUIRE(read_status == PF::I2CDeviceStatus::ok);
+//          REQUIRE(input_buffer[0] == 0x01);
+//          REQUIRE(input_buffer[1] == 0x02);
+//        }
+//        THEN("The global_device I2C's read buffer is empty") {
+//          auto read_status = global_device.read(input_buffer.buffer(), count);
+//          REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+//        }
+//        THEN("The global_device I2C's write buffer remains unchanged") {
+//          auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+//          global_device.write(input_data.data(), input_data.size());
+//          global_device.get_write(global_buffer.buffer(), count);
+//          REQUIRE(global_buffer[0] == 0x01);
+//        }
+//      }
+//      WHEN(
+//          "The read_sample function is called with  scale factor of 50 and an offset of -24576 as
+//          " "input parameters, and a Sample object initialized to default as the output"
+//          "parameter where mock I2C's read buffer is set to "
+//          "0x[ae, dc, 6a]") {
+//        PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+//        conversion.scale_factor = 50;
+//        conversion.offset = -24576;
+//        auto status = device.read_sample(conversion, sample);
+//        THEN("The read_sample function returns ok status") {
+//          REQUIRE(status == PF::I2CDeviceStatus::ok);
+//        }
+//        THEN("Output parameter raw_flow returns -20772") { REQUIRE(sample.raw_flow == -20772); }
+//        THEN("Output parameter flow returns 76.08F") { REQUIRE(sample.flow == 76.08F); }
+//        THEN("The mock_device I2C's write buffer remains unchanged") {
+//          auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+//          mock_device.write(input_data.data(), input_data.size());
+//          mock_device.get_write(input_buffer.buffer(), count);
+//          REQUIRE(input_buffer[0] == 0x01);
+//        }
+//        THEN("The mock_device I2C's read buffer remains unchanged") {
+//          auto read_status = mock_device.read(input_buffer.buffer(), count);
+//          REQUIRE(read_status == PF::I2CDeviceStatus::ok);
+//          REQUIRE(input_buffer[0] == 0x01);
+//          REQUIRE(input_buffer[1] == 0x02);
+//        }
+//        THEN("The global_device I2C's read buffer is empty") {
+//          auto read_status = global_device.read(input_buffer.buffer(), count);
+//          REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+//        }
+//        THEN("The global_device I2C's write buffer remains unchanged") {
+//          auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+//          global_device.write(input_data.data(), input_data.size());
+//          global_device.get_write(global_buffer.buffer(), count);
+//          REQUIRE(global_buffer[0] == 0x01);
+//        }
+//      }
+//      WHEN("The read_sample function is called with  scale factor of 200 and an offset of  -24576
+//      as"
+//          "input parameters, and a Sample object initialized to default as the output parameter"
+//          "where mock I2C's read buffer is set to 0x[ae, dc, 6a]") {
+//        PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
+//        conversion.scale_factor = 200;
+//        conversion.offset = -24576;
+//        auto status = device.read_sample(conversion, sample);
+//        THEN("The read_sample function returns ok status") {
+//          REQUIRE(status == PF::I2CDeviceStatus::ok);
+//        }
+//        THEN("Output parameter raw_flow returns -20772") { REQUIRE(sample.raw_flow == -20772); }
+//        THEN("Output parameter flow returns 19.02F ") { REQUIRE(sample.flow == 19.02F); }
+//        THEN("The mock_device I2C's write buffer remains unchanged") {
+//          auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+//          mock_device.write(input_data.data(), input_data.size());
+//          mock_device.get_write(input_buffer.buffer(), count);
+//          REQUIRE(input_buffer[0] == 0x01);
+//        }
+//        THEN("The mock_device I2C's read buffer remains unchanged") {
+//          auto read_status = mock_device.read(input_buffer.buffer(), count);
+//          REQUIRE(read_status == PF::I2CDeviceStatus::ok);
+//          REQUIRE(input_buffer[0] == 0x01);
+//          REQUIRE(input_buffer[1] == 0x02);
+//        }
+//        THEN("The global_device I2C's read buffer is empty") {
+//          auto read_status = global_device.read(input_buffer.buffer(), count);
+//          REQUIRE(read_status == PF::I2CDeviceStatus::no_new_data);
+//        }
+//        THEN("The global_device I2C's write buffer remains unchanged") {
+//          auto input_data = PF::Util::Containers::make_array<uint8_t>(0x01);
+//          global_device.write(input_data.data(), input_data.size());
+//          global_device.get_write(global_buffer.buffer(), count);
+//          REQUIRE(global_buffer[0] == 0x01);
+//        }
+//      }
+//    }
+//  }
+
+// {Unknown expression after the reported line}
 // SCENARIO(
 //     "SFM3019 Device:: SFM3019 device behaves correctly when read_sample function is called with "
 //     "'x1535a8' buffer") {
-//   GIVEN(
-//       "A SFM3019 device constructed with a mock I2C device with read buffer 0x[15 35 a8], global
-//       " "I2C device and gas parameter") {
+//   GIVEN("A SFM3019 device constructed with a mock I2C device with read buffer 0x[15 35 a8],
+//   global I2C device and gas parameter") {
 //     PF::HAL::Mock::I2CDevice mock_device;
 //     PF::HAL::Mock::I2CDevice global_device;
 //     auto write_status = PF::I2CDeviceStatus::ok;
@@ -1109,10 +1113,9 @@
 //     mock_device.add_read(input_data.data(), input_data.size(), write_status);
 //     auto read_buffer = PF::Util::Containers::make_array<uint8_t>(0x01, 0x02);
 //     mock_device.add_read(read_buffer.data(), read_buffer.size(), write_status);
-//     WHEN(
-//         "The read_sample function is called with  scale factor of 170 and an offset of  -24576 as
-//         " "input parameters, and a Sample object initialized to default as the output" "parameter
-//         where mock I2C's read buffer is set to " "0x[15, 35, a8]") {
+//     WHEN("The read_sample function is called with  scale factor of 170 and an offset of  -24576
+//     as input parameters, and a Sample object initialized to default as the output parameter"
+//         "where mock I2C's read buffer is set to " "0x[15, 35, a8]") {
 //       PF::Driver::I2C::SFM3019::Device device{mock_device, global_device, gas};
 //       conversion.scale_factor = 170;
 //       conversion.offset = -24576;
