@@ -8,7 +8,6 @@
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 
 #include <cmath>
-#include <iostream>
 
 #include "Pufferfish/HAL/Interfaces/Time.h"
 
