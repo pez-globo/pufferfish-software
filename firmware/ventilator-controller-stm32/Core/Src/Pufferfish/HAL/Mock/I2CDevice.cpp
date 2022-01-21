@@ -21,6 +21,8 @@
 
 #include "Pufferfish/HAL/Mock/I2CDevice.h"
 
+#include <iostream>
+
 #include "Pufferfish/Util/Containers/Vector.h"
 #include "catch2/catch.hpp"
 
@@ -41,9 +43,12 @@ I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
 
   // If count is not equal to read_buf size, data either gets lost or noise gets appended at the end
   // of read buffer
+  // std::cout << "count" << count << ",";
+  // std::cout << "read1" << +read_buf[0] << std::endl;
+
   REQUIRE(count == read_buf.size());
 
-  for (size_t index = 0; index < read_buf_size; index++) {
+  for (size_t index = 0; index < count; index++) {
     buf[index] = read_buf[index];
   }
 
@@ -80,7 +85,9 @@ I2CDeviceStatus I2CDevice::write(uint8_t *buf, size_t count) {
 
   // count size should not exceedes ReadBuffer max size.
   REQUIRE(count <= WriteBuffer::max_size());
-
+  // std::cout << "count" << count << ",";
+  // std::cout << "buf" << +buf[0] << std::endl;
+  // std::cout << "buf" << +buf[1] << std::endl;
   write_buf_queue_.emplace();
   auto &write_buf = write_buf_queue_.back();
 

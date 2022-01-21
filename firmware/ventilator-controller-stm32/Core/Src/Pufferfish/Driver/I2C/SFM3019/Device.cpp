@@ -9,6 +9,7 @@
 #include "Pufferfish/Driver/I2C/SFM3019/Device.h"
 
 #include <array>
+#include <iostream>
 
 #include "Pufferfish/HAL/Interfaces/Endian.h"
 #include "Pufferfish/Util/Endian.h"

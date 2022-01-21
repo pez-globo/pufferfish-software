@@ -8,6 +8,7 @@
 #include "Pufferfish/Driver/I2C/SFM3019/Sensor.h"
 
 #include <cmath>
+#include <iostream>
 
 #include "Pufferfish/HAL/Interfaces/Time.h"
 
@@ -164,7 +165,6 @@ InitializableState Sensor::initialize() {
       return InitializableState::failed;
     }
   }
-
   // Read conversion factors
   time_.delay_micros(read_conv_delay_us);
   while (device_.read_conversion_factors(conversion_) != I2CDeviceStatus::ok ||

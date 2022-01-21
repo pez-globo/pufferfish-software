@@ -33,7 +33,6 @@ I2CDeviceStatus SensirionDevice::write(uint16_t command, uint16_t arg) {
 
   uint8_t crc = crc8_.compute(write_buf.data() + sizeof(uint16_t), sizeof(uint16_t));
   write_buf[4] = crc;
-
   return dev_.write(write_buf.data(), write_buf.size());
 }
 

@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <iostream>
+
 #include "SensirionDevice.h"
 
 namespace Pufferfish::Driver::I2C {

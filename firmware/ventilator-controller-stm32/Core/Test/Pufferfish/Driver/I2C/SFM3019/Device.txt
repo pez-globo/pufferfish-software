@@ -160,7 +160,7 @@ Scenario: SFM3019 Device:: SFM3019 device behaves correctly when request_product
 
 SCENARIO('SFM3019 Device:: SFM3019 device behaves correctly when read_product_id function is called') {
   GIVEN('A SFM3019 device constructed with a mock I2C device , global I2C device has write buffer '0x01' and gas parameter') {
-    WHEN('The mock I2C device's read buffer consists 0x[78 33 1B 4c 00 bc 00 00 81] and 0x[01 02] junk bytes, and product id is passed as an output parameter') {
+    WHEN('The mock I2C device's read buffer consists 0x[78 33 1B 4c 00 bc] and 0x[01 02] junk bytes, and product id is passed as an output parameter') {
       THEN('The read_product_id function returns ok status') {
       THEN('The output parameter product id retuns 0x78334c00'){
       THEN('The mock_device I2C's write buffer remains unchanged') {
