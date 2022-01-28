@@ -21,26 +21,35 @@
 
 #include "Pufferfish/HAL/Mock/I2CDevice.h"
 
+#include "Pufferfish/Util/Containers/Vector.h"
+#include "catch2/catch.hpp"
+
 namespace Pufferfish::HAL::Mock {
+using Pufferfish::Util::Containers::ByteVector;
+
 I2CDeviceStatus I2CDevice::read(uint8_t *buf, size_t count) {
   if (read_buf_queue_.empty()) {
     return I2CDeviceStatus::no_new_data;
   }
 
-  size_t index = 0;
-  size_t minumum = (count < read_buf_size) ? count : read_buf_size;
-  if (return_status_ != I2CDeviceStatus::ok) {
-    return return_status_;
-  }
+  // Length of read_buf queue and staus_buf queue should always be equal
+  REQUIRE(read_buf_queue_.size() == read_status_queue_.size());
+  I2CDeviceStatus return_status = read_status_queue_.front();
+  read_status_queue_.pop();
 
   const auto &read_buf = read_buf_queue_.front();
-  for (index = 0; index < minumum; index++) {
+
+  // If count is not equal to read_buf size, data either gets lost or noise gets appended at the end
+  // of read buffer
+  REQUIRE(count == read_buf.size());
+
+  for (size_t index = 0; index < count; index++) {
     buf[index] = read_buf[index];
   }
 
   read_buf_queue_.pop();
 
-  return I2CDeviceStatus::ok;
+  return return_status;
 }
 
 // TODO(lietk12): Add implementation of this method
@@ -49,34 +58,42 @@ I2CDeviceStatus I2CDevice::read(uint16_t address, uint8_t *buf, size_t count) {
   return I2CDeviceStatus::ok;
 }
 
-void I2CDevice::add_read(const uint8_t *buf, size_t count) {
-  size_t index = 0;
-  size_t minumum = (count < read_buf_size) ? count : read_buf_size;
+void I2CDevice::add_read(const uint8_t *buf, size_t count, I2CDeviceStatus status) {
+  read_status_queue_.push(status);
+  // count size should not exceedes ReadBuffer max size.
+  REQUIRE(count <= ReadBuffer::max_size());
+
+  size_t read_count = (count < read_buf_size) ? count : read_buf_size;
 
   read_buf_queue_.emplace();
+
   auto &read_buf = read_buf_queue_.back();
 
-  for (index = 0; index < minumum; index++) {
-    read_buf[index] = buf[index];
+  for (size_t index = 0; index < read_count; index++) {
+    read_buf.push_back(buf[index]);
   }
 }
 
 I2CDeviceStatus I2CDevice::write(uint8_t *buf, size_t count) {
-  size_t index = 0;
-  size_t write_count = 0;
-  if (return_status_ != I2CDeviceStatus::ok) {
-    return return_status_;
-  }
+  I2CDeviceStatus return_status = write_status_queue_.front();
+  write_status_queue_.pop();
+
+  // count size should not exceedes ReadBuffer max size.
+  REQUIRE(count <= WriteBuffer::max_size());
 
   write_buf_queue_.emplace();
   auto &write_buf = write_buf_queue_.back();
 
-  write_count = (count < write_buf_size) ? count : write_buf_size;
-  for (index = 0; index < write_count; index++) {
-    write_buf[index] = buf[index];
+  size_t write_count = (count < write_buf_size) ? count : write_buf_size;
+  for (size_t index = 0; index < write_count; index++) {
+    write_buf.push_back(buf[index]);
   }
 
-  return I2CDeviceStatus::ok;
+  // If count is not equal to write buf size,data either gets lost or noise gets appended at the end
+  // of write buffer
+  REQUIRE(count == write_buf.size());
+
+  return return_status;
 }
 
 I2CDeviceStatus I2CDevice::get_write(uint8_t *buf, size_t &count) {
@@ -84,20 +101,20 @@ I2CDeviceStatus I2CDevice::get_write(uint8_t *buf, size_t &count) {
     return I2CDeviceStatus::no_new_data;
   }
 
-  size_t index = 0;
   const auto &write_buf = write_buf_queue_.front();
-
   count = write_buf.size();
-  for (index = 0; index < count; index++) {
+
+  for (size_t index = 0; index < count; index++) {
     buf[index] = write_buf[index];
   }
 
   write_buf_queue_.pop();
+
   return I2CDeviceStatus::ok;
 }
 
-void I2CDevice::set_return_status(I2CDeviceStatus input) {
-  return_status_ = input;
+void I2CDevice::add_write_status(I2CDeviceStatus status) {
+  write_status_queue_.push(status);
 }
 
 }  // namespace Pufferfish::HAL::Mock

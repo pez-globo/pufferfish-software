@@ -2704,6 +2704,8 @@ namespace Catch {
 #define INTERNAL_CATCH_REACT( handler ) handler.complete();
 
 ///////////////////////////////////////////////////////////////////////////////
+//REQUIRE condition is used in I2CDevice.cpp, Cppcheck confuses it and gives false positive, gives preprocessorErrorDirective error   
+// cppcheck-suppress preprocessorErrorDirective
 #define INTERNAL_CATCH_TEST( macroName, resultDisposition, ... ) \
     do { \
         CATCH_INTERNAL_IGNORE_BUT_WARN(__VA_ARGS__); \

@@ -20,14 +20,15 @@
 
 #pragma once
 
-#include <array>
 #include <queue>
 
 #include "Pufferfish/HAL/Interfaces/I2CDevice.h"
+#include "Pufferfish/Util/Containers/Vector.h"
 
 namespace Pufferfish {
 namespace HAL {
 namespace Mock {
+using Pufferfish::Util::Containers::ByteVector;
 
 /**
  * I2CDevice class
@@ -66,7 +67,7 @@ class I2CDevice : public Interfaces::I2CDevice {
    * @return None
    */
 
-  void add_read(const uint8_t *buf, size_t count);
+  void add_read(const uint8_t *buf, size_t count, I2CDeviceStatus status);
 
   /**
    * @brief  Updates the private buffer variable mWriteBuf with the input data
@@ -89,19 +90,19 @@ class I2CDevice : public Interfaces::I2CDevice {
    * @param  input I2CDeviceStatus
    * @return None
    */
-  void set_return_status(I2CDeviceStatus input);
+  void add_write_status(I2CDeviceStatus status);
 
  private:
   static const uint8_t read_buf_size = 50;
   static const uint8_t write_buf_size = 50;
 
-  using ReadBuffer = std::array<uint8_t, read_buf_size>;
-  using WriteBuffer = std::array<uint8_t, write_buf_size>;
+  using ReadBuffer = ByteVector<read_buf_size>;
+  using WriteBuffer = ByteVector<write_buf_size>;
 
   std::queue<ReadBuffer> read_buf_queue_;
+  std::queue<I2CDeviceStatus> read_status_queue_;
   std::queue<WriteBuffer> write_buf_queue_;
-
-  I2CDeviceStatus return_status_ = I2CDeviceStatus::ok;
+  std::queue<I2CDeviceStatus> write_status_queue_;
 };
 
 }  // namespace Mock
