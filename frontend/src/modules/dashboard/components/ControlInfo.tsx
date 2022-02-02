@@ -9,10 +9,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ParametersRequest } from '../../../store/proto/mcu_pb';
 import { MessageType } from '../../../store/proto/types';
 import { commitRequest, commitDraftRequest } from '../../../store/controller/actions';
-import { setMultiPopupOpen } from '../../app/Service';
 import { ValueModal } from '../../shared/value';
 import { SelectorType, ValueSelectorDisplay } from '../../shared/value/ValueSelectorDisplay';
 import { ClickHandler } from './ValueInfo';
+import { setVentilationWizard } from '../../../store/app/actions';
 
 /**
  * @typedef Props
@@ -187,7 +187,7 @@ const ControlInfo = (props: Props): JSX.Element => {
   const onClick = () => {
     // setOpen(true);
     if (stateKey) {
-      setMultiPopupOpen(true, stateKey);
+      dispatch(setVentilationWizard(true, stateKey));
     }
   };
 

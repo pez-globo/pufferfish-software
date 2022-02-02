@@ -6,10 +6,9 @@
 import { Button, Grid, TableCell, TableRow, Typography } from '@material-ui/core';
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import React, { useCallback, useEffect } from 'react';
-import { shallowEqual, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { LogEvent, LogEventType } from '../../store/proto/mcu_pb';
 import { getActiveLogEventIds, getNextLogEvents } from '../../store/controller/selectors';
-import { setMultiPopupOpen } from '../app/Service';
 import { AlarmModal } from '../alarms/modal/AlarmModal';
 import ModalPopup from '../shared/ModalPopup';
 
@@ -20,8 +19,9 @@ import SimpleTable, {
   stableSort,
   StyledTableRow,
 } from '../shared/SimpleTable';
-import EventlogDetails from './container/EventlogDetails';
+import EventlogDetails from './container/EventsLogDetails';
 import { getEventDetails, getEventType } from './EventType';
+import { setVentilationWizard } from '../../store/app/actions';
 
 /**
  * @typedef Data
@@ -167,6 +167,8 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
   ): Data => {
     return { type, alarm, time, status, id, details, stateKey, head, unit };
   };
+
+  const dispatch = useDispatch();
 
   /**
    * State to manage row data(array of all rows) in table
@@ -342,7 +344,7 @@ export const LogsPage = ({ filter }: { filter?: boolean }): JSX.Element => {
    */
   const onSettings = (row: Data) => {
     if (row.stateKey) {
-      setMultiPopupOpen(true, row.stateKey);
+      dispatch(setVentilationWizard(true, row.stateKey));
     }
     setCurrentRow(row);
   };

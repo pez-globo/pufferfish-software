@@ -8,9 +8,9 @@ import { useDispatch } from 'react-redux';
 import { commitDraftRequest } from '../../../store/controller/actions';
 import { AlarmLimitsRequest, Range } from '../../../store/proto/mcu_pb';
 import { MessageType } from '../../../store/proto/types';
-import { setActiveRotaryReference } from '../../app/Service';
 import ValueClicker from '../../shared/value/ValueClicker';
 import ValueSlider from '../../shared/value/ValueSlider';
+import { setActiveRotaryReference } from '../../../store/app/actions';
 import useRotaryReference from '../../shared/rotary/useRotaryReference';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -123,8 +123,10 @@ const AlarmLimits = ({
    *
    */
   const onClick = (value: number, type: SliderType) => {
-    setActiveRotaryReference(
-      type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
+    dispatch(
+      setActiveRotaryReference(
+        type === SliderType.LOWER ? `${stateKey}_LOWER` : `${stateKey}_HIGHER`,
+      ),
     );
     dispatch(
       commitDraftRequest<AlarmLimitsRequest>(MessageType.AlarmLimitsRequest, {

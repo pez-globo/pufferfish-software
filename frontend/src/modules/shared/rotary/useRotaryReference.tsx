@@ -5,8 +5,8 @@
  */
 import { Theme } from '@material-ui/core';
 import { RefObject } from 'react';
-import { Subscription } from 'rxjs';
-import { getActiveRotaryReference } from '../../app/Service';
+import { useSelector } from 'react-redux';
+import { getRotaryReference } from '../../../store/app/selectors';
 
 /**
  * function for handling rotary reference.
@@ -17,31 +17,19 @@ import { getActiveRotaryReference } from '../../app/Service';
  * @returns {function} Function to Run on Component Initalization
  *
  */
-export const useRotaryReference = (
+function useRotaryReference(
   theme: Theme,
-): { initRefListener(elRefs: Record<string, RefObject<HTMLDivElement>>): void } => {
+): { initRefListener(elRefs: Record<string, RefObject<HTMLDivElement>>): void } {
+  const refSubscription = useSelector(getRotaryReference);
   const initRefListener = (elRefs: Record<string, RefObject<HTMLDivElement>>) => {
-    const refSubscription: Subscription = getActiveRotaryReference().subscribe(
-      (refString: string | null) => {
-        Object.values(elRefs).forEach((elRef: RefObject<HTMLDivElement>) => {
-          const ref = elRef.current;
-          if (ref) ref.style.border = 'none';
-        });
-        if (refString) {
-          if (elRefs[refString] && elRefs[refString].current) {
-            const ref = elRefs[refString].current;
-            if (ref) ref.style.border = `1px solid ${theme.palette.text.primary}`;
-          }
-        }
-      },
-    );
-    return () => {
-      if (refSubscription) {
-        refSubscription.unsubscribe();
+    if (refSubscription) {
+      if (elRefs[refSubscription] && elRefs[refSubscription].current) {
+        const ref = elRefs[refSubscription].current;
+        if (ref) ref.style.border = `1px solid ${theme.palette.text.primary}`;
       }
-    };
+    }
   };
   return { initRefListener };
-};
+}
 
 export default useRotaryReference;

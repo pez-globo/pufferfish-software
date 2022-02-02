@@ -14,7 +14,7 @@ import {
   useTheme,
 } from '@material-ui/core';
 import React, { RefObject, useEffect, useState, useRef } from 'react';
-import { shallowEqual, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { ThemeVariant, Unit } from '../../../store/proto/frontend_pb';
 import {
   getFrontendDisplaySetting,
@@ -30,8 +30,8 @@ import {
   DAY_REFERENCE_KEY,
   YEAR_REFERENCE_KEY,
 } from './constants';
-import { useRotaryReference } from '../../shared/rotary/useRotaryReference';
-import { setActiveRotaryReference } from '../../app/Service';
+import { setActiveRotaryReference } from '../../../store/app/actions';
+import useRotaryReference from '../../shared/rotary/useRotaryReference';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -231,6 +231,7 @@ const DateTimeDisplay = () => {
  */
 export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   /**
    * Calls on initalization of the component
    * This is an event listener which listens to user input on `ValueClicker` buttons click
@@ -339,7 +340,7 @@ export const DisplayTab = ({ onSettingChange }: Props): JSX.Element => {
    * function for handling page click event
    */
   const OnClickPage = () => {
-    setActiveRotaryReference(null);
+    dispatch(setActiveRotaryReference(null));
   };
 
   return (

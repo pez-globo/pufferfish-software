@@ -12,8 +12,8 @@ import { MessageType } from '../../../store/proto/types';
 import ModalPopup from '../../shared/ModalPopup';
 import ValueClicker from '../../shared/value/ValueClicker';
 import ValueSlider from '../../shared/value/ValueSlider';
+import { setActiveRotaryReference } from '../../../store/app/actions';
 import useRotaryReference from '../../shared/rotary/useRotaryReference';
-import { setActiveRotaryReference } from '../../app/Service';
 
 const useStyles = makeStyles((theme: Theme) => ({
   contentContainer: {
@@ -120,6 +120,7 @@ export const AlarmModalContent = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const theme = useTheme();
+  const dispatch = useDispatch();
   const { initRefListener } = useRotaryReference(theme);
   /**
    * State to initalize Lower Set value
@@ -173,7 +174,7 @@ export const AlarmModalContent = ({
    * Border is usually added on `ValueClicker` button click
    */
   const OnClickPage = () => {
-    setActiveRotaryReference(null);
+    dispatch(setActiveRotaryReference(null));
   };
 
   return (

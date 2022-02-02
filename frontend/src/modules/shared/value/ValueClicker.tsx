@@ -6,9 +6,10 @@ import React, { useEffect, useState } from 'react';
 import { Grid, Button, makeStyles, Theme } from '@material-ui/core';
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
-import { Subscription } from 'rxjs';
-import { setActiveRotaryReference, getActiveRotaryReference } from '../../app/Service';
+import { useDispatch, useSelector } from 'react-redux';
 import RotaryEncodeController from '../rotary/RotaryEncodeController';
+import { setActiveRotaryReference } from '../../../store/app/actions';
+import { getRotaryReference } from '../../../store/app/selectors';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -82,6 +83,8 @@ export const ValueClicker = ({
   const [disableDecrement, setDisableDecrement] = useState(false);
   const [isRotaryActive, setIsRotaryActive] = React.useState(false);
   const [activeRef, setActiveRef] = React.useState<string | null>();
+  const refString = useSelector(getRotaryReference);
+  const dispatch = useDispatch();
 
   /**
    * Triggers callback with updated value
@@ -153,7 +156,7 @@ export const ValueClicker = ({
       clickHandlerDecrement(value);
     }
     if (!activeRef || (activeRef && activeRef !== referenceKey)) {
-      setActiveRotaryReference(referenceKey);
+      dispatch(setActiveRotaryReference(referenceKey));
     }
   };
 
@@ -162,22 +165,13 @@ export const ValueClicker = ({
    * Updates Rotary Encoder reference to active
    */
   useEffect(() => {
-    const refSubscription: Subscription = getActiveRotaryReference().subscribe(
-      (refString: string | null) => {
-        setActiveRef(refString);
-        if (refString && refString === referenceKey) {
-          setIsRotaryActive(true);
-        } else {
-          setIsRotaryActive(false);
-        }
-      },
-    );
-    return () => {
-      if (refSubscription) {
-        refSubscription.unsubscribe();
-      }
-    };
-  }, [referenceKey]);
+    setActiveRef(refString);
+    if (refString && refString === referenceKey) {
+      setIsRotaryActive(true);
+    } else {
+      setIsRotaryActive(false);
+    }
+  }, [referenceKey, refString]);
 
   return (
     <Grid

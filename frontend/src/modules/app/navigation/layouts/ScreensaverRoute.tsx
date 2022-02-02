@@ -4,17 +4,15 @@
  *
  */
 import { AppBar, Grid, makeStyles, Theme } from '@material-ui/core';
-import React, { PropsWithChildren, useEffect } from 'react';
+import React, { PropsWithChildren } from 'react';
 import { useSelector } from 'react-redux';
 import { Route, RouteProps, useHistory } from 'react-router-dom';
 import { DASHBOARD_ROUTE, QUICKSTART_ROUTE } from '../constants';
 import PowerIndicator from '../../toolbar/PowerIndicator';
 import HeaderClock from '../../toolbar/HeaderClock';
-import { getAlarmNotifyStatus } from '../../../../store/app/selectors';
 import { getParametersIsVentilating } from '../../../../store/controller/selectors/measurements';
 import Alarms from '../../toolbar/Alarms';
 import ClockIcon from '../../toolbar/icons/ClockIcon';
-import OverlayScreen from '../../OverlayScreen';
 import UserActivity from '../../UserActivity';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -78,7 +76,6 @@ const ScreensaverLayout = ({ children }: PropsWithChildren<unknown>): JSX.Elemen
 
   return (
     <React.Fragment>
-      <OverlayScreen />
       <Grid container justify="center" alignItems="stretch" className={classes.root}>
         <ContentComponent>{children}</ContentComponent>
       </Grid>
@@ -98,17 +95,6 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
   const classes = useStyles();
   const history = useHistory();
   const ventilating = useSelector(getParametersIsVentilating);
-  const notifyAlarm = useSelector(getAlarmNotifyStatus);
-  const [showBorder, setShowBorder] = React.useState(false);
-
-  /**
-   * Triggers when Alarm event is active (Referenced in `OverlayScreen` )
-   * RED_BORDER reduxs store is dispatched when alarm is active
-   * It adds a red border around the page
-   */
-  useEffect(() => {
-    setShowBorder(notifyAlarm);
-  }, [notifyAlarm]);
 
   /**
    * Triggerred when clicking on anywhere in page
@@ -118,12 +104,7 @@ const ContentComponent = React.memo(({ children }: PropsWithChildren<unknown>) =
   };
 
   return (
-    <Grid
-      onClick={onClick}
-      container
-      item
-      className={`${showBorder && classes.borderOverlay} ${classes.main}`}
-    >
+    <Grid onClick={onClick} container item className={`${classes.borderOverlay} ${classes.main}`}>
       <Grid container item alignItems="center">
         <AppBar color="transparent" elevation={0} position="static" style={{ display: 'contents' }}>
           <Grid item style={{ margin: '0 auto' }} />

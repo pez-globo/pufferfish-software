@@ -6,7 +6,7 @@
 import { Grid, Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { VentilationMode } from '../../../store/proto/mcu_pb';
 import {
   getParametersRequestMode,
@@ -16,7 +16,6 @@ import {
   getParametersRequestDraftRR,
   getParametersRequestDraftVT,
 } from '../../../store/controller/selectors/measurements';
-import { setActiveRotaryReference } from '../Service';
 import ModeBanner, { BannerType } from '../ModeBanner';
 import { BPM, LMIN, PERCENT } from '../../shared/units';
 import {
@@ -27,6 +26,7 @@ import {
   FLOW_REFERENCE_KEY,
 } from '../../settings/tabs/constants';
 import ParamValueSpinner from '../../shared/value/ParamValueSpinner';
+import { setActiveRotaryReference } from '../../../store/app/actions';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -199,6 +199,7 @@ const SetParameters = (): JSX.Element => {
  */
 export const QuickStartPage = (): JSX.Element => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   // const [patientSex, setPatientSex] = React.useState(PatientSex.MALE);
   // const [patientAge, setPatientAge] = React.useState(PatientAge.ADULT);
   // const [patientHeight, setPatientHeight] = React.useState(62);
@@ -210,7 +211,7 @@ export const QuickStartPage = (): JSX.Element => {
    * Border is usually added on `ValueSpinner` button click
    */
   const OnClickPage = () => {
-    setActiveRotaryReference(null);
+    dispatch(setActiveRotaryReference(null));
   };
 
   return (

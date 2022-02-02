@@ -18,7 +18,7 @@ import {
 } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import React, { PropsWithChildren, ReactNode } from 'react';
-import { DECIMAL_RADIX } from '../app/AppConstants';
+import { DECIMAL_RADIX } from '../app/constants';
 
 /**
  * @template T Sub comparator method

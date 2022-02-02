@@ -28,3 +28,24 @@ export const getAlarmNotifyStatus = createSelector(
   getApp,
   (app: AppState): boolean => app.notifyAlarm,
 );
+
+export const getVentilationWizardOpen = createSelector(
+  getApp,
+  (app: AppState): boolean => app.wizardOpen,
+);
+
+export const getCurrentStateKey = createSelector(getApp, (app: AppState): string =>
+  app.stateKey === undefined ? 'spo2' : app.stateKey,
+);
+
+export const getDiscardAlarmLimitsPopupOpen = createSelector(
+  getApp,
+  (app: AppState): boolean => app.discardPopupOpen,
+);
+
+export const getRotaryReference = createSelector(
+  getApp,
+  (app: AppState): string | null => app.rotaryReference,
+);
+
+export const getScreenLock = createSelector(getApp, (app: AppState): boolean => app.screenLock);
