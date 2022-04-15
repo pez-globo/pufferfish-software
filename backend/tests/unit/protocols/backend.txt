@@ -1,0 +1,106 @@
+Scenario: The backend receiver's input event correctly reports whether it has data
+Given: A ReceiveEvent object constructed with default parameters
+When: the object is not modified
+Then: has_data function returns false   
+
+Scenario: The backend receiver's input event correctly reports whether it has data
+Given:  A ReceiveEvent object constructed with a value for the time parameter
+When: a new value is set for the time field of the object
+Then: has_data function returns true
+
+Scenario: The backend receiver's input event correctly reports whether it has data
+Given: A ReceiveEvent object constructed with values for time and mcu parameter
+When: a new value is set for the mcu field of the object
+Then: has_data function returns true
+
+Scenario: The backend receiver's input event correctly reports whether it has data
+Given: A ReceiveEvent object constructed with values for time, mcu and frontend parameter
+When: a new value is set for the frontend field of the object
+Then: has_data function returns true
+
+Scenario: The backend's output event correctly reports whether it has data
+Given: A OutputEvent object constructed with default parameters
+When: the object is not modified
+Then: has_data function returns false
+
+Scenario: The backend's output event correctly reports whether it has data
+Given: A OutputEvent object constructed with a value for the mcu parameter
+When: a new value is set for the mcu field of the object
+Then: has_data function returns true
+
+Scenario: The backend's output event correctly reports whether it has data
+Given: A OutputEvent object constructed with a value for the mcu and frontend parameter
+When: a new value is set for the frontend field of the object
+Then: has_data function returns true
+
+Scenario: The backend's output event correctly reports whether it has data
+Given: A OutputEvent object constructed with a value for the mcu, frontend and file parameter
+When: a new value is set for the file field of the object
+Then: has_data function returns true
+
+Scenario: The input event sent by backend correctly reports whether it has data
+Given: a announcement object constructed with default parameters
+When: the object is not modified
+Then: has_data function returns false
+
+Scenario: The input event sent by backend correctly reports whether it has data
+Given: a announcement object constructed a value for the message field
+When: a new value is set for the message field of the object
+Then: has_data function returns true
+
+#ReceiveFilter
+
+Scenario: The receive filter's output correctly reports whether it has data
+Given: a ReceiveFilter object constructed with default parameters
+When: a receive event with no data is passed as input to the receive filter
+Then: the output of the receive filter is None
+
+Scenario: The receive filter's output correctly reports whether it has data
+Given: A ReceiveFilter object constructed with default parameters
+When: A ReceiveEvent object constructed with values for the time and mcu parameter is given as input to the ReceiveFilter object
+Then: output of receive filter is not None
+
+Scenario: The receive filter's output correctly reports whether it has data
+Given: A ReceiveFilter object constructed with default parameters
+When: A ReceiveEvent object constructed with values for the time, mcu and frontend parameter is given as input to the ReceiveFilter object
+Then: output of receive filter is not None
+
+Scenario: The receive filter's output correctly reports whether it has data
+Given: A ReceiveFilter object constructed with default parameters
+When: A ReceiveEvent object constructed with values for the time, mcu, frontend and file parameter is given as input to the ReceiveFilter object
+Then: output of receive filter is not None
+
+
+#SendFilter
+
+Scenario : The send filter's output correctly reports whether it has data
+Given: A SendFilter object constructed with default parameters
+When: A OutputEvent object constructed with default parameters is given as input to the SendFilter object
+Then: output of send filter is None
+
+Scenario : The send filter's output correctly reports whether it has data
+Given: A SendFilter object constructed with default parameters
+When: A Announcement object is constructed with values for the message parameter is given as input to the SendFilter object
+Then: output of send filter is not None
+
+Scenario : The send filter's output correctly reports whether it has data
+Given: A SendFilter object constructed with default parameters
+When: A OutputEvent object constructed with a value for the mcu parameter is given as input to the SendFilter object
+Then: output of send filter is not None
+
+#Protocols
+
+Scenario: get_mcu_send function behaves properly
+Given: The get_file_send function
+When: OutputEvent object containing data in mcu_send field is passed to the function
+Then: output of the function is not None 
+
+Scenario: get_frontend_send function behaves properly
+Given: The get_frontend_send function
+When: OutputEvent object containing data in frontend_send field is passed to the function
+Then: output of the function is not None 
+
+Scenario: get_file_send function behaves properly
+Given: The get_file_send function
+When: OutputEvent object containing data in file_send field is passed to the function
+Then: output of the function is not None 

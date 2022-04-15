@@ -1,0 +1,97 @@
+# Services (PCAC)
+
+Scenario: The Service class correctly handles PCAC simulator
+Given: A Service class object is constructed with default parameters
+When: The ventilation mode in parameters class is not equal to PCAC
+Then: The simulator parameter values are unchanged
+
+Scenario: The Service class correctly handles PCAC simulator
+Given: A Service class object is constructed with default parameters
+When: The ventilating value in parameter class is false
+Then: The simulator parameter values are unchanged
+
+Scenario: The Service class correctly handles PCAC simulator
+Given: A Service class object is constructed with default parameters
+When: The current time and previous time are same
+Then: The sensor measurments value for flow is unchanged
+
+Scenario: The Service class correctly handles PCAC simulator
+Given: A Service class object is constructed with default parameters
+When: ventilator is in inspiratory phase
+Then: The Sensor measurment values are updated in inspiratory phase
+
+Scenario: The Service class correctly handles PCAC simulator
+Given: A Service class object is constructed with default parameters
+When: ventilator is in expiratory phase
+Then: The Sensor measurment values are updated in expiratory phase
+
+# Service (HFNC)
+
+Scenario: The Service class correctly handles HFNC simulator
+Given: A Service class object is constructed with default parameters
+When: The ventilation mode in parameters class is not equal to HFNC
+Then: The simulator parameter values are unchanged
+
+Scenario: The Service class correctly handles HFNC simulator
+Given: A Service class object is constructed with default parameters
+When: The ventilating value in parameter class is false
+Then: The simulator parameter values are unchanged
+
+Scenario: The Service class correctly handles HFNC simulator
+Given: A Service class object is constructed with default parameters
+When: The current time and previous time are same
+Then: The simulator parameter values are unchanged
+
+Scenario: The Service class correctly handles HFNC simulator
+Given: A Service class object is constructed with default parameters
+WHen: The parameter service is equal to HFNC
+Then: The Sensor measurements values for fio2, flow, spo2 are updated
+
+# Services (PCAC)
+
+Scenario: The services class correctly handles PCAC simulator
+Given: A services class object is constructed with Active service equal to pcac
+When: The ventilation mode in parameters class is not equal to PCAC
+Then: The simulator parameter values are unchanged
+
+Scenario: The services class correctly handles PCAC simulator
+Given: A services class object is constructed with Active service equal to pcac
+When: The ventilating value in parameter class is false
+Then: The simulator parameter values are unchanged
+
+Scenario: The services class correctly handles PCAC simulator
+Given: A services class object is constructed with Active service equal to pcac
+When: The current time and previous time are same
+Then: The sensor measurments value for flow is unchanged
+
+Scenario: The services class correctly handles PCAC simulator
+Given: A services class object is constructed with Active service equal to pcac
+When: ventilator is in inspiratory phase
+Then: The Sensor measurment values are updated in inspiratory phase
+
+Scenario: The services class correctly handles PCAC simulator
+Given: A services class object is constructed with Active service equal to pcac
+When: ventilator is in expiratory phase
+Then: The Sensor measurment values are updated in expiratory phase
+
+# Services (HFNC)
+
+Scenario: The services class correctly handles HFNC simulator
+Given: A services class object is constructed with Active service equal to HFNC
+When: The ventilation mode in parameters class is not equal to HFNC
+Then: The simulator parameter values are unchanged
+
+Scenario: The services class correctly handles HFNC simulator
+Given: A services class object is constructed with Active service equal to HFNC
+When: The ventilating value in parameter class is false
+Then: The simulator parameter values are unchanged
+
+Scenario: The services class correctly handles HFNC simulator
+Given: A services class object is constructed with Active service equal to HFNC
+When: The current time and previous time are same
+Then: The simulator parameter values are unchanged
+
+Scenario: The services class correctly handles HFNC simulator
+Given: A services class object is constructed with Active service equal to HFNC
+WHen: The parameter service is equal to HFNC
+Then: The Sensor measurements values for fio2, flow, spo2 are updated
